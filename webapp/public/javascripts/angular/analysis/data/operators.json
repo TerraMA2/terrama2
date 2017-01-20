@@ -61,7 +61,7 @@
     "children": [
       {
         "name": "DCP",
-        "type": "DCP",
+        "type": "GEOMETRIC_OBJECT",
         "children": [
           {
             "name": "History",
@@ -257,7 +257,94 @@
                 ]
               }
             ]
+          }  
+        ]
+      },
+      {
+        "name": "Occurrence",
+        "type": "GEOMETRIC_OBJECT",
+        "children": [
+          {
+            "name": "Aggregation",
+            "children": [
+              {
+                "name": "count",
+                "code": "occurrence.aggregation.count(\"dataSeriesName\", \"dateFilter\", aggregationBuffer, buffer, \"restriction\")"
+              },
+              {
+                "name": "min",
+                "code": "occurrence.aggregation.min(\"dataSeriesName\", \"dateFilter\", \"attribute\", aggregationStatistic, aggregationBuffer, buffer, \"restriction\")"
+              },
+              {
+                "name": "max",
+                "code": "occurrence.aggregation.max(\"dataSeriesName\", \"dateFilter\", \"attribute\", aggregationStatistic, aggregationBuffer, buffer, \"restriction\")"
+              },
+              {
+                "name": "mean",
+                "code": "occurrence.aggregation.mean(\"dataSeriesName\", \"dateFilter\", \"attribute\", aggregationStatistic, aggregationBuffer, buffer, \"restriction\")"
+              },
+              {
+                "name": "median",
+                "code": "occurrence.aggregation.median(\"dataSeriesName\", \"dateFilter\", \"attribute\", aggregationStatistic, aggregationBuffer, buffer, \"restriction\")"
+              },
+              {
+                "name": "sum",
+                "code": "occurrence.aggregation.sum(\"dataSeriesName\", \"dateFilter\", \"attribute\", aggregationStatistic, aggregationBuffer, buffer, \"restriction\")"
+              },
+              {
+                "name": "standardDeviation",
+                "code": "occurrence.aggregation.standard_deviation(\"dataSeriesName\", \"dateFilter\", \"attribute\", aggregationStatistic, aggregationBuffer, buffer, \"restriction\")"
+              },
+              {
+                "name": "variance",
+                "code": "occurrence.aggregation.variance(\"dataSeriesName\", \"dateFilter\", \"attribute\", aggregationStatistic, aggregationBuffer, buffer, \"restriction\")"
+              }
+            ]
           },
+          {
+            "name": "Statistics",
+            "children": [
+              {
+                "name": "count",
+                "code": "occurrence.count(\"dataSeriesName\", \"dateFilter\", buffer, \"restriction\")",
+                "description": "This operator..."
+              },
+              {
+                "name": "min",
+                "code": "occurrence.min(\"dataSeriesName\", \"dateFilter\", \"attribute\", buffer, \"restriction\")"
+              },
+              {
+                "name": "max",
+                "code": "occurrence.max(\"dataSeriesName\", \"dateFilter\", \"attribute\", buffer, \"restriction\")"
+              },
+              {
+                "name": "mean",
+                "code": "occurrence.mean(\"dataSeriesName\", \"dateFilter\", \"attribute\", buffer, \"restriction\")"
+              },
+              {
+                "name": "median",
+                "code": "occurrence.median(\"dataSeriesName\", \"dateFilter\", \"attribute\", buffer, \"restriction\")"
+              },
+              {
+                "name": "sum",
+                "code": "occurrence.sum(\"dataSeriesName\", \"dateFilter\", \"attribute\", buffer, \"restriction\")"
+              },
+              {
+                "name": "standardDeviation",
+                "code": "occurrence.standard_deviation(\"dataSeriesName\", \"dateFilter\", \"attribute\", buffer, \"restriction\")"
+              },
+              {
+                "name": "variance",
+                "code": "occurrence.variance(\"dataSeriesName\", \"dateFilter\", \"attribute\", buffer, \"restriction\")"
+              }
+            ]
+          }             
+        ]
+      },
+      {
+        "name": "Grid",
+        "type": "GEOMETRIC_OBJECT",
+        "children": [
           {
             "name": "Zonal",
             "children": [
@@ -367,88 +454,7 @@
             ]
           }
         ]
-      },
-      {
-        "name": "Occurrence",
-        "type": "GEOMETRIC_OBJECT",
-        "children": [
-          {
-            "name": "Aggregation",
-            "children": [
-              {
-                "name": "count",
-                "code": "occurrence.aggregation.count(\"dataSeriesName\", \"dateFilter\", aggregationBuffer, buffer, \"restriction\")"
-              },
-              {
-                "name": "min",
-                "code": "occurrence.aggregation.min(\"dataSeriesName\", \"dateFilter\", \"attribute\", aggregationStatistic, aggregationBuffer, buffer, \"restriction\")"
-              },
-              {
-                "name": "max",
-                "code": "occurrence.aggregation.max(\"dataSeriesName\", \"dateFilter\", \"attribute\", aggregationStatistic, aggregationBuffer, buffer, \"restriction\")"
-              },
-              {
-                "name": "mean",
-                "code": "occurrence.aggregation.mean(\"dataSeriesName\", \"dateFilter\", \"attribute\", aggregationStatistic, aggregationBuffer, buffer, \"restriction\")"
-              },
-              {
-                "name": "median",
-                "code": "occurrence.aggregation.median(\"dataSeriesName\", \"dateFilter\", \"attribute\", aggregationStatistic, aggregationBuffer, buffer, \"restriction\")"
-              },
-              {
-                "name": "sum",
-                "code": "occurrence.aggregation.sum(\"dataSeriesName\", \"dateFilter\", \"attribute\", aggregationStatistic, aggregationBuffer, buffer, \"restriction\")"
-              },
-              {
-                "name": "standardDeviation",
-                "code": "occurrence.aggregation.standard_deviation(\"dataSeriesName\", \"dateFilter\", \"attribute\", aggregationStatistic, aggregationBuffer, buffer, \"restriction\")"
-              },
-              {
-                "name": "variance",
-                "code": "occurrence.aggregation.variance(\"dataSeriesName\", \"dateFilter\", \"attribute\", aggregationStatistic, aggregationBuffer, buffer, \"restriction\")"
-              }
-            ]
-          },
-          {
-            "name": "Statistics",
-            "children": [
-              {
-                "name": "count",
-                "code": "occurrence.count(\"dataSeriesName\", \"dateFilter\", buffer, \"restriction\")",
-                "description": "This operator..."
-              },
-              {
-                "name": "min",
-                "code": "occurrence.min(\"dataSeriesName\", \"dateFilter\", \"attribute\", buffer, \"restriction\")"
-              },
-              {
-                "name": "max",
-                "code": "occurrence.max(\"dataSeriesName\", \"dateFilter\", \"attribute\", buffer, \"restriction\")"
-              },
-              {
-                "name": "mean",
-                "code": "occurrence.mean(\"dataSeriesName\", \"dateFilter\", \"attribute\", buffer, \"restriction\")"
-              },
-              {
-                "name": "median",
-                "code": "occurrence.median(\"dataSeriesName\", \"dateFilter\", \"attribute\", buffer, \"restriction\")"
-              },
-              {
-                "name": "sum",
-                "code": "occurrence.sum(\"dataSeriesName\", \"dateFilter\", \"attribute\", buffer, \"restriction\")"
-              },
-              {
-                "name": "standardDeviation",
-                "code": "occurrence.standard_deviation(\"dataSeriesName\", \"dateFilter\", \"attribute\", buffer, \"restriction\")"
-              },
-              {
-                "name": "variance",
-                "code": "occurrence.variance(\"dataSeriesName\", \"dateFilter\", \"attribute\", buffer, \"restriction\")"
-              }
-            ]
-          } 
-        ]
-      }
+      }  
     ]
   }
 ]
