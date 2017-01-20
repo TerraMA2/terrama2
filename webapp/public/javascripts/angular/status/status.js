@@ -26,7 +26,7 @@ define([
       cachedIcons["start_warning"] = "/images/yellow_anime.png";
       cachedIcons[Globals.enums.StatusLog.START] = "/images/grey_anime.gif";
       cachedIcons["start_" + Globals.enums.StatusLog.START] = "/images/grey_anime.gif";
-      cachedIcons[Globals.enums.StatusLog.ON_QUEUE] = "/images/clock.gif";
+      cachedIcons[Globals.enums.StatusLog.ON_QUEUE] = "/images/clock.png";
 
       // injecting socket in angular scope
       $scope.socket = Socket;
