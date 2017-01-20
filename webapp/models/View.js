@@ -36,11 +36,6 @@
       description: {
         type: DataTypes.TEXT,
         comment: "View description"
-      }, 
-      style: {
-        type: DataTypes.TEXT,
-        allowNull: false,
-        comment: "XML style script"
       },
       active: {
         type: DataTypes.BOOLEAN,

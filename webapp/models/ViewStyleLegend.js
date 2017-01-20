@@ -27,10 +27,10 @@
         allowNull: true,
         comment: "Target column to generate legend"
       },
-      bands: {
+      band_number: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-        comment: "Number of legend item"
+        allowNull: true,
+        comment: "Target band number to generate legend Raster-based"
       }
     }, {
       underscored: true,

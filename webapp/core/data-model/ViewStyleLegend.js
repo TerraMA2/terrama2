@@ -3,6 +3,7 @@
 
   // Dependency
   var AbstractClass = require("./AbstractData");
+  var isNumber = require("./../Utils").isNumber;
 
   /**
    * It defines a TerraMA² ViewStyleLegend Legend representation. 
@@ -13,26 +14,31 @@
     AbstractClass.call(this, {'class': 'ViewStyleLegend'});
     /**
      * ViewStyleLegend identifier
+     * @name ViewStyleLegend#name
      * @type {number}
      */
     this.id = params.id;
     /**
      * ViewStyleLegend Type identifier
+     * @name ViewStyleLegend#typeId
      * @type {number}
      */
     this.typeId = params.type_id || params.typeId;
     /**
      * ViewStyleLegend column
+     * @name ViewStyleLegend#column
      * @type {string}
      */
     this.column = params.column;
     /**
-     * ViewStyleLegend bands
+     * ViewStyleLegend raster band number
+     * @name ViewStyleLegend#band_number
      * @type {string}
      */
-    this.bands = params.bands;
+    this.band_number = params.band_number;
     /**
      * It defines the ViewStyleLegend colors used
+     * @name ViewStyleLegend#colors
      * @type {any}
      */
     this.colors = params.colors || [];
@@ -60,10 +66,10 @@
   ViewStyleLegend.prototype.toObject = function() {
     return Object.assign(AbstractClass.prototype.toObject.call(this), {
       id: this.id,
-      column: this.column,
+      column: this.column || null,
       type_id: this.typeId,
       colors: this.colors,
-      bands: this.bands
+      band_number: isNumber(this.band_number) ? this.band_number : null
     });
   };
 

@@ -91,7 +91,6 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
      || !json.contains("service_instance_id")
      || !json.contains("active")
      || !json.contains("dataseries_id")
-     || !json.contains("style")
      || !json.contains("legend")
      || !json.contains("schedule"))
   {
@@ -138,7 +137,7 @@ terrama2::services::view::core::View::Legend terrama2::services::view::core::fro
   }
 
   if(!json.contains("type_id")
-     || !json.contains("bands")
+     || !json.contains("band_number")
      || !json.contains("column")
      || !json.contains("colors"))
   {
@@ -150,7 +149,7 @@ terrama2::services::view::core::View::Legend terrama2::services::view::core::fro
   View::Legend legend;
 
   legend.ruleType = View::Legend::OperationType(json["type_id"].toInt());
-  legend.bands = static_cast<uint32_t>(json["bands"].toInt());
+//  legend.bands = static_cast<uint32_t>(json["bands"].toInt());
   legend.column = json["column"].toString().toStdString();
 
   for(auto color : json["colors"].toArray())
