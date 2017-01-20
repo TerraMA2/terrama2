@@ -33,6 +33,7 @@
 
 #include "Collector.hpp"
 #include "../core/Shared.hpp"
+#include "../../../core/data-model/DataManager.hpp"
 
 // Qt
 #include <QJsonObject>
@@ -50,7 +51,7 @@ namespace terrama2
           \see Collector for json structure
           \see [Collector at Trac](https://trac.dpi.inpe.br/terrqama2/wiki/programmersguide/architecture/services/collector/Collector) for more information.
           */
-        CollectorPtr fromCollectorJson(QJsonObject json);
+        CollectorPtr fromCollectorJson(QJsonObject json, terrama2::core::DataManager* dataManager);
 
         /*!
           \brief Creates a Intersection from a QJsonObject.

@@ -33,6 +33,7 @@
 //TerraMA2
 #include "../../Config.hpp"
 #include "../Typedef.hpp"
+#include "../Shared.hpp"
 
 //STL
 #include <memory>
@@ -86,7 +87,7 @@ namespace terrama2
       std::shared_ptr<double> value = nullptr; //!< Value to be used in a filter by value.
       bool lastValue = false; //! Used to read only the last value.
       std::string byValue; //! Filter by value.
-      DataSeriesId dataSeriesId; //! Data series id of the static data.
+      DataSeriesPtr dataSeries; //! Static data data series.
 
       //operator bool() const { return dataSetId != 0; }
     };
