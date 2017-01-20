@@ -3654,7 +3654,7 @@ var DataManager = module.exports = {
     var self = this;
     return new Promise(function(resolve, reject) {
       return models.db.ViewStyleLegend.update(styleLegendObject, Utils.extend({
-          fields: ["column", "type_id"],
+          fields: ["column", "type_id", "band_number"],
           where: restriction
         }))
         .then(function() {
@@ -3698,24 +3698,16 @@ var DataManager = module.exports = {
 
     return new Promise(function(resolve, reject) {
       var view;
-      models.db.View.create(viewObject, options)
+      return models.db.View.create(viewObject, options)
         .then(function(viewResult) {
           view = viewResult;
-          if (viewObject.legend && viewObject.legend.typeId) {
-            return models.db.ViewStyleType.findOne(Utils.extend({where: {id: viewObject.typeId}}, options))
-              .then(function(viewType) {
-                var legend = viewObject.legend;
-                var legendObject = {
-                  type_id: viewType.id,
-                  column: legend.column,
-                  colors: legend.colors,
-                  bands: legend.bands,
-                  view_id: view.id
-                };
-                return self.addViewStyleLegend(legendObject, options);
-              });
-          }
-          return null; // continuing promise chain
+          return models.db.ViewStyleType.findOne(Utils.extend({where: {id: viewObject.legend.typeId}}, options))
+            .then(function(viewType) {
+              var legend = viewObject.legend;
+              legend.type_id = viewType.id;
+              legend.view_id = view.id;
+              return self.addViewStyleLegend(legend, options);
+            });
         })
 
         .then(function(legend) {

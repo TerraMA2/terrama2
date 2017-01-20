@@ -169,31 +169,7 @@
                   ng-show="ctrl.viewDataSeries.data_series_semantics.data_series_type_name && ctrl.viewDataSeries.data_series_semantics.data_series_type_name !== ctrl.DataSeriesType.DCP">
       <form name="forms.styleForm" novalidate>      
         <!-- Vectorial -->
-        <div ng-show="ctrl.viewDataSeries.data_series_semantics.data_series_type_name === ctrl.DataSeriesType.GEOMETRIC_OBJECT">
-          <terrama2-style-legend form-ctrl="forms.styleForm" type="ctrl.DataSeriesType.GEOMETRIC_OBJECT" model="ctrl.legend"></terrama2-style-legend>
-        </div>
-
-        <!-- GRID -->
-        <div class="col-md-12 terrama2-nopadding-box"
-             ng-show="ctrl.viewDataSeries.data_series_semantics.data_series_type_name === ctrl.DataSeriesType.GRID">
-          <div class="col-sm-12 col-md-12">
-            <hr/>
-            <div class="col-xs-4 col-md-1">
-              <ul class="nav nav-tabs tabs-left">
-                <li class="active"><a href="#home" data-toggle="tab">Home</a></li>
-              </ul>
-            </div>
-            <div class="col-xs-8 col-md-11">
-              <!-- Tab panes -->
-              <div class="tab-content">
-                <div class="tab-pane active" id="home">
-
-                </div>
-              </div>
-            </div>
-            <div class="clearfix"></div>
-        </div>
-        </div>
+        <terrama2-style-legend form-ctrl="forms.styleForm" type="ctrl.targetDataSeriesType" model="ctrl.legend"></terrama2-style-legend>
       </form>
     </terrama2-box>
 

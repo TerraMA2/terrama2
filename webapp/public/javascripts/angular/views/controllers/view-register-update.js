@@ -5,7 +5,7 @@ define([], function() {
    * It represents a Controller to handle View form registration.
    * @class ViewRegistration
    */
-  function ViewRegisterUpdate($scope, i18n, ViewService, $log, $http, $timeout, MessageBoxService, $window, DataSeriesService, Service, StyleConstants, StringFormat, StyleType, ColorFactory, FieldRetriever) {
+  function ViewRegisterUpdate($scope, i18n, ViewService, $log, $http, $timeout, MessageBoxService, $window, DataSeriesService, Service, StringFormat, ColorFactory) {
     /**
      * @type {ViewRegisterUpdate}
      */
@@ -87,11 +87,6 @@ define([], function() {
      */
     self.maxValue = null;
     /**
-     * It defines the available styles for GEOMETRIC_OBJECT
-     * @type {StyleType}
-     */
-    self.StyleType = StyleType;
-    /**
      * It defines a list of available columns to display
      * @type {string[]}
      */
@@ -118,8 +113,7 @@ define([], function() {
      * @type {Object}
      */
     self.view = config.view || {};
-    // setting default band value
-    self.view.bands = 5;
+    self.targetDataSeriesType = null;
     /**
      * It stores a legend values (Geometric, Grid, etc)
      */
@@ -133,35 +127,12 @@ define([], function() {
     // function initializer
     self.onDataSeriesChanged = onDataSeriesChanged;
     self.initActive = initActive;
-    self.populateColumns = populateColumns; 
     // Setting view service dao
     self.ViewService = ViewService;
     // setting message box close fn
     self.close = closeDialog;
     // Setting Save operation attached into submit button
     self.save = saveOperation;
-
-    /**
-     * It builds a style from data series semantics
-     * 
-     * @param {DataSeriesService.DataSeriesType} semanticsTypeName
-     * @returns {string}
-     */
-    function makeStyle(semanticsTypeName) {
-      var targetStyle = "";
-      switch(semanticsTypeName) {
-        case DataSeriesService.DataSeriesType.GEOMETRIC_OBJECT:
-          targetStyle = StyleConstants.COMMON;
-          self.schedule = {};
-          break;
-        case DataSeriesService.DataSeriesType.GRID:
-          targetStyle = StyleConstants.GRID;
-          break;
-        default:
-          targetStyle = StyleConstants.COMMON;
-      }
-      return targetStyle;
-    }
 
     /**
      * It retrieves all data provider type to get HTTP fields
@@ -190,33 +161,15 @@ define([], function() {
           if (self.view.data_series_id) {
             self.onDataSeriesChanged(self.view.data_series_id);
 
-            switch(self.viewDataSeries.data_series_semantics.data_series_type_name) {
-              case self.DataSeriesType.GRID:
-                self.view.style = styleCache;
-                // -------------------------------------------------------------------------------
-                // TODO: It is temp. It should have angular xml parser or a library to extend app
-                // -------------------------------------------------------------------------------
-                var xmlStyle = $(self.view.style || "");
-                var colors = $(self.view.style || "").find("ColorMapEntry");
-                if (colors.length !== 0) {
-                  var minColorSelector = $(colors[0]);
-                  var maxColorSelector = $(colors[1]);
-                  self.minColor = minColorSelector.attr("color");
-                  self.minValue = parseInt(minColorSelector.attr("quantity"));
+            var legend = config.view.legend;
+            self.legend.typeId = legend.type_id;
+            self.legend.column = legend.column;
+            self.legend.band_number = legend.band_number;
+            self.legend.colors = legend.colors;
+            self.legend.bands = legend.colors.length - 1;
 
-                  self.maxColor = maxColorSelector.attr("color");
-                  self.maxValue = parseInt(maxColorSelector.attr("quantity"));
-                }
-                break;
-              case self.DataSeriesType.GEOMETRIC_OBJECT:
-                var legend = config.view.legend;
-                self.legend.typeId = legend.type_id;
-                self.legend.column = legend.column;
-                self.legend.colors = legend.colors;
-                self.legend.bands = legend.colors.length - 1;
-                $scope.$broadcast("updateStyleColor");
-                break;
-            }
+            // notify component to refil begin/end
+            $scope.$broadcast("updateStyleColor");
           }
           /**
            * Configuring Schema form http. This sentence is important because child controller may be not initialized yet.
@@ -264,18 +217,6 @@ define([], function() {
       });
     }
 
-    function populateColumns(type) {
-      if (type === undefined || type === "") {
-        self.columns = [];
-        return;
-      }
-
-      FieldRetriever.retrieve({type: "dataseries", format: type})
-        .then(function(columns) {
-          self.columns = columns;
-        });
-    }
-
     /**
      * It handles Data Series combobox change. If it is GRID data series, there is a default style script
      * @param {DataSeries}
@@ -285,14 +226,11 @@ define([], function() {
         if (dSeries.id === dataSeriesId) {
           // setting view data series
           self.viewDataSeries = dSeries;
+          // setting target data series type name in order to display style view
+          self.targetDataSeriesType = dSeries.data_series_semantics.data_series_type_name;
           // extra comparison just to setting if it is dynamic or static.
           // Here avoids to setting to true in many cases below
           self.isDynamic = dSeries.data_series_semantics.data_series_type_name !== DataSeriesService.DataSeriesType.GEOMETRIC_OBJECT;
-
-          // tries to populate columns
-          // self.populateColumns(dSeries.data_series_semantics.data_format_name);
-
-          self.view.style = makeStyle(dSeries.data_series_semantics.data_series_type_name);
           // breaking loop
           return true;
         }
@@ -321,17 +259,6 @@ define([], function() {
             $scope.forms.dataSeriesForm.$invalid ||
             $scope.forms.styleForm.$invalid) {
             return;
-          }
-          var sld = makeStyle(self.viewDataSeries.data_series_semantics.data_series_type_name);
-          // setting style
-          switch(self.viewDataSeries.data_series_semantics.data_series_type_name) {
-            case self.DataSeriesType.GRID:
-              // digesting XML with min/max value and color
-              self.view.style = StringFormat(sld, self.view.name, self.minColor, self.minValue, self.maxColor, self.maxValue);
-              break;
-            default:
-              self.view.style = "";
-              self.view.colors = self.colors;
           }
 
           // If dynamic, schedule validation is required
@@ -389,7 +316,7 @@ define([], function() {
   }
 
   ViewRegisterUpdate.$inject = ["$scope", "i18n", "ViewService", "$log", "$http", "$timeout", "MessageBoxService", "$window", 
-    "DataSeriesService", "Service", "StyleConstants", "StringFormat", "StyleType", "ColorFactory", "FieldRetriever"];
+    "DataSeriesService", "Service", "StringFormat", "ColorFactory"];
 
   return ViewRegisterUpdate;
 });

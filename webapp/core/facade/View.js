@@ -172,13 +172,9 @@
           .then(function() {
             if (viewObject.legend && viewObject.legend.typeId) {
               // if there is no legend before, insert a new one
-              var legend = {
-                column: viewObject.legend.column,
-                bands: viewObject.legend.bands,
-                type_id: viewObject.legend.typeId,
-                colors: viewObject.legend.colors,
-                view_id: viewId
-              };
+              var legend = viewObject.legend;
+              legend.type_id = legend.typeId;
+              legend.view_id = viewId;
               if (!view.legend) {
                 // insert legend
                 return DataManager.addViewStyleLegend(legend, options);

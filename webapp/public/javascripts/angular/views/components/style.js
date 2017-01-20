@@ -1,6 +1,8 @@
 define([], function () {
   /**
    * It defines a Component structure for handling View Style Legend for Geometric Object and Grid
+   * 
+   * @property {Object} bindings - Defines component bindings to work
    * @type {angular.IComponent}
    */
   var terrama2StyleComponent = {
@@ -29,10 +31,6 @@ define([], function () {
     self.i18n = i18n;
     self.generate = generateColors;
 
-    $scope.$watch("$ctrl.model.typeId", function (v) {
-      console.log(v);
-    })
-
     var defaultColorOpts = {
       format: "hex",
       required: true
@@ -50,7 +48,9 @@ define([], function () {
         handleColor();
       }
     };
-
+    /**
+     * It handles color summarization (begin and end) based in list of colors
+     */
     $scope.$on("updateStyleColor", function () {
       handleColor();
     });

@@ -26,6 +26,11 @@
         type: DataTypes.STRING,
         allowNull: true,
         comment: "Target column to generate legend"
+      },
+      band_number: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        comment: "Target band number to generate legend Raster-based"
       }
     }, {
       underscored: true,

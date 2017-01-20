@@ -1,7 +1,7 @@
 <div class="col-md-12 terrama2-nopadding-box">
   <div class="col-md-12 terrama2-nopadding-box">
     <div class="col-md-6">
-      <div class="form-group" terrama2-show-errors>
+      <div class="form-group" ng-if="$ctrl.type === $ctrl.DataSeriesType.GEOMETRIC_OBJECT" terrama2-show-errors>
         <label><span ng-bind="$ctrl.i18n.__('Column')"></span>:</label>
         <input class="form-control" 
               name="column" 
@@ -14,6 +14,20 @@
           ng-bind="$ctrl.i18n.__('Column is required')">
         </span>
       </div>
+      <!-- ./Column -->
+      <div class="form-group" ng-if="$ctrl.type === $ctrl.DataSeriesType.GRID" terrama2-show-errors>
+        <label><span ng-bind="$ctrl.i18n.__('Band Number')"></span>:</label>
+        <input class="form-control" 
+              name="band_number" 
+              ng-model="$ctrl.model.band_number" 
+              type="number"
+              ng-required="$ctrl.type === $ctrl.DataSeriesType.GRID">
+
+        <span class="help-block" 
+          ng-show="$ctrl.formCtrl.band_number.$dirty && $ctrl.formCtrl.band_number.$error.required"
+          ng-bind="$ctrl.i18n.__('Band number is required')">
+        </span>
+      </div>
     </div>
   </div>
   <!-- ./col-md-6 Type -->
@@ -23,7 +37,6 @@
       <select class="form-control" 
               name="styleType" 
               ng-model="$ctrl.model.typeId"
-              ng-required="$ctrl.type === $ctrl.DataSeriesType.GEOMETRIC_OBJECT"
               ng-options="value as key for (key, value) in $ctrl.StyleType">
       </select>
 
