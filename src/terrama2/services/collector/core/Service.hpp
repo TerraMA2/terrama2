@@ -89,36 +89,25 @@ namespace terrama2
             void removeCollector(CollectorId collectorId) noexcept;
 
             /*!
-              \brief Verifies if there is job to be done in the waiting queue and add it to the processing queue.
-            */
-            void notifyWaitQueue(CollectorId collectorId);
-
-            /*!
              * \brief Receive a jSon and update service information with it
              * \param obj jSon with additional information for service
              */
             virtual void updateAdditionalInfo(const QJsonObject& obj) noexcept override;
 
           protected:
-            // comments on base class
-            virtual bool hasDataOnQueue() noexcept override;
-
-            // comments on base class
-            virtual bool processNextData() override;
 
             //*! Create a process task and add to taskQueue_
-            virtual void prepareTask(CollectorId collectorId);
+            virtual void prepareTask(const terrama2::core::ExecutionPackage& executionPackage) override;
             /*!
               \brief Callback method to collect and store data.
             */
-            void collect(CollectorId collectorId, std::shared_ptr<CollectorLogger> logger, std::weak_ptr<DataManager> weakDataManager);
+            void collect(terrama2::core::ExecutionPackage executionPackage, std::shared_ptr<CollectorLogger> logger,
+                         std::weak_ptr<DataManager> weakDataManager);
 
             //! Connects signals from DataManager
             void connectDataManager();
 
             std::weak_ptr<DataManager> dataManager_; //!< Weak pointer to the DataManager
-
-            std::deque<CollectorId> collectorQueue_;//!< Collector queue
         };
 
       } // end namespace core

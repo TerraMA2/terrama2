@@ -89,7 +89,7 @@ namespace terrama2
             /*!
               \brief Adds the analysis to the queue of execution.
              */
-            virtual void addToQueue(AnalysisId analysisId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept override;
+            virtual void addToQueue(AnalysisId analysisId, std::shared_ptr<te::dt::TimeInstantTZ> executionDate) noexcept override;
 
 
             /*!
@@ -129,23 +129,11 @@ namespace terrama2
           protected:
 
             /*!
-             \brief Returns if the main loop should continue.
-             \return True if there is data to be tasked OR is stop is true.
-            */
-            virtual bool hasDataOnQueue() noexcept override;
-
-            /*!
-              \brief Check if there is data to be processed.
-              \return True if there is more data to be processed.
-             */
-            virtual bool processNextData() override;
-
-            /*!
               \brief Binds the method of execution to the task queue.
               \param analysisId Analysis identifier.
               \param startTime Start time of the analysis execution.
             */
-            void prepareTask(AnalysisId analysisId, std::shared_ptr<te::dt::TimeInstantTZ> startTime);
+            void prepareTask(const terrama2::core::ExecutionPackage& executionPackage) override;
 
             /*!
               \brief Connects data manager signals to analysis management methods.
@@ -153,7 +141,6 @@ namespace terrama2
             void connectDataManager();
 
             PyThreadState* mainThreadState_; //!< Main thread state from Python interpreter.
-            std::vector<std::pair<AnalysisId, std::shared_ptr<te::dt::TimeInstantTZ> > > analysisQueue_; //!< Analysis queue.
             DataManagerPtr dataManager_; //!< Data manager.
             ThreadPoolPtr threadPool_; //!< Pool of thread to run the analysis.
             terrama2::core::StoragerManagerPtr storagerManager_; //!< Manager to control the storage of analysis results.

@@ -255,7 +255,7 @@ module.exports = {
     START: 2,
     DOWNLOADED: 3,
     DONE: 4,
-    QUEUE: 5
+    ON_QUEUE: 5
   },
 
   /**

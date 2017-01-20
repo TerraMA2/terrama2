@@ -26,7 +26,7 @@ define([
       cachedIcons["start_warning"] = "/images/yellow_anime.png";
       cachedIcons[Globals.enums.StatusLog.START] = "/images/grey_anime.gif";
       cachedIcons["start_" + Globals.enums.StatusLog.START] = "/images/grey_anime.gif";
-      cachedIcons[Globals.enums.StatusLog.QUEUE] = "/images/clock.gif";
+      cachedIcons[Globals.enums.StatusLog.ON_QUEUE] = "/images/clock.gif";
 
       // injecting socket in angular scope
       $scope.socket = Socket;
@@ -228,6 +228,10 @@ define([
                 case Globals.enums.StatusLog.ERROR:
                   dummyMessage.description = "Error";
                   dummyMessage.messageType = Globals.enums.MessageType.ERROR_MESSAGE;
+                  break;
+                case Globals.enums.StatusLog.ON_QUEUE:
+                  dummyMessage.description = "On queue";
+                  dummyMessage.messageType = Globals.enums.MessageType.INFO_MESSAGE;
                   break;
               }
               out.message = dummyMessage.description;
