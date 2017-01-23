@@ -212,7 +212,7 @@ namespace terrama2
              * \param name The name of the style
              * \param style The style XML
              */
-            void registerStyle(const std::string& name, const std::string &style) const;
+            void registerStyle(const std::string& name, const std::string &style, const std::string& sldVersion = "1.1.0") const;
 
 
             void registerStyle(const std::string& name,

@@ -220,9 +220,9 @@ void terrama2::services::view::core::Serialization::writeCoverageStyleGeoserverX
   writer->writeAttribute("xmlns:se", "http://www.opengis.net/se");
 
   writer->writeStartElement("NamedLayer");
-  writer->writeElement("se:Name", "Layer");
+  writer->writeElement("Name", "Layer");
   writer->writeStartElement("UserStyle");
-  writer->writeElement("se:Name", "Style");
+  writer->writeElement("Name", "Style");
 
   writer->writeElement("Title", "Style for a Coverage layer.");
 

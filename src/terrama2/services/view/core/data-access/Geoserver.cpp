@@ -620,7 +620,9 @@ void terrama2::services::view::core::GeoServer::registerStyle(const std::string 
 }
 
 
-void terrama2::services::view::core::GeoServer::registerStyle(const std::string& name, const std::string &style) const
+void terrama2::services::view::core::GeoServer::registerStyle(const std::string& name,
+                                                              const std::string &style,
+                                                              const std::string& sldVersion) const
 {
   std::string validName = QString(QUrl::toPercentEncoding(QString::fromStdString(name), "", "/")).toStdString();
 
@@ -637,8 +639,15 @@ void terrama2::services::view::core::GeoServer::registerStyle(const std::string&
     throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriPost.uri()));
   }
 
+  std::string contentType = "Content-Type: application/vnd.ogc.se+xml";
+
+  if(sldVersion == "1.0.0")
+  {
+    contentType = "Content-Type: application/vnd.ogc.sld+xml";
+  }
+
   // Register style
-  cURLwrapper.post(uriPost, style, "Content-Type: application/vnd.ogc.se+xml");
+  cURLwrapper.post(uriPost, style, contentType);
 
   if(cURLwrapper.responseCode() == 403)
   {
@@ -701,7 +710,7 @@ void terrama2::services::view::core::GeoServer::registerStyle(const std::string&
       throw ViewGeoserverException() << ErrorDescription(errMsg);
     }
 
-    registerStyle(name, QString(content).toStdString());
+    registerStyle(name, QString(content).toStdString(), "1.0.0");
   }
   else
   {
@@ -712,7 +721,7 @@ void terrama2::services::view::core::GeoServer::registerStyle(const std::string&
 }
 
 std::unique_ptr<te::se::Style> terrama2::services::view::core::GeoServer::generateVectorialStyle(const View::Legend& legend,
-                                                                                        const std::unique_ptr<te::da::DataSetType>& dataSetType) const
+                                                                                                 const std::unique_ptr<te::da::DataSetType>& dataSetType) const
 {
   std::unique_ptr<te::se::Style> style(new te::se::FeatureTypeStyle());
 
@@ -963,18 +972,6 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
 
     registerWorkspace();
 
-    std::string styleName = "";
-    {
-      // Register style
-      auto itStyle = viewPtr->stylesPerDataSeries.find(inputDataSeries->id);
-
-      if(itStyle != viewPtr->stylesPerDataSeries.end())
-      {
-        styleName = viewPtr->viewName + "style" + std::to_string(inputDataSeries->id);
-        registerStyle(styleName, itStyle->second);
-      }
-    }
-
     QJsonArray layersArray;
 
     terrama2::core::Filter filter;
@@ -1031,11 +1028,10 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
               modelDataSetType.reset(DataAccess::getGeotiffDataSetType(fileInfo));
             }
 
-            registerCoverageFile(fileInfo.fileName().toStdString() ,
+            registerCoverageFile(std::to_string(viewPtr->id) + fileInfo.fileName().toStdString() ,
                                  fileInfo.absoluteFilePath().toStdString(),
                                  fileInfo.completeBaseName().toStdString(),
-                                 "geotiff",
-                                 styleName);
+                                 "geotiff");
           }
 
           QJsonObject layer;
@@ -1142,14 +1138,15 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
       }
     }
 
-      // Register style
-      auto legend = viewPtr->legendPerDataSeries.find(inputDataSeries->id);
+    // Register style
+    std::string styleName = "";
+    auto legend = viewPtr->legendPerDataSeries.find(inputDataSeries->id);
 
-      if(legend != viewPtr->legendPerDataSeries.end())
-      {
-        std::string legendName = viewPtr->viewName + "style" + std::to_string(inputDataSeries->id);
-        registerStyle(legendName, legend->second, modelDataSetType);
-      }
+    if(legend != viewPtr->legendPerDataSeries.end())
+    {
+      styleName = viewPtr->viewName + "style" + std::to_string(inputDataSeries->id);
+      registerStyle(styleName, legend->second, modelDataSetType);
+    }
 
     // TODO: assuming that only has one dataseries, overwriting answer
     jsonAnswer.insert("workspace", QString::fromStdString(workspace()));
