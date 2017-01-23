@@ -248,6 +248,9 @@ bool terrama2::core::DataAccessorFile::isValidTimestamp(std::shared_ptr<te::mem:
 
 bool terrama2::core::DataAccessorFile::isValidGeometry(std::shared_ptr<te::mem::DataSet> dataSet, const Filter& filter, size_t geomColumn, std::unordered_map<DataSetPtr, DataSetSeries>& seriesStaticData) const
 {
+  if(!isValidColumn(geomColumn))
+    return true;
+
   if(dataSet->isNull(geomColumn))
   {
     QString errMsg = QObject::tr("Null geometry attribute.");
@@ -255,10 +258,11 @@ bool terrama2::core::DataAccessorFile::isValidGeometry(std::shared_ptr<te::mem::
     return true;
   }
 
+
   std::shared_ptr< te::gm::Geometry > region(dataSet->getGeometry(geomColumn));
 
   // Apply filter by area
-  if(isValidColumn(geomColumn) && filter.region.get() && !region->intersects(filter.region.get()))
+  if(filter.region.get() && !region->intersects(filter.region.get()))
     return false;
 
 
