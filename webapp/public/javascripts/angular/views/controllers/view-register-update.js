@@ -264,6 +264,10 @@ define([], function() {
             return;
           }
 
+          if (!self.legend.colors || self.legend.colors.length === 0) {
+            return MessageBoxService.danger(i18n.__("View"), i18n.__("You must generate the style colors to classify Data Series"));
+          }
+
           // If dynamic, schedule validation is required
           if (self.isDynamic) {
             /**
