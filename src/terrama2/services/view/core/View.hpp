@@ -104,9 +104,10 @@ namespace terrama2
           uint32_t srid = 0; //!< SRID to aplly in view
         };
 
-        void makeView(ViewId viewId, std::shared_ptr< terrama2::services::view::core::ViewLogger > logger, std::weak_ptr<DataManager> weakDataManager);
-
-        void drawLayersList(ViewPtr view, std::vector< std::shared_ptr<te::map::MemoryDataSetLayer> > layersList, std::shared_ptr< terrama2::services::view::core::ViewLogger > logger);
+        static bool compareByNumericValue(const View::Legend::Rule& a, const View::Legend::Rule& b)
+        {
+          return std::stol(a.value) < std::stol(b.value);
+        }
 
       } // end namespace core
     }   // end namespace view

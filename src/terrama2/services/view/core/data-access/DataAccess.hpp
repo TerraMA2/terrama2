@@ -66,7 +66,9 @@ namespace terrama2
                                               const terrama2::core::DataSetPtr dataSet,
                                               const terrama2::core::Filter& filter);
 
-            static te::da::DataSetType* getFileDataSetType(const QFileInfo& fileInfo);
+            static te::da::DataSetType* getVectorialDataSetType(const QFileInfo& fileInfo);
+
+            static te::da::DataSetType* getGeotiffDataSetType(const QFileInfo& fileInfo);
 
             static te::da::DataSetType* getDataSetType(const std::string& dataSourceURI,
                                                        const std::string& dataSetName,

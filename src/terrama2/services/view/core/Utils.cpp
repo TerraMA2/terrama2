@@ -56,12 +56,15 @@
 #include <terralib/raster/RasterProperty.h>
 #include <terralib/geometry/Utils.h>
 
+#include <terralib/se/Categorize.h>
 #include <terralib/se/RasterSymbolizer.h>
 #include <terralib/se/PolygonSymbolizer.h>
 #include <terralib/se/LineSymbolizer.h>
 #include <terralib/se/PointSymbolizer.h>
 #include <terralib/se/Stroke.h>
 #include <terralib/se/Fill.h>
+#include <terralib/se/ParameterValue.h>
+#include <terralib/se/ColorMap.h>
 
 
 
@@ -231,8 +234,6 @@ void terrama2::services::view::core::createGeoserverPropertiesFile(const std::st
 te::se::Symbolizer* terrama2::services::view::core::getSymbolizer(const std::unique_ptr<te::da::DataSetType>& dataSetType,
                                                                   const std::string& color) noexcept
 {
-  if(dataSetType->hasGeom())
-  {
     auto geomProperty = te::da::GetFirstGeomProperty(dataSetType.get());
     auto geomType = geomProperty->getGeometryType();
 
@@ -304,12 +305,6 @@ te::se::Symbolizer* terrama2::services::view::core::getSymbolizer(const std::uni
       default:
         return nullptr;
     }
-
-  }
-  else if(dataSetType->hasRaster())
-  {
-    return new te::se::RasterSymbolizer();
-  }
 
   return nullptr;
 }

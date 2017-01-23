@@ -84,11 +84,18 @@ QFileInfoList terrama2::services::view::core::DataAccess::getFilesList(const std
   return fileInfoList;
 }
 
-te::da::DataSetType* terrama2::services::view::core::DataAccess::getFileDataSetType(const QFileInfo& fileInfo)
+te::da::DataSetType* terrama2::services::view::core::DataAccess::getVectorialDataSetType(const QFileInfo& fileInfo)
 {
   return getDataSetType("file://"+fileInfo.absolutePath().toStdString(),
                        fileInfo.baseName().toStdString(),
                        "OGR");
+}
+
+te::da::DataSetType* terrama2::services::view::core::DataAccess::getGeotiffDataSetType(const QFileInfo& fileInfo)
+{
+  return getDataSetType("file://"+fileInfo.absolutePath().toStdString(),
+                       fileInfo.fileName().toStdString(),
+                       "GDAL");
 }
 
 te::da::DataSetType* terrama2::services::view::core::DataAccess::getDataSetType(const std::string& dataSourceURI,
@@ -128,7 +135,7 @@ terrama2::services::view::core::TableInfo terrama2::services::view::core::DataAc
 
   try
   {
-    tableInfo.timestampPropertyName = dataAccessorPostGis->getTimestampPropertyName(dataSet);
+    tableInfo.timestampPropertyName = dataAccessorPostGis->getTimestampPropertyName(dataSet, false);
   }
   catch (...)
   {

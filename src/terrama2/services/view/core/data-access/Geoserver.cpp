@@ -606,7 +606,7 @@ void terrama2::services::view::core::GeoServer::registerStyle(const std::string 
 
   std::string filePath = file.fileName().toStdString();
 
-  Serialization::writeStyleGeoserverXML(style.get(), filePath);
+  Serialization::writeVectorialStyleGeoserverXML(style.get(), filePath);
 
   QByteArray content = file.readAll();
   if(content.isEmpty())
@@ -673,24 +673,48 @@ void terrama2::services::view::core::GeoServer::registerStyle(const std::string&
                                                               const View::Legend& legend,
                                                               const std::unique_ptr<te::da::DataSetType>& dataSetType) const
 {
-  std::unique_ptr<te::se::Style> style(generateStyle(legend, dataSetType).release());
-
-  registerStyle(name, style);
-}
-
-std::unique_ptr<te::se::Style> terrama2::services::view::core::GeoServer::generateStyle(const View::Legend& legend,
-                                                                                        const std::unique_ptr<te::da::DataSetType>& dataSetType) const
-{
-  std::unique_ptr<te::se::Style> style;
-
   if(dataSetType->hasGeom())
   {
-    style.reset(new te::se::FeatureTypeStyle());
+    std::unique_ptr<te::se::Style> style(generateVectorialStyle(legend, dataSetType).release());
+
+    registerStyle(name, style);
   }
   else if(dataSetType->hasRaster())
   {
-    style.reset(new te::se::CoverageStyle());
+    QTemporaryFile file;
+    if(!file.open())
+    {
+      QString errMsg = QObject::tr("Can't open the file.");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw ViewGeoserverException() << ErrorDescription(errMsg);
+    }
+
+    std::string filePath = file.fileName().toStdString();
+
+    Serialization::writeCoverageStyleGeoserverXML(legend, filePath);
+
+    QByteArray content = file.readAll();
+    if(content.isEmpty())
+    {
+      QString errMsg = QObject::tr("Can't read the SLD file.");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw ViewGeoserverException() << ErrorDescription(errMsg);
+    }
+
+    registerStyle(name, QString(content).toStdString());
   }
+  else
+  {
+    QString errMsg = QObject::tr("Can't generate style for Layer.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ViewGeoserverException() << ErrorDescription(errMsg);
+  }
+}
+
+std::unique_ptr<te::se::Style> terrama2::services::view::core::GeoServer::generateVectorialStyle(const View::Legend& legend,
+                                                                                        const std::unique_ptr<te::da::DataSetType>& dataSetType) const
+{
+  std::unique_ptr<te::se::Style> style(new te::se::FeatureTypeStyle());
 
   if(legend.ruleType == View::Legend::VALUE)
   {
@@ -732,15 +756,16 @@ std::unique_ptr<te::se::Style> terrama2::services::view::core::GeoServer::genera
   }
   else if(legend.ruleType == View::Legend::EQUAL_STEPS)
   {
-
+    // TODO:
   }
   else if(legend.ruleType == View::Legend::QUANTIL)
   {
-
+    // TODO:
   }
 
   return style;
 }
+
 
 void terrama2::services::view::core::GeoServer::deleteWorkspace(bool recursive) const
 {
@@ -988,19 +1013,24 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
 
         for(auto& fileInfo : fileInfoList)
         {
-          if(!modelDataSetType)
-          {
-            modelDataSetType.reset(DataAccess::getFileDataSetType(fileInfo));
-          }
-
           if(dataFormat == "OGR")
           {
+            if(!modelDataSetType)
+            {
+              modelDataSetType.reset(DataAccess::getVectorialDataSetType(fileInfo));
+            }
+
             registerVectorFile(viewPtr->viewName + std::to_string(inputDataSeries->id) + "datastore",
                                fileInfo.absoluteFilePath().toStdString(),
                                fileInfo.completeSuffix().toStdString());
           }
           else if(dataFormat == "GEOTIFF")
           {
+            if(!modelDataSetType)
+            {
+              modelDataSetType.reset(DataAccess::getGeotiffDataSetType(fileInfo));
+            }
+
             registerCoverageFile(fileInfo.fileName().toStdString() ,
                                  fileInfo.absoluteFilePath().toStdString(),
                                  fileInfo.completeBaseName().toStdString(),
@@ -1095,12 +1125,13 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
           SQL += "WHERE t1." + pk + " = t2." + pk;
 
           modelDataSetType.reset(monitoredObjectTableInfo.dataSetType.release());
+          tableName = layerName;
         }
 
         registerPostgisTable(inputDataProvider->name,
                              connInfo,
+                             tableName,
                              layerName,
-                             viewPtr->viewName,
                              modelDataSetType,
                              timestampPropertyName,
                              SQL);

@@ -190,7 +190,7 @@ namespace terrama2
                                         const int srid,
                                         const std::string& style = "") const;
 
-            std::unique_ptr<te::se::Style> generateStyle(const View::Legend& legend,
+            std::unique_ptr<te::se::Style> generateVectorialStyle(const View::Legend& legend,
                                                          const std::unique_ptr<te::da::DataSetType>& dataSetType) const;
 
             /*!
