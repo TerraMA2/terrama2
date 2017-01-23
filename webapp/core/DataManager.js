@@ -3656,7 +3656,7 @@ var DataManager = module.exports = {
       return models.db.ViewStyleLegend.update(styleLegendObject, Utils.extend({
           fields: ["column", "type_id", "band_number"],
           where: restriction
-        }))
+        }, options))
         .then(function() {
           return resolve();
         })
