@@ -24,7 +24,7 @@ module.exports = function(sequelize, DataTypes) {
           ViewStyleType.hasMany(models.ViewStyleLegend, {
             onDelete: "CASCADE",
             foreignKey: {
-              name: 'type_id',
+              name: 'operation_id',
               allowNull: false
             }
           });

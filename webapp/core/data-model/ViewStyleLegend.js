@@ -20,10 +20,10 @@
     this.id = params.id;
     /**
      * ViewStyleLegend Type identifier
-     * @name ViewStyleLegend#typeId
+     * @name ViewStyleLegend#operation_id
      * @type {number}
      */
-    this.typeId = params.type_id || params.typeId;
+    this.operation_id = params.type_id || params.operation_id;
     /**
      * ViewStyleLegend column
      * @name ViewStyleLegend#column
@@ -36,6 +36,12 @@
      * @type {string}
      */
     this.band_number = params.band_number;
+    /**
+     * ViewStyleLegend type (Ramp, Interval and Value)
+     * @name ViewStyleLegend#type
+     * @type {string}
+     */
+    this.type = params.type;
     /**
      * It defines the ViewStyleLegend colors used
      * @name ViewStyleLegend#colors
@@ -67,7 +73,8 @@
     return Object.assign(AbstractClass.prototype.toObject.call(this), {
       id: this.id,
       column: this.column || null,
-      type_id: this.typeId,
+      operation_id: this.operation_id,
+      type: this.type,
       colors: this.colors,
       band_number: isNumber(this.band_number) ? this.band_number : null
     });

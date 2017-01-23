@@ -170,10 +170,9 @@
           })
 
           .then(function() {
-            if (viewObject.legend && viewObject.legend.typeId) {
+            if (viewObject.legend && viewObject.legend.operation_id) {
               // if there is no legend before, insert a new one
               var legend = viewObject.legend;
-              legend.type_id = legend.typeId;
               legend.view_id = viewId;
               if (!view.legend) {
                 // insert legend

@@ -22,11 +22,12 @@ define([], function () {
    * @param {ColorFactory} ColorFactory - TerraMA² Color generator
    * @param {any} i18n - TerraMA² Internationalization module
    */
-  function StyleController($scope, ColorFactory, i18n, DataSeriesService, StyleType) {
+  function StyleController($scope, ColorFactory, i18n, DataSeriesService, StyleType, StyleOperation) {
     var self = this;
     // binding component form into parent module in order to expose Form to help during validation
     self.formCtrl = self.form;
     self.DataSeriesType = DataSeriesService.DataSeriesType;
+    self.StyleOperation = StyleOperation;
     self.StyleType = StyleType;
     self.i18n = i18n;
     self.generate = generateColors;
@@ -86,6 +87,6 @@ define([], function () {
   }
 
   // Dependencies Injection
-  StyleController.$inject = ["$scope", "ColorFactory", "i18n", "DataSeriesService", "StyleType"];
+  StyleController.$inject = ["$scope", "ColorFactory", "i18n", "DataSeriesService", "StyleType", "StyleOperation"];
   return terrama2StyleComponent;
 });

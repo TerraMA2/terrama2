@@ -3654,7 +3654,7 @@ var DataManager = module.exports = {
     var self = this;
     return new Promise(function(resolve, reject) {
       return models.db.ViewStyleLegend.update(styleLegendObject, Utils.extend({
-          fields: ["column", "type_id", "band_number"],
+          fields: ["column", "operation_id", "type", "band_number"],
           where: restriction
         }, options))
         .then(function() {
@@ -3701,10 +3701,10 @@ var DataManager = module.exports = {
       return models.db.View.create(viewObject, options)
         .then(function(viewResult) {
           view = viewResult;
-          return models.db.ViewStyleType.findOne(Utils.extend({where: {id: viewObject.legend.typeId}}, options))
+          return models.db.ViewStyleType.findOne(Utils.extend({where: {id: viewObject.legend.operation_id}}, options))
             .then(function(viewType) {
               var legend = viewObject.legend;
-              legend.type_id = viewType.id;
+              legend.operation_id = viewType.id;
               legend.view_id = view.id;
               return self.addViewStyleLegend(legend, options);
             });
