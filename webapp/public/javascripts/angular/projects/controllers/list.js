@@ -44,38 +44,38 @@ define(function() {
 
     $scope.projectCheck = function(element) {
       if($scope.projectsCheckboxes[element.id].project) {
-        if($scope.projectsCheckboxes[element.id].dataProviders != undefined) {
-          for(var property in $scope.projectsCheckboxes[element.id].dataProviders) {
-            if($scope.projectsCheckboxes[element.id].dataProviders.hasOwnProperty(property))
-              $scope.projectsCheckboxes[element.id].dataProviders[property] = true;
+        if($scope.projectsCheckboxes[element.id].DataProviders != undefined) {
+          for(var property in $scope.projectsCheckboxes[element.id].DataProviders) {
+            if($scope.projectsCheckboxes[element.id].DataProviders.hasOwnProperty(property))
+              $scope.projectsCheckboxes[element.id].DataProviders[property] = true;
           }
         }
 
-        if($scope.projectsCheckboxes[element.id].dataSeries != undefined) {
-          for(var property in $scope.projectsCheckboxes[element.id].dataSeries) {
-            if($scope.projectsCheckboxes[element.id].dataSeries.hasOwnProperty(property))
-              $scope.projectsCheckboxes[element.id].dataSeries[property] = true;
+        if($scope.projectsCheckboxes[element.id].DataSeries != undefined) {
+          for(var property in $scope.projectsCheckboxes[element.id].DataSeries) {
+            if($scope.projectsCheckboxes[element.id].DataSeries.hasOwnProperty(property))
+              $scope.projectsCheckboxes[element.id].DataSeries[property] = true;
           }
         }
 
-        if($scope.projectsCheckboxes[element.id].dataSeriesStatic != undefined) {
-          for(var property in $scope.projectsCheckboxes[element.id].dataSeriesStatic) {
-            if($scope.projectsCheckboxes[element.id].dataSeriesStatic.hasOwnProperty(property))
-              $scope.projectsCheckboxes[element.id].dataSeriesStatic[property] = true;
+        if($scope.projectsCheckboxes[element.id].DataSeriesStatic != undefined) {
+          for(var property in $scope.projectsCheckboxes[element.id].DataSeriesStatic) {
+            if($scope.projectsCheckboxes[element.id].DataSeriesStatic.hasOwnProperty(property))
+              $scope.projectsCheckboxes[element.id].DataSeriesStatic[property] = true;
           }
         }
 
-        if($scope.projectsCheckboxes[element.id].analysis != undefined) {
-          for(var property in $scope.projectsCheckboxes[element.id].analysis) {
-            if($scope.projectsCheckboxes[element.id].analysis.hasOwnProperty(property))
-              $scope.projectsCheckboxes[element.id].analysis[property] = true;
+        if($scope.projectsCheckboxes[element.id].Analysis != undefined) {
+          for(var property in $scope.projectsCheckboxes[element.id].Analysis) {
+            if($scope.projectsCheckboxes[element.id].Analysis.hasOwnProperty(property))
+              $scope.projectsCheckboxes[element.id].Analysis[property] = true;
           }
         }
 
-        if($scope.projectsCheckboxes[element.id].views != undefined) {
-          for(var property in $scope.projectsCheckboxes[element.id].views) {
-            if($scope.projectsCheckboxes[element.id].views.hasOwnProperty(property))
-              $scope.projectsCheckboxes[element.id].views[property] = true;
+        if($scope.projectsCheckboxes[element.id].Views != undefined) {
+          for(var property in $scope.projectsCheckboxes[element.id].Views) {
+            if($scope.projectsCheckboxes[element.id].Views.hasOwnProperty(property))
+              $scope.projectsCheckboxes[element.id].Views[property] = true;
           }
         }
       }
@@ -83,33 +83,45 @@ define(function() {
 
     $scope.itemCheck = function(projectId, objectId, objectType) {
       if($scope.projectsCheckboxes[projectId][objectType][objectId]) {
-        socket.emit("getDependenciesResponse", {
+        socket.emit("getDependencies", {
           objectType: objectType,
           id: objectId,
           projectId: projectId
         });
       } else {
-        if($scope.dependencies[projectId][objectId] !== undefined) {
-          delete $scope.dependencies[projectId][objectId];
-        }
+        if($scope.dependencies.hasOwnProperty(objectType) && $scope.dependencies.hasOwnProperty(objectId))
+          delete $scope.dependencies[objectType][objectId];
 
+        uncheckDependents(objectId, projectId);
+      }
+    };
 
-        if($scope.dependencies[projectId][objectId] !== undefined) {
-          if($scope.dependencies[projectId][objectId].DataProviders !== undefined) {
-            for(var i = 0, dataProvidersLength = $scope.dependencies[projectId][objectId].DataProviders.length; i < dataProvidersLength; i++) {
-              $scope.projectsCheckboxes[result.projectId].dataProviders[result.data.DataProviders[i]] = true;
-            }
-          }
+    var uncheckDependents = function(dependencie, projectId) {
+      for(var propertyType in $scope.dependencies) {
+        if($scope.dependencies.hasOwnProperty(propertyType)) {
+          for(var propertyId in $scope.dependencies[propertyType]) {
+            if($scope.dependencies[propertyType].hasOwnProperty(propertyId)) {
+              var deleteObject = false;
 
-          if($scope.dependencies[projectId][objectId].DataSeries !== undefined) {
-            for(var i = 0, dataSeriesLength = result.data.DataSeries.length; i < dataSeriesLength; i++) {
-              $scope.projectsCheckboxes[result.projectId].dataSeries[result.data.DataSeries[i]] = true;
-            }
-          }
+              for(var propertyArray in $scope.dependencies[propertyType][propertyId]) {
+                if($scope.dependencies[propertyType][propertyId].hasOwnProperty(propertyArray)) {
+                  for(var i = 0, arrayLength = $scope.dependencies[propertyType][propertyId][propertyArray].length; i < arrayLength; i++) {
+                    if($scope.dependencies[propertyType][propertyId][propertyArray][i] == dependencie) {
+                      deleteObject = true;
+                      break;
+                    }
+                  }
 
-          if($scope.dependencies[projectId][objectId].DataSeriesStatic !== undefined) {
-            for(var i = 0, dataSeriesStaticLength = result.data.DataSeriesStatic.length; i < dataSeriesStaticLength; i++) {
-              $scope.projectsCheckboxes[result.projectId].dataSeriesStatic[result.data.DataSeriesStatic[i]] = true;
+                  if(deleteObject)
+                    break;
+                }
+              }
+
+              if(deleteObject) {
+                $scope.projectsCheckboxes[projectId][propertyType][propertyId] = false;
+                delete $scope.dependencies[propertyType][propertyId];
+                uncheckDependents(propertyId, projectId);
+              }
             }
           }
         }
@@ -125,6 +137,19 @@ define(function() {
     }
 
     $scope.close = function() { MessageBoxService.reset() };
+
+    Array.prototype.unique = function() {
+      var a = this.concat();
+
+      for(var i = 0; i < a.length; ++i) {
+        for(var j = i + 1; j < a.length; ++j) {
+          if(a[i] === a[j])
+            a.splice(j--, 1);
+        }
+      }
+
+      return a;
+    };
 
     socket.on("exportResponse", function(result) {
       $scope.extra.isExporting = false;
@@ -142,21 +167,28 @@ define(function() {
         return;
       }
 
-      if(result.data.DataProviders !== undefined) {
-        for(var i = 0, dataProvidersLength = result.data.DataProviders.length; i < dataProvidersLength; i++) {
-          $scope.projectsCheckboxes[result.projectId].dataProviders[result.data.DataProviders[i]] = true;
-        }
-      }
+      for(var property in result.data) {
+        if(result.data.hasOwnProperty(property)) {
+          var typeAndId = property.split('_');
 
-      if(result.data.DataSeries !== undefined) {
-        for(var i = 0, dataSeriesLength = result.data.DataSeries.length; i < dataSeriesLength; i++) {
-          $scope.projectsCheckboxes[result.projectId].dataSeries[result.data.DataSeries[i]] = true;
-        }
-      }
+          if(!$scope.dependencies.hasOwnProperty(typeAndId[0]))
+            $scope.dependencies[typeAndId[0]] = {};
 
-      if(result.data.DataSeriesStatic !== undefined) {
-        for(var i = 0, dataSeriesStaticLength = result.data.DataSeriesStatic.length; i < dataSeriesStaticLength; i++) {
-          $scope.projectsCheckboxes[result.projectId].dataSeriesStatic[result.data.DataSeriesStatic[i]] = true;
+          if(!$scope.dependencies[typeAndId[0]].hasOwnProperty(typeAndId[1]))
+            $scope.dependencies[typeAndId[0]][typeAndId[1]] = {};
+
+          for(var arrayItem in result.data[property]) {
+            if(result.data[property].hasOwnProperty(arrayItem)) {
+              if($scope.dependencies[typeAndId[0]][typeAndId[1]].hasOwnProperty(arrayItem))
+                $scope.dependencies[typeAndId[0]][typeAndId[1]][arrayItem] = $scope.dependencies[typeAndId[0]][typeAndId[1]][arrayItem].concat(result.data[property][arrayItem]).unique();
+              else
+                $scope.dependencies[typeAndId[0]][typeAndId[1]][arrayItem] = result.data[property][arrayItem];
+
+              for(var i = 0, arrayLength = result.data[property][arrayItem].length; i < arrayLength; i++) {
+                $scope.projectsCheckboxes[result.projectId][arrayItem][result.data[property][arrayItem][i]] = true;
+              }
+            }
+          }
         }
       }
     });
@@ -235,16 +267,16 @@ define(function() {
             delete $scope.exportData.Analysis;
             delete $scope.exportData.Views;
           } else {
-            if($scope.projectsCheckboxes[element.id].dataProviders != undefined) {
+            if($scope.projectsCheckboxes[element.id].DataProviders != undefined) {
               for(var j = 0, dataProvidersLength = $scope.dataProviders[element.id].length; j < dataProvidersLength; j++) {
-                if($scope.projectsCheckboxes[element.id].dataProviders[$scope.dataProviders[element.id][j].id])
+                if($scope.projectsCheckboxes[element.id].DataProviders[$scope.dataProviders[element.id][j].id])
                   $scope.exportData.DataProviders.push($scope.dataProviders[element.id][j]);
               }
             }
 
-            if($scope.projectsCheckboxes[element.id].dataSeries != undefined) {
+            if($scope.projectsCheckboxes[element.id].DataSeries != undefined) {
               for(var j = 0, dataSeriesLength = $scope.dataSeries[element.id].length; j < dataSeriesLength; j++) {
-                if($scope.projectsCheckboxes[element.id].dataSeries[$scope.dataSeries[element.id][j].id]) {
+                if($scope.projectsCheckboxes[element.id].DataSeries[$scope.dataSeries[element.id][j].id]) {
                   $scope.exportData.DataSeries.push($scope.dataSeries[element.id][j]);
 
                   for(var x = 0, collectorsLength = $scope.collectors[element.id].length; x < collectorsLength; x++) {
@@ -257,9 +289,9 @@ define(function() {
               }
             }
 
-            if($scope.projectsCheckboxes[element.id].dataSeriesStatic != undefined) {
+            if($scope.projectsCheckboxes[element.id].DataSeriesStatic != undefined) {
               for(var j = 0, dataSeriesStaticLength = $scope.dataSeriesStatic[element.id].length; j < dataSeriesStaticLength; j++) {
-                if($scope.projectsCheckboxes[element.id].dataSeriesStatic[$scope.dataSeriesStatic[element.id][j].id]) {
+                if($scope.projectsCheckboxes[element.id].DataSeriesStatic[$scope.dataSeriesStatic[element.id][j].id]) {
                   $scope.exportData.DataSeries.push($scope.dataSeriesStatic[element.id][j]);
 
                   for(var x = 0, collectorsLength = $scope.collectors[element.id].length; x < collectorsLength; x++) {
@@ -272,16 +304,16 @@ define(function() {
               }
             }
 
-            if($scope.projectsCheckboxes[element.id].analysis != undefined) {
+            if($scope.projectsCheckboxes[element.id].Analysis != undefined) {
               for(var j = 0, analysisLength = $scope.analysis[element.id].length; j < analysisLength; j++) {
-                if($scope.projectsCheckboxes[element.id].analysis[$scope.analysis[element.id][j].id])
+                if($scope.projectsCheckboxes[element.id].Analysis[$scope.analysis[element.id][j].id])
                   $scope.exportData.Analysis.push($scope.analysis[element.id][j]);
               }
             }
 
-            if($scope.projectsCheckboxes[element.id].views != undefined) {
+            if($scope.projectsCheckboxes[element.id].Views != undefined) {
               for(var j = 0, viewsLength = $scope.views[element.id].length; j < viewsLength; j++) {
-                if($scope.projectsCheckboxes[element.id].views[$scope.views[element.id][j].id])
+                if($scope.projectsCheckboxes[element.id].Views[$scope.views[element.id][j].id])
                   $scope.exportData.Views.push($scope.views[element.id][j]);
               }
             }
@@ -423,11 +455,11 @@ define(function() {
         $http.get("/api/DataProvider/project/" + project.id, {}).success(function(dataProviders) {
           $scope.dataProviders[project.id] = dataProviders;
 
-          if($scope.projectsCheckboxes[project.id].dataProviders == undefined)
-            $scope.projectsCheckboxes[project.id].dataProviders = {};
+          if($scope.projectsCheckboxes[project.id].DataProviders == undefined)
+            $scope.projectsCheckboxes[project.id].DataProviders = {};
 
           for(var j = 0, dataProvidersLength = dataProviders.length; j < dataProvidersLength; j++) {
-            $scope.projectsCheckboxes[project.id].dataProviders[dataProviders[j].id] = true;
+            $scope.projectsCheckboxes[project.id].DataProviders[dataProviders[j].id] = true;
           }
         }).catch(function(err) {
           console.log("Err in retrieving data providers");
@@ -447,12 +479,22 @@ define(function() {
           function(dataSeries) {
             $scope.dataSeries[project.id] = dataSeries.data;
 
-            if($scope.projectsCheckboxes[project.id].dataSeries == undefined)
-              $scope.projectsCheckboxes[project.id].dataSeries = {};
+            if($scope.projectsCheckboxes[project.id].DataSeries == undefined)
+              $scope.projectsCheckboxes[project.id].DataSeries = {};
+
+            var dataSeriesIds = [];
 
             for(var j = 0, dataSeriesLength = dataSeries.data.length; j < dataSeriesLength; j++) {
-              $scope.projectsCheckboxes[project.id].dataSeries[dataSeries.data[j].id] = true;
+              $scope.projectsCheckboxes[project.id].DataSeries[dataSeries.data[j].id] = true;
+              dataSeriesIds.push(dataSeries.data[j].id);
             }
+
+            socket.emit("getDependencies", {
+              objectType: "DataSeries",
+              multiple: true,
+              id: dataSeriesIds,
+              projectId: project.id
+            });
           }, function(err) {
             console.log("Err in retrieving data series");
           }
@@ -471,12 +513,22 @@ define(function() {
           function(dataSeries) {
             $scope.dataSeriesStatic[project.id] = dataSeries.data;
 
-            if($scope.projectsCheckboxes[project.id].dataSeriesStatic == undefined)
-              $scope.projectsCheckboxes[project.id].dataSeriesStatic = {};
+            if($scope.projectsCheckboxes[project.id].DataSeriesStatic == undefined)
+              $scope.projectsCheckboxes[project.id].DataSeriesStatic = {};
+
+            var dataSeriesIds = [];
 
             for(var j = 0, dataSeriesLength = dataSeries.data.length; j < dataSeriesLength; j++) {
-              $scope.projectsCheckboxes[project.id].dataSeriesStatic[dataSeries.data[j].id] = true;
+              $scope.projectsCheckboxes[project.id].DataSeriesStatic[dataSeries.data[j].id] = true;
+              dataSeriesIds.push(dataSeries.data[j].id);
             }
+
+            socket.emit("getDependencies", {
+              objectType: "DataSeriesStatic",
+              multiple: true,
+              id: dataSeriesIds,
+              projectId: project.id
+            });
           }, function(err) {
             console.log("Err in retrieving data series static");
           }
@@ -487,12 +539,22 @@ define(function() {
         AnalysisService.init({ project_id: project.id }).then(function(analysis) {
           $scope.analysis[project.id] = analysis;
 
-          if($scope.projectsCheckboxes[project.id].analysis == undefined)
-            $scope.projectsCheckboxes[project.id].analysis = {};
+          if($scope.projectsCheckboxes[project.id].Analysis == undefined)
+            $scope.projectsCheckboxes[project.id].Analysis = {};
+
+          var analysisIds = [];
 
           for(var j = 0, analysisLength = analysis.length; j < analysisLength; j++) {
-            $scope.projectsCheckboxes[project.id].analysis[analysis[j].id] = true;
+            $scope.projectsCheckboxes[project.id].Analysis[analysis[j].id] = true;
+            analysisIds.push(analysis[j].id);
           }
+
+          socket.emit("getDependencies", {
+            objectType: "Analysis",
+            multiple: true,
+            id: analysisIds,
+            projectId: project.id
+          });
         }).catch(function(err) {
           $log.info("Err in retrieving Analysis " + err);
         }).finally(function() {
@@ -502,12 +564,22 @@ define(function() {
         $http.get("/api/View", {}).success(function(views) {
           $scope.views[project.id] = views;
 
-          if($scope.projectsCheckboxes[project.id].views == undefined)
-            $scope.projectsCheckboxes[project.id].views = {};
+          if($scope.projectsCheckboxes[project.id].Views == undefined)
+            $scope.projectsCheckboxes[project.id].Views = {};
+
+          var viewsIds = [];
 
           for(var j = 0, viewsLength = views.length; j < viewsLength; j++) {
-            $scope.projectsCheckboxes[project.id].views[views[j].id] = true;
+            $scope.projectsCheckboxes[project.id].Views[views[j].id] = true;
+            viewsIds.push(views[j].id);
           }
+
+          socket.emit("getDependencies", {
+            objectType: "Views",
+            multiple: true,
+            id: viewsIds,
+            projectId: project.id
+          });
         }).catch(function(err) {
           console.log("Err in retrieving views");
         }).finally(function() {

@@ -601,15 +601,17 @@ var ImportExport = function(io) {
         return false;
       };
 
-      var getDataSeriesDependencies = function(id) {
+      var getDataSeriesDependencies = function(id, staticDataSeries) {
+        var prefix = "DataSeries" + (staticDataSeries ? "Static" : "") + "_";
+
         return DataManager.getDataSeries({id: id}).then(function(dataSeries) {
           return DataManager.getDataProvider({id: dataSeries.data_provider_id});
         }).then(function(dataProvider) {
-          if(dataProvider !== undefined && !isInArray(dataProvider.id, output.DataProviders)) {
-            if(output[id] === undefined) output[id] = {};
-            if(output[id].DataProviders === undefined) output[id].DataProviders = [];
+          if(output[prefix + id] === undefined || output[prefix + id].DataProviders === undefined || !isInArray(dataProvider.id, output[prefix + id].DataProviders)) {
+            if(output[prefix + id] === undefined) output[prefix + id] = {};
+            if(output[prefix + id].DataProviders === undefined) output[prefix + id].DataProviders = [];
 
-            output[id].DataProviders.push(dataProvider.id);
+            output[prefix + id].DataProviders.push(dataProvider.id);
           }
 
           return DataManager.getCollector({data_series_output: id});
@@ -618,31 +620,31 @@ var ImportExport = function(io) {
 
           var dataSeriesPromises = [
             DataManager.getDataSeries({id: collectorDataSeriesInput}).then(function(dataSeries) {
-              if(!isInArray(dataSeries.id, output.DataSeries)) {
-                if(output[id] === undefined) output[id] = {};
-                if(output[id].DataSeries === undefined) output[id].DataSeries = [];
+              if(output[prefix + id] === undefined || output[prefix + id].DataSeries === undefined || !isInArray(dataSeries.id, output[prefix + id].DataSeries)) {
+                if(output[prefix + id] === undefined) output[prefix + id] = {};
+                if(output[prefix + id].DataSeries === undefined) output[prefix + id].DataSeries = [];
 
-                output[id].DataSeries.push(dataSeries.id);
+                output[prefix + id].DataSeries.push(dataSeries.id);
                 return DataManager.getDataProvider({id: dataSeries.data_provider_id});
               }
             }).then(function(dataProvider) {
-              if(dataProvider !== undefined && !isInArray(dataProvider.id, output.DataProviders)) {
-                if(output[collectorDataSeriesInput] === undefined) output[collectorDataSeriesInput] = {};
-                if(output[collectorDataSeriesInput].DataProviders === undefined) output[collectorDataSeriesInput].DataProviders = [];
+              if(dataProvider !== undefined && (output[prefix + collectorDataSeriesInput] === undefined || output[prefix + collectorDataSeriesInput].DataProviders || !isInArray(dataProvider.id, output[prefix + collectorDataSeriesInput].DataProviders))) {
+                if(output[prefix + collectorDataSeriesInput] === undefined) output[prefix + collectorDataSeriesInput] = {};
+                if(output[prefix + collectorDataSeriesInput].DataProviders === undefined) output[prefix + collectorDataSeriesInput].DataProviders = [];
 
-                output[collectorDataSeriesInput].DataProviders.push(dataProvider.id);
+                output[prefix + collectorDataSeriesInput].DataProviders.push(dataProvider.id);
               }
             })
           ];
 
           for(var j = 0, intersectionsLength = collector.intersection.length; j < intersectionsLength; j++) {
-            if(output[id] === undefined) output[id] = {};
-            if(output[id].DataSeries === undefined) output[id].DataSeries = [];
+            if(output[prefix + id] === undefined) output[prefix + id] = {};
+            if(output[prefix + id].DataSeries === undefined) output[prefix + id].DataSeries = [];
 
-            output[id].DataSeries.push(collector.intersection[j].dataseries_id);
+            output[prefix + id].DataSeries.push(collector.intersection[j].dataseries_id);
 
             dataSeriesPromises.push(
-              getDataSeriesDependencies(collector.intersection[j].dataseries_id)
+              getDataSeriesDependencies(collector.intersection[j].dataseries_id, staticDataSeries)
             );
           }
 
@@ -654,56 +656,56 @@ var ImportExport = function(io) {
 
       var promises = [];
 
-      if(json.objectType == "dataSeries" || json.objectType == "dataSeriesStatic") {
+      if(json.objectType == "DataSeries") {
         promises.push(
-          getDataSeriesDependencies(json.id)
+          getDataSeriesDependencies(json.id, false)
         );
-      } else if(json.objectType == "analysis") {
+      } else if(json.objectType == "DataSeriesStatic") {
+        promises.push(
+          getDataSeriesDependencies(json.id, true)
+        );
+      } else if(json.objectType == "Analysis") {
         promises.push(
           DataManager.getAnalysis({id: json.id}, null, true).then(function(analysis) {
-            if(analysis.dataSeries.id !== undefined && !isInArray(analysis.dataSeries.id, output.DataSeries)) {
-              if(output[json.id] === undefined) output[json.id] = {};
-              if(output[json.id].DataSeries === undefined) output[json.id].DataSeries = [];
+            if(analysis.dataSeries.id !== undefined && (output["Analysis_" + json.id] === undefined || output["Analysis_" + json.id].DataSeries === undefined || !isInArray(analysis.dataSeries.id, output["Analysis_" + json.id].DataSeries))) {
+              if(output["Analysis_" + json.id] === undefined) output["Analysis_" + json.id] = {};
+              if(output["Analysis_" + json.id].DataSeries === undefined) output["Analysis_" + json.id].DataSeries = [];
 
-              output[json.id].DataSeries.push(analysis.dataSeries.id);
+              output["Analysis_" + json.id].DataSeries.push(analysis.dataSeries.id);
 
-              var analysisDataseriesListPromises = [getDataSeriesDependencies(analysis.dataSeries.id)];
+              var analysisDataseriesListPromises = [getDataSeriesDependencies(analysis.dataSeries.id, false)];
             } else {
               var analysisDataseriesListPromises = [];
             }
 
             for(var j = 0, analysisDSLength = analysis.analysis_dataseries_list.length; j < analysisDSLength; j++) {
-              if(output[json.id] === undefined) output[json.id] = {};
-              if(output[json.id].DataSeries === undefined) output[json.id].DataSeries = [];
+              if(output["Analysis_" + json.id] === undefined) output["Analysis_" + json.id] = {};
+              if(output["Analysis_" + json.id].DataSeries === undefined) output["Analysis_" + json.id].DataSeries = [];
 
-              output[json.id].DataSeries.push(analysis.analysis_dataseries_list[j].data_series_id);
+              output["Analysis_" + json.id].DataSeries.push(analysis.analysis_dataseries_list[j].data_series_id);
 
               analysisDataseriesListPromises.push(
-                getDataSeriesDependencies(analysis.analysis_dataseries_list[j].data_series_id)
+                getDataSeriesDependencies(analysis.analysis_dataseries_list[j].data_series_id, false)
               );
             }
 
             return Promise.all(analysisDataseriesListPromises).catch(_emitError);
           })
         );
-      } else if(json.objectType == "views") {
+      } else if(json.objectType == "Views") {
         promises.push(
           DataManager.getView({id: json.id}).then(function(view) {
-            if(output[json.id] === undefined) output[json.id] = {};
-            if(output[json.id].DataSeries === undefined) output[json.id].DataSeries = [];
+            if(output["Views_" + json.id] === undefined) output["Views_" + json.id] = {};
+            if(output["Views_" + json.id].DataSeries === undefined) output["Views_" + json.id].DataSeries = [];
 
-            output[json.id].DataSeries.push(view.dataSeries);
+            output["Views_" + json.id].DataSeries.push(view.dataSeries);
 
-            return getDataSeriesDependencies(view.dataSeries);
+            return getDataSeriesDependencies(view.dataSeries, false);
           })
         );
       }
 
       Promise.all(promises).then(function() {
-        if(output.DataProviders.length === 0) delete output.DataProviders;
-        if(output.DataSeries.length === 0) delete output.DataSeries;
-        if(output.DataSeriesStatic.length === 0) delete output.DataSeriesStatic;
-
         client.emit("getDependenciesResponse", { status: 200, data: output, projectId: json.projectId });
       }).catch(_emitError);
     });

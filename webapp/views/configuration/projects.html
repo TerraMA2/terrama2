@@ -59,7 +59,7 @@
               <div class="box-body" style="display: none;">
                 <ul style="list-style-type: none; padding-left: 0 !important;">
                   <li ng-repeat="dataProvider in dataProviders[element.id]">
-                    <input type="checkbox" value="{{ dataProvider.id }}" ng-model="projectsCheckboxes[element.id].dataProviders[dataProvider.id]" ng-disabled="projectsCheckboxes[element.id].project" ng-change="itemCheck(element.id, dataProvider.id, 'dataProviders')"/><div style="margin-top: -23px; margin-left: 18px;">{{ dataProvider.name }}</div>
+                    <input type="checkbox" value="{{ dataProvider.id }}" ng-model="projectsCheckboxes[element.id].DataProviders[dataProvider.id]" ng-disabled="projectsCheckboxes[element.id].project" ng-change="itemCheck(element.id, dataProvider.id, 'DataProviders')"/><div style="margin-top: -23px; margin-left: 18px;">{{ dataProvider.name }}</div>
                   </li>
                 </ul>
               </div>
@@ -74,7 +74,7 @@
               <div class="box-body" style="display: none;">
                 <ul style="list-style-type: none; padding-left: 0 !important;">
                   <li ng-repeat="dataSerie in dataSeries[element.id]">
-                    <input type="checkbox" value="{{ dataSerie.id }}" ng-model="projectsCheckboxes[element.id].dataSeries[dataSerie.id]" ng-disabled="projectsCheckboxes[element.id].project" ng-change="itemCheck(element.id, dataSerie.id, 'dataSeries')"/><div style="margin-top: -23px; margin-left: 18px;">{{ dataSerie.name }}</div>
+                    <input type="checkbox" value="{{ dataSerie.id }}" ng-model="projectsCheckboxes[element.id].DataSeries[dataSerie.id]" ng-disabled="projectsCheckboxes[element.id].project" ng-change="itemCheck(element.id, dataSerie.id, 'DataSeries')"/><div style="margin-top: -23px; margin-left: 18px;">{{ dataSerie.name }}</div>
                   </li>
                 </ul>
               </div>
@@ -89,7 +89,7 @@
               <div class="box-body" style="display: none;">
                 <ul style="list-style-type: none; padding-left: 0 !important;">
                   <li ng-repeat="dataSerie in dataSeriesStatic[element.id]">
-                    <input type="checkbox" value="{{ dataSerie.id }}" ng-model="projectsCheckboxes[element.id].dataSeriesStatic[dataSerie.id]" ng-disabled="projectsCheckboxes[element.id].project" ng-change="itemCheck(element.id, dataSerie.id, 'dataSeriesStatic')"/><div style="margin-top: -23px; margin-left: 18px;">{{ dataSerie.name }}</div>
+                    <input type="checkbox" value="{{ dataSerie.id }}" ng-model="projectsCheckboxes[element.id].DataSeriesStatic[dataSerie.id]" ng-disabled="projectsCheckboxes[element.id].project" ng-change="itemCheck(element.id, dataSerie.id, 'DataSeriesStatic')"/><div style="margin-top: -23px; margin-left: 18px;">{{ dataSerie.name }}</div>
                   </li>
                 </ul>
               </div>
@@ -104,7 +104,7 @@
               <div class="box-body" style="display: none;">
                 <ul style="list-style-type: none; padding-left: 0 !important;">
                   <li ng-repeat="analysisItem in analysis[element.id]">
-                    <input type="checkbox" value="{{ analysisItem.id }}" ng-model="projectsCheckboxes[element.id].analysis[analysisItem.id]" ng-disabled="projectsCheckboxes[element.id].project" ng-change="itemCheck(element.id, analysisItem.id, 'analysis')"/><div style="margin-top: -23px; margin-left: 18px;">{{ analysisItem.name }}</div>
+                    <input type="checkbox" value="{{ analysisItem.id }}" ng-model="projectsCheckboxes[element.id].Analysis[analysisItem.id]" ng-disabled="projectsCheckboxes[element.id].project" ng-change="itemCheck(element.id, analysisItem.id, 'Analysis')"/><div style="margin-top: -23px; margin-left: 18px;">{{ analysisItem.name }}</div>
                   </li>
                 </ul>
               </div>
@@ -119,7 +119,7 @@
               <div class="box-body" style="display: none;">
                 <ul style="list-style-type: none; padding-left: 0 !important;">
                   <li ng-repeat="view in views[element.id]">
-                    <input type="checkbox" value="{{ view.id }}" ng-model="projectsCheckboxes[element.id].views[view.id]" ng-disabled="projectsCheckboxes[element.id].project" ng-change="itemCheck(element.id, view.id, 'views')"/><div style="margin-top: -23px; margin-left: 18px;">{{ view.name }}</div>
+                    <input type="checkbox" value="{{ view.id }}" ng-model="projectsCheckboxes[element.id].Views[view.id]" ng-disabled="projectsCheckboxes[element.id].project" ng-change="itemCheck(element.id, view.id, 'Views')"/><div style="margin-top: -23px; margin-left: 18px;">{{ view.name }}</div>
                   </li>
                 </ul>
               </div>
