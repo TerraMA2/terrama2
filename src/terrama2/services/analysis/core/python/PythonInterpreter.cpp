@@ -107,6 +107,14 @@ void terrama2::services::analysis::core::python::runMonitoredObjectScript(PyThre
   try
   {
     AnalysisPtr analysis = context->getAnalysis();
+    AnalysisHashCode analysisHashCode = analysis->hashCode(context->getStartTime());
+
+    auto& contextManager = ContextManager::getInstance();
+    // In case an error has already occurred, there is nothing to be done
+    if(!contextManager.getMessages(analysisHashCode, BaseContext::MessageType::ERROR_MESSAGE).empty())
+    {
+      return;
+    }
 
     std::string script = prepareScript(analysis);
 
@@ -131,7 +139,6 @@ void terrama2::services::analysis::core::python::runMonitoredObjectScript(PyThre
 
     boost::python::object analysisModule = boost::python::import("analysis");
     boost::python::object analysisFunction = analysisModule.attr("analysis");
-    AnalysisHashCode analysisHashCode = analysis->hashCode(context->getStartTime());
 
     auto pValueAnalysis = PyInt_FromLong(analysisHashCode);
     auto isHashSet = PyDict_SetItemString(state->dict, "analysisHashCode", pValueAnalysis);
@@ -516,7 +523,7 @@ void terrama2::services::analysis::core::python::validateAnalysisScript(Analysis
     if (pCompiledFn == NULL)
     {
       QString errMsg(QObject::tr("Invalid script."));
-      validateResult.messages.push_back(errMsg.toStdString());
+      validateResult.messages.insert(validateResult.messages.end(), errMsg.toStdString());
       return;
     }
 
@@ -525,7 +532,7 @@ void terrama2::services::analysis::core::python::validateAnalysisScript(Analysis
     if (pModule == NULL)
     {
       QString errMsg(QObject::tr("Could not register the analysis function."));
-      validateResult.messages.push_back(errMsg.toStdString());
+      validateResult.messages.insert(validateResult.messages.end(), errMsg.toStdString());
       return;
     }
 
@@ -535,16 +542,16 @@ void terrama2::services::analysis::core::python::validateAnalysisScript(Analysis
   catch (const error_already_set &)
   {
     std::string errMsg = extractException();
-    validateResult.messages.push_back(errMsg);
+    validateResult.messages.insert(validateResult.messages.end(), errMsg);
   }
   catch(const std::exception& e)
   {
-    validateResult.messages.push_back(e.what());
+    validateResult.messages.insert(validateResult.messages.end(), e.what());
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
-    validateResult.messages.push_back(errMsg.toStdString());
+    validateResult.messages.insert(validateResult.messages.end(), errMsg.toStdString());
   }
 }
 

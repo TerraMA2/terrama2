@@ -49,7 +49,7 @@
 #include <terralib/datatype/TimeInstantTZ.h>
 #include <terralib/dataaccess/dataset/ForeignKey.h>
 
-void terrama2::services::alert::core::runAlert(std::pair<AlertId, std::shared_ptr<te::dt::TimeInstantTZ> > alertInfo,
+void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage executionPackage,
                                                std::shared_ptr< AlertLogger > logger,
                                                std::weak_ptr<DataManager> weakDataManager)
 {
@@ -60,12 +60,9 @@ void terrama2::services::alert::core::runAlert(std::pair<AlertId, std::shared_pt
     return;
   }
 
-  RegisterId logId = 0;
   try
   {
-    auto alertId = alertInfo.first;
-
-    logId = logger->start(alertId);
+    auto alertId = executionPackage.processId;
 
     TERRAMA2_LOG_DEBUG() << QObject::tr("Starting alert generation");
 
@@ -101,8 +98,8 @@ void terrama2::services::alert::core::runAlert(std::pair<AlertId, std::shared_pt
     auto dataMap = dataAccessor->getSeries(filter, remover);
     if(dataMap.empty())
     {
-      logger->result(AlertLogger::DONE, nullptr, logId);
-      logger->log(AlertLogger::WARNING_MESSAGE, QObject::tr("No data to available.").toStdString(), logId);
+      logger->result(AlertLogger::DONE, nullptr, executionPackage.registerId);
+      logger->log(AlertLogger::WARNING_MESSAGE, QObject::tr("No data to available.").toStdString(), executionPackage.registerId);
       TERRAMA2_LOG_WARNING() << QObject::tr("No data to available.");
       return;
     }
@@ -177,36 +174,36 @@ void terrama2::services::alert::core::runAlert(std::pair<AlertId, std::shared_pt
 
       auto& factory = ReportFactory::getInstance();
       auto report = factory.make(alertPtr->reportMetadata.at(ReportTags::TYPE), alertPtr->reportMetadata);
-      report->process(alertPtr, dataset, alertInfo.second, alertDataSet);
+      report->process(alertPtr, dataset, executionPackage.executionDate, alertDataSet);
     }
 
-    logger->result(AlertLogger::DONE, alertInfo.second, logId);
+    logger->result(AlertLogger::DONE, executionPackage.executionDate, executionPackage.registerId);
   }
   catch(const terrama2::Exception& e)
   {
-    logger->result(AlertLogger::ERROR, nullptr, logId);
-    logger->log(AlertLogger::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString(), logId);
+    logger->result(AlertLogger::ERROR, nullptr, executionPackage.registerId);
+    logger->log(AlertLogger::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString(), executionPackage.registerId);
     TERRAMA2_LOG_DEBUG() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
     throw;//re-throw
   }
   catch(boost::exception& e)
   {
-    logger->result(AlertLogger::ERROR, nullptr, logId);
-    logger->log(AlertLogger::ERROR_MESSAGE, boost::diagnostic_information(e), logId);
+    logger->result(AlertLogger::ERROR, nullptr, executionPackage.registerId);
+    logger->log(AlertLogger::ERROR_MESSAGE, boost::diagnostic_information(e), executionPackage.registerId);
     TERRAMA2_LOG_ERROR() << boost::diagnostic_information(e);
   }
   catch(std::exception& e)
   {
     QString errMsg(e.what());
-    logger->result(AlertLogger::ERROR, nullptr, logId);
-    logger->log(AlertLogger::ERROR_MESSAGE, e.what(), logId);
+    logger->result(AlertLogger::ERROR, nullptr, executionPackage.registerId);
+    logger->log(AlertLogger::ERROR_MESSAGE, e.what(), executionPackage.registerId);
     TERRAMA2_LOG_ERROR() << errMsg;
   }
   catch(...)
   {
     QString errMsg = QObject::tr("Unknown exception");
-    logger->result(AlertLogger::ERROR, nullptr, logId);
-    logger->log(AlertLogger::ERROR_MESSAGE, errMsg.toStdString(), logId);
+    logger->result(AlertLogger::ERROR, nullptr, executionPackage.registerId);
+    logger->log(AlertLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
     TERRAMA2_LOG_ERROR() << errMsg;
   }
 }
