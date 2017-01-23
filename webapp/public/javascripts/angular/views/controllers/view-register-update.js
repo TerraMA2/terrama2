@@ -55,6 +55,10 @@ define([], function() {
      */
     self.isUpdating = config.view ? true : false;
     /**
+     * It handles data series changed state in order to prevent select DCP or format !== GEOTIFF
+     */
+    self.isValid = true;
+    /**
      * It defines a list of cached data series
      * @type {Object[]}
      */
@@ -66,26 +70,6 @@ define([], function() {
     self.colorOptions = {
       format: 'hex'
     };
-    /**
-     * It defines min color HEX representation. Used for View GRID Data Series
-     * @type {string}
-     */
-    self.minColor = "";
-    /**
-     * It defines max color HEX representation. Used for View GRID Data Series
-     * @type {string}
-     */
-    self.maxColor = "";
-    /**
-     * It defines min value of style. Used for View GRID Data Series
-     * @type {number}
-     */
-    self.minValue = null;
-    /**
-     * It defines max value of style. Used for View GRID Data Series
-     * @type {number}
-     */
-    self.maxValue = null;
     /**
      * It defines a list of available columns to display
      * @type {string[]}
@@ -155,7 +139,8 @@ define([], function() {
          */
         return DataSeriesService.init({schema: "all"}).then(function(dataSeries) {
           //Filter data series to not show dcp - remove when back implements dcp creation view
-          self.dataSeries = dataSeries.filter(function(dS){return dS.data_series_semantics.data_series_type_name !== "DCP"});
+          // self.dataSeries = dataSeries.filter(function(dS){return dS.data_series_semantics.data_series_type_name !== "DCP"; });
+          self.dataSeries = dataSeries;
 
           var styleCache = config.view.style;
 
@@ -225,6 +210,8 @@ define([], function() {
     function onDataSeriesChanged(dataSeriesId) {
       self.dataSeries.some(function(dSeries) {
         if (dSeries.id === dataSeriesId) {
+          // reset message box
+          self.close();
           // setting view data series
           self.viewDataSeries = dSeries;
           // setting target data series type name in order to display style view
@@ -232,6 +219,16 @@ define([], function() {
           // extra comparison just to setting if it is dynamic or static.
           // Here avoids to setting to true in many cases below
           self.isDynamic = dSeries.data_series_semantics.data_series_type_name !== DataSeriesService.DataSeriesType.GEOMETRIC_OBJECT;
+          if (dSeries.data_series_semantics.data_series_format_name === "GEOTIFF") {
+            self.isValid = false;
+            MessageBoxService.danger(i18n.__("View"), i18n.__("You selected a GRID data series. Only GEOTIFF data series format are supported"));
+          } else if (dSeries.data_series_semantics.data_series_type_name === DataSeriesService.DataSeriesType.DCP) {
+            self.isValid = false;
+            MessageBoxService.danger(i18n.__("View"), i18n.__("DCP data series is not supported yet"));
+          } else {
+            self.isValid = true;
+          }
+
           // breaking loop
           return true;
         }
@@ -253,6 +250,10 @@ define([], function() {
       $scope.$broadcast("formFieldValidation");
       // broadcasting schema form validation
       $scope.$broadcast("schemaFormValidate");
+
+      if (!self.isValid) {
+        return;
+      }
 
       $timeout(function(){
         $scope.$apply(function() {
