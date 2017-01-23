@@ -596,5 +596,17 @@
 	"Remove store configuration": "Remove store configuration",
 	"Remove intersection configuration": "Remove intersection configuration",
 	"Remove filter configuration": "Remove filter configuration",
-	"Add intersection configuration": "Add intersection configuration"
+	"Add intersection configuration": "Add intersection configuration",
+	"Select Attributes": "Select Attributes",
+	"Nome": "Nome",
+	"Tipo": "Tipo",
+	"Nearest Neighbor": "Nearest Neighbor",
+	"Bi linear": "Bi linear",
+	"Bi cubic": "Bi cubic",
+	"Union": "Union",
+	"Same from data series": "Same from data series",
+	"Custom": "Custom",
+	"Smallest grid": "Smallest grid",
+	"Biggest grid": "Biggest grid",
+	"Local Service": "Local Service"
 }
