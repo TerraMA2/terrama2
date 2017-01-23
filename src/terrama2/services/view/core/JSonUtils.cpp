@@ -136,7 +136,8 @@ terrama2::services::view::core::View::Legend terrama2::services::view::core::fro
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
 
-  if(!json.contains("type_id")
+  if(!json.contains("type")
+     || !json.contains("operation_id")
      || !json.contains("band_number")
      || !json.contains("column")
      || !json.contains("colors"))
@@ -148,7 +149,8 @@ terrama2::services::view::core::View::Legend terrama2::services::view::core::fro
 
   View::Legend legend;
 
-  legend.ruleType = View::Legend::OperationType(json["type_id"].toInt());
+  legend.operation = View::Legend::OperationType(json["operation_id"].toInt());
+  legend.classify = View::Legend::ClassifyType(json["type"].toInt());
 
   legend.band_number = static_cast<uint32_t>(json["band_number"].toInt());
   legend.column = json["column"].toString().toStdString();

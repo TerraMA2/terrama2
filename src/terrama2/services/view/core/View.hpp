@@ -67,11 +67,18 @@ namespace terrama2
         {
             struct Legend
             {
-                enum OperationType
+                enum class OperationType
                 {
                   EQUAL_STEPS = 1,
                   QUANTIL = 2,
                   VALUE = 3
+                };
+
+                enum class ClassifyType
+                {
+                  RAMP = 1,
+                  INTERVALS = 2,
+                  VALUES = 3
                 };
 
                 struct Rule
@@ -82,7 +89,8 @@ namespace terrama2
                     bool isDefault = false;
                 };
 
-                OperationType ruleType;
+                OperationType operation;
+                ClassifyType classify;
                 int band_number = 0;
                 std::string column = "";
                 std::vector< Rule > rules;
@@ -103,11 +111,6 @@ namespace terrama2
 
           uint32_t srid = 0; //!< SRID to aplly in view
         };
-
-        static bool compareByNumericValue(const View::Legend::Rule& a, const View::Legend::Rule& b)
-        {
-          return std::stol(a.value) < std::stol(b.value);
-        }
 
       } // end namespace core
     }   // end namespace view

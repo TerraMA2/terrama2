@@ -716,7 +716,7 @@ std::unique_ptr<te::se::Style> terrama2::services::view::core::GeoServer::genera
 {
   std::unique_ptr<te::se::Style> style(new te::se::FeatureTypeStyle());
 
-  if(legend.ruleType == View::Legend::VALUE)
+  if(legend.operation == View::Legend::OperationType::VALUE)
   {
     std::vector<te::se::Rule*> rules;
     te::se::Rule* ruleDefault;
@@ -754,11 +754,11 @@ std::unique_ptr<te::se::Style> terrama2::services::view::core::GeoServer::genera
       style->push_back(rule);
     }
   }
-  else if(legend.ruleType == View::Legend::EQUAL_STEPS)
+  else if(legend.operation == View::Legend::OperationType::EQUAL_STEPS)
   {
     // TODO:
   }
-  else if(legend.ruleType == View::Legend::QUANTIL)
+  else if(legend.operation == View::Legend::OperationType::QUANTIL)
   {
     // TODO:
   }

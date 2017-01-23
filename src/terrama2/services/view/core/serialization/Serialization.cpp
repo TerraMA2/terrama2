@@ -195,8 +195,14 @@ terrama2::services::view::core::Serialization::readVectorialStyleXML(const std::
 }
 
 
+static bool compareByNumericValue(const terrama2::services::view::core::View::Legend::Rule& a,
+                                  const terrama2::services::view::core::View::Legend::Rule& b)
+{
+  return std::stol(a.value) < std::stol(b.value);
+}
+
 void terrama2::services::view::core::Serialization::writeCoverageStyleGeoserverXML(const View::Legend legend,
-                                                                                    const std::string path)
+                                                                                   const std::string path)
 {
   std::unique_ptr<te::xml::AbstractWriter> writer(te::xml::AbstractWriterFactory::make());
 
@@ -224,10 +230,26 @@ void terrama2::services::view::core::Serialization::writeCoverageStyleGeoserverX
   writer->writeStartElement("Rule");
   writer->writeStartElement("RasterSymbolizer");
   writer->writeStartElement("ColorMap");
-  writer->writeAttribute("type", "ramp");
+
+  std::string classifyType;
+
+  if(legend.classify == View::Legend::ClassifyType::INTERVALS)
+  {
+    classifyType = "intervals";
+  }
+  else if(legend.classify == View::Legend::ClassifyType::VALUES)
+  {
+    classifyType = "values";
+  }
+  else
+  {
+    classifyType =  "ramp";
+  }
+
+  writer->writeAttribute("type", classifyType);
 
   std::vector< View::Legend::Rule > rules = legend.rules;
-  std::sort(rules.begin(), rules.end(), view::core::compareByNumericValue);
+  std::sort(rules.begin(), rules.end(), compareByNumericValue);
 
   for(auto& rule : rules)
   {
