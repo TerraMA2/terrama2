@@ -29,14 +29,30 @@
         </span>
       </div>
     </div>
+    <div class="col-md-6">
+      <div class="form-group" terrama2-show-errors>
+        <label><span ng-bind="$ctrl.i18n.__('Operation')"></span>:</label>
+        <select class="form-control" 
+                name="styleOperation" 
+                ng-model="$ctrl.model.operation_id"
+                ng-options="value as key for (key, value) in $ctrl.StyleOperation">
+        </select>
+
+        <span class="help-block" 
+          ng-show="$ctrl.formCtrl.styleOperation.$dirty && $ctrl.formCtrl.styleOperation.$error.required"
+          ng-bind="$ctrl.i18n.__('Type is required')">
+        </span>
+      </div>
+    </div>
+    <!-- ./col-md-6 Type -->
   </div>
-  <!-- ./col-md-6 Type -->
+  <!-- ./col-md-12 -->
   <div class="col-md-6">
     <div class="form-group" terrama2-show-errors>
       <label><span ng-bind="$ctrl.i18n.__('Type')"></span>:</label>
       <select class="form-control" 
               name="styleType" 
-              ng-model="$ctrl.model.typeId"
+              ng-model="$ctrl.model.type"
               ng-options="value as key for (key, value) in $ctrl.StyleType">
       </select>
 
@@ -83,11 +99,11 @@
             class="btn btn-primary" 
             style="margin-top: 25px;" 
             ng-bind="$ctrl.i18n.__('Generate')" 
-            data-ng-click="$ctrl.model.typeId && $ctrl.generate();"></button>
+            data-ng-click="$ctrl.model.operation_id && $ctrl.generate();"></button>
   </div>
 </div>
 
-<div class="col-md-12" ng-show="$ctrl.model.typeId && $ctrl.model.colors.length > 0">
+<div class="col-md-12" ng-show="$ctrl.model.operation_id && $ctrl.model.colors.length > 0">
   <table class="table table-hover scroll">
     <thead>
       <th ng-bind="$ctrl.i18n.__('Color')"></th>

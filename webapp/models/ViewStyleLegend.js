@@ -27,6 +27,11 @@
         allowNull: true,
         comment: "Target column to generate legend"
       },
+      type: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        comment: "Target type to generate legend (Ramp, Interval and Value)"
+      },
       band_number: {
         type: DataTypes.INTEGER,
         allowNull: true,
@@ -52,7 +57,7 @@
           ViewStyleLegend.belongsTo(models.ViewStyleType, {
             onDelete: "CASCADE",
             foreignKey: {
-              name: 'type_id',
+              name: 'operation_id',
               allowNull: false
             }
           });

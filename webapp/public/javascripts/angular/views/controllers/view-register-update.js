@@ -148,7 +148,8 @@ define([], function() {
             self.onDataSeriesChanged(self.view.data_series_id);
 
             var legend = config.view.legend;
-            self.legend.typeId = legend.type_id;
+            self.legend.operation_id = legend.operation_id;
+            self.legend.type = legend.type;
             self.legend.column = legend.column;
             self.legend.band_number = legend.band_number;
             self.legend.colors = legend.colors;

@@ -1,12 +1,10 @@
 define([], function() {
   /**
-   * It determines style types drawing.
+   * It determines available operations for handling style draw.
    * 
    * @enum {number}
    */
   return {
-    "RAMP": 1,
-    "INTERVAL": 2,
     "VALUE": 3
   };
 });
