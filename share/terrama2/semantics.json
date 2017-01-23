@@ -49,7 +49,7 @@
           "mask": {
             "type": "string",
             "title": "Mask",
-            "pattern": "^([a-zA-Z*._]|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
+            "pattern": "^([\\w*.]+|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
           }
         },
         "required": ["mask"]
@@ -100,7 +100,7 @@
           "mask": {
             "type": "string",
             "title": "Mask",
-            "pattern": "^([a-zA-Z*._]|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
+            "pattern": "^([\\w*.]+|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
           }
         },
         "required": ["mask"]
@@ -247,7 +247,7 @@
           "mask": {
             "type": "string",
             "title": "Mask",
-            "pattern": "^([a-zA-Z0-9*._]|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
+            "pattern": "^([\\w*.]+|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
           },
           "alias": {
             "type": "string",
@@ -289,7 +289,10 @@
         {
           "key": "mask",
           "htmlClass": "col-md-6",
-          "copyValueTo": ["alias"]
+          "copyValueTo": ["alias"],
+          "validationMessage": {
+            "202": "Invalid mask"
+          }
         },
         {
           "key": "alias",
@@ -376,7 +379,7 @@
           "mask": {
             "type": "string",
             "title": "Mask",
-            "pattern": "^([a-zA-Z*._]|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
+            "pattern": "^([\\w*.]+|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
           },
           "alias": {
             "type": "string",
@@ -599,7 +602,7 @@
           "mask": {
             "type": "string",
             "title": "Mask",
-            "pattern": "^([a-zA-Z\\d*._]|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
+            "pattern": "^([\\w*.]+|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
           },
           "timezone": {
             "type": "string",
