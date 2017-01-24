@@ -85,7 +85,7 @@ define(function() {
       if($scope.projectsCheckboxes[projectId][objectType][objectId]) {
         socket.emit("getDependencies", {
           objectType: objectType,
-          id: objectId,
+          ids: [objectId],
           projectId: projectId
         });
       } else {
@@ -491,8 +491,7 @@ define(function() {
 
             socket.emit("getDependencies", {
               objectType: "DataSeries",
-              multiple: true,
-              id: dataSeriesIds,
+              ids: dataSeriesIds,
               projectId: project.id
             });
           }, function(err) {
@@ -525,8 +524,7 @@ define(function() {
 
             socket.emit("getDependencies", {
               objectType: "DataSeriesStatic",
-              multiple: true,
-              id: dataSeriesIds,
+              ids: dataSeriesIds,
               projectId: project.id
             });
           }, function(err) {
@@ -551,8 +549,7 @@ define(function() {
 
           socket.emit("getDependencies", {
             objectType: "Analysis",
-            multiple: true,
-            id: analysisIds,
+            ids: analysisIds,
             projectId: project.id
           });
         }).catch(function(err) {
@@ -576,8 +573,7 @@ define(function() {
 
           socket.emit("getDependencies", {
             objectType: "Views",
-            multiple: true,
-            id: viewsIds,
+            ids: viewsIds,
             projectId: project.id
           });
         }).catch(function(err) {
