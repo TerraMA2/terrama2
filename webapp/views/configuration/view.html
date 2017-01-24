@@ -55,6 +55,7 @@
 <script src="/bower_components/tinycolor/dist/tinycolor-min.js"></script>
 <script src="/bower_components/angular-color-picker/dist/angularjs-color-picker.min.js"></script>
 
+
 {% endblock %}
 
 {% block content %}
@@ -71,13 +72,13 @@
             <div class="col-md-6">
               <div class="form-group" terrama2-show-errors>
                 <label><span ng-bind="i18n.__('Name')">:</span></label>
-                <input class="form-control" 
-                       name="name" 
-                       ng-model="ctrl.view.name" 
+                <input class="form-control"
+                       name="name"
+                       ng-model="ctrl.view.name"
                        placeholder="{{ i18n.__('View Name') }}" type="text" required>
 
-                <span class="help-block" 
-                      ng-show="forms.viewForm.name.$dirty && forms.viewForm.name.$invalid" 
+                <span class="help-block"
+                      ng-show="forms.viewForm.name.$dirty && forms.viewForm.name.$invalid"
                       ng-class="{'has-error': viewForm.name.$invalid}"
                       ng-bind="i18n.__('View name is required')">
                 </span>
@@ -86,18 +87,18 @@
             <div class="col-md-4">
               <div class="form-group" terrama2-show-errors>
                 <label><span ng-bind="i18n.__('Service')">:</span></label>
-                <select class="form-control" 
-                        name="service" 
+                <select class="form-control"
+                        name="service"
                         ng-model="ctrl.view.service_instance_id"
-                        ng-options="instance.id as instance.name for instance in ctrl.filteredServices" 
+                        ng-options="instance.id as instance.name for instance in ctrl.filteredServices"
                         required>
-                  <option ng-if="ctrl.filteredServices.length == 0" 
-                          value="" 
+                  <option ng-if="ctrl.filteredServices.length == 0"
+                          value=""
                           ng-bind="i18n.__('No view service found')">
                   </option>
                 </select>
 
-                <span class="help-block" 
+                <span class="help-block"
                       ng-show="forms.viewForm.service.$dirty && forms.viewForm.service.$error.required"
                       ng-bind="i18n.__('Service is required')">
                 </span>
@@ -107,8 +108,8 @@
               <div class="form-group">
                 <div class="checkbox">
                   <label style="font-weight: 700; margin-top:19px;">
-                    <input type="checkbox" 
-                           name="active" 
+                    <input type="checkbox"
+                           name="active"
                            ng-model="ctrl.view.active"
                            ng-init="ctrl.initActive()"> <span ng-bind="i18n.__('Active')"></span>
                   </label>
@@ -120,9 +121,9 @@
             <div class="col-md-12">
               <div class="form-group">
                 <label><span ng-bind="i18n.__('Description')"></span>:</label>
-                <textarea class="form-control" 
-                          ng-model="ctrl.view.description" 
-                          rows="3" 
+                <textarea class="form-control"
+                          ng-model="ctrl.view.description"
+                          rows="3"
                           placeholder="{{ i18n.__('View Description') }}"></textarea>
               </div>
               <!-- /.form-group -->
@@ -137,15 +138,15 @@
         <div class="col-md-6">
           <div class="form-group" terrama2-show-errors>
             <label><span ng-bind="i18n.__('View Data Series')"></span>:</label>
-            <select class="form-control" 
-                    name="dataSeries" 
+            <select class="form-control"
+                    name="dataSeries"
                     ng-model="ctrl.view.data_series_id"
-                    ng-options="dSeries.id as dSeries.name for dSeries in ctrl.dataSeries"
+                    ng-options="dSeries.id as dSeries.name for dSeries in ctrl.dataSeries | orderBy: 'name'"
                     ng-change="ctrl.onDataSeriesChanged(ctrl.view.data_series_id, dSeries)"
                     required>
             </select>
 
-            <span class="help-block" 
+            <span class="help-block"
               ng-show="forms.dataSeriesForm.dataSeries.$dirty && forms.dataSeriesForm.dataSeries.$error.required"
               ng-bind="i18n.__('Data Series is required')">
             </span>
@@ -154,149 +155,29 @@
       </form>
     </terrama2-box>
 
-    <terrama2-box title="i18n.__('Schedule')" css="ctrl.css" ng-show="ctrl.isDynamic">
+    <terrama2-box title="i18n.__('Schedule')" css="ctrl.css" ng-show="ctrl.isDynamic && ctrl.isValid">
       <div class="col-md-12">
         <terrama2-schedule model="ctrl.view.schedule" options="ctrl.scheduleOptions"></terrama2-schedule>
       </div>
     </terrama2-box>
 
     <terrama2-box title="i18n.__('Style')" css="ctrl.css"
-                  ng-show="ctrl.viewDataSeries.data_series_semantics.data_series_type_name === ctrl.DataSeriesType.GRID">
-      <form name="forms.styleForm">                 
-        <div class="col-md-12 terrama2-nopadding-box"
-             ng-show="false">
-          <!-- Line -->
-          <div class="col-md-12">
-            <div class="col-md-6">
-              <div class="form-group" terrama2-show-errors>
-                <label ng-bind="i18n.__('Line Stroke Width')"></label>
-                <input class="form-control" 
-                      name="lineStroke"
-                      ng-model="ctrl.lineStroke" 
-                      placeholder="{{ i18n.__('Line Stroke Width') }}" type="number">
-
-                <span class="help-block" 
-                  ng-show="forms.styleForm.lineStroke.$dirty && forms.styleForm.lineStroke.$error.required"
-                  ng-bind="i18n.__('Line Stroke Width is required for View data series')">
-                </span>
-              </div>
-            </div> <!-- ./col-md-6 -->
-            <div class="col-md-6">
-              <div class="form-group">
-                <label ng-bind="i18n.__('Color')"></label>
-                <color-picker ng-model="ctrl.lineStrokeColor" options="ctrl.colorOptions"></color-picker>
-              </div>
-            </div><!-- ./col-md-6 -->
-          </div>
-          <!-- Polygon -->
-          <div class="col-md-12">
-            <div class="col-md-6">
-              <div class="form-group" terrama2-show-errors>
-                <label ng-bind="i18n.__('Polygon Stroke Width')"></label>
-                <input class="form-control" 
-                      name="polygonStroke"
-                      ng-model="ctrl.polygonStroke" 
-                      placeholder="{{ i18n.__('Polygon Stroke Width') }}" type="number">
-
-                <span class="help-block" 
-                  ng-show="forms.styleForm.polygonStroke.$dirty && forms.styleForm.polygonStroke.$error.required"
-                  ng-bind="i18n.__('Polygon Stroke Width is required for View data series')">
-                </span>
-              </div>
-            </div> <!-- ./col-md-6 -->
-            <div class="col-md-6">
-              <div class="form-group">
-                <label ng-bind="i18n.__('Color')"></label>
-                <color-picker ng-model="ctrl.polygonStrokeColor" options="ctrl.colorOptions"></color-picker>
-              </div>
-            </div><!-- ./col-md-6 -->
-          </div>
-          <!-- Point -->
-          <div class="col-md-12">
-            <div class="col-md-6">
-              <div class="form-group" terrama2-show-errors>
-                <label ng-bind="i18n.__('Point Size')"></label>
-                <input class="form-control" 
-                      name="pointSize"
-                      ng-model="ctrl.pointSize" 
-                      placeholder="{{ i18n.__('Point Size') }}" type="number">
-
-                <span class="help-block" 
-                  ng-show="forms.styleForm.pointSize.$dirty && forms.styleForm.pointSize.$error.required"
-                  ng-bind="i18n.__('Point Size is required for View data series')">
-                </span>
-              </div>
-            </div> <!-- ./col-md-6 -->
-            <div class="col-md-6">
-              <div class="form-group">
-                <label ng-bind="i18n.__('Color')"></label>
-                <color-picker ng-model="ctrl.pointStrokeColor" options="ctrl.colorOptions"></color-picker>
-              </div>
-            </div><!-- ./col-md-6 -->
-          </div>
-        </div>
-        <!-- GRID -->
-        <div class="col-md-12 terrama2-nopadding-box"
-             ng-show="ctrl.viewDataSeries.data_series_semantics.data_series_type_name === ctrl.DataSeriesType.GRID">
-          <div class="col-md-12">
-            <div class="col-md-6">
-              <div class="form-group" terrama2-show-errors>
-                <label ng-bind="i18n.__('Min value')"></label>
-                <input class="form-control" 
-                      name="minValue"
-                      ng-model="ctrl.minValue" 
-                      placeholder="{{ i18n.__('Min value') }}" type="number"
-                      ng-required="ctrl.viewDataSeries.data_series_semantics.data_series_type_name === ctrl.DataSeriesType.GRID">
-
-                <span class="help-block" 
-                  ng-show="forms.styleForm.minValue.$dirty && forms.styleForm.minValue.$error.required"
-                  ng-bind="i18n.__('Min value is required for GRID data series')">
-                </span>
-              </div>
-            </div> <!-- ./col-md-6 -->
-            <div class="col-md-6">
-              <div class="form-group">
-                <label ng-bind="i18n.__('Color')"></label>
-                <color-picker ng-model="ctrl.minColor" options="ctrl.colorOptions"></color-picker>
-              </div>
-            </div><!-- ./col-md-6 -->
-          </div>
-
-          <div class="col-md-12">
-            <div class="col-md-6">
-              <div class="form-group" terrama2-show-errors>
-                <label ng-bind="i18n.__('Max value')"></label>
-                <input class="form-control" 
-                      name="maxValue" 
-                      ng-model="ctrl.maxValue" 
-                      placeholder="{{ i18n.__('Max value') }}" type="number"
-                      ng-required="ctrl.viewDataSeries.data_series_semantics.data_series_type_name === ctrl.DataSeriesType.GRID">
-                <span class="help-block" 
-                  ng-show="forms.styleForm.maxValue.$dirty && forms.styleForm.maxValue.$error.required"
-                  ng-bind="i18n.__('Max value is required for GRID data series')">
-                </span>
-              </div>
-            </div> <!-- ./col-md-6 -->
-            <div class="col-md-6">
-              <div class="form-group">
-                <label ng-bind="i18n.__('Color')"></label>
-                <color-picker ng-model="ctrl.maxColor" options="ctrl.colorOptions"></color-picker>
-              </div>
-            </div><!-- ./col-md-6 -->
-          </div>
-        </div>
+                  ng-show="ctrl.viewDataSeries.data_series_semantics.data_series_type_name && ctrl.viewDataSeries.data_series_semantics.data_series_type_name !== ctrl.DataSeriesType.DCP && ctrl.isValid">
+      <form name="forms.styleForm" novalidate>
+        <!-- Vectorial -->
+        <terrama2-style-legend form-ctrl="forms.styleForm" type="ctrl.targetDataSeriesType" model="ctrl.legend"></terrama2-style-legend>
       </form>
     </terrama2-box>
 
     <div class="box-footer">
       <div class="btn-group pull-right" style="margin-left: 10px;">
-        <button type="button" class="btn btn-primary" ng-bind="i18n.__('Save and Run')" data-ng-click="ctrl.save(true);"></button>
-        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <button ng-disabled="!ctrl.isValid" type="button" class="btn btn-primary" ng-bind="i18n.__('Save and Run')" data-ng-click="ctrl.isValid && ctrl.save(true);"></button>
+        <button ng-disabled="!ctrl.isValid" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           <span class="caret"></span>
           <span class="sr-only"></span>
         </button>
         <ul class="dropdown-menu terrama2-button-dropdown">
-          <li><a href="javascript::void();" data-ng-click="ctrl.save(false);" ng-bind="i18n.__('Save')"></a></li>
+          <li><a href="javascript::void();" ng-disabled="!ctrl.isValid" data-ng-click="ctrl.isValid && ctrl.save(false);" ng-bind="i18n.__('Save')"></a></li>
         </ul>
       </div>
       <a href="/configuration/views/" class="btn btn-primary pull-right" style="margin-left: 10px;">

@@ -42,8 +42,8 @@
 #include <QString>
 #include <QObject>
 
-void terrama2::services::view::core::Serialization::writeStyleGeoserverXML(const te::se::Style* style,
-                                                                               const std::string path)
+void terrama2::services::view::core::Serialization::writeVectorialStyleGeoserverXML(const te::se::Style* style,
+                                                                                    const std::string path)
 {
 
   std::auto_ptr<te::xml::AbstractWriter> writer(te::xml::AbstractWriterFactory::make());
@@ -78,7 +78,7 @@ void terrama2::services::view::core::Serialization::writeStyleGeoserverXML(const
 
 
 std::unique_ptr<te::se::Style>
-terrama2::services::view::core::Serialization::readStyleXML(const std::string path)
+terrama2::services::view::core::Serialization::readVectorialStyleXML(const std::string path)
 {
   std::unique_ptr<te::se::Style> style;
 
@@ -192,4 +192,84 @@ terrama2::services::view::core::Serialization::readStyleXML(const std::string pa
   }
 
   return style;
+}
+
+
+static bool compareByNumericValue(const terrama2::services::view::core::View::Legend::Rule& a,
+                                  const terrama2::services::view::core::View::Legend::Rule& b)
+{
+  return std::stol(a.value) < std::stol(b.value);
+}
+
+void terrama2::services::view::core::Serialization::writeCoverageStyleGeoserverXML(const View::Legend legend,
+                                                                                   const std::string path)
+{
+  std::unique_ptr<te::xml::AbstractWriter> writer(te::xml::AbstractWriterFactory::make());
+
+  writer->setURI(path);
+  writer->writeStartDocument("UTF-8", "no");
+
+  writer->writeStartElement("StyledLayerDescriptor");
+
+  writer->writeAttribute("xmlns", "http://www.opengis.net/sld");
+  writer->writeAttribute("xmlns:ogc", "http://www.opengis.net/ogc");
+  writer->writeAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+  writer->writeAttribute("version", "1.0.0");
+  writer->writeAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
+  writer->writeAttribute("xsi:schemaLocation", "http://www.opengis.net/sld http://schemas.opengis.net/sld/1.0.0/StyledLayerDescriptor.xsd");
+  writer->writeAttribute("xmlns:se", "http://www.opengis.net/se");
+
+  writer->writeStartElement("NamedLayer");
+  writer->writeElement("Name", "Layer");
+  writer->writeStartElement("UserStyle");
+  writer->writeElement("Name", "Style");
+
+  writer->writeElement("Title", "Style for a Coverage layer.");
+
+  writer->writeStartElement("FeatureTypeStyle");
+  writer->writeStartElement("Rule");
+  writer->writeStartElement("RasterSymbolizer");
+  writer->writeStartElement("ColorMap");
+
+  std::string classifyType;
+
+  if(legend.classify == View::Legend::ClassifyType::INTERVALS)
+  {
+    classifyType = "intervals";
+  }
+  else if(legend.classify == View::Legend::ClassifyType::VALUES)
+  {
+    classifyType = "values";
+  }
+  else
+  {
+    classifyType =  "ramp";
+  }
+
+  writer->writeAttribute("type", classifyType);
+
+  std::vector< View::Legend::Rule > rules = legend.rules;
+  std::sort(rules.begin(), rules.end(), compareByNumericValue);
+
+  for(auto& rule : rules)
+  {
+    writer->writeStartElement("ColorMapEntry");
+    writer->writeAttribute("color", rule.color);
+    writer->writeAttribute("quantity", rule.value);
+    writer->writeAttribute("label", rule.title);
+    writer->writeAttribute("opacity", "1");
+    writer->writeEndElement("ColorMapEntry");
+  }
+
+  writer->writeEndElement("ColorMap");
+  writer->writeEndElement("RasterSymbolizer");
+  writer->writeEndElement("Rule");
+  writer->writeEndElement("FeatureTypeStyle");
+
+  writer->writeEndElement("UserStyle");
+  writer->writeEndElement("NamedLayer");
+
+  writer->writeEndElement("StyledLayerDescriptor");
+  writer->writeToFile();
+
 }

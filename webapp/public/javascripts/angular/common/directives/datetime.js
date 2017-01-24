@@ -58,4 +58,4 @@ define(
 
     return terrama2Datetime;
   }
-)
+);

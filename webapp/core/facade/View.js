@@ -6,6 +6,7 @@
   var Enums = require("./../Enums");
   var Utils = require("./../Utils");
   var PromiseClass = require("./../Promise");
+  var _ = require("lodash");
   /**
    * @type {RequestFactory}
    */
@@ -165,10 +166,48 @@
           })
 
           .then(function() {
-            return DataManager.updateView({id: viewId}, viewObject, options)
-              .then(function() {
-                return DataManager.getView({id: viewId}, options);
-              });
+            return DataManager.updateView({id: viewId}, viewObject, options);
+          })
+
+          .then(function() {
+            if (viewObject.legend && viewObject.legend.operation_id) {
+              // if there is no legend before, insert a new one
+              var legend = viewObject.legend;
+              legend.view_id = viewId;
+              if (!view.legend) {
+                // insert legend
+                return DataManager.addViewStyleLegend(legend, options);
+              } else { // otherwise, update
+                // TODO: remove it. It should just performs upSert operation instead remove and insert. This implementation was necessary due color generation in 
+                // front end does not keep ID
+                // remove all colors and insert again
+                return DataManager.removeViewStyleColor({view_style_id: view.legend.id}, options)
+                  .then(function() {
+                    // update
+                    var promises = [];
+                    for(var i = 0; i < legend.colors.length; ++i) {
+                      var color = legend.colors[i];
+                      delete color.id; // if there is
+                      color.view_style_id = view.legend.id;
+                      promises.push(DataManager.addViewStyleColor(color, options));
+                    }
+                    return PromiseClass.all(promises)
+                      .then(function() {
+                        return DataManager.updateViewStyleLegend({id: view.legend.id}, legend, options);
+                      });
+                  });
+              }
+            } else {
+              // if there is legend before, remove it
+              if (view.legend) {
+                return DataManager.removeViewStyleLegend({id: viewObject.legend.id}, options);
+              }
+              return null;
+            }
+          })
+          // once updated all
+          .then(function() {
+            return DataManager.getView({id: viewId}, options);
           });
       })
 

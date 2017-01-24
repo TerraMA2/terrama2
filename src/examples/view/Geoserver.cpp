@@ -37,6 +37,7 @@
 #include <terrama2/core/utility/TerraMA2Init.hpp>
 #include <terrama2/impl/Utils.hpp>
 #include <terrama2/services/view/core/data-access/Geoserver.hpp>
+#include <terrama2/services/view/core/data-access/DataAccess.hpp>
 #include <terrama2/services/view/core/JSonUtils.hpp>
 #include <terrama2/core/utility/TerraMA2Init.hpp>
 
@@ -90,9 +91,12 @@ int main(int argc, char** argv)
                                                   {"PG_CLIENT_ENCODING", "UTF-8"}
                                                 };
 
-    geoserver.registerPostgisTable("ashapepostgis", connInfo, "muni", "muni");
+    std::unique_ptr<te::da::DataSetType> dsType(terrama2::services::view::core::DataAccess::getDataSetType("dataSourceURI",
+                                                               "muni", "POSTGIS"));
 
-    geoserver.registerPostgisTable("aviewpostgis", connInfo, "view_muni", "view_muni", "", "SELECT * FROM muni WHERE gid = 558");
+    geoserver.registerPostgisTable("ashapepostgis", connInfo, "muni", "muni", dsType);
+
+    geoserver.registerPostgisTable("aviewpostgis", connInfo, "view_muni", "view_muni", dsType, "", "SELECT * FROM muni WHERE gid = 558");
 
     // Registering a style
     geoserver.registerStyle("astyle", "style");
