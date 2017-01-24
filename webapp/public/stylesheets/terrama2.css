@@ -387,6 +387,15 @@ tbody td:last-child, thead th:last-child {
 }
 /* end scroll table */
 
+.tool-tip {
+  display: inline-block !important;
+  float: right !important;
+}
+
+.tool-tip [disabled] {
+  pointer-events: none !important;
+}
+
 /*
   It fixes intersection nav to include check icon
 */
