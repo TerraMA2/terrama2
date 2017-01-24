@@ -596,5 +596,7 @@
 	"Remove store configuration": "Remove store configuration",
 	"Remove intersection configuration": "Remove intersection configuration",
 	"Remove filter configuration": "Remove filter configuration",
-	"Add intersection configuration": "Add intersection configuration"
+	"Add intersection configuration": "Add intersection configuration",
+	"Filter by static data": "Filter by static data",
+	"Data series is required": "Data series is required"
 }

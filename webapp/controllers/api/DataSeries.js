@@ -191,6 +191,10 @@ module.exports = function(app) {
                       filterUpdate.region = null;
                     }
 
+                    if (!filterObject.data_series_id) {
+                      filterUpdate.data_series_id = null;
+                    }
+
                     if (!Utils.isEmpty(filterObject.date)) {
                       if (!filterObject.date.beforeDate) {
                         filterUpdate.discard_before = null;

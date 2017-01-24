@@ -164,7 +164,8 @@ namespace terrama2
            - Geometry attribute is null (will be logged)
 
         */
-        virtual bool isValidGeometry(std::shared_ptr<te::mem::DataSet> dataSet, const Filter&  filter, size_t geomColumn) const;
+
+        virtual bool isValidGeometry(std::shared_ptr<te::mem::DataSet> dataSet, const Filter& filter, size_t geomColumn, std::unordered_map<DataSetPtr, DataSetSeries>& seriesStaticData) const;
 
         /*!
           \brief Filter dataset by raster envelope
