@@ -2411,6 +2411,7 @@ var DataManager = module.exports = {
               "by_value",
               "crop_raster",
               "collector_id",
+              "data_series_id",
               [orm.fn('ST_AsEwkt', orm.col('region')), 'region_wkt'],
               [orm.fn('ST_AsGeoJSON', orm.col('region'), 0, 2), 'region']
             ]
@@ -2698,7 +2699,7 @@ var DataManager = module.exports = {
     return new Promise(function(resolve, reject) {
       var filterValues = _processFilter(filterObject);
       return models.db.Filter.update(filterValues, Utils.extend({
-        fields: ['frequency', 'frequency_unit', 'discard_before', 'discard_after', 'region', 'by_value'],
+        fields: ['frequency', 'frequency_unit', 'discard_before', 'discard_after', 'region', 'by_value', 'data_series_id'],
         where: {
           id: filterId
         }

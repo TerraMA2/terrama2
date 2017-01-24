@@ -32,6 +32,7 @@
 
 #include "Alert.hpp"
 #include "Shared.hpp"
+#include "../../../core/data-model/DataManager.hpp"
 
 // Qt
 #include <QJsonObject>
@@ -49,7 +50,7 @@ namespace terrama2
           \see Alert for json structure
           \see [Alert at Trac](https://trac.dpi.inpe.br/terrqama2/wiki/programmersguide/architecture/services/collector/Alert) for more information.
           */
-        AlertPtr fromAlertJson(QJsonObject json);
+        AlertPtr fromAlertJson(QJsonObject json, terrama2::core::DataManager* dataManager);
 
         /*!
           \brief Creates a Json object from a Alert

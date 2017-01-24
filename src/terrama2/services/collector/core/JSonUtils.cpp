@@ -30,6 +30,7 @@
 #include "JSonUtils.hpp"
 #include "Intersection.hpp"
 #include "../../../core/Exception.hpp"
+#include "../../../core/data-model/DataManager.hpp"
 #include "../../../core/utility/JSonUtils.hpp"
 #include "../../../core/utility/Logger.hpp"
 
@@ -38,7 +39,7 @@
 #include <QJsonArray>
 #include <QObject>
 
-terrama2::services::collector::core::CollectorPtr terrama2::services::collector::core::fromCollectorJson(QJsonObject json)
+terrama2::services::collector::core::CollectorPtr terrama2::services::collector::core::fromCollectorJson(QJsonObject json, terrama2::core::DataManager* dataManager)
 {
   if(json["class"].toString() != "Collector")
   {
@@ -80,7 +81,7 @@ terrama2::services::collector::core::CollectorPtr terrama2::services::collector:
   }
 
   collector->schedule = terrama2::core::fromScheduleJson(json["schedule"].toObject());
-  collector->filter = terrama2::core::fromFilterJson(json["filter"].toObject());
+  collector->filter = terrama2::core::fromFilterJson(json["filter"].toObject(), dataManager);
   collector->intersection = terrama2::services::collector::core::fromIntersectionJson(json["intersection"].toObject());
   collector->active = json["active"].toBool();
 
