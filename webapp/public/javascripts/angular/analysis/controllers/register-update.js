@@ -397,6 +397,14 @@ define([], function() {
           {name: "Dynamic", children: []}
         ];
 
+        self.onServiceChanged = onServiceChanged;
+
+        function onServiceChanged() {
+          if (self.analysis && self.analysis.instance_id) {
+            socket.emit("status", {service: self.analysis.instance_id});
+          }
+        }
+
         /**
          * It will re-map available data series in buffers (additional data) depending analysis type.
          * 
@@ -1068,9 +1076,7 @@ define([], function() {
         };
 
         $timeout(function waitAngularCondition() {
-          if (self.analysis && self.analysis.instance_id) {
-            socket.emit("status", {service: self.analysis.instance_id});
-          }
+          onServiceChanged();
         });
       })
 

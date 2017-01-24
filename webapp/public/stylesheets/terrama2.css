@@ -335,6 +335,15 @@ bootstrap-decorator span {
   cursor: not-allowed;
 }
 
+.tool-tip {
+  display: inline-block !important;
+  float: right !important;
+}
+
+.tool-tip [disabled] {
+  pointer-events: none !important;
+}
+
 /*
   It fixes intersection nav to include check icon
 */
