@@ -423,29 +423,33 @@ define([], function() {
 
           if (parseInt(self.analysis.type_id) === AnalysisService.types.GRID) {
             DataSeriesService.list().forEach(function(dSeries) {
-              var semantics = dSeries.data_series_semantics;
+              if(config.analysis.dataSeries === undefined || dSeries.id !== config.analysis.dataSeries.id) {
+                var semantics = dSeries.data_series_semantics;
 
-              if (semantics.temporality === Globals.enums.TemporalityType.DYNAMIC){
-                dSeries.isDynamic = true;
-                self.buffers.dynamic.push(dSeries);
-              } else {
-                dSeries.isDynamic = false;
-                self.buffers.static.push(dSeries);
+                if (semantics.temporality === Globals.enums.TemporalityType.DYNAMIC){
+                  dSeries.isDynamic = true;
+                  self.buffers.dynamic.push(dSeries);
+                } else {
+                  dSeries.isDynamic = false;
+                  self.buffers.static.push(dSeries);
+                }
               }
             });
           } else {
             DataSeriesService.list().forEach(function(dSeries) {
-              var semantics = dSeries.data_series_semantics;
+              if(config.analysis.dataSeries === undefined || dSeries.id !== config.analysis.dataSeries.id) {
+                var semantics = dSeries.data_series_semantics;
 
-              if (semantics.temporality === Globals.enums.TemporalityType.STATIC) {
-                // skip target data series in additional data
-                if (self.targetDataSeries && self.targetDataSeries.id !== dSeries.id) {
-                  dSeries.isDynamic = false;
-                  self.buffers.static.push(dSeries);
+                if (semantics.temporality === Globals.enums.TemporalityType.STATIC) {
+                  // skip target data series in additional data
+                  if (self.targetDataSeries && self.targetDataSeries.id !== dSeries.id) {
+                    dSeries.isDynamic = false;
+                    self.buffers.static.push(dSeries);
+                  }
+                } else {
+                  dSeries.isDynamic = true;
+                  self.buffers.dynamic.push(dSeries);
                 }
-              } else {
-                dSeries.isDynamic = true;
-                self.buffers.dynamic.push(dSeries);
               }
             });
           }
