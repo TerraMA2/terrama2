@@ -43,40 +43,42 @@ define(function() {
     };
 
     $scope.projectCheck = function(element) {
-      if($scope.projectsCheckboxes[element.id].project) {
-        if($scope.projectsCheckboxes[element.id].DataProviders != undefined) {
-          for(var property in $scope.projectsCheckboxes[element.id].DataProviders) {
-            if($scope.projectsCheckboxes[element.id].DataProviders.hasOwnProperty(property))
-              $scope.projectsCheckboxes[element.id].DataProviders[property] = true;
-          }
-        }
+      var flag = ($scope.projectsCheckboxes[element.id].project ? true : false);
 
-        if($scope.projectsCheckboxes[element.id].DataSeries != undefined) {
-          for(var property in $scope.projectsCheckboxes[element.id].DataSeries) {
-            if($scope.projectsCheckboxes[element.id].DataSeries.hasOwnProperty(property))
-              $scope.projectsCheckboxes[element.id].DataSeries[property] = true;
-          }
-        }
+      $scope.dependencies = {};
 
-        if($scope.projectsCheckboxes[element.id].DataSeriesStatic != undefined) {
-          for(var property in $scope.projectsCheckboxes[element.id].DataSeriesStatic) {
-            if($scope.projectsCheckboxes[element.id].DataSeriesStatic.hasOwnProperty(property))
-              $scope.projectsCheckboxes[element.id].DataSeriesStatic[property] = true;
-          }
+      if($scope.projectsCheckboxes[element.id].DataProviders != undefined) {
+        for(var property in $scope.projectsCheckboxes[element.id].DataProviders) {
+          if($scope.projectsCheckboxes[element.id].DataProviders.hasOwnProperty(property))
+            $scope.projectsCheckboxes[element.id].DataProviders[property] = flag;
         }
+      }
 
-        if($scope.projectsCheckboxes[element.id].Analysis != undefined) {
-          for(var property in $scope.projectsCheckboxes[element.id].Analysis) {
-            if($scope.projectsCheckboxes[element.id].Analysis.hasOwnProperty(property))
-              $scope.projectsCheckboxes[element.id].Analysis[property] = true;
-          }
+      if($scope.projectsCheckboxes[element.id].DataSeries != undefined) {
+        for(var property in $scope.projectsCheckboxes[element.id].DataSeries) {
+          if($scope.projectsCheckboxes[element.id].DataSeries.hasOwnProperty(property))
+            $scope.projectsCheckboxes[element.id].DataSeries[property] = flag;
         }
+      }
 
-        if($scope.projectsCheckboxes[element.id].Views != undefined) {
-          for(var property in $scope.projectsCheckboxes[element.id].Views) {
-            if($scope.projectsCheckboxes[element.id].Views.hasOwnProperty(property))
-              $scope.projectsCheckboxes[element.id].Views[property] = true;
-          }
+      if($scope.projectsCheckboxes[element.id].DataSeriesStatic != undefined) {
+        for(var property in $scope.projectsCheckboxes[element.id].DataSeriesStatic) {
+          if($scope.projectsCheckboxes[element.id].DataSeriesStatic.hasOwnProperty(property))
+            $scope.projectsCheckboxes[element.id].DataSeriesStatic[property] = flag;
+        }
+      }
+
+      if($scope.projectsCheckboxes[element.id].Analysis != undefined) {
+        for(var property in $scope.projectsCheckboxes[element.id].Analysis) {
+          if($scope.projectsCheckboxes[element.id].Analysis.hasOwnProperty(property))
+            $scope.projectsCheckboxes[element.id].Analysis[property] = flag;
+        }
+      }
+
+      if($scope.projectsCheckboxes[element.id].Views != undefined) {
+        for(var property in $scope.projectsCheckboxes[element.id].Views) {
+          if($scope.projectsCheckboxes[element.id].Views.hasOwnProperty(property))
+            $scope.projectsCheckboxes[element.id].Views[property] = flag;
         }
       }
     };
@@ -92,35 +94,28 @@ define(function() {
         if($scope.dependencies.hasOwnProperty(objectType) && $scope.dependencies.hasOwnProperty(objectId))
           delete $scope.dependencies[objectType][objectId];
 
-        uncheckDependents(objectId, projectId);
+        uncheckDependents(objectId, objectType, projectId);
       }
     };
 
-    var uncheckDependents = function(dependencie, projectId) {
+    var uncheckDependents = function(dependencie, dependencieType, projectId) {
       for(var propertyType in $scope.dependencies) {
         if($scope.dependencies.hasOwnProperty(propertyType)) {
           for(var propertyId in $scope.dependencies[propertyType]) {
-            if($scope.dependencies[propertyType].hasOwnProperty(propertyId)) {
+            if($scope.dependencies[propertyType].hasOwnProperty(propertyId) && $scope.dependencies[propertyType][propertyId][dependencieType] !== undefined) {
               var deleteObject = false;
 
-              for(var propertyArray in $scope.dependencies[propertyType][propertyId]) {
-                if($scope.dependencies[propertyType][propertyId].hasOwnProperty(propertyArray)) {
-                  for(var i = 0, arrayLength = $scope.dependencies[propertyType][propertyId][propertyArray].length; i < arrayLength; i++) {
-                    if($scope.dependencies[propertyType][propertyId][propertyArray][i] == dependencie) {
-                      deleteObject = true;
-                      break;
-                    }
-                  }
-
-                  if(deleteObject)
-                    break;
+              for(var i = 0, arrayLength = $scope.dependencies[propertyType][propertyId][dependencieType].length; i < arrayLength; i++) {
+                if($scope.dependencies[propertyType][propertyId][dependencieType][i] == dependencie) {
+                  deleteObject = true;
+                  break;
                 }
               }
 
               if(deleteObject) {
                 $scope.projectsCheckboxes[projectId][propertyType][propertyId] = false;
                 delete $scope.dependencies[propertyType][propertyId];
-                uncheckDependents(propertyId, projectId);
+                uncheckDependents(propertyId, propertyType, projectId);
               }
             }
           }
