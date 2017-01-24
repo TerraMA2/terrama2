@@ -1020,7 +1020,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
             modelDataSetType.reset(DataAccess::getVectorialDataSetType(fileInfo));
           }
 
-          registerVectorFile(viewPtr->viewName + std::to_string(inputDataSeries->id) + "datastore",
+          registerVectorFile(std::to_string(viewPtr->id) + "_" + std::to_string(inputDataSeries->id) + "_datastore",
                              fileInfo.absoluteFilePath().toStdString(),
                              fileInfo.completeSuffix().toStdString());
         }
@@ -1031,7 +1031,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
             modelDataSetType.reset(DataAccess::getGeotiffDataSetType(fileInfo));
           }
 
-          registerCoverageFile(std::to_string(viewPtr->id) + fileInfo.fileName().toStdString() ,
+          registerCoverageFile(std::to_string(viewPtr->id) + "_" + fileInfo.fileName().toStdString() + "_coveragestore",
                                fileInfo.absoluteFilePath().toStdString(),
                                fileInfo.completeBaseName().toStdString(),
                                "geotiff");
@@ -1062,7 +1062,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
       TableInfo tableInfo = DataAccess::getPostgisTableInfo(dataSeriesProvider, dataset);
 
       std::string tableName = tableInfo.tableName;
-      std::string layerName = viewPtr->viewName + "_"  + tableInfo.tableName;
+      std::string layerName = tableInfo.tableName + "_layer_" + viewPtr->viewName;
       std::string timestampPropertyName = tableInfo.timestampPropertyName;
 
       modelDataSetType = std::move(tableInfo.dataSetType);
@@ -1144,7 +1144,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
   // Register style
   std::string styleName = "";
 
-  styleName = viewPtr->viewName + "style" + std::to_string(inputDataSeries->id);
+  styleName = inputDataSeries->name + "_style_" + viewPtr->viewName;
   registerStyle(styleName, viewPtr->legend, modelDataSetType);
 
 
