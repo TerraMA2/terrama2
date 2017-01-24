@@ -1073,7 +1073,7 @@ define([], function() {
       $scope.isSchedule = false;
       $scope.services = [];
       // fix: temp code
-      $scope.services = Service.list();
+      $scope.services = Service.list({service_type_id: globals.enums.ServiceType.COLLECTOR});
 
       // Wizard validations
       $scope.isFirstStepValid = function(obj) {
