@@ -546,5 +546,19 @@
 	"Maps Server URI": "URI do servidor de mapas",
 	"Maps Server URI is required for View Services": "URI do servidor de mapas é obrigatório para serviço de visualização",
 	"Port number": "Número da porta",
-	"Local Service": "Serviço local"
+	"Local Service": "Serviço local",
+	"Table Name": "Nome da tabela",
+	"Folder": "Pasta",
+	"SRID": "SRID",
+	"Table_name": "Nome da tabela",
+	"CTL File": "Arquivo CTL",
+	"Number of Bands": "Número de bandas",
+	"Bytes After": "Bytes posteriores",
+	"Multiplier": "Multiplicador",
+	"Data Type": "Tipo de dado",
+	"Binary File Mask": "Máscara do arquivo binário",
+	"Temporal": "Temporal",
+	"Bytes Before": "Bytes anteriores",
+	"Time Interval": "Intervalo de tempo",
+	"Time Interval Unit": "Unidade de tempo"
 }

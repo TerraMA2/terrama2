@@ -608,5 +608,9 @@
 	"Custom": "Custom",
 	"Smallest grid": "Smallest grid",
 	"Biggest grid": "Biggest grid",
-	"Local Service": "Local Service"
+	"Local Service": "Local Service",
+	"Table Name": "Table Name",
+	"SRID": "SRID",
+	"Table_name": "Table name",
+	"Folder": "Folder"
 }
