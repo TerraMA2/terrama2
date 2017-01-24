@@ -16,6 +16,7 @@ function Filter(params) {
   this.by_value = params.by_value;
   this.crop_raster = params.crop_raster;
   this.collector_id = params.collector_id;
+  this.data_series_id = params.data_series_id;
 }
 
 Filter.prototype = Object.create(AbstractClass.prototype);
@@ -36,7 +37,8 @@ Filter.prototype.toObject = function() {
     region: this.region_wkt || this.region,
     by_value: this.by_value,
     crop_raster: this.crop_raster,
-    collector_id: this.collector_id
+    collector_id: this.collector_id,
+    data_series_id: this.data_series_id
   });
 };
 
