@@ -749,7 +749,7 @@ define([], function() {
         for(var k in fmt) {
           if (fmt.hasOwnProperty(k)) {
             // checking if a number
-            if (isNaN(fmt[k]) || typeof fmt[k] == "boolean") {
+            if (isNaN(fmt[k]) || fmt[k] == "" || typeof fmt[k] == "boolean") {
               if (k === "active") {
                 output[k] = typeof fmt[k] === "string" ? fmt[k] === "true" : fmt[k]; 
               } else {
