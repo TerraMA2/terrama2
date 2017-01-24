@@ -39,6 +39,10 @@ define([
             $scope.i18n = i18n;
             var locale = locales[i18n.userLanguage];
 
+            if (!locale) {
+              locale = "en";
+            }
+
             this.optionsFrom = {locale: locale, sideBySide: true, toolbarPlacement: "top", allowInputToggle: true, useCurrent: false,  format: "L HH:mm"};
             this.optionsTo = {locale: locale, sideBySide: true, toolbarPlacement: "top", allowInputToggle: true, useCurrent: false,  format: "L HH:mm"};
 
