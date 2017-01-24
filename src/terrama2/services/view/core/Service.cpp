@@ -220,20 +220,18 @@ void terrama2::services::view::core::Service::viewJob(const terrama2::core::Exec
 
     auto viewPtr = dataManager->findView(viewId);
 
-    std::unordered_map< terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr > dataSeriesProviders;
-    for(auto dataSeriesId : viewPtr->dataSeriesList)
-    {
-      terrama2::core::DataSeriesPtr inputDataSeries = dataManager->findDataSeries(dataSeriesId);
-      terrama2::core::DataProviderPtr inputDataProvider = dataManager->findDataProvider(inputDataSeries->dataProviderId);
-
-      dataSeriesProviders.emplace(inputDataSeries, inputDataProvider);
-    }
+    terrama2::core::DataSeriesPtr inputDataSeries = dataManager->findDataSeries(viewPtr->dataSeriesID);
+    terrama2::core::DataProviderPtr inputDataProvider = dataManager->findDataProvider(inputDataSeries->dataProviderId);
 
     lock.unlock();
 
     /////////////////////////////////////////////////////////////////////////
 
-    QJsonObject mapsServerAnswer = mapsServer->generateLayers(viewPtr, dataSeriesProviders, dataManager, logger, logId);
+    QJsonObject mapsServerAnswer = mapsServer->generateLayers(viewPtr,
+                                                              std::make_pair(inputDataSeries, inputDataProvider),
+                                                              dataManager,
+                                                              logger,
+                                                              logId);
 
     jsonAnswer = mapsServerAnswer;
     jsonAnswer.insert("class", QString("RegisteredViews"));

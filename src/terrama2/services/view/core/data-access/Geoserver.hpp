@@ -292,10 +292,10 @@ namespace terrama2
                                           const std::map<std::string, std::string> connInfo) const;
 
             virtual QJsonObject generateLayers(const ViewPtr viewPtr,
-                                               const std::unordered_map< terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr >& dataSeriesProviders,
+                                               const std::pair<terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr>& dataSeriesProvider,
                                                const std::shared_ptr<DataManager> dataManager,
                                                std::shared_ptr<ViewLogger> logger,
-                                               const RegisterId logId);
+                                               const RegisterId logId) override;
 
             std::string getGeomTypeString(const te::gm::GeomType& geomType) const;
 

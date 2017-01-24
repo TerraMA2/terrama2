@@ -60,17 +60,9 @@ QJsonObject terrama2::services::view::core::toJson(ViewPtr view)
   obj.insert("srid", static_cast<int32_t>(view->srid));
   obj.insert("schedule", terrama2::core::toJson(view->schedule));
 
-  DataSeriesId dataSeriesID = view->dataSeriesList.at(0);
+  obj.insert("dataseries_id", static_cast<int32_t>(view->dataSeriesID));
 
-  obj.insert("dataseries_id", static_cast<int32_t>(dataSeriesID));
-
-  // Style serialization
-  {
-    for(auto& it : view->stylesPerDataSeries)
-    {
-      obj.insert("style", QString::fromStdString(it.second));
-    }
-  }
+  obj.insert("legend", toJson(view->legend));
 
   return obj;
 }
@@ -110,11 +102,9 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
 
   uint32_t dataseriesID = static_cast<uint32_t>(json["dataseries_id"].toInt());
 
-  view->dataSeriesList.push_back(dataseriesID);
+  view->dataSeriesID = dataseriesID;
 
-  view->stylesPerDataSeries.emplace(dataseriesID, json["style"].toString().toStdString());
-
-  view->legendPerDataSeries.emplace(dataseriesID, fromLegendJson(json["legend"].toObject()));
+  view->legend = fromLegendJson(json["legend"].toObject());
 
   view->schedule = terrama2::core::fromScheduleJson(json["schedule"].toObject());
 
@@ -170,4 +160,37 @@ terrama2::services::view::core::View::Legend terrama2::services::view::core::fro
   }
 
   return legend;
+}
+
+QJsonObject terrama2::services::view::core::toJson(View::Legend legend)
+{
+  QJsonObject obj;
+  obj.insert("class", QString("ViewStyleLegend"));
+  obj.insert("type", static_cast<int32_t>(legend.classify));
+  obj.insert("operation_id", static_cast<int32_t>(legend.operation));
+  obj.insert("band_number", static_cast<int32_t>(legend.band_number));
+  obj.insert("column", QString::fromStdString(legend.column));
+
+  QJsonArray rules;
+
+  for(auto& rule : legend.rules)
+  {
+    rules.push_back(toJson(rule));
+  }
+
+  obj.insert("colors", rules);
+
+  return obj;
+}
+
+QJsonObject terrama2::services::view::core::toJson(View::Legend::Rule rule)
+{
+  QJsonObject obj;
+
+  obj.insert("title", QString::fromStdString(rule.title));
+  obj.insert("value", QString::fromStdString(rule.value));
+  obj.insert("color", QString::fromStdString(rule.color));
+  obj.insert("isDefault", rule.isDefault);
+
+  return obj;
 }
