@@ -36,7 +36,7 @@
 #include <QJsonArray>
 #include <QObject>
 
-terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromAlertJson(QJsonObject json)
+terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromAlertJson(QJsonObject json, terrama2::core::DataManager* dataManager)
 {
   if(json["class"].toString() != "Alert")
   {
@@ -74,7 +74,7 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
 
   alert->risk = terrama2::core::fromDataSeriesRiskJson(json["risk"].toObject());
   alert->schedule = terrama2::core::fromScheduleJson(json["schedule"].toObject());
-  alert->filter = terrama2::core::fromFilterJson(json["filter"].toObject());
+  alert->filter = terrama2::core::fromFilterJson(json["filter"].toObject(), dataManager);
 
   auto addDataArray = json["additional_data"].toArray();
   for(const auto& value : addDataArray)

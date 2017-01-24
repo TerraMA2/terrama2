@@ -612,5 +612,7 @@
 	"Table Name": "Table Name",
 	"SRID": "SRID",
 	"Table_name": "Table name",
-	"Folder": "Folder"
+	"Folder": "Folder",
+	"Filter by static data": "Filter by static data",
+	"Data series is required": "Data series is required"
 }

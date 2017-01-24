@@ -245,7 +245,7 @@ terrama2::core::DataSetPtr terrama2::core::fromDataSetGridJson(QJsonObject json)
   return dataSetPtr;
 }
 
-terrama2::core::Filter terrama2::core::fromFilterJson(QJsonObject json)
+terrama2::core::Filter terrama2::core::fromFilterJson(QJsonObject json, DataManager* dataManager)
 {
   if(json.empty())
     return terrama2::core::Filter();
@@ -295,6 +295,21 @@ terrama2::core::Filter terrama2::core::fromFilterJson(QJsonObject json)
   if(json.contains("last_value") && !json.value("last_value").isNull())
   {
     filter.lastValue = json["last_value"].toBool();
+  }
+
+  if(json.contains("data_series_id") && !json.value("data_series_id").isNull())
+  {
+    DataSeriesId dataSeriesId = json["data_series_id"].toInt();
+
+    // Sets the data series for a static data filter
+    if(dataSeriesId != 0)
+    {
+      auto dataSeries = dataManager->findDataSeries(dataSeriesId);
+      filter.dataSeries = dataSeries;
+
+      auto dataProvider = dataManager->findDataProvider(dataSeries->dataProviderId);
+      filter.dataProvider = dataProvider;
+    }
   }
 
   return filter;
@@ -402,6 +417,9 @@ QJsonObject terrama2::core::toJson(const terrama2::core::Filter& filter)
   }
 
   obj.insert("last_value", filter.lastValue);
+
+  if(filter.dataSeries)
+    obj.insert("data_series_id", static_cast<int32_t>(filter.dataSeries->id));
 
   //TODO: filter by value to json
 

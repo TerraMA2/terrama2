@@ -239,7 +239,7 @@ define([], function() {
           // fill filter
           var filter = collector.filter || {};
 
-          if (filter.discard_before || filter.discard_after || filter.region){
+          if (filter.discard_before || filter.discard_after || filter.region || filter.data_series_id){
             $scope.wizard.filter.message = i18n.__("Remove filter configuration");;
             $scope.advanced.filter.disabled = false;
             $scope.wizard.filter.disabled = false;
@@ -262,6 +262,11 @@ define([], function() {
             }
           }
           $scope.filter.area.showCrop = $scope.dataSeries.semantics.data_series_type_name == "GRID";
+
+          if (filter.data_series_id){
+            $scope.$emit('updateFilterArea', "3");
+            $scope.filter.data_series_id = filter.data_series_id; 
+          }
         }
 
         if ($scope.formatSelected.data_series_type_name === globals.enums.DataSeriesType.DCP) {
@@ -352,6 +357,7 @@ define([], function() {
     var clearFilterForm = function(){
       $scope.filter.date = {};
       $scope.filter.filterArea = "1";
+      delete $scope.filter.data_series_id;
       $scope.advanced.filter.disabled = true;
       $scope.wizard.filter.message = i18n.__("Add filter configuration");
       var enableFilter = angular.element('#filter-collapse');
@@ -526,6 +532,10 @@ define([], function() {
         AREA: {
           name: i18n.__("Filter by limits"),
           value: "2"
+        },
+        STATIC_DATA: {
+          name: i18n.__("Filter by static data"),
+          value: "3"
         }
       };
 
@@ -1025,12 +1035,18 @@ define([], function() {
       $scope.onFilterRegion = function() {
         if ($scope.filter.filterArea === $scope.filterTypes.NO_FILTER.value) {
           $scope.filter.area = {};
-        } else {
+          delete $scope.filter.data_series_id;
+        } 
+        else if ($scope.filter.filterArea === $scope.filterTypes.AREA.value){
+          delete $scope.filter.data_series_id;
           if ($scope.filter.area){
             $scope.filter.area.srid = 4326;
           } else {
             $scope.filter.area={srid: 4326};
           }
+        }
+        else {
+          $scope.filter.area = {};
         }
       };
 
@@ -1140,6 +1156,7 @@ define([], function() {
       };
       // list data series
       $scope.dataSeriesList = DataSeriesService.list();
+      $scope.staticDataSeriesList = [];
 
       // fill intersection data series
       $scope.dataSeriesList.forEach(function(dSeries) {
@@ -1154,6 +1171,7 @@ define([], function() {
           */
           case globals.enums.TemporalityType.STATIC:
             $scope.dataSeriesGroups[0].children.push(dSeries);
+            $scope.staticDataSeriesList.push(dSeries);
             break;
           default:
             break;
@@ -1586,6 +1604,9 @@ define([], function() {
         if ($scope.filter.filterArea === $scope.filterTypes.AREA.value) {
           filterValues.region = GeoLibs.polygon.build($scope.filter.area || {});
         }
+        else if ($scope.filter.filterArea === $scope.filterTypes.STATIC_DATA.value){
+          filterValues.data_series_id = $scope.filter.data_series_id;
+        }
 
         var scheduleValues = Object.assign({}, $scope.schedule);
         switch(scheduleValues.scheduleHandler) {
@@ -1645,6 +1666,19 @@ define([], function() {
         if ($scope.filter.filterArea == $scope.filterTypes.AREA.value) {
           if (FilterForm.boundedForm.$invalid){
             MessageBoxService.danger("Data Registration", "Invalid filter area");
+            return;
+          }
+        }
+
+        if ($scope.filter.filterArea == $scope.filterTypes.STATIC_DATA.value) {
+          var staticDataSeriesForm;
+          if ($scope.isWizard){
+            staticDataSeriesForm = angular.element('form[name="staticDataSeriesForm"]').scope()['staticDataSeriesForm'];
+          } else {
+            staticDataSeriesForm = angular.element('form[name="filterForm"]').scope()['filterForm'];
+          }
+          if (staticDataSeriesForm.$invalid){
+            MessageBoxService.danger("Data Registration", "Invalid filter data series");
             return;
           }
         }

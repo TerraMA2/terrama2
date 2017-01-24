@@ -29,6 +29,7 @@
 #include "../Shared.hpp"
 #include "../data-model/DataSeriesRisk.hpp"
 #include "../data-model/Schedule.hpp"
+#include "../data-model/DataManager.hpp"
 #include "../data-model/Filter.hpp"
 
 #include "SemanticsManager.hpp"
@@ -99,7 +100,7 @@ namespace terrama2
       \see Filter for json structure
       \see [Filter at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/core/Filter) for more information.
       */
-    Filter fromFilterJson(QJsonObject json);
+    Filter fromFilterJson(QJsonObject json, DataManager* dataManager);
     QJsonObject toJson(const Filter& filter);
 
     DataSeriesRisk fromDataSeriesRiskJson(QJsonObject json);
