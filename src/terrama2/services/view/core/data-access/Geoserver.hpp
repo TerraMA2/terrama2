@@ -146,7 +146,7 @@ namespace terrama2
              */
             void registerVectorFile(const std::string& dataStoreName,
                                     const std::string& shpFilePath,
-                                    const std::string& extension) const;
+                                    const std::string& layerName) const;
 
             /*!
              * \brief Register a folder that contains vector files
@@ -290,6 +290,9 @@ namespace terrama2
              */
             void registerPostGisDataStore(const std::string& dataStoreName,
                                           const std::map<std::string, std::string> connInfo) const;
+
+            void registerVectorDataStore(const std::string& dataStoreName,
+                                         const std::string& shpFilePath) const;
 
             virtual QJsonObject generateLayers(const ViewPtr viewPtr,
                                                const std::pair<terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr>& dataSeriesProvider,

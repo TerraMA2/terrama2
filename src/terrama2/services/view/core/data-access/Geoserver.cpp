@@ -227,6 +227,57 @@ void terrama2::services::view::core::GeoServer::registerPostGisDataStore(const s
 }
 
 
+void terrama2::services::view::core::GeoServer::registerVectorDataStore(const std::string& dataStoreName,
+                                                                        const std::string& shpFilePath) const
+{
+  try
+  {
+    getDataStore(dataStoreName);
+  }
+  catch(NotFoundGeoserverException /*e*/)
+  {
+    te::ws::core::CurlWrapper cURLwrapper;
+
+    te::core::URI uriPostDatastore(uri_.uri() +"/rest/workspaces/" + workspace_ + "/datastores.xml");
+
+    if(!uriPostDatastore.isValid())
+    {
+      QString errMsg = QObject::tr("Invalid URI.");
+      TERRAMA2_LOG_ERROR() << errMsg << uriPostDatastore.uri();
+      throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriPostDatastore.uri()));
+    }
+
+    std::string xml = "<dataStore>";
+    xml += "<name>" + dataStoreName + "</name>";
+    xml += "<type>Shapefile</type>";
+    xml += "<enabled>true</enabled>";
+
+    xml += "<connectionParameters>"
+           "<entry key=\"charset\">ISO-8859-1</entry>"
+           "<entry key=\"filetype\">shapefile</entry>"
+           "<entry key=\"create spatial index\">true</entry>"
+           "<entry key=\"memory mapped buffer\">false</entry>"
+           "<entry key=\"enable spatial index\">true</entry>"
+           "<entry key=\"cache and reuse memory maps\">true</entry>";
+    xml += "<entry key=\"url\">";
+    xml += "file://" + shpFilePath;
+    xml += "</entry>";
+    xml += "</connectionParameters>";
+
+    xml += "</dataStore>";
+
+    cURLwrapper.post(uriPostDatastore, xml, "Content-Type: text/xml");
+
+    if(cURLwrapper.responseCode() != 201)
+    {
+      QString errMsg = QObject::tr("Error at register PostGis Table. ");
+      TERRAMA2_LOG_ERROR() << errMsg << uriPostDatastore.uri();
+      throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
+    }
+  }
+}
+
+
 const std::string& terrama2::services::view::core::GeoServer::getFeature(const std::string& dataStoreName,
                                                                          const std::string& name) const
 {
@@ -392,23 +443,54 @@ void terrama2::services::view::core::GeoServer::uploadZipVectorFiles(const std::
 
 void terrama2::services::view::core::GeoServer::registerVectorFile(const std::string& dataStoreName,
                                                                    const std::string& shpFilePath,
-                                                                   const std::string& extension) const
+                                                                   const std::string& layerName) const
 {
-  te::ws::core::CurlWrapper cURLwrapper;
+  std::string store = QString(QUrl::toPercentEncoding(QString::fromStdString(dataStoreName), "", "/")).toStdString();
 
-  te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores/"
-                       + QString(QUrl::toPercentEncoding(QString::fromStdString(dataStoreName), "", "/")).toStdString()
-                       + "/external." + extension + "?configure=first&update=append");
-
-  if(!uriPut.isValid())
+  try
   {
-    QString errMsg = QObject::tr("Invalid URI.");
-    TERRAMA2_LOG_ERROR() << errMsg << uriPut.uri();
-    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriPut.uri()));
+    getFeature(store, layerName);
+
+    deleteVectorLayer(store, layerName, true);
+  }
+  catch(NotFoundGeoserverException /*e*/)
+  {
+    // Do nothing
   }
 
-  // Register Vector file
-  cURLwrapper.customRequest(uriPut, "PUT", "file://" + shpFilePath);
+  registerVectorDataStore(store, shpFilePath);
+
+  te::ws::core::CurlWrapper cURLwrapper;
+
+  std::string uri = uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores/"
+                    + store +"/featuretypes";
+
+  te::core::URI uriPost(uri);
+
+  if(!uriPost.isValid())
+  {
+    QString errMsg = QObject::tr("Invalid URI.");
+    TERRAMA2_LOG_ERROR() << errMsg << uriPost.uri();
+    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriPost.uri()));
+  }
+
+  std::string xmlFeature = "<featureType>";
+  xmlFeature += "<title>" + layerName + "</title>";
+  xmlFeature += "<name>" + layerName + "</name>";
+
+  QFileInfo file(QString::fromStdString(shpFilePath));
+  xmlFeature += "<nativeName>" + file.baseName().toStdString() + "</nativeName>";
+  xmlFeature += "<enabled>true</enabled>";
+  xmlFeature += "</featureType>";
+
+  cURLwrapper.post(uriPost, xmlFeature, "Content-Type: text/xml");
+
+  if(cURLwrapper.responseCode() != 201)
+  {
+    QString errMsg = QObject::tr("Error at register PostGis Table. ");
+    TERRAMA2_LOG_ERROR() << errMsg << uriPost.uri();
+    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
+  }
 }
 
 
@@ -1012,7 +1094,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
 
       for(auto& fileInfo : fileInfoList)
       {
-        std::string layerName;
+        std::string layerName = std::to_string(viewPtr->id) + "_layer_" + fileInfo.baseName().toStdString();
 
         if(dataFormat == "OGR")
         {
@@ -1021,10 +1103,9 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
             modelDataSetType.reset(DataAccess::getVectorialDataSetType(fileInfo));
           }
 
-          layerName = fileInfo.baseName().toStdString();
-
           registerVectorFile(std::to_string(viewPtr->id) + "_" + std::to_string(inputDataSeries->id) + "_datastore",
                              fileInfo.absoluteFilePath().toStdString(),
+                             layerName,
                              fileInfo.completeSuffix().toStdString());
         }
         else if(dataFormat == "GEOTIFF")
@@ -1033,8 +1114,6 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
           {
             modelDataSetType.reset(DataAccess::getGeotiffDataSetType(fileInfo));
           }
-
-          layerName = std::to_string(viewPtr->id) + "_" + fileInfo.baseName().toStdString();
 
           registerCoverageFile(layerName + "_coveragestore",
                                fileInfo.absoluteFilePath().toStdString(),
@@ -1067,7 +1146,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
       TableInfo tableInfo = DataAccess::getPostgisTableInfo(dataSeriesProvider, dataset);
 
       std::string tableName = tableInfo.tableName;
-      std::string layerName = tableInfo.tableName + "_layer_" + viewPtr->viewName;
+      std::string layerName = std::to_string(viewPtr->id) + "_layer_" + tableInfo.tableName;
       std::string timestampPropertyName = tableInfo.timestampPropertyName;
 
       modelDataSetType = std::move(tableInfo.dataSetType);
