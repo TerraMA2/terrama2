@@ -267,43 +267,30 @@ const std::string& terrama2::services::view::core::GeoServer::getFeature(const s
 void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::string& dataStoreName,
                                                                      std::map<std::string, std::string> connInfo,
                                                                      const std::string& tableName,
-                                                                     const std::string& title,
+                                                                     const std::string& layerName,
                                                                      const std::unique_ptr<te::da::DataSetType>& dataSetType,
                                                                      const std::string& timestampPropertyName,
                                                                      const std::string& sql) const
 {
   try
   {
-    getFeature(dataStoreName, tableName);
+    getFeature(dataStoreName, layerName);
 
-    deleteVectorLayer(dataStoreName, tableName, true);
+    deleteVectorLayer(dataStoreName, layerName, true);
   }
   catch(NotFoundGeoserverException /*e*/)
   {
     // Do nothing
   }
 
-  std::string geomName;
-  te::gm::GeomType geomType;
-  std::string srid;
-
-  if(dataSetType && dataSetType->hasGeom())
-  {
-    auto geomProperty = te::da::GetFirstGeomProperty(dataSetType.get());
-    geomName = geomProperty->getName();
-    geomType = geomProperty->getGeometryType();
-    srid = std::to_string(geomProperty->getSRID());
-  }
-
   registerPostGisDataStore(dataStoreName, connInfo);
 
   te::ws::core::CurlWrapper cURLwrapper;
 
-  std::string xml = "<featureType>"
-                    "<title>" + title + "</title>";
-
-  xml += "<name>"+ tableName + "</name>";
-
+  std::string xml = "<featureType>";
+  xml += "<title>" + layerName + "</title>";
+  xml += "<name>" + layerName + "</name>";
+  xml += "<nativeName>" + tableName + "</nativeName>";
   xml += "<enabled>true</enabled>";
 
   std::string metadataTime = "";
@@ -328,9 +315,21 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::
 
   if(!sql.empty())
   {
+    std::string geomName;
+    te::gm::GeomType geomType;
+    std::string srid;
+
+    if(dataSetType && dataSetType->hasGeom())
+    {
+      auto geomProperty = te::da::GetFirstGeomProperty(dataSetType.get());
+      geomName = geomProperty->getName();
+      geomType = geomProperty->getGeometryType();
+      srid = std::to_string(geomProperty->getSRID());
+    }
+
     metadataSQL = "<entry key=\"JDBC_VIRTUAL_TABLE\">"
                   "<virtualTable>"
-                  "<name>"+title+"</name>" +
+                  "<name>"+layerName+"</name>" +
                   "<sql>"+sql+"</sql>" +
                   "<escapeSql>false</escapeSql>";
 
@@ -466,7 +465,7 @@ void terrama2::services::view::core::GeoServer::registerCoverageFile(const std::
 
   te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/coveragestores/"
                        + QString(QUrl::toPercentEncoding(QString::fromStdString(coverageStoreName), "", "/")).toStdString()
-                       + "/external." + extension + "?configure=first");
+                       + "/external." + extension + "?configure=first&coverageName=" + coverageName);
 
   if(!uriPut.isValid())
   {
@@ -1013,12 +1012,16 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
 
       for(auto& fileInfo : fileInfoList)
       {
+        std::string layerName;
+
         if(dataFormat == "OGR")
         {
           if(!modelDataSetType)
           {
             modelDataSetType.reset(DataAccess::getVectorialDataSetType(fileInfo));
           }
+
+          layerName = fileInfo.baseName().toStdString();
 
           registerVectorFile(std::to_string(viewPtr->id) + "_" + std::to_string(inputDataSeries->id) + "_datastore",
                              fileInfo.absoluteFilePath().toStdString(),
@@ -1031,14 +1034,16 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
             modelDataSetType.reset(DataAccess::getGeotiffDataSetType(fileInfo));
           }
 
-          registerCoverageFile(std::to_string(viewPtr->id) + "_" + fileInfo.fileName().toStdString() + "_coveragestore",
+          layerName = std::to_string(viewPtr->id) + "_" + fileInfo.baseName().toStdString();
+
+          registerCoverageFile(layerName + "_coveragestore",
                                fileInfo.absoluteFilePath().toStdString(),
-                               fileInfo.completeBaseName().toStdString(),
+                               layerName,
                                "geotiff");
         }
 
         QJsonObject layer;
-        layer.insert("layer", fileInfo.completeBaseName());
+        layer.insert("layer", QString::fromStdString(layerName));
         layersArray.push_back(layer);
       }
     }
@@ -1127,7 +1132,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
         tableName = layerName;
       }
 
-      registerPostgisTable(inputDataProvider->name,
+      registerPostgisTable(std::to_string(viewPtr->id) + "_" + std::to_string(inputDataSeries->id) + "_datastore",
                            connInfo,
                            tableName,
                            layerName,

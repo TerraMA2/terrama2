@@ -121,7 +121,7 @@ namespace terrama2
             void registerPostgisTable(const std::string& dataStoreName,
                                       std::map<std::string, std::string> connInfo,
                                       const std::string& tableName,
-                                      const std::string& title,
+                                      const std::string& layerName,
                                       const std::unique_ptr<te::da::DataSetType>& dataSetType,
                                       const std::string& timestampPropertyName = "",
                                       const std::string& sql = "") const;
