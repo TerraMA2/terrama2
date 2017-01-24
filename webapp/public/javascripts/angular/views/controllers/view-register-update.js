@@ -5,7 +5,7 @@ define([], function() {
    * It represents a Controller to handle View form registration.
    * @class ViewRegistration
    */
-  function ViewRegisterUpdate($scope, i18n, ViewService, $log, $http, $timeout, MessageBoxService, $window, DataSeriesService, Service, StyleConstants, StringFormat) {
+  function ViewRegisterUpdate($scope, i18n, ViewService, $log, $http, $timeout, MessageBoxService, $window, DataSeriesService, Service, StringFormat, ColorFactory) {
     /**
      * @type {ViewRegisterUpdate}
      */
@@ -48,13 +48,16 @@ define([], function() {
      * @type {Service[]}
      */
     self.filteredServices = [];
-
     /**
      * Flag to handle if is Updating or Registering
      * 
      * @type {Boolean}
      */
     self.isUpdating = config.view ? true : false;
+    /**
+     * It handles data series changed state in order to prevent select DCP or format !== GEOTIFF
+     */
+    self.isValid = true;
     /**
      * It defines a list of cached data series
      * @type {Object[]}
@@ -65,79 +68,56 @@ define([], function() {
      * @type {Object}
      */
     self.colorOptions = {
-      format: 'hex',
+      format: 'hex'
     };
     /**
-     * It defines min color HEX representation. Used for View GRID Data Series
-     * @type {string}
+     * It defines a list of available columns to display
+     * @type {string[]}
      */
-    self.minColor = "";
+    self.columnsList = [];
     /**
-     * It defines max color HEX representation. Used for View GRID Data Series
-     * @type {string}
+     * It defines a list of colors used to generate legend
+     * @type {Object[]}
      */
-    self.maxColor = "";
+    self.colors = [];
     /**
-     * It defines min value of style. Used for View GRID Data Series
-     * @type {number}
+     * It contains all forms. It must be appended on scope instance due schema form support;
+     * @type {Object}
      */
-    self.minValue = null;
+    $scope.forms = {};
     /**
-     * It defines max value of style. Used for View GRID Data Series
-     * @type {number}
+     * It represents a terrama2 box styles
+     * @type {Object}
      */
-    self.maxValue = null;
-    /**
-     * It defines line width. Used for View Data Series different than GRID
-     * @type {number}
-     */
-    self.lineStroke = null;
-    /**
-     * It defines line color. Used for View Data Series different than GRID
-     * @type {string}
-     */
-    self.lineStrokeColor = null;
-    /**
-     * It defines polygon width. Used for View Data Series different than GRID
-     * @type {number}
-     */
-    self.polygonStroke = null;
-    /**
-     * It defines polygon color. Used for View Data Series different than GRID
-     * @type {string}
-     */
-    self.polygonStrokeColor = null;
-    /**
-     * It defines point size. Used for View Data Series different than GRID
-     * @type {number}
-     */
-    self.pointSize = null;
-    /**
-     * It defines point color. Used for View Data Series different than GRID
-     * @type {number}
-     */
-    self.pointStrokeColor = null;
-    /**
-     * It builds a style from data series semantics
-     * 
-     * @param {DataSeriesService.DataSeriesType} semanticsTypeName
-     * @returns {string}
-     */
-    var makeStyle = function(semanticsTypeName) {
-      var targetStyle = "";
-      switch(semanticsTypeName) {
-        case DataSeriesService.DataSeriesType.GEOMETRIC_OBJECT:
-          targetStyle = StyleConstants.COMMON;
-          self.schedule = {};
-          break;
-        case DataSeriesService.DataSeriesType.GRID:
-          targetStyle = StyleConstants.GRID;
-          break;
-        default:
-          targetStyle = StyleConstants.COMMON;
-      }
-      return targetStyle;
+    self.css = {
+      boxType: "box-solid"
     };
+    /**
+     * It contains view instance values
+     * @type {Object}
+     */
+    self.view = config.view || {};
+    self.targetDataSeriesType = null;
+    /**
+     * It stores a legend values (Geometric, Grid, etc)
+     */
+    self.legend = {};
+    /**
+     * It defines a selected View DataSeries object
+     * @type {DataSeries}
+     */
+    self.viewDataSeries = {};
+
+    // function initializer
+    self.onDataSeriesChanged = onDataSeriesChanged;
+    self.initActive = initActive;
+    // Setting view service dao
+    self.ViewService = ViewService;
+    // setting message box close fn
+    self.close = closeDialog;
+    // Setting Save operation attached into submit button
+    self.save = saveOperation;
+
     /**
      * It retrieves all data provider type to get HTTP fields
      */
@@ -159,57 +139,24 @@ define([], function() {
          */
         return DataSeriesService.init({schema: "all"}).then(function(dataSeries) {
           //Filter data series to not show dcp - remove when back implements dcp creation view
-          self.dataSeries = dataSeries.filter(function(dS){return dS.data_series_semantics.data_series_type_name !== "DCP"});
+          // self.dataSeries = dataSeries.filter(function(dS){return dS.data_series_semantics.data_series_type_name !== "DCP"; });
+          self.dataSeries = dataSeries;
 
           var styleCache = config.view.style;
 
           if (self.view.data_series_id) {
             self.onDataSeriesChanged(self.view.data_series_id);
 
-            self.view.style = styleCache;
+            var legend = config.view.legend;
+            self.legend.operation_id = legend.operation_id;
+            self.legend.type = legend.type;
+            self.legend.column = legend.column;
+            self.legend.band_number = legend.band_number;
+            self.legend.colors = legend.colors;
+            self.legend.bands = legend.colors.length - 1;
 
-            // -------------------------------------------------------------------------------
-            // TODO: It is temp. It should have angular xml parser or a library to extend app
-            // -------------------------------------------------------------------------------
-            var xmlStyle = $(self.view.style || "");
-
-            if (self.viewDataSeries && self.viewDataSeries.data_series_semantics.data_series_type_name === self.DataSeriesType.GRID) {
-              var colors = $(self.view.style || "").find("ColorMapEntry");
-              if (colors.length !== 0) {
-                var minColorSelector = $(colors[0]);
-                var maxColorSelector = $(colors[1]);
-                self.minColor = minColorSelector.attr("color");
-                self.minValue = parseInt(minColorSelector.attr("quantity"));
-
-                self.maxColor = maxColorSelector.attr("color");
-                self.maxValue = parseInt(maxColorSelector.attr("quantity"));
-              }
-            } else {
-              var lineSymbolizer = $(xmlStyle).find("LineSymbolizer");
-              var lines = $(lineSymbolizer).find("CssParameter");
-
-              if (lines.length !== 0) {
-                self.lineStrokeColor = $(lines[0]).text();
-                self.lineStroke = parseInt($(lines[1]).text());
-              }
-
-              var polygonSymbolizer = $(xmlStyle).find("PolygonSymbolizer");
-              var tags = $(polygonSymbolizer).find("CssParameter");
-
-              if (tags.length !== 0) {
-                self.polygonStrokeColor = $(tags[0]).text();
-                self.polygonStroke = parseInt($(tags[1]).text());
-              }
-
-              var pointSymbolyzer = $(xmlStyle).find("PointSymbolizer");
-              var pointTags = $(pointSymbolyzer).find("CssParameter");
-              var pointSizeTag = $(pointSymbolyzer).find("Size");
-
-              if (pointTags.length !== 0) {
-                self.pointStrokeColor = $(pointTags[0]).text();
-                self.pointSize = parseInt($(pointSizeTag[0]).text());
-              }
-            }
+            // notify component to refil begin/end
+            $scope.$broadcast("updateStyleColor");
           }
           /**
            * Configuring Schema form http. This sentence is important because child controller may be not initialized yet.
@@ -234,11 +181,7 @@ define([], function() {
               }
             }
 
-            if (self.httpSyntax.display) {
-              $scope.form = self.httpSyntax.display;
-            } else {
-              $scope.form = ["*"];
-            }
+            $scope.form = self.httpSyntax.display ? self.httpSyntax.display : ["*"];
 
             $scope.$broadcast('schemaFormRedraw');
           });
@@ -249,176 +192,138 @@ define([], function() {
       self.MessageBoxService.danger(i18n.__("View"), err);
     });
 
-    // Setting view service dao
-    self.ViewService = ViewService;
     /**
      * It is used on ng-init active view. It will wait for angular ready condition and set active view checkbox
      * 
      * @returns {void}
-     */
-    self.initActive = function() {
+     */    
+    function initActive() {
       // wait angular digest cycle
       $timeout(function() {
         self.view.active = (config.view.active === false || config.view.active) ? config.view.active : true;
       });
-    };
+    }
 
     /**
      * It handles Data Series combobox change. If it is GRID data series, there is a default style script
      * @param {DataSeries}
-     */
-    self.onDataSeriesChanged = function(dataSeriesId) {
+     */    
+    function onDataSeriesChanged(dataSeriesId) {
       self.dataSeries.some(function(dSeries) {
         if (dSeries.id === dataSeriesId) {
+          // reset message box
+          self.close();
           // setting view data series
           self.viewDataSeries = dSeries;
+          // setting target data series type name in order to display style view
+          self.targetDataSeriesType = dSeries.data_series_semantics.data_series_type_name;
           // extra comparison just to setting if it is dynamic or static.
           // Here avoids to setting to true in many cases below
-          if (dSeries.data_series_semantics.data_series_type_name === DataSeriesService.DataSeriesType.GEOMETRIC_OBJECT) {
-            self.isDynamic = false;
+          self.isDynamic = dSeries.data_series_semantics.data_series_type_name !== DataSeriesService.DataSeriesType.GEOMETRIC_OBJECT;
+          if (dSeries.data_series_semantics.data_series_format_name === "GEOTIFF") {
+            self.isValid = false;
+            MessageBoxService.danger(i18n.__("View"), i18n.__("You selected a GRID data series. Only GEOTIFF data series format are supported"));
+          } else if (dSeries.data_series_semantics.data_series_type_name === DataSeriesService.DataSeriesType.DCP) {
+            self.isValid = false;
+            MessageBoxService.danger(i18n.__("View"), i18n.__("DCP data series is not supported yet"));
           } else {
-            self.isDynamic = true;
+            self.isValid = true;
           }
-
-          self.view.style = makeStyle(dSeries.data_series_semantics.data_series_type_name);
 
           // breaking loop
           return true;
         }
       });
     }
-
-    /**
-     * It contains all forms. It must be appended on scope instance due schema form support;
-     * @type {Object}
-     */
-    $scope.forms = {};
-    /**
-     * It represents a terrama2 box styles
-     * @type {Object}
-     */
-    self.css = {
-      boxType: "box-solid"
-    };
-    /**
-     * It contains view instance values
-     * @type {Object}
-     */
-    self.view = config.view || {};
-    /**
-     * It defines a selected View DataSeries object
-     * @type {DataSeries}
-     */
-    self.viewDataSeries = {};
     /**
      * Helper to reset alert box instance
      */
-    self.close = function() {
+    function closeDialog() {
       self.MessageBoxService.reset();
-    };
-    /**
-     * It handles file upload to retrieve xml style
-     */
-    self.onFileUploadClick = function() {
-      
-    };
-
+    }
     /**
      * It performs a save operation. It applies a form validation and try to save
      * @param {boolean} shouldRun - Determines if service should auto-run after save process
      * @returns {void}
      */
-    self.save = function(shouldRun) {
+    function saveOperation(shouldRun) {
       // broadcasting each one terrama2 field directive validation 
       $scope.$broadcast("formFieldValidation");
       // broadcasting schema form validation
       $scope.$broadcast("schemaFormValidate");
 
-      if ($scope.forms.viewForm.$invalid || 
-          $scope.forms.dataSeriesForm.$invalid ||
-          $scope.forms.styleForm.$invalid) {
+      if (!self.isValid) {
         return;
       }
 
-      // setting style
-      if (self.viewDataSeries && self.viewDataSeries.data_series_semantics.data_series_type_name === self.DataSeriesType.GRID) {
-        // digesting XML with min/max value and color
-        var sld = makeStyle(self.viewDataSeries.data_series_semantics.data_series_type_name);
-        self.view.style = StringFormat(sld, 
-                                       self.view.name,
-                                       self.minColor,
-                                       self.minValue,
-                                       self.maxColor,
-                                       self.maxValue);
-      } else {
-        self.view.style = "";
-      }
+      $timeout(function(){
+        $scope.$apply(function() {
+          if ($scope.forms.viewForm.$invalid || 
+            $scope.forms.dataSeriesForm.$invalid ||
+            $scope.forms.styleForm.$invalid) {
+            return;
+          }
 
-      // If dynamic, schedule validation is required
-      if (self.isDynamic) {
-        /**
-         * @todo Implement Angular ScheduleService to handle it, since is common on dynamic data series and analysis registration.
-         */
-        var scheduleForm = angular.element('form[name="scheduleForm"]').scope()['scheduleForm'];
-        // form validation
-        if (scheduleForm.$invalid) {
-          return;
-        }
+          if (!self.legend.colors || self.legend.colors.length === 0) {
+            return MessageBoxService.danger(i18n.__("View"), i18n.__("You must generate the style colors to classify Data Series"));
+          }
 
-        // preparing schedule.  
-        var scheduleValues = self.view.schedule;
-        switch(scheduleValues.scheduleHandler) {
-          case "seconds":
-          case "minutes":
-          case "hours":
-            scheduleValues.frequency_unit = scheduleValues.scheduleHandler;
-            scheduleValues.frequency_start_time = scheduleValues.frequency_start_time ? scheduleValues.frequency_start_time.toISOString() : "";
-            break;
-          case "weeks":
-          case "monthly":
-          case "yearly":
-            // todo: verify
-            var dt = scheduleValues.schedule_time;
-            scheduleValues.schedule_unit = scheduleValues.scheduleHandler;
-            scheduleValues.schedule_time = moment(dt).format("HH:mm:ss");
-            break;
+          // If dynamic, schedule validation is required
+          if (self.isDynamic) {
+            /**
+             * @todo Implement Angular ScheduleService to handle it, since is common on dynamic data series and analysis registration.
+             */
+            var scheduleForm = angular.element('form[name="scheduleForm"]').scope()['scheduleForm'];
+            // form validation
+            if (scheduleForm.$invalid) {
+              return;
+            }
 
-          default:
-            break;
-        }
-      } // end if isDynamic
+            // preparing schedule.  
+            var scheduleValues = self.view.schedule;
+            switch(scheduleValues.scheduleHandler) {
+              case "seconds":
+              case "minutes":
+              case "hours":
+                scheduleValues.frequency_unit = scheduleValues.scheduleHandler;
+                scheduleValues.frequency_start_time = scheduleValues.frequency_start_time ? scheduleValues.frequency_start_time.toISOString() : "";
+                break;
+              case "weeks":
+              case "monthly":
+              case "yearly":
+                // todo: verify
+                var dt = scheduleValues.schedule_time;
+                scheduleValues.schedule_unit = scheduleValues.scheduleHandler;
+                scheduleValues.schedule_time = moment(dt).format("HH:mm:ss");
+                break;
 
-      /**
-       * It contains a view model with flag "run" to determines if service should run
-       * @type {Object}
-       */
-      var mergedView = angular.merge(self.view, {run: shouldRun});
-      // tries to save
-      var operation = self.isUpdating ? self.ViewService.update(self.view.id, self.view) : self.ViewService.create(self.view);
-      operation.then(function(response) {
-        $log.info(response);
-        $window.location.href = "/configuration/views?token=" + response.token
-      }).catch(function(err) {
-        $log.info(err);
-        self.MessageBoxService.danger(i18n.__("View"), err);
+              default:
+                break;
+            }
+          } // end if isDynamic
+
+          /**
+           * It contains a view model with flag "run" to determines if service should run
+           * @type {Object}
+           */
+          var mergedView = angular.merge(self.view, {run: shouldRun});
+          mergedView.legend = self.legend;
+          // tries to save
+          var operation = self.isUpdating ? self.ViewService.update(self.view.id, self.view) : self.ViewService.create(self.view);
+          operation.then(function(response) {
+            $log.info(response);
+            $window.location.href = "/configuration/views?token=" + response.token;
+          }).catch(function(err) {
+            $log.info(err);
+            self.MessageBoxService.danger(i18n.__("View"), err);
+          });
+        });
       });
-    };
+    }
   }
 
-  ViewRegisterUpdate.$inject = [
-    "$scope",
-    "i18n",
-    "ViewService",
-    "$log",
-    "$http",
-    "$timeout",
-    "MessageBoxService",
-    "$window",
-    "DataSeriesService",
-    "Service",
-    "StyleConstants",
-    "StringFormat"
-  ];
+  ViewRegisterUpdate.$inject = ["$scope", "i18n", "ViewService", "$log", "$http", "$timeout", "MessageBoxService", "$window", 
+    "DataSeriesService", "Service", "StringFormat", "ColorFactory"];
 
   return ViewRegisterUpdate;
 });

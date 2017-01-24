@@ -65,11 +65,42 @@ namespace terrama2
         */
         struct View : public terrama2::core::Process
         {
+            struct Legend
+            {
+                enum class OperationType
+                {
+                  EQUAL_STEPS = 1,
+                  QUANTIL = 2,
+                  VALUE = 3
+                };
+
+                enum class ClassifyType
+                {
+                  RAMP = 1,
+                  INTERVALS = 2,
+                  VALUES = 3
+                };
+
+                struct Rule
+                {
+                    std::string title = "";
+                    std::string value = "";
+                    std::string color = "";
+                    bool isDefault = false;
+                };
+
+                OperationType operation;
+                ClassifyType classify;
+                int band_number = 0;
+                std::string column = "";
+                std::vector< Rule > rules;
+            };
+
           std::string viewName = "";
 
-          std::vector< DataSeriesId > dataSeriesList; //!< Ordened list of DataSeries ID that compose this view
-          std::unordered_map< DataSeriesId, terrama2::core::Filter > filtersPerDataSeries; //!< List of filters by DataSeries ID
-          std::unordered_map< DataSeriesId, std::string > stylesPerDataSeries; //!< List of base styles by DataSeries ID.
+          DataSeriesId dataSeriesID; //!< DataSeries ID that compose this view
+          terrama2::core::Filter filter; //!< Filter
+          Legend legend;
 
           // Parameters to generate a image
           std::string imageName = "";
@@ -79,10 +110,6 @@ namespace terrama2
 
           uint32_t srid = 0; //!< SRID to aplly in view
         };
-
-        void makeView(ViewId viewId, std::shared_ptr< terrama2::services::view::core::ViewLogger > logger, std::weak_ptr<DataManager> weakDataManager);
-
-        void drawLayersList(ViewPtr view, std::vector< std::shared_ptr<te::map::MemoryDataSetLayer> > layersList, std::shared_ptr< terrama2::services::view::core::ViewLogger > logger);
 
       } // end namespace core
     }   // end namespace view
