@@ -18,7 +18,7 @@ define([], function() {
 
     Socket.on('runResponse', function(response){
       MessageBoxService.success(title, i18n.__("The process was started successfully"));
-    })
+    });
 
     Socket.on('statusResponse', function(response) {
       if(response.checking === undefined || (!response.checking && response.status == 400)) {
