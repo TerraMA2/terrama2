@@ -1105,8 +1105,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
 
           registerVectorFile(std::to_string(viewPtr->id) + "_" + std::to_string(inputDataSeries->id) + "_datastore",
                              fileInfo.absoluteFilePath().toStdString(),
-                             layerName,
-                             fileInfo.completeSuffix().toStdString());
+                             layerName);
         }
         else if(dataFormat == "GEOTIFF")
         {
