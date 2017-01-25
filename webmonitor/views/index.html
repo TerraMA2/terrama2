@@ -311,6 +311,31 @@
         });
     }
 
+    function setOpacitySlider(layerId, initialValue){
+
+        var slider = $("#opacity" + layerId.replace(':',''));
+        var sliderParent = $(slider).parent();
+        if (!$(sliderParent).is(":visible")) {
+            $(sliderParent).show();
+        } else {
+            $(sliderParent).hide();
+        }
+        var label = $(sliderParent).find("label");
+        $(label).text("Opacity: " + initialValue + "%");
+
+        $(slider).slider({
+            min: 0,
+            max: 100,
+            value: initialValue,
+            slide: function(event, ui) {
+                $(label).text("Opacity: " + ui.value + "%");
+            },
+            stop: function(event, ui) {                        
+                changeLayerOpacity(layerId, ui.value);
+            }       
+        });
+    }
+
     function addLayers() {
         var url = document.getElementById("wmsUri").value;
         if (!url) return;
@@ -457,7 +482,12 @@
             if (layerId.includes(':')){
                 layerId = layerId.replace(':','')
             }
-            itens += '<li id="' + layerId + '" data-parentid="terrama2-layerexplorer" class="hide">' + allLayers[i].name + '</li>';
+
+            var sliderDiv = "<div class='slider-content' style='display:none;'><label></label><button type='button' class='close close-slider'>×</button><div id='opacity" + layerId + "'></div></div>";
+            var spanIcon = "<span id='terrama2-opacity-slider' class='terrama2-datepicker-icon' data-toggle='tooltip' title='Change opacity'> <i class='fa fa-sliders'></i></span>"; 
+            
+            itens += '<li id="' + layerId + '" data-layerid="' + allLayers[i].id + '" data-parentid="terrama2-layerexplorer" class="hide">' + allLayers[i].name + sliderDiv + spanIcon + '</li>';
+
         }
         var list = '<ul>' + itens + '</ul>';
         $('#terrama2-sortlayers').append(list);
