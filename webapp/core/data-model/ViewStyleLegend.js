@@ -43,6 +43,12 @@
      */
     this.type = params.type;
     /**
+     * ViewStyleLegend dummy value for raster cells
+     * @name ViewStyleLegend#dummy
+     * @type {number}
+     */
+    this.dummy = params.dummy;
+    /**
      * It defines the ViewStyleLegend colors used
      * @name ViewStyleLegend#colors
      * @type {any}
@@ -76,6 +82,7 @@
       operation_id: this.operation_id,
       type: this.type,
       colors: this.colors,
+      dummy: this.dummy,
       band_number: isNumber(this.band_number) ? this.band_number : null
     });
   };

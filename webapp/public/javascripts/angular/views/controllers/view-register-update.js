@@ -154,6 +154,7 @@ define([], function() {
             self.legend.band_number = legend.band_number;
             self.legend.colors = legend.colors;
             self.legend.bands = legend.colors.length - 1;
+            self.legend.dummy = legend.dummy;
 
             // notify component to refil begin/end
             $scope.$broadcast("updateStyleColor");
