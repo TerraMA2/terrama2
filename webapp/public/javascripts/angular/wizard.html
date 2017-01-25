@@ -56,7 +56,7 @@
       <div class="col-md-12">
         <div class="pull-right">
           <button class="btn btn-primary" type="submit" wz-previous>{{ i18n.__('Previous') }}</button>
-          <button class="btn btn-primary" type="submit" ng-show="isDynamic" wz-next>{{ i18n.__('Next') }}</button>
+          <button class="btn btn-primary" type="submit" ng-show="isDynamic && (!wizard.store.disabled || !wizard.filter.disabled || !wizard.intersection.disabled)" ng-click="goToValidNextStep('parametersForm');" wz-next>{{ i18n.__('Next') }}</button>
           <button type="button" class="btn btn-primary" ng-bind="i18n.__('Save')" ng-show="!isDynamic" data-ng-click="save(false);"></button>
 
           <div class="btn-group pull-right" style="margin-left: 3px;" ng-show="isDynamic && storager.format">
@@ -82,7 +82,7 @@
       <div class="col-md-12">
         <div class="pull-right">
           <button class="btn btn-primary" type="submit" wz-previous>{{ i18n.__('Previous') }}</button>
-          <button class="btn btn-primary" type="submit" wz-next>{{ i18n.__('Next') }}</button>
+          <button class="btn btn-primary" type="submit" ng-show="!wizard.filter.disabled || !wizard.intersection.disabled" ng-click="goToValidNextStep('storagerForm');" wz-next>{{ i18n.__('Next') }}</button>
 
           <div class="btn-group pull-right" style="margin-left: 3px;" ng-show="isDynamic && storager.format">
             <button type="button" class="btn btn-primary" ng-bind="i18n.__('Save and Run')" data-ng-click="save(true);"></button>
@@ -105,8 +105,8 @@
       </div>
       <div class="col-md-12">
         <div class="pull-right">
-          <button class="btn btn-primary" type="submit" wz-previous>{{ i18n.__('Previous') }}</button>
-          <button class="btn btn-primary" type="submit" ng-show="isDynamic && semantics !== 'GRID'" wz-next>{{ i18n.__('Next') }}</button>
+          <button class="btn btn-primary" type="submit" ng-click="goToValidPreviousStep('filterForm');" wz-previous>{{ i18n.__('Previous') }}</button>
+          <button class="btn btn-primary" type="submit" ng-show="isDynamic && semantics !== 'GRID' && !wizard.intersection.disabled" ng-click="goToValidNextStep('filterForm');" wz-next>{{ i18n.__('Next') }}</button>
           <div class="btn-group pull-right" style="margin-left: 3px;" ng-show="isDynamic && storager.format">
             <button type="button" class="btn btn-primary" ng-bind="i18n.__('Save and Run')" data-ng-click="save(true);"></button>
             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -130,7 +130,7 @@
 
       <div class="col-md-12">
         <div class="pull-right">
-          <button class="btn btn-primary" type="submit" wz-previous>{{ i18n.__('Previous') }}</button>
+          <button class="btn btn-primary" type="submit" ng-click="goToValidPreviousStep('intersectionForm');" wz-previous>{{ i18n.__('Previous') }}</button>
 
           <div class="btn-group pull-right" style="margin-left: 3px;" ng-show="isDynamic && storager.format">
             <button type="button" class="btn btn-primary" ng-bind="i18n.__('Save and Run')" data-ng-click="save(true);"></button>

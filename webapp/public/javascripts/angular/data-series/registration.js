@@ -1124,6 +1124,51 @@ define([], function() {
         }
         return true;
       };
+
+      $scope.goToValidNextStep = function(step) {
+        var steps = WizardHandler.wizard().getEnabledSteps();
+        var startVerification = false;
+
+        for(var i = 0, stepsLength = steps.length; i < stepsLength; i++) {
+          var data = steps[i].wzData || {};
+          var name = data.formName || "";
+
+          if(name === step) {
+            if(steps[i + 1].canenter !== undefined && !steps[i + 1].canenter) {
+              startVerification = true;
+              i++;
+            } else break;
+          } else if(startVerification) {
+            if(steps[i].canenter === undefined || steps[i].canenter) {
+              WizardHandler.wizard().goTo(i);
+              break;
+            }
+          }
+        }
+      };
+
+      $scope.goToValidPreviousStep = function(step) {
+        var steps = WizardHandler.wizard().getEnabledSteps();
+        var startVerification = false;
+
+        for(var i = steps.length - 1; i >= 0; i--) {
+          var data = steps[i].wzData || {};
+          var name = data.formName || "";
+
+          if(name === step) {
+            if(steps[i - 1].canenter !== undefined && !steps[i - 1].canenter) {
+              startVerification = true;
+              i--;
+            } else break;
+          } else if(startVerification) {
+            if(steps[i].canenter === undefined || steps[i].canenter) {
+              WizardHandler.wizard().goTo(i);
+              break;
+            }
+          }
+        }
+      };
+
       //. end wizard validations
       $scope.dcps = [];
 
