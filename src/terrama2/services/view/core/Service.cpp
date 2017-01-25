@@ -290,6 +290,9 @@ void terrama2::services::view::core::Service::viewJob(const terrama2::core::Exec
       logger->log(ViewLogger::ERROR_MESSAGE, errMsg, logId);
   }
 
+  if(logId != 0)
+    logger->result(ViewLogger::ERROR, terrama2::core::TimeUtils::nowUTC(), logId);
+
   sendProcessFinishedSignal(viewId, false);
   notifyWaitQueue(viewId);
 }

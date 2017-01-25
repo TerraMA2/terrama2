@@ -540,8 +540,7 @@ void terrama2::services::view::core::GeoServer::uploadZipCoverageFile(const std:
 void terrama2::services::view::core::GeoServer::registerCoverageFile(const std::string& coverageStoreName,
                                                                      const std::string& coverageFilePath,
                                                                      const std::string& coverageName,
-                                                                     const std::string& extension,
-                                                                     const std::string& styleName) const
+                                                                     const std::string& extension) const
 {
   te::ws::core::CurlWrapper cURLwrapper;
 
@@ -557,14 +556,6 @@ void terrama2::services::view::core::GeoServer::registerCoverageFile(const std::
   }
   // Upload Coverage file
   cURLwrapper.customRequest(uriPut, "PUT", "file://" + coverageFilePath);
-
-  if(!styleName.empty())
-  {
-    te::core::URI layerStyle(uri_.uri() + "/rest/layers/" + coverageName + ".xml");
-
-    cURLwrapper.customRequest(layerStyle, "PUT",
-                              "<layer><defaultStyle><name>" + styleName + "</name><workspace>" + workspace_ + "</workspace></defaultStyle></layer>", "Content-Type: text/xml");
-  }
 }
 
 
@@ -1230,10 +1221,12 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
   styleName = inputDataSeries->name + "_style_" + viewPtr->viewName;
   registerStyle(styleName, viewPtr->legend, modelDataSetType);
 
+  for(const auto& layer : layersArray)
+  {
+    registerLayerDefaultStyle(styleName, layer.toObject().value("layer").toString().toStdString());
+  }
 
-  // TODO: assuming that only has one dataseries, overwriting answer
   jsonAnswer.insert("workspace", QString::fromStdString(workspace()));
-  jsonAnswer.insert("style", QString::fromStdString(styleName));
   jsonAnswer.insert("layers_list", layersArray);
 
   return jsonAnswer;
@@ -1243,6 +1236,26 @@ terrama2::services::view::core::MapsServerPtr terrama2::services::view::core::Ge
 {
   return std::make_shared<GeoServer>(uri);
 }
+
+
+void terrama2::services::view::core::GeoServer::registerLayerDefaultStyle(const std::string& styleName,
+                                                                          const std::string& layerName) const
+{
+  te::ws::core::CurlWrapper cURLwrapper;
+
+  te::core::URI uriPut(uri_.uri() + "/rest/layers/" + layerName + ".xml");
+
+  if(!uriPut.isValid())
+  {
+    QString errMsg = QObject::tr("Invalid URI.");
+    TERRAMA2_LOG_ERROR() << errMsg << uriPut.uri();
+    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriPut.uri()));
+  }
+
+  cURLwrapper.customRequest(uriPut, "PUT",
+                            "<layer><defaultStyle><name>" + styleName + "</name><workspace>" + workspace_ + "</workspace></defaultStyle></layer>", "Content-Type: text/xml");
+}
+
 
 std::string terrama2::services::view::core::GeoServer::getGeomTypeString(const te::gm::GeomType& geomType) const
 {
