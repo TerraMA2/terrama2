@@ -59,9 +59,9 @@ int main(int argc, char** argv)
     geoserver.registerStyle("arealStyle", "<?xml version=\"1.0\" encoding=\"UTF-8\"?><sld:StyledLayerDescriptor xmlns=\"http://www.opengis.net/sld\" xmlns:sld=\"http://www.opengis.net/sld\" xmlns:gml=\"http://www.opengis.net/gml\" xmlns:ogc=\"http://www.opengis.net/ogc\" version=\"1.0.0\"><sld:NamedLayer><sld:Name>Style</sld:Name><sld:UserStyle><sld:Name>Style</sld:Name><sld:FeatureTypeStyle><sld:Name>Style 1</sld:Name><sld:Rule><sld:RasterSymbolizer><sld:Opacity>1.0</sld:Opacity><sld:ColorMap extended=\"true\"><sld:ColorMapEntry color=\"#000000\" quantity=\"0.0\"/><sld:ColorMapEntry color=\"#ffffff\" quantity=\"1.0\"/></sld:ColorMap></sld:RasterSymbolizer></sld:Rule></sld:FeatureTypeStyle></sld:UserStyle></sld:NamedLayer></sld:StyledLayerDescriptor>");
 
     // Registering shapes from the same server that GeoServer
-    geoserver.registerVectorFile("ashape", TERRAMA2_DATA_DIR + "/shapefile/Rod_Principais_SP_lin.shp", "shp");
+    geoserver.registerVectorFile("ashape", TERRAMA2_DATA_DIR + "/shapefile/Rod_Principais_SP_lin.shp", "layer1");
 
-    geoserver.registerVectorFile("ashape", TERRAMA2_DATA_DIR + "/shapefile/35MUE250GC_SIR.shp", "shp");
+    geoserver.registerVectorFile("ashape", TERRAMA2_DATA_DIR + "/shapefile/35MUE250GC_SIR.shp", "layer2");
 
     // Removing the shapes
     geoserver.deleteVectorLayer("ashape", "Rod_Principais_SP_lin", true);
