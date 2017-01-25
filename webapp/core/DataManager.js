@@ -3655,7 +3655,7 @@ var DataManager = module.exports = {
     var self = this;
     return new Promise(function(resolve, reject) {
       return models.db.ViewStyleLegend.update(styleLegendObject, Utils.extend({
-          fields: ["column", "operation_id", "type", "band_number"],
+          fields: ["column", "operation_id", "type", "band_number", "dummy"],
           where: restriction
         }, options))
         .then(function() {
