@@ -1,13 +1,13 @@
 <div class="col-md-12 terrama2-nopadding-box">
   <div class="col-md-12 terrama2-nopadding-box">
-    <div class="col-md-6">
-      <div class="form-group" ng-if="$ctrl.type === $ctrl.DataSeriesType.GEOMETRIC_OBJECT" terrama2-show-errors>
+    <div class="col-md-6" ng-if="$ctrl.type === $ctrl.DataSeriesType.GEOMETRIC_OBJECT || $ctrl.type === $ctrl.DataSeriesType.OCCURRENCE">
+      <div class="form-group" terrama2-show-errors>
         <label><span ng-bind="$ctrl.i18n.__('Column')"></span>:</label>
         <input class="form-control" 
               name="column" 
               ng-model="$ctrl.model.column" 
               type="text"
-              ng-required="$ctrl.type === $ctrl.DataSeriesType.GEOMETRIC_OBJECT">
+              ng-required="$ctrl.type === $ctrl.DataSeriesType.GEOMETRIC_OBJECT || $ctrl.type === $ctrl.DataSeriesType.OCCURRENCE">
 
         <span class="help-block" 
           ng-show="$ctrl.formCtrl.column.$dirty && $ctrl.formCtrl.column.$error.required"
@@ -29,6 +29,7 @@
         </span>
       </div>
     </div>
+    <!-- ./GEOMETRIC OR OCCURRENCE -->
     <div class="col-md-6">
       <div class="form-group" terrama2-show-errors>
         <label><span ng-bind="$ctrl.i18n.__('Operation')"></span>:</label>
@@ -45,6 +46,23 @@
       </div>
     </div>
     <!-- ./col-md-6 Type -->
+    <div class="col-md-6" ng-if="$ctrl.type === $ctrl.DataSeriesType.GRID">
+      <div class="form-group" terrama2-show-errors>
+        <label><span ng-bind="$ctrl.i18n.__('Dummy Value')"></span>:</label>
+        <input class="form-control" 
+              name="dummy" 
+              ng-model="$ctrl.model.dummy" 
+              type="text"
+              ng-required="$ctrl.type === $ctrl.DataSeriesType.GRID">
+
+        <span class="help-block" 
+          ng-show="$ctrl.formCtrl.dummy.$dirty && $ctrl.formCtrl.dummy.$error.required"
+          ng-bind="$ctrl.i18n.__('Dummy is required')">
+        </span>
+      </div>
+      <!-- ./Dummy -->
+    </div>
+    <!-- ./GRID -->
   </div>
   <!-- ./col-md-12 -->
   <div class="col-md-6">
@@ -71,7 +89,7 @@
               ng-model="$ctrl.model.bands" 
               type="number"
               min="0"
-              ng-required="$ctrl.type === $ctrl.DataSeriesType.GEOMETRIC_OBJECT">
+              required>
 
         <span class="help-block" 
               ng-show="$ctrl.formCtrl.bands.$dirty && $ctrl.formCtrl.bands.$invalid" 
@@ -92,7 +110,7 @@
       <label ng-bind="$ctrl.i18n.__('End')"></label>
       <color-picker contenteditable="true" ng-model="$ctrl.model.endColor" options="$ctrl.colorOptions"></color-picker>
     </div>
-  </div>          
+  </div>
 
   <div class="col-md-2">
     <button type="button" 

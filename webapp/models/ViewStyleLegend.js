@@ -36,6 +36,11 @@
         type: DataTypes.INTEGER,
         allowNull: true,
         comment: "Target band number to generate legend Raster-based"
+      },
+      dummy: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        comment: "Dummy value for raster cells"
       }
     }, {
       underscored: true,
