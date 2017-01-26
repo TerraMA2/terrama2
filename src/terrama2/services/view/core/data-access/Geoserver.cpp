@@ -816,7 +816,7 @@ std::unique_ptr<te::se::Style> terrama2::services::view::core::GeoServer::genera
         continue;
       }
 
-      te::fe::PropertyName* propertyName = new te::fe::PropertyName(legend.column);
+      te::fe::PropertyName* propertyName = new te::fe::PropertyName(legend.metadata.at("column"));
       te::fe::Literal* value = new te::fe::Literal(legendRule.value);
       te::fe::BinaryComparisonOp* stateEqual = new te::fe::BinaryComparisonOp(te::fe::Globals::sm_propertyIsEqualTo, propertyName, value);
 
@@ -1248,15 +1248,18 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
     }
   }
 
-  // Register style
-  std::string styleName = "";
-
-  styleName = inputDataSeries->name + "_style_" + viewPtr->viewName;
-  registerStyle(styleName, viewPtr->legend, modelDataSetType);
-
-  for(const auto& layer : layersArray)
+  if(viewPtr->legend)
   {
-    registerLayerDefaultStyle(styleName, layer.toObject().value("layer").toString().toStdString());
+    // Register style
+    std::string styleName = "";
+
+    styleName = inputDataSeries->name + "_style_" + viewPtr->viewName;
+    registerStyle(styleName, *viewPtr->legend.get(), modelDataSetType);
+
+    for(const auto& layer : layersArray)
+    {
+      registerLayerDefaultStyle(styleName, layer.toObject().value("layer").toString().toStdString());
+    }
   }
 
   jsonAnswer.insert("workspace", QString::fromStdString(workspace()));
