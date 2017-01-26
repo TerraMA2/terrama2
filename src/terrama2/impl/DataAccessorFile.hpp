@@ -71,7 +71,12 @@ namespace terrama2
 
         virtual QFileInfoList getFoldersList(const QFileInfoList& uris, const std::string& foldersMask) const;
 
-        virtual QFileInfoList getFilesList(const std::string& uri, const std::string& mask, const Filter& filter, const std::string& timezone, DataSetPtr dataSet, std::shared_ptr<terrama2::core::FileRemover> remover) const;
+        virtual QFileInfoList getFilesList(const std::string& uri,
+                                           const std::string& mask,
+                                           const Filter& filter,
+                                           const std::string& timezone,
+                                           DataSetPtr dataSet,
+                                           std::shared_ptr<terrama2::core::FileRemover> remover) const;
 
         void applyFilters(const terrama2::core::Filter &filter, const terrama2::core::DataSetPtr &dataSet,
                           const std::shared_ptr<te::mem::DataSet> &completeDataset,
@@ -159,7 +164,8 @@ namespace terrama2
            - Geometry attribute is null (will be logged)
 
         */
-        virtual bool isValidGeometry(std::shared_ptr<te::mem::DataSet> dataSet, const Filter&  filter, size_t geomColumn) const;
+
+        virtual bool isValidGeometry(std::shared_ptr<te::mem::DataSet> dataSet, const Filter& filter, size_t geomColumn, std::unordered_map<DataSetPtr, DataSetSeries>& seriesStaticData) const;
 
         /*!
           \brief Filter dataset by raster envelope

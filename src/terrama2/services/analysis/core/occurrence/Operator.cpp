@@ -140,7 +140,6 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
       {
         terrama2::core::Filter filter;
         filter.discardBefore = context->getTimeFromString(dateFilter);
-        filter.discardAfter = context->getTimeFromString("");
         filter.byValue = restriction;
         filter.region = monitoredObjectBox;
 
@@ -173,9 +172,9 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
           {
             auto geomResult = createBuffer(buffer, moGeom);
 
-            // Converts the monitored object to the same moSrid of the occurrences
+            // Converts the monitored object to the same srid of the occurrences
             auto firstOccurrence = syncDs->getGeometry(0, contextDataSeries->geometryPos);
-            geomResult->transform(moGeom->getSRID());
+            geomResult->transform(firstOccurrence->getSRID());
 
             // Searchs in the spatial index for the occurrences that intersects the monitored object box
             contextDataSeries->rtree.search(*geomResult->getMBR(), indexes);

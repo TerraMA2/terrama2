@@ -62,7 +62,7 @@ namespace terrama2
             virtual ~MapsServer() = default;
 
             virtual QJsonObject generateLayers(const ViewPtr viewPtr,
-                                               const std::unordered_map< terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr >& dataSeriesProviders,
+                                               const std::pair< terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr >& dataSeriesProviders,
                                                const std::shared_ptr<DataManager> dataManager,
                                                std::shared_ptr<ViewLogger> logger,
                                                const RegisterId logId) = 0;

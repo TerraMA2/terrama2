@@ -21,6 +21,7 @@ define([
 
   // controller RegisterUpdate dependencies
   if (moduleLoader("schemaForm", deps) && moduleLoader("color.picker", deps)) {
+    moduleLoader("xeditable", deps);
     moduleLoader(dataSeriesServiceApp, deps);
     moduleLoader(aceApp, deps);
     moduleLoader(datetimepicker, deps);
@@ -31,6 +32,13 @@ define([
   angular.module(moduleName, deps)
     .controller("ViewListController", ListController)
     .controller("ViewRegisterUpdateController", RegisterUpdateController);
+  
+  if (deps.indexOf("xeditable") !== -1) {
+    angular.module(moduleName)
+      .run(["editableOptions", function(editableOptions) {
+        editableOptions.theme = 'bs3';
+      }]);
+  }
 
   return moduleName;
 })

@@ -380,7 +380,8 @@ define([], function() {
           // fill filter
           var filter = collector.filter || {};
 
-          if (filter.discard_before || filter.discard_after || filter.region){
+          if (filter.discard_before || filter.discard_after || filter.region || filter.data_series_id){
+            $scope.wizard.filter.message = i18n.__("Remove filter configuration");;
             $scope.advanced.filter.disabled = false;
             $scope.wizard.filter.disabled = false;
             $scope.wizard.filter.error = false;
@@ -402,6 +403,11 @@ define([], function() {
             }
           }
           $scope.filter.area.showCrop = $scope.dataSeries.semantics.data_series_type_name == "GRID";
+
+          if (filter.data_series_id){
+            $scope.$emit('updateFilterArea', "3");
+            $scope.filter.data_series_id = filter.data_series_id; 
+          }
         }
 
         if ($scope.formatSelected.data_series_type_name === globals.enums.DataSeriesType.DCP) {
@@ -486,12 +492,17 @@ define([], function() {
     };
     $scope.dataSeries = {};
     $scope.dataSeriesSemantics = [];
+
+    // Functions to enable and disable forms
     // clear optional forms
     var clearStoreForm = function(){
+      clearIntersectionForm();
       $scope.showStoragerForm = false;
       $scope.schedule = {};
       $scope.scheduleOptions = {};
       $scope.advanced.store.disabled = true;
+      $scope.wizard.intersection.message = i18n.__("Must have a valid store values to create an intersection");
+      $scope.wizard.store.message = i18n.__("Add store configuration");
       $scope.$broadcast('clearStoreForm');
       var enableStore = angular.element('#store-collapse');
       var storebox = angular.element('#store-box');
@@ -506,7 +517,9 @@ define([], function() {
     var clearFilterForm = function(){
       $scope.filter.date = {};
       $scope.filter.filterArea = "1";
+      delete $scope.filter.data_series_id;
       $scope.advanced.filter.disabled = true;
+      $scope.wizard.filter.message = i18n.__("Add filter configuration");
       var enableFilter = angular.element('#filter-collapse');
       var filterbox = angular.element('#filter-box');
       if (!filterbox.hasClass('collapsed-box')){
@@ -518,7 +531,9 @@ define([], function() {
       for (var key in $scope.intersection) {
         $scope.removeDataSeries(key);
       }
-      $scope.advanced.intersection.disabled = true;
+      $scope.advanced.intersection.disabled = true; 
+      $scope.wizard.intersection.disabled = true;
+      $scope.wizard.intersection.message = i18n.__("Add intersection configuration");
       var enableIntersection = angular.element('#intersection-collapse');
       var intersectionbox = angular.element('#intersection-box');
       if (!intersectionbox.hasClass('collapsed-box')){
@@ -526,7 +541,7 @@ define([], function() {
       }
     };
 
-    // open optional form in advanced mode
+    // open optional forms in advanced mode
     var openStoreForm = function(){
       $scope.advanced.store.disabled = false;
       var enableStore = angular.element('#store-collapse');
@@ -544,11 +559,13 @@ define([], function() {
     };
 
     var openIntersectionForm = function(){
-      $scope.advanced.intersection.disabled = false;
-      var enableIntersection = angular.element('#intersection-collapse');
-      // set disabled to false, to open form
-      enableIntersection.attr("disabled", false);
-      enableIntersection.click();
+      if ($scope.dataSeries.access != 'PROCESSING'){
+        $scope.advanced.intersection.disabled = false;
+        var enableIntersection = angular.element('#intersection-collapse');
+        // set disabled to false, to open form
+        enableIntersection.attr("disabled", false);
+        enableIntersection.click();
+      }
     };
 
     var makeid = function(length) {
@@ -586,10 +603,28 @@ define([], function() {
         disabled: true,
         clearForm: clearIntersectionForm,
         openForm: openIntersectionForm,
-        optional: true
+        optional: true,
+        message: i18n.__("Must have a valid store values to create an intersection") 
       }
     };
 
+    // Function to enable optional forms on wizard mode
+    var enableStoreForm = function(){
+      $scope.wizard.store.disabled = false;
+      $scope.wizard.store.message = i18n.__("Remove store configuration");
+    }
+
+    var enableFilterForm = function(){
+      $scope.wizard.filter.disabled = false;
+      $scope.wizard.filter.message = i18n.__("Remove filter configuration");
+    }
+
+    var enableIntersectionForm = function(){
+      if ($scope.dataSeries.access != 'PROCESSING'){
+        $scope.wizard.intersection.disabled = false;
+        $scope.wizard.intersection.message = i18n.__("Remove intersection configuration");
+      }
+    }
     // wizard global properties
     $scope.wizard = {
       general: {
@@ -607,23 +642,30 @@ define([], function() {
         secondForm: 'storagerDataForm',
         disabled: true,
         optional: true,
-        clearForm: clearStoreForm
+        enableForm: enableStoreForm,
+        clearForm: clearStoreForm,
+        message: i18n.__("Add store configuration")
       },
       filter: {
         required: false,
         formName: 'filterForm',
         disabled: true,
         optional: true,
-        clearForm: clearFilterForm
+        enableForm: enableFilterForm,
+        clearForm: clearFilterForm,
+        message: i18n.__("Add filter configuration")
       },
       intersection: {
         required: false,
         formName: 'intersectionForm',
         disabled: true,
         optional: true,
-        clearForm: clearIntersectionForm
+        enableForm: enableIntersectionForm,
+        clearForm: clearIntersectionForm,
+        message: i18n.__("Must have a valid store values to create an intersection")
       }
     };
+
     // initializing async modules
     $q.all([
       DataSeriesSemanticsService.init(queryParameters),
@@ -667,6 +709,10 @@ define([], function() {
         AREA: {
           name: i18n.__("Filter by limits"),
           value: "2"
+        },
+        STATIC_DATA: {
+          name: i18n.__("Filter by static data"),
+          value: "3"
         }
       };
 
@@ -681,7 +727,9 @@ define([], function() {
         $scope.storagerFormats = [];
         $scope.showStoragerForm = false;
         delete $scope.wizard.store.error;
-        clearStoreForm();
+        if (!$scope.isUpdating){
+          clearStoreForm();
+        }
 
         if ($scope.dataSeries.semantics.allow_direct_access === false){
           $scope.wizard.store.required = true;
@@ -790,6 +838,7 @@ define([], function() {
           }
 
           if ($scope.hasCollector) {
+            $scope.wizard.store.message = i18n.__("Remove store configuration");
             $scope.wizard.store.disabled = false;
             $scope.wizard.store.error = false;
             $scope.advanced.store.disabled = false;
@@ -802,6 +851,7 @@ define([], function() {
             });
           }
           if (Object.keys($scope.intersection).length > 0) {
+            $scope.wizard.intersection.message = i18n.__("Remove intersection configuration");
             $scope.wizard.intersection.disabled = false;
             $scope.advanced.intersection.disabled = false;
           }
@@ -891,7 +941,7 @@ define([], function() {
         for(var k in fmt) {
           if (fmt.hasOwnProperty(k)) {
             // checking if a number
-            if (isNaN(fmt[k]) || typeof fmt[k] == "boolean") {
+            if (isNaN(fmt[k]) || fmt[k] == "" || typeof fmt[k] == "boolean") {
               if (k === "active") {
                 output[k] = typeof fmt[k] === "string" ? fmt[k] === "true" : fmt[k]; 
               } else {
@@ -1116,7 +1166,7 @@ define([], function() {
         var attrs = $scope.intersection[selected.id].attributes;
 
         var found = attrs.filter(function(elm) {
-          return elm === attributeValue;
+          return elm.value === attributeValue;
         });
 
         return found.length === 0;
@@ -1129,7 +1179,7 @@ define([], function() {
 
         if (canAddAttribute(selected, attributeValue, $scope.intersection[selected.id].attributes)) {
           // reset form to the default state
-          $scope.intersection[selected.id].attributes.push(attributeValue);
+          $scope.intersection[selected.id].attributes.push({value: attributeValue, alias: attributeValue});
           form.$setPristine();
         } else {
           // TODO: throw error message
@@ -1141,7 +1191,7 @@ define([], function() {
         var intersection = $scope.intersection[selected.id];
 
         intersection.attributes.some(function(attr, index, arr) {
-          if (attr === attributeValue) {
+          if (attr.value === attributeValue.value) {
             arr.splice(index, 1);
             return true;
           }
@@ -1174,12 +1224,18 @@ define([], function() {
       $scope.onFilterRegion = function() {
         if ($scope.filter.filterArea === $scope.filterTypes.NO_FILTER.value) {
           $scope.filter.area = {};
-        } else {
+          delete $scope.filter.data_series_id;
+        } 
+        else if ($scope.filter.filterArea === $scope.filterTypes.AREA.value){
+          delete $scope.filter.data_series_id;
           if ($scope.filter.area){
             $scope.filter.area.srid = 4326;
           } else {
             $scope.filter.area={srid: 4326};
           }
+        }
+        else {
+          $scope.filter.area = {};
         }
       };
 
@@ -1216,7 +1272,7 @@ define([], function() {
       $scope.isSchedule = false;
       $scope.services = [];
       // fix: temp code
-      $scope.services = Service.list();
+      $scope.services = Service.list({service_type_id: globals.enums.ServiceType.COLLECTOR});
 
       // Wizard validations
       $scope.isFirstStepValid = function(obj) {
@@ -1297,6 +1353,7 @@ define([], function() {
       };
       // list data series
       $scope.dataSeriesList = DataSeriesService.list();
+      $scope.staticDataSeriesList = [];
 
       // fill intersection data series
       $scope.dataSeriesList.forEach(function(dSeries) {
@@ -1311,6 +1368,7 @@ define([], function() {
           */
           case globals.enums.TemporalityType.STATIC:
             $scope.dataSeriesGroups[0].children.push(dSeries);
+            $scope.staticDataSeriesList.push(dSeries);
             break;
           default:
             break;
@@ -1334,7 +1392,7 @@ define([], function() {
                 target.selected = true;
 
                 if (canAddAttribute(target.data_series, element.attribute, target.attributes)) {
-                  target.attributes.push(element.attribute);
+                  target.attributes.push({value: element.attribute, alias: element.alias});
                 }
 
                 return true;
@@ -1389,7 +1447,11 @@ define([], function() {
         } else {
           if ((val && Object.keys(val).length == 0) || val == null) {
             $scope.dataSeries.access = 'PROCESSING';
+            $scope.wizard.intersection.message = i18n.__("Must have a valid store values to create an intersection");
+            $scope.advanced.intersection.message = i18n.__("Must have a valid store values to create an intersection");
           } else {
+            $scope.advanced.intersection.message = i18n.__("Add intersection configuration");
+            $scope.wizard.intersection.message = i18n.__("Add intersection configuration");
             $scope.dataSeries.access = 'COLLECT';
           }
         }
@@ -1797,7 +1859,8 @@ define([], function() {
             for(var i = 0; i < attributes.length; ++i) {
               var attribute = attributes[i];
               intersectionValues.push({
-                attribute: attribute,
+                attribute: attribute.value,
+                alias: attribute.alias,
                 dataseries_id: dataseries_id
               });
             }
@@ -1880,6 +1943,9 @@ define([], function() {
         if ($scope.filter.filterArea === $scope.filterTypes.AREA.value) {
           filterValues.region = GeoLibs.polygon.build($scope.filter.area || {});
         }
+        else if ($scope.filter.filterArea === $scope.filterTypes.STATIC_DATA.value){
+          filterValues.data_series_id = $scope.filter.data_series_id;
+        }
 
         var scheduleValues = Object.assign({}, $scope.schedule);
         switch(scheduleValues.scheduleHandler) {
@@ -1939,6 +2005,19 @@ define([], function() {
         if ($scope.filter.filterArea == $scope.filterTypes.AREA.value) {
           if (FilterForm.boundedForm.$invalid){
             MessageBoxService.danger("Data Registration", "Invalid filter area");
+            return;
+          }
+        }
+
+        if ($scope.filter.filterArea == $scope.filterTypes.STATIC_DATA.value) {
+          var staticDataSeriesForm;
+          if ($scope.isWizard){
+            staticDataSeriesForm = angular.element('form[name="staticDataSeriesForm"]').scope()['staticDataSeriesForm'];
+          } else {
+            staticDataSeriesForm = angular.element('form[name="filterForm"]').scope()['filterForm'];
+          }
+          if (staticDataSeriesForm.$invalid){
+            MessageBoxService.danger("Data Registration", "Invalid filter data series");
             return;
           }
         }

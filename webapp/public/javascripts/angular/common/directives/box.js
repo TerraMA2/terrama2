@@ -38,11 +38,11 @@ define(
             elm.append(clone);
           });
         }
-      }
+      };
     }
 
     terrama2Box.$inject = ["$parse"];
 
     return terrama2Box;
   }
-)
+);

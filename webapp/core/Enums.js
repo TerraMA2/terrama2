@@ -254,7 +254,8 @@ module.exports = {
     ERROR: 1,
     START: 2,
     DOWNLOADED: 3,
-    DONE: 4
+    DONE: 4,
+    ON_QUEUE: 5
   },
 
   /**
@@ -388,5 +389,11 @@ module.exports = {
     DATABASE: "database",
     TABLE: "table",
     COLUMN: "column"
+  },
+
+  ViewStyleType: {
+    EQUAL_STEPS: 1,
+    QUANTILE: 2,
+    BY_VALUE: 3
   }
 };

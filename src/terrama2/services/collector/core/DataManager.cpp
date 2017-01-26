@@ -32,6 +32,8 @@
 #include "Exception.hpp"
 #include "JSonUtils.hpp"
 #include "../../../core/Exception.hpp"
+#include "../../../core/data-model/Filter.hpp"
+#include "../../../core/data-model/DataSeries.hpp"
 #include "../../../core/utility/Logger.hpp"
 
 // STL
@@ -124,7 +126,8 @@ void terrama2::services::collector::core::DataManager::addJSon(const QJsonObject
     auto collectors = obj["Collectors"].toArray();
     for(auto json : collectors)
     {
-      auto dataPtr = terrama2::services::collector::core::fromCollectorJson(json.toObject());
+      auto dataPtr = terrama2::services::collector::core::fromCollectorJson(json.toObject(), this);
+
       if(hasCollector(dataPtr->id))
         update(dataPtr);
       else

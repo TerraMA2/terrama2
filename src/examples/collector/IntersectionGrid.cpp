@@ -223,7 +223,11 @@ int main(int argc, char* argv[])
 
       // Adds the attribute "SIGLA" to the collected occurrences.
       intersection->collectorId = collector->id;
-      std::vector<std::string> attrVec{"2"};
+
+      std::vector<terrama2::services::collector::core::IntersectionAttribute> attrVec;
+      terrama2::services::collector::core::IntersectionAttribute intersectionAttribute;
+      intersectionAttribute.attribute = "3";
+      attrVec.push_back(intersectionAttribute);
       intersection->attributeMap[3] = attrVec;
       collector->intersection = intersectionPtr;
 

@@ -124,7 +124,7 @@ void terrama2::services::alert::core::DataManager::addJSon(const QJsonObject& ob
     auto alerts = obj["Alerts"].toArray();
     for(auto json : alerts)
     {
-      auto dataPtr = terrama2::services::alert::core::fromAlertJson(json.toObject());
+      auto dataPtr = terrama2::services::alert::core::fromAlertJson(json.toObject(), this);
       if(hasAlert(dataPtr->id))
         update(dataPtr);
       else
@@ -133,7 +133,7 @@ void terrama2::services::alert::core::DataManager::addJSon(const QJsonObject& ob
   }
   catch(const terrama2::Exception& /*e*/)
   {
-    // loggend on throw...
+    // logged on throw...
   }
   catch(boost::exception& e)
   {

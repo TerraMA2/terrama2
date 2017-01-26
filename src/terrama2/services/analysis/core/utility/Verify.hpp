@@ -34,6 +34,9 @@
 #include "../Shared.hpp"
 #include "../Analysis.hpp"
 
+// STL
+#include <set>
+
 namespace terrama2
 {
   namespace services
@@ -57,7 +60,7 @@ namespace terrama2
             \param analysis The analysis to be executed.
             \return A list with error messages.
           */
-          std::vector<std::string> inactiveDataSeries(DataManagerPtr dataManager, AnalysisPtr analysis);
+          std::set<std::string> inactiveDataSeries(DataManagerPtr dataManager, AnalysisPtr analysis);
 
 
           /*!
@@ -74,7 +77,7 @@ namespace terrama2
             \param analysis The analysis to be executed.
             \return A list with error messages.
           */
-          std::vector<std::string> dataAvailable(DataManagerPtr dataManager, AnalysisPtr analysis);
+          std::set<std::string> dataAvailable(DataManagerPtr dataManager, AnalysisPtr analysis);
 
           /*!
             \brief Verifies if the monitored object data series contains the identifier attribute
@@ -82,7 +85,7 @@ namespace terrama2
             \param analysis The analysis to be executed.
             \return A list with error messages.
           */
-          std::vector<std::string> attributeIdentifier(DataManagerPtr dataManager, AnalysisPtr analysis);
+          std::set<std::string> attributeIdentifier(DataManagerPtr dataManager, AnalysisPtr analysis);
 
 
         } /* verify */

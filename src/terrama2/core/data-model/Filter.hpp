@@ -33,6 +33,7 @@
 //TerraMA2
 #include "../../Config.hpp"
 #include "../Typedef.hpp"
+#include "../Shared.hpp"
 
 //STL
 #include <memory>
@@ -69,7 +70,8 @@ namespace terrama2
         "discard_after" : STRING::TIMESTAMP WITH TIME ZONE,
         "last_value" : BOOLEAN
         "region" : STRING::WKT,
-        "by_value" : STRING
+        "by_value" : STRING,
+        "data_series_id" : INTEGER
       }
       \endcode
      */
@@ -85,6 +87,8 @@ namespace terrama2
       std::shared_ptr<double> value = nullptr; //!< Value to be used in a filter by value.
       bool lastValue = false; //! Used to read only the last value.
       std::string byValue; //! Filter by value.
+      DataProviderPtr dataProvider; //! Provider from static data filter.
+      DataSeriesPtr dataSeries; //! Static data data series.
 
       //operator bool() const { return dataSetId != 0; }
     };
