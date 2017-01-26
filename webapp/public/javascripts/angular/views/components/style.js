@@ -79,7 +79,7 @@ define([], function () {
         title: i18n.__("Default"),
         color: firstColor,
         isDefault: true,
-        value: 0
+        value: ""
       };
 
       self.model.colors = colorsArr;

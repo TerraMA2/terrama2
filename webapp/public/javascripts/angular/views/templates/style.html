@@ -5,7 +5,7 @@
         <label><span ng-bind="$ctrl.i18n.__('Column')"></span>:</label>
         <input class="form-control" 
               name="column" 
-              ng-model="$ctrl.model.column" 
+              ng-model="$ctrl.model.metadata.column" 
               type="text"
               ng-required="$ctrl.type === $ctrl.DataSeriesType.GEOMETRIC_OBJECT || $ctrl.type === $ctrl.DataSeriesType.OCCURRENCE">
 
@@ -19,7 +19,7 @@
         <label><span ng-bind="$ctrl.i18n.__('Band Number')"></span>:</label>
         <input class="form-control" 
               name="band_number" 
-              ng-model="$ctrl.model.band_number" 
+              ng-model="$ctrl.model.metadata.band_number" 
               type="number"
               ng-required="$ctrl.type === $ctrl.DataSeriesType.GRID">
 
@@ -36,7 +36,8 @@
         <select class="form-control" 
                 name="styleOperation" 
                 ng-model="$ctrl.model.operation_id"
-                ng-options="value as key for (key, value) in $ctrl.StyleOperation">
+                ng-options="value as key for (key, value) in $ctrl.StyleOperation"
+                required>
         </select>
 
         <span class="help-block" 
@@ -51,14 +52,8 @@
         <label><span ng-bind="$ctrl.i18n.__('Dummy Value')"></span>:</label>
         <input class="form-control" 
               name="dummy" 
-              ng-model="$ctrl.model.dummy" 
-              type="text"
-              ng-required="$ctrl.type === $ctrl.DataSeriesType.GRID">
-
-        <span class="help-block" 
-          ng-show="$ctrl.formCtrl.dummy.$dirty && $ctrl.formCtrl.dummy.$error.required"
-          ng-bind="$ctrl.i18n.__('Dummy is required')">
-        </span>
+              ng-model="$ctrl.model.metadata.dummy" 
+              type="text">
       </div>
       <!-- ./Dummy -->
     </div>
@@ -71,7 +66,8 @@
       <select class="form-control" 
               name="styleType" 
               ng-model="$ctrl.model.type"
-              ng-options="value as key for (key, value) in $ctrl.StyleType">
+              ng-options="value as key for (key, value) in $ctrl.StyleType"
+              required>
       </select>
 
       <span class="help-block" 

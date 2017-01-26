@@ -3484,6 +3484,9 @@ var DataManager = module.exports = {
             include: [
               {
                 model: models.db.ViewStyleColor
+              },
+              {
+                model: models.db.ViewStyleLegendMetadata
               }
             ]
           }
@@ -3499,6 +3502,7 @@ var DataManager = module.exports = {
             if (view.ViewStyleLegend) {
               var legendModel = new DataModel.ViewStyleLegend(Utils.extend(
                 view.ViewStyleLegend.get(), {colors: view.ViewStyleLegend.ViewStyleColors ? view.ViewStyleLegend.ViewStyleColors.map(function(elm) { return elm.get(); }) : []}));
+              legendModel.setMetadata(Utils.formatMetadataFromDB(view.ViewStyleLegend.ViewStyleLegendMetadata));
               viewModel.setLegend(legendModel);
             }
             return viewModel;
@@ -3575,13 +3579,75 @@ var DataManager = module.exports = {
 
           return Promise.all(promises)
             .then(function(colors) {
-              var output = new DataModel.ViewStyleLegend(Utils.extend(legendResult.get(), {colors: colors}));
-
-              return resolve(output);
+              return new DataModel.ViewStyleLegend(Utils.extend(legendResult.get(), {colors: colors}));
             });
         })
+        // on success legend saving, prepare metadata
+        .then(function(legendModel) {
+          var metadataArr = Utils.generateArrayFromObject(styleLegendObject.metadata, function(key, value) {
+            return {key: key, value: value, legend_id: legendModel.id};
+          });
+          return Promise.all([legendModel, self.addViewStyleLegendMetadata(metadataArr, options)]);
+        })
+        // on success legend metadata saving, set into model and resolve promise
+        .spread(function(legendModel, legendMetadata) {
+          legendModel.setMetadata(legendMetadata);
+
+          return resolve(legendModel);
+        })
+        // any error
         .catch(function(err) {
           return reject(new exceptions.ViewStyleTypeError(Utils.format("Could not save view style type due %s", err.toString())));
+        });
+    });
+  },
+  addViewStyleLegendMetadata: function(metadataArr, options) {
+    return new Promise(function(resolve, reject) {
+      return models.db.ViewStyleLegendMetadata.bulkCreate(metadataArr, options)
+        .then(function(metadataArrResults) {
+          return resolve(Utils.formatMetadataFromDB(metadataArrResults));
+        })
+        .catch(function(err) {
+          return reject(new Error(Utils.format("Could not save style legend metadata due %s", err.toString())));
+        });
+    });
+  },
+  listViewStyleLegendMetadata: function(restriction, options) {
+    return new Promise(function(resolve, reject) {
+      return models.db.ViewStyleLegendMetadata.findAll(Utils.extend({where: restriction}, options))
+        .then(function(metadataResults) {
+          return resolve(Utils.formatMetadataFromDB(metadataResults));
+        })
+        .catch(function(err) {
+          return reject(err);
+        });
+    });
+  },
+  upsertViewStyleLegendMetadata: function(restriction, metadataObj, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return self.listViewStyleLegendMetadata(restriction, options)
+        .then(function(metadataResults) {
+          var lengthResult = Object.keys(metadataResults).length;
+          if (lengthResult === 0) {
+            // add
+            return self.addViewStyleLegendMetadata([metadataObj], options);
+          } else if (lengthResult === 1) {
+            // update
+            return models.db.ViewStyleLegendMetadata.update(metadataObj, Utils.extend({
+                fields: ["key", "value"],
+                where: restriction
+              }, options));
+          }
+          throw new Error("More than one element retrieved during view legend metadata operation");
+        })
+        
+        .then(function() {
+          return resolve();
+        })
+
+        .catch(function(err) {
+          return reject(err);
         });
     });
   },
@@ -3655,7 +3721,7 @@ var DataManager = module.exports = {
     var self = this;
     return new Promise(function(resolve, reject) {
       return models.db.ViewStyleLegend.update(styleLegendObject, Utils.extend({
-          fields: ["column", "operation_id", "type", "band_number", "dummy"],
+          fields: ["operation_id", "type"],
           where: restriction
         }, options))
         .then(function() {
@@ -3702,13 +3768,16 @@ var DataManager = module.exports = {
       return models.db.View.create(viewObject, options)
         .then(function(viewResult) {
           view = viewResult;
-          return models.db.ViewStyleType.findOne(Utils.extend({where: {id: viewObject.legend.operation_id}}, options))
-            .then(function(viewType) {
-              var legend = viewObject.legend;
-              legend.operation_id = viewType.id;
-              legend.view_id = view.id;
-              return self.addViewStyleLegend(legend, options);
-            });
+          if (!Utils.isEmpty(viewObject.legend)) {
+            return models.db.ViewStyleType.findOne(Utils.extend({where: {id: viewObject.legend.operation_id}}, options))
+              .then(function(viewType) {
+                var legend = viewObject.legend;
+                legend.operation_id = viewType.id;
+                legend.view_id = view.id;
+                return self.addViewStyleLegend(legend, options);
+              });
+          }
+          return null;
         })
 
         .then(function(legend) {
