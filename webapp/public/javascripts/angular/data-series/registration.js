@@ -234,7 +234,10 @@ define([], function() {
 
           // fill schedule
           var schedule = collector.schedule;
-          $scope.$broadcast("updateSchedule", schedule);
+
+          $timeout(function() {
+            $scope.$broadcast("updateSchedule", schedule);
+          }, 1000);
 
           // fill filter
           var filter = collector.filter || {};
