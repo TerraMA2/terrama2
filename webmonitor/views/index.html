@@ -96,6 +96,12 @@
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("analysis", "terrama2-layerexplorer", null, "treeview unsortable", null);
         allLayers.push({id: "analysis", name: "Analysis"});
 
+    //Adding open map street
+    if (TerraMA2WebComponents.MapDisplay.addOSMLayer("osm", "Open street", "Open street", false, "terrama2-layerexplorer", false)){
+        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("osm", "template", null, "treeview unsortable terrama2-truncate-text", null);
+        allLayers.push({id: "osm", name: "Open street"});
+    }
+
     addTreeviewMenuClass();
 
     var socket;
@@ -176,6 +182,7 @@
 
         addLayersToSort();
         setSortable();
+        $("#osm input").trigger("click");
     });
 
     socket.on('proxyResponseCapabilities', function(data){
@@ -307,6 +314,31 @@
             },
             stop: function(event, ui) {                        
                 doSlide(layerId, rangeDate[ui.value]);
+            }       
+        });
+    }
+
+    function setOpacitySlider(layerId, initialValue){
+
+        var slider = $("#opacity" + layerId.replace(':',''));
+        var sliderParent = $(slider).parent();
+        if (!$(sliderParent).is(":visible")) {
+            $(sliderParent).show();
+        } else {
+            $(sliderParent).hide();
+        }
+        var label = $(sliderParent).find("label");
+        $(label).text("Opacity: " + initialValue + "%");
+
+        $(slider).slider({
+            min: 0,
+            max: 100,
+            value: initialValue,
+            slide: function(event, ui) {
+                $(label).text("Opacity: " + ui.value + "%");
+            },
+            stop: function(event, ui) {                        
+                changeLayerOpacity(layerId, ui.value);
             }       
         });
     }
@@ -457,7 +489,12 @@
             if (layerId.includes(':')){
                 layerId = layerId.replace(':','')
             }
-            itens += '<li id="' + layerId + '" data-parentid="terrama2-layerexplorer" class="hide">' + allLayers[i].name + '</li>';
+
+            var sliderDiv = "<div class='slider-content' style='display:none;'><label></label><button type='button' class='close close-slider'>×</button><div id='opacity" + layerId + "'></div></div>";
+            var spanIcon = "<span id='terrama2-opacity-slider' class='terrama2-datepicker-icon' data-toggle='tooltip' title='Change opacity'> <i class='fa fa-sliders'></i></span>"; 
+            
+            itens += '<li id="' + layerId + '" data-layerid="' + allLayers[i].id + '" data-parentid="terrama2-layerexplorer" class="hide">' + allLayers[i].name + sliderDiv + spanIcon + '</li>';
+
         }
         var list = '<ul>' + itens + '</ul>';
         $('#terrama2-sortlayers').append(list);

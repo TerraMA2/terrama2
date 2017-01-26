@@ -111,6 +111,33 @@ define(
     };
 
     /**
+     * Updates the opacity of the layer, allowed values range from 0 to 1.
+     * @param {string} layerId - Layer id
+     * @param {number} opacityValue = Opacity value to set in layer
+     * 
+     * @function updateLayerOpacity
+     * @memberof MapDisplay
+     * @inner
+     */
+    var updateLayerOpacity = function(layerId, opacityValue){
+      var layer = findBy(memberOlMap.getLayerGroup(), 'id', layerId);
+      layer.setOpacity(opacityValue);
+    }
+
+    /**
+     * Get the opacity of the layer.
+     * @param {string} layerId - Layer id
+     * 
+     * @function getLayerOpacity
+     * @memberof MapDisplay
+     * @inner
+     */
+    var getLayerOpacity = function(layerId){
+      var layer = findBy(memberOlMap.getLayerGroup(), 'id', layerId);
+      return layer.getOpacity();
+    }
+
+    /**
      * Updates a given attribute of a given layer with a given value.
      * @param {string} layerId - Layer id
      * @param {string} key - Attribute name
@@ -1458,7 +1485,9 @@ define(
       findBy: findBy,
       applyCQLFilter: applyCQLFilter,
       alterLayerIndex: alterLayerIndex,
-      init: init
+      init: init,
+      updateLayerOpacity: updateLayerOpacity,
+      getLayerOpacity: getLayerOpacity
     };
   }
 );

@@ -55,7 +55,7 @@ $(document).off('click', menu + ' li span')
             var parent_li = $this.parent("li");
 
             //Open the target menu and add the menu-open class
-            checkElement.slideDown(500, function () {
+            checkElement.slideDown(50, function () {
                 //Add the class active to the parent li
                 checkElement.addClass('menu-open');
                 parent.find('li.active').removeClass('active');
