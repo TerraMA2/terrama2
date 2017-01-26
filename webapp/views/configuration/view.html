@@ -162,8 +162,10 @@
     </terrama2-box>
 
     <terrama2-box title="i18n.__('Style')" css="ctrl.css"
-                  ng-show="ctrl.viewDataSeries.data_series_semantics.data_series_type_name && ctrl.viewDataSeries.data_series_semantics.data_series_type_name !== ctrl.DataSeriesType.DCP && ctrl.isValid">
-      <form name="forms.styleForm" novalidate>
+                  ng-show="ctrl.viewDataSeries.data_series_semantics.data_series_type_name && ctrl.viewDataSeries.data_series_semantics.data_series_type_name !== ctrl.DataSeriesType.DCP"
+                  handle-buttons="ctrl.styleButtons"
+                  extra="{disabled: !ctrl.hasStyle}">
+      <form name="forms.styleForm" novalidate ng-if="ctrl.hasStyle">
         <!-- Vectorial -->
         <terrama2-style-legend form-ctrl="forms.styleForm" type="ctrl.targetDataSeriesType" model="ctrl.legend"></terrama2-style-legend>
       </form>
