@@ -869,6 +869,17 @@ void terrama2::services::view::core::GeoServer::deleteWorkspace(bool recursive) 
   }
 
   cURLwrapper.customRequest(uriDelete, "delete");
+
+  if(cURLwrapper.responseCode() == 404)
+  {
+    throw NotFoundGeoserverException() << ErrorDescription(QString::fromStdString(cURLwrapper.response()));
+  }
+  else if(cURLwrapper.responseCode() != 200)
+  {
+    QString errMsg = QObject::tr("Error at delete Workspace. ");
+    TERRAMA2_LOG_ERROR() << errMsg << uriDelete.uri();
+    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
+  }
 }
 
 
@@ -898,6 +909,17 @@ void terrama2::services::view::core::GeoServer::deleteVectorLayer(const std::str
   }
 
   cURLwrapper.customRequest(uriDelete, "delete");
+
+  if(cURLwrapper.responseCode() == 404)
+  {
+    throw NotFoundGeoserverException() << ErrorDescription(QString::fromStdString(cURLwrapper.response()));
+  }
+  else if(cURLwrapper.responseCode() != 200)
+  {
+    QString errMsg = QObject::tr("Error at delete Vectorial Layer. ");
+    TERRAMA2_LOG_ERROR() << errMsg << uriDelete.uri();
+    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
+  }
 }
 
 
@@ -927,6 +949,17 @@ void terrama2::services::view::core::GeoServer::deleteCoverageLayer(const std::s
   }
 
   cURLwrapper.customRequest(uriDelete, "delete");
+
+  if(cURLwrapper.responseCode() == 404)
+  {
+    throw NotFoundGeoserverException() << ErrorDescription(QString::fromStdString(cURLwrapper.response()));
+  }
+  else if(cURLwrapper.responseCode() != 200)
+  {
+    QString errMsg = QObject::tr("Error at delete Coverage Layer. ");
+    TERRAMA2_LOG_ERROR() << errMsg << uriDelete.uri();
+    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
+  }
 }
 
 
