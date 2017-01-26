@@ -749,7 +749,7 @@ define([], function() {
         for(var k in fmt) {
           if (fmt.hasOwnProperty(k)) {
             // checking if a number
-            if (isNaN(fmt[k]) || typeof fmt[k] == "boolean") {
+            if (isNaN(fmt[k]) || fmt[k] == "" || typeof fmt[k] == "boolean") {
               if (k === "active") {
                 output[k] = typeof fmt[k] === "string" ? fmt[k] === "true" : fmt[k]; 
               } else {
@@ -1073,7 +1073,7 @@ define([], function() {
       $scope.isSchedule = false;
       $scope.services = [];
       // fix: temp code
-      $scope.services = Service.list();
+      $scope.services = Service.list({service_type_id: globals.enums.ServiceType.COLLECTOR});
 
       // Wizard validations
       $scope.isFirstStepValid = function(obj) {

@@ -1,19 +1,18 @@
-"use strict";
-
-var logger = require("./../../core/Logger");
-var DataManager = require("../../core/DataManager");
-var PromiseClass = require("./../../core/Promise");
-var TcpService = require('./../../core/facade/tcp-manager/TcpService');
-var Utils = require("../../core/Utils");
-var DataSeriesError = require('../../core/Exceptions').DataSeriesError;
-var CollectorErrorNotFound = require('../../core/Exceptions').CollectorErrorNotFound;
-var DataSeriesTemporality = require('./../../core/Enums').TemporalityType;
-var TokenCode = require('./../../core/Enums').TokenCode;
-var _ = require('lodash');
-// data model
-var DataModel = require('./../../core/data-model');
-
 module.exports = function(app) {
+  "use strict";
+
+  var logger = require("./../../core/Logger");
+  var DataManager = require("../../core/DataManager");
+  var PromiseClass = require("./../../core/Promise");
+  var TcpService = require('./../../core/facade/tcp-manager/TcpService');
+  var Utils = require("../../core/Utils");
+  var DataSeriesError = require('../../core/Exceptions').DataSeriesError;
+  var CollectorErrorNotFound = require('../../core/Exceptions').CollectorErrorNotFound;
+  var DataSeriesTemporality = require('./../../core/Enums').TemporalityType;
+  var TokenCode = require('./../../core/Enums').TokenCode;
+  // data model
+  var DataModel = require('./../../core/data-model');
+
   return {
     post: function(request, response) {
       var dataSeriesObject = request.body.dataSeries;
@@ -67,7 +66,7 @@ module.exports = function(app) {
           });
         }
       }).then(function(dataSeriesResult) {
-        var extra = {}
+        var extra = {};
         if (shouldRun && dataSeriesObject.hasOwnProperty('input') && dataSeriesObject.hasOwnProperty('output')){
           extra = {
             id: dataSeriesResult.id
@@ -238,7 +237,7 @@ module.exports = function(app) {
                       filterUpdate.data_series_id = null;
                     }
 
-                    if (!_.isEmpty(filterObject.date)) {
+                    if (!Utils.isEmpty(filterObject.date)) {
                       if (!filterObject.date.beforeDate) {
                         filterUpdate.discard_before = null;
                         delete filterUpdate.date.beforeDate;
@@ -257,7 +256,7 @@ module.exports = function(app) {
                           });
                       });
                   } else {
-                    if (_.isEmpty(filterObject.date)) {
+                    if (Utils.isEmpty(filterObject.date)) {
                       return null;
                     } else {
                       filterObject.collector_id = collector.id;
@@ -272,7 +271,7 @@ module.exports = function(app) {
                 // try to update intersection
                 .then(function() {
                   // temp: remove all and insert. TODO: sequelize upsert / delete
-                  if (_.isEmpty(intersection)) {
+                  if (Utils.isEmpty(intersection)) {
                     return DataManager.removeIntersection({collector_id: collector.id}, options)
                       .then(function() {
                         collector.setIntersection([]);
@@ -354,7 +353,7 @@ module.exports = function(app) {
                             };
                             TcpService.send(output);
                             
-                            return collector.output
+                            return collector.output;
                           } else {
                             intersection.forEach(function(intersect) {
                               intersect.collector_id = collectorResult.id;
@@ -381,7 +380,7 @@ module.exports = function(app) {
                         });
                       });
                     });
-                  })
+                  });
                 });
               });
             }
@@ -440,6 +439,7 @@ module.exports = function(app) {
 
     delete: function(request, response) {
       var id = request.params.id;
+
       if (id) {
         DataManager.listAnalysisDataSeries({data_series_id: id})
           .then(function(analysisDataSeriesList){

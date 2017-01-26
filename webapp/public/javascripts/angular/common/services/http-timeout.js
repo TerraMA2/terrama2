@@ -42,7 +42,7 @@ define(function() {
 
     return function(httpOptions, timeout) {
       return _makeRequest(httpOptions, timeout);
-    }
+    };
   }
 
   terrama2HttpTimeout.$inject = ['$http', '$q'];

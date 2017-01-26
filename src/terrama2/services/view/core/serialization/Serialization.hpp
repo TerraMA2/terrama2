@@ -30,6 +30,9 @@
 #ifndef __TERRAMA2_SERVICES_VIEW_CORE_SE_SERIALIZATION_HPP__
 #define __TERRAMA2_SERVICES_VIEW_CORE_SE_SERIALIZATION_HPP__
 
+//TerraMA2
+#include "../View.hpp"
+
 // Terralib
 #include <terralib/se/Style.h>
 
@@ -50,14 +53,17 @@ namespace terrama2
               /*!
                *\brief Creates a style XML file compatible with GeoServer
                */
-              static void writeStyleGeoserverXML(const te::se::Style* style, const std::string path);
+              static void writeVectorialStyleGeoserverXML(const te::se::Style* style, const std::string path);
 
               /*!
                * \brief Method to read a Style from a xml file and return a TerraLib Style object
                * \param path Fullpath to the XML file
                * \return A unique_ptr to a TerraLib Style object
                */
-              static std::unique_ptr<te::se::Style> readStyleXML(const std::string path);
+              static std::unique_ptr<te::se::Style> readVectorialStyleXML(const std::string path);
+
+              static void writeCoverageStyleGeoserverXML(const View::Legend legend,
+                                                         const std::string path);
 
           };
       } // end namespace core
