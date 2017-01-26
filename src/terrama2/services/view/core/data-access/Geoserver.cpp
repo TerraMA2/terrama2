@@ -1085,7 +1085,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
 
       for(auto& fileInfo : fileInfoList)
       {
-        std::string layerName = std::to_string(viewPtr->id) + "_layer_" + fileInfo.baseName().toStdString();
+        std::string layerName = viewPtr->viewName + "_" + std::to_string(viewPtr->id);
 
         if(dataFormat == "OGR")
         {
@@ -1136,7 +1136,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
       TableInfo tableInfo = DataAccess::getPostgisTableInfo(dataSeriesProvider, dataset);
 
       std::string tableName = tableInfo.tableName;
-      std::string layerName = std::to_string(viewPtr->id) + "_layer_" + tableInfo.tableName;
+      std::string layerName = viewPtr->viewName + "_" + std::to_string(viewPtr->id);
       std::string timestampPropertyName = tableInfo.timestampPropertyName;
 
       modelDataSetType = std::move(tableInfo.dataSetType);
