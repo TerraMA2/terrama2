@@ -54,6 +54,7 @@
      * @type {any}
      */
     this.colors = params.colors || [];
+    this.metadata = params.metadata || {};
   }
 
   ViewStyleLegend.prototype = Object.create(AbstractClass.prototype);
@@ -70,6 +71,18 @@
     return this.toObject();
   };
 
+  ViewStyleLegend.prototype.setMetadata = function(formats) {
+    var formatOutput = {};
+    if (formats instanceof Array) {
+      formats.forEach(function(format) {
+        formatOutput[format.key] = format.value;
+      });
+    } else {
+      formatOutput = formats;
+    }  
+    this.metadata = formatOutput;
+  };
+
   /**
    * It builds a standardized TCP format
    * 
@@ -83,6 +96,7 @@
       type: this.type,
       colors: this.colors,
       dummy: this.dummy,
+      metadata: this.metadata,
       band_number: isNumber(this.band_number) ? this.band_number : null
     });
   };

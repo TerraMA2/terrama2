@@ -60,10 +60,6 @@
 
         // setting current project scope
         viewObject.project_id = projectId;
-        // setting empty style if there is not
-        if (!viewObject.style) {
-          viewObject.style = "";
-        }
 
         var promiser;
 
@@ -194,14 +190,23 @@
                     return PromiseClass.all(promises)
                       .then(function() {
                         return DataManager.updateViewStyleLegend({id: view.legend.id}, legend, options);
+                      })
+                      .then(function() {
+                        promises = [];
+                        for(var k in legend.metadata) {
+                          if (legend.metadata.hasOwnProperty(k)) {
+                            promises.push(DataManager.upsertViewStyleLegendMetadata({key: k, legend_id: view.legend.id}, {key: k, value: legend.metadata[k], legend_id: view.legend.id}, options));
+                          }
+                        }
+                        return PromiseClass.all(promises);
                       });
                   });
               }
             } else {
               // if there is legend before, remove it
               if (view.legend) {
-                return DataManager.removeViewStyleLegend({id: viewObject.legend.id}, options);
-              }
+                return DataManager.removeViewStyleLegend({id: view.legend.id}, options);
+            }
               return null;
             }
           })
