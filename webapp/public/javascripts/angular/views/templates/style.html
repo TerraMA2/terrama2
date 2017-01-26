@@ -133,7 +133,7 @@
           <input type="text" class="form-control" name="field_color_{{ $index }}" ng-model="elm.title">
         </td>
         <td>
-          <input type="text" class="form-control" name="field_value_{{ $index }}" ng-model="elm.value">
+          <input type="text" class="form-control" name="field_value_{{ $index }}" ng-model="elm.value" ng-hide="$index === 0">
         </td>
       </tr>
     </tbody>
