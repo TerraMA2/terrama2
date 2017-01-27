@@ -169,7 +169,7 @@ define([], function() {
             self.onDataSeriesChanged(self.view.data_series_id);
 
             var legend = config.view.legend;
-            if (Object.keys(legend).length !== 0) {
+            if (legend && Object.keys(legend).length !== 0) {
               self.legend.operation_id = legend.operation_id;
               self.legend.type = legend.type;
               self.legend.colors = legend.colors;
