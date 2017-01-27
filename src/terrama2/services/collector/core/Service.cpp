@@ -329,8 +329,7 @@ void terrama2::services::collector::core::Service::removeCollector(CollectorId c
                                        [collectorId](const terrama2::core::ExecutionPackage& executionPackage)
                                        { return collectorId == executionPackage.processId; }), processQueue_.end());
 
-    auto itWaitQueue = waitQueue_.find(collectorId);
-    waitQueue_.erase(itWaitQueue);
+    waitQueue_.erase(collectorId);
 
 
     TERRAMA2_LOG_INFO() << tr("Collector %1 removed successfully.").arg(collectorId);
