@@ -1,13 +1,13 @@
 <div class="col-md-12 terrama2-nopadding-box">
   <div class="col-md-12 terrama2-nopadding-box">
-    <div class="col-md-6" ng-if="$ctrl.type === $ctrl.DataSeriesType.GEOMETRIC_OBJECT || $ctrl.type === $ctrl.DataSeriesType.OCCURRENCE">
+    <div class="col-md-6" ng-if="$ctrl.type === $ctrl.DataSeriesType.GEOMETRIC_OBJECT || $ctrl.type === $ctrl.DataSeriesType.OCCURRENCE || $ctrl.type === $ctrl.DataSeriesType.ANALYSIS_MONITORED_OBJECT">
       <div class="form-group" terrama2-show-errors>
         <label><span ng-bind="$ctrl.i18n.__('Column')"></span>:</label>
         <input class="form-control" 
               name="column" 
               ng-model="$ctrl.model.metadata.column" 
               type="text"
-              ng-required="$ctrl.type === $ctrl.DataSeriesType.GEOMETRIC_OBJECT || $ctrl.type === $ctrl.DataSeriesType.OCCURRENCE">
+              ng-required="$ctrl.type === $ctrl.DataSeriesType.GEOMETRIC_OBJECT || $ctrl.type === $ctrl.DataSeriesType.OCCURRENCE || $ctrl.type === $ctrl.DataSeriesType.ANALYSIS_MONITORED_OBJECT">
 
         <span class="help-block" 
           ng-show="$ctrl.formCtrl.column.$dirty && $ctrl.formCtrl.column.$error.required"
@@ -37,6 +37,7 @@
                 name="styleOperation" 
                 ng-model="$ctrl.model.operation_id"
                 ng-options="value as key for (key, value) in $ctrl.StyleOperation"
+                ng-init="$ctrl.model.operation_id = $ctrl.StyleOperation.VALUE;"
                 required>
         </select>
 
@@ -129,7 +130,7 @@
       <th ng-bind="$ctrl.i18n.__('Value')"></th>
     </thead>
     <tbody>
-      <tr ng-repeat="elm in $ctrl.model.colors track by $index">
+      <tr ng-repeat="elm in $ctrl.model.colors | orderBy: 'id' track by $index">
         <td>
           <color-picker ng-model="elm.color" options="$ctrl.colorOptions" event-api="$ctrl.events"></color-picker>
         </td>
