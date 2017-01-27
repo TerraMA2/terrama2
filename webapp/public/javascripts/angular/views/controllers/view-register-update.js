@@ -92,6 +92,28 @@ define([], function() {
     self.css = {
       boxType: "box-solid"
     };
+
+    self.hasStyle = false;
+
+    self.styleButtons = {
+      circle: {
+        show: function () {
+          return !self.hasStyle;
+        },
+        click: function() {
+          self.hasStyle = true;
+        }
+      },
+      minus: {
+        show: function () {
+          return self.hasStyle;
+        },
+        click: function() {
+          self.hasStyle = false;
+          self.legend = {};
+        }
+      } 
+    };
     /**
      * It contains view instance values
      * @type {Object}
@@ -123,10 +145,10 @@ define([], function() {
      */
     $http.get("/api/DataProviderType", {}).then(function(response) {
       var data = response.data;
-      // Setting HTTP default syntax
-      self.httpSyntax = data.find(function(element) {
-        return element.name === "HTTP";
-      });
+
+      if (config.view.legend) {
+        self.hasStyle = true;
+      }
 
       /**
        * Retrieve all service instances
@@ -139,7 +161,6 @@ define([], function() {
          */
         return DataSeriesService.init({schema: "all"}).then(function(dataSeries) {
           //Filter data series to not show dcp - remove when back implements dcp creation view
-          // self.dataSeries = dataSeries.filter(function(dS){return dS.data_series_semantics.data_series_type_name !== "DCP"; });
           self.dataSeries = dataSeries;
 
           var styleCache = config.view.style;
@@ -148,28 +169,24 @@ define([], function() {
             self.onDataSeriesChanged(self.view.data_series_id);
 
             var legend = config.view.legend;
-            self.legend.operation_id = legend.operation_id;
-            self.legend.type = legend.type;
-            self.legend.column = legend.column;
-            self.legend.band_number = legend.band_number;
-            self.legend.colors = legend.colors;
-            self.legend.bands = legend.colors.length - 1;
-            self.legend.dummy = legend.dummy;
+            if (legend && Object.keys(legend).length !== 0) {
+              self.legend.operation_id = legend.operation_id;
+              self.legend.type = legend.type;
+              self.legend.colors = legend.colors;
+              self.legend.bands = legend.colors.length - 1;
+              self.legend.metadata = legend.metadata;
 
-            // notify component to refil begin/end
-            $scope.$broadcast("updateStyleColor");
+              // notify component to refil begin/end
+              $timeout(function() {
+                $scope.$broadcast("updateStyleColor");
+              });
+            }
           }
           /**
            * Configuring Schema form http. This sentence is important because child controller may be not initialized yet.
            * Using $timeout 0 forces to execute when angular ready state is OK.
            */
           $timeout(function() {
-            $scope.schema = {
-              type: "object",
-              properties: self.httpSyntax.properties,
-              required: self.httpSyntax.required || []
-            };
-
             if (self.isUpdating) {
               self.schedule = {};
               $scope.$broadcast("updateSchedule", self.view.schedule || {});
@@ -181,10 +198,6 @@ define([], function() {
                 }
               }
             }
-
-            $scope.form = self.httpSyntax.display ? self.httpSyntax.display : ["*"];
-
-            $scope.$broadcast('schemaFormRedraw');
           });
         });
       });
@@ -261,11 +274,11 @@ define([], function() {
         $scope.$apply(function() {
           if ($scope.forms.viewForm.$invalid || 
             $scope.forms.dataSeriesForm.$invalid ||
-            $scope.forms.styleForm.$invalid) {
+            $scope.forms.styleForm && $scope.forms.styleForm.$invalid) {
             return;
           }
 
-          if (!self.legend.colors || self.legend.colors.length === 0) {
+          if (Object.keys(self.legend).length !== 0 && (!self.legend.colors || self.legend.colors.length === 0)) {
             return MessageBoxService.danger(i18n.__("View"), i18n.__("You must generate the style colors to classify Data Series"));
           }
 

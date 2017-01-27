@@ -22,25 +22,10 @@
         autoIncrement: true,
         comment: "ViewStyleLegend identifier"
       },
-      column: {
-        type: DataTypes.STRING,
-        allowNull: true,
-        comment: "Target column to generate legend"
-      },
       type: {
         type: DataTypes.INTEGER,
         allowNull: false,
         comment: "Target type to generate legend (Ramp, Interval and Value)"
-      },
-      band_number: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-        comment: "Target band number to generate legend Raster-based"
-      },
-      dummy: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-        comment: "Dummy value for raster cells"
       }
     }, {
       underscored: true,
@@ -71,6 +56,14 @@
             onDelete: "CASCADE",
             foreignKey: {
               name: "view_style_id",
+              allowNull: false
+            }
+          });
+
+          ViewStyleLegend.hasMany(models.ViewStyleLegendMetadata, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: 'legend_id',
               allowNull: false
             }
           });

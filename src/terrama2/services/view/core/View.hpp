@@ -30,15 +30,6 @@
 #ifndef __TERRAMA2_SERVICES_VIEW_CORE_VIEW_HPP__
 #define __TERRAMA2_SERVICES_VIEW_CORE_VIEW_HPP__
 
-
-// STL
-#include <string>
-#include <vector>
-
-// TerraLib
-#include <terralib/se/Style.h>
-#include <terralib/core/uri/URI.h>
-
 // TerraMA2
 #include "../../../core/data-model/Process.hpp"
 #include "../../../core/data-model/DataSeries.hpp"
@@ -51,6 +42,14 @@
 #include "Typedef.hpp"
 #include "Shared.hpp"
 #include "ViewLogger.hpp"
+
+// TerraLib
+#include <terralib/se/Style.h>
+#include <terralib/core/uri/URI.h>
+
+// STL
+#include <string>
+#include <vector>
 
 namespace terrama2
 {
@@ -91,8 +90,7 @@ namespace terrama2
 
                 OperationType operation;
                 ClassifyType classify;
-                int band_number = 0;
-                std::string column = "";
+                std::unordered_map<std::string, std::string> metadata;
                 std::vector< Rule > rules;
             };
 
@@ -100,7 +98,7 @@ namespace terrama2
 
           DataSeriesId dataSeriesID; //!< DataSeries ID that compose this view
           terrama2::core::Filter filter; //!< Filter
-          Legend legend;
+          std::unique_ptr<Legend> legend;
 
           // Parameters to generate a image
           std::string imageName = "";

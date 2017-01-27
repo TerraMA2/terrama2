@@ -5,7 +5,7 @@
         <label><span ng-bind="$ctrl.i18n.__('Column')"></span>:</label>
         <input class="form-control" 
               name="column" 
-              ng-model="$ctrl.model.column" 
+              ng-model="$ctrl.model.metadata.column" 
               type="text"
               ng-required="$ctrl.type === $ctrl.DataSeriesType.GEOMETRIC_OBJECT || $ctrl.type === $ctrl.DataSeriesType.OCCURRENCE">
 
@@ -19,7 +19,7 @@
         <label><span ng-bind="$ctrl.i18n.__('Band Number')"></span>:</label>
         <input class="form-control" 
               name="band_number" 
-              ng-model="$ctrl.model.band_number" 
+              ng-model="$ctrl.model.metadata.band_number" 
               type="number"
               ng-required="$ctrl.type === $ctrl.DataSeriesType.GRID">
 
@@ -36,12 +36,13 @@
         <select class="form-control" 
                 name="styleOperation" 
                 ng-model="$ctrl.model.operation_id"
-                ng-options="value as key for (key, value) in $ctrl.StyleOperation">
+                ng-options="value as key for (key, value) in $ctrl.StyleOperation"
+                required>
         </select>
 
         <span class="help-block" 
           ng-show="$ctrl.formCtrl.styleOperation.$dirty && $ctrl.formCtrl.styleOperation.$error.required"
-          ng-bind="$ctrl.i18n.__('Type is required')">
+          ng-bind="$ctrl.i18n.__('Operation is required')">
         </span>
       </div>
     </div>
@@ -51,14 +52,8 @@
         <label><span ng-bind="$ctrl.i18n.__('Dummy Value')"></span>:</label>
         <input class="form-control" 
               name="dummy" 
-              ng-model="$ctrl.model.dummy" 
-              type="text"
-              ng-required="$ctrl.type === $ctrl.DataSeriesType.GRID">
-
-        <span class="help-block" 
-          ng-show="$ctrl.formCtrl.dummy.$dirty && $ctrl.formCtrl.dummy.$error.required"
-          ng-bind="$ctrl.i18n.__('Dummy is required')">
-        </span>
+              ng-model="$ctrl.model.metadata.dummy" 
+              type="text">
       </div>
       <!-- ./Dummy -->
     </div>
@@ -71,7 +66,8 @@
       <select class="form-control" 
               name="styleType" 
               ng-model="$ctrl.model.type"
-              ng-options="value as key for (key, value) in $ctrl.StyleType">
+              ng-options="value as key for (key, value) in $ctrl.StyleType"
+              required>
       </select>
 
       <span class="help-block" 
@@ -88,12 +84,16 @@
               name="bands" 
               ng-model="$ctrl.model.bands" 
               type="number"
-              min="0"
+              min="2"
               required>
 
         <span class="help-block" 
-              ng-show="$ctrl.formCtrl.bands.$dirty && $ctrl.formCtrl.bands.$invalid" 
-              ng-bind="$ctrl.i18n.__('Bands is required for color ramp generation')">
+              ng-show="$ctrl.formCtrl.bands.$dirty && $ctrl.formCtrl.bands.$error.required" 
+              ng-bind="$ctrl.i18n.__('Number of Colors is required')">
+        </span>
+        <span class="help-block" 
+              ng-show="$ctrl.formCtrl.bands.$dirty && $ctrl.formCtrl.bands.$error.min" 
+              ng-bind="$ctrl.i18n.__('Minimum 2')">
         </span>
     </div>
   </div>
@@ -117,7 +117,7 @@
             class="btn btn-primary" 
             style="margin-top: 25px;" 
             ng-bind="$ctrl.i18n.__('Generate')" 
-            data-ng-click="$ctrl.model.operation_id && $ctrl.generate();"></button>
+            data-ng-click="$ctrl.generate();"></button>
   </div>
 </div>
 
@@ -137,7 +137,7 @@
           <input type="text" class="form-control" name="field_color_{{ $index }}" ng-model="elm.title">
         </td>
         <td>
-          <input type="text" class="form-control" name="field_value_{{ $index }}" ng-model="elm.value">
+          <input type="text" class="form-control" name="field_value_{{ $index }}" ng-model="elm.value" ng-hide="$index === 0">
         </td>
       </tr>
     </tbody>

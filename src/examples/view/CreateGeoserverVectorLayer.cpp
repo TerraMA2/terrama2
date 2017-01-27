@@ -113,8 +113,9 @@ int main(int argc, char** argv)
     terrama2::services::view::core::View::Legend legend;
 
     legend.operation = terrama2::services::view::core::View::Legend::OperationType::VALUE;
-    legend.band_number = 0;
-    legend.column = "id";
+
+    legend.metadata.emplace("band_number", "0");
+    legend.metadata.emplace("column", "id");
 
     {
       terrama2::services::view::core::View::Legend::Rule rule;
