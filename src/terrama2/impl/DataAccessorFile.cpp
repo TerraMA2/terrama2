@@ -672,6 +672,8 @@ std::shared_ptr<te::dt::TimeInstantTZ> terrama2::core::DataAccessorFile::readFil
       continue;
 
     auto thisFileTimestamp = readFile(series, completeDataset, converter, fileInfo, mask, dataSet);
+    if(!thisFileTimestamp.get())
+      continue;
 
 
     //update lastest file timestamp
