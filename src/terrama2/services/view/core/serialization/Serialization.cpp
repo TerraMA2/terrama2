@@ -248,7 +248,18 @@ void terrama2::services::view::core::Serialization::writeCoverageStyleGeoserverX
 
   writer->writeAttribute("type", classifyType);
 
-  std::vector< View::Legend::Rule > rules = legend.rules;
+  std::vector< View::Legend::Rule > rules;
+
+  for(auto& rule : legend.rules)
+  {
+    if(!rule.isDefault)
+    {
+      rules.push_back(rule);
+      continue;
+    }
+    // TODO: add default value in style
+  }
+
   std::sort(rules.begin(), rules.end(), compareByNumericValue);
 
   for(auto& rule : rules)
