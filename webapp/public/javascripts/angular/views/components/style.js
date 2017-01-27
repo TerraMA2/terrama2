@@ -70,6 +70,10 @@ define([], function () {
      * It generate colors arrays and store in ctrl.colors
      */
     function generateColors() {
+      if (self.formCtrl.$invalid) {
+        return;
+      }
+
       var colorsArr = ColorFactory.generateColor(self.model.beginColor, self.model.endColor, self.model.bands + 1).reverse();
       for (var i = 1; i < colorsArr.length; ++i) {
         colorsArr[i] = { title: i18n.__("Color") + " " + i, color: colorsArr[i], value: i, isDefault: false };
