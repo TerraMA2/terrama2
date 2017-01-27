@@ -42,7 +42,7 @@
 
         <span class="help-block" 
           ng-show="$ctrl.formCtrl.styleOperation.$dirty && $ctrl.formCtrl.styleOperation.$error.required"
-          ng-bind="$ctrl.i18n.__('Type is required')">
+          ng-bind="$ctrl.i18n.__('Operation is required')">
         </span>
       </div>
     </div>
@@ -84,12 +84,16 @@
               name="bands" 
               ng-model="$ctrl.model.bands" 
               type="number"
-              min="0"
+              min="2"
               required>
 
         <span class="help-block" 
-              ng-show="$ctrl.formCtrl.bands.$dirty && $ctrl.formCtrl.bands.$invalid" 
-              ng-bind="$ctrl.i18n.__('Bands is required for color ramp generation')">
+              ng-show="$ctrl.formCtrl.bands.$dirty && $ctrl.formCtrl.bands.$error.required" 
+              ng-bind="$ctrl.i18n.__('Number of Colors is required')">
+        </span>
+        <span class="help-block" 
+              ng-show="$ctrl.formCtrl.bands.$dirty && $ctrl.formCtrl.bands.$error.min" 
+              ng-bind="$ctrl.i18n.__('Minimum 2')">
         </span>
     </div>
   </div>
@@ -113,7 +117,7 @@
             class="btn btn-primary" 
             style="margin-top: 25px;" 
             ng-bind="$ctrl.i18n.__('Generate')" 
-            data-ng-click="$ctrl.model.operation_id && $ctrl.generate();"></button>
+            data-ng-click="$ctrl.generate();"></button>
   </div>
 </div>
 
