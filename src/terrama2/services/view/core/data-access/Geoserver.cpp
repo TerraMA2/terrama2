@@ -816,7 +816,7 @@ std::unique_ptr<te::se::Style> terrama2::services::view::core::GeoServer::genera
         continue;
       }
 
-      te::fe::PropertyName* propertyName = new te::fe::PropertyName(legend.column);
+      te::fe::PropertyName* propertyName = new te::fe::PropertyName(legend.metadata.at("column"));
       te::fe::Literal* value = new te::fe::Literal(legendRule.value);
       te::fe::BinaryComparisonOp* stateEqual = new te::fe::BinaryComparisonOp(te::fe::Globals::sm_propertyIsEqualTo, propertyName, value);
 
@@ -869,6 +869,17 @@ void terrama2::services::view::core::GeoServer::deleteWorkspace(bool recursive) 
   }
 
   cURLwrapper.customRequest(uriDelete, "delete");
+
+  if(cURLwrapper.responseCode() == 404)
+  {
+    throw NotFoundGeoserverException() << ErrorDescription(QString::fromStdString(cURLwrapper.response()));
+  }
+  else if(cURLwrapper.responseCode() != 200)
+  {
+    QString errMsg = QObject::tr("Error at delete Workspace. ");
+    TERRAMA2_LOG_ERROR() << errMsg << uriDelete.uri();
+    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
+  }
 }
 
 
@@ -898,6 +909,17 @@ void terrama2::services::view::core::GeoServer::deleteVectorLayer(const std::str
   }
 
   cURLwrapper.customRequest(uriDelete, "delete");
+
+  if(cURLwrapper.responseCode() == 404)
+  {
+    throw NotFoundGeoserverException() << ErrorDescription(QString::fromStdString(cURLwrapper.response()));
+  }
+  else if(cURLwrapper.responseCode() != 200)
+  {
+    QString errMsg = QObject::tr("Error at delete Vectorial Layer. ");
+    TERRAMA2_LOG_ERROR() << errMsg << uriDelete.uri();
+    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
+  }
 }
 
 
@@ -927,6 +949,17 @@ void terrama2::services::view::core::GeoServer::deleteCoverageLayer(const std::s
   }
 
   cURLwrapper.customRequest(uriDelete, "delete");
+
+  if(cURLwrapper.responseCode() == 404)
+  {
+    throw NotFoundGeoserverException() << ErrorDescription(QString::fromStdString(cURLwrapper.response()));
+  }
+  else if(cURLwrapper.responseCode() != 200)
+  {
+    QString errMsg = QObject::tr("Error at delete Coverage Layer. ");
+    TERRAMA2_LOG_ERROR() << errMsg << uriDelete.uri();
+    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
+  }
 }
 
 
@@ -1085,7 +1118,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
 
       for(auto& fileInfo : fileInfoList)
       {
-        std::string layerName = std::to_string(viewPtr->id) + "_layer_" + fileInfo.baseName().toStdString();
+        std::string layerName = viewPtr->viewName + "_" + std::to_string(viewPtr->id);
 
         if(dataFormat == "OGR")
         {
@@ -1136,7 +1169,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
       TableInfo tableInfo = DataAccess::getPostgisTableInfo(dataSeriesProvider, dataset);
 
       std::string tableName = tableInfo.tableName;
-      std::string layerName = std::to_string(viewPtr->id) + "_layer_" + tableInfo.tableName;
+      std::string layerName = viewPtr->viewName + "_" + std::to_string(viewPtr->id);
       std::string timestampPropertyName = tableInfo.timestampPropertyName;
 
       modelDataSetType = std::move(tableInfo.dataSetType);
@@ -1215,15 +1248,18 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
     }
   }
 
-  // Register style
-  std::string styleName = "";
-
-  styleName = inputDataSeries->name + "_style_" + viewPtr->viewName;
-  registerStyle(styleName, viewPtr->legend, modelDataSetType);
-
-  for(const auto& layer : layersArray)
+  if(viewPtr->legend)
   {
-    registerLayerDefaultStyle(styleName, layer.toObject().value("layer").toString().toStdString());
+    // Register style
+    std::string styleName = "";
+
+    styleName = inputDataSeries->name + "_style_" + viewPtr->viewName;
+    registerStyle(styleName, *viewPtr->legend.get(), modelDataSetType);
+
+    for(const auto& layer : layersArray)
+    {
+      registerLayerDefaultStyle(styleName, layer.toObject().value("layer").toString().toStdString());
+    }
   }
 
   jsonAnswer.insert("workspace", QString::fromStdString(workspace()));
