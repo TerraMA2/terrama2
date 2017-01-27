@@ -15,19 +15,6 @@
         </span>
       </div>
       <!-- ./Column -->
-      <div class="form-group" ng-if="$ctrl.type === $ctrl.DataSeriesType.GRID" terrama2-show-errors>
-        <label><span ng-bind="$ctrl.i18n.__('Band Number')"></span>:</label>
-        <input class="form-control" 
-              name="band_number" 
-              ng-model="$ctrl.model.metadata.band_number" 
-              type="number"
-              ng-required="$ctrl.type === $ctrl.DataSeriesType.GRID">
-
-        <span class="help-block" 
-          ng-show="$ctrl.formCtrl.band_number.$dirty && $ctrl.formCtrl.band_number.$error.required"
-          ng-bind="$ctrl.i18n.__('Band number is required')">
-        </span>
-      </div>
     </div>
     <!-- ./GEOMETRIC OR OCCURRENCE -->
     <div class="col-md-6">
@@ -48,7 +35,7 @@
       </div>
     </div>
     <!-- ./col-md-6 Type -->
-    <div class="col-md-6" ng-if="$ctrl.type === $ctrl.DataSeriesType.GRID">
+    <div class="col-md-3" ng-if="$ctrl.type === $ctrl.DataSeriesType.GRID">
       <div class="form-group" terrama2-show-errors>
         <label><span ng-bind="$ctrl.i18n.__('Dummy Value')"></span>:</label>
         <input class="form-control" 
@@ -57,6 +44,21 @@
               type="text">
       </div>
       <!-- ./Dummy -->
+    </div>
+    <div class="col-md-3"ng-if="$ctrl.type === $ctrl.DataSeriesType.GRID" >
+      <div class="form-group"  terrama2-show-errors>
+        <label><span ng-bind="$ctrl.i18n.__('Band Number')"></span>:</label>
+        <input class="form-control" 
+              name="band_number" 
+              ng-model="$ctrl.model.metadata.band_number" 
+              type="number"
+              ng-required="$ctrl.type === $ctrl.DataSeriesType.GRID">
+
+        <span class="help-block" 
+          ng-show="$ctrl.formCtrl.band_number.$dirty && $ctrl.formCtrl.band_number.$error.required"
+          ng-bind="$ctrl.i18n.__('Band number is required')">
+        </span>
+      </div>
     </div>
     <!-- ./GRID -->
   </div>
