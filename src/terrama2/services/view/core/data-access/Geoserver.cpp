@@ -1094,7 +1094,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
     return jsonAnswer;
   }
 
-  setWorkspace(viewPtr->viewName);
+  setWorkspace("terrama2_" + std::to_string(viewPtr->id));
 
   registerWorkspace();
 
