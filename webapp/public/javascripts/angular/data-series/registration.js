@@ -1514,6 +1514,9 @@ define([], function() {
           for(var key in dSetObject) {
             if (dSetObject.hasOwnProperty(key) && key.toLowerCase() !== "id")
               format_[key] = dSetObject[key];
+              if (key.startsWith("output_")) {
+                format_[key.replace("output_", "")] = dSetObject[key];
+              }
           }
 
           return format_;
