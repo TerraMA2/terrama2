@@ -320,7 +320,7 @@
 
     function setOpacitySlider(layerId, initialValue){
 
-        var slider = $("#opacity" + layerId.replace(':',''));
+        var slider = $("#opacity" + layerId.replace(':','').split('.').join('\\.'));
         var sliderParent = $(slider).parent();
         if (!$(sliderParent).is(":visible")) {
             $(sliderParent).show();
@@ -514,10 +514,11 @@
     }
 
     function addLayerToSort(layerId, layerName){
-        if (layerId.includes(':')){
-            layerId = layerId.replace(':','')
-        }
-        var liHtml = '<li id="' + layerId + '" data-parentid="terrama2-layerexplorer" class="hide">' + layerName + '</li>';
+        var _layerId = layerId.replace(':','');
+        var sliderDiv = "<div class='slider-content' style='display:none;'><label></label><button type='button' class='close close-slider'>×</button><div id='opacity" + _layerId + "'></div></div>";
+        var spanIcon = "<span id='terrama2-opacity-slider' class='terrama2-datepicker-icon' data-toggle='tooltip' title='Change opacity'> <i class='fa fa-sliders'></i></span>";
+
+        var liHtml = '<li id="' + _layerId + '" data-layerid="' + layerId + '" data-parentid="terrama2-layerexplorer" class="hide">' + layerName + sliderDiv + spanIcon + '</li>';
         $('#terrama2-sortlayers').children('ul').prepend(liHtml);
     }
 
