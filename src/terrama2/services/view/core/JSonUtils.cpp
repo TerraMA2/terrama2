@@ -144,6 +144,13 @@ terrama2::services::view::core::View::Legend* terrama2::services::view::core::fr
 
   auto metadataObj= json["metadata"].toObject();
 
+  if(metadataObj.isEmpty())
+  {
+    QString errMsg = QObject::tr("Invalid View Legend JSON object: Empty metadada!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
+  }
+
   for(auto it = metadataObj.begin(); it != metadataObj.end(); ++it)
   {
     legend->metadata.emplace(it.key().toStdString(), it.value().toString().toStdString());
