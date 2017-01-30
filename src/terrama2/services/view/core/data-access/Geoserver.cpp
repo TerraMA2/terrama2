@@ -42,7 +42,7 @@
 #include "../../../../core/utility/Raii.hpp"
 #include "../../../../core/utility/Logger.hpp"
 #include "../../../../core/utility/DataAccessorFactory.hpp"
-
+#include "../../../../core/utility/Utils.hpp"
 
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSource.h>
@@ -1179,7 +1179,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
       TableInfo tableInfo = DataAccess::getPostgisTableInfo(dataSeriesProvider, dataset);
 
       std::string tableName = tableInfo.tableName;
-      std::string layerName = viewPtr->viewName + "_" + std::to_string(viewPtr->id);
+      std::string layerName = terrama2::core::simplifyString(viewPtr->viewName + "_" + std::to_string(viewPtr->id));
       std::string timestampPropertyName = tableInfo.timestampPropertyName;
 
       modelDataSetType = std::move(tableInfo.dataSetType);
