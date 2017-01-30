@@ -87,7 +87,8 @@
       "longitude_property": "Longitude",
       "timezone": "UTM+00",
       "srid": "4326",
-      "output_timestamp_property": "horario_gmt"
+      "output_timestamp_property": "horario_gmt",
+      "output_geometry_property": "geom"
     },
     "collector": true,
     "gui": {

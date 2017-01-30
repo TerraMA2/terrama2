@@ -105,7 +105,14 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
   view->dataSeriesID = dataseriesID;
 
   if(!json["legend"].isNull())
+  {
     view->legend.reset(fromLegendJson(json["legend"].toObject()));
+  }
+  else
+  {
+    if(view->legend)
+      view->legend.release();
+  }
 
   view->schedule = terrama2::core::fromScheduleJson(json["schedule"].toObject());
 

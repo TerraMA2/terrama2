@@ -174,6 +174,9 @@ define([], function() {
               self.legend.type = legend.type;
               self.legend.colors = legend.colors;
               self.legend.bands = legend.colors.length - 1;
+              if (legend.metadata && legend.metadata.band_number) {
+                legend.metadata.band_number = parseInt(legend.metadata.band_number);
+              }
               self.legend.metadata = legend.metadata;
 
               // notify component to refil begin/end
