@@ -78,15 +78,12 @@ define([], function () {
 
     /**
      * It performs a filter iteration on StyleTypes in order to show/hide specific elements with custom restrictions.
-     * It retrieves a function used by angular that returns a filtered element.
-     * @returns {Function}
+     * @returns {any}
      */
-    function typeFilter() {
-      return function wrapTypeFilter(item) {
-        if (!(self.type !== self.DataSeriesType.GRID && item.value === StyleType.RAMP)) {
-          return item;
-        }
-      };
+    function typeFilter(item) {
+      if (!(self.type !== self.DataSeriesType.GRID && item.value === StyleType.RAMP)) {
+        return item;
+      }
     }
 
     /**
