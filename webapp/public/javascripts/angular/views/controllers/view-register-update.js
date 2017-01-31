@@ -290,8 +290,18 @@ define([], function() {
             return;
           }
 
-          if (Object.keys(self.legend).length !== 0 && (!self.legend.colors || self.legend.colors.length === 0)) {
-            return MessageBoxService.danger(i18n.__("View"), i18n.__("You must generate the style colors to classify Data Series"));
+          if (Object.keys(self.legend).length !== 0) {
+            if (!self.legend.colors || self.legend.colors.length === 0) {
+              return MessageBoxService.danger(i18n.__("View"), i18n.__("You must generate the style colors to classify Data Series"));
+            }
+            for(var i = 0; i < self.legend.colors.length; ++i) {
+              var colorIt = self.legend.colors[i];
+              for(var j = i + 1; j < self.legend.colors.length; ++j) {
+                if (self.legend.colors[j].value === colorIt.value) {
+                  return MessageBoxService.danger(i18n.__("View"), i18n.__("The colors must have unique values"));
+                }
+              }
+            }
           }
 
           // If dynamic, schedule validation is required
