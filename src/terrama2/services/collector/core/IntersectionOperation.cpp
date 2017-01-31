@@ -59,6 +59,7 @@
 #include <terralib/memory/DataSetItem.h>
 #include <terralib/memory/DataSet.h>
 #include <terralib/geometry/GeometryProperty.h>
+#include <terralib/geometry/Utils.h>
 #include <terralib/vp/IntersectionOp.h>
 #include <terralib/vp/IntersectionMemory.h>
 #include <terralib/vp/Utils.h>
@@ -443,7 +444,7 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIn
 
       // Gets the respective row and column for the occurrence coordinate
       double row, col;
-      te::gm::Coord2D coord = terrama2::core::GetCentroidCoord(currGeom.get());
+      te::gm::Coord2D coord = te::gm::GetCentroid(currGeom.get());
       double x = coord.getX();
       double y = coord.getY();
 
