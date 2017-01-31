@@ -1164,7 +1164,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
 
       for(auto& fileInfo : fileInfoList)
       {
-        std::string layerName = "";
+        std::string layerName = fileInfo.fileName().toStdString();
 
         if(dataFormat == "OGR")
         {
@@ -1173,9 +1173,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
             modelDataSetType.reset(DataAccess::getVectorialDataSetType(fileInfo));
           }
 
-          layerName = viewPtr->viewName + "_" + std::to_string(viewPtr->id);
-
-          registerVectorFile(std::to_string(viewPtr->id) + "_" + std::to_string(inputDataSeries->id) + "_datastore",
+          registerVectorFile(layerName + "_datastore_" + std::to_string(viewPtr->id),
                              fileInfo.absoluteFilePath().toStdString(),
                              layerName);
         }
@@ -1186,9 +1184,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
             modelDataSetType.reset(DataAccess::getGeotiffDataSetType(fileInfo));
           }
 
-          layerName = fileInfo.fileName().toStdString();
-
-          registerCoverageFile(fileInfo.baseName().toStdString() + + "_coveragestore_" + std::to_string(viewPtr->id),
+          registerCoverageFile(layerName + "_coveragestore_" + std::to_string(viewPtr->id),
                                fileInfo.absoluteFilePath().toStdString(),
                                layerName,
                                "geotiff");
