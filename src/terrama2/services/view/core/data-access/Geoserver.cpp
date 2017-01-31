@@ -796,17 +796,28 @@ void terrama2::services::view::core::GeoServer::registerStyle(const std::string&
   }
 }
 
+
 std::unique_ptr<te::se::Style> terrama2::services::view::core::GeoServer::generateVectorialStyle(const View::Legend& legend,
                                                                                                  const std::unique_ptr<te::da::DataSetType>& dataSetType) const
 {
   std::unique_ptr<te::se::Style> style(new te::se::FeatureTypeStyle());
+
+  std::vector<View::Legend::Rule> legendRules = legend.rules;
+
+  if(legend.operation == View::Legend::OperationType::VALUE)
+  {
+    if(legend.classify == View::Legend::ClassifyType::INTERVALS)
+    {
+      std::sort(legendRules.begin(), legendRules.end(), View::Legend::Rule::compareByNumericValue);
+    }
+  }
 
   if(legend.operation == View::Legend::OperationType::VALUE)
   {
     std::vector<te::se::Rule*> rules;
     te::se::Rule* ruleDefault;
 
-    for(auto& legendRule : legend.rules)
+    for(auto& legendRule : legendRules)
     {
       te::se::Symbolizer* symbolizer(getSymbolizer(dataSetType, legendRule.color));
 
@@ -822,10 +833,27 @@ std::unique_ptr<te::se::Style> terrama2::services::view::core::GeoServer::genera
 
       te::fe::PropertyName* propertyName = new te::fe::PropertyName(legend.metadata.at("column"));
       te::fe::Literal* value = new te::fe::Literal(legendRule.value);
-      te::fe::BinaryComparisonOp* stateEqual = new te::fe::BinaryComparisonOp(te::fe::Globals::sm_propertyIsEqualTo, propertyName, value);
+
+      te::fe::BinaryComparisonOp* operation;
+
+      if(legend.classify == View::Legend::ClassifyType::VALUES)
+      {
+        operation = new te::fe::BinaryComparisonOp(te::fe::Globals::sm_propertyIsEqualTo, propertyName, value);
+      }
+      else if(legend.classify == View::Legend::ClassifyType::INTERVALS)
+      {
+        operation = new te::fe::BinaryComparisonOp(te::fe::Globals::sm_propertyIsGreaterThanOrEqualTo, propertyName,value);
+      }
+
+      if(operation == nullptr)
+      {
+        QString errMsg = QObject::tr("Unknow classification type!");
+        TERRAMA2_LOG_ERROR() << errMsg;
+        throw ViewGeoserverException() << ErrorDescription(errMsg);
+      }
 
       te::fe::Filter* filter = new te::fe::Filter;
-      filter->setOp(stateEqual);
+      filter->setOp(operation);
 
       rule->setFilter(filter);
 
@@ -842,10 +870,22 @@ std::unique_ptr<te::se::Style> terrama2::services::view::core::GeoServer::genera
   else if(legend.operation == View::Legend::OperationType::EQUAL_STEPS)
   {
     // TODO:
+    QString errMsg = QObject::tr("Not Implemented!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ViewGeoserverException() << ErrorDescription(errMsg);
   }
   else if(legend.operation == View::Legend::OperationType::QUANTIL)
   {
     // TODO:
+    QString errMsg = QObject::tr("Not Implemented!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ViewGeoserverException() << ErrorDescription(errMsg);
+  }
+  else
+  {
+    QString errMsg = QObject::tr("Unknow Operation!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ViewGeoserverException() << ErrorDescription(errMsg);
   }
 
   return style;
