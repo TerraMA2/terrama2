@@ -163,11 +163,11 @@
                   ng-if="$ctrl.model.type === $ctrl.StyleType.INTERVAL || $ctrl.model.type === $ctrl.StyleType.RAMP" required>
 
             <span class="help-block"
-                  ng-show="!elm.isDefault && $ctrl.formCtrl['field_value_' + $index].$error.required" ng-bind="$ctrl.i18n.__('Value is required')">
+                  ng-show="$ctrl.formCtrl['field_value_' + $index].$error.required" ng-bind="$ctrl.i18n.__('Value is required')">
             </span>
             <!-- For number fields -->
             <span class="help-block"
-                  ng-show="($ctrl.model.type === $ctrl.StyleType.INTERVAL || $ctrl.model.type === $ctrl.StyleType.RAMP) && !elm.isDefault && $ctrl.formCtrl['field_value_' + $index].$error.number"
+                  ng-show="($ctrl.model.type === $ctrl.StyleType.INTERVAL || $ctrl.model.type === $ctrl.StyleType.RAMP) && $ctrl.formCtrl['field_value_' + $index].$error.number"
                   ng-bind="$ctrl.i18n.__('Value must be a number')">
             </span>
           </div>

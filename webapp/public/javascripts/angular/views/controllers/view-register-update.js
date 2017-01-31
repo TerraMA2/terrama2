@@ -5,7 +5,7 @@ define([], function() {
    * It represents a Controller to handle View form registration.
    * @class ViewRegistration
    */
-  function ViewRegisterUpdate($scope, i18n, ViewService, $log, $http, $timeout, MessageBoxService, $window, DataSeriesService, Service, StringFormat, ColorFactory) {
+  function ViewRegisterUpdate($scope, i18n, ViewService, $log, $http, $timeout, MessageBoxService, $window, DataSeriesService, Service, StringFormat, ColorFactory, StyleType) {
     /**
      * @type {ViewRegisterUpdate}
      */
@@ -172,6 +172,15 @@ define([], function() {
             if (legend && Object.keys(legend).length !== 0) {
               self.legend.operation_id = legend.operation_id;
               self.legend.type = legend.type;
+
+              if (legend.type !== StyleType.VALUE) {
+                legend.colors.forEach(function(color) {
+                  if (!color.isDefault) {
+                    color.value = parseFloat(color.value);
+                  }
+                });
+              }
+
               self.legend.colors = legend.colors;
               self.legend.bands = legend.colors.length - 1;
               if (legend.metadata && legend.metadata.band_number) {
@@ -340,7 +349,7 @@ define([], function() {
   }
 
   ViewRegisterUpdate.$inject = ["$scope", "i18n", "ViewService", "$log", "$http", "$timeout", "MessageBoxService", "$window", 
-    "DataSeriesService", "Service", "StringFormat", "ColorFactory"];
+    "DataSeriesService", "Service", "StringFormat", "ColorFactory", "StyleType"];
 
   return ViewRegisterUpdate;
 });
