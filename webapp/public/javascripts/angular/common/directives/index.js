@@ -26,14 +26,14 @@ define([
            '<span ng-if="handleButtons" style="position: absolute;">' +
               '<span ng-if="handleButtons.circle.show()"' +
                     'ng-class="terrama2-font-black"' +
-                    'class="button pull-right enable-button-click"' +
+                    'class="button pull-right enable-button"' +
                     'ng-click="handleButtons.circle.click()"' +
                     'data-toggle="tooltip" title="{{handleButtons.circle.message}}">' +
                 '<i class="fa fa-plus-circle"></i>' +
               '</span>'+
               '<span ng-if="handleButtons.minus.show()"' +
                     'ng-class="terrama2-font-black"' +
-                    'class="button pull-right enable-button-click"' +
+                    'class="button pull-right enable-button"' +
                     'ng-click="handleButtons.minus.click()"'+
                     'data-toggle="tooltip" title="{{handleButtons.minus.message}}">'+
                 '<i class="fa fa-minus-circle"></i>'+
