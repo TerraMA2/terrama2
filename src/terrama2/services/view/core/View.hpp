@@ -99,8 +99,8 @@ namespace terrama2
 
                       try
                       {
-                        auto x = std::stol(a.value);
-                        auto y = std::stol(b.value);
+                        auto x = std::stold(a.value);
+                        auto y = std::stold(b.value);
 
                         return x < y;
                       }
