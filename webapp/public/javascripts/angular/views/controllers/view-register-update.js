@@ -306,35 +306,37 @@ define([], function() {
 
           // If dynamic, schedule validation is required
           if (self.isDynamic) {
-            /**
-             * @todo Implement Angular ScheduleService to handle it, since is common on dynamic data series and analysis registration.
-             */
-            var scheduleForm = angular.element('form[name="scheduleForm"]').scope()['scheduleForm'];
-            // form validation
-            if (scheduleForm.$invalid) {
-              return;
-            }
+            if (self.view.schedule && Object.keys(self.view.schedule).length !== 0) {
+              /**
+               * @todo Implement Angular ScheduleService to handle it, since is common on dynamic data series and analysis registration.
+               */
+              var scheduleForm = angular.element('form[name="scheduleForm"]').scope()['scheduleForm'];
+              // form validation
+              if (scheduleForm.$invalid) {
+                return;
+              }
 
-            // preparing schedule.  
-            var scheduleValues = self.view.schedule;
-            switch(scheduleValues.scheduleHandler) {
-              case "seconds":
-              case "minutes":
-              case "hours":
-                scheduleValues.frequency_unit = scheduleValues.scheduleHandler;
-                scheduleValues.frequency_start_time = scheduleValues.frequency_start_time ? scheduleValues.frequency_start_time.toISOString() : "";
-                break;
-              case "weeks":
-              case "monthly":
-              case "yearly":
-                // todo: verify
-                var dt = scheduleValues.schedule_time;
-                scheduleValues.schedule_unit = scheduleValues.scheduleHandler;
-                scheduleValues.schedule_time = moment(dt).format("HH:mm:ss");
-                break;
+              // preparing schedule.  
+              var scheduleValues = self.view.schedule;
+              switch(scheduleValues.scheduleHandler) {
+                case "seconds":
+                case "minutes":
+                case "hours":
+                  scheduleValues.frequency_unit = scheduleValues.scheduleHandler;
+                  scheduleValues.frequency_start_time = scheduleValues.frequency_start_time ? scheduleValues.frequency_start_time.toISOString() : "";
+                  break;
+                case "weeks":
+                case "monthly":
+                case "yearly":
+                  // todo: verify
+                  var dt = scheduleValues.schedule_time;
+                  scheduleValues.schedule_unit = scheduleValues.scheduleHandler;
+                  scheduleValues.schedule_time = moment(dt).format("HH:mm:ss");
+                  break;
 
-              default:
-                break;
+                default:
+                  break;
+              }
             }
           } // end if isDynamic
 
