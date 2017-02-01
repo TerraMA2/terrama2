@@ -252,7 +252,7 @@ te::se::Symbolizer* terrama2::services::view::core::getSymbolizer(const std::uni
       case te::gm::MultiSurfaceZType:
       case te::gm::MultiSurfaceZMType:
       {
-        te::se::Fill* fill = CreateFill(color, "0.8");
+        te::se::Fill* fill = CreateFill(color, "1.0");
         te::se::Stroke* stroke = CreateStroke("#000000", "1", "", "", "", "");
 
         te::se::PolygonSymbolizer* symbolizer(new te::se::PolygonSymbolizer);
