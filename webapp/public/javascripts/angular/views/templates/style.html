@@ -154,14 +154,13 @@
                    class="form-control"
                    name="field_value_{{$index}}"
                    ng-model="elm.value"
-                   ng-if="$ctrl.model.type === $ctrl.StyleType.VALUE"
-                   required>
+                   ng-if="$ctrl.model.type === $ctrl.StyleType.VALUE">
             <!-- Interval and Ramp Types -->
             <input type="number" 
                   class="form-control" 
                   name="field_value_{{$index}}" 
                   ng-model="elm.value" 
-                  ng-if="$ctrl.model.type === $ctrl.StyleType.INTERVAL || $ctrl.model.type === $ctrl.StyleType.RAMP" required>
+                  ng-if="$ctrl.model.type === $ctrl.StyleType.INTERVAL || $ctrl.model.type === $ctrl.StyleType.RAMP">
 
             <span class="help-block"
                   ng-show="$ctrl.formCtrl['field_value_' + $index].$error.required" ng-bind="$ctrl.i18n.__('Value is required')">
