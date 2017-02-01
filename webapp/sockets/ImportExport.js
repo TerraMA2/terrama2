@@ -172,6 +172,10 @@ var ImportExport = function(io) {
                       date.beforeDate = Utils.dateFromFormat(collector.filter.discard_before); 
                     }
 
+                    if (collector.filter && collector.filter.data_series_id) {
+                      collector.filter.data_series_id = Utils.find(output.DataSeries, {$id: collector.filter.data_series_id}).id;
+                    }
+
                     collector.filter.date = date;
 
                     return DataManager.addCollector(collector, collector.filter, options).then(function(collectorResult) {
