@@ -23,7 +23,7 @@ define([
       cachedIcons["start_" + Globals.enums.StatusLog.ERROR] = "/images/red_anime.gif";
       cachedIcons[Globals.enums.StatusLog.DOWNLOADED] = "/images/download.png";
       cachedIcons["message_" +Globals.enums.MessageType.WARNING_MESSAGE] = "/images/yellow.gif";
-      cachedIcons["start_warning"] = "/images/yellow_anime.png";
+      cachedIcons["start_warning"] = "/images/yellow_anime.gif";
       cachedIcons[Globals.enums.StatusLog.START] = "/images/grey_anime.gif";
       cachedIcons["start_" + Globals.enums.StatusLog.START] = "/images/grey_anime.gif";
       cachedIcons[Globals.enums.StatusLog.ON_QUEUE] = "/images/clock.png";
