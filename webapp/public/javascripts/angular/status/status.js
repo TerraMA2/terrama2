@@ -22,7 +22,7 @@ define([
       cachedIcons[Globals.enums.StatusLog.ERROR] = "/images/red.gif";
       cachedIcons["start_" + Globals.enums.StatusLog.ERROR] = "/images/red_anime.gif";
       cachedIcons[Globals.enums.StatusLog.DOWNLOADED] = "/images/download.png";
-      cachedIcons["message_" +Globals.enums.MessageType.WARNING_MESSAGE] = "/images/yellow.png";
+      cachedIcons["message_" +Globals.enums.MessageType.WARNING_MESSAGE] = "/images/yellow.gif";
       cachedIcons["start_warning"] = "/images/yellow_anime.png";
       cachedIcons[Globals.enums.StatusLog.START] = "/images/grey_anime.gif";
       cachedIcons["start_" + Globals.enums.StatusLog.START] = "/images/grey_anime.gif";
@@ -91,7 +91,7 @@ define([
       var getStatusKey = function(statusObject) {
         if ($scope.groupedModel[statusObject.name].length > 1){
           var lastObjectStatus = getLastValidStatus($scope.groupedModel[statusObject.name]); 
-          if (lastObjectStatus.messageType === Globals.enums.MessageType.WARNING_MESSAGE && object.status !== Globals.enums.StatusLog.ERROR){
+          if (lastObjectStatus.messageType === Globals.enums.MessageType.WARNING_MESSAGE && lastObjectStatus.status !== Globals.enums.StatusLog.ERROR){
             return "start_warning";
           } else {
             return "start_" + lastObjectStatus.status;
@@ -204,7 +204,14 @@ define([
               switch(logMessage.status) {
                 case Globals.enums.StatusLog.DONE:
                   out.message = "Done...";
-                  out.messageType = Globals.enums.MessageType.INFO_MESSAGE;
+                  var targetType = Globals.enums.MessageType.INFO_MESSAGE;
+                  for(var i = 0; i < logMessage.messages.length; ++i) {
+                    if (logMessage.messages[i].type === Globals.enums.MessageType.WARNING_MESSAGE) {
+                      targetType = Globals.enums.MessageType.WARNING_MESSAGE;
+                      break;
+                    }
+                  }
+                  out.messageType = targetType;
                   break;
                 case Globals.enums.StatusLog.START:
                   out.message = "Started...";
