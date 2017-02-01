@@ -36,6 +36,7 @@
 #include "../../../core/data-access/DataSetSeries.hpp"
 #include "../../../core/data-model/Schedule.hpp"
 #include "../../../core/data-model/Filter.hpp"
+#include "../../../core/utility/Logger.hpp"
 #include "../../../core/Shared.hpp"
 #include "../../../core/Typedef.hpp"
 #include "MemoryDataSetLayer.hpp"
@@ -86,6 +87,29 @@ namespace terrama2
                     std::string value = "";
                     std::string color = "";
                     bool isDefault = false;
+
+                    static bool compareByNumericValue(const Rule& a,
+                                                      const Rule& b)
+                    {
+                      if(a.isDefault)
+                        return true;
+
+                      if(b.isDefault)
+                        return false;
+
+                      try
+                      {
+                        auto x = std::stold(a.value);
+                        auto y = std::stold(b.value);
+
+                        return x < y;
+                      }
+                      catch(std::invalid_argument& e)
+                      {
+                        TERRAMA2_LOG_ERROR() << "Invalid value for legend: " << e.what();
+                        return false;
+                      }
+                    }
                 };
 
                 OperationType operation;

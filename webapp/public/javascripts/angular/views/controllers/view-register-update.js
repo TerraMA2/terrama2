@@ -5,7 +5,7 @@ define([], function() {
    * It represents a Controller to handle View form registration.
    * @class ViewRegistration
    */
-  function ViewRegisterUpdate($scope, i18n, ViewService, $log, $http, $timeout, MessageBoxService, $window, DataSeriesService, Service, StringFormat, ColorFactory) {
+  function ViewRegisterUpdate($scope, i18n, ViewService, $log, $http, $timeout, MessageBoxService, $window, DataSeriesService, Service, StringFormat, ColorFactory, StyleType) {
     /**
      * @type {ViewRegisterUpdate}
      */
@@ -172,6 +172,15 @@ define([], function() {
             if (legend && Object.keys(legend).length !== 0) {
               self.legend.operation_id = legend.operation_id;
               self.legend.type = legend.type;
+
+              if (legend.type !== StyleType.VALUE) {
+                legend.colors.forEach(function(color) {
+                  if (!color.isDefault) {
+                    color.value = parseFloat(color.value);
+                  }
+                });
+              }
+
               self.legend.colors = legend.colors;
               self.legend.bands = legend.colors.length - 1;
               if (legend.metadata && legend.metadata.band_number) {
@@ -281,8 +290,18 @@ define([], function() {
             return;
           }
 
-          if (Object.keys(self.legend).length !== 0 && (!self.legend.colors || self.legend.colors.length === 0)) {
-            return MessageBoxService.danger(i18n.__("View"), i18n.__("You must generate the style colors to classify Data Series"));
+          if (Object.keys(self.legend).length !== 0) {
+            if (!self.legend.colors || self.legend.colors.length === 0) {
+              return MessageBoxService.danger(i18n.__("View"), i18n.__("You must generate the style colors to classify Data Series"));
+            }
+            for(var i = 0; i < self.legend.colors.length; ++i) {
+              var colorIt = self.legend.colors[i];
+              for(var j = i + 1; j < self.legend.colors.length; ++j) {
+                if (self.legend.colors[j].value === colorIt.value) {
+                  return MessageBoxService.danger(i18n.__("View"), i18n.__("The colors must have unique values"));
+                }
+              }
+            }
           }
 
           // If dynamic, schedule validation is required
@@ -340,7 +359,7 @@ define([], function() {
   }
 
   ViewRegisterUpdate.$inject = ["$scope", "i18n", "ViewService", "$log", "$http", "$timeout", "MessageBoxService", "$window", 
-    "DataSeriesService", "Service", "StringFormat", "ColorFactory"];
+    "DataSeriesService", "Service", "StringFormat", "ColorFactory", "StyleType"];
 
   return ViewRegisterUpdate;
 });

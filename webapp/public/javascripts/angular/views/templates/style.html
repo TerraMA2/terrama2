@@ -69,7 +69,7 @@
       <select class="form-control"
               name="styleType"
               ng-model="$ctrl.model.type"
-              ng-options="value as key for (key, value) in $ctrl.StyleType"
+              ng-options="elementType.value as elementType.name for elementType in $ctrl.styleTypes | filter: $ctrl.typeFilter"
               required>
       </select>
 
@@ -137,10 +137,45 @@
           <color-picker ng-model="elm.color" options="$ctrl.colorOptions" event-api="$ctrl.events"></color-picker>
         </td>
         <td>
-          <input type="text" class="form-control" name="field_color_{{ $index }}" ng-model="elm.title">
+          <div class="form-group" 
+              ng-class="{'has-error': $ctrl.formCtrl['field_color_' + $index].$invalid, 'has-success': $ctrl.formCtrl['field_color_' + $index].$valid}">
+            <input type="text" class="form-control" name="field_color_{{ $index }}" ng-model="elm.title" required>
+
+            <span class="help-block"
+                  ng-show="$ctrl.formCtrl['field_color_' + $index].$error.required" ng-bind="$ctrl.i18n.__('Title is required')">
+            </span>
+          </div>
         </td>
         <td>
-          <input type="text" class="form-control" name="field_value_{{ $index }}" ng-model="elm.value" ng-hide="elm.isDefault">
+          <div class="form-group" 
+              ng-class="{'has-error': $ctrl.formCtrl['field_value_' + $index].$invalid, 'has-success': $ctrl.formCtrl['field_value_' + $index].$valid}" ng-if="!elm.isDefault">
+            <!-- Value Type -->
+            <input type="text" 
+                   class="form-control"
+                   name="field_value_{{$index}}"
+                   ng-model="elm.value"
+                   ng-if="$ctrl.model.type === $ctrl.StyleType.VALUE"
+                   required>
+            <!-- Interval and Ramp Types -->
+            <input type="number" 
+                  class="form-control" 
+                  name="field_value_{{$index}}" 
+                  ng-model="elm.value" 
+                  ng-if="$ctrl.model.type === $ctrl.StyleType.INTERVAL || $ctrl.model.type === $ctrl.StyleType.RAMP" required>
+
+            <span class="help-block"
+                  ng-show="$ctrl.formCtrl['field_value_' + $index].$error.required" ng-bind="$ctrl.i18n.__('Value is required')">
+            </span>
+            <!-- For number fields -->
+            <span class="help-block"
+                  ng-show="($ctrl.model.type === $ctrl.StyleType.INTERVAL || $ctrl.model.type === $ctrl.StyleType.RAMP) && $ctrl.formCtrl['field_value_' + $index].$error.number"
+                  ng-bind="$ctrl.i18n.__('Value must be a number')">
+            </span>
+            <span class="help-block"
+                  ng-show="($ctrl.model.type === $ctrl.StyleType.INTERVAL || $ctrl.model.type === $ctrl.StyleType.RAMP) && $ctrl.formCtrl['field_value_' + $index].$error.number"
+                  ng-bind="$ctrl.i18n.__('Value must be unique')">
+            </span>
+          </div>
         </td>
       </tr>
     </tbody>
