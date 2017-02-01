@@ -4,6 +4,7 @@
   var PromiseClass = require("./../../Promise");
   var ServiceTypeError = require("./../../Exceptions").ServiceTypeError;
   var RegisteredViewError = require("./../../Exceptions").RegisteredViewError;
+  var CollectorErrorNotFound = require("./../../Exceptions").CollectorErrorNotFound;
   var ServiceType = require("./../../Enums").ServiceType;
   /**
    * TerraMA² DataManager module
@@ -36,8 +37,8 @@
           switch(service.service_type_id) {
             case ServiceType.ANALYSIS:
             case ServiceType.COLLECTOR:
-              throw new ServiceTypeError(Utils.format(
-                "Analysis and Collector process finished is not implemented yet %s", response.instance_id));
+              handler = self.retrieveProcessFinished(service, response);
+              break;
             case ServiceType.VIEW:
               handler = self.handleRegisteredViews(response);
               break;
@@ -57,6 +58,50 @@
         // on any error
         .catch(function(err) {
           return reject(err);
+        });
+    });
+  };
+  /**
+   * It aims to retrieve the context of process executed.
+   * 
+   * @param {Service} service, TerraMA² Service
+   * @param {number}  response.instance_id - Service Identifier retrieved by C++
+   * @param {number}  response.process_id - Process Identifier. It may be Analysis or Collector. (It is not a View due event handler before (self.handler));
+   * @param {boolean} response.result - Flag to determines if instance generate a result
+   * @returns {Promise<any>} A promise with meta result to help display process owner
+   */
+  ProcessFinished.retrieveProcessFinished = function retrieveProcessFinished(service, response) {
+    return new PromiseClass(function(resolve, reject) {
+      return DataManager.getCollector({id: response.process_id, service_instance_id: response.instance_id})
+        .then(function(collector) {
+          var output = {
+            service: service.id,
+            name: collector.dataSeriesOutput.name,
+            process: collector.toObject()
+          };
+          return output;
+        })
+        .catch(function(err) {
+          function _handleUnexpectedError(error) {
+            return reject(new Error(Utils.format("An unexpected error occurred while retrieving process metadata %s", error.toString())));
+          }
+          if (err instanceof CollectorErrorNotFound) {
+            return DataManager.getAnalysis({id: response.process_id, instance_id: response.instance_id})
+              .then(function(analysis) {
+                var output = {
+                  service: service.id,
+                  name: analysis.name,
+                  process: analysis.toObject()
+                };
+                return output;
+              })
+              .catch(_handleUnexpectedError);
+          }
+          _handleUnexpectedError(err);
+        })
+        // Once everything OK, resolve promise chain
+        .tap(function(output) {
+          return resolve(output);
         });
     });
   };
@@ -93,7 +138,7 @@
                 registered_view_id: registeredView.id
               }, options));
             });
-            return Promise.all(promises)
+            return PromiseClass.all(promises)
               .then(function() {
                 return DataManager.getRegisteredView({view_id: registeredViewObject.process_id}, options);
               });

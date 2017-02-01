@@ -133,6 +133,16 @@ define([
         }
       });
 
+      Socket.on("processFinished", handleProcessFinished);
+
+      function handleProcessFinished(response) {
+        $scope.socket.emit('log', {
+          begin: 0,
+          end: 2
+        });
+        MessageBoxService.info(i18n.__("Process"), i18n.__("Process") + " " + response.name + " " + i18n.__("finished"));
+      }
+
       $scope.socket.on('logResponse', function(response) {
         $scope.loading = false;
         var service = response.service;

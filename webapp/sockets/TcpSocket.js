@@ -121,6 +121,18 @@ var TcpSocket = function(io) {
     iosocket.emit("serviceVersion", resp);
   });
 
+  /**
+   * It defines a listener to broadcast everyone when a process has been finished. It also retrieves a metadata of process.
+   * 
+   * @param {any}                resp - A Response object
+   * @param {string}             resp.name - Context Name. Use it to display in GUI interface
+   * @param {number}             resp.service - TerraMA² Service identifier
+   * @param {Analysis|Collector} resp.process - TerraMA2 Process Metadata
+   */
+  TcpService.on("processFinished", function handleProcessFinished(resp) {
+    iosocket.emit("processFinished", resp);
+  });
+
   // Socket connection event
   iosocket.on('connection', function(client) {
     /**
