@@ -19,10 +19,15 @@ FtpRequest.prototype.constructor = FtpRequest;
 FtpRequest.prototype.request = function() {
   var self = this;
   return  new Promise(function(resolve, reject) {
+    var host = self.params[self.syntax().HOST];
+
+    while(host.charAt(host.length - 1) == '/')
+      host = host.substr(0, host.length - 1);
+
     var config = {
       user: self.params[self.syntax().USER],
       password: self.params[self.syntax().PASSWORD],
-      host: self.params[self.syntax().HOST],
+      host: host,
       port: self.params[self.syntax().PORT]
     };
 

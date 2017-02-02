@@ -30,27 +30,27 @@
 #ifndef __TERRAMA2_SERVICES_VIEW_CORE_VIEW_HPP__
 #define __TERRAMA2_SERVICES_VIEW_CORE_VIEW_HPP__
 
-
-// STL
-#include <string>
-#include <vector>
-
-// TerraLib
-#include <terralib/se/Style.h>
-#include <terralib/core/uri/URI.h>
-
 // TerraMA2
 #include "../../../core/data-model/Process.hpp"
 #include "../../../core/data-model/DataSeries.hpp"
 #include "../../../core/data-access/DataSetSeries.hpp"
 #include "../../../core/data-model/Schedule.hpp"
 #include "../../../core/data-model/Filter.hpp"
+#include "../../../core/utility/Logger.hpp"
 #include "../../../core/Shared.hpp"
 #include "../../../core/Typedef.hpp"
 #include "MemoryDataSetLayer.hpp"
 #include "Typedef.hpp"
 #include "Shared.hpp"
 #include "ViewLogger.hpp"
+
+// TerraLib
+#include <terralib/se/Style.h>
+#include <terralib/core/uri/URI.h>
+
+// STL
+#include <string>
+#include <vector>
 
 namespace terrama2
 {
@@ -87,12 +87,34 @@ namespace terrama2
                     std::string value = "";
                     std::string color = "";
                     bool isDefault = false;
+
+                    static bool compareByNumericValue(const Rule& a,
+                                                      const Rule& b)
+                    {
+                      if(a.isDefault)
+                        return true;
+
+                      if(b.isDefault)
+                        return false;
+
+                      try
+                      {
+                        auto x = std::stold(a.value);
+                        auto y = std::stold(b.value);
+
+                        return x < y;
+                      }
+                      catch(std::invalid_argument& e)
+                      {
+                        TERRAMA2_LOG_ERROR() << "Invalid value for legend: " << e.what();
+                        return false;
+                      }
+                    }
                 };
 
                 OperationType operation;
                 ClassifyType classify;
-                int band_number = 0;
-                std::string column = "";
+                std::unordered_map<std::string, std::string> metadata;
                 std::vector< Rule > rules;
             };
 
@@ -100,7 +122,7 @@ namespace terrama2
 
           DataSeriesId dataSeriesID; //!< DataSeries ID that compose this view
           terrama2::core::Filter filter; //!< Filter
-          Legend legend;
+          std::unique_ptr<Legend> legend;
 
           // Parameters to generate a image
           std::string imageName = "";

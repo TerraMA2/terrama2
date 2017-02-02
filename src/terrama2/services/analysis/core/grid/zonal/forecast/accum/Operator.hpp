@@ -69,9 +69,7 @@ namespace terrama2
                 */
                 double operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
                                     const std::string& dataSeriesName,
-                                    const std::string& dateFilter,
                                     const std::string& dateDiscardAfter,
-                                    const size_t band,
                                     terrama2::services::analysis::core::Buffer buffer = Buffer());
 
                 /*!

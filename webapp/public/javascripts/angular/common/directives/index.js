@@ -22,14 +22,32 @@ define([
       $templateCache.put('box.html',
       '<div class="col-md-12" title="{{ titleHeader }}">' +
         '<div class="box box-default {{ boxType }}" title="{{ titleHeader }}">' +
-          '<div class="box-header with-border">' +
-            '<h3 class="box-title">{{ titleHeader }}</h3>' +
+          '<div class="box-header with-border" ng-class="{disabled: extra.disabled}">' +
+           '<span ng-if="handleButtons" style="position: absolute;">' +
+              '<span ng-if="handleButtons.circle.show()"' +
+                    'ng-class="terrama2-font-black"' +
+                    'class="button pull-right enable-button"' +
+                    'ng-click="handleButtons.circle.click()"' +
+                    'data-toggle="tooltip" title="{{handleButtons.circle.message}}">' +
+                '<i class="fa fa-plus-circle"></i>' +
+              '</span>'+
+              '<span ng-if="handleButtons.minus.show()"' +
+                    'ng-class="terrama2-font-black"' +
+                    'class="button pull-right enable-button"' +
+                    'ng-click="handleButtons.minus.click()"'+
+                    'data-toggle="tooltip" title="{{handleButtons.minus.message}}">'+
+                '<i class="fa fa-minus-circle"></i>'+
+              '</span>' +
+            '</span>' +
+            '<h3 class="box-title" style="margin-left: {{ handleButtons ? \'17px\' : \'0\'}};">' +
+              '{{ titleHeader }}' +
+            '</h3>' +
             '<div class="box-tools pull-right">' +
               '<button type="button" class="btn btn-box-tool terrama2-circle-button" style="margin-right: 15px;" data-toggle="tooltip" data-placement="bottom" title="{{ helper }}"><i class="fa fa-question"></i></button>' +
-              '<button type="button" class="btn btn-box-tool" data-widget="collapse"><i ng-if="!collapsed" class="fa fa-minus"></i></button> ' +
+              '<button type="button" ng-if="extra.disabled === undefined" class="btn btn-box-tool collapserBtn" data-widget="collapse"><i ng-if="!collapsed" class="fa fa-minus"></i></button> ' +
             '</div>' +
           '</div>' +
-          '<div class="box-body" id="targetTransclude">' +
+          '<div class="box-body" ng-class="{\'terrama2-hidden\': extra.disabled}" id="targetTransclude">' +
           '</div>' +
         '</div>' +
       '</div>');

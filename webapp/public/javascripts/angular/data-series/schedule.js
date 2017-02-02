@@ -78,7 +78,7 @@ angular.module(moduleName, [])
 
         $scope.onScheduleChange = function(value) {
           var resetHelper = function(i) {
-            if (i == 1) {
+            if (i === 1) {
               $scope.model.schedule = null;
               $scope.model.schedule_retry = null;
               $scope.model.schedule_retry_unit = null;
@@ -88,23 +88,14 @@ angular.module(moduleName, [])
               $scope.model.schedule_timeout_unit = null;
               $scope.isFrequency = true;
               $scope.isSchedule = false;
-            } else if (i == 2) {
+            } else if (i === 2) {
               $scope.model.frequency = null;
               $scope.model.frequency_unit = null;
               $scope.model.frequency_start_time = null;
               $scope.isFrequency = false;
               $scope.isSchedule = true;
-            } else if (i == 0) {
-              $scope.model.schedule = null;
-              $scope.model.schedule_retry = null;
-              $scope.model.schedule_retry_unit = null;
-              $scope.model.schedule_timeout = null;
-              $scope.model.schedule_time = null;
-              $scope.model.schedule_unit = null;
-              $scope.model.schedule_timeout_unit = null;
-              $scope.model.frequency = null;
-              $scope.model.frequency_unit = null;
-              $scope.model.frequency_start_time = null;
+            } else if (i === 0) {
+              $scope.model = {};
               $scope.isFrequency = false;
               $scope.isSchedule = false;
             }

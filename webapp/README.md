@@ -8,11 +8,9 @@
 
 TerraMA² Webapp is a free and open source component based web API for use in web geographic information systems (WebGIS).
 
-## Dependencies
-
-In order to use the components of the API, you have to run it. For that to be possible you'll need to install some third-party softwares. It can be found in TerraMA² repository [WEB DEPENDENCIES](https://github.com/TerraMA2/terrama2#web-application-and-components-dependencies) section.
-
 ## Installation
+
+Before you start the installation, make sure you have installed Node.js version 4.2.6 LTS. You can download it from https://nodejs.org.
 
 Bellow we show the steps to run TerraMA² Webapp:
 
@@ -65,3 +63,23 @@ Key               | Description
  db.dialect       | dialect database (postgres/mysql). **Only postgres supported.** 
  db.define        | It represents a extra properties along database 
  db.define.schema | A database schema 
+
+
+## Web Application components dependencies
+
+
+If you want to build yourself TerraMA² then you need to install some third-party libraries. Below we show the list of third-party libraries dependencies and its versions:
+
+- **Node.js (Mandatory):** Node.js is a JavaScript runtime for server side scripts. Make sure you have version 4.2.6 LTS installed. You can download it from: https://nodejs.org.
+
+- **AdminLTE (Mandatory):** TerraMA² web front-end is built on top of AdminLTE web template. You can download it from: https://github.com/almasaeed2010/AdminLTE.
+
+- **Bootstrap (Mandatory):** TerraMA² web front-end is built on top of Bootstrap. You can download it from: http://getbootstrap.com.
+
+- **Chart.js (Mandatory):** Chart.js is an HTML5 based framework for drawing charts. You can download it from: http://www.chartjs.org.
+
+- **DataTables (Mandatory):** DataTables is a table plugin for jQuery. It is available at: http://www.datatables.net.
+
+- **jQuery (Mandatory):** jQuery is a JavaScript library for handling HTML document elements. Make sure to have at least version 2.1.4. It is available at: https://jquery.com.
+
+- **AngularJS (Mandatory):** AngularJS is a SuperHeroic javascript MTW framework for handling client side application. Make sure to have at least version 1.5.0. It is available at: https://angularjs.org/.
