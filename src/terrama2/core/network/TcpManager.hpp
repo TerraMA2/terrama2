@@ -107,7 +107,7 @@ namespace terrama2
         void sendProcessFinishedSlot(QJsonObject answer) noexcept;
 
         //! Sends the signal information.
-        void sendSignalSlot(TcpSignal signal, QJsonDocument answer = QJsonDocument()) noexcept;
+        void sendSignalSlot(QTcpSocket* tcpSocket, TcpSignal signal, QJsonDocument answer = QJsonDocument()) noexcept;
 
       signals:
         //! Emitted when the service should be terminated.
