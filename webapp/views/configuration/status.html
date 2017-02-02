@@ -47,10 +47,6 @@
 
         <terrama2-table-view expression="element in model | filter:searchInput | orderBy: '-date' track by $index">
           <terrama2-td title="{{ i18n.__('Status') }}">
-            <!-- Todo: Add it with Socket event in order to retrieve dynamically -->
-            <!--<span style="margin-left: 4px;" ng-if="element.status === globals.enums.StatusLog.START">
-              <i style="font-size: 20px;" class="fa fa-spin fa-refresh"></i>
-            </span>-->
             <img ng-src="{{ iconFn(element) }}" alt="" width="24" height="24">
           </terrama2-td>
           <terrama2-td title="{{ i18n.__('Service') }}">

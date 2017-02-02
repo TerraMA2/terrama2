@@ -86,8 +86,8 @@
         <!-- header -->
         <tr style="font-weight: bold;">
           <td ng-show="isFunction(icon()) && model.length > 0"></td>
-          <td ng-repeat="field in displayFields">{{ field }}</td>
-          <td ng-if="extra.service">Status</td>
+          <td ng-repeat="field in displayFields" ng-bind="field"></td>
+          <td ng-if="extra.service" ng-bind="i18n.__('Status')"></td>
           <td ng-if="extra.export"></td>
           <td ng-if="isFunction(remove)">
         </tr>
@@ -99,7 +99,7 @@
             </span>
           </td>
           <td ng-repeat="field in identityFields ">
-            <a ng-href="{{ makeLink(element) }}" ng-if="link">{{ processField(field, element) }}</a>
+            <a ng-href="{{ makeLink(element) }}" ng-if="link" ng-bind="processField(field, element)"></a>
           </td>
 
           <td ng-if="extra.project" class="pull-cell-left">
@@ -178,7 +178,7 @@
                     ng-class="{ 'loading-button': extra.disabledButtons(element) }"
                     ng-click="extra.run(element)">
               <span class="glyphicon glyphicon-play"></span>
-              <span class="hidden-xs">{{ i18n.__('Run') }}</span>
+              <span class="hidden-xs" ng-bind="i18n.__('Run')"></span>
             </button>
           </td>
 
@@ -189,13 +189,13 @@
                     data-placement="top"
                     title="{{ i18n.__('Remove data') }}">
               <span class="glyphicon glyphicon-remove"></span>
-              <span class="hidden-xs">{{ i18n.__('Remove') }}</span>
+              <span class="hidden-xs" ng-bing="i18n.__('Remove')"></span>
             </button>
           </td>
         </tr>
 
         <tr ng-show="!model.length">
-          <td colspan="2">{{ i18n.__(emptyMessage) }}</td>
+          <td colspan="2" ng-bind="i18n.__(emptyMessage)"></td>
         </tr>
       </tbody>
     </table>

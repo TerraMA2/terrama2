@@ -7,11 +7,14 @@ define([
   "TerraMA2WebApp/common/services/http-timeout",
   "TerraMA2WebApp/common/services/string-format",
   "TerraMA2WebApp/common/services/date-parser",
-  "TerraMA2WebApp/common/services/uri-parser"
-], function(FileDialog, SaveAs, Socket, UniqueNumber, BaseService, HttpTimeout, StringFormat, DateParser, URIParser) {
+  "TerraMA2WebApp/common/services/uri-parser",
+  "TerraMA2WebApp/common/services/utlity",
+  "TerraMA2WebApp/common/services/paginator"
+], function(FileDialog, SaveAs, Socket, UniqueNumber, BaseService, HttpTimeout, StringFormat, DateParser, URIParser, Utility, Paginator) {
   var moduleName = "terrama2.common.services";
   angular.module(moduleName, [])
     .factory("FileDialog", FileDialog)
+    .factory("Utility", Utility)
     .factory("SaveAs", SaveAs)
     .factory("Socket", Socket)
     .factory("UniqueNumber", UniqueNumber)
@@ -19,6 +22,7 @@ define([
     .factory("StringFormat", StringFormat)
     .factory("DateParser", DateParser)
     .factory("URIParser", URIParser)
+    .service("Paginator", Paginator)
     .service("BaseService", BaseService);
   return moduleName;
 });
