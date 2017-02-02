@@ -181,8 +181,7 @@ namespace terrama2
             void registerCoverageFile(const std::string& coverageStoreName,
                                       const std::string& coverageFilePath,
                                       const std::string& coverageName,
-                                      const std::string& extension,
-                                      const std::string& styleName = "") const;
+                                      const std::string& extension) const;
 
             void registerMosaicCoverage(const std::string& coverageStoreName,
                                         const std::string& mosaicPath,
@@ -299,6 +298,9 @@ namespace terrama2
                                                const std::shared_ptr<DataManager> dataManager,
                                                std::shared_ptr<ViewLogger> logger,
                                                const RegisterId logId) override;
+
+            void registerLayerDefaultStyle(const std::string& styleName,
+                                           const std::string& layerName) const;
 
             std::string getGeomTypeString(const te::gm::GeomType& geomType) const;
 
