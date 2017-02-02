@@ -1,0 +1,6 @@
+<ul class="pagination">
+  <li ng-repeat="pageNumber in $ctrl.pages" 
+      ng-class="{'active': $ctrl.$paginator.currentPage() === pageNumber}">
+    <a href="javascript::void();" ng-click="$ctrl.setCurrent(pageNumber)">{{ pageNumber }}</a>
+  </li>
+</ul>
