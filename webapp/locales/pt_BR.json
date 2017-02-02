@@ -560,5 +560,14 @@
 	"Temporal": "Temporal",
 	"Bytes Before": "Bytes anteriores",
 	"Time Interval": "Intervalo de tempo",
-	"Time Interval Unit": "Unidade de tempo"
+	"Time Interval Unit": "Unidade de tempo",
+	"Filter by static data": "Filtro por dado estático",
+	"Database": "Base de dados",
+	"DCP error": "Erro PCD",
+	"It should have at least one dcp": "Deve adicionar ao menos um PCD",
+	"Data series is required": "Série de dados é requerida",
+	"Cellphone": "Telefone",
+	"Data Import": "Importação de dados",
+	"Connection Status": "Status de conexão",
+	"Connection Successful": "Conexão sucedida"
 }
