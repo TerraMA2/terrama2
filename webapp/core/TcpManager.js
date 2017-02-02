@@ -205,11 +205,6 @@ TcpManager.prototype.logData = function(serviceInstance, data) {
       throw new Error("There is no client to log request. Start services in Admin Dashboard");
     }
 
-    var buffer = self.makebuffer(Signals.LOG_SIGNAL, data);
-
-    logger.debug("Buffer: ", buffer);
-    logger.debug("BufferToString: ", buffer.toString());
-
     var client = _getClient(serviceInstance);
 
     // checking first attempt when there is no active socket (listing services)
@@ -238,10 +233,15 @@ TcpManager.prototype.logData = function(serviceInstance, data) {
     }
 
     // checking server cache
-    if (end <= array.length) {
-      self.emit('logReceived', client.service, array.slice(begin, end));
+    if (array.length > 0 && end <= array[0].length) {
+      self.emit('logReceived', client.service, array[0].slice(begin, end));
       return;
     }
+
+    var buffer = self.makebuffer(Signals.LOG_SIGNAL, data);
+
+    logger.debug("Buffer: ", buffer);
+    logger.debug("BufferToString: ", buffer.toString());
 
     // requesting for log
     client.log(buffer);
