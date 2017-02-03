@@ -18,14 +18,16 @@ define([], function() {
       self.$paginator = PaginatorService;
       self.$paginator.setDataLength($scope.size);
 
-      $scope.$watch("size", function watchSize(value) {
-        if (value) {
-          self.$paginator.setDataLength(value);
-        }
-      });
-
       self.$maxPages = $scope.maxPages;
       var paginationRange = Math.max($scope.maxPages, 5);
+
+      $scope.$watch("size", function watchSize(value) {
+        console.log("Value ", value);
+        if (value) {
+          self.$paginator.setDataLength(value);
+          self.pages = self.$paginator.generatePages(paginationRange);
+        }
+      });
 
       if (!$scope.maxPages) {
         $scope.maxPages = 10;

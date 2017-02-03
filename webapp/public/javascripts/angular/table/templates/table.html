@@ -91,7 +91,7 @@
           <td ng-if="extra.export"></td>
           <td ng-if="isFunction(remove)">
         </tr>
-        <tr ng-repeat="element in model | filter:searchInput | orderBy: orderElementby | paginatorLimit: 4 track by $index">
+        <tr ng-repeat="element in filteredModel = (model | filter:searchInput) | paginatorLimit: 4 | orderBy: orderElementby track by $index">
           <td ng-show="isFunction(icon())" style="width: 50px;">
             <img style="margin-left: 5px;" ng-if="iconProperties.type === 'img'" ng-src="{{ icon()(element) }}" alt="" width="{{ width }}" height="{{ height }}"/>
             <span ng-if="iconProperties.type === 'icon'" class="label">
@@ -189,18 +189,21 @@
                     data-placement="top"
                     title="{{ i18n.__('Remove data') }}">
               <span class="glyphicon glyphicon-remove"></span>
-              <span class="hidden-xs" ng-bing="i18n.__('Remove')"></span>
+              <span class="hidden-xs"></span>
+              <span ng-bing="i18n.__('Remove')"></span>
             </button>
           </td>
         </tr>
 
-        <tr ng-show="!model.length">
+        <tr ng-show="!filteredModel.length">
           <td colspan="2" ng-bind="i18n.__(emptyMessage)"></td>
         </tr>
       </tbody>
     </table>
 
-    <terrama2-paginator max-pages="10" size="model.length" on-change=""></terrama2-paginator>
+    <div class="col-md-offset-4 col-md-6 col-xs-12">
+      <terrama2-paginator max-pages="10" size="filteredModel.length" on-change=""></terrama2-paginator>
+    </div>
   </div>
 
 </div>

@@ -9,6 +9,7 @@ define([], function() {
    * </element>
    * 
    * @param {PaginatorService} PaginatorService - TerraMA² Paginator module to handle page cycle
+   * @param {Utility} Utility - TerraMA² Utils module
    * @returns {angular.IFilter}
    */
   function PaginatorLimit(PaginatorService, Utility) {
@@ -25,9 +26,10 @@ define([], function() {
       if (Utility.isObject(collection)) {
         // do
         itemsPerPage = parseInt(itemsPerPage) || 20;
+        var currentPageNumber = PaginatorService.currentPage();
 
-        var startPage = (PaginatorService.currentPage() - 1) * itemsPerPage;
-        var endPage = (startPage + itemsPerPage) * itemsPerPage;
+        var startPage = (currentPageNumber - 1) * itemsPerPage;
+        var endPage = startPage + itemsPerPage;
 
         PaginatorService.setItemsPerPage(itemsPerPage);
 
