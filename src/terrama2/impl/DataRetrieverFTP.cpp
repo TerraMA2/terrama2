@@ -316,8 +316,7 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
 
           TERRAMA2_LOG_ERROR() << errMsg;
           throw DataRetrieverException() << ErrorDescription(errMsg);
-          }
-
+        }
       }
     }
   }

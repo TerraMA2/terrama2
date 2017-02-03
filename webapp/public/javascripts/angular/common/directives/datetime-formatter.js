@@ -52,4 +52,4 @@ define(function() {
   terrama2DatetimeFormatter.$inject = ["$window"];
 
   return terrama2DatetimeFormatter;
-})
+});

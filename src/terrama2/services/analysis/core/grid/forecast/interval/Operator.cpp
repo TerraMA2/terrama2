@@ -32,37 +32,37 @@
 #include "Operator.hpp"
 #include "../Operator.hpp"
 
-double terrama2::services::analysis::core::grid::forecast::interval::min(const std::string& dataSeriesName, const std::string& dateFilterBegin, const std::string& dateFilterEnd, const size_t var)
+double terrama2::services::analysis::core::grid::forecast::interval::min(const std::string& dataSeriesName, const std::string& dateFilterBegin, const std::string& dateFilterEnd)
 {
-  return terrama2::services::analysis::core::grid::forecast::operatorImpl(StatisticOperation::MIN, dataSeriesName, dateFilterBegin, dateFilterEnd, var);
+  return terrama2::services::analysis::core::grid::forecast::operatorImpl(StatisticOperation::MIN, dataSeriesName, dateFilterBegin, dateFilterEnd);
 }
 
-double terrama2::services::analysis::core::grid::forecast::interval::max(const std::string& dataSeriesName, const std::string& dateFilterBegin, const std::string& dateFilterEnd, const size_t var)
+double terrama2::services::analysis::core::grid::forecast::interval::max(const std::string& dataSeriesName, const std::string& dateFilterBegin, const std::string& dateFilterEnd)
 {
-  return terrama2::services::analysis::core::grid::forecast::operatorImpl(StatisticOperation::MAX, dataSeriesName, dateFilterBegin, dateFilterEnd, var);
+  return terrama2::services::analysis::core::grid::forecast::operatorImpl(StatisticOperation::MAX, dataSeriesName, dateFilterBegin, dateFilterEnd);
 }
 
-double terrama2::services::analysis::core::grid::forecast::interval::mean(const std::string& dataSeriesName, const std::string& dateFilterBegin, const std::string& dateFilterEnd, const size_t var)
+double terrama2::services::analysis::core::grid::forecast::interval::mean(const std::string& dataSeriesName, const std::string& dateFilterBegin, const std::string& dateFilterEnd)
 {
-  return terrama2::services::analysis::core::grid::forecast::operatorImpl(StatisticOperation::MEAN, dataSeriesName, dateFilterBegin, dateFilterEnd, var);
+  return terrama2::services::analysis::core::grid::forecast::operatorImpl(StatisticOperation::MEAN, dataSeriesName, dateFilterBegin, dateFilterEnd);
 }
 
-double terrama2::services::analysis::core::grid::forecast::interval::median(const std::string& dataSeriesName, const std::string& dateFilterBegin, const std::string& dateFilterEnd, const size_t var)
+double terrama2::services::analysis::core::grid::forecast::interval::median(const std::string& dataSeriesName, const std::string& dateFilterBegin, const std::string& dateFilterEnd)
 {
-  return terrama2::services::analysis::core::grid::forecast::operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, dateFilterBegin, dateFilterEnd, var);
+  return terrama2::services::analysis::core::grid::forecast::operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, dateFilterBegin, dateFilterEnd);
 }
 
-double terrama2::services::analysis::core::grid::forecast::interval::standardDeviation(const std::string& dataSeriesName, const std::string& dateFilterBegin, const std::string& dateFilterEnd, const size_t var)
+double terrama2::services::analysis::core::grid::forecast::interval::standardDeviation(const std::string& dataSeriesName, const std::string& dateFilterBegin, const std::string& dateFilterEnd)
 {
-  return terrama2::services::analysis::core::grid::forecast::operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, dateFilterBegin, dateFilterEnd, var);
+  return terrama2::services::analysis::core::grid::forecast::operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, dateFilterBegin, dateFilterEnd);
 }
 
-double terrama2::services::analysis::core::grid::forecast::interval::variance(const std::string& dataSeriesName, const std::string& dateFilterBegin, const std::string& dateFilterEnd, const size_t var)
+double terrama2::services::analysis::core::grid::forecast::interval::variance(const std::string& dataSeriesName, const std::string& dateFilterBegin, const std::string& dateFilterEnd)
 {
-  return terrama2::services::analysis::core::grid::forecast::operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, dateFilterBegin, dateFilterEnd, var);
+  return terrama2::services::analysis::core::grid::forecast::operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, dateFilterBegin, dateFilterEnd);
 }
 
-double terrama2::services::analysis::core::grid::forecast::interval::sum(const std::string& dataSeriesName, const std::string& dateFilterBegin, const std::string& dateFilterEnd, const size_t var)
+double terrama2::services::analysis::core::grid::forecast::interval::sum(const std::string& dataSeriesName, const std::string& dateFilterBegin, const std::string& dateFilterEnd)
 {
-  return terrama2::services::analysis::core::grid::forecast::operatorImpl(StatisticOperation::SUM, dataSeriesName, dateFilterBegin, dateFilterEnd, var);
+  return terrama2::services::analysis::core::grid::forecast::operatorImpl(StatisticOperation::SUM, dataSeriesName, dateFilterBegin, dateFilterEnd);
 }

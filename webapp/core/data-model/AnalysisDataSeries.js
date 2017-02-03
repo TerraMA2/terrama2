@@ -4,6 +4,8 @@ var Utils = require('./../Utils');
 var AnalysisDataSeries = module.exports = function(params) {
   BaseClass.call(this, {'class': "AnalysisDataSeries"});
 
+  this.analysis_id = params.analysis_id;
+
   this.id = params.id;
   this.data_series_id = params.data_series_id;
 
@@ -43,7 +45,8 @@ AnalysisDataSeries.prototype.toObject = function() {
     data_series_id: this.data_series_id,
     type: this['type_id'],
     alias: this.alias,
-    metadata: this.metadata
+    metadata: this.metadata,
+    analysis_id: this.analysis_id
   });
 };
 

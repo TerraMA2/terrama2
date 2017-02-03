@@ -89,13 +89,9 @@ namespace terrama2
             void removeAlert(AlertId alertId) noexcept;
 
           protected:
-            // comments on base class
-            virtual bool hasDataOnQueue() noexcept override;
-            // comments on base class
-            virtual bool processNextData() override;
 
             //*! Create a process task and add to taskQueue_
-            virtual void prepareTask(std::pair<AlertId, std::shared_ptr<te::dt::TimeInstantTZ> > alertInfo);
+            virtual void prepareTask(const terrama2::core::ExecutionPackage& executionPackage) override;
 
             //! Connects signals from DataManager
             void connectDataManager();
@@ -103,7 +99,6 @@ namespace terrama2
             std::weak_ptr<DataManager> dataManager_; //!< Weak pointer to the DataManager
 
             std::map<AlertId, terrama2::core::TimerPtr> timers_;//!< List of running Alert timers
-            std::deque<std::pair<AlertId, std::shared_ptr<te::dt::TimeInstantTZ> > > alertQueue_;//!< Alert queue
             std::shared_ptr< AlertLogger > logger_;//!< process logger
         };
 

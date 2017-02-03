@@ -83,7 +83,128 @@
     </div>
     <!-- /.box-header -->
     <div class="box-body">
-      <div ng-include="'/javascripts/angular/data-series/templates/storager.html'"></div>
+      <div class="row" ng-controller="DataSeriesStoragerController">
+
+        <div class="col-md-12">
+          <form name="forms.storagerDataForm">
+
+            <div class="col-md-4">
+              <div class="form-group" terrama2-show-errors>
+                <label ng-bind="i18n.__('Output Format')">:</label>
+                  <select id="storageFormat" 
+                          class="form-control" 
+                          name="format" 
+                          ng-model="storager.format"
+                          ng-disabled="isUpdating && hasCollector"
+                          ng-change="onStoragerFormatChange()"
+                          ng-options="format.name for format in storagerFormats | filter: { collector: false }" 
+                          required>
+                </select>
+                <label class="help-block text-danger"
+                      ng-show="forms.storagerDataForm.format.$dirty && forms.storagerDataForm.format.$error.required"
+                      ng-bind="i18n.__('Output format is required')">
+                </label>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="form-group" terrama2-show-errors>
+                <label ng-bind="i18n.__('Data Store')">:</label>
+                <select class="form-control" 
+                        name="storager_data_provider_id" 
+                        ng-model="storager_data_provider_id"
+                        ng-options="provider.id as provider.name for provider in dataProvidersStorager" 
+                        required>
+                  <option></option>
+                </select>
+
+                <label class="help-block text-danger"
+                      ng-show="forms.storagerDataForm.storager_data_provider_id.$dirty && forms.storagerDataForm.storager_data_provider_id.$error.required"
+                      ng-bind="i18n.__('Data Store is required')">
+                </label>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="form-group" terrama2-show-errors>
+                <label ng-bind="i18n.__('Service')">:</label>
+                <select id="storageService" 
+                        class="form-control" 
+                        name="service" 
+                        ng-model="storager_service"
+                        required
+                        ng-options="service.id as service.name for service in services">
+                </select>
+
+                <label class="help-block text-danger"
+                      ng-show="forms.storagerDataForm.service.$dirty && forms.storagerDataForm.service.$error.required"
+                      ng-bind="i18n.__('Service is required')">
+                </label>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="col-md-12">
+          <!-- schema form -->
+          <div class="col-md-12" ng-show="showStoragerForm">
+            <form name="forms.storagerForm" sf-schema="schemaStorager" sf-form="formStorager" sf-model="modelStorager" sf-options="options"></form>
+          </div>
+
+          <div class="col-md-12">
+            <!--dcp table -->
+            <div class="col-md-12 terrama2-nopadding-box" ng-if="semantics === 'DCP' && storager.format && storager.format.code && isDynamic">
+              <div class="col-md-12">
+                <div class="row">
+                  <div class="box-body table-responsive no-padding">
+                    <table class="table table-hover" >
+                      <tbody style="overflow-y: auto; height: 150px;">
+                      <!-- header-->
+                      <tr style="height: 30px;">
+                        <th ng-repeat="field in tableFieldsStorager">{{ capitalizeIt(field) }}</th>
+                        <th>ID</th>
+                      </tr>
+
+                      <tr ng-repeat="dcp in dcpsStorager track by $index">
+                        <td ng-repeat="field in tableFieldsStorager">
+                          <!-- todo: fix it -->
+                          <span ng-if="field.toLowerCase() == 'table_name'" editable-text="dcp[field]">
+                            {{ dcp[field]}}
+                          </span>
+
+                          <span ng-if="field.toLowerCase() != 'table_name'">
+                            <span ng-show="!isBoolean(dcp[field])" ng-bind="dcp[field]"></span>
+                            <span ng-show="isBoolean(dcp[field])">
+                              <input type="checkbox" ng-model="dcp[field]" ng-disabled="true">
+                            </span>
+                          </span>
+                        </td>
+                        <td> {{ $index + 1 }}</td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </div><!-- /.box-body -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="col-md-12" style="margin-top: 30px;">
+          <div class="col-md-12">
+            <div class="box box-default box-solid">
+              <div class="box-header with-border">
+                <h3 class="box-title">{{ i18n.__('Schedule') }}</h3>
+              </div>
+
+              <div style="display: block;" class="box-body">
+                <terrama2-schedule model="schedule" options="scheduleOptions"></terrama2-schedule>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -126,7 +247,7 @@
       <span ng-if="advanced.intersection.disabled && advanced.intersection.optional" 
           class="enable-button-click"
           ng-class="terrama2-font-black"
-          data-toggle="tooltip" title="Add intersection configuration"
+          data-toggle="tooltip" title="{{advanced.intersection.message}}"
           ng-click="advanced.intersection.openForm()">
         <i class="fa fa-plus-circle"></i>
       </span>

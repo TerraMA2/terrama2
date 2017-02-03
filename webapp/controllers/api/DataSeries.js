@@ -1,19 +1,18 @@
-"use strict";
-
-var logger = require("./../../core/Logger");
-var DataManager = require("../../core/DataManager");
-var PromiseClass = require("./../../core/Promise");
-var TcpService = require('./../../core/facade/tcp-manager/TcpService');
-var Utils = require("../../core/Utils");
-var DataSeriesError = require('../../core/Exceptions').DataSeriesError;
-var CollectorErrorNotFound = require('../../core/Exceptions').CollectorErrorNotFound;
-var DataSeriesTemporality = require('./../../core/Enums').TemporalityType;
-var TokenCode = require('./../../core/Enums').TokenCode;
-var _ = require('lodash');
-// data model
-var DataModel = require('./../../core/data-model');
-
 module.exports = function(app) {
+  "use strict";
+
+  var logger = require("./../../core/Logger");
+  var DataManager = require("../../core/DataManager");
+  var PromiseClass = require("./../../core/Promise");
+  var TcpService = require('./../../core/facade/tcp-manager/TcpService');
+  var Utils = require("../../core/Utils");
+  var DataSeriesError = require('../../core/Exceptions').DataSeriesError;
+  var CollectorErrorNotFound = require('../../core/Exceptions').CollectorErrorNotFound;
+  var DataSeriesTemporality = require('./../../core/Enums').TemporalityType;
+  var TokenCode = require('./../../core/Enums').TokenCode;
+  // data model
+  var DataModel = require('./../../core/data-model');
+
   return {
     post: function(request, response) {
       var dataSeriesObject = request.body.dataSeries;
@@ -67,7 +66,7 @@ module.exports = function(app) {
           });
         }
       }).then(function(dataSeriesResult) {
-        var extra = {}
+        var extra = {};
         if (shouldRun && dataSeriesObject.hasOwnProperty('input') && dataSeriesObject.hasOwnProperty('output')){
           extra = {
             id: dataSeriesResult.id
@@ -192,7 +191,11 @@ module.exports = function(app) {
                       filterUpdate.region = null;
                     }
 
-                    if (!_.isEmpty(filterObject.date)) {
+                    if (!filterObject.data_series_id) {
+                      filterUpdate.data_series_id = null;
+                    }
+
+                    if (!Utils.isEmpty(filterObject.date)) {
                       if (!filterObject.date.beforeDate) {
                         filterUpdate.discard_before = null;
                         delete filterUpdate.date.beforeDate;
@@ -211,7 +214,7 @@ module.exports = function(app) {
                           });
                       });
                   } else {
-                    if (_.isEmpty(filterObject.date)) {
+                    if (Utils.isEmpty(filterObject.date)) {
                       return null;
                     } else {
                       filterObject.collector_id = collector.id;
@@ -226,7 +229,7 @@ module.exports = function(app) {
                 // try to update intersection
                 .then(function() {
                   // temp: remove all and insert. TODO: sequelize upsert / delete
-                  if (_.isEmpty(intersection)) {
+                  if (Utils.isEmpty(intersection)) {
                     return DataManager.removeIntersection({collector_id: collector.id}, options)
                       .then(function() {
                         collector.setIntersection([]);
@@ -308,10 +311,10 @@ module.exports = function(app) {
                             };
                             TcpService.send(output);
                             
-                            return collector.output
+                            return collector.output;
                           } else {
                             intersection.forEach(function(intersect) {
-                              intersect.collector_id = collector.id;
+                              intersect.collector_id = collectorResult.id;
                             });
                             return DataManager.addIntersection(intersection, options).then(function(bulkIntersectionResult){
                               collectorResult.setIntersection(bulkIntersectionResult);
@@ -335,7 +338,7 @@ module.exports = function(app) {
                         });
                       });
                     });
-                  })
+                  });
                 });
               });
             }
@@ -396,43 +399,67 @@ module.exports = function(app) {
       var id = request.params.id;
 
       if (id) {
-        return DataManager.getDataSeries({id: id})
-          .then(function(dataSeriesResult) {
-            return DataManager.getCollector({data_series_output: id})
-              .then(function(collectorResult) {
-                return PromiseClass.all([
-                    DataManager.removeDataSerie({id: id}),
-                    DataManager.removeDataSerie({id: collectorResult.data_series_input}),
-                    DataManager.removeSchedule({id: collectorResult.schedule.id})
-                  ])
-                  .then(function() {
-                    var objectToSend = {
-                      "Collectors": [collectorResult.id],
-                      "DataSeries": [collectorResult.data_series_input, collectorResult.data_series_output],
-                      "Schedule": [collectorResult.schedule.id]
-                    };
+        DataManager.listAnalysisDataSeries({data_series_id: id})
+          .then(function(analysisDataSeriesList){
+            if (analysisDataSeriesList.length > 0) {
+              var analysisIds = [];
+              analysisDataSeriesList.forEach(function(analysisDataSeries){
+                analysisIds.push(analysisDataSeries.analysis_id);
+              });
+              DataManager.listAnalysis({id: {$in: analysisIds}}).then(function(analysisList){
+                var analysisName = [];
+                analysisList.forEach(function(analysis){
+                  analysisName.push(analysis.name);
+                });
+                Utils.handleRequestError(response, { message: "Could not remove data series, using in " + analysisName.join(", ")}, 400);
+                
+              }).catch(function(error){
+                Utils.handleRequestError(response, error, 400);
+              });
+            }
+            else {
+              return DataManager.getDataSeries({id: id})
+                .then(function(dataSeriesResult) {
+                  return DataManager.getCollector({data_series_output: id})
+                    .then(function(collectorResult) {
+                      return PromiseClass.all([
+                          DataManager.removeDataSerie({id: id}),
+                          DataManager.removeDataSerie({id: collectorResult.data_series_input}),
+                          DataManager.removeSchedule({id: collectorResult.schedule.id})
+                        ])
+                        .then(function() {
+                          var objectToSend = {
+                            "Collectors": [collectorResult.id],
+                            "DataSeries": [collectorResult.data_series_input, collectorResult.data_series_output],
+                            "Schedule": [collectorResult.schedule.id]
+                          };
 
-                    TcpService.remove(objectToSend);
+                          TcpService.remove(objectToSend);
 
-                    return response.json({status: 200, name: dataSeriesResult.name});
-                  });
-              })
+                          return response.json({status: 200, name: dataSeriesResult.name});
+                        });
+                    })
 
-              .catch(function(err) {
-                // if not find collector, it is processing data series or analysis data series
-                return DataManager.removeDataSerie({id: id})
-                  .then(function() {
-                    var objectToSend = {
-                      "DataSeries": [id]
-                    };
+                    .catch(function(err) {
+                      // if not find collector, it is processing data series or analysis data series
+                      return DataManager.removeDataSerie({id: id})
+                        .then(function() {
+                          var objectToSend = {
+                            "DataSeries": [id]
+                          };
 
-                    TcpService.remove(objectToSend);
+                          TcpService.remove(objectToSend);
 
-                    return response.json({status: 200, name: dataSeriesResult.name});
-                  });
-              })
+                          return response.json({status: 200, name: dataSeriesResult.name});
+                        });
+                    })
+                })
+                .catch(function(error) {
+                  Utils.handleRequestError(response, error, 400);
+                });
+            }
           })
-          .catch(function(error) {
+          .catch(function(error){
             Utils.handleRequestError(response, error, 400);
           });
       } else {

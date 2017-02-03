@@ -30,6 +30,7 @@
 #include "JSonUtils.hpp"
 #include "Intersection.hpp"
 #include "../../../core/Exception.hpp"
+#include "../../../core/data-model/DataManager.hpp"
 #include "../../../core/utility/JSonUtils.hpp"
 #include "../../../core/utility/Logger.hpp"
 
@@ -38,7 +39,7 @@
 #include <QJsonArray>
 #include <QObject>
 
-terrama2::services::collector::core::CollectorPtr terrama2::services::collector::core::fromCollectorJson(QJsonObject json)
+terrama2::services::collector::core::CollectorPtr terrama2::services::collector::core::fromCollectorJson(QJsonObject json, terrama2::core::DataManager* dataManager)
 {
   if(json["class"].toString() != "Collector")
   {
@@ -80,7 +81,7 @@ terrama2::services::collector::core::CollectorPtr terrama2::services::collector:
   }
 
   collector->schedule = terrama2::core::fromScheduleJson(json["schedule"].toObject());
-  collector->filter = terrama2::core::fromFilterJson(json["filter"].toObject());
+  collector->filter = terrama2::core::fromFilterJson(json["filter"].toObject(), dataManager);
   collector->intersection = terrama2::services::collector::core::fromIntersectionJson(json["intersection"].toObject());
   collector->active = json["active"].toBool();
 
@@ -105,18 +106,22 @@ terrama2::services::collector::core::IntersectionPtr terrama2::services::collect
   intersection->collectorId = json["collector_id"].toInt();
 
   QJsonObject attributeMapJson = json["attribute_map"].toObject();
-  std::map<DataSeriesId, std::vector<std::string> > attributeMap;
+  std::map<DataSeriesId, std::vector<IntersectionAttribute> > attributeMap;
   for(auto it = attributeMapJson.begin(); it != attributeMapJson.end(); ++it)
   {
     QJsonArray attrListJson = it.value().toArray();
 
-    std::vector<std::string> attrList;
-    for (const QJsonValue & value: attrListJson)
+    std::vector<IntersectionAttribute> vecAttributes;
+    for(int index = 0; index < attrListJson.size(); ++index)
     {
-      attrList.push_back(value.toString().toStdString());
+      QJsonObject value = attrListJson[index].toObject();
+      IntersectionAttribute intersectionAttribute;
+      intersectionAttribute.attribute = value["attribute"].toString().toStdString();
+      intersectionAttribute.alias = value["alias"].toString().toStdString();
+      vecAttributes.push_back(intersectionAttribute);
     }
 
-    attributeMap[it.key().toInt()] = attrList;
+    attributeMap[it.key().toInt()] = vecAttributes;
   }
   intersection->attributeMap = attributeMap;
 
@@ -163,9 +168,12 @@ QJsonObject terrama2::services::collector::core::toJson(IntersectionPtr intersec
   for(auto it = intersection->attributeMap.begin(); it != intersection->attributeMap.end(); ++it)
   {
     QJsonArray attrList;
-    for(auto attr : it->second)
+    for(auto& intersectionAttribute : it->second)
     {
-      attrList.append(QString(attr.c_str()));
+      QJsonObject value;
+      value["attribute"] = (QString(intersectionAttribute.attribute.c_str()));
+      value["alias"] = (QString(intersectionAttribute.alias.c_str()));
+      attrList.push_back(value);
     }
     attributeMapJson[QString(it->first)] = attrList;
   }

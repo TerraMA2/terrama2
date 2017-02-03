@@ -198,7 +198,6 @@
   width: 14px !important;
 }
 
-
 /*
  * Component: Sidebar Mini
  */
@@ -330,7 +329,7 @@
 }
 
 .slider-content {
-  /*position: absolute;*/
+  position: absolute;
   background-color: white;
   width: 200px;
   /*bottom: 40px;*/
@@ -343,6 +342,11 @@
 
 .slider-content > div {
   margin-left: 15px;
+  margin-right: 15px;
+}
+.slider-content > label {
+  margin-left: 15px;
+  color: #4b646f;
 }
 
 /*
@@ -392,5 +396,9 @@
 
     .slider-content button[class~="close-slider"]{
       margin-top: -25px !important;
+    }
+
+    #terrama2-opacity-slider{
+      margin-top: -20px !important;
     }
 }

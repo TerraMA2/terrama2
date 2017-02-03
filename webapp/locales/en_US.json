@@ -587,5 +587,16 @@
 	"is not active": "is not active",
 	". The process was started successfully": ". The process was started successfully",
 	"DCP error": "DCP error",
-	"Project Status": "Project Status"
+	"Project Status": "Project Status",
+	"It performs Analysis Validation in order to check if it will able to generate a valid data series": "It performs Analysis Validation in order to check if it will able to generate a valid data series",
+	"Schedule Type is required": "Schedule Type is required",
+	"Must have a valid store values to create an intersection": "Must have a valid store values to create an intersection",
+	"Add store configuration": "Add store configuration",
+	"Add filter configuration": "Add filter configuration",
+	"Remove store configuration": "Remove store configuration",
+	"Remove intersection configuration": "Remove intersection configuration",
+	"Remove filter configuration": "Remove filter configuration",
+	"Add intersection configuration": "Add intersection configuration",
+	"Filter by static data": "Filter by static data",
+	"Data series is required": "Data series is required"
 }

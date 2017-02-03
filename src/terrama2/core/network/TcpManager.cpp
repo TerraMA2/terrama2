@@ -234,7 +234,7 @@ void terrama2::core::TcpManager::sendLog(const QByteArray& bytearray, QTcpSocket
     uint32_t end = static_cast<uint32_t>(jsonObject.value("end").toInt());
 
     QJsonArray logList;
-    for(const auto& value : idsArray)
+    for(auto value : idsArray)
     {
       auto processId = static_cast<ProcessId>(value.toInt());
 
@@ -254,7 +254,7 @@ void terrama2::core::TcpManager::sendLog(const QByteArray& bytearray, QTcpSocket
     }
 
     QJsonDocument doc(logList);
-    sendSignalSlot(TcpSignal::LOG_SIGNAL, doc);
+    sendSignalSlot(tcpSocket, TcpSignal::LOG_SIGNAL, doc);
   }
 }
 
@@ -284,6 +284,7 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
         //The message isn't complete, wait for next readReady signal
         return;
       }
+
       //Raii block
       RaiiBlock block(blockSize_);
       Q_UNUSED(block)
@@ -319,7 +320,7 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
 
           emit stopSignal();
 
-          sendSignalSlot(TcpSignal::TERMINATE_SERVICE_SIGNAL);
+          sendSignalSlot(tcpSocket, TcpSignal::TERMINATE_SERVICE_SIGNAL);
 
           emit closeApp();
 
@@ -362,7 +363,7 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
           auto jsonObj = ServiceManager::getInstance().status();
           jsonObj.insert("instance_id", static_cast<int>(serviceManager_->instanceId()));
           QJsonDocument doc(jsonObj);
-          sendSignalSlot(TcpSignal::STATUS_SIGNAL, doc);
+          sendSignalSlot(tcpSocket, TcpSignal::STATUS_SIGNAL, doc);
           break;
         }
         case TcpSignal::LOG_SIGNAL:
@@ -401,6 +402,8 @@ void terrama2::core::TcpManager::receiveConnection() noexcept
 
 //TODO: review if this is needed and if the older socket needs to be closed
     tcpSocket_ = tcpSocket;
+//    QObject::connect(tcpSocket_, static_cast<void(QAbstractSocket::*)(QAbstractSocket::SocketError)>(&QAbstractSocket::error),
+//        [=](QAbstractSocket::SocketError socketError){ TERRAMA2_LOG_ERROR() << QObject::tr("Unable to establish connection with server.\nQAbstractSocket::SocketError code: %1").arg(socketError); });
 
     connect(tcpSocket, &QTcpSocket::readyRead, this, [this, tcpSocket]() { readReadySlot(tcpSocket);}, Qt::QueuedConnection);
   }
@@ -417,17 +420,17 @@ void terrama2::core::TcpManager::sendProcessFinishedSlot(QJsonObject answer) noe
 {
   answer.insert("instance_id", static_cast<int>(serviceManager_->instanceId()));
   QJsonDocument doc(answer);
-  sendSignalSlot(TcpSignal::PROCESS_FINISHED_SIGNAL, doc);
+  sendSignalSlot(tcpSocket_, TcpSignal::PROCESS_FINISHED_SIGNAL, doc);
 }
 
 void terrama2::core::TcpManager::sendValidateProcessSlot(QJsonObject answer) noexcept
 {
   answer.insert("instance_id", static_cast<int>(serviceManager_->instanceId()));
   QJsonDocument doc(answer);
-  sendSignalSlot(TcpSignal::VALIDATE_PROCESS_SIGNAL, doc);
+  sendSignalSlot(tcpSocket_, TcpSignal::VALIDATE_PROCESS_SIGNAL, doc);
 }
 
-void terrama2::core::TcpManager::sendSignalSlot(TcpSignal signal, QJsonDocument answer) noexcept
+void terrama2::core::TcpManager::sendSignalSlot(QTcpSocket* tcpSocket, TcpSignal signal, QJsonDocument answer) noexcept
 {
   TERRAMA2_LOG_DEBUG() << QObject::tr("Sending signal information...");
 
@@ -448,7 +451,7 @@ void terrama2::core::TcpManager::sendSignalSlot(TcpSignal signal, QJsonDocument 
   out << static_cast<uint32_t>(bytearray.size() - sizeof(uint32_t));
 
   // wait while sending message
-  qint64 written = tcpSocket_->write(bytearray);
-  if(written == -1 || !tcpSocket_->waitForBytesWritten(30000))
-    TERRAMA2_LOG_WARNING() << QObject::tr("Unable to establish connection with server.");
+  qint64 written = tcpSocket->write(bytearray);
+  if(written == -1 || !tcpSocket->waitForBytesWritten(30000))
+    TERRAMA2_LOG_WARNING() << QObject::tr("Unable to write to server.");
 }

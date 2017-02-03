@@ -45,6 +45,13 @@ namespace terrama2
     {
       namespace core
       {
+
+        struct IntersectionAttribute
+        {
+          std::string attribute;
+          std::string alias;
+        };
+
         /*!
           \class Intersection
 
@@ -53,7 +60,7 @@ namespace terrama2
         struct Intersection
         {
           CollectorId collectorId; //!< Collector identifier.
-          std::map<DataSeriesId, std::vector<std::string> > attributeMap; //!< Map with the attributes of a DataSeries to be added to the collected data.
+          std::map<DataSeriesId, std::vector<IntersectionAttribute> > attributeMap; //!< Map with the attributes of a DataSeries to be added to the collected data.
         };
 
       } // end namespace core

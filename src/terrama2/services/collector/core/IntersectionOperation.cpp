@@ -59,6 +59,7 @@
 #include <terralib/memory/DataSetItem.h>
 #include <terralib/memory/DataSet.h>
 #include <terralib/geometry/GeometryProperty.h>
+#include <terralib/geometry/Utils.h>
 #include <terralib/vp/IntersectionOp.h>
 #include <terralib/vp/IntersectionMemory.h>
 #include <terralib/vp/Utils.h>
@@ -76,17 +77,17 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processInters
   for(auto it = attrMap.begin(); it != attrMap.end(); ++it)
   {
     DataSeriesId dataSeriesId = it->first;
-    std::vector<std::string> vecAttr = it->second;
+    std::vector<IntersectionAttribute> vecAttributes = it->second;
 
     auto intersectionDataSeries = dataManager->findDataSeries(dataSeriesId);
 
     if(intersectionDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::GEOMETRIC_OBJECT)
     {
-      collectedDataSetSeries = processVectorIntersection(dataManager, intersection, collectedDataSetSeries, vecAttr, intersectionDataSeries);
+      collectedDataSetSeries = processVectorIntersection(dataManager, intersection, collectedDataSetSeries, vecAttributes, intersectionDataSeries);
     }
     else if(intersectionDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::GRID)
     {
-      collectedDataSetSeries = processGridIntersection(dataManager, intersection, collectedDataSetSeries, vecAttr, intersectionDataSeries);
+      collectedDataSetSeries = processGridIntersection(dataManager, intersection, collectedDataSetSeries, vecAttributes, intersectionDataSeries);
     }
 
   }
@@ -98,7 +99,7 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processInters
 terrama2::core::DataSetSeries terrama2::services::collector::core::processVectorIntersection(DataManagerPtr dataManager,
     core::IntersectionPtr intersection,
     terrama2::core::DataSetSeries collectedDataSetSeries,
-    std::vector<std::string>& vecAttributes,
+    std::vector<IntersectionAttribute>& vecAttributes,
     terrama2::core::DataSeriesPtr intersectionDataSeries)
 {
 
@@ -153,6 +154,8 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
   // Reads data
   auto seriesMap = accessor->getSeries(filter, remover);
 
+  std::map<std::string, std::string> mapAlias;
+
   for(auto it = seriesMap.begin(); it != seriesMap.end(); ++it)
   {
     auto interDsType = it->second.teDataSetType;
@@ -160,21 +163,27 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
 
 
     std::vector<te::dt::Property*> interProperties;
-    for(std::string attr : vecAttributes)
+
+    for(auto intersectionAttribute : vecAttributes)
     {
-      std::string name = attr;
+      std::string name = intersectionAttribute.attribute;
+      mapAlias[intersectionAttribute.alias] = name;
 
       if(!it->second.teDataSetType)
+      {
         name = it->second.teDataSetType->getDatasetName() + "_" + name;
+      }
 
 
-      auto property = it->second.teDataSetType->getProperty(attr);
+      auto property = it->second.teDataSetType->getProperty(name);
       if(!property)
       {
-        QString errMsg(QObject::tr("Invalid attribute name (%1) for data series: %2").arg(attr.c_str()).arg(it->first->dataSeriesId));
+        QString errMsg(QObject::tr("Invalid attribute name (%1) for data series: %2").arg(name.c_str()).arg(it->first->dataSeriesId));
         TERRAMA2_LOG_ERROR() << errMsg;
         throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
       }
+
+      property->setName(intersectionAttribute.alias);
       interProperties.push_back(property);
 
     }
@@ -267,12 +276,12 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
           {
             std::string name = interProperties[j]->getName();
 
-            if(!interDsType->getName().empty())
-              name = te::vp::GetSimpleTableName(interDsType->getName()) + "_" + name;
-
-            if(!interDs->isNull(i, interProperties[j]->getName()))
+            std::string propName = mapAlias[name];
+            if(!interDs->isNull(i, propName))
             {
-              auto ad = interDs->getValue(i, interProperties[j]->getName());
+              auto ad = interDs->getValue(i, propName);
+              if(!ad)
+                continue;
               outputDs->move(report[k]);
               outputDs->setValue(name, dynamic_cast<te::dt::AbstractData*>(ad.get()->clone()));
             }
@@ -304,29 +313,27 @@ te::da::DataSetType* terrama2::services::collector::core::createDataSetType(te::
   for(size_t i = 0; i < collectedDSProperties.size(); ++i)
   {
     te::dt::Property* prop = collectedDSProperties[i]->clone();
-    if(!collectedDST->getName().empty())
-      prop->setName(prop->getName());
     outputDt->add(prop);
   }
 
   for(size_t i = 0; i < intersectionDSProperties.size(); ++i)
   {
     te::dt::Property* prop = intersectionDSProperties[i]->clone();
-    if(!intersectionDST->getName().empty())
-      prop->setName(te::vp::GetSimpleTableName(intersectionDST->getName()) + "_" + prop->getName());
     outputDt->add(prop);
   }
 
   return outputDt;
 }
 
-std::vector<int> terrama2::services::collector::core::getBands(std::vector<std::string> vecAttr)
+std::vector<int> terrama2::services::collector::core::getBands(std::vector<IntersectionAttribute>& vecAttributes)
 {
   std::vector<int> bands;
-  bands.reserve(vecAttr.size());
   try
   {
-    std::transform(vecAttr.cbegin(), vecAttr.cend(), back_inserter(bands), [](const std::string& val){ return std::stoi(val); });
+    for(auto& attr : vecAttributes)
+    {
+      bands.push_back(std::stoi(attr.attribute));
+    }
   }
   catch (const std::invalid_argument&)
   {
@@ -341,7 +348,7 @@ std::vector<int> terrama2::services::collector::core::getBands(std::vector<std::
 terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIntersection(DataManagerPtr dataManager,
     core::IntersectionPtr intersection,
     terrama2::core::DataSetSeries collectedDataSetSeries,
-    std::vector<std::string> vecAttr,
+    std::vector<IntersectionAttribute>& vecAttributes,
     terrama2::core::DataSeriesPtr intersectionDataSeries)
 {
   if(intersectionDataSeries->semantics.dataSeriesType != terrama2::core::DataSeriesType::GRID)
@@ -374,7 +381,7 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIn
   auto gridSeries = accessorGrid->getGridSeries(filter, remover);
   auto gridMap = gridSeries->gridMap();
 
-  std::vector<int> bands = getBands(vecAttr);
+  std::vector<int> bands = getBands(vecAttributes);
 
   std::vector<te::dt::Property*> collectedProperties = collectedDataSetType->getProperties();
   std::shared_ptr<te::da::DataSetType> outputDt{dynamic_cast<te::da::DataSetType*>(collectedDataSetType.get()->clone())};
@@ -437,7 +444,7 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIn
 
       // Gets the respective row and column for the occurrence coordinate
       double row, col;
-      te::gm::Coord2D coord = terrama2::core::GetCentroidCoord(currGeom.get());
+      te::gm::Coord2D coord = te::gm::GetCentroid(currGeom.get());
       double x = coord.getX();
       double y = coord.getY();
 

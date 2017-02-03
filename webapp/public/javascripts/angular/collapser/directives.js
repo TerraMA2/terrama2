@@ -6,16 +6,16 @@ define([], function() {
       /**
        * Angular isObject comparator
        */
-      isObject = angular.isObject;
+      var isObject = angular.isObject;
       /**
        * Angular isNumber comparator
        */
-      isNumber = angular.isNumber;
+      var isNumber = angular.isNumber;
 
       /**
        * Angular isArray comparator
        */
-      isArray = angular.isArray;
+      var isArray = angular.isArray;
 
     /**
      * A deep match object. It checks every key/object in target and match them from initial object.

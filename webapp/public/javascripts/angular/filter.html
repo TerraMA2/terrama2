@@ -24,6 +24,24 @@
           <terrama2-bounded-box ng-model="filter.area" is-required="filter.filterArea == filterTypes.AREA.value">
           </terrama2-bounded-box>
         </div>
+
+        <div class="col-md-12" ng-if="filter.filterArea == filterTypes.STATIC_DATA.value">
+          <form name="staticDataSeriesForm">
+            <div class="form-group" terrama2-show-errors>
+              <label>{{ i18n.__('Data Series') }}:</label>
+              <select class="form-control"
+                      id="filterStaticDataSeries"
+                      name="dataSeriesId"
+                      ng-model="filter.data_series_id"
+                      ng-required="filter.filterArea == filterTypes.STATIC_DATA.value"
+                      ng-options="v.id as v.name for (k, v) in staticDataSeriesList">
+              </select>
+              <span class='help-block' ng-show='staticDataSeriesForm.dataSeriesId.$dirty && staticDataSeriesForm.dataSeriesId.$error.required'>
+                {{ i18n.__('Data series is required') }}
+              </span>
+            </div>
+          </form>
+        </div>
       </div>
     </terrama2-box>
   </div>

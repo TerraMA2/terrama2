@@ -57,6 +57,16 @@ define([], function() {
      * @param {Object}
      */
     self.scheduleOptions = {};
+    /**
+     * It defines a helper messages associated a components. For example, there is no active service... The validate button will be disabled with
+     * tooltip "Service X is not active"
+     */
+    self.helperMessages = {
+      validate: {
+        error: null,
+        message: i18n.__('It performs Analysis Validation in order to check if it will able to generate a valid data series')
+      }
+    };
 
     /**
      * It defines a TerraMA² MessageBox Service for handling alert box
@@ -187,6 +197,15 @@ define([], function() {
          */
         self.identifier = "";
 
+        socket.on('statusResponse', function onServiceStatusResponse(response) {
+          self.helperMessages.validate.error = null;
+          if (response.checking === undefined || (!response.checking && response.status === 400)) {
+            if (!response.online) {
+              var service = Service.get(response.service);
+              self.helperMessages.validate.error = i18n.__("Service") + " '" + service.name + "' " + i18n.__("is not active");
+            }
+          }
+        });
         /**
          * Socket listener for script validation. It just display the script state in result div.
          * 
@@ -378,6 +397,14 @@ define([], function() {
           {name: "Dynamic", children: []}
         ];
 
+        self.onServiceChanged = onServiceChanged;
+
+        function onServiceChanged() {
+          if (self.analysis && self.analysis.instance_id) {
+            socket.emit("status", {service: self.analysis.instance_id});
+          }
+        }
+
         /**
          * It will re-map available data series in buffers (additional data) depending analysis type.
          * 
@@ -396,29 +423,33 @@ define([], function() {
 
           if (parseInt(self.analysis.type_id) === AnalysisService.types.GRID) {
             DataSeriesService.list().forEach(function(dSeries) {
-              var semantics = dSeries.data_series_semantics;
+              if(config.analysis.dataSeries === undefined || dSeries.id !== config.analysis.dataSeries.id) {
+                var semantics = dSeries.data_series_semantics;
 
-              if (semantics.temporality == globals.enums.TemporalityType.DYNAMIC){
-                dSeries.isDynamic = true;
-                self.buffers.dynamic.push(dSeries);
-              } else {
-                dSeries.isDynamic = false;
-                self.buffers.static.push(dSeries);
+                if (semantics.temporality === Globals.enums.TemporalityType.DYNAMIC){
+                  dSeries.isDynamic = true;
+                  self.buffers.dynamic.push(dSeries);
+                } else {
+                  dSeries.isDynamic = false;
+                  self.buffers.static.push(dSeries);
+                }
               }
             });
           } else {
             DataSeriesService.list().forEach(function(dSeries) {
-              var semantics = dSeries.data_series_semantics;
+              if(config.analysis.dataSeries === undefined || dSeries.id !== config.analysis.dataSeries.id) {
+                var semantics = dSeries.data_series_semantics;
 
-              if (semantics.temporality === globals.enums.TemporalityType.STATIC) {
-                // skip target data series in additional data
-                if (self.targetDataSeries && self.targetDataSeries.id !== dSeries.id) {
-                  dSeries.isDynamic = false;
-                  self.buffers.static.push(dSeries);
+                if (semantics.temporality === Globals.enums.TemporalityType.STATIC) {
+                  // skip target data series in additional data
+                  if (self.targetDataSeries && self.targetDataSeries.id !== dSeries.id) {
+                    dSeries.isDynamic = false;
+                    self.buffers.static.push(dSeries);
+                  }
+                } else {
+                  dSeries.isDynamic = true;
+                  self.buffers.dynamic.push(dSeries);
                 }
-              } else {
-                dSeries.isDynamic = true;
-                self.buffers.dynamic.push(dSeries);
               }
             });
           }
@@ -437,7 +468,7 @@ define([], function() {
          */
         self.hasDcp = function() {
           var found = self.selectedDataSeriesList.find(function(element) {
-                        return element.data_series_semantics.data_series_type_name === globals.enums.DataSeriesType.DCP;
+                        return element.data_series_semantics.data_series_type_name === Globals.enums.DataSeriesType.DCP;
                       });
           if (self.analysisHelperRestriction) {
             if (found) {
@@ -564,8 +595,7 @@ define([], function() {
             });
 
             return result.promise;
-
-          }
+          };
           
           //help function to parse a URI
           var getPostgisUriInfo = function(uri){
@@ -588,12 +618,12 @@ define([], function() {
             }
             
             return params;
-          }
+          };
 
           // filtering formats
           self.storagerFormats = [];
           DataSeriesSemanticsService.list().forEach(function(dSemantics) {
-            if(dSemantics.data_series_type_name === semanticsType && !dSemantics.collector && dSemantics.temporality === globals.enums.TemporalityType.DYNAMIC) {
+            if(dSemantics.data_series_type_name === semanticsType && !dSemantics.collector && dSemantics.temporality === Globals.enums.TemporalityType.DYNAMIC) {
               self.storagerFormats.push(Object.assign({}, dSemantics));
             }
           });
@@ -639,7 +669,7 @@ define([], function() {
 
             DataProviderService.list().forEach(function(dataProvider) {
               self.currentSemantics.metadata.demand.forEach(function(demand) {
-                if (demand != globals.enums.DataProviderType.FTP.name && dataProvider.data_provider_type.name == demand) {
+                if (demand != Globals.enums.DataProviderType.FTP.name && dataProvider.data_provider_type.name == demand) {
                   self.dataProviders.push(dataProvider);
                 }
               });
@@ -661,7 +691,7 @@ define([], function() {
           if (!element.collector) {
             semanticsListFiltered.push(element);
           }
-        })
+        });
 
         self.dataSeriesSemantics = semanticsListFiltered;
 
@@ -1044,10 +1074,14 @@ define([], function() {
                 MessageBoxService.danger(i18n.__("Analysis"), err.message);
               });
           } catch (e) {
-            MessageBoxService.danger(i18n.__("Analysis"), (err || {}).message);
+            MessageBoxService.danger(i18n.__("Analysis"), (e || {}).message);
             return;
           }
         };
+
+        $timeout(function waitAngularCondition() {
+          onServiceChanged();
+        });
       })
 
       .catch(function(err) {
@@ -1055,24 +1089,8 @@ define([], function() {
       });
   }
   // Injecting angular dependencies in controller
-  RegisterUpdateController.$inject = [
-    '$scope',
-    '$q',
-    '$log',
-    'i18n',
-    'Service',
-    'DataSeriesService',
-    'DataSeriesSemanticsService',
-    'AnalysisService',
-    'DataProviderService',
-    'Socket',
-    'DateParser',
-    'MessageBoxService',
-    'Polygon',
-    '$http',
-    '$window',
-    '$timeout'
-  ];
+  RegisterUpdateController.$inject = ['$scope', '$q', '$log', 'i18n', 'Service', 'DataSeriesService', 'DataSeriesSemanticsService', 'AnalysisService',
+                                      'DataProviderService', 'Socket', 'DateParser', 'MessageBoxService', 'Polygon', '$http', '$window', '$timeout'];
 
   return RegisterUpdateController;
 });

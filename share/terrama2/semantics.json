@@ -1,5 +1,6 @@
 [
   {
+    "id": 1,
     "name": "PostGIS occurrence",
     "code": "OCCURRENCE-postgis",
     "type": "OCCURRENCE",
@@ -20,6 +21,7 @@
     }
   },
   {
+    "id": 2,
     "name": "INPE's Wildland Fire Program",
     "code": "OCCURRENCE-wfp",
     "type": "OCCURRENCE",
@@ -47,7 +49,7 @@
           "mask": {
             "type": "string",
             "title": "Mask",
-            "pattern": "^([a-zA-Z*._]|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
+            "pattern": "^([\\w*.]+|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
           }
         },
         "required": ["mask"]
@@ -71,6 +73,7 @@
     }
   },
   {
+    "id": 3,
     "name": "Lightning occurrence",
     "code": "OCCURRENCE-lightning",
     "type": "OCCURRENCE",
@@ -83,7 +86,9 @@
       "latitude_property": "Latitude",
       "longitude_property": "Longitude",
       "timezone": "UTM+00",
-      "srid": "4326"
+      "srid": "4326",
+      "output_timestamp_property": "horario_gmt",
+      "output_geometry_property": "geom"
     },
     "collector": true,
     "gui": {
@@ -97,7 +102,7 @@
           "mask": {
             "type": "string",
             "title": "Mask",
-            "pattern": "^([a-zA-Z*._]|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
+            "pattern": "^([\\w*.]+|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
           }
         },
         "required": ["mask"]
@@ -121,6 +126,7 @@
     }
   },
   {
+    "id": 4,
     "name": "OGR static data file",
     "code": "STATIC_DATA-ogr",
     "type": "GEOMETRIC_OBJECT",
@@ -158,6 +164,7 @@
     }
   },
   {
+    "id": 5,
     "name": "PostGIS static data",
     "code": "STATIC_DATA-postgis",
     "type": "GEOMETRIC_OBJECT",
@@ -178,6 +185,7 @@
     }
   },
   {
+    "id": 6,
     "name": "Static GeoTIFF grid",
     "code": "GRID-static_geotiff",
     "type": "GRID",
@@ -218,6 +226,7 @@
     }
   },
   {
+    "id": 7,
     "name": "INPE's DCP data format",
     "code": "DCP-inpe",
     "type": "DCP",
@@ -240,7 +249,7 @@
           "mask": {
             "type": "string",
             "title": "Mask",
-            "pattern": "^([a-zA-Z0-9*._]|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
+            "pattern": "^([\\w*.]+|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
           },
           "alias": {
             "type": "string",
@@ -282,7 +291,10 @@
         {
           "key": "mask",
           "htmlClass": "col-md-6",
-          "copyValueTo": ["alias"]
+          "copyValueTo": ["alias"],
+          "validationMessage": {
+            "202": "Invalid mask"
+          }
         },
         {
           "key": "alias",
@@ -343,87 +355,9 @@
         }
       ]
     }
-  },
+  },  
   {
-    "name": "Generic CSV data format",
-    "code": "CSV-generic",
-    "type": "DCP",
-    "temporality": "DYNAMIC",
-    "format": "CSV",
-    "providers_type_list": ["FILE", "FTP"],
-    "metadata": {
-      "timestamp_property": "datetime"
-    },
-    "collector": true,
-    "gui": {
-        "schema": {
-            "properties": {
-                "folder": {
-                  "type": "string",
-                  "title": "Folder",
-                  "pattern": "^[^?#!$&'()*+,;=^§]+$"
-                },
-                "mask": {
-                  "type": "string",
-                  "title": "Mask",
-                  "pattern": "^([a-zA-Z*._]|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
-                },
-                "timezone": {
-                  "type": "string",
-                  "title": "Timezone"
-                },
-                "columns": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "column_number": {
-                                "type": "number",
-                                "title": "Column Number"
-                            },
-                            "column_alias": {
-                                "type": "string",
-                                "title": "Column Alias"
-                            },
-                            "column_type": {
-                                "type": "string",
-                                "title": "Column Type"
-                            }
-                        }
-                    }
-                },
-                "lines_skip":{
-                    "type": "string",
-                    "title": "Lines to skip",
-                    "pattern": "^[0-9]+(,[0-9]+)*$"
-                },
-                "data_format" : {
-                    "type": "string",
-                    "title": "Data Format"
-                },
-                "latitude": {
-                  "type": "number",
-                  "title": "Latitude"
-                },
-                "longitude": {
-                  "type": "number",
-                  "title": "Longitude"
-                },
-                "projection": {
-                  "type": "number",
-                  "title": "SRID"
-                },
-                "active": {
-                  "type": "boolean",
-                  "title": "Active",
-                  "default": true
-                },
-                "required": ["mask", "timezone", "latitude", "longitude", "projection"]
-            }
-        }
-    }
-  },
-  {
+	"id": 8,
     "name": "TOA5 DCP format",
     "code": "DCP-toa5",
     "type": "DCP",
@@ -447,7 +381,7 @@
           "mask": {
             "type": "string",
             "title": "Mask",
-            "pattern": "^([a-zA-Z*._]|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
+            "pattern": "^([\\w*.]+|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
           },
           "alias": {
             "type": "string",
@@ -555,6 +489,7 @@
     }
   },
   {
+    "id": 9,
     "name": "DCP PostGIS",
     "code": "DCP-postgis",
     "type": "DCP",
@@ -627,6 +562,7 @@
     }
   },
   {
+    "id": 10,
     "name": "Monitored object analysis result",
     "code": "ANALYSIS_MONITORED_OBJECT-postgis",
     "type": "ANALYSIS_MONITORED_OBJECT",
@@ -647,6 +583,7 @@
     }
   },
   {
+    "id": 11,
     "name": "GeoTIFF grid",
     "code": "GRID-geotiff",
     "type": "GRID",
@@ -667,7 +604,7 @@
           "mask": {
             "type": "string",
             "title": "Mask",
-            "pattern": "^([a-zA-Z\\d*._]|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
+            "pattern": "^([\\w*.]+|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
           },
           "timezone": {
             "type": "string",
@@ -724,6 +661,7 @@
     }
   },
   {
+    "id": 12,
     "name": "GrADS",
     "code": "GRID-grads",
     "type": "GRID",
@@ -866,8 +804,7 @@
         },
         {
           "key": "bytes_before",
-          "htmlClass": "col-md-3 terrama2-schema-form grads-form-item",
-          "condition": "model['number_of_bands'] > 1"
+          "htmlClass": "col-md-3 terrama2-schema-form grads-form-item"
         },
         {
           "key": "bytes_after",
@@ -892,6 +829,86 @@
           "condition": "model.temporal"
         }
       ]
+    }
+  },
+{
+	"id":13,
+    "name": "Generic CSV data format",
+    "code": "CSV-generic",
+    "type": "DCP",
+    "temporality": "DYNAMIC",
+    "format": "CSV",
+    "providers_type_list": ["FILE", "FTP"],
+    "metadata": {
+      "timestamp_property": "datetime"
+    },
+    "collector": true,
+    "gui": {
+        "schema": {
+            "properties": {
+                "folder": {
+                  "type": "string",
+                  "title": "Folder",
+                  "pattern": "^[^?#!$&'()*+,;=^§]+$"
+                },
+                "mask": {
+                  "type": "string",
+                  "title": "Mask",
+                  "pattern": "^([a-zA-Z*._]|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
+                },
+                "timezone": {
+                  "type": "string",
+                  "title": "Timezone"
+                },
+                "columns": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "column_number": {
+                                "type": "number",
+                                "title": "Column Number"
+                            },
+                            "column_alias": {
+                                "type": "string",
+                                "title": "Column Alias"
+                            },
+                            "column_type": {
+                                "type": "string",
+                                "title": "Column Type"
+                            }
+                        }
+                    }
+                },
+                "lines_skip":{
+                    "type": "string",
+                    "title": "Lines to skip",
+                    "pattern": "^[0-9]+(,[0-9]+)*$"
+                },
+                "data_format" : {
+                    "type": "string",
+                    "title": "Data Format"
+                },
+                "latitude": {
+                  "type": "number",
+                  "title": "Latitude"
+                },
+                "longitude": {
+                  "type": "number",
+                  "title": "Longitude"
+                },
+                "projection": {
+                  "type": "number",
+                  "title": "SRID"
+                },
+                "active": {
+                  "type": "boolean",
+                  "title": "Active",
+                  "default": true
+                },
+                "required": ["mask", "timezone", "latitude", "longitude", "projection"]
+            }
+        }
     }
   }
 ]
