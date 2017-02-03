@@ -1,0 +1,25 @@
+#!/bin/sh
+
+npm install bower -g
+npm install grunt -g
+npm install pm2 -g
+
+(
+  cd @TERRAMA2_DESTINATION@webapp
+  npm install
+  bower install --allow-root
+  grunt
+)
+
+(
+  cd @TERRAMA2_DESTINATION@webcomponents
+  npm install
+  bower install --allow-root
+  grunt
+)
+
+(
+  cd @TERRAMA2_DESTINATION@webmonitor
+  npm install
+  bower install --allow-root
+)
