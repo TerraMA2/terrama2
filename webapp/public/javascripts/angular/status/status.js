@@ -12,6 +12,7 @@ define([
     function($scope, $HttpTimeout, Socket, i18n, $window, MessageBoxService) {
       var Globals = $window.globals;
       var config = $window.configuration;
+      $scope.logSize = 0;
       $scope.i18n = i18n;
       $scope.globals = Globals;
       $scope.MessageBoxService = MessageBoxService;
@@ -138,7 +139,7 @@ define([
       function handleProcessFinished(response) {
         $scope.socket.emit('log', {
           begin: 0,
-          end: 2
+          end: 20
         });
         MessageBoxService.info(i18n.__("Process"), i18n.__("Process") + " " + response.name + " " + i18n.__("finished"));
       }
@@ -179,11 +180,15 @@ define([
               output = element;
               return true;
             }
-          })
+          });
           return output;
         };
 
+        // length
+        var size = 0;
+
         logArray.forEach(function(logProcess) {
+          size += logProcess.log.length;
           logProcess.log.forEach(function(logMessage) {
             var out = {
               date: moment(logMessage.last_process_timestamp.split('.')[0], "YYYY-MMM-DD hh:mm:ss").subtract(currentOffSet/60, 'hours'),
@@ -267,11 +272,14 @@ define([
         for (var key in $scope.groupedModel){
           $scope.groupedModel[key] =  $scope.groupedModel[key].sort(function(a,b) {return (a.date > b.date) ? -1 : ((b.date > a.date) ? 1 : 0);} );
         }
+
+        $scope.logSize = size;
       });
+      
 
       $scope.socket.emit('log', {
         begin: 0,
-        end: 2
+        end: 20
       });
 
       if(config.parameters.message !== undefined && config.parameters.message !== null && config.parameters.message !== "") {

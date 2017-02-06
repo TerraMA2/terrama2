@@ -111,7 +111,6 @@ define([], function() {
         }
         i++;
       }
-      console.log(pages);
       return pages;
     }
 

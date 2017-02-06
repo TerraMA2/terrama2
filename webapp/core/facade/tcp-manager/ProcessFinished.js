@@ -30,17 +30,28 @@
   ProcessFinished.handle = function(response) {
     var self = this;
     return new PromiseClass(function(resolve, reject) {
-      var handler = null;
       // retrieving service instance
       return DataManager.getServiceInstance({id: response.instance_id})
         .then(function(service) {
+          var handler = null;
+          var output = {};
           switch(service.service_type_id) {
             case ServiceType.ANALYSIS:
             case ServiceType.COLLECTOR:
               handler = self.retrieveProcessFinished(service, response);
               break;
             case ServiceType.VIEW:
-              handler = self.handleRegisteredViews(response);
+              /**
+               * When a service is view, we must both prepare registered view and notify GUI interface about process finished in order to retrieve a new log
+               */
+              handler = self.handleRegisteredViews(response)
+                            .then(function(registeredView) {
+                              output.view = registeredView;
+                              return;
+                            })
+                            .finally(function() {
+                              return self.retrieveProcessFinished(service, response);
+                            });
               break;
             default:
               throw new ServiceTypeError(Utils.format("Invalid instance id %s", response.instance_id));
@@ -48,11 +59,8 @@
 
           return handler
             .then(function(handlerResult) {
-              return resolve(handlerResult);
-            })
-            // on Error
-            .catch(function(err) {
-              return reject(err);
+              output.process = handlerResult;
+              return resolve(output);
             });
         })
         // on any error
@@ -97,7 +105,7 @@
               })
               .catch(_handleUnexpectedError);
           }
-          _handleUnexpectedError(err);
+          return _handleUnexpectedError(err);
         })
         // Once everything OK, resolve promise chain
         .tap(function(output) {

@@ -647,16 +647,18 @@ function onServiceVersionReceived(service, response) {
  * It emits a signal depending Process. 
  * If service is View, it emits #viewReceived with the registered view object.
  * 
- * @param {RegisteredView|Object} resp - any object
+ * @param {Object} resp - Process Object
+ * @param {any} resp.process - Process Metadata
+ * @param {RegisteredView?} resp.view - TerraMA² Registered View
  * @returns {void}
  */
 function onProcessFinished(resp) {
   // broadcast to everyone
-  if (resp instanceof RegisteredView) {
+  if (resp.view && resp.view instanceof RegisteredView) {
     tcpService.emit("viewReceived", resp);
-  } else {
-    tcpService.emit("processFinished", resp);
-  }
+  } 
+  // Notifies that process finished
+  tcpService.emit("processFinished", resp.process);
 }
 
 /**
@@ -693,7 +695,8 @@ function onLogReceived(service, response) {
           status: 200,
           logs: response,
           service_type: service.service_type_id,
-          service: service.name
+          service: service.name,
+          length: response.length
         });
       });
   } else {
@@ -701,7 +704,8 @@ function onLogReceived(service, response) {
       status: 200,
       logs: response,
       service_type: service.service_type_id,
-      service: service.name
+      service: service.name,
+      length: response.length
     });
   }
 }

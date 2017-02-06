@@ -195,11 +195,13 @@ TcpManager.prototype.removeData = function(serviceInstance, data) {
  * 
  * @param {ServiceInstance} serviceInstance - a terrama2 service instance
  * @param {Object} data - a javascript object message to send
+ * @param {number} data.begin - Begin interval to retrieve
+ * @param {number} data.end - End interval to retrieve
+ * @param {boolean?} force - Flag to force retrieve a value from C++ Services. Default: false
  */
-TcpManager.prototype.logData = function(serviceInstance, data) {
+TcpManager.prototype.logData = function(serviceInstance, data, force) {
   var self = this;
   try {
-
     // checking if there are active connections
     if (Object.keys(clients).length === 0) {
       throw new Error("There is no client to log request. Start services in Admin Dashboard");
@@ -212,9 +214,6 @@ TcpManager.prototype.logData = function(serviceInstance, data) {
       self.emit('tcpError', client.service, new Error("There is no active connection"));
       return;
     }
-
-    var begin = data.begin;
-    var end = data.end;
 
     var array = [];
     switch (client.service.service_type_id) {
@@ -232,20 +231,19 @@ TcpManager.prototype.logData = function(serviceInstance, data) {
         return;
     }
 
-    // checking server cache
-    if (array.length > 0 && end <= array[0].length) {
-      self.emit('logReceived', client.service, array[0].slice(begin, end));
-      return;
+    if (array.length === 0) {
+      // request all
+      var buffer = self.makebuffer(Signals.LOG_SIGNAL, data);
+
+      // requesting for log
+      client.log(buffer);
+    } else {
+      var begin = data.begin;
+      var end = data.end;
+
+      // checking server cache
+      self.emit('logReceived', client.service, array[0].slice(begin, end), array.length);
     }
-
-    var buffer = self.makebuffer(Signals.LOG_SIGNAL, data);
-
-    logger.debug("Buffer: ", buffer);
-    logger.debug("BufferToString: ", buffer.toString());
-
-    // requesting for log
-    client.log(buffer);
-
   } catch (e) {
     this.emit('tcpError', serviceInstance, new Error("Could not send data LOG_SIGNAL to service", e));
   }
@@ -434,7 +432,7 @@ TcpManager.prototype.initialize = function(client) {
       });
     }
 
-    self.emit('logReceived', client.service, response);
+    self.emit('logReceived', client.service, response, target.length);
   };
 
   /**
@@ -443,8 +441,13 @@ TcpManager.prototype.initialize = function(client) {
    */
   var onProcessFinished = function(response) {
     if (Utils.isObject(response)) {
-        // checking Save/Update registered View
-        // TODO: check it
+      /**
+       * Retrieving last log process.
+       * TODO: In order to avoid TCP traffic, should keep another cache and performs after X time or something like that?
+       */
+      logger.debug(Utils.format("%s finished. Retrieving LOG Process finished in order to keep in cache", client.service.name));
+      self.logData(client.service, {begin: 0, end: 1}, true);
+
       return ProcessFinished.handle(response)
         .then(function(targetProcess) {
           self.emit("processFinished", targetProcess);
