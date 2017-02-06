@@ -195,12 +195,6 @@ terrama2::services::view::core::Serialization::readVectorialStyleXML(const std::
 }
 
 
-static bool compareByNumericValue(const terrama2::services::view::core::View::Legend::Rule& a,
-                                  const terrama2::services::view::core::View::Legend::Rule& b)
-{
-  return std::stol(a.value) < std::stol(b.value);
-}
-
 void terrama2::services::view::core::Serialization::writeCoverageStyleGeoserverXML(const View::Legend legend,
                                                                                    const std::string path)
 {
@@ -248,8 +242,19 @@ void terrama2::services::view::core::Serialization::writeCoverageStyleGeoserverX
 
   writer->writeAttribute("type", classifyType);
 
-  std::vector< View::Legend::Rule > rules = legend.rules;
-  std::sort(rules.begin(), rules.end(), compareByNumericValue);
+  std::vector< View::Legend::Rule > rules;
+
+  for(auto& rule : legend.rules)
+  {
+    if(!rule.isDefault)
+    {
+      rules.push_back(rule);
+      continue;
+    }
+    // TODO: add default value in style
+  }
+
+  std::sort(rules.begin(), rules.end(), View::Legend::Rule::compareByNumericValue);
 
   for(auto& rule : rules)
   {

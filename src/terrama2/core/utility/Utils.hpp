@@ -134,8 +134,6 @@ namespace terrama2
     */
     std::string simplifyString(std::string text);
 
-    te::gm::Coord2D GetCentroidCoord(te::gm::Geometry* geom);
-
     /*!
       \brief Returns the value for the "is_temporal" property of the given dataset.
     */

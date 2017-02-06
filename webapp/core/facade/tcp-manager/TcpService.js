@@ -363,8 +363,6 @@ TcpService.prototype.status = function(json) {
 
       .then(function() {
         return resolve();
-      })
-
       }).catch(function(err) {
         logger.debug(err);
         self.emit("serviceError", {
@@ -374,6 +372,7 @@ TcpService.prototype.status = function(json) {
         });
         return reject(err);
       });
+  });
 }; // end client status listener
 
 /**

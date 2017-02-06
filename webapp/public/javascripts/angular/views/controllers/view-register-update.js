@@ -5,7 +5,7 @@ define([], function() {
    * It represents a Controller to handle View form registration.
    * @class ViewRegistration
    */
-  function ViewRegisterUpdate($scope, i18n, ViewService, $log, $http, $timeout, MessageBoxService, $window, DataSeriesService, Service, StringFormat, ColorFactory) {
+  function ViewRegisterUpdate($scope, i18n, ViewService, $log, $http, $timeout, MessageBoxService, $window, DataSeriesService, Service, StringFormat, ColorFactory, StyleType) {
     /**
      * @type {ViewRegisterUpdate}
      */
@@ -92,6 +92,28 @@ define([], function() {
     self.css = {
       boxType: "box-solid"
     };
+
+    self.hasStyle = false;
+
+    self.styleButtons = {
+      circle: {
+        show: function () {
+          return !self.hasStyle;
+        },
+        click: function() {
+          self.hasStyle = true;
+        }
+      },
+      minus: {
+        show: function () {
+          return self.hasStyle;
+        },
+        click: function() {
+          self.hasStyle = false;
+          self.legend = {};
+        }
+      } 
+    };
     /**
      * It contains view instance values
      * @type {Object}
@@ -123,10 +145,10 @@ define([], function() {
      */
     $http.get("/api/DataProviderType", {}).then(function(response) {
       var data = response.data;
-      // Setting HTTP default syntax
-      self.httpSyntax = data.find(function(element) {
-        return element.name === "HTTP";
-      });
+
+      if (config.view.legend) {
+        self.hasStyle = true;
+      }
 
       /**
        * Retrieve all service instances
@@ -139,7 +161,6 @@ define([], function() {
          */
         return DataSeriesService.init({schema: "all"}).then(function(dataSeries) {
           //Filter data series to not show dcp - remove when back implements dcp creation view
-          // self.dataSeries = dataSeries.filter(function(dS){return dS.data_series_semantics.data_series_type_name !== "DCP"; });
           self.dataSeries = dataSeries;
 
           var styleCache = config.view.style;
@@ -148,27 +169,36 @@ define([], function() {
             self.onDataSeriesChanged(self.view.data_series_id);
 
             var legend = config.view.legend;
-            self.legend.operation_id = legend.operation_id;
-            self.legend.type = legend.type;
-            self.legend.column = legend.column;
-            self.legend.band_number = legend.band_number;
-            self.legend.colors = legend.colors;
-            self.legend.bands = legend.colors.length - 1;
+            if (legend && Object.keys(legend).length !== 0) {
+              self.legend.operation_id = legend.operation_id;
+              self.legend.type = legend.type;
 
-            // notify component to refil begin/end
-            $scope.$broadcast("updateStyleColor");
+              if (legend.type !== StyleType.VALUE) {
+                legend.colors.forEach(function(color) {
+                  if (!color.isDefault) {
+                    color.value = parseFloat(color.value);
+                  }
+                });
+              }
+
+              self.legend.colors = legend.colors;
+              self.legend.bands = legend.colors.length - 1;
+              if (legend.metadata && legend.metadata.band_number) {
+                legend.metadata.band_number = parseInt(legend.metadata.band_number);
+              }
+              self.legend.metadata = legend.metadata;
+
+              // notify component to refil begin/end
+              $timeout(function() {
+                $scope.$broadcast("updateStyleColor");
+              });
+            }
           }
           /**
            * Configuring Schema form http. This sentence is important because child controller may be not initialized yet.
            * Using $timeout 0 forces to execute when angular ready state is OK.
            */
           $timeout(function() {
-            $scope.schema = {
-              type: "object",
-              properties: self.httpSyntax.properties,
-              required: self.httpSyntax.required || []
-            };
-
             if (self.isUpdating) {
               self.schedule = {};
               $scope.$broadcast("updateSchedule", self.view.schedule || {});
@@ -180,10 +210,6 @@ define([], function() {
                 }
               }
             }
-
-            $scope.form = self.httpSyntax.display ? self.httpSyntax.display : ["*"];
-
-            $scope.$broadcast('schemaFormRedraw');
           });
         });
       });
@@ -260,45 +286,60 @@ define([], function() {
         $scope.$apply(function() {
           if ($scope.forms.viewForm.$invalid || 
             $scope.forms.dataSeriesForm.$invalid ||
-            $scope.forms.styleForm.$invalid) {
+            $scope.forms.styleForm && $scope.forms.styleForm.$invalid) {
             return;
           }
 
-          if (!self.legend.colors || self.legend.colors.length === 0) {
-            return MessageBoxService.danger(i18n.__("View"), i18n.__("You must generate the style colors to classify Data Series"));
+          if (Object.keys(self.legend).length !== 0) {
+            if (!self.legend.colors || self.legend.colors.length === 0) {
+              return MessageBoxService.danger(i18n.__("View"), i18n.__("You must generate the style colors to classify Data Series"));
+            }
+            for(var i = 0; i < self.legend.colors.length; ++i) {
+              var colorIt = self.legend.colors[i];
+              if (colorIt.isDefault) {
+                continue;
+              }
+              for(var j = i + 1; j < self.legend.colors.length; ++j) {
+                if (self.legend.colors[j].value == colorIt.value) {
+                  return MessageBoxService.danger(i18n.__("View"), i18n.__("The colors must have unique values"));
+                }
+              }
+            }
           }
 
           // If dynamic, schedule validation is required
           if (self.isDynamic) {
-            /**
-             * @todo Implement Angular ScheduleService to handle it, since is common on dynamic data series and analysis registration.
-             */
-            var scheduleForm = angular.element('form[name="scheduleForm"]').scope()['scheduleForm'];
-            // form validation
-            if (scheduleForm.$invalid) {
-              return;
-            }
+            if (self.view.schedule && Object.keys(self.view.schedule).length !== 0) {
+              /**
+               * @todo Implement Angular ScheduleService to handle it, since is common on dynamic data series and analysis registration.
+               */
+              var scheduleForm = angular.element('form[name="scheduleForm"]').scope()['scheduleForm'];
+              // form validation
+              if (scheduleForm.$invalid) {
+                return;
+              }
 
-            // preparing schedule.  
-            var scheduleValues = self.view.schedule;
-            switch(scheduleValues.scheduleHandler) {
-              case "seconds":
-              case "minutes":
-              case "hours":
-                scheduleValues.frequency_unit = scheduleValues.scheduleHandler;
-                scheduleValues.frequency_start_time = scheduleValues.frequency_start_time ? scheduleValues.frequency_start_time.toISOString() : "";
-                break;
-              case "weeks":
-              case "monthly":
-              case "yearly":
-                // todo: verify
-                var dt = scheduleValues.schedule_time;
-                scheduleValues.schedule_unit = scheduleValues.scheduleHandler;
-                scheduleValues.schedule_time = moment(dt).format("HH:mm:ss");
-                break;
+              // preparing schedule.  
+              var scheduleValues = self.view.schedule;
+              switch(scheduleValues.scheduleHandler) {
+                case "seconds":
+                case "minutes":
+                case "hours":
+                  scheduleValues.frequency_unit = scheduleValues.scheduleHandler;
+                  scheduleValues.frequency_start_time = scheduleValues.frequency_start_time ? scheduleValues.frequency_start_time.toISOString() : "";
+                  break;
+                case "weeks":
+                case "monthly":
+                case "yearly":
+                  // todo: verify
+                  var dt = scheduleValues.schedule_time;
+                  scheduleValues.schedule_unit = scheduleValues.scheduleHandler;
+                  scheduleValues.schedule_time = moment(dt).format("HH:mm:ss");
+                  break;
 
-              default:
-                break;
+                default:
+                  break;
+              }
             }
           } // end if isDynamic
 
@@ -323,7 +364,7 @@ define([], function() {
   }
 
   ViewRegisterUpdate.$inject = ["$scope", "i18n", "ViewService", "$log", "$http", "$timeout", "MessageBoxService", "$window", 
-    "DataSeriesService", "Service", "StringFormat", "ColorFactory"];
+    "DataSeriesService", "Service", "StringFormat", "ColorFactory", "StyleType"];
 
   return ViewRegisterUpdate;
 });

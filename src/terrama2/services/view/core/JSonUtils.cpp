@@ -62,7 +62,7 @@ QJsonObject terrama2::services::view::core::toJson(ViewPtr view)
 
   obj.insert("dataseries_id", static_cast<int32_t>(view->dataSeriesID));
 
-  obj.insert("legend", toJson(view->legend));
+  obj.insert("legend", toJson(*view->legend.get()));
 
   return obj;
 }
@@ -104,7 +104,15 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
 
   view->dataSeriesID = dataseriesID;
 
-  view->legend = fromLegendJson(json["legend"].toObject());
+  if(!json["legend"].isNull())
+  {
+    view->legend.reset(fromLegendJson(json["legend"].toObject()));
+  }
+  else
+  {
+    if(view->legend)
+      view->legend.release();
+  }
 
   view->schedule = terrama2::core::fromScheduleJson(json["schedule"].toObject());
 
@@ -117,7 +125,7 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
   return viewPtr;
 }
 
-terrama2::services::view::core::View::Legend terrama2::services::view::core::fromLegendJson(QJsonObject json)
+terrama2::services::view::core::View::Legend* terrama2::services::view::core::fromLegendJson(QJsonObject json)
 {
   if(json["class"].toString() != "ViewStyleLegend")
   {
@@ -128,8 +136,7 @@ terrama2::services::view::core::View::Legend terrama2::services::view::core::fro
 
   if(!json.contains("type")
      || !json.contains("operation_id")
-     || !json.contains("band_number")
-     || !json.contains("column")
+     || !json.contains("metadata")
      || !json.contains("colors"))
   {
     QString errMsg = QObject::tr("Invalid View Legend JSON object.");
@@ -137,13 +144,24 @@ terrama2::services::view::core::View::Legend terrama2::services::view::core::fro
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
 
-  View::Legend legend;
+  View::Legend* legend = new View::Legend();
 
-  legend.operation = View::Legend::OperationType(json["operation_id"].toInt());
-  legend.classify = View::Legend::ClassifyType(json["type"].toInt());
+  legend->operation = View::Legend::OperationType(json["operation_id"].toInt());
+  legend->classify = View::Legend::ClassifyType(json["type"].toInt());
 
-  legend.band_number = static_cast<uint32_t>(json["band_number"].toInt());
-  legend.column = json["column"].toString().toStdString();
+  auto metadataObj= json["metadata"].toObject();
+
+  if(metadataObj.isEmpty())
+  {
+    QString errMsg = QObject::tr("Invalid View Legend JSON object: Empty metadada!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
+  }
+
+  for(auto it = metadataObj.begin(); it != metadataObj.end(); ++it)
+  {
+    legend->metadata.emplace(it.key().toStdString(), it.value().toString().toStdString());
+  }
 
   for(auto color : json["colors"].toArray())
   {
@@ -156,7 +174,7 @@ terrama2::services::view::core::View::Legend terrama2::services::view::core::fro
     c.color = obj["color"].toString().toStdString();
     c.isDefault = obj["isDefault"].toBool();
 
-    legend.rules.push_back(c);
+    legend->rules.push_back(c);
   }
 
   return legend;
@@ -168,8 +186,15 @@ QJsonObject terrama2::services::view::core::toJson(View::Legend legend)
   obj.insert("class", QString("ViewStyleLegend"));
   obj.insert("type", static_cast<int32_t>(legend.classify));
   obj.insert("operation_id", static_cast<int32_t>(legend.operation));
-  obj.insert("band_number", static_cast<int32_t>(legend.band_number));
-  obj.insert("column", QString::fromStdString(legend.column));
+
+  QJsonObject metadataObj;
+
+  for(const auto& metadata : legend.metadata)
+  {
+    metadataObj.insert(QString::fromStdString(metadata.first), QString::fromStdString(metadata.second));
+  }
+
+  obj.insert("metadata", metadataObj);
 
   QJsonArray rules;
 

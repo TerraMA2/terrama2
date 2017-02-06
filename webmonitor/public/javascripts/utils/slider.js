@@ -51,3 +51,30 @@ $("#terrama2-layerexplorer").on("click", "#terrama2-slider-mask", function(event
     sliderContent.hide();
 
 });
+
+
+/**
+ * Triggered when user clicks on TerraMA² Slider in Layers Menu - temporary
+ * 
+ * @param {Event}
+ */
+
+$("#terrama2-sortlayers").on("click", "#terrama2-opacity-slider", function(event) {
+  
+  var self = $(this);
+  var parentLi = $(self).parent();
+  var parentId = $(parentLi).attr("data-layerid");
+  var actualOpacity = TerraMA2WebComponents.MapDisplay.getLayerOpacity(parentId) * 100;
+  setOpacitySlider(parentId, actualOpacity);
+
+});
+
+
+$("#terrama2-sortlayers").on("click", "button[class~='close-slider']", function(e) {
+  $(this).parent().hide();
+});
+
+var changeLayerOpacity = function(layerId, opacityValue){
+  
+  TerraMA2WebComponents.MapDisplay.updateLayerOpacity(layerId, opacityValue/100);
+}
