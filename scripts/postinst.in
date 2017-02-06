@@ -1,8 +1,11 @@
 #!/bin/sh
 
+#
+# Install web dependencies
+#
+
 npm install bower -g
 npm install grunt -g
-npm install pm2 -g
 
 (
   cd @TERRAMA2_DESTINATION@webapp
@@ -22,4 +25,32 @@ npm install pm2 -g
   cd @TERRAMA2_DESTINATION@webmonitor
   npm install
   bower install --allow-root
+)
+
+#
+# Install and configure pm2
+#
+
+# Check if pm2 is already installed
+npm list pm2 -g
+ret = $?
+if [[ $rc != 0 ]]; then
+  # Install pm2
+  npm install pm2 -g
+  # Allows the service to start with the system
+  env PATH=$PATH:/usr/local/bin pm2 startup
+fi
+
+# Add webapp to pm2 startup
+(
+  cd @TERRAMA2_DESTINATION@webapp
+  pm2 start bin/www --name webapp
+  pm2 save
+)
+
+# Add webmonitor to pm2 startup
+(
+  cd @TERRAMA2_DESTINATION@webmonitor
+  pm2 start bin/www --name webmonitor
+  pm2 save
 )

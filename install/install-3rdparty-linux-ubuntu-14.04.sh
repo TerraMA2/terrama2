@@ -167,6 +167,14 @@ fi
 sudo npm install -g bower
 valid $? "Error: could not install bower"
 
+
+#
+# Npm PM2 Globally
+#
+sudo npm install -g pm2
+valid $? "Error: could not install pm2"
+
+
 #
 # Python
 #
