@@ -184,11 +184,8 @@ define([
           return output;
         };
 
-        // length
-        var size = 0;
-
         logArray.forEach(function(logProcess) {
-          size += logProcess.log.length;
+          $scope.logSize += logProcess.log.length;
           logProcess.log.forEach(function(logMessage) {
             var out = {
               date: moment(logMessage.last_process_timestamp.split('.')[0], "YYYY-MMM-DD hh:mm:ss").subtract(currentOffSet/60, 'hours'),
@@ -272,8 +269,6 @@ define([
         for (var key in $scope.groupedModel){
           $scope.groupedModel[key] =  $scope.groupedModel[key].sort(function(a,b) {return (a.date > b.date) ? -1 : ((b.date > a.date) ? 1 : 0);} );
         }
-
-        $scope.logSize = size;
       });
       
 

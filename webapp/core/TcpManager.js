@@ -231,7 +231,7 @@ TcpManager.prototype.logData = function(serviceInstance, data, force) {
         return;
     }
 
-    if (array.length === 0) {
+    if (array.length === 0 || force === true) {
       // request all
       var buffer = self.makebuffer(Signals.LOG_SIGNAL, data);
 
@@ -242,7 +242,7 @@ TcpManager.prototype.logData = function(serviceInstance, data, force) {
       var end = data.end;
 
       // checking server cache
-      self.emit('logReceived', client.service, array[0].slice(begin, end), array.length);
+      self.emit('logReceived', client.service, array.slice(begin, end), array.length);
     }
   } catch (e) {
     this.emit('tcpError', serviceInstance, new Error("Could not send data LOG_SIGNAL to service", e));
@@ -419,13 +419,13 @@ TcpManager.prototype.initialize = function(client) {
     }
 
     if (target.length === 0) {
-      target.push(response);
+      Array.prototype.push.apply(target, response);
     } else {
       target.forEach(function(cachedLog) {
         // cachedLog.process_id
         response.some(function(logRetrieved) {
           if (cachedLog.process_id === logRetrieved.process_id) {
-            cachedLog.log.push.apply(logRetrieved.log);
+            Array.prototype.push.apply(cachedLog.log, logRetrieved.log);
             return true;
           }
         });
@@ -446,7 +446,7 @@ TcpManager.prototype.initialize = function(client) {
        * TODO: In order to avoid TCP traffic, should keep another cache and performs after X time or something like that?
        */
       logger.debug(Utils.format("%s finished. Retrieving LOG Process finished in order to keep in cache", client.service.name));
-      self.logData(client.service, {begin: 0, end: 1}, true);
+      self.logData(client.service, {begin: 0, end: 1, process_ids: [response.process_id]}, true);
 
       return ProcessFinished.handle(response)
         .then(function(targetProcess) {
