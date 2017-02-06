@@ -33,8 +33,7 @@ npm install grunt -g
 
 # Check if pm2 is already installed
 npm list pm2 -g
-ret=$?
-if [[ ${ret} != 0 ]]; then
+if [ $? != 0 ]; then
   # Install pm2
   npm install pm2 -g
   # Allows the service to start with the system
