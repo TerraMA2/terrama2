@@ -52,7 +52,7 @@ namespace terrama2
 
         virtual ~DataAccessorTxtFile() = default;
 
-        virtual std::shared_ptr<te::dt::TimeInstantTZ> readFile(DataSetSeries& series, std::shared_ptr<te::mem::DataSet>& completeDataset, std::shared_ptr<te::da::DataSetTypeConverter>& converter, QFileInfo fileInfo, const std::string& mask, terrama2::core::DataSetPtr dataSet) const override;
+        //virtual std::shared_ptr<te::dt::TimeInstantTZ> readFile(DataSetSeries& series, std::shared_ptr<te::mem::DataSet>& completeDataset, std::shared_ptr<te::da::DataSetTypeConverter>& converter, QFileInfo fileInfo, const std::string& mask, terrama2::core::DataSetPtr dataSet) const override;
 
         virtual std::string dataSourceType() const override { return "OGR"; }
 
@@ -63,9 +63,27 @@ namespace terrama2
         static DataAccessorPtr make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries);
 
       protected:
-        QFileInfo filterTxt(QFileInfo& fileInfo, QTemporaryFile& tempFile, DataSetPtr dataSet) const;
+        //QFileInfo filterTxt(QFileInfo& fileInfo, QTemporaryFile& tempFile, DataSetPtr dataSet) const;
 
         virtual void adapt(DataSetPtr dataset, std::shared_ptr<te::da::DataSetTypeConverter> converter) const override;
+
+        std::vector<std::tuple< std::vector<std::string>, std::string, int>> getFields(DataSetPtr dataSet) const;
+
+      private:
+
+        te::dt::AbstractData* stringToTimestamp(te::da::DataSet* dataset,
+                                                const std::vector<std::size_t>& indexes,
+                                                int /*dstType*/,
+                                                const std::string& timezone) const;
+
+        //! Name of column with latitude information
+        std::string getLatitudePropertyName(DataSetPtr dataSet) const;
+
+        //! Name of column with longitude information
+        std::string getLongitudePropertyName(DataSetPtr dataSet) const;
+
+        //! Convert string to Geometry
+        te::dt::AbstractData* stringToPoint(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int dstType, const Srid& srid) const;
     };
   }
 }

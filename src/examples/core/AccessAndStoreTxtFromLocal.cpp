@@ -52,19 +52,7 @@ int main(int argc, char* argv[])
   dataSet->format.emplace("timezone", "+00");
   dataSet->format.emplace("lines_skip", "2,4");
 
-  terrama2::core::DataSetDcp::Field field1;
-  field1.number = 0;
-  field1.alias = "primeira";
-  field1.type = "datetime";
 
-  dataSet->fields.push_back(field1);
-
-  terrama2::core::DataSetDcp::Field field2;
-  field2.number = 1;
-  field2.alias = "segunda";
-  field2.type = "text";
-
-  dataSet->fields.push_back(field2);
 
   dataSeries->datasetList.emplace_back(dataSet);
 

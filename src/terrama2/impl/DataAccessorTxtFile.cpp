@@ -30,9 +30,12 @@
 // TerraMA2
 #include "DataAccessorTxtFile.hpp"
 #include "../core/data-model/DataSetDcp.hpp"
+#include "../core/utility/Utils.hpp"
+#include "../core/utility/Logger.hpp"
 
 // TerraLib
 #include <terralib/datatype/DateTimeProperty.h>
+#include <terralib/geometry/GeometryProperty.h>
 
 //QT
 #include <QUrl>
@@ -40,10 +43,13 @@
 #include <QSet>
 #include <QTemporaryFile>
 
+// Boost
+#include <boost/bind.hpp>
+
 // STL
 #include <fstream>
 
-
+/*
 std::shared_ptr<te::dt::TimeInstantTZ> terrama2::core::DataAccessorTxtFile::readFile(DataSetSeries& series, std::shared_ptr<te::mem::DataSet>& completeDataset, std::shared_ptr<te::da::DataSetTypeConverter>& converter, QFileInfo fileInfo, const std::string& mask, terrama2::core::DataSetPtr dataSet) const
 {
   QTemporaryFile tempFile;
@@ -155,26 +161,150 @@ QFileInfo terrama2::core::DataAccessorTxtFile::filterTxt(QFileInfo& fileInfo, QT
   return QFileInfo(tempFile.fileName());
 }
 
-
+*/
 terrama2::core::DataAccessorPtr terrama2::core::DataAccessorTxtFile::make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries)
 {
   return std::make_shared<DataAccessorTxtFile>(dataProvider, dataSeries);
 }
 
-void terrama2::core::DataAccessorTxtFile::adapt(DataSetPtr dataset, std::shared_ptr<te::da::DataSetTypeConverter> converter) const
+void terrama2::core::DataAccessorTxtFile::adapt(DataSetPtr dataSet, std::shared_ptr<te::da::DataSetTypeConverter> converter) const
 {
+  std::vector<std::tuple< std::vector<std::string>, std::string, int>> fields;
+
+  size_t lonPos = std::numeric_limits<size_t>::max();
+  size_t latPos = std::numeric_limits<size_t>::max();
+
   //Find the rigth column to adapt
   std::vector<te::dt::Property*> properties = converter->getConvertee()->getProperties();
   for(size_t i = 0, size = properties.size(); i < size; ++i)
   {
     te::dt::Property* property = properties.at(i);
 
-    if(property->getName() == getTimestampPropertyName(dataset))
-    {/*
-      te::dt::DateTimeProperty* dtProperty = new te::dt::DateTimeProperty("DateTime", te::dt::TIME_INSTANT_TZ);
-      // datetime column found
-      converter->add(i, dtProperty, boost::bind(&terrama2::core::DataAccessorDcpToa5::stringToTimestamp, this, _1, _2, _3, getTimeZone(dataset)));
-      continue;*/
+    for(auto& field : fields)
+    {
+      std::string& propertyName = std::get<0>(field).at(0);
+
+      if(propertyName == property->getName())
+      {
+        std::string alias = std::get<1>(field);
+        int type = std::get<2>(field);
+
+        if(alias.empty())
+          alias = terrama2::core::simplifyString(property->getName());
+
+        te::dt::SimpleProperty* newProperty = new te::dt::SimpleProperty(alias, type);
+
+        switch (type)
+        {
+          case te::dt::GEOMETRY_TYPE:
+            delete newProperty;
+            newProperty = new te::dt::SimpleProperty(alias, te::dt::DOUBLE_TYPE);
+
+            converter->add(i, newProperty, boost::bind(&terrama2::core::DataAccessor::stringToDouble, this, _1, _2, _3));
+
+            if(property->getName() == getLatitudePropertyName(dataSet))
+              latPos = i;
+            else if(property->getName() == getLongitudePropertyName(dataSet))
+              lonPos = i;
+
+            break;
+          case te::dt::DOUBLE_TYPE:
+            converter->add(i, newProperty, boost::bind(&terrama2::core::DataAccessor::stringToDouble, this, _1, _2, _3));
+            break;
+          case te::dt::UINT32_TYPE:
+            converter->add(i, newProperty, boost::bind(&terrama2::core::DataAccessor::stringToInt, this, _1, _2, _3));
+            break;
+          case te::dt::DATETIME_TYPE:
+            converter->add(i, newProperty, boost::bind(&terrama2::core::DataAccessorTxtFile::stringToTimestamp, this, _1, _2, _3, getTimeZone(dataSet)));
+            break;
+          default:
+            converter->add(i,property->clone());
+            break;
+        }
+      }
     }
   }
+
+  if(latPos != std::numeric_limits<size_t>::max() &&
+     lonPos != std::numeric_limits<size_t>::max())
+  {
+    std::vector<size_t> latLonAttributes;
+    latLonAttributes.push_back(lonPos);
+    latLonAttributes.push_back(latPos);
+
+    Srid srid = getSrid(dataSet);
+
+    te::gm::GeometryProperty* geomProperty = new te::gm::GeometryProperty("point", srid, te::gm::PointType);
+
+    converter->add(latLonAttributes, geomProperty, boost::bind(&terrama2::core::DataAccessorTxtFile::stringToPoint, this, _1, _2, _3, srid));
+  }
+}
+
+
+te::dt::AbstractData* terrama2::core::DataAccessorTxtFile::stringToTimestamp(te::da::DataSet* dataset,
+                                                                             const std::vector<std::size_t>& indexes,
+                                                                             int /*dstType*/,
+                                                                             const std::string& timezone) const
+{
+  assert(indexes.size() == 1);
+
+  try
+  {
+    std::string dateTime = dataset->getAsString(indexes[0]);
+
+    boost::posix_time::ptime boostDate(boost::posix_time::time_from_string(dateTime));
+
+    boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(timezone));
+    boost::local_time::local_date_time date(boostDate.date(), boostDate.time_of_day(), zone, true);
+
+    te::dt::TimeInstantTZ* dt = new te::dt::TimeInstantTZ(date);
+
+    return dt;
+  }
+  catch(std::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << e.what();
+  }
+  catch(boost::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
+  }
+  catch(...)
+  {
+    TERRAMA2_LOG_ERROR() << "Unknown error";
+  }
+
+  return nullptr;
+}
+
+std::string terrama2::core::DataAccessorTxtFile::getLatitudePropertyName(DataSetPtr dataSet) const
+{
+  return getProperty(dataSet, dataSeries_, "latitude_property");
+}
+
+std::string terrama2::core::DataAccessorTxtFile::getLongitudePropertyName(DataSetPtr dataSet) const
+{
+  return getProperty(dataSet, dataSeries_, "longitude_property");
+}
+
+te::dt::AbstractData* terrama2::core::DataAccessorTxtFile::stringToPoint(te::da::DataSet* dataset,
+                                                                         const std::vector<std::size_t>& indexes,
+                                                                         int dstType,
+                                                                         const Srid& srid) const
+{
+  assert(dataset);
+  assert(indexes.size() == 2);
+
+  te::dt::AbstractData* point = te::da::XYToPointConverter(dataset, indexes, dstType);
+  static_cast<te::gm::Point*>(point)->setSRID(srid);
+
+  return point;
+}
+
+std::vector<std::tuple< std::vector<std::string>, std::string, int>>
+terrama2::core::DataAccessorTxtFile::getFields(DataSetPtr dataSet) const
+{
+  std::vector<std::tuple< std::vector<std::string>, std::string, int>> fields;
+
+  return fields;
 }

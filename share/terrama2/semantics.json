@@ -355,9 +355,9 @@
         }
       ]
     }
-  },  
+  },
   {
-	"id": 8,
+    "id": 8,
     "name": "TOA5 DCP format",
     "code": "DCP-toa5",
     "type": "DCP",
@@ -831,8 +831,8 @@
       ]
     }
   },
-{
-	"id":13,
+  {
+    "id": 13,
     "name": "Generic CSV data format",
     "code": "CSV-generic",
     "type": "DCP",
@@ -854,7 +854,7 @@
                 "mask": {
                   "type": "string",
                   "title": "Mask",
-                  "pattern": "^([a-zA-Z*._]|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
+                  "pattern": "^([\\w*.]+|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
                 },
                 "timezone": {
                   "type": "string",
@@ -865,7 +865,7 @@
                     "items": {
                         "type": "object",
                         "properties": {
-                            "column_number": {
+                            "column_name": {
                                 "type": "number",
                                 "title": "Column Number"
                             },
