@@ -60,11 +60,12 @@ namespace terrama2
         */
         enum Status
         {
-          ERROR       = 1, /*!< Error during process */
-          START       = 2, /*!< The process started */
-          DOWNLOADED  = 3, /*!< The data was downloaded */
+          ERROR       = 1,  /*!< Error during process */
+          START       = 2,  /*!< The process started */
+          DOWNLOADED  = 3,  /*!< The data was downloaded */
           DONE        = 4,  /*!< Process finished */
-          ON_QUEUE    = 5  /*!< When the process is added to the waiting queue */
+          ON_QUEUE    = 5,  /*!< When the process is added to the waiting queue */
+          INTERRUPTED = 6   /*!< When the process was interrupted and could not be finished */
         };
 
         /*!
@@ -159,6 +160,19 @@ namespace terrama2
          * \return Returns the process ID
          */
         virtual ProcessId processID(const RegisterId registerId) const;
+
+        /*!
+         * \brief Alter the registers in log, based in a condition
+         * \param whereCondition The where of the query
+         */
+        virtual void update(std::string& column, std::string& value, std::string& whereCondition) const;
+
+        /*!
+         * \brief Alter the status of the registers in log
+         * \param oldStatus The list of status to change
+         * \param newStatus The status to set in register
+         */
+        virtual void updateStatus(std::vector<Status> oldStatus, Status newStatus) const;
 
         void internalClone(std::shared_ptr<terrama2::core::ProcessLogger> loggerCopy) const;
         virtual std::shared_ptr<ProcessLogger> clone() const { return nullptr; }
