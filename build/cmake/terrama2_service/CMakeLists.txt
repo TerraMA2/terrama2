@@ -78,4 +78,6 @@ install(TARGETS terrama2_service
 install(FILES ${TERRAMA2_HDR_FILES}
 DESTINATION ${TERRAMA2_DESTINATION_HEADERS}/terrama2/services COMPONENT devel)
 
+install(CODE "execute_process(COMMAND sudo ln -sf ${CMAKE_INSTALL_PREFIX}/bin/terrama2_service /usr/bin/terrama2_service)")
+
 export(TARGETS terrama2_service APPEND FILE ${CMAKE_BINARY_DIR}/terrama2-exports.cmake)
