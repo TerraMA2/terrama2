@@ -163,7 +163,7 @@ if(CPACK_GENERATOR MATCHES "DEB")
   set(CPACK_DEBIAN_PACKAGE_NAME "terrama2")
   # set(CPACK_DEBIAN_PACKAGE_NAME "terrama2-@TERRAMA2_VERSION_STRING@-@TERRAMA2_PKG_ARCHITECTURE@")
 
-  set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.3.1-6), libgcc1 (>= 1:3.4.2-12), terralib-5.2.0 (= 5.2.0), nodejs (>= 4.7.0), libquazip0 (>= 0.6), build-essential, screen")
+  set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.3.1-6), libgcc1 (>= 1:3.4.2-12), terralib-5.2.0 (= 5.2.0), nodejs (>= 4.7.0), libquazip0 (>= 0.6), build-essential, git, screen")
 
   set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Gilberto Ribeiro de Queiroz (gribeiro@dpi.inpe.br)")
 
