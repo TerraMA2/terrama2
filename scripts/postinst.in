@@ -16,6 +16,7 @@ npm install grunt -g
 
 (
   cd @TERRAMA2_DESTINATION@webcomponents
+  npm install
   grunt
 )
 
