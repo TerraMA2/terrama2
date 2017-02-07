@@ -472,7 +472,7 @@ void terrama2::core::ProcessLogger::update(std::string& column, std::string& val
   std::string sql ="UPDATE " + tableName_ +
                    " SET " + column + " = " + value +
                    " WHERE " + whereCondition;
-std::cout << sql << std::endl;
+
   std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();
   transactor->execute(sql);
   transactor->commit();
