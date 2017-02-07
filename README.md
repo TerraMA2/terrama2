@@ -78,23 +78,9 @@ If you want to build yourself TerraMA² then you need to install some third-part
 
 ## Web Application and Components Dependencies
 
+All the web application dependencies and install steps you can find in: https://github.com/TerraMA2/terrama2/tree/master/webapp#terrama-webapp.
+
 The file named **[DEPENDENCIES](https://github.com/TerraMA2/terrama2/blob/master/DEPENDENCIES)** in the root of TerraMA² source tree contains the official list of third-party libraries and tools that you must install before building TerraMA² from source.
-
-If you want to build yourself TerraMA² then you need to install some third-party libraries. Below we show the list of third-party libraries dependencies and its versions:
-- **Node.js (Mandatory):** Node.js is a JavaScript runtime for server side scripts. Make sure you have version 4.2.6 LTS installed. You can download it from: https://nodejs.org.
-
-- **AdminLTE (Mandatory):** TerraMA² web front-end is built on top of AdminLTE web template. You can download it from: https://github.com/almasaeed2010/AdminLTE.
-
-- **Bootstrap (Mandatory):** TerraMA² web front-end is built on top of Bootstrap. You can download it from: http://getbootstrap.com.
-
-- **Chart.js (Mandatory):** Chart.js is an HTML5 based framework for drawing charts. You can download it from: http://www.chartjs.org.
-
-- **DataTables (Mandatory):** DataTables is a table plugin for jQuery. It is available at: http://www.datatables.net.
-
-- **jQuery (Mandatory):** jQuery is a JavaScript library for handling HTML document elements. Make sure to have at least version 2.1.4. It is available at: https://jquery.com.
-
-- **AngularJS (Mandatory):** AngularJS is a SuperHeroic javascript MTW framework for handling client side application. Make sure to have at least version 1.5.0. It is available at: https://angularjs.org/.
-
 
 ### Bash script for building all dependencies on Linux Ubuntu 14.04
 
@@ -190,6 +176,7 @@ We have the following branches:
 - **b-4.0.0-alpha4:** Views service and web-monitoring module
 - **b-4.0.0-alpha5:** General review of the interface and analysis
 - **b-4.0.0-alpha6:** Review of grid operators and Monitored Object forecast operators
+- **b-4.0.0-alpha7:** Analysis validation and filter by static data
 
 
 To switch to one of the branches listed above, use the checkout command and create a local branch to track the remote branch. The syntax of "git checkout" is:

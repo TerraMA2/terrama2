@@ -259,6 +259,10 @@ bootstrap-decorator span {
   cursor: pointer !important;
 }
 
+.enable-button {
+  cursor: pointer !important;
+}
+
 .loading-button {
   background-image: url(../images/loader.gif);
   background-size: 25px;

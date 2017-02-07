@@ -37,6 +37,8 @@
 #include <terrama2/services/view/core/JSonUtils.hpp>
 #include <terrama2/core/utility/TimeUtils.hpp>
 
+// STD
+#include <algorithm>
 
 void TsJsonUtils::testToJSon()
 {
@@ -62,15 +64,17 @@ void TsJsonUtils::testToJSon()
     rule.color = "#000000";
     rule.isDefault = true;
 
-    terrama2::services::view::core::View::Legend legend;
+    terrama2::services::view::core::View::Legend* legend = new terrama2::services::view::core::View::Legend();
 
-    legend.operation = terrama2::services::view::core::View::Legend::OperationType::VALUE;
-    legend.classify = terrama2::services::view::core::View::Legend::ClassifyType::RAMP;
-    legend.band_number = 0;
-    legend.column = "";
-    legend.rules.push_back(rule);
+    legend->operation = terrama2::services::view::core::View::Legend::OperationType::VALUE;
+    legend->classify = terrama2::services::view::core::View::Legend::ClassifyType::RAMP;
 
-    view->legend = legend;
+    legend->metadata.emplace("band_number", "0");
+    legend->metadata.emplace("column", "");
+
+    legend->rules.push_back(rule);
+
+    view->legend.reset(legend);
 
     // Schedule
     terrama2::core::Schedule schedule;
@@ -133,15 +137,17 @@ void TsJsonUtils::testGoNBackJSon()
     rule.color = "#000000";
     rule.isDefault = true;
 
-    terrama2::services::view::core::View::Legend legend;
+    terrama2::services::view::core::View::Legend* legend = new terrama2::services::view::core::View::Legend();
 
-    legend.operation = terrama2::services::view::core::View::Legend::OperationType::VALUE;
-    legend.classify = terrama2::services::view::core::View::Legend::ClassifyType::RAMP;
-    legend.band_number = 0;
-    legend.column = "";
-    legend.rules.push_back(rule);
+    legend->operation = terrama2::services::view::core::View::Legend::OperationType::VALUE;
+    legend->classify = terrama2::services::view::core::View::Legend::ClassifyType::RAMP;
 
-    view->legend = legend;
+    legend->metadata.emplace("band_number", "0");
+    legend->metadata.emplace("column", "");
+
+    legend->rules.push_back(rule);
+
+    view->legend.reset(legend);
 
     // Schedule
     terrama2::core::Schedule schedule;
@@ -179,19 +185,22 @@ void TsJsonUtils::testGoNBackJSon()
 
     QCOMPARE(viewBackPtr->dataSeriesID, viewPtr->dataSeriesID);
 
-    QCOMPARE(viewBackPtr->legend.operation, viewPtr->legend.operation);
-    QCOMPARE(viewBackPtr->legend.classify, viewPtr->legend.classify);
-    QCOMPARE(viewBackPtr->legend.band_number, viewPtr->legend.band_number);
-    QCOMPARE(viewBackPtr->legend.column, viewPtr->legend.column);
+    QCOMPARE(viewBackPtr->legend->operation, viewPtr->legend->operation);
+    QCOMPARE(viewBackPtr->legend->classify, viewPtr->legend->classify);
 
-    QCOMPARE(viewBackPtr->legend.rules.size(), viewPtr->legend.rules.size());
+    QCOMPARE(viewBackPtr->legend->metadata.size(), viewPtr->legend->metadata.size());
 
-    for(uint i = 0; i < viewBackPtr->legend.rules.size(); i++)
+    if(!std::equal(viewBackPtr->legend->metadata.begin(), viewBackPtr->legend->metadata.end(), viewPtr->legend->metadata.begin()))
+      QFAIL("Fail!");
+
+    QCOMPARE(viewBackPtr->legend->rules.size(), viewPtr->legend->rules.size());
+
+    for(uint i = 0; i < viewBackPtr->legend->rules.size(); i++)
     {
-      QCOMPARE(viewBackPtr->legend.rules.at(i).title, viewPtr->legend.rules.at(i).title);
-      QCOMPARE(viewBackPtr->legend.rules.at(i).value, viewPtr->legend.rules.at(i).value);
-      QCOMPARE(viewBackPtr->legend.rules.at(i).color, viewPtr->legend.rules.at(i).color);
-      QCOMPARE(viewBackPtr->legend.rules.at(i).isDefault, viewPtr->legend.rules.at(i).isDefault);
+      QCOMPARE(viewBackPtr->legend->rules.at(i).title, viewPtr->legend->rules.at(i).title);
+      QCOMPARE(viewBackPtr->legend->rules.at(i).value, viewPtr->legend->rules.at(i).value);
+      QCOMPARE(viewBackPtr->legend->rules.at(i).color, viewPtr->legend->rules.at(i).color);
+      QCOMPARE(viewBackPtr->legend->rules.at(i).isDefault, viewPtr->legend->rules.at(i).isDefault);
     }
 
     // TODO: enable when convert filter/json is implemented

@@ -54,7 +54,10 @@
 
 //STL
 #include <cmath>
+#include <boost/accumulators/accumulators.hpp>
+#include <boost/accumulators/statistics.hpp>
 
+using namespace boost::accumulators;
 
 terrama2::services::analysis::core::AnalysisType terrama2::services::analysis::core::ToAnalysisType(uint32_t type)
 {
@@ -263,43 +266,20 @@ double terrama2::services::analysis::core::getValue(terrama2::core::Synchronized
 
 void terrama2::services::analysis::core::calculateStatistics(std::vector<double>& values, OperatorCache& cache)
 {
-  if(values.size() == 0)
+  if(values.empty())
     return;
 
-  for(const double& value : values)
-  {
-    cache.sum += value;
-
-    if(value < cache.min)
-      cache.min = value;
-
-    if(value > cache.max)
-      cache.max = value;
-  }
+  accumulator_set<double, stats<tag::min, tag::sum, tag::max, tag::mean, tag::variance, tag::median> > acc;
+  acc = std::for_each(values.begin(), values.end(), acc);
 
   cache.count = values.size();
-  cache.mean = cache.sum / cache.count;
-  std::sort(values.begin(), values.end());
-  double half = values.size() / 2;
-  if(values.size() > 1 && values.size() % 2 == 0)
-  {
-    cache.median = (values[(int) half] + values[(int) half - 1]) / 2.;
-  }
-  else
-  {
-    cache.median = values.size() == 1 ? values[0] : 0.;
-  }
-
-  // calculates the variance
-  double sumVariance = 0.;
-  for(const double& value : values)
-  {
-    double diff = value - cache.mean;
-    sumVariance += diff*diff;
-  }
-
-  cache.variance = sumVariance / cache.count;
-  cache.standardDeviation = std::sqrt(cache.variance);
+  cache.sum = sum(acc);
+  cache.mean = mean(acc);
+  cache.min = min(acc);
+  cache.max = max(acc);
+  cache.median = median(acc);
+  cache.variance = variance(acc);
+  cache.standardDeviation = std::sqrt(variance(acc));
 }
 
 

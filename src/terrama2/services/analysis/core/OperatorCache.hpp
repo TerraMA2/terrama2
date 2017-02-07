@@ -59,8 +59,8 @@ namespace terrama2
           int32_t row = -1; //!< Output raster row.
           int32_t column = -1; //!< Output raster column.
           double sum = 0; //!< Result of the sum.
-          double max = std::numeric_limits<double>::min(); //!< Maximum value.
-          double min = std::numeric_limits<double>::max(); //!< Minimum value.
+          double max = 0; //!< Maximum value.
+          double min = 0; //!< Minimum value.
           double median = 0; //!< Median value.
           double mean = 0; //!< Mean value.
           double standardDeviation = 0; //!< Standard deviation value.

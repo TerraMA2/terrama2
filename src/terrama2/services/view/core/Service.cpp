@@ -159,8 +159,7 @@ void terrama2::services::view::core::Service::removeView(ViewId viewId) noexcept
                                        [viewId](const terrama2::core::ExecutionPackage& executionPackage)
                                        { return viewId == executionPackage.processId; }), processQueue_.end());
 
-    auto itWaitQueue = waitQueue_.find(viewId);
-    waitQueue_.erase(itWaitQueue);
+    waitQueue_.erase(viewId);
 
 
     TERRAMA2_LOG_INFO() << tr("View %1 removed successfully.").arg(viewId);
@@ -289,6 +288,9 @@ void terrama2::services::view::core::Service::viewJob(const terrama2::core::Exec
     if(logId != 0)
       logger->log(ViewLogger::ERROR_MESSAGE, errMsg, logId);
   }
+
+  if(logId != 0)
+    logger->result(ViewLogger::ERROR, terrama2::core::TimeUtils::nowUTC(), logId);
 
   sendProcessFinishedSignal(viewId, false);
   notifyWaitQueue(viewId);

@@ -30,7 +30,17 @@ define([], function () {
     self.StyleOperation = StyleOperation;
     self.StyleType = StyleType;
     self.i18n = i18n;
+    self.styleTypes = [];
+    // Function bindings
     self.generate = generateColors;
+    self.typeFilter = typeFilter;
+
+    // digesting StyleType enum into array
+    for(var k in StyleType) {
+      if (StyleType.hasOwnProperty(k)) {
+        self.styleTypes.push({name: k, value: StyleType[k]});
+      }
+    }
 
     var defaultColorOpts = {
       format: "hex",
@@ -67,9 +77,23 @@ define([], function () {
     }
 
     /**
+     * It performs a filter iteration on StyleTypes in order to show/hide specific elements with custom restrictions.
+     * @returns {any}
+     */
+    function typeFilter(item) {
+      if (!(self.type !== self.DataSeriesType.GRID && item.value === StyleType.RAMP)) {
+        return item;
+      }
+    }
+
+    /**
      * It generate colors arrays and store in ctrl.colors
      */
     function generateColors() {
+      if (!self.model || !self.model.bands || self.model.bands < 2) {
+        $scope.$broadcast("formFieldValidation", self.formCtrl);
+        return;
+      }
       var colorsArr = ColorFactory.generateColor(self.model.beginColor, self.model.endColor, self.model.bands + 1).reverse();
       for (var i = 1; i < colorsArr.length; ++i) {
         colorsArr[i] = { title: i18n.__("Color") + " " + i, color: colorsArr[i], value: i, isDefault: false };
@@ -79,7 +103,7 @@ define([], function () {
         title: i18n.__("Default"),
         color: firstColor,
         isDefault: true,
-        value: 0
+        value: ""
       };
 
       self.model.colors = colorsArr;
