@@ -211,7 +211,7 @@ TcpManager.prototype.logData = function(serviceInstance, data, force) {
 
     // checking first attempt when there is no active socket (listing services)
     if (!client.isOpen()) {
-      self.emit('tcpError', client.service, new Error("There is no active connection"));
+      self.emit('error', client.service, new Error("There is no active connection"));
       return;
     }
 
@@ -232,6 +232,9 @@ TcpManager.prototype.logData = function(serviceInstance, data, force) {
     }
 
     if (array.length === 0 || force === true) {
+      while(array.length > 0) {
+        array.pop();
+      }
       // request all
       var buffer = self.makebuffer(Signals.LOG_SIGNAL, data);
 
@@ -425,7 +428,7 @@ TcpManager.prototype.initialize = function(client) {
         // cachedLog.process_id
         response.some(function(logRetrieved) {
           if (cachedLog.process_id === logRetrieved.process_id) {
-            Array.prototype.push.apply(cachedLog.log, logRetrieved.log);
+            Array.prototype.unshift.apply(cachedLog.log, logRetrieved.log);
             return true;
           }
         });

@@ -297,7 +297,11 @@ TcpService.prototype.run = function(processObject) {
     delete processObject.service_instance;
     return DataManager.getServiceInstance({id: service})
       .then(function(instance) {
+        // Forcing a process to run
         TcpManager.startProcess(instance, processObject);
+        // Retrieving log status of process (STARTED/ON_QUEUED, etc)
+        TcpManager.logData(instance, {begin: 0, end: 0, process_ids: processObject.ids}, true);
+        // Notify children listeners the process has been scheduled
         self.emit("processRun", processObject);
         return resolve();
       })
