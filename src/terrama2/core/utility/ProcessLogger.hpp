@@ -60,12 +60,13 @@ namespace terrama2
         */
         enum Status
         {
-          ERROR       = 1,  /*!< Error during process */
-          START       = 2,  /*!< The process started */
-          DOWNLOADED  = 3,  /*!< The data was downloaded */
-          DONE        = 4,  /*!< Process finished */
-          ON_QUEUE    = 5,  /*!< When the process is added to the waiting queue */
-          INTERRUPTED = 6   /*!< When the process was interrupted and could not be finished */
+          ERROR         = 1,  /*!< Error during process */
+          START         = 2,  /*!< The process started */
+          DOWNLOADED    = 3,  /*!< The data was downloaded */
+          DONE          = 4,  /*!< Process finished */
+          ON_QUEUE      = 5,  /*!< When the process is added to the waiting queue */
+          INTERRUPTED   = 6,  /*!< When the process was interrupted and could not be finished */
+          NOT_EXECUTED  = 7   /*!< When the process  */
         };
 
         /*!

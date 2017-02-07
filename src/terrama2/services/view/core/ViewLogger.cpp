@@ -67,9 +67,17 @@ std::shared_ptr<terrama2::core::ProcessLogger> terrama2::services::view::core::V
 
 void terrama2::services::view::core::ViewLogger::checkConsistency() const
 {
-  std::vector<ViewLogger::Status> oldStatus;
-  oldStatus.push_back(ViewLogger::START);
-  oldStatus.push_back(ViewLogger::ON_QUEUE);
+  {
+    std::vector<ViewLogger::Status> oldStatus;
+    oldStatus.push_back(ViewLogger::START);
 
-  updateStatus(oldStatus, ViewLogger::INTERRUPTED);
+    updateStatus(oldStatus, ViewLogger::INTERRUPTED);
+  }
+
+  {
+    std::vector<ViewLogger::Status> oldStatus;
+    oldStatus.push_back(ViewLogger::ON_QUEUE);
+
+    updateStatus(oldStatus, ViewLogger::NOT_EXECUTED);
+  }
 }
