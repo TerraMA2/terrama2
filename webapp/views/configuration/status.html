@@ -45,7 +45,7 @@
 
         <terrama2-table-header link="linkToAdd"></terrama2-table-header>
 
-        <terrama2-table-view expression="element in filteredModel = (model | filter:searchInput) | orderBy: '-date' | paginatorLimit: 10 track by $index">
+        <terrama2-table-view expression="element in filteredModel = (model | filter:searchInput) | orderBy: '-date' | paginatorLimit: statusPerPage track by $index">
           <terrama2-td title="{{ i18n.__('Status') }}">
             <img ng-src="{{ iconFn(element) }}" alt="" width="24" height="24">
           </terrama2-td>
@@ -67,7 +67,7 @@
         </terrama2-table-view>
 
         <div class="col-md-offset-4 col-md-6 col-xs-12">
-          <terrama2-paginator max-pages="10" size="logSize" on-change=""></terrama2-paginator>
+          <terrama2-paginator max-pages="10" size="logSize" on-change="onPageChanged(currentPage, previousPage);"></terrama2-paginator>
         </div>
       </div>
 

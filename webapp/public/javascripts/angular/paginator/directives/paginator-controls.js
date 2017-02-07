@@ -53,15 +53,29 @@ define([], function() {
        */
       self.$paginator = PaginatorService;
       self.$paginator.setDataLength($scope.size);
+      self.range = {
+        lower: 1,
+        upper: 1,
+        total: 1
+      };
 
       self.$maxPages = $scope.maxPages;
       var paginationRange = Math.max($scope.maxPages, 5);
 
       $scope.$watch("size", function watchSize(value) {
-        console.log("Value ", value);
         if (value) {
+          paginationRange = Math.max($scope.maxPages, 5);
+          generatePagination();
           self.$paginator.setDataLength(value);
           self.pages = self.$paginator.generatePages(paginationRange);
+        }
+      });
+
+      $scope.$watch("maxPages", function watchMaxPage(value) {
+        if (value) {
+          self.$maxPages = value;
+          paginationRange = Math.max(self.$maxPages, 5);
+          generatePagination();
         }
       });
 
@@ -72,6 +86,17 @@ define([], function() {
           goTo(currentPage);
         }
       });
+
+      function generatePagination() {
+        var page = PaginatorService.currentPage();
+        self.pages = PaginatorService.generatePages(paginationRange);
+        var last = self.pages[self.pages.length - 1];
+        if (last < page) {
+          setCurrent(last);
+        } else {
+          updateRangeValues();
+        }
+      }
       /**
        * It defines page number handlers and dispatchs to Parent module via function bindings
        * 
@@ -81,10 +106,20 @@ define([], function() {
         var old = self.$paginator.currentPage();
         self.pages = self.$paginator.generatePages(paginationRange);
         setCurrent(pageNumber);
+        updateRangeValues();
 
         if ($scope.onChange) {
           $scope.onChange({currentPage: pageNumber, previousPage: old});
         }
+      }
+
+      function updateRangeValues() {
+        var page = PaginatorService.currentPage();
+        var itemsPerPage = PaginatorService.itemsPerPage();
+        var totalItems = PaginatorService.sizeOfArray();
+        self.range.lower = (page - 1) * itemsPerPage + 1;
+        self.range.upper = Math.min(page * itemsPerPage, totalItems);
+        self.range.total = totalItems;
       }
 
       if (!$scope.maxPages) {

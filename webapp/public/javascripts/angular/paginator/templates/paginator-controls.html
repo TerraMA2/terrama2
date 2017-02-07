@@ -5,9 +5,9 @@
   <li ng-class="{ disabled : $ctrl.$paginator.currentPage() === 1 }">
     <a href="" ng-click="$ctrl.$paginator.currentPage() > 1 && $ctrl.setCurrent($ctrl.$paginator.currentPage() - 1)">&lsaquo;</a>
   </li>
-  <li ng-repeat="pageNumber in $ctrl.pages" 
+  <li ng-repeat="pageNumber in $ctrl.pages track by $index" 
       ng-class="{'active': $ctrl.$paginator.currentPage() === pageNumber, 'disabled': pageNumber === '...'}">
-    <a href="javascript::void();" ng-click="pageNumber !== '...' && $ctrl.setCurrent(pageNumber)">{{ pageNumber }}</a>
+    <a href="javascript:void(0);" ng-click="pageNumber !== '...' && $ctrl.setCurrent(pageNumber)">{{ pageNumber }}</a>
   </li>
   <li ng-class="{ disabled : $ctrl.$paginator.currentPage() === $ctrl.$paginator.numberOfPages() }">
     <a href="" ng-click="$ctrl.$paginator.currentPage() < $ctrl.$paginator.numberOfPages() && $ctrl.setCurrent($ctrl.$paginator.currentPage() + 1)">&rsaquo;</a>
