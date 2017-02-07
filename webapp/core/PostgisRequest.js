@@ -68,6 +68,8 @@ PostgisRequest.prototype.get = function (){
     var results = [];
     var client = new pg.Client(self.uri);
 
+    client.on('error', function(err) { });
+
     client.connect(function(err){
       if (err) {
         var errorMessage = "Error in PostGIS connection: ";
