@@ -54,7 +54,7 @@ namespace terrama2
         QJsonObject toJson(ViewPtr view);
 
 
-        View::Legend fromLegendJson(QJsonObject json);
+        View::Legend* fromLegendJson(QJsonObject json);
 
         QJsonObject toJson(View::Legend legend);
 

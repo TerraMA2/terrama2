@@ -82,8 +82,7 @@ void terrama2::services::analysis::core::Service::removeAnalysis(AnalysisId anal
                                        [analysisId](const terrama2::core::ExecutionPackage& executionPackage)
                                        { return analysisId == executionPackage.processId; }), processQueue_.end());
 
-    auto itWaitQueue = waitQueue_.find(analysisId);
-    waitQueue_.erase(itWaitQueue);
+    waitQueue_.erase(analysisId);
 
     TERRAMA2_LOG_INFO() << tr("Analysis %1 removed successfully.").arg(analysisId);
   }

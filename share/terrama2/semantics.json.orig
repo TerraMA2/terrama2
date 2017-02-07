@@ -394,8 +394,12 @@
           "alias": {
             "type": "string",
             "title": "Alias",
+<<<<<<< HEAD
             "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
             "hasDefaultFieldForImport": true
+=======
+            "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
+>>>>>>> upstream/master
           },
           "timezone": {
             "type": "string",
@@ -530,7 +534,11 @@
             "title": "SRID",
             "hasDefaultFieldForImport": true
           },
+<<<<<<< HEAD
 	  "alias": {
+=======
+              "alias": {
+>>>>>>> upstream/master
             "type": "string",
             "title": "Alias",
             "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",

@@ -102,7 +102,7 @@ int main(int argc, char** argv)
     geoserver.registerStyle("astyle", "style");
 
     // Registering coverages from the same server that GeoServer
-    geoserver.registerCoverageFile("acoverage", TERRAMA2_DATA_DIR + "/geotiff/Spot_Vegetacao_Jul2001_SP.tif", "Spot_Vegetacao_Jul2001_SP","geotiff", "astyle");
+    geoserver.registerCoverageFile("acoverage", TERRAMA2_DATA_DIR + "/geotiff/Spot_Vegetacao_Jul2001_SP.tif", "Spot_Vegetacao_Jul2001_SP","geotiff");
     geoserver.registerCoverageFile("acoverage", TERRAMA2_DATA_DIR + "/geotiff/L5219076_07620040908_r3g2b1.tif", "L5219076_07620040908_r3g2b1", "geotiff");
 
     // Removing the coverages
