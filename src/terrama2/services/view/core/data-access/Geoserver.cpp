@@ -834,7 +834,7 @@ std::unique_ptr<te::se::Style> terrama2::services::view::core::GeoServer::genera
       te::fe::PropertyName* propertyName = new te::fe::PropertyName(legend.metadata.at("column"));
       te::fe::Literal* value = new te::fe::Literal(legendRule.value);
 
-      te::fe::BinaryComparisonOp* operation;
+      te::fe::BinaryComparisonOp* operation = nullptr;
 
       if(legend.classify == View::Legend::ClassifyType::VALUES)
       {
