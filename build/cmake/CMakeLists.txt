@@ -67,6 +67,8 @@ endif()
 
 if(APPLE AND TERRAMA2_BUILD_AS_BUNDLE AND NOT DEFINED TERRAMA2_BASE_DESTINATION_DIR)
   set(TERRAMA2_BASE_DESTINATION_DIR "terrama2.app/Contents/")
+elseif(UNIX AND NOT DEFINED TERRAMA2_BASE_DESTINATION_DIR)
+  set(TERRAMA2_BASE_DESTINATION_DIR ${CMAKE_INSTALL_PREFIX}/)
 elseif(NOT DEFINED TERRAMA2_BASE_DESTINATION_DIR)
   set(TERRAMA2_BASE_DESTINATION_DIR "")
 endif()
@@ -136,8 +138,8 @@ if(NOT DEFINED TERRAMA2_DESTINATION_SHARE)
   set(TERRAMA2_DESTINATION_SHARE "${TERRAMA2_BASE_DESTINATION_DIR}share")
 endif()
 
-if(NOT DEFINED TERRAMA2_DESTINATION_WEBAPP)
-  set(TERRAMA2_DESTINATION_WEBAPP "${TERRAMA2_BASE_DESTINATION_DIR}")
+if(NOT DEFINED TERRAMA2_DESTINATION)
+  set(TERRAMA2_DESTINATION "${TERRAMA2_BASE_DESTINATION_DIR}")
 endif()
 
 # variables that controls what is built
@@ -480,8 +482,26 @@ install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/share/terrama2/semantics.json
         DESTINATION ${TERRAMA2_DESTINATION_SHARE}/terrama2 COMPONENT runtime)
 
 install(DIRECTORY ${TERRAMA2_ABSOLUTE_ROOT_DIR}/webapp
-        DESTINATION ${TERRAMA2_DESTINATION_WEBAPP}./ COMPONENT runtime)
+        DESTINATION ${TERRAMA2_DESTINATION} COMPONENT runtime)
+install(DIRECTORY ${TERRAMA2_ABSOLUTE_ROOT_DIR}/webmonitor
+        DESTINATION ${TERRAMA2_DESTINATION} COMPONENT runtime)
+install(DIRECTORY ${TERRAMA2_ABSOLUTE_ROOT_DIR}/webcomponents
+        DESTINATION ${TERRAMA2_DESTINATION} COMPONENT runtime)
+install(DIRECTORY ${TERRAMA2_ABSOLUTE_ROOT_DIR}/third-party
+        DESTINATION ${TERRAMA2_DESTINATION} COMPONENT runtime)
 
+#
+# Generate a post installation script with the installation folder
+#
+configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postinst.in
+               ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postinst @ONLY)
+#
+# If generating a deb package the script is executed by the debian post install configuration
+# sa: build/cmake/terrama2-cpack-options.cmake.in
+#
+if(NOT CPACK_BINARY_DEB)
+  install(CODE "execute_process(COMMAND sh ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postinst)")
+endif()
 
 #
 # Track dependencies
