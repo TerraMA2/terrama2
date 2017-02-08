@@ -9,7 +9,8 @@
       "dialect": "postgres",
       "define": {
         "schema": "terrama2"
-      }
+      },
+      "logging": false
     }
   },
   "tests": {
@@ -22,7 +23,8 @@
       "dialect": "postgres",
       "define": {
         "schema": "terrama2"
-      }
+      },
+      "logging": true
     }
   }
 }
