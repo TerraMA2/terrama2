@@ -250,6 +250,13 @@ var TcpSocket = function(io) {
       return TcpService.log(json);
     }
 
+    /**
+     * It stops all running TerraMA² services
+     */
+    function handleStopAll() {
+      TcpService.stopAll();
+    }
+
     // registering socket io listeners
     client.on("start", onStartRequest);
     client.on("run", onRunRequest);
@@ -258,7 +265,7 @@ var TcpSocket = function(io) {
     client.on("log", onLogRequest);
     client.on("disconnect", onDisconnect);
     client.on("validateAnalysis", onValidateAnalysisRequest);
-
+    client.on("stopAll", handleStopAll);
   });
 };
 
