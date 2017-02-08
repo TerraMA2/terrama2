@@ -30,27 +30,27 @@
 #ifndef __TERRAMA2_SERVICES_VIEW_CORE_VIEW_HPP__
 #define __TERRAMA2_SERVICES_VIEW_CORE_VIEW_HPP__
 
-
-// STL
-#include <string>
-#include <vector>
-
-// TerraLib
-#include <terralib/se/Style.h>
-#include <terralib/core/uri/URI.h>
-
 // TerraMA2
 #include "../../../core/data-model/Process.hpp"
 #include "../../../core/data-model/DataSeries.hpp"
 #include "../../../core/data-access/DataSetSeries.hpp"
 #include "../../../core/data-model/Schedule.hpp"
 #include "../../../core/data-model/Filter.hpp"
+#include "../../../core/utility/Logger.hpp"
 #include "../../../core/Shared.hpp"
 #include "../../../core/Typedef.hpp"
 #include "MemoryDataSetLayer.hpp"
 #include "Typedef.hpp"
 #include "Shared.hpp"
 #include "ViewLogger.hpp"
+
+// TerraLib
+#include <terralib/se/Style.h>
+#include <terralib/core/uri/URI.h>
+
+// STL
+#include <string>
+#include <vector>
 
 namespace terrama2
 {
@@ -65,11 +65,64 @@ namespace terrama2
         */
         struct View : public terrama2::core::Process
         {
+            struct Legend
+            {
+                enum class OperationType
+                {
+                  EQUAL_STEPS = 1,
+                  QUANTIL = 2,
+                  VALUE = 3
+                };
+
+                enum class ClassifyType
+                {
+                  RAMP = 1,
+                  INTERVALS = 2,
+                  VALUES = 3
+                };
+
+                struct Rule
+                {
+                    std::string title = "";
+                    std::string value = "";
+                    std::string color = "";
+                    bool isDefault = false;
+
+                    static bool compareByNumericValue(const Rule& a,
+                                                      const Rule& b)
+                    {
+                      if(a.isDefault)
+                        return true;
+
+                      if(b.isDefault)
+                        return false;
+
+                      try
+                      {
+                        auto x = std::stold(a.value);
+                        auto y = std::stold(b.value);
+
+                        return x < y;
+                      }
+                      catch(std::invalid_argument& e)
+                      {
+                        TERRAMA2_LOG_ERROR() << "Invalid value for legend: " << e.what();
+                        return false;
+                      }
+                    }
+                };
+
+                OperationType operation;
+                ClassifyType classify;
+                std::unordered_map<std::string, std::string> metadata;
+                std::vector< Rule > rules;
+            };
+
           std::string viewName = "";
 
-          std::vector< DataSeriesId > dataSeriesList; //!< Ordened list of DataSeries ID that compose this view
-          std::unordered_map< DataSeriesId, terrama2::core::Filter > filtersPerDataSeries; //!< List of filters by DataSeries ID
-          std::unordered_map< DataSeriesId, std::string > stylesPerDataSeries; //!< List of base styles by DataSeries ID.
+          DataSeriesId dataSeriesID; //!< DataSeries ID that compose this view
+          terrama2::core::Filter filter; //!< Filter
+          std::unique_ptr<Legend> legend;
 
           // Parameters to generate a image
           std::string imageName = "";
@@ -79,10 +132,6 @@ namespace terrama2
 
           uint32_t srid = 0; //!< SRID to aplly in view
         };
-
-        void makeView(ViewId viewId, std::shared_ptr< terrama2::services::view::core::ViewLogger > logger, std::weak_ptr<DataManager> weakDataManager);
-
-        void drawLayersList(ViewPtr view, std::vector< std::shared_ptr<te::map::MemoryDataSetLayer> > layersList, std::shared_ptr< terrama2::services::view::core::ViewLogger > logger);
 
       } // end namespace core
     }   // end namespace view

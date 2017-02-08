@@ -61,10 +61,20 @@
      * @type {number}
      */
     this.serviceInstanceId = params.service_instance_id || params.serviceInstanceId;
+    /**
+     * It defines View Legend
+     * @type {any}
+     */
+    this.legend = params.legend || null;
   }
 
   View.prototype = Object.create(AbstractClass.prototype);
   View.prototype.constructor = View;
+
+  View.prototype.setLegend = function(legend) {
+    this.legend = legend;
+  };
+
   /**
    * It builds a database representation of View
    */
@@ -73,7 +83,7 @@
     delete obj.dataseries_id;
     obj.data_series_id = this.dataSeries;
     return obj;
-  }
+  };
 
   /**
    * It builds a standardized TCP format
@@ -90,7 +100,8 @@
       schedule: this.schedule instanceof AbstractClass ? this.schedule.toObject() : {},
       active: this.active,
       service_instance_id: this.serviceInstanceId,
-      project_id: this.projectId
+      project_id: this.projectId,
+      legend: this.legend instanceof AbstractClass ? this.legend.toObject() : this.legend
     });
   };
 

@@ -1,19 +1,18 @@
-"use strict";
-
-var logger = require("./../../core/Logger");
-var DataManager = require("../../core/DataManager");
-var PromiseClass = require("./../../core/Promise");
-var TcpService = require('./../../core/facade/tcp-manager/TcpService');
-var Utils = require("../../core/Utils");
-var DataSeriesError = require('../../core/Exceptions').DataSeriesError;
-var CollectorErrorNotFound = require('../../core/Exceptions').CollectorErrorNotFound;
-var DataSeriesTemporality = require('./../../core/Enums').TemporalityType;
-var TokenCode = require('./../../core/Enums').TokenCode;
-var _ = require('lodash');
-// data model
-var DataModel = require('./../../core/data-model');
-
 module.exports = function(app) {
+  "use strict";
+
+  var logger = require("./../../core/Logger");
+  var DataManager = require("../../core/DataManager");
+  var PromiseClass = require("./../../core/Promise");
+  var TcpService = require('./../../core/facade/tcp-manager/TcpService');
+  var Utils = require("../../core/Utils");
+  var DataSeriesError = require('../../core/Exceptions').DataSeriesError;
+  var CollectorErrorNotFound = require('../../core/Exceptions').CollectorErrorNotFound;
+  var DataSeriesTemporality = require('./../../core/Enums').TemporalityType;
+  var TokenCode = require('./../../core/Enums').TokenCode;
+  // data model
+  var DataModel = require('./../../core/data-model');
+
   return {
     post: function(request, response) {
       var dataSeriesObject = request.body.dataSeries;
@@ -67,7 +66,7 @@ module.exports = function(app) {
           });
         }
       }).then(function(dataSeriesResult) {
-        var extra = {}
+        var extra = {};
         if (shouldRun && dataSeriesObject.hasOwnProperty('input') && dataSeriesObject.hasOwnProperty('output')){
           extra = {
             id: dataSeriesResult.id
@@ -81,6 +80,10 @@ module.exports = function(app) {
     },
 
     get: function(request, response) {
+      var dataProvider = request.params.dataProvider;
+      var project = request.params.project;
+      var ignoreAnalysisOutputDataSeries = request.query.ignoreAnalysisOutputDataSeries;
+
       var dataSeriesId = request.params.id;
       var dataSeriesTemporality = request.query.type;
       var schema = request.query.schema;
@@ -91,11 +94,25 @@ module.exports = function(app) {
       var dataSeriesTemporalityName;
 
       // list data series restriction
-      var restriction = {
-        dataProvider: {
-          project_id: app.locals.activeProject.id
-        }
-      };
+      if(dataProvider) {
+        var restriction = {
+          dataProvider: {
+            id: dataProvider
+          }
+        };
+      } else if(project) {
+        var restriction = {
+          dataProvider: {
+            project_id: project
+          }
+        };
+      } else {
+        var restriction = {
+          dataProvider: {
+            project_id: app.locals.activeProject.id
+          }
+        };
+      }
 
       if (dataSeriesTemporality) {
         // checking data series: static or dynamic to filter data series output
@@ -134,10 +151,34 @@ module.exports = function(app) {
       } else {
         DataManager.listDataSeries(restriction).then(function(dataSeriesList) {
           var output = [];
-          dataSeriesList.forEach(function(dataSeries) {
-            output.push(dataSeries.rawObject());
-          });
-          response.json(output);
+
+          if(ignoreAnalysisOutputDataSeries == true || ignoreAnalysisOutputDataSeries == 'true') {
+            DataManager.listAnalysis({}).then(function(analysisList) {
+              dataSeriesList.forEach(function(dataSeries) {
+                var addDataSeries = true;
+
+                analysisList.map(function(analysis) {
+                  dataSeries.dataSets.map(function(dataSet) {
+                    if(analysis.dataset_output == dataSet.id) {
+                      addDataSeries = false;
+                      return;
+                    }
+                  });
+
+                  if(!addDataSeries) return;
+                });
+
+                if(addDataSeries) output.push(dataSeries.rawObject());
+              });
+
+              response.json(output);
+            });
+          } else {
+            dataSeriesList.forEach(function(dataSeries) {
+              output.push(dataSeries.rawObject());
+            });
+            response.json(output);
+          }
         }).catch(function(err) {
           logger.error(err);
           return Utils.handleRequestError(response, err, 400);
@@ -196,7 +237,7 @@ module.exports = function(app) {
                       filterUpdate.data_series_id = null;
                     }
 
-                    if (!_.isEmpty(filterObject.date)) {
+                    if (!Utils.isEmpty(filterObject.date)) {
                       if (!filterObject.date.beforeDate) {
                         filterUpdate.discard_before = null;
                         delete filterUpdate.date.beforeDate;
@@ -215,7 +256,7 @@ module.exports = function(app) {
                           });
                       });
                   } else {
-                    if (_.isEmpty(filterObject.date)) {
+                    if (Utils.isEmpty(filterObject.date)) {
                       return null;
                     } else {
                       filterObject.collector_id = collector.id;
@@ -230,7 +271,7 @@ module.exports = function(app) {
                 // try to update intersection
                 .then(function() {
                   // temp: remove all and insert. TODO: sequelize upsert / delete
-                  if (_.isEmpty(intersection)) {
+                  if (Utils.isEmpty(intersection)) {
                     return DataManager.removeIntersection({collector_id: collector.id}, options)
                       .then(function() {
                         collector.setIntersection([]);
@@ -312,7 +353,7 @@ module.exports = function(app) {
                             };
                             TcpService.send(output);
                             
-                            return collector.output
+                            return collector.output;
                           } else {
                             intersection.forEach(function(intersect) {
                               intersect.collector_id = collectorResult.id;
@@ -339,7 +380,7 @@ module.exports = function(app) {
                         });
                       });
                     });
-                  })
+                  });
                 });
               });
             }
@@ -398,6 +439,7 @@ module.exports = function(app) {
 
     delete: function(request, response) {
       var id = request.params.id;
+
       if (id) {
         DataManager.listAnalysisDataSeries({data_series_id: id})
           .then(function(analysisDataSeriesList){

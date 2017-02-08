@@ -615,5 +615,8 @@
 	"Folder": "Folder",
 	"Filter by static data": "Filter by static data",
 	"Data series is required": "Data series is required",
-	"Cellphone": "Cellphone"
+	"Cellphone": "Cellphone",
+	"Select the Collector Service to be Used": "Select the Collector Service to be Used",
+	"Select the Analysis Service to be Used": "Select the Analysis Service to be Used",
+	"Select the View Service to be Used": "Select the View Service to be Used"
 }

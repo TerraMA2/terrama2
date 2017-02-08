@@ -33,6 +33,7 @@ module.exports = function(grunt) {
           out: DEST_PATH + "terrama2-webapp.min.js",
           preserveLicenseComments: false,
           generateSourceMaps: true,
+          optimize: "none", // It does not minify
           paths: {
             TerraMA2WebApp: "angular",
             TerraMA2WebAppTemplates: "../dist"

@@ -346,6 +346,29 @@ TcpService.prototype.$sendStatus = function(service) {
   });
 };
 
+TcpService.prototype.stopAll = function stopAll() {
+  var self = this;
+  return new PromiseClass(function(resolve, reject) {
+    return DataManager.listServiceInstances()
+      .then(function(instances) {
+        instances.forEach(function(instance) {
+          self.emit("serviceStopping", instance);
+
+          TcpManager.emit("stopService", instance);
+        });
+
+        return resolve();
+      }).catch(function(err) {
+        logger.debug(err);
+        self.emit("serviceError", {
+          exception: err,
+          message: err.toString(),
+        });
+        return reject(err);
+      });
+  });
+};
+
 /**
  * Listener for handling status signal. When it called, it tries to connect to the socket and retrieve a
  * life time using STATUS_SIGNAL.
@@ -363,8 +386,6 @@ TcpService.prototype.status = function(json) {
 
       .then(function() {
         return resolve();
-      })
-
       }).catch(function(err) {
         logger.debug(err);
         self.emit("serviceError", {
@@ -374,6 +395,7 @@ TcpService.prototype.status = function(json) {
         });
         return reject(err);
       });
+  });
 }; // end client status listener
 
 /**

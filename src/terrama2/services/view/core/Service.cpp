@@ -159,8 +159,7 @@ void terrama2::services::view::core::Service::removeView(ViewId viewId) noexcept
                                        [viewId](const terrama2::core::ExecutionPackage& executionPackage)
                                        { return viewId == executionPackage.processId; }), processQueue_.end());
 
-    auto itWaitQueue = waitQueue_.find(viewId);
-    waitQueue_.erase(itWaitQueue);
+    waitQueue_.erase(viewId);
 
 
     TERRAMA2_LOG_INFO() << tr("View %1 removed successfully.").arg(viewId);
@@ -220,20 +219,18 @@ void terrama2::services::view::core::Service::viewJob(const terrama2::core::Exec
 
     auto viewPtr = dataManager->findView(viewId);
 
-    std::unordered_map< terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr > dataSeriesProviders;
-    for(auto dataSeriesId : viewPtr->dataSeriesList)
-    {
-      terrama2::core::DataSeriesPtr inputDataSeries = dataManager->findDataSeries(dataSeriesId);
-      terrama2::core::DataProviderPtr inputDataProvider = dataManager->findDataProvider(inputDataSeries->dataProviderId);
-
-      dataSeriesProviders.emplace(inputDataSeries, inputDataProvider);
-    }
+    terrama2::core::DataSeriesPtr inputDataSeries = dataManager->findDataSeries(viewPtr->dataSeriesID);
+    terrama2::core::DataProviderPtr inputDataProvider = dataManager->findDataProvider(inputDataSeries->dataProviderId);
 
     lock.unlock();
 
     /////////////////////////////////////////////////////////////////////////
 
-    QJsonObject mapsServerAnswer = mapsServer->generateLayers(viewPtr, dataSeriesProviders, dataManager, logger, logId);
+    QJsonObject mapsServerAnswer = mapsServer->generateLayers(viewPtr,
+                                                              std::make_pair(inputDataSeries, inputDataProvider),
+                                                              dataManager,
+                                                              logger,
+                                                              logId);
 
     jsonAnswer = mapsServerAnswer;
     jsonAnswer.insert("class", QString("RegisteredViews"));
@@ -291,6 +288,9 @@ void terrama2::services::view::core::Service::viewJob(const terrama2::core::Exec
     if(logId != 0)
       logger->log(ViewLogger::ERROR_MESSAGE, errMsg, logId);
   }
+
+  if(logId != 0)
+    logger->result(ViewLogger::ERROR, terrama2::core::TimeUtils::nowUTC(), logId);
 
   sendProcessFinishedSignal(viewId, false);
   notifyWaitQueue(viewId);

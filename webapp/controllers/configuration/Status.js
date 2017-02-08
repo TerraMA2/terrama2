@@ -30,23 +30,17 @@ module.exports = function(app) {
           return view.rawObject();
         });
 
+        var renderParams = {
+          "Enums": Enums,
+          "analysis": outputAnalysis,
+          "collectors": outputCollectors,
+          "views": outputViews,
+          "parameters": null
+        };
+
         if(request.query.token !== undefined) {
           var parameters = makeTokenParameters(request.query.token, app);
-          var renderParams = {
-            "Enums": Enums,
-            "analysis": outputAnalysis,
-            "collectors": outputCollectors,
-            "views": outputViews,
-            "parameters": parameters
-          };
-        } else {
-          var renderParams = {
-            "Enums": Enums,
-            "analysis": outputAnalysis,
-            "collectors": outputCollectors,
-            "views": outputViews,
-            "parameters": null
-          };
+          renderParams.parameters = parameters;
         }
 
         return response.render("configuration/status", renderParams);

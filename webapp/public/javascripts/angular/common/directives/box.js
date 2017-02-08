@@ -21,6 +21,7 @@ define(
           titleHeader: '=title',
           helper: '=?helper',
           extra: '=?',
+          handleButtons: '=',
           css: '=?'
         },
         controller: ["$scope", function($scope) {
@@ -34,15 +35,20 @@ define(
         link: function(scope, element, attrs, ctrl, transclude) {
           var elm = element.find('#targetTransclude');
 
+          scope.collapseBox = function() {
+            var elementResult = element[0].getElementsByClassName("collapserBtn");
+            angular.element(elementResult).click();
+          };
+
           transclude(scope.$parent, function(clone, scope) {
             elm.append(clone);
           });
         }
-      }
+      };
     }
 
     terrama2Box.$inject = ["$parse"];
 
     return terrama2Box;
   }
-)
+);

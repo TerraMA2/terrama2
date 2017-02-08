@@ -6,7 +6,7 @@ module.exports = function(app) {
 
   app.get("/profile", passport.isAuthenticated, function(request, response) {
     var parameters = Utils.makeTokenParameters(request.query.token, app);
-    return response.render("administration/user", Object.assign({
+    return response.render("profile", Object.assign({
       update: true,
       currentTab: "profile",
       profile: true,

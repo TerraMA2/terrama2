@@ -6,6 +6,7 @@
   var Enums = require("./../Enums");
   var Utils = require("./../Utils");
   var PromiseClass = require("./../Promise");
+  var _ = require("lodash");
   /**
    * @type {RequestFactory}
    */
@@ -59,10 +60,6 @@
 
         // setting current project scope
         viewObject.project_id = projectId;
-        // setting empty style if there is not
-        if (!viewObject.style) {
-          viewObject.style = "";
-        }
 
         var promiser;
 
@@ -140,17 +137,23 @@
          * @type {View}
          */
         var view;
+        var removeSchedule = null;
         return DataManager.getView({id: viewId, project_id: projectId}, options)
           .then(function(viewResult) {
             view = viewResult;
-
             if (view.schedule.id) {
               if (Utils.isEmpty(viewObject.schedule)) {
-                // delete
-                return DataManager.removeSchedule({id: view.schedule.id}, options);
+                // Do not delete schedule here due CASCADE dependency
+                removeSchedule = true;
+                viewObject.schedule_id = null;
+                return null;
               } else {
                 // update
-                return DataManager.updateSchedule(view.schedule.id, viewObject.schedule, options);
+                return DataManager.updateSchedule(view.schedule.id, viewObject.schedule, options)
+                  .then(function() {
+                    viewObject.schedule_id = view.schedule.id;
+                    return null;
+                  });
               }
             }
 
@@ -160,6 +163,8 @@
               return DataManager.addSchedule(viewObject.schedule, options)
                 .then(function(scheduleResult) {
                   view.schedule = scheduleResult;
+                  viewObject.schedule_id = scheduleResult.id;
+                  return null;
                 });
             }
           })
@@ -167,8 +172,60 @@
           .then(function() {
             return DataManager.updateView({id: viewId}, viewObject, options)
               .then(function() {
-                return DataManager.getView({id: viewId}, options);
+                if (removeSchedule) {
+                  return DataManager.removeSchedule({id: view.schedule.id}, options);
+                }
               });
+          })
+
+          .then(function() {
+            if (viewObject.legend && viewObject.legend.operation_id) {
+              // if there is no legend before, insert a new one
+              var legend = viewObject.legend;
+              legend.view_id = viewId;
+              if (!view.legend) {
+                // insert legend
+                return DataManager.addViewStyleLegend(legend, options);
+              } else { // otherwise, update
+                // TODO: remove it. It should just performs upSert operation instead remove and insert. This implementation was necessary due color generation in 
+                // front end does not keep ID
+                // remove all colors and insert again
+                return DataManager.removeViewStyleColor({view_style_id: view.legend.id}, options)
+                  .then(function() {
+                    // update
+                    var promises = [];
+                    for(var i = 0; i < legend.colors.length; ++i) {
+                      var color = legend.colors[i];
+                      delete color.id; // if there is
+                      color.view_style_id = view.legend.id;
+                      promises.push(DataManager.addViewStyleColor(color, options));
+                    }
+                    return PromiseClass.all(promises)
+                      .then(function() {
+                        return DataManager.updateViewStyleLegend({id: view.legend.id}, legend, options);
+                      })
+                      .then(function() {
+                        promises = [];
+                        for(var k in legend.metadata) {
+                          if (legend.metadata.hasOwnProperty(k)) {
+                            promises.push(DataManager.upsertViewStyleLegendMetadata({key: k, legend_id: view.legend.id}, {key: k, value: legend.metadata[k], legend_id: view.legend.id}, options));
+                          }
+                        }
+                        return PromiseClass.all(promises);
+                      });
+                  });
+              }
+            } else {
+              // if there is legend before, remove it
+              if (view.legend) {
+                return DataManager.removeViewStyleLegend({id: view.legend.id}, options);
+            }
+              return null;
+            }
+          })
+          // once updated all
+          .then(function() {
+            return DataManager.getView({id: viewId}, options);
           });
       })
 

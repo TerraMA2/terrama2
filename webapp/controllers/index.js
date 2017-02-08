@@ -1,7 +1,6 @@
 module.exports = function(app) {
   "use strict";
 
-  var User = require('../config/Database').getORM().import('../models/User.js');
   var DataManager = require('../core/DataManager');
 
   function indexController(request, response) {

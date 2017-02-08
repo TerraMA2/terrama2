@@ -60,17 +60,9 @@ QJsonObject terrama2::services::view::core::toJson(ViewPtr view)
   obj.insert("srid", static_cast<int32_t>(view->srid));
   obj.insert("schedule", terrama2::core::toJson(view->schedule));
 
-  DataSeriesId dataSeriesID = view->dataSeriesList.at(0);
+  obj.insert("dataseries_id", static_cast<int32_t>(view->dataSeriesID));
 
-  obj.insert("dataseries_id", static_cast<int32_t>(dataSeriesID));
-
-  // Style serialization
-  {
-    for(auto& it : view->stylesPerDataSeries)
-    {
-      obj.insert("style", QString::fromStdString(it.second));
-    }
-  }
+  obj.insert("legend", toJson(*view->legend.get()));
 
   return obj;
 }
@@ -91,7 +83,7 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
      || !json.contains("service_instance_id")
      || !json.contains("active")
      || !json.contains("dataseries_id")
-     || !json.contains("style")
+     || !json.contains("legend")
      || !json.contains("schedule"))
   {
     QString errMsg = QObject::tr("Invalid View JSON object.");
@@ -110,9 +102,17 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
 
   uint32_t dataseriesID = static_cast<uint32_t>(json["dataseries_id"].toInt());
 
-  view->dataSeriesList.push_back(dataseriesID);
+  view->dataSeriesID = dataseriesID;
 
-  view->stylesPerDataSeries.emplace(dataseriesID, json["style"].toString().toStdString());
+  if(!json["legend"].isNull())
+  {
+    view->legend.reset(fromLegendJson(json["legend"].toObject()));
+  }
+  else
+  {
+    if(view->legend)
+      view->legend.release();
+  }
 
   view->schedule = terrama2::core::fromScheduleJson(json["schedule"].toObject());
 
@@ -123,4 +123,99 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
   view->srid = static_cast<uint32_t>(json["srid"].toInt());
 
   return viewPtr;
+}
+
+terrama2::services::view::core::View::Legend* terrama2::services::view::core::fromLegendJson(QJsonObject json)
+{
+  if(json["class"].toString() != "ViewStyleLegend")
+  {
+    QString errMsg = QObject::tr("Invalid View Legend JSON object.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
+  }
+
+  if(!json.contains("type")
+     || !json.contains("operation_id")
+     || !json.contains("metadata")
+     || !json.contains("colors"))
+  {
+    QString errMsg = QObject::tr("Invalid View Legend JSON object.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
+  }
+
+  View::Legend* legend = new View::Legend();
+
+  legend->operation = View::Legend::OperationType(json["operation_id"].toInt());
+  legend->classify = View::Legend::ClassifyType(json["type"].toInt());
+
+  auto metadataObj= json["metadata"].toObject();
+
+  if(metadataObj.isEmpty())
+  {
+    QString errMsg = QObject::tr("Invalid View Legend JSON object: Empty metadada!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
+  }
+
+  for(auto it = metadataObj.begin(); it != metadataObj.end(); ++it)
+  {
+    legend->metadata.emplace(it.key().toStdString(), it.value().toString().toStdString());
+  }
+
+  for(auto color : json["colors"].toArray())
+  {
+    auto obj = color.toObject();
+
+    View::Legend::Rule c;
+
+    c.title = obj["title"].toString().toStdString();
+    c.value = obj["value"].toString().toStdString();
+    c.color = obj["color"].toString().toStdString();
+    c.isDefault = obj["isDefault"].toBool();
+
+    legend->rules.push_back(c);
+  }
+
+  return legend;
+}
+
+QJsonObject terrama2::services::view::core::toJson(View::Legend legend)
+{
+  QJsonObject obj;
+  obj.insert("class", QString("ViewStyleLegend"));
+  obj.insert("type", static_cast<int32_t>(legend.classify));
+  obj.insert("operation_id", static_cast<int32_t>(legend.operation));
+
+  QJsonObject metadataObj;
+
+  for(const auto& metadata : legend.metadata)
+  {
+    metadataObj.insert(QString::fromStdString(metadata.first), QString::fromStdString(metadata.second));
+  }
+
+  obj.insert("metadata", metadataObj);
+
+  QJsonArray rules;
+
+  for(auto& rule : legend.rules)
+  {
+    rules.push_back(toJson(rule));
+  }
+
+  obj.insert("colors", rules);
+
+  return obj;
+}
+
+QJsonObject terrama2::services::view::core::toJson(View::Legend::Rule rule)
+{
+  QJsonObject obj;
+
+  obj.insert("title", QString::fromStdString(rule.title));
+  obj.insert("value", QString::fromStdString(rule.value));
+  obj.insert("color", QString::fromStdString(rule.color));
+  obj.insert("isDefault", rule.isDefault);
+
+  return obj;
 }

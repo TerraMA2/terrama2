@@ -53,6 +53,13 @@ namespace terrama2
         */
         QJsonObject toJson(ViewPtr view);
 
+
+        View::Legend* fromLegendJson(QJsonObject json);
+
+        QJsonObject toJson(View::Legend legend);
+
+        QJsonObject toJson(View::Legend::Rule rule);
+
       } // end namespace core
     }   // end namespace view
   }     // end namespace services

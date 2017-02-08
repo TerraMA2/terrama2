@@ -606,7 +606,7 @@ std::shared_ptr<te::dt::TimeInstantTZ> terrama2::core::DataAccessorFile::readFil
     // just log and continue
     QString errMsg = QObject::tr("DataProvider could not be opened.");
     TERRAMA2_LOG_ERROR() << errMsg;
-    return std::shared_ptr<te::dt::TimeInstantTZ>(nullptr);
+    throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
   }
 
   // get a transactor to interact to the data source
@@ -671,8 +671,15 @@ std::shared_ptr<te::dt::TimeInstantTZ> terrama2::core::DataAccessorFile::readFil
     if(fileInfo.suffix() == "hdr")
       continue;
 
-    auto thisFileTimestamp = readFile(series, completeDataset, converter, fileInfo, mask, dataSet);
-
+    std::shared_ptr<te::dt::TimeInstantTZ> thisFileTimestamp;
+    try
+    {
+      thisFileTimestamp = readFile(series, completeDataset, converter, fileInfo, mask, dataSet);
+    }
+    catch(const terrama2::core::DataAccessorException&)
+    {
+      continue;
+    }
 
     //update lastest file timestamp
     if(!lastFileTimestamp.get() || lastFileTimestamp->getTimeInstantTZ().is_special() || *lastFileTimestamp < *thisFileTimestamp)
@@ -824,7 +831,11 @@ QFileInfoList terrama2::core::DataAccessorFile::getFilesList(const std::string& 
   //fill file list
   for(auto& folderPath : basePathList)
   {
-    newFileInfoList.append(getDataFileInfoList(folderPath.absoluteFilePath().toStdString(), mask, timezone, filter, remover));
+    newFileInfoList.append(getDataFileInfoList(folderPath.absoluteFilePath().toStdString(),
+                                               mask,
+                                               timezone,
+                                               filter,
+                                               remover));
   }
 
   return newFileInfoList;

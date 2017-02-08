@@ -38,4 +38,4 @@ define(
 
     return terrama2ShowErrors;
   }
-)
+);

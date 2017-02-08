@@ -30,7 +30,7 @@ var Utils = require('./Utils');
 var _ = require('lodash');
 var Enums = require('./Enums');
 var Database = require('../config/Database');
-var orm = Database.getORM();
+var orm = null;
 var fs = require('fs');
 var path = require('path');
 var logger = require("./Logger");
@@ -103,11 +103,16 @@ var DataManager = module.exports = {
    */
   init: function(callback) {
     var self = this;
+    logger.info("Initializing database...");
+
+    return Database.init().then(function(dbORM) {
+      logger.info("Database loaded.");
+      self.orm = orm = dbORM;
 
       var dbConfig = Application.getContextConfig().db;
 
       models = modelsFn();
-      models.load(orm);
+      models.load(self.orm);
 
       var fn = function() {
         var inserts = [];
@@ -136,6 +141,10 @@ var DataManager = module.exports = {
         inserts.push(self.addDataProviderType({id: 2, name: "FTP", description: "Desc Type1"}));
         inserts.push(self.addDataProviderType({id: 3, name: "HTTP", description: "Desc Http"}));
         inserts.push(self.addDataProviderType({id: 4, name: "POSTGIS", description: "Desc Postgis"}));
+
+        inserts.push(self.addViewStyleType({id: Enums.ViewStyleType.EQUAL_STEPS, name: "Equal Steps", description: ""}));
+        inserts.push(self.addViewStyleType({id: Enums.ViewStyleType.QUANTILE, name: "Quantile", description: ""}));
+        inserts.push(self.addViewStyleType({id: Enums.ViewStyleType.BY_VALUE, name: "By Value", description: ""}));
 
         // default services
         var collectorService = {
@@ -344,6 +353,10 @@ var DataManager = module.exports = {
       }).catch(function(err) {
         callback(new Error("Could not initialize TerraMA2 due: " + err.message));
       });
+    })
+    .catch(function(err) {
+      return callback(err);
+    });
   },
 
   /**
@@ -367,7 +380,7 @@ var DataManager = module.exports = {
 
   /**
    * It finalizes DataManager instance and Database connection
-   * 
+   *
    * @returns {Promise}
    */
   finalize: function() {
@@ -571,7 +584,7 @@ var DataManager = module.exports = {
 
   /**
    * It removes project of database from given restriction. **Note** If there is no restriction specified, it will remove all rows of model
-   * 
+   *
    * @param {Object} restriction - A query restriction object
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
@@ -663,7 +676,7 @@ var DataManager = module.exports = {
         })
         .catch(function(err) {
           return reject(new exceptions.UserError(Utils.format("Could not save user due %s", err.toString())));
-        })
+        });
     });
   },
   /**
@@ -671,7 +684,7 @@ var DataManager = module.exports = {
    * @param {Object} restriction - A javascript object to identify a user
    * @param {Object} userObject - A javascript object with user values
    * @param {Object} options - A query options
-   * @param {Transaction} options.transaction - An ORM transaction 
+   * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise} a bluebird promise
    */
   updateUser: function(restriction, userObject, options) {
@@ -738,6 +751,18 @@ var DataManager = module.exports = {
     });
   },
 
+  removeUser: function(restriction, options) {
+    return new Promise(function(resolve, reject) {
+      return models.db.User.destroy(Utils.extend({where: restriction}, options))
+        .then(function() {
+          return resolve();
+        })
+        .catch(function(err) {
+          return reject(new exceptions.UserError("Could not remove user " + err.toString()));
+        });
+    });
+  },
+
   /**
    * It saves ServiceInstance in database and storage it in memory
    * @param {Object} serviceObject - An object containing project values to be saved.
@@ -800,11 +825,11 @@ var DataManager = module.exports = {
 
   /**
    * It retrieves a service instance from given restriction
-   * 
+   *
    * @param {Object} restriction - A query restriction
    * @param {Object?} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
-   * @return {Promise<ServiceInstance>} 
+   * @return {Promise<ServiceInstance>}
    */
   getServiceInstance : function(restriction, options) {
     var self = this;
@@ -823,11 +848,11 @@ var DataManager = module.exports = {
 
   /**
    * It performs a remove operation of service from database
-   * 
+   *
    * @param {Object} restriction - A query restriction
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
-   * @return {Promise} 
+   * @return {Promise}
    */
   removeServiceInstance: function(restriction, options) {
     var self = this;
@@ -854,7 +879,7 @@ var DataManager = module.exports = {
 
   /**
    * It performs a update service instance from given restriction
-   * 
+   *
    * @param {number} serviceId - A service identifier
    * @param {Object} serviceObject - A service object to update
    * @param {Object} options - A query options
@@ -884,7 +909,7 @@ var DataManager = module.exports = {
 
   /**
    * It performs a update service log from given restriction
-   * 
+   *
    * @param {number} logId - A log identifier
    * @param {Object} logObject - A log object values to update
    * @param {Object} options - A query options
@@ -926,7 +951,7 @@ var DataManager = module.exports = {
 
   /**
    * It retrieves a DataProviderType list object from database.
-   * 
+   *
    * @param {Object} restriction - A query restriction
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
@@ -949,7 +974,7 @@ var DataManager = module.exports = {
 
   /**
    * It retrieves a DataProviderType object from database.
-   * 
+   *
    * @param {Object} restriction - A query restriction
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
@@ -968,7 +993,7 @@ var DataManager = module.exports = {
 
   /**
    * It retrieves a DataProviderIntent object from database.
-   * 
+   *
    * @param {Object} restriction - A query restriction
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
@@ -1083,7 +1108,7 @@ var DataManager = module.exports = {
                           key: k,
                           value: semanticsMetadata[k],
                           data_series_semantics_id: dataSeriesSemantics.id
-                        })
+                        });
                       }
                     }
                     return models.db.SemanticsMetadata.bulkCreate(semanticsMetadataArr)
@@ -1172,11 +1197,11 @@ var DataManager = module.exports = {
 
   /**
    * It retrieves binding between Semantics and Data Provider types
-   * 
+   *
    * @param {Object} restriction - a query restriction
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
-   * @return {Promise<Array<Object>>} 
+   * @return {Promise<Array<Object>>}
    */
   listSemanticsProvidersType: function(restriction, options) {
     return new Promise(function(resolve, reject) {
@@ -1196,7 +1221,7 @@ var DataManager = module.exports = {
 
   /**
    * It saves DataProvider in database and load it in memory
-   * 
+   *
    * @param {Object} dataProviderObject - An object containing needed values to create DataProvider object.
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
@@ -1240,7 +1265,7 @@ var DataManager = module.exports = {
     var self = this;
     return new Promise(function(resolve, reject) {
       var dataProvider = Utils.find(self.data.dataProviders, restriction);
-      if (dataProvider) { 
+      if (dataProvider) {
         return resolve(new DataModel.DataProvider(dataProvider));
       } else {
         return reject(new exceptions.DataProviderError(
@@ -1425,7 +1450,7 @@ var DataManager = module.exports = {
             var analysisFilter = new Filters.AnalysisFilter();
             return resolve(analysisFilter.match(analysisList, {dataSeries: self.data.dataSeries}));
           })
-          
+
           .catch(function(err) { return reject(err); });
       } else {
         var dataSeriesFound = Utils.filter(self.data.dataSeries, restriction);
@@ -1496,7 +1521,7 @@ var DataManager = module.exports = {
   },
   /**
    * It retrieves all data set formats from database
-   * 
+   *
    * @param {Object} restriction - A query restriction
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
@@ -1521,7 +1546,7 @@ var DataManager = module.exports = {
   /**
    * It performs Insert or Update operation in database. If data set format found with given restriction, it applies
    * update operation. Otherwise, it performs insert operation
-   * 
+   *
    * @param {Object} restriction - A query restriction
    * @param {Object} dataSetFormat - A data set format values
    * @param {Object} options - A query options
@@ -1536,7 +1561,7 @@ var DataManager = module.exports = {
         .then(function(dataSetFormats) {
           if (dataSetFormats.length === 0) {
             // insert
-            return models.db.DataSetFormat.create(dataSetFormat, options); 
+            return models.db.DataSetFormat.create(dataSetFormat, options);
           } else {
             return models.db.DataSetFormat.update(dataSetFormat, Utils.extend({
               fields: ["key", "value", "data_set_id"],
@@ -1588,11 +1613,11 @@ var DataManager = module.exports = {
           dataSeries.data_series_semantics = dataSeriesSemantics;
           /**
            * Helper to iterate over formats in order to build promise "upsertDataSetFormats"
-           * 
+           *
            * @param {string} key - Format Key
            * @param {string} value - Format value
            * @param {DataSet} extra - Current data set.
-           * @returns {Promise} 
+           * @returns {Promise}
            */
           function formatIterator(key, value, extra) {
             var obj = {
@@ -1743,7 +1768,7 @@ var DataManager = module.exports = {
    *
    * @param {string} dataSeriesSemantic - A string value representing DataSet type. (dcp, occurrence, grid).
    * @param {Array<Object>} dataSetObject - An object containing DataSet values to save it.
-   * @param {string} analysisType - 
+   * @param {string} analysisType -
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise} - a 'bluebird' module with DataSeries instance or error callback
@@ -2043,7 +2068,7 @@ var DataManager = module.exports = {
   },
   /**
    * It performs a collector insertion, using cascade addDataSeries, addSchedule and addCollector operations.
-   * 
+   *
    * @deprecated It will be deprecated soon (Beta-1). Use addDataSeries, addSchedule and addCollector instead
    * @param {Object} dataSeriesObject
    * @param {Object} scheduleObject
@@ -2125,7 +2150,7 @@ var DataManager = module.exports = {
 
   /**
    * It performs a add schedule in database
-   * 
+   *
    * @param {Object} scheduleObject - A query values to insert
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
@@ -2144,12 +2169,12 @@ var DataManager = module.exports = {
 
   /**
    * It performs update schedule from given restriction
-   * 
+   *
    * @param {number} scheduleId - A schedule identifier
    * @param {Object} scheduleObject - A query values to update
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
-   * @return {Promise} 
+   * @return {Promise}
    */
   updateSchedule: function(scheduleId, scheduleObject, options) {
     return new Promise(function(resolve, reject) {
@@ -2169,11 +2194,11 @@ var DataManager = module.exports = {
 
   /**
    * It performs delete schedule from given restriction
-   * 
+   *
    * @param {Object} restriction - A query restriction
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
-   * @returns {Promise} 
+   * @returns {Promise}
    */
   removeSchedule: function(restriction, options) {
     return new Promise(function(resolve, reject) {
@@ -2188,11 +2213,11 @@ var DataManager = module.exports = {
 
   /**
    * It retrieves a schedule from given restriction
-   * 
+   *
    * @param {Object} restriction - A query restriction
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
-   * @returns {Promise<Schedule>} 
+   * @returns {Promise<Schedule>}
    */
   getSchedule: function(restriction, options) {
     var self = this;
@@ -2210,12 +2235,12 @@ var DataManager = module.exports = {
 
   /**
    * It performs add collector in database
-   * 
+   *
    * @param {Object} collectorObject - A javascript object with collector values
    * @param {Object} filterObject - A javascript object with filter values
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
-   * @returns {Promise<Collector>} 
+   * @returns {Promise<Collector>}
    */
   addCollector: function(collectorObject, filterObject, options) {
     var self = this;
@@ -2232,12 +2257,12 @@ var DataManager = module.exports = {
             schedule = scheduleResult;
             return self.getDataSeries({id: collectorResult.data_series_input});
           })
-          
+
           .then(function(dataSeriesInputResult) {
             dataSeriesInput = dataSeriesInputResult;
             return self.getDataSeries({id: collectorResult.data_series_output});
           })
-          
+
           .then(function(dataSeriesOutput) {
             var inputOutputArray = [];
 
@@ -2300,14 +2325,14 @@ var DataManager = module.exports = {
 
   /**
    * It performs multiple update collector from given restriction
-   * 
-   * @param {Object} restriction - A query restriction 
+   *
+   * @param {Object} restriction - A query restriction
    * @param {Object} values - A collector object to update
    * @param {Object} extra - A extra query options like fields
    * @param {Array<string>} extra.fields - An array of field to update
    * @param {Object} options - A orm options
    * @param {Transaction} options.transaction - An ORM transaction
-   * @returns {Promise} 
+   * @returns {Promise}
    */
   updateCollectors: function(restriction, values, extra, options) {
     return new Promise(function(resolve, reject) {
@@ -2326,7 +2351,7 @@ var DataManager = module.exports = {
 
   /**
    * It performs update collector from identifier
-   * 
+   *
    * @param {number} collectorId - A collector identifier
    * @param {Object} collectorObject - A collector object values to update
    * @param {Object} options - A query options
@@ -2355,11 +2380,11 @@ var DataManager = module.exports = {
 
   /**
    * It retrieves all collector input output matches
-   * 
+   *
    * @param {Object} restriction - A query restriction
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
-   * @returns {Promise<Array<Object>>} 
+   * @returns {Promise<Array<Object>>}
    */
   listCollectorInputOutput: function(restriction, options) {
     var self = this;
@@ -2379,11 +2404,11 @@ var DataManager = module.exports = {
 
   /**
    * It retrieves all collectors from database
-   * 
+   *
    * @param {Object} restriction - A query restriction
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
-   * @returns {Promise<Array<Object>>} 
+   * @returns {Promise<Array<Object>>}
    */
   listCollectors: function(restriction, options) {
     var self = this;
@@ -2429,7 +2454,7 @@ var DataManager = module.exports = {
           }
         ]
       })
-      
+
       .then(function(collectorsResult) {
         var output = [];
 
@@ -2472,11 +2497,11 @@ var DataManager = module.exports = {
 
   /**
    * It retrieves a collector of database from given restriction
-   * 
+   *
    * @param {Object} restriction - A query restriction
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
-   * @returns {Promise<Collector>} 
+   * @returns {Promise<Collector>}
    */
   getCollector: function(restriction, options) {
     var self = this;
@@ -2535,7 +2560,7 @@ var DataManager = module.exports = {
 
   /**
    * It performs a save intersection in database. It accepts multiple insertions
-   * 
+   *
    * @param {Array<Object>} intersectionArray - An javascript array with intersection values
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
@@ -2558,7 +2583,7 @@ var DataManager = module.exports = {
 
   /**
    * It performs update intersection from identifier
-   * 
+   *
    * @param {number} intersectionId - An intersection identifier
    * @param {Object} intersectionObject - An intersection object to update
    * @param {Object} options - A query options
@@ -2610,7 +2635,7 @@ var DataManager = module.exports = {
   },
   /**
    * It performs remove intersection in database
-   * 
+   *
    * @param {Object} restriction - A query restriction
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
@@ -2627,7 +2652,7 @@ var DataManager = module.exports = {
 
   /**
    * It performs save filter in database
-   * 
+   *
    * @param {Object} filterObject - A filter object values to save
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
@@ -2660,7 +2685,7 @@ var DataManager = module.exports = {
 
   /**
    * It retrieves a filter instance of database from given restriction
-   * 
+   *
    * @param {Object} restriction - A query restriction
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
@@ -2689,7 +2714,7 @@ var DataManager = module.exports = {
 
   /**
    * It performs an update filter from given restriction
-   * 
+   *
    * @param {number} filterId - A filter identifier
    * @param {Object} filterObject - A filter values to update
    * @param {Transaction} options.transaction - An ORM transaction
@@ -2715,7 +2740,7 @@ var DataManager = module.exports = {
 
   /**
    * It performs save analysis data series in database
-   * 
+   *
    * @param {Object} analysisDataSeriesObject - An analysis data series object to save
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
@@ -2737,7 +2762,7 @@ var DataManager = module.exports = {
 
   /**
    * It performs save analysis output grid in database
-   * 
+   *
    * @param {Object} analysisOutputGridObject - An analysis output grid values to save
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
@@ -2761,7 +2786,7 @@ var DataManager = module.exports = {
 
   /**
    * It retrieves a analysis output grid from given restriction
-   * 
+   *
    * @param {Object} restriction - A query restriction
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
@@ -2789,7 +2814,7 @@ var DataManager = module.exports = {
 
   /**
    * It performs save reprocessing historical data from analysis identifier
-   * 
+   *
    * @param {number} analysisId - An analysis identifier
    * @param {Object} historicalObject - A historical object value
    * @param {Object} options - A query options
@@ -2813,7 +2838,7 @@ var DataManager = module.exports = {
 
   /**
    * It performs update reprocessing historical data from given restriction
-   * 
+   *
    * @param {Object} restriction - A query restriction
    * @param {Object} historicalObject - A historical object value
    * @param {Object} options - A query options
@@ -2838,7 +2863,7 @@ var DataManager = module.exports = {
 
   /**
    * It performs remove reprocessing historical data from given restriction
-   * 
+   *
    * @param {Object} restriction - A query restriction
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
@@ -2858,7 +2883,7 @@ var DataManager = module.exports = {
 
   /**
    * It performs save analysis metadata in database
-   * 
+   *
    * @param {Object} analysisMetadataObject - An analysis metadata values to save
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
@@ -2878,7 +2903,7 @@ var DataManager = module.exports = {
 
   /**
    * It performs save analysis in database
-   * 
+   *
    * @param {Object} analysisObject - An analysis values to save
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
@@ -3013,7 +3038,7 @@ var DataManager = module.exports = {
             ], new exceptions.AnalysisError("Could not save analysis metadata " + err.toString()), reject);
           });
         })
-        
+
         .catch(function(err) {
           // rollback data series
           logger.error(err);
@@ -3023,7 +3048,7 @@ var DataManager = module.exports = {
   },
   /**
    * It performs a update analysis from given restriction
-   * 
+   *
    * @param {number} analysisId - An analysis identifier
    * @param {Object} analysisObject - An analysis object to update
    * @param {Object} analysisObject.historical - Reprocessing historical data values
@@ -3031,14 +3056,14 @@ var DataManager = module.exports = {
    * @param {Object} storagerObject - A storager object to update
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
-   * @return {Promise} 
+   * @return {Promise}
    */
   updateAnalysis: function(analysisId, analysisObject, scheduleObject, storagerObject, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
       var analysisInstance;
       /**
-       * It is important to pass options to all DB Operations even when options is null|undefined, since 
+       * It is important to pass options to all DB Operations even when options is null|undefined, since
        * it may contain Sequelize.Transaction object to handle entire operation. If transaction was passed but
        * not applied on children operations, Your DB operation may be inconsistent.
        */
@@ -3132,7 +3157,7 @@ var DataManager = module.exports = {
             }
           }
         }
-        
+
         return null;
       })
       // Update Analysis DCP or Grid if there is
@@ -3156,7 +3181,7 @@ var DataManager = module.exports = {
               gridObject.area_of_interest_bounded = null;
               gridObject.area_of_interest_box = null;
             }
-            
+
             return models.db.AnalysisOutputGrid.update(gridObject, Utils.extend({
               fields: ['area_of_interest_box', 'srid', 'resolution_x',
                         'resolution_y', 'interpolation_dummy',
@@ -3204,7 +3229,7 @@ var DataManager = module.exports = {
         }
       })
       /**
-       * finally, update data series. It is important to put it at end of operations, since the data series are cached. 
+       * finally, update data series. It is important to put it at end of operations, since the data series are cached.
        * So, if it uses transaction object and an exception occurs, it is not necessary to force data to original state
        */
       .then(function() {
@@ -3217,7 +3242,7 @@ var DataManager = module.exports = {
         dataSeries.data_series_semantics_id = dataSeries.data_series_semantics.id;
         return self.updateDataSeries(analysisInstance.dataSeries.id, dataSeries, options);
       })
-      
+
       .then(function() {
         return resolve();
       })
@@ -3245,17 +3270,17 @@ var DataManager = module.exports = {
         return resolve(analysisDataSeriesResult.map(function(analysisDataSeries){
           return new DataModel.AnalysisDataSeries(analysisDataSeries.get());
         }));
-      })
-    })
+      });
+    });
   },
 
   /**
    * It retrieves all analysis in database from given restriction
-   * 
+   *
    * @param {Object} restriction - An analysis identifier
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
-   * @return {Promise} 
+   * @return {Promise}
    */
   listAnalysis: function(restriction, options) {
     var self = this;
@@ -3347,14 +3372,15 @@ var DataManager = module.exports = {
   },
   /**
    * It retrieve a TerraMA² Analysis instance.
-   * 
+   *
    * @param {Object} restriction - A query restriction
    * @param {Object} restriction.dataSet - TerraMA² Output data set restriction
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
-   * @return {Promise<DataModel.Analysis>} 
+   * @param {boolean} ignoreAnalysisDsMetaDataSeries - Flag that indicates if the AnalysisDsMetaDataSeries should be ignored
+   * @return {Promise<DataModel.Analysis>}
    */
-  getAnalysis: function(restriction, options) {
+  getAnalysis: function(restriction, options, ignoreAnalysisDsMetaDataSeries) {
     var self = this;
     return new Promise(function(resolve, reject) {
       var restrict = Object.assign({}, restriction || {});
@@ -3404,7 +3430,7 @@ var DataManager = module.exports = {
             analysisResult.AnalysisDataSeries.forEach(function(analysisDataSeries) {
               var ds = Utils.find(self.data.dataSeries, {id: analysisDataSeries.data_series_id});
               var analysisDsMeta = new DataModel.AnalysisDataSeries(analysisDataSeries.get());
-              analysisDsMeta.setDataSeries(ds);
+              if(ignoreAnalysisDsMetaDataSeries == undefined || ignoreAnalysisDsMetaDataSeries == null || !ignoreAnalysisDsMetaDataSeries) analysisDsMeta.setDataSeries(ds);
               analysisInstance.addAnalysisDataSeries(analysisDsMeta);
             });
 
@@ -3459,7 +3485,7 @@ var DataManager = module.exports = {
 
   /**
    * It retrieves a list of views in database
-   * 
+   *
    * @param {Object} restriction - A query restriction
    * @param {Object} options - An ORM query options
    * @param {Transaction} options.transaction - An ORM transaction
@@ -3470,19 +3496,38 @@ var DataManager = module.exports = {
 
     return new Promise(function(resolve, reject) {
       return models.db.View.findAll(Utils.extend({
-        include: [ 
+        include: [
           {
             model: models.db.Schedule,
+          },
+          {
+            model: models.db.ViewStyleLegend,
+            required: false,
+            include: [
+              {
+                model: models.db.ViewStyleColor
+              },
+              {
+                model: models.db.ViewStyleLegendMetadata
+              }
+            ]
           }
         ],
         where: restriction
       }, options))
         .then(function(views) {
           return resolve(views.map(function(view) {
-            return new DataModel.View(Object.assign(view.get(), {
+            var viewModel = new DataModel.View(Object.assign(view.get(), {
               schedule: view.Schedule ? new DataModel.Schedule(view.Schedule.get()) : {}
               // schedule: new DataModel.Schedule(view.Schedule ? view.Schedule.get() : {id: 0})
             }));
+            if (view.ViewStyleLegend) {
+              var legendModel = new DataModel.ViewStyleLegend(Utils.extend(
+                view.ViewStyleLegend.get(), {colors: view.ViewStyleLegend.ViewStyleColors ? view.ViewStyleLegend.ViewStyleColors.map(function(elm) { return elm.get(); }) : []}));
+              legendModel.setMetadata(Utils.formatMetadataFromDB(view.ViewStyleLegend.ViewStyleLegendMetadata));
+              viewModel.setLegend(legendModel);
+            }
+            return viewModel;
           }));
         })
 
@@ -3491,32 +3536,282 @@ var DataManager = module.exports = {
         });
     });
   },
+  /**
+   * It performs a save view style color and retrieve it
+   * 
+   * @param {Object} colorObject - View Style Color object to save
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Object>} A view style object created
+   */
+  addViewStyleColor: function(colorObject, options) {
+    return new Promise(function(resolve, reject) {
+      return models.db.ViewStyleColor.create(colorObject, options)
+        .then(function(colorResult) {
+          return resolve(colorResult.get());
+        })
+        .catch(function(err) {
+          return reject(new exceptions.ViewStyleColorError(Utils.format("Could not save view style color due %s", err.toString())));
+        });
+    });
+  },
+  /**
+   * It performs a save view style type and retrieve it
+   * 
+   * @param {Object} styleTypeObject - A type object to save
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Object>}
+   */
+  addViewStyleType: function(styleTypeObject, options) {
+    return new Promise(function(resolve, reject) {
+      return models.db.ViewStyleType.create(styleTypeObject, options)
+        .then(function(typeResult) {
+          return resolve(typeResult.get());
+        })
+        .catch(function(err) {
+          return reject(new exceptions.ViewStyleTypeError(Utils.format("Could not save view style type due %s", err.toString())));
+        });
+    });
+  },
+  /**
+   * It performs a save view legend
+   * 
+   * @param {Object} styleLegendObject         - A type object to save
+   * @param {string} styleLegendObject.type_id - View Style Type identifier
+   * @param {string} styleLegendObject.view_id - View identifier
+   * @param {string} styleLegendObject.column  - Target column name
+   * @param {any[]}  styleLegendObject.colors  - Color array to save
+   * @param {Object} options                   - An ORM query options
+   * @param {Transaction} options.transaction  - An ORM transaction
+   * @returns {Promise<Object>}
+   */
+  addViewStyleLegend: function(styleLegendObject, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return models.db.ViewStyleLegend.create(styleLegendObject, options)
+        .then(function(legendResult) {
+          var promises = [];
 
+          for(var i = 0; i < styleLegendObject.colors.length; ++i) {
+            var color = styleLegendObject.colors[i];
+            color.view_style_id = legendResult.id;
+            promises.push(self.addViewStyleColor(color, options));
+          }
+
+          return Promise.all(promises)
+            .then(function(colors) {
+              return new DataModel.ViewStyleLegend(Utils.extend(legendResult.get(), {colors: colors}));
+            });
+        })
+        // on success legend saving, prepare metadata
+        .then(function(legendModel) {
+          var metadataArr = Utils.generateArrayFromObject(styleLegendObject.metadata, function(key, value) {
+            return {key: key, value: value, legend_id: legendModel.id};
+          });
+          return Promise.all([legendModel, self.addViewStyleLegendMetadata(metadataArr, options)]);
+        })
+        // on success legend metadata saving, set into model and resolve promise
+        .spread(function(legendModel, legendMetadata) {
+          legendModel.setMetadata(legendMetadata);
+
+          return resolve(legendModel);
+        })
+        // any error
+        .catch(function(err) {
+          return reject(new exceptions.ViewStyleTypeError(Utils.format("Could not save view style type due %s", err.toString())));
+        });
+    });
+  },
+  addViewStyleLegendMetadata: function(metadataArr, options) {
+    return new Promise(function(resolve, reject) {
+      return models.db.ViewStyleLegendMetadata.bulkCreate(metadataArr, options)
+        .then(function(metadataArrResults) {
+          return resolve(Utils.formatMetadataFromDB(metadataArrResults));
+        })
+        .catch(function(err) {
+          return reject(new Error(Utils.format("Could not save style legend metadata due %s", err.toString())));
+        });
+    });
+  },
+  listViewStyleLegendMetadata: function(restriction, options) {
+    return new Promise(function(resolve, reject) {
+      return models.db.ViewStyleLegendMetadata.findAll(Utils.extend({where: restriction}, options))
+        .then(function(metadataResults) {
+          return resolve(Utils.formatMetadataFromDB(metadataResults));
+        })
+        .catch(function(err) {
+          return reject(err);
+        });
+    });
+  },
+  upsertViewStyleLegendMetadata: function(restriction, metadataObj, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return self.listViewStyleLegendMetadata(restriction, options)
+        .then(function(metadataResults) {
+          var lengthResult = Object.keys(metadataResults).length;
+          if (lengthResult === 0) {
+            // add
+            return self.addViewStyleLegendMetadata([metadataObj], options);
+          } else if (lengthResult === 1) {
+            // update
+            return models.db.ViewStyleLegendMetadata.update(metadataObj, Utils.extend({
+                fields: ["key", "value"],
+                where: restriction
+              }, options));
+          }
+          throw new Error("More than one element retrieved during view legend metadata operation");
+        })
+        
+        .then(function() {
+          return resolve();
+        })
+
+        .catch(function(err) {
+          return reject(err);
+        });
+    });
+  },
+  /**
+   * It performs update or insert view legend color in database.
+   * 
+   * @param {Object} restriction - A query restriction
+   * @param {Object} styleColorObject         - A type object to save
+   * @param {string} styleColorObject.title - Color title
+   * @param {string} styleColorObject.color - Color value (hex)
+   * @param {string} styleColorObject.view_legend_id  - Respective Legend identifier
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise}
+   */
+  upsertViewStyleColor: function(restriction, styleColorObject, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return models.db.ViewStyleColor.findOne(Utils.extend({where: restriction}, options))
+        .then(function(colorResult) {
+          if (colorResult) {
+            // update
+            return models.db.ViewStyleColor.update(styleColorObject, Utils.extend({
+              fields: ["title", "color", "value"],
+              where: {
+                id: colorResult.id
+              }
+            }, options));
+          }
+          return self.addViewStyleColor(styleColorObject, options);
+        })
+        .catch(function(err) {
+          return reject(new exceptions.ViewStyleColorError(Utils.format("Could not find view style color %s", err.toString())));
+        });
+    });
+  },
+  /**
+   * It removes view color of database from given restriction
+   * 
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise}
+   */
+  removeViewStyleColor: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return models.db.ViewStyleColor.destroy(Utils.extend({where: restriction}, options))
+        .then(function() {
+          return resolve();
+        })
+        .catch(function(err) {
+          return reject(err);
+        });
+    });
+  },
+  /**
+   * It performs update view legend in database. Once updated, it does not retrieves the row affected in order to keep integrity.
+   * 
+   * @param {Object} restriction - A query restriction
+   * @param {ViewStyleLegend} styleLegendObject         - A type object to save
+   * @param {string} styleLegendObject.type_id - View Style Type identifier
+   * @param {string} styleLegendObject.view_id - View identifier
+   * @param {string} styleLegendObject.column  - Target column name
+   * @param {any[]}  styleLegendObject.colors  - Color array to save
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<DataModel.View>}
+   */
+  updateViewStyleLegend: function(restriction, styleLegendObject, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return models.db.ViewStyleLegend.update(styleLegendObject, Utils.extend({
+          fields: ["operation_id", "type"],
+          where: restriction
+        }, options))
+        .then(function() {
+          return resolve();
+        })
+        .catch(function(err) {
+          return reject(new Error(Utils.format("Could not update view legend due %s", err.toString())));
+        });
+    });
+  },
+  /**
+   * It removes a view legend of database using given restriction
+   * 
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<DataModel.View>}
+   */
+  removeViewStyleLegend: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return models.db.ViewStyleLegend.destroy(Utils.extend({where: restriction}, options))
+        .then(function() {
+          return resolve();
+        })
+        .catch(function(err) {
+          return reject(new Error(Utils.format("Could not remove legend due %s", err.toString())));
+        });
+    });
+  },
   /**
    * It performs a save view in database
-   * 
+   *
    * @param {Object} viewObject - A view object value to save
    * @param {Object} options - An ORM query options
    * @param {Transaction} options.transaction - An ORM transaction
-   * @return {Promise<DataModel.View>}
+   * @returns {Promise<DataModel.View>}
    */
   addView: function(viewObject, options) {
     var self = this;
 
     return new Promise(function(resolve, reject) {
       var view;
-      models.db.View.create(viewObject, options)
+      return models.db.View.create(viewObject, options)
         .then(function(viewResult) {
           view = viewResult;
-          if (viewResult.schedule_id) {
-            return self.getSchedule({id: view.schedule_id}, options);
-          } else {
-            return {};
+          if (!Utils.isEmpty(viewObject.legend)) {
+            return models.db.ViewStyleType.findOne(Utils.extend({where: {id: viewObject.legend.operation_id}}, options))
+              .then(function(viewType) {
+                var legend = viewObject.legend;
+                legend.operation_id = viewType.id;
+                legend.view_id = view.id;
+                return self.addViewStyleLegend(legend, options);
+              });
           }
+          return null;
         })
 
-        .then(function(schedule) {
-          return resolve(new DataModel.View(Object.assign(view.get(), {schedule: schedule})));
+        .then(function(legend) {
+          var promises = [legend];
+          if (view.schedule_id) {
+            promises.push(self.getSchedule({id: view.schedule_id}, options));
+          }
+          return Promise.all(promises);
+        })
+
+        .spread(function(legend, schedule) {
+          return resolve(new DataModel.View(Object.assign(view.get(), {legend: legend, schedule: schedule || {}})));
         })
 
         .catch(function(err) {
@@ -3527,7 +3822,7 @@ var DataManager = module.exports = {
 
   /**
    * It performs update views from given restriction
-   * 
+   *
    * @param {Object} restriction - A query restriction
    * @param {Object} viewObject - A view object values to update
    * @param {Object} options - An ORM query options
@@ -3541,7 +3836,7 @@ var DataManager = module.exports = {
       models.db.View.update(
         viewObject,
         Utils.extend({
-          fields: ["name", "description", "data_series_id", "style", "active", "service_instance_id"],
+          fields: ["name", "description", "data_series_id", "style", "active", "service_instance_id", "schedule_id"],
           where: restriction
         }, options))
 
@@ -3557,7 +3852,7 @@ var DataManager = module.exports = {
 
   /**
    * It retrieves a view from database
-   * 
+   *
    * @param {Object} restriction - A query restriction
    * @param {Object} options - An ORM query options
    * @param {Transaction} options.transaction - An ORM transaction
@@ -3585,7 +3880,7 @@ var DataManager = module.exports = {
   },
   /**
    * It removes a view from database
-   * 
+   *
    * @param {Object} restriction - A query restriction
    * @param {Object?} options - An ORM query options
    * @param {Transaction} options.transaction - An ORM transaction
@@ -3612,7 +3907,7 @@ var DataManager = module.exports = {
         .then(function() {
           return resolve();
         })
-        
+
         .catch(function(err) {
           return reject(new Error("Could not remove view " + err.toString()));
         });
@@ -3620,7 +3915,7 @@ var DataManager = module.exports = {
   },
   /**
    * It saves a layer in database
-   * 
+   *
    * @param {number} registeredViewId - A TerraMA² Registered View Identifier
    * @param {Object} layerObject - TerraMA² Layer Object
    * @param {Object?} options - An ORM query options
@@ -3643,7 +3938,7 @@ var DataManager = module.exports = {
   },
   /**
    * It removes a view from database
-   * 
+   *
    * @param {Object} registeredViewObject - TerraMA² RegisteredView values
    * @param {Object?} options - An ORM query options
    * @param {Transaction} options.transaction - An ORM transaction
@@ -3675,7 +3970,7 @@ var DataManager = module.exports = {
   },
   /**
    * It retrives a list of registered views in database from given restriction
-   * 
+   *
    * @param {Object} restriction - A query restriction
    * @param {Object?} options - An ORM query options
    * @param {Transaction} options.transaction - An ORM transaction
@@ -3698,7 +3993,7 @@ var DataManager = module.exports = {
             model: models.db.Layer
           },
           {
-            model: models.db.View  
+            model: models.db.View
           }
         ]
       }, options))
@@ -3728,7 +4023,7 @@ var DataManager = module.exports = {
         // It will contains a object with data series: {dynamic: [...], static: [...], analysis: [...]}
         .then(function(cachedDataSeries) {
           /**
-           * It defines a list of TerraMA² registered views to resolve 
+           * It defines a list of TerraMA² registered views to resolve
            * @type {RegisteredView[]}
            */
           var output = [];
@@ -3760,7 +4055,7 @@ var DataManager = module.exports = {
   },
   /**
    * It retrives only a one registered view. If restriction applies for 0 results or more than 1, it throws Error
-   * 
+   *
    * @param {Object} restriction - A query restriction
    * @param {Object?} options - An ORM query options
    * @param {Transaction} options.transaction - An ORM transaction
@@ -3783,7 +4078,7 @@ var DataManager = module.exports = {
   },
   /**
    * It applies update over registered view.
-   * 
+   *
    * @param {Object} restriction - A query restriction
    * @param {Object} registeredObject - TerraMA² registered object values to update
    * @param {Object?} options - An ORM query options
@@ -3809,7 +4104,7 @@ var DataManager = module.exports = {
   },
   /**
    * It performs an update or insert layer operation. When a layer found, it updates. Otherwise, a new layer will be created.
-   * 
+   *
    * @param {Object} restriction - A query restriction
    * @param {Object} layersObject - A Layer object
    * @param {string} layersObject.name - A Layer name

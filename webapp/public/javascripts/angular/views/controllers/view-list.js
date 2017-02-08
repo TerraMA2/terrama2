@@ -193,7 +193,7 @@ define([], function() {
               MessageBoxService.danger(i18n.__("View"), err.message);
               return;
             }
-            MessageBoxService.danger(i18n.__("View"), data.name + i18n.__(" removed"));
+            MessageBoxService.success(i18n.__("View"), data.result.name + i18n.__(" removed"));
           },
           showRunButton: true,
           canRun: function(object) {

@@ -37,6 +37,8 @@
 #include <terrama2/services/view/core/JSonUtils.hpp>
 #include <terrama2/core/utility/TimeUtils.hpp>
 
+// STD
+#include <algorithm>
 
 void TsJsonUtils::testToJSon()
 {
@@ -50,12 +52,31 @@ void TsJsonUtils::testToJSon()
     view->projectId = 1;
     view->serviceInstanceId = 1;
     view->active = true;
-    view->imageName = "ImageName";
-    view->imageType = te::map::ImageType(2);
-    view->imageResolutionWidth = 800;
-    view->imageResolutionHeight = 600;
-    view->srid = 4326;
 
+    // DataSeries List
+    view->dataSeriesID = 1;
+
+    // Legend
+    terrama2::services::view::core::View::Legend::Rule  rule;
+
+    rule.title = "Class 1";
+    rule.value = "1";
+    rule.color = "#000000";
+    rule.isDefault = true;
+
+    terrama2::services::view::core::View::Legend* legend = new terrama2::services::view::core::View::Legend();
+
+    legend->operation = terrama2::services::view::core::View::Legend::OperationType::VALUE;
+    legend->classify = terrama2::services::view::core::View::Legend::ClassifyType::RAMP;
+
+    legend->metadata.emplace("band_number", "0");
+    legend->metadata.emplace("column", "");
+
+    legend->rules.push_back(rule);
+
+    view->legend.reset(legend);
+
+    // Schedule
     terrama2::core::Schedule schedule;
     schedule.id = 1;
     schedule.frequency = 2;
@@ -63,21 +84,12 @@ void TsJsonUtils::testToJSon()
 
     view->schedule = schedule;
 
+    // Filter
     terrama2::core::Filter filter;
     filter.discardBefore = terrama2::core::TimeUtils::stringToTimestamp("2016-07-06 12:39:00UTM+00", "%Y-%m-%d %H:%M:%S%ZP");
     filter.discardAfter = terrama2::core::TimeUtils::stringToTimestamp("2016-07-06 12:45:00UTM+00", "%Y-%m-%d %H:%M:%S%ZP");
 
-    view->filtersPerDataSeries.emplace(1, filter);
-    view->filtersPerDataSeries.emplace(2, filter);
-    view->filtersPerDataSeries.emplace(3, filter);
-    view->filtersPerDataSeries.emplace(4, filter);
-
-    view->dataSeriesList.push_back(1);
-    view->dataSeriesList.push_back(2);
-    view->dataSeriesList.push_back(3);
-    view->dataSeriesList.push_back(4);
-
-    view->stylesPerDataSeries.emplace(2, "style");
+    view->filter = filter;
 
     QJsonObject obj = terrama2::services::view::core::toJson(viewPtr);
 
@@ -113,12 +125,31 @@ void TsJsonUtils::testGoNBackJSon()
     view->projectId = 1;
     view->serviceInstanceId = 1;
     view->active = true;
-    view->imageName = "ImageName";
-    view->imageType = te::map::ImageType(2);
-    view->imageResolutionWidth = 800;
-    view->imageResolutionHeight = 600;
-    view->srid = 4326;
 
+    // DataSeries List
+    view->dataSeriesID = 1;
+
+    // Legend
+    terrama2::services::view::core::View::Legend::Rule  rule;
+
+    rule.title = "Class 1";
+    rule.value = "1";
+    rule.color = "#000000";
+    rule.isDefault = true;
+
+    terrama2::services::view::core::View::Legend* legend = new terrama2::services::view::core::View::Legend();
+
+    legend->operation = terrama2::services::view::core::View::Legend::OperationType::VALUE;
+    legend->classify = terrama2::services::view::core::View::Legend::ClassifyType::RAMP;
+
+    legend->metadata.emplace("band_number", "0");
+    legend->metadata.emplace("column", "");
+
+    legend->rules.push_back(rule);
+
+    view->legend.reset(legend);
+
+    // Schedule
     terrama2::core::Schedule schedule;
     schedule.id = 1;
     schedule.frequency = 2;
@@ -126,13 +157,12 @@ void TsJsonUtils::testGoNBackJSon()
 
     view->schedule = schedule;
 
+    // Filter
     terrama2::core::Filter filter;
     filter.discardBefore = terrama2::core::TimeUtils::stringToTimestamp("2016-07-06 12:39:00UTM+00", "%Y-%m-%d %H:%M:%S%ZP");
     filter.discardAfter = terrama2::core::TimeUtils::stringToTimestamp("2016-07-06 12:45:00UTM+00", "%Y-%m-%d %H:%M:%S%ZP");
 
-    view->dataSeriesList.push_back(1);
-
-    view->stylesPerDataSeries.emplace(1, "style");
+    view->filter = filter;
 
     QJsonObject obj = terrama2::services::view::core::toJson(viewPtr);
 
@@ -153,28 +183,32 @@ void TsJsonUtils::testGoNBackJSon()
     QCOMPARE(viewBackPtr->schedule.frequency, viewPtr->schedule.frequency);
     QCOMPARE(viewBackPtr->schedule.frequencyUnit, viewPtr->schedule.frequencyUnit);
 
-    QCOMPARE(viewBackPtr->dataSeriesList.size(), viewPtr->dataSeriesList.size());
+    QCOMPARE(viewBackPtr->dataSeriesID, viewPtr->dataSeriesID);
 
-    for(uint32_t i = 0; i < viewPtr->dataSeriesList.size(); i++)
+    QCOMPARE(viewBackPtr->legend->operation, viewPtr->legend->operation);
+    QCOMPARE(viewBackPtr->legend->classify, viewPtr->legend->classify);
+
+    QCOMPARE(viewBackPtr->legend->metadata.size(), viewPtr->legend->metadata.size());
+
+    if(!std::equal(viewBackPtr->legend->metadata.begin(), viewBackPtr->legend->metadata.end(), viewPtr->legend->metadata.begin()))
+      QFAIL("Fail!");
+
+    QCOMPARE(viewBackPtr->legend->rules.size(), viewPtr->legend->rules.size());
+
+    for(uint i = 0; i < viewBackPtr->legend->rules.size(); i++)
     {
-      QCOMPARE(viewBackPtr->dataSeriesList.at(i), viewPtr->dataSeriesList.at(i));
+      QCOMPARE(viewBackPtr->legend->rules.at(i).title, viewPtr->legend->rules.at(i).title);
+      QCOMPARE(viewBackPtr->legend->rules.at(i).value, viewPtr->legend->rules.at(i).value);
+      QCOMPARE(viewBackPtr->legend->rules.at(i).color, viewPtr->legend->rules.at(i).color);
+      QCOMPARE(viewBackPtr->legend->rules.at(i).isDefault, viewPtr->legend->rules.at(i).isDefault);
     }
-
-    QCOMPARE(viewBackPtr->filtersPerDataSeries.size(), viewPtr->filtersPerDataSeries.size());
 
     // TODO: enable when convert filter/json is implemented
-/*    for(auto& it : viewPtr->filtersPerDataSeries)
-    {
-      QCOMPARE(*viewBackPtr->filtersPerDataSeries.at(it.first).discardBefore, *it.second.discardBefore);
-      QCOMPARE(*viewBackPtr->filtersPerDataSeries.at(it.first).discardAfter, *it.second.discardAfter);
-    }
-*/
-    QCOMPARE(viewBackPtr->stylesPerDataSeries.size(), viewPtr->stylesPerDataSeries.size());
+/*
+     QCOMPARE(*viewBackPtr->filter.discardBefore, viewPtr->filter.discardBefore);
+      QCOMPARE(*viewBackPtr->filter.discardAfter, viewPtr->filter.discardAfter);
 
-    for(auto& it : viewPtr->stylesPerDataSeries)
-    {
-      QCOMPARE(viewBackPtr->stylesPerDataSeries.at(it.first), it.second);
-    }
+*/
   }
   catch(const terrama2::Exception& e)
   {

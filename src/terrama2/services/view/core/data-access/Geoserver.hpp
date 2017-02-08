@@ -31,6 +31,7 @@
 #define __TERRAMA2_SERVICES_VIEW_CORE_GEOSERVER_HPP__
 
 // TerraMA2
+#include "../View.hpp"
 #include "../MapsServer.hpp"
 #include "../Shared.hpp"
 #include "../Typedef.hpp"
@@ -120,12 +121,10 @@ namespace terrama2
             void registerPostgisTable(const std::string& dataStoreName,
                                       std::map<std::string, std::string> connInfo,
                                       const std::string& tableName,
-                                      const std::string& title,
+                                      const std::string& layerName,
+                                      const std::unique_ptr<te::da::DataSetType>& dataSetType,
                                       const std::string& timestampPropertyName = "",
-                                      const std::string& sql = "",
-                                      const std::string& geomName = "",
-                                      const te::gm::GeomType& geomType = te::gm::GeomType::UnknownGeometryType,
-                                      const std::string& srid = "") const;
+                                      const std::string& sql = "") const;
 
             /*!
              * \brief Method to upload a .zip with the vector files from out of the server to the GeoServer
@@ -147,7 +146,7 @@ namespace terrama2
              */
             void registerVectorFile(const std::string& dataStoreName,
                                     const std::string& shpFilePath,
-                                    const std::string& extension) const;
+                                    const std::string& layerName) const;
 
             /*!
              * \brief Register a folder that contains vector files
@@ -182,14 +181,16 @@ namespace terrama2
             void registerCoverageFile(const std::string& coverageStoreName,
                                       const std::string& coverageFilePath,
                                       const std::string& coverageName,
-                                      const std::string& extension,
-                                      const std::string& style = "") const;
+                                      const std::string& extension) const;
 
             void registerMosaicCoverage(const std::string& coverageStoreName,
                                         const std::string& mosaicPath,
                                         const std::string& coverageName,
                                         const int srid,
                                         const std::string& style = "") const;
+
+            std::unique_ptr<te::se::Style> generateVectorialStyle(const View::Legend& legend,
+                                                         const std::unique_ptr<te::da::DataSetType>& dataSetType) const;
 
             /*!
              * \brief Method to register a style in the GeoServer from a text file
@@ -210,7 +211,12 @@ namespace terrama2
              * \param name The name of the style
              * \param style The style XML
              */
-            void registerStyle(const std::string& name, const std::string &style) const;
+            void registerStyle(const std::string& name, const std::string &style, const std::string& sldVersion = "1.1.0") const;
+
+
+            void registerStyle(const std::string& name,
+                               const View::Legend& legend,
+                               const std::unique_ptr<te::da::DataSetType>& dataSetType) const;
 
             /*!
              * \brief Method to delete a workspace in Geoserver
@@ -284,11 +290,17 @@ namespace terrama2
             void registerPostGisDataStore(const std::string& dataStoreName,
                                           const std::map<std::string, std::string> connInfo) const;
 
+            void registerVectorDataStore(const std::string& dataStoreName,
+                                         const std::string& shpFilePath) const;
+
             virtual QJsonObject generateLayers(const ViewPtr viewPtr,
-                                               const std::unordered_map< terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr >& dataSeriesProviders,
+                                               const std::pair<terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr>& dataSeriesProvider,
                                                const std::shared_ptr<DataManager> dataManager,
                                                std::shared_ptr<ViewLogger> logger,
-                                               const RegisterId logId);
+                                               const RegisterId logId) override;
+
+            void registerLayerDefaultStyle(const std::string& styleName,
+                                           const std::string& layerName) const;
 
             std::string getGeomTypeString(const te::gm::GeomType& geomType) const;
 

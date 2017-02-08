@@ -83,7 +83,11 @@
     </div>
     <!-- /.box-header -->
     <div class="box-body">
-      <div ng-include="'/javascripts/angular/data-series/templates/storager.html'"></div>
+      <div class="col-md-12">
+
+        <terrama2-storager-form ng-if="!advanced.store.disabled" providers-list="providersList" storager="storager" series="dataSeries" filter="filter" prepare-format-to-form="prepareFormatToForm" forms="forms" on-storager-format-change= "onStoragerFormatChange" model="model" options="storeOptions" schedule="schedule"></terrama2-storager-form>
+        
+      </div>
     </div>
   </div>
 </div>

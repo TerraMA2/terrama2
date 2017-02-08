@@ -36,11 +36,6 @@
       description: {
         type: DataTypes.TEXT,
         comment: "View description"
-      }, 
-      style: {
-        type: DataTypes.TEXT,
-        allowNull: false,
-        comment: "XML style script"
       },
       active: {
         type: DataTypes.BOOLEAN,
@@ -75,6 +70,14 @@
           });
 
           View.hasOne(models.RegisteredView, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: "view_id",
+              allowNull: false
+            }
+          });
+
+          View.hasOne(models.ViewStyleLegend, {
             onDelete: "CASCADE",
             foreignKey: {
               name: "view_id",
