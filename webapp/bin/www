@@ -33,177 +33,165 @@ Application.setCurrentContext(nodeContext);
  * Module dependencies.
  */
 var Database = require('./../config/Database');
+var PluginLoader = require("../core/PluginLoader");
+var DataManager = require("../core/DataManager");
+var HTTPFactory = require("./../config/HTTPFactory");
+var PortScanner = require("./../core/PortScanner");
+var io = require('../io');
+var debug = require('debug')('webapp:server');
+var load = require('express-load');
+var TcpService = require("./../core/facade/tcp-manager/TcpService");
 
-return Database.init(nodeContext).then(function (sequelize) {
-  var app = require('../app');
-  var HTTPFactory = require("./../config/HTTPFactory");
-  var io = require('../io');
-  var debug = require('debug')('webapp:server');
-  var http = require('https');
-  var load = require('express-load');
-  var portNumber = '36000';
-  var PluginLoader = require("../core/PluginLoader");
-  var DataManager = require("../core/DataManager");
-  var PortScanner = require("./../core/PortScanner");
-  var TcpService = require("./../core/facade/tcp-manager/TcpService");
+var app = require('../app');
 
-  var settings = Application.getContextConfig();
+var portNumber = '36000';
 
-  var debugMessage = "";
+// storing active connections
+var connections = {};
+var settings = Application.getContextConfig();
 
-  if (PortScanner.isValidPort(settings.port)) {
-    portNumber = settings.port;
-  } else {
-    debugMessage = "No valid port found. The default port " + portNumber + " will be used";
-  }
+var debugMessage = "";
 
-  /**
-   * Get port from environment and store in Express.
-   */
-  var port = normalizePort(process.env.PORT || portNumber);
-  app.set('port', port);
+if (PortScanner.isValidPort(settings.port)) {
+  portNumber = settings.port;
+} else {
+  debugMessage = "No valid port found. The default port " + portNumber + " will be used";
+}
 
-  /**
-   * Create HTTP server.
-   */
-  var server = HTTPFactory.create(app, settings);
+/**
+ * Get port from environment and store in Express.
+ */
+var port = normalizePort(process.env.PORT || portNumber);
+app.set('port', port);
 
-  return PluginLoader.initialize(__dirname + "/../plugins/").then(function() {
+/**
+ * Create HTTP server.
+ */
+var server = HTTPFactory.create(app, settings);
 
-    // storing active connections
-    var connections = {};
+if (debugMessage) {
+  logger.debug(debugMessage);
+}
+logger.info("Initializing TerraMA2 on port " + port);
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+server.listen(port);
 
-    // getting db configuration and initializes data manager
-    return DataManager.init(function(error) {
-      if (error) {
-        logger.error(error);
-        process.exit(1);
-        return;
-      }
+// approach for handling connections and remove it to avoid unclosed nodejs server
+server.on('connection', function(conn) {
+  var key = conn.remoteAddress + ':' + conn.remotePort;
+  connections[key] = conn;
 
-      // loading terrama2 data
-      return DataManager.load()
-        .then(function() {
-          // initialize service listeners
-          return TcpService.init()
-            .finally(function() {
-              if (debugMessage) {
-                logger.debug(debugMessage);
-              }
-              logger.info("Initializing TerraMA2 on port " + port);
-              /**
-               * Listen on provided port, on all network interfaces.
-               */
-              server.listen(port);
-
-              // approach for handling connections and remove it to avoid unclosed nodejs server
-              server.on('connection', function(conn) {
-                var key = conn.remoteAddress + ':' + conn.remotePort;
-                connections[key] = conn;
-
-                conn.on('close', function() {
-                  delete connections[key];
-                })
-              });
-
-              server.on('error', onError);
-              server.on('listening', onListening);
-              server.on('close', onClose);
-
-              // detecting sigint error and then close server
-              process.on('SIGINT', function(){
-                DataManager.finalize().then(function() {
-                  var _closeServer = function() {
-                    server.close(function() {
-                      logger.info("TerraMA2 finalized");
-                    });
-
-                    for (var key in connections)
-                      connections[key].destroy();
-                  };
-
-                  TcpService.finalize();
-                  TcpService.disconnect();
-
-                  _closeServer();
-                });
-              });
-
-              io.attach(server);
-              load('sockets').into(io);
-            })
-        }).catch(function(err) {
-          logger.error("Could not load datamanager: " + err.message);
-          process.exit(1);
-        });
-    });
+  conn.on('close', function() {
+    delete connections[key];
   });
+});
 
-  /**
-   * Normalize a port into a number, string, or false.
-   */
-  function normalizePort(val) {
-    var port = parseInt(val, 10);
+server.on('error', onError);
+server.on('listening', onListening);
+server.on('close', onClose);
 
-    if (isNaN(port)) {
-      // named pipe
-      return val;
-    }
+// detecting sigint error and then close server
+process.on('SIGINT', function(){
+  DataManager.finalize().then(function() {
+    var _closeServer = function() {
+      server.close(function() {
+        logger.info("TerraMA2 finalized");
+      });
 
-    if (port >= 0) {
-      // port number
-      return port;
-    }
+      for (var key in connections)
+        connections[key].destroy();
+    };
 
-    return false;
+    TcpService.finalize();
+    TcpService.disconnect();
+
+    _closeServer();
+  });
+});
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
   }
 
-  /**
-   * Event listener for HTTP server "error" event.
-   */
-  function onError(error) {
-    if (error.syscall !== 'listen') {
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  var bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      logger.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      logger.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
       throw error;
-    }
+  }
+}
 
-    var bind = typeof port === 'string'
-        ? 'Pipe ' + port
-        : 'Port ' + port;
+/**
+ * Event listener for server close. It unloads plugins
+ */
+function onClose() {
+  PluginLoader.plugin.unloadAll();
+}
 
-    // handle specific listen errors with friendly messages
-    switch (error.code) {
-      case 'EACCES':
-        logger.error(bind + ' requires elevated privileges');
-        process.exit(1);
-        break;
-      case 'EADDRINUSE':
-        logger.error(bind + ' is already in use');
-        process.exit(1);
-        break;
-      default:
-        throw error;
-    }
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+function onListening() {
+  var addr = server.address();
+  var bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
+
+  debug('Listening on ' + bind);
+}
+
+io.attach(server);
+load('sockets').into(io);
+
+// getting db configuration and initializes data manager
+return DataManager.init(function (error) {
+  if (error) {
+    logger.error(error);
+    return process.exit(1);
   }
 
-  /**
-   * Event listener for server close. It unloads plugins
-   */
-  function onClose() {
-    PluginLoader.plugin.unloadAll();
-  }
-
-  /**
-   * Event listener for HTTP server "listening" event.
-   */
-  function onListening() {
-    var addr = server.address();
-    var bind = typeof addr === 'string'
-        ? 'pipe ' + addr
-        : 'port ' + addr.port;
-
-    debug('Listening on ' + bind);
-  }
-}).catch(function(err) {
-  logger.error("Could not initialize TerraMA2 database " + err.stack);
-  process.exit(1);
+  // loading terrama2 data
+  return DataManager.load()
+    .then(function() {
+      // initialize service listeners
+      return TcpService.init()
+        .finally(function() {
+          return PluginLoader.initialize(__dirname + "/../plugins/");
+        });
+    }).catch(function(err) {
+      logger.error("Could not load datamanager: " + err.message);
+      process.exit(1);
+    });
 });
