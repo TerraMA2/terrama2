@@ -26,17 +26,18 @@ ELSE (QUAZIP_INCLUDE_DIRS AND QUAZIP_LIBRARIES)
 		FIND_PACKAGE(PkgConfig)
 #     pkg_check_modules(PC_QCA2 QUIET qca2)
 		pkg_check_modules(PC_QUAZIP quazip)
-		FIND_LIBRARY(QUAZIP_LIBRARIES
-			WIN32_DEBUG_POSTFIX d
-            NAMES quazip${QUAZIP_LIB_VERSION_SUFFIX}
-			HINTS /usr/lib /usr/lib64
-		)
+
+		FIND_LIBRARY(QUAZIP_LIBRARIES NAMES libquazip.so libquazip5.so 
+	             HINTS /usr/lib/x86_64-linux-gnu ${QUAZIP_LIBRARY_DIR})
+
 		FIND_PATH(QUAZIP_INCLUDE_DIR quazip.h
-			HINTS /usr/include /usr/local/include
+			HINTS /usr/include /usr/local/include /usr/include/quazip
 			PATH_SUFFIXES quazip${QUAZIP_LIB_VERSION_SUFFIX}
 		)
+		
 		FIND_PATH(QUAZIP_ZLIB_INCLUDE_DIR zlib.h HINTS /usr/include /usr/local/include)
 	ENDIF (WIN32)
+	
 	INCLUDE(FindPackageHandleStandardArgs)
 	SET(QUAZIP_INCLUDE_DIRS ${QUAZIP_INCLUDE_DIR} ${QUAZIP_ZLIB_INCLUDE_DIR})
 	find_package_handle_standard_args(QUAZIP DEFAULT_MSG  QUAZIP_LIBRARIES QUAZIP_INCLUDE_DIR QUAZIP_ZLIB_INCLUDE_DIR QUAZIP_INCLUDE_DIRS)
