@@ -1,36 +1,32 @@
-var logger = require("./../../core/Logger");
-var User = require('../../config/Database').getORM().import('../../models/User.js');
-var Utils = require("../../core/Utils");
-var TokenCode = require('../../core/Enums').TokenCode;
-var UserError = require("../../core/Exceptions").UserError;
-
 module.exports = function(app) {
+  var logger = require("./../../core/Logger");
+  var DataManager = require('../../core/DataManager');
+  var Utils = require("../../core/Utils");
+  var TokenCode = require('../../core/Enums').TokenCode;
+  var UserError = require("../../core/Exceptions").UserError;
   return {
     get: function (request, response) {
-      User.findAll({
-        attributes: ['id', 'name', 'username', 'cellphone', 'email', 'administrator']
-      }).then(function(users) {
-        var usersArray = [];
+      return DataManager.listUsers()
+        .then(function(users) {
+          var usersArray = [];
 
-        users.forEach(function(user) {
-          var userObj = user.get();
+          users.forEach(function(userObj) {
+            // TODO: use i18n module
+            if(userObj.administrator)
+              userObj.administrator = "Yes";
+            else
+              userObj.administrator = "No";
 
-          // TODO: use i18n module
-          if(userObj.administrator)
-            userObj.administrator = "Yes";
-          else
-            userObj.administrator = "No";
+            usersArray.push(userObj);
+          });
 
-          usersArray.push(userObj);
+          var parameters = Utils.makeTokenParameters(request.query.token, app);
+
+          return response.render('administration/users', Object.assign({ usersList: usersArray }, parameters));
+        }).catch(function(err) {
+          response.status(400);
+          response.json({status: 400, message: err.message});
         });
-
-        var parameters = Utils.makeTokenParameters(request.query.token, app);
-
-        return response.render('administration/users', Object.assign({ usersList: usersArray }, parameters));
-      }).catch(function(err) {
-        response.status(400);
-        response.json({status: 400, message: err.message});
-      });
     },
 
     new: function (request, response) {
@@ -38,30 +34,22 @@ module.exports = function(app) {
     },
 
     edit: function (request, response) {
-      User.findOne({
-        where: {
-          id: request.params.id
-        }
-      }).then(function(userObj) {
-        if(userObj !== null) {
-          var user = {
-            id: userObj.id,
-            name: userObj.name,
-            username: userObj.username,
-            email: userObj.email,
-            cellphone: userObj.cellphone,
-            administrator: userObj.administrator
-          };
+      return DataManager.getUser({id: request.params.id}).then(function(userObj) {
+        var user = {
+          id: userObj.id,
+          name: userObj.name,
+          username: userObj.username,
+          email: userObj.email,
+          cellphone: userObj.cellphone,
+          administrator: userObj.administrator
+        };
 
-          return response.render('administration/user', {
-            user: user,
-            update: true,
-            currentTab: "users",
-            redirectUrl: "/administration/users"
-          });
-        } else {
-          Utils.handleRequestError(response, new UserError("Invalid user"), 400);
-        }
+        return response.render('administration/user', {
+          user: user,
+          update: true,
+          currentTab: "users",
+          redirectUrl: "/administration/users"
+        });
       }).catch(function(err) {
         response.status(400);
         response.json({status: 400, message: err.message});
@@ -71,19 +59,15 @@ module.exports = function(app) {
     // api: json
     post: function (request, response) {
       if((request.body.password !== undefined && request.body.passwordConfirm !== undefined) && (request.body.password === request.body.passwordConfirm) && (request.body.password !== '')) {
-        var salt = User.generateSalt();
-
         var userObj = {
           name: request.body.name,
           username: request.body.username,
-          password: User.generateHash(request.body.password, salt),
-          salt: salt,
+          password: request.body.password,
           cellphone: request.body.cellphone,
           email: request.body.email,
           administrator: (request.body.administrator !== undefined && request.body.administrator === true)
         };
-
-        User.create(userObj).then(function(user) {
+        return DataManager.addUser(userObj).then(function(user) {
           var token = Utils.generateToken(app, TokenCode.SAVE, user.name);
           response.json({status: 200, result: user, token: token});
         }).catch(function(err) {
@@ -98,42 +82,23 @@ module.exports = function(app) {
     // api: json
     put: function (request, response) {
       if(request.body.password === request.body.passwordConfirm) {
-        User.findOne({
-          where: {
-            id: request.params.id
-          }
-        }).then(function(userObj) {
-          if(userObj !== null) {
-            var userToUpdate = {
-              name: request.body.name,
-              username: request.body.username,
-              cellphone: request.body.cellphone,
-              email: request.body.email,
-              administrator: request.body.administrator
-            };
+        return DataManager.getUser({id: request.params.id}).then(function(userObj) {
+          var userToUpdate = {
+            name: request.body.name,
+            username: request.body.username,
+            password: request.body.password,
+            cellphone: request.body.cellphone,
+            email: request.body.email,
+            administrator: request.body.administrator
+          };
 
-            var fields = ["name", "username", "cellphone", "email", "administrator"];
-
-            if(request.body.password !== undefined && request.body.password !== '') {
-              userToUpdate['password'] = User.generateHash(request.body.password, userObj.salt);
-              fields.push("password");
-            }
-
-            User.update(userToUpdate, {
-              fields: fields,
-              where: {
-                id: request.params.id
-              }
-            }).then(function(user) {
-              var token = Utils.generateToken(app, TokenCode.UPDATE, userToUpdate.name);
-              response.json({status: 200, result: user, token: token});
-            }).catch(function(err) {
-              response.status(400);
-              response.json({status: 400, message: err.message});
-            });
-          } else {
-            Utils.handleRequestError(response, new UserError("Invalid user"), 400);
-          }
+          return DataManager.updateUser({id: request.params.id}, userToUpdate).then(function(user) {
+            var token = Utils.generateToken(app, TokenCode.UPDATE, userToUpdate.name);
+            response.json({status: 200, result: user, token: token});
+          }).catch(function(err) {
+            response.status(400);
+            response.json({status: 400, message: err.message});
+          });
         }).catch(function(err) {
           response.status(400);
           response.json({status: 400, message: err.message});
@@ -147,13 +112,13 @@ module.exports = function(app) {
     delete: function(request, response) {
       var userId = request.params.id;
       if (userId) {
-        if (request.user.dataValues.id == userId) {
+        if (request.user.id == userId) {
           Utils.handleRequestError(response, new UserError("You cannot remove yourself"), 400);
           return;
         }
-        User.findOne({where: {id: userId}}).then(function(userResult) {
+        return DataManager.getUser({id: userId}).then(function(userResult) {
           var name = userResult.name;
-          User.destroy({where: {id: userId}}).then(function() {
+          return DataManager.removeUser({id: userId}).then(function() {
             response.json({status:200, name: name});
           }).catch(function(err) {
             logger.debug("Remove user: ", err);
