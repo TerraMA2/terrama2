@@ -78,7 +78,7 @@
     <wz-step wz-title="{{ i18n.__('Store') }}" canexit="validateSteps" wz-disabled="{{ !isDynamic }}" wz-data="wizard.store" canenter="!wizard.store.disabled">
       <div class="col-md-12">
 
-        <terrama2-storager-form ng-if="!wizard.store.disabled" providers-list="providersList" storager="storager" services="services" series="dataSeries" filter="filter" prepare-format-to-form="prepareFormatToForm" forms="forms" on-storager-format-change= "onStoragerFormatChange" model="model" options="storeOptions"></terrama2-storager-form>
+        <terrama2-storager-form ng-if="!wizard.store.disabled" providers-list="providersList" storager="storager" series="dataSeries" filter="filter" prepare-format-to-form="prepareFormatToForm" forms="forms" on-storager-format-change= "onStoragerFormatChange" model="model" options="storeOptions" schedule="schedule"></terrama2-storager-form>
 
       </div>
       <div class="col-md-12">

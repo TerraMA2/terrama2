@@ -1,22 +1,33 @@
 define([], function(){
+  /**
+   * It defines a Component structure for handling Store form on Dynamic data registration
+   * 
+   * @property {Object} bindings - Defines component bindings to work
+   * @type {angular.IComponent}
+   */
     var terrama2StoragerComponent = {
         bindings: {
-            providersList: "<",
+            providersList: "<", 
             storager: "<",
-            services: "<",
             series: "<",
             filter: "<",
             prepareFormatToForm: "<",
             forms: "<",
             onStoragerFormatChange: "<",
             model: "<",
-            options: "<"
+            options: "=",
+            schedule: "<"
         },
         templateUrl: "/dist/templates/data-series/templates/storager.html",
         controller: StoragerController
     };
 
-    function StoragerController($scope, i18n, DataSeriesSemanticsService, UniqueNumber, GeoLibs, DateParser, SemanticsParserFactory, $timeout, $window){
+  /**
+   * It handles component behavior
+   * 
+   * @param {any} i18n - TerraMA² Internationalization module
+   */
+    function StoragerController($scope, i18n, DataSeriesSemanticsService, GeoLibs, SemanticsParserFactory, $timeout, $window, Service){
       var self = this;
       self.i18n = i18n;
       self.formStorager = [];
@@ -29,6 +40,10 @@ define([], function(){
       self.storage = {};
       self.dataProvidersStorager = [];
 
+      self.services = [];
+      
+      self.services = Service.list({service_type_id: globals.enums.ServiceType.COLLECTOR});
+
       function onInputSemanticsChange(){
         self.semantics = self.series.semantics.data_series_type_name;
         self.storager.format = null;
@@ -36,6 +51,7 @@ define([], function(){
         self.options.showStoragerForm = false;
         delete self.options.wizard.store.error;
 
+        // checking if store form must be required
         if (self.series.semantics.allow_direct_access === false){
           self.options.wizard.store.required = true;
           self.options.wizard.store.optional = false;
@@ -45,10 +61,12 @@ define([], function(){
         else {
           self.options.wizard.store.required = false;
           self.options.wizard.store.optional = true;
-          self.options.advanced.store.disabled = true;
           self.options.advanced.store.optional = true;
         }
+
         self.dataSeriesSemantics = DataSeriesSemanticsService.list();
+
+        // Setting storage formats based in input data series
         self.dataSeriesSemantics.forEach(function(dSemantics) {
           if (dSemantics.data_series_type_name === self.series.semantics.data_series_type_name) {
             if (self.series.semantics.data_series_type_name == "OCCURRENCE" && dSemantics.code == "OCCURRENCE-wfp"){
@@ -69,6 +87,42 @@ define([], function(){
                 return true;
               }
             });
+        }
+
+        //Checking if is updating to change output when changed the parameters in Grads data series type
+        if (self.options.isUpdating && self.series.semantics.code == 'GRID-grads'){
+
+            // function to update model storager properties
+            var updateModelStorage = function(inputModel){
+                self.modelStorager.binary_file_mask = inputModel.binary_file_mask;
+                self.modelStorager.bytes_after = inputModel.bytes_after;
+                self.modelStorager.bytes_before = inputModel.bytes_before;
+                self.modelStorager.ctl_filename = inputModel.ctl_filename;
+                self.modelStorager.data_type = inputModel.data_type;
+                self.modelStorager.number_of_bands = inputModel.number_of_bands;
+                self.modelStorager.srid = inputModel.srid;
+                self.modelStorager.temporal = inputModel.temporal;
+                if (inputModel.time_interval){
+                    self.modelStorager.time_interval = inputModel.time_interval;
+                }
+                if (inputModel.time_interval_unit){
+                    self.modelStorager.time_interval_unit = inputModel.time_interval_unit;
+                }
+                if (inputModel.value_multiplier){
+                    self.modelStorager.value_multiplier = inputModel.value_multiplier;
+                }
+            }
+
+            // watch model to update modelStorage
+            var timeoutPromise;
+            $scope.$watch(function(){
+                return self.model;
+            }, function(modelValue){
+                $timeout.cancel(timeoutPromise);
+                timeoutPromise = $timeout(function(){
+                    if (modelValue) updateModelStorage(modelValue);
+                }, 700);
+            }, true);
         }
       }
 
@@ -202,40 +256,6 @@ define([], function(){
           $scope.$broadcast("clearSchedule");
       });
 
-      //Checking if is updating to change output when changed the parameters in Grads data series type
-      if (self.isUpdating && self.series.semantics.code == 'GRID-grads'){
-
-        // function to update model storager properties
-        var updateModelStorage = function(inputModel){
-          self.modelStorager.binary_file_mask = inputModel.binary_file_mask;
-          self.modelStorager.bytes_after = inputModel.bytes_after;
-          self.modelStorager.bytes_before = inputModel.bytes_before;
-          self.modelStorager.ctl_filename = inputModel.ctl_filename;
-          self.modelStorager.data_type = inputModel.data_type;
-          self.modelStorager.number_of_bands = inputModel.number_of_bands;
-          self.modelStorager.srid = inputModel.srid;
-          self.modelStorager.temporal = inputModel.temporal;
-          if (inputModel.time_interval){
-            self.modelStorager.time_interval = inputModel.time_interval;
-          }
-          if (inputModel.time_interval_unit){
-            self.modelStorager.time_interval_unit = inputModel.time_interval_unit;
-          }
-          if (inputModel.value_multiplier){
-            self.modelStorager.value_multiplier = inputModel.value_multiplier;
-          }
-        }
-
-        // watch model to update modelStorage
-        var timeoutPromise;
-        $scope.$watch("model", function(modelValue){
-          $timeout.cancel(timeoutPromise);
-          timeoutPromise = $timeout(function(){
-            updateModelStorage(modelValue);
-          }, 700);
-        }, true);
-      }
-
       $scope.$on('storagerFormatChange', function(event, args) {
         self.formatSelected = args.format;
         // todo: fix it. It is hard code
@@ -295,49 +315,16 @@ define([], function(){
 
         var outputDataseries = $window.configuration.dataSeries.output;
 
-        if (self.hasCollector) {
-          var collector = configuration.collector;
+        if (self.options.hasCollector) {
+          var collector = $window.configuration.collector;
           self.storager_service = collector.service_instance_id;
           self.storager_data_provider_id = outputDataseries.data_provider_id;
 
-          // fill schedule
           var schedule = collector.schedule;
 
           $timeout(function() {
             $scope.$broadcast("updateSchedule", schedule);
           }, 1000);
-
-          // fill filter
-          var filter = collector.filter || {};
-
-          if (filter.discard_before || filter.discard_after || filter.region || filter.data_series_id){
-            self.wizard.filter.message = i18n.__("Remove filter configuration");;
-            self.advanced.filter.disabled = false;
-            self.wizard.filter.disabled = false;
-            self.wizard.filter.error = false;
-          }
-
-          if (filter.discard_before) {
-            self.filter.date.beforeDate = DateParser(filter.discard_before);
-          }
-          if (filter.discard_after) {
-            self.filter.date.afterDate = DateParser(filter.discard_after);
-          }
-
-          // filter geometry field
-          if (filter.region) {
-            $scope.$emit('updateFilterArea', "2");
-            self.filter.area = GeoLibs.polygon.read(filter.region);
-            if (filter.crop_raster){
-              self.filter.area.crop_raster = true;
-            }
-          }
-          self.filter.area.showCrop = self.series.semantics.data_series_type_name == "GRID";
-
-          if (filter.data_series_id){
-            $scope.$emit('updateFilterArea', "3");
-            self.filter.data_series_id = filter.data_series_id; 
-          }
         }
 
         if (self.formatSelected.data_series_type_name === globals.enums.DataSeriesType.DCP) {
@@ -345,13 +332,13 @@ define([], function(){
             self.tableFieldsStorager.push(key);
           });
 
-          if (self.hasCollector) {
+          if (self.options.hasCollector) {
             outputDataseries.dataSets.forEach(function(dataset) {
               self.dcpsStorager.push(angular.merge(dataset.format, {active: dataset.active}));
             });
           } else {
             (args.dcps || []).forEach(function(dataSetDcp) {
-              self._addDcpStorager(Object.assign({}, dataSetDcp));
+              $scope.$broadcast("dcpOperation", {action: "add", dcp: dataSetDcp});
             });
           }
 
@@ -383,6 +370,6 @@ define([], function(){
       });
     }
     
-    StoragerController.$inject = ['$scope', 'i18n', 'DataSeriesSemanticsService', 'UniqueNumber', 'GeoLibs', 'DateParser', 'SemanticsParserFactory', '$timeout', '$window']; 
+    StoragerController.$inject = ['$scope', 'i18n', 'DataSeriesSemanticsService', 'GeoLibs', 'SemanticsParserFactory', '$timeout', '$window', 'Service']; 
     return terrama2StoragerComponent;
 });

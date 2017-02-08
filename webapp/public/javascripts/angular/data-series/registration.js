@@ -2,7 +2,7 @@ define([], function() {
   function RegisterDataSeries($scope, $http, i18n, $window, $state, $httpParamSerializer,
                               DataSeriesSemanticsService, DataProviderService, DataSeriesService,
                               Service, $timeout, WizardHandler, UniqueNumber, 
-                              FilterForm, MessageBoxService, $q, GeoLibs) {
+                              FilterForm, MessageBoxService, $q, GeoLibs, DateParser) {
 
     $scope.forms = {};
     $scope.isDynamic = configuration.dataSeriesType === "dynamic";
@@ -18,6 +18,7 @@ define([], function() {
     $scope.dataSeries = {};
     $scope.dataSeriesSemantics = [];
     $scope.storeOptions = {};
+    $scope.storeOptions.isDynamic = $scope.isDynamic;
 
     // Functions to enable and disable forms
     // clear optional forms
@@ -241,6 +242,41 @@ define([], function() {
 
         $scope.$broadcast("changeDataSemantics");
 
+        if ($scope.hasCollector){
+        
+          // fill filter
+          var filter = collector.filter || {};
+
+          if (filter.discard_before || filter.discard_after || filter.region || filter.data_series_id){
+            $scope.wizard.filter.message = i18n.__("Remove filter configuration");;
+            $scope.advanced.filter.disabled = false;
+            $scope.wizard.filter.disabled = false;
+            $scope.wizard.filter.error = false;
+          }
+
+          if (filter.discard_before) {
+            $scope.filter.date.beforeDate = DateParser(filter.discard_before);
+          }
+          if (filter.discard_after) {
+            $scope.filter.date.afterDate = DateParser(filter.discard_after);
+          }
+
+          // filter geometry field
+          if (filter.region) {
+            $scope.$emit('updateFilterArea', "2");
+            $scope.filter.area = GeoLibs.polygon.read(filter.region);
+            if (filter.crop_raster){
+              $scope.filter.area.crop_raster = true;
+            }
+          }
+          $scope.filter.area.showCrop = $scope.dataSeries.semantics.data_series_type_name == "GRID";
+
+          if (filter.data_series_id){
+            $scope.$emit('updateFilterArea', "3");
+            $scope.filter.data_series_id = filter.data_series_id; 
+          }
+        }
+
         var dataSeriesSemantics = DataSeriesSemanticsService.get({code: $scope.dataSeries.semantics.code});
         // TODO: filter provider type: FTP, HTTP, etc
         $scope.dataProviders = [];
@@ -399,6 +435,10 @@ define([], function() {
       $scope.isBoolean = function(value) {
         return typeof value === 'boolean';
       };
+
+      //injecting helper functin in store options
+      $scope.storeOptions.capitalizeIt = $scope.capitalizeIt;
+      $scope.storeOptions.isBoolean = $scope.isBoolean;
 
       $scope.prepareFormatToForm = function(fmt) {
         var output = {};
@@ -727,9 +767,6 @@ define([], function() {
       $scope.schedule = {};
       $scope.isFrequency = false;
       $scope.isSchedule = false;
-      $scope.services = [];
-      // fix: temp code
-      $scope.services = Service.list({service_type_id: globals.enums.ServiceType.COLLECTOR});
 
       // Wizard validations
       $scope.isFirstStepValid = function(obj) {
@@ -1441,7 +1478,7 @@ define([], function() {
       };
     })
   }
-    RegisterDataSeries.$inject = ["$scope", "$http", "i18n", "$window", "$state", "$httpParamSerializer", "DataSeriesSemanticsService", "DataProviderService", "DataSeriesService", "Service", "$timeout", "WizardHandler", "UniqueNumber", "FilterForm", "MessageBoxService", "$q", "GeoLibs"];
+    RegisterDataSeries.$inject = ["$scope", "$http", "i18n", "$window", "$state", "$httpParamSerializer", "DataSeriesSemanticsService", "DataProviderService", "DataSeriesService", "Service", "$timeout", "WizardHandler", "UniqueNumber", "FilterForm", "MessageBoxService", "$q", "GeoLibs", "DateParser"];
 
     return { "RegisterDataSeries": RegisterDataSeries};
 })
