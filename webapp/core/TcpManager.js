@@ -215,7 +215,7 @@ TcpManager.prototype.logData = function(serviceInstance, data, force) {
       return;
     }
 
-    var array = [];
+    var array = null;
     switch (client.service.service_type_id) {
       case ServiceType.COLLECTOR:
         array = logs.collectors;
@@ -232,9 +232,9 @@ TcpManager.prototype.logData = function(serviceInstance, data, force) {
     }
 
     if (array.length === 0 || force === true) {
-      while(array.length > 0) {
-        array.pop();
-      }
+      // while(array.length > 0) {
+      //   array.pop();
+      // }
       // request all
       var buffer = self.makebuffer(Signals.LOG_SIGNAL, data);
 
@@ -428,7 +428,8 @@ TcpManager.prototype.initialize = function(client) {
         // cachedLog.process_id
         response.some(function(logRetrieved) {
           if (cachedLog.process_id === logRetrieved.process_id) {
-            Array.prototype.unshift.apply(cachedLog.log, logRetrieved.log);
+            cachedLog.log[0] = logRetrieved.log[logRetrieved.log.length - 1];
+            console.log(client.service.name);
             return true;
           }
         });

@@ -15,6 +15,7 @@ define([
       $scope.logSize = 0;
       $scope.i18n = i18n;
       $scope.globals = Globals;
+      $scope.statusPerPage = 10;
       $scope.MessageBoxService = MessageBoxService;
       var title = i18n.__("Status");
       var cachedIcons = {};
@@ -28,6 +29,12 @@ define([
       cachedIcons[Globals.enums.StatusLog.START] = "/images/grey_anime.gif";
       cachedIcons["start_" + Globals.enums.StatusLog.START] = "/images/grey_anime.gif";
       cachedIcons[Globals.enums.StatusLog.ON_QUEUE] = "/images/clock.png";
+
+      $scope.onPageChanged = function(currentPage, previousPage) {
+        // TODO: Paginate dinamically
+        // var begin = $scope.statusPerPage * currentPage;
+        // Socket.emit("log", {begin: begin, end: begin + $scope.statusPerPage});
+      };
 
       // injecting socket in angular scope
       $scope.socket = Socket;
@@ -270,17 +277,12 @@ define([
           $scope.groupedModel[key] =  $scope.groupedModel[key].sort(function(a,b) {return (a.date > b.date) ? -1 : ((b.date > a.date) ? 1 : 0);} );
         }
       });
-      
 
-      $scope.socket.emit('log', {
-        begin: 0,
-        end: 20
-      });
+      $scope.socket.emit('log', {});
 
       if(config.parameters.message !== undefined && config.parameters.message !== null && config.parameters.message !== "") {
         MessageBoxService.success(i18n.__("Project"), config.parameters.message);
       }
-
     }]);
   
   return moduleName;
