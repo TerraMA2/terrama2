@@ -30,7 +30,7 @@ var Utils = require('./Utils');
 var _ = require('lodash');
 var Enums = require('./Enums');
 var Database = require('../config/Database');
-var orm = Database.getORM();
+var orm = null;
 var fs = require('fs');
 var path = require('path');
 var logger = require("./Logger");
@@ -103,11 +103,16 @@ var DataManager = module.exports = {
    */
   init: function(callback) {
     var self = this;
+    logger.info("Initializing database...");
+
+    return Database.init().then(function(dbORM) {
+      logger.info("Database loaded.");
+      self.orm = orm = dbORM;
 
       var dbConfig = Application.getContextConfig().db;
 
       models = modelsFn();
-      models.load(orm);
+      models.load(self.orm);
 
       var fn = function() {
         var inserts = [];
@@ -348,6 +353,10 @@ var DataManager = module.exports = {
       }).catch(function(err) {
         callback(new Error("Could not initialize TerraMA2 due: " + err.message));
       });
+    })
+    .catch(function(err) {
+      return callback(err);
+    });
   },
 
   /**
@@ -739,6 +748,18 @@ var DataManager = module.exports = {
       }).catch(function(err) {
         return reject(new exceptions.UserError("Could not update user.", err.errors||[]));
       });
+    });
+  },
+
+  removeUser: function(restriction, options) {
+    return new Promise(function(resolve, reject) {
+      return models.db.User.destroy(Utils.extend({where: restriction}, options))
+        .then(function() {
+          return resolve();
+        })
+        .catch(function(err) {
+          return reject(new exceptions.UserError("Could not remove user " + err.toString()));
+        });
     });
   },
 
