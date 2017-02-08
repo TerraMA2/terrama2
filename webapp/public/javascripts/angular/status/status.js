@@ -22,11 +22,15 @@ define([
       cachedIcons[Globals.enums.StatusLog.ERROR] = "/images/red.gif";
       cachedIcons["start_" + Globals.enums.StatusLog.ERROR] = "/images/red_anime.gif";
       cachedIcons[Globals.enums.StatusLog.DOWNLOADED] = "/images/download.png";
-      cachedIcons["message_" +Globals.enums.MessageType.WARNING_MESSAGE] = "/images/yellow.png";
-      cachedIcons["start_warning"] = "/images/yellow_anime.png";
+      cachedIcons["message_" +Globals.enums.MessageType.WARNING_MESSAGE] = "/images/yellow.gif";
+      cachedIcons["start_warning"] = "/images/yellow_anime.gif";
       cachedIcons[Globals.enums.StatusLog.START] = "/images/grey_anime.gif";
       cachedIcons["start_" + Globals.enums.StatusLog.START] = "/images/grey_anime.gif";
       cachedIcons[Globals.enums.StatusLog.ON_QUEUE] = "/images/clock.png";
+      cachedIcons[Globals.enums.StatusLog.INTERRUPTED] = "/images/red.gif";
+      cachedIcons["start_" + Globals.enums.StatusLog.INTERRUPTED] = "/images/red_anime.gif";
+      cachedIcons[Globals.enums.StatusLog.NOT_EXECUTED] = "/images/grey.gif";
+      cachedIcons["start_" + Globals.enums.StatusLog.NOT_EXECUTED] = "/images/grey_anime.gif";
 
       // injecting socket in angular scope
       $scope.socket = Socket;
@@ -228,6 +232,14 @@ define([
                 case Globals.enums.StatusLog.ERROR:
                   dummyMessage.description = "Error";
                   dummyMessage.messageType = Globals.enums.MessageType.ERROR_MESSAGE;
+                  break;
+                case Globals.enums.StatusLog.INTERRUPTED:
+                  dummyMessage.description = "Interrupted";
+                  dummyMessage.messageType = Globals.enums.MessageType.ERROR_MESSAGE;
+                  break;
+                case Globals.enums.StatusLog.NOT_EXECUTED:
+                  dummyMessage.description = "Not executed";
+                  dummyMessage.messageType = Globals.enums.MessageType.INFO_MESSAGE;
                   break;
                 case Globals.enums.StatusLog.ON_QUEUE:
                   dummyMessage.description = "On queue";
