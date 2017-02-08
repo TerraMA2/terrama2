@@ -833,82 +833,93 @@
   },
   {
     "id": 13,
-    "name": "Generic CSV data format",
+    "name": "Generic Format for CSV files",
     "code": "CSV-generic",
     "type": "DCP",
     "temporality": "DYNAMIC",
     "format": "CSV",
     "providers_type_list": ["FILE", "FTP"],
-    "metadata": {
-      "timestamp_property": "datetime"
-    },
-    "collector": true,
     "gui": {
-        "schema": {
-            "properties": {
-                "folder": {
-                  "type": "string",
-                  "title": "Folder",
-                  "pattern": "^[^?#!$&'()*+,;=^§]+$"
+      "schema": {
+        "properties": {
+          "latitude": {
+            "type": "string",
+            "title": "Latitude"
+          },
+          "longitude": {
+            "type": "string",
+            "title": "Longitude"
+          },
+          "columns": {
+	          "type": "array",
+            "maxItems": 2,
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "title": "Column Name",
+                  "type": "string"
                 },
-                "mask": {
-                  "type": "string",
-                  "title": "Mask",
-                  "pattern": "^([\\w*.]+|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
+                "type": {
+                  "title": "Column type",
+                  "type": "string"
                 },
-                "timezone": {
-                  "type": "string",
-                  "title": "Timezone"
-                },
-                "columns": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "column_name": {
-                                "type": "number",
-                                "title": "Column Number"
-                            },
-                            "column_alias": {
-                                "type": "string",
-                                "title": "Column Alias"
-                            },
-                            "column_type": {
-                                "type": "string",
-                                "title": "Column Type"
-                            }
-                        }
-                    }
-                },
-                "lines_skip":{
-                    "type": "string",
-                    "title": "Lines to skip",
-                    "pattern": "^[0-9]+(,[0-9]+)*$"
-                },
-                "data_format" : {
-                    "type": "string",
-                    "title": "Data Format"
-                },
-                "latitude": {
-                  "type": "number",
-                  "title": "Latitude"
-                },
-                "longitude": {
-                  "type": "number",
-                  "title": "Longitude"
-                },
-                "projection": {
-                  "type": "number",
-                  "title": "SRID"
-                },
-                "active": {
-                  "type": "boolean",
-                  "title": "Active",
-                  "default": true
-                },
-                "required": ["mask", "timezone", "latitude", "longitude", "projection"]
+                "alias": {
+                  "title": "Alias",
+                  "type": "string"
+                }
+              }
             }
+          }
+        },
+        "required": []
+      },
+      "form": [
+        {
+          "key": "latitude"
+        },
+        {
+          "key": "longitude"
+        },
+        {
+          "key": "columns",
+          "add": "new",
+          "style": {
+            "add": "btn-success"
+          },
+          "items": [
+            {
+              "key": "columns[].name",
+              "type": "string",
+              "htmlClass": "col-md-3"
+            },
+            {
+              "key": "columns[].type",
+              "type": "select",
+              "htmlClass": "col-md-3",
+              "titleMap": [
+                {
+                  "name": "STRING", "value": "STRING"
+                }, 
+                {
+                  "name": "INT", "value": "INT"
+                },
+                {
+                  "name": "DOUBLE", "value": "DOUBLE"
+                },
+                {
+                  "name": "DATETIME", "value": "DATETIME"
+                }
+              ]
+            },
+            {
+              "key": "columns[].alias",
+              "type": "string",
+              "htmlClass": "col-md-3"
+            }
+          ]
         }
+      ]
     }
   }
 ]

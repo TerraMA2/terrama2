@@ -171,14 +171,22 @@ void terrama2::core::DataAccessorTxtFile::adapt(DataSetPtr dataSet, std::shared_
 {
   std::vector<std::tuple< std::vector<std::string>, std::string, int>> fields;
 
-  size_t lonPos = std::numeric_limits<size_t>::max();
-  size_t latPos = std::numeric_limits<size_t>::max();
+  fields = getFields(dataSet);
+
+  std::string latitudePropertyName = getLatitudePropertyName(dataSet);
+  std::string longitudePropertyName = getLongitudePropertyName(dataSet);
 
   //Find the rigth column to adapt
   std::vector<te::dt::Property*> properties = converter->getConvertee()->getProperties();
   for(size_t i = 0, size = properties.size(); i < size; ++i)
   {
     te::dt::Property* property = properties.at(i);
+
+    if(property->getName() == latitudePropertyName ||
+       property->getName() == longitudePropertyName)
+    {
+      continue;
+    }
 
     for(auto& field : fields)
     {
@@ -196,40 +204,71 @@ void terrama2::core::DataAccessorTxtFile::adapt(DataSetPtr dataSet, std::shared_
 
         switch (type)
         {
-          case te::dt::GEOMETRY_TYPE:
-            delete newProperty;
-            newProperty = new te::dt::SimpleProperty(alias, te::dt::DOUBLE_TYPE);
-
-            converter->add(i, newProperty, boost::bind(&terrama2::core::DataAccessor::stringToDouble, this, _1, _2, _3));
-
-            if(property->getName() == getLatitudePropertyName(dataSet))
-              latPos = i;
-            else if(property->getName() == getLongitudePropertyName(dataSet))
-              lonPos = i;
-
-            break;
           case te::dt::DOUBLE_TYPE:
+          {
             converter->add(i, newProperty, boost::bind(&terrama2::core::DataAccessor::stringToDouble, this, _1, _2, _3));
             break;
+          }
           case te::dt::UINT32_TYPE:
+          {
             converter->add(i, newProperty, boost::bind(&terrama2::core::DataAccessor::stringToInt, this, _1, _2, _3));
             break;
+          }
           case te::dt::DATETIME_TYPE:
-            converter->add(i, newProperty, boost::bind(&terrama2::core::DataAccessorTxtFile::stringToTimestamp, this, _1, _2, _3, getTimeZone(dataSet)));
+          {
+            delete newProperty;
+            te::dt::DateTimeProperty* dtProperty = new te::dt::DateTimeProperty(alias, te::dt::TIME_INSTANT_TZ);
+            converter->add(i, dtProperty, boost::bind(&terrama2::core::DataAccessorTxtFile::stringToTimestamp, this, _1, _2, _3, getTimeZone(dataSet)));
             break;
+          }
           default:
-            converter->add(i,property->clone());
+          {
+            delete newProperty;
+
+            te::dt::Property* defaultProperty = property->clone();
+            defaultProperty->setName(alias);
+
+            converter->add(i,defaultProperty);
             break;
+          }
         }
       }
     }
+
+    converter->remove(property->getName());
   }
 
-  if(latPos != std::numeric_limits<size_t>::max() &&
-     lonPos != std::numeric_limits<size_t>::max())
   {
+    std::vector<te::dt::Property*> newProperties = converter->getConvertee()->getProperties();
+
+    size_t longPos = std::numeric_limits<size_t>::max();
+    size_t latPos = std::numeric_limits<size_t>::max();
+
+    for(size_t i = 0, size = newProperties.size(); i < size; ++i)
+    {
+      te::dt::Property* property = newProperties.at(i);
+
+      if(property->getName() == longitudePropertyName)
+      {
+        longPos = i;
+      }
+
+      if(property->getName() == latitudePropertyName)
+      {
+        latPos = i;
+      }
+    }
+
+    if(longPos == std::numeric_limits<size_t>::max() ||
+       latPos == std::numeric_limits<size_t>::max())
+    {
+      QString errMsg = QObject::tr("Could not find the point information!");
+      TERRAMA2_LOG_WARNING() << errMsg;
+      throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
+    }
+
     std::vector<size_t> latLonAttributes;
-    latLonAttributes.push_back(lonPos);
+    latLonAttributes.push_back(longPos);
     latLonAttributes.push_back(latPos);
 
     Srid srid = getSrid(dataSet);
@@ -237,6 +276,9 @@ void terrama2::core::DataAccessorTxtFile::adapt(DataSetPtr dataSet, std::shared_
     te::gm::GeometryProperty* geomProperty = new te::gm::GeometryProperty("point", srid, te::gm::PointType);
 
     converter->add(latLonAttributes, geomProperty, boost::bind(&terrama2::core::DataAccessorTxtFile::stringToPoint, this, _1, _2, _3, srid));
+
+    converter->remove(longitudePropertyName);
+    converter->remove(latitudePropertyName);
   }
 }
 
@@ -251,8 +293,16 @@ te::dt::AbstractData* terrama2::core::DataAccessorTxtFile::stringToTimestamp(te:
   try
   {
     std::string dateTime = dataset->getAsString(indexes[0]);
+    boost::posix_time::ptime boostDate;
 
-    boost::posix_time::ptime boostDate(boost::posix_time::time_from_string(dateTime));
+    //mask to convert DateTime string to Boost::ptime
+    std::locale format(std::locale(), new boost::posix_time::time_input_facet("%m/%d/%Y %H:%M:%S"));
+
+    std::istringstream stream(dateTime);//create stream
+    stream.imbue(format);//set format
+    stream >> boostDate;//convert to boost::ptime
+
+    assert(boostDate != boost::posix_time::ptime());
 
     boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(timezone));
     boost::local_time::local_date_time date(boostDate.date(), boostDate.time_of_day(), zone, true);
@@ -304,7 +354,23 @@ te::dt::AbstractData* terrama2::core::DataAccessorTxtFile::stringToPoint(te::da:
 std::vector<std::tuple< std::vector<std::string>, std::string, int>>
 terrama2::core::DataAccessorTxtFile::getFields(DataSetPtr dataSet) const
 {
+  // TODO:
   std::vector<std::tuple< std::vector<std::string>, std::string, int>> fields;
+
+  {
+    std::vector<std::string> field = {"N/A"};
+    fields.push_back(std::make_tuple(field, "date_time", static_cast<int>(te::dt::DATETIME_TYPE)));
+  }
+
+  {
+    std::vector<std::string> field = {"30885.Bateria"};
+    fields.push_back(std::make_tuple(field, "bateria", static_cast<int>(te::dt::STRING)));
+  }
+
+  {
+    std::vector<std::string> field = {"30885.CorrPSol"};
+    fields.push_back(std::make_tuple(field, "corrpsol", static_cast<int>(te::dt::DOUBLE_TYPE)));
+  }
 
   return fields;
 }

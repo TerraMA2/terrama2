@@ -48,11 +48,11 @@ int main(int argc, char* argv[])
   terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
   dataSet->active = true;
   dataSet->format.emplace("folder", "/PCD_serrmar_INPE/");
-  dataSet->format.emplace("mask", "testeCSV.txt");
+  dataSet->format.emplace("mask", "30885.txt");
   dataSet->format.emplace("timezone", "+00");
-  dataSet->format.emplace("lines_skip", "2,4");
-
-
+  dataSet->format.emplace("latitude_property", "30885.Pluvio");
+  dataSet->format.emplace("longitude_property", "30885.PressaoAtm");
+  dataSet->format.emplace("srid", "4326");
 
   dataSeries->datasetList.emplace_back(dataSet);
 
