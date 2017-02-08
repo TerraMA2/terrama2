@@ -1,8 +1,5 @@
 #!/bin/sh
 
-#
-# Install web dependencies
-#
 function valid()
 {
   if [ $1 -ne 0 ]; then
@@ -11,6 +8,10 @@ function valid()
     exit 1
   fi
 }
+
+#
+# Install web dependencies
+#
 
 npm install bower -g
 npm install grunt -g
@@ -73,3 +74,5 @@ fi
   pm2 save
   valid $? "Error saving pm2 state."
 )
+
+exit 0

@@ -1,5 +1,14 @@
 #!/bin/sh
 
+function valid()
+{
+  if [ $1 -ne 0 ]; then
+    echo $2
+    echo ""
+    exit 1
+  fi
+}
+
 #
 # Stop running services
 #
@@ -16,3 +25,5 @@
 (
   sudo pm2 stop webapp webmonitor
 )
+
+exit 0

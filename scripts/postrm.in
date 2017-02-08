@@ -5,7 +5,7 @@
     ## if we remove the folder we loose de config file from where we read the database info
     ## Don't alter this file/order
     ##
-    
+
 import json
 import psycopg2
 import sys
@@ -36,3 +36,5 @@ if arg == 'purge':
     #
 
     shutil.rmtree(@TERRAMA2_DESTINATION@, ignore_errors=True, onerror=None)
+
+sys.exit(0)
