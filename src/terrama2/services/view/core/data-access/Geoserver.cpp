@@ -912,7 +912,7 @@ void terrama2::services::view::core::GeoServer::deleteWorkspace(bool recursive) 
     throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriDelete.uri()));
   }
 
-  cURLwrapper.customRequest(uriDelete, "delete");
+  cURLwrapper.customRequest(uriDelete, "DELETE");
 
   if(cURLwrapper.responseCode() == 404)
   {
@@ -952,7 +952,7 @@ void terrama2::services::view::core::GeoServer::deleteVectorLayer(const std::str
     throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriDelete.uri()));
   }
 
-  cURLwrapper.customRequest(uriDelete, "delete");
+  cURLwrapper.customRequest(uriDelete, "DELETE");
 
   if(cURLwrapper.responseCode() == 404)
   {
@@ -992,7 +992,7 @@ void terrama2::services::view::core::GeoServer::deleteCoverageLayer(const std::s
     throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriDelete.uri()));
   }
 
-  cURLwrapper.customRequest(uriDelete, "delete");
+  cURLwrapper.customRequest(uriDelete, "DELETE");
 
   if(cURLwrapper.responseCode() == 404)
   {
@@ -1021,7 +1021,7 @@ void terrama2::services::view::core::GeoServer::deleteStyle(const std::string& s
     throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriDelete.uri()));
   }
 
-  cURLwrapper.customRequest(uriDelete, "delete");
+  cURLwrapper.customRequest(uriDelete, "DELETE");
 
   if(cURLwrapper.responseCode() == 404)
   {
