@@ -35,6 +35,6 @@ if arg == 'purge':
     # This command is needed because the web dependencies are not removed automatically
     #
 
-    shutil.rmtree(@TERRAMA2_DESTINATION@, ignore_errors=True, onerror=None)
+    shutil.rmtree("@TERRAMA2_DESTINATION@", ignore_errors=True, onerror=None)
 
 sys.exit(0)
