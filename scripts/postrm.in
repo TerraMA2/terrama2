@@ -1,0 +1,38 @@
+#!/usr/bin/python
+
+    ##
+    ## IMPORTANT: the 'remove' command executed when removing a package is executed befor a 'purge'
+    ## if we remove the folder we loose de config file from where we read the database info
+    ## Don't alter this file/order
+    ##
+    
+import json
+import psycopg2
+import sys
+import shutil
+#
+# On purge remove the TerraMA2 database
+#
+arg = sys.argv[0]
+if arg == 'purge':
+    with open('@TERRAMA2_DESTINATION@webapp/config/config.terrama2') as data_file:
+        data = json.load(data_file)
+
+        for key in data:
+            database = data[key]["db"]["database"]
+            username = data[key]["db"]["username"]
+            password = data[key]["db"]["password"]
+            host = data[key]["db"]["host"]
+
+            conn = psycopg2.connect(host=host,database="postgres", user=username, password=password)
+            cur = conn.cursor()
+            conn.autocommit = True   #  Explains why we do this - we cannot drop or create from within a DB transaction. http://initd.org/psycopg/docs/connection.html#connection.autocommit
+            cur.execute("DROP DATABASE IF EXISTS "+database+";")
+            pass
+
+    #
+    # Remove TerraMA2 folder
+    # This command is needed because the web dependencies are not removed automatically
+    #
+
+    shutil.rmtree(@TERRAMA2_DESTINATION@, ignore_errors=True, onerror=None)

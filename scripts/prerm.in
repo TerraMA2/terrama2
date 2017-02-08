@@ -1,0 +1,18 @@
+#!/bin/sh
+
+#
+# Stop running services
+#
+
+(
+  cd @TERRAMA2_DESTINATION@webapp/bin
+  ./webapp-stop.js
+)
+
+#
+# Stop webapp and webmonitor
+#
+
+(
+  sudo pm2 stop webapp webmonitor
+)
