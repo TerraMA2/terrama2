@@ -8,7 +8,7 @@ module.exports = function(app) {
 
   return {
     get: function(request, response) {
-      var userId = request.params.userId;
+      var userId = request.params.userId || request.query.id;
 
       var _handleError = function(err) {
         var errors = err.getErrors ? err.getErrors() : [];
@@ -19,13 +19,14 @@ module.exports = function(app) {
       var promise = null;
 
       if (userId) {
-        promise = DataManager.getUser({id: userId}).then(function(user) {
+        promise = DataManager.getUser({id: parseInt(userId)}).then(function(user) {
           return {
             id: user.id,
             name: user.name,
             username: user.username,
             cellphone: user.cellphone,
-            email: user.email
+            email: user.email,
+            administrator: user.administrator
           };
         });
       } else {
@@ -33,9 +34,9 @@ module.exports = function(app) {
       }
 
       promise.then(function(result) {
-        var out = result;
+        var out = [result];
         if (result instanceof Array) {
-          out = result.map(function(elm) { return {id: elm.id, name: elm.name, username: elm.username, cellphone: elm.cellphone, email: elm.email}});
+          out = result.map(function(elm) { return {id: elm.id, name: elm.name, username: elm.username, cellphone: elm.cellphone, email: elm.email, administrator: elm.administrator}; });
         }
         response.json(out);
       }).catch(_handleError);

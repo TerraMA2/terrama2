@@ -106,13 +106,13 @@ var DataManager = module.exports = {
     logger.info("Initializing database...");
 
     return Database.init().then(function(dbORM) {
-      logger.debug("Database loaded.");
-      orm = dbORM;
+      logger.info("Database loaded.");
+      self.orm = orm = dbORM;
 
       var dbConfig = Application.getContextConfig().db;
 
       models = modelsFn();
-      models.load(orm);
+      models.load(self.orm);
 
       var fn = function() {
         var inserts = [];

@@ -10,9 +10,7 @@ module.exports = function(app) {
         .then(function(users) {
           var usersArray = [];
 
-          users.forEach(function(user) {
-            var userObj = user.get();
-
+          users.forEach(function(userObj) {
             // TODO: use i18n module
             if(userObj.administrator)
               userObj.administrator = "Yes";
@@ -37,25 +35,21 @@ module.exports = function(app) {
 
     edit: function (request, response) {
       return DataManager.getUser({id: request.params.id}).then(function(userObj) {
-        if(userObj !== null) {
-          var user = {
-            id: userObj.id,
-            name: userObj.name,
-            username: userObj.username,
-            email: userObj.email,
-            cellphone: userObj.cellphone,
-            administrator: userObj.administrator
-          };
+        var user = {
+          id: userObj.id,
+          name: userObj.name,
+          username: userObj.username,
+          email: userObj.email,
+          cellphone: userObj.cellphone,
+          administrator: userObj.administrator
+        };
 
-          return response.render('administration/user', {
-            user: user,
-            update: true,
-            currentTab: "users",
-            redirectUrl: "/administration/users"
-          });
-        } else {
-          Utils.handleRequestError(response, new UserError("Invalid user"), 400);
-        }
+        return response.render('administration/user', {
+          user: user,
+          update: true,
+          currentTab: "users",
+          redirectUrl: "/administration/users"
+        });
       }).catch(function(err) {
         response.status(400);
         response.json({status: 400, message: err.message});
