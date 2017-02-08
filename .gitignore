@@ -15,3 +15,5 @@ webapp/terrama2.log
 .vscode
 webapp/public/dist
 scripts/postinst
+scripts/prerm
+scripts/postrm
