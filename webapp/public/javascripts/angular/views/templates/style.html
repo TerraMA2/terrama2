@@ -23,7 +23,7 @@
         <select class="form-control" 
                 name="styleOperation" 
                 ng-model="$ctrl.model.operation_id"
-                ng-options="value as key for (key, value) in $ctrl.StyleOperation"
+                ng-options="value as $ctrl.i18n.__(key) for (key, value) in $ctrl.StyleOperation"
                 ng-init="$ctrl.model.operation_id = $ctrl.StyleOperation.VALUE;"
                 required>
         </select>
@@ -69,7 +69,7 @@
       <select class="form-control"
               name="styleType"
               ng-model="$ctrl.model.type"
-              ng-options="elementType.value as elementType.name for elementType in $ctrl.styleTypes | filter: $ctrl.typeFilter"
+              ng-options="elementType.value as $ctrl.i18n.__(elementType.name) for elementType in $ctrl.styleTypes | filter: $ctrl.typeFilter"
               required>
       </select>
 
