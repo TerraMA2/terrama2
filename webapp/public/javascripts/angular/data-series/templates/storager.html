@@ -74,7 +74,7 @@
               <tbody style="overflow-y: auto; height: 150px;">
               <!-- header-->
               <tr style="height: 30px;">
-                <th ng-repeat="field in $ctrl.tableFieldsStorager">{{ $ctrl.options.capitalizeIt(field) }}</th>
+                <th ng-repeat="field in $ctrl.tableFieldsStorager">{{ $ctrl.i18n.__($ctrl.options.capitalizeIt(field)) }}</th>
                 <th>ID</th>
               </tr>
 
