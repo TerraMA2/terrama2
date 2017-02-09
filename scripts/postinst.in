@@ -1,4 +1,13 @@
-#!/bin/sh
+#!/bin/bash
+
+function valid()
+{
+  if [ $1 -ne 0 ]; then
+    echo $2
+    echo ""
+    exit 1
+  fi
+}
 
 #
 # Install web dependencies
@@ -10,21 +19,27 @@ npm install grunt -g
 (
   cd @TERRAMA2_DESTINATION@webapp
   npm install
+  valid $? "Unable to install NodeJs dependencies."
   bower install --allow-root
+  valid $? "Unable to install Bower dependencies."
   grunt
+  valid $? "Error executing grunt."
 )
 
 (
   cd @TERRAMA2_DESTINATION@webcomponents
   npm install
-  bower install --allow-root
+  valid $? "Unable to install NodeJs dependencies."
   grunt
+  valid $? "Error executing grunt."
 )
 
 (
   cd @TERRAMA2_DESTINATION@webmonitor
   npm install
+  valid $? "Unable to install NodeJs dependencies."
   bower install --allow-root
+  valid $? "Unable to install Bower dependencies."
 )
 
 #
@@ -36,20 +51,28 @@ npm list pm2 -g
 if [ $? != 0 ]; then
   # Install pm2
   npm install pm2 -g
+  valid $? "Error installing pm2."
   # Allows the service to start with the system
   env PATH=$PATH:/usr/local/bin pm2 startup
+  valid $? "Error adding pm2 to startup."
 fi
 
 # Add webapp to pm2 startup
 (
   cd @TERRAMA2_DESTINATION@webapp
   pm2 start bin/www --name webapp
+  valid $? "Error executing webapp."
   pm2 save
+  valid $? "Error saving pm2 state."
 )
 
 # Add webmonitor to pm2 startup
 (
   cd @TERRAMA2_DESTINATION@webmonitor
   pm2 start bin/www --name webmonitor
+  valid $? "Error executing webmonitor."
   pm2 save
+  valid $? "Error saving pm2 state."
 )
+
+exit 0

@@ -495,6 +495,10 @@ install(DIRECTORY ${TERRAMA2_ABSOLUTE_ROOT_DIR}/third-party
 #
 configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postinst.in
                ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postinst @ONLY)
+configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/prerm.in
+              ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/prerm @ONLY)
+configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postrm.in
+               ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postrm @ONLY)
 #
 # If generating a deb package the script is executed by the debian post install configuration
 # sa: build/cmake/terrama2-cpack-options.cmake.in
