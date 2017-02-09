@@ -1,5 +1,5 @@
 define(function() {
-  function RegisterController($scope, $http, $q, $window, $httpParamSerializer, $location, i18n, $timeout, DataProviderService, MessageBoxService) {
+  function RegisterController($scope, $http, $q, $window, $httpParamSerializer, $location, i18n, $timeout, DataProviderService, MessageBoxService, FormTranslator) {
     $scope.i18n = i18n;
     var model = {};
     var title = i18n.__("Data Server Registration");
@@ -85,10 +85,11 @@ define(function() {
       $scope.typeList.forEach(function(dataProviderType) {
         if (dataProviderType.name === $scope.dataProvider.protocol) {
           // temp code for port changing
+          var propertiesLocale = FormTranslator(dataProviderType.properties)
           $scope.model = {};
           $scope.schema = {
             type: "object",
-            properties: dataProviderType.properties,
+            properties: propertiesLocale,
             required: dataProviderType.required || []
           };
 
@@ -259,7 +260,7 @@ define(function() {
     };
   }
 
-  RegisterController.$inject = ["$scope", "$http", "$q", "$window", "$httpParamSerializer", "$location", "i18n", "$timeout", "DataProviderService", "MessageBoxService"];
+  RegisterController.$inject = ["$scope", "$http", "$q", "$window", "$httpParamSerializer", "$location", "i18n", "$timeout", "DataProviderService", "MessageBoxService", "FormTranslator"];
 
   return RegisterController;
 });

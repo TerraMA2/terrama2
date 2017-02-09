@@ -3,7 +3,7 @@ define([], function() {
   
   function RegisterUpdateController($scope, $q, $log, i18n, Service, DataSeriesService,
                                     DataSeriesSemanticsService, AnalysisService, DataProviderService, 
-                                    Socket, DateParser, MessageBoxService, Polygon, $http, $window, $timeout) {
+                                    Socket, DateParser, MessageBoxService, Polygon, $http, $window, $timeout, FormTranslator) {
     var self = this;
     $scope.i18n = i18n;
 
@@ -659,9 +659,10 @@ define([], function() {
             } else { self.modelStorager = {}; }
 
             self.formStorager = metadata.form;
+            var translatedStoragerSchema = FormTranslator(metadata.schema.properties);
             self.schemaStorager = {
               type: 'object',
-              properties: metadata.schema.properties,
+              properties: translatedStoragerSchema,
               required: metadata.schema.required
             };
 
@@ -1090,7 +1091,7 @@ define([], function() {
   }
   // Injecting angular dependencies in controller
   RegisterUpdateController.$inject = ['$scope', '$q', '$log', 'i18n', 'Service', 'DataSeriesService', 'DataSeriesSemanticsService', 'AnalysisService',
-                                      'DataProviderService', 'Socket', 'DateParser', 'MessageBoxService', 'Polygon', '$http', '$window', '$timeout'];
+                                      'DataProviderService', 'Socket', 'DateParser', 'MessageBoxService', 'Polygon', '$http', '$window', '$timeout', 'FormTranslator'];
 
   return RegisterUpdateController;
 });
