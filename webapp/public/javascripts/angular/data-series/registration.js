@@ -2,7 +2,7 @@ define([], function() {
   function RegisterDataSeries($scope, $http, i18n, $window, $state, $httpParamSerializer,
                               DataSeriesSemanticsService, DataProviderService, DataSeriesService,
                               Service, $timeout, WizardHandler, UniqueNumber, 
-                              FilterForm, MessageBoxService, $q, GeoLibs, $compile, DateParser) {
+                              FilterForm, MessageBoxService, $q, GeoLibs, $compile, DateParser, FormTranslator) {
 
     $scope.forms = {};
     $scope.isDynamic = configuration.dataSeriesType === "dynamic";
@@ -317,25 +317,27 @@ define([], function() {
 
         $scope.tableFields = [];
 	$scope.tableFieldsDataTable = ['ID'];
-        // building table fields. Check if form is for all ('*')
-        if (dataSeriesSemantics.metadata.form.indexOf('*') != -1) {
-          // ignore form and make it from properties
-          var properties = dataSeriesSemantics.metadata.schema.properties;
-          for(var key in properties) {
-            if (properties.hasOwnProperty(key)) {
-              $scope.tableFields.push(key);
-              $scope.tableFieldsDataTable.push(key);
+        if ($scope.dataSeries.semantics.data_series_type_name == "DCP"){
+          // building table fields. Check if form is for all ('*')
+          if (dataSeriesSemantics.metadata.form.indexOf('*') != -1) {
+            // ignore form and make it from properties
+            var properties = dataSeriesSemantics.metadata.schema.properties;
+            for(var key in properties) {
+              if (properties.hasOwnProperty(key)) {
+                $scope.tableFields.push(key);
+	        $scope.tableFieldsDataTable.push(key);
+              }
             }
-          }
-        } else {
-          // form is mapped
-	  for(var i = 0, formLength = dataSeriesSemantics.metadata.form.length; i < formLength; i++) {
-            $scope.tableFields.push(dataSeriesSemantics.metadata.form[i].key);
-            $scope.tableFieldsDataTable.push(dataSeriesSemantics.metadata.form[i].key);
+          } else {
+            // form is mapped
+	    for(var i = 0, formLength = dataSeriesSemantics.metadata.form.length; i < formLength; i++) {
+	      $scope.tableFields.push(dataSeriesSemantics.metadata.form[i].key);
+	      $scope.tableFieldsDataTable.push(dataSeriesSemantics.metadata.form[i].key);
+	    }
           }
         }
 
-        $scope.tableFieldsDataTable.push('');
+	$scope.tableFieldsDataTable.push('');
 
         if($scope.tableFields.length > 0) {
           $scope.createDataTable();
@@ -402,9 +404,10 @@ define([], function() {
         }
 
         $scope.form = dataSeriesSemantics.metadata.form;
+        var schemaTranslated = FormTranslator(dataSeriesSemantics.metadata.schema.properties);
         $scope.schema = {
           type: 'object',
-          properties: dataSeriesSemantics.metadata.schema.properties,
+          properties: schemaTranslated,
           required: dataSeriesSemantics.metadata.schema.required
         };
         $scope.$broadcast('schemaFormRedraw');
@@ -1666,7 +1669,7 @@ define([], function() {
       };
     })
   }
-    RegisterDataSeries.$inject = ["$scope", "$http", "i18n", "$window", "$state", "$httpParamSerializer", "DataSeriesSemanticsService", "DataProviderService", "DataSeriesService", "Service", "$timeout", "WizardHandler", "UniqueNumber", "FilterForm", "MessageBoxService", "$q", "GeoLibs", "$compile", "DateParser"];
+    RegisterDataSeries.$inject = ["$scope", "$http", "i18n", "$window", "$state", "$httpParamSerializer", "DataSeriesSemanticsService", "DataProviderService", "DataSeriesService", "Service", "$timeout", "WizardHandler", "UniqueNumber", "FilterForm", "MessageBoxService", "$q", "GeoLibs", "$compile", "DateParser", "FormTranslator"];
 
     return { "RegisterDataSeries": RegisterDataSeries};
 })
