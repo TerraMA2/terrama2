@@ -6,6 +6,19 @@
     ## Don't alter this file/order
     ##
 
+# summary of how this script can be called:
+#        * <postrm> `remove'
+#        * <postrm> `purge'
+#        * <old-postrm> `upgrade' <new-version>
+#        * <new-postrm> `failed-upgrade' <old-version>
+#        * <new-postrm> `abort-install'
+#        * <new-postrm> `abort-install' <old-version>
+#        * <new-postrm> `abort-upgrade' <old-version>
+#        * <disappearer's-postrm> `disappear' <r>overwrit>r> <new-version>
+# for details, see http://www.debian.org/doc/debian-policy/ or
+# the debian-policy package
+
+
 import json
 import psycopg2
 import sys
@@ -13,28 +26,30 @@ import shutil
 #
 # On purge remove the TerraMA2 database
 #
-arg = sys.argv[0]
+arg = sys.argv[1]
 if arg == 'purge':
-    with open('@TERRAMA2_DESTINATION@webapp/config/config.terrama2') as data_file:
-        data = json.load(data_file)
+    config = '@TERRAMA2_DESTINATION@webapp/config/config.terrama2'
+    if os.path.isfile(config):
+        with open(config) as data_file:
+            data = json.load(data_file)
 
-        for key in data:
-            database = data[key]["db"]["database"]
-            username = data[key]["db"]["username"]
-            password = data[key]["db"]["password"]
-            host = data[key]["db"]["host"]
+            for key in data:
+                database = data[key]["db"]["database"]
+                username = data[key]["db"]["username"]
+                password = data[key]["db"]["password"]
+                host = data[key]["db"]["host"]
 
-            conn = psycopg2.connect(host=host,database="postgres", user=username, password=password)
-            cur = conn.cursor()
-            conn.autocommit = True   #  Explains why we do this - we cannot drop or create from within a DB transaction. http://initd.org/psycopg/docs/connection.html#connection.autocommit
-            cur.execute("DROP DATABASE IF EXISTS "+database+";")
-            pass
+                conn = psycopg2.connect(host=host,database="postgres", user=username, password=password)
+                cur = conn.cursor()
+                conn.autocommit = True   #  Explains why we do this - we cannot drop or create from within a DB transaction. http://initd.org/psycopg/docs/connection.html#connection.autocommit
+                cur.execute("DROP DATABASE IF EXISTS "+database+";")
+                pass
 
     #
     # Remove TerraMA2 folder
     # This command is needed because the web dependencies are not removed automatically
     #
-
-    shutil.rmtree("@TERRAMA2_DESTINATION@", ignore_errors=True, onerror=None)
+    if os.path.isfile("@TERRAMA2_DESTINATION@"):
+        shutil.rmtree("@TERRAMA2_DESTINATION@", ignore_errors=True, onerror=None)
 
 sys.exit(0)
