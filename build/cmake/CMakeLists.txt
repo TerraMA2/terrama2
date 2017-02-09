@@ -171,6 +171,18 @@ elseif(APPLE)
   add_definitions(-ftemplate-depth-1024)
 endif()
 
+if(UNIX)
+  find_program(LSB_RELEASE lsb_release)
+  execute_process(COMMAND ${LSB_RELEASE} -is
+      OUTPUT_VARIABLE LSB_RELEASE_ID_SHORT
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+  execute_process(COMMAND ${LSB_RELEASE} -rs
+      OUTPUT_VARIABLE LSB_RELEASE_VERSION
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+endif()
+
 # For each CMake version we need to check some policies
 # Note: automatically link executables with qtmain.lib on Windows when it has Qt dependency.
 if("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION}" VERSION_GREATER  2.8.9)
