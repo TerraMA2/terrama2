@@ -188,6 +188,30 @@ void terrama2::core::DataAccessorTxtFile::adapt(DataSetPtr dataSet, std::shared_
       continue;
     }
 
+    if(property->getName() == getProperty(dataSet, dataSeries_, "timestamp_property"))
+    {
+      std::string alias;
+
+      try
+      {
+          getProperty(dataSet, dataSeries_, "timestamp_property_alias");
+      }
+      catch(UndefinedTagException /*e*/)
+      {
+        // Do nothing
+      }
+
+      if(alias.empty())
+        alias = terrama2::core::simplifyString(property->getName());
+
+      te::dt::DateTimeProperty* dtProperty = new te::dt::DateTimeProperty(alias, te::dt::TIME_INSTANT_TZ);
+      converter->add(i, dtProperty, boost::bind(&terrama2::core::DataAccessorTxtFile::stringToTimestamp, this, _1, _2, _3, getTimeZone(dataSet), getTimestampPropertyName(dataSet)));
+
+      converter->remove(property->getName());
+
+      continue;
+    }
+
     for(auto& field : fields)
     {
       std::string& propertyName = std::get<0>(field).at(0);
@@ -212,13 +236,6 @@ void terrama2::core::DataAccessorTxtFile::adapt(DataSetPtr dataSet, std::shared_
           case te::dt::UINT32_TYPE:
           {
             converter->add(i, newProperty, boost::bind(&terrama2::core::DataAccessor::stringToInt, this, _1, _2, _3));
-            break;
-          }
-          case te::dt::DATETIME_TYPE:
-          {
-            delete newProperty;
-            te::dt::DateTimeProperty* dtProperty = new te::dt::DateTimeProperty(alias, te::dt::TIME_INSTANT_TZ);
-            converter->add(i, dtProperty, boost::bind(&terrama2::core::DataAccessorTxtFile::stringToTimestamp, this, _1, _2, _3, getTimeZone(dataSet)));
             break;
           }
           default:
@@ -286,7 +303,8 @@ void terrama2::core::DataAccessorTxtFile::adapt(DataSetPtr dataSet, std::shared_
 te::dt::AbstractData* terrama2::core::DataAccessorTxtFile::stringToTimestamp(te::da::DataSet* dataset,
                                                                              const std::vector<std::size_t>& indexes,
                                                                              int /*dstType*/,
-                                                                             const std::string& timezone) const
+                                                                             const std::string& timezone,
+                                                                             std::string dateTimeFormat) const
 {
   assert(indexes.size() == 1);
 
@@ -296,7 +314,7 @@ te::dt::AbstractData* terrama2::core::DataAccessorTxtFile::stringToTimestamp(te:
     boost::posix_time::ptime boostDate;
 
     //mask to convert DateTime string to Boost::ptime
-    std::locale format(std::locale(), new boost::posix_time::time_input_facet("%m/%d/%Y %H:%M:%S"));
+    std::locale format(std::locale(), new boost::posix_time::time_input_facet(dateTimeFormat));
 
     std::istringstream stream(dateTime);//create stream
     stream.imbue(format);//set format
@@ -332,10 +350,18 @@ std::string terrama2::core::DataAccessorTxtFile::getLatitudePropertyName(DataSet
   return getProperty(dataSet, dataSeries_, "latitude_property");
 }
 
+
 std::string terrama2::core::DataAccessorTxtFile::getLongitudePropertyName(DataSetPtr dataSet) const
 {
   return getProperty(dataSet, dataSeries_, "longitude_property");
 }
+
+
+std::string terrama2::core::DataAccessorTxtFile::getTimestampPropertyName(DataSetPtr dataSet) const
+{
+  return getProperty(dataSet, dataSeries_, "timestamp_format");
+}
+
 
 te::dt::AbstractData* terrama2::core::DataAccessorTxtFile::stringToPoint(te::da::DataSet* dataset,
                                                                          const std::vector<std::size_t>& indexes,

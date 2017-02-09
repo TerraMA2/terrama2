@@ -53,6 +53,10 @@ int main(int argc, char* argv[])
   dataSet->format.emplace("latitude_property", "30885.Pluvio");
   dataSet->format.emplace("longitude_property", "30885.PressaoAtm");
   dataSet->format.emplace("srid", "4326");
+  dataSet->format.emplace("timestamp_property", "N/A");
+  dataSet->format.emplace("timestamp_format", "%m/%d/%Y %H:%M:%S");
+  dataSet->format.emplace("timestamp_property_alias", "");
+
 
   dataSeries->datasetList.emplace_back(dataSet);
 

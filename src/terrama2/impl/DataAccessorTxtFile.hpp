@@ -74,13 +74,15 @@ namespace terrama2
         te::dt::AbstractData* stringToTimestamp(te::da::DataSet* dataset,
                                                 const std::vector<std::size_t>& indexes,
                                                 int /*dstType*/,
-                                                const std::string& timezone) const;
+                                                const std::string& timezone, std::string dateTimeFormat) const;
 
         //! Name of column with latitude information
         std::string getLatitudePropertyName(DataSetPtr dataSet) const;
 
         //! Name of column with longitude information
         std::string getLongitudePropertyName(DataSetPtr dataSet) const;
+
+        std::string getTimestampPropertyName(DataSetPtr dataSet) const;
 
         //! Convert string to Geometry
         te::dt::AbstractData* stringToPoint(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int dstType, const Srid& srid) const;
