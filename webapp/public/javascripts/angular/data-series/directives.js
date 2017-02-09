@@ -253,9 +253,9 @@ define(["TerraMA2WebApp/common/services/index", "TerraMA2WebApp/alert-box/app"],
                 }
 
                 if($scope.isBoolean(value)) {
-                  dcp[key + '_html'] = "<span><input type=\"checkbox\" ng-model=\"dcpsObject['" + currentIndex.toString() + "']['" + key + "']\"></span>";
+                  dcp[key + '_html'] = "<span class=\"dcps-table-span\"><input type=\"checkbox\" ng-model=\"dcpsObject['" + currentIndex.toString() + "']['" + key + "']\"></span>";
                 } else {
-                  dcp[key + '_html'] = "<span editable-text=\"dcpsObject['" + currentIndex.toString() + "']['" + key + "']\">{{ dcpsObject['" + currentIndex.toString() + "']['" + key + "'] }}</span>";
+                  dcp[key + '_html'] = "<span class=\"dcps-table-span\" editable-text=\"dcpsObject['" + currentIndex.toString() + "']['" + key + "']\">{{ dcpsObject['" + currentIndex.toString() + "']['" + key + "'] }}</span>";
                 }
 
                 dcp[key] = value;

@@ -1225,18 +1225,21 @@ define([], function() {
                 "next": i18n.__("Next"),
                 "previous": i18n.__("Previous")
               }
+            },
+            "drawCallback": function() {
+              $scope.compileTableLines();
             }
           }
         );
-
-        $('.dcpTable').on('page.dt', function() {
-          $scope.compileTableLines();
-        });
       };
 
       $scope.compileTableLines = function() {
+        $('.dcpTable .dcps-table-span').css('display', 'none');
+
         $timeout(function() {
           $compile(angular.element('.dcpTable > tbody > tr'))($scope);
+
+          $('.dcpTable .dcps-table-span').css('display', '');
         }, 200);
       };
 
@@ -1244,24 +1247,25 @@ define([], function() {
         if (isValidParametersForm($scope.forms.parametersForm)) {
           var data = Object.assign({}, $scope.model);
           data._id = UniqueNumber();
+          var currentIndex = $scope.dcpsCurrentIndex.value++;
 
           for(var j = 0, fieldsLength = $scope.dataSeries.semantics.metadata.form.length; j < fieldsLength; j++) {
             var key = $scope.dataSeries.semantics.metadata.form[j].key;
 
             if($scope.isBoolean(data[key])) {
-              data[key + '_html'] = "<span><input type=\"checkbox\" ng-model=\"dcpsObject['" + data.viewId.toString() + "']['" + key + "']\"></span>";
+              data[key + '_html'] = "<span class=\"dcps-table-span\"><input type=\"checkbox\" ng-model=\"dcpsObject['" + currentIndex.toString() + "']['" + key + "']\"></span>";
             } else {
-              data[key + '_html'] = "<span editable-text=\"dcpsObject['" + data.viewId.toString() + "']['" + key + "']\">{{ dcpsObject['" + data.viewId.toString() + "']['" + key + "'] }}</span>";
+              data[key + '_html'] = "<span class=\"dcps-table-span\" editable-text=\"dcpsObject['" + currentIndex.toString() + "']['" + key + "']\">{{ dcpsObject['" + currentIndex.toString() + "']['" + key + "'] }}</span>";
             }
           }
 
           $scope.dcps.push(Object.assign({}, data));
-          $scope.dcpsObject[data.viewId] = Object.assign({}, data);
+          $scope.dcpsObject[currentIndex] = Object.assign({}, data);
           $scope._addDcpStorager(data);
           $scope.model = {active: true};
 
           var dcpCopy = Object.assign({}, data);
-          dcpCopy.viewId = $scope.dcpsCurrentIndex.value++;
+          dcpCopy.viewId = currentIndex;
           dcpCopy.removeButton = "<button class=\"btn btn-danger removeDcpBtn\" ng-click=\"removePcdById(" + dcpCopy.viewId + ")\" style=\"height: 21px; padding: 1px 4px 1px 4px; font-size: 13px;\">" + i18n.__("Remove") + "</button>";
 
           $scope.storageDcps([dcpCopy]);

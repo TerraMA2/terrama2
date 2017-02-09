@@ -253,18 +253,21 @@ define([], function(){
                 "next": i18n.__("Next"),
                 "previous": i18n.__("Previous")
               }
+            },
+            "drawCallback": function() {
+              self.compileTableLinesStore();
             }
           }
         );
-
-        $('.dcpTableStore').on('page.dt', function() {
-          self.compileTableLinesStore();
-        });
       };
 
       self.compileTableLinesStore = function() {
+        $('.dcpTableStore .store-dcps-table-span').css('display', 'none');
+
         $timeout(function() {
           $compile(angular.element('.dcpTableStore > tbody > tr'))($scope);
+
+          $('.dcpTableStore .store-dcps-table-span').css('display', '');
         }, 200);
       };
 
@@ -335,7 +338,7 @@ define([], function(){
             var obj = SemanticsParserFactory.parseKeys(copyFormat);
 
             obj.table_name = obj.alias;
-            obj.table_name_html = "<span editable-text=\"$ctrl.dcpsStoragerObject['" + obj.viewId.toString() + "']['table_name']\">{{ $ctrl.dcpsStoragerObject['" + obj.viewId.toString() + "']['table_name'] }}</span>";
+            obj.table_name_html = "<span class=\"store-dcps-table-span\" editable-text=\"$ctrl.dcpsStoragerObject['" + obj.viewId.toString() + "']['table_name']\">{{ $ctrl.dcpsStoragerObject['" + obj.viewId.toString() + "']['table_name'] }}</span>";
 
             dcpToAdd = obj;
           }
@@ -344,9 +347,9 @@ define([], function(){
             var key = self.series.semantics.metadata.form[j].key;
 
             if(self.isBoolean(dcpToAdd[key]))
-              dcpToAdd[key + '_html'] = "<span><input type=\"checkbox\" ng-model=\"$ctrl.dcpsStoragerObject['" + dcpToAdd.viewId.toString() + "']['" + key + "']\" ng-disabled=\"true\"></span>";
+              dcpToAdd[key + '_html'] = "<span class=\"store-dcps-table-span\"><input type=\"checkbox\" ng-model=\"$ctrl.dcpsStoragerObject['" + dcpToAdd.viewId.toString() + "']['" + key + "']\" ng-disabled=\"true\"></span>";
             else
-              dcpToAdd[key + '_html'] = "<span ng-bind=\"$ctrl.dcpsStoragerObject['" + dcpToAdd.viewId.toString() + "']['" + key + "']\"></span>";
+              dcpToAdd[key + '_html'] = "<span class=\"store-dcps-table-span\" ng-bind=\"$ctrl.dcpsStoragerObject['" + dcpToAdd.viewId.toString() + "']['" + key + "']\"></span>";
           }
 
           self.dcpsStoragerObject[dcpToAdd.viewId] = dcpToAdd;
