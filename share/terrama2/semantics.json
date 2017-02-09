@@ -840,39 +840,46 @@
     "format": "CSV",
     "providers_type_list": ["FILE", "FTP"],
     "gui": {
-      "schema": {
-        "properties": {
-          "latitude": {
-            "type": "string",
-            "title": "Latitude"
-          },
-          "longitude": {
-            "type": "string",
-            "title": "Longitude"
-          },
-          "columns": {
-	          "type": "array",
-            "maxItems": 2,
-            "items": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "title": "Column Name",
-                  "type": "string"
-                },
-                "type": {
-                  "title": "Column type",
-                  "type": "string"
-                },
-                "alias": {
-                  "title": "Alias",
-                  "type": "string"
-                }
-              }
+        "schema": {
+          "properties": {
+            "folder": {
+              "type": "string",
+              "title": "Folder",
+              "pattern": "^[^?#!$&'()*+,;=^§]+$"
+            },
+            "mask": {
+              "type": "string",
+              "title": "Mask",
+              "pattern": "^([\\w*.]+|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
+            },
+            "alias": {
+              "type": "string",
+              "title": "Alias",
+              "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
+            },
+            "timezone": {
+              "type": "string",
+              "title": "Timezone"
+            },
+            "latitude": {
+              "type": "number",
+              "title": "Latitude"
+            },
+            "longitude": {
+              "type": "number",
+              "title": "Longitude"
+            },
+            "projection": {
+              "type": "number",
+              "title": "SRID"
+            },
+            "active": {
+              "type": "boolean",
+              "title": "Active",
+              "default": true
             }
-          }
-        },
-        "required": []
+          },
+        "required": ["mask", "alias", "timezone", "latitude", "longitude", "projection"]
       },
       "form": [
         {
@@ -900,7 +907,7 @@
               "titleMap": [
                 {
                   "name": "STRING", "value": "STRING"
-                }, 
+                },
                 {
                   "name": "INT", "value": "INT"
                 },

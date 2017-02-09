@@ -47,16 +47,20 @@ int main(int argc, char* argv[])
 
   terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
   dataSet->active = true;
-  dataSet->format.emplace("folder", "/PCD_serrmar_INPE/");
-  dataSet->format.emplace("mask", "30885.txt");
+  dataSet->format.emplace("folder", "/pcd_toa5/GRM/");
+  dataSet->format.emplace("mask", "GRM_slow_%YYYY_%MM_%DD_%hh%mm.dat");
   dataSet->format.emplace("timezone", "+00");
-  dataSet->format.emplace("latitude_property", "30885.Pluvio");
-  dataSet->format.emplace("longitude_property", "30885.PressaoAtm");
   dataSet->format.emplace("srid", "4326");
-  dataSet->format.emplace("timestamp_property", "N/A");
-  dataSet->format.emplace("timestamp_format", "%m/%d/%Y %H:%M:%S");
+  dataSet->format.emplace("timestamp_property", "TOA5");
+  dataSet->format.emplace("timestamp_format", "%Y-%m-%d %H:%M:%S");
   dataSet->format.emplace("timestamp_property_alias", "");
+  dataSet->format.emplace("lines_skip", "1,2,3");
+  dataSet->format.emplace("convert_all", "true");
 
+  /*
+  dataSet->format.emplace("latitude_property", "16510");
+  dataSet->format.emplace("longitude_property", "slow1210");
+  */
 
   dataSeries->datasetList.emplace_back(dataSet);
 

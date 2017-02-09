@@ -43,7 +43,7 @@ namespace terrama2
       \brief Base class for DataAccessor classes that access a text file.
 
     */
-    class DataAccessorTxtFile : public DataAccessorFile
+    class DataAccessorTxtFile : public virtual DataAccessorFile
     {
       public:
         DataAccessorTxtFile(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true)
@@ -52,24 +52,18 @@ namespace terrama2
 
         virtual ~DataAccessorTxtFile() = default;
 
-        //virtual std::shared_ptr<te::dt::TimeInstantTZ> readFile(DataSetSeries& series, std::shared_ptr<te::mem::DataSet>& completeDataset, std::shared_ptr<te::da::DataSetTypeConverter>& converter, QFileInfo fileInfo, const std::string& mask, terrama2::core::DataSetPtr dataSet) const override;
+        virtual std::shared_ptr<te::dt::TimeInstantTZ> readFile(DataSetSeries& series, std::shared_ptr<te::mem::DataSet>& completeDataset, std::shared_ptr<te::da::DataSetTypeConverter>& converter, QFileInfo fileInfo, const std::string& mask, terrama2::core::DataSetPtr dataSet) const override;
 
         virtual std::string dataSourceType() const override { return "OGR"; }
 
-        static DataAccessorType dataAccessorType(){ return "CSV-generic"; }
-
         virtual std::string typePrefix() const override { return "CSV:"; }
 
-        static DataAccessorPtr make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries);
+        std::string simplifyString(std::string text) const;
 
       protected:
-        //QFileInfo filterTxt(QFileInfo& fileInfo, QTemporaryFile& tempFile, DataSetPtr dataSet) const;
-
-        virtual void adapt(DataSetPtr dataset, std::shared_ptr<te::da::DataSetTypeConverter> converter) const override;
+        QFileInfo filterTxt(QFileInfo& fileInfo, QTemporaryFile& tempFile, DataSetPtr dataSet) const;
 
         std::vector<std::tuple< std::vector<std::string>, std::string, int>> getFields(DataSetPtr dataSet) const;
-
-      private:
 
         te::dt::AbstractData* stringToTimestamp(te::da::DataSet* dataset,
                                                 const std::vector<std::size_t>& indexes,
@@ -84,8 +78,11 @@ namespace terrama2
 
         std::string getTimestampPropertyName(DataSetPtr dataSet) const;
 
+        bool getConvertAll(DataSetPtr dataSet) const;
+
         //! Convert string to Geometry
         te::dt::AbstractData* stringToPoint(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int dstType, const Srid& srid) const;
+
     };
   }
 }

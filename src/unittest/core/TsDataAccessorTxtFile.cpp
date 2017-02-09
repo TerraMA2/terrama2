@@ -44,7 +44,7 @@ void TsDataAccessorTxtFile::testFilterTxt()
 
   terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
-
+/*
   terrama2::core::DataAccessorTxtFile dataAccessor(dataProviderPtr, dataSeriesPtr);
 
   QFileInfo fileInfo(QString::fromStdString(TERRAMA2_DATA_DIR + "/PCD_serrmar_INPE/30885.txt"));
@@ -52,6 +52,6 @@ void TsDataAccessorTxtFile::testFilterTxt()
   QTemporaryFile tempFile;
   tempFile.open();
 
-//  dataAccessor.filterTxt(fileInfo, tempFile);
+  dataAccessor.filterTxt(fileInfo, tempFile);*/
 
 }

@@ -45,18 +45,21 @@
 
 // Boost
 #include <boost/bind.hpp>
+#include <boost/algorithm/string/trim.hpp>
 
 // STL
 #include <fstream>
 
-/*
+
 std::shared_ptr<te::dt::TimeInstantTZ> terrama2::core::DataAccessorTxtFile::readFile(DataSetSeries& series, std::shared_ptr<te::mem::DataSet>& completeDataset, std::shared_ptr<te::da::DataSetTypeConverter>& converter, QFileInfo fileInfo, const std::string& mask, terrama2::core::DataSetPtr dataSet) const
 {
-  QTemporaryFile tempFile;
+  QTemporaryFile tempFile(fileInfo.baseName());
 
   if(!tempFile.open())
   {
-    // TODO: throw
+    QString errMsg = QObject::tr("Could not open temporary file!");
+    TERRAMA2_LOG_WARNING() << errMsg;
+    throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
   }
 
   QFileInfo filteredFileInfo = filterTxt(fileInfo, tempFile, dataSet);
@@ -70,14 +73,18 @@ QFileInfo terrama2::core::DataAccessorTxtFile::filterTxt(QFileInfo& fileInfo, QT
 
   if(!file.is_open())
   {
-    // TODO: throw
+    QString errMsg = QObject::tr("Could not open file!");
+    TERRAMA2_LOG_WARNING() << errMsg;
+    throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
   }
 
   std::ofstream outputFile(tempFile.fileName().toStdString());
 
   if(!outputFile.is_open())
   {
-    // TODO: throw
+    QString errMsg = QObject::tr("Could not open temporary file!");
+    TERRAMA2_LOG_WARNING() << errMsg;
+    throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
   }
 
   std::vector<int> linesSkip;
@@ -91,15 +98,6 @@ QFileInfo terrama2::core::DataAccessorTxtFile::filterTxt(QFileInfo& fileInfo, QT
     linesSkip.push_back(std::stoi(skipLineNumber));
   }
 
-  auto dataSetDCP = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(dataSet);
-
-  std::vector<int> validColumns;
-
-  for(auto& field : dataSetDCP->fields)
-  {
-    validColumns.push_back(field.number);
-  }
-
   std::string line = "";
   int lineNumber = 0;
 
@@ -111,46 +109,14 @@ QFileInfo terrama2::core::DataAccessorTxtFile::filterTxt(QFileInfo& fileInfo, QT
       continue;
     }
 
-    std::string newLine = "";
-    std::stringstream strm(line);
-
-    std::string field = "";
-    int columnNumber = 0;
-    while (std::getline(strm, field, ','))
-    {
-      if(validColumns.end() == std::find(validColumns.begin(), validColumns.end(), columnNumber))
-      {
-        columnNumber++;
-        continue;
-      }
-
-      if(lineNumber == 0)
-      {
-        // Header line
-        for(auto& DCPfield : dataSetDCP->fields)
-        {
-          if(DCPfield.number == columnNumber)
-          {
-            // use alias as column name
-            newLine += (newLine.empty() ? "" : "," ) + DCPfield.alias;
-            break;
-          }
-        }
-      }
-      else
-      {
-        newLine += (newLine.empty() ? "" : ",") + field;
-      }
-
-      columnNumber++;
-    }
-
-    outputFile << newLine + "\n";
+    outputFile << line;
     outputFile.flush();
 
     if(outputFile.fail())
     {
-      // TODO: throw
+      QString errMsg = QObject::tr("Could not write to temporary file!");
+      TERRAMA2_LOG_WARNING() << errMsg;
+      throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
     }
 
     lineNumber++;
@@ -159,144 +125,6 @@ QFileInfo terrama2::core::DataAccessorTxtFile::filterTxt(QFileInfo& fileInfo, QT
   outputFile.close();
 
   return QFileInfo(tempFile.fileName());
-}
-
-*/
-terrama2::core::DataAccessorPtr terrama2::core::DataAccessorTxtFile::make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries)
-{
-  return std::make_shared<DataAccessorTxtFile>(dataProvider, dataSeries);
-}
-
-void terrama2::core::DataAccessorTxtFile::adapt(DataSetPtr dataSet, std::shared_ptr<te::da::DataSetTypeConverter> converter) const
-{
-  std::vector<std::tuple< std::vector<std::string>, std::string, int>> fields;
-
-  fields = getFields(dataSet);
-
-  std::string latitudePropertyName = getLatitudePropertyName(dataSet);
-  std::string longitudePropertyName = getLongitudePropertyName(dataSet);
-
-  //Find the rigth column to adapt
-  std::vector<te::dt::Property*> properties = converter->getConvertee()->getProperties();
-  for(size_t i = 0, size = properties.size(); i < size; ++i)
-  {
-    te::dt::Property* property = properties.at(i);
-
-    if(property->getName() == latitudePropertyName ||
-       property->getName() == longitudePropertyName)
-    {
-      continue;
-    }
-
-    if(property->getName() == getProperty(dataSet, dataSeries_, "timestamp_property"))
-    {
-      std::string alias;
-
-      try
-      {
-          getProperty(dataSet, dataSeries_, "timestamp_property_alias");
-      }
-      catch(UndefinedTagException /*e*/)
-      {
-        // Do nothing
-      }
-
-      if(alias.empty())
-        alias = terrama2::core::simplifyString(property->getName());
-
-      te::dt::DateTimeProperty* dtProperty = new te::dt::DateTimeProperty(alias, te::dt::TIME_INSTANT_TZ);
-      converter->add(i, dtProperty, boost::bind(&terrama2::core::DataAccessorTxtFile::stringToTimestamp, this, _1, _2, _3, getTimeZone(dataSet), getTimestampPropertyName(dataSet)));
-
-      converter->remove(property->getName());
-
-      continue;
-    }
-
-    for(auto& field : fields)
-    {
-      std::string& propertyName = std::get<0>(field).at(0);
-
-      if(propertyName == property->getName())
-      {
-        std::string alias = std::get<1>(field);
-        int type = std::get<2>(field);
-
-        if(alias.empty())
-          alias = terrama2::core::simplifyString(property->getName());
-
-        te::dt::SimpleProperty* newProperty = new te::dt::SimpleProperty(alias, type);
-
-        switch (type)
-        {
-          case te::dt::DOUBLE_TYPE:
-          {
-            converter->add(i, newProperty, boost::bind(&terrama2::core::DataAccessor::stringToDouble, this, _1, _2, _3));
-            break;
-          }
-          case te::dt::UINT32_TYPE:
-          {
-            converter->add(i, newProperty, boost::bind(&terrama2::core::DataAccessor::stringToInt, this, _1, _2, _3));
-            break;
-          }
-          default:
-          {
-            delete newProperty;
-
-            te::dt::Property* defaultProperty = property->clone();
-            defaultProperty->setName(alias);
-
-            converter->add(i,defaultProperty);
-            break;
-          }
-        }
-      }
-    }
-
-    converter->remove(property->getName());
-  }
-
-  {
-    std::vector<te::dt::Property*> newProperties = converter->getConvertee()->getProperties();
-
-    size_t longPos = std::numeric_limits<size_t>::max();
-    size_t latPos = std::numeric_limits<size_t>::max();
-
-    for(size_t i = 0, size = newProperties.size(); i < size; ++i)
-    {
-      te::dt::Property* property = newProperties.at(i);
-
-      if(property->getName() == longitudePropertyName)
-      {
-        longPos = i;
-      }
-
-      if(property->getName() == latitudePropertyName)
-      {
-        latPos = i;
-      }
-    }
-
-    if(longPos == std::numeric_limits<size_t>::max() ||
-       latPos == std::numeric_limits<size_t>::max())
-    {
-      QString errMsg = QObject::tr("Could not find the point information!");
-      TERRAMA2_LOG_WARNING() << errMsg;
-      throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
-    }
-
-    std::vector<size_t> latLonAttributes;
-    latLonAttributes.push_back(longPos);
-    latLonAttributes.push_back(latPos);
-
-    Srid srid = getSrid(dataSet);
-
-    te::gm::GeometryProperty* geomProperty = new te::gm::GeometryProperty("point", srid, te::gm::PointType);
-
-    converter->add(latLonAttributes, geomProperty, boost::bind(&terrama2::core::DataAccessorTxtFile::stringToPoint, this, _1, _2, _3, srid));
-
-    converter->remove(longitudePropertyName);
-    converter->remove(latitudePropertyName);
-  }
 }
 
 
@@ -363,6 +191,12 @@ std::string terrama2::core::DataAccessorTxtFile::getTimestampPropertyName(DataSe
 }
 
 
+bool terrama2::core::DataAccessorTxtFile::getConvertAll(DataSetPtr dataSet) const
+{
+  return (getProperty(dataSet, dataSeries_, "convert_all") == "true" ? true : false);
+}
+
+
 te::dt::AbstractData* terrama2::core::DataAccessorTxtFile::stringToPoint(te::da::DataSet* dataset,
                                                                          const std::vector<std::size_t>& indexes,
                                                                          int dstType,
@@ -384,19 +218,32 @@ terrama2::core::DataAccessorTxtFile::getFields(DataSetPtr dataSet) const
   std::vector<std::tuple< std::vector<std::string>, std::string, int>> fields;
 
   {
-    std::vector<std::string> field = {"N/A"};
-    fields.push_back(std::make_tuple(field, "date_time", static_cast<int>(te::dt::DATETIME_TYPE)));
-  }
-
-  {
-    std::vector<std::string> field = {"30885.Bateria"};
+    std::vector<std::string> field = {"GRM"};
     fields.push_back(std::make_tuple(field, "bateria", static_cast<int>(te::dt::STRING)));
   }
 
   {
-    std::vector<std::string> field = {"30885.CorrPSol"};
+    std::vector<std::string> field = {"CR1000"};
     fields.push_back(std::make_tuple(field, "corrpsol", static_cast<int>(te::dt::DOUBLE_TYPE)));
   }
 
+  {
+    std::vector<std::string> field = {"34689"};
+    fields.push_back(std::make_tuple(field, "numero", static_cast<int>(te::dt::DOUBLE_TYPE)));
+  }
+
   return fields;
+}
+
+
+std::string terrama2::core::DataAccessorTxtFile::simplifyString(std::string text) const
+{
+  boost::trim(text);
+  text.erase(std::remove_if(text.begin(), text.end(), [](char x){return !(std::isalnum(x) || x == ' ');}), text.end());
+  std::replace(text.begin(), text.end(), ' ', '_');
+
+  if(std::isdigit(text.at(0)))
+    text ="_" + text;
+
+  return text;
 }
