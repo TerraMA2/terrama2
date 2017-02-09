@@ -27,15 +27,16 @@ define([], function(){
    * 
    * @param {any} i18n - TerraMA² Internationalization module
    */
-    function StoragerController($scope, i18n, DataSeriesSemanticsService, GeoLibs, SemanticsParserFactory, $timeout, $window, Service){
+    function StoragerController($scope, i18n, DataSeriesSemanticsService, GeoLibs, SemanticsParserFactory, $timeout, $window, Service, $http, $compile){
       var self = this;
       self.i18n = i18n;
       self.formStorager = [];
       self.modelStorager = {};
       self.schemaStorager = {};
       self.tableFieldsStorager = [];
+      self.tableFieldsStoragerDataTable = [];
       self.formatSelected = {};
-      self.dcpsStorager = [];
+      self.dcpsStoragerObject = {};
       self.inputDataSets = [];
       self.storage = {};
       self.dataProvidersStorager = [];
@@ -43,6 +44,18 @@ define([], function(){
       self.services = [];
       
       self.services = Service.list({service_type_id: globals.enums.ServiceType.COLLECTOR});
+
+      var makeid = function(length) {
+        var text = "";
+        var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+        for(var i = 0; i < length; i++)
+          text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+        return text;
+      }
+
+      var storedDcpsKey = makeid(30);
 
       function onInputSemanticsChange(){
         self.semantics = self.series.semantics.data_series_type_name;
@@ -142,25 +155,41 @@ define([], function(){
         });
       };
 
-      self.removePcdStorager = function(dcpItem) {
-        self.dcpsStorager.some(function(dcp, pcdIndex, array) {
-          // todo: which fields should compare to remove?
-          if (parseInt(dcp._id) === parseInt(dcpItem._id)) {
+      var removeInputById = function(id) {
+        self.inputDataSets.some(function(dcp, pcdIndex, array) {
+          if(dcp.viewId == id) {
             array.splice(pcdIndex, 1);
             return true;
           }
         });
       };
 
-      self.editDcpStorager = function(dcpItem){
-        self.dcpsStorager.some(function(dcp, dcpIndex, array){
-          if (parseInt(dcp._id) === parseInt(dcpItem._id)){
-            var table_name = dcp.table_name;
-            array[dcpIndex] = dcpItem;
-            array[dcpIndex].table_name = table_name;
-            return true;
+      self.removePcdStorager = function(dcpItem) {
+        for(var property in self.dcpsStoragerObject) {
+          if(self.dcpsStoragerObject.hasOwnProperty(property)) {
+            if(parseInt(self.dcpsStoragerObject[property].viewId) === parseInt(dcpItem.viewId)) {
+              delete self.dcpsStoragerObject[property];
+              return true;
+            }
           }
-        });
+        }
+      };
+
+      self.editDcpStorager = function(dcpItem) {
+        for(var property in self.dcpsStoragerObject) {
+          if(self.dcpsStoragerObject.hasOwnProperty(property)) {
+            if(parseInt(self.dcpsStoragerObject[property].viewId) === parseInt(dcpItem.viewId)) {
+              var table_name = self.dcpsStoragerObject[property].table_name;
+              var table_name_html = self.dcpsStoragerObject[property].table_name_html;
+
+              self.dcpsStoragerObject[dcpItem.viewId] = dcpItem;
+              self.dcpsStoragerObject[dcpItem.viewId].table_name = table_name;
+              self.dcpsStoragerObject[dcpItem.viewId].table_name_html = table_name_html;
+
+              return true;
+            }
+          }
+        }
       }
 
       self.addDcpStorager = function() {
@@ -181,6 +210,70 @@ define([], function(){
         }
       };
 
+      self.createDataTableStore = function(fields) {
+        if(self.dcpTableStore !== undefined)
+          self.dcpTableStore.destroy();
+
+        var dtColumns = [];
+
+        for(var field in fields) {
+          dtColumns.push({ "data": field + '_html' });
+        }
+
+        dtColumns.push({ "data": 'viewId' });
+
+        self.dcpTableStore = $('.dcpTableStore').DataTable(
+          {
+            "ordering": false,
+            "searching": false,
+            "responsive": false,
+            "processing": true,
+            "serverSide": true,
+            "ajax": {
+              "url": "/configuration/dynamic/dataseries/paginateDcpsStore",
+              "type": "POST",
+              "data": function(data) {
+                data.key = storedDcpsKey;
+              }
+            },
+            "columns": dtColumns,
+            "language": {
+              "emptyTable": "<p class='text-center'>" + i18n.__("No data available in table") + "</p>",
+              "info": i18n.__("Showing") + " _START_ " + i18n.__("to") + " _END_ " + i18n.__("of") + " _TOTAL_ " + i18n.__("entries"),
+              "infoEmpty": i18n.__("Showing 0 to 0 of 0 entries"),
+              "infoFiltered": "(" + i18n.__("filtered from") + " _MAX_ " + i18n.__("total entries") + ")",
+              "lengthMenu": i18n.__("Show") + " _MENU_ " + i18n.__("entries"),
+              "loadingRecords": i18n.__("Loading") + "...",
+              "processing": i18n.__("Processing") + "...",
+              "search": i18n.__("Search") + ":",
+              "zeroRecords": "<p class='text-center'>" + i18n.__("No data available in table") + "</p>",
+              "paginate": {
+                "first": i18n.__("First"),
+                "last": i18n.__("Last"),
+                "next": i18n.__("Next"),
+                "previous": i18n.__("Previous")
+              }
+            }
+          }
+        );
+
+        $('.dcpTableStore').on('page.dt', function() {
+          self.compileTableLinesStore();
+        });
+      };
+
+      self.compileTableLinesStore = function() {
+        $timeout(function() {
+          $compile(angular.element('.dcpTableStore > tbody > tr'))($scope);
+        }, 200);
+      };
+
+      self.objectToArray = function(object) {
+        return $.map(object, function(value, index) {
+          return [value];
+        });
+      };
+
       $scope.$on("requestStorageValues", function() {
         // apply a validation
         $scope.$broadcast('schemaFormValidate');
@@ -190,7 +283,7 @@ define([], function(){
           switch (self.formatSelected.data_series_type_name) {
             case "DCP":
               $scope.$emit("storageValuesReceive", {
-                data: self.dcpsStorager,
+                data: self.objectToArray(self.dcpsStoragerObject),
                 data_provider: self['storager_data_provider_id'],
                 service: self["storager_service"],
                 type: self.formatSelected.data_series_type_name,
@@ -221,28 +314,45 @@ define([], function(){
       });
 
       $scope.$on("dcpOperation", function(event, args) {
-        if (args.action === "remove") {
+        if(args.action === "removeById") {
           self.removePcdStorager(args.dcp);
-        //  todo: remove it from list
+          removeInputById(args.dcp.viewId);
+        } else if(args.action === "remove") {
+          self.removePcdStorager(args.dcp);
+          // todo: remove it from list
           removeInput(args.dcp.mask);
-        } else if (args.action === "add") {
-          if (self.storager.format && self.storager.format.data_format_name === globals.enums.DataSeriesFormat.POSTGIS) {
-            // postgis
-            var copyFormat = angular.merge({}, self.series.semantics.metadata.metadata);
+        } else if(args.action === "add") {
+          var dcpToAdd = args.dcp;
+
+          if(self.storager.format && self.storager.format.data_format_name === globals.enums.DataSeriesFormat.POSTGIS) {
+            var copyFormat = angular.merge({}, self.dataSeries.semantics.metadata.metadata);
             angular.merge(copyFormat, args.dcp);
+
             var obj = SemanticsParserFactory.parseKeys(copyFormat);
+
             obj.table_name = obj.alias;
-            self.dcpsStorager.push(obj);
-          } else {
-            self.dcpsStorager.push(args.dcp);
+            obj.table_name_html = "<span editable-text=\"dcpsStoragerObject['" + obj.viewId.toString() + "']['table_name']\">{{ dcpsStoragerObject['" + obj.viewId.toString() + "']['table_name'] }}</span>";
+
+            dcpToAdd = obj;
           }
-        } else if (args.action === "edit"){
+
+          for(var j = 0, fieldsLength = $scope.dataSeries.semantics.metadata.form.length; j < fieldsLength; j++) {
+            var key = $scope.dataSeries.semantics.metadata.form[j].key;
+
+            if($scope.isBoolean(dcpToAdd[key]))
+              dcpToAdd[key + '_html'] = "<span><input type=\"checkbox\" ng-model=\"dcpsStoragerObject['" + dcpToAdd.viewId.toString() + "']['" + key + "']\" ng-disabled=\"true\"></span>";
+            else
+              dcpToAdd[key + '_html'] = "<span ng-bind=\"dcpsStoragerObject['" + dcpToAdd.viewId.toString() + "']['" + key + "']\"></span>";
+          }
+
+          self.dcpsStoragerObject[dcpToAdd.viewId] = dcpToAdd;
+        } else if(args.action === "edit") {
           self.editDcpStorager(args.dcp);
         }
       });
 
       $scope.$on("resetStoragerDataSets", function(event) {
-        self.dcpsStorager = [];
+        self.dcpsStoragerObject = {};
       });
 
       $scope.$on("clearStoreForm", function(event){
@@ -251,20 +361,49 @@ define([], function(){
           self.schemaStorager = {};
           self.storager.format = null;
           self.storager_service = undefined;
-          self.dcpsStorager = [];
+          self.dcpsStoragerObject = {};
           self.storager_data_provider_id = undefined;
           $scope.$broadcast("clearSchedule");
       });
+
+      self.storageDcpsStore = function() {
+        $http.post("/configuration/dynamic/dataseries/storeDcpsStore", {
+          key: storedDcpsKey,
+          dcps: self.objectToArray(self.dcpsStoragerObject)
+        }).success(function(result) {
+          reloadDataStore();
+        }).error(function(err) {
+          console.log("Err in storing dcps");
+        });
+      };
+
+      var reloadDataStore = function() {
+        if(self.dcpTableStore != undefined) {
+          self.dcpTableStore.ajax.reload(null, false);
+          self.compileTableLinesStore();
+        }
+      };
+
+      self.countObjectProperties = function(object) {
+        var count = 0;
+
+        if(object !== undefined && object !== null && typeof object === "object")
+          for(key in object) if(object.hasOwnProperty(key)) count++;
+
+        return count;
+      };
 
       $scope.$on('storagerFormatChange', function(event, args) {
         self.formatSelected = args.format;
         // todo: fix it. It is hard code
         self.tableFieldsStorager = [];
+        self.tableFieldsStoragerDataTable = [];
 
         var dataSeriesSemantics = DataSeriesSemanticsService.get({code: args.format.code});
 
         self.dataProvidersStorager = [];
-        self.dcpsStorager = [];
+        self.dcpsStoragerObject = {};
+
         self.providersList.forEach(function(dataProvider) {
           dataSeriesSemantics.data_providers_semantics.forEach(function(demand) {
             if (dataProvider.data_provider_type.id == demand.data_provider_type_id){
@@ -288,6 +427,8 @@ define([], function(){
         $scope.$broadcast('formFieldValidation');
         var metadata = dataSeriesSemantics.metadata;
         var properties = metadata.schema.properties;
+
+        self.createDataTableStore(properties);
 
         if (self.options.isUpdating) {
           if (self.formatSelected.data_series_type_name === globals.enums.DataSeriesType.DCP) {
@@ -328,9 +469,12 @@ define([], function(){
         }
 
         if (self.formatSelected.data_series_type_name === globals.enums.DataSeriesType.DCP) {
-          Object.keys(properties).forEach(function(key) {
-            self.tableFieldsStorager.push(key);
-          });
+          for(var property in properties) {
+            self.tableFieldsStorager.push(property);
+            self.tableFieldsStoragerDataTable.push(property);
+          }
+
+	        self.tableFieldsStoragerDataTable.push('ID');
 
           if (self.options.hasCollector) {
             outputDataseries.dataSets.forEach(function(dataset) {
@@ -340,6 +484,22 @@ define([], function(){
             (args.dcps || []).forEach(function(dataSetDcp) {
               $scope.$broadcast("dcpOperation", {action: "add", dcp: dataSetDcp});
             });
+
+            if(args.dcps) {
+              var callDcpsStorage = function() {
+                setTimeout(function() {
+                  if(self.countObjectProperties(self.dcpsStoragerObject) === args.dcps.length) {
+                    self.storageDcpsStore();
+                  } else {
+                    callDcpsStorage();
+                  }
+                }, 1000);
+              };
+
+              callDcpsStorage();
+            } else {
+              self.storageDcpsStore();
+            }
           }
 
           self.modelStorager = {};
@@ -370,6 +530,6 @@ define([], function(){
       });
     }
     
-    StoragerController.$inject = ['$scope', 'i18n', 'DataSeriesSemanticsService', 'GeoLibs', 'SemanticsParserFactory', '$timeout', '$window', 'Service']; 
+    StoragerController.$inject = ['$scope', 'i18n', 'DataSeriesSemanticsService', 'GeoLibs', 'SemanticsParserFactory', '$timeout', '$window', 'Service', '$http', '$compile']; 
     return terrama2StoragerComponent;
 });
