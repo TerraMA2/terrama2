@@ -721,10 +721,15 @@ define([], function() {
 
       $scope.dataProviders = [];
 
+      $scope.semanticsSelected = false;
+
       $scope.dataProvidersList = DataProviderService.list();
 
       // it defines when data change combobox has changed and it will adapt the interface
       $scope.onDataSemanticsChange = function() {
+        if(!$scope.semanticsSelected)
+          $scope.semanticsSelected = true;
+
         $scope.semantics = $scope.dataSeries.semantics.data_series_type_name;
         $scope.storager.format = null;
         $scope.storagerFormats = [];
