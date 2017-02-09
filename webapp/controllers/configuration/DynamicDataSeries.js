@@ -131,7 +131,7 @@ module.exports = function(app) {
       var key = request.body.key;
 
       for(var i = 0, dcpsLength = storedDcps[key].length; i < dcpsLength; i++) {
-        if(storedDcps[key][i]._id == request.body.id) {
+        if(storedDcps[key][i].viewId == request.body.id) {
           storedDcps[key].splice(i, 1);
           break;
         }

@@ -274,6 +274,10 @@ define([], function(){
         });
       };
 
+      self.isBoolean = function(value) {
+        return typeof value === 'boolean';
+      };
+
       $scope.$on("requestStorageValues", function() {
         // apply a validation
         $scope.$broadcast('schemaFormValidate');
@@ -325,24 +329,24 @@ define([], function(){
           var dcpToAdd = args.dcp;
 
           if(self.storager.format && self.storager.format.data_format_name === globals.enums.DataSeriesFormat.POSTGIS) {
-            var copyFormat = angular.merge({}, self.dataSeries.semantics.metadata.metadata);
+            var copyFormat = angular.merge({}, self.series.semantics.metadata.metadata);
             angular.merge(copyFormat, args.dcp);
 
             var obj = SemanticsParserFactory.parseKeys(copyFormat);
 
             obj.table_name = obj.alias;
-            obj.table_name_html = "<span editable-text=\"dcpsStoragerObject['" + obj.viewId.toString() + "']['table_name']\">{{ dcpsStoragerObject['" + obj.viewId.toString() + "']['table_name'] }}</span>";
+            obj.table_name_html = "<span editable-text=\"$ctrl.dcpsStoragerObject['" + obj.viewId.toString() + "']['table_name']\">{{ $ctrl.dcpsStoragerObject['" + obj.viewId.toString() + "']['table_name'] }}</span>";
 
             dcpToAdd = obj;
           }
 
-          for(var j = 0, fieldsLength = $scope.dataSeries.semantics.metadata.form.length; j < fieldsLength; j++) {
-            var key = $scope.dataSeries.semantics.metadata.form[j].key;
+          for(var j = 0, fieldsLength = self.series.semantics.metadata.form.length; j < fieldsLength; j++) {
+            var key = self.series.semantics.metadata.form[j].key;
 
-            if($scope.isBoolean(dcpToAdd[key]))
-              dcpToAdd[key + '_html'] = "<span><input type=\"checkbox\" ng-model=\"dcpsStoragerObject['" + dcpToAdd.viewId.toString() + "']['" + key + "']\" ng-disabled=\"true\"></span>";
+            if(self.isBoolean(dcpToAdd[key]))
+              dcpToAdd[key + '_html'] = "<span><input type=\"checkbox\" ng-model=\"$ctrl.dcpsStoragerObject['" + dcpToAdd.viewId.toString() + "']['" + key + "']\" ng-disabled=\"true\"></span>";
             else
-              dcpToAdd[key + '_html'] = "<span ng-bind=\"dcpsStoragerObject['" + dcpToAdd.viewId.toString() + "']['" + key + "']\"></span>";
+              dcpToAdd[key + '_html'] = "<span ng-bind=\"$ctrl.dcpsStoragerObject['" + dcpToAdd.viewId.toString() + "']['" + key + "']\"></span>";
           }
 
           self.dcpsStoragerObject[dcpToAdd.viewId] = dcpToAdd;

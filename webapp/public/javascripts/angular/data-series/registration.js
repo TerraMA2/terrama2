@@ -1142,23 +1142,23 @@ define([], function() {
       };
 
       $scope.removePcdById = function(id) {
-        $scope.dcps.forEach(function(dcp, pcdIndex, array) {
-          if(dcp.viewId == id) {
-            $scope.$broadcast("dcpOperation", {action: "removeById", dcp: Object.assign({}, dcp)});
+        for(var i = 0, dcpsLength = $scope.dcps.length; i < dcpsLength; i++) {
+          if($scope.dcps[i].viewId == id) {
+            $scope.$broadcast("dcpOperation", {action: "removeById", dcp: Object.assign({}, $scope.dcps[i])});
 
             $http.post("/configuration/dynamic/dataseries/removeStoredDcp", {
               key: storedDcpsKey,
-              id: dcp.viewId
+              id: $scope.dcps[i].viewId
             }).success(function(result) {
               reloadData();
             }).error(function(err) {
               console.log("Err in removing dcp");
             });
 
-            array.splice(pcdIndex, 1);
-            return;
+            $scope.dcps.splice(i, 1);
+            break;
           }
-        });
+        }
       };
 
       var isValidParametersForm = function(form) {
