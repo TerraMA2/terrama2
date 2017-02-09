@@ -165,29 +165,31 @@ double terrama2::core::TimeUtils::convertTimeString(const std::string& time, std
       size_t foundPos = timeStr.find(name);
       if (foundPos != std::string::npos)
       {
-        //FIXME: PAULO: This change broke the code and I had to comment. Please check its behavior
-//        size_t lastNumericPos = timeStr.find_last_not_of("0123456789", foundPos - 1);
+        size_t lastNumericPos = timeStr.find_last_not_of("0123456789", foundPos - 1);
 
-//        // For units with one character like M(minutes), S(seconds), H(hours) we need to check if the unit has only character
-//        if(name.size() == 1)
-//        {
-//          // Check previous character for spaces or a number, otherwise ignore this unit
-//          size_t prevPos = timeStr.find_last_not_of("0123456789 ", foundPos - 1);
-//          if(prevPos != foundPos - 1)
-//          {
-//            continue;
-//          }
+        // For units with one character like M(minutes), S(seconds), H(hours) we need to check if the unit has only character
+        if(name.size() == 1)
+        {
+          // Check previous character for spaces or a number, otherwise ignore this unit
+          size_t prevPos = timeStr.find_last_of("0123456789 ", foundPos - 1);
+          if(prevPos != foundPos - 1)
+          {
+            continue;
+          }
 
-//          // Check next character for spaces or a number, otherwise ignore this unit
-//          size_t nextPos = timeStr.find_last_not_of("0123456789 ", foundPos + 1);
-//          if(nextPos != foundPos + 1)
-//          {
-//            continue;
-//          }
-//        }
+          if(foundPos + 1 < timeStr.size())
+          {
+            // Check next character for spaces or a number, otherwise ignore this unit
+            size_t nextPos = timeStr.find_last_of("0123456789 ", foundPos + 1);
+            if(nextPos != foundPos + 1)
+            {
+              continue;
+            }
+          }
+
+        }
         found = true;
         std::string value;
-        size_t lastNumericPos = timeStr.find_last_not_of("0123456789", foundPos - 1);
 
         if(lastNumericPos != std::string::npos)
           value = timeStr.substr(lastNumericPos + 1, foundPos - lastNumericPos - 1 );

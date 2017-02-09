@@ -58,13 +58,13 @@ namespace terrama2
           terrama2::services::analysis::core::AnalysisPtr analysisPtr;
           int32_t row = -1; //!< Output raster row.
           int32_t column = -1; //!< Output raster column.
-          double sum = 0; //!< Result of the sum.
-          double max = 0; //!< Maximum value.
-          double min = 0; //!< Minimum value.
-          double median = 0; //!< Median value.
-          double mean = 0; //!< Mean value.
-          double standardDeviation = 0; //!< Standard deviation value.
-          double variance = 0; //!< Standard deviation value.
+          double sum = std::nan(""); //!< Result of the sum.
+          double max = std::nan(""); //!< Maximum value.
+          double min = std::nan(""); //!< Minimum value.
+          double median = std::nan(""); //!< Median value.
+          double mean = std::nan(""); //!< Mean value.
+          double standardDeviation = std::nan(""); //!< Standard deviation value.
+          double variance = std::nan(""); //!< Standard deviation value.
           uint32_t count = 0; //!< Count value.
         };
       } // end namespace core
