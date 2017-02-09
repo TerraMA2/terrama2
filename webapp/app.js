@@ -10,38 +10,12 @@ var express = require('express'),
     passport = require('./config/Passport'),
     session = require('express-session'),
     flash = require('connect-flash'),
-    Database = require('./config/Database'),
-    User = Database.getORM().import('./models/User.js'),
     // i18n = require('i18n-2'),
     i18n = require( "i18n" );
     i18nRoutes = require( "i18n-node-angular" );
     server = require('http').Server(app);
 
 app.use(session({ secret: KEY, resave: false, saveUninitialized: false }));
-app.use(function(req, res, next) {
-  if(req.session.passport !== undefined && req.session.passport.user !== undefined) {
-    User.findOne({
-      where: { 'id': req.session.passport.user }
-    }).then(function(userObj) {
-      if(userObj != null) {
-        res.locals.currentUser = {
-          id: userObj.id,
-          name: userObj.name,
-          email: userObj.email,
-          cellphone: userObj.cellphone,
-          username: userObj.username,
-          administrator: userObj.administrator
-        };
-      } else {
-        res.locals.currentUser = null;
-      }
-    });
-  } else {
-    res.locals.currentUser = null;
-  }
-
-  next();
-});
 
 app.use(flash());
 

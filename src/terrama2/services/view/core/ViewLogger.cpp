@@ -44,6 +44,13 @@ void terrama2::services::view::core::ViewLogger::setConnectionInfo(const te::cor
   auto& serviceManager = terrama2::core::ServiceManager::getInstance();
   std::string tableName = "view_log_"+std::to_string(serviceManager.instanceId());
   setTableName(tableName);
+
+  if(!consistent_)
+  {
+    checkConsistency();
+
+    consistent_ = true;
+  }
 }
 
 std::shared_ptr<terrama2::core::ProcessLogger> terrama2::services::view::core::ViewLogger::clone() const
@@ -51,7 +58,26 @@ std::shared_ptr<terrama2::core::ProcessLogger> terrama2::services::view::core::V
   // Find the type of *this without const &
   // create a shared poiter of the same type of this
   auto loggerCopy = std::make_shared<std::decay<decltype (*this)>::type >();
+  loggerCopy->consistent_ = consistent_;
+
   internalClone(loggerCopy);
 
   return loggerCopy;
+}
+
+void terrama2::services::view::core::ViewLogger::checkConsistency() const
+{
+  {
+    std::vector<ViewLogger::Status> oldStatus;
+    oldStatus.push_back(ViewLogger::START);
+
+    updateStatus(oldStatus, ViewLogger::INTERRUPTED);
+  }
+
+  {
+    std::vector<ViewLogger::Status> oldStatus;
+    oldStatus.push_back(ViewLogger::ON_QUEUE);
+
+    updateStatus(oldStatus, ViewLogger::NOT_EXECUTED);
+  }
 }

@@ -12,6 +12,10 @@ var logger = require("./../core/Logger");
  * @returns {Sequelize.Instance}
  */
 module.exports = function(config) {
-  config.logging = logger.info;
+  if (config.hasOwnProperty("logging") && config.logging === true) {
+    config.logging = logger.info;
+  } else {
+    config.logging = false;
+  }
   return new Sequelize(config.database, config.username, config.password, config);
 };

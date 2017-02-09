@@ -1,8 +1,7 @@
 var passport = require('passport'),
     LocalStrategy = require('passport-local').Strategy,
     bcrypt = require('bcrypt'),
-    Database = require('./Database'),
-    User = Database.getORM().import('../models/User.js');
+    DataManager = require("./../core/DataManager");
 
 /**
  * Middleware to check if current user is authenticated and redirect him to correct path
@@ -44,28 +43,52 @@ var setupPassport = function(app) {
   app.use(passport.initialize());
   app.use(passport.session());
 
+  app.use(function(req, res, next) {
+    if(req.session.passport !== undefined && req.session.passport.user !== undefined) {
+      return DataManager.getUser({ 'id': req.session.passport.user })
+        .then(function(userObj) {
+          res.locals.currentUser = {
+            id: userObj.id,
+            name: userObj.name,
+            email: userObj.email,
+            cellphone: userObj.cellphone,
+            username: userObj.username,
+            administrator: userObj.administrator
+          };
+          return;
+        })
+        .catch(function(err) {
+          res.locals.currentUser = null;
+          return;
+        })
+        .finally(function() {
+          return next();
+        });
+    } else {
+      res.locals.currentUser = null;
+      next();
+    }
+  });
+
   passport.use(new LocalStrategy(
     {
       usernameField: 'username',
       passwordField: 'password'
     },
     function(username, password, done) {
-      User.findOne({
-        where: {
-          'username': username
-        }
-      }).then(function(userObj) {
-        if(userObj === null) {
+      return DataManager.getUser({'username': username})
+        .then(function(userObj) {
+          if(userObj === null) {
+            return done(null, false, { message: 'Incorrect credentials.' });
+          }
+
+          var hashedPassword = bcrypt.hashSync(password, userObj.salt);
+
+          if(userObj.password === hashedPassword) {
+            return done(null, userObj);
+          }
+
           return done(null, false, { message: 'Incorrect credentials.' });
-        }
-
-        var hashedPassword = bcrypt.hashSync(password, userObj.salt);
-
-        if(userObj.password === hashedPassword) {
-          return done(null, userObj);
-        }
-
-        return done(null, false, { message: 'Incorrect credentials.' });
       });
     }
   ));
@@ -75,17 +98,14 @@ var setupPassport = function(app) {
   });
 
   passport.deserializeUser(function(id, done) {
-    User.findOne({
-      where: {
-        'id': id
-      }
-    }).then(function(user) {
-      if (!user) {
-        return done(new Error('Wrong user id.'));
-      }
+    return DataManager.getUser({'id': id})
+      .then(function(user) {
+        if (!user) {
+          return done(new Error('Wrong user id.'));
+        }
 
-      return done(null, user);
-    });
+        return done(null, user);
+      });
   });
 };
 

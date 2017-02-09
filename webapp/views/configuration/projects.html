@@ -35,6 +35,152 @@
     </div>
     <!-- ./row -->
   </terrama2-box>
+
+  <div id="exportModal" class="modal fade">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+          <h4 class="modal-title">Data Export</h4>
+        </div>
+        <div class="modal-body">
+          <div ng-repeat="element in model" ng-show="element.id == currentProjectId">
+            <input type="checkbox" value="{{ element.id }}" style="margin-right: 5px; float: left;" ng-model="projectsCheckboxes[element.id].project" ng-change="projectCheck(element)"/><div style="float: left;">{{ element.name }} (check all items)</div>
+            <div style="clear: both; height: 20px;"></div>
+            <div class="box collapsed-box" ng-show="dataProviders[element.id].length > 0">
+              <div class="box-header with-border">
+                <span class="box-title" style="font-size: 14px;">Data Servers</span>
+                <div class="box-tools pull-right">
+                  <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+                </div>
+              </div>
+              <div class="box-body" style="display: none;">
+                <ul style="list-style-type: none; padding-left: 0 !important;">
+                  <li ng-repeat="dataProvider in dataProviders[element.id]">
+                    <input type="checkbox" value="{{ dataProvider.id }}" ng-model="projectsCheckboxes[element.id].DataProviders[dataProvider.id]" ng-disabled="projectsCheckboxes[element.id].project" ng-change="itemCheck(element.id, dataProvider.id, 'DataProviders')"/><div style="margin-top: -23px; margin-left: 18px;">{{ dataProvider.name }}</div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="box collapsed-box" ng-show="dataSeries[element.id].length > 0">
+              <div class="box-header with-border">
+                <span class="box-title" style="font-size: 14px;">{{ i18n.__('Dynamic Data') }}</span>
+                <div class="box-tools pull-right">
+                  <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+                </div>
+              </div>
+              <div class="box-body" style="display: none;">
+                <ul style="list-style-type: none; padding-left: 0 !important;">
+                  <li ng-repeat="dataSerie in dataSeries[element.id]">
+                    <input type="checkbox" value="{{ dataSerie.id }}" ng-model="projectsCheckboxes[element.id].DataSeries[dataSerie.id]" ng-disabled="projectsCheckboxes[element.id].project" ng-change="itemCheck(element.id, dataSerie.id, 'DataSeries')"/><div style="margin-top: -23px; margin-left: 18px;">{{ dataSerie.name }}</div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="box collapsed-box" ng-show="dataSeriesStatic[element.id].length > 0">
+              <div class="box-header with-border">
+                <span class="box-title" style="font-size: 14px;">{{ i18n.__('Static Data') }}</span>
+                <div class="box-tools pull-right">
+                  <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+                </div>
+              </div>
+              <div class="box-body" style="display: none;">
+                <ul style="list-style-type: none; padding-left: 0 !important;">
+                  <li ng-repeat="dataSerie in dataSeriesStatic[element.id]">
+                    <input type="checkbox" value="{{ dataSerie.id }}" ng-model="projectsCheckboxes[element.id].DataSeriesStatic[dataSerie.id]" ng-disabled="projectsCheckboxes[element.id].project" ng-change="itemCheck(element.id, dataSerie.id, 'DataSeriesStatic')"/><div style="margin-top: -23px; margin-left: 18px;">{{ dataSerie.name }}</div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="box collapsed-box" ng-show="analysis[element.id].length > 0">
+              <div class="box-header with-border">
+                <span class="box-title" style="font-size: 14px;">Analysis</span>
+                <div class="box-tools pull-right">
+                  <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+                </div>
+              </div>
+              <div class="box-body" style="display: none;">
+                <ul style="list-style-type: none; padding-left: 0 !important;">
+                  <li ng-repeat="analysisItem in analysis[element.id]">
+                    <input type="checkbox" value="{{ analysisItem.id }}" ng-model="projectsCheckboxes[element.id].Analysis[analysisItem.id]" ng-disabled="projectsCheckboxes[element.id].project" ng-change="itemCheck(element.id, analysisItem.id, 'Analysis')"/><div style="margin-top: -23px; margin-left: 18px;">{{ analysisItem.name }}</div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="box collapsed-box" ng-show="views[element.id].length > 0">
+              <div class="box-header with-border">
+                <span class="box-title" style="font-size: 14px;">Views</span>
+                <div class="box-tools pull-right">
+                  <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+                </div>
+              </div>
+              <div class="box-body" style="display: none;">
+                <ul style="list-style-type: none; padding-left: 0 !important;">
+                  <li ng-repeat="view in views[element.id]">
+                    <input type="checkbox" value="{{ view.id }}" ng-model="projectsCheckboxes[element.id].Views[view.id]" ng-disabled="projectsCheckboxes[element.id].project" ng-change="itemCheck(element.id, view.id, 'Views')"/><div style="margin-top: -23px; margin-left: 18px;">{{ view.name }}</div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <hr/>
+            <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary pull-right" ng-click="extra.export(element)">Export</button>
+            <div style="clear: both;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="importModal" class="modal fade">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+          <h4 class="modal-title">Select the project to which you want to import the data</h4>
+        </div>
+        <div class="modal-body">
+          <div class="form-group" ng-show="model.length > 0">
+            <div class="radio" ng-repeat="element in model">
+              <label>
+                <input type="radio" name="projectRadio" ng-value="{{ element.id }}" ng-model="$parent.projectRadio" checked>{{ element.name }}
+              </label>
+            </div>
+          </div>
+          <h4 style="text-align: center;" ng-show="model.length == 0">No projects found.</h4>
+          <hr ng-show="model.length > 0 && hasCollect && services.COLLECT.length > 0"/>
+          <div class="form-group" ng-show="model.length > 0 && hasCollect && services.COLLECT.length > 0">
+            <label>{{ i18n.__("Select the Collector Service to be Used") }}:</label>
+            <select class="form-control" name="servicesCollect" ng-model="selectedServices.Collect" ng-change="extra.lala()">
+              <option ng-repeat="service in services.COLLECT" ng-init="selectedServices.Collect = services.COLLECT[0].id.toString()" value="{{ service.id }}">{{ service.name }}</option>
+            </select>
+          </div>
+          <hr ng-show="model.length > 0 && hasAnalysis && services.ANALYSIS.length > 0"/>
+          <div class="form-group" ng-show="model.length > 0 && hasAnalysis && services.ANALYSIS.length > 0">
+            <label>{{ i18n.__("Select the Analysis Service to be Used") }}:</label>
+            <select class="form-control" name="servicesAnalysis" ng-model="selectedServices.Analysis">
+              <option ng-repeat="service in services.ANALYSIS" ng-init="selectedServices.Analysis = services.ANALYSIS[0].id.toString()" value="{{ service.id }}">{{ service.name }}</option>
+            </select>
+          </div>
+          <hr ng-show="model.length > 0 && hasView && services.VIEW.length > 0"/>
+          <div class="form-group" ng-show="model.length > 0 && hasView && services.VIEW.length > 0">
+            <label>{{ i18n.__("Select the View Service to be Used") }}:</label>
+            <select class="form-control" name="servicesView" ng-model="selectedServices.View">
+              <option ng-repeat="service in services.VIEW" ng-init="selectedServices.View = services.VIEW[0].id.toString()" value="{{ service.id }}">{{ service.name }}</option>
+            </select>
+          </div>
+          <hr/>
+          <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary pull-right" ng-click="extra.finalizeImportation()" ng-show="model.length > 0">Import</button>
+          <div style="clear: both;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 {% endblock %}
