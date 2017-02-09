@@ -203,6 +203,7 @@ void terrama2::services::view::core::Service::viewJob(const terrama2::core::Exec
 
   RegisterId logId = executionPackage.registerId;
   ViewId viewId = executionPackage.processId;
+  std::string viewName = "";
 
   QJsonObject jsonAnswer;
 
@@ -218,6 +219,8 @@ void terrama2::services::view::core::Service::viewJob(const terrama2::core::Exec
     auto lock = dataManager->getLock();
 
     auto viewPtr = dataManager->findView(viewId);
+
+    viewName = viewPtr->viewName;
 
     terrama2::core::DataSeriesPtr inputDataSeries = dataManager->findDataSeries(viewPtr->dataSeriesID);
     terrama2::core::DataProviderPtr inputDataProvider = dataManager->findDataProvider(inputDataSeries->dataProviderId);
@@ -237,7 +240,7 @@ void terrama2::services::view::core::Service::viewJob(const terrama2::core::Exec
     jsonAnswer.insert("process_id",static_cast<int32_t>(viewPtr->id));
     jsonAnswer.insert("maps_server_uri", QString::fromStdString(mapsServerUri_.uri()));
 
-    TERRAMA2_LOG_INFO() << tr("View %1 generated successfully.").arg(viewId);
+    TERRAMA2_LOG_INFO() << tr("View %1(%2) generated successfully.").arg(QString::fromStdString(viewName)).arg(viewId);
 
     logger->result(ViewLogger::DONE, terrama2::core::TimeUtils::nowUTC(), logId);
 
@@ -250,13 +253,13 @@ void terrama2::services::view::core::Service::viewJob(const terrama2::core::Exec
   {
     std::string errMsg = boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
     TERRAMA2_LOG_ERROR() << errMsg << std::endl;
-    TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1 finished with error(s).").arg(viewId);
+    TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1(%2) finished with error(s).").arg(QString::fromStdString(viewName)).arg(viewId);
   }
   catch(const terrama2::Exception& e)
   {
     std::string errMsg = boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
     TERRAMA2_LOG_ERROR() << errMsg << std::endl;
-    TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1 finished with error(s).").arg(viewId);
+    TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1(%2) finished with error(s).").arg(QString::fromStdString(viewName)).arg(viewId);
 
     if(logId != 0)
       logger->log(ViewLogger::ERROR_MESSAGE, errMsg, logId);
@@ -265,7 +268,7 @@ void terrama2::services::view::core::Service::viewJob(const terrama2::core::Exec
   {
     std::string errMsg = boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
     TERRAMA2_LOG_ERROR() << errMsg;
-    TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1 finished with error(s).").arg(viewId);
+    TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1(%2) finished with error(s).").arg(QString::fromStdString(viewName)).arg(viewId);
 
     if(logId != 0)
       logger->log(ViewLogger::ERROR_MESSAGE, errMsg, logId);
@@ -274,7 +277,7 @@ void terrama2::services::view::core::Service::viewJob(const terrama2::core::Exec
   {
     std::string errMsg = e.what();
     TERRAMA2_LOG_ERROR() << errMsg;
-    TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1 finished with error(s).").arg(viewId);
+    TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1(%2) finished with error(s).").arg(QString::fromStdString(viewName)).arg(viewId);
 
     if(logId != 0)
       logger->log(ViewLogger::ERROR_MESSAGE, errMsg, logId);
@@ -283,7 +286,7 @@ void terrama2::services::view::core::Service::viewJob(const terrama2::core::Exec
   {
     std::string errMsg = "Unknown error.";
     TERRAMA2_LOG_ERROR() << QObject::tr("Unknown error.");
-    TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1 finished with error(s).").arg(viewId);
+    TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1(%2) finished with error(s).").arg(QString::fromStdString(viewName)).arg(viewId);
 
     if(logId != 0)
       logger->log(ViewLogger::ERROR_MESSAGE, errMsg, logId);
