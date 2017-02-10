@@ -16,8 +16,12 @@
 #include <terrama2/impl/DataAccessorTxtFile.hpp>
 #include <terrama2/impl/Utils.hpp>
 
+
 //QT
 #include <QUrl>
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QJsonObject>
 
 // STL
 #include <iostream>
@@ -42,20 +46,69 @@ int main(int argc, char* argv[])
   terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
   auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
-  dataSeries->semantics = semanticsManager.getSemantics("CSV-generic");
+  dataSeries->semantics = semanticsManager.getSemantics("DCP-generic");
 
 
   terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
   dataSet->active = true;
   dataSet->format.emplace("folder", "/pcd_toa5/GRM/");
-  dataSet->format.emplace("mask", "GRM_slow_%YYYY_%MM_%DD_%hh%mm.dat");
+//  dataSet->format.emplace("mask", "GRM_slow_%YYYY_%MM_%DD_%hh%mm.dat");
+  dataSet->format.emplace("mask", "GRM_slow_2014_01_02_2101.dat");
   dataSet->format.emplace("timezone", "+00");
   dataSet->format.emplace("srid", "4326");
   dataSet->format.emplace("timestamp_property", "TOA5");
   dataSet->format.emplace("timestamp_format", "%Y-%m-%d %H:%M:%S");
-  dataSet->format.emplace("timestamp_property_alias", "");
+  dataSet->format.emplace("timestamp_property_alias", "DateTime");
   dataSet->format.emplace("lines_skip", "1,2,3");
   dataSet->format.emplace("convert_all", "true");
+
+  QJsonArray fields;
+
+  {
+    QJsonObject obj;
+
+    obj.insert("column", QString("GRM"));
+    obj.insert("alias", QString("bateria"));
+    obj.insert("type", QString("INTEGER"));
+
+    fields.push_back(obj);
+  }
+
+  {
+    QJsonObject obj;
+
+    obj.insert("column", QString("CR1000"));
+    obj.insert("alias", QString("corrpsol"));
+    obj.insert("type", QString("FLOAT"));
+
+    fields.push_back(obj);
+  }
+
+  {
+    QJsonObject obj;
+
+    obj.insert("column", QString("34689"));
+    obj.insert("alias", QString("numero"));
+    obj.insert("type", QString("FLOAT"));
+
+    fields.push_back(obj);
+  }
+
+  {
+    QJsonObject obj;
+
+    obj.insert("column", QString("CPU:1210_1HZ.CR1"));
+    obj.insert("alias", QString("numerictext"));
+    obj.insert("type", QString("TEXT"));
+
+    fields.push_back(obj);
+  }
+
+  QJsonObject obj;
+  obj.insert("fields", fields);
+  QJsonDocument doc(obj);
+
+  dataSet->format.emplace("fields", QString(doc.toJson(QJsonDocument::Compact)).toStdString());
 
   /*
   dataSet->format.emplace("latitude_property", "16510");

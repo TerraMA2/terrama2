@@ -42,6 +42,9 @@
 #include <QDir>
 #include <QSet>
 #include <QTemporaryFile>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
 
 // Boost
 #include <boost/bind.hpp>
@@ -211,25 +214,33 @@ te::dt::AbstractData* terrama2::core::DataAccessorTxtFile::stringToPoint(te::da:
   return point;
 }
 
-std::vector<std::tuple< std::vector<std::string>, std::string, int>>
+std::vector<std::tuple< std::string, std::string, int>>
 terrama2::core::DataAccessorTxtFile::getFields(DataSetPtr dataSet) const
 {
-  // TODO:
-  std::vector<std::tuple< std::vector<std::string>, std::string, int>> fields;
+  std::vector<std::tuple< std::string, std::string, int>> fields;
 
+  QJsonDocument doc = QJsonDocument::fromJson(getProperty(dataSet, dataSeries_, "fields").c_str());
+
+  QJsonObject obj = doc.object();
+
+  if(!obj.contains("fields"))
   {
-    std::vector<std::string> field = {"GRM"};
-    fields.push_back(std::make_tuple(field, "bateria", static_cast<int>(te::dt::STRING)));
+    QString errMsg = QObject::tr("Invalid JSON document!");
+    TERRAMA2_LOG_WARNING() << errMsg;
+    throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
   }
 
-  {
-    std::vector<std::string> field = {"CR1000"};
-    fields.push_back(std::make_tuple(field, "corrpsol", static_cast<int>(te::dt::DOUBLE_TYPE)));
-  }
+  QJsonArray array =obj.value("fields").toArray();
 
+  for(const auto& item : array)
   {
-    std::vector<std::string> field = {"34689"};
-    fields.push_back(std::make_tuple(field, "numero", static_cast<int>(te::dt::DOUBLE_TYPE)));
+    QJsonObject obj = item.toObject();
+
+    std::string column = obj.value("column").toString().toStdString();
+    std::string alias = obj.value("alias").toString().toStdString();
+    std::string type = obj.value("type").toString().toStdString();
+
+    fields.push_back(std::make_tuple(column, alias, dataTypes.at(type)));
   }
 
   return fields;

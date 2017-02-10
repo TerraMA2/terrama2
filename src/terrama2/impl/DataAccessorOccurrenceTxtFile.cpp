@@ -57,7 +57,7 @@ terrama2::core::DataAccessorPtr terrama2::core::DataAccessorOccurrenceTxtFile::m
 
 void terrama2::core::DataAccessorOccurrenceTxtFile::adapt(DataSetPtr dataSet, std::shared_ptr<te::da::DataSetTypeConverter> converter) const
 {
-  std::vector<std::tuple< std::vector<std::string>, std::string, int>> fields;
+  std::vector<std::tuple< std::string, std::string, int>> fields;
 
   fields = getFields(dataSet);
   bool convertAll = getConvertAll(dataSet);
@@ -105,7 +105,7 @@ void terrama2::core::DataAccessorOccurrenceTxtFile::adapt(DataSetPtr dataSet, st
 
     for(auto& field : fields)
     {
-      std::string& propertyName = std::get<0>(field).at(0);
+      std::string& propertyName = std::get<0>(field);
 
       if(propertyName == property->getName())
       {
@@ -124,7 +124,7 @@ void terrama2::core::DataAccessorOccurrenceTxtFile::adapt(DataSetPtr dataSet, st
             converter->add(i, newProperty, boost::bind(&terrama2::core::DataAccessor::stringToDouble, this, _1, _2, _3));
             break;
           }
-          case te::dt::UINT32_TYPE:
+          case te::dt::INT32_TYPE:
           {
             converter->add(i, newProperty, boost::bind(&terrama2::core::DataAccessor::stringToInt, this, _1, _2, _3));
             break;

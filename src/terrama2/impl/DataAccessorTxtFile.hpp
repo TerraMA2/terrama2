@@ -60,10 +60,15 @@ namespace terrama2
 
         std::string simplifyString(std::string text) const;
 
+        std::map<std::string, int> dataTypes { {"FLOAT", static_cast<int>(te::dt::DOUBLE_TYPE)},
+                                               {"INTEGER", static_cast<int>(te::dt::INT32_TYPE)},
+                                               {"TEXT", static_cast<int>(te::dt::STRING_TYPE)}
+                                              };
+
       protected:
         QFileInfo filterTxt(QFileInfo& fileInfo, QTemporaryFile& tempFile, DataSetPtr dataSet) const;
 
-        std::vector<std::tuple< std::vector<std::string>, std::string, int>> getFields(DataSetPtr dataSet) const;
+        std::vector<std::tuple<std::string, std::string, int> > getFields(DataSetPtr dataSet) const;
 
         te::dt::AbstractData* stringToTimestamp(te::da::DataSet* dataset,
                                                 const std::vector<std::size_t>& indexes,

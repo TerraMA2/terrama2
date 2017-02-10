@@ -57,7 +57,7 @@ namespace terrama2
 
         virtual std::string dataSourceType() const override { return "OGR"; }
 
-        static DataAccessorType dataAccessorType(){ return "CSV-generic"; }
+        static DataAccessorType dataAccessorType(){ return "DCP-generic"; }
 
         virtual std::string typePrefix() const override { return "CSV:"; }
 

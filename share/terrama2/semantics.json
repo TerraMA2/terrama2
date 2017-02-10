@@ -834,7 +834,7 @@
   {
     "id": 13,
     "name": "Generic Format for CSV files",
-    "code": "CSV-generic",
+    "code": "DCP-generic",
     "type": "DCP",
     "temporality": "DYNAMIC",
     "format": "CSV",
@@ -928,5 +928,14 @@
         }
       ]
     }
+  },
+  {
+    "id": 14,
+    "name": "Generic Format for CSV files",
+    "code": "Occurrence-generic",
+    "type": "DCP",
+    "temporality": "DYNAMIC",
+    "format": "CSV",
+    "providers_type_list": ["FILE", "FTP"]
   }
 ]
