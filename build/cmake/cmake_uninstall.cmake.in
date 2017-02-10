@@ -19,3 +19,7 @@ foreach(file ${files})
     message(STATUS "File $ENV{DESTDIR}${file} does not exist.")
   endif(IS_SYMLINK "$ENV{DESTDIR}${file}" OR EXISTS "$ENV{DESTDIR}${file}")
 endforeach(file)
+
+if(NOT CPACK_BINARY_DEB)
+  execute_process(COMMAND ".${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postrm ${REMOVE}")
+endif()

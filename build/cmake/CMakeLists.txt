@@ -37,8 +37,8 @@ project(terrama2)
 set(TERRAMA2_VERSION_MAJOR 4)
 set(TERRAMA2_VERSION_MINOR 0)
 set(TERRAMA2_VERSION_PATCH 0)
-set(TERRAMA2_VERSION_STATUS "alpha")
-set(TERRAMA2_VERSION_STATUS_FULL "-alpha7")
+set(TERRAMA2_VERSION_STATUS "beta")
+set(TERRAMA2_VERSION_STATUS_FULL "-beta1")
 set(TERRAMA2_VERSION_STRING "${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}.${TERRAMA2_VERSION_PATCH}${TERRAMA2_VERSION_STATUS_FULL}")
 set(TERRAMA2_VERSION "0x040000")
 
@@ -495,6 +495,10 @@ install(DIRECTORY ${TERRAMA2_ABSOLUTE_ROOT_DIR}/third-party
 #
 configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postinst.in
                ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postinst @ONLY)
+configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/prerm.in
+              ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/prerm @ONLY)
+configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postrm.in
+               ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postrm @ONLY)
 #
 # If generating a deb package the script is executed by the debian post install configuration
 # sa: build/cmake/terrama2-cpack-options.cmake.in
@@ -578,4 +582,5 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
                "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
                IMMEDIATE @ONLY)
 
-add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake -DREMOVE="remove")
+add_custom_target(purge COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake -DREMOVE="purge")
