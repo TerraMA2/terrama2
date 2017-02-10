@@ -1,11 +1,37 @@
+/*
+ Copyright (C) 2007 National Institute For Space Research (INPE) - Brazil.
+
+ This file is part of TerraMA2 - a free and open source computational
+ platform for analysis, monitoring, and alert of geo-environmental extremes.
+
+ TerraMA2 is free software: you can redistribute it and/or modify
+ it under the terms of the GNU Lesser General Public License as published by
+ the Free Software Foundation, either version 3 of the License,
+ or (at your option) any later version.
+
+ TerraMA2 is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU Lesser General Public License for more details.
+
+ You should have received a copy of the GNU Lesser General Public License
+ along with TerraMA2. See LICENSE. If not, write to
+ TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
+ */
+
+/*!
+  \file /examples/core/AccessAndStoreOccurrenceGenericFromLocal.cpp
+
+  \brief
+
+  \author Vinicius Campanha
+ */
 
 // TerraMA2
 #include <terrama2/Config.hpp>
 #include <terrama2/core/Shared.hpp>
-#include <terrama2/core/data-access/DcpSeries.hpp>
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
-#include <terrama2/core/data-model/DataSetDcp.hpp>
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/core/utility/TerraMA2Init.hpp>
 #include <terrama2/core/utility/FileRemover.hpp>
@@ -16,6 +42,8 @@
 #include <terrama2/impl/DataAccessorTxtFile.hpp>
 #include <terrama2/impl/Utils.hpp>
 
+#include <terrama2/core/data-access/OccurrenceSeries.hpp>
+#include <terrama2/core/data-model/DataSetOccurrence.hpp>
 
 //QT
 #include <QUrl>
@@ -46,59 +74,30 @@ int main(int argc, char* argv[])
   terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
   auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
-  dataSeries->semantics = semanticsManager.getSemantics("DCP-generic");
+  dataSeries->semantics = semanticsManager.getSemantics("Occurrence-generic");
 
 
-  terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
+  terrama2::core::DataSetOccurrence* dataSet = new terrama2::core::DataSetOccurrence();
   dataSet->active = true;
-  dataSet->format.emplace("folder", "/pcd_toa5/GRM/");
-//  dataSet->format.emplace("mask", "GRM_slow_%YYYY_%MM_%DD_%hh%mm.dat");
-  dataSet->format.emplace("mask", "GRM_slow_2014_01_02_2101.dat");
+  dataSet->format.emplace("folder", "/fire_system/");
+  dataSet->format.emplace("mask", "exporta_%YYYY%MM%DD_%hh%mm.csv");
   dataSet->format.emplace("timezone", "+00");
   dataSet->format.emplace("srid", "4326");
-  dataSet->format.emplace("timestamp_property", "TOA5");
+  dataSet->format.emplace("timestamp_property", "data_pas");
   dataSet->format.emplace("timestamp_format", "%Y-%m-%d %H:%M:%S");
   dataSet->format.emplace("timestamp_property_alias", "DateTime");
-  dataSet->format.emplace("lines_skip", "1,2,3");
+  dataSet->format.emplace("lines_skip", "");
   dataSet->format.emplace("convert_all", "true");
+  dataSet->format.emplace("latitude_property", "lat");
+  dataSet->format.emplace("longitude_property", "lon");
 
   QJsonArray fields;
 
   {
     QJsonObject obj;
 
-    obj.insert("column", QString("GRM"));
-    obj.insert("alias", QString("bateria"));
-    obj.insert("type", QString("INTEGER"));
-
-    fields.push_back(obj);
-  }
-
-  {
-    QJsonObject obj;
-
-    obj.insert("column", QString("CR1000"));
-    obj.insert("alias", QString("corrpsol"));
-    obj.insert("type", QString("FLOAT"));
-
-    fields.push_back(obj);
-  }
-
-  {
-    QJsonObject obj;
-
-    obj.insert("column", QString("34689"));
-    obj.insert("alias", QString("numero"));
-    obj.insert("type", QString("FLOAT"));
-
-    fields.push_back(obj);
-  }
-
-  {
-    QJsonObject obj;
-
-    obj.insert("column", QString("CPU:1210_1HZ.CR1"));
-    obj.insert("alias", QString("numerictext"));
+    obj.insert("column", QString("sat"));
+    obj.insert("alias", QString("satelite"));
     obj.insert("type", QString("TEXT"));
 
     fields.push_back(obj);
@@ -109,11 +108,6 @@ int main(int argc, char* argv[])
   QJsonDocument doc(obj);
 
   dataSet->format.emplace("fields", QString(doc.toJson(QJsonDocument::Compact)).toStdString());
-
-  /*
-  dataSet->format.emplace("latitude_property", "16510");
-  dataSet->format.emplace("longitude_property", "slow1210");
-  */
 
   dataSeries->datasetList.emplace_back(dataSet);
 
@@ -127,10 +121,10 @@ int main(int argc, char* argv[])
 
   auto dataMap = accessor->getSeries(uriMap, filter, remover);
 
-  terrama2::core::DcpSeriesPtr dcpSeries = std::make_shared<terrama2::core::DcpSeries>();
-  dcpSeries->addDcpSeries(dataMap);
+  terrama2::core::OccurrenceSeriesPtr occurrenceSeries = std::make_shared<terrama2::core::OccurrenceSeries>();
+  occurrenceSeries->addOccurrences(dataMap);
 
-  assert(dcpSeries->dcpSeriesMap().size() == 1);
+  assert(occurrenceSeries->occurrencesMap().size() == 1);
 
   QUrl uri;
   uri.setScheme("postgis");
@@ -152,12 +146,12 @@ int main(int argc, char* argv[])
   //DataSeries information
   terrama2::core::DataSeries* outputDataSeries = new terrama2::core::DataSeries();
   terrama2::core::DataSeriesPtr outputDataSeriesPtr(outputDataSeries);
-  outputDataSeries->semantics = semanticsManager.getSemantics("DCP-postgis");
+  outputDataSeries->semantics = semanticsManager.getSemantics("OCCURRENCE-postgis");
 
-  terrama2::core::DataSetDcp* dataSetOutput = new terrama2::core::DataSetDcp();
+  terrama2::core::DataSetOccurrence* dataSetOutput = new terrama2::core::DataSetOccurrence();
   terrama2::core::DataSetPtr dataSetOutputPtr(dataSetOutput);
   dataSetOutput->active = true;
-  dataSetOutput->format.emplace("table_name", "inpe");
+  dataSetOutput->format.emplace("table_name", "occurrence_generic");
   dataSetOutput->format.emplace("timestamp_column", "DateTime");
 
   auto dataStorager = terrama2::core::DataStoragerFactory::getInstance().make(outputDataSeriesPtr->semantics.dataFormat, dataProviderPostGISPtr);

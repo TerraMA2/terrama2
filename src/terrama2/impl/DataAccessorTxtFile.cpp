@@ -72,6 +72,11 @@ std::shared_ptr<te::dt::TimeInstantTZ> terrama2::core::DataAccessorTxtFile::read
 
 QFileInfo terrama2::core::DataAccessorTxtFile::filterTxt(QFileInfo& fileInfo, QTemporaryFile& tempFile, terrama2::core::DataSetPtr dataSet) const
 {
+  if(dataSet->format.at("lines_skip").empty())
+  {
+    return fileInfo;
+  }
+
   std::ifstream file(fileInfo.absoluteFilePath().toStdString());
 
   if(!file.is_open())
