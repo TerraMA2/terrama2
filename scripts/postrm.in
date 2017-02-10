@@ -23,6 +23,7 @@ import json
 import psycopg2
 import sys
 import shutil
+import os
 
 #
 # On remove: remove NodeJs dependencies

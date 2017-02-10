@@ -24,6 +24,8 @@ npm install grunt -g
   valid $? "Unable to install Bower dependencies."
   grunt
   valid $? "Error executing grunt."
+
+  chmod +x bin/webapp-stop.js
 )
 
 (
