@@ -34,27 +34,27 @@ if arg == 'remove':
     # Remove NodeJs dependencies folder
     #
     path = "@TERRAMA2_DESTINATION@webapp/node_modules"
-    if os.path.isfile(path):
+    if os.path.isdir(path):
         shutil.rmtree(path, ignore_errors=True, onerror=None)
     path = "@TERRAMA2_DESTINATION@webapp/bower_components"
-    if os.path.isfile(path):
+    if os.path.isdir(path):
         shutil.rmtree(path, ignore_errors=True, onerror=None)
 
     path = "@TERRAMA2_DESTINATION@webmonitor/node_modules"
-    if os.path.isfile(path):
+    if os.path.isdir(path):
         shutil.rmtree(path, ignore_errors=True, onerror=None)
     path = "@TERRAMA2_DESTINATION@webmonitor/bower_components"
-    if os.path.isfile(path):
+    if os.path.isdir(path):
         shutil.rmtree(path, ignore_errors=True, onerror=None)
 
     path = "@TERRAMA2_DESTINATION@webcomponents/node_modules"
-    if os.path.isfile(path):
+    if os.path.isdir(path):
         shutil.rmtree(path, ignore_errors=True, onerror=None)
     path = "@TERRAMA2_DESTINATION@webcomponents/dist"
-    if os.path.isfile(path):
+    if os.path.isdir(path):
         shutil.rmtree(path, ignore_errors=True, onerror=None)
     path = "@TERRAMA2_DESTINATION@webcomponents/docs"
-    if os.path.isfile(path):
+    if os.path.isdir(path):
         shutil.rmtree(path, ignore_errors=True, onerror=None)
 
 #
@@ -82,7 +82,7 @@ if arg == 'purge':
     # Remove TerraMA2 folder
     # This command is needed because the web dependencies are not removed automatically
     #
-    if os.path.isfile("@TERRAMA2_DESTINATION@"):
+    if os.path.isdir("@TERRAMA2_DESTINATION@"):
         shutil.rmtree("@TERRAMA2_DESTINATION@", ignore_errors=True, onerror=None)
 
 sys.exit(0)
