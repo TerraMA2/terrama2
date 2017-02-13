@@ -252,6 +252,68 @@ define([], function() {
 
       $scope.providersList = DataProviderService.list();
 
+      $scope.createDataTable = function() {
+        if($scope.dcpTable !== undefined)
+          $scope.dcpTable.destroy();
+
+        var dtColumns = [{ "data": 'viewId' }];
+
+        for(var i = 0, fieldsLength = $scope.tableFields.length; i < fieldsLength; i++) {
+          dtColumns.push({ "data": $scope.tableFields[i] + '_html' });
+        }
+
+        dtColumns.push({ "data": 'removeButton' });
+
+        $scope.dcpTable = $('.dcpTable').DataTable(
+          {
+            "ordering": false,
+            "searching": false,
+            "responsive": false,
+            "processing": true,
+            "serverSide": true,
+            "ajax": {
+              "url": "/configuration/dynamic/dataseries/paginateDcps",
+              "type": "POST",
+              "data": function(data) {
+                data.key = storedDcpsKey;
+              }
+            },
+            "columns": dtColumns,
+            "language": {
+              "emptyTable": "<p class='text-center'>" + i18n.__("No data available in table") + "</p>",
+              "info": i18n.__("Showing") + " _START_ " + i18n.__("to") + " _END_ " + i18n.__("of") + " _TOTAL_ " + i18n.__("entries"),
+              "infoEmpty": i18n.__("Showing 0 to 0 of 0 entries"),
+              "infoFiltered": "(" + i18n.__("filtered from") + " _MAX_ " + i18n.__("total entries") + ")",
+              "lengthMenu": i18n.__("Show") + " _MENU_ " + i18n.__("entries"),
+              "loadingRecords": i18n.__("Loading") + "...",
+              "processing": i18n.__("Processing") + "...",
+              "search": i18n.__("Search") + ":",
+              "zeroRecords": "<p class='text-center'>" + i18n.__("No data available in table") + "</p>",
+              "paginate": {
+                "first": i18n.__("First"),
+                "last": i18n.__("Last"),
+                "next": i18n.__("Next"),
+                "previous": i18n.__("Previous")
+              }
+            },
+            "drawCallback": function() {
+              if($('.dcps-table-span').text().match("{{(.*)}}") !== null)
+                $scope.compileTableLines();
+            }
+          }
+        );
+      };
+
+      $scope.compileTableLines = function() {
+        $('.dcpTable .dcps-table-span').css('display', 'none');
+
+        $timeout(function() {
+          $compile(angular.element('.dcpTable > tbody > tr'))($scope);
+
+          $('.dcpTable .dcps-table-span').css('display', '');
+        }, 50);
+      };
+
       // it defines when data change combobox has changed and it will adapt the interface
       $scope.onDataSemanticsChange = function() {
         if(!$scope.semanticsSelected)
@@ -324,7 +386,7 @@ define([], function() {
             for(var key in properties) {
               if (properties.hasOwnProperty(key)) {
                 $scope.tableFields.push(key);
-	        $scope.tableFieldsDataTable.push(key);
+	              $scope.tableFieldsDataTable.push(key);
               }
             }
           } else {
@@ -1167,8 +1229,8 @@ define([], function() {
         return form.$valid;
       };
 
-      $scope._addDcpStorager = function(dcpItem) {
-        $scope.$broadcast("dcpOperation", {action: "add", dcp: dcpItem});
+      $scope.addDcpsStorager = function(dcps) {
+        $scope.$broadcast("dcpOperation", { action: "addMany", dcps: dcps, storageData: true });
       };
 
       $scope.storageDcps = function(dcps) {
@@ -1180,68 +1242,6 @@ define([], function() {
         }).error(function(err) {
           console.log("Err in storing dcps");
         });
-      };
-
-      $scope.createDataTable = function() {
-        if($scope.dcpTable !== undefined)
-          $scope.dcpTable.destroy();
-
-        var dtColumns = [{ "data": 'viewId' }];
-
-        for(var i = 0, fieldsLength = $scope.tableFields.length; i < fieldsLength; i++) {
-          dtColumns.push({ "data": $scope.tableFields[i] + '_html' });
-        }
-
-        dtColumns.push({ "data": 'removeButton' });
-
-        $scope.dcpTable = $('.dcpTable').DataTable(
-          {
-            "ordering": false,
-            "searching": false,
-            "responsive": false,
-            "processing": true,
-            "serverSide": true,
-            "ajax": {
-              "url": "/configuration/dynamic/dataseries/paginateDcps",
-              "type": "POST",
-              "data": function(data) {
-                data.key = storedDcpsKey;
-              }
-            },
-            "columns": dtColumns,
-            "language": {
-              "emptyTable": "<p class='text-center'>" + i18n.__("No data available in table") + "</p>",
-              "info": i18n.__("Showing") + " _START_ " + i18n.__("to") + " _END_ " + i18n.__("of") + " _TOTAL_ " + i18n.__("entries"),
-              "infoEmpty": i18n.__("Showing 0 to 0 of 0 entries"),
-              "infoFiltered": "(" + i18n.__("filtered from") + " _MAX_ " + i18n.__("total entries") + ")",
-              "lengthMenu": i18n.__("Show") + " _MENU_ " + i18n.__("entries"),
-              "loadingRecords": i18n.__("Loading") + "...",
-              "processing": i18n.__("Processing") + "...",
-              "search": i18n.__("Search") + ":",
-              "zeroRecords": "<p class='text-center'>" + i18n.__("No data available in table") + "</p>",
-              "paginate": {
-                "first": i18n.__("First"),
-                "last": i18n.__("Last"),
-                "next": i18n.__("Next"),
-                "previous": i18n.__("Previous")
-              }
-            },
-            "drawCallback": function() {
-              if($('.dcps-table-span').text().match("{{(.*)}}") !== null)
-                $scope.compileTableLines();
-            }
-          }
-        );
-      };
-
-      $scope.compileTableLines = function() {
-        $('.dcpTable .dcps-table-span').css('display', 'none');
-
-        $timeout(function() {
-          $compile(angular.element('.dcpTable > tbody > tr'))($scope);
-
-          $('.dcpTable .dcps-table-span').css('display', '');
-        }, 50);
       };
 
       $scope.addDcp = function() {
@@ -1264,13 +1264,15 @@ define([], function() {
 
           $scope.dcps.push(Object.assign({}, data));
           $scope.dcpsObject[currentIndex] = Object.assign({}, data);
-          $scope._addDcpStorager(data);
+          $scope.$broadcast("dcpOperation", { action: "add", dcp: data, storageData: true });
           $scope.model = {active: true};
 
           var dcpCopy = Object.assign({}, data);
           dcpCopy.removeButton = "<button class=\"btn btn-danger removeDcpBtn\" ng-click=\"removePcdById(" + dcpCopy.viewId + ")\" style=\"height: 21px; padding: 1px 4px 1px 4px; font-size: 13px;\">" + i18n.__("Remove") + "</button>";
 
           $scope.storageDcps([dcpCopy]);
+
+          //$scope.$broadcast("dcpOperation", { action: "add", dcp: data, storageData: true });
 
           // reset form to do not display feedback class
           $scope.forms.parametersForm.$setPristine();
@@ -1572,6 +1574,8 @@ define([], function() {
       };
 
       $scope.save = function(shouldRun) {
+        $scope.isChecking = true;
+
         $scope.shouldRun = shouldRun;
         $scope.extraProperties = {};
         $scope.$broadcast('formFieldValidation');

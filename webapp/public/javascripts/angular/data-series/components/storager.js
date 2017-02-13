@@ -190,24 +190,41 @@ define([], function(){
             }
           }
         }
-      }
+      };
 
-      self.addDcpStorager = function() {
-        $scope.$broadcast('schemaFormValidate');
-        var form = angular.element('form[name="storagerForm"]').scope()['storagerForm'];
-        var inputDataSetForm = angular.element('form[name="inputDataSetForm"]').scope()['inputDataSetForm'];
-        if (form.$valid && inputDataSetForm.$valid) {
-          self.model['inputDataSet'] = self.storage.inputDataSet.mask;
-          self.dcpsStorager.push(Object.assign({}, self.model));
-          self.model = {};
+      var addDcpStorager = function(dcps, storageData) {
+        var newDcps = [];
 
-          // remove it from input list
-          removeInput(self.storage.inputDataSet.mask);
+        for(var i = 0, dcpsLength = dcps.length; i < dcpsLength; i++) {
+          var dcpToAdd = dcps[i];
 
-          // reset form to do not display feedback class
-          form.$setPristine();
-          inputDataSetForm.$setPristine();
+          if(self.storager.format && self.storager.format.data_format_name === globals.enums.DataSeriesFormat.POSTGIS) {
+            var copyFormat = angular.merge({}, self.series.semantics.metadata.metadata);
+            angular.merge(copyFormat, dcps[i]);
+
+            var obj = SemanticsParserFactory.parseKeys(copyFormat);
+
+            obj.table_name = obj.alias;
+            obj.table_name_html = "<span class=\"store-dcps-table-span\" editable-text=\"$ctrl.dcpsStoragerObject['" + obj.viewId.toString() + "']['table_name']\">{{ $ctrl.dcpsStoragerObject['" + obj.viewId.toString() + "']['table_name'] }}</span>";
+
+            dcpToAdd = obj;
+          }
+
+          for(var j = 0, fieldsLength = self.series.semantics.metadata.form.length; j < fieldsLength; j++) {
+            var key = self.series.semantics.metadata.form[j].key;
+
+            if(self.isBoolean(dcpToAdd[key]))
+              dcpToAdd[key + '_html'] = "<span class=\"store-dcps-table-span\"><input type=\"checkbox\" ng-model=\"$ctrl.dcpsStoragerObject['" + dcpToAdd.viewId.toString() + "']['" + key + "']\" ng-disabled=\"true\"></span>";
+            else
+              dcpToAdd[key + '_html'] = "<span class=\"store-dcps-table-span\" ng-bind=\"$ctrl.dcpsStoragerObject['" + dcpToAdd.viewId.toString() + "']['" + key + "']\"></span>";
+          }
+
+          self.dcpsStoragerObject[dcpToAdd.viewId] = dcpToAdd;
+          newDcps.push(dcpToAdd);
         }
+
+        if(storageData)
+          self.storageDcpsStore(newDcps);
       };
 
       self.createDataTableStore = function(fields) {
@@ -339,30 +356,9 @@ define([], function(){
           // todo: remove it from list
           removeInput(args.dcp.mask);
         } else if(args.action === "add") {
-          var dcpToAdd = args.dcp;
-
-          if(self.storager.format && self.storager.format.data_format_name === globals.enums.DataSeriesFormat.POSTGIS) {
-            var copyFormat = angular.merge({}, self.series.semantics.metadata.metadata);
-            angular.merge(copyFormat, args.dcp);
-
-            var obj = SemanticsParserFactory.parseKeys(copyFormat);
-
-            obj.table_name = obj.alias;
-            obj.table_name_html = "<span class=\"store-dcps-table-span\" editable-text=\"$ctrl.dcpsStoragerObject['" + obj.viewId.toString() + "']['table_name']\">{{ $ctrl.dcpsStoragerObject['" + obj.viewId.toString() + "']['table_name'] }}</span>";
-
-            dcpToAdd = obj;
-          }
-
-          for(var j = 0, fieldsLength = self.series.semantics.metadata.form.length; j < fieldsLength; j++) {
-            var key = self.series.semantics.metadata.form[j].key;
-
-            if(self.isBoolean(dcpToAdd[key]))
-              dcpToAdd[key + '_html'] = "<span class=\"store-dcps-table-span\"><input type=\"checkbox\" ng-model=\"$ctrl.dcpsStoragerObject['" + dcpToAdd.viewId.toString() + "']['" + key + "']\" ng-disabled=\"true\"></span>";
-            else
-              dcpToAdd[key + '_html'] = "<span class=\"store-dcps-table-span\" ng-bind=\"$ctrl.dcpsStoragerObject['" + dcpToAdd.viewId.toString() + "']['" + key + "']\"></span>";
-          }
-
-          self.dcpsStoragerObject[dcpToAdd.viewId] = dcpToAdd;
+          addDcpStorager([args.dcp], args.storageData);
+        } else if(args.action === "addMany") {
+          addDcpStorager(args.dcps, args.storageData);
         } else if(args.action === "edit") {
           self.editDcpStorager(args.dcp);
         }
@@ -383,10 +379,10 @@ define([], function(){
           $scope.$broadcast("clearSchedule");
       });
 
-      self.storageDcpsStore = function() {
+      self.storageDcpsStore = function(dcps) {
         $http.post("/configuration/dynamic/dataseries/storeDcpsStore", {
           key: storedDcpsKey,
-          dcps: self.objectToArray(self.dcpsStoragerObject)
+          dcps: dcps
         }).success(function(result) {
           reloadDataStore();
         }).error(function(err) {
@@ -443,8 +439,6 @@ define([], function(){
         var metadata = dataSeriesSemantics.metadata;
         var properties = metadata.schema.properties;
 
-        self.createDataTableStore(properties);
-
         if (self.options.isUpdating) {
           if (self.formatSelected.data_series_type_name === globals.enums.DataSeriesType.DCP) {
             // todo:
@@ -493,28 +487,12 @@ define([], function(){
 
           if (self.options.hasCollector) {
             outputDataseries.dataSets.forEach(function(dataset) {
-              self.dcpsStorager.push(angular.merge(dataset.format, {active: dataset.active}));
+              //self.dcpsStorager.push(angular.merge(dataset.format, {active: dataset.active}));
+              self.dcpsStoragerObject[dataset.format.viewId] = angular.merge(dataset.format, {active: dataset.active});
             });
           } else {
-            (args.dcps || []).forEach(function(dataSetDcp) {
-              $scope.$broadcast("dcpOperation", {action: "add", dcp: dataSetDcp});
-            });
-
-            if(args.dcps) {
-              var callDcpsStorage = function() {
-                setTimeout(function() {
-                  if(self.countObjectProperties(self.dcpsStoragerObject) === args.dcps.length) {
-                    self.storageDcpsStore();
-                  } else {
-                    callDcpsStorage();
-                  }
-                }, 1000);
-              };
-
-              callDcpsStorage();
-            } else {
-              self.storageDcpsStore();
-            }
+            if(args.dcps)
+              $scope.$broadcast("dcpOperation", { action: "addMany", dcps: args.dcps, storageData: true });
           }
 
           self.modelStorager = {};
@@ -542,6 +520,8 @@ define([], function(){
             }
           }
         }
+
+        self.createDataTableStore(properties);
       });
     }
     

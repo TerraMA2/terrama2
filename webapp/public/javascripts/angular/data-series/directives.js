@@ -270,10 +270,10 @@ define(["TerraMA2WebApp/common/services/index", "TerraMA2WebApp/alert-box/app"],
               dcpCopy.removeButton = "<button class=\"btn btn-danger removeDcpBtn\" ng-click=\"removePcdById(" + dcp.viewId + ")\" style=\"height: 21px; padding: 1px 4px 1px 4px; font-size: 13px;\">" + i18n.__("Remove") + "</button>";
 
               dcps.push(dcpCopy);
-              $scope._addDcpStorager(dcp);
             }
 
             $scope.storageDcps(dcps);
+            $scope.addDcpsStorager(dcps);
 
             // reset form to do not display feedback class
             $scope.forms.parametersForm.$setPristine();
