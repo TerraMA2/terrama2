@@ -1156,6 +1156,7 @@ define([], function() {
             });
 
             $scope.dcps.splice(i, 1);
+            delete $scope.dcpsObject[id];
             break;
           }
         }

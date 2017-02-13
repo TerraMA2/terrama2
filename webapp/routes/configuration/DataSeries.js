@@ -12,6 +12,7 @@ module.exports = function(app) {
   app.post("/configuration/dynamic/dataseries/paginateDcps", passport.isAuthenticated, controllerDynamic.paginateDcps);
   app.post("/configuration/dynamic/dataseries/paginateDcpsStore", passport.isAuthenticated, controllerDynamic.paginateDcpsStore);
   app.post("/configuration/dynamic/dataseries/removeStoredDcp", passport.isAuthenticated, controllerDynamic.removeStoredDcp);
+  app.post("/configuration/dynamic/dataseries/removeStoredDcpStore", passport.isAuthenticated, controllerDynamic.removeStoredDcpStore);
 
   app.get("/configuration/static/dataseries/", passport.isAuthenticated, controllerStatic.get);
   app.get("/configuration/static/dataseries/new", passport.isAuthenticated, controllerStatic.new);

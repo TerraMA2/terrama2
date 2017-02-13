@@ -324,6 +324,15 @@ define([], function(){
         if(args.action === "removeById") {
           self.removePcdStorager(args.dcp);
           removeInputById(args.dcp.viewId);
+
+          $http.post("/configuration/dynamic/dataseries/removeStoredDcpStore", {
+            key: storedDcpsKey,
+            id: args.dcp.viewId
+          }).success(function(result) {
+            reloadDataStore();
+          }).error(function(err) {
+            console.log("Err in removing dcp");
+          });
         } else if(args.action === "remove") {
           self.removePcdStorager(args.dcp);
           // todo: remove it from list

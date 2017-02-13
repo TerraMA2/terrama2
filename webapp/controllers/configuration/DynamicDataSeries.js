@@ -130,14 +130,31 @@ module.exports = function(app) {
     removeStoredDcp: function(request, response) {
       var key = request.body.key;
 
-      for(var i = 0, dcpsLength = storedDcps[key].length; i < dcpsLength; i++) {
-        if(storedDcps[key][i].viewId == request.body.id) {
-          storedDcps[key].splice(i, 1);
-          break;
+      if(storedDcps[key] != undefined) {
+        for(var i = 0, dcpsLength = storedDcps[key].length; i < dcpsLength; i++) {
+          if(storedDcps[key][i].viewId == request.body.id) {
+            storedDcps[key].splice(i, 1);
+            break;
+          }
         }
       }
 
       response.json(storedDcps[key]);
+    },
+
+    removeStoredDcpStore: function(request, response) {
+      var key = request.body.key;
+
+      if(storedDcpsStore[key] != undefined) {
+        for(var i = 0, dcpsLength = storedDcpsStore[key].length; i < dcpsLength; i++) {
+          if(storedDcpsStore[key][i].viewId == request.body.id) {
+            storedDcpsStore[key].splice(i, 1);
+            break;
+          }
+        }
+      }
+
+      response.json(storedDcpsStore[key]);
     }
   };
 
