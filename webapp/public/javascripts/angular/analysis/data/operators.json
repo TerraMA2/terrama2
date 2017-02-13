@@ -155,7 +155,7 @@
                 "code": "dcp.zonal.history.sum(\"<dynamic_data_dcp>\", \"<attribute>\", \"<time>\", <list_dcp>)"
               },
               {
-                "name": "Standard deviation",
+                "name": "Standard deviation", 
                 "code": "dcp.zonal.history.standard_deviation(\"<dynamic_data_dcp>\", \"<attribute>\", \"<time>\", <list_dcp>)"
               },
               {
