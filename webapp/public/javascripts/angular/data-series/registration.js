@@ -316,7 +316,7 @@ define([], function() {
           }
 
         $scope.tableFields = [];
-	$scope.tableFieldsDataTable = ['ID'];
+	      $scope.tableFieldsDataTable = ['ID'];
         if ($scope.dataSeries.semantics.data_series_type_name == "DCP"){
           // building table fields. Check if form is for all ('*')
           if (dataSeriesSemantics.metadata.form.indexOf('*') != -1) {
@@ -330,14 +330,14 @@ define([], function() {
             }
           } else {
             // form is mapped
-	    for(var i = 0, formLength = dataSeriesSemantics.metadata.form.length; i < formLength; i++) {
-	      $scope.tableFields.push(dataSeriesSemantics.metadata.form[i].key);
-	      $scope.tableFieldsDataTable.push(dataSeriesSemantics.metadata.form[i].key);
-	    }
+            for(var i = 0, formLength = dataSeriesSemantics.metadata.form.length; i < formLength; i++) {
+              $scope.tableFields.push(dataSeriesSemantics.metadata.form[i].key);
+              $scope.tableFieldsDataTable.push(dataSeriesSemantics.metadata.form[i].key);
+            }
           }
         }
 
-	$scope.tableFieldsDataTable.push('');
+	      $scope.tableFieldsDataTable.push('');
 
         if($scope.tableFields.length > 0) {
           $scope.createDataTable();
