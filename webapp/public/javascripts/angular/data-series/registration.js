@@ -1259,13 +1259,14 @@ define([], function() {
             }
           }
 
+          data.viewId = currentIndex;
+
           $scope.dcps.push(Object.assign({}, data));
           $scope.dcpsObject[currentIndex] = Object.assign({}, data);
           $scope._addDcpStorager(data);
           $scope.model = {active: true};
 
           var dcpCopy = Object.assign({}, data);
-          dcpCopy.viewId = currentIndex;
           dcpCopy.removeButton = "<button class=\"btn btn-danger removeDcpBtn\" ng-click=\"removePcdById(" + dcpCopy.viewId + ")\" style=\"height: 21px; padding: 1px 4px 1px 4px; font-size: 13px;\">" + i18n.__("Remove") + "</button>";
 
           $scope.storageDcps([dcpCopy]);
@@ -1397,9 +1398,9 @@ define([], function() {
         var _makeFormat = function(dSetObject) {
           var format_ = {};
           for(var key in dSetObject) {
-            if (dSetObject.hasOwnProperty(key) && key.toLowerCase() !== "id")
+            if(dSetObject.hasOwnProperty(key) && key.toLowerCase() !== "id" && key.substr(key.length - 5) != "_html" && key != "viewId")
               format_[key] = dSetObject[key];
-              if (key.startsWith("output_")) {
+              if(key.startsWith("output_")) {
                 format_[key.replace("output_", "")] = dSetObject[key];
               }
           }
@@ -1500,8 +1501,8 @@ define([], function() {
             $scope.dcps.forEach(function(dcp) {
               var format = {};
               for(var key in dcp) {
-                if (dcp.hasOwnProperty(key))
-                  if (key !== "latitude" && key !== "longitude" && key !== "active")
+                if(dcp.hasOwnProperty(key) && key.substr(key.length - 5) != "_html" && key != "viewId")
+                  if(key !== "latitude" && key !== "longitude" && key !== "active")
                     format[key] = dcp[key];
               }
               angular.merge(format, semantics.metadata.metadata);
