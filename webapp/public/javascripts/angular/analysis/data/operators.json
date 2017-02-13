@@ -5,6 +5,7 @@
     "children": [
       {
         "name": "Buffer",
+        "type": "GEOMETRIC_OBJECT",
         "description": "It creates a Buffer and return it",
         "code": "mbuffer = Buffer(BUFFER_TYPE, BUFFER_SIZE, \"BUFFER_UNIT\")"
       },
@@ -13,6 +14,12 @@
         "type": "GEOMETRIC_OBJECT",
         "description": "It adds a new column with a value in table output",
         "code": "add_value(\"NEW_COLUMN_NAME\", RESULT_VALUE)"
+      },
+      {
+        "name": "Get value",
+        "type": "GEOMETRIC_OBJECT",
+        "description": "It returns the value of the given attribute for the current monitored object",
+        "code": "get_value(\"<attribute_name>\")"
       },
       {
         "name": "Distance units",
