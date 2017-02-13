@@ -72,7 +72,7 @@ std::shared_ptr<te::dt::TimeInstantTZ> terrama2::core::DataAccessorTxtFile::read
 
 QFileInfo terrama2::core::DataAccessorTxtFile::filterTxt(QFileInfo& fileInfo, QTemporaryFile& tempFile, terrama2::core::DataSetPtr dataSet) const
 {
-  if(dataSet->format.at("lines_skip").empty())
+  if(dataSet->format.at("ignore_headers_lines").empty())
   {
     return fileInfo;
   }
@@ -97,7 +97,7 @@ QFileInfo terrama2::core::DataAccessorTxtFile::filterTxt(QFileInfo& fileInfo, QT
 
   std::vector<int> linesSkip;
 
-  std::stringstream ss(dataSet->format.at("lines_skip"));
+  std::stringstream ss(dataSet->format.at("ignore_headers_lines"));
 
   std::string skipLineNumber;
 
@@ -107,7 +107,7 @@ QFileInfo terrama2::core::DataAccessorTxtFile::filterTxt(QFileInfo& fileInfo, QT
   }
 
   std::string line = "";
-  int lineNumber = 0;
+  int lineNumber = 1;
 
   while(std::getline(file, line))
   {
@@ -182,24 +182,6 @@ te::dt::AbstractData* terrama2::core::DataAccessorTxtFile::stringToTimestamp(te:
 
   return nullptr;
 }
-
-std::string terrama2::core::DataAccessorTxtFile::getLatitudePropertyName(DataSetPtr dataSet) const
-{
-  return getProperty(dataSet, dataSeries_, "latitude_property");
-}
-
-
-std::string terrama2::core::DataAccessorTxtFile::getLongitudePropertyName(DataSetPtr dataSet) const
-{
-  return getProperty(dataSet, dataSeries_, "longitude_property");
-}
-
-
-std::string terrama2::core::DataAccessorTxtFile::getTimestampFormat(DataSetPtr dataSet) const
-{
-  return getProperty(dataSet, dataSeries_, "timestamp_format");
-}
-
 
 bool terrama2::core::DataAccessorTxtFile::getConvertAll(DataSetPtr dataSet) const
 {
@@ -289,4 +271,48 @@ std::string terrama2::core::DataAccessorTxtFile::terramaDateMask2BoostFormat(con
   m.replace("%ss", "%S");
 
   return m.toStdString();
+}
+
+QJsonObject terrama2::core::DataAccessorTxtFile::getFieldObj(const QJsonDocument& doc,
+                                                             const std::string& fieldName) const
+{
+  const QJsonObject& obj = doc.object();
+
+  if(!obj.contains("fields"))
+  {
+    QString errMsg = QObject::tr("Invalid JSON document!");
+    TERRAMA2_LOG_WARNING() << errMsg;
+    throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
+  }
+
+  const QJsonArray& array =obj.value("fields").toArray();
+
+  for(const auto& item : array)
+  {
+    const QJsonObject& obj = item.toObject();
+
+    std::string type = obj.value("type").toString().toStdString();
+
+    if(dataTypes.at(type) == te::dt::GEOMETRY_TYPE)
+    {
+      std::string latitude = obj.value("latitude").toString().toStdString();
+      std::string longitude = obj.value("longitude").toString().toStdString();
+
+      if(latitude == fieldName || longitude == fieldName)
+      {
+        return item.toObject();
+      }
+
+      continue;
+    }
+
+    std::string column = obj.value("column").toString().toStdString();
+
+    if(column == fieldName)
+    {
+      return item.toObject();
+    }
+  }
+
+  return QJsonObject();
 }

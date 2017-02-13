@@ -64,7 +64,9 @@ namespace terrama2
 
         std::map<std::string, int> dataTypes { {"FLOAT", static_cast<int>(te::dt::DOUBLE_TYPE)},
                                                {"INTEGER", static_cast<int>(te::dt::INT32_TYPE)},
-                                               {"TEXT", static_cast<int>(te::dt::STRING_TYPE)}
+                                               {"TEXT", static_cast<int>(te::dt::STRING_TYPE)},
+                                               {"DATETIME", static_cast<int>(te::dt::DATETIME_TYPE)},
+                                               {"GEOMETRY", static_cast<int>(te::dt::GEOMETRY_TYPE)}
                                               };
 
       protected:
@@ -72,18 +74,12 @@ namespace terrama2
 
         std::vector<std::tuple<std::string, std::string, int> > getFields(DataSetPtr dataSet) const;
 
+        QJsonObject getFieldObj(const QJsonDocument& doc, const std::string& fieldName) const;
+
         te::dt::AbstractData* stringToTimestamp(te::da::DataSet* dataset,
                                                 const std::vector<std::size_t>& indexes,
                                                 int /*dstType*/,
                                                 const std::string& timezone, std::string& dateTimeFormat) const;
-
-        //! Name of column with latitude information
-        std::string getLatitudePropertyName(DataSetPtr dataSet) const;
-
-        //! Name of column with longitude information
-        std::string getLongitudePropertyName(DataSetPtr dataSet) const;
-
-        std::string getTimestampFormat(DataSetPtr dataSet) const;
 
         bool getConvertAll(DataSetPtr dataSet) const;
 

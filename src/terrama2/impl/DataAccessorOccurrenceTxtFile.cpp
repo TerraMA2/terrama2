@@ -62,8 +62,8 @@ void terrama2::core::DataAccessorOccurrenceTxtFile::adapt(DataSetPtr dataSet, st
   fields = getFields(dataSet);
   bool convertAll = getConvertAll(dataSet);
 
-  std::string latitudePropertyName = getLatitudePropertyName(dataSet);
-  std::string longitudePropertyName = getLongitudePropertyName(dataSet);
+  std::string latitudePropertyName; //= getLatitudePropertyName(dataSet);
+  std::string longitudePropertyName;// = getLongitudePropertyName(dataSet);
 
   //Find the rigth column to adapt
   std::vector<te::dt::Property*> properties = converter->getConvertee()->getProperties();
@@ -94,7 +94,7 @@ void terrama2::core::DataAccessorOccurrenceTxtFile::adapt(DataSetPtr dataSet, st
         alias = DataAccessorTxtFile::simplifyString(property->getName());
 
       te::dt::DateTimeProperty* dtProperty = new te::dt::DateTimeProperty(alias, te::dt::TIME_INSTANT_TZ);
-      converter->add(i, dtProperty, boost::bind(&terrama2::core::DataAccessorOccurrenceTxtFile::stringToTimestamp, this, _1, _2, _3, getTimeZone(dataSet), getTimestampFormat(dataSet)));
+//      converter->add(i, dtProperty, boost::bind(&terrama2::core::DataAccessorOccurrenceTxtFile::stringToTimestamp, this, _1, _2, _3, getTimeZone(dataSet), getTimestampFormat(dataSet)));
 
       converter->remove(property->getName());
 
@@ -158,9 +158,19 @@ void terrama2::core::DataAccessorOccurrenceTxtFile::adapt(DataSetPtr dataSet, st
 
       std::string defaultType = getProperty(dataSet, dataSeries_, "default_type");
 
-      te::dt::SimpleProperty* defaultProperty = new te::dt::SimpleProperty(alias, dataTypes.at(defaultType));
+      if(dataTypes.at(defaultType) != te::dt::STRING_TYPE)
+      {
+        te::dt::SimpleProperty* defaultProperty = new te::dt::SimpleProperty(alias, dataTypes.at(defaultType));
 
-      converter->add(i,defaultProperty);
+        converter->add(i,defaultProperty);
+      }
+      else
+      {
+        te::dt::Property* defaultProperty = property->clone();
+        defaultProperty->setName(alias);
+
+        converter->add(i,defaultProperty);
+      }
     }
 
     converter->remove(property->getName());

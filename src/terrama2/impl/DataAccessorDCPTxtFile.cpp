@@ -42,6 +42,8 @@
 #include <QDir>
 #include <QSet>
 #include <QTemporaryFile>
+#include <QJsonObject>
+#include <QJsonDocument>
 
 // Boost
 #include <boost/bind.hpp>
@@ -57,103 +59,127 @@ terrama2::core::DataAccessorPtr terrama2::core::DataAccessorDCPTxtFile::make(Dat
 
 void terrama2::core::DataAccessorDCPTxtFile::adapt(DataSetPtr dataSet, std::shared_ptr<te::da::DataSetTypeConverter> converter) const
 {
-  std::vector<std::tuple< std::string, std::string, int>> fields;
-
-  fields = getFields(dataSet);
   bool convertAll = getConvertAll(dataSet);
 
-  //Find the rigth column to adapt
+  QJsonObject fieldGeomObj;
+
+  QJsonDocument doc = QJsonDocument::fromJson(getProperty(dataSet, dataSeries_, "fields").c_str());
+
   std::vector<te::dt::Property*> properties = converter->getConvertee()->getProperties();
   for(size_t i = 0, size = properties.size(); i < size; ++i)
   {
     te::dt::Property* property = properties.at(i);
 
-    if(property->getName() == getTimestampPropertyName(dataSet))
+    QJsonObject fieldObj = getFieldObj(doc, property->getName());
+
+    if(fieldObj.empty())
     {
-      std::string alias;
-
-      try
+      if(convertAll)
       {
-          alias = getOutputTimestampPropertyName(dataSet);
-      }
-      catch(UndefinedTagException /*e*/)
-      {
-        // Do nothing
-      }
+        std::string alias = DataAccessorTxtFile::simplifyString(property->getName());
 
-      if(alias.empty())
-        alias = DataAccessorTxtFile::simplifyString(property->getName());
+        std::string defaultType = getProperty(dataSet, dataSeries_, "default_type");
 
-      te::dt::DateTimeProperty* dtProperty = new te::dt::DateTimeProperty(alias, te::dt::TIME_INSTANT_TZ);
-      converter->add(i, dtProperty, boost::bind(&terrama2::core::DataAccessorDCPTxtFile::stringToTimestamp, this, _1, _2, _3, getTimeZone(dataSet), getTimestampFormat(dataSet)));
+        if(dataTypes.at(defaultType) != te::dt::STRING_TYPE)
+        {
+          te::dt::SimpleProperty* defaultProperty = new te::dt::SimpleProperty(alias, dataTypes.at(defaultType));
+
+          converter->add(i,defaultProperty);
+        }
+        else
+        {
+          te::dt::Property* defaultProperty = property->clone();
+          defaultProperty->setName(alias);
+
+          converter->add(i,defaultProperty);
+        }
+      }
 
       converter->remove(property->getName());
 
+      continue; // for(size_t i = 0, size = properties.size(); i < size; ++i)
+    }
+
+    int type = dataTypes.at(fieldObj.value("type").toString().toStdString());
+
+    if(type == te::dt::GEOMETRY_TYPE)
+    {
+      fieldGeomObj = fieldObj;
       continue;
     }
 
-    bool converted = false;
+    std::string alias = fieldObj.value("alias").toString().toStdString();
 
-    for(auto& field : fields)
+    if(alias.empty())
+      alias = DataAccessorTxtFile::simplifyString(property->getName());
+
+    switch (type)
     {
-      std::string& propertyName = std::get<0>(field);
-
-      if(propertyName == property->getName())
+      case te::dt::DOUBLE_TYPE:
       {
-        std::string alias = std::get<1>(field);
-        int type = std::get<2>(field);
-
-        if(alias.empty())
-          alias = DataAccessorTxtFile::simplifyString(property->getName());
-
         te::dt::SimpleProperty* newProperty = new te::dt::SimpleProperty(alias, type);
 
-        switch (type)
-        {
-          case te::dt::DOUBLE_TYPE:
-          {
-            converter->add(i, newProperty, boost::bind(&terrama2::core::DataAccessor::stringToDouble, this, _1, _2, _3));
-            break;
-          }
-          case te::dt::INT32_TYPE:
-          {
-            converter->add(i, newProperty, boost::bind(&terrama2::core::DataAccessor::stringToInt, this, _1, _2, _3));
-            break;
-          }
-          default:
-          {
-            delete newProperty;
+        converter->add(i, newProperty, boost::bind(&terrama2::core::DataAccessor::stringToDouble, this, _1, _2, _3));
+        break;
+      }
+      case te::dt::INT32_TYPE:
+      {
+        te::dt::SimpleProperty* newProperty = new te::dt::SimpleProperty(alias, type);
 
-            te::dt::Property* defaultProperty = property->clone();
-            defaultProperty->setName(alias);
+        converter->add(i, newProperty, boost::bind(&terrama2::core::DataAccessor::stringToInt, this, _1, _2, _3));
+        break;
+      }
+      case te::dt::DATETIME_TYPE:
+      {
+        std::string format = terramaDateMask2BoostFormat(fieldObj.value("format").toString().toStdString());
 
-            converter->add(i,defaultProperty);
-            break;
-          }
-        }
+        te::dt::DateTimeProperty* dtProperty = new te::dt::DateTimeProperty(alias, te::dt::TIME_INSTANT_TZ);
+        converter->add(i, dtProperty, boost::bind(&terrama2::core::DataAccessorDCPTxtFile::stringToTimestamp, this, _1, _2, _3, getTimeZone(dataSet), format));
 
-        converted = true;
-        break; // for(auto& field : fields)
+        break;
+      }
+      default:
+      {
+        te::dt::Property* defaultProperty = property->clone();
+        defaultProperty->setName(alias);
+
+        converter->add(i,defaultProperty);
+        break;
       }
     }
 
-    if(converted)
-    {
-      converter->remove(property->getName());
-      continue;
-    }
-
-    if(convertAll)
-    {
-      std::string alias = DataAccessorTxtFile::simplifyString(property->getName());
-
-      std::string defaultType = getProperty(dataSet, dataSeries_, "default_type");
-
-      te::dt::SimpleProperty* defaultProperty = new te::dt::SimpleProperty(alias, dataTypes.at(defaultType));
-
-      converter->add(i,defaultProperty);
-    }
     converter->remove(property->getName());
+  }
+
+  if(!fieldGeomObj.empty())
+  {
+    size_t longPos = std::numeric_limits<size_t>::max();
+    size_t latPos = std::numeric_limits<size_t>::max();
+
+    longPos = converter->getConvertee()->getPropertyPosition(fieldGeomObj.value("longitude").toString().toStdString());
+    latPos = converter->getConvertee()->getPropertyPosition(fieldGeomObj.value("latitude").toString().toStdString());
+
+    if(longPos == std::numeric_limits<size_t>::max() ||
+       latPos == std::numeric_limits<size_t>::max())
+    {
+      QString errMsg = QObject::tr("Could not find the point complete information!");
+      TERRAMA2_LOG_WARNING() << errMsg;
+      throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
+    }
+
+    std::vector<size_t> latLonAttributes;
+    latLonAttributes.push_back(longPos);
+    latLonAttributes.push_back(latPos);
+
+    Srid srid = getSrid(dataSet);
+    std::string alias = fieldGeomObj.value("alias").toString().toStdString();
+
+    te::gm::GeometryProperty* geomProperty = new te::gm::GeometryProperty(alias, srid, te::gm::PointType);
+
+    converter->add(latLonAttributes, geomProperty, boost::bind(&terrama2::core::DataAccessorDCPTxtFile::stringToPoint, this, _1, _2, _3, srid));
+
+    converter->remove(longPos);
+    converter->remove(latPos);
   }
 }
 
