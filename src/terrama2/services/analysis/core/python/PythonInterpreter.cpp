@@ -32,6 +32,8 @@
 #include <boost/python.hpp>
 
 #include <QTextStream>
+#include <QJsonObject>
+#include <QJsonValue>
 
 #include "../Exception.hpp"
 #include "../ContextManager.hpp"
@@ -41,6 +43,7 @@
 
 #include "../../../../core/utility/Logger.hpp"
 #include "../../../../core/data-model/Filter.hpp"
+#include "../utility/Verify.hpp"
 
 // TerraLib
 #include <terralib/dataaccess/utils/Utils.h>
@@ -56,6 +59,7 @@
 #include <boost/python/call.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/python/stl_iterator.hpp>
+#include <QtCore/QJsonDocument>
 
 // pragma to silence python macros warnings
 #pragma GCC diagnostic push
@@ -139,6 +143,7 @@ void terrama2::services::analysis::core::python::runMonitoredObjectScript(PyThre
 
     boost::python::object analysisModule = boost::python::import("analysis");
     boost::python::object analysisFunction = analysisModule.attr("analysis");
+
 
     auto pValueAnalysis = PyInt_FromLong(analysisHashCode);
     auto isHashSet = PyDict_SetItemString(state->dict, "analysisHashCode", pValueAnalysis);
@@ -250,7 +255,7 @@ void terrama2::services::analysis::core::python::runScriptGridAnalysis(PyThreadS
         PyDict_SetItemString(state->dict, "column", pValueColumn);
 
 
-        boost::python::object result = analysisFunction();
+        boost::python::object result = analysisFunction("");
         double value = boost::python::extract<double>(result);
         if(std::isnan(value))
           outputRaster->setValue(col, row, analysis->outputGridPtr->interpolationDummy);
@@ -377,6 +382,7 @@ BOOST_PYTHON_MODULE(terrama2)
 
 
   def("add_value", terrama2::services::analysis::core::python::addValue);
+  def("get_attribute_value_as_json", terrama2::services::analysis::core::python::getAttributeValueAsJson);
 
   // Export BufferType enum to python
   enum_<terrama2::services::analysis::core::BufferType>("BufferType")
@@ -509,7 +515,17 @@ std::string terrama2::services::analysis::core::python::prepareScript(AnalysisPt
 
   // Adds indent to the first line
   formatedScript = "    "  + formatedScript;
-  formatedScript = "from terrama2 import *\ndef analysis():\n" + formatedScript;
+  formatedScript = "from terrama2 import *\n"
+                   "import json\n"
+                   "def get_value(attr):\n"
+                   "    answer = get_attribute_value_as_json(attr)\n"
+                   "    if(answer):\n"
+                   "        attr_json = json.loads(answer)\n"
+                   "        return attr_json[attr]\n"
+                   "    else:\n"
+                   "        return None\n\n"
+                   "def analysis():\n"
+                   + formatedScript;
 
   return formatedScript;
 }
@@ -553,6 +569,141 @@ void terrama2::services::analysis::core::python::validateAnalysisScript(Analysis
     QString errMsg = QObject::tr("An unknown exception occurred.");
     validateResult.messages.insert(validateResult.messages.end(), errMsg.toStdString());
   }
+}
+
+std::string terrama2::services::analysis::core::python::getAttributeValueAsJson(const std::string &attribute)
+{
+  OperatorCache cache;
+  terrama2::services::analysis::core::python::readInfoFromDict(cache);
+  // After the operator lock is released it's not allowed to return any value because it doesn' have the interpreter lock.
+  // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return NAN.
+  bool exceptionOccurred = false;
+
+  auto& contextManager = ContextManager::getInstance();
+  auto analysis = cache.analysisPtr;
+
+  try
+  {
+    terrama2::services::analysis::core::verify::analysisMonitoredObject(analysis);
+  }
+  catch (const terrama2::core::VerifyException&)
+  {
+    contextManager.addError(cache.analysisHashCode, QObject::tr("Use of invalid operator for analysis %1.").arg(analysis->id).toStdString());
+    return "";
+  }
+
+  terrama2::services::analysis::core::MonitoredObjectContextPtr context;
+  try
+  {
+    context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
+  }
+  catch(const terrama2::Exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
+    return "";
+  }
+
+
+  try
+  {
+    auto dataManagerPtr = context->getDataManager().lock();
+    if(!dataManagerPtr)
+    {
+      QString errMsg(QObject::tr("Invalid data manager."));
+      throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(errMsg);
+    }
+
+
+    std::shared_ptr<ContextDataSeries> moDsContext = context->getMonitoredObjectContextDataSeries(dataManagerPtr);
+    if(!moDsContext)
+    {
+      QString errMsg(QObject::tr("Could not recover monitored object data series."));
+      throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
+    }
+
+    if(moDsContext->series.syncDataSet->size() == 0)
+    {
+      QString errMsg(QObject::tr("Could not recover monitored object data series."));
+      throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
+    }
+
+    auto attrProperty = moDsContext->series.teDataSetType->getProperty(attribute);
+    if(attrProperty == nullptr)
+    {
+      QString errMsg(QObject::tr("The monitored object dataset does not contain an attribute with the name: %1.").arg(attribute.c_str()));
+      throw InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
+    }
+
+    if(moDsContext->series.syncDataSet->isNull(cache.index, attribute))
+      return "";
+
+    QJsonObject json;
+
+
+    switch(attrProperty->getType())
+    {
+      case te::dt::FLOAT_TYPE:
+      {
+        json.insert(QString::fromStdString(attribute), moDsContext->series.syncDataSet->getFloat(cache.index, attribute));
+        break;
+      }
+      case te::dt::DOUBLE_TYPE:
+      {
+        json.insert(QString::fromStdString(attribute), moDsContext->series.syncDataSet->getDouble(cache.index, attribute));
+        break;
+      }
+      case te::dt::INT16_TYPE:
+      {
+        json.insert(QString::fromStdString(attribute), moDsContext->series.syncDataSet->getInt16(cache.index, attribute));
+        break;
+      }
+      case te::dt::INT32_TYPE:
+      {
+        json.insert(QString::fromStdString(attribute), moDsContext->series.syncDataSet->getInt32(cache.index, attribute));
+        break;
+      }
+      case te::dt::INT64_TYPE:
+      {
+        json.insert(QString::fromStdString(attribute), static_cast<qint64>(moDsContext->series.syncDataSet->getInt64(cache.index, attribute)));
+        break;
+      }
+      case te::dt::NUMERIC_TYPE:
+      {
+        json.insert(QString::fromStdString(attribute), QString::fromStdString(moDsContext->series.syncDataSet->getNumeric(cache.index, attribute).c_str()));
+        break;
+      }
+      case te::dt::STRING_TYPE:
+      {
+        json.insert(QString::fromStdString(attribute), QString::fromStdString(moDsContext->series.syncDataSet->getString(cache.index, attribute)));
+        break;
+      }
+      default:
+        json.insert(QString::fromStdString(attribute), QString());
+    }
+
+    QJsonDocument doc(json);
+    QString strJson(doc.toJson(QJsonDocument::Compact));
+    return strJson.toStdString();
+  }
+  catch(const terrama2::Exception& e)
+  {
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+    return "";
+  }
+  catch(const std::exception& e)
+  {
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, e.what());
+    return "";
+  }
+  catch(...)
+  {
+    QString errMsg = QObject::tr("An unknown exception occurred.");
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
+    return "";
+  }
+
+  return "";
+
 }
 
 std::mutex terrama2::services::analysis::core::python::GILLock::mutex_;
