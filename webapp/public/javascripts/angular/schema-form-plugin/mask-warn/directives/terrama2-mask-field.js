@@ -1,11 +1,18 @@
 define([], function(){
 
+  /**
+   * It defines TerraMA2 mask field of schema form addon
+   * 
+   * @example
+   * <terrama2-mask-field class="MyClass"></terrama2-analysis-helpers>
+   * 
+   * @returns {angular.IDirective}
+   */
   function terrama2MaskField(i18n) {
     return {
       restrict: 'E',
       require: 'ngModel',
       scope: false,
-      
       template:
         '<input ng-if="!form.fieldAddonLeft && !form.fieldAddonRight" ng-show="form.key" type="{{form.type}}" step="any" sf-changed="form" placeholder="{{form.placeholder}}" class="form-control {{form.fieldHtmlClass}}" id="{{form.key.slice(-1)[0]}}" ng-model-options="form.ngModelOptions" ng-model="modelValue" ng-disabled="form.readonly" schema-validate="form" name="{{form.key.slice(-1)[0]}}" aria-describedby="{{form.key.slice(-1)[0] + \'Status\'}}" ng-blur="updateModel(modelValue)">' + 
           
@@ -26,6 +33,7 @@ define([], function(){
             return;
           }
           scope.showWarnMessage = true;
+          // checking if value has some pattern characters
           if (scope.form.maskPattern){
             scope.form.maskPattern.forEach(function(mPattern){
               if (modelValue.indexOf(mPattern) != -1){ 
@@ -34,6 +42,7 @@ define([], function(){
               }
             });
           }
+          // if value is valid and have to show warn message, show message
           scope.showWarnMessage = scope.showWarnMessage && ngModel.$valid;
         };
 

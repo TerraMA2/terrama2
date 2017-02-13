@@ -1,4 +1,5 @@
 define(['TerraMA2WebApp/schema-form-plugin/mask-warn/directives/terrama2-mask-field'], function(terrama2MaskField){
+  // Module to define TerraMA2 template to use in TerraMA2MaskForm
   angular.module('templates', []).run(['$templateCache', function($templateCache){
     $templateCache.put('/dist/templates/schema-form-plugin/mask-warn/templates/terrama2-mask-field.html', 
     '<div class="form-group schema-form-{{form.type}} {{form.htmlClass}}" ng-class="{\'has-error\': form.disableErrorState !== true && hasError(), \'has-success\': form.disableSuccessState !== true && hasSuccess(), \'has-feedback\': form.feedback !== false }">' +
