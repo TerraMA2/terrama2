@@ -109,7 +109,6 @@ define([], function() {
 
     var reloadData = function() {
       $scope.dcpTable.ajax.reload(null, false);
-      $scope.compileTableLines();
     }
 
     // advanced global properties
@@ -1228,7 +1227,8 @@ define([], function() {
               }
             },
             "drawCallback": function() {
-              $scope.compileTableLines();
+              if($('.dcps-table-span').text().match("{{(.*)}}") !== null)
+                $scope.compileTableLines();
             }
           }
         );
@@ -1241,7 +1241,7 @@ define([], function() {
           $compile(angular.element('.dcpTable > tbody > tr'))($scope);
 
           $('.dcpTable .dcps-table-span').css('display', '');
-        }, 200);
+        }, 50);
       };
 
       $scope.addDcp = function() {
@@ -1275,7 +1275,7 @@ define([], function() {
           // reset form to do not display feedback class
           $scope.forms.parametersForm.$setPristine();
 
-          $scope.compileTableLines();
+          reloadData();
         }
       };
 

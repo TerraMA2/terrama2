@@ -255,7 +255,8 @@ define([], function(){
               }
             },
             "drawCallback": function() {
-              self.compileTableLinesStore();
+              if($('.store-dcps-table-span').text().match("{{(.*)}}") !== null)
+                self.compileTableLinesStore();
             }
           }
         );
@@ -268,7 +269,7 @@ define([], function(){
           $compile(angular.element('.dcpTableStore > tbody > tr'))($scope);
 
           $('.dcpTableStore .store-dcps-table-span').css('display', '');
-        }, 200);
+        }, 50);
       };
 
       self.objectToArray = function(object) {
@@ -394,10 +395,8 @@ define([], function(){
       };
 
       var reloadDataStore = function() {
-        if(self.dcpTableStore != undefined) {
+        if(self.dcpTableStore != undefined)
           self.dcpTableStore.ajax.reload(null, false);
-          self.compileTableLinesStore();
-        }
       };
 
       self.countObjectProperties = function(object) {
