@@ -83,7 +83,7 @@ void terrama2::core::DataAccessorOccurrenceTxtFile::adapt(DataSetPtr dataSet, st
 
       try
       {
-          getProperty(dataSet, dataSeries_, "timestamp_property_alias");
+          alias = getProperty(dataSet, dataSeries_, "timestamp_property_alias");
       }
       catch(UndefinedTagException /*e*/)
       {

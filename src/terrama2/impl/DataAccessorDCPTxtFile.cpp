@@ -74,7 +74,7 @@ void terrama2::core::DataAccessorDCPTxtFile::adapt(DataSetPtr dataSet, std::shar
 
       try
       {
-          getProperty(dataSet, dataSeries_, "timestamp_property_alias");
+          alias = getProperty(dataSet, dataSeries_, "timestamp_property_alias");
       }
       catch(UndefinedTagException /*e*/)
       {
