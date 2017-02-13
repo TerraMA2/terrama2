@@ -85,9 +85,10 @@ int main(int argc, char* argv[])
   dataSet->format.emplace("srid", "4326");
   dataSet->format.emplace("timestamp_property", "TOA5");
   dataSet->format.emplace("timestamp_format", "%Y-%m-%d %H:%M:%S");
-  dataSet->format.emplace("timestamp_property_alias", "DateTime");
+  dataSet->format.emplace("output_timestamp_property", "DateTime");
   dataSet->format.emplace("lines_skip", "1,2,3");
   dataSet->format.emplace("convert_all", "true");
+  dataSet->format.emplace("default_type", "FLOAT");
 
   QJsonArray fields;
 
