@@ -637,5 +637,6 @@
 	"Title is required": "Title is required",
 	"Value is required": "Value is required",
 	"Value must be a number": "Value must be a number",
-	"Value must be unique": "Value must be unique"
+	"Value must be unique": "Value must be unique",
+	"Files can be overwritten": "Files can be overwritten"
 }
