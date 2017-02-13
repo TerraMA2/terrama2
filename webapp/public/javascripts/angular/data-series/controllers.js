@@ -12,9 +12,10 @@ define([
 
   // controllers
   "TerraMA2WebApp/data-series/data-series",
-  "TerraMA2WebApp/data-series/registration"
+  "TerraMA2WebApp/data-series/registration",
+  'TerraMA2WebApp/schema-form-plugin/mask-warn/module'
 ], function(moduleLoader, commonServiceApp, messageboxApp, datetimepickerApp, providerApp, serviceApp, 
-            dataSeriesServicesApp, scheduleApp, directives, geoApp, ListController, RegistrationController) {
+            dataSeriesServicesApp, scheduleApp, directives, geoApp, ListController, RegistrationController, WarnMask) {
   var moduleName = "terrama2.dataseries.controllers";
   var deps = [commonServiceApp, messageboxApp, directives];
 
@@ -31,6 +32,7 @@ define([
     deps.push(scheduleApp);
     deps.push(datetimepickerApp);
     deps.push(geoApp);
+    deps.push(WarnMask);
   }
 
   var app = angular.module(moduleName, deps);
@@ -40,7 +42,6 @@ define([
   if (deps.indexOf("ui.router") !== -1) {
 
     app
-      .controller("DataSeriesStoragerController", RegistrationController.StoragerController)
       .controller("DataSeriesRegisterUpdateController", RegistrationController.RegisterDataSeries)
       .config(["$stateProvider", "$urlRouterProvider", function($stateProvider, $urlRouterProvider) {
         $stateProvider.state('main', {

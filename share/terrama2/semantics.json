@@ -640,7 +640,12 @@
         },
         {
           "key": "mask",
-          "htmlClass": "col-md-6"
+          "type": "terrama2maskform",
+          "maskPattern": ["%YYYY", "%YY", "%MM", "%DD", "%hh", "%mm", "%ss"],
+          "htmlClass": "col-md-6",
+          "validationMessage": {
+            "202": "Invalid mask"
+          }
         },
         {
           "key": "timezone",

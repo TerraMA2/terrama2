@@ -1595,10 +1595,12 @@ define([], function() {
         }
 
         if ($scope.isDynamic) {
-          var scheduleForm = angular.element('form[name="scheduleForm"]').scope()['scheduleForm'];
-          if (scheduleForm.$invalid) {
-            MessageBoxService.danger("Data Registration", "There are invalid fields on form");
-            return;
+          if (angular.element('form[name="scheduleForm"]').scope()){ 
+            var scheduleForm = angular.element('form[name="scheduleForm"]').scope()['scheduleForm'];
+            if (scheduleForm.$invalid) {
+              MessageBoxService.danger("Data Registration", "There are invalid fields on form");
+              return;
+            }
           }
         }
 

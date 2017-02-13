@@ -407,6 +407,9 @@ tbody td:last-child, thead th:last-child {
   padding: 10px 8px !important;
 }
 
+.warn-message {
+  color: #f39c12;
+}
 /**
  *
  * It handles Mozila FireFox CSS specific styles

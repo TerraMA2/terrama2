@@ -597,5 +597,6 @@
 	"Select the Collector Service to be Used": "Selecione o serviço de coleta para ser usado",
 	"Select the Analysis Service to be Used": "Selecione o serviço de análise para ser usado",
 	"Select the View Service to be Used": "Selecione o serviço de visualização para ser usado",
-	"is not active": "não está ativo"
+	"is not active": "não está ativo",
+	"Files can be overwritten": "Arquivos podem ser sobrescritos"
 }
