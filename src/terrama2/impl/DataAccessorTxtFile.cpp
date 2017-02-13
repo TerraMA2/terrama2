@@ -140,7 +140,7 @@ te::dt::AbstractData* terrama2::core::DataAccessorTxtFile::stringToTimestamp(te:
                                                                              const std::vector<std::size_t>& indexes,
                                                                              int /*dstType*/,
                                                                              const std::string& timezone,
-                                                                             std::string dateTimeFormat) const
+                                                                             std::string& dateTimeFormat) const
 {
   assert(indexes.size() == 1);
 
@@ -149,8 +149,10 @@ te::dt::AbstractData* terrama2::core::DataAccessorTxtFile::stringToTimestamp(te:
     std::string dateTime = dataset->getAsString(indexes[0]);
     boost::posix_time::ptime boostDate;
 
+    std::string boostFormat = terramaDateMask2BoostFormat(dateTimeFormat);
+
     //mask to convert DateTime string to Boost::ptime
-    std::locale format(std::locale(), new boost::posix_time::time_input_facet(dateTimeFormat));
+    std::locale format(std::locale(), new boost::posix_time::time_input_facet(boostFormat));
 
     std::istringstream stream(dateTime);//create stream
     stream.imbue(format);//set format
@@ -193,7 +195,7 @@ std::string terrama2::core::DataAccessorTxtFile::getLongitudePropertyName(DataSe
 }
 
 
-std::string terrama2::core::DataAccessorTxtFile::getTimestampPropertyName(DataSetPtr dataSet) const
+std::string terrama2::core::DataAccessorTxtFile::getTimestampFormat(DataSetPtr dataSet) const
 {
   return getProperty(dataSet, dataSeries_, "timestamp_format");
 }
@@ -262,4 +264,29 @@ std::string terrama2::core::DataAccessorTxtFile::simplifyString(std::string text
     text ="_" + text;
 
   return text;
+}
+
+std::string terrama2::core::DataAccessorTxtFile::terramaDateMask2BoostFormat(const std::string& mask) const
+{
+  QString m(mask.c_str());
+
+  /*
+    YYYY  year with 4 digits        %Y
+    YY    year with 2 digits        %y
+    MM    month with 2 digits       %m
+    DD    day with 2 digits         %d
+    hh    hout with 2 digits        %H
+    mm    minutes with 2 digits     %M
+    ss    seconds with 2 digits     %S
+    */
+
+  m.replace("%YYYY", "%Y");
+  m.replace("%YY", "%y");
+  m.replace("%MM", "%m");
+  m.replace("%DD", "%d");
+  m.replace("%hh", "%H");
+  m.replace("%mm", "%M");
+  m.replace("%ss", "%S");
+
+  return m.toStdString();
 }

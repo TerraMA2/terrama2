@@ -94,7 +94,7 @@ void terrama2::core::DataAccessorOccurrenceTxtFile::adapt(DataSetPtr dataSet, st
         alias = DataAccessorTxtFile::simplifyString(property->getName());
 
       te::dt::DateTimeProperty* dtProperty = new te::dt::DateTimeProperty(alias, te::dt::TIME_INSTANT_TZ);
-      converter->add(i, dtProperty, boost::bind(&terrama2::core::DataAccessorOccurrenceTxtFile::stringToTimestamp, this, _1, _2, _3, getTimeZone(dataSet), getTimestampPropertyName(dataSet)));
+      converter->add(i, dtProperty, boost::bind(&terrama2::core::DataAccessorOccurrenceTxtFile::stringToTimestamp, this, _1, _2, _3, getTimeZone(dataSet), getTimestampFormat(dataSet)));
 
       converter->remove(property->getName());
 

@@ -68,7 +68,7 @@ void terrama2::core::DataAccessorDCPTxtFile::adapt(DataSetPtr dataSet, std::shar
   {
     te::dt::Property* property = properties.at(i);
 
-    if(property->getName() == getProperty(dataSet, dataSeries_, "timestamp_property"))
+    if(property->getName() == getTimestampPropertyName(dataSet))
     {
       std::string alias;
 
@@ -85,7 +85,7 @@ void terrama2::core::DataAccessorDCPTxtFile::adapt(DataSetPtr dataSet, std::shar
         alias = DataAccessorTxtFile::simplifyString(property->getName());
 
       te::dt::DateTimeProperty* dtProperty = new te::dt::DateTimeProperty(alias, te::dt::TIME_INSTANT_TZ);
-      converter->add(i, dtProperty, boost::bind(&terrama2::core::DataAccessorDCPTxtFile::stringToTimestamp, this, _1, _2, _3, getTimeZone(dataSet), getTimestampPropertyName(dataSet)));
+      converter->add(i, dtProperty, boost::bind(&terrama2::core::DataAccessorDCPTxtFile::stringToTimestamp, this, _1, _2, _3, getTimeZone(dataSet), getTimestampFormat(dataSet)));
 
       converter->remove(property->getName());
 

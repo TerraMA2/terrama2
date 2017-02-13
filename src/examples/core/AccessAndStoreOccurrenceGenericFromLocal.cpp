@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
   dataSet->format.emplace("timezone", "+00");
   dataSet->format.emplace("srid", "4326");
   dataSet->format.emplace("timestamp_property", "data_pas");
-  dataSet->format.emplace("timestamp_format", "%Y-%m-%d %H:%M:%S");
+  dataSet->format.emplace("timestamp_format", "%YYYY-%MM-%DD %hh:%mm:%ss");
   dataSet->format.emplace("output_timestamp_property", "DateTime");
   dataSet->format.emplace("lines_skip", "");
   dataSet->format.emplace("convert_all", "true");

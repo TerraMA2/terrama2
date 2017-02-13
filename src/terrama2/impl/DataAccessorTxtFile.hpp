@@ -60,6 +60,8 @@ namespace terrama2
 
         std::string simplifyString(std::string text) const;
 
+        std::string terramaDateMask2BoostFormat(const std::string& mask) const;
+
         std::map<std::string, int> dataTypes { {"FLOAT", static_cast<int>(te::dt::DOUBLE_TYPE)},
                                                {"INTEGER", static_cast<int>(te::dt::INT32_TYPE)},
                                                {"TEXT", static_cast<int>(te::dt::STRING_TYPE)}
@@ -73,7 +75,7 @@ namespace terrama2
         te::dt::AbstractData* stringToTimestamp(te::da::DataSet* dataset,
                                                 const std::vector<std::size_t>& indexes,
                                                 int /*dstType*/,
-                                                const std::string& timezone, std::string dateTimeFormat) const;
+                                                const std::string& timezone, std::string& dateTimeFormat) const;
 
         //! Name of column with latitude information
         std::string getLatitudePropertyName(DataSetPtr dataSet) const;
@@ -81,7 +83,7 @@ namespace terrama2
         //! Name of column with longitude information
         std::string getLongitudePropertyName(DataSetPtr dataSet) const;
 
-        std::string getTimestampPropertyName(DataSetPtr dataSet) const;
+        std::string getTimestampFormat(DataSetPtr dataSet) const;
 
         bool getConvertAll(DataSetPtr dataSet) const;
 
