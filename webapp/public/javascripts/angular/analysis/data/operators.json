@@ -47,23 +47,23 @@
         "name": "Add value",
         "type": "GEOMETRIC_OBJECT",
         "description": "It adds a new column with a value in table output",
-        "code": "add_value(\"NEW_COLUMN_NAME\", RESULT_VALUE)"
+        "code": "add_value(\"<attribute_name>\", <value>)"
       },
       {
         "name": "Distance units",
         "children": [
           {
-            "name": "Centimeters",
+            "name": "Centimeter",
             "description": "Retrieves a string representation of Centimeters",
             "code": "\"cm\""
           },
           {
-            "name": "Meters",
+            "name": "Meter",
             "description": "Retrieves a string representation of Meters",
             "code": "\"m\""
           },
           {
-            "name": "Kilometers",
+            "name": "Kilometer",
             "description": "Retrieves a string representation of Kilometers",
             "code": "\"km\""
           }
@@ -73,17 +73,17 @@
         "name": "Time units",
         "children": [
           {
-            "name": "Seconds",
+            "name": "Second",
             "description": "Retrieves a string representation of seconds",
             "code": "\"s\""
           },
           {
-            "name": "Minutes",
+            "name": "Minute",
             "description": "Retrieves a string representation of minutes",
             "code": "\"m\""
           },
           {
-            "name": "Hours",
+            "name": "Hour",
             "description": "Retrieves a string representation of hour",
             "code": "\"h\""
           }
@@ -99,68 +99,105 @@
         "type": "GEOMETRIC_OBJECT",
         "children": [
           {
-            "name": "History",
+            "name": "Zonal history interval",
             "children": [
               {
-                "name": "Interval",
-                "children": [
-                  {
-                    "name": "Min",
-                    "code": "dcp.history.interval.min(\"dataSeriesName\", \"attribute\", \"dateFilterBegin\", \"dateFilterEnd\", dcpsIds)"
-                  },
-                  {
-                    "name": "Max",
-                    "code": "dcp.history.interval.max(\"dataSeriesName\", \"attribute\", \"dateFilterBegin\", \"dateFilterEnd\", dcpsIds)"
-                  },
-                  {
-                    "name": "Mean",
-                    "code": "dcp.history.interval.mean(\"dataSeriesName\", \"attribute\", \"dateFilterBegin\", \"dateFilterEnd\", dcpsIds)"
-                  },
-                  {
-                    "name": "Median",
-                    "code": "dcp.history.interval.median(\"dataSeriesName\", \"attribute\", \"dateFilterBegin\", \"dateFilterEnd\", dcpsIds)"
-                  },
-                  {
-                    "name": "Sum",
-                    "code": "dcp.history.interval.sum(\"dataSeriesName\", \"attribute\", \"dateFilterBegin\", \"dateFilterEnd\", dcpsIds)"
-                  },
-                  {
-                    "name": "standardDeviation",
-                    "code": "dcp.history.interval.standard_deviation(\"dataSeriesName\", \"attribute\", \"dateFilterBegin\", \"dateFilterEnd\", dcpsIds)"
-                  },
-                  {
-                    "name": "Variance",
-                    "code": "dcp.history.interval.variance(\"dataSeriesName\", \"attribute\", \"dateFilterBegin\", \"dateFilterEnd\", dcpsIds)"
-                  }
-                ]
-              },
-              {
                 "name": "Min",
-                "code": "dcp.history.min(\"dataSeriesName\", \"attribute\", \"dateFilter\", dcpsIds)"
+                "code": "dcp.zonal.history.interval.min(\"<dynamic_data_dcp>\", \"<attribute>\", \"<time_begin>\", \"<time_end>\", <list_dcp>)"
               },
               {
                 "name": "Max",
-                "code": "dcp.history.max(\"dataSeriesName\", \"attribute\", \"dateFilter\", dcpsIds)"
+                "code": "dcp.zonal.history.interval.max(\"<dynamic_data_dcp>\", \"<attribute>\", \"<time_begin>\", \"<time_end>\", <list_dcp>)"
               },
               {
                 "name": "Mean",
-                "code": "dcp.history.mean(\"dataSeriesName\", \"attribute\", \"dateFilter\", dcpsIds)"
+                "code": "dcp.zonal.history.interval.mean(\"<dynamic_data_dcp>\", \"<attribute>\", \"<time_begin>\", \"<time_end>\", <list_dcp>)"
               },
               {
                 "name": "Median",
-                "code": "dcp.history.median(\"dataSeriesName\", \"attribute\", \"dateFilter\", dcpsIds)"
+                "code": "dcp.zonal.history.interval.median(\"<dynamic_data_dcp>\", \"<attribute>\", \"<time_begin>\", \"<time_end>\", <list_dcp>)"
               },
               {
                 "name": "Sum",
-                "code": "dcp.history.sum(\"dataSeriesName\", \"attribute\", \"dateFilter\", dcpsIds)"
+                "code": "dcp.zonal.history.interval.sum(\"<dynamic_data_dcp>\", \"<attribute>\", \"<time_begin>\", \"<time_end>\", <list_dcp>)"
               },
               {
-                "name": "standardDeviation",
-                "code": "dcp.history.standard_deviation(\"dataSeriesName\", \"attribute\", \"dateFilter\", dcpsIds)"
+                "name": "Standard deviation",
+                "code": "dcp.zonal.history.interval.standard_deviation(\"<dynamic_data_dcp>\", \"<attribute>\", \"<time_begin>\", \"<time_end>\", <list_dcp>)"
               },
               {
                 "name": "Variance",
-                "code": "dcp.history.variance(\"dataSeriesName\", \"attribute\", \"dateFilter\", dcpsIds)"
+                "code": "dcp.zonal.history.interval.variance(\"<dynamic_data_dcp>\", \"<attribute>\", \"<time_begin>\", \"<time_end>\", <list_dcp>)"
+              }
+            ]
+          },
+          {
+            "name": "Zonal History",
+            "children": [
+              {
+                "name": "Min",
+                "code": "dcp.zonal.history.min(\"<dynamic_data_dcp>\", \"<attribute>\", \"<time>\", <list_dcp>)"
+              },
+              {
+                "name": "Max",
+                "code": "dcp.zonal.history.max(\"<dynamic_data_dcp>\", \"<attribute>\", \"<time>\", <list_dcp>)"
+              },
+              {
+                "name": "Mean",
+                "code": "dcp.zonal.history.mean(\"<dynamic_data_dcp>\", \"<attribute>\", \"<time>\", <list_dcp>)"
+              },
+              {
+                "name": "Median",
+                "code": "dcp.zonal.history.median(\"<dynamic_data_dcp>\", \"<attribute>\", \"<time>\", <list_dcp>)"
+              },
+              {
+                "name": "Sum",
+                "code": "dcp.zonal.history.sum(\"<dynamic_data_dcp>\", \"<attribute>\", \"<time>\", <list_dcp>)"
+              },
+              {
+                "name": "Standard deviation",
+                "code": "dcp.zonal.history.standard_deviation(\"<dynamic_data_dcp>\", \"<attribute>\", \"<time>\", <list_dcp>)"
+              },
+              {
+                "name": "Variance",
+                "code": "dcp.zonal.history.variance(\"<dynamic_data_dcp>\", \"<attribute>\", \"<time>\", <list_dcp>)"
+              }
+            ]
+          },
+          {
+            "name": "Zonal",
+            "children": [
+              {
+                "name": "Count",
+                "code": "dcp.zonal.count(\"<dynamic_data_dcp>\", <buffer>)"
+              },
+              {
+                "name": "Min",
+                "code": "dcp.zonal.min(\"<dynamic_data_dcp>\", \"<attribute>\", <list_dcp>)"
+              },
+              {
+                "name": "Max",
+                "code": "dcp.zonal.max(\"<dynamic_data_dcp>\", \"<attribute>\", <list_dcp>)"
+              },
+              {
+                "name": "Mean",
+                "code": "dcp.zonal.mean(\"<dynamic_data_dcp>\", \"<attribute>\", <list_dcp>)"
+              },
+              {
+                "name": "Median",
+                "code": "dcp.zonal.median(\"<dynamic_data_dcp>\", \"<attribute>\", <list_dcp>)"
+              },
+              {
+                "name": "Sum",
+                "code": "dcp.zonal.sum(\"<dynamic_data_dcp>\", \"<attribute>\", <list_dcp>)"
+              },
+              {
+                "name": "Standard deviation",
+                "code": "dcp.zonal.standard_deviation(\"<dynamic_data_dcp>\", \"<attribute>\", <list_dcp>)"
+              },
+              {
+                "name": "Variance",
+                "code": "dcp.zonal.variance(\"<dynamic_data_dcp>\", \"<attribute>\", <list_dcp>)"
               }
             ]
           },
@@ -169,11 +206,11 @@
             "children": [
               {
                 "name": "By attribute",
-                "code": "dcp.influence.by_attribute(\"dataSeriesName\", attributeList)"
+                "code": "dcp.influence.by_attribute(\"<dynamic_data_dcp>\", [<list_attribute>])"
               },
               {
                 "name": "By rule",
-                "code": "dcp.influence.by_rule(\"dataSeriesName\", attributeList)"
+                "code": "dcp.influence.by_rule(\"<dynamic_data_dcp>\", <buffer>)"
               }
             ]
           }
@@ -215,7 +252,7 @@
                     "code": "grid.forecast.interval.sum(\"dataSeriesName\", \"dataFilterBegin\", \"dataFilterEnd\")"
                   },
                   {
-                    "name": "standardDeviation",
+                    "name": "Standard deviation",
                     "code": "grid.forecast.interval.standard_deviation(\"dataSeriesName\", \"dataFilterBegin\", \"dataFilterEnd\")"
                   },
                   {
@@ -245,7 +282,7 @@
                 "code": "grid.forecast.sum(\"dataSeriesName\", \"dataFilterEnd\")"
               },
               {
-                "name": "standardDeviation",
+                "name": "Standard deviation",
                 "code": "grid.forecast.standard_deviation(\"dataSeriesName\", \"dataFilterEnd\")"
               },
               {
@@ -282,7 +319,7 @@
                     "code": "grid.history.sum(\"dataSeriesName\", \"dataFilter\")"
                   },
                   {
-                    "name": "standardDeviation",
+                    "name": "Standard deviation",
                     "code": "grid.history.standard_deviation(\"dataSeriesName\", \"dataFilter\")"
                   },
                   {
@@ -304,69 +341,69 @@
             "children": [
               {
                 "name": "Count",
-                "code": "occurrence.aggregation.count(\"dataSeriesName\", \"dateFilter\", aggregationBuffer, buffer, \"restriction\")"
+                "code": "occurrence.aggregation.count(\"dataSeriesName\", \"<time>\", aggregationBuffer, buffer, \"restriction\")"
               },
               {
                 "name": "Min",
-                "code": "occurrence.aggregation.min(\"dataSeriesName\", \"dateFilter\", \"attribute\", aggregationStatistic, aggregationBuffer, buffer, \"restriction\")"
+                "code": "occurrence.aggregation.min(\"dataSeriesName\", \"<time>\", \"attribute\", aggregationStatistic, aggregationBuffer, buffer, \"restriction\")"
               },
               {
                 "name": "Max",
-                "code": "occurrence.aggregation.max(\"dataSeriesName\", \"dateFilter\", \"attribute\", aggregationStatistic, aggregationBuffer, buffer, \"restriction\")"
+                "code": "occurrence.aggregation.max(\"dataSeriesName\", \"<time>\", \"attribute\", aggregationStatistic, aggregationBuffer, buffer, \"restriction\")"
               },
               {
                 "name": "Mean",
-                "code": "occurrence.aggregation.mean(\"dataSeriesName\", \"dateFilter\", \"attribute\", aggregationStatistic, aggregationBuffer, buffer, \"restriction\")"
+                "code": "occurrence.aggregation.mean(\"dataSeriesName\", \"<time>\", \"attribute\", aggregationStatistic, aggregationBuffer, buffer, \"restriction\")"
               },
               {
                 "name": "Median",
-                "code": "occurrence.aggregation.median(\"dataSeriesName\", \"dateFilter\", \"attribute\", aggregationStatistic, aggregationBuffer, buffer, \"restriction\")"
+                "code": "occurrence.aggregation.median(\"dataSeriesName\", \"<time>\", \"attribute\", aggregationStatistic, aggregationBuffer, buffer, \"restriction\")"
               },
               {
                 "name": "Sum",
-                "code": "occurrence.aggregation.sum(\"dataSeriesName\", \"dateFilter\", \"attribute\", aggregationStatistic, aggregationBuffer, buffer, \"restriction\")"
+                "code": "occurrence.aggregation.sum(\"dataSeriesName\", \"<time>\", \"attribute\", aggregationStatistic, aggregationBuffer, buffer, \"restriction\")"
               },
               {
                 "name": "Standard deviation",
-                "code": "occurrence.aggregation.standard_deviation(\"dataSeriesName\", \"dateFilter\", \"attribute\", aggregationStatistic, aggregationBuffer, buffer, \"restriction\")"
+                "code": "occurrence.aggregation.standard_deviation(\"dataSeriesName\", \"<time>\", \"attribute\", aggregationStatistic, aggregationBuffer, buffer, \"restriction\")"
               },
               {
                 "name": "Variance",
-                "code": "occurrence.aggregation.variance(\"dataSeriesName\", \"dateFilter\", \"attribute\", aggregationStatistic, aggregationBuffer, buffer, \"restriction\")"
+                "code": "occurrence.aggregation.variance(\"dataSeriesName\", \"<time>\", \"attribute\", aggregationStatistic, aggregationBuffer, buffer, \"restriction\")"
               }
             ]
           },
           {
             "name": "Count",
-            "code": "occurrence.count(\"dataSeriesName\", \"dateFilter\", buffer, \"restriction\")"
+            "code": "occurrence.count(\"dataSeriesName\", \"<time>\", buffer, \"restriction\")"
           },
           {
             "name": "Min",
-            "code": "occurrence.min(\"dataSeriesName\", \"dateFilter\", \"attribute\", buffer, \"restriction\")"
+            "code": "occurrence.min(\"dataSeriesName\", \"<time>\", \"attribute\", buffer, \"restriction\")"
           },
           {
             "name": "Max",
-            "code": "occurrence.max(\"dataSeriesName\", \"dateFilter\", \"attribute\", buffer, \"restriction\")"
+            "code": "occurrence.max(\"dataSeriesName\", \"<time>\", \"attribute\", buffer, \"restriction\")"
           },
           {
             "name": "Mean",
-            "code": "occurrence.mean(\"dataSeriesName\", \"dateFilter\", \"attribute\", buffer, \"restriction\")"
+            "code": "occurrence.mean(\"dataSeriesName\", \"<time>\", \"attribute\", buffer, \"restriction\")"
           },
           {
             "name": "Median",
-            "code": "occurrence.median(\"dataSeriesName\", \"dateFilter\", \"attribute\", buffer, \"restriction\")"
+            "code": "occurrence.median(\"dataSeriesName\", \"<time>\", \"attribute\", buffer, \"restriction\")"
           },
           {
             "name": "Sum",
-            "code": "occurrence.sum(\"dataSeriesName\", \"dateFilter\", \"attribute\", buffer, \"restriction\")"
+            "code": "occurrence.sum(\"dataSeriesName\", \"<time>\", \"attribute\", buffer, \"restriction\")"
           },
           {
             "name": "Standard deviation",
-            "code": "occurrence.standard_deviation(\"dataSeriesName\", \"dateFilter\", \"attribute\", buffer, \"restriction\")"
+            "code": "occurrence.standard_deviation(\"dataSeriesName\", \"<time>\", \"attribute\", buffer, \"restriction\")"
           },
           {
             "name": "Variance",
-            "code": "occurrence.variance(\"dataSeriesName\", \"dateFilter\", \"attribute\", buffer, \"restriction\")"
+            "code": "occurrence.variance(\"dataSeriesName\", \"<time>\", \"attribute\", buffer, \"restriction\")"
           }
         ]
       },

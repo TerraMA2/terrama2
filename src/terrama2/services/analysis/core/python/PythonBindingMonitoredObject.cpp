@@ -1,6 +1,6 @@
 
 #include "PythonBindingMonitoredObject.hpp"
-#include "../dcp/Operator.hpp"
+#include "../dcp/zonal/Operator.hpp"
 #include "../dcp/history/Operator.hpp"
 #include "../dcp/history/interval/Operator.hpp"
 #include "../dcp/influence/PythonOperator.hpp"
