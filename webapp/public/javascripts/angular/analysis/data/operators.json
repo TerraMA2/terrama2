@@ -5,8 +5,43 @@
     "children": [
       {
         "name": "Buffer",
-        "description": "It creates a Buffer and return it",
-        "code": "mbuffer = Buffer(BUFFER_TYPE, BUFFER_SIZE, \"BUFFER_UNIT\")"
+        "children": [
+          {
+            "name": "Without buffer",
+            "type": "GEOMETRIC_OBJECT",
+            "code": "mbuffer = Buffer()"
+          },
+          {
+            "name": "Only inside buffer",
+            "type": "GEOMETRIC_OBJECT",
+            "code": "mbuffer = Buffer(BufferType.In, <value>, \"<unit>\")"
+          },
+          {
+            "name": "Only outside buffer",
+            "type": "GEOMETRIC_OBJECT",
+            "code": "mbuffer = Buffer(BufferType.Out, <value>, \"<unit>\")"
+          },
+          {
+            "name": "Union of outside buffer with inside buffer",
+            "type": "GEOMETRIC_OBJECT",
+            "code": "mbuffer = Buffer(BufferType.In_out, <value_in>, \"<unit>\", <value_out>, \"<unit>\")"
+          },
+          {
+            "name": "Union of geometry and outside buffer",
+            "type": "GEOMETRIC_OBJECT",
+            "code": "mbuffer = Buffer(BufferType.Out_union, <value>, \"<unit>\")"
+          },
+          {
+            "name": "Difference between geometry and inside buffer",
+            "type": "GEOMETRIC_OBJECT",
+            "code": "mbuffer = Buffer(BufferType.In_diff, <value>, \"<unit>\")"
+          },
+          {
+            "name": "Buffer by level",
+            "type": "GEOMETRIC_OBJECT",
+            "code": "mbuffer = Buffer(BufferType.Level, <value_max>, \"<unit>\", <value_min>, \"<unit>\")"
+          }
+        ]
       },
       {
         "name": "Add value",
