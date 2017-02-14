@@ -99,10 +99,10 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::createBuff
     }
     case IN_OUT:
     {
-      geomTemp.reset(geomCopy->buffer(distance, 16, te::gm::CapButtType));
+      double outDistance = terrama2::core::convertDistanceUnit(buffer.distance2, buffer.unit2, "METER");
+      geomTemp.reset(geomCopy->buffer(outDistance, 16, te::gm::CapButtType));
 
-      double inDistance = terrama2::core::convertDistanceUnit(buffer.distance2, buffer.unit2, "METER");
-      std::shared_ptr<te::gm::Geometry> auxGeom(geomCopy->buffer(-inDistance, 16, te::gm::CapButtType));
+      std::shared_ptr<te::gm::Geometry> auxGeom(geomCopy->buffer(-distance, 16, te::gm::CapButtType));
       auxGeom.reset(geomCopy->difference(auxGeom.get()));
 
       geomResult.reset(auxGeom->Union(geomTemp.get()));
