@@ -31,6 +31,7 @@
 #include "DataAccessorTxtFile.hpp"
 #include "../core/utility/Utils.hpp"
 #include "../core/utility/Logger.hpp"
+#include "../core/utility/TimeUtils.hpp"
 
 // TerraLib
 #include <terralib/datatype/DateTimeProperty.h>
@@ -148,7 +149,7 @@ te::dt::AbstractData* terrama2::core::DataAccessorTxtFile::stringToTimestamp(te:
     std::string dateTime = dataset->getAsString(indexes[0]);
     boost::posix_time::ptime boostDate;
 
-    std::string boostFormat = terramaDateMask2BoostFormat(dateTimeFormat);
+    std::string boostFormat = TimeUtils::terramaDateMask2BoostFormat(dateTimeFormat);
 
     //mask to convert DateTime string to Boost::ptime
     std::locale format(std::locale(), new boost::posix_time::time_input_facet(boostFormat));
@@ -237,30 +238,6 @@ std::string terrama2::core::DataAccessorTxtFile::simplifyString(std::string text
   return text;
 }
 
-std::string terrama2::core::DataAccessorTxtFile::terramaDateMask2BoostFormat(const std::string& mask) const
-{
-  QString m(mask.c_str());
-
-  /*
-    YYYY  year with 4 digits        %Y
-    YY    year with 2 digits        %y
-    MM    month with 2 digits       %m
-    DD    day with 2 digits         %d
-    hh    hout with 2 digits        %H
-    mm    minutes with 2 digits     %M
-    ss    seconds with 2 digits     %S
-    */
-
-  m.replace("%YYYY", "%Y");
-  m.replace("%YY", "%y");
-  m.replace("%MM", "%m");
-  m.replace("%DD", "%d");
-  m.replace("%hh", "%H");
-  m.replace("%mm", "%M");
-  m.replace("%ss", "%S");
-
-  return m.toStdString();
-}
 
 QJsonObject terrama2::core::DataAccessorTxtFile::getFieldObj(const QJsonArray& array,
                                                              const std::string& fieldName) const
@@ -371,7 +348,7 @@ void terrama2::core::DataAccessorTxtFile::adapt(DataSetPtr dataSet, std::shared_
       }
       case te::dt::DATETIME_TYPE:
       {
-        std::string format = terramaDateMask2BoostFormat(fieldObj.value("format").toString().toStdString());
+        std::string format = TimeUtils::terramaDateMask2BoostFormat(fieldObj.value("format").toString().toStdString());
 
         te::dt::DateTimeProperty* dtProperty = new te::dt::DateTimeProperty(alias, te::dt::TIME_INSTANT_TZ);
         converter->add(i, dtProperty, boost::bind(&terrama2::core::DataAccessorTxtFile::stringToTimestamp, this, _1, _2, _3, getTimeZone(dataSet), format));

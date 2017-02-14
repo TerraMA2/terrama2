@@ -60,8 +60,6 @@ namespace terrama2
 
         std::string simplifyString(std::string text) const;
 
-        std::string terramaDateMask2BoostFormat(const std::string& mask) const;
-
         std::map<std::string, int> dataTypes { {"FLOAT", static_cast<int>(te::dt::DOUBLE_TYPE)},
                                                {"INTEGER", static_cast<int>(te::dt::INT32_TYPE)},
                                                {"TEXT", static_cast<int>(te::dt::STRING_TYPE)},
