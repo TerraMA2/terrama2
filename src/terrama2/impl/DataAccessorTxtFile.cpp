@@ -118,7 +118,6 @@ QFileInfo terrama2::core::DataAccessorTxtFile::filterTxt(QFileInfo& fileInfo, QT
     }
 
     outputFile << line << std::endl;
-    outputFile.flush();
 
     if(outputFile.fail())
     {
