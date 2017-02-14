@@ -135,12 +135,6 @@ double terrama2::services::analysis::core::grid::zonal::history::accum::operator
   }
 }
 
-double terrama2::services::analysis::core::grid::zonal::history::accum::count(const std::string& dataSeriesName, const std::string& dateDiscardBefore, terrama2::services::analysis::core::Buffer buffer)
-{
-  return operatorImpl(StatisticOperation::COUNT, dataSeriesName, dateDiscardBefore, "", 0, buffer);
-}
-
-
 double terrama2::services::analysis::core::grid::zonal::history::accum::min(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t band, terrama2::services::analysis::core::Buffer buffer)
 {
   return operatorImpl(StatisticOperation::MIN, dataSeriesName, dateDiscardBefore, "", band, buffer);

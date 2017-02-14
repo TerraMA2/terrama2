@@ -1,9 +1,9 @@
 
 #include "PythonBindingMonitoredObject.hpp"
 #include "../dcp/zonal/Operator.hpp"
-#include "../dcp/history/Operator.hpp"
-#include "../dcp/history/interval/Operator.hpp"
-#include "../dcp/influence/PythonOperator.hpp"
+#include "../dcp/zonal/history/Operator.hpp"
+#include "../dcp/zonal/history/interval/Operator.hpp"
+#include "../dcp/zonal/influence/PythonOperator.hpp"
 #include "../occurrence/Operator.hpp"
 #include "../occurrence/aggregation/Operator.hpp"
 

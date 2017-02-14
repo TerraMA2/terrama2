@@ -40,7 +40,7 @@
 #include "../../../../../core/data-access/SynchronizedDataSet.hpp"
 #include "../../../../../core/Shared.hpp"
 #include "../../../../../core/utility/Logger.hpp"
-#include "../influence/Operator.hpp"
+#include "../zonal/influence/Operator.hpp"
 
 // QT
 #include <QObject>

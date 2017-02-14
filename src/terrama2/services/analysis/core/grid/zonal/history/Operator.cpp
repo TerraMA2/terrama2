@@ -280,6 +280,7 @@ boost::python::list terrama2::services::analysis::core::grid::zonal::history::li
 double terrama2::services::analysis::core::grid::zonal::history::operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
                                                                               const std::string& dataSeriesName,
                                                                               const std::string& dateDiscardBefore,
+                                                                              const std::string& dateDiscardAfter,
                                                                               const size_t band,
                                                                               terrama2::services::analysis::core::Buffer buffer)
 {
@@ -312,41 +313,42 @@ double terrama2::services::analysis::core::grid::zonal::history::operatorImpl(te
 
   terrama2::core::Filter filter;
   filter.discardBefore = context->getTimeFromString(dateDiscardBefore);
+  filter.discardAfter = context->getTimeFromString(dateDiscardAfter);
 
   return terrama2::services::analysis::core::grid::zonal::operatorImpl(statisticOperation, dataSeriesName, filter, band, buffer, context, cache);
 }
 
 double terrama2::services::analysis::core::grid::zonal::history::min(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return terrama2::services::analysis::core::grid::zonal::history::operatorImpl(StatisticOperation::MIN, dataSeriesName, dateDiscardBefore, band, buffer);
+  return terrama2::services::analysis::core::grid::zonal::history::operatorImpl(StatisticOperation::MIN, dataSeriesName, dateDiscardBefore, "", band, buffer);
 }
 
 double terrama2::services::analysis::core::grid::zonal::history::max(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return terrama2::services::analysis::core::grid::zonal::history::operatorImpl(StatisticOperation::MAX, dataSeriesName, dateDiscardBefore, band, buffer);
+  return terrama2::services::analysis::core::grid::zonal::history::operatorImpl(StatisticOperation::MAX, dataSeriesName, dateDiscardBefore, "", band, buffer);
 }
 
 double terrama2::services::analysis::core::grid::zonal::history::mean(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return terrama2::services::analysis::core::grid::zonal::history::operatorImpl(StatisticOperation::MEAN, dataSeriesName, dateDiscardBefore, band, buffer);
+  return terrama2::services::analysis::core::grid::zonal::history::operatorImpl(StatisticOperation::MEAN, dataSeriesName, dateDiscardBefore, "", band, buffer);
 }
 
 double terrama2::services::analysis::core::grid::zonal::history::median(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return terrama2::services::analysis::core::grid::zonal::history::operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, dateDiscardBefore, band, buffer);
+  return terrama2::services::analysis::core::grid::zonal::history::operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, dateDiscardBefore, "", band, buffer);
 }
 
 double terrama2::services::analysis::core::grid::zonal::history::standardDeviation(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return terrama2::services::analysis::core::grid::zonal::history::operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, dateDiscardBefore, band, buffer);
+  return terrama2::services::analysis::core::grid::zonal::history::operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, dateDiscardBefore, "", band, buffer);
 }
 
 double terrama2::services::analysis::core::grid::zonal::history::variance(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return terrama2::services::analysis::core::grid::zonal::history::operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, dateDiscardBefore, band, buffer);
+  return terrama2::services::analysis::core::grid::zonal::history::operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, dateDiscardBefore, "", band, buffer);
 }
 
 double terrama2::services::analysis::core::grid::zonal::history::sum(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return terrama2::services::analysis::core::grid::zonal::history::operatorImpl(StatisticOperation::SUM, dataSeriesName, dateDiscardBefore, band, buffer);
+  return terrama2::services::analysis::core::grid::zonal::history::operatorImpl(StatisticOperation::SUM, dataSeriesName, dateDiscardBefore, "", band, buffer);
 }

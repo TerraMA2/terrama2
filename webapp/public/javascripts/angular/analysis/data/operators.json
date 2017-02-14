@@ -223,7 +223,7 @@
           {
             "name": "Sample",
             "description": "Retrieves a cell value based in interpolation method to grid analysis",
-            "code": "grid.sample(\"dataSeriesName\")"
+            "code": "grid.sample(\"<dynamic_data_grid>\")"
           },
           {
             "name": "Forecast",
@@ -233,19 +233,19 @@
                 "children": [
                   {
                     "name": "Min",
-                    "code": "grid.forecast.interval.min(\"dataSeriesName\", \"dataFilter\")"
+                    "code": "grid.forecast.interval.min(\"<dynamic_data_grid>\", \"dataFilter\")"
                   },
                   {
                     "name": "Max",
-                    "code": "grid.forecast.interval.max(\"dataSeriesName\", \"dataFilterBegin\", \"dataFilterEnd\")"
+                    "code": "grid.forecast.interval.max(\"<dynamic_data_grid>\", \"dataFilterBegin\", \"dataFilterEnd\")"
                   },
                   {
                     "name": "Mean",
-                    "code": "grid.forecast.interval.mean(\"dataSeriesName\", \"dataFilterBegin\", \"dataFilterEnd\")"
+                    "code": "grid.forecast.interval.mean(\"<dynamic_data_grid>\", \"dataFilterBegin\", \"dataFilterEnd\")"
                   },
                   {
                     "name": "Median",
-                    "code": "grid.forecast.interval.median(\"dataSeriesName\", \"dataFilterBegin\", \"dataFilterEnd\")"
+                    "code": "grid.forecast.interval.median(\"<dynamic_data_grid>\", \"dataFilterBegin\", \"dataFilterEnd\")"
                   },
                   {
                     "name": "Sum",
@@ -329,7 +329,7 @@
                 ]
               }
             ]
-          }  
+          }
         ]
       },
       {
@@ -412,242 +412,254 @@
         "type": "GEOMETRIC_OBJECT",
         "children": [
           {
-            "name": "Forecast",
+            "name": "Zonal",
             "children": [
               {
-                "name": "Accum",
+                "name": "Count",
+                "code": "grid.zonal.count(\"<dynamic_data_grid>\", <band>, <buffer>)"
+              },
+              {
+                "name": "Sum",
+                "code": "grid.zonal.sum(\"<dynamic_data_grid>\", <band>, <buffer>)"
+              },
+              {
+                "name": "Mean",
+                "code": "grid.zonal.mean(\"<dynamic_data_grid>\", <band>, <buffer>)"
+              },
+              {
+                "name": "Min",
+                "code": "grid.zonal.min(\"<dynamic_data_grid>\", <band>, <buffer>)"
+              },
+              {
+                "name": "Max",
+                "code": "grid.zonal.max(\"<dynamic_data_grid>\", <band>, <buffer>)"
+              },
+              {
+                "name": "Median",
+                "code": "grid.zonal.median(\"<dynamic_data_grid>\", <band>, <buffer>)"
+              },
+              {
+                "name": "Standard deviation",
+                "code": "grid.zonal.standard_deviation(\"<dynamic_data_grid>\", <band>, <buffer>)"
+              },
+              {
+                "name": "Variance",
+                "code": "grid.zonal.variance(\"<dynamic_data_grid>\", <band>, <buffer>)"
+              }
+            ]
+          },
+          {
+            "name": "Zonal history",
+            "children": [
+              {
+                "name": "Num",
+                "code": "grid.zonal.num(\"<dynamic_data_grid>\", \"<time>\", <buffer>)"
+              },
+              {
+                "name": "List",
+                "code": "grid.zonal.list(\"<dynamic_data_grid>\", \"<time>\", <buffer>)"
+              },
+              {
+                "name": "Sum",
+                "code": "grid.zonal.sum(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
+              },
+              {
+                "name": "Mean",
+                "code": "grid.zonal.mean(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
+              },
+              {
+                "name": "Min",
+                "code": "grid.zonal.min(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
+              },
+              {
+                "name": "Max",
+                "code": "grid.zonal.max(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
+              },
+              {
+                "name": "Median",
+                "code": "grid.zonal.median(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
+              },
+              {
+                "name": "Standard deviation",
+                "code": "grid.zonal.standard_deviation(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
+              },
+              {
+                "name": "Variance",
+                "code": "grid.zonal.variance(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
+              }
+            ]
+          },
+          {
+            "name": "Zonal history precipitation",
+            "children": [
+              {
+                "name": "Sum",
+                "code": "grid.zonal.history.prec.sum(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
+              },
+              {
+                "name": "Mean",
+                "code": "grid.zonal.history.prec.mean(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
+              },
+              {
+                "name": "Min",
+                "code": "grid.zonal.history.prec.min(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
+              },
+              {
+                "name": "Max",
+                "code": "grid.zonal.history.prec.max(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
+              },
+              {
+                "name": "Median",
+                "code": "grid.zonal.history.prec.median(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
+              },
+              {
+                "name": "Standard deviation",
+                "code": "grid.zonal.history.prec.standard_deviation(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
+              },
+              {
+                "name": "Variance",
+                "code": "grid.zonal.history.prec.variance(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
+              }
+            ]
+          },
+          {
+            "name": "Zonal history accumulated",
+            "children": [
+              {
+                "name": "Sum",
+                "code": "grid.zonal.history.accum.sum(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
+              },
+              {
+                "name": "Mean",
+                "code": "grid.zonal.history.accum.mean(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
+              },
+              {
+                "name": "Min",
+                "code": "grid.zonal.history.accum.min(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
+              },
+              {
+                "name": "Max",
+                "code": "grid.zonal.history.accum.max(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
+              },
+              {
+                "name": "Median",
+                "code": "grid.zonal.history.accum.median(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
+              },
+              {
+                "name": "Standard deviation",
+                "code": "grid.zonal.history.accum.standard_deviation(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
+              },
+              {
+                "name": "Variance",
+                "code": "grid.zonal.history.accum.variance(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
+              }
+            ]
+          },
+          {
+            "name": "Zonal Forecast",
+            "children": [
+              {
+                "name": "Zonal forecast accumulated",
                 "children": [
                   {
                     "name": "Count",
-                    "code": "grid.zonal.forecast.accum.count(\"dataSeriesName\", \"dateDiscardBefore\", band, buffer)"
+                    "code": "grid.zonal.forecast.accum.count(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
                   },
                   {
                     "name": "Sum",
-                    "code": "grid.zonal.forecast.accum.sum(\"dataSeriesName\", \"dateDiscardBefore\", band, buffer)"
+                    "code": "grid.zonal.forecast.accum.sum(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
                   },
                   {
                     "name": "Mean",
-                    "code": "grid.zonal.forecast.accum.mean(\"dataSeriesName\", \"dateDiscardBefore\", band, buffer)"
+                    "code": "grid.zonal.forecast.accum.mean(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
                   },
                   {
                     "name": "Min",
-                    "code": "grid.zonal.forecast.accum.min(\"dataSeriesName\", \"dateDiscardBefore\", band, buffer)"
+                    "code": "grid.zonal.forecast.accum.min(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
                   },
                   {
                     "name": "Max",
-                    "code": "grid.zonal.forecast.accum.max(\"dataSeriesName\", \"dateDiscardBefore\", band, buffer)"
+                    "code": "grid.zonal.forecast.accum.max(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
                   },
                   {
                     "name": "Median",
-                    "code": "grid.zonal.forecast.accum.median(\"dataSeriesName\", \"dateDiscardBefore\", band, buffer)"
+                    "code": "grid.zonal.forecast.accum.median(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
                   },
                   {
                     "name": "Standard deviation",
-                    "code": "grid.zonal.forecast.accum.standard_deviation(\"dataSeriesName\", \"dateDiscardBefore\", band, buffer)"
+                    "code": "grid.zonal.forecast.accum.standard_deviation(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
                   },
                   {
                     "name": "Variance",
-                    "code": "grid.zonal.forecast.accum.variance(\"dataSeriesName\", \"dateDiscardBefore\", band, buffer)"
+                    "code": "grid.zonal.forecast.accum.variance(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
                   }
                 ]
               },
               {
-                "name": "Interval",
+                "name": "Zonal Interval",
                 "children": [
                   {
                     "name": "Sum",
-                    "code": "grid.zonal.forecast.interval.sum(\"dataSeriesName\", \"dateDiscardBefore\",\"dateDiscardAfter\",  band, buffer)"
+                    "code": "grid.zonal.forecast.interval.sum(\"<dynamic_data_grid>\", \"<time_begin>\",\"<time_end>\",  <band>, <buffer>)"
                   },
                   {
                     "name": "Mean",
-                    "code": "grid.zonal.forecast.interval.mean(\"dataSeriesName\", \"dateDiscardBefore\",\"dateDiscardAfter\",  band, buffer)"
+                    "code": "grid.zonal.forecast.interval.mean(\"<dynamic_data_grid>\", \"<time_begin>\",\"<time_end>\",  <band>, <buffer>)"
                   },
                   {
                     "name": "Min",
-                    "code": "grid.zonal.forecast.interval.min(\"dataSeriesName\", \"dateDiscardBefore\",\"dateDiscardAfter\",  band, buffer)"
+                    "code": "grid.zonal.forecast.interval.min(\"<dynamic_data_grid>\", \"<time_begin>\",\"<time_end>\",  <band>, <buffer>)"
                   },
                   {
                     "name": "Max",
-                    "code": "grid.zonal.forecast.interval.max(\"dataSeriesName\", \"dateDiscardBefore\",\"dateDiscardAfter\",  band, buffer)"
+                    "code": "grid.zonal.forecast.interval.max(\"<dynamic_data_grid>\", \"<time_begin>\",\"<time_end>\",  <band>, <buffer>)"
                   },
                   {
                     "name": "Median",
-                    "code": "grid.zonal.forecast.interval.median(\"dataSeriesName\", \"dateDiscardBefore\",\"dateDiscardAfter\",  band, buffer)"
+                    "code": "grid.zonal.forecast.interval.median(\"<dynamic_data_grid>\", \"<time_begin>\",\"<time_end>\",  <band>, <buffer>)"
                   },
                   {
                     "name": "Standard deviation",
-                    "code": "grid.zonal.forecast.interval.standard_deviation(\"dataSeriesName\", \"dateDiscardBefore\",\"dateDiscardAfter\",  band, buffer)"
+                    "code": "grid.zonal.forecast.interval.standard_deviation(\"<dynamic_data_grid>\", \"<time_begin>\",\"<time_end>\",  <band>, <buffer>)"
                   },
                   {
                     "name": "Variance",
-                    "code": "grid.zonal.forecast.interval.variance(\"dataSeriesName\", \"dateDiscardBefore\",\"dateDiscardAfter\",  band, buffer)"
+                    "code": "grid.zonal.forecast.interval.variance(\"<dynamic_data_grid>\", \"<time_begin>\",\"<time_end>\",  <band>, <buffer>)"
                   }
                 ]
               },
               {
                 "name": "Sum",
-                "code": "grid.zonal.forecast.sum(\"dataSeriesName\", \"dateDiscardBefore\", band, buffer)"
+                "code": "grid.zonal.forecast.sum(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
               },
               {
                 "name": "Mean",
-                "code": "grid.zonal.forecast.mean(\"dataSeriesName\", \"dateDiscardBefore\", band, buffer)"
+                "code": "grid.zonal.forecast.mean(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
               },
               {
                 "name": "Min",
-                "code": "grid.zonal.forecast.min(\"dataSeriesName\", \"dateDiscardBefore\", band, buffer)"
+                "code": "grid.zonal.forecast.min(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
               },
               {
                 "name": "Max",
-                "code": "grid.zonal.forecast.max(\"dataSeriesName\", \"dateDiscardBefore\", band, buffer)"
+                "code": "grid.zonal.forecast.max(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
               },
               {
                 "name": "Median",
-                "code": "grid.zonal.forecast.median(\"dataSeriesName\", \"dateDiscardBefore\", band, buffer)"
+                "code": "grid.zonal.forecast.median(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
               },
               {
                 "name": "Standard deviation",
-                "code": "grid.zonal.forecast.standard_deviation(\"dataSeriesName\", \"dateDiscardBefore\", band, buffer)"
+                "code": "grid.zonal.forecast.standard_deviation(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
               },
               {
                 "name": "Variance",
-                "code": "grid.zonal.forecast.variance(\"dataSeriesName\", \"dateDiscardBefore\", band, buffer)"
+                "code": "grid.zonal.forecast.variance(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
               }
             ]
-          },
-          {
-            "name": "History",
-            "children": [
-              {
-                "name": "Accum",
-                "children": [
-                  {
-                    "name": "Count",
-                    "code": "grid.zonal.history.accum.count(\"dataSeriesName\", \"dateDiscardBefore\", band, buffer)"
-                  },
-                  {
-                    "name": "Sum",
-                    "code": "grid.zonal.history.accum.sum(\"dataSeriesName\", \"dateDiscardBefore\", band, buffer)"
-                  },
-                  {
-                    "name": "Mean",
-                    "code": "grid.zonal.history.accum.mean(\"dataSeriesName\", \"dateDiscardBefore\", band, buffer)"
-                  },
-                  {
-                    "name": "Min",
-                    "code": "grid.zonal.history.accum.min(\"dataSeriesName\", \"dateDiscardBefore\", band, buffer)"
-                  },
-                  {
-                    "name": "Max",
-                    "code": "grid.zonal.history.accum.max(\"dataSeriesName\", \"dateDiscardBefore\", band, buffer)"
-                  },
-                  {
-                    "name": "Median",
-                    "code": "grid.zonal.history.accum.median(\"dataSeriesName\", \"dateDiscardBefore\", band, buffer)"
-                  },
-                  {
-                    "name": "Standard deviation",
-                    "code": "grid.zonal.history.accum.standard_deviation(\"dataSeriesName\", \"dateDiscardBefore\", band, buffer)"
-                  },
-                  {
-                    "name": "Variance",
-                    "code": "grid.zonal.history.accum.variance(\"dataSeriesName\", \"dateDiscardBefore\", band, buffer)"
-                  }
-                ]
-              },
-              {
-                "name": "Prec",
-                "children": [
-                  {
-                    "name": "Sum",
-                    "code": "grid.zonal.history.prec.sum(\"dataSeriesName\", \"dateDiscardBefore\", band, buffer)"
-                  },
-                  {
-                    "name": "Mean",
-                    "code": "grid.zonal.history.prec.mean(\"dataSeriesName\", \"dateDiscardBefore\", band, buffer)"
-                  },
-                  {
-                    "name": "Min",
-                    "code": "grid.zonal.history.prec.min(\"dataSeriesName\", \"dateDiscardBefore\", band, buffer)"
-                  },
-                  {
-                    "name": "Max",
-                    "code": "grid.zonal.history.prec.max(\"dataSeriesName\", \"dateDiscardBefore\", band, buffer)"
-                  },
-                  {
-                    "name": "Median",
-                    "code": "grid.zonal.history.prec.median(\"dataSeriesName\", \"dateDiscardBefore\", band, buffer)"
-                  },
-                  {
-                    "name": "Standard deviation",
-                    "code": "grid.zonal.history.prec.standard_deviation(\"dataSeriesName\", \"dateDiscardBefore\", band, buffer)"
-                  },
-                  {
-                    "name": "Variance",
-                    "code": "grid.zonal.history.prec.variance(\"dataSeriesName\", \"dateDiscardBefore\", band, buffer)"
-                  }
-                ]
-              },
-              {
-                "name": "Sum",
-                "code": "grid.zonal.forecast.sum(\"dataSeriesName\", \"dateDiscardBefore\", band, buffer)"
-              },
-              {
-                "name": "Mean",
-                "code": "grid.zonal.forecast.mean(\"dataSeriesName\", \"dateDiscardBefore\", band, buffer)"
-              },
-              {
-                "name": "Min",
-                "code": "grid.zonal.forecast.min(\"dataSeriesName\", \"dateDiscardBefore\", band, buffer)"
-              },
-              {
-                "name": "Max",
-                "code": "grid.zonal.forecast.max(\"dataSeriesName\", \"dateDiscardBefore\", band, buffer)"
-              },
-              {
-                "name": "Median",
-                "code": "grid.zonal.forecast.median(\"dataSeriesName\", \"dateDiscardBefore\", band, buffer)"
-              },
-              {
-                "name": "Standard deviation",
-                "code": "grid.zonal.forecast.standard_deviation(\"dataSeriesName\", \"dateDiscardBefore\", band, buffer)"
-              },
-              {
-                "name": "Variance",
-                "code": "grid.zonal.forecast.variance(\"dataSeriesName\", \"dateDiscardBefore\", band, buffer)"
-              }
-            ]
-          },
-          {
-            "name": "Sum",
-            "code": "grid.zonal.sum(\"dataSeriesName\", band, buffer)"
-          },
-          {
-            "name": "Mean",
-            "code": "grid.zonal.mean(\"dataSeriesName\", band, buffer)"
-          },
-          {
-            "name": "Min",
-            "code": "grid.zonal.min(\"dataSeriesName\", band, buffer)"
-          },
-          {
-            "name": "Max",
-            "code": "grid.zonal.max(\"dataSeriesName\", band, buffer)"
-          },
-          {
-            "name": "Median",
-            "code": "grid.zonal.median(\"dataSeriesName\", band, buffer)"
-          },
-          {
-            "name": "Standard deviation",
-            "code": "grid.zonal.standard_deviation(\"dataSeriesName\", band, buffer)"
-          },
-          {
-            "name": "Variance",
-            "code": "grid.zonal.variance(\"dataSeriesName\", band, buffer)"
           }
-
         ]
-      }  
+      }
     ]
   }
 ]

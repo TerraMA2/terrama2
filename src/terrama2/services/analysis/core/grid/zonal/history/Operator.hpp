@@ -63,6 +63,7 @@ namespace terrama2
               double operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
                                   const std::string& dataSeriesName,
                                   const std::string& dateDiscardBefore,
+                                  const std::string& dateDiscardAfter,
                                   const size_t band,
                                   terrama2::services::analysis::core::Buffer buffer);
               /*!
@@ -71,6 +72,9 @@ namespace terrama2
                 In case of an error or no data available it will return NAN(Not A Number).
 
                 \param dataSeriesName DataSeries name.
+                \param discardBefore Discard before date filter.
+                \param band Band index.
+                \param buffer Buffer to be applied in the monitored object.
 
                 \return A double value with the result.
               */
@@ -82,7 +86,9 @@ namespace terrama2
                 In case of an error or no data available it will return NAN(Not A Number).
 
                 \param dataSeriesName DataSeries name.
-                \param dateFilter Time filter for the data.
+                \param discardBefore Discard before date filter.
+                \param band Band index.
+                \param buffer Buffer to be applied in the monitored object.
 
                 \return A double value with the result.
               */
@@ -94,7 +100,9 @@ namespace terrama2
                 In case of an error or no data available it will return NAN(Not A Number).
 
                 \param dataSeriesName DataSeries name.
-
+                \param discardBefore Discard before date filter.
+                \param band Band index.
+                \param buffer Buffer to be applied in the monitored object.
 
                 \return A double value with the result.
               */
@@ -106,10 +114,9 @@ namespace terrama2
                 In case of an error or no data available it will return NAN(Not A Number).
 
                 \param dataSeriesName DataSeries name.
-                \param attribute Which DCP attribute will be used.
-                \param dcpId Identifier of DCP dataset.
-                \param buffer Buffer to be used in the monitored object.
-
+                \param discardBefore Discard before date filter.
+                \param band Band index.
+                \param buffer Buffer to be applied in the monitored object.
 
                 \return A double value with the result.
               */
@@ -121,7 +128,9 @@ namespace terrama2
                 In case of an error or no data available it will return NAN(Not A Number).
 
                 \param dataSeriesName DataSeries name.
-
+                \param discardBefore Discard before date filter.
+                \param band Band index.
+                \param buffer Buffer to be applied in the monitored object.
 
                 \return A double value with the result.
               */
@@ -133,6 +142,9 @@ namespace terrama2
                 In case of an error or no data available it will return NAN(Not A Number).
 
                 \param dataSeriesName DataSeries name.
+                \param discardBefore Discard before date filter.
+                \param band Band index.
+                \param buffer Buffer to be applied in the monitored object.
 
                 \return A double value with the result.
               */
@@ -144,16 +156,20 @@ namespace terrama2
                 In case of an error or no data available it will return NAN(Not A Number).
 
                 \param dataSeriesName DataSeries name.
+                \param discardBefore Discard before date filter.
+                \param band Band index.
+                \param buffer Buffer to be applied in the monitored object.
 
                 \return A double value with the result.
               */
               double variance(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t band = 0, terrama2::services::analysis::core::Buffer buffer = Buffer());
-            }
-          } /* zonal */
-        }   // end namespace grid
-      }     // end namespace core
-    }       // end namespace analysis
-  }         // end namespace services
-}           // end namespace terrama2
+
+            } // end namespace history
+          }   // end namespace zonal
+        }     // end namespace grid
+      }       // end namespace core
+    }         // end namespace analysis
+  }           // end namespace services
+}             // end namespace terrama2
 
 #endif // __TERRAMA2_SERVICES_ANALYSIS_CORE_GRID_ZONAL_HISTORY_OPERATOR_HPP__
