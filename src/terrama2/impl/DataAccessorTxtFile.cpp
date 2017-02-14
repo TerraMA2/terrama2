@@ -184,7 +184,13 @@ te::dt::AbstractData* terrama2::core::DataAccessorTxtFile::stringToTimestamp(te:
 
 bool terrama2::core::DataAccessorTxtFile::getConvertAll(DataSetPtr dataSet) const
 {
-  return (getProperty(dataSet, dataSeries_, "convert_all") == "true" ? true : false);
+  std::string convert = getProperty(dataSet, dataSeries_, "convert_all");
+
+  boost::trim(convert);
+
+  std::transform(convert.begin(), convert.end(), convert.begin(), ::tolower);
+
+  return (convert == "true" ? true : false);
 }
 
 QJsonArray terrama2::core::DataAccessorTxtFile::getFields(DataSetPtr dataSet) const
