@@ -45,5 +45,4 @@ class TsDataAccessorTxtFile : public QObject
 
     //******Test functions********
 
-    void testFilterTxt();
 };

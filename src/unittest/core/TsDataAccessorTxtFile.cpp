@@ -29,7 +29,8 @@
 
 // TerraMA2
 #include "TsDataAccessorTxtFile.hpp"
-#include <terrama2/impl/DataAccessorTxtFile.hpp>
+#include <terrama2/impl/DataAccessorDCPTxtFile.hpp>
+#include <terrama2/core/data-model/DataSetDcp.hpp>
 
 // Qt
 #include "QTemporaryFile"
@@ -37,21 +38,4 @@
 // GMock
 #include <gtest/gtest.h>
 
-void TsDataAccessorTxtFile::testFilterTxt()
-{
-  terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
-  terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
 
-  terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
-  terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
-/*
-  terrama2::core::DataAccessorTxtFile dataAccessor(dataProviderPtr, dataSeriesPtr);
-
-  QFileInfo fileInfo(QString::fromStdString(TERRAMA2_DATA_DIR + "/PCD_serrmar_INPE/30885.txt"));
-
-  QTemporaryFile tempFile;
-  tempFile.open();
-
-  dataAccessor.filterTxt(fileInfo, tempFile);*/
-
-}

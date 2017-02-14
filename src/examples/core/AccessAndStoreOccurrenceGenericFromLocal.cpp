@@ -105,7 +105,7 @@ int main(int argc, char* argv[])
     QJsonObject obj;
 
     obj.insert("column", QString("data_pas"));
-    obj.insert("alias", QString("DateTime"));
+    obj.insert("alias", QString("datetime"));
     obj.insert("type", QString("DATETIME"));
     obj.insert("format", QString("%YYYY-%MM-%DD %hh:%mm:%ss"));
 
@@ -171,7 +171,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSetPtr dataSetOutputPtr(dataSetOutput);
   dataSetOutput->active = true;
   dataSetOutput->format.emplace("table_name", "occurrence_generic");
-  dataSetOutput->format.emplace("timestamp_column", "DateTime");
+  dataSetOutput->format.emplace("timestamp_column", "datetime");
 
   auto dataStorager = terrama2::core::DataStoragerFactory::getInstance().make(outputDataSeriesPtr->semantics.dataFormat, dataProviderPostGISPtr);
 
