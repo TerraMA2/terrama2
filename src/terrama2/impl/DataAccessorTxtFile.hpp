@@ -58,8 +58,6 @@ namespace terrama2
 
         virtual std::string typePrefix() const override { return "CSV:"; }
 
-        std::string simplifyString(std::string text) const;
-
         std::map<std::string, int> dataTypes { {"FLOAT", static_cast<int>(te::dt::DOUBLE_TYPE)},
                                                {"INTEGER", static_cast<int>(te::dt::INT32_TYPE)},
                                                {"TEXT", static_cast<int>(te::dt::STRING_TYPE)},

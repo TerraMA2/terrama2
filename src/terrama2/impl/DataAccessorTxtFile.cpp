@@ -226,19 +226,6 @@ te::dt::AbstractData* terrama2::core::DataAccessorTxtFile::stringToPoint(te::da:
 }
 
 
-std::string terrama2::core::DataAccessorTxtFile::simplifyString(std::string text) const
-{
-  boost::trim(text);
-  text.erase(std::remove_if(text.begin(), text.end(), [](char x){return !(std::isalnum(x) || x == ' ');}), text.end());
-  std::replace(text.begin(), text.end(), ' ', '_');
-
-  if(std::isdigit(text.at(0)))
-    text ="_" + text;
-
-  return text;
-}
-
-
 QJsonObject terrama2::core::DataAccessorTxtFile::getFieldObj(const QJsonArray& array,
                                                              const std::string& fieldName) const
 {
@@ -293,7 +280,10 @@ void terrama2::core::DataAccessorTxtFile::adapt(DataSetPtr dataSet, std::shared_
     {
       if(convertAll)
       {
-        std::string alias = DataAccessorTxtFile::simplifyString(property->getName());
+        std::string alias = simplifyString(property->getName());
+
+        if(std::isdigit(alias.at(0)))
+          alias ="_" + alias;
 
         std::string defaultType = getProperty(dataSet, dataSeries_, "default_type");
 
@@ -328,7 +318,12 @@ void terrama2::core::DataAccessorTxtFile::adapt(DataSetPtr dataSet, std::shared_
     std::string alias = fieldObj.value("alias").toString().toStdString();
 
     if(alias.empty())
-      alias = DataAccessorTxtFile::simplifyString(property->getName());
+    {
+      alias = simplifyString(property->getName());
+
+      if(std::isdigit(alias.at(0)))
+        alias ="_" + alias;
+    }
 
     switch (type)
     {
