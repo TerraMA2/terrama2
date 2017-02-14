@@ -79,8 +79,8 @@ int main(int argc, char* argv[])
 
   terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
   dataSet->active = true;
-  dataSet->format.emplace("folder", "/dados_pcds_exemplos/");
-  dataSet->format.emplace("mask", "IND_s_%YYYY_%MM_%DD_%hh%mm*.dat");
+  dataSet->format.emplace("folder", "/pcd_toa5/CPV/");
+  dataSet->format.emplace("mask", "CPV_slow_%YYYY_%MM_%DD_%hh%mm.dat");
   dataSet->format.emplace("timezone", "+00");
   dataSet->format.emplace("srid", "4326");
   dataSet->format.emplace("ignore_headers_lines", "1,3,4");
@@ -89,17 +89,6 @@ int main(int argc, char* argv[])
   dataSet->format.emplace("default_type", "TEXT");
 
   QJsonArray fields;
-
-  {
-    QJsonObject obj;
-
-    obj.insert("latitude", QString("Latitude"));
-    obj.insert("longitude", QString("Longitude"));
-    obj.insert("type", QString("GEOMETRY"));
-    obj.insert("alias", QString("point"));
-
-    fields.push_back(obj);
-  }
 
   {
     QJsonObject obj;
@@ -145,16 +134,6 @@ int main(int argc, char* argv[])
   {
     QJsonObject obj;
 
-    obj.insert("column", QString("run_avg10"));
-    obj.insert("alias", QString("run"));
-    obj.insert("type", QString("INTEGER"));
-
-    fields.push_back(obj);
-  }
-
-  {
-    QJsonObject obj;
-
     obj.insert("column", QString("leakage_cur_Avg"));
     obj.insert("alias", QString("leak"));
     obj.insert("type", QString("FLOAT"));
@@ -177,16 +156,6 @@ int main(int argc, char* argv[])
 
     obj.insert("column", QString("internal_RH_Avg"));
     obj.insert("alias", QString("interval"));
-    obj.insert("type", QString("TEXT"));
-
-    fields.push_back(obj);
-  }
-
-  {
-    QJsonObject obj;
-
-    obj.insert("column", QString("Sigla_EFM"));
-    obj.insert("alias", QString("sigla"));
     obj.insert("type", QString("TEXT"));
 
     fields.push_back(obj);
@@ -240,7 +209,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSetDcp* dataSetOutput = new terrama2::core::DataSetDcp();
   terrama2::core::DataSetPtr dataSetOutputPtr(dataSetOutput);
   dataSetOutput->active = true;
-  dataSetOutput->format.emplace("table_name", "toa5_generic2");
+  dataSetOutput->format.emplace("table_name", "dcp_generic");
   dataSetOutput->format.emplace("timestamp_column", "DateTime");
 
   auto dataStorager = terrama2::core::DataStoragerFactory::getInstance().make(outputDataSeriesPtr->semantics.dataFormat, dataProviderPostGISPtr);

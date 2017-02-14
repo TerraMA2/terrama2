@@ -59,7 +59,7 @@ namespace terrama2
 
       protected:
 
-        virtual void adapt(DataSetPtr dataset, std::shared_ptr<te::da::DataSetTypeConverter> converter) const override;
+        void checkFields(DataSetPtr dataSet) const override;
     };
   }
 }

@@ -69,12 +69,19 @@ namespace terrama2
                                                {"GEOMETRY", static_cast<int>(te::dt::GEOMETRY_TYPE)}
                                               };
 
+        void checkOriginFields(std::shared_ptr<te::da::DataSetTypeConverter> converter,
+                             const QJsonArray& fieldsArray) const;
+
+        void findProperty(te::da::DataSetType* dataSetType, std::string property) const;
+
       protected:
         QFileInfo filterTxt(QFileInfo& fileInfo, QTemporaryFile& tempFile, DataSetPtr dataSet) const;
 
-        std::vector<std::tuple<std::string, std::string, int> > getFields(DataSetPtr dataSet) const;
+        virtual void checkFields(DataSetPtr dataSet) const = 0;
 
-        QJsonObject getFieldObj(const QJsonDocument& doc, const std::string& fieldName) const;
+        QJsonArray getFields(DataSetPtr dataSet) const;
+
+        QJsonObject getFieldObj(const QJsonArray& array, const std::string& fieldName) const;
 
         te::dt::AbstractData* stringToTimestamp(te::da::DataSet* dataset,
                                                 const std::vector<std::size_t>& indexes,
@@ -86,6 +93,7 @@ namespace terrama2
         //! Convert string to Geometry
         te::dt::AbstractData* stringToPoint(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int dstType, const Srid& srid) const;
 
+        virtual void adapt(DataSetPtr dataset, std::shared_ptr<te::da::DataSetTypeConverter> converter) const override;
     };
   }
 }

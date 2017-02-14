@@ -29,194 +29,53 @@
 
 // TerraMA2
 #include "DataAccessorOccurrenceTxtFile.hpp"
-#include "../core/data-model/DataSetDcp.hpp"
-#include "../core/utility/Utils.hpp"
 #include "../core/utility/Logger.hpp"
 
 // TerraLib
 #include <terralib/datatype/DateTimeProperty.h>
 #include <terralib/geometry/GeometryProperty.h>
 
-//QT
-#include <QUrl>
-#include <QDir>
-#include <QSet>
-#include <QTemporaryFile>
-
-// Boost
-#include <boost/bind.hpp>
-
-// STL
-#include <fstream>
-
+// Qt
+#include <QJsonArray>
+#include <QJsonObject>
 
 terrama2::core::DataAccessorPtr terrama2::core::DataAccessorOccurrenceTxtFile::make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries)
 {
   return std::make_shared<DataAccessorOccurrenceTxtFile>(dataProvider, dataSeries);
 }
 
-void terrama2::core::DataAccessorOccurrenceTxtFile::adapt(DataSetPtr dataSet, std::shared_ptr<te::da::DataSetTypeConverter> converter) const
+void terrama2::core::DataAccessorOccurrenceTxtFile::checkFields(DataSetPtr dataSet) const
 {
-  std::vector<std::tuple< std::string, std::string, int>> fields;
+  bool dateTime = false;
+  bool geometry = false;
 
-  fields = getFields(dataSet);
-  bool convertAll = getConvertAll(dataSet);
+  QJsonArray array = getFields(dataSet);
 
-  std::string latitudePropertyName; //= getLatitudePropertyName(dataSet);
-  std::string longitudePropertyName;// = getLongitudePropertyName(dataSet);
-
-  //Find the rigth column to adapt
-  std::vector<te::dt::Property*> properties = converter->getConvertee()->getProperties();
-  for(size_t i = 0, size = properties.size(); i < size; ++i)
+  for(const auto& item : array)
   {
-    te::dt::Property* property = properties.at(i);
+    const QJsonObject& obj = item.toObject();
 
-    if(property->getName() == latitudePropertyName ||
-       property->getName() == longitudePropertyName)
-    {
-      continue;
-    }
+    int type = dataTypes.at(obj.value("type").toString().toStdString());
 
-    if(property->getName() == getProperty(dataSet, dataSeries_, "timestamp_property"))
-    {
-      std::string alias;
+    if(type == te::dt::DATETIME_TYPE)
+      dateTime = true;
 
-      try
-      {
-          alias = getOutputTimestampPropertyName(dataSet);
-      }
-      catch(UndefinedTagException /*e*/)
-      {
-        // Do nothing
-      }
-
-      if(alias.empty())
-        alias = DataAccessorTxtFile::simplifyString(property->getName());
-
-      te::dt::DateTimeProperty* dtProperty = new te::dt::DateTimeProperty(alias, te::dt::TIME_INSTANT_TZ);
-//      converter->add(i, dtProperty, boost::bind(&terrama2::core::DataAccessorOccurrenceTxtFile::stringToTimestamp, this, _1, _2, _3, getTimeZone(dataSet), getTimestampFormat(dataSet)));
-
-      converter->remove(property->getName());
-
-      continue;
-    }
-
-    bool converted = false;
-
-    for(auto& field : fields)
-    {
-      std::string& propertyName = std::get<0>(field);
-
-      if(propertyName == property->getName())
-      {
-        std::string alias = std::get<1>(field);
-        int type = std::get<2>(field);
-
-        if(alias.empty())
-          alias = DataAccessorTxtFile::simplifyString(property->getName());
-
-        te::dt::SimpleProperty* newProperty = new te::dt::SimpleProperty(alias, type);
-
-        switch (type)
-        {
-          case te::dt::DOUBLE_TYPE:
-          {
-            converter->add(i, newProperty, boost::bind(&terrama2::core::DataAccessor::stringToDouble, this, _1, _2, _3));
-            break;
-          }
-          case te::dt::INT32_TYPE:
-          {
-            converter->add(i, newProperty, boost::bind(&terrama2::core::DataAccessor::stringToInt, this, _1, _2, _3));
-            break;
-          }
-          default:
-          {
-            delete newProperty;
-
-            te::dt::Property* defaultProperty = property->clone();
-            defaultProperty->setName(alias);
-
-            converter->add(i,defaultProperty);
-            break;
-          }
-        }
-
-        converted = true;
-        break; // for(auto& field : fields)
-      }
-    }
-
-    if(converted)
-    {
-      converter->remove(property->getName());
-      continue;
-    }
-
-    if(convertAll)
-    {
-      std::string alias = DataAccessorTxtFile::simplifyString(property->getName());
-
-      std::string defaultType = getProperty(dataSet, dataSeries_, "default_type");
-
-      if(dataTypes.at(defaultType) != te::dt::STRING_TYPE)
-      {
-        te::dt::SimpleProperty* defaultProperty = new te::dt::SimpleProperty(alias, dataTypes.at(defaultType));
-
-        converter->add(i,defaultProperty);
-      }
-      else
-      {
-        te::dt::Property* defaultProperty = property->clone();
-        defaultProperty->setName(alias);
-
-        converter->add(i,defaultProperty);
-      }
-    }
-
-    converter->remove(property->getName());
+    if(type == te::dt::GEOMETRY_TYPE)
+      geometry = true;
   }
 
+  if(!dateTime)
   {
-    std::vector<te::dt::Property*> newProperties = converter->getConvertee()->getProperties();
+    QString errMsg = QObject::tr("Invalid fields: Missing dateTime field!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
+  }
 
-    size_t longPos = std::numeric_limits<size_t>::max();
-    size_t latPos = std::numeric_limits<size_t>::max();
-
-    for(size_t i = 0, size = newProperties.size(); i < size; ++i)
-    {
-      te::dt::Property* property = newProperties.at(i);
-
-      if(property->getName() == longitudePropertyName)
-      {
-        longPos = i;
-      }
-
-      if(property->getName() == latitudePropertyName)
-      {
-        latPos = i;
-      }
-    }
-
-    if(longPos == std::numeric_limits<size_t>::max() ||
-       latPos == std::numeric_limits<size_t>::max())
-    {
-      QString errMsg = QObject::tr("Could not find the point information!");
-      TERRAMA2_LOG_WARNING() << errMsg;
-      throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
-    }
-
-    std::vector<size_t> latLonAttributes;
-    latLonAttributes.push_back(longPos);
-    latLonAttributes.push_back(latPos);
-
-    Srid srid = getSrid(dataSet);
-
-    te::gm::GeometryProperty* geomProperty = new te::gm::GeometryProperty("point", srid, te::gm::PointType);
-
-    converter->add(latLonAttributes, geomProperty, boost::bind(&terrama2::core::DataAccessorOccurrenceTxtFile::stringToPoint, this, _1, _2, _3, srid));
-
-    converter->remove(longitudePropertyName);
-    converter->remove(latitudePropertyName);
+  if(!geometry)
+  {
+    QString errMsg = QObject::tr("Invalid fields: Missing geometry field!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
   }
 }
 

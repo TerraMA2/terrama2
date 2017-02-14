@@ -83,17 +83,34 @@ int main(int argc, char* argv[])
   dataSet->format.emplace("mask", "exporta_%YYYY%MM%DD_%hh%mm.csv");
   dataSet->format.emplace("timezone", "+00");
   dataSet->format.emplace("srid", "4326");
-  dataSet->format.emplace("timestamp_property", "data_pas");
-  dataSet->format.emplace("output_timestamp_property", "DateTime");
-  dataSet->format.emplace("lines_skip", "");
+  dataSet->format.emplace("ignore_headers_lines", "");
+  dataSet->format.emplace("header_line", "1");
   dataSet->format.emplace("convert_all", "true");
   dataSet->format.emplace("default_type", "FLOAT");
 
-  dataSet->format.emplace("timestamp_format", "%YYYY-%MM-%DD %hh:%mm:%ss");
-  dataSet->format.emplace("latitude_property", "lat");
-  dataSet->format.emplace("longitude_property", "lon");
-
   QJsonArray fields;
+
+  {
+    QJsonObject obj;
+
+    obj.insert("latitude", QString("lat"));
+    obj.insert("longitude", QString("lon"));
+    obj.insert("alias", QString("point"));
+    obj.insert("type", QString("GEOMETRY"));
+
+    fields.push_back(obj);
+  }
+
+  {
+    QJsonObject obj;
+
+    obj.insert("column", QString("data_pas"));
+    obj.insert("alias", QString("DateTime"));
+    obj.insert("type", QString("DATETIME"));
+    obj.insert("format", QString("%YYYY-%MM-%DD %hh:%mm:%ss"));
+
+    fields.push_back(obj);
+  }
 
   {
     QJsonObject obj;
