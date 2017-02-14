@@ -390,36 +390,43 @@ void terrama2::core::DataAccessorTxtFile::adapt(DataSetPtr dataSet, std::shared_
   // Create geometry column
   if(!fieldGeomObj.empty())
   {
-    size_t longPos = std::numeric_limits<size_t>::max();
-    size_t latPos = std::numeric_limits<size_t>::max();
-
-    std::string longProperty = fieldGeomObj.value("longitude").toString().toStdString();
-    std::string latProperty = fieldGeomObj.value("latitude").toString().toStdString();
-
-    longPos = converter->getConvertee()->getPropertyPosition(longProperty);
-    latPos = converter->getConvertee()->getPropertyPosition(latProperty);
-
-    if(longPos == std::numeric_limits<size_t>::max() ||
-       latPos == std::numeric_limits<size_t>::max())
-    {
-      QString errMsg = QObject::tr("Could not find the point complete information!");
-      TERRAMA2_LOG_WARNING() << errMsg;
-      throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
-    }
-
-    std::vector<size_t> latLonAttributes;
-    latLonAttributes.push_back(longPos);
-    latLonAttributes.push_back(latPos);
-
     Srid srid = getSrid(dataSet);
     std::string alias = fieldGeomObj.value("alias").toString().toStdString();
 
     te::gm::GeometryProperty* geomProperty = new te::gm::GeometryProperty(alias, srid, te::gm::PointType);
 
-    converter->add(latLonAttributes, geomProperty, boost::bind(&terrama2::core::DataAccessorTxtFile::stringToPoint, this, _1, _2, _3, srid));
+    if(fieldGeomObj.value("column").isUndefined())
+    {
+      size_t longPos = std::numeric_limits<size_t>::max();
+      size_t latPos = std::numeric_limits<size_t>::max();
 
-    converter->remove(longProperty);
-    converter->remove(latProperty);
+      std::string longProperty = fieldGeomObj.value("longitude").toString().toStdString();
+      std::string latProperty = fieldGeomObj.value("latitude").toString().toStdString();
+
+      longPos = converter->getConvertee()->getPropertyPosition(longProperty);
+      latPos = converter->getConvertee()->getPropertyPosition(latProperty);
+
+      if(longPos == std::numeric_limits<size_t>::max() ||
+         latPos == std::numeric_limits<size_t>::max())
+      {
+        QString errMsg = QObject::tr("Could not find the point complete information!");
+        TERRAMA2_LOG_WARNING() << errMsg;
+        throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
+      }
+
+      std::vector<size_t> latLonAttributes;
+      latLonAttributes.push_back(longPos);
+      latLonAttributes.push_back(latPos);
+
+      converter->add(latLonAttributes, geomProperty, boost::bind(&terrama2::core::DataAccessorTxtFile::stringToPoint, this, _1, _2, _3, srid));
+
+      converter->remove(longProperty);
+      converter->remove(latProperty);
+    }
+    else
+    {
+      // TODO: WKT
+    }
   }
 
   // Check if all fields were created
