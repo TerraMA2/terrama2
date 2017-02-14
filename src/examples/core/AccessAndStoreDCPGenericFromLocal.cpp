@@ -83,8 +83,8 @@ int main(int argc, char* argv[])
   dataSet->format.emplace("mask", "CPV_slow_%YYYY_%MM_%DD_%hh%mm.dat");
   dataSet->format.emplace("timezone", "+00");
   dataSet->format.emplace("srid", "4326");
-  dataSet->format.emplace("ignore_headers_lines", "1,3,4");
-  dataSet->format.emplace("header_line", "2");
+  dataSet->format.emplace("header_size", "4");
+  dataSet->format.emplace("columns_line", "2");
   dataSet->format.emplace("convert_all", "true");
   dataSet->format.emplace("default_type", "TEXT");
 

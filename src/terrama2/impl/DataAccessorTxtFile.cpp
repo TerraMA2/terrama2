@@ -73,7 +73,17 @@ std::shared_ptr<te::dt::TimeInstantTZ> terrama2::core::DataAccessorTxtFile::read
 
 QFileInfo terrama2::core::DataAccessorTxtFile::filterTxt(QFileInfo& fileInfo, QTemporaryFile& tempFile, terrama2::core::DataSetPtr dataSet) const
 {
-  if(dataSet->format.at("ignore_headers_lines").empty())
+  int header = 0 ;
+  int columnsLine = 0;
+
+  if(!dataSet->format.at("header_size").empty())
+    header = std::stoi(dataSet->format.at("header_size"));
+
+  if(!dataSet->format.at("columns_line").empty())
+    columnsLine = std::stoi(dataSet->format.at("columns_line"));
+
+  if((header == 1 && columnsLine == 1)||
+     (header == 0 && columnsLine == 0))
   {
     return fileInfo;
   }
@@ -96,29 +106,18 @@ QFileInfo terrama2::core::DataAccessorTxtFile::filterTxt(QFileInfo& fileInfo, QT
     throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
   }
 
-  std::vector<int> linesSkip;
-
-  std::stringstream ss(dataSet->format.at("ignore_headers_lines"));
-
-  std::string skipLineNumber;
-
-  while(std::getline(ss, skipLineNumber, ','))
-  {
-    linesSkip.push_back(std::stoi(skipLineNumber));
-  }
-
   std::string line = "";
   int lineNumber = 1;
 
   while(std::getline(file, line))
   {
-    if(linesSkip.end() != std::find(linesSkip.begin(), linesSkip.end(), lineNumber))
+    if(lineNumber <= header && lineNumber != columnsLine)
     {
       lineNumber++;
       continue;
     }
 
-    outputFile << line;
+    outputFile << line << std::endl;
     outputFile.flush();
 
     if(outputFile.fail())
