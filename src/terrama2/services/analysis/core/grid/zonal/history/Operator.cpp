@@ -37,7 +37,7 @@
 //TerraLib
 #include <terralib/dataaccess/utils/Utils.h>
 
-int terrama2::services::analysis::core::grid::zonal::history::num(const std::string& dataSeriesName, const std::string& dateDiscardBefore, terrama2::services::analysis::core::Buffer buffer)
+int terrama2::services::analysis::core::grid::zonal::history::numImpl(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const std::string& dateDiscardAfter, terrama2::services::analysis::core::Buffer buffer)
 {
 
   OperatorCache cache;
@@ -110,6 +110,7 @@ int terrama2::services::analysis::core::grid::zonal::history::num(const std::str
 
     terrama2::core::Filter filter;
     filter.discardBefore = context->getTimeFromString(dateDiscardBefore);
+    filter.discardAfter = context->getTimeFromString(dateDiscardAfter);
 
     int count = 0;
     auto datasets = dataSeries->datasetList;
@@ -147,12 +148,17 @@ int terrama2::services::analysis::core::grid::zonal::history::num(const std::str
   }
 }
 
-boost::python::list terrama2::services::analysis::core::grid::zonal::history::list(const std::string& dataSeriesName, const std::string& dateDiscardBefore, terrama2::services::analysis::core::Buffer buffer)
+int terrama2::services::analysis::core::grid::zonal::history::num(const std::string& dataSeriesName, const std::string& dateDiscardBefore, terrama2::services::analysis::core::Buffer buffer)
+{
+  return numImpl(dataSeriesName, dateDiscardBefore, "0s", buffer);
+}
+
+boost::python::list terrama2::services::analysis::core::grid::zonal::history::listImpl(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const std::string& dateDiscardAfter, terrama2::services::analysis::core::Buffer buffer)
 {
 
   OperatorCache cache;
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
-  // After the operator lock is released it's not allowed to return any value because it doesn' have the interpreter lock.
+  // After the operator lock is released it's not allowed to return any value because it doesn't have the interpreter lock.
   // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return NAN.
 
   auto& contextManager = ContextManager::getInstance();
@@ -220,7 +226,7 @@ boost::python::list terrama2::services::analysis::core::grid::zonal::history::li
 
     terrama2::core::Filter filter;
     filter.discardBefore = context->getTimeFromString(dateDiscardBefore);
-    filter.discardAfter = context->getTimeFromString("0s");
+    filter.discardAfter = context->getTimeFromString(dateDiscardAfter);
 
     auto seriesList = context->getSeriesMap(dataSeries->id, filter);
     for(auto pair : seriesList)
@@ -275,6 +281,11 @@ boost::python::list terrama2::services::analysis::core::grid::zonal::history::li
     context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
     return {};
   }
+}
+
+boost::python::list terrama2::services::analysis::core::grid::zonal::history::list(const std::string& dataSeriesName, const std::string& dateDiscardBefore, terrama2::services::analysis::core::Buffer buffer)
+{
+  listImpl(dataSeriesName, dateDiscardBefore, "0s", buffer);
 }
 
 double terrama2::services::analysis::core::grid::zonal::history::operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,

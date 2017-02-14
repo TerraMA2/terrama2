@@ -574,6 +574,8 @@ BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryIntervalMedian_overloads, terram
 BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryIntervalStandardDeviation_overloads, terrama2::services::analysis::core::grid::zonal::history::interval::standardDeviation, 4, 5)
 BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryIntervalVariance_overloads, terrama2::services::analysis::core::grid::zonal::history::interval::variance, 4, 5)
 BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryIntervalSum_overloads, terrama2::services::analysis::core::grid::zonal::history::interval::sum, 4, 5)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryIntervalNum_overloads, terrama2::services::analysis::core::grid::zonal::history::interval::num, 3, 4)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryIntervalList_overloads, terrama2::services::analysis::core::grid::zonal::history::interval::list, 3, 4)
 // closing "-Wunused-local-typedef" pragma
 #pragma GCC diagnostic pop
 
@@ -590,23 +592,29 @@ void terrama2::services::analysis::core::python::Grid::registerGridZonalHistoryI
 
   def("min", terrama2::services::analysis::core::grid::zonal::history::interval::min,
       gridZonalHistoryIntervalMin_overloads(args("dataSeriesName", "discardBefore", "discardAfter", "buffer"),
-                                             "Min operator for grid zonal"));
+                                             "Min operator for grid zonal history with interval"));
   def("max", terrama2::services::analysis::core::grid::zonal::history::interval::max,
       gridZonalHistoryIntervalMax_overloads(args("dataSeriesName", "discardBefore", "discardAfter", "buffer"),
-                                             "Max operator for grid zonal"));
+                                             "Max operator for grid zonal history with interval"));
   def("mean", terrama2::services::analysis::core::grid::zonal::history::interval::mean,
       gridZonalHistoryIntervalMean_overloads(args("dataSeriesName", "discardBefore", "discardAfter", "buffer"),
-                                              "Mean operator for grid zonal"));
+                                              "Mean operator for grid zonal history with interval"));
   def("median", terrama2::services::analysis::core::grid::zonal::history::interval::median,
       gridZonalHistoryIntervalMedian_overloads(args("dataSeriesName", "discardBefore", "discardAfter", "buffer"),
-                                                "Median operator for grid zonal"));
+                                                "Median operator for grid zonal history with interval"));
   def("standard_deviation", terrama2::services::analysis::core::grid::zonal::history::interval::standardDeviation,
       gridZonalHistoryIntervalStandardDeviation_overloads(args("dataSeriesName", "discardBefore", "discardAfter", "buffer"),
-                                                           "Standard deviation operator for grid zonal"));
+                                                           "Standard deviation operator for grid zonal history with interval"));
   def("variance", terrama2::services::analysis::core::grid::zonal::history::interval::variance,
       gridZonalHistoryIntervalVariance_overloads(args("dataSeriesName", "discardBefore", "discardAfter", "buffer"),
-                                                  "Variance operator for grid zonal"));
+                                                  "Variance operator for grid zonal history with interval"));
   def("sum", terrama2::services::analysis::core::grid::zonal::history::interval::sum,
       gridZonalHistoryIntervalSum_overloads(args("dataSeriesName", "discardBefore", "discardAfter", "buffer"),
-                                             "Sum operator for grid zonal"));
+                                             "Sum operator for grid zonal history with interval"));
+  def("num", terrama2::services::analysis::core::grid::zonal::history::interval::num,
+      gridZonalHistoryIntervalNum_overloads(args("dataSeriesName", "discardBefore", "buffer"),
+                                    "Num operator for grid zonal history with interval"));
+  def("list", terrama2::services::analysis::core::grid::zonal::history::interval::list,
+      gridZonalHistoryIntervalList_overloads(args("dataSeriesName", "discardBefore", "buffer"),
+                                     "List operator for grid zonal history with interval"));
 }

@@ -30,6 +30,16 @@
 #include "Operator.hpp"
 #include "../Operator.hpp"
 
+boost::python::list terrama2::services::analysis::core::grid::zonal::history::interval::list(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const std::string& dateDiscardAfter, terrama2::services::analysis::core::Buffer buffer)
+{
+  return terrama2::services::analysis::core::grid::zonal::history::listImpl(dataSeriesName, dateDiscardBefore, dateDiscardAfter, buffer);
+}
+
+int terrama2::services::analysis::core::grid::zonal::history::interval::num(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const std::string& dateDiscardAfter, terrama2::services::analysis::core::Buffer buffer)
+{
+  return terrama2::services::analysis::core::grid::zonal::history::numImpl(dataSeriesName, dateDiscardBefore, dateDiscardAfter, buffer);
+}
+
 double terrama2::services::analysis::core::grid::zonal::history::interval::min(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const std::string& dateDiscardAfter, const size_t band,  terrama2::services::analysis::core::Buffer buffer)
 {
   return terrama2::services::analysis::core::grid::zonal::history::operatorImpl(StatisticOperation::MIN, dataSeriesName, dateDiscardBefore, dateDiscardAfter, band, buffer);

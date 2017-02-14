@@ -54,10 +54,15 @@ namespace terrama2
               /*!
                 \brief Calculates the number of raster images are available for the area and time constrains.
               */
+              int numImpl(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const std::string& dateDiscardAfter, terrama2::services::analysis::core::Buffer buffer = Buffer());
+
               int num(const std::string& dataSeriesName, const std::string& dateDiscardBefore, terrama2::services::analysis::core::Buffer buffer = Buffer());
+
               /*!
                 \brief Return the list of timestamps of the raster images available for the area and time constrains.
               */
+              boost::python::list listImpl(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const std::string& dateDiscardAfter, terrama2::services::analysis::core::Buffer buffer = Buffer());
+
               boost::python::list list(const std::string& dataSeriesName, const std::string& dateDiscardBefore, terrama2::services::analysis::core::Buffer buffer = Buffer());
 
               double operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,

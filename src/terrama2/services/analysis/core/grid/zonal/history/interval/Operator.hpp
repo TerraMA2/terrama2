@@ -53,6 +53,14 @@ namespace terrama2
             {
               namespace interval
               {
+
+                boost::python::list list(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const std::string& dateDiscardAfter, terrama2::services::analysis::core::Buffer buffer = Buffer());
+
+                /*!
+                  \brief Returns the number of raster images are available for the area and time constrains.
+                */
+                int num(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const std::string& dateDiscardAfter, terrama2::services::analysis::core::Buffer buffer = Buffer());
+
                 /*!
                   \brief Calculates the sum of zonal grid data in the given time interval.
 
