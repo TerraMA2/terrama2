@@ -834,5 +834,53 @@
         }
       ]
     }
+  },
+  {
+    "id": 13,
+    "name": "Generic Format for CSV files",
+    "code": "DCP-generic",
+    "type": "DCP",
+    "temporality": "DYNAMIC",
+    "format": "CSV",
+    "providers_type_list": ["FILE", "FTP"],
+    "gui": {
+        "schema": {
+          "properties": {
+            "folder": {
+              "type": "string",
+              "title": "Folder",
+              "pattern": "^[^?#!$&'()*+,;=^§]+$"
+            },
+            "mask": {
+              "type": "string",
+              "title": "Mask",
+              "pattern": "^([\\w*.]+|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
+            },
+            "timezone": {
+              "type": "string",
+              "title": "Timezone"
+            },
+            "projection": {
+              "type": "number",
+              "title": "SRID"
+            },
+            "active": {
+              "type": "boolean",
+              "title": "Active",
+              "default": true
+            }
+          },
+        "required": ["mask", "timezone", "projection"]
+      }
+    }
+  },
+  {
+    "id": 14,
+    "name": "Generic Format for CSV files",
+    "code": "Occurrence-generic",
+    "type": "OCCURRENCE",
+    "temporality": "DYNAMIC",
+    "format": "CSV",
+    "providers_type_list": ["FILE", "FTP"]
   }
 ]
