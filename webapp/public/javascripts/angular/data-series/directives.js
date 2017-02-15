@@ -183,7 +183,7 @@ define(["TerraMA2WebApp/common/services/index", "TerraMA2WebApp/alert-box/app"],
                     metadata.defaultValue = $scope.importationFields[type][key + 'Default'];
                   } else {
                     MessageBoxService.danger(
-                      i18n.__("DCP importation error"), 
+                      i18n.__("DCP Import Error"), 
                       i18n.__("Invalid configuration for the field") + "'" + i18n.__($scope.dataSeries.semantics.metadata.schema.properties[key].title) + "'"
                     );
                     $('#importDCPItemsModal').modal('hide');
@@ -199,78 +199,126 @@ define(["TerraMA2WebApp/common/services/index", "TerraMA2WebApp/alert-box/app"],
             }, 3000);
           };
 
+          var validateImportValue = function(key, titleMap, title, type, pattern, metadata, data, titleMapType, lineNumber) {
+            var value = null;
+            var error = null;
+
+            if(metadata[key] === undefined && $scope.dataSeries.semantics.metadata.schema.properties[key].defaultForImport !== undefined) {
+              value = $scope.dataSeries.semantics.metadata.schema.properties[key].defaultForImport;
+            } else {
+              if(metadata[key].field !== null) {
+                value = data[metadata[key].field];
+              } else if(metadata[key].defaultValue !== null) {
+                value = metadata[key].defaultValue;
+              }
+
+              if(value !== null && metadata[key].prefix !== null) {
+                value = metadata[key].prefix + value;
+              }
+
+              if(value !== null && metadata[key].suffix !== null) {
+                value += metadata[key].suffix;
+              }
+            }
+
+            if(value === null)
+              return {
+                error: {
+                  title: i18n.__("DCP Import Error"),
+                  message: i18n.__("Invalid configuration for the field") + " '" + i18n.__(title) + "'"
+                },
+                value: value
+              };
+
+            if(titleMap !== undefined && titleMap !== null)
+              type = titleMapType;
+
+            if($scope.fieldHasError(value, type, pattern, titleMap))
+              return {
+                error: {
+                  title: i18n.__("DCP Import Error"),
+                  message: i18n.__("Invalid value for the field") + " '" + i18n.__(title) + "' " + i18n.__("in the line") + " " + lineNumber
+                },
+                value: value
+              };
+
+            return {
+              error: null,
+              value: value
+            };
+          };
+
           var executeImportation = function(metadata, data) {
             var dcps = [];
+            var dcpsObjectTemp = {};
+
+            var warnDuplicatedAlias = false;
 
             for(var i = 0, dataLength = data.data.length; i < dataLength; i++) {
               var dcp = {};
               var uniqueId = UniqueNumber();
-              var currentIndex = $scope.dcpsCurrentIndex.value++;
+              var alias = null;
+
+              var aliasValidateImportResult = validateImportValue('alias', null, $scope.dataSeries.semantics.metadata.schema.properties.alias.title, $scope.dataSeries.semantics.metadata.schema.properties.alias.type, pattern, metadata, data.data[i], null, (i + (data.hasHeader ? 2 : 1)));
+
+              if(aliasValidateImportResult.error !== null) {
+                MessageBoxService.danger(aliasValidateImportResult.error.title, aliasValidateImportResult.error.message);
+                $scope.isChecking = false;
+                return;
+              } else
+                alias = aliasValidateImportResult.value;
+
+              if(!$scope.isAliasValid(alias, $scope.dcpsObject) || !$scope.isAliasValid(alias, dcpsObjectTemp)) {
+                if($scope.duplicatedAliasCounter[alias] === undefined)
+                  $scope.duplicatedAliasCounter[alias] = 0;
+                
+                alias = alias + "_" + (++$scope.duplicatedAliasCounter[alias]).toString();
+
+                if(!warnDuplicatedAlias)
+                  warnDuplicatedAlias = true;
+              }
 
               for(var j = 0, fieldsLength = $scope.dataSeries.semantics.metadata.form.length; j < fieldsLength; j++) {
                 var value = null;
                 var key = $scope.dataSeries.semantics.metadata.form[j].key;
-                var titleMap = $scope.dataSeries.semantics.metadata.form[j].titleMap;
-                var title = $scope.dataSeries.semantics.metadata.schema.properties[key].title;
-                var type = $scope.dataSeries.semantics.metadata.schema.properties[key].type;
-                var pattern = $scope.dataSeries.semantics.metadata.schema.properties[key].pattern;
 
-                if(metadata[key] === undefined && $scope.dataSeries.semantics.metadata.schema.properties[key].defaultForImport !== undefined) {
-                  value = $scope.dataSeries.semantics.metadata.schema.properties[key].defaultForImport;
-                } else {
-                  if(metadata[key].field !== null) {
-                    value = data.data[i][metadata[key].field];
-                  } else if(metadata[key].defaultValue !== null) {
-                    value = metadata[key].defaultValue;
-                  }
+                if(key == "alias")
+                  value = alias;
+                else {
+                  var titleMap = $scope.dataSeries.semantics.metadata.form[j].titleMap;
+                  var title = $scope.dataSeries.semantics.metadata.schema.properties[key].title;
+                  var type = $scope.dataSeries.semantics.metadata.schema.properties[key].type;
+                  var pattern = $scope.dataSeries.semantics.metadata.schema.properties[key].pattern;
 
-                  if(value !== null && metadata[key].prefix !== null) {
-                    value = metadata[key].prefix + value;
-                  }
+                  var validateImportResult = validateImportValue(key, titleMap, title, type, pattern, metadata, data.data[i], $scope.dataSeries.semantics.metadata.form[j].type, (i + (data.hasHeader ? 2 : 1)));
 
-                  if(value !== null && metadata[key].suffix !== null) {
-                    value += metadata[key].suffix;
-                  }
+                  if(validateImportResult.error !== null) {
+                    MessageBoxService.danger(validateImportResult.error.title, validateImportResult.error.message);
+                    $scope.isChecking = false;
+                    return;
+                  } else
+                    value = validateImportResult.value;
                 }
 
-                if(value === null) {
-                  MessageBoxService.danger(i18n.__("DCP importation error"), i18n.__("Invalid configuration for the field") + " '" + i18n.__(title) + "'");
-                  $scope.isChecking = false;
-                  return;
-                }
-
-                if(titleMap !== undefined) {
-                  type = $scope.dataSeries.semantics.metadata.form[j].type;
-                }
-
-                if($scope.fieldHasError(value, type, pattern, titleMap)) {
-                  MessageBoxService.danger(
-                    i18n.__("DCP importation error"),
-                    i18n.__("Invalid value for the field") + " '" + i18n.__(title) + "' " + i18n.__("in the line") + " " + (i + (data.hasHeader ? 2 : 1))
-                  );
-                  $scope.isChecking = false;
-                  return;
-                }
-
-                if($scope.isBoolean(value)) {
-                  dcp[key + '_html'] = "<span class=\"dcps-table-span\"><input type=\"checkbox\" ng-model=\"dcpsObject['" + currentIndex.toString() + "']['" + key + "']\"></span>";
-                } else {
-                  dcp[key + '_html'] = "<span class=\"dcps-table-span\" editable-text=\"dcpsObject['" + currentIndex.toString() + "']['" + key + "']\">{{ dcpsObject['" + currentIndex.toString() + "']['" + key + "'] }}</span>";
-                }
+                if($scope.isBoolean(value))
+                  dcp[key + '_html'] = "<span class=\"dcps-table-span\"><input type=\"checkbox\" ng-model=\"dcpsObject['" + alias + "']['" + key + "']\"></span>";
+                else
+                  dcp[key + '_html'] = "<span class=\"dcps-table-span\" editable-text=\"dcpsObject['" + alias + "']['" + key + "']\" onbeforesave=\"validateFieldEdition($data, '" + type + "', '" + alias + "', '" + key + "')\">{{ dcpsObject['" + alias + "']['" + key + "'] }}</span>";
 
                 dcp[key] = value;
               }
 
               dcp._id = uniqueId;
-              dcp.viewId = currentIndex;
-              $scope.dcps.push(Object.assign({}, dcp));
-              $scope.dcpsObject[dcp.viewId] = Object.assign({}, dcp);
+
+              dcpsObjectTemp[dcp.alias] = Object.assign({}, dcp);
 
               var dcpCopy = Object.assign({}, dcp);
-              dcpCopy.removeButton = "<button class=\"btn btn-danger removeDcpBtn\" ng-click=\"removePcdById(" + dcp.viewId + ")\" style=\"height: 21px; padding: 1px 4px 1px 4px; font-size: 13px;\">" + i18n.__("Remove") + "</button>";
+              dcpCopy.removeButton = "<button class=\"btn btn-danger removeDcpBtn\" ng-click=\"removePcd('" + dcp.alias + "')\" style=\"height: 21px; padding: 1px 4px 1px 4px; font-size: 13px;\">" + i18n.__("Remove") + "</button>";
 
               dcps.push(dcpCopy);
             }
+            
+            $scope.dcpsObject = angular.merge($scope.dcpsObject, dcpsObjectTemp);
 
             $scope.storageDcps(dcps);
             $scope.addDcpsStorager(dcps);
@@ -278,7 +326,11 @@ define(["TerraMA2WebApp/common/services/index", "TerraMA2WebApp/alert-box/app"],
             // reset form to do not display feedback class
             $scope.forms.parametersForm.$setPristine();
             $scope.isChecking = false;
-            MessageBoxService.success(i18n.__("DCP importation"), i18n.__("Importation executed with success"));
+
+            if(warnDuplicatedAlias)
+              MessageBoxService.warning(i18n.__("DCP Import Process"), i18n.__("Import process executed with success, but there were duplicated Alias, check the values"));
+            else
+              MessageBoxService.success(i18n.__("DCP Import Process"), i18n.__("Import process executed with success"));
           };
         }]
       };

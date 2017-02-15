@@ -12,6 +12,7 @@ define([], function(){
             series: "<",
             filter: "<",
             prepareFormatToForm: "<",
+            fieldHasError: "<",
             forms: "<",
             onStoragerFormatChange: "<",
             model: "<",
@@ -145,19 +146,9 @@ define([], function(){
 
       $scope.$on("changeDataSemantics", onInputSemanticsChange);
 
-      var removeInput = function(dcpMask) {
+      var removeInput = function(alias) {
         self.inputDataSets.some(function(dcp, pcdIndex, array) {
-          // todo: which fields should compare to remove?
-          if (dcp.mask === dcpMask) {
-            array.splice(pcdIndex, 1);
-            return true;
-          }
-        });
-      };
-
-      var removeInputById = function(id) {
-        self.inputDataSets.some(function(dcp, pcdIndex, array) {
-          if(dcp.viewId == id) {
+          if(dcp.alias === alias) {
             array.splice(pcdIndex, 1);
             return true;
           }
@@ -167,7 +158,7 @@ define([], function(){
       self.removePcdStorager = function(dcpItem) {
         for(var property in self.dcpsStoragerObject) {
           if(self.dcpsStoragerObject.hasOwnProperty(property)) {
-            if(parseInt(self.dcpsStoragerObject[property].viewId) === parseInt(dcpItem.viewId)) {
+            if(self.dcpsStoragerObject[property].alias === dcpItem.alias) {
               delete self.dcpsStoragerObject[property];
               return true;
             }
@@ -178,13 +169,13 @@ define([], function(){
       self.editDcpStorager = function(dcpItem) {
         for(var property in self.dcpsStoragerObject) {
           if(self.dcpsStoragerObject.hasOwnProperty(property)) {
-            if(parseInt(self.dcpsStoragerObject[property].viewId) === parseInt(dcpItem.viewId)) {
+            if(self.dcpsStoragerObject[property].alias === dcpItem.alias) {
               var table_name = self.dcpsStoragerObject[property].table_name;
               var table_name_html = self.dcpsStoragerObject[property].table_name_html;
 
-              self.dcpsStoragerObject[dcpItem.viewId] = dcpItem;
-              self.dcpsStoragerObject[dcpItem.viewId].table_name = table_name;
-              self.dcpsStoragerObject[dcpItem.viewId].table_name_html = table_name_html;
+              self.dcpsStoragerObject[dcpItem.alias] = dcpItem;
+              self.dcpsStoragerObject[dcpItem.alias].table_name = table_name;
+              self.dcpsStoragerObject[dcpItem.alias].table_name_html = table_name_html;
 
               return true;
             }
@@ -192,8 +183,16 @@ define([], function(){
         }
       };
 
+      self.validateFieldEdition = function(value, pattern) {
+        if(self.fieldHasError(value, 'string', pattern, null))
+          return "Invalid value";
+        else
+          return null;
+      };
+
       var addDcpStorager = function(dcps, storageData) {
         var newDcps = [];
+        var tableNameValidationRegex = "^[a-zA-Z_][a-zA-Z0-9_]*$";
 
         for(var i = 0, dcpsLength = dcps.length; i < dcpsLength; i++) {
           var dcpToAdd = dcps[i];
@@ -205,7 +204,7 @@ define([], function(){
             var obj = SemanticsParserFactory.parseKeys(copyFormat);
 
             obj.table_name = obj.alias;
-            obj.table_name_html = "<span class=\"store-dcps-table-span\" editable-text=\"$ctrl.dcpsStoragerObject['" + obj.viewId.toString() + "']['table_name']\">{{ $ctrl.dcpsStoragerObject['" + obj.viewId.toString() + "']['table_name'] }}</span>";
+            obj.table_name_html = "<span class=\"store-dcps-table-span\" editable-text=\"$ctrl.dcpsStoragerObject['" + obj.alias + "']['table_name']\" onbeforesave=\"$ctrl.validateFieldEdition($data, '" + tableNameValidationRegex + "')\">{{ $ctrl.dcpsStoragerObject['" + obj.alias + "']['table_name'] }}</span>";
 
             dcpToAdd = obj;
           }
@@ -214,12 +213,12 @@ define([], function(){
             var key = self.series.semantics.metadata.form[j].key;
 
             if(self.isBoolean(dcpToAdd[key]))
-              dcpToAdd[key + '_html'] = "<span class=\"store-dcps-table-span\"><input type=\"checkbox\" ng-model=\"$ctrl.dcpsStoragerObject['" + dcpToAdd.viewId.toString() + "']['" + key + "']\" ng-disabled=\"true\"></span>";
+              dcpToAdd[key + '_html'] = "<span class=\"store-dcps-table-span\"><input type=\"checkbox\" ng-model=\"$ctrl.dcpsStoragerObject['" + dcpToAdd.alias + "']['" + key + "']\" ng-disabled=\"true\"></span>";
             else
-              dcpToAdd[key + '_html'] = "<span class=\"store-dcps-table-span\" ng-bind=\"$ctrl.dcpsStoragerObject['" + dcpToAdd.viewId.toString() + "']['" + key + "']\"></span>";
+              dcpToAdd[key + '_html'] = "<span class=\"store-dcps-table-span\" ng-bind=\"$ctrl.dcpsStoragerObject['" + dcpToAdd.alias + "']['" + key + "']\"></span>";
           }
 
-          self.dcpsStoragerObject[dcpToAdd.viewId] = dcpToAdd;
+          self.dcpsStoragerObject[dcpToAdd.alias] = dcpToAdd;
           newDcps.push(dcpToAdd);
         }
 
@@ -236,8 +235,6 @@ define([], function(){
         for(var field in fields) {
           dtColumns.push({ "data": field + '_html' });
         }
-
-        dtColumns.push({ "data": 'viewId' });
 
         self.dcpTableStore = $('.dcpTableStore').DataTable(
           {
@@ -272,8 +269,7 @@ define([], function(){
               }
             },
             "drawCallback": function() {
-              if($('.store-dcps-table-span').text().match("{{(.*)}}") !== null)
-                self.compileTableLinesStore();
+              self.compileTableLinesStore();
             }
           }
         );
@@ -283,7 +279,8 @@ define([], function(){
         $('.dcpTableStore .store-dcps-table-span').css('display', 'none');
 
         $timeout(function() {
-          $compile(angular.element('.dcpTableStore > tbody > tr'))($scope);
+          if($('.store-dcps-table-span').text().match("{{(.*)}}") !== null)
+            $compile(angular.element('.dcpTableStore > tbody > tr'))($scope);
 
           $('.dcpTableStore .store-dcps-table-span').css('display', '');
         }, 50);
@@ -339,22 +336,18 @@ define([], function(){
       });
 
       $scope.$on("dcpOperation", function(event, args) {
-        if(args.action === "removeById") {
+        if(args.action === "remove") {
           self.removePcdStorager(args.dcp);
-          removeInputById(args.dcp.viewId);
+          removeInput(args.dcp.alias);
 
           $http.post("/configuration/dynamic/dataseries/removeStoredDcpStore", {
             key: storedDcpsKey,
-            id: args.dcp.viewId
+            alias: args.dcp.alias
           }).success(function(result) {
             reloadDataStore();
           }).error(function(err) {
             console.log("Err in removing dcp");
           });
-        } else if(args.action === "remove") {
-          self.removePcdStorager(args.dcp);
-          // todo: remove it from list
-          removeInput(args.dcp.mask);
         } else if(args.action === "add") {
           addDcpStorager([args.dcp], args.storageData);
         } else if(args.action === "addMany") {
@@ -477,18 +470,15 @@ define([], function(){
           }, 1000);
         }
 
-        if (self.formatSelected.data_series_type_name === globals.enums.DataSeriesType.DCP) {
+        if(self.formatSelected.data_series_type_name === globals.enums.DataSeriesType.DCP) {
           for(var property in properties) {
             self.tableFieldsStorager.push(property);
             self.tableFieldsStoragerDataTable.push(property);
           }
 
-	        self.tableFieldsStoragerDataTable.push('ID');
-
-          if (self.options.hasCollector) {
+          if(self.options.hasCollector) {
             outputDataseries.dataSets.forEach(function(dataset) {
-              //self.dcpsStorager.push(angular.merge(dataset.format, {active: dataset.active}));
-              self.dcpsStoragerObject[dataset.format.viewId] = angular.merge(dataset.format, {active: dataset.active});
+              self.dcpsStoragerObject[dataset.format.alias] = angular.merge(dataset.format, {active: dataset.active});
             });
           } else {
             if(args.dcps)

@@ -256,7 +256,7 @@ define([], function() {
         if($scope.dcpTable !== undefined)
           $scope.dcpTable.destroy();
 
-        var dtColumns = [{ "data": 'viewId' }];
+        var dtColumns = [];
 
         for(var i = 0, fieldsLength = $scope.tableFields.length; i < fieldsLength; i++) {
           dtColumns.push({ "data": $scope.tableFields[i] + '_html' });
@@ -297,8 +297,7 @@ define([], function() {
               }
             },
             "drawCallback": function() {
-              if($('.dcps-table-span').text().match("{{(.*)}}") !== null)
-                $scope.compileTableLines();
+              $scope.compileTableLines();
             }
           }
         );
@@ -308,7 +307,8 @@ define([], function() {
         $('.dcpTable .dcps-table-span').css('display', 'none');
 
         $timeout(function() {
-          $compile(angular.element('.dcpTable > tbody > tr'))($scope);
+          if($('.dcps-table-span').text().match("{{(.*)}}") !== null)
+            $compile(angular.element('.dcpTable > tbody > tr'))($scope);
 
           $('.dcpTable .dcps-table-span').css('display', '');
         }, 50);
@@ -377,7 +377,7 @@ define([], function() {
           }
 
         $scope.tableFields = [];
-	      $scope.tableFieldsDataTable = ['ID'];
+	      $scope.tableFieldsDataTable = [];
         if ($scope.dataSeries.semantics.data_series_type_name == "DCP"){
           // building table fields. Check if form is for all ('*')
           if (dataSeriesSemantics.metadata.form.indexOf('*') != -1) {
@@ -412,6 +412,7 @@ define([], function() {
           if ($scope.semantics === globals.enums.DataSeriesType.DCP) {
             // TODO: prepare format as dcp item
             $scope.dcpsObject = {};
+            $scope.duplicatedAliasCounter = {};
             inputDataSeries.dataSets.forEach(function(dataset) {
               if (dataset.position) {
                 var lat;
@@ -458,8 +459,8 @@ define([], function() {
           }
 
         } else {
-          $scope.dcps = [];
           $scope.dcpsObject = {};
+          $scope.duplicatedAliasCounter = {};
           $scope.model = {};
           $scope.$broadcast("resetStoragerDataSets");
         }
@@ -522,10 +523,6 @@ define([], function() {
       // table fields
       $scope.tableFields = [];
       $scope.tableFieldsDataTable = [];
-
-      $scope.dcpsCurrentIndex = {
-        value: 1
-      };
 
       // injecting state handler in scope
       $scope.stateApp = $state;
@@ -602,7 +599,7 @@ define([], function() {
           if (secondName)
             condition = condition || $scope.forms[secondName].$invalid;
 
-          if (name === "parametersForm" && $scope.dcps.length > 0) {
+          if (name === "parametersForm" && $scope.countObjectProperties($scope.dcpsObject) > 0) {
             // reset form to initial state
             $scope.forms[name].$setPristine();
             condition = false;
@@ -900,9 +897,8 @@ define([], function() {
       };
 
       $scope.isSecondStepValid = function(obj) {
-        if ($scope.dataSeries.semantics.data_series_type_name === "DCP")
-          if ($scope.dcps.length === 0) {
-            // todo: display alert box
+        if($scope.dataSeries.semantics.data_series_type_name === "DCP")
+          if($scope.countObjectProperties($scope.dcpsObject) === 0) {
             MessageBoxService.danger(i18n.__("DCP error"), i18n.__("It should have at least one dcp"));
             this["wzData"].error = true;
             return true;
@@ -969,8 +965,8 @@ define([], function() {
       };
 
       //. end wizard validations
-      $scope.dcps = [];
       $scope.dcpsObject = {};
+      $scope.duplicatedAliasCounter = {};
 
       $scope.updatingDcp = false;
 
@@ -1191,35 +1187,20 @@ define([], function() {
         $window.location.href = "/configuration/providers/new?redirectTo=" + url + "&" + $httpParamSerializer(output);
       };
 
-      $scope.removePcd = function(dcpItem) {
-        $scope.dcps.forEach(function(dcp, pcdIndex, array) {
-          // todo: which fields should compare to remove?
-          if (dcp.mask === dcpItem.mask) {
-            var data = Object.assign({}, dcpItem);
-            $scope.$broadcast("dcpOperation", {action: "remove", dcp: data});
-            array.splice(pcdIndex, 1);
-          }
-        });
-      };
+      $scope.removePcd = function(alias) {
+        if($scope.dcpsObject[alias] !== undefined) {
+          $scope.$broadcast("dcpOperation", {action: "remove", dcp: Object.assign({}, $scope.dcpsObject[alias])});
 
-      $scope.removePcdById = function(id) {
-        for(var i = 0, dcpsLength = $scope.dcps.length; i < dcpsLength; i++) {
-          if($scope.dcps[i].viewId == id) {
-            $scope.$broadcast("dcpOperation", {action: "removeById", dcp: Object.assign({}, $scope.dcps[i])});
+          $http.post("/configuration/dynamic/dataseries/removeStoredDcp", {
+            key: storedDcpsKey,
+            alias: alias
+          }).success(function(result) {
+            reloadData();
+          }).error(function(err) {
+            console.log("Err in removing dcp");
+          });
 
-            $http.post("/configuration/dynamic/dataseries/removeStoredDcp", {
-              key: storedDcpsKey,
-              id: $scope.dcps[i].viewId
-            }).success(function(result) {
-              reloadData();
-            }).error(function(err) {
-              console.log("Err in removing dcp");
-            });
-
-            $scope.dcps.splice(i, 1);
-            delete $scope.dcpsObject[id];
-            break;
-          }
+          delete $scope.dcpsObject[alias];
         }
       };
 
@@ -1243,6 +1224,10 @@ define([], function() {
           console.log("Err in storing dcps");
         });
       };
+
+      $scope.$on("fieldHasError", function(event, args) {
+        $scope.fieldHasError(args.value, args.type, args.pattern, args.titleMap);
+      });
 
       $scope.fieldHasError = function(value, type, pattern, titleMap) {
         var error = false;
@@ -1277,53 +1262,63 @@ define([], function() {
         return error;
       };
 
-      $scope.validateFieldEdition = function(value, type, index, key) {
-        if($scope.fieldHasError(value, type, $scope.dcpsObject[index][key + '_pattern'], $scope.dcpsObject[index][key + '_titleMap']))
+      $scope.isAliasValid = function(value, dcpsObject) {
+        for(key in dcpsObject) {
+          if(dcpsObject.hasOwnProperty(key)) {
+            if(dcpsObject[key].alias == value)
+              return false;
+          }
+        }
+
+        return true;
+      };
+
+      $scope.validateFieldEdition = function(value, type, alias, key) {
+        if($scope.fieldHasError(value, type, $scope.dcpsObject[alias][key + '_pattern'], $scope.dcpsObject[alias][key + '_titleMap']))
           return "Invalid value";
         else
           return null;
       };
 
       $scope.addDcp = function() {
-        if (isValidParametersForm($scope.forms.parametersForm)) {
+        if(isValidParametersForm($scope.forms.parametersForm)) {
           var data = Object.assign({}, $scope.model);
-          data._id = UniqueNumber();
-          var currentIndex = $scope.dcpsCurrentIndex.value++;
+          if($scope.isAliasValid(data.alias, $scope.dcpsObject)) {
+            data._id = UniqueNumber();
+            var alias = data.alias;
 
-          for(var j = 0, fieldsLength = $scope.dataSeries.semantics.metadata.form.length; j < fieldsLength; j++) {
-            var key = $scope.dataSeries.semantics.metadata.form[j].key;
-            var type = $scope.dataSeries.semantics.metadata.form[j].schema.type;
-            data[key + '_pattern'] = $scope.dataSeries.semantics.metadata.form[j].schema.pattern;
-            data[key + '_titleMap'] = $scope.dataSeries.semantics.metadata.form[j].titleMap;
+            for(var j = 0, fieldsLength = $scope.dataSeries.semantics.metadata.form.length; j < fieldsLength; j++) {
+              var key = $scope.dataSeries.semantics.metadata.form[j].key;
+              var type = $scope.dataSeries.semantics.metadata.form[j].schema.type;
+              data[key + '_pattern'] = $scope.dataSeries.semantics.metadata.form[j].schema.pattern;
+              data[key + '_titleMap'] = $scope.dataSeries.semantics.metadata.form[j].titleMap;
 
-            if(data[key + '_titleMap'] !== undefined)
-              type = $scope.dataSeries.semantics.metadata.form[j].type;
+              if(data[key + '_titleMap'] !== undefined)
+                type = $scope.dataSeries.semantics.metadata.form[j].type;
 
-            if($scope.isBoolean(data[key])) {
-              data[key + '_html'] = "<span class=\"dcps-table-span\"><input type=\"checkbox\" ng-model=\"dcpsObject['" + currentIndex.toString() + "']['" + key + "']\"></span>";
-            } else {
-              data[key + '_html'] = "<span class=\"dcps-table-span\" editable-text=\"dcpsObject['" + currentIndex.toString() + "']['" + key + "']\" onbeforesave=\"validateFieldEdition($data, '" + type + "', " + currentIndex + ", '" + key + "')\">{{ dcpsObject['" + currentIndex.toString() + "']['" + key + "'] }}</span>";
+              if($scope.isBoolean(data[key])) {
+                data[key + '_html'] = "<span class=\"dcps-table-span\"><input type=\"checkbox\" ng-model=\"dcpsObject['" + alias + "']['" + key + "']\"></span>";
+              } else {
+                data[key + '_html'] = "<span class=\"dcps-table-span\" editable-text=\"dcpsObject['" + alias + "']['" + key + "']\" onbeforesave=\"validateFieldEdition($data, '" + type + "', '" + alias + "', '" + key + "')\">{{ dcpsObject['" + alias + "']['" + key + "'] }}</span>";
+              }
             }
+
+            $scope.dcpsObject[alias] = Object.assign({}, data);
+            $scope.$broadcast("dcpOperation", { action: "add", dcp: data, storageData: true });
+            $scope.model = {active: true};
+
+            var dcpCopy = Object.assign({}, data);
+            dcpCopy.removeButton = "<button class=\"btn btn-danger removeDcpBtn\" ng-click=\"removePcd('" + dcpCopy.alias + "')\" style=\"height: 21px; padding: 1px 4px 1px 4px; font-size: 13px;\">" + i18n.__("Remove") + "</button>";
+
+            $scope.storageDcps([dcpCopy]);
+
+            // reset form to do not display feedback class
+            $scope.forms.parametersForm.$setPristine();
+
+            reloadData();
+          } else {
+            MessageBoxService.danger(i18n.__("Field error"), i18n.__("The Alias has to be unique"));
           }
-
-          data.viewId = currentIndex;
-
-          $scope.dcps.push(Object.assign({}, data));
-          $scope.dcpsObject[currentIndex] = Object.assign({}, data);
-          $scope.$broadcast("dcpOperation", { action: "add", dcp: data, storageData: true });
-          $scope.model = {active: true};
-
-          var dcpCopy = Object.assign({}, data);
-          dcpCopy.removeButton = "<button class=\"btn btn-danger removeDcpBtn\" ng-click=\"removePcdById(" + dcpCopy.viewId + ")\" style=\"height: 21px; padding: 1px 4px 1px 4px; font-size: 13px;\">" + i18n.__("Remove") + "</button>";
-
-          $scope.storageDcps([dcpCopy]);
-
-          //$scope.$broadcast("dcpOperation", { action: "add", dcp: data, storageData: true });
-
-          // reset form to do not display feedback class
-          $scope.forms.parametersForm.$setPristine();
-
-          reloadData();
         }
       };
 
@@ -1447,7 +1442,7 @@ define([], function() {
         var _makeFormat = function(dSetObject) {
           var format_ = {};
           for(var key in dSetObject) {
-            if(dSetObject.hasOwnProperty(key) && key.toLowerCase() !== "id" && key.substr(key.length - 5) != "_html" && key != "viewId")
+            if(dSetObject.hasOwnProperty(key) && key.toLowerCase() !== "id" && key.substr(key.length - 5) != "_html" && key.substr(key.length - 5) != "_pattern" && key.substr(key.length - 5) != "_titleMap")
               format_[key] = dSetObject[key];
               if(key.startsWith("output_")) {
                 format_[key.replace("output_", "")] = dSetObject[key];
@@ -1547,22 +1542,22 @@ define([], function() {
 
         switch(semantics.data_series_type_name) {
           case "DCP":
-            $scope.dcps.forEach(function(dcp) {
+            for(var dcpKey in $scope.dcpsObject) {
               var format = {};
-              for(var key in dcp) {
-                if(dcp.hasOwnProperty(key) && key.substr(key.length - 5) != "_html" && key != "viewId")
+              for(var key in $scope.dcpsObject[dcpKey]) {
+                if($scope.dcpsObject[dcpKey].hasOwnProperty(key) && key.substr(key.length - 5) != "_html" && key.substr(key.length - 5) != "_pattern" && key.substr(key.length - 5) != "_titleMap")
                   if(key !== "latitude" && key !== "longitude" && key !== "active")
-                    format[key] = dcp[key];
+                    format[key] = $scope.dcpsObject[dcpKey][key];
               }
               angular.merge(format, semantics.metadata.metadata);
               var dataSetStructure = {
-                active: dcp.active,//$scope.dataSeries.active,
+                active: $scope.dcpsObject[dcpKey].active,//$scope.dataSeries.active,
                 format: format,
-                position: GeoLibs.point.build({x: dcp.longitude, y: dcp.latitude, srid: dcp.projection})
+                position: GeoLibs.point.build({x: $scope.dcpsObject[dcpKey].longitude, y: $scope.dcpsObject[dcpKey].latitude, srid: $scope.dcpsObject[dcpKey].projection})
               };
 
               dataToSend.dataSets.push(dataSetStructure);
-            });
+            }
 
             break;
           case "OCCURRENCE":
@@ -1626,7 +1621,7 @@ define([], function() {
         $scope.extraProperties = {};
         $scope.$broadcast('formFieldValidation');
 
-        if ($scope.isWizard) {
+        if($scope.isWizard) {
           isWizardStepValid();
         }
 
@@ -1635,15 +1630,15 @@ define([], function() {
           return;
         }
         // checking parameters form (semantics) is invalid
-        if ($scope.dcps.length === 0 && !isValidParametersForm($scope.forms.parametersForm)) {
+        if($scope.countObjectProperties($scope.dcpsObject) === 0 && !isValidParametersForm($scope.forms.parametersForm)) {
           MessageBoxService.danger("Data Registration", "There are invalid fields on form");
           return;
         }
 
-        if ($scope.isDynamic) {
-          if (angular.element('form[name="scheduleForm"]').scope()){ 
+        if($scope.isDynamic) {
+          if(angular.element('form[name="scheduleForm"]').scope()){ 
             var scheduleForm = angular.element('form[name="scheduleForm"]').scope()['scheduleForm'];
-            if (scheduleForm.$invalid) {
+            if(scheduleForm.$invalid) {
               MessageBoxService.danger("Data Registration", "There are invalid fields on form");
               return;
             }

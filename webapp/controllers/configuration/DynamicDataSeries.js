@@ -81,26 +81,22 @@ module.exports = function(app) {
       var key = request.body.key;
       var dcps = request.body.dcps;
 
-      if(storedDcps[key] !== undefined) {
+      if(storedDcps[key] !== undefined)
         storedDcps[key] = storedDcps[key].concat(dcps);
-      } else {
+      else
         storedDcps[key] = dcps;
-      }
 
       response.json(storedDcps[key]);
     },
 
     storeDcpsStore: function(request, response) {
       var key = request.body.key;
-      var dcps = request.body.dcps.sort(function(a, b) {
-        return a["viewId"] - b["viewId"];
-      });
+      var dcps = request.body.dcps;
 
-      if(storedDcpsStore[key] !== undefined) {
+      if(storedDcpsStore[key] !== undefined)
         storedDcpsStore[key] = storedDcpsStore[key].concat(dcps);
-      } else {
+      else
         storedDcpsStore[key] = dcps;
-      }
 
       response.json(storedDcpsStore[key]);
     },
@@ -132,7 +128,7 @@ module.exports = function(app) {
 
       if(storedDcps[key] != undefined) {
         for(var i = 0, dcpsLength = storedDcps[key].length; i < dcpsLength; i++) {
-          if(storedDcps[key][i].viewId == request.body.id) {
+          if(storedDcps[key][i].alias == request.body.alias) {
             storedDcps[key].splice(i, 1);
             break;
           }
@@ -147,7 +143,7 @@ module.exports = function(app) {
 
       if(storedDcpsStore[key] != undefined) {
         for(var i = 0, dcpsLength = storedDcpsStore[key].length; i < dcpsLength; i++) {
-          if(storedDcpsStore[key][i].viewId == request.body.id) {
+          if(storedDcpsStore[key][i].alias == request.body.alias) {
             storedDcpsStore[key].splice(i, 1);
             break;
           }
