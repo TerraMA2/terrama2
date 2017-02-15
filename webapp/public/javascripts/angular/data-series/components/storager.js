@@ -322,10 +322,10 @@ define([], function(){
 
           var schedule = collector.schedule;
           if (schedule && (schedule.frequency_unit || schedule.schedule_unit)){
-            self.schedule.scheduleType = '1';
+            self.schedule.scheduleType = globals.enums.ScheduleType.SCHEDULE;
           }
           else {
-            self.schedule.scheduleType = '3';
+            self.schedule.scheduleType = globals.enums.ScheduleType.MANUAL;
           }
 
           $timeout(function() {

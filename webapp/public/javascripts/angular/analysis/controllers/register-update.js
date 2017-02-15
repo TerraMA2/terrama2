@@ -264,12 +264,12 @@ define([], function() {
 
           // checking schedule type
           if (historicalData && (historicalData.startDate || historicalData.endDate)){
-            self.schedule.scheduleType = "2";
+            self.schedule.scheduleType = Globals.enums.ScheduleType.REPROCESSING_HISTORICAL;
           }
           else if (analysisInstance.schedule && (analysisInstance.schedule.frequency_unit || analysisInstance.schedule.schedule_unit)){
-            self.schedule.scheduleType = "1";
+            self.schedule.scheduleType = Globals.enums.ScheduleType.SCHEDULE;
           } else {
-            self.schedule.scheduleType = "3";
+            self.schedule.scheduleType = Globals.enums.ScheduleType.MANUAL;
           }
 
           if (historicalData.startDate) {

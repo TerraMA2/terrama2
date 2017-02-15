@@ -16,6 +16,13 @@ define([], function() {
      * @type {Object}
      */
     var config = window.configuration;
+
+    /**
+     * It retrieves Global variables from main window.
+     * 
+     * @type {Object}
+     */
+    var Globals = $window.globals;
     /**
      * It handles alert box display
      * 
@@ -202,9 +209,9 @@ define([], function() {
             if (self.isUpdating) {
               self.schedule = {};
               if (self.view.schedule && (self.view.schedule.frequency_unit || self.view.schedule.schedule_unit)){
-                self.view.schedule.scheduleType = "1";
+                self.view.schedule.scheduleType = Globals.enums.ScheduleType.SCHEDULE;
               } else {
-                self.view.schedule.scheduleType = "3";
+                self.view.schedule.scheduleType = Globals.enums.ScheduleType.MANUAL;
               }
               $scope.$broadcast("updateSchedule", self.view.schedule || {});
             } else {
