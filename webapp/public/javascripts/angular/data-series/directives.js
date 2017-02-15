@@ -243,7 +243,7 @@ define(["TerraMA2WebApp/common/services/index", "TerraMA2WebApp/alert-box/app"],
                   type = $scope.dataSeries.semantics.metadata.form[j].type;
                 }
 
-                if(fieldHasError(value, type, pattern, titleMap)) {
+                if($scope.fieldHasError(value, type, pattern, titleMap)) {
                   MessageBoxService.danger(
                     i18n.__("DCP importation error"),
                     i18n.__("Invalid value for the field") + " '" + i18n.__(title) + "' " + i18n.__("in the line") + " " + (i + (data.hasHeader ? 2 : 1))
@@ -279,39 +279,6 @@ define(["TerraMA2WebApp/common/services/index", "TerraMA2WebApp/alert-box/app"],
             $scope.forms.parametersForm.$setPristine();
             $scope.isChecking = false;
             MessageBoxService.success(i18n.__("DCP importation"), i18n.__("Importation executed with success"));
-          };
-
-          var fieldHasError = function(value, type, pattern, titleMap) {
-            var error = false;
-
-            switch(type) {
-              case "number":
-                error = isNaN(value);
-                break;
-              case "boolean":
-                error = (typeof value !== "boolean") && value !== "true" && value !== "false";
-                break;
-              case "select":
-                error = true;
-
-                for(var i = 0, titleMapLength = titleMap.length; i < titleMapLength; i++) {
-                  if(titleMap[i].value === value) {
-                    error = false;
-                    break;
-                  }
-                }
-
-                break;
-              default:
-                error = false;
-            }
-
-            if(!error && pattern !== undefined) {
-              var regex = new RegExp(pattern);
-              var error = !regex.test(value);
-            }
-
-            return error;
           };
         }]
       };

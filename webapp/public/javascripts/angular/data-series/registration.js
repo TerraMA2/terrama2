@@ -1244,6 +1244,46 @@ define([], function() {
         });
       };
 
+      $scope.fieldHasError = function(value, type, pattern, titleMap) {
+        var error = false;
+
+        switch(type) {
+          case "number":
+            error = isNaN(value);
+            break;
+          case "boolean":
+            error = (typeof value !== "boolean") && value !== "true" && value !== "false";
+            break;
+          case "select":
+            error = true;
+
+            for(var i = 0, titleMapLength = titleMap.length; i < titleMapLength; i++) {
+              if(titleMap[i].value === value) {
+                error = false;
+                break;
+              }
+            }
+
+            break;
+          default:
+            error = false;
+        }
+
+        if(!error && pattern !== undefined) {
+          var regex = new RegExp(pattern);
+          var error = !regex.test(value);
+        }
+
+        return error;
+      };
+
+      $scope.validateFieldEdition = function(value, type, index, key) {
+        if($scope.fieldHasError(value, type, $scope.dcpsObject[index][key + '_pattern'], $scope.dcpsObject[index][key + '_titleMap']))
+          return "Invalid value";
+        else
+          return null;
+      };
+
       $scope.addDcp = function() {
         if (isValidParametersForm($scope.forms.parametersForm)) {
           var data = Object.assign({}, $scope.model);
@@ -1252,11 +1292,17 @@ define([], function() {
 
           for(var j = 0, fieldsLength = $scope.dataSeries.semantics.metadata.form.length; j < fieldsLength; j++) {
             var key = $scope.dataSeries.semantics.metadata.form[j].key;
+            var type = $scope.dataSeries.semantics.metadata.form[j].schema.type;
+            data[key + '_pattern'] = $scope.dataSeries.semantics.metadata.form[j].schema.pattern;
+            data[key + '_titleMap'] = $scope.dataSeries.semantics.metadata.form[j].titleMap;
+
+            if(data[key + '_titleMap'] !== undefined)
+              type = $scope.dataSeries.semantics.metadata.form[j].type;
 
             if($scope.isBoolean(data[key])) {
               data[key + '_html'] = "<span class=\"dcps-table-span\"><input type=\"checkbox\" ng-model=\"dcpsObject['" + currentIndex.toString() + "']['" + key + "']\"></span>";
             } else {
-              data[key + '_html'] = "<span class=\"dcps-table-span\" editable-text=\"dcpsObject['" + currentIndex.toString() + "']['" + key + "']\">{{ dcpsObject['" + currentIndex.toString() + "']['" + key + "'] }}</span>";
+              data[key + '_html'] = "<span class=\"dcps-table-span\" editable-text=\"dcpsObject['" + currentIndex.toString() + "']['" + key + "']\" onbeforesave=\"validateFieldEdition($data, '" + type + "', " + currentIndex + ", '" + key + "')\">{{ dcpsObject['" + currentIndex.toString() + "']['" + key + "'] }}</span>";
             }
           }
 
