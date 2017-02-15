@@ -278,7 +278,7 @@
               </div>
 
               <div style="display: block;" class="box-body">
-                <terrama2-schedule model="ctrl.schedule" options="ctrl.scheduleOptions"></terrama2-schedule>
+                <terrama2-schedule model="ctrl.schedule" options="ctrl.scheduleOptions" historical="ctrl.analysis.historical"></terrama2-schedule>
               </div>
             </div>
           </div>
@@ -382,18 +382,6 @@
 
         </div><!--./col-md-12-->
       </div><!--./row-->
-    </terrama2-box>
-
-    <terrama2-box title="i18n.__('Reprocessing Historical Data')" css="ctrl.css" ng-show="forms.generalDataForm.type.$valid">
-      <div class="row">
-        <form name="forms.historicalForm" novalidate>
-          <terrama2-filter-datetime-picker before-label="'Start Date'" 
-                                           after-label="'End Date'"
-                                           before-datetime="ctrl.analysis.historical.startDate"
-                                           after-datetime="ctrl.analysis.historical.endDate">
-          </terrama2-filter-datetime-picker>
-        </form>
-      </div>
     </terrama2-box>
 
     <terrama2-box title="i18n.__('Grid configuration')" 

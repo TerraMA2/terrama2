@@ -321,6 +321,12 @@ define([], function(){
           self.storager_data_provider_id = outputDataseries.data_provider_id;
 
           var schedule = collector.schedule;
+          if (schedule && (schedule.frequency_unit || schedule.schedule_unit)){
+            self.schedule.scheduleType = '1';
+          }
+          else {
+            self.schedule.scheduleType = '3';
+          }
 
           $timeout(function() {
             $scope.$broadcast("updateSchedule", schedule);

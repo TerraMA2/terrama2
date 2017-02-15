@@ -623,7 +623,6 @@
         },
         {
           "key": "mask",
-          "type": "terrama2maskform",
           "maskPattern": ["%YYYY", "%YY", "%MM", "%DD", "%hh", "%mm", "%ss"],
           "htmlClass": "col-md-6",
           "validationMessage": {

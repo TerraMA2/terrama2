@@ -201,6 +201,11 @@ define([], function() {
           $timeout(function() {
             if (self.isUpdating) {
               self.schedule = {};
+              if (self.view.schedule && (self.view.schedule.frequency_unit || self.view.schedule.schedule_unit)){
+                self.view.schedule.scheduleType = "1";
+              } else {
+                self.view.schedule.scheduleType = "3";
+              }
               $scope.$broadcast("updateSchedule", self.view.schedule || {});
             } else {
               if (!config.view) {

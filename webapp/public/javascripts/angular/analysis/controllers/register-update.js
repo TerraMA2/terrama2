@@ -56,7 +56,9 @@ define([], function() {
      * 
      * @param {Object}
      */
-    self.scheduleOptions = {};
+    self.scheduleOptions = {
+      showHistoricalOption: true
+    };
     /**
      * It defines a helper messages associated a components. For example, there is no active service... The validate button will be disabled with
      * tooltip "Service X is not active"
@@ -259,6 +261,17 @@ define([], function() {
            * @type {Object}
            */
           var historicalData = analysisInstance.reprocessing_historical_data || {};
+
+          // checking schedule type
+          if (historicalData && (historicalData.startDate || historicalData.endDate)){
+            self.schedule.scheduleType = "2";
+          }
+          else if (analysisInstance.schedule && (analysisInstance.schedule.frequency_unit || analysisInstance.schedule.schedule_unit)){
+            self.schedule.scheduleType = "1";
+          } else {
+            self.schedule.scheduleType = "3";
+          }
+
           if (historicalData.startDate) {
             historicalData.startDate = DateParser(historicalData.startDate);
           }
