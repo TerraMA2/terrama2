@@ -444,7 +444,7 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIn
 
       // Gets the respective row and column for the occurrence coordinate
       double row, col;
-      te::gm::Coord2D coord = te::gm::GetCentroid(currGeom.get());
+      te::gm::Coord2D coord = currGeom->getCentroid();
       double x = coord.getX();
       double y = coord.getY();
 

@@ -609,6 +609,10 @@
           "timezone": {
             "type": "string",
             "title": "Timezone"
+          },
+          "srid": {
+            "type": "number",
+            "title": "Projection (SRID)"
           }
         },
         "required": ["mask", "timezone"]
@@ -661,6 +665,10 @@
             {"name": "11", "value": "11"},
             {"name": "12", "value": "12"}
           ]
+        },
+        {
+          "key": "srid",
+          "htmlClass": "col-md-6"
         }
       ]
     }
@@ -692,7 +700,7 @@
           },
           "srid" : {
             "type": "number",
-            "title": "SRID"
+            "title": "Projection (SRID)"
           },
           "timezone" : {
             "type": "string",
