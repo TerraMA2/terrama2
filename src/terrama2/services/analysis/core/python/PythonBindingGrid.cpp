@@ -517,6 +517,7 @@ void terrama2::services::analysis::core::python::Grid::registerGridZonalForecast
 #pragma GCC diagnostic ignored "-Wunused-local-typedef"
 
 // // Declaration needed for default parameter restriction
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastAccumCount_overloads, terrama2::services::analysis::core::grid::zonal::forecast::accum::count, 2, 3)
 BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastAccumMin_overloads, terrama2::services::analysis::core::grid::zonal::forecast::accum::min, 2, 3)
 BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastAccumMax_overloads, terrama2::services::analysis::core::grid::zonal::forecast::accum::max, 2, 3)
 BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastAccumMean_overloads, terrama2::services::analysis::core::grid::zonal::forecast::accum::mean, 2, 3)
@@ -538,6 +539,9 @@ void terrama2::services::analysis::core::python::Grid::registerGridZonalForecast
   // set the current scope to the new sub-module
   scope gridZonalForecastAccumScope = gridZonalForecastAccumModule;
 
+  def("count", terrama2::services::analysis::core::grid::zonal::forecast::accum::count,
+      gridZonalForecastAccumCount_overloads(args("dataSeriesName",  "discardAfter", "buffer"),
+                                          "Count operator for grid zonal forecast accumulate"));
   def("min", terrama2::services::analysis::core::grid::zonal::forecast::accum::min,
       gridZonalForecastAccumMin_overloads(args("dataSeriesName",  "discardAfter", "buffer"),
                                              "Min operator for grid zonal forecast accumulate"));
