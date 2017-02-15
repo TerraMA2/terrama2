@@ -152,6 +152,12 @@ namespace terrama2
           */
           void validateAnalysisScript(AnalysisPtr analysis, ValidateResult& validateResult);
 
+          /*!
+            \brief Returns the attrubute values as a json object.
+            \param attribute Attribute name.
+          */
+          std::string getAttributeValueAsJson(const std::string &attribute);
+
         } // end namespace python
       }   // end namespace core
     }     // end namespace analysis

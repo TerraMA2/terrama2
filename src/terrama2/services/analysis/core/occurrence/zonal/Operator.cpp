@@ -79,7 +79,11 @@ double terrama2::services::analysis::core::occurrence::zonal::operatorImpl(terra
   catch(const terrama2::Exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
-    return std::nan("");
+
+    if(statisticOperation == StatisticOperation::COUNT)
+      return 0;
+    else
+      return std::nan("");
   }
 
   try
@@ -87,7 +91,10 @@ double terrama2::services::analysis::core::occurrence::zonal::operatorImpl(terra
     // In case an error has already occurred, there is nothing to do.
     if(context->hasError())
     {
-      return std::nan("");
+      if(statisticOperation == StatisticOperation::COUNT)
+        return 0;
+      else
+        return std::nan("");
     }
 
 
@@ -323,7 +330,12 @@ double terrama2::services::analysis::core::occurrence::zonal::operatorImpl(terra
     }
 
     if(exceptionOccurred)
-      return std::nan("");
+    {
+      if(statisticOperation == StatisticOperation::COUNT)
+        return 0;
+      else
+        return std::nan("");
+    }
 
 
     if(!hasData && statisticOperation != StatisticOperation::COUNT)
@@ -336,18 +348,30 @@ double terrama2::services::analysis::core::occurrence::zonal::operatorImpl(terra
   catch(const terrama2::Exception& e)
   {
     context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
-    return std::nan("");
+
+    if(statisticOperation == StatisticOperation::COUNT)
+      return 0;
+    else
+      return std::nan("");
   }
   catch(const std::exception& e)
   {
     context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, e.what());
-    return std::nan("");
+
+    if(statisticOperation == StatisticOperation::COUNT)
+      return 0;
+    else
+      return std::nan("");
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
     context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
-    return std::nan("");
+
+    if(statisticOperation == StatisticOperation::COUNT)
+      return 0;
+    else
+      return std::nan("");
   }
 }
 

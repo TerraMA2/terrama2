@@ -172,14 +172,6 @@ namespace terrama2
             */
             void addDCPBuffer(const DataSetId datasetId, std::shared_ptr<te::gm::Geometry> buffer, const terrama2::core::Filter& filter);
 
-            /*!
-              \brief Returns a time instant object from the date filter using as base date the start date set in the context.
-
-              \param dateFilter The date restriction to be used in the DataSet.
-              \return The time instant object created from date filter.
-
-            */
-            std::unique_ptr<te::dt::TimeInstantTZ> getTimeInstantFromDateFilter(const std::string& dateFilter) const;
 
           protected:
             std::set<std::string> attributes_;
