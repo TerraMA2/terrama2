@@ -223,9 +223,15 @@ std::string terrama2::core::DataAccessorPostGIS::addLastValueFilter(terrama2::co
     std::string maxSelect = "SELECT ";
     maxSelect += "MAX(" + datetimeColumnName + ") ";
     maxSelect += "FROM " + getDataSetTableName(dataSet)+" ";
-    maxSelect += "WHERE " + whereCondition;
+    if(!whereCondition.empty())
+      maxSelect += "WHERE " + whereCondition;
 
-    return datetimeColumnName + " = ("+maxSelect+") AND "+whereCondition;
+    std::string filterStr = datetimeColumnName + " = ("+maxSelect+")";
+
+    if(!whereCondition.empty())
+      filterStr += " AND " + whereCondition;
+
+    return filterStr;
   }
 
   return whereCondition;
