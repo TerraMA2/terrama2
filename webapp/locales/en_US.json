@@ -638,5 +638,14 @@
 	"Value is required": "Value is required",
 	"Value must be a number": "Value must be a number",
 	"Value must be unique": "Value must be unique",
-	"Files can be overwritten": "Files can be overwritten"
+	"Files can be overwritten": "Files can be overwritten",
+	"Manual": "Manual",
+	"Time Unit": "Time Unit",
+	"Time unit is required": "Time unit is required",
+	"RAMP": "RAMP",
+	"Dummy Value": "Dummy Value",
+	"Band Number": "Band Number",
+	"Band number is required": "Band number is required",
+	"Service not active": "Service not active",
+	"Generic Format for CSV files": "Generic Format for CSV files"
 }
