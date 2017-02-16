@@ -59,7 +59,7 @@ namespace terrama2
 
         \note Doesn't check if the SRID actualy exists.
       */
-      void srid(int srid_);
+      void srid(int srid_, bool log = true);
 
       /*!
         \brief Verifies if the date and the timezone are valid.

@@ -85,11 +85,13 @@ void IntRasterTs::CollectAndCropRaster()
 
   QTimer timer;
   QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-  timer.start(10000);
+  timer.start(100000);
   QCoreApplication::exec();
 
   QDir testOutput(QString::fromStdString(TERRAMA2_DATA_DIR+"/hidroestimador_crop"));
   auto fileList = testOutput.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
+
+  QVERIFY2(12 == fileList.size(), "Wrong number of collected files.");
   for(const auto& fileInfo : fileList )
   {
     QFile output(fileInfo.absoluteFilePath());
