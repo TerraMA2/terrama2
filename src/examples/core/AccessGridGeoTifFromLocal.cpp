@@ -5,7 +5,7 @@
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSetGrid.hpp>
-#include <terrama2/impl/DataAccessorGDal.hpp>
+#include <terrama2/impl/DataAccessorGDAL.hpp>
 #include <terrama2/core/data-access/GridSeries.hpp>
 #include <terrama2/core/utility/SemanticsManager.hpp>
 
@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
     //empty filter
     terrama2::core::Filter filter;
     //accessing data
-    terrama2::core::DataAccessorGDal accessor(dataProviderPtr, dataSeriesPtr);
+    terrama2::core::DataAccessorGDAL accessor(dataProviderPtr, dataSeriesPtr);
     auto remover = std::make_shared<terrama2::core::FileRemover>();
     terrama2::core::GridSeriesPtr gridSeries = accessor.getGridSeries(filter, remover);
 

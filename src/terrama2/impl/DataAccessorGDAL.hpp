@@ -20,18 +20,20 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataAccessorStaticGDal.hpp
+  \file terrama2/core/data-access/DataAccessorGDAL.hpp
 
   \brief
 
   \author Jano Simas
  */
 
-#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_STATIC_GDAL_HPP__
-#define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_STATIC_GDAL_HPP__
+#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_GDAL_HPP__
+#define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_GDAL_HPP__
 
 //TerraMA2
-#include "DataAccessorGDal.hpp"
+#include "DataAccessorFile.hpp"
+#include "../core/Shared.hpp"
+#include "../core/data-access/DataAccessorGrid.hpp"
 
 namespace terrama2
 {
@@ -42,36 +44,40 @@ namespace terrama2
       \brief DataAccessor for GRID DataSeries in GeoTiff format.
 
     */
-    class DataAccessorStaticGDal : public DataAccessorGDal
+    class DataAccessorGDAL : public DataAccessorGrid, public DataAccessorFile
     {
     public:
 
-      DataAccessorStaticGDal(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true);
+      DataAccessorGDAL(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true);
       //! Default destructor.
-      virtual ~DataAccessorStaticGDal() = default;
+      virtual ~DataAccessorGDAL() = default;
       //! Default copy constructor
-      DataAccessorStaticGDal(const DataAccessorStaticGDal& other) = default;
+      DataAccessorGDAL(const DataAccessorGDAL& other) = default;
       //! Default move constructor
-      DataAccessorStaticGDal(DataAccessorStaticGDal&& other) = default;
+      DataAccessorGDAL(DataAccessorGDAL&& other) = default;
       //! Default const assignment operator
-      DataAccessorStaticGDal& operator=(const DataAccessorStaticGDal& other) = default;
+      DataAccessorGDAL& operator=(const DataAccessorGDAL& other) = default;
       //! Default assignment operator
-      DataAccessorStaticGDal& operator=(DataAccessorStaticGDal&& other) = default;
+      DataAccessorGDAL& operator=(DataAccessorGDAL&& other) = default;
 
       inline static DataAccessorPtr make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries)
       {
-        return std::make_shared<DataAccessorStaticGDal>(dataProvider, dataSeries);
+        return std::make_shared<DataAccessorGDAL>(dataProvider, dataSeries);
       }
-
-      static DataAccessorType dataAccessorType(){ return "GRID-static_gdal"; }
+      static DataAccessorType dataAccessorType(){ return "GRID-gdal"; }
 
       virtual std::shared_ptr<te::mem::DataSet> createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const override;
 
-      // Override function to avoid missing timezone warning, this is not used for static data
-      virtual std::string getTimeZone(DataSetPtr /*dataSet*/, bool /*logErrors*/) const override { return "UTC+00"; };
-      virtual bool isValidTimestamp(std::shared_ptr<te::mem::DataSet> /*dataSet*/, const Filter& /*filter*/, size_t /*dateColumn*/) const override {return true;}
+      virtual void addToCompleteDataSet(DataSetPtr dataSet,
+                                        std::shared_ptr<te::mem::DataSet> completeDataSet,
+                                        std::shared_ptr<te::da::DataSet> teDataSet,
+                                        std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp,
+                                        const std::string& filename) const override;
+
+    protected:
+      virtual std::string dataSourceType() const override;
     };
   }
 }
 
-#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_STATIC_GDAL_HPP__
+#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_GDAL_HPP__

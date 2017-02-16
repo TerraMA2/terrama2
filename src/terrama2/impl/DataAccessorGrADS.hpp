@@ -32,7 +32,7 @@
 
 //TerraMA2
 #include <QtCore/QString>
-#include "DataAccessorGDal.hpp"
+#include "DataAccessorGDAL.hpp"
 #include "../core/Shared.hpp"
 #include "../core/data-access/DataAccessorGrid.hpp"
 
@@ -139,7 +139,7 @@ namespace terrama2
     /*!
       \brief DataAccessor for GRID DataSeries in GrADS format.
     */
-    class DataAccessorGrADS : public DataAccessorGDal
+    class DataAccessorGrADS : public DataAccessorGDAL
     {
       public:
 

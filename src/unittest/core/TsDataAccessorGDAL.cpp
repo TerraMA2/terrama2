@@ -16,8 +16,8 @@
 */
 
 /*!
-  \file terrama2/unittest/core/TsDataAccessorGDal.cpp
-  \brief Tests for Class DataAccessorGDal
+  \file terrama2/unittest/core/TsDataAccessorGDAL.cpp
+  \brief Tests for Class DataAccessorGDAL
   \author Evandro Delatin
 */
 
@@ -28,14 +28,14 @@
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSetGrid.hpp>
-#include <terrama2/impl/DataAccessorGDal.hpp>
+#include <terrama2/impl/DataAccessorGDAL.hpp>
 #include <terrama2/core/data-access/GridSeries.hpp>
-#include <terrama2/impl/DataAccessorGDal.hpp>
+#include <terrama2/impl/DataAccessorGDAL.hpp>
 #include <terrama2/Config.hpp>
 #include <terrama2/core/Exception.hpp>
 #include <terrama2/core/utility/DataRetrieverFactory.hpp>
 
-#include "TsDataAccessorGDal.hpp"
+#include "TsDataAccessorGDAL.hpp"
 #include "MockDataRetriever.hpp"
 #include "Utils.hpp"
 
@@ -55,12 +55,12 @@ using ::testing::_;
 
 //FIXME: using a real dir, can be improved using some mock access
 
-void TsDataAccessorGDal::TestFailAddNullDataAccessorGDal()
+void TsDataAccessorGDAL::TestFailAddNullDataAccessorGDAL()
 {
   try
   {
     //accessing data
-    terrama2::core::DataAccessorGDal accessor(nullptr, nullptr);
+    terrama2::core::DataAccessorGDAL accessor(nullptr, nullptr);
 
     QFAIL("Exception expected!");
   }
@@ -75,7 +75,7 @@ void TsDataAccessorGDal::TestFailAddNullDataAccessorGDal()
   return;
 }
 
-void TsDataAccessorGDal::TestFailDataProviderNull()
+void TsDataAccessorGDAL::TestFailDataProviderNull()
 {
   try
   {
@@ -84,7 +84,7 @@ void TsDataAccessorGDal::TestFailDataProviderNull()
     terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
 
     //accessing data
-    terrama2::core::DataAccessorGDal accessor(nullptr, dataSeriesPtr);
+    terrama2::core::DataAccessorGDAL accessor(nullptr, dataSeriesPtr);
 
     QFAIL("Exception expected!");
   }
@@ -99,7 +99,7 @@ void TsDataAccessorGDal::TestFailDataProviderNull()
   return;
 }
 
-void TsDataAccessorGDal::TestFailDataSeriesNull()
+void TsDataAccessorGDAL::TestFailDataSeriesNull()
 {
   try
   {
@@ -108,7 +108,7 @@ void TsDataAccessorGDal::TestFailDataSeriesNull()
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
 
     //accessing data
-    terrama2::core::DataAccessorGDal accessor(dataProviderPtr, nullptr);
+    terrama2::core::DataAccessorGDAL accessor(dataProviderPtr, nullptr);
 
     QFAIL("Exception expected!");
   }
@@ -123,7 +123,7 @@ void TsDataAccessorGDal::TestFailDataSeriesNull()
   return;
 }
 
-void TsDataAccessorGDal::TestFailDataSeriesSemanticsInvalid()
+void TsDataAccessorGDAL::TestFailDataSeriesSemanticsInvalid()
 {
   try
   {
@@ -149,7 +149,7 @@ void TsDataAccessorGDal::TestFailDataSeriesSemanticsInvalid()
   }
 }
 
-void TsDataAccessorGDal::TestFailDataRetrieverInvalid()
+void TsDataAccessorGDAL::TestFailDataRetrieverInvalid()
 {
   try
   {
@@ -181,7 +181,7 @@ void TsDataAccessorGDal::TestFailDataRetrieverInvalid()
     exceptionMock << terrama2::ErrorDescription(errMsg);
 
     //accessing data
-    terrama2::core::DataAccessorGDal accessor(dataProviderPtr, dataSeriesPtr);
+    terrama2::core::DataAccessorGDAL accessor(dataProviderPtr, dataSeriesPtr);
 
     auto mock_ = std::make_shared<MockDataRetriever>(dataProviderPtr);
 
@@ -208,7 +208,7 @@ void TsDataAccessorGDal::TestFailDataRetrieverInvalid()
   }
 }
 
-void TsDataAccessorGDal::TestOK()
+void TsDataAccessorGDAL::TestOK()
 {
   try
   {
@@ -235,7 +235,7 @@ void TsDataAccessorGDal::TestOK()
     //empty filter
     terrama2::core::Filter filter;
     //accessing data
-    terrama2::core::DataAccessorGDal accessor(dataProviderPtr, dataSeriesPtr);
+    terrama2::core::DataAccessorGDAL accessor(dataProviderPtr, dataSeriesPtr);
     auto remover = std::make_shared<terrama2::core::FileRemover>();
     terrama2::core::GridSeriesPtr gridSeries = accessor.getGridSeries(filter, remover);
 

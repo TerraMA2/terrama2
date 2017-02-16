@@ -49,7 +49,7 @@
 #include "TsDataAccessorTxtFile.hpp"
 #include "TsDataAccessorDcpInpe.hpp"
 #include "TsDataAccessorDcpToa5.hpp"
-#include "TsDataAccessorGDal.hpp"
+#include "TsDataAccessorGDAL.hpp"
 #include "TsDataAccessorOccurrenceWfp.hpp"
 
 int main(int argc, char** argv)
@@ -127,8 +127,8 @@ int main(int argc, char** argv)
 
     try
     {
-      TsDataAccessorGDal testDataAccessorGDal;
-      ret += QTest::qExec(&testDataAccessorGDal, argc, argv);
+      TsDataAccessorGDAL testDataAccessorGDAL;
+      ret += QTest::qExec(&testDataAccessorGDAL, argc, argv);
     }
     catch(...)
     {

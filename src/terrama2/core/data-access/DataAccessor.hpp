@@ -187,7 +187,7 @@ namespace terrama2
            \brief Prefix specification for drivers.
 
            Some drivers may need specification to access a datasource,
-           GDal, for example, need 'CSV:' before the uri for csv files with //txt// extension.
+           GDAL, for example, need 'CSV:' before the uri for csv files with //txt// extension.
 
          */
         virtual std::string typePrefix() const { return ""; }
