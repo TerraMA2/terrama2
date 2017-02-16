@@ -186,7 +186,7 @@
   },
   {
     "id": 6,
-    "name": "Static GDal grid",
+    "name": "Static GDAL grid",
     "code": "GRID-static_gdal",
     "type": "GRID",
     "temporality": "STATIC",
@@ -584,7 +584,7 @@
   },
   {
     "id": 11,
-    "name": "GDal raster",
+    "name": "GDAL raster",
     "code": "GRID-gdal",
     "type": "GRID",
     "temporality": "DYNAMIC",

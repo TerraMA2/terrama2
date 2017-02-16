@@ -208,7 +208,7 @@ var DataManager = module.exports = {
         inserts.push(self.addDataFormat({name: DataSeriesType.GRID, description: "Grid Description"}));
         inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.POSTGIS, description: "POSTGIS description"}));
         inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.OGR, description: "Gdal ogr"}));
-        inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.GDAL, description: "GDal"}));
+        inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.GDAL, description: "GDAL"}));
         inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.GRADS, description: "GRADS"}));
 
         // analysis type
