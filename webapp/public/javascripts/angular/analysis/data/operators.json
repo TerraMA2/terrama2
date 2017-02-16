@@ -44,6 +44,12 @@
         "code": "add_value(\"<attribute_name>\", <value>)"
       },
       {
+        "name": "Get value",
+        "type": "GEOMETRIC_OBJECT",
+        "description": "It returns the value of the given attribute for the current monitored object",
+        "code": "get_value(\"<attribute_name>\")"
+      },
+      {
         "name": "Distance units",
         "children": [
           {
