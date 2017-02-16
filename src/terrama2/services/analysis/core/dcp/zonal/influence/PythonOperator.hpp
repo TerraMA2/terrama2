@@ -27,8 +27,8 @@
   \author Paulo R. M. Oliveira
 */
 
-#include "../../BufferMemory.hpp"
-#include "../../../../../core/Typedef.hpp"
+#include "../../../BufferMemory.hpp"
+#include "../../../../../../core/Typedef.hpp"
 
 #include <vector>
 #include <string>
@@ -56,13 +56,13 @@ namespace terrama2
               {
 
                 /*
-               \brief Python wrapper for influence by attribute operator
-               */
+                 \brief Python wrapper for influence by attribute operator
+                 */
                 boost::python::list byAttribute(const std::string& dataSeriesName, boost::python::list attributeList);
 
                 /*
-               \brief Python wrapper for influence by rule operator
-               */
+                 \brief Python wrapper for influence by rule operator
+                 */
                 boost::python::list byRule(const std::string& dataSeriesName, const terrama2::services::analysis::core::Buffer& buffer = terrama2::services::analysis::core::Buffer());
 
               } // end namespace python

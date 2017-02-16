@@ -54,6 +54,11 @@ namespace terrama2
             void registerOccurrenceFunctions();
 
             /*!
+              \brief Registers occurrence functions using a time interval in the Python interpreter.
+            */
+            void registerOccurrenceIntervalFunctions();
+
+            /*!
               \brief Registers occurrence aggregation functions in the Python interpreter.
             */
             void registerOccurrenceAggregationFunctions();

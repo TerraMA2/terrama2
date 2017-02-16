@@ -46,6 +46,7 @@
 #include "TsProcessLogger.hpp"
 #include "TsDataRetrieverFTP.hpp"
 #include "TsDataAccessorFile.hpp"
+#include "TsDataAccessorTxtFile.hpp"
 #include "TsDataAccessorDcpInpe.hpp"
 #include "TsDataAccessorDcpToa5.hpp"
 #include "TsDataAccessorGeoTiff.hpp"
@@ -88,6 +89,16 @@ int main(int argc, char** argv)
     {
       TsDataAccessorFile testDataAccessorFile;
       ret += QTest::qExec(&testDataAccessorFile, argc, argv);
+    }
+    catch(...)
+    {
+
+    }
+
+    try
+    {
+      TsDataAccessorTxtFile testDataAccessorTxtFile;
+      ret += QTest::qExec(&testDataAccessorTxtFile, argc, argv);
     }
     catch(...)
     {
@@ -143,7 +154,6 @@ int main(int argc, char** argv)
     {
 
     }
-
 
   }
   catch (const terrama2::Exception& e)

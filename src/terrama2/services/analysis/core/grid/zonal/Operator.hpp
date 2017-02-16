@@ -84,7 +84,7 @@ namespace terrama2
 
               \param dataSeriesName DataSeries name.
 
-              \return A double value with the result.
+              \return A int value with the result.
             */
             double count(const std::string& dataSeriesName, const size_t band = 0, terrama2::services::analysis::core::Buffer buffer = Buffer());
 

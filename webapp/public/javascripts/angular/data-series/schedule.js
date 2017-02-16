@@ -11,7 +11,8 @@ angular.module(moduleName, [])
       templateUrl: '/javascripts/angular/data-series/templates/schedule.html',
       scope: {
         model: '=model',
-        options: '=?options'
+        options: '=?options',
+        historical: '=?historical'
       },
       controller: ['$scope', 'i18n', function($scope, i18n) {
         $scope.i18n = i18n;
@@ -75,6 +76,15 @@ angular.module(moduleName, [])
 
           $scope.onScheduleChange($scope.model.scheduleHandler);
         });
+
+        $scope.onScheduleTypeChange = function(){
+          $scope.onScheduleChange("");
+          if ($scope.historical){
+            $scope.historical.startDate = null;
+            $scope.historical.endDate = null;
+          }
+          $scope.model.scheduleHandler = "";
+        }
 
         $scope.onScheduleChange = function(value) {
           var resetHelper = function(i) {

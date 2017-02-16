@@ -69,6 +69,13 @@ double terrama2::core::SynchronizedDataSet::getDouble(std::size_t row, std::size
   return dataset_->getDouble(columnIndex);
 }
 
+float terrama2::core::SynchronizedDataSet::getFloat(std::size_t row, std::size_t columnIndex) const
+{
+  std::lock_guard<std::mutex> lock(mutex_);
+  dataset_->move(row);
+  return dataset_->getFloat(columnIndex);
+}
+
 bool terrama2::core::SynchronizedDataSet::getBool(std::size_t row, std::size_t columnIndex) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
@@ -143,6 +150,14 @@ double terrama2::core::SynchronizedDataSet::getDouble(std::size_t row, std::stri
   return dataset_->getDouble(columnName);
 }
 
+float terrama2::core::SynchronizedDataSet::getFloat(std::size_t row, std::string columnName) const
+{
+  std::lock_guard<std::mutex> lock(mutex_);
+  dataset_->move(row);
+  return dataset_->getFloat(columnName);
+}
+
+
 bool terrama2::core::SynchronizedDataSet::getBool(std::size_t row, std::string columnName) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
@@ -172,7 +187,6 @@ int64_t terrama2::core::SynchronizedDataSet::getInt64(std::size_t row, std::stri
   dataset_->move(row);
   return dataset_->getInt64(columnName);
 }
-
 
 bool terrama2::core::SynchronizedDataSet::isNull(std::size_t row, std::string columnName) const
 {
@@ -235,13 +249,3 @@ std::shared_ptr<te::dt::AbstractData> terrama2::core::SynchronizedDataSet::getVa
   dataset_->move(row);
   return std::shared_ptr<te::dt::AbstractData>(dataset_->getValue(name));
 }
-
-
-
-
-
-
-
-
-
-

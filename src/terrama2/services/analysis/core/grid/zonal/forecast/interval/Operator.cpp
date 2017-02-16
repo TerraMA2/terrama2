@@ -20,9 +20,9 @@
 */
 
 /*!
-  \file terrama2/services/analysis/core/grid/zonal/forecast/Operator.cpp
+  \file terrama2/services/analysis/core/grid/zonal/forecast/interval/Operator.cpp
 
-  \brief Contains grid zonal analysis operators.
+  \brief Contains grid zonal forecast analysis operators using time interval.
 
   \author Jano Simas
 */

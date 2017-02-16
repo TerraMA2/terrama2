@@ -52,7 +52,8 @@
       ResolutionType: {[ Enums.ResolutionType|json|safe ]},
       InterestAreaType: {[ Enums.InterestAreaType|json|safe ]},
       DataSeriesFormat: {[ Enums.DataSeriesFormat|json|safe ]},
-      DataProviderType: {[ Enums.DataProviderType|json|safe ]}
+      DataProviderType: {[ Enums.DataProviderType|json|safe ]},
+      ScheduleType: {[ Enums.ScheduleType|json|safe ]}
     }
   };
 
@@ -237,7 +238,7 @@
                         ng-disabled="ctrl.isUpdating"
                         ng-change="ctrl.onStoragerFormatChange()"
                         ng-model="ctrl.storager.format"
-                        ng-options="format.name for format in ctrl.storagerFormats" required>
+                        ng-options="i18n.__(format.name) for format in ctrl.storagerFormats" required>
               </select>
 
               <span class="help-block" ng-show="forms.storagerDataForm.format.$dirty && forms.storagerDataForm.format.$error.required">
@@ -278,7 +279,7 @@
               </div>
 
               <div style="display: block;" class="box-body">
-                <terrama2-schedule model="ctrl.schedule" options="ctrl.scheduleOptions"></terrama2-schedule>
+                <terrama2-schedule model="ctrl.schedule" options="ctrl.scheduleOptions" historical="ctrl.analysis.historical"></terrama2-schedule>
               </div>
             </div>
           </div>
@@ -294,7 +295,7 @@
           <form name="forms.targetDataSeriesForm">
             <div class="col-md-6">
               <div class="form-group has-feedback" terrama2-show-errors>
-                <label>{[ __("DataSeries") ]}:</label>
+                <label>{{ i18n.__("DataSeries") }}:</label>
                 <select class="form-control"
                         name="targetDataSeries"
                         ng-disabled="ctrl.isUpdating"
@@ -384,18 +385,6 @@
       </div><!--./row-->
     </terrama2-box>
 
-    <terrama2-box title="i18n.__('Reprocessing Historical Data')" css="ctrl.css" ng-show="forms.generalDataForm.type.$valid">
-      <div class="row">
-        <form name="forms.historicalForm" novalidate>
-          <terrama2-filter-datetime-picker before-label="'Start Date'" 
-                                           after-label="'End Date'"
-                                           before-datetime="ctrl.analysis.historical.startDate"
-                                           after-datetime="ctrl.analysis.historical.endDate">
-          </terrama2-filter-datetime-picker>
-        </form>
-      </div>
-    </terrama2-box>
-
     <terrama2-box title="i18n.__('Grid configuration')" 
                   css="ctrl.css"
                   ng-show="ctrl.analysis.type_id == {[ Enums.AnalysisType.GRID ]} && forms.generalDataForm.type.$valid">
@@ -409,7 +398,7 @@
                   <select class="form-control" name="interpolation_method"
                           ng-model="ctrl.analysis.grid.interpolation_method"
                           ng-required="ctrl.analysis.type_id == 2"
-                          ng-options="obj.value as obj.name for (k, obj) in ctrl.interpolationMethods">
+                          ng-options="obj.value as i18n.__(obj.name) for (k, obj) in ctrl.interpolationMethods">
                   </select>
 
                   <!-- required -->
@@ -448,7 +437,7 @@
                   <select class="form-control" name="area_of_interest"
                           ng-model="ctrl.analysis.grid.area_of_interest_type"
                           ng-required="ctrl.analysis.type_id == 2"
-                          ng-options="interestArea.value as interestArea.name for interestArea in ctrl.interestAreaTypes"
+                          ng-options="interestArea.value as i18n.__(interestArea.name) for interestArea in ctrl.interestAreaTypes"
                           ng-change="ctrl.onAreaOfInterestChange()">
                   </select>
 
@@ -491,7 +480,7 @@
                   <select class="form-control" name="resolution_type"
                           ng-model="ctrl.analysis.grid.resolution_type"
                           ng-required="ctrl.analysis.type_id == 2"
-                          ng-options="resolutionType.value as resolutionType.name for resolutionType in ctrl.resolutionTypes"
+                          ng-options="resolutionType.value as i18n.__(resolutionType.name) for resolutionType in ctrl.resolutionTypes"
                           ng-change="ctrl.onResolutionChange()">
                   </select>
 

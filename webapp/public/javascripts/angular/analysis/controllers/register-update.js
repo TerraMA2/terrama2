@@ -3,7 +3,7 @@ define([], function() {
   
   function RegisterUpdateController($scope, $q, $log, i18n, Service, DataSeriesService,
                                     DataSeriesSemanticsService, AnalysisService, DataProviderService, 
-                                    Socket, DateParser, MessageBoxService, Polygon, $http, $window, $timeout) {
+                                    Socket, DateParser, MessageBoxService, Polygon, $http, $window, $timeout, FormTranslator) {
     var self = this;
     $scope.i18n = i18n;
 
@@ -56,7 +56,9 @@ define([], function() {
      * 
      * @param {Object}
      */
-    self.scheduleOptions = {};
+    self.scheduleOptions = {
+      showHistoricalOption: true
+    };
     /**
      * It defines a helper messages associated a components. For example, there is no active service... The validate button will be disabled with
      * tooltip "Service X is not active"
@@ -259,6 +261,17 @@ define([], function() {
            * @type {Object}
            */
           var historicalData = analysisInstance.reprocessing_historical_data || {};
+
+          // checking schedule type
+          if (historicalData && (historicalData.startDate || historicalData.endDate)){
+            self.schedule.scheduleType = Globals.enums.ScheduleType.REPROCESSING_HISTORICAL;
+          }
+          else if (analysisInstance.schedule && (analysisInstance.schedule.frequency_unit || analysisInstance.schedule.schedule_unit)){
+            self.schedule.scheduleType = Globals.enums.ScheduleType.SCHEDULE;
+          } else {
+            self.schedule.scheduleType = Globals.enums.ScheduleType.MANUAL;
+          }
+
           if (historicalData.startDate) {
             historicalData.startDate = DateParser(historicalData.startDate);
           }
@@ -659,9 +672,10 @@ define([], function() {
             } else { self.modelStorager = {}; }
 
             self.formStorager = metadata.form;
+            var translatedStoragerSchema = FormTranslator(metadata.schema.properties);
             self.schemaStorager = {
               type: 'object',
-              properties: metadata.schema.properties,
+              properties: translatedStoragerSchema,
               required: metadata.schema.required
             };
 
@@ -1090,7 +1104,7 @@ define([], function() {
   }
   // Injecting angular dependencies in controller
   RegisterUpdateController.$inject = ['$scope', '$q', '$log', 'i18n', 'Service', 'DataSeriesService', 'DataSeriesSemanticsService', 'AnalysisService',
-                                      'DataProviderService', 'Socket', 'DateParser', 'MessageBoxService', 'Polygon', '$http', '$window', '$timeout'];
+                                      'DataProviderService', 'Socket', 'DateParser', 'MessageBoxService', 'Polygon', '$http', '$window', '$timeout', 'FormTranslator'];
 
   return RegisterUpdateController;
 });

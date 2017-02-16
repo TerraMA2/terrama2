@@ -77,17 +77,6 @@ namespace terrama2
                                     terrama2::services::analysis::core::Buffer buffer = Buffer());
 
                 /*!
-                  \brief Calculates the number of pixels inside the monitored object.
-
-                  In case of an error or no data available it will return NAN(Not A Number).
-
-                  \param dataSeriesName DataSeries name.
-
-                  \return A double value with the result.
-                */
-                double count(const std::string& dataSeriesName, const std::string& dateDiscardBefore, terrama2::services::analysis::core::Buffer buffer = Buffer());
-
-                /*!
                   \brief Calculates the sum of zonal grid data.
 
                   In case of an error or no data available it will return NAN(Not A Number).

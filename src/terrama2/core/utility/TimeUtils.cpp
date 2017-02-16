@@ -165,29 +165,31 @@ double terrama2::core::TimeUtils::convertTimeString(const std::string& time, std
       size_t foundPos = timeStr.find(name);
       if (foundPos != std::string::npos)
       {
-        //FIXME: PAULO: This change broke the code and I had to comment. Please check its behavior
-//        size_t lastNumericPos = timeStr.find_last_not_of("0123456789", foundPos - 1);
+        size_t lastNumericPos = timeStr.find_last_not_of("0123456789", foundPos - 1);
 
-//        // For units with one character like M(minutes), S(seconds), H(hours) we need to check if the unit has only character
-//        if(name.size() == 1)
-//        {
-//          // Check previous character for spaces or a number, otherwise ignore this unit
-//          size_t prevPos = timeStr.find_last_not_of("0123456789 ", foundPos - 1);
-//          if(prevPos != foundPos - 1)
-//          {
-//            continue;
-//          }
+        // For units with one character like M(minutes), S(seconds), H(hours) we need to check if the unit has only character
+        if(name.size() == 1)
+        {
+          // Check previous character for spaces or a number, otherwise ignore this unit
+          size_t prevPos = timeStr.find_last_of("0123456789 ", foundPos - 1);
+          if(prevPos != foundPos - 1)
+          {
+            continue;
+          }
 
-//          // Check next character for spaces or a number, otherwise ignore this unit
-//          size_t nextPos = timeStr.find_last_not_of("0123456789 ", foundPos + 1);
-//          if(nextPos != foundPos + 1)
-//          {
-//            continue;
-//          }
-//        }
+          if(foundPos + 1 < timeStr.size())
+          {
+            // Check next character for spaces or a number, otherwise ignore this unit
+            size_t nextPos = timeStr.find_last_of("0123456789 ", foundPos + 1);
+            if(nextPos != foundPos + 1)
+            {
+              continue;
+            }
+          }
+
+        }
         found = true;
         std::string value;
-        size_t lastNumericPos = timeStr.find_last_not_of("0123456789", foundPos - 1);
 
         if(lastNumericPos != std::string::npos)
           value = timeStr.substr(lastNumericPos + 1, foundPos - lastNumericPos - 1 );
@@ -297,4 +299,29 @@ double terrama2::core::TimeUtils::scheduleSeconds(const Schedule& dataSchedule, 
     TERRAMA2_LOG_ERROR() << errMsg;
     throw InvalidFrequencyException() << terrama2::ErrorDescription(errMsg);
   }
+}
+
+std::string terrama2::core::TimeUtils::terramaDateMask2BoostFormat(const std::string& mask)
+{
+  QString m(mask.c_str());
+
+  /*
+    YYYY  year with 4 digits        %Y
+    YY    year with 2 digits        %y
+    MM    month with 2 digits       %m
+    DD    day with 2 digits         %d
+    hh    hout with 2 digits        %H
+    mm    minutes with 2 digits     %M
+    ss    seconds with 2 digits     %S
+    */
+
+  m.replace("%YYYY", "%Y");
+  m.replace("%YY", "%y");
+  m.replace("%MM", "%m");
+  m.replace("%DD", "%d");
+  m.replace("%hh", "%H");
+  m.replace("%mm", "%M");
+  m.replace("%ss", "%S");
+
+  return m.toStdString();
 }

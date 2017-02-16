@@ -31,18 +31,18 @@
 
 #include "Operator.hpp"
 #include "../Operator.hpp"
-#include "../../utility/Utils.hpp"
-#include "../../utility/Verify.hpp"
-#include "../../ContextManager.hpp"
+#include "../../../utility/Utils.hpp"
+#include "../../../utility/Verify.hpp"
+#include "../../../ContextManager.hpp"
 
 
-#include "../../Exception.hpp"
-#include "../../../../../core/data-model/DataSetDcp.hpp"
-#include "../../../../../core/data-model/Filter.hpp"
-#include "../../../../../core/data-access/SynchronizedDataSet.hpp"
-#include "../../../../../core/Shared.hpp"
-#include "../../../../../core/utility/Logger.hpp"
-#include "../../python/PythonUtils.hpp"
+#include "../../../Exception.hpp"
+#include "../../../../../../core/data-model/DataSetDcp.hpp"
+#include "../../../../../../core/data-model/Filter.hpp"
+#include "../../../../../../core/data-access/SynchronizedDataSet.hpp"
+#include "../../../../../../core/Shared.hpp"
+#include "../../../../../../core/utility/Logger.hpp"
+#include "../../../python/PythonUtils.hpp"
 
 
 // TerraLib

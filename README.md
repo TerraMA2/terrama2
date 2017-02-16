@@ -176,8 +176,8 @@ We have the following branches:
 - **b-4.0.0-alpha4:** Views service and web-monitoring module
 - **b-4.0.0-alpha5:** General review of the interface and analysis
 - **b-4.0.0-alpha6:** Review of grid operators and Monitored Object forecast operators
-- **b-4.0.0-alpha7:** Analysis validation and filter by static data
-
+- **b-4.0.0-alpha7:** Analysis validation and filter by static data (Preparing to Beta release)
+- **b-4.0.0-beta1:** 
 
 To switch to one of the branches listed above, use the checkout command and create a local branch to track the remote branch. The syntax of "git checkout" is:
 

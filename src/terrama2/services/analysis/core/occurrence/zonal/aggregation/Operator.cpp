@@ -33,16 +33,20 @@
 #include "../Operator.hpp"
 
 
-int terrama2::services::analysis::core::occurrence::aggregation::count(const std::string& dataSeriesName,
+int terrama2::services::analysis::core::occurrence::zonal::aggregation::count(const std::string& dataSeriesName,
                                                                        const std::string& dateFilter,
                                                                        Buffer aggregationBuffer,
                                                                        Buffer buffer,
                                                                        const std::string& restriction)
 {
-  return (int) terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOperation::COUNT, dataSeriesName, buffer, dateFilter, aggregationBuffer, "", StatisticOperation::COUNT, restriction);
+  return (int) terrama2::services::analysis::core::occurrence::zonal::operatorImpl(StatisticOperation::COUNT,
+                                                                                   dataSeriesName, buffer, dateFilter,
+                                                                                   "0s", aggregationBuffer,
+                                                                                   "", StatisticOperation::COUNT,
+                                                                                   restriction);
 }
 
-double terrama2::services::analysis::core::occurrence::aggregation::min(const std::string& dataSeriesName,
+double terrama2::services::analysis::core::occurrence::zonal::aggregation::min(const std::string& dataSeriesName,
                                                                         const std::string& attribute,
                                                                         const std::string& dateFilter,
                                                                         StatisticOperation aggregationStatisticOperation,
@@ -50,11 +54,13 @@ double terrama2::services::analysis::core::occurrence::aggregation::min(const st
                                                                         Buffer buffer,
                                                                         const std::string& restriction)
 {
-  return terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOperation::MIN, dataSeriesName, buffer, dateFilter, aggregationBuffer, attribute,
-         aggregationStatisticOperation, restriction);
+  return terrama2::services::analysis::core::occurrence::zonal::operatorImpl(StatisticOperation::MIN, dataSeriesName,
+                                                                             buffer, dateFilter, "0s",
+                                                                             aggregationBuffer, attribute,
+                                                                             aggregationStatisticOperation, restriction);
 }
 
-double terrama2::services::analysis::core::occurrence::aggregation::max(const std::string& dataSeriesName,
+double terrama2::services::analysis::core::occurrence::zonal::aggregation::max(const std::string& dataSeriesName,
                                                                         const std::string& attribute,
                                                                         const std::string& dateFilter,
                                                                         StatisticOperation aggregationStatisticOperation,
@@ -62,11 +68,13 @@ double terrama2::services::analysis::core::occurrence::aggregation::max(const st
                                                                         Buffer buffer,
                                                                         const std::string& restriction)
 {
-  return terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOperation::MAX, dataSeriesName, buffer, dateFilter, aggregationBuffer, attribute,
-         aggregationStatisticOperation, restriction);
+  return terrama2::services::analysis::core::occurrence::zonal::operatorImpl(StatisticOperation::MAX, dataSeriesName,
+                                                                             buffer, dateFilter, "0s",
+                                                                             aggregationBuffer, attribute,
+                                                                             aggregationStatisticOperation, restriction);
 }
 
-double terrama2::services::analysis::core::occurrence::aggregation::mean(const std::string& dataSeriesName,
+double terrama2::services::analysis::core::occurrence::zonal::aggregation::mean(const std::string& dataSeriesName,
                                                                          const std::string& attribute,
                                                                          const std::string& dateFilter,
                                                                          StatisticOperation aggregationStatisticOperation,
@@ -74,11 +82,13 @@ double terrama2::services::analysis::core::occurrence::aggregation::mean(const s
                                                                          Buffer buffer,
                                                                          const std::string& restriction)
 {
-  return terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOperation::MEAN, dataSeriesName, buffer, dateFilter, aggregationBuffer, attribute,
-         aggregationStatisticOperation, restriction);
+  return terrama2::services::analysis::core::occurrence::zonal::operatorImpl(StatisticOperation::MEAN, dataSeriesName,
+                                                                             buffer, dateFilter, "0s",
+                                                                             aggregationBuffer, attribute,
+                                                                             aggregationStatisticOperation, restriction);
 }
 
-double terrama2::services::analysis::core::occurrence::aggregation::median(const std::string& dataSeriesName,
+double terrama2::services::analysis::core::occurrence::zonal::aggregation::median(const std::string& dataSeriesName,
                                                                            const std::string& attribute,
                                                                            const std::string& dateFilter,
                                                                            StatisticOperation aggregationStatisticOperation,
@@ -86,11 +96,13 @@ double terrama2::services::analysis::core::occurrence::aggregation::median(const
                                                                            Buffer buffer,
                                                                            const std::string& restriction)
 {
-  return terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, buffer, dateFilter, aggregationBuffer, attribute,
-         aggregationStatisticOperation, restriction);
+  return terrama2::services::analysis::core::occurrence::zonal::operatorImpl(StatisticOperation::MEDIAN, dataSeriesName,
+                                                                             buffer, dateFilter, "0s",
+                                                                             aggregationBuffer, attribute,
+                                                                             aggregationStatisticOperation, restriction);
 }
 
-double terrama2::services::analysis::core::occurrence::aggregation::sum(const std::string& dataSeriesName,
+double terrama2::services::analysis::core::occurrence::zonal::aggregation::sum(const std::string& dataSeriesName,
                                                                         const std::string& attribute,
                                                                         const std::string& dateFilter,
                                                                         StatisticOperation aggregationStatisticOperation,
@@ -98,11 +110,13 @@ double terrama2::services::analysis::core::occurrence::aggregation::sum(const st
                                                                         Buffer buffer,
                                                                         const std::string& restriction)
 {
-  return terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOperation::SUM, dataSeriesName, buffer, dateFilter, aggregationBuffer, attribute,
-         aggregationStatisticOperation, restriction);
+  return terrama2::services::analysis::core::occurrence::zonal::operatorImpl(StatisticOperation::SUM, dataSeriesName,
+                                                                             buffer, dateFilter, "0s",
+                                                                             aggregationBuffer, attribute,
+                                                                             aggregationStatisticOperation, restriction);
 }
 
-double terrama2::services::analysis::core::occurrence::aggregation::standardDeviation(const std::string& dataSeriesName,
+double terrama2::services::analysis::core::occurrence::zonal::aggregation::standardDeviation(const std::string& dataSeriesName,
                                                                                       const std::string& attribute,
                                                                                       const std::string& dateFilter,
                                                                                       StatisticOperation aggregationStatisticOperation,
@@ -110,11 +124,13 @@ double terrama2::services::analysis::core::occurrence::aggregation::standardDevi
                                                                                       Buffer buffer,
                                                                                       const std::string& restriction)
 {
-  return terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, buffer, dateFilter, aggregationBuffer, attribute,
-         aggregationStatisticOperation, restriction);
+  return terrama2::services::analysis::core::occurrence::zonal::operatorImpl(StatisticOperation::STANDARD_DEVIATION,
+                                                                             dataSeriesName, buffer, dateFilter, "0s",
+                                                                             aggregationBuffer, attribute,
+                                                                             aggregationStatisticOperation, restriction);
 }
 
-double terrama2::services::analysis::core::occurrence::aggregation::variance(const std::string& dataSeriesName,
+double terrama2::services::analysis::core::occurrence::zonal::aggregation::variance(const std::string& dataSeriesName,
                                                                              const std::string& attribute,
                                                                              const std::string& dateFilter,
                                                                              StatisticOperation aggregationStatisticOperation,
@@ -122,6 +138,8 @@ double terrama2::services::analysis::core::occurrence::aggregation::variance(con
                                                                              Buffer buffer,
                                                                              const std::string& restriction)
 {
-  return terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, buffer, dateFilter, aggregationBuffer, attribute,
-         aggregationStatisticOperation, restriction);
+  return terrama2::services::analysis::core::occurrence::zonal::operatorImpl(StatisticOperation::VARIANCE,
+                                                                             dataSeriesName, buffer, dateFilter, "0s",
+                                                                             aggregationBuffer, attribute,
+                                                                             aggregationStatisticOperation, restriction);
 }

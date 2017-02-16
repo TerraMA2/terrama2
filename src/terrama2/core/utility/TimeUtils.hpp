@@ -122,6 +122,9 @@ namespace terrama2
        */
       double scheduleSeconds(const Schedule& dataSchedule, std::shared_ptr < te::dt::TimeInstantTZ > baseTime = std::shared_ptr < te::dt::TimeInstantTZ >());
 
+
+      std::string terramaDateMask2BoostFormat(const std::string& mask);
+
     }
   }
 }
