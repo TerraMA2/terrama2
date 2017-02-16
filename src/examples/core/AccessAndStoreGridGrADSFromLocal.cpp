@@ -66,7 +66,7 @@ int main(int argc, char* argv[])
 
     terrama2::core::DataSeries* outputDataSeries = new terrama2::core::DataSeries();
     terrama2::core::DataSeriesPtr outputDataSeriesPtr(outputDataSeries);
-    outputDataSeries->semantics = semanticsManager.getSemantics("GRID-geotiff");
+    outputDataSeries->semantics = semanticsManager.getSemantics("GRID-gdal");
 
     terrama2::core::DataSetGrid* outputDataSet = new terrama2::core::DataSetGrid();
     terrama2::core::DataSetGridPtr outputDataSetPtr(outputDataSet);

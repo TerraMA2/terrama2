@@ -7,7 +7,7 @@
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSetGrid.hpp>
-#include <terrama2/impl/DataAccessorGeoTiff.hpp>
+#include <terrama2/impl/DataAccessorGDal.hpp>
 #include <terrama2/impl/DataStoragerTiff.hpp>
 #include <terrama2/core/data-access/GridSeries.hpp>
 
@@ -36,7 +36,7 @@ int main(int argc, char* argv[])
     terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
     terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
     auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
-    dataSeries->semantics = semanticsManager.getSemantics("GRID-geotiff");
+    dataSeries->semantics = semanticsManager.getSemantics("GRID-gdal");
 
     terrama2::core::DataSetGrid* dataSet = new terrama2::core::DataSetGrid();
     dataSet->active = true;
@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
     //empty filter
     terrama2::core::Filter filter;
     //accessing data
-    terrama2::core::DataAccessorGeoTiff accessor(dataProviderPtr, dataSeriesPtr);
+    terrama2::core::DataAccessorGDal accessor(dataProviderPtr, dataSeriesPtr);
     auto remover = std::make_shared<terrama2::core::FileRemover>();
     terrama2::core::GridSeriesPtr gridSeries = accessor.getGridSeries(filter,remover);
 
@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
 
     terrama2::core::DataSeries* outputDataSeries = new terrama2::core::DataSeries();
     terrama2::core::DataSeriesPtr outputDataSeriesPtr(outputDataSeries);
-    outputDataSeries->semantics = semanticsManager.getSemantics("GRID-geotiff");
+    outputDataSeries->semantics = semanticsManager.getSemantics("GRID-gdal");
 
     terrama2::core::DataSetGrid* outputDataSet = new terrama2::core::DataSetGrid();
     terrama2::core::DataSetGridPtr outputDataSetPtr(outputDataSet);

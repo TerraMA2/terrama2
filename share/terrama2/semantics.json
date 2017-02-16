@@ -186,11 +186,11 @@
   },
   {
     "id": 6,
-    "name": "Static GeoTIFF grid",
-    "code": "GRID-static_geotiff",
+    "name": "Static GDal grid",
+    "code": "GRID-static_gdal",
     "type": "GRID",
     "temporality": "STATIC",
-    "format": "GEOTIFF",
+    "format": "GDAL",
     "providers_type_list": ["FILE", "FTP"],
     "metadata": {
       "timestamp_property": "file_timestamp"
@@ -584,11 +584,11 @@
   },
   {
     "id": 11,
-    "name": "GeoTIFF grid",
-    "code": "GRID-geotiff",
+    "name": "GDal raster",
+    "code": "GRID-gdal",
     "type": "GRID",
     "temporality": "DYNAMIC",
-    "format": "GEOTIFF",
+    "format": "GDAL",
     "providers_type_list": ["FILE", "FTP"],
     "metadata": {
       "timestamp_property": "file_timestamp"

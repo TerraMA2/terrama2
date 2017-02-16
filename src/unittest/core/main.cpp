@@ -49,7 +49,7 @@
 #include "TsDataAccessorTxtFile.hpp"
 #include "TsDataAccessorDcpInpe.hpp"
 #include "TsDataAccessorDcpToa5.hpp"
-#include "TsDataAccessorGeoTiff.hpp"
+#include "TsDataAccessorGDal.hpp"
 #include "TsDataAccessorOccurrenceWfp.hpp"
 
 int main(int argc, char** argv)
@@ -127,8 +127,8 @@ int main(int argc, char** argv)
 
     try
     {
-      TsDataAccessorGeoTiff testDataAccessorGeoTiff;
-      ret += QTest::qExec(&testDataAccessorGeoTiff, argc, argv);
+      TsDataAccessorGDal testDataAccessorGDal;
+      ret += QTest::qExec(&testDataAccessorGDal, argc, argv);
     }
     catch(...)
     {

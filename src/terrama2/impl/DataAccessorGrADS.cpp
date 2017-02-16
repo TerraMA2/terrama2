@@ -71,7 +71,7 @@
 terrama2::core::DataAccessorGrADS::DataAccessorGrADS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries,
                                                      const bool checkSemantics)
   : DataAccessor(dataProvider, dataSeries, false),
-    DataAccessorGeoTiff(dataProvider, dataSeries, false)
+    DataAccessorGDal(dataProvider, dataSeries, false)
 {
   if(checkSemantics && dataSeries->semantics.code != dataAccessorType())
   {

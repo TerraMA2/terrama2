@@ -20,14 +20,14 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataAccessorGeoTiff.cpp
+  \file terrama2/core/data-access/DataAccessorGDal.cpp
 
   \brief
 
   \author Jano Simas
  */
 
-#include "DataAccessorGeoTiff.hpp"
+#include "DataAccessorGDal.hpp"
 #include "../core/utility/Logger.hpp"
 #include "../core/utility/Utils.hpp"
 
@@ -42,7 +42,7 @@
 #include <QObject>
 #include <QFileInfo>
 
-terrama2::core::DataAccessorGeoTiff::DataAccessorGeoTiff(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics)
+terrama2::core::DataAccessorGDal::DataAccessorGDal(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics)
  : DataAccessor(dataProvider, dataSeries, false),
    DataAccessorGrid(dataProvider, dataSeries, false),
    DataAccessorFile(dataProvider, dataSeries, false)
@@ -55,14 +55,14 @@ terrama2::core::DataAccessorGeoTiff::DataAccessorGeoTiff(DataProviderPtr dataPro
   }
 }
 
-std::string terrama2::core::DataAccessorGeoTiff::dataSourceType() const { return "GDAL"; }
+std::string terrama2::core::DataAccessorGDal::dataSourceType() const { return "GDAL"; }
 
-std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorGeoTiff::createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const
+std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorGDal::createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const
 {
   return DataAccessorFile::internalCreateCompleteDataSet(dataSetType, true, true);
 }
 
-void terrama2::core::DataAccessorGeoTiff::addToCompleteDataSet(terrama2::core::DataSetPtr dataSet,
+void terrama2::core::DataAccessorGDal::addToCompleteDataSet(terrama2::core::DataSetPtr dataSet,
                                                                std::shared_ptr<te::mem::DataSet> completeDataSet,
                                                                std::shared_ptr<te::da::DataSet> teDataSet,
                                                                std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp,

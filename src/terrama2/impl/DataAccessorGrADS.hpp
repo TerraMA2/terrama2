@@ -32,7 +32,7 @@
 
 //TerraMA2
 #include <QtCore/QString>
-#include "DataAccessorGeoTiff.hpp"
+#include "DataAccessorGDal.hpp"
 #include "../core/Shared.hpp"
 #include "../core/data-access/DataAccessorGrid.hpp"
 
@@ -139,7 +139,7 @@ namespace terrama2
     /*!
       \brief DataAccessor for GRID DataSeries in GrADS format.
     */
-    class DataAccessorGrADS : public DataAccessorGeoTiff
+    class DataAccessorGrADS : public DataAccessorGDal
     {
       public:
 

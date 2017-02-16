@@ -1123,7 +1123,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
 
   DataFormat dataFormat = inputDataSeries->semantics.dataFormat;
 
-  if(dataFormat != "OGR" && dataFormat != "POSTGIS" && dataFormat != "GEOTIFF")
+  if(dataFormat != "OGR" && dataFormat != "POSTGIS" && dataFormat != "GDAL")
   {
     QString errorMsg = QString("Data format not supported in the maps server: %1.").arg(dataFormat.c_str());
     logger->log(ViewLogger::ERROR_MESSAGE, errorMsg.toStdString(), logId);
@@ -1177,7 +1177,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
                              fileInfo.absoluteFilePath().toStdString(),
                              layerName);
         }
-        else if(dataFormat == "GEOTIFF")
+        else if(dataFormat == "GDAL")
         {
           if(!modelDataSetType)
           {

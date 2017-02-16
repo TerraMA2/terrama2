@@ -83,7 +83,7 @@ void addGridSeries(std::shared_ptr<terrama2::services::collector::core::DataMana
   //DataSeries information
   terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
-  dataSeries->semantics = semanticsManager.getSemantics("GRID-static_geotiff");
+  dataSeries->semantics = semanticsManager.getSemantics("GRID-static_gdal");
   dataSeries->name = "geotiff";
   dataSeries->id = 3;
   dataSeries->dataProviderId = 3;

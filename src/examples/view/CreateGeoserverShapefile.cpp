@@ -79,7 +79,7 @@ int main(int argc, char** argv)
 
     terrama2::core::DataSeries* dataSeries1 = new terrama2::core::DataSeries();
     terrama2::core::DataSeriesPtr dataSeries1Ptr(dataSeries1);
-    dataSeries1->semantics = semanticsManager.getSemantics("GRID-geotiff");
+    dataSeries1->semantics = semanticsManager.getSemantics("GRID-gdal");
     dataSeries1->name = "Umin";
     dataSeries1->id = 1;
     dataSeries1->dataProviderId = 1;

@@ -16,8 +16,8 @@
 */
 
 /*!
-  \file terrama2/unittest/core/TsDataAccessorGeoTiff.cpp
-  \brief Tests for Class DataAccessorGeoTiff
+  \file terrama2/unittest/core/TsDataAccessorGDal.cpp
+  \brief Tests for Class DataAccessorGDal
   \author Evandro Delatin
 */
 
@@ -28,14 +28,14 @@
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSetGrid.hpp>
-#include <terrama2/impl/DataAccessorGeoTiff.hpp>
+#include <terrama2/impl/DataAccessorGDal.hpp>
 #include <terrama2/core/data-access/GridSeries.hpp>
-#include <terrama2/impl/DataAccessorGeoTiff.hpp>
+#include <terrama2/impl/DataAccessorGDal.hpp>
 #include <terrama2/Config.hpp>
 #include <terrama2/core/Exception.hpp>
 #include <terrama2/core/utility/DataRetrieverFactory.hpp>
 
-#include "TsDataAccessorGeoTiff.hpp"
+#include "TsDataAccessorGDal.hpp"
 #include "MockDataRetriever.hpp"
 #include "Utils.hpp"
 
@@ -55,12 +55,12 @@ using ::testing::_;
 
 //FIXME: using a real dir, can be improved using some mock access
 
-void TsDataAccessorGeoTiff::TestFailAddNullDataAccessorGeoTiff()
+void TsDataAccessorGDal::TestFailAddNullDataAccessorGDal()
 {
   try
   {
     //accessing data
-    terrama2::core::DataAccessorGeoTiff accessor(nullptr, nullptr);
+    terrama2::core::DataAccessorGDal accessor(nullptr, nullptr);
 
     QFAIL("Exception expected!");
   }
@@ -75,7 +75,7 @@ void TsDataAccessorGeoTiff::TestFailAddNullDataAccessorGeoTiff()
   return;
 }
 
-void TsDataAccessorGeoTiff::TestFailDataProviderNull()
+void TsDataAccessorGDal::TestFailDataProviderNull()
 {
   try
   {
@@ -84,7 +84,7 @@ void TsDataAccessorGeoTiff::TestFailDataProviderNull()
     terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
 
     //accessing data
-    terrama2::core::DataAccessorGeoTiff accessor(nullptr, dataSeriesPtr);
+    terrama2::core::DataAccessorGDal accessor(nullptr, dataSeriesPtr);
 
     QFAIL("Exception expected!");
   }
@@ -99,7 +99,7 @@ void TsDataAccessorGeoTiff::TestFailDataProviderNull()
   return;
 }
 
-void TsDataAccessorGeoTiff::TestFailDataSeriesNull()
+void TsDataAccessorGDal::TestFailDataSeriesNull()
 {
   try
   {
@@ -108,7 +108,7 @@ void TsDataAccessorGeoTiff::TestFailDataSeriesNull()
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
 
     //accessing data
-    terrama2::core::DataAccessorGeoTiff accessor(dataProviderPtr, nullptr);
+    terrama2::core::DataAccessorGDal accessor(dataProviderPtr, nullptr);
 
     QFAIL("Exception expected!");
   }
@@ -123,7 +123,7 @@ void TsDataAccessorGeoTiff::TestFailDataSeriesNull()
   return;
 }
 
-void TsDataAccessorGeoTiff::TestFailDataSeriesSemanticsInvalid()
+void TsDataAccessorGDal::TestFailDataSeriesSemanticsInvalid()
 {
   try
   {
@@ -149,7 +149,7 @@ void TsDataAccessorGeoTiff::TestFailDataSeriesSemanticsInvalid()
   }
 }
 
-void TsDataAccessorGeoTiff::TestFailDataRetrieverInvalid()
+void TsDataAccessorGDal::TestFailDataRetrieverInvalid()
 {
   try
   {
@@ -165,7 +165,7 @@ void TsDataAccessorGeoTiff::TestFailDataRetrieverInvalid()
     //DataSeries information
     terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
     terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
-    dataSeries->semantics.code = "GRID-geotiff";
+    dataSeries->semantics.code = "GRID-gdal";
 
     terrama2::core::DataSetGrid* dataSet = new terrama2::core::DataSetGrid();
     dataSet->active = true;
@@ -181,7 +181,7 @@ void TsDataAccessorGeoTiff::TestFailDataRetrieverInvalid()
     exceptionMock << terrama2::ErrorDescription(errMsg);
 
     //accessing data
-    terrama2::core::DataAccessorGeoTiff accessor(dataProviderPtr, dataSeriesPtr);
+    terrama2::core::DataAccessorGDal accessor(dataProviderPtr, dataSeriesPtr);
 
     auto mock_ = std::make_shared<MockDataRetriever>(dataProviderPtr);
 
@@ -208,7 +208,7 @@ void TsDataAccessorGeoTiff::TestFailDataRetrieverInvalid()
   }
 }
 
-void TsDataAccessorGeoTiff::TestOK()
+void TsDataAccessorGDal::TestOK()
 {
   try
   {
@@ -224,7 +224,7 @@ void TsDataAccessorGeoTiff::TestOK()
     //DataSeries information
     terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
     terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
-    dataSeries->semantics.code = "GRID-geotiff";
+    dataSeries->semantics.code = "GRID-gdal";
 
     terrama2::core::DataSetGrid* dataSet = new terrama2::core::DataSetGrid();
     dataSet->active = true;
@@ -235,7 +235,7 @@ void TsDataAccessorGeoTiff::TestOK()
     //empty filter
     terrama2::core::Filter filter;
     //accessing data
-    terrama2::core::DataAccessorGeoTiff accessor(dataProviderPtr, dataSeriesPtr);
+    terrama2::core::DataAccessorGDal accessor(dataProviderPtr, dataSeriesPtr);
     auto remover = std::make_shared<terrama2::core::FileRemover>();
     terrama2::core::GridSeriesPtr gridSeries = accessor.getGridSeries(filter, remover);
 
