@@ -20,23 +20,25 @@
 */
 
 /*!
-  \file terrama2/services/analysis/core/occurrence/aggregation/Operator.hpp
+  \file terrama2/services/analysis/core/occurrence/zonal/Operator.hpp
 
-  \brief Contains occurrence aggregation analysis operators.
+  \brief Contains occurrence analysis operators.
 
   \author Paulo R. M. Oliveira
 */
 
 
-#ifndef __TERRAMA2_ANALYSIS_CORE_OCCURRENCE_AGGREGATION_OPERATOR_HPP__
-#define __TERRAMA2_ANALYSIS_CORE_OCCURRENCE_AGGREGATION_OPERATOR_HPP__
+#ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_OCCURRENCE_ZONAL_OPERATOR_HPP__
+#define __TERRAMA2_SERVICES_ANALYSIS_CORE_OCCURRENCE_ZONAL_OPERATOR_HPP__
 
 // TerraMA2
-#include "../../BufferMemory.hpp"
 #include "../../python/PythonInterpreter.hpp"
+#include "../../BufferMemory.hpp"
+#include "../../Analysis.hpp"
 
 // STL
 #include <string>
+
 
 namespace terrama2
 {
@@ -48,32 +50,54 @@ namespace terrama2
       {
         namespace occurrence
         {
-          namespace aggregation
+          namespace zonal
           {
+            /*!
+            \brief Calculates the all statistics of the attribute of occurrences in the monitored object area.
 
-            int count(const std::string& dataSeriesName,
-                      const std::string& dateFilter,
-                      terrama2::services::analysis::core::Buffer aggregationBuffer,
-                      terrama2::services::analysis::core::Buffer buffer = Buffer(),
-                      const std::string& restriction = "");
+            \param statisticOperation The statistic operation called by the script.
+            \param dataSeriesName DataSeries name.
+            \param buffer Buffer to be used in the monitored object.
+            \param dateFilterBegin Begin time filter for the data.
+            \param dateFilterEnd End time filter for the data.
+            \param attribute Name of the attribute to be used in statistic operator.
+            \param aggregationBuffer Buffer configuration to be used to aggregate occurrences in the same area.
+            \param restriction SQL restriction.
+            \return The result of the selected operation.
+          */
+            double operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
+                                const std::string &dataSeriesName, terrama2::services::analysis::core::Buffer buffer,
+                                const std::string &dateFilterBegin, const std::string &dateFilterEnd,
+                                terrama2::services::analysis::core::Buffer aggregationBuffer, const std::string &attribute,
+                                terrama2::services::analysis::core::StatisticOperation aggregationStatisticOperation,
+                                const std::string &restriction);
 
             /*!
-              \brief Calculates the maximum value of the attribute of occurrences in the monitored object area.
+              \brief Calculates the count of occurrences in the monitored object.
+
+              \param dataSeriesName DataSeries name.
+              \param buffer Buffer to be used in the monitored object.
+              \param dateFilter Time filter for the data.
+              \param restriction SQL restriction.
+
+              \return The number of occurrences in the monitored object.
+            */
+            int count(const std::string& dataSeriesName, const std::string& dateFilter,
+                      terrama2::services::analysis::core::Buffer buffer = Buffer(),
+                      const std::string& restriction= "");
+
+            /*!
+              \brief Calculates the minimum value of the attribute of occurrences in the monitored object area.
 
               \param dataSeriesName DataSeries name.
               \param buffer Buffer to be used in the monitored object.
               \param dateFilter Time filter for the data.
               \param attribute Name of the attribute to be used in statistic operator.
-              \param aggregationStatisticOperation Which statistic operation will be used to determine the value used for aggregated occurrences.
-              \param aggregationBuffer Buffer to be used to aggregate occurrences in the same area.
               \param restriction SQL restriction.
               \return The minimum value of the attribute of occurrences in the monitored object area.
             */
-            double min(const std::string& dataSeriesName,
-                       const std::string& attribute,
+            double min(const std::string& dataSeriesName, const std::string& attribute,
                        const std::string& dateFilter,
-                       terrama2::services::analysis::core::StatisticOperation aggregationStatisticOperation,
-                       terrama2::services::analysis::core::Buffer aggregationBuffer,
                        terrama2::services::analysis::core::Buffer buffer = Buffer(),
                        const std::string& restriction = "");
 
@@ -84,16 +108,12 @@ namespace terrama2
               \param buffer Buffer to be used in the monitored object.
               \param dateFilter Time filter for the data.
               \param attribute Name of the attribute to be used in statistic operator.
-              \param aggregationStatisticOperation Which statistic operation will be used to determine the value used for aggregated occurrences.
-              \param aggregationBuffer Buffer to be used to aggregate occurrences in the same area.
               \param restriction SQL restriction.
               \return The maximum value of the attribute of occurrences in the monitored object area.
             */
             double max(const std::string& dataSeriesName,
                        const std::string& attribute,
                        const std::string& dateFilter,
-                       terrama2::services::analysis::core::StatisticOperation aggregationStatisticOperation,
-                       terrama2::services::analysis::core::Buffer aggregationBuffer,
                        terrama2::services::analysis::core::Buffer buffer = Buffer(),
                        const std::string& restriction = "");
 
@@ -104,16 +124,12 @@ namespace terrama2
               \param buffer Buffer to be used in the monitored object.
               \param dateFilter Time filter for the data.
               \param attribute Name of the attribute to be used in statistic operator.
-              \param aggregationStatisticOperation Which statistic operation will be used to determine the value used for aggregated occurrences.
-              \param aggregationBuffer Buffer to be used to aggregate occurrences in the same area.
               \param restriction SQL restriction.
               \return The mean value of the attribute of occurrences in the monitored object area.
             */
             double mean(const std::string& dataSeriesName,
                         const std::string& attribute,
                         const std::string& dateFilter,
-                        terrama2::services::analysis::core::StatisticOperation aggregationStatisticOperation,
-                        terrama2::services::analysis::core::Buffer aggregationBuffer,
                         terrama2::services::analysis::core::Buffer buffer = Buffer(),
                         const std::string& restriction = "");
 
@@ -124,16 +140,12 @@ namespace terrama2
               \param buffer Buffer to be used in the monitored object.
               \param dateFilter Time filter for the data.
               \param attribute Name of the attribute to be used in statistic operator.
-              \param aggregationStatisticOperation Which statistic operation will be used to determine the value used for aggregated occurrences.
-              \param aggregationBuffer Buffer to be used to aggregate occurrences in the same area.
               \param restriction SQL restriction.
               \return The median value of the attribute of occurrences in the monitored object area.
             */
             double median(const std::string& dataSeriesName,
                           const std::string& attribute,
                           const std::string& dateFilter,
-                          terrama2::services::analysis::core::StatisticOperation aggregationStatisticOperation,
-                          terrama2::services::analysis::core::Buffer aggregationBuffer,
                           terrama2::services::analysis::core::Buffer buffer = Buffer(),
                           const std::string& restriction = "");
 
@@ -144,53 +156,50 @@ namespace terrama2
               \param buffer Buffer to be used in the monitored object.
               \param dateFilter Time filter for the data.
               \param attribute Name of the attribute to be used in statistic operator.
-              \param aggregationStatisticOperation Which statistic operation will be used to determine the value used for aggregated occurrences.
-              \param aggregationBuffer Buffer to be used to aggregate occurrences in the same area.
               \param restriction SQL restriction.
               \return The sum of values of the attribute of occurrences in the monitored object area.
             */
             double sum(const std::string& dataSeriesName,
                        const std::string& attribute,
                        const std::string& dateFilter,
-                       terrama2::services::analysis::core::StatisticOperation aggregationStatisticOperation,
-                       terrama2::services::analysis::core::Buffer aggregationBuffer,
                        terrama2::services::analysis::core::Buffer buffer = Buffer(),
                        const std::string& restriction = "");
 
             /*!
-              \brief Calculates the median value of the attribute of occurrences in the monitored object area.
+              \brief Calculates the starndart deviation of the attribute of occurrences in the monitored object area.
 
               \param dataSeriesName DataSeries name.
               \param buffer Buffer to be used in the monitored object.
               \param dateFilter Time filter for the data.
               \param attribute Name of the attribute to be used in statistic operator.
-              \param aggregationStatisticOperation Which statistic operation will be used to determine the value used for aggregated occurrences.
-              \param aggregationBuffer Buffer to be used to aggregate occurrences in the same area.
               \param restriction SQL restriction.
-              \return The median value of the attribute of occurrences in the monitored object area.
             */
             double standardDeviation(const std::string& dataSeriesName,
                                      const std::string& attribute,
                                      const std::string& dateFilter,
-                                     terrama2::services::analysis::core::StatisticOperation aggregationStatisticOperation,
-                                     terrama2::services::analysis::core::Buffer aggregationBuffer,
                                      terrama2::services::analysis::core::Buffer buffer = Buffer(),
                                      const std::string& restriction = "");
 
+            /*
+             \brief Calculates the variance of the attribute of occurrences in the monitored object area.
+
+             \param dataSeriesName DataSeries name.
+             \param buffer Buffer to be used in the monitored object.
+             \param dateFilter Time filter for the data.
+             \param attribute Name of the attribute to be used in statistic operator.
+             \param restriction SQL restriction.
+           */
             double variance(const std::string& dataSeriesName,
                             const std::string& attribute,
                             const std::string& dateFilter,
-                            terrama2::services::analysis::core::StatisticOperation aggregationStatisticOperation,
-                            terrama2::services::analysis::core::Buffer aggregationBuffer,
                             terrama2::services::analysis::core::Buffer buffer = Buffer(),
                             const std::string& restriction = "");
 
+          }   // end namespace zonal
+        }     // end namespace occurrence
+      }       // end namespace core
+  }           // end namespace analysis
+  }           // end namespace services
+}             // end namespace terrama2
 
-          } // end namespace aggregation
-        }   // end namespace occurrence
-      }     // end namespace core
-    }       // end namespace analysis
-  }         // end namespace services
-}           // end namespace terrama2
-
-#endif //__TERRAMA2_ANALYSIS_CORE_OCCURRENCE_AGGREGATION_OPERATOR_HPP__
+#endif //__TERRAMA2_SERVICES_ANALYSIS_CORE_OCCURRENCE_ZONAL_OPERATOR_HPP__

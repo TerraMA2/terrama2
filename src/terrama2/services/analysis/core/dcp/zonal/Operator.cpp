@@ -30,17 +30,17 @@
 
 
 #include "Operator.hpp"
-#include "../utility/Utils.hpp"
-#include "../utility/Verify.hpp"
-#include "../Exception.hpp"
-#include "../ContextManager.hpp"
-#include "../python/PythonUtils.hpp"
-#include "../../../../core/data-model/DataSetDcp.hpp"
-#include "../../../../core/data-model/Filter.hpp"
-#include "../../../../core/data-access/SynchronizedDataSet.hpp"
-#include "../../../../core/Shared.hpp"
-#include "../../../../core/utility/Logger.hpp"
-#include "influence/Operator.hpp"
+#include "../../utility/Utils.hpp"
+#include "../../utility/Verify.hpp"
+#include "../../Exception.hpp"
+#include "../../ContextManager.hpp"
+#include "../../python/PythonUtils.hpp"
+#include "../../../../../core/data-model/DataSetDcp.hpp"
+#include "../../../../../core/data-model/Filter.hpp"
+#include "../../../../../core/data-access/SynchronizedDataSet.hpp"
+#include "../../../../../core/Shared.hpp"
+#include "../../../../../core/utility/Logger.hpp"
+#include "../zonal/influence/Operator.hpp"
 
 // QT
 #include <QObject>

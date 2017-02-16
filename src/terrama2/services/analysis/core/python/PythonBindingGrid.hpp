@@ -28,8 +28,8 @@
 */
 
 
-#ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_PYTHON_GRID_HPP__
-#define __TERRAMA2_SERVICES_ANALYSIS_CORE_PYTHON_GRID_HPP__
+#ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_PYTHON_BINDING_GRID_HPP__
+#define __TERRAMA2_SERVICES_ANALYSIS_CORE_PYTHON_BINDING_GRID_HPP__
 
 namespace terrama2
 {
@@ -57,6 +57,8 @@ namespace terrama2
             void registerGridZonalHistoryFunctions();
             void registerGridZonalHistoryAccumFunctions();
             void registerGridZonalHistoryPrecFunctions();
+            void registerGridZonalHistoryIntervalFunctions();
+
           } /* MonitoredObject */
         } /* python */
       }
@@ -64,4 +66,4 @@ namespace terrama2
   }
 }
 
-#endif // __TERRAMA2_SERVICES_ANALYSIS_CORE_PYTHON_GRID_HPP__
+#endif // __TERRAMA2_SERVICES_ANALYSIS_CORE_PYTHON_BINDING_GRID_HPP__
