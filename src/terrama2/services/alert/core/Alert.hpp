@@ -30,10 +30,12 @@
 #ifndef __TERRAMA2_SERVICES_ALERT_CORE_ALERT_HPP__
 #define __TERRAMA2_SERVICES_ALERT_CORE_ALERT_HPP__
 
+// TerraMA2
 #include "Typedef.hpp"
 #include "../../../core/data-model/DataSeriesRisk.hpp"
 #include "../../../core/data-model/Schedule.hpp"
 #include "../../../core/data-model/Filter.hpp"
+#include "../../../core/data-model/Process.hpp"
 
 //STL
 #include <unordered_map>
@@ -57,7 +59,7 @@ namespace terrama2
         /*!
          \brief Struct with information for an Alert
         */
-        struct Alert
+        struct Alert : public terrama2::core::Process
         {
           AlertId id = 0; //!< Alert identifier
           ProjectId projectId = 0; //!< Project identifier.
