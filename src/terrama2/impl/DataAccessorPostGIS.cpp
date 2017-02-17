@@ -120,7 +120,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGIS::getSeries(con
 
   if(datetimeColumnName.empty())
   {
-    std::unique_ptr< te::da::DataSetType > dataSetType = std::move(datasource->getDataSetType(tableName));
+    std::unique_ptr< te::da::DataSetType > dataSetType = datasource->getDataSetType(tableName);
 
     auto property = dataSetType->findFirstPropertyOfType(te::dt::DATETIME_TYPE);
 
