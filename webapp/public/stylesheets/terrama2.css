@@ -463,3 +463,17 @@ table.dataTable thead .sorting_disabled {
 table.dataTable thead th, table.dataTable thead td { padding: 10px 10px !important; }
 
 table.dataTable tbody th, table.dataTable tbody td { padding-left: 12px !important; }
+
+/*
+  DCPs form overlay
+*/
+.overlay-dcps {
+  width: 100% !important;
+  height: 100% !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  z-index: 99999 !important;
+}
+
+.overlay-dcps > .fa { position: fixed !important; }

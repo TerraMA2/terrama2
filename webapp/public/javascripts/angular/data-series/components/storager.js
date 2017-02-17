@@ -388,6 +388,10 @@ define([], function(){
           self.dcpTableStore.ajax.reload(null, false);
       };
 
+      $scope.$on("reloadDataStore", function() {
+        reloadDataStore();
+      });
+
       self.countObjectProperties = function(object) {
         var count = 0;
 

@@ -314,6 +314,30 @@ define([], function() {
         }, 50);
       };
 
+      $scope.countObjectProperties = function(object) {
+        var count = 0;
+        
+        if(object !== undefined && object !== null && typeof object === "object")
+          for(key in object) if(object.hasOwnProperty(key)) count++;
+
+        return count;
+      };
+
+      $scope.storageDcps = function(dcps) {
+        $http.post("/configuration/dynamic/dataseries/storeDcps", {
+          key: storedDcpsKey,
+          dcps: dcps
+        }).success(function(result) {
+          reloadData();
+        }).error(function(err) {
+          console.log("Err in storing dcps");
+        });
+      };
+
+      $scope.addDcpsStorager = function(dcps) {
+        $scope.$broadcast("dcpOperation", { action: "addMany", dcps: dcps, storageData: true });
+      };
+
       // it defines when data change combobox has changed and it will adapt the interface
       $scope.onDataSemanticsChange = function() {
         if(!$scope.semanticsSelected)
@@ -413,29 +437,78 @@ define([], function() {
             // TODO: prepare format as dcp item
             $scope.dcpsObject = {};
             $scope.duplicatedAliasCounter = {};
-            inputDataSeries.dataSets.forEach(function(dataset) {
-              if (dataset.position) {
+
+            var dcps = [];
+            var registersCount = 0;
+
+            for(var i = 0, dataSetsLength = inputDataSeries.dataSets.length; i < dataSetsLength; i++) {
+              if(inputDataSeries.dataSets[i].position) {
                 var lat;
                 var long;
-                if (dataset.position.type) {
+                if(inputDataSeries.dataSets[i].position.type) {
                   // geojson
-                  long = dataset.position.coordinates[0];
-                  lat = dataset.position.coordinates[1];
+                  long = inputDataSeries.dataSets[i].position.coordinates[0];
+                  lat = inputDataSeries.dataSets[i].position.coordinates[1];
                 } else {
-                  var first = dataset.position.indexOf("(");
-                  var firstSpace = dataset.position.indexOf(" ", first);
-                  lat = parseInt(dataset.position.slice(first+1, firstSpace));
+                  var first = inputDataSeries.dataSets[i].position.indexOf("(");
+                  var firstSpace = inputDataSeries.dataSets[i].position.indexOf(" ", first);
+                  lat = parseInt(inputDataSeries.dataSets[i].position.slice(first+1, firstSpace));
 
-                  var last = dataset.position.indexOf(")", firstSpace);
-                  long = dataset.position.slice(firstSpace + 1, last);
+                  var last = inputDataSeries.dataSets[i].position.indexOf(")", firstSpace);
+                  long = inputDataSeries.dataSets[i].position.slice(firstSpace + 1, last);
 
                 }
-                dataset.format["latitude"] = lat;
-                dataset.format["longitude"] = long;
+                inputDataSeries.dataSets[i].format["latitude"] = lat;
+                inputDataSeries.dataSets[i].format["longitude"] = long;
               }
-              angular.merge(dataset.format, {active: dataset.active});
-              $scope.dcps.push($scope.prepareFormatToForm(dataset.format));
-            });
+              angular.merge(inputDataSeries.dataSets[i].format, {active: inputDataSeries.dataSets[i].active});
+
+              var dcp = $scope.prepareFormatToForm(inputDataSeries.dataSets[i].format);
+
+              for(var j = 0, fieldsLength = $scope.dataSeries.semantics.metadata.form.length; j < fieldsLength; j++) {
+                var key = $scope.dataSeries.semantics.metadata.form[j].key;
+                var titleMap = $scope.dataSeries.semantics.metadata.form[j].titleMap;
+                var title = $scope.dataSeries.semantics.metadata.schema.properties[key].title;
+                var type = $scope.dataSeries.semantics.metadata.schema.properties[key].type;
+                var pattern = $scope.dataSeries.semantics.metadata.schema.properties[key].pattern;
+
+                dcp[key + '_pattern'] = pattern;
+                dcp[key + '_titleMap'] = titleMap;
+
+                if(dcp[key + '_titleMap'] !== undefined)
+                  type = $scope.dataSeries.semantics.metadata.form[j].type;
+
+                if($scope.isBoolean(dcp[key]))
+                  dcp[key + '_html'] = "<span class=\"dcps-table-span\"><input type=\"checkbox\" ng-model=\"dcpsObject['" + dcp.alias + "']['" + key + "']\"></span>";
+                else
+                  dcp[key + '_html'] = "<span class=\"dcps-table-span\" editable-text=\"dcpsObject['" + dcp.alias + "']['" + key + "']\" onbeforesave=\"validateFieldEdition($data, '" + type + "', '" + dcp.alias + "', '" + key + "')\">{{ dcpsObject['" + dcp.alias + "']['" + key + "'] }}</span>";
+              }
+
+              $scope.dcpsObject[dcp.alias] = dcp;
+
+              var dcpCopy = Object.assign({}, dcp);
+              dcpCopy.removeButton = "<button class=\"btn btn-danger removeDcpBtn\" ng-click=\"removePcd('" + dcp.alias + "')\" style=\"height: 21px; padding: 1px 4px 1px 4px; font-size: 13px;\">" + i18n.__("Remove") + "</button>";
+
+              dcps.push(dcpCopy);
+
+              registersCount++;
+
+              if(registersCount >= 1000) {
+                $scope.storageDcps(dcps);
+                $scope.addDcpsStorager(dcps);
+
+                registersCount = 0;
+                dcps = [];
+              }
+            }
+
+            if(registersCount > 0) {
+              $scope.storageDcps(dcps);
+              $scope.addDcpsStorager(dcps);
+            }
+
+            reloadData();
+            $scope.$emit("reloadDataStore");
           } else {
             $scope.model = $scope.prepareFormatToForm(inputDataSeries.dataSets[0].format);
             $scope.model.temporal = ($scope.model.temporal == 'true' || $scope.model.temporal == true ? true : false);
@@ -1210,21 +1283,6 @@ define([], function() {
         return form.$valid;
       };
 
-      $scope.addDcpsStorager = function(dcps) {
-        $scope.$broadcast("dcpOperation", { action: "addMany", dcps: dcps, storageData: true });
-      };
-
-      $scope.storageDcps = function(dcps) {
-        $http.post("/configuration/dynamic/dataseries/storeDcps", {
-          key: storedDcpsKey,
-          dcps: dcps
-        }).success(function(result) {
-          reloadData();
-        }).error(function(err) {
-          console.log("Err in storing dcps");
-        });
-      };
-
       $scope.$on("fieldHasError", function(event, args) {
         $scope.fieldHasError(args.value, args.type, args.pattern, args.titleMap);
       });
@@ -1357,15 +1415,6 @@ define([], function() {
         return true;
       }
 
-      $scope.countObjectProperties = function(object) {
-        var count = 0;
-        
-        if(object !== undefined && object !== null && typeof object === "object")
-          for(key in object) if(object.hasOwnProperty(key)) count++;
-
-        return count;
-      };
-
       // watch dcps model to update dcpStorager
       $scope.$watch("dcps", function(newVal, oldVal){
         if (newVal && newVal.length > 0){
@@ -1442,7 +1491,7 @@ define([], function() {
         var _makeFormat = function(dSetObject) {
           var format_ = {};
           for(var key in dSetObject) {
-            if(dSetObject.hasOwnProperty(key) && key.toLowerCase() !== "id" && key.substr(key.length - 5) != "_html" && key.substr(key.length - 5) != "_pattern" && key.substr(key.length - 5) != "_titleMap")
+            if(dSetObject.hasOwnProperty(key) && key.toLowerCase() !== "id" && key.substr(key.length - 5) != "_html" && key.substr(key.length - 8) != "_pattern" && key.substr(key.length - 9) != "_titleMap")
               format_[key] = dSetObject[key];
               if(key.startsWith("output_")) {
                 format_[key.replace("output_", "")] = dSetObject[key];
@@ -1545,7 +1594,7 @@ define([], function() {
             for(var dcpKey in $scope.dcpsObject) {
               var format = {};
               for(var key in $scope.dcpsObject[dcpKey]) {
-                if($scope.dcpsObject[dcpKey].hasOwnProperty(key) && key.substr(key.length - 5) != "_html" && key.substr(key.length - 5) != "_pattern" && key.substr(key.length - 5) != "_titleMap")
+                if($scope.dcpsObject[dcpKey].hasOwnProperty(key) && key.substr(key.length - 5) != "_html" && key.substr(key.length - 8) != "_pattern" && key.substr(key.length - 9) != "_titleMap")
                   if(key !== "latitude" && key !== "longitude" && key !== "active")
                     format[key] = $scope.dcpsObject[dcpKey][key];
               }

@@ -50,20 +50,22 @@ define(["TerraMA2WebApp/common/services/index", "TerraMA2WebApp/alert-box/app"],
                 "<div ng-repeat=\"semantic in dataSeries.semantics.metadata.form | filter: defaultValueFilter\">" +
                   "<div class=\"form-group col-md-{{ importationModalColSize[semantic.key] }}\">" +
                     "<label>{{ i18n.__(dataSeries.semantics.metadata.schema.properties[semantic.key].title) }}:</label>" +
-                    "<select class=\"form-control\" name=\"{{ semantic.key + dataSeries.semantics.code }}\" ng-model=\"importationFields[dataSeries.semantics.code][semantic.key]\">" +
+                    "<select class=\"form-control\" name=\"{{ semantic.key + dataSeries.semantics.code }}\" ng-change=\"verifyDefault(dataSeries.semantics.code, semantic.key);\" ng-model=\"importationFields[dataSeries.semantics.code][semantic.key]\">" +
                       "<option value=\"\">{{ i18n.__('Select a column') }}</option>" +
+                      "<option value=\"default\" ng-show=\"dataSeries.semantics.metadata.schema.properties[semantic.key].hasDefaultFieldForImport\">{{ i18n.__('Enter default value') }}</option>" +
                       "<option ng-repeat=\"column in csvImport.finalData.header\" ng-init=\"importationFields[dataSeries.semantics.code][semantic.key] = ''\" value=\"{{ column }}\">{{ column }}</option>" +
                     "</select>" +
                   "</div>" +
                   "<div class=\"form-group col-md-{{ importationModalColSize[semantic.key] }}\" ng-show=\"dataSeries.semantics.metadata.schema.properties[semantic.key].hasDefaultFieldForImport && semantic.titleMap\">" +
                     "<label>{{ i18n.__('Default') }}:</label>" +
-                    "<select class=\"form-control\" id=\"{{ semantic.key + dataSeries.semantics.code }}Default\" name=\"{{ semantic.key + dataSeries.semantics.code }}Default\" ng-model=\"importationFields[dataSeries.semantics.code][semantic.key + 'Default']\">" +
+                    "<select class=\"form-control\" ng-disabled=\"importationFields[dataSeries.semantics.code][semantic.key] != 'default'\" id=\"{{ semantic.key + dataSeries.semantics.code }}Default\" name=\"{{ semantic.key + dataSeries.semantics.code }}Default\" ng-model=\"importationFields[dataSeries.semantics.code][semantic.key + 'Default']\">" +
+                      "<option value=\"\">{{ i18n.__('Select a value') }}</option>" +
                       "<option ng-repeat=\"titleMap in semantic.titleMap\" label=\"{{ titleMap.name }}\" value=\"{{ titleMap.value }}\">{{ titleMap.name }}</option>" +
                     "</select>" +
                   "</div>" +
                   "<div class=\"form-group col-md-{{ importationModalColSize[semantic.key] }}\" ng-show=\"dataSeries.semantics.metadata.schema.properties[semantic.key].hasDefaultFieldForImport && !semantic.titleMap\">" +
                     "<label>{{ i18n.__('Default') }}:</label>" +
-                    "<input class=\"form-control\" id=\"{{ semantic.key + dataSeries.semantics.code }}Default\" name=\"{{ semantic.key + dataSeries.semantics.code }}Default\" ng-model=\"importationFields[dataSeries.semantics.code][semantic.key + 'Default']\" placeholder=\"{{ i18n.__('Default') }}\" type=\"text\">" +
+                    "<input class=\"form-control\" ng-disabled=\"importationFields[dataSeries.semantics.code][semantic.key] != 'default'\" id=\"{{ semantic.key + dataSeries.semantics.code }}Default\" name=\"{{ semantic.key + dataSeries.semantics.code }}Default\" ng-model=\"importationFields[dataSeries.semantics.code][semantic.key + 'Default']\" placeholder=\"{{ i18n.__('Default') }}\" type=\"text\">" +
                   "</div>" +
                   "<div class=\"form-group col-md-{{ importationModalColSize[semantic.key] }}\" ng-show=\"dataSeries.semantics.metadata.schema.properties[semantic.key].hasPrefixFieldForImport\">" +
                     "<label>{{ i18n.__('Prefix') }}:</label>" +
@@ -82,8 +84,8 @@ define(["TerraMA2WebApp/common/services/index", "TerraMA2WebApp/alert-box/app"],
             "</div>" +
           "</div>" +
         "</div>" +
-        "<div class=\"overlay\" ng-show=\"isChecking\">" +
-          "<i class=\"fa fa-refresh fa-spin\"></i>" +
+        "<div class=\"overlay overlay-dcps\" ng-show=\"isChecking\">" +
+          "<i class=\"fa fa-refresh fa-spin\" style=\"position: fixed !important;\"></i>" +
         "</div>"
       );
     }])
@@ -95,6 +97,11 @@ define(["TerraMA2WebApp/common/services/index", "TerraMA2WebApp/alert-box/app"],
           $scope.csvImport = {};
           $scope.importationFields = {};
 
+          $scope.verifyDefault = function(code, key) {
+            if($scope.importationFields[code][key] != 'default')
+              $scope.importationFields[code][key + 'Default'] = '';
+          };
+
           $scope.defaultValueFilter = function(item) {
             return $scope.dataSeries.semantics.metadata.schema.properties[item.key].defaultForImport === undefined;
           };
@@ -105,24 +112,25 @@ define(["TerraMA2WebApp/common/services/index", "TerraMA2WebApp/alert-box/app"],
 
           $scope.selectFileToImport = function() {
             $('#importParametersModal').modal('hide');
-
-            $scope.isChecking = true;
             
             FileDialog.openFile(function(err, input) {
               if(err) {
+                $scope.isChecking = false;
                 $scope.display = true;
                 $scope.alertBox.message = err.toString();
                 return;
               }
 
               FileDialog.readAsCSV(input.files[0], $scope.csvImport.delimiterCharacter, $scope.csvImport.hasHeader, function(error, csv) {
+                if(error) {
+                  $scope.isChecking = false;
+                  $scope.display = true;
+                  $scope.alertBox.message = error.toString();
+                  return;
+                }
+
                 $scope.$apply(function() {
-                  if(error) {
-                    setError(error);
-                    console.log(error);
-                    $scope.isChecking = false;
-                    return;
-                  }
+                  $scope.isChecking = true;
 
                   $scope.csvImport.finalData = csv;
                   $scope.importationModalColSize = {};
@@ -171,7 +179,7 @@ define(["TerraMA2WebApp/common/services/index", "TerraMA2WebApp/alert-box/app"],
                     suffix: null
                   };
 
-                  if($scope.importationFields[type][key] !== undefined && $scope.importationFields[type][key] !== "") {
+                  if($scope.importationFields[type][key] !== undefined && $scope.importationFields[type][key] !== "" && $scope.importationFields[type][key] != "default") {
                     metadata.field = $scope.importationFields[type][key];
 
                     if($scope.importationFields[type][key + 'Prefix'] !== undefined && $scope.importationFields[type][key + 'Prefix'] !== "")
@@ -184,7 +192,7 @@ define(["TerraMA2WebApp/common/services/index", "TerraMA2WebApp/alert-box/app"],
                   } else {
                     MessageBoxService.danger(
                       i18n.__("DCP Import Error"), 
-                      i18n.__("Invalid configuration for the field") + "'" + i18n.__($scope.dataSeries.semantics.metadata.schema.properties[key].title) + "'"
+                      i18n.__("Invalid configuration for the field") + " '" + i18n.__($scope.dataSeries.semantics.metadata.schema.properties[key].title) + "'"
                     );
                     $('#importDCPItemsModal').modal('hide');
                     $scope.isChecking = false;
@@ -251,8 +259,8 @@ define(["TerraMA2WebApp/common/services/index", "TerraMA2WebApp/alert-box/app"],
           var executeImportation = function(metadata, data) {
             var dcps = [];
             var dcpsObjectTemp = {};
-
             var warnDuplicatedAlias = false;
+            var registersCount = 0;
 
             for(var i = 0, dataLength = data.data.length; i < dataLength; i++) {
               var dcp = {};
@@ -281,15 +289,14 @@ define(["TerraMA2WebApp/common/services/index", "TerraMA2WebApp/alert-box/app"],
               for(var j = 0, fieldsLength = $scope.dataSeries.semantics.metadata.form.length; j < fieldsLength; j++) {
                 var value = null;
                 var key = $scope.dataSeries.semantics.metadata.form[j].key;
+                var titleMap = $scope.dataSeries.semantics.metadata.form[j].titleMap;
+                var title = $scope.dataSeries.semantics.metadata.schema.properties[key].title;
+                var type = $scope.dataSeries.semantics.metadata.schema.properties[key].type;
+                var pattern = $scope.dataSeries.semantics.metadata.schema.properties[key].pattern;
 
                 if(key == "alias")
                   value = alias;
                 else {
-                  var titleMap = $scope.dataSeries.semantics.metadata.form[j].titleMap;
-                  var title = $scope.dataSeries.semantics.metadata.schema.properties[key].title;
-                  var type = $scope.dataSeries.semantics.metadata.schema.properties[key].type;
-                  var pattern = $scope.dataSeries.semantics.metadata.schema.properties[key].pattern;
-
                   var validateImportResult = validateImportValue(key, titleMap, title, type, pattern, metadata, data.data[i], $scope.dataSeries.semantics.metadata.form[j].type, (i + (data.hasHeader ? 2 : 1)));
 
                   if(validateImportResult.error !== null) {
@@ -299,6 +306,12 @@ define(["TerraMA2WebApp/common/services/index", "TerraMA2WebApp/alert-box/app"],
                   } else
                     value = validateImportResult.value;
                 }
+
+                dcp[key + '_pattern'] = pattern;
+                dcp[key + '_titleMap'] = titleMap;
+
+                if(dcp[key + '_titleMap'] !== undefined)
+                  type = $scope.dataSeries.semantics.metadata.form[j].type;
 
                 if($scope.isBoolean(value))
                   dcp[key + '_html'] = "<span class=\"dcps-table-span\"><input type=\"checkbox\" ng-model=\"dcpsObject['" + alias + "']['" + key + "']\"></span>";
@@ -316,12 +329,24 @@ define(["TerraMA2WebApp/common/services/index", "TerraMA2WebApp/alert-box/app"],
               dcpCopy.removeButton = "<button class=\"btn btn-danger removeDcpBtn\" ng-click=\"removePcd('" + dcp.alias + "')\" style=\"height: 21px; padding: 1px 4px 1px 4px; font-size: 13px;\">" + i18n.__("Remove") + "</button>";
 
               dcps.push(dcpCopy);
+
+              registersCount++;
+
+              if(registersCount >= 1000) {
+                $scope.storageDcps(dcps);
+                $scope.addDcpsStorager(dcps);
+
+                registersCount = 0;
+                dcps = [];
+              }
             }
             
             $scope.dcpsObject = angular.merge($scope.dcpsObject, dcpsObjectTemp);
 
-            $scope.storageDcps(dcps);
-            $scope.addDcpsStorager(dcps);
+            if(registersCount > 0) {
+              $scope.storageDcps(dcps);
+              $scope.addDcpsStorager(dcps);
+            }
 
             // reset form to do not display feedback class
             $scope.forms.parametersForm.$setPristine();
