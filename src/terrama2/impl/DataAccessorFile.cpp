@@ -479,19 +479,19 @@ bool terrama2::core::DataAccessorFile::needToOpenConfigFile() const
   return false;
 }
 
-std::string terrama2::core::DataAccessorFile::getControlFileMask(terrama2::core::DataSetPtr dataSet) const
+std::string terrama2::core::DataAccessorFile::getControlFileMask(terrama2::core::DataSetPtr /*dataSet*/) const
 {
   QString errMsg = QObject::tr("Should be override in subclass.");
   throw terrama2::core::Exception() << ErrorDescription(errMsg);
 }
 
-std::string terrama2::core::DataAccessorFile::readControlFile(terrama2::core::DataSetPtr dataSet, const std::string& controlFilename) const
+std::string terrama2::core::DataAccessorFile::readControlFile(terrama2::core::DataSetPtr /*dataSet*/, const std::string& /*controlFilename*/) const
 {
   QString errMsg = QObject::tr("Should be override in subclass.");
   throw terrama2::core::Exception() << ErrorDescription(errMsg);
 }
 
-std::string terrama2::core::DataAccessorFile::getConfigFilename(terrama2::core::DataSetPtr dataSet, const std::string& binaryFilename) const
+std::string terrama2::core::DataAccessorFile::getConfigFilename(terrama2::core::DataSetPtr /*dataSet*/, const std::string& /*binaryFilename*/) const
 {
   QString errMsg = QObject::tr("Should be override in subclass.");
   throw terrama2::core::Exception() << ErrorDescription(errMsg);

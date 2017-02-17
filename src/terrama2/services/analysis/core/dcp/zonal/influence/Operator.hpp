@@ -27,8 +27,8 @@
   \author Paulo R. M. Oliveira
 */
 
-#include "../../BufferMemory.hpp"
-#include "../../../../../core/Typedef.hpp"
+#include "../../../BufferMemory.hpp"
+#include "../../../../../../core/Typedef.hpp"
 
 #include <vector>
 #include <string>
@@ -52,27 +52,27 @@ namespace terrama2
             namespace influence
             {
               /*
-             \brief Returns the list with identifiers of DCPs that influence the given data series based on the values of the given attributes.
+               \brief Returns the list with identifiers of DCPs that influence the given data series based on the values of the given attributes.
 
-             This method will return a list with the DCP dataset identifiers for each monitored object,
-             this information must exist in the monitored object dataset in any of the given attributes.
+               This method will return a list with the DCP dataset identifiers for each monitored object,
+               this information must exist in the monitored object dataset in any of the given attributes.
 
-             \param dataSeriesName Name of the data series.
-             \param attributeList List of attributes that contain the DCP ID to be used.
-             \return The list with identifiers of DCPs that influence the given data series.
-             */
+               \param dataSeriesName Name of the data series.
+               \param attributeList List of attributes that contain the DCP ID to be used.
+               \return The list with identifiers of DCPs that influence the given data series.
+               */
               std::vector< std::string > byAttribute(const std::string& dataSeriesName, std::vector<std::string> attributeList);
 
 
               /*
-             \brief Returns the list with identifiers of DCPs that influence the given data series.
+               \brief Returns the list with identifiers of DCPs that influence the given data series.
 
-             It will create a buffer around the DCP position and determine the influence using the configured
+               It will create a buffer around the DCP position and determine the influence using the configured
 
-             \param dataSeriesName Name of the data series.
-             \param attributeList List of attributes that contain the DCP ID to be used.
-             \return The list with the alias of DCPs that influence the given data series.
-             */
+               \param dataSeriesName Name of the data series.
+               \param attributeList List of attributes that contain the DCP ID to be used.
+               \return The list with the alias of DCPs that influence the given data series.
+               */
               std::vector< std::string > byRule(const std::string& dataSeriesName, const terrama2::services::analysis::core::Buffer& buffer);
 
             } // end namespace influence

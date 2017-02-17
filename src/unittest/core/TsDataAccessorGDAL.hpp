@@ -16,8 +16,8 @@
 */
 
 /*!
-  \file terrama2/unittest/core/TsDataAccessorGeoTiff.hpp
-  \brief Tests for Class DataAccessorGeoTiff
+  \file terrama2/unittest/core/TsDataAccessorGDAL.hpp
+  \brief Tests for Class DataAccessorGDAL
   \author Evandro Delatin
 */
 
@@ -25,11 +25,11 @@
 #define __TERRAMA2_UNITTEST_CORE_DATA_ACCESSOR_GEO_TIFF_HPP__
 
 
-#include <terrama2/impl/DataAccessorGeoTiff.hpp>
+#include <terrama2/impl/DataAccessorGDAL.hpp>
 #include <QtTest>
 
 
-class TsDataAccessorGeoTiff: public QObject
+class TsDataAccessorGDAL: public QObject
 {
     Q_OBJECT
 
@@ -43,7 +43,7 @@ class TsDataAccessorGeoTiff: public QObject
 
     //******Test functions********
 
-    void TestFailAddNullDataAccessorGeoTiff();
+    void TestFailAddNullDataAccessorGDAL();
     void TestFailDataProviderNull();
     void TestFailDataSeriesNull();
     void TestFailDataSeriesSemanticsInvalid();

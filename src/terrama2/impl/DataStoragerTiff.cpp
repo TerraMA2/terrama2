@@ -32,6 +32,7 @@
 #include "../core/utility/Utils.hpp"
 #include "../core/utility/Verify.hpp"
 #include "../core/data-model/DataProvider.hpp"
+#include "../core/Shared.hpp"
 
 //terralib
 #include <terralib/rp/Functions.h>
@@ -58,6 +59,21 @@ std::string terrama2::core::DataStoragerTiff::getMask(DataSetPtr dataSet) const
   {
     QString errMsg = QObject::tr("Undefined mask in dataset: %1.").arg(dataSet->id);
     TERRAMA2_LOG_ERROR() << errMsg;
+    throw UndefinedTagException() << ErrorDescription(errMsg);
+  }
+}
+
+int terrama2::core::DataStoragerTiff::getSRID(DataSetPtr dataSet, bool log = true) const
+{
+  try
+  {
+    return std::stoi(dataSet->format.at("srid"));
+  }
+  catch(...)
+  {
+    QString errMsg = QObject::tr("Undefined mask in dataset: %1.").arg(dataSet->id);
+    if(log)
+      TERRAMA2_LOG_ERROR() << errMsg;
     throw UndefinedTagException() << ErrorDescription(errMsg);
   }
 }
@@ -232,6 +248,17 @@ void terrama2::core::DataStoragerTiff::store(DataSetSeries series, DataSetPtr ou
     throw DataStoragerException() << ErrorDescription(errMsg);
   }
 
+  int outputSrid = -1;
+  try
+  {
+    outputSrid = getSRID(outputDataSet, false);
+    verify::srid(outputSrid);
+  }
+  catch (const UndefinedTagException&)
+  {
+    //SRID is an optional parameter
+  }
+
   auto dataset = series.syncDataSet->dataset();
   size_t rasterColumn = te::da::GetFirstPropertyPos(dataset.get(), te::dt::RASTER_TYPE);
   if(!isValidColumn(rasterColumn))
@@ -258,6 +285,21 @@ void terrama2::core::DataStoragerTiff::store(DataSetSeries series, DataSetPtr ou
       QString errMsg = QObject::tr("Null raster found.");
       TERRAMA2_LOG_ERROR() << errMsg;
       continue;
+    }
+
+    if(outputSrid > 0)
+    {
+      try
+      {
+        verify::srid(raster->getSRID(), false);
+        std::map<std::string, std::string> map{{"FORCE_MEM_DRIVER", "TRUE"}};
+        raster.reset(raster->transform(outputSrid, map));
+      }
+      catch(...)
+      {
+        auto grid = raster->getGrid();
+        grid->setSRID(outputSrid);
+      }
     }
 
     std::string filename = replaceMask(mask, timestamp, outputDataSet);

@@ -186,11 +186,11 @@
   },
   {
     "id": 6,
-    "name": "Static GeoTIFF grid",
-    "code": "GRID-static_geotiff",
+    "name": "Static GDAL grid",
+    "code": "GRID-static_gdal",
     "type": "GRID",
     "temporality": "STATIC",
-    "format": "GEOTIFF",
+    "format": "GDAL",
     "providers_type_list": ["FILE", "FTP"],
     "metadata": {
       "timestamp_property": "file_timestamp"
@@ -584,11 +584,11 @@
   },
   {
     "id": 11,
-    "name": "GeoTIFF grid",
-    "code": "GRID-geotiff",
+    "name": "GDAL raster",
+    "code": "GRID-gdal",
     "type": "GRID",
     "temporality": "DYNAMIC",
-    "format": "GEOTIFF",
+    "format": "GDAL",
     "providers_type_list": ["FILE", "FTP"],
     "metadata": {
       "timestamp_property": "file_timestamp"
@@ -610,6 +610,10 @@
           "timezone": {
             "type": "string",
             "title": "Timezone"
+          },
+          "srid": {
+            "type": "number",
+            "title": "Projection (SRID)"
           }
         },
         "required": ["mask", "timezone"]
@@ -624,7 +628,6 @@
         },
         {
           "key": "mask",
-          "type": "terrama2maskform",
           "maskPattern": ["%YYYY", "%YY", "%MM", "%DD", "%hh", "%mm", "%ss"],
           "htmlClass": "col-md-6",
           "validationMessage": {
@@ -662,6 +665,10 @@
             {"name": "11", "value": "11"},
             {"name": "12", "value": "12"}
           ]
+        },
+        {
+          "key": "srid",
+          "htmlClass": "col-md-6"
         }
       ]
     }
@@ -693,7 +700,7 @@
           },
           "srid" : {
             "type": "number",
-            "title": "SRID"
+            "title": "Projection (SRID)"
           },
           "timezone" : {
             "type": "string",

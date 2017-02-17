@@ -67,7 +67,7 @@ void prepareExample(std::shared_ptr<terrama2::services::view::core::DataManager>
   dataSeriesRaster->id = 1;
   dataSeriesRaster->name = "dataSeriesRaster";
   dataSeriesRaster->dataProviderId = 1;
-  dataSeriesRaster->semantics = semanticsManager.getSemantics("GRID-geotiff");
+  dataSeriesRaster->semantics = semanticsManager.getSemantics("GRID-gdal");
 
   terrama2::core::DataSetGrid* dataSetRaster = new terrama2::core::DataSetGrid();
   dataSetRaster->active = true;

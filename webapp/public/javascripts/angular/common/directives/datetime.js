@@ -31,7 +31,6 @@ define(
           // Digesting scope
           element.on('dp.change', function (e) {
             $timeout(function () {
-              console.log(element);
               if (!!e.date) {
                 scope.$apply(function () {
                   ngModelCtrl.$setViewValue(e.date);

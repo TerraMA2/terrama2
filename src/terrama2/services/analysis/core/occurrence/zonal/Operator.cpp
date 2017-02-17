@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/services/analysis/core/occurrence/Operator.cpp
+  \file terrama2/services/analysis/core/occurrence/zonal/Operator.cpp
 
   \brief Contains occurrence analysis operators.
 
@@ -30,11 +30,11 @@
 
 // TerraMA2
 #include "Operator.hpp"
-#include "../utility/Utils.hpp"
-#include "../utility/Verify.hpp"
-#include "../ContextManager.hpp"
-#include "../../../../core/utility/Logger.hpp"
-#include "../../../../core/data-model/Filter.hpp"
+#include "../../utility/Utils.hpp"
+#include "../../utility/Verify.hpp"
+#include "../../ContextManager.hpp"
+#include "../../../../../core/utility/Logger.hpp"
+#include "../../../../../core/data-model/Filter.hpp"
 
 #include <QTextStream>
 
@@ -44,14 +44,12 @@
 #include <terralib/geometry/MultiPolygon.h>
 #include <terralib/geometry/Utils.h>
 
-double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOperation statisticOperation,
-    const std::string& dataSeriesName,
-    Buffer buffer,
-    const std::string& dateFilter,
-    Buffer aggregationBuffer,
-    const std::string& attribute,
-    StatisticOperation aggregationStatisticOperation,
-    const std::string& restriction)
+double terrama2::services::analysis::core::occurrence::zonal::operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
+                                                                           const std::string &dataSeriesName, terrama2::services::analysis::core::Buffer buffer,
+                                                                           const std::string &dateFilterBegin, const std::string &dateFilterEnd,
+                                                                           terrama2::services::analysis::core::Buffer aggregationBuffer, const std::string &attribute,
+                                                                           terrama2::services::analysis::core::StatisticOperation aggregationStatisticOperation,
+                                                                           const std::string &restriction)
 {
 
   OperatorCache cache;
@@ -149,7 +147,8 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
         std::shared_ptr<te::gm::Geometry> monitoredObjectBox(te::gm::GetGeomFromEnvelope(moEnvelope.get(), geomResult->getSRID()));
 
         terrama2::core::Filter filter;
-        filter.discardBefore = context->getTimeFromString(dateFilter);
+        filter.discardBefore = context->getTimeFromString(dateFilterBegin);
+        filter.discardAfter = context->getTimeFromString(dateFilterEnd);
         filter.byValue = restriction;
         filter.region = monitoredObjectBox;
 
@@ -376,77 +375,77 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
   }
 }
 
-int terrama2::services::analysis::core::occurrence::count(const std::string& dataSeriesName,
+int terrama2::services::analysis::core::occurrence::zonal::count(const std::string& dataSeriesName,
     const std::string& dateFilter, Buffer buffer, const std::string& restriction)
 {
-  return (int) operatorImpl(StatisticOperation::COUNT, dataSeriesName, buffer, dateFilter, Buffer(), "",
-                            StatisticOperation::INVALID, restriction);
+  return (int) operatorImpl(StatisticOperation::COUNT, dataSeriesName, buffer, dateFilter, "0s", Buffer(),
+                            "", StatisticOperation::INVALID, restriction);
 }
 
-double terrama2::services::analysis::core::occurrence::min(const std::string& dataSeriesName,
+double terrama2::services::analysis::core::occurrence::zonal::min(const std::string& dataSeriesName,
                                                            const std::string& attribute,
                                                            const std::string& dateFilter,
                                                            terrama2::services::analysis::core::Buffer buffer,
                                                            const std::string& restriction)
 {
-  return operatorImpl(StatisticOperation::MIN, dataSeriesName, buffer, dateFilter, Buffer(), attribute,
+  return operatorImpl(StatisticOperation::MIN, dataSeriesName, buffer, dateFilter, "0s", Buffer(), attribute,
                       StatisticOperation::INVALID, restriction);
 }
 
-double terrama2::services::analysis::core::occurrence::max(const std::string& dataSeriesName,
+double terrama2::services::analysis::core::occurrence::zonal::max(const std::string& dataSeriesName,
     const std::string& attribute,
     const std::string& dateFilter, Buffer buffer, const std::string& restriction)
 {
-  return operatorImpl(StatisticOperation::MAX, dataSeriesName, buffer, dateFilter, Buffer(), attribute,
+  return operatorImpl(StatisticOperation::MAX, dataSeriesName, buffer, dateFilter, "0s", Buffer(), attribute,
                       StatisticOperation::INVALID, restriction);
 }
 
-double terrama2::services::analysis::core::occurrence::mean(const std::string& dataSeriesName,
+double terrama2::services::analysis::core::occurrence::zonal::mean(const std::string& dataSeriesName,
                                                             const std::string& attribute,
                                                             const std::string& dateFilter,
                                                             Buffer buffer,
                                                             const std::string& restriction)
 {
-  return operatorImpl(StatisticOperation::MEAN, dataSeriesName, buffer, dateFilter, Buffer(), attribute,
-                      StatisticOperation::INVALID, restriction);
+  return operatorImpl(StatisticOperation::MEAN, dataSeriesName, buffer, dateFilter, "0s", Buffer(),
+                      attribute, StatisticOperation::INVALID, restriction);
 }
 
-double terrama2::services::analysis::core::occurrence::median(const std::string& dataSeriesName,
+double terrama2::services::analysis::core::occurrence::zonal::median(const std::string& dataSeriesName,
                                                               const std::string& attribute,
                                                               const std::string& dateFilter,
                                                               Buffer buffer,
                                                               const std::string& restriction)
 {
-  return operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, buffer, dateFilter, Buffer(), attribute,
-                      StatisticOperation::INVALID, restriction);
+  return operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, buffer, dateFilter, "0s", Buffer(),
+                      attribute, StatisticOperation::INVALID, restriction);
 }
 
-double terrama2::services::analysis::core::occurrence::standardDeviation(const std::string& dataSeriesName,
+double terrama2::services::analysis::core::occurrence::zonal::standardDeviation(const std::string& dataSeriesName,
                                                                          const std::string& attribute,
                                                                          const std::string& dateFilter,
                                                                          Buffer buffer,
                                                                          const std::string& restriction)
 {
-  return operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, buffer, dateFilter, Buffer(), attribute,
-                      StatisticOperation::INVALID, restriction);
+  return operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, buffer, dateFilter, "0s",
+                      Buffer(), attribute, StatisticOperation::INVALID, restriction);
 }
 
-double terrama2::services::analysis::core::occurrence::variance(const std::string& dataSeriesName,
+double terrama2::services::analysis::core::occurrence::zonal::variance(const std::string& dataSeriesName,
                                                                 const std::string& attribute,
                                                                 const std::string& dateFilter,
                                                                 Buffer buffer,
                                                                 const std::string& restriction)
 {
-  return operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, buffer, dateFilter, Buffer(), attribute,
-                      StatisticOperation::INVALID, restriction);
+  return operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, buffer, dateFilter, "0s", Buffer(),
+                      attribute, StatisticOperation::INVALID, restriction);
 }
 
-double terrama2::services::analysis::core::occurrence::sum(const std::string& dataSeriesName,
+double terrama2::services::analysis::core::occurrence::zonal::sum(const std::string& dataSeriesName,
                                                            const std::string& attribute,
                                                            const std::string& dateFilter,
                                                            Buffer buffer,
                                                            const std::string& restriction)
 {
-  return operatorImpl(StatisticOperation::SUM, dataSeriesName, buffer, dateFilter, Buffer(), attribute,
+  return operatorImpl(StatisticOperation::SUM, dataSeriesName, buffer, dateFilter, "0s", Buffer(), attribute,
                       StatisticOperation::INVALID, restriction);
 }

@@ -73,7 +73,7 @@ te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PA
       //DataSeries information
       terrama2::core::DataSeries *outputDataSeries = new terrama2::core::DataSeries();
       terrama2::core::DataSeriesPtr outputDataSeriesPtr(outputDataSeries);
-      outputDataSeries->semantics = semanticsManager.getSemantics("GRID-geotiff");
+      outputDataSeries->semantics = semanticsManager.getSemantics("GRID-gdal");
       outputDataSeries->name = "Output Grid";
       outputDataSeries->id = 5;
       outputDataSeries->dataProviderId = 1;
@@ -96,7 +96,7 @@ te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PA
 
       terrama2::core::DataSeries *dataSeries1 = new terrama2::core::DataSeries();
       terrama2::core::DataSeriesPtr dataSeries1Ptr(dataSeries1);
-      dataSeries1->semantics = semanticsManager.getSemantics("GRID-geotiff");
+      dataSeries1->semantics = semanticsManager.getSemantics("GRID-gdal");
       dataSeries1->name = "geotiff 1";
       dataSeries1->id = 1;
       dataSeries1->dataProviderId = 1;

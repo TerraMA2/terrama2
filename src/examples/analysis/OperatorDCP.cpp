@@ -183,7 +183,7 @@ int main(int argc, char* argv[])
     dcpDataset69034->format.emplace("timezone", "-02:00");
     dcpDataset69034->dataSeriesId = 2;
     dcpDataset69034->id = 2;
-    dcpDataset69034->position = std::shared_ptr<te::gm::Point>(new te::gm::Point(-44.46540, -23.00506, 4618, nullptr));
+    dcpDataset69034->position = std::shared_ptr<te::gm::Point>(new te::gm::Point(-44.46540, -23.00506, 4618, te::gm::PointType,  nullptr));
     dcpSeries->datasetList.push_back(dcpDataset69034Ptr);
 
 
@@ -194,7 +194,7 @@ int main(int argc, char* argv[])
     dcpDataset30885->format.emplace("timezone", "-02:00");
     dcpDataset30885->dataSeriesId = 2;
     dcpDataset30885->id = 3;
-    dcpDataset30885->position = std::shared_ptr<te::gm::Point>(new te::gm::Point(-46.121, -23.758, 4618, nullptr));
+    dcpDataset30885->position = std::shared_ptr<te::gm::Point>(new te::gm::Point(-46.121, -23.758, 4618, te::gm::PointType, nullptr));
     dcpSeries->datasetList.push_back(dcpDataset30886Ptr);
 
     AnalysisDataSeries dcpADS;
