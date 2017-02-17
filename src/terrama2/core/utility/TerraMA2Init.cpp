@@ -68,6 +68,7 @@ terrama2::core::TerraMA2Init::TerraMA2Init(const std::string& serviceType, const
 
     semanticsManager.addSemantics(obj["code"].toString().toStdString(),
                                   obj["name"].toString().toStdString(),
+                                  obj["driver"].toString().toStdString(),
                                   dataSeriesTypeFromString(obj["type"].toString().toStdString()),
                                   dataSeriesTemporalityFromString(obj["temporality"].toString().toStdString()),
                                   obj["format"].toString().toStdString(),
