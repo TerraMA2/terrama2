@@ -12,7 +12,7 @@ define([], function() {
     var self = this;
     /**
      * It retrieves a configuration from main window.
-     * 
+     *
      * @type {Object}
      */
     var config = window.configuration;
@@ -25,7 +25,7 @@ define([], function() {
     var Globals = $window.globals;
     /**
      * It handles alert box display
-     * 
+     *
      * @type {Object}
      */
     self.MessageBoxService = MessageBoxService;
@@ -36,17 +36,17 @@ define([], function() {
     self.DataSeriesType = DataSeriesService.DataSeriesType;
     /**
      * It handles Service Instance model
-     * 
+     *
      * @type {Object}
      */
     self.ServiceInstance = Service;
-    /** 
+    /**
      * @type {Object}
      */
     self.scheduleOptions = {};
     /**
      * It handles if should show schedule or not. It may be changed on view data series change
-     * 
+     *
      * @type {boolean}
      */
     self.isDynamic = false;
@@ -57,12 +57,12 @@ define([], function() {
     self.filteredServices = [];
     /**
      * Flag to handle if is Updating or Registering
-     * 
+     *
      * @type {Boolean}
      */
     self.isUpdating = config.view ? true : false;
     /**
-     * It handles data series changed state in order to prevent select DCP or format !== GEOTIFF
+     * It handles data series changed state in order to prevent select DCP or format !== GDAL
      */
     self.isValid = true;
     /**
@@ -119,7 +119,7 @@ define([], function() {
           self.hasStyle = false;
           self.legend = {};
         }
-      } 
+      }
     };
     /**
      * It contains view instance values
@@ -232,9 +232,9 @@ define([], function() {
 
     /**
      * It is used on ng-init active view. It will wait for angular ready condition and set active view checkbox
-     * 
+     *
      * @returns {void}
-     */    
+     */
     function initActive() {
       // wait angular digest cycle
       $timeout(function() {
@@ -245,7 +245,7 @@ define([], function() {
     /**
      * It handles Data Series combobox change. If it is GRID data series, there is a default style script
      * @param {DataSeries}
-     */    
+     */
     function onDataSeriesChanged(dataSeriesId) {
       self.dataSeries.some(function(dSeries) {
         if (dSeries.id === dataSeriesId) {
@@ -258,9 +258,9 @@ define([], function() {
           // extra comparison just to setting if it is dynamic or static.
           // Here avoids to setting to true in many cases below
           self.isDynamic = dSeries.data_series_semantics.data_series_type_name !== DataSeriesService.DataSeriesType.GEOMETRIC_OBJECT;
-          if (dSeries.data_series_semantics.data_series_format_name === "GEOTIFF") {
+          if (dSeries.data_series_semantics.data_series_format_name === "GDAL") {
             self.isValid = false;
-            MessageBoxService.danger(i18n.__("View"), i18n.__("You selected a GRID data series. Only GEOTIFF data series format are supported"));
+            MessageBoxService.danger(i18n.__("View"), i18n.__("You selected a GRID data series. Only GDAL data series format are supported"));
           } else if (dSeries.data_series_semantics.data_series_type_name === DataSeriesService.DataSeriesType.DCP) {
             self.isValid = false;
             MessageBoxService.danger(i18n.__("View"), i18n.__("DCP data series is not supported yet"));
@@ -285,7 +285,7 @@ define([], function() {
      * @returns {void}
      */
     function saveOperation(shouldRun) {
-      // broadcasting each one terrama2 field directive validation 
+      // broadcasting each one terrama2 field directive validation
       $scope.$broadcast("formFieldValidation");
       // broadcasting schema form validation
       $scope.$broadcast("schemaFormValidate");
@@ -296,7 +296,7 @@ define([], function() {
 
       $timeout(function(){
         $scope.$apply(function() {
-          if ($scope.forms.viewForm.$invalid || 
+          if ($scope.forms.viewForm.$invalid ||
             $scope.forms.dataSeriesForm.$invalid ||
             $scope.forms.styleForm && $scope.forms.styleForm.$invalid) {
             return;
@@ -331,7 +331,7 @@ define([], function() {
                 return;
               }
 
-              // preparing schedule.  
+              // preparing schedule.
               var scheduleValues = self.view.schedule;
               switch(scheduleValues.scheduleHandler) {
                 case "seconds":
@@ -375,7 +375,7 @@ define([], function() {
     }
   }
 
-  ViewRegisterUpdate.$inject = ["$scope", "i18n", "ViewService", "$log", "$http", "$timeout", "MessageBoxService", "$window", 
+  ViewRegisterUpdate.$inject = ["$scope", "i18n", "ViewService", "$log", "$http", "$timeout", "MessageBoxService", "$window",
     "DataSeriesService", "Service", "StringFormat", "ColorFactory", "StyleType"];
 
   return ViewRegisterUpdate;

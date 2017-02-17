@@ -127,7 +127,7 @@ void addOutput(std::shared_ptr<terrama2::services::collector::core::DataManager>
   outputDataSeries->id = 2;
   outputDataSeries->name = "Hidroestimador";
   auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
-  outputDataSeries->semantics = semanticsManager.getSemantics("GRID-geotiff");
+  outputDataSeries->semantics = semanticsManager.getSemantics("GRID-gdal");
   outputDataSeries->dataProviderId = outputDataProviderPtr->id;
 
   dataManager->add(outputDataSeriesPtr);

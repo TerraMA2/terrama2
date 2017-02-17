@@ -208,7 +208,7 @@ var DataManager = module.exports = {
         inserts.push(self.addDataFormat({name: DataSeriesType.GRID, description: "Grid Description"}));
         inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.POSTGIS, description: "POSTGIS description"}));
         inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.OGR, description: "Gdal ogr"}));
-        inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.GEOTIFF, description: "GeoTiff"}));
+        inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.GDAL, description: "GDAL"}));
         inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.GRADS, description: "GRADS"}));
 
         // analysis type
@@ -660,7 +660,7 @@ var DataManager = module.exports = {
    * It add a new TerraMA2 user instance
    * @param {Object} userObject - A javascript object with user values
    * @param {Object} options - A query options
-   * @param {Transaction} options.transaction - An ORM transaction 
+   * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise} a bluebird promise
    */
   addUser: function(userObject, options) {
@@ -891,8 +891,8 @@ var DataManager = module.exports = {
     return new Promise(function(resolve, reject) {
       self.getServiceInstance({id: serviceId}).then(function(serviceResult) {
         return models.db.ServiceInstance.update(serviceObject, Utils.extend({
-            fields: ['name', 'description', 'port', 
-                     'numberOfThreads', 'runEnviroment', 'host', 
+            fields: ['name', 'description', 'port',
+                     'numberOfThreads', 'runEnviroment', 'host',
                      'sshUser', 'sshPort', 'pathToBinary', 'maps_server_uri'],
             where: { id: serviceId }
           }, options))
@@ -1060,7 +1060,7 @@ var DataManager = module.exports = {
    * @param {string} semanticsObject.code - Semantics Code identifier. It must be unique
    * @param {string} semanticsObject.data_format_name - TerraMA² Data format
    * @param {string[]} dataProviderTypes - Defines a list of Data Provider types in order to determine which data provider type the semantics belongs
-   * @param {Object?} semanticsMetadata - Defines a list of extra metadata of semantics 
+   * @param {Object?} semanticsMetadata - Defines a list of extra metadata of semantics
    * @param {Object?} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise<Object>} - a 'bluebird' module with semantics instance or error callback.
@@ -1122,7 +1122,7 @@ var DataManager = module.exports = {
                 });
             });
         })
-        // on save process successfully 
+        // on save process successfully
         .then(function(semantics) {
           return resolve(Utils.clone(semantics.get()));
         })
@@ -1667,7 +1667,7 @@ var DataManager = module.exports = {
 
           dataSeriesObject.dataSets.forEach(function(newDataSet){
             var dataSetToUpdate = dataSeries.dataSets.find(function(dSet){
-              return dSet.format._id == newDataSet.format._id; 
+              return dSet.format._id == newDataSet.format._id;
             });
             // Update data set
             if (dataSetToUpdate){
@@ -1690,7 +1690,7 @@ var DataManager = module.exports = {
                     }
                   }
                 }
-                
+
                 return Promise.all(promisesFormatArray);
               });
               promises.push(updatePromise);
@@ -1970,7 +1970,7 @@ var DataManager = module.exports = {
                                 break;
                             }
                             /**
-                             * Stringification process. It is important to force cast to string due the formats here 
+                             * Stringification process. It is important to force cast to string due the formats here
                              * may be cast to int/float etc.
                              */
                             var formatStringfied = {};
@@ -2467,8 +2467,8 @@ var DataManager = module.exports = {
           dataSeriesArray.forEach(function(dataSeries) {
             collectorsResult.some(function(collector) {
 
-              if(collector.Filter !== undefined && collector.Filter !== null && 
-              collector.Filter.dataValues.region !== undefined && collector.Filter.dataValues.region !== null && 
+              if(collector.Filter !== undefined && collector.Filter !== null &&
+              collector.Filter.dataValues.region !== undefined && collector.Filter.dataValues.region !== null &&
               typeof collector.Filter.dataValues.region === "string") {
                 collector.Filter.dataValues.region = JSON.parse(collector.Filter.dataValues.region);
               }
@@ -3201,7 +3201,7 @@ var DataManager = module.exports = {
 
             /**
              * Promise chain (destroy/save)
-             * 
+             *
              * @type {Promise}
              */
             var promise;
@@ -3255,7 +3255,7 @@ var DataManager = module.exports = {
 
   /**
    * It retrieves all analysis data series in database from given restriction
-   * 
+   *
    * @param {Object} restriction - An analysis data series restriction
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
@@ -3538,7 +3538,7 @@ var DataManager = module.exports = {
   },
   /**
    * It performs a save view style color and retrieve it
-   * 
+   *
    * @param {Object} colorObject - View Style Color object to save
    * @param {Object} options - An ORM query options
    * @param {Transaction} options.transaction - An ORM transaction
@@ -3557,7 +3557,7 @@ var DataManager = module.exports = {
   },
   /**
    * It performs a save view style type and retrieve it
-   * 
+   *
    * @param {Object} styleTypeObject - A type object to save
    * @param {Object} options - An ORM query options
    * @param {Transaction} options.transaction - An ORM transaction
@@ -3576,7 +3576,7 @@ var DataManager = module.exports = {
   },
   /**
    * It performs a save view legend
-   * 
+   *
    * @param {Object} styleLegendObject         - A type object to save
    * @param {string} styleLegendObject.type_id - View Style Type identifier
    * @param {string} styleLegendObject.view_id - View identifier
@@ -3663,7 +3663,7 @@ var DataManager = module.exports = {
           }
           throw new Error("More than one element retrieved during view legend metadata operation");
         })
-        
+
         .then(function() {
           return resolve();
         })
@@ -3675,7 +3675,7 @@ var DataManager = module.exports = {
   },
   /**
    * It performs update or insert view legend color in database.
-   * 
+   *
    * @param {Object} restriction - A query restriction
    * @param {Object} styleColorObject         - A type object to save
    * @param {string} styleColorObject.title - Color title
@@ -3708,7 +3708,7 @@ var DataManager = module.exports = {
   },
   /**
    * It removes view color of database from given restriction
-   * 
+   *
    * @param {Object} restriction - A query restriction
    * @param {Object} options - An ORM query options
    * @param {Transaction} options.transaction - An ORM transaction
@@ -3728,7 +3728,7 @@ var DataManager = module.exports = {
   },
   /**
    * It performs update view legend in database. Once updated, it does not retrieves the row affected in order to keep integrity.
-   * 
+   *
    * @param {Object} restriction - A query restriction
    * @param {ViewStyleLegend} styleLegendObject         - A type object to save
    * @param {string} styleLegendObject.type_id - View Style Type identifier
@@ -3756,7 +3756,7 @@ var DataManager = module.exports = {
   },
   /**
    * It removes a view legend of database using given restriction
-   * 
+   *
    * @param {Object} restriction - A query restriction
    * @param {Object} options - An ORM query options
    * @param {Transaction} options.transaction - An ORM transaction
@@ -4144,7 +4144,7 @@ var DataManager = module.exports = {
   },
   /**
    * It retrieves all available script languages from given restriction
-   * 
+   *
    * @param {Object} restriction - A query restriction
    * @param {Object?} options - An ORM query options
    * @param {Transaction} options.transaction - An ORM transaction
@@ -4165,7 +4165,7 @@ var DataManager = module.exports = {
   },
   /**
    * It gets a script language from given restriction
-   * 
+   *
    * @param {Object} restriction - A query restriction
    * @param {Object?} options - An ORM query options
    * @param {Transaction} options.transaction - An ORM transaction

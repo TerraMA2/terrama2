@@ -20,7 +20,7 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataAccessorStaticGeoTiff.hpp
+  \file terrama2/core/data-access/DataAccessorStaticGDAL.hpp
 
   \brief
 
@@ -28,12 +28,12 @@
  */
 
  //TerraMA2
-#include "DataAccessorStaticGeoTiff.hpp"
+#include "DataAccessorStaticGDAL.hpp"
 #include "../core/utility/Logger.hpp"
 
-terrama2::core::DataAccessorStaticGeoTiff::DataAccessorStaticGeoTiff(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics)
+terrama2::core::DataAccessorStaticGDAL::DataAccessorStaticGDAL(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics)
  : DataAccessor(dataProvider, dataSeries, false),
-   DataAccessorGeoTiff(dataProvider, dataSeries, false)
+   DataAccessorGDAL(dataProvider, dataSeries, false)
 {
   if(checkSemantics && dataSeries->semantics.code != dataAccessorType())
   {
@@ -43,7 +43,7 @@ terrama2::core::DataAccessorStaticGeoTiff::DataAccessorStaticGeoTiff(DataProvide
   }
 }
 
-std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorStaticGeoTiff::createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const
+std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorStaticGDAL::createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const
 {
   return DataAccessorFile::internalCreateCompleteDataSet(dataSetType, true, false);
 }
