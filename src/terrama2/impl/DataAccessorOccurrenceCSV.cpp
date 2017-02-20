@@ -20,7 +20,7 @@
  */
 
 /*!
-  \file terrama2/impl/DataAccessorTxtFile.cpp
+  \file terrama2/impl/DataAccessorOccurrenceCSV.cpp
 
   \brief
 
@@ -28,22 +28,26 @@
  */
 
 // TerraMA2
-#include "DataAccessorDCPTxtFile.hpp"
+#include "DataAccessorOccurrenceCSV.hpp"
 #include "../core/utility/Logger.hpp"
 
 // TerraLib
 #include <terralib/datatype/DateTimeProperty.h>
 #include <terralib/geometry/GeometryProperty.h>
 
-//QT
-#include <QJsonObject>
-#include <QJsonDocument>
+// Qt
 #include <QJsonArray>
+#include <QJsonObject>
 
+terrama2::core::DataAccessorPtr terrama2::core::DataAccessorOccurrenceCSV::make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries)
+{
+  return std::make_shared<DataAccessorOccurrenceCSV>(dataProvider, dataSeries);
+}
 
-void terrama2::core::DataAccessorDCPTxtFile::checkFields(DataSetPtr dataSet) const
+void terrama2::core::DataAccessorOccurrenceCSV::checkFields(DataSetPtr dataSet) const
 {
   bool dateTime = false;
+  bool geometry = false;
 
   QJsonArray array = getFields(dataSet);
 
@@ -55,6 +59,9 @@ void terrama2::core::DataAccessorDCPTxtFile::checkFields(DataSetPtr dataSet) con
 
     if(type == te::dt::DATETIME_TYPE)
       dateTime = true;
+
+    if(type == te::dt::GEOMETRY_TYPE)
+      geometry = true;
   }
 
   if(!dateTime)
@@ -63,10 +70,12 @@ void terrama2::core::DataAccessorDCPTxtFile::checkFields(DataSetPtr dataSet) con
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
   }
-}
 
-terrama2::core::DataAccessorPtr terrama2::core::DataAccessorDCPTxtFile::make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries)
-{
-  return std::make_shared<DataAccessorDCPTxtFile>(dataProvider, dataSeries);
+  if(!geometry)
+  {
+    QString errMsg = QObject::tr("Invalid fields: Missing geometry field!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
+  }
 }
 

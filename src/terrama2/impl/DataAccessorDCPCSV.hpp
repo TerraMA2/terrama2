@@ -20,7 +20,7 @@
  */
 
 /*!
-  \file terrama2/impl/DataAccessorDCPTxtFile.hpp
+  \file terrama2/impl/DataAccessorDCPCSV.hpp
 
   \brief
 
@@ -38,20 +38,20 @@ namespace terrama2
   namespace core
   {
     /*!
-      \class DataAccessorDCPTxtFile
+      \class DataAccessorDCPCSV
 
       \brief Base class for DataAccessor classes that access a DCP text file.
 
     */
-    class DataAccessorDCPTxtFile : public DataAccessorTxtFile
+    class DataAccessorDCPCSV : public DataAccessorTxtFile
     {
       public:
-        DataAccessorDCPTxtFile(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true)
+        DataAccessorDCPCSV(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true)
           : DataAccessor(dataProvider, dataSeries, false),
             DataAccessorFile(dataProvider, dataSeries, false),
             DataAccessorTxtFile(dataProvider, dataSeries, false) { }
 
-        virtual ~DataAccessorDCPTxtFile() = default;
+        virtual ~DataAccessorDCPCSV() = default;
 
         static DataAccessorPtr make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries);
 
