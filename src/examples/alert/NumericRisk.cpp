@@ -1,3 +1,4 @@
+#include "AlertLoggerMock.hpp"
 #include <terrama2/core/Shared.hpp>
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/core/utility/TerraMA2Init.hpp>
@@ -7,7 +8,6 @@
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSetDcp.hpp>
-
 #include <terrama2/services/alert/core/Shared.hpp>
 #include <terrama2/services/alert/core/DataManager.hpp>
 #include <terrama2/services/alert/core/Alert.hpp>
@@ -20,6 +20,10 @@
 
 //QT
 #include <QUrl>
+
+using ::testing::_;
+
+using namespace terrama2::services::alert::core;
 
 
 terrama2::core::DataProviderPtr inputDataProvider()
@@ -61,9 +65,9 @@ terrama2::core::DataSeriesPtr inputDataSeries()
   //DataSet information
   terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
   dataSet->active = true;
-  dataSet->format.emplace("table_name", "cont_focos");
+  dataSet->format.emplace("table_name", "count_occurrence_by_state");
   dataSet->format.emplace("timestamp_property", "execution_date");
-  dataSet->format.emplace("identifier", "geom_id");
+  dataSet->format.emplace("identifier", "sigla");
 
   dataSeries->datasetList.emplace_back(dataSet);
 
@@ -122,29 +126,24 @@ terrama2::services::alert::core::AlertPtr newAlert()
   terrama2::core::DataSeriesRisk risk;
   risk.id = 1;
   risk.dataSeriesId = 1;
-  risk.name = "Wind velocity alert";
-  risk.attribute = "cont";
+  risk.name = "Fire occurrence count";
+  risk.attribute = "occurrence_count";
 
   terrama2::core::RiskLevel level1;
-  level1.level = 1;
-  level1.hasUpperBound = true;
-  level1.upperBound = 20;
+  level1.id = 1;
+  level1.value = -1;
   level1.name = "low";
   risk.riskLevels.push_back(level1);
 
   terrama2::core::RiskLevel level2;
-  level2.level = 2;
-  level2.hasLowerBound = true;
-  level2.lowerBound = 20;
-  level2.hasUpperBound = true;
-  level2.upperBound = 50;
+  level2.id = 2;
+  level2.value = 20;
   level2.name = "medium";
   risk.riskLevels.push_back(level2);
 
   terrama2::core::RiskLevel level3;
-  level3.level = 3;
-  level3.hasLowerBound = true;
-  level3.lowerBound = 50;
+  level3.id = 3;
+  level3.value = 50;
   level3.name = "high";
   risk.riskLevels.push_back(level3);
 
@@ -152,8 +151,8 @@ terrama2::services::alert::core::AlertPtr newAlert()
 
   terrama2::services::alert::core::AdditionalData additionalData;
   additionalData.id = 2;
-  additionalData.identifier = "codigo_ibg";
-  additionalData.attributes.push_back("sigla");
+  additionalData.identifier = "sigla";
+  additionalData.attributes.push_back("nome");
   additionalData.attributes.push_back("regiao_id");
 
   alert->additionalDataVector.push_back(additionalData);
@@ -179,6 +178,9 @@ terrama2::services::alert::core::AlertPtr newAlert()
 
 int main(int argc, char* argv[])
 {
+  ::testing::GTEST_FLAG(throw_on_failure) = true;
+  ::testing::InitGoogleMock(&argc, argv);
+
   terrama2::core::TerraMA2Init terramaRaii("example", 0);
   terrama2::core::registerFactories();
   terrama2::services::alert::core::registerFactories();
@@ -199,10 +201,19 @@ int main(int argc, char* argv[])
     executionPackage.processId = alert->id;
     executionPackage.executionDate = now;
 
-    terrama2::services::alert::core::runAlert(executionPackage, nullptr, dataManager);
+    te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PASSWORD+"@"+TERRAMA2_DATABASE_HOST+":"+TERRAMA2_DATABASE_PORT+"/"+TERRAMA2_DATABASE_DBNAME);
+
+
+    auto logger = std::make_shared<AlertLoggerMock>();
+    ::testing::DefaultValue<RegisterId>::Set(1);
+    EXPECT_CALL(*logger.get(), setConnectionInfo(_));
+    EXPECT_CALL(*logger.get(), start(_)).WillRepeatedly(::testing::Return(1));
+    EXPECT_CALL(*logger.get(), result(_, _, _));
+
+    logger->setConnectionInfo(uri);
+    terrama2::services::alert::core::runAlert(executionPackage, std::dynamic_pointer_cast<AlertLogger>(logger), dataManager);
   }
 
-  
 
   return 0;
 }

@@ -172,11 +172,10 @@ void terrama2::core::DataAccessorFile::cropRaster(std::shared_ptr<te::mem::DataS
   }
 }
 
-void terrama2::core::DataAccessorFile::filterDataSetByLastValue(std::shared_ptr<te::mem::DataSet> completeDataSet,
-    const Filter& filter,
-    std::shared_ptr<te::dt::TimeInstantTZ> lastTimestamp) const
+void terrama2::core::DataAccessorFile::filterDataSetByLastValues(std::shared_ptr<te::mem::DataSet> completeDataSet,
+    const Filter& filter) const
 {
-  if(!filter.lastValue)
+  if(!filter.lastValues)
     return;
 
   auto propertiesNumber = completeDataSet->getNumProperties();
@@ -197,6 +196,10 @@ void terrama2::core::DataAccessorFile::filterDataSetByLastValue(std::shared_ptr<
   size_t size = completeDataSet->size();
   size_t i = 0;
 
+
+  std::vector<std::shared_ptr< te::dt::DateTime> > vecLastValues;
+  vecLastValues.resize(*filter.lastValues.get(), nullptr);
+
   while(i < size)
   {
     completeDataSet->move(i);
@@ -209,9 +212,62 @@ void terrama2::core::DataAccessorFile::filterDataSetByLastValue(std::shared_ptr<
       continue;
     }
 
+
     std::shared_ptr< te::dt::DateTime > dateTime(completeDataSet->getDateTime(dateColumn));
     auto timesIntant = std::dynamic_pointer_cast<te::dt::TimeInstantTZ>(dateTime);
-    if(*timesIntant != *lastTimestamp)
+
+    for(int32_t j =0; j < *filter.lastValues.get(); ++j)
+    {
+      std::shared_ptr< te::dt::DateTime> value = vecLastValues[j];
+      if(value.get() == nullptr)
+      {
+        vecLastValues[j] = timesIntant;
+        break;
+      }
+
+      if(*value.get() > *vecLastValues[j].get())
+      {
+        vecLastValues[j] = timesIntant;
+        break;
+      }
+      if(*value.get() == *vecLastValues[j].get())
+      {
+        break;
+      }
+    }
+
+    ++i;
+  }
+
+  i = 0;
+  while(i < size)
+  {
+    completeDataSet->move(i);
+
+    if(completeDataSet->isNull(dateColumn))
+    {
+      QString errMsg = QObject::tr("Null date/time attribute.");
+      TERRAMA2_LOG_WARNING() << errMsg;
+      ++i;
+      continue;
+    }
+
+
+    std::shared_ptr< te::dt::DateTime > dateTime(completeDataSet->getDateTime(dateColumn));
+    auto timesIntant = std::dynamic_pointer_cast<te::dt::TimeInstantTZ>(dateTime);
+
+    bool found = false;
+    for(int32_t j =0; j < *filter.lastValues.get(); ++j)
+    {
+      auto value = vecLastValues[j];
+
+      if (*timesIntant == *value)
+      {
+        found = true;
+      }
+    }
+
+    if(!found)
     {
       completeDataSet->remove();
       --size;
@@ -701,7 +757,7 @@ void terrama2::core::DataAccessorFile::applyFilters(const terrama2::core::Filter
   //Get last data timestamp and compare with file name timestamp
   std::shared_ptr<te::dt::TimeInstantTZ> dataTimeStamp = getDataLastTimestamp(dataSet, completeDataset);
 
-  filterDataSetByLastValue(completeDataset, filter, dataTimeStamp);
+  filterDataSetByLastValues(completeDataset, filter);
 
   cropRaster(completeDataset, filter);
 

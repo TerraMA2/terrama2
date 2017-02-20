@@ -90,7 +90,7 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
     // analysing data
 
     auto filter = alertPtr->filter;
-    filter.lastValue = true;
+    filter.lastValues = std::make_shared<int>(3);
     auto risk = alertPtr->risk;
 
     auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(inputDataProvider, inputDataSeries);
@@ -116,6 +116,14 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
       auto dataSetType = dataSeries.teDataSetType;
 
       auto idProperty = dataSetType->getProperty(getIdentifierPropertyName(dataset, inputDataSeries));
+      if(!idProperty)
+      {
+        QString errMsg = QObject::tr("Invalid identifier attribute.");
+        logger->result(AlertLogger::ERROR, nullptr, executionPackage.registerId);
+        logger->log(AlertLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+        TERRAMA2_LOG_ERROR() << errMsg;
+        return;
+      }
       auto fkProperty = idProperty->clone();
       fkProperty->setName(idProperty->getName()+"_fk");
       alertDataSetType->add(fkProperty);
@@ -178,6 +186,8 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
     }
 
     logger->result(AlertLogger::DONE, executionPackage.executionDate, executionPackage.registerId);
+
+    TERRAMA2_LOG_INFO() << QObject::tr("Alert '%1' generated successfully").arg(alertPtr->name.c_str());
   }
   catch(const terrama2::Exception& e)
   {

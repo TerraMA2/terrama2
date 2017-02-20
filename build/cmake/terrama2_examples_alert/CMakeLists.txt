@@ -37,11 +37,14 @@ include_directories ( SYSTEM
   ${Boost_INCLUDE_DIR}
   ${terralib_INCLUDE_DIRS}
   ${terralib_DIR}
+  ${GTEST_INCLUDE_DIRS}
+  ${GMOCK_INCLUDE_DIRS}
   ${Qt5Core_INCLUDE_DIRS}
 )
 
 include_directories (
   ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src
+  ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/examples/utils
 )
 
 set(CMAKE_AUTOMOC ON)
@@ -60,5 +63,7 @@ foreach(FILE ${TERRAMA2_SRC_FILES})
                                     terrama2_alert_core
                                     terrama2_alert_impl
                                     terrama2_impl
-                                    terralib_mod_common)
+                                    terralib_mod_common
+                                    ${GTEST_BOTH_LIBRARIES}
+                                    ${GMOCK_BOTH_LIBRARIES})
 endforeach()

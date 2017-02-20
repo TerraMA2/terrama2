@@ -43,15 +43,12 @@ namespace terrama2
     struct RiskLevel
     {
       std::string name;
-      uint32_t level = 0; //!< Level of the risk, should be unique in a DataSeriesRisk.
-      bool hasLowerBound = false;
-      double lowerBound = 0; //!< Lower bound for real values, inclusive.
-      bool hasUpperBound = false;
-      double upperBound = 0; //!< Upper bound for real values, exclusive.
+      uint32_t id = 0; //!< Level of the risk, should be unique in a DataSeriesRisk.
+      double value = 0; //!< Lower bound for real values, inclusive.
       std::string textValue; //!< Text value for this RiskLevel.
 
       //! Minor operator for sorting.
-      bool operator<(const RiskLevel& rhs) const { return level < rhs.level; }
+      bool operator<(const RiskLevel& rhs) const { return id < rhs.id; }
     };
 
     enum class RiskType
@@ -69,20 +66,19 @@ namespace terrama2
       DataSeriesId dataSeriesId = 0; //!< The DataSeries that will be used for risk analysis.
       std::string name; //!< Name of the DataSeriesRisk.
       std::string description; //!< Short description of the purpose of the DataSeriesRisk.
-      RiskType riskType = RiskType::NUMERIC;
-
+      RiskType riskType = RiskType::NUMERIC; //!< Risk type.
       std::string attribute;//!< Attribute of the DataSeries that will be used for risk analysis.
+      std::vector<RiskLevel> riskLevels;//!< List of risk levels of the DataSeriesRisk.
 
       /*!
-        \brief Compute risk level for the valeu
+        \brief Compute risk level for the value
       */
       std::tuple<int, std::string>  riskLevel(const std::string& value) const;
       /*!
-        \brief Compute risk level for the valeu
+        \brief Compute risk level for the value
       */
       std::tuple<int, std::string>  riskLevel(double value) const;
 
-      std::vector<RiskLevel> riskLevels;//!< List of risk levels of the DataSeriesRisk.
     };
   } // end namespace core
 } // end namespace terrama2
