@@ -91,20 +91,20 @@ namespace terrama2
 
         virtual void adapt(DataSetPtr dataset, std::shared_ptr<te::da::DataSetTypeConverter> converter) const override;
 
-        const QString json_latitude_property_name = "latitude_property_name";
-        const QString json_longitude_property_name = "longitude_property_name";
-        const QString json_latitude_property_position = "latitude_property_position";
-        const QString json_longitude_property_position = "longitude_property_position";
-        const QString json_property_name = "property_name";
-        const QString json_property_position = "property_position";
-        const QString json_alias = "alias";
-        const QString json_type = "type";
-        const QString json_header_size = "header_size";
-        const QString json_properties_names_line = "properties_names_line";
-        const QString json_convert_all = "convert_all";
-        const QString json_fields = "fields";
-        const QString json_default_type = "default_type";
-        const QString json_format = "format";
+        const QString JSON_LATITUDE_PROPERTY_NAME = "latitude_property_name";
+        const QString JSON_LONGITUDE_PROPERTY_NAME = "longitude_property_name";
+        const QString JSON_LATITUDE_PROPERTY_POSITION = "latitude_property_position";
+        const QString JSON_LONGITUDE_PROPERTY_POSITION = "longitude_property_position";
+        const QString JSON_PROPERTY_NAME = "property_name";
+        const QString JSON_PROPERTY_POSITION = "property_position";
+        const QString JSON_ALIAS = "alias";
+        const QString JSON_TYPE = "type";
+        const QString JSON_HEADER_SIZE = "header_size";
+        const QString JSON_PROPERTIES_NAMES_LINE = "properties_names_line";
+        const QString JSON_CONVERT_ALL = "convert_all";
+        const QString JSON_FIELDS = "fields";
+        const QString JSON_DEFAULT_TYPE = "default_type";
+        const QString JSON_FORMAT = "format";
     };
   }
 }
