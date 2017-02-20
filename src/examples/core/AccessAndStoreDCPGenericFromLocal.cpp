@@ -93,7 +93,7 @@ int main(int argc, char* argv[])
   {
     QJsonObject obj;
 
-    obj.insert("column", QString("TIMESTAMP"));
+    obj.insert("property_name", QString("TIMESTAMP"));
     obj.insert("alias", QString("datetime"));
     obj.insert("type", QString("DATETIME"));
     obj.insert("format", QString("%YYYY-%MM-%DD %hh:%mm:%ss"));
@@ -104,7 +104,7 @@ int main(int argc, char* argv[])
   {
     QJsonObject obj;
 
-    obj.insert("column", QString("RECORD"));
+    obj.insert("property_name", QString("RECORD"));
     obj.insert("alias", QString("record"));
     obj.insert("type", QString("INTEGER"));
 
@@ -114,7 +114,7 @@ int main(int argc, char* argv[])
   {
     QJsonObject obj;
 
-    obj.insert("column", QString("E_field_Avg"));
+    obj.insert("property_name", QString("E_field_Avg"));
     obj.insert("alias", QString("efield"));
     obj.insert("type", QString("INTEGER"));
 
@@ -124,7 +124,7 @@ int main(int argc, char* argv[])
   {
     QJsonObject obj;
 
-    obj.insert("column", QString("panel_temp_Avg"));
+    obj.insert("property_name", QString("panel_temp_Avg"));
     obj.insert("alias", QString("panel"));
     obj.insert("type", QString("INTEGER"));
 
@@ -134,7 +134,7 @@ int main(int argc, char* argv[])
   {
     QJsonObject obj;
 
-    obj.insert("column", QString("leakage_cur_Avg"));
+    obj.insert("property_name", QString("leakage_cur_Avg"));
     obj.insert("alias", QString("leak"));
     obj.insert("type", QString("FLOAT"));
 
@@ -144,7 +144,7 @@ int main(int argc, char* argv[])
   {
     QJsonObject obj;
 
-    obj.insert("column", QString("battery_volt_Avg"));
+    obj.insert("property_name", QString("battery_volt_Avg"));
     obj.insert("alias", QString("bateria"));
     obj.insert("type", QString("FLOAT"));
 
@@ -154,7 +154,7 @@ int main(int argc, char* argv[])
   {
     QJsonObject obj;
 
-    obj.insert("column", QString("internal_RH_Avg"));
+    obj.insert("property_name", QString("internal_RH_Avg"));
     obj.insert("alias", QString("interval"));
     obj.insert("type", QString("TEXT"));
 

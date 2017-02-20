@@ -237,10 +237,10 @@ QJsonObject terrama2::core::DataAccessorCSV::getFieldObj(const QJsonArray& array
 
     if(dataTypes.at(type) == te::dt::GEOMETRY_TYPE)
     {
-      std::string latitude = obj.value("latitude").toString().toStdString();
-      std::string longitude = obj.value("longitude").toString().toStdString();
+      std::string latitudeProperty = obj.value("latitude_property_name").toString().toStdString();
+      std::string longitudeProperty = obj.value("longitude_property_name").toString().toStdString();
 
-      if(latitude == fieldName || longitude == fieldName)
+      if(latitudeProperty == fieldName || longitudeProperty == fieldName)
       {
         return item.toObject();
       }
@@ -248,9 +248,9 @@ QJsonObject terrama2::core::DataAccessorCSV::getFieldObj(const QJsonArray& array
       continue;
     }
 
-    std::string column = obj.value("column").toString().toStdString();
+    std::string propertyName = obj.value("property_name").toString().toStdString();
 
-    if(column == fieldName)
+    if(propertyName == fieldName)
     {
       return item.toObject();
     }
@@ -371,13 +371,13 @@ void terrama2::core::DataAccessorCSV::adapt(DataSetPtr dataSet, std::shared_ptr<
 
     te::gm::GeometryProperty* geomProperty = new te::gm::GeometryProperty(alias, srid, te::gm::PointType);
 
-    if(fieldGeomObj.value("column").isUndefined())
+    if(fieldGeomObj.value("property_name").isUndefined())
     {
       size_t longPos = std::numeric_limits<size_t>::max();
       size_t latPos = std::numeric_limits<size_t>::max();
 
-      std::string longProperty = fieldGeomObj.value("longitude").toString().toStdString();
-      std::string latProperty = fieldGeomObj.value("latitude").toString().toStdString();
+      std::string longProperty = fieldGeomObj.value("longitude_property_name").toString().toStdString();
+      std::string latProperty = fieldGeomObj.value("latitude_property_name").toString().toStdString();
 
       longPos = converter->getConvertee()->getPropertyPosition(longProperty);
       latPos = converter->getConvertee()->getPropertyPosition(latProperty);
@@ -424,7 +424,7 @@ void terrama2::core::DataAccessorCSV::adapt(DataSetPtr dataSet, std::shared_ptr<
 }
 
 
-void terrama2::core::DataAccessorCSV::checkOriginFields(std::shared_ptr<te::da::DataSetTypeConverter> converter,
+bool terrama2::core::DataAccessorCSV::checkOriginFields(std::shared_ptr<te::da::DataSetTypeConverter> converter,
                                                           const QJsonArray& fieldsArray) const
 {
   for(const auto& item : fieldsArray)
@@ -433,17 +433,21 @@ void terrama2::core::DataAccessorCSV::checkOriginFields(std::shared_ptr<te::da::
 
     if(field.value("type").toString() == "GEOMETRY_POINT")
     {
-      checkProperty(converter->getConvertee(), field.value("latitude").toString().toStdString());
-      checkProperty(converter->getConvertee(), field.value("longitude").toString().toStdString());
+      if(!(checkProperty(converter->getConvertee(), field.value("latitude_property_name").toString().toStdString())
+              && checkProperty(converter->getConvertee(), field.value("longitude_property_name").toString().toStdString())))
+        return false;
     }
     else
     {
-      checkProperty(converter->getConvertee(), field.value("column").toString().toStdString());
+      if(!checkProperty(converter->getConvertee(), field.value("property_name").toString().toStdString()))
+        return false;
     }
   }
+
+  return true;
 }
 
-void terrama2::core::DataAccessorCSV::checkProperty(te::da::DataSetType* dataSetType,
+bool terrama2::core::DataAccessorCSV::checkProperty(te::da::DataSetType* dataSetType,
                                                        std::string property) const
 {
   size_t pos = std::numeric_limits<size_t>::max();
@@ -451,9 +455,7 @@ void terrama2::core::DataAccessorCSV::checkProperty(te::da::DataSetType* dataSet
   pos = dataSetType->getPropertyPosition(property);
 
   if(pos == std::numeric_limits<size_t>::max())
-  {
-    QString errMsg = QObject::tr("Could not find the '%1' property!").arg(QString::fromStdString(property));
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
-  }
+    return false;
+  else
+    return true;
 }

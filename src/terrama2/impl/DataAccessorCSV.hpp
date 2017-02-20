@@ -65,10 +65,10 @@ namespace terrama2
                                                {"GEOMETRY_POINT", static_cast<int>(te::dt::GEOMETRY_TYPE)}
                                               };
 
-        void checkOriginFields(std::shared_ptr<te::da::DataSetTypeConverter> converter,
+        bool checkOriginFields(std::shared_ptr<te::da::DataSetTypeConverter> converter,
                              const QJsonArray& fieldsArray) const;
 
-        void checkProperty(te::da::DataSetType* dataSetType, std::string property) const;
+        bool checkProperty(te::da::DataSetType* dataSetType, std::string property) const;
 
       protected:
         QFileInfo filterTxt(QFileInfo& fileInfo, QTemporaryFile& tempFile, DataSetPtr dataSet) const;
