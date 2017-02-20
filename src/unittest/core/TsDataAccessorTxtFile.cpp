@@ -29,7 +29,7 @@
 
 // TerraMA2
 #include "TsDataAccessorTxtFile.hpp"
-#include <terrama2/impl/DataAccessorDCPTxtFile.hpp>
+#include <terrama2/impl/DataAccessorDCPCSV.hpp>
 #include <terrama2/core/data-model/DataSetDcp.hpp>
 
 // Qt

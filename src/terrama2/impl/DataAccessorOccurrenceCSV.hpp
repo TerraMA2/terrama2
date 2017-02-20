@@ -20,15 +20,15 @@
  */
 
 /*!
-  \file terrama2/impl/DataAccessorOccurrenceTxtFile.hpp
+  \file terrama2/impl/DataAccessorOccurrenceCSV.hpp
 
   \brief
 
   \author Vinicius Campanha
  */
 
-#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_OCCURRENCE_TXT_FILE_HPP__
-#define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_OCCURRENCE_TXT_FILE_HPP__
+#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_OCCURRENCE_CSV_HPP__
+#define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_OCCURRENCE_CSV_HPP__
 
 //TerraMA2
 #include "DataAccessorTxtFile.hpp"
@@ -38,20 +38,20 @@ namespace terrama2
   namespace core
   {
     /*!
-      \class DataAccessorDCPTxtFile
+      \class DataAccessorDCPCSV
 
       \brief Base class for DataAccessor classes that access a DCP text file.
 
     */
-    class DataAccessorOccurrenceTxtFile : public DataAccessorTxtFile
+    class DataAccessorOccurrenceCSV : public DataAccessorTxtFile
     {
       public:
-        DataAccessorOccurrenceTxtFile(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true)
+        DataAccessorOccurrenceCSV(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true)
           : DataAccessor(dataProvider, dataSeries, false),
             DataAccessorFile(dataProvider, dataSeries, false),
             DataAccessorTxtFile(dataProvider, dataSeries, false) { }
 
-        virtual ~DataAccessorOccurrenceTxtFile() = default;
+        virtual ~DataAccessorOccurrenceCSV() = default;
 
         static DataAccessorPtr make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries);
 
@@ -64,4 +64,4 @@ namespace terrama2
   }
 }
 
-#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_OCCURRENCE_TXT_FILE_HPP__
+#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_OCCURRENCE_CSV_HPP__
