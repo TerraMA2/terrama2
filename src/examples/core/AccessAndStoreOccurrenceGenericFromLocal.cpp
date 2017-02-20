@@ -105,7 +105,7 @@ int main(int argc, char* argv[])
     QJsonObject obj;
 
     obj.insert("column", QString("data_pas"));
-    obj.insert("alias", QString("datetime"));
+    obj.insert("alias", QString("data_pas"));
     obj.insert("type", QString("DATETIME"));
     obj.insert("format", QString("%YYYY-%MM-%DD %hh:%mm:%ss"));
 
