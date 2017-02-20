@@ -13,9 +13,9 @@ define([
   // controllers classes
   "TerraMA2WebApp/analysis/controllers/list",
   "TerraMA2WebApp/analysis/controllers/register-update",
-  "TerraMA2WebApp/schema-form-plugin/mask-warn/module"
+  "TerraMA2WebApp/schema-form-plugin/mask-warn/directives/terrama2-mask-field"
 ], function(moduleLoader, commonApp, tableApp, messageBoxApp, servicesApp, analysisServicesApp, aceApp, dataSeriesApp, 
-            dataProviderApp, datetimepickerApp, geoApp, ListController, RegisterUpdateController, WarnMask) {
+            dataProviderApp, datetimepickerApp, geoApp, ListController, RegisterUpdateController) {
   var moduleName = "terrama2.analysis.controllers";
   // common dependencies both List and Register Update
   var deps = [commonApp, tableApp, servicesApp, messageBoxApp, analysisServicesApp];
@@ -31,7 +31,6 @@ define([
     deps.push(geoApp);
     deps.push(dataProviderApp);
     deps.push(datetimepickerApp);
-    deps.push(WarnMask);
   }
 
   angular.module(moduleName, deps)

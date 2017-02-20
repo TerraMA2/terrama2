@@ -604,6 +604,7 @@
           "mask": {
             "type": "string",
             "title": "Mask",
+            "format": "terrama2maskform",
             "pattern": "^([\\w*.]+|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
           },
           "timezone": {
