@@ -39,7 +39,7 @@
 #include <terrama2/core/utility/DataAccessorFactory.hpp>
 #include <terrama2/core/utility/DataStoragerFactory.hpp>
 #include <terrama2/impl/DataStoragerPostGIS.hpp>
-#include <terrama2/impl/DataAccessorTxtFile.hpp>
+#include <terrama2/impl/DataAccessorCSV.hpp>
 #include <terrama2/impl/Utils.hpp>
 
 #include <terrama2/core/data-access/OccurrenceSeries.hpp>
@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
   dataSet->format.emplace("timezone", "+00");
   dataSet->format.emplace("srid", "4326");
   dataSet->format.emplace("header_size", "");
-  dataSet->format.emplace("columns_line", "1");
+  dataSet->format.emplace("properties_names_line", "1");
   dataSet->format.emplace("convert_all", "true");
   dataSet->format.emplace("default_type", "FLOAT");
 
@@ -93,10 +93,10 @@ int main(int argc, char* argv[])
   {
     QJsonObject obj;
 
-    obj.insert("latitude", QString("lat"));
-    obj.insert("longitude", QString("lon"));
+    obj.insert("latitude_property_name", QString("lat"));
+    obj.insert("longitude_property_name", QString("lon"));
     obj.insert("alias", QString("point"));
-    obj.insert("type", QString("GEOMETRY"));
+    obj.insert("type", QString("GEOMETRY_POINT"));
 
     fields.push_back(obj);
   }
@@ -104,8 +104,8 @@ int main(int argc, char* argv[])
   {
     QJsonObject obj;
 
-    obj.insert("column", QString("data_pas"));
-    obj.insert("alias", QString("datetime"));
+    obj.insert("property_name", QString("data_pas"));
+    obj.insert("alias", QString("data_pas"));
     obj.insert("type", QString("DATETIME"));
     obj.insert("format", QString("%YYYY-%MM-%DD %hh:%mm:%ss"));
 
@@ -115,7 +115,7 @@ int main(int argc, char* argv[])
   {
     QJsonObject obj;
 
-    obj.insert("column", QString("sat"));
+    obj.insert("property_name", QString("sat"));
     obj.insert("alias", QString("satelite"));
     obj.insert("type", QString("TEXT"));
 
