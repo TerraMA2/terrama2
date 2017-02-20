@@ -20,7 +20,7 @@
  */
 
 /*!
-  \file terrama2/impl/DataAccessorTxtFile.cpp
+  \file terrama2/impl/DataAccessorCSV.cpp
 
   \brief
 

@@ -39,7 +39,7 @@
 #include <terrama2/core/utility/DataAccessorFactory.hpp>
 #include <terrama2/core/utility/DataStoragerFactory.hpp>
 #include <terrama2/impl/DataStoragerPostGIS.hpp>
-#include <terrama2/impl/DataAccessorTxtFile.hpp>
+#include <terrama2/impl/DataAccessorCSV.hpp>
 #include <terrama2/impl/Utils.hpp>
 
 #include <terrama2/core/data-access/OccurrenceSeries.hpp>
@@ -96,7 +96,7 @@ int main(int argc, char* argv[])
     obj.insert("latitude", QString("lat"));
     obj.insert("longitude", QString("lon"));
     obj.insert("alias", QString("point"));
-    obj.insert("type", QString("GEOMETRY"));
+    obj.insert("type", QString("GEOMETRY_POINT"));
 
     fields.push_back(obj);
   }

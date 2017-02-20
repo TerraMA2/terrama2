@@ -31,7 +31,7 @@
 #define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_TXT_FILE_HPP__
 
 //TerraMA2
-#include "DataAccessorTxtFile.hpp"
+#include "DataAccessorCSV.hpp"
 
 namespace terrama2
 {
@@ -43,13 +43,13 @@ namespace terrama2
       \brief Base class for DataAccessor classes that access a DCP text file.
 
     */
-    class DataAccessorDCPCSV : public DataAccessorTxtFile
+    class DataAccessorDCPCSV : public DataAccessorCSV
     {
       public:
         DataAccessorDCPCSV(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true)
           : DataAccessor(dataProvider, dataSeries, false),
             DataAccessorFile(dataProvider, dataSeries, false),
-            DataAccessorTxtFile(dataProvider, dataSeries, false) { }
+            DataAccessorCSV(dataProvider, dataSeries, false) { }
 
         virtual ~DataAccessorDCPCSV() = default;
 

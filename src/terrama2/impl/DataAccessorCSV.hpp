@@ -20,7 +20,7 @@
  */
 
 /*!
-  \file terrama2/impl/DataAccessorTxtFile.hpp
+  \file terrama2/impl/DataAccessorCSV.hpp
 
   \brief
 
@@ -38,19 +38,19 @@ namespace terrama2
   namespace core
   {
     /*!
-      \class DataAccessorTxtFile
+      \class DataAccessorCSV
 
       \brief Base class for DataAccessor classes that access a text file.
 
     */
-    class DataAccessorTxtFile : public virtual DataAccessorFile
+    class DataAccessorCSV : public virtual DataAccessorFile
     {
       public:
-        DataAccessorTxtFile(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true)
+        DataAccessorCSV(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true)
           : DataAccessor(dataProvider, dataSeries, false),
             DataAccessorFile(dataProvider, dataSeries, false) { }
 
-        virtual ~DataAccessorTxtFile() = default;
+        virtual ~DataAccessorCSV() = default;
 
         virtual std::shared_ptr<te::dt::TimeInstantTZ> readFile(DataSetSeries& series, std::shared_ptr<te::mem::DataSet>& completeDataset, std::shared_ptr<te::da::DataSetTypeConverter>& converter, QFileInfo fileInfo, const std::string& mask, terrama2::core::DataSetPtr dataSet) const override;
 
@@ -62,13 +62,13 @@ namespace terrama2
                                                {"INTEGER", static_cast<int>(te::dt::INT32_TYPE)},
                                                {"TEXT", static_cast<int>(te::dt::STRING_TYPE)},
                                                {"DATETIME", static_cast<int>(te::dt::DATETIME_TYPE)},
-                                               {"GEOMETRY", static_cast<int>(te::dt::GEOMETRY_TYPE)}
+                                               {"GEOMETRY_POINT", static_cast<int>(te::dt::GEOMETRY_TYPE)}
                                               };
 
         void checkOriginFields(std::shared_ptr<te::da::DataSetTypeConverter> converter,
                              const QJsonArray& fieldsArray) const;
 
-        void findProperty(te::da::DataSetType* dataSetType, std::string property) const;
+        void checkProperty(te::da::DataSetType* dataSetType, std::string property) const;
 
       protected:
         QFileInfo filterTxt(QFileInfo& fileInfo, QTemporaryFile& tempFile, DataSetPtr dataSet) const;

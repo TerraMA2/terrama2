@@ -41,7 +41,7 @@
 #include <terrama2/core/utility/DataAccessorFactory.hpp>
 #include <terrama2/core/utility/DataStoragerFactory.hpp>
 #include <terrama2/impl/DataStoragerPostGIS.hpp>
-#include <terrama2/impl/DataAccessorTxtFile.hpp>
+#include <terrama2/impl/DataAccessorCSV.hpp>
 #include <terrama2/impl/Utils.hpp>
 
 
