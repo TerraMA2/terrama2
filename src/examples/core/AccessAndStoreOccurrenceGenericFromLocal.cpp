@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
   dataSet->format.emplace("timezone", "+00");
   dataSet->format.emplace("srid", "4326");
   dataSet->format.emplace("header_size", "");
-  dataSet->format.emplace("columns_line", "1");
+  dataSet->format.emplace("properties_names_line", "1");
   dataSet->format.emplace("convert_all", "true");
   dataSet->format.emplace("default_type", "FLOAT");
 

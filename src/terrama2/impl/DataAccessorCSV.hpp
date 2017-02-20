@@ -77,7 +77,7 @@ namespace terrama2
 
         QJsonArray getFields(DataSetPtr dataSet) const;
 
-        QJsonObject getFieldObj(const QJsonArray& array, const std::string& fieldName) const;
+        QJsonObject getFieldObj(const QJsonArray& array, const std::string& fieldName, const int position) const;
 
         te::dt::AbstractData* stringToTimestamp(te::da::DataSet* dataset,
                                                 const std::vector<std::size_t>& indexes,
@@ -90,6 +90,21 @@ namespace terrama2
         te::dt::AbstractData* stringToPoint(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int dstType, const Srid& srid) const;
 
         virtual void adapt(DataSetPtr dataset, std::shared_ptr<te::da::DataSetTypeConverter> converter) const override;
+
+        const QString json_latitude_property_name = "latitude_property_name";
+        const QString json_longitude_property_name = "longitude_property_name";
+        const QString json_latitude_property_position = "latitude_property_position";
+        const QString json_longitude_property_position = "longitude_property_position";
+        const QString json_property_name = "property_name";
+        const QString json_property_position = "property_position";
+        const QString json_alias = "alias";
+        const QString json_type = "type";
+        const QString json_header_size = "header_size";
+        const QString json_properties_names_line = "properties_names_line";
+        const QString json_convert_all = "convert_all";
+        const QString json_fields = "fields";
+        const QString json_default_type = "default_type";
+        const QString json_format = "format";
     };
   }
 }
