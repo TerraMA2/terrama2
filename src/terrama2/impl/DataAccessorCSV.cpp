@@ -227,47 +227,164 @@ te::dt::AbstractData* terrama2::core::DataAccessorCSV::stringToPoint(te::da::Dat
 
 
 QJsonObject terrama2::core::DataAccessorCSV::getFieldObj(const QJsonArray& array,
-                                                             const std::string& fieldName, const int position) const
+                                                             const std::string& fieldName, const size_t position) const
 {
   for(const auto& item : array)
+    {
+      const QJsonObject& obj = item.toObject();
+      std::string type = obj.value(JSON_TYPE).toString().toStdString();
+
+      if(dataTypes.at(type) == te::dt::GEOMETRY_TYPE)
+      {
+        std::string latitudePropertyName, longitudePropertyName;
+        if(obj.contains(JSON_LATITUDE_PROPERTY_NAME))
+          latitudePropertyName = obj.value(JSON_LATITUDE_PROPERTY_NAME).toString().toStdString();
+        if(obj.contains(JSON_LONGITUDE_PROPERTY_NAME))
+          longitudePropertyName = obj.value(JSON_LONGITUDE_PROPERTY_NAME).toString().toStdString();
+
+        int latitudePropertyPosition = -1, longitudeProperty = -1;
+        if(obj.contains(JSON_LATITUDE_PROPERTY_POSITION))
+          latitudePropertyPosition = obj.value(JSON_LATITUDE_PROPERTY_POSITION).toInt(-1);
+        if(obj.contains(JSON_LONGITUDE_PROPERTY_POSITION))
+          longitudeProperty = obj.value(JSON_LONGITUDE_PROPERTY_POSITION).toInt(-1);
+
+        if(latitudePropertyName == fieldName || longitudePropertyName == fieldName)
+          return obj;
+      }
+      else
+      {
+        std::string propertyName;
+        size_t propertyPosition = std::numeric_limits<size_t>::max();
+        if(obj.contains(JSON_PROPERTY_NAME))
+          propertyName = obj.value(JSON_PROPERTY_NAME).toString().toStdString();
+        if(obj.contains(JSON_PROPERTY_POSITION))
+        {
+          int temp = obj.value(JSON_PROPERTY_POSITION).toInt(-1);
+          if(temp != -1)
+            propertyPosition = static_cast<size_t>(temp);
+        }
+
+        if(propertyName == fieldName || propertyPosition == position)
+        {
+          return obj;
+        }
+      }
+    }
+
+    return QJsonObject();
+}
+
+void terrama2::core::DataAccessorCSV::addPropertyAsDefaultType(te::dt::Property* property, std::shared_ptr<te::da::DataSetTypeConverter> converter, size_t i, DataSetPtr dataSet) const
+{
+  std::string alias = simplifyString(property->getName());
+
+  if(std::isdigit(alias.at(0)))
+    alias ="_" + alias;
+
+  std::string defaultType = getProperty(dataSet, dataSeries_, JSON_DEFAULT_TYPE.toStdString());
+
+  if(dataTypes.at(defaultType) != te::dt::STRING_TYPE)
   {
-    const QJsonObject& obj = item.toObject();
-    std::string type = obj.value(JSON_TYPE).toString().toStdString();
+    te::dt::SimpleProperty* defaultProperty = new te::dt::SimpleProperty(alias, dataTypes.at(defaultType));
 
-    if(dataTypes.at(type) == te::dt::GEOMETRY_TYPE)
-    {
-      std::string latitudePropertyName, longitudePropertyName;
-      if(obj.contains(JSON_LATITUDE_PROPERTY_NAME))
-        latitudePropertyName = obj.value(JSON_LATITUDE_PROPERTY_NAME).toString().toStdString();
-      if(obj.contains(JSON_LONGITUDE_PROPERTY_NAME))
-        longitudePropertyName = obj.value(JSON_LONGITUDE_PROPERTY_NAME).toString().toStdString();
+    converter->add(i,defaultProperty);
+  }
+  else
+  {
+    te::dt::Property* defaultProperty = property->clone();
+    defaultProperty->setName(alias);
 
-      int latitudePropertyPosition = -1, longitudeProperty = -1;
-      if(obj.contains(JSON_LATITUDE_PROPERTY_POSITION))
-        latitudePropertyPosition = obj.value(JSON_LATITUDE_PROPERTY_POSITION).toInt(-1);
-      if(obj.contains(JSON_LONGITUDE_PROPERTY_POSITION))
-        longitudeProperty = obj.value(JSON_LONGITUDE_PROPERTY_POSITION).toInt(-1);
+    converter->add(i,defaultProperty);
+  }
+}
 
-      if(latitudePropertyName == fieldName || longitudePropertyName == fieldName)
-        return item.toObject();
+void terrama2::core::DataAccessorCSV::addPropertyByType(std::shared_ptr<te::da::DataSetTypeConverter> converter, size_t i, int type, DataSetPtr dataSet, te::dt::Property* property, QJsonObject fieldObj) const
+{
+  std::string alias = fieldObj.value(JSON_ALIAS).toString().toStdString();
 
-      continue;
-    }
+  if(alias.empty())
+  {
+    alias = simplifyString(property->getName());
 
-    std::string propertyName;
-    int propertyPosition = -1;
-    if(obj.contains(JSON_PROPERTY_NAME))
-      propertyName = obj.value(JSON_PROPERTY_NAME).toString().toStdString();
-    if(obj.contains(JSON_PROPERTY_POSITION))
-      propertyPosition = obj.value(JSON_PROPERTY_POSITION).toInt(-1);
-
-    if(propertyName == fieldName || propertyPosition == position)
-    {
-      return item.toObject();
-    }
+    if(std::isdigit(alias.at(0)))
+      alias ="_" + alias;
   }
 
-  return QJsonObject();
+  switch (type)
+  {
+    case te::dt::DOUBLE_TYPE:
+    {
+      te::dt::SimpleProperty* newProperty = new te::dt::SimpleProperty(alias, type);
+
+      converter->add(i, newProperty, boost::bind(&terrama2::core::DataAccessor::stringToDouble, this, _1, _2, _3));
+      break;
+    }
+    case te::dt::INT32_TYPE:
+    {
+      te::dt::SimpleProperty* newProperty = new te::dt::SimpleProperty(alias, type);
+
+      converter->add(i, newProperty, boost::bind(&terrama2::core::DataAccessor::stringToInt, this, _1, _2, _3));
+      break;
+    }
+    case te::dt::DATETIME_TYPE:
+    {
+      std::string format = TimeUtils::terramaDateMask2BoostFormat(fieldObj.value(JSON_FORMAT).toString().toStdString());
+
+      te::dt::DateTimeProperty* dtProperty = new te::dt::DateTimeProperty(alias, te::dt::TIME_INSTANT_TZ);
+      converter->add(i, dtProperty, boost::bind(&terrama2::core::DataAccessorCSV::stringToTimestamp, this, _1, _2, _3, getTimeZone(dataSet), format));
+
+      break;
+    }
+    default:
+    {
+      te::dt::Property* defaultProperty = property->clone();
+      defaultProperty->setName(alias);
+
+      converter->add(i,defaultProperty);
+      break;
+    }
+  }
+}
+
+void terrama2::core::DataAccessorCSV::addGeomProperty(QJsonObject fieldGeomObj, std::shared_ptr<te::da::DataSetTypeConverter> converter, DataSetPtr dataSet) const
+{
+  Srid srid = getSrid(dataSet);
+  std::string alias = fieldGeomObj.value(JSON_ALIAS).toString().toStdString();
+
+  te::gm::GeometryProperty* geomProperty = new te::gm::GeometryProperty(alias, srid, te::gm::PointType);
+
+  if(fieldGeomObj.value(JSON_PROPERTY_NAME).isUndefined())
+  {
+    size_t longPos = std::numeric_limits<size_t>::max();
+    size_t latPos = std::numeric_limits<size_t>::max();
+
+    std::string longProperty = fieldGeomObj.value(JSON_LONGITUDE_PROPERTY_NAME).toString().toStdString();
+    std::string latProperty = fieldGeomObj.value(JSON_LATITUDE_PROPERTY_NAME).toString().toStdString();
+
+    longPos = converter->getConvertee()->getPropertyPosition(longProperty);
+    latPos = converter->getConvertee()->getPropertyPosition(latProperty);
+
+    if(longPos == std::numeric_limits<size_t>::max() ||
+       latPos == std::numeric_limits<size_t>::max())
+    {
+      QString errMsg = QObject::tr("Could not find the point complete information!");
+      TERRAMA2_LOG_WARNING() << errMsg;
+      throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
+    }
+
+    std::vector<size_t> latLonAttributes;
+    latLonAttributes.push_back(longPos);
+    latLonAttributes.push_back(latPos);
+
+    converter->add(latLonAttributes, geomProperty, boost::bind(&terrama2::core::DataAccessorCSV::stringToPoint, this, _1, _2, _3, srid));
+
+    converter->remove(longProperty);
+    converter->remove(latProperty);
+  }
+  else
+  {
+    // TODO: WKT
+  }
 }
 
 void terrama2::core::DataAccessorCSV::adapt(DataSetPtr dataSet, std::shared_ptr<te::da::DataSetTypeConverter> converter) const
@@ -291,84 +408,20 @@ void terrama2::core::DataAccessorCSV::adapt(DataSetPtr dataSet, std::shared_ptr<
     {
       if(convertAll)
       {
-        std::string alias = simplifyString(property->getName());
-
-        if(std::isdigit(alias.at(0)))
-          alias ="_" + alias;
-
-        std::string defaultType = getProperty(dataSet, dataSeries_, JSON_DEFAULT_TYPE.toStdString());
-
-        if(dataTypes.at(defaultType) != te::dt::STRING_TYPE)
-        {
-          te::dt::SimpleProperty* defaultProperty = new te::dt::SimpleProperty(alias, dataTypes.at(defaultType));
-
-          converter->add(i,defaultProperty);
-        }
-        else
-        {
-          te::dt::Property* defaultProperty = property->clone();
-          defaultProperty->setName(alias);
-
-          converter->add(i,defaultProperty);
-        }
+        addPropertyAsDefaultType(property, converter, i, dataSet);
       }
-
-      converter->remove(property->getName());
-
-      continue; // for(size_t i = 0, size = properties.size(); i < size; ++i)
     }
-
-    int type = dataTypes.at(fieldObj.value(JSON_TYPE).toString().toStdString());
-
-    if(type == te::dt::GEOMETRY_TYPE)
+    else
     {
-      fieldGeomObj = fieldObj;
-      continue;
-    }
+      int type = dataTypes.at(fieldObj.value(JSON_TYPE).toString().toStdString());
 
-    std::string alias = fieldObj.value(JSON_ALIAS).toString().toStdString();
-
-    if(alias.empty())
-    {
-      alias = simplifyString(property->getName());
-
-      if(std::isdigit(alias.at(0)))
-        alias ="_" + alias;
-    }
-
-    switch (type)
-    {
-      case te::dt::DOUBLE_TYPE:
+      if(type == te::dt::GEOMETRY_TYPE)
       {
-        te::dt::SimpleProperty* newProperty = new te::dt::SimpleProperty(alias, type);
-
-        converter->add(i, newProperty, boost::bind(&terrama2::core::DataAccessor::stringToDouble, this, _1, _2, _3));
-        break;
+        fieldGeomObj = fieldObj;
+        continue;
       }
-      case te::dt::INT32_TYPE:
-      {
-        te::dt::SimpleProperty* newProperty = new te::dt::SimpleProperty(alias, type);
 
-        converter->add(i, newProperty, boost::bind(&terrama2::core::DataAccessor::stringToInt, this, _1, _2, _3));
-        break;
-      }
-      case te::dt::DATETIME_TYPE:
-      {
-        std::string format = TimeUtils::terramaDateMask2BoostFormat(fieldObj.value(JSON_FORMAT).toString().toStdString());
-
-        te::dt::DateTimeProperty* dtProperty = new te::dt::DateTimeProperty(alias, te::dt::TIME_INSTANT_TZ);
-        converter->add(i, dtProperty, boost::bind(&terrama2::core::DataAccessorCSV::stringToTimestamp, this, _1, _2, _3, getTimeZone(dataSet), format));
-
-        break;
-      }
-      default:
-      {
-        te::dt::Property* defaultProperty = property->clone();
-        defaultProperty->setName(alias);
-
-        converter->add(i,defaultProperty);
-        break;
-      }
+      addPropertyByType(converter, i, type, dataSet, property, fieldObj);
     }
 
     converter->remove(property->getName());
@@ -377,43 +430,7 @@ void terrama2::core::DataAccessorCSV::adapt(DataSetPtr dataSet, std::shared_ptr<
   // Create geometry column
   if(!fieldGeomObj.empty())
   {
-    Srid srid = getSrid(dataSet);
-    std::string alias = fieldGeomObj.value(JSON_ALIAS).toString().toStdString();
-
-    te::gm::GeometryProperty* geomProperty = new te::gm::GeometryProperty(alias, srid, te::gm::PointType);
-
-    if(fieldGeomObj.value(JSON_PROPERTY_NAME).isUndefined())
-    {
-      size_t longPos = std::numeric_limits<size_t>::max();
-      size_t latPos = std::numeric_limits<size_t>::max();
-
-      std::string longProperty = fieldGeomObj.value(JSON_LONGITUDE_PROPERTY_NAME).toString().toStdString();
-      std::string latProperty = fieldGeomObj.value(JSON_LATITUDE_PROPERTY_NAME).toString().toStdString();
-
-      longPos = converter->getConvertee()->getPropertyPosition(longProperty);
-      latPos = converter->getConvertee()->getPropertyPosition(latProperty);
-
-      if(longPos == std::numeric_limits<size_t>::max() ||
-         latPos == std::numeric_limits<size_t>::max())
-      {
-        QString errMsg = QObject::tr("Could not find the point complete information!");
-        TERRAMA2_LOG_WARNING() << errMsg;
-        throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
-      }
-
-      std::vector<size_t> latLonAttributes;
-      latLonAttributes.push_back(longPos);
-      latLonAttributes.push_back(latPos);
-
-      converter->add(latLonAttributes, geomProperty, boost::bind(&terrama2::core::DataAccessorCSV::stringToPoint, this, _1, _2, _3, srid));
-
-      converter->remove(longProperty);
-      converter->remove(latProperty);
-    }
-    else
-    {
-      // TODO: WKT
-    }
+    addGeomProperty(fieldGeomObj, converter, dataSet);
   }
 
   // Check if all fields were created
