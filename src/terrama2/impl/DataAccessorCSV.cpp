@@ -20,7 +20,7 @@
  */
 
 /*!
-  \file terrama2/impl/DataAccessorTxtFile.cpp
+  \file terrama2/impl/DataAccessorCSV.cpp
 
   \brief
 
@@ -28,7 +28,7 @@
  */
 
 // TerraMA2
-#include "DataAccessorTxtFile.hpp"
+#include "DataAccessorCSV.hpp"
 #include "../core/utility/Utils.hpp"
 #include "../core/utility/Logger.hpp"
 #include "../core/utility/TimeUtils.hpp"
@@ -54,7 +54,7 @@
 #include <fstream>
 
 
-std::shared_ptr<te::dt::TimeInstantTZ> terrama2::core::DataAccessorTxtFile::readFile(DataSetSeries& series, std::shared_ptr<te::mem::DataSet>& completeDataset, std::shared_ptr<te::da::DataSetTypeConverter>& converter, QFileInfo fileInfo, const std::string& mask, terrama2::core::DataSetPtr dataSet) const
+std::shared_ptr<te::dt::TimeInstantTZ> terrama2::core::DataAccessorCSV::readFile(DataSetSeries& series, std::shared_ptr<te::mem::DataSet>& completeDataset, std::shared_ptr<te::da::DataSetTypeConverter>& converter, QFileInfo fileInfo, const std::string& mask, terrama2::core::DataSetPtr dataSet) const
 {
   checkFields(dataSet);
 
@@ -72,16 +72,16 @@ std::shared_ptr<te::dt::TimeInstantTZ> terrama2::core::DataAccessorTxtFile::read
   return DataAccessorFile::readFile(series, completeDataset, converter, filteredFileInfo, mask, dataSet);
 }
 
-QFileInfo terrama2::core::DataAccessorTxtFile::filterTxt(QFileInfo& fileInfo, QTemporaryFile& tempFile, terrama2::core::DataSetPtr dataSet) const
+QFileInfo terrama2::core::DataAccessorCSV::filterTxt(QFileInfo& fileInfo, QTemporaryFile& tempFile, terrama2::core::DataSetPtr dataSet) const
 {
   int header = 0 ;
   int columnsLine = 0;
 
-  if(!dataSet->format.at("header_size").empty())
-    header = std::stoi(dataSet->format.at("header_size"));
+  if(!dataSet->format.at(JSON_HEADER_SIZE.toStdString()).empty())
+    header = std::stoi(dataSet->format.at(JSON_HEADER_SIZE.toStdString()));
 
-  if(!dataSet->format.at("columns_line").empty())
-    columnsLine = std::stoi(dataSet->format.at("columns_line"));
+  if(!dataSet->format.at(JSON_PROPERTIES_NAMES_LINE.toStdString()).empty())
+    columnsLine = std::stoi(dataSet->format.at(JSON_PROPERTIES_NAMES_LINE.toStdString()));
 
   if((header == 1 && columnsLine == 1)||
      (header == 0 && columnsLine == 0))
@@ -118,9 +118,9 @@ QFileInfo terrama2::core::DataAccessorTxtFile::filterTxt(QFileInfo& fileInfo, QT
       continue;
     }
 
-    outputFile << line << std::endl;
+    outputFile << line << "\n";
 
-    if(outputFile.fail())
+    if(!outputFile)
     {
       QString errMsg = QObject::tr("Could not write to temporary file!");
       TERRAMA2_LOG_WARNING() << errMsg;
@@ -136,7 +136,7 @@ QFileInfo terrama2::core::DataAccessorTxtFile::filterTxt(QFileInfo& fileInfo, QT
 }
 
 
-te::dt::AbstractData* terrama2::core::DataAccessorTxtFile::stringToTimestamp(te::da::DataSet* dataset,
+te::dt::AbstractData* terrama2::core::DataAccessorCSV::stringToTimestamp(te::da::DataSet* dataset,
                                                                              const std::vector<std::size_t>& indexes,
                                                                              int /*dstType*/,
                                                                              const std::string& timezone,
@@ -183,9 +183,9 @@ te::dt::AbstractData* terrama2::core::DataAccessorTxtFile::stringToTimestamp(te:
   return nullptr;
 }
 
-bool terrama2::core::DataAccessorTxtFile::getConvertAll(DataSetPtr dataSet) const
+bool terrama2::core::DataAccessorCSV::getConvertAll(DataSetPtr dataSet) const
 {
-  std::string convert = getProperty(dataSet, dataSeries_, "convert_all");
+  std::string convert = getProperty(dataSet, dataSeries_, JSON_CONVERT_ALL.toStdString());
 
   boost::trim(convert);
 
@@ -194,24 +194,24 @@ bool terrama2::core::DataAccessorTxtFile::getConvertAll(DataSetPtr dataSet) cons
   return (convert == "true" ? true : false);
 }
 
-QJsonArray terrama2::core::DataAccessorTxtFile::getFields(DataSetPtr dataSet) const
+QJsonArray terrama2::core::DataAccessorCSV::getFields(DataSetPtr dataSet) const
 {
-  const QJsonDocument& doc = QJsonDocument::fromJson(getProperty(dataSet, dataSeries_, "fields").c_str());
+  const QJsonDocument& doc = QJsonDocument::fromJson(QString::fromStdString(getProperty(dataSet, dataSeries_, JSON_FIELDS.toStdString())).toUtf8());
 
   const QJsonObject& obj = doc.object();
 
-  if(!obj.contains("fields"))
+  if(!obj.contains(JSON_FIELDS))
   {
     QString errMsg = QObject::tr("Invalid JSON document!");
     TERRAMA2_LOG_WARNING() << errMsg;
     throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
   }
 
-  return obj.value("fields").toArray();
+  return obj.value(JSON_FIELDS).toArray();
 }
 
 
-te::dt::AbstractData* terrama2::core::DataAccessorTxtFile::stringToPoint(te::da::DataSet* dataset,
+te::dt::AbstractData* terrama2::core::DataAccessorCSV::stringToPoint(te::da::DataSet* dataset,
                                                                          const std::vector<std::size_t>& indexes,
                                                                          int dstType,
                                                                          const Srid& srid) const
@@ -226,31 +226,42 @@ te::dt::AbstractData* terrama2::core::DataAccessorTxtFile::stringToPoint(te::da:
 }
 
 
-QJsonObject terrama2::core::DataAccessorTxtFile::getFieldObj(const QJsonArray& array,
-                                                             const std::string& fieldName) const
+QJsonObject terrama2::core::DataAccessorCSV::getFieldObj(const QJsonArray& array,
+                                                             const std::string& fieldName, const int position) const
 {
   for(const auto& item : array)
   {
     const QJsonObject& obj = item.toObject();
-
-    std::string type = obj.value("type").toString().toStdString();
+    std::string type = obj.value(JSON_TYPE).toString().toStdString();
 
     if(dataTypes.at(type) == te::dt::GEOMETRY_TYPE)
     {
-      std::string latitude = obj.value("latitude").toString().toStdString();
-      std::string longitude = obj.value("longitude").toString().toStdString();
+      std::string latitudePropertyName, longitudePropertyName;
+      if(obj.contains(JSON_LATITUDE_PROPERTY_NAME))
+        latitudePropertyName = obj.value(JSON_LATITUDE_PROPERTY_NAME).toString().toStdString();
+      if(obj.contains(JSON_LONGITUDE_PROPERTY_NAME))
+        longitudePropertyName = obj.value(JSON_LONGITUDE_PROPERTY_NAME).toString().toStdString();
 
-      if(latitude == fieldName || longitude == fieldName)
-      {
+      int latitudePropertyPosition = -1, longitudeProperty = -1;
+      if(obj.contains(JSON_LATITUDE_PROPERTY_POSITION))
+        latitudePropertyPosition = obj.value(JSON_LATITUDE_PROPERTY_POSITION).toInt(-1);
+      if(obj.contains(JSON_LONGITUDE_PROPERTY_POSITION))
+        longitudeProperty = obj.value(JSON_LONGITUDE_PROPERTY_POSITION).toInt(-1);
+
+      if(latitudePropertyName == fieldName || longitudePropertyName == fieldName)
         return item.toObject();
-      }
 
       continue;
     }
 
-    std::string column = obj.value("column").toString().toStdString();
+    std::string propertyName;
+    int propertyPosition = -1;
+    if(obj.contains(JSON_PROPERTY_NAME))
+      propertyName = obj.value(JSON_PROPERTY_NAME).toString().toStdString();
+    if(obj.contains(JSON_PROPERTY_POSITION))
+      propertyPosition = obj.value(JSON_PROPERTY_POSITION).toInt(-1);
 
-    if(column == fieldName)
+    if(propertyName == fieldName || propertyPosition == position)
     {
       return item.toObject();
     }
@@ -259,7 +270,7 @@ QJsonObject terrama2::core::DataAccessorTxtFile::getFieldObj(const QJsonArray& a
   return QJsonObject();
 }
 
-void terrama2::core::DataAccessorTxtFile::adapt(DataSetPtr dataSet, std::shared_ptr<te::da::DataSetTypeConverter> converter) const
+void terrama2::core::DataAccessorCSV::adapt(DataSetPtr dataSet, std::shared_ptr<te::da::DataSetTypeConverter> converter) const
 {
   bool convertAll = getConvertAll(dataSet);
 
@@ -274,7 +285,7 @@ void terrama2::core::DataAccessorTxtFile::adapt(DataSetPtr dataSet, std::shared_
   {
     te::dt::Property* property = properties.at(i);
 
-    QJsonObject fieldObj = getFieldObj(fieldsArray, property->getName());
+    QJsonObject fieldObj = getFieldObj(fieldsArray, property->getName(), i);
 
     if(fieldObj.empty())
     {
@@ -285,7 +296,7 @@ void terrama2::core::DataAccessorTxtFile::adapt(DataSetPtr dataSet, std::shared_
         if(std::isdigit(alias.at(0)))
           alias ="_" + alias;
 
-        std::string defaultType = getProperty(dataSet, dataSeries_, "default_type");
+        std::string defaultType = getProperty(dataSet, dataSeries_, JSON_DEFAULT_TYPE.toStdString());
 
         if(dataTypes.at(defaultType) != te::dt::STRING_TYPE)
         {
@@ -307,7 +318,7 @@ void terrama2::core::DataAccessorTxtFile::adapt(DataSetPtr dataSet, std::shared_
       continue; // for(size_t i = 0, size = properties.size(); i < size; ++i)
     }
 
-    int type = dataTypes.at(fieldObj.value("type").toString().toStdString());
+    int type = dataTypes.at(fieldObj.value(JSON_TYPE).toString().toStdString());
 
     if(type == te::dt::GEOMETRY_TYPE)
     {
@@ -315,7 +326,7 @@ void terrama2::core::DataAccessorTxtFile::adapt(DataSetPtr dataSet, std::shared_
       continue;
     }
 
-    std::string alias = fieldObj.value("alias").toString().toStdString();
+    std::string alias = fieldObj.value(JSON_ALIAS).toString().toStdString();
 
     if(alias.empty())
     {
@@ -343,10 +354,10 @@ void terrama2::core::DataAccessorTxtFile::adapt(DataSetPtr dataSet, std::shared_
       }
       case te::dt::DATETIME_TYPE:
       {
-        std::string format = TimeUtils::terramaDateMask2BoostFormat(fieldObj.value("format").toString().toStdString());
+        std::string format = TimeUtils::terramaDateMask2BoostFormat(fieldObj.value(JSON_FORMAT).toString().toStdString());
 
         te::dt::DateTimeProperty* dtProperty = new te::dt::DateTimeProperty(alias, te::dt::TIME_INSTANT_TZ);
-        converter->add(i, dtProperty, boost::bind(&terrama2::core::DataAccessorTxtFile::stringToTimestamp, this, _1, _2, _3, getTimeZone(dataSet), format));
+        converter->add(i, dtProperty, boost::bind(&terrama2::core::DataAccessorCSV::stringToTimestamp, this, _1, _2, _3, getTimeZone(dataSet), format));
 
         break;
       }
@@ -367,17 +378,17 @@ void terrama2::core::DataAccessorTxtFile::adapt(DataSetPtr dataSet, std::shared_
   if(!fieldGeomObj.empty())
   {
     Srid srid = getSrid(dataSet);
-    std::string alias = fieldGeomObj.value("alias").toString().toStdString();
+    std::string alias = fieldGeomObj.value(JSON_ALIAS).toString().toStdString();
 
     te::gm::GeometryProperty* geomProperty = new te::gm::GeometryProperty(alias, srid, te::gm::PointType);
 
-    if(fieldGeomObj.value("column").isUndefined())
+    if(fieldGeomObj.value(JSON_PROPERTY_NAME).isUndefined())
     {
       size_t longPos = std::numeric_limits<size_t>::max();
       size_t latPos = std::numeric_limits<size_t>::max();
 
-      std::string longProperty = fieldGeomObj.value("longitude").toString().toStdString();
-      std::string latProperty = fieldGeomObj.value("latitude").toString().toStdString();
+      std::string longProperty = fieldGeomObj.value(JSON_LONGITUDE_PROPERTY_NAME).toString().toStdString();
+      std::string latProperty = fieldGeomObj.value(JSON_LATITUDE_PROPERTY_NAME).toString().toStdString();
 
       longPos = converter->getConvertee()->getPropertyPosition(longProperty);
       latPos = converter->getConvertee()->getPropertyPosition(latProperty);
@@ -394,7 +405,7 @@ void terrama2::core::DataAccessorTxtFile::adapt(DataSetPtr dataSet, std::shared_
       latLonAttributes.push_back(longPos);
       latLonAttributes.push_back(latPos);
 
-      converter->add(latLonAttributes, geomProperty, boost::bind(&terrama2::core::DataAccessorTxtFile::stringToPoint, this, _1, _2, _3, srid));
+      converter->add(latLonAttributes, geomProperty, boost::bind(&terrama2::core::DataAccessorCSV::stringToPoint, this, _1, _2, _3, srid));
 
       converter->remove(longProperty);
       converter->remove(latProperty);
@@ -412,7 +423,7 @@ void terrama2::core::DataAccessorTxtFile::adapt(DataSetPtr dataSet, std::shared_
 
     try
     {
-      findProperty(converter->getResult(), field.value("alias").toString().toStdString());
+      checkProperty(converter->getResult(), field.value(JSON_ALIAS).toString().toStdString());
     }
     catch(DataAccessorException& e)
     {
@@ -424,26 +435,30 @@ void terrama2::core::DataAccessorTxtFile::adapt(DataSetPtr dataSet, std::shared_
 }
 
 
-void terrama2::core::DataAccessorTxtFile::checkOriginFields(std::shared_ptr<te::da::DataSetTypeConverter> converter,
+bool terrama2::core::DataAccessorCSV::checkOriginFields(std::shared_ptr<te::da::DataSetTypeConverter> converter,
                                                           const QJsonArray& fieldsArray) const
 {
   for(const auto& item : fieldsArray)
   {
     auto field = item.toObject();
 
-    if(dataTypes.at(field.value("type").toString().toStdString()) != te::dt::GEOMETRY_TYPE)
+    if(field.value(JSON_TYPE).toString() == "GEOMETRY_POINT")
     {
-      findProperty(converter->getConvertee(), field.value("column").toString().toStdString());
+      if(!(checkProperty(converter->getConvertee(), field.value(JSON_LATITUDE_PROPERTY_NAME).toString().toStdString())
+              && checkProperty(converter->getConvertee(), field.value(JSON_LONGITUDE_PROPERTY_NAME).toString().toStdString())))
+        return false;
     }
     else
     {
-      findProperty(converter->getConvertee(), field.value("latitude").toString().toStdString());
-      findProperty(converter->getConvertee(), field.value("longitude").toString().toStdString());
+      if(!checkProperty(converter->getConvertee(), field.value(JSON_PROPERTY_NAME).toString().toStdString()))
+        return false;
     }
   }
+
+  return true;
 }
 
-void terrama2::core::DataAccessorTxtFile::findProperty(te::da::DataSetType* dataSetType,
+bool terrama2::core::DataAccessorCSV::checkProperty(te::da::DataSetType* dataSetType,
                                                        std::string property) const
 {
   size_t pos = std::numeric_limits<size_t>::max();
@@ -451,9 +466,7 @@ void terrama2::core::DataAccessorTxtFile::findProperty(te::da::DataSetType* data
   pos = dataSetType->getPropertyPosition(property);
 
   if(pos == std::numeric_limits<size_t>::max())
-  {
-    QString errMsg = QObject::tr("Could not find the '%1' property!").arg(QString::fromStdString(property));
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
-  }
+    return false;
+  else
+    return true;
 }

@@ -20,52 +20,48 @@
  */
 
 /*!
-  \file terrama2/impl/DataAccessorDCPTxtFile.hpp
+  \file terrama2/impl/DataAccessorOccurrenceCSV.hpp
 
   \brief
 
   \author Vinicius Campanha
  */
 
-#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_TXT_FILE_HPP__
-#define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_TXT_FILE_HPP__
+#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_OCCURRENCE_CSV_HPP__
+#define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_OCCURRENCE_CSV_HPP__
 
 //TerraMA2
-#include "DataAccessorTxtFile.hpp"
+#include "DataAccessorCSV.hpp"
 
 namespace terrama2
 {
   namespace core
   {
     /*!
-      \class DataAccessorDCPTxtFile
+      \class DataAccessorDCPCSV
 
       \brief Base class for DataAccessor classes that access a DCP text file.
 
     */
-    class DataAccessorDCPTxtFile : public DataAccessorTxtFile
+    class DataAccessorOccurrenceCSV : public DataAccessorCSV
     {
       public:
-        DataAccessorDCPTxtFile(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true)
+        DataAccessorOccurrenceCSV(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true)
           : DataAccessor(dataProvider, dataSeries, false),
             DataAccessorFile(dataProvider, dataSeries, false),
-            DataAccessorTxtFile(dataProvider, dataSeries, false) { }
+            DataAccessorCSV(dataProvider, dataSeries, false) { }
 
-        virtual ~DataAccessorDCPTxtFile() = default;
+        virtual ~DataAccessorOccurrenceCSV() = default;
 
         static DataAccessorPtr make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries);
 
-        virtual std::string dataSourceType() const override { return "OGR"; }
-
-        static DataAccessorType dataAccessorType(){ return "DCP-generic"; }
-
-        virtual std::string typePrefix() const override { return "CSV:"; }
+        static DataAccessorType dataAccessorType(){ return "Occurrence-generic"; }
 
       protected:
 
-        void checkFields(DataSetPtr) const override;
+        void checkFields(DataSetPtr dataSet) const override;
     };
   }
 }
 
-#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_TXT_FILE_HPP__
+#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_OCCURRENCE_CSV_HPP__
