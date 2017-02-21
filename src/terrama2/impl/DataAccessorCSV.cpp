@@ -242,13 +242,14 @@ QJsonObject terrama2::core::DataAccessorCSV::getFieldObj(const QJsonArray& array
         if(obj.contains(JSON_LONGITUDE_PROPERTY_NAME))
           longitudePropertyName = obj.value(JSON_LONGITUDE_PROPERTY_NAME).toString().toStdString();
 
-        int latitudePropertyPosition = -1, longitudeProperty = -1;
+        int latitudePropertyPosition = -1, longitudePropertyPosition = -1;
         if(obj.contains(JSON_LATITUDE_PROPERTY_POSITION))
-          latitudePropertyPosition = obj.value(JSON_LATITUDE_PROPERTY_POSITION).toInt(-1);
+          latitudePropertyPosition = obj.value(JSON_LATITUDE_PROPERTY_POSITION).toInt();
         if(obj.contains(JSON_LONGITUDE_PROPERTY_POSITION))
-          longitudeProperty = obj.value(JSON_LONGITUDE_PROPERTY_POSITION).toInt(-1);
+          longitudePropertyPosition = obj.value(JSON_LONGITUDE_PROPERTY_POSITION).toInt();
 
-        if(latitudePropertyName == fieldName || longitudePropertyName == fieldName)
+        if(latitudePropertyName == fieldName || longitudePropertyName == fieldName
+            || latitudePropertyPosition == position || longitudePropertyPosition == position)
           return obj;
       }
       else
@@ -259,7 +260,7 @@ QJsonObject terrama2::core::DataAccessorCSV::getFieldObj(const QJsonArray& array
           propertyName = obj.value(JSON_PROPERTY_NAME).toString().toStdString();
         if(obj.contains(JSON_PROPERTY_POSITION))
         {
-          int temp = obj.value(JSON_PROPERTY_POSITION).toInt(-1);
+          int temp = obj.value(JSON_PROPERTY_POSITION).toInt();
           if(temp != -1)
             propertyPosition = static_cast<size_t>(temp);
         }
@@ -352,7 +353,7 @@ void terrama2::core::DataAccessorCSV::addGeomProperty(QJsonObject fieldGeomObj, 
   Srid srid = getSrid(dataSet);
   std::string alias = fieldGeomObj.value(JSON_ALIAS).toString().toStdString();
 
-  te::gm::GeometryProperty* geomProperty = new te::gm::GeometryProperty(alias, srid, te::gm::PointType);
+  auto geomProperty = std::unique_ptr<te::gm::GeometryProperty>(new te::gm::GeometryProperty(alias, srid, te::gm::PointType));
 
   // If there is no JSON_PROPERTY_NAME or JSON_PROPERTY_POSITION
   // then it's a point and need two columns, latitude and longitude
@@ -376,13 +377,8 @@ void terrama2::core::DataAccessorCSV::addGeomProperty(QJsonObject fieldGeomObj, 
               && fieldGeomObj.contains(JSON_LATITUDE_PROPERTY_POSITION))
     {
       //columns from input dataset defined by position
-      int temp = fieldGeomObj.value(JSON_LONGITUDE_PROPERTY_POSITION).toInt(-1);
-      if(temp != -1)
-        longPos = static_cast<size_t>(temp);
-
-      temp = fieldGeomObj.value(JSON_LATITUDE_PROPERTY_POSITION).toInt(-1);
-      if(temp != -1)
-        latPos = static_cast<size_t>(temp);
+      longPos = static_cast<size_t>(fieldGeomObj.value(JSON_LONGITUDE_PROPERTY_POSITION).toInt());
+      latPos = static_cast<size_t>(fieldGeomObj.value(JSON_LATITUDE_PROPERTY_POSITION).toInt());
     }
     else
     {
@@ -404,7 +400,7 @@ void terrama2::core::DataAccessorCSV::addGeomProperty(QJsonObject fieldGeomObj, 
     latLonAttributes.push_back(longPos);
     latLonAttributes.push_back(latPos);
 
-    converter->add(latLonAttributes, geomProperty, boost::bind(&terrama2::core::DataAccessorCSV::stringToPoint, this, _1, _2, _3, srid));
+    converter->add(latLonAttributes, geomProperty.release(), boost::bind(&terrama2::core::DataAccessorCSV::stringToPoint, this, _1, _2, _3, srid));
 
     //Get property from input dataset
     auto oldLongProp = converter->getConvertee()->getProperty(longPos);
