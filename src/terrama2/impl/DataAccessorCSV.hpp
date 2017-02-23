@@ -77,7 +77,7 @@ namespace terrama2
 
         QJsonArray getFields(DataSetPtr dataSet) const;
 
-        QJsonObject getFieldObj(const QJsonArray& array, const std::string& fieldName, const int position) const;
+        QJsonObject getFieldObj(const QJsonArray& array, const std::string& fieldName, const size_t position) const;
 
         te::dt::AbstractData* stringToTimestamp(te::da::DataSet* dataset,
                                                 const std::vector<std::size_t>& indexes,
@@ -105,6 +105,9 @@ namespace terrama2
         const QString JSON_FIELDS = "fields";
         const QString JSON_DEFAULT_TYPE = "default_type";
         const QString JSON_FORMAT = "format";
+        void addPropertyAsDefaultType(te::dt::Property* property, std::shared_ptr<te::da::DataSetTypeConverter> converter, size_t i, DataSetPtr dataSet) const;
+        void addPropertyByType(std::shared_ptr<te::da::DataSetTypeConverter> converter, int type, DataSetPtr dataSet, te::dt::Property* property, QJsonObject fieldObj) const;
+        void addGeomProperty(QJsonObject fieldGeomObj, std::shared_ptr<te::da::DataSetTypeConverter> converter, DataSetPtr dataSet) const;
     };
   }
 }
