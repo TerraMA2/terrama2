@@ -417,6 +417,9 @@ void terrama2::core::DataAccessorCSV::addGeomProperty(QJsonObject fieldGeomObj, 
   else
   {
     // TODO: WKT
+    QString errMsg = QObject::tr("CSV with WKT property no implemented");
+    TERRAMA2_LOG_WARNING() << errMsg;
+    throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
   }
 }
 
