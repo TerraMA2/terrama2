@@ -1,54 +1,74 @@
 define([], function(){
+  try {
+    angular.module('schemaForm').config(['schemaFormProvider',
+        'schemaFormDecoratorsProvider', 'sfPathProvider',
+        function(schemaFormProvider, schemaFormDecoratorsProvider, sfPathProvider) {
 
-  /**
-   * It defines TerraMA2 mask field of schema form addon
-   * 
-   * @example
-   * <terrama2-mask-field class="MyClass"></terrama2-analysis-helpers>
-   * 
-   * @returns {angular.IDirective}
-   */
-  function terrama2MaskField(i18n) {
-    return {
-      restrict: 'E',
-      require: 'ngModel',
-      scope: false,
-      template:
-        '<input ng-if="!form.fieldAddonLeft && !form.fieldAddonRight" ng-show="form.key" type="{{form.type}}" step="any" sf-changed="form" placeholder="{{form.placeholder}}" class="form-control {{form.fieldHtmlClass}}" id="{{form.key.slice(-1)[0]}}" ng-model-options="form.ngModelOptions" ng-model="modelValue" ng-disabled="form.readonly" schema-validate="form" name="{{form.key.slice(-1)[0]}}" aria-describedby="{{form.key.slice(-1)[0] + \'Status\'}}" ng-blur="updateModel(modelValue)">' + 
-          
-        '<span style="top: 25px; margin-right: 20px !important" ng-if="form.feedback !== false" class="form-control-feedback" ng-class="evalInScope(form.feedback) || {\'glyphicon\': true, \'glyphicon-ok\': hasSuccess(), \'glyphicon-remove\': hasError() }" aria-hidden="true"></span>'+
-        '<span ng-if="hasError() || hasSuccess()" id="{{form.key.slice(-1)[0] + \'Status\'}}" class="sr-only">{{ hasSuccess() ? \'(success)\' : \'(error)\' }}</span>'+
-        '<span class="warn-message" ng-if="showWarnMessage" ng-bind="i18n.__(\'Files can be overwritten\')"></span>'
-      ,
-      link: function (scope, element, attrs, ngModel) {
-        scope.i18n = i18n;
-        scope.modelValue = ngModel.$viewValue;
-        scope.showWarnMessage = false;
+            // First, we want this to be the default for a combination of schema parameters
+            var terrama2maskform = function (name, schema, options) {
+                if (schema.type === 'string' && schema.format == 'terrama2maskform') {
+                    // Initiate a form provider
+                    var f = schemaFormProvider.stdFormObj(name, schema, options);
+                    f.key = options.path;
+                    f.type = 'terrama2maskform';
+                    // Add it to the lookup dict (for internal use)
+                    options.lookup[sfPathProvider.stringify(options.path)] = f;
+                    return f;
+                }
+            };
+            // Add our default to the defaults array
+            schemaFormProvider.defaults.string.unshift(terrama2maskform);
 
-        scope.updateModel = function (modelValue) {
-          ngModel.$setViewValue(modelValue);
+            // Second, we want it to show if someone have explicitly set the form type
+            schemaFormDecoratorsProvider.addMapping('bootstrapDecorator', 'terrama2maskform',
+                '/dist/templates/schema-form-plugin/mask-warn/templates/terrama2-mask-field.html');
+        }]);
 
-          if (!modelValue) {
-            scope.showWarnMessage = false;
-            return;
-          }
-          scope.showWarnMessage = true;
-          // checking if value has some pattern characters
-          if (scope.form.maskPattern){
-            scope.form.maskPattern.forEach(function(mPattern){
-              if (modelValue.indexOf(mPattern) != -1){ 
-                scope.showWarnMessage = false;
-                return;
-              }
-            });
-          }
-          // if value is valid and have to show warn message, show message
-          scope.showWarnMessage = scope.showWarnMessage && ngModel.$valid;
-        };
+    // Declare a controller, this is used in the camelcaseDirective below
+    var terrama2MaskFormControllerFunction =  function($scope) {
 
-      },
+      $scope.$watch('ngModel.$modelValue', function(value){
+        if (value){
+           $scope.updateModel();
+        }
+      });
+
+      $scope.updateModel = function (){
+        var leaf_model = $scope.ngModel;
+        var modelValue = leaf_model.$modelValue;
+        if (!modelValue){
+          $scope.showMessage = false;
+          return;
+        }
+        $scope.showMessage = true;
+        if ($scope.form.maskPattern){
+          $scope.form.maskPattern.forEach(function(mPattern){
+            if (modelValue.indexOf(mPattern) != -1){ 
+              $scope.showMessage = false;
+              return;
+            }
+          });
+        }
+      }
     };
+
+    // Create a directive to properly access the ngModel set in the view (src/angular-schema-form-camelcase.html)
+    angular.module('schemaForm').directive('terrama2MaskForm', function() {
+      return {
+        // The directive needs the ng-model to be set, look at the <div>
+        require: ['ngModel'],
+        restrict: 'A',
+        // Do not create a isolate scope, makeCamelCase should be available to the button element
+        scope: false,
+        // Define a controller, use the function from above, inject the scope
+        controller : ['$scope', terrama2MaskFormControllerFunction],
+        // Use the link function to initiate the ngModel in the controller scope
+        link: function(scope, iElement, iAttrs, ngModelCtrl) {
+            scope.ngModel = ngModelCtrl[0];
+        }
+      };
+    });
+  } catch (error) {
+    
   }
-  terrama2MaskField.$inject = ['i18n'];
-  return terrama2MaskField;
 });
