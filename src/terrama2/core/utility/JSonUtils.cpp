@@ -351,8 +351,8 @@ terrama2::core::DataSeriesRisk terrama2::core::fromDataSeriesRiskJson(QJsonObjec
     auto obj = value.toObject();
     terrama2::core::RiskLevel riskLevel;
     riskLevel.name = obj["name"].toString().toStdString();
-    riskLevel.id = static_cast<uint32_t>(obj["id"].toInt());
-    riskLevel.value= obj["value"].toDouble();
+    riskLevel.level = static_cast<uint32_t>(obj["level"].toInt());
+    riskLevel.lowerBound = obj["lower_bound"].toDouble();
     riskLevel.textValue = obj["text_value"].toString().toStdString();
 
     risk.riskLevels.push_back(riskLevel);
@@ -378,8 +378,8 @@ QJsonObject terrama2::core::toJson(const terrama2::core::DataSeriesRisk& risk)
   {
     QJsonObject tempoObj;
     tempoObj.insert("name", QString::fromStdString(riskLevel.name));
-    tempoObj.insert("id", static_cast<int>(riskLevel.id));
-    tempoObj.insert("value", riskLevel.value);
+    tempoObj.insert("level", static_cast<int>(riskLevel.level));
+    tempoObj.insert("lower_bound", riskLevel.lowerBound);
     tempoObj.insert("text_value", QString::fromStdString(riskLevel.textValue));
 
     riskArray.append(tempoObj);

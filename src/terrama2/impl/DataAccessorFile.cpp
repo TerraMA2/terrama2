@@ -198,7 +198,6 @@ void terrama2::core::DataAccessorFile::filterDataSetByLastValues(std::shared_ptr
 
 
   std::vector<std::shared_ptr< te::dt::DateTime> > vecLastValues;
-  vecLastValues.resize(*filter.lastValues.get(), nullptr);
 
   while(i < size)
   {
@@ -216,24 +215,27 @@ void terrama2::core::DataAccessorFile::filterDataSetByLastValues(std::shared_ptr
     std::shared_ptr< te::dt::DateTime > dateTime(completeDataSet->getDateTime(dateColumn));
     auto timesIntant = std::dynamic_pointer_cast<te::dt::TimeInstantTZ>(dateTime);
 
-    for(int32_t j =0; j < *filter.lastValues.get(); ++j)
-    {
-      std::shared_ptr< te::dt::DateTime> value = vecLastValues[j];
-      if(value.get() == nullptr)
-      {
-        vecLastValues[j] = timesIntant;
-        break;
-      }
 
-      if(*value.get() > *vecLastValues[j].get())
+    int filterLastValues = *filter.lastValues.get();
+
+    bool inserted = false;
+    for(auto it = vecLastValues.begin(); it != vecLastValues.end(); ++it)
+    {
+      if(*it->get() < *timesIntant)
       {
-        vecLastValues[j] = timesIntant;
-        break;
+        vecLastValues.insert(it, timesIntant);
+        inserted = true;
       }
-      if(*value.get() == *vecLastValues[j].get())
+      if(*it->get() == *timesIntant)
       {
-        break;
+        inserted = true;
       }
+    }
+
+    if(!inserted)
+    {
+      if(vecLastValues.size() < filterLastValues)
+        vecLastValues.push_back(timesIntant);
     }
 
     ++i;

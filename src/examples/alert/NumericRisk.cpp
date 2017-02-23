@@ -65,9 +65,9 @@ terrama2::core::DataSeriesPtr inputDataSeries()
   //DataSet information
   terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
   dataSet->active = true;
-  dataSet->format.emplace("table_name", "count_occurrence_by_state");
+  dataSet->format.emplace("table_name", "focos_goes");
   dataSet->format.emplace("timestamp_property", "execution_date");
-  dataSet->format.emplace("identifier", "sigla");
+  dataSet->format.emplace("identifier", "id_0");
 
   dataSeries->datasetList.emplace_back(dataSet);
 
@@ -127,23 +127,23 @@ terrama2::services::alert::core::AlertPtr newAlert()
   risk.id = 1;
   risk.dataSeriesId = 1;
   risk.name = "Fire occurrence count";
-  risk.attribute = "occurrence_count";
+  risk.attribute = "count";
 
   terrama2::core::RiskLevel level1;
-  level1.id = 1;
-  level1.value = -1;
+  level1.level = 0;
+  level1.lowerBound = 0;
   level1.name = "low";
   risk.riskLevels.push_back(level1);
 
   terrama2::core::RiskLevel level2;
-  level2.id = 2;
-  level2.value = 20;
+  level2.level = 1;
+  level2.lowerBound = 20;
   level2.name = "medium";
   risk.riskLevels.push_back(level2);
 
   terrama2::core::RiskLevel level3;
-  level3.id = 3;
-  level3.value = 50;
+  level3.level = 2;
+  level3.lowerBound = 50;
   level3.name = "high";
   risk.riskLevels.push_back(level3);
 
@@ -151,9 +151,9 @@ terrama2::services::alert::core::AlertPtr newAlert()
 
   terrama2::services::alert::core::AdditionalData additionalData;
   additionalData.id = 2;
-  additionalData.identifier = "sigla";
+  additionalData.identifier = "id";
   additionalData.attributes.push_back("nome");
-  additionalData.attributes.push_back("regiao_id");
+  additionalData.attributes.push_back("sigla");
 
   alert->additionalDataVector.push_back(additionalData);
 

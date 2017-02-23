@@ -43,12 +43,12 @@ namespace terrama2
     struct RiskLevel
     {
       std::string name;
-      uint32_t id = 0; //!< Level of the risk, should be unique in a DataSeriesRisk.
-      double value = 0; //!< Lower bound for real values, inclusive.
+      uint32_t level = 0; //!< Level of the risk, should be unique in a DataSeriesRisk.
+      double lowerBound = 0; //!< Lower bound for real values, inclusive.
       std::string textValue; //!< Text value for this RiskLevel.
 
       //! Minor operator for sorting.
-      bool operator<(const RiskLevel& rhs) const { return id < rhs.id; }
+      bool operator<(const RiskLevel& rhs) const { return level < rhs.level; }
     };
 
     enum class RiskType

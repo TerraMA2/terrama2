@@ -40,7 +40,7 @@ std::tuple<int, std::string> terrama2::core::DataSeriesRisk::riskLevel(const std
 
   if(pos != std::end(riskLevels))
   {
-    return std::make_tuple((*pos).id, (*pos).name);
+    return std::make_tuple((*pos).level, (*pos).name);
   }
   else
   {
@@ -52,19 +52,25 @@ std::tuple<int, std::string> terrama2::core::DataSeriesRisk::riskLevel(const std
 
 std::tuple<int, std::string> terrama2::core::DataSeriesRisk::riskLevel(double value) const
 {
-  auto pos = std::find_if(std::begin(riskLevels), std::end(riskLevels), [value](const RiskLevel& risk)
+  for (int i = 0; i < riskLevels.size(); ++i)
   {
-    return risk.value < value;
-  });
+    auto riskLevel = riskLevels[i];
+    if(value >= riskLevels[i].lowerBound)
+    {
+      bool hasNext = i + 1 < riskLevels.size();
+      if(hasNext && value < riskLevels[i + 1].lowerBound)
+      {
+        return std::make_tuple(riskLevel.level, riskLevel.name);
+      }
 
-  if(pos != std::end(riskLevels))
-  {
-    return std::make_tuple((*pos).id, (*pos).name);
+      if(!hasNext)
+      {
+        return std::make_tuple(riskLevel.level, riskLevel.name);
+      }
+    }
   }
-  else
-  {
-    QString errMsg = QObject::tr("Risk level not defined for value: %1").arg(value);
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw DataSeriesRiskException() << ErrorDescription(errMsg);
-  }
+
+  QString errMsg = QObject::tr("Risk level not defined for value: %1").arg(value);
+  TERRAMA2_LOG_ERROR() << errMsg;
+  throw DataSeriesRiskException() << ErrorDescription(errMsg);
 }
