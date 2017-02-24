@@ -292,9 +292,9 @@ terrama2::core::Filter terrama2::core::fromFilterJson(QJsonObject json, DataMana
     // filter.discard_before = json["value_comparison_operation"].toString();//TODO: filter by value operation
   }
 
-  if(json.contains("last_value") && !json.value("last_value").isNull())
+  if(json.contains("last_values") && !json.value("last_values").isNull())
   {
-    filter.lastValue = json["last_value"].toBool();
+    filter.lastValues = std::make_shared<int32_t>(json["last_values"].toInt());
   }
 
   if(json.contains("data_series_id") && !json.value("data_series_id").isNull())
@@ -352,10 +352,7 @@ terrama2::core::DataSeriesRisk terrama2::core::fromDataSeriesRiskJson(QJsonObjec
     terrama2::core::RiskLevel riskLevel;
     riskLevel.name = obj["name"].toString().toStdString();
     riskLevel.level = static_cast<uint32_t>(obj["level"].toInt());
-    riskLevel.hasLowerBound = obj["has_lower_bound"].toBool();
     riskLevel.lowerBound = obj["lower_bound"].toDouble();
-    riskLevel.hasUpperBound = obj["has_upper_bound"].toBool();
-    riskLevel.upperBound = obj["upper_bound"].toDouble();
     riskLevel.textValue = obj["text_value"].toString().toStdString();
 
     risk.riskLevels.push_back(riskLevel);
@@ -382,10 +379,7 @@ QJsonObject terrama2::core::toJson(const terrama2::core::DataSeriesRisk& risk)
     QJsonObject tempoObj;
     tempoObj.insert("name", QString::fromStdString(riskLevel.name));
     tempoObj.insert("level", static_cast<int>(riskLevel.level));
-    tempoObj.insert("has_lower_bound", riskLevel.hasLowerBound);
     tempoObj.insert("lower_bound", riskLevel.lowerBound);
-    tempoObj.insert("has_upper_bound", riskLevel.hasUpperBound);
-    tempoObj.insert("upper_bound", riskLevel.upperBound);
     tempoObj.insert("text_value", QString::fromStdString(riskLevel.textValue));
 
     riskArray.append(tempoObj);
@@ -416,7 +410,7 @@ QJsonObject terrama2::core::toJson(const terrama2::core::Filter& filter)
     obj.insert("region", QString::fromStdString(region));
   }
 
-  obj.insert("last_value", filter.lastValue);
+  obj.insert("last_values", static_cast<qint32>(*filter.lastValues.get()));
 
   if(filter.dataSeries)
     obj.insert("data_series_id", static_cast<int32_t>(filter.dataSeries->id));
