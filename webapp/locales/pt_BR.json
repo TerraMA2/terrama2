@@ -605,5 +605,16 @@
 	"Schedule value is not a valid integer": "Valor do agendamento não é válido",
 	"Schedule value is not in range": "Valor do agendamento não está no intervalo",
 	"Time": "Hora",
-	"Time unit is required": "Unidade de tempo é requerido"
+	"Time unit is required": "Unidade de tempo é requerido",
+	"CSV Format": "Format CSV",
+	"Projection (SRID)": "Projeção (SRID)",
+	"Header size": "Tamanho do cabeçalho",
+	"Properties name line": "Linha dos nomes",
+	"Convert all": "Converter todos",
+	"Fields": "Campos",
+	"GDAL raster": "Matriz GDAL",
+	"DCP CSV": "PCD CSV",
+	"Occurrence CSV": "Ocorrência CSV",
+	"Property name": "Nome da propriedade",
+	"Default type": "Tipo padrão"
 }
