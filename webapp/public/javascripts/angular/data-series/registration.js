@@ -248,6 +248,7 @@ define([], function() {
       $scope.onDataSemanticsChange = function() {
         $scope.semantics = $scope.dataSeries.semantics.data_series_type_name;
         if (!$scope.isUpdating){
+          $scope.csvFormatData = { fields: []};
           clearStoreForm();
         }
         $scope.custom_format = $scope.dataSeries.semantics.custom_format;
@@ -1378,7 +1379,7 @@ define([], function() {
                   format.output_geometry_property = output_geometry_property_field;
                 }
 
-                var stringFields = JSON.stringify($scope.csvFormatData.fields);
+                var stringFields = angular.toJson($scope.csvFormatData.fields);
                 format.fields = stringFields;
               }
               var dataSetStructure = {
@@ -1400,7 +1401,7 @@ define([], function() {
               format = Object.assign(format, $scope.csvFormatData);
               format.output_timestamp_property = getAliasFromCsvFields("DATETIME", $scope.csvFormatData.fields);
               format.output_geometry_property = getAliasFromCsvFields("GEOMETRY_POINT", $scope.csvFormatData.fields);
-              var stringFields = JSON.stringify($scope.csvFormatData.fields);
+              var stringFields = angular.toJson($scope.csvFormatData.fields);
               format.fields = stringFields;
             }
 
