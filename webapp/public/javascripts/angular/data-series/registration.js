@@ -1277,8 +1277,15 @@ define([], function() {
           var fmt = angular.merge({}, dSets);
           angular.merge(fmt, dSemantics.metadata.metadata);
           if ($scope.custom_format){
-            fmt.geometry_property = dataObject.dataSeries.dataSets[0].format.output_geometry_property;
-            fmt.timestamp_property = dataObject.dataSeries.dataSets[0].format.output_timestamp_property;
+            var output_timestamp_property_field = dataObject.dataSeries.dataSets[0].format.output_timestamp_property;
+            if (output_timestamp_property_field){
+              fmt.timestamp_property = output_timestamp_property_field
+            }
+
+            var output_geometry_property_field = dataObject.dataSeries.dataSets[0].format.output_geometry_property;
+            if (output_geometry_property_field){
+              fmt.geometry_property = output_geometry_property_field;
+            }
           }
 
           dSets.format = _makeFormat(fmt);

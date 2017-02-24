@@ -1,7 +1,7 @@
 <div class="row">
 		<div class="col-md-2">
       <div class="form-group">
-				<label ng-bind="$ctrl.i18n.__('Type')">:</label>
+				<label ng-bind="$ctrl.i18n.__('Type')+':'"></label>
 				<select name="type" class="form-control" ng-model="$ctrl.format.type" ng-change="$ctrl.onFieldTypeChange()" required>
 					<option ng-repeat="type in $ctrl.fieldsType" value="{{type.value}}">{{type.title}}</option>
 				</select> 
@@ -11,19 +11,19 @@
 		<div ng-if="$ctrl.format.type == 'GEOMETRY_POINT'">
 			<div class="col-md-3">
 				<div class="form-group">
-					<label ng-bind="$ctrl.i18n.__('Latitude')">:</label>
+					<label ng-bind="$ctrl.i18n.__('Latitude')+':'"></label>
 					<input name="latitude" class="form-control" type="text" ng-model="$ctrl.format.latitude_property_name" required>
 				</div>
 			</div>
 			<div class="col-md-3">
 				<div class="form-group">
-					<label ng-bind="$ctrl.i18n.__('Longitude')">:</label>
+					<label ng-bind="$ctrl.i18n.__('Longitude')+':'"></label>
 					<input name="longitude" class="form-control" type="text" ng-model="$ctrl.format.longitude_property_name" required>
 				</div>
 			</div>
 			<div class="col-md-3">
 				<div class="form-group">
-					<label ng-bind="$ctrl.i18n.__('Alias')">:</label>
+					<label ng-bind="$ctrl.i18n.__('Alias')+':'"></label>
 					<input name="alias" class="form-control" type="text" ng-model="$ctrl.format.alias" required>
 				</div>
 			</div>
@@ -33,13 +33,13 @@
 			<div class="row">
 				<div class="col-md-6">
 					<div class="form-group">
-						<label ng-bind="$ctrl.i18n.__('Property name')">:</label>
+						<label ng-bind="$ctrl.i18n.__('Property name')+':'"></label>
 						<input name="property_name" class="form-control" type="text" ng-model="$ctrl.format.property_name" required>
 					</div>
 				</div>
 				<div class="col-md-6">			
       		<div class="form-group">
-						<label ng-bind="$ctrl.i18n.__('Alias')">:</label>
+						<label ng-bind="$ctrl.i18n.__('Alias')+':'"></label>
 						<input name="alias" class="form-control" type="text" ng-model="$ctrl.format.alias" required>
       		</div>
 				</div>
@@ -49,19 +49,19 @@
 		<div ng-if="$ctrl.format.type == 'DATETIME'">
 			<div  class="col-md-3">
 				<div class="form-group">
-					<label ng-bind="$ctrl.i18n.__('Property name')">:</label>
+					<label ng-bind="$ctrl.i18n.__('Property name')+':'"></label>
 					<input name="property_name" class="form-control" type="text" ng-model="$ctrl.format.property_name" required>
 				</div>
 			</div>
 			<div class="col-md-3">
 				<div class="form-group">
-					<label ng-bind="$ctrl.i18n.__('Format')">:</label>
+					<label ng-bind="$ctrl.i18n.__('Format')+':'"></label>
 					<input name="format" class="form-control" type="text" ng-model="$ctrl.format.format" required>
 				</div>
 			</div>
 			<div class="col-md-3">
 				<div class="form-group">
-					<label ng-bind="$ctrl.i18n.__('Alias')">:</label>
+					<label ng-bind="$ctrl.i18n.__('Alias')+':'"></label>
 					<input name="alias" class="form-control" type="text" ng-model="$ctrl.format.alias" required>
 				</div>
 			</div>
