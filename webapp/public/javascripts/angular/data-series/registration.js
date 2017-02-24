@@ -357,7 +357,7 @@ define([], function() {
               if (inputDataSeries.data_series_semantics.custom_format){
                 $scope.csvFormatData.fields = JSON.parse(dataset.format.fields)
                 $scope.csvFormatData.header_size = parseInt(dataset.format.header_size);
-                $scope.csvFormatData.field_type = dataset.format.field_type;
+                $scope.csvFormatData.default_type = dataset.format.default_type;
                 $scope.csvFormatData.convert_all = (dataset.format.convert_all == "true");
                 $scope.csvFormatData.properties_names_line = parseInt(dataset.format.properties_names_line);
               }
@@ -368,7 +368,7 @@ define([], function() {
             if (inputDataSeries.data_series_semantics.custom_format){
               $scope.csvFormatData.fields = JSON.parse(dataSetFormat.fields)
               $scope.csvFormatData.header_size = parseInt(dataSetFormat.header_size);
-              $scope.csvFormatData.field_type = dataSetFormat.field_type;
+              $scope.csvFormatData.default_type = dataSetFormat.default_type;
               $scope.csvFormatData.convert_all = (dataSetFormat.convert_all == "true");
               $scope.csvFormatData.properties_names_line = parseInt(dataSetFormat.properties_names_line);
             }
