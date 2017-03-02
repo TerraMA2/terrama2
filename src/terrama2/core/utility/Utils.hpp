@@ -36,11 +36,14 @@
 #include "../data-model/DataSet.hpp"
 #include "../data-model/Filter.hpp"
 
+// TerraLib
+#include <terralib/geometry/Coord2D.h>
+#include <terralib/raster/Raster.h>
+#include <terralib/dataaccess/dataset/DataSet.h>
+
 // STL
 #include <string>
 
-#include <terralib/geometry/Coord2D.h>
-#include <terralib/raster/Raster.h>
 
 // Forward declaration
 class QJsonDocument;
@@ -165,6 +168,9 @@ namespace terrama2
      * \return An expansible raster
      */
     std::unique_ptr<te::rst::Raster> multiplyRaster(const te::rst::Raster& raster, const double& multiplier);
+
+
+    size_t propertyPosition(const te::da::DataSet* dataSet, const std::string& propertyName);
 
   } // end namespace core
 }   // end namespace terrama2

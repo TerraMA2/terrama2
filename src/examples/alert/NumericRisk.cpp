@@ -11,7 +11,7 @@
 #include <terrama2/services/alert/core/Shared.hpp>
 #include <terrama2/services/alert/core/DataManager.hpp>
 #include <terrama2/services/alert/core/Alert.hpp>
-#include <terrama2/services/alert/impl/ReportTxt.hpp>
+#include <terrama2/services/alert/core/Report.hpp>
 #include <terrama2/services/alert/impl/Utils.hpp>
 #include <terrama2/services/alert/core/RunAlert.hpp>
 
@@ -159,17 +159,13 @@ terrama2::services::alert::core::AlertPtr newAlert()
   alert->additionalDataVector.push_back(additionalData);
 
   std::unordered_map<std::string, std::string> reportMetadata;
-  reportMetadata[terrama2::services::alert::core::ReportTags::TYPE] = "TXT";
 
   reportMetadata[terrama2::services::alert::core::ReportTags::TITLE] = "NUMERIC RISK EXAMPLE REPORT";
-  reportMetadata[terrama2::services::alert::core::ReportTags::SUBTITLE] = "NumericRisk.cpp";
+  reportMetadata[terrama2::services::alert::core::ReportTags::ABSTRACT] = "NumericRisk.cpp";
   reportMetadata[terrama2::services::alert::core::ReportTags::AUTHOR] = "Jano Simas";
   reportMetadata[terrama2::services::alert::core::ReportTags::CONTACT] = "jano.simas@funcate.org.br";
   reportMetadata[terrama2::services::alert::core::ReportTags::COPYRIGHT] = "copyright information...";
   reportMetadata[terrama2::services::alert::core::ReportTags::DESCRIPTION] = "Example generated report...";
-
-  reportMetadata[terrama2::services::alert::core::ReportTags::DESTINATION_FOLDER] = TERRAMA2_DATA_DIR;
-  reportMetadata[terrama2::services::alert::core::ReportTags::FILE_NAME] = "report.txt";
 
   alert->reportMetadata = reportMetadata;
 
@@ -202,7 +198,7 @@ int main(int argc, char* argv[])
     terrama2::services::alert::core::runAlert(executionPackage, nullptr, dataManager);
   }
 
-  
+
 
   return 0;
 }

@@ -35,7 +35,6 @@
 #include "RunAlert.hpp"
 #include "Alert.hpp"
 #include "Report.hpp"
-#include "ReportFactory.hpp"
 #include "AdditionalDataHelper.hpp"
 
 #include <QObject>
@@ -172,9 +171,6 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
         alertDataSet->add(item);
       }
 
-      auto& factory = ReportFactory::getInstance();
-      auto report = factory.make(alertPtr->reportMetadata.at(ReportTags::TYPE), alertPtr->reportMetadata);
-      report->process(alertPtr, dataset, executionPackage.executionDate, alertDataSet);
     }
 
     logger->result(AlertLogger::DONE, executionPackage.executionDate, executionPackage.registerId);

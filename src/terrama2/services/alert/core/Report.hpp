@@ -25,16 +25,27 @@
   \brief
 
   \author Jano Simas
+          Vinicius Campanha
  */
 
 #ifndef __TERRAMA2_SERVICES_ALERT_CORE_REPORT_HPP__
 #define __TERRAMA2_SERVICES_ALERT_CORE_REPORT_HPP__
 
+// TerraMA2
+#include "Shared.hpp"
+#include "../../../core/Shared.hpp"
+#include "Alert.hpp"
+
+// TerraLib
+#include <terralib/dataaccess/dataset/DataSetType.h>
+#include <terralib/dataaccess/dataset/FilteredDataSet.h>
+#include <terralib/memory/DataSet.h>
+
+// STL
 #include <string>
 #include <unordered_map>
 
-#include "Shared.hpp"
-#include "../../../core/Shared.hpp"
+
 
 namespace te
 {
@@ -60,9 +71,8 @@ namespace terrama2
 
         namespace ReportTags
         {
-          const std::string TYPE = "type";
           const std::string TITLE = "title";
-          const std::string SUBTITLE = "subtitle";
+          const std::string ABSTRACT = "abstract";
           const std::string DESCRIPTION = "description";
           const std::string AUTHOR = "author";
           const std::string CONTACT = "contact";
@@ -74,8 +84,8 @@ namespace terrama2
         class Report
         {
           public:
-            Report(std::unordered_map<std::string, std::string> reportMetadata)
-              : reportMetadata_(reportMetadata) {}
+            Report(AlertPtr alert, std::shared_ptr<te::da::DataSet> alertDataSet, std::shared_ptr<te::da::DataSetType> alertDataSetType)
+              : alert_(alert), alertDataSet_(alertDataSet), alertDataSetType_(alertDataSetType) { }
 
             ~Report() = default;
             Report(const Report& other) = default;
@@ -83,13 +93,46 @@ namespace terrama2
             Report& operator=(const Report& other) = default;
             Report& operator=(Report&& other) = default;
 
-            virtual void process(AlertPtr alertPtr,
-                                 terrama2::core::DataSetPtr dataset,
-                                 std::shared_ptr<te::dt::TimeInstantTZ> alertTime,
-                                 std::shared_ptr<te::da::DataSet> alertDataSet) = 0;
+            std::string title() const { return alert_->reportMetadata.at(ReportTags::TITLE); }
+
+            std::string abstract() const { return alert_->reportMetadata.at(ReportTags::ABSTRACT); }
+
+            std::string description() const { return alert_->reportMetadata.at(ReportTags::DESCRIPTION); }
+
+            std::string author() const { return alert_->reportMetadata.at(ReportTags::AUTHOR); }
+
+            std::string contact() const { return alert_->reportMetadata.at(ReportTags::CONTACT); }
+
+            std::string copyright() const { return alert_->reportMetadata.at(ReportTags::COPYRIGHT); }
+
+            std::string logoPath() const { return alert_->reportMetadata.at(ReportTags::LOGO_PATH); }
+
+            std::string timeStampFormat() const { return alert_->reportMetadata.at(ReportTags::TIMESTAMP_FORMAT); }
+
+            std::shared_ptr<te::da::DataSet> retrieveData() const;
+
+            std::shared_ptr<te::da::DataSet> retrieveDataChangedRisk() const;
+
+            std::shared_ptr<te::da::DataSet> retrieveDataUnchangedRisk() const;
+
+            std::shared_ptr<te::da::DataSet> retrieveDataIncreasedRisk() const;
+
+            std::shared_ptr<te::da::DataSet> retrieveDataDecreasedRisk() const;
+
+            std::shared_ptr<te::da::DataSet> retrieveDataAtRisk(const int risk) const;
+
+            std::shared_ptr<te::da::DataSet> retrieveDataAboveRisk(const int risk) const;
+
+            std::shared_ptr<te::da::DataSet> retrieveDataBelowRisk(const int risk) const;
 
           protected:
-            std::unordered_map<std::string, std::string> reportMetadata_;
+
+            void addLevelsNamesProperty(std::shared_ptr<te::mem::DataSet> dataSet) const;
+
+            AlertPtr alert_;
+            std::shared_ptr<te::da::DataSet> alertDataSet_;
+            std::shared_ptr<te::da::DataSetType> alertDataSetType_;
+
         };
       } /* core */
     } /* alert */

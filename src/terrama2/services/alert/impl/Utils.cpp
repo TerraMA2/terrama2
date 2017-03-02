@@ -27,12 +27,10 @@
   \author Jano Simas
  */
 
-#include "../core/ReportFactory.hpp"
-#include "ReportTxt.hpp"
+
 #include "Utils.hpp"
 
 void terrama2::services::alert::core::registerFactories()
 {
-  auto& factory = ReportFactory::getInstance();
-  factory.add(terrama2::services::alert::core::ReportTxt::reportType(), terrama2::services::alert::core::ReportTxt::make);
+
 }
