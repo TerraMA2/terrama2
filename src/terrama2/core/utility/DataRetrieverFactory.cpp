@@ -73,7 +73,6 @@ bool terrama2::core::DataRetrieverFactory::find(const DataProviderType& dataProv
 terrama2::core::DataRetrieverPtr terrama2::core::DataRetrieverFactory::make(terrama2::core::DataProviderPtr dataProvider) const
 {
   auto it = factoriesMap_.find(dataProvider->dataProviderType);
-
   if(it == factoriesMap_.end())
   {
     // if the data retriever for this type is not registered,

@@ -13,7 +13,7 @@ define([],function(){
     ctrl.i18n = i18n;
 
     ctrl.fieldsType = [
-      {title: "Point", value: "GEOMETRY_POINT"},
+      {title: "Point (Geometry)", value: "GEOMETRY_POINT"},
       {title: "Number", value: "FLOAT"},
       {title: "Text", value: "TEXT"},
       {title: "Date", value: "DATETIME"}
