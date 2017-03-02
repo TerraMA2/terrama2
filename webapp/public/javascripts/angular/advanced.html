@@ -64,6 +64,23 @@
   </div>
 </div>
 
+<div class="col-md-12" ng-if="custom_format">
+  <div id="store-box" class="box box-default box-solid collapsed-box">
+    <div class="box-header with-border">
+      <h3 class="box-title">{{ i18n.__('CSV Format') }}</h3>
+      <div class="box-tools pull-right">
+        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+        </button>
+      </div>
+    </div>
+    <div style="display: block;" class="box-body">
+      <form name="forms.csvFormatForm">
+        <csv-format csv-format-data="csvFormatData"></csv-format>
+      </form>
+    </div>
+  </div>
+</div>
+
 <div class="col-md-12" ng-if="isDynamic && form.length > 0">
   <div id="store-box" class="box box-default box-solid collapsed-box">
     <div class="box-header with-border" ng-class="{disabled: advanced.store.disabled}">

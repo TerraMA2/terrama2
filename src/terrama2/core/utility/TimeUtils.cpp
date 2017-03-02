@@ -300,3 +300,28 @@ double terrama2::core::TimeUtils::scheduleSeconds(const Schedule& dataSchedule, 
     throw InvalidFrequencyException() << terrama2::ErrorDescription(errMsg);
   }
 }
+
+std::string terrama2::core::TimeUtils::terramaDateMask2BoostFormat(const std::string& mask)
+{
+  QString m(mask.c_str());
+
+  /*
+    YYYY  year with 4 digits        %Y
+    YY    year with 2 digits        %y
+    MM    month with 2 digits       %m
+    DD    day with 2 digits         %d
+    hh    hout with 2 digits        %H
+    mm    minutes with 2 digits     %M
+    ss    seconds with 2 digits     %S
+    */
+
+  m.replace("%YYYY", "%Y");
+  m.replace("%YY", "%y");
+  m.replace("%MM", "%m");
+  m.replace("%DD", "%d");
+  m.replace("%hh", "%H");
+  m.replace("%mm", "%M");
+  m.replace("%ss", "%S");
+
+  return m.toStdString();
+}

@@ -163,7 +163,7 @@ te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PA
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     terrama2::core::DataSeries* dataSeries2 = new terrama2::core::DataSeries();
     terrama2::core::DataSeriesPtr dataSeries2Ptr(dataSeries2);
-    dataSeries2->semantics = semanticsManager.getSemantics("GRID-static_geotiff");
+    dataSeries2->semantics = semanticsManager.getSemantics("GRID-static_gdal");
     dataSeries2->name = "geotiff 1";
     dataSeries2->id = 2;
     dataSeries2->dataProviderId = 2;

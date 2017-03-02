@@ -38,12 +38,13 @@
 
 //TODO: improve message to help identify where the error accurred
 
-void terrama2::core::verify::srid(int srid_)
+void terrama2::core::verify::srid(int srid_, bool log)
 {
   if(srid_ <= 0 || srid_ > 998999)
   {
     QString errMsg = QObject::tr("Invalid SRID.");
-    TERRAMA2_LOG_ERROR() << errMsg;
+    if(log)
+      TERRAMA2_LOG_ERROR() << errMsg;
     throw VerifyException() << terrama2::ErrorDescription(errMsg);
   }
 }

@@ -59,7 +59,7 @@ void terrama2::services::alert::core::Service::prepareTask(const terrama2::core:
 {
   try
   {
-    taskQueue_.emplace(std::bind(&runAlert, executionPackage, logger_, dataManager_));
+    taskQueue_.emplace(std::bind(&core::runAlert, executionPackage, std::dynamic_pointer_cast<terrama2::services::alert::core::AlertLogger>(logger_), dataManager_));
   }
   catch(std::exception& e)
   {
@@ -83,7 +83,6 @@ void terrama2::services::alert::core::Service::addToQueue(AlertId alertId, std::
     // Check if this alert should be executed in this instance
     if(alert->serviceInstanceId != serviceInstanceId)
       return;
-
 
     RegisterId registerId = logger_->start(alertId);
 
@@ -120,61 +119,13 @@ void terrama2::services::alert::core::Service::connectDataManager()
 {
   auto dataManager = dataManager_.lock();
   connect(dataManager.get(), &terrama2::services::alert::core::DataManager::alertAdded, this,
-          &terrama2::services::alert::core::Service::addAlert);
+          &terrama2::services::alert::core::Service::addProcessToSchedule);
   connect(dataManager.get(), &terrama2::services::alert::core::DataManager::alertRemoved, this,
           &terrama2::services::alert::core::Service::removeAlert);
   connect(dataManager.get(), &terrama2::services::alert::core::DataManager::alertUpdated, this,
           &terrama2::services::alert::core::Service::updateAlert);
 }
 
-void terrama2::services::alert::core::Service::setLogger(std::shared_ptr<AlertLogger> logger) noexcept
-{
-  logger_ = logger;
-}
-
-void terrama2::services::alert::core::Service::addAlert(AlertPtr alert) noexcept
-{
-  try
-  {
-    const auto& serviceManager = terrama2::core::ServiceManager::getInstance();
-    auto serviceInstanceId = serviceManager.instanceId();
-
-    // Check if this alert should be executed in this instance
-    if(alert->serviceInstanceId != serviceInstanceId)
-      return;
-
-    try
-    {
-      if(alert->active)
-      {
-        std::lock_guard<std::mutex> lock(mutex_);
-
-        std::shared_ptr<te::dt::TimeInstantTZ> lastProcess;
-        if(logger_.get())
-          lastProcess = logger_->getLastProcessTimestamp(alert->id);
-
-        terrama2::core::TimerPtr timer = createTimer(alert->schedule, alert->id, lastProcess);
-        timers_.emplace(alert->id, timer);
-      }
-    }
-    catch(const terrama2::core::InvalidFrequencyException&)
-    {
-      // invalid schedule, already logged
-    }
-    catch(const te::common::Exception& e)
-    {
-      TERRAMA2_LOG_ERROR() << e.what();
-    }
-
-    addToQueue(alert->id, terrama2::core::TimeUtils::nowUTC());
-  }
-  catch(...)
-  {
-    // exception guard, slots should never emit exceptions.
-    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception...");
-  }
-
-}
 
 void terrama2::services::alert::core::Service::removeAlert(AlertId alertId) noexcept
 {
@@ -223,6 +174,11 @@ void terrama2::services::alert::core::Service::removeAlert(AlertId alertId) noex
 
 void terrama2::services::alert::core::Service::updateAlert(AlertPtr alert) noexcept
 {
-  //TODO: addAlert adds to queue, is this expected?
-  addAlert(alert);
+  removeAlert(alert->id);
+  addProcessToSchedule(alert);
+}
+
+void terrama2::services::alert::core::Service::updateAdditionalInfo(const QJsonObject& obj) noexcept
+{
+
 }

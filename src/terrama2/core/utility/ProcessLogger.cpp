@@ -268,7 +268,6 @@ void terrama2::core::ProcessLogger::result(Status status, const std::shared_ptr<
   {
     verify::date(dataTimestamp);
 
-    auto boostTime = dataTimestamp->getTimeInstantTZ();
     timestamp = QString::fromStdString(dataTimestamp->toString());
 
     timestamp.prepend("'");

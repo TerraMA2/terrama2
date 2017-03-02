@@ -375,7 +375,7 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIn
   }
 
   terrama2::core::Filter filter;
-  filter.lastValue = true;
+  filter.lastValues = std::make_shared<int32_t>(1);
 
   auto remover = std::make_shared<terrama2::core::FileRemover>();
   auto gridSeries = accessorGrid->getGridSeries(filter, remover);
@@ -444,7 +444,7 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIn
 
       // Gets the respective row and column for the occurrence coordinate
       double row, col;
-      te::gm::Coord2D coord = te::gm::GetCentroid(currGeom.get());
+      te::gm::Coord2D coord = currGeom->getCentroid();
       double x = coord.getX();
       double y = coord.getY();
 

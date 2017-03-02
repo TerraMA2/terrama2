@@ -235,7 +235,7 @@ void terrama2::core::enableLogger()
 
 int terrama2::core::getUTMSrid(te::gm::Geometry* geom)
 {
-  te::gm::Coord2D coord = te::gm::GetCentroid(geom);
+  te::gm::Coord2D coord = geom->getCentroid();
 
   // Calculates the UTM zone for the given coordinate
   int zoneNumber = floor((coord.getX() + 180)/6) + 1;
@@ -416,7 +416,7 @@ size_t std::hash<terrama2::core::Filter>::operator()(terrama2::core::Filter cons
     boost::hash_combine(hash, *filter.value);
   }
 
-  boost::hash_combine(hash, filter.lastValue);
+  boost::hash_combine(hash, filter.lastValues);
 
   return hash;
 }

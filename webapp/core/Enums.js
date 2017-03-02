@@ -138,7 +138,7 @@ module.exports = {
 
   /**
    * It defines Data Series Semantics Type. Used to identify the kind of data series
-   * 
+   *
    * @type {string}
    * @readonly
    */
@@ -172,7 +172,7 @@ module.exports = {
     CSV: 'CSV',
     POSTGIS: 'POSTGIS',
     OGR: 'OGR',
-    GEOTIFF: 'GEOTIFF',
+    GDAL: 'GDAL',
     GRADS: 'GRADS'
   },
 
@@ -397,5 +397,14 @@ module.exports = {
     EQUAL_STEPS: 1,
     QUANTILE: 2,
     BY_VALUE: 3
+  },
+
+  /**
+   * List of available schedule type
+   */
+  ScheduleType: {
+    SCHEDULE: "1",
+    REPROCESSING_HISTORICAL: "2",
+    MANUAL: "3"
   }
 };

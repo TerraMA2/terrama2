@@ -62,7 +62,7 @@
       <div class="col-md-12">
         <div class="pull-right">
           <button class="btn btn-primary" type="submit" wz-previous>{{ i18n.__('Previous') }}</button>
-          <button class="btn btn-primary" type="submit" ng-show="isDynamic && (!wizard.store.disabled || !wizard.filter.disabled || !wizard.intersection.disabled)" ng-click="goToValidNextStep('parametersForm');" wz-next>{{ i18n.__('Next') }}</button>
+          <button class="btn btn-primary" type="submit" ng-show="isDynamic && (!wizard.store.disabled || !wizard.filter.disabled || !wizard.intersection.disabled || !wizard.csvFormatForm.disabled)" ng-click="goToValidNextStep('parametersForm');" wz-next>{{ i18n.__('Next') }}</button>
           <button type="button" class="btn btn-primary" ng-bind="i18n.__('Save')" ng-show="!isDynamic" data-ng-click="save(false);"></button>
 
           <div class="btn-group pull-right" style="margin-left: 3px;" ng-show="isDynamic && storager.format">
@@ -78,7 +78,32 @@
           <button type="button" class="btn btn-primary" ng-bind="i18n.__('Save')" ng-show="isDynamic && !storager.format" data-ng-click="save(false);"></button>
         </div>
       </div>
+    </wz-step>
 
+    <wz-step wz-title="{{ i18n.__('CSV Format') }}" wz-disabled="{{!custom_format}}" wz-data="wizard.csvFormat">
+      <div class="col-md-12">
+        <form name="forms.csvFormatForm">
+          <csv-format csv-format-data="csvFormatData"></csv-format>
+        </form>
+      </div>
+
+      <div class="col-md-12">
+        <div class="pull-right">
+          <button class="btn btn-primary" type="submit" ng-click="goToValidPreviousStep('filterForm');" wz-previous>{{ i18n.__('Previous') }}</button>
+          <button class="btn btn-primary" type="submit" ng-show="isDynamic && (!wizard.store.disabled || !wizard.filter.disabled || !wizard.intersection.disabled)" ng-click="goToValidNextStep('storeForm');" wz-next>{{ i18n.__('Next') }}</button>
+          <div class="btn-group pull-right" style="margin-left: 3px;" ng-show="isDynamic && storager.format">
+            <button type="button" class="btn btn-primary" ng-bind="i18n.__('Save and Run')" data-ng-click="save(true);"></button>
+            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <span class="caret"></span>
+              <span class="sr-only"></span>
+            </button>
+            <ul class="dropdown-menu terrama2-button-dropdown">
+              <li><a href="javascript::void();" data-ng-click="save(false);" ng-bind="i18n.__('Save')"></a></li>
+            </ul>
+          </div>
+          <button type="button" class="btn btn-primary" ng-bind="i18n.__('Save')" ng-show="isDynamic && !storager.format" data-ng-click="save(false);"></button>
+        </div>
+      </div>
     </wz-step>
 
     <wz-step wz-title="{{ i18n.__('Store') }}" canexit="validateSteps" wz-disabled="{{ !isDynamic }}" wz-data="wizard.store" canenter="!wizard.store.disabled">

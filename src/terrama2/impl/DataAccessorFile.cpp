@@ -172,11 +172,10 @@ void terrama2::core::DataAccessorFile::cropRaster(std::shared_ptr<te::mem::DataS
   }
 }
 
-void terrama2::core::DataAccessorFile::filterDataSetByLastValue(std::shared_ptr<te::mem::DataSet> completeDataSet,
-    const Filter& filter,
-    std::shared_ptr<te::dt::TimeInstantTZ> lastTimestamp) const
+void terrama2::core::DataAccessorFile::filterDataSetByLastValues(std::shared_ptr<te::mem::DataSet> completeDataSet,
+    const Filter& filter) const
 {
-  if(!filter.lastValue)
+  if(!filter.lastValues)
     return;
 
   auto propertiesNumber = completeDataSet->getNumProperties();
@@ -197,6 +196,9 @@ void terrama2::core::DataAccessorFile::filterDataSetByLastValue(std::shared_ptr<
   size_t size = completeDataSet->size();
   size_t i = 0;
 
+
+  std::vector<std::shared_ptr< te::dt::DateTime> > vecLastValues;
+
   while(i < size)
   {
     completeDataSet->move(i);
@@ -209,9 +211,65 @@ void terrama2::core::DataAccessorFile::filterDataSetByLastValue(std::shared_ptr<
       continue;
     }
 
+
     std::shared_ptr< te::dt::DateTime > dateTime(completeDataSet->getDateTime(dateColumn));
     auto timesIntant = std::dynamic_pointer_cast<te::dt::TimeInstantTZ>(dateTime);
-    if(*timesIntant != *lastTimestamp)
+
+
+    int filterLastValues = *filter.lastValues.get();
+
+    bool inserted = false;
+    for(auto it = vecLastValues.begin(); it != vecLastValues.end(); ++it)
+    {
+      if(*it->get() < *timesIntant)
+      {
+        vecLastValues.insert(it, timesIntant);
+        inserted = true;
+      }
+      if(*it->get() == *timesIntant)
+      {
+        inserted = true;
+      }
+    }
+
+    if(!inserted)
+    {
+      if(vecLastValues.size() < filterLastValues)
+        vecLastValues.push_back(timesIntant);
+    }
+
+    ++i;
+  }
+
+  i = 0;
+  while(i < size)
+  {
+    completeDataSet->move(i);
+
+    if(completeDataSet->isNull(dateColumn))
+    {
+      QString errMsg = QObject::tr("Null date/time attribute.");
+      TERRAMA2_LOG_WARNING() << errMsg;
+      ++i;
+      continue;
+    }
+
+
+    std::shared_ptr< te::dt::DateTime > dateTime(completeDataSet->getDateTime(dateColumn));
+    auto timesIntant = std::dynamic_pointer_cast<te::dt::TimeInstantTZ>(dateTime);
+
+    bool found = false;
+    for(int32_t j =0; j < *filter.lastValues.get(); ++j)
+    {
+      auto value = vecLastValues[j];
+
+      if (*timesIntant == *value)
+      {
+        found = true;
+      }
+    }
+
+    if(!found)
     {
       completeDataSet->remove();
       --size;
@@ -479,19 +537,19 @@ bool terrama2::core::DataAccessorFile::needToOpenConfigFile() const
   return false;
 }
 
-std::string terrama2::core::DataAccessorFile::getControlFileMask(terrama2::core::DataSetPtr dataSet) const
+std::string terrama2::core::DataAccessorFile::getControlFileMask(terrama2::core::DataSetPtr /*dataSet*/) const
 {
   QString errMsg = QObject::tr("Should be override in subclass.");
   throw terrama2::core::Exception() << ErrorDescription(errMsg);
 }
 
-std::string terrama2::core::DataAccessorFile::readControlFile(terrama2::core::DataSetPtr dataSet, const std::string& controlFilename) const
+std::string terrama2::core::DataAccessorFile::readControlFile(terrama2::core::DataSetPtr /*dataSet*/, const std::string& /*controlFilename*/) const
 {
   QString errMsg = QObject::tr("Should be override in subclass.");
   throw terrama2::core::Exception() << ErrorDescription(errMsg);
 }
 
-std::string terrama2::core::DataAccessorFile::getConfigFilename(terrama2::core::DataSetPtr dataSet, const std::string& binaryFilename) const
+std::string terrama2::core::DataAccessorFile::getConfigFilename(terrama2::core::DataSetPtr /*dataSet*/, const std::string& /*binaryFilename*/) const
 {
   QString errMsg = QObject::tr("Should be override in subclass.");
   throw terrama2::core::Exception() << ErrorDescription(errMsg);
@@ -701,7 +759,7 @@ void terrama2::core::DataAccessorFile::applyFilters(const terrama2::core::Filter
   //Get last data timestamp and compare with file name timestamp
   std::shared_ptr<te::dt::TimeInstantTZ> dataTimeStamp = getDataLastTimestamp(dataSet, completeDataset);
 
-  filterDataSetByLastValue(completeDataset, filter, dataTimeStamp);
+  filterDataSetByLastValues(completeDataset, filter);
 
   cropRaster(completeDataset, filter);
 

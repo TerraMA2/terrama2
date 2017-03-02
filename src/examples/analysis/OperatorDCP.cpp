@@ -180,10 +180,11 @@ int main(int argc, char* argv[])
     terrama2::core::DataSetDcpPtr dcpDataset69034Ptr(dcpDataset69034);
     dcpDataset69034->active = true;
     dcpDataset69034->format.emplace("mask", "69034.txt");
+    dcpDataset69034->format.emplace("alias", "dcp_69034");
     dcpDataset69034->format.emplace("timezone", "-02:00");
     dcpDataset69034->dataSeriesId = 2;
     dcpDataset69034->id = 2;
-    dcpDataset69034->position = std::shared_ptr<te::gm::Point>(new te::gm::Point(-44.46540, -23.00506, 4618, nullptr));
+    dcpDataset69034->position = std::shared_ptr<te::gm::Point>(new te::gm::Point(-44.46540, -23.00506, 4618, te::gm::PointType,  nullptr));
     dcpSeries->datasetList.push_back(dcpDataset69034Ptr);
 
 
@@ -191,10 +192,11 @@ int main(int argc, char* argv[])
     terrama2::core::DataSetDcpPtr dcpDataset30886Ptr(dcpDataset30885);
     dcpDataset30885->active = true;
     dcpDataset30885->format.emplace("mask", "30885.txt");
+    dcpDataset30885->format.emplace("alias", "dcp_30885");
     dcpDataset30885->format.emplace("timezone", "-02:00");
     dcpDataset30885->dataSeriesId = 2;
     dcpDataset30885->id = 3;
-    dcpDataset30885->position = std::shared_ptr<te::gm::Point>(new te::gm::Point(-46.121, -23.758, 4618, nullptr));
+    dcpDataset30885->position = std::shared_ptr<te::gm::Point>(new te::gm::Point(-46.121, -23.758, 4618, te::gm::PointType, nullptr));
     dcpSeries->datasetList.push_back(dcpDataset30886Ptr);
 
     AnalysisDataSeries dcpADS;

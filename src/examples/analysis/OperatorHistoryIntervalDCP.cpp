@@ -185,7 +185,7 @@ te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PA
   dcpDataset69031->format.emplace("timezone", "-02:00");
   dcpDataset69031->dataSeriesId = 2;
   dcpDataset69031->id = 2;
-  dcpDataset69031->position = std::shared_ptr<te::gm::Point>(new te::gm::Point(-44.46540, -23.00506, 4618, nullptr));
+  dcpDataset69031->position = std::shared_ptr<te::gm::Point>(new te::gm::Point(-44.46540, -23.00506, 4618, te::gm::PointType, nullptr));
   dcpSeries->datasetList.push_back(dcpDataset69031Ptr);
 
   AnalysisDataSeries dcpADS;

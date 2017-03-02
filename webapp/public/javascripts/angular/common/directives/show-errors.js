@@ -35,7 +35,6 @@ define(
         }
       };
     } // end terrama2ShowErrors
-
     return terrama2ShowErrors;
   }
 );
