@@ -51,7 +51,7 @@ void terrama2::core::DataAccessorOccurrenceCSV::checkFields(DataSetPtr dataSet) 
 
   QJsonArray array = getFields(dataSet);
 
-  for(const auto& item : array)
+  for(auto item : array)
   {
     const QJsonObject& obj = item.toObject();
 

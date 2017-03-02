@@ -734,6 +734,10 @@ std::shared_ptr<te::dt::TimeInstantTZ> terrama2::core::DataAccessorFile::readFil
     {
       thisFileTimestamp = readFile(series, completeDataset, converter, fileInfo, mask, dataSet);
     }
+    catch(const terrama2::core::UndefinedTagException&)
+    {
+      throw;
+    }
     catch(const terrama2::core::DataAccessorException&)
     {
       continue;

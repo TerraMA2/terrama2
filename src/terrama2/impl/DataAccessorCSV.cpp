@@ -197,17 +197,7 @@ bool terrama2::core::DataAccessorCSV::getConvertAll(DataSetPtr dataSet) const
 QJsonArray terrama2::core::DataAccessorCSV::getFields(DataSetPtr dataSet) const
 {
   const QJsonDocument& doc = QJsonDocument::fromJson(QString::fromStdString(getProperty(dataSet, dataSeries_, JSON_FIELDS.toStdString())).toUtf8());
-
-  const QJsonObject& obj = doc.object();
-
-  if(!obj.contains(JSON_FIELDS))
-  {
-    QString errMsg = QObject::tr("Invalid JSON document!");
-    TERRAMA2_LOG_WARNING() << errMsg;
-    throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
-  }
-
-  return obj.value(JSON_FIELDS).toArray();
+  return doc.array();
 }
 
 
