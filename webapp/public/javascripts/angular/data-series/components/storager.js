@@ -38,9 +38,11 @@ define([], function(){
       self.tableFieldsStoragerDataTable = [];
       self.formatSelected = {};
       self.dcpsStoragerObject = {};
+      self.editedStoragerDcps = [];
       self.inputDataSets = [];
       self.storage = {};
       self.dataProvidersStorager = [];
+      self.tableNameValidationRegex = "^[a-zA-Z_][a-zA-Z0-9_]*$";
 
       self.services = [];
       
@@ -190,9 +192,12 @@ define([], function(){
           return null;
       };
 
+      self.upsertEditedDcp = function(id) {
+        self.editedStoragerDcps.push(id);
+      };
+
       var addDcpStorager = function(dcps, storageData) {
         var newDcps = [];
-        var tableNameValidationRegex = "^[a-zA-Z_][a-zA-Z0-9_]*$";
 
         for(var i = 0, dcpsLength = dcps.length; i < dcpsLength; i++) {
           var dcpToAdd = dcps[i];
@@ -204,7 +209,7 @@ define([], function(){
             var obj = SemanticsParserFactory.parseKeys(copyFormat);
 
             obj.table_name = obj.alias;
-            obj.table_name_html = "<span class=\"store-dcps-table-span\" editable-text=\"$ctrl.dcpsStoragerObject['" + obj.alias + "']['table_name']\" onbeforesave=\"$ctrl.validateFieldEdition($data, '" + tableNameValidationRegex + "')\">{{ $ctrl.dcpsStoragerObject['" + obj.alias + "']['table_name'] }}</span>";
+            obj.table_name_html = "<span class=\"store-dcps-table-span\" editable-text=\"$ctrl.dcpsStoragerObject['" + obj.alias + "']['table_name']\" onaftersave=\"$ctrl.upsertEditedDcp('" + obj._id + "')\" onbeforesave=\"$ctrl.validateFieldEdition($data, '" + self.tableNameValidationRegex + "')\">{{ $ctrl.dcpsStoragerObject['" + obj.alias + "']['table_name'] }}</span>";
 
             dcpToAdd = obj;
           }
@@ -276,13 +281,13 @@ define([], function(){
       };
 
       self.compileTableLinesStore = function() {
-        $('.dcpTableStore .store-dcps-table-span').css('display', 'none');
+        $('.dcpTableStore .store-dcps-table-span').css('opacity', '0');
 
         $timeout(function() {
           if($('.store-dcps-table-span').text().match("{{(.*)}}") !== null)
             $compile(angular.element('.dcpTableStore > tbody > tr'))($scope);
 
-          $('.dcpTableStore .store-dcps-table-span').css('display', '');
+          $('.dcpTableStore .store-dcps-table-span').css('opacity', '1');
         }, 50);
       };
 
@@ -307,6 +312,7 @@ define([], function(){
               $scope.$emit("storageValuesReceive", {
                 data: self.objectToArray(self.dcpsStoragerObject),
                 data_provider: self['storager_data_provider_id'],
+                editedDcps: self.editedStoragerDcps,
                 service: self["storager_service"],
                 type: self.formatSelected.data_series_type_name,
                 semantics: self.formatSelected
@@ -359,17 +365,19 @@ define([], function(){
 
       $scope.$on("resetStoragerDataSets", function(event) {
         self.dcpsStoragerObject = {};
+        self.editedStoragerDcps = [];
       });
 
       $scope.$on("clearStoreForm", function(event){
-          self.modelStorager = {};
-          self.formStorager = [];
-          self.schemaStorager = {};
-          self.storager.format = null;
-          self.storager_service = undefined;
-          self.dcpsStoragerObject = {};
-          self.storager_data_provider_id = undefined;
-          $scope.$broadcast("clearSchedule");
+        self.modelStorager = {};
+        self.formStorager = [];
+        self.schemaStorager = {};
+        self.storager.format = null;
+        self.storager_service = undefined;
+        self.dcpsStoragerObject = {};
+        self.editedStoragerDcps = [];
+        self.storager_data_provider_id = undefined;
+        $scope.$broadcast("clearSchedule");
       });
 
       self.storageDcpsStore = function(dcps) {
@@ -411,6 +419,7 @@ define([], function(){
 
         self.dataProvidersStorager = [];
         self.dcpsStoragerObject = {};
+        self.editedStoragerDcps = [];
 
         self.providersList.forEach(function(dataProvider) {
           dataSeriesSemantics.data_providers_semantics.forEach(function(demand) {
@@ -481,12 +490,41 @@ define([], function(){
           }
 
           if(self.options.hasCollector) {
-            outputDataseries.dataSets.forEach(function(dataset) {
-              self.dcpsStoragerObject[dataset.format.alias] = angular.merge(dataset.format, {active: dataset.active});
-            });
+            var dcps = [];
+            var registersCount = 0;
+
+            for(var i = 0, dataSetsLength = outputDataseries.dataSets.length; i < dataSetsLength; i++) {
+              var dcp = angular.merge(outputDataseries.dataSets[i].format, {active: outputDataseries.dataSets[i].active});
+
+              dcp.table_name_html = "<span class=\"store-dcps-table-span\" editable-text=\"$ctrl.dcpsStoragerObject['" + dcp.alias + "']['table_name']\" onaftersave=\"$ctrl.upsertEditedDcp('" + dcp._id + "')\" onbeforesave=\"$ctrl.validateFieldEdition($data, '" + self.tableNameValidationRegex + "')\">{{ $ctrl.dcpsStoragerObject['" + dcp.alias + "']['table_name'] }}</span>";
+
+              for(var j = 0, fieldsLength = self.series.semantics.metadata.form.length; j < fieldsLength; j++) {
+                var key = self.series.semantics.metadata.form[j].key;
+
+                if(self.isBoolean(dcp[key]))
+                  dcp[key + '_html'] = "<span class=\"store-dcps-table-span\"><input type=\"checkbox\" ng-model=\"$ctrl.dcpsStoragerObject['" + dcp.alias + "']['" + key + "']\" ng-disabled=\"true\"></span>";
+                else
+                  dcp[key + '_html'] = "<span class=\"store-dcps-table-span\" ng-bind=\"$ctrl.dcpsStoragerObject['" + dcp.alias + "']['" + key + "']\"></span>";
+              }
+
+              self.dcpsStoragerObject[dcp.alias] = dcp;
+              dcps.push(dcp);
+              registersCount++;
+
+              if(registersCount >= 1000) {
+                self.storageDcpsStore(dcps);
+                registersCount = 0;
+                dcps = [];
+              }
+            }
+
+            if(registersCount > 0)
+              self.storageDcpsStore(dcps);
+
+            reloadDataStore();
           } else {
             if(args.dcps)
-              $scope.$broadcast("dcpOperation", { action: "addMany", dcps: args.dcps, storageData: true });
+              addDcpStorager(args.dcps, true);
           }
 
           self.modelStorager = {};

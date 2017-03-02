@@ -451,7 +451,7 @@ table.dataTable thead th, table.dataTable thead td, table.dataTable.no-footer {
   background: linear-gradient(to bottom, white 0%, #dcdcdc 100%) !important;
 }
 
-table.dataTable thead .sorting_disabled {
+.dcpTableStore thead .sorting_disabled {
   padding: 0 !important;
   height: 0 !important;
   border: 0 !important;

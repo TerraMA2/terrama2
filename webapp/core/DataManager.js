@@ -1665,12 +1665,12 @@ var DataManager = module.exports = {
             promises.push(removeProvider);
           });
 
-          dataSeriesObject.dataSets.forEach(function(newDataSet){
+          (dataSeriesObject.editedDcps !== undefined ? dataSeriesObject.editedDcps : dataSeriesObject.dataSets).forEach(function(newDataSet){
             var dataSetToUpdate = dataSeries.dataSets.find(function(dSet){
               return dSet.format._id == newDataSet.format._id; 
             });
             // Update data set
-            if (dataSetToUpdate){
+            if(dataSetToUpdate) {
               dataSetToUpdate.semantics = dataSeriesSemantics;
               var updatePromise = self.updateDataSet(dataSetToUpdate, newDataSet, options)
               .then(function(dataSetUpdated) {
@@ -1694,7 +1694,7 @@ var DataManager = module.exports = {
                 return Promise.all(promisesFormatArray);
               });
               promises.push(updatePromise);
-            // add data set
+              // add data set
             } else {
               newDataSet.data_series_id = dataSeriesId;
               var addPromise = self.addDataSet(dataSeriesSemantics, newDataSet).then(function(newDSet){

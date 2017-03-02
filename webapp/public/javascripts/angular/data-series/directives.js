@@ -83,9 +83,6 @@ define(["TerraMA2WebApp/common/services/index", "TerraMA2WebApp/alert-box/app"],
               "</div>" +
             "</div>" +
           "</div>" +
-        "</div>" +
-        "<div class=\"overlay overlay-dcps\" ng-show=\"isChecking\">" +
-          "<i class=\"fa fa-refresh fa-spin\" style=\"position: fixed !important;\"></i>" +
         "</div>"
       );
     }])
@@ -115,7 +112,7 @@ define(["TerraMA2WebApp/common/services/index", "TerraMA2WebApp/alert-box/app"],
             
             FileDialog.openFile(function(err, input) {
               if(err) {
-                $scope.isChecking = false;
+                $scope.isChecking.value = false;
                 $scope.display = true;
                 $scope.alertBox.message = err.toString();
                 return;
@@ -123,14 +120,14 @@ define(["TerraMA2WebApp/common/services/index", "TerraMA2WebApp/alert-box/app"],
 
               FileDialog.readAsCSV(input.files[0], $scope.csvImport.delimiterCharacter, $scope.csvImport.hasHeader, function(error, csv) {
                 if(error) {
-                  $scope.isChecking = false;
+                  $scope.isChecking.value = false;
                   $scope.display = true;
                   $scope.alertBox.message = error.toString();
                   return;
                 }
 
                 $scope.$apply(function() {
-                  $scope.isChecking = true;
+                  $scope.isChecking.value = true;
 
                   $scope.csvImport.finalData = csv;
                   $scope.importationModalColSize = {};
@@ -153,7 +150,7 @@ define(["TerraMA2WebApp/common/services/index", "TerraMA2WebApp/alert-box/app"],
                     }
                   }
 
-                  $scope.isChecking = false;
+                  $scope.isChecking.value = false;
 
                   $('#importDCPItemsModal').modal('show');
                 });
@@ -163,7 +160,7 @@ define(["TerraMA2WebApp/common/services/index", "TerraMA2WebApp/alert-box/app"],
 
           $scope.validateImportationMetadata = function() {
             $('#importDCPItemsModal').modal('hide');
-            $scope.isChecking = true;
+            $scope.isChecking.value = true;
 
             $timeout(function() {
               var importationMetadata = {};
@@ -195,7 +192,7 @@ define(["TerraMA2WebApp/common/services/index", "TerraMA2WebApp/alert-box/app"],
                       i18n.__("Invalid configuration for the field") + " '" + i18n.__($scope.dataSeries.semantics.metadata.schema.properties[key].title) + "'"
                     );
                     $('#importDCPItemsModal').modal('hide');
-                    $scope.isChecking = false;
+                    $scope.isChecking.value = false;
                     return;
                   }
 
@@ -271,7 +268,7 @@ define(["TerraMA2WebApp/common/services/index", "TerraMA2WebApp/alert-box/app"],
 
               if(aliasValidateImportResult.error !== null) {
                 MessageBoxService.danger(aliasValidateImportResult.error.title, aliasValidateImportResult.error.message);
-                $scope.isChecking = false;
+                $scope.isChecking.value = false;
                 return;
               } else
                 alias = aliasValidateImportResult.value;
@@ -301,7 +298,7 @@ define(["TerraMA2WebApp/common/services/index", "TerraMA2WebApp/alert-box/app"],
 
                   if(validateImportResult.error !== null) {
                     MessageBoxService.danger(validateImportResult.error.title, validateImportResult.error.message);
-                    $scope.isChecking = false;
+                    $scope.isChecking.value = false;
                     return;
                   } else
                     value = validateImportResult.value;
@@ -316,7 +313,7 @@ define(["TerraMA2WebApp/common/services/index", "TerraMA2WebApp/alert-box/app"],
                 if($scope.isBoolean(value))
                   dcp[key + '_html'] = "<span class=\"dcps-table-span\"><input type=\"checkbox\" ng-model=\"dcpsObject['" + alias + "']['" + key + "']\"></span>";
                 else
-                  dcp[key + '_html'] = "<span class=\"dcps-table-span\" editable-text=\"dcpsObject['" + alias + "']['" + key + "']\" onbeforesave=\"validateFieldEdition($data, '" + type + "', '" + alias + "', '" + key + "')\">{{ dcpsObject['" + alias + "']['" + key + "'] }}</span>";
+                  dcp[key + '_html'] = "<span class=\"dcps-table-span\" editable-text=\"dcpsObject['" + alias + "']['" + key + "']\" onaftersave=\"upsertEditedDcp('" + uniqueId + "')\" onbeforesave=\"validateFieldEdition($data, '" + type + "', '" + alias + "', '" + key + "')\">{{ dcpsObject['" + alias + "']['" + key + "'] }}</span>";
 
                 dcp[key] = value;
               }
@@ -350,7 +347,7 @@ define(["TerraMA2WebApp/common/services/index", "TerraMA2WebApp/alert-box/app"],
 
             // reset form to do not display feedback class
             $scope.forms.parametersForm.$setPristine();
-            $scope.isChecking = false;
+            $scope.isChecking.value = false;
 
             if(warnDuplicatedAlias)
               MessageBoxService.warning(i18n.__("DCP Import Process"), i18n.__("Import process executed with success, but there were duplicated Alias, check the values"));
