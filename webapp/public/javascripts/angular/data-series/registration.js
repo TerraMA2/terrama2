@@ -981,11 +981,8 @@ define([], function() {
       $scope.isFrequency = false;
       $scope.isSchedule = false;
 
-      // Wizard validations
-      $scope.isFirstStepValid = function(obj) {
-        isWizardStepValid();
-        var firstStepValid = $scope.forms.generalDataForm.$valid;
-        if (firstStepValid){
+      $scope.$watch("dataSeries", function(dSValue) {
+        if (dSValue.name && dSValue.semantics && dSValue.data_provider_id){
           $scope.wizard.parameters.disabled = false;
           $scope.wizard.csvFormat.disabled = false;
           if ($scope.dataSeries.semantics.allow_direct_access === false){
@@ -1001,7 +998,12 @@ define([], function() {
           $scope.advanced.store.disabled = true;
           $scope.advanced.store.optional = true;
         }
-        return firstStepValid;
+      }, true);
+
+      // Wizard validations
+      $scope.isFirstStepValid = function(obj) {
+        isWizardStepValid();
+        return $scope.forms.generalDataForm.$valid;
       };
 
       $scope.isSecondStepValid = function(obj) {
@@ -1020,7 +1022,7 @@ define([], function() {
 
       $scope.validateSteps = function(obj) {
         isWizardStepValid();
-        if ($scope.forms.storagerForm.$valid && $scope.forms.storagerDataForm.$valid && $scope.dataSeries.semantics.data_series_type_name == "GRID"){
+        if ($scope.forms.storagerForm && $scope.forms.storagerForm.$valid && $scope.forms.storagerDataForm.$valid && $scope.dataSeries.semantics.data_series_type_name == "GRID"){
           $scope.filter.area.showCrop = true;
         } else {
           $scope.filter.area.showCrop = false;
