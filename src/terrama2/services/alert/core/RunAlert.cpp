@@ -31,6 +31,7 @@
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/utility/DataAccessorFactory.hpp"
 #include "../../../core/data-access/DataAccessor.hpp"
+#include "../../../core/data-model/DataSeriesRisk.hpp"
 
 #include "RunAlert.hpp"
 #include "Alert.hpp"
@@ -47,6 +48,10 @@
 #include <terralib/datatype/DateTimeProperty.h>
 #include <terralib/datatype/TimeInstantTZ.h>
 #include <terralib/dataaccess/dataset/ForeignKey.h>
+#include <terralib/dataaccess/datasource/DataSourceFactory.h>
+#include <terralib/dataaccess/utils/Utils.h>
+
+
 
 void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage executionPackage,
                                                std::shared_ptr< AlertLogger > logger,
@@ -89,7 +94,7 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
     // analysing data
 
     auto filter = alertPtr->filter;
-    filter.lastValue = true;
+    filter.lastValues = std::make_shared<int>(3);
     auto risk = alertPtr->risk;
 
     auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(inputDataProvider, inputDataSeries);
@@ -115,9 +120,39 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
       auto dataSetType = dataSeries.teDataSetType;
 
       auto idProperty = dataSetType->getProperty(getIdentifierPropertyName(dataset, inputDataSeries));
+      if(!idProperty)
+      {
+        QString errMsg = QObject::tr("Invalid identifier attribute.");
+        logger->result(AlertLogger::ERROR, nullptr, executionPackage.registerId);
+        logger->log(AlertLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+        TERRAMA2_LOG_ERROR() << errMsg;
+        return;
+      }
       auto fkProperty = idProperty->clone();
       fkProperty->setName(idProperty->getName()+"_fk");
       alertDataSetType->add(fkProperty);
+
+      // Get the datetime column name in teDataSet for filters
+      std::string datetimeColumnName = "";
+
+      try
+      {
+        datetimeColumnName = dataAccessor->getTimestampPropertyName(dataset, false);
+      }
+      catch(const terrama2::core::UndefinedTagException /*e*/)
+      {
+        // do nothing
+      }
+
+      if(datetimeColumnName.empty())
+      {
+        auto property = dataSetType->findFirstPropertyOfType(te::dt::DATETIME_TYPE);
+
+        if(property)
+        {
+          datetimeColumnName = property->getName();
+        }
+      }
 
       for(auto iter = additionalDataVector.begin(); iter != additionalDataVector.end(); ++iter)
       {
@@ -125,12 +160,26 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
         iter->addAdditionalAttributesColumns(alertDataSetType);
       }
 
-      te::dt::SimpleProperty* riskAttributeProp = new te::dt::SimpleProperty(risk.attribute, te::dt::STRING_TYPE);
+      auto riskAttributeProp = dataSetType->getProperty(risk.attribute)->clone();
       alertDataSetType->add(riskAttributeProp);
 
       const std::string riskLevelProperty = "risk_level";
-      te::dt::SimpleProperty* riskLevelProp = new te::dt::SimpleProperty(riskLevelProperty, te::dt::STRING_TYPE);
+      te::dt::SimpleProperty* riskLevelProp = new te::dt::SimpleProperty(riskLevelProperty, te::dt::INT32_TYPE);
       alertDataSetType->add(riskLevelProp);
+
+      const std::string riskLevel2Property = "risk_level_2";
+      te::dt::SimpleProperty* riskLevel2Prop = new te::dt::SimpleProperty(riskLevel2Property, te::dt::INT32_TYPE);
+      alertDataSetType->add(riskLevel2Prop);
+
+
+      const std::string riskLevel3Property = "risk_level_3";
+      te::dt::SimpleProperty* riskLevel3Prop = new te::dt::SimpleProperty(riskLevel3Property, te::dt::INT32_TYPE);
+      alertDataSetType->add(riskLevel3Prop);
+
+
+      const std::string comparisonPreviosProperty = "comparison_previous";
+      te::dt::SimpleProperty* comparisonPreviousProp = new te::dt::SimpleProperty(comparisonPreviosProperty, te::dt::INT32_TYPE);
+      alertDataSetType->add(comparisonPreviousProp);
 
       auto alertDataSet = std::make_shared<te::mem::DataSet>(alertDataSetType.get());
 
@@ -144,43 +193,121 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
       // create a getRisk function
       auto getRisk = terrama2::services::alert::core::createGetRiskFunction(risk, teDataset);
 
+      std::map<std::shared_ptr<te::dt::AbstractData>, std::map<std::string, std::pair<std::shared_ptr<te::dt::AbstractData>, terrama2::core::RiskLevel> >, comparatorAbstractData> riskResultMap;
+
+
+
+      std::vector<std::shared_ptr<te::dt::DateTime> > vecDates;
+
       teDataset->moveBeforeFirst();
       alertDataSet->moveBeforeFirst();
-      while(teDataset->moveNext())
+      for (int j = 0; j < teDataset->size(); ++j)
       {
+        teDataset->moveNext();
         alertDataSet->moveNext();
 
-        te::mem::DataSetItem* item = new te::mem::DataSetItem(alertDataSet.get());
-        //fk value
-        auto fkValue = teDataset->getValue(idProperty->getName());
-        item->setValue(fkProperty->getName(), fkValue->clone());
+        std::shared_ptr<te::dt::AbstractData> identifierValue = teDataset->getValue(idProperty->getName());
+        std::shared_ptr<te::dt::DateTime> executionDate = teDataset->getDateTime(datetimeColumnName);
+
+        int filterLastValues = *filter.lastValues.get();
+
+        bool inserted = false;
+        for(auto it = vecDates.begin(); it != vecDates.end(); ++it)
+        {
+          if(*it->get() == *executionDate)
+          {
+            inserted = true;
+            break;
+          }
+          else if(*it->get() < *executionDate)
+          {
+            vecDates.insert(it, executionDate);
+            inserted = true;
+            break;
+          }
+        }
+
+        if(!inserted)
+        {
+          if(vecDates.size() < filterLastValues)
+            vecDates.push_back(executionDate);
+        }
+
 
         // risk level
         int riskLevel = 0;
         std::string riskName;
         std::string attributeValue;
         std::tie(riskLevel, riskName, attributeValue) = getRisk(pos);
-        item->setString(riskLevelProperty, std::to_string(riskLevel)+"("+riskName+")");
-        item->setString(risk.attribute, attributeValue);
+
+
+        terrama2::core::RiskLevel risk;
+        risk.level = riskLevel;
+        risk.name = riskName;
+        risk.textValue = attributeValue;
+
+        std::string identifier = identifierValue->toString();
+        auto& resultMap = riskResultMap[identifierValue];
+        std::shared_ptr<te::dt::AbstractData> attrValue = teDataset->getValue(pos);
+        auto pair = std::make_pair(attrValue, risk);
+        resultMap[executionDate->toString()] = pair;
+      }
+
+      for(auto& item : riskResultMap)
+      {
+        te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(alertDataSet.get());
+        auto value = item.first;
+        auto& resultMap = item.second;
+
+        dsItem->setValue(fkProperty->getName(), value->clone());
+
+        auto attrValue = resultMap[vecDates[0]->toString()].first;
+        dsItem->setValue(risk.attribute, attrValue->clone());
+
+        auto currentRisk = resultMap[vecDates[0]->toString()].second;
+        dsItem->setInt32(riskLevelProperty, currentRisk.level);
+
+        if(vecDates.size() > 1)
+        {
+          auto risk2 = resultMap[vecDates[1]->toString()].second;
+
+          int comparisonResult = 0;
+          if(currentRisk.level < risk2.level)
+            comparisonResult = -1;
+          else if(currentRisk.level > risk2.level)
+            comparisonResult = 1;
+
+          dsItem->setInt32(riskLevel2Property, risk2.level);
+          dsItem->setInt32(comparisonPreviosProperty, comparisonResult);
+        }
+
+        if(vecDates.size() > 2)
+        {
+          auto risk3 = resultMap[vecDates[2]->toString()].second;
+          dsItem->setInt32(riskLevel3Property, risk3.level);
+        }
+
 
         for(auto iter = additionalDataVector.begin(); iter != additionalDataVector.end(); ++iter)
         {
-          iter->addAdditionalValues(item, fkValue->toString());
+          iter->addAdditionalValues(dsItem, value->toString());
         }
 
-        alertDataSet->add(item);
+        alertDataSet->add(dsItem);
+
       }
 
     }
 
     logger->result(AlertLogger::DONE, executionPackage.executionDate, executionPackage.registerId);
+
+    TERRAMA2_LOG_INFO() << QObject::tr("Alert '%1' generated successfully").arg(alertPtr->name.c_str());
   }
   catch(const terrama2::Exception& e)
   {
     logger->result(AlertLogger::ERROR, nullptr, executionPackage.registerId);
     logger->log(AlertLogger::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString(), executionPackage.registerId);
     TERRAMA2_LOG_DEBUG() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
-    throw;//re-throw
   }
   catch(boost::exception& e)
   {

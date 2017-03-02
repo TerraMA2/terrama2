@@ -54,6 +54,14 @@ namespace terrama2
     {
       namespace core
       {
+        struct comparatorAbstractData
+        {
+          bool operator()(const std::shared_ptr<te::dt::AbstractData>& a, const std::shared_ptr<te::dt::AbstractData>& b) const
+          {
+            return a->toString() < b->toString();
+          }
+        };
+
         /*!
           \brief Method to execute the alert.
         */

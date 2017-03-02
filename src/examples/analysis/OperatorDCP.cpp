@@ -180,6 +180,7 @@ int main(int argc, char* argv[])
     terrama2::core::DataSetDcpPtr dcpDataset69034Ptr(dcpDataset69034);
     dcpDataset69034->active = true;
     dcpDataset69034->format.emplace("mask", "69034.txt");
+    dcpDataset69034->format.emplace("alias", "dcp_69034");
     dcpDataset69034->format.emplace("timezone", "-02:00");
     dcpDataset69034->dataSeriesId = 2;
     dcpDataset69034->id = 2;
@@ -191,6 +192,7 @@ int main(int argc, char* argv[])
     terrama2::core::DataSetDcpPtr dcpDataset30886Ptr(dcpDataset30885);
     dcpDataset30885->active = true;
     dcpDataset30885->format.emplace("mask", "30885.txt");
+    dcpDataset30885->format.emplace("alias", "dcp_30885");
     dcpDataset30885->format.emplace("timezone", "-02:00");
     dcpDataset30885->dataSeriesId = 2;
     dcpDataset30885->id = 3;
