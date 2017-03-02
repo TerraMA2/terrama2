@@ -1,75 +1,77 @@
-<div class="row">
-		<div class="col-md-2">
-      <div class="form-group">
-				<label ng-bind="$ctrl.i18n.__('Type')+':'"></label>
-				<select name="type" class="form-control" ng-model="$ctrl.format.type" ng-change="$ctrl.onFieldTypeChange()" required>
-					<option ng-repeat="type in $ctrl.fieldsType" value="{{type.value}}">{{$ctrl.i18n.__(type.title)}}</option>
-				</select> 
-			</div>
-		</div>
-		
-		<div ng-if="$ctrl.format.type == 'GEOMETRY_POINT'">
-			<div class="col-md-3">
-				<div class="form-group">
-					<label ng-bind="$ctrl.i18n.__('Latitude')+':'"></label>
-					<input name="latitude" class="form-control" type="text" ng-model="$ctrl.format.latitude_property_name" required>
+<form name="csvFieldsForm">
+	<div class="row">
+			<div class="col-md-2">
+				<div class="form-group" terrama2-show-errors>
+					<label ng-bind="$ctrl.i18n.__('Type')+':'"></label>
+					<select name="type" class="form-control" ng-model="$ctrl.format.type" ng-change="$ctrl.onFieldTypeChange()" required>
+						<option ng-repeat="type in $ctrl.fieldsType" value="{{type.value}}">{{$ctrl.i18n.__(type.title)}}</option>
+					</select> 
 				</div>
 			</div>
-			<div class="col-md-3">
-				<div class="form-group">
-					<label ng-bind="$ctrl.i18n.__('Longitude')+':'"></label>
-					<input name="longitude" class="form-control" type="text" ng-model="$ctrl.format.longitude_property_name" required>
+			
+			<div ng-if="$ctrl.format.type == 'GEOMETRY_POINT'">
+				<div class="col-md-3">
+					<div class="form-group" terrama2-show-errors>
+						<label ng-bind="$ctrl.i18n.__('Latitude')+':'"></label>
+						<input name="latitude" class="form-control" type="text" ng-model="$ctrl.format.latitude_property_name" required>
+					</div>
+				</div>
+				<div class="col-md-3">
+					<div class="form-group" terrama2-show-errors>
+						<label ng-bind="$ctrl.i18n.__('Longitude')+':'"></label>
+						<input name="longitude" class="form-control" type="text" ng-model="$ctrl.format.longitude_property_name" required>
+					</div>
+				</div>
+				<div class="col-md-3">
+					<div class="form-group" terrama2-show-errors>
+						<label ng-bind="$ctrl.i18n.__('Alias')+':'"></label>
+						<input name="alias" class="form-control" type="text" ng-model="$ctrl.format.alias" required>
+					</div>
 				</div>
 			</div>
-			<div class="col-md-3">
-				<div class="form-group">
-					<label ng-bind="$ctrl.i18n.__('Alias')+':'"></label>
-					<input name="alias" class="form-control" type="text" ng-model="$ctrl.format.alias" required>
-				</div>
-			</div>
-		</div>
 
-		<div class="col-md-9" ng-if="$ctrl.format.type == 'FLOAT' || $ctrl.format.type == 'TEXT'">
-			<div class="row">
-				<div class="col-md-6">
-					<div class="form-group">
+			<div class="col-md-9" ng-if="$ctrl.format.type == 'FLOAT' || $ctrl.format.type == 'TEXT'">
+				<div class="row">
+					<div class="col-md-6">
+						<div class="form-group" terrama2-show-errors>
+							<label ng-bind="$ctrl.i18n.__('Property name')+':'"></label>
+							<input name="property_name" class="form-control" type="text" ng-model="$ctrl.format.property_name" required>
+						</div>
+					</div>
+					<div class="col-md-6">			
+						<div class="form-group" terrama2-show-errors>
+							<label ng-bind="$ctrl.i18n.__('Alias')+':'"></label>
+							<input name="alias" class="form-control" type="text" ng-model="$ctrl.format.alias" required>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div ng-if="$ctrl.format.type == 'DATETIME'">
+				<div  class="col-md-3">
+					<div class="form-group" terrama2-show-errors>
 						<label ng-bind="$ctrl.i18n.__('Property name')+':'"></label>
 						<input name="property_name" class="form-control" type="text" ng-model="$ctrl.format.property_name" required>
 					</div>
 				</div>
-				<div class="col-md-6">			
-      		<div class="form-group">
+				<div class="col-md-3">
+					<div class="form-group" terrama2-show-errors>
+						<label ng-bind="$ctrl.i18n.__('Format')+':'"></label>
+						<input name="format" class="form-control" type="text" ng-model="$ctrl.format.format" required>
+					</div>
+				</div>
+				<div class="col-md-3">
+					<div class="form-group" terrama2-show-errors>
 						<label ng-bind="$ctrl.i18n.__('Alias')+':'"></label>
 						<input name="alias" class="form-control" type="text" ng-model="$ctrl.format.alias" required>
-      		</div>
+					</div>
 				</div>
 			</div>
-		</div>
 
-		<div ng-if="$ctrl.format.type == 'DATETIME'">
-			<div  class="col-md-3">
-				<div class="form-group">
-					<label ng-bind="$ctrl.i18n.__('Property name')+':'"></label>
-					<input name="property_name" class="form-control" type="text" ng-model="$ctrl.format.property_name" required>
+			<div class="col-md-1">
+				<div style="margin-top: 24px;" class="row">
+					<button class="btn btn-danger" ng-click="$ctrl.delete()"> {{$ctrl.i18n.__('Remove')}}</button>
 				</div>
 			</div>
-			<div class="col-md-3">
-				<div class="form-group">
-					<label ng-bind="$ctrl.i18n.__('Format')+':'"></label>
-					<input name="format" class="form-control" type="text" ng-model="$ctrl.format.format" required>
-				</div>
-			</div>
-			<div class="col-md-3">
-				<div class="form-group">
-					<label ng-bind="$ctrl.i18n.__('Alias')+':'"></label>
-					<input name="alias" class="form-control" type="text" ng-model="$ctrl.format.alias" required>
-				</div>
-			</div>
-		</div>
-
-		<div class="col-md-1">
-			<div style="margin-top: 24px;" class="row">
-				<button class="btn btn-danger" ng-click="$ctrl.delete()"> {{$ctrl.i18n.__('Remove')}}</button>
-			</div>
-		</div>
-</div>
+	</div>
+</form>

@@ -4,8 +4,7 @@ define([],function(){
     bindings: {
       format: '<',
       fieldsType: '<',
-      onDelete: '&',
-      index: '<'
+      onDelete: '&'
     },
     templateUrl: '/dist/templates/data-series/templates/csvFormatDetail.html',
     controller: FormatDetailController
