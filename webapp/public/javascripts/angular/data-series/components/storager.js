@@ -196,8 +196,9 @@ define([], function(){
         self.editedStoragerDcps.push(id);
       };
 
-      var addDcpStorager = function(dcps, storageData) {
+      var addDcpStorager = function(dcps, storageData, flagReloadDataStore) {
         var newDcps = [];
+        var registersCount = 0;
 
         for(var i = 0, dcpsLength = dcps.length; i < dcpsLength; i++) {
           var dcpToAdd = dcps[i];
@@ -225,10 +226,20 @@ define([], function(){
 
           self.dcpsStoragerObject[dcpToAdd.alias] = dcpToAdd;
           newDcps.push(dcpToAdd);
+          registersCount++;
+
+          if(storageData && registersCount >= 1000) {
+            self.storageDcpsStore(newDcps);
+            registersCount = 0;
+            newDcps = [];
+          }
         }
 
-        if(storageData)
+        if(storageData && registersCount > 0)
           self.storageDcpsStore(newDcps);
+
+        if(flagReloadDataStore)
+          reloadDataStore();
       };
 
       self.createDataTableStore = function(fields) {
@@ -355,9 +366,9 @@ define([], function(){
             console.log("Err in removing dcp");
           });
         } else if(args.action === "add") {
-          addDcpStorager([args.dcp], args.storageData);
+          addDcpStorager([args.dcp], args.storageData, args.reloadDataStore);
         } else if(args.action === "addMany") {
-          addDcpStorager(args.dcps, args.storageData);
+          addDcpStorager(args.dcps, args.storageData, args.reloadDataStore);
         } else if(args.action === "edit") {
           self.editDcpStorager(args.dcp);
         }
@@ -530,7 +541,7 @@ define([], function(){
             reloadDataStore();
           } else {
             if(args.dcps)
-              addDcpStorager(args.dcps, true);
+              addDcpStorager(args.dcps, true, true);
           }
 
           self.modelStorager = {};
