@@ -3,7 +3,7 @@
       <div class="form-group">
 				<label ng-bind="$ctrl.i18n.__('Type')+':'"></label>
 				<select name="type" class="form-control" ng-model="$ctrl.format.type" ng-change="$ctrl.onFieldTypeChange()" required>
-					<option ng-repeat="type in $ctrl.fieldsType" value="{{type.value}}">{{type.title}}</option>
+					<option ng-repeat="type in $ctrl.fieldsType" value="{{type.value}}">{{$ctrl.i18n.__(type.title)}}</option>
 				</select> 
 			</div>
 		</div>

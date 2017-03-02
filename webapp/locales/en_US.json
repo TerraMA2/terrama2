@@ -669,5 +669,8 @@
 	"Properties name line": "Properties name line",
 	"Fields": "Fields",
 	"Default type": "Default type",
-	"Property name": "Property name"
+	"Property name": "Property name",
+	"Point (Geometry)": "Point (Geometry)",
+	"Number": "Number",
+	"Text": "Text"
 }
