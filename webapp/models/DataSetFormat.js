@@ -8,7 +8,7 @@ module.exports = function(sequelize, DataTypes) {
         autoIncrement: true
       },
       key: DataTypes.STRING,
-      value: DataTypes.STRING
+      value: DataTypes.TEXT
     },
     {
       underscored: true,
