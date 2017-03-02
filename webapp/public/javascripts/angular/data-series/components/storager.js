@@ -218,10 +218,12 @@ define([], function(){
           for(var j = 0, fieldsLength = self.series.semantics.metadata.form.length; j < fieldsLength; j++) {
             var key = self.series.semantics.metadata.form[j].key;
 
-            if(self.isBoolean(dcpToAdd[key]))
-              dcpToAdd[key + '_html'] = "<span class=\"store-dcps-table-span\"><input type=\"checkbox\" ng-model=\"$ctrl.dcpsStoragerObject['" + dcpToAdd.alias + "']['" + key + "']\" ng-disabled=\"true\"></span>";
-            else
-              dcpToAdd[key + '_html'] = "<span class=\"store-dcps-table-span\" ng-bind=\"$ctrl.dcpsStoragerObject['" + dcpToAdd.alias + "']['" + key + "']\"></span>";
+            if(key != "table_name") {
+              if(self.isBoolean(dcpToAdd[key]))
+                dcpToAdd[key + '_html'] = "<span class=\"store-dcps-table-span\"><input type=\"checkbox\" ng-model=\"$ctrl.dcpsStoragerObject['" + dcpToAdd.alias + "']['" + key + "']\" ng-disabled=\"true\"></span>";
+              else
+                dcpToAdd[key + '_html'] = "<span class=\"store-dcps-table-span\" ng-bind=\"$ctrl.dcpsStoragerObject['" + dcpToAdd.alias + "']['" + key + "']\"></span>";
+            }
           }
 
           self.dcpsStoragerObject[dcpToAdd.alias] = dcpToAdd;
@@ -518,10 +520,12 @@ define([], function(){
               for(var j = 0, fieldsLength = self.series.semantics.metadata.form.length; j < fieldsLength; j++) {
                 var key = self.series.semantics.metadata.form[j].key;
 
-                if(self.isBoolean(dcp[key]))
-                  dcp[key + '_html'] = "<span class=\"store-dcps-table-span\"><input type=\"checkbox\" ng-model=\"$ctrl.dcpsStoragerObject['" + dcp.alias + "']['" + key + "']\" ng-disabled=\"true\"></span>";
-                else
-                  dcp[key + '_html'] = "<span class=\"store-dcps-table-span\" ng-bind=\"$ctrl.dcpsStoragerObject['" + dcp.alias + "']['" + key + "']\"></span>";
+                if(key != "table_name") {
+                  if(self.isBoolean(dcp[key]))
+                    dcp[key + '_html'] = "<span class=\"store-dcps-table-span\"><input type=\"checkbox\" ng-model=\"$ctrl.dcpsStoragerObject['" + dcp.alias + "']['" + key + "']\" ng-disabled=\"true\"></span>";
+                  else
+                    dcp[key + '_html'] = "<span class=\"store-dcps-table-span\" ng-bind=\"$ctrl.dcpsStoragerObject['" + dcp.alias + "']['" + key + "']\"></span>";
+                }
               }
 
               self.dcpsStoragerObject[dcp.alias] = dcp;
