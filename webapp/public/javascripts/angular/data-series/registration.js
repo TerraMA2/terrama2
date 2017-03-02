@@ -248,6 +248,7 @@ define([], function() {
       $scope.onDataSemanticsChange = function() {
         $scope.semantics = $scope.dataSeries.semantics.data_series_type_name;
         if (!$scope.isUpdating){
+          $scope.csvFormatData = { fields: []};
           clearStoreForm();
         }
         $scope.custom_format = $scope.dataSeries.semantics.custom_format;
@@ -356,7 +357,7 @@ define([], function() {
               if (inputDataSeries.data_series_semantics.custom_format){
                 $scope.csvFormatData.fields = JSON.parse(dataset.format.fields)
                 $scope.csvFormatData.header_size = parseInt(dataset.format.header_size);
-                $scope.csvFormatData.field_type = dataset.format.field_type;
+                $scope.csvFormatData.default_type = dataset.format.default_type;
                 $scope.csvFormatData.convert_all = (dataset.format.convert_all == "true");
                 $scope.csvFormatData.properties_names_line = parseInt(dataset.format.properties_names_line);
               }
@@ -367,7 +368,7 @@ define([], function() {
             if (inputDataSeries.data_series_semantics.custom_format){
               $scope.csvFormatData.fields = JSON.parse(dataSetFormat.fields)
               $scope.csvFormatData.header_size = parseInt(dataSetFormat.header_size);
-              $scope.csvFormatData.field_type = dataSetFormat.field_type;
+              $scope.csvFormatData.default_type = dataSetFormat.default_type;
               $scope.csvFormatData.convert_all = (dataSetFormat.convert_all == "true");
               $scope.csvFormatData.properties_names_line = parseInt(dataSetFormat.properties_names_line);
             }
@@ -1378,7 +1379,7 @@ define([], function() {
                   format.output_geometry_property = output_geometry_property_field;
                 }
 
-                var stringFields = JSON.stringify($scope.csvFormatData.fields);
+                var stringFields = angular.toJson($scope.csvFormatData.fields);
                 format.fields = stringFields;
               }
               var dataSetStructure = {
@@ -1400,7 +1401,7 @@ define([], function() {
               format = Object.assign(format, $scope.csvFormatData);
               format.output_timestamp_property = getAliasFromCsvFields("DATETIME", $scope.csvFormatData.fields);
               format.output_geometry_property = getAliasFromCsvFields("GEOMETRY_POINT", $scope.csvFormatData.fields);
-              var stringFields = JSON.stringify($scope.csvFormatData.fields);
+              var stringFields = angular.toJson($scope.csvFormatData.fields);
               format.fields = stringFields;
             }
 
