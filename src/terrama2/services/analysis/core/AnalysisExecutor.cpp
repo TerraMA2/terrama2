@@ -178,7 +178,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
 
       logger->result(AnalysisLogger::ERROR, startTime, logId);
 
-      emit analysisFinished(analysis->id, false);
+      emit analysisFinished(analysis->id, startTime, false);
     }
     else
     {
@@ -187,24 +187,24 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
       QString errMsg = QObject::tr("Analysis %1 finished successfully: %2").arg(analysis->id).arg(startTime->toString().c_str());
       TERRAMA2_LOG_INFO() << errMsg;
 
-      emit analysisFinished(analysis->id, true);
+      emit analysisFinished(analysis->id, startTime, true);
     }
   }
   catch(const terrama2::Exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
-    emit analysisFinished(analysis->id, false);
+    emit analysisFinished(analysis->id, startTime, false);
   }
   catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
-    emit analysisFinished(analysis->id, false);
+    emit analysisFinished(analysis->id, startTime, false);
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
-    emit analysisFinished(analysis->id, false);
+    emit analysisFinished(analysis->id, startTime, false);
   }
 
   // Clears context

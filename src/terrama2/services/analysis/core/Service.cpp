@@ -251,7 +251,7 @@ void terrama2::services::analysis::core::Service::start(size_t threadNumber)
   threadPool_.reset(new ThreadPool(processingThreadPool_.size()));
 }
 
-void terrama2::services::analysis::core::Service::analysisFinished(AnalysisId analysisId, bool success)
+void terrama2::services::analysis::core::Service::analysisFinished(AnalysisId analysisId, std::shared_ptr< te::dt::TimeInstantTZ > executionDate, bool success)
 {
   auto analysis = dataManager_->findAnalysis(analysisId);
 
@@ -260,7 +260,9 @@ void terrama2::services::analysis::core::Service::analysisFinished(AnalysisId an
   if(pqIt != processingQueue_.end())
     processingQueue_.erase(pqIt);
 
-  sendProcessFinishedSignal(analysisId, success);
+  QJsonObject answer;
+  answer.insert("execution_date", QString::fromStdString(executionDate->toString()));
+  sendProcessFinishedSignal(analysisId, success, answer);
 
   // Verify if there is another execution for the same analysis waiting
   auto& packageQueue = waitQueue_[analysisId];
@@ -276,6 +278,7 @@ void terrama2::services::analysis::core::Service::analysisFinished(AnalysisId an
     processQueue_.push_back(executionPackage);
     if(packageQueue.empty())
       waitQueue_.erase(analysisId);
+    //erase previous result from the analysis NEXT date
     erasePreviousResult(dataManager_, analysis->outputDataSeriesId, executionPackage.executionDate);
 
     //wake loop thread
@@ -294,7 +297,7 @@ void terrama2::services::analysis::core::Service::validateAnalysis(AnalysisPtr a
   {
     ValidateResult result = analysisExecutor_.validateAnalysis(dataManager_, analysis);
     QJsonObject obj = toJson(result);
-    
+
     emit validateProcessSignal(obj);
 
   }
