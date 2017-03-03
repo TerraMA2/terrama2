@@ -260,9 +260,7 @@ void terrama2::services::analysis::core::Service::analysisFinished(AnalysisId an
   if(pqIt != processingQueue_.end())
     processingQueue_.erase(pqIt);
 
-  QJsonObject answer;
-  answer.insert("execution_date", QString::fromStdString(executionDate->toString()));
-  sendProcessFinishedSignal(analysisId, success, answer);
+  sendProcessFinishedSignal(analysisId, executionDate, success);
 
   // Verify if there is another execution for the same analysis waiting
   auto& packageQueue = waitQueue_[analysisId];
