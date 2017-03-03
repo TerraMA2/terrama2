@@ -5,8 +5,8 @@ define([
   "TerraMA2WebApp/services/services",
   "TerraMA2WebApp/data-series/components/storager",
   "TerraMA2WebApp/data-series/components/csvFormat",
-  "TerraMA2WebApp/data-series/components/csvFormatDetail"
-], function(dataSeriesApp, commonApp, geoApp, servicesApp, terrama2StoragerComponent, csvFormat, csvFormatDetail){
+  "TerraMA2WebApp/data-series/components/csvFieldDetail"
+], function(dataSeriesApp, commonApp, geoApp, servicesApp, terrama2StoragerComponent, csvFormat, csvFieldDetail){
     "use strict";
 
     var moduleName = "terrama2.dataseries.components";
@@ -15,7 +15,7 @@ define([
         .module(moduleName, [dataSeriesApp, commonApp, geoApp, servicesApp])
         .component("terrama2StoragerForm", terrama2StoragerComponent)
         .component("csvFormat", csvFormat)
-        .component("csvFormatDetail", csvFormatDetail);
+        .component("csvFieldDetail", csvFieldDetail);
     
     return moduleName;
 });

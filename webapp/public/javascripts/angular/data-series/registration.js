@@ -11,7 +11,7 @@ define([], function() {
       metadata: true,
       type: $scope.isDynamic ? "dynamic" : "static"
     };
-    $scope.csvFormatData = { fields: []};
+    $scope.csvFormatData = { fields: [{type: "DATETIME"}]};
     // defining box
     $scope.cssBoxSolid = {
       boxType: "box-solid"
@@ -248,7 +248,7 @@ define([], function() {
       $scope.onDataSemanticsChange = function() {
         $scope.semantics = $scope.dataSeries.semantics.data_series_type_name;
         if (!$scope.isUpdating){
-          $scope.csvFormatData = { fields: []};
+          $scope.csvFormatData = { fields: [{type: "DATETIME"}]};
           clearStoreForm();
         }
         $scope.custom_format = $scope.dataSeries.semantics.custom_format;
@@ -1482,6 +1482,22 @@ define([], function() {
         if ($scope.dcps.length === 0 && !isValidParametersForm($scope.forms.parametersForm)) {
           MessageBoxService.danger("Data Registration", "There are invalid fields on form");
           return;
+        }
+
+        if ($scope.custom_format && $scope.forms.csvFormatForm.$invalid){
+          MessageBoxService.danger("Data Registration", "There are invalid fields on CSV Format form");
+          return;
+        }
+
+        if ($scope.custom_format){
+          var hasDateField = $scope.csvFormatData.fields.some(function(val){
+            return val.type == 'DATETIME';
+          });
+
+          if (!hasDateField){
+            MessageBoxService.danger("Data Registration", "Must have at least one Date field");
+            return;
+          }
         }
 
         if ($scope.isDynamic) {
