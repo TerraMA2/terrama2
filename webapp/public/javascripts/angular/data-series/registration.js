@@ -419,7 +419,7 @@ define([], function() {
           }
 
         $scope.tableFields = [];
-	$scope.tableFieldsDataTable = [];
+	      $scope.tableFieldsDataTable = [];
         if ($scope.dataSeries.semantics.data_series_type_name == "DCP"){
           // building table fields. Check if form is for all ('*')
           if (dataSeriesSemantics.metadata.form.indexOf('*') != -1) {
@@ -440,7 +440,7 @@ define([], function() {
           }
         }
 
-	$scope.tableFieldsDataTable.push('');
+	      $scope.tableFieldsDataTable.push('');
 
         // fill out
         if ($scope.isUpdating) {
@@ -1561,7 +1561,7 @@ define([], function() {
               }
             }
 
-	    var outputDcp = {
+	          var outputDcp = {
               active: dSets[i].active,
               format: _makeFormat(dSets[i])
             };

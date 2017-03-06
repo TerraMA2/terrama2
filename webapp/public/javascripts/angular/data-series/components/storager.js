@@ -172,12 +172,11 @@ define([], function(){
         for(var property in self.dcpsStoragerObject) {
           if(self.dcpsStoragerObject.hasOwnProperty(property)) {
             if(self.dcpsStoragerObject[property].alias === dcpItem.alias) {
-              var table_name = self.dcpsStoragerObject[property].table_name;
-              var table_name_html = self.dcpsStoragerObject[property].table_name_html;
-
-              self.dcpsStoragerObject[dcpItem.alias] = dcpItem;
-              self.dcpsStoragerObject[dcpItem.alias].table_name = table_name;
-              self.dcpsStoragerObject[dcpItem.alias].table_name_html = table_name_html;
+              for(var dcpsStoragerKey in self.dcpsStoragerObject[dcpItem.alias]) {
+                if(dcpItem.hasOwnProperty(dcpsStoragerKey) && dcpsStoragerKey.substring(0, 10) != 'table_name') {
+                  self.dcpsStoragerObject[dcpItem.alias][dcpsStoragerKey] = dcpItem[dcpsStoragerKey];
+                }
+              }
 
               return true;
             }
