@@ -46,7 +46,7 @@
 #include "TsProcessLogger.hpp"
 #include "TsDataRetrieverFTP.hpp"
 #include "TsDataAccessorFile.hpp"
-#include "TsDataAccessorTxtFile.hpp"
+#include "TsDataAccessorCSV.hpp"
 #include "TsDataAccessorDcpInpe.hpp"
 #include "TsDataAccessorDcpToa5.hpp"
 #include "TsDataAccessorGDAL.hpp"
@@ -97,8 +97,8 @@ int main(int argc, char** argv)
 
     try
     {
-      TsDataAccessorTxtFile testDataAccessorTxtFile;
-      ret += QTest::qExec(&testDataAccessorTxtFile, argc, argv);
+      TsDataAccessorCSV testDataAccessorCSV;
+      ret += QTest::qExec(&testDataAccessorCSV, argc, argv);
     }
     catch(...)
     {

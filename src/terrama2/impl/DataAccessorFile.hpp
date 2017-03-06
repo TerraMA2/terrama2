@@ -134,9 +134,8 @@ namespace terrama2
 
           \param lastTimestamp Last timestamp found in dataset.
         */
-        void filterDataSetByLastValue(std::shared_ptr<te::mem::DataSet> completeDataSet,
-                                      const Filter& filter,
-                                      std::shared_ptr<te::dt::TimeInstantTZ> lastTimestamp) const;
+        void filterDataSetByLastValues(std::shared_ptr<te::mem::DataSet> completeDataSet,
+                                      const Filter& filter) const;
 
         /*!
           \brief Filter dataset by timestamp range

@@ -37,8 +37,8 @@
 #include "DataAccessorOccurrenceWfp.hpp"
 #include "DataAccessorOccurrenceLightning.hpp"
 #include "DataAccessorOccurrencePostGIS.hpp"
-#include "DataAccessorDCPTxtFile.hpp"
-#include "DataAccessorOccurrenceTxtFile.hpp"
+#include "DataAccessorDCPCSV.hpp"
+#include "DataAccessorOccurrenceCSV.hpp"
 
 #include "DataAccessorStaticDataOGR.hpp"
 #include "DataAccessorStaticDataPostGIS.hpp"
@@ -67,8 +67,8 @@ void terrama2::core::registerFactories()
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorOccurrenceWfp::dataAccessorType(), terrama2::core::DataAccessorOccurrenceWfp::make);
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorOccurrenceLightning::dataAccessorType(), terrama2::core::DataAccessorOccurrenceLightning::make);
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorOccurrencePostGIS::dataAccessorType(), terrama2::core::DataAccessorOccurrencePostGIS::make);
-  terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorDCPTxtFile::dataAccessorType(), terrama2::core::DataAccessorDCPTxtFile::make);
-  terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorOccurrenceTxtFile::dataAccessorType(), terrama2::core::DataAccessorOccurrenceTxtFile::make);
+  terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorDCPCSV::dataAccessorType(), terrama2::core::DataAccessorDCPCSV::make);
+  terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorOccurrenceCSV::dataAccessorType(), terrama2::core::DataAccessorOccurrenceCSV::make);
 
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorStaticDataOGR::dataAccessorType(), terrama2::core::DataAccessorStaticDataOGR::make);
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorStaticDataPostGIS::dataAccessorType(), terrama2::core::DataAccessorStaticDataPostGIS::make);
