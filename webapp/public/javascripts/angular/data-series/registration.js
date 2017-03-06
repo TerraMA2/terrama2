@@ -11,7 +11,7 @@ define([], function() {
       metadata: true,
       type: $scope.isDynamic ? "dynamic" : "static"
     };
-    $scope.csvFormatData = { fields: []};
+    $scope.csvFormatData = { fields: [{type: "DATETIME"}]};
     // defining box
     $scope.cssBoxSolid = {
       boxType: "box-solid"
@@ -248,7 +248,7 @@ define([], function() {
       $scope.onDataSemanticsChange = function() {
         $scope.semantics = $scope.dataSeries.semantics.data_series_type_name;
         if (!$scope.isUpdating){
-          $scope.csvFormatData = { fields: []};
+          $scope.csvFormatData = { fields: [{type: "DATETIME"}]};
           clearStoreForm();
         }
         $scope.custom_format = $scope.dataSeries.semantics.custom_format;
@@ -799,12 +799,8 @@ define([], function() {
       $scope.isFrequency = false;
       $scope.isSchedule = false;
 
-      // Wizard validations
-      $scope.isFirstStepValid = function(obj) {
-        console.log(WizardHandler);
-        isWizardStepValid();
-        var firstStepValid = $scope.forms.generalDataForm.$valid;
-        if (firstStepValid){
+      $scope.$watch("dataSeries", function(dSValue) {
+        if (dSValue.name && dSValue.semantics && dSValue.data_provider_id){
           $scope.wizard.parameters.disabled = false;
           $scope.wizard.csvFormat.disabled = false;
           if ($scope.dataSeries.semantics.allow_direct_access === false){
@@ -820,7 +816,12 @@ define([], function() {
           $scope.advanced.store.disabled = true;
           $scope.advanced.store.optional = true;
         }
-        return firstStepValid;
+      }, true);
+
+      // Wizard validations
+      $scope.isFirstStepValid = function(obj) {
+        isWizardStepValid();
+        return $scope.forms.generalDataForm.$valid;
       };
 
       $scope.isSecondStepValid = function(obj) {
@@ -840,7 +841,7 @@ define([], function() {
 
       $scope.validateSteps = function(obj) {
         isWizardStepValid();
-        if ($scope.forms.storagerForm.$valid && $scope.forms.storagerDataForm.$valid && $scope.dataSeries.semantics.data_series_type_name == "GRID"){
+        if ($scope.forms.storagerForm && $scope.forms.storagerForm.$valid && $scope.forms.storagerDataForm.$valid && $scope.dataSeries.semantics.data_series_type_name == "GRID"){
           $scope.filter.area.showCrop = true;
         } else {
           $scope.filter.area.showCrop = false;
@@ -1481,6 +1482,22 @@ define([], function() {
         if ($scope.dcps.length === 0 && !isValidParametersForm($scope.forms.parametersForm)) {
           MessageBoxService.danger("Data Registration", "There are invalid fields on form");
           return;
+        }
+
+        if ($scope.custom_format && $scope.forms.csvFormatForm.$invalid){
+          MessageBoxService.danger("Data Registration", "There are invalid fields on CSV Format form");
+          return;
+        }
+
+        if ($scope.custom_format){
+          var hasDateField = $scope.csvFormatData.fields.some(function(val){
+            return val.type == 'DATETIME';
+          });
+
+          if (!hasDateField){
+            MessageBoxService.danger("Data Registration", "Must have at least one Date field");
+            return;
+          }
         }
 
         if ($scope.isDynamic) {

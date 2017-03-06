@@ -616,5 +616,8 @@
 	"DCP CSV": "PCD CSV",
 	"Occurrence CSV": "Ocorrência CSV",
 	"Property name": "Nome da propriedade",
-	"Default type": "Tipo padrão"
+	"Default type": "Tipo padrão",
+	"Point (Geometry)": "Ponto (Geometria)",
+	"Number": "Número",
+	"Text": "Texto"
 }
