@@ -285,7 +285,7 @@ boost::python::list terrama2::services::analysis::core::grid::zonal::history::li
 
 boost::python::list terrama2::services::analysis::core::grid::zonal::history::list(const std::string& dataSeriesName, const std::string& dateDiscardBefore, terrama2::services::analysis::core::Buffer buffer)
 {
-  listImpl(dataSeriesName, dateDiscardBefore, "0s", buffer);
+  return listImpl(dataSeriesName, dateDiscardBefore, "0s", buffer);
 }
 
 double terrama2::services::analysis::core::grid::zonal::history::operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,

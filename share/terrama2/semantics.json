@@ -1034,7 +1034,7 @@
               "type": "string",
               "title": "Timezone"
             },
-            "projection": {
+            "srid": {
               "type": "number",
               "title": "Projection (SRID)"
             },
@@ -1044,7 +1044,7 @@
               "default": true
             }
           },
-        "required": ["mask", "timezone", "projection"]
+        "required": ["mask", "timezone", "srid"]
       },
       "form": [
         {
@@ -1095,7 +1095,7 @@
           ]
         },
         {
-          "key": "projection",
+          "key": "srid",
           "htmlClass": "col-md-2"
         }
       ]
