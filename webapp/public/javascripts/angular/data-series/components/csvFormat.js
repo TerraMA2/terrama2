@@ -8,6 +8,7 @@ define([],function(){
   var terrama2CsvFormatComponent = {
     bindings: {
       csvFormatData: '<',
+      semantics: '<'
     },
     templateUrl: '/dist/templates/data-series/templates/csvFormat.html',
     controller: CsvFormatController
@@ -24,15 +25,16 @@ define([],function(){
 
     // Types of fields in csv file
     ctrl.fieldsType = [
-      {title: "Point (Geometry)", value: "GEOMETRY_POINT"},
-      {title: "Number", value: "FLOAT"},
-      {title: "Text", value: "TEXT"},
-      {title: "Date", value: "DATETIME"}
+      {title: "Point (Geometry)", value: "GEOMETRY_POINT", defaultType: false},
+      {title: "Float", value: "FLOAT", defaultType: true},
+      {title: "Integer", value: "INTEGER", defaultType: true},
+      {title: "Text", value: "TEXT", defaultType: true},
+      {title: "Date", value: "DATETIME", defaultType: false}
     ];
 
     // Function to add new format in model
     ctrl.addField = function(){
-      var newFormat = {type: "GEOMETRY_POINT"};
+      var newFormat = {type: "FLOAT"};
       ctrl.csvFormatData.fields.push(newFormat);
     }
 

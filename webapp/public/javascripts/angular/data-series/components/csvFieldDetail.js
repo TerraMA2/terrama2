@@ -9,7 +9,8 @@ define([],function(){
     bindings: {
       field: '<',
       fieldsType: '<',
-      onDelete: '&'
+      onDelete: '&',
+      semantics: '<'
     },
     templateUrl: '/dist/templates/data-series/templates/csvFieldDetail.html',
     controller: FieldDetailController
