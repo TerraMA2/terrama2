@@ -101,11 +101,13 @@ std::shared_ptr<te::da::DataSet> terrama2::services::alert::core::Report::retrie
 {
   std::vector<std::size_t> positions;
 
+  std::string property = terrama2::core::validPropertyName(riskDates_.at(0)->toString());
+
   for(std::size_t i = 0; i < alertDataSet_->size(); i++)
   {
     alertDataSet_->move(i);
     // TODO: get risk properties from alert
-    if(alertDataSet_->getInt32("risk_level") == risk)
+    if(alertDataSet_->getInt32(property) == risk)
     {
       positions.push_back(i);
     }
@@ -126,11 +128,13 @@ std::shared_ptr<te::da::DataSet> terrama2::services::alert::core::Report::retrie
 {
   std::vector<std::size_t> positions;
 
+  std::string property = terrama2::core::validPropertyName(riskDates_.at(0)->toString());
+
   for(std::size_t i = 0; i < alertDataSet_->size(); i++)
   {
     alertDataSet_->move(i);
     // TODO: get risk properties from alert
-    if(alertDataSet_->getInt32("risk_level") >= risk)
+    if(alertDataSet_->getInt32(property) >= risk)
     {
       positions.push_back(i);
     }
@@ -151,11 +155,13 @@ std::shared_ptr<te::da::DataSet> terrama2::services::alert::core::Report::retrie
 {
   std::vector<std::size_t> positions;
 
+  std::string property = terrama2::core::validPropertyName(riskDates_.at(0)->toString());
+
   for(std::size_t i = 0; i < alertDataSet_->size(); i++)
   {
     alertDataSet_->move(i);
     // TODO: get risk properties from alert
-    if(alertDataSet_->getInt32("risk_level") <= risk)
+    if(alertDataSet_->getInt32(property) <= risk)
     {
       positions.push_back(i);
     }
@@ -175,20 +181,15 @@ std::shared_ptr<te::da::DataSet> terrama2::services::alert::core::Report::retrie
 
 void terrama2::services::alert::core::Report::replaceNumberByDescription(std::shared_ptr<te::mem::DataSet> dataSet) const
 {
-  // TODO: get risk properties from alert
-  std::vector<std::string> riskProperties;
-  riskProperties.push_back("risk_level");
-  riskProperties.push_back("risk_level_2");
-  riskProperties.push_back("risk_level_3");
-
   // Replace risk values
-  for(auto riskProperty : riskProperties)
+  for(auto riskDate : riskDates_)
   {
-    auto pos = terrama2::core::propertyPosition(dataSet.get(), riskProperty);
+    std::string property = terrama2::core::validPropertyName(riskDate->toString());
+    auto pos = terrama2::core::propertyPosition(dataSet.get(), property);
 
     if(pos == std::numeric_limits<size_t>::max())
     {
-      QString errMsg = QObject::tr("Can't find property %1 !").arg(QString::fromStdString(riskProperty));
+      QString errMsg = QObject::tr("Can't find property %1 !").arg(QString::fromStdString(property));
       TERRAMA2_LOG_ERROR() << errMsg;
       throw ReportException() << ErrorDescription(errMsg);
     }
@@ -200,7 +201,7 @@ void terrama2::services::alert::core::Report::replaceNumberByDescription(std::sh
       if(!dataSet->isNull(pos))
       {
         int numericRisk = dataSet->getInt32(pos);
-        dataSet->setString(riskProperty, alert_->risk.riskName(numericRisk));
+        dataSet->setString(property, alert_->risk.riskName(numericRisk));
       }
     }
 

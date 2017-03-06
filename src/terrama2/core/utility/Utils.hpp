@@ -172,6 +172,13 @@ namespace terrama2
 
     size_t propertyPosition(const te::da::DataSet* dataSet, const std::string& propertyName);
 
+    /*!
+     * \brief Returns a valid name for te::da::DataSet properties name
+     * \param text The base name to process
+     * \return A valid name for te::da::DataSet properties name
+     */
+    std::string validPropertyName(std::string text);
+
   } // end namespace core
 }   // end namespace terrama2
 

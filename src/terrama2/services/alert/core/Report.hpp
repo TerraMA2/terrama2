@@ -84,8 +84,14 @@ namespace terrama2
         class Report
         {
           public:
-            Report(AlertPtr alert, std::shared_ptr<te::da::DataSet> alertDataSet, std::shared_ptr<te::da::DataSetType> alertDataSetType)
-              : alert_(alert), alertDataSet_(alertDataSet), alertDataSetType_(alertDataSetType) { }
+            Report(AlertPtr alert,
+                   std::shared_ptr<te::da::DataSet> alertDataSet,
+                   std::shared_ptr<te::da::DataSetType> alertDataSetType,
+                   std::vector<std::shared_ptr<te::dt::DateTime>> riskDates)
+              : alert_(alert),
+                alertDataSet_(alertDataSet),
+                alertDataSetType_(alertDataSetType),
+                riskDates_(riskDates){ }
 
             ~Report() = default;
             Report(const Report& other) = default;
@@ -134,6 +140,7 @@ namespace terrama2
             AlertPtr alert_;
             std::shared_ptr<te::da::DataSet> alertDataSet_;
             std::shared_ptr<te::da::DataSetType> alertDataSetType_;
+            std::vector<std::shared_ptr<te::dt::DateTime>> riskDates_;
 
         };
       } /* core */
