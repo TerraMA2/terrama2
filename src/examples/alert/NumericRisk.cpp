@@ -66,9 +66,9 @@ terrama2::core::DataSeriesPtr inputDataSeries()
   //DataSet information
   terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
   dataSet->active = true;
-  dataSet->format.emplace("table_name", "focos_goes");
+  dataSet->format.emplace("table_name", "analise_result");
   dataSet->format.emplace("timestamp_property", "execution_date");
-  dataSet->format.emplace("identifier", "id_0");
+  dataSet->format.emplace("identifier", "sigla");
 
   dataSeries->datasetList.emplace_back(dataSet);
 
@@ -152,9 +152,8 @@ terrama2::services::alert::core::AlertPtr newAlert()
 
   terrama2::services::alert::core::AdditionalData additionalData;
   additionalData.id = 2;
-  additionalData.identifier = "id";
+  additionalData.identifier = "sigla";
   additionalData.attributes.push_back("nome");
-  additionalData.attributes.push_back("sigla");
 
   alert->additionalDataVector.push_back(additionalData);
 
@@ -211,7 +210,7 @@ int main(int argc, char* argv[])
     terrama2::services::alert::core::runAlert(executionPackage, std::dynamic_pointer_cast<AlertLogger>(logger), dataManager);
   }
 
-  
+
 
   return 0;
 }

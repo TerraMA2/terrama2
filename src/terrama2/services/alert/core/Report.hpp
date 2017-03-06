@@ -111,6 +111,8 @@ namespace terrama2
 
             std::shared_ptr<te::da::DataSet> retrieveData() const;
 
+            std::shared_ptr<te::da::DataSet> retrieveDataComparisonValue(const std::vector<int>& values) const;
+
             std::shared_ptr<te::da::DataSet> retrieveDataChangedRisk() const;
 
             std::shared_ptr<te::da::DataSet> retrieveDataUnchangedRisk() const;
@@ -127,7 +129,7 @@ namespace terrama2
 
           protected:
 
-            void addLevelsNamesProperty(std::shared_ptr<te::mem::DataSet> dataSet) const;
+            void replaceNumberByDescription(std::shared_ptr<te::mem::DataSet> dataSet) const;
 
             AlertPtr alert_;
             std::shared_ptr<te::da::DataSet> alertDataSet_;

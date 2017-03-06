@@ -27,21 +27,18 @@
   \author Jano Simas
 */
 
+// TerraMA2
 #include "../../../core/utility/Utils.hpp"
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/utility/DataAccessorFactory.hpp"
 #include "../../../core/data-access/DataAccessor.hpp"
 #include "../../../core/data-model/DataSeriesRisk.hpp"
-
 #include "RunAlert.hpp"
 #include "Alert.hpp"
 #include "Report.hpp"
 #include "AdditionalDataHelper.hpp"
 
-#include <QObject>
-
-#include <limits>
-
+// Terralib
 #include <terralib/memory/DataSet.h>
 #include <terralib/memory/DataSetItem.h>
 #include <terralib/datatype/SimpleProperty.h>
@@ -51,6 +48,11 @@
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 #include <terralib/dataaccess/utils/Utils.h>
 
+// Qt
+#include <QObject>
+
+// STL
+#include <limits>
 
 
 void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage executionPackage,
@@ -295,6 +297,36 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
 
         alertDataSet->add(dsItem);
 
+      }
+
+      terrama2::services::alert::core::Report report(alertPtr, alertDataSet, alertDataSetType);
+
+      std::shared_ptr<te::da::DataSet> filteredDataSet = report.retrieveDataAboveRisk(1);
+
+      { // TODO: REMOVE!
+        for(std::size_t i = 0; i < filteredDataSet->getNumProperties(); i++)
+        {
+          std::cout << filteredDataSet->getPropertyName(i) << " | ";
+        }
+        std::cout << std::endl;
+
+        filteredDataSet->moveBeforeFirst();
+
+        while(filteredDataSet->moveNext())
+        {
+          for(std::size_t i = 0; i < filteredDataSet->getNumProperties(); i++)
+          {
+            if(!filteredDataSet->isNull(i))
+            {
+              std::cout << filteredDataSet->getAsString(i) << " | ";
+            }
+            else
+            {
+              std::cout << "    " << " | ";
+            }
+          }
+          std::cout << std::endl;
+        }
       }
 
     }
