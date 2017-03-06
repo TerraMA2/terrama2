@@ -138,7 +138,6 @@ double terrama2::services::analysis::core::dcp::zonal::history::operatorImpl(Sta
         terrama2::core::Filter filter;
         filter.discardBefore = context->getTimeFromString(dateFilterBegin);
         filter.discardAfter = context->getTimeFromString(dateFilterEnd);
-        filter.lastValue = false;
 
         context->addDCPDataSeries(dataSeries, filter);
 

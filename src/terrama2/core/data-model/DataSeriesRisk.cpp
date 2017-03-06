@@ -37,8 +37,11 @@
 std::tuple<int, std::string> terrama2::core::DataSeriesRisk::riskLevel(const std::string& value) const
 {
   auto pos = std::find_if(std::begin(riskLevels), std::end(riskLevels), [value](const RiskLevel& risk) { return risk.textValue == value;});
+
   if(pos != std::end(riskLevels))
+  {
     return std::make_tuple((*pos).level, (*pos).name);
+  }
   else
   {
     QString errMsg = QObject::tr("Risk level not defined for value: %1").arg(QString::fromStdString(value));
@@ -49,18 +52,25 @@ std::tuple<int, std::string> terrama2::core::DataSeriesRisk::riskLevel(const std
 
 std::tuple<int, std::string> terrama2::core::DataSeriesRisk::riskLevel(double value) const
 {
-  auto pos = std::find_if(std::begin(riskLevels), std::end(riskLevels), [value](const RiskLevel& risk)
-                                                                                {
-                                                                                  bool graterThanLower = risk.hasLowerBound ? risk.lowerBound <= value : true;
-                                                                                  bool lesserThanUpper = risk.hasUpperBound ? risk.upperBound > value : true;
-                                                                                  return graterThanLower && lesserThanUpper;
-                                                                                });
-  if(pos != std::end(riskLevels))
-    return std::make_tuple((*pos).level, (*pos).name);
-  else
+  for (int i = 0; i < riskLevels.size(); ++i)
   {
-    QString errMsg = QObject::tr("Risk level not defined for value: %1").arg(value);
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw DataSeriesRiskException() << ErrorDescription(errMsg);
+    auto riskLevel = riskLevels[i];
+    if(value >= riskLevels[i].lowerBound)
+    {
+      bool hasNext = i + 1 < riskLevels.size();
+      if(hasNext && value < riskLevels[i + 1].lowerBound)
+      {
+        return std::make_tuple(riskLevel.level, riskLevel.name);
+      }
+
+      if(!hasNext)
+      {
+        return std::make_tuple(riskLevel.level, riskLevel.name);
+      }
+    }
   }
+
+  QString errMsg = QObject::tr("Risk level not defined for value: %1").arg(value);
+  TERRAMA2_LOG_ERROR() << errMsg;
+  throw DataSeriesRiskException() << ErrorDescription(errMsg);
 }

@@ -20,7 +20,7 @@
  */
 
 /*!
-  \file terrama2/impl/DataAccessorTxtFile.hpp
+  \file terrama2/impl/DataAccessorCSV.hpp
 
   \brief
 
@@ -38,19 +38,19 @@ namespace terrama2
   namespace core
   {
     /*!
-      \class DataAccessorTxtFile
+      \class DataAccessorCSV
 
       \brief Base class for DataAccessor classes that access a text file.
 
     */
-    class DataAccessorTxtFile : public virtual DataAccessorFile
+    class DataAccessorCSV : public virtual DataAccessorFile
     {
       public:
-        DataAccessorTxtFile(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true)
+        DataAccessorCSV(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true)
           : DataAccessor(dataProvider, dataSeries, false),
             DataAccessorFile(dataProvider, dataSeries, false) { }
 
-        virtual ~DataAccessorTxtFile() = default;
+        virtual ~DataAccessorCSV() = default;
 
         virtual std::shared_ptr<te::dt::TimeInstantTZ> readFile(DataSetSeries& series, std::shared_ptr<te::mem::DataSet>& completeDataset, std::shared_ptr<te::da::DataSetTypeConverter>& converter, QFileInfo fileInfo, const std::string& mask, terrama2::core::DataSetPtr dataSet) const override;
 
@@ -62,13 +62,13 @@ namespace terrama2
                                                {"INTEGER", static_cast<int>(te::dt::INT32_TYPE)},
                                                {"TEXT", static_cast<int>(te::dt::STRING_TYPE)},
                                                {"DATETIME", static_cast<int>(te::dt::DATETIME_TYPE)},
-                                               {"GEOMETRY", static_cast<int>(te::dt::GEOMETRY_TYPE)}
+                                               {"GEOMETRY_POINT", static_cast<int>(te::dt::GEOMETRY_TYPE)}
                                               };
 
-        void checkOriginFields(std::shared_ptr<te::da::DataSetTypeConverter> converter,
+        bool checkOriginFields(std::shared_ptr<te::da::DataSetTypeConverter> converter,
                              const QJsonArray& fieldsArray) const;
 
-        void findProperty(te::da::DataSetType* dataSetType, std::string property) const;
+        bool checkProperty(te::da::DataSetType* dataSetType, std::string property) const;
 
       protected:
         QFileInfo filterTxt(QFileInfo& fileInfo, QTemporaryFile& tempFile, DataSetPtr dataSet) const;
@@ -77,7 +77,7 @@ namespace terrama2
 
         QJsonArray getFields(DataSetPtr dataSet) const;
 
-        QJsonObject getFieldObj(const QJsonArray& array, const std::string& fieldName) const;
+        QJsonObject getFieldObj(const QJsonArray& array, const std::string& fieldName, const size_t position) const;
 
         te::dt::AbstractData* stringToTimestamp(te::da::DataSet* dataset,
                                                 const std::vector<std::size_t>& indexes,
@@ -90,6 +90,24 @@ namespace terrama2
         te::dt::AbstractData* stringToPoint(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int dstType, const Srid& srid) const;
 
         virtual void adapt(DataSetPtr dataset, std::shared_ptr<te::da::DataSetTypeConverter> converter) const override;
+
+        const QString JSON_LATITUDE_PROPERTY_NAME = "latitude_property_name";
+        const QString JSON_LONGITUDE_PROPERTY_NAME = "longitude_property_name";
+        const QString JSON_LATITUDE_PROPERTY_POSITION = "latitude_property_position";
+        const QString JSON_LONGITUDE_PROPERTY_POSITION = "longitude_property_position";
+        const QString JSON_PROPERTY_NAME = "property_name";
+        const QString JSON_PROPERTY_POSITION = "property_position";
+        const QString JSON_ALIAS = "alias";
+        const QString JSON_TYPE = "type";
+        const QString JSON_HEADER_SIZE = "header_size";
+        const QString JSON_PROPERTIES_NAMES_LINE = "properties_names_line";
+        const QString JSON_CONVERT_ALL = "convert_all";
+        const QString JSON_FIELDS = "fields";
+        const QString JSON_DEFAULT_TYPE = "default_type";
+        const QString JSON_FORMAT = "format";
+        void addPropertyAsDefaultType(te::dt::Property* property, std::shared_ptr<te::da::DataSetTypeConverter> converter, size_t i, DataSetPtr dataSet) const;
+        void addPropertyByType(std::shared_ptr<te::da::DataSetTypeConverter> converter, int type, DataSetPtr dataSet, te::dt::Property* property, QJsonObject fieldObj) const;
+        void addGeomProperty(QJsonObject fieldGeomObj, std::shared_ptr<te::da::DataSetTypeConverter> converter, DataSetPtr dataSet) const;
     };
   }
 }
