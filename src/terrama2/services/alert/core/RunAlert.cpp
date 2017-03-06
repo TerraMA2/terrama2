@@ -321,46 +321,6 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
       terrama2::services::alert::core::Report report(alertPtr, alertDataSet, alertDataSetType, vecDates);
 
       std::shared_ptr<te::da::DataSet> filteredDataSet = report.retrieveDataChangedRisk();
-
-      { // TODO: REMOVE!
-        for(std::size_t i = 0; i < filteredDataSet->getNumProperties(); i++)
-        {
-          std::cout << filteredDataSet->getPropertyName(i) << " | ";
-        }
-        std::cout << std::endl;
-
-        filteredDataSet->moveBeforeFirst();
-
-        while(filteredDataSet->moveNext())
-        {
-          for(std::size_t i = 0; i < filteredDataSet->getNumProperties(); i++)
-          {
-            if(!filteredDataSet->isNull(i))
-            {
-              std::cout << filteredDataSet->getAsString(i) << " | ";
-            }
-            else
-            {
-              std::cout << "    " << " | ";
-            }
-          }
-          std::cout << std::endl;
-        }
-      }
-
-
-      std::string connInfo("file:///home/vinicius/MyDevel/terrama2/build-debug/data/dados_pcds_exemplos/teste.shp");
-
-      std::unique_ptr<te::da::DataSource> dsOGR = te::da::DataSourceFactory::make("OGR", connInfo);
-      dsOGR->open();
-
-      alertDataSet->moveBeforeFirst();
-
-      te::da::Create(dsOGR.get(), alertDataSetType.get(), alertDataSet.get());
-
-      dsOGR->close();
-      dsOGR.release();
-      connInfo.clear();
     }
 
     logger->result(AlertLogger::DONE, executionPackage.executionDate, executionPackage.registerId);
