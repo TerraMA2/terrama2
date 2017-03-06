@@ -354,6 +354,19 @@ define([], function() {
         $scope.$broadcast("dcpOperation", { action: "addMany", dcps: dcps, storageData: true, reloadDataStore: false });
       };
 
+      $scope.setHtmlItems = function(dcp, key, alias, _id, type) {
+        if($scope.isBoolean(dcp[key]))
+          dcp[key + '_html'] = "<span class=\"dcps-table-span\"><input type=\"checkbox\" ng-model=\"dcpsObject['" + alias + "']['" + key + "']\"></span>";
+        else
+          dcp[key + '_html'] = "<span class=\"dcps-table-span\" editable-text=\"dcpsObject['" + alias + "']['" + key + "']\" onaftersave=\"upsertEditedDcp('" + _id + "')\" onbeforesave=\"validateFieldEdition($data, '" + type + "', '" + alias + "', '" + key + "')\">{{ dcpsObject['" + alias + "']['" + key + "'] }}</span>";
+
+        return dcp;
+      };
+
+      $scope.getRemoveButton = function(alias) {
+        return "<button class=\"btn btn-danger removeDcpBtn\" ng-click=\"removePcd('" + alias + "')\" style=\"height: 21px; padding: 1px 4px 1px 4px; font-size: 13px;\">" + i18n.__("Remove") + "</button>";
+      };
+
       // it defines when data change combobox has changed and it will adapt the interface
       $scope.onDataSemanticsChange = function() {
         if(!$scope.semanticsSelected)
@@ -493,16 +506,13 @@ define([], function() {
                 if(dcp[key + '_titleMap'] !== undefined)
                   type = $scope.dataSeries.semantics.metadata.form[j].type;
 
-                if($scope.isBoolean(dcp[key]))
-                  dcp[key + '_html'] = "<span class=\"dcps-table-span\"><input type=\"checkbox\" ng-model=\"dcpsObject['" + dcp.alias + "']['" + key + "']\"></span>";
-                else
-                  dcp[key + '_html'] = "<span class=\"dcps-table-span\" editable-text=\"dcpsObject['" + dcp.alias + "']['" + key + "']\" onaftersave=\"upsertEditedDcp('" + dcp._id + "')\" onbeforesave=\"validateFieldEdition($data, '" + type + "', '" + dcp.alias + "', '" + key + "')\">{{ dcpsObject['" + dcp.alias + "']['" + key + "'] }}</span>";
+                dcp = $scope.setHtmlItems(dcp, key, dcp.alias, dcp._id, type);
               }
 
               $scope.dcpsObject[dcp.alias] = dcp;
 
               var dcpCopy = Object.assign({}, dcp);
-              dcpCopy.removeButton = "<button class=\"btn btn-danger removeDcpBtn\" ng-click=\"removePcd('" + dcp.alias + "')\" style=\"height: 21px; padding: 1px 4px 1px 4px; font-size: 13px;\">" + i18n.__("Remove") + "</button>";
+              dcpCopy.removeButton = $scope.getRemoveButton(dcp.alias);
 
               dcps.push(dcpCopy);
 
@@ -1396,11 +1406,7 @@ define([], function() {
               if(data[key + '_titleMap'] !== undefined)
                 type = $scope.dataSeries.semantics.metadata.form[j].type;
 
-              if($scope.isBoolean(data[key])) {
-                data[key + '_html'] = "<span class=\"dcps-table-span\"><input type=\"checkbox\" ng-model=\"dcpsObject['" + alias + "']['" + key + "']\"></span>";
-              } else {
-                data[key + '_html'] = "<span class=\"dcps-table-span\" editable-text=\"dcpsObject['" + alias + "']['" + key + "']\" onaftersave=\"upsertEditedDcp('" + data._id + "')\" onbeforesave=\"validateFieldEdition($data, '" + type + "', '" + alias + "', '" + key + "')\">{{ dcpsObject['" + alias + "']['" + key + "'] }}</span>";
-              }
+              data = $scope.setHtmlItems(data, key, alias, data._id, type);
             }
 
             $scope.dcpsObject[alias] = Object.assign({}, data);
@@ -1408,7 +1414,7 @@ define([], function() {
             $scope.model = {active: true};
 
             var dcpCopy = Object.assign({}, data);
-            dcpCopy.removeButton = "<button class=\"btn btn-danger removeDcpBtn\" ng-click=\"removePcd('" + dcpCopy.alias + "')\" style=\"height: 21px; padding: 1px 4px 1px 4px; font-size: 13px;\">" + i18n.__("Remove") + "</button>";
+            dcpCopy.removeButton = $scope.getRemoveButton(dcpCopy.alias);
 
             $scope.storageDcps([dcpCopy]);
 
@@ -1457,20 +1463,6 @@ define([], function() {
         return true;
       }
 
-      // watch dcps model to update dcpStorager
-      $scope.$watch("dcps", function(newVal, oldVal){
-        if (newVal && newVal.length > 0){
-          //checking if is editing
-          if (newVal.length === oldVal.length){
-            for (i = 0; i < newVal.length; i++){
-              if (!Object.equals(newVal[i], oldVal[i])){
-                $scope.$broadcast("dcpOperation", {action: "edit", dcp: newVal[i]});
-              }
-            }
-          }
-        }
-      }, true);
-
       $scope.$watch("dcpsObject", function(newVal, oldVal) {
         var newValLength = $scope.countObjectProperties(newVal);
         var oldValLength = $scope.countObjectProperties(oldVal);
@@ -1481,6 +1473,40 @@ define([], function() {
             for(var property in newVal) {
               if(newVal.hasOwnProperty(property) && oldVal.hasOwnProperty(property)) {
                 if(!Object.equals(newVal[property], oldVal[property])) {
+                  if(newVal[property].alias != oldVal[property].alias) {
+                    var newAlias = newVal[property].alias;
+                    var oldAlias = oldVal[property].alias;
+
+                    $scope.dcpsObject[newAlias] = $scope.dcpsObject[property];
+                    delete $scope.dcpsObject[property];
+
+                    for(var j = 0, fieldsLength = $scope.dataSeries.semantics.metadata.form.length; j < fieldsLength; j++) {
+                      var key = $scope.dataSeries.semantics.metadata.form[j].key;
+                      var type = $scope.dataSeries.semantics.metadata.schema.properties[key].type;
+
+                      $scope.dcpsObject[newAlias] = $scope.setHtmlItems($scope.dcpsObject[newAlias], key, $scope.dcpsObject[newAlias].alias, $scope.dcpsObject[newAlias]._id, type);
+                    }
+
+                    $scope.dcpsObject[newAlias].removeButton = $scope.getRemoveButton(newAlias);
+
+                    var dataToSend = Object.assign({}, $scope.dcpsObject[newAlias]);
+
+                    $http.post("/configuration/dynamic/dataseries/updateDcp", {
+                      key: storedDcpsKey,
+                      oldAlias: oldAlias,
+                      dcp: dataToSend
+                    }).success(function(result) {
+                      reloadData();
+                    }).error(function(err) {
+                      console.log("Err in editing dcp");
+                    });
+
+                    newVal[newAlias].oldAlias = oldAlias;
+                    newVal[newAlias].newAlias = newAlias;
+
+                    property = newAlias;
+                  }
+
                   $scope.$broadcast("dcpOperation", { action: "edit", dcp: newVal[property] });
                 }
               }

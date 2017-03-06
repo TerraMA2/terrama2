@@ -151,6 +151,36 @@ module.exports = function(app) {
       }
 
       response.json(storedDcpsStore[key]);
+    },
+
+    updateDcp: function(request, response) {
+      var key = request.body.key;
+
+      if(storedDcps[key] != undefined) {
+        for(var i = 0, dcpsLength = storedDcps[key].length; i < dcpsLength; i++) {
+          if(storedDcps[key][i].alias == request.body.oldAlias) {
+            storedDcps[key][i] = request.body.dcp;
+            break;
+          }
+        }
+      }
+
+      response.json(storedDcps[key]);
+    },
+
+    updateDcpStore: function(request, response) {
+      var key = request.body.key;
+
+      if(storedDcpsStore[key] != undefined) {
+        for(var i = 0, dcpsLength = storedDcpsStore[key].length; i < dcpsLength; i++) {
+          if(storedDcpsStore[key][i].alias == request.body.oldAlias) {
+            storedDcpsStore[key][i] = request.body.dcp;
+            break;
+          }
+        }
+      }
+
+      response.json(storedDcpsStore[key]);
     }
   };
 

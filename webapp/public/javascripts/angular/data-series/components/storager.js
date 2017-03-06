@@ -171,6 +171,36 @@ define([], function(){
       self.editDcpStorager = function(dcpItem) {
         for(var property in self.dcpsStoragerObject) {
           if(self.dcpsStoragerObject.hasOwnProperty(property)) {
+            if(dcpItem.oldAlias !== undefined && dcpItem.newAlias !== undefined && self.dcpsStoragerObject[property].alias == dcpItem.oldAlias) {
+              self.dcpsStoragerObject[property].alias = dcpItem.newAlias;
+              self.dcpsStoragerObject[dcpItem.newAlias] = self.dcpsStoragerObject[property];
+              delete self.dcpsStoragerObject[property];
+
+              if(self.storager.format && self.storager.format.data_format_name === globals.enums.DataSeriesFormat.POSTGIS) {
+                self.dcpsStoragerObject[dcpItem.newAlias] = self.setHtmlItems(self.dcpsStoragerObject[dcpItem.newAlias], null, self.dcpsStoragerObject[dcpItem.newAlias].alias, self.dcpsStoragerObject[dcpItem.newAlias]._id, true);
+              }
+
+              for(var j = 0, fieldsLength = self.series.semantics.metadata.form.length; j < fieldsLength; j++) {
+                var key = self.series.semantics.metadata.form[j].key;
+
+                if(key != "table_name") self.dcpsStoragerObject[dcpItem.newAlias] = self.setHtmlItems(self.dcpsStoragerObject[dcpItem.newAlias], key, self.dcpsStoragerObject[dcpItem.newAlias].alias, null);
+              }
+
+              var dataToSend = Object.assign({}, self.dcpsStoragerObject[dcpItem.newAlias]);
+
+              $http.post("/configuration/dynamic/dataseries/updateDcpStore", {
+                key: storedDcpsKey,
+                oldAlias: dcpItem.oldAlias,
+                dcp: dataToSend
+              }).success(function(result) {
+                reloadDataStore();
+              }).error(function(err) {
+                console.log("Err in editing dcp");
+              });
+
+              property = dcpItem.newAlias;
+            }
+
             if(self.dcpsStoragerObject[property].alias === dcpItem.alias) {
               for(var dcpsStoragerKey in self.dcpsStoragerObject[dcpItem.alias]) {
                 if(dcpItem.hasOwnProperty(dcpsStoragerKey) && dcpsStoragerKey.substring(0, 10) != 'table_name') {
@@ -195,6 +225,17 @@ define([], function(){
         self.editedStoragerDcps.push(id);
       };
 
+      self.setHtmlItems = function(dcp, key, alias, _id, tableName) {
+        if(tableName)
+          dcp.table_name_html = "<span class=\"store-dcps-table-span\" editable-text=\"$ctrl.dcpsStoragerObject['" + alias + "']['table_name']\" onaftersave=\"$ctrl.upsertEditedDcp('" + _id + "')\" onbeforesave=\"$ctrl.validateFieldEdition($data, '" + self.tableNameValidationRegex + "')\">{{ $ctrl.dcpsStoragerObject['" + alias + "']['table_name'] }}</span>";
+        else if(self.isBoolean(dcp[key]))
+          dcp[key + '_html'] = "<span class=\"store-dcps-table-span\"><input type=\"checkbox\" ng-model=\"$ctrl.dcpsStoragerObject['" + alias + "']['" + key + "']\" ng-disabled=\"true\"></span>";
+        else
+          dcp[key + '_html'] = "<span class=\"store-dcps-table-span\" ng-bind=\"$ctrl.dcpsStoragerObject['" + alias + "']['" + key + "']\"></span>";
+
+        return dcp;
+      };
+
       var addDcpStorager = function(dcps, storageData, flagReloadDataStore) {
         var newDcps = [];
         var registersCount = 0;
@@ -209,7 +250,7 @@ define([], function(){
             var obj = SemanticsParserFactory.parseKeys(copyFormat);
 
             obj.table_name = obj.alias;
-            obj.table_name_html = "<span class=\"store-dcps-table-span\" editable-text=\"$ctrl.dcpsStoragerObject['" + obj.alias + "']['table_name']\" onaftersave=\"$ctrl.upsertEditedDcp('" + obj._id + "')\" onbeforesave=\"$ctrl.validateFieldEdition($data, '" + self.tableNameValidationRegex + "')\">{{ $ctrl.dcpsStoragerObject['" + obj.alias + "']['table_name'] }}</span>";
+            obj = self.setHtmlItems(obj, null, obj.alias, obj._id, true);
 
             dcpToAdd = obj;
           }
@@ -217,12 +258,7 @@ define([], function(){
           for(var j = 0, fieldsLength = self.series.semantics.metadata.form.length; j < fieldsLength; j++) {
             var key = self.series.semantics.metadata.form[j].key;
 
-            if(key != "table_name") {
-              if(self.isBoolean(dcpToAdd[key]))
-                dcpToAdd[key + '_html'] = "<span class=\"store-dcps-table-span\"><input type=\"checkbox\" ng-model=\"$ctrl.dcpsStoragerObject['" + dcpToAdd.alias + "']['" + key + "']\" ng-disabled=\"true\"></span>";
-              else
-                dcpToAdd[key + '_html'] = "<span class=\"store-dcps-table-span\" ng-bind=\"$ctrl.dcpsStoragerObject['" + dcpToAdd.alias + "']['" + key + "']\"></span>";
-            }
+            if(key != "table_name") dcpToAdd = self.setHtmlItems(dcpToAdd, key, dcpToAdd.alias, null);
           }
 
           self.dcpsStoragerObject[dcpToAdd.alias] = dcpToAdd;
@@ -514,17 +550,11 @@ define([], function(){
             for(var i = 0, dataSetsLength = outputDataseries.dataSets.length; i < dataSetsLength; i++) {
               var dcp = angular.merge(outputDataseries.dataSets[i].format, {active: outputDataseries.dataSets[i].active});
 
-              dcp.table_name_html = "<span class=\"store-dcps-table-span\" editable-text=\"$ctrl.dcpsStoragerObject['" + dcp.alias + "']['table_name']\" onaftersave=\"$ctrl.upsertEditedDcp('" + dcp._id + "')\" onbeforesave=\"$ctrl.validateFieldEdition($data, '" + self.tableNameValidationRegex + "')\">{{ $ctrl.dcpsStoragerObject['" + dcp.alias + "']['table_name'] }}</span>";
+              dcp = self.setHtmlItems(dcp, null, dcp.alias, dcp._id, true);
 
               for(var j = 0, fieldsLength = self.series.semantics.metadata.form.length; j < fieldsLength; j++) {
                 var key = self.series.semantics.metadata.form[j].key;
-
-                if(key != "table_name") {
-                  if(self.isBoolean(dcp[key]))
-                    dcp[key + '_html'] = "<span class=\"store-dcps-table-span\"><input type=\"checkbox\" ng-model=\"$ctrl.dcpsStoragerObject['" + dcp.alias + "']['" + key + "']\" ng-disabled=\"true\"></span>";
-                  else
-                    dcp[key + '_html'] = "<span class=\"store-dcps-table-span\" ng-bind=\"$ctrl.dcpsStoragerObject['" + dcp.alias + "']['" + key + "']\"></span>";
-                }
+                if(key != "table_name") dcp = self.setHtmlItems(dcp, key, dcp.alias, null);
               }
 
               self.dcpsStoragerObject[dcp.alias] = dcp;

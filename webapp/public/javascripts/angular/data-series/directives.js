@@ -310,10 +310,7 @@ define(["TerraMA2WebApp/common/services/index", "TerraMA2WebApp/alert-box/app"],
                 if(dcp[key + '_titleMap'] !== undefined)
                   type = $scope.dataSeries.semantics.metadata.form[j].type;
 
-                if($scope.isBoolean(value))
-                  dcp[key + '_html'] = "<span class=\"dcps-table-span\"><input type=\"checkbox\" ng-model=\"dcpsObject['" + alias + "']['" + key + "']\"></span>";
-                else
-                  dcp[key + '_html'] = "<span class=\"dcps-table-span\" editable-text=\"dcpsObject['" + alias + "']['" + key + "']\" onaftersave=\"upsertEditedDcp('" + uniqueId + "')\" onbeforesave=\"validateFieldEdition($data, '" + type + "', '" + alias + "', '" + key + "')\">{{ dcpsObject['" + alias + "']['" + key + "'] }}</span>";
+                dcp = $scope.setHtmlItems(dcp, key, alias, uniqueId, type);
 
                 dcp[key] = value;
               }
@@ -323,7 +320,7 @@ define(["TerraMA2WebApp/common/services/index", "TerraMA2WebApp/alert-box/app"],
               dcpsObjectTemp[dcp.alias] = Object.assign({}, dcp);
 
               var dcpCopy = Object.assign({}, dcp);
-              dcpCopy.removeButton = "<button class=\"btn btn-danger removeDcpBtn\" ng-click=\"removePcd('" + dcp.alias + "')\" style=\"height: 21px; padding: 1px 4px 1px 4px; font-size: 13px;\">" + i18n.__("Remove") + "</button>";
+              dcpCopy.removeButton = $scope.getRemoveButton(dcp.alias);
 
               dcps.push(dcpCopy);
 
