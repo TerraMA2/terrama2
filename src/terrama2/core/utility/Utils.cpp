@@ -542,9 +542,9 @@ size_t terrama2::core::propertyPosition(const te::da::DataSet* dataSet, const st
   return std::numeric_limits<size_t>::max();
 }
 
-std::string terrama2::core::validPropertyName(std::string text)
+std::string terrama2::core::createValidPropertyName(const std::string& oldName)
 {
-  std::string name = simplifyString(text);
+  std::string name = simplifyString(oldName);
 
   if(std::isdigit(name.at(0)))
     name ="_" + name;

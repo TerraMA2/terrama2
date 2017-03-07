@@ -267,7 +267,7 @@ QJsonObject terrama2::core::DataAccessorCSV::getFieldObj(const QJsonArray& array
 
 void terrama2::core::DataAccessorCSV::addPropertyAsDefaultType(te::dt::Property* property, std::shared_ptr<te::da::DataSetTypeConverter> converter, size_t i, DataSetPtr dataSet) const
 {
-  std::string alias = validPropertyName(property->getName());
+  std::string alias = createValidPropertyName(property->getName());
 
   std::string defaultType = getProperty(dataSet, dataSeries_, JSON_DEFAULT_TYPE.toStdString());
 

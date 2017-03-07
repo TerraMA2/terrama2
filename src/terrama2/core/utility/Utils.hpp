@@ -177,7 +177,7 @@ namespace terrama2
      * \param text The base name to process
      * \return A valid name for te::da::DataSet properties name
      */
-    std::string validPropertyName(std::string text);
+    std::string createValidPropertyName(const std::string& oldName);
 
   } // end namespace core
 }   // end namespace terrama2

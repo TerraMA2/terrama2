@@ -222,7 +222,7 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
           break;
 
         // TODO: month number instead of abbreviated name
-        const std::string riskLevelProperty = terrama2::core::validPropertyName(vecDates.at(i)->toString());
+        const std::string riskLevelProperty = terrama2::core::createValidPropertyName(vecDates.at(i)->toString());
 
         te::dt::SimpleProperty* riskLevelProp = new te::dt::SimpleProperty(riskLevelProperty, te::dt::INT32_TYPE);
         alertDataSetType->add(riskLevelProp);
@@ -276,7 +276,7 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
         auto value = item.first;
         auto& resultMap = item.second;
 
-        std::string currentRiskProperty = terrama2::core::validPropertyName(vecDates[0]->toString());
+        std::string currentRiskProperty = terrama2::core::createValidPropertyName(vecDates[0]->toString());
 
         dsItem->setValue(fkProperty->getName(), value->clone());
 
@@ -296,7 +296,7 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
           else if(currentRisk.level > risk2.level)
             comparisonResult = 1;
 
-          std::string pastRiskProperty = terrama2::core::validPropertyName(vecDates[1]->toString());
+          std::string pastRiskProperty = terrama2::core::createValidPropertyName(vecDates[1]->toString());
 
           dsItem->setInt32(pastRiskProperty, risk2.level);
           dsItem->setInt32(comparisonPreviosProperty, comparisonResult);
@@ -304,7 +304,7 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
 
         for(int i = 2; i < vecDates.size(); i++)
         {
-          std::string property = terrama2::core::validPropertyName(vecDates[i]->toString());
+          std::string property = terrama2::core::createValidPropertyName(vecDates[i]->toString());
           auto risk = resultMap[vecDates[i]->toString()].second;
           dsItem->setInt32(property, risk.level);
         }

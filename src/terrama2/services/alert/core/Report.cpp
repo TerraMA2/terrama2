@@ -101,7 +101,7 @@ std::shared_ptr<te::da::DataSet> terrama2::services::alert::core::Report::retrie
 {
   std::vector<std::size_t> positions;
 
-  std::string property = terrama2::core::validPropertyName(riskDates_.at(0)->toString());
+  std::string property = terrama2::core::createValidPropertyName(riskDates_.at(0)->toString());
 
   for(std::size_t i = 0; i < alertDataSet_->size(); i++)
   {
@@ -128,7 +128,7 @@ std::shared_ptr<te::da::DataSet> terrama2::services::alert::core::Report::retrie
 {
   std::vector<std::size_t> positions;
 
-  std::string property = terrama2::core::validPropertyName(riskDates_.at(0)->toString());
+  std::string property = terrama2::core::createValidPropertyName(riskDates_.at(0)->toString());
 
   for(std::size_t i = 0; i < alertDataSet_->size(); i++)
   {
@@ -155,7 +155,7 @@ std::shared_ptr<te::da::DataSet> terrama2::services::alert::core::Report::retrie
 {
   std::vector<std::size_t> positions;
 
-  std::string property = terrama2::core::validPropertyName(riskDates_.at(0)->toString());
+  std::string property = terrama2::core::createValidPropertyName(riskDates_.at(0)->toString());
 
   for(std::size_t i = 0; i < alertDataSet_->size(); i++)
   {
@@ -184,7 +184,7 @@ void terrama2::services::alert::core::Report::replaceNumberByDescription(std::sh
   // Replace risk values
   for(auto riskDate : riskDates_)
   {
-    std::string property = terrama2::core::validPropertyName(riskDate->toString());
+    std::string property = terrama2::core::createValidPropertyName(riskDate->toString());
     auto pos = terrama2::core::propertyPosition(dataSet.get(), property);
 
     if(pos == std::numeric_limits<size_t>::max())
