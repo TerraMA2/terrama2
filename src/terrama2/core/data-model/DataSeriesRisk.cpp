@@ -74,3 +74,18 @@ std::tuple<int, std::string> terrama2::core::DataSeriesRisk::riskLevel(double va
   TERRAMA2_LOG_ERROR() << errMsg;
   throw DataSeriesRiskException() << ErrorDescription(errMsg);
 }
+
+std::string terrama2::core::DataSeriesRisk::riskName(const int level) const
+{
+  for (unsigned int i = 0; i < riskLevels.size(); ++i)
+  {
+    if(level == riskLevels[i].level)
+    {
+      return riskLevels[i].name;
+    }
+  }
+
+  QString errMsg = QObject::tr("Risk not defined for level: %1").arg(level);
+  TERRAMA2_LOG_ERROR() << errMsg;
+  throw DataSeriesRiskException() << ErrorDescription(errMsg);
+}
