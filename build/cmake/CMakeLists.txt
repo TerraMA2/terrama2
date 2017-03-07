@@ -295,6 +295,11 @@ if(NOT JWSMTP_FOUND)
   message(FATAL_ERROR "TerraMA2: could not find required JWSMTP library!")
 endif()
 
+find_package(VMime REQUIRED)
+if(NOT vmime_FOUND)
+  message(FATAL_ERROR "TerraMA2: could not find required vmime library!")
+endif()
+
 set(ThreadPool_INCLUDE_DIRS "${TERRAMA2_ABSOLUTE_ROOT_DIR}/third-party/ThreadPool/")
 
 #
