@@ -39,6 +39,7 @@ define([], function(){
       self.formatSelected = {};
       self.dcpsStoragerObject = {};
       self.editedStoragerDcps = [];
+      self.newStoragerDcps = [];
       self.inputDataSets = [];
       self.storage = {};
       self.dataProvidersStorager = [];
@@ -73,8 +74,7 @@ define([], function(){
           self.options.wizard.store.optional = false;
           self.options.advanced.store.disabled = false;
           self.options.advanced.store.optional = false;
-        }
-        else {
+        } else {
           self.options.wizard.store.required = false;
           self.options.wizard.store.optional = true;
           self.options.advanced.store.optional = true;
@@ -169,6 +169,8 @@ define([], function(){
       };
 
       self.editDcpStorager = function(dcpItem) {
+        self.insertEditedDcp(dcpItem._id);
+
         for(var property in self.dcpsStoragerObject) {
           if(self.dcpsStoragerObject.hasOwnProperty(property)) {
             if(dcpItem.oldAlias !== undefined && dcpItem.newAlias !== undefined && self.dcpsStoragerObject[property].alias == dcpItem.oldAlias) {
@@ -221,13 +223,22 @@ define([], function(){
           return null;
       };
 
-      self.upsertEditedDcp = function(id) {
-        self.editedStoragerDcps.push(id);
+      self.insertEditedDcp = function(id) {
+        var insertDcp = true;
+
+        for(var i = 0, editedStoragerDcpsLength = self.editedStoragerDcps.length; i < editedStoragerDcpsLength; i++) {
+          if(self.editedStoragerDcps[i] == id) {
+            insertDcp = false;
+            break;
+          }
+        }
+
+        if(insertDcp) self.editedStoragerDcps.push(id);
       };
 
       self.setHtmlItems = function(dcp, key, alias, _id, tableName) {
         if(tableName)
-          dcp.table_name_html = "<span class=\"store-dcps-table-span\" editable-text=\"$ctrl.dcpsStoragerObject['" + alias + "']['table_name']\" onaftersave=\"$ctrl.upsertEditedDcp('" + _id + "')\" onbeforesave=\"$ctrl.validateFieldEdition($data, '" + self.tableNameValidationRegex + "')\">{{ $ctrl.dcpsStoragerObject['" + alias + "']['table_name'] }}</span>";
+          dcp.table_name_html = "<span class=\"store-dcps-table-span\" editable-text=\"$ctrl.dcpsStoragerObject['" + alias + "']['table_name']\" onaftersave=\"$ctrl.insertEditedDcp('" + _id + "')\" onbeforesave=\"$ctrl.validateFieldEdition($data, '" + self.tableNameValidationRegex + "')\">{{ $ctrl.dcpsStoragerObject['" + alias + "']['table_name'] }}</span>";
         else if(self.isBoolean(dcp[key]))
           dcp[key + '_html'] = "<span class=\"store-dcps-table-span\"><input type=\"checkbox\" ng-model=\"$ctrl.dcpsStoragerObject['" + alias + "']['" + key + "']\" ng-disabled=\"true\"></span>";
         else
@@ -260,6 +271,9 @@ define([], function(){
 
             if(key != "table_name") dcpToAdd = self.setHtmlItems(dcpToAdd, key, dcpToAdd.alias, null);
           }
+
+          if(self.options.isUpdating)
+            self.newStoragerDcps.push(dcpToAdd._id);
 
           self.dcpsStoragerObject[dcpToAdd.alias] = dcpToAdd;
           newDcps.push(dcpToAdd);
@@ -361,6 +375,7 @@ define([], function(){
                 data: self.objectToArray(self.dcpsStoragerObject),
                 data_provider: self['storager_data_provider_id'],
                 editedDcps: self.editedStoragerDcps,
+                newDcps: self.newStoragerDcps,
                 service: self["storager_service"],
                 type: self.formatSelected.data_series_type_name,
                 semantics: self.formatSelected
@@ -414,6 +429,7 @@ define([], function(){
       $scope.$on("resetStoragerDataSets", function(event) {
         self.dcpsStoragerObject = {};
         self.editedStoragerDcps = [];
+        self.newStoragerDcps = [];
       });
 
       $scope.$on("clearStoreForm", function(event){
@@ -424,6 +440,7 @@ define([], function(){
         self.storager_service = undefined;
         self.dcpsStoragerObject = {};
         self.editedStoragerDcps = [];
+        self.newStoragerDcps = [];
         self.storager_data_provider_id = undefined;
         $scope.$broadcast("clearSchedule");
       });
@@ -468,6 +485,7 @@ define([], function(){
         self.dataProvidersStorager = [];
         self.dcpsStoragerObject = {};
         self.editedStoragerDcps = [];
+        self.newStoragerDcps = [];
 
         self.providersList.forEach(function(dataProvider) {
           dataSeriesSemantics.data_providers_semantics.forEach(function(demand) {

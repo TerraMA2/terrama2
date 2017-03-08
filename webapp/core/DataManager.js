@@ -1666,7 +1666,17 @@ var DataManager = module.exports = {
             promises.push(removeProvider);
           });
 
-          (dataSeriesObject.editedDcps !== undefined ? dataSeriesObject.editedDcps : dataSeriesObject.dataSets).forEach(function(newDataSet){
+          if(dataSeriesObject.newDcps !== undefined) {
+            dataSeriesObject.newDcps.forEach(function(newDataSet) {
+              newDataSet.data_series_id = dataSeriesId;
+              var addPromise = self.addDataSet(dataSeriesSemantics, newDataSet).then(function(newDSet){
+                dataSeries.dataSets.push(newDSet);
+              });
+              promises.push(addPromise);
+            });
+          }
+
+          (dataSeriesObject.editedDcps !== undefined ? dataSeriesObject.editedDcps : dataSeriesObject.dataSets).forEach(function(newDataSet) {
             var dataSetToUpdate = dataSeries.dataSets.find(function(dSet){
               return dSet.format._id == newDataSet.format._id;
             });
@@ -1679,14 +1689,14 @@ var DataManager = module.exports = {
                 for(var j = 0; j < dataSeries.dataSets.length; ++j) {
                   var dataSet = dataSeries.dataSets[j];
 
-                  if (dataSetUpdated.id === dataSet.id) {
+                  if(dataSetUpdated.id === dataSet.id) {
                     var promisesFormat = Utils.generateArrayFromObject(dataSetUpdated.format, formatIterator, dataSet);
                     promisesFormat.forEach(function(promiseFormat){
                       promisesFormatArray.push(promiseFormat);
                     });
                     dataSet.active = dataSetUpdated.active;
                     dataSet.format = dataSetUpdated.format;
-                    if (dataSetUpdated.position){
+                    if(dataSetUpdated.position) {
                       dataSet.position = dataSetUpdated.position;
                     }
                   }
@@ -1704,6 +1714,7 @@ var DataManager = module.exports = {
               promises.push(addPromise);
             }
           });
+
           return Promise.all(promises);
         })
         // on successfully updating data sets

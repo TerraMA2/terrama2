@@ -358,7 +358,7 @@ define([], function() {
         if($scope.isBoolean(dcp[key]))
           dcp[key + '_html'] = "<span class=\"dcps-table-span\"><input type=\"checkbox\" ng-model=\"dcpsObject['" + alias + "']['" + key + "']\"></span>";
         else
-          dcp[key + '_html'] = "<span class=\"dcps-table-span\" editable-text=\"dcpsObject['" + alias + "']['" + key + "']\" onaftersave=\"upsertEditedDcp('" + _id + "')\" onbeforesave=\"validateFieldEdition($data, '" + type + "', '" + alias + "', '" + key + "')\">{{ dcpsObject['" + alias + "']['" + key + "'] }}</span>";
+          dcp[key + '_html'] = "<span class=\"dcps-table-span\" editable-text=\"dcpsObject['" + alias + "']['" + key + "']\" onaftersave=\"insertEditedDcp('" + _id + "')\" onbeforesave=\"validateFieldEdition($data, '" + type + "', '" + alias + "', '" + key + "')\">{{ dcpsObject['" + alias + "']['" + key + "'] }}</span>";
 
         return dcp;
       };
@@ -464,6 +464,7 @@ define([], function() {
             // TODO: prepare format as dcp item
             $scope.dcpsObject = {};
             $scope.editedDcps = [];
+            $scope.newDcps = [];
             $scope.duplicatedAliasCounter = {};
 
             var dcps = [];
@@ -526,7 +527,7 @@ define([], function() {
                 dcps = [];
               }
 
-	      if (inputDataSeries.data_series_semantics.custom_format){
+	            if(inputDataSeries.data_series_semantics.custom_format) {
                 $scope.csvFormatData.fields = JSON.parse(inputDataSeries.dataSets[i].format.fields)
                 $scope.csvFormatData.header_size = parseInt(inputDataSeries.dataSets[i].format.header_size);
                 $scope.csvFormatData.default_type = inputDataSeries.dataSets[i].format.default_type;
@@ -540,9 +541,9 @@ define([], function() {
               $scope.addDcpsStorager(dcps);
             }
           } else {
-	    var dataSetFormat = inputDataSeries.dataSets[0].format;
+	          var dataSetFormat = inputDataSeries.dataSets[0].format;
             $scope.model = $scope.prepareFormatToForm(inputDataSeries.dataSets[0].format);
-	    if (inputDataSeries.data_series_semantics.custom_format){
+	          if(inputDataSeries.data_series_semantics.custom_format) {
               $scope.csvFormatData.fields = JSON.parse(dataSetFormat.fields)
               $scope.csvFormatData.header_size = parseInt(dataSetFormat.header_size);
               $scope.csvFormatData.default_type = dataSetFormat.default_type;
@@ -556,22 +557,21 @@ define([], function() {
             }
           }
 
-          if ($scope.hasCollector){
+          if($scope.hasCollector) {
             $scope.wizard.store.message = i18n.__("Remove store configuration");
             $scope.wizard.store.disabled = false;
             $scope.wizard.store.error = false;
             $scope.advanced.store.disabled = false;
-
           }
-          if (Object.keys($scope.intersection).length > 0) {
+          if(Object.keys($scope.intersection).length > 0) {
             $scope.wizard.intersection.message = i18n.__("Remove intersection configuration");
             $scope.wizard.intersection.disabled = false;
             $scope.advanced.intersection.disabled = false;
           }
-
         } else {
           $scope.dcpsObject = {};
           $scope.editedDcps = [];
+          $scope.newDcps = [];
           $scope.duplicatedAliasCounter = {};
           $scope.model = {};
           $scope.$broadcast("resetStoragerDataSets");
@@ -594,7 +594,7 @@ define([], function() {
 
           $scope.isChecking.value = false;
 
-          if (!$scope.dataSeries.semantics || $scope.dataSeries.semantics.data_format_name != 'POSTGIS'){
+          if(!$scope.dataSeries.semantics || $scope.dataSeries.semantics.data_format_name != 'POSTGIS') {
             return;
           } else {
             var tableInput = angular.element('#table_name');
@@ -687,7 +687,7 @@ define([], function() {
           var name = data.formName || "";
           var disabled = data.disabled;
 
-          if (disabled){
+          if(disabled) {
             delete wizardStep.wzData.error;
             return;
           }
@@ -769,7 +769,7 @@ define([], function() {
             selected: true
           };
 
-          if (ds.data_series_semantics.data_series_type_name === globals.enums.DataSeriesType.GRID) {
+          if(ds.data_series_semantics.data_series_type_name === globals.enums.DataSeriesType.GRID) {
             ds.isGrid = true;
           } else {
             ds.isGrid = false;
@@ -777,7 +777,7 @@ define([], function() {
           _helper(0, ds);
         };
 
-        if (ds) {
+        if(ds) {
           _handleList(ds);
           return;
         }
@@ -1087,6 +1087,7 @@ define([], function() {
       //. end wizard validations
       $scope.dcpsObject = {};
       $scope.editedDcps = [];
+      $scope.newDcps = [];
       $scope.duplicatedAliasCounter = {};
 
       $scope.updatingDcp = false;
@@ -1386,8 +1387,17 @@ define([], function() {
           return null;
       };
 
-      $scope.upsertEditedDcp = function(id) {
-        $scope.editedDcps.push(id);
+      $scope.insertEditedDcp = function(id) {
+        var insertDcp = true;
+
+        for(var i = 0, editedDcpsLength = $scope.editedDcps.length; i < editedDcpsLength; i++) {
+          if($scope.editedDcps[i] == id) {
+            insertDcp = false;
+            break;
+          }
+        }
+
+        if(insertDcp) $scope.editedDcps.push(id);
       };
 
       $scope.addDcp = function() {
@@ -1417,6 +1427,9 @@ define([], function() {
             dcpCopy.removeButton = $scope.getRemoveButton(dcpCopy.alias);
 
             $scope.storageDcps([dcpCopy]);
+
+            if($scope.isUpdating)
+              $scope.newDcps.push(dcpCopy._id);
 
             // reset form to do not display feedback class
             $scope.forms.parametersForm.$setPristine();
@@ -1574,6 +1587,8 @@ define([], function() {
           // setting to active
           var dSetsLocal = [];
           var tempEditedDcps = [];
+          var tempNewDcps = [];
+
           for(var i = 0, dSetsLength = dSets.length; i < dSetsLength; i++) {
             if ($scope.custom_format){
               var output_timestamp_property_field = dataObject.dataSeries.dataSets[0].format.output_timestamp_property;
@@ -1599,13 +1614,23 @@ define([], function() {
             dSetsLocal.push(outputDcp);
 
             for(var j = 0, editedDcpsLength = values.editedDcps.length; j < editedDcpsLength; j++) {
-              if(values.editedDcps == outputDcp.format._id) {
+              if(values.editedDcps[j] == outputDcp.format._id) {
                 tempEditedDcps.push(outputDcp);
                 break;
               }
             }
+
+            for(var j = 0, newDcpsLength = values.newDcps.length; j < newDcpsLength; j++) {
+              if(values.newDcps[j] == outputDcp.format._id) {
+                tempNewDcps.push(outputDcp);
+                break;
+              }
+            }
           }
+
           values.editedDcps = tempEditedDcps;
+          values.newDcps = tempNewDcps;
+
           out = dSetsLocal;
         } else {
           var fmt = angular.merge({}, dSets);
@@ -1662,6 +1687,7 @@ define([], function() {
           data_series_semantics_id: values.semantics.id,
           data_provider_id: values.data_provider,
           editedDcps: values.editedDcps,
+          newDcps: values.newDcps,
           dataSets: out
         };
 
@@ -1693,6 +1719,7 @@ define([], function() {
         switch(semantics.data_series_type_name) {
           case "DCP":
             var tempEditedDcps = [];
+            var tempNewDcps = [];
 
             for(var dcpKey in $scope.dcpsObject) {
               var format = {};
@@ -1732,9 +1759,17 @@ define([], function() {
                   break;
                 }
               }
+
+              for(var j = 0, newDcpsLength = $scope.newDcps.length; j < newDcpsLength; j++) {
+                if($scope.newDcps[j] == $scope.dcpsObject[dcpKey]._id) {
+                  tempNewDcps.push(dataSetStructure);
+                  break;
+                }
+              }
             }
 
             dataToSend.editedDcps = tempEditedDcps;
+            dataToSend.newDcps = tempNewDcps;
 
             break;
           case "OCCURRENCE":

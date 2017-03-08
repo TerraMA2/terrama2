@@ -324,6 +324,9 @@ define(["TerraMA2WebApp/common/services/index", "TerraMA2WebApp/alert-box/app"],
 
               dcps.push(dcpCopy);
 
+              if($scope.isUpdating)
+                $scope.newDcps.push(dcpCopy._id);
+
               registersCount++;
 
               if(registersCount >= 1000) {
