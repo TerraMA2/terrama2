@@ -59,6 +59,7 @@ void terrama2::core::ProcessLogger::internalClone(std::shared_ptr<terrama2::core
   loggerCopy->schema_ = schema_;
   loggerCopy->tableName_ = tableName_;
   loggerCopy->messagesTableName_ = messagesTableName_;
+  loggerCopy->consistent_ = consistent_;
 
   loggerCopy->setConnectionInfo(dataSource_->getConnectionInfo());
 }
@@ -599,6 +600,8 @@ void terrama2::core::ProcessLogger::setTableName(std::string tableName)
 
     transactor->commit();
   }
+
+  checkTableConsistency();
 }
 
 void terrama2::core::ProcessLogger::updateData(const ProcessId registerId, const QJsonObject obj) const
@@ -623,4 +626,24 @@ void terrama2::core::ProcessLogger::updateData(const ProcessId registerId, const
   std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();
   transactor->execute(query.str());
   transactor->commit();
+}
+
+
+void terrama2::core::ProcessLogger::checkTableConsistency()
+{
+  {
+    std::vector<Status> oldStatus;
+    oldStatus.push_back(Status::START);
+
+    updateStatus(oldStatus, Status::INTERRUPTED);
+  }
+
+  {
+    std::vector<Status> oldStatus;
+    oldStatus.push_back(Status::ON_QUEUE);
+
+    updateStatus(oldStatus, Status::NOT_EXECUTED);
+  }
+
+  consistent_ = true;
 }
