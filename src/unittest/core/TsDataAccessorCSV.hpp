@@ -20,22 +20,29 @@
  */
 
 /*!
-  \file terrama2/codebase/src/unittest/core/TsDataAccessorTxtFile.cpp
+  \file terrama2/codebase/src/unittest/core/TsDataAccessorCSV.hpp
 
   \brief
 
   \author Vinicius Campanha
  */
 
-// TerraMA2
-#include "TsDataAccessorTxtFile.hpp"
-#include <terrama2/impl/DataAccessorDCPTxtFile.hpp>
-#include <terrama2/core/data-model/DataSetDcp.hpp>
-
 // Qt
-#include "QTemporaryFile"
-
-// GMock
-#include <gtest/gtest.h>
+#include <QtTest/QTest>
 
 
+class TsDataAccessorCSV : public QObject
+{
+    Q_OBJECT
+
+  private slots:
+
+    void initTestCase(){} // Run before all tests
+    void cleanupTestCase(){} // Run after all tests
+
+    void init(){ } //run before each test
+    void cleanup(){ } //run before each test
+
+    //******Test functions********
+
+};

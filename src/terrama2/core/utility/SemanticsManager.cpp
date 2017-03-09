@@ -37,6 +37,7 @@
 
 terrama2::core::DataSeriesSemantics terrama2::core::SemanticsManager::addSemantics(const std::string& code,
                                                                                    const std::string& name,
+                                                                                   const std::string& driver,
                                                                                    const DataSeriesType& dataSeriesType,
                                                                                    const DataSeriesTemporality& dataSeriesTemporality,
                                                                                    const DataFormat& format,
@@ -54,6 +55,7 @@ terrama2::core::DataSeriesSemantics terrama2::core::SemanticsManager::addSemanti
   DataSeriesSemantics semantics;
   semantics.code = code;
   semantics.name = name;
+  semantics.driver = driver;
   semantics.dataSeriesType = dataSeriesType;
   semantics.temporality = dataSeriesTemporality;
   semantics.dataFormat = format;

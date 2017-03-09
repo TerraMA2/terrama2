@@ -11,6 +11,7 @@ define([], function() {
       metadata: true,
       type: $scope.isDynamic ? "dynamic" : "static"
     };
+    $scope.csvFormatData = { fields: [{type: "DATETIME"}]};
     // defining box
     $scope.cssBoxSolid = {
       boxType: "box-solid"
@@ -102,6 +103,10 @@ define([], function() {
         openForm: openStoreForm,
         optional: true
       },
+      csvFormat: {
+        required: true,
+        disabled: false
+      },
       filter: {
         disabled: true,
         clearForm: clearFilterForm,
@@ -139,6 +144,11 @@ define([], function() {
       general: {
         required: true,
         formName: 'generalDataForm'
+      },
+      csvFormat: {
+        required: true,
+        formName: 'csvFormatForm',
+        disabled: true
       },
       parameters: {
         required: true,
@@ -188,6 +198,7 @@ define([], function() {
       $scope.schema = {};
       $scope.form = [];
       $scope.model = {};
+      $scope.custom_format = false;
 
       // function to fill out parameters data and storager data
       var _processParameters = function() {
@@ -237,8 +248,10 @@ define([], function() {
       $scope.onDataSemanticsChange = function() {
         $scope.semantics = $scope.dataSeries.semantics.data_series_type_name;
         if (!$scope.isUpdating){
+          $scope.csvFormatData = { fields: [{type: "DATETIME"}]};
           clearStoreForm();
         }
+        $scope.custom_format = $scope.dataSeries.semantics.custom_format;
 
         $scope.$broadcast("changeDataSemantics");
 
@@ -341,9 +354,24 @@ define([], function() {
               }
               angular.merge(dataset.format, {active: dataset.active});
               $scope.dcps.push($scope.prepareFormatToForm(dataset.format));
+              if (inputDataSeries.data_series_semantics.custom_format){
+                $scope.csvFormatData.fields = JSON.parse(dataset.format.fields)
+                $scope.csvFormatData.header_size = parseInt(dataset.format.header_size);
+                $scope.csvFormatData.default_type = dataset.format.default_type;
+                $scope.csvFormatData.convert_all = (dataset.format.convert_all == "true");
+                $scope.csvFormatData.properties_names_line = parseInt(dataset.format.properties_names_line);
+              }
             });
           } else {
-            $scope.model = $scope.prepareFormatToForm(inputDataSeries.dataSets[0].format);
+            var dataSetFormat = inputDataSeries.dataSets[0].format;
+            $scope.model = $scope.prepareFormatToForm(dataSetFormat);
+            if (inputDataSeries.data_series_semantics.custom_format){
+              $scope.csvFormatData.fields = JSON.parse(dataSetFormat.fields)
+              $scope.csvFormatData.header_size = parseInt(dataSetFormat.header_size);
+              $scope.csvFormatData.default_type = dataSetFormat.default_type;
+              $scope.csvFormatData.convert_all = (dataSetFormat.convert_all == "true");
+              $scope.csvFormatData.properties_names_line = parseInt(dataSetFormat.properties_names_line);
+            }
             $scope.model.temporal = ($scope.model.temporal == 'true' || $scope.model.temporal == true ? true : false);
 
             if(typeof $scope.model.timezone === "number") {
@@ -771,13 +799,10 @@ define([], function() {
       $scope.isFrequency = false;
       $scope.isSchedule = false;
 
-      // Wizard validations
-      $scope.isFirstStepValid = function(obj) {
-        console.log(WizardHandler);
-        isWizardStepValid();
-        var firstStepValid = $scope.forms.generalDataForm.$valid;
-        if (firstStepValid){
+      $scope.$watch("dataSeries", function(dSValue) {
+        if (dSValue.name && dSValue.semantics && dSValue.data_provider_id){
           $scope.wizard.parameters.disabled = false;
+          $scope.wizard.csvFormat.disabled = false;
           if ($scope.dataSeries.semantics.allow_direct_access === false){
             $scope.wizard.store.disabled = false;
             $scope.advanced.store.disabled = false;
@@ -786,11 +811,17 @@ define([], function() {
         }
         else {
           $scope.wizard.parameters.disabled = true;
+          $scope.wizard.csvFormat.disabled = true;
           $scope.wizard.store.disabled = true;
           $scope.advanced.store.disabled = true;
           $scope.advanced.store.optional = true;
         }
-        return firstStepValid;
+      }, true);
+
+      // Wizard validations
+      $scope.isFirstStepValid = function(obj) {
+        isWizardStepValid();
+        return $scope.forms.generalDataForm.$valid;
       };
 
       $scope.isSecondStepValid = function(obj) {
@@ -810,7 +841,7 @@ define([], function() {
 
       $scope.validateSteps = function(obj) {
         isWizardStepValid();
-        if ($scope.forms.storagerForm.$valid && $scope.forms.storagerDataForm.$valid && $scope.dataSeries.semantics.data_series_type_name == "GRID"){
+        if ($scope.forms.storagerForm && $scope.forms.storagerForm.$valid && $scope.forms.storagerDataForm.$valid && $scope.dataSeries.semantics.data_series_type_name == "GRID"){
           $scope.filter.area.showCrop = true;
         } else {
           $scope.filter.area.showCrop = false;
@@ -1220,6 +1251,18 @@ define([], function() {
           // setting to active
           var dSetsLocal = [];
           dSets.forEach(function(dSet) {
+            if ($scope.custom_format){
+              var output_timestamp_property_field = dataObject.dataSeries.dataSets[0].format.output_timestamp_property;
+              if (output_timestamp_property_field){
+                dSet.timestamp_property = output_timestamp_property_field
+              }
+
+              var output_geometry_property_field = dataObject.dataSeries.dataSets[0].format.output_geometry_property;
+              if (output_geometry_property_field){
+                dSet.geometry_property = output_geometry_property_field;
+              }
+            }
+
             var outputDcp = {
               active: dSet.active,
               format: _makeFormat(dSet)
@@ -1235,6 +1278,17 @@ define([], function() {
         } else {
           var fmt = angular.merge({}, dSets);
           angular.merge(fmt, dSemantics.metadata.metadata);
+          if ($scope.custom_format){
+            var output_timestamp_property_field = dataObject.dataSeries.dataSets[0].format.output_timestamp_property;
+            if (output_timestamp_property_field){
+              fmt.timestamp_property = output_timestamp_property_field
+            }
+
+            var output_geometry_property_field = dataObject.dataSeries.dataSets[0].format.output_geometry_property;
+            if (output_geometry_property_field){
+              fmt.geometry_property = output_geometry_property_field;
+            }
+          }
 
           dSets.format = _makeFormat(fmt);
           dSets.active = true,
@@ -1313,6 +1367,22 @@ define([], function() {
                     format[key] = dcp[key];
               }
               angular.merge(format, semantics.metadata.metadata);
+              if (semantics.custom_format){
+                format = Object.assign(format, $scope.csvFormatData);
+
+                var output_timestamp_property_field = getAliasFromCsvFields("DATETIME", $scope.csvFormatData.fields);
+                if (output_timestamp_property_field){
+                  format.output_timestamp_property = output_timestamp_property_field;
+                }
+
+                var output_geometry_property_field = getAliasFromCsvFields("GEOMETRY_POINT", $scope.csvFormatData.fields);
+                if (output_geometry_property_field){
+                  format.output_geometry_property = output_geometry_property_field;
+                }
+
+                var stringFields = angular.toJson($scope.csvFormatData.fields);
+                format.fields = stringFields;
+              }
               var dataSetStructure = {
                 active: dcp.active,//$scope.dataSeries.active,
                 format: format,
@@ -1328,6 +1398,13 @@ define([], function() {
           case "GEOMETRIC_OBJECT":
             var format = Object.assign({}, $scope.model);
             angular.merge(format, semantics.metadata.metadata);
+            if (semantics.custom_format){
+              format = Object.assign(format, $scope.csvFormatData);
+              format.output_timestamp_property = getAliasFromCsvFields("DATETIME", $scope.csvFormatData.fields);
+              format.output_geometry_property = getAliasFromCsvFields("GEOMETRY_POINT", $scope.csvFormatData.fields);
+              var stringFields = angular.toJson($scope.csvFormatData.fields);
+              format.fields = stringFields;
+            }
 
             var dataSet = {
               semantics: semantics,
@@ -1377,6 +1454,17 @@ define([], function() {
         };
       };
 
+      var getAliasFromCsvFields = function(fieldType, fields){
+        var fieldAlias;
+        fields.forEach(function(field){
+          if (field.type == fieldType){
+            fieldAlias = field.alias;
+            return;
+          }
+        });
+        return fieldAlias;
+      }
+
       $scope.save = function(shouldRun) {
         $scope.shouldRun = shouldRun;
         $scope.extraProperties = {};
@@ -1394,6 +1482,22 @@ define([], function() {
         if ($scope.dcps.length === 0 && !isValidParametersForm($scope.forms.parametersForm)) {
           MessageBoxService.danger("Data Registration", "There are invalid fields on form");
           return;
+        }
+
+        if ($scope.custom_format && $scope.forms.csvFormatForm.$invalid){
+          MessageBoxService.danger("Data Registration", "There are invalid fields on CSV Format form");
+          return;
+        }
+
+        if ($scope.custom_format){
+          var hasDateField = $scope.csvFormatData.fields.some(function(val){
+            return val.type == 'DATETIME';
+          });
+
+          if (!hasDateField){
+            MessageBoxService.danger("Data Registration", "Must have at least one Date field");
+            return;
+          }
         }
 
         if ($scope.isDynamic) {

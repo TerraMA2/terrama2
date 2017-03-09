@@ -93,8 +93,8 @@ int main(int argc, char* argv[])
   {
     QJsonObject obj;
 
-    obj.insert("latitude_property_name", QString("lat"));
-    obj.insert("longitude_property_name", QString("lon"));
+    obj.insert("latitude_property_position", 1);
+    obj.insert("longitude_property_position", 2);
     obj.insert("alias", QString("point"));
     obj.insert("type", QString("GEOMETRY_POINT"));
 
@@ -104,7 +104,7 @@ int main(int argc, char* argv[])
   {
     QJsonObject obj;
 
-    obj.insert("property_name", QString("data_pas"));
+    obj.insert("property_position", 4);
     obj.insert("alias", QString("data_pas"));
     obj.insert("type", QString("DATETIME"));
     obj.insert("format", QString("%YYYY-%MM-%DD %hh:%mm:%ss"));
@@ -115,7 +115,7 @@ int main(int argc, char* argv[])
   {
     QJsonObject obj;
 
-    obj.insert("property_name", QString("sat"));
+    obj.insert("property_position", 3);
     obj.insert("alias", QString("satelite"));
     obj.insert("type", QString("TEXT"));
 

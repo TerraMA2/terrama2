@@ -294,7 +294,7 @@ terrama2::core::Filter terrama2::core::fromFilterJson(QJsonObject json, DataMana
 
   if(json.contains("last_values") && !json.value("last_values").isNull())
   {
-    filter.lastValues = std::make_shared<int32_t>(json["last_values"].toInt());
+    filter.lastValues = std::make_shared<size_t>(json["last_values"].toInt());
   }
 
   if(json.contains("data_series_id") && !json.value("data_series_id").isNull())

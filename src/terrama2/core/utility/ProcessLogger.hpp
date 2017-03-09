@@ -216,6 +216,11 @@ namespace terrama2
          */
         void setTableName(std::string tableName);
 
+        /*!
+         * \brief Check the log consistency
+         */
+        void checkTableConsistency();
+
       private:
         /*!
          * \brief Log in the log table the data stored in Json
@@ -229,6 +234,7 @@ namespace terrama2
         std::string messagesTableName_ = "";
         std::unique_ptr< te::da::DataSource > dataSource_;
         bool isValid_ = false;
+        bool consistent_ = false;
 
     };
   }
