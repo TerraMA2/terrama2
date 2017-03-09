@@ -169,7 +169,7 @@ terrama2::services::alert::core::AlertPtr newAlert()
   alert->reportMetadata = reportMetadata;
 
   terrama2::core::Filter filter;
-  filter.lastValues = std::make_shared<int32_t>(6);
+  filter.lastValues = std::make_shared<size_t>(6);
 
   alert->filter = filter;
 

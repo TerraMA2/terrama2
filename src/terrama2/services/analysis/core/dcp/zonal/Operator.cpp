@@ -155,7 +155,7 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
 
         auto dataSeries = dataManagerPtr->findDataSeries(analysis->id, dataSeriesName);
         terrama2::core::Filter filter;
-        filter.lastValues = std::make_shared<int32_t>(1);
+        filter.lastValues = std::make_shared<size_t>(1);
 
         context->addDCPDataSeries(dataSeries, filter);
 

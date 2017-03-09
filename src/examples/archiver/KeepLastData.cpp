@@ -56,7 +56,7 @@ te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PA
     terrama2::core::DataAccessorDcpPostGIS accessor(dataProviderPtr, dataSeriesPtr);
     //empty filter
     terrama2::core::Filter filter;
-    filter.lastValues = std::make_shared<int32_t>(1);
+    filter.lastValues = std::make_shared<size_t>(1);
     auto remover = std::make_shared<terrama2::core::FileRemover>();
     terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter, remover);
     std::cout << "\nLast data timestamp: " << accessor.lastDateTime()->toString() << std::endl;
