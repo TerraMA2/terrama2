@@ -122,8 +122,18 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
       auto teDataset = dataSeries.syncDataSet->dataset();
       auto dataSetType = dataSeries.teDataSetType;
 
-      auto idProperty = dataSetType->getProperty(getIdentifierPropertyName(dataset, inputDataSeries));
-      if(!idProperty)
+      if(dataSetType->getNumberOfForeignKeys() != 1)
+      {
+        QString errMsg = QObject::tr("Invalid number of identifier attribute.");
+        logger->result(AlertLogger::ERROR, nullptr, executionPackage.registerId);
+        logger->log(AlertLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+        TERRAMA2_LOG_ERROR() << errMsg;
+        return;
+      }
+
+      auto tempProperties = dataSetType->getForeignKey(0)->getProperties();
+      auto idProperty = tempProperties.front();
+      if(tempProperties.size() != 1 || !idProperty)
       {
         QString errMsg = QObject::tr("Invalid identifier attribute.");
         logger->result(AlertLogger::ERROR, nullptr, executionPackage.registerId);
@@ -186,41 +196,30 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
       std::vector<std::shared_ptr<te::dt::DateTime> > vecDates;
 
       teDataset->moveBeforeFirst();
-
-      for (int i = 0; i < teDataset->size(); ++i)
+      while(teDataset->moveNext())
       {
-        teDataset->moveNext();
-
         // Retrieve all execution dates of dataset
         std::shared_ptr<te::dt::DateTime> executionDate = teDataset->getDateTime(datetimeColumnName);
 
-        auto it = std::find_if(vecDates.begin(), vecDates.end(),
-                               [&](std::shared_ptr<te::dt::DateTime> const& current)
-                                 {
-                                    return *current == *executionDate;
-                                 });
+        auto it = std::lower_bound(vecDates.begin(), vecDates.end(), executionDate,
+                                          [&](std::shared_ptr<te::dt::DateTime> const& first, std::shared_ptr<te::dt::DateTime> const& second)
+                                            {
+                                               return *first < *second;
+                                            });
 
-        if(it == vecDates.end())
-          vecDates.push_back(executionDate);
+        if (it != vecDates.end() && **it == *executionDate)
+          continue;
+
+        vecDates.insert(it, executionDate);
       }
-
-      // Order ASC
-      std::sort(vecDates.begin(),vecDates.end(),
-                [](const std::shared_ptr<te::dt::DateTime>& left, const std::shared_ptr<te::dt::DateTime>& right)
-                {
-                  return *left > *right;
-                });
 
       // Remove unnecessary dates
       while(vecDates.size() > *filter.lastValues)
         vecDates.pop_back();
 
       // Insert the risk properties
-      for(int i = 0; i < *filter.lastValues; i++)
+      for(size_t i = 0; i < vecDates.size(); i++)
       {
-        if(i >= vecDates.size())
-          break;
-
         // TODO: month number instead of abbreviated name
         const std::string riskLevelProperty = terrama2::core::createValidPropertyName(vecDates.at(i)->toString());
 
@@ -229,16 +228,13 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
       }
 
       teDataset->moveBeforeFirst();
-
       // Get the risk for data
-      for (int j = 0; j < teDataset->size(); ++j)
+      while(teDataset->moveNext())
       {
-        teDataset->moveNext();
-
         std::shared_ptr<te::dt::DateTime> executionDate = teDataset->getDateTime(datetimeColumnName);
 
         auto it = std::find_if(vecDates.begin(), vecDates.end(),
-                               [&](std::shared_ptr<te::dt::DateTime> const& current)
+                               [&executionDate](std::shared_ptr<te::dt::DateTime> const& current)
                                  {
                                     return *current == *executionDate;
                                  });
@@ -250,7 +246,7 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
         std::shared_ptr<te::dt::AbstractData> identifierValue = teDataset->getValue(idProperty->getName());
 
         // process risk level
-        int riskLevel = 0;
+        uint32_t riskLevel = 0;
         std::string riskName;
         std::string attributeValue;
         std::tie(riskLevel, riskName, attributeValue) = getRisk(pos);
@@ -263,6 +259,7 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
         auto& resultMap = riskResultMap[identifierValue];
         std::shared_ptr<te::dt::AbstractData> attrValue = teDataset->getValue(pos);
         auto pair = std::make_pair(attrValue, risk);
+        assert(attrValue.get());
         resultMap[executionDate->toString()] = pair;
       }
 
@@ -276,19 +273,19 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
         auto value = item.first;
         auto& resultMap = item.second;
 
-        std::string currentRiskProperty = terrama2::core::createValidPropertyName(vecDates[0]->toString());
+        std::string currentRiskProperty = terrama2::core::createValidPropertyName(vecDates.at(0)->toString());
 
         dsItem->setValue(fkProperty->getName(), value->clone());
 
-        auto attrValue = resultMap[vecDates[0]->toString()].first;
+        auto attrValue = resultMap.at(vecDates.at(0)->toString()).first;
         dsItem->setValue(risk.attribute, attrValue->clone());
 
-        auto currentRisk = resultMap[vecDates[0]->toString()].second;
+        auto currentRisk = resultMap.at(vecDates.at(0)->toString()).second;
         dsItem->setInt32(currentRiskProperty, currentRisk.level);
 
         if(vecDates.size() > 1)
         {
-          auto risk2 = resultMap[vecDates[1]->toString()].second;
+          auto risk2 = resultMap.at(vecDates.at(1)->toString()).second;
 
           int comparisonResult = 0;
           if(currentRisk.level < risk2.level)
@@ -296,23 +293,23 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
           else if(currentRisk.level > risk2.level)
             comparisonResult = 1;
 
-          std::string pastRiskProperty = terrama2::core::createValidPropertyName(vecDates[1]->toString());
+          std::string pastRiskProperty = terrama2::core::createValidPropertyName(vecDates.at(1)->toString());
 
           dsItem->setInt32(pastRiskProperty, risk2.level);
           dsItem->setInt32(comparisonPreviosProperty, comparisonResult);
         }
 
-        for(int i = 2; i < vecDates.size(); i++)
+        for(size_t i = 2; i < vecDates.size(); i++)
         {
-          std::string property = terrama2::core::createValidPropertyName(vecDates[i]->toString());
-          auto risk = resultMap[vecDates[i]->toString()].second;
+          std::string property = terrama2::core::createValidPropertyName(vecDates.at(i)->toString());
+          auto risk = resultMap.at(vecDates.at(i)->toString()).second;
           dsItem->setInt32(property, risk.level);
         }
 
-        for(auto iter = additionalDataVector.begin(); iter != additionalDataVector.end(); ++iter)
-        {
-          iter->addAdditionalValues(dsItem, value->toString());
-        }
+//        for(auto iter = additionalDataVector.begin(); iter != additionalDataVector.end(); ++iter)
+//        {
+//          iter->addAdditionalValues(dsItem, value->toString());
+//        }
 
         alertDataSet->add(dsItem);
 

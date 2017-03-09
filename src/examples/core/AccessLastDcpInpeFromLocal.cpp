@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
 
     //empty filter
     terrama2::core::Filter filter;
-    filter.lastValues = std::make_shared<int32_t>(1);
+    filter.lastValues = std::make_shared<size_t>(1);
 
     //accessing data
     terrama2::core::DataAccessorDcpInpe accessor(dataProviderPtr, dataSeriesPtr);

@@ -206,7 +206,7 @@ void terrama2::core::DataAccessorPostGIS::addGeometryFilter(terrama2::core::Data
     std::vector<std::string>& whereConditions) const
 {
   if(filter.region.get())
-    whereConditions.push_back("ST_INTERSECTS(ST_Transform(t." + getOutputGeometryPropertyName(dataSet)
+    whereConditions.push_back("ST_INTERSECTS(ST_Transform(t." + getGeometryPropertyName(dataSet)
                               + ", " + std::to_string(filter.region->getSRID())
                               + "), ST_GeomFromEWKT('SRID=" + std::to_string(filter.region->getSRID()) + ";" +filter.region->asText()+"'))");
 }
