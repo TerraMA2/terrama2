@@ -356,7 +356,7 @@ define([], function() {
 
       $scope.setHtmlItems = function(dcp, key, alias, _id, type) {
         if($scope.isBoolean(dcp[key]))
-          dcp[key + '_html'] = "<span class=\"dcps-table-span\"><input type=\"checkbox\" ng-model=\"dcpsObject['" + alias + "']['" + key + "']\"></span>";
+          dcp[key + '_html'] = "<span class=\"dcps-table-span\"><input type=\"checkbox\" ng-model=\"dcpsObject['" + alias + "']['" + key + "']\" ng-change=\"insertEditedDcp('" + _id + "')\"></span>";
         else
           dcp[key + '_html'] = "<span class=\"dcps-table-span\" editable-text=\"dcpsObject['" + alias + "']['" + key + "']\" onaftersave=\"insertEditedDcp('" + _id + "')\" onbeforesave=\"validateFieldEdition($data, '" + type + "', '" + alias + "', '" + key + "')\">{{ dcpsObject['" + alias + "']['" + key + "'] }}</span>";
 
@@ -464,7 +464,6 @@ define([], function() {
             // TODO: prepare format as dcp item
             $scope.dcpsObject = {};
             $scope.editedDcps = [];
-            $scope.newDcps = [];
             $scope.duplicatedAliasCounter = {};
 
             var dcps = [];
@@ -571,7 +570,6 @@ define([], function() {
         } else {
           $scope.dcpsObject = {};
           $scope.editedDcps = [];
-          $scope.newDcps = [];
           $scope.duplicatedAliasCounter = {};
           $scope.model = {};
           $scope.$broadcast("resetStoragerDataSets");
@@ -1087,7 +1085,6 @@ define([], function() {
       //. end wizard validations
       $scope.dcpsObject = {};
       $scope.editedDcps = [];
-      $scope.newDcps = [];
       $scope.duplicatedAliasCounter = {};
 
       $scope.updatingDcp = false;
@@ -1193,7 +1190,7 @@ define([], function() {
           $scope.createDataTable();
         }, 1000);
 
-        if ($scope.isUpdating) {
+        if($scope.isUpdating) {
           // fixing storager loading
           $timeout(function() {
             $scope.onStoragerFormatChange();
@@ -1429,7 +1426,7 @@ define([], function() {
             $scope.storageDcps([dcpCopy]);
 
             if($scope.isUpdating)
-              $scope.newDcps.push(dcpCopy._id);
+              $scope.insertEditedDcp(dcpCopy._id);
 
             // reset form to do not display feedback class
             $scope.forms.parametersForm.$setPristine();
@@ -1485,7 +1482,7 @@ define([], function() {
           if(newValLength === oldValLength) {
             for(var property in newVal) {
               if(newVal.hasOwnProperty(property) && oldVal.hasOwnProperty(property)) {
-                if(!Object.equals(newVal[property], oldVal[property])) {
+                if(!Object.equals(JSON.parse(angular.toJson(newVal[property])), JSON.parse(angular.toJson(oldVal[property])))) {
                   if(newVal[property].alias != oldVal[property].alias) {
                     var newAlias = newVal[property].alias;
                     var oldAlias = oldVal[property].alias;
@@ -1520,7 +1517,7 @@ define([], function() {
                     property = newAlias;
                   }
 
-                  $scope.$broadcast("dcpOperation", { action: "edit", dcp: newVal[property] });
+                  $scope.$broadcast("dcpOperation", { action: "edit", dcp: JSON.parse(angular.toJson(newVal[property])) });
                 }
               }
             }
@@ -1572,7 +1569,7 @@ define([], function() {
         var _makeFormat = function(dSetObject) {
           var format_ = {};
           for(var key in dSetObject) {
-            if(dSetObject.hasOwnProperty(key) && key.toLowerCase() !== "id" && key.substr(key.length - 5) != "_html" && key.substr(key.length - 8) != "_pattern" && key.substr(key.length - 9) != "_titleMap")
+            if(dSetObject.hasOwnProperty(key) && key.toLowerCase() !== "id" && key.substr(key.length - 5) != "_html" && key.substr(key.length - 8) != "_pattern" && key.substr(key.length - 9) != "_titleMap" && key != "removeButton" && key != "oldAlias" && key != "newAlias")
               format_[key] = dSetObject[key].toString();
               if(key.startsWith("output_")) {
                 format_[key.replace("output_", "")] = dSetObject[key];
@@ -1587,7 +1584,6 @@ define([], function() {
           // setting to active
           var dSetsLocal = [];
           var tempEditedDcps = [];
-          var tempNewDcps = [];
 
           for(var i = 0, dSetsLength = dSets.length; i < dSetsLength; i++) {
             if ($scope.custom_format){
@@ -1619,17 +1615,9 @@ define([], function() {
                 break;
               }
             }
-
-            for(var j = 0, newDcpsLength = values.newDcps.length; j < newDcpsLength; j++) {
-              if(values.newDcps[j] == outputDcp.format._id) {
-                tempNewDcps.push(outputDcp);
-                break;
-              }
-            }
           }
 
           values.editedDcps = tempEditedDcps;
-          values.newDcps = tempNewDcps;
 
           out = dSetsLocal;
         } else {
@@ -1687,7 +1675,6 @@ define([], function() {
           data_series_semantics_id: values.semantics.id,
           data_provider_id: values.data_provider,
           editedDcps: values.editedDcps,
-          newDcps: values.newDcps,
           dataSets: out
         };
 
@@ -1719,14 +1706,12 @@ define([], function() {
         switch(semantics.data_series_type_name) {
           case "DCP":
             var tempEditedDcps = [];
-            var tempNewDcps = [];
 
             for(var dcpKey in $scope.dcpsObject) {
               var format = {};
               for(var key in $scope.dcpsObject[dcpKey]) {
-                if($scope.dcpsObject[dcpKey].hasOwnProperty(key) && key.substr(key.length - 5) != "_html" && key.substr(key.length - 8) != "_pattern" && key.substr(key.length - 9) != "_titleMap")
-                  if(key !== "latitude" && key !== "longitude" && key !== "active")
-                    format[key] = $scope.dcpsObject[dcpKey][key].toString();
+                if($scope.dcpsObject[dcpKey].hasOwnProperty(key) && key.substr(key.length - 5) != "_html" && key.substr(key.length - 8) != "_pattern" && key.substr(key.length - 9) != "_titleMap" && key != "removeButton" && key != "oldAlias" && key != "newAlias" && key != "latitude" && key != "longitude" && key != "active")
+                  format[key] = $scope.dcpsObject[dcpKey][key].toString();
               }
               angular.merge(format, semantics.metadata.metadata);
               if (semantics.custom_format){
@@ -1759,17 +1744,9 @@ define([], function() {
                   break;
                 }
               }
-
-              for(var j = 0, newDcpsLength = $scope.newDcps.length; j < newDcpsLength; j++) {
-                if($scope.newDcps[j] == $scope.dcpsObject[dcpKey]._id) {
-                  tempNewDcps.push(dataSetStructure);
-                  break;
-                }
-              }
             }
 
             dataToSend.editedDcps = tempEditedDcps;
-            dataToSend.newDcps = tempNewDcps;
 
             break;
           case "OCCURRENCE":

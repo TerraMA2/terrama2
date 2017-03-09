@@ -283,6 +283,9 @@ define(["TerraMA2WebApp/common/services/index", "TerraMA2WebApp/alert-box/app"],
                   warnDuplicatedAlias = true;
               }
 
+              if(dcp.active === undefined)
+                dcp.active = true;
+
               for(var j = 0, fieldsLength = $scope.dataSeries.semantics.metadata.form.length; j < fieldsLength; j++) {
                 var value = null;
                 var key = $scope.dataSeries.semantics.metadata.form[j].key;
@@ -325,7 +328,7 @@ define(["TerraMA2WebApp/common/services/index", "TerraMA2WebApp/alert-box/app"],
               dcps.push(dcpCopy);
 
               if($scope.isUpdating)
-                $scope.newDcps.push(dcpCopy._id);
+                $scope.insertEditedDcp(dcpCopy._id);
 
               registersCount++;
 

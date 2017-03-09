@@ -1666,16 +1666,6 @@ var DataManager = module.exports = {
             promises.push(removeProvider);
           });
 
-          if(dataSeriesObject.newDcps !== undefined) {
-            dataSeriesObject.newDcps.forEach(function(newDataSet) {
-              newDataSet.data_series_id = dataSeriesId;
-              var addPromise = self.addDataSet(dataSeriesSemantics, newDataSet).then(function(newDSet){
-                dataSeries.dataSets.push(newDSet);
-              });
-              promises.push(addPromise);
-            });
-          }
-
           (dataSeriesObject.editedDcps !== undefined ? dataSeriesObject.editedDcps : dataSeriesObject.dataSets).forEach(function(newDataSet) {
             var dataSetToUpdate = dataSeries.dataSets.find(function(dSet){
               return dSet.format._id == newDataSet.format._id;

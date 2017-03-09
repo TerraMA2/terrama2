@@ -39,7 +39,6 @@ define([], function(){
       self.formatSelected = {};
       self.dcpsStoragerObject = {};
       self.editedStoragerDcps = [];
-      self.newStoragerDcps = [];
       self.inputDataSets = [];
       self.storage = {};
       self.dataProvidersStorager = [];
@@ -273,7 +272,7 @@ define([], function(){
           }
 
           if(self.options.isUpdating)
-            self.newStoragerDcps.push(dcpToAdd._id);
+            self.insertEditedDcp(dcpToAdd._id);
 
           self.dcpsStoragerObject[dcpToAdd.alias] = dcpToAdd;
           newDcps.push(dcpToAdd);
@@ -375,7 +374,6 @@ define([], function(){
                 data: self.objectToArray(self.dcpsStoragerObject),
                 data_provider: self['storager_data_provider_id'],
                 editedDcps: self.editedStoragerDcps,
-                newDcps: self.newStoragerDcps,
                 service: self["storager_service"],
                 type: self.formatSelected.data_series_type_name,
                 semantics: self.formatSelected
@@ -429,7 +427,6 @@ define([], function(){
       $scope.$on("resetStoragerDataSets", function(event) {
         self.dcpsStoragerObject = {};
         self.editedStoragerDcps = [];
-        self.newStoragerDcps = [];
       });
 
       $scope.$on("clearStoreForm", function(event){
@@ -440,7 +437,6 @@ define([], function(){
         self.storager_service = undefined;
         self.dcpsStoragerObject = {};
         self.editedStoragerDcps = [];
-        self.newStoragerDcps = [];
         self.storager_data_provider_id = undefined;
         $scope.$broadcast("clearSchedule");
       });
@@ -485,24 +481,23 @@ define([], function(){
         self.dataProvidersStorager = [];
         self.dcpsStoragerObject = {};
         self.editedStoragerDcps = [];
-        self.newStoragerDcps = [];
 
         self.providersList.forEach(function(dataProvider) {
           dataSeriesSemantics.data_providers_semantics.forEach(function(demand) {
-            if (dataProvider.data_provider_type.id == demand.data_provider_type_id){
-              if (self.storager.format.data_series_type_name == 'GRID' && dataProvider.data_provider_type.id != 1 )
+            if(dataProvider.data_provider_type.id == demand.data_provider_type_id) {
+              if(self.storager.format.data_series_type_name == 'GRID' && dataProvider.data_provider_type.id != 1)
                 return;
               self.dataProvidersStorager.push(dataProvider);
             }
           })
         });
 
-        if (self.dataProvidersStorager.length > 0){
+        if(self.dataProvidersStorager.length > 0) {
           self.forms.storagerDataForm.storager_data_provider_id.$setViewValue(self.dataProvidersStorager[0]);
           self.storager_data_provider_id = self.dataProvidersStorager[0].id;
         }
 
-        if (self.services.length > 0) {
+        if(self.services.length > 0) {
           self.forms.storagerDataForm.service.$setViewValue(self.services[0]);
           self.storager_service = self.services[0].id;
         }
@@ -511,11 +506,11 @@ define([], function(){
         var metadata = dataSeriesSemantics.metadata;
         var properties = metadata.schema.properties;
 
-        if (self.options.isUpdating) {
-          if (self.formatSelected.data_series_type_name === globals.enums.DataSeriesType.DCP) {
+        if(self.options.isUpdating) {
+          if(self.formatSelected.data_series_type_name === globals.enums.DataSeriesType.DCP) {
             // todo:
           } else {
-            if (configuration.dataSeries.output){
+            if(configuration.dataSeries.output) {
               self.modelStorager = self.prepareFormatToForm(configuration.dataSeries.output.dataSets[0].format);
             } else {
               var copyFormat = angular.merge({}, self.series.semantics.metadata.metadata);
@@ -537,16 +532,15 @@ define([], function(){
 
         var outputDataseries = $window.configuration.dataSeries.output;
 
-        if (self.options.hasCollector) {
+        if(self.options.hasCollector) {
           var collector = $window.configuration.collector;
           self.storager_service = collector.service_instance_id;
           self.storager_data_provider_id = outputDataseries.data_provider_id;
 
           var schedule = collector.schedule;
-          if (schedule && (schedule.frequency_unit || schedule.schedule_unit)){
+          if(schedule && (schedule.frequency_unit || schedule.schedule_unit)) {
             self.schedule.scheduleType = globals.enums.ScheduleType.SCHEDULE;
-          }
-          else {
+          } else {
             self.schedule.scheduleType = globals.enums.ScheduleType.MANUAL;
           }
 
@@ -609,11 +603,10 @@ define([], function(){
           };
           $scope.$broadcast('schemaFormRedraw');
 
-          if (!outputDataseries)
-            return;
+          if(!outputDataseries) return;
 
           // fill out default
-          if (self.formatSelected.data_series_type_name != globals.enums.DataSeriesType.DCP) {
+          if(self.formatSelected.data_series_type_name != globals.enums.DataSeriesType.DCP) {
             self.modelStorager = self.prepareFormatToForm(outputDataseries.dataSets[0].format);
             if(typeof self.modelStorager.timezone === "number") {
               self.modelStorager.timezone = self.modelStorager.timezone.toString();
