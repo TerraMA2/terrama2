@@ -128,7 +128,7 @@ terrama2::services::alert::core::AlertPtr newAlert()
   risk.id = 1;
   risk.dataSeriesId = 1;
   risk.name = "Fire occurrence count";
-  risk.attribute = "contagem";
+  risk.attribute = "count";
 
   terrama2::core::RiskLevel level1;
   level1.level = 0;
