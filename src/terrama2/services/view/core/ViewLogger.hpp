@@ -60,15 +60,6 @@ namespace terrama2
 
             virtual std::shared_ptr<ProcessLogger> clone() const override;
 
-            /*!
-             * \brief Check the log consistency
-             */
-            virtual void checkConsistency() const;
-
-          protected:
-
-            bool consistent_ = false;
-
         };
       }
     }
