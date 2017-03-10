@@ -306,10 +306,10 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
           dsItem->setInt32(property, risk.level);
         }
 
-        for(auto iter = additionalDataVector.begin(); iter != additionalDataVector.end(); ++iter)
-        {
-          iter->addAdditionalValues(dsItem, value->toString());
-        }
+        // for(auto iter = additionalDataVector.begin(); iter != additionalDataVector.end(); ++iter)
+        // {
+        //   iter->addAdditionalValues(dsItem, value->toString());
+        // }
 
         alertDataSet->add(dsItem);
 

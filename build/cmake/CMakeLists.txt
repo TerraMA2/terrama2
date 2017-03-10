@@ -290,7 +290,7 @@ if(NOT QUAZIP_FOUND)
 endif()
 
 find_package(VMime REQUIRED)
-if(NOT vmime_FOUND)
+if(NOT VMIME_FOUND)
   message(FATAL_ERROR "TerraMA2: could not find required vmime library!")
 endif()
 
