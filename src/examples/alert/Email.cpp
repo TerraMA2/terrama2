@@ -1,7 +1,8 @@
 #include <iostream>
-#include <jwsmtp.h>
 #include <cstring>
-#include <vmime.hpp>
+#include <vmime/vmime.hpp>
+
+#include <terrama2/services/alert/core/SimpleCertificateVerifier.hpp>
 
 using std::cout;
 using std::cin;
@@ -24,9 +25,6 @@ void vmimeTest()
     vmime::addressList to;
     to.appendAddress(vmime::make_shared <vmime::mailbox>("janosimas@gmail.com"));
     mb.setRecipients(to);
-    vmime::addressList bcc;
-    bcc.appendAddress(vmime::make_shared <vmime::mailbox>("you-bcc@nowhere.com"));
-    mb.setBlindCopyRecipients(bcc);
     mb.setSubject(vmime::text("My first message generated with vmime::messageBuilder"));
     // Message body
     mb.getTextPart()->setText(vmime::make_shared <vmime::stringContentHandler>(
@@ -49,7 +47,7 @@ void vmimeTest()
     tr->setProperty("auth.username", "janosimas@gmail.com");
     tr->setProperty("auth.password", "MinhaSenhaMuitoSegura!");
     tr->setProperty("options.need-authentication", true);
-    tr->setCertificateVerifier(vmime::make_shared<vmime::security::cert::defaultCertificateVerifier >());
+    tr->setCertificateVerifier(vmime::make_shared<SimpleCertificateVerifier>());
     tr->connect();
     tr->send(msg);
 
@@ -73,20 +71,6 @@ int main(int argc, char* argv[ ]) {
     std::string subject = "Test";
 
     string mailmessage = "This is a test message";
-
-    // This is how to tell the mailer class that we are using a direct smtp server
-    // preventing the code from doing an MX lookup on 'smtpserver'
-    jwsmtp::mailer mail(to.c_str( ), from.c_str( ), subject.c_str( ), mailmessage.c_str( ),
-                        smtpserver.c_str( ), jwsmtp::mailer::SMTP_PORT, false);
-
-    // using a local file as opposed to a full path.
-    // mail.attach("/home/paulo/Downloads/projeto_bugado.terrama2");
-
-    // boost::thread thrd(mail);
-    // thrd.join( ); // optional
-    // or:-
-    mail.operator ( )( );
-    cout << mail.response( ) << "\n";
 
     return 0;
 }

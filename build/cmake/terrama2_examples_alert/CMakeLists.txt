@@ -44,7 +44,6 @@ include_directories ( SYSTEM
   ${GTEST_INCLUDE_DIRS}
   ${GMOCK_INCLUDE_DIRS}
   ${Qt5Core_INCLUDE_DIRS}
-  ${JWSMTP_INCLUDE_DIR}
   ${VMIME_INCLUDE_DIR}
 )
 
@@ -72,6 +71,5 @@ foreach(FILE ${TERRAMA2_SRC_FILES})
                                     terralib_mod_common
                                     ${GTEST_BOTH_LIBRARIES}
                                     ${GMOCK_BOTH_LIBRARIES}
-                                    ${JWSMTP_LIBRARY}
                                     ${VMIME_LIBRARY})
 endforeach()

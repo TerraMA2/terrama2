@@ -40,7 +40,7 @@ include_directories ( SYSTEM
   ${terralib_INCLUDE_DIRS}
   ${terralib_DIR}
   ${Qt5Core_INCLUDE_DIRS}
-  ${JWSMTP_INCLUDE_DIR}
+  ${VMIME_INCLUDE_DIR}
 )
 
 set(CMAKE_AUTOMOC ON)
@@ -53,7 +53,7 @@ qt5_use_modules(terrama2_alert_core Core)
 
 target_link_libraries(terrama2_alert_core terrama2_core
                                           terralib_mod_dataaccess
-                                          ${JWSMTP_LIBRARY})
+                                          ${VMIME_LIBRARY})
 
 set_target_properties(terrama2_alert_core
                       PROPERTIES VERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}

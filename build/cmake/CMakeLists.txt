@@ -289,12 +289,6 @@ if(NOT QUAZIP_FOUND)
   message(FATAL_ERROR "TerraMA2: could not find required Quazip library!")
 endif()
 
-
-find_package(JWSMTP REQUIRED)
-if(NOT JWSMTP_FOUND)
-  message(FATAL_ERROR "TerraMA2: could not find required JWSMTP library!")
-endif()
-
 find_package(VMime REQUIRED)
 if(NOT vmime_FOUND)
   message(FATAL_ERROR "TerraMA2: could not find required vmime library!")
