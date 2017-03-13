@@ -43,7 +43,9 @@ define([], function() {
     /**
      * @type {Object}
      */
-    self.scheduleOptions = {};
+    self.scheduleOptions = {
+      showConditionalOption: true
+    };
     /**
      * It handles if should show schedule or not. It may be changed on view data series change
      *
@@ -208,11 +210,7 @@ define([], function() {
           $timeout(function() {
             if (self.isUpdating) {
               self.schedule = {};
-              if (self.view.schedule && (self.view.schedule.frequency_unit || self.view.schedule.schedule_unit)){
-                self.view.schedule.scheduleType = Globals.enums.ScheduleType.SCHEDULE;
-              } else {
-                self.view.schedule.scheduleType = Globals.enums.ScheduleType.MANUAL;
-              }
+              self.view.schedule.scheduleType = self.view.schedule_type.toString();
               $scope.$broadcast("updateSchedule", self.view.schedule || {});
             } else {
               if (!config.view) {
@@ -322,6 +320,7 @@ define([], function() {
           // If dynamic, schedule validation is required
           if (self.isDynamic) {
             if (self.view.schedule && Object.keys(self.view.schedule).length !== 0) {
+              self.view.schedule_type = self.view.schedule.scheduleType;
               /**
                * @todo Implement Angular ScheduleService to handle it, since is common on dynamic data series and analysis registration.
                */
@@ -350,6 +349,9 @@ define([], function() {
                   break;
 
                 default:
+                  if (scheduleValues.scheduleType == "4"){
+                    scheduleValues.data_ids = [self.view.data_series_id];
+                  }
                   break;
               }
             }

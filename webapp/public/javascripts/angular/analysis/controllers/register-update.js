@@ -57,7 +57,8 @@ define([], function() {
      * @param {Object}
      */
     self.scheduleOptions = {
-      showHistoricalOption: true
+      showHistoricalOption: true,
+      showConditionalOption: true
     };
     /**
      * It defines a helper messages associated a components. For example, there is no active service... The validate button will be disabled with

@@ -2159,12 +2159,23 @@ var DataManager = module.exports = {
    */
   addSchedule: function(scheduleObject, options) {
     return new Promise(function(resolve, reject) {
-      models.db.Schedule.create(scheduleObject, options).then(function(schedule) {
-        return resolve(new DataModel.Schedule(schedule.get()));
-      }).catch(function(err) {
-        // todo: improve error message
-        return reject(new exceptions.ScheduleError("Could not save schedule. " + err.toString()));
-      });
+      if (scheduleObject.scheduleType == Enums.ScheduleType.CONDITIONAL){
+        models.db.ConditionalSchedule.create(scheduleObject, options).then(function(schedule) {
+          return resolve(new DataModel.ConditionalSchedule(schedule.get()));
+        }).catch(function(err) {
+          // todo: improve error message
+          return reject(new exceptions.ScheduleError("Could not save schedule. " + err.toString()));
+        });
+      } else if (scheduleObject.scheduleType == Enums.ScheduleType.SCHEDULE || scheduleObject.scheduleType == Enums.ScheduleType.REPROCESSING_HISTORICAL){
+        models.db.Schedule.create(scheduleObject, options).then(function(schedule) {
+          return resolve(new DataModel.Schedule(schedule.get()));
+        }).catch(function(err) {
+          // todo: improve error message
+          return reject(new exceptions.ScheduleError("Could not save schedule. " + err.toString()));
+        });
+      } else {
+        return resolve();
+      }
     });
   },
 
@@ -2181,6 +2192,31 @@ var DataManager = module.exports = {
     return new Promise(function(resolve, reject) {
       models.db.Schedule.update(scheduleObject, Utils.extend({
         fields: ['schedule', 'schedule_time', 'schedule_unit', 'frequency_unit', 'frequency', 'frequency_start_time'],
+        where: {
+          id: scheduleId
+        }
+      }, options))
+        .then(function() {
+          return resolve();
+        }).catch(function(err) {
+          return reject(new exceptions.ScheduleError("Could not update schedule " + err.toString()));
+        });
+    });
+  },
+
+  /**
+   * It performs update conditional schedule from given restriction
+   *
+   * @param {number} scheduleId - A schedule identifier
+   * @param {Object} scheduleObject - A query values to update
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise}
+   */
+  updateConditionalSchedule: function(scheduleId, scheduleObject, options) {
+    return new Promise(function(resolve, reject) {
+      models.db.ConditionalSchedule.update(scheduleObject, Utils.extend({
+        fields: ['data_ids'],
         where: {
           id: scheduleId
         }
@@ -2213,6 +2249,25 @@ var DataManager = module.exports = {
   },
 
   /**
+   * It performs delete conditional schedule from given restriction
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise}
+   */
+  removeConditionalSchedule: function(restriction, options) {
+    return new Promise(function(resolve, reject) {
+      models.db.ConditionalSchedule.destroy(Utils.extend({where: {id: restriction.id}}, options)).then(function() {
+        return resolve();
+      }).catch(function(err) {
+        logger.error(err);
+        return reject(new exceptions.ScheduleError("Could not remove schedule " + err.message));
+      });
+    });
+  },
+
+  /**
    * It retrieves a schedule from given restriction
    *
    * @param {Object} restriction - A query restriction
@@ -2230,6 +2285,27 @@ var DataManager = module.exports = {
           return resolve(new DataModel.Schedule(schedule.get()));
         }
         return reject(new exceptions.ScheduleError("Could not find schedule"));
+      });
+    });
+  },
+  /**
+   * It retrieves a conditional schedule from given restriction
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Schedule>}
+   */
+  getConditionalSchedule: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      models.db.ConditionalSchedule.findOne(Utils.extend({
+        where: restriction || {}
+      }, options)).then(function(schedule) {
+        if (schedule) {
+          return resolve(new DataModel.ConditionalSchedule(schedule.get()));
+        }
+        return reject(new exceptions.ScheduleError("Could not find conditional schedule"));
       });
     });
   },
@@ -3500,6 +3576,11 @@ var DataManager = module.exports = {
         include: [
           {
             model: models.db.Schedule,
+            required: false
+          },
+          {
+            model: models.db.ConditionalSchedule,
+            required: false
           },
           {
             model: models.db.ViewStyleLegend,
@@ -3519,7 +3600,8 @@ var DataManager = module.exports = {
         .then(function(views) {
           return resolve(views.map(function(view) {
             var viewModel = new DataModel.View(Object.assign(view.get(), {
-              schedule: view.Schedule ? new DataModel.Schedule(view.Schedule.get()) : {}
+              schedule: view.Schedule ? new DataModel.Schedule(view.Schedule.get()) : {},
+              conditionalSchedule: view.ConditionalSchedule ? new DataModel.ConditionalSchedule(view.ConditionalSchedule.get()) : {}
               // schedule: new DataModel.Schedule(view.Schedule ? view.Schedule.get() : {id: 0})
             }));
             if (view.ViewStyleLegend) {
@@ -3807,6 +3889,8 @@ var DataManager = module.exports = {
           var promises = [legend];
           if (view.schedule_id) {
             promises.push(self.getSchedule({id: view.schedule_id}, options));
+          } else if (view.conditional_schedule_id){
+            promises.push(self.getConditionalSchedule({id: view.conditional_schedule_id}, options));
           }
           return Promise.all(promises);
         })
@@ -3837,7 +3921,7 @@ var DataManager = module.exports = {
       models.db.View.update(
         viewObject,
         Utils.extend({
-          fields: ["name", "description", "data_series_id", "style", "active", "service_instance_id", "schedule_id"],
+          fields: ["name", "description", "data_series_id", "style", "active", "service_instance_id", "schedule_id", "conditional_schedule_id", "schedule_type"],
           where: restriction
         }, options))
 
@@ -3896,6 +3980,8 @@ var DataManager = module.exports = {
           view = viewResult;
           if (view.schedule && view.schedule.id) {
             return self.removeSchedule({id: view.schedule.id}, options);
+          } else if (view.conditionalSchedule && view.conditionalSchedule.id){
+            return self.removeConditionalSchedule({id: view.conditionalSchedule.id}, options);
           } else {
             return null;
           }

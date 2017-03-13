@@ -12,6 +12,7 @@
           <option value="1">{{ i18n.__('Schedule') }}</option>
           <option ng-show="options.showHistoricalOption" value="2">{{ i18n.__('Reprocessing Historical Data') }}</option>
           <option value="3">{{ i18n.__('Manual') }}</option>
+          <option ng-show="options.showConditionalOption" value="4">{{ i18n.__('Conditional') }}</option>
         </select>
 
         <label class="help-block text-danger"

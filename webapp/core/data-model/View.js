@@ -47,10 +47,20 @@
      */
     this.dataSeries = params.data_series_id || params.dataSeries;
     /**
+     * Schedule type associated
+     * @type {Schedule}
+     */
+    this.scheduleType = params.schedule_type;
+    /**
      * Schedule associated
      * @type {Schedule}
      */
     this.schedule = params.schedule || {};
+    /**
+     * Conditional Schedule associated
+     * @type {Schedule}
+     */
+    this.conditionalSchedule = params.conditionalSchedule || {};
     /**
      * View state
      * @type {boolean}
@@ -98,10 +108,12 @@
       style: this.style,
       dataseries_id: this.dataSeries,
       schedule: this.schedule instanceof AbstractClass ? this.schedule.toObject() : {},
+      conditional_schedule: this.conditionalSchedule instanceof AbstractClass ? this.conditionalSchedule.toObject() : {},
       active: this.active,
       service_instance_id: this.serviceInstanceId,
       project_id: this.projectId,
-      legend: this.legend instanceof AbstractClass ? this.legend.toObject() : this.legend
+      legend: this.legend instanceof AbstractClass ? this.legend.toObject() : this.legend,
+      schedule_type: this.scheduleType
     });
   };
 

@@ -672,5 +672,7 @@
 	"Property name": "Property name",
 	"Point (Geometry)": "Point (Geometry)",
 	"Number": "Number",
-	"Text": "Text"
+	"Text": "Text",
+	"Database": "Database",
+	"Conditional": "Conditional"
 }
