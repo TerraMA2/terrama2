@@ -41,7 +41,8 @@ namespace terrama2
     {
       //! Base exception class for Alert Module exceptions.
       struct Exception: virtual terrama2::core::Exception{};
-
+      //! Base exception class for Notifier exceptions.
+      struct NotifierException: virtual Exception{};
       //! Base exception class for Report exceptions.
       struct ReportException: virtual Exception{};
       //! Base exception class for AdditionalDataException exceptions.

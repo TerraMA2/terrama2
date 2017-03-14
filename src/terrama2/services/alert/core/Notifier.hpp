@@ -20,15 +20,19 @@
 */
 
 /*!
-  \file terrama2/services/alert/core/Service.hpp
+  \file terrama2/services/alert/core/Notifier.hpp
+
+  \brief
 
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_SERVICES_ALERT_SHARED_HPP__
-#define __TERRAMA2_SERVICES_ALERT_SHARED_HPP__
+#ifndef __TERRAMA2_SERVICES_ALERT_CORE_NOTIFIER_HPP__
+#define __TERRAMA2_SERVICES_ALERT_CORE_NOTIFIER_HPP__
 
-#include <memory>
+#include <map>
+
+#include "Shared.hpp"
 
 namespace terrama2
 {
@@ -38,25 +42,29 @@ namespace terrama2
     {
       namespace core
       {
+        class Notifier
+        {
+        public:
+          Notifier(const std::map<std::string, std::string>& serverMap, ReportPtr report)
+                       : serverMap_(serverMap),
+                         report_(report) { }
 
-        struct Alert;
-        //! Shared smart pointer for Alert
-        typedef std::shared_ptr<const terrama2::services::alert::core::Alert> AlertPtr;
+          ~Notifier() = default;
+          Notifier(const Notifier& other) = default;
+          Notifier(Notifier&& other) = default;
+          Notifier& operator=(const Notifier& other) = default;
+          Notifier& operator=(Notifier&& other) = default;
 
-        class Report;
-        //! Shared smart pointer for Report
-        typedef std::shared_ptr<terrama2::services::alert::core::Report> ReportPtr;
+          virtual std::string notifierCode() const = 0;
+          virtual void send(std::string recipient) const = 0;
 
-        class Notifier;
-        //! Shared smart pointer for Notifier
-        typedef std::shared_ptr<terrama2::services::alert::core::Notifier> NotifierPtr;
-
-        class DataManager;
-        //! Shared smart pointer for DataManager
-        typedef std::shared_ptr<terrama2::services::alert::core::DataManager> DataManagerPtr;
+        private:
+          std::map<std::string, std::string> serverMap_;
+          ReportPtr report_;
+        };
       } /* core */
-    }   /* alert */
-  }
-}
+    } /* alert */
+  } /* services */
+} /* terrama2 */
 
-#endif // __TERRAMA2_SERVICES_ALERT_SHARED_HPP__
+#endif //__TERRAMA2_SERVICES_ALERT_CORE_NOTIFIER_HPP__
