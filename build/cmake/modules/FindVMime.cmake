@@ -29,13 +29,11 @@
 
 if(UNIX)
 
-  find_path(VMIME_INCLUDE_DIR vmime.hpp
+  find_path(VMIME_INCLUDE_DIR vmime/vmime.hpp
             PATHS /usr
                   /usr/local
-                  /usr/local/vmime
             PATH_SUFFIXES include
-                          vmime
-                          include/vmime)
+                          vmime)
 
   find_library(VMIME_LIBRARY
                NAMES vmime
