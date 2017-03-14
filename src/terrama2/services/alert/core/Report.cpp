@@ -106,7 +106,6 @@ std::shared_ptr<te::da::DataSet> terrama2::services::alert::core::Report::retrie
   for(std::size_t i = 0; i < alertDataSet_->size(); i++)
   {
     alertDataSet_->move(i);
-    // TODO: get risk properties from alert
     if(alertDataSet_->getInt32(property) == risk)
     {
       positions.push_back(i);
@@ -133,7 +132,6 @@ std::shared_ptr<te::da::DataSet> terrama2::services::alert::core::Report::retrie
   for(std::size_t i = 0; i < alertDataSet_->size(); i++)
   {
     alertDataSet_->move(i);
-    // TODO: get risk properties from alert
     if(alertDataSet_->getInt32(property) >= risk)
     {
       positions.push_back(i);
@@ -160,7 +158,6 @@ std::shared_ptr<te::da::DataSet> terrama2::services::alert::core::Report::retrie
   for(std::size_t i = 0; i < alertDataSet_->size(); i++)
   {
     alertDataSet_->move(i);
-    // TODO: get risk properties from alert
     if(alertDataSet_->getInt32(property) <= risk)
     {
       positions.push_back(i);
