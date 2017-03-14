@@ -181,6 +181,15 @@ module.exports = function(app) {
       }
 
       response.json(storedDcpsStore[key]);
+    },
+
+    clearDcpsStore: function(request, response) {
+      var key = request.body.key;
+
+      if(storedDcpsStore[key] != undefined)
+        storedDcpsStore[key] = [];
+
+      response.json(storedDcpsStore[key]);
     }
   };
 

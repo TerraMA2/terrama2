@@ -970,11 +970,16 @@ define([], function() {
         });
       };
 
-      $scope.onStoragerFormatChange = function() {
+      $scope.onStoragerFormatChange = function(viewChange) {
         $scope.storeOptions.showStoragerForm = true;
 
         $timeout(function() {
-          $scope.$broadcast('storagerFormatChange', { format: $scope.storager.format, dcps: $scope.objectToArray($scope.dcpsObject) });
+          $scope.$broadcast('storagerFormatChange', {
+            format: $scope.storager.format,
+            viewChange: (viewChange !== undefined ? viewChange : false),
+            dcps: (viewChange !== undefined && viewChange ? $scope.objectToArray($scope.dcpsStoragerObject) : $scope.objectToArray($scope.dcpsObject)),
+            editedDcps: (viewChange !== undefined && viewChange ? $scope.editedStoragerDcps : [])
+          });
         });
       };
 
@@ -1085,6 +1090,10 @@ define([], function() {
       //. end wizard validations
       $scope.dcpsObject = {};
       $scope.editedDcps = [];
+
+      $scope.dcpsStoragerObject = {};
+      $scope.editedStoragerDcps = [];
+
       $scope.duplicatedAliasCounter = {};
 
       $scope.updatingDcp = false;
@@ -1183,6 +1192,8 @@ define([], function() {
 
       // change form: advanced or wizard
       $scope.onFormView = function() {
+        $scope.$broadcast("saveStoragerData");
+
         $scope.isWizard = !$scope.isWizard;
 
         // fixing the datatable
@@ -1193,7 +1204,7 @@ define([], function() {
         if($scope.isUpdating) {
           // fixing storager loading
           $timeout(function() {
-            $scope.onStoragerFormatChange();
+            $scope.onStoragerFormatChange(true);
           }, 1000);
         }
       };
@@ -1553,6 +1564,11 @@ define([], function() {
           var errMessage = err.message || err.data.message;
           MessageBoxService.danger("Data Registration", errMessage);
         });
+      };
+
+      $scope.saveStoragerData = function(dcps, editedDcps) {
+        $scope.dcpsStoragerObject = dcps;
+        $scope.editedStoragerDcps = editedDcps;
       };
 
       $scope.$on("storageValuesReceive", function(event, values) {

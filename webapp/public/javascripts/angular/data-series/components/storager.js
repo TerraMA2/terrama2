@@ -13,6 +13,7 @@ define([], function(){
             filter: "<",
             prepareFormatToForm: "<",
             fieldHasError: "<",
+            saveStoragerData: "<",
             forms: "<",
             onStoragerFormatChange: "<",
             model: "<",
@@ -93,15 +94,14 @@ define([], function(){
             self.storagerFormats.push(Object.assign({}, dSemantics));
           }
         });
-        if (self.options.isUpdating && self.options.hasCollector){
-
-            self.storagerFormats.some(function(storagerFmt) {
-              if (storagerFmt.id == $window.configuration.dataSeries.output.data_series_semantics.id) {
-                self.storager.format = storagerFmt;
-                self.onStoragerFormatChange();
-                return true;
-              }
-            });
+        if(self.options.isUpdating && self.options.hasCollector) {
+          self.storagerFormats.some(function(storagerFmt) {
+            if (storagerFmt.id == $window.configuration.dataSeries.output.data_series_semantics.id) {
+              self.storager.format = storagerFmt;
+              self.onStoragerFormatChange();
+              return true;
+            }
+          });
         }
 
         //Checking if is updating to change output when changed the parameters in Grads data series type
@@ -271,7 +271,7 @@ define([], function(){
             if(key != "table_name") dcpToAdd = self.setHtmlItems(dcpToAdd, key, dcpToAdd.alias, null);
           }
 
-          if(self.options.isUpdating)
+          if(self.options.isUpdating && storageData)
             self.insertEditedDcp(dcpToAdd._id);
 
           self.dcpsStoragerObject[dcpToAdd.alias] = dcpToAdd;
@@ -424,6 +424,10 @@ define([], function(){
         }
       });
 
+      $scope.$on("saveStoragerData", function(event) {
+        self.saveStoragerData(self.dcpsStoragerObject, self.editedStoragerDcps);
+      });
+
       $scope.$on("resetStoragerDataSets", function(event) {
         self.dcpsStoragerObject = {};
         self.editedStoragerDcps = [];
@@ -480,7 +484,7 @@ define([], function(){
 
         self.dataProvidersStorager = [];
         self.dcpsStoragerObject = {};
-        self.editedStoragerDcps = [];
+        self.editedStoragerDcps = (args.editedDcps !== undefined ? args.editedDcps : []);
 
         self.providersList.forEach(function(dataProvider) {
           dataSeriesSemantics.data_providers_semantics.forEach(function(demand) {
@@ -555,7 +559,38 @@ define([], function(){
             self.tableFieldsStoragerDataTable.push(property);
           }
 
-          if(self.options.hasCollector) {
+          if(args.viewChange !== undefined && args.viewChange) {
+            $http.post("/configuration/dynamic/dataseries/clearDcpsStore", {
+              key: storedDcpsKey
+            }).success(function(result) {
+              self.dcpsStoragerObject = {};
+              var newDcps = [];
+              var registersCount = 0;
+
+              for(var i = 0, dcpsLength = args.dcps.length; i < dcpsLength; i++) {
+                self.dcpsStoragerObject[args.dcps[i].alias] = args.dcps[i];
+
+                newDcps.push(args.dcps[i]);
+                registersCount++;
+
+                if(registersCount >= 1000) {
+                  self.storageDcpsStore(newDcps);
+                  registersCount = 0;
+                  newDcps = [];
+                }
+              }
+
+              if(registersCount > 0)
+                self.storageDcpsStore(newDcps);
+
+              reloadDataStore();
+            }).error(function(err) {
+              console.log("Err in clearing dcps");
+            });
+          } else if(outputDataseries === undefined || outputDataseries.dataSets === undefined) {
+            if(args.dcps)
+              addDcpStorager(args.dcps, true, true);
+          } else {
             var dcps = [];
             var registersCount = 0;
 
@@ -584,9 +619,6 @@ define([], function(){
               self.storageDcpsStore(dcps);
 
             reloadDataStore();
-          } else {
-            if(args.dcps)
-              addDcpStorager(args.dcps, true, true);
           }
 
           self.modelStorager = {};
