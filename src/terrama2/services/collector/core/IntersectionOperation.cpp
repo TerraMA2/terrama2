@@ -375,7 +375,7 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIn
   }
 
   terrama2::core::Filter filter;
-  filter.lastValues = std::make_shared<int32_t>(1);
+  filter.lastValues = std::make_shared<size_t>(1);
 
   auto remover = std::make_shared<terrama2::core::FileRemover>();
   auto gridSeries = accessorGrid->getGridSeries(filter, remover);

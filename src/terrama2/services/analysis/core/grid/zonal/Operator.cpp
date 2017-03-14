@@ -83,7 +83,7 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
 
   terrama2::core::Filter filter;
   filter.discardAfter = context->getStartTime();
-  filter.lastValues = std::make_shared<int32_t>(1);
+  filter.lastValues = std::make_shared<size_t>(1);
 
   return operatorImpl(statisticOperation, dataSeriesName, filter, band, buffer, context, cache);
 }

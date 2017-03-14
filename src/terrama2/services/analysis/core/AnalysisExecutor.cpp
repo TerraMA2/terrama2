@@ -41,8 +41,6 @@
 #include "../../../core/utility/StoragerManager.hpp"
 #include "../../../core/data-model/DataProvider.hpp"
 #include "GridContext.hpp"
-#include "MonitoredObjectContext.hpp"
-
 
 // STL
 #include <thread>
@@ -375,6 +373,125 @@ void terrama2::services::analysis::core::AnalysisExecutor::runDCPAnalysis(DataMa
   throw Exception() << ErrorDescription(errMsg);
 }
 
+std::shared_ptr<te::mem::DataSet> terrama2::services::analysis::core::AnalysisExecutor::addDataToDataSet(std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> moDsContext,
+                                                                                                         std::shared_ptr<te::da::DataSetType> dt,
+                                                                                                         te::da::PrimaryKey* pkMonitoredObject,
+                                                                                                         te::dt::Property* identifierProperty,
+                                                                                                         std::unordered_map<int, std::map<std::string, double> > resultMap,
+                                                                                                         std::shared_ptr<te::dt::TimeInstantTZ>  date)
+{
+  std::shared_ptr<te::mem::DataSet> ds = std::make_shared<te::mem::DataSet>(static_cast<te::da::DataSetType*>(dt->clone()));
+  for(auto it = resultMap.begin(); it != resultMap.end(); ++it)
+  {
+    te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(ds.get());
+
+    if(pkMonitoredObject != nullptr)
+    {
+      for(auto property : pkMonitoredObject->getProperties())
+      {
+        // In case there is a column called 'execution_date' use the alternate name, because this name is used in analysis result table
+        auto monitoredObjectId = moDsContext->series.syncDataSet->getValue(it->first, property->getName())->clone();
+        if(property->getName() == EXECUTION_DATE_PROPERTY)
+          dsItem->setValue(ALTERNATE_EXECUTION_DATE_PROPERTY, monitoredObjectId);
+        else
+          dsItem->setValue(property->getName(), monitoredObjectId);
+      }
+    }
+    else
+    {
+      auto geomId = moDsContext->series.syncDataSet->getValue(it->first, moDsContext->identifier)->clone();
+      dsItem->setValue(identifierProperty->getName(), geomId);
+    }
+
+
+    dsItem->setDateTime(EXECUTION_DATE_PROPERTY,  dynamic_cast<te::dt::DateTimeInstant*>(date.get()->clone()));
+    for(auto itAttribute = it->second.begin(); itAttribute != it->second.end(); ++itAttribute)
+    {
+      dsItem->setDouble(itAttribute->first, itAttribute->second);
+    }
+
+    ds->add(dsItem);
+  }
+
+  return ds;
+}
+
+std::shared_ptr<te::da::DataSetType> terrama2::services::analysis::core::AnalysisExecutor::createDatasetType(std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> moDsContext,
+                                                                                                             te::da::PrimaryKey* pkMonitoredObject,
+                                                                                                             te::dt::Property* identifierProperty,
+                                                                                                             std::set<std::string> attributes,
+                                                                                                             std::string outputDatasetName)
+{
+  std::shared_ptr<te::da::DataSetType> dt = std::make_shared<te::da::DataSetType>(outputDatasetName);
+
+
+  // the unique key is composed by primary key columns and the execution date.
+  std::string nameuk = outputDatasetName+ "_uk";
+  std::unique_ptr<te::da::UniqueKey> uk(new te::da::UniqueKey(nameuk));
+  std::unique_ptr<te::da::ForeignKey> fk(new te::da::ForeignKey("monitored_object_fk"));
+  fk->setReferencedDataSetType(moDsContext->series.teDataSetType.get());
+
+  if(pkMonitoredObject != nullptr)
+  {
+    // the monitored object dataset has a primary key
+    // use this the create a unique key based on the primary key and the execution date
+    // also use it as a foreign key
+    for(auto property : pkMonitoredObject->getProperties())
+    {
+      auto pkProperty = property->clone();
+
+      // In case there is a column called 'execution_date' rename it because this name is used in analysis result table
+      if(pkProperty->getName() == EXECUTION_DATE_PROPERTY)
+        pkProperty->setName(ALTERNATE_EXECUTION_DATE_PROPERTY);
+
+      dt->add(pkProperty);
+      uk->add(pkProperty);
+      fk->add(pkProperty);
+
+      std::vector<te::dt::Property *> prop;
+      prop.push_back(property);
+      fk->setReferencedProperties(prop);
+    }
+  }
+  else
+  {
+    // the monitored object dataset doesn't have a primary key
+    // but has a identifier property
+    // use this the create a unique key based on the primary key and the execution date
+    // also use it as a foreign key
+
+    dt->add(identifierProperty);
+    uk->add(identifierProperty);
+    fk->add(identifierProperty);
+
+    std::vector<te::dt::Property *> prop;
+    prop.push_back(moDsContext->series.teDataSetType->getProperty(moDsContext->identifier));
+    fk->setReferencedProperties(prop);
+  }
+  dt->add(fk.release());
+
+  //second property: analysis execution date
+  te::dt::DateTimeProperty* dateProp = new te::dt::DateTimeProperty(EXECUTION_DATE_PROPERTY, te::dt::TIME_INSTANT_TZ, true);
+  dt->add(dateProp);
+  uk->add(dateProp);
+
+  dt->add(uk.release());
+
+  //create index on date column
+  te::da::Index* indexDate = new te::da::Index(outputDatasetName+ "_idx", te::da::B_TREE_TYPE);
+  indexDate->add(dateProp);
+
+  dt->add(indexDate);
+
+  for(std::string attribute : attributes)
+  {
+    te::dt::SimpleProperty* prop = new te::dt::SimpleProperty(attribute, te::dt::DOUBLE_TYPE, false);
+    dt->add(prop);
+  }
+
+  return dt;
+}
+
 void terrama2::services::analysis::core::AnalysisExecutor::storeMonitoredObjectAnalysisResult(DataManagerPtr dataManager, terrama2::core::StoragerManagerPtr storagerManager, MonitoredObjectContextPtr context)
 {
 
@@ -451,7 +568,6 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeMonitoredObjectA
     {
       found = true;
 
-
       auto dataSeries = dataManager->findDataSeries(analysisDataSeries.dataSeriesId);
       assert(dataSeries->datasetList.size() == 1);
       auto datasetMO = dataSeries->datasetList[0];
@@ -504,6 +620,8 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeMonitoredObjectA
     return;
   }
 
+  // we need a unique identifier attribute,
+  // if there is no primary key nor an identifier, return
   if(pkMonitoredObject == nullptr)
   {
     if(!identifierProperty)
@@ -519,90 +637,13 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeMonitoredObjectA
 
   assert(outputDataSeries->datasetList.size() == 1);
 
-
-  std::shared_ptr<te::da::DataSetType> dt = std::make_shared<te::da::DataSetType>(outputDatasetName);
-
-
-  // the unique key is composed by primary key columns and the execution date.
-  std::string nameuk = outputDatasetName+ "_uk";
-  te::da::UniqueKey* uk = new te::da::UniqueKey(nameuk);
-
-
-  if(pkMonitoredObject != nullptr)
-  {
-    for(auto property : pkMonitoredObject->getProperties())
-    {
-      auto pkProperty = property->clone();
-
-      // In case there is a column called 'execution_date' rename it because this name is used in analysis result table
-      if(pkProperty->getName() == "execution_date")
-        pkProperty->setName("execution_date_1");
-
-      dt->add(pkProperty);
-      uk->add(pkProperty);
-    }
-  }
-  else
-  {
-    dt->add(identifierProperty);
-    uk->add(identifierProperty);
-  }
-
-
-
-  //second property: analysis execution date
-  te::dt::DateTimeProperty* dateProp = new te::dt::DateTimeProperty("execution_date", te::dt::TIME_INSTANT_TZ, true);
-  dt->add(dateProp);
-  uk->add(dateProp);
-
-  dt->add(uk);
-
-  //create index on date column
-  te::da::Index* indexDate = new te::da::Index(outputDatasetName+ "_idx", te::da::B_TREE_TYPE);
-  indexDate->add(dateProp);
-
-  dt->add(indexDate);
-
-  for(std::string attribute : attributes)
-  {
-    te::dt::SimpleProperty* prop = new te::dt::SimpleProperty(attribute, te::dt::DOUBLE_TYPE, false);
-    dt->add(prop);
-  }
-
+  ////////////////////////////////////
+  /// create datasetType
+  std::shared_ptr<te::da::DataSetType> dt = createDatasetType(moDsContext, pkMonitoredObject, identifierProperty, attributes, outputDatasetName);
 
   // Creates memory dataset and add the items.
-  std::shared_ptr<te::mem::DataSet> ds = std::make_shared<te::mem::DataSet>(static_cast<te::da::DataSetType*>(dt->clone()));
-  for(auto it = resultMap.begin(); it != resultMap.end(); ++it)
-  {
-    te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(ds.get());
-
-    if(pkMonitoredObject != nullptr)
-    {
-      for(auto property : pkMonitoredObject->getProperties())
-      {
-        auto geomId = moDsContext->series.syncDataSet->getValue(it->first, property->getName())->clone();
-        if(property->getName() == "execution_date")
-          dsItem->setValue("execution_date_1", geomId);
-        else
-          dsItem->setValue(property->getName(), geomId);
-      }
-    }
-    else
-    {
-      auto geomId = moDsContext->series.syncDataSet->getValue(it->first, moDsContext->identifier)->clone();
-      dsItem->setValue(identifierProperty->getName(), geomId);
-    }
-
-
-
-    dsItem->setDateTime("execution_date",  dynamic_cast<te::dt::DateTimeInstant*>(date.get()->clone()));
-    for(auto itAttribute = it->second.begin(); itAttribute != it->second.end(); ++itAttribute)
-    {
-      dsItem->setDouble(itAttribute->first, itAttribute->second);
-    }
-
-    ds->add(dsItem);
-  }
+  std::shared_ptr<te::mem::DataSet> ds = addDataToDataSet(moDsContext, dt, pkMonitoredObject, identifierProperty, resultMap, date);
+  /////////////////////////////////
 
   assert(outputDataSeries->datasetList.size() == 1);
 

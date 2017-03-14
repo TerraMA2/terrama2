@@ -35,6 +35,7 @@
 #include "Shared.hpp"
 #include "AnalysisLogger.hpp"
 #include "GridContext.hpp"
+#include "MonitoredObjectContext.hpp"
 #include "../../../core/utility/Service.hpp"
 
 // STL
@@ -161,6 +162,21 @@ namespace terrama2
             //! Signal to notify that a analysis execution has finished.
             void analysisFinished(size_t, bool);
 
+          private:
+            const std::string EXECUTION_DATE_PROPERTY = "execution_date";
+            const std::string ALTERNATE_EXECUTION_DATE_PROPERTY = "execution_date_1";
+
+            std::shared_ptr<te::mem::DataSet> addDataToDataSet(std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> moDsContext,
+                                                               std::shared_ptr<te::da::DataSetType> dt,
+                                                               te::da::PrimaryKey* pkMonitoredObject,
+                                                               te::dt::Property* identifierProperty,
+                                                               std::unordered_map<int, std::map<std::string, double> > resultMap,
+                                                               std::shared_ptr<te::dt::TimeInstantTZ>  date);
+            std::shared_ptr<te::da::DataSetType> createDatasetType(std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> moDsContext,
+                                                                   te::da::PrimaryKey* pkMonitoredObject,
+                                                                   te::dt::Property* identifierProperty,
+                                                                   std::set<std::string> attributes,
+                                                                   std::string outputDatasetName);
         };
 
 
