@@ -204,7 +204,7 @@ define([], function(){
 
             if(self.dcpsStoragerObject[property].alias === dcpItem.alias) {
               for(var dcpsStoragerKey in self.dcpsStoragerObject[dcpItem.alias]) {
-                if(dcpItem.hasOwnProperty(dcpsStoragerKey) && dcpsStoragerKey.substring(0, 10) != 'table_name') {
+                if(dcpItem.hasOwnProperty(dcpsStoragerKey) && dcpsStoragerKey.substring(0, 10) != 'table_name' && dcpsStoragerKey.substr(dcpsStoragerKey.length - 5) != '_html') {
                   self.dcpsStoragerObject[dcpItem.alias][dcpsStoragerKey] = dcpItem[dcpsStoragerKey];
                 }
               }
