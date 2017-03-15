@@ -33,6 +33,8 @@
 
 #include "Shared.hpp"
 #include "Alert.hpp"
+#include "../../../core/utility/FileRemover.hpp"
+#include "../../../core/data-access/DataSetSeries.hpp"
 
 namespace te
 {

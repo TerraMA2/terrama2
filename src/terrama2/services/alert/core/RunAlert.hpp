@@ -36,6 +36,7 @@
 #include "Typedef.hpp"
 #include "AlertLogger.hpp"
 #include "DataManager.hpp"
+#include "AdditionalDataHelper.hpp"
 
 #include <terralib/memory/DataSet.h>
 
@@ -85,13 +86,14 @@ namespace terrama2
                      std::shared_ptr<te::da::DataSet> teDataset,
                      std::vector<std::shared_ptr<te::dt::DateTime> > vecDates);
 
-        std::shared_ptr<te::mem::DataSet> populateAlertDataset(std::vector<std::shared_ptr<te::dt::DateTime> > vecDates,
-                                                               std::map<std::shared_ptr<te::dt::AbstractData>,
-                                                               std::map<std::string, std::pair<std::shared_ptr<te::dt::AbstractData>, terrama2::core::RiskLevel> >, comparatorAbstractData> riskResultMap,
-                                                               const std::string comparisonPreviosProperty,
-                                                               terrama2::core::DataSeriesRisk risk,
-                                                               te::dt::Property* fkProperty,
-                                                               std::shared_ptr<te::da::DataSetType> alertDataSetType);
+        std::shared_ptr<te::mem::DataSet> populateAlertDataset( std::vector<std::shared_ptr<te::dt::DateTime> > vecDates,
+                                                                std::map<std::shared_ptr<te::dt::AbstractData>,
+                                                                std::map<std::string, std::pair<std::shared_ptr<te::dt::AbstractData>, terrama2::core::RiskLevel> >, comparatorAbstractData> riskResultMap,
+                                                                const std::string comparisonPreviosProperty,
+                                                                terrama2::core::DataSeriesRisk risk,
+                                                                te::dt::Property* fkProperty,
+                                                                std::shared_ptr<te::da::DataSetType> alertDataSetType,
+                                                                std::vector<AdditionalDataHelper> additionalDataVector);
       } /* core */
     } /* alert */
   } /* services */

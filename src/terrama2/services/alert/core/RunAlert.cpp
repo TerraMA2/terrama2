@@ -136,7 +136,8 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::populateAlert
                                                                                         const std::string comparisonPreviosProperty,
                                                                                         terrama2::core::DataSeriesRisk risk,
                                                                                         te::dt::Property* fkProperty,
-                                                                                        std::shared_ptr<te::da::DataSetType> alertDataSetType)
+                                                                                        std::shared_ptr<te::da::DataSetType> alertDataSetType,
+                                                                                        std::vector<AdditionalDataHelper> additionalDataVector)
 {
   std::shared_ptr<te::mem::DataSet> alertDataSet = std::make_shared<te::mem::DataSet>(alertDataSetType.get());
 
@@ -181,10 +182,10 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::populateAlert
       dsItem->setInt32(property, risk.level);
     }
 
-//        for(auto iter = additionalDataVector.begin(); iter != additionalDataVector.end(); ++iter)
-//        {
-//          iter->addAdditionalValues(dsItem, value->toString());
-//        }
+    // for(auto iter = additionalDataVector.begin(); iter != additionalDataVector.end(); ++iter)
+    // {
+    //  iter->addAdditionalValues(dsItem, value->toString());
+    // }
 
     alertDataSet->add(dsItem);
 
@@ -345,7 +346,7 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
 
       std::map<std::shared_ptr<te::dt::AbstractData>, std::map<std::string, std::pair<std::shared_ptr<te::dt::AbstractData>, terrama2::core::RiskLevel> >, comparatorAbstractData> riskResultMap = getResultMap(pos, idProperty, getRisk, datetimeColumnName, teDataset, vecDates);
 
-      std::shared_ptr<te::mem::DataSet> alertDataSet = populateAlertDataset(vecDates, riskResultMap, comparisonPreviosProperty, risk, fkProperty, alertDataSetType);
+      std::shared_ptr<te::mem::DataSet> alertDataSet = populateAlertDataset(vecDates, riskResultMap, comparisonPreviosProperty, risk, fkProperty, alertDataSetType, additionalDataVector);
 
       terrama2::services::alert::core::Report report(alertPtr, alertDataSet, alertDataSetType, vecDates);
 
