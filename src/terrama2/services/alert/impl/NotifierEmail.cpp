@@ -35,7 +35,10 @@ terrama2::services::alert::impl::NotifierEmail::NotifierEmail(const std::map<std
 
 }
 
-void terrama2::services::alert::impl::NotifierEmail::send(std::string recipient) const
+void terrama2::services::alert::impl::NotifierEmail::send(std::string recipient, int riskLevel, bool notifyOnChange) const
 {
-  
+  if(riskLevel <= highestRiskLevel || (notifyOnChange && riskChanged))
+  {
+    //notify
+  }
 }

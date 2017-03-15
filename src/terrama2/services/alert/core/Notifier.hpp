@@ -56,11 +56,14 @@ namespace terrama2
           Notifier& operator=(Notifier&& other) = default;
 
           virtual std::string notifierCode() const = 0;
-          virtual void send(std::string recipient) const = 0;
+          virtual void send(std::string recipient, int riskLevel, bool notifyOnChange) const = 0;
 
-        private:
-          std::map<std::string, std::string> serverMap_;
+        protected:
+          const std::map<std::string, std::string> serverMap_;
           ReportPtr report_;
+
+          int highestRiskLevel = 0;
+          bool riskChanged = false;
         };
       } /* core */
     } /* alert */
