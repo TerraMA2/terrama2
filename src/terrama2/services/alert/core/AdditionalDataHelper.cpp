@@ -113,11 +113,8 @@ void terrama2::services::alert::core::AdditionalDataHelper::addAdditionalValues(
   for(auto data : dataMap_)
   {
     const auto& dataSet = data.first;
-    auto dataSetSeries = data.second;
 
     auto mapper = mapperMap_.at(dataSet);
-
-
     for(const auto& attribute : additionalData_.attributes)
     {
       auto value = mapper->getValue(fkValue, attribute);

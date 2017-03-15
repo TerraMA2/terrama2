@@ -131,8 +131,7 @@ terrama2::services::alert::core::getResultMap(size_t pos,
 }
 
 std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::populateAlertDataset(std::vector<std::shared_ptr<te::dt::DateTime> > vecDates,
-                                                                                        std::map<std::shared_ptr<te::dt::AbstractData>,
-                                                                                        std::map<std::string, std::pair<std::shared_ptr<te::dt::AbstractData>, terrama2::core::RiskLevel> >, comparatorAbstractData> riskResultMap,
+                                                                                        std::map<std::shared_ptr<te::dt::AbstractData>, std::map<std::string, std::pair<std::shared_ptr<te::dt::AbstractData>, terrama2::core::RiskLevel> >, comparatorAbstractData> riskResultMap,
                                                                                         const std::string comparisonPreviosProperty,
                                                                                         terrama2::core::DataSeriesRisk risk,
                                                                                         te::dt::Property* fkProperty,
@@ -161,17 +160,17 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::populateAlert
 
     if(vecDates.size() > 1)
     {
-      auto risk2 = resultMap.at(vecDates.at(1)->toString()).second;
+      auto pastRisk = resultMap.at(vecDates.at(1)->toString()).second;
 
       int comparisonResult = 0;
-      if(currentRisk.level < risk2.level)
+      if(currentRisk.level < pastRisk.level)
         comparisonResult = -1;
-      else if(currentRisk.level > risk2.level)
+      else if(currentRisk.level > pastRisk.level)
         comparisonResult = 1;
 
       std::string pastRiskProperty = terrama2::core::createValidPropertyName(vecDates.at(1)->toString());
 
-      dsItem->setInt32(pastRiskProperty, risk2.level);
+      dsItem->setInt32(pastRiskProperty, pastRisk.level);
       dsItem->setInt32(comparisonPreviosProperty, comparisonResult);
     }
 
@@ -182,10 +181,10 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::populateAlert
       dsItem->setInt32(property, risk.level);
     }
 
-    // for(auto iter = additionalDataVector.begin(); iter != additionalDataVector.end(); ++iter)
-    // {
-    //  iter->addAdditionalValues(dsItem, value->toString());
-    // }
+    for(auto iter = additionalDataVector.begin(); iter != additionalDataVector.end(); ++iter)
+    {
+     iter->addAdditionalValues(dsItem, value->toString());
+    }
 
     alertDataSet->add(dsItem);
 
@@ -344,7 +343,11 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
         alertDataSetType->add(riskLevelProp);
       }
 
-      std::map<std::shared_ptr<te::dt::AbstractData>, std::map<std::string, std::pair<std::shared_ptr<te::dt::AbstractData>, terrama2::core::RiskLevel> >, comparatorAbstractData> riskResultMap = getResultMap(pos, idProperty, getRisk, datetimeColumnName, teDataset, vecDates);
+      std::map<std::shared_ptr<te::dt::AbstractData>,
+          std::map<std::string,
+          std::pair<std::shared_ptr<te::dt::AbstractData>,
+          terrama2::core::RiskLevel> >,
+          comparatorAbstractData> riskResultMap = getResultMap(pos, idProperty, getRisk, datetimeColumnName, teDataset, vecDates);
 
       std::shared_ptr<te::mem::DataSet> alertDataSet = populateAlertDataset(vecDates, riskResultMap, comparisonPreviosProperty, risk, fkProperty, alertDataSetType, additionalDataVector);
 

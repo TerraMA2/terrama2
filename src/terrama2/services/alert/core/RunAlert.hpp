@@ -87,8 +87,7 @@ namespace terrama2
                      std::vector<std::shared_ptr<te::dt::DateTime> > vecDates);
 
         std::shared_ptr<te::mem::DataSet> populateAlertDataset( std::vector<std::shared_ptr<te::dt::DateTime> > vecDates,
-                                                                std::map<std::shared_ptr<te::dt::AbstractData>,
-                                                                std::map<std::string, std::pair<std::shared_ptr<te::dt::AbstractData>, terrama2::core::RiskLevel> >, comparatorAbstractData> riskResultMap,
+                                                                std::map<std::shared_ptr<te::dt::AbstractData>, std::map<std::string, std::pair<std::shared_ptr<te::dt::AbstractData>, terrama2::core::RiskLevel> >, comparatorAbstractData> riskResultMap,
                                                                 const std::string comparisonPreviosProperty,
                                                                 terrama2::core::DataSeriesRisk risk,
                                                                 te::dt::Property* fkProperty,
