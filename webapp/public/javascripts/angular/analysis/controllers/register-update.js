@@ -264,14 +264,7 @@ define([], function() {
           var historicalData = analysisInstance.reprocessing_historical_data || {};
 
           // checking schedule type
-          if (historicalData && (historicalData.startDate || historicalData.endDate)){
-            self.schedule.scheduleType = Globals.enums.ScheduleType.REPROCESSING_HISTORICAL;
-          }
-          else if (analysisInstance.schedule && (analysisInstance.schedule.frequency_unit || analysisInstance.schedule.schedule_unit)){
-            self.schedule.scheduleType = Globals.enums.ScheduleType.SCHEDULE;
-          } else {
-            self.schedule.scheduleType = Globals.enums.ScheduleType.MANUAL;
-          }
+          self.schedule.scheduleType = analysisInstance.schedule_type.toString();
 
           if (historicalData.startDate) {
             historicalData.startDate = DateParser(historicalData.startDate);
@@ -284,6 +277,7 @@ define([], function() {
           self.analysis.historical = historicalData;
 
           // schedule update
+          analysisInstance.schedule.scheduleType = analysisInstance.schedule_type.toString();
           $scope.$broadcast("updateSchedule", analysisInstance.schedule);
 
           // Filtering Analysis DataSeries table if there is.
@@ -1019,6 +1013,7 @@ define([], function() {
           storager.semantics = Object.assign({}, self.storager);
 
           var scheduleValues = Object.assign({}, self.schedule);
+          analysisToSend.schedule_type = scheduleValues.scheduleType;
           switch(scheduleValues.scheduleHandler) {
             case "seconds":
             case "minutes":
@@ -1034,6 +1029,15 @@ define([], function() {
               scheduleValues.schedule_time = moment(dt).format("HH:mm:ss");
               break;
             default:
+              if (scheduleValues.scheduleType == "4"){
+                scheduleValues.data_ids = [];
+                if (self.analysis.type_id == Globals.enums.AnalysisType.MONITORED){
+                  scheduleValues.data_ids.push(self.targetDataSeries.id);
+                }
+                self.selectedDataSeriesList.forEach(function(selectedDataSeries){
+                  scheduleValues.data_ids.push(selectedDataSeries.id);
+                });
+              }
               break;
           }
 

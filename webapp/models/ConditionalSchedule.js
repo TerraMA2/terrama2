@@ -21,7 +21,8 @@ module.exports = function(sequelize, DataTypes) {
             onDelete: "CASCADE",
             foreignKey: {
               name: 'conditional_schedule_id',
-              allowNull: true
+              allowNull: true,
+              constraints: true
             }
           });
 

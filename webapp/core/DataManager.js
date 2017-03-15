@@ -2100,7 +2100,6 @@ var DataManager = module.exports = {
             collectorObject.schedule_id = scheduleResult.id;
             collectorObject.active = active;
             collectorObject.collector_type = 1;
-            collectorObject.schedule_id = scheduleResult.id;
 
             return self.addCollector(collectorObject, filterObject, options).then(function(collectorResult) {
               var collector = collectorResult;
@@ -3009,7 +3008,15 @@ var DataManager = module.exports = {
         // successfully retrieving analysis data series
         .then(function(dataSeriesResult) {
           dataSeries = dataSeriesResult;
-          return self.getSchedule({id: analysisResult.schedule_id}, options);
+          var schedulePromise;
+          if (analysisResult.schedule_type == Enums.ScheduleType.CONDITIONAL){
+            schedulePromise = self.getConditionalSchedule({id: analysisResult.conditional_schedule_id}, options);
+          } else if (analysisResult.schedule_type == Enums.ScheduleType.SCHEDULE || analysisResult.schedule_type == Enums.ScheduleType.REPROCESSING_HISTORICAL){
+            schedulePromise = self.getSchedule({id: analysisResult.schedule_id}, options);            
+          } else {
+            schedulePromise = Promise.resolve();
+          }
+          return schedulePromise;
         })
         // successfully retrieving analysis schedule
         .then(function(schedule) {
@@ -3068,7 +3075,11 @@ var DataManager = module.exports = {
 
             var analysisInstance = new DataModel.Analysis(analysisResult);
             analysisInstance.setScriptLanguage(scriptLanguageResult);
-            analysisInstance.setSchedule(scheduleResult);
+            if (analysisResult.schedule_type == Enums.ScheduleType.CONDITIONAL){
+              analysisInstance.setConditionalSchedule(scheduleResult);
+            } else if(analysisResult.schedule_type == Enums.ScheduleType.SCHEDULE || analysisResult.schedule_type == Enums.ScheduleType.REPROCESSING_HISTORICAL){
+              analysisInstance.setSchedule(scheduleResult);
+            }
             analysisInstance.setMetadata(analysisMetadataOutput);
             analysisInstance.setDataSeries(dataSeries);
 
@@ -3145,10 +3156,78 @@ var DataManager = module.exports = {
        * not applied on children operations, Your DB operation may be inconsistent.
        */
       // Retrieve analysis and update Analysis Table
+      var removeSchedule;
+      var scheduleIdToRemove;
+      var scheduleTypeToRemove;
       return self.getAnalysis({id: analysisId}, options).then(function(analysisResult) {
         analysisInstance = analysisResult;
+        var oldScheduleType = analysisResult.scheduleType;
+        var newScheduleType = scheduleObject.scheduleType;
+        var schedulePromise;
+        /**
+         * Check if must just update the schedule if the schedule type don't change, or if must delete a schedule and create a new one
+         */
+        // If don't change the type update the schedule
+        if (oldScheduleType == newScheduleType){
+          if (newScheduleType == Enums.ScheduleType.SCHEDULE || newScheduleType == Enums.ScheduleType.REPROCESSING_HISTORICAL){
+            return self.updateSchedule(analysisInstance.schedule.id, scheduleObject, options);
+          } else if (newScheduleType == Enums.ScheduleType.CONDITIONAL){
+            return self.updateConditionalSchedule(analysisInstance.conditionalSchedule.id, scheduleObject, options);
+          }
+        } else if ((newScheduleType == Enums.ScheduleType.SCHEDULE && oldScheduleType == Enums.ScheduleType.REPROCESSING_HISTORICAL) || 
+                    (oldScheduleType == Enums.ScheduleType.SCHEDULE && newScheduleType == Enums.ScheduleType.REPROCESSING_HISTORICAL) ){
+            return self.updateSchedule(analysisInstance.schedule.id, scheduleObject, options);
+        } else {
+          // If don't have a schedule previously, create a new one
+          if (oldScheduleType == Enums.ScheduleType.MANUAL){
+            return self.addSchedule(scheduleObject, options).then(function(newSchedule){
+              if (newScheduleType == Enums.ScheduleType.SCHEDULE || newScheduleType == Enums.ScheduleType.REPROCESSING_HISTORICAL){
+                analysisObject.schedule_id = newSchedule.id;
+                analysisResult.schedule = newSchedule;
+                return null;
+              } else {
+                analysisObject.conditional_schedule_id = newSchedule.id;
+                analysisResult.conditionalSchedule = newSchedule;
+                return null;
+              }
+            });
+            // If old schedule is conditional, remove the schedule
+          } else if (oldScheduleType == Enums.ScheduleType.CONDITIONAL){
+            removeSchedule = true;
+            scheduleIdToRemove = analysisResult.conditionalSchedule.id;
+            scheduleTypeToRemove = oldScheduleType;
+            analysisObject.conditional_schedule_id = null;
+            // new schedule is not MANUAL create and set the id in analysis object to update
+            if (newScheduleType == Enums.ScheduleType.SCHEDULE || newScheduleType == Enums.ScheduleType.REPROCESSING_HISTORICAL){
+              return self.addSchedule(scheduleObject, options).then(function(newSchedule){
+                analysisObject.schedule_id = newSchedule.id;
+                analysisResult.schedule = newSchedule;
+                return null;
+              });
+            } else {
+              return null;
+            }
+            // when the old schedule is SCHEDULE or REPROCESSING HISTORICAL, remove the schedule
+          } else {
+            removeSchedule = true;
+            scheduleIdToRemove = analysisResult.schedule.id;
+            scheduleTypeToRemove = oldScheduleType;
+            analysisObject.schedule_id = null;
+            if (newScheduleType == Enums.ScheduleType.CONDITIONAL){
+              return self.addSchedule(scheduleObject, options).then(function(newSchedule){
+                analysisObject.conditional_schedule_id = newSchedule.id;
+                analysisResult.conditionalSchedule = newSchedule;
+                return null;
+              });
+            } else {
+              return null;
+            }
+          }
+        }
+      })
+      .then(function (){
         return models.db.Analysis.update(analysisObject, Utils.extend({
-          fields: ['name', 'description', 'instance_id', 'script', 'active'],
+          fields: ['name', 'description', 'instance_id', 'script', 'active', 'schedule_type', 'schedule_id', 'conditional_schedule_id'],
           where: {
             id: analysisId
           }
@@ -3201,10 +3280,16 @@ var DataManager = module.exports = {
 
         return Promise.all(promises);
       })
-      // Tries to updateschedule
+      // check if have to remove a schedule
       .then(function() {
-        // updating schedule
-        return self.updateSchedule(analysisInstance.schedule.id, scheduleObject, options);
+        // remove schedule
+        if (removeSchedule){
+          if (scheduleTypeToRemove == Enums.ScheduleType.CONDITIONAL){
+            return DataManager.removeConditionalSchedule({id: scheduleIdToRemove}, options);
+          } else {
+            return DataManager.removeSchedule({id: scheduleIdToRemove}, options);
+          }
+        }
       })
       // Update historical data if there is
       .then(function() {
@@ -3490,7 +3575,14 @@ var DataManager = module.exports = {
           models.db.AnalysisMetadata,
           models.db.ScriptLanguage,
           models.db.AnalysisType,
-          models.db.Schedule,
+          {
+            model: models.db.Schedule,
+            required: false
+          },
+          {
+            model: models.db.ConditionalSchedule,
+            required: false
+          },
           {
             model: models.db.DataSet,
             where: dataSetRestriction
@@ -3539,7 +3631,15 @@ var DataManager = module.exports = {
       return self.getAnalysis({id: analysisParam.id}, options).then(function(analysisResult) {
         return models.db.Analysis.destroy(Utils.extend({where: {id: analysisParam.id}}, options)).then(function() {
           return self.removeDataSerie({id: analysisResult.dataSeries.id}, options).then(function() {
-            return self.removeSchedule({id: analysisResult.schedule.id}, options).then(function() {
+            var removeSchedulePromise;
+            if (analysisResult.scheduleType == Enums.ScheduleType.SCHEDULE || analysisResult.scheduleType == Enums.ScheduleType.REPROCESSING_HISTORICAL){
+              removeSchedulePromise = self.removeSchedule({id: analysisResult.schedule.id}, options);
+            } else if (analysisResult.scheduleType == Enums.ScheduleType.CONDITIONAL ){
+              removeSchedulePromise = self.removeConditionalSchedule({id: analysisResult.conditionalSchedule.id}, options);
+            } else {
+              removeSchedulePromise = Promise.resolve();
+            }
+            return removeSchedulePromise.then(function() {
               return resolve();
             }).catch(function(err) {
               logger.error("Could not remove analysis schedule ", err);
