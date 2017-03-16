@@ -293,13 +293,22 @@ void terrama2::core::DataStoragerTiff::store(DataSetSeries series, DataSetPtr ou
       {
         verify::srid(raster->getSRID(), false);
         std::map<std::string, std::string> map{{"FORCE_MEM_DRIVER", "TRUE"}};
-        raster.reset(raster->transform(outputSrid, map));
+        auto temp = raster->transform(outputSrid, map);
+        if(temp)
+          raster.reset(temp);
       }
       catch(...)
       {
         auto grid = raster->getGrid();
         grid->setSRID(outputSrid);
       }
+    }
+
+    if(!raster.get())
+    {
+      QString errMsg = QObject::tr("Null raster found.");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      continue;
     }
 
     std::string filename = replaceMask(mask, timestamp, outputDataSet);

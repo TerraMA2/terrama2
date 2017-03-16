@@ -114,7 +114,6 @@ void terrama2::services::alert::core::AdditionalDataHelper::addAdditionalValues(
   {
     const auto& dataSet = data.first;
     auto dataSetSeries = data.second;
-    auto teDataSet = dataSetSeries.syncDataSet->dataset();
 
     auto mapper = mapperMap_.at(dataSet);
 

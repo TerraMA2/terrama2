@@ -44,6 +44,7 @@ include_directories ( SYSTEM
   ${GTEST_INCLUDE_DIRS}
   ${GMOCK_INCLUDE_DIRS}
   ${Qt5Core_INCLUDE_DIRS}
+  ${VMIME_INCLUDE_DIR}
 )
 
 include_directories (
@@ -69,5 +70,6 @@ foreach(FILE ${TERRAMA2_SRC_FILES})
                                     terrama2_impl
                                     terralib_mod_common
                                     ${GTEST_BOTH_LIBRARIES}
-                                    ${GMOCK_BOTH_LIBRARIES})
+                                    ${GMOCK_BOTH_LIBRARIES}
+                                    ${VMIME_LIBRARY})
 endforeach()
