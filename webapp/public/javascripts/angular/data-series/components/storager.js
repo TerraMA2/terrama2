@@ -40,6 +40,7 @@ define([], function(){
       self.formatSelected = {};
       self.dcpsStoragerObject = {};
       self.editedStoragerDcps = [];
+      self.removedStoragerDcps = [];
       self.inputDataSets = [];
       self.storage = {};
       self.dataProvidersStorager = [];
@@ -160,6 +161,7 @@ define([], function(){
         for(var property in self.dcpsStoragerObject) {
           if(self.dcpsStoragerObject.hasOwnProperty(property)) {
             if(self.dcpsStoragerObject[property].alias === dcpItem.alias) {
+              self.removedStoragerDcps.push(self.dcpsStoragerObject[property]._id);
               delete self.dcpsStoragerObject[property];
               return true;
             }
@@ -374,6 +376,7 @@ define([], function(){
                 data: self.objectToArray(self.dcpsStoragerObject),
                 data_provider: self['storager_data_provider_id'],
                 editedDcps: self.editedStoragerDcps,
+                removedDcps: self.removedStoragerDcps,
                 service: self["storager_service"],
                 type: self.formatSelected.data_series_type_name,
                 semantics: self.formatSelected
@@ -425,12 +428,13 @@ define([], function(){
       });
 
       $scope.$on("saveStoragerData", function(event) {
-        self.saveStoragerData(self.dcpsStoragerObject, self.editedStoragerDcps);
+        self.saveStoragerData(self.dcpsStoragerObject, self.editedStoragerDcps, self.removedStoragerDcps);
       });
 
       $scope.$on("resetStoragerDataSets", function(event) {
         self.dcpsStoragerObject = {};
         self.editedStoragerDcps = [];
+        self.removedStoragerDcps = [];
       });
 
       $scope.$on("clearStoreForm", function(event){
@@ -441,6 +445,7 @@ define([], function(){
         self.storager_service = undefined;
         self.dcpsStoragerObject = {};
         self.editedStoragerDcps = [];
+        self.removedStoragerDcps = [];
         self.storager_data_provider_id = undefined;
         $scope.$broadcast("clearSchedule");
       });
@@ -485,6 +490,7 @@ define([], function(){
         self.dataProvidersStorager = [];
         self.dcpsStoragerObject = {};
         self.editedStoragerDcps = (args.editedDcps !== undefined ? args.editedDcps : []);
+        self.removedStoragerDcps = (args.removedDcps !== undefined ? args.removedDcps : []);
 
         self.providersList.forEach(function(dataProvider) {
           dataSeriesSemantics.data_providers_semantics.forEach(function(demand) {

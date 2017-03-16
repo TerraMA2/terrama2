@@ -464,6 +464,7 @@ define([], function() {
             // TODO: prepare format as dcp item
             $scope.dcpsObject = {};
             $scope.editedDcps = [];
+            $scope.removedDcps = [];
             $scope.duplicatedAliasCounter = {};
 
             var dcps = [];
@@ -570,6 +571,7 @@ define([], function() {
         } else {
           $scope.dcpsObject = {};
           $scope.editedDcps = [];
+          $scope.removedDcps = [];
           $scope.duplicatedAliasCounter = {};
           $scope.model = {};
           $scope.$broadcast("resetStoragerDataSets");
@@ -978,7 +980,8 @@ define([], function() {
             format: $scope.storager.format,
             viewChange: (viewChange !== undefined ? viewChange : false),
             dcps: (viewChange !== undefined && viewChange ? $scope.objectToArray($scope.dcpsStoragerObject) : $scope.objectToArray($scope.dcpsObject)),
-            editedDcps: (viewChange !== undefined && viewChange ? $scope.editedStoragerDcps : [])
+            editedDcps: (viewChange !== undefined && viewChange ? $scope.editedStoragerDcps : []),
+            removedDcps: (viewChange !== undefined && viewChange ? $scope.removedStoragerDcps : [])
           });
         });
       };
@@ -1090,9 +1093,11 @@ define([], function() {
       //. end wizard validations
       $scope.dcpsObject = {};
       $scope.editedDcps = [];
+      $scope.removedDcps = [];
 
       $scope.dcpsStoragerObject = {};
       $scope.editedStoragerDcps = [];
+      $scope.removedStoragerDcps = [];
 
       $scope.duplicatedAliasCounter = {};
 
@@ -1330,6 +1335,7 @@ define([], function() {
             console.log("Err in removing dcp");
           });
 
+          $scope.removedDcps.push($scope.dcpsObject[alias]._id);
           delete $scope.dcpsObject[alias];
         }
       };
@@ -1566,9 +1572,10 @@ define([], function() {
         });
       };
 
-      $scope.saveStoragerData = function(dcps, editedDcps) {
+      $scope.saveStoragerData = function(dcps, editedDcps, removedDcps) {
         $scope.dcpsStoragerObject = dcps;
         $scope.editedStoragerDcps = editedDcps;
+        $scope.removedStoragerDcps = removedDcps;
       };
 
       $scope.$on("storageValuesReceive", function(event, values) {
@@ -1691,6 +1698,7 @@ define([], function() {
           data_series_semantics_id: values.semantics.id,
           data_provider_id: values.data_provider,
           editedDcps: values.editedDcps,
+          removedDcps: values.removedDcps,
           dataSets: out
         };
 
@@ -1763,6 +1771,7 @@ define([], function() {
             }
 
             dataToSend.editedDcps = tempEditedDcps;
+            dataToSend.removedDcps = $scope.removedDcps;
 
             break;
           case "OCCURRENCE":
