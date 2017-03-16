@@ -2090,14 +2090,20 @@ var DataManager = module.exports = {
       return self.addDataSeries(dataSeriesObject.input, null, options).then(function(dataSeriesResult) {
         return self.addDataSeries(dataSeriesObject.output, null, options).then(function(dataSeriesResultOutput) {
           return self.addSchedule(scheduleObject, options).then(function(scheduleResult) {
-            var schedule = new DataModel.Schedule(scheduleResult);
+            var schedule;
+            if (scheduleResult){
+              schedule = new DataModel.Schedule(scheduleResult);
+            }
             var collectorObject = {};
 
             // todo: get service_instance id and collector status (active)
             collectorObject.data_series_input = dataSeriesResult.id;
             collectorObject.data_series_output = dataSeriesResultOutput.id;
             collectorObject.service_instance_id = serviceObject.id;
-            collectorObject.schedule_id = scheduleResult.id;
+            collectorObject.schedule_type = scheduleObject.scheduleType;
+            if (scheduleObject.scheduleType == Enums.ScheduleType.SCHEDULE){
+              collectorObject.schedule_id = scheduleResult.id;
+            }
             collectorObject.active = active;
             collectorObject.collector_type = 1;
 
@@ -2327,8 +2333,14 @@ var DataManager = module.exports = {
 
         var schedule;
         var dataSeriesInput;
+        var getSchedulePromise;
 
-        return self.getSchedule({id: collectorResult.schedule_id}, options)
+        if (collectorResult.schedule_type == Enums.ScheduleType.MANUAL){
+          getSchedulePromise = Promise.resolve();
+        } else {
+          getSchedulePromise = self.getSchedule({id: collectorResult.schedule_id}, options);
+        }
+        return getSchedulePromise
           .then(function(scheduleResult) {
             schedule = scheduleResult;
             return self.getDataSeries({id: collectorResult.data_series_input});
@@ -2442,6 +2454,7 @@ var DataManager = module.exports = {
         'data_series_input',
         'data_series_output',
         'schedule_id',
+        'schedule_type',
         'active',
         'collector_type'
       ];

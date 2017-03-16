@@ -674,5 +674,6 @@
 	"Number": "Number",
 	"Text": "Text",
 	"Database": "Database",
-	"Conditional": "Conditional"
+	"Conditional": "Conditional",
+	"Static GDAL grid": "Static GDAL grid"
 }
