@@ -4,9 +4,42 @@ var DataManager = require('./../../core/DataManager');
 var Enums = require('./../../core/Enums');
 var makeTokenParameters = require('../../core/Utils').makeTokenParameters;
 var Promise = require('bluebird');
+
 var storedDcps = {};
 var storedDcpsStore = {};
 
+var storedDcpsKeysTime = {};
+var storedDcpsStoreKeysTime = {};
+
+var checkKeys = function() {
+  for(var key in storedDcpsKeysTime) {
+    if(storedDcpsKeysTime.hasOwnProperty(key)) {
+      var currentDate = new Date();
+      var diff = Math.abs(storedDcpsKeysTime[key] - currentDate);
+
+      if(Math.round(diff / (1000 * 60)) >= 10) {
+        delete storedDcpsKeysTime[key];
+
+        if(storedDcps[key] != undefined)
+          delete storedDcps[key];
+      }
+    }
+  }
+
+  for(var key in storedDcpsStoreKeysTime) {
+    if(storedDcpsStoreKeysTime.hasOwnProperty(key)) {
+      var currentDate = new Date();
+      var diff = Math.abs(storedDcpsStoreKeysTime[key] - currentDate);
+
+      if(Math.round(diff / (1000 * 60)) >= 10) {
+        delete storedDcpsStoreKeysTime[key];
+
+        if(storedDcpsStore[key] != undefined)
+          delete storedDcpsStore[key];
+      }
+    }
+  }
+};
 
 module.exports = function(app) {
   return {
@@ -81,10 +114,14 @@ module.exports = function(app) {
       var key = request.body.key;
       var dcps = request.body.dcps;
 
+      checkKeys();
+
       if(storedDcps[key] !== undefined)
         storedDcps[key] = storedDcps[key].concat(dcps);
-      else
+      else {
         storedDcps[key] = dcps;
+        storedDcpsKeysTime[key] = new Date();
+      }
 
       response.json(storedDcps[key]);
     },
@@ -93,16 +130,22 @@ module.exports = function(app) {
       var key = request.body.key;
       var dcps = request.body.dcps;
 
+      checkKeys();
+
       if(storedDcpsStore[key] !== undefined)
         storedDcpsStore[key] = storedDcpsStore[key].concat(dcps);
-      else
+      else {
         storedDcpsStore[key] = dcps;
+        storedDcpsStoreKeysTime[key] = new Date();
+      }
 
       response.json(storedDcpsStore[key]);
     },
 
     paginateDcps: function(request, response) {
       var key = request.body.key;
+
+      checkKeys();
 
       response.json({
         draw: parseInt(request.body.draw),
@@ -115,6 +158,8 @@ module.exports = function(app) {
     paginateDcpsStore: function(request, response) {
       var key = request.body.key;
 
+      checkKeys();
+
       response.json({
         draw: parseInt(request.body.draw),
         recordsTotal: (storedDcpsStore[key] === undefined ? 0 : storedDcpsStore[key].length),
@@ -125,6 +170,8 @@ module.exports = function(app) {
 
     removeStoredDcp: function(request, response) {
       var key = request.body.key;
+
+      checkKeys();
 
       if(storedDcps[key] != undefined) {
         for(var i = 0, dcpsLength = storedDcps[key].length; i < dcpsLength; i++) {
@@ -141,6 +188,8 @@ module.exports = function(app) {
     removeStoredDcpStore: function(request, response) {
       var key = request.body.key;
 
+      checkKeys();
+
       if(storedDcpsStore[key] != undefined) {
         for(var i = 0, dcpsLength = storedDcpsStore[key].length; i < dcpsLength; i++) {
           if(storedDcpsStore[key][i].alias == request.body.alias) {
@@ -155,6 +204,8 @@ module.exports = function(app) {
 
     updateDcp: function(request, response) {
       var key = request.body.key;
+
+      checkKeys();
 
       if(storedDcps[key] != undefined) {
         for(var i = 0, dcpsLength = storedDcps[key].length; i < dcpsLength; i++) {
@@ -171,6 +222,8 @@ module.exports = function(app) {
     updateDcpStore: function(request, response) {
       var key = request.body.key;
 
+      checkKeys();
+
       if(storedDcpsStore[key] != undefined) {
         for(var i = 0, dcpsLength = storedDcpsStore[key].length; i < dcpsLength; i++) {
           if(storedDcpsStore[key][i].alias == request.body.oldAlias) {
@@ -186,10 +239,40 @@ module.exports = function(app) {
     clearDcpsStore: function(request, response) {
       var key = request.body.key;
 
+      checkKeys();
+
       if(storedDcpsStore[key] != undefined)
         storedDcpsStore[key] = [];
 
       response.json(storedDcpsStore[key]);
+    },
+
+    deleteDcpsKey: function(request, response) {
+      var key = request.body.key;
+
+      checkKeys();
+
+      if(storedDcps[key] != undefined)
+        delete storedDcps[key];
+
+      if(storedDcpsKeysTime[key] != undefined)
+        delete storedDcpsKeysTime[key];
+
+      response.json(storedDcps);
+    },
+
+    deleteDcpsStoreKey: function(request, response) {
+      var key = request.body.key;
+
+      checkKeys();
+
+      if(storedDcpsStore[key] != undefined)
+        delete storedDcpsStore[key];
+
+      if(storedDcpsStoreKeysTime[key] != undefined)
+        delete storedDcpsStoreKeysTime[key];
+
+      response.json(storedDcpsStore);
     }
   };
 

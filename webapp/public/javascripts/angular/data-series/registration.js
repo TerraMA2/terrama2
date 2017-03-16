@@ -1565,7 +1565,19 @@ define([], function() {
         }
 
         request.then(function(data) {
-          $window.location.href = "/configuration/" + configuration.dataSeriesType + "/dataseries?token=" + (data.token || data.data.token);
+          if($scope.semantics === globals.enums.DataSeriesType.DCP) {
+            $scope.$broadcast("deleteDcpsStoreKey");
+
+            $http.post("/configuration/dynamic/dataseries/deleteDcpsKey", {
+              key: storedDcpsKey
+            }).success(function(result) {
+              $window.location.href = "/configuration/" + configuration.dataSeriesType + "/dataseries?token=" + (data.token || data.data.token);
+            }).error(function(err) {
+              console.log("Err in deleting key");
+            });
+          } else {
+            $window.location.href = "/configuration/" + configuration.dataSeriesType + "/dataseries?token=" + (data.token || data.data.token);
+          }
         }).catch(function(err) {
           var errMessage = err.message || err.data.message;
           MessageBoxService.danger("Data Registration", errMessage);

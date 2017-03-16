@@ -16,6 +16,8 @@ module.exports = function(app) {
   app.post("/configuration/dynamic/dataseries/updateDcp", passport.isAuthenticated, controllerDynamic.updateDcp);
   app.post("/configuration/dynamic/dataseries/updateDcpStore", passport.isAuthenticated, controllerDynamic.updateDcpStore);
   app.post("/configuration/dynamic/dataseries/clearDcpsStore", passport.isAuthenticated, controllerDynamic.clearDcpsStore);
+  app.post("/configuration/dynamic/dataseries/deleteDcpsKey", passport.isAuthenticated, controllerDynamic.deleteDcpsKey);
+  app.post("/configuration/dynamic/dataseries/deleteDcpsStoreKey", passport.isAuthenticated, controllerDynamic.deleteDcpsStoreKey);
   app.get("/configuration/static/dataseries/", passport.isAuthenticated, controllerStatic.get);
   app.get("/configuration/static/dataseries/new", passport.isAuthenticated, controllerStatic.new);
   app.get("/configuration/static/dataseries/:id", passport.isAuthenticated, controllerStatic.edit);

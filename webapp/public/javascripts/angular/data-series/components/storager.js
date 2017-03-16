@@ -431,6 +431,14 @@ define([], function(){
         self.saveStoragerData(self.dcpsStoragerObject, self.editedStoragerDcps, self.removedStoragerDcps);
       });
 
+      $scope.$on("deleteDcpsStoreKey", function(event) {
+        $http.post("/configuration/dynamic/dataseries/deleteDcpsStoreKey", {
+          key: storedDcpsKey
+        }).error(function(err) {
+          console.log("Err in deleting key");
+        });
+      });
+
       $scope.$on("resetStoragerDataSets", function(event) {
         self.dcpsStoragerObject = {};
         self.editedStoragerDcps = [];
