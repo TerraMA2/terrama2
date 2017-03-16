@@ -302,7 +302,7 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
           throw DataRetrieverException() << ErrorDescription(errMsg);
         }
 
-        std::string uriOrigin = uri + file;
+        std::string uriOrigin = uri + "/" + file;
 
         std::string filePath = savePath.toStdString() + "/" + file;
 
