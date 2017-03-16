@@ -51,6 +51,10 @@ namespace te
 
 namespace terrama2
 {
+  namespace core{
+    class TeDataSetFKJoin;
+  }
+
   namespace services
   {
     namespace alert
@@ -91,8 +95,7 @@ namespace terrama2
                                                                 const std::string comparisonPreviosProperty,
                                                                 terrama2::core::DataSeriesRisk risk,
                                                                 te::dt::Property* fkProperty,
-                                                                std::shared_ptr<te::da::DataSetType> alertDataSetType,
-                                                                std::vector<AdditionalDataHelper> additionalDataVector);
+                                                                std::shared_ptr<te::da::DataSetType> alertDataSetType);
       } /* core */
     } /* alert */
   } /* services */

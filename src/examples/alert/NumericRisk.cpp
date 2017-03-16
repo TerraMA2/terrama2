@@ -105,6 +105,7 @@ terrama2::core::DataSeriesPtr additionalDataSeries()
 
   //DataSet information
   terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
+  dataSet->id = 2;
   dataSet->active = true;
   dataSet->format.emplace("mask", "estados_2010.shp");
   dataSet->format.emplace("srid", "4326");
@@ -151,8 +152,8 @@ terrama2::services::alert::core::AlertPtr newAlert()
   alert->risk = risk;
 
   terrama2::services::alert::core::AdditionalData additionalData;
-  additionalData.id = 2;
-  additionalData.identifier = "sigla";
+  additionalData.dataSeriesId = 2;
+  additionalData.dataSetId = 2;
   additionalData.attributes.push_back("nome");
 
   alert->additionalDataVector.push_back(additionalData);

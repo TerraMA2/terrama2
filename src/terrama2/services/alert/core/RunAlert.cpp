@@ -28,16 +28,17 @@
 */
 
 // TerraMA2
+#include "../../../core/Shared.hpp"
 #include "../../../core/utility/Utils.hpp"
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/utility/DataAccessorFactory.hpp"
 #include "../../../core/utility/TimeUtils.hpp"
+#include "../../../core/utility/TeDataSetFKJoin.hpp"
 #include "../../../core/data-access/DataAccessor.hpp"
 #include "../../../core/data-model/DataSeriesRisk.hpp"
 #include "RunAlert.hpp"
 #include "Alert.hpp"
 #include "Report.hpp"
-#include "AdditionalDataHelper.hpp"
 
 
 // Terralib
@@ -135,13 +136,11 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::populateAlert
                                                                                         const std::string comparisonPreviosProperty,
                                                                                         terrama2::core::DataSeriesRisk risk,
                                                                                         te::dt::Property* fkProperty,
-                                                                                        std::shared_ptr<te::da::DataSetType> alertDataSetType,
-                                                                                        std::vector<AdditionalDataHelper> additionalDataVector)
+                                                                                        std::shared_ptr<te::da::DataSetType> alertDataSetType)
 {
   std::shared_ptr<te::mem::DataSet> alertDataSet = std::make_shared<te::mem::DataSet>(alertDataSetType.get());
 
   alertDataSet->moveBeforeFirst();
-
   for(auto& item : riskResultMap)
   {
     te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(alertDataSet.get());
@@ -181,13 +180,7 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::populateAlert
       dsItem->setInt32(property, risk.level);
     }
 
-    for(auto iter = additionalDataVector.begin(); iter != additionalDataVector.end(); ++iter)
-    {
-     iter->addAdditionalValues(dsItem, value->toString());
-    }
-
     alertDataSet->add(dsItem);
-
   }
 
   return alertDataSet;
@@ -221,10 +214,13 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
     auto inputDataProvider = dataManager->findDataProvider(inputDataSeries->dataProviderId);
 
     //retrieve additional data
-    std::vector<AdditionalDataHelper> additionalDataVector;
+    std::unordered_map<DataSeriesId, std::pair<terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr> > tempAdditionalDataVector;
     for(auto additionalData : alertPtr->additionalDataVector)
     {
-      additionalDataVector.emplace_back(additionalData, dataManager);
+      auto dataSeries = dataManager->findDataSeries(additionalData.dataSeriesId);
+      auto dataProvider = dataManager->findDataProvider(dataSeries->dataProviderId);
+
+      tempAdditionalDataVector.emplace(additionalData.dataSeriesId, std::make_pair(dataSeries, dataProvider));
     }
 
     // dataManager no longer in use
@@ -304,10 +300,24 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
         }
       }
 
-      for(auto iter = additionalDataVector.begin(); iter != additionalDataVector.end(); ++iter)
+      //Creat a Join class based on the ForeignKey of the dataset
+      std::unordered_map<std::string, terrama2::core::TeDataSetFKJoin> additionalDataMap;
+      for(auto additionalData : alertPtr->additionalDataVector)
       {
-        iter->prepareData(alertPtr->filter);
-        iter->addAdditionalAttributesColumns(alertDataSetType);
+        auto pair = tempAdditionalDataVector.at(additionalData.dataSeriesId);
+        auto dataSeries = pair.first;
+        auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(pair.second, dataSeries);
+        auto dataMap = dataAccessor->getSeries(filter, remover);
+
+        auto iter = std::find_if(dataMap.begin(), dataMap.end(), [&additionalData](std::pair<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries> pair)
+                                                                                  {
+                                                                                    return pair.first->id == additionalData.dataSetId;
+                                                                                  });
+        auto referredDataSeries = dataMap.at(iter->first);
+        terrama2::core::TeDataSetFKJoin join(dataSetType, teDataset, referredDataSeries.teDataSetType, referredDataSeries.syncDataSet->dataset());
+
+        std::string key = std::to_string(additionalData.dataSeriesId)+"_"+std::to_string(additionalData.dataSetId);
+        additionalDataMap.emplace(key, join);
       }
 
       auto riskAttributeProp = dataSetType->getProperty(risk.attribute)->clone();
@@ -349,7 +359,20 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
           terrama2::core::RiskLevel> >,
           comparatorAbstractData> riskResultMap = getResultMap(pos, idProperty, getRisk, datetimeColumnName, teDataset, vecDates);
 
-      std::shared_ptr<te::mem::DataSet> alertDataSet = populateAlertDataset(vecDates, riskResultMap, comparisonPreviosProperty, risk, fkProperty, alertDataSetType, additionalDataVector);
+      std::shared_ptr<te::mem::DataSet> alertDataSet = populateAlertDataset(vecDates, riskResultMap, comparisonPreviosProperty, risk, fkProperty, alertDataSetType);
+
+      for(auto additionalData : alertPtr->additionalDataVector)
+      {
+        std::string key = std::to_string(additionalData.dataSeriesId)+"_"+std::to_string(additionalData.dataSetId);
+        auto join = additionalDataMap.at(key);
+
+        for(const std::string& propertyName : additionalData.attributes)
+        {
+          auto dataSetType = join.referredDataSetType();
+          auto referredProperty = join.getProperty(propertyName);
+          alertDataSet->add(dataSetType->getName()+"_"+propertyName, referredProperty->getType());
+        }
+      }
 
       terrama2::services::alert::core::Report report(alertPtr, alertDataSet, alertDataSetType, vecDates);
 

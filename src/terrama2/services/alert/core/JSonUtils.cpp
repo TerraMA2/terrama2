@@ -81,6 +81,7 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
   {
     auto obj = value.toObject();
     auto id = static_cast<uint32_t>(obj["dataseries_id"].toInt());
+    auto datasetid = static_cast<uint32_t>(obj["dataset_id"].toInt());
     auto identifier = obj["identifier_attribute"].toString().toStdString();
 
     std::vector<std::string> attributes;
@@ -88,7 +89,7 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
     for(const auto& tempAttribute : attributesArray)
       attributes.push_back(tempAttribute.toString().toStdString());
 
-    alert->additionalDataVector.push_back({id, identifier, attributes});
+    alert->additionalDataVector.push_back({id, datasetid, attributes});
   }
 
   return nullptr;
@@ -113,8 +114,8 @@ QJsonObject terrama2::services::alert::core::toJson(AlertPtr alert)
   for(const auto& data : alert->additionalDataVector)
   {
     QJsonObject tempObj;
-    tempObj.insert("dataseries_id", static_cast<int>(data.id));
-    obj.insert("identifier_attribute", QString::fromStdString(data.identifier));
+    tempObj.insert("dataseries_id", static_cast<int>(data.dataSeriesId));
+    obj.insert("dataset_id", static_cast<int>(data.dataSetId));
     QJsonArray attributesArray;
     for(const auto& attribute : data.attributes)
       attributesArray.append(QString::fromStdString(attribute));

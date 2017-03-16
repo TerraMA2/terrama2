@@ -46,7 +46,7 @@
 terrama2::services::alert::core::AdditionalDataHelper::AdditionalDataHelper(AdditionalData additionalData, DataManagerPtr dataManager)
   : additionalData_(additionalData)
 {
-  dataSeries_ = dataManager->findDataSeries(additionalData.id);
+  dataSeries_ = dataManager->findDataSeries(additionalData.dataSeriesId);
   dataProvider_ = dataManager->findDataProvider(dataSeries_->dataProviderId);
   remover_ = std::make_shared<terrama2::core::FileRemover>();
 }
@@ -57,15 +57,15 @@ bool terrama2::services::alert::core::AdditionalDataHelper::prepareData(terrama2
   dataMap_ = dataAccessor->getSeries(filter, remover_);
   if(dataMap_.empty())
   {
-    TERRAMA2_LOG_WARNING() << QObject::tr("No data to available in dataseries %1.").arg(additionalData_.id);
+    TERRAMA2_LOG_WARNING() << QObject::tr("No data to available in dataseries %1.").arg(additionalData_.dataSeriesId);
     return false;
   }
 
   for(const auto& data : dataMap_)
   {
     const auto& dataSetSeries = data.second;
-    auto mapper = std::make_shared<terrama2::core::DataSetMapper>(dataSetSeries.syncDataSet->dataset(), additionalData_.identifier);
-    mapperMap_.emplace(data.first, mapper);
+    // auto mapper = std::make_shared<terrama2::core::DataSetMapper>(dataSetSeries.syncDataSet->dataset(), additionalData_.identifier);
+    // mapperMap_.emplace(data.first, mapper);
   }
 
   isDataReady_ = true;
