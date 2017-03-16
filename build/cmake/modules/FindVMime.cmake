@@ -32,6 +32,7 @@ if(UNIX)
   find_path(VMIME_INCLUDE_DIR vmime/vmime.hpp
             PATHS /usr
                   /usr/local
+                  /opt/terrama2/4.0.0/3rdparty
             PATH_SUFFIXES include
                           vmime)
 
@@ -40,6 +41,7 @@ if(UNIX)
                PATHS /usr
                      /usr/local
                      /usr/local/vmime
+                     /opt/terrama2/4.0.0/3rdparty
                PATH_SUFFIXES lib)
 
 elseif(WIN32)
