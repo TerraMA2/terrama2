@@ -84,12 +84,12 @@ namespace terrama2
     private:
       void fillPKMap(std::string referredPropertyName, std::shared_ptr<te::da::DataSet> referredDataSet);
 
-
       std::unordered_map<std::string, size_t> _referredPKMap; //!< Map of primare key to line
-      std::string _referrerPropertyName; //!< Foreign Key property
 
       std::shared_ptr<te::da::DataSetType> _referrerDataSetType;
       std::shared_ptr<te::da::DataSet> _referrerDataSet; //!< DataSet with a ForeignKey to another DataSet
+      std::string _referrerPropertyName; //!< Foreign Key property
+
       std::shared_ptr<te::da::DataSetType> _referredDataSetType;
       std::shared_ptr<te::da::DataSet> _referredDataSet; //!< DataSet referred by fkDataSet
     };

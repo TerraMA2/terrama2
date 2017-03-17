@@ -36,7 +36,6 @@
 #include "Typedef.hpp"
 #include "AlertLogger.hpp"
 #include "DataManager.hpp"
-#include "AdditionalDataHelper.hpp"
 
 #include <terralib/memory/DataSet.h>
 
