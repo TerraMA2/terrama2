@@ -29,7 +29,7 @@
     <div class="form-group" terrama2-show-errors>
       <label ng-bind="$ctrl.i18n.__('Default type')+':'"></label>
       <select name="default_type" class="form-control" ng-model="$ctrl.csvFormatData.default_type" required>
-        <option ng-repeat="type in $ctrl.fieldsType" value="{{type.value}}">{{$ctrl.i18n.__(type.title)}}</option>
+        <option ng-repeat="type in $ctrl.fieldsType" ng-if="type.defaultType" value="{{type.value}}">{{$ctrl.i18n.__(type.title)}}</option>
       </select> 
     </div>
   </div>
@@ -41,7 +41,7 @@
   <div class="col-md-12">
     <div class="form-group">
       <label ng-bind="$ctrl.i18n.__('Fields')+':'"></label>
-      <csv-field-detail ng-repeat="field in $ctrl.csvFormatData.fields" field="field" fields-type="$ctrl.fieldsType" on-delete="$ctrl.deleteField(field)"></csv-field-detail>
+      <csv-field-detail ng-repeat="field in $ctrl.csvFormatData.fields" field="field" fields-type="$ctrl.fieldsType" on-delete="$ctrl.deleteField(field)" semantics="$ctrl.semantics"></csv-field-detail>
     </div>
   </div>
 </div>
