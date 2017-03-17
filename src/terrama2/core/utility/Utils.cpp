@@ -551,3 +551,20 @@ std::string terrama2::core::createValidPropertyName(const std::string& oldName)
 
   return name;
 }
+
+std::vector<std::string> terrama2::core::splitString(const std::string& text, char delim)
+{
+  std::stringstream ss;
+  ss.str(text);
+
+  std::vector<std::string> splittedString;
+
+  std::string str;
+
+  while(std::getline(ss, str, delim))
+  {
+    splittedString.push_back(str);
+  }
+
+  return splittedString;
+}

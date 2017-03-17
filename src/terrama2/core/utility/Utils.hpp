@@ -179,6 +179,8 @@ namespace terrama2
      */
     std::string createValidPropertyName(const std::string& oldName);
 
+    std::vector<std::string> splitString(const std::string& text, char delim);
+
   } // end namespace core
 }   // end namespace terrama2
 

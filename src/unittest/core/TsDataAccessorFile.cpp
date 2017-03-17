@@ -89,4 +89,39 @@ void TsDataAccessorFile::testGetFoldersList()
     if(foldersList.size() < 3)
       QFAIL("Wrong number of folders matched!");
   }
+
+  {
+    auto foldersList = da.getFoldersList(fileList, "");
+
+    if(foldersList.size() != 1)
+      QFAIL("Wrong number of folders matched!");
+  }
+
+  {
+    auto foldersList = da.getFoldersList(fileList, "/");
+
+    if(foldersList.size() != 1)
+      QFAIL("Wrong number of folders matched!");
+  }
+
+  {
+    auto foldersList = da.getFoldersList(fileList, "//");
+
+    if(foldersList.size() != 1)
+      QFAIL("Wrong number of folders matched!");
+  }
+
+  {
+    auto foldersList = da.getFoldersList(fileList, "%YYYY*//%MM*/%DD*//final*");
+
+    if(foldersList.size() < 3)
+      QFAIL("Wrong number of folders matched!");
+  }
+
+  {
+    auto foldersList = da.getFoldersList(fileList, "%YYYY*/nonexistent/%DD*");
+
+    if(!foldersList.empty())
+      QFAIL("Wrong number of folders matched!");
+  }
 }

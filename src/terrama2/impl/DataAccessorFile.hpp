@@ -71,6 +71,8 @@ namespace terrama2
 
         virtual std::vector<std::string> getFoldersList(const std::vector<std::string>& uris, const std::string& foldersMask) const;
 
+        virtual std::vector<std::string> checkSubfolders(const std::vector<std::string>& baseURIs, const std::string& mask) const;
+
         virtual QFileInfoList getFilesList(const std::string& uri,
                                            const std::string& mask,
                                            const Filter& filter,

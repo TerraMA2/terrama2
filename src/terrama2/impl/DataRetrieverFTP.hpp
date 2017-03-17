@@ -98,6 +98,9 @@ namespace terrama2
 
         virtual std::vector<std::string> getFoldersList(const std::vector<std::string>& uris,
                                                         const std::string& foldersMask);
+
+        virtual std::vector<std::string> checkSubfolders(const std::vector<std::string> baseURIs,
+                                                         const std::string mask);
         /*!
          * \brief write_response - data to be written in file.
          * Define our callback to get called when there's data to be written in file.
