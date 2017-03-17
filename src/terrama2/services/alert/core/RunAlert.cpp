@@ -195,7 +195,6 @@ void terrama2::services::alert::core::addAdditionalData(std::shared_ptr<te::mem:
   for(size_t i = 0; i < alertDataSet->size(); i++)
   {
     alertDataSet->move(i);
-    auto item = alertDataSet->getItem();
 
     //iterate over all additional dataset to fill each item
     for(auto additionalData : alertPtr->additionalDataVector)
@@ -211,15 +210,15 @@ void terrama2::services::alert::core::addAdditionalData(std::shared_ptr<te::mem:
         auto referredProperty = join.getProperty(propertyName);
 
         std::string newPropertyName = dataSetType->getName()+"_"+propertyName;
-        if(propertyNames.find(newPropertyName) != propertyNames.end() )
+        if(propertyNames.find(newPropertyName) == propertyNames.end() )
         {
           // create the property in the alert dataset
           alertDataSet->add(newPropertyName, referredProperty->getType());
           propertyNames.insert(newPropertyName);
         }
 
-        //set property value in the item
-        item->setValue(newPropertyName, join.getValue(propertyName).release());
+        //set property value
+        alertDataSet->setValue(newPropertyName, join.getValue(propertyName).release());
       }
     }
   }
@@ -359,7 +358,7 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
                                              additionalData.referrerAttribute,
                                              referredDataSeries.teDataSetType,
                                              referredDataSeries.syncDataSet->dataset(),
-                                             additionalData.referredAttribute); 
+                                             additionalData.referredAttribute);
 
         std::string key = std::to_string(additionalData.dataSeriesId)+"_"+std::to_string(additionalData.dataSetId);
         additionalDataMap.emplace(key, join);
@@ -399,17 +398,14 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
       }
 
       std::map<std::shared_ptr<te::dt::AbstractData>,
-          std::map<std::string,
-          std::pair<std::shared_ptr<te::dt::AbstractData>,
-          terrama2::core::RiskLevel> >,
-          comparatorAbstractData> riskResultMap = getResultMap(pos, idProperty, getRisk, datetimeColumnName, teDataset, vecDates);
-
+              std::map<std::string,
+              std::pair<std::shared_ptr<te::dt::AbstractData>,
+              terrama2::core::RiskLevel> >,
+              comparatorAbstractData> riskResultMap = getResultMap(pos, idProperty, getRisk, datetimeColumnName, teDataset, vecDates);
       std::shared_ptr<te::mem::DataSet> alertDataSet = populateAlertDataset(vecDates, riskResultMap, comparisonPreviosProperty, risk, fkProperty, alertDataSetType);
-
       addAdditionalData(alertDataSet, alertPtr, additionalDataMap);
 
       terrama2::services::alert::core::Report report(alertPtr, alertDataSet, alertDataSetType, vecDates);
-
       std::shared_ptr<te::da::DataSet> filteredDataSet = report.retrieveDataChangedRisk();
     }
 
