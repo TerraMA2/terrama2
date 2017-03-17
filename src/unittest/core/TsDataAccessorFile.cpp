@@ -72,19 +72,19 @@ void TsDataAccessorFile::testGetFoldersList()
 
   TestDataAccessorFile da(dataProviderPtr, dataSeriesPtr);
 
-  QFileInfoList fileList;
+  std::vector<std::string> fileList;
 
-  fileList.push_back(QDir::tempPath());
+  fileList.push_back(QDir::tempPath().toStdString());
 
   {
-    QFileInfoList foldersList = da.getFoldersList(fileList, "/%YYYY*/%MM*/%DD*/final*");
+    auto foldersList = da.getFoldersList(fileList, "/%YYYY*/%MM*/%DD*/final*");
 
     if(foldersList.size() < 3)
       QFAIL("Wrong number of folders matched!");
   }
 
   {
-    QFileInfoList foldersList = da.getFoldersList(fileList, "%YYYY*/%MM*/%DD*/final*");
+    auto foldersList = da.getFoldersList(fileList, "%YYYY*/%MM*/%DD*/final*");
 
     if(foldersList.size() < 3)
       QFAIL("Wrong number of folders matched!");

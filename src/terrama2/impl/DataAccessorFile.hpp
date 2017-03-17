@@ -69,7 +69,7 @@ namespace terrama2
         //! Recover file mask
         virtual std::string getMask(DataSetPtr dataset) const;
 
-        virtual QFileInfoList getFoldersList(const QFileInfoList& uris, const std::string& foldersMask) const;
+        virtual std::vector<std::string> getFoldersList(const std::vector<std::string>& uris, const std::string& foldersMask) const;
 
         virtual QFileInfoList getFilesList(const std::string& uri,
                                            const std::string& mask,
