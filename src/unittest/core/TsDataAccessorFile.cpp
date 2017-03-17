@@ -72,21 +72,61 @@ void TsDataAccessorFile::testGetFoldersList()
 
   TestDataAccessorFile da(dataProviderPtr, dataSeriesPtr);
 
-  QFileInfoList fileList;
+  std::vector<std::string> fileList;
 
-  fileList.push_back(QDir::tempPath());
+  fileList.push_back(QDir::tempPath().toStdString());
 
   {
-    QFileInfoList foldersList = da.getFoldersList(fileList, "/%YYYY*/%MM*/%DD*/final*");
+    auto foldersList = da.getFoldersList(fileList, "/%YYYY*/%MM*/%DD*/final*");
 
     if(foldersList.size() < 3)
       QFAIL("Wrong number of folders matched!");
   }
 
   {
-    QFileInfoList foldersList = da.getFoldersList(fileList, "%YYYY*/%MM*/%DD*/final*");
+    auto foldersList = da.getFoldersList(fileList, "%YYYY*/%MM*/%DD*/final*");
 
     if(foldersList.size() < 3)
+      QFAIL("Wrong number of folders matched!");
+  }
+
+  // empty mask
+  {
+    auto foldersList = da.getFoldersList(fileList, "");
+
+    if(foldersList.size() != 1)
+      QFAIL("Wrong number of folders matched!");
+  }
+
+  // considered as empty mask
+  {
+    auto foldersList = da.getFoldersList(fileList, "/");
+
+    if(foldersList.size() != 1)
+      QFAIL("Wrong number of folders matched!");
+  }
+
+  // considered as empty mask
+  {
+    auto foldersList = da.getFoldersList(fileList, "//");
+
+    if(foldersList.size() != 1)
+      QFAIL("Wrong number of folders matched!");
+  }
+
+  // ignore the extras '/'
+  {
+    auto foldersList = da.getFoldersList(fileList, "%YYYY*//%MM*/%DD*//final*");
+
+    if(foldersList.size() < 3)
+      QFAIL("Wrong number of folders matched!");
+  }
+
+  // the folders doesn't match
+  {
+    auto foldersList = da.getFoldersList(fileList, "%YYYY*/nonexistent/%DD*");
+
+    if(!foldersList.empty())
       QFAIL("Wrong number of folders matched!");
   }
 }

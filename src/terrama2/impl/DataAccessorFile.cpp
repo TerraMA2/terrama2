@@ -396,41 +396,40 @@ std::shared_ptr<te::da::DataSet> terrama2::core::DataAccessorFile::getTerraLibDa
 }
 
 
-QFileInfoList terrama2::core::DataAccessorFile::getFoldersList(const QFileInfoList& uris, const std::string& foldersMask) const
+std::vector<std::string>  terrama2::core::DataAccessorFile::getFoldersList(const std::vector<std::string>& uris,
+                                                                           const std::string& foldersMask) const
 {
-  QFileInfoList folders;
+  std::vector<std::string> maskList = splitString(foldersMask, '/');
 
-  std::size_t found = foldersMask.find_first_of('/');
+  if(maskList.empty())
+    return uris;
 
-  std::string mask;
+  std::vector<std::string> folders = uris;
 
-  if(found != std::string::npos)
+  for(auto mask : maskList)
   {
-    std::size_t begin = 0;
-
-    if(found == 0)
-    {
-      begin = foldersMask.find_first_not_of('/');
-      std::string tempMask = foldersMask.substr(begin);
-      found = tempMask.find_first_of('/');
-      mask = foldersMask.substr(begin, found);
-
-      if(found != std::string::npos)
-        found++;
-    }
-    else
-    {
-      mask = foldersMask.substr(begin, found);
-    }
-  }
-  else
-  {
-    mask = foldersMask;
+    if(!mask.empty())
+      folders = checkSubfolders(folders, mask);
   }
 
-  for(const auto& uri : uris)
+  if(folders.empty())
   {
-    QDir dir(uri.absoluteFilePath());
+    QString errMsg = QObject::tr("No directory matches the mask.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    return {};
+  }
+
+  return folders;
+}
+
+
+std::vector<std::string> terrama2::core::DataAccessorFile::checkSubfolders(const std::vector<std::string>& baseURIs, const std::string& mask) const
+{
+  std::vector<std::string> folders;
+
+  for(const auto& uri : baseURIs)
+  {
+    QDir dir(QString::fromStdString(uri));
     QFileInfoList fileInfoList = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
     if(fileInfoList.empty())
     {
@@ -446,29 +445,11 @@ QFileInfoList terrama2::core::DataAccessorFile::getFoldersList(const QFileInfoLi
       if(!terramaMaskMatch(mask, folder))
         continue;
 
-      folders.push_back(fileInfo);
+      folders.push_back(fileInfo.absoluteFilePath().toStdString());
     }
   }
 
-  std::string nextMask = "";
-
-  if(found != std::string::npos)
-    nextMask = foldersMask.substr(found+1);
-
-  if(nextMask.empty())
-  {
-    return folders;
-  }
-  else if(!folders.empty())
-  {
-    return getFoldersList(folders, nextMask);
-  }
-  else
-  {
-    QString errMsg = QObject::tr("No directory matches the mask.");
-    TERRAMA2_LOG_ERROR() << errMsg;
-    return QFileInfoList();
-  }
+  return folders;
 }
 
 
@@ -858,11 +839,6 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::DataAccessorFile::getDa
 
 QFileInfoList terrama2::core::DataAccessorFile::getFilesList(const std::string& uri, const std::string& mask, const Filter& filter, const std::string& timezone, DataSetPtr dataSet, std::shared_ptr<terrama2::core::FileRemover> remover) const
 {
-  QUrl url(QString::fromStdString(uri));
-
-  QFileInfoList basePathList;
-  basePathList.append(url.path());
-
   std::string folderMask;
   try
   {
@@ -873,10 +849,14 @@ QFileInfoList terrama2::core::DataAccessorFile::getFilesList(const std::string& 
     folderMask = "";
   }
 
+  QUrl url(QString::fromStdString(uri));
+
+  std::vector<std::string> basePathList;
+  basePathList.push_back(url.path().toStdString());
 
   if(!folderMask.empty())
   {
-    QFileInfoList foldersList = getFoldersList(basePathList, folderMask);
+    std::vector<std::string> foldersList = getFoldersList(basePathList, folderMask);
 
     if(foldersList.empty())
     {
@@ -893,7 +873,7 @@ QFileInfoList terrama2::core::DataAccessorFile::getFilesList(const std::string& 
   //fill file list
   for(auto& folderPath : basePathList)
   {
-    newFileInfoList.append(getDataFileInfoList(folderPath.absoluteFilePath().toStdString(),
+    newFileInfoList.append(getDataFileInfoList(folderPath,
                                                mask,
                                                timezone,
                                                filter,
