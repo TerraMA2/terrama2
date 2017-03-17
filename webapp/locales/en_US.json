@@ -672,5 +672,10 @@
 	"Property name": "Property name",
 	"Point (Geometry)": "Point (Geometry)",
 	"Number": "Number",
-	"Text": "Text"
+	"Text": "Text",
+	"Float": "Float",
+	"Integer": "Integer",
+	"Required": "Required",
+	"Invalid format": "Invalid format",
+	"Invalid alias": "Invalid alias"
 }
