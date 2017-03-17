@@ -53,6 +53,8 @@ namespace terrama2
         {
           DataSeriesId dataSeriesId;//!< Identifier of the additional dataseries
           DataSetId dataSetId;//!< Identifier of the dataset referred
+          std::string referrerAttribute;
+          std::string referredAttribute;
           std::vector<std::string> attributes;//!< attributes that will be copied to the alert
         };
 

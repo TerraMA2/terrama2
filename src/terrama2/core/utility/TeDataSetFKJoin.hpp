@@ -52,10 +52,12 @@ namespace terrama2
     class TeDataSetFKJoin
     {
     public:
-      explicit TeDataSetFKJoin(std::shared_ptr<te::da::DataSetType> referrerDataSetType,
-                               std::shared_ptr<te::da::DataSet> referrerDataSet,
-                               std::shared_ptr<te::da::DataSetType> referredDataSetType,
-                               std::shared_ptr<te::da::DataSet> referreeDataSet);
+      explicit TeDataSetFKJoin( std::shared_ptr<te::da::DataSetType> referrerDataSetType,
+                                std::shared_ptr<te::da::DataSet> referrerDataSet,
+                                std::string referrerAttribute,
+                                std::shared_ptr<te::da::DataSetType> referredDataSetType,
+                                std::shared_ptr<te::da::DataSet> referreeDataSet,
+                                std::string referredAttribute);
       //! Default destructor
       ~TeDataSetFKJoin() = default;
       TeDataSetFKJoin(const TeDataSetFKJoin& other) = default;

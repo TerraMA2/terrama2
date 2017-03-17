@@ -82,14 +82,15 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
     auto obj = value.toObject();
     auto id = static_cast<uint32_t>(obj["dataseries_id"].toInt());
     auto datasetid = static_cast<uint32_t>(obj["dataset_id"].toInt());
-    auto identifier = obj["identifier_attribute"].toString().toStdString();
+    auto referrerAttribute = obj["referrer_attribute"].toString().toStdString();
+    auto referredAttribute = obj["referred_attribute"].toString().toStdString();
 
     std::vector<std::string> attributes;
     auto attributesArray = obj["attributes"].toArray();
     for(const auto& tempAttribute : attributesArray)
       attributes.push_back(tempAttribute.toString().toStdString());
 
-    alert->additionalDataVector.push_back({id, datasetid, attributes});
+    alert->additionalDataVector.push_back({id, datasetid, referrerAttribute, referredAttribute, attributes});
   }
 
   return nullptr;

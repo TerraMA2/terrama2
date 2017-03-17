@@ -37,44 +37,17 @@
 
 terrama2::core::TeDataSetFKJoin::TeDataSetFKJoin( std::shared_ptr<te::da::DataSetType> referrerDataSetType,
                                                   std::shared_ptr<te::da::DataSet> referrerDataSet,
+                                                  std::string referrerAttribute,
                                                   std::shared_ptr<te::da::DataSetType> referredDataSetType,
-                                                  std::shared_ptr<te::da::DataSet> referredDataSet)
+                                                  std::shared_ptr<te::da::DataSet> referredDataSet,
+                                                  std::string referredAttribute)
  :  _referrerDataSetType(referrerDataSetType),
     _referrerDataSet(referrerDataSet),
+    _referrerPropertyName(referrerAttribute),
     _referredDataSetType(referredDataSetType),
     _referredDataSet(referredDataSet)
 {
-  if(referrerDataSetType->getNumberOfForeignKeys() != 1)
-  {
-    // for now only one ForeignKey is allowed
-    throw;
-  }
-
-  /////////////////////////////////////////////
-  // Get fk property
-  auto fk = referrerDataSetType->getForeignKey(0);
-  auto properties = fk->getProperties();
-  if(properties.size() != 1)
-  {
-    // for now only one property is allowed
-    throw;
-  }
-  auto fkProp = properties.front();
-  _referrerPropertyName = fkProp->getName();
-
-  /////////////////////////////////////////////
-  // Get ref property
-  auto refProperties = fk->getReferencedProperties();
-  if(refProperties.size() != 1)
-  {
-    // for now only one property is allowed
-    throw;
-  }
-
-  auto pkProperty = refProperties.front();
-  auto pkPropertyName = pkProperty->getName();
-
-  fillPKMap(pkPropertyName, referredDataSet);
+  fillPKMap(referredAttribute, referredDataSet);
 }
 
 void terrama2::core::TeDataSetFKJoin::fillPKMap(std::string referredPropertyName, std::shared_ptr<te::da::DataSet> referredDataSet)

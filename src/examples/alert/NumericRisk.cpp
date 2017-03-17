@@ -154,6 +154,8 @@ terrama2::services::alert::core::AlertPtr newAlert()
   terrama2::services::alert::core::AdditionalData additionalData;
   additionalData.dataSeriesId = 2;
   additionalData.dataSetId = 2;
+  additionalData.referrerAttribute = "id";
+  additionalData.referredAttribute = "id";
   additionalData.attributes.push_back("nome");
 
   alert->additionalDataVector.push_back(additionalData);
