@@ -179,6 +179,13 @@ namespace terrama2
      */
     std::string createValidPropertyName(const std::string& oldName);
 
+    /*!
+     * \brief Split a string based in a delimiter and returns the partis in a vector.
+     * This method does not skip empty parts.
+     * \param text The strint to be splitted
+     * \param delim The delimiter character
+     * \return A vector with the splitted parts of the text.
+     */
     std::vector<std::string> splitString(const std::string& text, char delim);
 
   } // end namespace core

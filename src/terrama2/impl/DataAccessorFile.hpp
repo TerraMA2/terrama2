@@ -69,8 +69,21 @@ namespace terrama2
         //! Recover file mask
         virtual std::string getMask(DataSetPtr dataset) const;
 
+        /*!
+         * \brief Check if the URIs and their subfolders matches the folders mask.
+         * \param uris The list of URIs to check
+         * \param foldersMask The folders mask
+         * \return A list with the full path of the URIs that matched the folders mask.
+         */
         virtual std::vector<std::string> getFoldersList(const std::vector<std::string>& uris, const std::string& foldersMask) const;
 
+        /*!
+         * \brief Receives a list of URIs, check if theirs subfolders match with the mask and returns
+         * the full path of the ones that match.
+         * \param baseURIs List of URIs to check the subfolders
+         * \param mask The mask
+         * \return Returns the full path of the subfolders that match the mask.
+         */
         virtual std::vector<std::string> checkSubfolders(const std::vector<std::string>& baseURIs, const std::string& mask) const;
 
         virtual QFileInfoList getFilesList(const std::string& uri,

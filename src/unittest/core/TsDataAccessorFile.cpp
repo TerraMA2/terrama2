@@ -90,6 +90,7 @@ void TsDataAccessorFile::testGetFoldersList()
       QFAIL("Wrong number of folders matched!");
   }
 
+  // empty mask
   {
     auto foldersList = da.getFoldersList(fileList, "");
 
@@ -97,6 +98,7 @@ void TsDataAccessorFile::testGetFoldersList()
       QFAIL("Wrong number of folders matched!");
   }
 
+  // considered as empty mask
   {
     auto foldersList = da.getFoldersList(fileList, "/");
 
@@ -104,6 +106,7 @@ void TsDataAccessorFile::testGetFoldersList()
       QFAIL("Wrong number of folders matched!");
   }
 
+  // considered as empty mask
   {
     auto foldersList = da.getFoldersList(fileList, "//");
 
@@ -111,6 +114,7 @@ void TsDataAccessorFile::testGetFoldersList()
       QFAIL("Wrong number of folders matched!");
   }
 
+  // ignore the extras '/'
   {
     auto foldersList = da.getFoldersList(fileList, "%YYYY*//%MM*/%DD*//final*");
 
@@ -118,6 +122,7 @@ void TsDataAccessorFile::testGetFoldersList()
       QFAIL("Wrong number of folders matched!");
   }
 
+  // the folders doesn't match
   {
     auto foldersList = da.getFoldersList(fileList, "%YYYY*/nonexistent/%DD*");
 
