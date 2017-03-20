@@ -443,11 +443,23 @@ TcpManager.prototype.initialize = function(client) {
    */
   var onProcessFinished = function(response) {
     if (Utils.isObject(response)) {
-        // checking Save/Update registered View
-        // TODO: check it
+      //checking response
       return ProcessFinished.handle(response)
         .then(function(targetProcess) {
-          self.emit("processFinished", targetProcess);
+          if (targetProcess){
+            // if the finished process is from collector or analysis run conditioned process
+            if (targetProcess.serviceType == ServiceType.COLLECTOR || targetProcess.serviceType == ServiceType.ANALYSIS){
+              targetProcess.processToRun.forEach(function(processToRun){
+                if (processToRun){
+                  self.startProcess(processToRun.instance, {ids: processToRun.ids});
+                }
+              });
+            }
+            // if the finished process ir from view, save/update the registered view
+            else if (targetProcess.serviceType == ServiceType.VIEW){
+              self.emit("processFinished", targetProcess.registeredView);
+            }
+          }
         })
         
         .catch(function(err) {

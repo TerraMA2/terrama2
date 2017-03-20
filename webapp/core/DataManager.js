@@ -2316,6 +2316,27 @@ var DataManager = module.exports = {
   },
 
   /**
+   * It retrieves all conditional schedule in database from given restriction
+   *
+   * @param {Object} restriction - A conditional schedule restriction
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise}
+   */
+  listConditionalSchedule: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return models.db.ConditionalSchedule.findAll(Utils.extend({
+        where: restriction || {}
+      }, options)).then(function(conditionalSchedulesResult){
+        return resolve(conditionalSchedulesResult.map(function(conditionalSchedule){
+          return new DataModel.ConditionalSchedule(conditionalSchedule.get());
+        }));
+      });
+    });
+  },
+
+  /**
    * It performs add collector in database
    *
    * @param {Object} collectorObject - A javascript object with collector values
