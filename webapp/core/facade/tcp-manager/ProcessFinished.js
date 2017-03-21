@@ -38,8 +38,8 @@
               handler = self.handleFinishedCollector(response);
               break;
             case ServiceType.ANALYSIS:
-              throw new ServiceTypeError(Utils.format(
-                "Analysis and Collector process finished is not implemented yet %s", response.instance_id));
+              handler = self.handleFinishedAnalysis(response);
+              break;
             case ServiceType.VIEW:
               handler = self.handleRegisteredViews(response);
               break;
@@ -134,6 +134,40 @@
       });
     });
   };
+  /**
+   * It handles analysis process finished. Once values received, check if the analysis data series is condition to run another process.
+   * If is condition, send the view or analysis ids to run.
+   * 
+   * @param {Object} analysisResultObject - A analysis result object retrieved from C++ services.
+   * 
+   * @returns {Promise} - Objects with process ids to run
+   */
+  ProcessFinished.handleFinishedAnalysis = function(analysisResultObject){
+    return new PromiseClass(function(resolve, reject){
+      if (analysisResultObject.result){
+        return DataManager.orm.transaction(function(t){
+          var options = {transaction: t};
+          return DataManager.getAnalysis({id: analysisResultObject.process_id}, options)
+            .then(function(analysis){
+              var analysisDatasetOutput = analysis.dataset_output;
+              var restritions = {
+                data_ids: {
+                  $contains: [analysisDatasetOutput]
+                }
+              };
+              //return the process are conditioned by the analysis
+              return listConditionedProcess(restritions, options, resolve, reject);
+            })
+            .catch(function(err){
+              return reject(new Error(err.toString()));
+            });
+        });
+      }
+      else {
+        return reject(new Error("The collector process finished with error"));
+      }
+    });
+  }
 
   /**
    * It handles collector process finished. Once values received, check if the collector is condition to run another process.
@@ -152,61 +186,13 @@
           return DataManager.getCollector({id: collectorResultObject.process_id}, options)
             .then(function(collector){
               var dataSeriesId = collector.data_series_output;
-              var restrition = {
+              var restritions = {
                 data_ids: {
                   $contains: [dataSeriesId]
                 }
               };
-              // Get conditional schedule list that contais the collector
-              return DataManager.listConditionalSchedule(restrition, options)
-                .then(function(conditionalScheduleList){
-                  if (conditionalScheduleList.length > 0){
-                    var promises = [];
-                    //for each conditional schedule in list, check if belong to an analysis or a view
-                    conditionalScheduleList.forEach(function(conditionalSchedule){
-                      promises.push(DataManager.getAnalysis({conditional_schedule_id: conditionalSchedule.id}, options)
-                        .then(function(analysisResult){
-                          return DataManager.getServiceInstance({id: analysisResult.serviceInstanceId}, options)
-                            .then(function(instanceServiceResponse){
-                              var objectToRun = {
-                                ids: [analysisResult.id],
-                                instance_id: instanceServiceResponse,
-                              };
-                              return objectToRun;
-                            })
-                        })
-                        .catch(function(err){
-                          return DataManager.getView({conditional_schedule_id: conditionalSchedule.id}, options)
-                            .then(function(viewResult){
-                              return DataManager.getServiceInstance({id: viewResult.serviceInstanceId}, options)
-                                .then(function(instanceServiceResponse){
-                                  var objectToRun = {
-                                    ids: [viewResult.id],
-                                    instance: instanceServiceResponse,
-                                  };
-                                  return objectToRun;
-
-                                });
-                            })
-                            .catch(function(err){
-                              return null;
-                            });
-                        }));
-                    });
-                    return Promise.all(promises).then(function(processToRun){
-                      var objectResponse = {
-                        serviceType: ServiceType.COLLECTOR,
-                        processToRun: processToRun
-                      };
-                      return resolve(objectResponse);
-                    });
-                  } else {
-                    return resolve();
-                  }
-                })
-                .catch(function(err){
-                  return reject(new Error(err.toString()));
-                });
+              // return the process are conditioned by collector
+              return listConditionedProcess(restritions, options, resolve, reject);
             })
             .catch(function(err){
               return reject(new Error(err.toString()));
@@ -216,6 +202,60 @@
         return reject(new Error("The collector process finished with error"));
       }
     });
+  };
+  /**
+   * Function to list conditioned process
+   */
+  var listConditionedProcess = function(restritions, options, resolve, reject){
+    // Get conditional schedule list that contais the collector
+    return DataManager.listConditionalSchedule(restritions, options)
+      .then(function(conditionalScheduleList){
+        if (conditionalScheduleList.length > 0){
+          var promises = [];
+          //for each conditional schedule in list, check if belong to an analysis or a view
+          conditionalScheduleList.forEach(function(conditionalSchedule){
+            promises.push(DataManager.getAnalysis({conditional_schedule_id: conditionalSchedule.id}, options)
+              .then(function(analysisResult){
+                return DataManager.getServiceInstance({id: analysisResult.serviceInstanceId}, options)
+                  .then(function(instanceServiceResponse){
+                    var objectToRun = {
+                      ids: [analysisResult.id],
+                      instance_id: instanceServiceResponse,
+                    };
+                    return objectToRun;
+                  })
+              })
+              .catch(function(err){
+                return DataManager.getView({conditional_schedule_id: conditionalSchedule.id}, options)
+                  .then(function(viewResult){
+                    return DataManager.getServiceInstance({id: viewResult.serviceInstanceId}, options)
+                      .then(function(instanceServiceResponse){
+                        var objectToRun = {
+                          ids: [viewResult.id],
+                          instance: instanceServiceResponse,
+                        };
+                        return objectToRun;
+                      });
+                  })
+                  .catch(function(err){
+                    return null;
+                  });
+              }));
+          });
+          return Promise.all(promises).then(function(processToRun){
+            var objectResponse = {
+              serviceType: ServiceType.COLLECTOR,
+              processToRun: processToRun
+            };
+            return resolve(objectResponse);
+          });
+        } else {
+          return resolve();
+        }
+      })
+      .catch(function(err){
+        return reject(new Error(err.toString()));
+      });
   };
 
 } ());
