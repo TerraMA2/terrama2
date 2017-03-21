@@ -270,7 +270,7 @@ void terrama2::services::view::core::GeoServer::registerVectorDataStore(const st
 
     if(cURLwrapper.responseCode() != 201)
     {
-      QString errMsg = QObject::tr("Error at register PostGis Table. ");
+      QString errMsg = QObject::tr("Error at register vectorial data store. ");
       TERRAMA2_LOG_ERROR() << errMsg << uriPostDatastore.uri();
       throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
     }
@@ -442,23 +442,21 @@ void terrama2::services::view::core::GeoServer::registerVectorFile(const std::st
                                                                    const std::string& shpFilePath,
                                                                    const std::string& layerName) const
 {
-  std::string store = QString(QUrl::toPercentEncoding(QString::fromStdString(dataStoreName), "", "-._~/")).toStdString();
-
   try
   {
-    deleteVectorLayer(store, layerName, true);
+    deleteVectorLayer(dataStoreName, layerName, true);
   }
   catch(NotFoundGeoserverException /*e*/)
   {
     // Do nothing
   }
 
-  registerVectorDataStore(store, shpFilePath);
+  registerVectorDataStore(dataStoreName, shpFilePath);
 
   te::ws::core::CurlWrapper cURLwrapper;
 
   std::string uri = uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores/"
-                    + store +"/featuretypes";
+                    + QString(QUrl::toPercentEncoding(QString::fromStdString(dataStoreName), "", "-._~/")).toStdString() +"/featuretypes";
 
   te::core::URI uriPost(uri);
 
@@ -482,7 +480,7 @@ void terrama2::services::view::core::GeoServer::registerVectorFile(const std::st
 
   if(cURLwrapper.responseCode() != 201)
   {
-    QString errMsg = QObject::tr("Error at register PostGis Table. ");
+    QString errMsg = QObject::tr("Error at register vectorial file. ");
     TERRAMA2_LOG_ERROR() << errMsg << uriPost.uri();
     throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
   }
@@ -1380,7 +1378,7 @@ std::string terrama2::services::view::core::GeoServer::getGeomTypeString(const t
     case te::gm::GeomType::PolygonZMType :
       return "Polygon";
     default:
-      QString errMsg = QObject::tr("Error at register PostGis Table, unknow geometry type. ");
+      QString errMsg = QObject::tr("Unknow geometry type. ");
       TERRAMA2_LOG_ERROR() << errMsg;
       throw ViewGeoserverException() << ErrorDescription(errMsg);
       break;
