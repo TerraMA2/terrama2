@@ -20,30 +20,25 @@
 */
 
 /*!
-  \file terrama2/services/alert/core/SimpleCertificateVerifier.hpp
+  \file terrama2/services/alert/impl/NotifierEmail.cpp
 
-  \brief Simple certificate verifier
+  \brief
 
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_SERVICES_ALERT_CORE_SIMPLE_CERTIFICATE_VERIFIER_HPP__
-#define __TERRAMA2_SERVICES_ALERT_CORE_SIMPLE_CERTIFICATE_VERIFIER_HPP__
+#include "NotifierEmail.hpp"
 
-#include <vmime/vmime.hpp>
-
-#include <iostream>
-
-/*
-  \brief This simple certificate verifier only checks if it's a "X.509"
-*/
-class SimpleCertificateVerifier : public vmime::security::cert::defaultCertificateVerifier
+terrama2::services::alert::impl::NotifierEmail::NotifierEmail(const std::map<std::string, std::string>& serverMap, core::ReportPtr report)
+    : Notifier(serverMap, report)
 {
-public:
-	void verify(vmime::shared_ptr <vmime::security::cert::certificateChain> chain, const vmime::string& hostname);
 
-private:
-	static std::vector <vmime::shared_ptr <vmime::security::cert::X509Certificate> > m_trustedCerts;
-};
+}
 
-#endif //__TERRAMA2_SERVICES_ALERT_CORE_SIMPLE_CERTIFICATE_VERIFIER_HPP__
+void terrama2::services::alert::impl::NotifierEmail::send(std::string recipient, int riskLevel, bool notifyOnChange) const
+{
+  if(riskLevel <= highestRiskLevel || (notifyOnChange && riskChanged))
+  {
+    //notify
+  }
+}
