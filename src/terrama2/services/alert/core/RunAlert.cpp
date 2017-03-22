@@ -405,7 +405,7 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
       std::shared_ptr<te::mem::DataSet> alertDataSet = populateAlertDataset(vecDates, riskResultMap, comparisonPreviosProperty, risk, fkProperty, alertDataSetType);
       addAdditionalData(alertDataSet, alertPtr, additionalDataMap);
 
-      terrama2::services::alert::core::Report report(alertPtr, alertDataSet, alertDataSetType, vecDates);
+      terrama2::services::alert::core::Report report(alertPtr, alertDataSet, vecDates);
       std::shared_ptr<te::da::DataSet> filteredDataSet = report.retrieveDataChangedRisk();
     }
 

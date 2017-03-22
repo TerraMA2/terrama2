@@ -166,6 +166,7 @@ void terrama2::services::alert::core::Report::updateReportDataset(const std::sha
 {
   dataSet->moveBeforeFirst();
 
+  dataSet_->clear();
   dataSet_->copy(*dataSet);
 
   // Replace risk values
