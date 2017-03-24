@@ -162,12 +162,10 @@ std::shared_ptr<te::da::DataSet> terrama2::services::alert::core::Report::retrie
 }
 
 
-void terrama2::services::alert::core::Report::updateReportDataset(const std::shared_ptr<te::da::DataSet> dataSet) const
+void terrama2::services::alert::core::Report::updateReportDataset(const std::shared_ptr<te::da::DataSet> dataSet)
 {
   dataSet->moveBeforeFirst();
-
-  dataSet_->clear();
-  dataSet_->copy(*dataSet);
+  dataSet_ = std::make_shared<te::mem::DataSet>(*dataSet);
 
   // Replace risk values
   for(auto riskDate : riskDates_)

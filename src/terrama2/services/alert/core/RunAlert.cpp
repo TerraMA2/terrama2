@@ -25,6 +25,7 @@
   \brief
 
   \author Jano Simas
+          Vinicius Campanha
 */
 
 // TerraMA2
@@ -39,6 +40,8 @@
 #include "RunAlert.hpp"
 #include "Alert.hpp"
 #include "Report.hpp"
+#include "Notifier.hpp"
+#include "utility/NotifierFactory.hpp"
 
 
 // Terralib
@@ -405,8 +408,14 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
       std::shared_ptr<te::mem::DataSet> alertDataSet = populateAlertDataset(vecDates, riskResultMap, comparisonPreviosProperty, risk, fkProperty, alertDataSetType);
       addAdditionalData(alertDataSet, alertPtr, additionalDataMap);
 
-      terrama2::services::alert::core::Report report(alertPtr, alertDataSet, vecDates);
-      std::shared_ptr<te::da::DataSet> filteredDataSet = report.retrieveDataChangedRisk();
+      ReportPtr reportPtr = std::make_shared<Report>(alertPtr, alertDataSet, vecDates);
+
+      std::map<std::string, std::string> serverMap;
+
+      NotifierPtr notifierPtr = NotifierFactory::getInstance().make("EMAIL", serverMap, reportPtr);
+
+      notifierPtr->send("",1,1);
+
     }
 
     logger->result(AlertLogger::DONE, executionPackage.executionDate, executionPackage.registerId);

@@ -44,6 +44,7 @@
 #include <terrama2/services/alert/core/Service.hpp>
 #include <terrama2/services/alert/core/DataManager.hpp>
 #include <terrama2/services/alert/core/AlertLogger.hpp>
+#include <terrama2/services/alert/impl/Utils.hpp>
 
 #include <terrama2/core/network/TcpManager.hpp>
 #include <terrama2/core/utility/Utils.hpp>
@@ -131,6 +132,8 @@ createAlert()
   auto logger = std::make_shared<terrama2::services::alert::core::AlertLogger>();
 
   service->setLogger(logger);
+
+  terrama2::services::alert::core::registerFactories();
 
   return std::make_tuple(dataManager, service, logger);
 }

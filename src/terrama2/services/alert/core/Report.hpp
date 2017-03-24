@@ -130,7 +130,7 @@ namespace terrama2
 
           protected:
 
-            void updateReportDataset(const std::shared_ptr<te::da::DataSet> dataSet) const;
+            void updateReportDataset(const std::shared_ptr<te::da::DataSet> dataSet);
 
           protected:
 

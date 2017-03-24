@@ -13,8 +13,8 @@
 #include <terrama2/services/alert/core/DataManager.hpp>
 #include <terrama2/services/alert/core/Alert.hpp>
 #include <terrama2/services/alert/core/Report.hpp>
-#include <terrama2/services/alert/impl/Utils.hpp>
 #include <terrama2/services/alert/core/RunAlert.hpp>
+#include <terrama2/services/alert/impl/Utils.hpp>
 
 
 #include <iostream>
@@ -81,7 +81,7 @@ terrama2::core::DataProviderPtr additionalDataProvider()
   terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
   terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
   dataProvider->name = "Shapefiles provider";
-  dataProvider->uri = "file://"+ TERRAMA2_DATA_DIR+"/shapefile";
+  dataProvider->uri = "file://"+ TERRAMA2_DATA_DIR+"/shapefile/";
   dataProvider->intent = terrama2::core::DataProviderIntent::PROCESS_INTENT;
   dataProvider->dataProviderType = "FILE";
   dataProvider->active = true;
@@ -139,13 +139,13 @@ terrama2::services::alert::core::AlertPtr newAlert()
 
   terrama2::core::RiskLevel level2;
   level2.level = 1;
-  level2.lowerBound = 20;
+  level2.lowerBound = 10;
   level2.name = "medium";
   risk.riskLevels.push_back(level2);
 
   terrama2::core::RiskLevel level3;
   level3.level = 2;
-  level3.lowerBound = 50;
+  level3.lowerBound = 15;
   level3.name = "high";
   risk.riskLevels.push_back(level3);
 
@@ -158,14 +158,14 @@ terrama2::services::alert::core::AlertPtr newAlert()
   additionalData.referredAttribute = "id";
   additionalData.attributes.push_back("nome");
 
-  alert->additionalDataVector.push_back(additionalData);
+//  alert->additionalDataVector.push_back(additionalData);
 
   std::unordered_map<std::string, std::string> reportMetadata;
 
   reportMetadata[terrama2::services::alert::core::ReportTags::TITLE] = "NUMERIC RISK EXAMPLE REPORT";
-  reportMetadata[terrama2::services::alert::core::ReportTags::ABSTRACT] = "NumericRisk.cpp";
-  reportMetadata[terrama2::services::alert::core::ReportTags::AUTHOR] = "Jano Simas";
-  reportMetadata[terrama2::services::alert::core::ReportTags::CONTACT] = "jano.simas@funcate.org.br";
+  reportMetadata[terrama2::services::alert::core::ReportTags::ABSTRACT] = "NumericRisk example.";
+  reportMetadata[terrama2::services::alert::core::ReportTags::AUTHOR] = "TerraMA2";
+  reportMetadata[terrama2::services::alert::core::ReportTags::CONTACT] = "TerraMA2 developers.";
   reportMetadata[terrama2::services::alert::core::ReportTags::COPYRIGHT] = "copyright information...";
   reportMetadata[terrama2::services::alert::core::ReportTags::DESCRIPTION] = "Example generated report...";
 

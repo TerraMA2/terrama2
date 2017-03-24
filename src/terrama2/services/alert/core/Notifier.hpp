@@ -55,7 +55,6 @@ namespace terrama2
           Notifier& operator=(const Notifier& other) = default;
           Notifier& operator=(Notifier&& other) = default;
 
-          virtual std::string notifierCode() const = 0;
           virtual void send(std::string recipient, int riskLevel, bool notifyOnChange) const = 0;
 
         protected:
