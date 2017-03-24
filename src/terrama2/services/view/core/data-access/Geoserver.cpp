@@ -1378,7 +1378,7 @@ std::string terrama2::services::view::core::GeoServer::getGeomTypeString(const t
     case te::gm::GeomType::PolygonZMType :
       return "Polygon";
     default:
-      QString errMsg = QObject::tr("Unknow geometry type. ");
+      QString errMsg = QObject::tr("Unknown geometry type. ");
       TERRAMA2_LOG_ERROR() << errMsg;
       throw ViewGeoserverException() << ErrorDescription(errMsg);
       break;
