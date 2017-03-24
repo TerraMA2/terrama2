@@ -642,11 +642,20 @@ define([], function() {
           });
 
           // filtering dataseries
-          self.filteredDataSeries = DataSeriesService.list({
-            data_series_semantics: {
-              data_series_type_name: dataseriesFilterType
-            }
-          });
+          if(intTypeId == AnalysisService.types.MONITORED) {
+            self.filteredDataSeries = DataSeriesService.list({
+              data_series_semantics: {
+                data_series_type_name: dataseriesFilterType,
+                data_format_name: "POSTGIS"
+              }
+            });
+          } else {
+            self.filteredDataSeries = DataSeriesService.list({
+              data_series_semantics: {
+                data_series_type_name: dataseriesFilterType
+              }
+            });
+          }
         };
 
         /**
