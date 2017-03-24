@@ -60,6 +60,7 @@ target_link_libraries(terrama2_service terrama2_core
                                        terrama2_analysis_core
                                        terrama2_view_core
                                        terrama2_alert_core
+                                       terrama2_alert_impl
                                        terrama2_impl
                                        ${PYTHON_LIBRARIES}
                                        ${Boost_PROGRAM_OPTIONS_LIBRARY})
