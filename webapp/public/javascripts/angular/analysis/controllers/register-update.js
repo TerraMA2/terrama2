@@ -131,6 +131,9 @@ define([], function() {
          */
         self.instances = Service.list({service_type_id: Service.types.ANALYSIS});
 
+        if (self.instances.length > 0){
+          self.analysis.instance_id = self.instances[0].id;
+        }
         /**
          * It defines a TerraMA² Service Instance DAO. Used to retrieve analysis services
          * @type {Service}
@@ -199,6 +202,32 @@ define([], function() {
          */
         self.identifier = "";
 
+        /**
+         * Function to get image based in provider type
+         */
+        self.getImageUrl = getImageUrl;
+
+        function getImageUrl(object){
+          if (typeof object != 'object'){
+            return '';
+          }
+          switch (object.data_provider_type.name){
+            case "FILE":
+              return "/images/data-server/file/file.png";
+              break;
+            case "FTP":
+              return "/images/data-server/ftp/ftp.png";
+              break;
+            case "HTTP":
+              return "/images/data-server/http/http.png";
+              break;
+            case "POSTGIS":
+            default:
+              return "/images/data-server/postGIS/postGIS.png";
+              break;
+          }
+        }
+
         socket.on('statusResponse', function onServiceStatusResponse(response) {
           self.helperMessages.validate.error = null;
           if (response.checking === undefined || (!response.checking && response.status === 400)) {
@@ -248,7 +277,7 @@ define([], function() {
           self.analysis.name = analysisInstance.name;
           self.analysis.description = analysisInstance.description;
           self.analysis.type_id = analysisInstance.type.id.toString();
-          self.analysis.instance_id = analysisInstance.service_instance_id.toString();
+          self.analysis.instance_id = analysisInstance.service_instance_id;
           self.analysis.script = analysisInstance.script;
 
           // auto-trigger analysis type id changed

@@ -677,5 +677,7 @@
 	"Integer": "Integer",
 	"Required": "Required",
 	"Invalid format": "Invalid format",
-	"Invalid alias": "Invalid alias"
+	"Invalid alias": "Invalid alias",
+	"Static GDAL grid": "Static GDAL grid",
+	"Monitored object": "Monitored object"
 }

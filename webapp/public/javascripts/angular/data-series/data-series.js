@@ -135,6 +135,8 @@ define([], function() {
             value = i18n.__("DCP");
             break;
           case globals.enums.DataSeriesType.ANALYSIS_MONITORED_OBJECT:
+            value = i18n.__("Monitored object");
+            break;
           case globals.enums.DataSeriesType.OCCURRENCE:
             value = i18n.__("Occurrence");
             break;

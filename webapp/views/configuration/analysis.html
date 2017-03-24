@@ -15,6 +15,7 @@
   <!-- link for CSS when using the tree as an attribute -->
   <link rel="stylesheet" type="text/css" href="/bower_components/angular-tree-control/css/tree-control-attribute.css">
 
+  <link rel="stylesheet" href="/bower_components/angular-ui-select/dist/select.min.css" />
   <style>
     table > tbody {
       overflow-y: auto !important;
@@ -83,6 +84,8 @@
 <script type="text/javascript" src="/bower_components/moment/locale/es.js"></script>
 <script type="text/javascript" src="/bower_components/moment/locale/fr.js"></script>
 <script type="text/javascript" src="/bower_components/angular-eonasdan-datetimepicker/dist/angular-eonasdan-datetimepicker.min.js"></script>
+<script src="/bower_components/angular-ui-select/dist/select.min.js"></script>
+
 
 {% endblock %}
 
@@ -190,13 +193,19 @@
           <div class="col-md-8">
             <div class="form-group has-feedback" terrama2-show-errors>
               <label>{{ i18n.__("Instance") }}:</label>
-              <select class="form-control" name="instance" ng-model="ctrl.analysis.instance_id" ng-change="ctrl.onServiceChanged()" required>
-                <option ng-repeat="instance in ctrl.instances"                                                                  
-                        value="{{ instance.id }}"                                                                               
-                        ng-init="ctrl.analysis.instance_id = ctrl.instances[0].id.toString()" ng-bind="instance.name"></option> 
-                <option ng-if="ctrl.instances.length == 0" value="" ng-bind="i18n.__('No analysis instance found')"></option>
+              <ui-select name="instance" 
+                         ng-model="ctrl.analysis.instance_id" 
+                         ng-change="ctrl.onServiceChanged()" required>
+                <ui-select-match>
+                  <img ng-src="/images/services/analysis/analysis_service.png" style="height: 20px; margin-top: -10px;"/>
+                  <span ng-bind="$select.selected.name"></span>
+                </ui-select-match>
+                <ui-select-choices repeat="instance.id as instance in (ctrl.instances | filter: {'name': $select.search}) track by instance.id">
+                  <img ng-src="/images/services/analysis/analysis_service.png" style="height: 20px;"/>
+                  <span ng-bind="instance.name"></span>
+                </ui-select-choices>
 
-              </select>
+              </ui-select>
 
               <span class="help-block" ng-show="forms.generalDataForm.instance.$dirty && forms.generalDataForm.instance.$error.required">
                 {{ i18n.__('Analysis instance is required') }}
@@ -250,13 +259,16 @@
           <div class="col-md-4">
             <div class="form-group" terrama2-show-errors>
               <label>{{ i18n.__('Data Store') }}:</label>
-              <select class="form-control"
-                      name="storager_data_provider_id"
-                      ng-model="ctrl.analysis.data_provider_id"
-                      ng-options="provider.id as provider.name for provider in ctrl.dataProviders"
-                      ng-required="ctrl.storager.format.name" required>
-                <option></option>
-              </select>
+              <ui-select name="storager_data_provider_id" ng-model="ctrl.analysis.data_provider_id" ng-required="ctrl.storager.format.name" required>
+                <ui-select-match>
+                  <img ng-src="{{ctrl.getImageUrl($select.selected)}}" style="height: 15px; margin-top: -13px;"/>
+                  <span ng-bind="$select.selected.name"></span>
+                </ui-select-match>
+                <ui-select-choices repeat="provider.id as provider in (ctrl.dataProviders | filter: {'name': $select.search}) track by provider.id">
+                  <img ng-src="{{ctrl.getImageUrl(provider)}}" style="margin-top: -3px; height: 15px;"/>
+                  <span ng-bind="provider.name"></span>
+                </ui-select-choices>
+              </ui-select>
               <span class="help-block"
                     ng-show="forms.storagerDataForm.storager_data_provider_id.$dirty && forms.storagerDataForm.storager_data_provider_id.$error.required">
                 {{ i18n.__("Data store is required") }}

@@ -3502,6 +3502,17 @@ var DataManager = module.exports = {
             model: models.db.Schedule,
           },
           {
+            model: models.db.DataSeries,
+            include: [
+              {
+                model: models.db.DataProvider
+              },
+              {
+                model: models.db.DataSeriesSemantics
+              }
+            ]
+          },
+          {
             model: models.db.ViewStyleLegend,
             required: false,
             include: [
@@ -3519,7 +3530,8 @@ var DataManager = module.exports = {
         .then(function(views) {
           return resolve(views.map(function(view) {
             var viewModel = new DataModel.View(Object.assign(view.get(), {
-              schedule: view.Schedule ? new DataModel.Schedule(view.Schedule.get()) : {}
+              schedule: view.Schedule ? new DataModel.Schedule(view.Schedule.get()) : {},
+              dataSeries: view.DataSery ? new DataModel.DataSeries(view.DataSery.get()) : {}
               // schedule: new DataModel.Schedule(view.Schedule ? view.Schedule.get() : {id: 0})
             }));
             if (view.ViewStyleLegend) {
