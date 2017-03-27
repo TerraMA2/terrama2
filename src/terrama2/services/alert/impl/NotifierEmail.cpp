@@ -35,6 +35,9 @@
 #include "../core/SimpleCertificateVerifier.hpp"
 #include "../core/Report.hpp"
 
+// TerraLib
+#include <terralib/core/uri/URI.h>
+
 vmime::shared_ptr <vmime::net::session> terrama2::services::alert::impl::NotifierEmail::session_ = vmime::net::session::create();
 
 terrama2::services::alert::impl::NotifierEmail::NotifierEmail(const std::map<std::string, std::string>& serverMap, core::ReportPtr report)
@@ -43,14 +46,24 @@ terrama2::services::alert::impl::NotifierEmail::NotifierEmail(const std::map<std
 
 }
 
-void terrama2::services::alert::impl::NotifierEmail::send(std::string recipient, int riskLevel, bool notifyOnChange) const
+void terrama2::services::alert::impl::NotifierEmail::send(const std::vector<std::string>& recipients,
+                                                          int riskLevel,
+                                                          bool notifyOnChange) const
 {
+  te::core::URI emailServer(serverMap_.at("email_server_uri"));
+
   vmime::messageBuilder mb;
 
   // Fill in the basic fields
-  mb.setExpeditor(vmime::mailbox("vmimeteste@gmail.com"));
+  mb.setExpeditor(vmime::mailbox(emailServer.user()));
+
   vmime::addressList to;
-  to.appendAddress(vmime::make_shared <vmime::mailbox>("vinicampa@gmail.com"));
+
+  for(auto recipient : recipients)
+  {
+    to.appendAddress(vmime::make_shared <vmime::mailbox>(recipient));
+  }
+
   mb.setRecipients(to);
   mb.setSubject(vmime::text(report_->title()));
 
@@ -78,11 +91,11 @@ void terrama2::services::alert::impl::NotifierEmail::send(std::string recipient,
   vmime::shared_ptr <vmime::message> msg = mb.construct();
 
   // email server
-  vmime::utility::url url("smtp://smtp.gmail.com:587");
+  vmime::utility::url url(emailServer.scheme() + "://" +emailServer.host() + ":" + emailServer.port());
   vmime::shared_ptr<vmime::net::transport> tr = session_->getTransport(url);
   tr->setProperty("connection.tls", true);
-  tr->setProperty("auth.username", "vmimeteste@gmail.com");
-  tr->setProperty("auth.password", "a1a2a3a4");
+  tr->setProperty("auth.username", emailServer.user());
+  tr->setProperty("auth.password", emailServer.password());
   tr->setProperty("options.need-authentication", true);
 
   tr->setCertificateVerifier(vmime::make_shared<SimpleCertificateVerifier>());

@@ -66,7 +66,7 @@ terrama2::core::DataSeriesPtr inputDataSeries()
   //DataSet information
   terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
   dataSet->active = true;
-  dataSet->format.emplace("table_name", "analise_result");
+  dataSet->format.emplace("table_name", "resultado");
   dataSet->format.emplace("timestamp_property", "execution_date");
   dataSet->format.emplace("identifier", "sigla");
 
@@ -176,6 +176,8 @@ terrama2::services::alert::core::AlertPtr newAlert()
 
   alert->filter = filter;
 
+  alert->recipients = {"vinicampa@gmail.com"};
+
   return alertPtr;
 }
 
@@ -215,7 +217,11 @@ int main(int argc, char* argv[])
     EXPECT_CALL(*logger.get(), result(_, _, _));
 
     logger->setConnectionInfo(uri);
-    terrama2::services::alert::core::runAlert(executionPackage, std::dynamic_pointer_cast<AlertLogger>(logger), dataManager);
+
+    std::map<std::string, std::string> serverMap;
+    serverMap.emplace("email_server_uri", "smtp://vmimeteste@gmail.com:a1a2a3a4@smtp.gmail.com:587");
+
+    terrama2::services::alert::core::runAlert(executionPackage, std::dynamic_pointer_cast<AlertLogger>(logger), dataManager, serverMap);
   }
 
 

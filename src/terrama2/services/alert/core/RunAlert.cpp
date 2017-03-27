@@ -229,7 +229,8 @@ void terrama2::services::alert::core::addAdditionalData(std::shared_ptr<te::mem:
 
 void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage executionPackage,
                                                std::shared_ptr< AlertLogger > logger,
-                                               std::weak_ptr<DataManager> weakDataManager)
+                                               std::weak_ptr<DataManager> weakDataManager,
+                                               const std::map<std::string, std::string>& serverMap)
 {
   auto dataManager = weakDataManager.lock();
   if(!dataManager.get())
@@ -410,11 +411,9 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
 
       ReportPtr reportPtr = std::make_shared<Report>(alertPtr, alertDataSet, vecDates);
 
-      std::map<std::string, std::string> serverMap;
-
       NotifierPtr notifierPtr = NotifierFactory::getInstance().make("EMAIL", serverMap, reportPtr);
 
-      notifierPtr->send("",1,1);
+      notifierPtr->send(alertPtr->recipients, 0, 0);
 
     }
 

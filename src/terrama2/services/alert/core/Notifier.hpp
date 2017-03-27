@@ -25,14 +25,21 @@
   \brief
 
   \author Jano Simas
+          Vinicius Campanha
 */
 
 #ifndef __TERRAMA2_SERVICES_ALERT_CORE_NOTIFIER_HPP__
 #define __TERRAMA2_SERVICES_ALERT_CORE_NOTIFIER_HPP__
 
-#include <map>
 
+// TerraMA2
 #include "Shared.hpp"
+
+// STL
+#include <map>
+#include <vector>
+
+
 
 namespace terrama2
 {
@@ -55,7 +62,7 @@ namespace terrama2
           Notifier& operator=(const Notifier& other) = default;
           Notifier& operator=(Notifier&& other) = default;
 
-          virtual void send(std::string recipient, int riskLevel, bool notifyOnChange) const = 0;
+          virtual void send(const std::vector<std::string>& recipient, int riskLevel, bool notifyOnChange) const = 0;
 
         protected:
           const std::map<std::string, std::string> serverMap_;

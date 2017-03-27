@@ -73,7 +73,8 @@ namespace terrama2
         */
         void runAlert(terrama2::core::ExecutionPackage executionPackage,
                       std::shared_ptr< AlertLogger > logger,
-                      std::weak_ptr<DataManager> weakDataManager);
+                      std::weak_ptr<DataManager> weakDataManager,
+                      const std::map<std::string, std::string>& serverMap);
 
         //! Get the name of the property used as unique key of the DataSet
         std::string getIdentifierPropertyName(terrama2::core::DataSetPtr dataSet, terrama2::core::DataSeriesPtr dataSeries);
