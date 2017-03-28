@@ -550,6 +550,50 @@ define([], function() {
         Socket.on("processValidatedError", function(resp) {
           MessageBoxService.danger(i18n.__("Analysis"), resp.message);
         });
+        
+        // Object of function button operators
+        self.operators = {
+          utilities: {
+            name: "Utilities",
+            fileName: "utilities.json",
+            imagePath: "/images/analysis/functions/utilities/utilities.png"
+          },
+          dcp: {
+            name: "DCP",
+            fileName: "dcp-operators.json",
+            imagePath: "/images/analysis/functions/monitored-object/dcp/dcp.png"
+          },
+          grid_monitored: {
+            name: "GRID",
+            fileName: "grid-monitored-operators.json",
+            imagePath: "/images/analysis/functions/monitored-object/grid/grid.png"
+          },
+          grid: {
+            name: "GRID",
+            fileName: "grid-operators.json",
+            imagePath: "/images/analysis/functions/grid/sample/sample.png"
+          },
+          historical: {
+            name: "Historical",
+            fileName: "historical-grid.json",
+            imagePath: "/images/analysis/functions/grid/historic/historic.png"
+          },
+          forecast: {
+            name: "Forecast",
+            fileName: "forecast-grid.json",
+            imagePath: "/images/analysis/functions/grid/forecast/forecast.png"
+          },
+          occurrence: {
+            name: "Occurrence",
+            fileName: "occurrence-operators.json",
+            imagePath: "/images/analysis/functions/monitored-object/occurrence/occurrence.png"
+          },
+          python: {
+            name: "Python",
+            fileName: "python.json",
+            imagePath: "/images/analysis/functions/python/python.png"
+          }
+        };
 
         /**
          * It handles when an analysis type has been changed. It will redraw and re-populate storager formats depending analysis type.
