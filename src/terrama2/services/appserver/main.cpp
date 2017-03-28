@@ -41,10 +41,6 @@
 #include <terrama2/services/view/core/DataManager.hpp>
 #include <terrama2/services/view/core/ViewLogger.hpp>
 
-#include <terrama2/services/alert/core/Service.hpp>
-#include <terrama2/services/alert/core/DataManager.hpp>
-#include <terrama2/services/alert/core/AlertLogger.hpp>
-
 #include <terrama2/core/network/TcpManager.hpp>
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/core/utility/TerraMA2Init.hpp>
@@ -73,14 +69,12 @@ namespace po = boost::program_options;
 const std::string analysisType = "analysis";
 const std::string collectorType = "collector";
 const std::string viewType = "view";
-const std::string alertType = "alert";
 
 bool checkServiceType(const std::string& serviceType)
 {
   if(serviceType == collectorType
      || serviceType == analysisType
-     || serviceType == viewType
-     || serviceType == alertType)
+     || serviceType == viewType)
     return true;
 
   return false;
@@ -123,17 +117,6 @@ createView()
   return std::make_tuple(dataManager, service, logger);
 }
 
-std::tuple<std::shared_ptr<terrama2::core::DataManager>, std::shared_ptr<terrama2::core::Service>, std::shared_ptr<terrama2::core::ProcessLogger> >
-createAlert()
-{
-  auto dataManager = std::make_shared<terrama2::services::alert::core::DataManager>();
-  auto service = std::make_shared<terrama2::services::alert::core::Service>(dataManager);
-  auto logger = std::make_shared<terrama2::services::alert::core::AlertLogger>();
-
-  service->setLogger(logger);
-
-  return std::make_tuple(dataManager, service, logger);
-}
 
 std::tuple<std::shared_ptr<terrama2::core::DataManager>, std::shared_ptr<terrama2::core::Service>, std::shared_ptr<terrama2::core::ProcessLogger> >
 createService(const std::string& serviceType)
@@ -144,8 +127,6 @@ createService(const std::string& serviceType)
     return createAnalysis();
   if(serviceType == viewType)
     return createView();
-  if(serviceType == alertType)
-    return createAlert();
 
   exit(SERVICE_LOAD_ERROR);
 }
