@@ -38,21 +38,31 @@
 // Qt
 #include <QObject>
 
+terrama2::services::alert::core::Report::Report(AlertPtr alert,
+                                                std::shared_ptr<te::da::DataSet> alertDataSet,
+                                                std::vector<std::shared_ptr<te::dt::DateTime>> riskDates)
+  : alert_(alert),
+    riskDates_(riskDates)
+{
+  updateReportDataset(alertDataSet);
+}
 
 std::shared_ptr<te::da::DataSet> terrama2::services::alert::core::Report::retrieveData() const
 {
-  return alertDataSet_;
+  return dataSet_;
 }
 
 std::shared_ptr<te::da::DataSet> terrama2::services::alert::core::Report::retrieveDataComparisonValue(const std::vector<int>& values) const
 {
   std::vector<std::size_t> positions;
 
-  for(std::size_t i = 0; i < alertDataSet_->size(); i++)
-  {
-    alertDataSet_->move(i);
+  size_t compPos = terrama2::core::propertyPosition(dataSet_.get(), "comparison_previous");
 
-    int comp = alertDataSet_->getInt32("comparison_previous");
+  for(std::size_t i = 0; i < dataSet_->size(); i++)
+  {
+    dataSet_->move(i);
+
+    int comp = dataSet_->getInt32(compPos);
 
     auto it = std::find(values.begin(), values.end(), comp);
 
@@ -62,13 +72,7 @@ std::shared_ptr<te::da::DataSet> terrama2::services::alert::core::Report::retrie
     }
   }
 
-  std::shared_ptr<te::mem::DataSet> filteredDataSet  = std::make_shared<te::mem::DataSet>(alertDataSetType_.get());
-
-  te::da::FilteredDataSet ds(alertDataSet_.get(), positions);
-
-  filteredDataSet->copy(ds);
-
-  replaceNumberByDescription(filteredDataSet);
+  std::shared_ptr<te::da::FilteredDataSet> filteredDataSet = std::make_shared<te::da::FilteredDataSet>(dataSet_.get(), positions);
 
   return  filteredDataSet;
 }
@@ -101,24 +105,18 @@ std::shared_ptr<te::da::DataSet> terrama2::services::alert::core::Report::retrie
 {
   std::vector<std::size_t> positions;
 
-  std::string property = terrama2::core::createValidPropertyName(riskDates_.at(0)->toString());
+  size_t riskPos = terrama2::core::propertyPosition(dataSet_.get(), riskDates_.at(0)->toString());
 
-  for(std::size_t i = 0; i < alertDataSet_->size(); i++)
+  for(std::size_t i = 0; i < dataSet_->size(); i++)
   {
-    alertDataSet_->move(i);
-    if(alertDataSet_->getInt32(property) == risk)
+    dataSet_->move(i);
+    if(dataSet_->getInt32(riskPos) == risk)
     {
       positions.push_back(i);
     }
   }
 
-  std::shared_ptr<te::mem::DataSet> filteredDataSet  = std::make_shared<te::mem::DataSet>(alertDataSetType_.get());
-
-  te::da::FilteredDataSet ds(alertDataSet_.get(), positions);
-
-  filteredDataSet->copy(ds);
-
-  replaceNumberByDescription(filteredDataSet);
+  std::shared_ptr<te::da::FilteredDataSet> filteredDataSet = std::make_shared<te::da::FilteredDataSet>(dataSet_.get(), positions);
 
   return  filteredDataSet;
 }
@@ -127,24 +125,18 @@ std::shared_ptr<te::da::DataSet> terrama2::services::alert::core::Report::retrie
 {
   std::vector<std::size_t> positions;
 
-  std::string property = terrama2::core::createValidPropertyName(riskDates_.at(0)->toString());
+  size_t riskPos = terrama2::core::propertyPosition(dataSet_.get(), riskDates_.at(0)->toString());
 
-  for(std::size_t i = 0; i < alertDataSet_->size(); i++)
+  for(std::size_t i = 0; i < dataSet_->size(); i++)
   {
-    alertDataSet_->move(i);
-    if(alertDataSet_->getInt32(property) >= risk)
+    dataSet_->move(i);
+    if(dataSet_->getInt32(riskPos) >= risk)
     {
       positions.push_back(i);
     }
   }
 
-  std::shared_ptr<te::mem::DataSet> filteredDataSet  = std::make_shared<te::mem::DataSet>(alertDataSetType_.get());
-
-  te::da::FilteredDataSet ds(alertDataSet_.get(), positions);
-
-  filteredDataSet->copy(ds);
-
-  replaceNumberByDescription(filteredDataSet);
+  std::shared_ptr<te::da::FilteredDataSet> filteredDataSet = std::make_shared<te::da::FilteredDataSet>(dataSet_.get(), positions);
 
   return  filteredDataSet;
 }
@@ -153,36 +145,33 @@ std::shared_ptr<te::da::DataSet> terrama2::services::alert::core::Report::retrie
 {
   std::vector<std::size_t> positions;
 
-  std::string property = terrama2::core::createValidPropertyName(riskDates_.at(0)->toString());
+  size_t riskPos = terrama2::core::propertyPosition(dataSet_.get(), riskDates_.at(0)->toString());
 
-  for(std::size_t i = 0; i < alertDataSet_->size(); i++)
+  for(std::size_t i = 0; i < dataSet_->size(); i++)
   {
-    alertDataSet_->move(i);
-    if(alertDataSet_->getInt32(property) <= risk)
+    dataSet_->move(i);
+    if(dataSet_->getInt32(riskPos) <= risk)
     {
       positions.push_back(i);
     }
   }
 
-  std::shared_ptr<te::mem::DataSet> filteredDataSet  = std::make_shared<te::mem::DataSet>(alertDataSetType_.get());
-
-  te::da::FilteredDataSet ds(alertDataSet_.get(), positions);
-
-  filteredDataSet->copy(ds);
-
-  replaceNumberByDescription(filteredDataSet);
+  std::shared_ptr<te::da::FilteredDataSet> filteredDataSet = std::make_shared<te::da::FilteredDataSet>(dataSet_.get(), positions);
 
   return  filteredDataSet;
 }
 
 
-void terrama2::services::alert::core::Report::replaceNumberByDescription(std::shared_ptr<te::mem::DataSet> dataSet) const
+void terrama2::services::alert::core::Report::updateReportDataset(const std::shared_ptr<te::da::DataSet> dataSet)
 {
+  dataSet->moveBeforeFirst();
+  dataSet_ = std::make_shared<te::mem::DataSet>(*dataSet);
+
   // Replace risk values
   for(auto riskDate : riskDates_)
   {
     std::string property = terrama2::core::createValidPropertyName(riskDate->toString());
-    auto pos = terrama2::core::propertyPosition(dataSet.get(), property);
+    auto pos = terrama2::core::propertyPosition(dataSet_.get(), property);
 
     if(pos == std::numeric_limits<size_t>::max())
     {
@@ -191,22 +180,22 @@ void terrama2::services::alert::core::Report::replaceNumberByDescription(std::sh
       throw ReportException() << ErrorDescription(errMsg);
     }
 
-    dataSet->moveBeforeFirst();
+    dataSet_->moveBeforeFirst();
 
-    while(dataSet->moveNext())
+    while(dataSet_->moveNext())
     {
-      if(!dataSet->isNull(pos))
+      if(!dataSet_->isNull(pos))
       {
-        int numericRisk = dataSet->getInt32(pos);
-        dataSet->setString(property, alert_->risk.riskName(numericRisk));
+        int numericRisk = dataSet_->getInt32(pos);
+        dataSet_->setString(property, alert_->risk.riskName(numericRisk));
       }
     }
 
-    dataSet->setPropertyDataType(te::dt::STRING_TYPE, pos);
+    dataSet_->setPropertyDataType(te::dt::STRING_TYPE, pos);
   }
 
   // Replace comparison property
-  auto posComparison = terrama2::core::propertyPosition(dataSet.get(), "comparison_previous");
+  auto posComparison = terrama2::core::propertyPosition(dataSet_.get(), "comparison_previous");
 
   if(posComparison == std::numeric_limits<size_t>::max())
   {
@@ -215,15 +204,15 @@ void terrama2::services::alert::core::Report::replaceNumberByDescription(std::sh
     throw ReportException() << ErrorDescription(errMsg);
   }
 
-  dataSet->moveBeforeFirst();
+  dataSet_->moveBeforeFirst();
 
-  while(dataSet->moveNext())
+  while(dataSet_->moveNext())
   {
     std::string comp = "NULL";
 
-    if(!dataSet->isNull(posComparison))
+    if(!dataSet_->isNull(posComparison))
     {
-      int resComp = dataSet->getInt32(posComparison);
+      int resComp = dataSet_->getInt32(posComparison);
 
       if(resComp == 0)
         comp = "SAME";
@@ -235,8 +224,8 @@ void terrama2::services::alert::core::Report::replaceNumberByDescription(std::sh
         comp = "UNKNOW";
     }
 
-    dataSet->setString("comparison_previous" , comp);
+    dataSet_->setString("comparison_previous" , comp);
   }
 
-  dataSet->setPropertyDataType(te::dt::STRING_TYPE, posComparison);
+  dataSet_->setPropertyDataType(te::dt::STRING_TYPE, posComparison);
 }
