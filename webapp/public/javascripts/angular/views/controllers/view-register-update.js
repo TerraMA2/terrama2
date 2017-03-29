@@ -165,7 +165,11 @@ define([], function() {
             return "/images/static-data-series/grid/grid.png";
             break;
           } else {
-            return "/images/dynamic-data-series/grid/grid.png";
+            if (dataSeries.isAnalysis){
+              return "/images/analysis/grid/grid_analysis.png";
+            } else {
+              return "/images/dynamic-data-series/grid/grid.png";
+            }
             break;
           }
         case DataSeriesService.DataSeriesType.ANALYSIS_MONITORED_OBJECT:
