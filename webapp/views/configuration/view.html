@@ -147,6 +147,11 @@
         <div class="col-md-6">
           <div class="form-group" terrama2-show-errors>
             <label><span ng-bind="i18n.__('View Data Series')"></span>:</label>
+            <div class="pull-right">
+              <span><input type="checkbox" ng-model="ctrl.filter['isAnalysis']"> Analysis &nbsp</span> 
+              <span><input type="checkbox" ng-model="ctrl.filter['DYNAMIC']"> Dynamic &nbsp</span> 
+              <span><input type="checkbox" ng-model="ctrl.filter['STATIC']"> Static</span> 
+            </div>
             <ui-select
                     name="dataSeries"
                     ng-model="ctrl.view.data_series_id"
@@ -156,7 +161,7 @@
                 <img ng-src="{{ctrl.getImageUrl($select.selected)}}" style="width: 20px; margin-top: -9px"/>
                 <span ng-bind="$select.selected.name"></span>
               </ui-select-match>
-              <ui-select-choices repeat="dSeries.id as dSeries in (ctrl.dataSeries | filter: {'name': $select.search} | orderBy: 'name') track by dSeries.id">
+              <ui-select-choices repeat="dSeries.id as dSeries in (ctrl.dataSeries | filter:ctrl.filterByType | orderBy: 'name') track by dSeries.id">
                 <img ng-src="{{ctrl.getImageUrl(dSeries)}}" style="width: 20px;"/>
                 <span ng-bind="dSeries.name"></span>
               </ui-select-choices>

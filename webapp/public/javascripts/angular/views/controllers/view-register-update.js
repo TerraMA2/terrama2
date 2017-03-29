@@ -147,6 +147,31 @@ define([], function() {
     // Setting Save operation attached into submit button
     self.save = saveOperation;
 
+    // Creating data series filter
+    self.filter = {
+      isAnalysis: true,
+      DYNAMIC: true,
+      STATIC: true
+    };
+
+    self.filterByType = filterByType;
+
+    // Filter function
+    function filterByType(dataSeries) {
+
+      var displayDataSeries = self.filter[dataSeries.data_series_semantics.temporality];
+
+      if (self.filter['isAnalysis'] && dataSeries.isAnalysis){
+        displayDataSeries = true;
+      }
+
+      if (!self.filter['isAnalysis'] && dataSeries.isAnalysis){
+        displayDataSeries = false;
+      }
+
+      return displayDataSeries;
+    };
+
     self.getImageUrl = getImageUrl;
 
     function getImageUrl(dataSeries){
