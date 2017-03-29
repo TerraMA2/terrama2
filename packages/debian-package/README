@@ -1,0 +1,3 @@
+To run the scripts that create a debia package, first install these packages: 
+- debhelper
+- devscripts
