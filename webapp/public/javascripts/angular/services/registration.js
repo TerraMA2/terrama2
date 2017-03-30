@@ -64,6 +64,9 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
    */
   self.ssh = {};
 
+
+  self.metadata = {};
+
   // Initializing Async services.
   $q
     .all([
@@ -114,24 +117,23 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
           self.service.service_type_id = self.service.service_type_id.toString();
         }
 
-        self.metadata = self.service.metadata;
         switch(parseInt(self.service.service_type_id)) {
           case Service.types.VIEW:
             self.mapsServer.address = self.service.metadata.mapsServer;
             self.onMapsServerURIChange();
             break;
           case Service.types.ALERT:
+            var emailServer = self.service.metadata.emailServer;
             // Checking email server. When terrama2 runs first time, it does not register a email server. So, value in undefined/null
-            if (self.metadata.emailServer) {
-              var emailURI = "http" + self.metadata.emailServer.substring(4, self.metadata.emailServer.length);
+            if (emailServer) {
+              var emailURI = "http" + emailServer.substring(4, emailServer.length);
             
               var parsed = URIParser(emailURI);
-              self.metadata.emailServer = {
-                host: parsed.hostname,
-                port: parseInt(parsed.port),
-                username: parsed.username,
-                pass: parsed.password
-              };
+              self.metadata.emailServer = {};
+              self.metadata.emailServer.host = parsed.hostname;
+              self.metadata.emailServer.port = parseInt(parsed.port);
+              self.metadata.emailServer.user = decodeURIComponent(parsed.username);
+              self.metadata.emailServer.password = parsed.password;
             }
             break;
         }
@@ -335,7 +337,7 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
         var output = undefined;
         if (value && angular.isObject(value)) {
           var parsedURI = URIParser(value);
-          output = "smtp://" + parsedURI.username + ":" + parsedURI.password + "@" + parsedURI.host + ":" + parsedURI.port;
+          output = "smtp://" + parsedURI.username + ":" + parsedURI.password + "@" + parsedURI.host;
         }
         return output;
       }
@@ -458,6 +460,12 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
           self.service.maps_server_uri = uriObject.href;
         } else {
           delete self.service.maps_server_uri;
+        }
+
+        if (self.service.service_type_id == Service.types.ALERT) {
+          // if ($scope.emailServerForm.$invalid) {
+          //   return;
+          // }
         }
 
         // testing port number
