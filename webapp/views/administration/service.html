@@ -508,7 +508,7 @@
               <div class="col-md-6">
                 <div class="form-group has-feedback" terrama2-show-errors>
                   <label>{{ i18n.__("User") }}:</label>
-                  <input class="form-control" name="user" ng-model="ctrl.metadata.emailServer.user" placeholder="{{ i18n.__('Email Server credential') }}" type="text">
+                  <input class="form-control" name="user" autocomplete="off" ng-model="ctrl.metadata.emailServer.user" placeholder="{{ i18n.__('Email Server credential') }}" type="text">
 
                   <span class="form-control-feedback glyphicon"
                         ng-show="emailServerForm.user.$dirty"
