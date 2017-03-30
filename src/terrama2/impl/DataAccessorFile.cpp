@@ -193,55 +193,45 @@ void terrama2::core::DataAccessorFile::filterDataSetByLastValues(std::shared_ptr
   if(!isValidColumn(dateColumn))
     return;
 
-  size_t size = completeDataSet->size();
-  size_t i = 0;
+  std::vector<std::shared_ptr< te::dt::TimeInstantTZ > > vecLastValues;
 
+  // Retrieve all dates of dataset
+  completeDataSet->moveBeforeFirst();
 
-  std::vector<std::shared_ptr< te::dt::DateTime> > vecLastValues;
-
-  while(i < size)
+  while(completeDataSet->moveNext())
   {
-    completeDataSet->move(i);
-
     if(completeDataSet->isNull(dateColumn))
     {
       QString errMsg = QObject::tr("Null date/time attribute.");
       TERRAMA2_LOG_WARNING() << errMsg;
-      ++i;
       continue;
     }
 
-
     std::shared_ptr< te::dt::DateTime > dateTime(completeDataSet->getDateTime(dateColumn));
-    auto timesIntant = std::dynamic_pointer_cast<te::dt::TimeInstantTZ>(dateTime);
+    auto timeInstant = std::dynamic_pointer_cast<te::dt::TimeInstantTZ>(dateTime);
 
+    // Order ASC
+    auto it = std::lower_bound(vecLastValues.begin(), vecLastValues.end(), timeInstant,
+                               [&](std::shared_ptr< te::dt::TimeInstantTZ > const& first, std::shared_ptr<te::dt::TimeInstantTZ > const& second)
+                               {
+                                 return *first < *second;
+                               });
 
-    int filterLastValues = *filter.lastValues.get();
+    if(it != vecLastValues.end() && **it == *dateTime)
+      continue;
 
-    bool inserted = false;
-    for(auto it = vecLastValues.begin(); it != vecLastValues.end(); ++it)
-    {
-      if(*it->get() < *timesIntant)
-      {
-        vecLastValues.insert(it, timesIntant);
-        inserted = true;
-      }
-      if(*it->get() == *timesIntant)
-      {
-        inserted = true;
-      }
-    }
-
-    if(!inserted)
-    {
-      if(vecLastValues.size() < filterLastValues)
-        vecLastValues.push_back(timesIntant);
-    }
-
-    ++i;
+    vecLastValues.insert(it, timeInstant);
   }
 
-  i = 0;
+  // Remove uneccessary oldest dates
+  auto filterLastValues = *filter.lastValues.get();
+
+  if(vecLastValues.size() > filterLastValues)
+    vecLastValues = {vecLastValues.rbegin(), vecLastValues.rbegin()+filterLastValues};
+
+  size_t size = completeDataSet->size();
+  size_t i = 0;
+
   while(i < size)
   {
     completeDataSet->move(i);
