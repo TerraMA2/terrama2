@@ -840,11 +840,13 @@ var DataManager = module.exports = {
   },
 
   upsertServiceMetadata: function upsertServiceMetadata(restriction, metadataObj, options) {
+    var self = this;
     return new Promise(function(resolve, reject) {
       models.db.ServiceMetadata.findOne(Utils.extend({where: restriction}, options))
         .then(function(metaResult) {
           if (!metaResult) {
-            // create new one  
+            // create new one
+            return self.addServiceMetadata([metadataObj], options);
           }
           return models.db.ServiceMetadata.update(metadataObj, Utils.extend({
             fields: ["key", "value"],

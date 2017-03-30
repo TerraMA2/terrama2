@@ -121,15 +121,18 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
             self.onMapsServerURIChange();
             break;
           case Service.types.ALERT:
-            var emailURI = "http" + self.metadata.emailServer.substring(4, self.metadata.emailServer.length);
+            // Checking email server. When terrama2 runs first time, it does not register a email server. So, value in undefined/null
+            if (self.metadata.emailServer) {
+              var emailURI = "http" + self.metadata.emailServer.substring(4, self.metadata.emailServer.length);
             
-            var parsed = URIParser(emailURI);
-            self.metadata.emailServer = {
-              host: parsed.hostname,
-              port: parseInt(parsed.port),
-              username: parsed.username,
-              pass: parsed.password
-            };
+              var parsed = URIParser(emailURI);
+              self.metadata.emailServer = {
+                host: parsed.hostname,
+                port: parseInt(parsed.port),
+                username: parsed.username,
+                pass: parsed.password
+              };
+            }
             break;
         }
 
@@ -332,7 +335,7 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
         var output = undefined;
         if (value && angular.isObject(value)) {
           var parsedURI = URIParser(value);
-          output = parsedURI.href;
+          output = "smtp://" + parsedURI.username + ":" + parsedURI.password + "@" + parsedURI.host
         }
         return output;
       }
@@ -351,6 +354,7 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
         switch (parseInt(self.service.service_type_id)) {
           case Service.types.ALERT:
             copyMetadata.emailServer = self.processMetadata(copyMetadata.emailServer);
+            // copyMetadata.emailServer = "smtp" + _uriEmailServer.substring(4, _uriEmailServer.length);
             break;
           case Service.types.VIEW:
             var copyMapsServer = angular.merge({}, self.mapsServer);
