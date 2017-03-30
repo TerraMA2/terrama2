@@ -126,12 +126,10 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
               var emailURI = "http" + self.metadata.emailServer.substring(4, self.metadata.emailServer.length);
             
               var parsed = URIParser(emailURI);
-              self.metadata.emailServer = {
-                host: parsed.hostname,
-                port: parseInt(parsed.port),
-                username: parsed.username,
-                pass: parsed.password
-              };
+              self.metadata.emailServer.user = parsed.username;
+              self.metadata.emailServer.host = parsed.hostname;
+              self.metadata.emailServer.port = parseInt(parsed.port);
+              self.metadata.emailServer.password = parsed.password;
             }
             break;
         }
@@ -335,7 +333,7 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
         var output = undefined;
         if (value && angular.isObject(value)) {
           var parsedURI = URIParser(value);
-          output = "smtp://" + parsedURI.username + ":" + parsedURI.password + "@" + parsedURI.host + ":" + parsedURI.port;
+          output = "smtp://" + parsedURI.username + ":" + parsedURI.password + "@" + parsedURI.host;
         }
         return output;
       }
