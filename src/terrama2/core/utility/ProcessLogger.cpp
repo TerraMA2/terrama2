@@ -60,8 +60,10 @@ void terrama2::core::ProcessLogger::internalClone(std::shared_ptr<terrama2::core
   loggerCopy->tableName_ = tableName_;
   loggerCopy->messagesTableName_ = messagesTableName_;
   loggerCopy->consistent_ = consistent_;
+  loggerCopy->tableName_ = tableName_;
+  loggerCopy->messagesTableName_ = messagesTableName_;
 
-  loggerCopy->setConnectionInfo(dataSource_->getConnectionInfo());
+  loggerCopy->ProcessLogger::setConnectionInfo(dataSource_->getConnectionInfo());
 }
 
 
