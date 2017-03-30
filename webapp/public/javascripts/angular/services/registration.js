@@ -463,9 +463,13 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
         }
 
         if (self.service.service_type_id == Service.types.ALERT) {
-          // if ($scope.emailServerForm.$invalid) {
-          //   return;
-          // }
+          if (angular.element('form[name="emailServerForm"]').scope()){
+            var emailServerForm = angular.element('form[name="emailServerForm"]').scope()['emailServerForm'];
+
+            if (emailServerForm.$invalid) {
+              return;
+            }
+          }
         }
 
         // testing port number
