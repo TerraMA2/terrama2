@@ -12,8 +12,8 @@ define([], function() {
       if (angular.isObject(uri)) {
         parser.host = uri.host || uri.address;
         parser.port = uri.port;
-        parser.pathname = uri.pathname || uri.path;
-        parser.username = uri.username || uri.user;
+        parser.pathname = uri.pathname || uri.path;[]
+        parser.username = uri.user;
         parser.password = uri.password;
       } else {
         parser.href = uri;
