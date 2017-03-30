@@ -124,7 +124,12 @@ module.exports = {
      *
      * @type {number}
      */
-    VIEW: 3
+    VIEW: 3,
+    /**
+     * Defines Alert Service
+     * @type {number}
+     */
+    ALERT: 4
   },
 
   DataSeriesType: {

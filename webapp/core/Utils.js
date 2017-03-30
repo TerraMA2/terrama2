@@ -441,6 +441,9 @@ var Utils = module.exports = {
       case Enums.ServiceType.VIEW:
         output = "VIEW";
         break;
+      case Enums.ServiceType.ALERT:
+        output = "ALERT";
+        break;
     }
 
     if (output && output !== null) { return output; }
