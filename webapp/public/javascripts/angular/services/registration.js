@@ -2,7 +2,7 @@ define(function() {
 
 /**
  * It handles TerraMA² Service Registration and Service Update
- * 
+ *
  * @class RegisterUpdate
  */
 function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18n, $q, URIParser) {
@@ -23,7 +23,7 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
    * It defines a service model. If there global service, so adapts to Update mode. Otherwise, use Register Mode
    * @type {Object}
    */
-  self.service = {sshPort: 22};
+  self.service = {sshPort: 22, pathToBinary: "terrama2_service"};
 
   /**
    * It defines a log instance model. It tries to get values from service model. If there is, update mode
@@ -38,7 +38,7 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
 
   /**
    * It forces active (on/off) in Active service
-   * 
+   *
    * @param {boolean} state - Initial state
    */
   self.initService = function(state) {
@@ -53,13 +53,13 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
 
   /**
    * It defines a connection validation of Database
-   * 
+   *
    * @type {Object}
    */
   self.db = {};
   /**
    * It defines a connection validation of SSH
-   * 
+   *
    * @type {Object}
    */
   self.ssh = {};
@@ -80,8 +80,8 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
 
       /**
        * Flag to handle update and save mode
-       * 
-       * @type {boolean} 
+       *
+       * @type {boolean}
        */
       self.update = config.service.name ? true : false;
 
@@ -114,10 +114,23 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
           self.service.service_type_id = self.service.service_type_id.toString();
         }
 
-        if (parseInt(self.service.service_type_id) === Service.types.VIEW) {
-          self.mapsServer.address = self.service.maps_server_uri;
-
-          self.onMapsServerURIChange();
+        self.metadata = self.service.metadata;
+        switch(parseInt(self.service.service_type_id)) {
+          case Service.types.VIEW:
+            self.mapsServer.address = self.service.metadata.mapsServer;
+            self.onMapsServerURIChange();
+            break;
+          case Service.types.ALERT:
+            var emailURI = "http" + self.metadata.emailServer.substring(4, self.metadata.emailServer.length);
+            
+            var parsed = URIParser(emailURI);
+            self.metadata.emailServer = {
+              host: parsed.hostname,
+              port: parseInt(parsed.port),
+              username: parsed.username,
+              pass: parsed.password
+            };
+            break;
         }
 
         self.log = self.service.log;
@@ -176,6 +189,10 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
          * @type {string[]}
          */
         availableDatabases: []
+      };
+
+      self.isAlertService = function isAlertService() {
+        return self.service && parseInt(self.service.service_type_id) === Service.types.ALERT;
       };
 
       /**
@@ -311,6 +328,15 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
         }, 500);
       };
 
+      self.processMetadata = function processMetadata(value) {
+        var output = undefined;
+        if (value && angular.isObject(value)) {
+          var parsedURI = URIParser(value);
+          output = parsedURI.href;
+        }
+        return output;
+      }
+
       /**
        * Hidden save. It performs update or insert service instance
        * 
@@ -319,6 +345,24 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
       self._save = function() {
         self.isChecking = true;
         var request;
+
+        var copyMetadata = angular.merge({}, self.metadata);
+        // Processing Metadata (Email Server)
+        switch (parseInt(self.service.service_type_id)) {
+          case Service.types.ALERT:
+            copyMetadata.emailServer = self.processMetadata(copyMetadata.emailServer);
+            break;
+          case Service.types.VIEW:
+            var copyMapsServer = angular.merge({}, self.mapsServer);
+            var mapsServerURI = URIParser(copyMapsServer.address);
+            mapsServerURI.port = copyMapsServer.port;
+            mapsServerURI.username = copyMapsServer.user;
+            mapsServerURI.password = copyMapsServer.password;
+            copyMetadata.mapsServer = mapsServerURI.href;
+            break;
+        }
+
+        self.service.metadata = copyMetadata;
 
         if (self.update) {
           request = Service.update(self.service.id, {
