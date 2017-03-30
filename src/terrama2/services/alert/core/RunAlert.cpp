@@ -381,11 +381,14 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
       // create a getRisk function
       auto getRisk = terrama2::services::alert::core::createGetRiskFunction(risk, teDataset);
 
-      // Store execution dates of dataset
+      // Store execution dates of dataset, ASC order
       std::vector<std::shared_ptr<te::dt::DateTime> > vecDates = getDates(teDataset, datetimeColumnName);
-      // Remove unnecessary dates
-      while(vecDates.size() > *filter.lastValues)
-        vecDates.pop_back();
+
+      // Remove uneccessary oldest dates
+      auto lastValues = *filter.lastValues;
+
+      if(vecDates.size() > lastValues)
+        vecDates = {vecDates.rbegin(), vecDates.rbegin()+lastValues};
 
       // Insert the risk properties
       for(size_t i = 0; i < vecDates.size(); i++)
