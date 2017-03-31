@@ -45,7 +45,9 @@
      * Data series associated
      * @type {DataSeries}
      */
-    this.dataSeries = params.data_series_id || params.dataSeries;
+    this.dataSeriesId = params.data_series_id;
+
+    this.dataSeries = params.dataSeries || {};
     /**
      * Schedule type associated
      * @type {Schedule}
@@ -91,7 +93,7 @@
   View.prototype.rawObject = function() {
     var obj = this.toObject();
     delete obj.dataseries_id;
-    obj.data_series_id = this.dataSeries;
+    obj.data_series_id = this.dataSeriesId;
     return obj;
   };
 
@@ -106,7 +108,8 @@
       name: this.name,
       description: this.description,
       style: this.style,
-      dataseries_id: this.dataSeries,
+      dataseries_id: this.dataSeriesId,
+      dataSeries: this.dataSeries instanceof AbstractClass ? this.dataSeries.toObject() : {},
       schedule: this.schedule instanceof AbstractClass ? this.schedule.toObject() : {},
       conditional_schedule: this.conditionalSchedule instanceof AbstractClass ? this.conditionalSchedule.toObject() : {},
       active: this.active,

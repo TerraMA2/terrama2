@@ -449,7 +449,7 @@ var DataManager = module.exports = {
                       // in arguments is to retrieve entire representation.
                       // It retrieves as string. Once GeoJSON retrieved,
                       // you must parse it. "JSON.parse(geoJsonStr)"
-                      [orm.fn('ST_AsGeoJSON', orm.col('position'), 0, 2), 'position'],
+                      [orm.fn('ST_AsGeoJSON', orm.col('position'), 15, 2), 'position'],
                       // EWKT representation
                       [orm.fn('ST_AsEwkt', orm.col('position')), 'positionWkt']
                     ],
@@ -1857,7 +1857,7 @@ var DataManager = module.exports = {
                   attributes: [
                     "id",
                     "data_set_id",
-                    [orm.fn('ST_AsGeoJSON', orm.col('position'), 0, 2), 'position'],
+                    [orm.fn('ST_AsGeoJSON', orm.col('position'), 15, 2), 'position'],
                     [orm.fn('ST_AsEwkt', orm.col('position')), 'positionWkt']
                   ],
                   where: {
@@ -2548,7 +2548,7 @@ var DataManager = module.exports = {
               "collector_id",
               "data_series_id",
               [orm.fn('ST_AsEwkt', orm.col('region')), 'region_wkt'],
-              [orm.fn('ST_AsGeoJSON', orm.col('region'), 0, 2), 'region']
+              [orm.fn('ST_AsGeoJSON', orm.col('region'), 15, 2), 'region']
             ]
           },
           {
@@ -3510,7 +3510,7 @@ var DataManager = module.exports = {
               'interpolation_method',
               'resolution_data_series_id',
               'area_of_interest_data_series_id',
-              [orm.fn('ST_AsGeoJSON', orm.col('area_of_interest_box'), 0, 2), 'area_of_interest_box'],
+              [orm.fn('ST_AsGeoJSON', orm.col('area_of_interest_box'), 15, 2), 'area_of_interest_box'],
               [orm.fn('ST_AsEwkt', orm.col('area_of_interest_box')), 'interest_box'] // extra field
             ],
             required: false
@@ -3717,6 +3717,17 @@ var DataManager = module.exports = {
             required: false
           },
           {
+            model: models.db.DataSeries,
+            include: [
+              {
+                model: models.db.DataProvider
+              },
+              {
+                model: models.db.DataSeriesSemantics
+              }
+            ]
+          },
+          {
             model: models.db.ViewStyleLegend,
             required: false,
             include: [
@@ -3735,7 +3746,8 @@ var DataManager = module.exports = {
           return resolve(views.map(function(view) {
             var viewModel = new DataModel.View(Object.assign(view.get(), {
               schedule: view.Schedule ? new DataModel.Schedule(view.Schedule.get()) : {},
-              conditionalSchedule: view.ConditionalSchedule ? new DataModel.ConditionalSchedule(view.ConditionalSchedule.get()) : {}
+              conditionalSchedule: view.ConditionalSchedule ? new DataModel.ConditionalSchedule(view.ConditionalSchedule.get()) : {},
+              dataSeries: view.DataSery ? new DataModel.DataSeries(view.DataSery.get()) : {}
               // schedule: new DataModel.Schedule(view.Schedule ? view.Schedule.get() : {id: 0})
             }));
             if (view.ViewStyleLegend) {

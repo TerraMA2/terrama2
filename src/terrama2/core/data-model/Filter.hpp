@@ -85,7 +85,7 @@ namespace terrama2
       std::shared_ptr<te::gm::Geometry> region = nullptr; //!< Geometry to be used as area of interest for filtering the data during its collect.
       bool cropRaster = false; //! If true the raster will be cropped by the region envelope.
       std::shared_ptr<double> value = nullptr; //!< Value to be used in a filter by value.
-      std::shared_ptr<int32_t> lastValues = nullptr; //!< Filter by number of dates.
+      std::shared_ptr<size_t> lastValues = nullptr; //!< Filter by number of dates.
       std::string byValue; //! Filter by value.
       DataProviderPtr dataProvider; //! Provider from static data filter.
       DataSeriesPtr dataSeries; //! Static data data series.

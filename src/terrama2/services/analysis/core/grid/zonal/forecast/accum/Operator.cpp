@@ -140,7 +140,7 @@ double terrama2::services::analysis::core::grid::zonal::forecast::accum::operato
 
     terrama2::core::Filter filter;
     filter.discardAfter = context->getStartTime();
-    filter.lastValues = std::make_shared<int32_t>(1);
+    filter.lastValues = std::make_shared<size_t>(1);
 
     auto seriesMap = context->getSeriesMap(dataSeries->id, filter);
 

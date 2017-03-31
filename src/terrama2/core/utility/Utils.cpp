@@ -416,7 +416,8 @@ size_t std::hash<terrama2::core::Filter>::operator()(terrama2::core::Filter cons
     boost::hash_combine(hash, *filter.value);
   }
 
-  boost::hash_combine(hash, filter.lastValues);
+  if(filter.lastValues)
+    boost::hash_combine(hash, *filter.lastValues);
 
   return hash;
 }
@@ -527,4 +528,44 @@ std::unique_ptr<te::rst::Raster> terrama2::core::multiplyRaster(const te::rst::R
   }
 
   return expansible;
+}
+
+size_t terrama2::core::propertyPosition(const te::da::DataSet* dataSet, const std::string& propertyName)
+{
+  for(std::size_t i = 0; dataSet->getNumProperties(); i++)
+  {
+    if(dataSet->getPropertyName(i) == propertyName)
+    {
+      return i;
+    }
+  }
+
+  return std::numeric_limits<size_t>::max();
+}
+
+std::string terrama2::core::createValidPropertyName(const std::string& oldName)
+{
+  std::string name = simplifyString(oldName);
+
+  if(std::isdigit(name.at(0)))
+    name ="_" + name;
+
+  return name;
+}
+
+std::vector<std::string> terrama2::core::splitString(const std::string& text, char delim)
+{
+  std::stringstream ss;
+  ss.str(text);
+
+  std::vector<std::string> splittedString;
+
+  std::string str;
+
+  while(std::getline(ss, str, delim))
+  {
+    splittedString.push_back(str);
+  }
+
+  return splittedString;
 }

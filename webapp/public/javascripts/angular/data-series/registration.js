@@ -244,6 +244,29 @@ define([], function() {
 
       $scope.providersList = DataProviderService.list();
 
+      $scope.getImageUrl = getImageUrl;
+
+      function getImageUrl(dataSeries){
+        if (typeof dataSeries != 'object'){
+          return '';
+        }
+        switch (dataSeries.data_provider_type.name){
+          case "FILE":
+            return "/images/data-server/file/file.png";
+            break;
+          case "FTP":
+            return "/images/data-server/ftp/ftp.png";
+            break;
+          case "HTTP":
+            return "/images/data-server/http/http.png";
+            break;
+          case "POSTGIS":
+          default:
+            return "/images/data-server/postGIS/postGIS.png";
+            break;
+        }
+      }
+
       // it defines when data change combobox has changed and it will adapt the interface
       $scope.onDataSemanticsChange = function() {
         $scope.semantics = $scope.dataSeries.semantics.data_series_type_name;
@@ -302,7 +325,7 @@ define([], function() {
 
         if (!$scope.isUpdating)
           if ($scope.dataProviders.length > 0) {
-            $scope.dataSeries.data_provider_id = $scope.dataProviders[0].id.toString();
+            $scope.dataSeries.data_provider_id = $scope.dataProviders[0].id;
           }
 
         $scope.tableFields = [];
@@ -916,7 +939,7 @@ define([], function() {
       }
 
       $scope.dataSeries = {
-        data_provider_id: (inputDataSeries.data_provider_id || "").toString(),
+        data_provider_id: (inputDataSeries.data_provider_id || ""),
         name: inputName,
         description: inputDataSeries.description,
         access: $scope.hasCollector ? "COLLECT" : "PROCESSING",

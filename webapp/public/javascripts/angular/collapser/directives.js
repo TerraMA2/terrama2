@@ -232,8 +232,11 @@ define([], function() {
         },
         controller: ["$scope", terrama2ListItemController],
         controllerAs: "vm",
-        template: "<li>" +
-                    "<a href=\"javascript::void()\" ng-click=\"onClick(data)\" data-toggle=\"tooltip\" data-placement=\"top\" ng-attr-title=\"{{data.description}}\">{{ data.name }}</a>" +
+        template: "<li class=\"operators-list\">" +
+                    "<a ng-if=\"!data.image\" href=\"javascript::void()\" ng-click=\"onClick(data)\" data-toggle=\"tooltip\" data-placement=\"top\" ng-attr-title=\"{{data.description}}\">{{ data.name }}</a>" +
+                    "<a ng-if=\"data.image\" href=\"javascript::void()\" ng-click=\"onClick(data)\">" + 
+                      "<img ng-src=\"{{data.image}}\"/> {{data.name}}"+
+                    "</a>" +
                   "</li>",
         link: linkFn
       };

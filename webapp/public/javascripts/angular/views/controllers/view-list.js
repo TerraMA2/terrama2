@@ -170,7 +170,37 @@ define([], function() {
          * @returns {string}
          */
         self.icon = function(object) {
-          return "/images/map-display.png";
+          switch(object.dataSeries.semantics){
+            case "OCCURRENCE-postgis":
+            case "OCCURRENCE-wfp":
+            case "OCCURRENCE-lightning":
+            case "Occurrence-generic":
+              return "/images/view/dynamic_data_series/occurrence/large_occurrence_view.png";
+              break;
+            case "STATIC_DATA-postgis":
+            case "STATIC_DATA-ogr":
+              return "/images/view/static_data_series/vetor/large_vector_view.png";
+              break;
+            case "GRID-static_gdal":
+              return "/images/view/static_data_series/grid/large_grid_view.png";
+              break;
+            case "DCP-inpe":
+            case "DCP-toa5":
+            case "DCP-postgis":
+            case "DCP-generic":
+              return "/images/view/dynamic_data_series/dcp/large_dcp_view.png";
+              break;
+            case "ANALYSIS_MONITORED_OBJECT-postgis":
+              return "/images/view/analysis/large_analysis_view.png";
+              break;
+            case "GRID-gdal":
+            case "GRID-grads":
+              return "/images/view/dynamic_data_series/grid/large_grid_view.png";
+              break;
+            default:
+              return "/images/view/dynamic_data_series/grid/large_grid_view.png";
+              break;
+          }
         };
 
         /**

@@ -9,12 +9,14 @@ define([
   angular.module(moduleName, [servicesApp, collapserApp])
     .run(["$templateCache", function($templateCache) {
       $templateCache.put("helper.html",
-        "<div class=\"dropup\">" + 
-          "<button aria-expanded=\"false\" type=\"button\" class=\"btn btn-warning dropdown-toggle\" data-toggle=\"dropdown\"> {{ i18n.__('Functions') }}</button>" +
-          "<terrama2-list class=\"dropdown-menu\" data=\"AnalysisOperators.$data\" expression=\"restriction\"></terrama2-list>" +
+        "<div class=\"dropup pull-left\" style=\"margin-left: 10px;\">" + 
+          "<button aria-expanded=\"false\" type=\"button\" class=\"btn dropdown-toggle\" data-toggle=\"dropdown\">" +
+            "<img style=\"height: 20px;\" ng-src=\"{{operators.imagePath}}\" data-toggle=\"tooltip\" data-placement=\"top\" ng-attr-title=\"{{operators.name}}\"/>" +
+          "</button>" +
+          "<terrama2-list class=\"dropdown-menu\" data=\"operatorsData\" expression=\"restriction\"></terrama2-list>" +
         "</div>");
     }])
-    .directive("terrama2AnalysisHelpers", ["i18n", "AnalysisOperators", terrama2AnalysisHelpersDirective]);
+    .directive("terrama2AnalysisHelpers", ["i18n", "$http", terrama2AnalysisHelpersDirective]);
 
   /**
    * It defines a Analysis Button with Available helpers functions
@@ -24,13 +26,15 @@ define([
    * 
    * @returns {angular.IDirective}
    */
-  function terrama2AnalysisHelpersDirective(i18n, AnalysisOperators) {
+  function terrama2AnalysisHelpersDirective(i18n, $http) {
     return {
       restrict: "E",
       replace: true,
+      transclude: true,
       scope: {
         target: '=',
         restriction: "=",
+        operators: '='
       },
       controller: ["$scope", "i18n", controllerFn],
       templateUrl: "helper.html",
@@ -44,6 +48,7 @@ define([
      */
     function controllerFn($scope, i18n) {
       $scope.i18n = i18n;
+      $scope.operatorsData = [];
       /**
        * Listener for Item clicked. Whenever retrieve a item, It must have code in order to append script context
        * 
@@ -66,17 +71,24 @@ define([
     }
 
     /**
-     * It defines post-link directive binding. Once triggered, it injects Analysis Operators that contains operators data into scope
-     * and prepares to populate recursive links
+     * It defines post-link directive binding. Once triggered, populate operators data
      * 
      * @param {angular.IScope} scope - Angular Directive Scope
      * @param {angular.IElement} element - Directive Selector (jQlite)
      * @param {angular.IAttributes} attrs - Angular directive attributes
      */
     function linkFn(scope, element, attrs) {
-      scope.AnalysisOperators = AnalysisOperators;
-      // Retrieving operators json async
-      AnalysisOperators.init();
+
+      // watch operators to get file data
+      scope.$watch('operators', function(operators){
+        if (operators){
+          var pathFile = "/javascripts/angular/analysis/data/" + operators.fileName;
+
+          $http.get(pathFile).then(function(response){
+            scope.operatorsData = response.data;
+          });
+        }
+      });
     } // end linkFn
   } // end terrama2AnalysisHelpersDirective function
 

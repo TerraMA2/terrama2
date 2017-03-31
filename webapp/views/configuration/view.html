@@ -12,6 +12,7 @@
 
   <!-- Angular Color Picker -->
   <link rel="stylesheet" href="/bower_components/angular-color-picker/dist/angularjs-color-picker.min.css" />
+  <link rel="stylesheet" href="/bower_components/angular-ui-select/dist/select.min.css" />
   <!-- only include if you use bootstrap -->
   <link rel="stylesheet" href="/bower_components/angular-color-picker/dist/themes/angularjs-color-picker-bootstrap.min.css" />
 
@@ -59,6 +60,7 @@
 <!-- Angular Color Picker -->
 <script src="/bower_components/tinycolor/dist/tinycolor-min.js"></script>
 <script src="/bower_components/angular-color-picker/dist/angularjs-color-picker.min.js"></script>
+<script src="/bower_components/angular-ui-select/dist/select.min.js"></script>
 
 
 {% endblock %}
@@ -92,16 +94,18 @@
             <div class="col-md-4">
               <div class="form-group" terrama2-show-errors>
                 <label><span ng-bind="i18n.__('Service')">:</span></label>
-                <select class="form-control"
-                        name="service"
+                <ui-select name="service"
                         ng-model="ctrl.view.service_instance_id"
-                        ng-options="instance.id as instance.name for instance in ctrl.filteredServices"
                         required>
-                  <option ng-if="ctrl.filteredServices.length == 0"
-                          value=""
-                          ng-bind="i18n.__('No view service found')">
-                  </option>
-                </select>
+                  <ui-select-match>
+                    <img ng-src="/images/services/view/view_service.png" style="height: 20px; margin-top: -7px;"/>
+                    <span ng-bind="$select.selected.name"></span>
+                  </ui-select-match>
+                  <ui-select-choices repeat="instance.id as instance in (ctrl.filteredServices | filter: {'name': $select.search}) track by instance.id">
+                    <img ng-src="/images/services/view/view_service.png" style="height: 20px;"/>
+                    <span ng-bind="instance.name"></span>
+                  </ui-select-choices>
+                </ui-select>
 
                 <span class="help-block"
                       ng-show="forms.viewForm.service.$dirty && forms.viewForm.service.$error.required"
@@ -143,13 +147,25 @@
         <div class="col-md-6">
           <div class="form-group" terrama2-show-errors>
             <label><span ng-bind="i18n.__('View Data Series')"></span>:</label>
-            <select class="form-control"
+            <div class="pull-right">
+              <span><input type="checkbox" ng-model="ctrl.filter['isAnalysis']"> Analysis &nbsp</span> 
+              <span><input type="checkbox" ng-model="ctrl.filter['DYNAMIC']"> Dynamic &nbsp</span> 
+              <span><input type="checkbox" ng-model="ctrl.filter['STATIC']"> Static</span> 
+            </div>
+            <ui-select
                     name="dataSeries"
                     ng-model="ctrl.view.data_series_id"
-                    ng-options="dSeries.id as dSeries.name for dSeries in ctrl.dataSeries | orderBy: 'name'"
                     ng-change="ctrl.onDataSeriesChanged(ctrl.view.data_series_id, dSeries)"
                     required>
-            </select>
+              <ui-select-match>
+                <img ng-src="{{ctrl.getImageUrl($select.selected)}}" style="width: 20px; margin-top: -9px"/>
+                <span ng-bind="$select.selected.name"></span>
+              </ui-select-match>
+              <ui-select-choices repeat="dSeries.id as dSeries in (ctrl.dataSeries | filter:ctrl.filterByType | orderBy: 'name') track by dSeries.id">
+                <img ng-src="{{ctrl.getImageUrl(dSeries)}}" style="width: 20px;"/>
+                <span ng-bind="dSeries.name"></span>
+              </ui-select-choices>
+            </ui-select>
 
             <span class="help-block"
               ng-show="forms.dataSeriesForm.dataSeries.$dirty && forms.dataSeriesForm.dataSeries.$error.required"
@@ -192,7 +208,7 @@
       </a>
     </div>
   </terrama2-box>
-
+  
 </div> <!-- end col md 12 -->
 
 {% endblock %}

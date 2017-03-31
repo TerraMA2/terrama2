@@ -40,6 +40,11 @@ define(function() {
             MessageBoxService.danger(title, data.name + i18n.__(" removed"));
           }
         };
+
+        $scope.iconFn = config.iconFn || null;
+
+        $scope.iconProperties = config.iconProperties || {};
+        
         $scope.method = "{[ method ]}";
         if (config.message ) {
           MessageBoxService.success(title, config.message);

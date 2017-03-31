@@ -175,10 +175,23 @@ module.exports = function(app) {
               response.json(output);
             });
           } else {
-            dataSeriesList.forEach(function(dataSeries) {
-              output.push(dataSeries.rawObject());
+            DataManager.listAnalysis({}).then(function(analysisList){
+              dataSeriesList.forEach(function(dataSeries) {
+                var isAnalysis = false;
+                analysisList.map(function(analysis){
+                  dataSeries.dataSets.map(function(dataSet){
+                    if(analysis.dataset_output == dataSet.id) {
+                      isAnalysis = true;
+                      return;
+                    }
+                  });
+                });
+                var dataSeriesRaw = dataSeries.rawObject();
+                dataSeriesRaw.isAnalysis = isAnalysis;
+                output.push(dataSeriesRaw);
+              });
+              response.json(output);
             });
-            response.json(output);
           }
         }).catch(function(err) {
           logger.error(err);

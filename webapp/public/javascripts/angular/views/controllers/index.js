@@ -27,6 +27,8 @@ define([
     moduleLoader(datetimepicker, deps);
     moduleLoader(serviceApp, deps);
     moduleLoader(scheduleApp, deps);
+    moduleLoader("ui.select", deps);
+    moduleLoader("ngSanitize", deps);
   }
 
   angular.module(moduleName, deps)

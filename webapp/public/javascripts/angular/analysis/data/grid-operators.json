@@ -1,0 +1,7 @@
+[
+  {
+    "name": "Sample",
+    "description": "Retrieves a cell value based in interpolation method to grid analysis",
+    "code": "grid.sample(\"<dynamic_data_grid>\")"
+  }
+]
