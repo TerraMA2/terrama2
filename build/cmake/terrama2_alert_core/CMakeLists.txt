@@ -40,6 +40,7 @@ include_directories ( SYSTEM
   ${terralib_INCLUDE_DIRS}
   ${terralib_DIR}
   ${Qt5Core_INCLUDE_DIRS}
+  ${VMIME_INCLUDE_DIR}
 )
 
 set(CMAKE_AUTOMOC ON)
@@ -51,7 +52,8 @@ add_library(terrama2_alert_core SHARED ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILE
 qt5_use_modules(terrama2_alert_core Core)
 
 target_link_libraries(terrama2_alert_core terrama2_core
-                                          terralib_mod_dataaccess)
+                                          terralib_mod_dataaccess
+                                          ${VMIME_LIBRARY})
 
 set_target_properties(terrama2_alert_core
                       PROPERTIES VERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}

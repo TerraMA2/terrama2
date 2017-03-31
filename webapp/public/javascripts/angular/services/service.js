@@ -141,10 +141,33 @@ define([], function() {
 
     $scope.fields = [
       {key: 'name', as: 'Name'},
-      {key: 'type', as: 'Type'}];
-    $scope.iconFn = null;
+      {key: 'type', as: 'Type'}
+    ];
 
     $scope.linkToAdd = "/administration/services/new";
+
+    $scope.iconFn = function(object){
+      switch(object.type){
+        case "Analysis":
+          return "/images/services/analysis/analysis_service.png";
+          break;
+        case "Collect":
+          return "/images/services/collector/collector_service.png";
+          break;
+        case "View":
+          return "/images/services/view/view_service.png";
+          break;
+        default:
+          return "/images/services/alert/alert_service.png";
+          break;
+      }
+    };
+
+    $scope.iconProperties = {
+      type: "img",
+      width: 20,
+      height: 20
+    };
 
     $scope.extra = {
       removeOperationCallback: function(err, data) {

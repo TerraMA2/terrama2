@@ -39,16 +39,20 @@
     iconFn: function(object) {
       switch(object.data_series_semantics.data_series_type_name) {
         case globals.enums.DataSeriesType.ANALYSIS_MONITORED_OBJECT:
-          return "/images/monitored-object.png";
+          return "/images/analysis/monitored-object/monitored-object_analysis.png";
           break;
         case globals.enums.DataSeriesType.GRID:
-          return "/images/grid-small.png";
+          if (object.isAnalysis){
+            return "/images/analysis/grid/grid_analysis.png";
+          } else {
+            return "/images/dynamic-data-series/grid/grid.png";
+          }
           break;
         case globals.enums.DataSeriesType.OCCURRENCE:
-          return "/images/map-display.png";
+          return "/images/dynamic-data-series/occurrence/occurrence.png";
           break;
         default:
-          return "/images/map-pin.png";
+          return "/images/dynamic-data-series/dcp/dcp.png";
       }
     },
     iconProperties: {

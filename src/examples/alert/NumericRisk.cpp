@@ -8,10 +8,11 @@
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSetDcp.hpp>
+
 #include <terrama2/services/alert/core/Shared.hpp>
 #include <terrama2/services/alert/core/DataManager.hpp>
 #include <terrama2/services/alert/core/Alert.hpp>
-#include <terrama2/services/alert/impl/ReportTxt.hpp>
+#include <terrama2/services/alert/core/Report.hpp>
 #include <terrama2/services/alert/impl/Utils.hpp>
 #include <terrama2/services/alert/core/RunAlert.hpp>
 
@@ -65,9 +66,9 @@ terrama2::core::DataSeriesPtr inputDataSeries()
   //DataSet information
   terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
   dataSet->active = true;
-  dataSet->format.emplace("table_name", "focos_goes");
+  dataSet->format.emplace("table_name", "analise_result");
   dataSet->format.emplace("timestamp_property", "execution_date");
-  dataSet->format.emplace("identifier", "id_0");
+  dataSet->format.emplace("identifier", "sigla");
 
   dataSeries->datasetList.emplace_back(dataSet);
 
@@ -104,6 +105,7 @@ terrama2::core::DataSeriesPtr additionalDataSeries()
 
   //DataSet information
   terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
+  dataSet->id = 2;
   dataSet->active = true;
   dataSet->format.emplace("mask", "estados_2010.shp");
   dataSet->format.emplace("srid", "4326");
@@ -150,27 +152,29 @@ terrama2::services::alert::core::AlertPtr newAlert()
   alert->risk = risk;
 
   terrama2::services::alert::core::AdditionalData additionalData;
-  additionalData.id = 2;
-  additionalData.identifier = "id";
+  additionalData.dataSeriesId = 2;
+  additionalData.dataSetId = 2;
+  additionalData.referrerAttribute = "id";
+  additionalData.referredAttribute = "id";
   additionalData.attributes.push_back("nome");
-  additionalData.attributes.push_back("sigla");
 
   alert->additionalDataVector.push_back(additionalData);
 
   std::unordered_map<std::string, std::string> reportMetadata;
-  reportMetadata[terrama2::services::alert::core::ReportTags::TYPE] = "TXT";
 
   reportMetadata[terrama2::services::alert::core::ReportTags::TITLE] = "NUMERIC RISK EXAMPLE REPORT";
-  reportMetadata[terrama2::services::alert::core::ReportTags::SUBTITLE] = "NumericRisk.cpp";
+  reportMetadata[terrama2::services::alert::core::ReportTags::ABSTRACT] = "NumericRisk.cpp";
   reportMetadata[terrama2::services::alert::core::ReportTags::AUTHOR] = "Jano Simas";
   reportMetadata[terrama2::services::alert::core::ReportTags::CONTACT] = "jano.simas@funcate.org.br";
   reportMetadata[terrama2::services::alert::core::ReportTags::COPYRIGHT] = "copyright information...";
   reportMetadata[terrama2::services::alert::core::ReportTags::DESCRIPTION] = "Example generated report...";
 
-  reportMetadata[terrama2::services::alert::core::ReportTags::DESTINATION_FOLDER] = TERRAMA2_DATA_DIR;
-  reportMetadata[terrama2::services::alert::core::ReportTags::FILE_NAME] = "report.txt";
-
   alert->reportMetadata = reportMetadata;
+
+  terrama2::core::Filter filter;
+  filter.lastValues = std::make_shared<size_t>(6);
+
+  alert->filter = filter;
 
   return alertPtr;
 }
@@ -213,6 +217,7 @@ int main(int argc, char* argv[])
     logger->setConnectionInfo(uri);
     terrama2::services::alert::core::runAlert(executionPackage, std::dynamic_pointer_cast<AlertLogger>(logger), dataManager);
   }
+
 
 
   return 0;

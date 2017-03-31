@@ -203,12 +203,12 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorDcpToa5::getSeries(con
     folderMask = "";
   }
 
-  QFileInfoList pathList;
-  pathList.append(url.toString(QUrl::RemoveScheme));
+  std::vector<std::string> pathList;
+  pathList.push_back(url.toString(QUrl::RemoveScheme).toStdString());
 
   if(!folderMask.empty())
   {
-    QFileInfoList foldersList = getFoldersList(pathList, folderMask);
+    auto foldersList = getFoldersList(pathList, folderMask);
 
     if(foldersList.empty())
     {
@@ -225,7 +225,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorDcpToa5::getSeries(con
   //fill file list
   for(auto& folderURI : pathList)
   {
-    newFileInfoList.append(getDataFileInfoList(folderURI.absoluteFilePath().toStdString(), getMask(dataSet), timezone, filter, remover));
+    newFileInfoList.append(getDataFileInfoList(folderURI, getMask(dataSet), timezone, filter, remover));
   }
 
   if(newFileInfoList.empty())

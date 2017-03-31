@@ -79,6 +79,13 @@ namespace terrama2
       */
       std::tuple<int, std::string>  riskLevel(double value) const;
 
+      /*!
+       * \brief Returns the risk name for the level
+       * \param level The level
+       * \return
+       */
+      std::string riskName(const int level) const;
+
     };
   } // end namespace core
 } // end namespace terrama2
