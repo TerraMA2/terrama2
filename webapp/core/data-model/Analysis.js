@@ -13,7 +13,7 @@ var isObject = Utils.isObject;
 
 /**
  * Analysis model representation
- * 
+ *
  * @param {Analysis | Object} params - A javascript object with values to build an analysis
  */
 var Analysis = module.exports = function(params) {
@@ -38,7 +38,7 @@ var Analysis = module.exports = function(params) {
     /**
      * @name Analysis#script_language
      * @type {Object}
-     */    
+     */
     this.script_language = params.ScriptLanguage.get();
   } else {
     /**
@@ -129,7 +129,7 @@ Analysis.prototype.constructor = Analysis;
 
 /**
  * It appends a analysis data series to the list
- * 
+ *
  * @param {AnalysisDataSeries} analysisDataSeries - An analysis data series object
  */
 Analysis.prototype.addAnalysisDataSeries = function(analysisDataSeries) {
@@ -156,7 +156,7 @@ Analysis.prototype.setAnalysisOutputGrid = function(outputGrid) {
 
 /**
  * It creates and sets a ReprocessingHistoricalData to historicalData
- * 
+ *
  * @param {Object | ReprocessingHistoricalData}
  */
 Analysis.prototype.setHistoricalData = function(historicalData) {
