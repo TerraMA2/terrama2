@@ -9,7 +9,8 @@ module.exports = function(sequelize, DataTypes) {
       },
       active: DataTypes.BOOLEAN,
       // todo: check it
-      collector_type: DataTypes.INTEGER
+      collector_type: DataTypes.INTEGER,
+      schedule_type: DataTypes.INTEGER,
     },
     {
       underscored: true,
@@ -65,7 +66,7 @@ module.exports = function(sequelize, DataTypes) {
           Collector.belongsTo(models.Schedule, {
             onDelete: "CASCADE",
             foreignKey: {
-              allowNull: false
+              allowNull: true
             }
           });
         }
