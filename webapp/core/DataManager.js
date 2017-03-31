@@ -4042,7 +4042,18 @@ var DataManager = module.exports = {
         })
 
         .spread(function(legend, schedule) {
-          return resolve(new DataModel.View(Object.assign(view.get(), {legend: legend, schedule: schedule || {}})));
+          var objectToAssign = { 
+            legend: legend
+          };
+          if (view.schedule_id){
+            objectToAssign.schedule = schedule || {};
+            objectToAssign.conditional_schedule = {};
+          }
+          else {
+            objectToAssign.schedule = {};
+            objectToAssign.conditional_schedule = schedule || {};
+          }
+          return resolve(new DataModel.View(Object.assign(view.get(), objectToAssign)));
         })
 
         .catch(function(err) {
