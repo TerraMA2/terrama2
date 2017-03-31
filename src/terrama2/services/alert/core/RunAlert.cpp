@@ -25,6 +25,7 @@
   \brief
 
   \author Jano Simas
+          Vinicius Campanha
 */
 
 // TerraMA2
@@ -39,6 +40,8 @@
 #include "RunAlert.hpp"
 #include "Alert.hpp"
 #include "Report.hpp"
+#include "Notifier.hpp"
+#include "utility/NotifierFactory.hpp"
 
 
 // Terralib
@@ -226,7 +229,8 @@ void terrama2::services::alert::core::addAdditionalData(std::shared_ptr<te::mem:
 
 void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage executionPackage,
                                                std::shared_ptr< AlertLogger > logger,
-                                               std::weak_ptr<DataManager> weakDataManager)
+                                               std::weak_ptr<DataManager> weakDataManager,
+                                               const std::map<std::string, std::string>& serverMap)
 {
   auto dataManager = weakDataManager.lock();
   if(!dataManager.get())
@@ -408,8 +412,12 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
       std::shared_ptr<te::mem::DataSet> alertDataSet = populateAlertDataset(vecDates, riskResultMap, comparisonPreviosProperty, risk, fkProperty, alertDataSetType);
       addAdditionalData(alertDataSet, alertPtr, additionalDataMap);
 
-      terrama2::services::alert::core::Report report(alertPtr, alertDataSet, alertDataSetType, vecDates);
-      std::shared_ptr<te::da::DataSet> filteredDataSet = report.retrieveDataChangedRisk();
+      ReportPtr reportPtr = std::make_shared<Report>(alertPtr, alertDataSet, vecDates);
+
+      NotifierPtr notifierPtr = NotifierFactory::getInstance().make("EMAIL", serverMap, reportPtr);
+
+      notifierPtr->send(alertPtr->recipients, 0, 0);
+
     }
 
     logger->result(AlertLogger::DONE, executionPackage.executionDate, executionPackage.registerId);

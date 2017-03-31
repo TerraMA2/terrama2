@@ -7,7 +7,7 @@ module.exports = function(sequelize, DataTypes) {
 
   /**
    * It defines a TerraMA² Service.
-   * 
+   *
    * @type {sequelize.Model}
    */
   var ServiceInstance = sequelize.define("ServiceInstance", {
@@ -72,6 +72,14 @@ module.exports = function(sequelize, DataTypes) {
           });
 
           ServiceInstance.hasMany(models.View, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: "service_instance_id",
+              allowNull: false
+            }
+          });
+
+          ServiceInstance.hasMany(models.ServiceMetadata, {
             onDelete: "CASCADE",
             foreignKey: {
               name: "service_instance_id",

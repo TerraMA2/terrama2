@@ -25,13 +25,20 @@
   \brief
 
   \author Jano Simas
+          Vinicius Campanha
 */
 
 #ifndef __TERRAMA2_SERVICES_ALERT_IMPL_EMAIL_NOTIFIER_HPP__
 #define __TERRAMA2_SERVICES_ALERT_IMPL_EMAIL_NOTIFIER_HPP__
 
+// TerraMA2
 #include "../core/Notifier.hpp"
+#include "../core/Shared.hpp"
 
+// VMime
+#include <vmime/vmime.hpp>
+
+// STL
 #include <string>
 
 namespace terrama2
@@ -44,17 +51,29 @@ namespace terrama2
       {
         class NotifierEmail : public core::Notifier
         {
-        public:
-          NotifierEmail(const std::map<std::string, std::string>& serverMap, core::ReportPtr report);
+          public:
+            NotifierEmail(const std::map<std::string, std::string>& serverMap, core::ReportPtr report);
 
-          ~NotifierEmail() = default;
-          NotifierEmail(const NotifierEmail& other) = default;
-          NotifierEmail(NotifierEmail&& other) = default;
-          NotifierEmail& operator=(const NotifierEmail& other) = default;
-          NotifierEmail& operator=(NotifierEmail&& other) = default;
+            ~NotifierEmail() = default;
+            NotifierEmail(const NotifierEmail& other) = default;
+            NotifierEmail(NotifierEmail&& other) = default;
+            NotifierEmail& operator=(const NotifierEmail& other) = default;
+            NotifierEmail& operator=(NotifierEmail&& other) = default;
 
-          virtual std::string notifierCode() const { return "EMAIL"; };
-          virtual void send(std::string recipient, int riskLevel, bool notifyOnChange) const;
+            virtual void send(const std::vector<std::string>& recipient, int riskLevel, bool notifyOnChange) const;
+
+            static std::string notifierCode() { return "EMAIL"; };
+
+            static core::NotifierPtr make(const std::map<std::string, std::string>& serverMap, core::ReportPtr report)
+            {
+              return std::make_shared<NotifierEmail>(serverMap,report);
+            }
+
+
+          protected:
+
+            static vmime::shared_ptr <vmime::net::session> session_;
+
         };
       } /* impl */
     } /* alert */
