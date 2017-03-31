@@ -21,13 +21,12 @@
      return baseUrl + object.id + "?type=static#/wizard";
    },
    iconFn: function(object) {
-     if (object.type === 'Grid') {
-       return "/images/grid-small.png";
+     if (object.model_type === 'Grid') {
+       return "/images/static-data-series/grid/grid.png";
+     } else {
+      return "/images/static-data-series/vetorial/vetorial.png";
      }
-     if (object.type === 'Vectorial')
-       return "/images/line-small.png";
 
-     return "/images/map-display.png";
    },
 
    iconProperties: {
