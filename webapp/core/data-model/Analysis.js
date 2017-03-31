@@ -88,7 +88,11 @@ var Analysis = module.exports = function(params) {
 
   this.scheduleType = params.schedule_type;
 
-  this.schedule = new Schedule(params.Schedule? params.Schedule.get() : params.schedule || {});
+  if (params.Schedule || params.schedule){
+    this.schedule = new Schedule(params.Schedule ? params.Schedule.get() : params.schedule);
+  } else {
+    this.schedule = {};
+  }
 
   this.conditionalSchedule = new ConditionalSchedule(params.ConditionalSchedule ? params.ConditionalSchedule.get() : params.conditionalSchedule || {});
 

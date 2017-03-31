@@ -216,11 +216,11 @@
           conditionalScheduleList.forEach(function(conditionalSchedule){
             promises.push(DataManager.getAnalysis({conditional_schedule_id: conditionalSchedule.id}, options)
               .then(function(analysisResult){
-                return DataManager.getServiceInstance({id: analysisResult.serviceInstanceId}, options)
+                return DataManager.getServiceInstance({id: analysisResult.instance_id}, options)
                   .then(function(instanceServiceResponse){
                     var objectToRun = {
                       ids: [analysisResult.id],
-                      instance_id: instanceServiceResponse,
+                      instance: instanceServiceResponse,
                     };
                     return objectToRun;
                   })
