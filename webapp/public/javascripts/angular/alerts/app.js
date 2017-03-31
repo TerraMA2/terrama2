@@ -1,5 +1,5 @@
 define([
-  "TerraMA2WebApp/views/controllers/index"
+  "TerraMA2WebApp/alerts/controllers/index"
 ], function(controllersModule){
   'use strict';
 

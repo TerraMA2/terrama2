@@ -1,11 +1,10 @@
 define([
-  "TerraMA2WebApp/common/app",
   "TerraMA2WebApp/alerts/controllers/alert-list",
   "TerraMA2WebApp/alerts/controllers/alert-register-update"
-], function(){
+], function(ListController, RegisterUpdateController){
   var moduleName = "terrama2.alerts.controllers";
 
-  angular.module(moduleName, [commonApp, ListController, RegisterUpdateController])
+  angular.module(moduleName, [ListController, RegisterUpdateController])
     .controller("AlertListController", ListController)
     .controller("AlertRegisterUpdateController", RegisterUpdateController);
 
