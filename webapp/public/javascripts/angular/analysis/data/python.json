@@ -1,0 +1,77 @@
+[
+  {
+    "name": "Mathematical functions",
+    "children": [
+      {
+        "name": "abs",
+        "code": "abs(<value>)"
+      },
+      {
+        "name": "ceil",
+        "code": "ceil(<value>)"
+      },
+      {
+        "name": "floor",
+        "code": "floor(<value>)"
+      },
+      {
+        "name": "exp",
+        "code": "exp(<value>)"
+      },
+      {
+        "name": "pow",
+        "code": "pow(<value>)"
+      },
+      {
+        "name": "log",
+        "code": "lof(<value>)"
+      },
+      {
+        "name": "log10",
+        "code": "Log10(<value>)"
+      }
+    ]
+  },
+  {
+    "name": "String operations",
+    "children": [
+      {
+        "name": "Is digit",
+        "code": "<str>.isdigit()"
+      },
+      {
+        "name": "Is lower",
+        "code": "<str>.islower()"
+      },
+      {
+        "name": "Is upper",
+        "code": "<str>.isupper()"
+      },
+      {
+        "name": "Lower",
+        "code": "<str>.lower()"
+      },
+      {
+        "name": "Upper",
+        "code": "<str>.upper()"
+      }
+    ]
+  },
+  {
+    "name": "Conditional commands",
+    "children": [
+      {
+        "name": "If",
+        "code": "if <condition>:\n    <expression>"
+      },
+      {
+        "name": "If...else",
+        "code": "if <condition>:\n    <expression>\nelse:\n    <expression>"
+      },
+      {
+        "name": "If...elif...else",
+        "code": "if <condition>:\n    <expression>\nelif <condition>:\n    <expression>\nelse:\n    <expression>"
+      }
+    ]
+  }
+]
