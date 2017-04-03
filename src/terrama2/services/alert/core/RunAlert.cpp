@@ -25,6 +25,7 @@
   \brief
 
   \author Jano Simas
+          Vinicius Campanha
 */
 
 // TerraMA2
@@ -39,6 +40,9 @@
 #include "RunAlert.hpp"
 #include "Alert.hpp"
 #include "Report.hpp"
+#include "Notifier.hpp"
+#include "Utils.hpp"
+#include "utility/NotifierFactory.hpp"
 
 
 // Terralib
@@ -147,7 +151,7 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::populateAlert
     auto value = item.first;
     auto& resultMap = item.second;
 
-    std::string currentRiskProperty = terrama2::core::createValidPropertyName(vecDates.at(0)->toString());
+    std::string currentRiskProperty = validPropertyDateName(vecDates.at(0));
 
     dsItem->setValue(fkProperty->getName(), value->clone());
 
@@ -167,7 +171,7 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::populateAlert
       else if(currentRisk.level > pastRisk.level)
         comparisonResult = 1;
 
-      std::string pastRiskProperty = terrama2::core::createValidPropertyName(vecDates.at(1)->toString());
+      std::string pastRiskProperty = validPropertyDateName(vecDates.at(1));
 
       dsItem->setInt32(pastRiskProperty, pastRisk.level);
       dsItem->setInt32(comparisonPreviosProperty, comparisonResult);
@@ -175,7 +179,7 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::populateAlert
 
     for(size_t i = 2; i < vecDates.size(); i++)
     {
-      std::string property = terrama2::core::createValidPropertyName(vecDates.at(i)->toString());
+      std::string property = validPropertyDateName(vecDates.at(i));
       auto risk = resultMap.at(vecDates.at(i)->toString()).second;
       dsItem->setInt32(property, risk.level);
     }
@@ -226,7 +230,8 @@ void terrama2::services::alert::core::addAdditionalData(std::shared_ptr<te::mem:
 
 void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage executionPackage,
                                                std::shared_ptr< AlertLogger > logger,
-                                               std::weak_ptr<DataManager> weakDataManager)
+                                               std::weak_ptr<DataManager> weakDataManager,
+                                               const std::map<std::string, std::string>& serverMap)
 {
   auto dataManager = weakDataManager.lock();
   if(!dataManager.get())
@@ -394,7 +399,7 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
       for(size_t i = 0; i < vecDates.size(); i++)
       {
         // TODO: month number instead of abbreviated name
-        const std::string riskLevelProperty = terrama2::core::createValidPropertyName(vecDates.at(i)->toString());
+        const std::string riskLevelProperty = validPropertyDateName(vecDates.at(i));
 
         te::dt::SimpleProperty* riskLevelProp = new te::dt::SimpleProperty(riskLevelProperty, te::dt::INT32_TYPE);
         alertDataSetType->add(riskLevelProp);
@@ -408,8 +413,13 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
       std::shared_ptr<te::mem::DataSet> alertDataSet = populateAlertDataset(vecDates, riskResultMap, comparisonPreviosProperty, risk, fkProperty, alertDataSetType);
       addAdditionalData(alertDataSet, alertPtr, additionalDataMap);
 
-      terrama2::services::alert::core::Report report(alertPtr, alertDataSet, alertDataSetType, vecDates);
-      std::shared_ptr<te::da::DataSet> filteredDataSet = report.retrieveDataChangedRisk();
+      ReportPtr reportPtr = std::make_shared<Report>(alertPtr, alertDataSet, vecDates);
+
+      NotifierPtr notifierPtr = NotifierFactory::getInstance().make("EMAIL", serverMap, reportPtr);
+
+      for(const auto& recipient : alertPtr->recipients)
+        notifierPtr->send(recipient);
+
     }
 
     logger->result(AlertLogger::DONE, executionPackage.executionDate, executionPackage.registerId);

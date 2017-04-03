@@ -95,6 +95,7 @@ namespace terrama2
             void connectDataManager();
 
             std::weak_ptr<DataManager> dataManager_; //!< Weak pointer to the DataManager
+            std::map<std::string, std::string> serverMap_;
         };
 
       } // end namespace core

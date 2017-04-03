@@ -48,7 +48,7 @@ namespace terrama2
         /*!
           \brief Creates a Alert from a QJsonObject.
           \see Alert for json structure
-          \see [Alert at Trac](https://trac.dpi.inpe.br/terrqama2/wiki/programmersguide/architecture/services/collector/Alert) for more information.
+          \see [Alert at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/services/alert/Alert) for more information.
           */
         AlertPtr fromAlertJson(QJsonObject json, terrama2::core::DataManager* dataManager);
 

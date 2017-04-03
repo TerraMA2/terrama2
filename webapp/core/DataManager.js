@@ -135,6 +135,7 @@ var DataManager = module.exports = {
         inserts.push(models.db.ServiceType.create({id: Enums.ServiceType.COLLECTOR, name: "COLLECT"}));
         inserts.push(models.db.ServiceType.create({id: Enums.ServiceType.ANALYSIS, name: "ANALYSIS"}));
         inserts.push(models.db.ServiceType.create({id: Enums.ServiceType.VIEW, name: "VIEW"}));
+        inserts.push(models.db.ServiceType.create({id: Enums.ServiceType.ALERT, name: "ALERT"}));
 
         // data provider type defaults
         inserts.push(self.addDataProviderType({id: 1, name: "FILE", description: "Desc File"}));
@@ -169,18 +170,26 @@ var DataManager = module.exports = {
         analysisService.port = 6544;
         analysisService.service_type_id = Enums.ServiceType.ANALYSIS;
 
-        inserts.push(self.addServiceInstance(collectorService));
-        inserts.push(self.addServiceInstance(analysisService));
-
         var viewService = Object.assign({}, collectorService);
         viewService.name = "Local View";
         viewService.description = "Local service for View";
         viewService.port = 6545;
         viewService.service_type_id = Enums.ServiceType.VIEW;
-        viewService.maps_server_uri = "http://admin:geoserver@localhost:8080/geoserver";
+        viewService.metadata = {
+          maps_server_uri: "http://admin:geoserver@localhost:8080/geoserver"
+        };
+
+        var alertService = Object.assign({}, collectorService);
+        alertService.name = "Local Alert";
+        alertService.description = "Local service for Alert";
+        alertService.port = 6546;
+        alertService.service_type_id = Enums.ServiceType.ALERT;
+        alertService.metadata = { };
 
         inserts.push(self.addServiceInstance(collectorService));
+        inserts.push(self.addServiceInstance(analysisService));
         inserts.push(self.addServiceInstance(viewService));
+        inserts.push(self.addServiceInstance(alertService));
 
         // data provider intent defaults
         inserts.push(models.db.DataProviderIntent.create({
@@ -772,27 +781,86 @@ var DataManager = module.exports = {
    * @return {Promise} - a 'bluebird' module. The callback is either a {ServiceInstance} data values or error
    */
   addServiceInstance: function(serviceObject, options) {
+    var self = this;
     return new Promise(function(resolve, reject){
-      models.db.ServiceInstance.create(serviceObject, options).then(function(serviceResult){
-        var service = new DataModel.Service(serviceResult);
-        var logObject = serviceObject.log;
-        logObject.service_instance_id = serviceResult.id;
-        return models.db.Log.create(logObject, options).then(function(logResult) {
-          var log = new DataModel.Log(logResult);
-          service.log = log.toObject();
+      models.db.ServiceInstance.create(serviceObject, options)
+        .then(function(serviceResult){
+          var service = new DataModel.Service(serviceResult);
+          var logObject = serviceObject.log;
+          logObject.service_instance_id = serviceResult.id;
+          return models.db.Log.create(logObject, options).then(function(logResult) {
+            var log = new DataModel.Log(logResult);
+            service.log = log.toObject();
+            return service;
+          }).catch(function(err) {
+            logger.error(err);
+            return Utils.rollbackPromises([serviceResult.destroy()], new Error("Could not save log: " + err.message), reject);
+          });
+        })
+        // On Success
+        .then(function(serviceCreated) {
+          if (serviceCreated.service_type_id === Enums.ServiceType.ALERT) {
+            // save Email uri
+            var serviceMetadata = Utils.generateArrayFromObject(serviceObject.metadata, function wrap(key, elm) {
+              return {service_instance_id: serviceCreated.id, key: key, value: elm};
+            });
 
-          return resolve(service);
-        }).catch(function(err) {
-          logger.error(err);
-          return Utils.rollbackPromises([serviceResult.destroy()], new Error("Could not save log: " + err.message), reject);
+
+            return self.addServiceMetadata(serviceMetadata, options)
+              .then(function(metadata) {
+                serviceCreated.setMetadata(metadata);
+                return serviceCreated;
+              });
+          }
+          return serviceCreated;
+        })
+        // On Success, resolve promise chain
+        .then(function(serviceResource) {
+          return resolve(serviceResource);
+        })
+        .catch(function(e) {
+          logger.error(e);
+          var message = "Could not save service instance: ";
+          if (e.errors) { message += e.errors[0].message; }
+          return reject(new Error(message));
         });
+    });
+  },
 
-      }).catch(function(e) {
-        logger.error(e);
-        var message = "Could not save service instance: ";
-        if (e.errors) { message += e.errors[0].message; }
-        return reject(new Error(message));
-      });
+  addServiceMetadata: function addServiceMetadata(metadataObj, options) {
+    return new Promise(function(resolve, reject) {
+      models.db.ServiceMetadata.bulkCreate(metadataObj, options)
+        .then(function(metadataRes) {
+          return resolve(Utils.formatMetadataFromDB(metadataRes));
+        })
+        .catch(function(err) {
+          return reject(new Error("Could not save Service Metadata due " + err.toString()));
+        });
+    });
+  },
+
+  upsertServiceMetadata: function upsertServiceMetadata(restriction, metadataObj, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      models.db.ServiceMetadata.findOne(Utils.extend({where: restriction}, options))
+        .then(function(metaResult) {
+          if (!metaResult) {
+            // create new one
+            return self.addServiceMetadata([metadataObj], options);
+          }
+          return models.db.ServiceMetadata.update(metadataObj, Utils.extend({
+            fields: ["key", "value"],
+            where: {
+              id: metaResult.id
+            }
+          }, options));
+        })
+        .then(function() {
+          return resolve();
+        })
+        .catch(function(err) {
+          return reject(new Error("Could not update service metadata due " + err.toString()));
+        });
     });
   },
 
@@ -807,11 +875,20 @@ var DataManager = module.exports = {
     return new Promise(function(resolve, reject){
       return models.db.ServiceInstance.findAll(Utils.extend({
         where: restriction,
-        include: [models.db.Log]
+        include: [
+          {
+            model: models.db.Log
+          },
+          {
+            model: models.db.ServiceMetadata,
+            required: false
+          }
+        ]
       }, options)).then(function(services) {
         var output = [];
         services.forEach(function(service){
-          var serviceObject = new DataModel.Service(service.get());
+          var params = Utils.extend({metadata: service.ServiceMetadata}, service.get());
+          var serviceObject = new DataModel.Service(params);
           serviceObject.log = new DataModel.Log(service.Log || {});
           output.push(serviceObject);
         });
@@ -890,13 +967,25 @@ var DataManager = module.exports = {
   updateServiceInstance: function(serviceId, serviceObject, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      self.getServiceInstance({id: serviceId}).then(function(serviceResult) {
+      self.getServiceInstance({id: serviceId}, options).then(function(serviceResult) {
         return models.db.ServiceInstance.update(serviceObject, Utils.extend({
             fields: ['name', 'description', 'port',
                      'numberOfThreads', 'runEnviroment', 'host',
                      'sshUser', 'sshPort', 'pathToBinary', 'maps_server_uri'],
             where: { id: serviceId }
           }, options))
+          .then(function() {
+            if (!Utils.isEmpty(serviceObject.metadata)) {
+              // prepare to update/insert
+              var promises = Utils.generateArrayFromObject(serviceObject.metadata, function(k, v, service) {
+                var obj = {key: k, value: v, service_instance_id: service};
+                return self.upsertServiceMetadata({service_instance_id: serviceId, key: k}, obj, options);
+              }, serviceId);
+
+              return Promise.all(promises);
+            }
+            return; // resolving chain
+          })
           .then(function() {
             return resolve();
           }).catch(function(err) {

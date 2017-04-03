@@ -59,7 +59,7 @@ void terrama2::services::alert::core::Service::prepareTask(const terrama2::core:
 {
   try
   {
-    taskQueue_.emplace(std::bind(&core::runAlert, executionPackage, std::dynamic_pointer_cast<terrama2::services::alert::core::AlertLogger>(logger_), dataManager_));
+    taskQueue_.emplace(std::bind(&core::runAlert, executionPackage, std::dynamic_pointer_cast<terrama2::services::alert::core::AlertLogger>(logger_), dataManager_, serverMap_));
   }
   catch(std::exception& e)
   {
@@ -180,5 +180,12 @@ void terrama2::services::alert::core::Service::updateAlert(AlertPtr alert) noexc
 
 void terrama2::services::alert::core::Service::updateAdditionalInfo(const QJsonObject& obj) noexcept
 {
-
+  if(!obj.contains("email_server"))
+  {
+    TERRAMA2_LOG_ERROR() << tr("Missing the Email Server URI in service additional info!");
+  }
+  else
+  {
+    serverMap_.emplace("email_server", obj["email_server"].toString().toStdString());
+  }
 }

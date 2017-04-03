@@ -31,9 +31,14 @@
 file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/alert/core/*.cpp)
 file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/alert/core/*.hpp)
 
+file(GLOB TERRAMA2_UTILITY_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/alert/core/utility/*.cpp)
+file(GLOB TERRAMA2_UTILITY_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/alert/core/utility/*.hpp)
 
 source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
 source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
+
+source_group("Source Files\\utility"  FILES ${TERRAMA2_UTILITY_SRC_FILES})
+source_group("Header Files\\utility"  FILES ${TERRAMA2_UTILITY_HDR_FILES})
 
 include_directories ( SYSTEM
   ${Boost_INCLUDE_DIR}
@@ -47,7 +52,10 @@ set(CMAKE_AUTOMOC ON)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-add_library(terrama2_alert_core SHARED ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES})
+add_library(terrama2_alert_core SHARED ${TERRAMA2_SRC_FILES}
+                                       ${TERRAMA2_HDR_FILES}
+                                       ${TERRAMA2_UTILITY_SRC_FILES}
+                                       ${TERRAMA2_UTILITY_HDR_FILES})
 
 qt5_use_modules(terrama2_alert_core Core)
 
