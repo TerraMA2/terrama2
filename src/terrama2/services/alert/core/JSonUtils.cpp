@@ -29,6 +29,7 @@
 */
 
 #include "JSonUtils.hpp"
+#include "Report.hpp"
 #include "../../../core/utility/JSonUtils.hpp"
 #include "../../../core/utility/Logger.hpp"
 
@@ -91,6 +92,16 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
       attributes.push_back(tempAttribute.toString().toStdString());
 
     alert->additionalDataVector.push_back({id, datasetid, referrerAttribute, referredAttribute, attributes});
+
+    auto reportMetadata = obj["report_metadata"].toObject();
+    alert->reportMetadata[terrama2::services::alert::core::ReportTags::TITLE] = reportMetadata[QString::fromStdString(terrama2::services::alert::core::ReportTags::TITLE)].toString().toStdString();
+    alert->reportMetadata[terrama2::services::alert::core::ReportTags::AUTHOR] = reportMetadata[QString::fromStdString(terrama2::services::alert::core::ReportTags::AUTHOR)].toString().toStdString();
+    alert->reportMetadata[terrama2::services::alert::core::ReportTags::ABSTRACT] = reportMetadata[QString::fromStdString(terrama2::services::alert::core::ReportTags::ABSTRACT)].toString().toStdString();
+    alert->reportMetadata[terrama2::services::alert::core::ReportTags::DESCRIPTION] = reportMetadata[QString::fromStdString(terrama2::services::alert::core::ReportTags::DESCRIPTION)].toString().toStdString();
+    alert->reportMetadata[terrama2::services::alert::core::ReportTags::CONTACT] = reportMetadata[QString::fromStdString(terrama2::services::alert::core::ReportTags::CONTACT)].toString().toStdString();
+    alert->reportMetadata[terrama2::services::alert::core::ReportTags::COPYRIGHT] = reportMetadata[QString::fromStdString(terrama2::services::alert::core::ReportTags::COPYRIGHT)].toString().toStdString();
+    alert->reportMetadata[terrama2::services::alert::core::ReportTags::TIMESTAMP_FORMAT] = reportMetadata[QString::fromStdString(terrama2::services::alert::core::ReportTags::TIMESTAMP_FORMAT)].toString().toStdString();
+    alert->reportMetadata[terrama2::services::alert::core::ReportTags::LOGO_PATH] = reportMetadata[QString::fromStdString(terrama2::services::alert::core::ReportTags::LOGO_PATH)].toString().toStdString();
   }
 
   alert->risk = terrama2::core::fromDataSeriesRiskJson(json["risk"].toObject());
@@ -143,6 +154,17 @@ QJsonObject terrama2::services::alert::core::toJson(AlertPtr alert)
     additionalDataArray.append(obj);
   }
   obj.insert("additional_data",additionalDataArray);
+
+  QJsonObject reportMetadata;
+  reportMetadata[QString::fromStdString(terrama2::services::alert::core::ReportTags::TITLE)] = QString::fromStdString(alert->reportMetadata.at(terrama2::services::alert::core::ReportTags::TITLE));
+  reportMetadata[QString::fromStdString(terrama2::services::alert::core::ReportTags::AUTHOR)] = QString::fromStdString(alert->reportMetadata.at(terrama2::services::alert::core::ReportTags::AUTHOR));
+  reportMetadata[QString::fromStdString(terrama2::services::alert::core::ReportTags::ABSTRACT)] = QString::fromStdString(alert->reportMetadata.at(terrama2::services::alert::core::ReportTags::ABSTRACT));
+  reportMetadata[QString::fromStdString(terrama2::services::alert::core::ReportTags::DESCRIPTION)] = QString::fromStdString(alert->reportMetadata.at(terrama2::services::alert::core::ReportTags::DESCRIPTION));
+  reportMetadata[QString::fromStdString(terrama2::services::alert::core::ReportTags::CONTACT)] = QString::fromStdString(alert->reportMetadata.at(terrama2::services::alert::core::ReportTags::CONTACT));
+  reportMetadata[QString::fromStdString(terrama2::services::alert::core::ReportTags::COPYRIGHT)] = QString::fromStdString(alert->reportMetadata.at(terrama2::services::alert::core::ReportTags::COPYRIGHT));
+  reportMetadata[QString::fromStdString(terrama2::services::alert::core::ReportTags::TIMESTAMP_FORMAT)] = QString::fromStdString(alert->reportMetadata.at(terrama2::services::alert::core::ReportTags::TIMESTAMP_FORMAT));
+  reportMetadata[QString::fromStdString(terrama2::services::alert::core::ReportTags::LOGO_PATH)] = QString::fromStdString(alert->reportMetadata.at(terrama2::services::alert::core::ReportTags::LOGO_PATH));
+  obj.insert("report_metadata", reportMetadata);
 
   QJsonArray recipientsArray;
   for(const auto& recipient : alert->recipients)
