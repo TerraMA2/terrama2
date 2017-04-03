@@ -20,17 +20,64 @@
  */
 
 /*!
-  \file terrama2/services/alert/impl/Utils.cpp
+  \file terrama2/services/alert/impl/Utils.hpp
 
   \brief Utility funtions for impl classes.
 
   \author Jano Simas
+          Vinicius Campanha
  */
 
 
+// TerraMA2
 #include "Utils.hpp"
+
+#include "NotifierEmail.hpp"
+
+#include "../core/utility/NotifierFactory.hpp"
 
 void terrama2::services::alert::core::registerFactories()
 {
+  NotifierFactory::getInstance().add(terrama2::services::alert::impl::NotifierEmail::notifierCode(),
+                                     terrama2::services::alert::impl::NotifierEmail::make);
+}
 
+std::string terrama2::services::alert::core::dataSetHtmlTable(const std::shared_ptr<te::da::DataSet>& dataSet)
+{
+  if(!dataSet.get())
+    return "";
+
+  std::size_t numProperties = dataSet->getNumProperties();
+
+  std::string htmlTable = "<table border=\"1\">";
+
+  htmlTable += "<tr>";
+
+  for(std::size_t i = 0; i < numProperties; i++)
+  {
+    htmlTable += "<th>" + dataSet->getPropertyName(i) +"</th>";
+  }
+
+  htmlTable += "</tr>";
+
+  if(dataSet->isEmpty())
+    return htmlTable + "</table>";
+
+  dataSet->moveBeforeFirst();
+
+  while(dataSet->moveNext())
+  {
+    std::string line;
+
+    for(std::size_t i = 0; i < numProperties; i++)
+    {
+      line += "<td>" + dataSet->getAsString(i) +"</td>";
+    }
+
+    htmlTable += "<tr>" + line + "</tr>";
+  }
+
+  htmlTable += "</table>";
+
+  return htmlTable;
 }

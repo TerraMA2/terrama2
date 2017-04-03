@@ -10,7 +10,8 @@ define([
     .constant("ServiceType", {
       COLLECTOR: 1,
       ANALYSIS: 2,
-      VIEW: 3  
+      VIEW: 3,
+      ALERT: 4
     });
 
   /**

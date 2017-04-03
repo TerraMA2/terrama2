@@ -1,8 +1,9 @@
 var AbstractClass = require("./AbstractData");
+var Utils = require("./../Utils");
 
 function Service(params) {
   AbstractClass.call(this, {'class': 'Service'});
-  
+
   this.id = params.id;
   this.name = params.name;
   this.host = params.host;
@@ -16,10 +17,28 @@ function Service(params) {
   this.log = params.log || {};
   this.service_type_id = params.service_type_id;
   this.maps_server_uri = params.maps_server_uri;
+  this.setMetadata(params.metadata);
 }
 
 Service.prototype = Object.create(AbstractClass.prototype);
 Service.prototype.constructor = Service;
+
+/**
+ * It populates service metadata
+ *
+ * @param {any} meta - Metadata to set
+*/
+Service.prototype.setMetadata = function setMetadata(meta) {
+  var out = {};
+  if (meta) {
+    if (meta instanceof Array) {
+      out = Utils.formatMetadataFromDB(meta);
+    } else {
+      out = meta || out;
+    }
+  }
+  this.metadata = out;
+};
 
 Service.prototype.toObject = function() {
   return Object.assign(AbstractClass.prototype.toObject.call(this), {
@@ -28,9 +47,7 @@ Service.prototype.toObject = function() {
     listening_port: this.port,
     number_of_threads: this.numberOfThreads,
     log_database: this.log instanceof AbstractClass ? this.log.toObject() : this.log,
-    additional_info: {
-      maps_server_uri: this.maps_server_uri
-    }
+    additional_info: this.metadata
   });
 };
 
@@ -48,7 +65,7 @@ Service.prototype.rawObject = function() {
     description: this.description,
     service_type_id: this.service_type_id,
     log: this.log instanceof AbstractClass ? this.log.rawObject() : this.log,
-    maps_server_uri: this.maps_server_uri
+    metadata: this.metadata
   };
 }
 

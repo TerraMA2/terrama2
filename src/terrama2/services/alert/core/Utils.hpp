@@ -20,17 +20,16 @@
  */
 
 /*!
-  \file terrama2/services/alert/impl/Utils.hpp
+  \file terrama2/services/alert/core/Utils.hpp
 
-  \brief Utility funtions for impl classes.
+  \brief Utility funtions for core classes.
 
-  \author Jano Simas
-          Vinicius Campanha
+  \author Vinicius Campanha
  */
 
 
-#ifndef __TERRAMA2_SERVICES_ALERT_IMPL_UTILS_HPP__
-#define __TERRAMA2_SERVICES_ALERT_IMPL_UTILS_HPP__
+#ifndef __TERRAMA2_SERVICES_ALERT_CORE_UTILS_HPP__
+#define __TERRAMA2_SERVICES_ALERT_CORE_UTILS_HPP__
 
 #include <terralib/dataaccess/dataset/DataSet.h>
 
@@ -43,21 +42,11 @@ namespace terrama2
       namespace core
       {
 
-        /*!
-         * \brief Register the implemented notifiers in the factory
-         */
-        void registerFactories();
-
-        /*!
-         * \brief Receives a TerraLib dataSet and returns all his data as a HTML table
-         * \param dataSet The data set with data to put in table
-         * \return A string with the dataSet data formated as a HTML table
-         */
-        std::string dataSetHtmlTable(const std::shared_ptr<te::da::DataSet>& dataSet);
+        std::string validPropertyDateName(const std::shared_ptr<te::dt::DateTime> dt);
 
       } /* core */
     } /* alert */
   } /* services */
 }
 
-#endif // __TERRAMA2_SERVICES_ALERT_IMPL_UTILS_HPP__
+#endif // __TERRAMA2_SERVICES_ALERT_CORE_UTILS_HPP__
