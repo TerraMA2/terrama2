@@ -72,13 +72,13 @@ void downloadReferenceFiles()
     QFAIL("Unable to create reference folder.");
 
   curl.init();
-  std::vector<std::string> vectorFiles = curl.getFtpListFiles(referenceUrl, &write_file_names, 8);
+  std::vector<std::string> vectorFiles = curl.getFtpListFiles(referenceUrl, &write_file_names);
   for(const auto& file : vectorFiles)
   {
     std::string fileUri = referenceUrl + file;
 
     std::string filePath = outDir + "/" + file;
-    CURLcode res = curl.getDownloadFiles(fileUri, &write_response, filePath, 8);
+    CURLcode res = curl.getDownloadFiles(fileUri, &write_response, filePath);
     if(res != CURLE_OK)
       QFAIL(std::string("Error downloading reference file.\n"+file).c_str());
   }
@@ -87,8 +87,8 @@ void downloadReferenceFiles()
 void IntRasterTs::CollectAndCropRaster()
 {
   QString json = QString::fromStdString("{\"Analysis\": [],"
-                                         "\"DataSeries\": [{\"class\": \"DataSeries\",\"id\": 1,\"name\": \"Hidroestimador Amazonia_input\",\"description\": null,\"data_provider_id\": 2,\"semantics\": \"GRID-grads\",\"active\": true,\"datasets\": [{\"class\": \"DataSet\",\"id\": 1,\"data_series_id\": 1,\"active\": true,\"format\": {\"data_type\": \"INT16\",\"timezone\": \"0\",\"srid\": \"4326\",\"ctl_filename\": \"racc.ctl\",\"folder\": \"grads\",\"temporal\": \"false\",\"bytes_after\": \"0\",\"bytes_before\": \"0\",\"value_multiplier\": \"1\",\"number_of_bands\": \"1\"}}]},{\"class\": \"DataSeries\",\"id\": 2,\"name\": \"Hidroestimador Amazonia\",\"description\": null,\"data_provider_id\": 1,\"semantics\": \"GRID-gdal\",\"active\": true,\"datasets\": [{\"class\": \"DataSet\",\"id\": 2,\"data_series_id\": 2,\"active\": true,\"format\": {\"timestamp_property\": \"file_timestamp\",\"timezone\": \"0\",\"mask\": \"S10238225_%YYYY%MM%DD%hh%mm\",\"folder\": \"hidroestimador_crop\"}}]}],"
-                                         "\"DataProviders\": [{\"class\": \"DataProvider\",\"id\": 1,\"project_id\": 1,\"data_provider_type\": \"FILE\",\"intent\": 1,\"name\": \"Dados locais\",\"description\": null,\"uri\": \"file://"+TERRAMA2_DATA_DIR+"\",\"active\": true},{\"class\": \"DataProvider\",\"id\": 2,\"project_id\": 1,\"data_provider_type\": \"FTP\",\"intent\": 1,\"name\": \"DSA curso\",\"description\": null,\"uri\": \"ftp://ftp:JenkinsD%40t%40@jenkins-ftp.dpi.inpe.br:21/terrama2\",\"active\": true}],"
+                                         "\"DataSeries\": [{\"class\": \"DataSeries\",\"id\": 1,\"name\": \"Hidroestimador Amazonia_input\",\"timeout\": 3000,\"description\": null,\"data_provider_id\": 2,\"semantics\": \"GRID-grads\",\"active\": true,\"datasets\": [{\"class\": \"DataSet\",\"id\": 1,\"data_series_id\": 1,\"active\": true,\"format\": {\"data_type\": \"INT16\",\"timezone\": \"0\",\"srid\": \"4326\",\"ctl_filename\": \"racc.ctl\",\"folder\": \"grads\",\"temporal\": \"false\",\"bytes_after\": \"0\",\"bytes_before\": \"0\",\"value_multiplier\": \"1\",\"number_of_bands\": \"1\"}}]},{\"class\": \"DataSeries\",\"id\": 2,\"name\": \"Hidroestimador Amazonia\",\"description\": null,\"data_provider_id\": 1,\"semantics\": \"GRID-gdal\",\"active\": true,\"datasets\": [{\"class\": \"DataSet\",\"id\": 2,\"data_series_id\": 2,\"active\": true,\"format\": {\"timestamp_property\": \"file_timestamp\",\"timezone\": \"0\",\"mask\": \"S10238225_%YYYY%MM%DD%hh%mm\",\"folder\": \"hidroestimador_crop\"}}]}],"
+                                         "\"DataProviders\": [{\"class\": \"DataProvider\",\"id\": 1,\"timeout\": 8,\"project_id\": 1,\"data_provider_type\": \"FILE\",\"intent\": 1,\"name\": \"Dados locais\",\"description\": null,\"uri\": \"file://"+TERRAMA2_DATA_DIR+"\",\"active\": true},{\"class\": \"DataProvider\",\"id\": 2,\"timeout\": 8,\"project_id\": 1,\"data_provider_type\": \"FTP\",\"intent\": 1,\"name\": \"DSA curso\",\"description\": null,\"uri\": \"ftp://ftp:JenkinsD%40t%40@jenkins-ftp.dpi.inpe.br:21/terrama2\",\"active\": true}],"
                                          "\"Collectors\": [{\"class\": \"Collector\",\"id\": 1,\"project_id\": 1,\"service_instance_id\": 1,\"input_data_series\": 1,\"output_data_series\": 2,\"input_output_map\": [{\"input\": 1,\"output\": 2}],\"schedule\": {\"class\": \"Schedule\",\"id\": 1,\"frequency\": 0,\"frequency_unit\": \"\",\"frequency_start_time\": \"\",\"schedule\": 0,\"schedule_time\": \"\",\"schedule_unit\": \"\",\"schedule_retry\": 0,\"schedule_retry_unit\": \"\",\"schedule_timeout\": 0,\"schedule_timeout_unit\": \"\"},\"filter\": {\"class\": \"Filter\",\"frequency\": null,\"frequency_unit\": null,\"discard_before\": \"2016-11-25T06:00:00.000-02:00\",\"discard_after\": \"2016-11-25T12:00:00.000-02:00\",\"region\": \"SRID=4326;POLYGON((-73.8036991603083 -9.81412714740936,-73.8036991603083 2.24662115728613,-56.097053202293 2.24662115728613,-56.097053202293 -9.81412714740936,-73.8036991603083 -9.81412714740936))\",\"by_value\": null,\"crop_raster\": true,\"collector_id\": 1},\"intersection\": {},\"active\": true}],"
                                          "\"Views\": []}");
 

@@ -46,9 +46,9 @@ public:
                              size_t(*write_vector)(void *ptr, size_t size, size_t nmemb, void *data),
                              std::string block));
 
-  MOCK_METHOD4(getDownloadFiles, CURLcode(std::string url,
+  MOCK_METHOD3(getDownloadFiles, CURLcode(std::string url,
                                  size_t(*write_response)(void *ptr, size_t size, size_t nmemb, void *data),
-                                 std::string filePath, uint32_t timeout));
+                                 std::string filePath));
 };
 
 #endif //__TERRAMA2_UNITTEST_CORE_MOCKCURLWRAPPER__

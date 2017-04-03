@@ -385,7 +385,7 @@ void TsDataRetrieverFTP::TestFailDownloadFile()
     MockCurlWrapper mock_;
 
     ON_CALL(mock_, verifyURL(_,_)).WillByDefault(Return(CURLE_OK));
-    ON_CALL(mock_, getDownloadFiles(_,_,_,_)).WillByDefault(Return(CURLE_COULDNT_RESOLVE_HOST));
+    ON_CALL(mock_, getDownloadFiles(_,_,_)).WillByDefault(Return(CURLE_COULDNT_RESOLVE_HOST));
 
     try
     {
@@ -445,7 +445,7 @@ void TsDataRetrieverFTP::TestOKDownloadFile()
     MockCurlWrapper mock_;
 
     ON_CALL(mock_, verifyURL(_,_)).WillByDefault(Return(CURLE_OK));
-    ON_CALL(mock_, getDownloadFiles(_,_,_,_)).WillByDefault(Return(CURLE_OK));
+    ON_CALL(mock_, getDownloadFiles(_,_,_)).WillByDefault(Return(CURLE_OK));
 
     try
     {

@@ -94,8 +94,7 @@ CURLcode terrama2::core::CurlPtr::verifyURL(std::string url, uint32_t timeout)
 }
 
 std::vector<std::string> terrama2::core::CurlPtr::getFtpList(const std::string& url,
-                                                               size_t(*write_vector)(void *ptr, size_t size, size_t nmemb, void *data),
-                                                               uint32_t timeout) const
+                                                               size_t(*write_vector)(void *ptr, size_t size, size_t nmemb, void *data)) const
 {
   // An url for a directory must have '/' in the last character, otherwise it won't list the files.
   std::string completeUrl = url;
@@ -110,7 +109,6 @@ std::vector<std::string> terrama2::core::CurlPtr::getFtpList(const std::string& 
   std::string block;
   curl_easy_setopt(curl_, CURLOPT_WRITEDATA, (void *)&block);
 
-  curl_easy_setopt(curl_, CURLOPT_TIMEOUT, timeout);
   CURLcode status = curl_easy_perform(curl_);
 
   if (status == CURLE_OK)
@@ -133,10 +131,9 @@ std::vector<std::string> terrama2::core::CurlPtr::getFtpList(const std::string& 
 }
 
 std::vector<std::string> terrama2::core::CurlPtr::getFtpListDir(const std::string& url,
-                                                                size_t(*write_vector)(void *ptr, size_t size, size_t nmemb, void *data),
-                                                                uint32_t timeout) const
+                                                                size_t(*write_vector)(void *ptr, size_t size, size_t nmemb, void *data)) const
 {
-  std::vector<std::string> list = getFtpList(url, write_vector, timeout);
+  std::vector<std::string> list = getFtpList(url, write_vector);
 
   std::vector<std::string> dirList;
 
@@ -153,10 +150,9 @@ std::vector<std::string> terrama2::core::CurlPtr::getFtpListDir(const std::strin
 
 
 std::vector<std::string> terrama2::core::CurlPtr::getFtpListFiles(const std::string& url,
-                                                                size_t(*write_vector)(void *ptr, size_t size, size_t nmemb, void *data),
-                                                                uint32_t timeout) const
+                                                                size_t(*write_vector)(void *ptr, size_t size, size_t nmemb, void *data)) const
 {
-  std::vector<std::string> list = getFtpList(url, write_vector, timeout);
+  std::vector<std::string> list = getFtpList(url, write_vector);
 
   std::vector<std::string> fileList;
 
@@ -173,15 +169,13 @@ std::vector<std::string> terrama2::core::CurlPtr::getFtpListFiles(const std::str
 
 CURLcode terrama2::core::CurlPtr::getDownloadFiles(std::string url,
                                                    size_t(*write_response)(void *ptr, size_t size, size_t nmemb, void *data),
-                                                   std::string filePath,
-                                                   uint32_t timeout)
+                                                   std::string filePath)
 {
   terrama2::core::FilePtr opener(filePath.c_str(), "wb");
   curl_easy_setopt(curl_, CURLOPT_URL, url.c_str());
   curl_easy_setopt(curl_, CURLOPT_WRITEFUNCTION, write_response);
   curl_easy_setopt(curl_, CURLOPT_WRITEDATA, opener.file());
 
-  curl_easy_setopt(curl_, CURLOPT_TIMEOUT, timeout);
   return curl_easy_perform(curl_);
 }
 
