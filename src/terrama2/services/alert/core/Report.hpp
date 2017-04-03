@@ -94,49 +94,101 @@ namespace terrama2
             Report& operator=(const Report& other) = default;
             Report& operator=(Report&& other) = default;
 
+            //*! Gets the report title
             std::string title() const { return alert_->reportMetadata.at(ReportTags::TITLE); }
 
+            //! Gets the report abstract
             std::string abstract() const { return alert_->reportMetadata.at(ReportTags::ABSTRACT); }
 
+            //! Gets the report description
             std::string description() const { return alert_->reportMetadata.at(ReportTags::DESCRIPTION); }
 
+            //! Gets the report author
             std::string author() const { return alert_->reportMetadata.at(ReportTags::AUTHOR); }
 
+            //! Gets the report contact
             std::string contact() const { return alert_->reportMetadata.at(ReportTags::CONTACT); }
 
+            //! Gets the report copyright
             std::string copyright() const { return alert_->reportMetadata.at(ReportTags::COPYRIGHT); }
 
+            //! Gets the logo path to be used in the report
             std::string logoPath() const { return alert_->reportMetadata.at(ReportTags::LOGO_PATH); }
 
+            //! Gets the timestamp format to be used in the report
             std::string timeStampFormat() const { return alert_->reportMetadata.at(ReportTags::TIMESTAMP_FORMAT); }
 
+            /*!
+             * \brief Returns a dataSet with all data
+             * \return A dataSet with all data
+             */
             std::shared_ptr<te::da::DataSet> retrieveData() const;
 
+            /*!
+             * \brief Gets a DataSet based in the values of the comparison property
+             * \param The list of wanted values
+             * \return A DataSet with only the data that the comparison property is in values list
+             */
             std::shared_ptr<te::da::DataSet> retrieveDataComparisonValue(const std::vector<int>& values) const;
 
+            /*!
+             * \brief Returns a DataSet with the data that has changed their risk value
+             * \return A DataSet with the data that has changed their risk value
+             */
             std::shared_ptr<te::da::DataSet> retrieveDataChangedRisk() const;
 
+            /*!
+             * \brief Returns a DataSet with the data that has not changed their risk value
+             * \return A DataSet with the data that has not changed their risk value
+             */
             std::shared_ptr<te::da::DataSet> retrieveDataUnchangedRisk() const;
 
+            /*!
+             * \brief Returns a DataSet with the data that their risk value has increased
+             * \return A DataSet with the data that their risk value has increased
+             */
             std::shared_ptr<te::da::DataSet> retrieveDataIncreasedRisk() const;
 
+            /*!
+             * \brief Returns a DataSet with the data that their risk value has decreased
+             * \return A DataSet with the data that their risk value has decreased
+             */
             std::shared_ptr<te::da::DataSet> retrieveDataDecreasedRisk() const;
 
+            /*!
+             * \brief Returns a DataSet that the data is at a specifc risk value
+             * \param The risk value wanted
+             * \return A DataSet that the data is at a specifc risk value
+             */
             std::shared_ptr<te::da::DataSet> retrieveDataAtRisk(const int risk) const;
 
+            /*!
+             * \brief Returns a DataSet that the data risk value is equal or above (>=) a specifc value
+             * \param The risk value
+             * \return A DataSet that the data risk value is equal or above (>=) a specifc value
+             */
             std::shared_ptr<te::da::DataSet> retrieveDataAboveRisk(const int risk) const;
 
+            /*!
+             * \brief Returns a DataSet that the data risk value is equal or below (<=) a specifc value
+             * \param The risk value
+             * \return A DataSet that the data risk value is equal or below (<=) a specifc value
+             */
             std::shared_ptr<te::da::DataSet> retrieveDataBelowRisk(const int risk) const;
 
           protected:
 
+            /*!
+             * \brief Sets the report DataSet and adjust it to reports
+             * \param The DataSet
+             */
             void updateReportDataset(const std::shared_ptr<te::da::DataSet> dataSet);
 
           protected:
 
-            AlertPtr alert_;
-            std::shared_ptr<te::mem::DataSet> dataSet_;
-            std::vector<std::shared_ptr<te::dt::DateTime>> riskDates_;
+            AlertPtr alert_; //!< The alert information
+            std::shared_ptr<te::mem::DataSet> dataSet_; //!< The dataSet with alert data
+            std::vector<std::shared_ptr<te::dt::DateTime>> riskDates_; //!< A list with the datetime of each risk calculation
 
         };
       } /* core */
