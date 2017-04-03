@@ -46,9 +46,7 @@ terrama2::services::alert::impl::NotifierEmail::NotifierEmail(const std::map<std
 
 }
 
-void terrama2::services::alert::impl::NotifierEmail::send(const std::vector<std::string>& recipients,
-                                                          int riskLevel,
-                                                          bool notifyOnChange) const
+void terrama2::services::alert::impl::NotifierEmail::send(const core::Recipient& recipient) const
 {
   te::core::URI emailServer(serverMap_.at("emailServer"));
 
@@ -59,7 +57,7 @@ void terrama2::services::alert::impl::NotifierEmail::send(const std::vector<std:
 
   vmime::addressList to;
 
-  for(auto recipient : recipients)
+  for(auto recipient : recipient.targets)
   {
     to.appendAddress(vmime::make_shared <vmime::mailbox>(recipient));
   }
@@ -102,5 +100,3 @@ void terrama2::services::alert::impl::NotifierEmail::send(const std::vector<std:
   tr->connect();
   tr->send(msg);
 }
-
-

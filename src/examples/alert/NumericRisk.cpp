@@ -68,7 +68,6 @@ terrama2::core::DataSeriesPtr inputDataSeries()
   dataSet->active = true;
   dataSet->format.emplace("table_name", "resultado");
   dataSet->format.emplace("timestamp_property", "execution_date");
-  dataSet->format.emplace("identifier", "sigla");
 
   dataSeries->datasetList.emplace_back(dataSet);
 
@@ -158,7 +157,7 @@ terrama2::services::alert::core::AlertPtr newAlert()
   additionalData.referredAttribute = "id";
   additionalData.attributes.push_back("nome");
 
-//  alert->additionalDataVector.push_back(additionalData);
+ alert->additionalDataVector.push_back(additionalData);
 
   std::unordered_map<std::string, std::string> reportMetadata;
 
@@ -176,7 +175,9 @@ terrama2::services::alert::core::AlertPtr newAlert()
 
   alert->filter = filter;
 
-  alert->recipients = {"vinicampa@gmail.com"};
+  Recipient recipient;
+  recipient.targets = {"vinicampa@gmail.com"};
+  alert->recipients = { recipient };
 
   return alertPtr;
 }
