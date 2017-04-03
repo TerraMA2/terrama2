@@ -30,6 +30,7 @@
 // TerraMA2
 #include "Exception.hpp"
 #include "Report.hpp"
+#include "Utils.hpp"
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/utility/Utils.hpp"
 
@@ -170,7 +171,7 @@ void terrama2::services::alert::core::Report::updateReportDataset(const std::sha
   // Replace risk values
   for(auto riskDate : riskDates_)
   {
-    std::string property = terrama2::core::createValidPropertyName(riskDate->toString());
+    std::string property = validPropertyDateName(riskDate);
     auto pos = terrama2::core::propertyPosition(dataSet_.get(), property);
 
     if(pos == std::numeric_limits<size_t>::max())
