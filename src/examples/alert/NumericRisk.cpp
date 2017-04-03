@@ -175,7 +175,9 @@ terrama2::services::alert::core::AlertPtr newAlert()
 
   alert->filter = filter;
 
-  alert->recipients = {"vinicampa@gmail.com"};
+  Recipient recipient;
+  recipient.targets = {"vinicampa@gmail.com"};
+  alert->recipients = { recipient };
 
   return alertPtr;
 }

@@ -98,7 +98,17 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
   auto recipientsArray = json["recipients"].toArray();
   for(const auto& tempRecipient : recipientsArray)
   {
-    alert->recipients.push_back(tempRecipient.toString().toStdString());
+    auto obj = tempRecipient.toObject();
+    Recipient recipient;
+    recipient.includeReport = obj["include_report"].toBool();
+    recipient.notifyOnChange = obj["notify_on_change"].toBool();
+    recipient.simplifiedReport = obj["simplified_report"].toBool();
+    recipient.notifyOnRiskLevel = obj["notify_on_risk_level"].toInt();
+
+    for(const auto& target : obj["targets"].toArray())
+      recipient.targets.push_back(target.toString().toStdString());
+
+    alert->recipients.push_back(recipient);
   }
 
   return alertPtr;
@@ -137,7 +147,19 @@ QJsonObject terrama2::services::alert::core::toJson(AlertPtr alert)
   QJsonArray recipientsArray;
   for(const auto& recipient : alert->recipients)
   {
-    recipientsArray.append(QString::fromStdString(recipient));
+    QJsonObject obj;
+    obj["include_report"] = recipient.includeReport;
+    obj["notify_on_change"] = recipient.notifyOnChange;
+    obj["notify_on_risk_level"] = static_cast<int>(recipient.notifyOnRiskLevel);
+    obj["simplified_report"] = recipient.simplifiedReport;
+
+    QJsonArray targets;
+    for(const auto& target : recipient.targets)
+      targets.append(QString::fromStdString(target));
+
+    obj["targets"] = targets;
+
+    recipientsArray.push_back(obj);
   }
 
   obj.insert("recipients", recipientsArray);

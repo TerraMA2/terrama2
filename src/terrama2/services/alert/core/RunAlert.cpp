@@ -416,7 +416,8 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
 
       NotifierPtr notifierPtr = NotifierFactory::getInstance().make("EMAIL", serverMap, reportPtr);
 
-      notifierPtr->send(alertPtr->recipients, 0, 0);
+      for(const auto& recipient : alertPtr->recipients)
+        notifierPtr->send(recipient);
 
     }
 

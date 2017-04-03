@@ -60,7 +60,7 @@ namespace terrama2
             NotifierEmail& operator=(const NotifierEmail& other) = default;
             NotifierEmail& operator=(NotifierEmail&& other) = default;
 
-            virtual void send(const std::vector<std::string>& recipient, int riskLevel, bool notifyOnChange) const;
+            virtual void send(const core::Recipient& recipient) const;
 
             static std::string notifierCode() { return "EMAIL"; };
 
