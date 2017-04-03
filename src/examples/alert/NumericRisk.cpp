@@ -66,7 +66,7 @@ terrama2::core::DataSeriesPtr inputDataSeries()
   //DataSet information
   terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
   dataSet->active = true;
-  dataSet->format.emplace("table_name", "resultado");
+  dataSet->format.emplace("table_name", "analise_result");
   dataSet->format.emplace("timestamp_property", "execution_date");
 
   dataSeries->datasetList.emplace_back(dataSet);
@@ -176,7 +176,7 @@ terrama2::services::alert::core::AlertPtr newAlert()
   alert->filter = filter;
 
   Recipient recipient;
-  recipient.targets = {"vinicampa@gmail.com"};
+  recipient.targets = {"vmimeteste@gmail.com"};
   alert->recipients = { recipient };
 
   return alertPtr;

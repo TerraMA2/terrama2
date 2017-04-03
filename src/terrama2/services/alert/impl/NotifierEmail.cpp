@@ -57,9 +57,9 @@ void terrama2::services::alert::impl::NotifierEmail::send(const core::Recipient&
 
   vmime::addressList to;
 
-  for(auto recipient : recipient.targets)
+  for(auto target : recipient.targets)
   {
-    to.appendAddress(vmime::make_shared <vmime::mailbox>(recipient));
+    to.appendAddress(vmime::make_shared <vmime::mailbox>(target));
   }
 
   mb.setRecipients(to);
