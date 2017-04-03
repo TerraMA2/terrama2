@@ -61,7 +61,7 @@ void downloadReferenceFiles()
   terrama2::core::CurlPtr curl;
   curl.init();
   std::string referenceUrl = "ftp://ftp:JenkinsD%40t%40@jenkins-ftp.dpi.inpe.br:21/terrama2/reference_data/";
-  auto status = curl.verifyURL(referenceUrl);
+  auto status = curl.verifyURL(referenceUrl, 8);
 
   if(status != CURLE_OK)
     QFAIL("FTP address is invalid.");
@@ -72,13 +72,13 @@ void downloadReferenceFiles()
     QFAIL("Unable to create reference folder.");
 
   curl.init();
-  std::vector<std::string> vectorFiles = curl.getFtpListFiles(referenceUrl, &write_file_names);
+  std::vector<std::string> vectorFiles = curl.getFtpListFiles(referenceUrl, &write_file_names, 8);
   for(const auto& file : vectorFiles)
   {
     std::string fileUri = referenceUrl + file;
 
     std::string filePath = outDir + "/" + file;
-    CURLcode res = curl.getDownloadFiles(fileUri, &write_response, filePath);
+    CURLcode res = curl.getDownloadFiles(fileUri, &write_response, filePath, 8);
     if(res != CURLE_OK)
       QFAIL(std::string("Error downloading reference file.\n"+file).c_str());
   }

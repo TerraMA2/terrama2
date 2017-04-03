@@ -67,22 +67,26 @@ namespace terrama2
         CURL* fcurl() const;
 
         //! The function verifyURL checks if the "url" parameter is passed by valid.
-        virtual CURLcode verifyURL(std::string url);
+        virtual CURLcode verifyURL(std::string url, uint32_t timeout);
 
         //! The function getListFiles returns vector with the files found on the server.
         virtual std::vector<std::string> getFtpList(const std::string& url,
-                                                      size_t(*write_vector)(void *ptr, size_t size, size_t nmemb, void *data)) const;
+                                                      size_t(*write_vector)(void *ptr, size_t size, size_t nmemb, void *data),
+                                                      uint32_t timeout) const;
 
         virtual std::vector<std::string> getFtpListDir(const std::string& url,
-                                                       size_t(*write_vector)(void *ptr, size_t size, size_t nmemb, void *data)) const;
+                                                       size_t(*write_vector)(void *ptr, size_t size, size_t nmemb, void *data),
+                                                       uint32_t timeout) const;
 
         virtual std::vector<std::string> getFtpListFiles(const std::string& url,
-                                                         size_t(*write_vector)(void *ptr, size_t size, size_t nmemb, void *data)) const;
+                                                         size_t(*write_vector)(void *ptr, size_t size, size_t nmemb, void *data),
+                                                         uint32_t timeout) const;
 
         //! The function getDownloadFiles performs download the filtered files and returns it succeded or not.
         virtual CURLcode getDownloadFiles(std::string url,
                                           size_t(*write_response)(void *ptr, size_t size, size_t nmemb, void *data),
-                                          std::string filePath);
+                                          std::string filePath,
+                                          uint32_t timeout);
 
         /*! When CurlPtr destructor is called, the function curl_easy_cleanup is used automatically.
            The function curl_easy_cleanup close all connections this handle curl.

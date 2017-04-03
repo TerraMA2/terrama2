@@ -89,6 +89,7 @@ namespace terrama2
       DataProviderIntent intent = DataProviderIntent::PROCESS_INTENT; //!< Intent os the DataProvider (Collect or Process)
       std::string uri; //!< URI to access the DataProvider data.
       bool active = true; //!< DataProvider status.
+      uint32_t timeout = 8; //!< Server connection timeout value in seconds.
 
       //! Comparison operator for DataProvider
       inline bool operator==(const DataProvider& rhs){ return id == rhs.id; }

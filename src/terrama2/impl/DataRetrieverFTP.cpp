@@ -67,7 +67,7 @@ terrama2::core::DataRetrieverFTP::DataRetrieverFTP(DataProviderPtr dataprovider,
   // Verifies that the FTP address is valid
   try
   {
-    CURLcode status = curlwrapper_.verifyURL(dataprovider->uri);
+    CURLcode status = curlwrapper_.verifyURL(dataprovider->uri, dataProvider_->timeout);
 
     if(status != CURLE_OK)
     {
@@ -155,7 +155,8 @@ std::vector<std::string> terrama2::core::DataRetrieverFTP::checkSubfolders(const
     curlwrapper_.init();
 
     std::vector<std::string> dirList = curlwrapper_.getFtpListDir(uri,
-                                                                  &terrama2::core::DataRetrieverFTP::write_vector);
+                                                                  &terrama2::core::DataRetrieverFTP::write_vector,
+                                                                  dataProvider_->timeout);
 
     if(dirList.empty())
     {
@@ -242,7 +243,7 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
         throw DataRetrieverException() << ErrorDescription(errMsg);
       }
 
-      std::vector<std::string> vectorFiles = curlwrapper_.getFtpListFiles(uri, &terrama2::core::DataRetrieverFTP::write_vector);
+      std::vector<std::string> vectorFiles = curlwrapper_.getFtpListFiles(uri, &terrama2::core::DataRetrieverFTP::write_vector, dataProvider_->timeout);
 
       std::vector<std::string> vectorNames;
       // filter file names that should be downloaded.
@@ -285,7 +286,7 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
 
         std::string filePath = savePath.toStdString() + "/" + file;
 
-        CURLcode res = curlwrapper_.getDownloadFiles(uriOrigin, &terrama2::core::DataRetrieverFTP::write_response, filePath);
+        CURLcode res = curlwrapper_.getDownloadFiles(uriOrigin, &terrama2::core::DataRetrieverFTP::write_response, filePath, dataProvider_->timeout);
         remover->addTemporaryFile(filePath);
 
         if(res != CURLE_OK)
