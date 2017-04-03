@@ -238,7 +238,7 @@ void terrama2::services::view::core::Service::viewJob(const terrama2::core::Exec
     jsonAnswer = mapsServerAnswer;
     jsonAnswer.insert("class", QString("RegisteredViews"));
     jsonAnswer.insert("process_id",static_cast<int32_t>(viewPtr->id));
-    jsonAnswer.insert("maps_server_uri", QString::fromStdString(mapsServerUri_.uri()));
+    jsonAnswer.insert("mapsServer", QString::fromStdString(mapsServerUri_.uri()));
 
     TERRAMA2_LOG_INFO() << tr("View %1(%2) generated successfully.").arg(QString::fromStdString(viewName)).arg(viewId);
 
@@ -302,12 +302,12 @@ void terrama2::services::view::core::Service::viewJob(const terrama2::core::Exec
 
 void terrama2::services::view::core::Service::updateAdditionalInfo(const QJsonObject& obj) noexcept
 {
-  if(!obj.contains("maps_server_uri"))
+  if(!obj.contains("mapsServer"))
   {
     TERRAMA2_LOG_ERROR() << tr("Missing the Maps Server URI in service additional info!");
   }
   else
   {
-    mapsServerUri_ = te::core::URI(obj["maps_server_uri"].toString().toStdString());
+    mapsServerUri_ = te::core::URI(obj["mapsServer"].toString().toStdString());
   }
 }

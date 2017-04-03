@@ -219,7 +219,7 @@ int main(int argc, char* argv[])
     logger->setConnectionInfo(uri);
 
     std::map<std::string, std::string> serverMap;
-    serverMap.emplace("email_server_uri", "smtp://vmimeteste@gmail.com:a1a2a3a4@smtp.gmail.com:587");
+    serverMap.emplace("emailServer", "smtp://vmimeteste@gmail.com:a1a2a3a4@smtp.gmail.com:587");
 
     terrama2::services::alert::core::runAlert(executionPackage, std::dynamic_pointer_cast<AlertLogger>(logger), dataManager, serverMap);
   }

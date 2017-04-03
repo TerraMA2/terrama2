@@ -50,7 +50,7 @@ void terrama2::services::alert::impl::NotifierEmail::send(const std::vector<std:
                                                           int riskLevel,
                                                           bool notifyOnChange) const
 {
-  te::core::URI emailServer(serverMap_.at("email_server_uri"));
+  te::core::URI emailServer(serverMap_.at("emailServer"));
 
   vmime::messageBuilder mb;
 
