@@ -48,7 +48,7 @@ terrama2::services::alert::impl::NotifierEmail::NotifierEmail(const std::map<std
 
 void terrama2::services::alert::impl::NotifierEmail::send(const core::Recipient& recipient) const
 {
-  te::core::URI emailServer(serverMap_.at("emailServer"));
+  te::core::URI emailServer(serverMap_.at("email_server"));
 
   vmime::messageBuilder mb;
 
