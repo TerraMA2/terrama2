@@ -135,11 +135,17 @@ define([], function() {
             value = i18n.__("DCP");
             break;
           case globals.enums.DataSeriesType.ANALYSIS_MONITORED_OBJECT:
+            value = i18n.__("Monitored object");
+            break;
           case globals.enums.DataSeriesType.OCCURRENCE:
             value = i18n.__("Occurrence");
             break;
           case globals.enums.DataSeriesType.GRID:
-            value = i18n.__("Grid");
+            if (instance.isAnalysis) {
+              value = i18n.__("Analysis Grid");
+            } else {
+              value = i18n.__("Grid");
+            }
             break;
           case globals.enums.DataSeriesType.GEOMETRIC_OBJECT:
             value = i18n.__("Geometric Object");
