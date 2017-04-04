@@ -104,7 +104,7 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
     alert->reportMetadata[terrama2::services::alert::core::ReportTags::LOGO_PATH] = reportMetadata[QString::fromStdString(terrama2::services::alert::core::ReportTags::LOGO_PATH)].toString().toStdString();
   }
 
-  alert->risk = terrama2::core::fromDataSeriesRiskJson(json["risk"].toObject());
+  alert->risk = terrama2::core::fromRiskJson(json["risk"].toObject());
 
   auto recipientsArray = json["recipients"].toArray();
   for(const auto& tempRecipient : recipientsArray)
