@@ -1399,12 +1399,14 @@ var DataManager = module.exports = {
 
       if (dataProvider) {
         models.db.DataProvider.update(dataProviderObject, Utils.extend({
-          fields: ["name", "description", "uri", "active"],
+          fields: ["name", "timeout", "description", "uri", "active"],
           where: {
             id: dataProvider.id
           }
         }, options)).then(function() {
           if (dataProviderObject.name) { dataProvider.name = dataProviderObject.name; }
+
+          if (dataProviderObject.timeout) { dataProvider.timeout = dataProviderObject.timeout; }
 
           if (dataProviderObject.description) { dataProvider.description = dataProviderObject.description; }
 

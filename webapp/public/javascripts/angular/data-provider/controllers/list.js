@@ -17,6 +17,7 @@ define(function() {
         $scope.MessageBoxService = MessageBoxService;
         $scope.fields = [
           {key: "name", as: i18n.__("Name")},
+          {key: "timeout", as: i18n.__("Data Server Timeout")},
           {key: "description", as: i18n.__("Description")}
         ];
         $scope.remove = function(object) {
