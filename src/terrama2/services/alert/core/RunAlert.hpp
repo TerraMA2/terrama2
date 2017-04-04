@@ -98,6 +98,7 @@ namespace terrama2
                                                                 std::shared_ptr<te::da::DataSetType> alertDataSetType);
 
         void addAdditionalData(std::shared_ptr<te::mem::DataSet> alertDataSet, AlertPtr alertPtr, std::unordered_map<std::string, terrama2::core::TeDataSetFKJoin> additionalDataMap);
+
       } /* core */
     } /* alert */
   } /* services */

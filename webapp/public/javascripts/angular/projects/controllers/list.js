@@ -123,7 +123,15 @@ define(function() {
       }
     };
 
-    $scope.iconProperties = {};
+    $scope.iconFn = function(object){
+      return "/images/project/project.png"
+    };
+
+    $scope.iconProperties = {
+      type: "img",
+      width: 20,
+      height: 20
+    };
 
     $scope.loading = true;
 

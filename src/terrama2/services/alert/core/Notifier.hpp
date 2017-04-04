@@ -34,6 +34,7 @@
 
 // TerraMA2
 #include "Shared.hpp"
+#include "Alert.hpp"
 
 // STL
 #include <map>
@@ -62,7 +63,7 @@ namespace terrama2
           Notifier& operator=(const Notifier& other) = default;
           Notifier& operator=(Notifier&& other) = default;
 
-          virtual void send(const std::vector<std::string>& recipient, int riskLevel, bool notifyOnChange) const = 0;
+          virtual void send(const Recipient& recipient) const = 0;
 
         protected:
           const std::map<std::string, std::string> serverMap_;

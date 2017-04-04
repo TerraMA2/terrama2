@@ -180,12 +180,12 @@ void terrama2::services::alert::core::Service::updateAlert(AlertPtr alert) noexc
 
 void terrama2::services::alert::core::Service::updateAdditionalInfo(const QJsonObject& obj) noexcept
 {
-  if(!obj.contains("email_server_uri"))
+  if(!obj.contains("email_server"))
   {
     TERRAMA2_LOG_ERROR() << tr("Missing the Email Server URI in service additional info!");
   }
   else
   {
-    serverMap_.emplace("email_server_uri", obj["email_server_uri"].toString().toStdString());
+    serverMap_.emplace("email_server", obj["email_server"].toString().toStdString());
   }
 }

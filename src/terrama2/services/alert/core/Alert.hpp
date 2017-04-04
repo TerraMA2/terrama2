@@ -58,6 +58,16 @@ namespace terrama2
           std::vector<std::string> attributes;//!< attributes that will be copied to the alert
         };
 
+        //! Notification rules and targets .
+        struct Recipient
+        {
+          uint32_t notifyOnRiskLevel = 0; //!< Targets should be notified if the greatest risk level is greater then notifyOnRiskLevel.
+          bool notifyOnChange = true; //!< Targets should be notified if the risk level changed in any valeu.
+          bool includeReport = true; //!< Include report on notification.
+          bool simplifiedReport = true; //!< Include simplified or complete report.
+          std::vector<std::string> targets; //!< List of targets that should be notified.
+        };
+
         /*!
          \brief Struct with information for an Alert
         */
@@ -78,7 +88,7 @@ namespace terrama2
 
           std::unordered_map<std::string, std::string> reportMetadata;//!< Metadata used to create a report.3
 
-          std::vector<std::string> recipients;
+          std::vector<Recipient> recipients;
         };
       } /* core */
     } /* alert */

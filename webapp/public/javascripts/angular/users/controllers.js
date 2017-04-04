@@ -53,7 +53,24 @@ define([
           as: i18n.__("Administrator")
         },
       ];
-      $scope.iconFn = null;
+      
+      $scope.iconFn = function(object){
+        switch(object.administrator){
+          case "Yes":
+            return "/images/user/admin/user.png"
+            break;
+          case "No":
+          default:
+            return "/images/user/nadmin/user.png"
+            break;
+        }
+      };
+
+      $scope.iconProperties = {
+        type: "img",
+        width: 20,
+        height: 20
+      };
 
       $scope.linkToAdd = "/administration/users/new";
 
