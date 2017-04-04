@@ -69,7 +69,7 @@ namespace terrama2
 
           protected:
 
-            te::core::URI uri_;     /*!< The address of the Maps Server */
+            te::core::URI uri_;     /*!< The address and authentication info of the Maps Server */
         };
       }
     }

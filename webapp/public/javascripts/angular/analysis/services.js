@@ -11,21 +11,6 @@ define([
       MONITORED: 2,
       GRID: 3
     })
-    .service("AnalysisOperators", ["BaseService", "$log", function(BaseService, $log) {
-      var self = this;
-      this.$data = {};
-
-      this.init = function() {
-        return BaseService.$request("/javascripts/angular/analysis/data/operators.json", "GET", {})
-          .then(function(response) {
-            return self.$data = response.data;
-          })
-          .catch(function(err) {
-            $log.log(err);
-            throw error;
-          });
-      }
-    }])
     .service("AnalysisService", ["BaseService", "AnalysisType", AnalysisService]);
   
   /**

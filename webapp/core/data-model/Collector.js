@@ -29,6 +29,8 @@ var Collector = module.exports = function(params) {
     this.input_output_map = params.input_output_map || [];
   }
 
+  this.scheduleType = params.schedule_type;
+
   if (params.Schedule) {
     this.schedule = new Schedule(params.Schedule.get() || {});
   } else {
@@ -90,7 +92,9 @@ Collector.prototype.setInputOutputMap = function (inputOutputModel) {
 
 Collector.prototype.rawObject = function () {
   var obj = this.toObject();
-  obj.schedule = this.schedule.rawObject();
+  if (this.schedule && this.schedule instanceof BaseClass){
+    obj.schedule = this.schedule.rawObject();
+  }
   obj.filter = this.filter instanceof BaseClass ? this.filter.rawObject() : this.filter;
   obj.dataSeriesOutput = this.dataSeriesOutput instanceof BaseClass ? this.dataSeriesOutput.toObject() : this.dataSeriesOutput;
 
@@ -132,6 +136,7 @@ Collector.prototype.toObject = function() {
     input_data_series: this.data_series_input,
     output_data_series: this.data_series_output,
     input_output_map: this.input_output_map || [],
+    schedule_type: this.scheduleType,
     schedule: this.schedule instanceof BaseClass ? this.schedule.toObject() : this.schedule,
     filter: this.filter instanceof BaseClass ? this.filter.toObject() : this.filter,
     intersection: intersectionOutput,

@@ -74,13 +74,13 @@ fi
 #
 # GDAL/OGR 2.0.1
 #
-sudo dpkg -i terralib-gdal2_2.0.1_amd64.deb
-gdal2_test=`dpkg -s terralib-gdal2 | grep Status`
+sudo dpkg -i terralib-gdal_2.0.1_amd64.deb
+gdal2_test=`dpkg -s terralib-gdal | grep Status`
 
 if [ "$gdal2_test" != "Status: install ok installed" ]; then
   sudo apt-get install -y -f
-  sudo dpkg -i terralib-gdal2_2.0.1_amd64.deb
-  valid $? "Error: could not install gdal2! Please, install readline: sudo dpkg -i terralib-gdal2_2.0.1_amd64.deb" 
+  sudo dpkg -i terralib-gdal_2.0.1_amd64.deb
+  valid $? "Error: could not install gdal2! Please, install readline: sudo dpkg -i terralib-gdal_2.0.1_amd64.deb" 
   echo "gdal2 installed!"
 else
   echo "gdal2 already installed!"
@@ -169,16 +169,33 @@ fi
 sudo npm install -g bower
 valid $? "Error: could not install bower"
 
+
 #
-# TerraMa2 version 4.0.0
+# VMime
 #
-sudo dpkg -i terrama2-4.0.0-alpha6-x64.deb
-terrama2_test=`dpkg -s terrama2-4.0.0-alpha6 | grep Status`
+sudo dpkg -i terrama2-vmime_1.0.0_amd64.deb
+terrama2_test=`dpkg -s terrama2-vmime_1.0.0_amd64 | grep Status`
 
 if [ "$terrama2_test" != "Status: install ok installed" ]; then
   sudo apt-get install -y -f
-  sudo dpkg -i terrama2-4.0.0-alpha6-x64.deb
-  valid $? "Error: could not install terrama2! Please, install readline: sudo dpkg -i terrama2-4.0.0-alpha6-x64.deb" 
+  sudo dpkg -i terrama2-vmime_1.0.0_amd64.deb
+  valid $? "Error: could not install VMime! Please, install readline: sudo dpkg -i terrama2-vmime_1.0.0_amd64.deb" 
+  echo "VMime installed!"
+else
+  echo "VMime already installed!"
+fi
+
+
+#
+# TerraMa2 version 4.0.0
+#
+sudo dpkg -i terrama2-4.0.0-beta2-x64.deb
+terrama2_test=`dpkg -s terrama2-4.0.0-beta2 | grep Status`
+
+if [ "$terrama2_test" != "Status: install ok installed" ]; then
+  sudo apt-get install -y -f
+  sudo dpkg -i terrama2-4.0.0-beta2-x64.deb
+  valid $? "Error: could not install terrama2! Please, install readline: sudo dpkg -i terrama2-4.0.0-beta2-x64.deb" 
   echo "terrama2 installed!"
 else
   echo "terrama2 already installed!"

@@ -24,6 +24,8 @@ define([
       moduleLoader("xeditable", deps) && 
       moduleLoader("treeControl", deps) &&
       moduleLoader("ui.router", deps) && 
+      moduleLoader("ui.select", deps) &&
+      moduleLoader("ngSanitize", deps) &&
       moduleLoader("mgo-angular-wizard", deps)) {
     deps.push(commonServiceApp);
     deps.push(providerApp);

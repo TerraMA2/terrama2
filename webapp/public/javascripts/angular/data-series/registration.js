@@ -268,6 +268,29 @@ define([], function() {
 
       $scope.providersList = DataProviderService.list();
 
+      $scope.getImageUrl = getImageUrl;
+
+      function getImageUrl(dataSeries){
+        if (typeof dataSeries != 'object'){
+          return '';
+        }
+        switch (dataSeries.data_provider_type.name){
+          case "FILE":
+            return "/images/data-server/file/file.png";
+            break;
+          case "FTP":
+            return "/images/data-server/ftp/ftp.png";
+            break;
+          case "HTTP":
+            return "/images/data-server/http/http.png";
+            break;
+          case "POSTGIS":
+          default:
+            return "/images/data-server/postGIS/postGIS.png";
+            break;
+        }
+      }
+
       $scope.createDataTable = function() {
         if($scope.dcpTable !== undefined)
           $scope.dcpTable.destroy();
@@ -432,7 +455,7 @@ define([], function() {
           }
 
         $scope.tableFields = [];
-	      $scope.tableFieldsDataTable = [];
+	$scope.tableFieldsDataTable = [];
         if ($scope.dataSeries.semantics.data_series_type_name == "DCP"){
           // building table fields. Check if form is for all ('*')
           if (dataSeriesSemantics.metadata.form.indexOf('*') != -1) {
@@ -453,7 +476,7 @@ define([], function() {
           }
         }
 
-	      $scope.tableFieldsDataTable.push('');
+	$scope.tableFieldsDataTable.push('');
 
         // fill out
         if ($scope.isUpdating) {
@@ -541,9 +564,9 @@ define([], function() {
               $scope.addDcpsStorager(dcps);
             }
           } else {
-	          var dataSetFormat = inputDataSeries.dataSets[0].format;
+	    var dataSetFormat = inputDataSeries.dataSets[0].format;
             $scope.model = $scope.prepareFormatToForm(inputDataSeries.dataSets[0].format);
-	          if(inputDataSeries.data_series_semantics.custom_format) {
+	    if(inputDataSeries.data_series_semantics.custom_format) {
               $scope.csvFormatData.fields = JSON.parse(dataSetFormat.fields)
               $scope.csvFormatData.header_size = parseInt(dataSetFormat.header_size);
               $scope.csvFormatData.default_type = dataSetFormat.default_type;
@@ -1633,7 +1656,7 @@ define([], function() {
               }
             }
 
-	          var outputDcp = {
+	    var outputDcp = {
               active: dSets[i].active,
               format: _makeFormat(dSets[i])
             };

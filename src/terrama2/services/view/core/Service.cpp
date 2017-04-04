@@ -197,7 +197,7 @@ void terrama2::services::view::core::Service::viewJob(const terrama2::core::Exec
   {
     TERRAMA2_LOG_ERROR() << QObject::tr("Unable to access DataManager");
     notifyWaitQueue(executionPackage.processId);
-    sendProcessFinishedSignal(executionPackage.processId, false);
+    sendProcessFinishedSignal(executionPackage.processId, executionPackage.executionDate, false);
     return;
   }
 
@@ -238,13 +238,13 @@ void terrama2::services::view::core::Service::viewJob(const terrama2::core::Exec
     jsonAnswer = mapsServerAnswer;
     jsonAnswer.insert("class", QString("RegisteredViews"));
     jsonAnswer.insert("process_id",static_cast<int32_t>(viewPtr->id));
-    jsonAnswer.insert("maps_server_uri", QString::fromStdString(mapsServerUri_.uri()));
+    jsonAnswer.insert("maps_server", QString::fromStdString(mapsServerUri_.uri()));
 
     TERRAMA2_LOG_INFO() << tr("View %1(%2) generated successfully.").arg(QString::fromStdString(viewName)).arg(viewId);
 
     logger->result(ViewLogger::DONE, terrama2::core::TimeUtils::nowUTC(), logId);
 
-    sendProcessFinishedSignal(viewId, true, jsonAnswer);
+    sendProcessFinishedSignal(viewId, executionPackage.executionDate, true, jsonAnswer);
     notifyWaitQueue(viewId);
 
     return;
@@ -295,19 +295,19 @@ void terrama2::services::view::core::Service::viewJob(const terrama2::core::Exec
   if(logId != 0)
     logger->result(ViewLogger::ERROR, terrama2::core::TimeUtils::nowUTC(), logId);
 
-  sendProcessFinishedSignal(viewId, false);
+  sendProcessFinishedSignal(viewId, executionPackage.executionDate, false);
   notifyWaitQueue(viewId);
 }
 
 
 void terrama2::services::view::core::Service::updateAdditionalInfo(const QJsonObject& obj) noexcept
 {
-  if(!obj.contains("maps_server_uri"))
+  if(!obj.contains("maps_server"))
   {
     TERRAMA2_LOG_ERROR() << tr("Missing the Maps Server URI in service additional info!");
   }
   else
   {
-    mapsServerUri_ = te::core::URI(obj["maps_server_uri"].toString().toStdString());
+    mapsServerUri_ = te::core::URI(obj["maps_server"].toString().toStdString());
   }
 }

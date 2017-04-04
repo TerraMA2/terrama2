@@ -43,7 +43,9 @@ define([], function() {
     /**
      * @type {Object}
      */
-    self.scheduleOptions = {};
+    self.scheduleOptions = {
+      showConditionalOption: true
+    };
     /**
      * It handles if should show schedule or not. It may be changed on view data series change
      *
@@ -147,6 +149,70 @@ define([], function() {
     // Setting Save operation attached into submit button
     self.save = saveOperation;
 
+    // Creating data series filter
+    self.filter = {
+      isAnalysis: true,
+      DYNAMIC: true,
+      STATIC: true
+    };
+
+    self.filterByType = filterByType;
+
+    // Filter function
+    function filterByType(dataSeries) {
+
+      var displayDataSeries = self.filter[dataSeries.data_series_semantics.temporality];
+
+      if (self.filter['isAnalysis'] && dataSeries.isAnalysis){
+        displayDataSeries = true;
+      }
+
+      if (!self.filter['isAnalysis'] && dataSeries.isAnalysis){
+        displayDataSeries = false;
+      }
+
+      return displayDataSeries;
+    };
+
+    self.getImageUrl = getImageUrl;
+
+    function getImageUrl(dataSeries){
+      if (typeof dataSeries != 'object'){
+        return '';
+      }
+      switch(dataSeries.data_series_semantics.data_series_type_name){
+        case DataSeriesService.DataSeriesType.DCP:
+          return "/images/dynamic-data-series/dcp/dcp.png";
+          break;
+        case DataSeriesService.DataSeriesType.OCCURRENCE:
+          return "/images/dynamic-data-series/occurrence/occurrence.png";
+          break;
+        case DataSeriesService.DataSeriesType.GRID:
+          if (dataSeries.data_series_semantics.temporality == "STATIC"){
+            return "/images/static-data-series/grid/grid.png";
+            break;
+          } else {
+            if (dataSeries.isAnalysis){
+              return "/images/analysis/grid/grid_analysis.png";
+            } else {
+              return "/images/dynamic-data-series/grid/grid.png";
+            }
+            break;
+          }
+        case DataSeriesService.DataSeriesType.ANALYSIS_MONITORED_OBJECT:
+          return "/images/analysis/monitored-object/monitored-object_analysis.png";
+          break;
+        case DataSeriesService.DataSeriesType.POSTGIS:
+        case DataSeriesService.DataSeriesType.GEOMETRIC_OBJECT:
+          return "/images/static-data-series/vetorial/vetorial.png";
+          break;
+        default:
+          return "/images/dynamic-data-series/occurrence/occurrence.png";
+          break;
+
+      }
+    }
+
     /**
      * It retrieves all data provider type to get HTTP fields
      */
@@ -208,11 +274,7 @@ define([], function() {
           $timeout(function() {
             if (self.isUpdating) {
               self.schedule = {};
-              if (self.view.schedule && (self.view.schedule.frequency_unit || self.view.schedule.schedule_unit)){
-                self.view.schedule.scheduleType = Globals.enums.ScheduleType.SCHEDULE;
-              } else {
-                self.view.schedule.scheduleType = Globals.enums.ScheduleType.MANUAL;
-              }
+              self.view.schedule.scheduleType = self.view.schedule_type.toString();
               $scope.$broadcast("updateSchedule", self.view.schedule || {});
             } else {
               if (!config.view) {
@@ -322,6 +384,7 @@ define([], function() {
           // If dynamic, schedule validation is required
           if (self.isDynamic) {
             if (self.view.schedule && Object.keys(self.view.schedule).length !== 0) {
+              self.view.schedule_type = self.view.schedule.scheduleType;
               /**
                * @todo Implement Angular ScheduleService to handle it, since is common on dynamic data series and analysis registration.
                */
@@ -350,6 +413,9 @@ define([], function() {
                   break;
 
                 default:
+                  if (scheduleValues.scheduleType == "4"){
+                    scheduleValues.data_ids = [self.view.data_series_id];
+                  }
                   break;
               }
             }

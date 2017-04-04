@@ -42,12 +42,16 @@
     <div class="col-md-7">
       <div class="form-group" terrama2-show-errors>
         <label>{{ i18n.__('Data Server') }}:</label>
-        <select class="form-control"
-                name="data_provider_id"
-                ng-disabled="!isUpdating && !semanticsSelected"
-                ng-model="dataSeries.data_provider_id" required>
-          <option ng-repeat="provider in dataProviders track by $index" value="{{ provider.id }}">{{ provider.name }}</option>
-        </select>
+        <ui-select name="data_provider_id" ng-model="dataSeries.data_provider_id" ng-disabled="!isUpdating && !semanticsSelected" required>
+          <ui-select-match>
+            <img ng-src="{{getImageUrl($select.selected)}}" style="width: 20px; margin-top: -13px"/>
+            <span ng-bind="$select.selected.name"></span>
+          </ui-select-match>
+          <ui-select-choices repeat="provider.id as provider in (dataProviders | filter: {'name': $select.search}) track by $index">
+            <img ng-src="{{getImageUrl(provider)}}" style="width: 20px;"/>
+            <span ng-bind="provider.name"></span>
+          </ui-select-choices>
+        </ui-select>
 
         <label class="help-block text-danger" ng-show="forms.generalDataForm.data_provider_id.$dirty && forms.generalDataForm.data_provider_id.$error.required">{{ i18n.__("Data Server is required") }}</label>
       </div>

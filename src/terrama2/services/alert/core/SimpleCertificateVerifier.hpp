@@ -40,12 +40,10 @@
 class SimpleCertificateVerifier : public vmime::security::cert::defaultCertificateVerifier
 {
 public:
-
-  void verify(vmime::shared_ptr <vmime::security::cert::certificateChain> chain, const vmime::string& hostname);
+	void verify(vmime::shared_ptr <vmime::security::cert::certificateChain> chain, const vmime::string& hostname);
 
 private:
-
-  static std::vector <vmime::shared_ptr <vmime::security::cert::X509Certificate> > m_trustedCerts;
+	static std::vector <vmime::shared_ptr <vmime::security::cert::X509Certificate> > m_trustedCerts;
 };
 
 #endif //__TERRAMA2_SERVICES_ALERT_CORE_SIMPLE_CERTIFICATE_VERIFIER_HPP__

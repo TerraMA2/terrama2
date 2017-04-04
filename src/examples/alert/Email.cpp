@@ -21,9 +21,9 @@ void vmimeTest()
 {
     vmime::messageBuilder mb;
     // Fill in the basic fields
-    mb.setExpeditor(vmime::mailbox("janosimas@gmail.com"));
+    mb.setExpeditor(vmime::mailbox("vmimeteste@gmail.com"));
     vmime::addressList to;
-    to.appendAddress(vmime::make_shared <vmime::mailbox>("janosimas@gmail.com"));
+    to.appendAddress(vmime::make_shared <vmime::mailbox>("vmimeteste@gmail.com"));
     mb.setRecipients(to);
     mb.setSubject(vmime::text("My first message generated with vmime::messageBuilder"));
     // Message body
@@ -44,8 +44,8 @@ void vmimeTest()
     vmime::utility::url url("smtp://smtp.gmail.com:587");
     vmime::shared_ptr<vmime::net::transport> tr = session->getTransport(url);
     tr->setProperty("connection.tls", true);
-    tr->setProperty("auth.username", "janosimas@gmail.com");
-    tr->setProperty("auth.password", "MinhaSenhaMuitoSegura!");
+    tr->setProperty("auth.username", "vmimeteste@gmail.com");
+    tr->setProperty("auth.password", "a1a2a3a4");
     tr->setProperty("options.need-authentication", true);
     tr->setCertificateVerifier(vmime::make_shared<SimpleCertificateVerifier>());
     tr->connect();

@@ -124,7 +124,12 @@ module.exports = {
      *
      * @type {number}
      */
-    VIEW: 3
+    VIEW: 3,
+    /**
+     * Defines Alert Service
+     * @type {number}
+     */
+    ALERT: 4
   },
 
   DataSeriesType: {
@@ -405,6 +410,7 @@ module.exports = {
   ScheduleType: {
     SCHEDULE: "1",
     REPROCESSING_HISTORICAL: "2",
-    MANUAL: "3"
+    MANUAL: "3",
+    CONDITIONAL: "4"
   }
 };

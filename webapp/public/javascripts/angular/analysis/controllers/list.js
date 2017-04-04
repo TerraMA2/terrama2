@@ -111,11 +111,11 @@ define([], function() {
     $scope.icon = function(object) {
       switch(object.type.id) {
         case globals.enums.AnalysisType.MONITORED:
-          return "/images/monitored-object.png";
+          return "/images/analysis/monitored-object/monitored-object_analysis.png";
         case globals.enums.AnalysisType.GRID:
-          return "/images/grid-small.png";
+          return "/images/analysis/grid/grid_analysis.png";
         default:
-          return "/images/map-pin.png";
+          return "/images/analysis/dcp/dcp_analysis.png";
       }
     };
 
