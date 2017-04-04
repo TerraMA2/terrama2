@@ -44,6 +44,14 @@ module.exports = function(sequelize, DataTypes) {
             }
           });
 
+          Alert.belongsTo(models.ConditionalSchedule, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: 'conditional_schedule_id',
+              allowNull: true
+            }
+          });
+
           Alert.hasOne(models.ReportMetadata, {
             onDelete: "CASCADE",
             foreignKey: {

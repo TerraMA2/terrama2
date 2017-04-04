@@ -8,7 +8,8 @@ module.exports = function(sequelize, DataTypes) {
         autoIncrement: true
       },
       referrer_attribute: DataTypes.STRING,
-      referred_attribute: DataTypes.STRING
+      referred_attribute: DataTypes.STRING,
+      data_attributes: DataTypes.TEXT
     },
     {
       underscored: true,
