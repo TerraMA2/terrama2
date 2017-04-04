@@ -42,6 +42,10 @@
         allowNull: false,
         default: true,
         comment: "It defines view can be used and retrieved. Default is true."
+      },
+      schedule_type: {
+        type: DataTypes.INTEGER,
+        allowNull: true
       }
     }, {
       underscored: true,
@@ -64,6 +68,15 @@
             onDelete: "CASCADE",
             foreignKey: {
               name: "schedule_id",
+              allowNull: true,
+              constraints: true
+            }
+          });
+
+          View.belongsTo(models.ConditionalSchedule, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: "conditional_schedule_id",
               allowNull: true,
               constraints: true
             }

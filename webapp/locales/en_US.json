@@ -673,6 +673,8 @@
 	"Point (Geometry)": "Point (Geometry)",
 	"Number": "Number",
 	"Text": "Text",
+	"Database": "Database",
+	"Conditional": "Conditional",
 	"Float": "Float",
 	"Integer": "Integer",
 	"Required": "Required",

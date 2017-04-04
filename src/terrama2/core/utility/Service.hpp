@@ -188,7 +188,7 @@ namespace terrama2
         size_t verifyNumberOfThreads(size_t numberOfThreads) const;
 
         //! Sends the process finished signal
-        void sendProcessFinishedSignal(const ProcessId processId, const bool success, QJsonObject jsonAnswer = QJsonObject());
+        void sendProcessFinishedSignal(const ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> executionDate, const bool success, QJsonObject jsonAnswer = QJsonObject());
 
         /*!
           \brief Verifies if there is job to be done in the waiting queue and add it to the processing queue.
