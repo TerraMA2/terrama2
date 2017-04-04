@@ -93,6 +93,22 @@ module.exports = function(sequelize, DataTypes) {
               allowNull: false
             }
           });
+
+          DataSeries.hasOne(models.AlertAdditionalData, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: "dataseries_id",
+              allowNull: false
+            }
+          });
+
+          DataSeries.hasOne(models.Alert, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: "data_series_id",
+              allowNull: false
+            }
+          });
         }
       }
     }
