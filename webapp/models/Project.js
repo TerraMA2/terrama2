@@ -48,7 +48,7 @@ module.exports = function(sequelize, DataTypes) {
             }
           });
 
-          Project.hasMany(models.Project, {
+          Project.hasMany(models.Alert, {
             onDelete: "CASCADE",
             foreignKey: {
               name: "project_id",
