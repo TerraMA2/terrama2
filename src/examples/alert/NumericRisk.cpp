@@ -121,30 +121,29 @@ terrama2::services::alert::core::AlertPtr newAlert()
 
   alert->id = 1;
   alert->projectId = 1;
+  alert->riskAttribute = "count";
+  alert->dataSeriesId = 1;
   alert->active = true;
   alert->name = "Example alert";
 
-  terrama2::core::DataSeriesRisk risk;
-  risk.id = 1;
-  risk.dataSeriesId = 1;
+  terrama2::core::Risk risk;
   risk.name = "Fire occurrence count";
-  risk.attribute = "count";
 
   terrama2::core::RiskLevel level1;
   level1.level = 0;
-  level1.lowerBound = 0;
+  level1.value = 0;
   level1.name = "low";
   risk.riskLevels.push_back(level1);
 
   terrama2::core::RiskLevel level2;
   level2.level = 1;
-  level2.lowerBound = 10;
+  level2.value = 10;
   level2.name = "medium";
   risk.riskLevels.push_back(level2);
 
   terrama2::core::RiskLevel level3;
   level3.level = 2;
-  level3.lowerBound = 15;
+  level3.value = 15;
   level3.name = "high";
   risk.riskLevels.push_back(level3);
 
@@ -220,7 +219,7 @@ int main(int argc, char* argv[])
     logger->setConnectionInfo(uri);
 
     std::map<std::string, std::string> serverMap;
-    serverMap.emplace("emailServer", "smtp://vmimeteste@gmail.com:a1a2a3a4@smtp.gmail.com:587");
+    serverMap.emplace("email_server", "smtp://vmimeteste@gmail.com:a1a2a3a4@smtp.gmail.com:587");
 
     terrama2::services::alert::core::runAlert(executionPackage, std::dynamic_pointer_cast<AlertLogger>(logger), dataManager, serverMap);
   }
