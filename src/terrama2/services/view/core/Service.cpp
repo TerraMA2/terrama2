@@ -197,7 +197,7 @@ void terrama2::services::view::core::Service::viewJob(const terrama2::core::Exec
   {
     TERRAMA2_LOG_ERROR() << QObject::tr("Unable to access DataManager");
     notifyWaitQueue(executionPackage.processId);
-    sendProcessFinishedSignal(executionPackage.processId, false);
+    sendProcessFinishedSignal(executionPackage.processId, executionPackage.executionDate, false);
     return;
   }
 
@@ -244,7 +244,7 @@ void terrama2::services::view::core::Service::viewJob(const terrama2::core::Exec
 
     logger->result(ViewLogger::DONE, terrama2::core::TimeUtils::nowUTC(), logId);
 
-    sendProcessFinishedSignal(viewId, true, jsonAnswer);
+    sendProcessFinishedSignal(viewId, executionPackage.executionDate, true, jsonAnswer);
     notifyWaitQueue(viewId);
 
     return;
@@ -295,7 +295,7 @@ void terrama2::services::view::core::Service::viewJob(const terrama2::core::Exec
   if(logId != 0)
     logger->result(ViewLogger::ERROR, terrama2::core::TimeUtils::nowUTC(), logId);
 
-  sendProcessFinishedSignal(viewId, false);
+  sendProcessFinishedSignal(viewId, executionPackage.executionDate, false);
   notifyWaitQueue(viewId);
 }
 

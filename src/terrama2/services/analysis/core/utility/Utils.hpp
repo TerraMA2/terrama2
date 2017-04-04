@@ -166,6 +166,9 @@ namespace terrama2
 
         /*!
           \brief Erase content from previous analysis execution
+
+          This method will erase from a postgres table the results with date: startTime
+          It is used for analysis that are run many time for the same date, reprocessing historical data, for example.
         */
         void erasePreviousResult(DataManagerPtr dataManager, DataSeriesId dataSeriesId, std::shared_ptr<te::dt::TimeInstantTZ> startTime);
 

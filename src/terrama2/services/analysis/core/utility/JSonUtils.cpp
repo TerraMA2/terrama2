@@ -64,7 +64,6 @@ terrama2::services::analysis::core::AnalysisPtr terrama2::services::analysis::co
        && json.contains("output_dataseries_id")
        && json.contains("metadata")
        && json.contains("analysis_dataseries_list")
-       && json.contains("schedule")
        && json.contains("service_instance_id")
        && json.contains("output_grid")))
   {
@@ -137,11 +136,14 @@ terrama2::services::analysis::core::AnalysisPtr terrama2::services::analysis::co
 
   }
 
-  analysis->schedule = terrama2::core::fromScheduleJson(json["schedule"].toObject());
   analysis->active = json["active"].toBool();
-
   analysis->outputGridPtr = fromAnalysisOutputGrid(json["output_grid"].toObject());
-  analysis->reprocessingHistoricalData = fromAnalysisReprocessingHistoricalData(json["reprocessing_historical_data"].toObject());
+
+  if(json.contains("schedule") && !json["schedule"].isNull())
+    analysis->schedule = terrama2::core::fromScheduleJson(json["schedule"].toObject());
+
+  if(json.contains("reprocessing_historical_data") && !json["reprocessing_historical_data"].isNull())
+    analysis->reprocessingHistoricalData = fromAnalysisReprocessingHistoricalData(json["reprocessing_historical_data"].toObject());
 
   return analysisPtr;
 }
@@ -196,7 +198,8 @@ QJsonObject terrama2::services::analysis::core::toJson(AnalysisPtr analysis)
   }
   obj.insert("analysis_dataseries_list", analysisDataSeriesList);
 
-  obj.insert("schedule", terrama2::core::toJson(analysis->schedule));
+
+  obj.insert("schedule", analysis->schedule.valid() ? terrama2::core::toJson(analysis->schedule) : QJsonObject());
   obj.insert("active", analysis->active);
   obj.insert("output_grid", toJson(analysis->outputGridPtr));
   obj.insert("reprocessing_historical_data", toJson(analysis->reprocessingHistoricalData));

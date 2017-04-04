@@ -275,10 +275,11 @@ terrama2::core::TimerPtr terrama2::core::Service::createTimer(const Schedule& sc
   return timer;
 }
 
-void terrama2::core::Service::sendProcessFinishedSignal(const ProcessId processId, const bool success, QJsonObject jsonAnswer)
+void terrama2::core::Service::sendProcessFinishedSignal(const ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> executionDate, const bool success, QJsonObject jsonAnswer)
 {
   jsonAnswer.insert("process_id", static_cast<int>(processId));
   jsonAnswer.insert("result", success);
+  jsonAnswer.insert("execution_date", QString::fromStdString(executionDate->toString()));
 
   emit processFinishedSignal(jsonAnswer);
 }

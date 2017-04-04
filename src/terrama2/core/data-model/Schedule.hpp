@@ -101,6 +101,7 @@ namespace terrama2
       uint32_t scheduleTimeout = 0; //!< The time limit to retry. Ex: Stop retrys after 1 hour.
       std::string scheduleTimeoutUnit; //!< Unit of the schedule timeout. (years, months, days, minutes, hours or seconds)
 
+      inline bool valid() const { return id; } 
       inline bool operator==(const Schedule& rhs) { return id == rhs.id; }
     };
   } // end namespace core
