@@ -11,6 +11,9 @@ module.exports = function(sequelize, DataTypes) {
         type: DataTypes.STRING,
         unique: true
       },
+      timeout: {
+        type: DataTypes.INTEGER
+      },
       description: DataTypes.TEXT,
       active: {
         type: DataTypes.BOOLEAN,

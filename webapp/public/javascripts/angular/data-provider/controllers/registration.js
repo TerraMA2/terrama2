@@ -71,6 +71,7 @@ define(function() {
     $scope.remoteFieldsRequired = false;
     $scope.dataProvider = {
       name: conf.dataProvider.name,
+      timeout: (isNaN(conf.dataProvider.timeout) ? 8 : conf.dataProvider.timeout),
       description: conf.dataProvider.description,
       project: conf.project,
       active: conf.dataProvider.active,
@@ -195,68 +196,72 @@ define(function() {
     };
 
     $scope.checkConnection = function(form) {
-      $scope.model = $scope.model;
-      $scope.$broadcast("schemaFormValidate");
+      if($scope.dataProvider.timeout !== undefined && $scope.dataProvider.timeout !== null && $scope.dataProvider.timeout != "") {
+        $scope.model = $scope.model;
+        $scope.$broadcast("schemaFormValidate");
 
-      if (!$scope.isValidDataProviderTypeForm(form)) {
-        return;
-      }
-
-      $scope.isChecking = true; // for handling loading page
-
-      // Timeout in seconds for handling connections
-      $scope.timeOutSeconds = 8;
-
-      // Function for requests success, error and timeout
-      var makeRequest = function() {
-        var timeOut = $q.defer();
-        var result = $q.defer();
-        var expired = false;
-        setTimeout(function() {
-          expired = true;
-          timeOut.resolve();
-        }, 1000 * $scope.timeOutSeconds);
-
-        var params = $scope.model;
-        params.protocol = $scope.dataProvider.protocol;
-
-        var httpRequest = $http({
-          method: "POST",
-          url: "/uri/",
-          data: params,
-          timeout: timeOut.promise
-        });
-
-        httpRequest.then(function(response) {
-          result.resolve(response.data);
-        });
-
-        httpRequest.catch(function(response) {
-          if (expired) {
-            result.reject({message: i18n.__("Timeout: Request took longer than ") + $scope.timeOutSeconds + i18n.__(" seconds.")});
-          } else {
-            result.reject(response.data);
-          }
-        });
-
-        return result.promise;
-      };
-
-      var request = makeRequest();
-
-      var connectionTitle = i18n.__("Connection Status");
-
-      request.then(function(data) {
-        if (data.message){ // error found
-          MessageBoxService.danger(connectionTitle, data.message);
-        } else {
-          MessageBoxService.success(connectionTitle, i18n.__("Connection Successful"));
+        if (!$scope.isValidDataProviderTypeForm(form)) {
+          return;
         }
-      }).catch(function(err) {
-        MessageBoxService.danger(connectionTitle, err.message);
-      }).finally(function() {
-        $scope.isChecking = false;
-      });
+
+        $scope.isChecking = true; // for handling loading page
+
+        // Timeout in seconds for handling connections
+        $scope.timeOutSeconds = $scope.dataProvider.timeout;
+
+        // Function for requests success, error and timeout
+        var makeRequest = function() {
+          var timeOut = $q.defer();
+          var result = $q.defer();
+          var expired = false;
+          setTimeout(function() {
+            expired = true;
+            timeOut.resolve();
+          }, 1000 * $scope.timeOutSeconds);
+
+          var params = $scope.model;
+          params.protocol = $scope.dataProvider.protocol;
+
+          var httpRequest = $http({
+            method: "POST",
+            url: "/uri/",
+            data: params,
+            timeout: timeOut.promise
+          });
+
+          httpRequest.then(function(response) {
+            result.resolve(response.data);
+          });
+
+          httpRequest.catch(function(response) {
+            if (expired) {
+              result.reject({message: i18n.__("Timeout: Request took longer than ") + $scope.timeOutSeconds + i18n.__(" seconds.")});
+            } else {
+              result.reject(response.data);
+            }
+          });
+
+          return result.promise;
+        };
+
+        var request = makeRequest();
+
+        var connectionTitle = i18n.__("Connection Status");
+
+        request.then(function(data) {
+          if (data.message){ // error found
+            MessageBoxService.danger(connectionTitle, data.message);
+          } else {
+            MessageBoxService.success(connectionTitle, i18n.__("Connection Successful"));
+          }
+        }).catch(function(err) {
+          MessageBoxService.danger(connectionTitle, err.message);
+        }).finally(function() {
+          $scope.isChecking = false;
+        });
+      } else {
+        MessageBoxService.danger(i18n.__("Connection Status"), i18n.__("Invalid timeout value"));
+      }
     };
   }
 

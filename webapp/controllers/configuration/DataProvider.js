@@ -43,6 +43,7 @@ module.exports = function(app) {
             name: dataProvider.name,
             description: dataProvider.description,
             active: dataProvider.active,
+            timeout: dataProvider.timeout,
             data_provider_type_name: dataProvider.data_provider_type.name,
             uriObject: requester.params
           },

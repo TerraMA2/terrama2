@@ -34,6 +34,7 @@ module.exports = function(app) {
             return DataManager.getDataProviderType({name: uriObject[requester.syntax().SCHEME]}).then(function(typeResult) {
               var dataProviderObject = {
                 name: dataProviderReceived.name,
+                timeout: dataProviderReceived.timeout,
                 uri: requester.uri,
                 description: dataProviderReceived.description,
                 data_provider_intent_id: intentResult.id,
@@ -107,6 +108,7 @@ module.exports = function(app) {
       var toUpdate = {
         name: request.body.name,
         active: request.body.active,
+        timeout: request.body.timeout,
         description: request.body.description,
         uri: requester.uri
       };
