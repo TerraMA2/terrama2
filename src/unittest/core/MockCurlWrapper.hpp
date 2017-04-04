@@ -40,7 +40,7 @@ public:
 
   MockCurlWrapper() {};
 
-  MOCK_METHOD1(verifyURL,CURLcode(std::string url));
+  MOCK_METHOD2(verifyURL,CURLcode(std::string url, uint32_t timeout));
 
   MOCK_METHOD3(getListFiles, std::vector<std::string>(std::string url,
                              size_t(*write_vector)(void *ptr, size_t size, size_t nmemb, void *data),
