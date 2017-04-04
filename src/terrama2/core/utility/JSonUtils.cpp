@@ -63,6 +63,7 @@ terrama2::core::DataProviderPtr terrama2::core::fromDataProviderJson(QJsonObject
        && json.contains("intent")
        && json.contains("uri")
        && json.contains("active")
+       && json.contains("timeout")
        && json.contains("data_provider_type")))
   {
     QString errMsg = QObject::tr("Invalid DataProvider JSON object.");
@@ -80,6 +81,7 @@ terrama2::core::DataProviderPtr terrama2::core::fromDataProviderJson(QJsonObject
   provider->intent = static_cast<terrama2::core::DataProviderIntent>(json["intent"].toInt());
   provider->uri = json["uri"].toString().toStdString();
   provider->active = json["active"].toBool();
+  provider->timeout = static_cast<uint32_t>(json["timeout"].toInt());
   provider->dataProviderType = json["data_provider_type"].toString().toStdString();
 
   return providerPtr;
@@ -476,6 +478,7 @@ QJsonObject terrama2::core::toJson(DataProviderPtr dataProviderPtr)
   obj.insert("intent", static_cast<int>(dataProviderPtr->intent));
   obj.insert("uri", QString::fromStdString(dataProviderPtr->uri));
   obj.insert("active", dataProviderPtr->active);
+  obj.insert("timeout", static_cast<int>(dataProviderPtr->timeout));
   obj.insert("data_provider_type", QString::fromStdString(dataProviderPtr->dataProviderType));
 
   return obj;

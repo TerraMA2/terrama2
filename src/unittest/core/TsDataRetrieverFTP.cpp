@@ -85,7 +85,7 @@ void TsDataRetrieverFTP::TestFailUriInvalid()
 
     MockCurlWrapper mock_;
 
-    ON_CALL(mock_, verifyURL(_)).WillByDefault(Return(CURLE_COULDNT_RESOLVE_HOST));
+    ON_CALL(mock_, verifyURL(_,_)).WillByDefault(Return(CURLE_COULDNT_RESOLVE_HOST));
 
     try
     {
@@ -142,7 +142,7 @@ void TsDataRetrieverFTP::TestFailLoginInvalid()
 
     MockCurlWrapper mock_;
 
-    ON_CALL(mock_, verifyURL(_)).WillByDefault(Return(CURLE_LOGIN_DENIED));
+    ON_CALL(mock_, verifyURL(_,_)).WillByDefault(Return(CURLE_LOGIN_DENIED));
 
     try
     {
@@ -199,7 +199,7 @@ void TsDataRetrieverFTP::TestOkUriAndLoginValid()
 
     MockCurlWrapper mock_;
 
-    ON_CALL(mock_, verifyURL(_)).WillByDefault(Return(CURLE_OK));
+    ON_CALL(mock_, verifyURL(_,_)).WillByDefault(Return(CURLE_OK));
 
     try
     {
@@ -259,7 +259,7 @@ void TsDataRetrieverFTP::TestFailVectorFileEmpty()
 
     MockCurlWrapper mock_;
 
-    ON_CALL(mock_, verifyURL(_)).WillByDefault(Return(CURLE_OK));
+    ON_CALL(mock_, verifyURL(_,_)).WillByDefault(Return(CURLE_OK));
     ON_CALL(mock_, getListFiles(_,_,_)).WillByDefault(Return(vectorFiles));
 
     try
@@ -323,7 +323,7 @@ void TsDataRetrieverFTP::TestOKVectorWithFiles()
 
     MockCurlWrapper mock_;
 
-    ON_CALL(mock_, verifyURL(_)).WillByDefault(Return(CURLE_OK));
+    ON_CALL(mock_, verifyURL(_,_)).WillByDefault(Return(CURLE_OK));
     ON_CALL(mock_, getListFiles(_,_,_)).WillByDefault(Return(vectorFiles));
 
     try
@@ -384,7 +384,7 @@ void TsDataRetrieverFTP::TestFailDownloadFile()
 
     MockCurlWrapper mock_;
 
-    ON_CALL(mock_, verifyURL(_)).WillByDefault(Return(CURLE_OK));
+    ON_CALL(mock_, verifyURL(_,_)).WillByDefault(Return(CURLE_OK));
     ON_CALL(mock_, getDownloadFiles(_,_,_)).WillByDefault(Return(CURLE_COULDNT_RESOLVE_HOST));
 
     try
@@ -444,7 +444,7 @@ void TsDataRetrieverFTP::TestOKDownloadFile()
 
     MockCurlWrapper mock_;
 
-    ON_CALL(mock_, verifyURL(_)).WillByDefault(Return(CURLE_OK));
+    ON_CALL(mock_, verifyURL(_,_)).WillByDefault(Return(CURLE_OK));
     ON_CALL(mock_, getDownloadFiles(_,_,_)).WillByDefault(Return(CURLE_OK));
 
     try
