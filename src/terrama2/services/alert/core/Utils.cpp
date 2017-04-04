@@ -35,10 +35,10 @@
 std::string terrama2::services::alert::core::validPropertyDateName(const std::shared_ptr<te::dt::DateTime> dt)
 {
   std::stringstream ss;
-  boost::local_time::local_time_facet* oFacet(new boost::local_time::local_time_facet("%Y%m%d %H%M%S %z"));
+  boost::local_time::local_time_facet* oFacet(new boost::local_time::local_time_facet("%d/%m/%Y %H:%M"));
   ss.imbue(std::locale(ss.getloc(), oFacet));
   auto dateTimeTZ = std::dynamic_pointer_cast<te::dt::TimeInstantTZ>(dt);
   ss << dateTimeTZ->getTimeInstantTZ();
 
-  return terrama2::core::createValidPropertyName(ss.str());
+  return ss.str();
 }
