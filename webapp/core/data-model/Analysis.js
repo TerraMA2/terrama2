@@ -3,6 +3,7 @@
 // dependencies
 var BaseClass = require("./AbstractData");
 var Schedule = require("./Schedule");
+var ConditionalSchedule = require("./ConditionalSchedule");
 var AnalysisOutputGrid = require("./AnalysisOutputGrid");
 var AnalysisDataSeries = require("./AnalysisDataSeries");
 var ReprocessingHistoricalData = require("./ReprocessingHistoricalData");
@@ -12,7 +13,7 @@ var isObject = Utils.isObject;
 
 /**
  * Analysis model representation
- * 
+ *
  * @param {Analysis | Object} params - A javascript object with values to build an analysis
  */
 var Analysis = module.exports = function(params) {
@@ -37,7 +38,7 @@ var Analysis = module.exports = function(params) {
     /**
      * @name Analysis#script_language
      * @type {Object}
-     */    
+     */
     this.script_language = params.ScriptLanguage.get();
   } else {
     /**
@@ -85,7 +86,15 @@ var Analysis = module.exports = function(params) {
    */
   this.analysis_dataseries_list = [];
 
-  this.schedule = new Schedule(params.Schedule? params.Schedule.get() : params.schedule || {});
+  this.scheduleType = params.schedule_type;
+
+  if (params.Schedule || params.schedule){
+    this.schedule = new Schedule(params.Schedule ? params.Schedule.get() : params.schedule);
+  } else {
+    this.schedule = {};
+  }
+
+  this.conditionalSchedule = new ConditionalSchedule(params.ConditionalSchedule ? params.ConditionalSchedule.get() : params.conditionalSchedule || {});
 
   /**
    * @name Analysis#instance_id
@@ -120,7 +129,7 @@ Analysis.prototype.constructor = Analysis;
 
 /**
  * It appends a analysis data series to the list
- * 
+ *
  * @param {AnalysisDataSeries} analysisDataSeries - An analysis data series object
  */
 Analysis.prototype.addAnalysisDataSeries = function(analysisDataSeries) {
@@ -147,7 +156,7 @@ Analysis.prototype.setAnalysisOutputGrid = function(outputGrid) {
 
 /**
  * It creates and sets a ReprocessingHistoricalData to historicalData
- * 
+ *
  * @param {Object | ReprocessingHistoricalData}
  */
 Analysis.prototype.setHistoricalData = function(historicalData) {
@@ -179,6 +188,14 @@ Analysis.prototype.setSchedule = function(schedule) {
     this.schedule = new Schedule(schedule.Schedule.get() || {});
   } else {
     this.schedule = schedule || {};
+  }
+};
+
+Analysis.prototype.setConditionalSchedule = function(conditionalSchedule) {
+  if (conditionalSchedule.ConditionalSchedule) {
+    this.conditionalSchedule = new ConditionalSchedule(conditionalSchedule.ConditionalSchedule.get() || {});
+  } else {
+    this.conditionalSchedule = conditionalSchedule || {};
   }
 };
 
@@ -230,9 +247,11 @@ Analysis.prototype.toObject = function() {
     metadata: this.metadata,
     'analysis_dataseries_list': outputDataSeriesList,
     schedule: this.schedule instanceof BaseClass ? this.schedule.toObject() : this.schedule,
+    conditional_schedule: this.conditionalSchedule instanceof BaseClass ? this.conditionalSchedule.toObject() : this.conditionalSchedule,
     service_instance_id: this.instance_id,
     output_grid: this.outputGrid instanceof BaseClass ? this.outputGrid.toObject() : this.outputGrid,
-    reprocessing_historical_data: Utils.isEmpty(historicalData) ? null : historicalData
+    reprocessing_historical_data: Utils.isEmpty(historicalData) ? null : historicalData,
+    schedule_type: this.scheduleType
   });
 };
 
@@ -250,10 +269,12 @@ Analysis.prototype.rawObject = function() {
   var historicalData = this.historicalData instanceof BaseClass ? this.historicalData.rawObject() : this.historicalData;
 
   obj.reprocessing_historical_data = historicalData;
+  obj.conditional_schedule = this.conditionalSchedule instanceof BaseClass ? this.conditionalSchedule.rawObject() : this.conditionalSchedule;
   obj.schedule = this.schedule instanceof BaseClass ? this.schedule.rawObject() : this.schedule;
   obj.dataSeries = this.dataSeries instanceof BaseClass ? this.dataSeries.rawObject() : this.dataSeries;
   obj.analysis_dataseries_list = outputDataSeriesList;
   obj.output_grid = this.outputGrid instanceof BaseClass ? this.outputGrid.rawObject() : this.outputGrid;
   obj.type = this.type;
+  obj.schedule_type = this.scheduleType;
   return obj;
 };

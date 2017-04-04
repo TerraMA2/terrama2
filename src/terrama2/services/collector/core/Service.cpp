@@ -128,7 +128,7 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
   {
     TERRAMA2_LOG_ERROR() << tr("Unable to access DataManager");
     notifyWaitQueue(executionPackage.processId);
-    sendProcessFinishedSignal(executionPackage.processId, false);
+    sendProcessFinishedSignal(executionPackage.processId, executionPackage.executionDate, false);
     return;
   }
 
@@ -184,7 +184,7 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
       TERRAMA2_LOG_WARNING() << errMsg;
 
       notifyWaitQueue(executionPackage.processId);
-      sendProcessFinishedSignal(executionPackage.processId, false);
+      sendProcessFinishedSignal(executionPackage.processId, executionPackage.executionDate, false);
       return;
     }
     auto lastDateTime = dataAccessor->lastDateTime();
@@ -215,8 +215,7 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
 
     logger->result(CollectorLogger::DONE, lastDateTime, executionPackage.registerId);
 
-
-    sendProcessFinishedSignal(executionPackage.processId, true);
+    sendProcessFinishedSignal(executionPackage.processId, executionPackage.executionDate, true);
     notifyWaitQueue(executionPackage.processId);
     return;
 
@@ -240,7 +239,7 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
       logger->result(CollectorLogger::DONE, nullptr, executionPackage.registerId);
     }
 
-    sendProcessFinishedSignal(executionPackage.processId, true);
+    sendProcessFinishedSignal(executionPackage.processId, executionPackage.executionDate, true);
     notifyWaitQueue(executionPackage.processId);
     return;
   }
@@ -292,7 +291,7 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
 
   }
 
-  sendProcessFinishedSignal(executionPackage.processId, false);
+  sendProcessFinishedSignal(executionPackage.processId, executionPackage.executionDate, false);
   notifyWaitQueue(executionPackage.processId);
 }
 

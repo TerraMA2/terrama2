@@ -10,6 +10,7 @@ var DataManager = require("./../DataManager");
 var PromiseClass = require("./../Promise");
 var AnalysisError = require("./../Exceptions").AnalysisError;
 var Utils = require("./../Utils");
+var ScheduleType = require("./../Enums").ScheduleType;
 var TcpService = require("../../core/facade/tcp-manager/TcpService");
 // TerraMA² Analysis Simulator that generates a dummy analysis
 var AnalysisBuilder = require("./builder/AnalysisBuilder");
@@ -66,10 +67,20 @@ Analysis.save = function(analysisObject, storager, scheduleObject, projectId, sh
             return DataManager.addSchedule(scheduleObject, options).then(function(scheduleResult) {
               // adding analysis
               analysisObject.dataset_output = dataSeriesResult.dataSets[0].id;
-              analysisObject.schedule_id = scheduleResult.id;
+              if (scheduleObject.scheduleType == ScheduleType.CONDITIONAL){
+                analysisObject.conditional_schedule_id = scheduleResult.id
+              } else if (scheduleObject.scheduleType == ScheduleType.SCHEDULE || scheduleObject.scheduleType == ScheduleType.REPROCESSING_HISTORICAL){
+                analysisObject.schedule_id = scheduleResult.id;
+              }
 
               return DataManager.addAnalysis(analysisObject, options).then(function(analysisResult) {
-                analysisResult.setSchedule(scheduleResult);
+
+                if (scheduleObject.scheduleType == ScheduleType.CONDITIONAL){
+                  analysisResult.setConditionalSchedule(scheduleResult);
+                } else if (scheduleObject.scheduleType == ScheduleType.SCHEDULE || scheduleObject.scheduleType == ScheduleType.REPROCESSING_HISTORICAL){
+                  analysisResult.setSchedule(scheduleResult);
+                }
+                
                 analysisResult.setDataSeries(dataSeriesResult);
 
                 // async call. We should not wait for execution

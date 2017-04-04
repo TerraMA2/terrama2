@@ -410,6 +410,7 @@ module.exports = {
   ScheduleType: {
     SCHEDULE: "1",
     REPROCESSING_HISTORICAL: "2",
-    MANUAL: "3"
+    MANUAL: "3",
+    CONDITIONAL: "4"
   }
 };
