@@ -20,15 +20,15 @@
 */
 
 /*!
-  \file terrama2/core/data-model/DataSeriesRisk.hpp
+  \file terrama2/core/data-model/Risk.hpp
 
-  \brief Models the information of a DataSeriesRisk.
+  \brief Models the information of a Risk.
 
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_RISK_HPP__
-#define __TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_RISK_HPP__
+#ifndef __TERRAMA2_CORE_DATA_MODEL_RISK_HPP__
+#define __TERRAMA2_CORE_DATA_MODEL_RISK_HPP__
 
 #include "DataSet.hpp"
 #include "../Shared.hpp"
@@ -43,37 +43,22 @@ namespace terrama2
     struct RiskLevel
     {
       std::string name;
-      uint32_t level = 0; //!< Level of the risk, should be unique in a DataSeriesRisk.
-      double lowerBound = 0; //!< Lower bound for real values, inclusive.
-      std::string textValue; //!< Text value for this RiskLevel.
+      uint32_t level = 0; //!< Level of the risk, should be unique in a Risk.
+      double value = 0; //!< Numeric value for the risk level..
 
       //! Minor operator for sorting.
       bool operator<(const RiskLevel& rhs) const { return level < rhs.level; }
     };
 
-    enum class RiskType
-    {
-      NUMERIC = 1,
-      TEXT = 2
-    };
-
     /*!
       \brief Risk information of an alert
     */
-    struct DataSeriesRisk
+    struct Risk
     {
-      DataSeriesRiskId id = 0; //!< The identifier of the DataSeriesRisk.
-      DataSeriesId dataSeriesId = 0; //!< The DataSeries that will be used for risk analysis.
-      std::string name; //!< Name of the DataSeriesRisk.
-      std::string description; //!< Short description of the purpose of the DataSeriesRisk.
-      RiskType riskType = RiskType::NUMERIC; //!< Risk type.
-      std::string attribute;//!< Attribute of the DataSeries that will be used for risk analysis.
-      std::vector<RiskLevel> riskLevels;//!< List of risk levels of the DataSeriesRisk.
+      std::string name; //!< Name of the Risk.
+      std::string description; //!< Short description of the purpose of the Risk.
+      std::vector<RiskLevel> riskLevels;//!< List of risk levels of the Risk.
 
-      /*!
-        \brief Compute risk level for the value
-      */
-      std::tuple<int, std::string>  riskLevel(const std::string& value) const;
       /*!
         \brief Compute risk level for the value
       */
@@ -90,4 +75,4 @@ namespace terrama2
   } // end namespace core
 } // end namespace terrama2
 
-#endif // __TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_RISK_HPP__
+#endif // __TERRAMA2_CORE_DATA_MODEL_RISK_HPP__

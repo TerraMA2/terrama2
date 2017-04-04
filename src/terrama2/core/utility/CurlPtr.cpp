@@ -82,13 +82,14 @@ CURL* terrama2::core::CurlPtr::fcurl() const
   return curl_;
 }
 
-CURLcode terrama2::core::CurlPtr::verifyURL(std::string url)
+CURLcode terrama2::core::CurlPtr::verifyURL(std::string url, uint32_t timeout)
 {
   curl_easy_setopt(curl_, CURLOPT_URL, url.c_str());
   curl_easy_setopt(curl_, CURLOPT_FTPLISTONLY, 1);
   curl_easy_setopt(curl_, CURLOPT_CONNECTTIMEOUT, 3);
   curl_easy_setopt(curl_, CURLOPT_NOBODY, 1);
 
+  curl_easy_setopt(curl_, CURLOPT_TIMEOUT, timeout);
   return curl_easy_perform(curl_);
 }
 

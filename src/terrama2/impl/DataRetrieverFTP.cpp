@@ -67,7 +67,7 @@ terrama2::core::DataRetrieverFTP::DataRetrieverFTP(DataProviderPtr dataprovider,
   // Verifies that the FTP address is valid
   try
   {
-    CURLcode status = curlwrapper_.verifyURL(dataprovider->uri);
+    CURLcode status = curlwrapper_.verifyURL(dataprovider->uri, dataProvider_->timeout);
 
     if(status != CURLE_OK)
     {
@@ -154,8 +154,7 @@ std::vector<std::string> terrama2::core::DataRetrieverFTP::checkSubfolders(const
   {
     curlwrapper_.init();
 
-    std::vector<std::string> dirList = curlwrapper_.getFtpListDir(uri,
-                                                                  &terrama2::core::DataRetrieverFTP::write_vector);
+    std::vector<std::string> dirList = curlwrapper_.getFtpListDir(uri, &terrama2::core::DataRetrieverFTP::write_vector);
 
     if(dirList.empty())
     {
