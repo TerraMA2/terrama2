@@ -37,7 +37,7 @@
 
 // TerraMA2
 #include "../core/utility/Raii.hpp"
-#include "../core/utility/CurlPtr.hpp"
+#include "../core/utility/CurlWrapperFtp.hpp"
 #include "../core/data-access/DataRetriever.hpp"
 #include "../core/Shared.hpp"
 
@@ -71,7 +71,7 @@ namespace terrama2
          * \exception DataRetrieverException when FTP address is invalid.
          * \exception DataRetreiverFTPException when unknown Error, FTP address is invalid.
         */
-        explicit DataRetrieverFTP(DataProviderPtr dataprovider, CurlPtr&& curlwrapper);
+        explicit DataRetrieverFTP(DataProviderPtr dataprovider, CurlWrapperFtp&& curlwrapper);
 
         /*!
          * \brief DataRetrieverFTP Default Destructor.
@@ -140,7 +140,7 @@ namespace terrama2
         static DataRetrieverType dataRetrieverType() { return "FTP"; }
 
       private:
-        CurlPtr curlwrapper_; //!< Attribute for Handler CurlPtr.
+        CurlWrapperFtp curlwrapper_; //!< Curl handler.
     };
 
     typedef std::shared_ptr<DataRetriever> DataRetrieverPtr;//!< Shared pointer to a DataRetriever.

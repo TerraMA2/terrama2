@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
   {
     //DataProvider information
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
-    terrama2::core::CurlPtr curlwrapper;
+    terrama2::core::CurlWrapperFtp curlwrapper;
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
     dataProvider->uri = url.url().toStdString();
     dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
@@ -64,13 +64,13 @@ int main(int argc, char* argv[])
   curl_global_cleanup();
 
   QUrl uriLocal(path.c_str());
-  path = uriLocal.path().toStdString() + mask;
+  path = uriLocal.path().toStdString() +"/"+ mask;
   QFile file(path.c_str());
   // Check if the file exists before deleting the folder.
   if (file.exists())
     qDebug() << "Successfully Test!";
   else
     qDebug() << "Test failed!";
-    
+
   return 0;
 }

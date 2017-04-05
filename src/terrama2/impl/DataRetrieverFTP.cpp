@@ -44,6 +44,7 @@
 
 // TerraLib
 #include <terralib/core/uri/URI.h>
+#include <terralib/core/Exception.h>
 
 // Libcurl
 #include <curl/curl.h>
@@ -58,27 +59,16 @@
 #include <QDebug>
 #include <QUrl>
 
-terrama2::core::DataRetrieverFTP::DataRetrieverFTP(DataProviderPtr dataprovider, CurlPtr&& curlwrapper)
+terrama2::core::DataRetrieverFTP::DataRetrieverFTP(DataProviderPtr dataprovider, CurlWrapperFtp&& curlwrapper)
   : DataRetriever(dataprovider),
     curlwrapper_(std::move(curlwrapper))
 {
-  curlwrapper_.init();
-
   // Verifies that the FTP address is valid
   try
   {
-    CURLcode status = curlwrapper_.verifyURL(dataprovider->uri, dataProvider_->timeout);
-
-    if(status != CURLE_OK)
-    {
-      QString errMsg = QObject::tr("FTP address is invalid. \n\n");
-      errMsg.append(curl_easy_strerror(status));
-
-      TERRAMA2_LOG_ERROR() << errMsg;
-      throw DataRetrieverException() << ErrorDescription(errMsg);
-    }
+    curlwrapper_.verifyURL(dataprovider->uri, dataProvider_->timeout);
   }
-  catch(const std::exception& e)
+  catch(const te::Exception& e)
   {
     QString errMsg = QObject::tr("FTP address is invalid! \n\n Details: \n");
     errMsg.append(e.what());
@@ -152,9 +142,7 @@ std::vector<std::string> terrama2::core::DataRetrieverFTP::checkSubfolders(const
 
   for(const auto& uri : baseURIs)
   {
-    curlwrapper_.init();
-
-    std::vector<std::string> dirList = curlwrapper_.getFtpListDir(uri, &terrama2::core::DataRetrieverFTP::write_vector);
+    std::vector<std::string> dirList = curlwrapper_.listFiles(te::core::URI(uri));
 
     if(dirList.empty())
     {
@@ -200,15 +188,6 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
     downloadBaseFolderUri = scheme + downloadBaseDir.string();
   }
 
-  curlwrapper_.init();
-
-  if(!curlwrapper_.fcurl())
-  {
-    QString errMsg = QObject::tr("Error retrieving data via FTP.\n");
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw DataRetrieverException() << ErrorDescription(errMsg);
-  }
-
   try
   {
     // find valid directories
@@ -232,16 +211,7 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
     // Get a file listing from server
     for(const auto& uri : baseUriList)
     {
-      curlwrapper_.init();
-
-      if(!curlwrapper_.fcurl())
-      {
-        QString errMsg = QObject::tr("Error retrieving data via FTP.\n");
-        TERRAMA2_LOG_ERROR() << errMsg;
-        throw DataRetrieverException() << ErrorDescription(errMsg);
-      }
-
-      std::vector<std::string> vectorFiles = curlwrapper_.getFtpListFiles(uri, &terrama2::core::DataRetrieverFTP::write_vector);
+      std::vector<std::string> vectorFiles = curlwrapper_.listFiles(te::core::URI(uri));
 
       std::vector<std::string> vectorNames;
       // filter file names that should be downloaded.
@@ -271,30 +241,23 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
       // Performs the download of files in the vectorNames
       for(const auto& file: vectorNames)
       {
-        curlwrapper_.init();
-
-        if(!curlwrapper_.fcurl())
-        {
-          QString errMsg = QObject::tr("Error retrieving data via FTP.\n");
-          TERRAMA2_LOG_ERROR() << errMsg;
-          throw DataRetrieverException() << ErrorDescription(errMsg);
-        }
-
         std::string uriOrigin = uri + "/" + file;
-
         std::string filePath = savePath.toStdString() + "/" + file;
 
-        CURLcode res = curlwrapper_.getDownloadFiles(uriOrigin, &terrama2::core::DataRetrieverFTP::write_response, filePath);
-        remover->addTemporaryFile(filePath);
-
-        if(res != CURLE_OK)
+        try
+        {
+          curlwrapper_.downloadFile(uriOrigin, filePath);
+        }
+        catch(const te::Exception& e)
         {
           QString errMsg = QObject::tr("Error during download of file %1.\n").arg(QString::fromStdString(file));
-          errMsg.append(curl_easy_strerror(res));
+          errMsg.append(e.what());
 
           TERRAMA2_LOG_ERROR() << errMsg;
           throw DataRetrieverException() << ErrorDescription(errMsg);
         }
+
+        remover->addTemporaryFile(filePath);
       }
     }
   }
@@ -325,6 +288,6 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
 
 terrama2::core::DataRetrieverPtr terrama2::core::DataRetrieverFTP::make(DataProviderPtr dataProvider)
 {
-  CurlPtr curlwrapper;
+  CurlWrapperFtp curlwrapper;
   return std::make_shared<DataRetrieverFTP>(dataProvider, std::move(curlwrapper));
 }

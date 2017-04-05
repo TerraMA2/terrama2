@@ -53,6 +53,7 @@ qt5_use_modules(terrama2_core Core Sql Network)
 target_link_libraries(terrama2_core terralib_mod_memory
                                         terralib_mod_dataaccess
                                         terralib_mod_common
+                                        terralib_mod_ws_core
                                         ${Boost_FILESYSTEM_LIBRARY}
                                         ${Boost_SYSTEM_LIBRARY}
                                         ${Boost_LOG_LIBRARY}
