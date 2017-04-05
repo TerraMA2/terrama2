@@ -18,6 +18,7 @@ var DataProvider = function(params) {
     this.data_provider_type = {};
 
   this.name = params.name;
+  this.timeout = params.timeout;
   this.active = params.active;
   this.uri = params.uri;
 };
@@ -32,6 +33,7 @@ DataProvider.prototype.toObject = function() {
     data_provider_type: this.data_provider_type.name,
     intent: this.data_provider_intent_id,
     name: this.name,
+    timeout: this.timeout,
     description: this.description,
     //uri: decodeURIComponent(this.uri),
     uri: this.uri,
@@ -46,6 +48,7 @@ DataProvider.prototype.rawObject = function() {
     data_provider_type: this.data_provider_type,
     data_provider_intent_id: this.data_provider_intent_id,
     name: this.name,
+    timeout: this.timeout,
     description: this.description,
     uri: this.uri,
     active: this.active

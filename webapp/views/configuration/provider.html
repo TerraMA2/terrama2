@@ -42,7 +42,7 @@
     <terrama2-alert-box2 handler="MessageBoxService.alertBox" close="close()"></terrama2-alert-box2>
     <div class="row">
       <form name="forms.dataProviderForm">
-        <div class="col-md-7">
+        <div ng-class="{'col-md-7': dataProvider.protocol=='FILE', 'col-md-5': dataProvider.protocol!='FILE'}">
           <div class="form-group has-feedback" terrama2-show-errors>
             <label>{{ i18n.__("Name") }}:</label>
             <input class="form-control"
@@ -70,6 +70,24 @@
             <span class="help-block" ng-show="forms.dataProviderForm.protocol.$dirty && forms.dataProviderForm.protocol.$invalid" ng-class="{'has-error': forms.dataProviderForm.protocol.$invalid}">{[ __('Data Server protocol is required') ]}</span>
           </div>
           <!-- /.form-group -->
+        </div>
+
+        <div class="col-md-2" ng-show="dataProvider.protocol != 'FILE'">
+          <div class="form-group has-feedback" terrama2-show-errors>
+            <label>{{ i18n.__("Data Server Timeout") }}:</label>
+            <input class="form-control"
+                   name="timeout"
+                   ng-model="dataProvider.timeout"
+                   placeholder="{{ i18n.__('Data Server Timeout') }}"
+                   type="number" terrama2-server-errors="serverErrors" required>
+
+            <span class="form-control-feedback glyphicon" ng-show="forms.dataProviderForm.timeout.$dirty" ng-class="{'glyphicon-ok': forms.dataProviderForm.timeout.$valid, 'glyphicon-remove': forms.dataProviderForm.timeout.$invalid }"></span>
+
+            <span class="help-block" ng-show="forms.dataProviderForm.timeout.$dirty && forms.dataProviderForm.timeout.$error.required">{{ i18n.__('Data Server timeout is required') }}</span>
+            <span class="help-block" ng-show="forms.dataProviderForm.timeout.$error.terrama2Error">
+              {{ i18n.__("Data Server") + " " + serverErrors.timeout.message }}
+            </span>
+          </div>
         </div>
 
         <div class="col-md-2">
