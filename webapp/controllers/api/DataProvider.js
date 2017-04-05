@@ -43,6 +43,13 @@ module.exports = function(app) {
                 active: dataProviderReceived.active || false
               };
 
+              if (uriObject.protocol == 'FTP'){
+                dataProviderObject['configuration'] = {
+                  active_mode: uriObject.active_mode,
+                  timeout: uriObject.timeout
+                }
+              }
+
               // try to save
               return DataManager.addDataProvider(dataProviderObject).then(function(result) {
                 TcpService.send({
@@ -112,6 +119,13 @@ module.exports = function(app) {
         description: request.body.description,
         uri: requester.uri
       };
+
+      if (uriObject.protocol == 'FTP'){
+        toUpdate['configuration'] = {
+          active_mode: uriObject.active_mode,
+          timeout: uriObject.timeout
+        }
+      }
 
       if (dataProviderId) {
         dataProviderId = parseInt(dataProviderId);

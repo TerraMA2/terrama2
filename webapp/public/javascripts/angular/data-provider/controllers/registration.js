@@ -14,6 +14,11 @@ define(function() {
       }
     }
 
+    if (conf.dataProvider.data_provider_type_name == 'FTP'){
+      model['active_mode'] = conf.dataProvider.active_mode;
+      model['timeout'] = conf.dataProvider.timeout;
+    }
+
     // forcing port value to number
     if (model.port) {
       model.port = parseInt(model.port);
@@ -71,7 +76,6 @@ define(function() {
     $scope.remoteFieldsRequired = false;
     $scope.dataProvider = {
       name: conf.dataProvider.name,
-      timeout: (isNaN(conf.dataProvider.timeout) ? 8 : conf.dataProvider.timeout),
       description: conf.dataProvider.description,
       project: conf.project,
       active: conf.dataProvider.active,
@@ -196,7 +200,6 @@ define(function() {
     };
 
     $scope.checkConnection = function(form) {
-      if($scope.dataProvider.timeout !== undefined && $scope.dataProvider.timeout !== null && $scope.dataProvider.timeout != "") {
         $scope.model = $scope.model;
         $scope.$broadcast("schemaFormValidate");
 
@@ -259,9 +262,6 @@ define(function() {
         }).finally(function() {
           $scope.isChecking = false;
         });
-      } else {
-        MessageBoxService.danger(i18n.__("Connection Status"), i18n.__("Invalid timeout value"));
-      }
     };
   }
 
