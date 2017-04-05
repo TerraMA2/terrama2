@@ -30,17 +30,17 @@ int main(int argc, char* argv[])
   QUrl url;
 
   // Fire
-  url.setHost("ftp.dgi.inpe.br");
-  url.setPath("/focos_operacao/");
+  url.setHost("200.137.4.175");
+  url.setPath("/pcd/");
   url.setScheme("FTP");
   url.setPort(21);
-  url.setUserName("queimadas");
-  url.setPassword("inpe_2012");
+  url.setUserName("ddpi");
+  url.setPassword("mtv.0789");
 
   curl_global_init(CURL_GLOBAL_ALL);
 
   std::string path;
-  std::string mask = "exporta_20160501_0230.csv";
+  std::string mask = "30885.txt";
 
   auto remover = std::make_shared<terrama2::core::FileRemover>();
   {
@@ -52,6 +52,7 @@ int main(int argc, char* argv[])
     dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
     dataProvider->dataProviderType = "FTP";
     dataProvider->active = true;
+//    dataProvider->options.insert({"active_mode", "true"});
 
     //empty filter
     terrama2::core::Filter filter;

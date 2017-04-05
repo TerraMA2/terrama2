@@ -32,7 +32,10 @@ void terrama2::core::CurlWrapperFtp::downloadFile(const std::string &url, std::F
   auto lock = getLock();
 
   clean();
-  setOption(CURLOPT_FTPPORT, activePort_);
+  if(activePort_.empty())
+    setOption(CURLOPT_FTPPORT, nullptr);
+  else
+    setOption(CURLOPT_FTPPORT, activePort_);
 
   downloadFile_(url, file, taskProgress);
 }
@@ -40,7 +43,10 @@ void terrama2::core::CurlWrapperFtp::downloadFile(const std::string &url, std::F
 std::vector<std::string> terrama2::core::CurlWrapperFtp::listFiles(const te::core::URI& uri)
 {
   clean();
-  setOption(CURLOPT_FTPPORT, activePort_);
+  if(activePort_.empty())
+    setOption(CURLOPT_FTPPORT, nullptr);
+  else
+    setOption(CURLOPT_FTPPORT, activePort_);
 
   return listFiles_(uri);
 }

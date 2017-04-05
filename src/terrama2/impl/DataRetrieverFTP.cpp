@@ -63,6 +63,18 @@ terrama2::core::DataRetrieverFTP::DataRetrieverFTP(DataProviderPtr dataprovider,
   : DataRetriever(dataprovider),
     curlwrapper_(std::move(curlwrapper))
 {
+  //Set FTP mode
+  try
+  {
+    auto activeMode = dataProvider_->options.at("active_mode");
+    curlwrapper_.setActiveMode(activeMode == "true");
+  }
+  catch(const std::out_of_range&)
+  {
+    //if not set, set to false
+    curlwrapper_.setActiveMode(false);
+  }
+
   // Verifies that the FTP address is valid
   try
   {
@@ -92,23 +104,6 @@ terrama2::core::DataRetrieverFTP::~DataRetrieverFTP()
 {
 
 }
-
-size_t terrama2::core::DataRetrieverFTP::write_response(void* ptr, size_t size, size_t nmemb, void* data)
-{
-  FILE* writehere = (FILE*)data;
-  return fwrite(ptr, size, nmemb, writehere);
-}
-
-size_t terrama2::core::DataRetrieverFTP::write_vector(void* ptr, size_t size, size_t nmemb, void* data)
-{
-  size_t sizeRead = size * nmemb;
-
-  std::string* block = (std::string*) data;
-  block->append((char*)ptr, sizeRead);
-
-  return sizeRead;
-}
-
 
 std::vector<std::string> terrama2::core::DataRetrieverFTP::getFoldersList(const std::vector<std::string>& uris,
                                                                           const std::string& foldersMask)
@@ -268,6 +263,15 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
   catch(const DataRetrieverException&)
   {
     throw;
+  }
+  catch(const te::Exception& e)
+  {
+    QString errMsg = QObject::tr("Error during download.\n");
+    errMsg.append(boost::get_error_info<terrama2::ErrorDescription>(e));
+    errMsg.append(e.what());
+
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw DataRetrieverException() << ErrorDescription(errMsg);
   }
   catch(const std::exception& e)
   {

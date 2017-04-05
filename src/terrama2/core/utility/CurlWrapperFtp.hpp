@@ -35,10 +35,10 @@ namespace terrama2
     {
       public:
         using te::ws::core::CurlWrapper::downloadFile;
-        void downloadFile(const std::string &url, std::FILE* file, te::common::TaskProgress* taskProgress = nullptr) override;
-        std::vector<std::string> listFiles(const te::core::URI& uri) override;
+        virtual void downloadFile(const std::string &url, std::FILE* file, te::common::TaskProgress* taskProgress = nullptr) override;
+        virtual std::vector<std::string> listFiles(const te::core::URI& uri) override;
 
-        void setMode(bool active, std::string activePort = "-")
+        void setActiveMode(bool active, std::string activePort = "-")
         {
           activePort_ = active ? activePort : "";
         }
