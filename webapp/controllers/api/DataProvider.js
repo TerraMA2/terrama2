@@ -34,7 +34,6 @@ module.exports = function(app) {
             return DataManager.getDataProviderType({name: uriObject[requester.syntax().SCHEME]}).then(function(typeResult) {
               var dataProviderObject = {
                 name: dataProviderReceived.name,
-                timeout: dataProviderReceived.timeout,
                 uri: requester.uri,
                 description: dataProviderReceived.description,
                 data_provider_intent_id: intentResult.id,
@@ -53,7 +52,7 @@ module.exports = function(app) {
               // try to save
               return DataManager.addDataProvider(dataProviderObject).then(function(result) {
                 TcpService.send({
-                  "DataProviders": [result.toObject()]
+                  "DataProviders": [result.toService()]
                 });
                 // generating token
                 var token = Utils.generateToken(app, TokenCode.SAVE, result.name);
@@ -132,7 +131,7 @@ module.exports = function(app) {
         return DataManager.updateDataProvider(dataProviderId, toUpdate).then(function() {
           return DataManager.getDataProvider({id: dataProviderId, project_id: app.locals.activeProject.id}).then(function(dProvider) {
             TcpService.send({
-              "DataProviders": [dProvider.toObject()]
+              "DataProviders": [dProvider.toService()]
             });
             // generating token
             var token = Utils.generateToken(app, TokenCode.UPDATE, dProvider.name);
