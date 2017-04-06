@@ -72,7 +72,7 @@ DataProvider.prototype.rawObject = function() {
 };
 
 DataProvider.prototype.toService = function() {
-  return {
+  return Object.assign(AbstractData.prototype.toObject.call(this), {
     id: this.id,
     project_id: this.project_id,
     data_provider_type: this.data_provider_type.name,
@@ -85,7 +85,8 @@ DataProvider.prototype.toService = function() {
     description: this.description,
     uri: this.uri,
     active: this.active
-  };
+  });
+  return {
 };
 
 module.exports = DataProvider;
