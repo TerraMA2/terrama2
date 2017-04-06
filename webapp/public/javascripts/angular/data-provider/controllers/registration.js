@@ -210,7 +210,7 @@ define(function() {
         $scope.isChecking = true; // for handling loading page
 
         // Timeout in seconds for handling connections
-        $scope.timeOutSeconds = $scope.dataProvider.timeout;
+        $scope.timeOutSeconds = 8;
 
         // Function for requests success, error and timeout
         var makeRequest = function() {
