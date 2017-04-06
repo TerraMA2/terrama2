@@ -86,7 +86,6 @@ DataProvider.prototype.toService = function() {
     uri: this.uri,
     active: this.active
   });
-  return {
 };
 
 module.exports = DataProvider;
