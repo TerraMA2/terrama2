@@ -20,7 +20,7 @@ define([], function(){
     ];
 
     $scope.fields = ['name'];
-    $scope.linkToAdd = "";
+    $scope.linkToAdd = "/configuration/alert/new";
     $scope.link = function(object) {
       return "";
     };
