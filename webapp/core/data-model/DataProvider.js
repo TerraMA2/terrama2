@@ -75,8 +75,8 @@ DataProvider.prototype.toService = function() {
   return {
     id: this.id,
     project_id: this.project_id,
-    data_provider_type: this.data_provider_type,
-    data_provider_intent_id: this.data_provider_intent_id,
+    data_provider_type: this.data_provider_type.name,
+    intent: this.data_provider_intent_id,
     name: this.name,
     options: {
       timeout: this.timeout ? String(this.timeout) : "",
