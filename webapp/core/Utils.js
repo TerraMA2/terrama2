@@ -77,7 +77,7 @@ var Utils = module.exports = {
       key: UriPattern.PASSWORD,
       type: FormField.PASSWORD,
       htmlClass: 'col-md-6 terrama2-schema-form'
-    }]';
+    }];
   },
 
   makeCommonRequestFields: function(scheme, port, exceptField, required, displayOrder) {
