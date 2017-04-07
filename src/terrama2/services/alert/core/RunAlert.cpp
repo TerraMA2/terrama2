@@ -381,8 +381,15 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::populateGridA
   auto rasterProp = dataSetType->getProperty(pos)->clone();
   alertDataSetType->add(rasterProp);
   auto rasterPropName = rasterProp->getName();
+  //Create a Timestamp property
+  auto timestampProp = dataSetType->getProperty(datetimeColumnName)->clone();
+  alertDataSetType->add(timestampProp);
+  auto timestampPropName = timestampProp->getName();
+
+  auto alertDataSet = std::make_shared<te::mem::DataSet>(alertDataSetType.get());
 
   auto risk = alertPtr->risk;
+  int riskBand = std::stoi(alertPtr->riskAttribute);
 
   // iterate over all raster of the input dataset
   teDataset->moveBeforeFirst();
@@ -400,36 +407,35 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::populateGridA
 
     // create new raster
     std::vector<te::rst::BandProperty*> bands;
-    for(size_t i = 0; i < raster->getNumberOfBands(); ++i)
-    {
-      bands.push_back(new te::rst::BandProperty(i, te::dt::UINT32_TYPE));
-    }
+    bands.push_back(new te::rst::BandProperty(0, te::dt::UINT32_TYPE));
 
     auto grid = new te::rst::Grid(raster->getNumberOfColumns(), raster->getNumberOfRows(), new te::gm::Envelope(*raster->getExtent()), raster->getSRID());
     std::unique_ptr<te::rst::Raster> alertRaster(te::rst::RasterFactory::make("EXPANSIBLE", grid, bands, {}));
 
-    for(size_t k = 0; k < raster->getNumberOfBands(); ++k)
+    auto band = raster->getBand(riskBand);
+    auto alertBand = alertRaster->getBand(0);
+
+    for(size_t r = 0; r < grid->getNumberOfRows(); ++r)
     {
-      auto band = raster->getBand(k);
-      auto alertBand = alertRaster->getBand(k);
-
-      for(size_t r = 0; r < grid->getNumberOfRows(); ++r)
+      for(size_t c = 0; c < grid->getNumberOfColumns(); ++c)
       {
-        for(size_t c = 0; c < grid->getNumberOfColumns(); ++c)
-        {
-          double value;
-          band->getValue(c, r, value);
+        double value;
+        band->getValue(c, r, value);
 
-          // auto level = risk->
-        }
+        auto riskTuple = risk.riskLevel(value);
+        int level = std::get<0>(riskTuple);
+
+        alertBand->setValue(c, r, level);
       }
-
-
-
+    }
+    std::unique_ptr<te::mem::DataSetItem> item(new te::mem::DataSetItem(alertDataSet.get()));
+    item->setDateTime(datetimeColumnName, static_cast<te::dt::DateTime*>(timestamp->clone()));
+    item->setRaster(rasterPropName, alertRaster.get());
+    alertDataSet->add(item.release());
   }
 
-  return nullptr;
-};
+  return alertDataSet;
+}
 
 void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage executionPackage,
                                                std::shared_ptr< AlertLogger > logger,
