@@ -545,32 +545,32 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
       std::shared_ptr<te::mem::DataSet> alertDataSet;
       if(inputDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT)
       {
-        alertDataSet = monitoredObjectAlert( dataSetType,
-                                          datetimeColumnName,
-                                          vecDates,
-                                          alertPtr,
-                                          filter,
-                                          dataset,
-                                          teDataset,
-                                          idProperty,
-                                          tempAdditionalDataVector,
-                                          remover);
+        alertDataSet = monitoredObjectAlert(dataSetType,
+                                            datetimeColumnName,
+                                            vecDates,
+                                            alertPtr,
+                                            filter,
+                                            dataset,
+                                            teDataset,
+                                            idProperty,
+                                            tempAdditionalDataVector,
+                                            remover);
       }
       else if (inputDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::GRID)
       {
-        alertDataSet = gridAlert(dataSetType,
-                              datetimeColumnName,
-                              vecDates,
-                              alertPtr,
-                              filter,
-                              dataset,
-                              teDataset,
-                              idProperty,
-                              tempAdditionalDataVector,
-                              remover);
+        alertDataSet = gridAlert( dataSetType,
+                                  datetimeColumnName,
+                                  vecDates,
+                                  alertPtr,
+                                  filter,
+                                  dataset,
+                                  teDataset,
+                                  idProperty,
+                                  tempAdditionalDataVector,
+                                  remover);
       }
 
-      ReportPtr reportPtr = std::make_shared<Report>(alertPtr, alertDataSet, vecDates);
+      ReportPtr reportPtr = std::make_shared<Report>(alertPtr, inputDataSeries, alertDataSet, vecDates);
 
 
 
