@@ -34,12 +34,21 @@
 
 #include "NotifierEmail.hpp"
 
+#include "DocumentPDF.hpp"
+
 #include "../core/utility/NotifierFactory.hpp"
+#include "../core/utility/DocumentFactory.hpp"
+
 
 void terrama2::services::alert::core::registerFactories()
 {
+  // Notifiers
   NotifierFactory::getInstance().add(terrama2::services::alert::impl::NotifierEmail::notifierCode(),
                                      terrama2::services::alert::impl::NotifierEmail::make);
+
+  // Documents
+  DocumentFactory::getInstance().add(terrama2::services::alert::impl::documentPDF::documentCode(),
+                                     terrama2::services::alert::impl::documentPDF::makeDocument);
 }
 
 std::string terrama2::services::alert::core::dataSetHtmlTable(const std::shared_ptr<te::da::DataSet>& dataSet)

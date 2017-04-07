@@ -69,6 +69,7 @@ namespace po = boost::program_options;
 
 // Qt
 #include <QCoreApplication>
+#include <QtGui/QGuiApplication>
 #include <QTimer>
 
 const std::string analysisType = "analysis";
@@ -213,7 +214,7 @@ int main(int argc, char* argv[])
       // Must initialize the python interpreter before creating any thread.
       terrama2::services::analysis::core::PythonInterpreterInit pythonInterpreterInit;
 
-      QCoreApplication app(argc, argv);
+      QGuiApplication app(argc, argv);
 
       // Changes in the initialization order may cause locale problems
       std::locale::global(std::locale::classic());
