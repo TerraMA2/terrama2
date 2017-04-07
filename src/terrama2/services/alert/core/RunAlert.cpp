@@ -234,8 +234,9 @@ void terrama2::services::alert::core::addAdditionalData(std::shared_ptr<te::mem:
   }
 }
 
-terrama2::services::alert::core::ReportPtr terrama2::services::alert::core::monitoredObjectAlert(std::shared_ptr<te::da::DataSetType> dataSetType,
+std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::monitoredObjectAlert(std::shared_ptr<te::da::DataSetType> dataSetType,
                                                                                                  std::string datetimeColumnName,
+                                                                                                 std::vector<std::shared_ptr<te::dt::DateTime> > vecDates,
                                                                                                  AlertPtr alertPtr,
                                                                                                  terrama2::core::Filter filter,
                                                                                                  terrama2::core::DataSetPtr dataset,
@@ -290,9 +291,6 @@ terrama2::services::alert::core::ReportPtr terrama2::services::alert::core::moni
     return nullptr;
   }
 
-  // Store execution dates of dataset, ASC order
-  std::vector<std::shared_ptr<te::dt::DateTime> > vecDates = getDates(teDataset, datetimeColumnName);
-
   // Remove uneccessary oldest dates
   auto lastValues = *filter.lastValues;
 
@@ -313,13 +311,12 @@ terrama2::services::alert::core::ReportPtr terrama2::services::alert::core::moni
   std::shared_ptr<te::mem::DataSet> alertDataSet = populateMonitoredObjectAlertDataset(vecDates, riskResultMap, comparisonPreviosProperty, alertPtr, fkProperty, alertDataSetType);
   addAdditionalData(alertDataSet, alertPtr, additionalDataMap);
 
-  ReportPtr reportPtr = std::make_shared<Report>(alertPtr, alertDataSet, vecDates);
-
-  return reportPtr;
+  return alertDataSet;
 }
 
-terrama2::services::alert::core::ReportPtr terrama2::services::alert::core::gridAlert(std::shared_ptr<te::da::DataSetType> dataSetType,
+std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::gridAlert(std::shared_ptr<te::da::DataSetType> dataSetType,
                                                                                       std::string datetimeColumnName,
+                                                                                      std::vector<std::shared_ptr<te::dt::DateTime> > vecDates,
                                                                                       AlertPtr alertPtr,
                                                                                       terrama2::core::Filter filter,
                                                                                       terrama2::core::DataSetPtr dataset,
@@ -340,9 +337,6 @@ terrama2::services::alert::core::ReportPtr terrama2::services::alert::core::grid
     return nullptr;
   }
 
-  // Store execution dates of dataset, ASC order
-  std::vector<std::shared_ptr<te::dt::DateTime> > vecDates = getDates(teDataset, datetimeColumnName);
-
   // Remove uneccessary oldest dates
   auto lastValues = *filter.lastValues;
 
@@ -350,9 +344,8 @@ terrama2::services::alert::core::ReportPtr terrama2::services::alert::core::grid
     vecDates = {vecDates.rbegin(), vecDates.rbegin()+lastValues};
 
   auto alertDataSet = populateGridAlertDataset(dataset, alertPtr, vecDates, teDataset, dataSetType, datetimeColumnName);
-  ReportPtr reportPtr = std::make_shared<Report>(alertPtr, alertDataSet, vecDates);
 
-  return reportPtr;
+  return alertDataSet;
 }
 
 struct isLesserDate
@@ -545,11 +538,16 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
         }
       }
 
-      ReportPtr reportPtr;
+
+      // Store execution dates of dataset, ASC order
+      std::vector<std::shared_ptr<te::dt::DateTime> > vecDates = getDates(teDataset, datetimeColumnName);
+
+      std::shared_ptr<te::mem::DataSet> alertDataSet;
       if(inputDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT)
       {
-        reportPtr = monitoredObjectAlert( dataSetType,
+        alertDataSet = monitoredObjectAlert( dataSetType,
                                           datetimeColumnName,
+                                          vecDates,
                                           alertPtr,
                                           filter,
                                           dataset,
@@ -560,8 +558,9 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
       }
       else if (inputDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::GRID)
       {
-        reportPtr = gridAlert(dataSetType,
+        alertDataSet = gridAlert(dataSetType,
                               datetimeColumnName,
+                              vecDates,
                               alertPtr,
                               filter,
                               dataset,
@@ -570,6 +569,8 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
                               tempAdditionalDataVector,
                               remover);
       }
+
+      ReportPtr reportPtr = std::make_shared<Report>(alertPtr, alertDataSet, vecDates);
 
 
 

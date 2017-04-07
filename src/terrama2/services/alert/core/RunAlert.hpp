@@ -112,23 +112,25 @@ namespace terrama2
                                AlertPtr alertPtr,
                                std::unordered_map<std::string, terrama2::core::TeDataSetFKJoin> additionalDataMap);
 
-        ReportPtr monitoredObjectAlert(std::shared_ptr<te::da::DataSetType> dataSetType,
-                                       std::string datetimeColumnName,
-                                       AlertPtr alertPtr,
-                                       terrama2::core::Filter filter,
-                                       terrama2::core::DataSetPtr dataset,
-                                       std::shared_ptr<te::da::DataSet> teDataset,
-                                       te::dt::Property* idProperty, std::unordered_map<DataSeriesId, std::pair<terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr> > tempAdditionalDataVector,
-                                       std::shared_ptr<terrama2::core::FileRemover> remover);
+        std::shared_ptr<te::mem::DataSet> monitoredObjectAlert(std::shared_ptr<te::da::DataSetType> dataSetType,
+                                                               std::string datetimeColumnName,
+                                                               std::vector<std::shared_ptr<te::dt::DateTime> > vecDates,
+                                                               AlertPtr alertPtr,
+                                                               terrama2::core::Filter filter,
+                                                               terrama2::core::DataSetPtr dataset,
+                                                               std::shared_ptr<te::da::DataSet> teDataset,
+                                                               te::dt::Property* idProperty, std::unordered_map<DataSeriesId, std::pair<terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr> > tempAdditionalDataVector,
+                                                               std::shared_ptr<terrama2::core::FileRemover> remover);
 
-        ReportPtr gridAlert(std::shared_ptr<te::da::DataSetType> dataSetType,
-                            std::string datetimeColumnName,
-                            AlertPtr alertPtr,
-                            terrama2::core::Filter filter,
-                            terrama2::core::DataSetPtr dataset,
-                            std::shared_ptr<te::da::DataSet> teDataset,
-                            te::dt::Property* idProperty, std::unordered_map<DataSeriesId, std::pair<terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr> > tempAdditionalDataVector,
-                            std::shared_ptr<terrama2::core::FileRemover> remover);
+        std::shared_ptr<te::mem::DataSet> gridAlert(std::shared_ptr<te::da::DataSetType> dataSetType,
+                                                    std::string datetimeColumnName,
+                                                    std::vector<std::shared_ptr<te::dt::DateTime> > vecDates,
+                                                    AlertPtr alertPtr,
+                                                    terrama2::core::Filter filter,
+                                                    terrama2::core::DataSetPtr dataset,
+                                                    std::shared_ptr<te::da::DataSet> teDataset,
+                                                    te::dt::Property* idProperty, std::unordered_map<DataSeriesId, std::pair<terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr> > tempAdditionalDataVector,
+                                                    std::shared_ptr<terrama2::core::FileRemover> remover);
 
         std::shared_ptr<te::da::DataSetType> createAlertDataSetType(AlertPtr alertPtr, terrama2::core::DataSetPtr dataset);
 
