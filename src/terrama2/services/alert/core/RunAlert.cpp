@@ -60,6 +60,8 @@
 #include <terralib/raster/Grid.h>
 #include <terralib/raster/RasterFactory.h>
 
+#include <terralib/rp/Functions.h>
+
 // Qt
 #include <QObject>
 
@@ -320,10 +322,7 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::gridAlert(std
                                                                                       AlertPtr alertPtr,
                                                                                       terrama2::core::Filter filter,
                                                                                       terrama2::core::DataSetPtr dataset,
-                                                                                      std::shared_ptr<te::da::DataSet> teDataset,
-                                                                                      te::dt::Property* idProperty,
-                                                                                      std::unordered_map<DataSeriesId, std::pair<terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr> > tempAdditionalDataVector,
-                                                                                      std::shared_ptr<terrama2::core::FileRemover> remover)
+                                                                                      std::shared_ptr<te::da::DataSet> teDataset)
 {
   //get band used for risk
   int riskBand = std::numeric_limits<int>::max();
@@ -377,7 +376,6 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::populateGridA
   //Create a Timestamp property
   auto timestampProp = dataSetType->getProperty(datetimeColumnName)->clone();
   alertDataSetType->add(timestampProp);
-  auto timestampPropName = timestampProp->getName();
 
   auto alertDataSet = std::make_shared<te::mem::DataSet>(alertDataSetType.get());
 
@@ -399,8 +397,15 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::populateGridA
     auto raster = teDataset->getRaster(pos);
 
     // create new raster
+    auto bandProp = new te::rst::BandProperty(0, te::dt::UINT32_TYPE);
+    bandProp->m_blkh = 1;
+    bandProp->m_blkw = raster->getNumberOfColumns();
+    bandProp->m_nblocksx = 1;
+    bandProp->m_nblocksy = raster->getNumberOfRows();
+    bandProp->m_noDataValue = std::numeric_limits<uint32_t>::max();
+
     std::vector<te::rst::BandProperty*> bands;
-    bands.push_back(new te::rst::BandProperty(0, te::dt::UINT32_TYPE));
+    bands.push_back(bandProp);
 
     auto grid = new te::rst::Grid(raster->getNumberOfColumns(), raster->getNumberOfRows(), new te::gm::Envelope(*raster->getExtent()), raster->getSRID());
     std::unique_ptr<te::rst::Raster> alertRaster(te::rst::RasterFactory::make("EXPANSIBLE", grid, bands, {}));
@@ -412,15 +417,24 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::populateGridA
     {
       for(size_t c = 0; c < grid->getNumberOfColumns(); ++c)
       {
+        auto noData = band->getProperty()->m_noDataValue;
         double value;
         band->getValue(c, r, value);
 
-        auto riskTuple = risk.riskLevel(value);
-        int level = std::get<0>(riskTuple);
+        if(value == noData)
+        {
+          alertBand->setValue(c, r, std::numeric_limits<uint32_t>::max());
+        }
+        else
+        {
+          auto riskTuple = risk.riskLevel(value);
+          int level = std::get<0>(riskTuple);
 
-        alertBand->setValue(c, r, level);
+          alertBand->setValue(c, r, level);
+        }
       }
     }
+
     std::unique_ptr<te::mem::DataSetItem> item(new te::mem::DataSetItem(alertDataSet.get()));
     item->setDateTime(datetimeColumnName, static_cast<te::dt::DateTime*>(timestamp->clone()));
     item->setRaster(rasterPropName, alertRaster.get());
@@ -475,7 +489,6 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
     // analysing data
 
     auto filter = alertPtr->filter;
-    auto risk = alertPtr->risk;
 
     auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(inputDataProvider, inputDataSeries);
     auto remover = std::make_shared<terrama2::core::FileRemover>();
@@ -495,26 +508,6 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
 
       auto teDataset = dataSeries.syncDataSet->dataset();
       auto dataSetType = dataSeries.teDataSetType;
-
-      if(dataSetType->getNumberOfForeignKeys() != 1)
-      {
-        QString errMsg = QObject::tr("Invalid number of identifier attribute.");
-        logger->result(AlertLogger::ERROR, nullptr, executionPackage.registerId);
-        logger->log(AlertLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
-        TERRAMA2_LOG_ERROR() << errMsg;
-        return;
-      }
-
-      auto tempProperties = dataSetType->getForeignKey(0)->getProperties();
-      auto idProperty = tempProperties.front();
-      if(tempProperties.size() != 1 || !idProperty)
-      {
-        QString errMsg = QObject::tr("Invalid identifier attribute.");
-        logger->result(AlertLogger::ERROR, nullptr, executionPackage.registerId);
-        logger->log(AlertLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
-        TERRAMA2_LOG_ERROR() << errMsg;
-        return;
-      }
 
       // Get the datetime column name in teDataSet for filters
       std::string datetimeColumnName = "";
@@ -538,6 +531,13 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
         }
       }
 
+      if(datetimeColumnName.empty())
+      {
+        QString errMsg = QObject::tr("Unable to identify timestamp column.");
+        logger->log(AlertLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+        TERRAMA2_LOG_ERROR() << errMsg;
+        return;
+      }
 
       // Store execution dates of dataset, ASC order
       std::vector<std::shared_ptr<te::dt::DateTime> > vecDates = getDates(teDataset, datetimeColumnName);
@@ -545,6 +545,26 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
       std::shared_ptr<te::mem::DataSet> alertDataSet;
       if(inputDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT)
       {
+        if(dataSetType->getNumberOfForeignKeys() != 1)
+        {
+          QString errMsg = QObject::tr("Invalid number of identifier attribute.");
+          logger->result(AlertLogger::ERROR, nullptr, executionPackage.registerId);
+          logger->log(AlertLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+          TERRAMA2_LOG_ERROR() << errMsg;
+          return;
+        }
+
+        auto tempProperties = dataSetType->getForeignKey(0)->getProperties();
+        auto idProperty = tempProperties.front();
+        if(tempProperties.size() != 1 || !idProperty)
+        {
+          QString errMsg = QObject::tr("Invalid identifier attribute.");
+          logger->result(AlertLogger::ERROR, nullptr, executionPackage.registerId);
+          logger->log(AlertLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+          TERRAMA2_LOG_ERROR() << errMsg;
+          return;
+        }
+
         alertDataSet = monitoredObjectAlert(dataSetType,
                                             datetimeColumnName,
                                             vecDates,
@@ -564,15 +584,12 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
                                   alertPtr,
                                   filter,
                                   dataset,
-                                  teDataset,
-                                  idProperty,
-                                  tempAdditionalDataVector,
-                                  remover);
+                                  teDataset);
+
+        return;
       }
 
       ReportPtr reportPtr = std::make_shared<Report>(alertPtr, inputDataSeries, alertDataSet, vecDates);
-
-
 
       if(!reportPtr)
         continue;
