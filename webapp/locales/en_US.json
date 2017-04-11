@@ -702,5 +702,7 @@
 	"Include report": "Include report",
 	"Notify on change": "Notify on change",
 	"Simplified Report": "Simplified Report",
-	"Data Server timeout is required": "Data Server timeout is required"
+	"Data Server timeout is required": "Data Server timeout is required",
+	"Data server Timeout": "Data server Timeout",
+	"Active mode": "Active mode"
 }

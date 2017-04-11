@@ -64,7 +64,18 @@
             if (schedule) {
               alertObject.conditional_schedule_id = schedule.id;
             }
-            return DataManager.addAlert(alertObject, options);
+            var riskPromise;
+            var riskObject = alertObject.risk;
+            if (riskObject.id){
+              riskPromise = DataManager.updateRisk(riskObject.id, riskObject, options);
+            } else {
+              riskPromise = DataManager.addRisk(riskObject, options);
+            }
+            return riskPromise
+              .then(function(riskResult){
+                alertObject.risk_id = riskResult.id;
+                return DataManager.addAlert(alertObject, options);
+              });
           });
       })
 

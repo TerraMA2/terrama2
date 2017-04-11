@@ -32,10 +32,12 @@
      */
     this.name = params.name;
 
-    this.class = "Risk";
+    if (params.levels){
+      this.levels = params.levels
+    } else if (params.RiskLevels || params.riskLevels) {
+      this.levels = params.RiskLevels || params.riskLevels;
+    }
 
-    // Setting additional data
-    this.setRiskLevels(params.RiskLevels || params.riskLevels);
   };
 
   /**
@@ -60,7 +62,6 @@
     return Object.assign(BaseClass.prototype.toObject.call(this), {
       id: this.id,
       name: this.name,
-      class: this.class,
       levels: this.levels
     });
   };

@@ -3947,7 +3947,7 @@ var DataManager = module.exports = {
           additionalDataResult = additionalData;
           var risk = alertObject.risk;
           risk.alert_id = alertResult.id;
-          return self.addRisk(risk, options);
+          return self.getRisk({id: alertResult.risk_id}, options);
         })
         .then(function(risk){
           riskResult = risk;
@@ -3961,6 +3961,13 @@ var DataManager = module.exports = {
         })
         .then(function(notifications){
           notificationResult = notifications;
+          var objectToAssign = {
+            conditionalSchedule: scheduleResult,
+            reportMetadata: reportMetadataResult,
+            additionalData: additionalDataResult,
+            risk: riskResult,
+            notifications: notificationResult
+          }
           return resolve(new DataModel.Alert(Object.assign(alertResult.get(), objectToAssign)));
         })
         .catch(function(err){
@@ -3996,8 +4003,10 @@ var DataManager = module.exports = {
   addRisk: function(riskObject, options){
     var self = this;
     return new Promise(function(resolve, reject){
+      var riskObjectResult;
       return models.db.Risk.create(riskObject, options)
         .then(function(riskResult){
+          riskObjectResult = riskResult;
           var riskLevelPromises = [];
           var riskLevels = riskObject.levels;
           riskLevels.forEach(function(riskLevel){
@@ -4005,8 +4014,11 @@ var DataManager = module.exports = {
             riskLevelPromises.push(self.addRiskLevel(riskLevel, options));
           });
           return Promise.all(riskLevelPromises)
-          .then(function(){
-            return resolve();
+          .then(function(riskLevelResult){
+            var objectToAssign = {
+              riskLevels: riskLevelResult
+            }
+            return resolve(new DataModel.Risk(Object.assign(riskObjectResult.get(), objectToAssign)));
           })
         })
         .catch(function(err){
@@ -4037,6 +4049,26 @@ var DataManager = module.exports = {
           return reject(new Error(Utils.format("Could not save Alert Notification due %s", err.toString())));
         });
     })
+  },
+
+  getRisk: function(restriction, options){
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      models.db.Risk.findOne(Utils.extend({
+        where: restriction || {},
+        include: [
+          {
+            model: models.db.RiskLevel
+          }
+        ]
+      }, options)).then(function(risk) {
+        if (risk) {
+          return resolve(new DataModel.Risk(risk.get()));
+        }
+        return reject(new Error("Could not find risk"));
+      });
+    });
+
   },
 
   /**
