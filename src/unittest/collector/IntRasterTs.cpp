@@ -25,7 +25,7 @@
 #include <terrama2/core/utility/ServiceManager.hpp>
 #include <terrama2/core/data-model/DataManager.hpp>
 #include <terrama2/services/collector/core/Service.hpp>
-#include <terrama2/core/utility/CurlPtr.hpp>
+#include <terrama2/core/utility/CurlWrapperFtp.hpp>
 
 #include "MockCollectorLogger.hpp"
 #include "IntRasterTs.hpp"
@@ -58,29 +58,30 @@ size_t write_response(void* ptr, size_t size, size_t nmemb, void* data)
 
 void downloadReferenceFiles()
 {
-  terrama2::core::CurlPtr curl;
-  curl.init();
+  terrama2::core::CurlWrapperFtp curl;
   std::string referenceUrl = "ftp://ftp:JenkinsD%40t%40@jenkins-ftp.dpi.inpe.br:21/terrama2/reference_data/";
-  auto status = curl.verifyURL(referenceUrl, 8);
 
-  if(status != CURLE_OK)
+  try
+  {
+    curl.verifyURL(referenceUrl, 8);
+  }
+  catch(...)
+  {
     QFAIL("FTP address is invalid.");
+  }
 
   std::string outDir = TERRAMA2_DATA_DIR+"/hidroestimador_crop_reference";
   QDir dir(QString::fromStdString(outDir));
   if(!dir.mkpath(QString::fromStdString(outDir)))
     QFAIL("Unable to create reference folder.");
 
-  curl.init();
-  std::vector<std::string> vectorFiles = curl.getFtpListFiles(referenceUrl, &write_file_names);
+  std::vector<std::string> vectorFiles = curl.listFiles(te::core::URI(referenceUrl));
   for(const auto& file : vectorFiles)
   {
     std::string fileUri = referenceUrl + file;
 
     std::string filePath = outDir + "/" + file;
-    CURLcode res = curl.getDownloadFiles(fileUri, &write_response, filePath);
-    if(res != CURLE_OK)
-      QFAIL(std::string("Error downloading reference file.\n"+file).c_str());
+    curl.downloadFile(fileUri, filePath);
   }
 }
 

@@ -205,6 +205,13 @@
   position: absolute !important;
 }
 
+.terrama2-schema-form-checkbox {
+  margin-top: 30px !important;
+}
+.terrama2-schema-form-checkbox > label > span {
+  font-weight: bold;
+}
+
 [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
   display: none;
 }

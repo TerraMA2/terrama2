@@ -91,6 +91,8 @@ namespace terrama2
       bool active = true; //!< DataProvider status.
       uint32_t timeout = 8; //!< Server connection timeout value in seconds.
 
+      std::unordered_map<std::string, std::string> options;
+
       //! Comparison operator for DataProvider
       inline bool operator==(const DataProvider& rhs){ return id == rhs.id; }
     };

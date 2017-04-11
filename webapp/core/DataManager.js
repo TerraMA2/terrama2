@@ -435,7 +435,7 @@ var DataManager = module.exports = {
           self.data.projects.push(project.get());
         });
 
-        return models.db.DataProvider.findAll({ include: [ models.db.DataProviderType ] }).then(function(dataProviders) {
+        return models.db.DataProvider.findAll({ include: [ models.db.DataProviderType, models.db.DataProviderConfiguration ] }).then(function(dataProviders) {
           dataProviders.forEach(function(dataProvider) {
             self.data.dataProviders.push(new DataModel.DataProvider(dataProvider));
           });
@@ -1308,7 +1308,66 @@ var DataManager = module.exports = {
         });
     });
   },
+/**
+   * It performs Insert or Update operation in database. If data set format found with given restriction, it applies
+   * update operation. Otherwise, it performs insert operation
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} dataProviderConfiguration - A data provider configuration values
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise} - a 'bluebird' module
+   */
+  upsertDataProviderConfigurations: function(restriction, dataProviderConfiguration, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return self
+        .listDataProviderConfigurations(restriction, Utils.extend({limit: 1}, options))
+        .then(function(dataProviderConfigurations) {
+          if (dataProviderConfigurations.length === 0) {
+            // insert
+            return models.db.DataProviderConfiguration.create(dataProviderConfiguration, options);
+          } else {
+            return models.db.DataProviderConfiguration.update(dataProviderConfiguration, Utils.extend({
+              fields: ["key", "value", "data_provider_id"],
+              where: {id: dataProviderConfigurations[0].id}
+            }, options));
+          }
+        })
 
+        .then(function() {
+          return resolve();
+        })
+
+        .catch(function(err) {
+          return reject(new Error(Utils.format("Could not upsert data provider configuration %s", err.toString())));
+        });
+    });
+  },
+  /**
+   * It retrieves all data provider configurations from database
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise} - a 'bluebird' module with DataSeries instance or error callback
+   */
+  listDataProviderConfigurations: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return models.db.DataProviderConfiguration
+        .findAll(Utils.extend({
+          where: restriction
+        }, options))
+        .then(function(dataProviderConfigurations) {
+          return resolve(dataProviderConfigurations);
+        })
+
+        .catch(function(err) {
+          return reject(new Error(Utils.format("Could not retrieve data provider configuration %s", err.toString())));
+        });
+    });
+  },
   /**
    * It saves DataProvider in database and load it in memory
    *
@@ -1321,16 +1380,55 @@ var DataManager = module.exports = {
     var self = this;
     return new Promise(function(resolve, reject) {
       models.db.DataProvider.create(dataProviderObject, options).then(function(dataProvider){
-        return dataProvider.getDataProviderType().then(function(dataProviderType) {
-          var dProvider = new DataModel.DataProvider(dataProvider.get());
-          dProvider.data_provider_type = dataProviderType.get();
-          self.data.dataProviders.push(dProvider);
+        if (dataProviderObject.configuration){
+          var configurationList = [];
+          var configuration = dataProviderObject.configuration;
 
-          return resolve(dProvider);
-        }).catch(function(err) {
-          logger.error(err);
-          return reject(err);
-        });
+          for(var key in configuration) {
+            if (configuration.hasOwnProperty(key)) {
+              configurationList.push({
+                data_provider_id: dataProvider.id,
+                key: key,
+                value: configuration[key]
+              });
+            }
+          }
+          return models.db.DataProviderConfiguration.bulkCreate(configurationList, Utils.extend({data_provider_id: dataProvider.id}, options)).then(function () {
+            return models.db.DataProviderConfiguration.findAll(Utils.extend({where: {data_provider_id: dataProvider.id}}, options)).then(function(dataSetFormats) {
+              return dataProvider.getDataProviderType().then(function(dataProviderType) {
+                var dataProviderObject = dataProvider.get();
+                dataSetFormats.forEach(function(dSetFormat){
+                  dataProviderObject[dSetFormat.key] = dSetFormat.value;
+                });
+                var dProvider = new DataModel.DataProvider(dataProvider.get());
+                dProvider.data_provider_type = dataProviderType.get();
+                self.data.dataProviders.push(dProvider);
+
+                return resolve(dProvider);
+              }).catch(function(err) {
+                logger.error(err);
+                return reject(err);
+              });
+            }).catch(function(err){
+              logger.error(err);
+              return reject(err);
+            });
+          }).catch(function(err){
+            logger.error(err);
+            return reject(err);
+          });
+        } else {
+          return dataProvider.getDataProviderType().then(function(dataProviderType) {
+            var dProvider = new DataModel.DataProvider(dataProvider.get());
+            dProvider.data_provider_type = dataProviderType.get();
+            self.data.dataProviders.push(dProvider);
+
+            return resolve(dProvider);
+          }).catch(function(err) {
+            logger.error(err);
+            return reject(err);
+          });
+        }
       }).catch(function(err){
         var message = "Could not save data provider due: ";
         logger.error(err.errors);
@@ -1399,7 +1497,7 @@ var DataManager = module.exports = {
 
       if (dataProvider) {
         models.db.DataProvider.update(dataProviderObject, Utils.extend({
-          fields: ["name", "timeout", "description", "uri", "active"],
+          fields: ["name", "description", "uri", "active"],
           where: {
             id: dataProvider.id
           }
@@ -1414,7 +1512,29 @@ var DataManager = module.exports = {
 
           dataProvider.active = dataProviderObject.active;
 
-          return resolve(new DataModel.DataProvider(dataProvider));
+          if (dataProviderObject.configuration){
+            var dataProviderConfPromises = [];
+
+            for (var key in dataProviderObject.configuration){
+              if (dataProviderObject.configuration.hasOwnProperty(key)){
+                var configRestriction = {
+                  data_provider_id: dataProviderId,
+                  key: key
+                };
+                var configObject = {
+                  value: dataProviderObject.configuration[key]
+                }
+              }
+              dataProviderConfPromises.push(self.upsertDataProviderConfigurations(configRestriction, configObject, options));
+            }
+            return Promise.all(dataProviderConfPromises).then(function(dataProvConfigs){
+              dataProvider.timeout = dataProviderObject.configuration.timeout;
+              dataProvider.active_mode = dataProviderObject.configuration.active_mode;
+              return resolve(new DataModel.DataProvider(dataProvider));
+            });
+          } else {
+            return resolve(new DataModel.DataProvider(dataProvider));
+          }
         }).catch(function(err) {
           return reject(new exceptions.DataProviderError("Could not update data provider ", err));
         });
