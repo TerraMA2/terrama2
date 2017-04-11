@@ -4,120 +4,286 @@
 
 {% block styles %}
 
-<style type="text/css">
-    th
-    {
-        background: #D2D6DE none repeat scroll 0% 0% !important;
-    }
+  <link rel="stylesheet" href="/bower_components/angular-ui-select/dist/select.min.css" />
 
-    .intl-tel-input
-    {
-        display: block !important;
-    }
-</style>
+{% endblock %}
+
+{% block javascripts %}
+
+<!-- Moment Datetime JS -->
+<script type="text/javascript" src="/bower_components/moment/moment.js"></script>
+
+<script type="text/javascript" src="/bower_components/moment/locale/pt-br.js"></script>
+<script type="text/javascript" src="/bower_components/moment/locale/es.js"></script>
+<script type="text/javascript" src="/bower_components/moment/locale/fr.js"></script>
+<script src="/bower_components/angular-ui-select/dist/select.min.js"></script>
 
 {% endblock %}
 
 {% block content %}
-
-    <!-- User Analysis Modal -->
-    {% include "../base/userAnalysisModal.html" %}
-
-    <!-- Area of Interest Modal -->
-    {% include "../base/areaOfInterestModal.html" %}
-
+<div ng-controller="AlertRegisterUpdateController as ctrl">
+  <terrama2-box title="i18n.__('Alert Registration')">
     <div class="col-md-12">
-        <div class="box box-default">
-            <div class="box-header with-border">
-                <h3 class="box-title">{{ i18n.__('Alert Registration') }}</h3>
-            </div>
-            <!-- /.box-header -->
-            <div style="display: block;" class="box-body">
+      <terrama2-alert-box2 handler="ctrl.MessageBoxService.alertBox" close="ctrl.close()"></terrama2-alert-box2>
+    </div>
+    <terrama2-box title="i18n.__('General Data')" css="ctrl.css">
+      <form name="forms.alertForm">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="col-md-6">
+              <div class="form-group" terrama2-show-errors>
+                <label><span ng-bind="i18n.__('Name')">:</span></label>
+                <input class="form-control"
+                       name="name"
+                       ng-model="ctrl.name"
+                       placeholder="{{ i18n.__('Alert Name') }}" type="text" required>
 
-                <div class="col-md-12">
-                    <div class="box box-default box-solid">
-                        <div class="box-header with-border">
-                            <h3 class="box-title">{{ i18n.__('General Data') }}</h3>
-                            <div class="box-tools pull-right">
-                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <!-- /.box-header -->
-                        <div style="display: block;" class="box-body">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label>{{ i18n.__('User') }}</label>
-                                        <select class="form-control">
-                                            <option>joao</option>
-                                        </select>
-                                    </div>
-                                </div>
+                <span class="help-block"
+                      ng-show="forms.alertForm.name.$dirty && forms.alertForm.name.$invalid"
+                      ng-class="{'has-error': alertForm.name.$invalid}"
+                      ng-bind="i18n.__('Alert name is required')">
+                </span>
+              </div>
+            </div> <!-- ./col-md-5 -->
+            <div class="col-md-4">
+              <div class="form-group" terrama2-show-errors>
+                <label><span ng-bind="i18n.__('Service')">:</span></label>
+                <input class="form-control"
+                       name="service"
+                       ng-model="ctrl.service" type="text" required>
 
-                                <div class="col-md-12">
-                                    <label>{{ i18n.__('Selected Project') }}:</label>
-
-                                    <button data-toggle="modal" data-target="#userAnalisysModal" class="btn btn-box-tool btn-lg terrama2-link">
-                                        <i class="fa fa-plus"></i>
-                                    </button>
-
-                                    <button type="button" class="btn btn-box-tool btn-lg terrama2-link" id="removeAnalysisListButton"><i class="fa fa-minus"></i>
-                                    </button>
-
-                                    <table class="table table-bordered table-hover">
-                                        <tr>
-                                            <th>-</th>
-                                            <th>{{ i18n.__('Project') }}</th>
-                                            <th>{{ i18n.__('E-mail') }}</th>
-                                            <th>{{ i18n.__('Cell phone') }}</th>
-                                        </tr>
-                                        <tr>
-                                            <td>1</td>
-                                            <td>P1</td>
-                                            <td>1-Observation</td>
-                                            <td>1-Observation</td>
-                                        </tr>
-                                        <tr>
-                                            <td>2</td>
-                                            <td>P2</td>
-                                            <td>1-Observation</td>
-                                            <td>1-Observation</td>
-                                        </tr>
-                                    </table>
-                                </div>
-
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label>{{ i18n.__('Area of interest for notification') }}:</label>
-
-                                        <button data-toggle="modal" data-target="#areaOfInterestModal" class="btn btn-box-tool btn-lg terrama2-link">
-                                            <i class="fa fa-plus"></i>
-                                        </button>
-
-                                        <button type="button" class="btn btn-box-tool btn-lg terrama2-link"><i class="fa fa-minus"></i>
-                                        </button>
-
-                                        <select class="terrama2-list-align" multiple="" class="form-control" id="sel2">
-
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- /.row -->
-                        </div>
-                        <!-- /.box body -->
-                    </div>
+                <span class="help-block"
+                      ng-show="forms.alertForm.service.$dirty && forms.alertForm.service.$error.required"
+                      ng-bind="i18n.__('Service is required')">
+                </span>
+              </div>
+            </div> <!-- ./col-md-5 -->
+            <div class="col-md-2">
+              <div class="form-group">
+                <div class="checkbox">
+                  <label style="font-weight: 700; margin-top:19px;">
+                    <input type="checkbox"
+                           name="active"
+                           ng-model="ctrl.view.active"> <span ng-bind="i18n.__('Active')"></span>
+                  </label>
                 </div>
-
+              </div>
+            </div> <!-- ./col-md-2 -->
+          </div><!-- ./col-md-12 -->
+          <div class="col-md-12">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label><span ng-bind="i18n.__('Description')"></span>:</label>
+                <textarea class="form-control"
+                          ng-model="ctrl.alert.description"
+                          rows="3"
+                          placeholder="{{ i18n.__('Alert Description') }}"></textarea>
+              </div>
+              <!-- /.form-group -->
             </div>
-            <!-- /.box body -->
-
-            <div class="box-footer">
-                <a href="/configuration/alerts" class="btn btn-primary pull-right" style="margin-left: 10px;">{{ i18n.__('Cancel') }}</a>
-                <button type="submit" class="btn btn-primary pull-right" style="margin-left: 10px;">{{ i18n.__('OK') }}</button>
-            </div>
+          </div>
         </div>
-    </div> <!-- end col md 12 -->
+      </form>
+    </terrama2-box>
 
+    <terrama2-box title="i18n.__('Data Series')" css="ctrl.css">
+      <form name="forms.dataSeriesForm">
+        <div class="col-md-6">
+          <div class="form-group" terrama2-show-errors>
+            <label><span ng-bind="i18n.__('Data Series')"></span>:</label>
+            
+            <input class="form-control"
+                    name="dataSeries"
+                    ng-model="ctrl.data_series_id" type="text" required>
+
+            <span class="help-block"
+              ng-show="forms.dataSeriesForm.dataSeries.$dirty && forms.dataSeriesForm.dataSeries.$error.required"
+              ng-bind="i18n.__('Data Series is required')">
+            </span>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="form-group" terrama2-show-errors>
+            <label><span ng-bind="i18n.__('Risk attribute')"></span>:</label>
+            
+            <input class="form-control"
+                    name="riskAttribute"
+                    ng-model="ctrl.data_series_id" type="text" required>
+
+            <span class="help-block"
+              ng-show="forms.dataSeriesForm.riskAttribute.$dirty && forms.dataSeriesForm.riskAttribute.$error.required"
+              ng-bind="i18n.__('Risk attribute is required')">
+            </span>
+          </div>
+        </div>
+      </form>
+    </terrama2-box>
+
+    <terrama2-box title="i18n.__('Risk Level')" css="ctrl.css">
+      <form name="forms.riskLevel">
+        <div class="col-md-3">
+          <div class="form-group" terrama2-show-errors>
+            
+            <label><span ng-bind="i18n.__('Risk Level')"></span>:</label>
+            <input class="form-control"
+                    name="riskLevel"
+                    ng-model="ctrl.riskLevel" type="text" 
+                    placeholder="New Risk Level" required>
+
+          </div>
+        </div>
+
+        <div class="col-md-6 row">
+          <div class="col-md-12">
+            <div class="form-group" terrama2-show-errors>
+
+              <label><span ng-bind="i18n.__('Risk Level Name')"></span>:</label>
+              <input class="form-control"
+                name="riskLevelName"
+                ng-model="ctrl.risk_level_name" type="text" required>
+            </div>
+          </div>
+
+          <div class="col-md-12">
+            <div class="form-group" terrama2-show-errors>
+              <label><span ng-bind="i18n.__('Risk Level Description')"></span>:</label>
+              
+              <textarea class="form-control"
+                        ng-model="ctrl.risk_level_description"
+                        rows="3"
+                        placeholder="{{ i18n.__('Risk Level Description') }}"></textarea>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group" terrama2-show-errors>
+              <label><span ng-bind="i18n.__('Risk Name')"></span>:</label>
+              <input class="form-control"
+                name="riskName"
+                ng-model="ctrl.risk_name" type="text" required>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group" terrama2-show-errors>
+              <label><span ng-bind="i18n.__('Risk Value')"></span>:</label>
+              <input class="form-control"
+                name="riskValue"
+                ng-model="ctrl.risk_value" type="text" required>
+            </div>
+          </div>
+
+        </div>
+
+      </form>
+    </terrama2-box>
+
+    <terrama2-box title="i18n.__('Report')" css="ctrl.css">
+      <form name="forms.reportForm">
+        <div class="col-md-6">
+          <div class="form-group" terrama2-show-errors>
+            <label><span ng-bind="i18n.__('Title')"></span>:</label>
+            
+            <input class="form-control"
+                    name="reportTitle"
+                    ng-model="ctrl.reportTitle" type="text" required>
+
+          </div>
+        </div>
+
+        <div class="col-md-12">
+          <div class="form-group" terrama2-show-errors>
+            <label><span ng-bind="i18n.__('Description')"></span>:</label>
+            
+            <textarea class="form-control"
+                      ng-model="ctrl.reportDescription"
+                      rows="3"
+                      placeholder="{{ i18n.__('Report Description') }}"></textarea>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="form-group" terrama2-show-errors>
+            <label><span ng-bind="i18n.__('Description')"></span>:</label>
+            
+            <input class="form-control"
+                    name="documentFormat"
+                    ng-model="ctrl.documentFormat" type="text" required>
+          </div>
+        </div>
+
+      </form>
+    </terrama2-box>
+
+    <terrama2-box title="i18n.__('Notification')" css="ctrl.css">
+      <form name="forms.notificationForm">
+        <div class="col-md-6">
+          <div class="form-group" terrama2-show-errors>
+            <label><span ng-bind="i18n.__('Email')"></span>:</label>
+            
+            <input class="form-control"
+                   name="email"
+                   ng-model="ctrl.email" type="text" required>
+
+          </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="form-group">
+            <div class="checkbox">
+                <label style="font-weight: 700; margin-top:19px;">
+                <input type="checkbox"
+                        name="includeReport"
+                        ng-model="ctrl.includeReport"> <span ng-bind="i18n.__('Include report')"></span>
+                </label>
+            </div>
+            </div>
+        </div> <!-- ./col-md-2 -->
+
+        <div class="col-md-2">
+            <div class="form-group">
+            <div class="checkbox">
+                <label style="font-weight: 700; margin-top:19px;">
+                <input type="checkbox"
+                        name="notifyOnChange"
+                        ng-model="ctrl.notifyOnChange"> <span ng-bind="i18n.__('Notify on change')"></span>
+                </label>
+            </div>
+            </div>
+        </div> <!-- ./col-md-2 -->
+
+        <div class="col-md-2">
+            <div class="form-group">
+            <div class="checkbox">
+                <label style="font-weight: 700; margin-top:19px;">
+                <input type="checkbox"
+                        name="simplifiedReport"
+                        ng-model="ctrl.simplifiedReport"> <span ng-bind="i18n.__('Simplified Report')"></span>
+                </label>
+            </div>
+            </div>
+        </div> <!-- ./col-md-2 -->
+
+      </form>
+    </terrama2-box>
+
+    <div class="box-footer">
+      <div class="btn-group pull-right" style="margin-left: 10px;">
+        <button ng-disabled="!ctrl.isValid" type="button" class="btn btn-primary" ng-bind="i18n.__('Save and Run')" data-ng-click="ctrl.isValid && ctrl.save(true);"></button>
+        <button ng-disabled="!ctrl.isValid" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <span class="caret"></span>
+          <span class="sr-only"></span>
+        </button>
+        <ul class="dropdown-menu terrama2-button-dropdown">
+          <li><a href="javascript::void();" ng-disabled="!ctrl.isValid" data-ng-click="ctrl.isValid && ctrl.save(false);" ng-bind="i18n.__('Save')"></a></li>
+        </ul>
+      </div>
+      <a href="/configuration/alerts/" class="btn btn-primary pull-right" style="margin-left: 10px;">
+        <span ng-bind="i18n.__('Cancel')"></span>
+      </a>
+    </div>
+
+  </terrama2-box>
+</div>
 {% endblock %}

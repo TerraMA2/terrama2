@@ -3786,6 +3786,140 @@ var DataManager = module.exports = {
   },
 
   /**
+   * It performs save alert in database
+   *
+   * @param {Object} alertObject - An alert values to save
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Alert>}
+   */
+  addAlert: function(alertObject, options){
+    var self = this;
+    return new Promise(function(resolve, reject){
+      var alertResult;
+      var scheduleResult;
+      var reportMetadataResult;
+      var additionalDataResult;
+      var riskResult;
+      var notificationResult;
+      return models.db.Alert.create(alertObject, options)
+        .then(function(alert){
+          alertResult = alert;
+          return self.getConditionalSchedule({id: alertResult.conditional_schedule_id}, options);
+        })
+        .then(function(schedule){
+          scheduleResult = schedule;
+          var reportMetadata = alertObject.reportMetadata;
+          reportMetadata.alert_id = alertResult.id;
+          return self.addReportMetadata(reportMetadata, options);
+        })
+        .then(function(reportMetadata){
+          reportMetadataResult = reportMetadata;
+          var alertAdditionalData = alertObject.additionalData;
+          var additionalDataPromises = [];
+          alertAdditionalData.forEach(function(alertAD){
+            alertAD.alert_id = alertResult.id;
+            additionalDataPromises.push(self.addAlertAdditionalData(alertAD, options));
+          });
+          return Promise.all(additionalDataPromises);
+        })
+        .then(function(additionalData){
+          additionalDataResult = additionalData;
+          var risk = alertObject.risk;
+          risk.alert_id = alertResult.id;
+          return self.addRisk(risk, options);
+        })
+        .then(function(risk){
+          riskResult = risk;
+          var notifications = alertObject.notifications;
+          var notificationsPromises = [];
+          notifications.forEach(function(notification){
+            notification.alert_id = alertResult.id;
+            notificationsPromises.push(self.addAlertNotification(notification, options));
+          });
+          return Promise.all(notificationsPromises);
+        })
+        .then(function(notifications){
+          notificationResult = notifications;
+          return resolve(new DataModel.Alert(Object.assign(alertResult.get(), objectToAssign)));
+        })
+        .catch(function(err){
+          return reject(new Error(Utils.format("Could not save alert due %s", err.toString())));
+        });
+    });
+  },
+
+  addReportMetadata: function(reportMetadaObject, options){
+    return new Promise(function(resolve, reject){
+      return models.db.ReportMetadata.create(reportMetadaObject, options)
+        .then(function(reportMetadaResult){
+          return resolve(reportMetadaResult.get());
+        })
+        .catch(function(err){
+          return reject(new Error(Utils.format("Could not save alert report metadata due %s", err.toString())));
+        });
+    });
+  },
+
+  addAlertAdditionalData: function(additionalDataObject, options){
+    return new Promise(function(resolve, reject){
+      return models.db.AlertAdditionalData.create(additionalDataObject, options)
+        .then(function(additionalDataResult){
+          return resolve(additionalDataResult.get());
+        })
+        .catch(function(err){
+          return reject(new Error(Utils.format("Could not save alert additional data due %s", err.toString())));
+        })
+    });
+  },
+
+  addRisk: function(riskObject, options){
+    var self = this;
+    return new Promise(function(resolve, reject){
+      return models.db.Risk.create(riskObject, options)
+        .then(function(riskResult){
+          var riskLevelPromises = [];
+          var riskLevels = riskObject.levels;
+          riskLevels.forEach(function(riskLevel){
+            riskLevel.risk_id = riskResult.id;
+            riskLevelPromises.push(self.addRiskLevel(riskLevel, options));
+          });
+          return Promise.all(riskLevelPromises)
+          .then(function(){
+            return resolve();
+          })
+        })
+        .catch(function(err){
+          return reject(new Error(Utils.format("Could not save risk due %s", err.toString())));
+        });
+    });
+  },
+
+  addRiskLevel: function(riskLevelObject, options){
+    return new Promise(function(resolve, reject){
+      return models.db.RiskLevel.create(riskLevelObject, options)
+        .then(function(riskLevelResult){
+          return resolve(riskLevelResult.get());
+        })
+        .catch(function(err){
+          return reject(new Error(Utils.format("Could not save risk level due %s", err.toString())));
+        });
+    });
+  },
+
+  addAlertNotification: function(alertNotificationObject, options){
+    return new Promise(function(resolve, reject){
+      return models.db.AlertNotification.create(alertNotificationObject, options)
+        .then(function(alertNotificationResult){
+          return resolve(alertNotificationResult.get());
+        })
+        .catch(function(err){
+          return reject(new Error(Utils.format("Could not save Alert Notification due %s", err.toString())));
+        });
+    })
+  },
+
+  /**
    * It retrieves a list of views in database
    *
    * @param {Object} restriction - A query restriction

@@ -5,7 +5,7 @@ module.exports = function(app) {
             response.render("configuration/alerts");
         },
         new: function(request, response){
-            response.render("configuration/alerts");
+            response.render("configuration/alert");
         }
     }
     return controllers;

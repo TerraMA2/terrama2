@@ -81,6 +81,15 @@ var Alert = function(params) {
   this.setAlertNotifications(params.AlertNotifications || params.alertNotifications);
   
 };
+
+Alert.prototype.setConditionalSchedule = function(conditionalSchedule) {
+  if (conditionalSchedule.ConditionalSchedule) {
+    this.conditionalSchedule = new ConditionalSchedule(conditionalSchedule.ConditionalSchedule.get() || {});
+  } else {
+    this.conditionalSchedule = conditionalSchedule || {};
+  }
+};
+
 /**
  * It sets additional data.
  * @param {Sequelize.Model[]|Object[]}
