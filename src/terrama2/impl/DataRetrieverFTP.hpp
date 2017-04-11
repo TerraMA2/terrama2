@@ -37,7 +37,7 @@
 
 // TerraMA2
 #include "../core/utility/Raii.hpp"
-#include "../core/utility/CurlPtr.hpp"
+#include "../core/utility/CurlWrapperFtp.hpp"
 #include "../core/data-access/DataRetriever.hpp"
 #include "../core/Shared.hpp"
 
@@ -71,7 +71,7 @@ namespace terrama2
          * \exception DataRetrieverException when FTP address is invalid.
          * \exception DataRetreiverFTPException when unknown Error, FTP address is invalid.
         */
-        explicit DataRetrieverFTP(DataProviderPtr dataprovider, CurlPtr&& curlwrapper);
+        explicit DataRetrieverFTP(DataProviderPtr dataprovider, CurlWrapperFtp&& curlwrapper);
 
         /*!
          * \brief DataRetrieverFTP Default Destructor.
@@ -114,33 +114,12 @@ namespace terrama2
          */
         virtual std::vector<std::string> checkSubfolders(const std::vector<std::string> baseURIs,
                                                          const std::string mask);
-        /*!
-         * \brief write_response - data to be written in file.
-         * Define our callback to get called when there's data to be written in file.
-         * \param ptr - pointer to the data stream.
-         * \param size - byte length of each data element.
-         * \param nmemb - data elements.
-         * \param data - data stream.
-         * \return Returns the number of items that were successfully read.
-         */
-        static size_t write_response(void* ptr, size_t size, size_t nmemb, void* data);
-
-        /*!
-         * \brief write_vector - data to be written in vector.
-         * Define our callback to get called when there's data to be written in vector.
-         * \param ptr - pointer to the data stream.
-         * \param size - byte length of each data element.
-         * \param nmemb - data elements.
-         * \param data - data stream.
-         * \return Returns the number of items that were successfully read.
-         */
-        static size_t write_vector(void* ptr, size_t size, size_t nmemb, void* data);
-
+                                                         
         static DataRetrieverPtr make(DataProviderPtr dataProvider);
         static DataRetrieverType dataRetrieverType() { return "FTP"; }
 
       private:
-        CurlPtr curlwrapper_; //!< Attribute for Handler CurlPtr.
+        CurlWrapperFtp curlwrapper_; //!< Curl handler.
     };
 
     typedef std::shared_ptr<DataRetriever> DataRetrieverPtr;//!< Shared pointer to a DataRetriever.

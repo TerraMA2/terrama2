@@ -222,7 +222,7 @@ var Utils = module.exports = {
       var dataProvidersResult = DataManager.listDataProviders();
       var providers = [];
       dataProvidersResult.forEach(function(dataProvider) {
-        providers.push(dataProvider.toObject());
+        providers.push(dataProvider.toService());
       }); // end foreach dataProvidersResult
 
       // getting dataseries
