@@ -67,7 +67,7 @@ namespace terrama2
         CURL* fcurl() const;
 
         //! The function verifyURL checks if the "url" parameter is passed by valid.
-        virtual CURLcode verifyURL(std::string url);
+        virtual CURLcode verifyURL(std::string url, uint32_t timeout);
 
         //! The function getListFiles returns vector with the files found on the server.
         virtual std::vector<std::string> getFtpList(const std::string& url,

@@ -20,45 +20,29 @@
 */
 
 /*!
-  \file terrama2/core/data-model/DataSeriesRisk.hpp
+  \file terrama2/core/data-model/Risk.hpp
 
   \brief Models the information of a DataSeries.
 
   \author Jano Simas
 */
 
-#include "DataSeriesRisk.hpp"
+#include "Risk.hpp"
 #include "../utility/Logger.hpp"
 #include "../Exception.hpp"
 
 #include <QString>
 #include <QObject>
 
-std::tuple<int, std::string> terrama2::core::DataSeriesRisk::riskLevel(const std::string& value) const
+std::tuple<int, std::string> terrama2::core::Risk::riskLevel(double value) const
 {
-  auto pos = std::find_if(std::begin(riskLevels), std::end(riskLevels), [value](const RiskLevel& risk) { return risk.textValue == value;});
-
-  if(pos != std::end(riskLevels))
-  {
-    return std::make_tuple((*pos).level, (*pos).name);
-  }
-  else
-  {
-    QString errMsg = QObject::tr("Risk level not defined for value: %1").arg(QString::fromStdString(value));
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw DataSeriesRiskException() << ErrorDescription(errMsg);
-  }
-}
-
-std::tuple<int, std::string> terrama2::core::DataSeriesRisk::riskLevel(double value) const
-{
-  for (int i = 0; i < riskLevels.size(); ++i)
+  for (size_t i = 0; i < riskLevels.size(); ++i)
   {
     auto riskLevel = riskLevels[i];
-    if(value >= riskLevels[i].lowerBound)
+    if(value >= riskLevels[i].value)
     {
       bool hasNext = i + 1 < riskLevels.size();
-      if(hasNext && value < riskLevels[i + 1].lowerBound)
+      if(hasNext && value < riskLevels[i + 1].value)
       {
         return std::make_tuple(riskLevel.level, riskLevel.name);
       }
@@ -75,7 +59,7 @@ std::tuple<int, std::string> terrama2::core::DataSeriesRisk::riskLevel(double va
   throw DataSeriesRiskException() << ErrorDescription(errMsg);
 }
 
-std::string terrama2::core::DataSeriesRisk::riskName(const int level) const
+std::string terrama2::core::Risk::riskName(const int level) const
 {
   for (unsigned int i = 0; i < riskLevels.size(); ++i)
   {

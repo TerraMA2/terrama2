@@ -32,7 +32,7 @@
 
 // TerraMA2
 #include "Typedef.hpp"
-#include "../../../core/data-model/DataSeriesRisk.hpp"
+#include "../../../core/data-model/Risk.hpp"
 #include "../../../core/data-model/Schedule.hpp"
 #include "../../../core/data-model/Filter.hpp"
 #include "../../../core/data-model/Process.hpp"
@@ -78,9 +78,11 @@ namespace terrama2
           bool active = true;//!< Flag if the alert is active.
           std::string name; //!< Name of the alert.
           std::string description; //!< Short description of the purpose of the alert.
+          DataSeriesId dataSeriesId = 0; //!< The DataSeries that will be used for risk analysis.
           ServiceInstanceId serviceInstanceId; //!< Identifier of the service instance that should run the alert.
 
-          terrama2::core::DataSeriesRisk risk;//!< Risk rule of the alert
+          std::string riskAttribute;//!< Attribute of the DataSeries that will be used for risk analysis.
+          terrama2::core::Risk risk;//!< Risk rule of the alert
           terrama2::core::Schedule schedule; //!< Time schedule for the alert execution.
           terrama2::core::Filter filter;//!< Information on how input data should be filtered before the alert is created.
 
