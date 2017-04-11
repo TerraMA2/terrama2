@@ -58,7 +58,6 @@
 #include <boost/exception/diagnostic_information.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
-namespace po = boost::program_options;
 
 // STL
 #include <memory>
@@ -70,6 +69,8 @@ namespace po = boost::program_options;
 // Qt
 #include <QCoreApplication>
 #include <QTimer>
+
+namespace po = boost::program_options;
 
 const std::string analysisType = "analysis";
 const std::string collectorType = "collector";
