@@ -30,12 +30,13 @@
 #define __TERRAMA2_SERVICES_ALERT_IMPL_DOCUMENT_PDF_HPP__
 
 // TerraMA2
-#include "Utils.hpp"
 #include "../core/Report.hpp"
 #include "../core/Shared.hpp"
+#include "../core/Utils.hpp"
 
 // Qt
 #include <QtGui/QPainter>
+#include <QtGui/QPagedPaintDevice>
 #include <QtGui/QPdfWriter>
 #include <QtGui/QTextDocument>
 
@@ -56,43 +57,35 @@ namespace terrama2
 
             static std::string makeDocument(core::ReportPtr report)
             {
-              std::string body;
+              std::string body = "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>Excel To HTML using codebeautify.org</title></head><body><!DOCTYPE html><html><head><style>body{background-color:#ffffff;font-size:15px;}h1{color:blue;text-align:center;}p{font-family:\"Times New Roman\";}</style></head><body><h1>%TITLE%</h1><p>%ABSTRACT%</p><p>%DESCRIPTION%</p><hr>%COMPLETE_DATA%<hr><p>%COPYRIGHT%</p></body></html>";
 
-              body = "<b>" + report->author() + "</b><br/>";
-              body += report->abstract() + "<br/>";
-              body += report->description() + "<br/>";
-
-
-              body+= terrama2::services::alert::core::dataSetHtmlTable(report->retrieveData());
-
-              body += report->copyright() + "<br/>";
+              core::replaceReportTags(body, report);
 
               std::string path = "/home/vinicius/pdftest.pdf";
 
               QPdfWriter writer(QString::fromStdString(path));
               writer.setPageSize(QPagedPaintDevice::A4);
-            //  writer.setPageMargins(QMargins(30, 30, 30, 30));
 
-              QPagedPaintDevice::Margins margins;
+              // Qt > 5.2
+              writer.setPageMargins(QMargins(30, 30, 30, 30));
+              writer.setResolution(100);
 
-              margins.bottom = 30;
-              margins.left = 30;
-              margins.right = 30;
-              margins.top = 30;
-              writer.setMargins(margins);
-
-              QPainter painter(&writer);
-              painter.translate(QPointF(50,50));
-              painter.setPen(Qt::black);
-              painter.setFont(QFont("Times", 120));
+              // Qt < 5.3
+//              QPagedPaintDevice::Margins margins;
+//              margins.bottom = 30;
+//              margins.left = 30;
+//              margins.right = 30;
+//              margins.top = 30;
+//              writer.setMargins(margins);
 
               QTextDocument td;
               td.setHtml(QString::fromStdString(body));
-              td.setDefaultFont(QFont("Times", 120));
+              td.setDefaultFont(QFont("Times", 12));
+              td.setTextWidth(12);
 
-              td.drawContents(&painter);
+              td.adjustSize();
 
-              painter.end();
+              td.print(&writer);
 
               return path;
             }

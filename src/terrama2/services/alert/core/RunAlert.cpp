@@ -43,6 +43,7 @@
 #include "Notifier.hpp"
 #include "Utils.hpp"
 #include "utility/NotifierFactory.hpp"
+#include "utility/DocumentFactory.hpp"
 
 
 // Terralib
@@ -393,7 +394,6 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
       // Insert the risk properties
       for(size_t i = 0; i < vecDates.size(); i++)
       {
-        // TODO: month number instead of abbreviated name
         const std::string riskLevelProperty = validPropertyDateName(vecDates.at(i));
 
         te::dt::SimpleProperty* riskLevelProp = new te::dt::SimpleProperty(riskLevelProperty, te::dt::INT32_TYPE);
@@ -405,6 +405,8 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
       addAdditionalData(alertDataSet, alertPtr, additionalDataMap);
 
       ReportPtr reportPtr = std::make_shared<Report>(alertPtr, alertDataSet, vecDates);
+
+      std::string path = DocumentFactory::getInstance().makeDocument("PDF", reportPtr);
 
       NotifierPtr notifierPtr = NotifierFactory::getInstance().make("EMAIL", serverMap, reportPtr);
 
