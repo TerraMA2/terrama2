@@ -32,6 +32,10 @@
 #include "Utils.hpp"
 #include "../../../core/utility/Utils.hpp"
 
+// Qt
+#include <QString>
+
+
 std::string terrama2::services::alert::core::validPropertyDateName(const std::shared_ptr<te::dt::DateTime> dt)
 {
   std::stringstream ss;
@@ -41,4 +45,56 @@ std::string terrama2::services::alert::core::validPropertyDateName(const std::sh
   ss << dateTimeTZ->getTimeInstantTZ();
 
   return ss.str();
+}
+
+std::string terrama2::services::alert::core::dataSetHtmlTable(const std::shared_ptr<te::da::DataSet>& dataSet)
+{
+  if(!dataSet.get())
+    return "";
+
+  std::size_t numProperties = dataSet->getNumProperties();
+
+  std::string htmlTable = "<table border=\"1\">";
+
+  htmlTable += "<tr>";
+
+  for(std::size_t i = 0; i < numProperties; i++)
+  {
+    htmlTable += "<th>" + dataSet->getPropertyName(i) +"</th>";
+  }
+
+  htmlTable += "</tr>";
+
+  if(dataSet->isEmpty())
+    return htmlTable + "</table>";
+
+  dataSet->moveBeforeFirst();
+
+  while(dataSet->moveNext())
+  {
+    std::string line;
+
+    for(std::size_t i = 0; i < numProperties; i++)
+    {
+      line += "<td>" + dataSet->getAsString(i) +"</td>";
+    }
+
+    htmlTable += "<tr>" + line + "</tr>";
+  }
+
+  htmlTable += "</table>";
+
+  return htmlTable;
+}
+
+
+void terrama2::services::alert::core::replaceReportTags(std::string& text, ReportPtr report)
+{
+  terrama2::core::replaceAll(text, "%TITLE%", report->title());
+  terrama2::core::replaceAll(text, "%ABSTRACT%", report->abstract());
+  terrama2::core::replaceAll(text, "%AUTHOR%", report->author());
+  terrama2::core::replaceAll(text, "%COPYRIGHT%", report->copyright());
+  terrama2::core::replaceAll(text, "%DESCRIPTION%", report->description());
+
+  terrama2::core::replaceAll(text, "%COMPLETE_DATA%", terrama2::services::alert::core::dataSetHtmlTable(report->retrieveAllData()));
 }

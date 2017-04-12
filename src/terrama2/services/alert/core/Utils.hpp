@@ -31,7 +31,12 @@
 #ifndef __TERRAMA2_SERVICES_ALERT_CORE_UTILS_HPP__
 #define __TERRAMA2_SERVICES_ALERT_CORE_UTILS_HPP__
 
+// TerraMA2
+#include "Report.hpp"
+
+// TerraLib
 #include <terralib/dataaccess/dataset/DataSet.h>
+
 
 namespace terrama2
 {
@@ -43,6 +48,15 @@ namespace terrama2
       {
 
         std::string validPropertyDateName(const std::shared_ptr<te::dt::DateTime> dt);
+
+        /*!
+         * \brief Receives a TerraLib dataSet and returns all his data as a HTML table
+         * \param dataSet The data set with data to put in table
+         * \return A string with the dataSet data formated as a HTML table
+         */
+        std::string dataSetHtmlTable(const std::shared_ptr<te::da::DataSet>& dataSet);
+
+        void replaceReportTags(std::string& text, ReportPtr report);
 
       } /* core */
     } /* alert */
