@@ -21,6 +21,7 @@
 
 //QT
 #include <QUrl>
+#include <QtGui>
 
 using ::testing::_;
 
@@ -181,9 +182,10 @@ terrama2::services::alert::core::AlertPtr newAlert()
   return alertPtr;
 }
 
-
 int main(int argc, char* argv[])
 {
+  QGuiApplication a(argc, argv);
+
   ::testing::GTEST_FLAG(throw_on_failure) = true;
   ::testing::InitGoogleMock(&argc, argv);
 
@@ -224,7 +226,6 @@ int main(int argc, char* argv[])
     terrama2::services::alert::core::runAlert(executionPackage, std::dynamic_pointer_cast<AlertLogger>(logger), dataManager, serverMap);
   }
 
-
-
+  a.exec();
   return 0;
 }
