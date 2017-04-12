@@ -48,7 +48,7 @@ terrama2::services::alert::core::Report::Report(AlertPtr alert,
   updateReportDataset(alertDataSet);
 }
 
-std::shared_ptr<te::da::DataSet> terrama2::services::alert::core::Report::retrieveData() const
+std::shared_ptr<te::da::DataSet> terrama2::services::alert::core::Report::retrieveAllData() const
 {
   return dataSet_;
 }
@@ -168,15 +168,41 @@ void terrama2::services::alert::core::Report::updateReportDataset(const std::sha
   dataSet->moveBeforeFirst();
   dataSet_ = std::make_shared<te::mem::DataSet>(*dataSet);
 
-  // Replace risk values
-  for(auto riskDate : riskDates_)
+  // if(!raster)
   {
-    std::string property = validPropertyDateName(riskDate);
-    auto pos = terrama2::core::propertyPosition(dataSet_.get(), property);
-
-    if(pos == std::numeric_limits<size_t>::max())
+    // Replace risk values
+    for(auto riskDate : riskDates_)
     {
-      QString errMsg = QObject::tr("Can't find property %1 !").arg(QString::fromStdString(property));
+      std::string property = validPropertyDateName(riskDate);
+      auto pos = terrama2::core::propertyPosition(dataSet_.get(), property);
+
+      if(pos == std::numeric_limits<size_t>::max())
+      {
+        QString errMsg = QObject::tr("Can't find property %1 !").arg(QString::fromStdString(property));
+        TERRAMA2_LOG_ERROR() << errMsg;
+        throw ReportException() << ErrorDescription(errMsg);
+      }
+
+      dataSet_->moveBeforeFirst();
+
+      while(dataSet_->moveNext())
+      {
+        if(!dataSet_->isNull(pos))
+        {
+          int numericRisk = dataSet_->getInt32(pos);
+          dataSet_->setString(property, alert_->risk.riskName(numericRisk));
+        }
+      }
+
+      dataSet_->setPropertyDataType(te::dt::STRING_TYPE, pos);
+    }
+
+    // Replace comparison property
+    auto posComparison = terrama2::core::propertyPosition(dataSet_.get(), "comparison_previous");
+
+    if(posComparison == std::numeric_limits<size_t>::max())
+    {
+      QString errMsg = QObject::tr("Can't find property %1 !").arg(QString("comparison_previous"));
       TERRAMA2_LOG_ERROR() << errMsg;
       throw ReportException() << ErrorDescription(errMsg);
     }
@@ -185,48 +211,25 @@ void terrama2::services::alert::core::Report::updateReportDataset(const std::sha
 
     while(dataSet_->moveNext())
     {
-      if(!dataSet_->isNull(pos))
+      std::string comp = "NULL";
+
+      if(!dataSet_->isNull(posComparison))
       {
-        int numericRisk = dataSet_->getInt32(pos);
-        dataSet_->setString(property, alert_->risk.riskName(numericRisk));
+        int resComp = dataSet_->getInt32(posComparison);
+
+        if(resComp == 0)
+          comp = "SAME";
+        else if(resComp == 1)
+          comp = "INCREASED";
+        else if(resComp == -1)
+          comp = "DECREASED";
+        else
+          comp = "UNKNOW";
       }
+
+      dataSet_->setString("comparison_previous" , comp);
     }
 
-    dataSet_->setPropertyDataType(te::dt::STRING_TYPE, pos);
+    dataSet_->setPropertyDataType(te::dt::STRING_TYPE, posComparison);
   }
-
-  // Replace comparison property
-  auto posComparison = terrama2::core::propertyPosition(dataSet_.get(), "comparison_previous");
-
-  if(posComparison == std::numeric_limits<size_t>::max())
-  {
-    QString errMsg = QObject::tr("Can't find property %1 !").arg(QString("comparison_previous"));
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw ReportException() << ErrorDescription(errMsg);
-  }
-
-  dataSet_->moveBeforeFirst();
-
-  while(dataSet_->moveNext())
-  {
-    std::string comp = "NULL";
-
-    if(!dataSet_->isNull(posComparison))
-    {
-      int resComp = dataSet_->getInt32(posComparison);
-
-      if(resComp == 0)
-        comp = "SAME";
-      else if(resComp == 1)
-        comp = "INCREASED";
-      else if(resComp == -1)
-        comp = "DECREASED";
-      else
-        comp = "UNKNOW";
-    }
-
-    dataSet_->setString("comparison_previous" , comp);
-  }
-
-  dataSet_->setPropertyDataType(te::dt::STRING_TYPE, posComparison);
 }

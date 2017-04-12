@@ -118,11 +118,13 @@ namespace terrama2
             //! Gets the timestamp format to be used in the report
             std::string timeStampFormat() const { return alert_->reportMetadata.at(ReportTags::TIMESTAMP_FORMAT); }
 
+            // TODO: //! Gets the name from origin DataSet
+
             /*!
              * \brief Returns a dataSet with all data
              * \return A dataSet with all data
              */
-            std::shared_ptr<te::da::DataSet> retrieveData() const;
+            std::shared_ptr<te::da::DataSet> retrieveAllData() const;
 
             /*!
              * \brief Gets a DataSet based in the values of the comparison property
