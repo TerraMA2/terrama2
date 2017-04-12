@@ -34,6 +34,7 @@
 
 #include "../core/SimpleCertificateVerifier.hpp"
 #include "../core/Report.hpp"
+#include "../core/Utils.hpp"
 
 // TerraLib
 #include <terralib/core/uri/URI.h>
@@ -65,25 +66,16 @@ void terrama2::services::alert::impl::NotifierEmail::send(const core::Recipient&
   mb.setRecipients(to);
   mb.setSubject(vmime::text(report_->title()));
 
-  std::string body;
+  // Message body
+  std::string body = "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>Excel To HTML using codebeautify.org</title></head><body><!DOCTYPE html><html><head><style>body{background-color:#ffffff;}h1{color:blue;text-align:center;}p{font-family:\"Times New Roman\";}</style></head><body><h1>%TITLE%</h1><p>%ABSTRACT%</p><p>%DESCRIPTION%</p><hr>%COMPLETE_DATA%<hr><p>%COPYRIGHT%</p></body></html>";
 
-  body = "<b>" + report_->author() + "</b><br/>";
-  body += report_->abstract() + "<br/>";
-  body += report_->description() + "<br/>";
-
-
-  body+= terrama2::services::alert::core::dataSetHtmlTable(report_->retrieveData());
-
-  body += report_->copyright() + "<br/>";
+  core::replaceReportTags(body, report_);
 
   mb.constructTextPart(vmime::mediaType(vmime::mediaTypes::TEXT, vmime::mediaTypes::TEXT_HTML));
   vmime::shared_ptr<vmime::htmlTextPart> textPart = vmime::dynamicCast<vmime::htmlTextPart>(mb.getTextPart());
   textPart->setCharset(vmime::charsets::ISO8859_15);
 
   textPart->setText(vmime::make_shared <vmime::stringContentHandler>(body));
-
-  // Message body
-//  mb.getTextPart()->setText(vmime::make_shared <vmime::stringContentHandler>(body));
 
   // Construction
   vmime::shared_ptr <vmime::message> msg = mb.construct();
@@ -99,4 +91,5 @@ void terrama2::services::alert::impl::NotifierEmail::send(const core::Recipient&
   tr->setCertificateVerifier(vmime::make_shared<SimpleCertificateVerifier>());
   tr->connect();
   tr->send(msg);
+
 }
