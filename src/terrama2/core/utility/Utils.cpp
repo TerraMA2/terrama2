@@ -569,3 +569,14 @@ std::vector<std::string> terrama2::core::splitString(const std::string& text, ch
 
   return splittedString;
 }
+
+void terrama2::core::replaceAll(std::string& text, const std::string& from, const std::string& to)
+{
+  size_t pos = 0;
+
+  while((pos = text.find(from, pos)) != std::string::npos)
+  {
+    text.replace(pos, from.size(), to);
+    pos += to.size();
+  }
+}
