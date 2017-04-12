@@ -8,31 +8,32 @@
 
 {% block javascripts %}
 
+<script type="text/javascript">
+  var configuration = {
+    message: "{[ message ]}"
+  };
+</script>
+
 {% endblock %}
 
 {% block content %}
 
-<div class="col-md-12" ng-controller="AlertListController as ctrl">
-  <div class="col-md-12">
-    <div class="box">
-      <div class="box-header with-border">
-        <h3 class="box-title">{{ i18n.__('Alerts') }}</h3>
-      </div><!-- /.box-header -->
+<div ng-controller="AlertListController as ctrl">
+  <terrama2-box title="i18n.__('Alerts')">
+    <div class="col-md-12">
+      <terrama2-alert-box2 handler="ctrl.MessageBoxService.alertBox" close="ctrl.close()"></terrama2-alert-box2>
+    </div>
 
-      <div class="box-body">
-        <terrama2-table fields="ctrl.fields"
-                        model="ctrl.model"
-                        link="ctrl.link"
-                        icon="ctrl.icon"
-                        icon-properties="ctrl.iconProperties"
-                        link-to-add="ctrl.linkToAdd"
-                        remove="ctrl.remove(object);">
-        </terrama2-table>
-      </div><!-- /.box-body -->
-
-    </div><!-- /.box -->
-  </div> <!-- end col md 6 -->
+      <terrama2-table fields="ctrl.fields"
+                      model="ctrl.model"
+                      link="ctrl.link"
+                      icon="ctrl.icon"
+                      icon-properties="ctrl.iconProperties"
+                      link-to-add="ctrl.linkToAdd"
+                      remove="ctrl.remove(object);"
+                      extra="ctrl.extra" order-by="'name'">
+      </terrama2-table>
+  </terrama2-box> <!-- end col md 6 -->
 
 </div> <!-- end col md 12 -->
-
 {% endblock %}

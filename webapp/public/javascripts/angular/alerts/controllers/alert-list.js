@@ -1,52 +1,88 @@
 define([], function(){
   "use strict";
 
-  function AlertList($scope, i18n, $q, AlertService){
+  function AlertList($scope, i18n, $q, AlertService, MessageBoxService){
     var self = this;
     self.i18n = i18n;
 
     self.AlertService = AlertService;
-    self.model = [
-      {
-        name: "Alert 1",
-        color: "blue"
-      },
-      {
-        name: "Alert 2",
-        color: "yellow"
-      },
-      {
-        name: "Alert 3",
-        color: "red"
-      }
-    ];
 
-    self.fields = ['name'];
-    self.linkToAdd = "/configuration/alerts/new";
-    self.link = function(object) {
-      return "";
+    /**
+     * Helper to reset alert box instance
+     */
+    self.close = function() {
+      self.MessageBoxService.reset();
     };
 
-    self.iconProperties = {
-      type: "icon"
-    };
+    /**
+     * MessageBox object to handle message dialogs (Singleton)
+     * @type {MessageBoxService}
+     */
+    self.MessageBoxService = MessageBoxService;
 
-    self.icon = function(object) {
-      if (object.color === 'blue')
-        return "fa fa-check label-primary";
+    /**
+     * It represents a cached views
+     * @type {Object[]}
+     */
+    self.model = [];
 
-      if (object.color === 'yellow')
-        return "fa fa-eye label-warning";
-
-      if (object.color === 'red')
-        return "fa fa-exclamation label-danger";
-
-      return "";
-    }
+    /**
+     * Fields to display in table
+     * @type {Object[]}
+     */
+    self.fields = [{
+      key: "name",
+      as: i18n.__("Name")
+    }, {
+      key: "description",
+      as: i18n.__("Description")
+    }];
 
     $q.all([AlertService.init()])
       .then(function(){
         self.model = AlertService.list();
+
+        self.linkToAdd = "/configuration/alerts/new";
+
+        /**
+         * It makes a link to Alert edit
+         *
+         * @param {View} object - Selected view
+         * @returns {string}
+         */
+        self.link = function(object) {
+          return "/configuration/alerts/edit/" + object.id;
+        };
+
+        /**
+         * Icon properties to display in table like size, type (img/icon)
+         * @type {Object}
+         */
+        self.iconProperties = {
+          type: "img",
+          width: 64,
+          height: 64
+        };
+
+         self.icon = function(object) {
+           return "/images/alert/monitored-object/monitored-object_alert.png"
+         }
+
+        /**
+         * Defines a properties to TerraMA² Table handle.
+         *
+         * @type {Object}
+         */
+        self.extra = {
+          removeOperationCallback: function(err, data) {
+            MessageBoxService.reset();
+            if (err) {
+              MessageBoxService.danger(i18n.__("View"), err.message);
+              return;
+            }
+            MessageBoxService.success(i18n.__("View"), data.result.name + i18n.__(" removed"));
+          }
+        }
         /**
          * Functor to make URL to remove selected view
          * @param {Object}
@@ -60,7 +96,7 @@ define([], function(){
       });
   }
 
-  AlertList.$inject = ["$scope", "i18n", "$q", "AlertService"];
+  AlertList.$inject = ["$scope", "i18n", "$q", "AlertService", "MessageBoxService"];
 
   return AlertList;
 });
