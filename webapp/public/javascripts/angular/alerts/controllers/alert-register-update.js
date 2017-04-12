@@ -5,7 +5,7 @@ define([], function() {
    * It represents a Controller to handle Alert form registration.
    * @class AlertRegistration
    */
-  function AlertRegisterUpdate($scope, $q, $window, $log, $http, $timeout, i18n, MessageBoxService, AlertService, DataSeriesService, Service) {
+  function AlertRegisterUpdate($scope, $q, $window, $log, $http, $timeout, i18n, MessageBoxService, AlertService, DataSeriesService, DataProviderService, AnalysisService, Service, UniqueNumber) {
     /**
      * @type {AlertRegisterUpdate}
      */
@@ -48,12 +48,14 @@ define([], function() {
 
     /**
      * It defines a list of cached data series
+     * 
      * @type {Object[]}
      */
     self.dataSeries = [];
 
     /**
      * It represents a terrama2 box styles
+     * 
      * @type {Object}
      */
     self.css = {
@@ -69,14 +71,46 @@ define([], function() {
 
     /**
      * It contains alert instance values
+     * 
      * @type {Object}
      */
-    self.alert = config.alert || {};
+    self.alert = config.alert || {
+      notifications: [
+        {
+          include_report: true,
+          notify_on_change: true,
+          simplified_report: false,
+          notify_on_risk_level: 1
+        }
+      ]
+    };
 
+    /**
+     * It contains the analysis table columns list
+     * 
+     * @type {array}
+     */
+    self.columnsList = [];
+
+    self.dataSeriesType = null;
+
+    /**
+     * It contains the pre existent risks
+     * 
+     * @type {array}
+     */
     self.risks = [
       {
         id: 0,
-        name: "New Risk"
+        name: "New Risk",
+        description: "",
+        levels: [
+          {
+            _id: UniqueNumber(),
+            name: "",
+            value: ""
+          }
+        ]
       },
       {
         id: 1,
@@ -84,13 +118,13 @@ define([], function() {
         description: "lala",
         levels: [
           {
+            _id: UniqueNumber(),
             name: "level1",
-            level: 1,
             value: 100
           },
           {
+            _id: UniqueNumber(),
             name: "level2",
-            level: 2,
             value: 200
           }
         ]
@@ -101,13 +135,13 @@ define([], function() {
         description: "lala",
         levels: [
           {
+            _id: UniqueNumber(),
             name: "level1",
-            level: 1,
             value: 100
           },
           {
+            _id: UniqueNumber(),
             name: "level2",
-            level: 2,
             value: 200
           }
         ]
@@ -118,41 +152,31 @@ define([], function() {
         description: "lala",
         levels: [
           {
+            _id: UniqueNumber(),
             name: "level1",
-            level: 1,
             value: 100
           },
           {
+            _id: UniqueNumber(),
             name: "level2",
-            level: 2,
             value: 200
           }
         ]
       },
     ];
 
-    self.risksAlert = [];
-
-    for(var i = 0, risksLength = self.risks.length; i < risksLength; i++) {
-      self.risksAlert.push(Object.assign({}, self.risks[i]));
-    }
-
-    self.riskModel = self.risksAlert[0];
-    self.riskModelLala = {
-      name: "",
-      description: "",
-      levels: [
-        {
-          name: "",
-          level: 1,
-          value: ""
-        }
-      ]
-    };
+    /**
+     * It contains the selected risk model
+     * 
+     * @type {object}
+     */
+    self.riskModel = self.risks[0];
 
     $q.all([
       i18n.ensureLocaleIsLoaded(),
-      DataSeriesService.init({schema: "all"})
+      DataSeriesService.init({schema: "all"}),
+      DataProviderService.init(),
+      AnalysisService.init()
     ]).then(function() {
       /**
        * Retrieve all service instances
@@ -164,11 +188,8 @@ define([], function() {
         /**
          * Retrieve data series
          */
-        self.dataSeries = DataSeriesService.list({
-          data_series_semantics: {
-            data_series_type_name: "ANALYSIS_MONITORED_OBJECT",
-            data_format_name: "POSTGIS"
-          }
+        self.dataSeries = DataSeriesService.list().filter(function(dataSeriesToFilter) {
+          return dataSeriesToFilter.data_series_semantics.data_series_type_name === "ANALYSIS_MONITORED_OBJECT" || dataSeriesToFilter.data_series_semantics.data_series_type_name === "GRID";
         });
 
         $timeout(function() {
@@ -239,75 +260,165 @@ define([], function() {
      * @returns {void}
      */
     self.onRisksChange = function() {
-      if(self.riskModel.id !== 0) {
-        self.riskModelLala = self.riskModel;
-      } else {
-        self.riskModelLala = {
-          name: "",
-          description: "",
-          levels: [
-            {
-              name: "",
-              level: 1,
-              value: 0
-            }
-          ]
-        };
-      }
-    };
-
-    self.newLevel = function() {
-      if(self.riskModel.id === 0) {
-        self.riskModelLala.levels.push({
-          name: "",
-          level: 1,
-          value: 0
-        });
-      } else {
-        for(var i = 0, risksLength = self.risksAlert.length; i < risksLength; i++) {
-          if(self.risksAlert[i].id === self.riskModel.id) {
-            self.risksAlert[i].levels.push({
-              name: "",
-              level: 1,
-              value: 0
-            });
-
-            break;
-          }
-        }
-      }
-    };
-
-    self.removeLevel = function(level) {
-      for(var i = 0, risksLength = self.risksAlert.length; i < risksLength; i++) {
-        if(self.risksAlert[i].id === self.riskModel.id) {
-          for(var j = 0, levelsLength = self.risksAlert[i].levels.length; j < levelsLength; j++) {
-            if(self.risksAlert[i].levels[j].level === level.level) {
-              self.risksAlert[i].levels.splice(j, 1);
-
-              break;
-            }
+      for(var i = 0, risksLength = self.risks.length; i < risksLength; i++) {
+        if(self.risks[i].id === self.riskModel.id) {
+          if(self.riskModel.id === 0) {
+            self.risks[i].name = "New Risk";
+            self.risks[i].description = "";
+            self.risks[i].levels = [
+              {
+                _id: UniqueNumber(),
+                name: "",
+                value: ""
+              }
+            ];
           }
 
+          self.riskModel = $.extend(true, {}, self.risks[i]);
           break;
         }
       }
     };
 
-    $scope.$watch("ctrl.riskModelLala.levels", function(newVal, oldVal) {
-      if(self.riskModelLala.levels.length > 1) {
-        var lastValue = self.riskModelLala.levels[0].value;
-        var orderError = false;
+    /**
+     * It handles DataSeries combobox change.
+     * 
+     * @returns {void}
+     */
+    self.onDataSeriesChange = function() {
+      var dataSeries = self.dataSeries.filter(function(dataSeriesToFilter) {
+        return dataSeriesToFilter.id == self.alert.data_series_id;
+      });
 
-        for(var i = 1, levelsLength = self.riskModelLala.levels.length; i < levelsLength; i++) {
-          if(lastValue > self.riskModelLala.levels[i].value) {
-            orderError = true;
-            break;
-          } else
-            lastValue = self.riskModelLala.levels[i].value;
+      if(dataSeries.length > 0) {
+        if(dataSeries[0].data_series_semantics.data_series_type_name === "ANALYSIS_MONITORED_OBJECT") {
+          var dataProvider = DataProviderService.list().filter(function(dataProvider) {
+            return dataProvider.id == dataSeries[0].data_provider_id;
+          });
+
+          var analysis = AnalysisService.list().filter(function(analysisToFilter) {
+            return analysisToFilter.output_dataset_id == dataSeries[0].dataSets[0].id;
+          });
+
+          if(dataProvider.length > 0 && analysis.length > 0) {
+            listColumns(dataProvider[0], dataSeries[0].dataSets[0].format.table_name);
+          }
+        } else {
+          self.columnsList = [];
+        }
+
+        self.dataSeriesType = dataSeries[0].data_series_semantics.data_series_type_name;
+      }
+    };
+
+    /**
+     * It creates a new level in the current risk.
+     * 
+     * @returns {void}
+     */
+    self.newLevel = function() {
+      self.riskModel.levels.push({
+        _id: UniqueNumber(),
+        name: "",
+        value: ""
+      });
+    };
+
+    /**
+     * It removes a given level from the current risk.
+     * 
+     * @returns {void}
+     */
+    self.removeLevel = function(level) {
+      for(var j = 0, levelsLength = self.riskModel.levels.length; j < levelsLength; j++) {
+        if(self.riskModel.levels[j]._id === level._id) {
+          self.riskModel.levels.splice(j, 1);
+          break;
+        }
+      }
+    };
+
+    /**
+     * Lists the columns from a given table.
+     * 
+     * @returns {void}
+     */
+    var listColumns = function(dataProvider, tableName) {
+      var result = $q.defer();
+
+      var params = getPostgisUriInfo(dataProvider.uri);
+      params.objectToGet = "column";
+      params.table_name = tableName;
+
+      var httpRequest = $http({
+        method: "GET",
+        url: "/uri/",
+        params: params
+      });
+
+      httpRequest.then(function(response) {
+        self.columnsList = response.data.data.map(function(item, index) {
+          return item.column_name;
+        });
+
+        result.resolve(response.data.data);
+      });
+
+      httpRequest.catch(function(err) {
+        result.reject(err);
+      });
+
+      return result.promise;
+    };
+
+    /**
+     * Helper function to parse a PostGIS URI.
+     * 
+     * @returns {object}
+     */
+    var getPostgisUriInfo = function(uri) {
+      var params = {};
+      params.protocol = uri.split(':')[0];
+      var hostData = uri.split('@')[1];
+
+      if(hostData) {
+        params.hostname = hostData.split(':')[0];
+        params.port = hostData.split(':')[1].split('/')[0];
+        params.database = hostData.split('/')[1];
+      }
+
+      var auth = uri.split('@')[0];
+
+      if(auth) {
+        var userData = auth.split('://')[1];
+
+        if(userData) {
+          params.user = userData.split(':')[0];
+          params.password = userData.split(':')[1];
+        }
+      }
+
+      return params;
+    };
+
+    $scope.$watch("ctrl.riskModel.levels", function(newVal, oldVal) {
+      if(self.riskModel.levels.length > 1) {
+        var lastValue = self.riskModel.levels[0].value;
+        var orderError = isNaN(lastValue) || lastValue === "";
+
+        if(!orderError) {
+          for(var i = 1, levelsLength = self.riskModel.levels.length; i < levelsLength; i++) {
+            if(isNaN(self.riskModel.levels[i].value) || self.riskModel.levels[i].value === "" || parseFloat(lastValue) > parseFloat(self.riskModel.levels[i].value)) {
+              orderError = true;
+              break;
+            } else
+              lastValue = self.riskModel.levels[i].value;
+          }
         }
 
         self.orderError = orderError;
+      } else {
+        self.orderError = isNaN(self.riskModel.levels[0].value) || self.riskModel.levels[0].value === "";
       }
     }, true);
 
@@ -386,7 +497,7 @@ define([], function() {
     }
   }
 
-  AlertRegisterUpdate.$inject = ["$scope", "$q", "$window", "$log", "$http", "$timeout", "i18n", "MessageBoxService", "AlertService", "DataSeriesService", "Service"];
+  AlertRegisterUpdate.$inject = ["$scope", "$q", "$window", "$log", "$http", "$timeout", "i18n", "MessageBoxService", "AlertService", "DataSeriesService", "DataProviderService", "AnalysisService", "Service", "UniqueNumber"];
 
   return AlertRegisterUpdate;
 });

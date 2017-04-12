@@ -4,7 +4,7 @@
 
 {% block styles %}
 
-  <link rel="stylesheet" href="/bower_components/angular-ui-select/dist/select.min.css" />
+<link rel="stylesheet" href="/bower_components/angular-ui-select/dist/select.min.css" />
 
 {% endblock %}
 
@@ -12,7 +12,6 @@
 
 <!-- Moment Datetime JS -->
 <script type="text/javascript" src="/bower_components/moment/moment.js"></script>
-
 <script type="text/javascript" src="/bower_components/moment/locale/pt-br.js"></script>
 <script type="text/javascript" src="/bower_components/moment/locale/es.js"></script>
 <script type="text/javascript" src="/bower_components/moment/locale/fr.js"></script>
@@ -22,6 +21,7 @@
   var configuration = {
     alert: {[ alert|json|safe ]}
   };
+
   var globals = {};
 </script>
 
@@ -105,12 +105,13 @@
 
     <terrama2-box title="i18n.__('Data Series')" css="ctrl.css">
       <form name="forms.dataSeriesForm">
-        <div class="col-md-6">
+        <div ng-class="{ 'col-md-6': ctrl.dataSeriesType !== null, 'col-md-12': ctrl.dataSeriesType === null }">
           <div class="form-group" terrama2-show-errors>
             <label><span ng-bind="i18n.__('Data Series')"></span>:</label>
             <ui-select
                     name="dataSeries"
                     ng-model="ctrl.alert.data_series_id"
+                    ng-change="ctrl.onDataSeriesChange()"
                     required>
               <ui-select-match>
                 <img ng-src="{{ctrl.getImageUrl($select.selected)}}" style="width: 20px; margin-top: -9px"/>
@@ -123,32 +124,43 @@
             </ui-select>
 
             <span class="help-block"
-              ng-show="forms.dataSeriesForm.dataSeries.$dirty && forms.dataSeriesForm.dataSeries.$error.required"
+              ng-show="forms.alertForm.dataSeries.$dirty && forms.alertForm.dataSeries.$error.required"
               ng-bind="i18n.__('Data Series is required')">
             </span>
           </div>
         </div>
 
-        <div class="col-md-6">
-          <div class="form-group" terrama2-show-errors>
-            <label><span ng-bind="i18n.__('Risk attribute')"></span>:</label>
-            
-            <input class="form-control"
-                    name="riskAttribute"
-                    ng-model="ctrl.alert.risk_attribute" type="text" required>
-
-            <span class="help-block"
-              ng-show="forms.dataSeriesForm.riskAttribute.$dirty && forms.dataSeriesForm.riskAttribute.$error.required"
-              ng-bind="i18n.__('Risk attribute is required')">
-            </span>
+        <span ng-if="ctrl.dataSeriesType !== null">
+          <div class="col-md-6">
+            <div class="form-group" terrama2-show-errors>
+              <label><span ng-bind="i18n.__('Risk attribute')"></span>:</label>
+              <span ng-if="ctrl.dataSeriesType === 'GRID'">
+                <input type="number"
+                      class="form-control"
+                      name="riskAttribute"
+                      ng-model="ctrl.alert.risk_attribute"
+                      required>
+              </span>
+              <span ng-if="ctrl.dataSeriesType === 'ANALYSIS_MONITORED_OBJECT'">
+                <input type="text"
+                      class="form-control"
+                      name="riskAttribute"
+                      ng-model="ctrl.alert.risk_attribute"
+                      required
+                      list='tableColumnsList'>
+              </span>
+              <span class="help-block"
+                ng-show="forms.alertForm.riskAttribute.$dirty && forms.alertForm.riskAttribute.$error.required"
+                ng-bind="i18n.__('Risk attribute is required')">
+              </span>
+            </div>
           </div>
-        </div>
+        </span>
       </form>
     </terrama2-box>
 
     <terrama2-box title="i18n.__('Risk Level')" css="ctrl.css">
       <form name="forms.riskLevel">
-
 
         <div class="col-md-4">
           <div class="form-group" terrama2-show-errors>
@@ -157,58 +169,45 @@
                         name="risks"
                         ng-change="ctrl.onRisksChange()"
                         ng-model="ctrl.riskModel"
-                        ng-options="i18n.__(risk.name) for risk in ctrl.risksAlert" required>
+                        ng-options="i18n.__(risk.name) for risk in ctrl.risks" required>
             </select>
           </div>
         </div>
         <div class="col-md-8 row">
           <div class="col-md-12">
             <div class="form-group" terrama2-show-errors>
-
               <label><span ng-bind="i18n.__('Risk Name')"></span>:</label>
-              <input class="form-control"
-                name="riskLevelName"
-                ng-model="ctrl.riskModelLala.name" type="text" required>
+              <input class="form-control" name="riskLevelName" ng-model="ctrl.riskModel.name" type="text" required>
             </div>
           </div>
           <div class="col-md-12">
             <div class="form-group" terrama2-show-errors>
               <label><span ng-bind="i18n.__('Risk Description')"></span>:</label>
-              
-              <textarea class="form-control"
-                        ng-model="ctrl.riskModelLala.description"
-                        rows="3"
-                        placeholder="{{ i18n.__('Risk Description') }}"></textarea>
+              <textarea class="form-control" ng-model="ctrl.riskModel.description" rows="3" placeholder="{{ i18n.__('Risk Description') }}"></textarea>
             </div>
           </div>
-          <span class="help-block"
-            ng-show="ctrl.orderError"
-            ng-bind="i18n.__('The levels values should be in order')">
-          </span>
-          <span ng-repeat="level in ctrl.riskModelLala.levels">
-            <div class="col-md-5">
-              <div class="form-group" terrama2-show-errors>
+          <span ng-repeat="level in ctrl.riskModel.levels">
+            <div ng-class="{ 'col-md-5': ctrl.riskModel.levels.length > 1, 'col-md-6': ctrl.riskModel.levels.length === 1 }">
+              <div class="form-group">
                 <label><span ng-bind="i18n.__('Level Name')"></span>:</label>
-                <input class="form-control"
-                  name="riskName"
-                  ng-model="level.name" type="text" required>
+                <input class="form-control" ng-model="level.name" type="text" required>
               </div>
             </div>
-            <div class="col-md-5">
-              <div class="form-group" terrama2-show-errors>
+            <div ng-class="{ 'col-md-5': ctrl.riskModel.levels.length > 1, 'col-md-6': ctrl.riskModel.levels.length === 1 }">
+              <div class="form-group" ng-class="{'has-error': ctrl.orderError}">
                 <label><span ng-bind="i18n.__('Risk Value')"></span>:</label>
-                <input class="form-control"
-                  name="riskValue"
-                  ng-model="level.value" type="text" required>
+                <input class="form-control" ng-model="level.value" type="number" required>
               </div>
             </div>
             <div class="col-md-2">
               <div class="form-group" terrama2-show-errors>
-                <button type="button" class="btn btn-primary" ng-click="ctrl.removeLevel(level)" style="margin-top: 25px;"><span ng-bind="i18n.__('Remove')"></span></button>
+                <button type="button" class="btn btn-primary" ng-click="ctrl.removeLevel(level)" style="margin-top: 25px;" ng-show="ctrl.riskModel.levels.length > 1"><span ng-bind="i18n.__('Remove')"></span></button>
               </div>
             </div>
           </span>
           <div class="col-md-12">
+            <span class="help-block" ng-show="ctrl.orderError" style="font-size: 15px; color: red;" ng-bind="i18n.__('The values of the levels must be numeric and be in a growing order')">
+            </span>
             <div class="form-group" terrama2-show-errors>
               <button type="button" class="btn btn-primary" ng-click="ctrl.newLevel()"><span ng-bind="i18n.__('New Level')"></span></button>
             </div>
@@ -219,7 +218,7 @@
 
     <terrama2-box title="i18n.__('Report')" css="ctrl.css">
       <form name="forms.reportForm">
-        <div class="col-md-6">
+        <div class="col-md-12">
           <div class="form-group" terrama2-show-errors>
             <label><span ng-bind="i18n.__('Title')"></span>:</label>
             
@@ -241,67 +240,63 @@
           </div>
         </div>
 
-        <div class="col-md-4">
-          <div class="form-group" terrama2-show-errors>
-            <label><span ng-bind="i18n.__('Description')"></span>:</label>
-            
-            <input class="form-control"
-                    name="documentFormat"
-                    ng-model="ctrl.documentFormat" type="text" required>
-          </div>
-        </div>
-
       </form>
     </terrama2-box>
 
     <terrama2-box title="i18n.__('Notification')" css="ctrl.css">
       <form name="forms.notificationForm">
-        <div class="col-md-6">
+        <div class="col-md-4">
           <div class="form-group" terrama2-show-errors>
-            <label><span ng-bind="i18n.__('Email')"></span>:</label>
-            
-            <input class="form-control"
-                   name="email"
-                   ng-model="ctrl.email" type="text" required>
+            <label><span ng-bind="i18n.__('Emails')"></span>:</label>
+            <textarea class="form-control"
+                    ng-model="ctrl.alert.recipients"
+                    rows="3"
+                    placeholder="{{ i18n.__('Emails') }}"
+                    required></textarea>
 
           </div>
         </div>
 
-        <div class="col-md-2">
-            <div class="form-group">
+        <div class="col-md-3">
+          <div class="form-group">
             <div class="checkbox">
-                <label style="font-weight: 700; margin-top:19px;">
-                <input type="checkbox"
-                        name="includeReport"
-                        ng-model="ctrl.includeReport"> <span ng-bind="i18n.__('Include report')"></span>
+                <label style="font-weight: 700;">
+                <input type="checkbox" name="includeReport" ng-model="ctrl.includeReport"> <span ng-bind="i18n.__('Include Report')"></span>
                 </label>
             </div>
+          </div>
+          <div class="form-group">
+            <select class="form-control" ng-model="ctrl.alert.notifications[0].include_report" ng-show="ctrl.includeReport">
+              <option value="pdf">PDF</option>
+              <option value="txt">TXT</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="form-group">
+            <div class="checkbox">
+                <label style="font-weight: 700;">
+                <input type="checkbox" name="simplifiedReport" ng-model="ctrl.notifyOnRiskLevel"> <span ng-bind="i18n.__('Notify on risk level')"></span>
+                </label>
             </div>
-        </div> <!-- ./col-md-2 -->
+          </div>
+          <div class="form-group">
+            <select class="form-control" ng-model="ctrl.alert.notifications[0].notify_on_risk_level" ng-show="ctrl.notifyOnRiskLevel" ng-options="i18n.__(riska.value) for riska in ctrl.riskModel.levels"></select>
+          </div>
+        </div>
 
         <div class="col-md-2">
-            <div class="form-group">
+          <div class="form-group">
             <div class="checkbox">
-                <label style="font-weight: 700; margin-top:19px;">
+                <label style="font-weight: 700;">
                 <input type="checkbox"
                         name="notifyOnChange"
                         ng-model="ctrl.notifyOnChange"> <span ng-bind="i18n.__('Notify on change')"></span>
                 </label>
             </div>
-            </div>
-        </div> <!-- ./col-md-2 -->
-
-        <div class="col-md-2">
-            <div class="form-group">
-            <div class="checkbox">
-                <label style="font-weight: 700; margin-top:19px;">
-                <input type="checkbox"
-                        name="simplifiedReport"
-                        ng-model="ctrl.simplifiedReport"> <span ng-bind="i18n.__('Simplified Report')"></span>
-                </label>
-            </div>
-            </div>
-        </div> <!-- ./col-md-2 -->
+          </div>
+        </div>
 
       </form>
     </terrama2-box>
@@ -323,5 +318,9 @@
     </div>
 
   </terrama2-box>
+
+  <datalist id='tableColumnsList'>
+    <option ng-repeat="column in ctrl.columnsList" value="{{column}}">
+  </datalist>
 </div>
 {% endblock %}
