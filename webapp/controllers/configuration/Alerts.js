@@ -1,12 +1,17 @@
 module.exports = function(app) {
+  'use strict';
 
-    var controllers = {
-        index: function(request, response){
-            response.render("configuration/alerts");
-        },
-        new: function(request, response){
-            response.render("configuration/alert");
-        }
+  var DataManager = require("./../../core/DataManager");
+  var makeTokenParameters = require('../../core/Utils').makeTokenParameters;
+
+  var controllers = {
+    get: function(request, response){
+        var parameters = makeTokenParameters(request.query.token, app);
+        response.render("configuration/alerts", parameters);
+    },
+    new: function(request, response){
+        response.render("configuration/alert");
     }
-    return controllers;
+  }
+  return controllers;
 };

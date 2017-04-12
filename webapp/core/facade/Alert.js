@@ -81,10 +81,77 @@
 
       .then(function(alert) {
         // sending to the services
+        sendAlert(alert, shouldRun);
         return resolve(alert);
       })
       
       .catch(function(err){
+        return reject(err);
+      });
+    });
+  };
+
+  /**
+   * It retrieves alerts from database. It applies a filter by ID if there is.
+   * 
+   * @param {number} alertId - View Identifier
+   * @param {number} projectId - A project identifier
+   * @returns {Promise<View[]>}
+   */
+  Alert.retrieve = function(alertId, projectId) {
+    return new PromiseClass(function(resolve, reject) {
+      if (alertId) {
+        return DataManager.getAlert({id: alertId})
+          .then(function(alert) { 
+            return resolve(alert.toObject()); })
+          .catch(function(err) { 
+            return reject(err); 
+          });
+      }
+
+      return DataManager.listAlerts({project_id: projectId})
+        .then(function(alerts) {
+          return resolve(alerts.map(function(alert) {
+            return alert.toObject();
+          }));
+        })
+
+        .catch(function(err) {
+          return reject(err);
+        });
+    });
+  };
+
+    /**
+   * It performs remove view from database from view identifier
+   * 
+   * @param {number} alertId - Alert Identifier
+   * @param {Object} viewObject - View object values
+   * @param {number} projectId - A project identifier
+   * @returns {Promise<View>}
+   */
+  Alert.remove = function(alertId) {
+    return new PromiseClass(function(resolve, reject) {
+      DataManager.orm.transaction(function(t) {
+        var options = {transaction: t};
+        
+        return DataManager.getAlert({id: alertId}, options)
+          .then(function(alert) {
+            return DataManager.removeAlert({id: alertId}, options)
+              .then(function() {
+                return alert;
+              });
+          });
+      })
+      
+      .then(function(alert) {
+        // removing views from tcp services
+        TcpService.remove({"Alerts": [alert.id]});
+
+        return resolve(alert);
+      })
+      
+      .catch(function(err) {
         return reject(err);
       });
     });

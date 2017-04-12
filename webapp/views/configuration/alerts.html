@@ -12,7 +12,7 @@
 
 {% block content %}
 
-<div class="col-md-12" ng-controller="AlertListController">
+<div class="col-md-12" ng-controller="AlertListController as ctrl">
   <div class="col-md-12">
     <div class="box">
       <div class="box-header with-border">
@@ -20,7 +20,14 @@
       </div><!-- /.box-header -->
 
       <div class="box-body">
-        <terrama2-table fields="fields" model="model" link="link" icon="icon" icon-properties="iconProperties" link-to-add="linkToAdd"></terrama2-table>
+        <terrama2-table fields="ctrl.fields"
+                        model="ctrl.model"
+                        link="ctrl.link"
+                        icon="ctrl.icon"
+                        icon-properties="ctrl.iconProperties"
+                        link-to-add="ctrl.linkToAdd"
+                        remove="ctrl.remove(object);">
+        </terrama2-table>
       </div><!-- /.box-body -->
 
     </div><!-- /.box -->

@@ -73,19 +73,19 @@ var Alert = function(params) {
    * @name Alert#report_metadata
    * @type {object}
    */
-  this.report_metadata = params.ReportMetadata ? params.ReportMetadata.get() : params.reportMetadata || {};
+  this.report_metadata = params.reportMetadata || [];
 
   /**
    * @name Alert#additional_data
    * @type {object}
    */
-  this.additional_data = params.AdditionalData ? params.AdditionalData.get() : params.additionalData || {};
+  this.additional_data = params.additionalData || [];
 
   /**
    * @name Alert#notifications
    * @type {object}
    */
-  this.notifications = params.Notifications ? params.Notifications.get() : params.notifications || {};
+  this.notifications = params.notifications || [];
   
 };
 

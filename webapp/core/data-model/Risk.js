@@ -27,21 +27,28 @@
      */
     this.id = params.id;
     /**
-     * Risk Data series ids
+     * Risk name
      * @type {string}
      */
     this.name = params.name;
 
-    if (params.levels){
-      this.levels = params.levels
-    } else if (params.RiskLevels || params.riskLevels) {
-      this.levels = params.RiskLevels || params.riskLevels;
+    this.levels = [];
+
+
+    if (params.levels || params.riskLevels){
+      this.levels = params.levels || params.riskLevels;
+    } else if (params.RiskLevels) {
+      var levelsList = [];
+      params.RiskLevels.forEach(function(level){
+        levelsList.push(level.get());
+      });
+      this.levels = levelsList;
     }
 
   };
 
   /**
-   * It sets additional data.
+   * It sets risk levels data.
    * @param {Sequelize.Model[]|Object[]}
    */
   Risk.prototype.setRiskLevels = function(RiskLevels) {

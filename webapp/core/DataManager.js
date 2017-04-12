@@ -3976,6 +3976,14 @@ var DataManager = module.exports = {
     });
   },
 
+  /**
+   * It performs a save report metadata and retrieve it
+   *
+   * @param {Object} reportMetadaObject - Report Metadata object to save
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Object>} An Report Metadata object created
+   */
   addReportMetadata: function(reportMetadaObject, options){
     return new Promise(function(resolve, reject){
       return models.db.ReportMetadata.create(reportMetadaObject, options)
@@ -3988,6 +3996,14 @@ var DataManager = module.exports = {
     });
   },
 
+  /**
+   * It performs a save additional data and retrieve it
+   *
+   * @param {Object} additionalDataObject - Additional data object to save
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Object>} An Additional data object created
+   */
   addAlertAdditionalData: function(additionalDataObject, options){
     return new Promise(function(resolve, reject){
       return models.db.AlertAdditionalData.create(additionalDataObject, options)
@@ -4000,6 +4016,14 @@ var DataManager = module.exports = {
     });
   },
 
+  /**
+   * It performs a save risk and retrieve it
+   *
+   * @param {Object} riskObject - Risk object to save
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Object>} A risk object created
+   */
   addRisk: function(riskObject, options){
     var self = this;
     return new Promise(function(resolve, reject){
@@ -4027,6 +4051,14 @@ var DataManager = module.exports = {
     });
   },
 
+  /**
+   * It performs a save risk level and retrieve it
+   *
+   * @param {Object} riskLevelObject - Risk level object to save
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Object>} A risk level object created
+   */
   addRiskLevel: function(riskLevelObject, options){
     return new Promise(function(resolve, reject){
       return models.db.RiskLevel.create(riskLevelObject, options)
@@ -4039,6 +4071,14 @@ var DataManager = module.exports = {
     });
   },
 
+  /**
+   * It performs a save alert notification and retrieve it
+   *
+   * @param {Object} alertNotificationObject - Alert notification object to save
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Object>} A alert notification object created
+   */
   addAlertNotification: function(alertNotificationObject, options){
     return new Promise(function(resolve, reject){
       return models.db.AlertNotification.create(alertNotificationObject, options)
@@ -4051,6 +4091,108 @@ var DataManager = module.exports = {
     })
   },
 
+  /**
+   * It retrieves an alert from database
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<DataModel.Alert>}
+   */
+  getAlert: function(restriction, options){
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      self.listAlerts(restriction, options)
+        .then(function(alerts) {
+          if (alerts.length === 0) {
+            return reject(new Error("No alert retrieved"));
+          }
+          if (alerts.length > 1) {
+            return reject(new Error("Get operation retrieved more than a view"));
+          }
+          return resolve(alerts[0]);
+        })
+        .catch(function(err) {
+          return reject(err);
+        });
+    });
+  },
+
+  /**
+   * It retrieves a list of alerts in database
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<DataModel.View[]>}
+   */
+  listAlerts: function(restriction, options){
+    var self = this;
+
+    return new Promise(function(resolve, reject) {
+      models.db.Alert.findAll(Utils.extend({
+        where: restriction || {},
+        include: [
+          {
+            model: models.db.AlertAdditionalData
+          },
+          {
+            model: models.db.AlertNotification
+          },
+          {
+            model: models.db.ConditionalSchedule
+          },
+          {
+            model: models.db.ReportMetadata
+          },
+          {
+            model: models.db.Risk,
+            include: [
+              {
+                model: models.db.RiskLevel
+              }
+            ]
+          }
+        ]
+      }, options))
+        .then(function(alerts){
+          return resolve(alerts.map(function(alert) {
+            var additionalDatas = [];
+            alert.AlertAdditionalData.forEach(function(additionalData){
+              additionalDatas.push(additionalData.get());
+            });
+
+            var notifications = [];
+            alert.AlertNotifications.forEach(function(notification){
+              notifications.push(notification.get());
+            });
+
+            var risk = new DataModel.Risk(alert.Risk.get());
+
+            var alertModel = new DataModel.Alert(Object.assign(alert.get(), {
+              conditional_schedule: alert.ConditionalSchedule ? new DataModel.ConditionalSchedule(alert.ConditionalSchedule.get()) : {},
+              additionalData: additionalDatas,
+              notifications: notifications,
+              reportMetadata: alert.ReportMetadatum.get(),
+              risk: risk
+            }));
+            return alertModel;
+          }))
+        })
+        .catch(function(err){
+          return reject(new Error("Could not list alerts " + err.toString()));
+        });
+    });
+  },
+
+  /**
+   * It retrieves a risk from database
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<DataModel.Risk>}
+   */
   getRisk: function(restriction, options){
     var self = this;
     return new Promise(function(resolve, reject) {
@@ -4063,12 +4205,50 @@ var DataManager = module.exports = {
         ]
       }, options)).then(function(risk) {
         if (risk) {
-          return resolve(new DataModel.Risk(risk.get()));
+          var riskLevels = [];
+          risk.RiskLevels.forEach(function(riskLevel){
+            riskLevels.push(riskLevel.get());
+          });
+          var riskObject = new DataModel.Risk(Object.assign(risk.get(),{
+            riskLevels: riskLevels
+          }));
+          return resolve(riskObject);
         }
         return reject(new Error("Could not find risk"));
       });
     });
+  },
 
+  /**
+   * It removes an alert from database
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object?} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise}
+   */
+  removeAlert: function(restriction, options){
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      var alert;
+      return self.getAlert(restriction, options)
+        .then(function(alertResult) {
+          alert = alertResult;
+          return self.removeConditionalSchedule({id: alert.conditional_schedule.id}, options);
+        })
+
+        .then(function() {
+          return models.db.Alert.destroy(Utils.extend({where: restriction}, options));
+        })
+
+        .then(function() {
+          return resolve();
+        })
+
+        .catch(function(err) {
+          return reject(new Error("Could not remove alert " + err.toString()));
+        });
+    });
   },
 
   /**

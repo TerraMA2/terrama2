@@ -2,7 +2,6 @@
   'use strict';
 
   // Dependencies
-  var DataManager = require("./../../core/DataManager");
   var handleRequestError = require("./../../core/Utils").handleRequestError;
   var TokenCode = require('./../../core/Enums').TokenCode;
   var Utils = require('./../../core/Utils');
@@ -13,7 +12,16 @@
   module.exports = function(app){
     return {
       get: function(request, response){
-        return 'getFunction';
+        var alertId = request.params.id;
+        
+        AlertFacade.retrieve(alertId, app.locals.activeProject.id)
+          .then(function(alerts) {
+            return response.json(alerts);
+          })
+
+          .catch(function(err) {
+            return handleRequestError(response, err, 400);
+          });
       },
       post: function(request, response){
         var alertObject = request.body;
@@ -31,10 +39,31 @@
           });
       },
       put: function(request, response){
-        return 'putFunction';
+        var alertId = parseInt(request.params.id);
+        var shouldRun = request.body.run;
+
+        AlertFacade.update(alertId, request.body, app.locals.activeProject.id, shouldRun)
+          .then(function(alert) {
+            var token = Utils.generateToken(app, TokenCode.UPDATE, alert.name);
+            return response.json({status: 200, result: alert.toObject(), token: token});
+          })
+
+          .catch(function(err) {
+            return handleRequestError(response, err, 400);
+          });
       },
       delete: function(request, response){
-        return 'deleteFunction';
+        var alertId = parseInt(request.params.id);
+
+        AlertFacade.remove(alertId)
+          .then(function(alert) {
+            var token = Utils.generateToken(app, TokenCode.DELETE, alert.name);
+            return response.json({status: 200, result: alert.toObject(), token: token});
+          })
+
+          .catch(function(err) {
+            return handleRequestError(response, err, 400);
+          });
       }
     }
   }

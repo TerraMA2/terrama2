@@ -7,6 +7,24 @@ define(function(){
     this.model = [];
 
     /**
+     * It retrieves all data series semantics and cache them in model.
+     * 
+     * @param {Object} restriction
+     * @returns {angular.IPromise<Object[]>}
+     */
+    this.init = function(restriction) {
+      var defer = self.BaseService.$q.defer();
+
+      self.BaseService.$request(self.$baseUrl, "GET", {params: restriction})
+        .then(function(response) {
+          self.model = response.data;
+          return defer.resolve(response.data);
+        });
+
+      return defer.promise;
+    };
+
+    /**
      * It performs a alert creation on API call and stores in cache
      * 
      * @param {Object} alertObject - A alert values
@@ -30,6 +48,17 @@ define(function(){
 
       return defer.promise;
     };
+
+    /**
+     * It performs a view creation on API call.
+     * 
+     * @param {Object} viewObject - A view values
+     * @returns {ng.IPromise}
+     */
+    this.list = function(restriction) {
+      return self.BaseService.$filter('filter')(self.model, restriction);
+    };
+    
   }
 
   AlertService.$inject = ["BaseService", "$q"];
