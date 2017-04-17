@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
     //accessing data
     terrama2::core::DataRetrieverFTP retrieverFTP(dataProviderPtr, std::move(curlwrapper));
 
-    path = retrieverFTP.retrieveData(mask, filter, remover);
+    path = retrieverFTP.retrieveData(mask, filter, "UTC+00", remover);
   }
 
   curl_global_cleanup();

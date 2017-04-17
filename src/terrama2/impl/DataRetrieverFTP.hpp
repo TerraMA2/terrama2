@@ -90,8 +90,9 @@ namespace terrama2
          * \exception DataRetrieverException when could not perform the download files.
          * \exception DataRetrieverException when Unknown error, Could not perform the download files.
         */
-        virtual std::string retrieveData(const std::string& mask,
+        virtual std::string retrieveData(const std::string& mask, 
                                          const Filter& filter,
+                                         const std::string& timezone,
                                          std::shared_ptr<terrama2::core::FileRemover> remover,
                                          const std::string& temporaryFolder = "",
                                          const std::string& foldersMask = "") override;
@@ -114,7 +115,7 @@ namespace terrama2
          */
         virtual std::vector<std::string> checkSubfolders(const std::vector<std::string> baseURIs,
                                                          const std::string mask);
-                                                         
+
         static DataRetrieverPtr make(DataProviderPtr dataProvider);
         static DataRetrieverType dataRetrieverType() { return "FTP"; }
 
