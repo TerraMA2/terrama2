@@ -11,15 +11,11 @@ module.exports = function(sequelize, DataTypes) {
         type: DataTypes.STRING,
         unique: true
       },
-      timeout: {
-        type: DataTypes.INTEGER
-      },
       description: DataTypes.TEXT,
       active: {
         type: DataTypes.BOOLEAN,
         allowNull: false
       }
-
     },
     {
       underscored: true,
@@ -59,6 +55,13 @@ module.exports = function(sequelize, DataTypes) {
           });
 
           DataProvider.hasMany(models.DataSeries, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              allowNull: false
+            }
+          });
+
+          DataProvider.hasMany(models.DataProviderConfiguration, {
             onDelete: "CASCADE",
             foreignKey: {
               allowNull: false
