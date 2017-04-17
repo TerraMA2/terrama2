@@ -40,9 +40,11 @@
 #include <QObject>
 
 terrama2::services::alert::core::Report::Report(AlertPtr alert,
+                                                terrama2::core::DataSeriesPtr alertDataSeries,
                                                 std::shared_ptr<te::da::DataSet> alertDataSet,
                                                 std::vector<std::shared_ptr<te::dt::DateTime>> riskDates)
   : alert_(alert),
+    alertDataSeries_(alertDataSeries),
     riskDates_(riskDates)
 {
   updateReportDataset(alertDataSet);

@@ -36,6 +36,9 @@
 
 std::tuple<int, std::string> terrama2::core::Risk::riskLevel(double value) const
 {
+  if(value < riskLevels[0].value)
+    return std::make_tuple(riskLevels[0].level, riskLevels[0].name);
+
   for (size_t i = 0; i < riskLevels.size(); ++i)
   {
     auto riskLevel = riskLevels[i];
