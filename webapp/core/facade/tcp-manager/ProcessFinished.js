@@ -238,7 +238,20 @@
                       });
                   })
                   .catch(function(err){
-                    return null;
+                    return DataManager.getAlert({conditional_schedule_id: conditionalSchedule.id}, options)
+                      .then(function(alertResult){
+                        return DataManager.getServiceInstance({id: alertResult.instance_id}, options)
+                          .then(function(instanceServiceResponse){
+                            var objectToRun = {
+                              ids: [alertResult.id],
+                              instance: instanceServiceResponse
+                            };
+                            return objectToRun;
+                          });
+                      })
+                      .catch(function(){
+                        return null;
+                      });
                   });
               }));
           });
