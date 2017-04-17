@@ -48,19 +48,19 @@ module.exports = function(sequelize, DataTypes) {
             onDelete: "CASCADE",
             foreignKey: {
               name: 'conditional_schedule_id',
-              allowNull: true
-            }
-          });
-
-          Alert.hasOne(models.ReportMetadata, {
-            onDelete: "CASCADE",
-            foreignKey: {
-              name: 'alert_id',
               allowNull: false
             }
           });
 
-          Alert.hasOne(models.Risk, {
+          Alert.belongsTo(models.Risk, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: 'risk_id',
+              allowNull: false
+            }
+          });
+
+          Alert.hasOne(models.ReportMetadata, {
             onDelete: "CASCADE",
             foreignKey: {
               name: 'alert_id',

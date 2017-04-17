@@ -9,7 +9,7 @@
  */
 var BaseClass = require('./AbstractData');
 var ConditionalSchedule = require("./ConditionalSchedule");
-var ConditionalSchedule = require("./Risk");
+var Risk = require("./Risk");
 /**
  * TerraMA² Global Utility module
  * @type {Utils}
@@ -73,20 +73,27 @@ var Alert = function(params) {
    * @name Alert#report_metadata
    * @type {object}
    */
-  this.report_metadata = params.ReportMetadata ? params.ReportMetadata.get() : params.reportMetadata || {};
+  this.report_metadata = params.reportMetadata || [];
 
-  // Setting additional data
-  this.setAlertAdditionalData(params.AlertAdditionalData || params.alertAdditionalData);
-  // Setting notifications
-  this.setAlertNotifications(params.AlertNotifications || params.alertNotifications);
+  /**
+   * @name Alert#additional_data
+   * @type {object}
+   */
+  this.additional_data = params.additionalData || [];
+
+  /**
+   * @name Alert#notifications
+   * @type {object}
+   */
+  this.notifications = params.notifications || [];
   
 };
 
 Alert.prototype.setConditionalSchedule = function(conditionalSchedule) {
   if (conditionalSchedule.ConditionalSchedule) {
-    this.conditionalSchedule = new ConditionalSchedule(conditionalSchedule.ConditionalSchedule.get() || {});
+    this.conditional_schedule = new ConditionalSchedule(conditionalSchedule.ConditionalSchedule.get() || {});
   } else {
-    this.conditionalSchedule = conditionalSchedule || {};
+    this.conditional_schedule = conditionalSchedule || {};
   }
 };
 
@@ -130,14 +137,15 @@ Alert.prototype.toObject = function() {
   return Object.assign(BaseClass.prototype.toObject.call(this), {
     id: this.id,
     project_id: this.project_id,
-    instance_id: this.class,
+    instance_id: this.instance_id,
     active: this.active,
     name: this.name,
     description: this.description,
     conditional_schedule: this.conditional_schedule instanceof BaseClass ? this.conditional_schedule.toObject() : this.conditional_schedule,
     risk: this.risk instanceof BaseClass ? this.risk.toObject() : this.risk,
-    alert_additional_data: this.alert_additional_data,
-    alert_notifications: this.alert_notifications
+    additional_data: this.additional_data,
+    notifications: this.notifications,
+    report_metadata: this.report_metadata
   });
 };
 

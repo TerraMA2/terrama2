@@ -27,19 +27,28 @@
      */
     this.id = params.id;
     /**
-     * Risk Data series ids
+     * Risk name
      * @type {string}
      */
     this.name = params.name;
 
-    this.class = "Risk";
+    this.levels = [];
 
-    // Setting additional data
-    this.setRiskLevels(params.RiskLevels || params.riskLevels);
+
+    if (params.levels || params.riskLevels){
+      this.levels = params.levels || params.riskLevels;
+    } else if (params.RiskLevels) {
+      var levelsList = [];
+      params.RiskLevels.forEach(function(level){
+        levelsList.push(level.get());
+      });
+      this.levels = levelsList;
+    }
+
   };
 
   /**
-   * It sets additional data.
+   * It sets risk levels data.
    * @param {Sequelize.Model[]|Object[]}
    */
   Risk.prototype.setRiskLevels = function(RiskLevels) {
@@ -60,7 +69,6 @@
     return Object.assign(BaseClass.prototype.toObject.call(this), {
       id: this.id,
       name: this.name,
-      class: this.class,
       levels: this.levels
     });
   };

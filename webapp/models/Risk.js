@@ -16,9 +16,10 @@ module.exports = function(sequelize, DataTypes) {
 
       classMethods: {
         associate: function(models) {
-          Risk.belongsTo(models.Alert, {
+          Risk.hasOne(models.Alert, {
             onDelete: "CASCADE",
             foreignKey: {
+              name: 'risk_id',
               allowNull: false
             }
           });
