@@ -94,6 +94,7 @@
               <div class="form-group">
                 <label><span ng-bind="i18n.__('Description')"></span>:</label>
                 <textarea class="form-control"
+                          name="alertDescription"
                           ng-model="ctrl.alert.description"
                           rows="3"
                           placeholder="{{ i18n.__('Alert Description') }}"></textarea>
@@ -126,34 +127,42 @@
             </ui-select>
 
             <span class="help-block"
-              ng-show="forms.alertForm.dataSeries.$dirty && forms.alertForm.dataSeries.$error.required"
-              ng-bind="i18n.__('Data Series is required')">
+                  ng-show="forms.dataSeriesForm.dataSeries.$dirty && forms.dataSeriesForm.dataSeries.$invalid"
+                  ng-class="{'has-error': dataSeriesForm.dataSeries.$invalid}"
+                  ng-bind="i18n.__('Data Series is required')">
             </span>
           </div>
         </div>
 
         <span ng-if="ctrl.dataSeriesType !== null">
-          <div class="col-md-6">
+          <div class="col-md-6" ng-show="ctrl.dataSeriesType === 'GRID'">
             <div class="form-group" terrama2-show-errors>
               <label><span ng-bind="i18n.__('Risk attribute')"></span>:</label>
-              <span ng-if="ctrl.dataSeriesType === 'GRID'">
-                <input type="number"
-                      class="form-control"
-                      name="riskAttribute"
-                      ng-model="ctrl.alert.risk_attribute"
-                      required>
-              </span>
-              <span ng-if="ctrl.dataSeriesType === 'ANALYSIS_MONITORED_OBJECT'">
-                <input type="text"
-                      class="form-control"
-                      name="riskAttribute"
-                      ng-model="ctrl.alert.risk_attribute"
-                      required
-                      list='tableColumnsList'>
-              </span>
+              <input type="number"
+                    class="form-control"
+                    name="riskAttributeGrid"
+                    ng-model="ctrl.alert.risk_attribute_grid"
+                    ng-required="ctrl.dataSeriesType === 'GRID'">
               <span class="help-block"
-                ng-show="forms.alertForm.riskAttribute.$dirty && forms.alertForm.riskAttribute.$error.required"
-                ng-bind="i18n.__('Risk attribute is required')">
+                  ng-show="forms.dataSeriesForm.riskAttributeGrid.$dirty && forms.dataSeriesForm.riskAttributeGrid.$invalid"
+                  ng-class="{'has-error': dataSeriesForm.riskAttributeGrid.$invalid}"
+                  ng-bind="i18n.__('Risk attribute is required')">
+              </span>
+            </div>
+          </div>
+          <div class="col-md-6" ng-show="ctrl.dataSeriesType === 'ANALYSIS_MONITORED_OBJECT'">
+            <div class="form-group" terrama2-show-errors>
+              <label><span ng-bind="i18n.__('Risk attribute')"></span>:</label>
+              <input type="text"
+                    class="form-control"
+                    name="riskAttributeMo"
+                    ng-model="ctrl.alert.risk_attribute_mo"
+                    ng-required="ctrl.dataSeriesType === 'ANALYSIS_MONITORED_OBJECT'"
+                    list='tableColumnsList'>
+              <span class="help-block"
+                  ng-show="forms.dataSeriesForm.riskAttributeMo.$dirty && forms.dataSeriesForm.riskAttributeMo.$invalid"
+                  ng-class="{'has-error': dataSeriesForm.riskAttributeMo.$invalid}"
+                  ng-bind="i18n.__('Risk attribute is required')">
               </span>
             </div>
           </div>
@@ -185,32 +194,31 @@
           <div class="col-md-12">
             <div class="form-group" terrama2-show-errors>
               <label><span ng-bind="i18n.__('Risk Description')"></span>:</label>
-              <textarea class="form-control" ng-model="ctrl.riskModel.description" rows="3" placeholder="{{ i18n.__('Risk Description') }}"></textarea>
+              <textarea class="form-control" name="riskDescription" ng-model="ctrl.riskModel.description" rows="3" placeholder="{{ i18n.__('Risk Description') }}"></textarea>
             </div>
           </div>
           <span ng-repeat="level in ctrl.riskModel.levels">
             <div ng-class="{ 'col-md-5': ctrl.riskModel.levels.length > 1, 'col-md-6': ctrl.riskModel.levels.length === 1 }">
-              <div class="form-group">
+              <div class="form-group" ng-class="{'has-error': ctrl.riskLevelNameError[level._id]}">
                 <label><span ng-bind="i18n.__('Level Name')"></span>:</label>
-                <input class="form-control" ng-model="level.name" type="text" required>
+                <input class="form-control" name="levelName{{ level._id }}" ng-model="level.name" type="text">
               </div>
             </div>
             <div ng-class="{ 'col-md-5': ctrl.riskModel.levels.length > 1, 'col-md-6': ctrl.riskModel.levels.length === 1 }">
-              <div class="form-group" ng-class="{'has-error': ctrl.orderError}">
+              <div class="form-group" ng-class="{'has-error': ctrl.riskLevelValueError[level._id] || ctrl.riskLevelOrderError}">
                 <label><span ng-bind="i18n.__('Risk Value')"></span>:</label>
-                <input class="form-control" ng-model="level.value" type="number" required>
+                <input class="form-control" name="levelValue{{ level._id }}" ng-model="level.value" type="number">
               </div>
             </div>
             <div class="col-md-2">
-              <div class="form-group" terrama2-show-errors>
+              <div class="form-group">
                 <button type="button" class="btn btn-primary" ng-click="ctrl.removeLevel(level)" style="margin-top: 25px;" ng-show="ctrl.riskModel.levels.length > 1"><span ng-bind="i18n.__('Remove')"></span></button>
               </div>
             </div>
           </span>
           <div class="col-md-12">
-            <span class="help-block" ng-show="ctrl.orderError" style="font-size: 15px; color: red;" ng-bind="i18n.__('The values of the levels must be numeric and be in a growing order')">
-            </span>
-            <div class="form-group" terrama2-show-errors>
+            <span class="help-block" ng-show="ctrl.isNotValid" style="font-size: 15px; color: red;" ng-bind="i18n.__('The values of the levels must be numeric and be in a growing order, and the names of the levels must be filled')"></span>
+            <div class="form-group">
               <button type="button" class="btn btn-primary" ng-click="ctrl.newLevel()"><span ng-bind="i18n.__('New Level')"></span></button>
             </div>
           </div>
@@ -227,7 +235,11 @@
             <input class="form-control"
                     name="reportTitle"
                     ng-model="ctrl.reportTitle" type="text" required>
-
+            <span class="help-block"
+                      ng-show="forms.reportForm.reportTitle.$dirty && forms.reportForm.reportTitle.$invalid"
+                      ng-class="{'has-error': reportForm.reportTitle.$invalid}"
+                      ng-bind="i18n.__('Report title is required')">
+            </span>
           </div>
         </div>
 
@@ -236,6 +248,7 @@
             <label><span ng-bind="i18n.__('Description')"></span>:</label>
             
             <textarea class="form-control"
+                      name="reportDescription"
                       ng-model="ctrl.reportDescription"
                       rows="3"
                       placeholder="{{ i18n.__('Report Description') }}"></textarea>
@@ -252,10 +265,16 @@
             <label><span ng-bind="i18n.__('Emails')"></span>:</label>
             <textarea class="form-control"
                     ng-model="ctrl.alert.notifications[0].recipients"
+                    name="emails"
                     rows="3"
                     placeholder="{{ i18n.__('Emails') }}"
                     style="resize: none;"
                     required></textarea>
+            <span class="help-block"
+                      ng-show="forms.notificationForm.emails.$dirty && forms.notificationForm.emails.$invalid"
+                      ng-class="{'has-error': notificationForm.emails.$invalid}"
+                      ng-bind="i18n.__('Notification emails is required')">
+            </span>
             <span class="help-block" ng-bind="i18n.__('Obs: enter the addresses separated by semicolons')"></span>
           </div>
         </div>
@@ -268,11 +287,16 @@
               </label>
             </div>
           </div>
-          <div class="form-group">
-            <select class="form-control" ng-model="ctrl.alert.notifications[0].include_report" ng-show="ctrl.includeReport">
+          <div class="form-group" terrama2-show-errors>
+            <select class="form-control" name="reportTypes" ng-model="ctrl.alert.notifications[0].include_report" ng-show="ctrl.includeReport"  ng-required="ctrl.includeReport">
               <option value="pdf">PDF</option>
               <option value="txt">TXT</option>
             </select>
+            <span class="help-block"
+                  ng-show="forms.notificationForm.reportTypes.$dirty && forms.notificationForm.reportTypes.$invalid"
+                  ng-class="{'has-error': notificationForm.reportTypes.$invalid}"
+                  ng-bind="i18n.__('Select a report type')">
+            </span>
           </div>
         </div>
 
@@ -284,8 +308,13 @@
               </label>
             </div>
           </div>
-          <div class="form-group">
-            <select class="form-control" ng-model="ctrl.alert.notifications[0].notify_on_risk_level" ng-show="ctrl.notifyOnRiskLevel" ng-options="risk._id as risk.name for risk in ctrl.riskModel.levels"></select>
+          <div class="form-group" terrama2-show-errors>
+            <select class="form-control" name="riskLevels" ng-model="ctrl.alert.notifications[0].notify_on_risk_level" ng-show="ctrl.notifyOnRiskLevel" ng-options="risk._id as risk.name for risk in ctrl.riskModel.levels" ng-required="ctrl.notifyOnRiskLevel"></select>
+            <span class="help-block"
+                  ng-show="forms.notificationForm.riskLevels.$dirty && forms.notificationForm.riskLevels.$invalid"
+                  ng-class="{'has-error': notificationForm.riskLevels.$invalid}"
+                  ng-bind="i18n.__('Select a level')">
+            </span>
           </div>
         </div>
 
@@ -308,13 +337,13 @@
 
     <div class="box-footer">
       <div class="btn-group pull-right" style="margin-left: 10px;">
-        <button ng-disabled="!ctrl.isValid" type="button" class="btn btn-primary" ng-bind="i18n.__('Save and Run')" data-ng-click="ctrl.isValid && ctrl.save(true);"></button>
-        <button ng-disabled="!ctrl.isValid" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <button ng-disabled="ctrl.isNotValid" type="button" class="btn btn-primary" ng-bind="i18n.__('Save and Run')" data-ng-click="!ctrl.isNotValid && ctrl.save(true);"></button>
+        <button ng-disabled="ctrl.isNotValid" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           <span class="caret"></span>
           <span class="sr-only"></span>
         </button>
         <ul class="dropdown-menu terrama2-button-dropdown">
-          <li><a href="javascript::void();" ng-disabled="!ctrl.isValid" data-ng-click="ctrl.isValid && ctrl.save(false);" ng-bind="i18n.__('Save')"></a></li>
+          <li><a href="javascript::void();" ng-disabled="ctrl.isNotValid" data-ng-click="!ctrl.isNotValid && ctrl.save(false);" ng-bind="i18n.__('Save')"></a></li>
         </ul>
       </div>
       <a href="/configuration/alerts/" class="btn btn-primary pull-right" style="margin-left: 10px;">

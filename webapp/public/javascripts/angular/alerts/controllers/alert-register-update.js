@@ -47,11 +47,11 @@ define([], function() {
     self.isUpdating = config.alert ? true : false;
 
     /**
-     * 
+     * It handles risk levels errors
      *
      * @type {boolean}
      */
-    self.isValid = true;
+    self.isNotValid = true;
 
     /**
      * It defines a list of cached data series
@@ -82,6 +82,10 @@ define([], function() {
      * @type {object}
      */
     self.alert = config.alert || {
+      schedule: {
+        data_ids: [],
+        scheduleType: 4
+      },
       notifications: [
         {
           notify_on_change: false,
@@ -320,7 +324,11 @@ define([], function() {
           self.columnsList = [];
         }
 
+        delete self.alert.risk_attribute_grid;
+        delete self.alert.risk_attribute_mo;
+
         self.dataSeriesType = dataSeries[0].data_series_semantics.data_series_type_name;
+        self.alert.schedule.data_ids = [dataSeries[0].id];
       }
     };
 
@@ -330,8 +338,10 @@ define([], function() {
      * @returns {void}
      */
     self.newLevel = function() {
+      var uniqueNumberValue = UniqueNumber();
+
       self.riskModel.levels.push({
-        _id: UniqueNumber(),
+        _id: uniqueNumberValue,
         name: "",
         value: ""
       });
@@ -418,23 +428,33 @@ define([], function() {
      * Watcher for handling risk levels change. It validates if the values are numeric and are in a growing order.
      */
     $scope.$watch("ctrl.riskModel.levels", function() {
-      if(self.riskModel.levels.length > 1) {
-        var lastValue = self.riskModel.levels[0].value;
-        var orderError = isNaN(lastValue) || lastValue === "";
+      var lastValue = null;
+      self.riskLevelOrderError = false;
+      self.isNotValid = false;
 
-        if(!orderError) {
-          for(var i = 1, levelsLength = self.riskModel.levels.length; i < levelsLength; i++) {
-            if(isNaN(self.riskModel.levels[i].value) || self.riskModel.levels[i].value === "" || parseFloat(lastValue) > parseFloat(self.riskModel.levels[i].value)) {
-              orderError = true;
-              break;
-            } else
-              lastValue = self.riskModel.levels[i].value;
-          }
+      if(self.riskLevelValueError === undefined) self.riskLevelValueError = {};
+      if(self.riskLevelNameError === undefined) self.riskLevelNameError = {};
+
+      for(var i = 0, levelsLength = self.riskModel.levels.length; i < levelsLength; i++) {
+        if(isNaN(self.riskModel.levels[i].value) || self.riskModel.levels[i].value === "") {
+          self.riskLevelValueError[self.riskModel.levels[i]._id] = true;
+          self.isNotValid = true;
+        } else if(lastValue !== null && parseFloat(lastValue) > parseFloat(self.riskModel.levels[i].value)) {
+          self.riskLevelOrderError = true;
+          self.riskLevelValueError[self.riskModel.levels[i]._id] = false;
+          lastValue = self.riskModel.levels[i].value;
+          self.isNotValid = true;
+        } else {
+          self.riskLevelValueError[self.riskModel.levels[i]._id] = false;
+          lastValue = self.riskModel.levels[i].value;
         }
 
-        self.orderError = orderError;
-      } else {
-        self.orderError = isNaN(self.riskModel.levels[0].value) || self.riskModel.levels[0].value === "";
+        if(self.riskModel.levels[i].name === undefined || self.riskModel.levels[i].name === "") {
+          self.riskLevelNameError[self.riskModel.levels[i]._id] = true;
+          self.isNotValid = true;
+        } else {
+          self.riskLevelNameError[self.riskModel.levels[i]._id] = false;
+        }
       }
     }, true);
 
@@ -449,26 +469,6 @@ define([], function() {
       schedule: {
         data_ids: [1],
         scheduleType: 4
-      },
-      additionalData: [
-        {
-          dataseries_id: 1,
-          data_set_id: 1,
-          referrer_attribute: "attreferer",
-          referred_attribute: "attrefered",
-          data_attributes: "atributos"
-        }
-      ],
-      reportMetadata: {
-        title: "TituloReport",
-        abstract: "Abstract",
-        description: "Descricao",
-        author: "Author",
-        contact: "contato",
-        copyrigth: "Copyright",
-        timestamp_format: "formatoData",
-        logo_path: "Caminho logo",
-        document_format: "PDF"
       },
       risk: {
         name: "Risco",
@@ -497,33 +497,62 @@ define([], function() {
       ]
     };
 
+    /**
+     * Saves the alert.
+     * 
+     * @returns {void}
+     */
     self.save = function(shouldRun) {
-      var level = 1;
+      if(self.dataSeriesType === 'GRID')
+        self.alert.risk_attribute = self.alert.risk_attribute_grid;
+      else
+        self.alert.risk_attribute = self.alert.risk_attribute_mo;
 
-      for(var i = 0, levelsLength = self.riskModel.levels.length; i < levelsLength; i++) {
-        if(self.alert.notifications[0].notify_on_risk_level === self.riskModel.levels[i]._id)
-          self.alert.notifications[0].notify_on_risk_level = level;
+      // Broadcasting each one terrama2 field directive validation
+      $scope.$broadcast("formFieldValidation");
+      // Broadcasting schema form validation
+      $scope.$broadcast("schemaFormValidate");
 
-        //delete self.riskModel.levels[i]._id;
-        self.riskModel.levels[i].level = level;
-        level++;
-      }
+      if(self.isNotValid)
+        return;
 
-      if(self.riskModel.id === 0)
-        delete self.riskModel.id;
+      $timeout(function() {
+        if($scope.forms.alertForm.$invalid || $scope.forms.dataSeriesForm.$invalid || $scope.forms.riskLevel.$invalid || $scope.forms.reportForm.$invalid || $scope.forms.notificationForm.$invalid)
+          return;
 
-      self.alert.risk = self.riskModel;
-      console.log(JSON.stringify(self.alertWanted));
-      console.log(JSON.stringify(self.alert));
+        var riskTemp = $.extend(true, {}, self.riskModel);
+        var level = 1;
 
-      /*$timeout(function() {
+        for(var i = 0, levelsLength = riskTemp.levels.length; i < levelsLength; i++) {
+          if(self.alert.notifications[0].notify_on_risk_level === riskTemp.levels[i]._id)
+            self.alert.notifications[0].notify_on_risk_level = level;
+
+          delete riskTemp.levels[i]._id;
+          riskTemp.levels[i].level = level;
+          level++;
+        }
+
+        if(riskTemp.id === 0)
+          delete riskTemp.id;
+
+        self.alert.risk = riskTemp;
+
+        if(self.alert.risk_attribute_grid !== undefined)
+          delete self.alert.risk_attribute_grid;
+
+        if(self.alert.risk_attribute_mo !== undefined)
+          delete self.alert.risk_attribute_mo;
+
+        console.log(JSON.stringify(self.alertWanted));
+        console.log(JSON.stringify(self.alert));
+
         var operation = self.AlertService.create(self.alert);
         operation.then(function(response) {
           console.log(response);
         }).catch(function(err) {
           console.log(err);
         });
-      });*/
+      });
     };
   };
 
