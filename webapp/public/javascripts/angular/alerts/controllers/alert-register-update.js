@@ -5,7 +5,7 @@ define([], function() {
    * It represents a Controller to handle Alert form registration.
    * @class AlertRegistration
    */
-  function AlertRegisterUpdate($scope, $q, $window, $log, $http, $timeout, i18n, MessageBoxService, AlertService, DataSeriesService, DataProviderService, AnalysisService, Service, UniqueNumber) {
+  var AlertRegisterUpdate = function($scope, $q, $window, $log, $http, $timeout, i18n, MessageBoxService, AlertService, DataSeriesService, DataProviderService, AnalysisService, Service, UniqueNumber) {
     /**
      * @type {AlertRegisterUpdate}
      */
@@ -14,49 +14,56 @@ define([], function() {
     /**
      * It retrieves a configuration from main window.
      *
-     * @type {Object}
+     * @type {object}
      */
     var config = window.configuration;
 
     /**
      * It retrieves Global variables from main window.
      * 
-     * @type {Object}
+     * @type {object}
      */
     var Globals = $window.globals;
 
     /**
      * It handles alert box display
      *
-     * @type {Object}
+     * @type {object}
      */
     self.MessageBoxService = MessageBoxService;
 
     /**
      * It handles Service Instance model
      *
-     * @type {Object}
+     * @type {object}
      */
     self.ServiceInstance = Service;
 
     /**
      * Flag to handle if is Updating or Registering
      *
-     * @type {Boolean}
+     * @type {boolean}
      */
     self.isUpdating = config.alert ? true : false;
 
     /**
+     * 
+     *
+     * @type {boolean}
+     */
+    self.isValid = true;
+
+    /**
      * It defines a list of cached data series
      * 
-     * @type {Object[]}
+     * @type {object[]}
      */
     self.dataSeries = [];
 
     /**
      * It represents a terrama2 box styles
      * 
-     * @type {Object}
+     * @type {object}
      */
     self.css = {
       boxType: "box-solid"
@@ -65,22 +72,20 @@ define([], function() {
     /**
      * It handles Alert Service Instance model
      *
-     * @type {Object}
+     * @type {object}
      */
     self.AlertService = AlertService;
 
     /**
      * It contains alert instance values
      * 
-     * @type {Object}
+     * @type {object}
      */
     self.alert = config.alert || {
       notifications: [
         {
-          include_report: true,
-          notify_on_change: true,
-          simplified_report: false,
-          notify_on_risk_level: 1
+          notify_on_change: false,
+          simplified_report: false
         }
       ]
     };
@@ -92,6 +97,11 @@ define([], function() {
      */
     self.columnsList = [];
 
+    /**
+     * It contains the type of the selected Data Series
+     * 
+     * @type {string}
+     */
     self.dataSeriesType = null;
 
     /**
@@ -296,6 +306,9 @@ define([], function() {
             return dataProvider.id == dataSeries[0].data_provider_id;
           });
 
+          if(dataProvider.length > 0)
+            self.alert.project_id = dataProvider[0].project_id;
+
           var analysis = AnalysisService.list().filter(function(analysisToFilter) {
             return analysisToFilter.output_dataset_id == dataSeries[0].dataSets[0].id;
           });
@@ -401,7 +414,10 @@ define([], function() {
       return params;
     };
 
-    $scope.$watch("ctrl.riskModel.levels", function(newVal, oldVal) {
+    /**
+     * Watcher for handling risk levels change. It validates if the values are numeric and are in a growing order.
+     */
+    $scope.$watch("ctrl.riskModel.levels", function() {
       if(self.riskModel.levels.length > 1) {
         var lastValue = self.riskModel.levels[0].value;
         var orderError = isNaN(lastValue) || lastValue === "";
@@ -422,14 +438,14 @@ define([], function() {
       }
     }, true);
 
-    self.alert = {
-      //active: true,
-      //name: "Alerta teste",
-      //description: "Sem description",
+    self.alertWanted = {
+      active: true,
+      name: "Alerta teste",
+      description: "Sem description",
       project_id: 1,
-      //data_series_id: 4,
-      //service_instance_id: 4,
-      //risk_attribute: "risco atributo",
+      data_series_id: 4,
+      service_instance_id: 4,
+      risk_attribute: "risco atributo",
       schedule: {
         data_ids: [1],
         scheduleType: 4
@@ -480,22 +496,36 @@ define([], function() {
         }
       ]
     };
-    self.isValid = true;
-    self.save = saveOperation;
 
-    function saveOperation(shouldRun) {
-      $timeout(function(){
+    self.save = function(shouldRun) {
+      var level = 1;
+
+      for(var i = 0, levelsLength = self.riskModel.levels.length; i < levelsLength; i++) {
+        if(self.alert.notifications[0].notify_on_risk_level === self.riskModel.levels[i]._id)
+          self.alert.notifications[0].notify_on_risk_level = level;
+
+        //delete self.riskModel.levels[i]._id;
+        self.riskModel.levels[i].level = level;
+        level++;
+      }
+
+      if(self.riskModel.id === 0)
+        delete self.riskModel.id;
+
+      self.alert.risk = self.riskModel;
+      console.log(JSON.stringify(self.alertWanted));
+      console.log(JSON.stringify(self.alert));
+
+      /*$timeout(function() {
         var operation = self.AlertService.create(self.alert);
-        operation.then(function(response){
+        operation.then(function(response) {
           console.log(response);
-        })
-        .catch(function(err){
+        }).catch(function(err) {
           console.log(err);
         });
-      });
-      
-    }
-  }
+      });*/
+    };
+  };
 
   AlertRegisterUpdate.$inject = ["$scope", "$q", "$window", "$log", "$http", "$timeout", "i18n", "MessageBoxService", "AlertService", "DataSeriesService", "DataProviderService", "AnalysisService", "Service", "UniqueNumber"];
 

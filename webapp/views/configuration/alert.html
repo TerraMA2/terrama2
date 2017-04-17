@@ -81,7 +81,9 @@
                     <input type="checkbox"
                            name="active"
                            ng-model="ctrl.alert.active"
-                           ng-init="ctrl.initActive()"> <span ng-bind="i18n.__('Active')"></span>
+                           ng-init="ctrl.initActive()"
+                           ng-true-value="true"
+                           ng-false-value="false"> <span ng-bind="i18n.__('Active')"></span>
                   </label>
                 </div>
               </div>
@@ -249,20 +251,21 @@
           <div class="form-group" terrama2-show-errors>
             <label><span ng-bind="i18n.__('Emails')"></span>:</label>
             <textarea class="form-control"
-                    ng-model="ctrl.alert.recipients"
+                    ng-model="ctrl.alert.notifications[0].recipients"
                     rows="3"
                     placeholder="{{ i18n.__('Emails') }}"
+                    style="resize: none;"
                     required></textarea>
-
+            <span class="help-block" ng-bind="i18n.__('Obs: enter the addresses separated by semicolons')"></span>
           </div>
         </div>
 
         <div class="col-md-3">
           <div class="form-group">
             <div class="checkbox">
-                <label style="font-weight: 700;">
-                <input type="checkbox" name="includeReport" ng-model="ctrl.includeReport"> <span ng-bind="i18n.__('Include Report')"></span>
-                </label>
+              <label style="font-weight: 700;">
+                <input type="checkbox" name="includeReport" ng-model="ctrl.includeReport" ng-true-value="true" ng-false-value="false"> <span ng-bind="i18n.__('Include Report')"></span>
+              </label>
             </div>
           </div>
           <div class="form-group">
@@ -276,24 +279,26 @@
         <div class="col-md-3">
           <div class="form-group">
             <div class="checkbox">
-                <label style="font-weight: 700;">
-                <input type="checkbox" name="simplifiedReport" ng-model="ctrl.notifyOnRiskLevel"> <span ng-bind="i18n.__('Notify on risk level')"></span>
-                </label>
+              <label style="font-weight: 700;">
+                <input type="checkbox" name="simplifiedReport" ng-model="ctrl.notifyOnRiskLevel" ng-true-value="true" ng-false-value="false"> <span ng-bind="i18n.__('Notify on risk level')"></span>
+              </label>
             </div>
           </div>
           <div class="form-group">
-            <select class="form-control" ng-model="ctrl.alert.notifications[0].notify_on_risk_level" ng-show="ctrl.notifyOnRiskLevel" ng-options="i18n.__(riska.value) for riska in ctrl.riskModel.levels"></select>
+            <select class="form-control" ng-model="ctrl.alert.notifications[0].notify_on_risk_level" ng-show="ctrl.notifyOnRiskLevel" ng-options="risk._id as risk.name for risk in ctrl.riskModel.levels"></select>
           </div>
         </div>
 
         <div class="col-md-2">
           <div class="form-group">
             <div class="checkbox">
-                <label style="font-weight: 700;">
+              <label style="font-weight: 700;">
                 <input type="checkbox"
                         name="notifyOnChange"
-                        ng-model="ctrl.notifyOnChange"> <span ng-bind="i18n.__('Notify on change')"></span>
-                </label>
+                        ng-model="ctrl.alert.notifications[0].notify_on_change"
+                        ng-true-value="true"
+                        ng-false-value="false"> <span ng-bind="i18n.__('Notify on change')"></span>
+              </label>
             </div>
           </div>
         </div>
