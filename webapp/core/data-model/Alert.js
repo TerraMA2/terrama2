@@ -59,6 +59,11 @@ var Alert = function(params) {
    */
   this.risk_attribute = params.risk_attribute;
   /**
+   * @name Alert#data_series_id
+   * @type {string}
+   */
+  this.data_series_id = params.data_series_id;
+  /**
    * @name Alert#conditional_schedule
    * @type {object}
    */
@@ -141,6 +146,8 @@ Alert.prototype.toObject = function() {
     active: this.active,
     name: this.name,
     description: this.description,
+    data_series_id: this.data_series_id,
+    risk_attribute: this.risk_attribute,
     conditional_schedule: this.conditional_schedule instanceof BaseClass ? this.conditional_schedule.toObject() : this.conditional_schedule,
     risk: this.risk instanceof BaseClass ? this.risk.toObject() : this.risk,
     additional_data: this.additional_data,
@@ -153,6 +160,42 @@ Alert.prototype.rawObject = function() {
   var toObject = this.toObject();
   return toObject;
 };
+
+Alert.prototype.toService = function() {
+  var additionalDataList = [];
+  if (this.additional_data && this.additional_data.length > 0){
+    this.additional_data.forEach(function(addData){
+      if (addData.attributes){
+        addData.attributes = addData.attributes.split(';');
+      }
+      additionalDataList.push(addData);
+    });
+  }
+  var notificationList = [];
+  if (this.notifications && this.notifications.length > 0){
+    this.notifications.forEach(function(notification){
+      if (notification.recipients){
+        notification.recipients = notification.recipients.split(";");
+      }
+      notificationList.push(notification);
+    });
+  }
+  return Object.assign(BaseClass.prototype.toObject.call(this), {
+    id: this.id,
+    project_id: this.project_id,
+    instance_id: this.instance_id,
+    active: this.active,
+    name: this.name,
+    description: this.description,
+    data_series_id: this.data_series_id,
+    risk_attribute: this.risk_attribute,
+    schedule: this.conditional_schedule instanceof BaseClass ? this.conditional_schedule.toObject() : this.conditional_schedule,
+    risk: this.risk instanceof BaseClass ? this.risk.toObject() : this.risk,
+    additional_data: additionalDataList,
+    notifications: notificationList,
+    report_metadata: this.report_metadata
+  });
+}
 
 module.exports = Alert;
 

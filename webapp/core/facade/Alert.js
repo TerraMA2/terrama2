@@ -25,16 +25,16 @@
     };
     if (args instanceof Array) {
       args.forEach(function(arg) {
-        objToSend.Alerts.push(arg.toObject());
+        objToSend.Alerts.push(arg.toService());
       });
     } else {
-      objToSend.Alerts.push(args.toObject());
+      objToSend.Alerts.push(args.toService());
     }
 
     TcpService.send(objToSend)
       .then(function() {
         if (shouldRun && !(args instanceof Array)) {
-          return TcpService.run({"ids": [args.id], "service_instance": args.serviceInstanceId});
+          return TcpService.run({"ids": [args.id], "service_instance": args.instance_id});
         }
       });
   }

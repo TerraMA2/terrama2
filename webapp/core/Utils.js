@@ -268,7 +268,7 @@ var Utils = module.exports = {
               DataManager.listAlerts().then(function(alerts){
                 var alertsArr = [];
                 alerts.forEach(function(alert){
-                  alertsArr.push(alert.toObject());
+                  alertsArr.push(alert.toService());
                 });
 
                 return resolve({
