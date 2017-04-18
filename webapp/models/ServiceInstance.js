@@ -79,6 +79,14 @@ module.exports = function(sequelize, DataTypes) {
             }
           });
 
+          ServiceInstance.hasMany(models.Alert, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: "service_instance_id",
+              allowNull: false
+            }
+          });
+
           ServiceInstance.hasMany(models.ServiceMetadata, {
             onDelete: "CASCADE",
             foreignKey: {
