@@ -469,6 +469,8 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
             if (emailServerForm.$invalid) {
               return;
             }
+
+            self.service.maps_server_uri = "smtp://" + self.metadata.emailServer.user + ":" + self.metadata.emailServer.password + "@" + self.metadata.emailServer.host + ":" + self.metadata.emailServer.port;
           }
         }
 
