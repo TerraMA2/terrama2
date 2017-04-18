@@ -543,14 +543,13 @@ define([], function() {
         if(self.alert.risk_attribute_mo !== undefined)
           delete self.alert.risk_attribute_mo;
 
-        console.log(JSON.stringify(self.alertWanted));
-        console.log(JSON.stringify(self.alert));
-
         var operation = self.AlertService.create(self.alert);
         operation.then(function(response) {
-          console.log(response);
+          $log.info(response);
+          $window.location.href = "/configuration/alerts?token=" + response.token;
         }).catch(function(err) {
-          console.log(err);
+          $log.info(err);
+          self.MessageBoxService.danger(i18n.__("Alert"), err);
         });
       });
     };

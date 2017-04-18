@@ -188,7 +188,7 @@
           <div class="col-md-12">
             <div class="form-group" terrama2-show-errors>
               <label><span ng-bind="i18n.__('Risk Name')"></span>:</label>
-              <input class="form-control" name="riskLevelName" ng-model="ctrl.riskModel.name" type="text" required>
+              <input class="form-control" name="riskLevelName" ng-model="ctrl.riskModel.name" type="text" placeholder="{{ i18n.__('Risk Name') }}" required>
             </div>
           </div>
           <div class="col-md-12">
@@ -201,13 +201,13 @@
             <div ng-class="{ 'col-md-5': ctrl.riskModel.levels.length > 1, 'col-md-6': ctrl.riskModel.levels.length === 1 }">
               <div class="form-group" ng-class="{'has-error': ctrl.riskLevelNameError[level._id]}">
                 <label><span ng-bind="i18n.__('Level Name')"></span>:</label>
-                <input class="form-control" name="levelName{{ level._id }}" ng-model="level.name" type="text">
+                <input class="form-control" name="levelName{{ level._id }}" ng-model="level.name" type="text" placeholder="{{ i18n.__('Level Name') }}">
               </div>
             </div>
             <div ng-class="{ 'col-md-5': ctrl.riskModel.levels.length > 1, 'col-md-6': ctrl.riskModel.levels.length === 1 }">
               <div class="form-group" ng-class="{'has-error': ctrl.riskLevelValueError[level._id] || ctrl.riskLevelOrderError}">
                 <label><span ng-bind="i18n.__('Risk Value')"></span>:</label>
-                <input class="form-control" name="levelValue{{ level._id }}" ng-model="level.value" type="number">
+                <input class="form-control" name="levelValue{{ level._id }}" ng-model="level.value" type="number" placeholder="{{ i18n.__('Risk Value') }}">
               </div>
             </div>
             <div class="col-md-2">
@@ -231,14 +231,14 @@
         <div class="col-md-12">
           <div class="form-group" terrama2-show-errors>
             <label><span ng-bind="i18n.__('Title')"></span>:</label>
-            
             <input class="form-control"
                     name="reportTitle"
+                    placeholder="{{ i18n.__('Report Title') }}"
                     ng-model="ctrl.alert.report_metadata.title" type="text" required>
             <span class="help-block"
-                      ng-show="forms.reportForm.reportTitle.$dirty && forms.reportForm.reportTitle.$invalid"
-                      ng-class="{'has-error': reportForm.reportTitle.$invalid}"
-                      ng-bind="i18n.__('Report title is required')">
+                  ng-show="forms.reportForm.reportTitle.$dirty && forms.reportForm.reportTitle.$invalid"
+                  ng-class="{'has-error': reportForm.reportTitle.$invalid}"
+                  ng-bind="i18n.__('Report title is required')">
             </span>
           </div>
         </div>
@@ -246,7 +246,6 @@
         <div class="col-md-12">
           <div class="form-group" terrama2-show-errors>
             <label><span ng-bind="i18n.__('Description')"></span>:</label>
-            
             <textarea class="form-control"
                       name="reportDescription"
                       ng-model="ctrl.alert.report_metadata.description"
