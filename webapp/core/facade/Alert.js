@@ -57,7 +57,7 @@
 
         var promiser;
 
-        promiser = DataManager.addSchedule(alertObject.schedule, options);
+        promiser = DataManager.addSchedule(alertObject.conditional_schedule, options);
 
         return promiser
           .then(function(schedule) {
