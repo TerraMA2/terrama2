@@ -4126,7 +4126,7 @@ var DataManager = module.exports = {
    * @param {Object} restriction - A query restriction
    * @param {Object} options - An ORM query options
    * @param {Transaction} options.transaction - An ORM transaction
-   * @return {Promise<DataModel.View[]>}
+   * @return {Promise<DataModel.Alert[]>}
    */
   listAlerts: function(restriction, options){
     var self = this;
@@ -4218,6 +4218,43 @@ var DataManager = module.exports = {
         }
         return reject(new Error("Could not find risk"));
       });
+    });
+  },
+
+  /**
+   * It retrieves a list of risks in database
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<DataModel.Risk[]>}
+   */
+  listRisks: function(restriction, options){
+    var self = this;
+    return new Promise(function(resolve, reject){
+      models.db.Risk.findAll(Utils.extend({
+        where: restriction || {},
+        include: [
+          {
+            model: models.db.RiskLevel
+          }
+        ]
+      }, options))
+        .then(function(risks){
+          return resolve(risks.map(function(risk){
+            var riskLevels = [];
+            risk.RiskLevels.forEach(function(riskLevel){
+              riskLevels.push(riskLevel.get());
+            });
+            var riskModel = new DataModel.Risk(Object.assign(risk.get(), {
+              riskLevels: riskLevels
+            }));
+            return riskModel;
+          }))
+        })
+        .catch(function(err){
+          return reject(new Error("Could not list alerts " + err.toString()));
+        });
     });
   },
 

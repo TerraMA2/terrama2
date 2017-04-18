@@ -103,7 +103,8 @@
       if (alertId) {
         return DataManager.getAlert({id: alertId})
           .then(function(alert) { 
-            return resolve(alert.toObject()); })
+            return resolve(alert.toObject()); 
+          })
           .catch(function(err) { 
             return reject(err); 
           });
