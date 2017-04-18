@@ -123,6 +123,19 @@
     });
   };
 
+  /**
+   * It performs update view from database from view identifier
+   * 
+   * @param {number} alertId - View Identifier
+   * @param {Object} alertObject - View object values
+   * @param {number} projectId - A project identifier
+   * @param {boolean} shouldRun - Flag to determines if service should execute immediately after save process
+   * @returns {Promise<View>}
+   */
+  Alert.update = function(alertId, alertObject, projectId, shouldRun){
+
+  },
+
     /**
    * It performs remove view from database from view identifier
    * 
