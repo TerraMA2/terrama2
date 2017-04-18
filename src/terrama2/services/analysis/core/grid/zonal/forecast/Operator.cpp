@@ -35,10 +35,26 @@
 #include "../../../../../../core/utility/Utils.hpp"
 #include "../../../../../../core/utility/TimeUtils.hpp"
 #include "../../../utility/Verify.hpp"
+#include "../history/Operator.hpp"
 #include "../Utils.hpp"
 
 //TerraLib
 #include <terralib/dataaccess/utils/Utils.h>
+
+int terrama2::services::analysis::core::grid::zonal::forecast::num( const std::string& dataSeriesName,
+                                                                    const std::string& dateDiscardAfter,
+                                                                    terrama2::services::analysis::core::Buffer buffer)
+{
+  return terrama2::services::analysis::core::grid::zonal::history::numImpl(dataSeriesName, "0s", dateDiscardAfter, buffer);
+}
+
+
+boost::python::list terrama2::services::analysis::core::grid::zonal::forecast::list(const std::string& dataSeriesName,
+                                                                                    const std::string& dateDiscardAfter,
+                                                                                    terrama2::services::analysis::core::Buffer buffer)
+{
+  return terrama2::services::analysis::core::grid::zonal::history::listImpl(dataSeriesName, "0s", dateDiscardAfter, buffer);
+}
 
 double terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl( terrama2::services::analysis::core::StatisticOperation statisticOperation,
                                                                                 const std::string& dataSeriesName,

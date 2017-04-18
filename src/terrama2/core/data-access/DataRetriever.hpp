@@ -102,6 +102,7 @@ namespace terrama2
         */
         virtual std::string retrieveData(const std::string& query,
                                          const Filter& filter,
+                                         const std::string& timezone,
                                          std::shared_ptr<terrama2::core::FileRemover> remover,
                                          const std::string& temporaryFolder = "",
                                          const std::string& folderPath = "");

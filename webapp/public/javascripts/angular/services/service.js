@@ -116,6 +116,9 @@ define([], function() {
           case 3:
             service.type = i18n.__("View");
             break;
+          case 4:
+            service.type = i18n.__("Alert");
+            break;
           default:
             break;
         }
