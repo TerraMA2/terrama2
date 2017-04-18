@@ -3929,7 +3929,7 @@ var DataManager = module.exports = {
         })
         .then(function(schedule){
           scheduleResult = schedule;
-          var reportMetadata = alertObject.reportMetadata;
+          var reportMetadata = alertObject.report_metadata;
           reportMetadata.alert_id = alertResult.id;
           return self.addReportMetadata(reportMetadata, options);
         })
@@ -3937,10 +3937,12 @@ var DataManager = module.exports = {
           reportMetadataResult = reportMetadata;
           var alertAdditionalData = alertObject.additionalData;
           var additionalDataPromises = [];
-          alertAdditionalData.forEach(function(alertAD){
-            alertAD.alert_id = alertResult.id;
-            additionalDataPromises.push(self.addAlertAdditionalData(alertAD, options));
-          });
+          if (alertAdditionalData){
+            alertAdditionalData.forEach(function(alertAD){
+              alertAD.alert_id = alertResult.id;
+              additionalDataPromises.push(self.addAlertAdditionalData(alertAD, options));
+            });
+          }
           return Promise.all(additionalDataPromises);
         })
         .then(function(additionalData){

@@ -34,10 +34,10 @@ var Alert = function(params) {
    */
   this.project_id = params.project_id;
   /**
-   * @name Alert#instance_id
+   * @name Alert#service_instance_id
    * @type {number}
    */
-  this.instance_id = params.instance_id;
+  this.service_instance_id = params.service_instance_id;
   /**
    * @name Alert#active
    * @type {boolean}
@@ -142,7 +142,7 @@ Alert.prototype.toObject = function() {
   return Object.assign(BaseClass.prototype.toObject.call(this), {
     id: this.id,
     project_id: this.project_id,
-    instance_id: this.instance_id,
+    service_instance_id: this.service_instance_id,
     active: this.active,
     name: this.name,
     description: this.description,
@@ -183,7 +183,7 @@ Alert.prototype.toService = function() {
   return Object.assign(BaseClass.prototype.toObject.call(this), {
     id: this.id,
     project_id: this.project_id,
-    instance_id: this.instance_id,
+    service_instance_id: this.service_instance_id,
     active: this.active,
     name: this.name,
     description: this.description,

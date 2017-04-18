@@ -39,7 +39,7 @@ module.exports = function(sequelize, DataTypes) {
           Alert.belongsTo(models.ServiceInstance, {
             onDelete: "CASCADE",
             foreignKey: {
-              name: 'instance_id',
+              name: 'service_instance_id',
               allowNull: false
             }
           });

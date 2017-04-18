@@ -11,6 +11,14 @@ module.exports = function(app) {
     },
     new: function(request, response){
         response.render("configuration/alert");
+    },
+    edit: function(request, response) {
+      DataManager.getAlert({id: parseInt(request.params.id)})
+        .then(function(alert) {
+          return response.render("configuration/alert", {alert: alert.rawObject()});
+        }).catch(function(err) {
+          return response.render("base/404");
+        });
     }
   }
   return controllers;

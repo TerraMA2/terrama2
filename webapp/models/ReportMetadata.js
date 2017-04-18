@@ -14,7 +14,8 @@ module.exports = function(sequelize, DataTypes) {
       contact: DataTypes.STRING,
       copyright: DataTypes.STRING,
       timestamp_format: DataTypes.STRING,
-      logo_path: DataTypes.STRING
+      logo_path: DataTypes.STRING,
+      document_format: DataTypes.STRING
     },
     {
       underscored: true,
