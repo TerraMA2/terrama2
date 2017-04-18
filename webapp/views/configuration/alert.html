@@ -234,7 +234,7 @@
             
             <input class="form-control"
                     name="reportTitle"
-                    ng-model="ctrl.reportTitle" type="text" required>
+                    ng-model="ctrl.alert.report_metadata.title" type="text" required>
             <span class="help-block"
                       ng-show="forms.reportForm.reportTitle.$dirty && forms.reportForm.reportTitle.$invalid"
                       ng-class="{'has-error': reportForm.reportTitle.$invalid}"
@@ -249,7 +249,7 @@
             
             <textarea class="form-control"
                       name="reportDescription"
-                      ng-model="ctrl.reportDescription"
+                      ng-model="ctrl.alert.report_metadata.description"
                       rows="3"
                       placeholder="{{ i18n.__('Report Description') }}"></textarea>
           </div>
