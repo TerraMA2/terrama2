@@ -179,6 +179,12 @@ namespace terrama2
              */
             std::shared_ptr<te::da::DataSet> retrieveDataBelowRisk(const int risk) const;
 
+            double retrieveMaxValue() const;
+
+            double retrieveMinValue() const;
+
+            double retrieveMeanValue() const;
+
           protected:
 
             /*!
