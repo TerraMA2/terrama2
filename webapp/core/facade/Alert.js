@@ -158,4 +158,27 @@
     });
   };
 
+
+  /**
+   * It retrieves risks from database
+   * 
+   * @param {number} projectId - A project identifier
+   * @returns {Promise<Risk>[]}
+   */
+  Alert.listRisks = function(projectId) {
+    return new PromiseClass(function(resolve, reject) {
+
+      return DataManager.listRisks({})
+        .then(function(risks) {
+          return resolve(risks.map(function(risk) {
+            return risk.toObject();
+          }));
+        })
+
+        .catch(function(err) {
+          return reject(err);
+        });
+    });
+  };
+
 }());

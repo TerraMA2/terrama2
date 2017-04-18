@@ -4253,7 +4253,7 @@ var DataManager = module.exports = {
           }))
         })
         .catch(function(err){
-          return reject(new Error("Could not list alerts " + err.toString()));
+          return reject(new Error("Could not list risks " + err.toString()));
         });
     });
   },

@@ -179,6 +179,13 @@ define([], function() {
       },
     ];
 
+    var riskRequest = $http({
+      method: "GET",
+      url: "/api/Risk"
+    });
+    riskRequest.then(function(response){
+      console.log(response);
+    });
     /**
      * It contains the selected risk model
      * 
