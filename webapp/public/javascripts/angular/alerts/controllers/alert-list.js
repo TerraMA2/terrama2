@@ -51,6 +51,7 @@ define([], function(){
          * @returns {string}
          */
         self.link = function(object) {
+          //return "/configuration/alerts/edit/" + object.id;
           return "";
         };
 
