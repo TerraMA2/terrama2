@@ -176,7 +176,7 @@ var DataManager = module.exports = {
         viewService.port = 6545;
         viewService.service_type_id = Enums.ServiceType.VIEW;
         viewService.metadata = {
-          maps_server_uri: "http://admin:geoserver@localhost:8080/geoserver"
+          maps_server: "http://admin:geoserver@localhost:8080/geoserver"
         };
 
         var alertService = Object.assign({}, collectorService);
@@ -971,7 +971,7 @@ var DataManager = module.exports = {
         return models.db.ServiceInstance.update(serviceObject, Utils.extend({
             fields: ['name', 'description', 'port',
                      'numberOfThreads', 'runEnviroment', 'host',
-                     'sshUser', 'sshPort', 'pathToBinary', 'maps_server_uri'],
+                     'sshUser', 'sshPort', 'pathToBinary'],
             where: { id: serviceId }
           }, options))
           .then(function() {
