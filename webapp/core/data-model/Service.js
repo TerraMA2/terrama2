@@ -16,7 +16,6 @@ function Service(params) {
   this.description = params.description;
   this.log = params.log || {};
   this.service_type_id = params.service_type_id;
-  this.maps_server_uri = params.maps_server_uri;
   this.setMetadata(params.metadata);
 }
 

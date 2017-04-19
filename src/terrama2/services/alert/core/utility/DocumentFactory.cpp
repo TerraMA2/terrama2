@@ -24,7 +24,7 @@
 
   \brief
 
-  \author Jano Simas
+  \author Vinicius Campanha
 */
 
 #include "DocumentFactory.hpp"

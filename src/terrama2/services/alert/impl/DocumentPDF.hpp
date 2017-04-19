@@ -83,7 +83,6 @@ namespace terrama2
 //              margins.top = 30;
 //              writer.setMargins(margins);
 
-              std::cout << body << std::endl;
               QTextDocument td;
               td.setHtml(QString::fromStdString(body));
               td.setDefaultFont(QFont("Times", 12));

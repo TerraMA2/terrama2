@@ -58,7 +58,6 @@
 #include <boost/exception/diagnostic_information.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
-namespace po = boost::program_options;
 
 // STL
 #include <memory>
@@ -71,6 +70,8 @@ namespace po = boost::program_options;
 #include <QCoreApplication>
 #include <QtGui/QGuiApplication>
 #include <QTimer>
+
+namespace po = boost::program_options;
 
 const std::string analysisType = "analysis";
 const std::string collectorType = "collector";
@@ -214,7 +215,7 @@ int main(int argc, char* argv[])
       // Must initialize the python interpreter before creating any thread.
       terrama2::services::analysis::core::PythonInterpreterInit pythonInterpreterInit;
 
-      QGuiApplication app(argc, argv);
+      QCoreApplication app(argc, argv);
 
       // Changes in the initialization order may cause locale problems
       std::locale::global(std::locale::classic());

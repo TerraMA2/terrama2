@@ -160,19 +160,23 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::populateMonit
     auto value = item.first;
     const auto& resultMap = item.second;
 
-    std::string currentRiskProperty = validPropertyDateName(vecDates.at(0));
+    auto currentDate = *vecDates.rbegin();
+
+    std::string currentRiskProperty = validPropertyDateName(currentDate);
 
     dsItem->setValue(fkProperty->getName(), value->clone());
 
-    auto attrValue = resultMap.at(vecDates.at(0)->toString()).first;
+    auto attrValue = resultMap.at(currentDate->toString()).first;
     dsItem->setValue(alertPtr->riskAttribute, attrValue->clone());
 
-    auto currentRisk = resultMap.at(vecDates.at(0)->toString()).second;
+    auto currentRisk = resultMap.at(currentDate->toString()).second;
     dsItem->setInt32(currentRiskProperty, static_cast<int>(currentRisk));
 
     if(vecDates.size() > 1)
     {
-      auto pastRisk = resultMap.at(vecDates.at(1)->toString()).second;
+      auto previousDate = *(vecDates.rbegin()+1);
+
+      auto pastRisk = resultMap.at(previousDate->toString()).second;
 
       int comparisonResult = 0;
       if(currentRisk < pastRisk)
@@ -180,16 +184,16 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::populateMonit
       else if(currentRisk > pastRisk)
         comparisonResult = 1;
 
-      std::string pastRiskProperty = validPropertyDateName(vecDates.at(1));
+      std::string pastRiskProperty = validPropertyDateName(previousDate);
 
       dsItem->setInt32(pastRiskProperty, static_cast<int>(pastRisk));
       dsItem->setInt32(comparisonPreviosProperty, comparisonResult);
     }
 
-    for(size_t i = 2; i < vecDates.size(); i++)
+    for(auto itDate = vecDates.rbegin()+2; itDate != vecDates.rend(); ++itDate)
     {
-      std::string property = validPropertyDateName(vecDates.at(i));
-      auto risk = resultMap.at(vecDates.at(i)->toString()).second;
+      std::string property = validPropertyDateName(*itDate);
+      auto risk = resultMap.at((*itDate)->toString()).second;
       dsItem->setInt32(property, static_cast<int>(risk));
     }
 
@@ -592,7 +596,7 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
 
       NotifierPtr notifierPtr = NotifierFactory::getInstance().make("EMAIL", serverMap, reportPtr);
 
-      for(const auto& recipient : alertPtr->recipients)
+      for(const auto& recipient : alertPtr->notifications)
         notifierPtr->send(recipient);
 
     }

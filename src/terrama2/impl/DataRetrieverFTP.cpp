@@ -159,6 +159,7 @@ std::vector<std::string> terrama2::core::DataRetrieverFTP::checkSubfolders(const
 
 std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& mask,
                                                            const Filter& filter,
+                                                           const std::string& timezone,
                                                            std::shared_ptr<terrama2::core::FileRemover> remover,
                                                            const std::string& temporaryFolderUri,
                                                            const std::string& foldersMask)
@@ -213,9 +214,8 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
       for(std::string fileName: vectorFiles)
       {
         // FIXME: use timestamp
-        std::string timezone = "UTC+00";//FIXME: get timezone from dataset
         std::shared_ptr< te::dt::TimeInstantTZ > timestamp;
-        if(terrama2::core::isValidDataSetName(mask,filter, timezone, fileName,timestamp))
+        if(terrama2::core::isValidDataSetName(mask,filter, timezone.empty() ? "UTC+00" : timezone, fileName,timestamp))
           vectorNames.push_back(fileName);
       }
 

@@ -32,12 +32,16 @@
 #include "NotifierEmail.hpp"
 #include "Utils.hpp"
 
+#include "../../../core/utility/Logger.hpp"
 #include "../core/SimpleCertificateVerifier.hpp"
 #include "../core/Report.hpp"
 #include "../core/Utils.hpp"
 
 // TerraLib
 #include <terralib/core/uri/URI.h>
+
+#include <QString>
+#include <QObject>
 
 vmime::shared_ptr <vmime::net::session> terrama2::services::alert::impl::NotifierEmail::session_ = vmime::net::session::create();
 
@@ -63,7 +67,7 @@ std::string monitoredObjectReportText()
          "<p>%COPYRIGHT%</p></body></html>";
 }
 
-void terrama2::services::alert::impl::NotifierEmail::send(const core::Recipient& recipient) const
+void terrama2::services::alert::impl::NotifierEmail::send(const core::Notification& recipient) const
 {
   te::core::URI emailServer(serverMap_.at("email_server"));
 
@@ -118,7 +122,5 @@ void terrama2::services::alert::impl::NotifierEmail::send(const core::Recipient&
   tr->connect();
   tr->send(msg);
 
+  TERRAMA2_LOG_INFO() << QObject::tr("Report email sent to '%1'").arg(QString::fromStdString(emailServer.user()));
 }
-
-
-

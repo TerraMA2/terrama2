@@ -63,7 +63,7 @@ namespace terrama2
           Notifier& operator=(const Notifier& other) = default;
           Notifier& operator=(Notifier&& other) = default;
 
-          virtual void send(const Recipient& recipient) const = 0;
+          virtual void send(const Notification& recipient) const = 0;
 
         protected:
           const std::map<std::string, std::string> serverMap_;

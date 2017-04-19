@@ -24,7 +24,7 @@
 
   \brief
 
-  \author Vinicius Campanha
+  \author  Vinicius Campanha
 */
 
 #ifndef __TERRAMA2_SERVICES_ALERT_CORE_DOCUMENT_FACTORY_HPP__

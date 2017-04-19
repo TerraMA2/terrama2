@@ -189,6 +189,14 @@
     "name": "Zonal forecast",
     "children": [
       {
+        "name": "Num",
+        "code": "grid.zonal.forecast.num(\"<dynamic_data_grid>\", \"<time>\", <buffer>)"
+      },
+      {
+        "name": "List",
+        "code": "grid.zonal.forecast.list(\"<dynamic_data_grid>\", \"<time>\", <buffer>)"
+      },
+      {
         "name": "Sum",
         "code": "grid.zonal.forecast.sum(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
       },
@@ -259,16 +267,24 @@
     "name": "Zonal forecast interval",
     "children": [
       {
+        "name": "Num",
+        "code": "grid.zonal.forecast.interval.num(\"<dynamic_data_grid>\", \"<time_begin>\", \"<time_end>\", <buffer>)"
+      },
+      {
+        "name": "List",
+        "code": "grid.zonal.forecast.interval.list(\"<dynamic_data_grid>\", \"<time_begin>\", \"<time_end>\", <buffer>)"
+      },
+      {
         "name": "Sum",
-        "code": "grid.zonal.forecast.sum(\"<dynamic_data_grid>\", \"<time_begin>\", \"<time_end>\", <band>, <buffer>)"
+        "code": "grid.zonal.forecast.interval.sum(\"<dynamic_data_grid>\", \"<time_begin>\", \"<time_end>\", <band>, <buffer>)"
       },
       {
         "name": "Mean",
-        "code": "grid.zonal.forecast.mean(\"<dynamic_data_grid>\", \"<time_begin>\", \"<time_end>\", <band>, <buffer>)"
+        "code": "grid.zonal.forecast.interval.mean(\"<dynamic_data_grid>\", \"<time_begin>\", \"<time_end>\", <band>, <buffer>)"
       },
       {
         "name": "Min",
-        "code": "grid.zonal.forecast.min(\"<dynamic_data_grid>\", \"<time_begin>\", \"<time_end>\", <band>, <buffer>)"
+        "code": "grid.zonal.forecast.interval.min(\"<dynamic_data_grid>\", \"<time_begin>\", \"<time_end>\", <band>, <buffer>)"
       },
       {
         "name": "Max",

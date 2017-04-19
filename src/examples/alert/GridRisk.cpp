@@ -118,9 +118,9 @@ terrama2::services::alert::core::AlertPtr newAlert()
 
   alert->filter = filter;
 
-  Recipient recipient;
+  Notification recipient;
   recipient.targets = {"vmimeteste@gmail.com"};
-  alert->recipients = { recipient };
+  alert->notifications = { recipient };
 
   return alertPtr;
 }

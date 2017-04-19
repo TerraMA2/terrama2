@@ -345,7 +345,7 @@ terrama2::core::Risk terrama2::core::fromRiskJson(QJsonObject json)
 
   if(!(json.contains("id")
        && json.contains("name")
-       && json.contains("description")
+//       && json.contains("description")
        && json.contains("levels")))
   {
     QString errMsg = QObject::tr("Invalid Risk JSON object.");
@@ -355,7 +355,7 @@ terrama2::core::Risk terrama2::core::fromRiskJson(QJsonObject json)
 
   terrama2::core::Risk risk;
   risk.name = json["name"].toString().toStdString();
-  risk.description = json["description"].toString().toStdString();
+//  risk.description = json["description"].toString().toStdString();
 
   auto riskLevelsArray = json["levels"].toArray();
   for(const auto& value : riskLevelsArray)
