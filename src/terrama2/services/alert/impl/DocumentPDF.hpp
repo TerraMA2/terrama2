@@ -57,7 +57,12 @@ namespace terrama2
 
             static std::string makeDocument(core::ReportPtr report)
             {
-              std::string body = "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>Excel To HTML using codebeautify.org</title></head><body><!DOCTYPE html><html><head><style>body{background-color:#ffffff;font-size:15px;}h1{color:blue;text-align:center;}p{font-family:\"Times New Roman\";}</style></head><body><h1>%TITLE%</h1><p>%ABSTRACT%</p><p>%DESCRIPTION%</p><hr>%COMPLETE_DATA%<hr><p>%COPYRIGHT%</p></body></html>";
+              std::string body = "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>Excel To HTML using codebeautify.org</title></head><body><!DOCTYPE html><html><head><style>body{background-color:#ffffff;}h1{color:blue;text-align:center;}p{font-family:\"Times New Roman\";}</style></head><body><h1>%TITLE%</h1><p>%ABSTRACT%</p><p>%DESCRIPTION%</p>"
+                                 "<hr>%COMPLETE_DATA%<hr>"
+                                 "<hr><p>%MAXVALUE_DATA%</p><hr>"
+                                 "<hr><p>%MINVALUE_DATA%</p><hr>"
+                                 "<hr><p>%MEANVALUE_DATA%</p><hr>"
+                                 "<p>%COPYRIGHT%</p></body></html>";
 
               core::replaceReportTags(body, report);
 
@@ -78,6 +83,7 @@ namespace terrama2
 //              margins.top = 30;
 //              writer.setMargins(margins);
 
+              std::cout << body << std::endl;
               QTextDocument td;
               td.setHtml(QString::fromStdString(body));
               td.setDefaultFont(QFont("Times", 12));

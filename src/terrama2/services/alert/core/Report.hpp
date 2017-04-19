@@ -34,6 +34,7 @@
 // TerraMA2
 #include "Shared.hpp"
 #include "../../../core/Shared.hpp"
+#include "../../../core/data-model/DataSeriesSemantics.hpp"
 #include "Alert.hpp"
 
 // TerraLib
@@ -184,6 +185,8 @@ namespace terrama2
             double retrieveMinValue() const;
 
             double retrieveMeanValue() const;
+
+            terrama2::core::DataSeriesType dataSeriesType() const;
 
           protected:
 

@@ -37,9 +37,13 @@
 // TerraLib
 #include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/raster/Band.h>
+#include <terralib/memory/DataSetItem.h>
 
 // Qt
 #include <QObject>
+
+// STD
+#include <memory>
 
 terrama2::services::alert::core::Report::Report(AlertPtr alert,
                                                 terrama2::core::DataSeriesPtr alertDataSeries,
@@ -198,43 +202,24 @@ std::shared_ptr<te::da::DataSet> terrama2::services::alert::core::Report::retrie
 void terrama2::services::alert::core::Report::updateReportDataset(const std::shared_ptr<te::da::DataSet> dataSet)
 {
   dataSet->moveBeforeFirst();
+
+  if(alertDataSeries_->semantics.dataSeriesType == terrama2::core::DataSeriesType::GRID)
+  {
+    dataSet_ = std::dynamic_pointer_cast<te::mem::DataSet>(dataSet);
+    return;
+  }
+
   dataSet_ = std::make_shared<te::mem::DataSet>(*dataSet);
 
-  if(alertDataSeries_->semantics.dataSeriesType != terrama2::core::DataSeriesType::GRID)
+  // Replace risk values
+  for(auto riskDate : riskDates_)
   {
-    // Replace risk values
-    for(auto riskDate : riskDates_)
+    std::string property = validPropertyDateName(riskDate);
+    auto pos = terrama2::core::propertyPosition(dataSet_.get(), property);
+
+    if(pos == std::numeric_limits<size_t>::max())
     {
-      std::string property = validPropertyDateName(riskDate);
-      auto pos = terrama2::core::propertyPosition(dataSet_.get(), property);
-
-      if(pos == std::numeric_limits<size_t>::max())
-      {
-        QString errMsg = QObject::tr("Can't find property %1 !").arg(QString::fromStdString(property));
-        TERRAMA2_LOG_ERROR() << errMsg;
-        throw ReportException() << ErrorDescription(errMsg);
-      }
-
-      dataSet_->moveBeforeFirst();
-
-      while(dataSet_->moveNext())
-      {
-        if(!dataSet_->isNull(pos))
-        {
-          int numericRisk = dataSet_->getInt32(pos);
-          dataSet_->setString(property, alert_->risk.riskName(numericRisk));
-        }
-      }
-
-      dataSet_->setPropertyDataType(te::dt::STRING_TYPE, pos);
-    }
-
-    // Replace comparison property
-    auto posComparison = terrama2::core::propertyPosition(dataSet_.get(), "comparison_previous");
-
-    if(posComparison == std::numeric_limits<size_t>::max())
-    {
-      QString errMsg = QObject::tr("Can't find property %1 !").arg(QString("comparison_previous"));
+      QString errMsg = QObject::tr("Can't find property %1 !").arg(QString::fromStdString(property));
       TERRAMA2_LOG_ERROR() << errMsg;
       throw ReportException() << ErrorDescription(errMsg);
     }
@@ -243,32 +228,58 @@ void terrama2::services::alert::core::Report::updateReportDataset(const std::sha
 
     while(dataSet_->moveNext())
     {
-      std::string comp = "NULL";
-
-      if(!dataSet_->isNull(posComparison))
+      if(!dataSet_->isNull(pos))
       {
-        int resComp = dataSet_->getInt32(posComparison);
-
-        if(resComp == 0)
-          comp = "SAME";
-        else if(resComp == 1)
-          comp = "INCREASED";
-        else if(resComp == -1)
-          comp = "DECREASED";
-        else
-          comp = "UNKNOW";
+        int numericRisk = dataSet_->getInt32(pos);
+        dataSet_->setString(property, alert_->risk.riskName(numericRisk));
       }
-
-      dataSet_->setString("comparison_previous" , comp);
     }
 
-    dataSet_->setPropertyDataType(te::dt::STRING_TYPE, posComparison);
+    dataSet_->setPropertyDataType(te::dt::STRING_TYPE, pos);
   }
+
+  // Replace comparison property
+  auto posComparison = terrama2::core::propertyPosition(dataSet_.get(), "comparison_previous");
+
+  if(posComparison == std::numeric_limits<size_t>::max())
+  {
+    QString errMsg = QObject::tr("Can't find property %1 !").arg(QString("comparison_previous"));
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ReportException() << ErrorDescription(errMsg);
+  }
+
+  dataSet_->moveBeforeFirst();
+
+  while(dataSet_->moveNext())
+  {
+    std::string comp = "NULL";
+
+    if(!dataSet_->isNull(posComparison))
+    {
+      int resComp = dataSet_->getInt32(posComparison);
+
+      if(resComp == 0)
+        comp = "SAME";
+      else if(resComp == 1)
+        comp = "INCREASED";
+      else if(resComp == -1)
+        comp = "DECREASED";
+      else
+        comp = "UNKNOW";
+    }
+
+    dataSet_->setString("comparison_previous" , comp);
+  }
+
+  dataSet_->setPropertyDataType(te::dt::STRING_TYPE, posComparison);
+
 }
 
 
 double terrama2::services::alert::core::Report::retrieveMaxValue() const
 {
+  dataSet_->moveBeforeFirst();
+
   if(alertDataSeries_->semantics.dataSeriesType != terrama2::core::DataSeriesType::GRID)
   {
     QString errMsg = QObject::tr("Not implemented for this data series type!");
@@ -276,7 +287,21 @@ double terrama2::services::alert::core::Report::retrieveMaxValue() const
     throw ReportException() << ErrorDescription(errMsg);
   }
 
+  if(!dataSet_->moveNext())
+  {
+    QString errMsg = QObject::tr("No data in data set!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ReportException() << ErrorDescription(errMsg);
+  }
+
   std::size_t pos = te::da::GetFirstPropertyPos(dataSet_.get(), te::dt::RASTER_TYPE);
+
+  if(!terrama2::core::isValidColumn(pos) || dataSet_->isNull(pos))
+  {
+    QString errMsg = QObject::tr("No raster data in data set!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ReportException() << ErrorDescription(errMsg);
+  }
 
   return dataSet_->getRaster(pos)->getBand(0)->getMaxValue(true).real();
 }
@@ -284,6 +309,8 @@ double terrama2::services::alert::core::Report::retrieveMaxValue() const
 
 double terrama2::services::alert::core::Report::retrieveMinValue() const
 {
+  dataSet_->moveBeforeFirst();
+
   if(alertDataSeries_->semantics.dataSeriesType != terrama2::core::DataSeriesType::GRID)
   {
     QString errMsg = QObject::tr("Not implemented for this data series type!");
@@ -291,14 +318,30 @@ double terrama2::services::alert::core::Report::retrieveMinValue() const
     throw ReportException() << ErrorDescription(errMsg);
   }
 
+  if(!dataSet_->moveNext())
+  {
+    QString errMsg = QObject::tr("No data in data set!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ReportException() << ErrorDescription(errMsg);
+  }
+
   std::size_t pos = te::da::GetFirstPropertyPos(dataSet_.get(), te::dt::RASTER_TYPE);
 
-  return dataSet_->getRaster(pos)->getBand(0)->getMaxValue(true).real();
+  if(pos == std::string::npos)
+  {
+    QString errMsg = QObject::tr("No raster data in data set!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ReportException() << ErrorDescription(errMsg);
+  }
+
+  return dataSet_->getRaster(pos)->getBand(0)->getMinValue(true).real();
 }
 
 
 double terrama2::services::alert::core::Report::retrieveMeanValue() const
 {
+  dataSet_->moveBeforeFirst();
+
   if(alertDataSeries_->semantics.dataSeriesType != terrama2::core::DataSeriesType::GRID)
   {
     QString errMsg = QObject::tr("Not implemented for this data series type!");
@@ -306,7 +349,26 @@ double terrama2::services::alert::core::Report::retrieveMeanValue() const
     throw ReportException() << ErrorDescription(errMsg);
   }
 
+  if(!dataSet_->moveNext())
+  {
+    QString errMsg = QObject::tr("No data in data set!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ReportException() << ErrorDescription(errMsg);
+  }
+
   std::size_t pos = te::da::GetFirstPropertyPos(dataSet_.get(), te::dt::RASTER_TYPE);
 
+  if(pos == std::string::npos)
+  {
+    QString errMsg = QObject::tr("No raster data in data set!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ReportException() << ErrorDescription(errMsg);
+  }
+
   return dataSet_->getRaster(pos)->getBand(0)->getMeanValue().real();
+}
+
+terrama2::core::DataSeriesType terrama2::services::alert::core::Report::dataSeriesType() const
+{
+  return alertDataSeries_->semantics.dataSeriesType;
 }

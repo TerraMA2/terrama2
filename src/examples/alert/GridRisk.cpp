@@ -104,7 +104,7 @@ terrama2::services::alert::core::AlertPtr newAlert()
 
   std::unordered_map<std::string, std::string> reportMetadata;
 
-  reportMetadata[terrama2::services::alert::core::ReportTags::TITLE] = "NUMERIC RISK EXAMPLE REPORT";
+  reportMetadata[terrama2::services::alert::core::ReportTags::TITLE] = "GRID RISK EXAMPLE REPORT";
   reportMetadata[terrama2::services::alert::core::ReportTags::ABSTRACT] = "NumericRisk example.";
   reportMetadata[terrama2::services::alert::core::ReportTags::AUTHOR] = "TerraMA2";
   reportMetadata[terrama2::services::alert::core::ReportTags::CONTACT] = "TerraMA2 developers.";

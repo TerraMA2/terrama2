@@ -438,7 +438,7 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::populateGridA
 
     std::unique_ptr<te::mem::DataSetItem> item(new te::mem::DataSetItem(alertDataSet.get()));
     item->setDateTime(datetimeColumnName, static_cast<te::dt::DateTime*>(timestamp->clone()));
-    item->setRaster(rasterPropName, alertRaster.get());
+    item->setRaster(rasterPropName, alertRaster.release());
     alertDataSet->add(item.release());
   }
 
@@ -586,13 +586,9 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
                                   filter,
                                   dataset,
                                   teDataset);
-
-        return;
       }
 
       ReportPtr reportPtr = std::make_shared<Report>(alertPtr, inputDataSeries, alertDataSet, vecDates);
-
-      std::string path = DocumentFactory::getInstance().makeDocument("PDF", reportPtr);
 
       NotifierPtr notifierPtr = NotifierFactory::getInstance().make("EMAIL", serverMap, reportPtr);
 
