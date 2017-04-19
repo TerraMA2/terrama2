@@ -72,16 +72,16 @@ namespace terrama2
               writer.setPageSize(QPagedPaintDevice::A4);
 
               // Qt > 5.2
-              writer.setPageMargins(QMargins(30, 30, 30, 30));
-              writer.setResolution(100);
+//              writer.setPageMargins(QMargins(30, 30, 30, 30));
+//              writer.setResolution(100);
 
               // Qt < 5.3
-//              QPagedPaintDevice::Margins margins;
-//              margins.bottom = 30;
-//              margins.left = 30;
-//              margins.right = 30;
-//              margins.top = 30;
-//              writer.setMargins(margins);
+              QPagedPaintDevice::Margins margins;
+              margins.bottom = 30;
+              margins.left = 30;
+              margins.right = 30;
+              margins.top = 30;
+              writer.setMargins(margins);
 
               QTextDocument td;
               td.setHtml(QString::fromStdString(body));
