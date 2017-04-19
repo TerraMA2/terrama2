@@ -32,10 +32,6 @@ module.exports = function(sequelize, DataTypes) {
       pathToBinary: DataTypes.STRING,
       numberOfThreads: DataTypes.INTEGER,
       runEnviroment: DataTypes.STRING,
-      maps_server_uri: {
-        type: DataTypes.STRING,
-        comment: "Map server connection URI. Used for View Services"
-      },
     },
     {
       underscored: true,
