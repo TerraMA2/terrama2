@@ -125,73 +125,8 @@ define([], function() {
             value: ""
           }
         ]
-      },
-      {
-        id: 1,
-        name: "Risco 1",
-        description: "lala",
-        levels: [
-          {
-            _id: UniqueNumber(),
-            name: "level1",
-            value: 100
-          },
-          {
-            _id: UniqueNumber(),
-            name: "level2",
-            value: 200
-          }
-        ]
-      },
-      {
-        id: 2,
-        name: "Risco 2",
-        description: "lala",
-        levels: [
-          {
-            _id: UniqueNumber(),
-            name: "level1",
-            value: 100
-          },
-          {
-            _id: UniqueNumber(),
-            name: "level2",
-            value: 200
-          }
-        ]
-      },
-      {
-        id: 3,
-        name: "Risco 3",
-        description: "lala",
-        levels: [
-          {
-            _id: UniqueNumber(),
-            name: "level1",
-            value: 100
-          },
-          {
-            _id: UniqueNumber(),
-            name: "level2",
-            value: 200
-          }
-        ]
-      },
+      }
     ];
-
-    var riskRequest = $http({
-      method: "GET",
-      url: "/api/Risk"
-    });
-    riskRequest.then(function(response){
-      console.log(response);
-    });
-    /**
-     * It contains the selected risk model
-     * 
-     * @type {object}
-     */
-    self.riskModel = self.risks[0];
 
     $q.all([
       i18n.ensureLocaleIsLoaded(),
@@ -213,11 +148,41 @@ define([], function() {
           return dataSeriesToFilter.data_series_semantics.data_series_type_name === "ANALYSIS_MONITORED_OBJECT" || dataSeriesToFilter.data_series_semantics.data_series_type_name === "GRID";
         });
 
-        $timeout(function() {
+        var riskRequest = $http({
+          method: "GET",
+          url: "/api/Risk"
+        });
+
+        riskRequest.then(function(response) {
+          for(var i = 0, risksLength = response.data.length; i < risksLength; i++) {
+            var risk = response.data[i];
+
+            risk.levels.sort(function(a, b) {
+              if(a.level < b.level) return -1;
+              if(a.level > b.level) return 1;
+              return 0;
+            });
+
+            for(var j = 0, levelsLength = risk.levels.length; j < levelsLength; j++) {
+              risk.levels[j]._id = UniqueNumber();
+              delete risk.levels[j].id;
+              delete risk.levels[j].level;
+              delete risk.levels[j].risk_id;
+            }
+
+            self.risks.push(risk);
+          }
+
           if(self.isUpdating) {
             for(var i = 0, risksLength = self.risks.length; i < risksLength; i++) {
               if(self.risks[i].id === self.alert.risk.id) {
                 self.riskModel = self.risks[i];
+
+                $timeout(function() {
+                  self.onRisksChange();
+                });
+
+                break;
               }
             }
 
@@ -234,9 +199,15 @@ define([], function() {
             if(self.alert.notifications[0].notify_on_risk_level !== null)
               self.notifyOnRiskLevel = true;
           } else {
-            // Forcing first alert service pre-selected
-            if(self.filteredServices.length > 0)
-              self.alert.service_instance_id = self.filteredServices[0].id;
+            self.riskModel = self.risks[0];
+
+            $timeout(function() {
+              self.onRisksChange();
+
+              // Forcing first alert service pre-selected
+              if(self.filteredServices.length > 0)
+                self.alert.service_instance_id = self.filteredServices[0].id;
+            });
           }
         });
       });
