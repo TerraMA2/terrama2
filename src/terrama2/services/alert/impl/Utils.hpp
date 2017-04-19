@@ -48,13 +48,6 @@ namespace terrama2
          */
         void registerFactories();
 
-        /*!
-         * \brief Receives a TerraLib dataSet and returns all his data as a HTML table
-         * \param dataSet The data set with data to put in table
-         * \return A string with the dataSet data formated as a HTML table
-         */
-        std::string dataSetHtmlTable(const std::shared_ptr<te::da::DataSet>& dataSet);
-
       } /* core */
     } /* alert */
   } /* services */

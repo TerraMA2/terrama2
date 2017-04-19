@@ -188,6 +188,8 @@ namespace terrama2
      */
     std::vector<std::string> splitString(const std::string& text, char delim);
 
+    void replaceAll(std::string& text, const std::string& from, const std::string& to);
+
   } // end namespace core
 }   // end namespace terrama2
 

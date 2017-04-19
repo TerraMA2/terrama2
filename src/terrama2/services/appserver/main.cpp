@@ -68,6 +68,7 @@
 
 // Qt
 #include <QCoreApplication>
+#include <QtGui/QGuiApplication>
 #include <QTimer>
 
 namespace po = boost::program_options;

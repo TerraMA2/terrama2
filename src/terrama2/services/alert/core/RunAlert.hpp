@@ -32,12 +32,16 @@
 
 #include "../../../core/Shared.hpp"
 #include "../../../core/utility/Service.hpp"
+#include "../../../core/utility/FileRemover.hpp"
 #include "../../../core/data-model/Risk.hpp"
+#include "../../../core/data-model/Filter.hpp"
 #include "Typedef.hpp"
 #include "AlertLogger.hpp"
 #include "DataManager.hpp"
 
 #include <terralib/memory/DataSet.h>
+
+#include <unordered_map>
 
 namespace te
 {
@@ -82,22 +86,52 @@ namespace terrama2
         std::function<std::tuple<int, std::string, std::string>(size_t pos)> createGetRiskFunction(terrama2::core::Risk risk, std::shared_ptr<te::da::DataSet> teDataSet);
 
         std::vector<std::shared_ptr<te::dt::DateTime> > getDates(std::shared_ptr<te::da::DataSet> teDataset, std::string datetimeColumnName);
+
         std::map<std::shared_ptr<te::dt::AbstractData>, std::map<std::string, std::pair<std::shared_ptr<te::dt::AbstractData>, uint32_t> >, terrama2::services::alert::core::comparatorAbstractData>
-                getResultMap(size_t pos,
+                getResultMap(AlertPtr alertPtr,
+                             size_t pos,
                              te::dt::Property* idProperty,
-                             std::function<std::tuple<int, std::string, std::string>(size_t pos)> getRisk,
                              std::string datetimeColumnName,
                              std::shared_ptr<te::da::DataSet> teDataset,
                              std::vector<std::shared_ptr<te::dt::DateTime> > vecDates);
 
-        std::shared_ptr<te::mem::DataSet> populateAlertDataset(std::vector<std::shared_ptr<te::dt::DateTime> > vecDates,
-                                                                std::map<std::shared_ptr<te::dt::AbstractData>, std::map<std::string, std::pair<std::shared_ptr<te::dt::AbstractData>, uint32_t> >, comparatorAbstractData> riskResultMap,
-                                                                const std::string comparisonPreviosProperty,
-                                                                AlertPtr alertPtr,
-                                                                te::dt::Property* fkProperty,
-                                                                std::shared_ptr<te::da::DataSetType> alertDataSetType);
+        std::shared_ptr<te::mem::DataSet> populateMonitoredObjectAlertDataset(std::vector<std::shared_ptr<te::dt::DateTime> > vecDates,
+                                                                              std::map<std::shared_ptr<te::dt::AbstractData>, std::map<std::string, std::pair<std::shared_ptr<te::dt::AbstractData>, uint32_t> >, comparatorAbstractData> riskResultMap,
+                                                                              const std::string comparisonPreviosProperty,
+                                                                              AlertPtr alertPtr,
+                                                                              te::dt::Property* fkProperty,
+                                                                              std::shared_ptr<te::da::DataSetType> alertDataSetType);
 
-        void addAdditionalData(std::shared_ptr<te::mem::DataSet> alertDataSet, AlertPtr alertPtr, std::unordered_map<std::string, terrama2::core::TeDataSetFKJoin> additionalDataMap);
+        std::shared_ptr<te::mem::DataSet> populateGridAlertDataset( terrama2::core::DataSetPtr dataset,
+                                                                    AlertPtr alertPtr,
+                                                                    std::vector<std::shared_ptr<te::dt::DateTime> > vecDates,
+                                                                    std::shared_ptr<te::da::DataSet> teDataset,
+                                                                    std::shared_ptr<te::da::DataSetType> dataSetType,
+                                                                    std::string datetimeColumnName);
+
+        void addAdditionalData(std::shared_ptr<te::mem::DataSet> alertDataSet,
+                               AlertPtr alertPtr,
+                               std::unordered_map<std::string, terrama2::core::TeDataSetFKJoin> additionalDataMap);
+
+        std::shared_ptr<te::mem::DataSet> monitoredObjectAlert(std::shared_ptr<te::da::DataSetType> dataSetType,
+                                                               std::string datetimeColumnName,
+                                                               std::vector<std::shared_ptr<te::dt::DateTime> > vecDates,
+                                                               AlertPtr alertPtr,
+                                                               terrama2::core::Filter filter,
+                                                               terrama2::core::DataSetPtr dataset,
+                                                               std::shared_ptr<te::da::DataSet> teDataset,
+                                                               te::dt::Property* idProperty, std::unordered_map<DataSeriesId, std::pair<terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr> > tempAdditionalDataVector,
+                                                               std::shared_ptr<terrama2::core::FileRemover> remover);
+
+        std::shared_ptr<te::mem::DataSet> gridAlert(std::shared_ptr<te::da::DataSetType> dataSetType,
+                                                    std::string datetimeColumnName,
+                                                    std::vector<std::shared_ptr<te::dt::DateTime> > vecDates,
+                                                    AlertPtr alertPtr,
+                                                    terrama2::core::Filter filter,
+                                                    terrama2::core::DataSetPtr dataset,
+                                                    std::shared_ptr<te::da::DataSet> teDataset);
+
+        std::shared_ptr<te::da::DataSetType> createAlertDataSetType(AlertPtr alertPtr, terrama2::core::DataSetPtr dataset);
 
       } /* core */
     } /* alert */
