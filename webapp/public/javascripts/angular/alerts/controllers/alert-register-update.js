@@ -165,7 +165,6 @@ define([], function() {
 
             for(var j = 0, levelsLength = risk.levels.length; j < levelsLength; j++) {
               risk.levels[j]._id = UniqueNumber();
-              delete risk.levels[j].id;
               delete risk.levels[j].level;
               delete risk.levels[j].risk_id;
             }
@@ -442,9 +441,9 @@ define([], function() {
      * Watcher for handling risk levels change. It validates if the values are numeric and are in a growing order.
      */
     $scope.$watch("ctrl.riskModel.levels", function() {
-      if (!self.riskModel){
+      if(!self.riskModel)
         return;
-      }
+
       var lastValue = null;
       self.riskLevelOrderError = false;
       self.isNotValid = false;
@@ -474,45 +473,6 @@ define([], function() {
         }
       }
     }, true);
-
-    self.alertWanted = {
-      active: true,
-      name: "Alerta teste",
-      description: "Sem description",
-      project_id: 1,
-      data_series_id: 4,
-      service_instance_id: 4,
-      risk_attribute: "risco atributo",
-      schedule: {
-        data_ids: [1],
-        scheduleType: 4
-      },
-      risk: {
-        name: "Risco",
-        description: "",
-        levels: [
-          {
-            name: "level1",
-            level: 1,
-            value: 100
-          },
-          {
-            name: "level2",
-            level: 2,
-            value: 200
-          }
-        ]
-      },
-      notifications: [
-        {
-          include_report: true,
-          notify_on_change: true,
-          simplified_report: true,
-          notify_on_risk_level: 1,
-          recipients: "recipientes"
-        }
-      ]
-    };
 
     /**
      * Helper to reset alert box instance.
