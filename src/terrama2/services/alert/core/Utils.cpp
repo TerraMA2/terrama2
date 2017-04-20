@@ -34,6 +34,9 @@
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/utility/Utils.hpp"
 
+// Boost
+#include <boost/algorithm/string/replace.hpp>
+
 // Qt
 #include <QString>
 #include <QObject>
@@ -97,11 +100,12 @@ std::string terrama2::services::alert::core::dataSetHtmlTable(const std::shared_
 
 void terrama2::services::alert::core::replaceReportTags(std::string& text, ReportPtr report)
 {
-  terrama2::core::replaceAll(text, "%TITLE%", report->title());
-  terrama2::core::replaceAll(text, "%ABSTRACT%", report->abstract());
-  terrama2::core::replaceAll(text, "%AUTHOR%", report->author());
-  terrama2::core::replaceAll(text, "%COPYRIGHT%", report->copyright());
-  terrama2::core::replaceAll(text, "%DESCRIPTION%", report->description());
+  boost::replace_all(text, "%TITLE%", report->title());
+  boost::replace_all(text, "%TITLE%", report->title());
+  boost::replace_all(text, "%ABSTRACT%", report->abstract());
+  boost::replace_all(text, "%AUTHOR%", report->author());
+  boost::replace_all(text, "%COPYRIGHT%", report->copyright());
+  boost::replace_all(text, "%DESCRIPTION%", report->description());
 
   std::string complete_data = "NO DATA!";
 
@@ -113,7 +117,7 @@ void terrama2::services::alert::core::replaceReportTags(std::string& text, Repor
   {
   }
 
-  terrama2::core::replaceAll(text, "%COMPLETE_DATA%", complete_data);
+  boost::replace_all(text, "%COMPLETE_DATA%", complete_data);
 
   std::string max_value = "NO DATA!";
 
@@ -125,7 +129,7 @@ void terrama2::services::alert::core::replaceReportTags(std::string& text, Repor
   {
   }
 
-  terrama2::core::replaceAll(text, "%MAXVALUE_DATA%", max_value);
+  boost::replace_all(text, "%MAXVALUE_DATA%", max_value);
 
   std::string min_value = "NO DATA!";
 
@@ -137,7 +141,7 @@ void terrama2::services::alert::core::replaceReportTags(std::string& text, Repor
   {
   }
 
-  terrama2::core::replaceAll(text, "%MINVALUE_DATA%", min_value);
+  boost::replace_all(text, "%MINVALUE_DATA%", min_value);
 
   std::string mean_value = "NO DATA!";
 
@@ -149,5 +153,5 @@ void terrama2::services::alert::core::replaceReportTags(std::string& text, Repor
   {
   }
 
-  terrama2::core::replaceAll(text, "%MEANVALUE_DATA%", mean_value);
+  boost::replace_all(text, "%MEANVALUE_DATA%", mean_value);
 }
