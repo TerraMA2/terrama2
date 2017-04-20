@@ -303,7 +303,9 @@ double terrama2::services::alert::core::Report::retrieveMaxValue() const
     throw ReportException() << ErrorDescription(errMsg);
   }
 
-  return dataSet_->getRaster(pos)->getBand(0)->getMaxValue(true).real();
+  int band = std::stoi(alert_->riskAttribute);
+
+  return dataSet_->getRaster(pos)->getBand(band)->getMaxValue(true).real();
 }
 
 
@@ -334,7 +336,9 @@ double terrama2::services::alert::core::Report::retrieveMinValue() const
     throw ReportException() << ErrorDescription(errMsg);
   }
 
-  return dataSet_->getRaster(pos)->getBand(0)->getMinValue(true).real();
+  int band = std::stoi(alert_->riskAttribute);
+
+  return dataSet_->getRaster(pos)->getBand(band)->getMinValue(true).real();
 }
 
 
@@ -365,7 +369,9 @@ double terrama2::services::alert::core::Report::retrieveMeanValue() const
     throw ReportException() << ErrorDescription(errMsg);
   }
 
-  return dataSet_->getRaster(pos)->getBand(0)->getMeanValue().real();
+  int band = std::stoi(alert_->riskAttribute);
+
+  return dataSet_->getRaster(pos)->getBand(band)->getMeanValue().real();
 }
 
 terrama2::core::DataSeriesType terrama2::services::alert::core::Report::dataSeriesType() const
