@@ -4317,21 +4317,67 @@ var DataManager = module.exports = {
   updateRisk: function(restriction, riskObject, options){
     var self = this;
     return new Promise(function(resolve, reject){
-      models.db.Risk.update(
-        riskObject,
-        Utils.extend({
-          fields: ['name', 'description'],
-          where: restriction
-        }, options))
+      return self.getRisk({id: restriction.id}, options)
+        // Updating Risk Levels
+        .then(function(riskResult){
+          var oldRiskLevels = riskResult.levels;
+          var newRiskLevels = riskObject.levels;
+          var riskLevelPromises = [];
+          newRiskLevels.forEach(function(riskLevel){
+            if (riskLevel.id){
+              riskLevelPromises.push(self.updateRiskLevel({id: riskLevel.id}, riskLevel, options));
+            }
+            else {
+              riskLevel.risk_id = restriction.id;
+              riskLevelPromises.push(self.addRiskLevel(riskLevel, options));
+            }
+          });
+          oldRiskLevels.forEach(function(riskLevel){
+            var found = newRiskLevels.some(function(newRiskLevel){
+              return newRiskLevel.id === riskLevel.id;
+            });
+            if (!found){
+              riskLevelPromises.push(self.removeRiskLevel({id: riskLevel.id}, options));
+            }
+          });
+          return Promises.all(riskLevelPromises);
+        })
 
-        .then(function(risk) {
-          return resolve();
+        .then(function(){
+          models.db.Risk.update(
+            riskObject,
+            Utils.extend({
+              fields: ['name', 'description'],
+              where: restriction
+            }, options))
+
+            .then(function(risk) {
+              return resolve();
+            })
         })
 
         .catch(function(err) {
           return reject(new Error("Could not update Risk " + err.toString()));
         });
     });
+  },
+
+  updateRiskLevel: function(restriction, riskLevelObject, options){
+    var self = this;
+    return new Promise(function(resolve, reject){
+      models.db.RiskLevel.update(
+        riskLevelObject,
+        Utils.extend({
+          fields: [],
+          where: restriction
+        }, options))
+        .then(function(){
+          return resolve();
+        })
+        .catch(function(err){
+          return reject(new Error("Could not update RiskLevel " + err.toString()));
+        })
+    })
   },
 
   /**
@@ -4362,6 +4408,27 @@ var DataManager = module.exports = {
 
         .catch(function(err) {
           return reject(new Error("Could not remove alert " + err.toString()));
+        });
+    });
+  },
+
+  /**
+   * It removes risk level of database from given restriction
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise}
+   */
+  removeRiskLevel: function(restriction, options){
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return models.db.RiskLevel.destroy(Utils.extend({where: restriction}, options))
+        .then(function() {
+          return resolve();
+        })
+        .catch(function(err) {
+          return reject(err);
         });
     });
   },
