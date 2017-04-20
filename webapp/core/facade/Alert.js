@@ -140,12 +140,26 @@
     return new PromiseClass(function(resolve, reject) {
       DataManager.orm.transaction(function(t){
         var options = {transaction: t};
-        return DataManager.updateAlert({id: alertId}, alertObject, options)
-          .then(function(){
-            return DataManager.updateConditionalSchedule(alertObject.conditional_schedule_id, alertObject.conditional_schedule, options)
+        return DataManager.getAlert({id: alertId}, options)
+          .then(function(alertResult){
+            if (alertObject.risk.id){
+              alertObject.risk_id = alertObject.risk.id;
+              return DataManager.updateRisk({id: alertObject.risk.id}, alertObject.risk, options);
+            } else {
+              return DataManager.addRisk(alertObject.risk, options)
+            }
           })
-          .then(function(){
-            return DataManager.getAlert({id: alertId}, options);
+          .then(function(riskResult){
+            if (riskResult){
+              alertObject.risk_id = riskResult.id;
+            }
+            return DataManager.updateAlert({id: alertId}, alertObject, options)
+              .then(function(){
+                return DataManager.updateConditionalSchedule(alertObject.conditional_schedule_id, alertObject.conditional_schedule, options)
+              })
+              .then(function(){
+                return DataManager.getAlert({id: alertId}, options);
+              })
           })
       })
       .then(function(alert){

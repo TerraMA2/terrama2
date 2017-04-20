@@ -4324,7 +4324,7 @@ var DataManager = module.exports = {
           where: restriction
         }, options))
 
-        .then(function(reportMetadata) {
+        .then(function(risk) {
           return resolve();
         })
 
