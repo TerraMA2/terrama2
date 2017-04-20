@@ -303,7 +303,18 @@ double terrama2::services::alert::core::Report::retrieveMaxValue() const
     throw ReportException() << ErrorDescription(errMsg);
   }
 
-  return dataSet_->getRaster(pos)->getBand(0)->getMaxValue(true).real();
+  try
+  {
+    int band = std::stoi(alert_->riskAttribute);
+
+    return dataSet_->getRaster(pos)->getBand(band)->getMaxValue(true).real();
+  }
+  catch(const std::invalid_argument& /*e*/)
+  {
+    QString errMsg = QObject::tr("Invalid risk attribute!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ReportException() << ErrorDescription(errMsg);
+  }
 }
 
 
@@ -334,7 +345,18 @@ double terrama2::services::alert::core::Report::retrieveMinValue() const
     throw ReportException() << ErrorDescription(errMsg);
   }
 
-  return dataSet_->getRaster(pos)->getBand(0)->getMinValue(true).real();
+  try
+  {
+    int band = std::stoi(alert_->riskAttribute);
+
+    return dataSet_->getRaster(pos)->getBand(band)->getMinValue(true).real();
+  }
+  catch(const std::invalid_argument& /*e*/)
+  {
+    QString errMsg = QObject::tr("Invalid risk attribute!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ReportException() << ErrorDescription(errMsg);
+  }
 }
 
 
@@ -365,7 +387,18 @@ double terrama2::services::alert::core::Report::retrieveMeanValue() const
     throw ReportException() << ErrorDescription(errMsg);
   }
 
-  return dataSet_->getRaster(pos)->getBand(0)->getMeanValue().real();
+  try
+  {
+    int band = std::stoi(alert_->riskAttribute);
+
+    return dataSet_->getRaster(pos)->getBand(band)->getMeanValue().real();
+  }
+  catch(const std::invalid_argument& /*e*/)
+  {
+    QString errMsg = QObject::tr("Invalid risk attribute!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ReportException() << ErrorDescription(errMsg);
+  }
 }
 
 terrama2::core::DataSeriesType terrama2::services::alert::core::Report::dataSeriesType() const
