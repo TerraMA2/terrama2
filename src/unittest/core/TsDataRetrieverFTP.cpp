@@ -53,6 +53,7 @@
 // GMock
 #include <gtest/gtest.h>
 
+#include <terralib/ws/core/Exception.h>
 
 using ::testing::Return;
 using ::testing::_;
@@ -63,12 +64,12 @@ void TsDataRetrieverFTP::TestFailUriInvalid()
   try
   {
     QUrl url;
-    url.setHost("ftp.dgi.inpe.br");
-    url.setPath("/operacao/");
-    url.setScheme("FTP");
-    url.setPort(21);
-    url.setUserName("queimadas");
-    url.setPassword("inpe_2012");
+//    url.setHost("ftp.dgi.inpe.br");
+//    url.setPath("/operacao/");
+//    url.setScheme("FTP");
+//    url.setPort(21);
+//    url.setUserName("queimadas");
+//    url.setPassword("inpe_2012");
 
     curl_global_init(CURL_GLOBAL_ALL);
 
@@ -80,12 +81,9 @@ void TsDataRetrieverFTP::TestFailUriInvalid()
     dataProvider->dataProviderType = "FTP";
     dataProvider->active = true;
 
-    //empty filter
-    terrama2::core::Filter filter;
-
     MockCurlWrapper mock_;
 
-    ON_CALL(mock_, verifyURL(_,_)).WillByDefault(Return());
+    EXPECT_CALL(mock_, verifyURL(_,_)).WillOnce(testing::Throw(te::ws::core::Exception()));
 
     try
     {
@@ -142,7 +140,7 @@ void TsDataRetrieverFTP::TestFailLoginInvalid()
 
     MockCurlWrapper mock_;
 
-    ON_CALL(mock_, verifyURL(_,_)).WillByDefault(Return());
+    EXPECT_CALL(mock_, verifyURL(_,_)).WillOnce(testing::Throw(te::ws::core::Exception()));
 
     try
     {
@@ -260,7 +258,7 @@ void TsDataRetrieverFTP::TestFailVectorFileEmpty()
     MockCurlWrapper mock_;
 
     ON_CALL(mock_, verifyURL(_,_)).WillByDefault(Return());
-    ON_CALL(mock_, getListFiles(_,_,_)).WillByDefault(Return(vectorFiles));
+    ON_CALL(mock_, listFiles(_)).WillByDefault(Return(vectorFiles));
 
     try
     {
@@ -324,7 +322,7 @@ void TsDataRetrieverFTP::TestOKVectorWithFiles()
     MockCurlWrapper mock_;
 
     ON_CALL(mock_, verifyURL(_,_)).WillByDefault(Return());
-    ON_CALL(mock_, getListFiles(_,_,_)).WillByDefault(Return(vectorFiles));
+    ON_CALL(mock_, listFiles(_)).WillByDefault(Return(vectorFiles));
 
     try
     {
@@ -385,7 +383,7 @@ void TsDataRetrieverFTP::TestFailDownloadFile()
     MockCurlWrapper mock_;
 
     ON_CALL(mock_, verifyURL(_,_)).WillByDefault(Return());
-    ON_CALL(mock_, getDownloadFiles(_,_,_)).WillByDefault(Return(CURLE_COULDNT_RESOLVE_HOST));
+    ON_CALL(mock_, downloadFile(_,_,_)).WillByDefault(Return());
 
     try
     {
@@ -444,8 +442,8 @@ void TsDataRetrieverFTP::TestOKDownloadFile()
 
     MockCurlWrapper mock_;
 
-    ON_CALL(mock_, verifyURL(_,_)).WillByDefault(Return());
-    ON_CALL(mock_, getDownloadFiles(_,_,_)).WillByDefault(Return(CURLE_OK));
+    EXPECT_CALL(mock_, verifyURL(_,_)).WillRepeatedly(Return());
+    EXPECT_CALL(mock_, downloadFile(_,_,_)).WillRepeatedly(Return());
 
     try
     {
