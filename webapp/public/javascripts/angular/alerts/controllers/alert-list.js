@@ -25,7 +25,6 @@ define([], function(){
      * @type {Object[]}
      */
     self.model = [];    
-
     /**
      * Control to disable the run buttons
      * @type {Object}
@@ -116,8 +115,8 @@ define([], function(){
          * @returns {string}
          */
         self.link = function(object) {
-          //return "/configuration/alerts/edit/" + object.id;
-          return "";
+          return "/configuration/alerts/edit/" + object.id;
+          //return "";
         };
 
         /**

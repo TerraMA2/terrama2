@@ -4281,7 +4281,7 @@ var DataManager = module.exports = {
           return self.updateReportMetadata({alert_id: alertId}, alertObject.report_metadata, options)
         })
         .then(function(){
-          return self.updateRisk({alert_id: alertId}, alertObject.risk, options)
+          return self.updateRisk({id: alertObject.risk.id}, alertObject.risk, options)
         })
 
         .then(function() {
@@ -4297,7 +4297,7 @@ var DataManager = module.exports = {
   updateReportMetadata: function(restriction, reportMetadataObject, options){
     var self = this;
     return new Promise(function(resolve, reject){
-      models.db.ReportMetada.update(
+      models.db.ReportMetadata.update(
         reportMetadataObject,
         Utils.extend({
           fields: ['title', 'abstract', 'description', 'author', 'contact', 'copyright', 'timestamp_format', 'logo_path', 'document_format'],

@@ -442,6 +442,9 @@ define([], function() {
      * Watcher for handling risk levels change. It validates if the values are numeric and are in a growing order.
      */
     $scope.$watch("ctrl.riskModel.levels", function() {
+      if (!self.riskModel){
+        return;
+      }
       var lastValue = null;
       self.riskLevelOrderError = false;
       self.isNotValid = false;

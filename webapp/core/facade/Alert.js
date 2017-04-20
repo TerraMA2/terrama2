@@ -67,7 +67,7 @@
             var riskPromise;
             var riskObject = alertObject.risk;
             if (riskObject.id){
-              riskPromise = DataManager.updateRisk(riskObject.id, riskObject, options);
+              riskPromise = DataManager.updateRisk({id: riskObject.id}, riskObject, options);
             } else {
               riskPromise = DataManager.addRisk(riskObject, options);
             }
@@ -75,6 +75,8 @@
               .then(function(riskResult){
                 if (!alertObject.risk.id){
                   alertObject.risk_id = riskResult.id;
+                } else {
+                  alertObject.risk_id = alertObject.risk.id;
                 }
                 return DataManager.addAlert(alertObject, options);
               });
