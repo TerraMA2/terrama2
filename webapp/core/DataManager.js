@@ -4259,6 +4259,82 @@ var DataManager = module.exports = {
   },
 
   /**
+   * It performs update alerts from given restriction
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} alertObject - An alert object values to update
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<DataModel.View[]>}
+   */
+  updateAlert: function(restriction, alertObject, options){
+    var self = this;
+    return new Promise(function(resolve, reject){
+      var alertId = restriction.id;
+      models.db.Alert.update(
+        alertObject,
+        Utils.extend({
+          fields: ["name", "description", "data_series_id", "active", "service_instance_id", "risk_id", "risk_attribute"],
+          where: restriction
+        }, options))
+        .then(function(){
+          return self.updateReportMetadata({alert_id: alertId}, alertObject.report_metadata, options)
+        })
+        .then(function(){
+          return self.updateRisk({alert_id: alertId}, alertObject.risk, options)
+        })
+
+        .then(function() {
+          return resolve();
+        })
+
+        .catch(function(err) {
+          return reject(new Error("Could not update alert " + err.toString()));
+        });
+    })
+  },
+
+  updateReportMetadata: function(restriction, reportMetadataObject, options){
+    var self = this;
+    return new Promise(function(resolve, reject){
+      models.db.ReportMetada.update(
+        reportMetadataObject,
+        Utils.extend({
+          fields: ['title', 'abstract', 'description', 'author', 'contact', 'copyright', 'timestamp_format', 'logo_path', 'document_format'],
+          where: restriction
+        }, options))
+
+        .then(function(reportMetadata) {
+          return resolve();
+        })
+
+        .catch(function(err) {
+          return reject(new Error("Could not update Report metadata " + err.toString()));
+        });
+    })
+  },
+
+  updateRisk: function(restriction, riskObject, options){
+    var self = this;
+    return new Promise(function(resolve, reject){
+      models.db.Risk.update(
+        riskObject,
+        Utils.extend({
+          fields: ['name', 'description'],
+          where: restriction
+        }, options))
+
+        .then(function(reportMetadata) {
+          return resolve();
+        })
+
+        .catch(function(err) {
+          return reject(new Error("Could not update Risk " + err.toString()));
+        });
+    });
+  },
+
+  /**
    * It removes an alert from database
    *
    * @param {Object} restriction - A query restriction

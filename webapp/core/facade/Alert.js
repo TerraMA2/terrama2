@@ -73,7 +73,9 @@
             }
             return riskPromise
               .then(function(riskResult){
-                alertObject.risk_id = riskResult.id;
+                if (!alertObject.risk.id){
+                  alertObject.risk_id = riskResult.id;
+                }
                 return DataManager.addAlert(alertObject, options);
               });
           });
@@ -124,17 +126,36 @@
   };
 
   /**
-   * It performs update view from database from view identifier
+   * It performs update alert from database from alert identifier
    * 
-   * @param {number} alertId - View Identifier
-   * @param {Object} alertObject - View object values
+   * @param {number} alertId - Alert Identifier
+   * @param {Object} alertObject - Alert object values
    * @param {number} projectId - A project identifier
    * @param {boolean} shouldRun - Flag to determines if service should execute immediately after save process
    * @returns {Promise<View>}
    */
   Alert.update = function(alertId, alertObject, projectId, shouldRun){
+    return new PromiseClass(function(resolve, reject) {
+      DataManager.orm.transaction(function(t){
+        var options = {transaction: t};
+        return DataManager.updateAlert({id: alertId}, alertObject, options)
+          .then(function(){
+            return DataManager.updateConditionalSchedule(alertObject.conditional_schedule_id, alertObject.conditional_schedule, options)
+          })
+          .then(function(){
+            return DataManager.getAlert({id: alertId}, options);
+          })
+      })
+      .then(function(alert){
+        sendAlert(alert, shouldRun);
 
-  },
+        return resolve(alert);
+      })
+      .catch(function(err){
+        return reject(err);
+      })
+    });
+  };
 
     /**
    * It performs remove view from database from view identifier

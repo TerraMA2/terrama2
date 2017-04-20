@@ -31,6 +31,11 @@
      * @type {string}
      */
     this.name = params.name;
+    /**
+     * Risk description
+     * @type {string}
+     */
+    this.description = params.description;
 
     this.levels = [];
 
@@ -69,6 +74,7 @@
     return Object.assign(BaseClass.prototype.toObject.call(this), {
       id: this.id,
       name: this.name,
+      description: this.description,
       levels: this.levels
     });
   };
