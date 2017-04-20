@@ -34,50 +34,20 @@
 
 #include "NotifierEmail.hpp"
 
+#include "DocumentPDF.hpp"
+
 #include "../core/utility/NotifierFactory.hpp"
+#include "../core/utility/DocumentFactory.hpp"
+
 
 void terrama2::services::alert::core::registerFactories()
 {
+  // Notifiers
   NotifierFactory::getInstance().add(terrama2::services::alert::impl::NotifierEmail::notifierCode(),
                                      terrama2::services::alert::impl::NotifierEmail::make);
+
+  // Documents
+  DocumentFactory::getInstance().add(terrama2::services::alert::impl::documentPDF::documentCode(),
+                                     terrama2::services::alert::impl::documentPDF::makeDocument);
 }
 
-std::string terrama2::services::alert::core::dataSetHtmlTable(const std::shared_ptr<te::da::DataSet>& dataSet)
-{
-  if(!dataSet.get())
-    return "";
-
-  std::size_t numProperties = dataSet->getNumProperties();
-
-  std::string htmlTable = "<table border=\"1\">";
-
-  htmlTable += "<tr>";
-
-  for(std::size_t i = 0; i < numProperties; i++)
-  {
-    htmlTable += "<th>" + dataSet->getPropertyName(i) +"</th>";
-  }
-
-  htmlTable += "</tr>";
-
-  if(dataSet->isEmpty())
-    return htmlTable + "</table>";
-
-  dataSet->moveBeforeFirst();
-
-  while(dataSet->moveNext())
-  {
-    std::string line;
-
-    for(std::size_t i = 0; i < numProperties; i++)
-    {
-      line += "<td>" + dataSet->getAsString(i) +"</td>";
-    }
-
-    htmlTable += "<tr>" + line + "</tr>";
-  }
-
-  htmlTable += "</table>";
-
-  return htmlTable;
-}

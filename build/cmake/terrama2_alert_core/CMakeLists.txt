@@ -57,7 +57,7 @@ add_library(terrama2_alert_core SHARED ${TERRAMA2_SRC_FILES}
                                        ${TERRAMA2_UTILITY_SRC_FILES}
                                        ${TERRAMA2_UTILITY_HDR_FILES})
 
-qt5_use_modules(terrama2_alert_core Core)
+qt5_use_modules(terrama2_alert_core Core Gui)
 
 target_link_libraries(terrama2_alert_core terrama2_core
                                           terralib_mod_dataaccess

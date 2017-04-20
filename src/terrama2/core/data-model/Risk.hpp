@@ -61,6 +61,8 @@ namespace terrama2
 
       /*!
         \brief Compute risk level for the value
+
+        \return A tuple with risk level and level name
       */
       std::tuple<int, std::string>  riskLevel(double value) const;
 

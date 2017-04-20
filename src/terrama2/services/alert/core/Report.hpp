@@ -34,6 +34,7 @@
 // TerraMA2
 #include "Shared.hpp"
 #include "../../../core/Shared.hpp"
+#include "../../../core/data-model/DataSeriesSemantics.hpp"
 #include "Alert.hpp"
 
 // TerraLib
@@ -85,6 +86,7 @@ namespace terrama2
         {
           public:
             Report(AlertPtr alert,
+                   terrama2::core::DataSeriesPtr alertDataSeries,
                    std::shared_ptr<te::da::DataSet> alertDataSet,
                    std::vector<std::shared_ptr<te::dt::DateTime>> riskDates);
 
@@ -118,11 +120,13 @@ namespace terrama2
             //! Gets the timestamp format to be used in the report
             std::string timeStampFormat() const { return alert_->reportMetadata.at(ReportTags::TIMESTAMP_FORMAT); }
 
+            // TODO: //! Gets the name from origin DataSet
+
             /*!
              * \brief Returns a dataSet with all data
              * \return A dataSet with all data
              */
-            std::shared_ptr<te::da::DataSet> retrieveData() const;
+            std::shared_ptr<te::da::DataSet> retrieveAllData() const;
 
             /*!
              * \brief Gets a DataSet based in the values of the comparison property
@@ -176,6 +180,14 @@ namespace terrama2
              */
             std::shared_ptr<te::da::DataSet> retrieveDataBelowRisk(const int risk) const;
 
+            double retrieveMaxValue() const;
+
+            double retrieveMinValue() const;
+
+            double retrieveMeanValue() const;
+
+            terrama2::core::DataSeriesType dataSeriesType() const;
+
           protected:
 
             /*!
@@ -187,6 +199,7 @@ namespace terrama2
           protected:
 
             AlertPtr alert_; //!< The alert information
+            terrama2::core::DataSeriesPtr alertDataSeries_;
             std::shared_ptr<te::mem::DataSet> dataSet_; //!< The dataSet with alert data
             std::vector<std::shared_ptr<te::dt::DateTime>> riskDates_; //!< A list with the datetime of each risk calculation
 

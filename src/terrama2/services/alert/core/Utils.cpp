@@ -30,15 +30,124 @@
 
 // TerraMA2
 #include "Utils.hpp"
+#include "Exception.hpp"
+#include "../../../core/utility/Logger.hpp"
 #include "../../../core/utility/Utils.hpp"
+
+// Qt
+#include <QString>
+#include <QObject>
+
 
 std::string terrama2::services::alert::core::validPropertyDateName(const std::shared_ptr<te::dt::DateTime> dt)
 {
   std::stringstream ss;
-  boost::local_time::local_time_facet* oFacet(new boost::local_time::local_time_facet("%Y%m%d %H%M%S %z"));
+  boost::local_time::local_time_facet* oFacet(new boost::local_time::local_time_facet("%d/%m/%Y %H:%M"));
   ss.imbue(std::locale(ss.getloc(), oFacet));
   auto dateTimeTZ = std::dynamic_pointer_cast<te::dt::TimeInstantTZ>(dt);
   ss << dateTimeTZ->getTimeInstantTZ();
 
-  return terrama2::core::createValidPropertyName(ss.str());
+  return ss.str();
+}
+
+std::string terrama2::services::alert::core::dataSetHtmlTable(const std::shared_ptr<te::da::DataSet>& dataSet)
+{
+  if(!dataSet.get())
+  {
+    QString errMsg = QObject::tr("Invalid dataSet!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ReportException() << ErrorDescription(errMsg);
+  }
+
+  std::size_t numProperties = dataSet->getNumProperties();
+
+  std::string htmlTable = "<table border=\"1\">";
+
+  htmlTable += "<tr>";
+
+  for(std::size_t i = 0; i < numProperties; i++)
+  {
+    htmlTable += "<th>" + dataSet->getPropertyName(i) +"</th>";
+  }
+
+  htmlTable += "</tr>";
+
+  if(dataSet->isEmpty())
+    return htmlTable + "</table>";
+
+  dataSet->moveBeforeFirst();
+
+  while(dataSet->moveNext())
+  {
+    std::string line;
+
+    for(std::size_t i = 0; i < numProperties; i++)
+    {
+      line += "<td>" + dataSet->getAsString(i) +"</td>";
+    }
+
+    htmlTable += "<tr>" + line + "</tr>";
+  }
+
+  htmlTable += "</table>";
+
+  return htmlTable;
+}
+
+
+void terrama2::services::alert::core::replaceReportTags(std::string& text, ReportPtr report)
+{
+  terrama2::core::replaceAll(text, "%TITLE%", report->title());
+  terrama2::core::replaceAll(text, "%ABSTRACT%", report->abstract());
+  terrama2::core::replaceAll(text, "%AUTHOR%", report->author());
+  terrama2::core::replaceAll(text, "%COPYRIGHT%", report->copyright());
+  terrama2::core::replaceAll(text, "%DESCRIPTION%", report->description());
+
+  std::string complete_data = "NO DATA!";
+
+  try
+  {
+    complete_data = terrama2::services::alert::core::dataSetHtmlTable(report->retrieveAllData());
+  }
+  catch(ReportException /*e*/)
+  {
+  }
+
+  terrama2::core::replaceAll(text, "%COMPLETE_DATA%", complete_data);
+
+  std::string max_value = "NO DATA!";
+
+  try
+  {
+    max_value = std::to_string(report->retrieveMaxValue());
+  }
+  catch(ReportException /*e*/)
+  {
+  }
+
+  terrama2::core::replaceAll(text, "%MAXVALUE_DATA%", max_value);
+
+  std::string min_value = "NO DATA!";
+
+  try
+  {
+    min_value = std::to_string(report->retrieveMinValue());
+  }
+  catch(ReportException /*e*/)
+  {
+  }
+
+  terrama2::core::replaceAll(text, "%MINVALUE_DATA%", min_value);
+
+  std::string mean_value = "NO DATA!";
+
+  try
+  {
+    mean_value = std::to_string(report->retrieveMeanValue());
+  }
+  catch(ReportException /*e*/)
+  {
+  }
+
+  terrama2::core::replaceAll(text, "%MEANVALUE_DATA%", mean_value);
 }
