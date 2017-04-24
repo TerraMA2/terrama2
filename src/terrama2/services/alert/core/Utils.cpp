@@ -42,7 +42,7 @@
 #include <QObject>
 
 
-std::string terrama2::services::alert::core::validPropertyDateName(const std::shared_ptr<te::dt::DateTime> dt)
+std::string terrama2::services::alert::core::dateTimeToString(const std::shared_ptr<te::dt::DateTime> dt)
 {
   std::stringstream ss;
   boost::local_time::local_time_facet* oFacet(new boost::local_time::local_time_facet("%d/%m/%Y %H:%M"));

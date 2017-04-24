@@ -33,13 +33,16 @@
 #include "../core/Report.hpp"
 #include "../core/Shared.hpp"
 #include "../core/Utils.hpp"
+#include "../core/Exception.hpp"
 #include "../../../core/utility/Logger.hpp"
+#include "../../../core/utility/Utils.hpp"
 
 // Qt
 #include <QtGui/QPainter>
 #include <QtGui/QPagedPaintDevice>
 #include <QtGui/QPdfWriter>
 #include <QtGui/QTextDocument>
+#include <QDir>
 
 // STL
 #include <string>
@@ -65,24 +68,40 @@ namespace terrama2
               {
                 body = core::gridReportText();
               }
-              else
+              else if(report->dataSeriesType() == terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT)
               {
                 body = core::monitoredObjectReportText();
+              }
+              else
+              {
+                QString errMsg = QObject::tr("PDF document is not implemented for this data series!");
+                TERRAMA2_LOG_ERROR() << errMsg;
+                throw NotifierException() << ErrorDescription(errMsg);
               }
 
               core::replaceReportTags(body, report);
 
-              std::string documentName = "";
-              std::string path = report->documentSavePath() + "/" + documentName;
+              QDir dir(QString::fromStdString(report->documentSavePath()));
+
+              if(!dir.exists())
+              {
+                QString errMsg = QObject::tr("Couldn't create PDF document: Informed directorie doesn't exist!");
+                TERRAMA2_LOG_ERROR() << errMsg;
+                throw NotifierException() << ErrorDescription(errMsg);
+              }
+
+              std::string path = dir.absolutePath().toStdString() + "/"
+                                 + terrama2::core::simplifyString(report->name())
+                                 + ".pdf";
 
               QPdfWriter writer(QString::fromStdString(path));
               writer.setPageSize(QPagedPaintDevice::A4);
 
-              // Qt > 5.2
+              // TODO: Qt > 5.2
 //              writer.setPageMargins(QMargins(30, 30, 30, 30));
 //              writer.setResolution(100);
 
-              // Qt < 5.3
+              // TODO: Qt < 5.3
               QPagedPaintDevice::Margins margins;
               margins.bottom = 10;
               margins.left = 10;

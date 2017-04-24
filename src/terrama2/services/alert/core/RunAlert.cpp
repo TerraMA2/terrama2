@@ -162,7 +162,7 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::populateMonit
 
     auto currentDate = *vecDates.rbegin();
 
-    std::string currentRiskProperty = validPropertyDateName(currentDate);
+    std::string currentRiskProperty = dateTimeToString(currentDate);
 
     dsItem->setValue(fkProperty->getName(), value->clone());
 
@@ -184,7 +184,7 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::populateMonit
       else if(currentRisk > pastRisk)
         comparisonResult = 1;
 
-      std::string pastRiskProperty = validPropertyDateName(previousDate);
+      std::string pastRiskProperty = dateTimeToString(previousDate);
 
       dsItem->setInt32(pastRiskProperty, static_cast<int>(pastRisk));
       dsItem->setInt32(comparisonPreviosProperty, comparisonResult);
@@ -192,7 +192,7 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::populateMonit
 
     for(auto itDate = vecDates.rbegin()+2; itDate != vecDates.rend(); ++itDate)
     {
-      std::string property = validPropertyDateName(*itDate);
+      std::string property = dateTimeToString(*itDate);
       auto risk = resultMap.at((*itDate)->toString()).second;
       dsItem->setInt32(property, static_cast<int>(risk));
     }
@@ -307,7 +307,7 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::monitoredObje
   // Insert the risk properties
   for(size_t i = 0; i < vecDates.size(); i++)
   {
-    const std::string riskLevelProperty = validPropertyDateName(vecDates.at(i));
+    const std::string riskLevelProperty = dateTimeToString(vecDates.at(i));
 
     te::dt::SimpleProperty* riskLevelProp = new te::dt::SimpleProperty(riskLevelProperty, te::dt::INT32_TYPE);
     alertDataSetType->add(riskLevelProp);
@@ -591,7 +591,9 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
                                   teDataset);
       }
 
-      ReportPtr reportPtr = std::make_shared<Report>(alertPtr, inputDataSeries, alertDataSet, vecDates);
+      std::string reportName = alertPtr->name + "_" + dateTimeToString(executionPackage.executionDate);
+
+      ReportPtr reportPtr = std::make_shared<Report>(reportName, alertPtr, inputDataSeries, alertDataSet, vecDates);
 
       std::string documentPDF = DocumentFactory::getInstance().makeDocument("PDF", reportPtr);
 

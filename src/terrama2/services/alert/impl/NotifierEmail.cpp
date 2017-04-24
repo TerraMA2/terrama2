@@ -36,6 +36,7 @@
 #include "../core/SimpleCertificateVerifier.hpp"
 #include "../core/Report.hpp"
 #include "../core/Utils.hpp"
+#include "../core/Exception.hpp"
 
 // TerraLib
 #include <terralib/core/uri/URI.h>
@@ -68,7 +69,7 @@ void terrama2::services::alert::impl::NotifierEmail::send(const core::Notificati
   }
 
   mb.setRecipients(to);
-  mb.setSubject(vmime::text(report_->title()));
+  mb.setSubject(vmime::text(report_->name()));
 
   // Message body
   std::string body;
@@ -77,9 +78,15 @@ void terrama2::services::alert::impl::NotifierEmail::send(const core::Notificati
   {
     body = core::gridReportText();
   }
-  else
+  else if(report_->dataSeriesType() == terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT)
   {
     body = core::monitoredObjectReportText();
+  }
+  else
+  {
+    QString errMsg = QObject::tr("Email notifier is not implemented for this data series!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw NotifierException() << ErrorDescription(errMsg);
   }
 
   core::replaceReportTags(body, report_);
