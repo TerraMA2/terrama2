@@ -35,6 +35,8 @@ namespace terrama2
     {
       public:
         using te::ws::core::CurlWrapper::downloadFile;
+        using te::ws::core::CurlWrapper::verifyURL;
+
         virtual void downloadFile(const std::string &url, std::FILE* file, te::common::TaskProgress* taskProgress = nullptr) override;
         virtual std::vector<std::string> listFiles(const te::core::URI& uri) override;
 
