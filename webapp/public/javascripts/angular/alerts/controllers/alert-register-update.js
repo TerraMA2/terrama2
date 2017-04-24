@@ -116,7 +116,7 @@ define([], function() {
     self.risks = [
       {
         id: 0,
-        name: "New Risk",
+        name: i18n.__("New Risk"),
         description: "",
         levels: [
           {
@@ -279,7 +279,7 @@ define([], function() {
       for(var i = 0, risksLength = self.risks.length; i < risksLength; i++) {
         if(self.risks[i].id === self.riskModel.id) {
           if(self.riskModel.id === 0) {
-            self.risks[i].name = "New Risk";
+            self.risks[i].name = i18n.__("New Risk");
             self.risks[i].description = "";
             self.risks[i].levels = [
               {
@@ -546,10 +546,10 @@ define([], function() {
           delete self.alert.risk_attribute_mo;
 
         if(!self.includeReport && self.alert.notifications[0].include_report !== undefined)
-          delete self.alert.notifications[0].include_report;
+          self.alert.notifications[0].include_report = null;
 
         if(!self.notifyOnRiskLevel && self.alert.notifications[0].notify_on_risk_level !== undefined)
-          delete self.alert.notifications[0].notify_on_risk_level;
+          self.alert.notifications[0].notify_on_risk_level = null;
 
         var operation = self.isUpdating ? self.AlertService.update(self.alert.id, self.alert) : self.AlertService.create(self.alert);
         operation.then(function(response) {

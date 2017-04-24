@@ -180,7 +180,7 @@
                         name="risks"
                         ng-change="ctrl.onRisksChange()"
                         ng-model="ctrl.riskModel"
-                        ng-options="i18n.__(risk.name) for risk in ctrl.risks" required>
+                        ng-options="risk.name for risk in ctrl.risks" required>
             </select>
           </div>
         </div>
