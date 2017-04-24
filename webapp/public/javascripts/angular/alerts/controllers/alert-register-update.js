@@ -165,7 +165,6 @@ define([], function() {
 
             for(var j = 0, levelsLength = risk.levels.length; j < levelsLength; j++) {
               risk.levels[j]._id = UniqueNumber();
-              delete risk.levels[j].level;
               delete risk.levels[j].risk_id;
             }
 
@@ -176,6 +175,13 @@ define([], function() {
             for(var i = 0, risksLength = self.risks.length; i < risksLength; i++) {
               if(self.risks[i].id === self.alert.risk.id) {
                 self.riskModel = self.risks[i];
+
+                for(var j = 0, levelsLength = self.riskModel.levels.length; j < levelsLength; j++) {
+                  if(self.riskModel.levels[j].level === self.alert.notifications[0].notify_on_risk_level) {
+                    self.alert.notifications[0].notify_on_risk_level = self.riskModel.levels[j]._id;
+                    break;
+                  }
+                }
 
                 $timeout(function() {
                   self.onRisksChange();
@@ -538,6 +544,12 @@ define([], function() {
 
         if(self.alert.risk_attribute_mo !== undefined)
           delete self.alert.risk_attribute_mo;
+
+        if(!self.includeReport && self.alert.notifications[0].include_report !== undefined)
+          delete self.alert.notifications[0].include_report;
+
+        if(!self.notifyOnRiskLevel && self.alert.notifications[0].notify_on_risk_level !== undefined)
+          delete self.alert.notifications[0].notify_on_risk_level;
 
         var operation = self.isUpdating ? self.AlertService.update(self.alert.id, self.alert) : self.AlertService.create(self.alert);
         operation.then(function(response) {
