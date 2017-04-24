@@ -71,7 +71,7 @@ namespace terrama2
          * \exception DataRetrieverException when FTP address is invalid.
          * \exception DataRetreiverFTPException when unknown Error, FTP address is invalid.
         */
-        explicit DataRetrieverFTP(DataProviderPtr dataprovider, CurlWrapperFtp&& curlwrapper);
+        explicit DataRetrieverFTP(DataProviderPtr dataprovider, std::unique_ptr<CurlWrapperFtp>&& curlwrapper);
 
         /*!
          * \brief DataRetrieverFTP Default Destructor.
@@ -120,7 +120,7 @@ namespace terrama2
         static DataRetrieverType dataRetrieverType() { return "FTP"; }
 
       private:
-        CurlWrapperFtp curlwrapper_; //!< Curl handler.
+        std::unique_ptr<CurlWrapperFtp> curlwrapper_; //!< Curl handler.
     };
 
     typedef std::shared_ptr<DataRetriever> DataRetrieverPtr;//!< Shared pointer to a DataRetriever.

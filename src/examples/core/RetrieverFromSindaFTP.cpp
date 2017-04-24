@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
   {
     //DataProvider information
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
-    terrama2::core::CurlWrapperFtp curlwrapper;
+    std::unique_ptr<terrama2::core::CurlWrapperFtp> curlwrapper(new terrama2::core::CurlWrapperFtp());
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
     dataProvider->uri = url.url().toStdString();
     dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;

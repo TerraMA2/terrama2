@@ -158,7 +158,12 @@ te::dt::AbstractData* terrama2::core::DataAccessorCSV::stringToTimestamp(te::da:
     stream.imbue(format);//set format
     stream >> boostDate;//convert to boost::ptime
 
-    assert(boostDate != boost::posix_time::ptime());
+    if(boostDate == boost::posix_time::ptime())
+    {
+      QString errMsg = QObject::tr("Unable to parse string date");
+      TERRAMA2_LOG_WARNING() << errMsg;
+      return nullptr;
+    }
 
     boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(timezone));
     boost::local_time::local_date_time date(boostDate.date(), boostDate.time_of_day(), zone, true);
