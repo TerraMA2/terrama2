@@ -1,7 +1,10 @@
 define([], function(){
   "use strict";
 
-  function AlertList($scope, i18n, $q, AlertService, MessageBoxService, Socket, Service){
+  function AlertList($scope, i18n, $q, AlertService, MessageBoxService, Socket, Service, $window, $log) {
+    var config = $window.configuration;
+    var globals = $window.globals;
+
     var self = this;
     self.i18n = i18n;
 
@@ -21,7 +24,7 @@ define([], function(){
     self.MessageBoxService = MessageBoxService;
 
     /**
-     * It represents a cached views
+     * It represents a cached alerts
      * @type {Object[]}
      */
     self.model = [];    
@@ -108,10 +111,14 @@ define([], function(){
 
         self.linkToAdd = "/configuration/alerts/new";
 
+        if(config.message !== "") {
+          self.MessageBoxService.success(i18n.__("Alert"), config.message);
+        }
+
         /**
          * It makes a link to Alert edit
          *
-         * @param {View} object - Selected view
+         * @param {Alert} object - Selected alert
          * @returns {string}
          */
         self.link = function(object) {
@@ -125,8 +132,8 @@ define([], function(){
          */
         self.iconProperties = {
           type: "img",
-          width: 64,
-          height: 64
+          width: 20,
+          height: 20
         };
 
          self.icon = function(object) {
@@ -142,10 +149,10 @@ define([], function(){
           removeOperationCallback: function(err, data) {
             MessageBoxService.reset();
             if (err) {
-              MessageBoxService.danger(i18n.__("View"), err.message);
+              MessageBoxService.danger(i18n.__("Alert"), err.message);
               return;
             }
-            MessageBoxService.success(i18n.__("View"), data.result.name + i18n.__(" removed"));
+            MessageBoxService.success(i18n.__("Alert"), data.result.name + i18n.__(" removed"));
           },
           showRunButton: true,
           canRun: function(object) {
@@ -154,7 +161,7 @@ define([], function(){
           /**
            * It defines a process run button, in order to run now
            *
-           * @param {View} object - Selected view
+           * @param {Alert} object - Selected alert
            */
           run: function(object){
             serviceCache[object.service_instance_id] = {
@@ -177,7 +184,7 @@ define([], function(){
 
         }
         /**
-         * Functor to make URL to remove selected view
+         * Functor to make URL to remove selected alert
          * @param {Object}
          */
         self.remove = function(object) {
@@ -189,7 +196,7 @@ define([], function(){
       });
   }
 
-  AlertList.$inject = ["$scope", "i18n", "$q", "AlertService", "MessageBoxService", "Socket", "Service"];
+  AlertList.$inject = ["$scope", "i18n", "$q", "AlertService", "MessageBoxService", "Socket", "Service", "$window", "$log"];
 
   return AlertList;
 });
