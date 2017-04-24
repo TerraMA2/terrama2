@@ -64,14 +64,6 @@ void TsDataRetrieverFTP::TestFailUriInvalid()
   try
   {
     QUrl url;
-//    url.setHost("ftp.dgi.inpe.br");
-//    url.setPath("/operacao/");
-//    url.setScheme("FTP");
-//    url.setPort(21);
-//    url.setUserName("queimadas");
-//    url.setPassword("inpe_2012");
-
-    curl_global_init(CURL_GLOBAL_ALL);
 
     //DataProvider information
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
@@ -81,9 +73,9 @@ void TsDataRetrieverFTP::TestFailUriInvalid()
     dataProvider->dataProviderType = "FTP";
     dataProvider->active = true;
 
-    MockCurlWrapper mock_;
+    std::unique_ptr<MockCurlWrapper> mock_(new MockCurlWrapper());
 
-    EXPECT_CALL(mock_, verifyURL(_,_)).WillOnce(testing::Throw(te::ws::core::Exception()));
+    EXPECT_CALL(*mock_, verifyURL(_,_)).WillOnce(testing::Throw(te::ws::core::Exception()));
 
     try
     {
@@ -96,7 +88,7 @@ void TsDataRetrieverFTP::TestFailUriInvalid()
 
     }
 
-    curl_global_cleanup();
+
 
   }
   catch(const terrama2::Exception& e)
@@ -118,14 +110,6 @@ void TsDataRetrieverFTP::TestFailLoginInvalid()
   try
   {
     QUrl url;
-    url.setHost("ftp.dgi.inpe.br");
-    url.setPath("/focos_operacao/");
-    url.setScheme("FTP");
-    url.setPort(21);
-    url.setUserName("queimadas");
-    url.setUserName("2012");
-
-    curl_global_init(CURL_GLOBAL_ALL);
 
     //DataProvider information
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
@@ -135,12 +119,9 @@ void TsDataRetrieverFTP::TestFailLoginInvalid()
     dataProvider->dataProviderType = "FTP";
     dataProvider->active = true;
 
-    //empty filter
-    terrama2::core::Filter filter;
+    std::unique_ptr<MockCurlWrapper> mock_(new MockCurlWrapper());
 
-    MockCurlWrapper mock_;
-
-    EXPECT_CALL(mock_, verifyURL(_,_)).WillOnce(testing::Throw(te::ws::core::Exception()));
+    EXPECT_CALL(*mock_, verifyURL(_,_)).WillOnce(testing::Throw(te::ws::core::Exception()));
 
     try
     {
@@ -152,9 +133,6 @@ void TsDataRetrieverFTP::TestFailLoginInvalid()
     {
 
     }
-
-    curl_global_cleanup();
-
   }
   catch(const terrama2::Exception& e)
   {
@@ -175,14 +153,6 @@ void TsDataRetrieverFTP::TestOkUriAndLoginValid()
   try
   {
     QUrl url;
-    url.setHost("ftp.dgi.inpe.br");
-    url.setPath("/focos_operacao/");
-    url.setScheme("FTP");
-    url.setPort(21);
-    url.setUserName("queimadas");
-    url.setPassword("inpe_2012");
-
-    curl_global_init(CURL_GLOBAL_ALL);
 
     //DataProvider information
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
@@ -192,12 +162,9 @@ void TsDataRetrieverFTP::TestOkUriAndLoginValid()
     dataProvider->dataProviderType = "FTP";
     dataProvider->active = true;
 
-    //empty filter
-    terrama2::core::Filter filter;
+    std::unique_ptr<MockCurlWrapper> mock_(new MockCurlWrapper());
 
-    MockCurlWrapper mock_;
-
-    ON_CALL(mock_, verifyURL(_,_)).WillByDefault(Return());
+    EXPECT_CALL(*mock_, verifyURL(_,_)).WillOnce(Return());
 
     try
     {
@@ -208,9 +175,6 @@ void TsDataRetrieverFTP::TestOkUriAndLoginValid()
     {
       QFAIL("Unexpected exception!");
     }
-
-    curl_global_cleanup();
-
   }
   catch(const terrama2::Exception& e)
   {
@@ -231,14 +195,6 @@ void TsDataRetrieverFTP::TestFailVectorFileEmpty()
   try
   {
     QUrl url;
-    url.setHost("ftp.dgi.inpe.br");
-    url.setPath("/focos_operacao/");
-    url.setScheme("FTP");
-    url.setPort(21);
-    url.setUserName("queimadas");
-    url.setPassword("inpe_2012");
-
-    curl_global_init(CURL_GLOBAL_ALL);
 
     //DataProvider information
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
@@ -255,10 +211,10 @@ void TsDataRetrieverFTP::TestFailVectorFileEmpty()
     //empty filter
     terrama2::core::Filter filter;
 
-    MockCurlWrapper mock_;
+    std::unique_ptr<MockCurlWrapper> mock_(new MockCurlWrapper());
 
-    ON_CALL(mock_, verifyURL(_,_)).WillByDefault(Return());
-    ON_CALL(mock_, listFiles(_)).WillByDefault(Return(vectorFiles));
+    EXPECT_CALL(*mock_, verifyURL(_,_)).WillOnce(Return());
+    EXPECT_CALL(*mock_, listFiles(_)).WillOnce(Return(vectorFiles));
 
     try
     {
@@ -271,9 +227,6 @@ void TsDataRetrieverFTP::TestFailVectorFileEmpty()
     {
       QFAIL("Exception expected!");
     }
-
-    curl_global_cleanup();
-
   }
   catch(const terrama2::Exception& e)
   {
@@ -294,14 +247,6 @@ void TsDataRetrieverFTP::TestOKVectorWithFiles()
   try
   {
     QUrl url;
-    url.setHost("ftp.dgi.inpe.br");
-    url.setPath("/focos_operacao/");
-    url.setScheme("FTP");
-    url.setPort(21);
-    url.setUserName("queimadas");
-    url.setPassword("inpe_2012");
-
-    curl_global_init(CURL_GLOBAL_ALL);
 
     //DataProvider information
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
@@ -319,10 +264,11 @@ void TsDataRetrieverFTP::TestOKVectorWithFiles()
     //empty filter
     terrama2::core::Filter filter;
 
-    MockCurlWrapper mock_;
+    std::unique_ptr<MockCurlWrapper> mock_(new MockCurlWrapper());
 
-    ON_CALL(mock_, verifyURL(_,_)).WillByDefault(Return());
-    ON_CALL(mock_, listFiles(_)).WillByDefault(Return(vectorFiles));
+    EXPECT_CALL(*mock_, verifyURL(_,_)).WillOnce(Return());
+    EXPECT_CALL(*mock_, listFiles(_)).WillOnce(Return(vectorFiles));
+    EXPECT_CALL(*mock_, downloadFile(_,_,_)).WillOnce(Return());
 
     try
     {
@@ -335,9 +281,6 @@ void TsDataRetrieverFTP::TestOKVectorWithFiles()
     {
       QFAIL("Unexpected exception!");
     }
-
-    curl_global_cleanup();
-
   }
   catch(const terrama2::Exception& e)
   {
@@ -358,14 +301,6 @@ void TsDataRetrieverFTP::TestFailDownloadFile()
   try
   {
     QUrl url;
-    url.setHost("ftp.dgi.inpe.br");
-    url.setPath("/focos_operacao/");
-    url.setScheme("FTP");
-    url.setPort(21);
-    url.setUserName("queimadas");
-    url.setPassword("inpe_2012");
-
-    curl_global_init(CURL_GLOBAL_ALL);
 
     //DataProvider information
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
@@ -380,10 +315,14 @@ void TsDataRetrieverFTP::TestFailDownloadFile()
     std::string path;
     std::string mask = "exporta_20160501_0230.csv";
 
-    MockCurlWrapper mock_;
+    std::vector<std::string> vectorFiles;
+    vectorFiles.push_back("exporta_20160501_0230.csv");
 
-    ON_CALL(mock_, verifyURL(_,_)).WillByDefault(Return());
-    ON_CALL(mock_, downloadFile(_,_,_)).WillByDefault(Return());
+    std::unique_ptr<MockCurlWrapper> mock_(new MockCurlWrapper());
+
+    EXPECT_CALL(*mock_, verifyURL(_,_)).WillOnce(Return());
+    EXPECT_CALL(*mock_, listFiles(_)).WillOnce(Return(vectorFiles));
+    EXPECT_CALL(*mock_, downloadFile(_,_,_)).WillOnce(Return());
 
     try
     {
@@ -393,11 +332,8 @@ void TsDataRetrieverFTP::TestFailDownloadFile()
     }
     catch(...)
     {
-      QFAIL("Exception expected!");
+      QFAIL("Unexpected expected!");
     }
-
-    curl_global_cleanup();
-
   }
   catch(const terrama2::Exception& e)
   {
@@ -410,7 +346,6 @@ void TsDataRetrieverFTP::TestFailDownloadFile()
   }
 
   return;
-
 }
 
 void TsDataRetrieverFTP::TestOKDownloadFile()
@@ -418,14 +353,6 @@ void TsDataRetrieverFTP::TestOKDownloadFile()
   try
   {
     QUrl url;
-    url.setHost("ftp.dgi.inpe.br");
-    url.setPath("/focos_operacao/");
-    url.setScheme("FTP");
-    url.setPort(21);
-    url.setUserName("queimadas");
-    url.setPassword("inpe_2012");
-
-    curl_global_init(CURL_GLOBAL_ALL);
 
     //DataProvider information
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
@@ -440,10 +367,14 @@ void TsDataRetrieverFTP::TestOKDownloadFile()
     std::string path;
     std::string mask = "exporta_20160501_0230.csv";
 
-    MockCurlWrapper mock_;
+    std::vector<std::string> vectorFiles;
+    vectorFiles.push_back("exporta_20160501_0230.csv");
 
-    EXPECT_CALL(mock_, verifyURL(_,_)).WillRepeatedly(Return());
-    EXPECT_CALL(mock_, downloadFile(_,_,_)).WillRepeatedly(Return());
+    std::unique_ptr<MockCurlWrapper> mock_(new MockCurlWrapper());
+
+    EXPECT_CALL(*mock_, verifyURL(_,_)).WillRepeatedly(Return());
+    EXPECT_CALL(*mock_, listFiles(_)).WillOnce(Return(vectorFiles));
+    EXPECT_CALL(*mock_, downloadFile(_,_,_)).WillRepeatedly(Return());
 
     try
     {
@@ -455,9 +386,6 @@ void TsDataRetrieverFTP::TestOKDownloadFile()
     {
       QFAIL("Unexpected exception!");
     }
-
-    curl_global_cleanup();
-
   }
   catch(const terrama2::Exception& e)
   {
@@ -470,5 +398,4 @@ void TsDataRetrieverFTP::TestOKDownloadFile()
   }
 
   return;
-
 }

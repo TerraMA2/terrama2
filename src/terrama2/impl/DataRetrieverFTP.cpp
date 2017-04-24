@@ -59,7 +59,7 @@
 #include <QDebug>
 #include <QUrl>
 
-terrama2::core::DataRetrieverFTP::DataRetrieverFTP(DataProviderPtr dataprovider, CurlWrapperFtp&& curlwrapper)
+terrama2::core::DataRetrieverFTP::DataRetrieverFTP(DataProviderPtr dataprovider, std::unique_ptr<CurlWrapperFtp>&& curlwrapper)
   : DataRetriever(dataprovider),
     curlwrapper_(std::move(curlwrapper))
 {
@@ -67,18 +67,18 @@ terrama2::core::DataRetrieverFTP::DataRetrieverFTP(DataProviderPtr dataprovider,
   try
   {
     auto activeMode = dataProvider_->options.at("active_mode");
-    curlwrapper_.setActiveMode(activeMode == "true");
+    curlwrapper_->setActiveMode(activeMode == "true");
   }
   catch(const std::out_of_range&)
   {
     //if not set, set to false
-    curlwrapper_.setActiveMode(false);
+    curlwrapper_->setActiveMode(false);
   }
 
   // Verifies that the FTP address is valid
   try
   {
-    curlwrapper_.verifyURL(dataprovider->uri, dataProvider_->timeout);
+    curlwrapper_->verifyURL(dataprovider->uri, dataProvider_->timeout);
   }
   catch(const te::Exception& e)
   {
@@ -137,7 +137,7 @@ std::vector<std::string> terrama2::core::DataRetrieverFTP::checkSubfolders(const
 
   for(const auto& uri : baseURIs)
   {
-    std::vector<std::string> dirList = curlwrapper_.listFiles(te::core::URI(uri));
+    std::vector<std::string> dirList = curlwrapper_->listFiles(te::core::URI(uri));
 
     if(dirList.empty())
     {
@@ -207,7 +207,7 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
     // Get a file listing from server
     for(const auto& uri : baseUriList)
     {
-      std::vector<std::string> vectorFiles = curlwrapper_.listFiles(te::core::URI(uri));
+      std::vector<std::string> vectorFiles = curlwrapper_->listFiles(te::core::URI(uri));
 
       std::vector<std::string> vectorNames;
       // filter file names that should be downloaded.
@@ -241,7 +241,7 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
 
         try
         {
-          curlwrapper_.downloadFile(uriOrigin, filePath);
+          curlwrapper_->downloadFile(uriOrigin, filePath);
         }
         catch(const te::Exception& e)
         {
@@ -292,6 +292,6 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
 
 terrama2::core::DataRetrieverPtr terrama2::core::DataRetrieverFTP::make(DataProviderPtr dataProvider)
 {
-  CurlWrapperFtp curlwrapper;
+  std::unique_ptr<CurlWrapperFtp> curlwrapper(new CurlWrapperFtp());
   return std::make_shared<DataRetrieverFTP>(dataProvider, std::move(curlwrapper));
 }
