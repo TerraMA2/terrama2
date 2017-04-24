@@ -183,7 +183,7 @@
             // updating alert
             return DataManager.updateAlert({id: alertId}, alertObject, options)
               .then(function(){
-                return DataManager.updateConditionalSchedule(alertObject.conditional_schedule_id, alertObject.conditional_schedule, options)
+                return DataManager.updateConditionalSchedule(alertObject.conditional_schedule.id, alertObject.conditional_schedule, options)
               })
               .then(function(){
                 return DataManager.getAlert({id: alertId}, options);
