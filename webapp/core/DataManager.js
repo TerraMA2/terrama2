@@ -4499,6 +4499,7 @@ var DataManager = module.exports = {
         });
     });
   },
+  
   /**
    * It retrieves a list of views in database
    *

@@ -69,7 +69,7 @@ var Alert = function(params) {
    */
   this.conditional_schedule = new ConditionalSchedule(params.ConditionalSchedule ? params.ConditionalSchedule.get() : params.conditionalSchedule || {});
   /**
-   * @name Alert#conditional_schedule
+   * @name Alert#risk
    * @type {object}
    */
   this.risk = new Risk(params.Risk ? params.Risk.get() : params.risk || {});
@@ -94,6 +94,10 @@ var Alert = function(params) {
   
 };
 
+/**
+ * It sets conditional schedule data.
+ * @param {Sequelize.Model[]|Object[]}
+ */
 Alert.prototype.setConditionalSchedule = function(conditionalSchedule) {
   if (conditionalSchedule.ConditionalSchedule) {
     this.conditional_schedule = new ConditionalSchedule(conditionalSchedule.ConditionalSchedule.get() || {});

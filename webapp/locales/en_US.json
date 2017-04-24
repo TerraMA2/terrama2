@@ -718,5 +718,7 @@
 	"Select a report type": "Select a report type",
 	"Notify on risk level": "Notify on risk level",
 	"Select a level": "Select a level",
-	"Level Name": "Level Name"
+	"Level Name": "Level Name",
+	"Alert": "Alert",
+	"Report Title": "Report Title"
 }
