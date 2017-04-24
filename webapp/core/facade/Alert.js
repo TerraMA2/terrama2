@@ -144,6 +144,7 @@
         return DataManager.getAlert({id: alertId}, options)
           .then(function(alertResult){
             oldAlertNotifications = alertResult.notifications;
+            // Updating or adding a risk
             if (alertObject.risk.id){
               alertObject.risk_id = alertObject.risk.id;
               return DataManager.updateRisk({id: alertObject.risk.id}, alertObject.risk, options);
@@ -155,9 +156,11 @@
             if (riskResult){
               alertObject.risk_id = riskResult.id;
             }
+            //Updating Notifications
             var newAlertNotifications = alertObject.notifications;
             var alertNotificationsPromises = [];
             newAlertNotifications.forEach(function(notification){
+              // checking if must update or add a notification
               if (notification.id){
                 alertNotificationsPromises.push(DataManager.updateAlertNotification({id: notification.id}, notification, options));
               } else {
@@ -165,6 +168,7 @@
                 alertNotificationsPromises.push(DataManager.addAlertNotification(notification, options));
               }
             });
+            // checking if must remove a notification
             oldAlertNotifications.forEach(function(notification){
               var found = newAlertNotifications.some(function(newNotification){
                 return newNotification.id === notification.id;
@@ -176,6 +180,7 @@
             return Promise.all(alertNotificationsPromises);
           })
           .then(function(){
+            // updating alert
             return DataManager.updateAlert({id: alertId}, alertObject, options)
               .then(function(){
                 return DataManager.updateConditionalSchedule(alertObject.conditional_schedule_id, alertObject.conditional_schedule, options)
