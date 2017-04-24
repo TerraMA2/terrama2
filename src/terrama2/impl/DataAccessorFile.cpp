@@ -86,7 +86,17 @@ std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPt
     // Do nothing
   }
 
-  return dataRetriever->retrieveData(mask, filter, remover, "", folderPath);
+  std::string timezone = "";
+  try
+  {
+    timezone = getTimeZone(dataset);
+  }
+  catch(UndefinedTagException& /*e*/)
+  {
+    // Do nothing
+  }
+
+  return dataRetriever->retrieveData(mask, filter, timezone, remover, "", folderPath);
 }
 
 std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorFile::createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const
@@ -249,7 +259,7 @@ void terrama2::core::DataAccessorFile::filterDataSetByLastValues(std::shared_ptr
     auto timesIntant = std::dynamic_pointer_cast<te::dt::TimeInstantTZ>(dateTime);
 
     bool found = false;
-    for(int32_t j =0; j < *filter.lastValues.get(); ++j)
+    for(int32_t j =0; j < *filter.lastValues.get() && j < vecLastValues.size(); ++j)
     {
       auto value = vecLastValues[j];
 

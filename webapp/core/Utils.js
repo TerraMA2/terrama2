@@ -222,7 +222,7 @@ var Utils = module.exports = {
       var dataProvidersResult = DataManager.listDataProviders();
       var providers = [];
       dataProvidersResult.forEach(function(dataProvider) {
-        providers.push(dataProvider.toObject());
+        providers.push(dataProvider.toService());
       }); // end foreach dataProvidersResult
 
       // getting dataseries
@@ -265,13 +265,21 @@ var Utils = module.exports = {
                 viewsArr.push(view.toObject());
               });
 
-              return resolve({
-                "Analysis": analysisArr,
-                "DataSeries": series,
-                "DataProviders": providers,
-                "Collectors": collectors,
-                "Views": viewsArr
-              });
+              DataManager.listAlerts().then(function(alerts){
+                var alertsArr = [];
+                alerts.forEach(function(alert){
+                  alertsArr.push(alert.toService());
+                });
+
+                return resolve({
+                  "Analysis": analysisArr,
+                  "DataSeries": series,
+                  "DataProviders": providers,
+                  "Collectors": collectors,
+                  "Views": viewsArr,
+                  "Alerts": alertsArr
+                });
+              }).catch(_handleError); // end listAlerts
             }).catch(_handleError); // end views
           }).catch(_handleError); // end listAnalysis
         }).catch(_handleError); // end listCollectors

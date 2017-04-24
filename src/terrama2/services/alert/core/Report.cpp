@@ -35,26 +35,41 @@
 #include "../../../core/utility/Utils.hpp"
 
 // TerraLib
+#include <terralib/dataaccess/utils/Utils.h>
+#include <terralib/raster/Band.h>
+#include <terralib/memory/DataSetItem.h>
 
 // Qt
 #include <QObject>
 
+// STD
+#include <memory>
+
 terrama2::services::alert::core::Report::Report(AlertPtr alert,
+                                                terrama2::core::DataSeriesPtr alertDataSeries,
                                                 std::shared_ptr<te::da::DataSet> alertDataSet,
                                                 std::vector<std::shared_ptr<te::dt::DateTime>> riskDates)
   : alert_(alert),
+    alertDataSeries_(alertDataSeries),
     riskDates_(riskDates)
 {
   updateReportDataset(alertDataSet);
 }
 
-std::shared_ptr<te::da::DataSet> terrama2::services::alert::core::Report::retrieveData() const
+std::shared_ptr<te::da::DataSet> terrama2::services::alert::core::Report::retrieveAllData() const
 {
   return dataSet_;
 }
 
 std::shared_ptr<te::da::DataSet> terrama2::services::alert::core::Report::retrieveDataComparisonValue(const std::vector<int>& values) const
 {
+  if(alertDataSeries_->semantics.dataSeriesType == terrama2::core::DataSeriesType::GRID)
+  {
+    QString errMsg = QObject::tr("Not implemented for GRID data!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ReportException() << ErrorDescription(errMsg);
+  }
+
   std::vector<std::size_t> positions;
 
   size_t compPos = terrama2::core::propertyPosition(dataSet_.get(), "comparison_previous");
@@ -104,6 +119,13 @@ std::shared_ptr<te::da::DataSet> terrama2::services::alert::core::Report::retrie
 
 std::shared_ptr<te::da::DataSet> terrama2::services::alert::core::Report::retrieveDataAtRisk(const int risk) const
 {
+  if(alertDataSeries_->semantics.dataSeriesType == terrama2::core::DataSeriesType::GRID)
+  {
+    QString errMsg = QObject::tr("Not implemented for GRID data!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ReportException() << ErrorDescription(errMsg);
+  }
+
   std::vector<std::size_t> positions;
 
   size_t riskPos = terrama2::core::propertyPosition(dataSet_.get(), riskDates_.at(0)->toString());
@@ -124,6 +146,13 @@ std::shared_ptr<te::da::DataSet> terrama2::services::alert::core::Report::retrie
 
 std::shared_ptr<te::da::DataSet> terrama2::services::alert::core::Report::retrieveDataAboveRisk(const int risk) const
 {
+  if(alertDataSeries_->semantics.dataSeriesType == terrama2::core::DataSeriesType::GRID)
+  {
+    QString errMsg = QObject::tr("Not implemented for GRID data!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ReportException() << ErrorDescription(errMsg);
+  }
+
   std::vector<std::size_t> positions;
 
   size_t riskPos = terrama2::core::propertyPosition(dataSet_.get(), riskDates_.at(0)->toString());
@@ -144,6 +173,13 @@ std::shared_ptr<te::da::DataSet> terrama2::services::alert::core::Report::retrie
 
 std::shared_ptr<te::da::DataSet> terrama2::services::alert::core::Report::retrieveDataBelowRisk(const int risk) const
 {
+  if(alertDataSeries_->semantics.dataSeriesType == terrama2::core::DataSeriesType::GRID)
+  {
+    QString errMsg = QObject::tr("Not implemented for GRID data!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ReportException() << ErrorDescription(errMsg);
+  }
+
   std::vector<std::size_t> positions;
 
   size_t riskPos = terrama2::core::propertyPosition(dataSet_.get(), riskDates_.at(0)->toString());
@@ -166,6 +202,13 @@ std::shared_ptr<te::da::DataSet> terrama2::services::alert::core::Report::retrie
 void terrama2::services::alert::core::Report::updateReportDataset(const std::shared_ptr<te::da::DataSet> dataSet)
 {
   dataSet->moveBeforeFirst();
+
+  if(alertDataSeries_->semantics.dataSeriesType == terrama2::core::DataSeriesType::GRID)
+  {
+    dataSet_ = std::dynamic_pointer_cast<te::mem::DataSet>(dataSet);
+    return;
+  }
+
   dataSet_ = std::make_shared<te::mem::DataSet>(*dataSet);
 
   // Replace risk values
@@ -229,4 +272,136 @@ void terrama2::services::alert::core::Report::updateReportDataset(const std::sha
   }
 
   dataSet_->setPropertyDataType(te::dt::STRING_TYPE, posComparison);
+
+}
+
+
+double terrama2::services::alert::core::Report::retrieveMaxValue() const
+{
+  dataSet_->moveBeforeFirst();
+
+  if(alertDataSeries_->semantics.dataSeriesType != terrama2::core::DataSeriesType::GRID)
+  {
+    QString errMsg = QObject::tr("Not implemented for this data series type!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ReportException() << ErrorDescription(errMsg);
+  }
+
+  if(!dataSet_->moveNext())
+  {
+    QString errMsg = QObject::tr("No data in data set!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ReportException() << ErrorDescription(errMsg);
+  }
+
+  std::size_t pos = te::da::GetFirstPropertyPos(dataSet_.get(), te::dt::RASTER_TYPE);
+
+  if(!terrama2::core::isValidColumn(pos) || dataSet_->isNull(pos))
+  {
+    QString errMsg = QObject::tr("No raster data in data set!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ReportException() << ErrorDescription(errMsg);
+  }
+
+  try
+  {
+    int band = std::stoi(alert_->riskAttribute);
+
+    return dataSet_->getRaster(pos)->getBand(band)->getMaxValue(true).real();
+  }
+  catch(const std::invalid_argument& /*e*/)
+  {
+    QString errMsg = QObject::tr("Invalid risk attribute!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ReportException() << ErrorDescription(errMsg);
+  }
+}
+
+
+double terrama2::services::alert::core::Report::retrieveMinValue() const
+{
+  dataSet_->moveBeforeFirst();
+
+  if(alertDataSeries_->semantics.dataSeriesType != terrama2::core::DataSeriesType::GRID)
+  {
+    QString errMsg = QObject::tr("Not implemented for this data series type!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ReportException() << ErrorDescription(errMsg);
+  }
+
+  if(!dataSet_->moveNext())
+  {
+    QString errMsg = QObject::tr("No data in data set!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ReportException() << ErrorDescription(errMsg);
+  }
+
+  std::size_t pos = te::da::GetFirstPropertyPos(dataSet_.get(), te::dt::RASTER_TYPE);
+
+  if(pos == std::string::npos)
+  {
+    QString errMsg = QObject::tr("No raster data in data set!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ReportException() << ErrorDescription(errMsg);
+  }
+
+  try
+  {
+    int band = std::stoi(alert_->riskAttribute);
+
+    return dataSet_->getRaster(pos)->getBand(band)->getMinValue(true).real();
+  }
+  catch(const std::invalid_argument& /*e*/)
+  {
+    QString errMsg = QObject::tr("Invalid risk attribute!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ReportException() << ErrorDescription(errMsg);
+  }
+}
+
+
+double terrama2::services::alert::core::Report::retrieveMeanValue() const
+{
+  dataSet_->moveBeforeFirst();
+
+  if(alertDataSeries_->semantics.dataSeriesType != terrama2::core::DataSeriesType::GRID)
+  {
+    QString errMsg = QObject::tr("Not implemented for this data series type!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ReportException() << ErrorDescription(errMsg);
+  }
+
+  if(!dataSet_->moveNext())
+  {
+    QString errMsg = QObject::tr("No data in data set!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ReportException() << ErrorDescription(errMsg);
+  }
+
+  std::size_t pos = te::da::GetFirstPropertyPos(dataSet_.get(), te::dt::RASTER_TYPE);
+
+  if(pos == std::string::npos)
+  {
+    QString errMsg = QObject::tr("No raster data in data set!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ReportException() << ErrorDescription(errMsg);
+  }
+
+  try
+  {
+    int band = std::stoi(alert_->riskAttribute);
+
+    return dataSet_->getRaster(pos)->getBand(band)->getMeanValue().real();
+  }
+  catch(const std::invalid_argument& /*e*/)
+  {
+    QString errMsg = QObject::tr("Invalid risk attribute!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ReportException() << ErrorDescription(errMsg);
+  }
+}
+
+terrama2::core::DataSeriesType terrama2::services::alert::core::Report::dataSeriesType() const
+{
+  return alertDataSeries_->semantics.dataSeriesType;
 }

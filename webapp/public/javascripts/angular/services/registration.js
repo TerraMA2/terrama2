@@ -100,7 +100,7 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
         var uriObject = URIParser(targetURI);
         if (uriObject && uriObject.length !== 0) {
           self.mapsServer.address = uriObject.protocol + "//" + uriObject.hostname + uriObject.pathname;
-          self.mapsServer.port = parseInt(uriObject.port === "" ? "80" : uriObject.port) || self.mapsServer.port ||8080;
+          self.mapsServer.port = parseInt(uriObject.port === undefined ? "80" : uriObject.port) || self.mapsServer.port || 8080;
           self.mapsServer.user = uriObject.username || self.mapsServer.user;
           self.mapsServer.password = uriObject.password || self.mapsServer.password;
         }
@@ -119,11 +119,11 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
 
         switch(parseInt(self.service.service_type_id)) {
           case Service.types.VIEW:
-            self.mapsServer.address = self.service.metadata.mapsServer;
+            self.mapsServer.address = self.service.metadata.maps_server;
             self.onMapsServerURIChange();
             break;
           case Service.types.ALERT:
-            var emailServer = self.service.metadata.emailServer;
+            var emailServer = self.service.metadata.email_server;
             // Checking email server. When terrama2 runs first time, it does not register a email server. So, value in undefined/null
             if (emailServer) {
               var emailURI = "http" + emailServer.substring(4, emailServer.length);
@@ -337,7 +337,7 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
         var output = undefined;
         if (value && angular.isObject(value)) {
           var parsedURI = URIParser(value);
-          output = "smtp://" + parsedURI.username + ":" + parsedURI.password + "@" + parsedURI.host;
+          output = "smtp://" + decodeURIComponent(parsedURI.username) + ":" + parsedURI.password + "@" + parsedURI.host;
         }
         return output;
       }
@@ -351,11 +351,11 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
         self.isChecking = true;
         var request;
 
-        var copyMetadata = angular.merge({}, self.metadata);
+        var copyMetadata = {};
         // Processing Metadata (Email Server)
         switch (parseInt(self.service.service_type_id)) {
           case Service.types.ALERT:
-            copyMetadata.emailServer = self.processMetadata(copyMetadata.emailServer);
+            copyMetadata.email_server = self.processMetadata(self.metadata.emailServer);
             // copyMetadata.emailServer = "smtp" + _uriEmailServer.substring(4, _uriEmailServer.length);
             break;
           case Service.types.VIEW:
@@ -364,7 +364,7 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
             mapsServerURI.port = copyMapsServer.port;
             mapsServerURI.username = copyMapsServer.user;
             mapsServerURI.password = copyMapsServer.password;
-            copyMetadata.mapsServer = mapsServerURI.href;
+            copyMetadata.maps_server = mapsServerURI.href;
             break;
         }
 
@@ -452,14 +452,6 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
           if ($scope.mapsServerForm.$invalid) {
             return;
           }
-
-          var uriObject = URIParser(self.mapsServer.address);
-          uriObject.username = self.mapsServer.user;
-          uriObject.password = self.mapsServer.password;
-          uriObject.port = self.mapsServer.port;
-          self.service.maps_server_uri = uriObject.href;
-        } else {
-          delete self.service.maps_server_uri;
         }
 
         if (self.service.service_type_id == Service.types.ALERT) {

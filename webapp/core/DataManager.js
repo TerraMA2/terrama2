@@ -176,7 +176,7 @@ var DataManager = module.exports = {
         viewService.port = 6545;
         viewService.service_type_id = Enums.ServiceType.VIEW;
         viewService.metadata = {
-          maps_server_uri: "http://admin:geoserver@localhost:8080/geoserver"
+          maps_server: "http://admin:geoserver@localhost:8080/geoserver"
         };
 
         var alertService = Object.assign({}, collectorService);
@@ -435,7 +435,7 @@ var DataManager = module.exports = {
           self.data.projects.push(project.get());
         });
 
-        return models.db.DataProvider.findAll({ include: [ models.db.DataProviderType ] }).then(function(dataProviders) {
+        return models.db.DataProvider.findAll({ include: [ models.db.DataProviderType, models.db.DataProviderConfiguration ] }).then(function(dataProviders) {
           dataProviders.forEach(function(dataProvider) {
             self.data.dataProviders.push(new DataModel.DataProvider(dataProvider));
           });
@@ -971,7 +971,7 @@ var DataManager = module.exports = {
         return models.db.ServiceInstance.update(serviceObject, Utils.extend({
             fields: ['name', 'description', 'port',
                      'numberOfThreads', 'runEnviroment', 'host',
-                     'sshUser', 'sshPort', 'pathToBinary', 'maps_server_uri'],
+                     'sshUser', 'sshPort', 'pathToBinary'],
             where: { id: serviceId }
           }, options))
           .then(function() {
@@ -1308,7 +1308,66 @@ var DataManager = module.exports = {
         });
     });
   },
+/**
+   * It performs Insert or Update operation in database. If data set format found with given restriction, it applies
+   * update operation. Otherwise, it performs insert operation
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} dataProviderConfiguration - A data provider configuration values
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise} - a 'bluebird' module
+   */
+  upsertDataProviderConfigurations: function(restriction, dataProviderConfiguration, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return self
+        .listDataProviderConfigurations(restriction, Utils.extend({limit: 1}, options))
+        .then(function(dataProviderConfigurations) {
+          if (dataProviderConfigurations.length === 0) {
+            // insert
+            return models.db.DataProviderConfiguration.create(dataProviderConfiguration, options);
+          } else {
+            return models.db.DataProviderConfiguration.update(dataProviderConfiguration, Utils.extend({
+              fields: ["key", "value", "data_provider_id"],
+              where: {id: dataProviderConfigurations[0].id}
+            }, options));
+          }
+        })
 
+        .then(function() {
+          return resolve();
+        })
+
+        .catch(function(err) {
+          return reject(new Error(Utils.format("Could not upsert data provider configuration %s", err.toString())));
+        });
+    });
+  },
+  /**
+   * It retrieves all data provider configurations from database
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise} - a 'bluebird' module with DataSeries instance or error callback
+   */
+  listDataProviderConfigurations: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return models.db.DataProviderConfiguration
+        .findAll(Utils.extend({
+          where: restriction
+        }, options))
+        .then(function(dataProviderConfigurations) {
+          return resolve(dataProviderConfigurations);
+        })
+
+        .catch(function(err) {
+          return reject(new Error(Utils.format("Could not retrieve data provider configuration %s", err.toString())));
+        });
+    });
+  },
   /**
    * It saves DataProvider in database and load it in memory
    *
@@ -1321,16 +1380,55 @@ var DataManager = module.exports = {
     var self = this;
     return new Promise(function(resolve, reject) {
       models.db.DataProvider.create(dataProviderObject, options).then(function(dataProvider){
-        return dataProvider.getDataProviderType().then(function(dataProviderType) {
-          var dProvider = new DataModel.DataProvider(dataProvider.get());
-          dProvider.data_provider_type = dataProviderType.get();
-          self.data.dataProviders.push(dProvider);
+        if (dataProviderObject.configuration){
+          var configurationList = [];
+          var configuration = dataProviderObject.configuration;
 
-          return resolve(dProvider);
-        }).catch(function(err) {
-          logger.error(err);
-          return reject(err);
-        });
+          for(var key in configuration) {
+            if (configuration.hasOwnProperty(key)) {
+              configurationList.push({
+                data_provider_id: dataProvider.id,
+                key: key,
+                value: configuration[key]
+              });
+            }
+          }
+          return models.db.DataProviderConfiguration.bulkCreate(configurationList, Utils.extend({data_provider_id: dataProvider.id}, options)).then(function () {
+            return models.db.DataProviderConfiguration.findAll(Utils.extend({where: {data_provider_id: dataProvider.id}}, options)).then(function(dataSetFormats) {
+              return dataProvider.getDataProviderType().then(function(dataProviderType) {
+                var dataProviderObject = dataProvider.get();
+                dataSetFormats.forEach(function(dSetFormat){
+                  dataProviderObject[dSetFormat.key] = dSetFormat.value;
+                });
+                var dProvider = new DataModel.DataProvider(dataProvider.get());
+                dProvider.data_provider_type = dataProviderType.get();
+                self.data.dataProviders.push(dProvider);
+
+                return resolve(dProvider);
+              }).catch(function(err) {
+                logger.error(err);
+                return reject(err);
+              });
+            }).catch(function(err){
+              logger.error(err);
+              return reject(err);
+            });
+          }).catch(function(err){
+            logger.error(err);
+            return reject(err);
+          });
+        } else {
+          return dataProvider.getDataProviderType().then(function(dataProviderType) {
+            var dProvider = new DataModel.DataProvider(dataProvider.get());
+            dProvider.data_provider_type = dataProviderType.get();
+            self.data.dataProviders.push(dProvider);
+
+            return resolve(dProvider);
+          }).catch(function(err) {
+            logger.error(err);
+            return reject(err);
+          });
+        }
       }).catch(function(err){
         var message = "Could not save data provider due: ";
         logger.error(err.errors);
@@ -1399,7 +1497,7 @@ var DataManager = module.exports = {
 
       if (dataProvider) {
         models.db.DataProvider.update(dataProviderObject, Utils.extend({
-          fields: ["name", "timeout", "description", "uri", "active"],
+          fields: ["name", "description", "uri", "active"],
           where: {
             id: dataProvider.id
           }
@@ -1414,7 +1512,29 @@ var DataManager = module.exports = {
 
           dataProvider.active = dataProviderObject.active;
 
-          return resolve(new DataModel.DataProvider(dataProvider));
+          if (dataProviderObject.configuration){
+            var dataProviderConfPromises = [];
+
+            for (var key in dataProviderObject.configuration){
+              if (dataProviderObject.configuration.hasOwnProperty(key)){
+                var configRestriction = {
+                  data_provider_id: dataProviderId,
+                  key: key
+                };
+                var configObject = {
+                  value: dataProviderObject.configuration[key]
+                }
+              }
+              dataProviderConfPromises.push(self.upsertDataProviderConfigurations(configRestriction, configObject, options));
+            }
+            return Promise.all(dataProviderConfPromises).then(function(dataProvConfigs){
+              dataProvider.timeout = dataProviderObject.configuration.timeout;
+              dataProvider.active_mode = dataProviderObject.configuration.active_mode;
+              return resolve(new DataModel.DataProvider(dataProvider));
+            });
+          } else {
+            return resolve(new DataModel.DataProvider(dataProvider));
+          }
         }).catch(function(err) {
           return reject(new exceptions.DataProviderError("Could not update data provider ", err));
         });
@@ -3798,6 +3918,354 @@ var DataManager = module.exports = {
         logger.error(err);
         return reject(err);
       });
+    });
+  },
+
+  /**
+   * It performs save alert in database
+   *
+   * @param {Object} alertObject - An alert values to save
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Alert>}
+   */
+  addAlert: function(alertObject, options){
+    var self = this;
+    return new Promise(function(resolve, reject){
+      var alertResult;
+      var scheduleResult;
+      var reportMetadataResult;
+      var additionalDataResult;
+      var riskResult;
+      var notificationResult;
+      return models.db.Alert.create(alertObject, options)
+        .then(function(alert){
+          alertResult = alert;
+          return self.getConditionalSchedule({id: alertResult.conditional_schedule_id}, options);
+        })
+        .then(function(schedule){
+          scheduleResult = schedule;
+          var reportMetadata = alertObject.report_metadata;
+          reportMetadata.alert_id = alertResult.id;
+          return self.addReportMetadata(reportMetadata, options);
+        })
+        .then(function(reportMetadata){
+          reportMetadataResult = reportMetadata;
+          var alertAdditionalData = alertObject.additionalData;
+          var additionalDataPromises = [];
+          if (alertAdditionalData){
+            alertAdditionalData.forEach(function(alertAD){
+              alertAD.alert_id = alertResult.id;
+              additionalDataPromises.push(self.addAlertAdditionalData(alertAD, options));
+            });
+          }
+          return Promise.all(additionalDataPromises);
+        })
+        .then(function(additionalData){
+          additionalDataResult = additionalData;
+          var risk = alertObject.risk;
+          risk.alert_id = alertResult.id;
+          return self.getRisk({id: alertResult.risk_id}, options);
+        })
+        .then(function(risk){
+          riskResult = risk;
+          var notifications = alertObject.notifications;
+          var notificationsPromises = [];
+          notifications.forEach(function(notification){
+            notification.alert_id = alertResult.id;
+            notificationsPromises.push(self.addAlertNotification(notification, options));
+          });
+          return Promise.all(notificationsPromises);
+        })
+        .then(function(notifications){
+          notificationResult = notifications;
+          var objectToAssign = {
+            conditionalSchedule: scheduleResult,
+            reportMetadata: reportMetadataResult,
+            additionalData: additionalDataResult,
+            risk: riskResult,
+            notifications: notificationResult
+          }
+          return resolve(new DataModel.Alert(Object.assign(alertResult.get(), objectToAssign)));
+        })
+        .catch(function(err){
+          return reject(new Error(Utils.format("Could not save alert due %s", err.toString())));
+        });
+    });
+  },
+
+  /**
+   * It performs a save report metadata and retrieve it
+   *
+   * @param {Object} reportMetadaObject - Report Metadata object to save
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Object>} An Report Metadata object created
+   */
+  addReportMetadata: function(reportMetadaObject, options){
+    return new Promise(function(resolve, reject){
+      return models.db.ReportMetadata.create(reportMetadaObject, options)
+        .then(function(reportMetadaResult){
+          return resolve(reportMetadaResult.get());
+        })
+        .catch(function(err){
+          return reject(new Error(Utils.format("Could not save alert report metadata due %s", err.toString())));
+        });
+    });
+  },
+
+  /**
+   * It performs a save additional data and retrieve it
+   *
+   * @param {Object} additionalDataObject - Additional data object to save
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Object>} An Additional data object created
+   */
+  addAlertAdditionalData: function(additionalDataObject, options){
+    return new Promise(function(resolve, reject){
+      return models.db.AlertAdditionalData.create(additionalDataObject, options)
+        .then(function(additionalDataResult){
+          return resolve(additionalDataResult.get());
+        })
+        .catch(function(err){
+          return reject(new Error(Utils.format("Could not save alert additional data due %s", err.toString())));
+        })
+    });
+  },
+
+  /**
+   * It performs a save risk and retrieve it
+   *
+   * @param {Object} riskObject - Risk object to save
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Object>} A risk object created
+   */
+  addRisk: function(riskObject, options){
+    var self = this;
+    return new Promise(function(resolve, reject){
+      var riskObjectResult;
+      return models.db.Risk.create(riskObject, options)
+        .then(function(riskResult){
+          riskObjectResult = riskResult;
+          var riskLevelPromises = [];
+          var riskLevels = riskObject.levels;
+          riskLevels.forEach(function(riskLevel){
+            riskLevel.risk_id = riskResult.id;
+            riskLevelPromises.push(self.addRiskLevel(riskLevel, options));
+          });
+          return Promise.all(riskLevelPromises)
+          .then(function(riskLevelResult){
+            var objectToAssign = {
+              riskLevels: riskLevelResult
+            }
+            return resolve(new DataModel.Risk(Object.assign(riskObjectResult.get(), objectToAssign)));
+          })
+        })
+        .catch(function(err){
+          return reject(new Error(Utils.format("Could not save risk due %s", err.toString())));
+        });
+    });
+  },
+
+  /**
+   * It performs a save risk level and retrieve it
+   *
+   * @param {Object} riskLevelObject - Risk level object to save
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Object>} A risk level object created
+   */
+  addRiskLevel: function(riskLevelObject, options){
+    return new Promise(function(resolve, reject){
+      return models.db.RiskLevel.create(riskLevelObject, options)
+        .then(function(riskLevelResult){
+          return resolve(riskLevelResult.get());
+        })
+        .catch(function(err){
+          return reject(new Error(Utils.format("Could not save risk level due %s", err.toString())));
+        });
+    });
+  },
+
+  /**
+   * It performs a save alert notification and retrieve it
+   *
+   * @param {Object} alertNotificationObject - Alert notification object to save
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Object>} A alert notification object created
+   */
+  addAlertNotification: function(alertNotificationObject, options){
+    return new Promise(function(resolve, reject){
+      return models.db.AlertNotification.create(alertNotificationObject, options)
+        .then(function(alertNotificationResult){
+          return resolve(alertNotificationResult.get());
+        })
+        .catch(function(err){
+          return reject(new Error(Utils.format("Could not save Alert Notification due %s", err.toString())));
+        });
+    })
+  },
+
+  /**
+   * It retrieves an alert from database
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<DataModel.Alert>}
+   */
+  getAlert: function(restriction, options){
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      self.listAlerts(restriction, options)
+        .then(function(alerts) {
+          if (alerts.length === 0) {
+            return reject(new Error("No alert retrieved"));
+          }
+          if (alerts.length > 1) {
+            return reject(new Error("Get operation retrieved more than a view"));
+          }
+          return resolve(alerts[0]);
+        })
+        .catch(function(err) {
+          return reject(err);
+        });
+    });
+  },
+
+  /**
+   * It retrieves a list of alerts in database
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<DataModel.View[]>}
+   */
+  listAlerts: function(restriction, options){
+    var self = this;
+
+    return new Promise(function(resolve, reject) {
+      models.db.Alert.findAll(Utils.extend({
+        where: restriction || {},
+        include: [
+          {
+            model: models.db.AlertAdditionalData
+          },
+          {
+            model: models.db.AlertNotification
+          },
+          {
+            model: models.db.ConditionalSchedule
+          },
+          {
+            model: models.db.ReportMetadata
+          },
+          {
+            model: models.db.Risk,
+            include: [
+              {
+                model: models.db.RiskLevel
+              }
+            ]
+          }
+        ]
+      }, options))
+        .then(function(alerts){
+          return resolve(alerts.map(function(alert) {
+            var additionalDatas = [];
+            alert.AlertAdditionalData.forEach(function(additionalData){
+              additionalDatas.push(additionalData.get());
+            });
+
+            var notifications = [];
+            alert.AlertNotifications.forEach(function(notification){
+              notifications.push(notification.get());
+            });
+
+            var risk = new DataModel.Risk(alert.Risk.get());
+
+            var alertModel = new DataModel.Alert(Object.assign(alert.get(), {
+              conditional_schedule: alert.ConditionalSchedule ? new DataModel.ConditionalSchedule(alert.ConditionalSchedule.get()) : {},
+              additionalData: additionalDatas,
+              notifications: notifications,
+              reportMetadata: alert.ReportMetadatum.get(),
+              risk: risk
+            }));
+            return alertModel;
+          }))
+        })
+        .catch(function(err){
+          return reject(new Error("Could not list alerts " + err.toString()));
+        });
+    });
+  },
+
+  /**
+   * It retrieves a risk from database
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<DataModel.Risk>}
+   */
+  getRisk: function(restriction, options){
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      models.db.Risk.findOne(Utils.extend({
+        where: restriction || {},
+        include: [
+          {
+            model: models.db.RiskLevel
+          }
+        ]
+      }, options)).then(function(risk) {
+        if (risk) {
+          var riskLevels = [];
+          risk.RiskLevels.forEach(function(riskLevel){
+            riskLevels.push(riskLevel.get());
+          });
+          var riskObject = new DataModel.Risk(Object.assign(risk.get(),{
+            riskLevels: riskLevels
+          }));
+          return resolve(riskObject);
+        }
+        return reject(new Error("Could not find risk"));
+      });
+    });
+  },
+
+  /**
+   * It removes an alert from database
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object?} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise}
+   */
+  removeAlert: function(restriction, options){
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      var alert;
+      return self.getAlert(restriction, options)
+        .then(function(alertResult) {
+          alert = alertResult;
+          return self.removeConditionalSchedule({id: alert.conditional_schedule.id}, options);
+        })
+
+        .then(function() {
+          return models.db.Alert.destroy(Utils.extend({where: restriction}, options));
+        })
+
+        .then(function() {
+          return resolve();
+        })
+
+        .catch(function(err) {
+          return reject(new Error("Could not remove alert " + err.toString()));
+        });
     });
   },
 

@@ -5,6 +5,7 @@ var Client = require('ftp');
 var Promise = require('bluebird');
 var Exceptions = require("./Exceptions");
 var Form = require("./Enums").Form;
+var FormField = Form.Field;
 var UriPattern = require("./Enums").Uri;
 var Utils = require("./Utils");
 
@@ -81,8 +82,90 @@ FtpRequest.prototype.request = function() {
 };
 
 FtpRequest.fields = function() {
-  return Utils.makeCommonRequestFields("FTP", 21, null, [UriPattern.HOST, UriPattern.PORT],
-         Utils.getCommonRequestFields().concat([{key: UriPattern.PATHNAME, type: Form.Field.TEXT, htmlClass: 'col-md-12 terrama2-schema-form'}]));
+  var fieldProperties = {};
+  fieldProperties[UriPattern.HOST] = {
+    title: "Address",
+    type: FormField.TEXT
+  }
+
+  fieldProperties[UriPattern.PORT] = {
+    title: "Port",
+    type: FormField.NUMBER,
+    default: 21
+  };
+
+  fieldProperties['timeout'] = {
+    title: "Data server Timeout",
+    type: FormField.NUMBER,
+    default: 8
+  };
+
+  fieldProperties['active_mode'] = {
+    title: "Active mode",
+    type: 'boolean'
+  };
+
+  fieldProperties[UriPattern.USER] = {
+    title: "Username",
+    type: FormField.TEXT
+  };
+
+  fieldProperties[UriPattern.PASSWORD] = {
+    title: "Password",
+    type: FormField.TEXT
+  };
+
+  fieldProperties[UriPattern.PATHNAME] = {
+    title: "Path",
+    type: FormField.TEXT
+  };
+
+  var orderFields = [
+    {
+      key: UriPattern.HOST,
+      type: FormField.TEXT,
+      htmlClass: 'col-md-6 terrama2-schema-form'
+    },
+    {
+      key: UriPattern.PORT,
+      type: FormField.NUMBER,
+      htmlClass: 'col-md-2 terrama2-schema-form'
+    },
+    {
+      key:'timeout',
+      type: FormField.NUMBER,
+      htmlClass: 'col-md-2 terrama2-schema-form'
+    },
+    {
+      key: 'active_mode',
+      type: 'checkbox',
+      htmlClass: 'col-md-2 terrama2-schema-form-checkbox'
+    },
+    {
+      key: UriPattern.USER,
+      type: FormField.TEXT,
+      htmlClass: 'col-md-6 terrama2-schema-form'
+    },
+    {
+      key: UriPattern.PASSWORD,
+      type: FormField.PASSWORD,
+      htmlClass: 'col-md-6 terrama2-schema-form'
+    },
+    {
+      key: UriPattern.PATHNAME,
+      type: Form.Field.TEXT,
+      htmlClass: 'col-md-12 terrama2-schema-form'
+    }
+  ];
+
+  var fieldsObject = {
+    name: "FTP",
+    properties: fieldProperties,
+    required: [UriPattern.HOST, UriPattern.PORT],
+    display: orderFields
+  };
+
+  return fieldsObject;
 };
 
 module.exports = FtpRequest;

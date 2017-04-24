@@ -34,42 +34,28 @@
 #include <QString>
 #include <QObject>
 
+
 std::tuple<int, std::string> terrama2::core::Risk::riskLevel(double value) const
 {
-  for (size_t i = 0; i < riskLevels.size(); ++i)
+  auto upperBound = std::upper_bound(riskLevels.begin(), riskLevels.end(), value, [](const double &a, const RiskLevel &b){ return a < b.value; });
+  if(upperBound == riskLevels.begin())
+    return std::make_tuple(upperBound->level, upperBound->name);
+  else
   {
-    auto riskLevel = riskLevels[i];
-    if(value >= riskLevels[i].value)
-    {
-      bool hasNext = i + 1 < riskLevels.size();
-      if(hasNext && value < riskLevels[i + 1].value)
-      {
-        return std::make_tuple(riskLevel.level, riskLevel.name);
-      }
-
-      if(!hasNext)
-      {
-        return std::make_tuple(riskLevel.level, riskLevel.name);
-      }
-    }
+    --upperBound;
+    return std::make_tuple(upperBound->level, upperBound->name);
   }
-
-  QString errMsg = QObject::tr("Risk level not defined for value: %1").arg(value);
-  TERRAMA2_LOG_ERROR() << errMsg;
-  throw DataSeriesRiskException() << ErrorDescription(errMsg);
 }
 
 std::string terrama2::core::Risk::riskName(const int level) const
 {
-  for (unsigned int i = 0; i < riskLevels.size(); ++i)
+  auto it = std::find_if(riskLevels.begin(), riskLevels.end(), [level](const RiskLevel &b){ return level == b.level;});
+  if(it == riskLevels.end())
   {
-    if(level == riskLevels[i].level)
-    {
-      return riskLevels[i].name;
-    }
+    QString errMsg = QObject::tr("Risk not defined for level: %1").arg(level);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw DataSeriesRiskException() << ErrorDescription(errMsg);
   }
 
-  QString errMsg = QObject::tr("Risk not defined for level: %1").arg(level);
-  TERRAMA2_LOG_ERROR() << errMsg;
-  throw DataSeriesRiskException() << ErrorDescription(errMsg);
+  return it->name;
 }

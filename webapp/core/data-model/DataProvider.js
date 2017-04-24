@@ -17,8 +17,22 @@ var DataProvider = function(params) {
   else
     this.data_provider_type = {};
 
+  if (params.DataProviderConfigurations){
+    params.DataProviderConfigurations.forEach(function(dataProviderConfiguration){
+      var dPObject = dataProviderConfiguration.get();
+      params[dPObject.key] = dPObject.value;
+    });
+  }
+
+  if (params.timeout) {
+    this.timeout = params.timeout;
+  }
+
+  if (params.active_mode) {
+    this.active_mode = typeof params.active_mode == "boolean" ? params.active_mode : params.active_mode == "true";
+  }
+
   this.name = params.name;
-  this.timeout = params.timeout;
   this.active = params.active;
   this.uri = params.uri;
 };
@@ -34,6 +48,7 @@ DataProvider.prototype.toObject = function() {
     intent: this.data_provider_intent_id,
     name: this.name,
     timeout: this.timeout,
+    active_mode: this.active_mode,
     description: this.description,
     //uri: decodeURIComponent(this.uri),
     uri: this.uri,
@@ -49,10 +64,28 @@ DataProvider.prototype.rawObject = function() {
     data_provider_intent_id: this.data_provider_intent_id,
     name: this.name,
     timeout: this.timeout,
+    active_mode: this.active_mode,
     description: this.description,
     uri: this.uri,
     active: this.active
   };
+};
+
+DataProvider.prototype.toService = function() {
+  return Object.assign(AbstractData.prototype.toObject.call(this), {
+    id: this.id,
+    project_id: this.project_id,
+    data_provider_type: this.data_provider_type.name,
+    intent: this.data_provider_intent_id,
+    name: this.name,
+    options: {
+      timeout: this.timeout ? String(this.timeout) : "",
+      active_mode: this.active_mode ? String(this.active_mode) : ""
+    },
+    description: this.description,
+    uri: this.uri,
+    active: this.active
+  });
 };
 
 module.exports = DataProvider;

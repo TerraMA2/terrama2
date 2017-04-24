@@ -27,8 +27,8 @@
      */
     this.id = params.id;
     /**
-     * ConditionalSchedule frequency value
-     * @type {number}
+     * ConditionalSchedule Data series ids
+     * @type {array}
      */
     this.data_ids = params.data_ids || [];
   };

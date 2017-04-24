@@ -25,7 +25,7 @@
 #define __TERRAMA2_UNITTEST_CORE_MOCKCURLWRAPPER__
 
 // TerraMA2
-#include <terrama2/core/utility/CurlPtr.hpp>
+#include <terrama2/core/utility/CurlWrapperFtp.hpp>
 #include <terrama2/impl/DataRetrieverFTP.hpp>
 
 // Libcurl
@@ -34,21 +34,17 @@
 // GMock
 #include <gmock/gmock.h>
 
-class MockCurlWrapper: public terrama2::core::CurlPtr
+class MockCurlWrapper: public terrama2::core::CurlWrapperFtp
 {
 public:
 
-  MockCurlWrapper() {};
+  MockCurlWrapper() {}
 
-  MOCK_METHOD2(verifyURL,CURLcode(std::string url, uint32_t timeout));
+  MOCK_CONST_METHOD2(verifyURL,void(std::string url, uint32_t timeout));
 
-  MOCK_METHOD3(getListFiles, std::vector<std::string>(std::string url,
-                             size_t(*write_vector)(void *ptr, size_t size, size_t nmemb, void *data),
-                             std::string block));
+  MOCK_METHOD1(listFiles, std::vector<std::string>(const te::core::URI&));
 
-  MOCK_METHOD3(getDownloadFiles, CURLcode(std::string url,
-                                 size_t(*write_response)(void *ptr, size_t size, size_t nmemb, void *data),
-                                 std::string filePath));
+  MOCK_METHOD3(downloadFile, void(const std::string &url, std::FILE* file, te::common::TaskProgress* taskProgress));
 };
 
 #endif //__TERRAMA2_UNITTEST_CORE_MOCKCURLWRAPPER__

@@ -59,11 +59,11 @@ namespace terrama2
         };
 
         //! Notification rules and targets .
-        struct Recipient
+        struct Notification
         {
           uint32_t notifyOnRiskLevel = 0; //!< Targets should be notified if the greatest risk level is greater then notifyOnRiskLevel.
           bool notifyOnChange = true; //!< Targets should be notified if the risk level changed in any valeu.
-          bool includeReport = true; //!< Include report on notification.
+          std::string includeReport; //!< Include report on notification.
           bool simplifiedReport = true; //!< Include simplified or complete report.
           std::vector<std::string> targets; //!< List of targets that should be notified.
         };
@@ -83,14 +83,13 @@ namespace terrama2
 
           std::string riskAttribute;//!< Attribute of the DataSeries that will be used for risk analysis.
           terrama2::core::Risk risk;//!< Risk rule of the alert
-          terrama2::core::Schedule schedule; //!< Time schedule for the alert execution.
           terrama2::core::Filter filter;//!< Information on how input data should be filtered before the alert is created.
 
           std::vector<AdditionalData> additionalDataVector;//!< Vector of additional DataSeries and attributes that should be included in the result.
 
-          std::unordered_map<std::string, std::string> reportMetadata;//!< Metadata used to create a report.3
+          std::unordered_map<std::string, std::string> reportMetadata;//!< Metadata used to create a report.
 
-          std::vector<Recipient> recipients;
+          std::vector<Notification> notifications;
         };
       } /* core */
     } /* alert */
