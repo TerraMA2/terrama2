@@ -4265,7 +4265,6 @@ var DataManager = module.exports = {
    * @param {Object} alertObject - An alert object values to update
    * @param {Object} options - An ORM query options
    * @param {Transaction} options.transaction - An ORM transaction
-   * @return {Promise<DataModel.View[]>}
    */
   updateAlert: function(restriction, alertObject, options){
     var self = this;
@@ -4280,9 +4279,6 @@ var DataManager = module.exports = {
         .then(function(){
           return self.updateReportMetadata({alert_id: alertId}, alertObject.report_metadata, options)
         })
-        .then(function(){
-          return self.updateRisk({id: alertObject.risk.id}, alertObject.risk, options)
-        })
 
         .then(function() {
           return resolve();
@@ -4294,6 +4290,14 @@ var DataManager = module.exports = {
     })
   },
 
+  /**
+   * It performs update report metadata from given restriction
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} alertObject - An alert report metadata values to update
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   */
   updateReportMetadata: function(restriction, reportMetadataObject, options){
     var self = this;
     return new Promise(function(resolve, reject){
@@ -4314,6 +4318,14 @@ var DataManager = module.exports = {
     })
   },
 
+  /**
+   * It performs update risk from given restriction
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} alertObject - A risk values to update
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   */
   updateRisk: function(restriction, riskObject, options){
     var self = this;
     return new Promise(function(resolve, reject){
@@ -4340,7 +4352,7 @@ var DataManager = module.exports = {
               riskLevelPromises.push(self.removeRiskLevel({id: riskLevel.id}, options));
             }
           });
-          return Promises.all(riskLevelPromises);
+          return Promise.all(riskLevelPromises);
         })
 
         .then(function(){
@@ -4362,13 +4374,21 @@ var DataManager = module.exports = {
     });
   },
 
+  /**
+   * It performs update risk level from given restriction
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} alertObject - A risk level values to update
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   */
   updateRiskLevel: function(restriction, riskLevelObject, options){
     var self = this;
     return new Promise(function(resolve, reject){
       models.db.RiskLevel.update(
         riskLevelObject,
         Utils.extend({
-          fields: [],
+          fields: ['name', 'value', 'level'],
           where: restriction
         }, options))
         .then(function(){
@@ -4376,6 +4396,32 @@ var DataManager = module.exports = {
         })
         .catch(function(err){
           return reject(new Error("Could not update RiskLevel " + err.toString()));
+        })
+    })
+  },
+
+  /**
+   * It performs update alert notification from given restriction
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} alertNotificationObject - An alert notification values to update
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   */
+  updateAlertNotification: function(restriction, alertNotificationObject, options){
+    var self = this;
+    return new Promise(function(resolve, reject){
+      models.db.AlertNotification.update(
+        alertNotificationObject,
+        Utils.extend({
+          fields: ['include_report', 'notify_on_change', 'simplified_report', 'notify_on_risk_level', 'recipients'],
+          where: restrictions
+        }, options))
+        .then(function(){
+          return resolve();
+        })
+        .catch(function(err){
+          return reject(new Error("Could not update alert notification " + err.toString()));
         })
     })
   },
@@ -4433,6 +4479,26 @@ var DataManager = module.exports = {
     });
   },
 
+  /**
+   * It removes alert notification of database from given restriction
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise}
+   */
+  removeAlertNotification: function(restriction, options){
+    var self = this;
+    return new Promise(function(resolve, reject){
+      return models.db.AlertNotification.destroy(Utils.extend({where: restriction}, options))
+        .then(function(){
+          return resolve();
+        })
+        .catch(function(err){
+          return reject(err);
+        });
+    });
+  },
   /**
    * It retrieves a list of views in database
    *
