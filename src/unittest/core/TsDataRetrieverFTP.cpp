@@ -332,7 +332,7 @@ void TsDataRetrieverFTP::TestFailDownloadFile()
     }
     catch(...)
     {
-      QFAIL("Unexpected expected!");
+      QFAIL("Unexpected exception!");
     }
   }
   catch(const terrama2::Exception& e)
