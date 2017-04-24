@@ -58,6 +58,15 @@ var ImportExport = function(io) {
         return Object.assign({$id: old.$id}, o);
       };
 
+      var countObjectProperties = function(object) {
+        var count = 0;
+        
+        if(object !== undefined && object !== null && typeof object === "object")
+          for(key in object) if(object.hasOwnProperty(key)) count++;
+
+        return count;
+      };
+
       DataManager.orm.transaction(function(t) {
         /**
          * @type {Object} options
@@ -160,100 +169,112 @@ var ImportExport = function(io) {
                   var dsOutput = Utils.find(output.DataSeries, {$id: collector.output_data_series});
                   collector.data_series_output = dsOutput.id;
 
-                  delete collector.schedule.id;
-                  promises.push(DataManager.addSchedule(collector.schedule, options).then(function(scheduleResult) {
-                    collector.schedule_id = scheduleResult.id;
+                  var date = {};
 
-                    var date = {};
+                  if(collector.filter && collector.filter.discard_after)
+                    date.afterDate = Utils.dateFromFormat(collector.filter.discard_after);
 
-                    if (collector.filter && collector.filter.discard_after) {
-                      date.afterDate = Utils.dateFromFormat(collector.filter.discard_after);
-                    }
+                  if(collector.filter && collector.filter.discard_before)
+                    date.beforeDate = Utils.dateFromFormat(collector.filter.discard_before);
 
-                    if (collector.filter && collector.filter.discard_before) {
-                      date.beforeDate = Utils.dateFromFormat(collector.filter.discard_before);
-                    }
+                  if(collector.filter && collector.filter.data_series_id)
+                    collector.filter.data_series_id = Utils.find(output.DataSeries, {$id: collector.filter.data_series_id}).id;
 
-                    if (collector.filter && collector.filter.data_series_id) {
-                      collector.filter.data_series_id = Utils.find(output.DataSeries, {$id: collector.filter.data_series_id}).id;
-                    }
+                  collector.filter.date = date;
 
-                    collector.filter.date = date;
-                    if(collector.service_instance_id === null) collector.service_instance_id = json.servicesCollect;
+                  if(collector.service_instance_id === null) collector.service_instance_id = json.servicesCollect;
 
-                    return DataManager.addCollector(collector, collector.filter, options).then(function(collectorResult) {
+                  if(countObjectProperties(collector.schedule) > 0) {
+                    delete collector.schedule.id;
+
+                    promises.push(DataManager.addSchedule(collector.schedule, options).then(function(scheduleResult) {
+                      collector.schedule_id = scheduleResult.id;
+
+                      return DataManager.addCollector(collector, collector.filter, options).then(function(collectorResult) {
+                        collectorResult.project_id = Utils.find(output.DataSeries, {id: collectorResult.data_series_input}).dataProvider.project_id;
+
+                        if(tcpOutput.Collectors === undefined) tcpOutput.Collectors = [];
+                        tcpOutput.Collectors.push(collectorResult.toObject());
+                      });
+                    }));
+                  } else {
+                    promises.push(DataManager.addCollector(collector, collector.filter, options).then(function(collectorResult) {
                       collectorResult.project_id = Utils.find(output.DataSeries, {id: collectorResult.data_series_input}).dataProvider.project_id;
 
                       if(tcpOutput.Collectors === undefined) tcpOutput.Collectors = [];
                       tcpOutput.Collectors.push(collectorResult.toObject());
-                    });
-                  }));
+                    }));
+                  }
                 });
               }
 
               return Promise.all(promises).then(function() {
                 promises = [];
 
-                if (json.Analysis) {
+                if(json.Analysis) {
                   var analysisList = json.Analysis || [];
                   analysisList.forEach(function(analysis) {
+                    analysis.analysisDataSeries = analysis.analysis_dataseries_list;
 
-                    delete analysis.schedule.id;
-
-                    promises.push(DataManager.addSchedule(analysis.schedule, options).then(function(schedule) {
-                      analysis.schedule_id = schedule.id;
-
-                      analysis.analysisDataSeries = analysis.analysis_dataseries_list;
-                      for(var i = 0; i < analysis.analysisDataSeries.length; ++i) {
-                        var ds = analysis.analysisDataSeries[i];
-                        for(var k = 0; k < output.DataSeries.length; ++k) {
-                          var anDs = output.DataSeries[k];
-                          if (ds.data_series_id === anDs.$id) {
-                            ds.type_id = ds.type;
-                            ds.data_series_id = anDs.id;
-                            break;
-                          }
+                    for(var i = 0; i < analysis.analysisDataSeries.length; ++i) {
+                      var ds = analysis.analysisDataSeries[i];
+                      for(var k = 0; k < output.DataSeries.length; ++k) {
+                        var anDs = output.DataSeries[k];
+                        if(ds.data_series_id === anDs.$id) {
+                          ds.type_id = ds.type;
+                          ds.data_series_id = anDs.id;
+                          break;
                         }
                       }
+                    }
 
-                      analysis.type_id = analysis.type.id;
+                    analysis.type_id = analysis.type.id;
 
-                      analysis.instance_id = analysis.service_instance_id;
-                      analysis.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: analysis.project_id}).id : json.selectedProject;
-                      analysis.script_language_id = analysis.script_language;
-                      analysis.grid = analysis.output_grid;
-                      var dataSeriesOutput = Utils.find(output.DataSeries, {
-                        $id: analysis.output_dataseries_id
-                      });
-                      // if there grid analysis, check if there data series id, like resolution data series id.
-                      // it must be changed, since it should be a different id
-                      if (analysis.grid && analysis.grid.analysis_id) {
-                        // TODO: It must retrieve all data series, instead retrieve one per once
-                        if (analysis.grid.resolution_data_series_id) {
-                          analysis.grid.resolution_data_series_id = Utils.find(output.DataSeries, {$id: analysis.grid.resolution_data_series_id}).id;
-                        }
+                    analysis.instance_id = analysis.service_instance_id;
+                    analysis.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: analysis.project_id}).id : json.selectedProject;
+                    analysis.script_language_id = analysis.script_language;
+                    analysis.grid = analysis.output_grid;
+                    var dataSeriesOutput = Utils.find(output.DataSeries, {
+                      $id: analysis.output_dataseries_id
+                    });
+                    // if there grid analysis, check if there data series id, like resolution data series id.
+                    // it must be changed, since it should be a different id
+                    if(analysis.grid && analysis.grid.analysis_id) {
+                      // TODO: It must retrieve all data series, instead retrieve one per once
+                      if(analysis.grid.resolution_data_series_id)
+                        analysis.grid.resolution_data_series_id = Utils.find(output.DataSeries, {$id: analysis.grid.resolution_data_series_id}).id;
 
-                        if (analysis.grid.area_of_interest_data_series_id) {
-                          analysis.grid.area_of_interest_data_series_id = Utils.find(output.DataSeries,
-                                                                                    {$id: analysis.grid.area_of_interest_data_series_id}).id;
-                        }
-                      }
+                      if(analysis.grid.area_of_interest_data_series_id)
+                        analysis.grid.area_of_interest_data_series_id = Utils.find(output.DataSeries, {$id: analysis.grid.area_of_interest_data_series_id}).id;
+                    }
 
-                      if (dataSeriesOutput.data_series_semantics.data_series_type_name === Enums.DataSeriesType.DCP) {
-                        // TODO:
-                        console.log("TODO: Analysis DCP export");
-                      } else {
-                        analysis.dataset_output = dataSeriesOutput.dataSets[0].id;
-                      }
+                    if(dataSeriesOutput.data_series_semantics.data_series_type_name === Enums.DataSeriesType.DCP) {
+                      // TODO:
+                      console.log("TODO: Analysis DCP export");
+                    } else {
+                      analysis.dataset_output = dataSeriesOutput.dataSets[0].id;
+                    }
 
-                      if(analysis.service_instance_id === null) analysis.service_instance_id = json.servicesAnalysis;
-                      if(analysis.instance_id === null) analysis.instance_id = json.servicesAnalysis;
+                    if(analysis.service_instance_id === null) analysis.service_instance_id = json.servicesAnalysis;
+                    if(analysis.instance_id === null) analysis.instance_id = json.servicesAnalysis;
 
-                      return DataManager.addAnalysis(analysis, options).then(function(analysisResult) {
+                    if(countObjectProperties(analysis.schedule)) {
+                      delete analysis.schedule.id;
+
+                      promises.push(DataManager.addSchedule(analysis.schedule, options).then(function(schedule) {
+                        analysis.schedule_id = schedule.id;
+
+                        return DataManager.addAnalysis(analysis, options).then(function(analysisResult) {
+                          if(tcpOutput.Analysis === undefined) tcpOutput.Analysis = [];
+                          tcpOutput.Analysis.push(analysisResult.toObject());
+                        });
+                      }));
+                    } else {
+                      promises.push(DataManager.addAnalysis(analysis, options).then(function(analysisResult) {
                         if(tcpOutput.Analysis === undefined) tcpOutput.Analysis = [];
                         tcpOutput.Analysis.push(analysisResult.toObject());
-                      });
-                    }));
+                      }));
+                    }
                   });
                 }
 
@@ -263,20 +284,27 @@ var ImportExport = function(io) {
                   if (json.Views) {
                     var viewsList = json.Views || [];
                     viewsList.forEach(function(view) {
+                      view.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: view.project_id}).id : json.selectedProject;
+                      view.data_series_id = Utils.find(output.DataSeries, {$id: view.data_series_id}).id;
+                      if(view.service_instance_id === null) view.service_instance_id = json.servicesView;
 
-                      delete view.schedule.id;
+                      if(countObjectProperties(view.schedule) > 0) {
+                        delete view.schedule.id;
 
-                      promises.push(DataManager.addSchedule(view.schedule, options).then(function(schedule) {
-                        view.schedule_id = schedule.id;
-                        view.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: view.project_id}).id : json.selectedProject;
-                        view.data_series_id = Utils.find(output.DataSeries, {$id: view.data_series_id}).id;
-                        if(view.service_instance_id === null) view.service_instance_id = json.servicesView;
+                        promises.push(DataManager.addSchedule(view.schedule, options).then(function(schedule) {
+                          view.schedule_id = schedule.id;
 
-                        return DataManager.addView(view, options).then(function(viewResult) {
+                          return DataManager.addView(view, options).then(function(viewResult) {
+                            if(tcpOutput.Views === undefined) tcpOutput.Views = [];
+                            tcpOutput.Views.push(viewResult.toObject());
+                          });
+                        }));
+                      } else {
+                        promises.push(DataManager.addView(view, options).then(function(viewResult) {
                           if(tcpOutput.Views === undefined) tcpOutput.Views = [];
                           tcpOutput.Views.push(viewResult.toObject());
-                        });
-                      }));
+                        }));
+                      }
                     });
                   }
 
