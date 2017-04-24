@@ -120,6 +120,9 @@ namespace terrama2
             //! Gets the timestamp format to be used in the report
             std::string timeStampFormat() const { return alert_->reportMetadata.at(ReportTags::TIMESTAMP_FORMAT); }
 
+            //! Gets the save path to save a document report
+            std::string documentSavePath() const { return alert_->reportMetadata.at("document_save_path"); }
+
             // TODO: //! Gets the name from origin DataSet
 
             /*!

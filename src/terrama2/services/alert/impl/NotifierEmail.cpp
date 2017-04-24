@@ -51,22 +51,6 @@ terrama2::services::alert::impl::NotifierEmail::NotifierEmail(const std::map<std
 
 }
 
-std::string gridReportText()
-{
-  return "<!DOCTYPE html><html><head><style>body{background-color:#ffffff;}h1{color:blue;text-align:center;}p{font-family:\"Times New Roman\";}</style></head><body><h1>%TITLE%</h1><p>%ABSTRACT%</p><p>%DESCRIPTION%</p>"
-         "<hr><p>Max value: </p>%MAXVALUE_DATA%<hr>"
-         "<hr><p>Min value: </p>%MINVALUE_DATA%<hr>"
-         "<hr><p>Mean value: </p>%MEANVALUE_DATA%<hr>"
-         "<p>%COPYRIGHT%</p></body></html>";
-}
-
-std::string monitoredObjectReportText()
-{
-  return "<!DOCTYPE html><html><head><style>body{background-color:#ffffff;}h1{color:blue;text-align:center;}p{font-family:\"Times New Roman\";}</style></head><body><h1>%TITLE%</h1><p>%ABSTRACT%</p><p>%DESCRIPTION%</p>"
-         "<hr>%COMPLETE_DATA%<hr>"
-         "<p>%COPYRIGHT%</p></body></html>";
-}
-
 void terrama2::services::alert::impl::NotifierEmail::send(const core::Notification& recipient) const
 {
   te::core::URI emailServer(serverMap_.at("email_server"));
@@ -91,13 +75,12 @@ void terrama2::services::alert::impl::NotifierEmail::send(const core::Notificati
 
   if(report_->dataSeriesType() == terrama2::core::DataSeriesType::GRID)
   {
-    body = gridReportText();
+    body = core::gridReportText();
   }
   else
   {
-    body = monitoredObjectReportText();
+    body = core::monitoredObjectReportText();
   }
-
 
   core::replaceReportTags(body, report_);
 

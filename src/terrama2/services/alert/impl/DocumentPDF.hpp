@@ -33,6 +33,7 @@
 #include "../core/Report.hpp"
 #include "../core/Shared.hpp"
 #include "../core/Utils.hpp"
+#include "../../../core/utility/Logger.hpp"
 
 // Qt
 #include <QtGui/QPainter>
@@ -57,16 +58,22 @@ namespace terrama2
 
             static std::string makeDocument(core::ReportPtr report)
             {
-              std::string body = "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>Excel To HTML using codebeautify.org</title></head><body><!DOCTYPE html><html><head><style>body{background-color:#ffffff;}h1{color:blue;text-align:center;}p{font-family:\"Times New Roman\";}</style></head><body><h1>%TITLE%</h1><p>%ABSTRACT%</p><p>%DESCRIPTION%</p>"
-                                 "<hr>%COMPLETE_DATA%<hr>"
-                                 "<hr><p>%MAXVALUE_DATA%</p><hr>"
-                                 "<hr><p>%MINVALUE_DATA%</p><hr>"
-                                 "<hr><p>%MEANVALUE_DATA%</p><hr>"
-                                 "<p>%COPYRIGHT%</p></body></html>";
+              // Message body
+              std::string body;
+
+              if(report->dataSeriesType() == terrama2::core::DataSeriesType::GRID)
+              {
+                body = core::gridReportText();
+              }
+              else
+              {
+                body = core::monitoredObjectReportText();
+              }
 
               core::replaceReportTags(body, report);
 
-              std::string path = "/home/vinicius/pdftest.pdf";
+              std::string documentName = "";
+              std::string path = report->documentSavePath() + "/" + documentName;
 
               QPdfWriter writer(QString::fromStdString(path));
               writer.setPageSize(QPagedPaintDevice::A4);
@@ -77,10 +84,10 @@ namespace terrama2
 
               // Qt < 5.3
               QPagedPaintDevice::Margins margins;
-              margins.bottom = 30;
-              margins.left = 30;
-              margins.right = 30;
-              margins.top = 30;
+              margins.bottom = 10;
+              margins.left = 10;
+              margins.right = 10;
+              margins.top = 10;
               writer.setMargins(margins);
 
               QTextDocument td;
@@ -91,6 +98,8 @@ namespace terrama2
               td.adjustSize();
 
               td.print(&writer);
+
+              TERRAMA2_LOG_INFO() << QObject::tr("Report document generated at '%1'").arg(QString::fromStdString(path));
 
               return path;
             }

@@ -307,7 +307,6 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::monitoredObje
   // Insert the risk properties
   for(size_t i = 0; i < vecDates.size(); i++)
   {
-    // TODO: month number instead of abbreviated name
     const std::string riskLevelProperty = validPropertyDateName(vecDates.at(i));
 
     te::dt::SimpleProperty* riskLevelProp = new te::dt::SimpleProperty(riskLevelProperty, te::dt::INT32_TYPE);
@@ -593,6 +592,8 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
       }
 
       ReportPtr reportPtr = std::make_shared<Report>(alertPtr, inputDataSeries, alertDataSet, vecDates);
+
+      std::string documentPDF = DocumentFactory::getInstance().makeDocument("PDF", reportPtr);
 
       NotifierPtr notifierPtr = NotifierFactory::getInstance().make("EMAIL", serverMap, reportPtr);
 
