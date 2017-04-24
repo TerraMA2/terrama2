@@ -79,6 +79,21 @@
     });
   };
 
+  Risk.prototype.toService = function() {
+    var levelsCopy =[];
+    //Removing unnecessary properties to send to service
+    this.levels.forEach(function(level){
+      delete level.id;
+      delete level.risk_id;
+      levelsCopy.push(level);
+    });
+    return Object.assign(BaseClass.prototype.toObject.call(this), {
+      name: this.name,
+      description: this.description,
+      levels: levelsCopy
+    });
+  };
+
   Risk.prototype.rawObject = function() {
     var toObject = this.toObject();
     return toObject;
