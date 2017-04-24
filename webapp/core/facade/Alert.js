@@ -140,8 +140,10 @@
     return new PromiseClass(function(resolve, reject) {
       DataManager.orm.transaction(function(t){
         var options = {transaction: t};
+        var oldAlertNotifications = [];
         return DataManager.getAlert({id: alertId}, options)
           .then(function(alertResult){
+            oldAlertNotifications = alertResult.notifications;
             if (alertObject.risk.id){
               alertObject.risk_id = alertObject.risk.id;
               return DataManager.updateRisk({id: alertObject.risk.id}, alertObject.risk, options);
@@ -153,6 +155,27 @@
             if (riskResult){
               alertObject.risk_id = riskResult.id;
             }
+            var newAlertNotifications = alertObject.notifications;
+            var alertNotificationsPromises = [];
+            newAlertNotifications.forEach(function(notification){
+              if (notification.id){
+                alertNotificationsPromises.push(DataManager.updateAlertNotification({id: notification.id}, notification, options));
+              } else {
+                notification.alert_id = alertId;
+                alertNotificationsPromises.push(DataManager.addAlertNotification(notification, options));
+              }
+            });
+            oldAlertNotifications.forEach(function(notification){
+              var found = newAlertNotifications.some(function(newNotification){
+                return newNotification.id === notification.id;
+              });
+              if (!found){
+                alertNotificationsPromises.push(DataManager.removeAlertNotification({id: notification.id}, options));
+              }
+            });
+            return Promise.all(alertNotificationsPromises);
+          })
+          .then(function(){
             return DataManager.updateAlert({id: alertId}, alertObject, options)
               .then(function(){
                 return DataManager.updateConditionalSchedule(alertObject.conditional_schedule_id, alertObject.conditional_schedule, options)

@@ -4415,7 +4415,7 @@ var DataManager = module.exports = {
         alertNotificationObject,
         Utils.extend({
           fields: ['include_report', 'notify_on_change', 'simplified_report', 'notify_on_risk_level', 'recipients'],
-          where: restrictions
+          where: restriction
         }, options))
         .then(function(){
           return resolve();
