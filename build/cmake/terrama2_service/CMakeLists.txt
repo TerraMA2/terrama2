@@ -56,14 +56,25 @@ add_executable(terrama2_service ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES})
 qt5_use_modules(terrama2_service Core)
 
 target_link_libraries(terrama2_service terrama2_core
-                                       terrama2_collector_core
-                                       terrama2_analysis_core
-                                       terrama2_view_core
-                                       terrama2_alert_core
-                                       terrama2_alert_impl
                                        terrama2_impl
                                        ${PYTHON_LIBRARIES}
                                        ${Boost_PROGRAM_OPTIONS_LIBRARY})
+
+IF(TERRAMA2_COLLECTOR_ENABLED)
+  target_link_libraries(terrama2_service terrama2_collector_core)
+ENDIF()
+
+IF(TERRAMA2_ANALYSIS_CORE_ENABLED)
+  target_link_libraries(terrama2_service terrama2_analysis_core)
+ENDIF()
+
+IF(TERRAMA2_VIEW_ENABLED)
+  target_link_libraries(terrama2_service terrama2_view_core)
+ENDIF()
+
+IF(TERRAMA2_ALERT_ENABLED)
+  target_link_libraries(terrama2_service terrama2_alert_core)
+ENDIF()
 
 set_target_properties(terrama2_service
                       PROPERTIES VERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}
