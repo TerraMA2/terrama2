@@ -252,7 +252,8 @@
             "type": "string",
             "title": "Folder",
             "pattern": "^[^?#!$&'()*+,;=^§]+$",
-            "hasDefaultFieldForImport": true
+            "hasDefaultFieldForImport": true,
+            "allowEmptyValue": true
           },
           "mask": {
             "type": "string",
@@ -391,7 +392,8 @@
             "type": "string",
             "title": "Folder",
             "pattern": "^[^?#!$&'()*+,;=^§]+$",
-            "hasDefaultFieldForImport": true
+            "hasDefaultFieldForImport": true,
+            "allowEmptyValue": true
           },
           "mask": {
             "type": "string",
@@ -890,7 +892,8 @@
             "type": "string",
             "title": "Folder",
             "pattern": "^[^?#!$&'()*+,;=^§]+$",
-            "hasDefaultFieldForImport": true
+            "hasDefaultFieldForImport": true,
+            "allowEmptyValue": true
           },
           "mask": {
             "type": "string",

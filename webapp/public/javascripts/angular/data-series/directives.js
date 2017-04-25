@@ -53,6 +53,7 @@ define(["TerraMA2WebApp/common/services/index", "TerraMA2WebApp/alert-box/app"],
                     "<select class=\"form-control\" name=\"{{ semantic.key + dataSeries.semantics.code }}\" ng-change=\"verifyDefault(dataSeries.semantics.code, semantic.key);\" ng-model=\"importationFields[dataSeries.semantics.code][semantic.key]\">" +
                       "<option value=\"\">{{ i18n.__('Select a column') }}</option>" +
                       "<option value=\"default\" ng-show=\"dataSeries.semantics.metadata.schema.properties[semantic.key].hasDefaultFieldForImport\">{{ i18n.__('Enter default value') }}</option>" +
+                      "<option value=\"empty\" ng-show=\"dataSeries.semantics.metadata.schema.properties[semantic.key].allowEmptyValue\">{{ i18n.__('Leave it empty') }}</option>" +
                       "<option ng-repeat=\"column in csvImport.finalData.header\" ng-init=\"importationFields[dataSeries.semantics.code][semantic.key] = ''\" value=\"{{ column }}\">{{ column }}</option>" +
                     "</select>" +
                   "</div>" +
@@ -176,7 +177,9 @@ define(["TerraMA2WebApp/common/services/index", "TerraMA2WebApp/alert-box/app"],
                     suffix: null
                   };
 
-                  if($scope.importationFields[type][key] !== undefined && $scope.importationFields[type][key] !== "" && $scope.importationFields[type][key] != "default") {
+                  if($scope.importationFields[type][key] === "empty") {
+                    metadata.defaultValue = "";
+                  } else if($scope.importationFields[type][key] !== undefined && $scope.importationFields[type][key] !== "" && $scope.importationFields[type][key] != "default") {
                     metadata.field = $scope.importationFields[type][key];
 
                     if($scope.importationFields[type][key + 'Prefix'] !== undefined && $scope.importationFields[type][key + 'Prefix'] !== "")
@@ -238,7 +241,7 @@ define(["TerraMA2WebApp/common/services/index", "TerraMA2WebApp/alert-box/app"],
             if(titleMap !== undefined && titleMap !== null)
               type = titleMapType;
 
-            if($scope.fieldHasError(value, type, pattern, titleMap))
+            if($scope.fieldHasError(value, type, pattern, titleMap, $scope.dataSeries.semantics.metadata.schema.properties[key].allowEmptyValue))
               return {
                 error: {
                   title: i18n.__("DCP Import Error"),

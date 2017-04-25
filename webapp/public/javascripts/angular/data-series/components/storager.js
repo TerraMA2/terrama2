@@ -241,7 +241,7 @@ define([], function(){
       };
 
       self.validateFieldEdition = function(value, pattern) {
-        if(self.fieldHasError(value, 'string', pattern, null))
+        if(self.fieldHasError(value, 'string', pattern, null, false))
           return "Invalid value";
         else
           return null;

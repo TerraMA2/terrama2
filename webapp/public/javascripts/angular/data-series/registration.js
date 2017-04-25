@@ -381,7 +381,7 @@ define([], function() {
         if($scope.isBoolean(dcp[key]))
           dcp[key + '_html'] = "<span class=\"dcps-table-span\"><input type=\"checkbox\" ng-model=\"dcpsObject['" + alias + "']['" + key + "']\" ng-change=\"insertEditedDcp('" + _id + "')\"></span>";
         else
-          dcp[key + '_html'] = "<span class=\"dcps-table-span\" editable-text=\"dcpsObject['" + alias + "']['" + key + "']\" onaftersave=\"insertEditedDcp('" + _id + "')\" onbeforesave=\"validateFieldEdition($data, '" + type + "', '" + alias + "', '" + key + "')\">{{ dcpsObject['" + alias + "']['" + key + "'] }}</span>";
+          dcp[key + '_html'] = "<span class=\"dcps-table-span\" editable-text=\"dcpsObject['" + alias + "']['" + key + "']\" onaftersave=\"insertEditedDcp('" + _id + "')\" onbeforesave=\"validateFieldEdition($data, '" + type + "', '" + alias + "', '" + key + "')\">{{ (dcpsObject['" + alias + "']['" + key + "'] === \"\" ? \"&nbsp;&nbsp;&nbsp;&nbsp;\" : dcpsObject['" + alias + "']['" + key + "']) }}</span>";
 
         return dcp;
       };
@@ -1370,10 +1370,10 @@ define([], function() {
       };
 
       $scope.$on("fieldHasError", function(event, args) {
-        $scope.fieldHasError(args.value, args.type, args.pattern, args.titleMap);
+        $scope.fieldHasError(args.value, args.type, args.pattern, args.titleMap, args.allowEmptyValue);
       });
 
-      $scope.fieldHasError = function(value, type, pattern, titleMap) {
+      $scope.fieldHasError = function(value, type, pattern, titleMap, allowEmptyValue) {
         var error = false;
 
         switch(type) {
@@ -1400,7 +1400,7 @@ define([], function() {
 
         if(!error && pattern !== undefined) {
           var regex = new RegExp(pattern);
-          var error = !regex.test(value);
+          var error = !regex.test(value) ? (allowEmptyValue && value === "" ? false : true) : false;
         }
 
         return error;
@@ -1418,7 +1418,7 @@ define([], function() {
       };
 
       $scope.validateFieldEdition = function(value, type, alias, key) {
-        if($scope.fieldHasError(value, type, $scope.dcpsObject[alias][key + '_pattern'], $scope.dcpsObject[alias][key + '_titleMap']))
+        if($scope.fieldHasError(value, type, $scope.dcpsObject[alias][key + '_pattern'], $scope.dcpsObject[alias][key + '_titleMap'], $scope.dataSeries.semantics.metadata.schema.properties[key].allowEmptyValue))
           return "Invalid value";
         else
           return null;
