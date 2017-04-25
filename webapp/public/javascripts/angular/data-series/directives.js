@@ -1,7 +1,7 @@
-define(["TerraMA2WebApp/common/services/index", "TerraMA2WebApp/alert-box/app"], function(commonServiceModule, alertBoxModule) {
+define([], function() {
   var moduleName = "terrama2.dataseries.directives";
 
-  angular.module(moduleName, [commonServiceModule, alertBoxModule])
+  angular.module(moduleName, [])
     .run(["$templateCache", function($templateCache) {
       $templateCache.put(
         "modals.html",

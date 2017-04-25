@@ -455,7 +455,7 @@ define(function() {
             project: true
           };
 
-        $http.get("/api/DataProvider/project/" + project.id, {}).success(function(dataProviders) {
+        $http.get("/api/DataProvider/project/" + project.id, {}).then(function(dataProviders) {
           $scope.dataProviders[project.id] = dataProviders;
 
           if($scope.projectsCheckboxes[project.id].DataProviders == undefined)
@@ -464,10 +464,10 @@ define(function() {
           for(var j = 0, dataProvidersLength = dataProviders.length; j < dataProvidersLength; j++) {
             $scope.projectsCheckboxes[project.id].DataProviders[dataProviders[j].id] = true;
           }
-        }).catch(function(err) {
-          console.log("Err in retrieving data providers");
-        }).finally(function() {
+
           $scope.loading = false;
+        }, function(err) {
+          console.log("Err in retrieving data providers");
         });
 
         $http({
@@ -561,7 +561,7 @@ define(function() {
           $scope.loading = false;
         });
 
-        $http.get("/api/View", {}).success(function(views) {
+        $http.get("/api/View", {}).then(function(views) {
           $scope.views[project.id] = views;
 
           if($scope.projectsCheckboxes[project.id].Views == undefined)
@@ -579,21 +579,20 @@ define(function() {
             ids: viewsIds,
             projectId: project.id
           });
-        }).catch(function(err) {
+
+          $scope.loading = false;
+        }, function(err) {
           console.log("Err in retrieving views");
-        }).finally(function() {
-          $scope.loading = false;
         });
 
-        $http.get("/api/Collector/project/" + project.id, {}).success(function(collectors) {
+        $http.get("/api/Collector/project/" + project.id, {}).then(function(collectors) {
           $scope.collectors[project.id] = collectors;
-        }).catch(function(err) {
-          console.log("Err in retrieving collectors");
-        }).finally(function() {
           $scope.loading = false;
+        }, function(err) {
+          console.log("Err in retrieving collectors");
         });
 
-        $http.get("/api/Service/", {}).success(function(services) {
+        $http.get("/api/Service/", {}).then(function(services) {
           for(var j = 0, servicesLength = services.length; j < servicesLength; j++) {
             switch(services[j].service_type_id) {
               case 1:
@@ -609,10 +608,10 @@ define(function() {
                 break;
             }
           }
-        }).catch(function(err) {
-          console.log("Err in retrieving services");
-        }).finally(function() {
+
           $scope.loading = false;
+        }, function(err) {
+          console.log("Err in retrieving services");
         });
       });
     }).catch(function(err) {

@@ -218,9 +218,9 @@ define([], function(){
                 key: storedDcpsKey,
                 oldAlias: dcpItem.oldAlias,
                 dcp: dataToSend
-              }).success(function(result) {
+              }).then(function(result) {
                 reloadDataStore();
-              }).error(function(err) {
+              }, function(error) {
                 console.log("Err in editing dcp");
               });
 
@@ -436,9 +436,9 @@ define([], function(){
           $http.post("/configuration/dynamic/dataseries/removeStoredDcpStore", {
             key: storedDcpsKey,
             alias: args.dcp.alias
-          }).success(function(result) {
+          }).then(function(result) {
             reloadDataStore();
-          }).error(function(err) {
+          }, function(error) {
             console.log("Err in removing dcp");
           });
         } else if(args.action === "add") {
@@ -485,9 +485,9 @@ define([], function(){
         $http.post("/configuration/dynamic/dataseries/storeDcpsStore", {
           key: storedDcpsKey,
           dcps: dcps
-        }).success(function(result) {
+        }).then(function(result) {
           reloadDataStore();
-        }).error(function(err) {
+        }, function(error) {
           console.log("Err in storing dcps");
         });
       };
@@ -598,7 +598,7 @@ define([], function(){
           if(args.viewChange !== undefined && args.viewChange) {
             $http.post("/configuration/dynamic/dataseries/clearDcpsStore", {
               key: storedDcpsKey
-            }).success(function(result) {
+            }).then(function(result) {
               self.dcpsStoragerObject = {};
               var newDcps = [];
               var registersCount = 0;
@@ -620,7 +620,7 @@ define([], function(){
                 self.storageDcpsStore(newDcps);
 
               reloadDataStore();
-            }).error(function(err) {
+            }, function(error) {
               console.log("Err in clearing dcps");
             });
           } else if(outputDataseries === undefined || outputDataseries.dataSets === undefined) {

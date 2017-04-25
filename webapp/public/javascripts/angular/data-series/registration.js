@@ -366,9 +366,9 @@ define([], function() {
         $http.post("/configuration/dynamic/dataseries/storeDcps", {
           key: storedDcpsKey,
           dcps: dcps
-        }).success(function(result) {
+        }).then(function(result) {
           reloadData();
-        }).error(function(err) {
+        }, function(error) {
           console.log("Err in storing dcps");
         });
       };
@@ -1352,9 +1352,9 @@ define([], function() {
           $http.post("/configuration/dynamic/dataseries/removeStoredDcp", {
             key: storedDcpsKey,
             alias: alias
-          }).success(function(result) {
+          }).then(function(result) {
             reloadData();
-          }).error(function(err) {
+          }, function(error) {
             console.log("Err in removing dcp");
           });
 
@@ -1545,9 +1545,9 @@ define([], function() {
                       key: storedDcpsKey,
                       oldAlias: oldAlias,
                       dcp: dataToSend
-                    }).success(function(result) {
+                    }).then(function(result) {
                       reloadData();
-                    }).error(function(err) {
+                    }, function(error) {
                       console.log("Err in editing dcp");
                     });
 
@@ -1593,9 +1593,9 @@ define([], function() {
 
             $http.post("/configuration/dynamic/dataseries/deleteDcpsKey", {
               key: storedDcpsKey
-            }).success(function(result) {
+            }).then(function(result) {
               $window.location.href = "/configuration/" + configuration.dataSeriesType + "/dataseries?token=" + (data.token || data.data.token);
-            }).error(function(err) {
+            }, function(error) {
               console.log("Err in deleting key");
             });
           } else {
