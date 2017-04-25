@@ -343,8 +343,7 @@ terrama2::core::Risk terrama2::core::fromRiskJson(QJsonObject json)
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
 
-  if(!(json.contains("id")
-       && json.contains("name")
+  if(!(json.contains("name")
 //       && json.contains("description")
        && json.contains("levels")))
   {

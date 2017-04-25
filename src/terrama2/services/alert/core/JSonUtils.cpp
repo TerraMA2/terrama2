@@ -55,7 +55,7 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
        && json.contains("active")
        && json.contains("name")
        && json.contains("description")
-       && json.contains("schedule")
+//       && json.contains("schedule")
 //       && json.contains("filter")
        && json.contains("additional_data")
        && json.contains("risk")
