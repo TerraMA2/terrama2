@@ -61,7 +61,7 @@ module.exports = function(sequelize, DataTypes) {
             }
           });
 
-          DataProvider.hasMany(models.DataProviderConfiguration, {
+          DataProvider.hasMany(models.DataProviderOptions, {
             onDelete: "CASCADE",
             foreignKey: {
               allowNull: false
