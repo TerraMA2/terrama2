@@ -69,7 +69,7 @@ var Alert = function(params) {
    */
   this.conditional_schedule = new ConditionalSchedule(params.ConditionalSchedule ? params.ConditionalSchedule.get() : params.conditionalSchedule || {});
   /**
-   * @name Alert#conditional_schedule
+   * @name Alert#risk
    * @type {object}
    */
   this.risk = new Risk(params.Risk ? params.Risk.get() : params.risk || {});
@@ -94,6 +94,10 @@ var Alert = function(params) {
   
 };
 
+/**
+ * It sets conditional schedule data.
+ * @param {Sequelize.Model[]|Object[]}
+ */
 Alert.prototype.setConditionalSchedule = function(conditionalSchedule) {
   if (conditionalSchedule.ConditionalSchedule) {
     this.conditional_schedule = new ConditionalSchedule(conditionalSchedule.ConditionalSchedule.get() || {});
@@ -176,10 +180,17 @@ Alert.prototype.toService = function() {
     this.notifications.forEach(function(notification){
       if (notification.recipients){
         notification.recipients = notification.recipients.split(";");
+        delete notification.id;
+        delete notification.alert_id;
       }
       notificationList.push(notification);
     });
   }
+
+  var reportMetadataCopy = Object.assign({}, this.report_metadata);
+  delete reportMetadataCopy.id;
+  delete reportMetadataCopy.alert_id;
+
   return Object.assign(BaseClass.prototype.toObject.call(this), {
     id: this.id,
     project_id: this.project_id,
@@ -189,11 +200,10 @@ Alert.prototype.toService = function() {
     description: this.description,
     data_series_id: this.data_series_id,
     risk_attribute: this.risk_attribute,
-    schedule: this.conditional_schedule instanceof BaseClass ? this.conditional_schedule.toObject() : this.conditional_schedule,
-    risk: this.risk instanceof BaseClass ? this.risk.toObject() : this.risk,
+    risk: this.risk instanceof BaseClass ? this.risk.toService() : this.risk,
     additional_data: additionalDataList,
     notifications: notificationList,
-    report_metadata: this.report_metadata
+    report_metadata: reportMetadataCopy
   });
 }
 
