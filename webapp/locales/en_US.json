@@ -748,5 +748,6 @@
 	"DCP Import Process": "DCP Import Process",
 	"Import process executed with success, but there were duplicated Alias, check the values": "Import process executed with success, but there were duplicated Alias, check the values",
 	"Search": "Search",
-	"Processing": "Processing"
+	"Processing": "Processing",
+  "Note: No storager configuration, this data will be accessed when needed.": "Note: No storager configuration, this data will be accessed when needed."
 }

@@ -1607,6 +1607,12 @@ define([], function() {
         });
       };
 
+      var confirmNoStorager = function(object) {
+        $scope.isChecking.value = true;
+
+        _sendRequest(object);
+      };
+
       $scope.saveStoragerData = function(dcps, editedDcps, removedDcps) {
         $scope.dcpsStoragerObject = dcps;
         $scope.editedStoragerDcps = editedDcps;
@@ -1656,7 +1662,7 @@ define([], function() {
               }
             }
 
-	    var outputDcp = {
+            var outputDcp = {
               active: dSets[i].active,
               format: _makeFormat(dSets[i])
             };
@@ -1882,8 +1888,6 @@ define([], function() {
       }
 
       $scope.save = function(shouldRun) {
-        $scope.isChecking.value = true;
-
         $scope.shouldRun = shouldRun;
         $scope.extraProperties = {};
         $scope.$broadcast('formFieldValidation');
@@ -1954,6 +1958,8 @@ define([], function() {
         }
 
         if ($scope.dataSeries.access == 'COLLECT') {
+          $scope.isChecking.value = true;
+
           // getting values from another controller
           $scope.$broadcast("requestStorageValues");
         } else {
@@ -1972,11 +1978,13 @@ define([], function() {
                 scheduleValues: dataObject.schedule,
                 filterValues: dataObject.filter
               },
-              confirmButtonFn: _sendRequest
+              confirmButtonFn: confirmNoStorager
             };
 
             MessageBoxService.warning("Data Series", i18n.__("Note: No storager configuration, this data will be accessed when needed."), extraProperties);
           } else {
+            $scope.isChecking.value = true;
+
             _sendRequest({
               dataToSend: dataObject.dataSeries,
               scheduleValues: {},
