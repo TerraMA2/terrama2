@@ -1313,24 +1313,24 @@ var DataManager = module.exports = {
    * update operation. Otherwise, it performs insert operation
    *
    * @param {Object} restriction - A query restriction
-   * @param {Object} DataProviderOptions - A data provider configuration values
+   * @param {Object} dataProviderOptions - A data provider configuration values
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise} - a 'bluebird' module
    */
-  upsertDataProviderOptions: function(restriction, DataProviderOptions, options) {
+  upsertDataProviderOptions: function(restriction, dataProviderOption, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
       return self
         .listDataProviderOptions(restriction, Utils.extend({limit: 1}, options))
-        .then(function(DataProviderOptions) {
-          if (DataProviderOptions.length === 0) {
+        .then(function(dataProviderOptions) {
+          if (dataProviderOptions.length === 0) {
             // insert
-            return models.db.DataProviderOptions.create(DataProviderOptions, options);
+            return models.db.DataProviderOptions.create(dataProviderOption, options);
           } else {
-            return models.db.DataProviderOptions.update(DataProviderOptions, Utils.extend({
+            return models.db.DataProviderOptions.update(dataProviderOption, Utils.extend({
               fields: ["key", "value", "data_provider_id"],
-              where: {id: DataProviderOptions[0].id}
+              where: {id: dataProviderOptions[0].id}
             }, options));
           }
         })
@@ -1359,8 +1359,8 @@ var DataManager = module.exports = {
         .findAll(Utils.extend({
           where: restriction
         }, options))
-        .then(function(DataProviderOptions) {
-          return resolve(DataProviderOptions);
+        .then(function(dataProviderOptions) {
+          return resolve(dataProviderOptions);
         })
 
         .catch(function(err) {
