@@ -449,13 +449,12 @@ define([], function() {
           });
         });
 
-        if (!$scope.isUpdating)
-          if ($scope.dataProviders.length > 0) {
-            $scope.dataSeries.data_provider_id = $scope.dataProviders[0].id.toString();
-          }
+        if(!$scope.isUpdating)
+          if($scope.dataProviders.length > 0)
+            $scope.dataSeries.data_provider_id = $scope.dataProviders[0].id;
 
         $scope.tableFields = [];
-	$scope.tableFieldsDataTable = [];
+	      $scope.tableFieldsDataTable = [];
         if ($scope.dataSeries.semantics.data_series_type_name == "DCP"){
           // building table fields. Check if form is for all ('*')
           if (dataSeriesSemantics.metadata.form.indexOf('*') != -1) {
@@ -464,7 +463,7 @@ define([], function() {
             for(var key in properties) {
               if (properties.hasOwnProperty(key)) {
                 $scope.tableFields.push(key);
-	        $scope.tableFieldsDataTable.push(key);
+	              $scope.tableFieldsDataTable.push(key);
               }
             }
           } else {
@@ -564,9 +563,9 @@ define([], function() {
               $scope.addDcpsStorager(dcps);
             }
           } else {
-	    var dataSetFormat = inputDataSeries.dataSets[0].format;
+	          var dataSetFormat = inputDataSeries.dataSets[0].format;
             $scope.model = $scope.prepareFormatToForm(inputDataSeries.dataSets[0].format);
-	    if(inputDataSeries.data_series_semantics.custom_format) {
+	          if(inputDataSeries.data_series_semantics.custom_format) {
               $scope.csvFormatData.fields = JSON.parse(dataSetFormat.fields)
               $scope.csvFormatData.header_size = parseInt(dataSetFormat.header_size);
               $scope.csvFormatData.default_type = dataSetFormat.default_type;
@@ -1144,7 +1143,7 @@ define([], function() {
       }
 
       $scope.dataSeries = {
-        data_provider_id: (inputDataSeries.data_provider_id || "").toString(),
+        data_provider_id: (inputDataSeries.data_provider_id || ""),
         name: inputName,
         description: inputDataSeries.description,
         access: $scope.hasCollector ? "COLLECT" : "PROCESSING",
