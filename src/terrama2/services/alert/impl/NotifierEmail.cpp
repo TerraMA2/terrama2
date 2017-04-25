@@ -49,7 +49,12 @@ vmime::shared_ptr <vmime::net::session> terrama2::services::alert::impl::Notifie
 terrama2::services::alert::impl::NotifierEmail::NotifierEmail(const std::map<std::string, std::string>& serverMap, core::ReportPtr report)
     : Notifier(serverMap, report)
 {
-
+  if(serverMap_.at("email_server").empty())
+  {
+    QString errMsg = QObject::tr("Email host was not informed!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw NotifierException() << ErrorDescription(errMsg);
+  }
 }
 
 void terrama2::services::alert::impl::NotifierEmail::send(const core::Notification& recipient) const
