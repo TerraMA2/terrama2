@@ -188,13 +188,16 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::populateMonit
 
       dsItem->setInt32(pastRiskProperty, static_cast<int>(pastRisk));
       dsItem->setInt32(comparisonPreviosProperty, comparisonResult);
-    }
 
-    for(auto itDate = vecDates.rbegin()+2; itDate != vecDates.rend(); ++itDate)
-    {
-      std::string property = dateTimeToString(*itDate);
-      auto risk = resultMap.at((*itDate)->toString()).second;
-      dsItem->setInt32(property, static_cast<int>(risk));
+      if(vecDates.size() > 2)
+      {
+        for(auto itDate = vecDates.rbegin()+2; itDate != vecDates.rend(); ++itDate)
+        {
+          std::string property = dateTimeToString(*itDate);
+          auto risk = resultMap.at((*itDate)->toString()).second;
+          dsItem->setInt32(property, static_cast<int>(risk));
+        }
+      }
     }
 
     alertDataSet->add(dsItem);
@@ -595,7 +598,7 @@ void terrama2::services::alert::core::runAlert(terrama2::core::ExecutionPackage 
 
       ReportPtr reportPtr = std::make_shared<Report>(reportName, alertPtr, inputDataSeries, alertDataSet, vecDates);
 
-      std::string documentPDF = DocumentFactory::getInstance().makeDocument("PDF", reportPtr);
+//      std::string documentPDF = DocumentFactory::getInstance().makeDocument("PDF", reportPtr);
 
       NotifierPtr notifierPtr = NotifierFactory::getInstance().make("EMAIL", serverMap, reportPtr);
 
