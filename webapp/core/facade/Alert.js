@@ -57,7 +57,7 @@
 
         var promiser;
 
-        promiser = DataManager.addSchedule(alertObject.schedule, options);
+        promiser = DataManager.addSchedule(alertObject.conditional_schedule, options);
 
         return promiser
           .then(function(schedule) {
@@ -67,13 +67,17 @@
             var riskPromise;
             var riskObject = alertObject.risk;
             if (riskObject.id){
-              riskPromise = DataManager.updateRisk(riskObject.id, riskObject, options);
+              riskPromise = DataManager.updateRisk({id: riskObject.id}, riskObject, options);
             } else {
               riskPromise = DataManager.addRisk(riskObject, options);
             }
             return riskPromise
               .then(function(riskResult){
-                alertObject.risk_id = riskResult.id;
+                if (!alertObject.risk.id){
+                  alertObject.risk_id = riskResult.id;
+                } else {
+                  alertObject.risk_id = alertObject.risk.id;
+                }
                 return DataManager.addAlert(alertObject, options);
               });
           });
@@ -103,7 +107,8 @@
       if (alertId) {
         return DataManager.getAlert({id: alertId})
           .then(function(alert) { 
-            return resolve(alert.toObject()); })
+            return resolve(alert.toObject()); 
+          })
           .catch(function(err) { 
             return reject(err); 
           });
@@ -119,6 +124,80 @@
         .catch(function(err) {
           return reject(err);
         });
+    });
+  };
+
+  /**
+   * It performs update alert from database from alert identifier
+   * 
+   * @param {number} alertId - Alert Identifier
+   * @param {Object} alertObject - Alert object values
+   * @param {number} projectId - A project identifier
+   * @param {boolean} shouldRun - Flag to determines if service should execute immediately after save process
+   * @returns {Promise<View>}
+   */
+  Alert.update = function(alertId, alertObject, projectId, shouldRun){
+    return new PromiseClass(function(resolve, reject) {
+      DataManager.orm.transaction(function(t){
+        var options = {transaction: t};
+        var oldAlertNotifications = [];
+        return DataManager.getAlert({id: alertId}, options)
+          .then(function(alertResult){
+            oldAlertNotifications = alertResult.notifications;
+            // Updating or adding a risk
+            if (alertObject.risk.id){
+              alertObject.risk_id = alertObject.risk.id;
+              return DataManager.updateRisk({id: alertObject.risk.id}, alertObject.risk, options);
+            } else {
+              return DataManager.addRisk(alertObject.risk, options)
+            }
+          })
+          .then(function(riskResult){
+            if (riskResult){
+              alertObject.risk_id = riskResult.id;
+            }
+            //Updating Notifications
+            var newAlertNotifications = alertObject.notifications;
+            var alertNotificationsPromises = [];
+            newAlertNotifications.forEach(function(notification){
+              // checking if must update or add a notification
+              if (notification.id){
+                alertNotificationsPromises.push(DataManager.updateAlertNotification({id: notification.id}, notification, options));
+              } else {
+                notification.alert_id = alertId;
+                alertNotificationsPromises.push(DataManager.addAlertNotification(notification, options));
+              }
+            });
+            // checking if must remove a notification
+            oldAlertNotifications.forEach(function(notification){
+              var found = newAlertNotifications.some(function(newNotification){
+                return newNotification.id === notification.id;
+              });
+              if (!found){
+                alertNotificationsPromises.push(DataManager.removeAlertNotification({id: notification.id}, options));
+              }
+            });
+            return Promise.all(alertNotificationsPromises);
+          })
+          .then(function(){
+            // updating alert
+            return DataManager.updateAlert({id: alertId}, alertObject, options)
+              .then(function(){
+                return DataManager.updateConditionalSchedule(alertObject.conditional_schedule.id, alertObject.conditional_schedule, options)
+              })
+              .then(function(){
+                return DataManager.getAlert({id: alertId}, options);
+              })
+          })
+      })
+      .then(function(alert){
+        sendAlert(alert, shouldRun);
+
+        return resolve(alert);
+      })
+      .catch(function(err){
+        return reject(err);
+      })
     });
   };
 
@@ -154,6 +233,29 @@
       .catch(function(err) {
         return reject(err);
       });
+    });
+  };
+
+
+  /**
+   * It retrieves risks from database
+   * 
+   * @param {number} projectId - A project identifier
+   * @returns {Promise<Risk>[]}
+   */
+  Alert.listRisks = function(projectId) {
+    return new PromiseClass(function(resolve, reject) {
+
+      return DataManager.listRisks({})
+        .then(function(risks) {
+          return resolve(risks.map(function(risk) {
+            return risk.toObject();
+          }));
+        })
+
+        .catch(function(err) {
+          return reject(err);
+        });
     });
   };
 

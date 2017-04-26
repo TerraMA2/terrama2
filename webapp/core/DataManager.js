@@ -435,7 +435,7 @@ var DataManager = module.exports = {
           self.data.projects.push(project.get());
         });
 
-        return models.db.DataProvider.findAll({ include: [ models.db.DataProviderType, models.db.DataProviderConfiguration ] }).then(function(dataProviders) {
+        return models.db.DataProvider.findAll({ include: [ models.db.DataProviderType, models.db.DataProviderOptions ] }).then(function(dataProviders) {
           dataProviders.forEach(function(dataProvider) {
             self.data.dataProviders.push(new DataModel.DataProvider(dataProvider));
           });
@@ -1313,24 +1313,24 @@ var DataManager = module.exports = {
    * update operation. Otherwise, it performs insert operation
    *
    * @param {Object} restriction - A query restriction
-   * @param {Object} dataProviderConfiguration - A data provider configuration values
+   * @param {Object} dataProviderOptions - A data provider configuration values
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise} - a 'bluebird' module
    */
-  upsertDataProviderConfigurations: function(restriction, dataProviderConfiguration, options) {
+  upsertDataProviderOptions: function(restriction, dataProviderOption, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
       return self
-        .listDataProviderConfigurations(restriction, Utils.extend({limit: 1}, options))
-        .then(function(dataProviderConfigurations) {
-          if (dataProviderConfigurations.length === 0) {
+        .listDataProviderOptions(restriction, Utils.extend({limit: 1}, options))
+        .then(function(dataProviderOptions) {
+          if (dataProviderOptions.length === 0) {
             // insert
-            return models.db.DataProviderConfiguration.create(dataProviderConfiguration, options);
+            return models.db.DataProviderOptions.create(dataProviderOption, options);
           } else {
-            return models.db.DataProviderConfiguration.update(dataProviderConfiguration, Utils.extend({
+            return models.db.DataProviderOptions.update(dataProviderOption, Utils.extend({
               fields: ["key", "value", "data_provider_id"],
-              where: {id: dataProviderConfigurations[0].id}
+              where: {id: dataProviderOptions[0].id}
             }, options));
           }
         })
@@ -1352,15 +1352,15 @@ var DataManager = module.exports = {
    * @param {Transaction} options.transaction - An ORM transaction
    * @returns {Promise} - a 'bluebird' module with DataSeries instance or error callback
    */
-  listDataProviderConfigurations: function(restriction, options) {
+  listDataProviderOptions: function(restriction, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      return models.db.DataProviderConfiguration
+      return models.db.DataProviderOptions
         .findAll(Utils.extend({
           where: restriction
         }, options))
-        .then(function(dataProviderConfigurations) {
-          return resolve(dataProviderConfigurations);
+        .then(function(dataProviderOptions) {
+          return resolve(dataProviderOptions);
         })
 
         .catch(function(err) {
@@ -1393,8 +1393,8 @@ var DataManager = module.exports = {
               });
             }
           }
-          return models.db.DataProviderConfiguration.bulkCreate(configurationList, Utils.extend({data_provider_id: dataProvider.id}, options)).then(function () {
-            return models.db.DataProviderConfiguration.findAll(Utils.extend({where: {data_provider_id: dataProvider.id}}, options)).then(function(dataSetFormats) {
+          return models.db.DataProviderOptions.bulkCreate(configurationList, Utils.extend({data_provider_id: dataProvider.id}, options)).then(function () {
+            return models.db.DataProviderOptions.findAll(Utils.extend({where: {data_provider_id: dataProvider.id}}, options)).then(function(dataSetFormats) {
               return dataProvider.getDataProviderType().then(function(dataProviderType) {
                 var dataProviderObject = dataProvider.get();
                 dataSetFormats.forEach(function(dSetFormat){
@@ -1525,7 +1525,7 @@ var DataManager = module.exports = {
                   value: dataProviderObject.configuration[key]
                 }
               }
-              dataProviderConfPromises.push(self.upsertDataProviderConfigurations(configRestriction, configObject, options));
+              dataProviderConfPromises.push(self.upsertDataProviderOptions(configRestriction, configObject, options));
             }
             return Promise.all(dataProviderConfPromises).then(function(dataProvConfigs){
               dataProvider.timeout = dataProviderObject.configuration.timeout;
@@ -4126,7 +4126,7 @@ var DataManager = module.exports = {
    * @param {Object} restriction - A query restriction
    * @param {Object} options - An ORM query options
    * @param {Transaction} options.transaction - An ORM transaction
-   * @return {Promise<DataModel.View[]>}
+   * @return {Promise<DataModel.Alert[]>}
    */
   listAlerts: function(restriction, options){
     var self = this;
@@ -4222,6 +4222,211 @@ var DataManager = module.exports = {
   },
 
   /**
+   * It retrieves a list of risks in database
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<DataModel.Risk[]>}
+   */
+  listRisks: function(restriction, options){
+    var self = this;
+    return new Promise(function(resolve, reject){
+      models.db.Risk.findAll(Utils.extend({
+        where: restriction || {},
+        include: [
+          {
+            model: models.db.RiskLevel
+          }
+        ]
+      }, options))
+        .then(function(risks){
+          return resolve(risks.map(function(risk){
+            var riskLevels = [];
+            risk.RiskLevels.forEach(function(riskLevel){
+              riskLevels.push(riskLevel.get());
+            });
+            var riskModel = new DataModel.Risk(Object.assign(risk.get(), {
+              riskLevels: riskLevels
+            }));
+            return riskModel;
+          }))
+        })
+        .catch(function(err){
+          return reject(new Error("Could not list risks " + err.toString()));
+        });
+    });
+  },
+
+  /**
+   * It performs update alerts from given restriction
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} alertObject - An alert object values to update
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   */
+  updateAlert: function(restriction, alertObject, options){
+    var self = this;
+    return new Promise(function(resolve, reject){
+      var alertId = restriction.id;
+      models.db.Alert.update(
+        alertObject,
+        Utils.extend({
+          fields: ["name", "description", "data_series_id", "active", "service_instance_id", "risk_id", "risk_attribute"],
+          where: restriction
+        }, options))
+        .then(function(){
+          return self.updateReportMetadata({alert_id: alertId}, alertObject.report_metadata, options)
+        })
+
+        .then(function() {
+          return resolve();
+        })
+
+        .catch(function(err) {
+          return reject(new Error("Could not update alert " + err.toString()));
+        });
+    })
+  },
+
+  /**
+   * It performs update report metadata from given restriction
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} alertObject - An alert report metadata values to update
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   */
+  updateReportMetadata: function(restriction, reportMetadataObject, options){
+    var self = this;
+    return new Promise(function(resolve, reject){
+      models.db.ReportMetadata.update(
+        reportMetadataObject,
+        Utils.extend({
+          fields: ['title', 'abstract', 'description', 'author', 'contact', 'copyright', 'timestamp_format', 'logo_path', 'document_format'],
+          where: restriction
+        }, options))
+
+        .then(function(reportMetadata) {
+          return resolve();
+        })
+
+        .catch(function(err) {
+          return reject(new Error("Could not update Report metadata " + err.toString()));
+        });
+    })
+  },
+
+  /**
+   * It performs update risk from given restriction
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} alertObject - A risk values to update
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   */
+  updateRisk: function(restriction, riskObject, options){
+    var self = this;
+    return new Promise(function(resolve, reject){
+      return self.getRisk({id: restriction.id}, options)
+        // Updating Risk Levels
+        .then(function(riskResult){
+          var oldRiskLevels = riskResult.levels;
+          var newRiskLevels = riskObject.levels;
+          var riskLevelPromises = [];
+          newRiskLevels.forEach(function(riskLevel){
+            if (riskLevel.id){
+              riskLevelPromises.push(self.updateRiskLevel({id: riskLevel.id}, riskLevel, options));
+            }
+            else {
+              riskLevel.risk_id = restriction.id;
+              riskLevelPromises.push(self.addRiskLevel(riskLevel, options));
+            }
+          });
+          oldRiskLevels.forEach(function(riskLevel){
+            var found = newRiskLevels.some(function(newRiskLevel){
+              return newRiskLevel.id === riskLevel.id;
+            });
+            if (!found){
+              riskLevelPromises.push(self.removeRiskLevel({id: riskLevel.id}, options));
+            }
+          });
+          return Promise.all(riskLevelPromises);
+        })
+
+        .then(function(){
+          models.db.Risk.update(
+            riskObject,
+            Utils.extend({
+              fields: ['name', 'description'],
+              where: restriction
+            }, options))
+
+            .then(function(risk) {
+              return resolve();
+            })
+        })
+
+        .catch(function(err) {
+          return reject(new Error("Could not update Risk " + err.toString()));
+        });
+    });
+  },
+
+  /**
+   * It performs update risk level from given restriction
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} alertObject - A risk level values to update
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   */
+  updateRiskLevel: function(restriction, riskLevelObject, options){
+    var self = this;
+    return new Promise(function(resolve, reject){
+      models.db.RiskLevel.update(
+        riskLevelObject,
+        Utils.extend({
+          fields: ['name', 'value', 'level'],
+          where: restriction
+        }, options))
+        .then(function(){
+          return resolve();
+        })
+        .catch(function(err){
+          return reject(new Error("Could not update RiskLevel " + err.toString()));
+        })
+    })
+  },
+
+  /**
+   * It performs update alert notification from given restriction
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} alertNotificationObject - An alert notification values to update
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   */
+  updateAlertNotification: function(restriction, alertNotificationObject, options){
+    var self = this;
+    return new Promise(function(resolve, reject){
+      models.db.AlertNotification.update(
+        alertNotificationObject,
+        Utils.extend({
+          fields: ['include_report', 'notify_on_change', 'simplified_report', 'notify_on_risk_level', 'recipients'],
+          where: restriction
+        }, options))
+        .then(function(){
+          return resolve();
+        })
+        .catch(function(err){
+          return reject(new Error("Could not update alert notification " + err.toString()));
+        })
+    })
+  },
+
+  /**
    * It removes an alert from database
    *
    * @param {Object} restriction - A query restriction
@@ -4253,6 +4458,48 @@ var DataManager = module.exports = {
     });
   },
 
+  /**
+   * It removes risk level of database from given restriction
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise}
+   */
+  removeRiskLevel: function(restriction, options){
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return models.db.RiskLevel.destroy(Utils.extend({where: restriction}, options))
+        .then(function() {
+          return resolve();
+        })
+        .catch(function(err) {
+          return reject(err);
+        });
+    });
+  },
+
+  /**
+   * It removes alert notification of database from given restriction
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise}
+   */
+  removeAlertNotification: function(restriction, options){
+    var self = this;
+    return new Promise(function(resolve, reject){
+      return models.db.AlertNotification.destroy(Utils.extend({where: restriction}, options))
+        .then(function(){
+          return resolve();
+        })
+        .catch(function(err){
+          return reject(err);
+        });
+    });
+  },
+  
   /**
    * It retrieves a list of views in database
    *

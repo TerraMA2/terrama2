@@ -1,5 +1,5 @@
 module.exports = function(sequelize, DataTypes) {
-  var DataProviderConfiguration = sequelize.define("DataProviderConfiguration",
+  var DataProviderOptions = sequelize.define("DataProviderOptions",
     {
       id: {
         type: DataTypes.INTEGER,
@@ -17,7 +17,7 @@ module.exports = function(sequelize, DataTypes) {
 
       classMethods: {
         associate: function(models) {
-          DataProviderConfiguration.belongsTo(models.DataProvider, {
+          DataProviderOptions.belongsTo(models.DataProvider, {
             onDelete: "CASCADE",
             foreignKey: {
               allowNull: false
@@ -28,5 +28,5 @@ module.exports = function(sequelize, DataTypes) {
     }
   );
 
-  return DataProviderConfiguration;
+  return DataProviderOptions;
 };
