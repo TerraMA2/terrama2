@@ -37,6 +37,7 @@
 #include "Typedef.hpp"
 #include "DataManager.hpp"
 #include "AlertLogger.hpp"
+#include "AlertExecutor.hpp"
 
 // STL
 #include <memory>
@@ -86,6 +87,15 @@ namespace terrama2
              */
             virtual void updateAdditionalInfo(const QJsonObject& obj) noexcept override;
 
+            /*!
+              \brief Nofifies that an alert has ended.
+              \param AlertId Alert identifier.
+              \param success Alert finsished with success.
+            */
+            void alertFinished(AlertId alertId,
+                               std::shared_ptr< te::dt::TimeInstantTZ > executionDate,
+                               bool success);
+
           protected:
 
             //*! Create a process task and add to taskQueue_
@@ -96,6 +106,7 @@ namespace terrama2
 
             std::weak_ptr<DataManager> dataManager_; //!< Weak pointer to the DataManager
             std::map<std::string, std::string> serverMap_;
+            AlertExecutor alertExecutor_;
         };
 
       } // end namespace core

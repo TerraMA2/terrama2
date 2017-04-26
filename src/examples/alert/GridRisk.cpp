@@ -5,6 +5,7 @@
 #include <terrama2/impl/Utils.hpp>
 #include <terrama2/core/utility/TimeUtils.hpp>
 #include <terrama2/core/utility/SemanticsManager.hpp>
+#include <terrama2/core/utility/ServiceManager.hpp>
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSetDcp.hpp>
@@ -12,9 +13,11 @@
 #include <terrama2/services/alert/core/Shared.hpp>
 #include <terrama2/services/alert/core/DataManager.hpp>
 #include <terrama2/services/alert/core/Alert.hpp>
+#include <terrama2/services/alert/core/AlertLogger.hpp>
 #include <terrama2/services/alert/core/Report.hpp>
-#include <terrama2/services/alert/core/RunAlert.hpp>
+#include <terrama2/services/alert/core/AlertExecutor.hpp>
 #include <terrama2/services/alert/impl/Utils.hpp>
+#include <terrama2/services/alert/core/Service.hpp>
 
 
 #include <iostream>
@@ -80,6 +83,7 @@ terrama2::services::alert::core::AlertPtr newAlert()
   alert->dataSeriesId = 1;
   alert->active = true;
   alert->name = "Example alert";
+  alert->serviceInstanceId = 1;
 
   terrama2::core::Risk risk;
   risk.name = "Temperature levels";
@@ -140,37 +144,35 @@ int main(int argc, char* argv[])
   terrama2::core::registerFactories();
   terrama2::services::alert::core::registerFactories();
 
-  {
-    auto dataManager = std::make_shared<terrama2::services::alert::core::DataManager>();
+  auto dataManager = std::make_shared<terrama2::services::alert::core::DataManager>();
 
-    dataManager->add(inputDataProvider());
-    dataManager->add(inputDataSeries());
-    auto alert = newAlert();
-    dataManager->add(alert);
+  dataManager->add(inputDataProvider());
+  dataManager->add(inputDataSeries());
+  auto alert = newAlert();
+  dataManager->add(alert);
 
-    auto now = terrama2::core::TimeUtils::nowUTC();
+  te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PASSWORD+"@"+TERRAMA2_DATABASE_HOST+":"+TERRAMA2_DATABASE_PORT+"/"+TERRAMA2_DATABASE_DBNAME);
 
-    terrama2::core::ExecutionPackage executionPackage;
-    executionPackage.processId = alert->id;
-    executionPackage.executionDate = now;
+  auto logger = std::make_shared<AlertLogger>();
 
-    auto logger = std::make_shared<AlertLoggerMock>();
-    ::testing::DefaultValue<RegisterId>::Set(1);
-    EXPECT_CALL(*logger.get(), setConnectionInfo(_));
-    EXPECT_CALL(*logger.get(), start(_)).WillRepeatedly(::testing::Return(1));
-    EXPECT_CALL(*logger.get(), result(_, _, _));
+  logger->setConnectionInfo(uri);
 
-    logger->setConnectionInfo(te::core::URI());
+  QJsonObject additionalIfo;
+  additionalIfo.insert("email_server", QString("smtp://vmimeteste@gmail.com:a1a2a3a4@smtp.gmail.com:587"));
 
-    std::map<std::string, std::string> serverMap;
-    serverMap.emplace("email_server", "smtp://vmimeteste@gmail.com:a1a2a3a4@smtp.gmail.com:587");
+  terrama2::core::ServiceManager::getInstance().setInstanceId(1);
 
-    terrama2::services::alert::core::runAlert(executionPackage, std::dynamic_pointer_cast<AlertLogger>(logger), dataManager, serverMap);
-  }
+  terrama2::services::alert::core::Service service(dataManager);
+  logger->setConnectionInfo(uri);
+
+  service.setLogger(logger);
+  service.updateAdditionalInfo(additionalIfo);
+  service.start();
+  service.addToQueue(alert->id, terrama2::core::TimeUtils::nowUTC());
 
   QTimer timer;
   QObject::connect(&timer, SIGNAL(timeout()), QGuiApplication::instance(), SLOT(quit()));
-  timer.start(10000);
+  timer.start(300000);
   a.exec();
 
   return 0;
