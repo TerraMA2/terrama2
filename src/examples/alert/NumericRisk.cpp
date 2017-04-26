@@ -161,7 +161,7 @@ terrama2::services::alert::core::AlertPtr newAlert()
   additionalData.referredAttribute = "id";
   additionalData.attributes.push_back("nome");
 
-// alert->additionalDataVector.push_back(additionalData);
+ alert->additionalDataVector.push_back(additionalData);
 
   std::unordered_map<std::string, std::string> reportMetadata;
 

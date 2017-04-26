@@ -435,7 +435,7 @@ var DataManager = module.exports = {
           self.data.projects.push(project.get());
         });
 
-        return models.db.DataProvider.findAll({ include: [ models.db.DataProviderType, models.db.DataProviderConfiguration ] }).then(function(dataProviders) {
+        return models.db.DataProvider.findAll({ include: [ models.db.DataProviderType, models.db.DataProviderOptions ] }).then(function(dataProviders) {
           dataProviders.forEach(function(dataProvider) {
             self.data.dataProviders.push(new DataModel.DataProvider(dataProvider));
           });
@@ -1313,24 +1313,24 @@ var DataManager = module.exports = {
    * update operation. Otherwise, it performs insert operation
    *
    * @param {Object} restriction - A query restriction
-   * @param {Object} dataProviderConfiguration - A data provider configuration values
+   * @param {Object} dataProviderOptions - A data provider configuration values
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise} - a 'bluebird' module
    */
-  upsertDataProviderConfigurations: function(restriction, dataProviderConfiguration, options) {
+  upsertDataProviderOptions: function(restriction, dataProviderOption, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
       return self
-        .listDataProviderConfigurations(restriction, Utils.extend({limit: 1}, options))
-        .then(function(dataProviderConfigurations) {
-          if (dataProviderConfigurations.length === 0) {
+        .listDataProviderOptions(restriction, Utils.extend({limit: 1}, options))
+        .then(function(dataProviderOptions) {
+          if (dataProviderOptions.length === 0) {
             // insert
-            return models.db.DataProviderConfiguration.create(dataProviderConfiguration, options);
+            return models.db.DataProviderOptions.create(dataProviderOption, options);
           } else {
-            return models.db.DataProviderConfiguration.update(dataProviderConfiguration, Utils.extend({
+            return models.db.DataProviderOptions.update(dataProviderOption, Utils.extend({
               fields: ["key", "value", "data_provider_id"],
-              where: {id: dataProviderConfigurations[0].id}
+              where: {id: dataProviderOptions[0].id}
             }, options));
           }
         })
@@ -1352,15 +1352,15 @@ var DataManager = module.exports = {
    * @param {Transaction} options.transaction - An ORM transaction
    * @returns {Promise} - a 'bluebird' module with DataSeries instance or error callback
    */
-  listDataProviderConfigurations: function(restriction, options) {
+  listDataProviderOptions: function(restriction, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      return models.db.DataProviderConfiguration
+      return models.db.DataProviderOptions
         .findAll(Utils.extend({
           where: restriction
         }, options))
-        .then(function(dataProviderConfigurations) {
-          return resolve(dataProviderConfigurations);
+        .then(function(dataProviderOptions) {
+          return resolve(dataProviderOptions);
         })
 
         .catch(function(err) {
@@ -1393,8 +1393,8 @@ var DataManager = module.exports = {
               });
             }
           }
-          return models.db.DataProviderConfiguration.bulkCreate(configurationList, Utils.extend({data_provider_id: dataProvider.id}, options)).then(function () {
-            return models.db.DataProviderConfiguration.findAll(Utils.extend({where: {data_provider_id: dataProvider.id}}, options)).then(function(dataSetFormats) {
+          return models.db.DataProviderOptions.bulkCreate(configurationList, Utils.extend({data_provider_id: dataProvider.id}, options)).then(function () {
+            return models.db.DataProviderOptions.findAll(Utils.extend({where: {data_provider_id: dataProvider.id}}, options)).then(function(dataSetFormats) {
               return dataProvider.getDataProviderType().then(function(dataProviderType) {
                 var dataProviderObject = dataProvider.get();
                 dataSetFormats.forEach(function(dSetFormat){
@@ -1525,7 +1525,7 @@ var DataManager = module.exports = {
                   value: dataProviderObject.configuration[key]
                 }
               }
-              dataProviderConfPromises.push(self.upsertDataProviderConfigurations(configRestriction, configObject, options));
+              dataProviderConfPromises.push(self.upsertDataProviderOptions(configRestriction, configObject, options));
             }
             return Promise.all(dataProviderConfPromises).then(function(dataProvConfigs){
               dataProvider.timeout = dataProviderObject.configuration.timeout;
