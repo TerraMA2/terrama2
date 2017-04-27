@@ -37,17 +37,17 @@
 #include "../../../core/utility/TeDataSetFKJoin.hpp"
 #include "../../../core/data-access/DataAccessor.hpp"
 #include "../../../core/data-model/Risk.hpp"
+#include "utility/NotifierFactory.hpp"
+#include "utility/DocumentFactory.hpp"
 #include "AlertExecutor.hpp"
 #include "Alert.hpp"
 #include "Report.hpp"
 #include "Notifier.hpp"
 #include "Utils.hpp"
-#include "utility/NotifierFactory.hpp"
-#include "utility/DocumentFactory.hpp"
+#include "Exception.hpp"
 
 
 // Terralib
-
 #include <terralib/memory/DataSetItem.h>
 #include <terralib/datatype/SimpleProperty.h>
 #include <terralib/datatype/DateTimeProperty.h>
@@ -518,6 +518,9 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
       return;
     }
 
+    // Flag to check if at least one alert was generated
+    bool alertGenerated = false;
+
     for(const auto& data : dataMap)
     {
       auto dataset = data.first;
@@ -565,7 +568,6 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
         if(dataSetType->getNumberOfForeignKeys() != 1)
         {
           QString errMsg = QObject::tr("Invalid number of identifier attribute.");
-          logger->result(AlertLogger::ERROR, nullptr, executionPackage.registerId);
           logger->log(AlertLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
           TERRAMA2_LOG_ERROR() << errMsg;
           return;
@@ -604,22 +606,74 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
                                   teDataset);
       }
 
-      // TODO : check alertDataset empty
+      if(alertDataSet->isEmpty())
+      {
+        QString errMsg = QObject::tr("No alert data for %1 data series.").arg(dataset->dataSeriesId);
+        logger->log(AlertLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+        TERRAMA2_LOG_ERROR() << errMsg;
+        return;
+      }
+
+      std::multimap<std::string, std::string> attachments;
 
       std::string reportName = alertPtr->name + "_" + dateTimeToString(executionPackage.executionDate);
 
       ReportPtr reportPtr = std::make_shared<Report>(reportName, alertPtr, inputDataSeries, alertDataSet, vecDates);
 
-      //      std::string documentPDF = DocumentFactory::getInstance().makeDocument("PDF", reportPtr);
+      try
+      {
+        std::string documentPDF = DocumentFactory::getInstance().makeDocument("PDF", reportPtr);
 
-      NotifierPtr notifierPtr = NotifierFactory::getInstance().make("EMAIL", serverMap, reportPtr);
+        attachments.insert(std::make_pair("PDF", documentPDF));
+      }
+      catch(const NotifierException& e)
+      {
+        QString errMsg("Error: ");
+        const auto msg = boost::get_error_info<terrama2::ErrorDescription>(e);
+        if (msg != nullptr)
+        {
+          errMsg.append(msg);
+        }
 
-      for(const auto& recipient : alertPtr->notifications)
-        notifierPtr->send(recipient);
+        logger->log(AlertLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+        TERRAMA2_LOG_ERROR() << errMsg;
+      }
 
+      try
+      {
+        NotifierPtr notifierPtr = NotifierFactory::getInstance().make("EMAIL", serverMap, reportPtr);
+
+        for(const auto& recipient : alertPtr->notifications)
+          notifierPtr->send(recipient);
+
+      }
+      catch(const NotifierException& e)
+      {
+        QString errMsg("Error: ");
+        const auto msg = boost::get_error_info<terrama2::ErrorDescription>(e);
+        if (msg != nullptr)
+        {
+          errMsg.append(msg);
+        }
+
+        logger->log(AlertLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+        TERRAMA2_LOG_ERROR() << errMsg;
+      }
+
+      alertGenerated = true;
     }
 
-    // TODO check if errors happened
+    // check if at least one alert was generated
+    if(!alertGenerated)
+    {
+      QString errMsg = QObject::tr("No alert was generated.");
+      logger->log(AlertLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+      logger->result(AlertLogger::ERROR, nullptr, executionPackage.registerId);
+      TERRAMA2_LOG_WARNING() << errMsg.toStdString();
+      emit alertFinished(alertId, executionPackage.executionDate, false);
+      return;
+    }
+
     logger->result(AlertLogger::DONE, executionPackage.executionDate, executionPackage.registerId);
 
     TERRAMA2_LOG_INFO() << QObject::tr("Alert '%1' generated successfully").arg(alertPtr->name.c_str());

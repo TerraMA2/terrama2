@@ -407,3 +407,17 @@ terrama2::core::DataSeriesType terrama2::services::alert::core::Report::dataSeri
 {
   return alertDataSeries_->semantics.dataSeriesType;
 }
+
+std::string terrama2::services::alert::core::Report::documentSavePath() const
+{
+  try
+  {
+    return alert_->reportMetadata.at("document_save_path");
+  }
+  catch(const std::out_of_range& /*e*/)
+  {
+
+  }
+
+  return "";
+}

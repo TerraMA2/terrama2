@@ -75,18 +75,24 @@ namespace terrama2
               else
               {
                 QString errMsg = QObject::tr("PDF document is not implemented for this data series!");
-                TERRAMA2_LOG_ERROR() << errMsg;
                 throw NotifierException() << ErrorDescription(errMsg);
               }
 
               core::replaceReportTags(body, report);
 
-              QDir dir(QString::fromStdString(report->documentSavePath()));
+              QString documentSavePath = QString::fromStdString(report->documentSavePath());
+
+              if(documentSavePath.isEmpty())
+              {
+                QString errMsg = QObject::tr("Couldn't create PDF document: Directory to store was not informed! ");
+                throw NotifierException() << ErrorDescription(errMsg);
+              }
+
+              QDir dir(documentSavePath);
 
               if(!dir.exists())
               {
-                QString errMsg = QObject::tr("Couldn't create PDF document: Informed directorie doesn't exist!");
-                TERRAMA2_LOG_ERROR() << errMsg;
+                QString errMsg = QObject::tr("Couldn't create PDF document! Informed directory doesn't exists: %1 ").arg(dir.absolutePath());
                 throw NotifierException() << ErrorDescription(errMsg);
               }
 
