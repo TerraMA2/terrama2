@@ -108,7 +108,7 @@
           // NotFound... tries to insert a new one
           .catch(function(err) {
             if (err instanceof RegisteredViewError) {
-              registeredViewObject.uri = registeredViewObject.maps_server_uri;
+              registeredViewObject.uri = registeredViewObject.maps_server;
               registeredViewObject.view_id = registeredViewObject.process_id;
               return DataManager.addRegisteredView(registeredViewObject, options)
                 .then(function(registeredView) {

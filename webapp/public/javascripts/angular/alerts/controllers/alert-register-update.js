@@ -82,7 +82,7 @@ define([], function() {
      * @type {object}
      */
     self.alert = config.alert || {
-      schedule: {
+      conditional_schedule: {
         data_ids: [],
         scheduleType: 4
       },
@@ -116,7 +116,7 @@ define([], function() {
     self.risks = [
       {
         id: 0,
-        name: "New Risk",
+        name: i18n.__("New Risk"),
         description: "",
         levels: [
           {
@@ -125,66 +125,8 @@ define([], function() {
             value: ""
           }
         ]
-      },
-      {
-        id: 1,
-        name: "Risco 1",
-        description: "lala",
-        levels: [
-          {
-            _id: UniqueNumber(),
-            name: "level1",
-            value: 100
-          },
-          {
-            _id: UniqueNumber(),
-            name: "level2",
-            value: 200
-          }
-        ]
-      },
-      {
-        id: 2,
-        name: "Risco 2",
-        description: "lala",
-        levels: [
-          {
-            _id: UniqueNumber(),
-            name: "level1",
-            value: 100
-          },
-          {
-            _id: UniqueNumber(),
-            name: "level2",
-            value: 200
-          }
-        ]
-      },
-      {
-        id: 3,
-        name: "Risco 3",
-        description: "lala",
-        levels: [
-          {
-            _id: UniqueNumber(),
-            name: "level1",
-            value: 100
-          },
-          {
-            _id: UniqueNumber(),
-            name: "level2",
-            value: 200
-          }
-        ]
-      },
+      }
     ];
-
-    /**
-     * It contains the selected risk model
-     * 
-     * @type {object}
-     */
-    self.riskModel = self.risks[0];
 
     $q.all([
       i18n.ensureLocaleIsLoaded(),
@@ -196,7 +138,7 @@ define([], function() {
        * Retrieve all service instances
        */
       return self.ServiceInstance.init().then(function() {
-        // setting all alert services in cache
+        // Setting all alert services in cache
         self.filteredServices = self.ServiceInstance.list({'service_type_id': self.ServiceInstance.types.ALERT});
 
         /**
@@ -206,11 +148,71 @@ define([], function() {
           return dataSeriesToFilter.data_series_semantics.data_series_type_name === "ANALYSIS_MONITORED_OBJECT" || dataSeriesToFilter.data_series_semantics.data_series_type_name === "GRID";
         });
 
-        $timeout(function() {
-          if(!self.isUpdating) {
-            // forcing first alert service pre-selected
-            if(self.filteredServices.length > 0)
-              self.alert.service_instance_id = self.filteredServices[0].id;
+        var riskRequest = $http({
+          method: "GET",
+          url: "/api/Risk"
+        });
+
+        riskRequest.then(function(response) {
+          for(var i = 0, risksLength = response.data.length; i < risksLength; i++) {
+            var risk = response.data[i];
+
+            risk.levels.sort(function(a, b) {
+              if(a.level < b.level) return -1;
+              if(a.level > b.level) return 1;
+              return 0;
+            });
+
+            for(var j = 0, levelsLength = risk.levels.length; j < levelsLength; j++) {
+              risk.levels[j]._id = UniqueNumber();
+              delete risk.levels[j].risk_id;
+            }
+
+            self.risks.push(risk);
+          }
+
+          if(self.isUpdating) {
+            for(var i = 0, risksLength = self.risks.length; i < risksLength; i++) {
+              if(self.risks[i].id === self.alert.risk.id) {
+                self.riskModel = self.risks[i];
+
+                for(var j = 0, levelsLength = self.riskModel.levels.length; j < levelsLength; j++) {
+                  if(self.riskModel.levels[j].level === self.alert.notifications[0].notify_on_risk_level) {
+                    self.alert.notifications[0].notify_on_risk_level = self.riskModel.levels[j]._id;
+                    break;
+                  }
+                }
+
+                $timeout(function() {
+                  self.onRisksChange();
+                });
+
+                break;
+              }
+            }
+
+            for(var i = 0, dataSeriesLength = self.dataSeries.length; i < dataSeriesLength; i++) {
+              if(self.dataSeries[i].id === self.alert.data_series_id) {
+                setDataSeriesData(self.dataSeries[i]);
+                break;
+              }
+            }
+
+            if(self.alert.notifications[0].include_report !== null)
+              self.includeReport = true;
+
+            if(self.alert.notifications[0].notify_on_risk_level !== null)
+              self.notifyOnRiskLevel = true;
+          } else {
+            self.riskModel = self.risks[0];
+
+            $timeout(function() {
+              self.onRisksChange();
+
+              // Forcing first alert service pre-selected
+              if(self.filteredServices.length > 0)
+                self.alert.service_instance_id = self.filteredServices[0].id;
+            });
           }
         });
       });
@@ -277,7 +279,7 @@ define([], function() {
       for(var i = 0, risksLength = self.risks.length; i < risksLength; i++) {
         if(self.risks[i].id === self.riskModel.id) {
           if(self.riskModel.id === 0) {
-            self.risks[i].name = "New Risk";
+            self.risks[i].name = i18n.__("New Risk");
             self.risks[i].description = "";
             self.risks[i].levels = [
               {
@@ -305,31 +307,48 @@ define([], function() {
       });
 
       if(dataSeries.length > 0) {
-        if(dataSeries[0].data_series_semantics.data_series_type_name === "ANALYSIS_MONITORED_OBJECT") {
-          var dataProvider = DataProviderService.list().filter(function(dataProvider) {
-            return dataProvider.id == dataSeries[0].data_provider_id;
-          });
+        setDataSeriesData(dataSeries[0]);
+      }
+    };
 
-          if(dataProvider.length > 0)
-            self.alert.project_id = dataProvider[0].project_id;
+    /**
+     * Sets DataSeries data when a DataSeries is selected.
+     *
+     * @returns {void}
+     */
+    var setDataSeriesData = function(dataSeries) {
+      if(dataSeries.data_series_semantics.data_series_type_name === "ANALYSIS_MONITORED_OBJECT") {
+        var dataProvider = DataProviderService.list().filter(function(dataProvider) {
+          return dataProvider.id == dataSeries.data_provider_id;
+        });
 
-          var analysis = AnalysisService.list().filter(function(analysisToFilter) {
-            return analysisToFilter.output_dataset_id == dataSeries[0].dataSets[0].id;
-          });
+        if(dataProvider.length > 0)
+          self.alert.project_id = dataProvider[0].project_id;
 
-          if(dataProvider.length > 0 && analysis.length > 0) {
-            listColumns(dataProvider[0], dataSeries[0].dataSets[0].format.table_name);
-          }
-        } else {
-          self.columnsList = [];
+        var analysis = AnalysisService.list().filter(function(analysisToFilter) {
+          return analysisToFilter.output_dataset_id == dataSeries.dataSets[0].id;
+        });
+
+        if(dataProvider.length > 0 && analysis.length > 0) {
+          listColumns(dataProvider[0], dataSeries.dataSets[0].format.table_name);
         }
 
+        if(self.isUpdating)
+          self.alert.risk_attribute_mo = self.alert.risk_attribute;
+      } else {
+        self.columnsList = [];
+
+        if(self.isUpdating)
+          self.alert.risk_attribute_grid = parseInt(self.alert.risk_attribute);
+      }
+
+      if(!self.isUpdating) {
         delete self.alert.risk_attribute_grid;
         delete self.alert.risk_attribute_mo;
-
-        self.dataSeriesType = dataSeries[0].data_series_semantics.data_series_type_name;
-        self.alert.schedule.data_ids = [dataSeries[0].id];
       }
+
+      self.dataSeriesType = dataSeries.data_series_semantics.data_series_type_name;
+      self.alert.conditional_schedule.data_ids = [dataSeries.id];
     };
 
     /**
@@ -428,6 +447,9 @@ define([], function() {
      * Watcher for handling risk levels change. It validates if the values are numeric and are in a growing order.
      */
     $scope.$watch("ctrl.riskModel.levels", function() {
+      if(!self.riskModel)
+        return;
+
       var lastValue = null;
       self.riskLevelOrderError = false;
       self.isNotValid = false;
@@ -458,43 +480,13 @@ define([], function() {
       }
     }, true);
 
-    self.alertWanted = {
-      active: true,
-      name: "Alerta teste",
-      description: "Sem description",
-      project_id: 1,
-      data_series_id: 4,
-      service_instance_id: 4,
-      risk_attribute: "risco atributo",
-      schedule: {
-        data_ids: [1],
-        scheduleType: 4
-      },
-      risk: {
-        name: "Risco",
-        description: "",
-        levels: [
-          {
-            name: "level1",
-            level: 1,
-            value: 100
-          },
-          {
-            name: "level2",
-            level: 2,
-            value: 200
-          }
-        ]
-      },
-      notifications: [
-        {
-          include_report: true,
-          notify_on_change: true,
-          simplified_report: true,
-          notify_on_risk_level: 1,
-          recipients: "recipientes"
-        }
-      ]
+    /**
+     * Helper to reset alert box instance.
+     * 
+     * @returns {void}
+     */
+    self.close = function() {
+      self.MessageBoxService.reset();
     };
 
     /**
@@ -513,12 +505,22 @@ define([], function() {
       // Broadcasting schema form validation
       $scope.$broadcast("schemaFormValidate");
 
-      if(self.isNotValid)
+      /**
+       * Defines a common message for invalid fields
+       * @type {string}
+       */
+      var errMessageInvalidFields = i18n.__("There are invalid fields on form");
+
+      if(self.isNotValid) {
+        self.MessageBoxService.danger(i18n.__("Alerts"), errMessageInvalidFields);
         return;
+      }
 
       $timeout(function() {
-        if($scope.forms.alertForm.$invalid || $scope.forms.dataSeriesForm.$invalid || $scope.forms.riskLevel.$invalid || $scope.forms.reportForm.$invalid || $scope.forms.notificationForm.$invalid)
+        if($scope.forms.alertForm.$invalid || $scope.forms.dataSeriesForm.$invalid || $scope.forms.riskLevel.$invalid || $scope.forms.reportForm.$invalid || $scope.forms.notificationForm.$invalid) {
+          self.MessageBoxService.danger(i18n.__("Alerts"), errMessageInvalidFields);
           return;
+        }
 
         var riskTemp = $.extend(true, {}, self.riskModel);
         var level = 1;
@@ -543,7 +545,13 @@ define([], function() {
         if(self.alert.risk_attribute_mo !== undefined)
           delete self.alert.risk_attribute_mo;
 
-        var operation = self.AlertService.create(self.alert);
+        if(!self.includeReport && self.alert.notifications[0].include_report !== undefined)
+          self.alert.notifications[0].include_report = null;
+
+        if(!self.notifyOnRiskLevel && self.alert.notifications[0].notify_on_risk_level !== undefined)
+          self.alert.notifications[0].notify_on_risk_level = null;
+
+        var operation = self.isUpdating ? self.AlertService.update(self.alert.id, self.alert) : self.AlertService.create(self.alert);
         operation.then(function(response) {
           $log.info(response);
           $window.location.href = "/configuration/alerts?token=" + response.token;

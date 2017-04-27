@@ -17,9 +17,9 @@ var DataProvider = function(params) {
   else
     this.data_provider_type = {};
 
-  if (params.DataProviderConfigurations){
-    params.DataProviderConfigurations.forEach(function(dataProviderConfiguration){
-      var dPObject = dataProviderConfiguration.get();
+  if (params.DataProviderOptions){
+    params.DataProviderOptions.forEach(function(DataProviderOption){
+      var dPObject = DataProviderOption.get();
       params[dPObject.key] = dPObject.value;
     });
   }

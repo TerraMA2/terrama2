@@ -50,6 +50,24 @@ define(function(){
     };
 
     /**
+     * It performs a alert creation on API call and stores in cache
+     * 
+     * @param {number} alertId - An alert identifier
+     * @param {Object} alertObject - An alert values
+     * @returns {ng.IPromise}
+     */
+    this.update = function(alertId, alertObject) {
+      var defer = self.$q.defer();
+      self.BaseService.$request(self.$baseUrl + "/" + alertId, "PUT", {
+        data: alertObject
+      }).then(function(response) {
+        return defer.resolve(response.data);
+      });
+
+      return defer.promise;
+    };
+
+    /**
      * It performs a view creation on API call.
      * 
      * @param {Object} viewObject - A view values
