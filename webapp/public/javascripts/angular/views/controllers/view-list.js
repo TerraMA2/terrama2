@@ -90,7 +90,26 @@ define([], function() {
      * @param {Object} response.message - Error message
      */
     Socket.on('errorResponse', function(response){
-      self.MessageBoxService.danger(i18n.__("View"), response.message);
+      var errorMessage = response.message;
+      var targetMethod = null;
+      if (serviceCache[response.service] != undefined){
+        var service = Service.get(serviceCache[response.service].process_ids.service_instance);
+        if (service != null) {
+          errorMessage = errorMessage + " " + i18n.__("Service") + ": '" + service.name + "' ";
+        }
+        if (config.extra && config.extra.id){
+          var warningMessage = config.message + ". ";
+          errorMessage = warningMessage + errorMessage;
+          targetMethod = MessageBoxService.warning; // setting warning method to display message
+          delete config.extra;
+          delete config.message;
+        } 
+        else {
+          targetMethod = MessageBoxService.danger;
+        }
+      }
+      targetMethod.call(MessageBoxService, i18n.__("View"), errorMessage);
+      delete serviceCache[response.service];
     });
 
     /**
@@ -112,22 +131,9 @@ define([], function() {
       if(response.checking === undefined || (!response.checking && response.status == 400)) {
         if(response.online) {
           Socket.emit('run', serviceCache[response.service].process_ids);
-        } else {
-          if(serviceCache[response.service] != undefined) {
-            var service = Service.get(serviceCache[response.service].process_ids.service_instance);
-
-            if(service != null) {
-              self.MessageBoxService.danger(i18n.__("View"), i18n.__("Service") + " '" + service.name + "' " + i18n.__("is not active"));
-            } else {
-              self.MessageBoxService.danger(i18n.__("View"), "Service not active");
-            }
-          } else {
-            self.MessageBoxService.danger(i18n.__("View"), "Service not active");
-          }
-        }
-
+          delete serviceCache[response.service];
+        } 
         delete $scope.disabledButtons[serviceCache[response.service].service_id];
-        delete serviceCache[response.service];
       }
     });
 
