@@ -73,7 +73,8 @@ IF(TERRAMA2_VIEW_ENABLED)
 ENDIF()
 
 IF(TERRAMA2_ALERT_ENABLED)
-  target_link_libraries(terrama2_service terrama2_alert_core)
+  target_link_libraries(terrama2_service terrama2_alert_core
+                                         terrama2_alert_impl)
 ENDIF()
 
 set_target_properties(terrama2_service
