@@ -720,5 +720,9 @@
 	"Select a level": "Select a level",
 	"Level Name": "Level Name",
 	"Alert": "Alert",
-	"Report Title": "Report Title"
+	"Report Title": "Report Title",
+  "Data Export": "Data Export",
+  "Select the project to which you want to import the data": "Select the project to which you want to import the data",
+  "No projects found.": "No projects found.",
+  "check all items": "check all items"
 }

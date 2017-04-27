@@ -24,6 +24,16 @@ var ImportExport = function(io) {
 
   // Socket connection event
   iosocket.on('connection', function(client) {
+
+    var countObjectProperties = function(object) {
+      var count = 0;
+      
+      if(object !== undefined && object !== null && typeof object === "object")
+        for(var key in object) if(object.hasOwnProperty(key)) count++;
+
+      return count;
+    };
+
     /**
      * TerraMA2 Import Listener. It prepares a json and load them to Database if does not exist.
      * @param {Object} json - A javascript object containing what intend to import.
@@ -37,6 +47,8 @@ var ImportExport = function(io) {
      *   "DataProviders": [providerA, providerB, ...providerN],
      *   "DataSeries":    [dataSeriesA, dataSeriesB, ...dataSeriesN],
      *   "Analysis":      [analysisA, analysisB, ...analysisN],
+     *   "Views":      [viewA, viewB, ...viewN],
+     *   "Alerts":      [alertA, alertB, ...alertN],
      * })
      */
     client.on("import", function(json) {
@@ -45,7 +57,7 @@ var ImportExport = function(io) {
        */
       var promises = [];
       var output = {};
-      if (!json || !Utils.isObject(json)) {
+      if(!json || !Utils.isObject(json)) {
         client.emit("importResponse", {
           err: "Unknown error: the parameter must be a object",
           status: 400
@@ -56,15 +68,6 @@ var ImportExport = function(io) {
       var _updateID = function(old, object) {
         var o = object.rawObject();
         return Object.assign({$id: old.$id}, o);
-      };
-
-      var countObjectProperties = function(object) {
-        var count = 0;
-        
-        if(object !== undefined && object !== null && typeof object === "object")
-          for(key in object) if(object.hasOwnProperty(key)) count++;
-
-        return count;
       };
 
       DataManager.orm.transaction(function(t) {
@@ -78,7 +81,7 @@ var ImportExport = function(io) {
         var thereAreProjects = (json.Projects !== undefined && json.Projects.length > 0); 
 
         // if there any project to import
-        if (json.Projects) {
+        if(json.Projects) {
           var projects = json.Projects || [];
           output.Projects = [];
           projects.forEach(function(project) {
@@ -103,7 +106,7 @@ var ImportExport = function(io) {
 
           var tcpOutput = {};
 
-          if (json.DataProviders) {
+          if(json.DataProviders) {
             var dataProviders = json.DataProviders || [];
             output.DataProviders = [];
             dataProviders.forEach(function(dataProvider) {
@@ -122,7 +125,7 @@ var ImportExport = function(io) {
 
           return Promise.all(promises).then(function() {
             promises = [];
-            if (json.DataSeries) {
+            if(json.DataSeries) {
               var dataSeries = json.DataSeries ||  [];
               output.DataSeries = [];
 
@@ -160,7 +163,7 @@ var ImportExport = function(io) {
             }
             return Promise.all(promises).then(function() {
               promises = [];
-              if (json.Collectors) {
+              if(json.Collectors) {
                 var collectors = json.Collectors || [];
 
                 collectors.forEach(function(collector) {
@@ -281,7 +284,7 @@ var ImportExport = function(io) {
                 return Promise.all(promises).then(function() {
                   promises = [];
 
-                  if (json.Views) {
+                  if(json.Views) {
                     var viewsList = json.Views || [];
                     viewsList.forEach(function(view) {
                       view.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: view.project_id}).id : json.selectedProject;
@@ -309,7 +312,47 @@ var ImportExport = function(io) {
                   }
 
                   return Promise.all(promises).then(function() {
-                    TcpService.send(tcpOutput);
+                    promises = [];
+
+                    if(json.Alerts) {
+                      var alertsList = json.Alerts || [];
+
+                      alertsList.forEach(function(alert) {
+                        alert.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: alert.project_id}).id : json.selectedProject;
+                        alert.data_series_id = Utils.find(output.DataSeries, {$id: alert.data_series_id}).id;
+                        if(alert.service_instance_id === null) alert.service_instance_id = json.servicesAlert;
+
+                        delete alert.conditional_schedule.id;
+                        delete alert.risk.id;
+                        delete alert.report_metadata.id;
+
+                        for(var i = 0, levelsLength = alert.risk.levels.length; i < levelsLength; i++)
+                          delete alert.risk.levels[i].id;
+
+                        for(var i = 0, additionalDataLength = alert.additional_data.length; i < additionalDataLength; i++)
+                          delete alert.additional_data[i].id;
+
+                        for(var i = 0, notificationsLength = alert.notifications.length; i < notificationsLength; i++)
+                          delete alert.notifications[i].id;
+
+                        promises.push(
+                          DataManager.addSchedule(alert.conditional_schedule, options).then(function(schedule) {
+                            alert.conditional_schedule_id = schedule.id;
+                            return DataManager.addRisk(alert.risk, options);
+                          }).then(function(risk) {
+                            alert.risk_id = risk.id;
+                            return DataManager.addAlert(alert, options);
+                          }).then(function(alertResult) {
+                            if(tcpOutput.Alerts === undefined) tcpOutput.Alerts = [];
+                            tcpOutput.Alerts.push(alertResult);
+                          })
+                        );
+                      });
+                    }
+
+                    return Promise.all(promises).then(function() {
+                      TcpService.send(tcpOutput);
+                    });
                   });
                 });
               });
@@ -324,17 +367,17 @@ var ImportExport = function(io) {
         });
       }).catch(function(err){
         // remove cached data in DataManager
-        if (output.Projects && output.Projects.length > 0) {
+        if(output.Projects && output.Projects.length > 0) {
           var projects = Utils.removeAll(DataManager.data.projects, {id: {$in: output.Projects.map(function(proj) { return proj.id; }) }});
           console.log("Removed " + projects.length + " projects");
         }
 
-        if (output.DataSeries && output.DataSeries.length > 0) {
+        if(output.DataSeries && output.DataSeries.length > 0) {
           var ds = Utils.removeAll(DataManager.data.dataSeries, {id: {$in: output.DataSeries.map(function(ds) { return ds.id; }) }});
           console.log("Removed " + ds.length + " data series");
         }
 
-        if (output.DataProviders && output.DataProviders.length > 0) {
+        if(output.DataProviders && output.DataProviders.length > 0) {
           var providers = Utils.removeAll(DataManager.data.dataProviders, {id: {$in: output.DataProviders.map(function(prov) { return prov.id; }) }});
           console.log("Removed " + providers.length + " providers");
         }
@@ -368,7 +411,8 @@ var ImportExport = function(io) {
         DataSeries: [],
         Collectors: [],
         Analysis: [],
-        Views: []
+        Views: [],
+        Alerts: []
       };
 
       var _emitError = function(err) {
@@ -419,7 +463,13 @@ var ImportExport = function(io) {
         }).then(function(collector) {
           if(!isInArray(collector.id, output.Collectors)) {
             collector.service_instance_id = null;
-            output.Collectors.push(addID(collector));
+
+            var collectorToAdd = addID(collector);
+
+            if(countObjectProperties(collectorToAdd.schedule) > 0)
+              collectorToAdd.schedule.scheduleType = collectorToAdd.schedule_type;
+
+            output.Collectors.push(collectorToAdd);
 
             var dataSeriesPromises = [
               DataManager.getDataSeries({id: collector.data_series_input}).then(function(dataSeries) {
@@ -475,7 +525,12 @@ var ImportExport = function(io) {
 
         promises.push(DataManager.listCollectors({DataProvider: {project_id: target.id}}).then(function(collectors) {
           collectors.forEach(function(collector) {
-            output.Collectors.push(addID(collector));
+            var collectorToAdd = addID(collector);
+
+            if(countObjectProperties(collectorToAdd.schedule) > 0)
+              collectorToAdd.schedule.scheduleType = collectorToAdd.schedule_type;
+
+            output.Collectors.push(collectorToAdd);
           });
         }));
 
@@ -489,13 +544,32 @@ var ImportExport = function(io) {
               analysisDS.$id = analysisDS.id;
               delete analysisDS.id;
             });
+
+            if(countObjectProperties(rawAnalysis.schedule) > 0)
+              rawAnalysis.schedule.scheduleType = rawAnalysis.schedule_type;
+
             output.Analysis.push(rawAnalysis);
           });
         }));
 
         promises.push(DataManager.listViews({project_id: target.id}).then(function(viewsList) {
           viewsList.forEach(function(view) {
-            output.Views.push(addID(view));
+            var viewToAdd = addID(view);
+
+            if(countObjectProperties(viewToAdd.schedule) > 0)
+              viewToAdd.schedule.scheduleType = viewToAdd.schedule_type;
+
+            output.Views.push(viewToAdd);
+          });
+        }));
+
+        promises.push(DataManager.listAlerts({project_id: target.id}).then(function(alertsList) {
+          alertsList.forEach(function(alert) {
+            var alertToAdd = addID(alert);
+
+            alertToAdd.conditional_schedule.scheduleType = 4;
+
+            output.Alerts.push(alertToAdd);
           });
         }));
       } // end if projects
@@ -527,7 +601,13 @@ var ImportExport = function(io) {
             DataManager.getCollector({id: json.Collectors[i].id}).then(function(collector) {
               if(!isInArray(collector.id, output.Collectors)) {
                 collector.service_instance_id = null;
-                output.Collectors.push(addID(collector));
+
+                var collectorToAdd = addID(collector);
+
+                if(countObjectProperties(collectorToAdd.schedule) > 0)
+                  collectorToAdd.schedule.scheduleType = collectorToAdd.schedule_type;
+
+                output.Collectors.push(collectorToAdd);
 
                 var dataSeriesPromises = [
                   getDataSeries(collector.data_series_input),
@@ -559,6 +639,10 @@ var ImportExport = function(io) {
                 delete rawAnalysis.id;
                 rawAnalysis.project_id = null;
                 rawAnalysis.service_instance_id = null;
+
+                if(countObjectProperties(rawAnalysis.schedule) > 0)
+                  rawAnalysis.schedule.scheduleType = rawAnalysis.schedule_type;
+
                 output.Analysis.push(rawAnalysis);
 
                 var analysisDataseriesListPromises = rawAnalysis.dataSeries.id !== undefined ? [getDataSeries(rawAnalysis.dataSeries.id)] : [];
@@ -588,9 +672,38 @@ var ImportExport = function(io) {
               if(!isInArray(view.id, output.Views)) {
                 view.projectId = null;
                 view.serviceInstanceId = null;
-                output.Views.push(addID(view));
 
-                return getDataSeries(view.dataSeries);
+                var viewToAdd = addID(view);
+
+                if(countObjectProperties(viewToAdd.schedule) > 0)
+                  viewToAdd.schedule.scheduleType = viewToAdd.schedule_type;
+
+                output.Views.push(viewToAdd);
+
+                return getDataSeries(view.dataSeries.id);
+              } else {
+                return Promise.resolve();
+              }
+            })
+          );
+        }
+      }
+
+      if(json.Alerts) {
+        for(var i = 0, alertsLength = json.Alerts.length; i < alertsLength; i++) {
+          promises.push(
+            DataManager.getAlert({id: json.Alerts[i].id}).then(function(alert) {
+              if(!isInArray(alert.id, output.Alerts)) {
+                alert.project_id = null;
+                alert.service_instance_id = null;
+
+                var alertToAdd = addID(alert);
+
+                alertToAdd.conditional_schedule.scheduleType = 4;
+
+                output.Alerts.push(alertToAdd);
+
+                return getDataSeries(alert.data_series_id);
               } else {
                 return Promise.resolve();
               }
@@ -606,6 +719,7 @@ var ImportExport = function(io) {
         if(output.Collectors.length === 0) delete output.Collectors;
         if(output.Analysis.length === 0) delete output.Analysis;
         if(output.Views.length === 0) delete output.Views;
+        if(output.Alerts.length === 0) delete output.Alerts;
 
         client.emit("exportResponse", { status: 200, data: output, projectName: json.currentProjectName });
       }).catch(_emitError);
@@ -735,7 +849,17 @@ var ImportExport = function(io) {
             DataManager.getView({id: json.ids[i]}).then(function(view) {
               if(output["Views_" + view.id] === undefined) output["Views_" + view.id] = {};
 
-              return getDataSeriesDependencies(view.dataSeries, null, "Views_" + view.id);
+              return getDataSeriesDependencies(view.dataSeries.id, null, "Views_" + view.id);
+            })
+          );
+        }
+      } else if(json.objectType == "Alerts") {
+        for(var i = 0, idsLength = json.ids.length; i < idsLength; i++) {
+          promises.push(
+            DataManager.getAlert({id: json.ids[i]}).then(function(alert) {
+              if(output["Alerts_" + alert.id] === undefined) output["Alerts_" + alert.id] = {};
+
+              return getDataSeriesDependencies(alert.data_series_id, null, "Alerts_" + alert.id);
             })
           );
         }

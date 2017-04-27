@@ -43,15 +43,15 @@
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">×</span>
           </button>
-          <h4 class="modal-title">Data Export</h4>
+          <h4 class="modal-title">{{ i18n.__("Data Export") }}</h4>
         </div>
         <div class="modal-body">
           <div ng-repeat="element in model" ng-show="element.id == currentProjectId">
-            <input type="checkbox" value="{{ element.id }}" style="margin-right: 5px; float: left;" ng-model="projectsCheckboxes[element.id].project" ng-change="projectCheck(element)"/><div style="float: left;">{{ element.name }} (check all items)</div>
+            <input type="checkbox" value="{{ element.id }}" style="margin-right: 5px; float: left;" ng-model="projectsCheckboxes[element.id].project" ng-change="projectCheck(element)"/><div style="float: left;">{{ element.name }} ({{ i18n.__("check all items") }})</div>
             <div style="clear: both; height: 20px;"></div>
             <div class="box collapsed-box" ng-show="dataProviders[element.id].length > 0">
               <div class="box-header with-border">
-                <span class="box-title" style="font-size: 14px;">Data Servers</span>
+                <span class="box-title" style="font-size: 14px;">{{ i18n.__("Data Servers") }}</span>
                 <div class="box-tools pull-right">
                   <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
                 </div>
@@ -96,7 +96,7 @@
             </div>
             <div class="box collapsed-box" ng-show="analysis[element.id].length > 0">
               <div class="box-header with-border">
-                <span class="box-title" style="font-size: 14px;">Analysis</span>
+                <span class="box-title" style="font-size: 14px;">{{ i18n.__("Analysis") }}</span>
                 <div class="box-tools pull-right">
                   <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
                 </div>
@@ -111,7 +111,7 @@
             </div>
             <div class="box collapsed-box" ng-show="views[element.id].length > 0">
               <div class="box-header with-border">
-                <span class="box-title" style="font-size: 14px;">Views</span>
+                <span class="box-title" style="font-size: 14px;">{{ i18n.__("Views") }}</span>
                 <div class="box-tools pull-right">
                   <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
                 </div>
@@ -120,6 +120,21 @@
                 <ul style="list-style-type: none; padding-left: 0 !important;">
                   <li ng-repeat="view in views[element.id]">
                     <input type="checkbox" value="{{ view.id }}" ng-model="projectsCheckboxes[element.id].Views[view.id]" ng-disabled="projectsCheckboxes[element.id].project" ng-change="itemCheck(element.id, view.id, 'Views')"/><div style="margin-top: -23px; margin-left: 18px;">{{ view.name }}</div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="box collapsed-box" ng-show="alerts[element.id].length > 0">
+              <div class="box-header with-border">
+                <span class="box-title" style="font-size: 14px;">{{ i18n.__("Alerts") }}</span>
+                <div class="box-tools pull-right">
+                  <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+                </div>
+              </div>
+              <div class="box-body" style="display: none;">
+                <ul style="list-style-type: none; padding-left: 0 !important;">
+                  <li ng-repeat="alert in alerts[element.id]">
+                    <input type="checkbox" value="{{ alert.id }}" ng-model="projectsCheckboxes[element.id].Alerts[alert.id]" ng-disabled="projectsCheckboxes[element.id].project" ng-change="itemCheck(element.id, alert.id, 'Alerts')"/><div style="margin-top: -23px; margin-left: 18px;">{{ alert.name }}</div>
                   </li>
                 </ul>
               </div>
@@ -141,7 +156,7 @@
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">×</span>
           </button>
-          <h4 class="modal-title">Select the project to which you want to import the data</h4>
+          <h4 class="modal-title">{{ i18n.__("Select the project to which you want to import the data") }}</h4>
         </div>
         <div class="modal-body">
           <div class="form-group" ng-show="model.length > 0">
@@ -151,7 +166,7 @@
               </label>
             </div>
           </div>
-          <h4 style="text-align: center;" ng-show="model.length == 0">No projects found.</h4>
+          <h4 style="text-align: center;" ng-show="model.length == 0">{{ i18n.__("No projects found.") }}</h4>
           <hr ng-show="model.length > 0 && hasCollect && services.COLLECT.length > 0"/>
           <div class="form-group" ng-show="model.length > 0 && hasCollect && services.COLLECT.length > 0">
             <label>{{ i18n.__("Select the Collector Service to be Used") }}:</label>
@@ -174,8 +189,8 @@
             </select>
           </div>
           <hr/>
-          <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary pull-right" ng-click="extra.finalizeImportation()" ng-show="model.length > 0">Import</button>
+          <button type="button" class="btn btn-default pull-left" data-dismiss="modal">{{ i18n.__("Close") }}</button>
+          <button type="button" class="btn btn-primary pull-right" ng-click="extra.finalizeImportation()" ng-show="model.length > 0">{{ i18n.__("Import") }}</button>
           <div style="clear: both;"></div>
         </div>
       </div>

@@ -27,12 +27,14 @@ define(function() {
       "DataSeries": [],
       "Collectors": [],
       "Analysis": [],
-      "Views": []
+      "Views": [],
+      "Alerts": []
     };
     $scope.selectedServices = {};
     $scope.hasCollect = false;
     $scope.hasAnalysis = false;
     $scope.hasView = false;
+    $scope.hasAlert = false;
 
     $scope.remove = function(object) {
       return "/api/Project/" + object.id + "/delete";
@@ -79,6 +81,13 @@ define(function() {
         for(var property in $scope.projectsCheckboxes[element.id].Views) {
           if($scope.projectsCheckboxes[element.id].Views.hasOwnProperty(property))
             $scope.projectsCheckboxes[element.id].Views[property] = flag;
+        }
+      }
+
+      if($scope.projectsCheckboxes[element.id].Alerts != undefined) {
+        for(var property in $scope.projectsCheckboxes[element.id].Alerts) {
+          if($scope.projectsCheckboxes[element.id].Alerts.hasOwnProperty(property))
+            $scope.projectsCheckboxes[element.id].Alerts[property] = flag;
         }
       }
     };
@@ -213,13 +222,13 @@ define(function() {
           var cont = 0;
           for(var j = 0; j < $scope.model.length; ++j) {
             var modelProject = $scope.model[j];
-            if (p.name === modelProject.name) {
+            if(p.name === modelProject.name) {
               // skip it
               break;
             }
             ++cont;
           }
-          if (cont === $scope.model.length) {
+          if(cont === $scope.model.length) {
             // push
             $scope.model.push(p);
           }
@@ -237,7 +246,7 @@ define(function() {
       importJson: null,
 
       removeOperationCallback: function(err, data) {
-        if (err) {
+        if(err) {
           return MessageBoxService.danger(title, err.message);
         }
         MessageBoxService.success(title, data.name + " removed");
@@ -269,6 +278,7 @@ define(function() {
             delete $scope.exportData.Collectors;
             delete $scope.exportData.Analysis;
             delete $scope.exportData.Views;
+            delete $scope.exportData.Alerts;
           } else {
             if($scope.projectsCheckboxes[element.id].DataProviders != undefined) {
               for(var j = 0, dataProvidersLength = $scope.dataProviders[element.id].length; j < dataProvidersLength; j++) {
@@ -321,12 +331,20 @@ define(function() {
               }
             }
 
+            if($scope.projectsCheckboxes[element.id].Alerts != undefined) {
+              for(var j = 0, alertsLength = $scope.alerts[element.id].length; j < alertsLength; j++) {
+                if($scope.projectsCheckboxes[element.id].Alerts[$scope.alerts[element.id][j].id])
+                  $scope.exportData.Alerts.push($scope.alerts[element.id][j]);
+              }
+            }
+
             if($scope.exportData.Projects.length == 0) delete $scope.exportData.Projects;
             if($scope.exportData.DataProviders.length == 0) delete $scope.exportData.DataProviders;
             if($scope.exportData.DataSeries.length == 0) delete $scope.exportData.DataSeries;
             if($scope.exportData.Collectors.length == 0) delete $scope.exportData.Collectors;
             if($scope.exportData.Analysis.length == 0) delete $scope.exportData.Analysis;
             if($scope.exportData.Views.length == 0) delete $scope.exportData.Views;
+            if($scope.exportData.Alerts.length == 0) delete $scope.exportData.Alerts;
           }
         }
 
@@ -341,7 +359,8 @@ define(function() {
           "DataSeries": [],
           "Collectors": [],
           "Analysis": [],
-          "Views": []
+          "Views": [],
+          "Alerts": []
         };
 
         $('#exportModal').modal('hide');
@@ -372,7 +391,8 @@ define(function() {
                   !json.hasOwnProperty("DataProviders") &&
                   !json.hasOwnProperty("Analysis") &&
                   !json.hasOwnProperty("Collectors") &&
-                  !json.hasOwnProperty("Views")) {
+                  !json.hasOwnProperty("Views") &&
+                  !json.hasOwnProperty("Alerts")) {
                 MessageBoxService.danger("Data Import", new Error("Invalid configuration file"));
                 return;
               }
@@ -386,10 +406,12 @@ define(function() {
                 $scope.hasCollect = false;
                 $scope.hasAnalysis = false;
                 $scope.hasView = false;
+                $scope.hasAlert = false;
 
                 if(json.Collectors !== undefined && json.Collectors.length > 0) $scope.hasCollect = true;
                 if(json.Analysis !== undefined && json.Analysis.length > 0) $scope.hasAnalysis = true;
-                if(json.Views !== undefined && json.Views.length > 0) $scope.hasView = true; 
+                if(json.Views !== undefined && json.Views.length > 0) $scope.hasView = true;
+                if(json.Alerts !== undefined && json.Alerts.length > 0) $scope.hasAlert = true;
 
                 if($scope.model === undefined || $scope.model.length === 0) {
                   MessageBoxService.danger("Data Import", new Error("To import this file you need to have at least one project"));
@@ -399,6 +421,8 @@ define(function() {
                   MessageBoxService.danger("Data Import", new Error("To import this file you need to have at least one analysis service"));
                 } else if(json.Views !== undefined && json.Views.length > 0 && $scope.services.VIEW.length === 0) {
                   MessageBoxService.danger("Data Import", new Error("To import this file you need to have at least one view service"));
+                } else if(json.Alerts !== undefined && json.Alerts.length > 0 && $scope.services.ALERT.length === 0) {
+                  MessageBoxService.danger("Data Import", new Error("To import this file you need to have at least one alert service"));
                 } else {
                   $('#importModal').modal('show');
                 }
@@ -425,12 +449,16 @@ define(function() {
           if($scope.hasView)
             $scope.extra.importJson['servicesView'] = $scope.selectedServices.View;
 
+          if($scope.hasAlert)
+            $scope.extra.importJson['servicesAlert'] = $scope.selectedServices.Alert;
+
           socket.emit("import", $scope.extra.importJson);
           $('#importModal').modal('hide');
 
           $scope.hasCollect = false;
           $scope.hasAnalysis = false;
-          $scope.hasView = false; 
+          $scope.hasView = false;
+          $scope.hasAlert = false;
         }
       }
     };
@@ -442,11 +470,13 @@ define(function() {
       $scope.dataSeriesStatic = {};
       $scope.analysis = {};
       $scope.views = {};
+      $scope.alerts = {};
       $scope.collectors = {};
       $scope.services = {
         COLLECT: [],
         ANALYSIS: [],
-        VIEW: []
+        VIEW: [],
+        ALERT: []
       };
 
       response.data.map(function(project, index) {
@@ -455,85 +485,73 @@ define(function() {
             project: true
           };
 
-        $http.get("/api/DataProvider/project/" + project.id, {}).success(function(dataProviders) {
-          $scope.dataProviders[project.id] = dataProviders;
+        $http.get("/api/DataProvider/project/" + project.id, {}).then(function(dataProviders) {
+          $scope.dataProviders[project.id] = dataProviders.data;
 
           if($scope.projectsCheckboxes[project.id].DataProviders == undefined)
             $scope.projectsCheckboxes[project.id].DataProviders = {};
 
-          for(var j = 0, dataProvidersLength = dataProviders.length; j < dataProvidersLength; j++) {
-            $scope.projectsCheckboxes[project.id].DataProviders[dataProviders[j].id] = true;
+          for(var j = 0, dataProvidersLength = dataProviders.data.length; j < dataProvidersLength; j++) {
+            $scope.projectsCheckboxes[project.id].DataProviders[dataProviders.data[j].id] = true;
           }
-        }).catch(function(err) {
+        }, function(err) {
           console.log("Err in retrieving data providers");
         }).finally(function() {
           $scope.loading = false;
         });
 
-        $http({
-          url: "/api/DataSeries/project/" + project.id,
-          method: "GET",
-          params: {
-            collector: true,
-            type: "dynamic",
-            ignoreAnalysisOutputDataSeries: true
+        $http.get("/api/DataSeries/project/" + project.id, {
+          collector: true,
+          type: "dynamic",
+          ignoreAnalysisOutputDataSeries: true
+        }).then(function(dataSeries) {
+          $scope.dataSeries[project.id] = dataSeries.data;
+
+          if($scope.projectsCheckboxes[project.id].DataSeries == undefined)
+            $scope.projectsCheckboxes[project.id].DataSeries = {};
+
+          var dataSeriesIds = [];
+
+          for(var j = 0, dataSeriesLength = dataSeries.data.length; j < dataSeriesLength; j++) {
+            $scope.projectsCheckboxes[project.id].DataSeries[dataSeries.data[j].id] = true;
+            dataSeriesIds.push(dataSeries.data[j].id);
           }
-        }).then(
-          function(dataSeries) {
-            $scope.dataSeries[project.id] = dataSeries.data;
 
-            if($scope.projectsCheckboxes[project.id].DataSeries == undefined)
-              $scope.projectsCheckboxes[project.id].DataSeries = {};
-
-            var dataSeriesIds = [];
-
-            for(var j = 0, dataSeriesLength = dataSeries.data.length; j < dataSeriesLength; j++) {
-              $scope.projectsCheckboxes[project.id].DataSeries[dataSeries.data[j].id] = true;
-              dataSeriesIds.push(dataSeries.data[j].id);
-            }
-
-            socket.emit("getDependencies", {
-              objectType: "DataSeries",
-              ids: dataSeriesIds,
-              projectId: project.id
-            });
-          }, function(err) {
-            console.log("Err in retrieving data series");
-          }
-        ).finally(function() {
+          socket.emit("getDependencies", {
+            objectType: "DataSeries",
+            ids: dataSeriesIds,
+            projectId: project.id
+          });
+        }, function(err) {
+          console.log("Err in retrieving data series");
+        }).finally(function() {
           $scope.loading = false;
         });
 
-        $http({
-          url: "/api/DataSeries/project/" + project.id,
-          method: "GET",
-          params: {
-            type: "static",
-            ignoreAnalysisOutputDataSeries: true
+        $http.get("/api/DataSeries/project/" + project.id, {
+          type: "static",
+          ignoreAnalysisOutputDataSeries: true
+        }).then(function(dataSeries) {
+          $scope.dataSeriesStatic[project.id] = dataSeries.data;
+
+          if($scope.projectsCheckboxes[project.id].DataSeriesStatic == undefined)
+            $scope.projectsCheckboxes[project.id].DataSeriesStatic = {};
+
+          var dataSeriesIds = [];
+
+          for(var j = 0, dataSeriesLength = dataSeries.data.length; j < dataSeriesLength; j++) {
+            $scope.projectsCheckboxes[project.id].DataSeriesStatic[dataSeries.data[j].id] = true;
+            dataSeriesIds.push(dataSeries.data[j].id);
           }
-        }).then(
-          function(dataSeries) {
-            $scope.dataSeriesStatic[project.id] = dataSeries.data;
 
-            if($scope.projectsCheckboxes[project.id].DataSeriesStatic == undefined)
-              $scope.projectsCheckboxes[project.id].DataSeriesStatic = {};
-
-            var dataSeriesIds = [];
-
-            for(var j = 0, dataSeriesLength = dataSeries.data.length; j < dataSeriesLength; j++) {
-              $scope.projectsCheckboxes[project.id].DataSeriesStatic[dataSeries.data[j].id] = true;
-              dataSeriesIds.push(dataSeries.data[j].id);
-            }
-
-            socket.emit("getDependencies", {
-              objectType: "DataSeriesStatic",
-              ids: dataSeriesIds,
-              projectId: project.id
-            });
-          }, function(err) {
-            console.log("Err in retrieving data series static");
-          }
-        ).finally(function() {
+          socket.emit("getDependencies", {
+            objectType: "DataSeriesStatic",
+            ids: dataSeriesIds,
+            projectId: project.id
+          });
+        }, function(err) {
+          console.log("Err in retrieving data series static");
+        }).finally(function() {
           $scope.loading = false;
         });
 
@@ -561,17 +579,17 @@ define(function() {
           $scope.loading = false;
         });
 
-        $http.get("/api/View", {}).success(function(views) {
-          $scope.views[project.id] = views;
+        $http.get("/api/View", {}).then(function(views) {
+          $scope.views[project.id] = views.data;
 
           if($scope.projectsCheckboxes[project.id].Views == undefined)
             $scope.projectsCheckboxes[project.id].Views = {};
 
           var viewsIds = [];
 
-          for(var j = 0, viewsLength = views.length; j < viewsLength; j++) {
-            $scope.projectsCheckboxes[project.id].Views[views[j].id] = true;
-            viewsIds.push(views[j].id);
+          for(var j = 0, viewsLength = views.data.length; j < viewsLength; j++) {
+            $scope.projectsCheckboxes[project.id].Views[views.data[j].id] = true;
+            viewsIds.push(views.data[j].id);
           }
 
           socket.emit("getDependencies", {
@@ -579,43 +597,70 @@ define(function() {
             ids: viewsIds,
             projectId: project.id
           });
-        }).catch(function(err) {
+        }, function(err) {
           console.log("Err in retrieving views");
         }).finally(function() {
           $scope.loading = false;
         });
 
-        $http.get("/api/Collector/project/" + project.id, {}).success(function(collectors) {
+        $http.get("/api/Alert", {}).then(function(alerts) {
+          $scope.alerts[project.id] = alerts.data;
+
+          if($scope.projectsCheckboxes[project.id].Alerts == undefined)
+            $scope.projectsCheckboxes[project.id].Alerts = {};
+
+          var alertsIds = [];
+
+          for(var j = 0, alertsLength = alerts.data.length; j < alertsLength; j++) {
+            $scope.projectsCheckboxes[project.id].Alerts[alerts.data[j].id] = true;
+            alertsIds.push(alerts.data[j].id);
+          }
+
+          socket.emit("getDependencies", {
+            objectType: "Alerts",
+            ids: alertsIds,
+            projectId: project.id
+          });
+        }, function(err) {
+          console.log("Err in retrieving alerts");
+        }).finally(function() {
+          $scope.loading = false;
+        });
+
+        $http.get("/api/Collector/project/" + project.id, {}).then(function(collectors) {
           $scope.collectors[project.id] = collectors;
-        }).catch(function(err) {
+        }, function(err) {
           console.log("Err in retrieving collectors");
         }).finally(function() {
           $scope.loading = false;
         });
 
-        $http.get("/api/Service/", {}).success(function(services) {
-          for(var j = 0, servicesLength = services.length; j < servicesLength; j++) {
-            switch(services[j].service_type_id) {
+        $http.get("/api/Service/", {}).then(function(services) {
+          for(var j = 0, servicesLength = services.data.length; j < servicesLength; j++) {
+            switch(services.data[j].service_type_id) {
               case 1:
-                $scope.services.COLLECT.push(services[j]);
+                $scope.services.COLLECT.push(services.data[j]);
                 break;
               case 2:
-                $scope.services.ANALYSIS.push(services[j]);
+                $scope.services.ANALYSIS.push(services.data[j]);
                 break;
               case 3:
-                $scope.services.VIEW.push(services[j]);
+                $scope.services.VIEW.push(services.data[j]);
+                break;
+              case 4:
+                $scope.services.ALERT.push(services.data[j]);
                 break;
               default:
                 break;
             }
           }
-        }).catch(function(err) {
+        }, function(err) {
           console.log("Err in retrieving services");
         }).finally(function() {
           $scope.loading = false;
         });
       });
-    }).catch(function(err) {
+    }, function(err) {
       console.log("Err in retrieving projects");
     }).finally(function() {
       $scope.loading = false;
