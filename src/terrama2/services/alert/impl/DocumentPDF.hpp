@@ -61,6 +61,22 @@ namespace terrama2
 
             static std::string makeDocument(core::ReportPtr report)
             {
+              QString documentSavePath = QString::fromStdString(report->documentSavePath());
+
+              if(documentSavePath.isEmpty())
+              {
+                QString errMsg = QObject::tr("Couldn't create PDF document: Directory to store was not informed! ");
+                throw NotifierException() << ErrorDescription(errMsg);
+              }
+
+              QDir dir(documentSavePath);
+
+              if(!dir.exists())
+              {
+                QString errMsg = QObject::tr("Couldn't create PDF document! Informed directory doesn't exists: %1 ").arg(dir.absolutePath());
+                throw NotifierException() << ErrorDescription(errMsg);
+              }
+
               // Message body
               std::string body;
 
@@ -80,27 +96,13 @@ namespace terrama2
 
               core::replaceReportTags(body, report);
 
-              QString documentSavePath = QString::fromStdString(report->documentSavePath());
 
-              if(documentSavePath.isEmpty())
-              {
-                QString errMsg = QObject::tr("Couldn't create PDF document: Directory to store was not informed! ");
-                throw NotifierException() << ErrorDescription(errMsg);
-              }
 
-              QDir dir(documentSavePath);
+              std::string filePath = dir.absolutePath().toStdString() + "/"
+                                     + terrama2::core::simplifyString(report->name())
+                                     + ".pdf";
 
-              if(!dir.exists())
-              {
-                QString errMsg = QObject::tr("Couldn't create PDF document! Informed directory doesn't exists: %1 ").arg(dir.absolutePath());
-                throw NotifierException() << ErrorDescription(errMsg);
-              }
-
-              std::string path = dir.absolutePath().toStdString() + "/"
-                                 + terrama2::core::simplifyString(report->name())
-                                 + ".pdf";
-
-              QPdfWriter writer(QString::fromStdString(path));
+              QPdfWriter writer(QString::fromStdString(filePath));
               writer.setPageSize(QPagedPaintDevice::A4);
 
               // TODO: Qt > 5.2
@@ -124,9 +126,9 @@ namespace terrama2
 
               td.print(&writer);
 
-              TERRAMA2_LOG_INFO() << QObject::tr("Report document generated at '%1'").arg(QString::fromStdString(path));
+              TERRAMA2_LOG_INFO() << QObject::tr("Report document generated at '%1'").arg(QString::fromStdString(filePath));
 
-              return path;
+              return filePath;
             }
 
         } /* documentPDF */
