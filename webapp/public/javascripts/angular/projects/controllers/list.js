@@ -501,9 +501,11 @@ define(function() {
         });
 
         $http.get("/api/DataSeries/project/" + project.id, {
-          collector: true,
-          type: "dynamic",
-          ignoreAnalysisOutputDataSeries: true
+          params: {
+            collector: true,
+            type: "dynamic",
+            ignoreAnalysisOutputDataSeries: true
+          }
         }).then(function(dataSeries) {
           $scope.dataSeries[project.id] = dataSeries.data;
 
@@ -529,8 +531,10 @@ define(function() {
         });
 
         $http.get("/api/DataSeries/project/" + project.id, {
-          type: "static",
-          ignoreAnalysisOutputDataSeries: true
+          params: {
+            type: "static",
+            ignoreAnalysisOutputDataSeries: true
+          }
         }).then(function(dataSeries) {
           $scope.dataSeriesStatic[project.id] = dataSeries.data;
 
