@@ -43,6 +43,9 @@
 #include <QUrl>
 #include <QObject>
 
+//boost
+#include <boost/algorithm/string/replace.hpp>
+
 std::string terrama2::core::DataAccessorPostGIS::whereConditions(terrama2::core::DataSetPtr dataSet,
                                                                  const std::string datetimeColumnName,
                                                                  const terrama2::core::Filter& filter) const
@@ -50,7 +53,6 @@ std::string terrama2::core::DataAccessorPostGIS::whereConditions(terrama2::core:
   std::vector<std::string> whereConditions;
   addDateTimeFilter(datetimeColumnName, filter, whereConditions);
   addGeometryFilter(dataSet, filter, whereConditions);
-;
 
   std::string conditions;
   if(!whereConditions.empty())
@@ -61,24 +63,41 @@ std::string terrama2::core::DataAccessorPostGIS::whereConditions(terrama2::core:
   }
 
   std::string lastDatesJoin = addLastDatesFilter(dataSet, datetimeColumnName, filter, conditions);
-
-  if(!filter.byValue.empty())
-  {
-    if(!conditions.empty())
-      conditions +=" AND " + filter.byValue;
-    else
-      conditions = filter.byValue;
-  }
+  addValueFilter(filter, conditions);
 
   std::string where;
-
   if(!lastDatesJoin.empty())
     where += lastDatesJoin;
 
   if(!conditions.empty())
-    where = " WHERE "+ conditions;
+    where += " WHERE "+ conditions;
 
   return where;
+}
+
+void terrama2::core::DataAccessorPostGIS::addValueFilter(const terrama2::core::Filter& filter,
+                                                         std::string& conditions) const
+{
+  std::string condition = filter.byValue;
+  //Protect from single quote based injections
+  boost::replace_all(condition, "'", "''");
+
+  //Protect from injections with semi-colon
+  size_t off = condition.find(';');
+  if (off != std::string::npos)
+  {
+    QString errMsg = QObject::tr("Malformed or malicious filter condition.\n%1").arg(QString::fromStdString(filter.byValue));
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw Exception() << ErrorDescription(errMsg);;
+  }
+
+  if(!filter.byValue.empty())
+  {
+    if(!conditions.empty())
+      conditions +=" AND " + condition;
+    else
+      conditions = condition;
+  }
 }
 
 terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGIS::getSeries(const std::string& uri, const terrama2::core::Filter& filter,
