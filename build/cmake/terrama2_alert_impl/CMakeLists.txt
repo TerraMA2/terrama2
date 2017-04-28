@@ -53,8 +53,11 @@ qt5_use_modules(terrama2_alert_impl Core)
 
 target_link_libraries(terrama2_alert_impl terrama2_core
                                           terrama2_alert_core
-                                          terralib_mod_dataaccess
-                                          ${VMIME_LIBRARY})
+                                          terralib_mod_dataaccess)
+
+IF(VMIME_FOUND)
+  target_link_libraries(terrama2_alert_impl ${VMIME_LIBRARY})
+ENDIF()
 
 set_target_properties(terrama2_alert_impl
                       PROPERTIES VERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}
