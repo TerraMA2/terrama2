@@ -136,7 +136,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGIS::getSeries(con
   {
      datetimeColumnName = getTimestampPropertyName(dataSet, false);
   }
-  catch(const UndefinedTagException /*e*/)
+  catch(const UndefinedTagException& /*e*/)
   {
     // do nothing
   }
@@ -174,7 +174,6 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGIS::getSeries(con
   series.syncDataSet.reset(new terrama2::core::SynchronizedDataSet(tempDataSet));
   series.teDataSetType = transactor->getDataSetType(tableName);
 
-  return series;
   return series;
 }
 
