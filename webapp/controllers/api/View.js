@@ -21,8 +21,9 @@
     return {
       get: function(request, response) {
         var viewId = request.params.id;
+        var projectId = request.params.project_id;
         
-        ViewFacade.retrieve(viewId, app.locals.activeProject.id)
+        ViewFacade.retrieve(viewId, (projectId ? projectId : app.locals.activeProject.id))
           .then(function(views) {
             return response.json(views);
           })

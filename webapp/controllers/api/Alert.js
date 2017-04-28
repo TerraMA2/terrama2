@@ -13,8 +13,9 @@
     return {
       get: function(request, response){
         var alertId = request.params.id;
+        var projectId = request.params.project_id;
         
-        AlertFacade.retrieve(alertId, app.locals.activeProject.id)
+        AlertFacade.retrieve(alertId, (projectId ? projectId : app.locals.activeProject.id))
           .then(function(alerts) {
             return response.json(alerts);
           })
