@@ -354,12 +354,7 @@ module.exports = function(app) {
                     };
 
                     // tcp sending
-                    TcpService.send(output)
-                      .then(function() {
-                        if (shouldRun) {
-                          return TcpService.run({"ids": [collector.id], "service_instance": collector.service_instance_id});
-                        }
-                      });
+                    TcpService.send(output);
 
                     return dataSeriesOutput;
                   });
@@ -481,7 +476,13 @@ module.exports = function(app) {
       })
       // on success (transaction commit)
       .then(function(dataSeries) {
-        var token = Utils.generateToken(app, TokenCode.UPDATE, dataSeries.name);
+        var extra = {};
+        if (shouldRun && dataSeriesObject.hasOwnProperty('input') && dataSeriesObject.hasOwnProperty('output')){
+          extra = {
+            id: dataSeries.id
+          }
+        }
+        var token = Utils.generateToken(app, TokenCode.UPDATE, dataSeries.name, extra);
         return response.json({status: 200, result: dataSeries.toObject(), token: token});
       })
 

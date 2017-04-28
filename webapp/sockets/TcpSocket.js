@@ -98,8 +98,40 @@ var TcpSocket = function(io) {
    * @param {string} resp.message - An error message
    */
   TcpService.on("serviceError", function(resp) {
-    iosocket.emit("errorResponse", resp);
+    var errMessage = serviceErrorMessageHandler(resp);
+    iosocket.emit("errorResponse", errMessage);
   });
+
+  /**
+   * Function to handle service error messages
+   */
+  var serviceErrorMessageHandler = function(err){
+    var errMessageResponse = {
+      message: "Unknown service error"
+    };
+    if (err){
+      errMessageResponse.service = err.service;
+      if (err.exception && err.exception.code){
+        switch(err.exception.code){
+          case "ECONNREFUSED":
+          case "ECONNRESET":
+            errMessageResponse.message = "Connection with service refused, check if the service is running!";
+            break;
+          case "EACCES":
+            errMessageResponse.message = "Permission denied to service!";
+            break;
+          case "ETIMEDOUT":
+            errMessageResponse.message = "Service connection time out!";            
+          default:
+            break;
+        }
+      } else {
+        if (err.message)
+          errMessageResponse.message = err.message;
+      }
+    } 
+    return errMessageResponse;
+  }
 
   /**
    * Defines a status listener to broadcast everyone.
