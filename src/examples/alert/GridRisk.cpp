@@ -151,15 +151,13 @@ int main(int argc, char* argv[])
   auto alert = newAlert();
   dataManager->add(alert);
 
-  te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PASSWORD+"@"+TERRAMA2_DATABASE_HOST+":"+TERRAMA2_DATABASE_PORT+"/"+TERRAMA2_DATABASE_DBNAME);
-
   auto logger = std::make_shared<AlertLoggerMock>();
   ::testing::DefaultValue<RegisterId>::Set(1);
   EXPECT_CALL(*logger.get(), setConnectionInfo(_)).Times(::testing::AtLeast(1));
   EXPECT_CALL(*logger.get(), start(_)).WillRepeatedly(::testing::Return(1));
   EXPECT_CALL(*logger.get(), result(_, _, _));
 
-  logger->setConnectionInfo(uri);
+  logger->setConnectionInfo(te::core::URI());
 
   QJsonObject additionalIfo;
   additionalIfo.insert("email_server", QString("smtp://vmimeteste@gmail.com:a1a2a3a4@smtp.gmail.com:587"));
