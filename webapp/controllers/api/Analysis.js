@@ -11,7 +11,8 @@ module.exports = function(app) {
     get: function(request, response) {
       var analysisId = request.params.id;
       var restriction = analysisId ? {id: analysisId} : {};
-      restriction.project_id = app.locals.activeProject.id;
+      var projectId = (request.query.project_id ? request.query.project_id : (request.params.project_id ? request.params.project_id : false));
+      restriction.project_id = (projectId ? projectId : app.locals.activeProject.id);
 
       AnalysisFacade.list(restriction).then(function(analysis) {
         return response.json(analysis);

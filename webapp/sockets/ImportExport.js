@@ -22,8 +22,21 @@ var ImportExport = function(io) {
   // bluebird promise
   var Promise = require("bluebird");
 
+  // clone module
+  var clone = require('clone');
+
   // Socket connection event
   iosocket.on('connection', function(client) {
+
+    var countObjectProperties = function(object) {
+      var count = 0;
+      
+      if(object !== undefined && object !== null && typeof object === "object")
+        for(var key in object) if(object.hasOwnProperty(key)) count++;
+
+      return count;
+    };
+
     /**
      * TerraMA2 Import Listener. It prepares a json and load them to Database if does not exist.
      * @param {Object} json - A javascript object containing what intend to import.
@@ -37,6 +50,8 @@ var ImportExport = function(io) {
      *   "DataProviders": [providerA, providerB, ...providerN],
      *   "DataSeries":    [dataSeriesA, dataSeriesB, ...dataSeriesN],
      *   "Analysis":      [analysisA, analysisB, ...analysisN],
+     *   "Views":      [viewA, viewB, ...viewN],
+     *   "Alerts":      [alertA, alertB, ...alertN],
      * })
      */
     client.on("import", function(json) {
@@ -45,7 +60,7 @@ var ImportExport = function(io) {
        */
       var promises = [];
       var output = {};
-      if (!json || !Utils.isObject(json)) {
+      if(!json || !Utils.isObject(json)) {
         client.emit("importResponse", {
           err: "Unknown error: the parameter must be a object",
           status: 400
@@ -69,7 +84,7 @@ var ImportExport = function(io) {
         var thereAreProjects = (json.Projects !== undefined && json.Projects.length > 0); 
 
         // if there any project to import
-        if (json.Projects) {
+        if(json.Projects) {
           var projects = json.Projects || [];
           output.Projects = [];
           projects.forEach(function(project) {
@@ -94,7 +109,7 @@ var ImportExport = function(io) {
 
           var tcpOutput = {};
 
-          if (json.DataProviders) {
+          if(json.DataProviders) {
             var dataProviders = json.DataProviders || [];
             output.DataProviders = [];
             dataProviders.forEach(function(dataProvider) {
@@ -113,7 +128,7 @@ var ImportExport = function(io) {
 
           return Promise.all(promises).then(function() {
             promises = [];
-            if (json.DataSeries) {
+            if(json.DataSeries) {
               var dataSeries = json.DataSeries ||  [];
               output.DataSeries = [];
 
@@ -151,7 +166,7 @@ var ImportExport = function(io) {
             }
             return Promise.all(promises).then(function() {
               promises = [];
-              if (json.Collectors) {
+              if(json.Collectors) {
                 var collectors = json.Collectors || [];
 
                 collectors.forEach(function(collector) {
@@ -160,128 +175,202 @@ var ImportExport = function(io) {
                   var dsOutput = Utils.find(output.DataSeries, {$id: collector.output_data_series});
                   collector.data_series_output = dsOutput.id;
 
-                  delete collector.schedule.id;
-                  promises.push(DataManager.addSchedule(collector.schedule, options).then(function(scheduleResult) {
-                    collector.schedule_id = scheduleResult.id;
+                  var date = {};
 
-                    var date = {};
+                  if(collector.filter && collector.filter.discard_after)
+                    date.afterDate = Utils.dateFromFormat(collector.filter.discard_after);
 
-                    if (collector.filter && collector.filter.discard_after) {
-                      date.afterDate = Utils.dateFromFormat(collector.filter.discard_after);
-                    }
+                  if(collector.filter && collector.filter.discard_before)
+                    date.beforeDate = Utils.dateFromFormat(collector.filter.discard_before);
 
-                    if (collector.filter && collector.filter.discard_before) {
-                      date.beforeDate = Utils.dateFromFormat(collector.filter.discard_before);
-                    }
+                  if(collector.filter && collector.filter.data_series_id)
+                    collector.filter.data_series_id = Utils.find(output.DataSeries, {$id: collector.filter.data_series_id}).id;
 
-                    if (collector.filter && collector.filter.data_series_id) {
-                      collector.filter.data_series_id = Utils.find(output.DataSeries, {$id: collector.filter.data_series_id}).id;
-                    }
+                  collector.filter.date = date;
 
-                    collector.filter.date = date;
-                    if(collector.service_instance_id === null) collector.service_instance_id = json.servicesCollect;
+                  if(collector.service_instance_id === null) collector.service_instance_id = json.servicesCollect;
 
-                    return DataManager.addCollector(collector, collector.filter, options).then(function(collectorResult) {
+                  if(countObjectProperties(collector.schedule) > 0) {
+                    delete collector.schedule.id;
+
+                    promises.push(DataManager.addSchedule(collector.schedule, options).then(function(scheduleResult) {
+                      collector.schedule_id = scheduleResult.id;
+
+                      return DataManager.addCollector(collector, collector.filter, options).then(function(collectorResult) {
+                        collectorResult.project_id = Utils.find(output.DataSeries, {id: collectorResult.data_series_input}).dataProvider.project_id;
+
+                        if(tcpOutput.Collectors === undefined) tcpOutput.Collectors = [];
+                        tcpOutput.Collectors.push(collectorResult.toObject());
+                      });
+                    }));
+                  } else {
+                    promises.push(DataManager.addCollector(collector, collector.filter, options).then(function(collectorResult) {
                       collectorResult.project_id = Utils.find(output.DataSeries, {id: collectorResult.data_series_input}).dataProvider.project_id;
 
                       if(tcpOutput.Collectors === undefined) tcpOutput.Collectors = [];
                       tcpOutput.Collectors.push(collectorResult.toObject());
-                    });
-                  }));
+                    }));
+                  }
                 });
               }
 
               return Promise.all(promises).then(function() {
                 promises = [];
 
-                if (json.Analysis) {
+                if(json.Analysis) {
                   var analysisList = json.Analysis || [];
                   analysisList.forEach(function(analysis) {
+                    analysis.analysisDataSeries = analysis.analysis_dataseries_list;
 
-                    delete analysis.schedule.id;
-
-                    promises.push(DataManager.addSchedule(analysis.schedule, options).then(function(schedule) {
-                      analysis.schedule_id = schedule.id;
-
-                      analysis.analysisDataSeries = analysis.analysis_dataseries_list;
-                      for(var i = 0; i < analysis.analysisDataSeries.length; ++i) {
-                        var ds = analysis.analysisDataSeries[i];
-                        for(var k = 0; k < output.DataSeries.length; ++k) {
-                          var anDs = output.DataSeries[k];
-                          if (ds.data_series_id === anDs.$id) {
-                            ds.type_id = ds.type;
-                            ds.data_series_id = anDs.id;
-                            break;
-                          }
+                    for(var i = 0; i < analysis.analysisDataSeries.length; ++i) {
+                      var ds = analysis.analysisDataSeries[i];
+                      for(var k = 0; k < output.DataSeries.length; ++k) {
+                        var anDs = output.DataSeries[k];
+                        if(ds.data_series_id === anDs.$id) {
+                          ds.type_id = ds.type;
+                          ds.data_series_id = anDs.id;
+                          break;
                         }
                       }
+                    }
 
-                      analysis.type_id = analysis.type.id;
+                    analysis.type_id = analysis.type.id;
 
-                      analysis.instance_id = analysis.service_instance_id;
-                      analysis.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: analysis.project_id}).id : json.selectedProject;
-                      analysis.script_language_id = analysis.script_language;
-                      analysis.grid = analysis.output_grid;
-                      var dataSeriesOutput = Utils.find(output.DataSeries, {
-                        $id: analysis.output_dataseries_id
-                      });
-                      // if there grid analysis, check if there data series id, like resolution data series id.
-                      // it must be changed, since it should be a different id
-                      if (analysis.grid && analysis.grid.analysis_id) {
-                        // TODO: It must retrieve all data series, instead retrieve one per once
-                        if (analysis.grid.resolution_data_series_id) {
-                          analysis.grid.resolution_data_series_id = Utils.find(output.DataSeries, {$id: analysis.grid.resolution_data_series_id}).id;
-                        }
+                    analysis.instance_id = analysis.service_instance_id;
+                    analysis.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: analysis.project_id}).id : json.selectedProject;
+                    analysis.script_language_id = analysis.script_language;
+                    analysis.grid = analysis.output_grid;
+                    var dataSeriesOutput = Utils.find(output.DataSeries, {
+                      $id: analysis.output_dataseries_id
+                    });
+                    // if there grid analysis, check if there data series id, like resolution data series id.
+                    // it must be changed, since it should be a different id
+                    if(analysis.grid && analysis.grid.analysis_id) {
+                      // TODO: It must retrieve all data series, instead retrieve one per once
+                      if(analysis.grid.resolution_data_series_id)
+                        analysis.grid.resolution_data_series_id = Utils.find(output.DataSeries, {$id: analysis.grid.resolution_data_series_id}).id;
 
-                        if (analysis.grid.area_of_interest_data_series_id) {
-                          analysis.grid.area_of_interest_data_series_id = Utils.find(output.DataSeries,
-                                                                                    {$id: analysis.grid.area_of_interest_data_series_id}).id;
-                        }
-                      }
+                      if(analysis.grid.area_of_interest_data_series_id)
+                        analysis.grid.area_of_interest_data_series_id = Utils.find(output.DataSeries, {$id: analysis.grid.area_of_interest_data_series_id}).id;
+                    }
 
-                      if (dataSeriesOutput.data_series_semantics.data_series_type_name === Enums.DataSeriesType.DCP) {
-                        // TODO:
-                        console.log("TODO: Analysis DCP export");
-                      } else {
-                        analysis.dataset_output = dataSeriesOutput.dataSets[0].id;
-                      }
+                    if(dataSeriesOutput.data_series_semantics.data_series_type_name === Enums.DataSeriesType.DCP) {
+                      // TODO:
+                      console.log("TODO: Analysis DCP export");
+                    } else {
+                      analysis.dataset_output = dataSeriesOutput.dataSets[0].id;
+                    }
 
-                      if(analysis.service_instance_id === null) analysis.service_instance_id = json.servicesAnalysis;
-                      if(analysis.instance_id === null) analysis.instance_id = json.servicesAnalysis;
+                    if(analysis.service_instance_id === null) analysis.service_instance_id = json.servicesAnalysis;
+                    if(analysis.instance_id === null) analysis.instance_id = json.servicesAnalysis;
 
-                      return DataManager.addAnalysis(analysis, options).then(function(analysisResult) {
+                    if(countObjectProperties(analysis.schedule)) {
+                      delete analysis.schedule.id;
+
+                      promises.push(DataManager.addSchedule(analysis.schedule, options).then(function(schedule) {
+                        analysis.schedule_id = schedule.id;
+
+                        return DataManager.addAnalysis(analysis, options).then(function(analysisResult) {
+                          if(tcpOutput.Analysis === undefined) tcpOutput.Analysis = [];
+                          tcpOutput.Analysis.push(analysisResult.toObject());
+                        });
+                      }));
+                    } else {
+                      promises.push(DataManager.addAnalysis(analysis, options).then(function(analysisResult) {
                         if(tcpOutput.Analysis === undefined) tcpOutput.Analysis = [];
                         tcpOutput.Analysis.push(analysisResult.toObject());
-                      });
-                    }));
+                      }));
+                    }
                   });
                 }
 
                 return Promise.all(promises).then(function() {
                   promises = [];
 
-                  if (json.Views) {
+                  if(json.Views) {
                     var viewsList = json.Views || [];
                     viewsList.forEach(function(view) {
+                      view.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: view.project_id}).id : json.selectedProject;
+                      view.data_series_id = Utils.find(output.DataSeries, {$id: view.data_series_id}).id;
+                      if(view.service_instance_id === null) view.service_instance_id = json.servicesView;
 
-                      delete view.schedule.id;
+                      if(countObjectProperties(view.schedule) > 0) {
+                        delete view.schedule.id;
 
-                      promises.push(DataManager.addSchedule(view.schedule, options).then(function(schedule) {
-                        view.schedule_id = schedule.id;
-                        view.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: view.project_id}).id : json.selectedProject;
-                        view.data_series_id = Utils.find(output.DataSeries, {$id: view.data_series_id}).id;
-                        if(view.service_instance_id === null) view.service_instance_id = json.servicesView;
+                        promises.push(DataManager.addSchedule(view.schedule, options).then(function(schedule) {
+                          view.schedule_id = schedule.id;
 
-                        return DataManager.addView(view, options).then(function(viewResult) {
+                          return DataManager.addView(view, options).then(function(viewResult) {
+                            if(tcpOutput.Views === undefined) tcpOutput.Views = [];
+                            tcpOutput.Views.push(viewResult.toObject());
+                          });
+                        }));
+                      } else {
+                        promises.push(DataManager.addView(view, options).then(function(viewResult) {
                           if(tcpOutput.Views === undefined) tcpOutput.Views = [];
                           tcpOutput.Views.push(viewResult.toObject());
-                        });
-                      }));
+                        }));
+                      }
                     });
                   }
 
                   return Promise.all(promises).then(function() {
-                    TcpService.send(tcpOutput);
+                    promises = [];
+
+                    if(json.Alerts) {
+                      var alertsList = json.Alerts || [];
+
+                      alertsList.forEach(function(alert) {
+                        alert.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: alert.project_id}).id : json.selectedProject;
+                        alert.data_series_id = Utils.find(output.DataSeries, {$id: alert.data_series_id}).id;
+                        if(alert.service_instance_id === null) alert.service_instance_id = json.servicesAlert;
+
+                        var risk;
+
+                        for(var i = 0, risksLength = json.Risks.length; i < risksLength; i++) {
+                          if(alert.risk_id === json.Risks[i].id) {
+                            risk = clone(json.Risks[i]);
+                            break;
+                          }
+                        }
+
+                        delete alert.conditional_schedule.id;
+                        delete risk.id;
+                        delete alert.report_metadata.id;
+
+                        for(var i = 0, levelsLength = risk.levels.length; i < levelsLength; i++)
+                          delete risk.levels[i].id;
+
+                        for(var i = 0, additionalDataLength = alert.additional_data.length; i < additionalDataLength; i++)
+                          delete alert.additional_data[i].id;
+
+                        for(var i = 0, notificationsLength = alert.notifications.length; i < notificationsLength; i++)
+                          delete alert.notifications[i].id;
+
+                        alert.risk = risk;
+
+                        var addSchedulePromise = DataManager.addSchedule(alert.conditional_schedule, options).then(function(schedule) {
+                          alert.conditional_schedule_id = schedule.id;
+                        });
+                        
+                        var addRiskPromise = DataManager.addRisk(risk, options).then(function(riskResult) {
+                          alert.risk_id = riskResult.id;
+                        });
+
+                        promises.push(
+                          Promise.join(addSchedulePromise, addRiskPromise).then(function() {
+                            return DataManager.addAlert(alert, options).then(function(alertResult) {
+                              if(tcpOutput.Alerts === undefined) tcpOutput.Alerts = [];
+                              tcpOutput.Alerts.push(alertResult);
+                            });
+                          })
+                        );
+                      });
+                    }
+
+                    return Promise.all(promises).then(function() {
+                      TcpService.send(tcpOutput);
+                    });
                   });
                 });
               });
@@ -296,17 +385,17 @@ var ImportExport = function(io) {
         });
       }).catch(function(err){
         // remove cached data in DataManager
-        if (output.Projects && output.Projects.length > 0) {
+        if(output.Projects && output.Projects.length > 0) {
           var projects = Utils.removeAll(DataManager.data.projects, {id: {$in: output.Projects.map(function(proj) { return proj.id; }) }});
           console.log("Removed " + projects.length + " projects");
         }
 
-        if (output.DataSeries && output.DataSeries.length > 0) {
+        if(output.DataSeries && output.DataSeries.length > 0) {
           var ds = Utils.removeAll(DataManager.data.dataSeries, {id: {$in: output.DataSeries.map(function(ds) { return ds.id; }) }});
           console.log("Removed " + ds.length + " data series");
         }
 
-        if (output.DataProviders && output.DataProviders.length > 0) {
+        if(output.DataProviders && output.DataProviders.length > 0) {
           var providers = Utils.removeAll(DataManager.data.dataProviders, {id: {$in: output.DataProviders.map(function(prov) { return prov.id; }) }});
           console.log("Removed " + providers.length + " providers");
         }
@@ -340,7 +429,9 @@ var ImportExport = function(io) {
         DataSeries: [],
         Collectors: [],
         Analysis: [],
-        Views: []
+        Views: [],
+        Alerts: [],
+        Risks: []
       };
 
       var _emitError = function(err) {
@@ -391,7 +482,13 @@ var ImportExport = function(io) {
         }).then(function(collector) {
           if(!isInArray(collector.id, output.Collectors)) {
             collector.service_instance_id = null;
-            output.Collectors.push(addID(collector));
+
+            var collectorToAdd = addID(collector);
+
+            if(countObjectProperties(collectorToAdd.schedule) > 0)
+              collectorToAdd.schedule.scheduleType = collectorToAdd.schedule_type;
+
+            output.Collectors.push(collectorToAdd);
 
             var dataSeriesPromises = [
               DataManager.getDataSeries({id: collector.data_series_input}).then(function(dataSeries) {
@@ -447,7 +544,12 @@ var ImportExport = function(io) {
 
         promises.push(DataManager.listCollectors({DataProvider: {project_id: target.id}}).then(function(collectors) {
           collectors.forEach(function(collector) {
-            output.Collectors.push(addID(collector));
+            var collectorToAdd = addID(collector);
+
+            if(countObjectProperties(collectorToAdd.schedule) > 0)
+              collectorToAdd.schedule.scheduleType = collectorToAdd.schedule_type;
+
+            output.Collectors.push(collectorToAdd);
           });
         }));
 
@@ -461,13 +563,38 @@ var ImportExport = function(io) {
               analysisDS.$id = analysisDS.id;
               delete analysisDS.id;
             });
+
+            if(countObjectProperties(rawAnalysis.schedule) > 0)
+              rawAnalysis.schedule.scheduleType = rawAnalysis.schedule_type;
+
             output.Analysis.push(rawAnalysis);
           });
         }));
 
         promises.push(DataManager.listViews({project_id: target.id}).then(function(viewsList) {
           viewsList.forEach(function(view) {
-            output.Views.push(addID(view));
+            var viewToAdd = addID(view);
+
+            if(countObjectProperties(viewToAdd.schedule) > 0)
+              viewToAdd.schedule.scheduleType = viewToAdd.schedule_type;
+
+            output.Views.push(viewToAdd);
+          });
+        }));
+
+        promises.push(DataManager.listAlerts({project_id: target.id}).then(function(alertsList) {
+          alertsList.forEach(function(alert) {
+            var alertToAdd = addID(alert);
+            var risk = alertToAdd.risk;
+
+            alertToAdd.conditional_schedule.scheduleType = 4;
+            alertToAdd.risk_id = risk.id;
+            delete alertToAdd.risk;
+
+            output.Alerts.push(alertToAdd);
+
+            if(!isInArray(risk.id, output.Risks))
+              output.Risks.push(risk);
           });
         }));
       } // end if projects
@@ -499,7 +626,13 @@ var ImportExport = function(io) {
             DataManager.getCollector({id: json.Collectors[i].id}).then(function(collector) {
               if(!isInArray(collector.id, output.Collectors)) {
                 collector.service_instance_id = null;
-                output.Collectors.push(addID(collector));
+
+                var collectorToAdd = addID(collector);
+
+                if(countObjectProperties(collectorToAdd.schedule) > 0)
+                  collectorToAdd.schedule.scheduleType = collectorToAdd.schedule_type;
+
+                output.Collectors.push(collectorToAdd);
 
                 var dataSeriesPromises = [
                   getDataSeries(collector.data_series_input),
@@ -531,6 +664,10 @@ var ImportExport = function(io) {
                 delete rawAnalysis.id;
                 rawAnalysis.project_id = null;
                 rawAnalysis.service_instance_id = null;
+
+                if(countObjectProperties(rawAnalysis.schedule) > 0)
+                  rawAnalysis.schedule.scheduleType = rawAnalysis.schedule_type;
+
                 output.Analysis.push(rawAnalysis);
 
                 var analysisDataseriesListPromises = rawAnalysis.dataSeries.id !== undefined ? [getDataSeries(rawAnalysis.dataSeries.id)] : [];
@@ -560,9 +697,44 @@ var ImportExport = function(io) {
               if(!isInArray(view.id, output.Views)) {
                 view.projectId = null;
                 view.serviceInstanceId = null;
-                output.Views.push(addID(view));
 
-                return getDataSeries(view.dataSeries);
+                var viewToAdd = addID(view);
+
+                if(countObjectProperties(viewToAdd.schedule) > 0)
+                  viewToAdd.schedule.scheduleType = viewToAdd.schedule_type;
+
+                output.Views.push(viewToAdd);
+
+                return getDataSeries(view.dataSeries.id);
+              } else {
+                return Promise.resolve();
+              }
+            })
+          );
+        }
+      }
+
+      if(json.Alerts) {
+        for(var i = 0, alertsLength = json.Alerts.length; i < alertsLength; i++) {
+          promises.push(
+            DataManager.getAlert({id: json.Alerts[i].id}).then(function(alert) {
+              if(!isInArray(alert.id, output.Alerts)) {
+                alert.project_id = null;
+                alert.service_instance_id = null;
+
+                var alertToAdd = addID(alert);
+                var risk = alertToAdd.risk;
+
+                alertToAdd.conditional_schedule.scheduleType = 4;
+                alertToAdd.risk_id = risk.id;
+                delete alertToAdd.risk;
+
+                output.Alerts.push(alertToAdd);
+
+                if(!isInArray(risk.id, output.Risks))
+                  output.Risks.push(risk);
+
+                return getDataSeries(alert.data_series_id);
               } else {
                 return Promise.resolve();
               }
@@ -578,6 +750,8 @@ var ImportExport = function(io) {
         if(output.Collectors.length === 0) delete output.Collectors;
         if(output.Analysis.length === 0) delete output.Analysis;
         if(output.Views.length === 0) delete output.Views;
+        if(output.Alerts.length === 0) delete output.Alerts;
+        if(output.Risks.length === 0) delete output.Risks;
 
         client.emit("exportResponse", { status: 200, data: output, projectName: json.currentProjectName });
       }).catch(_emitError);
@@ -707,7 +881,40 @@ var ImportExport = function(io) {
             DataManager.getView({id: json.ids[i]}).then(function(view) {
               if(output["Views_" + view.id] === undefined) output["Views_" + view.id] = {};
 
-              return getDataSeriesDependencies(view.dataSeries, null, "Views_" + view.id);
+              return getDataSeriesDependencies(view.dataSeries.id, null, "Views_" + view.id);
+            })
+          );
+        }
+      } else if(json.objectType == "Alerts") {
+        for(var i = 0, idsLength = json.ids.length; i < idsLength; i++) {
+          promises.push(
+            DataManager.getAlert({id: json.ids[i]}).then(function(alert) {
+              if(output["Alerts_" + alert.id] === undefined) output["Alerts_" + alert.id] = {};
+
+              var getDataSeriesDependenciesPromise = getDataSeriesDependencies(alert.data_series_id, null, "Alerts_" + alert.id);
+
+              var listAnalysisPromise = DataManager.listAnalysis({project_id: alert.project_id}).then(function(analysisList) {
+                var analysisDataseriesListPromises = [];
+
+                for(var j = 0, analysisLength = analysisList.length; j < analysisLength; j++) {
+                  if(analysisList[j].dataSeries.id === alert.data_series_id) {
+                    if(output["Alerts_" + alert.id].Analysis === undefined) output["Alerts_" + alert.id].Analysis = [];
+                    output["Alerts_" + alert.id].Analysis.push(analysisList[j].id);
+
+                    if(analysisList[j].analysis_dataseries_list.length > 0 && output["Analysis_" + analysisList[j].id] === undefined)
+                      output["Analysis_" + analysisList[j].id] = {};
+
+                    for(var x = 0, analysisDSLength = analysisList[j].analysis_dataseries_list.length; x < analysisDSLength; x++)
+                      analysisDataseriesListPromises.push(getDataSeriesDependencies(analysisList[j].analysis_dataseries_list[x].data_series_id, null, "Analysis_" + analysisList[j].id));
+
+                    break;
+                  }
+                }
+
+                return Promise.all(analysisDataseriesListPromises);
+              });
+
+              return Promise.join(getDataSeriesDependenciesPromise, listAnalysisPromise);
             })
           );
         }
