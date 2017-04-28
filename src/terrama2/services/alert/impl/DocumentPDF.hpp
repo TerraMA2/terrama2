@@ -42,6 +42,7 @@
 #include <QtGui/QPagedPaintDevice>
 #include <QtGui/QPdfWriter>
 #include <QtGui/QTextDocument>
+#include <QFileInfo>
 #include <QDir>
 
 // STL
@@ -69,12 +70,16 @@ namespace terrama2
                 throw NotifierException() << ErrorDescription(errMsg);
               }
 
-              QDir dir(documentSavePath);
+              QFileInfo filePath(documentSavePath);
+              QDir dir =filePath.dir();
 
               if(!dir.exists())
               {
-                QString errMsg = QObject::tr("Couldn't create PDF document! Informed directory doesn't exists: %1 ").arg(dir.absolutePath());
-                throw NotifierException() << ErrorDescription(errMsg);
+                if(!dir.mkdir(dir.absolutePath()))
+                {
+                   QString errMsg = QObject::tr("Couldn't create PDF document! Informed directory coultn'd be created exists: %1 ").arg(dir.absolutePath());
+                   throw NotifierException() << ErrorDescription(errMsg);
+                }
               }
 
               // Message body
@@ -96,13 +101,7 @@ namespace terrama2
 
               core::replaceReportTags(body, report);
 
-
-
-              std::string filePath = dir.absolutePath().toStdString() + "/"
-                                     + terrama2::core::simplifyString(report->name())
-                                     + ".pdf";
-
-              QPdfWriter writer(QString::fromStdString(filePath));
+              QPdfWriter writer(filePath.absoluteFilePath());
               writer.setPageSize(QPagedPaintDevice::A4);
 
               // TODO: Qt > 5.2
@@ -126,9 +125,9 @@ namespace terrama2
 
               td.print(&writer);
 
-              TERRAMA2_LOG_INFO() << QObject::tr("Report document generated at '%1'").arg(QString::fromStdString(filePath));
+              TERRAMA2_LOG_INFO() << QObject::tr("Report document generated at '%1'").arg(filePath.absoluteFilePath());
 
-              return filePath;
+              return filePath.absoluteFilePath().toStdString();
             }
 
         } /* documentPDF */

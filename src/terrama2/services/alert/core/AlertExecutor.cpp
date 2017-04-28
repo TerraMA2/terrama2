@@ -616,9 +616,7 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
 
       std::multimap<std::string, std::string> attachments;
 
-      std::string reportName = alertPtr->name + "_" + dateTimeToString(executionPackage.executionDate);
-
-      ReportPtr reportPtr = std::make_shared<Report>(reportName, alertPtr, inputDataSeries, alertDataSet, vecDates);
+      ReportPtr reportPtr = std::make_shared<Report>(alertPtr, inputDataSeries, alertDataSet, vecDates);
 
       try
       {

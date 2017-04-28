@@ -85,8 +85,7 @@ namespace terrama2
         class Report
         {
           public:
-            Report(std::string name,
-                   AlertPtr alert,
+            Report(AlertPtr alert,
                    terrama2::core::DataSeriesPtr alertDataSeries,
                    std::shared_ptr<te::da::DataSet> alertDataSet,
                    std::vector<std::shared_ptr<te::dt::DateTime>> riskDates);
@@ -96,9 +95,6 @@ namespace terrama2
             Report(Report&& other) = default;
             Report& operator=(const Report& other) = default;
             Report& operator=(Report&& other) = default;
-
-            //*! Gets the report name
-            std::string name() const { return name_; }
 
             //*! Gets the report title
             std::string title() const { return alert_->reportMetadata.at(ReportTags::TITLE); }
@@ -203,7 +199,6 @@ namespace terrama2
 
           protected:
 
-            std::string name_;
             AlertPtr alert_; //!< The alert information
             terrama2::core::DataSeriesPtr alertDataSeries_;
             std::shared_ptr<te::mem::DataSet> dataSet_; //!< The dataSet with alert data

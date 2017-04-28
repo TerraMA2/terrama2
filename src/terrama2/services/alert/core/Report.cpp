@@ -45,13 +45,11 @@
 // STD
 #include <memory>
 
-terrama2::services::alert::core::Report::Report(std::string name,
-                                                AlertPtr alert,
+terrama2::services::alert::core::Report::Report(AlertPtr alert,
                                                 terrama2::core::DataSeriesPtr alertDataSeries,
                                                 std::shared_ptr<te::da::DataSet> alertDataSet,
                                                 std::vector<std::shared_ptr<te::dt::DateTime>> riskDates)
-  : name_(name),
-    alert_(alert),
+  : alert_(alert),
     alertDataSeries_(alertDataSeries),
     riskDates_(riskDates)
 {

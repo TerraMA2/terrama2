@@ -74,7 +74,7 @@ void terrama2::services::alert::impl::NotifierEmail::send(const core::Notificati
   }
 
   mb.setRecipients(to);
-  mb.setSubject(vmime::text(report_->name()));
+  mb.setSubject(vmime::text(report_->title()));
 
   // Message body
   std::string body;
