@@ -1,24 +1,14 @@
 <div class="row">
 
   <div class="col-md-12">
-    <div class="col-md-7">
-      <div class="form-group" terrama2-show-errors>
-        <label for="name">{{ i18n.__('Name') }}:</label>
-        <input class="form-control" id="name" name="name" ng-model="dataSeries.name" placeholder="{{ i18n.__('Data Series Name') }}" type="text" required>
-
-        <label class="help-block text-danger" ng-show="forms.generalDataForm.name.$dirty && forms.generalDataForm.name.$error.required">{{ i18n.__("Data series name is required") }}</label>
-      </div>
-    </div>
-    <!-- /.col md 7 -->
-
     <div class="col-md-5">
       <div class="form-group" terrama2-show-errors>
-        <label>{{ i18n.__('Format') }}:</label>
+        <label>{{ i18n.__('Format (once selected, it can\'t be changed)') }}:</label>
         <select class="form-control"
                 name="semantics"
                 ng-model="dataSeries.semantics"
                 ng-options="i18n.__(semantics.name) for semantics in dataSeriesSemantics | filter: { data_series_type_name: '!ANALYSIS_MONITORED_OBJECT' }"
-                ng-disabled="isUpdating"
+                ng-disabled="isUpdating || semanticsSelected"
                 ng-change="onDataSemanticsChange();" required>
         </select>
 
@@ -26,13 +16,24 @@
       </div>
     </div>
   </div>
+  <div class="col-md-12">
+    <div class="col-md-12">
+      <div class="form-group" terrama2-show-errors>
+        <label for="name">{{ i18n.__('Name') }}:</label>
+        <input class="form-control" id="name" name="name" ng-disabled="!isUpdating && !semanticsSelected" ng-model="dataSeries.name" placeholder="{{ i18n.__('Data Series Name') }}" type="text" required>
+
+        <label class="help-block text-danger" ng-show="forms.generalDataForm.name.$dirty && forms.generalDataForm.name.$error.required">{{ i18n.__("Data series name is required") }}</label>
+      </div>
+    </div>
+    <!-- /.col md 7 -->
+  </div>
   <!-- ./col-md-12 -->
 
   <div class="col-md-12">
     <div class="col-md-12">
       <div class="form-group" terrama2-show-errors>
         <label>{{ i18n.__('Description') }}:</label>
-        <textarea class="form-control" name="description" ng-model="dataSeries.description" rows="3" placeholder="{{ i18n.__('Description') }}"></textarea>
+        <textarea class="form-control" name="description" ng-disabled="!isUpdating && !semanticsSelected" ng-model="dataSeries.description" rows="3" placeholder="{{ i18n.__('Description') }}"></textarea>
       </div>
     </div>
   </div>
@@ -41,7 +42,7 @@
     <div class="col-md-7">
       <div class="form-group" terrama2-show-errors>
         <label>{{ i18n.__('Data Server') }}:</label>
-        <ui-select name="data_provider_id" ng-model="dataSeries.data_provider_id" required>
+        <ui-select name="data_provider_id" ng-model="dataSeries.data_provider_id" ng-disabled="!isUpdating && !semanticsSelected" required>
           <ui-select-match>
             <img ng-src="{{getImageUrl($select.selected)}}" style="width: 20px; margin-top: -13px"/>
             <span ng-bind="$select.selected.name"></span>
@@ -60,7 +61,7 @@
       <div class="form-group">
         <div class="checkbox">
           <label style="font-weight: 700; margin-top:19px;">
-            <input name="active" ng-model="dataSeries.active" type="checkbox" ng-init="dataSeries.active=(!isUpdating ? true : dataSeries.active)"> {{ i18n.__("Active") }}
+            <input name="active" ng-disabled="!isUpdating && !semanticsSelected" ng-model="dataSeries.active" type="checkbox" ng-init="dataSeries.active=(!isUpdating ? true : dataSeries.active)"> {{ i18n.__("Active") }}
           </label>
         </div>
       </div>

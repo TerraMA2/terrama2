@@ -1,3 +1,7 @@
+<div class="overlay overlay-dcps" ng-show="isChecking.value">
+  <i class="fa fa-refresh fa-spin" style="position: fixed !important;"></i>
+</div>
+
 <div class="col-md-12">
   <div style="padding-bottom: 50px;">
 
@@ -46,9 +50,11 @@
             <form name="forms.parametersForm" sf-schema="schema" sf-form="form" sf-model="model" sf-options="options"></form>
 
             <div class="col-md-2 terrama2-top-field" style="padding-bottom: 40px;">
-              <button class="btn btn-default" ng-show="semantics === 'DCP'" ng-disabled="isUpdating" ng-click="addDcp(parametersForm)">{{ i18n.__('Add') }}</button>
+              <button class="btn btn-default" ng-show="semantics === 'DCP'" ng-click="addDcp(parametersForm)">{{ i18n.__('Add') }}</button>
+              <button class="btn btn-default" ng-show="semantics === 'DCP'" ng-click="openImportParametersModal()">{{ i18n.__('Import CSV') }}</button>
             </div>
 
+            <terrama2-dcp-importer></terrama2-dcp-importer>
             <div ng-include="'/javascripts/angular/dcpTable.html'"></div>
           </div>
 
@@ -102,7 +108,7 @@
     <div class="box-body">
       <div class="col-md-12">
 
-        <terrama2-storager-form ng-if="!advanced.store.disabled" providers-list="providersList" storager="storager" series="dataSeries" filter="filter" prepare-format-to-form="prepareFormatToForm" forms="forms" on-storager-format-change= "onStoragerFormatChange" model="model" options="storeOptions" schedule="schedule"></terrama2-storager-form>
+        <terrama2-storager-form ng-if="!advanced.store.disabled" providers-list="providersList" storager="storager" series="dataSeries" filter="filter" prepare-format-to-form="prepareFormatToForm" field-has-error="fieldHasError" save-storager-data="saveStoragerData" forms="forms" on-storager-format-change= "onStoragerFormatChange" model="model" options="storeOptions" schedule="schedule"></terrama2-storager-form>
         
       </div>
     </div>
