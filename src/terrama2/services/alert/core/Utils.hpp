@@ -47,7 +47,7 @@ namespace terrama2
       namespace core
       {
 
-        std::string validPropertyDateName(const std::shared_ptr<te::dt::DateTime> dt);
+        std::string dateTimeToString(const std::shared_ptr<te::dt::DateTime> dt);
 
         /*!
          * \brief Receives a TerraLib dataSet and returns all his data as a HTML table

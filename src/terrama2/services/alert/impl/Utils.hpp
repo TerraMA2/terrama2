@@ -48,6 +48,10 @@ namespace terrama2
          */
         void registerFactories();
 
+        std::string gridReportText();
+
+        std::string monitoredObjectReportText();
+
       } /* core */
     } /* alert */
   } /* services */

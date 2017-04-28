@@ -258,7 +258,7 @@ int main(int argc, char* argv[])
       terrama2::services::analysis::core::PythonInterpreterInit pythonInterpreterInit;
 #endif
 
-      QCoreApplication app(argc, argv);
+      QGuiApplication app(argc, argv);
 
       // Changes in the initialization order may cause locale problems
       std::locale::global(std::locale::classic());
