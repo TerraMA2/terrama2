@@ -289,9 +289,11 @@ if(NOT QUAZIP_FOUND)
   message(FATAL_ERROR "TerraMA2: could not find required Quazip library!")
 endif()
 
-find_package(VMime REQUIRED)
-if(NOT VMIME_FOUND)
-  message(FATAL_ERROR "TerraMA2: could not find required vmime library!")
+find_package(VMime)
+if(VMIME_FOUND)
+  add_definitions(-DVMIME_FOUND)
+else(NOT VMIME_FOUND)
+    message("TerraMA2: could not find vmime library. TerraMA2 won't be able to send email notifications.")
 endif()
 
 set(ThreadPool_INCLUDE_DIRS "${TERRAMA2_ABSOLUTE_ROOT_DIR}/third-party/ThreadPool/")
@@ -311,22 +313,37 @@ option(TERRAMA2_CORE_ENABLED "Build TerraMA2 Core module?" ON)
 #####################################
 #            MODULES
 CMAKE_DEPENDENT_OPTION(TERRAMA2_COLLECTOR_ENABLED "Build Collector module?" ON "TERRAMA2_CORE_ENABLED" OFF)
+if(TERRAMA2_COLLECTOR_ENABLED)
+  add_definitions(-DTERRAMA2_COLLECTOR_ENABLED)
+endif()
 
 CMAKE_DEPENDENT_OPTION(TERRAMA2_IMPLEMENTATION_ENABLED "Build Implementation module?" ON "TERRAMA2_CORE_ENABLED" OFF)
 
 CMAKE_DEPENDENT_OPTION(TERRAMA2_ANALYSIS_CORE_ENABLED "Build Analysis core module?" ON "TERRAMA2_CORE_ENABLED" OFF)
+if(TERRAMA2_ANALYSIS_CORE_ENABLED)
+  add_definitions(-DTERRAMA2_ANALYSIS_CORE_ENABLED)
+endif()
 
 CMAKE_DEPENDENT_OPTION(TERRAMA2_VIEW_ENABLED "Build View module?" ON "TERRAMA2_CORE_ENABLED" OFF)
+if(TERRAMA2_VIEW_ENABLED)
+  add_definitions(-DTERRAMA2_VIEW_ENABLED)
+endif()
 
 CMAKE_DEPENDENT_OPTION(TERRAMA2_ALERT_ENABLED "Build Alert module?" ON "TERRAMA2_CORE_ENABLED" OFF)
+if(TERRAMA2_ALERT_ENABLED)
+  add_definitions(-DTERRAMA2_ALERT_ENABLED)
+endif()
 
 CMAKE_DEPENDENT_OPTION(TERRAMA2_ARCHIVER_ENABLED "Build Archiver module?" ON "TERRAMA2_CORE_ENABLED" OFF)
+if(TERRAMA2_ARCHIVER_ENABLED)
+  add_definitions(-DTERRAMA2_ARCHIVER_ENABLED)
+endif()
 
 #####################################
 
 #####################################
 #            SERVICES
-CMAKE_DEPENDENT_OPTION(TERRAMA2_SERVICE_ENABLED "Build Services?" ON "TERRAMA2_CORE_ENABLED;TERRAMA2_COLLECTOR_ENABLED;TERRAMA2_ANALYSIS_CORE_ENABLED" OFF)
+CMAKE_DEPENDENT_OPTION(TERRAMA2_SERVICE_ENABLED "Build Services?" ON "TERRAMA2_CORE_ENABLED" OFF)
 
 #####################################
 

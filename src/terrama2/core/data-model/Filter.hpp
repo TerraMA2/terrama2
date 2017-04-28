@@ -86,7 +86,7 @@ namespace terrama2
       bool cropRaster = false; //! If true the raster will be cropped by the region envelope.
       std::shared_ptr<double> value = nullptr; //!< Value to be used in a filter by value.
       std::shared_ptr<size_t> lastValues = nullptr; //!< Filter by number of dates.
-      std::string byValue; //! Filter by value.
+      std::string byValue; //! Filter by value expression. Must be a valid sql filter expression.
       DataProviderPtr dataProvider; //! Provider from static data filter.
       DataSeriesPtr dataSeries; //! Static data data series.
 

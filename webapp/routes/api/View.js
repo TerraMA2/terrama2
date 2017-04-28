@@ -9,6 +9,7 @@ module.exports = function (app) {
   app.post('/api/View', passport.isAuthenticated, controller.post);
   app.get('/api/View', passport.isAuthenticated, controller.get);
   app.get('/api/View/:id', passport.isAuthenticated, controller.get);
+  app.get('/api/ViewByProject/:project_id', passport.isAuthenticated, controller.get);
   app.put('/api/View/:id', passport.isAuthenticated, controller.put);
   app.delete("/api/View/:id/delete", passport.isAuthenticated, controller.delete);
 };

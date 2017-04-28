@@ -51,13 +51,13 @@ function valid()
 #
 
 #
-# TerraMa2 version 4.0.0 
+# TerraMa2 version 4.0.0
 #
 terrama2_test=`dpkg -s terrama2-4.0.0-alpha6 | grep Status`
 
 if [ "$terrama2_test" == "Status: install ok installed" ]; then
   sudo dpkg -r terrama2-4.0.0-alpha6
-  valid $? "Error: could not uninstall terrama2!" 
+  valid $? "Error: could not uninstall terrama2!"
   echo "terrama2 uninstalled!"
 else
   echo "terrama2 already uninstalled!"
@@ -70,20 +70,20 @@ nodejs_test=`dpkg -s nodejs | grep Status`
 
 if [ "$nodejs_test" == "Status: install ok installed" ]; then
   sudo dpkg -r nodejs
-  valid $? "Error: could not uninstall nodejs!" 
+  valid $? "Error: could not uninstall nodejs!"
   echo "nodejs uninstalled!"
 else
   echo "nodejs already uninstalled!"
 fi
 
 #
-# TerraLib version 5.2.0 
+# TerraLib version 5.2.1
 #
-terralib_test=`dpkg -s terralib-5.2.0 | grep Status`
+terralib_test=`dpkg -s terralib-5.2.1 | grep Status`
 
 if [ "$terralib_test" == "Status: install ok installed" ]; then
-  sudo dpkg -r terralib-5.2.0
-  valid $? "Error: could not uninstall terralib!" 
+  sudo dpkg -r terralib-5.2.1
+  valid $? "Error: could not uninstall terralib!"
   echo "terralib uninstalled!"
 else
   echo "terralib already uninstalled!"
@@ -96,7 +96,7 @@ boost_test=`dpkg -s terralib-boost | grep Status`
 
 if [ "$boost_test" == "Status: install ok installed" ]; then
   sudo dpkg -r terralib-boost
-  valid $? "Error: could not uninstall boost!" 
+  valid $? "Error: could not uninstall boost!"
   echo "boost uninstalled!"
 else
   echo "boost already uninstalled!"
@@ -109,7 +109,7 @@ gdal2_test=`dpkg -s terralib-gdal2 | grep Status`
 
 if [ "$gdal2_test" == "Status: install ok installed" ]; then
   sudo dpkg -r terralib-gdal2
-  valid $? "Error: could not uninstall gdal2!" 
+  valid $? "Error: could not uninstall gdal2!"
   echo "gdal2 uninstalled!"
 else
   echo "gdal2 already uninstalled!"
@@ -122,7 +122,7 @@ qtpb_test=`dpkg -s terralib-qtpb | grep Status`
 
 if [ "$qtpb_test" == "Status: install ok installed" ]; then
   sudo dpkg -r terralib-qtpb
-  valid $? "Error: could not uninstall qtpropertybrowser!" 
+  valid $? "Error: could not uninstall qtpropertybrowser!"
   echo "qtpropertybrowser uninstalled!"
 else
   echo "qtpropertybrowser already uninstalled!"
@@ -135,7 +135,7 @@ qwt_test=`dpkg -s terralib-qwt| grep Status`
 
 if [ "$qwt_test" == "Status: install ok installed" ]; then
   sudo dpkg -r terralib-qwt
-  valid $? "Error: could not uninstall qwt!" 
+  valid $? "Error: could not uninstall qwt!"
   echo "qwt uninstalled!"
 else
   echo "qwt already uninstalled!"
@@ -148,14 +148,14 @@ wtss_test=`dpkg -s terralib-wtss-cxx| grep Status`
 
 if [ "$wtss_test" == "Status: install ok installed" ]; then
   sudo dpkg -r terralib-wtss-cxx
-  valid $? "Error: could not uninstall wtss-cxx!" 
+  valid $? "Error: could not uninstall wtss-cxx!"
   echo "wtss-cxx uninstalled!"
 else
   echo "wtss-cxx already uninstalled!"
 fi
 
 #
-# Automatically removes unused libraries 
+# Automatically removes unused libraries
 #
 sudo apt-get autoremove -y
 

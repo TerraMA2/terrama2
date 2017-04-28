@@ -336,8 +336,7 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
       self.processMetadata = function processMetadata(value) {
         var output = undefined;
         if (value && angular.isObject(value)) {
-          var parsedURI = URIParser(value);
-          output = "smtp://" + decodeURIComponent(parsedURI.username) + ":" + parsedURI.password + "@" + parsedURI.host;
+          output = "smtp://" + decodeURIComponent(value.user) + ":" + value.password + "@" + value.host + ":" + value.port;
         }
         return output;
       }
