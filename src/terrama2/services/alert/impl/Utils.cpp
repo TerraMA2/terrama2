@@ -42,12 +42,13 @@
 
 void terrama2::services::alert::core::registerFactories()
 {
+  #ifdef VMIME_FOUND
   // Notifiers
   NotifierFactory::getInstance().add(terrama2::services::alert::impl::NotifierEmail::notifierCode(),
                                      terrama2::services::alert::impl::NotifierEmail::make);
+  #endif
 
   // Documents
   DocumentFactory::getInstance().add(terrama2::services::alert::impl::documentPDF::documentCode(),
                                      terrama2::services::alert::impl::documentPDF::makeDocument);
 }
-

@@ -41,7 +41,7 @@ Copyright: Copyright (C) 2008 National Institute For Space Research (INPE) - Bra
 License: LGPL-3.0
   TerraMA2 is free software, you can redistribute it and/or modify
   it under the terms of the GNU Lesser General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or 
+  the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
 
   TerraMA2 is distributed in the hope that it will be useful,
@@ -49,7 +49,7 @@ License: LGPL-3.0
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU Lesser General Public License for more details.
 
-  You should have received a copy of the GNU General Public License  
+  You should have received a copy of the GNU General Public License
   along with this program. If not, write to TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
 EOF
 #
@@ -75,13 +75,13 @@ EOF
 #
 # Create rules file
 #
-cat > debian/rules <<EOF 
+cat > debian/rules <<EOF
 #!/usr/bin/make -f
 %:
 	dh \$@
 override_dh_auto_configure:
 	mkdir -p debian/${DEBNAME}/opt/terrama2/${TMVERSION}/3rdparty
-        cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE:STRING="Release" -DCMAKE_PREFIX_PATH:PATH="/opt/terralib/5.2.0/3rdparty" -DVMIME_HAVE_MESSAGING_PROTO_SENDMAIL:BOOL=false -DCMAKE_INSTALL_PREFIX:PATH="`pwd`/debian/${DEBNAME}/opt/terrama2/${TMVERSION}/3rdparty" -DCMAKE_INSTALL_RPATH:PATH="`pwd`/debian/${DEBNAME}/opt/terrama2/${TMVERSION}/3rdparty/lib" 
+        cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE:STRING="Release" -DCMAKE_PREFIX_PATH:PATH="/opt/terralib/5.2.1/3rdparty" -DVMIME_HAVE_MESSAGING_PROTO_SENDMAIL:BOOL=false -DCMAKE_INSTALL_PREFIX:PATH="`pwd`/debian/${DEBNAME}/opt/terrama2/${TMVERSION}/3rdparty" -DCMAKE_INSTALL_RPATH:PATH="`pwd`/debian/${DEBNAME}/opt/terrama2/${TMVERSION}/3rdparty/lib"
 override_dh_auto_build:
 	PREFIX=`pwd`/debian/${DEBNAME}/opt/terrama2/${TMVERSION}/3rdparty make -j 4
 override_dh_auto_test:
@@ -95,7 +95,7 @@ echo "8" > debian/compat
 mkdir -p debian/source
 echo "3.0 (quilt)" > debian/source/format
 
-cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE:STRING="Release" -DCMAKE_PREFIX_PATH:PATH="/opt/terralib/5.2.0/3rdparty" -DVMIME_HAVE_MESSAGING_PROTO_SENDMAIL:BOOL=false -DCMAKE_INSTALL_PREFIX:PATH="`pwd`/debian/${DEBNAME}/opt/terrama2/${TMVERSION}/3rdparty" -DCMAKE_INSTALL_RPATH:PATH="`pwd`/debian/${DEBNAME}/opt/terrama2/${TMVERSION}/3rdparty/lib" 
+cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE:STRING="Release" -DCMAKE_PREFIX_PATH:PATH="/opt/terralib/5.2.1/3rdparty" -DVMIME_HAVE_MESSAGING_PROTO_SENDMAIL:BOOL=false -DCMAKE_INSTALL_PREFIX:PATH="`pwd`/debian/${DEBNAME}/opt/terrama2/${TMVERSION}/3rdparty" -DCMAKE_INSTALL_RPATH:PATH="`pwd`/debian/${DEBNAME}/opt/terrama2/${TMVERSION}/3rdparty/lib"
 #
 # Build the package
 #
