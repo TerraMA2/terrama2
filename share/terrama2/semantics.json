@@ -265,7 +265,8 @@
             "type": "string",
             "title": "Alias",
             "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
-            "hasDefaultFieldForImport": true
+            "hasDefaultFieldForImport": true,
+            "hasPrefixFieldForImport": true
           },
           "timezone": {
             "type": "string",
@@ -405,7 +406,8 @@
             "type": "string",
             "title": "Alias",
             "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
-            "hasDefaultFieldForImport": true
+            "hasDefaultFieldForImport": true,
+            "hasPrefixFieldForImport": true
           },
           "timezone": {
             "type": "string",
@@ -545,7 +547,8 @@
             "type": "string",
             "title": "Alias",
             "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
-            "hasDefaultFieldForImport": true
+            "hasDefaultFieldForImport": true,
+            "hasPrefixFieldForImport": true
           },
           "active": {
             "type": "boolean",
@@ -905,7 +908,8 @@
             "type": "string",
             "title": "Alias",
             "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
-            "hasDefaultFieldForImport": true
+            "hasDefaultFieldForImport": true,
+            "hasPrefixFieldForImport": true
           },
           "timezone": {
             "type": "string",
