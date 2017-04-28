@@ -405,7 +405,7 @@ TcpManager.prototype.initialize = function(client) {
   var onStatus = function(response) {
     self.emit('statusReceived', client.service, response);
   };
-
+  //receive c++ logs
   var onLog = function(response) {
     // TODO: make a local buffer
     var target = [];
@@ -454,7 +454,20 @@ TcpManager.prototype.initialize = function(client) {
 
       return ProcessFinished.handle(response)
         .then(function(targetProcess) {
-          self.emit("processFinished", targetProcess);
+          if (targetProcess){
+            // if the finished process is from collector or analysis run conditioned process
+            if (targetProcess.serviceType == ServiceType.COLLECTOR || targetProcess.serviceType == ServiceType.ANALYSIS){
+              targetProcess.processToRun.forEach(function(processToRun){
+                if (processToRun){
+                  self.startProcess(processToRun.instance, {ids: processToRun.ids, execution_date: response.execution_date});
+                }
+              });
+            }
+            // if the finished process ir from view, save/update the registered view
+            else if (targetProcess.serviceType == ServiceType.VIEW){
+              self.emit("processFinished", targetProcess.registeredView);
+            }
+          }
         })
         
         .catch(function(err) {

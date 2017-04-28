@@ -78,13 +78,18 @@ namespace terrama2
         virtual void addDateTimeFilter(const std::string datetimeColumnName,
                                        const terrama2::core::Filter& filter,
                                        std::vector<std::string>& whereConditions) const;
+
         virtual void addGeometryFilter(terrama2::core::DataSetPtr dataSet,
                                        const terrama2::core::Filter& filter,
                                        std::vector<std::string>& whereConditions) const;
-        virtual std::string addLastValueFilter(terrama2::core::DataSetPtr dataSet,
-                                               const std::string datetimeColumnName,
-                                               const terrama2::core::Filter& filter,
-                                               std::string whereCondition) const;
+
+        virtual void addValueFilter(const terrama2::core::Filter& filter,
+                                    std::string& conditions) const;
+
+        virtual std::string addLastDatesFilter(terrama2::core::DataSetPtr dataSet,
+                                        const std::string datetimeColumnName,
+                                        const terrama2::core::Filter& filter,
+                                        std::string whereCondition) const;
 
 
         virtual void updateLastTimestamp(DataSetPtr dataSet, std::shared_ptr<te::da::DataSourceTransactor> transactor) const;

@@ -44,6 +44,29 @@ define([], function(){
       
       self.services = Service.list({service_type_id: globals.enums.ServiceType.COLLECTOR});
 
+      self.getImageUrl = getImageUrl;
+
+      function getImageUrl(object){
+        if (typeof object != 'object'){
+          return '';
+        }
+        switch (object.data_provider_type.name){
+          case 'POSTGIS':
+            return "/images/data-server/postGIS/postGIS.png";
+            break;
+          case 'HTTP':
+            return "/images/data-server/http/http.png";
+            break;
+          case 'FTP':
+            return "/images/data-server/ftp/ftp.png";
+            break;
+          case 'FILE':
+          default:
+            return "/images/data-server/file/file.png";
+            break;
+        }
+      }
+
       function onInputSemanticsChange(){
         self.semantics = self.series.semantics.data_series_type_name;
         self.storager.format = null;
@@ -276,12 +299,10 @@ define([], function(){
         });
 
         if (self.dataProvidersStorager.length > 0){
-          self.forms.storagerDataForm.storager_data_provider_id.$setViewValue(self.dataProvidersStorager[0]);
           self.storager_data_provider_id = self.dataProvidersStorager[0].id;
         }
 
         if (self.services.length > 0) {
-          self.forms.storagerDataForm.service.$setViewValue(self.services[0]);
           self.storager_service = self.services[0].id;
         }
 
@@ -321,6 +342,12 @@ define([], function(){
           self.storager_data_provider_id = outputDataseries.data_provider_id;
 
           var schedule = collector.schedule;
+          if (schedule && (schedule.frequency_unit || schedule.schedule_unit)){
+            self.schedule.scheduleType = globals.enums.ScheduleType.SCHEDULE;
+          }
+          else {
+            self.schedule.scheduleType = globals.enums.ScheduleType.MANUAL;
+          }
 
           $timeout(function() {
             $scope.$broadcast("updateSchedule", schedule);

@@ -29,23 +29,37 @@
  */
 
 // TerraMA2
+#ifdef TERRAMA2_COLLECTOR_ENABLED
 #include <terrama2/services/collector/core/Service.hpp>
 #include <terrama2/services/collector/core/DataManager.hpp>
 #include <terrama2/services/collector/core/CollectorLogger.hpp>
+#endif
 
+#ifdef TERRAMA2_ANALYSIS_CORE_ENABLED
 #include <terrama2/services/analysis/core/Service.hpp>
 #include <terrama2/services/analysis/core/DataManager.hpp>
 #include <terrama2/services/analysis/core/utility/PythonInterpreterInit.hpp>
+#endif
 
+#ifdef TERRAMA2_VIEW_ENABLED
 #include <terrama2/services/view/core/Service.hpp>
 #include <terrama2/services/view/core/DataManager.hpp>
 #include <terrama2/services/view/core/ViewLogger.hpp>
+#endif
+
+#ifdef TERRAMA2_ALERT_ENABLED
+#include <terrama2/services/alert/core/Service.hpp>
+#include <terrama2/services/alert/core/DataManager.hpp>
+#include <terrama2/services/alert/core/AlertLogger.hpp>
+#include <terrama2/services/alert/impl/Utils.hpp>
+#endif
 
 #include <terrama2/core/network/TcpManager.hpp>
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/core/utility/TerraMA2Init.hpp>
 #include <terrama2/core/utility/Logger.hpp>
 #include <terrama2/core/utility/ServiceManager.hpp>
+#include <terrama2/core/utility/Service.hpp>
 #include <terrama2/impl/Utils.hpp>
 #include <terrama2/core/ErrorCodes.hpp>
 #include <terrama2/Version.hpp>
@@ -53,7 +67,6 @@
 #include <boost/exception/diagnostic_information.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
-namespace po = boost::program_options;
 
 // STL
 #include <memory>
@@ -64,22 +77,41 @@ namespace po = boost::program_options;
 
 // Qt
 #include <QCoreApplication>
+#include <QtGui/QGuiApplication>
 #include <QTimer>
+
+namespace po = boost::program_options;
 
 const std::string analysisType = "analysis";
 const std::string collectorType = "collector";
 const std::string viewType = "view";
+const std::string alertType = "alert";
 
 bool checkServiceType(const std::string& serviceType)
 {
-  if(serviceType == collectorType
-      || serviceType == analysisType
-      || serviceType == viewType)
+#ifdef TERRAMA2_COLLECTOR_ENABLED
+  if(serviceType == collectorType)
     return true;
+#endif
+
+#ifdef TERRAMA2_ALERT_ENABLED
+  if(serviceType == alertType)
+    return true;
+#endif
+
+#ifdef TERRAMA2_ANALYSIS_CORE_ENABLED
+  if(serviceType == analysisType)
+    return true;
+#endif
+
+#ifdef TERRAMA2_VIEW_ENABLED
+  if(serviceType == viewType)
+    return true;
+#endif
 
   return false;
 }
-
+#ifdef TERRAMA2_COLLECTOR_ENABLED
 std::tuple<std::shared_ptr<terrama2::core::DataManager>, std::shared_ptr<terrama2::core::Service>, std::shared_ptr<terrama2::core::ProcessLogger> >
 createCollector()
 {
@@ -91,7 +123,9 @@ createCollector()
 
   return std::make_tuple(dataManager, service, logger);
 }
+#endif
 
+#ifdef TERRAMA2_ANALYSIS_CORE_ENABLED
 std::tuple<std::shared_ptr<terrama2::core::DataManager>, std::shared_ptr<terrama2::core::Service>, std::shared_ptr<terrama2::core::ProcessLogger> >
 createAnalysis()
 {
@@ -104,7 +138,9 @@ createAnalysis()
 
   return std::make_tuple(dataManager, service, logger);
 }
+#endif
 
+#ifdef TERRAMA2_VIEW_ENABLED
 std::tuple<std::shared_ptr<terrama2::core::DataManager>, std::shared_ptr<terrama2::core::Service>, std::shared_ptr<terrama2::core::ProcessLogger> >
 createView()
 {
@@ -116,16 +152,46 @@ createView()
 
   return std::make_tuple(dataManager, service, logger);
 }
+#endif
+
+#ifdef TERRAMA2_ALERT_ENABLED
+std::tuple<std::shared_ptr<terrama2::core::DataManager>, std::shared_ptr<terrama2::core::Service>, std::shared_ptr<terrama2::core::ProcessLogger> >
+createAlert()
+{
+  auto dataManager = std::make_shared<terrama2::services::alert::core::DataManager>();
+  auto service = std::make_shared<terrama2::services::alert::core::Service>(dataManager);
+  auto logger = std::make_shared<terrama2::services::alert::core::AlertLogger>();
+
+  service->setLogger(logger);
+
+  terrama2::services::alert::core::registerFactories();
+
+  return std::make_tuple(dataManager, service, logger);
+}
+#endif
 
 std::tuple<std::shared_ptr<terrama2::core::DataManager>, std::shared_ptr<terrama2::core::Service>, std::shared_ptr<terrama2::core::ProcessLogger> >
 createService(const std::string& serviceType)
 {
+#ifdef TERRAMA2_COLLECTOR_ENABLED
   if(serviceType == collectorType)
     return createCollector();
+#endif
+
+#ifdef TERRAMA2_ANALYSIS_CORE_ENABLED
   if(serviceType == analysisType)
     return createAnalysis();
+#endif
+
+#ifdef TERRAMA2_VIEW_ENABLED
   if(serviceType == viewType)
     return createView();
+#endif
+
+#ifdef TERRAMA2_ALERT_ENABLED
+  if(serviceType == alertType)
+    return createAlert();
+#endif
 
   exit(SERVICE_LOAD_ERROR);
 }
@@ -187,10 +253,12 @@ int main(int argc, char* argv[])
       TERRAMA2_LOG_INFO() << QObject::tr("Initializing TerraMA2 service...");
       TERRAMA2_LOG_INFO() << QObject::tr("Starting %1 service.").arg(QString::fromStdString(serviceType));
 
+#ifdef TERRAMA2_ANALYSIS_CORE_ENABLED
       // Must initialize the python interpreter before creating any thread.
       terrama2::services::analysis::core::PythonInterpreterInit pythonInterpreterInit;
+#endif
 
-      QCoreApplication app(argc, argv);
+      QGuiApplication app(argc, argv);
 
       // Changes in the initialization order may cause locale problems
       std::locale::global(std::locale::classic());
@@ -255,10 +323,10 @@ int main(int argc, char* argv[])
   {
     TERRAMA2_LOG_ERROR() << e.what();
   }
-  catch(...)
-  {
-    TERRAMA2_LOG_ERROR() << QObject::tr("\n\nUnknown Exception...\n");
-  }
+//  catch(...)
+//  {
+//    TERRAMA2_LOG_ERROR() << QObject::tr("\n\nUnknown Exception...\n");
+//  }
 
   return 0;
 }

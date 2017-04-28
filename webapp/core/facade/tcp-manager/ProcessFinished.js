@@ -36,9 +36,11 @@
           var handler = null;
           var output = {};
           switch(service.service_type_id) {
-            case ServiceType.ANALYSIS:
             case ServiceType.COLLECTOR:
-              handler = self.retrieveProcessFinished(service, response);
+              handler = self.handleFinishedCollector(response);
+              break;
+            case ServiceType.ANALYSIS:
+              handler = self.handleFinishedAnalysis(response);
               break;
             case ServiceType.VIEW:
               /**
@@ -148,17 +150,27 @@
             });
             return PromiseClass.all(promises)
               .then(function() {
-                return DataManager.getRegisteredView({view_id: registeredViewObject.process_id}, options);
+                var registeredView = DataManager.getRegisteredView({view_id: registeredViewObject.process_id}, options);
+                var objectResponse = {
+                  serviceType: ServiceType.VIEW,
+                  registeredView: registeredView
+                };
+                return objectResponse;
               });
           })
           // NotFound... tries to insert a new one
           .catch(function(err) {
             if (err instanceof RegisteredViewError) {
-              registeredViewObject.uri = registeredViewObject.maps_server_uri;
+              registeredViewObject.uri = registeredViewObject.maps_server;
               registeredViewObject.view_id = registeredViewObject.process_id;
               return DataManager.addRegisteredView(registeredViewObject, options)
                 .then(function(registeredView) {
-                  return DataManager.getRegisteredView({id: registeredView.id}, options);
+                  var registeredView = DataManager.getRegisteredView({id: registeredView.id}, options);
+                  var objectResponse = {
+                    serviceType: ServiceType.VIEW,
+                    registeredView: registeredView
+                  };
+                  return objectResponse;
                 });
             } else {
               throw err;
@@ -174,6 +186,142 @@
         return reject(new Error(Utils.format("Error during registered views: %s" + err.toString())));
       });
     });
+  };
+  /**
+   * It handles analysis process finished. Once values received, check if the analysis data series is condition to run another process.
+   * If is condition, send the view or analysis ids to run.
+   * 
+   * @param {Object} analysisResultObject - A analysis result object retrieved from C++ services.
+   * 
+   * @returns {Promise} - Objects with process ids to run
+   */
+  ProcessFinished.handleFinishedAnalysis = function(analysisResultObject){
+    return new PromiseClass(function(resolve, reject){
+      if (analysisResultObject.result){
+        return DataManager.orm.transaction(function(t){
+          var options = {transaction: t};
+          return DataManager.getAnalysis({id: analysisResultObject.process_id}, options)
+            .then(function(analysis){
+              var analysisDatasetOutput = analysis.dataset_output;
+              var restritions = {
+                data_ids: {
+                  $contains: [analysisDatasetOutput]
+                }
+              };
+              //return the process are conditioned by the analysis
+              return listConditionedProcess(restritions, options, resolve, reject);
+            })
+            .catch(function(err){
+              return reject(new Error(err.toString()));
+            });
+        });
+      }
+      else {
+        return reject(new Error("The collector process finished with error"));
+      }
+    });
+  }
+
+  /**
+   * It handles collector process finished. Once values received, check if the collector is condition to run another process.
+   * If is condition, send the view or analysis ids to run.
+   * 
+   * @param {Object} collectorResultObject - A collector result object retrieved from C++ services.
+   * 
+   * @returns {Promise} - Objects with process ids to run
+   */
+  ProcessFinished.handleFinishedCollector = function(collectorResultObject){
+    return new PromiseClass(function(resolve, reject){
+      if (collectorResultObject.result){
+        return DataManager.orm.transaction(function(t){
+          var options = {transaction: t};
+          // Get collector object that run
+          return DataManager.getCollector({id: collectorResultObject.process_id}, options)
+            .then(function(collector){
+              var dataSeriesId = collector.data_series_output;
+              var restritions = {
+                data_ids: {
+                  $contains: [dataSeriesId]
+                }
+              };
+              // return the process are conditioned by collector
+              return listConditionedProcess(restritions, options, resolve, reject);
+            })
+            .catch(function(err){
+              return reject(new Error(err.toString()));
+            });
+        });
+      } else {
+        return reject(new Error("The collector process finished with error"));
+      }
+    });
+  };
+  /**
+   * Function to list conditioned process
+   */
+  var listConditionedProcess = function(restritions, options, resolve, reject){
+    // Get conditional schedule list that contais the collector
+    return DataManager.listConditionalSchedule(restritions, options)
+      .then(function(conditionalScheduleList){
+        if (conditionalScheduleList.length > 0){
+          var promises = [];
+          //for each conditional schedule in list, check if belong to an analysis or a view
+          conditionalScheduleList.forEach(function(conditionalSchedule){
+            promises.push(DataManager.getAnalysis({conditional_schedule_id: conditionalSchedule.id}, options)
+              .then(function(analysisResult){
+                return DataManager.getServiceInstance({id: analysisResult.instance_id}, options)
+                  .then(function(instanceServiceResponse){
+                    var objectToRun = {
+                      ids: [analysisResult.id],
+                      instance: instanceServiceResponse,
+                    };
+                    return objectToRun;
+                  })
+              })
+              .catch(function(err){
+                return DataManager.getView({conditional_schedule_id: conditionalSchedule.id}, options)
+                  .then(function(viewResult){
+                    return DataManager.getServiceInstance({id: viewResult.serviceInstanceId}, options)
+                      .then(function(instanceServiceResponse){
+                        var objectToRun = {
+                          ids: [viewResult.id],
+                          instance: instanceServiceResponse,
+                        };
+                        return objectToRun;
+                      });
+                  })
+                  .catch(function(err){
+                    return DataManager.getAlert({conditional_schedule_id: conditionalSchedule.id}, options)
+                      .then(function(alertResult){
+                        return DataManager.getServiceInstance({id: alertResult.instance_id}, options)
+                          .then(function(instanceServiceResponse){
+                            var objectToRun = {
+                              ids: [alertResult.id],
+                              instance: instanceServiceResponse
+                            };
+                            return objectToRun;
+                          });
+                      })
+                      .catch(function(){
+                        return null;
+                      });
+                  });
+              }));
+          });
+          return Promise.all(promises).then(function(processToRun){
+            var objectResponse = {
+              serviceType: ServiceType.COLLECTOR,
+              processToRun: processToRun
+            };
+            return resolve(objectResponse);
+          });
+        } else {
+          return resolve();
+        }
+      })
+      .catch(function(err){
+        return reject(new Error(err.toString()));
+      });
   };
 
 } ());

@@ -2,7 +2,7 @@ define(function() {
 
 /**
  * It handles TerraMA² Service Registration and Service Update
- * 
+ *
  * @class RegisterUpdate
  */
 function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18n, $q, URIParser) {
@@ -23,7 +23,7 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
    * It defines a service model. If there global service, so adapts to Update mode. Otherwise, use Register Mode
    * @type {Object}
    */
-  self.service = {sshPort: 22};
+  self.service = {sshPort: 22, pathToBinary: "terrama2_service"};
 
   /**
    * It defines a log instance model. It tries to get values from service model. If there is, update mode
@@ -38,7 +38,7 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
 
   /**
    * It forces active (on/off) in Active service
-   * 
+   *
    * @param {boolean} state - Initial state
    */
   self.initService = function(state) {
@@ -53,16 +53,19 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
 
   /**
    * It defines a connection validation of Database
-   * 
+   *
    * @type {Object}
    */
   self.db = {};
   /**
    * It defines a connection validation of SSH
-   * 
+   *
    * @type {Object}
    */
   self.ssh = {};
+
+
+  self.metadata = {};
 
   // Initializing Async services.
   $q
@@ -80,8 +83,8 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
 
       /**
        * Flag to handle update and save mode
-       * 
-       * @type {boolean} 
+       *
+       * @type {boolean}
        */
       self.update = config.service.name ? true : false;
 
@@ -97,7 +100,7 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
         var uriObject = URIParser(targetURI);
         if (uriObject && uriObject.length !== 0) {
           self.mapsServer.address = uriObject.protocol + "//" + uriObject.hostname + uriObject.pathname;
-          self.mapsServer.port = parseInt(uriObject.port === "" ? "80" : uriObject.port) || self.mapsServer.port ||8080;
+          self.mapsServer.port = parseInt(uriObject.port === undefined ? "80" : uriObject.port) || self.mapsServer.port || 8080;
           self.mapsServer.user = uriObject.username || self.mapsServer.user;
           self.mapsServer.password = uriObject.password || self.mapsServer.password;
         }
@@ -114,10 +117,25 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
           self.service.service_type_id = self.service.service_type_id.toString();
         }
 
-        if (parseInt(self.service.service_type_id) === Service.types.VIEW) {
-          self.mapsServer.address = self.service.maps_server_uri;
-
-          self.onMapsServerURIChange();
+        switch(parseInt(self.service.service_type_id)) {
+          case Service.types.VIEW:
+            self.mapsServer.address = self.service.metadata.maps_server;
+            self.onMapsServerURIChange();
+            break;
+          case Service.types.ALERT:
+            var emailServer = self.service.metadata.email_server;
+            // Checking email server. When terrama2 runs first time, it does not register a email server. So, value in undefined/null
+            if (emailServer) {
+              var emailURI = "http" + emailServer.substring(4, emailServer.length);
+            
+              var parsed = URIParser(emailURI);
+              self.metadata.emailServer = {};
+              self.metadata.emailServer.host = parsed.hostname;
+              self.metadata.emailServer.port = parseInt(parsed.port);
+              self.metadata.emailServer.user = decodeURIComponent(parsed.username);
+              self.metadata.emailServer.password = parsed.password;
+            }
+            break;
         }
 
         self.log = self.service.log;
@@ -176,6 +194,10 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
          * @type {string[]}
          */
         availableDatabases: []
+      };
+
+      self.isAlertService = function isAlertService() {
+        return self.service && parseInt(self.service.service_type_id) === Service.types.ALERT;
       };
 
       /**
@@ -311,6 +333,14 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
         }, 500);
       };
 
+      self.processMetadata = function processMetadata(value) {
+        var output = undefined;
+        if (value && angular.isObject(value)) {
+          output = "smtp://" + decodeURIComponent(value.user) + ":" + value.password + "@" + value.host + ":" + value.port;
+        }
+        return output;
+      }
+
       /**
        * Hidden save. It performs update or insert service instance
        * 
@@ -319,6 +349,25 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
       self._save = function() {
         self.isChecking = true;
         var request;
+
+        var copyMetadata = {};
+        // Processing Metadata (Email Server)
+        switch (parseInt(self.service.service_type_id)) {
+          case Service.types.ALERT:
+            copyMetadata.email_server = self.processMetadata(self.metadata.emailServer);
+            // copyMetadata.emailServer = "smtp" + _uriEmailServer.substring(4, _uriEmailServer.length);
+            break;
+          case Service.types.VIEW:
+            var copyMapsServer = angular.merge({}, self.mapsServer);
+            var mapsServerURI = URIParser(copyMapsServer.address);
+            mapsServerURI.port = copyMapsServer.port;
+            mapsServerURI.username = copyMapsServer.user;
+            mapsServerURI.password = copyMapsServer.password;
+            copyMetadata.maps_server = mapsServerURI.href;
+            break;
+        }
+
+        self.service.metadata = copyMetadata;
 
         if (self.update) {
           request = Service.update(self.service.id, {
@@ -402,14 +451,16 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
           if ($scope.mapsServerForm.$invalid) {
             return;
           }
+        }
 
-          var uriObject = URIParser(self.mapsServer.address);
-          uriObject.username = self.mapsServer.user;
-          uriObject.password = self.mapsServer.password;
-          uriObject.port = self.mapsServer.port;
-          self.service.maps_server_uri = uriObject.href;
-        } else {
-          delete self.service.maps_server_uri;
+        if (self.service.service_type_id == Service.types.ALERT) {
+          if (angular.element('form[name="emailServerForm"]').scope()){
+            var emailServerForm = angular.element('form[name="emailServerForm"]').scope()['emailServerForm'];
+
+            if (emailServerForm.$invalid) {
+              return;
+            }
+          }
         }
 
         // testing port number

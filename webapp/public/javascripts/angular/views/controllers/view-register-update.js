@@ -12,13 +12,20 @@ define([], function() {
     var self = this;
     /**
      * It retrieves a configuration from main window.
-     * 
+     *
      * @type {Object}
      */
     var config = window.configuration;
+
+    /**
+     * It retrieves Global variables from main window.
+     * 
+     * @type {Object}
+     */
+    var Globals = $window.globals;
     /**
      * It handles alert box display
-     * 
+     *
      * @type {Object}
      */
     self.MessageBoxService = MessageBoxService;
@@ -29,17 +36,19 @@ define([], function() {
     self.DataSeriesType = DataSeriesService.DataSeriesType;
     /**
      * It handles Service Instance model
-     * 
+     *
      * @type {Object}
      */
     self.ServiceInstance = Service;
-    /** 
+    /**
      * @type {Object}
      */
-    self.scheduleOptions = {};
+    self.scheduleOptions = {
+      showConditionalOption: true
+    };
     /**
      * It handles if should show schedule or not. It may be changed on view data series change
-     * 
+     *
      * @type {boolean}
      */
     self.isDynamic = false;
@@ -50,12 +59,12 @@ define([], function() {
     self.filteredServices = [];
     /**
      * Flag to handle if is Updating or Registering
-     * 
+     *
      * @type {Boolean}
      */
     self.isUpdating = config.view ? true : false;
     /**
-     * It handles data series changed state in order to prevent select DCP or format !== GEOTIFF
+     * It handles data series changed state in order to prevent select DCP or format !== GDAL
      */
     self.isValid = true;
     /**
@@ -112,7 +121,7 @@ define([], function() {
           self.hasStyle = false;
           self.legend = {};
         }
-      } 
+      }
     };
     /**
      * It contains view instance values
@@ -139,6 +148,70 @@ define([], function() {
     self.close = closeDialog;
     // Setting Save operation attached into submit button
     self.save = saveOperation;
+
+    // Creating data series filter
+    self.filter = {
+      isAnalysis: true,
+      DYNAMIC: true,
+      STATIC: true
+    };
+
+    self.filterByType = filterByType;
+
+    // Filter function
+    function filterByType(dataSeries) {
+
+      var displayDataSeries = self.filter[dataSeries.data_series_semantics.temporality];
+
+      if (self.filter['isAnalysis'] && dataSeries.isAnalysis){
+        displayDataSeries = true;
+      }
+
+      if (!self.filter['isAnalysis'] && dataSeries.isAnalysis){
+        displayDataSeries = false;
+      }
+
+      return displayDataSeries;
+    };
+
+    self.getImageUrl = getImageUrl;
+
+    function getImageUrl(dataSeries){
+      if (typeof dataSeries != 'object'){
+        return '';
+      }
+      switch(dataSeries.data_series_semantics.data_series_type_name){
+        case DataSeriesService.DataSeriesType.DCP:
+          return "/images/dynamic-data-series/dcp/dcp.png";
+          break;
+        case DataSeriesService.DataSeriesType.OCCURRENCE:
+          return "/images/dynamic-data-series/occurrence/occurrence.png";
+          break;
+        case DataSeriesService.DataSeriesType.GRID:
+          if (dataSeries.data_series_semantics.temporality == "STATIC"){
+            return "/images/static-data-series/grid/grid.png";
+            break;
+          } else {
+            if (dataSeries.isAnalysis){
+              return "/images/analysis/grid/grid_analysis.png";
+            } else {
+              return "/images/dynamic-data-series/grid/grid.png";
+            }
+            break;
+          }
+        case DataSeriesService.DataSeriesType.ANALYSIS_MONITORED_OBJECT:
+          return "/images/analysis/monitored-object/monitored-object_analysis.png";
+          break;
+        case DataSeriesService.DataSeriesType.POSTGIS:
+        case DataSeriesService.DataSeriesType.GEOMETRIC_OBJECT:
+          return "/images/static-data-series/vetorial/vetorial.png";
+          break;
+        default:
+          return "/images/dynamic-data-series/occurrence/occurrence.png";
+          break;
+
+      }
+    }
 
     /**
      * It retrieves all data provider type to get HTTP fields
@@ -201,6 +274,7 @@ define([], function() {
           $timeout(function() {
             if (self.isUpdating) {
               self.schedule = {};
+              self.view.schedule.scheduleType = self.view.schedule_type.toString();
               $scope.$broadcast("updateSchedule", self.view.schedule || {});
             } else {
               if (!config.view) {
@@ -220,9 +294,9 @@ define([], function() {
 
     /**
      * It is used on ng-init active view. It will wait for angular ready condition and set active view checkbox
-     * 
+     *
      * @returns {void}
-     */    
+     */
     function initActive() {
       // wait angular digest cycle
       $timeout(function() {
@@ -233,7 +307,7 @@ define([], function() {
     /**
      * It handles Data Series combobox change. If it is GRID data series, there is a default style script
      * @param {DataSeries}
-     */    
+     */
     function onDataSeriesChanged(dataSeriesId) {
       self.dataSeries.some(function(dSeries) {
         if (dSeries.id === dataSeriesId) {
@@ -246,9 +320,9 @@ define([], function() {
           // extra comparison just to setting if it is dynamic or static.
           // Here avoids to setting to true in many cases below
           self.isDynamic = dSeries.data_series_semantics.data_series_type_name !== DataSeriesService.DataSeriesType.GEOMETRIC_OBJECT;
-          if (dSeries.data_series_semantics.data_series_format_name === "GEOTIFF") {
+          if (dSeries.data_series_semantics.data_series_format_name === "GDAL") {
             self.isValid = false;
-            MessageBoxService.danger(i18n.__("View"), i18n.__("You selected a GRID data series. Only GEOTIFF data series format are supported"));
+            MessageBoxService.danger(i18n.__("View"), i18n.__("You selected a GRID data series. Only GDAL data series format are supported"));
           } else if (dSeries.data_series_semantics.data_series_type_name === DataSeriesService.DataSeriesType.DCP) {
             self.isValid = false;
             MessageBoxService.danger(i18n.__("View"), i18n.__("DCP data series is not supported yet"));
@@ -273,7 +347,7 @@ define([], function() {
      * @returns {void}
      */
     function saveOperation(shouldRun) {
-      // broadcasting each one terrama2 field directive validation 
+      // broadcasting each one terrama2 field directive validation
       $scope.$broadcast("formFieldValidation");
       // broadcasting schema form validation
       $scope.$broadcast("schemaFormValidate");
@@ -284,7 +358,7 @@ define([], function() {
 
       $timeout(function(){
         $scope.$apply(function() {
-          if ($scope.forms.viewForm.$invalid || 
+          if ($scope.forms.viewForm.$invalid ||
             $scope.forms.dataSeriesForm.$invalid ||
             $scope.forms.styleForm && $scope.forms.styleForm.$invalid) {
             return;
@@ -310,6 +384,7 @@ define([], function() {
           // If dynamic, schedule validation is required
           if (self.isDynamic) {
             if (self.view.schedule && Object.keys(self.view.schedule).length !== 0) {
+              self.view.schedule_type = self.view.schedule.scheduleType;
               /**
                * @todo Implement Angular ScheduleService to handle it, since is common on dynamic data series and analysis registration.
                */
@@ -319,14 +394,14 @@ define([], function() {
                 return;
               }
 
-              // preparing schedule.  
+              // preparing schedule.
               var scheduleValues = self.view.schedule;
               switch(scheduleValues.scheduleHandler) {
                 case "seconds":
                 case "minutes":
                 case "hours":
                   scheduleValues.frequency_unit = scheduleValues.scheduleHandler;
-                  scheduleValues.frequency_start_time = scheduleValues.frequency_start_time ? scheduleValues.frequency_start_time.toISOString() : "";
+                  scheduleValues.frequency_start_time = scheduleValues.frequency_start_time ? moment(scheduleValues.frequency_start_time).format("HH:mm:ssZ") : "";
                   break;
                 case "weeks":
                 case "monthly":
@@ -338,6 +413,9 @@ define([], function() {
                   break;
 
                 default:
+                  if (scheduleValues.scheduleType == "4"){
+                    scheduleValues.data_ids = [self.view.data_series_id];
+                  }
                   break;
               }
             }
@@ -363,7 +441,7 @@ define([], function() {
     }
   }
 
-  ViewRegisterUpdate.$inject = ["$scope", "i18n", "ViewService", "$log", "$http", "$timeout", "MessageBoxService", "$window", 
+  ViewRegisterUpdate.$inject = ["$scope", "i18n", "ViewService", "$log", "$http", "$timeout", "MessageBoxService", "$window",
     "DataSeriesService", "Service", "StringFormat", "ColorFactory", "StyleType"];
 
   return ViewRegisterUpdate;

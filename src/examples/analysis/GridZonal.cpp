@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
   terrama2::core::registerFactories();
 
   auto& serviceManager = terrama2::core::ServiceManager::getInstance();
-te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PASSWORD+"@"+TERRAMA2_DATABASE_HOST+":"+TERRAMA2_DATABASE_PORT+"/"+TERRAMA2_DATABASE_DBNAME);
+  te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PASSWORD+"@"+TERRAMA2_DATABASE_HOST+":"+TERRAMA2_DATABASE_PORT+"/"+TERRAMA2_DATABASE_DBNAME);
   serviceManager.setLogConnectionInfo(uri);
 
   terrama2::services::analysis::core::PythonInterpreterInit pythonInterpreterInit;
@@ -163,7 +163,7 @@ te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PA
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     terrama2::core::DataSeries* dataSeries2 = new terrama2::core::DataSeries();
     terrama2::core::DataSeriesPtr dataSeries2Ptr(dataSeries2);
-    dataSeries2->semantics = semanticsManager.getSemantics("GRID-static_geotiff");
+    dataSeries2->semantics = semanticsManager.getSemantics("GRID-static_gdal");
     dataSeries2->name = "geotiff 1";
     dataSeries2->id = 2;
     dataSeries2->dataProviderId = 2;

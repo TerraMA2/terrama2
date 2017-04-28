@@ -59,6 +59,6 @@ target_link_libraries(terrama2_unittest_collector terrama2_core
                                                   ${GTEST_BOTH_LIBRARIES}
                                                   ${GMOCK_BOTH_LIBRARIES})
 
-qt5_use_modules(terrama2_unittest_collector Test)
+qt5_use_modules(terrama2_unittest_collector Test Gui)
 
 add_test(NAME terrama2_unittest_collector COMMAND terrama2_unittest_collector)

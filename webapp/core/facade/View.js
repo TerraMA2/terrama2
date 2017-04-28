@@ -24,9 +24,8 @@
    * Helper to send views via TCP
    * 
    * @param {Array|Object} args A view values to send
-   * @param {boolean} shouldRun - A flag to defines if service should run context view
    */
-  function sendView(args, shouldRun) {
+  function sendView(args) {
     var objToSend = {
       "Views": []
     };
@@ -38,22 +37,16 @@
       objToSend.Views.push(args.toObject());
     }
 
-    TcpService.send(objToSend)
-      .then(function() {
-        if (shouldRun && !(args instanceof Array)) {
-          return TcpService.run({"ids": [args.id], "service_instance": args.serviceInstanceId});
-        }
-      });
+    TcpService.send(objToSend);
   }
   /**
    * It applies a save operation and send views to the service
    * 
    * @param {Object} viewObject - A view object to save
    * @param {number} projectId - A project identifier
-   * @param {boolean} shouldRun - Flag to determines if service should execute immediately after save process
    * @returns {Promise<View>}
    */
-  View.save = function(viewObject, projectId, shouldRun) {
+  View.save = function(viewObject, projectId) {
     return new PromiseClass(function(resolve, reject) {
       DataManager.orm.transaction(function(t) {
         var options = {transaction: t};
@@ -72,7 +65,11 @@
         return promiser
           .then(function(schedule) {
             if (schedule) {
-              viewObject.schedule_id = schedule.id;
+              if (viewObject.schedule_type == Enums.ScheduleType.CONDITIONAL){
+                viewObject.conditional_schedule_id = schedule.id;
+              } else {
+                viewObject.schedule_id = schedule.id;
+              }
             }
             return DataManager.addView(viewObject, options);
           });
@@ -80,7 +77,7 @@
 
       .then(function(view) {
         // sending to the services
-        sendView(view, shouldRun);
+        sendView(view);
 
         return resolve(view);
       })
@@ -126,10 +123,9 @@
    * @param {number} viewId - View Identifier
    * @param {Object} viewObject - View object values
    * @param {number} projectId - A project identifier
-   * @param {boolean} shouldRun - Flag to determines if service should execute immediately after save process
    * @returns {Promise<View>}
    */
-  View.update = function(viewId, viewObject, projectId, shouldRun) {
+  View.update = function(viewId, viewObject, projectId) {
     return new PromiseClass(function(resolve, reject) {
       DataManager.orm.transaction(function(t) {
         var options = {transaction: t};
@@ -138,34 +134,74 @@
          */
         var view;
         var removeSchedule = null;
+        var scheduleIdToRemove = null;
+        var scheduleTypeToRemove = null;
         return DataManager.getView({id: viewId, project_id: projectId}, options)
           .then(function(viewResult) {
             view = viewResult;
-            if (view.schedule.id) {
-              if (Utils.isEmpty(viewObject.schedule)) {
-                // Do not delete schedule here due CASCADE dependency
-                removeSchedule = true;
-                viewObject.schedule_id = null;
-                return null;
-              } else {
+            //check if not changed type of schedule
+            if (view.scheduleType == viewObject.schedule_type){
+              if (view.scheduleType == Enums.ScheduleType.SCHEDULE){
                 // update
                 return DataManager.updateSchedule(view.schedule.id, viewObject.schedule, options)
                   .then(function() {
                     viewObject.schedule_id = view.schedule.id;
                     return null;
                   });
+              } else if (view.scheduleType == Enums.ScheduleType.CONDITIONAL){
+                viewObject.conditional_schedule.data_ids = viewObject.schedule.data_ids;
+                return DataManager.updateConditionalSchedule(view.conditionalSchedule.id, viewObject.conditional_schedule, options)
+                  .then(function(){
+                    viewObject.conditional_schedule_id = view.conditionalSchedule.id;
+                    return null;
+                  });
               }
-            }
-
-            if (Utils.isEmpty(viewObject.schedule)) {
-              return null;
             } else {
-              return DataManager.addSchedule(viewObject.schedule, options)
-                .then(function(scheduleResult) {
-                  view.schedule = scheduleResult;
-                  viewObject.schedule_id = scheduleResult.id;
-                  return null;
-                });
+              // when change type of schedule
+              // if old schedule is MANUAL, create the new schedule
+              if (view.scheduleType == Enums.ScheduleType.MANUAL){
+                return DataManager.addSchedule(viewObject.schedule, options)
+                  .then(function(scheduleResult){
+                    if (viewObject.schedule_type == Enums.ScheduleType.SCHEDULE){
+                      view.schedule = scheduleResult;
+                      viewObject.schedule_id = scheduleResult.id;
+                      return null;
+                    } else {
+                      view.conditionalSchedule = scheduleResult;
+                      viewObject.conditional_schedule_id = scheduleResult.id;
+                      return null;
+                    }
+                  });
+              // if old schedule is SCHEDULE, delete schedule
+              } else if (view.scheduleType == Enums.ScheduleType.SCHEDULE){
+                removeSchedule = true;
+                scheduleIdToRemove = view.schedule.id;
+                scheduleTypeToRemove = Enums.ScheduleType.SCHEDULE;
+                viewObject.schedule_id = null;
+                // if new schedule is CONDITIONAL, create the schedule
+                if (viewObject.schedule_type == Enums.ScheduleType.CONDITIONAL){
+                  viewObject.schedule.id = null;
+                  return DataManager.addSchedule(viewObject.schedule, options)
+                    .then(function(scheduleResult){
+                      view.conditionalSchedule = scheduleResult;
+                      viewObject.conditional_schedule_id = scheduleResult.id;    
+                    });
+                }
+              } else {
+                removeSchedule = true;
+                scheduleIdToRemove = view.conditionalSchedule.id;
+                scheduleTypeToRemove = Enums.ScheduleType.CONDITIONAL;
+                viewObject.conditional_schedule_id = null;
+                if (viewObject.schedule_type == Enums.ScheduleType.SCHEDULE){
+                  viewObject.schedule.id = null;
+                  return DataManager.addSchedule(viewObject.schedule, options)
+                    .then(function(scheduleResult){
+                      view.schedule = scheduleResult;
+                      viewObject.schedule_id = scheduleResult.id;    
+                    });
+                }
+
+              }
             }
           })
 
@@ -173,7 +209,11 @@
             return DataManager.updateView({id: viewId}, viewObject, options)
               .then(function() {
                 if (removeSchedule) {
-                  return DataManager.removeSchedule({id: view.schedule.id}, options);
+                  if (scheduleTypeToRemove == Enums.ScheduleType.CONDITIONAL){
+                    return DataManager.removeConditionalSchedule({id: scheduleIdToRemove}, options);
+                  } else {
+                    return DataManager.removeSchedule({id: scheduleIdToRemove}, options);
+                  }
                 }
               });
           })
@@ -230,7 +270,7 @@
       })
 
       .then(function(view) {
-        sendView(view, shouldRun);
+        sendView(view);
 
         return resolve(view);
       })

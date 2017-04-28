@@ -71,7 +71,7 @@
 terrama2::core::DataAccessorGrADS::DataAccessorGrADS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries,
                                                      const bool checkSemantics)
   : DataAccessor(dataProvider, dataSeries, false),
-    DataAccessorGeoTiff(dataProvider, dataSeries, false)
+    DataAccessorGDAL(dataProvider, dataSeries, false)
 {
   if(checkSemantics && dataSeries->semantics.code != dataAccessorType())
   {
@@ -102,7 +102,6 @@ std::string terrama2::core::DataAccessorGrADS::retrieveData(const DataRetrieverP
                                                             std::shared_ptr<FileRemover> remover) const
 {
   std::string folderPath = "";
-
   try
   {
     folderPath = getFolderMask(dataset, dataSeries_);
@@ -112,8 +111,18 @@ std::string terrama2::core::DataAccessorGrADS::retrieveData(const DataRetrieverP
     // Do nothing
   }
 
+  std::string timezone = "";
+  try
+  {
+    timezone = getTimeZone(dataset);
+  }
+  catch(UndefinedTagException& /*e*/)
+  {
+    // Do nothing
+  }
+
   std::string mask = getControlFileMask(dataset);
-  std::string uri = dataRetriever->retrieveData(mask, filter, remover, "", folderPath);
+  std::string uri = dataRetriever->retrieveData(mask, filter, timezone, remover, "", folderPath);
 
   QUrl url(QString::fromStdString(uri+"/"+folderPath));
   QDir dir(url.path());
@@ -145,7 +154,17 @@ std::string terrama2::core::DataAccessorGrADS::retrieveData(const DataRetrieverP
       // In case no binary file mask specified, use dataset mask in the CTL file.
     }
 
-    dataRetriever->retrieveData(datasetMask, filter, remover, uri, folderPath);
+    std::string timezone = "";
+    try
+    {
+      timezone = getTimeZone(dataset);
+    }
+    catch(UndefinedTagException& /*e*/)
+    {
+      // Do nothing
+    }
+
+    dataRetriever->retrieveData(datasetMask, filter, timezone, remover, uri, folderPath);
   }
 
   return uri;

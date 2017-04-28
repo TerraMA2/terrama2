@@ -13,7 +13,26 @@ define([], function() {
     var title = i18n.__("Analysis");
 
     Socket.on('errorResponse', function(response){
-      MessageBoxService.danger(title, response.message);
+      var errorMessage = response.message;
+      var targetMethod = null;
+      if (serviceCache[response.service] != undefined){
+        var service = Service.get(serviceCache[response.service].process_ids.service_instance);
+        if(service != null) {
+          errorMessage = errorMessage + " " + i18n.__("Service") + ": '" + service.name + "' ";
+        }
+        if (config.extra && config.extra.id){
+          var warningMessage = config.message + ". ";
+          errorMessage = warningMessage + errorMessage;
+          targetMethod = MessageBoxService.warning; // setting warning method to display message
+          delete config.extra;
+          delete config.message;
+        }
+        else {
+          targetMethod = MessageBoxService.danger;
+        }
+      }
+      targetMethod.call(MessageBoxService, title, errorMessage);
+      delete serviceCache[response.service];
     });
 
     Socket.on('runResponse', function(response){
@@ -24,25 +43,9 @@ define([], function() {
       if(response.checking === undefined || (!response.checking && response.status == 400)) {
         if(response.online) {
           Socket.emit('run', serviceCache[response.service].process_ids);
-        } else {
-          var errMessage = "";
-          if(serviceCache[response.service] != undefined) {
-            var service = Service.get(serviceCache[response.service].process_ids.service_instance);
-
-            if(service != null) {
-              errMessage = i18n.__("Service") + " '" + service.name + "' " + i18n.__("is not active");
-            } else {
-              errMessage = i18n.__("Service not active");
-            }
-          } else {
-            errMessage = i18n.__("Service not active");
-          }
-
-          MessageBoxService.danger(title, errMessage);
-        }
-
+          delete serviceCache[response.service];
+        } 
         delete $scope.disabledButtons[serviceCache[response.service].service_id];
-        delete serviceCache[response.service];
       }
     });
 
@@ -111,17 +114,25 @@ define([], function() {
     $scope.icon = function(object) {
       switch(object.type.id) {
         case globals.enums.AnalysisType.MONITORED:
-          return "/images/monitored-object.png";
+          return "/images/analysis/monitored-object/monitored-object_analysis.png";
         case globals.enums.AnalysisType.GRID:
-          return "/images/grid-small.png";
+          return "/images/analysis/grid/grid_analysis.png";
         default:
-          return "/images/map-pin.png";
+          return "/images/analysis/dcp/dcp_analysis.png";
       }
     };
 
     AnalysisService.init(restriction)
       .then(function(analysis) {
         $scope.model = analysis;
+        if (config.extra && config.extra.id){
+          var analysisToRun = $scope.model.filter(function(element){
+            return element.id == config.extra.id;
+          });
+          if (analysisToRun.length == 1){
+            $scope.extra.run(analysisToRun[0]);
+          }
+        }
       }).catch(function(err) {
         $log.info("Err in retrieving Analysis " + err);
       }).finally(function() {

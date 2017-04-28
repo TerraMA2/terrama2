@@ -46,13 +46,16 @@
 #include "TsProcessLogger.hpp"
 #include "TsDataRetrieverFTP.hpp"
 #include "TsDataAccessorFile.hpp"
+#include "TsDataAccessorCSV.hpp"
 #include "TsDataAccessorDcpInpe.hpp"
 #include "TsDataAccessorDcpToa5.hpp"
-#include "TsDataAccessorGeoTiff.hpp"
+#include "TsDataAccessorGDAL.hpp"
 #include "TsDataAccessorOccurrenceWfp.hpp"
 
 int main(int argc, char** argv)
 {
+  curl_global_init(CURL_GLOBAL_ALL);
+
   int ret = 0;
   QCoreApplication app(argc, argv);
 
@@ -96,6 +99,16 @@ int main(int argc, char** argv)
 
     try
     {
+      TsDataAccessorCSV testDataAccessorCSV;
+      ret += QTest::qExec(&testDataAccessorCSV, argc, argv);
+    }
+    catch(...)
+    {
+
+    }
+
+    try
+    {
       TsDataAccessorDcpInpe testDataAccessorDcpInpe;
       ret += QTest::qExec(&testDataAccessorDcpInpe, argc, argv);
     }
@@ -116,8 +129,8 @@ int main(int argc, char** argv)
 
     try
     {
-      TsDataAccessorGeoTiff testDataAccessorGeoTiff;
-      ret += QTest::qExec(&testDataAccessorGeoTiff, argc, argv);
+      TsDataAccessorGDAL testDataAccessorGDAL;
+      ret += QTest::qExec(&testDataAccessorGDAL, argc, argv);
     }
     catch(...)
     {
@@ -143,7 +156,6 @@ int main(int argc, char** argv)
     {
 
     }
-
 
   }
   catch (const terrama2::Exception& e)
@@ -176,6 +188,8 @@ int main(int argc, char** argv)
   QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
   timer.start(10000);
   app.exec();
+
+  curl_global_cleanup();
 
   return ret;
 }

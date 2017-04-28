@@ -65,7 +65,7 @@ boost_test=`dpkg -s terralib-boost | grep Status`
 if [ "$boost_test" != "Status: install ok installed" ]; then
   sudo apt-get install -y -f
   sudo dpkg -i terralib-boost_1.60.0_amd64.deb
-  valid $? "Error: could not install boost! Please, install readline: sudo dpkg -i terralib-boost_1.60.0_amd64.deb" 
+  valid $? "Error: could not install boost! Please, install readline: sudo dpkg -i terralib-boost_1.60.0_amd64.deb"
   echo "boost installed!"
 else
   echo "boost already installed!"
@@ -74,13 +74,13 @@ fi
 #
 # GDAL/OGR 2.0.1
 #
-sudo dpkg -i terralib-gdal2_2.0.1_amd64.deb
-gdal2_test=`dpkg -s terralib-gdal2 | grep Status`
+sudo dpkg -i terralib-gdal_2.0.1_amd64.deb
+gdal2_test=`dpkg -s terralib-gdal | grep Status`
 
 if [ "$gdal2_test" != "Status: install ok installed" ]; then
   sudo apt-get install -y -f
-  sudo dpkg -i terralib-gdal2_2.0.1_amd64.deb
-  valid $? "Error: could not install gdal2! Please, install readline: sudo dpkg -i terralib-gdal2_2.0.1_amd64.deb" 
+  sudo dpkg -i terralib-gdal_2.0.1_amd64.deb
+  valid $? "Error: could not install gdal2! Please, install readline: sudo dpkg -i terralib-gdal_2.0.1_amd64.deb"
   echo "gdal2 installed!"
 else
   echo "gdal2 already installed!"
@@ -95,7 +95,7 @@ qtpb_test=`dpkg -s terralib-qtpb | grep Status`
 if [ "$qtpb_test" != "Status: install ok installed" ]; then
   sudo apt-get install -y -f
   sudo dpkg -i terralib-qtpb_2.6.1_amd64.deb
-  valid $? "Error: could not install qtpropertybrowser! Please, install readline: sudo dpkg -i terralib-qtpb_2.6.1_amd64.deb" 
+  valid $? "Error: could not install qtpropertybrowser! Please, install readline: sudo dpkg -i terralib-qtpb_2.6.1_amd64.deb"
   echo "qtpropertybrowser installed!"
 else
   echo "qtpropertybrowser already installed!"
@@ -110,7 +110,7 @@ qwt_test=`dpkg -s terralib-qwt| grep Status`
 if [ "$qwt_test" != "Status: install ok installed" ]; then
   sudo apt-get install -y -f
   sudo dpkg -i terralib-qwt_6.1.2_amd64.deb
-  valid $? "Error: could not install qwt! Please, install readline: sudo dpkg -i terralib-qwt_6.1.2_amd64.deb" 
+  valid $? "Error: could not install qwt! Please, install readline: sudo dpkg -i terralib-qwt_6.1.2_amd64.deb"
   echo "qwt installed!"
 else
   echo "qwt already installed!"
@@ -125,22 +125,22 @@ wtss_test=`dpkg -s terralib-wtss-cxx| grep Status`
 if [ "$wtss_test" != "Status: install ok installed" ]; then
   sudo apt-get install -y -f
   sudo dpkg -i terralib-wtss-cxx_0.3.0_amd64.deb
-  valid $? "Error: could not install wtss-cxx! Please, install readline: sudo dpkg -i terralib-wtss-cxx_0.3.0_amd64.deb" 
+  valid $? "Error: could not install wtss-cxx! Please, install readline: sudo dpkg -i terralib-wtss-cxx_0.3.0_amd64.deb"
   echo "wtss-cxx installed!"
 else
   echo "wtss-cxx already installed!"
 fi
 
 #
-# TerraLib version 5.2.0 
+# TerraLib version 5.2.1
 #
-sudo dpkg -i terralib-5.2.0.deb
-terralib_test=`dpkg -s terralib-5.2.0 | grep Status`
+sudo dpkg -i terralib-5.2.1.deb
+terralib_test=`dpkg -s terralib-5.2.1 | grep Status`
 
 if [ "$terralib_test" != "Status: install ok installed" ]; then
   sudo apt-get install -y -f
-  sudo dpkg -i terralib-5.2.0.deb
-  valid $? "Error: could not install terralib! Please, install readline: sudo dpkg -i terralib-5.2.0.deb" 
+  sudo dpkg -i terralib-5.2.1.deb
+  valid $? "Error: could not install terralib! Please, install readline: sudo dpkg -i terralib-5.2.1.deb"
   echo "terralib installed!"
 else
   echo "terralib already installed!"
@@ -169,16 +169,33 @@ fi
 sudo npm install -g bower
 valid $? "Error: could not install bower"
 
+
 #
-# TerraMa2 version 4.0.0
+# VMime
 #
-sudo dpkg -i terrama2-4.0.0-alpha6-x64.deb
-terrama2_test=`dpkg -s terrama2-4.0.0-alpha6 | grep Status`
+sudo dpkg -i terrama2-vmime_1.0.0_amd64.deb
+terrama2_test=`dpkg -s terrama2-vmime_1.0.0_amd64 | grep Status`
 
 if [ "$terrama2_test" != "Status: install ok installed" ]; then
   sudo apt-get install -y -f
-  sudo dpkg -i terrama2-4.0.0-alpha6-x64.deb
-  valid $? "Error: could not install terrama2! Please, install readline: sudo dpkg -i terrama2-4.0.0-alpha6-x64.deb" 
+  sudo dpkg -i terrama2-vmime_1.0.0_amd64.deb
+  valid $? "Error: could not install VMime! Please, install readline: sudo dpkg -i terrama2-vmime_1.0.0_amd64.deb"
+  echo "VMime installed!"
+else
+  echo "VMime already installed!"
+fi
+
+
+#
+# TerraMa2 version 4.0.0
+#
+sudo dpkg -i terrama2-4.0.0-beta2-x64.deb
+terrama2_test=`dpkg -s terrama2-4.0.0-beta2 | grep Status`
+
+if [ "$terrama2_test" != "Status: install ok installed" ]; then
+  sudo apt-get install -y -f
+  sudo dpkg -i terrama2-4.0.0-beta2-x64.deb
+  valid $? "Error: could not install terrama2! Please, install readline: sudo dpkg -i terrama2-4.0.0-beta2-x64.deb"
   echo "terrama2 installed!"
 else
   echo "terrama2 already installed!"

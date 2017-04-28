@@ -15,7 +15,8 @@ module.exports = function(sequelize, DataTypes) {
       },
       description: DataTypes.TEXT,
       script: DataTypes.TEXT,
-      active: DataTypes.BOOLEAN
+      active: DataTypes.BOOLEAN,
+      schedule_type: DataTypes.INTEGER
     },
     {
       underscored: true,
@@ -86,7 +87,15 @@ module.exports = function(sequelize, DataTypes) {
             onDelete: "CASCADE",
             foreignKey: {
               name: 'schedule_id',
-              allowNull: false
+              allowNull: true
+            }
+          });
+
+          Analysis.belongsTo(models.ConditionalSchedule, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: 'conditional_schedule_id',
+              allowNull: true
             }
           });
 

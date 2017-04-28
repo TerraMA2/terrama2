@@ -10,6 +10,7 @@ var DataManager = require("./../DataManager");
 var PromiseClass = require("./../Promise");
 var AnalysisError = require("./../Exceptions").AnalysisError;
 var Utils = require("./../Utils");
+var ScheduleType = require("./../Enums").ScheduleType;
 var TcpService = require("../../core/facade/tcp-manager/TcpService");
 // TerraMA² Analysis Simulator that generates a dummy analysis
 var AnalysisBuilder = require("./builder/AnalysisBuilder");
@@ -21,12 +22,11 @@ var AnalysisBuilder = require("./builder/AnalysisBuilder");
  * @param {Object} storager - A storager object
  * @param {Object} scheduleObject - An schedule object structure
  * @param {number=} projectId - A current project id
- * @param {boolean} shouldRun - Flag to determines if analysis must run immediatly after saving process 
  * @return {Promise<Analysis>} a bluebird promise with Analysis instance value
  *
  * @example
  */
-Analysis.save = function(analysisObject, storager, scheduleObject, projectId, shouldRun) {
+Analysis.save = function(analysisObject, storager, scheduleObject, projectId) {
   return new PromiseClass(function(resolve, reject) {
     try {
       analysisObject.type = Utils.getAnalysisType(analysisObject.type_id);
@@ -66,26 +66,27 @@ Analysis.save = function(analysisObject, storager, scheduleObject, projectId, sh
             return DataManager.addSchedule(scheduleObject, options).then(function(scheduleResult) {
               // adding analysis
               analysisObject.dataset_output = dataSeriesResult.dataSets[0].id;
-              analysisObject.schedule_id = scheduleResult.id;
+              if (scheduleObject.scheduleType == ScheduleType.CONDITIONAL){
+                analysisObject.conditional_schedule_id = scheduleResult.id
+              } else if (scheduleObject.scheduleType == ScheduleType.SCHEDULE || scheduleObject.scheduleType == ScheduleType.REPROCESSING_HISTORICAL){
+                analysisObject.schedule_id = scheduleResult.id;
+              }
 
               return DataManager.addAnalysis(analysisObject, options).then(function(analysisResult) {
-                analysisResult.setSchedule(scheduleResult);
+
+                if (scheduleObject.scheduleType == ScheduleType.CONDITIONAL){
+                  analysisResult.setConditionalSchedule(scheduleResult);
+                } else if (scheduleObject.scheduleType == ScheduleType.SCHEDULE || scheduleObject.scheduleType == ScheduleType.REPROCESSING_HISTORICAL){
+                  analysisResult.setSchedule(scheduleResult);
+                }
+                
                 analysisResult.setDataSeries(dataSeriesResult);
 
                 // async call. We should not wait for execution
                 TcpService.send({
                   "DataSeries": [analysisResult.dataSeries.toObject()],
                   "Analysis": [analysisResult.toObject()]
-                })
-                  .then(function() {
-                    if (shouldRun) {
-                      return TcpService.run({
-                        "ids": [analysisResult.id],
-                        "service_instance": analysisResult.instance_id
-                      });
-                    }
-                    return null;
-                  });
+                });
                 // throwing promise chain
                 return analysisResult;
               });
@@ -134,10 +135,9 @@ Analysis.list = function(restriction) {
  * @param {Analysis | Object} analysisObject - An analysis object values to update
  * @param {Schedule | Object} scheduleObject - A schedule object values to update
  * @param {Object} storagerObject - A storager object values to update (dataseries)
- * @param {boolean} shouldRun - Flag to determines if analysis must run immediatly after saving process 
  * @return {Promise<Analysis>} A bluebird promise with analysis instance
  */
-Analysis.update = function(analysisId, projectId, analysisObject, scheduleObject, storagerObject, shouldRun) {
+Analysis.update = function(analysisId, projectId, analysisObject, scheduleObject, storagerObject) {
   return new PromiseClass(function(resolve, reject) {
     DataManager.orm.transaction(function(t) {
       var options = {
@@ -153,15 +153,7 @@ Analysis.update = function(analysisId, projectId, analysisObject, scheduleObject
           TcpService.send({
             "DataSeries": [analysisInstance.dataSeries.toObject()],
             "Analysis": [analysisInstance.toObject()]
-          })
-            .then(function() {
-              if (shouldRun) {
-                return TcpService.run({
-                  ids: [analysisInstance.id],
-                  service_instance: [analysisInstance.instance_id]
-                })
-              }
-            });
+          });
 
           return analysisInstance;        
         });

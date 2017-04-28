@@ -53,7 +53,7 @@ namespace terrama2
         ~DataStoragerTiff() {}
 
         static DataStoragerPtr make(DataProviderPtr dataProvider);
-        static DataStoragerType dataStoragerType() { return "GEOTIFF"; }
+        static DataStoragerType dataStoragerType() { return "GDAL"; }
 
         virtual void store(DataSetSeries series, DataSetPtr outputDataSet) const override;
 
@@ -61,6 +61,7 @@ namespace terrama2
 
       protected:
         std::string getMask(DataSetPtr dataSet) const;
+        int getSRID(DataSetPtr dataSet, bool log) const;
         std::string getTimezone(DataSetPtr dataSet, bool logError = true) const;
         std::string zeroPadNumber(long num, int size) const;
         std::string replaceMask(const std::string& mask,

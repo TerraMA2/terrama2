@@ -86,7 +86,17 @@ std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPt
     // Do nothing
   }
 
-  return dataRetriever->retrieveData(mask, filter, remover, "", folderPath);
+  std::string timezone = "";
+  try
+  {
+    timezone = getTimeZone(dataset);
+  }
+  catch(UndefinedTagException& /*e*/)
+  {
+    // Do nothing
+  }
+
+  return dataRetriever->retrieveData(mask, filter, timezone, remover, "", folderPath);
 }
 
 std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorFile::createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const
@@ -172,11 +182,10 @@ void terrama2::core::DataAccessorFile::cropRaster(std::shared_ptr<te::mem::DataS
   }
 }
 
-void terrama2::core::DataAccessorFile::filterDataSetByLastValue(std::shared_ptr<te::mem::DataSet> completeDataSet,
-    const Filter& filter,
-    std::shared_ptr<te::dt::TimeInstantTZ> lastTimestamp) const
+void terrama2::core::DataAccessorFile::filterDataSetByLastValues(std::shared_ptr<te::mem::DataSet> completeDataSet,
+    const Filter& filter) const
 {
-  if(!filter.lastValue)
+  if(!filter.lastValues)
     return;
 
   auto propertiesNumber = completeDataSet->getNumProperties();
@@ -194,6 +203,42 @@ void terrama2::core::DataAccessorFile::filterDataSetByLastValue(std::shared_ptr<
   if(!isValidColumn(dateColumn))
     return;
 
+  std::vector<std::shared_ptr< te::dt::TimeInstantTZ > > vecLastValues;
+
+  // Retrieve all dates of dataset
+  completeDataSet->moveBeforeFirst();
+
+  while(completeDataSet->moveNext())
+  {
+    if(completeDataSet->isNull(dateColumn))
+    {
+      QString errMsg = QObject::tr("Null date/time attribute.");
+      TERRAMA2_LOG_WARNING() << errMsg;
+      continue;
+    }
+
+    std::shared_ptr< te::dt::DateTime > dateTime(completeDataSet->getDateTime(dateColumn));
+    auto timeInstant = std::dynamic_pointer_cast<te::dt::TimeInstantTZ>(dateTime);
+
+    // Order ASC
+    auto it = std::lower_bound(vecLastValues.begin(), vecLastValues.end(), timeInstant,
+                               [&](std::shared_ptr< te::dt::TimeInstantTZ > const& first, std::shared_ptr<te::dt::TimeInstantTZ > const& second)
+                               {
+                                 return *first < *second;
+                               });
+
+    if(it != vecLastValues.end() && **it == *dateTime)
+      continue;
+
+    vecLastValues.insert(it, timeInstant);
+  }
+
+  // Remove uneccessary oldest dates
+  auto filterLastValues = *filter.lastValues.get();
+
+  if(vecLastValues.size() > filterLastValues)
+    vecLastValues = {vecLastValues.rbegin(), vecLastValues.rbegin()+filterLastValues};
+
   size_t size = completeDataSet->size();
   size_t i = 0;
 
@@ -209,9 +254,22 @@ void terrama2::core::DataAccessorFile::filterDataSetByLastValue(std::shared_ptr<
       continue;
     }
 
+
     std::shared_ptr< te::dt::DateTime > dateTime(completeDataSet->getDateTime(dateColumn));
     auto timesIntant = std::dynamic_pointer_cast<te::dt::TimeInstantTZ>(dateTime);
-    if(*timesIntant != *lastTimestamp)
+
+    bool found = false;
+    for(int32_t j =0; j < *filter.lastValues.get() && j < vecLastValues.size(); ++j)
+    {
+      auto value = vecLastValues[j];
+
+      if (*timesIntant == *value)
+      {
+        found = true;
+      }
+    }
+
+    if(!found)
     {
       completeDataSet->remove();
       --size;
@@ -338,41 +396,40 @@ std::shared_ptr<te::da::DataSet> terrama2::core::DataAccessorFile::getTerraLibDa
 }
 
 
-QFileInfoList terrama2::core::DataAccessorFile::getFoldersList(const QFileInfoList& uris, const std::string& foldersMask) const
+std::vector<std::string>  terrama2::core::DataAccessorFile::getFoldersList(const std::vector<std::string>& uris,
+                                                                           const std::string& foldersMask) const
 {
-  QFileInfoList folders;
+  std::vector<std::string> maskList = splitString(foldersMask, '/');
 
-  std::size_t found = foldersMask.find_first_of('/');
+  if(maskList.empty())
+    return uris;
 
-  std::string mask;
+  std::vector<std::string> folders = uris;
 
-  if(found != std::string::npos)
+  for(auto mask : maskList)
   {
-    std::size_t begin = 0;
-
-    if(found == 0)
-    {
-      begin = foldersMask.find_first_not_of('/');
-      std::string tempMask = foldersMask.substr(begin);
-      found = tempMask.find_first_of('/');
-      mask = foldersMask.substr(begin, found);
-
-      if(found != std::string::npos)
-        found++;
-    }
-    else
-    {
-      mask = foldersMask.substr(begin, found);
-    }
-  }
-  else
-  {
-    mask = foldersMask;
+    if(!mask.empty())
+      folders = checkSubfolders(folders, mask);
   }
 
-  for(const auto& uri : uris)
+  if(folders.empty())
   {
-    QDir dir(uri.absoluteFilePath());
+    QString errMsg = QObject::tr("No directory matches the mask.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    return {};
+  }
+
+  return folders;
+}
+
+
+std::vector<std::string> terrama2::core::DataAccessorFile::checkSubfolders(const std::vector<std::string>& baseURIs, const std::string& mask) const
+{
+  std::vector<std::string> folders;
+
+  for(const auto& uri : baseURIs)
+  {
+    QDir dir(QString::fromStdString(uri));
     QFileInfoList fileInfoList = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
     if(fileInfoList.empty())
     {
@@ -388,29 +445,11 @@ QFileInfoList terrama2::core::DataAccessorFile::getFoldersList(const QFileInfoLi
       if(!terramaMaskMatch(mask, folder))
         continue;
 
-      folders.push_back(fileInfo);
+      folders.push_back(fileInfo.absoluteFilePath().toStdString());
     }
   }
 
-  std::string nextMask = "";
-
-  if(found != std::string::npos)
-    nextMask = foldersMask.substr(found+1);
-
-  if(nextMask.empty())
-  {
-    return folders;
-  }
-  else if(!folders.empty())
-  {
-    return getFoldersList(folders, nextMask);
-  }
-  else
-  {
-    QString errMsg = QObject::tr("No directory matches the mask.");
-    TERRAMA2_LOG_ERROR() << errMsg;
-    return QFileInfoList();
-  }
+  return folders;
 }
 
 
@@ -479,19 +518,19 @@ bool terrama2::core::DataAccessorFile::needToOpenConfigFile() const
   return false;
 }
 
-std::string terrama2::core::DataAccessorFile::getControlFileMask(terrama2::core::DataSetPtr dataSet) const
+std::string terrama2::core::DataAccessorFile::getControlFileMask(terrama2::core::DataSetPtr /*dataSet*/) const
 {
   QString errMsg = QObject::tr("Should be override in subclass.");
   throw terrama2::core::Exception() << ErrorDescription(errMsg);
 }
 
-std::string terrama2::core::DataAccessorFile::readControlFile(terrama2::core::DataSetPtr dataSet, const std::string& controlFilename) const
+std::string terrama2::core::DataAccessorFile::readControlFile(terrama2::core::DataSetPtr /*dataSet*/, const std::string& /*controlFilename*/) const
 {
   QString errMsg = QObject::tr("Should be override in subclass.");
   throw terrama2::core::Exception() << ErrorDescription(errMsg);
 }
 
-std::string terrama2::core::DataAccessorFile::getConfigFilename(terrama2::core::DataSetPtr dataSet, const std::string& binaryFilename) const
+std::string terrama2::core::DataAccessorFile::getConfigFilename(terrama2::core::DataSetPtr /*dataSet*/, const std::string& /*binaryFilename*/) const
 {
   QString errMsg = QObject::tr("Should be override in subclass.");
   throw terrama2::core::Exception() << ErrorDescription(errMsg);
@@ -676,6 +715,10 @@ std::shared_ptr<te::dt::TimeInstantTZ> terrama2::core::DataAccessorFile::readFil
     {
       thisFileTimestamp = readFile(series, completeDataset, converter, fileInfo, mask, dataSet);
     }
+    catch(const terrama2::core::UndefinedTagException&)
+    {
+      throw;
+    }
     catch(const terrama2::core::DataAccessorException&)
     {
       continue;
@@ -701,7 +744,7 @@ void terrama2::core::DataAccessorFile::applyFilters(const terrama2::core::Filter
   //Get last data timestamp and compare with file name timestamp
   std::shared_ptr<te::dt::TimeInstantTZ> dataTimeStamp = getDataLastTimestamp(dataSet, completeDataset);
 
-  filterDataSetByLastValue(completeDataset, filter, dataTimeStamp);
+  filterDataSetByLastValues(completeDataset, filter);
 
   cropRaster(completeDataset, filter);
 
@@ -796,11 +839,6 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::DataAccessorFile::getDa
 
 QFileInfoList terrama2::core::DataAccessorFile::getFilesList(const std::string& uri, const std::string& mask, const Filter& filter, const std::string& timezone, DataSetPtr dataSet, std::shared_ptr<terrama2::core::FileRemover> remover) const
 {
-  QUrl url(QString::fromStdString(uri));
-
-  QFileInfoList basePathList;
-  basePathList.append(url.path());
-
   std::string folderMask;
   try
   {
@@ -811,10 +849,14 @@ QFileInfoList terrama2::core::DataAccessorFile::getFilesList(const std::string& 
     folderMask = "";
   }
 
+  QUrl url(QString::fromStdString(uri));
+
+  std::vector<std::string> basePathList;
+  basePathList.push_back(url.path().toStdString());
 
   if(!folderMask.empty())
   {
-    QFileInfoList foldersList = getFoldersList(basePathList, folderMask);
+    std::vector<std::string> foldersList = getFoldersList(basePathList, folderMask);
 
     if(foldersList.empty())
     {
@@ -831,7 +873,7 @@ QFileInfoList terrama2::core::DataAccessorFile::getFilesList(const std::string& 
   //fill file list
   for(auto& folderPath : basePathList)
   {
-    newFileInfoList.append(getDataFileInfoList(folderPath.absoluteFilePath().toStdString(),
+    newFileInfoList.append(getDataFileInfoList(folderPath,
                                                mask,
                                                timezone,
                                                filter,

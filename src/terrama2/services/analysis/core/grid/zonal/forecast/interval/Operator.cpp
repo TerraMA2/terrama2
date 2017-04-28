@@ -20,15 +20,34 @@
 */
 
 /*!
-  \file terrama2/services/analysis/core/grid/zonal/forecast/Operator.cpp
+  \file terrama2/services/analysis/core/grid/zonal/forecast/interval/Operator.cpp
 
-  \brief Contains grid zonal analysis operators.
+  \brief Contains grid zonal forecast analysis operators using time interval.
 
   \author Jano Simas
 */
 
 #include "Operator.hpp"
 #include "../Operator.hpp"
+
+#include "../../history/Operator.hpp"
+
+int terrama2::services::analysis::core::grid::zonal::forecast::interval::num( const std::string& dataSeriesName,
+                                                                              const std::string& dateDiscardBefore,
+                                                                              const std::string& dateDiscardAfter,
+                                                                              terrama2::services::analysis::core::Buffer buffer)
+{
+  return terrama2::services::analysis::core::grid::zonal::history::numImpl(dataSeriesName, dateDiscardBefore, dateDiscardAfter, buffer);
+}
+
+
+boost::python::list terrama2::services::analysis::core::grid::zonal::forecast::interval::list(const std::string& dataSeriesName,
+                                                                                              const std::string& dateDiscardBefore,
+                                                                                              const std::string& dateDiscardAfter,
+                                                                                              terrama2::services::analysis::core::Buffer buffer)
+{
+  return terrama2::services::analysis::core::grid::zonal::history::listImpl(dataSeriesName, dateDiscardBefore, dateDiscardAfter, buffer);
+}
 
 double terrama2::services::analysis::core::grid::zonal::forecast::interval::min(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const std::string& dateDiscardAfter, terrama2::services::analysis::core::Buffer buffer)
 {

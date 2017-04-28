@@ -11,7 +11,8 @@ define([
 
   // controllers
   "TerraMA2WebApp/data-series/data-series",
-  "TerraMA2WebApp/data-series/registration"
+  "TerraMA2WebApp/data-series/registration",
+  "TerraMA2WebApp/schema-form-plugin/mask-warn/directives/terrama2-mask-field"
 ], function(moduleLoader, commonServiceApp, messageboxApp, datetimepickerApp, providerApp, serviceApp, 
             dataSeriesServicesApp, scheduleApp, geoApp, ListController, RegistrationController) {
   var moduleName = "terrama2.dataseries.controllers";
@@ -22,6 +23,8 @@ define([
       moduleLoader("xeditable", deps) && 
       moduleLoader("treeControl", deps) &&
       moduleLoader("ui.router", deps) && 
+      moduleLoader("ui.select", deps) &&
+      moduleLoader("ngSanitize", deps) &&
       moduleLoader("mgo-angular-wizard", deps)) {
     deps.push(commonServiceApp);
     deps.push(providerApp);
@@ -39,7 +42,6 @@ define([
   if (deps.indexOf("ui.router") !== -1) {
 
     app
-      .controller("DataSeriesStoragerController", RegistrationController.StoragerController)
       .controller("DataSeriesRegisterUpdateController", RegistrationController.RegisterDataSeries)
       .config(["$stateProvider", "$urlRouterProvider", function($stateProvider, $urlRouterProvider) {
         $stateProvider.state('main', {

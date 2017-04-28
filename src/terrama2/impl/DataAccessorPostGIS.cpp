@@ -43,6 +43,9 @@
 #include <QUrl>
 #include <QObject>
 
+//boost
+#include <boost/algorithm/string/replace.hpp>
+
 std::string terrama2::core::DataAccessorPostGIS::whereConditions(terrama2::core::DataSetPtr dataSet,
                                                                  const std::string datetimeColumnName,
                                                                  const terrama2::core::Filter& filter) const
@@ -59,22 +62,42 @@ std::string terrama2::core::DataAccessorPostGIS::whereConditions(terrama2::core:
       conditions += " AND " + whereConditions.at(i);
   }
 
-  conditions = addLastValueFilter(dataSet, datetimeColumnName, filter, conditions);
+  std::string lastDatesJoin = addLastDatesFilter(dataSet, datetimeColumnName, filter, conditions);
+  addValueFilter(filter, conditions);
+
+  std::string where;
+  if(!lastDatesJoin.empty())
+    where += lastDatesJoin;
+
+  if(!conditions.empty())
+    where += " WHERE "+ conditions;
+
+  return where;
+}
+
+void terrama2::core::DataAccessorPostGIS::addValueFilter(const terrama2::core::Filter& filter,
+                                                         std::string& conditions) const
+{
+  std::string condition = filter.byValue;
+  //Protect from single quote based injections
+  boost::replace_all(condition, "'", "''");
+
+  //Protect from injections with semi-colon
+  size_t off = condition.find(';');
+  if (off != std::string::npos)
+  {
+    QString errMsg = QObject::tr("Malformed or malicious filter condition.\n%1").arg(QString::fromStdString(filter.byValue));
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw Exception() << ErrorDescription(errMsg);;
+  }
 
   if(!filter.byValue.empty())
   {
     if(!conditions.empty())
-      conditions +=" AND " + filter.byValue;
+      conditions +=" AND " + condition;
     else
-      conditions = filter.byValue;
+      conditions = condition;
   }
-
-  std::string where;
-
-  if(!conditions.empty())
-    where = " WHERE "+ conditions;
-
-  return where;
 }
 
 terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGIS::getSeries(const std::string& uri, const terrama2::core::Filter& filter,
@@ -120,7 +143,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGIS::getSeries(con
 
   if(datetimeColumnName.empty())
   {
-    std::unique_ptr< te::da::DataSetType > dataSetType = std::move(datasource->getDataSetType(tableName));
+    std::unique_ptr< te::da::DataSetType > dataSetType = datasource->getDataSetType(tableName);
 
     auto property = dataSetType->findFirstPropertyOfType(te::dt::DATETIME_TYPE);
 
@@ -132,7 +155,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGIS::getSeries(con
 
   std::string query = "SELECT ";
   query+="* ";
-  query+= "FROM "+tableName+" ";
+  query+= "FROM "+tableName+" AS t";
 
   query += whereConditions(dataSet, datetimeColumnName, filter);
 
@@ -151,6 +174,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGIS::getSeries(con
   series.syncDataSet.reset(new terrama2::core::SynchronizedDataSet(tempDataSet));
   series.teDataSetType = transactor->getDataSetType(tableName);
 
+  return series;
   return series;
 }
 
@@ -201,34 +225,9 @@ void terrama2::core::DataAccessorPostGIS::addGeometryFilter(terrama2::core::Data
     std::vector<std::string>& whereConditions) const
 {
   if(filter.region.get())
-    whereConditions.push_back("ST_INTERSECTS(ST_Transform(" + getOutputGeometryPropertyName(dataSet)
+    whereConditions.push_back("ST_INTERSECTS(ST_Transform(t." + getGeometryPropertyName(dataSet)
                               + ", " + std::to_string(filter.region->getSRID())
                               + "), ST_GeomFromEWKT('SRID=" + std::to_string(filter.region->getSRID()) + ";" +filter.region->asText()+"'))");
-}
-
-std::string terrama2::core::DataAccessorPostGIS::addLastValueFilter(terrama2::core::DataSetPtr dataSet,
-                                                                    const std::string datetimeColumnName,
-                                                                    const terrama2::core::Filter& filter,
-                                                                    std::string whereCondition) const
-{
-  if(filter.lastValue)
-  {
-    if(datetimeColumnName.empty())
-    {
-      QString errMsg = QObject::tr("Undefined column name to filter in PostGIS.");
-      TERRAMA2_LOG_ERROR() << errMsg;
-      throw Exception() << ErrorDescription(errMsg);;
-    }
-
-    std::string maxSelect = "SELECT ";
-    maxSelect += "MAX(" + datetimeColumnName + ") ";
-    maxSelect += "FROM " + getDataSetTableName(dataSet)+" ";
-    maxSelect += "WHERE " + whereCondition;
-
-    return datetimeColumnName + " = ("+maxSelect+") AND "+whereCondition;
-  }
-
-  return whereCondition;
 }
 
 void terrama2::core::DataAccessorPostGIS::updateLastTimestamp(DataSetPtr dataSet, std::shared_ptr<te::da::DataSourceTransactor> transactor) const
@@ -272,4 +271,35 @@ void terrama2::core::DataAccessorPostGIS::updateLastTimestamp(DataSetPtr dataSet
   }
 
   *lastDateTime_ = *lastDateTimeTz;
+}
+
+
+std::string terrama2::core::DataAccessorPostGIS::addLastDatesFilter(terrama2::core::DataSetPtr dataSet,
+                                                                    const std::string datetimeColumnName,
+                                                                    const terrama2::core::Filter& filter,
+                                                                    std::string whereCondition) const
+{
+  if(filter.lastValues)
+  {
+    if(datetimeColumnName.empty())
+    {
+      QString errMsg = QObject::tr("Undefined column name to filter in PostGIS.");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw Exception() << ErrorDescription(errMsg);;
+    }
+
+    std::string join = " RIGHT JOIN (SELECT ";
+    join += "DISTINCT(t1." + datetimeColumnName + ") ";
+    join += "FROM " + getDataSetTableName(dataSet)+" t1";
+    if(!whereCondition.empty())
+      join += "WHERE " + whereCondition;
+
+    join += " ORDER BY t1." + datetimeColumnName + " DESC limit + " + std::to_string(*filter.lastValues.get()) + ") as last_dates ON ";
+    join += "t." + datetimeColumnName + " = last_dates." + datetimeColumnName + " ";
+
+    return join;
+
+  }
+
+  return "";
 }

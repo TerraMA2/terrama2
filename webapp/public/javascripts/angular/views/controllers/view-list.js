@@ -90,7 +90,26 @@ define([], function() {
      * @param {Object} response.message - Error message
      */
     Socket.on('errorResponse', function(response){
-      self.MessageBoxService.danger(i18n.__("View"), response.message);
+      var errorMessage = response.message;
+      var targetMethod = null;
+      if (serviceCache[response.service] != undefined){
+        var service = Service.get(serviceCache[response.service].process_ids.service_instance);
+        if (service != null) {
+          errorMessage = errorMessage + " " + i18n.__("Service") + ": '" + service.name + "' ";
+        }
+        if (config.extra && config.extra.id){
+          var warningMessage = config.message + ". ";
+          errorMessage = warningMessage + errorMessage;
+          targetMethod = MessageBoxService.warning; // setting warning method to display message
+          delete config.extra;
+          delete config.message;
+        } 
+        else {
+          targetMethod = MessageBoxService.danger;
+        }
+      }
+      targetMethod.call(MessageBoxService, i18n.__("View"), errorMessage);
+      delete serviceCache[response.service];
     });
 
     /**
@@ -112,22 +131,9 @@ define([], function() {
       if(response.checking === undefined || (!response.checking && response.status == 400)) {
         if(response.online) {
           Socket.emit('run', serviceCache[response.service].process_ids);
-        } else {
-          if(serviceCache[response.service] != undefined) {
-            var service = Service.get(serviceCache[response.service].process_ids.service_instance);
-
-            if(service != null) {
-              self.MessageBoxService.danger(i18n.__("View"), i18n.__("Service") + " '" + service.name + "' " + i18n.__("is not active"));
-            } else {
-              self.MessageBoxService.danger(i18n.__("View"), "Service not active");
-            }
-          } else {
-            self.MessageBoxService.danger(i18n.__("View"), "Service not active");
-          }
-        }
-
+          delete serviceCache[response.service];
+        } 
         delete $scope.disabledButtons[serviceCache[response.service].service_id];
-        delete serviceCache[response.service];
       }
     });
 
@@ -170,7 +176,37 @@ define([], function() {
          * @returns {string}
          */
         self.icon = function(object) {
-          return "/images/map-display.png";
+          switch(object.dataSeries.semantics){
+            case "OCCURRENCE-postgis":
+            case "OCCURRENCE-wfp":
+            case "OCCURRENCE-lightning":
+            case "Occurrence-generic":
+              return "/images/view/dynamic_data_series/occurrence/large_occurrence_view.png";
+              break;
+            case "STATIC_DATA-postgis":
+            case "STATIC_DATA-ogr":
+              return "/images/view/static_data_series/vetor/large_vector_view.png";
+              break;
+            case "GRID-static_gdal":
+              return "/images/view/static_data_series/grid/large_grid_view.png";
+              break;
+            case "DCP-inpe":
+            case "DCP-toa5":
+            case "DCP-postgis":
+            case "DCP-generic":
+              return "/images/view/dynamic_data_series/dcp/large_dcp_view.png";
+              break;
+            case "ANALYSIS_MONITORED_OBJECT-postgis":
+              return "/images/view/analysis/large_analysis_view.png";
+              break;
+            case "GRID-gdal":
+            case "GRID-grads":
+              return "/images/view/dynamic_data_series/grid/large_grid_view.png";
+              break;
+            default:
+              return "/images/view/dynamic_data_series/grid/large_grid_view.png";
+              break;
+          }
         };
 
         /**
@@ -222,6 +258,15 @@ define([], function() {
             return $scope.disabledButtons[object.id];
           }
         };
+
+        if (config.extra && config.extra.id){
+          var viewToRun = self.model.filter(function(element){
+            return element.id == config.extra.id;
+          });
+          if (viewToRun.length == 1){
+            self.extra.run(viewToRun[0]);
+          }
+        }
       })
       .catch(function(err) {
         $log.log("Could not load Views due " + err.toString() + ". Please refresh page (F5)");

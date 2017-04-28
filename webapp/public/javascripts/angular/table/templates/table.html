@@ -86,8 +86,8 @@
         <!-- header -->
         <tr style="font-weight: bold;">
           <td ng-show="isFunction(icon()) && model.length > 0"></td>
-          <td ng-repeat="field in displayFields" ng-bind="field"></td>
-          <td ng-if="extra.service" ng-bind="i18n.__('Status')"></td>
+          <td ng-repeat="field in displayFields">{{ i18n.__(field) }}</td>
+          <td ng-if="extra.service">Status</td>
           <td ng-if="extra.export"></td>
           <td ng-if="isFunction(remove)">
         </tr>

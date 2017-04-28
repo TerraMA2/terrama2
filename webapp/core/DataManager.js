@@ -135,6 +135,7 @@ var DataManager = module.exports = {
         inserts.push(models.db.ServiceType.create({id: Enums.ServiceType.COLLECTOR, name: "COLLECT"}));
         inserts.push(models.db.ServiceType.create({id: Enums.ServiceType.ANALYSIS, name: "ANALYSIS"}));
         inserts.push(models.db.ServiceType.create({id: Enums.ServiceType.VIEW, name: "VIEW"}));
+        inserts.push(models.db.ServiceType.create({id: Enums.ServiceType.ALERT, name: "ALERT"}));
 
         // data provider type defaults
         inserts.push(self.addDataProviderType({id: 1, name: "FILE", description: "Desc File"}));
@@ -169,18 +170,26 @@ var DataManager = module.exports = {
         analysisService.port = 6544;
         analysisService.service_type_id = Enums.ServiceType.ANALYSIS;
 
-        inserts.push(self.addServiceInstance(collectorService));
-        inserts.push(self.addServiceInstance(analysisService));
-
         var viewService = Object.assign({}, collectorService);
         viewService.name = "Local View";
         viewService.description = "Local service for View";
         viewService.port = 6545;
         viewService.service_type_id = Enums.ServiceType.VIEW;
-        viewService.maps_server_uri = "http://admin:geoserver@localhost:8080/geoserver";
+        viewService.metadata = {
+          maps_server: "http://admin:geoserver@localhost:8080/geoserver"
+        };
+
+        var alertService = Object.assign({}, collectorService);
+        alertService.name = "Local Alert";
+        alertService.description = "Local service for Alert";
+        alertService.port = 6546;
+        alertService.service_type_id = Enums.ServiceType.ALERT;
+        alertService.metadata = { };
 
         inserts.push(self.addServiceInstance(collectorService));
+        inserts.push(self.addServiceInstance(analysisService));
         inserts.push(self.addServiceInstance(viewService));
+        inserts.push(self.addServiceInstance(alertService));
 
         // data provider intent defaults
         inserts.push(models.db.DataProviderIntent.create({
@@ -208,7 +217,7 @@ var DataManager = module.exports = {
         inserts.push(self.addDataFormat({name: DataSeriesType.GRID, description: "Grid Description"}));
         inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.POSTGIS, description: "POSTGIS description"}));
         inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.OGR, description: "Gdal ogr"}));
-        inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.GEOTIFF, description: "GeoTiff"}));
+        inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.GDAL, description: "GDAL"}));
         inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.GRADS, description: "GRADS"}));
 
         // analysis type
@@ -324,7 +333,8 @@ var DataManager = module.exports = {
                 data_format_name: semanticsElement.format,
                 data_series_type_name: semanticsElement.type,
                 collector: semanticsElement.collector || false,
-                allow_direct_access: semanticsElement.allow_direct_access
+                allow_direct_access: semanticsElement.allow_direct_access,
+                custom_format: semanticsElement.custom_format
               }, semanticsElement.providers_type_list, semanticsElement.metadata));
             });
 
@@ -425,7 +435,7 @@ var DataManager = module.exports = {
           self.data.projects.push(project.get());
         });
 
-        return models.db.DataProvider.findAll({ include: [ models.db.DataProviderType ] }).then(function(dataProviders) {
+        return models.db.DataProvider.findAll({ include: [ models.db.DataProviderType, models.db.DataProviderOptions ] }).then(function(dataProviders) {
           dataProviders.forEach(function(dataProvider) {
             self.data.dataProviders.push(new DataModel.DataProvider(dataProvider));
           });
@@ -448,7 +458,7 @@ var DataManager = module.exports = {
                       // in arguments is to retrieve entire representation.
                       // It retrieves as string. Once GeoJSON retrieved,
                       // you must parse it. "JSON.parse(geoJsonStr)"
-                      [orm.fn('ST_AsGeoJSON', orm.col('position'), 0, 2), 'position'],
+                      [orm.fn('ST_AsGeoJSON', orm.col('position'), 15, 2), 'position'],
                       // EWKT representation
                       [orm.fn('ST_AsEwkt', orm.col('position')), 'positionWkt']
                     ],
@@ -660,7 +670,7 @@ var DataManager = module.exports = {
    * It add a new TerraMA2 user instance
    * @param {Object} userObject - A javascript object with user values
    * @param {Object} options - A query options
-   * @param {Transaction} options.transaction - An ORM transaction 
+   * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise} a bluebird promise
    */
   addUser: function(userObject, options) {
@@ -771,27 +781,86 @@ var DataManager = module.exports = {
    * @return {Promise} - a 'bluebird' module. The callback is either a {ServiceInstance} data values or error
    */
   addServiceInstance: function(serviceObject, options) {
+    var self = this;
     return new Promise(function(resolve, reject){
-      models.db.ServiceInstance.create(serviceObject, options).then(function(serviceResult){
-        var service = new DataModel.Service(serviceResult);
-        var logObject = serviceObject.log;
-        logObject.service_instance_id = serviceResult.id;
-        return models.db.Log.create(logObject, options).then(function(logResult) {
-          var log = new DataModel.Log(logResult);
-          service.log = log.toObject();
+      models.db.ServiceInstance.create(serviceObject, options)
+        .then(function(serviceResult){
+          var service = new DataModel.Service(serviceResult);
+          var logObject = serviceObject.log;
+          logObject.service_instance_id = serviceResult.id;
+          return models.db.Log.create(logObject, options).then(function(logResult) {
+            var log = new DataModel.Log(logResult);
+            service.log = log.toObject();
+            return service;
+          }).catch(function(err) {
+            logger.error(err);
+            return Utils.rollbackPromises([serviceResult.destroy()], new Error("Could not save log: " + err.message), reject);
+          });
+        })
+        // On Success
+        .then(function(serviceCreated) {
+          if (serviceCreated.service_type_id === Enums.ServiceType.ALERT) {
+            // save Email uri
+            var serviceMetadata = Utils.generateArrayFromObject(serviceObject.metadata, function wrap(key, elm) {
+              return {service_instance_id: serviceCreated.id, key: key, value: elm};
+            });
 
-          return resolve(service);
-        }).catch(function(err) {
-          logger.error(err);
-          return Utils.rollbackPromises([serviceResult.destroy()], new Error("Could not save log: " + err.message), reject);
+
+            return self.addServiceMetadata(serviceMetadata, options)
+              .then(function(metadata) {
+                serviceCreated.setMetadata(metadata);
+                return serviceCreated;
+              });
+          }
+          return serviceCreated;
+        })
+        // On Success, resolve promise chain
+        .then(function(serviceResource) {
+          return resolve(serviceResource);
+        })
+        .catch(function(e) {
+          logger.error(e);
+          var message = "Could not save service instance: ";
+          if (e.errors) { message += e.errors[0].message; }
+          return reject(new Error(message));
         });
+    });
+  },
 
-      }).catch(function(e) {
-        logger.error(e);
-        var message = "Could not save service instance: ";
-        if (e.errors) { message += e.errors[0].message; }
-        return reject(new Error(message));
-      });
+  addServiceMetadata: function addServiceMetadata(metadataObj, options) {
+    return new Promise(function(resolve, reject) {
+      models.db.ServiceMetadata.bulkCreate(metadataObj, options)
+        .then(function(metadataRes) {
+          return resolve(Utils.formatMetadataFromDB(metadataRes));
+        })
+        .catch(function(err) {
+          return reject(new Error("Could not save Service Metadata due " + err.toString()));
+        });
+    });
+  },
+
+  upsertServiceMetadata: function upsertServiceMetadata(restriction, metadataObj, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      models.db.ServiceMetadata.findOne(Utils.extend({where: restriction}, options))
+        .then(function(metaResult) {
+          if (!metaResult) {
+            // create new one
+            return self.addServiceMetadata([metadataObj], options);
+          }
+          return models.db.ServiceMetadata.update(metadataObj, Utils.extend({
+            fields: ["key", "value"],
+            where: {
+              id: metaResult.id
+            }
+          }, options));
+        })
+        .then(function() {
+          return resolve();
+        })
+        .catch(function(err) {
+          return reject(new Error("Could not update service metadata due " + err.toString()));
+        });
     });
   },
 
@@ -806,11 +875,20 @@ var DataManager = module.exports = {
     return new Promise(function(resolve, reject){
       return models.db.ServiceInstance.findAll(Utils.extend({
         where: restriction,
-        include: [models.db.Log]
+        include: [
+          {
+            model: models.db.Log
+          },
+          {
+            model: models.db.ServiceMetadata,
+            required: false
+          }
+        ]
       }, options)).then(function(services) {
         var output = [];
         services.forEach(function(service){
-          var serviceObject = new DataModel.Service(service.get());
+          var params = Utils.extend({metadata: service.ServiceMetadata}, service.get());
+          var serviceObject = new DataModel.Service(params);
           serviceObject.log = new DataModel.Log(service.Log || {});
           output.push(serviceObject);
         });
@@ -889,13 +967,25 @@ var DataManager = module.exports = {
   updateServiceInstance: function(serviceId, serviceObject, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      self.getServiceInstance({id: serviceId}).then(function(serviceResult) {
+      self.getServiceInstance({id: serviceId}, options).then(function(serviceResult) {
         return models.db.ServiceInstance.update(serviceObject, Utils.extend({
-            fields: ['name', 'description', 'port', 
-                     'numberOfThreads', 'runEnviroment', 'host', 
-                     'sshUser', 'sshPort', 'pathToBinary', 'maps_server_uri'],
+            fields: ['name', 'description', 'port',
+                     'numberOfThreads', 'runEnviroment', 'host',
+                     'sshUser', 'sshPort', 'pathToBinary'],
             where: { id: serviceId }
           }, options))
+          .then(function() {
+            if (!Utils.isEmpty(serviceObject.metadata)) {
+              // prepare to update/insert
+              var promises = Utils.generateArrayFromObject(serviceObject.metadata, function(k, v, service) {
+                var obj = {key: k, value: v, service_instance_id: service};
+                return self.upsertServiceMetadata({service_instance_id: serviceId, key: k}, obj, options);
+              }, serviceId);
+
+              return Promise.all(promises);
+            }
+            return; // resolving chain
+          })
           .then(function() {
             return resolve();
           }).catch(function(err) {
@@ -1060,7 +1150,7 @@ var DataManager = module.exports = {
    * @param {string} semanticsObject.code - Semantics Code identifier. It must be unique
    * @param {string} semanticsObject.data_format_name - TerraMA² Data format
    * @param {string[]} dataProviderTypes - Defines a list of Data Provider types in order to determine which data provider type the semantics belongs
-   * @param {Object?} semanticsMetadata - Defines a list of extra metadata of semantics 
+   * @param {Object?} semanticsMetadata - Defines a list of extra metadata of semantics
    * @param {Object?} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise<Object>} - a 'bluebird' module with semantics instance or error callback.
@@ -1122,7 +1212,7 @@ var DataManager = module.exports = {
                 });
             });
         })
-        // on save process successfully 
+        // on save process successfully
         .then(function(semantics) {
           return resolve(Utils.clone(semantics.get()));
         })
@@ -1218,7 +1308,66 @@ var DataManager = module.exports = {
         });
     });
   },
+/**
+   * It performs Insert or Update operation in database. If data set format found with given restriction, it applies
+   * update operation. Otherwise, it performs insert operation
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} dataProviderOptions - A data provider configuration values
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise} - a 'bluebird' module
+   */
+  upsertDataProviderOptions: function(restriction, dataProviderOption, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return self
+        .listDataProviderOptions(restriction, Utils.extend({limit: 1}, options))
+        .then(function(dataProviderOptions) {
+          if (dataProviderOptions.length === 0) {
+            // insert
+            return models.db.DataProviderOptions.create(dataProviderOption, options);
+          } else {
+            return models.db.DataProviderOptions.update(dataProviderOption, Utils.extend({
+              fields: ["key", "value", "data_provider_id"],
+              where: {id: dataProviderOptions[0].id}
+            }, options));
+          }
+        })
 
+        .then(function() {
+          return resolve();
+        })
+
+        .catch(function(err) {
+          return reject(new Error(Utils.format("Could not upsert data provider configuration %s", err.toString())));
+        });
+    });
+  },
+  /**
+   * It retrieves all data provider configurations from database
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise} - a 'bluebird' module with DataSeries instance or error callback
+   */
+  listDataProviderOptions: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return models.db.DataProviderOptions
+        .findAll(Utils.extend({
+          where: restriction
+        }, options))
+        .then(function(dataProviderOptions) {
+          return resolve(dataProviderOptions);
+        })
+
+        .catch(function(err) {
+          return reject(new Error(Utils.format("Could not retrieve data provider configuration %s", err.toString())));
+        });
+    });
+  },
   /**
    * It saves DataProvider in database and load it in memory
    *
@@ -1231,16 +1380,55 @@ var DataManager = module.exports = {
     var self = this;
     return new Promise(function(resolve, reject) {
       models.db.DataProvider.create(dataProviderObject, options).then(function(dataProvider){
-        return dataProvider.getDataProviderType().then(function(dataProviderType) {
-          var dProvider = new DataModel.DataProvider(dataProvider.get());
-          dProvider.data_provider_type = dataProviderType.get();
-          self.data.dataProviders.push(dProvider);
+        if (dataProviderObject.configuration){
+          var configurationList = [];
+          var configuration = dataProviderObject.configuration;
 
-          return resolve(dProvider);
-        }).catch(function(err) {
-          logger.error(err);
-          return reject(err);
-        });
+          for(var key in configuration) {
+            if (configuration.hasOwnProperty(key)) {
+              configurationList.push({
+                data_provider_id: dataProvider.id,
+                key: key,
+                value: configuration[key]
+              });
+            }
+          }
+          return models.db.DataProviderOptions.bulkCreate(configurationList, Utils.extend({data_provider_id: dataProvider.id}, options)).then(function () {
+            return models.db.DataProviderOptions.findAll(Utils.extend({where: {data_provider_id: dataProvider.id}}, options)).then(function(dataSetFormats) {
+              return dataProvider.getDataProviderType().then(function(dataProviderType) {
+                var dataProviderObject = dataProvider.get();
+                dataSetFormats.forEach(function(dSetFormat){
+                  dataProviderObject[dSetFormat.key] = dSetFormat.value;
+                });
+                var dProvider = new DataModel.DataProvider(dataProvider.get());
+                dProvider.data_provider_type = dataProviderType.get();
+                self.data.dataProviders.push(dProvider);
+
+                return resolve(dProvider);
+              }).catch(function(err) {
+                logger.error(err);
+                return reject(err);
+              });
+            }).catch(function(err){
+              logger.error(err);
+              return reject(err);
+            });
+          }).catch(function(err){
+            logger.error(err);
+            return reject(err);
+          });
+        } else {
+          return dataProvider.getDataProviderType().then(function(dataProviderType) {
+            var dProvider = new DataModel.DataProvider(dataProvider.get());
+            dProvider.data_provider_type = dataProviderType.get();
+            self.data.dataProviders.push(dProvider);
+
+            return resolve(dProvider);
+          }).catch(function(err) {
+            logger.error(err);
+            return reject(err);
+          });
+        }
       }).catch(function(err){
         var message = "Could not save data provider due: ";
         logger.error(err.errors);
@@ -1316,13 +1504,37 @@ var DataManager = module.exports = {
         }, options)).then(function() {
           if (dataProviderObject.name) { dataProvider.name = dataProviderObject.name; }
 
+          if (dataProviderObject.timeout) { dataProvider.timeout = dataProviderObject.timeout; }
+
           if (dataProviderObject.description) { dataProvider.description = dataProviderObject.description; }
 
           if (dataProviderObject.uri) { dataProvider.uri = dataProviderObject.uri; }
 
           dataProvider.active = dataProviderObject.active;
 
-          return resolve(new DataModel.DataProvider(dataProvider));
+          if (dataProviderObject.configuration){
+            var dataProviderConfPromises = [];
+
+            for (var key in dataProviderObject.configuration){
+              if (dataProviderObject.configuration.hasOwnProperty(key)){
+                var configRestriction = {
+                  data_provider_id: dataProviderId,
+                  key: key
+                };
+                var configObject = {
+                  value: dataProviderObject.configuration[key]
+                }
+              }
+              dataProviderConfPromises.push(self.upsertDataProviderOptions(configRestriction, configObject, options));
+            }
+            return Promise.all(dataProviderConfPromises).then(function(dataProvConfigs){
+              dataProvider.timeout = dataProviderObject.configuration.timeout;
+              dataProvider.active_mode = dataProviderObject.configuration.active_mode;
+              return resolve(new DataModel.DataProvider(dataProvider));
+            });
+          } else {
+            return resolve(new DataModel.DataProvider(dataProvider));
+          }
         }).catch(function(err) {
           return reject(new exceptions.DataProviderError("Could not update data provider ", err));
         });
@@ -1667,7 +1879,7 @@ var DataManager = module.exports = {
 
           dataSeriesObject.dataSets.forEach(function(newDataSet){
             var dataSetToUpdate = dataSeries.dataSets.find(function(dSet){
-              return dSet.format._id == newDataSet.format._id; 
+              return dSet.format._id == newDataSet.format._id;
             });
             // Update data set
             if (dataSetToUpdate){
@@ -1690,7 +1902,7 @@ var DataManager = module.exports = {
                     }
                   }
                 }
-                
+
                 return Promise.all(promisesFormatArray);
               });
               promises.push(updatePromise);
@@ -1856,7 +2068,7 @@ var DataManager = module.exports = {
                   attributes: [
                     "id",
                     "data_set_id",
-                    [orm.fn('ST_AsGeoJSON', orm.col('position'), 0, 2), 'position'],
+                    [orm.fn('ST_AsGeoJSON', orm.col('position'), 15, 2), 'position'],
                     [orm.fn('ST_AsEwkt', orm.col('position')), 'positionWkt']
                   ],
                   where: {
@@ -1970,7 +2182,7 @@ var DataManager = module.exports = {
                                 break;
                             }
                             /**
-                             * Stringification process. It is important to force cast to string due the formats here 
+                             * Stringification process. It is important to force cast to string due the formats here
                              * may be cast to int/float etc.
                              */
                             var formatStringfied = {};
@@ -2089,17 +2301,22 @@ var DataManager = module.exports = {
       return self.addDataSeries(dataSeriesObject.input, null, options).then(function(dataSeriesResult) {
         return self.addDataSeries(dataSeriesObject.output, null, options).then(function(dataSeriesResultOutput) {
           return self.addSchedule(scheduleObject, options).then(function(scheduleResult) {
-            var schedule = new DataModel.Schedule(scheduleResult);
+            var schedule;
+            if (scheduleResult){
+              schedule = new DataModel.Schedule(scheduleResult);
+            }
             var collectorObject = {};
 
             // todo: get service_instance id and collector status (active)
             collectorObject.data_series_input = dataSeriesResult.id;
             collectorObject.data_series_output = dataSeriesResultOutput.id;
             collectorObject.service_instance_id = serviceObject.id;
-            collectorObject.schedule_id = scheduleResult.id;
+            collectorObject.schedule_type = scheduleObject.scheduleType;
+            if (scheduleObject.scheduleType == Enums.ScheduleType.SCHEDULE){
+              collectorObject.schedule_id = scheduleResult.id;
+            }
             collectorObject.active = active;
             collectorObject.collector_type = 1;
-            collectorObject.schedule_id = scheduleResult.id;
 
             return self.addCollector(collectorObject, filterObject, options).then(function(collectorResult) {
               var collector = collectorResult;
@@ -2158,12 +2375,23 @@ var DataManager = module.exports = {
    */
   addSchedule: function(scheduleObject, options) {
     return new Promise(function(resolve, reject) {
-      models.db.Schedule.create(scheduleObject, options).then(function(schedule) {
-        return resolve(new DataModel.Schedule(schedule.get()));
-      }).catch(function(err) {
-        // todo: improve error message
-        return reject(new exceptions.ScheduleError("Could not save schedule. " + err.toString()));
-      });
+      if (scheduleObject.scheduleType == Enums.ScheduleType.CONDITIONAL){
+        models.db.ConditionalSchedule.create(scheduleObject, options).then(function(schedule) {
+          return resolve(new DataModel.ConditionalSchedule(schedule.get()));
+        }).catch(function(err) {
+          // todo: improve error message
+          return reject(new exceptions.ScheduleError("Could not save schedule. " + err.toString()));
+        });
+      } else if (scheduleObject.scheduleType == Enums.ScheduleType.SCHEDULE || scheduleObject.scheduleType == Enums.ScheduleType.REPROCESSING_HISTORICAL){
+        models.db.Schedule.create(scheduleObject, options).then(function(schedule) {
+          return resolve(new DataModel.Schedule(schedule.get()));
+        }).catch(function(err) {
+          // todo: improve error message
+          return reject(new exceptions.ScheduleError("Could not save schedule. " + err.toString()));
+        });
+      } else {
+        return resolve();
+      }
     });
   },
 
@@ -2180,6 +2408,31 @@ var DataManager = module.exports = {
     return new Promise(function(resolve, reject) {
       models.db.Schedule.update(scheduleObject, Utils.extend({
         fields: ['schedule', 'schedule_time', 'schedule_unit', 'frequency_unit', 'frequency', 'frequency_start_time'],
+        where: {
+          id: scheduleId
+        }
+      }, options))
+        .then(function() {
+          return resolve();
+        }).catch(function(err) {
+          return reject(new exceptions.ScheduleError("Could not update schedule " + err.toString()));
+        });
+    });
+  },
+
+  /**
+   * It performs update conditional schedule from given restriction
+   *
+   * @param {number} scheduleId - A schedule identifier
+   * @param {Object} scheduleObject - A query values to update
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise}
+   */
+  updateConditionalSchedule: function(scheduleId, scheduleObject, options) {
+    return new Promise(function(resolve, reject) {
+      models.db.ConditionalSchedule.update(scheduleObject, Utils.extend({
+        fields: ['data_ids'],
         where: {
           id: scheduleId
         }
@@ -2212,6 +2465,25 @@ var DataManager = module.exports = {
   },
 
   /**
+   * It performs delete conditional schedule from given restriction
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise}
+   */
+  removeConditionalSchedule: function(restriction, options) {
+    return new Promise(function(resolve, reject) {
+      models.db.ConditionalSchedule.destroy(Utils.extend({where: {id: restriction.id}}, options)).then(function() {
+        return resolve();
+      }).catch(function(err) {
+        logger.error(err);
+        return reject(new exceptions.ScheduleError("Could not remove schedule " + err.message));
+      });
+    });
+  },
+
+  /**
    * It retrieves a schedule from given restriction
    *
    * @param {Object} restriction - A query restriction
@@ -2229,6 +2501,48 @@ var DataManager = module.exports = {
           return resolve(new DataModel.Schedule(schedule.get()));
         }
         return reject(new exceptions.ScheduleError("Could not find schedule"));
+      });
+    });
+  },
+  /**
+   * It retrieves a conditional schedule from given restriction
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Schedule>}
+   */
+  getConditionalSchedule: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      models.db.ConditionalSchedule.findOne(Utils.extend({
+        where: restriction || {}
+      }, options)).then(function(schedule) {
+        if (schedule) {
+          return resolve(new DataModel.ConditionalSchedule(schedule.get()));
+        }
+        return reject(new exceptions.ScheduleError("Could not find conditional schedule"));
+      });
+    });
+  },
+
+  /**
+   * It retrieves all conditional schedule in database from given restriction
+   *
+   * @param {Object} restriction - A conditional schedule restriction
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise}
+   */
+  listConditionalSchedule: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return models.db.ConditionalSchedule.findAll(Utils.extend({
+        where: restriction || {}
+      }, options)).then(function(conditionalSchedulesResult){
+        return resolve(conditionalSchedulesResult.map(function(conditionalSchedule){
+          return new DataModel.ConditionalSchedule(conditionalSchedule.get());
+        }));
       });
     });
   },
@@ -2251,8 +2565,14 @@ var DataManager = module.exports = {
 
         var schedule;
         var dataSeriesInput;
+        var getSchedulePromise;
 
-        return self.getSchedule({id: collectorResult.schedule_id}, options)
+        if (collectorResult.schedule_type == Enums.ScheduleType.MANUAL){
+          getSchedulePromise = Promise.resolve();
+        } else {
+          getSchedulePromise = self.getSchedule({id: collectorResult.schedule_id}, options);
+        }
+        return getSchedulePromise
           .then(function(scheduleResult) {
             schedule = scheduleResult;
             return self.getDataSeries({id: collectorResult.data_series_input});
@@ -2366,6 +2686,7 @@ var DataManager = module.exports = {
         'data_series_input',
         'data_series_output',
         'schedule_id',
+        'schedule_type',
         'active',
         'collector_type'
       ];
@@ -2438,7 +2759,7 @@ var DataManager = module.exports = {
               "collector_id",
               "data_series_id",
               [orm.fn('ST_AsEwkt', orm.col('region')), 'region_wkt'],
-              [orm.fn('ST_AsGeoJSON', orm.col('region'), 0, 2), 'region']
+              [orm.fn('ST_AsGeoJSON', orm.col('region'), 15, 2), 'region']
             ]
           },
           {
@@ -2467,8 +2788,8 @@ var DataManager = module.exports = {
           dataSeriesArray.forEach(function(dataSeries) {
             collectorsResult.some(function(collector) {
 
-              if(collector.Filter !== undefined && collector.Filter !== null && 
-              collector.Filter.dataValues.region !== undefined && collector.Filter.dataValues.region !== null && 
+              if(collector.Filter !== undefined && collector.Filter !== null &&
+              collector.Filter.dataValues.region !== undefined && collector.Filter.dataValues.region !== null &&
               typeof collector.Filter.dataValues.region === "string") {
                 collector.Filter.dataValues.region = JSON.parse(collector.Filter.dataValues.region);
               }
@@ -2932,7 +3253,15 @@ var DataManager = module.exports = {
         // successfully retrieving analysis data series
         .then(function(dataSeriesResult) {
           dataSeries = dataSeriesResult;
-          return self.getSchedule({id: analysisResult.schedule_id}, options);
+          var schedulePromise;
+          if (analysisResult.schedule_type == Enums.ScheduleType.CONDITIONAL){
+            schedulePromise = self.getConditionalSchedule({id: analysisResult.conditional_schedule_id}, options);
+          } else if (analysisResult.schedule_type == Enums.ScheduleType.SCHEDULE || analysisResult.schedule_type == Enums.ScheduleType.REPROCESSING_HISTORICAL){
+            schedulePromise = self.getSchedule({id: analysisResult.schedule_id}, options);            
+          } else {
+            schedulePromise = Promise.resolve();
+          }
+          return schedulePromise;
         })
         // successfully retrieving analysis schedule
         .then(function(schedule) {
@@ -2991,7 +3320,11 @@ var DataManager = module.exports = {
 
             var analysisInstance = new DataModel.Analysis(analysisResult);
             analysisInstance.setScriptLanguage(scriptLanguageResult);
-            analysisInstance.setSchedule(scheduleResult);
+            if (analysisResult.schedule_type == Enums.ScheduleType.CONDITIONAL){
+              analysisInstance.setConditionalSchedule(scheduleResult);
+            } else if(analysisResult.schedule_type == Enums.ScheduleType.SCHEDULE || analysisResult.schedule_type == Enums.ScheduleType.REPROCESSING_HISTORICAL){
+              analysisInstance.setSchedule(scheduleResult);
+            }
             analysisInstance.setMetadata(analysisMetadataOutput);
             analysisInstance.setDataSeries(dataSeries);
 
@@ -3068,10 +3401,78 @@ var DataManager = module.exports = {
        * not applied on children operations, Your DB operation may be inconsistent.
        */
       // Retrieve analysis and update Analysis Table
+      var removeSchedule;
+      var scheduleIdToRemove;
+      var scheduleTypeToRemove;
       return self.getAnalysis({id: analysisId}, options).then(function(analysisResult) {
         analysisInstance = analysisResult;
+        var oldScheduleType = analysisResult.scheduleType;
+        var newScheduleType = scheduleObject.scheduleType;
+        var schedulePromise;
+        /**
+         * Check if must just update the schedule if the schedule type don't change, or if must delete a schedule and create a new one
+         */
+        // If don't change the type update the schedule
+        if (oldScheduleType == newScheduleType){
+          if (newScheduleType == Enums.ScheduleType.SCHEDULE || newScheduleType == Enums.ScheduleType.REPROCESSING_HISTORICAL){
+            return self.updateSchedule(analysisInstance.schedule.id, scheduleObject, options);
+          } else if (newScheduleType == Enums.ScheduleType.CONDITIONAL){
+            return self.updateConditionalSchedule(analysisInstance.conditionalSchedule.id, scheduleObject, options);
+          }
+        } else if ((newScheduleType == Enums.ScheduleType.SCHEDULE && oldScheduleType == Enums.ScheduleType.REPROCESSING_HISTORICAL) || 
+                    (oldScheduleType == Enums.ScheduleType.SCHEDULE && newScheduleType == Enums.ScheduleType.REPROCESSING_HISTORICAL) ){
+            return self.updateSchedule(analysisInstance.schedule.id, scheduleObject, options);
+        } else {
+          // If don't have a schedule previously, create a new one
+          if (oldScheduleType == Enums.ScheduleType.MANUAL){
+            return self.addSchedule(scheduleObject, options).then(function(newSchedule){
+              if (newScheduleType == Enums.ScheduleType.SCHEDULE || newScheduleType == Enums.ScheduleType.REPROCESSING_HISTORICAL){
+                analysisObject.schedule_id = newSchedule.id;
+                analysisResult.schedule = newSchedule;
+                return null;
+              } else {
+                analysisObject.conditional_schedule_id = newSchedule.id;
+                analysisResult.conditionalSchedule = newSchedule;
+                return null;
+              }
+            });
+            // If old schedule is conditional, remove the schedule
+          } else if (oldScheduleType == Enums.ScheduleType.CONDITIONAL){
+            removeSchedule = true;
+            scheduleIdToRemove = analysisResult.conditionalSchedule.id;
+            scheduleTypeToRemove = oldScheduleType;
+            analysisObject.conditional_schedule_id = null;
+            // new schedule is not MANUAL create and set the id in analysis object to update
+            if (newScheduleType == Enums.ScheduleType.SCHEDULE || newScheduleType == Enums.ScheduleType.REPROCESSING_HISTORICAL){
+              return self.addSchedule(scheduleObject, options).then(function(newSchedule){
+                analysisObject.schedule_id = newSchedule.id;
+                analysisResult.schedule = newSchedule;
+                return null;
+              });
+            } else {
+              return null;
+            }
+            // when the old schedule is SCHEDULE or REPROCESSING HISTORICAL, remove the schedule
+          } else {
+            removeSchedule = true;
+            scheduleIdToRemove = analysisResult.schedule.id;
+            scheduleTypeToRemove = oldScheduleType;
+            analysisObject.schedule_id = null;
+            if (newScheduleType == Enums.ScheduleType.CONDITIONAL){
+              return self.addSchedule(scheduleObject, options).then(function(newSchedule){
+                analysisObject.conditional_schedule_id = newSchedule.id;
+                analysisResult.conditionalSchedule = newSchedule;
+                return null;
+              });
+            } else {
+              return null;
+            }
+          }
+        }
+      })
+      .then(function (){
         return models.db.Analysis.update(analysisObject, Utils.extend({
-          fields: ['name', 'description', 'instance_id', 'script', 'active'],
+          fields: ['name', 'description', 'instance_id', 'script', 'active', 'schedule_type', 'schedule_id', 'conditional_schedule_id'],
           where: {
             id: analysisId
           }
@@ -3124,10 +3525,16 @@ var DataManager = module.exports = {
 
         return Promise.all(promises);
       })
-      // Tries to updateschedule
+      // check if have to remove a schedule
       .then(function() {
-        // updating schedule
-        return self.updateSchedule(analysisInstance.schedule.id, scheduleObject, options);
+        // remove schedule
+        if (removeSchedule){
+          if (scheduleTypeToRemove == Enums.ScheduleType.CONDITIONAL){
+            return DataManager.removeConditionalSchedule({id: scheduleIdToRemove}, options);
+          } else {
+            return DataManager.removeSchedule({id: scheduleIdToRemove}, options);
+          }
+        }
       })
       // Update historical data if there is
       .then(function() {
@@ -3201,7 +3608,7 @@ var DataManager = module.exports = {
 
             /**
              * Promise chain (destroy/save)
-             * 
+             *
              * @type {Promise}
              */
             var promise;
@@ -3255,7 +3662,7 @@ var DataManager = module.exports = {
 
   /**
    * It retrieves all analysis data series in database from given restriction
-   * 
+   *
    * @param {Object} restriction - An analysis data series restriction
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
@@ -3314,7 +3721,7 @@ var DataManager = module.exports = {
               'interpolation_method',
               'resolution_data_series_id',
               'area_of_interest_data_series_id',
-              [orm.fn('ST_AsGeoJSON', orm.col('area_of_interest_box'), 0, 2), 'area_of_interest_box'],
+              [orm.fn('ST_AsGeoJSON', orm.col('area_of_interest_box'), 15, 2), 'area_of_interest_box'],
               [orm.fn('ST_AsEwkt', orm.col('area_of_interest_box')), 'interest_box'] // extra field
             ],
             required: false
@@ -3413,7 +3820,14 @@ var DataManager = module.exports = {
           models.db.AnalysisMetadata,
           models.db.ScriptLanguage,
           models.db.AnalysisType,
-          models.db.Schedule,
+          {
+            model: models.db.Schedule,
+            required: false
+          },
+          {
+            model: models.db.ConditionalSchedule,
+            required: false
+          },
           {
             model: models.db.DataSet,
             where: dataSetRestriction
@@ -3462,7 +3876,15 @@ var DataManager = module.exports = {
       return self.getAnalysis({id: analysisParam.id}, options).then(function(analysisResult) {
         return models.db.Analysis.destroy(Utils.extend({where: {id: analysisParam.id}}, options)).then(function() {
           return self.removeDataSerie({id: analysisResult.dataSeries.id}, options).then(function() {
-            return self.removeSchedule({id: analysisResult.schedule.id}, options).then(function() {
+            var removeSchedulePromise;
+            if (analysisResult.scheduleType == Enums.ScheduleType.SCHEDULE || analysisResult.scheduleType == Enums.ScheduleType.REPROCESSING_HISTORICAL){
+              removeSchedulePromise = self.removeSchedule({id: analysisResult.schedule.id}, options);
+            } else if (analysisResult.scheduleType == Enums.ScheduleType.CONDITIONAL ){
+              removeSchedulePromise = self.removeConditionalSchedule({id: analysisResult.conditionalSchedule.id}, options);
+            } else {
+              removeSchedulePromise = Promise.resolve();
+            }
+            return removeSchedulePromise.then(function() {
               return resolve();
             }).catch(function(err) {
               logger.error("Could not remove analysis schedule ", err);
@@ -3484,6 +3906,601 @@ var DataManager = module.exports = {
   },
 
   /**
+   * It performs save alert in database
+   *
+   * @param {Object} alertObject - An alert values to save
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Alert>}
+   */
+  addAlert: function(alertObject, options){
+    var self = this;
+    return new Promise(function(resolve, reject){
+      var alertResult;
+      var scheduleResult;
+      var reportMetadataResult;
+      var additionalDataResult;
+      var riskResult;
+      var notificationResult;
+      return models.db.Alert.create(alertObject, options)
+        .then(function(alert){
+          alertResult = alert;
+          return self.getConditionalSchedule({id: alertResult.conditional_schedule_id}, options);
+        })
+        .then(function(schedule){
+          scheduleResult = schedule;
+          var reportMetadata = alertObject.report_metadata;
+          reportMetadata.alert_id = alertResult.id;
+          return self.addReportMetadata(reportMetadata, options);
+        })
+        .then(function(reportMetadata){
+          reportMetadataResult = reportMetadata;
+          var alertAdditionalData = alertObject.additionalData;
+          var additionalDataPromises = [];
+          if (alertAdditionalData){
+            alertAdditionalData.forEach(function(alertAD){
+              alertAD.alert_id = alertResult.id;
+              additionalDataPromises.push(self.addAlertAdditionalData(alertAD, options));
+            });
+          }
+          return Promise.all(additionalDataPromises);
+        })
+        .then(function(additionalData){
+          additionalDataResult = additionalData;
+          var risk = alertObject.risk;
+          risk.alert_id = alertResult.id;
+          return self.getRisk({id: alertResult.risk_id}, options);
+        })
+        .then(function(risk){
+          riskResult = risk;
+          var notifications = alertObject.notifications;
+          var notificationsPromises = [];
+          notifications.forEach(function(notification){
+            notification.alert_id = alertResult.id;
+            notificationsPromises.push(self.addAlertNotification(notification, options));
+          });
+          return Promise.all(notificationsPromises);
+        })
+        .then(function(notifications){
+          notificationResult = notifications;
+          var objectToAssign = {
+            conditionalSchedule: scheduleResult,
+            reportMetadata: reportMetadataResult,
+            additionalData: additionalDataResult,
+            risk: riskResult,
+            notifications: notificationResult
+          }
+          return resolve(new DataModel.Alert(Object.assign(alertResult.get(), objectToAssign)));
+        })
+        .catch(function(err){
+          return reject(new Error(Utils.format("Could not save alert due %s", err.toString())));
+        });
+    });
+  },
+
+  /**
+   * It performs a save report metadata and retrieve it
+   *
+   * @param {Object} reportMetadaObject - Report Metadata object to save
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Object>} An Report Metadata object created
+   */
+  addReportMetadata: function(reportMetadaObject, options){
+    return new Promise(function(resolve, reject){
+      return models.db.ReportMetadata.create(reportMetadaObject, options)
+        .then(function(reportMetadaResult){
+          return resolve(reportMetadaResult.get());
+        })
+        .catch(function(err){
+          return reject(new Error(Utils.format("Could not save alert report metadata due %s", err.toString())));
+        });
+    });
+  },
+
+  /**
+   * It performs a save additional data and retrieve it
+   *
+   * @param {Object} additionalDataObject - Additional data object to save
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Object>} An Additional data object created
+   */
+  addAlertAdditionalData: function(additionalDataObject, options){
+    return new Promise(function(resolve, reject){
+      return models.db.AlertAdditionalData.create(additionalDataObject, options)
+        .then(function(additionalDataResult){
+          return resolve(additionalDataResult.get());
+        })
+        .catch(function(err){
+          return reject(new Error(Utils.format("Could not save alert additional data due %s", err.toString())));
+        })
+    });
+  },
+
+  /**
+   * It performs a save risk and retrieve it
+   *
+   * @param {Object} riskObject - Risk object to save
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Object>} A risk object created
+   */
+  addRisk: function(riskObject, options){
+    var self = this;
+    return new Promise(function(resolve, reject){
+      var riskObjectResult;
+      return models.db.Risk.create(riskObject, options)
+        .then(function(riskResult){
+          riskObjectResult = riskResult;
+          var riskLevelPromises = [];
+          var riskLevels = riskObject.levels;
+          riskLevels.forEach(function(riskLevel){
+            riskLevel.risk_id = riskResult.id;
+            riskLevelPromises.push(self.addRiskLevel(riskLevel, options));
+          });
+          return Promise.all(riskLevelPromises)
+          .then(function(riskLevelResult){
+            var objectToAssign = {
+              riskLevels: riskLevelResult
+            }
+            return resolve(new DataModel.Risk(Object.assign(riskObjectResult.get(), objectToAssign)));
+          })
+        })
+        .catch(function(err){
+          return reject(new Error(Utils.format("Could not save risk due %s", err.toString())));
+        });
+    });
+  },
+
+  /**
+   * It performs a save risk level and retrieve it
+   *
+   * @param {Object} riskLevelObject - Risk level object to save
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Object>} A risk level object created
+   */
+  addRiskLevel: function(riskLevelObject, options){
+    return new Promise(function(resolve, reject){
+      return models.db.RiskLevel.create(riskLevelObject, options)
+        .then(function(riskLevelResult){
+          return resolve(riskLevelResult.get());
+        })
+        .catch(function(err){
+          return reject(new Error(Utils.format("Could not save risk level due %s", err.toString())));
+        });
+    });
+  },
+
+  /**
+   * It performs a save alert notification and retrieve it
+   *
+   * @param {Object} alertNotificationObject - Alert notification object to save
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Object>} A alert notification object created
+   */
+  addAlertNotification: function(alertNotificationObject, options){
+    return new Promise(function(resolve, reject){
+      return models.db.AlertNotification.create(alertNotificationObject, options)
+        .then(function(alertNotificationResult){
+          return resolve(alertNotificationResult.get());
+        })
+        .catch(function(err){
+          return reject(new Error(Utils.format("Could not save Alert Notification due %s", err.toString())));
+        });
+    })
+  },
+
+  /**
+   * It retrieves an alert from database
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<DataModel.Alert>}
+   */
+  getAlert: function(restriction, options){
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      self.listAlerts(restriction, options)
+        .then(function(alerts) {
+          if (alerts.length === 0) {
+            return reject(new Error("No alert retrieved"));
+          }
+          if (alerts.length > 1) {
+            return reject(new Error("Get operation retrieved more than a view"));
+          }
+          return resolve(alerts[0]);
+        })
+        .catch(function(err) {
+          return reject(err);
+        });
+    });
+  },
+
+  /**
+   * It retrieves a list of alerts in database
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<DataModel.Alert[]>}
+   */
+  listAlerts: function(restriction, options){
+    var self = this;
+
+    return new Promise(function(resolve, reject) {
+      models.db.Alert.findAll(Utils.extend({
+        where: restriction || {},
+        include: [
+          {
+            model: models.db.AlertAdditionalData
+          },
+          {
+            model: models.db.AlertNotification
+          },
+          {
+            model: models.db.ConditionalSchedule
+          },
+          {
+            model: models.db.ReportMetadata
+          },
+          {
+            model: models.db.Risk,
+            include: [
+              {
+                model: models.db.RiskLevel
+              }
+            ]
+          }
+        ]
+      }, options))
+        .then(function(alerts){
+          return resolve(alerts.map(function(alert) {
+            var additionalDatas = [];
+            alert.AlertAdditionalData.forEach(function(additionalData){
+              additionalDatas.push(additionalData.get());
+            });
+
+            var notifications = [];
+            alert.AlertNotifications.forEach(function(notification){
+              notifications.push(notification.get());
+            });
+
+            var risk = new DataModel.Risk(alert.Risk.get());
+
+            var alertModel = new DataModel.Alert(Object.assign(alert.get(), {
+              conditional_schedule: alert.ConditionalSchedule ? new DataModel.ConditionalSchedule(alert.ConditionalSchedule.get()) : {},
+              additionalData: additionalDatas,
+              notifications: notifications,
+              reportMetadata: alert.ReportMetadatum.get(),
+              risk: risk
+            }));
+            return alertModel;
+          }))
+        })
+        .catch(function(err){
+          return reject(new Error("Could not list alerts " + err.toString()));
+        });
+    });
+  },
+
+  /**
+   * It retrieves a risk from database
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<DataModel.Risk>}
+   */
+  getRisk: function(restriction, options){
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      models.db.Risk.findOne(Utils.extend({
+        where: restriction || {},
+        include: [
+          {
+            model: models.db.RiskLevel
+          }
+        ]
+      }, options)).then(function(risk) {
+        if (risk) {
+          var riskLevels = [];
+          risk.RiskLevels.forEach(function(riskLevel){
+            riskLevels.push(riskLevel.get());
+          });
+          var riskObject = new DataModel.Risk(Object.assign(risk.get(),{
+            riskLevels: riskLevels
+          }));
+          return resolve(riskObject);
+        }
+        return reject(new Error("Could not find risk"));
+      });
+    });
+  },
+
+  /**
+   * It retrieves a list of risks in database
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<DataModel.Risk[]>}
+   */
+  listRisks: function(restriction, options){
+    var self = this;
+    return new Promise(function(resolve, reject){
+      models.db.Risk.findAll(Utils.extend({
+        where: restriction || {},
+        include: [
+          {
+            model: models.db.RiskLevel
+          }
+        ]
+      }, options))
+        .then(function(risks){
+          return resolve(risks.map(function(risk){
+            var riskLevels = [];
+            risk.RiskLevels.forEach(function(riskLevel){
+              riskLevels.push(riskLevel.get());
+            });
+            var riskModel = new DataModel.Risk(Object.assign(risk.get(), {
+              riskLevels: riskLevels
+            }));
+            return riskModel;
+          }))
+        })
+        .catch(function(err){
+          return reject(new Error("Could not list risks " + err.toString()));
+        });
+    });
+  },
+
+  /**
+   * It performs update alerts from given restriction
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} alertObject - An alert object values to update
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   */
+  updateAlert: function(restriction, alertObject, options){
+    var self = this;
+    return new Promise(function(resolve, reject){
+      var alertId = restriction.id;
+      models.db.Alert.update(
+        alertObject,
+        Utils.extend({
+          fields: ["name", "description", "data_series_id", "active", "service_instance_id", "risk_id", "risk_attribute"],
+          where: restriction
+        }, options))
+        .then(function(){
+          return self.updateReportMetadata({alert_id: alertId}, alertObject.report_metadata, options)
+        })
+
+        .then(function() {
+          return resolve();
+        })
+
+        .catch(function(err) {
+          return reject(new Error("Could not update alert " + err.toString()));
+        });
+    })
+  },
+
+  /**
+   * It performs update report metadata from given restriction
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} alertObject - An alert report metadata values to update
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   */
+  updateReportMetadata: function(restriction, reportMetadataObject, options){
+    var self = this;
+    return new Promise(function(resolve, reject){
+      models.db.ReportMetadata.update(
+        reportMetadataObject,
+        Utils.extend({
+          fields: ['title', 'abstract', 'description', 'author', 'contact', 'copyright', 'timestamp_format', 'logo_path', 'document_format'],
+          where: restriction
+        }, options))
+
+        .then(function(reportMetadata) {
+          return resolve();
+        })
+
+        .catch(function(err) {
+          return reject(new Error("Could not update Report metadata " + err.toString()));
+        });
+    })
+  },
+
+  /**
+   * It performs update risk from given restriction
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} alertObject - A risk values to update
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   */
+  updateRisk: function(restriction, riskObject, options){
+    var self = this;
+    return new Promise(function(resolve, reject){
+      return self.getRisk({id: restriction.id}, options)
+        // Updating Risk Levels
+        .then(function(riskResult){
+          var oldRiskLevels = riskResult.levels;
+          var newRiskLevels = riskObject.levels;
+          var riskLevelPromises = [];
+          newRiskLevels.forEach(function(riskLevel){
+            if (riskLevel.id){
+              riskLevelPromises.push(self.updateRiskLevel({id: riskLevel.id}, riskLevel, options));
+            }
+            else {
+              riskLevel.risk_id = restriction.id;
+              riskLevelPromises.push(self.addRiskLevel(riskLevel, options));
+            }
+          });
+          oldRiskLevels.forEach(function(riskLevel){
+            var found = newRiskLevels.some(function(newRiskLevel){
+              return newRiskLevel.id === riskLevel.id;
+            });
+            if (!found){
+              riskLevelPromises.push(self.removeRiskLevel({id: riskLevel.id}, options));
+            }
+          });
+          return Promise.all(riskLevelPromises);
+        })
+
+        .then(function(){
+          models.db.Risk.update(
+            riskObject,
+            Utils.extend({
+              fields: ['name', 'description'],
+              where: restriction
+            }, options))
+
+            .then(function(risk) {
+              return resolve();
+            })
+        })
+
+        .catch(function(err) {
+          return reject(new Error("Could not update Risk " + err.toString()));
+        });
+    });
+  },
+
+  /**
+   * It performs update risk level from given restriction
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} alertObject - A risk level values to update
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   */
+  updateRiskLevel: function(restriction, riskLevelObject, options){
+    var self = this;
+    return new Promise(function(resolve, reject){
+      models.db.RiskLevel.update(
+        riskLevelObject,
+        Utils.extend({
+          fields: ['name', 'value', 'level'],
+          where: restriction
+        }, options))
+        .then(function(){
+          return resolve();
+        })
+        .catch(function(err){
+          return reject(new Error("Could not update RiskLevel " + err.toString()));
+        })
+    })
+  },
+
+  /**
+   * It performs update alert notification from given restriction
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} alertNotificationObject - An alert notification values to update
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   */
+  updateAlertNotification: function(restriction, alertNotificationObject, options){
+    var self = this;
+    return new Promise(function(resolve, reject){
+      models.db.AlertNotification.update(
+        alertNotificationObject,
+        Utils.extend({
+          fields: ['include_report', 'notify_on_change', 'simplified_report', 'notify_on_risk_level', 'recipients'],
+          where: restriction
+        }, options))
+        .then(function(){
+          return resolve();
+        })
+        .catch(function(err){
+          return reject(new Error("Could not update alert notification " + err.toString()));
+        })
+    })
+  },
+
+  /**
+   * It removes an alert from database
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object?} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise}
+   */
+  removeAlert: function(restriction, options){
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      var alert;
+      return self.getAlert(restriction, options)
+        .then(function(alertResult) {
+          alert = alertResult;
+          return self.removeConditionalSchedule({id: alert.conditional_schedule.id}, options);
+        })
+
+        .then(function() {
+          return models.db.Alert.destroy(Utils.extend({where: restriction}, options));
+        })
+
+        .then(function() {
+          return resolve();
+        })
+
+        .catch(function(err) {
+          return reject(new Error("Could not remove alert " + err.toString()));
+        });
+    });
+  },
+
+  /**
+   * It removes risk level of database from given restriction
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise}
+   */
+  removeRiskLevel: function(restriction, options){
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return models.db.RiskLevel.destroy(Utils.extend({where: restriction}, options))
+        .then(function() {
+          return resolve();
+        })
+        .catch(function(err) {
+          return reject(err);
+        });
+    });
+  },
+
+  /**
+   * It removes alert notification of database from given restriction
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise}
+   */
+  removeAlertNotification: function(restriction, options){
+    var self = this;
+    return new Promise(function(resolve, reject){
+      return models.db.AlertNotification.destroy(Utils.extend({where: restriction}, options))
+        .then(function(){
+          return resolve();
+        })
+        .catch(function(err){
+          return reject(err);
+        });
+    });
+  },
+  
+  /**
    * It retrieves a list of views in database
    *
    * @param {Object} restriction - A query restriction
@@ -3499,6 +4516,22 @@ var DataManager = module.exports = {
         include: [
           {
             model: models.db.Schedule,
+            required: false
+          },
+          {
+            model: models.db.ConditionalSchedule,
+            required: false
+          },
+          {
+            model: models.db.DataSeries,
+            include: [
+              {
+                model: models.db.DataProvider
+              },
+              {
+                model: models.db.DataSeriesSemantics
+              }
+            ]
           },
           {
             model: models.db.ViewStyleLegend,
@@ -3518,7 +4551,9 @@ var DataManager = module.exports = {
         .then(function(views) {
           return resolve(views.map(function(view) {
             var viewModel = new DataModel.View(Object.assign(view.get(), {
-              schedule: view.Schedule ? new DataModel.Schedule(view.Schedule.get()) : {}
+              schedule: view.Schedule ? new DataModel.Schedule(view.Schedule.get()) : {},
+              conditionalSchedule: view.ConditionalSchedule ? new DataModel.ConditionalSchedule(view.ConditionalSchedule.get()) : {},
+              dataSeries: view.DataSery ? new DataModel.DataSeries(view.DataSery.get()) : {}
               // schedule: new DataModel.Schedule(view.Schedule ? view.Schedule.get() : {id: 0})
             }));
             if (view.ViewStyleLegend) {
@@ -3538,7 +4573,7 @@ var DataManager = module.exports = {
   },
   /**
    * It performs a save view style color and retrieve it
-   * 
+   *
    * @param {Object} colorObject - View Style Color object to save
    * @param {Object} options - An ORM query options
    * @param {Transaction} options.transaction - An ORM transaction
@@ -3557,7 +4592,7 @@ var DataManager = module.exports = {
   },
   /**
    * It performs a save view style type and retrieve it
-   * 
+   *
    * @param {Object} styleTypeObject - A type object to save
    * @param {Object} options - An ORM query options
    * @param {Transaction} options.transaction - An ORM transaction
@@ -3576,7 +4611,7 @@ var DataManager = module.exports = {
   },
   /**
    * It performs a save view legend
-   * 
+   *
    * @param {Object} styleLegendObject         - A type object to save
    * @param {string} styleLegendObject.type_id - View Style Type identifier
    * @param {string} styleLegendObject.view_id - View identifier
@@ -3663,7 +4698,7 @@ var DataManager = module.exports = {
           }
           throw new Error("More than one element retrieved during view legend metadata operation");
         })
-        
+
         .then(function() {
           return resolve();
         })
@@ -3675,7 +4710,7 @@ var DataManager = module.exports = {
   },
   /**
    * It performs update or insert view legend color in database.
-   * 
+   *
    * @param {Object} restriction - A query restriction
    * @param {Object} styleColorObject         - A type object to save
    * @param {string} styleColorObject.title - Color title
@@ -3708,7 +4743,7 @@ var DataManager = module.exports = {
   },
   /**
    * It removes view color of database from given restriction
-   * 
+   *
    * @param {Object} restriction - A query restriction
    * @param {Object} options - An ORM query options
    * @param {Transaction} options.transaction - An ORM transaction
@@ -3728,7 +4763,7 @@ var DataManager = module.exports = {
   },
   /**
    * It performs update view legend in database. Once updated, it does not retrieves the row affected in order to keep integrity.
-   * 
+   *
    * @param {Object} restriction - A query restriction
    * @param {ViewStyleLegend} styleLegendObject         - A type object to save
    * @param {string} styleLegendObject.type_id - View Style Type identifier
@@ -3756,7 +4791,7 @@ var DataManager = module.exports = {
   },
   /**
    * It removes a view legend of database using given restriction
-   * 
+   *
    * @param {Object} restriction - A query restriction
    * @param {Object} options - An ORM query options
    * @param {Transaction} options.transaction - An ORM transaction
@@ -3806,12 +4841,25 @@ var DataManager = module.exports = {
           var promises = [legend];
           if (view.schedule_id) {
             promises.push(self.getSchedule({id: view.schedule_id}, options));
+          } else if (view.conditional_schedule_id){
+            promises.push(self.getConditionalSchedule({id: view.conditional_schedule_id}, options));
           }
           return Promise.all(promises);
         })
 
         .spread(function(legend, schedule) {
-          return resolve(new DataModel.View(Object.assign(view.get(), {legend: legend, schedule: schedule || {}})));
+          var objectToAssign = { 
+            legend: legend
+          };
+          if (view.schedule_id){
+            objectToAssign.schedule = schedule || {};
+            objectToAssign.conditional_schedule = {};
+          }
+          else {
+            objectToAssign.schedule = {};
+            objectToAssign.conditional_schedule = schedule || {};
+          }
+          return resolve(new DataModel.View(Object.assign(view.get(), objectToAssign)));
         })
 
         .catch(function(err) {
@@ -3836,7 +4884,7 @@ var DataManager = module.exports = {
       models.db.View.update(
         viewObject,
         Utils.extend({
-          fields: ["name", "description", "data_series_id", "style", "active", "service_instance_id", "schedule_id"],
+          fields: ["name", "description", "data_series_id", "style", "active", "service_instance_id", "schedule_id", "conditional_schedule_id", "schedule_type"],
           where: restriction
         }, options))
 
@@ -3895,6 +4943,8 @@ var DataManager = module.exports = {
           view = viewResult;
           if (view.schedule && view.schedule.id) {
             return self.removeSchedule({id: view.schedule.id}, options);
+          } else if (view.conditionalSchedule && view.conditionalSchedule.id){
+            return self.removeConditionalSchedule({id: view.conditionalSchedule.id}, options);
           } else {
             return null;
           }
@@ -4144,7 +5194,7 @@ var DataManager = module.exports = {
   },
   /**
    * It retrieves all available script languages from given restriction
-   * 
+   *
    * @param {Object} restriction - A query restriction
    * @param {Object?} options - An ORM query options
    * @param {Transaction} options.transaction - An ORM transaction
@@ -4165,7 +5215,7 @@ var DataManager = module.exports = {
   },
   /**
    * It gets a script language from given restriction
-   * 
+   *
    * @param {Object} restriction - A query restriction
    * @param {Object?} options - An ORM query options
    * @param {Transaction} options.transaction - An ORM transaction

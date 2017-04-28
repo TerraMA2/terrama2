@@ -25,11 +25,14 @@
   \brief Utility funtions for impl classes.
 
   \author Jano Simas
+          Vinicius Campanha
  */
 
 
 #ifndef __TERRAMA2_SERVICES_ALERT_IMPL_UTILS_HPP__
 #define __TERRAMA2_SERVICES_ALERT_IMPL_UTILS_HPP__
+
+#include <terralib/dataaccess/dataset/DataSet.h>
 
 namespace terrama2
 {
@@ -39,9 +42,15 @@ namespace terrama2
     {
       namespace core
       {
-        //! Temporary funcion to register all data accessor implementations
-        // TODO: This shall be removed after each data accessor implementation is in separated modules.
+
+        /*!
+         * \brief Register the implemented notifiers in the factory
+         */
         void registerFactories();
+
+        std::string gridReportText();
+
+        std::string monitoredObjectReportText();
 
       } /* core */
     } /* alert */

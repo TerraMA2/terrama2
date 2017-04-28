@@ -37,6 +37,7 @@
 #include "Typedef.hpp"
 #include "DataManager.hpp"
 #include "AlertLogger.hpp"
+#include "AlertExecutor.hpp"
 
 // STL
 #include <memory>
@@ -62,23 +63,15 @@ namespace terrama2
             Service& operator=(const Service& other) = delete;
             Service& operator=(Service&& other) = default;
 
-            //! Set ProcessLogger
-            void setLogger(std::shared_ptr<AlertLogger> logger) noexcept;
 
           public slots:
             //! Slot to be called when a DataSetTimer times out.
             virtual void addToQueue(AlertId alertId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept override;
-            /*!
-              \brief Add an Alert to the service
-
-              Check if this is the instance where the alert should run.
-            */
-            void addAlert(AlertPtr) noexcept;
 
             /*!
               \brief Updates the Alert.
 
-              calls addAlert()
+              calls addProcessToSchedule()
             */
             void updateAlert(AlertPtr alert) noexcept;
             /*!
@@ -87,6 +80,21 @@ namespace terrama2
               Rennuning processes will continue until finished.
             */
             void removeAlert(AlertId alertId) noexcept;
+
+            /*!
+             * \brief Receive a jSon and update service information with it
+             * \param obj jSon with additional information for service
+             */
+            virtual void updateAdditionalInfo(const QJsonObject& obj) noexcept override;
+
+            /*!
+              \brief Nofifies that an alert has ended.
+              \param AlertId Alert identifier.
+              \param success Alert finsished with success.
+            */
+            void alertFinished(AlertId alertId,
+                               std::shared_ptr< te::dt::TimeInstantTZ > executionDate,
+                               bool success);
 
           protected:
 
@@ -97,9 +105,8 @@ namespace terrama2
             void connectDataManager();
 
             std::weak_ptr<DataManager> dataManager_; //!< Weak pointer to the DataManager
-
-            std::map<AlertId, terrama2::core::TimerPtr> timers_;//!< List of running Alert timers
-            std::shared_ptr< AlertLogger > logger_;//!< process logger
+            std::map<std::string, std::string> serverMap_;
+            AlertExecutor alertExecutor_;
         };
 
       } // end namespace core

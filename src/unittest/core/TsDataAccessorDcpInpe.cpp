@@ -202,7 +202,7 @@ void TsDataAccessorDcpInpe::TestFailDataRetrieverInvalid()
     auto mock = std::make_shared<MockDataRetriever>(dataProviderPtr);
 
     EXPECT_CALL(*mock, isRetrivable()).WillOnce(Return(true));
-    EXPECT_CALL(*mock, retrieveData(_,_,_,_,_)).WillOnce(testing::Throw(exceptionMock));
+    EXPECT_CALL(*mock, retrieveData(_,_,_,_,_,_)).WillOnce(testing::Throw(exceptionMock));
 
     auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock);
 

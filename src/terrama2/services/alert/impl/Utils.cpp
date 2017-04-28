@@ -20,19 +20,51 @@
  */
 
 /*!
-  \file terrama2/services/alert/impl/Utils.cpp
+  \file terrama2/services/alert/impl/Utils.hpp
 
   \brief Utility funtions for impl classes.
 
   \author Jano Simas
+          Vinicius Campanha
  */
 
-#include "../core/ReportFactory.hpp"
-#include "ReportTxt.hpp"
+
+// TerraMA2
 #include "Utils.hpp"
+
+#include "NotifierEmail.hpp"
+
+#include "DocumentPDF.hpp"
+
+#include "../core/utility/NotifierFactory.hpp"
+#include "../core/utility/DocumentFactory.hpp"
+
 
 void terrama2::services::alert::core::registerFactories()
 {
-  auto& factory = ReportFactory::getInstance();
-  factory.add(terrama2::services::alert::core::ReportTxt::reportType(), terrama2::services::alert::core::ReportTxt::make);
+  #ifdef VMIME_FOUND
+  // Notifiers
+  NotifierFactory::getInstance().add(terrama2::services::alert::impl::NotifierEmail::notifierCode(),
+                                     terrama2::services::alert::impl::NotifierEmail::make);
+  #endif
+
+  // Documents
+  DocumentFactory::getInstance().add(terrama2::services::alert::impl::documentPDF::documentCode(),
+                                     terrama2::services::alert::impl::documentPDF::makeDocument);
+}
+
+std::string terrama2::services::alert::core::gridReportText()
+{
+  return "<!DOCTYPE html><html><head><style>body{background-color:#ffffff;}h1{color:blue;text-align:center;}p{font-family:\"Times New Roman\";}</style></head><body><h1>%TITLE%</h1><p>%ABSTRACT%</p><p>%DESCRIPTION%</p>"
+         "<hr><p>Max value: </p>%MAXVALUE_DATA%<hr>"
+         "<hr><p>Min value: </p>%MINVALUE_DATA%<hr>"
+         "<hr><p>Mean value: </p>%MEANVALUE_DATA%<hr>"
+         "<p>%COPYRIGHT%</p></body></html>";
+}
+
+std::string terrama2::services::alert::core::monitoredObjectReportText()
+{
+  return "<!DOCTYPE html><html><head><style>body{background-color:#ffffff;}h1{color:blue;text-align:center;}p{font-family:\"Times New Roman\";}</style></head><body><h1>%TITLE%</h1><p>%ABSTRACT%</p><p>%DESCRIPTION%</p>"
+         "<hr>%COMPLETE_DATA%<hr>"
+         "<p>%COPYRIGHT%</p></body></html>";
 }

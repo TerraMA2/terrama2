@@ -3,7 +3,7 @@ define([], function() {
   
   function RegisterUpdateController($scope, $q, $log, i18n, Service, DataSeriesService,
                                     DataSeriesSemanticsService, AnalysisService, DataProviderService, 
-                                    Socket, DateParser, MessageBoxService, Polygon, $http, $window, $timeout) {
+                                    Socket, DateParser, MessageBoxService, Polygon, $http, $window, $timeout, FormTranslator) {
     var self = this;
     $scope.i18n = i18n;
 
@@ -56,7 +56,10 @@ define([], function() {
      * 
      * @param {Object}
      */
-    self.scheduleOptions = {};
+    self.scheduleOptions = {
+      showHistoricalOption: true,
+      showConditionalOption: true
+    };
     /**
      * It defines a helper messages associated a components. For example, there is no active service... The validate button will be disabled with
      * tooltip "Service X is not active"
@@ -129,6 +132,9 @@ define([], function() {
          */
         self.instances = Service.list({service_type_id: Service.types.ANALYSIS});
 
+        if (self.instances.length > 0){
+          self.analysis.instance_id = self.instances[0].id;
+        }
         /**
          * It defines a TerraMA² Service Instance DAO. Used to retrieve analysis services
          * @type {Service}
@@ -197,6 +203,32 @@ define([], function() {
          */
         self.identifier = "";
 
+        /**
+         * Function to get image based in provider type
+         */
+        self.getImageUrl = getImageUrl;
+
+        function getImageUrl(object){
+          if (typeof object != 'object'){
+            return '';
+          }
+          switch (object.data_provider_type.name){
+            case "FILE":
+              return "/images/data-server/file/file.png";
+              break;
+            case "FTP":
+              return "/images/data-server/ftp/ftp.png";
+              break;
+            case "HTTP":
+              return "/images/data-server/http/http.png";
+              break;
+            case "POSTGIS":
+            default:
+              return "/images/data-server/postGIS/postGIS.png";
+              break;
+          }
+        }
+
         socket.on('statusResponse', function onServiceStatusResponse(response) {
           self.helperMessages.validate.error = null;
           if (response.checking === undefined || (!response.checking && response.status === 400)) {
@@ -246,7 +278,7 @@ define([], function() {
           self.analysis.name = analysisInstance.name;
           self.analysis.description = analysisInstance.description;
           self.analysis.type_id = analysisInstance.type.id.toString();
-          self.analysis.instance_id = analysisInstance.service_instance_id.toString();
+          self.analysis.instance_id = analysisInstance.service_instance_id;
           self.analysis.script = analysisInstance.script;
 
           // auto-trigger analysis type id changed
@@ -259,6 +291,10 @@ define([], function() {
            * @type {Object}
            */
           var historicalData = analysisInstance.reprocessing_historical_data || {};
+
+          // checking schedule type
+          self.schedule.scheduleType = analysisInstance.schedule_type.toString();
+
           if (historicalData.startDate) {
             historicalData.startDate = DateParser(historicalData.startDate);
           }
@@ -270,6 +306,7 @@ define([], function() {
           self.analysis.historical = historicalData;
 
           // schedule update
+          analysisInstance.schedule.scheduleType = analysisInstance.schedule_type.toString();
           $scope.$broadcast("updateSchedule", analysisInstance.schedule);
 
           // Filtering Analysis DataSeries table if there is.
@@ -508,6 +545,50 @@ define([], function() {
         Socket.on("processValidatedError", function(resp) {
           MessageBoxService.danger(i18n.__("Analysis"), resp.message);
         });
+        
+        // Object of function button operators
+        self.operators = {
+          utilities: {
+            name: "Utilities",
+            fileName: "utilities.json",
+            imagePath: "/images/analysis/functions/utilities/utilities.png"
+          },
+          dcp: {
+            name: "DCP",
+            fileName: "dcp-operators.json",
+            imagePath: "/images/analysis/functions/monitored-object/dcp/dcp.png"
+          },
+          grid_monitored: {
+            name: "GRID",
+            fileName: "grid-monitored-operators.json",
+            imagePath: "/images/analysis/functions/monitored-object/grid/grid.png"
+          },
+          grid: {
+            name: "GRID",
+            fileName: "grid-operators.json",
+            imagePath: "/images/analysis/functions/grid/sample/sample.png"
+          },
+          historical: {
+            name: "Historical",
+            fileName: "historical-grid.json",
+            imagePath: "/images/analysis/functions/grid/historic/historic.png"
+          },
+          forecast: {
+            name: "Forecast",
+            fileName: "forecast-grid.json",
+            imagePath: "/images/analysis/functions/grid/forecast/forecast.png"
+          },
+          occurrence: {
+            name: "Occurrence",
+            fileName: "occurrence-operators.json",
+            imagePath: "/images/analysis/functions/monitored-object/occurrence/occurrence.png"
+          },
+          python: {
+            name: "Python",
+            fileName: "python.json",
+            imagePath: "/images/analysis/functions/python/python.png"
+          }
+        };
 
         /**
          * It handles when an analysis type has been changed. It will redraw and re-populate storager formats depending analysis type.
@@ -629,11 +710,20 @@ define([], function() {
           });
 
           // filtering dataseries
-          self.filteredDataSeries = DataSeriesService.list({
-            data_series_semantics: {
-              data_series_type_name: dataseriesFilterType
-            }
-          });
+          if(intTypeId == AnalysisService.types.MONITORED) {
+            self.filteredDataSeries = DataSeriesService.list({
+              data_series_semantics: {
+                data_series_type_name: dataseriesFilterType,
+                data_format_name: "POSTGIS"
+              }
+            });
+          } else {
+            self.filteredDataSeries = DataSeriesService.list({
+              data_series_semantics: {
+                data_series_type_name: dataseriesFilterType
+              }
+            });
+          }
         };
 
         /**
@@ -659,9 +749,10 @@ define([], function() {
             } else { self.modelStorager = {}; }
 
             self.formStorager = metadata.form;
+            var translatedStoragerSchema = FormTranslator(metadata.schema.properties);
             self.schemaStorager = {
               type: 'object',
-              properties: metadata.schema.properties,
+              properties: translatedStoragerSchema,
               required: metadata.schema.required
             };
 
@@ -1004,11 +1095,13 @@ define([], function() {
           storager.semantics = Object.assign({}, self.storager);
 
           var scheduleValues = Object.assign({}, self.schedule);
+          analysisToSend.schedule_type = scheduleValues.scheduleType;
           switch(scheduleValues.scheduleHandler) {
             case "seconds":
             case "minutes":
             case "hours":
               scheduleValues.frequency_unit = scheduleValues.scheduleHandler;
+              scheduleValues.frequency_start_time = scheduleValues.frequency_start_time ? moment(scheduleValues.frequency_start_time).format("HH:mm:ssZ") : "";
               break;
             case "weeks":
             case "monthly":
@@ -1019,6 +1112,15 @@ define([], function() {
               scheduleValues.schedule_time = moment(dt).format("HH:mm:ss");
               break;
             default:
+              if (scheduleValues.scheduleType == "4"){
+                scheduleValues.data_ids = [];
+                if (self.analysis.type_id == Globals.enums.AnalysisType.MONITORED){
+                  scheduleValues.data_ids.push(self.targetDataSeries.id);
+                }
+                self.selectedDataSeriesList.forEach(function(selectedDataSeries){
+                  scheduleValues.data_ids.push(selectedDataSeries.id);
+                });
+              }
               break;
           }
 
@@ -1090,7 +1192,7 @@ define([], function() {
   }
   // Injecting angular dependencies in controller
   RegisterUpdateController.$inject = ['$scope', '$q', '$log', 'i18n', 'Service', 'DataSeriesService', 'DataSeriesSemanticsService', 'AnalysisService',
-                                      'DataProviderService', 'Socket', 'DateParser', 'MessageBoxService', 'Polygon', '$http', '$window', '$timeout'];
+                                      'DataProviderService', 'Socket', 'DateParser', 'MessageBoxService', 'Polygon', '$http', '$window', '$timeout', 'FormTranslator'];
 
   return RegisterUpdateController;
 });

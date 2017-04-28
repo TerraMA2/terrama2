@@ -91,7 +91,15 @@ module.exports = function(sequelize, DataTypes) {
             foreignKey: {
               allowNull: false
             }
-          })
+          });
+
+          DataSet.hasOne(models.AlertAdditionalData, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: 'data_set_id',
+              allowNull: false
+            }
+          });
         }
       }
     }

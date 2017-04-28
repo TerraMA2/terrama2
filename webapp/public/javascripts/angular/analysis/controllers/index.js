@@ -12,7 +12,8 @@ define([
   "TerraMA2WebApp/geo/app",
   // controllers classes
   "TerraMA2WebApp/analysis/controllers/list",
-  "TerraMA2WebApp/analysis/controllers/register-update"
+  "TerraMA2WebApp/analysis/controllers/register-update",
+  "TerraMA2WebApp/schema-form-plugin/mask-warn/directives/terrama2-mask-field"
 ], function(moduleLoader, commonApp, tableApp, messageBoxApp, servicesApp, analysisServicesApp, aceApp, dataSeriesApp, 
             dataProviderApp, datetimepickerApp, geoApp, ListController, RegisterUpdateController) {
   var moduleName = "terrama2.analysis.controllers";
@@ -23,7 +24,7 @@ define([
    * TODO: module loading dinamically pushing into "angular.module(moduleName).requires" array. @note It must be used before
    * directive bootstrapping. 
    */
-  if (moduleLoader("schemaForm", deps) && moduleLoader("treeControl", deps)) {
+  if (moduleLoader("schemaForm", deps) && moduleLoader("treeControl", deps) && moduleLoader("ui.select", deps) && moduleLoader("ngSanitize", deps)) {
     // register update dependencies
     deps.push(aceApp);
     deps.push(dataSeriesApp);

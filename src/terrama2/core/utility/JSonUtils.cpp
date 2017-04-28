@@ -82,6 +82,25 @@ terrama2::core::DataProviderPtr terrama2::core::fromDataProviderJson(QJsonObject
   provider->active = json["active"].toBool();
   provider->dataProviderType = json["data_provider_type"].toString().toStdString();
 
+  if(json.contains("options"))
+  {
+    auto obj = json["options"].toObject();
+    for(auto it = obj.begin(); it != obj.end(); ++it)
+    {
+      provider->options.emplace(it.key().toStdString(), it.value().toString().toStdString());
+    }
+  }
+
+  try
+  {
+    auto timeout = provider->options.at("timeout");
+    provider->timeout = std::stoi(timeout);
+  }
+  catch (...)
+  {
+    provider->timeout = 8;
+  }
+
   return providerPtr;
 }
 
@@ -292,9 +311,9 @@ terrama2::core::Filter terrama2::core::fromFilterJson(QJsonObject json, DataMana
     // filter.discard_before = json["value_comparison_operation"].toString();//TODO: filter by value operation
   }
 
-  if(json.contains("last_value") && !json.value("last_value").isNull())
+  if(json.contains("last_values") && !json.value("last_values").isNull())
   {
-    filter.lastValue = json["last_value"].toBool();
+    filter.lastValues = std::make_shared<size_t>(json["last_values"].toInt());
   }
 
   if(json.contains("data_series_id") && !json.value("data_series_id").isNull())
@@ -315,48 +334,36 @@ terrama2::core::Filter terrama2::core::fromFilterJson(QJsonObject json, DataMana
   return filter;
 }
 
-terrama2::core::DataSeriesRisk terrama2::core::fromDataSeriesRiskJson(QJsonObject json)
+terrama2::core::Risk terrama2::core::fromRiskJson(QJsonObject json)
 {
-  if(json["class"].toString() != "DataSeriesRisk")
+  if(json["class"].toString() != "Risk")
   {
-    QString errMsg = QObject::tr("Invalid DataSeriesRisk JSON object.");
+    QString errMsg = QObject::tr("Invalid Risk JSON object.");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
 
-  if(!(json.contains("id")
-       && json.contains("dataSeries_id")
-       && json.contains("name")
-       && json.contains("description")
-       && json.contains("risk_type")
-       && json.contains("attribute")
-       && json.contains("risk_levels")))
+  if(!(json.contains("name")
+//       && json.contains("description")
+       && json.contains("levels")))
   {
-    QString errMsg = QObject::tr("Invalid DataSeriesRisk JSON object.");
+    QString errMsg = QObject::tr("Invalid Risk JSON object.");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
 
-  terrama2::core::DataSeriesRisk risk;
-  risk.id = static_cast<uint32_t>(json["id"].toInt());
-  risk.dataSeriesId = static_cast<uint32_t>(json["dataSeries_id"].toInt());
+  terrama2::core::Risk risk;
   risk.name = json["name"].toString().toStdString();
-  risk.description = json["description"].toString().toStdString();
-  risk.riskType = static_cast<terrama2::core::RiskType>(json["risk_type"].toInt());
-  risk.attribute = json["attribute"].toString().toStdString();
+//  risk.description = json["description"].toString().toStdString();
 
-  auto riskLevelsArray = json["risk_levels"].toArray();
+  auto riskLevelsArray = json["levels"].toArray();
   for(const auto& value : riskLevelsArray)
   {
     auto obj = value.toObject();
     terrama2::core::RiskLevel riskLevel;
     riskLevel.name = obj["name"].toString().toStdString();
     riskLevel.level = static_cast<uint32_t>(obj["level"].toInt());
-    riskLevel.hasLowerBound = obj["has_lower_bound"].toBool();
-    riskLevel.lowerBound = obj["lower_bound"].toDouble();
-    riskLevel.hasUpperBound = obj["has_upper_bound"].toBool();
-    riskLevel.upperBound = obj["upper_bound"].toDouble();
-    riskLevel.textValue = obj["text_value"].toString().toStdString();
+    riskLevel.value = obj["value"].toDouble();
 
     risk.riskLevels.push_back(riskLevel);
   }
@@ -365,16 +372,12 @@ terrama2::core::DataSeriesRisk terrama2::core::fromDataSeriesRiskJson(QJsonObjec
   return risk;
 }
 
-QJsonObject terrama2::core::toJson(const terrama2::core::DataSeriesRisk& risk)
+QJsonObject terrama2::core::toJson(const terrama2::core::Risk& risk)
 {
   QJsonObject obj;
-  obj.insert("class", QString("DataSeriesRisk"));
-  obj.insert("id", static_cast<int>(risk.id));
-  obj.insert("dataSeries_id", static_cast<int>(risk.dataSeriesId));
+  obj.insert("class", QString("Risk"));
   obj.insert("name", QString::fromStdString(risk.name));
   obj.insert("description", QString::fromStdString(risk.description));
-  obj.insert("risk_type", static_cast<int>(risk.riskType));
-  obj.insert("attribute", QString::fromStdString(risk.attribute));
 
   QJsonArray riskArray;
   for(const auto& riskLevel : risk.riskLevels)
@@ -382,15 +385,11 @@ QJsonObject terrama2::core::toJson(const terrama2::core::DataSeriesRisk& risk)
     QJsonObject tempoObj;
     tempoObj.insert("name", QString::fromStdString(riskLevel.name));
     tempoObj.insert("level", static_cast<int>(riskLevel.level));
-    tempoObj.insert("has_lower_bound", riskLevel.hasLowerBound);
-    tempoObj.insert("lower_bound", riskLevel.lowerBound);
-    tempoObj.insert("has_upper_bound", riskLevel.hasUpperBound);
-    tempoObj.insert("upper_bound", riskLevel.upperBound);
-    tempoObj.insert("text_value", QString::fromStdString(riskLevel.textValue));
+    tempoObj.insert("value", riskLevel.value);
 
     riskArray.append(tempoObj);
   }
-  obj.insert("risk_levels", riskArray);
+  obj.insert("levels", riskArray);
 
   return obj;
 }
@@ -416,7 +415,7 @@ QJsonObject terrama2::core::toJson(const terrama2::core::Filter& filter)
     obj.insert("region", QString::fromStdString(region));
   }
 
-  obj.insert("last_value", filter.lastValue);
+  obj.insert("last_values", static_cast<qint32>(*filter.lastValues.get()));
 
   if(filter.dataSeries)
     obj.insert("data_series_id", static_cast<int32_t>(filter.dataSeries->id));
@@ -482,6 +481,7 @@ QJsonObject terrama2::core::toJson(DataProviderPtr dataProviderPtr)
   obj.insert("intent", static_cast<int>(dataProviderPtr->intent));
   obj.insert("uri", QString::fromStdString(dataProviderPtr->uri));
   obj.insert("active", dataProviderPtr->active);
+  obj.insert("timeout", static_cast<int>(dataProviderPtr->timeout));
   obj.insert("data_provider_type", QString::fromStdString(dataProviderPtr->dataProviderType));
 
   return obj;

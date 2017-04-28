@@ -94,7 +94,7 @@ double terrama2::services::analysis::core::grid::forecast::operatorImpl(terrama2
     auto coord = grid->gridToGeo(cache.column, cache.row);
 
     terrama2::core::Filter filter;
-    filter.lastValue = true;
+    filter.lastValues = std::make_shared<size_t>(1);
     filter.discardAfter = context->getStartTime();
 
     auto seriesMap = context->getSeriesMap(dataSeries->id, filter);

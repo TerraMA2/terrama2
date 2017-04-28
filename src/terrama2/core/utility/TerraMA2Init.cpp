@@ -26,9 +26,6 @@
 #include "Utils.hpp"
 #include "SemanticsManager.hpp"
 
-// Curl
-#include <curl/curl.h>
-
 // QT
 #include <QFile>
 #include <QJsonDocument>
@@ -38,7 +35,6 @@
 
 terrama2::core::TerraMA2Init::TerraMA2Init(const std::string& serviceType, const int listeningPort)
 {
-  curl_global_init(CURL_GLOBAL_ALL);
   terrama2::core::initializeTerralib();
 
   terrama2::core::initializeLogger(serviceType+"_"+std::to_string(listeningPort)+"_terrama2.log");
@@ -68,6 +64,7 @@ terrama2::core::TerraMA2Init::TerraMA2Init(const std::string& serviceType, const
 
     semanticsManager.addSemantics(obj["code"].toString().toStdString(),
                                   obj["name"].toString().toStdString(),
+                                  obj["driver"].toString().toStdString(),
                                   dataSeriesTypeFromString(obj["type"].toString().toStdString()),
                                   dataSeriesTemporalityFromString(obj["temporality"].toString().toStdString()),
                                   obj["format"].toString().toStdString(),
@@ -79,5 +76,4 @@ terrama2::core::TerraMA2Init::TerraMA2Init(const std::string& serviceType, const
 terrama2::core::TerraMA2Init::~TerraMA2Init()
 {
   terrama2::core::finalizeTerralib();
-  curl_global_cleanup();
 }

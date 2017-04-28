@@ -30,10 +30,12 @@
 #ifndef __TERRAMA2_SERVICES_ALERT_CORE_ALERT_HPP__
 #define __TERRAMA2_SERVICES_ALERT_CORE_ALERT_HPP__
 
+// TerraMA2
 #include "Typedef.hpp"
-#include "../../../core/data-model/DataSeriesRisk.hpp"
+#include "../../../core/data-model/Risk.hpp"
 #include "../../../core/data-model/Schedule.hpp"
 #include "../../../core/data-model/Filter.hpp"
+#include "../../../core/data-model/Process.hpp"
 
 //STL
 #include <unordered_map>
@@ -49,30 +51,45 @@ namespace terrama2
         //! Additional dataseries for alert process.
         struct AdditionalData
         {
-          DataSeriesId id;//!< Identifier of the additional dataseries
-          std::string identifier;//!< Unique key adentifier attribute
+          DataSeriesId dataSeriesId;//!< Identifier of the additional dataseries
+          DataSetId dataSetId;//!< Identifier of the dataset referred
+          std::string referrerAttribute;
+          std::string referredAttribute;
           std::vector<std::string> attributes;//!< attributes that will be copied to the alert
+        };
+
+        //! Notification rules and targets .
+        struct Notification
+        {
+          uint32_t notifyOnRiskLevel = 0; //!< Targets should be notified if the greatest risk level is greater then notifyOnRiskLevel.
+          bool notifyOnChange = true; //!< Targets should be notified if the risk level changed in any valeu.
+          std::string includeReport; //!< Include report on notification.
+          bool simplifiedReport = true; //!< Include simplified or complete report.
+          std::vector<std::string> targets; //!< List of targets that should be notified.
         };
 
         /*!
          \brief Struct with information for an Alert
         */
-        struct Alert
+        struct Alert : public terrama2::core::Process
         {
           AlertId id = 0; //!< Alert identifier
           ProjectId projectId = 0; //!< Project identifier.
           bool active = true;//!< Flag if the alert is active.
           std::string name; //!< Name of the alert.
           std::string description; //!< Short description of the purpose of the alert.
+          DataSeriesId dataSeriesId = 0; //!< The DataSeries that will be used for risk analysis.
           ServiceInstanceId serviceInstanceId; //!< Identifier of the service instance that should run the alert.
 
-          terrama2::core::DataSeriesRisk risk;//!< Risk rule of the alert
-          terrama2::core::Schedule schedule; //!< Time schedule for the alert execution.
+          std::string riskAttribute;//!< Attribute of the DataSeries that will be used for risk analysis.
+          terrama2::core::Risk risk;//!< Risk rule of the alert
           terrama2::core::Filter filter;//!< Information on how input data should be filtered before the alert is created.
 
           std::vector<AdditionalData> additionalDataVector;//!< Vector of additional DataSeries and attributes that should be included in the result.
 
           std::unordered_map<std::string, std::string> reportMetadata;//!< Metadata used to create a report.
+
+          std::vector<Notification> notifications;
         };
       } /* core */
     } /* alert */

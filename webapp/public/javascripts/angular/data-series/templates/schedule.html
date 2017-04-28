@@ -3,6 +3,40 @@
     <div class="col-md-7">
       <div class="form-group" style="top:30px;" terrama2-show-errors>
         <label>{{ i18n.__('Type') }}:</label>
+        <select class="form-control" name="scheduleType"
+                ng-disabled="options.disabled"
+                ng-model="model.scheduleType"
+                ng-change="onScheduleTypeChange()"
+                ng-required="options.required"
+                ng-init="model.scheduleType = '3'" >
+          <option value="1">{{ i18n.__('Schedule') }}</option>
+          <option ng-show="options.showHistoricalOption" value="2">{{ i18n.__('Reprocessing Historical Data') }}</option>
+          <option value="3">{{ i18n.__('Manual') }}</option>
+          <option ng-show="options.showConditionalOption" value="4">{{ i18n.__('Conditional') }}</option>
+        </select>
+
+        <label class="help-block text-danger"
+               ng-show="scheduleForm.scheduleType.$dirty && scheduleForm.scheduleType.$error.required"
+               ng-bind="i18n.__('Schedule Type is required')">
+        </label>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-7" ng-if="model.scheduleType == 2">
+        <div class="row">
+          <terrama2-filter-datetime-picker before-label="'Start Date'" 
+                                            after-label="'End Date'"
+                                            before-datetime="historical.startDate"
+                                            after-datetime="historical.endDate">
+          </terrama2-filter-datetime-picker>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4" ng-show="model.scheduleType == 1 || model.scheduleType == 2">
+      <div class="form-group" style="top:30px;" terrama2-show-errors>
+        <label>{{ i18n.__('Time Unit') }}:</label>
         <select class="form-control" name="schedule"
                 ng-disabled="options.disabled"
                 ng-model="model.scheduleHandler"
@@ -17,12 +51,12 @@
 
         <label class="help-block text-danger"
                ng-show="scheduleForm.schedule.$dirty && scheduleForm.schedule.$error.required"
-               ng-bind="i18n.__('Schedule Type is required')">
+               ng-bind="i18n.__('Time unit is required')">
         </label>
       </div>
     </div>
 
-    <div class="col-md-5" ng-if="isFrequency">
+    <div class="col-md-8" ng-if="isFrequency">
       <div class="col-md-6">
         <div class="form-group" terrama2-show-errors>
           <label>{{ i18n.__('Frequency') }}:</label>
@@ -42,7 +76,7 @@
       </div>
       <div class="col-md-6">
         <div class="form-group">
-          <label>{{ i18n.__("Start Time") }}</label>
+          <label>{{ i18n.__("Start Time") }}:</label>
 
           <terrama2-datetime-picker data-ng-model="model.frequency_start_time"
                                     options="{format: 'HH:mm:ss', toolbarPlacement: 'top', allowInputToggle: true, useCurrent: false}">
@@ -51,7 +85,7 @@
       </div>
     </div>
 
-    <div class="col-md-5" ng-if="isSchedule">
+    <div class="col-md-4" ng-if="isSchedule">
       <div class="form-group" terrama2-show-errors>
         <label>{{ i18n.__('Schedule') }}:</label>
 
@@ -71,9 +105,9 @@
       </div>
     </div>
 
-    <div class="col-md-5 col-md-offset-7" ng-if="model.scheduleHandler == 'weeks'">
+    <div class="col-md-4" ng-if="model.scheduleHandler == 'weeks'">
       <div class="form-group" terrama2-show-errors>
-        <label class="ng-binding">{{ i18n.__('Time') }}</label>
+        <label class="ng-binding">{{ i18n.__('Time') }}:</label>
 
         <terrama2-datetime-picker data-ng-model="model.schedule_time"
                                   options="{format: 'HH:mm:ss', sideBySide: true, toolbarPlacement: 'top', allowInputToggle: true, useCurrent: false}">

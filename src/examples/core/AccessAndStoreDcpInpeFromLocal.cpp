@@ -61,7 +61,7 @@ terrama2::core::TerraMA2Init terramaRaii("example", 0);
   uri.setPort(5432);
   uri.setUserName("postgres");
   uri.setPassword("postgres");
-  uri.setPath("/basedeteste");
+  uri.setPath("/terrama2");
 
   //DataProvider information
   terrama2::core::DataProvider* dataProviderPostGIS = new terrama2::core::DataProvider();
@@ -81,7 +81,7 @@ terrama2::core::TerraMA2Init terramaRaii("example", 0);
   terrama2::core::DataSetPtr dataSetOutputPtr(dataSetOutput);
   dataSetOutput->active = true;
   dataSetOutput->format.emplace("table_name", "inpe");
-  dataSetOutput->format.emplace("timestamp_column", "DateTime");
+  dataSetOutput->format.emplace("timestamp_column", "datetime");
 
   terrama2::core::DataStoragerPostGIS dataStorager(dataProviderPostGISPtr);
 

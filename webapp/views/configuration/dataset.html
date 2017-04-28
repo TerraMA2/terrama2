@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="/bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css">
   <link rel="stylesheet" type="text/css" href="/bower_components/angular-wizard/dist/angular-wizard.min.css">
   <link href="/bower_components/angular-xeditable/dist/css/xeditable.css" rel="stylesheet">
+  <link rel="stylesheet" href="/bower_components/angular-ui-select/dist/select.min.css" />
 
   <!-- Angular tree control -->
   <!-- link for CSS when using the tree as a Dom element -->
@@ -99,6 +100,8 @@
 
   <!-- Angular ui router -->
   <script type="text/javascript" src="/bower_components/angular-ui-router/release/angular-ui-router.min.js"></script>
+  
+  <script src="/bower_components/angular-ui-select/dist/select.min.js"></script>
 
   <script type="text/javascript">
     var params = {
@@ -111,7 +114,8 @@
         DataSeriesType: {[ Enums.DataSeriesType|json|safe ]}  || {},
         DataSeriesFormat: {[ Enums.DataSeriesFormat|json|safe ]} || {},
         TemporalityType: {[ Enums.TemporalityType|json|safe ]}  || {},
-        ServiceType: {[ Enums.ServiceType|json|safe ]}  || {}
+        ServiceType: {[ Enums.ServiceType|json|safe ]}  || {},
+        ScheduleType: {[ Enums.ScheduleType|json|safe ]}
       }
     }
 

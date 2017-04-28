@@ -17,6 +17,7 @@ define(function() {
         $scope.MessageBoxService = MessageBoxService;
         $scope.fields = [
           {key: "name", as: i18n.__("Name")},
+          {key: "data_provider_type.name", as: i18n.__("Type")},
           {key: "description", as: i18n.__("Description")}
         ];
         $scope.remove = function(object) {
@@ -40,6 +41,11 @@ define(function() {
             MessageBoxService.danger(title, data.name + i18n.__(" removed"));
           }
         };
+
+        $scope.iconFn = config.iconFn || null;
+
+        $scope.iconProperties = config.iconProperties || {};
+        
         $scope.method = "{[ method ]}";
         if (config.message ) {
           MessageBoxService.success(title, config.message);

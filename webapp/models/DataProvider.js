@@ -16,7 +16,6 @@ module.exports = function(sequelize, DataTypes) {
         type: DataTypes.BOOLEAN,
         allowNull: false
       }
-
     },
     {
       underscored: true,
@@ -56,6 +55,13 @@ module.exports = function(sequelize, DataTypes) {
           });
 
           DataProvider.hasMany(models.DataSeries, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              allowNull: false
+            }
+          });
+
+          DataProvider.hasMany(models.DataProviderOptions, {
             onDelete: "CASCADE",
             foreignKey: {
               allowNull: false

@@ -51,6 +51,7 @@ std::shared_ptr<terrama2::core::ProcessLogger> terrama2::services::view::core::V
   // Find the type of *this without const &
   // create a shared poiter of the same type of this
   auto loggerCopy = std::make_shared<std::decay<decltype (*this)>::type >();
+
   internalClone(loggerCopy);
 
   return loggerCopy;

@@ -29,6 +29,10 @@ module.exports = function(sequelize, DataTypes) {
       allow_direct_access: {
         type: DataTypes.BOOLEAN,
         allowNull: true
+      },
+      custom_format: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true
       }
     },
     {

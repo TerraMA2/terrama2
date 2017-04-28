@@ -37,23 +37,26 @@ file(GLOB TERRAMA2_UTILITY_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/
 file(GLOB TERRAMA2_PYTHON_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/python/*.cpp)
 file(GLOB TERRAMA2_PYTHON_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/python/*.hpp)
 
-file(GLOB TERRAMA2_DCP_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/dcp/*.cpp)
-file(GLOB TERRAMA2_DCP_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/dcp/*.hpp)
+file(GLOB TERRAMA2_DCP_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/dcp/zonal/*.cpp)
+file(GLOB TERRAMA2_DCP_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/dcp/zonal/*.hpp)
 
-file(GLOB TERRAMA2_DCP_HISTORY_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/dcp/history/*.cpp)
-file(GLOB TERRAMA2_DCP_HISTORY_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/dcp/history/*.hpp)
+file(GLOB TERRAMA2_DCP_HISTORY_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/dcp/zonal/history/*.cpp)
+file(GLOB TERRAMA2_DCP_HISTORY_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/dcp/zonal/history/*.hpp)
 
-file(GLOB TERRAMA2_DCP_HISTORY_INTERVAL_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/dcp/history/interval/*.cpp)
-file(GLOB TERRAMA2_DCP_HISTORY_INTERVAL_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/dcp/history/interval/*.hpp)
+file(GLOB TERRAMA2_DCP_ZONAL_HISTORY_INTERVAL_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/dcp/zonal/history/interval/*.cpp)
+file(GLOB TERRAMA2_TERRAMA2_DCP_ZONAL_HISTORY_INTERVAL_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/dcp/zonal/history/interval/*.hpp)
 
-file(GLOB TERRAMA2_DCP_INFLUENCE_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/dcp/influence/*.cpp)
-file(GLOB TERRAMA2_DCP_INFLUENCE_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/dcp/influence/*.hpp)
+file(GLOB TERRAMA2_DCP_INFLUENCE_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/dcp/zonal/influence/*.cpp)
+file(GLOB TERRAMA2_DCP_INFLUENCE_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/dcp/zonal/influence/*.hpp)
 
-file(GLOB TERRAMA2_OCCURRENCE_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/occurrence/*.cpp)
-file(GLOB TERRAMA2_OCCURRENCE_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/occurrence/*.hpp)
+file(GLOB TERRAMA2_OCCURRENCE_ZONAL_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/occurrence/zonal/*.cpp)
+file(GLOB TERRAMA2_OCCURRENCE_ZONAL_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/occurrence/zonal/*.hpp)
 
-file(GLOB TERRAMA2_OCCURRENCE_AGRREGATION_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/occurrence/aggregation/*.cpp)
-file(GLOB TERRAMA2_OCCURRENCE_AGGREGATION_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/occurrence/aggregation/*.hpp)
+file(GLOB TERRAMA2_OCCURRENCE_ZONAL_AGRREGATION_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/occurrence/zonal/aggregation/*.cpp)
+file(GLOB TERRAMA2_OCCURRENCE_ZONAL_AGGREGATION_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/occurrence/zonal/aggregation/*.hpp)
+
+file(GLOB TERRAMA2_OCCURRENCE_ZONAL_INTERVAL_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/occurrence/zonal/interval/*.cpp)
+file(GLOB TERRAMA2_OCCURRENCE_ZONAL_INTERVAL_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/occurrence/zonal/interval/*.hpp)
 
 file(GLOB TERRAMA2_GRID_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/*.cpp)
 file(GLOB TERRAMA2_GRID_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/*.hpp)
@@ -79,6 +82,9 @@ file(GLOB TERRAMA2_GRID_ZONAL_HISTORY_ACCUM_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_D
 file(GLOB TERRAMA2_GRID_ZONAL_HISTORY_PREC_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/zonal/history/prec/*.cpp)
 file(GLOB TERRAMA2_GRID_ZONAL_HISTORY_PREC_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/zonal/history/prec/*.hpp)
 
+file(GLOB TERRAMA2_GRID_ZONAL_HISTORY_INTERVAL_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/zonal/history/interval/*.cpp)
+file(GLOB TERRAMA2_GRID_ZONAL_HISTORY_INTERVAL_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/zonal/history/interval/*.hpp)
+
 file(GLOB TERRAMA2_GRID_HISTORY_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/history/*.cpp)
 file(GLOB TERRAMA2_GRID_HISTORY_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/history/*.hpp)
 
@@ -99,18 +105,20 @@ source_group("Source Files\\utility"  FILES ${TERRAMA2_UTILITY_SRC_FILES})
 source_group("Header Files\\utility"  FILES ${TERRAMA2_UTILITY_HDR_FILES})
 source_group("Source Files\\python"  FILES ${TERRAMA2_PYTHON_SRC_FILES})
 source_group("Header Files\\python"  FILES ${TERRAMA2_PYTHON_HDR_FILES})
-source_group("Source Files\\dcp"  FILES ${TERRAMA2_DCP_SRC_FILES})
-source_group("Header Files\\dcp"  FILES ${TERRAMA2_DCP_HDR_FILES})
-source_group("Source Files\\dcp\\history"  FILES ${TERRAMA2_DCP_HISTORY_SRC_FILES})
-source_group("Header Files\\dcp\\history"  FILES ${TERRAMA2_DCP_HISTORY_HDR_FILES})
-source_group("Source Files\\dcp\\history\\interval"  FILES ${TERRAMA2_DCP_HISTORY_INTERVAL_SRC_FILES})
-source_group("Header Files\\dcp\\history\\interval"  FILES ${TERRAMA2_DCP_HISTORY_INTERVAL_HDR_FILES})
-source_group("Source Files\\dcp\\influence"  FILES ${TERRAMA2_DCP_INFLUENCE_SRC_FILES})
-source_group("Header Files\\dcp\\influence"  FILES ${TERRAMA2_DCP_INFLUENCE_HDR_FILES})
-source_group("Source Files\\occurrence"  FILES ${TERRAMA2_OCCURRENCE_SRC_FILES})
-source_group("Header Files\\occurrence"  FILES ${TERRAMA2_OCCURRENCE_HDR_FILES})
-source_group("Source Files\\occurrence\\aggregation"  FILES ${TERRAMA2_OCCURRENCE_AGRREGATION_SRC_FILES})
-source_group("Header Files\\occurrence\\aggregation"  FILES ${TERRAMA2_OCCURRENCE_AGGREGATION_HDR_FILES})
+source_group("Source Files\\dcp\\zonal"  FILES ${TERRAMA2_DCP_SRC_FILES})
+source_group("Header Files\\dcp\\zonal"  FILES ${TERRAMA2_DCP_HDR_FILES})
+source_group("Source Files\\dcp\\zonal\\history"  FILES ${TERRAMA2_DCP_HISTORY_SRC_FILES})
+source_group("Header Files\\dcp\\zonal\\history"  FILES ${TERRAMA2_DCP_HISTORY_HDR_FILES})
+source_group("Source Files\\dcp\\zonal\\history\\interval"  FILES ${TERRAMA2_DCP_ZONAL_HISTORY_INTERVAL_SRC_FILES})
+source_group("Header Files\\dcp\\zonal\\history\\interval"  FILES ${TERRAMA2_TERRAMA2_DCP_ZONAL_HISTORY_INTERVAL_HDR_FILES})
+source_group("Source Files\\dcp\\zonal\\influence"  FILES ${TERRAMA2_DCP_INFLUENCE_SRC_FILES})
+source_group("Header Files\\dcp\\zonal\\influence"  FILES ${TERRAMA2_DCP_INFLUENCE_HDR_FILES})
+source_group("Source Files\\occurrence\\zonal"  FILES ${TERRAMA2_OCCURRENCE_ZONAL_SRC_FILES})
+source_group("Header Files\\occurrence\\zonal"  FILES ${TERRAMA2_OCCURRENCE_ZONAL_HDR_FILES})
+source_group("Source Files\\occurrence\\zonal\\aggregation"  FILES ${TERRAMA2_OCCURRENCE_ZONAL_AGRREGATION_SRC_FILES})
+source_group("Header Files\\occurrence\\zonal\\aggregation"  FILES ${TERRAMA2_OCCURRENCE_ZONAL_AGGREGATION_HDR_FILES})
+source_group("Source Files\\occurrence\\zonal\\interval"  FILES ${TERRAMA2_OCCURRENCE_ZONAL_INTERVAL_SRC_FILES})
+source_group("Header Files\\occurrence\\zonal\\interval"  FILES ${TERRAMA2_OCCURRENCE_ZONAL_INTERVAL_HDR_FILES})
 source_group("Source Files\\grid"  FILES ${TERRAMA2_GRID_SRC_FILES})
 source_group("Header Files\\grid"  FILES ${TERRAMA2_GRID_HDR_FILES})
 source_group("Source Files\\grid\\zonal"  FILES ${TERRAMA2_GRID_ZONAL_SRC_FILES})
@@ -127,6 +135,8 @@ source_group("Source Files\\grid\\zonal\\history\\accum"  FILES ${TERRAMA2_GRID_
 source_group("Header Files\\grid\\zonal\\history\\accum"  FILES ${TERRAMA2_GRID_ZONAL_HISTORY_ACCUM_SRC_FILES})
 source_group("Source Files\\grid\\zonal\\history\\prec"  FILES ${TERRAMA2_GRID_ZONAL_HISTORY_PREC_SRC_FILES})
 source_group("Header Files\\grid\\zonal\\history\\prec"  FILES ${TERRAMA2_GRID_ZONAL_HISTORY_PREC_SRC_FILES})
+source_group("Source Files\\grid\\zonal\\history\\interval"  FILES ${TERRAMA2_GRID_ZONAL_HISTORY_INTERVAL_SRC_FILES})
+source_group("Header Files\\grid\\zonal\\history\\interval"  FILES ${TERRAMA2_GRID_ZONAL_HISTORY_INTERVAL_SRC_FILES})
 source_group("Source Files\\grid\\history"  FILES ${TERRAMA2_GRID_HISTORY_SRC_FILES})
 source_group("Header Files\\grid\\history"  FILES ${TERRAMA2_GRID_HISTORY_HDR_FILES})
 source_group("Source Files\\grid\\history\\interval"  FILES ${TERRAMA2_GRID_HISTORY_INTERVAL_SRC_FILES})
@@ -159,14 +169,16 @@ add_library(terrama2_analysis_core SHARED ${TERRAMA2_SRC_FILES}
                                           ${TERRAMA2_DCP_HDR_FILES}
                                           ${TERRAMA2_DCP_HISTORY_SRC_FILES}
                                           ${TERRAMA2_DCP_HISTORY_HDR_FILES}
-                                          ${TERRAMA2_DCP_HISTORY_INTERVAL_SRC_FILES}
-                                          ${TERRAMA2_DCP_HISTORY_INTERVAL_HDR_FILES}
+                                          ${TERRAMA2_DCP_ZONAL_HISTORY_INTERVAL_SRC_FILES}
+                                          ${TERRAMA2_TERRAMA2_DCP_ZONAL_HISTORY_INTERVAL_HDR_FILES}
                                           ${TERRAMA2_DCP_INFLUENCE_SRC_FILES}
                                           ${TERRAMA2_DCP_INFLUENCE_HDR_FILES}
-                                          ${TERRAMA2_OCCURRENCE_SRC_FILES}
-                                          ${TERRAMA2_OCCURRENCE_HDR_FILES}
-                                          ${TERRAMA2_OCCURRENCE_AGRREGATION_SRC_FILES}
-                                          ${TERRAMA2_OCCURRENCE_AGGREGATION_HDR_FILES_SRC_FILES}
+                                          ${TERRAMA2_OCCURRENCE_ZONAL_SRC_FILES}
+                                          ${TERRAMA2_OCCURRENCE_ZONAL_HDR_FILES}
+                                          ${TERRAMA2_OCCURRENCE_ZONAL_AGRREGATION_SRC_FILES}
+                                          ${TERRAMA2_OCCURRENCE_ZONAL_AGGREGATION_HDR_FILES}
+                                          ${TERRAMA2_OCCURRENCE_ZONAL_INTERVAL_SRC_FILES}
+                                          ${TERRAMA2_OCCURRENCE_ZONAL_INTERVAL_HDR_FILES}
                                           ${TERRAMA2_GRID_SRC_FILES}
                                           ${TERRAMA2_GRID_HDR_FILES}
                                           ${TERRAMA2_GRID_ZONAL_SRC_FILES}
@@ -183,6 +195,8 @@ add_library(terrama2_analysis_core SHARED ${TERRAMA2_SRC_FILES}
                                           ${TERRAMA2_GRID_ZONAL_HISTORY_ACCUM_HDR_FILES}
                                           ${TERRAMA2_GRID_ZONAL_HISTORY_PREC_SRC_FILES}
                                           ${TERRAMA2_GRID_ZONAL_HISTORY_PREC_HDR_FILES}
+                                          ${TERRAMA2_GRID_ZONAL_HISTORY_INTERVAL_SRC_FILES}
+                                          ${TERRAMA2_GRID_ZONAL_HISTORY_INTERVAL_HDR_FILES}
                                           ${TERRAMA2_GRID_HISTORY_SRC_FILES}
                                           ${TERRAMA2_GRID_HISTORY_HDR_FILES}
                                           ${TERRAMA2_GRID_HISTORY_INTERVAL_SRC_FILES}

@@ -1,0 +1,125 @@
+<form name="csvFieldsForm">
+	<div class="row">
+			<div class="col-md-2">
+				<div class="form-group" terrama2-show-errors>
+					<label ng-bind="$ctrl.i18n.__('Type')+':'"></label>
+					<select name="type" class="form-control" ng-model="$ctrl.field.type" ng-change="$ctrl.onFieldTypeChange()" required>
+						<option ng-repeat="type in $ctrl.fieldsType" ng-if="$ctrl.semantics == 'OCCURRENCE' || type.value != 'GEOMETRY_POINT' " value="{{type.value}}">{{$ctrl.i18n.__(type.title)}}</option>
+					</select> 
+				</div>
+			</div>
+			
+			<div ng-if="$ctrl.field.type == 'GEOMETRY_POINT'">
+				<div class="col-md-3">
+					<div class="form-group" terrama2-show-errors>
+						<label ng-bind="$ctrl.i18n.__('Latitude')+':'"></label>
+						<input name="latitude" class="form-control" type="text" ng-model="$ctrl.field.latitude_property_name" required>
+						<label class="help-block text-danger"
+										ng-show="csvFieldsForm.latitude.$dirty && csvFieldsForm.latitude.$error.required"
+										ng-bind="$ctrl.i18n.__('Required')">
+						</label>
+					</div>
+				</div>
+				<div class="col-md-3">
+					<div class="form-group" terrama2-show-errors>
+						<label ng-bind="$ctrl.i18n.__('Longitude')+':'"></label>
+						<input name="longitude" class="form-control" type="text" ng-model="$ctrl.field.longitude_property_name" required>
+						<label class="help-block text-danger"
+										ng-show="csvFieldsForm.longitude.$dirty && csvFieldsForm.longitude.$error.required"
+										ng-bind="$ctrl.i18n.__('Required')">
+						</label>
+					</div>
+				</div>
+				<div class="col-md-3">
+					<div class="form-group" terrama2-show-errors>
+						<label ng-bind="$ctrl.i18n.__('Alias')+':'"></label>
+						<input name="alias" class="form-control" type="text" ng-model="$ctrl.field.alias" pattern="^[a-zA-Z_][a-zA-Z0-9_]*$" required>
+						<label class="help-block text-danger"
+										ng-if="csvFieldsForm.alias.$dirty && csvFieldsForm.alias.$error.required"
+										ng-bind="$ctrl.i18n.__('Required')">
+						</label>
+						<label class="help-block text-danger"
+										ng-if="csvFieldsForm.alias.$dirty && csvFieldsForm.alias.$error.pattern"
+										ng-bind="$ctrl.i18n.__('Invalid alias')">
+						</label>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-md-9" ng-if="$ctrl.field.type == 'FLOAT' || $ctrl.field.type == 'INTEGER' || $ctrl.field.type == 'TEXT'">
+				<div class="row">
+					<div class="col-md-6">
+						<div class="form-group" terrama2-show-errors>
+							<label ng-bind="$ctrl.i18n.__('Property name')+':'"></label>
+							<input name="property_name" class="form-control" type="text" ng-model="$ctrl.field.property_name" required>
+						<label class="help-block text-danger"
+										ng-show="csvFieldsForm.property_name.$dirty && csvFieldsForm.property_name.$error.required"
+										ng-bind="$ctrl.i18n.__('Required')">
+						</label>
+						</div>
+					</div>
+					<div class="col-md-6">			
+						<div class="form-group" terrama2-show-errors>
+							<label ng-bind="$ctrl.i18n.__('Alias')+':'"></label>
+							<input name="alias" class="form-control" type="text" ng-model="$ctrl.field.alias" pattern="^[a-zA-Z_][a-zA-Z0-9_]*$" required>
+						<label class="help-block text-danger"
+										ng-show="csvFieldsForm.alias.$dirty && csvFieldsForm.alias.$error.required"
+										ng-bind="$ctrl.i18n.__('Required')">
+						</label>
+						<label class="help-block text-danger"
+										ng-if="csvFieldsForm.alias.$dirty && csvFieldsForm.alias.$error.pattern"
+										ng-bind="$ctrl.i18n.__('Invalid alias')">
+						</label>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div ng-if="$ctrl.field.type == 'DATETIME'">
+				<div  class="col-md-3">
+					<div class="form-group" terrama2-show-errors>
+						<label ng-bind="$ctrl.i18n.__('Property name')+':'"></label>
+						<input name="property_name" class="form-control" type="text" ng-model="$ctrl.field.property_name" required>
+						<label class="help-block text-danger"
+										ng-show="csvFieldsForm.property_name.$dirty && csvFieldsForm.property_name.$error.required"
+										ng-bind="$ctrl.i18n.__('Required')">
+						</label>
+					</div>
+				</div>
+				<div class="col-md-3">
+					<div class="form-group" terrama2-show-errors>
+						<label ng-bind="$ctrl.i18n.__('Format')+':'"></label>
+						<input name="format" class="form-control" type="text" ng-model="$ctrl.field.format" pattern="^([\w*.:\/\\\s-]+|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$" required>
+						<label class="help-block text-danger"
+										ng-show="csvFieldsForm.format.$dirty && csvFieldsForm.format.$error.required"
+										ng-bind="$ctrl.i18n.__('Required')">
+						</label>
+						<label class="help-block text-danger"
+										ng-if="csvFieldsForm.format.$dirty && csvFieldsForm.format.$error.pattern"
+										ng-bind="$ctrl.i18n.__('Invalid format')">
+						</label>
+					</div>
+				</div>
+				<div class="col-md-3">
+					<div class="form-group" terrama2-show-errors>
+						<label ng-bind="$ctrl.i18n.__('Alias')+':'"></label>
+						<input name="alias" class="form-control" type="text" ng-model="$ctrl.field.alias" pattern="^[a-zA-Z_][a-zA-Z0-9_]*$" required>
+						<label class="help-block text-danger"
+										ng-show="csvFieldsForm.alias.$dirty && csvFieldsForm.alias.$error.required"
+										ng-bind="$ctrl.i18n.__('Required')">
+						</label>
+						<label class="help-block text-danger"
+										ng-if="csvFieldsForm.alias.$dirty && csvFieldsForm.alias.$error.pattern"
+										ng-bind="$ctrl.i18n.__('Invalid alias')">
+						</label>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-md-1">
+				<div style="margin-top: 24px;" class="row">
+					<button class="btn btn-danger" ng-click="$ctrl.delete()"> {{$ctrl.i18n.__('Remove')}}</button>
+				</div>
+			</div>
+	</div>
+</form>

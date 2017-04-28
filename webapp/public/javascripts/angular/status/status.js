@@ -19,16 +19,20 @@ define([
       $scope.MessageBoxService = MessageBoxService;
       var title = i18n.__("Status");
       var cachedIcons = {};
-      cachedIcons[Globals.enums.StatusLog.DONE] = "/images/green.gif";
-      cachedIcons["start_" + Globals.enums.StatusLog.DONE] = "/images/green_anime.gif";
-      cachedIcons[Globals.enums.StatusLog.ERROR] = "/images/red.gif";
-      cachedIcons["start_" + Globals.enums.StatusLog.ERROR] = "/images/red_anime.gif";
-      cachedIcons[Globals.enums.StatusLog.DOWNLOADED] = "/images/download.png";
-      cachedIcons["message_" +Globals.enums.MessageType.WARNING_MESSAGE] = "/images/yellow.gif";
-      cachedIcons["start_warning"] = "/images/yellow_anime.gif";
-      cachedIcons[Globals.enums.StatusLog.START] = "/images/grey_anime.gif";
-      cachedIcons["start_" + Globals.enums.StatusLog.START] = "/images/grey_anime.gif";
-      cachedIcons[Globals.enums.StatusLog.ON_QUEUE] = "/images/clock.png";
+      cachedIcons[Globals.enums.StatusLog.DONE] = "/images/status/green.gif";
+      cachedIcons["start_" + Globals.enums.StatusLog.DONE] = "/images/status/green_anime.gif";
+      cachedIcons[Globals.enums.StatusLog.ERROR] = "/images/status/red.gif";
+      cachedIcons["start_" + Globals.enums.StatusLog.ERROR] = "/images/status/red_anime.gif";
+      cachedIcons[Globals.enums.StatusLog.DOWNLOADED] = "/images/status/download.png";
+      cachedIcons["message_" +Globals.enums.MessageType.WARNING_MESSAGE] = "/images/status/yellow.gif";
+      cachedIcons["start_warning"] = "/images/status/yellow_anime.gif";
+      cachedIcons[Globals.enums.StatusLog.START] = "/images/status/grey_anime.gif";
+      cachedIcons["start_" + Globals.enums.StatusLog.START] = "/images/status/grey_anime.gif";
+      cachedIcons[Globals.enums.StatusLog.ON_QUEUE] = "/images/status/clock.png";
+      cachedIcons[Globals.enums.StatusLog.INTERRUPTED] = "/images/status/red.gif";
+      cachedIcons["start_" + Globals.enums.StatusLog.INTERRUPTED] = "/images/status/red_anime.gif";
+      cachedIcons[Globals.enums.StatusLog.NOT_EXECUTED] = "/images/status/grey.gif";
+      cachedIcons["start_" + Globals.enums.StatusLog.NOT_EXECUTED] = "/images/status/grey_anime.gif";
 
       $scope.onPageChanged = function(currentPage, previousPage) {
         // TODO: Paginate dinamically
@@ -254,6 +258,14 @@ define([
                 case Globals.enums.StatusLog.ERROR:
                   dummyMessage.description = "Error";
                   dummyMessage.messageType = Globals.enums.MessageType.ERROR_MESSAGE;
+                  break;
+                case Globals.enums.StatusLog.INTERRUPTED:
+                  dummyMessage.description = "Interrupted";
+                  dummyMessage.messageType = Globals.enums.MessageType.ERROR_MESSAGE;
+                  break;
+                case Globals.enums.StatusLog.NOT_EXECUTED:
+                  dummyMessage.description = "Not executed";
+                  dummyMessage.messageType = Globals.enums.MessageType.INFO_MESSAGE;
                   break;
                 case Globals.enums.StatusLog.ON_QUEUE:
                   dummyMessage.description = "On queue";

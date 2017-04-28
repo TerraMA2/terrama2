@@ -92,7 +92,7 @@ void terrama2::core::DataStoragerTable::store(DataSetSeries series, DataSetPtr o
 
     if(typeCapabilities.supportsPrimaryKey() && !newDataSetType->getPrimaryKey())
     {
-      std::string pkName = "\""+newDataSetType->getName()+"_pk\"";
+      std::string pkName = "\""+destinationDataSetName+"_pk\"";
       auto pk = new te::da::PrimaryKey(pkName, newDataSetType.get());
 
       te::dt::SimpleProperty* serialPk = new te::dt::SimpleProperty("pid", te::dt::INT32_TYPE, true);

@@ -59,8 +59,11 @@ void terrama2::core::ProcessLogger::internalClone(std::shared_ptr<terrama2::core
   loggerCopy->schema_ = schema_;
   loggerCopy->tableName_ = tableName_;
   loggerCopy->messagesTableName_ = messagesTableName_;
+  loggerCopy->consistent_ = consistent_;
+  loggerCopy->tableName_ = tableName_;
+  loggerCopy->messagesTableName_ = messagesTableName_;
 
-  loggerCopy->setConnectionInfo(dataSource_->getConnectionInfo());
+  loggerCopy->ProcessLogger::setConnectionInfo(dataSource_->getConnectionInfo());
 }
 
 
@@ -268,7 +271,6 @@ void terrama2::core::ProcessLogger::result(Status status, const std::shared_ptr<
   {
     verify::date(dataTimestamp);
 
-    auto boostTime = dataTimestamp->getTimeInstantTZ();
     timestamp = QString::fromStdString(dataTimestamp->toString());
 
     timestamp.prepend("'");
@@ -449,6 +451,58 @@ ProcessId terrama2::core::ProcessLogger::processID(const RegisterId registerId) 
   return tempDataSet->getInt32("process_id");
 }
 
+
+void terrama2::core::ProcessLogger::update(std::string& column, std::string& value, std::string& whereCondition) const
+{
+  if(!isValid_)
+    throw terrama2::core::LogException() << ErrorDescription("Error on log!");
+
+  if(tableName_.empty())
+  {
+    QString errMsg = QObject::tr("Can not find log table name. Is it setted?");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::LogException() << ErrorDescription(errMsg);
+  }
+
+  if(column.empty() || value.empty() || whereCondition.empty())
+  {
+    QString errMsg = QObject::tr("Can not update the log registers! Update info is missing!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::LogException() << ErrorDescription(errMsg);
+  }
+
+  std::string sql ="UPDATE " + tableName_ +
+                   " SET " + column + " = " + value +
+                   " WHERE " + whereCondition;
+
+  std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();
+  transactor->execute(sql);
+  transactor->commit();
+}
+
+
+void terrama2::core::ProcessLogger::updateStatus(std::vector<Status> oldStatus, Status newStatus) const
+{
+  std::string where;
+
+  for(auto& status : oldStatus)
+  {
+    if(where.empty())
+    {
+      where = "status = " + std::to_string(static_cast<int>(status));
+      continue;
+    }
+
+    where += " OR status = " + std::to_string(static_cast<int>(status));
+  }
+
+  std::string column = "status";
+  std::string status = std::to_string(static_cast<int>(newStatus));
+
+  update(column, status, where);
+}
+
+
 void terrama2::core::ProcessLogger::setTableName(std::string tableName)
 {
   if(!isValid_)
@@ -548,6 +602,8 @@ void terrama2::core::ProcessLogger::setTableName(std::string tableName)
 
     transactor->commit();
   }
+
+  checkTableConsistency();
 }
 
 void terrama2::core::ProcessLogger::updateData(const ProcessId registerId, const QJsonObject obj) const
@@ -572,4 +628,24 @@ void terrama2::core::ProcessLogger::updateData(const ProcessId registerId, const
   std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();
   transactor->execute(query.str());
   transactor->commit();
+}
+
+
+void terrama2::core::ProcessLogger::checkTableConsistency()
+{
+  {
+    std::vector<Status> oldStatus;
+    oldStatus.push_back(Status::START);
+
+    updateStatus(oldStatus, Status::INTERRUPTED);
+  }
+
+  {
+    std::vector<Status> oldStatus;
+    oldStatus.push_back(Status::ON_QUEUE);
+
+    updateStatus(oldStatus, Status::NOT_EXECUTED);
+  }
+
+  consistent_ = true;
 }

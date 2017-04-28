@@ -173,7 +173,7 @@ terrama2::services::analysis::core::getGridMap(DataManagerPtr dataManager, DataS
   terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProviderPtr, dataSeriesPtr);
   std::shared_ptr<terrama2::core::DataAccessorGrid> accessorGrid = std::dynamic_pointer_cast<terrama2::core::DataAccessorGrid>(accessor);
   terrama2::core::Filter filter;
-  filter.lastValue = true;
+  filter.lastValues = std::make_shared<size_t>(1);
   auto gridSeries = accessorGrid->getGridSeries(filter, remover);
 
   if(!gridSeries)

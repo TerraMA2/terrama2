@@ -130,6 +130,17 @@ namespace terrama2
         */
         int16_t getInt16(std::size_t row, std::size_t columnIndex) const;
 
+
+        /*!
+          \brief Method for retrieving a float value attribute.
+
+          \param row The position the dataset internal pointer must be set up.
+          \param columnIndex The column index of interest.
+
+          \return The float attribute value in the given position.
+        */
+        float getFloat(std::size_t row, std::size_t columnIndex) const;
+
         /*!
           \brief Method for retrieving a int32_t value attribute.
 
@@ -226,6 +237,17 @@ namespace terrama2
           \return The double attribute value in the given position.
         */
         double getDouble(std::size_t row, std::string columnName) const;
+
+        /*!
+          \brief Method for retrieving a float value attribute.
+
+          \param row The position the dataset internal pointer must be set up.
+          \param columnName The name of the column of interest.
+
+          \return The float attribute value in the given position.
+        */
+        float getFloat(std::size_t row, std::string columnName) const;
+
 
         /*!
           \brief Method for retrieving a bool value attribute.

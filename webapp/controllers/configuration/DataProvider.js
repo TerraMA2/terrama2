@@ -43,6 +43,8 @@ module.exports = function(app) {
             name: dataProvider.name,
             description: dataProvider.description,
             active: dataProvider.active,
+            timeout: dataProvider.timeout ? parseInt(dataProvider.timeout) : dataProvider.timeout,
+            active_mode: dataProvider.active_mode,
             data_provider_type_name: dataProvider.data_provider_type.name,
             uriObject: requester.params
           },

@@ -60,7 +60,7 @@ int main(int argc, char* argv[])
     terrama2::core::Filter filter;
     boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone("+00"));
 
-    filter.lastValue = true;
+    filter.lastValues = std::make_shared<size_t>(1);
 
     std::string boundingBoxWkt = "POLYGON((-51.11 -17.74, -41.11 -17.74, -41.11 -20.83, -51.11 -20.83, -51.11 -17.74))";
     te::gm::Geometry* geometry = te::gm::WKTReader::read(boundingBoxWkt.c_str());

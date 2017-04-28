@@ -1,5 +1,5 @@
 define(function() {
-  function RegisterController($scope, $http, $q, $window, $httpParamSerializer, $location, i18n, $timeout, DataProviderService, MessageBoxService) {
+  function RegisterController($scope, $http, $q, $window, $httpParamSerializer, $location, i18n, $timeout, DataProviderService, MessageBoxService, FormTranslator) {
     $scope.i18n = i18n;
     var model = {};
     var title = i18n.__("Data Server Registration");
@@ -12,6 +12,11 @@ define(function() {
           model[k] = conf.dataProvider.uriObject[k];
         }
       }
+    }
+
+    if (conf.dataProvider.data_provider_type_name == 'FTP'){
+      model['active_mode'] = conf.dataProvider.active_mode;
+      model['timeout'] = conf.dataProvider.timeout;
     }
 
     // forcing port value to number
@@ -85,10 +90,11 @@ define(function() {
       $scope.typeList.forEach(function(dataProviderType) {
         if (dataProviderType.name === $scope.dataProvider.protocol) {
           // temp code for port changing
+          var propertiesLocale = FormTranslator(dataProviderType.properties)
           $scope.model = {};
           $scope.schema = {
             type: "object",
-            properties: dataProviderType.properties,
+            properties: propertiesLocale,
             required: dataProviderType.required || []
           };
 
@@ -194,72 +200,72 @@ define(function() {
     };
 
     $scope.checkConnection = function(form) {
-      $scope.model = $scope.model;
-      $scope.$broadcast("schemaFormValidate");
+        $scope.model = $scope.model;
+        $scope.$broadcast("schemaFormValidate");
 
-      if (!$scope.isValidDataProviderTypeForm(form)) {
-        return;
-      }
-
-      $scope.isChecking = true; // for handling loading page
-
-      // Timeout in seconds for handling connections
-      $scope.timeOutSeconds = 8;
-
-      // Function for requests success, error and timeout
-      var makeRequest = function() {
-        var timeOut = $q.defer();
-        var result = $q.defer();
-        var expired = false;
-        setTimeout(function() {
-          expired = true;
-          timeOut.resolve();
-        }, 1000 * $scope.timeOutSeconds);
-
-        var params = $scope.model;
-        params.protocol = $scope.dataProvider.protocol;
-
-        var httpRequest = $http({
-          method: "POST",
-          url: "/uri/",
-          data: params,
-          timeout: timeOut.promise
-        });
-
-        httpRequest.then(function(response) {
-          result.resolve(response.data);
-        });
-
-        httpRequest.catch(function(response) {
-          if (expired) {
-            result.reject({message: i18n.__("Timeout: Request took longer than ") + $scope.timeOutSeconds + i18n.__(" seconds.")});
-          } else {
-            result.reject(response.data);
-          }
-        });
-
-        return result.promise;
-      };
-
-      var request = makeRequest();
-
-      var connectionTitle = i18n.__("Connection Status");
-
-      request.then(function(data) {
-        if (data.message){ // error found
-          MessageBoxService.danger(connectionTitle, data.message);
-        } else {
-          MessageBoxService.success(connectionTitle, i18n.__("Connection Successful"));
+        if (!$scope.isValidDataProviderTypeForm(form)) {
+          return;
         }
-      }).catch(function(err) {
-        MessageBoxService.danger(connectionTitle, err.message);
-      }).finally(function() {
-        $scope.isChecking = false;
-      });
+
+        $scope.isChecking = true; // for handling loading page
+
+        // Timeout in seconds for handling connections
+        $scope.timeOutSeconds = 8;
+
+        // Function for requests success, error and timeout
+        var makeRequest = function() {
+          var timeOut = $q.defer();
+          var result = $q.defer();
+          var expired = false;
+          setTimeout(function() {
+            expired = true;
+            timeOut.resolve();
+          }, 1000 * $scope.timeOutSeconds);
+
+          var params = $scope.model;
+          params.protocol = $scope.dataProvider.protocol;
+
+          var httpRequest = $http({
+            method: "POST",
+            url: "/uri/",
+            data: params,
+            timeout: timeOut.promise
+          });
+
+          httpRequest.then(function(response) {
+            result.resolve(response.data);
+          });
+
+          httpRequest.catch(function(response) {
+            if (expired) {
+              result.reject({message: i18n.__("Timeout: Request took longer than ") + $scope.timeOutSeconds + i18n.__(" seconds.")});
+            } else {
+              result.reject(response.data);
+            }
+          });
+
+          return result.promise;
+        };
+
+        var request = makeRequest();
+
+        var connectionTitle = i18n.__("Connection Status");
+
+        request.then(function(data) {
+          if (data.message){ // error found
+            MessageBoxService.danger(connectionTitle, data.message);
+          } else {
+            MessageBoxService.success(connectionTitle, i18n.__("Connection Successful"));
+          }
+        }).catch(function(err) {
+          MessageBoxService.danger(connectionTitle, err.message);
+        }).finally(function() {
+          $scope.isChecking = false;
+        });
     };
   }
 
-  RegisterController.$inject = ["$scope", "$http", "$q", "$window", "$httpParamSerializer", "$location", "i18n", "$timeout", "DataProviderService", "MessageBoxService"];
+  RegisterController.$inject = ["$scope", "$http", "$q", "$window", "$httpParamSerializer", "$location", "i18n", "$timeout", "DataProviderService", "MessageBoxService", "FormTranslator"];
 
   return RegisterController;
 });
