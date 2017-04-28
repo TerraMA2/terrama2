@@ -534,7 +534,6 @@ define([], function(){
         });
 
         if(self.dataProvidersStorager.length > 0) {
-          self.forms.storagerDataForm.storager_data_provider_id.$setViewValue(self.dataProvidersStorager[0]);
           self.storager_data_provider_id = self.dataProvidersStorager[0].id;
         }
 
