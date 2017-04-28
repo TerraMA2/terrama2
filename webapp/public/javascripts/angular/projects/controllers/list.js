@@ -9,6 +9,7 @@ define(function() {
     var config = $window.configuration;
     var socket = Socket;
     var title = i18n.__(config.context || "Project");
+    var importTitle = i18n.__("Data Import");
     $scope.MessageBoxService = MessageBoxService;
     $scope.i18n = i18n;
     $scope.linkToAdd = "/configuration/projects/new";
@@ -29,6 +30,12 @@ define(function() {
       "Analysis": [],
       "Views": [],
       "Alerts": []
+    };
+    $scope.services = {
+      COLLECT: [],
+      ANALYSIS: [],
+      VIEW: [],
+      ALERT: []
     };
     $scope.selectedServices = {};
     $scope.hasCollect = false;
@@ -249,7 +256,7 @@ define(function() {
         if(err) {
           return MessageBoxService.danger(title, err.message);
         }
-        MessageBoxService.success(title, data.name + " removed");
+        MessageBoxService.success(title, data.name + i18n.__(" removed"));
       },
 
       project: {
@@ -371,7 +378,7 @@ define(function() {
 
         FileDialog.openFile(function(err, input) {
           if (err) {
-            MessageBoxService.danger("Data Import", err.toString());
+            MessageBoxService.danger(importTitle, err.toString());
             return;
           }
 
@@ -381,7 +388,7 @@ define(function() {
             $scope.$apply(function() {
               $scope.extra.isImporting = true;
               if(error) {
-                MessageBoxService.danger("Data Import", error);
+                MessageBoxService.danger(importTitle, error);
                 console.log(error);
                 return;
               }
@@ -393,7 +400,7 @@ define(function() {
                   !json.hasOwnProperty("Collectors") &&
                   !json.hasOwnProperty("Views") &&
                   !json.hasOwnProperty("Alerts")) {
-                MessageBoxService.danger("Data Import", new Error("Invalid configuration file"));
+                MessageBoxService.danger(importTitle, new Error(i18n.__("Invalid configuration file")));
                 return;
               }
 
@@ -414,15 +421,15 @@ define(function() {
                 if(json.Alerts !== undefined && json.Alerts.length > 0) $scope.hasAlert = true;
 
                 if($scope.model === undefined || $scope.model.length === 0) {
-                  MessageBoxService.danger("Data Import", new Error("To import this file you need to have at least one project"));
+                  MessageBoxService.danger(importTitle, new Error(i18n.__("To import this file you need to have at least one project")));
                 } else if(json.Collectors !== undefined && json.Collectors.length > 0 && $scope.services.COLLECT.length === 0) {
-                  MessageBoxService.danger("Data Import", new Error("To import this file you need to have at least one collector service"));
+                  MessageBoxService.danger(importTitle, new Error(i18n.__("To import this file you need to have at least one collector service")));
                 } else if(json.Analysis !== undefined && json.Analysis.length > 0 && $scope.services.ANALYSIS.length === 0) {
-                  MessageBoxService.danger("Data Import", new Error("To import this file you need to have at least one analysis service"));
+                  MessageBoxService.danger(importTitle, new Error(i18n.__("To import this file you need to have at least one analysis service")));
                 } else if(json.Views !== undefined && json.Views.length > 0 && $scope.services.VIEW.length === 0) {
-                  MessageBoxService.danger("Data Import", new Error("To import this file you need to have at least one view service"));
+                  MessageBoxService.danger(importTitle, new Error(i18n.__("To import this file you need to have at least one view service")));
                 } else if(json.Alerts !== undefined && json.Alerts.length > 0 && $scope.services.ALERT.length === 0) {
-                  MessageBoxService.danger("Data Import", new Error("To import this file you need to have at least one alert service"));
+                  MessageBoxService.danger(importTitle, new Error(i18n.__("To import this file you need to have at least one alert service")));
                 } else {
                   $('#importModal').modal('show');
                 }
@@ -434,7 +441,7 @@ define(function() {
 
       finalizeImportation: function() {
         if($scope.projectRadio === null) {
-          MessageBoxService.danger("Data Import", new Error("Select a project"));
+          MessageBoxService.danger(importTitle, new Error(i18n.__("Select a project")));
           $('#importModal').modal('hide');
         } else {
           $scope.extra.isImporting = true;
@@ -463,6 +470,31 @@ define(function() {
       }
     };
 
+    $http.get("/api/Service/", {}).then(function(services) {
+      for(var j = 0, servicesLength = services.data.length; j < servicesLength; j++) {
+        switch(services.data[j].service_type_id) {
+          case 1:
+            $scope.services.COLLECT.push(services.data[j]);
+            break;
+          case 2:
+            $scope.services.ANALYSIS.push(services.data[j]);
+            break;
+          case 3:
+            $scope.services.VIEW.push(services.data[j]);
+            break;
+          case 4:
+            $scope.services.ALERT.push(services.data[j]);
+            break;
+          default:
+            break;
+        }
+      }
+    }, function(err) {
+      console.log("Err in retrieving services");
+    }).finally(function() {
+      $scope.loading = false;
+    });
+
     $http.get("/api/Project/", {}).then(function(response) {
       $scope.model = response.data;
       $scope.dataProviders = {};
@@ -472,12 +504,6 @@ define(function() {
       $scope.views = {};
       $scope.alerts = {};
       $scope.collectors = {};
-      $scope.services = {
-        COLLECT: [],
-        ANALYSIS: [],
-        VIEW: [],
-        ALERT: []
-      };
 
       response.data.map(function(project, index) {
         if($scope.projectsCheckboxes[project.id] == undefined)
@@ -583,7 +609,7 @@ define(function() {
           $scope.loading = false;
         });
 
-        $http.get("/api/View", {}).then(function(views) {
+        $http.get("/api/ViewByProject/" + project.id, {}).then(function(views) {
           $scope.views[project.id] = views.data;
 
           if($scope.projectsCheckboxes[project.id].Views == undefined)
@@ -607,7 +633,7 @@ define(function() {
           $scope.loading = false;
         });
 
-        $http.get("/api/Alert", {}).then(function(alerts) {
+        $http.get("/api/AlertByProject/" + project.id, {}).then(function(alerts) {
           $scope.alerts[project.id] = alerts.data;
 
           if($scope.projectsCheckboxes[project.id].Alerts == undefined)
@@ -635,31 +661,6 @@ define(function() {
           $scope.collectors[project.id] = collectors;
         }, function(err) {
           console.log("Err in retrieving collectors");
-        }).finally(function() {
-          $scope.loading = false;
-        });
-
-        $http.get("/api/Service/", {}).then(function(services) {
-          for(var j = 0, servicesLength = services.data.length; j < servicesLength; j++) {
-            switch(services.data[j].service_type_id) {
-              case 1:
-                $scope.services.COLLECT.push(services.data[j]);
-                break;
-              case 2:
-                $scope.services.ANALYSIS.push(services.data[j]);
-                break;
-              case 3:
-                $scope.services.VIEW.push(services.data[j]);
-                break;
-              case 4:
-                $scope.services.ALERT.push(services.data[j]);
-                break;
-              default:
-                break;
-            }
-          }
-        }, function(err) {
-          console.log("Err in retrieving services");
         }).finally(function() {
           $scope.loading = false;
         });
