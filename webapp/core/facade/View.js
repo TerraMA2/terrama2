@@ -24,9 +24,8 @@
    * Helper to send views via TCP
    * 
    * @param {Array|Object} args A view values to send
-   * @param {boolean} shouldRun - A flag to defines if service should run context view
    */
-  function sendView(args, shouldRun) {
+  function sendView(args) {
     var objToSend = {
       "Views": []
     };
@@ -38,22 +37,16 @@
       objToSend.Views.push(args.toObject());
     }
 
-    TcpService.send(objToSend)
-      .then(function() {
-        if (shouldRun && !(args instanceof Array)) {
-          return TcpService.run({"ids": [args.id], "service_instance": args.serviceInstanceId});
-        }
-      });
+    TcpService.send(objToSend);
   }
   /**
    * It applies a save operation and send views to the service
    * 
    * @param {Object} viewObject - A view object to save
    * @param {number} projectId - A project identifier
-   * @param {boolean} shouldRun - Flag to determines if service should execute immediately after save process
    * @returns {Promise<View>}
    */
-  View.save = function(viewObject, projectId, shouldRun) {
+  View.save = function(viewObject, projectId) {
     return new PromiseClass(function(resolve, reject) {
       DataManager.orm.transaction(function(t) {
         var options = {transaction: t};
@@ -84,7 +77,7 @@
 
       .then(function(view) {
         // sending to the services
-        sendView(view, shouldRun);
+        sendView(view);
 
         return resolve(view);
       })
@@ -130,10 +123,9 @@
    * @param {number} viewId - View Identifier
    * @param {Object} viewObject - View object values
    * @param {number} projectId - A project identifier
-   * @param {boolean} shouldRun - Flag to determines if service should execute immediately after save process
    * @returns {Promise<View>}
    */
-  View.update = function(viewId, viewObject, projectId, shouldRun) {
+  View.update = function(viewId, viewObject, projectId) {
     return new PromiseClass(function(resolve, reject) {
       DataManager.orm.transaction(function(t) {
         var options = {transaction: t};
@@ -278,7 +270,7 @@
       })
 
       .then(function(view) {
-        sendView(view, shouldRun);
+        sendView(view);
 
         return resolve(view);
       })
