@@ -1,3 +1,7 @@
+<div class="overlay overlay-dcps" ng-show="isChecking.value">
+  <i class="fa fa-refresh fa-spin" style="position: fixed !important;"></i>
+</div>
+
 <div class="row">
   <div class="col-md-12">
     <div style="padding-bottom: 50px;">
@@ -46,8 +50,10 @@
 
           <div class="col-md-2 terrama2-top-field">
             <button class="btn btn-default" ng-show="semantics === 'DCP'" ng-click="addDcp(parametersForm)">{{ i18n.__('Add') }}</button>
+            <button class="btn btn-default" ng-show="semantics === 'DCP'" ng-click="openImportParametersModal()">{{ i18n.__('Import CSV') }}</button>
           </div>
 
+	        <terrama2-dcp-importer></terrama2-dcp-importer>
           <div ng-include="'/dist/templates/dcpTable.html'"></div>
         </div>
 
@@ -103,7 +109,7 @@
     <wz-step wz-title="{{ i18n.__('Store') }}" canexit="validateSteps" wz-disabled="{{ !isDynamic }}" wz-data="wizard.store" canenter="!wizard.store.disabled">
       <div class="col-md-12">
 
-        <terrama2-storager-form ng-if="!wizard.store.disabled" providers-list="providersList" storager="storager" series="dataSeries" filter="filter" prepare-format-to-form="prepareFormatToForm" forms="forms" on-storager-format-change= "onStoragerFormatChange" model="model" options="storeOptions" schedule="schedule"></terrama2-storager-form>
+        <terrama2-storager-form ng-if="!wizard.store.disabled" providers-list="providersList" storager="storager" series="dataSeries" filter="filter" prepare-format-to-form="prepareFormatToForm" field-has-error="fieldHasError" save-storager-data="saveStoragerData" forms="forms" on-storager-format-change= "onStoragerFormatChange" model="model" options="storeOptions" schedule="schedule"></terrama2-storager-form>
 
       </div>
       <div class="col-md-12">

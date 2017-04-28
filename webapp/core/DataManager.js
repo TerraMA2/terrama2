@@ -1853,36 +1853,51 @@ var DataManager = module.exports = {
            */
           var promises = [];
 
-          // check if must remove a data set
-          var dataSetsToRemove = [];
-          if (dataSeriesObject.dataSets.length < dataSeries.dataSets.length){
-            dataSeries.dataSets.forEach(function(dataSetToRemove){
-              var dontRemove = dataSeriesObject.dataSets.some(function(dataSetToCompare){
-                return dataSetToCompare.format._id == dataSetToRemove.format._id;
+          if(dataSeriesObject.removedDcps !== undefined) {
+            dataSeriesObject.removedDcps.forEach(function(dataSetIdToRemove) {
+              dataSeries.dataSets.forEach(function(completeDataSet) {
+                if(completeDataSet.format._id == dataSetIdToRemove) {
+                  var removeProvider = self.removeDataSet(completeDataSet).then(function(returned) {
+                    var index = dataSeries.dataSets.indexOf(returned);
+                    if(index > -1)
+                      dataSeries.dataSets.splice(index, 1);
+                  });
+                  promises.push(removeProvider);
+                }
               });
-              if (!dontRemove){
-                dataSetsToRemove.push(dataSetToRemove);
-              }
+            });
+          } else {
+            // check if must remove a data set
+            var dataSetsToRemove = [];
+            if (dataSeriesObject.dataSets.length < dataSeries.dataSets.length){
+              dataSeries.dataSets.forEach(function(dataSetToRemove){
+                var dontRemove = dataSeriesObject.dataSets.some(function(dataSetToCompare){
+                  return dataSetToCompare.format._id == dataSetToRemove.format._id;
+                });
+                if (!dontRemove){
+                  dataSetsToRemove.push(dataSetToRemove);
+                }
+              });
+            }
+
+            //Removing datasets
+            dataSetsToRemove.forEach(function(dataSetId){
+              var removeProvider = self.removeDataSet(dataSetId).then(function(returned){
+                var index = dataSeries.dataSets.indexOf(returned);
+                if (index > -1){
+                  dataSeries.dataSets.splice(index, 1);
+                }
+              });
+              promises.push(removeProvider);
             });
           }
 
-          //Removing datasets
-          dataSetsToRemove.forEach(function(dataSetId){
-            var removeProvider = self.removeDataSet(dataSetId).then(function(returned){
-              var index = dataSeries.dataSets.indexOf(returned);
-              if (index > -1){
-                dataSeries.dataSets.splice(index, 1);
-              }
-            });
-            promises.push(removeProvider);
-          });
-
-          dataSeriesObject.dataSets.forEach(function(newDataSet){
+          (dataSeriesObject.editedDcps !== undefined ? dataSeriesObject.editedDcps : dataSeriesObject.dataSets).forEach(function(newDataSet) {
             var dataSetToUpdate = dataSeries.dataSets.find(function(dSet){
               return dSet.format._id == newDataSet.format._id;
             });
             // Update data set
-            if (dataSetToUpdate){
+            if(dataSetToUpdate) {
               dataSetToUpdate.semantics = dataSeriesSemantics;
               var updatePromise = self.updateDataSet(dataSetToUpdate, newDataSet, options)
               .then(function(dataSetUpdated) {
@@ -1890,14 +1905,14 @@ var DataManager = module.exports = {
                 for(var j = 0; j < dataSeries.dataSets.length; ++j) {
                   var dataSet = dataSeries.dataSets[j];
 
-                  if (dataSetUpdated.id === dataSet.id) {
+                  if(dataSetUpdated.id === dataSet.id) {
                     var promisesFormat = Utils.generateArrayFromObject(dataSetUpdated.format, formatIterator, dataSet);
                     promisesFormat.forEach(function(promiseFormat){
                       promisesFormatArray.push(promiseFormat);
                     });
                     dataSet.active = dataSetUpdated.active;
                     dataSet.format = dataSetUpdated.format;
-                    if (dataSetUpdated.position){
+                    if(dataSetUpdated.position) {
                       dataSet.position = dataSetUpdated.position;
                     }
                   }
@@ -1906,7 +1921,7 @@ var DataManager = module.exports = {
                 return Promise.all(promisesFormatArray);
               });
               promises.push(updatePromise);
-            // add data set
+              // add data set
             } else {
               newDataSet.data_series_id = dataSeriesId;
               var addPromise = self.addDataSet(dataSeriesSemantics, newDataSet).then(function(newDSet){
@@ -1915,6 +1930,7 @@ var DataManager = module.exports = {
               promises.push(addPromise);
             }
           });
+
           return Promise.all(promises);
         })
         // on successfully updating data sets
