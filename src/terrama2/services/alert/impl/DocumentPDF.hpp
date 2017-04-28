@@ -33,12 +33,17 @@
 #include "../core/Report.hpp"
 #include "../core/Shared.hpp"
 #include "../core/Utils.hpp"
+#include "../core/Exception.hpp"
+#include "../../../core/utility/Logger.hpp"
+#include "../../../core/utility/Utils.hpp"
 
 // Qt
 #include <QtGui/QPainter>
 #include <QtGui/QPagedPaintDevice>
 #include <QtGui/QPdfWriter>
 #include <QtGui/QTextDocument>
+#include <QFileInfo>
+#include <QDir>
 
 // STL
 #include <string>
@@ -57,30 +62,58 @@ namespace terrama2
 
             static std::string makeDocument(core::ReportPtr report)
             {
-              std::string body = "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>Excel To HTML using codebeautify.org</title></head><body><!DOCTYPE html><html><head><style>body{background-color:#ffffff;}h1{color:blue;text-align:center;}p{font-family:\"Times New Roman\";}</style></head><body><h1>%TITLE%</h1><p>%ABSTRACT%</p><p>%DESCRIPTION%</p>"
-                                 "<hr>%COMPLETE_DATA%<hr>"
-                                 "<hr><p>%MAXVALUE_DATA%</p><hr>"
-                                 "<hr><p>%MINVALUE_DATA%</p><hr>"
-                                 "<hr><p>%MEANVALUE_DATA%</p><hr>"
-                                 "<p>%COPYRIGHT%</p></body></html>";
+              QString documentURI = QString::fromStdString(report->documentURI());
+
+              if(documentURI.isEmpty())
+              {
+                QString errMsg = QObject::tr("Couldn't create PDF document: Directory to store was not informed! ");
+                throw NotifierException() << ErrorDescription(errMsg);
+              }
+
+              QFileInfo fileURI(documentURI);
+              QDir dir =fileURI.dir();
+
+              if(!dir.exists())
+              {
+                if(!dir.mkdir(dir.absolutePath()))
+                {
+                   QString errMsg = QObject::tr("Couldn't create PDF document! Informed directory coultn'd be created exists: %1 ").arg(dir.absolutePath());
+                   throw NotifierException() << ErrorDescription(errMsg);
+                }
+              }
+
+              // Message body
+              std::string body;
+
+              if(report->dataSeriesType() == terrama2::core::DataSeriesType::GRID)
+              {
+                body = core::gridReportText();
+              }
+              else if(report->dataSeriesType() == terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT)
+              {
+                body = core::monitoredObjectReportText();
+              }
+              else
+              {
+                QString errMsg = QObject::tr("PDF document is not implemented for this data series!");
+                throw NotifierException() << ErrorDescription(errMsg);
+              }
 
               core::replaceReportTags(body, report);
 
-              std::string path = "/home/vinicius/pdftest.pdf";
-
-              QPdfWriter writer(QString::fromStdString(path));
+              QPdfWriter writer(fileURI.absoluteFilePath());
               writer.setPageSize(QPagedPaintDevice::A4);
 
-              // Qt > 5.2
+              // TODO: Qt > 5.2
 //              writer.setPageMargins(QMargins(30, 30, 30, 30));
 //              writer.setResolution(100);
 
-              // Qt < 5.3
+              // TODO: Qt < 5.3
               QPagedPaintDevice::Margins margins;
-              margins.bottom = 30;
-              margins.left = 30;
-              margins.right = 30;
-              margins.top = 30;
+              margins.bottom = 10;
+              margins.left = 10;
+              margins.right = 10;
+              margins.top = 10;
               writer.setMargins(margins);
 
               QTextDocument td;
@@ -92,7 +125,9 @@ namespace terrama2
 
               td.print(&writer);
 
-              return path;
+              TERRAMA2_LOG_INFO() << QObject::tr("Report document generated at '%1'").arg(fileURI.absoluteFilePath());
+
+              return fileURI.absoluteFilePath().toStdString();
             }
 
         } /* documentPDF */

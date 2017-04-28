@@ -30,7 +30,7 @@
 #include "Service.hpp"
 #include "Alert.hpp"
 #include "AlertLogger.hpp"
-#include "RunAlert.hpp"
+#include "AlertExecutor.hpp"
 
 #include "../../../core/Shared.hpp"
 
@@ -52,6 +52,8 @@ terrama2::services::alert::core::Service::Service(std::weak_ptr<terrama2::servic
   : dataManager_(dataManager)
 {
   connectDataManager();
+
+  connect(&alertExecutor_, &AlertExecutor::alertFinished, this, &Service::alertFinished);
 }
 
 
@@ -59,7 +61,7 @@ void terrama2::services::alert::core::Service::prepareTask(const terrama2::core:
 {
   try
   {
-    taskQueue_.emplace(std::bind(&core::runAlert, executionPackage, std::dynamic_pointer_cast<terrama2::services::alert::core::AlertLogger>(logger_), dataManager_, serverMap_));
+    taskQueue_.emplace(std::bind(&core::AlertExecutor::runAlert, std::ref(alertExecutor_), executionPackage, std::dynamic_pointer_cast<terrama2::services::alert::core::AlertLogger>(logger_), dataManager_, serverMap_));
   }
   catch(std::exception& e)
   {
@@ -146,8 +148,8 @@ void terrama2::services::alert::core::Service::removeAlert(AlertId alertId) noex
 
     // remove from queue
     processQueue_.erase(std::remove_if(processQueue_.begin(), processQueue_.end(),
-                                    [alertId](const terrama2::core::ExecutionPackage& executionPackage)
-                                                { return alertId == executionPackage.processId; }), processQueue_.end());
+                                       [alertId](const terrama2::core::ExecutionPackage& executionPackage)
+    { return alertId == executionPackage.processId; }), processQueue_.end());
 
     auto itWaitQueue = waitQueue_.find(alertId);
     waitQueue_.erase(itWaitQueue);
@@ -188,4 +190,12 @@ void terrama2::services::alert::core::Service::updateAdditionalInfo(const QJsonO
   {
     serverMap_.emplace("email_server", obj["email_server"].toString().toStdString());
   }
+}
+
+void terrama2::services::alert::core::Service::alertFinished(AlertId alertId,
+                                                             std::shared_ptr< te::dt::TimeInstantTZ > executionDate,
+                                                             bool success)
+{
+  notifyWaitQueue(alertId);
+  sendProcessFinishedSignal(alertId, executionDate, success);
 }

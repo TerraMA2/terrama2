@@ -214,7 +214,7 @@ void terrama2::services::alert::core::Report::updateReportDataset(const std::sha
   // Replace risk values
   for(auto riskDate : riskDates_)
   {
-    std::string property = validPropertyDateName(riskDate);
+    std::string property = dateTimeToString(riskDate);
     auto pos = terrama2::core::propertyPosition(dataSet_.get(), property);
 
     if(pos == std::numeric_limits<size_t>::max())
@@ -404,4 +404,18 @@ double terrama2::services::alert::core::Report::retrieveMeanValue() const
 terrama2::core::DataSeriesType terrama2::services::alert::core::Report::dataSeriesType() const
 {
   return alertDataSeries_->semantics.dataSeriesType;
+}
+
+std::string terrama2::services::alert::core::Report::documentURI() const
+{
+  try
+  {
+    return alert_->reportMetadata.at(ReportTags::DOCUMENT_URI);
+  }
+  catch(const std::out_of_range& /*e*/)
+  {
+
+  }
+
+  return "";
 }
