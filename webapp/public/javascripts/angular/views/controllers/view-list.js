@@ -258,6 +258,15 @@ define([], function() {
             return $scope.disabledButtons[object.id];
           }
         };
+
+        if (config.extra && config.extra.id){
+          var viewToRun = self.model.filter(function(element){
+            return element.id == config.extra.id;
+          });
+          if (viewToRun.length == 1){
+            self.extra.run(viewToRun[0]);
+          }
+        }
       })
       .catch(function(err) {
         $log.log("Could not load Views due " + err.toString() + ". Please refresh page (F5)");

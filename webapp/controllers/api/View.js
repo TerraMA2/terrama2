@@ -36,10 +36,16 @@
         var viewObject = request.body;
         var shouldRun = request.body.run;
 
-        ViewFacade.save(viewObject, app.locals.activeProject.id, shouldRun)
+        ViewFacade.save(viewObject, app.locals.activeProject.id)
           .then(function(view) {
+            var extra = {};
+            if (shouldRun){
+              extra = {
+                id: view.id
+              }
+            }
             // generating token
-            var token = Utils.generateToken(app, TokenCode.SAVE, view.name);
+            var token = Utils.generateToken(app, TokenCode.SAVE, view.name, extra);
             return response.json({status: 200, result: view.toObject(), token: token});
           })
           
@@ -52,9 +58,15 @@
         var viewId = parseInt(request.params.id);
         var shouldRun = request.body.run;
 
-        ViewFacade.update(viewId, request.body, app.locals.activeProject.id, shouldRun)
+        ViewFacade.update(viewId, request.body, app.locals.activeProject.id)
           .then(function(view) {
-            var token = Utils.generateToken(app, TokenCode.UPDATE, view.name);
+            var extra = {};
+            if (shouldRun){
+              extra = {
+                id: viewId
+              }
+            }
+            var token = Utils.generateToken(app, TokenCode.UPDATE, view.name, extra);
             return response.json({status: 200, result: view.toObject(), token: token});
           })
 

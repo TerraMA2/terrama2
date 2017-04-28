@@ -27,9 +27,15 @@ module.exports = function(app) {
       var scheduleObject = request.body.schedule;
       var shouldRun = request.body.run;
 
-      return AnalysisFacade.save(analysisObject, storager, scheduleObject, app.locals.activeProject.id, shouldRun)
+      return AnalysisFacade.save(analysisObject, storager, scheduleObject, app.locals.activeProject.id)
         .then(function(analysisResult) {
-          var token = Utils.generateToken(app, TokenCode.SAVE, analysisResult.name);
+          var extra = {};
+          if (shouldRun){
+            extra = {
+              id: analysisResult.id
+            }
+          }
+          var token = Utils.generateToken(app, TokenCode.SAVE, analysisResult.name, extra);
 
           return response.json({status: 200, result: analysisResult.toObject(), token: token});
         }).catch(function(err) {
@@ -48,10 +54,16 @@ module.exports = function(app) {
         var shouldRun = request.body.run;
 
         return AnalysisFacade
-          .update(parseInt(analysisId), app.locals.activeProject.id, analysisObject, scheduleObject, storager, shouldRun)
+          .update(parseInt(analysisId), app.locals.activeProject.id, analysisObject, scheduleObject, storager)
           .then(function(analysisInstance) {
+            var extra = {};
+            if (shouldRun){
+              extra = {
+                id: analysisId
+              }
+            }
             // generating token
-            var token = Utils.generateToken(app, TokenCode.UPDATE, analysisInstance.name);
+            var token = Utils.generateToken(app, TokenCode.UPDATE, analysisInstance.name, extra);
             response.json({status: 200, result: analysisInstance.toObject(), token: token});
           }).catch(function(err) {
             logger.error(Utils.format("%s %s", "Error while retrieving updated analysis", err.toString()));
