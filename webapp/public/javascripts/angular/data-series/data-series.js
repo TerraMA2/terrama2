@@ -16,7 +16,26 @@ define([], function() {
     Service.init();
 
     Socket.on('errorResponse', function(response){
-      MessageBoxService.danger(title, response.message);
+      var errorMessage = response.message;
+      var targetMethod = null;
+      if (serviceCache[response.service] != undefined){
+        var service = Service.get(serviceCache[response.service].process_ids.service_instance);
+        if(service != null) {
+          errorMessage = errorMessage + " " + i18n.__("Service") + ": '" + service.name + "' ";
+        }
+        if (config.extra && config.extra.id){
+          var warningMessage = config.message + ". ";
+          errorMessage = warningMessage + errorMessage;
+          targetMethod = MessageBoxService.warning; // setting warning method to display message
+          delete config.extra;
+          delete config.message;
+        } 
+        else {
+          targetMethod = MessageBoxService.danger;
+        }
+      }
+      targetMethod.call(MessageBoxService, title, errorMessage);
+      delete serviceCache[response.service];
     });
 
     Socket.on('runResponse', function(response){
@@ -33,35 +52,9 @@ define([], function() {
       if(response.checking === undefined || (!response.checking && response.status == 400)) {
         if(response.online) {
           Socket.emit('run', serviceCache[response.service].process_ids);
-        } else {
-          var message = "";
-          var targetMethod = null;
-          if (config.extra && config.extra.id){
-            message = config.message + ". ";
-            targetMethod = MessageBoxService.warn; // setting warning method to display message
-            delete config.extra;
-            delete config.message;
-          } else {
-            targetMethod = MessageBoxService.danger;
-          }
-
-          if(serviceCache[response.service] != undefined) {
-            var service = Service.get(serviceCache[response.service].process_ids.service_instance);
-
-            if(service != null) {
-              message += i18n.__("Service") + " '" + service.name + "' " + i18n.__("is not active");
-            } else {
-              message += i18n.__("Service not active");
-            }
-          } else {
-            message += i18n.__("Service not active");
-          }
-
-          targetMethod.call(MessageBoxService, title, message);
-        }
-
+          delete serviceCache[response.service];
+        } 
         delete $scope.disabledButtons[serviceCache[response.service].service_id];
-        delete serviceCache[response.service];
       }
     });
 
