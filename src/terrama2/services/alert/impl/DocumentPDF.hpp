@@ -62,16 +62,16 @@ namespace terrama2
 
             static std::string makeDocument(core::ReportPtr report)
             {
-              QString documentSavePath = QString::fromStdString(report->documentSavePath());
+              QString documentURI = QString::fromStdString(report->documentURI());
 
-              if(documentSavePath.isEmpty())
+              if(documentURI.isEmpty())
               {
                 QString errMsg = QObject::tr("Couldn't create PDF document: Directory to store was not informed! ");
                 throw NotifierException() << ErrorDescription(errMsg);
               }
 
-              QFileInfo filePath(documentSavePath);
-              QDir dir =filePath.dir();
+              QFileInfo fileURI(documentURI);
+              QDir dir =fileURI.dir();
 
               if(!dir.exists())
               {
@@ -101,7 +101,7 @@ namespace terrama2
 
               core::replaceReportTags(body, report);
 
-              QPdfWriter writer(filePath.absoluteFilePath());
+              QPdfWriter writer(fileURI.absoluteFilePath());
               writer.setPageSize(QPagedPaintDevice::A4);
 
               // TODO: Qt > 5.2
@@ -125,9 +125,9 @@ namespace terrama2
 
               td.print(&writer);
 
-              TERRAMA2_LOG_INFO() << QObject::tr("Report document generated at '%1'").arg(filePath.absoluteFilePath());
+              TERRAMA2_LOG_INFO() << QObject::tr("Report document generated at '%1'").arg(fileURI.absoluteFilePath());
 
-              return filePath.absoluteFilePath().toStdString();
+              return fileURI.absoluteFilePath().toStdString();
             }
 
         } /* documentPDF */

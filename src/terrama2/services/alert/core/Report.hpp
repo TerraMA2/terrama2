@@ -80,6 +80,7 @@ namespace terrama2
           const std::string COPYRIGHT = "copyright";
           const std::string LOGO_PATH = "logo_path";
           const std::string TIMESTAMP_FORMAT = "timestamp_format";
+          const std::string DOCUMENT_URI = "document_uri";
         } /* ReportTags */
 
         class Report
@@ -121,7 +122,7 @@ namespace terrama2
             std::string timeStampFormat() const { return alert_->reportMetadata.at(ReportTags::TIMESTAMP_FORMAT); }
 
             //! Gets the save path to save a document report
-            std::string documentSavePath() const;
+            std::string documentURI() const;
 
             /*!
              * \brief Returns a dataSet with all data

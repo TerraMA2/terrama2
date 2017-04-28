@@ -116,7 +116,7 @@ terrama2::services::alert::core::AlertPtr newAlert()
   reportMetadata[terrama2::services::alert::core::ReportTags::CONTACT] = "TerraMA2 developers.";
   reportMetadata[terrama2::services::alert::core::ReportTags::COPYRIGHT] = "copyright information...";
   reportMetadata[terrama2::services::alert::core::ReportTags::DESCRIPTION] = "Example generated report...";
-  reportMetadata["document_save_path"] = "/" + TERRAMA2_DATA_DIR + "/GridRisk.pdf";
+  reportMetadata["document_uri"] = "/" + TERRAMA2_DATA_DIR + "/GridRisk.pdf";
 
   alert->reportMetadata = reportMetadata;
 
