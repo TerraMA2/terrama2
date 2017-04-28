@@ -759,5 +759,6 @@
   	"To import this file you need to have at least one collector service": "To import this file you need to have at least one collector service",
   	"To import this file you need to have at least one analysis service": "To import this file you need to have at least one analysis service",
   	"To import this file you need to have at least one view service": "To import this file you need to have at least one view service",
-  	"To import this file you need to have at least one alert service": "To import this file you need to have at least one alert service"
+  	"To import this file you need to have at least one alert service": "To import this file you need to have at least one alert service",
+    "Import process executed with success": "Import process executed with success"
 }
