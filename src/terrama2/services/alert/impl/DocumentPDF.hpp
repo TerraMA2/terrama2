@@ -29,10 +29,6 @@
 #ifndef __TERRAMA2_SERVICES_ALERT_IMPL_DOCUMENT_PDF_HPP__
 #define __TERRAMA2_SERVICES_ALERT_IMPL_DOCUMENT_PDF_HPP__
 
-#define DOCUMENT_PDF_STRINGIFY2(X) #X
-#define DOCUMENT_PDF_STRINGIFY(X) DOCUMENT_PDF_STRINGIFY2(X)
-#define DOCUMENT_PDF_Qt_version DOCUMENT_PDF_STRINGIFY(Qt5_VERSION)
-
 // TerraMA2
 #include "../core/Report.hpp"
 #include "../core/Shared.hpp"
@@ -108,9 +104,8 @@ namespace terrama2
               QPdfWriter writer(fileURI.absoluteFilePath());
               writer.setPageSize(QPagedPaintDevice::A4);
 
-              std::vector<std::string> version = terrama2::core::splitString(DOCUMENT_PDF_Qt_version, '.');
-
-              if(std::stoi(version[0]) >= 5 && std::stoi(version[1]) < 3)
+              // Check if the Qt version is above or below 5.3
+#ifdef Qt5_BELLOW_5_3
               {
                 // Qt <= 5.2
                 QPagedPaintDevice::Margins margins;
@@ -120,12 +115,13 @@ namespace terrama2
                 margins.top = 10;
                 writer.setMargins(margins);
               }
-              else
+#else
               {
                 // Qt >= 5.3
                 writer.setPageMargins(QMargins(30, 30, 30, 30));
                 writer.setResolution(100);
               }
+#endif
 
               QTextDocument td;
               td.setHtml(QString::fromStdString(body));
