@@ -247,6 +247,8 @@ if(NOT Qt5_FOUND)
   message(FATAL_ERROR "TerraMA2: could not find required Qt 5 libraries!")
 endif()
 
+add_definitions(-DQt5_VERSION=${Qt5_VERSION})
+
 if(NOT QT_QCOLLECTIONGENERATOR_EXECUTABLE)
   find_program(QT_QCOLLECTIONGENERATOR_EXECUTABLE
                NAME qcollectiongenerator

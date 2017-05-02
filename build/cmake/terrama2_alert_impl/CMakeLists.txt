@@ -59,6 +59,10 @@ IF(VMIME_FOUND)
   target_link_libraries(terrama2_alert_impl ${VMIME_LIBRARY})
 ENDIF()
 
+IF(Qt5_VERSION VERSION_LESS "5.3")
+  add_definitions(-DQt5_BELLOW_5_3)
+ENDIF()
+
 set_target_properties(terrama2_alert_impl
                       PROPERTIES VERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}
                                  SOVERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}
