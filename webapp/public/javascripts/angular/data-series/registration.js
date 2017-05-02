@@ -463,19 +463,19 @@ define([], function() {
             for(var key in properties) {
               if (properties.hasOwnProperty(key)) {
                 $scope.tableFields.push(key);
-	              $scope.tableFieldsDataTable.push(key);
+	              $scope.tableFieldsDataTable.push(i18n.__(key));
               }
             }
           } else {
             // form is mapped
             for(var i = 0, formLength = dataSeriesSemantics.metadata.form.length; i < formLength; i++) {
               $scope.tableFields.push(dataSeriesSemantics.metadata.form[i].key);
-              $scope.tableFieldsDataTable.push(dataSeriesSemantics.metadata.form[i].key);
+              $scope.tableFieldsDataTable.push(i18n.__(dataSeriesSemantics.metadata.form[i].key));
             }
           }
         }
 
-	$scope.tableFieldsDataTable.push('');
+	      $scope.tableFieldsDataTable.push('');
 
         // fill out
         if ($scope.isUpdating) {
@@ -1418,7 +1418,7 @@ define([], function() {
 
       $scope.validateFieldEdition = function(value, type, alias, key) {
         if($scope.fieldHasError(value, type, $scope.dcpsObject[alias][key + '_pattern'], $scope.dcpsObject[alias][key + '_titleMap'], $scope.dataSeries.semantics.metadata.schema.properties[key].allowEmptyValue))
-          return "Invalid value";
+          return i18n.__("Invalid value");
         else
           return null;
       };
@@ -1896,12 +1896,12 @@ define([], function() {
         }
 
         if($scope.forms.generalDataForm.$invalid) {
-          MessageBoxService.danger("Data Registration", "There are invalid fields on form");
+          MessageBoxService.danger(i18n.__("Data Registration"), i18n.__("There are invalid fields on form"));
           return;
         }
         // checking parameters form (semantics) is invalid
         if($scope.countObjectProperties($scope.dcpsObject) === 0 && !isValidParametersForm($scope.forms.parametersForm)) {
-          MessageBoxService.danger("Data Registration", "There are invalid fields on form");
+          MessageBoxService.danger(i18n.__("Data Registration"), i18n.__("There are invalid fields on form"));
           return;
         }
 
@@ -1909,7 +1909,7 @@ define([], function() {
           if(angular.element('form[name="scheduleForm"]').scope()){ 
             var scheduleForm = angular.element('form[name="scheduleForm"]').scope()['scheduleForm'];
             if(scheduleForm.$invalid) {
-              MessageBoxService.danger("Data Registration", "There are invalid fields on form");
+              MessageBoxService.danger(i18n.__("Data Registration"), i18n.__("There are invalid fields on form"));
               return;
             }
           }
@@ -1917,7 +1917,7 @@ define([], function() {
 
         if ($scope.filter.filterArea == $scope.filterTypes.AREA.value) {
           if (FilterForm.boundedForm.$invalid){
-            MessageBoxService.danger("Data Registration", "Invalid filter area");
+            MessageBoxService.danger(i18n.__("Data Registration"), i18n.__("Invalid filter area"));
             return;
           }
         }
@@ -1930,7 +1930,7 @@ define([], function() {
             staticDataSeriesForm = angular.element('form[name="filterForm"]').scope()['filterForm'];
           }
           if (staticDataSeriesForm.$invalid){
-            MessageBoxService.danger("Data Registration", "Invalid filter data series");
+            MessageBoxService.danger(i18n.__("Data Registration"), i18n.__("Invalid filter data series"));
             return;
           }
         }
@@ -1948,7 +1948,7 @@ define([], function() {
               // checking GRID. Grid does not need attribute
               if (dsIntersection.data_series_semantics.data_series_type_name !== globals.enums.DataSeriesType.GRID) {
                 if ($scope.intersection[k].attributes.length === 0) {
-                  MessageBoxService.danger("Data Registration", "Invalid intersection. Static data series must have at least a attribute.");
+                  MessageBoxService.danger(i18n.__("Data Registration"), i18n.__("Invalid intersection. Static data series must have at least a attribute."));
                   return;
                 }
               }
@@ -1963,7 +1963,7 @@ define([], function() {
           $scope.$broadcast("requestStorageValues");
         } else {
           if ($scope.dataSeries.semantics.data_format_name === globals.enums.DataSeriesFormat.GRADS) {
-            MessageBoxService.danger("Data Series Registration", i18n.__("Unconfigured GraDs Data Series storage"));
+            MessageBoxService.danger(i18n.__("Data Series Registration"), i18n.__("Unconfigured GraDs Data Series storage"));
             return;
           }
 
@@ -1980,7 +1980,7 @@ define([], function() {
               confirmButtonFn: confirmNoStorager
             };
 
-            MessageBoxService.warning("Data Series", i18n.__("Note: No storager configuration, this data will be accessed when needed."), extraProperties);
+            MessageBoxService.warning(i18n.__("Data Series"), i18n.__("Note: No storager configuration, this data will be accessed when needed."), extraProperties);
           } else {
             $scope.isChecking.value = true;
 

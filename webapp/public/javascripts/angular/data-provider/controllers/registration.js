@@ -2,7 +2,7 @@ define(function() {
   function RegisterController($scope, $http, $q, $window, $httpParamSerializer, $location, i18n, $timeout, DataProviderService, MessageBoxService, FormTranslator) {
     $scope.i18n = i18n;
     var model = {};
-    var title = i18n.__("Data Server Registration");
+    var title = "Data Server Registration";
     $scope.MessageBoxService = MessageBoxService;
 
     var conf = $window.configuration;
@@ -31,14 +31,18 @@ define(function() {
       boxType: "box-solid"
     }
 
-    if (conf.fields) {
-      $scope.schema = {
-      type: "object",
-        properties: conf.fields.properties,
-        required: conf.fields.required
-      };
+    if(conf.fields) {
+      $timeout(function() {
+        var propertiesLocale = FormTranslator(conf.fields.properties);
 
-      $scope.options = {};
+        $scope.schema = {
+          type: "object",
+          properties: propertiesLocale,
+          required: conf.fields.required
+        };
+
+        $scope.options = {};
+      }, 500);
     } else {
       $scope.schema = {};
     }
@@ -169,7 +173,7 @@ define(function() {
 
       var isConnectionFormValid = $scope.isValidDataProviderTypeForm($scope.forms.connectionForm);
       if (!$scope.forms.dataProviderForm.$valid || !isConnectionFormValid) {
-        return MessageBoxService.danger(title, i18n.__("There are invalid fields on form"));
+        return MessageBoxService.danger(i18n.__(title), i18n.__("There are invalid fields on form"));
       }
 
       var formData = $scope.dataProvider;
@@ -191,7 +195,7 @@ define(function() {
 
         $window.location.href = (redirectData || defaultRedirectTo);
       }).catch(function(response) {
-        return MessageBoxService.danger(title, response.data.message);
+        return MessageBoxService.danger(i18n.__(title), response.data.message);
       });
     };
 
