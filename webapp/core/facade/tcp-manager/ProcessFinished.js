@@ -92,9 +92,6 @@
           return output;
         })
         .catch(function(err) {
-          function _handleUnexpectedError(error) {
-            return reject(new Error(Utils.format("An unexpected error occurred while retrieving process metadata %s", error.toString())));
-          }
           if (err instanceof CollectorErrorNotFound) {
             return DataManager.getAnalysis({id: response.process_id, instance_id: response.instance_id})
               .then(function(analysis) {
@@ -105,9 +102,23 @@
                 };
                 return output;
               })
-              .catch(_handleUnexpectedError);
+              .catch(function(err){
+                function _handleUnexpectedError(error) {
+                  return reject(new Error(Utils.format("An unexpected error occurred while retrieving process metadata %s", error.toString())));
+                }
+                return DataManager.getView({id: response.process_id, instance_id: response.instance_id})
+                  .then(function(view){
+                    var output = {
+                      service: service.id,
+                      name: view.name,
+                      process: view.toObject()
+                    };
+                    return output;
+                  })
+                  .catch(_handleUnexpectedError);
+              });
           }
-          return _handleUnexpectedError(err);
+          return reject(new Error("erro fatal"));
         })
         // Once everything OK, resolve promise chain
         .tap(function(output) {
