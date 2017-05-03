@@ -138,9 +138,12 @@ define([], function() {
       if(response.checking === undefined || (!response.checking && response.status == 400)) {
         if(response.online) {
           Socket.emit('run', serviceCache[response.service].process_ids);
+          delete $scope.disabledButtons[serviceCache[response.service].service_id];
           delete serviceCache[response.service];
         } 
-        delete $scope.disabledButtons[serviceCache[response.service].service_id];
+        else {
+          delete $scope.disabledButtons[serviceCache[response.service].service_id];
+        }
       }
     });
 

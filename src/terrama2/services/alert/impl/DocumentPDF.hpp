@@ -104,17 +104,24 @@ namespace terrama2
               QPdfWriter writer(fileURI.absoluteFilePath());
               writer.setPageSize(QPagedPaintDevice::A4);
 
-              // TODO: Qt > 5.2
-//              writer.setPageMargins(QMargins(30, 30, 30, 30));
-//              writer.setResolution(100);
-
-              // TODO: Qt < 5.3
-              QPagedPaintDevice::Margins margins;
-              margins.bottom = 10;
-              margins.left = 10;
-              margins.right = 10;
-              margins.top = 10;
-              writer.setMargins(margins);
+              // Check if the Qt version is above or below 5.3
+#ifdef Qt5_BELLOW_5_3
+              {
+                // Qt <= 5.2
+                QPagedPaintDevice::Margins margins;
+                margins.bottom = 10;
+                margins.left = 10;
+                margins.right = 10;
+                margins.top = 10;
+                writer.setMargins(margins);
+              }
+#else
+              {
+                // Qt >= 5.3
+                writer.setPageMargins(QMargins(30, 30, 30, 30));
+                writer.setResolution(100);
+              }
+#endif
 
               QTextDocument td;
               td.setHtml(QString::fromStdString(body));
