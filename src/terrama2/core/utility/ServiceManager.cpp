@@ -101,7 +101,7 @@ QJsonObject terrama2::core::ServiceManager::status() const
     obj.insert("terrama2_version",  QString::fromStdString(TERRAMA2_VERSION_STRING));
     obj.insert("shutting_down",  isShuttingDown_);
   }
-  //TODO: Define status message
+  
   return obj;
 }
 
