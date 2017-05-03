@@ -14,7 +14,7 @@ define([], function() {
    * @param {Object} Socket - TerraMA² Socket io module
    * @param {Service} Service - TerraMA² Service object
    */
-  function ViewList($scope, i18n, ViewService, $log, MessageBoxService, $window, $q, Socket, Service) {
+  function ViewList($scope, i18n, ViewService, $log, MessageBoxService, $window, $q, Socket, Service, $timeout) {
     /**
      * View List controller
      * @type {ViewList}
@@ -44,8 +44,15 @@ define([], function() {
     self.MessageBoxService = MessageBoxService;
 
     // token message
-    if (config.message) {
-      self.MessageBoxService.success(i18n.__("View"), config.message);
+    if(config.message) {
+      var messageArray = config.message.split(" ");
+      var tokenCodeMessage = messageArray[messageArray.length - 1];
+      messageArray.splice(messageArray.length - 1, 1);
+
+      $timeout(function() {
+        var finalMessage = messageArray.join(" ") + " " + i18n.__(tokenCodeMessage);
+        self.MessageBoxService.success(i18n.__("View"), finalMessage);
+      }, 500);
     }
 
     /**
@@ -89,13 +96,13 @@ define([], function() {
      * @param {Object} response - Response object with error message value
      * @param {Object} response.message - Error message
      */
-    Socket.on('errorResponse', function(response){
+    Socket.on('errorResponse', function(response) {
       var errorMessage = response.message;
       var targetMethod = null;
       if (serviceCache[response.service] != undefined){
         var service = Service.get(serviceCache[response.service].process_ids.service_instance);
         if (service != null) {
-          errorMessage = errorMessage + " " + i18n.__("Service") + ": '" + service.name + "' ";
+          errorMessage = i18n.__(errorMessage) + " " + i18n.__("Service") + ": '" + service.name + "' ";
         }
         if (config.extra && config.extra.id){
           var warningMessage = config.message + ". ";
@@ -165,8 +172,8 @@ define([], function() {
          */
         self.iconProperties = {
           type: "img",
-          width: 64,
-          height: 64
+          width: 20,
+          height: 20
         };
 
         /**
@@ -226,7 +233,7 @@ define([], function() {
           removeOperationCallback: function(err, data) {
             MessageBoxService.reset();
             if (err) {
-              MessageBoxService.danger(i18n.__("View"), err.message);
+              MessageBoxService.danger(i18n.__("View"), i18n.__(err.message));
               return;
             }
             MessageBoxService.success(i18n.__("View"), data.result.name + i18n.__(" removed"));
@@ -259,11 +266,11 @@ define([], function() {
           }
         };
 
-        if (config.extra && config.extra.id){
-          var viewToRun = self.model.filter(function(element){
+        if(config.extra && config.extra.id) {
+          var viewToRun = self.model.filter(function(element) {
             return element.id == config.extra.id;
           });
-          if (viewToRun.length == 1){
+          if(viewToRun.length == 1) {
             self.extra.run(viewToRun[0]);
           }
         }
@@ -273,7 +280,7 @@ define([], function() {
       });
   }
 
-  ViewList.$inject = ["$scope", "i18n", "ViewService", "$log", "MessageBoxService", "$window", "$q", "Socket", "Service"];
+  ViewList.$inject = ["$scope", "i18n", "ViewService", "$log", "MessageBoxService", "$window", "$q", "Socket", "Service", "$timeout"];
 
   return ViewList;
 });

@@ -9,7 +9,9 @@ define(function() {
         close: '&?',
         extra: '=?extra'
       },
-      controller: ["$scope", function($scope) {
+      controller: ["$scope", "i18n", function($scope, i18n) {
+        $scope.i18n = i18n;
+
         $scope.$watch("handler", function(value) {
           if (!value) {
             return;

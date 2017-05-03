@@ -1,5 +1,5 @@
 define(function() {
-  function ListController($scope, $http, DataProviderService, i18n, $window, MessageBoxService, $q) {
+  function ListController($scope, $http, DataProviderService, i18n, $window, MessageBoxService, $q, $timeout) {
     var config = $window.configuration;
     $scope.loading = true;
     $scope.model = [];
@@ -10,7 +10,7 @@ define(function() {
       ])
     
       .then(function() {
-        var title = i18n.__("Data Server");
+        var title = "Data Server";
         $scope.i18n = i18n;
         $scope.model = DataProviderService.list();
         $scope.linkToAdd = "/configuration/providers/new";
@@ -34,11 +34,11 @@ define(function() {
         $scope.errorFound = false;
         $scope.extra = {
           removeOperationCallback: function(err, data) {
-            if (err) {
-              MessageBoxService.danger(title, err.message);
+            if(err) {
+              MessageBoxService.danger(i18n.__(title), err.message);
               return;
             }
-            MessageBoxService.danger(title, data.name + i18n.__(" removed"));
+            MessageBoxService.danger(i18n.__(title), data.name + i18n.__(" removed"));
           }
         };
 
@@ -47,8 +47,15 @@ define(function() {
         $scope.iconProperties = config.iconProperties || {};
         
         $scope.method = "{[ method ]}";
-        if (config.message ) {
-          MessageBoxService.success(title, config.message);
+        if(config.message ) {
+          var messageArray = config.message.split(" ");
+          var tokenCodeMessage = messageArray[messageArray.length - 1];
+          messageArray.splice(messageArray.length - 1, 1);
+
+          $timeout(function() {
+            var finalMessage = messageArray.join(" ") + " " + i18n.__(tokenCodeMessage);
+            MessageBoxService.success(i18n.__(title), finalMessage);
+          }, 500);
         }
       })
       
@@ -56,7 +63,7 @@ define(function() {
         $scope.loading = false;
       }); // end then
   } 
-  ListController.$inject = ["$scope", "$http", "DataProviderService", "i18n", "$window", "MessageBoxService", "$q"];
+  ListController.$inject = ["$scope", "$http", "DataProviderService", "i18n", "$window", "MessageBoxService", "$q", "$timeout"];
 
   return ListController;
 })

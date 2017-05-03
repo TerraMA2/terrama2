@@ -430,9 +430,14 @@ define([], function() {
          * @type {Object[]}
          */
         self.dataSeriesGroups = [
-          {name: "Static", children: []},
-          {name: "Dynamic", children: []}
+          { name: "Static", children: [] },
+          { name: "Dynamic", children: [] }
         ];
+
+        $timeout(function() {
+          self.dataSeriesGroups[0].name = i18n.__("Static");
+          self.dataSeriesGroups[1].name = i18n.__("Dynamic");
+        }, 500);
 
         self.onServiceChanged = onServiceChanged;
 
@@ -746,6 +751,7 @@ define([], function() {
 
             if (self.isUpdating) {
               self.modelStorager = config.analysis.dataSeries.dataSets[0].format;
+              self.modelStorager.srid = parseInt(self.modelStorager.srid);
             } else { self.modelStorager = {}; }
 
             self.formStorager = metadata.form;
@@ -1173,10 +1179,10 @@ define([], function() {
                 window.location = "/configuration/analysis?token=" + (data.token || (data.data || {}).token);
               })
               .catch(function(err) {
-                MessageBoxService.danger(i18n.__("Analysis"), err.message);
+                MessageBoxService.danger(i18n.__("Analysis"), i18n.__(err.message));
               });
           } catch (e) {
-            MessageBoxService.danger(i18n.__("Analysis"), (e || {}).message);
+            MessageBoxService.danger(i18n.__("Analysis"), i18n.__((e || {}).message));
             return;
           }
         };

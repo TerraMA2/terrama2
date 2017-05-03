@@ -599,13 +599,16 @@ define([], function() {
           $scope.$broadcast("resetStoragerDataSets");
         }
 
-        $scope.form = dataSeriesSemantics.metadata.form;
-        var schemaTranslated = FormTranslator(dataSeriesSemantics.metadata.schema.properties);
+        var formTranslatorResult = FormTranslator(dataSeriesSemantics.metadata.schema.properties, dataSeriesSemantics.metadata.form, dataSeriesSemantics.metadata.schema.required);
+
         $scope.schema = {
           type: 'object',
-          properties: schemaTranslated,
+          properties: formTranslatorResult.object,
           required: dataSeriesSemantics.metadata.schema.required
         };
+
+        $scope.form = formTranslatorResult.display;
+
         $scope.$broadcast('schemaFormRedraw');
 
         _processParameters();
@@ -767,7 +770,7 @@ define([], function() {
       };
 
       $scope.dataSeriesGroups = [
-        {name: "Static", children: []}
+        {name: i18n.__("Static"), children: []}
         //Remove comment when its possible to do intersection with dynamic data - change to Dynamic
         //{name: "Grid", children: []}
       ];
@@ -1601,8 +1604,9 @@ define([], function() {
             $window.location.href = "/configuration/" + configuration.dataSeriesType + "/dataseries?token=" + (data.token || data.data.token);
           }
         }).catch(function(err) {
+          $scope.isChecking.value = false;
           var errMessage = err.message || err.data.message;
-          MessageBoxService.danger("Data Registration", errMessage);
+          MessageBoxService.danger(i18n.__("Data Registration"), i18n.__(errMessage));
         });
       };
 
