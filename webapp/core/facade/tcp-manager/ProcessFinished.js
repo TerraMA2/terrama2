@@ -106,7 +106,7 @@
                 function _handleUnexpectedError(error) {
                   return reject(new Error(Utils.format("An unexpected error occurred while retrieving process metadata %s", error.toString())));
                 }
-                return DataManager.getView({id: response.process_id, instance_id: response.instance_id})
+                return DataManager.getView({id: response.process_id, service_instance_id: response.instance_id})
                   .then(function(view){
                     var output = {
                       service: service.id,
@@ -121,7 +121,7 @@
           return reject(new Error("erro fatal"));
         })
         // Once everything OK, resolve promise chain
-        .tap(function(output) {
+        .then(function(output) {
           return resolve(output);
         });
     });
