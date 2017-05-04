@@ -619,9 +619,11 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
       for(const auto& notification : alertPtr->notifications)
       {
 
+        std::string documentURI;
+
         try
         {
-          DocumentFactory::getInstance().makeDocument(notification.includeReport, reportPtr);
+          documentURI = DocumentFactory::getInstance().makeDocument(notification.includeReport, reportPtr);
         }
         catch(const NotifierException& e)
         {
@@ -640,7 +642,7 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
         {
           NotifierPtr notifierPtr = NotifierFactory::getInstance().make("EMAIL", serverMap, reportPtr);
 
-          notifierPtr->send(notification);
+          notifierPtr->send(notification, documentURI);
         }
         catch(const NotifierException& e)
         {

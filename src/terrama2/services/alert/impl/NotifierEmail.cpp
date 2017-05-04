@@ -59,7 +59,8 @@ terrama2::services::alert::impl::NotifierEmail::NotifierEmail(const std::map<std
   }
 }
 
-void terrama2::services::alert::impl::NotifierEmail::send(const core::Notification& notification) const
+void terrama2::services::alert::impl::NotifierEmail::send(const core::Notification& notification,
+                                                          const std::string& documentURI) const
 {
   te::core::URI emailServer(serverMap_.at("email_server"));
 
@@ -105,30 +106,12 @@ void terrama2::services::alert::impl::NotifierEmail::send(const core::Notificati
   textPart->setText(vmime::make_shared <vmime::stringContentHandler>(body));
 
   // add attachments
-  if(!notification.includeReport.empty())
-  {
-    QString documentURI = QString::fromStdString(report_->documentURI());
+  if(!notification.includeReport.empty()
+     && !documentURI.empty())
+    addAttachment(documentURI, "application/pdf", mb);
 
-    if(documentURI.isEmpty())
-    {
-      QString errMsg = QObject::tr("Couldn't find document: File URI was not informed!");
-      throw NotifierException() << ErrorDescription(errMsg);
-    }
-
-    QFileInfo fileURI(documentURI);
-
-    if(!fileURI.exists())
-    {
-      QString errMsg = QObject::tr("Couldn't find document: File does not exists!");
-      throw NotifierException() << ErrorDescription(errMsg);
-    }
-
-    vmime::shared_ptr<vmime::fileAttachment> att = vmime::make_shared<vmime::fileAttachment>(fileURI.absoluteFilePath().toStdString(),
-                                                                                             vmime::mediaType("application/pdf"),
-                                                                                             vmime::text(""));
-
-    mb.appendAttachment(att);
-  }
+  if(!report_->imageURI().empty())
+    addAttachment(report_->imageURI(), "image/jpeg", mb);
 
   // Construction
   vmime::shared_ptr <vmime::message> msg = mb.construct();
@@ -146,4 +129,32 @@ void terrama2::services::alert::impl::NotifierEmail::send(const core::Notificati
   tr->send(msg);
 
   TERRAMA2_LOG_INFO() << QObject::tr("Report email sent to '%1'").arg(QString::fromStdString(emailServer.user()));
+}
+
+
+void terrama2::services::alert::impl::NotifierEmail::addAttachment(const std::string& uri,
+                                                                    const std::string& mediaType,
+                                                                    vmime::messageBuilder& mb) const
+{
+  QString documentURI = QString::fromStdString(uri);
+
+  if(documentURI.isEmpty())
+  {
+    QString errMsg = QObject::tr("Couldn't find document: File URI was not informed!");
+    throw NotifierException() << ErrorDescription(errMsg);
+  }
+
+  QFileInfo fileURI(documentURI);
+
+  if(!fileURI.exists())
+  {
+    QString errMsg = QObject::tr("Couldn't find document: File does not exists!");
+    throw NotifierException() << ErrorDescription(errMsg);
+  }
+
+  vmime::shared_ptr<vmime::fileAttachment> att = vmime::make_shared<vmime::fileAttachment>(fileURI.absoluteFilePath().toStdString(),
+                                                                                           vmime::mediaType(mediaType),
+                                                                                           vmime::text(""));
+
+  mb.appendAttachment(att);
 }
