@@ -300,7 +300,7 @@ TcpService.prototype.run = function(processObject) {
         // Forcing a process to run
         TcpManager.startProcess(instance, processObject);
         // Retrieving log status of process (STARTED/ON_QUEUED, etc)
-        TcpManager.logData(instance, {begin: 0, end: 1, process_ids: processObject.ids}, true);
+        TcpManager.logData(instance, {begin: 0, end: 2, process_ids: processObject.ids});
         // Notify children listeners the process has been scheduled
         self.emit("processRun", processObject);
         return resolve();
@@ -527,7 +527,7 @@ TcpService.prototype.log = function(json) {
      * @type {number}
      */
     var begin = json.begin || 0,
-          end = json.end || 20;
+          end = json.end || 2;
 
     return PromiseClass.all([
         DataManager.listServiceInstances(),

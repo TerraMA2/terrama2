@@ -197,9 +197,8 @@ TcpManager.prototype.removeData = function(serviceInstance, data) {
  * @param {Object} data - a javascript object message to send
  * @param {number} data.begin - Begin interval to retrieve
  * @param {number} data.end - End interval to retrieve
- * @param {boolean?} force - Flag to force retrieve a value from C++ Services. Default: false
  */
-TcpManager.prototype.logData = function(serviceInstance, data, force) {
+TcpManager.prototype.logData = function(serviceInstance, data) {
   var self = this;
   try {
     // checking if there are active connections
@@ -215,38 +214,10 @@ TcpManager.prototype.logData = function(serviceInstance, data, force) {
       return;
     }
 
-    var array = null;
-    switch (client.service.service_type_id) {
-      case ServiceType.COLLECTOR:
-        array = logs.collectors;
-        break;
-      case ServiceType.ANALYSIS:
-        array = logs.analysis;
-        break;
-      case ServiceType.VIEW:
-        array = logs.views;
-        break;
-      default:
-        this.emit('tcpError', null, new Error("Invalid service type id"));
-        return;
-    }
+    var buffer = self.makebuffer(Signals.LOG_SIGNAL, data);
+    // requesting for log
+    client.log(buffer);
 
-    if (array.length === 0 || force === true) {
-      // while(array.length > 0) {
-      //   array.pop();
-      // }
-      // request all
-      var buffer = self.makebuffer(Signals.LOG_SIGNAL, data);
-
-      // requesting for log
-      client.log(buffer);
-    } else {
-      var begin = data.begin;
-      var end = data.end;
-
-      // checking server cache
-      self.emit('logReceived', client.service, array.slice(begin, end), array.length);
-    }
   } catch (e) {
     this.emit('tcpError', serviceInstance, new Error("Could not send data LOG_SIGNAL to service", e));
   }
@@ -428,9 +399,7 @@ TcpManager.prototype.initialize = function(client) {
         // cachedLog.process_id
         response.some(function(logRetrieved) {
           if (cachedLog.process_id === logRetrieved.process_id) {
-            cachedLog.log[0] = logRetrieved.log[logRetrieved.log.length - 1];
-            console.log(client.service.name);
-            return true;
+            cachedLog.log.push.apply(logRetrieved.log);
           }
         });
       });
@@ -447,10 +416,9 @@ TcpManager.prototype.initialize = function(client) {
     if (Utils.isObject(response)) {
       /**
        * Retrieving last log process.
-       * TODO: In order to avoid TCP traffic, should keep another cache and performs after X time or something like that?
        */
       logger.debug(Utils.format("%s finished. Retrieving LOG Process finished in order to keep in cache", client.service.name));
-      self.logData(client.service, {begin: 0, end: 1, process_ids: [response.process_id]}, true);
+      self.logData(client.service, {begin: 0, end: 2, process_ids: [response.process_id]});
 
       return ProcessFinished.handle(response)
         .then(function(targetProcess) {
@@ -460,6 +428,7 @@ TcpManager.prototype.initialize = function(client) {
               targetProcess.processToRun.forEach(function(processToRun){
                 if (processToRun){
                   self.startProcess(processToRun.instance, {ids: processToRun.ids, execution_date: response.execution_date});
+                  self.logData(processToRun.instance, {begin: 0, end: 2, process_ids: [processToRun.ids]});
                 }
               });
             }

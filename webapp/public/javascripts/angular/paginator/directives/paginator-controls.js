@@ -36,7 +36,7 @@ define([], function() {
          */
         onChange: "&?"
       },
-      controller: PaginatorControlsController,
+      controller: ["$scope", PaginatorControlsController],
       controllerAs: "$ctrl"
     };
     /**
@@ -138,8 +138,6 @@ define([], function() {
         self.$paginator.setCurrentPage(page);
       }
     }
-
-    PaginatorControlsController.$inject = ["$scope"];
   }
 
   terrama2PaginatorControls.$inject = ["PaginatorService"];

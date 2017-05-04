@@ -145,16 +145,6 @@ define([
         }
       });
 
-      Socket.on("processFinished", handleProcessFinished);
-
-      function handleProcessFinished(response) {
-        $scope.socket.emit('log', {
-          begin: 0,
-          end: 20
-        });
-        MessageBoxService.info(i18n.__("Process"), i18n.__("Process") + " " + response.name + " " + i18n.__("finished"));
-      }
-
       $scope.socket.on('logResponse', function(response) {
         $scope.loading = false;
         var service = response.service;
@@ -194,6 +184,28 @@ define([
           });
           return output;
         };
+
+        //Function to get index of object in array
+        var arrayObjectIndexOf = function(myArray, searchTerm, property) {
+          for(var i = 0, len = myArray.length; i < len; i++) {
+              if (myArray[i][property] === searchTerm) return i;
+          }
+          return -1;
+        }
+
+        // Removing logs to be replaced
+        logArray.forEach(function(logProcess){
+          var currentProcess = _findOne(targetArray, logProcess.process_id);
+          if (currentProcess){
+            var obj = currentProcess[targetKey] || {name: currentProcess.name};
+            var index = arrayObjectIndexOf($scope.model, obj.name, 'name');
+
+            while(index !== -1){
+              $scope.model.splice(index, 1);
+              index = arrayObjectIndexOf($scope.model, obj.name, 'name');
+            }
+          }
+        });
 
         logArray.forEach(function(logProcess) {
           $scope.logSize += logProcess.log.length;

@@ -43,17 +43,7 @@
               handler = self.handleFinishedAnalysis(response);
               break;
             case ServiceType.VIEW:
-              /**
-               * When a service is view, we must both prepare registered view and notify GUI interface about process finished in order to retrieve a new log
-               */
-              handler = self.handleRegisteredViews(response)
-                            .then(function(registeredView) {
-                              output.view = registeredView;
-                              return;
-                            })
-                            .finally(function() {
-                              return self.retrieveProcessFinished(service, response);
-                            });
+              handler = self.handleRegisteredViews(response);
               break;
             default:
               throw new ServiceTypeError(Utils.format("Invalid instance id %s", response.instance_id));
@@ -61,68 +51,12 @@
 
           return handler
             .then(function(handlerResult) {
-              output.process = handlerResult;
-              return resolve(output);
+              return resolve(handlerResult);
             });
         })
         // on any error
         .catch(function(err) {
           return reject(err);
-        });
-    });
-  };
-  /**
-   * It aims to retrieve the context of process executed.
-   * 
-   * @param {Service} service, TerraMA² Service
-   * @param {number}  response.instance_id - Service Identifier retrieved by C++
-   * @param {number}  response.process_id - Process Identifier. It may be Analysis or Collector. (It is not a View due event handler before (self.handler));
-   * @param {boolean} response.result - Flag to determines if instance generate a result
-   * @returns {Promise<any>} A promise with meta result to help display process owner
-   */
-  ProcessFinished.retrieveProcessFinished = function retrieveProcessFinished(service, response) {
-    return new PromiseClass(function(resolve, reject) {
-      return DataManager.getCollector({id: response.process_id, service_instance_id: response.instance_id})
-        .then(function(collector) {
-          var output = {
-            service: service.id,
-            name: collector.dataSeriesOutput.name,
-            process: collector.toObject()
-          };
-          return output;
-        })
-        .catch(function(err) {
-          if (err instanceof CollectorErrorNotFound) {
-            return DataManager.getAnalysis({id: response.process_id, instance_id: response.instance_id})
-              .then(function(analysis) {
-                var output = {
-                  service: service.id,
-                  name: analysis.name,
-                  process: analysis.toObject()
-                };
-                return output;
-              })
-              .catch(function(err){
-                function _handleUnexpectedError(error) {
-                  return reject(new Error(Utils.format("An unexpected error occurred while retrieving process metadata %s", error.toString())));
-                }
-                return DataManager.getView({id: response.process_id, service_instance_id: response.instance_id})
-                  .then(function(view){
-                    var output = {
-                      service: service.id,
-                      name: view.name,
-                      process: view.toObject()
-                    };
-                    return output;
-                  })
-                  .catch(_handleUnexpectedError);
-              });
-          }
-          return reject(new Error("erro fatal"));
-        })
-        // Once everything OK, resolve promise chain
-        .then(function(output) {
-          return resolve(output);
         });
     });
   };
