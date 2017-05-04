@@ -24,10 +24,10 @@ define([], function() {
           };
 
           if(properties.hasOwnProperty(key)) {
-            if(isInArray(key, required) || properties[key].type === "number")
+            if((required !== undefined && isInArray(key, required)) || properties[key].type === "number")
               formObject.validationMessage = {};
 
-            if(isInArray(key, required)) {
+            if(required !== undefined && isInArray(key, required)) {
               formObject.validationMessage["302"] = i18n.__("Required");
               formObject.validationMessage["required"] = i18n.__("Required");
             }
@@ -60,7 +60,7 @@ define([], function() {
             display[i].validationMessage["number"] = i18n.__("Value is not a valid number");
           }
 
-          if(isInArray(display[i].key, required)) {
+          if(required !== undefined && isInArray(display[i].key, required)) {
             if(display[i].validationMessage === undefined)
               display[i].validationMessage = {};
 
@@ -80,7 +80,7 @@ define([], function() {
         }
       }
 
-      if(display !== undefined && required !== undefined) {
+      if(display !== undefined) {
         return {
           object: objectToTranslate,
           display: translateSchemaFormRequiredError(display, required, objectToTranslate)

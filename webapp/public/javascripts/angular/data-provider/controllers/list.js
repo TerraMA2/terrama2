@@ -47,7 +47,7 @@ define(function() {
         $scope.iconProperties = config.iconProperties || {};
         
         $scope.method = "{[ method ]}";
-        if(config.message ) {
+        if(config.message) {
           var messageArray = config.message.split(" ");
           var tokenCodeMessage = messageArray[messageArray.length - 1];
           messageArray.splice(messageArray.length - 1, 1);
@@ -55,7 +55,7 @@ define(function() {
           $timeout(function() {
             var finalMessage = messageArray.join(" ") + " " + i18n.__(tokenCodeMessage);
             MessageBoxService.success(i18n.__(title), finalMessage);
-          }, 500);
+          }, 1000);
         }
       })
       

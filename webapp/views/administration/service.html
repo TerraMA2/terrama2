@@ -250,7 +250,7 @@
 
                   <span class="form-control-feedback glyphicon ng-hide glyphicon-remove" ng-show="serviceForm.numberOfThreads.$dirty" ng-class="{'glyphicon-ok': serviceForm.numberOfThreads.$valid, 'glyphicon-remove': serviceForm.numberOfThreads.$invalid }"></span>
                   <span class="help-block" ng-show="serviceForm.numberOfThreads.$dirty && serviceForm.numberOfThreads.$error.required">{{ i18n.__("Number of threads is required") }}</span>
-                  <span class="help-block" ng-show="serviceForm.numberOfThreads.$dirty && (serviceForm.numberOfThreads.$error.number || serviceForm.numberOfThreads.$error.min)">Number of threads is invalid</span>
+                  <span class="help-block" ng-show="serviceForm.numberOfThreads.$dirty && (serviceForm.numberOfThreads.$error.number || serviceForm.numberOfThreads.$error.min)">{{ i18n.__("Number of threads is invalid") }}</span>
                 </div>
               </div>
               <div class="col-md-6">

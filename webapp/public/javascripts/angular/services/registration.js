@@ -330,7 +330,7 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
           }
 
           Socket.emit('testDbConnection', logCredentials);
-        }, 500);
+        }, 1000);
       };
 
       self.processMetadata = function processMetadata(value) {

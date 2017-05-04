@@ -53,7 +53,7 @@ define(function() {
         $scope.schema = {};
         $scope.form = [];
       }
-    }, 500);
+    }, 1000);
 
     //  redraw form
     if ($scope.form) {

@@ -437,7 +437,7 @@ define([], function() {
         $timeout(function() {
           self.dataSeriesGroups[0].name = i18n.__("Static");
           self.dataSeriesGroups[1].name = i18n.__("Dynamic");
-        }, 500);
+        }, 1000);
 
         self.onServiceChanged = onServiceChanged;
 

@@ -58,7 +58,7 @@ TerraMA² {{ i18n.__('User Registration') }}
                 <div class="col-md-12">
                   <div class="form-group" terrama2-show-errors>
                     <label>{{ i18n.__("Name") }}:</label>
-                    <input class="form-control" name="name" ng-model="user.name" id="name" placeholder="{{ i18n.__('User Name') }}" type="text" value="{{ user.name }}" required>
+                    <input class="form-control" name="name" ng-model="user.name" id="name" placeholder="{{ i18n.__('Name') }}" type="text" value="{{ user.name }}" required>
 
                     <span class="help-block has-error" ng-show="form.name.$dirty && form.name.$invalid">{{ i18n.__('Name is required') }}</span>
                   </div>
@@ -67,7 +67,7 @@ TerraMA² {{ i18n.__('User Registration') }}
                 <div class="col-md-4">
                   <div class="form-group" terrama2-show-errors>
                     <label>{{ i18n.__("Username") }}:</label>
-                    <input class="form-control" name="username" ng-disabled="{[ update ]}" ng-model="user.username" id="username" placeholder="{{ i18n.__('User name credential') }}" type="text" value="{[ user.username ]}" required>
+                    <input class="form-control" name="username" ng-disabled="{[ update ]}" ng-model="user.username" id="username" placeholder="{{ i18n.__('Username') }}" type="text" value="{[ user.username ]}" required>
 
                     <span class="help-block has-error" ng-show="form.username.$dirty && form.username.$invalid">{{ i18n.__('Username is required') }}</span>
                   </div>
@@ -76,7 +76,7 @@ TerraMA² {{ i18n.__('User Registration') }}
                 <div class="col-md-4">
                   <div class="form-group" terrama2-show-errors>
                     <label>{{ i18n.__("Password") }}:</label>
-                    <input class="form-control" name="password" ng-model="user.password" id="password" placeholder="{{ i18n.__('User Password credential') }}" type="password" required>
+                    <input class="form-control" name="password" ng-model="user.password" id="password" placeholder="{{ i18n.__('Password') }}" type="password" required>
 
                     <span class="help-block has-error" ng-show="form.password.$dirty && form.password.$invalid">{{ i18n.__('Password is required') }}</span>
                   </div>
@@ -88,7 +88,7 @@ TerraMA² {{ i18n.__('User Registration') }}
                     <input class="form-control" name="passwordConfirm" ng-model="user.passwordConfirm" id="passwordConfirm" placeholder="{{ i18n.__('Confirm password') }}" type="password" terrama2-compare-to="user.password" required>
 
                     <span class="help-block has-error" ng-show="form.passwordConfirm.$dirty && form.passwordConfirm.$error.required">{{ i18n.__('Confirm password is required') }}</span>
-                    <span class="help-block has-error" ng-show="form.passwordConfirm.$dirty && form.passwordConfirm.$error.compareTo">{{ i18n.__('Confirm password must be same password') }}</span>
+                    <span class="help-block has-error" ng-show="form.passwordConfirm.$dirty && form.passwordConfirm.$error.compareTo">{{ i18n.__('The password confirmation must be identical to the password') }}</span>
                   </div>
                 </div>
 
@@ -102,7 +102,7 @@ TerraMA² {{ i18n.__('User Registration') }}
                 <div class="col-md-6">
                   <div class="form-group" terrama2-show-errors>
                     <label>{{ i18n.__("E-mail") }}:</label>
-                    <input class="form-control" name="email" ng-model="user.email" id="email" placeholder="{{ i18n.__('User e-mail') }}" type="email" value="{[ user.email ]}" required>
+                    <input class="form-control" name="email" ng-model="user.email" id="email" placeholder="{{ i18n.__('E-mail') }}" type="email" value="{[ user.email ]}" required>
                     <span class="help-block has-error" ng-show="form.email.$dirty && form.email.$error.required">{{ i18n.__('Email is required') }}</span>
                   </div>
                 </div>

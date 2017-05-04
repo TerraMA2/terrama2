@@ -277,7 +277,7 @@ define([
         $timeout(function() {
           var finalMessage = messageArray.join(" ") + " " + i18n.__(tokenCodeMessage);
           MessageBoxService.success(i18n.__("Project"), finalMessage);
-        }, 500);
+        }, 1000);
       }
 
     }]);
