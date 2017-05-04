@@ -313,7 +313,7 @@
 	"Name is required": "Se requiere el nombre",
 	"Username is required": "Se requiere nombre de usuario",
 	"Confirm password is required": "Se requiere confirmar la contraseña",
-	"Confirm password must be same password": "Confirmar contraseña debe ser la misma contraseña",
+	"The password confirmation must be identical to the password": "Confirmar contraseña debe ser la misma contraseña",
 	"Email is required": "Se requiere de correo electrónico",
 	"Store": "Almacenar",
 	"Data Store": "Almacén de datos",

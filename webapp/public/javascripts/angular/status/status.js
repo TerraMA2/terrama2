@@ -8,8 +8,8 @@ define([
   var moduleName = "terrama2.status";
 
   angular.module(moduleName, [commonServiceModule, tableModule, alertBoxModule])
-    .controller('StatusController', ['$scope', '$HttpTimeout', 'Socket', 'i18n', '$window', 'MessageBoxService',
-    function($scope, $HttpTimeout, Socket, i18n, $window, MessageBoxService) {
+    .controller('StatusController', ['$scope', '$HttpTimeout', 'Socket', 'i18n', '$window', 'MessageBoxService', '$timeout',
+    function($scope, $HttpTimeout, Socket, i18n, $window, MessageBoxService, $timeout) {
       var Globals = $window.globals;
       var config = $window.configuration;
       $scope.i18n = i18n;
@@ -270,7 +270,14 @@ define([
       });
 
       if(config.parameters.message !== undefined && config.parameters.message !== null && config.parameters.message !== "") {
-        MessageBoxService.success(i18n.__("Project"), config.parameters.message);
+        var messageArray = config.parameters.message.split(" ");
+        var tokenCodeMessage = messageArray[messageArray.length - 1];
+        messageArray.splice(messageArray.length - 1, 1);
+
+        $timeout(function() {
+          var finalMessage = messageArray.join(" ") + " " + i18n.__(tokenCodeMessage);
+          MessageBoxService.success(i18n.__("Project"), finalMessage);
+        }, 1000);
       }
 
     }]);

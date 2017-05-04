@@ -126,7 +126,7 @@ var TcpSocket = function(io) {
             break;
         }
       } else {
-        if (err.message)
+        if(err.message)
           errMessageResponse.message = err.message;
       }
     } 

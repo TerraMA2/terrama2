@@ -12,8 +12,8 @@
             {{ i18n.__('Are you sure?') }}
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-outline" data-dismiss="modal" ng-click="resetObjectToRemove()">Cancel</button>
-            <button type="button" class="btn btn-outline" data-dismiss="modal" ng-click="removeOperation()">OK</button>
+            <button type="button" class="btn btn-outline" data-dismiss="modal" ng-click="resetObjectToRemove()">{{ i18n.__('Cancel') }}</button>
+            <button type="button" class="btn btn-outline" data-dismiss="modal" ng-click="removeOperation()">{{ i18n.__('OK') }}</button>
           </div>
         </div>
       </div>
@@ -54,19 +54,19 @@
                   <i class="fa fa-power-off" style="margin-right: 5px;"></i>
                   {{ i18n.__('Stop all') }}
           </button>
-          <button class="btn btn-default pull-right"
-                  ng-show="extra.import"
-                  style="margin-top: 24px;"
-                  data-toggle="tooltip"
-                  data-placement="top"
-                  title='{{ i18n.__("Import") }}'
-                  ng-click="extra.import()"
-                  ng-disabled="extra.isImporting">
+          <a ng-show="extra.import"
+             title='{{ i18n.__("Import") }}'
+             class="btn btn-default pull-right"
+             style="margin-top: 24px;"
+             data-toggle="tooltip"
+             data-placement="top"
+             ng-click="extra.import()"
+             ng-disabled="extra.isImporting">
             <span class="loading ng-hide" ng-show="extra.isImporting">
               <i class="fa fa-refresh fa-spin"></i>
             </span>
             <i class="fa fa-upload"></i>
-          </button>
+          </a>
           <a ng-href="{{ linkToAdd }}"
             class="btn btn-default pull-right"
             data-toggle="tooltip"

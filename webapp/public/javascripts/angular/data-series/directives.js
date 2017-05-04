@@ -12,14 +12,14 @@ define([], function() {
                 "<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\">" +
                   "<span aria-hidden=\"true\">×</span>" +
                 "</button>" +
-                "<h4 class=\"modal-title\">Select the delimiter character of the CSV and choose if the file has a header</h4>" +
+                "<h4 class=\"modal-title\">{{ i18n.__('Select the delimiter character of the CSV and choose if the file has a header') }}</h4>" +
               "</div>" +
               "<div class=\"modal-body\">" +
                 "<div class=\"form-group\">" +
                   "<label>{{ i18n.__('Delimiter character') }}</label>" +
                   "<select class=\"form-control\" name=\"delimiterCharacter\" ng-model=\"csvImport.delimiterCharacter\">" +
-                    "<option value=\";\">Semicolon (;)</option>" +
-                    "<option value=\",\">Comma (,)</option>" +
+                    "<option value=\";\">{{ i18n.__('Semicolon') }} (;)</option>" +
+                    "<option value=\",\">{{ i18n.__('Comma') }} (,)</option>" +
                   "</select>" +
                 "</div>" +
                 "<div class=\"form-group\">" +
@@ -30,8 +30,8 @@ define([], function() {
                   "</div>" +
                 "</div>" +
                 "<hr style=\"border: 1px solid #eee !important;\"/>" +
-                "<button type=\"button\" class=\"btn btn-default pull-left\" data-dismiss=\"modal\">Close</button>" +
-                "<button type=\"button\" class=\"btn btn-primary pull-right\" ng-click=\"selectFileToImport()\">Import</button>" +
+                "<button type=\"button\" class=\"btn btn-default pull-left\" data-dismiss=\"modal\">{{ i18n.__('Close') }}</button>" +
+                "<button type=\"button\" class=\"btn btn-primary pull-right\" ng-click=\"selectFileToImport()\">{{ i18n.__('Import') }}</button>" +
                 "<div style=\"clear: both;\"></div>" +
               "</div>" +
             "</div>" +
@@ -44,12 +44,12 @@ define([], function() {
                 "<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\">" +
                   "<span aria-hidden=\"true\">×</span>" +
                 "</button>" +
-                "<h4 class=\"modal-title\">Select the fields</h4>" +
+                "<h4 class=\"modal-title\">{{ i18n.__('Select the fields') }}</h4>" +
               "</div>" +
               "<div class=\"modal-body\">" +
                 "<div ng-repeat=\"semantic in dataSeries.semantics.metadata.form | filter: defaultValueFilter\">" +
                   "<div class=\"form-group col-md-{{ importationModalColSize[semantic.key] }}\">" +
-                    "<label>{{ i18n.__(dataSeries.semantics.metadata.schema.properties[semantic.key].title) }}:</label>" +
+                    "<label>{{ dataSeries.semantics.metadata.schema.properties[semantic.key].title }}:</label>" +
                     "<select class=\"form-control\" name=\"{{ semantic.key + dataSeries.semantics.code }}\" ng-change=\"verifyDefault(dataSeries.semantics.code, semantic.key);\" ng-model=\"importationFields[dataSeries.semantics.code][semantic.key]\">" +
                       "<option value=\"\">{{ i18n.__('Select a column') }}</option>" +
                       "<option value=\"default\" ng-show=\"dataSeries.semantics.metadata.schema.properties[semantic.key].hasDefaultFieldForImport\">{{ i18n.__('Enter default value') }}</option>" +
@@ -78,8 +78,8 @@ define([], function() {
                   "</div>" +
                 "</div>"+
                 "<hr style=\"border: 1px solid #eee !important;\"/>" +
-                "<button type=\"button\" class=\"btn btn-default pull-left\" data-dismiss=\"modal\">Close</button>" +
-                "<button type=\"button\" class=\"btn btn-primary pull-right\" ng-click=\"validateImportationMetadata()\">Import</button>" +
+                "<button type=\"button\" class=\"btn btn-default pull-left\" data-dismiss=\"modal\">{{ i18n.__('Close') }}</button>" +
+                "<button type=\"button\" class=\"btn btn-primary pull-right\" ng-click=\"validateImportationMetadata()\">{{ i18n.__('Import') }}</button>" +
                 "<div style=\"clear: both;\"></div>" +
               "</div>" +
             "</div>" +
@@ -101,7 +101,7 @@ define([], function() {
           };
 
           $scope.defaultValueFilter = function(item) {
-            return $scope.dataSeries.semantics.metadata.schema.properties[item.key].defaultForImport === undefined;
+            return $scope.dataSeries.semantics.metadata.schema.properties[item.key] === undefined || $scope.dataSeries.semantics.metadata.schema.properties[item.key].defaultForImport === undefined;
           };
 
           $scope.openImportParametersModal = function() {
@@ -192,7 +192,7 @@ define([], function() {
                   } else {
                     MessageBoxService.danger(
                       i18n.__("DCP Import Error"), 
-                      i18n.__("Invalid configuration for the field") + " '" + i18n.__($scope.dataSeries.semantics.metadata.schema.properties[key].title) + "'"
+                      i18n.__("Invalid configuration for the field") + " '" + $scope.dataSeries.semantics.metadata.schema.properties[key].title + "'"
                     );
                     $('#importDCPItemsModal').modal('hide');
                     $scope.isChecking.value = false;
@@ -233,7 +233,7 @@ define([], function() {
               return {
                 error: {
                   title: i18n.__("DCP Import Error"),
-                  message: i18n.__("Invalid configuration for the field") + " '" + i18n.__(title) + "'"
+                  message: i18n.__("Invalid configuration for the field") + " '" + title + "'"
                 },
                 value: value
               };
@@ -245,7 +245,7 @@ define([], function() {
               return {
                 error: {
                   title: i18n.__("DCP Import Error"),
-                  message: i18n.__("Invalid value for the field") + " '" + i18n.__(title) + "' " + i18n.__("in the line") + " " + lineNumber
+                  message: i18n.__("Invalid value for the field") + " '" + title + "' " + i18n.__("in the line") + " " + lineNumber
                 },
                 value: value
               };

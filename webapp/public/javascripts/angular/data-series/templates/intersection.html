@@ -12,13 +12,13 @@
            tree-model="dataSeriesGroups"
            options="treeOptions"
            selected-nodes="nodesDataSeries">
-           {{node.name}}
+           {{ node.name }}
         </treecontrol>
 
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="addDataSeries()">OK</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal">{{ i18n.__('Cancel') }}</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="addDataSeries()">{{ i18n.__('OK') }}</button>
       </div>
     </div>
   </div>
