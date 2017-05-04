@@ -18,7 +18,7 @@ define([
           '<div class="col-md-12">{{ message }}</div>'+
           '<div class="col-md-12" ng-if="isAnyExtra()">'+
             '<button type="button" class="btn btn-primary pull-right" ng-click="extra.confirmButtonFn(extra.object)">' +
-              '{{ extra.confirmButtonName ||  "Confirm" }}' +
+              '{{ extra.confirmButtonName || i18n.__("Confirm") }}' +
             '</button>' +
           '</div>' +
         '</div>' +

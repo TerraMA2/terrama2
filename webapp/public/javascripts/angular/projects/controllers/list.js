@@ -8,8 +8,8 @@ define(function() {
     $scope.model = [];
     var config = $window.configuration;
     var socket = Socket;
-    var title = i18n.__(config.context || "Project");
-    var importTitle = i18n.__("Data Import");
+    var title = config.context || "Project";
+    var importTitle = "Data Import";
     $scope.MessageBoxService = MessageBoxService;
     $scope.i18n = i18n;
     $scope.linkToAdd = "/configuration/projects/new";
@@ -152,7 +152,7 @@ define(function() {
     $scope.loading = true;
 
     if (config.message) {
-      MessageBoxService.success(title, config.message);
+      MessageBoxService.success(i18n.__(title), config.message);
     }
 
     $scope.close = function() { MessageBoxService.reset() };
@@ -173,7 +173,7 @@ define(function() {
     socket.on("exportResponse", function(result) {
       $scope.extra.isExporting = false;
       if (result.err) {
-        MessageBoxService.danger(title, result.err);
+        MessageBoxService.danger(i18n.__(title), result.err);
         return;
       }
 
@@ -182,7 +182,7 @@ define(function() {
 
     socket.on("getDependenciesResponse", function(result) {
       if(result.err) {
-        MessageBoxService.danger(title, result.err);
+        MessageBoxService.danger(i18n.__(title), result.err);
         return;
       }
 
@@ -216,12 +216,12 @@ define(function() {
       $scope.loading = false;
       $scope.extra.isImporting = false;
       if (result.err) {
-        MessageBoxService.danger(title, result.err);
+        MessageBoxService.danger(i18n.__(title), result.err);
         return;
       }
 
       if(result.data.Projects !== undefined && result.data.Projects.length > 0) {
-        var msg = result.data.Projects.length + i18n.__(" projects has been imported. ");
+        var msg = result.data.Projects.length + (result.data.Projects.length > 1 ? i18n.__(" projects has been imported. ") : i18n.__(" project has been imported. "));
         var canPush = [];
 
         for(var i = 0; i < result.data.Projects.length; ++i) {
@@ -245,7 +245,7 @@ define(function() {
         var msg = i18n.__(" The data has been imported. ");
       }
 
-      MessageBoxService.success(title, msg);
+      MessageBoxService.success(i18n.__(title), msg);
     });
 
     // callback after remove operation
@@ -254,9 +254,9 @@ define(function() {
 
       removeOperationCallback: function(err, data) {
         if(err) {
-          return MessageBoxService.danger(title, err.message);
+          return MessageBoxService.danger(i18n.__(title), err.message);
         }
-        MessageBoxService.success(title, data.name + i18n.__(" removed"));
+        MessageBoxService.success(i18n.__(title), data.name + i18n.__(" removed"));
       },
 
       project: {
@@ -378,7 +378,7 @@ define(function() {
 
         FileDialog.openFile(function(err, input) {
           if (err) {
-            MessageBoxService.danger(importTitle, err.toString());
+            MessageBoxService.danger(i18n.__(importTitle), err.toString());
             return;
           }
 
@@ -388,7 +388,7 @@ define(function() {
             $scope.$apply(function() {
               $scope.extra.isImporting = true;
               if(error) {
-                MessageBoxService.danger(importTitle, error);
+                MessageBoxService.danger(i18n.__(importTitle), error);
                 console.log(error);
                 return;
               }
@@ -400,7 +400,7 @@ define(function() {
                   !json.hasOwnProperty("Collectors") &&
                   !json.hasOwnProperty("Views") &&
                   !json.hasOwnProperty("Alerts")) {
-                MessageBoxService.danger(importTitle, new Error(i18n.__("Invalid configuration file")));
+                MessageBoxService.danger(i18n.__(importTitle), new Error(i18n.__("Invalid configuration file")));
                 return;
               }
 
@@ -421,15 +421,15 @@ define(function() {
                 if(json.Alerts !== undefined && json.Alerts.length > 0) $scope.hasAlert = true;
 
                 if($scope.model === undefined || $scope.model.length === 0) {
-                  MessageBoxService.danger(importTitle, new Error(i18n.__("To import this file you need to have at least one project")));
+                  MessageBoxService.danger(i18n.__(importTitle), new Error(i18n.__("To import this file you need to have at least one project")));
                 } else if(json.Collectors !== undefined && json.Collectors.length > 0 && $scope.services.COLLECT.length === 0) {
-                  MessageBoxService.danger(importTitle, new Error(i18n.__("To import this file you need to have at least one collector service")));
+                  MessageBoxService.danger(i18n.__(importTitle), new Error(i18n.__("To import this file you need to have at least one collector service")));
                 } else if(json.Analysis !== undefined && json.Analysis.length > 0 && $scope.services.ANALYSIS.length === 0) {
-                  MessageBoxService.danger(importTitle, new Error(i18n.__("To import this file you need to have at least one analysis service")));
+                  MessageBoxService.danger(i18n.__(importTitle), new Error(i18n.__("To import this file you need to have at least one analysis service")));
                 } else if(json.Views !== undefined && json.Views.length > 0 && $scope.services.VIEW.length === 0) {
-                  MessageBoxService.danger(importTitle, new Error(i18n.__("To import this file you need to have at least one view service")));
+                  MessageBoxService.danger(i18n.__(importTitle), new Error(i18n.__("To import this file you need to have at least one view service")));
                 } else if(json.Alerts !== undefined && json.Alerts.length > 0 && $scope.services.ALERT.length === 0) {
-                  MessageBoxService.danger(importTitle, new Error(i18n.__("To import this file you need to have at least one alert service")));
+                  MessageBoxService.danger(i18n.__(importTitle), new Error(i18n.__("To import this file you need to have at least one alert service")));
                 } else {
                   $('#importModal').modal('show');
                 }
@@ -441,7 +441,7 @@ define(function() {
 
       finalizeImportation: function() {
         if($scope.projectRadio === null) {
-          MessageBoxService.danger(importTitle, new Error(i18n.__("Select a project")));
+          MessageBoxService.danger(i18n.__(importTitle), new Error(i18n.__("Select a project")));
           $('#importModal').modal('hide');
         } else {
           $scope.extra.isImporting = true;

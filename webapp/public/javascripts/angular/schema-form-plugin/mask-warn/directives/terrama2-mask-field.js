@@ -25,7 +25,8 @@ define([], function(){
         }]);
 
     // Declare a controller, this is used in the camelcaseDirective below
-    var terrama2MaskFormControllerFunction =  function($scope) {
+    var terrama2MaskFormControllerFunction =  function($scope, i18n) {
+      $scope.i18n = i18n;
 
       $scope.$watch('ngModel.$modelValue', function(value){
         if (value){
@@ -61,7 +62,7 @@ define([], function(){
         // Do not create a isolate scope, makeCamelCase should be available to the button element
         scope: false,
         // Define a controller, use the function from above, inject the scope
-        controller : ['$scope', terrama2MaskFormControllerFunction],
+        controller : ['$scope', 'i18n', terrama2MaskFormControllerFunction],
         // Use the link function to initiate the ngModel in the controller scope
         link: function(scope, iElement, iAttrs, ngModelCtrl) {
             scope.ngModel = ngModelCtrl[0];
