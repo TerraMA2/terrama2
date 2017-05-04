@@ -4,7 +4,6 @@
   var PromiseClass = require("./../../Promise");
   var ServiceTypeError = require("./../../Exceptions").ServiceTypeError;
   var RegisteredViewError = require("./../../Exceptions").RegisteredViewError;
-  var CollectorErrorNotFound = require("./../../Exceptions").CollectorErrorNotFound;
   var ServiceType = require("./../../Enums").ServiceType;
   /**
    * TerraMA² DataManager module
