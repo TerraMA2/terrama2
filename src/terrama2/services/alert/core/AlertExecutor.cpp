@@ -327,6 +327,14 @@ terrama2::services::alert::core::AlertExecutor::monitoredObjectAlert(std::shared
   std::shared_ptr<te::mem::DataSet> alertDataSet = populateMonitoredObjectAlertDataset(vecDates, riskResultMap, comparisonPreviosProperty, alertPtr, fkProperty, alertDataSetType);
   addAdditionalData(alertDataSet, alertPtr, additionalDataMap);
 
+  // remove fk column
+  size_t fkPos = terrama2::core::propertyPosition(alertDataSet.get(), fkProperty->getName());
+
+  if( fkPos != std::numeric_limits<size_t>::max())
+  {
+    alertDataSet->drop(fkPos);
+  }
+
   return alertDataSet;
 }
 

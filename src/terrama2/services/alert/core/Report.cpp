@@ -273,7 +273,7 @@ void terrama2::services::alert::core::Report::updateReportDataset(const std::sha
   }
 
   dataSet_->setPropertyDataType(te::dt::STRING_TYPE, posComparison);
-
+  dataSet_->setPropertyName("comparison", posComparison);
 }
 
 
