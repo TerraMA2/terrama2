@@ -1,19 +1,19 @@
 define([], function() {
   "use strict";
   /**
-   * It executes a paginator filter delimiting a limit of elements in each page cycle
+   * It executes a paging filter delimiting a limit of elements in each page cycle
    * 
    * @example
-   * <element ng-repeat="elm in arr | paginatorLimit: 10">
+   * <element ng-repeat="elm in arr | pagingToolLimit: 10">
    *   <sub-element ng-bind="elm"></sub-element>
    * </element>
    * 
-   * @param {PaginatorService} PaginatorService - TerraMA² Paginator module to handle page cycle
+   * @param {PagingToolService} PagingToolService - TerraMA² Paging Tool module to handle page cycle
    * @param {Utility} Utility - TerraMA² Utils module
    * @returns {angular.IFilter}
    */
-  function PaginatorLimit(PaginatorService, Utility) {
-    return _WrapPaginatorLimit;
+  function PagingToolLimit(PagingToolService, Utility) {
+    return _WrapPagingToolLimit;
     
     /**
      * It performs the filter execution
@@ -22,16 +22,16 @@ define([], function() {
      * @param {number} itemsPerPage - Number of elements per page
      * @returns {Array<?>|any}
      */
-    function _WrapPaginatorLimit(collection, itemsPerPage) {
+    function _WrapPagingToolLimit(collection, itemsPerPage) {
       if (Utility.isObject(collection)) {
         // do
         itemsPerPage = parseInt(itemsPerPage) || 20;
-        var currentPageNumber = PaginatorService.currentPage();
+        var currentPageNumber = PagingToolService.currentPage();
 
         var startPage = (currentPageNumber - 1) * itemsPerPage;
         var endPage = startPage + itemsPerPage;
 
-        PaginatorService.setItemsPerPage(itemsPerPage);
+        PagingToolService.setItemsPerPage(itemsPerPage);
 
         if (collection instanceof Array) {
           return collection.slice(startPage, endPage);
@@ -47,7 +47,7 @@ define([], function() {
     }
   }
 
-  PaginatorLimit.$inject = ["PaginatorService", "Utility"];
+  PagingToolLimit.$inject = ["PagingToolService", "Utility"];
 
-  return PaginatorLimit;
+  return PagingToolLimit;
 });

@@ -1,11 +1,11 @@
 define([
   "TerraMA2WebApp/common/app",
-  "TerraMA2WebApp/paginator/app"
-], function(commonModule, paginatorModule) {
+  "TerraMA2WebApp/paging-tool/app"
+], function(commonModule, pagingToolModule) {
   'use strict';
   var moduleName = "terrama2.table";
 
-  angular.module(moduleName, [commonModule, paginatorModule])
+  angular.module(moduleName, [commonModule, pagingToolModule])
     .run(["$templateCache", function($templateCache) {
       $templateCache.put('filterTable.html',
         "<div class=\"col-md-10\">" +

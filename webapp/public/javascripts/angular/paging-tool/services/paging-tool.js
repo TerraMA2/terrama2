@@ -1,14 +1,14 @@
 define([], function() {
   /**
-   * It defines a Angular Paginator Service that handles dynamic data loading in GUI interface
+   * It defines a Angular Paging Tool Service that handles dynamic data loading in GUI interface
    * 
-   * @class PaginatorService
+   * @class PagingToolService
    */
-  function PaginatorService(Utility) {
+  function PagingToolService(Utility) {
     /**
      * It defines current page number
      * @private
-     * @name PaginatorService#_currentPage
+     * @name PagingToolService#_currentPage
      * @type {number}
      * @default 1
      */
@@ -16,7 +16,7 @@ define([], function() {
     /**
      * It defines how many items will display per page
      * @private
-     * @name PaginatorService#_itemsPerPage
+     * @name PagingToolService#_itemsPerPage
      * @type {number}
      * @default 20
      */
@@ -24,7 +24,7 @@ define([], function() {
     /**
      * It defines size of data. It is important due this service does not need to know raw data but only length
      * @private
-     * @name PaginatorService#_length
+     * @name PagingToolService#_length
      * @type {number}
      * @default 0
      */
@@ -106,7 +106,7 @@ define([], function() {
       }
     }
     /**
-     * It sets data length that paginator will use to split page generators
+     * It sets data length that paging tool will use to split page generators
      * 
      * @throws {Error} When invalid size is set
      * @param {number} size - Data Length
@@ -158,9 +158,9 @@ define([], function() {
      * It identifies which page number a index determines. For example, when generating array, you must know min and max intervals during iteration in order
      * to hide page number to fit in range (...). This functions retrieves a page number based in index.
      * @param {number} i - Current Element Index
-     * @param {number} currentPage - Current Paginator Page
+     * @param {number} currentPage - Current Paging Tool Page
      * @param {number} paginationRange - Range value
-     * @param {number} totalPages - Total pages of paginator
+     * @param {number} totalPages - Total pages of Paging tool
      * @returns {number}
      */
     function calculatePageNumber(i, currentPage, paginationRange, totalPages) {
@@ -183,7 +183,7 @@ define([], function() {
     }
   }
 
-  PaginatorService.$inject = ["Utility"];
+  PagingToolService.$inject = ["Utility"];
 
-  return PaginatorService;
+  return PagingToolService;
 });

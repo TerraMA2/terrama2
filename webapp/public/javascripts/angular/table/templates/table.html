@@ -91,7 +91,7 @@
           <td ng-if="extra.export"></td>
           <td ng-if="isFunction(remove)">
         </tr>
-        <tr ng-repeat="element in filteredModel = (model | filter:searchInput) | paginatorLimit: 10 | orderBy: orderElementby track by $index">
+        <tr ng-repeat="element in filteredModel = (model | filter:searchInput) | pagingToolLimit: 10 | orderBy: orderElementby track by $index">
           <td ng-show="isFunction(icon())" style="width: 50px;">
             <img style="margin-left: 5px;" ng-if="iconProperties.type === 'img'" ng-src="{{ icon()(element) }}" alt="" width="{{ width }}" height="{{ height }}"/>
             <span ng-if="iconProperties.type === 'icon'" class="label">
@@ -202,7 +202,7 @@
     </table>
 
     <div class="col-md-offset-4 col-md-6 col-xs-12">
-      <terrama2-paginator max-pages="10" size="filteredModel.length" on-change=""></terrama2-paginator>
+      <terrama2-paging-tool max-pages="10" size="filteredModel.length" on-change=""></terrama2-paging-tool>
     </div>
   </div>
 

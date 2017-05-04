@@ -1,0 +1,18 @@
+<ul class="pagination" ng-if="$ctrl.pages && $ctrl.pages.length > 0">
+  <li ng-class="{ disabled : $ctrl.$paging.currentPage() === 1 }">
+    <a href="" ng-click="$ctrl.$paging.currentPage() > 1 && $ctrl.setCurrent(1)">&laquo;</a>
+  </li>
+  <li ng-class="{ disabled : $ctrl.$paging.currentPage() === 1 }">
+    <a href="" ng-click="$ctrl.$paging.currentPage() > 1 && $ctrl.setCurrent($ctrl.$paging.currentPage() - 1)">&lsaquo;</a>
+  </li>
+  <li ng-repeat="pageNumber in $ctrl.pages track by $index" 
+      ng-class="{'active': $ctrl.$paging.currentPage() === pageNumber, 'disabled': pageNumber === '...'}">
+    <a href="javascript:void(0);" ng-click="pageNumber !== '...' && $ctrl.setCurrent(pageNumber)">{{ pageNumber }}</a>
+  </li>
+  <li ng-class="{ disabled : $ctrl.$paging.currentPage() === $ctrl.$paging.numberOfPages() }">
+    <a href="" ng-click="$ctrl.$paging.currentPage() < $ctrl.$paging.numberOfPages() && $ctrl.setCurrent($ctrl.$paging.currentPage() + 1)">&rsaquo;</a>
+  </li>
+  <li ng-class="{ 'disabled' : $ctrl.$paging.currentPage() === $ctrl.$paging.numberOfPages() }">
+    <a href="" ng-click="$ctrl.$paging.currentPage() < $ctrl.$paging.numberOfPages() && $ctrl.setCurrent($ctrl.$paging.numberOfPages())">&raquo;</a>
+  </li>
+</ul>

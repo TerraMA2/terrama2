@@ -4,55 +4,55 @@ define([], function() {
    * 
    * @example
    * <ul>
-   *   <li ng-repeat="element in (filteredArray = myArray | paginatorLimit: 10 | orderBy: '+')"></li>
+   *   <li ng-repeat="element in (filteredArray = myArray | pagingLimit: 10 | orderBy: '+')"></li>
    * </ul>
-   * <terrama2-paginator-controls max-pages="10" size="filteredArray.length"></terrama2-paginator-controls>
+   * <terrama2-paging-tool-controls max-pages="10" size="filteredArray.length"></terrama2-paging-tool-controls>
    * 
    * <!-- It will generate number of pages to iterate through. You may specify onChange binding in order to retrieve new elements from server -->
-   * @param {PaginatorService} PaginatorService - TerraMA² Paginator Module that generate pages and handle user iteration
+   * @param {PagingToolService} PagingToolService - TerraMA² Paging Tool Module that generate pages and handle user iteration
    * @returns {angular.IDirective}
    */
-  function terrama2PaginatorControls(PaginatorService) {
+  function terrama2PagingToolControls(PagingToolService) {
     return {
       restrict: "E",
-      templateUrl: "/dist/templates/paginator/templates/paginator-controls.html",
+      templateUrl: "/dist/templates/paging-tool/templates/paging-tool-controls.html",
       scope: {
         /**
          * Max pages binding to delimit
-         * @name terrama2PaginatorControls#maxPages
+         * @name terrama2PagingToolControls#maxPages
          * @type {number}
          */
         maxPages: "=?",
         /**
          * Size of array binding to generate pages
-         * @name terrama2PaginatorControls#size
+         * @name terrama2PagingToolControls#size
          * @type {number}
          */
         size: "=",
         /**
          * Binding function to notify when a page has changed.
-         * @name terrama2PaginatorControls#onChange
+         * @name terrama2PagingToolControls#onChange
          * @type {Function}
          */
         onChange: "&?"
       },
-      controller: ["$scope", PaginatorControlsController],
+      controller: ["$scope", PagingToolControlsController],
       controllerAs: "$ctrl"
     };
     /**
      * It handles directive behavior.
      * 
-     * @class PaginatorControlsController
+     * @class PagingToolControlsController
      */
-    function PaginatorControlsController($scope) {
+    function PagingToolControlsController($scope) {
       var self = this;
       /**
-       * Reference to Paginator Service
-       * @name PaginatorControlsController#$paginator
-       * @type {PaginatorService}
+       * Reference to Paging Tool Service
+       * @name PagingToolControlsController#$paging
+       * @type {PagingToolService}
        */
-      self.$paginator = PaginatorService;
-      self.$paginator.setDataLength($scope.size);
+      self.$paging = PagingToolService;
+      self.$paging.setDataLength($scope.size);
       self.range = {
         lower: 1,
         upper: 1,
@@ -66,8 +66,8 @@ define([], function() {
         if (value) {
           paginationRange = Math.max($scope.maxPages, 5);
           generatePagination();
-          self.$paginator.setDataLength(value);
-          self.pages = self.$paginator.generatePages(paginationRange);
+          self.$paging.setDataLength(value);
+          self.pages = self.$paging.generatePages(paginationRange);
         }
       });
 
@@ -80,7 +80,7 @@ define([], function() {
       });
 
       $scope.$watch(function() {
-        return self.$paginator.currentPage();
+        return self.$paging.currentPage();
       }, function(currentPage, previousPage) {
         if (currentPage !== previousPage) {
           goTo(currentPage);
@@ -88,8 +88,8 @@ define([], function() {
       });
 
       function generatePagination() {
-        var page = PaginatorService.currentPage();
-        self.pages = PaginatorService.generatePages(paginationRange);
+        var page = PagingToolService.currentPage();
+        self.pages = PagingToolService.generatePages(paginationRange);
         var last = self.pages[self.pages.length - 1];
         if (last < page) {
           setCurrent(last);
@@ -103,8 +103,8 @@ define([], function() {
        * @param {number} pageNumber - Current Page
        */
       function goTo(pageNumber) {
-        var old = self.$paginator.currentPage();
-        self.pages = self.$paginator.generatePages(paginationRange);
+        var old = self.$paging.currentPage();
+        self.pages = self.$paging.generatePages(paginationRange);
         setCurrent(pageNumber);
         updateRangeValues();
 
@@ -114,9 +114,9 @@ define([], function() {
       }
 
       function updateRangeValues() {
-        var page = PaginatorService.currentPage();
-        var itemsPerPage = PaginatorService.itemsPerPage();
-        var totalItems = PaginatorService.sizeOfArray();
+        var page = PagingToolService.currentPage();
+        var itemsPerPage = PagingToolService.itemsPerPage();
+        var totalItems = PagingToolService.sizeOfArray();
         self.range.lower = (page - 1) * itemsPerPage + 1;
         self.range.upper = Math.min(page * itemsPerPage, totalItems);
         self.range.total = totalItems;
@@ -128,19 +128,19 @@ define([], function() {
 
       self.setCurrent = setCurrent;
 
-      self.pages = self.$paginator.generatePages(paginationRange);
+      self.pages = self.$paging.generatePages(paginationRange);
       /**
        * It just sets current page from given number
        * 
        * @param {number} page - Page number
        */
       function setCurrent(page) { 
-        self.$paginator.setCurrentPage(page);
+        self.$paging.setCurrentPage(page);
       }
     }
   }
 
-  terrama2PaginatorControls.$inject = ["PaginatorService"];
+  terrama2PagingToolControls.$inject = ["PagingToolService"];
 
-  return terrama2PaginatorControls;
+  return terrama2PagingToolControls;
 });
