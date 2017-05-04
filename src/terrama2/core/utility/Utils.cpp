@@ -411,9 +411,9 @@ size_t std::hash<terrama2::core::Filter>::operator()(terrama2::core::Filter cons
     boost::hash_combine(hash, hRegion);
   }
 
-  if(filter.value)
+  if(!filter.byValue.empty())
   {
-    boost::hash_combine(hash, *filter.value);
+    boost::hash_combine(hash, filter.byValue);
   }
 
   if(filter.lastValues)
