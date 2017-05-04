@@ -127,8 +127,8 @@ namespace terrama2
 
               QTextDocument td;
               td.setHtml(QString::fromStdString(body));
-              td.setDefaultFont(QFont("Times", 12));
-              td.setTextWidth(12);
+              td.setDefaultFont(QFont("Times", 8));
+//              td.setTextWidth(12);
 
               td.adjustSize();
 
