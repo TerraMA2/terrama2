@@ -42,7 +42,7 @@ define([
           $scope.i18n = i18n;
           $scope.searchInput = '';
           $scope.selected = {};
-          $scope.emptyMessage = 'No ' + ($scope.context || 'data') + ' found';
+          $scope.emptyMessage = 'No ' + ($scope.context || 'data') + ' found.';
 
           // defines display fields in table
           $scope.displayFields = [];
@@ -177,7 +177,7 @@ define([
                   '</div>'+
                   '<div class="modal-body" ng-transclude></div>'+
                   '<div class="modal-footer">'+
-                    '<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>'+
+                    '<button type="button" class="btn btn-default" data-dismiss="modal">'+ i18n.__("Close")+ '</button>'+
                   '</div>'+
                 '</div>'+
               '</div>'+
@@ -193,7 +193,7 @@ define([
         priority: 1001,
         replace: true,
         template: function(tElm, tAttrs) {
-          var context = i18n.__('No ' + (tAttrs.context || "data") + " found.");
+          var context = 'No ' + (tAttrs.context || "data") + " found.";
           var expression = tAttrs.expression;
           var td = "", th = "";
           var counter = 0;
@@ -222,7 +222,7 @@ define([
               '<thead>' + th + '</thead>' +
               '<tbody>' +
               '<tr ng-repeat="' + expression + '">'+ td +'</tr>' +
-              '<tr ng-if="model.length === 0"><td colspan="' +  counter + '">'+ context +'</td></tr>' +
+              '<tr ng-if="model.length === 0"><td colspan="' +  counter + '">{{ i18n.__("'+ context +'") }}</td></tr>' +
               '</tbody>' +
               '</table>';
           return template;
