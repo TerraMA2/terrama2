@@ -14,16 +14,63 @@ define([], function() {
       return false;
     };
 
-    var translateSchemaFormRequiredError = function(display, required) {
-      for(var i = 0, displayLength = display.length; i < displayLength; i++) {
-        if(isInArray(display[i].key, required)) {
-          display[i].validationMessage = {
-            "302": i18n.__("Required")
-          };
-        }
-      }
+    var translateSchemaFormRequiredError = function(display, required, properties) {
+      if(display.indexOf('*') != -1) {
+        var displayToReturn = [];
 
-      return display;
+        for(var key in properties) {
+          var formObject = {
+            key: key
+          };
+
+          if(properties.hasOwnProperty(key)) {
+            if(isInArray(key, required) || properties[key].type === "number")
+              formObject.validationMessage = {};
+
+            if(isInArray(key, required)) {
+              formObject.validationMessage["302"] = i18n.__("Required");
+              formObject.validationMessage["required"] = i18n.__("Required");
+            }
+
+            if(properties[key].type === "number") {
+              formObject.validationMessage["105"] = i18n.__("Value is not a valid number");
+              formObject.validationMessage["number"] = i18n.__("Value is not a valid number");
+            }
+          }
+
+          displayToReturn.push(formObject);
+        }
+
+        return displayToReturn;
+      } else {
+        for(var i = 0, displayLength = display.length; i < displayLength; i++) {
+          if(display[i].validationMessage !== undefined) {
+            for(var key in display[i].validationMessage) {
+              if(display[i].validationMessage.hasOwnProperty(key)) {
+                display[i].validationMessage[key] = i18n.__(display[i].validationMessage[key]);
+              }
+            }
+          }
+
+          if(properties[display[i].key].type === "number") {
+            if(display[i].validationMessage === undefined)
+              display[i].validationMessage = {};
+
+            display[i].validationMessage["105"] = i18n.__("Value is not a valid number");
+            display[i].validationMessage["number"] = i18n.__("Value is not a valid number");
+          }
+
+          if(isInArray(display[i].key, required)) {
+            if(display[i].validationMessage === undefined)
+              display[i].validationMessage = {};
+
+            display[i].validationMessage["302"] = i18n.__("Required");
+            display[i].validationMessage["required"] = i18n.__("Required");
+          }
+        }
+
+        return display;
+      }
     };
 
     return function(objectToTranslate, display, required) {
@@ -36,7 +83,7 @@ define([], function() {
       if(display !== undefined && required !== undefined) {
         return {
           object: objectToTranslate,
-          display: translateSchemaFormRequiredError(display, required)
+          display: translateSchemaFormRequiredError(display, required, objectToTranslate)
         };
       } else {
         return objectToTranslate;
