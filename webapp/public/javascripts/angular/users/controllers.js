@@ -113,9 +113,8 @@ define([
 
       $scope.initialization = function(userId, redirectUrl) {
         $scope.redirectUrl = redirectUrl;
-        if (!userId) {
-          return;
-        }
+
+        if(!userId) return;
 
         UserService.init({id: userId}).then(function(user) {
           $scope.user = user[0];
