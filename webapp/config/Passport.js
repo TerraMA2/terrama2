@@ -76,19 +76,18 @@ var setupPassport = function(app) {
       passwordField: 'password'
     },
     function(username, password, done) {
-      return DataManager.getUser({'username': username})
-        .then(function(userObj) {
-          if(userObj === null) {
-            return done(null, false, { message: 'Incorrect credentials.' });
-          }
+      return DataManager.getUser({'username': username}).then(function(userObj) {
+        if(userObj === null)
+          return done(null, false, { message: 'Incorrect user.' });
 
-          var hashedPassword = bcrypt.hashSync(password, userObj.salt);
+        var hashedPassword = bcrypt.hashSync(password, userObj.salt);
 
-          if(userObj.password === hashedPassword) {
-            return done(null, userObj);
-          }
+        if(userObj.password === hashedPassword)
+          return done(null, userObj);
 
-          return done(null, false, { message: 'Incorrect credentials.' });
+        return done(null, false, { message: 'Incorrect password.' });
+      }).catch(function(err) {
+        return done(null, false, { message: 'Incorrect user.' });
       });
     }
   ));

@@ -134,11 +134,19 @@ define([], function() {
     AnalysisService.init(restriction)
       .then(function(analysis) {
         $scope.model = analysis;
-        if (config.extra && config.extra.id){
-          var analysisToRun = $scope.model.filter(function(element){
+
+        $timeout(function() {
+          $scope.model.forEach(function(instance) {
+            instance.type.name = i18n.__(instance.type.name);
+          });
+        }, 500);
+
+        if(config.extra && config.extra.id) {
+          var analysisToRun = $scope.model.filter(function(element) {
             return element.id == config.extra.id;
           });
-          if (analysisToRun.length == 1){
+
+          if(analysisToRun.length == 1) {
             $scope.extra.run(analysisToRun[0]);
           }
         }
