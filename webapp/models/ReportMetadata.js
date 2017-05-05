@@ -9,7 +9,7 @@ module.exports = function(sequelize, DataTypes) {
       },
       title: DataTypes.STRING,
       abstract: DataTypes.STRING,
-      description: DataTypes.STRING,
+      description: DataTypes.TEXT,
       author: DataTypes.STRING,
       contact: DataTypes.STRING,
       copyright: DataTypes.STRING,
