@@ -38,12 +38,14 @@
 #include "../../../core/utility/Utils.hpp"
 
 // Qt
-#include <QtGui/QPainter>
 #include <QtGui/QPagedPaintDevice>
 #include <QtGui/QPdfWriter>
 #include <QtGui/QTextDocument>
+#include <QtGui/QTextCursor>
+#include <QtGui/QImage>
 #include <QFileInfo>
 #include <QDir>
+
 
 // STL
 #include <string>
@@ -104,24 +106,41 @@ namespace terrama2
               QPdfWriter writer(fileURI.absoluteFilePath());
               writer.setPageSize(QPagedPaintDevice::A4);
 
-              // TODO: Qt > 5.2
-//              writer.setPageMargins(QMargins(30, 30, 30, 30));
-//              writer.setResolution(100);
-
-              // TODO: Qt < 5.3
-              QPagedPaintDevice::Margins margins;
-              margins.bottom = 10;
-              margins.left = 10;
-              margins.right = 10;
-              margins.top = 10;
-              writer.setMargins(margins);
+              // Check if the Qt version is above or below 5.3
+#ifdef Qt5_BELLOW_5_3
+              {
+                // Qt <= 5.2
+                QPagedPaintDevice::Margins margins;
+                margins.bottom = 10;
+                margins.left = 10;
+                margins.right = 10;
+                margins.top = 10;
+                writer.setMargins(margins);
+              }
+#else
+              {
+                // Qt >= 5.3
+                writer.setPageMargins(QMargins(30, 30, 30, 30));
+                writer.setResolution(100);
+              }
+#endif
 
               QTextDocument td;
               td.setHtml(QString::fromStdString(body));
-              td.setDefaultFont(QFont("Times", 12));
-              td.setTextWidth(12);
+              td.setDefaultFont(QFont("Times", 8));
+//              td.setTextWidth(12);
 
               td.adjustSize();
+
+              if(!report->imageURI().empty())
+              {
+                QImage image(QString::fromStdString(report->imageURI()));
+
+                QTextCursor cursor(&td);
+
+                cursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
+                cursor.insertImage(image);
+              }
 
               td.print(&writer);
 

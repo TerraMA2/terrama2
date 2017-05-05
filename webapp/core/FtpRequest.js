@@ -124,7 +124,7 @@ FtpRequest.fields = function() {
     {
       key: UriPattern.HOST,
       type: FormField.TEXT,
-      htmlClass: 'col-md-6 terrama2-schema-form'
+      htmlClass: 'col-md-5 terrama2-schema-form'
     },
     {
       key: UriPattern.PORT,
@@ -134,7 +134,7 @@ FtpRequest.fields = function() {
     {
       key:'timeout',
       type: FormField.NUMBER,
-      htmlClass: 'col-md-2 terrama2-schema-form'
+      htmlClass: 'col-md-3 terrama2-schema-form'
     },
     {
       key: 'active_mode',

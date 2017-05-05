@@ -54,7 +54,6 @@ terrama2::services::collector::core::CollectorPtr terrama2::services::collector:
      && json.contains("input_data_series")
       && json.contains("output_data_series")
        && json.contains("input_output_map")
-        && json.contains("schedule")
          && json.contains("active")))
   {
     QString errMsg = QObject::tr("Invalid Collector JSON object.");
@@ -80,7 +79,11 @@ terrama2::services::collector::core::CollectorPtr terrama2::services::collector:
     collector->inputOutputMap.emplace(obj["input"].toInt(), obj["output"].toInt());
   }
 
-  collector->schedule = terrama2::core::fromScheduleJson(json["schedule"].toObject());
+  if(json.contains("schedule") && !json["schedule"].isNull())
+  {
+    collector->schedule = terrama2::core::fromScheduleJson(json["schedule"].toObject());
+  }
+  
   collector->filter = terrama2::core::fromFilterJson(json["filter"].toObject(), dataManager);
   collector->intersection = terrama2::services::collector::core::fromIntersectionJson(json["intersection"].toObject());
   collector->active = json["active"].toBool();

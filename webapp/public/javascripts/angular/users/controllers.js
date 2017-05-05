@@ -6,7 +6,7 @@ define([
 
 'use strict';
 
-    function ListController($scope, i18n, MessageBoxService, $window) {
+    function ListController($scope, i18n, MessageBoxService, $window, $timeout) {
       /**
        * Global configuration
        * @type {Object}
@@ -16,7 +16,7 @@ define([
        * Common title for alert box
        * @type {string}
        */
-      var title = i18n.__("Users");
+      var title = "Users";
 
       $scope.MessageBoxService = MessageBoxService;
 
@@ -79,24 +79,31 @@ define([
       // callback after remove operation
       $scope.extra = {
         removeOperationCallback: function(err, data) {
-          if (err) {
-            return MessageBoxService.danger(title, err.message);
+          if(err) {
+            return MessageBoxService.danger(i18n.__(title), i18n.__(err.message));
           }
-          MessageBoxService.success(title, data.name + i18n.__(" removed"));
+          MessageBoxService.success(i18n.__(title), data.name + i18n.__(" removed"));
         }
       };
 
-      if (config.message) {
-        MessageBoxService.success(title, config.message);
+      if(config.message) {
+        var messageArray = config.message.split(" ");
+        var tokenCodeMessage = messageArray[messageArray.length - 1];
+        messageArray.splice(messageArray.length - 1, 1);
+
+        $timeout(function() {
+          var finalMessage = messageArray.join(" ") + " " + i18n.__(tokenCodeMessage);
+          MessageBoxService.success(i18n.__(title), finalMessage);
+        }, 1000);
       }
     }
 
-    ListController.$inject = ["$scope", "i18n", "MessageBoxService", "$window"];
+    ListController.$inject = ["$scope", "i18n", "MessageBoxService", "$window", "$timeout"];
 
     function UserUpdate($scope, UserService, i18n, MessageBoxService) {
       $scope.i18n = i18n;
       $scope.user = {};
-      var title = i18n.__("User");
+      var title = "User";
       var hash = Math.random().toString(36);
       $scope.MessageBoxService = MessageBoxService;
 
@@ -106,9 +113,8 @@ define([
 
       $scope.initialization = function(userId, redirectUrl) {
         $scope.redirectUrl = redirectUrl;
-        if (!userId) {
-          return;
-        }
+
+        if(!userId) return;
 
         UserService.init({id: userId}).then(function(user) {
           $scope.user = user[0];
@@ -125,7 +131,7 @@ define([
         $scope.$broadcast("formFieldValidation");
 
         if ($scope.form.$invalid) {
-          MessageBoxService.danger(title, i18n.__("There are invalid fields on form"));
+          MessageBoxService.danger(i18n.__(title), i18n.__("There are invalid fields on form"));
           return;
         }
 
@@ -138,7 +144,7 @@ define([
         UserService.update($scope.user.id, user).then(function(data) {
           window.location.href = $scope.redirectUrl + "?token=" + data.token + "&context="+data.context;
         }).catch(function(err) {
-          MessageBoxService.danger(title, err.message);
+          MessageBoxService.danger(i18n.__(title), i18n.__(err.message));
         });
       };
     }
@@ -147,7 +153,7 @@ define([
 
     function UserRegistration($scope, $http, MessageBoxService, i18n, UserService) {
       $scope.isSubmiting = false;
-      var title = i18n.__("User");
+      var title = "User";
       $scope.initialization = function(id, redirectUrl) { $scope.redirectUrl = redirectUrl; };
 
       $scope.close = function() {
@@ -159,12 +165,12 @@ define([
       $scope.save = function() {
         $scope.$broadcast("formFieldValidation");
         if ($scope.form.$invalid) {
-          MessageBoxService.danger(title, i18n.__("There are invalid fields on form"));
+          MessageBoxService.danger(i18n.__(title), i18n.__("There are invalid fields on form"));
           return;
         }
 
         if ($scope.user.password !== $scope.user.passwordConfirm) {
-          MessageBoxService.danger(title, i18n.__("Confirm password must be same password"));
+          MessageBoxService.danger(i18n.__(title), i18n.__("The password confirmation must be identical to the password"));
           return;
         }
 
@@ -172,7 +178,7 @@ define([
         UserService.create($scope.user).then(function(response) {
           window.location = $scope.redirectUrl + "?token=" + response.token;
         }).catch(function(err) {
-          MessageBoxService.danger(title, err.message);
+          MessageBoxService.danger(i18n.__(title), i18n.__(err.message));
         }).finally(function(){
           $scope.isSubmiting = false;
         });

@@ -411,9 +411,9 @@ size_t std::hash<terrama2::core::Filter>::operator()(terrama2::core::Filter cons
     boost::hash_combine(hash, hRegion);
   }
 
-  if(filter.value)
+  if(!filter.byValue.empty())
   {
-    boost::hash_combine(hash, *filter.value);
+    boost::hash_combine(hash, filter.byValue);
   }
 
   if(filter.lastValues)
@@ -532,7 +532,7 @@ std::unique_ptr<te::rst::Raster> terrama2::core::multiplyRaster(const te::rst::R
 
 size_t terrama2::core::propertyPosition(const te::da::DataSet* dataSet, const std::string& propertyName)
 {
-  for(std::size_t i = 0; dataSet->getNumProperties(); i++)
+  for(std::size_t i = 0; i < dataSet->getNumProperties(); i++)
   {
     if(dataSet->getPropertyName(i) == propertyName)
     {

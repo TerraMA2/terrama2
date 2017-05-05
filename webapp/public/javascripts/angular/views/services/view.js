@@ -51,7 +51,8 @@ define([], function() {
         return defer.resolve(response.data);
       })
       .catch(function(err) {
-        return defer.reject(err);
+        var errMessage = "Error creating View. \n" + (err.data ? err.data.message : "");
+        return defer.reject(errMessage);
       })
 
       return defer.promise;
@@ -91,6 +92,10 @@ define([], function() {
         data: viewObject
       }).then(function(response) {
         return defer.resolve(response.data);
+      })
+      .catch(function(err) {
+        var errMessage = "Error updating View. \n" + (err.data ? err.data.message : "");
+        return defer.reject(errMessage);
       });
 
       return defer.promise;

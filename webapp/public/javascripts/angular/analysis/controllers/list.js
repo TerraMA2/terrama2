@@ -1,5 +1,5 @@
 define([], function() {
-  function ListController($scope, $http, AnalysisService, MessageBoxService, Socket, i18n, $log, Service, $window) {
+  function ListController($scope, $http, AnalysisService, MessageBoxService, Socket, i18n, $log, Service, $window, $timeout) {
     var config = $window.configuration;
     var globals = $window.globals;
     $scope.model = [];
@@ -10,7 +10,7 @@ define([], function() {
     var serviceCache = {};
 
     Service.init();
-    var title = i18n.__("Analysis");
+    var title = "Analysis";
 
     Socket.on('errorResponse', function(response){
       var errorMessage = response.message;
@@ -18,7 +18,7 @@ define([], function() {
       if (serviceCache[response.service] != undefined){
         var service = Service.get(serviceCache[response.service].process_ids.service_instance);
         if(service != null) {
-          errorMessage = errorMessage + " " + i18n.__("Service") + ": '" + service.name + "' ";
+          errorMessage = i18n.__(errorMessage) + " " + i18n.__("Service") + ": '" + service.name + "' ";
         }
         if (config.extra && config.extra.id){
           var warningMessage = config.message + ". ";
@@ -31,21 +31,23 @@ define([], function() {
           targetMethod = MessageBoxService.danger;
         }
       }
-      targetMethod.call(MessageBoxService, title, errorMessage);
+      targetMethod.call(MessageBoxService, i18n.__(title), errorMessage);
       delete serviceCache[response.service];
     });
 
     Socket.on('runResponse', function(response){
-      MessageBoxService.success(title, i18n.__("The process was started successfully"));
+      MessageBoxService.success(i18n.__(title), i18n.__("The process was started successfully"));
     });
 
     Socket.on('statusResponse', function(response) {
       if(response.checking === undefined || (!response.checking && response.status == 400)) {
         if(response.online) {
           Socket.emit('run', serviceCache[response.service].process_ids);
+          delete $scope.disabledButtons[serviceCache[response.service].service_id];          
           delete serviceCache[response.service];
-        } 
-        delete $scope.disabledButtons[serviceCache[response.service].service_id];
+        } else {
+          delete $scope.disabledButtons[serviceCache[response.service].service_id];
+        }
       }
     });
 
@@ -68,17 +70,24 @@ define([], function() {
       return "/configuration/analysis/" + object.id + "/edit";
     };
 
-    if (config.message !== "") {
-      MessageBoxService.success(title, config.message);
+    if(config.message !== "") {
+      var messageArray = config.message.split(" ");
+      var tokenCodeMessage = messageArray[messageArray.length - 1];
+      messageArray.splice(messageArray.length - 1, 1);
+
+      $timeout(function() {
+        var finalMessage = messageArray.join(" ") + " " + i18n.__(tokenCodeMessage);
+        MessageBoxService.success(i18n.__(title), finalMessage);
+      }, 1000);
     }
 
     $scope.extra = {
       removeOperationCallback: function(err, data) {
         if (err) {
-          MessageBoxService.danger(title, err.message);
+          MessageBoxService.danger(i18n.__(title), i18n.__(err.message));
           return;
         }
-        MessageBoxService.success(title, data.name + " removed");
+        MessageBoxService.success(i18n.__(title), data.name + i18n.__(" removed"));
       },
       showRunButton: true,
       canRun: function(object){
@@ -140,7 +149,7 @@ define([], function() {
       });
   }
 
-  ListController.$inject = ["$scope", "$http", "AnalysisService", "MessageBoxService", "Socket", "i18n", "$log", "Service", "$window"];
+  ListController.$inject = ["$scope", "$http", "AnalysisService", "MessageBoxService", "Socket", "i18n", "$log", "Service", "$window", "$timeout"];
 
   return ListController;
 });

@@ -1,12 +1,12 @@
 define([], function() {
 
-  function ListController($scope, DataSeriesService, Socket, i18n, $window, Service, MessageBoxService) {
+  function ListController($scope, DataSeriesService, Socket, i18n, $window, Service, MessageBoxService, $timeout) {
     $scope.i18n = i18n;
     $scope.disabledButtons = {};
     $scope.orderBy = "name";
     $scope.MessageBoxService = MessageBoxService;
     var isDynamic = false;
-    var title = i18n.__("Data Series");
+    var title = "Data Series";
     var queryParams = {};
 
     var serviceCache = {};
@@ -15,26 +15,26 @@ define([], function() {
 
     Service.init();
 
-    Socket.on('errorResponse', function(response){
+    Socket.on('errorResponse', function(response) {
       var errorMessage = response.message;
       var targetMethod = null;
-      if (serviceCache[response.service] != undefined){
+      if(serviceCache[response.service] != undefined) {
         var service = Service.get(serviceCache[response.service].process_ids.service_instance);
         if(service != null) {
-          errorMessage = errorMessage + " " + i18n.__("Service") + ": '" + service.name + "' ";
+          errorMessage = i18n.__(errorMessage) + " " + i18n.__("Service") + ": '" + service.name + "' ";
         }
-        if (config.extra && config.extra.id){
+
+        if(config.extra && config.extra.id) {
           var warningMessage = config.message + ". ";
           errorMessage = warningMessage + errorMessage;
           targetMethod = MessageBoxService.warning; // setting warning method to display message
           delete config.extra;
           delete config.message;
-        } 
-        else {
+        } else {
           targetMethod = MessageBoxService.danger;
         }
       }
-      targetMethod.call(MessageBoxService, title, errorMessage);
+      targetMethod.call(MessageBoxService, i18n.__(title), errorMessage);
       delete serviceCache[response.service];
     });
 
@@ -45,16 +45,18 @@ define([], function() {
       } else {
         message = i18n.__("The process was started successfully");
       }
-      MessageBoxService.success(title, message);
+      MessageBoxService.success(i18n.__(title), message);
     });
 
     Socket.on('statusResponse', function(response) {
       if(response.checking === undefined || (!response.checking && response.status == 400)) {
         if(response.online) {
           Socket.emit('run', serviceCache[response.service].process_ids);
+          delete $scope.disabledButtons[serviceCache[response.service].service_id];
           delete serviceCache[response.service];
-        } 
-        delete $scope.disabledButtons[serviceCache[response.service].service_id];
+        } else {
+          delete $scope.disabledButtons[serviceCache[response.service].service_id];
+        }
       }
     });
 
@@ -77,9 +79,9 @@ define([], function() {
     $scope.extra = {
       removeOperationCallback: function(err, data) {
         if (err) {
-          return MessageBoxService.danger(title, err.message);
+          return MessageBoxService.danger(i18n.__(title), err.message);
         }
-        MessageBoxService.success(title, data.name + i18n.__(" removed"));
+        MessageBoxService.success(i18n.__(title), data.name + i18n.__(" removed"));
       },
       showRunButton: config.showRunButton,
       canRun: function(object){
@@ -111,8 +113,16 @@ define([], function() {
         return $scope.disabledButtons[object.id];
       }
     };
-    if (config.message) {
-      MessageBoxService.success(title, config.message);
+
+    if(config.message) {
+      var messageArray = config.message.split(" ");
+      var tokenCodeMessage = messageArray[messageArray.length - 1];
+      messageArray.splice(messageArray.length - 1, 1);
+
+      $timeout(function() {
+        var finalMessage = messageArray.join(" ") + " " + i18n.__(tokenCodeMessage);
+        MessageBoxService.success(i18n.__(title), finalMessage);
+      }, 1000);
     }
 
     $scope.close = function() { MessageBoxService.reset(); };
@@ -170,7 +180,7 @@ define([], function() {
     $scope.iconProperties = config.iconProperties || {};
   }
 
-  ListController.$inject = ["$scope", "DataSeriesService", "Socket", "i18n", "$window", "Service", "MessageBoxService"];
+  ListController.$inject = ["$scope", "DataSeriesService", "Socket", "i18n", "$window", "Service", "MessageBoxService", "$timeout"];
 
   return ListController;
 });

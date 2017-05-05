@@ -303,12 +303,9 @@ terrama2::core::Filter terrama2::core::fromFilterJson(QJsonObject json, DataMana
       filter.cropRaster = false;
   }
 
-  if(json.contains("value_comparison_operation")
-      && !json.value("value_comparison_operation").isNull()
-      && !json.value("by_value").isNull())
+  if(json.contains("by_value") && !json.value("by_value").isNull())
   {
-    filter.value = std::make_shared<double>(json["by_value"].toDouble());
-    // filter.discard_before = json["value_comparison_operation"].toString();//TODO: filter by value operation
+    filter.byValue = json["by_value"].toString().toStdString();
   }
 
   if(json.contains("last_values") && !json.value("last_values").isNull())
@@ -420,7 +417,7 @@ QJsonObject terrama2::core::toJson(const terrama2::core::Filter& filter)
   if(filter.dataSeries)
     obj.insert("data_series_id", static_cast<int32_t>(filter.dataSeries->id));
 
-  //TODO: filter by value to json
+  obj.insert("by_value", QString::fromStdString(filter.byValue));
 
   return obj;
 }

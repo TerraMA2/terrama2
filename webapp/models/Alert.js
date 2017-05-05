@@ -9,7 +9,7 @@ module.exports = function(sequelize, DataTypes) {
       },
       active: DataTypes.BOOLEAN,
       name: DataTypes.STRING,
-      description: DataTypes.STRING,
+      description: DataTypes.TEXT,
       risk_attribute: DataTypes.STRING
     },
     {
