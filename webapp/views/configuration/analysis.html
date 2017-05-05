@@ -109,7 +109,7 @@
              selected-nodes="ctrl.nodesDataSeries"
              on-selection="ctrl.showSelected(node)"
              selected-node="ctrl.selectedDataSeries">
-             {{node.name}}
+             {{ node.name }}
           </treecontrol>
 
         </div>
@@ -251,7 +251,7 @@
               </select>
 
               <span class="help-block" ng-show="forms.storagerDataForm.format.$dirty && forms.storagerDataForm.format.$error.required">
-                {{ i18n.__("Data store is required") }}
+                {{ i18n.__("Output Format is required") }}
               </span>
             </div>
           </div>
@@ -271,7 +271,7 @@
               </ui-select>
               <span class="help-block"
                     ng-show="forms.storagerDataForm.storager_data_provider_id.$dirty && forms.storagerDataForm.storager_data_provider_id.$error.required">
-                {{ i18n.__("Data store is required") }}
+                {{ i18n.__("Data Store is required") }}
               </span>
             </div>
           </div>

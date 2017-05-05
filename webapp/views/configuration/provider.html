@@ -67,7 +67,7 @@
               <option ng-repeat="item in typeList" value="{{ item.name }}" title="{{ item.description }}">{{ item.name }}</option>
             </select>
 
-            <span class="help-block" ng-show="forms.dataProviderForm.protocol.$dirty && forms.dataProviderForm.protocol.$invalid" ng-class="{'has-error': forms.dataProviderForm.protocol.$invalid}">{[ __('Data Server protocol is required') ]}</span>
+            <span class="help-block" ng-show="forms.dataProviderForm.protocol.$dirty && forms.dataProviderForm.protocol.$invalid" ng-class="{'has-error': forms.dataProviderForm.protocol.$invalid}">{{ i18n.__('Data Server protocol is required') }}</span>
           </div>
           <!-- /.form-group -->
         </div>

@@ -203,6 +203,7 @@
 
 .terrama2-schema-form > div:last-child {
   position: absolute !important;
+  margin-top: 0;
 }
 
 .terrama2-schema-form-checkbox {

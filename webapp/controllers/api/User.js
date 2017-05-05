@@ -62,10 +62,12 @@ module.exports = function(app) {
     put: function(request, response) {
       var userId = parseInt(request.params.userId);
       var userObject = request.body;
-      if (request.user.id !== userId) {
+
+      if(userId === undefined) {
         response.statusCode = 400;
         return response.json({status: 400, message: "Missing user id", errors: []});
       }
+
       DataManager.updateUser({id: userId}, userObject).then(function() {
         // todo: token generation
         DataManager.getUser({id: userId}).then(function(user) {

@@ -35,6 +35,7 @@
 #include "Shared.hpp"
 #include "../../../core/Shared.hpp"
 #include "../../../core/data-model/DataSeriesSemantics.hpp"
+#include "../../../core/utility/FileRemover.hpp"
 #include "Alert.hpp"
 
 // TerraLib
@@ -81,6 +82,7 @@ namespace terrama2
           const std::string LOGO_PATH = "logo_path";
           const std::string TIMESTAMP_FORMAT = "timestamp_format";
           const std::string DOCUMENT_URI = "document_uri";
+          const std::string IMAGE_URI = "image_uri";
         } /* ReportTags */
 
         class Report
@@ -123,6 +125,9 @@ namespace terrama2
 
             //! Gets the save path to save a document report
             std::string documentURI() const;
+
+            //! Gets the path of aa image to be used in report
+            std::string imageURI() const;
 
             /*!
              * \brief Returns a dataSet with all data
@@ -204,6 +209,7 @@ namespace terrama2
             terrama2::core::DataSeriesPtr alertDataSeries_;
             std::shared_ptr<te::mem::DataSet> dataSet_; //!< The dataSet with alert data
             std::vector<std::shared_ptr<te::dt::DateTime>> riskDates_; //!< A list with the datetime of each risk calculation
+            mutable terrama2::core::FileRemover fileRemover_;
 
         };
       } /* core */

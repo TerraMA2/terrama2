@@ -195,54 +195,26 @@ TcpManager.prototype.removeData = function(serviceInstance, data) {
  * 
  * @param {ServiceInstance} serviceInstance - a terrama2 service instance
  * @param {Object} data - a javascript object message to send
+ * @param {number} data.begin - Begin interval to retrieve
+ * @param {number} data.end - End interval to retrieve
  */
 TcpManager.prototype.logData = function(serviceInstance, data) {
   var self = this;
   try {
-
     // checking if there are active connections
     if (Object.keys(clients).length === 0) {
       throw new Error("There is no client to log request. Start services in Admin Dashboard");
     }
 
-    var buffer = self.makebuffer(Signals.LOG_SIGNAL, data);
-
-    logger.debug("Buffer: ", buffer);
-    logger.debug("BufferToString: ", buffer.toString());
-
     var client = _getClient(serviceInstance);
 
     // checking first attempt when there is no active socket (listing services)
     if (!client.isOpen()) {
-      self.emit('tcpError', client.service, new Error("There is no active connection"));
+      self.emit('error', client.service, new Error("There is no active connection"));
       return;
     }
 
-    var begin = data.begin;
-    var end = data.end;
-
-    var array = [];
-    switch (client.service.service_type_id) {
-      case ServiceType.COLLECTOR:
-        array = logs.collectors;
-        break;
-      case ServiceType.ANALYSIS:
-        array = logs.analysis;
-        break;
-      case ServiceType.VIEW:
-        array = logs.views;
-        break;
-      default:
-        this.emit('tcpError', null, new Error("Invalid service type id"));
-        return;
-    }
-
-    // checking server cache
-    if (end <= array.length) {
-      self.emit('logReceived', client.service, array.slice(begin, end));
-      return;
-    }
-
+    var buffer = self.makebuffer(Signals.LOG_SIGNAL, data);
     // requesting for log
     client.log(buffer);
 
@@ -404,7 +376,7 @@ TcpManager.prototype.initialize = function(client) {
   var onStatus = function(response) {
     self.emit('statusReceived', client.service, response);
   };
-
+  //receive c++ logs
   var onLog = function(response) {
     // TODO: make a local buffer
     var target = [];
@@ -421,20 +393,19 @@ TcpManager.prototype.initialize = function(client) {
     }
 
     if (target.length === 0) {
-      target.push(response);
+      Array.prototype.push.apply(target, response);
     } else {
       target.forEach(function(cachedLog) {
         // cachedLog.process_id
         response.some(function(logRetrieved) {
           if (cachedLog.process_id === logRetrieved.process_id) {
             cachedLog.log.push.apply(logRetrieved.log);
-            return true;
           }
         });
       });
     }
 
-    self.emit('logReceived', client.service, response);
+    self.emit('logReceived', client.service, response, target.length);
   };
 
   /**
@@ -443,7 +414,12 @@ TcpManager.prototype.initialize = function(client) {
    */
   var onProcessFinished = function(response) {
     if (Utils.isObject(response)) {
-      //checking response
+      /**
+       * Retrieving last log process.
+       */
+      logger.debug(Utils.format("%s finished. Retrieving LOG Process finished in order to keep in cache", client.service.name));
+      self.logData(client.service, {begin: 0, end: 2, process_ids: [response.process_id]});
+
       return ProcessFinished.handle(response)
         .then(function(targetProcess) {
           if (targetProcess){
@@ -452,6 +428,7 @@ TcpManager.prototype.initialize = function(client) {
               targetProcess.processToRun.forEach(function(processToRun){
                 if (processToRun){
                   self.startProcess(processToRun.instance, {ids: processToRun.ids, execution_date: response.execution_date});
+                  self.logData(processToRun.instance, {begin: 0, end: 2, process_ids: [processToRun.ids]});
                 }
               });
             }
