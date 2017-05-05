@@ -64,7 +64,7 @@ std::string terrama2::services::alert::core::dataSetHtmlTable(const std::shared_
 
   std::size_t numProperties = dataSet->getNumProperties();
 
-  std::string htmlTable = "<table border=\"1\">";
+  std::string htmlTable = "<table border=\"1\" style=\"width:100%\">";
 
   htmlTable += "<tr>";
 

@@ -532,7 +532,7 @@ std::unique_ptr<te::rst::Raster> terrama2::core::multiplyRaster(const te::rst::R
 
 size_t terrama2::core::propertyPosition(const te::da::DataSet* dataSet, const std::string& propertyName)
 {
-  for(std::size_t i = 0; dataSet->getNumProperties(); i++)
+  for(std::size_t i = 0; i < dataSet->getNumProperties(); i++)
   {
     if(dataSet->getPropertyName(i) == propertyName)
     {

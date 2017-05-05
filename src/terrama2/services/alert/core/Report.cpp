@@ -41,6 +41,7 @@
 
 // Qt
 #include <QObject>
+#include <QTemporaryDir>
 
 // STD
 #include <memory>
@@ -272,7 +273,7 @@ void terrama2::services::alert::core::Report::updateReportDataset(const std::sha
   }
 
   dataSet_->setPropertyDataType(te::dt::STRING_TYPE, posComparison);
-
+  dataSet_->setPropertyName("comparison", posComparison);
 }
 
 
@@ -408,9 +409,42 @@ terrama2::core::DataSeriesType terrama2::services::alert::core::Report::dataSeri
 
 std::string terrama2::services::alert::core::Report::documentURI() const
 {
+  std::string documentURI;
+
   try
   {
-    return alert_->reportMetadata.at(ReportTags::DOCUMENT_URI);
+    documentURI = alert_->reportMetadata.at(ReportTags::DOCUMENT_URI);
+  }
+  catch(const std::out_of_range& /*e*/)
+  {
+
+  }
+
+  if(documentURI.empty())
+  {
+    QTemporaryDir dir;
+
+    if(!dir.isValid())
+    {
+      QString errMsg = QObject::tr("Temporary directory to store could not be created! ");
+      throw NotifierException() << ErrorDescription(errMsg);
+    }
+
+    dir.setAutoRemove(false);
+
+    documentURI = dir.path().toStdString() + "/" + terrama2::core::simplifyString(title());
+
+    fileRemover_.addTemporaryFolder(dir.path().toStdString());
+  }
+
+  return documentURI;
+}
+
+std::string terrama2::services::alert::core::Report::imageURI() const
+{
+  try
+  {
+    return alert_->reportMetadata.at(ReportTags::IMAGE_URI);
   }
   catch(const std::out_of_range& /*e*/)
   {
@@ -419,3 +453,4 @@ std::string terrama2::services::alert::core::Report::documentURI() const
 
   return "";
 }
+

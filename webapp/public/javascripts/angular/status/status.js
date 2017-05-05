@@ -12,8 +12,10 @@ define([
     function($scope, $HttpTimeout, Socket, i18n, $window, MessageBoxService, $timeout) {
       var Globals = $window.globals;
       var config = $window.configuration;
+      $scope.logSize = 0;
       $scope.i18n = i18n;
       $scope.globals = Globals;
+      $scope.statusPerPage = 10;
       $scope.MessageBoxService = MessageBoxService;
       var title = i18n.__("Status");
       var cachedIcons = {};
@@ -31,6 +33,12 @@ define([
       cachedIcons["start_" + Globals.enums.StatusLog.INTERRUPTED] = "/images/status/red_anime.gif";
       cachedIcons[Globals.enums.StatusLog.NOT_EXECUTED] = "/images/status/grey.gif";
       cachedIcons["start_" + Globals.enums.StatusLog.NOT_EXECUTED] = "/images/status/grey_anime.gif";
+
+      $scope.onPageChanged = function(currentPage, previousPage) {
+        // TODO: Paginate dinamically
+        // var begin = $scope.statusPerPage * currentPage;
+        // Socket.emit("log", {begin: begin, end: begin + $scope.statusPerPage});
+      };
 
       // injecting socket in angular scope
       $scope.socket = Socket;
@@ -95,7 +103,7 @@ define([
       var getStatusKey = function(statusObject) {
         if ($scope.groupedModel[statusObject.name].length > 1){
           var lastObjectStatus = getLastValidStatus($scope.groupedModel[statusObject.name]); 
-          if (lastObjectStatus.messageType === Globals.enums.MessageType.WARNING_MESSAGE && object.status !== Globals.enums.StatusLog.ERROR){
+          if (lastObjectStatus.messageType === Globals.enums.MessageType.WARNING_MESSAGE && lastObjectStatus.status !== Globals.enums.StatusLog.ERROR){
             return "start_warning";
           } else {
             return "start_" + lastObjectStatus.status;
@@ -173,11 +181,34 @@ define([
               output = element;
               return true;
             }
-          })
+          });
           return output;
         };
 
+        //Function to get index of object in array
+        var arrayObjectIndexOf = function(myArray, searchTerm, property) {
+          for(var i = 0, len = myArray.length; i < len; i++) {
+              if (myArray[i][property] === searchTerm) return i;
+          }
+          return -1;
+        }
+
+        // Removing logs to be replaced
+        logArray.forEach(function(logProcess){
+          var currentProcess = _findOne(targetArray, logProcess.process_id);
+          if (currentProcess){
+            var obj = currentProcess[targetKey] || {name: currentProcess.name};
+            var index = arrayObjectIndexOf($scope.model, obj.name, 'name');
+
+            while(index !== -1){
+              $scope.model.splice(index, 1);
+              index = arrayObjectIndexOf($scope.model, obj.name, 'name');
+            }
+          }
+        });
+
         logArray.forEach(function(logProcess) {
+          $scope.logSize += logProcess.log.length;
           logProcess.log.forEach(function(logMessage) {
             var out = {
               date: moment(logMessage.last_process_timestamp.split('.')[0], "YYYY-MMM-DD hh:mm:ss").subtract(currentOffSet/60, 'hours'),
@@ -198,7 +229,14 @@ define([
               switch(logMessage.status) {
                 case Globals.enums.StatusLog.DONE:
                   out.message = "Done...";
-                  out.messageType = Globals.enums.MessageType.INFO_MESSAGE;
+                  var targetType = Globals.enums.MessageType.INFO_MESSAGE;
+                  for(var i = 0; i < logMessage.messages.length; ++i) {
+                    if (logMessage.messages[i].type === Globals.enums.MessageType.WARNING_MESSAGE) {
+                      targetType = Globals.enums.MessageType.WARNING_MESSAGE;
+                      break;
+                    }
+                  }
+                  out.messageType = targetType;
                   break;
                 case Globals.enums.StatusLog.START:
                   out.message = "Started...";
@@ -264,10 +302,7 @@ define([
         }
       });
 
-      $scope.socket.emit('log', {
-        begin: 0,
-        end: 2
-      });
+      $scope.socket.emit('log', {});
 
       if(config.parameters.message !== undefined && config.parameters.message !== null && config.parameters.message !== "") {
         var messageArray = config.parameters.message.split(" ");
@@ -279,7 +314,6 @@ define([
           MessageBoxService.success(i18n.__("Project"), finalMessage);
         }, 1000);
       }
-
     }]);
   
   return moduleName;

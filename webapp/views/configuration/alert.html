@@ -141,7 +141,7 @@
               <input type="number"
                     class="form-control"
                     name="riskAttributeGrid"
-                    ng-model="ctrl.alert.risk_attribute_grid"
+                    ng-model="ctrl.risk_attribute_grid"
                     ng-required="ctrl.dataSeriesType === 'GRID'">
               <span class="help-block"
                   ng-show="forms.dataSeriesForm.riskAttributeGrid.$dirty && forms.dataSeriesForm.riskAttributeGrid.$invalid"
@@ -156,7 +156,7 @@
               <input type="text"
                     class="form-control"
                     name="riskAttributeMo"
-                    ng-model="ctrl.alert.risk_attribute_mo"
+                    ng-model="ctrl.risk_attribute_mo"
                     ng-required="ctrl.dataSeriesType === 'ANALYSIS_MONITORED_OBJECT'"
                     list='tableColumnsList'>
               <span class="help-block"
@@ -288,8 +288,8 @@
           </div>
           <div class="form-group" terrama2-show-errors>
             <select class="form-control" name="reportTypes" ng-model="ctrl.alert.notifications[0].include_report" ng-show="ctrl.includeReport"  ng-required="ctrl.includeReport">
-              <option value="pdf">PDF</option>
-              <option value="txt">TXT</option>
+              <option value="PDF">PDF</option>
+              <option value="TXT">TXT</option>
             </select>
             <span class="help-block"
                   ng-show="forms.notificationForm.reportTypes.$dirty && forms.notificationForm.reportTypes.$invalid"
@@ -308,7 +308,7 @@
             </div>
           </div>
           <div class="form-group" terrama2-show-errors>
-            <select class="form-control" name="riskLevels" ng-model="ctrl.alert.notifications[0].notify_on_risk_level" ng-show="ctrl.notifyOnRiskLevel" ng-options="risk._id as risk.name for risk in ctrl.riskModel.levels" ng-required="ctrl.notifyOnRiskLevel"></select>
+            <select class="form-control" name="riskLevels" ng-model="ctrl.notify_on_risk_level" ng-show="ctrl.notifyOnRiskLevel" ng-options="risk._id as risk.name for risk in ctrl.riskModel.levels" ng-required="ctrl.notifyOnRiskLevel"></select>
             <span class="help-block"
                   ng-show="forms.notificationForm.riskLevels.$dirty && forms.notificationForm.riskLevels.$invalid"
                   ng-class="{'has-error': notificationForm.riskLevels.$invalid}"
