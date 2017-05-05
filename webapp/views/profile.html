@@ -88,7 +88,7 @@ TerraMA² {{ i18n.__('User Registration') }}
                     <input class="form-control" name="passwordConfirm" ng-model="user.passwordConfirm" id="passwordConfirm" placeholder="{{ i18n.__('Confirm password') }}" type="password" terrama2-compare-to="user.password" required>
 
                     <span class="help-block has-error" ng-show="form.passwordConfirm.$dirty && form.passwordConfirm.$error.required">{{ i18n.__('Confirm password is required') }}</span>
-                    <span class="help-block has-error" ng-show="form.passwordConfirm.$dirty && form.passwordConfirm.$error.compareTo">{{ i18n.__('Confirm password must be same password') }}</span>
+                    <span class="help-block has-error" ng-show="form.passwordConfirm.$dirty && form.passwordConfirm.$error.compareTo">{{ i18n.__('The password confirmation must be identical to the password') }}</span>
                   </div>
                 </div>
 
