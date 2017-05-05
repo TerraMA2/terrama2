@@ -178,7 +178,7 @@ define([], function() {
 
                 for(var j = 0, levelsLength = self.riskModel.levels.length; j < levelsLength; j++) {
                   if(self.riskModel.levels[j].level === self.alert.notifications[0].notify_on_risk_level) {
-                    self.alert.notifications[0].notify_on_risk_level = self.riskModel.levels[j]._id;
+                    self.notify_on_risk_level = self.riskModel.levels[j]._id;
                     break;
                   }
                 }
@@ -334,17 +334,17 @@ define([], function() {
         }
 
         if(self.isUpdating)
-          self.alert.risk_attribute_mo = self.alert.risk_attribute;
+          self.risk_attribute_mo = self.alert.risk_attribute;
       } else {
         self.columnsList = [];
 
         if(self.isUpdating)
-          self.alert.risk_attribute_grid = parseInt(self.alert.risk_attribute);
+          self.risk_attribute_grid = parseInt(self.alert.risk_attribute);
       }
 
       if(!self.isUpdating) {
-        delete self.alert.risk_attribute_grid;
-        delete self.alert.risk_attribute_mo;
+        delete self.risk_attribute_grid;
+        delete self.risk_attribute_mo;
       }
 
       self.dataSeriesType = dataSeries.data_series_semantics.data_series_type_name;
@@ -496,9 +496,9 @@ define([], function() {
      */
     self.save = function(shouldRun) {
       if(self.dataSeriesType === 'GRID')
-        self.alert.risk_attribute = self.alert.risk_attribute_grid;
+        self.alert.risk_attribute = self.risk_attribute_grid;
       else
-        self.alert.risk_attribute = self.alert.risk_attribute_mo;
+        self.alert.risk_attribute = self.risk_attribute_mo;
 
       // Broadcasting each one terrama2 field directive validation
       $scope.$broadcast("formFieldValidation");
@@ -526,7 +526,7 @@ define([], function() {
         var level = 1;
 
         for(var i = 0, levelsLength = riskTemp.levels.length; i < levelsLength; i++) {
-          if(self.alert.notifications[0].notify_on_risk_level === riskTemp.levels[i]._id)
+          if(self.notify_on_risk_level === riskTemp.levels[i]._id)
             self.alert.notifications[0].notify_on_risk_level = level;
 
           delete riskTemp.levels[i]._id;
@@ -538,12 +538,6 @@ define([], function() {
           delete riskTemp.id;
 
         self.alert.risk = riskTemp;
-
-        if(self.alert.risk_attribute_grid !== undefined)
-          delete self.alert.risk_attribute_grid;
-
-        if(self.alert.risk_attribute_mo !== undefined)
-          delete self.alert.risk_attribute_mo;
 
         if(!self.includeReport && self.alert.notifications[0].include_report !== undefined)
           self.alert.notifications[0].include_report = null;
