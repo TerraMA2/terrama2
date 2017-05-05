@@ -66,7 +66,7 @@ namespace terrama2
     struct DataSetDcp : public DataSet
     {
       //! DCP position
-      std::shared_ptr<te::gm::Point> position;//TODO: A posição é sempre um ponto? pode ser uma região? delete?
+      std::shared_ptr<te::gm::Point> position;//TODO: A posição é sempre um ponto? pode ser uma região?
     };
   } // end namespace core
 } // end namespace terrama2
