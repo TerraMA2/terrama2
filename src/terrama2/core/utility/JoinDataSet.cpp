@@ -20,12 +20,11 @@
 */
 
 /*!
-  \file terrama2/core/utility/FilterUtils.hpp
+  \file terrama2/core/utility/JoinDataSet.cpp
 
-  \brief Filter information of a given DataSetItem.
+  \brief Join two te::da::DataSet
 
   \author Jano Simas
-  \author Vinicius Campanha
 */
 
 #include "JoinDataSet.hpp"
