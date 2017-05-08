@@ -77,7 +77,7 @@ void terrama2::core::JoinDataSet::fillKeyMap(const std::unique_ptr<te::da::DataS
     auto ds2Size = ds2->size();
     for(int j = 0; j < ds2Size; ++j)
     {
-      ds1->move(j);
+      ds2->move(j);
       auto key2 = ds2->getAsString(ds2Attribute);
 
       // compare the two key attributes
