@@ -33,7 +33,7 @@ In the root directory of TerraMA² codebase (the source code tree) there are som
 
 - **[BUILD-INSTRUCTIONS:](https://github.com/TerraMA2/terrama2/blob/master/BUILD-INSTRUCTIONS)** Notes on how to compile and install TerraMA² for each platform.
 
-- **CHANGELOG:** List of changes in TerraMA² source code. **Not available yet!**
+- **[CHANGELOG:](https://github.com/TerraMA2/terrama2/blob/master/Changelog.md)** List of changes in TerraMA² source code.
 
 - **[DEPENDENCIES:](https://github.com/TerraMA2/terrama2/blob/master/DEPENDENCIES)** The list of third-party library you must install before building TerraMA².
 
@@ -179,6 +179,7 @@ We have the following branches:
 - **b-4.0.0-alpha7:** Analysis validation and filter by static data (Preparing to Beta release)
 - **b-4.0.0-beta1:** GDAL driver for raster and Generic CSV driver for occurrences and DCP
 - **b-4.0.0-beta2:** Alert service
+- **b-4.0.0-beta3:** *under development*
 
 
 To switch to one of the branches listed above, use the checkout command and create a local branch to track the remote branch. The syntax of "git checkout" is:
