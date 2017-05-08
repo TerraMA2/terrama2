@@ -1,7 +1,7 @@
 define([], function(){
   "use strict";
 
-  function AlertList($scope, i18n, $q, AlertService, MessageBoxService, Socket, Service, $window, $log) {
+  function AlertList($scope, i18n, $q, AlertService, MessageBoxService, Socket, Service, $window, $log, $timeout) {
     var config = $window.configuration;
     var globals = $window.globals;
 
@@ -52,7 +52,7 @@ define([], function(){
      * @param {Object} response.message - Error message
      */
     Socket.on('errorResponse', function(response){
-      self.MessageBoxService.danger(i18n.__("Alert"), response.message);
+      self.MessageBoxService.danger(i18n.__("Alerts"), i18n.__(response.message));
     });
 
     /**
@@ -62,7 +62,7 @@ define([], function(){
      * @param {Object} response.service - TerraMA² service id to determines which service called
      */
     Socket.on('runResponse', function(response){
-      self.MessageBoxService.success(i18n.__("Alert"), i18n.__("The process was started successfully"));
+      self.MessageBoxService.success(i18n.__("Alerts"), i18n.__("The process was started successfully"));
     });
 
     /**
@@ -79,12 +79,12 @@ define([], function(){
             var service = Service.get(serviceCache[response.service].process_ids.service_instance);
 
             if(service != null) {
-              self.MessageBoxService.danger(i18n.__("Alert"), i18n.__("Service") + " '" + service.name + "' " + i18n.__("is not active"));
+              self.MessageBoxService.danger(i18n.__("Alerts"), i18n.__("Service") + " '" + service.name + "' " + i18n.__("is not active"));
             } else {
-              self.MessageBoxService.danger(i18n.__("Alert"), "Service not active");
+              self.MessageBoxService.danger(i18n.__("Alerts"), i18n.__("Service not active"));
             }
           } else {
-            self.MessageBoxService.danger(i18n.__("Alert"), "Service not active");
+            self.MessageBoxService.danger(i18n.__("Alerts"), i18n.__("Service not active"));
           }
         }
 
@@ -112,7 +112,14 @@ define([], function(){
         self.linkToAdd = "/configuration/alerts/new";
 
         if(config.message !== "") {
-          self.MessageBoxService.success(i18n.__("Alert"), config.message);
+          var messageArray = config.message.split(" ");
+          var tokenCodeMessage = messageArray[messageArray.length - 1];
+          messageArray.splice(messageArray.length - 1, 1);
+
+          $timeout(function() {
+            var finalMessage = messageArray.join(" ") + " " + i18n.__(tokenCodeMessage);
+            self.MessageBoxService.success(i18n.__("Alerts"), finalMessage);
+          }, 1000);
         }
 
         /**
@@ -149,10 +156,10 @@ define([], function(){
           removeOperationCallback: function(err, data) {
             MessageBoxService.reset();
             if (err) {
-              MessageBoxService.danger(i18n.__("Alert"), err.message);
+              MessageBoxService.danger(i18n.__("Alerts"), i18n.__(err.message));
               return;
             }
-            MessageBoxService.success(i18n.__("Alert"), data.result.name + i18n.__(" removed"));
+            MessageBoxService.success(i18n.__("Alerts"), data.result.name + i18n.__(" removed"));
           },
           showRunButton: true,
           canRun: function(object) {
@@ -196,7 +203,7 @@ define([], function(){
       });
   }
 
-  AlertList.$inject = ["$scope", "i18n", "$q", "AlertService", "MessageBoxService", "Socket", "Service", "$window", "$log"];
+  AlertList.$inject = ["$scope", "i18n", "$q", "AlertService", "MessageBoxService", "Socket", "Service", "$window", "$log", "$timeout"];
 
   return AlertList;
 });

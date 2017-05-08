@@ -327,6 +327,14 @@ terrama2::services::alert::core::AlertExecutor::monitoredObjectAlert(std::shared
   std::shared_ptr<te::mem::DataSet> alertDataSet = populateMonitoredObjectAlertDataset(vecDates, riskResultMap, comparisonPreviosProperty, alertPtr, fkProperty, alertDataSetType);
   addAdditionalData(alertDataSet, alertPtr, additionalDataMap);
 
+  // remove fk column
+  size_t fkPos = terrama2::core::propertyPosition(alertDataSet.get(), fkProperty->getName());
+
+  if( fkPos != std::numeric_limits<size_t>::max())
+  {
+    alertDataSet->drop(fkPos);
+  }
+
   return alertDataSet;
 }
 
@@ -614,48 +622,48 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
         return;
       }
 
-      std::multimap<std::string, std::string> attachments;
-
       ReportPtr reportPtr = std::make_shared<Report>(alertPtr, inputDataSeries, alertDataSet, vecDates);
 
-      try
+      for(const auto& notification : alertPtr->notifications)
       {
-        std::string documentPDF = DocumentFactory::getInstance().makeDocument("PDF", reportPtr);
 
-        attachments.insert(std::make_pair("PDF", documentPDF));
-      }
-      catch(const NotifierException& e)
-      {
-        QString errMsg("Error: ");
-        const auto msg = boost::get_error_info<terrama2::ErrorDescription>(e);
-        if (msg != nullptr)
+        std::string documentURI;
+
+        try
         {
-          errMsg.append(msg);
+          documentURI = DocumentFactory::getInstance().makeDocument(notification.includeReport, reportPtr);
+        }
+        catch(const NotifierException& e)
+        {
+          QString errMsg("Error: ");
+          const auto msg = boost::get_error_info<terrama2::ErrorDescription>(e);
+          if (msg != nullptr)
+          {
+            errMsg.append(msg);
+          }
+
+          logger->log(AlertLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+          TERRAMA2_LOG_ERROR() << errMsg;
         }
 
-        logger->log(AlertLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
-        TERRAMA2_LOG_ERROR() << errMsg;
-      }
-
-      try
-      {
-        NotifierPtr notifierPtr = NotifierFactory::getInstance().make("EMAIL", serverMap, reportPtr);
-
-        for(const auto& recipient : alertPtr->notifications)
-          notifierPtr->send(recipient);
-
-      }
-      catch(const NotifierException& e)
-      {
-        QString errMsg("Error: ");
-        const auto msg = boost::get_error_info<terrama2::ErrorDescription>(e);
-        if (msg != nullptr)
+        try
         {
-          errMsg.append(msg);
-        }
+          NotifierPtr notifierPtr = NotifierFactory::getInstance().make("EMAIL", serverMap, reportPtr);
 
-        logger->log(AlertLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
-        TERRAMA2_LOG_ERROR() << errMsg;
+          notifierPtr->send(notification, documentURI);
+        }
+        catch(const NotifierException& e)
+        {
+          QString errMsg("Error: ");
+          const auto msg = boost::get_error_info<terrama2::ErrorDescription>(e);
+          if (msg != nullptr)
+          {
+            errMsg.append(msg);
+          }
+
+          logger->log(AlertLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+          TERRAMA2_LOG_ERROR() << errMsg;
+        }
       }
 
       alertGenerated = true;

@@ -148,9 +148,9 @@
           <div class="form-group" terrama2-show-errors>
             <label><span ng-bind="i18n.__('View Data Series')"></span>:</label>
             <div class="pull-right">
-              <span><input type="checkbox" ng-model="ctrl.filter['isAnalysis']"> Analysis &nbsp</span> 
-              <span><input type="checkbox" ng-model="ctrl.filter['DYNAMIC']"> Dynamic &nbsp</span> 
-              <span><input type="checkbox" ng-model="ctrl.filter['STATIC']"> Static</span> 
+              <span><input type="checkbox" ng-model="ctrl.filter['isAnalysis']"> {{ i18n.__('Analysis') }} &nbsp</span> 
+              <span><input type="checkbox" ng-model="ctrl.filter['DYNAMIC']"> {{ i18n.__('Dynamic') }} &nbsp</span> 
+              <span><input type="checkbox" ng-model="ctrl.filter['STATIC']"> {{ i18n.__('Static') }}</span> 
             </div>
             <ui-select
                     name="dataSeries"

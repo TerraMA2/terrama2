@@ -4,7 +4,7 @@ define([], function() {
   function ListController($scope, Service, $HttpTimeout, Socket, i18n, MessageBoxService, $timeout) {
     $scope.socket = Socket;
 
-    $scope.title = i18n.__('Services');
+    $scope.title = 'Services';
     $scope.MessageBoxService = MessageBoxService;
     $scope.helperMessage = "This page shows available services in TerraMA2 application";
 
@@ -60,7 +60,7 @@ define([], function() {
 
     $scope.socket.on("serviceVersion", function(response) {
       if (!response.match) {
-        MessageBoxService.warn($scope.title, i18n.__("It seems you are using a different versions of TerraMA². Current version of TerraMA² Web is " + response.current + " " +i18n.__("but the TerraMA² service version is") + " " + response.response + ". " +i18n.__("Some operations may not work properly")));
+        MessageBoxService.warn(i18n.__($scope.title), i18n.__("It seems you are using a different versions of TerraMA². Current version of TerraMA² Web is " + response.current + " " +i18n.__("but the TerraMA² service version is") + " " + response.response + ". " +i18n.__("Some operations may not work properly")));
       }
     });
 
@@ -138,8 +138,16 @@ define([], function() {
     });
 
     $scope.close = function() { MessageBoxService.reset(); };
-    if (configuration.message) {
-      MessageBoxService.success($scope.title, configuration.message);
+
+    if(configuration.message) {
+      var messageArray = configuration.message.split(" ");
+      var tokenCodeMessage = messageArray[messageArray.length - 1];
+      messageArray.splice(messageArray.length - 1, 1);
+
+      $timeout(function() {
+        var finalMessage = messageArray.join(" ") + " " + i18n.__(tokenCodeMessage);
+        MessageBoxService.success(i18n.__($scope.title), finalMessage);
+      }, 1000);
     }
 
     $scope.fields = [
@@ -174,11 +182,11 @@ define([], function() {
 
     $scope.extra = {
       removeOperationCallback: function(err, data) {
-        if (err) {
-          MessageBoxService.danger($scope.title, err.message);
+        if(err) {
+          MessageBoxService.danger(i18n.__($scope.title), i18n.__(err.message));
           return;
         }
-        MessageBoxService.success($scope.title, data.name + " removed");
+        MessageBoxService.success(i18n.__($scope.title), data.name + i18n.__(" removed"));
       },
 
       service: {

@@ -38,12 +38,14 @@
 #include "../../../core/utility/Utils.hpp"
 
 // Qt
-#include <QtGui/QPainter>
 #include <QtGui/QPagedPaintDevice>
 #include <QtGui/QPdfWriter>
 #include <QtGui/QTextDocument>
+#include <QtGui/QTextCursor>
+#include <QtGui/QImage>
 #include <QFileInfo>
 #include <QDir>
+
 
 // STL
 #include <string>
@@ -125,10 +127,20 @@ namespace terrama2
 
               QTextDocument td;
               td.setHtml(QString::fromStdString(body));
-              td.setDefaultFont(QFont("Times", 12));
-              td.setTextWidth(12);
+              td.setDefaultFont(QFont("Times", 8));
+//              td.setTextWidth(12);
 
               td.adjustSize();
+
+              if(!report->imageURI().empty())
+              {
+                QImage image(QString::fromStdString(report->imageURI()));
+
+                QTextCursor cursor(&td);
+
+                cursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
+                cursor.insertImage(image);
+              }
 
               td.print(&writer);
 

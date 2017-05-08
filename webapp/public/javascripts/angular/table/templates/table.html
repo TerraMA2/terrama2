@@ -12,8 +12,8 @@
             {{ i18n.__('Are you sure?') }}
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-outline" data-dismiss="modal" ng-click="resetObjectToRemove()">Cancel</button>
-            <button type="button" class="btn btn-outline" data-dismiss="modal" ng-click="removeOperation()">OK</button>
+            <button type="button" class="btn btn-outline" data-dismiss="modal" ng-click="resetObjectToRemove()">{{ i18n.__('Cancel') }}</button>
+            <button type="button" class="btn btn-outline" data-dismiss="modal" ng-click="removeOperation()">{{ i18n.__('OK') }}</button>
           </div>
         </div>
       </div>
@@ -54,19 +54,19 @@
                   <i class="fa fa-power-off" style="margin-right: 5px;"></i>
                   {{ i18n.__('Stop all') }}
           </button>
-          <button class="btn btn-default pull-right"
-                  ng-show="extra.import"
-                  style="margin-top: 24px;"
-                  data-toggle="tooltip"
-                  data-placement="top"
-                  title='{{ i18n.__("Import") }}'
-                  ng-click="extra.import()"
-                  ng-disabled="extra.isImporting">
+          <a ng-show="extra.import"
+             title='{{ i18n.__("Import") }}'
+             class="btn btn-default pull-right"
+             style="margin-top: 24px;"
+             data-toggle="tooltip"
+             data-placement="top"
+             ng-click="extra.import()"
+             ng-disabled="extra.isImporting">
             <span class="loading ng-hide" ng-show="extra.isImporting">
               <i class="fa fa-refresh fa-spin"></i>
             </span>
             <i class="fa fa-upload"></i>
-          </button>
+          </a>
           <a ng-href="{{ linkToAdd }}"
             class="btn btn-default pull-right"
             data-toggle="tooltip"
@@ -91,7 +91,7 @@
           <td ng-if="extra.export"></td>
           <td ng-if="isFunction(remove)">
         </tr>
-        <tr ng-repeat="element in model | filter:searchInput | orderBy: orderElementby track by $index">
+        <tr ng-repeat="element in filteredModel = (model | filter:searchInput) | pagingToolLimit: 10 | orderBy: orderElementby track by $index">
           <td ng-show="isFunction(icon())" style="width: 50px;">
             <img style="margin-left: 5px;" ng-if="iconProperties.type === 'img'" ng-src="{{ icon()(element) }}" alt="" width="{{ width }}" height="{{ height }}"/>
             <span ng-if="iconProperties.type === 'icon'" class="label">
@@ -99,7 +99,7 @@
             </span>
           </td>
           <td ng-repeat="field in identityFields ">
-            <a ng-href="{{ makeLink(element) }}" ng-if="link">{{ processField(field, element) }}</a>
+            <a ng-href="{{ makeLink(element) }}" ng-if="link" ng-bind="processField(field, element)"></a>
           </td>
 
           <td ng-if="extra.project" class="pull-cell-left">
@@ -178,7 +178,7 @@
                     ng-class="{ 'loading-button': extra.disabledButtons(element) }"
                     ng-click="extra.run(element)">
               <span class="glyphicon glyphicon-play"></span>
-              <span class="hidden-xs">{{ i18n.__('Run') }}</span>
+              <span class="hidden-xs" ng-bind="i18n.__('Run')"></span>
             </button>
           </td>
 
@@ -189,16 +189,21 @@
                     data-placement="top"
                     title="{{ i18n.__('Remove data') }}">
               <span class="glyphicon glyphicon-remove"></span>
-              <span class="hidden-xs">{{ i18n.__('Remove') }}</span>
+              <span class="hidden-xs"></span>
+              <span ng-bind="i18n.__('Remove')"></span>
             </button>
           </td>
         </tr>
 
-        <tr ng-show="!model.length">
-          <td colspan="2">{{ i18n.__(emptyMessage) }}</td>
+        <tr ng-show="!filteredModel.length">
+          <td colspan="2" ng-bind="i18n.__(emptyMessage)"></td>
         </tr>
       </tbody>
     </table>
+
+    <div class="col-md-offset-4 col-md-6 col-xs-12">
+      <terrama2-paging-tool max-pages="10" size="filteredModel.length" on-change=""></terrama2-paging-tool>
+    </div>
   </div>
 
 </div>

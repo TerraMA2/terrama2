@@ -29,10 +29,11 @@
   ProcessFinished.handle = function(response) {
     var self = this;
     return new PromiseClass(function(resolve, reject) {
-      var handler = null;
       // retrieving service instance
       return DataManager.getServiceInstance({id: response.instance_id})
         .then(function(service) {
+          var handler = null;
+          var output = {};
           switch(service.service_type_id) {
             case ServiceType.COLLECTOR:
               handler = self.handleFinishedCollector(response);
@@ -50,10 +51,6 @@
           return handler
             .then(function(handlerResult) {
               return resolve(handlerResult);
-            })
-            // on Error
-            .catch(function(err) {
-              return reject(err);
             });
         })
         // on any error
@@ -95,7 +92,7 @@
                 registered_view_id: registeredView.id
               }, options));
             });
-            return Promise.all(promises)
+            return PromiseClass.all(promises)
               .then(function() {
                 var registeredView = DataManager.getRegisteredView({view_id: registeredViewObject.process_id}, options);
                 var objectResponse = {

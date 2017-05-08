@@ -2,7 +2,7 @@ define(function() {
   function RegisterController($scope, $http, $q, $window, $httpParamSerializer, $location, i18n, $timeout, DataProviderService, MessageBoxService, FormTranslator) {
     $scope.i18n = i18n;
     var model = {};
-    var title = i18n.__("Data Server Registration");
+    var title = "Data Server Registration";
     $scope.MessageBoxService = MessageBoxService;
 
     var conf = $window.configuration;
@@ -31,19 +31,29 @@ define(function() {
       boxType: "box-solid"
     }
 
-    if (conf.fields) {
-      $scope.schema = {
-      type: "object",
-        properties: conf.fields.properties,
-        required: conf.fields.required
-      };
+    $timeout(function() {
+      if(conf.fields) {
+        if(conf.fields.display) {
+          var formTranslatorResult = FormTranslator(conf.fields.properties, conf.fields.display, conf.fields.required);
+          var propertiesLocale = formTranslatorResult.object;
+          var fieldsForm = formTranslatorResult.display;
+        } else {
+          var propertiesLocale = FormTranslator(conf.fields.properties);
+          var fieldsForm = [];
+        }
 
-      $scope.options = {};
-    } else {
-      $scope.schema = {};
-    }
-
-    $scope.form = conf.fields.display || [];
+        $scope.schema = {
+          type: "object",
+          properties: propertiesLocale,
+          required: conf.fields.required
+        };
+        $scope.options = {};
+        $scope.form = fieldsForm;
+      } else {
+        $scope.schema = {};
+        $scope.form = [];
+      }
+    }, 1000);
 
     //  redraw form
     if ($scope.form) {
@@ -90,7 +100,15 @@ define(function() {
       $scope.typeList.forEach(function(dataProviderType) {
         if (dataProviderType.name === $scope.dataProvider.protocol) {
           // temp code for port changing
-          var propertiesLocale = FormTranslator(dataProviderType.properties)
+          if(dataProviderType.display) {
+            var formTranslatorResult = FormTranslator(dataProviderType.properties, dataProviderType.display, dataProviderType.required);
+            var propertiesLocale = formTranslatorResult.object;
+            var fieldsForm = formTranslatorResult.display;
+          } else {
+            var propertiesLocale = FormTranslator(dataProviderType.properties);
+            var fieldsForm = ["*"];
+          }
+
           $scope.model = {};
           $scope.schema = {
             type: "object",
@@ -98,15 +116,11 @@ define(function() {
             required: dataProviderType.required || []
           };
 
-          if (dataProviderType.display) {
-            $scope.form = dataProviderType.display;
-          } else {
-            $scope.form = ["*"];
-          }
+          $scope.form = fieldsForm;
 
           $scope.$broadcast("schemaFormRedraw");
-          $timeout(function(){
-            if ($scope.dataProvider.protocol === "POSTGIS"){
+          $timeout(function() {
+            if($scope.dataProvider.protocol === "POSTGIS") {
               var databaseInput = angular.element("#database");
               databaseInput.attr("list", "databaseList");
             }
@@ -168,8 +182,8 @@ define(function() {
       $scope.$broadcast("schemaFormValidate");
 
       var isConnectionFormValid = $scope.isValidDataProviderTypeForm($scope.forms.connectionForm);
-      if (!$scope.forms.dataProviderForm.$valid || !isConnectionFormValid) {
-        return MessageBoxService.danger(title, i18n.__("There are invalid fields on form"));
+      if(!$scope.forms.dataProviderForm.$valid || !isConnectionFormValid) {
+        return MessageBoxService.danger(i18n.__(title), i18n.__("There are invalid fields on form"));
       }
 
       var formData = $scope.dataProvider;
@@ -191,7 +205,7 @@ define(function() {
 
         $window.location.href = (redirectData || defaultRedirectTo);
       }).catch(function(response) {
-        return MessageBoxService.danger(title, response.data.message);
+        return MessageBoxService.danger(i18n.__(title), response.data.message);
       });
     };
 
@@ -200,68 +214,68 @@ define(function() {
     };
 
     $scope.checkConnection = function(form) {
-        $scope.model = $scope.model;
-        $scope.$broadcast("schemaFormValidate");
+      $scope.model = $scope.model;
+      $scope.$broadcast("schemaFormValidate");
 
-        if (!$scope.isValidDataProviderTypeForm(form)) {
-          return;
-        }
+      if(!$scope.isValidDataProviderTypeForm(form)) {
+        return;
+      }
 
-        $scope.isChecking = true; // for handling loading page
+      $scope.isChecking = true; // for handling loading page
 
-        // Timeout in seconds for handling connections
-        $scope.timeOutSeconds = 8;
+      // Timeout in seconds for handling connections
+      $scope.timeOutSeconds = 8;
 
-        // Function for requests success, error and timeout
-        var makeRequest = function() {
-          var timeOut = $q.defer();
-          var result = $q.defer();
-          var expired = false;
-          setTimeout(function() {
-            expired = true;
-            timeOut.resolve();
-          }, 1000 * $scope.timeOutSeconds);
+      // Function for requests success, error and timeout
+      var makeRequest = function() {
+        var timeOut = $q.defer();
+        var result = $q.defer();
+        var expired = false;
+        setTimeout(function() {
+          expired = true;
+          timeOut.resolve();
+        }, 1000 * $scope.timeOutSeconds);
 
-          var params = $scope.model;
-          params.protocol = $scope.dataProvider.protocol;
+        var params = $scope.model;
+        params.protocol = $scope.dataProvider.protocol;
 
-          var httpRequest = $http({
-            method: "POST",
-            url: "/uri/",
-            data: params,
-            timeout: timeOut.promise
-          });
-
-          httpRequest.then(function(response) {
-            result.resolve(response.data);
-          });
-
-          httpRequest.catch(function(response) {
-            if (expired) {
-              result.reject({message: i18n.__("Timeout: Request took longer than ") + $scope.timeOutSeconds + i18n.__(" seconds.")});
-            } else {
-              result.reject(response.data);
-            }
-          });
-
-          return result.promise;
-        };
-
-        var request = makeRequest();
-
-        var connectionTitle = i18n.__("Connection Status");
-
-        request.then(function(data) {
-          if (data.message){ // error found
-            MessageBoxService.danger(connectionTitle, data.message);
-          } else {
-            MessageBoxService.success(connectionTitle, i18n.__("Connection Successful"));
-          }
-        }).catch(function(err) {
-          MessageBoxService.danger(connectionTitle, err.message);
-        }).finally(function() {
-          $scope.isChecking = false;
+        var httpRequest = $http({
+          method: "POST",
+          url: "/uri/",
+          data: params,
+          timeout: timeOut.promise
         });
+
+        httpRequest.then(function(response) {
+          result.resolve(response.data);
+        });
+
+        httpRequest.catch(function(response) {
+          if(expired) {
+            result.reject({message: i18n.__("Timeout: Request took longer than ") + $scope.timeOutSeconds + i18n.__(" seconds.")});
+          } else {
+            result.reject(response.data);
+          }
+        });
+
+        return result.promise;
+      };
+
+      var request = makeRequest();
+
+      var connectionTitle = i18n.__("Connection Status");
+
+      request.then(function(data) {
+        if(data.message) { // error found
+          MessageBoxService.danger(connectionTitle, data.message);
+        } else {
+          MessageBoxService.success(connectionTitle, i18n.__("Connection Successful"));
+        }
+      }).catch(function(err) {
+        MessageBoxService.danger(connectionTitle, err.message);
+      }).finally(function() {
+        $scope.isChecking = false;
+      });
     };
   }
 

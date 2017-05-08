@@ -55,7 +55,13 @@ void terrama2::services::alert::core::registerFactories()
 
 std::string terrama2::services::alert::core::gridReportText()
 {
-  return "<!DOCTYPE html><html><head><style>body{background-color:#ffffff;}h1{color:blue;text-align:center;}p{font-family:\"Times New Roman\";}</style></head><body><h1>%TITLE%</h1><p>%ABSTRACT%</p><p>%DESCRIPTION%</p>"
+  return "<!DOCTYPE html><html><head>"
+         "<style>"
+         "body{background-color:#ffffff;}"
+         "h1{text-align:center;}"
+         "p{font-family:\"Times New Roman\";}"
+         "</style></head>"
+         "<body><h1>%TITLE%</h1><p>%DESCRIPTION%</p>"
          "<hr><p>Max value: </p>%MAXVALUE_DATA%<hr>"
          "<hr><p>Min value: </p>%MINVALUE_DATA%<hr>"
          "<hr><p>Mean value: </p>%MEANVALUE_DATA%<hr>"
@@ -64,7 +70,15 @@ std::string terrama2::services::alert::core::gridReportText()
 
 std::string terrama2::services::alert::core::monitoredObjectReportText()
 {
-  return "<!DOCTYPE html><html><head><style>body{background-color:#ffffff;}h1{color:blue;text-align:center;}p{font-family:\"Times New Roman\";}</style></head><body><h1>%TITLE%</h1><p>%ABSTRACT%</p><p>%DESCRIPTION%</p>"
+  return "<!DOCTYPE html><html><head>"
+         "<style>"
+         "body{background-color:#ffffff;}"
+         "h1{text-align:center;}"
+         "p{font-family:\"Times New Roman\";}"
+         "table, th, td {  border-collapse: collapse;}"
+         "th, td {padding: 10px;}"
+         "</style></head>"
+         "<body><h1>%TITLE%</h1><p>%DESCRIPTION%</p>"
          "<hr>%COMPLETE_DATA%<hr>"
          "<p>%COPYRIGHT%</p></body></html>";
 }

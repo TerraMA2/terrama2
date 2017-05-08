@@ -29,7 +29,7 @@ define([], function(){
    * 
    * @param {any} i18n - TerraMA² Internationalization module
    */
-    function StoragerController($scope, i18n, DataSeriesSemanticsService, GeoLibs, SemanticsParserFactory, $timeout, $window, Service, $http, $compile){
+    function StoragerController($scope, i18n, DataSeriesSemanticsService, GeoLibs, SemanticsParserFactory, $timeout, $window, Service, $http, $compile, FormTranslator){
       var self = this;
       self.i18n = i18n;
       self.formStorager = [];
@@ -242,7 +242,7 @@ define([], function(){
 
       self.validateFieldEdition = function(value, pattern) {
         if(self.fieldHasError(value, 'string', pattern, null, false))
-          return "Invalid value";
+          return i18n.__("Invalid value");
         else
           return null;
       };
@@ -662,10 +662,12 @@ define([], function(){
           $scope.$broadcast('schemaFormRedraw');
         } else {
           // occurrence
-          self.formStorager = metadata.form;
+          var formTranslatorResult = FormTranslator(metadata.schema.properties, metadata.form, metadata.schema.required);
+
+          self.formStorager = formTranslatorResult.display;
           self.schemaStorager = {
             type: 'object',
-            properties: metadata.schema.properties,
+            properties: formTranslatorResult.object,
             required: metadata.schema.required
           };
           $scope.$broadcast('schemaFormRedraw');
@@ -685,6 +687,6 @@ define([], function(){
       });
     }
     
-    StoragerController.$inject = ['$scope', 'i18n', 'DataSeriesSemanticsService', 'GeoLibs', 'SemanticsParserFactory', '$timeout', '$window', 'Service', '$http', '$compile']; 
+    StoragerController.$inject = ['$scope', 'i18n', 'DataSeriesSemanticsService', 'GeoLibs', 'SemanticsParserFactory', '$timeout', '$window', 'Service', '$http', '$compile', 'FormTranslator']; 
     return terrama2StoragerComponent;
 });

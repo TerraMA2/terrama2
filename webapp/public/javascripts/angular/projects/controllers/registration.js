@@ -17,7 +17,7 @@ define(function() {
     $scope.isSubmiting = false;
     $scope.formName = "form";
     $scope.MessageBoxService = MessageBoxService;
-    var title = i18n.__("Project Registration");
+    var title = "Project Registration";
 
     $scope.project = configuration.project || {};
     $scope.project.version = 4;
@@ -31,7 +31,7 @@ define(function() {
       $scope.$broadcast('formFieldValidation');
 
       if ($scope.forms.projectForm.$invalid){
-        return MessageBoxService.danger(title, i18n.__("There are invalid fields on form"));
+        return MessageBoxService.danger(i18n.__(title), i18n.__("There are invalid fields on form"));
       }
 
       $scope.isSubmiting = true;
@@ -42,7 +42,7 @@ define(function() {
       }).then(function(response) {
         $window.location.href = "/configuration/projects/" + $scope.project.name + "/activate/" + response.data.token;
       }).catch(function(response) {
-        MessageBoxService.danger(title, response.data.message);
+        MessageBoxService.danger(i18n.__(title), response.data.message);
       }).finally(function(){
         $scope.isSubmiting = false;
       });

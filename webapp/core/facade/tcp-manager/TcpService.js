@@ -297,7 +297,11 @@ TcpService.prototype.run = function(processObject) {
     delete processObject.service_instance;
     return DataManager.getServiceInstance({id: service})
       .then(function(instance) {
+        // Forcing a process to run
         TcpManager.startProcess(instance, processObject);
+        // Retrieving log status of process (STARTED/ON_QUEUED, etc)
+        TcpManager.logData(instance, {begin: 0, end: 2, process_ids: processObject.ids});
+        // Notify children listeners the process has been scheduled
         self.emit("processRun", processObject);
         return resolve();
       })
@@ -671,16 +675,18 @@ function onServiceVersionReceived(service, response) {
  * It emits a signal depending Process. 
  * If service is View, it emits #viewReceived with the registered view object.
  * 
- * @param {RegisteredView|Object} resp - any object
+ * @param {Object} resp - Process Object
+ * @param {any} resp.process - Process Metadata
+ * @param {RegisteredView?} resp.view - TerraMA² Registered View
  * @returns {void}
  */
 function onProcessFinished(resp) {
   // broadcast to everyone
-  if (resp instanceof RegisteredView) {
+  if (resp.view && resp.view instanceof RegisteredView) {
     tcpService.emit("viewReceived", resp);
-  } else {
-    tcpService.emit("processFinished", resp);
-  }
+  } 
+  // Notifies that process finished
+  tcpService.emit("processFinished", resp.process);
 }
 
 /**
@@ -717,7 +723,8 @@ function onLogReceived(service, response) {
           status: 200,
           logs: response,
           service_type: service.service_type_id,
-          service: service.name
+          service: service.name,
+          length: response.length
         });
       });
   } else {
@@ -725,7 +732,8 @@ function onLogReceived(service, response) {
       status: 200,
       logs: response,
       service_type: service.service_type_id,
-      service: service.name
+      service: service.name,
+      length: response.length
     });
   }
 }
