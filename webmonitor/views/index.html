@@ -128,13 +128,14 @@
                 var uriGeoServer = data[i].uriGeoserver;
                 var serverType = data[i].serverType;
                 var layerId = workspace + ":" + layerWithDate[layerWithDate.length - 1].layer;
+                socket.emit('checkConnection', {url: uriGeoServer, requestId: layerId});
                 var parent = data[i].type;
                 if (allLayers.map(function (l){return l.id}).indexOf(layerId) > 0){
                     continue;
                 }
                 if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(layerId, layerName, layerName, uriGeoServer + '/ows', serverType, false, false, "terrama2-layerexplorer", {version: "1.1.0"})){
                     TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, data[i].type, null, "treeview unsortable terrama2-truncate-text", null);
-                    allLayers.push({id: layerId, name: layerName});
+                    allLayers.push({id: layerId, name: layerName, url: uriGeoServer});
 
                     var span = "";
                     var listElement = $("li[data-layerid='" + data[i].type + "']");
@@ -159,12 +160,13 @@
                 var uriGeoServer = data[i].uriGeoserver;
                 var serverType = data[i].serverType;
                 var layerId = workspace + ":" + data[i].layers[0];
+                socket.emit('checkConnection', {url: uriGeoServer, requestId: layerId});
                 if (allLayers.map(function (l){return l.id}).indexOf(layerId) > 0){
                     continue;
                 }
                 if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(layerId, layerName, layerName, uriGeoServer + '/ows', serverType, false, false, "terrama2-layerexplorer", {version: "1.1.0"})){
                     TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, data[i].type, null, "treeview unsortable terrama2-truncate-text", null);
-                    allLayers.push({id: layerId, name: layerName});
+                    allLayers.push({id: layerId, name: layerName, url: uriGeoServer});
                     if (data[i].type == 'analysis' || data[i].type == 'dynamic'){
                         var url = uriGeoServer + '/' + workspace + '/' + data[i].layers[0] + '/wms?service=WMS&version=1.1.0&request=GetCapabilities';
                         var getCapabilitiesUrl = {
@@ -184,6 +186,39 @@
         setSortable();
         $("#osm input").trigger("click");
     });
+
+    // Checking map server connection response
+    socket.on('connectionResponse', function(data){
+        if (data.url){
+            //getting element to disable if there are no connection with mapr server
+            var listElement = $("li[data-layerid='"+ data.requestId +"']");
+            var inputElement = listElement.find('input');
+
+            //if not connected disabled the layer selection
+            if (!data.connected){
+                listElement.prop("title", "Map Server is not responding");
+                if (inputElement.is(':checked')){
+                    inputElement.trigger("click");
+                }
+                if (!inputElement.hasClass("disabled-content")){
+                    inputElement.addClass("disabled-content");
+                }
+            } 
+            // if connected enable the layer selection
+            else {
+                listElement.removeProp("title");
+                if (inputElement.hasClass("disabled-content"))
+                    inputElement.removeClass("disabled-content");
+            }
+        }
+    });
+
+    // Check connections every 30 seconds
+    var intervalID = setInterval(function(){
+        allLayers.forEach(function(layerObject){
+            socket.emit('checkConnection', {url: layerObject.url, requestId: layerObject.id});
+        });
+    }, 30000);
 
     socket.on('proxyResponseCapabilities', function(data){
         try {
@@ -226,7 +261,7 @@
         if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(layerId, layerName, layerName, server + '/ows', serverType, false, false, "terrama2-layerexplorer", {version: "1.1.0"})){
             TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, parent, null, "unsortable terrama2-truncate-text", null);
             addLayerToSort(layerId, layerName);
-            allLayers.push({id: layerId, name: layerName});
+            allLayers.push({id: layerId, name: layerName, url: server + '/ows'});
 
             var span = "";
             var listElement = $("li[data-layerid='" + parent + "']");
@@ -401,7 +436,7 @@
                     }
                     if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(capabilities[i].name, capabilities[i].title, capabilities[i].title, geoUrl, "geoserver", false, false, "terrama2-layerexplorer", {version: "1.1.0"})) {
                         TerraMA2WebComponents.LayerExplorer.addLayersFromMap(capabilities[i].name, "custom", true, "treeview unsortable terrama2-truncate-text", null);
-                        allLayers.push({id: capabilities[i].name, name: capabilities[i].title, extent: capabilities[i].extent});
+                        allLayers.push({id: capabilities[i].name, name: capabilities[i].title, extent: capabilities[i].extent, url: geoUrl});
                         addLayerToSort(capabilities[i].name, capabilities[i].title);
 
                         var span = "";
