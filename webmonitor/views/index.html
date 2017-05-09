@@ -119,7 +119,16 @@
     }
     
     wepappsocket.emit('viewRequest');
-    wepappsocket.on("viewResponse", function (data){
+    wepappsocket.on("viewResponse", function(data){
+
+        fillLayersData(data);
+
+        addLayersToSort();
+        setSortable();
+        $("#osm input").trigger("click");
+    });
+
+    function fillLayersData(data){
         for (i in data){
             if (data[i].params && data[i].params.hasOwnProperty('mask') && data[i].layers.length > 1){
                 var layerWithDate = getLayersListWithDate(data[i].params.mask, data[i].layers);
@@ -179,10 +188,18 @@
                 }
             }
         }
+    }
 
-        addLayersToSort();
-        setSortable();
-        $("#osm input").trigger("click");
+    // When receive a new view, add in layers component
+    wepappsocket.on('viewReceived', function(data){
+        console.log(data);
+        fillLayersData([data]);
+        var layerId = data.workspace + ":" + data.layers[0];
+        var layerName = data.name;
+        if (allLayers.map(function (l){return l.id}).indexOf(layerId) > 0){
+            return;
+        }
+        addLayerToSort(layerId, layerName);
     });
 
     socket.on('proxyResponseCapabilities', function(data){
