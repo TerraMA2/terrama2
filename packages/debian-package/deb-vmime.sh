@@ -1,15 +1,57 @@
 #!/bin/bash
 #
+#  Copyright (C) 2008 National Institute For Space Research (INPE) - Brazil.
+#
+#  This file is part of the TerraLib - a Framework for building GIS enabled applications.
+#
+#  TerraLib is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU Lesser General Public License as published by
+#  the Free Software Foundation, either version 3 of the License,
+#  or (at your option) any later version.
+#
+#  TerraLib is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#  GNU Lesser General Public License for more details.
+#
+#  You should have received a copy of the GNU Lesser General Public License
+#  along with TerraLib. See COPYING. If not, write to
+#  TerraLib Team at <terralib-team@terralib.org>.
+#
+#
+#  Description: Install TerraLib and some required software on Linux Ubuntu 14.04.
+#
+#  Author: Carolina Galvão dos Santos
+#          Vinicius Campanha
+#
+#
+#  Example:
+#  $ ./deb-vmime.sh
+#
+#
 # Set Package Info
 #
 export TMVERSION=4.0.0
 export DEBNAME=terrama2-vmime
-export DEBVERSION=1.0.0
+export DEBVERSION=0.9.2
 export DEBARC=amd64
 export LIBRARYNAME=Vmime
-export FILENAME=vmime-master.tar.gz
-export FOLDERNAME=vmime-master
-export DOWNLOAD_LINK=https://github.com/kisli/vmime/archive/master.zip
+export FILENAME=vmime-0.9.2.tar.gz
+export FOLDERNAME=vmime-0.9.2
+export DOWNLOAD_LINK=https://github.com/kisli/vmime/archive/v0.9.2.tar.gz
+
+#
+# Valid parameter val or abort script
+#
+function valid()
+{
+  if [ $1 -ne 0 ]; then
+    echo $2
+    echo ""
+    exit
+  fi
+}
+
 #
 # Donwload Source
 #
@@ -19,14 +61,24 @@ export DOWNLOAD_LINK=https://github.com/kisli/vmime/archive/master.zip
 
 if [ ! -d "${FOLDERNAME}" ]; then
     tar xzvf  ${FILENAME}
+    valid $? "Could not extract VMime!"
 fi
+
+if [ ! -d "${FOLDERNAME}" ]; then
+    "Could not find VMime folder!"
+    exit
+fi
+
 cd ${FOLDERNAME}
+
 export ROOT_DIR=`pwd`
+
 #
 # Create debian folder
 #
 rm -rf debian
 mkdir -p debian
+valid $? "Could not create debian folder!"
 #
 # Create the copyright file
 #
@@ -81,7 +133,7 @@ cat > debian/rules <<EOF
 	dh \$@
 override_dh_auto_configure:
 	mkdir -p debian/${DEBNAME}/opt/terrama2/${TMVERSION}/3rdparty
-        cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE:STRING="Release" -DCMAKE_PREFIX_PATH:PATH="/opt/terralib/5.2.1/3rdparty" -DVMIME_HAVE_MESSAGING_PROTO_SENDMAIL:BOOL=false -DCMAKE_INSTALL_PREFIX:PATH="`pwd`/debian/${DEBNAME}/opt/terrama2/${TMVERSION}/3rdparty" -DCMAKE_INSTALL_RPATH:PATH="`pwd`/debian/${DEBNAME}/opt/terrama2/${TMVERSION}/3rdparty/lib"
+        cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE:STRING="Release" -DCMAKE_PREFIX_PATH:PATH="/opt/terralib/5.2.1/3rdparty" -DVMIME_HAVE_MESSAGING_PROTO_SENDMAIL:BOOL=false -DVMIME_BUILD_SAMPLES:BOOL=false -DCMAKE_INSTALL_PREFIX:PATH="`pwd`/debian/${DEBNAME}/opt/terrama2/${TMVERSION}/3rdparty" -DCMAKE_INSTALL_RPATH:PATH="`pwd`/debian/${DEBNAME}/opt/terrama2/${TMVERSION}/3rdparty/lib"
 override_dh_auto_build:
 	PREFIX=`pwd`/debian/${DEBNAME}/opt/terrama2/${TMVERSION}/3rdparty make -j 4
 override_dh_auto_test:
@@ -95,7 +147,9 @@ echo "8" > debian/compat
 mkdir -p debian/source
 echo "3.0 (quilt)" > debian/source/format
 
-cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE:STRING="Release" -DCMAKE_PREFIX_PATH:PATH="/opt/terralib/5.2.1/3rdparty" -DVMIME_HAVE_MESSAGING_PROTO_SENDMAIL:BOOL=false -DCMAKE_INSTALL_PREFIX:PATH="`pwd`/debian/${DEBNAME}/opt/terrama2/${TMVERSION}/3rdparty" -DCMAKE_INSTALL_RPATH:PATH="`pwd`/debian/${DEBNAME}/opt/terrama2/${TMVERSION}/3rdparty/lib"
+cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE:STRING="Release" -DCMAKE_PREFIX_PATH:PATH="/opt/terralib/5.2.1/3rdparty" -DVMIME_HAVE_MESSAGING_PROTO_SENDMAIL:BOOL=false -DVMIME_BUILD_SAMPLES:BOOL=false -DCMAKE_INSTALL_PREFIX:PATH="`pwd`/debian/${DEBNAME}/opt/terrama2/${TMVERSION}/3rdparty" -DCMAKE_INSTALL_RPATH:PATH="`pwd`/debian/${DEBNAME}/opt/terrama2/${TMVERSION}/3rdparty/lib"
+
+valid $? "Error at cmake"
 #
 # Build the package
 #
