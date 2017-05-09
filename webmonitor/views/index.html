@@ -103,6 +103,7 @@
     }
 
     addTreeviewMenuClass();
+    addGroupStatusIcons();
 
     var socket;
     if (webmonitorHostInfo && webmonitorHostInfo.port){
@@ -580,6 +581,11 @@
         for (i = 0; i < customParentLi.length; i++){
             customParentLi[i].className += ' treeview-menu';
         }
+    }
+
+    function addGroupStatusIcons(){
+        var spanTeste = '<span> <img src="/images/status/green_icon.svg" style="width: 13px;" alt="User Image"> </span>';
+        $(".parent_li").children('.group-name').append(spanTeste);
     }
 
 </script>
