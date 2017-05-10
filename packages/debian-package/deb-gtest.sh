@@ -19,14 +19,13 @@
 #  TerraLib Team at <terralib-team@terralib.org>.
 #
 #
-#  Description: Install TerraLib and some required software on Linux Ubuntu 14.04.
+#  Description: Generate a debia package of GTest for TerraMA2
 #
-#  Author: Carolina Galvão dos Santos
-#          Vinicius Campanha
+#  Author: Vinicius Campanha
 #
 #
 #  Example:
-#  $ ./deb-vmime.sh
+#  $ ./deb-gtest.sh
 #
 #
 # Set Package Info
@@ -35,13 +34,13 @@
 export UBUNTUVERSION=`lsb_release -rs`
 
 export TMVERSION=4.0.0
-export DEBNAME=terrama2-vmime
-export DEBVERSION=0.9.2
+export DEBNAME=terrama2-gtest
+export DEBVERSION=1.8.0
 export DEBARC=amd64
-export LIBRARYNAME=Vmime
-export FILENAME=vmime-0.9.2.tar.gz
-export FOLDERNAME=vmime-0.9.2
-export DOWNLOAD_LINK=https://github.com/kisli/vmime/archive/v0.9.2.tar.gz
+export LIBRARYNAME=GTest
+export FILENAME=googletest-release-1.8.0.tar.gz
+export FOLDERNAME=googletest-release-1.8.0
+export DOWNLOAD_LINK=https://github.com/google/googletest/archive/release-1.8.0.tar.gz
 
 #
 # Valid parameter val or abort script
@@ -107,6 +106,7 @@ License: LGPL-3.0
   You should have received a copy of the GNU General Public License
   along with this program. If not, write to TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
 EOF
+
 #
 # Create the changelog (no messages needed)
 #
@@ -136,7 +136,7 @@ cat > debian/rules <<EOF
 	dh \$@
 override_dh_auto_configure:
 	mkdir -p debian/${DEBNAME}/opt/terrama2/${TMVERSION}/3rdparty
-        cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE:STRING="Release" -DCMAKE_PREFIX_PATH:PATH="/opt/terralib/5.2.1/3rdparty" -DVMIME_HAVE_MESSAGING_PROTO_SENDMAIL:BOOL=false -DVMIME_BUILD_SAMPLES:BOOL=false -DCMAKE_INSTALL_PREFIX:PATH="`pwd`/debian/${DEBNAME}/opt/terrama2/${TMVERSION}/3rdparty" -DCMAKE_INSTALL_RPATH:PATH="`pwd`/debian/${DEBNAME}/opt/terrama2/${TMVERSION}/3rdparty/lib"
+        cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE:STRING="Release" -DCMAKE_INSTALL_PREFIX:PATH="`pwd`/debian/${DEBNAME}/opt/terrama2/${TMVERSION}/3rdparty" -DCMAKE_INSTALL_RPATH:PATH="`pwd`/debian/${DEBNAME}/opt/terrama2/${TMVERSION}/3rdparty/lib"
 override_dh_auto_build:
 	PREFIX=`pwd`/debian/${DEBNAME}/opt/terrama2/${TMVERSION}/3rdparty make -j 4
 override_dh_auto_test:
@@ -150,7 +150,7 @@ echo "8" > debian/compat
 mkdir -p debian/source
 echo "3.0 (quilt)" > debian/source/format
 
-cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE:STRING="Release" -DCMAKE_PREFIX_PATH:PATH="/opt/terralib/5.2.1/3rdparty" -DVMIME_HAVE_MESSAGING_PROTO_SENDMAIL:BOOL=false -DVMIME_BUILD_SAMPLES:BOOL=false -DCMAKE_INSTALL_PREFIX:PATH="`pwd`/debian/${DEBNAME}/opt/terrama2/${TMVERSION}/3rdparty" -DCMAKE_INSTALL_RPATH:PATH="`pwd`/debian/${DEBNAME}/opt/terrama2/${TMVERSION}/3rdparty/lib"
+cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE:STRING="Release" -DCMAKE_INSTALL_PREFIX:PATH="`pwd`/debian/${DEBNAME}/opt/terrama2/${TMVERSION}/3rdparty" -DCMAKE_INSTALL_RPATH:PATH="`pwd`/debian/${DEBNAME}/opt/terrama2/${TMVERSION}/3rdparty/lib"
 
 valid $? "Error at cmake"
 #
