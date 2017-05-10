@@ -326,7 +326,7 @@ bool terrama2::core::DataAccessorFile::isValidGeometry(std::shared_ptr<te::mem::
 
   if(!seriesStaticData.empty())
   {
-    for(auto it : seriesStaticData)
+    for(auto& it : seriesStaticData)
     {
       auto syncDs = it.second.syncDataSet;
       std::size_t geomPropertyPosition = te::da::GetFirstPropertyPos(syncDs->dataset().get(), te::dt::GEOMETRY_TYPE);
@@ -406,7 +406,7 @@ std::vector<std::string>  terrama2::core::DataAccessorFile::getFoldersList(const
 
   std::vector<std::string> folders = uris;
 
-  for(auto mask : maskList)
+  for(const auto& mask : maskList)
   {
     if(!mask.empty())
       folders = checkSubfolders(folders, mask);
@@ -567,7 +567,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
   {
     std::string mask = getControlFileMask(dataSet);
     auto ctlFileList = getFilesList(uri, mask, filter, timezone, dataSet, remover);
-    for(auto ctlFile : ctlFileList)
+    for(const auto& ctlFile : ctlFileList)
     {
       std::string binaryFileMask = readControlFile(dataSet, ctlFile.absoluteFilePath().toStdString());
 

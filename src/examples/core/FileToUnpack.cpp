@@ -45,7 +45,7 @@ int main(int argc, char* argv[])
       qDebug() << "Test failed!";
     else
     {
-      for (QString nameFile: fileList)
+      for (const QString& nameFile: fileList)
       {
         qDebug() << "Extracting: " << nameFile;
       }

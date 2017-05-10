@@ -495,7 +495,7 @@ QJsonObject terrama2::core::toJson(DataSeriesPtr dataSeriesPtr)
   obj.insert("description", QString::fromStdString(dataSeriesPtr->description));
 
   QJsonArray array;
-  for(auto dataSet : dataSeriesPtr->datasetList)
+  for(const auto& dataSet : dataSeriesPtr->datasetList)
     array.push_back(terrama2::core::toJson(dataSet, dataSeriesPtr->semantics));
   obj.insert("datasets", array);
 
