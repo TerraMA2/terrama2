@@ -30,6 +30,9 @@
 #
 # Set Package Info
 #
+
+export UBUNTUVERSION=`lsb_release -rs`
+
 export TMVERSION=4.0.0
 export DEBNAME=terrama2-gtest
 export DEBVERSION=1.8.0
@@ -64,7 +67,7 @@ if [ ! -d "${FOLDERNAME}" ]; then
 fi
 
 if [ ! -d "${FOLDERNAME}" ]; then
-    "Could not find VMime folder!"
+    echo "Could not find VMime folder!"
     exit
 fi
 
@@ -103,10 +106,11 @@ License: LGPL-3.0
   You should have received a copy of the GNU General Public License
   along with this program. If not, write to TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
 EOF
+
 #
 # Create the changelog (no messages needed)
 #
-dch --create -v ${DEBVERSION} --distribution unstable --package ${DEBNAME} ""
+dch --create -v ${DEBVERSION}-ubuntu${UBUNTUVERSION} --distribution unstable --package ${DEBNAME} ""
 #
 # Create control file
 #
@@ -120,7 +124,7 @@ Build-Depends: debhelper (>= 7)
 
 Package: ${DEBNAME}
 Architecture: ${DEBARC}
-Depends: \${shlibs:Depends}, \${misc:Depends}, ${DEBNAME} (= ${DEBVERSION})
+Depends: \${shlibs:Depends}, \${misc:Depends}
 Description: TerraMA2 ${LIBRARYNAME} Library, version ${DEBVERSION}
 EOF
 #

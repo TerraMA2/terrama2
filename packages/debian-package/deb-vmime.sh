@@ -31,6 +31,9 @@
 #
 # Set Package Info
 #
+
+export UBUNTUVERSION=`lsb_release -rs`
+
 export TMVERSION=4.0.0
 export DEBNAME=terrama2-vmime
 export DEBVERSION=0.9.2
@@ -65,7 +68,7 @@ if [ ! -d "${FOLDERNAME}" ]; then
 fi
 
 if [ ! -d "${FOLDERNAME}" ]; then
-    "Could not find VMime folder!"
+    echo "Could not find VMime folder!"
     exit
 fi
 
@@ -107,7 +110,7 @@ EOF
 #
 # Create the changelog (no messages needed)
 #
-dch --create -v ${DEBVERSION} --distribution unstable --package ${DEBNAME} ""
+dch --create -v ${DEBVERSION}-ubuntu${UBUNTUVERSION} --distribution unstable --package ${DEBNAME} ""
 #
 # Create control file
 #
@@ -121,7 +124,7 @@ Build-Depends: debhelper (>= 7)
 
 Package: ${DEBNAME}
 Architecture: ${DEBARC}
-Depends: \${shlibs:Depends}, \${misc:Depends}, ${DEBNAME} (= ${DEBVERSION})
+Depends: \${shlibs:Depends}, \${misc:Depends}
 Description: TerraMA2 ${LIBRARYNAME} Library, version ${DEBVERSION}
 EOF
 #
