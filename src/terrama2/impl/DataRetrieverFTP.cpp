@@ -115,7 +115,7 @@ std::vector<std::string> terrama2::core::DataRetrieverFTP::getFoldersList(const 
 
   std::vector<std::string> folders = uris;
 
-  for(auto mask : maskList)
+  for(const auto& mask : maskList)
   {
     if(!mask.empty())
       folders = checkSubfolders(folders, mask);
@@ -211,7 +211,7 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
 
       std::vector<std::string> vectorNames;
       // filter file names that should be downloaded.
-      for(std::string fileName: vectorFiles)
+      for(const std::string& fileName: vectorFiles)
       {
         // FIXME: use timestamp
         std::shared_ptr< te::dt::TimeInstantTZ > timestamp;

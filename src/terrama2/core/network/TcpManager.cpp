@@ -115,7 +115,7 @@ void terrama2::core::TcpManager::sendStartProcess(const QByteArray& bytearray)
       auto array = obj["ids"].toArray();
       for(auto value : array)
       {
-        startProcess(value.toInt(), terrama2::core::TimeUtils::nowUTC());
+        emit startProcess(value.toInt(), terrama2::core::TimeUtils::nowUTC());
       }
     }
     else
