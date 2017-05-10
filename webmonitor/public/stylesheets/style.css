@@ -349,6 +349,11 @@
   color: #4b646f;
 }
 
+.status_icon {
+  width: 13px;
+  height: 13px;
+}
+
 /*
   @description It performs a text truncate in string. You should specify width limit using style or another class.
   In Layers Explorer Section, the recommended width is 140px;
