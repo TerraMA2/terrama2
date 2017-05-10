@@ -4,7 +4,7 @@
 - Alert and notification service
 - Conditional schedule
 - Icons in the Webapp
-- Pre-compiled packages for Ubuntu 14.04
+- Pre-compiled packages for Ubuntu 14.04 & 16.04
 - Generic driver for CSV files
   - Occurrence
   - DCP

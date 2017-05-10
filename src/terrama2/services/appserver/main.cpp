@@ -200,6 +200,9 @@ int main(int argc, char* argv[])
 {
   try
   {
+
+    QGuiApplication app(argc, argv);
+
     std::string appName = boost::filesystem::basename(argv[0]);
 
     po::options_description desc("Allowed options");
@@ -257,8 +260,6 @@ int main(int argc, char* argv[])
       // Must initialize the python interpreter before creating any thread.
       terrama2::services::analysis::core::PythonInterpreterInit pythonInterpreterInit;
 #endif
-
-      QGuiApplication app(argc, argv);
 
       // Changes in the initialization order may cause locale problems
       std::locale::global(std::locale::classic());

@@ -464,7 +464,7 @@ void terrama2::core::DataAccessorCSV::adapt(DataSetPtr dataSet, std::shared_ptr<
   }
 
   // Check if all fields were created
-  for(auto item : fieldsArray)
+  for(const auto& item : fieldsArray)
   {
     auto field = item.toObject();
 
