@@ -63,7 +63,7 @@ app.run(["$templateCache", function($templateCache) {
           "<div class=\"col-md-6\">" +
             "<div class=\"form-group\" terrama2-show-errors>" +
               "<label ng-bind=\"i18n.__('Projection SRID')\">:</label>" +
-              "<input class=\"form-control\" id=\"projection\" name=\"srid\" ng-model=\"model.srid\" type=\"number\" placeholder=\"{{ i18n.__('Type a projetion.') }}\" ng-required=\"isRequired\">" +
+              "<input class=\"form-control\" id=\"projection\" name=\"srid\" ng-model=\"model.srid\" type=\"number\" min=\"0\" max=\"998999\" placeholder=\"{{ i18n.__('Type a projetion.') }}\" ng-required=\"isRequired\">" +
               "<span class='help-block' ng-show='boundedForm.srid.$dirty && boundedForm.srid.$error.required'>" +
               "{{ i18n.__('SRID is required') }}"+
               "</span> " +
