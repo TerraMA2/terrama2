@@ -157,14 +157,14 @@ void terrama2::services::alert::core::Service::removeAlert(AlertId alertId) noex
 
     TERRAMA2_LOG_INFO() << tr("Alert %1 removed successfully.").arg(alertId);
   }
-  catch(std::exception& e)
-  {
-    TERRAMA2_LOG_ERROR() << e.what();
-    TERRAMA2_LOG_INFO() << tr("Could not remove alert: %1.").arg(alertId);
-  }
   catch(boost::exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
+    TERRAMA2_LOG_INFO() << tr("Could not remove alert: %1.").arg(alertId);
+  }
+  catch(std::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << e.what();
     TERRAMA2_LOG_INFO() << tr("Could not remove alert: %1.").arg(alertId);
   }
   catch(...)

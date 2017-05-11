@@ -172,13 +172,13 @@ te::dt::AbstractData* terrama2::core::DataAccessorCSV::stringToTimestamp(te::da:
 
     return dt;
   }
-  catch(std::exception& e)
-  {
-    TERRAMA2_LOG_ERROR() << e.what();
-  }
   catch(boost::exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
+  }
+  catch(std::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << e.what();
   }
   catch(...)
   {

@@ -313,7 +313,7 @@ int main(int argc, char* argv[])
   }
   catch(boost::program_options::error& e)
   {
-    std::cout << "Invalid options.See 'terrama2_service --help'\n" << std::endl;
+    std::cout << "Invalid options.\nSee 'terrama2_service --help'\n" << std::endl;
     TERRAMA2_LOG_ERROR() << e.what();
   }
   catch(boost::exception& e)

@@ -86,14 +86,14 @@ void terrama2::services::analysis::core::Service::removeAnalysis(AnalysisId anal
 
     TERRAMA2_LOG_INFO() << tr("Analysis %1 removed successfully.").arg(analysisId);
   }
-  catch(std::exception& e)
-  {
-    TERRAMA2_LOG_ERROR() << e.what();
-    TERRAMA2_LOG_INFO() << tr("Could not remove analysis: %1.").arg(analysisId);
-  }
   catch(boost::exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
+    TERRAMA2_LOG_INFO() << tr("Could not remove analysis: %1.").arg(analysisId);
+  }
+  catch(std::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << e.what();
     TERRAMA2_LOG_INFO() << tr("Could not remove analysis: %1.").arg(analysisId);
   }
   catch(...)
