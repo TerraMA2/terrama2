@@ -86,12 +86,12 @@ void terrama2::services::analysis::core::Service::removeAnalysis(AnalysisId anal
 
     TERRAMA2_LOG_INFO() << tr("Analysis %1 removed successfully.").arg(analysisId);
   }
-  catch(boost::exception& e)
+  catch(const boost::exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
     TERRAMA2_LOG_INFO() << tr("Could not remove analysis: %1.").arg(analysisId);
   }
-  catch(std::exception& e)
+  catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
     TERRAMA2_LOG_INFO() << tr("Could not remove analysis: %1.").arg(analysisId);
@@ -117,7 +117,7 @@ void terrama2::services::analysis::core::Service::prepareTask(const terrama2::co
     auto analysisPtr = dataManager_->findAnalysis(executionPackage.processId);
     taskQueue_.emplace(std::bind(&terrama2::services::analysis::core::AnalysisExecutor::runAnalysis, std::ref(analysisExecutor_), dataManager_, storagerManager_, std::dynamic_pointer_cast<AnalysisLogger>(logger_->clone()), executionPackage, analysisPtr, threadPool_, mainThreadState_));
   }
-  catch(std::exception& e)
+  catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
   }
@@ -226,7 +226,7 @@ void terrama2::services::analysis::core::Service::addToQueue(AnalysisId analysis
   {
     //logged on throw
   }
-  catch(std::exception& e)
+  catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
   }
@@ -303,7 +303,7 @@ void terrama2::services::analysis::core::Service::validateAnalysis(AnalysisPtr a
   {
     //logged on throw
   }
-  catch(std::exception& e)
+  catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
   }

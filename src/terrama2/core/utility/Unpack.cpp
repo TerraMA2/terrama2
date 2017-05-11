@@ -174,11 +174,11 @@ std::string terrama2::core::Unpack::decompress(std::string uri,
   {
     //logged on throw
   }
-  catch(te::Exception& e)
+  catch(const te::Exception& e)
   {
     TERRAMA2_LOG_ERROR() << QString::fromStdString(*boost::get_error_info<te::ErrorDescription>(e));
   }
-  catch(std::exception& e)
+  catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
   }
