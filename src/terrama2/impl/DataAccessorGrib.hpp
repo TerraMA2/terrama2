@@ -64,6 +64,9 @@ namespace terrama2
         return std::make_shared<DataAccessorGrib>(dataProvider, dataSeries);
       }
       static DataAccessorType dataAccessorType(){ return "GRID-grib"; }
+
+      virtual bool hasControlFile() const { return false; };
+
     };
   }
 }
