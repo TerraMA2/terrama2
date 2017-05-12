@@ -205,7 +205,7 @@ define(function() {
 
         $window.location.href = (redirectData || defaultRedirectTo);
       }).catch(function(response) {
-        return MessageBoxService.danger(i18n.__(title), response.data.message);
+        return MessageBoxService.danger(i18n.__(title), i18n.__(response.data.message));
       });
     };
 
@@ -252,7 +252,7 @@ define(function() {
 
         httpRequest.catch(function(response) {
           if(expired) {
-            result.reject({message: i18n.__("Timeout: Request took longer than ") + $scope.timeOutSeconds + i18n.__(" seconds.")});
+            result.reject({message: i18n.__("Timeout: Request took longer than ") + $scope.timeOutSeconds + i18n.__(" seconds."), translated: true});
           } else {
             result.reject(response.data);
           }
@@ -267,12 +267,12 @@ define(function() {
 
       request.then(function(data) {
         if(data.message) { // error found
-          MessageBoxService.danger(connectionTitle, data.message);
+          MessageBoxService.danger(connectionTitle, (data.translated ? data.message : i18n.__(data.message)));
         } else {
           MessageBoxService.success(connectionTitle, i18n.__("Connection Successful"));
         }
       }).catch(function(err) {
-        MessageBoxService.danger(connectionTitle, err.message);
+        MessageBoxService.danger(connectionTitle, (err.translated ? err.message : i18n.__(err.message)));
       }).finally(function() {
         $scope.isChecking = false;
       });

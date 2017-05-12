@@ -463,14 +463,14 @@ define([], function() {
             for(var key in properties) {
               if (properties.hasOwnProperty(key)) {
                 $scope.tableFields.push(key);
-	              $scope.tableFieldsDataTable.push(i18n.__(key));
+	              $scope.tableFieldsDataTable.push(i18n.__(properties[key].title));
               }
             }
           } else {
             // form is mapped
             for(var i = 0, formLength = dataSeriesSemantics.metadata.form.length; i < formLength; i++) {
               $scope.tableFields.push(dataSeriesSemantics.metadata.form[i].key);
-              $scope.tableFieldsDataTable.push(i18n.__(dataSeriesSemantics.metadata.form[i].key));
+              $scope.tableFieldsDataTable.push(i18n.__(dataSeriesSemantics.metadata.schema.properties[dataSeriesSemantics.metadata.form[i].key].title));
             }
           }
         }

@@ -129,39 +129,38 @@ define([], function(){
         }
 
         //Checking if is updating to change output when changed the parameters in Grads data series type
-        if (self.options.isUpdating && self.series.semantics.code == 'GRID-grads'){
-
-            // function to update model storager properties
-            var updateModelStorage = function(inputModel){
-                self.modelStorager.binary_file_mask = inputModel.binary_file_mask;
-                self.modelStorager.bytes_after = inputModel.bytes_after;
-                self.modelStorager.bytes_before = inputModel.bytes_before;
-                self.modelStorager.ctl_filename = inputModel.ctl_filename;
-                self.modelStorager.data_type = inputModel.data_type;
-                self.modelStorager.number_of_bands = inputModel.number_of_bands;
-                self.modelStorager.srid = inputModel.srid;
-                self.modelStorager.temporal = inputModel.temporal;
-                if (inputModel.time_interval){
-                    self.modelStorager.time_interval = inputModel.time_interval;
-                }
-                if (inputModel.time_interval_unit){
-                    self.modelStorager.time_interval_unit = inputModel.time_interval_unit;
-                }
-                if (inputModel.value_multiplier){
-                    self.modelStorager.value_multiplier = inputModel.value_multiplier;
-                }
+        if(self.options.isUpdating && self.series.semantics.code == 'GRID-grads'){
+          // function to update model storager properties
+          var updateModelStorage = function(inputModel) {
+            self.modelStorager.binary_file_mask = inputModel.binary_file_mask;
+            self.modelStorager.bytes_after = inputModel.bytes_after;
+            self.modelStorager.bytes_before = inputModel.bytes_before;
+            self.modelStorager.ctl_filename = inputModel.ctl_filename;
+            self.modelStorager.data_type = inputModel.data_type;
+            self.modelStorager.number_of_bands = inputModel.number_of_bands;
+            self.modelStorager.srid = inputModel.srid;
+            self.modelStorager.temporal = inputModel.temporal;
+            if(inputModel.time_interval) {
+              self.modelStorager.time_interval = inputModel.time_interval;
             }
+            if(inputModel.time_interval_unit) {
+              self.modelStorager.time_interval_unit = inputModel.time_interval_unit;
+            }
+            if(inputModel.value_multiplier) {
+              self.modelStorager.value_multiplier = inputModel.value_multiplier;
+            }
+          }
 
-            // watch model to update modelStorage
-            var timeoutPromise;
-            $scope.$watch(function(){
-                return self.model;
-            }, function(modelValue){
-                $timeout.cancel(timeoutPromise);
-                timeoutPromise = $timeout(function(){
-                    if (modelValue) updateModelStorage(modelValue);
-                }, 700);
-            }, true);
+          // watch model to update modelStorage
+          var timeoutPromise;
+          $scope.$watch(function() {
+            return self.model;
+          }, function(modelValue) {
+            $timeout.cancel(timeoutPromise);
+            timeoutPromise = $timeout(function() {
+              if(modelValue) updateModelStorage(modelValue);
+            }, 700);
+          }, true);
         }
       }
 
@@ -591,7 +590,7 @@ define([], function(){
         if(self.formatSelected.data_series_type_name === globals.enums.DataSeriesType.DCP) {
           for(var property in properties) {
             self.tableFieldsStorager.push(property);
-            self.tableFieldsStoragerDataTable.push(property);
+            self.tableFieldsStoragerDataTable.push(properties[property].title);
           }
 
           if(args.viewChange !== undefined && args.viewChange) {
