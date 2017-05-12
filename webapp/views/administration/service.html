@@ -542,7 +542,7 @@
         <span class="loading" ng-show="ctrl.ssh.isLoading || ctrl.db.isLoading" style="display: none;"><i class="fa fa-refresh fa-spin"></i></span>
         <span class="text">{{ i18n.__("Check Connection") }}</span>
       </button>
-      <a ng-href="/administration/services" class="btn btn-primary pull-left" id="serviceCancelButton">{{ i18n.__("Cancel") }}</a>
+      <a ng-href="{[ BASE_URL ]}administration/services" class="btn btn-primary pull-left" id="serviceCancelButton">{{ i18n.__("Cancel") }}</a>
     </div>
 
     <div class="overlay" ng-show="isChecking">

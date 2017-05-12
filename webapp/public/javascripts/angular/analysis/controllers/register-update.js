@@ -214,17 +214,17 @@ define([], function() {
           }
           switch (object.data_provider_type.name){
             case "FILE":
-              return "/images/data-server/file/file.png";
+              return BASE_URL + "images/data-server/file/file.png";
               break;
             case "FTP":
-              return "/images/data-server/ftp/ftp.png";
+              return BASE_URL + "images/data-server/ftp/ftp.png";
               break;
             case "HTTP":
-              return "/images/data-server/http/http.png";
+              return BASE_URL + "images/data-server/http/http.png";
               break;
             case "POSTGIS":
             default:
-              return "/images/data-server/postGIS/postGIS.png";
+              return BASE_URL + "images/data-server/postGIS/postGIS.png";
               break;
           }
         }
@@ -556,42 +556,42 @@ define([], function() {
           utilities: {
             name: "Utilities",
             fileName: "utilities.json",
-            imagePath: "/images/analysis/functions/utilities/utilities.png"
+            imagePath: BASE_URL + "images/analysis/functions/utilities/utilities.png"
           },
           dcp: {
             name: "DCP",
             fileName: "dcp-operators.json",
-            imagePath: "/images/analysis/functions/monitored-object/dcp/dcp.png"
+            imagePath: BASE_URL + "images/analysis/functions/monitored-object/dcp/dcp.png"
           },
           grid_monitored: {
             name: "GRID",
             fileName: "grid-monitored-operators.json",
-            imagePath: "/images/analysis/functions/monitored-object/grid/grid.png"
+            imagePath: BASE_URL + "images/analysis/functions/monitored-object/grid/grid.png"
           },
           grid: {
             name: "GRID",
             fileName: "grid-operators.json",
-            imagePath: "/images/analysis/functions/grid/sample/sample.png"
+            imagePath: BASE_URL + "images/analysis/functions/grid/sample/sample.png"
           },
           historical: {
             name: "Historical",
             fileName: "historical-grid.json",
-            imagePath: "/images/analysis/functions/grid/historic/historic.png"
+            imagePath: BASE_URL + "images/analysis/functions/grid/historic/historic.png"
           },
           forecast: {
             name: "Forecast",
             fileName: "forecast-grid.json",
-            imagePath: "/images/analysis/functions/grid/forecast/forecast.png"
+            imagePath: BASE_URL + "images/analysis/functions/grid/forecast/forecast.png"
           },
           occurrence: {
             name: "Occurrence",
             fileName: "occurrence-operators.json",
-            imagePath: "/images/analysis/functions/monitored-object/occurrence/occurrence.png"
+            imagePath: BASE_URL + "images/analysis/functions/monitored-object/occurrence/occurrence.png"
           },
           python: {
             name: "Python",
             fileName: "python.json",
-            imagePath: "/images/analysis/functions/python/python.png"
+            imagePath: BASE_URL + "images/analysis/functions/python/python.png"
           }
         };
 
@@ -665,7 +665,7 @@ define([], function() {
 
             var httpRequest = $http({
               method: "GET",
-              url: "/uri/",
+              url: BASE_URL + "uri/",
               params: params
             });
 
@@ -1176,7 +1176,7 @@ define([], function() {
 
             return request
               .then(function(data) {
-                window.location = "/configuration/analysis?token=" + (data.token || (data.data || {}).token);
+                window.location = BASE_URL + "configuration/analysis?token=" + (data.token || (data.data || {}).token);
               })
               .catch(function(err) {
                 MessageBoxService.danger(i18n.__("Analysis"), i18n.__(err.message));

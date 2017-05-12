@@ -12,13 +12,13 @@ define([], function() {
     $scope.boxCss = {};
 
     $scope.link = function(object) {
-      return "/administration/services/" + object.id;
+      return BASE_URL + "administration/services/" + object.id;
     };
 
     $scope.model = [];
 
     $scope.remove = function(object) {
-      return "/api/Service/" + object.id + "/delete";
+      return BASE_URL + "api/Service/" + object.id + "/delete";
     };
 
     $scope.confirmRemoval = function(object) {
@@ -157,21 +157,21 @@ define([], function() {
       {key: 'type', as: 'Type'}
     ];
 
-    $scope.linkToAdd = "/administration/services/new";
+    $scope.linkToAdd = BASE_URL + "administration/services/new";
 
     $scope.iconFn = function(object){
       switch(object.type){
         case "Analysis":
-          return "/images/services/analysis/analysis_service.png";
+          return BASE_URL + "images/services/analysis/analysis_service.png";
           break;
         case "Collect":
-          return "/images/services/collector/collector_service.png";
+          return BASE_URL + "images/services/collector/collector_service.png";
           break;
         case "View":
-          return "/images/services/view/view_service.png";
+          return BASE_URL + "images/services/view/view_service.png";
           break;
         default:
-          return "/images/services/alert/alert_service.png";
+          return BASE_URL + "images/services/alert/alert_service.png";
           break;
       }
     };
@@ -245,7 +245,7 @@ define([], function() {
         },
         reload: function(serviceInstance) {
           $HttpTimeout({
-            url: "/api/Remote/reload",
+            url: BASE_URL + "api/Remote/reload",
             data: {serviceId: serviceInstance.id},
             method: 'post'
           }).then(function(data) {

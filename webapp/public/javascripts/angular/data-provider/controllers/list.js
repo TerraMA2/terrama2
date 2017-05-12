@@ -20,7 +20,7 @@ define(function() {
           });
         }, 500);
 
-        $scope.linkToAdd = "/configuration/providers/new";
+        $scope.linkToAdd = BASE_URL + "configuration/providers/new";
         $scope.MessageBoxService = MessageBoxService;
         $scope.fields = [
           {key: "name", as: i18n.__("Name")},
@@ -28,10 +28,10 @@ define(function() {
           {key: "description", as: i18n.__("Description")}
         ];
         $scope.remove = function(object) {
-          return "/api/DataProvider/" + object.id + "/delete";
+          return BASE_URL + "api/DataProvider/" + object.id + "/delete";
         };
         $scope.link = function(object) {
-          return "/configuration/providers/edit/" + object.id;
+          return BASE_URL + "configuration/providers/edit/" + object.id;
         };
         $scope.close = function() {
           MessageBoxService.reset();

@@ -20,7 +20,7 @@ define([], function(){
             options: "=",
             schedule: "<"
         },
-        templateUrl: "/dist/templates/data-series/templates/storager.html",
+        templateUrl: BASE_URL + "dist/templates/data-series/templates/storager.html",
         controller: StoragerController
     };
 
@@ -58,17 +58,17 @@ define([], function(){
         }
         switch (object.data_provider_type.name){
           case 'POSTGIS':
-            return "/images/data-server/postGIS/postGIS.png";
+            return BASE_URL + "images/data-server/postGIS/postGIS.png";
             break;
           case 'HTTP':
-            return "/images/data-server/http/http.png";
+            return BASE_URL + "images/data-server/http/http.png";
             break;
           case 'FTP':
-            return "/images/data-server/ftp/ftp.png";
+            return BASE_URL + "images/data-server/ftp/ftp.png";
             break;
           case 'FILE':
           default:
-            return "/images/data-server/file/file.png";
+            return BASE_URL + "images/data-server/file/file.png";
             break;
         }
       }
@@ -213,7 +213,7 @@ define([], function(){
 
               var dataToSend = Object.assign({}, self.dcpsStoragerObject[dcpItem.newAlias]);
 
-              $http.post("/configuration/dynamic/dataseries/updateDcpStore", {
+              $http.post(BASE_URL + "configuration/dynamic/dataseries/updateDcpStore", {
                 key: storedDcpsKey,
                 oldAlias: dcpItem.oldAlias,
                 dcp: dataToSend
@@ -334,7 +334,7 @@ define([], function(){
             "processing": true,
             "serverSide": true,
             "ajax": {
-              "url": "/configuration/dynamic/dataseries/paginateDcpsStore",
+              "url": BASE_URL + "configuration/dynamic/dataseries/paginateDcpsStore",
               "type": "POST",
               "data": function(data) {
                 data.key = storedDcpsKey;
@@ -432,7 +432,7 @@ define([], function(){
           self.removePcdStorager(args.dcp);
           removeInput(args.dcp.alias);
 
-          $http.post("/configuration/dynamic/dataseries/removeStoredDcpStore", {
+          $http.post(BASE_URL + "configuration/dynamic/dataseries/removeStoredDcpStore", {
             key: storedDcpsKey,
             alias: args.dcp.alias
           }).then(function(result) {
@@ -454,7 +454,7 @@ define([], function(){
       });
 
       $scope.$on("deleteDcpsStoreKey", function(event) {
-        $http.post("/configuration/dynamic/dataseries/deleteDcpsStoreKey", {
+        $http.post(BASE_URL + "configuration/dynamic/dataseries/deleteDcpsStoreKey", {
           key: storedDcpsKey
         }).error(function(err) {
           console.log("Err in deleting key");
@@ -481,7 +481,7 @@ define([], function(){
       });
 
       self.storageDcpsStore = function(dcps) {
-        $http.post("/configuration/dynamic/dataseries/storeDcpsStore", {
+        $http.post(BASE_URL + "configuration/dynamic/dataseries/storeDcpsStore", {
           key: storedDcpsKey,
           dcps: dcps
         }).then(function(result) {
@@ -594,7 +594,7 @@ define([], function(){
           }
 
           if(args.viewChange !== undefined && args.viewChange) {
-            $http.post("/configuration/dynamic/dataseries/clearDcpsStore", {
+            $http.post(BASE_URL + "configuration/dynamic/dataseries/clearDcpsStore", {
               key: storedDcpsKey
             }).then(function(result) {
               self.dcpsStoragerObject = {};

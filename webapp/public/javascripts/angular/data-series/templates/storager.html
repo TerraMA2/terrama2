@@ -49,11 +49,11 @@
                 ng-model="$ctrl.storager_service"
                 required>
           <ui-select-match>
-            <img ng-src="/images/services/collector/collector_service.png" style="width: 20px; margin-top: -13px"/>
+            <img ng-src="{[ BASE_URL ]}images/services/collector/collector_service.png" style="width: 20px; margin-top: -13px"/>
             <span ng-bind="$select.selected.name"></span>
           </ui-select-match>
           <ui-select-choices repeat="service.id as service in ($ctrl.services | filter: {'name': $select.search}) track by $index">
-            <img ng-src="/images/services/collector/collector_service.png" style="width: 20px;"/>
+            <img ng-src="{[ BASE_URL ]}images/services/collector/collector_service.png" style="width: 20px;"/>
             <span ng-bind="service.name"></span>
           </ui-select-choices>
 
