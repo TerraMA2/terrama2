@@ -176,7 +176,12 @@ std::string terrama2::core::Unpack::decompress(std::string uri,
   }
   catch(const te::Exception& e)
   {
-    TERRAMA2_LOG_ERROR() << QString::fromStdString(*boost::get_error_info<te::ErrorDescription>(e));
+    QString errMsg;
+    auto errStr = boost::get_error_info<te::ErrorDescription>(e);
+    if(errStr)
+      errMsg.append(QString::fromStdString(*errStr));
+    errMsg.append(e.what());
+    TERRAMA2_LOG_ERROR() << errMsg;
   }
   catch(const std::exception& e)
   {

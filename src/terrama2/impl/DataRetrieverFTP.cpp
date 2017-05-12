@@ -83,7 +83,10 @@ terrama2::core::DataRetrieverFTP::DataRetrieverFTP(DataProviderPtr dataprovider,
   catch(const te::Exception& e)
   {
     QString errMsg = QObject::tr("FTP address is invalid! \n\n Details: \n");
-    errMsg.append(QString::fromStdString(*boost::get_error_info<te::ErrorDescription>(e)));
+    auto errStr = boost::get_error_info<te::ErrorDescription>(e);
+    if(errStr)
+      errMsg.append(QString::fromStdString(*errStr));
+    errMsg.append(e.what());
 
     TERRAMA2_LOG_ERROR() << errMsg;
     throw DataRetrieverException() << ErrorDescription(errMsg);
@@ -246,7 +249,10 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
         catch(const te::Exception& e)
         {
           QString errMsg = QObject::tr("Error during download of file %1.\n").arg(QString::fromStdString(file));
-          errMsg.append(QString::fromStdString(*boost::get_error_info<te::ErrorDescription>(e)));
+          auto errStr = boost::get_error_info<te::ErrorDescription>(e);
+          if(errStr)
+            errMsg.append(QString::fromStdString(*errStr));
+          errMsg.append(e.what());
 
           TERRAMA2_LOG_ERROR() << errMsg;
           throw DataRetrieverException() << ErrorDescription(errMsg);
