@@ -115,7 +115,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-primary" data-dismiss="modal">{{ i18n.__('Cancel') }} </button>
-          <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="ctrl.addDataSeries()">{{ i18n.__('OK') }}</button>
+          <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="ctrl.addDataSeries()">{{ i18n.__('Add') }}</button>
         </div>
       </div>
     </div>
@@ -746,7 +746,7 @@
           <span ng-bind="i18n.__('Validate')" ng-show="!ctrl.validating"></span>
         </button>
       </span>
-      <a href="/configuration/analysis/" class="btn btn-primary pull-right" id="analysisCancelButton" style="margin-left: 10px;">{{ i18n.__('Cancel') }}</a>
+      <a href="/configuration/analysis/" class="btn btn-primary pull-left" id="analysisCancelButton">{{ i18n.__('Cancel') }}</a>
     </div>
 
   </terrama2-box>

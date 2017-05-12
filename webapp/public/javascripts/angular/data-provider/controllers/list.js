@@ -13,6 +13,13 @@ define(function() {
         var title = "Data Server";
         $scope.i18n = i18n;
         $scope.model = DataProviderService.list();
+
+        $timeout(function() {
+          $scope.model.forEach(function(instance) {
+            instance.data_provider_type.name = i18n.__(instance.data_provider_type.name);
+          });
+        }, 500);
+
         $scope.linkToAdd = "/configuration/providers/new";
         $scope.MessageBoxService = MessageBoxService;
         $scope.fields = [

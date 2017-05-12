@@ -10,11 +10,6 @@
     "locale": "en_US"
   },
   {
-    "name": "France",
-    "id": "fr",
-    "locale": "fr_FR"
-  },
-  {
     "name": "Spain",
     "id": "es",
     "locale": "es_ES"

@@ -263,7 +263,7 @@
           },
           "alias": {
             "type": "string",
-            "title": "Alias",
+            "title": "DCP Name",
             "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
             "hasDefaultFieldForImport": true,
             "hasPrefixFieldForImport": true
@@ -404,7 +404,7 @@
           },
           "alias": {
             "type": "string",
-            "title": "Alias",
+            "title": "DCP Name",
             "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
             "hasDefaultFieldForImport": true,
             "hasPrefixFieldForImport": true
@@ -545,7 +545,7 @@
           },
 	  "alias": {
             "type": "string",
-            "title": "Alias",
+            "title": "DCP Name",
             "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
             "hasDefaultFieldForImport": true,
             "hasPrefixFieldForImport": true
@@ -906,7 +906,7 @@
           },
           "alias": {
             "type": "string",
-            "title": "Alias",
+            "title": "DCP Name",
             "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
             "hasDefaultFieldForImport": true,
             "hasPrefixFieldForImport": true
