@@ -91,7 +91,7 @@ class RaiiDataSourceTsDataAccessorOccurrenceWfp
 {
   public:
     RaiiDataSourceTsDataAccessorOccurrenceWfp(const std::string& type,
-                                              const te::da::DataSourceFactory::FactoryFnctType& ft ) : type_(type), ft_(ft)
+                                              const te::da::DataSourceFactory::FactoryFnctType& ft ) : type_(type), ft_(std::move(ft))
     {
       if(te::da::DataSourceFactory::find(type_))
       {

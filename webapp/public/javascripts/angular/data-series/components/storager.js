@@ -525,7 +525,7 @@ define([], function(){
         self.providersList.forEach(function(dataProvider) {
           dataSeriesSemantics.data_providers_semantics.forEach(function(demand) {
             if(dataProvider.data_provider_type.id == demand.data_provider_type_id) {
-              if(self.storager.format.data_series_type_name == 'GRID' && dataProvider.data_provider_type.id != 1)
+              if((self.storager.format.data_series_type_name == 'GRID' && dataProvider.data_provider_type.id != 1) || dataProvider.data_provider_type.id == 2)
                 return;
               self.dataProvidersStorager.push(dataProvider);
             }

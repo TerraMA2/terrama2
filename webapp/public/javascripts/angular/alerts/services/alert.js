@@ -43,7 +43,8 @@ define(function(){
         return defer.resolve(response.data);
       })
       .catch(function(err) {
-        return defer.reject(err);
+        var errMessage = "Error creating Alert. \n" + (err.data ? err.data.message : "");
+        return defer.reject(errMessage);
       })
 
       return defer.promise;
@@ -62,6 +63,10 @@ define(function(){
         data: alertObject
       }).then(function(response) {
         return defer.resolve(response.data);
+      })
+      .catch(function(err) {
+        var errMessage = "Error updating Alert. \n" + (err.data ? err.data.message : "");
+        return defer.reject(errMessage);
       });
 
       return defer.promise;

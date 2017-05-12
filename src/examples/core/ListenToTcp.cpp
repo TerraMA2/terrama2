@@ -158,7 +158,7 @@ int main(int argc, char* argv[])
   timer.start(10000);
   app.exec();
 
-  
+
 
   return 0;
 }

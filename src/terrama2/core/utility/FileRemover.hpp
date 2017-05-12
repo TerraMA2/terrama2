@@ -49,14 +49,14 @@ namespace terrama2
 
         ~FileRemover()
         {
-          for (auto filePath : fileList)
+          for (const auto& filePath : fileList)
           {
             QFile file(QString::fromStdString(filePath));
             if(file.exists())
               file.remove();
           }
 
-          for (auto folderPath : folderList)
+          for (const auto& folderPath : folderList)
           {
             QString path(QString::fromStdString(folderPath + "/"));
 

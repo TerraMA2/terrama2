@@ -11,7 +11,7 @@
 
 class AlertLoggerMock : public terrama2::services::alert::core::AlertLogger
 {
-
+  
   public:
 
     MOCK_CONST_METHOD1(start, RegisterId(ProcessId processId));
