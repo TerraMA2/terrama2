@@ -188,7 +188,7 @@ void terrama2::core::Service::mainLoopThread() noexcept
       if(stop_)
         break;
     }
-    catch(std::exception& e)
+    catch(const std::exception& e)
     {
       TERRAMA2_LOG_ERROR() << e.what();
     }
@@ -228,7 +228,7 @@ void terrama2::core::Service::processingTaskThread() noexcept
         break;
     }
   }
-  catch(std::exception& e)
+  catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
   }

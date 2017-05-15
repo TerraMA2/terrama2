@@ -311,16 +311,16 @@ int main(int argc, char* argv[])
       return TERRAMA2_FINALIZATION_ERROR;
     }
   }
-  catch(boost::program_options::error& e)
+  catch(const boost::program_options::error& e)
   {
-    std::cout << "Invalid options.See 'terrama2_service --help'\n" << std::endl;
+    std::cout << "Invalid options.\nSee 'terrama2_service --help'\n" << std::endl;
     TERRAMA2_LOG_ERROR() << e.what();
   }
-  catch(boost::exception& e)
+  catch(const boost::exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::diagnostic_information(e);
   }
-  catch(std::exception& e)
+  catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
   }

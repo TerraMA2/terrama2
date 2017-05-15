@@ -99,7 +99,7 @@ te::dt::AbstractData* terrama2::core::DataAccessor::stringToDouble(te::da::DataS
     TERRAMA2_LOG_ERROR() << QObject::tr("Invalid argument: %1").arg(e.what());
   }
 
-  catch(std::exception& e)
+  catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
   }
@@ -140,7 +140,7 @@ te::dt::AbstractData* terrama2::core::DataAccessor::stringToInt(te::da::DataSet*
     TERRAMA2_LOG_ERROR() << e.what();
   }
 
-  catch(std::exception& e)
+  catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
   }

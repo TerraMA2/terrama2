@@ -130,10 +130,6 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
   {
     ContextManager::getInstance().addError(analysisHashCode,  boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
   }
-  catch(const std::exception& e)
-  {
-    ContextManager::getInstance().addError(analysisHashCode, e.what());
-  }
   catch(const boost::python::error_already_set&)
   {
     std::string errMsg = terrama2::services::analysis::core::python::extractException();
@@ -142,6 +138,10 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
   catch(const boost::exception& e)
   {
     ContextManager::getInstance().addError(analysisHashCode, boost::diagnostic_information(e));
+  }
+  catch(const std::exception& e)
+  {
+    ContextManager::getInstance().addError(analysisHashCode, e.what());
   }
   catch(...)
   {
