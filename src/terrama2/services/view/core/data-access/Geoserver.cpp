@@ -1147,50 +1147,67 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
 
   if(dataProviderType == "FILE")
   {
-    for(auto& dataset : inputDataSeries->datasetList)
+    const auto& temporality = inputDataSeries->semantics.temporality;
+
+    if(temporality == terrama2::core::DataSeriesTemporality::DYNAMIC && dataFormat == "GDAL")
     {
-      // Get the list of layers to register
-      auto fileInfoList = DataAccess::getFilesList(dataSeriesProvider, dataset, viewPtr->filter);
+      const auto& layersNames = registerMosaics(inputDataProvider, inputDataSeries, dataManager, viewPtr);
 
-      if(fileInfoList.empty())
+      for(const auto& layerName : layersNames)
       {
-        QString errorMsg = QString("No data in data series %1.").arg(inputDataSeries->id);
-        logger->log(ViewLogger::WARNING_MESSAGE, errorMsg.toStdString(), logId);
-        TERRAMA2_LOG_WARNING() << QObject::tr(errorMsg.toStdString().c_str());
-        continue;
-      }
-
-      for(auto& fileInfo : fileInfoList)
-      {
-        std::string layerName = fileInfo.fileName().toStdString();
-
-        if(dataFormat == "OGR")
-        {
-          if(!modelDataSetType)
-          {
-            modelDataSetType.reset(DataAccess::getVectorialDataSetType(fileInfo));
-          }
-
-          registerVectorFile(layerName + "_datastore_" + std::to_string(viewPtr->id),
-                             fileInfo.absoluteFilePath().toStdString(),
-                             layerName);
-        }
-        else if(dataFormat == "GDAL")
-        {
-          if(!modelDataSetType)
-          {
-            modelDataSetType.reset(DataAccess::getGeotiffDataSetType(fileInfo));
-          }
-
-          registerCoverageFile(layerName + "_coveragestore_" + std::to_string(viewPtr->id),
-                               fileInfo.absoluteFilePath().toStdString(),
-                               layerName,
-                               "geotiff");
-        }
-
         QJsonObject layer;
         layer.insert("layer", QString::fromStdString(layerName));
         layersArray.push_back(layer);
+      }
+
+    }
+    else
+    {
+      for(auto& dataset : inputDataSeries->datasetList)
+      {
+        // Get the list of layers to register
+        auto fileInfoList = DataAccess::getFilesList(dataSeriesProvider, dataset, viewPtr->filter);
+
+        if(fileInfoList.empty())
+        {
+          QString errorMsg = QString("No data in data series %1.").arg(inputDataSeries->id);
+          logger->log(ViewLogger::WARNING_MESSAGE, errorMsg.toStdString(), logId);
+          TERRAMA2_LOG_WARNING() << QObject::tr(errorMsg.toStdString().c_str());
+          continue;
+        }
+
+        for(auto& fileInfo : fileInfoList)
+        {
+          std::string layerName = fileInfo.fileName().toStdString();
+
+          if(dataFormat == "OGR")
+          {
+            if(!modelDataSetType)
+            {
+              modelDataSetType.reset(DataAccess::getVectorialDataSetType(fileInfo));
+            }
+
+            registerVectorFile(layerName + "_datastore_" + std::to_string(viewPtr->id),
+                               fileInfo.absoluteFilePath().toStdString(),
+                               layerName);
+          }
+          else if(dataFormat == "GDAL")
+          {
+            if(!modelDataSetType)
+            {
+              modelDataSetType.reset(DataAccess::getGeotiffDataSetType(fileInfo));
+            }
+
+            registerCoverageFile(layerName + "_coveragestore_" + std::to_string(viewPtr->id),
+                                 fileInfo.absoluteFilePath().toStdString(),
+                                 layerName,
+                                 "geotiff");
+          }
+
+          QJsonObject layer;
+          layer.insert("layer", QString::fromStdString(layerName));
+          layersArray.push_back(layer);
+        }
       }
     }
   }
@@ -1385,3 +1402,28 @@ std::string terrama2::services::view::core::GeoServer::getGeomTypeString(const t
   }
 }
 
+std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosaics(const terrama2::core::DataProviderPtr inputDataProvider,
+                                                                                    const terrama2::core::DataSeriesPtr inputDataSeries,
+                                                                                    const std::shared_ptr<DataManager> dataManager,
+                                                                                    const ViewPtr viewPtr) const
+{
+  QUrl baseUrl(QString::fromStdString(inputDataProvider->uri));
+
+  int geomSRID;
+
+  std::vector<std::string> layersNames;
+
+  for(auto& dataset : inputDataSeries->datasetList)
+  {
+    std::string layerName = viewPtr->viewName + std::to_string(dataset->id);
+
+    QUrl url(baseUrl.toString() + QString::fromStdString("/" + dataset->format.at("folder")));
+    geomSRID = createGeoserverTempMosaic(dataManager, dataset, viewPtr->filter, layerName, url.path().toStdString());
+
+    registerMosaicCoverage(layerName + "coveragestore", url.path().toStdString(), layerName, geomSRID);
+
+    layersNames.push_back(layerName);
+  }
+
+  return layersNames;
+}

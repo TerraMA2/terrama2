@@ -59,7 +59,7 @@ int main(int argc, char** argv)
     // DataProvider information
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
-    dataProvider->uri = "file:///" + TERRAMA2_DATA_DIR + "/grads";
+    dataProvider->uri = "file:///" + TERRAMA2_DATA_DIR + "/umidade";
 
     dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
     dataProvider->dataProviderType = "FILE";

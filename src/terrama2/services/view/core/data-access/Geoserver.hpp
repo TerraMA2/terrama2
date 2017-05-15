@@ -304,6 +304,11 @@ namespace terrama2
 
             std::string getGeomTypeString(const te::gm::GeomType& geomType) const;
 
+            std::vector<std::string> registerMosaics(const terrama2::core::DataProviderPtr inputDataProvider,
+                                                     const terrama2::core::DataSeriesPtr inputDataSeries,
+                                                     const std::shared_ptr<DataManager> dataManager,
+                                                     const ViewPtr viewPtr) const;
+
           private:
 
             std::string workspace_ = "terrama2"; /*!< A workspace to work in GeoServer */
