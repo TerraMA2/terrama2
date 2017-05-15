@@ -70,7 +70,14 @@ var Proxy = function(io){
             }
           }
           // Socket response
-          client.emit('proxyResponseCapabilities', { msg: body, requestId: json.requestId, layerId: json.layerId, parent: json.parent, layerName: json.layerName });
+          client.emit('proxyResponseCapabilities', { 
+            msg: body, 
+            requestId: json.requestId, 
+            layerId: json.layerId, 
+            parent: json.parent, 
+            layerName: json.layerName,
+            update: json.update
+           });
         });
 
       }).on("error", function(e) {

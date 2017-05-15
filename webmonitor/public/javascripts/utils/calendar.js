@@ -24,6 +24,25 @@ var makeHelperDatePicker = function(capability) {
   return datepicker;
 };
 
+/**
+ * It updates the calendar start, end date
+ * @param {object} capability - object with dates 
+ * @param {string} layerId - layer id to update
+ */
+var updateDatePicker = function(capability, layerId){
+  var listElement = $("li[data-layerid='"+ layerId +"']");
+  var layerName = layerId.split(":")[1];
+  var calendar = listElement.find("input[name='" + layerName +"']");
+
+  if (capability.extent instanceof Array) {
+    calendar.attr("data-min-date", capability.extent[0]);
+    calendar.attr("data-max-date", capability.extent[capability.extent.length - 1]);
+  } else if (capability.extent instanceof Object) {
+    calendar.attr("data-min-date", capability.extent.startDate);
+    calendar.attr("data-max-date", capability.extent.endDate);
+  }
+};
+
 $("#terrama2-layerexplorer").on("click", "#terrama2-calendar", function(event) {
   var self = $(this);
   var parentLi = $(self).parent();
@@ -35,11 +54,10 @@ $("#terrama2-layerexplorer").on("click", "#terrama2-calendar", function(event) {
   if (!minDate || !maxDate) {
     return;
   }
+  var mMinDate = moment(minDate);
+  var mMaxDate = moment(maxDate);
   if (calendar.length === 0) {
     calendar = $("<input type='text' id='" + capability + "' value='' style='display:none;'>");
-
-    var mMinDate = moment(minDate);
-    var mMaxDate = moment(maxDate);
     /**
      * Important: Due date range picker implementation, we must configure startDate and endDate. Otherwise, it will display NaN
      * date values because the start date is None, so the component take on current timestamp.
@@ -59,6 +77,28 @@ $("#terrama2-layerexplorer").on("click", "#terrama2-calendar", function(event) {
     $(calendar).on('click', function(e) {
       e.stopPropagation();
     })
+
+    $(calendar).on("apply.daterangepicker", function(ev, picker) {
+      //  DO REQUEST
+      var layerId = $(parentLi).attr("data-layerid");
+      var timeFormat = "YYYY-MM-DDTHH:mm:ss";
+      var pickerStartDate = picker.startDate.format(timeFormat);
+      var pickerEndDate = picker.endDate.format(timeFormat);
+
+      var layerTime = pickerStartDate + "Z/" + pickerEndDate + "Z";
+      TerraMA2WebComponents.MapDisplay.updateLayerTime(/**id */layerId, /** time */layerTime);
+    });
+  } else {
+
+    $(calendar).daterangepicker({
+      "timePicker": true,
+      "minDate": mMinDate,
+      "startDate": mMaxDate,
+      "endDate": mMaxDate,
+      "maxDate": mMaxDate,
+      "timePicker24Hour": true,
+      "opens": "center"
+    });
 
     $(calendar).on("apply.daterangepicker", function(ev, picker) {
       //  DO REQUEST
