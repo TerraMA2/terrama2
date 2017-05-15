@@ -90,13 +90,13 @@ void terrama2::core::ProcessLogger::setConnectionInfo(const te::core::URI& uri)
       isValid_ = true;
       return;
     }
-    catch(std::exception& e)
+    catch(const std::exception& e)
     {
       QString errMsg = QObject::tr("Could not connect to database");
       TERRAMA2_LOG_ERROR() << errMsg << ": " << e.what();
     }
   }
-  catch(std::exception& e)
+  catch(const std::exception& e)
   {
     QString errMsg = QObject::tr("Could not connect to database");
     TERRAMA2_LOG_ERROR() << errMsg << ": " << e.what();
@@ -124,7 +124,7 @@ void terrama2::core::ProcessLogger::setDataSource(te::da::DataSource* dataSource
       throw LogException();
     }
   }
-  catch(std::exception& e)
+  catch(const std::exception& e)
   {
     QString errMsg = QObject::tr("Could not connect to database");
     TERRAMA2_LOG_ERROR() << errMsg << ": " << e.what();

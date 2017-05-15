@@ -3,14 +3,14 @@
 
   <div class="col-md-3">
     <div class="form-group" terrama2-show-errors>
-      <label ng-bind="$ctrl.i18n.__('Header size')+':'"></label>
+      <label ng-bind="$ctrl.i18n.__('Number of Lines of the Header')+':'"></label>
       <input class="form-control" id="headerSize" name="headerSize" type="number" min="0" ng-model="$ctrl.csvFormatData.header_size" required>
     </div>
   </div>
 
   <div class="col-md-3">
     <div class="form-group" terrama2-show-errors>
-      <label ng-bind="$ctrl.i18n.__('Properties name line')+':'"></label>
+      <label ng-bind="$ctrl.i18n.__('Line with the Attributes Names')+':'"></label>
       <input class="form-control" id="propertiesNamesLine" name="propertiesNamesLine" type="number" min="0" max="{{$ctrl.csvFormatData.header_size}}" ng-model="$ctrl.csvFormatData.properties_names_line" required>
     </div>
   </div>
@@ -40,7 +40,7 @@
 <div class="col-md-12">
   <div class="col-md-12">
     <div class="form-group">
-      <label ng-bind="$ctrl.i18n.__('Fields')+':'"></label>
+      <label ng-bind="$ctrl.i18n.__('Attributes to be Converted')+':'"></label>
       <csv-field-detail ng-repeat="field in $ctrl.csvFormatData.fields" field="field" fields-type="$ctrl.fieldsType" on-delete="$ctrl.deleteField(field)" semantics="$ctrl.semantics"></csv-field-detail>
     </div>
   </div>

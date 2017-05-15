@@ -64,7 +64,7 @@
           <div class="form-group has-feedback" terrama2-show-errors>
             <label>{{ i18n.__("Type") }}:</label>
             <select ng-init="console.log(this)" class="form-control" name="protocol" ng-model="dataProvider.protocol" ng-change="onSchemeChanged(this)" ng-disabled="isEditing" required>
-              <option ng-repeat="item in typeList" value="{{ item.name }}" title="{{ item.description }}">{{ item.name }}</option>
+              <option ng-repeat="item in typeList" value="{{ item.name }}" title="{{ item.description }}">{{ i18n.__(item.name) }}</option>
             </select>
 
             <span class="help-block" ng-show="forms.dataProviderForm.protocol.$dirty && forms.dataProviderForm.protocol.$invalid" ng-class="{'has-error': forms.dataProviderForm.protocol.$invalid}">{{ i18n.__('Data Server protocol is required') }}</span>
@@ -101,8 +101,8 @@
     <!-- /.row -->
 
     <div class="box-footer">
-      <button type="submit" class="btn btn-primary pull-right" ng-click="save();" style="margin-left: 10px;">{{ i18n.__("OK") }}</button>
-      <a ng-href="{{ redirectUrl }}" class="btn btn-primary pull-right" style="margin-left: 10px;">{{ i18n.__("Cancel") }}</a>
+      <button type="submit" class="btn btn-primary pull-right" ng-click="save();" style="margin-left: 10px;">{{ i18n.__("Save") }}</button>
+      <a ng-href="{{ redirectUrl }}" class="btn btn-primary pull-left">{{ i18n.__("Cancel") }}</a>
       <button type="submit" class="btn btn-primary pull-right" ng-click="checkConnection(forms.connectionForm);" style="margin-left: 10px;">{{ i18n.__("Check Connection") }}</button>
     </div>
 

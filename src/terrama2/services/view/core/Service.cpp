@@ -75,7 +75,7 @@ void terrama2::services::view::core::Service::prepareTask(const terrama2::core::
   {
     taskQueue_.emplace(std::bind(&Service::viewJob, this, executionPackage, std::dynamic_pointer_cast<terrama2::services::view::core::ViewLogger>(logger_->clone()), dataManager_));
   }
-  catch(std::exception& e)
+  catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
   }
@@ -164,14 +164,14 @@ void terrama2::services::view::core::Service::removeView(ViewId viewId) noexcept
 
     TERRAMA2_LOG_INFO() << tr("View %1 removed successfully.").arg(viewId);
   }
-  catch(std::exception& e)
-  {
-    TERRAMA2_LOG_ERROR() << e.what();
-    TERRAMA2_LOG_INFO() << tr("Could not remove view: %1.").arg(viewId);
-  }
-  catch(boost::exception& e)
+  catch(const boost::exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
+    TERRAMA2_LOG_INFO() << tr("Could not remove view: %1.").arg(viewId);
+  }
+  catch(const std::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << e.what();
     TERRAMA2_LOG_INFO() << tr("Could not remove view: %1.").arg(viewId);
   }
   catch(...)

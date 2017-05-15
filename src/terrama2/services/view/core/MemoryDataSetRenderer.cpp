@@ -207,7 +207,7 @@ void te::map::MemoryDataSetRenderer::drawLayerGroupingMem(AbstractLayer* layer,
       if(geom.get() == 0)
         continue;
     }
-    catch(std::exception& /*e*/)
+    catch(const std::exception& /*e*/)
     {
       continue;
     }
@@ -326,7 +326,7 @@ void te::map::MemoryDataSetRenderer::drawLayerGeometries(AbstractLayer* layer,
         // 2) Calling the layer query method to get the correct restricted data.
         dataset = layer->getData(restriction);
       }
-      catch(std::exception& e)
+      catch(const std::exception& e)
       {
         throw Exception((boost::format(TE_TR("Could not retrieve the data set from the layer %1%.")) % layer->getTitle()).str());
       }

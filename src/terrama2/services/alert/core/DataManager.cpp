@@ -135,11 +135,11 @@ void terrama2::services::alert::core::DataManager::addJSon(const QJsonObject& ob
   {
     // logged on throw...
   }
-  catch(boost::exception& e)
+  catch(const boost::exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::diagnostic_information(e);
   }
-  catch(std::exception& e)
+  catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
   }
@@ -166,11 +166,11 @@ void terrama2::services::alert::core::DataManager::removeJSon(const QJsonObject&
   {
     // loggend on throw...
   }
-  catch(boost::exception& e)
+  catch(const boost::exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::diagnostic_information(e);
   }
-  catch(std::exception& e)
+  catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
   }
