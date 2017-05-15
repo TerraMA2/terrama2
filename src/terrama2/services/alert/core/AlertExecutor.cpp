@@ -544,7 +544,7 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
       {
         datetimeColumnName = dataAccessor->getTimestampPropertyName(dataset, false);
       }
-      catch(const terrama2::core::UndefinedTagException /*e*/)
+      catch(const terrama2::core::UndefinedTagException& /*e*/)
       {
         // do nothing
       }
@@ -695,7 +695,7 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
 
     emit alertFinished(alertId, executionPackage.executionDate, false);
   }
-  catch(boost::exception& e)
+  catch(const boost::exception& e)
   {
     logger->result(AlertLogger::ERROR, nullptr, executionPackage.registerId);
     logger->log(AlertLogger::ERROR_MESSAGE, boost::diagnostic_information(e), executionPackage.registerId);
@@ -703,7 +703,7 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
 
     emit alertFinished(alertId, executionPackage.executionDate, false);
   }
-  catch(std::exception& e)
+  catch(const std::exception& e)
   {
     QString errMsg(e.what());
     logger->result(AlertLogger::ERROR, nullptr, executionPackage.registerId);

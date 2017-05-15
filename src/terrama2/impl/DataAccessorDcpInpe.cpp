@@ -99,13 +99,13 @@ te::dt::AbstractData* terrama2::core::DataAccessorDcpInpe::stringToTimestamp(te:
 
     return dt;
   }
-  catch(std::exception& e)
-  {
-    TERRAMA2_LOG_ERROR() << e.what();
-  }
-  catch(boost::exception& e)
+  catch(const boost::exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
+  }
+  catch(const std::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << e.what();
   }
   catch(...)
   {
