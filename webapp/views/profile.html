@@ -13,7 +13,7 @@ TerraMA² {{ i18n.__('User Registration') }}
 {% endblock %}
 
 {% block styles %}
-<link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}bower_components/intl-tel-input/css/intlTelInput.css">
+<link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}bower_components/intl-tel-input/build/css/intlTelInput.css">
 <style type="text/css">
   .intl-tel-input {
     display: block !important;
@@ -23,12 +23,12 @@ TerraMA² {{ i18n.__('User Registration') }}
 {% endblock %}
 
 {% block javascripts %}
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/intl-tel-input/js/intlTelInput.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/intl-tel-input/build/js/intlTelInput.js"></script>
 <script type="text/javascript">
   $(document).ready(function(){
     $("#cellphone").intlTelInput({
       preferredCountries: [ "br", "us", "es", "fr"],
-      utilsScript: BASE_URL + "bower_components/intl-tel-input/js/utils.js"
+      utilsScript: BASE_URL + "bower_components/intl-tel-input/build/js/utils.js"
     });
   });
 </script>

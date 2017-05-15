@@ -246,6 +246,8 @@ define([], function() {
         value: $scope.isUpdating
       };
 
+      $scope.BASE_URL = BASE_URL;
+
       // consts
       $scope.filterTypes = {
         NO_FILTER: {

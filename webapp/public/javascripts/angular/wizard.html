@@ -12,11 +12,11 @@
     <terrama2-alert-box2 handler="MessageBoxService.alertBox" close="MessageBoxService.reset()" extra=MessageBoxServe.alertBox.extra></terrama2-alert-box2>
   </div>
 
-  <wizard template="{[ BASE_URL ]}dist/templates/templates/terrama2-wizard.html">
+  <wizard id="wizard" template="">
     <wz-step wz-title="{{ i18n.__('General') }}" canexit="isFirstStepValid" wz-data="wizard.general">
       <div class="col-md-12">
         <form name="forms.generalDataForm">
-          <div ng-include="'{[ BASE_URL ]}dist/templates/generalData.html'"></div>
+          <div id="includeGeneralData" ng-include=""></div>
         </form>
       </div>
 
@@ -54,7 +54,7 @@
           </div>
 
 	        <terrama2-dcp-importer></terrama2-dcp-importer>
-          <div ng-include="'{[ BASE_URL ]}dist/templates/dcpTable.html'"></div>
+          <div id="includeDcpTable" ng-include=""></div>
         </div>
 
       </div>
@@ -138,7 +138,7 @@
 
     <wz-step wz-title="{{ i18n.__('Filters') }}" canexit="validateSteps" wz-disabled="{{ !isDynamic }}" wz-data="wizard.filter" canenter="!wizard.filter.disabled">
       <div class="col-md-12">
-        <div ng-include="'{[ BASE_URL ]}dist/templates/filter.html'"></div>
+        <div id="includeFilter" ng-include=""></div>
       </div>
       <div class="col-md-12" style="margin-top: 30px;">
         <a href="{[ BASE_URL ]}configuration/dynamic/dataseries/" class="btn btn-primary pull-left" ng-show="isDynamic">{{ i18n.__('Cancel') }}</a>
@@ -163,7 +163,7 @@
 
     <wz-step wz-title="{{ i18n.__('Intersection') }}" canexit="validateSteps" wz-disabled="{{ !isDynamic || semantics === 'GRID' }}" wz-data="wizard.intersection" canenter="!wizard.intersection.disabled">
       <div class="col-md-12">
-        <div ng-include="'{[ BASE_URL ]}dist/templates/data-series/templates/intersection.html'">
+        <div id="includeIntersection" ng-include="">
         </div>
       </div>
 
@@ -188,6 +188,20 @@
     </wz-step>
 
   </wizard>
+
+  <script>
+    var templatePath = BASE_URL + "dist/templates/templates/terrama2-wizard.html";
+    var includeDcpTable = "'" + BASE_URL + "dist/templates/dcpTable.html'";
+    var includeIntersection = "'" + BASE_URL + "dist/templates/data-series/templates/intersection.html'";
+    var includeFilter = "'" + BASE_URL + "dist/templates/filter.html'";
+    var includeGeneralData = "'" + BASE_URL + "dist/templates/generalData.html'";
+
+    $("#wizard").attr("template", templatePath);
+    $("#includeDcpTable").attr("ng-include", includeDcpTable);
+    $("#includeIntersection").attr("ng-include", includeIntersection);
+    $("#includeFilter").attr("ng-include", includeFilter);
+    $("#includeGeneralData").attr("ng-include", includeGeneralData);
+  </script>
 
 </div>
 

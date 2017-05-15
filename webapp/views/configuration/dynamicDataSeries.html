@@ -34,25 +34,25 @@
     collectors: {[collectors|json|safe]},
     analysis: {[analysis|json|safe]},
     link: function(object) {
-      return BASE_URL + "configuration/dynamic/dataseries/"+ object.id +"?type=dynamic#/wizard";
+      return "{[ BASE_URL ]}configuration/dynamic/dataseries/"+ object.id +"?type=dynamic#/wizard";
     },
     iconFn: function(object) {
       switch(object.data_series_semantics.data_series_type_name) {
         case globals.enums.DataSeriesType.ANALYSIS_MONITORED_OBJECT:
-          return BASE_URL + "images/analysis/monitored-object/monitored-object_analysis.png";
+          return "{[ BASE_URL ]}images/analysis/monitored-object/monitored-object_analysis.png";
           break;
         case globals.enums.DataSeriesType.GRID:
           if (object.isAnalysis){
-            return BASE_URL + "images/analysis/grid/grid_analysis.png";
+            return "{[ BASE_URL ]}images/analysis/grid/grid_analysis.png";
           } else {
-            return BASE_URL + "images/dynamic-data-series/grid/grid.png";
+            return "{[ BASE_URL ]}images/dynamic-data-series/grid/grid.png";
           }
           break;
         case globals.enums.DataSeriesType.OCCURRENCE:
-          return BASE_URL + "images/dynamic-data-series/occurrence/occurrence.png";
+          return "{[ BASE_URL ]}images/dynamic-data-series/occurrence/occurrence.png";
           break;
         default:
-          return BASE_URL + "images/dynamic-data-series/dcp/dcp.png";
+          return "{[ BASE_URL ]}images/dynamic-data-series/dcp/dcp.png";
       }
     },
     iconProperties: {
@@ -61,7 +61,7 @@
     showRunButton: true
   };
 
-  configuration.linkToAdd = BASE_URL + "configuration/dynamic/dataseries/new#wizard";
+  configuration.linkToAdd = "{[ BASE_URL ]}configuration/dynamic/dataseries/new#wizard";
 
 </script>
 

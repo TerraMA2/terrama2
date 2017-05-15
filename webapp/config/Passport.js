@@ -1,7 +1,8 @@
 var passport = require('passport'),
     LocalStrategy = require('passport-local').Strategy,
     bcrypt = require('bcrypt'),
-    DataManager = require("./../core/DataManager");
+    DataManager = require("./../core/DataManager"),
+    BASE_URL = null;
 
 /**
  * Middleware to check if current user is authenticated and redirect him to correct path
@@ -14,7 +15,7 @@ var isAuthenticated = function(req, res, next) {
     return next();
   }
   req.flash('error', 'You have to be logged in to access the page.');
-  res.redirect('/');
+  res.redirect(BASE_URL);
 };
 
 var _handlePermission = function(condition, request, response, next) {
@@ -23,11 +24,11 @@ var _handlePermission = function(condition, request, response, next) {
       return next();
     } else {
       request.flash('error', 'You don\'t have permission to access this page.');
-      response.redirect('/');
+      response.redirect(BASE_URL);
     }
   } else {
     request.flash('error', 'You have to be logged in to access the page.');
-    response.redirect('/');
+    response.redirect(BASE_URL);
   }
 };
 
@@ -40,6 +41,8 @@ var isCommonUser = function(request, response, next) {
 };
 
 var setupPassport = function(app) {
+  BASE_URL = app.locals.BASE_URL;
+
   app.use(passport.initialize());
   app.use(passport.session());
 

@@ -11,7 +11,7 @@ define([
       $templateCache.put("helper.html",
         "<div class=\"dropup pull-left\" style=\"margin-left: 10px;\">" + 
           "<button aria-expanded=\"false\" type=\"button\" class=\"btn dropdown-toggle\" data-toggle=\"dropdown\">" +
-            "<img style=\"height: 20px;\" ng-src=\"{{operators.imagePath}}\" data-toggle=\"tooltip\" data-placement=\"top\" ng-attr-title=\"{{operators.name}}\"/>" +
+            "<img style=\"height: 20px;\" ng-src=\"" + BASE_URL + "{{operators.imagePath}}\" data-toggle=\"tooltip\" data-placement=\"top\" ng-attr-title=\"{{operators.name}}\"/>" +
           "</button>" +
           "<terrama2-list class=\"dropdown-menu\" data=\"operatorsData\" expression=\"restriction\"></terrama2-list>" +
         "</div>");

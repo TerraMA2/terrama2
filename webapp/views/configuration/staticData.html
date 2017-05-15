@@ -13,7 +13,7 @@
    }
  };
 
- var baseUrl = BASE_URL + "configuration/static/dataseries/";
+ var baseUrl = "{[ BASE_URL ]}configuration/static/dataseries/";
  var configuration = {
    message: "{[ message ]}",
    dataSeriesType: 'static',
@@ -22,9 +22,9 @@
    },
    iconFn: function(object) {
      if (object.model_type === 'Grid') {
-       return BASE_URL + "images/static-data-series/grid/grid.png";
+       return "{[ BASE_URL ]}images/static-data-series/grid/grid.png";
      } else {
-      return BASE_URL + "images/static-data-series/vetorial/vetorial.png";
+      return "{[ BASE_URL ]}images/static-data-series/vetorial/vetorial.png";
      }
 
    },

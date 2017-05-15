@@ -52,6 +52,8 @@ define([], function(){
 
       self.getImageUrl = getImageUrl;
 
+      $scope.BASE_URL = BASE_URL;
+
       function getImageUrl(object){
         if (typeof object != 'object'){
           return '';

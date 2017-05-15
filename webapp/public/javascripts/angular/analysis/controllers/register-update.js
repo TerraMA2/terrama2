@@ -556,42 +556,42 @@ define([], function() {
           utilities: {
             name: "Utilities",
             fileName: "utilities.json",
-            imagePath: BASE_URL + "images/analysis/functions/utilities/utilities.png"
+            imagePath: "images/analysis/functions/utilities/utilities.png"
           },
           dcp: {
             name: "DCP",
             fileName: "dcp-operators.json",
-            imagePath: BASE_URL + "images/analysis/functions/monitored-object/dcp/dcp.png"
+            imagePath: "images/analysis/functions/monitored-object/dcp/dcp.png"
           },
           grid_monitored: {
             name: "GRID",
             fileName: "grid-monitored-operators.json",
-            imagePath: BASE_URL + "images/analysis/functions/monitored-object/grid/grid.png"
+            imagePath: "images/analysis/functions/monitored-object/grid/grid.png"
           },
           grid: {
             name: "GRID",
             fileName: "grid-operators.json",
-            imagePath: BASE_URL + "images/analysis/functions/grid/sample/sample.png"
+            imagePath: "images/analysis/functions/grid/sample/sample.png"
           },
           historical: {
             name: "Historical",
             fileName: "historical-grid.json",
-            imagePath: BASE_URL + "images/analysis/functions/grid/historic/historic.png"
+            imagePath: "images/analysis/functions/grid/historic/historic.png"
           },
           forecast: {
             name: "Forecast",
             fileName: "forecast-grid.json",
-            imagePath: BASE_URL + "images/analysis/functions/grid/forecast/forecast.png"
+            imagePath: "images/analysis/functions/grid/forecast/forecast.png"
           },
           occurrence: {
             name: "Occurrence",
             fileName: "occurrence-operators.json",
-            imagePath: BASE_URL + "images/analysis/functions/monitored-object/occurrence/occurrence.png"
+            imagePath: "images/analysis/functions/monitored-object/occurrence/occurrence.png"
           },
           python: {
             name: "Python",
             fileName: "python.json",
-            imagePath: BASE_URL + "images/analysis/functions/python/python.png"
+            imagePath: "images/analysis/functions/python/python.png"
           }
         };
 
