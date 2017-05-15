@@ -1,7 +1,7 @@
 [
   {
     "id": 1,
-    "name": "PostGIS occurrence",
+    "name": "Occurrence – PostGIS",
     "code": "OCCURRENCE-postgis",
     "driver": "OCCURRENCE-postgis",
     "type": "OCCURRENCE",
@@ -23,7 +23,7 @@
   },
   {
     "id": 2,
-    "name": "INPE's Wildland Fire Program",
+    "name": "Occurrence – INPE fire program",
     "code": "OCCURRENCE-wfp",
     "driver": "OCCURRENCE-wfp",
     "type": "OCCURRENCE",
@@ -76,7 +76,7 @@
   },
   {
     "id": 3,
-    "name": "Lightning occurrence",
+    "name": "Occurrence – INPE lightning program",
     "code": "OCCURRENCE-lightning",
     "driver": "OCCURRENCE-lightning",
     "type": "OCCURRENCE",
@@ -233,7 +233,7 @@
   },
   {
     "id": 7,
-    "name": "INPE's DCP data format",
+    "name": "DCP - INPE format",
     "code": "DCP-inpe",
     "driver": "DCP-inpe",
     "type": "DCP",
@@ -375,7 +375,7 @@
   },
   {
     "id": 8,
-    "name": "TOA5 DCP format",
+    "name": "DCP - TOA5 format",
     "code": "DCP-toa5",
     "driver": "DCP-toa5",
     "type": "DCP",
@@ -518,7 +518,7 @@
   },
   {
     "id": 9,
-    "name": "DCP PostGIS",
+    "name": "DCP - PostGIS",
     "code": "DCP-postgis",
     "driver": "DCP-postgis",
     "type": "DCP",
@@ -622,7 +622,7 @@
   },
   {
     "id": 11,
-    "name": "GDAL raster",
+    "name": "Grid - GDAL other formats",
     "code": "GRID-gdal",
     "driver": "GRID-gdal",
     "type": "GRID",
@@ -716,7 +716,7 @@
   },
   {
     "id": 12,
-    "name": "GrADS",
+    "name": "Grid - GrADS format",
     "code": "GRID-grads",
     "driver": "GRID-grads",
     "type": "GRID",
@@ -894,7 +894,7 @@
   },
   {
     "id": 13,
-    "name": "DCP CSV",
+    "name": "DCP - CSV custom",
     "code": "DCP-generic",
     "driver": "DCP-generic",
     "type": "DCP",
@@ -1032,7 +1032,7 @@
   },
   {
     "id": 14,
-    "name": "Occurrence CSV",
+    "name": "Occurrence – CSV custom",
     "code": "Occurrence-generic",
     "driver": "Occurrence-generic",
     "type": "OCCURRENCE",
