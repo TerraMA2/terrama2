@@ -65,7 +65,16 @@ namespace terrama2
       }
       static DataAccessorType dataAccessorType(){ return "GRID-grib"; }
 
-      virtual bool hasControlFile() const { return false; };
+      virtual void addToCompleteDataSet(DataSetPtr dataSet,
+                                        std::shared_ptr<te::mem::DataSet> completeDataSet,
+                                        std::shared_ptr<te::da::DataSet> teDataSet,
+                                        std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp,
+                                        const std::string&) const override;
+
+    protected:
+      virtual std::unique_ptr<te::rst::Raster> getRasterBand(DataSetPtr dataSet,
+                                                             std::shared_ptr<te::rst::Raster> gribRaster) const;
+      int getBand(DataSetPtr dataSet, std::shared_ptr<te::rst::Raster> raster) const;
 
     };
   }
