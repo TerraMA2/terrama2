@@ -63,7 +63,7 @@ void terrama2::services::collector::core::Service::prepareTask(const terrama2::c
     assert(collectorLogger);
     taskQueue_.emplace(std::bind(&terrama2::services::collector::core::Service::collect, this, executionPackage, collectorLogger, dataManager_));
   }
-  catch(std::exception& e)
+  catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
   }
@@ -333,12 +333,12 @@ void terrama2::services::collector::core::Service::removeCollector(CollectorId c
 
     TERRAMA2_LOG_INFO() << tr("Collector %1 removed successfully.").arg(collectorId);
   }
-  catch(std::exception& e)
+  catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
     TERRAMA2_LOG_INFO() << tr("Could not remove collector: %1.").arg(collectorId);
   }
-  catch(boost::exception& e)
+  catch(const boost::exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
     TERRAMA2_LOG_INFO() << tr("Could not remove collector: %1.").arg(collectorId);

@@ -127,11 +127,11 @@ int main(int argc, char* argv[])
   {
     std::cout << "Error in Process Logger example: " << boost::get_error_info<terrama2::ErrorDescription>(e) << std::endl;
   }
-  catch(boost::exception& e)
+  catch(const boost::exception& e)
   {
     std::cout << "Error in Process Logger example: " << boost::diagnostic_information(e) << std::endl;
   }
-  catch(std::exception& e)
+  catch(const std::exception& e)
   {
     std::cout << "Error in Process Logger example: " << e.what() << std::endl;
   }

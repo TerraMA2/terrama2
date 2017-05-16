@@ -50,7 +50,7 @@
 				<div class="row">
 					<div class="col-md-6">
 						<div class="form-group" terrama2-show-errors>
-							<label ng-bind="$ctrl.i18n.__('Property name')+':'"></label>
+							<label ng-bind="$ctrl.i18n.__('Attribute Name')+':'"></label>
 							<input name="property_name" class="form-control" type="text" ng-model="$ctrl.field.property_name" required>
 						<label class="help-block text-danger"
 										ng-show="csvFieldsForm.property_name.$dirty && csvFieldsForm.property_name.$error.required"
@@ -78,7 +78,7 @@
 			<div ng-if="$ctrl.field.type == 'DATETIME'">
 				<div  class="col-md-3">
 					<div class="form-group" terrama2-show-errors>
-						<label ng-bind="$ctrl.i18n.__('Property name')+':'"></label>
+						<label ng-bind="$ctrl.i18n.__('Attribute Name')+':'"></label>
 						<input name="property_name" class="form-control" type="text" ng-model="$ctrl.field.property_name" required>
 						<label class="help-block text-danger"
 										ng-show="csvFieldsForm.property_name.$dirty && csvFieldsForm.property_name.$error.required"

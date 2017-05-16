@@ -58,7 +58,8 @@ module.exports = function(app) {
           DataManager.removeProject({id: id}).then(function() {
             // un-setting cache project
             app.locals.activeProject = {};
-            response.json({status: 200, name: project.name});
+            var token = Utils.generateToken(app, TokenCode.DELETE, project.name);
+            response.json({status: 200, name: project.name, token: token});
           }).catch(function(err) {
             Utils.handleRequestError(response, err, 400);
           });

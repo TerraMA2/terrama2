@@ -263,7 +263,7 @@
           },
           "alias": {
             "type": "string",
-            "title": "Alias",
+            "title": "DCP Name",
             "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
             "hasDefaultFieldForImport": true,
             "hasPrefixFieldForImport": true
@@ -284,6 +284,8 @@
           "projection": {
             "type": "number",
             "title": "Projection (SRID)",
+            "minimum": 0,
+            "maximum": 998999,
             "hasDefaultFieldForImport": true
           },
           "active": {
@@ -404,7 +406,7 @@
           },
           "alias": {
             "type": "string",
-            "title": "Alias",
+            "title": "DCP Name",
             "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
             "hasDefaultFieldForImport": true,
             "hasPrefixFieldForImport": true
@@ -425,6 +427,8 @@
           "projection": {
             "type": "number",
             "title": "Projection (SRID)",
+            "minimum": 0,
+            "maximum": 998999,
             "hasDefaultFieldForImport": true
           },
           "active": {
@@ -541,11 +545,13 @@
           "projection": {
             "type": "number",
             "title": "Projection (SRID)",
+            "minimum": 0,
+            "maximum": 998999,
             "hasDefaultFieldForImport": true
           },
 	  "alias": {
             "type": "string",
-            "title": "Alias",
+            "title": "DCP Name",
             "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
             "hasDefaultFieldForImport": true,
             "hasPrefixFieldForImport": true
@@ -646,6 +652,8 @@
           },
           "srid": {
             "type": "number",
+            "minimum": 0,
+            "maximum": 998999,
             "title": "Projection (SRID)"
           }
         },
@@ -734,6 +742,8 @@
           },
           "srid" : {
             "type": "number",
+            "minimum": 0,
+            "maximum": 998999,
             "title": "Projection (SRID)"
           },
           "timezone" : {
@@ -742,6 +752,7 @@
           },
           "number_of_bands" : {
             "type": "number",
+            "minimum": 1,
             "title": "Number of Bands",
             "default": 1
           },
@@ -761,11 +772,13 @@
           },
           "bytes_before" : {
             "type": "number",
+            "minimum": 0,
             "title": "Bytes Before",
             "default": 0
           },
           "bytes_after" : {
             "type": "number",
+            "minimum": 0,
             "title": "Bytes After",
             "default": 0
           },
@@ -775,6 +788,7 @@
           },
           "time_interval" : {
             "type": "number",
+            "minimum": 0,
             "title": "Time Interval"
           },
           "time_interval_unit" : {
@@ -906,7 +920,7 @@
           },
           "alias": {
             "type": "string",
-            "title": "Alias",
+            "title": "DCP Name",
             "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
             "hasDefaultFieldForImport": true,
             "hasPrefixFieldForImport": true
@@ -927,6 +941,8 @@
           "projection": {
             "type": "number",
             "title": "Projection (SRID)",
+            "minimum": 0,
+            "maximum": 998999,
             "hasDefaultFieldForImport": true
           },
           "active": {
@@ -1043,6 +1059,8 @@
             },
             "srid": {
               "type": "number",
+              "minimum": 0,
+              "maximum": 998999,
               "title": "Projection (SRID)"
             },
             "active": {

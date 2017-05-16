@@ -31,6 +31,13 @@ define([
       };
 
       $scope.model = config.users;
+
+      $timeout(function() {
+        $scope.model.forEach(function(instance) {
+          instance.administrator = i18n.__(instance.administrator);
+        });
+      }, 500);
+
       $scope.fields = [
         {
           key: "name",
@@ -54,12 +61,12 @@ define([
         },
       ];
       
-      $scope.iconFn = function(object){
-        switch(object.administrator){
-          case "Yes":
+      $scope.iconFn = function(object) {
+        switch(object.administrator) {
+          case i18n.__("Yes"):
             return "/images/user/admin/user.png"
             break;
-          case "No":
+          case i18n.__("No"):
           default:
             return "/images/user/nadmin/user.png"
             break;

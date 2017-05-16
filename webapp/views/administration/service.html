@@ -449,17 +449,17 @@
         </div>
       </terrama2-box>
 
-      <terrama2-box title="i18n.__('Email Parameters')" css="ctrl.css" ng-if="ctrl.isAlertService()">
+      <terrama2-box title="i18n.__('Email Server')" css="ctrl.css" ng-if="ctrl.isAlertService()">
         <div class="row">
           <form name="emailServerForm" novalidate>
             <div class="col-md-12">
               <div class="col-md-8">
                 <div class="form-group has-feedback" terrama2-show-errors>
-                  <label><span ng-bind="i18n.__('Email Host')"></span>:</label>
+                  <label><span ng-bind="i18n.__('Host Address (URI)')"></span>:</label>
                   <input class="form-control"
                          name="host"
                          ng-model="ctrl.metadata.emailServer.host"
-                         placeholder="{{ i18n.__('Email Host') }}"
+                         placeholder="{{ i18n.__('Host Address (URI)') }}"
                          type="text"
                          required>
 
@@ -470,7 +470,7 @@
                   <!-- required -->
                   <span class="help-block has-error"
                         ng-show="emailServerForm.host.$dirty && emailServerForm.host.$error.required"
-                        ng-bind="i18n.__('Email Host is required')">
+                        ng-bind="i18n.__('Host Address is required')">
                   </span>
                 </div>
               </div>
@@ -537,12 +537,12 @@
     <!-- /.row -->
 
     <div class="box-footer">
-      <button type="submit" class="btn btn-primary pull-right" id="serviceSaveButton" data-ng-click="ctrl.save()" style="margin-left: 10px;">{{ i18n.__("OK") }}</button>
+      <button type="submit" class="btn btn-primary pull-right" id="serviceSaveButton" data-ng-click="ctrl.save()" style="margin-left: 10px;">{{ i18n.__("Save") }}</button>
       <button type="submit" class="btn btn-primary pull-right"  style="margin-left: 10px; width: 135px;" ng-click="ctrl.checkConnection()">
         <span class="loading" ng-show="ctrl.ssh.isLoading || ctrl.db.isLoading" style="display: none;"><i class="fa fa-refresh fa-spin"></i></span>
         <span class="text">{{ i18n.__("Check Connection") }}</span>
       </button>
-      <a ng-href="/administration/services" class="btn btn-primary pull-right" id="serviceCancelButton" style="margin-left: 10px;">{{ i18n.__("Cancel") }}</a>
+      <a ng-href="/administration/services" class="btn btn-primary pull-left" id="serviceCancelButton">{{ i18n.__("Cancel") }}</a>
     </div>
 
     <div class="overlay" ng-show="isChecking">

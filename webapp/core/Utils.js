@@ -89,6 +89,8 @@ var Utils = module.exports = {
 
     properties[UriPattern.PORT] = {
       title: "Port",
+      minimum: 2,
+      maximum: 65535,
       type: FormField.NUMBER,
       default: port
     };

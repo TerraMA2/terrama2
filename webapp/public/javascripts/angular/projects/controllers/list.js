@@ -4,7 +4,7 @@ define(function() {
    * 
    * @class ListController
    */
-  function ListController($scope, $http, Socket, FileDialog, SaveAs, $log, i18n, $window, MessageBoxService, AnalysisService) {
+  function ListController($scope, $http, Socket, FileDialog, SaveAs, $log, i18n, $window, MessageBoxService, AnalysisService, $timeout) {
     $scope.model = [];
     var config = $window.configuration;
     var socket = Socket;
@@ -151,10 +151,6 @@ define(function() {
 
     $scope.loading = true;
 
-    if (config.message) {
-      MessageBoxService.success(i18n.__(title), config.message);
-    }
-
     $scope.close = function() { MessageBoxService.reset() };
 
     Array.prototype.unique = function() {
@@ -173,7 +169,7 @@ define(function() {
     socket.on("exportResponse", function(result) {
       $scope.extra.isExporting = false;
       if (result.err) {
-        MessageBoxService.danger(i18n.__(title), result.err);
+        MessageBoxService.danger(i18n.__(title), i18n.__(result.err));
         return;
       }
 
@@ -182,7 +178,7 @@ define(function() {
 
     socket.on("getDependenciesResponse", function(result) {
       if(result.err) {
-        MessageBoxService.danger(i18n.__(title), result.err);
+        MessageBoxService.danger(i18n.__(title), i18n.__(result.err));
         return;
       }
 
@@ -215,8 +211,8 @@ define(function() {
     socket.on("importResponse", function(result) {
       $scope.loading = false;
       $scope.extra.isImporting = false;
-      if (result.err) {
-        MessageBoxService.danger(i18n.__(title), result.err);
+      if(result.err) {
+        MessageBoxService.danger(i18n.__(title), i18n.__(result.err));
         return;
       }
 
@@ -253,10 +249,10 @@ define(function() {
       importJson: null,
 
       removeOperationCallback: function(err, data) {
-        if(err) {
-          return MessageBoxService.danger(i18n.__(title), err.message);
-        }
-        MessageBoxService.success(i18n.__(title), data.name + i18n.__(" removed"));
+        if(err)
+          return MessageBoxService.danger(i18n.__(title), i18n.__(err.message));
+
+        $window.location.href = "/configuration/projects?token=" + data.token;
       },
 
       project: {
@@ -378,7 +374,7 @@ define(function() {
 
         FileDialog.openFile(function(err, input) {
           if (err) {
-            MessageBoxService.danger(i18n.__(importTitle), err.toString());
+            MessageBoxService.danger(i18n.__(importTitle), i18n.__(err.toString()));
             return;
           }
 
@@ -388,7 +384,7 @@ define(function() {
             $scope.$apply(function() {
               $scope.extra.isImporting = true;
               if(error) {
-                MessageBoxService.danger(i18n.__(importTitle), error);
+                MessageBoxService.danger(i18n.__(importTitle), i18n.__(error));
                 console.log(error);
                 return;
               }
@@ -670,9 +666,20 @@ define(function() {
     }).finally(function() {
       $scope.loading = false;
     });
+
+    if(config.message) {
+      var messageArray = config.message.split(" ");
+      var tokenCodeMessage = messageArray[messageArray.length - 1];
+      messageArray.splice(messageArray.length - 1, 1);
+
+      $timeout(function() {
+        var finalMessage = messageArray.join(" ") + " " + i18n.__(tokenCodeMessage);
+        MessageBoxService.success(i18n.__(title), finalMessage);
+      }, 2000);
+    }
   }
 
-  ListController.$inject = ["$scope", "$http", "Socket", "FileDialog", "SaveAs", "$log", "i18n", "$window", "MessageBoxService", "AnalysisService"];
+  ListController.$inject = ["$scope", "$http", "Socket", "FileDialog", "SaveAs", "$log", "i18n", "$window", "MessageBoxService", "AnalysisService", "$timeout"];
 
   return ListController;
 })
