@@ -4,9 +4,9 @@
 
 {% block styles %}
 
-<link rel="stylesheet" type="text/css" href="ol3/ol.css">
-<link rel="stylesheet" type="text/css" href="TerraMA2WebComponents.min.css">
-<link rel="stylesheet" type="text/css" href="jquery-ui/themes/base/jquery-ui.css">
+<link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}ol3/ol.css">
+<link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}TerraMA2WebComponents.min.css">
+<link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}jquery-ui/themes/base/jquery-ui.css">
 
 
 {% endblock %}
@@ -53,22 +53,22 @@
   </div>
 </div>
 
-<script src="/moment/moment.js"></script>
+<script src="{[ BASE_URL ]}moment/moment.js"></script>
 
-<script src="/javascripts/utils/utils.js"></script>
-<script src="/jquery/dist/jquery.min.js"></script>
-<script src="/jquery-ui/jquery-ui.min.js"></script>
+<script src="{[ BASE_URL ]}javascripts/utils/utils.js"></script>
+<script src="{[ BASE_URL ]}jquery/dist/jquery.min.js"></script>
+<script src="{[ BASE_URL ]}jquery-ui/jquery-ui.min.js"></script>
 
 <!-- Date Range Picker Dependencies -->
-<script type="text/javascript" src="/bootstrap-daterangepicker/daterangepicker.js"></script>
-<link rel="stylesheet" type="text/css" href="/bootstrap-daterangepicker/daterangepicker.css" />
+<script type="text/javascript" src="{[ BASE_URL ]}bootstrap-daterangepicker/daterangepicker.js"></script>
+<link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}bootstrap-daterangepicker/daterangepicker.css" />
 
-<script src="ol3/ol.js"></script>
-<script src="TerraMA2WebComponents.min.js"></script>
-<script type="text/javascript" src="/socket.io/socket.io.js"></script>
-<script src="/javascripts/utils/capabilities.js"></script>
-<script src="/javascripts/utils/calendar.js"></script>
-<script src="/javascripts/utils/slider.js"></script>
+<script src="{[ BASE_URL ]}ol3/ol.js"></script>
+<script src="{[ BASE_URL ]}TerraMA2WebComponents.min.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}socket.io/socket.io.js"></script>
+<script src="{[ BASE_URL ]}javascripts/utils/capabilities.js"></script>
+<script src="{[ BASE_URL ]}javascripts/utils/calendar.js"></script>
+<script src="{[ BASE_URL ]}javascripts/utils/slider.js"></script>
 <script>
     var webadminHostInfo = {[webadminHostInfo|json|safe]};
     var webmonitorHostInfo = {[webmonitorHostInfo|json|safe]};

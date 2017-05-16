@@ -1,5 +1,6 @@
 {
   "webmonitor": {
+    "basePath": "/tm2m/",
     "port": 36001
   },
   "webadmin": {
