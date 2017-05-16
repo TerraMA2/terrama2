@@ -57,9 +57,16 @@ Application.prototype.load = function() {
   buffer = JSON.parse(fs.readFileSync(path.join(__dirname, "../config/config.terrama2"), "utf-8"));
   _data.settings = buffer;
 
-  // reading TerraMA² semantics.json
-  buffer = JSON.parse(fs.readFileSync(path.join(__dirname, "../../share/terrama2/semantics.json")));
-  _data.semantics = buffer;
+  // reading TerraMA² .json files in semantics directory
+  var semanticsFiles = fs.readdirSync(path.join(__dirname, "../../share/terrama2/semantics"));
+  var semanticsArray = [];
+  semanticsFiles.forEach(function(semanticFile){
+    var semanticFileContent = JSON.parse(fs.readFileSync(path.join(__dirname, "../../share/terrama2/semantics/" + semanticFile)));
+    semanticFileContent.forEach(function(semanticContent){
+      semanticsArray.push(semanticContent);
+    });
+  });
+  _data.semantics = semanticsArray;
 };
 
 /**
