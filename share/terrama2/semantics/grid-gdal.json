@@ -94,7 +94,7 @@
     }
   },
   {
-    "id": 14,
+    "id": 15,
     "name": "Grid - Geotiff",
     "code": "GRID-geotiff",
     "driver": "GRID-gdal",
@@ -188,7 +188,7 @@
     }
   },
   {
-    "id": 15,
+    "id": 16,
     "name": "Grid - GDAL (other formats)",
     "code": "GRID-ascii",
     "driver": "GRID-gdal",
