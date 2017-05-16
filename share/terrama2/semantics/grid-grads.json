@@ -1,7 +1,7 @@
 [
   {
     "id": 12,
-    "name": "Grid - GrADS format",
+    "name": "Grid - GrADS",
     "code": "GRID-grads",
     "driver": "GRID-grads",
     "type": "GRID",

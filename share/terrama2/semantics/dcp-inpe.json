@@ -1,7 +1,7 @@
 [
   {
     "id": 7,
-    "name": "DCP - INPE format",
+    "name": "DCP - INPE",
     "code": "DCP-inpe",
     "driver": "DCP-inpe",
     "type": "DCP",

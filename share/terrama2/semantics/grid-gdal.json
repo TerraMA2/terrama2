@@ -189,7 +189,7 @@
   },
   {
     "id": 16,
-    "name": "Grid - GDAL (other formats)",
+    "name": "Grid - ASC-Grid",
     "code": "GRID-ascii",
     "driver": "GRID-gdal",
     "type": "GRID",
