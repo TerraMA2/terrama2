@@ -167,8 +167,8 @@
                     setTemporarySlider(layerWithDate, layerId, layerName, workspace, uriGeoServer + '/ows', serverType, parent, 0);
                 }
                 changeGroupStatusIcon(parent, "working");
-                addLayerStatusIcon(layerId);
-                changeLayerStatusIcon(layerId, "working");
+                addLayerStatusIcon(layerId.split('.').join('\\.'));
+                changeLayerStatusIcon(layerId.split('.').join('\\.'), "working");
             }
             else {
                 var workspace = data[i].workspace;
@@ -208,21 +208,37 @@
         var layerId = data.workspace + ":" + data.layers[0];
         var layerName = data.name;
         var parent = data.type;
-        if (allLayers.map(function (l){return l.id}).indexOf(layerId) > 0){
-            changeLayerStatusIcon(layerId, "new");
-            changeGroupStatusIcon(parent, "new");
-            var uriGeoServer = data.uriGeoserver;
-            var workspace = data.workspace;
-            var url = uriGeoServer + '/' + workspace + '/' + data.layers[0] + '/wms?service=WMS&version=1.1.0&request=GetCapabilities';
-            var getCapabilitiesUrl = {
-                layerName: data.layers[0],
-                layerId: layerId,
-                parent: data.type,
-                url: url,
-                format: 'xml',
-                update: true
+        var newLayer = true;
+        var layerIdToSlide;
+        data.layers.forEach(function(layer){
+            var _layerId = data.workspace + ":" + layer;
+            if (allLayers.map(function(l){return l.id}).indexOf(_layerId) > 0){
+                newLayer = false;
+                layerIdToSlide = _layerId.split('.').join('\\.');
+                layerId = _layerId;
             }
-            socket.emit('proxyRequestCapabilities', getCapabilitiesUrl);
+        });
+        if (!newLayer){
+            changeLayerStatusIcon(layerIdToSlide, "new");
+            changeGroupStatusIcon(parent, "new");
+            var workspace = data.workspace;
+            var uriGeoServer = data.uriGeoserver;
+            var serverType = data.serverType;
+            if (data.params.mask){
+                var layerWithDate = getLayersListWithDate(data.params.mask, data.layers);
+                setTemporarySlider(layerWithDate, layerId, layerName, workspace, uriGeoServer + '/ows', serverType, parent, 0);
+            } else {
+                var url = uriGeoServer + '/' + workspace + '/' + data.layers[0] + '/wms?service=WMS&version=1.1.0&request=GetCapabilities';
+                var getCapabilitiesUrl = {
+                    layerName: data.layers[0],
+                    layerId: layerId,
+                    parent: data.type,
+                    url: url,
+                    format: 'xml',
+                    update: true
+                }
+                socket.emit('proxyRequestCapabilities', getCapabilitiesUrl);
+            }
             return;
         }
         fillLayersData([data]);
@@ -336,12 +352,16 @@
 
             setTemporarySlider(listLayers, layerId, layerName, workspace, server, serverType, parent, initialValue);
 
+            addLayerStatusIcon(layerId.split('.').join('\\.'));
+            changeLayerStatusIcon(layerId.split('.').join('\\.'), "working");
+
             if (!$("#"+ parent).hasClass('open')){
                 $("#"+ parent).addClass('open');
             }
             var children = $('#'+ parent).find(' > ul > li');
             children.show('fast');
             li.find('input').click();
+
         }
     }
 
@@ -657,7 +677,7 @@
 
     function addLayerStatusIcon(layerId){
         var _layerId = layerId.replace(":","");
-        var layerElement = $("#"+_layerId);
+        var layerElement = $('#terrama2-layerexplorer').find("#"+_layerId);
         var span = "<span class='span-layer-icon'> <img id='image-icon' src=''> </span>";
         layerElement.prepend(span);
     }
