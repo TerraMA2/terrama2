@@ -4,7 +4,8 @@
     "port": 36001
   },
   "webadmin": {
-    "port": 36000,
+    "basePath": "/tm2/",
+    "port": 80,
     "host": "127.0.0.1"
   }
 }

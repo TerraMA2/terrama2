@@ -107,15 +107,19 @@
     addTreeviewMenuClass();
     addGroupSpanIcon();
     var socket;
-    if (webmonitorHostInfo && webmonitorHostInfo.port){
-        socket = io.connect(":" + webmonitorHostInfo.port);
+    if (webmonitorHostInfo && webmonitorHostInfo.basePath){
+        socket = io.connect(window.location.origin, {
+            path: webmonitorHostInfo.basePath + 'socket.io'
+        });
     } else {
         socket = io.connect(":36001");
     }
 
     var wepappsocket;
-    if (webadminHostInfo && webadminHostInfo.host && webadminHostInfo.port){
-        wepappsocket = io.connect(webadminHostInfo.host + ":" + webadminHostInfo.port);
+    if (webadminHostInfo && webadminHostInfo.host && webadminHostInfo.port && webadminHostInfo.basePath){
+        wepappsocket = io.connect(webadminHostInfo.host + ":" + webadminHostInfo.port, {
+            path: webadminHostInfo.basePath + 'socket.io'
+        });
     } else {
         wepappsocket = io.connect(":36000");
     }
@@ -275,7 +279,7 @@
                 
                 var imageElement = listElement.find("#image-icon");
                 var lastStatus = imageElement.attr("src");
-                if (lastStatus == "/images/status/gray_icon.svg"){
+                if (lastStatus == "{[ BASE_URL ]}images/status/gray_icon.svg"){
                     changeLayerStatusIcon(data.requestId, "working");
                     changeGroupStatusIcon(parent, "working");
                 }
@@ -592,7 +596,7 @@
             visibleLayers.push(layerid);
         }
         var imageElement = $(this).closest('li').find("#image-icon");
-        if (imageElement.attr("src") == "/images/status/yellow-black.gif"){
+        if (imageElement.attr("src") == "{[ BASE_URL ]}images/status/yellow-black.gif"){
             changeLayerStatusIcon(layerid, "working");
         }
 
@@ -605,9 +609,9 @@
         if (parentLi.hasClass('open')){
             var imageStatus = parentLi.find("#image-group-icon");
             var actualStatus = imageStatus.attr("src");
-            if (actualStatus == "/images/status/yellow-black.gif"){
+            if (actualStatus == "{[ BASE_URL ]}images/status/yellow-black.gif"){
                 changeGroupStatusIcon(parent, "working");
-            } else if (actualStatus == "/images/status/yellow-gray.gif"){
+            } else if (actualStatus == "{[ BASE_URL ]}images/status/yellow-gray.gif"){
                 changeGroupStatusIcon(parent, "erraccess");
             }
         }
@@ -693,15 +697,15 @@
     function getStatusIconUrl(status){
         switch(status){
             case "new":
-                return "/images/status/yellow-black.gif";
+                return "{[ BASE_URL ]}images/status/yellow-black.gif";
             case "newerraccess":
-                return "/images/status/yellow-gray.gif";
+                return "{[ BASE_URL ]}images/status/yellow-gray.gif";
             case "working":
-                return "/images/status/green_icon.svg";
+                return "{[ BASE_URL ]}images/status/green_icon.svg";
             case "erraccess":
-                return "/images/status/gray_icon.svg";
+                return "{[ BASE_URL ]}images/status/gray_icon.svg";
             case "alert":
-                return "/images/status/red-black-gif";
+                return "{[ BASE_URL ]}images/status/red-black-gif";
             default:
                 return "";
         }
