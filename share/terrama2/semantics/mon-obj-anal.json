@@ -1,7 +1,7 @@
 [
   {
     "id": 10,
-    "name": "Monitored object analysis result",
+    "name": "Monitored object analysis",
     "code": "ANALYSIS_MONITORED_OBJECT-postgis",
     "driver": "ANALYSIS_MONITORED_OBJECT-postgis",
     "type": "ANALYSIS_MONITORED_OBJECT",

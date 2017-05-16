@@ -1,7 +1,7 @@
 [
   {
     "id": 8,
-    "name": "DCP - TOA5 format",
+    "name": "DCP - TOA5",
     "code": "DCP-toa5",
     "driver": "DCP-toa5",
     "type": "DCP",
