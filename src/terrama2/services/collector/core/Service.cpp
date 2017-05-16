@@ -134,8 +134,6 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
 
   try
   {
-
-
     //////////////////////////////////////////////////////////
     //  aquiring metadata
     auto lock = dataManager->getLock();
@@ -158,6 +156,8 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
 
     /////////////////////////////////////////////////////////////////////////
     //  recovering data
+
+    auto processingStartTime = terrama2::core::TimeUtils::nowUTC();
 
     terrama2::core::Filter filter = collectorPtr->filter;
     //update filter based on last collected data timestamp
@@ -215,7 +215,13 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
 
     logger->result(CollectorLogger::DONE, lastDateTime, executionPackage.registerId);
 
-    sendProcessFinishedSignal(executionPackage.processId, executionPackage.executionDate, true);
+    auto processingEndTime = terrama2::core::TimeUtils::nowUTC();
+
+    QJsonObject jsonAnswer;
+    jsonAnswer.insert("processing_start_time", QString::fromStdString(processingStartTime->toString()));
+    jsonAnswer.insert("processing_end_time", QString::fromStdString(processingEndTime->toString()));
+
+    sendProcessFinishedSignal(executionPackage.processId, executionPackage.executionDate, true, jsonAnswer);
     notifyWaitQueue(executionPackage.processId);
     return;
 

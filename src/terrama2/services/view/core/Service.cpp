@@ -229,20 +229,27 @@ void terrama2::services::view::core::Service::viewJob(const terrama2::core::Exec
 
     /////////////////////////////////////////////////////////////////////////
 
+    auto processingStartTime = terrama2::core::TimeUtils::nowUTC();
+
     QJsonObject mapsServerAnswer = mapsServer->generateLayers(viewPtr,
                                                               std::make_pair(inputDataSeries, inputDataProvider),
                                                               dataManager,
                                                               logger,
                                                               logId);
 
+    TERRAMA2_LOG_INFO() << tr("View %1(%2) generated successfully.").arg(QString::fromStdString(viewName)).arg(viewId);
+
+    logger->result(ViewLogger::DONE, terrama2::core::TimeUtils::nowUTC(), logId);
+
+    auto processingEndTime = terrama2::core::TimeUtils::nowUTC();
+
     jsonAnswer = mapsServerAnswer;
     jsonAnswer.insert("class", QString("RegisteredViews"));
     jsonAnswer.insert("process_id",static_cast<int32_t>(viewPtr->id));
     jsonAnswer.insert("maps_server", QString::fromStdString(mapsServerUri_.uri()));
 
-    TERRAMA2_LOG_INFO() << tr("View %1(%2) generated successfully.").arg(QString::fromStdString(viewName)).arg(viewId);
-
-    logger->result(ViewLogger::DONE, terrama2::core::TimeUtils::nowUTC(), logId);
+    jsonAnswer.insert("processing_start_time", QString::fromStdString(processingStartTime->toString()));
+    jsonAnswer.insert("processing_end_time", QString::fromStdString(processingEndTime->toString()));
 
     sendProcessFinishedSignal(viewId, executionPackage.executionDate, true, jsonAnswer);
     notifyWaitQueue(viewId);

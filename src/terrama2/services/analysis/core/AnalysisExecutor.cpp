@@ -93,6 +93,8 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
     return;
   }
 
+  auto processingStartTime = terrama2::core::TimeUtils::nowUTC();
+
   try
   {
     TERRAMA2_LOG_INFO() << QObject::tr("Starting analysis %1 execution: %2").arg(analysis->id).arg(startTime->toString().c_str());
@@ -176,7 +178,13 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
 
       logger->result(AnalysisLogger::ERROR, startTime, logId);
 
-      emit analysisFinished(analysis->id, startTime, false);
+      auto processingEndTime = terrama2::core::TimeUtils::nowUTC();
+
+      QJsonObject jsonAnswer;
+      jsonAnswer.insert("processing_start_time", QString::fromStdString(processingStartTime->toString()));
+      jsonAnswer.insert("processing_end_time", QString::fromStdString(processingEndTime->toString()));
+
+      emit analysisFinished(analysis->id, startTime, false, jsonAnswer);
     }
     else
     {

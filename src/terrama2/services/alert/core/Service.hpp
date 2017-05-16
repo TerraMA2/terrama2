@@ -94,7 +94,8 @@ namespace terrama2
             */
             void alertFinished(AlertId alertId,
                                std::shared_ptr< te::dt::TimeInstantTZ > executionDate,
-                               bool success);
+                               bool success,
+                               QJsonObject jsonAnswer = QJsonObject());
 
           protected:
 
