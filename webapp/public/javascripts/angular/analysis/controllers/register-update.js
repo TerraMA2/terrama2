@@ -558,6 +558,10 @@ define([], function() {
             fileName: "utilities.json",
             imagePath: "/images/analysis/functions/utilities/utilities.png"
           },
+          attributes: {
+            name: "Attributes",
+            imagePath: "/images/analysis/functions/monitored-object/attributes/attributes.png"
+          },
           dcp: {
             name: "DCP",
             fileName: "dcp-operators.json",
@@ -615,12 +619,14 @@ define([], function() {
               semanticsType = DataSeriesService.DataSeriesType.DCP;
               self.semanticsSelected = "Dcp";
               dataseriesFilterType = 'DCP';
+              delete self.operators.attributes.data;
               break;
             case AnalysisService.types.GRID:
               semanticsType = DataSeriesService.DataSeriesType.GRID;
               self.semanticsSelected = "Grid";
               self.dataSeriesBoxName = i18n.__("Grid Data Series");
               dataseriesFilterType = 'GRID';
+              delete self.operators.attributes.data;
               break;
             case AnalysisService.types.MONITORED:
               semanticsType = DataSeriesService.DataSeriesType.ANALYSIS_MONITORED_OBJECT;
@@ -673,6 +679,19 @@ define([], function() {
               self.columnsList = response.data.data.map(function(item, index){
                 return item.column_name;
               });
+              self.attributesList = [];
+              response.data.data.forEach(function(attr){
+                var attributeObject = {
+                  "name": attr.column_name,
+                  "code": "get_value(\""+attr.column_name+"\")"
+                }
+                self.attributesList.push(attributeObject);
+              });
+              if (self.attributesList.length > 0){
+                self.operators.attributes.data = self.attributesList;
+              } else {
+                delete self.operators.attributes.data;
+              }
               result.resolve(response.data.data);
             });
 
