@@ -1,0 +1,180 @@
+[
+  {
+    "id": 12,
+    "name": "Grid - GrADS",
+    "code": "GRID-grads",
+    "driver": "GRID-grads",
+    "type": "GRID",
+    "temporality": "DYNAMIC",
+    "format": "GRADS",
+    "providers_type_list": ["FILE", "FTP"],
+    "collector": true,
+    "allow_direct_access": false,
+    "metadata": {
+      "timestamp_property": "file_timestamp"
+    },
+    "gui": {
+      "schema": {
+        "properties": {
+          "folder": {
+            "type": "string",
+            "title": "Folder",
+            "pattern": "^[^?#!$&'()*+,;=^§]+$"
+          },
+          "ctl_filename" : {
+            "type": "string",
+            "title": "CTL File"
+          },
+          "srid" : {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 998999,
+            "title": "Projection (SRID)"
+          },
+          "timezone" : {
+            "type": "string",
+            "title": "Timezone"
+          },
+          "number_of_bands" : {
+            "type": "number",
+            "minimum": 1,
+            "title": "Number of Layers",
+            "default": 1
+          },
+          "value_multiplier" : {
+            "type": "number",
+            "title": "Multiplier",
+            "default": 1
+          },
+          "data_type" : {
+            "type": "string",
+            "title": "Data Type",
+            "default": "FLOAT32"
+          },
+          "binary_file_mask" : {
+            "type": "string",
+            "title": "Binary File Mask"
+          },
+          "bytes_before" : {
+            "type": "number",
+            "minimum": 0,
+            "title": "Bytes Before",
+            "default": 0
+          },
+          "bytes_after" : {
+            "type": "number",
+            "minimum": 0,
+            "title": "Bytes After",
+            "default": 0
+          },
+          "temporal" : {
+            "type": "boolean",
+            "title": "Temporal"
+          },
+          "time_interval" : {
+            "type": "number",
+            "minimum": 0,
+            "title": "Time Interval"
+          },
+          "time_interval_unit" : {
+            "type": "string",
+            "title": "Time Interval Unit"
+          }
+        }
+      },
+      "form": [
+        {
+          "key": "folder",
+          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form grads-form-item",
+          "validationMessage": {
+            "202": "Invalid folder"
+          }
+        },
+        {
+          "key": "ctl_filename",
+          "htmlClass": "col-md-6 terrama2-schema-form grads-form-item"
+        },
+        {
+          "key": "srid",
+          "htmlClass": "col-md-2 terrama2-schema-form grads-form-item"
+        },
+        {
+          "key": "timezone",
+          "htmlClass": "col-md-2 terrama2-schema-form grads-form-item",
+          "type": "select",
+          "titleMap": [
+            {"name": "-12", "value": "-12"},
+            {"name": "-11", "value": "-11"},
+            {"name": "-10", "value": "-10"},
+            {"name": "-9", "value": "-9"},
+            {"name": "-8", "value": "-8"},
+            {"name": "-7", "value": "-7"},
+            {"name": "-6", "value": "-6"},
+            {"name": "-5", "value": "-5"},
+            {"name": "-4", "value": "-4"},
+            {"name": "-3", "value": "-3"},
+            {"name": "-2", "value": "-2"},
+            {"name": "-1", "value": "-1"},
+            {"name": "0", "value": "0"},
+            {"name": "1", "value": "1"},
+            {"name": "2", "value": "2"},
+            {"name": "3", "value": "3"},
+            {"name": "4", "value": "4"},
+            {"name": "5", "value": "5"},
+            {"name": "6", "value": "6"},
+            {"name": "7", "value": "7"},
+            {"name": "8", "value": "8"},
+            {"name": "9", "value": "9"},
+            {"name": "10", "value": "10"},
+            {"name": "11", "value": "11"},
+            {"name": "12", "value": "12"}
+          ]
+        },
+        {
+          "key": "number_of_bands",
+          "htmlClass": "col-md-2 terrama2-schema-form grads-form-item"
+        },
+        {
+          "key": "value_multiplier",
+          "htmlClass": "col-md-2 terrama2-schema-form grads-form-item"
+        },
+        {
+          "key": "data_type",
+          "htmlClass": "col-md-4 terrama2-schema-form grads-form-item",
+          "type": "select",
+          "titleMap": [{ "name": "Integer (INT16)", "value": "INT16" }, { "name": "Float (FLOAT32)", "value": "FLOAT32" }]
+        },
+        {
+          "key": "binary_file_mask",
+          "htmlClass": "col-md-6 terrama2-schema-form grads-form-item"
+        },
+        {
+          "key": "bytes_before",
+          "htmlClass": "col-md-3 terrama2-schema-form grads-form-item"
+        },
+        {
+          "key": "bytes_after",
+          "htmlClass": "col-md-3 terrama2-schema-form grads-form-item",
+          "condition": "model['number_of_bands'] > 1"
+        },
+        {
+          "key": "temporal",
+          "htmlClass": "col-md-2 terrama2-schema-form grads-form-item",
+          "condition": "model['number_of_bands'] > 1"
+        },
+        {
+          "key": "time_interval",
+          "htmlClass": "col-md-2 terrama2-schema-form grads-form-item",
+          "condition": "model.temporal"
+        },
+        {
+          "key": "time_interval_unit",
+          "htmlClass": "col-md-2 terrama2-schema-form grads-form-item",
+          "type": "select",
+          "titleMap": [{ "name": "Minutes", "value": "minutes" }, { "name": "Hours", "value": "hours" }, { "name": "Days", "value": "days" }],
+          "condition": "model.temporal"
+        }
+      ]
+    }
+  }
+]
