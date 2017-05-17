@@ -174,6 +174,16 @@ RegisterId terrama2::core::ProcessLogger::start(ProcessId processId) const
   return transactor->getLastGeneratedId();
 }
 
+void terrama2::core::ProcessLogger::setStartProcessingTime(const std::shared_ptr< te::dt::TimeInstantTZ > processingStartTime, const RegisterId registerId) const
+{
+  addValue("processing_start_time", processingStartTime->toString(), registerId);
+}
+
+void terrama2::core::ProcessLogger::setEndProcessingTime(const std::shared_ptr< te::dt::TimeInstantTZ > processingEndTime, const RegisterId registerId) const
+{
+  addValue("processing_end_time", processingEndTime->toString(), registerId);
+}
+
 void terrama2::core::ProcessLogger::addValue(const std::string& tag, const std::string& value, RegisterId registerId) const
 {
   if(!isValid_)

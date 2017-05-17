@@ -241,8 +241,8 @@ void terrama2::services::view::core::Service::viewJob(const terrama2::core::Exec
 
     auto processingEndTime = terrama2::core::TimeUtils::nowUTC();
 
-    logger->addValue("processing_start_time", processingStartTime->toString(), executionPackage.registerId);
-    logger->addValue("processing_end_time", processingEndTime->toString(), executionPackage.registerId);
+    logger->setStartProcessingTime(processingStartTime, executionPackage.registerId);
+    logger->setEndProcessingTime(processingEndTime, executionPackage.registerId);
 
     logger->result(ViewLogger::DONE, terrama2::core::TimeUtils::nowUTC(), logId);
 
@@ -250,9 +250,6 @@ void terrama2::services::view::core::Service::viewJob(const terrama2::core::Exec
     jsonAnswer.insert("class", QString("RegisteredViews"));
     jsonAnswer.insert("process_id",static_cast<int32_t>(viewPtr->id));
     jsonAnswer.insert("maps_server", QString::fromStdString(mapsServerUri_.uri()));
-
-    jsonAnswer.insert("processing_start_time", QString::fromStdString(processingStartTime->toString()));
-    jsonAnswer.insert("processing_end_time", QString::fromStdString(processingEndTime->toString()));
 
     sendProcessFinishedSignal(viewId, executionPackage.executionDate, true, jsonAnswer);
     notifyWaitQueue(viewId);

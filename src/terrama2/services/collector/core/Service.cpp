@@ -215,16 +215,12 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
 
     auto processingEndTime = terrama2::core::TimeUtils::nowUTC();
 
-    logger->addValue("processing_start_time", processingStartTime->toString(), executionPackage.registerId);
-    logger->addValue("processing_end_time", processingEndTime->toString(), executionPackage.registerId);
+    logger->setStartProcessingTime(processingStartTime, executionPackage.registerId);
+    logger->setEndProcessingTime(processingEndTime, executionPackage.registerId);
 
     logger->result(CollectorLogger::DONE, lastDateTime, executionPackage.registerId);
 
-    QJsonObject jsonAnswer;
-    jsonAnswer.insert("processing_start_time", QString::fromStdString(processingStartTime->toString()));
-    jsonAnswer.insert("processing_end_time", QString::fromStdString(processingEndTime->toString()));
-
-    sendProcessFinishedSignal(executionPackage.processId, executionPackage.executionDate, true, jsonAnswer);
+    sendProcessFinishedSignal(executionPackage.processId, executionPackage.executionDate, true);
     notifyWaitQueue(executionPackage.processId);
     return;
 
