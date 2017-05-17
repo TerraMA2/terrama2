@@ -1,0 +1,109 @@
+[
+  {
+    "id": 2,
+    "name": "Occurrence – INPE fire program",
+    "code": "OCCURRENCE-wfp",
+    "driver": "OCCURRENCE-wfp",
+    "type": "OCCURRENCE",
+    "temporality": "DYNAMIC",
+    "format": "CSV",
+    "providers_type_list": ["FILE", "FTP"],
+    "metadata": {
+      "timestamp_property": "data_pas",
+      "geometry_property": "position",
+      "output_geometry_property": "geom",
+      "latitude_property": "lat",
+      "longitude_property": "lon",
+      "timezone": "UTM+00",
+      "srid": "4326"
+    },
+    "collector": true,
+    "gui": {
+      "schema": {
+        "properties": {
+          "folder": {
+            "type": "string",
+            "title": "Folder",
+            "pattern": "^[^?#!$&'()*+,;=^§]+$"
+          },
+          "mask": {
+            "type": "string",
+            "title": "Mask",
+            "pattern": "^([\\w*.]+|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
+          }
+        },
+        "required": ["mask"]
+      },
+      "form": [
+        {
+          "key": "folder",
+          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form",
+          "validationMessage": {
+            "202": "Invalid folder"
+          }
+        },
+        {
+          "key": "mask",
+          "htmlClass": "col-md-6",
+          "validationMessage": {
+            "202": "Invalid mask"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": 3,
+    "name": "Occurrence – INPE lightning program",
+    "code": "OCCURRENCE-lightning",
+    "driver": "OCCURRENCE-lightning",
+    "type": "OCCURRENCE",
+    "temporality": "DYNAMIC",
+    "format": "CSV",
+    "providers_type_list": ["FILE", "FTP"],
+    "metadata": {
+      "timestamp_property": "Horario (GMT)",
+      "geometry_property": "position",
+      "latitude_property": "Latitude",
+      "longitude_property": "Longitude",
+      "timezone": "UTM+00",
+      "srid": "4326",
+      "output_timestamp_property": "horario_gmt",
+      "output_geometry_property": "geom"
+    },
+    "collector": true,
+    "gui": {
+      "schema": {
+        "properties": {
+          "folder": {
+            "type": "string",
+            "title": "Folder",
+            "pattern": "^[^?#!$&'()*+,;=^§]+$"
+          },
+          "mask": {
+            "type": "string",
+            "title": "Mask",
+            "pattern": "^([\\w*.]+|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
+          }
+        },
+        "required": ["mask"]
+      },
+      "form": [
+        {
+          "key": "folder",
+          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form",
+          "validationMessage": {
+            "202": "Invalid folder"
+          }
+        },
+        {
+          "key": "mask",
+          "htmlClass": "col-md-6",
+          "validationMessage": {
+            "202": "Invalid mask"
+          }
+        }
+      ]
+    }
+  }
+]

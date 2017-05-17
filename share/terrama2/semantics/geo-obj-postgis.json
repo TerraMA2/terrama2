@@ -1,0 +1,24 @@
+[
+  {
+    "id": 5,
+    "name": "Static geometric object - PostGIS",
+    "code": "STATIC_DATA-postgis",
+    "driver": "STATIC_DATA-postgis",
+    "type": "GEOMETRIC_OBJECT",
+    "temporality": "STATIC",
+    "format": "POSTGIS",
+    "providers_type_list": ["POSTGIS"],
+    "gui": {
+      "schema": {
+        "properties": {
+          "table_name": {
+            "type": "string",
+            "title": "Table Name"
+          }
+        },
+        "required": ["table_name"]
+      },
+      "form": ["*"]
+    }
+  }
+]
