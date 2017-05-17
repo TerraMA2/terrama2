@@ -98,13 +98,13 @@ $(function () {
     $(".content").css({'height':($(".content-wrapper").height())+'px'});
 
     $("#dynamic").find("div").each(function() {
-        $(this).addClass("fa fa-exchange");
+        $(this).addClass("fa fa-clock-o");
     });
     $("#static").find("div").each(function() {
-        $(this).addClass("fa fa-folder-o");
+        $(this).addClass("fa fa-folder");
     });
     $("#analysis").find("div").each(function() {
-        $(this).addClass("fa fa-tasks");
+        $(this).addClass("fa fa-search");
     });
     $("#template").find("div").each(function() {
         $(this).addClass("fa fa-map");
