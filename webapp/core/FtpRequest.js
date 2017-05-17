@@ -97,7 +97,7 @@ FtpRequest.fields = function() {
   };
 
   fieldProperties['timeout'] = {
-    title: "Data server Timeout",
+    title: "Data server Timeout (sec)",
     minimum: 1,
     type: FormField.NUMBER,
     default: 8

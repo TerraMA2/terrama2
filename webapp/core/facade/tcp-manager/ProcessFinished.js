@@ -94,12 +94,14 @@
             });
             return PromiseClass.all(promises)
               .then(function() {
-                var registeredView = DataManager.getRegisteredView({view_id: registeredViewObject.process_id}, options);
-                var objectResponse = {
-                  serviceType: ServiceType.VIEW,
-                  registeredView: registeredView
-                };
-                return objectResponse;
+                return DataManager.getRegisteredView({view_id: registeredViewObject.process_id}, options)
+                  .then(function(registeredView){
+                    var objectResponse = {
+                      serviceType: ServiceType.VIEW,
+                      registeredView: registeredView
+                    };
+                    return objectResponse;
+                  });
               });
           })
           // NotFound... tries to insert a new one
@@ -109,12 +111,14 @@
               registeredViewObject.view_id = registeredViewObject.process_id;
               return DataManager.addRegisteredView(registeredViewObject, options)
                 .then(function(registeredView) {
-                  var registeredView = DataManager.getRegisteredView({id: registeredView.id}, options);
-                  var objectResponse = {
-                    serviceType: ServiceType.VIEW,
-                    registeredView: registeredView
-                  };
-                  return objectResponse;
+                  return DataManager.getRegisteredView({id: registeredView.id}, options)
+                    .then(function(registeredView){
+                      var objectResponse = {
+                        serviceType: ServiceType.VIEW,
+                        registeredView: registeredView
+                      };
+                      return objectResponse;
+                    });
                 });
             } else {
               throw err;

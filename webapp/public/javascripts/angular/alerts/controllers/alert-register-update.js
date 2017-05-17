@@ -145,7 +145,7 @@ define([], function() {
          * Retrieve data series
          */
         self.dataSeries = DataSeriesService.list().filter(function(dataSeriesToFilter) {
-          return dataSeriesToFilter.data_series_semantics.data_series_type_name === "ANALYSIS_MONITORED_OBJECT" || dataSeriesToFilter.data_series_semantics.data_series_type_name === "GRID";
+          return dataSeriesToFilter.data_series_semantics.temporality === "DYNAMIC" && (dataSeriesToFilter.data_series_semantics.data_series_type_name === "ANALYSIS_MONITORED_OBJECT" || dataSeriesToFilter.data_series_semantics.data_series_type_name === "GRID");
         });
 
         var riskRequest = $http({
