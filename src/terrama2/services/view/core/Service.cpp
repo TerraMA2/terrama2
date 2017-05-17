@@ -239,9 +239,12 @@ void terrama2::services::view::core::Service::viewJob(const terrama2::core::Exec
 
     TERRAMA2_LOG_INFO() << tr("View %1(%2) generated successfully.").arg(QString::fromStdString(viewName)).arg(viewId);
 
-    logger->result(ViewLogger::DONE, terrama2::core::TimeUtils::nowUTC(), logId);
-
     auto processingEndTime = terrama2::core::TimeUtils::nowUTC();
+
+    logger->addValue("processing_start_time", processingStartTime->toString(), executionPackage.registerId);
+    logger->addValue("processing_end_time", processingEndTime->toString(), executionPackage.registerId);
+
+    logger->result(ViewLogger::DONE, terrama2::core::TimeUtils::nowUTC(), logId);
 
     jsonAnswer = mapsServerAnswer;
     jsonAnswer.insert("class", QString("RegisteredViews"));

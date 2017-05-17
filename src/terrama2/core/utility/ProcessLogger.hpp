@@ -178,6 +178,13 @@ namespace terrama2
         void internalClone(std::shared_ptr<terrama2::core::ProcessLogger> loggerCopy) const;
         virtual std::shared_ptr<ProcessLogger> clone() const { return nullptr; }
 
+        /*!
+         * \brief Store data in a Json to be logged after
+         * \param tag A tag to identify data
+         * \param value The data
+         */
+        void addValue(const std::string& tag, const std::string& value, const RegisterId registerId) const;
+
       public slots:
         /*!
         * \brief Reset connection to log database information
@@ -201,14 +208,6 @@ namespace terrama2
          * \brief Set the process logger data source
          */
         void setDataSource(te::da::DataSource* dataSource);
-
-        /*!
-         * \brief Store data in a Json to be logged after
-         * \param tag A tag to identify data
-         * \param value The data
-         */
-        void addValue(const std::string& tag, const std::string& value, const RegisterId registerId) const;
-
 
         /*!
          * \brief Store the name of the process log table and the message log table

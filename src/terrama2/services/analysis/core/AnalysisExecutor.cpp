@@ -176,9 +176,11 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
       QString errMsg = QObject::tr("Analysis %1 (%2) finished with the following error(s):\n%3").arg(analysis->id).arg(startTime->toString().c_str()).arg(QString::fromStdString(errorStr));
       TERRAMA2_LOG_INFO() << errMsg;
 
-      logger->result(AnalysisLogger::ERROR, startTime, logId);
-
       auto processingEndTime = terrama2::core::TimeUtils::nowUTC();
+
+      logger->addValue("processing_start_time", processingStartTime->toString(), executionPackage.registerId);
+      logger->addValue("processing_end_time", processingEndTime->toString(), executionPackage.registerId);
+      logger->result(AnalysisLogger::ERROR, startTime, logId);
 
       QJsonObject jsonAnswer;
       jsonAnswer.insert("processing_start_time", QString::fromStdString(processingStartTime->toString()));

@@ -682,10 +682,13 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
       return;
     }
 
+    auto processingEndTime = terrama2::core::TimeUtils::nowUTC();
+
+    logger->addValue("processing_start_time", processingStartTime->toString(), executionPackage.registerId);
+    logger->addValue("processing_end_time", processingEndTime->toString(), executionPackage.registerId);
     logger->result(AlertLogger::DONE, executionPackage.executionDate, executionPackage.registerId);
 
     TERRAMA2_LOG_INFO() << QObject::tr("Alert '%1' generated successfully").arg(alertPtr->name.c_str());
-    auto processingEndTime = terrama2::core::TimeUtils::nowUTC();
 
     QJsonObject jsonAnswer;
     jsonAnswer.insert("processing_start_time", QString::fromStdString(processingStartTime->toString()));

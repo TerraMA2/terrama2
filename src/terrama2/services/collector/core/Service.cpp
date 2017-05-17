@@ -213,9 +213,12 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
 
     TERRAMA2_LOG_INFO() << tr("Data from collector %1 collected successfully.").arg(executionPackage.processId);
 
-    logger->result(CollectorLogger::DONE, lastDateTime, executionPackage.registerId);
-
     auto processingEndTime = terrama2::core::TimeUtils::nowUTC();
+
+    logger->addValue("processing_start_time", processingStartTime->toString(), executionPackage.registerId);
+    logger->addValue("processing_end_time", processingEndTime->toString(), executionPackage.registerId);
+
+    logger->result(CollectorLogger::DONE, lastDateTime, executionPackage.registerId);
 
     QJsonObject jsonAnswer;
     jsonAnswer.insert("processing_start_time", QString::fromStdString(processingStartTime->toString()));
