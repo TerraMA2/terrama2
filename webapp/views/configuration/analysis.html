@@ -192,7 +192,7 @@
 
           <div class="col-md-8">
             <div class="form-group has-feedback" terrama2-show-errors>
-              <label>{{ i18n.__("Instance") }}:</label>
+              <label>{{ i18n.__("Service") }}:</label>
               <ui-select name="instance" 
                          ng-model="ctrl.analysis.instance_id" 
                          ng-change="ctrl.onServiceChanged()" required>
@@ -208,7 +208,7 @@
               </ui-select>
 
               <span class="help-block" ng-show="forms.generalDataForm.instance.$dirty && forms.generalDataForm.instance.$error.required">
-                {{ i18n.__('Analysis instance is required') }}
+                {{ i18n.__('Analysis service is required') }}
               </span>
             </div>
             <!-- /.form-group -->
