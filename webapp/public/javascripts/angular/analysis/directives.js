@@ -82,11 +82,15 @@ define([
       // watch operators to get file data
       scope.$watch('operators', function(operators){
         if (operators){
-          var pathFile = "/javascripts/angular/analysis/data/" + operators.fileName;
+          if (operators.fileName){
+            var pathFile = "/javascripts/angular/analysis/data/" + operators.fileName;
 
-          $http.get(pathFile).then(function(response){
-            scope.operatorsData = response.data;
-          });
+            $http.get(pathFile).then(function(response){
+              scope.operatorsData = response.data;
+            });
+          } else {
+            scope.operatorsData = operators.data;
+          }
         }
       });
     } // end linkFn
