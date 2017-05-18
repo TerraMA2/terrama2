@@ -76,6 +76,22 @@
                   </li>
                 </ul>
               </li>
+
+              <li class="terrama2-list-error" ng-show="ctrl.service.service_type_id == 3">
+                <i ng-show="ctrl.geoserverConnection.message" class="fa fa-caret-right"></i> <label ng-bind="i18n.__('GeoServer Connection')" class="tree-toogler nav-header"></label>
+
+                <span ng-if="ctrl.geoserverConnection.isLoading" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
+                <span ng-if="!ctrl.geoserverConnection.isLoading && ctrl.geoserverConnection.isValid"
+                      class="glyphicon glyphicon-ok">
+                </span>
+                <span ng-if="!ctrl.geoserverConnection.isLoading && !ctrl.geoserverConnection.isValid" class="glyphicon glyphicon-remove"></span>
+
+                <ul class="nav nav-list tree">
+                  <li ng-show="!ctrl.geoserverConnection.isValid && ctrl.geoserverConnection.message">
+                    <span ng-bind="ctrl.geoserverConnection.message"></span>
+                  </li>
+                </ul>
+              </li>
             </ul>
           </div>
         </terrama2-alert-box2>

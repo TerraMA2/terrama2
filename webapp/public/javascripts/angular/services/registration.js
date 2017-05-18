@@ -69,6 +69,12 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
    * @type {Object}
    */
   self.mailConnection = {};
+  /**
+   * It defines a connection validation of geoserver
+   *
+   * @type {Object}
+   */
+  self.geoserverConnection = {};
 
 
   self.metadata = {};
@@ -285,6 +291,16 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
         }
       });
 
+      Socket.on('testGeoServerConnectionResponse', function(result) {
+        self.geoserverConnection.isLoading = false;
+        if(result.error) {
+          self.geoserverConnection.isValid = false;
+          self.geoserverConnection.message = i18n.__(result.message);
+        } else {
+          self.geoserverConnection.isValid = true;
+        }
+      });
+
       var initializing = true;
 
       /**
@@ -294,7 +310,7 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
        * is responsible to compare the values.
        */
       $scope.$watch(function() {
-        return self.ssh.isValid && self.db.isValid && self.mailConnection.isValid;
+        return self.ssh.isValid && self.db.isValid && self.mailConnection.isValid && self.geoserverConnection.isValid;
       }, function(value) {
         if (initializing) {
           initializing = false;
@@ -335,6 +351,12 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
           };
         }
 
+        if(self.service.service_type_id == 3) {
+          self.geoserverConnection = {
+            isLoading: true
+          };
+        }
+
         setTimeout(function() {
           // SSH
           Socket.emit('testSSHConnectionRequest',
@@ -364,7 +386,22 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
                 host: self.metadata.emailServer.host,
                 port: self.metadata.emailServer.port,
                 username: self.metadata.emailServer.user,
-                password: self.metadata.emailServer.password,
+                password: self.metadata.emailServer.password
+              });
+            }
+          }
+
+          if(self.service.service_type_id == 3) {
+            if(self.mapsServer === undefined || self.mapsServer.address === undefined) {
+              self.geoserverConnection.isLoading = false;
+              self.geoserverConnection.isValid = false;
+              self.geoserverConnection.message = i18n.__("There are invalid fields on form");
+            } else {
+              Socket.emit('testGeoServerConnectionRequest', {
+                host: self.mapsServer.address,
+                port: self.mapsServer.port,
+                username: self.mapsServer.user,
+                password: self.mapsServer.password
               });
             }
           }
