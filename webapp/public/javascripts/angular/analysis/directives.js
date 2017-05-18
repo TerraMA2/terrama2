@@ -9,7 +9,7 @@ define([
   angular.module(moduleName, [servicesApp, collapserApp])
     .run(["$templateCache", function($templateCache) {
       $templateCache.put("helper.html",
-        "<div class=\"dropup pull-left\" style=\"margin-left: 10px;\" data-toggle=\"tooltip\" data-placement=\"top\" ng-attr-title=\"{{operators.name}}\">" + 
+        "<div class=\"dropup pull-left\" style=\"margin-left: 10px;\" data-toggle=\"tooltip\" data-placement=\"bottom\" ng-attr-title=\"{{i18n.__(operators.name)}}\">" + 
           "<button aria-expanded=\"false\" type=\"button\" class=\"btn dropdown-toggle\" data-toggle=\"dropdown\">" +
             "<img style=\"height: 20px;\" ng-src=\"{{operators.imagePath}}\"/>" +
           "</button>" +
