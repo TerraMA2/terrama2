@@ -47,6 +47,9 @@
         </div>
         <div class="modal-body">
           <div ng-repeat="element in model" ng-show="element.id == currentProjectId">
+            <label for="fileName" class="col-sm-2 control-label" style="padding-left: 0; width: 130px; margin-top: 5px;">{{ i18n.__("File name:") }}</label>
+            <input type="text" class="form-control" id="fileName" placeholder="{{ i18n.__('File name') }}" ng-model="projectsCheckboxes[element.id].fileName" style="width: 440px; float: right;">
+            <div style="clear: both; height: 20px;"></div>
             <input type="checkbox" value="{{ element.id }}" style="margin-right: 5px; float: left;" ng-model="projectsCheckboxes[element.id].project" ng-change="projectCheck(element)"/><div style="float: left;">{{ element.name }} ({{ i18n.__("check all items") }})</div>
             <div style="clear: both; height: 20px;"></div>
             <div class="box collapsed-box" ng-show="dataProviders[element.id].length > 0">

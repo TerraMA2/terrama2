@@ -551,7 +551,7 @@ define([], function() {
           $window.location.href = "/configuration/alerts?token=" + response.token;
         }).catch(function(err) {
           $log.info(err);
-          self.MessageBoxService.danger(i18n.__("Alert"), err);
+          self.MessageBoxService.danger(i18n.__("Alert"), i18n.__(err));
         });
       });
     };
