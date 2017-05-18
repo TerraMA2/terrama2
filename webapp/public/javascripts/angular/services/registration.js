@@ -63,6 +63,12 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
    * @type {Object}
    */
   self.ssh = {};
+  /**
+   * It defines a connection validation of SMTP
+   *
+   * @type {Object}
+   */
+  self.mailConnection = {};
 
 
   self.metadata = {};
@@ -268,6 +274,17 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
           self.ssh.isValid = true;
         }
       });
+
+      Socket.on('testSMTPConnectionResponse', function(result) {
+        self.mailConnection.isLoading = false;
+        if(result.error) {
+          self.mailConnection.isValid = false;
+          self.mailConnection.message = i18n.__(result.message);
+        } else {
+          self.mailConnection.isValid = true;
+        }
+      });
+
       var initializing = true;
 
       /**
@@ -277,7 +294,7 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
        * is responsible to compare the values.
        */
       $scope.$watch(function() {
-        return self.ssh.isValid && self.db.isValid;
+        return self.ssh.isValid && self.db.isValid && self.mailConnection.isValid;
       }, function(value) {
         if (initializing) {
           initializing = false;
@@ -312,6 +329,12 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
           isLoading: true
         };
 
+        if(self.service.service_type_id == 4) {
+          self.mailConnection = {
+            isLoading: true
+          };
+        }
+
         setTimeout(function() {
           // SSH
           Socket.emit('testSSHConnectionRequest',
@@ -330,6 +353,21 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
           }
 
           Socket.emit('testDbConnection', logCredentials);
+
+          if(self.service.service_type_id == 4) {
+            if(self.metadata.emailServer === undefined) {
+              self.mailConnection.isLoading = false;
+              self.mailConnection.isValid = false;
+              self.mailConnection.message = i18n.__("There are invalid fields on form");
+            } else {
+              Socket.emit('testSMTPConnectionRequest', {
+                host: self.metadata.emailServer.host,
+                port: self.metadata.emailServer.port,
+                username: self.metadata.emailServer.user,
+                password: self.metadata.emailServer.password,
+              });
+            }
+          }
         }, 1000);
       };
 
