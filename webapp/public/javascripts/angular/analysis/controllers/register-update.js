@@ -525,6 +525,8 @@ define([], function() {
           return found;
         };
 
+        self.operatorValue = "";
+
         /**
          * It handles analysis validation signal. Once received, it tries to notify the user with callback state
          * 
