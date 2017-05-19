@@ -499,10 +499,7 @@ install(EXPORT terrama2-targets
         FILE terrama2-exports.cmake
         COMPONENT devel)
 
-install(DIRECTORY ${TERRAMA2_ABSOLUTE_ROOT_DIR}/share/terrama2/icons
-        DESTINATION ${TERRAMA2_DESTINATION_SHARE}/terrama2 COMPONENT runtime)
-
-install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/share/terrama2/semantics.json
+install(DIRECTORY ${TERRAMA2_ABSOLUTE_ROOT_DIR}/share/terrama2
         DESTINATION ${TERRAMA2_DESTINATION_SHARE}/terrama2 COMPONENT runtime)
 
 install(DIRECTORY ${TERRAMA2_ABSOLUTE_ROOT_DIR}/webapp
