@@ -24,6 +24,7 @@
 
 #include "TerraMA2Init.hpp"
 #include "Utils.hpp"
+#include "Logger.hpp"
 #include "SemanticsManager.hpp"
 
 // QT
@@ -44,13 +45,19 @@ terrama2::core::TerraMA2Init::TerraMA2Init(const std::string& serviceType, const
   auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
 
   //read semantics from json file
-  std::string semanticsPath = FindInTerraMA2Path("share/terrama2");
+  std::string semanticsPath = FindInTerraMA2Path("share/terrama2/semantics");
   QDir semanticsDir(QString::fromStdString(semanticsPath));
   QStringList fileList = semanticsDir.entryList(QDir::Files | QDir::NoDotAndDotDot);
   for(const auto& filePath : fileList)
   {
-    QFile semantcisFile(filePath);
-    semantcisFile.open(QFile::ReadOnly);
+    QFile semantcisFile(semanticsDir.absoluteFilePath(filePath));
+    if(!semantcisFile.open(QFile::ReadOnly))
+    {
+      QString errMsg = QObject::tr("Unable to access semantics file: %1.").arg(semanticsDir.absoluteFilePath(filePath));
+      TERRAMA2_LOG_ERROR() << errMsg.toStdString();
+      continue;
+    }
+
     QByteArray bytearray = semantcisFile.readAll();
     QJsonDocument jsonDoc = QJsonDocument::fromJson(bytearray);
     auto array = jsonDoc.array();
