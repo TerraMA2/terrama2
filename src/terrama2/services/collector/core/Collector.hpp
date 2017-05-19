@@ -40,6 +40,7 @@
 // STL
 #include <string>
 #include <vector>
+#include <cstdint>
 
 namespace terrama2
 {
