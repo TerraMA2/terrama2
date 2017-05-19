@@ -47,7 +47,7 @@ terrama2::core::DataSeriesSemantics terrama2::core::SemanticsManager::addSemanti
   auto it = semanticsMap_.find(code);
   if(it != semanticsMap_.cend())
   {
-    QString errMsg = QObject::tr("Semantics %1 already registered.").arg(name.c_str());
+    QString errMsg = QObject::tr("Semantics %1 already registered.").arg(QString::fromStdString(name));
     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
     throw terrama2::core::SemanticsException() << ErrorDescription(errMsg);
   }
@@ -72,7 +72,7 @@ terrama2::core::DataSeriesSemantics terrama2::core::SemanticsManager::getSemanti
   auto it = semanticsMap_.find(semanticsCode);
   if(it == semanticsMap_.cend())
   {
-    QString errMsg = QObject::tr("Semantics %1 not registered.").arg(semanticsCode.c_str());
+    QString errMsg = QObject::tr("Semantics %1 not registered.").arg(QString::fromStdString(semanticsCode));
     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
     throw terrama2::core::SemanticsException() << ErrorDescription(errMsg);
   }
