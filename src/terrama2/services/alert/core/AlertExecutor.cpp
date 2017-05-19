@@ -223,7 +223,7 @@ void terrama2::services::alert::core::AlertExecutor::addAdditionalData(std::shar
     alertDataSet->move(i);
 
     //iterate over all additional dataset to fill each item
-    for(auto additionalData : alertPtr->additionalDataVector)
+    for(const auto& additionalData : alertPtr->additionalDataVector)
     {
       std::string key = std::to_string(additionalData.dataSeriesId)+"_"+std::to_string(additionalData.dataSetId);
       auto join = additionalDataMap.at(key);
@@ -264,7 +264,7 @@ terrama2::services::alert::core::AlertExecutor::monitoredObjectAlert(std::shared
 {
   //Creat a Join class based on the ForeignKey of the dataset
   std::unordered_map<std::string, terrama2::core::TeDataSetFKJoin> additionalDataMap;
-  for(auto additionalData : alertPtr->additionalDataVector)
+  for(const auto& additionalData : alertPtr->additionalDataVector)
   {
     auto pair = tempAdditionalDataVector.at(additionalData.dataSeriesId);
     auto dataSeries = pair.first;

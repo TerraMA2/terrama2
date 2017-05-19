@@ -162,7 +162,7 @@ te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PA
       auto result = executor.validateAnalysis(dataManager, analysisPtr);
 
       std::cout << "Validate result for grid analysis: " << (result.valid ? "OK" : "Not OK") << std::endl;
-      for (auto message : result.messages)
+      for (const auto& message : result.messages)
       {
         std::cout << message << std::endl;
       }
@@ -326,7 +326,7 @@ te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PA
       auto result = executor.validateAnalysis(dataManager, analysisPtr);
 
       std::cout << "Validate result for monitored object analysis: " <<  (result.valid ? "OK" : "Not OK") << std::endl;
-      for(auto message : result.messages)
+      for(const auto& message : result.messages)
       {
         std::cout << message << std::endl;
       }
