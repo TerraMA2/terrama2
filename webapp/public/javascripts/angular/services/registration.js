@@ -63,6 +63,18 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
    * @type {Object}
    */
   self.ssh = {};
+  /**
+   * It defines a connection validation of SMTP
+   *
+   * @type {Object}
+   */
+  self.mailConnection = {};
+  /**
+   * It defines a connection validation of geoserver
+   *
+   * @type {Object}
+   */
+  self.geoserverConnection = {};
 
 
   self.metadata = {};
@@ -268,6 +280,40 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
           self.ssh.isValid = true;
         }
       });
+
+      Socket.on('testSMTPConnectionResponse', function(result) {
+        self.mailConnection.isLoading = false;
+
+        if(result.sendTestEmail) {
+          if(result.error) {
+            $('#sendTestEmailModal .modal-body > p').text(i18n.__(result.message));
+            $('#sendTestEmailModal').removeClass('modal-success').removeClass('modal-danger').addClass('modal-danger');
+          } else {
+            $('#sendTestEmailModal .modal-body > p').text(i18n.__('Email successfully sent'));
+            $('#sendTestEmailModal').removeClass('modal-success').removeClass('modal-danger').addClass('modal-success');
+          }
+
+          $('#sendTestEmailModal').modal();
+        } else {
+          if(result.error) {
+            self.mailConnection.isValid = false;
+            self.mailConnection.message = i18n.__(result.message);
+          } else {
+            self.mailConnection.isValid = true;
+          }
+        }
+      });
+
+      Socket.on('testGeoServerConnectionResponse', function(result) {
+        self.geoserverConnection.isLoading = false;
+        if(result.error) {
+          self.geoserverConnection.isValid = false;
+          self.geoserverConnection.message = i18n.__(result.message);
+        } else {
+          self.geoserverConnection.isValid = true;
+        }
+      });
+
       var initializing = true;
 
       /**
@@ -277,7 +323,7 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
        * is responsible to compare the values.
        */
       $scope.$watch(function() {
-        return self.ssh.isValid && self.db.isValid;
+        return self.ssh.isValid && self.db.isValid && self.mailConnection.isValid && self.geoserverConnection.isValid;
       }, function(value) {
         if (initializing) {
           initializing = false;
@@ -312,6 +358,18 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
           isLoading: true
         };
 
+        if(self.service.service_type_id == 4) {
+          self.mailConnection = {
+            isLoading: true
+          };
+        }
+
+        if(self.service.service_type_id == 3) {
+          self.geoserverConnection = {
+            isLoading: true
+          };
+        }
+
         setTimeout(function() {
           // SSH
           Socket.emit('testSSHConnectionRequest',
@@ -330,7 +388,63 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
           }
 
           Socket.emit('testDbConnection', logCredentials);
+
+          if(self.service.service_type_id == 4) {
+            if(self.metadata.emailServer === undefined) {
+              self.mailConnection.isLoading = false;
+              self.mailConnection.isValid = false;
+              self.mailConnection.message = i18n.__("There are invalid fields on form");
+            } else {
+              Socket.emit('testSMTPConnectionRequest', {
+                host: self.metadata.emailServer.host,
+                port: self.metadata.emailServer.port,
+                username: self.metadata.emailServer.user,
+                password: self.metadata.emailServer.password
+              });
+            }
+          }
+
+          if(self.service.service_type_id == 3) {
+            if(self.mapsServer === undefined || self.mapsServer.address === undefined) {
+              self.geoserverConnection.isLoading = false;
+              self.geoserverConnection.isValid = false;
+              self.geoserverConnection.message = i18n.__("There are invalid fields on form. Important! Make sure the server's REST API is enabled");
+            } else {
+              Socket.emit('testGeoServerConnectionRequest', {
+                host: self.mapsServer.address,
+                port: self.mapsServer.port,
+                username: self.mapsServer.user,
+                password: self.mapsServer.password
+              });
+            }
+          }
         }, 1000);
+      };
+
+      self.sendTestEmail = function() {
+        if(!Socket) return;
+
+        self.mailConnection = {
+          isLoading: true
+        };
+
+        if(self.metadata.emailServer === undefined || self.emailAddressTest === undefined) {
+          self.mailConnection.isLoading = false;
+          $('#sendTestEmailModal .modal-body > p').text(i18n.__('There are invalid fields on form'));
+          $('#sendTestEmailModal').removeClass('modal-success').removeClass('modal-danger').addClass('modal-danger');
+          $('#sendTestEmailModal').modal();
+        } else {
+          setTimeout(function() {
+            Socket.emit('testSMTPConnectionRequest', {
+              host: self.metadata.emailServer.host,
+              port: self.metadata.emailServer.port,
+              username: self.metadata.emailServer.user,
+              password: self.metadata.emailServer.password,
+              emailAddress: self.emailAddressTest,
+              message: i18n.__("TerraMA² Test Message")
+            });
+          }, 1000);
+        }
       };
 
       self.processMetadata = function processMetadata(value) {
