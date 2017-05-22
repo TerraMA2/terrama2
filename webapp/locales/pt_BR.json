@@ -736,6 +736,7 @@
   "The values of the levels must be numeric and be in a growing order, and the names of the levels must be filled": "Os valores dos níveis devem ser numéricos e estar em uma ordem crescente, e os nomes dos níveis devem ser preenchidos",
   "Theme": "Tema",
   "There are invalid fields on form": "Existem valores inválidos no formulário",
+  "There are invalid fields on form. Important! Make sure the server's REST API is enabled": "Existem valores inválidos no formulário. Importante! Certifique-se de que a API REST do servidor está habilitada",
   "Thursday": "Quinta-feira",
   "Time": "Hora",
   "Time Interval": "Intervalo de tempo",

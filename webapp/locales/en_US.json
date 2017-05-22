@@ -775,6 +775,7 @@
   "The values of the levels must be numeric and be in a growing order, and the names of the levels must be filled": "The values of the levels must be numeric and be in a growing order, and the names of the levels must be filled",
   "Theme": "Theme",
   "There are invalid fields on form": "There are invalid fields on form",
+  "There are invalid fields on form. Important! Make sure the server's REST API is enabled": "There are invalid fields on form. Important! Make sure the server's REST API is enabled",
   "There is already a service registered in same port ": "There is already a service registered in same port ",
   "Thursday": "Thursday",
   "Time": "Time",
