@@ -9,9 +9,9 @@ define([
   angular.module(moduleName, [servicesApp, collapserApp])
     .run(["$templateCache", function($templateCache) {
       $templateCache.put("helper.html",
-        "<div class=\"dropup pull-left\" style=\"margin-left: 10px;\">" + 
+        "<div class=\"dropup pull-left\" style=\"margin-left: 10px;\" data-toggle=\"tooltip\" data-placement=\"bottom\" ng-attr-title=\"{{i18n.__(operators.name)}}\">" + 
           "<button aria-expanded=\"false\" type=\"button\" class=\"btn dropdown-toggle\" data-toggle=\"dropdown\">" +
-            "<img style=\"height: 20px;\" ng-src=\"" + BASE_URL + "{{operators.imagePath}}\" data-toggle=\"tooltip\" data-placement=\"top\" ng-attr-title=\"{{operators.name}}\"/>" +
+            "<img style=\"height: 20px;\" ng-src=\"" + BASE_URL + "{{operators.imagePath}}\"/>" +
           "</button>" +
           "<terrama2-list class=\"dropdown-menu\" data=\"operatorsData\" expression=\"restriction\"></terrama2-list>" +
         "</div>");
@@ -82,11 +82,15 @@ define([
       // watch operators to get file data
       scope.$watch('operators', function(operators){
         if (operators){
-          var pathFile = BASE_URL + "javascripts/angular/analysis/data/" + operators.fileName;
+          if (operators.fileName){
+            var pathFile = BASE_URL + "javascripts/angular/analysis/data/" + operators.fileName;
 
-          $http.get(pathFile).then(function(response){
-            scope.operatorsData = response.data;
-          });
+            $http.get(pathFile).then(function(response){
+              scope.operatorsData = response.data;
+            });
+          } else {
+            scope.operatorsData = operators.data;
+          }
         }
       });
     } // end linkFn

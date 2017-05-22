@@ -1,11 +1,11 @@
 {
   "webmonitor": {
-    "basePath": "/tm2m/",
+    "basePath": "/",
     "port": 36001
   },
   "webadmin": {
-    "basePath": "/tm2/",
-    "port": 80,
+    "basePath": "/",
+    "port": 36000,
     "host": "127.0.0.1"
   }
 }

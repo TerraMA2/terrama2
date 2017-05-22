@@ -1,6 +1,6 @@
 {
   "default": {
-    "basePath": "/tm2/",
+    "basePath": "/",
     "port": 36000,
     "db": {
       "username": "postgres",

@@ -1209,6 +1209,12 @@ define([], function() {
       var dataSeriesSemantics = DataSeriesSemanticsService.list();
       $scope.dataSeriesSemantics = dataSeriesSemantics;
 
+      $scope.dataSeriesSemantics.sort(function(a, b) {
+        if(a.name < b.name) return -1;
+        if(a.name > b.name) return 1;
+        return 0;
+      });
+
       if ($scope.dataSeries.semantics) {
         dataSeriesSemantics.forEach(function(semantics) {
           if (semantics.code === $scope.dataSeries.semantics) {

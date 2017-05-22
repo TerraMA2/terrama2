@@ -10,7 +10,7 @@
                   ng-model="$ctrl.storager.format"
                   ng-disabled="$ctrl.isUpdating && $ctrl.hasCollector"
                   ng-change="$ctrl.onStoragerFormatChange()"
-                  ng-options="format.name for format in $ctrl.storagerFormats | filter: { collector: false }" 
+                  ng-options="$ctrl.i18n.__(format.name) for format in $ctrl.storagerFormats | filter: { collector: false }" 
                   required>
         </select>
         <label class="help-block text-danger"

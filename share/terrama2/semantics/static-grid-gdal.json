@@ -1,0 +1,44 @@
+[
+  {
+    "id": 6,
+    "name": "Static grid - GDAL",
+    "code": "GRID-static_gdal",
+    "driver": "GRID-static_gdal",
+    "type": "GRID",
+    "temporality": "STATIC",
+    "format": "GDAL",
+    "providers_type_list": ["FILE", "FTP"],
+    "metadata": {
+      "timestamp_property": "file_timestamp"
+    },
+    "gui": {
+      "schema": {
+        "properties": {
+          "folder": {
+            "type": "string",
+            "title": "Folder",
+            "pattern": "^[^?#!$&'()*+,;=^§]+$"
+          },
+          "mask": {
+            "type": "string",
+            "title": "Mask"
+          }
+        },
+        "required": ["mask"]
+      },
+      "form": [
+        {
+          "key": "folder",
+          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form",
+          "validationMessage": {
+            "202": "Invalid folder"
+          }
+        },
+        {
+          "key": "mask",
+          "htmlClass": "col-md-6"
+        }
+      ]
+    }
+  }
+]

@@ -192,7 +192,7 @@
 
           <div class="col-md-8">
             <div class="form-group has-feedback" terrama2-show-errors>
-              <label>{{ i18n.__("Instance") }}:</label>
+              <label>{{ i18n.__("Service") }}:</label>
               <ui-select name="instance" 
                          ng-model="ctrl.analysis.instance_id" 
                          ng-change="ctrl.onServiceChanged()" required>
@@ -208,7 +208,7 @@
               </ui-select>
 
               <span class="help-block" ng-show="forms.generalDataForm.instance.$dirty && forms.generalDataForm.instance.$error.required">
-                {{ i18n.__('Analysis instance is required') }}
+                {{ i18n.__('Analysis service is required') }}
               </span>
             </div>
             <!-- /.form-group -->
@@ -686,7 +686,7 @@
               <div id="scriptCheckResult"></div>
               <div id="systemError" style="display: none;"></div>
 
-              <div terrama2-ace="{}" name="script" ng-model="ctrl.analysis.script">
+              <div terrama2-ace="{}" name="script" ng-model="ctrl.analysis.script" new-value="ctrl.operatorValue">
 
               </div>
 
@@ -702,14 +702,15 @@
 
           <div class="col-md-6">
             <!-- TerraMA² Functions Buttons -->
-            <terrama2-analysis-helpers operators="ctrl.operators.utilities" target="ctrl.analysis.script" restriction="ctrl.analysisHelperRestriction"></terrama2-analysis-helpers>
-            <terrama2-analysis-helpers ng-if="ctrl.analysis.type_id == {[Enums.AnalysisType.MONITORED]}" operators="ctrl.operators.dcp" target="ctrl.analysis.script" restriction="ctrl.analysisHelperRestriction"></terrama2-analysis-helpers>
-            <terrama2-analysis-helpers ng-if="ctrl.analysis.type_id == {[Enums.AnalysisType.MONITORED]}" operators="ctrl.operators.grid_monitored" target="ctrl.analysis.script" restriction="ctrl.analysisHelperRestriction"></terrama2-analysis-helpers>
-            <terrama2-analysis-helpers ng-if="ctrl.analysis.type_id == {[Enums.AnalysisType.GRID]}" operators="ctrl.operators.grid" target="ctrl.analysis.script" restriction="ctrl.analysisHelperRestriction"></terrama2-analysis-helpers>
-            <terrama2-analysis-helpers ng-if="ctrl.analysis.type_id == {[Enums.AnalysisType.GRID]}" operators="ctrl.operators.historical" target="ctrl.analysis.script" restriction="ctrl.analysisHelperRestriction"></terrama2-analysis-helpers>
-            <terrama2-analysis-helpers ng-if="ctrl.analysis.type_id == {[Enums.AnalysisType.GRID]}" operators="ctrl.operators.forecast" target="ctrl.analysis.script" restriction="ctrl.analysisHelperRestriction"></terrama2-analysis-helpers>
-            <terrama2-analysis-helpers ng-if="ctrl.analysis.type_id == {[Enums.AnalysisType.MONITORED]}" operators="ctrl.operators.occurrence" target="ctrl.analysis.script" restriction="ctrl.analysisHelperRestriction"></terrama2-analysis-helpers>
-            <terrama2-analysis-helpers operators="ctrl.operators.python" target="ctrl.analysis.script" restriction="ctrl.analysisHelperRestriction"></terrama2-analysis-helpers>
+            <terrama2-analysis-helpers operators="ctrl.operators.utilities" target="ctrl.operatorValue" restriction="ctrl.analysisHelperRestriction"></terrama2-analysis-helpers>
+            <terrama2-analysis-helpers ng-if="ctrl.operators.attributes.data && ctrl.analysis.type_id == {[Enums.AnalysisType.MONITORED]}" operators="ctrl.operators.attributes" target="ctrl.operatorValue" restriction="ctrl.analysisHelperRestriction"></terrama2-analysis-helpers>            
+            <terrama2-analysis-helpers ng-if="ctrl.analysis.type_id == {[Enums.AnalysisType.MONITORED]}" operators="ctrl.operators.dcp" target="ctrl.operatorValue" restriction="ctrl.analysisHelperRestriction"></terrama2-analysis-helpers>
+            <terrama2-analysis-helpers ng-if="ctrl.analysis.type_id == {[Enums.AnalysisType.MONITORED]}" operators="ctrl.operators.grid_monitored" target="ctrl.operatorValue" restriction="ctrl.analysisHelperRestriction"></terrama2-analysis-helpers>
+            <terrama2-analysis-helpers ng-if="ctrl.analysis.type_id == {[Enums.AnalysisType.GRID]}" operators="ctrl.operators.grid" target="ctrl.operatorValue" restriction="ctrl.analysisHelperRestriction"></terrama2-analysis-helpers>
+            <terrama2-analysis-helpers ng-if="ctrl.analysis.type_id == {[Enums.AnalysisType.GRID]}" operators="ctrl.operators.historical" target="ctrl.operatorValue" restriction="ctrl.analysisHelperRestriction"></terrama2-analysis-helpers>
+            <terrama2-analysis-helpers ng-if="ctrl.analysis.type_id == {[Enums.AnalysisType.GRID]}" operators="ctrl.operators.forecast" target="ctrl.operatorValue" restriction="ctrl.analysisHelperRestriction"></terrama2-analysis-helpers>
+            <terrama2-analysis-helpers ng-if="ctrl.analysis.type_id == {[Enums.AnalysisType.MONITORED]}" operators="ctrl.operators.occurrence" target="ctrl.operatorValue" restriction="ctrl.analysisHelperRestriction"></terrama2-analysis-helpers>
+            <terrama2-analysis-helpers operators="ctrl.operators.python" target="ctrl.operatorValue" restriction="ctrl.analysisHelperRestriction"></terrama2-analysis-helpers>
           </div>
         </div>
       </div>
