@@ -3,7 +3,7 @@ define(function() {
     return {
       restrict: 'E',
       transclude: true,
-      templateUrl: '/dist/templates/alert-box/templates/modal.html',
+      templateUrl: BASE_URL + 'dist/templates/alert-box/templates/modal.html',
       scope: {
         title: '=title',
         modalId: '=modalId',

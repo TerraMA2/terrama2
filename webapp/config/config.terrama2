@@ -1,5 +1,6 @@
 {
   "default": {
+    "basePath": "/",
     "port": 36000,
     "db": {
       "username": "postgres",
@@ -14,6 +15,7 @@
     }
   },
   "tests": {
+    "basePath": "/",
     "port": 37000,
     "db": {
       "username": "postgres",

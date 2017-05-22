@@ -19,20 +19,20 @@ define([
       $scope.MessageBoxService = MessageBoxService;
       var title = i18n.__("Status");
       var cachedIcons = {};
-      cachedIcons[Globals.enums.StatusLog.DONE] = "/images/status/green.gif";
-      cachedIcons["start_" + Globals.enums.StatusLog.DONE] = "/images/status/green_anime.gif";
-      cachedIcons[Globals.enums.StatusLog.ERROR] = "/images/status/red.gif";
-      cachedIcons["start_" + Globals.enums.StatusLog.ERROR] = "/images/status/red_anime.gif";
-      cachedIcons[Globals.enums.StatusLog.DOWNLOADED] = "/images/status/download.png";
-      cachedIcons["message_" +Globals.enums.MessageType.WARNING_MESSAGE] = "/images/status/yellow.gif";
-      cachedIcons["start_warning"] = "/images/status/yellow_anime.gif";
-      cachedIcons[Globals.enums.StatusLog.START] = "/images/status/grey_anime.gif";
-      cachedIcons["start_" + Globals.enums.StatusLog.START] = "/images/status/grey_anime.gif";
-      cachedIcons[Globals.enums.StatusLog.ON_QUEUE] = "/images/status/clock.png";
-      cachedIcons[Globals.enums.StatusLog.INTERRUPTED] = "/images/status/red.gif";
-      cachedIcons["start_" + Globals.enums.StatusLog.INTERRUPTED] = "/images/status/red_anime.gif";
-      cachedIcons[Globals.enums.StatusLog.NOT_EXECUTED] = "/images/status/grey.gif";
-      cachedIcons["start_" + Globals.enums.StatusLog.NOT_EXECUTED] = "/images/status/grey_anime.gif";
+      cachedIcons[Globals.enums.StatusLog.DONE] = BASE_URL + "images/status/green.gif";
+      cachedIcons["start_" + Globals.enums.StatusLog.DONE] = BASE_URL + "images/status/green_anime.gif";
+      cachedIcons[Globals.enums.StatusLog.ERROR] = BASE_URL + "images/status/red.gif";
+      cachedIcons["start_" + Globals.enums.StatusLog.ERROR] = BASE_URL + "images/status/red_anime.gif";
+      cachedIcons[Globals.enums.StatusLog.DOWNLOADED] = BASE_URL + "images/status/download.png";
+      cachedIcons["message_" +Globals.enums.MessageType.WARNING_MESSAGE] = BASE_URL + "images/status/yellow.gif";
+      cachedIcons["start_warning"] = BASE_URL + "images/status/yellow_anime.gif";
+      cachedIcons[Globals.enums.StatusLog.START] = BASE_URL + "images/status/grey_anime.gif";
+      cachedIcons["start_" + Globals.enums.StatusLog.START] = BASE_URL + "images/status/grey_anime.gif";
+      cachedIcons[Globals.enums.StatusLog.ON_QUEUE] = BASE_URL + "images/status/clock.png";
+      cachedIcons[Globals.enums.StatusLog.INTERRUPTED] = BASE_URL + "images/status/red.gif";
+      cachedIcons["start_" + Globals.enums.StatusLog.INTERRUPTED] = BASE_URL + "images/status/red_anime.gif";
+      cachedIcons[Globals.enums.StatusLog.NOT_EXECUTED] = BASE_URL + "images/status/grey.gif";
+      cachedIcons["start_" + Globals.enums.StatusLog.NOT_EXECUTED] = BASE_URL + "images/status/grey_anime.gif";
 
       $scope.onPageChanged = function(currentPage, previousPage) {
         // TODO: Paginate dinamically

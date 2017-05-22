@@ -384,7 +384,7 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
 
         request
           .then(function(data) {
-            $window.location.href = "/administration/services?token=" + data.token+"&service="+data.service + "&restart="+data.restart;
+            $window.location.href = BASE_URL + "administration/services?token=" + data.token+"&service="+data.service + "&restart="+data.restart;
           })
           .catch(function(err) {
             MessageBoxService.danger(i18n.__("Service Registration"), err.message);

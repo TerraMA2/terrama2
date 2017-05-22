@@ -11,7 +11,7 @@ define([
       $templateCache.put("helper.html",
         "<div class=\"dropup pull-left\" style=\"margin-left: 10px;\" data-toggle=\"tooltip\" data-placement=\"bottom\" ng-attr-title=\"{{i18n.__(operators.name)}}\">" + 
           "<button aria-expanded=\"false\" type=\"button\" class=\"btn dropdown-toggle\" data-toggle=\"dropdown\">" +
-            "<img style=\"height: 20px;\" ng-src=\"{{operators.imagePath}}\"/>" +
+            "<img style=\"height: 20px;\" ng-src=\"" + BASE_URL + "{{operators.imagePath}}\"/>" +
           "</button>" +
           "<terrama2-list class=\"dropdown-menu\" data=\"operatorsData\" expression=\"restriction\"></terrama2-list>" +
         "</div>");
@@ -83,7 +83,7 @@ define([
       scope.$watch('operators', function(operators){
         if (operators){
           if (operators.fileName){
-            var pathFile = "/javascripts/angular/analysis/data/" + operators.fileName;
+            var pathFile = BASE_URL + "javascripts/angular/analysis/data/" + operators.fileName;
 
             $http.get(pathFile).then(function(response){
               scope.operatorsData = response.data;
