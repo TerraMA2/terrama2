@@ -20,7 +20,7 @@
     </div>
 
     <!-- Info Modal -->
-    <div ng-if="extra.service && extra.service.online" class="modal fade" id="infoModal" tabindex="-1" role="dialog" aria-labelledby="infoModalLabel">
+    <div ng-if="extra.service" class="modal fade" id="infoModal" tabindex="-1" role="dialog" aria-labelledby="infoModalLabel">
       <div class="modal-dialog modal-sm" role="document">
         <div class="modal-content">
           <div class="modal-header">
@@ -28,10 +28,11 @@
             <h4 class="modal-title" id="infoModalLabel">{{ i18n.__('Service info') }}</h4>
           </div>
           <div class="modal-body">
-            {{ i18n.__('Are you sure?') }}
+            <p><b>{{ i18n.__('Service version')}}</b>{{": " + serviceVersion}}</p>
+            <p><b>{{ i18n.__('Service start time')}}</b>{{": " + serviceStartTime}}</p>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-outline" data-dismiss="modal" ng-click="">{{ i18n.__('Close') }}</button>
+            <button type="button" class="btn btn-primary" data-dismiss="modal">{{ i18n.__('Close') }}</button>
           </div>
         </div>
       </div>
@@ -105,6 +106,7 @@
         <tr style="font-weight: bold;">
           <td ng-show="isFunction(icon()) && model.length > 0"></td>
           <td ng-repeat="field in displayFields">{{ i18n.__(field) }}</td>
+          <td ng-if="extra.service"></td>
           <td ng-if="extra.service">Status</td>
           <td ng-if="extra.export"></td>
           <td ng-if="isFunction(remove)">
@@ -123,6 +125,12 @@
           <td ng-if="extra.project" class="pull-cell-left">
             <a ng-href="{{ extra.project.edit(element) }}" class="btn btn-default btn-sm">
               <i class="fa fa-pencil"></i> {{ i18n.__("Edit") }}
+            </button>
+          </td>
+
+          <td>
+            <button ng-show="element.online" ng-click="showInfo(element)" class="btn btn-default btn-sm pull-right"> 
+              <i class="fa fa-info"></i>
             </button>
           </td>
 

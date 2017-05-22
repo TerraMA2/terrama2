@@ -65,6 +65,15 @@ define([
             $('#myModal').modal();
           };
 
+          $scope.serviceStartTime = null;
+          $scope.serviceVersion = null;
+          
+          $scope.showInfo = function(object){
+            $scope.serviceStartTime = object.start_time;
+            $scope.serviceVersion = object.version;
+            $('#infoModal').modal();
+          }
+
           $scope.resetObjectToRemove = function() {
             $scope.objectToRemove = null;
           };
