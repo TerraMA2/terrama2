@@ -54,7 +54,7 @@
 
         // setting current project scope
         alertObject.project_id = projectId;
-        alertObject.risk.project_id = projectId;
+        alertObject.legend.project_id = projectId;
 
         var promiser;
 
@@ -65,19 +65,19 @@
             if (schedule) {
               alertObject.conditional_schedule_id = schedule.id;
             }
-            var riskPromise;
-            var riskObject = alertObject.risk;
-            if (riskObject.id){
-              riskPromise = DataManager.updateRisk({id: riskObject.id}, riskObject, options);
+            var legendPromise;
+            var legendObject = alertObject.legend;
+            if (legendObject.id){
+              legendPromise = DataManager.updateLegend({id: legendObject.id}, legendObject, options);
             } else {
-              riskPromise = DataManager.addRisk(riskObject, options);
+              legendPromise = DataManager.addLegend(legendObject, options);
             }
-            return riskPromise
-              .then(function(riskResult){
-                if (!alertObject.risk.id){
-                  alertObject.risk_id = riskResult.id;
+            return legendPromise
+              .then(function(legendResult){
+                if (!alertObject.legend.id){
+                  alertObject.legend_id = legendResult.id;
                 } else {
-                  alertObject.risk_id = alertObject.risk.id;
+                  alertObject.legend_id = alertObject.legend.id;
                 }
                 return DataManager.addAlert(alertObject, options);
               });
@@ -145,18 +145,18 @@
         return DataManager.getAlert({id: alertId}, options)
           .then(function(alertResult){
             oldAlertNotifications = alertResult.notifications;
-            // Updating or adding a risk
-            if (alertObject.risk.id){
-              alertObject.risk_id = alertObject.risk.id;
-              return DataManager.updateRisk({id: alertObject.risk.id}, alertObject.risk, options);
+            // Updating or adding a legend
+            if (alertObject.legend.id){
+              alertObject.legend_id = alertObject.legend.id;
+              return DataManager.updateLegend({id: alertObject.legend.id}, alertObject.legend, options);
             } else {
-              alertObject.risk.project_id = alertObject.project_id;
-              return DataManager.addRisk(alertObject.risk, options)
+              alertObject.legend.project_id = alertObject.project_id;
+              return DataManager.addLegend(alertObject.legend, options)
             }
           })
-          .then(function(riskResult){
-            if (riskResult){
-              alertObject.risk_id = riskResult.id;
+          .then(function(legendResult){
+            if (legendResult){
+              alertObject.legend_id = legendResult.id;
             }
             //Updating Notifications
             var newAlertNotifications = alertObject.notifications;
@@ -240,18 +240,18 @@
 
 
   /**
-   * It retrieves risks from database
+   * It retrieves legends from database
    * 
    * @param {number} projectId - A project identifier
-   * @returns {Promise<Risk>[]}
+   * @returns {Promise<Legend>[]}
    */
-  Alert.listRisks = function(projectId) {
+  Alert.listLegends = function(projectId) {
     return new PromiseClass(function(resolve, reject) {
 
-      return DataManager.listRisks({ project_id: projectId })
-        .then(function(risks) {
-          return resolve(risks.map(function(risk) {
-            return risk.toObject();
+      return DataManager.listLegends({ project_id: projectId })
+        .then(function(legends) {
+          return resolve(legends.map(function(legend) {
+            return legend.toObject();
           }));
         })
 

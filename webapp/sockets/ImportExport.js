@@ -326,21 +326,21 @@ var ImportExport = function(io) {
                         alert.data_series_id = Utils.find(output.DataSeries, {$id: alert.data_series_id}).id;
                         if(alert.service_instance_id === null) alert.service_instance_id = json.servicesAlert;
 
-                        var risk;
+                        var legend;
 
-                        for(var i = 0, risksLength = json.Risks.length; i < risksLength; i++) {
-                          if(alert.risk_id === json.Risks[i].id) {
-                            risk = clone(json.Risks[i]);
+                        for(var i = 0, legendsLength = json.Legends.length; i < legendsLength; i++) {
+                          if(alert.legend_id === json.Legends[i].id) {
+                            legend = clone(json.Legends[i]);
                             break;
                           }
                         }
 
                         delete alert.conditional_schedule.id;
-                        delete risk.id;
+                        delete legend.id;
                         delete alert.report_metadata.id;
 
-                        for(var i = 0, levelsLength = risk.levels.length; i < levelsLength; i++)
-                          delete risk.levels[i].id;
+                        for(var i = 0, levelsLength = legend.levels.length; i < levelsLength; i++)
+                          delete legend.levels[i].id;
 
                         for(var i = 0, additionalDataLength = alert.additional_data.length; i < additionalDataLength; i++)
                           delete alert.additional_data[i].id;
@@ -348,19 +348,19 @@ var ImportExport = function(io) {
                         for(var i = 0, notificationsLength = alert.notifications.length; i < notificationsLength; i++)
                           delete alert.notifications[i].id;
 
-                        alert.risk = risk;
-                        alert.risk.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: alert.risk.project_id}).id : json.selectedProject;
+                        alert.legend = legend;
+                        alert.legend.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: alert.legend.project_id}).id : json.selectedProject;
 
                         var addSchedulePromise = DataManager.addSchedule(alert.conditional_schedule, options).then(function(schedule) {
                           alert.conditional_schedule_id = schedule.id;
                         });
                         
-                        var addRiskPromise = DataManager.addRisk(risk, options).then(function(riskResult) {
-                          alert.risk_id = riskResult.id;
+                        var addLegendPromise = DataManager.addLegend(legend, options).then(function(legendResult) {
+                          alert.legend_id = legendResult.id;
                         });
 
                         promises.push(
-                          Promise.join(addSchedulePromise, addRiskPromise).then(function() {
+                          Promise.join(addSchedulePromise, addLegendPromise).then(function() {
                             return DataManager.addAlert(alert, options).then(function(alertResult) {
                               if(tcpOutput.Alerts === undefined) tcpOutput.Alerts = [];
                               tcpOutput.Alerts.push(alertResult);
@@ -433,7 +433,7 @@ var ImportExport = function(io) {
         Analysis: [],
         Views: [],
         Alerts: [],
-        Risks: []
+        Legends: []
       };
 
       var _emitError = function(err) {
@@ -589,16 +589,16 @@ var ImportExport = function(io) {
         promises.push(DataManager.listAlerts({project_id: target.id}).then(function(alertsList) {
           alertsList.forEach(function(alert) {
             var alertToAdd = addID(alert);
-            var risk = alertToAdd.risk;
+            var legend = alertToAdd.legend;
 
             alertToAdd.conditional_schedule.scheduleType = 4;
-            alertToAdd.risk_id = risk.id;
-            delete alertToAdd.risk;
+            alertToAdd.legend_id = legend.id;
+            delete alertToAdd.legend;
 
             output.Alerts.push(alertToAdd);
 
-            if(!isInArray(risk.id, output.Risks))
-              output.Risks.push(risk);
+            if(!isInArray(legend.id, output.Legends))
+              output.Legends.push(legend);
           });
         }));
       } // end if projects
@@ -727,17 +727,17 @@ var ImportExport = function(io) {
                 alert.service_instance_id = null;
 
                 var alertToAdd = addID(alert);
-                var risk = alertToAdd.risk;
+                var legend = alertToAdd.legend;
 
                 alertToAdd.conditional_schedule.scheduleType = 4;
-                alertToAdd.risk_id = risk.id;
-                delete alertToAdd.risk;
+                alertToAdd.legend_id = legend.id;
+                delete alertToAdd.legend;
 
                 output.Alerts.push(alertToAdd);
 
-                if(!isInArray(risk.id, output.Risks)) {
-                  risk.project_id = null;
-                  output.Risks.push(risk);
+                if(!isInArray(legend.id, output.Legends)) {
+                  legend.project_id = null;
+                  output.Legends.push(legend);
                 }
 
                 return getDataSeries(alert.data_series_id);
@@ -757,7 +757,7 @@ var ImportExport = function(io) {
         if(output.Analysis.length === 0) delete output.Analysis;
         if(output.Views.length === 0) delete output.Views;
         if(output.Alerts.length === 0) delete output.Alerts;
-        if(output.Risks.length === 0) delete output.Risks;
+        if(output.Legends.length === 0) delete output.Legends;
 
         client.emit("exportResponse", { status: 200, data: output, projectName: json.currentProjectName, fileName: json.fileName });
       }).catch(_emitError);

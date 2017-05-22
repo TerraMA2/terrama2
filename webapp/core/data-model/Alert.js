@@ -9,7 +9,7 @@
  */
 var BaseClass = require('./AbstractData');
 var ConditionalSchedule = require("./ConditionalSchedule");
-var Risk = require("./Risk");
+var Legend = require("./Legend");
 /**
  * TerraMA² Global Utility module
  * @type {Utils}
@@ -54,10 +54,10 @@ var Alert = function(params) {
    */
   this.description = params.description;
   /**
-   * @name Alert#risk_attribute
+   * @name Alert#legend_attribute
    * @type {string}
    */
-  this.risk_attribute = params.risk_attribute;
+  this.legend_attribute = params.legend_attribute;
   /**
    * @name Alert#data_series_id
    * @type {string}
@@ -69,10 +69,10 @@ var Alert = function(params) {
    */
   this.conditional_schedule = new ConditionalSchedule(params.ConditionalSchedule ? params.ConditionalSchedule.get() : params.conditionalSchedule || {});
   /**
-   * @name Alert#risk
+   * @name Alert#legend
    * @type {object}
    */
-  this.risk = new Risk(params.Risk ? params.Risk.get() : params.risk || {});
+  this.legend = new Legend(params.Legend ? params.Legend.get() : params.legend || {});
 
   /**
    * @name Alert#report_metadata
@@ -151,9 +151,9 @@ Alert.prototype.toObject = function() {
     name: this.name,
     description: this.description,
     data_series_id: this.data_series_id,
-    risk_attribute: this.risk_attribute,
+    legend_attribute: this.legend_attribute,
     conditional_schedule: this.conditional_schedule instanceof BaseClass ? this.conditional_schedule.toObject() : this.conditional_schedule,
-    risk: this.risk instanceof BaseClass ? this.risk.toObject() : this.risk,
+    legend: this.legend instanceof BaseClass ? this.legend.toObject() : this.legend,
     additional_data: this.additional_data,
     notifications: this.notifications,
     report_metadata: this.report_metadata
@@ -199,8 +199,8 @@ Alert.prototype.toService = function() {
     name: this.name,
     description: this.description,
     data_series_id: this.data_series_id,
-    risk_attribute: this.risk_attribute,
-    risk: this.risk instanceof BaseClass ? this.risk.toService() : this.risk,
+    legend_attribute: this.legend_attribute,
+    legend: this.legend instanceof BaseClass ? this.legend.toService() : this.legend,
     additional_data: additionalDataList,
     notifications: notificationList,
     report_metadata: reportMetadataCopy
