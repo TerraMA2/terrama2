@@ -125,7 +125,7 @@ int terrama2::services::view::core::createGeoserverTempMosaic(terrama2::core::Da
   te::da::DataSetType* dt = new te::da::DataSetType(dataSeries->name);
   int geomSRID = 0;
 
-  for(auto data : dataMap)
+  for(const auto& data : dataMap)
   {
     const auto& dataSetSeries = data.second;
     auto rasterProperty = te::da::GetFirstRasterProperty(dataSetSeries.teDataSetType.get());

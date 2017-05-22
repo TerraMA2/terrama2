@@ -525,6 +525,8 @@ define([], function() {
           return found;
         };
 
+        self.operatorValue = "";
+
         /**
          * It handles analysis validation signal. Once received, it tries to notify the user with callback state
          * 
@@ -559,36 +561,36 @@ define([], function() {
             imagePath: "/images/analysis/functions/utilities/utilities.png"
           },
           attributes: {
-            name: "Attributes",
+            name: "Monitored object attributes",
             imagePath: "/images/analysis/functions/monitored-object/attributes/attributes.png"
           },
           dcp: {
-            name: "DCP",
+            name: "DCP operators",
             fileName: "dcp-operators.json",
             imagePath: "/images/analysis/functions/monitored-object/dcp/dcp.png"
           },
           grid_monitored: {
-            name: "GRID",
+            name: "Grid operators",
             fileName: "grid-monitored-operators.json",
             imagePath: "/images/analysis/functions/monitored-object/grid/grid.png"
           },
           grid: {
-            name: "GRID",
+            name: "Grid operators",
             fileName: "grid-operators.json",
             imagePath: "/images/analysis/functions/grid/sample/sample.png"
           },
           historical: {
-            name: "Historical",
+            name: "Historical operators",
             fileName: "historical-grid.json",
             imagePath: "/images/analysis/functions/grid/historic/historic.png"
           },
           forecast: {
-            name: "Forecast",
+            name: "Forecast operators",
             fileName: "forecast-grid.json",
             imagePath: "/images/analysis/functions/grid/forecast/forecast.png"
           },
           occurrence: {
-            name: "Occurrence",
+            name: "Occurrence operators",
             fileName: "occurrence-operators.json",
             imagePath: "/images/analysis/functions/monitored-object/occurrence/occurrence.png"
           },

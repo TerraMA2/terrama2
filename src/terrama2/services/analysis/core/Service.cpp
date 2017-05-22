@@ -251,7 +251,7 @@ void terrama2::services::analysis::core::Service::start(size_t threadNumber)
   threadPool_.reset(new ThreadPool(processingThreadPool_.size()));
 }
 
-void terrama2::services::analysis::core::Service::analysisFinished(AnalysisId analysisId, std::shared_ptr< te::dt::TimeInstantTZ > executionDate, bool success)
+void terrama2::services::analysis::core::Service::analysisFinished(AnalysisId analysisId, std::shared_ptr< te::dt::TimeInstantTZ > executionDate, bool success,  QJsonObject jsonAnswer)
 {
   auto analysis = dataManager_->findAnalysis(analysisId);
 
@@ -260,7 +260,7 @@ void terrama2::services::analysis::core::Service::analysisFinished(AnalysisId an
   if(pqIt != processingQueue_.end())
     processingQueue_.erase(pqIt);
 
-  sendProcessFinishedSignal(analysisId, executionDate, success);
+  sendProcessFinishedSignal(analysisId, executionDate, success, jsonAnswer);
 
   // Verify if there is another execution for the same analysis waiting
   auto& packageQueue = waitQueue_[analysisId];

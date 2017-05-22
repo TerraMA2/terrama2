@@ -194,8 +194,9 @@ void terrama2::services::alert::core::Service::updateAdditionalInfo(const QJsonO
 
 void terrama2::services::alert::core::Service::alertFinished(AlertId alertId,
                                                              std::shared_ptr< te::dt::TimeInstantTZ > executionDate,
-                                                             bool success)
+                                                             bool success,
+                                                             QJsonObject jsonAnswer)
 {
   notifyWaitQueue(alertId);
-  sendProcessFinishedSignal(alertId, executionDate, success);
+  sendProcessFinishedSignal(alertId, executionDate, success, jsonAnswer);
 }
