@@ -236,6 +236,14 @@ define([
                       break;
                     }
                   }
+                  if (logMessage.data){
+                    var dateProcessInfo = getDateProcessInfo(logMessage.data);
+                    var dateProcessObject = {
+                      description: dateProcessInfo,
+                      messagetype: Globals.enums.MessageType.INFO_MESSAGE
+                    };
+                    out.messages.push(dateProcessObject);
+                  }
                   out.messageType = targetType;
                   break;
                 case Globals.enums.StatusLog.START:
@@ -254,11 +262,23 @@ define([
               }
             } else {
               var dummyMessage = {};
+              var dummyMessages;
               switch(logMessage.status) {
                 case Globals.enums.StatusLog.DONE:
-                  dummyMessage.description = "Done";
-                  dummyMessage.messageType = Globals.enums.MessageType.INFO_MESSAGE;
-                  break;
+                  if (logMessage.data){
+                    var dateProcessInfo = getDateProcessInfo(logMessage.data);
+                    dummyMessage.description = "Done...";
+                    dummyMessage.messageType = Globals.enums.MessageType.INFO_MESSAGE;
+                    dummyMessages = {
+                      description: dateProcessInfo,
+                      messagetype: Globals.enums.MessageType.INFO_MESSAGE
+                    };
+                    break;
+                  } else {
+                    dummyMessage.description = "Done";
+                    dummyMessage.messageType = Globals.enums.MessageType.INFO_MESSAGE;
+                    break;
+                  }
                 case Globals.enums.StatusLog.START:
                   dummyMessage.description = "Started";
                   dummyMessage.messageType = Globals.enums.MessageType.INFO_MESSAGE;
@@ -285,7 +305,7 @@ define([
                   break;
               }
               out.message = dummyMessage.description;
-              out.messages = [dummyMessage];
+              out.messages = dummyMessages ? [dummyMessages] : [dummyMessage];
             }
 
             $scope.model.push(out);
@@ -301,6 +321,22 @@ define([
           $scope.groupedModel[key] =  $scope.groupedModel[key].sort(function(a,b) {return (a.date > b.date) ? -1 : ((b.date > a.date) ? 1 : 0);} );
         }
       });
+
+      // Function to get processing time message
+      function getDateProcessInfo(stringDate){
+        var dateJson = JSON.parse(stringDate);
+        var startTime = moment(dateJson.processing_start_time[0]);
+        var endTime = moment(dateJson.processing_end_time[0]);
+        var format = "HH[h] mm[m] ss[s]";
+        var difference = moment.utc(endTime.diff(startTime));
+        if (difference < 60000){
+          format = "ss[s]";
+        } else if (difference < 3600000){
+          format = "mm[m] ss[s]";
+        }
+        var message = i18n.__("Processing time") + ": " + difference.format(format);
+        return message;
+      }
 
       $scope.socket.emit('log', {});
 
