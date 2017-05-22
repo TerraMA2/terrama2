@@ -34,7 +34,7 @@ define([
 
         // defaults
         editorOptions.fontSize = options.fontSize || "12pt";
-        editorOptions.maxLines = options.maxLines || 20;
+        editorOptions.maxLines = options.maxLines || 15;
         editorOptions.enableBasicAutocompletion = options.enableBasicAutocompletion || true;
         editorOptions.enableSnippets = options.enableSnippets || true;
         editorOptions.enableLiveAutocompletion = options.enableLiveAutocompletion || false;

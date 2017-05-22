@@ -23,8 +23,10 @@
    iconFn: function(object) {
      if (object.model_type === 'Grid') {
        return "/images/static-data-series/grid/grid.png";
-     } else {
+     } else if (object.model_type === "Geometric Object"){
       return "/images/static-data-series/vetorial/vetorial.png";
+     } else {
+       return "";
      }
 
    },
