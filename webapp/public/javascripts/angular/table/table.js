@@ -22,7 +22,7 @@ define([
     .directive('terrama2Table', ["i18n", function(i18n) {
       return {
         restrict: 'E',
-        templateUrl: '/dist/templates/table/templates/table.html',
+        templateUrl: BASE_URL + 'dist/templates/table/templates/table.html',
         replace: true,
         scope: {
           fields: '=fields',
@@ -234,7 +234,7 @@ define([
         restrict: 'E',
         priority: 1500,
         transclude: true,
-        templateUrl: "/javascripts/angular/table/templates/tbl.html",
+        templateUrl: BASE_URL + "javascripts/angular/table/templates/tbl.html",
         compile: function pre(element, attrs) {
           var repeat = element.find('terrama2-table2');
           repeat.attr('expression', attrs.expression);
@@ -263,7 +263,7 @@ define([
           "extraButtonsSlot": "?terrama2Btn"
         },
 
-        templateUrl: "/javascripts/angular/table/templates/tableFilter.html",
+        templateUrl: BASE_URL + "javascripts/angular/table/templates/tableFilter.html",
         link: function(scope, element, attrs, transclude) {
           scope.linkToAdd = attrs.linkToAdd;
         }

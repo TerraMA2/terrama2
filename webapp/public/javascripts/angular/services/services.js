@@ -42,7 +42,7 @@ define([
      */
     this.types = ServiceType;
 
-    this.url = "/api/Service";
+    this.url = BASE_URL + "api/Service";
   }
 
   /**

@@ -10,7 +10,7 @@ module.exports = function(app) {
       app.locals.activeProject = {};
       app.locals.collapsed = false;
       request.logout();
-      response.redirect('/');
+      response.redirect(app.locals.BASE_URL);
     }
   };
 };

@@ -61,14 +61,14 @@ define(function() {
     }
 
     $scope.schemeList = [];
-    $http.get("/api/DataProviderType/", {}).then(function(response) {
+    $http.get(BASE_URL + "api/DataProviderType/", {}).then(function(response) {
       $scope.typeList = response.data;
     }).catch(function(response) {
       console.log("err type: ", response.data);
     });
 
     var makeRedirectUrl = function(extra) {
-      var redirectUrl = conf.redirectTo.redirectTo || "/configuration/providers/";
+      var redirectUrl = conf.redirectTo.redirectTo || BASE_URL + "configuration/providers/";
       redirectUrl += (redirectUrl.indexOf("?") === -1) ? "?" : "&";
 
       var redirectData = Object.assign(conf.redirectTo, extra instanceof Object ? extra : {});
@@ -152,7 +152,7 @@ define(function() {
 
       var httpRequest = $http({
         method: "GET",
-        url: "/uri/",
+        url: BASE_URL + "uri/",
         params: params
       });
 
@@ -196,7 +196,7 @@ define(function() {
       }).then(function(response) {
         $scope.isEditing = true;
 
-        var defaultRedirectTo = "/configuration/providers?id=" + response.data.result.id + "&method=" + conf.saveConfig.method + "&";
+        var defaultRedirectTo = BASE_URL + "configuration/providers?id=" + response.data.result.id + "&method=" + conf.saveConfig.method + "&";
 
         var redirectData = makeRedirectUrl({data_provider_id: response.data.result.id}) + "&token=" + response.data.token;
 
@@ -241,7 +241,7 @@ define(function() {
 
         var httpRequest = $http({
           method: "POST",
-          url: "/uri/",
+          url: BASE_URL + "uri/",
           data: params,
           timeout: timeOut.promise
         });

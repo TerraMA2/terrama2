@@ -11,12 +11,26 @@ module.exports = function(sequelize, DataTypes) {
       description: DataTypes.TEXT,
     },
     {
+      indexes: [
+        {
+          unique: true,
+          fields: ['project_id', 'name']
+        }
+      ],
       underscored: true,
       underscoredAll: true,
       timestamps: false,
 
       classMethods: {
         associate: function(models) {
+          Risk.belongsTo(models.Project, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: "project_id",
+              allowNull: false
+            }
+          });
+
           Risk.hasOne(models.Alert, {
             onDelete: "CASCADE",
             foreignKey: {

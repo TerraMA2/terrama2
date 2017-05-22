@@ -12,7 +12,7 @@ define([],function(){
       onDelete: '&',
       semantics: '<'
     },
-    templateUrl: '/dist/templates/data-series/templates/csvFieldDetail.html',
+    templateUrl: BASE_URL + 'dist/templates/data-series/templates/csvFieldDetail.html',
     controller: FieldDetailController
   };
 

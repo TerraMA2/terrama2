@@ -7,13 +7,13 @@ module.exports = function(app) {
     if(request.isAuthenticated()) {
       var projects = DataManager.listProjects();
 
-      if(request.originalUrl == "/firstAccess" && projects.length == 1)
-        return response.redirect("/configuration/projects/" + projects[0].name + "/activate");
+      if(request.originalUrl == app.locals.BASE_URL + "firstAccess" && projects.length == 1)
+        return response.redirect(app.locals.BASE_URL + "configuration/projects/" + projects[0].name + "/activate");
       else
-        return response.redirect("/configuration/projects");
+        return response.redirect(app.locals.BASE_URL + "configuration/projects");
     } else {
       app.locals.activeProject = {};
-      return response.redirect("/login");
+      return response.redirect(app.locals.BASE_URL + "login");
     }
   }
 

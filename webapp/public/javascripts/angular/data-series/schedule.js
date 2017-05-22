@@ -8,7 +8,7 @@ angular.module(moduleName, [])
   .directive("terrama2Schedule", function() {
     return {
       restrict: 'E',
-      templateUrl: '/javascripts/angular/data-series/templates/schedule.html',
+      templateUrl: BASE_URL + 'javascripts/angular/data-series/templates/schedule.html',
       scope: {
         model: '=model',
         options: '=?options',

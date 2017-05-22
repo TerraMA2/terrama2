@@ -109,7 +109,7 @@ define([], function(){
       .then(function(){
         self.model = AlertService.list();
 
-        self.linkToAdd = "/configuration/alerts/new";
+        self.linkToAdd = BASE_URL + "configuration/alerts/new";
 
         if(config.message !== "") {
           var messageArray = config.message.split(" ");
@@ -129,7 +129,7 @@ define([], function(){
          * @returns {string}
          */
         self.link = function(object) {
-          return "/configuration/alerts/edit/" + object.id;
+          return BASE_URL + "configuration/alerts/edit/" + object.id;
           //return "";
         };
 
@@ -144,7 +144,7 @@ define([], function(){
         };
 
          self.icon = function(object) {
-           return "/images/alert/monitored-object/monitored-object_alert.png"
+           return BASE_URL + "images/alert/monitored-object/monitored-object_alert.png"
          }
 
         /**
@@ -195,7 +195,7 @@ define([], function(){
          * @param {Object}
          */
         self.remove = function(object) {
-          return "/api/Alert/" + object.id + "/delete";
+          return BASE_URL + "api/Alert/" + object.id + "/delete";
         };
       })
       .catch(function(err) {
