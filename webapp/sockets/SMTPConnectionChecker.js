@@ -14,7 +14,7 @@ var SMTPConnectionChecker = function(io) {
   // Sockets object
   var memberSockets = io.sockets;
   // SMTP class
-  var memberSMTPConnection = require('nodemailer/lib/smtp-connection');
+  var memberNodemailer = require('nodemailer');
 
   // Socket connection event
   memberSockets.on('connection', function(client) {
@@ -23,56 +23,70 @@ var SMTPConnectionChecker = function(io) {
     client.on('testSMTPConnectionRequest', function(json) {
       var returnObject = {
         error: false,
-        message: ""
+        message: "",
+        sendTestEmail: (json.emailAddress ? true : false)
       };
 
       var options = {
         host: json.host,
-        port: json.port
-      };
-
-      var auth = {
-        credentials: {
+        port: json.port,
+        auth: {
           user: json.username,
           pass: json.password
         }
       };
 
-      var connection = new memberSMTPConnection(options);
+      var transporter = memberNodemailer.createTransport(options);
 
-      connection.on('connect', function() {
-        connection.login(auth, function(err) {
-          if(err) {
-            returnObject.error = true;
-            returnObject.message = "Username or password does not match";
+      // Verify connection configuration
+      transporter.verify(function(error, success) {
+        if(error) {
+          returnObject.error = true;
+
+          if(error.code === "EAUTH") {
+            returnObject.message = "Username or password does not match. Important! Verify if your email server is not blocking the connection";
+          } else {
+            switch(error.errno) {
+              case "ENOTFOUND":
+                returnObject.message = "Address not found";
+                break;
+              case "ETIMEDOUT":
+                returnObject.message = "Connection timeout, verify the port";
+                break;
+              default:
+                returnObject.message = "Failed to connect, verify the connection parameters";
+            }
+          }
+
+          client.emit('testSMTPConnectionResponse', returnObject);
+        } else {
+          if(json.emailAddress) {
+            var envelope = {
+              from: json.username,
+              to: json.emailAddress,
+              subject: json.message,
+              text: json.message
+            };
+
+            transporter.sendMail(envelope, function(err, info) {
+              if(err) {
+                returnObject.error = true;
+                returnObject.message = err.message;
+              } else {
+                returnObject.error = false;
+                returnObject.message = "Success";
+              }
+
+              client.emit('testSMTPConnectionResponse', returnObject);
+            });
           } else {
             returnObject.error = false;
             returnObject.message = "Success";
+
+            client.emit('testSMTPConnectionResponse', returnObject);
           }
-
-          connection.quit();
-          client.emit('testSMTPConnectionResponse', returnObject);
-        });
-      });
-
-      connection.on('error', function(err) {
-        returnObject.error = true;
-
-        switch(err.errno) {
-          case "ENOTFOUND":
-            returnObject.message = "Address not found";
-            break;
-          case "ETIMEDOUT":
-            returnObject.message = "Connection timeout, verify the port";
-            break;
-          default:
-            returnObject.message = "Failed to connect, verify the connection parameters";
         }
-
-        client.emit('testSMTPConnectionResponse', returnObject);
       });
-
-      connection.connect();
     });
   });
 };

@@ -283,11 +283,24 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
 
       Socket.on('testSMTPConnectionResponse', function(result) {
         self.mailConnection.isLoading = false;
-        if(result.error) {
-          self.mailConnection.isValid = false;
-          self.mailConnection.message = i18n.__(result.message);
+
+        if(result.sendTestEmail) {
+          if(result.error) {
+            $('#sendTestEmailModal .modal-body > p').text(i18n.__(result.message));
+            $('#sendTestEmailModal').removeClass('modal-success').removeClass('modal-danger').addClass('modal-danger');
+          } else {
+            $('#sendTestEmailModal .modal-body > p').text(i18n.__('Email successfully sent'));
+            $('#sendTestEmailModal').removeClass('modal-success').removeClass('modal-danger').addClass('modal-success');
+          }
+
+          $('#sendTestEmailModal').modal();
         } else {
-          self.mailConnection.isValid = true;
+          if(result.error) {
+            self.mailConnection.isValid = false;
+            self.mailConnection.message = i18n.__(result.message);
+          } else {
+            self.mailConnection.isValid = true;
+          }
         }
       });
 
@@ -395,7 +408,7 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
             if(self.mapsServer === undefined || self.mapsServer.address === undefined) {
               self.geoserverConnection.isLoading = false;
               self.geoserverConnection.isValid = false;
-              self.geoserverConnection.message = i18n.__("There are invalid fields on form");
+              self.geoserverConnection.message = i18n.__("There are invalid fields on form. Important! Make sure the server's REST API is enabled");
             } else {
               Socket.emit('testGeoServerConnectionRequest', {
                 host: self.mapsServer.address,
@@ -406,6 +419,32 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
             }
           }
         }, 1000);
+      };
+
+      self.sendTestEmail = function() {
+        if(!Socket) return;
+
+        self.mailConnection = {
+          isLoading: true
+        };
+
+        if(self.metadata.emailServer === undefined || self.emailAddressTest === undefined) {
+          self.mailConnection.isLoading = false;
+          $('#sendTestEmailModal .modal-body > p').text(i18n.__('There are invalid fields on form'));
+          $('#sendTestEmailModal').removeClass('modal-success').removeClass('modal-danger').addClass('modal-danger');
+          $('#sendTestEmailModal').modal();
+        } else {
+          setTimeout(function() {
+            Socket.emit('testSMTPConnectionRequest', {
+              host: self.metadata.emailServer.host,
+              port: self.metadata.emailServer.port,
+              username: self.metadata.emailServer.user,
+              password: self.metadata.emailServer.password,
+              emailAddress: self.emailAddressTest,
+              message: i18n.__("TerraMA² Test Message")
+            });
+          }, 1000);
+        }
       };
 
       self.processMetadata = function processMetadata(value) {

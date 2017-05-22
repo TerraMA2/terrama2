@@ -1,32 +1,30 @@
 "use strict";
 
 /**
- * Socket responsible for checking the smtp connection with a given host.
+ * Socket responsible for checking the connection with a given GeoServer instance.
  * @class GeoServerConnectionChecker
  *
  * @author Jean Souza [jean.souza@funcate.org.br]
  *
  * @property {object} memberSockets - Sockets object.
- * @property {object} memberSMTPConnection - SMTP class.
+ * @property {object} memberRequest - Request class.
  */
 var GeoServerConnectionChecker = function(io) {
 
   // Sockets object
   var memberSockets = io.sockets;
-  // SMTP class
-  //var memberRequest = require('request');
+  // Request class
+  var memberRequest = require('request');
 
   // Socket connection event
   memberSockets.on('connection', function(client) {
 
-    // SMTP connection request event
+    // GeoServer connection request event
     client.on('testGeoServerConnectionRequest', function(json) {
       var returnObject = {
         error: false,
         message: ""
       };
-
-      var request = require('request');
 
       var protocol = "http://";
 
@@ -46,6 +44,12 @@ var GeoServerConnectionChecker = function(io) {
       if(path.charAt(path.length - 1) == "/")
         path = path.slice(0, -1);
 
+      if(path.substr(path.length - 4) === "/web")
+        path = path.replace("/web", "");
+
+      if(path.substr(path.length - 4) === "/ows")
+        path = path.replace("/ows", "");
+
       var address = protocol + host + ":" + json.port + (path != "" ? "/" + path : "") + "/rest/layers";
 
       var options = {
@@ -61,7 +65,7 @@ var GeoServerConnectionChecker = function(io) {
         }
       };
 
-      request(options, function(err, res, html) {
+      memberRequest(options, function(err, res, html) {
         if(err) {
           returnObject.error = true;
 
@@ -72,21 +76,44 @@ var GeoServerConnectionChecker = function(io) {
             case "ETIMEDOUT":
               returnObject.message = "Connection timeout, verify the port";
               break;
+            case "EPROTO":
+              returnObject.message = "Invalid port";
+              break;
+            case "ECONNREFUSED":
+              returnObject.message = "The connection was refused by the server, verify the connection parameters";
+              break;
             default:
               returnObject.message = "Failed to connect, verify the connection parameters";
           }
         } else {
-          if(html.toLowerCase().indexOf("http status 401") !== -1) {
+          if(res.statusCode == 401 || html.toLowerCase().indexOf("http status 401") !== -1) {
             returnObject.error = true;
             returnObject.message = "Username or password does not match";
-          } else if(html.toLowerCase().indexOf("404 not found") !== -1) {
+          } else if(res.statusCode == 404 || html.toLowerCase().indexOf("404 not found") !== -1 || html.toLowerCase().indexOf("http status 404") !== -1) {
             returnObject.error = true;
             returnObject.message = "Address not found";
+          } else if(res.statusCode != 200) {
+            returnObject.error = true;
+            returnObject.message = "Failed to connect, verify the connection parameters";
           } else {
-            returnObject.error = false;
-            returnObject.message = "Success";
+            try {
+              var returnedData = JSON.parse(html);
+
+              if(returnedData.layers.layer.length >= 0) {
+                returnObject.error = false;
+                returnObject.message = "Success";
+              } else {
+                returnObject.error = true;
+                returnObject.message = "Failed to connect, verify the connection parameters";
+              }
+            } catch(err) {
+              returnObject.error = true;
+              returnObject.message = "Failed to connect, verify the connection parameters";
+            }
           }
         }
+
+        returnObject.message += ". Important! Make sure the server's REST API is enabled";
 
         client.emit('testGeoServerConnectionResponse', returnObject);
       });
