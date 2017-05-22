@@ -272,6 +272,7 @@
   "Enter default value": "Insira o valor padrão",
   "Enviroment": "Ambiente",
   "Enviroment Variables": "Variáveis de Ambiente",
+  "Error in PostGIS connection: Invalid host": "Erro na conexão, endereço inválido",
   "Error creating Alert. \nCould not save risk due SequelizeUniqueConstraintError: Validation error": "Erro ao criar o alerta. Não foi possível salvar o risco, já existe um registro com o nome inserido, e o nome deve ser único.",
   "Error updating Alert. \nCould not save risk due SequelizeUniqueConstraintError: Validation error": "Erro ao atualizar o alerta. Não foi possível salvar o risco, já existe um registro com o nome inserido, e o nome deve ser único.",
   "Expert mode": "Modo especialista",

@@ -5,6 +5,7 @@ define([],
      */
     function Socket($rootScope, $window) {
       var socket = io.connect($window.location.origin, {
+        path: BASE_URL + 'socket.io',
         reconnect: false // it avoids to socket io reconnect automatically.
       });
 

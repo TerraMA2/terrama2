@@ -6,37 +6,37 @@
       {
         "name": "Without buffer",
         "code": "mbuffer = Buffer()",
-        "image": "/images/analysis/functions/utilities/buffer/without-buffer/without-buffer.png"
+        "image": "images/analysis/functions/utilities/buffer/without-buffer/without-buffer.png"
       },
       {
         "name": "Only inside buffer",
         "code": "mbuffer = Buffer(BufferType.In, <value>, \"<unit>\")",
-        "image": "/images/analysis/functions/utilities/buffer/internal-buffer/internal-buffer.png"
+        "image": "images/analysis/functions/utilities/buffer/internal-buffer/internal-buffer.png"
       },
       {
         "name": "Only outside buffer",
         "code": "mbuffer = Buffer(BufferType.Out, <value>, \"<unit>\")",
-        "image": "/images/analysis/functions/utilities/buffer/external-buffer/ext-buffer.png"
+        "image": "images/analysis/functions/utilities/buffer/external-buffer/ext-buffer.png"
       },
       {
         "name": "Union of outside buffer with inside buffer",
         "code": "mbuffer = Buffer(BufferType.In_out, <value_in>, \"<unit>\", <value_out>, \"<unit>\")",
-        "image": "/images/analysis/functions/utilities/buffer/internal-external-buffer/int-ext-buffer.png"
+        "image": "images/analysis/functions/utilities/buffer/internal-external-buffer/int-ext-buffer.png"
       },
       {
         "name": "Union of geometry and outside buffer",
         "code": "mbuffer = Buffer(BufferType.Out_union, <value>, \"<unit>\")",
-        "image": "/images/analysis/functions/utilities/buffer/external-buffer-internal-geometry/ext-buf-int-geom.png"
+        "image": "images/analysis/functions/utilities/buffer/external-buffer-internal-geometry/ext-buf-int-geom.png"
       },
       {
         "name": "Difference between geometry and inside buffer",
         "code": "mbuffer = Buffer(BufferType.In_diff, <value>, \"<unit>\")",
-        "image": "/images/analysis/functions/utilities/buffer/internal-geometry-internal-buffer/int-geom-buf.png"
+        "image": "images/analysis/functions/utilities/buffer/internal-geometry-internal-buffer/int-geom-buf.png"
       },
       {
         "name": "Buffer by level",
         "code": "mbuffer = Buffer(BufferType.Level, <value_max>, \"<unit>\", <value_min>, \"<unit>\")",
-        "image": "/images/analysis/functions/utilities/buffer/levels/levels.png"
+        "image": "images/analysis/functions/utilities/buffer/levels/levels.png"
       }
     ]
   },

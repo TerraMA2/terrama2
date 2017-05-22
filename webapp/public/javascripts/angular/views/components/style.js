@@ -12,7 +12,7 @@ define([], function () {
       model: "=",
       options: "="
     },
-    templateUrl: "/dist/templates/views/templates/style.html",
+    templateUrl: BASE_URL + "dist/templates/views/templates/style.html",
     controller: StyleController
   };
 

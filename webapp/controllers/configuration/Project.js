@@ -14,14 +14,14 @@ module.exports = function(app) {
     },
 
     new: function (request, response) {
-      response.render("configuration/project", {method: "POST", url: "/api/Project"});
+      response.render("configuration/project", {method: "POST", url: app.locals.BASE_URL + "api/Project"});
     },
 
     edit: function(request, response) {
       var projectName = request.params.name;
 
       DataManager.getProject({name: projectName}).then(function(project) {
-        response.render("configuration/project", {project: project, method: "PUT", url: "/api/Project/"+project.id});
+        response.render("configuration/project", {project: project, method: "PUT", url: app.locals.BASE_URL + "api/Project/"+project.id});
       }).catch(function(err) {
         response.render("base/404");
       });
@@ -35,9 +35,9 @@ module.exports = function(app) {
 
         // Redirect for start application
         if(request.params.token !== undefined)
-          response.redirect("/configuration/status?token=" + request.params.token);
+          response.redirect(app.locals.BASE_URL + "configuration/status?token=" + request.params.token);
         else
-          response.redirect("/configuration/status");
+          response.redirect(app.locals.BASE_URL + "configuration/status");
       }).catch(function(err) {
         response.render('base/404');
       });

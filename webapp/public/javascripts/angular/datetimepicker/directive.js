@@ -13,7 +13,7 @@ define([
       .directive("terrama2DatetimePicker", function() {
         return {
           restrict: "EA",
-          templateUrl: "/dist/templates/datetimepicker/templates/datetimepicker.html",
+          templateUrl: BASE_URL + "dist/templates/datetimepicker/templates/datetimepicker.html",
           scope: {
             dateTime: "=ngModel",
             options: "=?"
@@ -24,7 +24,7 @@ define([
       .directive("terrama2FilterDatetimePicker", ["i18n", "locales", function(i18n, locales) {
         return {
           restrict: "EA",
-          templateUrl: "/dist/templates/datetimepicker/templates/filterdatetimepicker.html",
+          templateUrl: BASE_URL + "dist/templates/datetimepicker/templates/filterdatetimepicker.html",
           scope: {
             ngModel: "=",
             beforeDatetime: "=beforeDatetime",

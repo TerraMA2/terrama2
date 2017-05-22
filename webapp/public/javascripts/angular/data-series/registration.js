@@ -246,6 +246,8 @@ define([], function() {
         value: $scope.isUpdating
       };
 
+      $scope.BASE_URL = BASE_URL;
+
       // consts
       $scope.filterTypes = {
         NO_FILTER: {
@@ -276,17 +278,17 @@ define([], function() {
         }
         switch (dataSeries.data_provider_type.name){
           case "FILE":
-            return "/images/data-server/file/file.png";
+            return BASE_URL + "images/data-server/file/file.png";
             break;
           case "FTP":
-            return "/images/data-server/ftp/ftp.png";
+            return BASE_URL + "images/data-server/ftp/ftp.png";
             break;
           case "HTTP":
-            return "/images/data-server/http/http.png";
+            return BASE_URL + "images/data-server/http/http.png";
             break;
           case "POSTGIS":
           default:
-            return "/images/data-server/postGIS/postGIS.png";
+            return BASE_URL + "images/data-server/postGIS/postGIS.png";
             break;
         }
       }
@@ -311,7 +313,7 @@ define([], function() {
             "processing": true,
             "serverSide": true,
             "ajax": {
-              "url": "/configuration/dynamic/dataseries/paginateDcps",
+              "url": BASE_URL + "configuration/dynamic/dataseries/paginateDcps",
               "type": "POST",
               "data": function(data) {
                 data.key = storedDcpsKey;
@@ -363,7 +365,7 @@ define([], function() {
       };
 
       $scope.storageDcps = function(dcps) {
-        $http.post("/configuration/dynamic/dataseries/storeDcps", {
+        $http.post(BASE_URL + "configuration/dynamic/dataseries/storeDcps", {
           key: storedDcpsKey,
           dcps: dcps
         }).then(function(result) {
@@ -881,7 +883,7 @@ define([], function() {
 
         var httpRequest = $http({
           method: "GET",
-          url: "/uri/",
+          url: BASE_URL + "uri/",
           params: params
         });
 
@@ -1303,7 +1305,7 @@ define([], function() {
 
         var httpRequest = $http({
           method: "GET",
-          url: "/uri/",
+          url: BASE_URL + "uri/",
           params: params
         });
 
@@ -1351,14 +1353,14 @@ define([], function() {
         output.semantics = semanticsName;
         output.parametersData = $scope.parametersData;
 
-        $window.location.href = "/configuration/providers/new?redirectTo=" + url + "&" + $httpParamSerializer(output);
+        $window.location.href = BASE_URL + "configuration/providers/new?redirectTo=" + url + "&" + $httpParamSerializer(output);
       };
 
       $scope.removePcd = function(alias) {
         if($scope.dcpsObject[alias] !== undefined) {
           $scope.$broadcast("dcpOperation", {action: "remove", dcp: Object.assign({}, $scope.dcpsObject[alias])});
 
-          $http.post("/configuration/dynamic/dataseries/removeStoredDcp", {
+          $http.post(BASE_URL + "configuration/dynamic/dataseries/removeStoredDcp", {
             key: storedDcpsKey,
             alias: alias
           }).then(function(result) {
@@ -1550,7 +1552,7 @@ define([], function() {
 
                     var dataToSend = Object.assign({}, $scope.dcpsObject[newAlias]);
 
-                    $http.post("/configuration/dynamic/dataseries/updateDcp", {
+                    $http.post(BASE_URL + "configuration/dynamic/dataseries/updateDcp", {
                       key: storedDcpsKey,
                       oldAlias: oldAlias,
                       dcp: dataToSend
@@ -1600,15 +1602,15 @@ define([], function() {
           if($scope.semantics === globals.enums.DataSeriesType.DCP) {
             $scope.$broadcast("deleteDcpsStoreKey");
 
-            $http.post("/configuration/dynamic/dataseries/deleteDcpsKey", {
+            $http.post(BASE_URL + "configuration/dynamic/dataseries/deleteDcpsKey", {
               key: storedDcpsKey
             }).then(function(result) {
-              $window.location.href = "/configuration/" + configuration.dataSeriesType + "/dataseries?token=" + (data.token || data.data.token);
+              $window.location.href = BASE_URL + "configuration/" + configuration.dataSeriesType + "/dataseries?token=" + (data.token || data.data.token);
             }, function(error) {
               console.log("Err in deleting key");
             });
           } else {
-            $window.location.href = "/configuration/" + configuration.dataSeriesType + "/dataseries?token=" + (data.token || data.data.token);
+            $window.location.href = BASE_URL + "configuration/" + configuration.dataSeriesType + "/dataseries?token=" + (data.token || data.data.token);
           }
         }).catch(function(err) {
           $scope.isChecking.value = false;

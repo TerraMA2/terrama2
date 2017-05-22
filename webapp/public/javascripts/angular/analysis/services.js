@@ -32,7 +32,7 @@ define([
      * It defines target API URL
      * @type {string} 
      */
-    this.url = "/api/Analysis";
+    this.url = BASE_URL + "api/Analysis";
     /**
      * It defines enum for Analysis 
      * @type {AnalysisType}

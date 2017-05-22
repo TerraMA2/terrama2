@@ -279,6 +279,7 @@
   "Enter default value": "Enter default value",
   "Enviroment": "Enviroment",
   "Enviroment Variables": "Enviroment Variables",
+  "Error in PostGIS connection: Invalid host": "Error in PostGIS connection: Invalid host",
   "Error creating Alert. \nCould not save risk due SequelizeUniqueConstraintError: Validation error": "Error creating Alert. Could not save risk due: name must be unique.",
   "Error updating Alert. \nCould not save risk due SequelizeUniqueConstraintError: Validation error": "Error updating Alert. Could not save risk due: name must be unique.",
   "Expert mode": "Expert mode",
