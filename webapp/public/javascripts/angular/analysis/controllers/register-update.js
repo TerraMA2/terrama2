@@ -562,7 +562,7 @@ define([], function() {
           },
           attributes: {
             name: "Monitored object attributes",
-            imagePath: "/images/analysis/functions/monitored-object/attributes/attributes.png"
+            imagePath: "images/analysis/functions/monitored-object/attributes/attributes.png"
           },
           dcp: {
             name: "DCP operators",
