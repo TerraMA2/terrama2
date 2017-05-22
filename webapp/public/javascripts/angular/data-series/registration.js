@@ -1149,6 +1149,7 @@ define([], function() {
 
       $scope.dataSeries = {
         data_provider_id: (inputDataSeries.data_provider_id || ""),
+        project: configuration.project,
         name: inputName,
         description: inputDataSeries.description,
         access: $scope.hasCollector ? "COLLECT" : "PROCESSING",
