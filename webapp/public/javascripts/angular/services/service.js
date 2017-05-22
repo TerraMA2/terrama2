@@ -56,6 +56,10 @@ define([], function() {
       }
 
       service.online = response.online;
+      if (service.online){
+        service.version = response.terrama2_version;
+        service.start_time = moment(response.start_time).format("lll");
+      }
     });
 
     $scope.socket.on("serviceVersion", function(response) {
@@ -72,7 +76,10 @@ define([], function() {
 
       service.loading = response.loading;
       service.online = response.online;
-
+      if (!service.online){
+        delete service.version;
+        delete service.start_time;
+      }
       if (!response.loading)
         service.requestingForClose = false;
     });
