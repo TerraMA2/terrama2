@@ -28,6 +28,23 @@ module.exports = function(sequelize, DataTypes) {
           Project.hasMany(models.DataProvider, {
             onDelete: "CASCADE",
             foreignKey: {
+              name: 'project_id',
+              allowNull: false
+            }
+          });
+
+          Project.hasMany(models.DataSeries, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: 'project_id',
+              allowNull: false
+            }
+          });
+
+          Project.hasMany(models.Risk, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: 'project_id',
               allowNull: false
             }
           });

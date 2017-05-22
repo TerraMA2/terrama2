@@ -67,7 +67,9 @@
           });
       },
       listRisks: function(request, response){
-        AlertFacade.listRisks(app.locals.activeProject.id)
+        var projectId = request.params.project_id;
+
+        AlertFacade.listRisks((projectId ? projectId : app.locals.activeProject.id))
           .then(function(risks) {
             return response.json(risks);
           })

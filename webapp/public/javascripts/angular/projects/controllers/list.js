@@ -173,7 +173,9 @@ define(function() {
         return;
       }
 
-      SaveAs(result.data, result.projectName + ".terrama2");
+      var extension = result.fileName.split(".");
+
+      SaveAs(result.data, (extension.length > 1 && extension[extension.length - 1] === "terrama2" ? result.fileName : result.fileName + ".terrama2"));
     });
 
     socket.on("getDependenciesResponse", function(result) {
@@ -354,6 +356,7 @@ define(function() {
         $scope.extra.isExporting = true;
         $scope.exportData['currentProjectId'] = $scope.currentProjectId;
         $scope.exportData['currentProjectName'] = $scope.currentProjectName;
+        $scope.exportData['fileName'] = $scope.projectsCheckboxes[element.id].fileName;
         socket.emit("export", $scope.exportData);
 
         $scope.exportData = {
@@ -504,6 +507,7 @@ define(function() {
       response.data.map(function(project, index) {
         if($scope.projectsCheckboxes[project.id] == undefined)
           $scope.projectsCheckboxes[project.id] = {
+            fileName: project.name,
             project: true
           };
 

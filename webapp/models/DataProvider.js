@@ -8,8 +8,7 @@ module.exports = function(sequelize, DataTypes) {
       },
       uri: DataTypes.STRING,
       name: {
-        type: DataTypes.STRING,
-        unique: true
+        type: DataTypes.STRING
       },
       description: DataTypes.TEXT,
       active: {
@@ -18,6 +17,12 @@ module.exports = function(sequelize, DataTypes) {
       }
     },
     {
+      indexes: [
+        {
+          unique: true,
+          fields: ['project_id', 'name']
+        }
+      ],
       underscored: true,
       underscoredAll: true,
       timestamps: false,
@@ -36,6 +41,7 @@ module.exports = function(sequelize, DataTypes) {
           DataProvider.belongsTo(models.Project, {
             onDelete: "CASCADE",
             foreignKey: {
+              name: "project_id",
               allowNull: false
             }
           });
