@@ -10,7 +10,7 @@ define(function() {
      * Remote host url
      * @type {string}
      */
-    var targetUrl = "/javascripts/angular/countries/data.json";
+    var targetUrl = BASE_URL + "javascripts/angular/countries/data.json";
     /**
      * It defines a cached countries
      * @private data
@@ -65,7 +65,7 @@ define(function() {
        * @param {string} country - A selected country in list.
        */
       select: function(country) {
-        return $http.post("/languages", {locale: country});
+        return $http.post(BASE_URL + "languages", {locale: country});
       }
     };
   }

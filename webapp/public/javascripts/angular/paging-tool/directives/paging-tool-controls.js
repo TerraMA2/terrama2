@@ -15,7 +15,7 @@ define([], function() {
   function terrama2PagingToolControls(PagingToolService) {
     return {
       restrict: "E",
-      templateUrl: "/dist/templates/paging-tool/templates/paging-tool-controls.html",
+      templateUrl: BASE_URL + "dist/templates/paging-tool/templates/paging-tool-controls.html",
       scope: {
         /**
          * Max pages binding to delimit

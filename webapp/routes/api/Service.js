@@ -4,9 +4,9 @@ module.exports = function (app) {
 
   var controller = app.controllers.api.Service;
 
-  app.get('/api/Service/', passport.isAuthenticated, controller.get);
-  app.post('/api/Service/', passport.isAuthenticated, controller.post);
-  app.put('/api/Service/:id', passport.isAuthenticated, controller.put);
-  app.delete('/api/Service/:id/delete', passport.isAuthenticated, controller.delete);
+  app.get(app.locals.BASE_URL + 'api/Service/', passport.isAuthenticated, controller.get);
+  app.post(app.locals.BASE_URL + 'api/Service/', passport.isAuthenticated, controller.post);
+  app.put(app.locals.BASE_URL + 'api/Service/:id', passport.isAuthenticated, controller.put);
+  app.delete(app.locals.BASE_URL + 'api/Service/:id/delete', passport.isAuthenticated, controller.delete);
 
 };
