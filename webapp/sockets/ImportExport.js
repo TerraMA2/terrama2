@@ -298,7 +298,8 @@ var ImportExport = function(io) {
                         delete view.schedule.id;
 
                         promises.push(DataManager.addSchedule(view.schedule, options).then(function(schedule) {
-                          view.schedule_id = schedule.id;
+                          if (schedule)
+                            view.schedule_id = schedule.id;
 
                           return DataManager.addView(view, options).then(function(viewResult) {
                             if(tcpOutput.Views === undefined) tcpOutput.Views = [];
