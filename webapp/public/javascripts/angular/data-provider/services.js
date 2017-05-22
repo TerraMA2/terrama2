@@ -14,7 +14,7 @@ define([
    */
   function DataProviderService(BaseService) {
     this.BaseService = BaseService;
-    this.url = "/api/DataProvider";
+    this.url = BASE_URL + "api/DataProvider";
     this.model = [];
   }
 

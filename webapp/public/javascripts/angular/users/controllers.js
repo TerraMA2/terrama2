@@ -21,13 +21,13 @@ define([
       $scope.MessageBoxService = MessageBoxService;
 
       $scope.link = function(object) {
-        return "/administration/users/edit/" + object.id;
+        return BASE_URL + "administration/users/edit/" + object.id;
       };
 
       $scope.i18n = i18n;
 
       $scope.remove = function(object) {
-        return "/administration/users/" + object.id + "/delete";
+        return BASE_URL + "administration/users/" + object.id + "/delete";
       };
 
       $scope.model = config.users;
@@ -64,11 +64,11 @@ define([
       $scope.iconFn = function(object) {
         switch(object.administrator) {
           case i18n.__("Yes"):
-            return "/images/user/admin/user.png"
+            return BASE_URL + "images/user/admin/user.png"
             break;
           case i18n.__("No"):
           default:
-            return "/images/user/nadmin/user.png"
+            return BASE_URL + "images/user/nadmin/user.png"
             break;
         }
       };
@@ -79,7 +79,7 @@ define([
         height: 20
       };
 
-      $scope.linkToAdd = "/administration/users/new";
+      $scope.linkToAdd = BASE_URL + "administration/users/new";
 
       $scope.close = function() { MessageBoxService.reset(); };
 

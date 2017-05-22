@@ -12,17 +12,17 @@
     <terrama2-alert-box2 handler="MessageBoxService.alertBox" close="MessageBoxService.reset()" extra=MessageBoxServe.alertBox.extra></terrama2-alert-box2>
   </div>
 
-  <wizard template="/dist/templates/templates/terrama2-wizard.html">
+  <wizard id="wizard" template="">
     <wz-step wz-title="{{ i18n.__('General') }}" canexit="isFirstStepValid" wz-data="wizard.general">
       <div class="col-md-12">
         <form name="forms.generalDataForm">
-          <div ng-include="'/dist/templates/generalData.html'"></div>
+          <div id="includeGeneralData" ng-include=""></div>
         </form>
       </div>
 
       <div class="col-md-12" style="margin-top: 30px;">
-        <a href="/configuration/dynamic/dataseries/" class="btn btn-primary pull-left" ng-show="isDynamic">{{ i18n.__('Cancel') }}</a>
-        <a href="/configuration/static/dataseries" class="btn btn-primary pull-left" ng-show="!isDynamic">{{ i18n.__('Cancel') }}</a>
+        <a href="{[ BASE_URL ]}configuration/dynamic/dataseries/" class="btn btn-primary pull-left" ng-show="isDynamic">{{ i18n.__('Cancel') }}</a>
+        <a href="{[ BASE_URL ]}configuration/static/dataseries" class="btn btn-primary pull-left" ng-show="!isDynamic">{{ i18n.__('Cancel') }}</a>
         <div class="pull-right">
           <button class="btn btn-primary" type="submit" wz-next>{{ i18n.__('Next') }}</button>
           <button type="button" class="btn btn-primary" ng-bind="i18n.__('Save')" ng-show="!isDynamic" data-ng-click="save(false);"></button>
@@ -54,14 +54,14 @@
           </div>
 
 	        <terrama2-dcp-importer></terrama2-dcp-importer>
-          <div ng-include="'/dist/templates/dcpTable.html'"></div>
+          <div id="includeDcpTable" ng-include=""></div>
         </div>
 
       </div>
 
       <div class="col-md-12" style="margin-top: 30px;">
-        <a href="/configuration/dynamic/dataseries/" class="btn btn-primary pull-left" ng-show="isDynamic">{{ i18n.__('Cancel') }}</a>
-        <a href="/configuration/static/dataseries" class="btn btn-primary pull-left" ng-show="!isDynamic">{{ i18n.__('Cancel') }}</a>
+        <a href="{[ BASE_URL ]}configuration/dynamic/dataseries/" class="btn btn-primary pull-left" ng-show="isDynamic">{{ i18n.__('Cancel') }}</a>
+        <a href="{[ BASE_URL ]}configuration/static/dataseries" class="btn btn-primary pull-left" ng-show="!isDynamic">{{ i18n.__('Cancel') }}</a>
         <div class="pull-right">
           <button class="btn btn-primary" type="submit" wz-previous>{{ i18n.__('Previous') }}</button>
           <button class="btn btn-primary" type="submit" ng-show="isDynamic && (!wizard.store.disabled || !wizard.filter.disabled || !wizard.intersection.disabled || !wizard.csvFormatForm.disabled)" ng-click="goToValidNextStep('parametersForm');" wz-next>{{ i18n.__('Next') }}</button>
@@ -89,8 +89,8 @@
       </div>
 
       <div class="col-md-12" style="margin-top: 30px;">
-        <a href="/configuration/dynamic/dataseries/" class="btn btn-primary pull-left" ng-show="isDynamic">{{ i18n.__('Cancel') }}</a>
-        <a href="/configuration/static/dataseries" class="btn btn-primary pull-left" ng-show="!isDynamic">{{ i18n.__('Cancel') }}</a>
+        <a href="{[ BASE_URL ]}configuration/dynamic/dataseries/" class="btn btn-primary pull-left" ng-show="isDynamic">{{ i18n.__('Cancel') }}</a>
+        <a href="{[ BASE_URL ]}configuration/static/dataseries" class="btn btn-primary pull-left" ng-show="!isDynamic">{{ i18n.__('Cancel') }}</a>
         <div class="pull-right">
           <button class="btn btn-primary" type="submit" ng-click="goToValidPreviousStep('filterForm');" wz-previous>{{ i18n.__('Previous') }}</button>
           <button class="btn btn-primary" type="submit" ng-show="isDynamic && (!wizard.store.disabled || !wizard.filter.disabled || !wizard.intersection.disabled)" ng-click="goToValidNextStep('storeForm');" wz-next>{{ i18n.__('Next') }}</button>
@@ -116,8 +116,8 @@
 
       </div>
       <div class="col-md-12" style="margin-top: 30px;">
-        <a href="/configuration/dynamic/dataseries/" class="btn btn-primary pull-left" ng-show="isDynamic">{{ i18n.__('Cancel') }}</a>
-        <a href="/configuration/static/dataseries" class="btn btn-primary pull-left" ng-show="!isDynamic">{{ i18n.__('Cancel') }}</a>
+        <a href="{[ BASE_URL ]}configuration/dynamic/dataseries/" class="btn btn-primary pull-left" ng-show="isDynamic">{{ i18n.__('Cancel') }}</a>
+        <a href="{[ BASE_URL ]}configuration/static/dataseries" class="btn btn-primary pull-left" ng-show="!isDynamic">{{ i18n.__('Cancel') }}</a>
         <div class="pull-right">
           <button class="btn btn-primary" type="submit" wz-previous>{{ i18n.__('Previous') }}</button>
           <button class="btn btn-primary" type="submit" ng-show="!wizard.filter.disabled || !wizard.intersection.disabled" ng-click="goToValidNextStep('storagerForm');" wz-next>{{ i18n.__('Next') }}</button>
@@ -138,11 +138,11 @@
 
     <wz-step wz-title="{{ i18n.__('Filters') }}" canexit="validateSteps" wz-disabled="{{ !isDynamic }}" wz-data="wizard.filter" canenter="!wizard.filter.disabled">
       <div class="col-md-12">
-        <div ng-include="'/dist/templates/filter.html'"></div>
+        <div id="includeFilter" ng-include=""></div>
       </div>
       <div class="col-md-12" style="margin-top: 30px;">
-        <a href="/configuration/dynamic/dataseries/" class="btn btn-primary pull-left" ng-show="isDynamic">{{ i18n.__('Cancel') }}</a>
-        <a href="/configuration/static/dataseries" class="btn btn-primary pull-left" ng-show="!isDynamic">{{ i18n.__('Cancel') }}</a>
+        <a href="{[ BASE_URL ]}configuration/dynamic/dataseries/" class="btn btn-primary pull-left" ng-show="isDynamic">{{ i18n.__('Cancel') }}</a>
+        <a href="{[ BASE_URL ]}configuration/static/dataseries" class="btn btn-primary pull-left" ng-show="!isDynamic">{{ i18n.__('Cancel') }}</a>
         <div class="pull-right">
           <button class="btn btn-primary" type="submit" ng-click="goToValidPreviousStep('filterForm');" wz-previous>{{ i18n.__('Previous') }}</button>
           <button class="btn btn-primary" type="submit" ng-show="isDynamic && semantics !== 'GRID' && !wizard.intersection.disabled" ng-click="goToValidNextStep('filterForm');" wz-next>{{ i18n.__('Next') }}</button>
@@ -163,13 +163,13 @@
 
     <wz-step wz-title="{{ i18n.__('Intersection') }}" canexit="validateSteps" wz-disabled="{{ !isDynamic || semantics === 'GRID' }}" wz-data="wizard.intersection" canenter="!wizard.intersection.disabled">
       <div class="col-md-12">
-        <div ng-include="'/dist/templates/data-series/templates/intersection.html'">
+        <div id="includeIntersection" ng-include="">
         </div>
       </div>
 
       <div class="col-md-12" style="margin-top: 30px;">
-        <a href="/configuration/dynamic/dataseries/" class="btn btn-primary pull-left" ng-show="isDynamic">{{ i18n.__('Cancel') }}</a>
-        <a href="/configuration/static/dataseries" class="btn btn-primary pull-left" ng-show="!isDynamic">{{ i18n.__('Cancel') }}</a>
+        <a href="{[ BASE_URL ]}configuration/dynamic/dataseries/" class="btn btn-primary pull-left" ng-show="isDynamic">{{ i18n.__('Cancel') }}</a>
+        <a href="{[ BASE_URL ]}configuration/static/dataseries" class="btn btn-primary pull-left" ng-show="!isDynamic">{{ i18n.__('Cancel') }}</a>
         <div class="pull-right">
           <button class="btn btn-primary" type="submit" ng-click="goToValidPreviousStep('intersectionForm');" wz-previous>{{ i18n.__('Previous') }}</button>
           <div class="btn-group pull-right" style="margin-left: 3px;" ng-show="isDynamic && storager.format">
@@ -188,6 +188,20 @@
     </wz-step>
 
   </wizard>
+
+  <script>
+    var templatePath = BASE_URL + "dist/templates/templates/terrama2-wizard.html";
+    var includeDcpTable = "'" + BASE_URL + "dist/templates/dcpTable.html'";
+    var includeIntersection = "'" + BASE_URL + "dist/templates/data-series/templates/intersection.html'";
+    var includeFilter = "'" + BASE_URL + "dist/templates/filter.html'";
+    var includeGeneralData = "'" + BASE_URL + "dist/templates/generalData.html'";
+
+    $("#wizard").attr("template", templatePath);
+    $("#includeDcpTable").attr("ng-include", includeDcpTable);
+    $("#includeIntersection").attr("ng-include", includeIntersection);
+    $("#includeFilter").attr("ng-include", includeFilter);
+    $("#includeGeneralData").attr("ng-include", includeGeneralData);
+  </script>
 
 </div>
 

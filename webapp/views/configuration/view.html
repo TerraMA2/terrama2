@@ -8,13 +8,13 @@
 
 {% block styles %}
   <!-- Bootstrap Eonasdan datatimepicker (used in TerraMA² datetimepicker wrapper) -->
-  <link rel="stylesheet" href="/bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css">
+  <link rel="stylesheet" href="{[ BASE_URL ]}bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css">
 
   <!-- Angular Color Picker -->
-  <link rel="stylesheet" href="/bower_components/angular-color-picker/dist/angularjs-color-picker.min.css" />
-  <link rel="stylesheet" href="/bower_components/angular-ui-select/dist/select.min.css" />
+  <link rel="stylesheet" href="{[ BASE_URL ]}bower_components/angular-color-picker/dist/angularjs-color-picker.min.css" />
+  <link rel="stylesheet" href="{[ BASE_URL ]}bower_components/angular-ui-select/dist/select.min.css" />
   <!-- only include if you use bootstrap -->
-  <link rel="stylesheet" href="/bower_components/angular-color-picker/dist/themes/angularjs-color-picker-bootstrap.min.css" />
+  <link rel="stylesheet" href="{[ BASE_URL ]}bower_components/angular-color-picker/dist/themes/angularjs-color-picker-bootstrap.min.css" />
 
   <style>
     .has-feedback label~.form-control-feedback {
@@ -38,29 +38,29 @@
 </script>
 
 <!-- Moment Datetime JS -->
-<script type="text/javascript" src="/bower_components/moment/moment.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/moment.js"></script>
 <!-- Ace editor -->
-<script type="text/javascript" src="/bower_components/ace-builds/src/ace.js"></script>
-<script type="text/javascript" src="/bower_components/ace-builds/src/ext-language_tools.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/ace-builds/src/ace.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/ace-builds/src/ext-language_tools.js"></script>
 
 <!-- Angular Schema Form dependencies -->
-<script type="text/javascript" src="/bower_components/angular-sanitize/angular-sanitize.js"></script>
-<script type="text/javascript" src="/bower_components/tv4/tv4.js"></script>
-<script type="text/javascript" src="/bower_components/objectpath/lib/ObjectPath.js"></script>
-<script type="text/javascript" src="/bower_components/angular-schema-form/dist/schema-form.js"></script>
-<script type="text/javascript" src="/bower_components/angular-schema-form/dist/bootstrap-decorator.min.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/angular-sanitize/angular-sanitize.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/tv4/tv4.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/objectpath/lib/ObjectPath.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/angular-schema-form/dist/schema-form.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/angular-schema-form/dist/bootstrap-decorator.min.js"></script>
 <!-- Bootstrap datetimepicker -->
-<script type="text/javascript" src="/bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
 
-<script type="text/javascript" src="/bower_components/moment/locale/pt-br.js"></script>
-<script type="text/javascript" src="/bower_components/moment/locale/es.js"></script>
-<script type="text/javascript" src="/bower_components/moment/locale/fr.js"></script>
-<script type="text/javascript" src="/bower_components/angular-eonasdan-datetimepicker/dist/angular-eonasdan-datetimepicker.min.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/pt-br.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/es.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/fr.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/angular-eonasdan-datetimepicker/dist/angular-eonasdan-datetimepicker.min.js"></script>
 
 <!-- Angular Color Picker -->
-<script src="/bower_components/tinycolor/dist/tinycolor-min.js"></script>
-<script src="/bower_components/angular-color-picker/dist/angularjs-color-picker.min.js"></script>
-<script src="/bower_components/angular-ui-select/dist/select.min.js"></script>
+<script src="{[ BASE_URL ]}bower_components/tinycolor/dist/tinycolor-min.js"></script>
+<script src="{[ BASE_URL ]}bower_components/angular-color-picker/dist/angularjs-color-picker.min.js"></script>
+<script src="{[ BASE_URL ]}bower_components/angular-ui-select/dist/select.min.js"></script>
 
 
 {% endblock %}
@@ -98,11 +98,11 @@
                         ng-model="ctrl.view.service_instance_id"
                         required>
                   <ui-select-match>
-                    <img ng-src="/images/services/view/view_service.png" style="height: 20px; margin-top: -7px;"/>
+                    <img ng-src="{[ BASE_URL ]}images/services/view/view_service.png" style="height: 20px; margin-top: -7px;"/>
                     <span ng-bind="$select.selected.name"></span>
                   </ui-select-match>
                   <ui-select-choices repeat="instance.id as instance in (ctrl.filteredServices | filter: {'name': $select.search}) track by instance.id">
-                    <img ng-src="/images/services/view/view_service.png" style="height: 20px;"/>
+                    <img ng-src="{[ BASE_URL ]}images/services/view/view_service.png" style="height: 20px;"/>
                     <span ng-bind="instance.name"></span>
                   </ui-select-choices>
                 </ui-select>
@@ -203,7 +203,7 @@
           <li><a href="javascript::void();" ng-disabled="!ctrl.isValid" data-ng-click="ctrl.isValid && ctrl.save(false);" ng-bind="i18n.__('Save')"></a></li>
         </ul>
       </div>
-      <a href="/configuration/views/" class="btn btn-primary pull-left"><span ng-bind="i18n.__('Cancel')"></span></a>
+      <a href="{[ BASE_URL ]}configuration/views/" class="btn btn-primary pull-left"><span ng-bind="i18n.__('Cancel')"></span></a>
     </div>
   </terrama2-box>
   

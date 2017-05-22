@@ -276,6 +276,7 @@
   "Enter default value": "Insira o valor padrão",
   "Enviroment": "Ambiente",
   "Enviroment Variables": "Variáveis de Ambiente",
+  "Error in PostGIS connection: Invalid host": "Erro na conexão, endereço inválido",
   "Expert mode": "Modo especialista",
   "Export": "Exportar",
   "Failed to connect, verify the connection parameters": "Falha ao conectar, verifique os parâmetros de conexão",

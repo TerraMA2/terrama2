@@ -30,7 +30,7 @@ module.exports = function(app) {
     },
 
     new: function (request, response) {
-      return response.render('administration/user', { currentTab: "users", redirectUrl: "/administration/users" });
+      return response.render('administration/user', { currentTab: "users", redirectUrl: app.locals.BASE_URL + "administration/users" });
     },
 
     edit: function (request, response) {
@@ -48,7 +48,7 @@ module.exports = function(app) {
           user: user,
           update: true,
           currentTab: "users",
-          redirectUrl: "/administration/users"
+          redirectUrl: app.locals.BASE_URL + "administration/users"
         });
       }).catch(function(err) {
         response.status(400);

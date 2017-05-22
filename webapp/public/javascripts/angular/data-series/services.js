@@ -36,7 +36,7 @@ define([
    */
   function DataSeriesService(BaseService, DataSeriesType, $filter, $q) {
     this.BaseService = BaseService;
-    this.url = "/api/DataSeries";
+    this.url = BASE_URL + "api/DataSeries";
     this.DataSeriesType = DataSeriesType;
     this.$filter = $filter;
     /**
@@ -126,7 +126,7 @@ define([
    */
   function DataSeriesSemanticsService(BaseService, $q) {
     this.BaseService = BaseService;
-    this.url = "/api/DataSeriesSemantics/";
+    this.url = BASE_URL + "api/DataSeriesSemantics/";
     /**
      * It defines a cached data series objects
      * @type {DataSeries[]}
