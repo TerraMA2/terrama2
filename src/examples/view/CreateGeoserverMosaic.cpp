@@ -173,6 +173,7 @@ int main(int argc, char** argv)
   EXPECT_CALL(*logger.get(), start(_)).WillRepeatedly(::testing::Return(1));
   EXPECT_CALL(*logger.get(), result(_, _, _));
   EXPECT_CALL(*logger.get(), clone()).WillRepeatedly(::testing::Return(logger));
+  EXPECT_CALL(*logger.get(), getConnectionInfo()).WillRepeatedly(::testing::Return(te::core::URI("postgis://postgres:postgres@localhost:5432/terrama2")));
 
   logger->setConnectionInfo(te::core::URI());
 

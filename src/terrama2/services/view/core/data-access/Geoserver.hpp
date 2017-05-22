@@ -190,7 +190,7 @@ namespace terrama2
                                         const std::string& style = "") const;
 
             std::unique_ptr<te::se::Style> generateVectorialStyle(const View::Legend& legend,
-                                                         const std::unique_ptr<te::da::DataSetType>& dataSetType) const;
+                                                                  const te::gm::GeomType& geomType) const;
 
             /*!
              * \brief Method to register a style in the GeoServer from a text file
@@ -216,7 +216,8 @@ namespace terrama2
 
             void registerStyle(const std::string& name,
                                const View::Legend& legend,
-                               const std::unique_ptr<te::da::DataSetType>& dataSetType) const;
+                               const View::Legend::ObjectType&objectType,
+                               const te::gm::GeomType& geomType = te::gm::UnknownGeometryType) const;
 
             /*!
              * \brief Method to delete a workspace in Geoserver
@@ -307,7 +308,45 @@ namespace terrama2
             std::vector<std::string> registerMosaics(const terrama2::core::DataProviderPtr inputDataProvider,
                                                      const terrama2::core::DataSeriesPtr inputDataSeries,
                                                      const std::shared_ptr<DataManager> dataManager,
-                                                     const ViewPtr viewPtr) const;
+                                                     const ViewPtr viewPtr, const te::core::URI& connInfo) const;
+
+            void createGeoserverPropertiesFile(const std::string& outputFolder,
+                                               const std::string& exhibitionName,
+                                               DataSeriesId dataSeriesId) const;
+
+            /*!
+             * \brief createGeoserverTempMosaic
+             * \param dataManager
+             * \param dataset
+             * \param filter
+             * \param exhibitionName
+             * \param outputFolder
+             * \return Return the geometry SRID
+             */
+            int createGeoserverTempMosaic(terrama2::core::DataManagerPtr dataManager,
+                                          terrama2::core::DataSetPtr dataset,
+                                          const terrama2::core::Filter& filter,
+                                          const std::string& exhibitionName,
+                                          const std::string& outputFolder) const;
+
+            void createPostgisPropertiesFiles(const std::string& outputFolder,
+                                              const std::string& exhibitionName,
+                                              DataSeriesId dataSeriesId) const;
+
+            /*!
+             * \brief
+             * \param dataManager
+             * \param dataset
+             * \param filter
+             * \param exhibitionName
+             * \param outputFolder
+             * \return Return the geometry SRID
+             */
+            int createPostgisMosaic(terrama2::core::DataManagerPtr dataManager,
+                                    terrama2::core::DataSetPtr dataset,
+                                    const terrama2::core::Filter& filter,
+                                    const std::string& exhibitionName,
+                                    const std::string& outputFolder) const;
 
           private:
 

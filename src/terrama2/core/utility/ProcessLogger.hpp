@@ -178,6 +178,12 @@ namespace terrama2
         void internalClone(std::shared_ptr<terrama2::core::ProcessLogger> loggerCopy) const;
         virtual std::shared_ptr<ProcessLogger> clone() const { return nullptr; }
 
+        /*!
+         * \brief Returns a copy of the logger datasource
+         * \return
+         */
+         virtual te::core::URI getConnectionInfo() const { return dataSource_->getConnectionInfo(); }
+
       public slots:
         /*!
         * \brief Reset connection to log database information

@@ -30,6 +30,7 @@
 #include <memory>
 
 #include <terrama2/services/view/core/Utils.hpp>
+#include <terrama2/services/view/core/data-access/Geoserver.hpp>
 #include <terrama2/core/Shared.hpp>
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/core/utility/TerraMA2Init.hpp>
@@ -98,7 +99,7 @@ int main(int argc, char** argv)
 
     QUrl url(QString::fromStdString(dataProvider->uri));
     terrama2::core::Filter filter;
-    terrama2::services::view::core::createGeoserverTempMosaic(dataManager, dataSetPtr, filter, "Umin", url.path().toStdString());
+//    terrama2::services::view::core::GeoServer::createGeoserverTempMosaic(dataManager, dataSetPtr, filter, "Umin", url.path().toStdString());
   }
 
   return 0;
