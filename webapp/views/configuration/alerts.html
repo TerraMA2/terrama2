@@ -10,7 +10,8 @@
 
 <script type="text/javascript">
   var configuration = {
-    message: "{[ message ]}"
+    message: "{[ message ]}",
+    legendsTab: "{[ legendsTab ]}"
   };
 </script>
 
@@ -19,12 +20,18 @@
 {% block content %}
 
 <div ng-controller="AlertListController as ctrl">
-  <terrama2-box title="i18n.__('Alerts')">
+  <terrama2-box>
     <div class="col-md-12">
       <terrama2-alert-box2 handler="ctrl.MessageBoxService.alertBox" close="ctrl.close()"></terrama2-alert-box2>
     </div>
-
-      <terrama2-table fields="ctrl.fields"
+    <div class="nav-tabs-custom">
+      <ul class="nav nav-tabs">
+        <li ng-class="{ 'active': ctrl.activeTab == 1 }"><a href="#tabAlerts" data-toggle="tab" aria-expanded="true">{{ i18n.__('Alerts') }}</a></li>
+        <li ng-class="{ 'active': ctrl.activeTab == 2 }"><a href="#tabLegends" data-toggle="tab" aria-expanded="false">{{ i18n.__('Legends') }}</a></li>
+      </ul>
+      <div class="tab-content">
+        <div class="tab-pane" ng-class="{ 'active': ctrl.activeTab == 1 }" id="tabAlerts">
+          <terrama2-table fields="ctrl.fields"
                       model="ctrl.model"
                       link="ctrl.link"
                       icon="ctrl.icon"
@@ -32,8 +39,23 @@
                       link-to-add="ctrl.linkToAdd"
                       remove="ctrl.remove(object);"
                       extra="ctrl.extra" order-by="'name'">
-      </terrama2-table>
-  </terrama2-box> <!-- end col md 6 -->
-
-</div> <!-- end col md 12 -->
+          </terrama2-table>
+          <div style="clear: both;"></div>
+        </div>
+        <div class="tab-pane" ng-class="{ 'active': ctrl.activeTab == 2 }" id="tabLegends">
+          <terrama2-table fields="ctrl.fields"
+                      model="ctrl.legendModel"
+                      link="ctrl.legendLink"
+                      icon="ctrl.icon"
+                      icon-properties="ctrl.iconProperties"
+                      link-to-add="ctrl.legendLinkToAdd"
+                      remove="ctrl.removeLegend(object);"
+                      extra="ctrl.legendExtra" order-by="'name'">
+          </terrama2-table>
+          <div style="clear: both;"></div>
+        </div>
+      </div>
+    </div>
+  </terrama2-box>
+</div>
 {% endblock %}

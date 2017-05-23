@@ -1,0 +1,92 @@
+{% extends "../base/layout.html" %}
+
+{% set tabActive = "alerts" %}
+
+{% block title %} TerraMA² {{ i18n.__('Legend Registration') }} {% endblock %}
+
+{% block styles %}
+
+<link rel="stylesheet" href="{[ BASE_URL ]}bower_components/angular-ui-select/dist/select.min.css" />
+
+{% endblock %}
+
+{% block javascripts %}
+
+<!-- Moment Datetime JS -->
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/moment.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/pt-br.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/es.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/fr.js"></script>
+<script src="{[ BASE_URL ]}bower_components/angular-ui-select/dist/select.min.js"></script>
+
+<script>
+  var configuration = {
+    legend: {[ legend|json|safe ]}
+  };
+
+  var globals = {};
+</script>
+
+{% endblock %}
+
+{% block content %}
+<div ng-controller="LegendRegisterUpdateController as ctrl">
+  <terrama2-box title="i18n.__('Legend Registration')">
+    <div class="col-md-12">
+      <terrama2-alert-box2 handler="ctrl.MessageBoxService.alertBox" close="ctrl.close()"></terrama2-alert-box2>
+    </div>
+
+    <form name="forms.legend">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="col-md-12">
+            <div class="form-group" terrama2-show-errors>
+              <label><span ng-bind="i18n.__('Legend Name')"></span>:</label>
+              <input class="form-control" name="legendLevelName" ng-model="ctrl.legend.name" type="text" placeholder="{{ i18n.__('Legend Name') }}" required>
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div class="form-group" terrama2-show-errors>
+              <label><span ng-bind="i18n.__('Legend Description')"></span>:</label>
+              <textarea class="form-control" name="legendDescription" ng-model="ctrl.legend.description" rows="3" placeholder="{{ i18n.__('Legend Description') }}"></textarea>
+            </div>
+          </div>
+          <div class="col-md-12">
+            <span ng-repeat="level in ctrl.legend.levels">
+              <div class="col-md-6">
+                <div class="form-group" ng-class="{'has-error': ctrl.legendLevelNameError[level._id]}">
+                  <label><span ng-bind="i18n.__('Level Name')"></span>:</label>
+                  <input class="form-control" name="levelName{{ level._id }}" ng-model="level.name" type="text" placeholder="{{ i18n.__('Level Name') }}">
+                </div>
+              </div>
+              <div ng-class="{ 'col-md-5': ctrl.legend.levels.length > 1, 'col-md-6': ctrl.legend.levels.length === 1 }">
+                <div class="form-group" ng-class="{'has-error': ctrl.legendLevelValueError[level._id] || ctrl.legendLevelOrderError}">
+                  <label><span ng-bind="i18n.__('Legend Value')"></span>:</label>
+                  <input class="form-control" name="levelValue{{ level._id }}" ng-model="level.value" type="number" placeholder="{{ i18n.__('Legend Value') }}">
+                </div>
+              </div>
+              <div class="col-md-1">
+                <div class="form-group">
+                  <button type="button" class="btn btn-primary" ng-click="ctrl.removeLevel(level)" style="margin-top: 25px;" ng-show="ctrl.legend.levels.length > 1"><span ng-bind="i18n.__('Remove')"></span></button>
+                </div>
+              </div>
+            </span>
+          </div>
+          <div class="col-md-12">
+            <span class="help-block" ng-show="ctrl.isNotValid" style="font-size: 15px; color: red;" ng-bind="i18n.__('The values of the levels must be numeric and be in a growing order, and the names of the levels must be filled')"></span>
+            <div class="form-group">
+              <button type="button" class="btn btn-primary" ng-click="ctrl.newLevel()"><span ng-bind="i18n.__('New Level')"></span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <div class="box-footer">
+      <button ng-disabled="ctrl.isNotValid" type="button" class="btn btn-primary pull-right" ng-bind="i18n.__('Save')" data-ng-click="!ctrl.isNotValid && ctrl.save();"></button>
+      <a href="{[ BASE_URL ]}configuration/alerts/" class="btn btn-primary pull-left"><span ng-bind="i18n.__('Cancel')"></span></a>
+    </div>
+
+  </terrama2-box>
+</div>
+{% endblock %}

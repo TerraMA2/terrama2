@@ -200,7 +200,7 @@ Alert.prototype.toService = function() {
     description: this.description,
     data_series_id: this.data_series_id,
     legend_attribute: this.legend_attribute,
-    legend: this.legend instanceof BaseClass ? this.legend.toService() : this.legend,
+    legend_id: this.legend.id,
     additional_data: additionalDataList,
     notifications: notificationList,
     report_metadata: reportMetadataCopy
