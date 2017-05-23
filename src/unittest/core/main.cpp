@@ -51,6 +51,7 @@
 #include "TsDataAccessorDcpToa5.hpp"
 #include "TsDataAccessorGDAL.hpp"
 #include "TsDataAccessorOccurrenceWfp.hpp"
+#include "TsDataStoragerTiff.hpp"
 
 int main(int argc, char** argv)
 {
@@ -156,6 +157,17 @@ int main(int argc, char** argv)
     {
 
     }
+
+    try
+    {
+      TsDataStoragerTiff tsDatatStoragerTiff;
+      ret += QTest::qExec(&tsDatatStoragerTiff, argc, argv);
+    }
+    catch(...)
+    {
+
+    }
+
 
   }
   catch (const terrama2::Exception& e)
