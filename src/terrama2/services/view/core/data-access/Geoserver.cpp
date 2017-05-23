@@ -1470,7 +1470,9 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
     if(!dataSource->dataSetExists(layerName))
     {
       QUrl url(baseUrl.toString() + QString::fromStdString("/" + dataset->format.at("folder")));
-      geomSRID = createPostgisMosaic(dataManager, dataset, viewPtr->filter, layerName, url.path().toStdString());
+      geomSRID = RasterSRID(dataManager, dataset, viewPtr->filter);
+
+      createPostgisPropertiesFiles(url.path().toStdString(), layerName, connInfo);
 
       registerMosaicCoverage(layerName, url.path().toStdString(), layerName, geomSRID);
     }
@@ -1482,11 +1484,9 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
 }
 
 
-int terrama2::services::view::core::GeoServer::createPostgisMosaic(terrama2::core::DataManagerPtr dataManager,
-                                                                   terrama2::core::DataSetPtr dataset,
-                                                                   const terrama2::core::Filter& filter,
-                                                                   const std::string& exhibitionName,
-                                                                   const std::string& outputFolder) const
+int terrama2::services::view::core::GeoServer::RasterSRID(terrama2::core::DataManagerPtr dataManager,
+                                                          terrama2::core::DataSetPtr dataset,
+                                                          const terrama2::core::Filter& filter) const
 {
   auto dataSeries = dataManager->findDataSeries(dataset->dataSeriesId);
 
@@ -1524,15 +1524,13 @@ int terrama2::services::view::core::GeoServer::createPostgisMosaic(terrama2::cor
 
   auto raster = dataSetSeries.syncDataSet->getRaster(0, rasterProperty->getId());
 
-  createPostgisPropertiesFiles(outputFolder, exhibitionName, dataSeries->id);
-
   return raster->getSRID();
 }
 
 
 void terrama2::services::view::core::GeoServer::createPostgisPropertiesFiles(const std::string& outputFolder,
                                                                              const std::string& exhibitionName,
-                                                                             DataSeriesId dataSeriesId) const
+                                                                             const te::core::URI& connInfo) const
 {
   {
     std::string propertiesFilename = outputFolder + "/datastore.properties";
@@ -1559,13 +1557,16 @@ void terrama2::services::view::core::GeoServer::createPostgisPropertiesFiles(con
       throw Exception() << ErrorDescription(errMsg);
     }
 
+    std::string database = connInfo.path();
+    database.erase(std::remove(database.begin(), database.end(), '/'), database.end());
+
     std::string content = "SPI=org.geotools.data.postgis.PostgisNGDataStoreFactory\n"
-                          "host=localhost\n"
-                          "port=5432\n"
-                          "database=terrama2\n"
+                          "host=" + connInfo.host() + "\n"
+                          "port=" + connInfo.port() + "\n"
+                          "database=" + database + "\n"
                           "schema=public\n"
-                          "user=postgres\n"
-                          "passwd=postgres\n"
+                          "user=" + connInfo.user() + "\n"
+                          "passwd=" + connInfo.password() + "\n"
                           "Loose\\ bbox=true\n"
                           "Estimated\\ extends=false\n"
                           "validate\\ connections=true\n"

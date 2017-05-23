@@ -331,22 +331,18 @@ namespace terrama2
 
             void createPostgisPropertiesFiles(const std::string& outputFolder,
                                               const std::string& exhibitionName,
-                                              DataSeriesId dataSeriesId) const;
+                                              const te::core::URI& connInfo) const;
 
             /*!
              * \brief
              * \param dataManager
              * \param dataset
              * \param filter
-             * \param exhibitionName
-             * \param outputFolder
              * \return Return the geometry SRID
              */
-            int createPostgisMosaic(terrama2::core::DataManagerPtr dataManager,
+            int RasterSRID(terrama2::core::DataManagerPtr dataManager,
                                     terrama2::core::DataSetPtr dataset,
-                                    const terrama2::core::Filter& filter,
-                                    const std::string& exhibitionName,
-                                    const std::string& outputFolder) const;
+                                    const terrama2::core::Filter& filter) const;
 
           private:
 
