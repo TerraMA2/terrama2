@@ -51,6 +51,7 @@ var ImportExport = function(io) {
      *   "DataSeries":    [dataSeriesA, dataSeriesB, ...dataSeriesN],
      *   "Analysis":      [analysisA, analysisB, ...analysisN],
      *   "Views":      [viewA, viewB, ...viewN],
+     *   "Legends":      [legendA, legendB, ...legendN],
      *   "Alerts":      [alertA, alertB, ...alertN],
      * })
      */
@@ -318,60 +319,65 @@ var ImportExport = function(io) {
                   return Promise.all(promises).then(function() {
                     promises = [];
 
-                    if(json.Alerts) {
-                      var alertsList = json.Alerts || [];
+                    if(json.Legends) {
+                      var legendsList = json.Legends || [];
+                      output.Legends = [];
 
-                      alertsList.forEach(function(alert) {
-                        alert.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: alert.project_id}).id : json.selectedProject;
-                        alert.data_series_id = Utils.find(output.DataSeries, {$id: alert.data_series_id}).id;
-                        if(alert.service_instance_id === null) alert.service_instance_id = json.servicesAlert;
-
-                        var legend;
-
-                        for(var i = 0, legendsLength = json.Legends.length; i < legendsLength; i++) {
-                          if(alert.legend_id === json.Legends[i].id) {
-                            legend = clone(json.Legends[i]);
-                            break;
-                          }
-                        }
-
-                        delete alert.conditional_schedule.id;
-                        delete legend.id;
-                        delete alert.report_metadata.id;
+                      legendsList.forEach(function(legend) {
+                        legend.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: legend.project_id}).id : json.selectedProject;
 
                         for(var i = 0, levelsLength = legend.levels.length; i < levelsLength; i++)
                           delete legend.levels[i].id;
 
-                        for(var i = 0, additionalDataLength = alert.additional_data.length; i < additionalDataLength; i++)
-                          delete alert.additional_data[i].id;
-
-                        for(var i = 0, notificationsLength = alert.notifications.length; i < notificationsLength; i++)
-                          delete alert.notifications[i].id;
-
-                        alert.legend = legend;
-                        alert.legend.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: alert.legend.project_id}).id : json.selectedProject;
-
-                        var addSchedulePromise = DataManager.addSchedule(alert.conditional_schedule, options).then(function(schedule) {
-                          alert.conditional_schedule_id = schedule.id;
-                        });
-                        
-                        var addLegendPromise = DataManager.addLegend(legend, options).then(function(legendResult) {
-                          alert.legend_id = legendResult.id;
-                        });
-
                         promises.push(
-                          Promise.join(addSchedulePromise, addLegendPromise).then(function() {
-                            return DataManager.addAlert(alert, options).then(function(alertResult) {
-                              if(tcpOutput.Alerts === undefined) tcpOutput.Alerts = [];
-                              tcpOutput.Alerts.push(alertResult);
-                            });
+                          DataManager.addLegend(legend, options).then(function(legendResult) {
+                            if(tcpOutput.Legends === undefined) tcpOutput.Legends = [];
+                              tcpOutput.Legends.push(legendResult);
+
+                            output.Legends.push(_updateID(legend, legendResult));
                           })
                         );
                       });
                     }
 
                     return Promise.all(promises).then(function() {
-                      TcpService.send(tcpOutput);
+                      promises = [];
+
+                      if(json.Alerts) {
+                        var alertsList = json.Alerts || [];
+
+                        alertsList.forEach(function(alert) {
+                          alert.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: alert.project_id}).id : json.selectedProject;
+                          alert.data_series_id = Utils.find(output.DataSeries, {$id: alert.data_series_id}).id;
+                          alert.legend_id = Utils.find(output.Legends, {$id: alert.legend_id}).id;
+
+                          if(alert.service_instance_id === null) alert.service_instance_id = json.servicesAlert;
+
+                          delete alert.conditional_schedule.id;
+                          delete alert.report_metadata.id;
+
+                          for(var i = 0, additionalDataLength = alert.additional_data.length; i < additionalDataLength; i++)
+                            delete alert.additional_data[i].id;
+
+                          for(var i = 0, notificationsLength = alert.notifications.length; i < notificationsLength; i++)
+                            delete alert.notifications[i].id;
+
+                          promises.push(
+                            DataManager.addSchedule(alert.conditional_schedule, options).then(function(schedule) {
+                              alert.conditional_schedule_id = schedule.id;
+
+                              return DataManager.addAlert(alert, options).then(function(alertResult) {
+                                if(tcpOutput.Alerts === undefined) tcpOutput.Alerts = [];
+                                tcpOutput.Alerts.push(alertResult);
+                              });
+                            })
+                          );
+                        });
+                      }
+
+                      return Promise.all(promises).then(function() {
+                        TcpService.send(tcpOutput);
+                      });
                     });
                   });
                 });
@@ -596,9 +602,12 @@ var ImportExport = function(io) {
             delete alertToAdd.legend;
 
             output.Alerts.push(alertToAdd);
+          });
+        }));
 
-            if(!isInArray(legend.id, output.Legends))
-              output.Legends.push(legend);
+        promises.push(DataManager.listLegends({project_id: target.id}).then(function(legends) {
+          legends.forEach(function(legend) {
+            output.Legends.push(addID(legend));
           });
         }));
       } // end if projects
@@ -718,6 +727,19 @@ var ImportExport = function(io) {
         }
       }
 
+      if(json.Legends) {
+        for(var i = 0, legendsLength = json.Legends.length; i < legendsLength; i++) {
+          promises.push(
+            DataManager.getLegend({id: json.Legends[i].id}).then(function(legend) {
+              if(!isInArray(legend.id, output.Legends)) {
+                legend.project_id = null;
+                output.Legends.push(addID(legend));
+              }
+            })
+          );
+        }
+      }
+
       if(json.Alerts) {
         for(var i = 0, alertsLength = json.Alerts.length; i < alertsLength; i++) {
           promises.push(
@@ -734,11 +756,6 @@ var ImportExport = function(io) {
                 delete alertToAdd.legend;
 
                 output.Alerts.push(alertToAdd);
-
-                if(!isInArray(legend.id, output.Legends)) {
-                  legend.project_id = null;
-                  output.Legends.push(legend);
-                }
 
                 return getDataSeries(alert.data_series_id);
               } else {
@@ -891,11 +908,19 @@ var ImportExport = function(io) {
             })
           );
         }
+      } else if(json.objectType == "Legends") {
+        for(var i = 0, idsLength = json.ids.length; i < idsLength; i++) {
+          output["Legends_" + json.ids[i]] = {};
+        }
       } else if(json.objectType == "Alerts") {
         for(var i = 0, idsLength = json.ids.length; i < idsLength; i++) {
           promises.push(
             DataManager.getAlert({id: json.ids[i]}).then(function(alert) {
-              if(output["Alerts_" + alert.id] === undefined) output["Alerts_" + alert.id] = {};
+              if(output["Alerts_" + alert.id] === undefined) {
+                output["Alerts_" + alert.id] = {
+                  Legends: [alert.legend.id]
+                };
+              }
 
               var getDataSeriesDependenciesPromise = getDataSeriesDependencies(alert.data_series_id, null, "Alerts_" + alert.id);
 

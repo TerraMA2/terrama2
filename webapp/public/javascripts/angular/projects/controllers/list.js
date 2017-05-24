@@ -4,7 +4,7 @@ define(function() {
    * 
    * @class ListController
    */
-  function ListController($scope, $http, Socket, FileDialog, SaveAs, $log, i18n, $window, MessageBoxService, AnalysisService, $timeout) {
+  function ListController($scope, $http, Socket, FileDialog, SaveAs, $log, i18n, $window, MessageBoxService, AnalysisService, LegendService, $timeout) {
     $scope.model = [];
     var config = $window.configuration;
     var socket = Socket;
@@ -29,6 +29,7 @@ define(function() {
       "Collectors": [],
       "Analysis": [],
       "Views": [],
+      "Legends": [],
       "Alerts": []
     };
     $scope.services = {
@@ -41,6 +42,7 @@ define(function() {
     $scope.hasCollect = false;
     $scope.hasAnalysis = false;
     $scope.hasView = false;
+    $scope.hasLegend = false;
     $scope.hasAlert = false;
 
     $scope.remove = function(object) {
@@ -88,6 +90,13 @@ define(function() {
         for(var property in $scope.projectsCheckboxes[element.id].Views) {
           if($scope.projectsCheckboxes[element.id].Views.hasOwnProperty(property))
             $scope.projectsCheckboxes[element.id].Views[property] = flag;
+        }
+      }
+
+      if($scope.projectsCheckboxes[element.id].Legends != undefined) {
+        for(var property in $scope.projectsCheckboxes[element.id].Legends) {
+          if($scope.projectsCheckboxes[element.id].Legends.hasOwnProperty(property))
+            $scope.projectsCheckboxes[element.id].Legends[property] = flag;
         }
       }
 
@@ -283,6 +292,7 @@ define(function() {
             delete $scope.exportData.Collectors;
             delete $scope.exportData.Analysis;
             delete $scope.exportData.Views;
+            delete $scope.exportData.Legends;
             delete $scope.exportData.Alerts;
           } else {
             if($scope.projectsCheckboxes[element.id].DataProviders != undefined) {
@@ -336,6 +346,13 @@ define(function() {
               }
             }
 
+            if($scope.projectsCheckboxes[element.id].Legends != undefined) {
+              for(var j = 0, legendsLength = $scope.legends[element.id].length; j < legendsLength; j++) {
+                if($scope.projectsCheckboxes[element.id].Legends[$scope.legends[element.id][j].id])
+                  $scope.exportData.Legends.push($scope.legends[element.id][j]);
+              }
+            }
+
             if($scope.projectsCheckboxes[element.id].Alerts != undefined) {
               for(var j = 0, alertsLength = $scope.alerts[element.id].length; j < alertsLength; j++) {
                 if($scope.projectsCheckboxes[element.id].Alerts[$scope.alerts[element.id][j].id])
@@ -349,6 +366,7 @@ define(function() {
             if($scope.exportData.Collectors.length == 0) delete $scope.exportData.Collectors;
             if($scope.exportData.Analysis.length == 0) delete $scope.exportData.Analysis;
             if($scope.exportData.Views.length == 0) delete $scope.exportData.Views;
+            if($scope.exportData.Legends.length == 0) delete $scope.exportData.Legends;
             if($scope.exportData.Alerts.length == 0) delete $scope.exportData.Alerts;
           }
         }
@@ -366,6 +384,7 @@ define(function() {
           "Collectors": [],
           "Analysis": [],
           "Views": [],
+          "Legends": [],
           "Alerts": []
         };
 
@@ -398,6 +417,7 @@ define(function() {
                   !json.hasOwnProperty("Analysis") &&
                   !json.hasOwnProperty("Collectors") &&
                   !json.hasOwnProperty("Views") &&
+                  !json.hasOwnProperty("Legends") &&
                   !json.hasOwnProperty("Alerts")) {
                 MessageBoxService.danger(i18n.__(importTitle), new Error(i18n.__("Invalid configuration file")));
                 return;
@@ -412,11 +432,13 @@ define(function() {
                 $scope.hasCollect = false;
                 $scope.hasAnalysis = false;
                 $scope.hasView = false;
+                $scope.hasLegend = false;
                 $scope.hasAlert = false;
 
                 if(json.Collectors !== undefined && json.Collectors.length > 0) $scope.hasCollect = true;
                 if(json.Analysis !== undefined && json.Analysis.length > 0) $scope.hasAnalysis = true;
                 if(json.Views !== undefined && json.Views.length > 0) $scope.hasView = true;
+                if(json.Legends !== undefined && json.Legends.length > 0) $scope.hasLegend = true;
                 if(json.Alerts !== undefined && json.Alerts.length > 0) $scope.hasAlert = true;
 
                 if($scope.model === undefined || $scope.model.length === 0) {
@@ -464,6 +486,7 @@ define(function() {
           $scope.hasCollect = false;
           $scope.hasAnalysis = false;
           $scope.hasView = false;
+          $scope.hasLegend = false;
           $scope.hasAlert = false;
         }
       }
@@ -502,6 +525,7 @@ define(function() {
       $scope.analysis = {};
       $scope.views = {};
       $scope.alerts = {};
+      $scope.legends = {};
       $scope.collectors = {};
 
       response.data.map(function(project, index) {
@@ -545,11 +569,13 @@ define(function() {
             dataSeriesIds.push(dataSeries.data[j].id);
           }
 
-          socket.emit("getDependencies", {
-            objectType: "DataSeries",
-            ids: dataSeriesIds,
-            projectId: project.id
-          });
+          if(dataSeriesIds.length > 0) {
+            socket.emit("getDependencies", {
+              objectType: "DataSeries",
+              ids: dataSeriesIds,
+              projectId: project.id
+            });
+          }
         }, function(err) {
           console.log("Err in retrieving data series");
         }).finally(function() {
@@ -574,11 +600,13 @@ define(function() {
             dataSeriesIds.push(dataSeries.data[j].id);
           }
 
-          socket.emit("getDependencies", {
-            objectType: "DataSeriesStatic",
-            ids: dataSeriesIds,
-            projectId: project.id
-          });
+          if(dataSeriesIds.length > 0) {
+            socket.emit("getDependencies", {
+              objectType: "DataSeriesStatic",
+              ids: dataSeriesIds,
+              projectId: project.id
+            });
+          }
         }, function(err) {
           console.log("Err in retrieving data series static");
         }).finally(function() {
@@ -598,11 +626,13 @@ define(function() {
             analysisIds.push(analysis[j].id);
           }
 
-          socket.emit("getDependencies", {
-            objectType: "Analysis",
-            ids: analysisIds,
-            projectId: project.id
-          });
+          if(analysisIds.length > 0) {
+            socket.emit("getDependencies", {
+              objectType: "Analysis",
+              ids: analysisIds,
+              projectId: project.id
+            });
+          }
         }).catch(function(err) {
           $log.info("Err in retrieving Analysis " + err);
         }).finally(function() {
@@ -622,13 +652,41 @@ define(function() {
             viewsIds.push(views.data[j].id);
           }
 
-          socket.emit("getDependencies", {
-            objectType: "Views",
-            ids: viewsIds,
-            projectId: project.id
-          });
+          if(viewsIds.length > 0) {
+            socket.emit("getDependencies", {
+              objectType: "Views",
+              ids: viewsIds,
+              projectId: project.id
+            });
+          }
         }, function(err) {
           console.log("Err in retrieving views");
+        }).finally(function() {
+          $scope.loading = false;
+        });
+
+        LegendService.init({ project_id: project.id }).then(function(legends) {
+          $scope.legends[project.id] = legends;
+
+          if($scope.projectsCheckboxes[project.id].Legends == undefined)
+            $scope.projectsCheckboxes[project.id].Legends = {};
+
+          var legendsIds = [];
+
+          for(var j = 0, legendsLength = legends.length; j < legendsLength; j++) {
+            $scope.projectsCheckboxes[project.id].Legends[legends[j].id] = true;
+            legendsIds.push(legends[j].id);
+          }
+
+          if(legendsIds.length > 0) {
+            socket.emit("getDependencies", {
+              objectType: "Legends",
+              ids: legendsIds,
+              projectId: project.id
+            });
+          }
+        }).catch(function(err) {
+          $log.info("Err in retrieving Legends " + err);
         }).finally(function() {
           $scope.loading = false;
         });
@@ -646,11 +704,13 @@ define(function() {
             alertsIds.push(alerts.data[j].id);
           }
 
-          socket.emit("getDependencies", {
-            objectType: "Alerts",
-            ids: alertsIds,
-            projectId: project.id
-          });
+          if(alertsIds.length > 0) {
+            socket.emit("getDependencies", {
+              objectType: "Alerts",
+              ids: alertsIds,
+              projectId: project.id
+            });
+          }
         }, function(err) {
           console.log("Err in retrieving alerts");
         }).finally(function() {
@@ -683,7 +743,7 @@ define(function() {
     }
   }
 
-  ListController.$inject = ["$scope", "$http", "Socket", "FileDialog", "SaveAs", "$log", "i18n", "$window", "MessageBoxService", "AnalysisService", "$timeout"];
+  ListController.$inject = ["$scope", "$http", "Socket", "FileDialog", "SaveAs", "$log", "i18n", "$window", "MessageBoxService", "AnalysisService", "LegendService", "$timeout"];
 
   return ListController;
 })

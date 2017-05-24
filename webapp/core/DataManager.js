@@ -3963,8 +3963,6 @@ var DataManager = module.exports = {
         })
         .then(function(additionalData){
           additionalDataResult = additionalData;
-          var legend = alertObject.legend;
-          legend.alert_id = alertResult.id;
           return self.getLegend({id: alertResult.legend_id}, options);
         })
         .then(function(legend){

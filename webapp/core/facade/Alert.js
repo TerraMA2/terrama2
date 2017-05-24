@@ -237,28 +237,4 @@
       });
     });
   };
-
-
-  /**
-   * It retrieves legends from database
-   * 
-   * @param {number} projectId - A project identifier
-   * @returns {Promise<Legend>[]}
-   */
-  Alert.listLegends = function(projectId) {
-    return new PromiseClass(function(resolve, reject) {
-
-      return DataManager.listLegends({ project_id: projectId })
-        .then(function(legends) {
-          return resolve(legends.map(function(legend) {
-            return legend.toObject();
-          }));
-        })
-
-        .catch(function(err) {
-          return reject(err);
-        });
-    });
-  };
-
 }());

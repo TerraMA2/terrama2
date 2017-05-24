@@ -9,7 +9,6 @@ module.exports = function (app) {
   app.get(app.locals.BASE_URL + 'api/Alert', passport.isAuthenticated, controller.get);
   app.get(app.locals.BASE_URL + 'api/Alert/:id', passport.isAuthenticated, controller.get);
   app.get(app.locals.BASE_URL + 'api/AlertByProject/:project_id', passport.isAuthenticated, controller.get);
-  app.get(app.locals.BASE_URL + 'api/Legend', passport.isAuthenticated, controller.listLegends);
   app.put(app.locals.BASE_URL + 'api/Alert/:id', passport.isAuthenticated, controller.put);
   app.delete(app.locals.BASE_URL + "api/Alert/:id/delete", passport.isAuthenticated, controller.delete);
 };

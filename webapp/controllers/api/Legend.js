@@ -12,8 +12,8 @@
   module.exports = function(app) {
     return {
       get: function(request, response) {
-        var legendId = request.params.id;
-        var projectId = request.params.project_id;
+        var legendId = (request.params.id ? request.params.id : request.query.id);
+        var projectId = (request.params.project_id ? request.params.project_id : request.query.project_id);
 
         LegendFacade.retrieve(legendId, (projectId ? projectId : app.locals.activeProject.id)).then(function(legends) {
           return response.json(legends);
@@ -48,15 +48,6 @@
         LegendFacade.remove(legendId).then(function(legend) {
           var token = Utils.generateToken(app, TokenCode.DELETE, legend.name);
           return response.json({status: 200, result: legend.toObject(), token: token});
-        }).catch(function(err) {
-          return handleRequestError(response, err, 400);
-        });
-      },
-      listLegends: function(request, response){
-        var projectId = request.params.project_id;
-
-        LegendFacade.listLegends((projectId ? projectId : app.locals.activeProject.id)).then(function(legends) {
-          return response.json(legends);
         }).catch(function(err) {
           return handleRequestError(response, err, 400);
         });

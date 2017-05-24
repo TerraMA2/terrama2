@@ -65,17 +65,6 @@
           .catch(function(err) {
             return handleRequestError(response, err, 400);
           });
-      },
-      listLegends: function(request, response){
-        var projectId = request.params.project_id;
-
-        AlertFacade.listLegends((projectId ? projectId : app.locals.activeProject.id))
-          .then(function(legends) {
-            return response.json(legends);
-          })
-          .catch(function(err) {
-            return handleRequestError(response, err, 400);
-          });
       }
     }
   }
