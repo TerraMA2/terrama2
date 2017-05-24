@@ -499,6 +499,9 @@ install(EXPORT terrama2-targets
         FILE terrama2-exports.cmake
         COMPONENT devel)
 
+install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/remove-config.py
+DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT devel)
+
 install(DIRECTORY ${TERRAMA2_ABSOLUTE_ROOT_DIR}/share/terrama2
         DESTINATION ${TERRAMA2_DESTINATION_SHARE} COMPONENT runtime)
 
