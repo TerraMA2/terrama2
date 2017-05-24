@@ -1,7 +1,7 @@
 define(function() {
   /**
    * TerraMA² Controller responsible for project listing.
-   * 
+   *
    * @class ListController
    */
   function ListController($scope, $http, Socket, FileDialog, SaveAs, $log, i18n, $window, MessageBoxService, AnalysisService, $timeout) {
@@ -384,7 +384,7 @@ define(function() {
             $scope.$apply(function() {
               $scope.extra.isImporting = true;
               if(error) {
-                MessageBoxService.danger(i18n.__(importTitle), i18n.__(error));
+                MessageBoxService.danger(i18n.__(importTitle), i18n.__(error.message));
                 console.log(error);
                 return;
               }
