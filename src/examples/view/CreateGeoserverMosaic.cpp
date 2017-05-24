@@ -157,6 +157,8 @@ int main(int argc, char** argv)
   ::testing::GTEST_FLAG(throw_on_failure) = true;
   ::testing::InitGoogleMock(&argc, argv);
 
+  std::locale::global(std::locale::classic());
+
   terrama2::core::TerraMA2Init terramaRaii("example", 0);
   terrama2::core::registerFactories();
 

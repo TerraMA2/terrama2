@@ -42,6 +42,7 @@
 #include <terralib/core/uri/URI.h>
 #include <terralib/se/Style.h>
 #include <terralib/geometry/Envelope.h>
+#include <terralib/datatype/DateTimeProperty.h>
 
 // STL
 #include <string>
@@ -338,11 +339,12 @@ namespace terrama2
              * \param dataManager
              * \param dataset
              * \param filter
-             * \return Return the geometry SRID
+             * \return
              */
-            int RasterSRID(terrama2::core::DataManagerPtr dataManager,
-                                    terrama2::core::DataSetPtr dataset,
-                                    const terrama2::core::Filter& filter) const;
+            std::vector<std::tuple<std::string, te::dt::TimeInstant, int, te::gm::Envelope>>
+            getRasterInfo(terrama2::core::DataManagerPtr dataManager,
+                          terrama2::core::DataSetPtr dataset,
+                          const terrama2::core::Filter& filter) const;
 
           private:
 

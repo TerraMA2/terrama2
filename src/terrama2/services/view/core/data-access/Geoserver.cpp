@@ -56,7 +56,6 @@
 #include <terralib/fe/BinaryComparisonOp.h>
 #include <terralib/fe/Filter.h>
 #include <terralib/fe/Globals.h>
-#include <terralib/datatype/DateTimeProperty.h>
 #include <terralib/geometry/Utils.h>
 #include <terralib/memory/DataSetItem.h>
 
@@ -1459,22 +1458,43 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
 
   QUrl baseUrl(QString::fromStdString(inputDataProvider->uri));
 
-  int geomSRID;
-
   std::vector<std::string> layersNames;
 
   for(auto& dataset : inputDataSeries->datasetList)
   {
     std::string layerName = viewPtr->viewName + std::to_string(dataset->id);
 
+    QUrl url(baseUrl.toString() + QString::fromStdString("/" + dataset->format.at("folder")));
+
+    auto vecRasterInfo = getRasterInfo(dataManager, dataset, viewPtr->filter);
+
     if(!dataSource->dataSetExists(layerName))
     {
-      QUrl url(baseUrl.toString() + QString::fromStdString("/" + dataset->format.at("folder")));
-      geomSRID = RasterSRID(dataManager, dataset, viewPtr->filter);
-
       createPostgisPropertiesFiles(url.path().toStdString(), layerName, connInfo);
 
-      registerMosaicCoverage(layerName, url.path().toStdString(), layerName, geomSRID);
+      registerMosaicCoverage(layerName, url.path().toStdString(), layerName, std::get<2>(vecRasterInfo.at(0)));
+    }
+    else
+    {
+      for(auto rasterInfo : vecRasterInfo)
+      {
+        std::string rasterName;
+        te::dt::TimeInstant rasterTimeInstantTz;
+        int rasterSRID;
+        te::gm::Envelope rasterEnvelope;
+
+        std::tie(rasterName, rasterTimeInstantTz, rasterSRID, rasterEnvelope) = rasterInfo;
+
+        std::string query = "INSERT INTO public.\"" + layerName + "\" " +
+                            "(the_geom, location, \"timestamp\") "
+                            "VALUES (( " +
+                            "ST_Envelope('SRID=4326;LINESTRING(" +
+                            std::to_string(rasterEnvelope.getLowerLeftX()) + " " + std::to_string(rasterEnvelope.getLowerLeftY()) + ", " +
+                            std::to_string(rasterEnvelope.getUpperRightX()) + " " + std::to_string(rasterEnvelope.getUpperRightY()) + ")'::geometry))," +
+                            " '" + rasterName + "', " + "'" + rasterTimeInstantTz.toString() +"'" + ");";
+
+        dataSource->execute(query);
+      }
     }
 
     layersNames.push_back(layerName);
@@ -1483,10 +1503,10 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
   return layersNames;
 }
 
-
-int terrama2::services::view::core::GeoServer::RasterSRID(terrama2::core::DataManagerPtr dataManager,
-                                                          terrama2::core::DataSetPtr dataset,
-                                                          const terrama2::core::Filter& filter) const
+std::vector<std::tuple<std::string, te::dt::TimeInstant, int, te::gm::Envelope>>
+terrama2::services::view::core::GeoServer::getRasterInfo(terrama2::core::DataManagerPtr dataManager,
+                                                         terrama2::core::DataSetPtr dataset,
+                                                         const terrama2::core::Filter& filter) const
 {
   auto dataSeries = dataManager->findDataSeries(dataset->dataSeriesId);
 
@@ -1510,21 +1530,37 @@ int terrama2::services::view::core::GeoServer::RasterSRID(terrama2::core::DataMa
   auto remover = std::make_shared<terrama2::core::FileRemover>();
   std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > dataMap = dataAccessor->getSeries(filter, remover);
 
-  auto it = dataMap.begin();
+  std::vector<std::tuple<std::string, te::dt::TimeInstant, int, te::gm::Envelope>> vecRasterInfo;
 
-  const auto& dataSetSeries = it->second;
-
-  auto rasterProperty = te::da::GetFirstRasterProperty(dataSetSeries.teDataSetType.get());
-  if(!rasterProperty)
+  for(auto data : dataMap)
   {
-    QString errMsg = QObject::tr("Could a valid raster property for dataset: %1").arg(dataset->id);
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw Exception() << ErrorDescription(errMsg);
+    const auto& dataSetSeries = data.second;
+
+    auto rasterProperty = te::da::GetFirstRasterProperty(dataSetSeries.teDataSetType.get());
+    if(!rasterProperty)
+    {
+      QString errMsg = QObject::tr("Could a valid raster property for dataset: %1").arg(dataset->id);
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw Exception() << ErrorDescription(errMsg);
+    }
+
+    auto datePropertyPos = te::da::GetFirstPropertyPos(dataSetSeries.syncDataSet->dataset().get(), te::dt::DATETIME_TYPE);
+
+    for(unsigned int row = 0; row < dataSetSeries.syncDataSet->size(); ++row)
+    {
+      auto date = dataSetSeries.syncDataSet->getDateTime(row, datePropertyPos);
+      std::shared_ptr<te::dt::TimeInstantTZ> tiTz(dynamic_cast<te::dt::TimeInstantTZ*>(date->clone()));
+      auto boostTiTz = tiTz->getTimeInstantTZ();
+
+      QFileInfo info(QString::fromStdString(dataSetSeries.syncDataSet->getString(row, "filename")));
+
+      auto raster = dataSetSeries.syncDataSet->getRaster(row, rasterProperty->getId());
+
+      vecRasterInfo.push_back(std::make_tuple(info.fileName().toStdString(), te::dt::TimeInstant(boostTiTz.utc_time()), raster->getSRID(), *raster->getExtent()));
+    }
   }
 
-  auto raster = dataSetSeries.syncDataSet->getRaster(0, rasterProperty->getId());
-
-  return raster->getSRID();
+  return vecRasterInfo;
 }
 
 
