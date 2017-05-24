@@ -98,7 +98,7 @@ void terrama2::core::DataAccessorGDAL::addToCompleteDataSet(terrama2::core::Data
   {
     std::unique_ptr<te::rst::Raster> raster(teDataSet->isNull(rasterColumn) ? nullptr : teDataSet->getRaster(rasterColumn).release());
 
-    if(outputSrid > 0)
+    if(outputSrid > 0 && outputSrid != raster->getSRID())
     {
       try
       {
