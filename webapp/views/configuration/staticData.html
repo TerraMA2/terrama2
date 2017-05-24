@@ -21,9 +21,9 @@
      return baseUrl + object.id + "?type=static#/wizard";
    },
    iconFn: function(object) {
-     if (object.model_type === 'Grid') {
+     if (object.data_series_semantics.data_series_type_name === globals.enums.DataSeriesType.GRID) {
        return "/images/static-data-series/grid/grid.png";
-     } else if (object.model_type === "Geometric Object"){
+     } else if (object.data_series_semantics.data_series_type_name === globals.enums.DataSeriesType.GEOMETRIC_OBJECT){
       return "/images/static-data-series/vetorial/vetorial.png";
      } else {
        return "";
