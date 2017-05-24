@@ -30,12 +30,14 @@
 #include "DataAccessorGDAL.hpp"
 #include "../core/utility/Logger.hpp"
 #include "../core/utility/Utils.hpp"
+#include "../core/utility/Verify.hpp"
 
 //TerraLib
 #include <terralib/datatype/DateTimeProperty.h>
 #include <terralib/datatype/SimpleProperty.h>
 #include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/memory/DataSetItem.h>
+#include <terralib/raster/Grid.h>
 
 //QT
 #include <QString>
@@ -80,10 +82,44 @@ void terrama2::core::DataAccessorGDAL::addToCompleteDataSet(terrama2::core::Data
 
   size_t timestampColumn = te::da::GetFirstPropertyPos(completeDataSet.get(), te::dt::DATETIME_TYPE);
 
+  int outputSrid = -1;
+  try
+  {
+    outputSrid = getSrid(dataSet);
+    verify::srid(outputSrid);
+  }
+  catch (const UndefinedTagException&)
+  {
+    //SRID is an optional parameter
+  }
+
   teDataSet->moveBeforeFirst();
   while(teDataSet->moveNext())
   {
     std::unique_ptr<te::rst::Raster> raster(teDataSet->isNull(rasterColumn) ? nullptr : teDataSet->getRaster(rasterColumn).release());
+
+    if(outputSrid > 0)
+    {
+      try
+      {
+        verify::srid(raster->getSRID(), false);
+        std::map<std::string, std::string> map{{"FORCE_MEM_DRIVER", "TRUE"}};
+        auto temp = raster->transform(outputSrid, map);
+        if(!temp)
+        {
+          QString errMsg = QObject::tr("Null raster found.\nError during transform.");
+          TERRAMA2_LOG_ERROR() << errMsg;
+          continue;
+        }
+        else
+          raster.reset(temp);
+      }
+      catch (...)
+      {
+        auto grid = raster->getGrid();
+        grid->setSRID(outputSrid);
+      }
+    }
 
     te::mem::DataSetItem* item = new te::mem::DataSetItem(completeDataSet.get());
 
