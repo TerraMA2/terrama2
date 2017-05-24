@@ -84,6 +84,7 @@ define([], function() {
      * @type {Object}
      */
     self.analysis = {
+      historical: {},
       metadata: {}
     };
 
