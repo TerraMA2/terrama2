@@ -188,7 +188,8 @@ namespace terrama2
                                         const std::string& mosaicPath,
                                         const std::string& coverageName,
                                         const int srid,
-                                        const std::string& style = "") const;
+                                        const std::string& style = "",
+                                        const std::string& configure = "all") const;
 
             std::unique_ptr<te::se::Style> generateVectorialStyle(const View::Legend& legend,
                                                                   const te::gm::GeomType& geomType) const;
@@ -330,9 +331,18 @@ namespace terrama2
                                           const std::string& exhibitionName,
                                           const std::string& outputFolder) const;
 
-            void createPostgisPropertiesFiles(const std::string& outputFolder,
-                                              const std::string& exhibitionName,
-                                              const te::core::URI& connInfo) const;
+            void createPostgisDatastorePropertiesFile(const std::string& outputFolder,
+                                                      const te::core::URI& connInfo) const;
+
+            void createPostgisMosaicLayerPropertiesFile(const std::string& outputFolder,
+                                                        const std::string& exhibitionName,
+                                                        const int srid) const;
+
+            void createPostgisIndexerPropertiesFile(const std::string& outputFolder,
+                                                    const std::string& exhibitionName) const;
+
+            void createTimeregexPropertiesFile(const std::string& outputFolder,
+                                               const std::string& regex) const;
 
             /*!
              * \brief
@@ -345,6 +355,10 @@ namespace terrama2
             getRasterInfo(terrama2::core::DataManagerPtr dataManager,
                           terrama2::core::DataSetPtr dataset,
                           const terrama2::core::Filter& filter) const;
+
+            void createMosaicTable(const std::shared_ptr< te::da::DataSource > dataSource,
+                                   const std::string& tableName,
+                                   int srid) const;
 
           private:
 

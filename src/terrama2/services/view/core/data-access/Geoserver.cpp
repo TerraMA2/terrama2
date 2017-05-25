@@ -58,6 +58,7 @@
 #include <terralib/fe/Globals.h>
 #include <terralib/geometry/Utils.h>
 #include <terralib/memory/DataSetItem.h>
+#include <terralib/datatype/StringProperty.h>
 
 // Qt
 #include <QTemporaryFile>
@@ -841,13 +842,14 @@ void terrama2::services::view::core::GeoServer::registerMosaicCoverage(const std
                                                                        const std::string& mosaicPath,
                                                                        const std::string& coverageName,
                                                                        const int srid,
-                                                                       const std::string& style) const
+                                                                       const std::string& style,
+                                                                       const std::string& configure) const
 {
   te::ws::core::CurlWrapper cURLwrapper;
 
   te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/coveragestores/"
                        + QString(QUrl::toPercentEncoding(QString::fromStdString(coverageStoreName), "", "-._~/")).toStdString()
-                       + "/external.imagemosaic?configure=all");
+                       + "/external.imagemosaic?configure=" + configure);
 
   if(!uriPut.isValid())
   {
@@ -1445,7 +1447,7 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
                                                                                     const ViewPtr viewPtr,
                                                                                     const te::core::URI& connInfo) const
 {
-  std::unique_ptr< te::da::DataSource > dataSource = te::da::DataSourceFactory::make("POSTGIS", connInfo);
+  std::shared_ptr< te::da::DataSource > dataSource = te::da::DataSourceFactory::make("POSTGIS", connInfo);
 
   dataSource->open();
 
@@ -1464,41 +1466,51 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
   {
     std::string layerName = viewPtr->viewName + std::to_string(dataset->id);
 
+    std::transform(layerName.begin(), layerName.end(),layerName.begin(), ::tolower);
+
     QUrl url(baseUrl.toString() + QString::fromStdString("/" + dataset->format.at("folder")));
 
     auto vecRasterInfo = getRasterInfo(dataManager, dataset, viewPtr->filter);
 
+    int srid =std::get<2>(vecRasterInfo.at(0));
+
     if(!dataSource->dataSetExists(layerName))
     {
-      createPostgisPropertiesFiles(url.path().toStdString(), layerName, connInfo);
+      // Create needed txt mosaic files
+      createPostgisDatastorePropertiesFile(url.path().toStdString(), connInfo);
+      createPostgisMosaicLayerPropertiesFile(url.path().toStdString(), layerName, srid);
 
-      registerMosaicCoverage(layerName, url.path().toStdString(), layerName, std::get<2>(vecRasterInfo.at(0)));
+      // create table
+      createMosaicTable(dataSource, layerName, srid);
     }
-    else
+
+    for(auto rasterInfo : vecRasterInfo)
     {
-      for(auto rasterInfo : vecRasterInfo)
-      {
-        std::string rasterName;
-        te::dt::TimeInstant rasterTimeInstantTz;
-        int rasterSRID;
-        te::gm::Envelope rasterEnvelope;
+      std::string rasterName;
+      te::dt::TimeInstant rasterTimeInstantTz;
+      int rasterSRID;
+      te::gm::Envelope rasterEnvelope;
 
-        std::tie(rasterName, rasterTimeInstantTz, rasterSRID, rasterEnvelope) = rasterInfo;
+      std::tie(rasterName, rasterTimeInstantTz, rasterSRID, rasterEnvelope) = rasterInfo;
 
-        std::string query = "INSERT INTO public.\"" + layerName + "\" " +
-                            "(the_geom, location, \"timestamp\") "
-                            "VALUES (( " +
-                            "ST_Envelope('SRID=4326;LINESTRING(" +
-                            std::to_string(rasterEnvelope.getLowerLeftX()) + " " + std::to_string(rasterEnvelope.getLowerLeftY()) + ", " +
-                            std::to_string(rasterEnvelope.getUpperRightX()) + " " + std::to_string(rasterEnvelope.getUpperRightY()) + ")'::geometry))," +
-                            " '" + rasterName + "', " + "'" + rasterTimeInstantTz.toString() +"'" + ");";
+      std::string query = "INSERT INTO public.\"" + layerName + "\" " +
+                          "(the_geom, \"location\", \"timestamp\") "
+                          "VALUES (( " +
+                          "ST_Envelope('SRID=" + std::to_string(srid) +
+                          ";LINESTRING(" +
+                          std::to_string(rasterEnvelope.getLowerLeftX()) + " " + std::to_string(rasterEnvelope.getLowerLeftY()) + ", " +
+                          std::to_string(rasterEnvelope.getUpperRightX()) + " " + std::to_string(rasterEnvelope.getUpperRightY()) + ")'::geometry))," +
+                          " '" + rasterName + "', " + "'" + rasterTimeInstantTz.toString() +"'" + ");";
 
-        dataSource->execute(query);
-      }
+      dataSource->execute(query);
     }
+
+    registerMosaicCoverage(layerName, url.path().toStdString(), layerName, srid, "", "all");
 
     layersNames.push_back(layerName);
   }
+
+  dataSource->close();
 
   return layersNames;
 }
@@ -1564,9 +1576,8 @@ terrama2::services::view::core::GeoServer::getRasterInfo(terrama2::core::DataMan
 }
 
 
-void terrama2::services::view::core::GeoServer::createPostgisPropertiesFiles(const std::string& outputFolder,
-                                                                             const std::string& exhibitionName,
-                                                                             const te::core::URI& connInfo) const
+void terrama2::services::view::core::GeoServer::createPostgisDatastorePropertiesFile(const std::string& outputFolder,
+                                                                                     const te::core::URI& connInfo) const
 {
   {
     std::string propertiesFilename = outputFolder + "/datastore.properties";
@@ -1598,11 +1609,11 @@ void terrama2::services::view::core::GeoServer::createPostgisPropertiesFiles(con
 
     std::string content = "SPI=org.geotools.data.postgis.PostgisNGDataStoreFactory\n"
                           "host=" + connInfo.host() + "\n"
-                          "port=" + connInfo.port() + "\n"
-                          "database=" + database + "\n"
+                                                      "port=" + connInfo.port() + "\n" +
+                          "database=" + database + "\n" +
                           "schema=public\n"
-                          "user=" + connInfo.user() + "\n"
-                          "passwd=" + connInfo.password() + "\n"
+                          "user=" + connInfo.user() + "\n" +
+                          "passwd=" + connInfo.password() + "\n" +
                           "Loose\\ bbox=true\n"
                           "Estimated\\ extends=false\n"
                           "validate\\ connections=true\n"
@@ -1615,80 +1626,134 @@ void terrama2::services::view::core::GeoServer::createPostgisPropertiesFiles(con
     /* Close the file */
     outputFile.close();
   }
-
-  {
-    std::string propertiesFilename = outputFolder + "/indexer.properties";
-
-    QFile outputFile(propertiesFilename.c_str());
-
-    if(outputFile.exists())
-    {
-      if(!outputFile.remove())
-      {
-        QString errMsg = QObject::tr("Could not remove file: %1").arg(propertiesFilename.c_str());
-        TERRAMA2_LOG_ERROR() << errMsg;
-        throw Exception() << ErrorDescription(errMsg);
-      }
-    }
-
-    outputFile.open(QIODevice::WriteOnly);
-
-    /* Check it opened OK */
-    if(!outputFile.isOpen())
-    {
-      QString errMsg = QObject::tr("Could not open file: %1").arg(propertiesFilename.c_str());
-      TERRAMA2_LOG_ERROR() << errMsg;
-      throw Exception() << ErrorDescription(errMsg);
-    }
-
-    std::string content = "Schema=*the_geom:Polygon,location:String,timestamp:java.util.Date\n"
-                          "PropertyCollectors=TimestampFileNameExtractorSPI[timeregex](timestamp)\n"
-                          "TimeAttribute=timestamp\n"
-                          "Name=" + exhibitionName +"\n" +
-                          "TypeName=" + exhibitionName +"\n" +
-                          "Caching=false\n";
-
-    QTextStream outStream(&outputFile);
-    outStream << content.c_str();
-
-    /* Close the file */
-    outputFile.close();
-  }
-
-  {
-    std::string propertiesFilename = outputFolder + "/timeregex.properties";
-
-    QFile outputFile(propertiesFilename.c_str());
-
-    if(outputFile.exists())
-    {
-      if(!outputFile.remove())
-      {
-        QString errMsg = QObject::tr("Could not remove file: %1").arg(propertiesFilename.c_str());
-        TERRAMA2_LOG_ERROR() << errMsg;
-        throw Exception() << ErrorDescription(errMsg);
-      }
-    }
-
-    outputFile.open(QIODevice::WriteOnly);
-
-    /* Check it opened OK */
-    if(!outputFile.isOpen())
-    {
-      QString errMsg = QObject::tr("Could not open file: %1").arg(propertiesFilename.c_str());
-      TERRAMA2_LOG_ERROR() << errMsg;
-      throw Exception() << ErrorDescription(errMsg);
-    }
-
-    std::string content = "regex=[0-9]{8}\n";
-
-    QTextStream outStream(&outputFile);
-    outStream << content.c_str();
-
-    /* Close the file */
-    outputFile.close();
-  }
 }
+
+void terrama2::services::view::core::GeoServer::createPostgisMosaicLayerPropertiesFile(const std::string& outputFolder,
+                                                                                       const std::string& exhibitionName,
+                                                                                       const int srid) const
+{
+  std::string propertiesFilename = outputFolder + "/" + exhibitionName + ".properties";
+
+  QFile outputFile(propertiesFilename.c_str());
+
+  if(outputFile.exists())
+  {
+    if(!outputFile.remove())
+    {
+      QString errMsg = QObject::tr("Could not remove file: %1").arg(propertiesFilename.c_str());
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw Exception() << ErrorDescription(errMsg);
+    }
+  }
+
+  outputFile.open(QIODevice::WriteOnly);
+
+  /* Check it opened OK */
+  if(!outputFile.isOpen())
+  {
+    QString errMsg = QObject::tr("Could not open file: %1").arg(propertiesFilename.c_str());
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw Exception() << ErrorDescription(errMsg);
+  }
+
+  std::string content = "MosaicCRS=EPSG\\:" + std::to_string(srid) + "\n" +
+                        "Levels=0.01,0.01\n"
+                        "Heterogeneous=false\n"
+                        "TimeAttribute=timestamp\n"
+                        "AbsolutePath=false\n"
+                        "Name=" + exhibitionName + "\n" +
+                        "TypeName=" + exhibitionName + "\n" +
+                        "Caching=false\n"
+                        "ExpandToRGB=false\n"
+                        "LocationAttribute=location\n"
+                        "SuggestedSPI=it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReaderSpi\n"
+                        "CheckAuxiliaryMetadata=false\n"
+                        "LevelsNum=1";
+
+  QTextStream outStream(&outputFile);
+  outStream << content.c_str();
+
+  /* Close the file */
+  outputFile.close();
+}
+
+void terrama2::services::view::core::GeoServer::createPostgisIndexerPropertiesFile(const std::string& outputFolder,
+                                                                                   const std::string& exhibitionName) const
+{
+  std::string propertiesFilename = outputFolder + "/indexer.properties";
+
+  QFile outputFile(propertiesFilename.c_str());
+
+  if(outputFile.exists())
+  {
+    if(!outputFile.remove())
+    {
+      QString errMsg = QObject::tr("Could not remove file: %1").arg(propertiesFilename.c_str());
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw Exception() << ErrorDescription(errMsg);
+    }
+  }
+
+  outputFile.open(QIODevice::WriteOnly);
+
+  /* Check it opened OK */
+  if(!outputFile.isOpen())
+  {
+    QString errMsg = QObject::tr("Could not open file: %1").arg(propertiesFilename.c_str());
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw Exception() << ErrorDescription(errMsg);
+  }
+
+  std::string content = "Schema=*the_geom:Polygon,location:String,timestamp:java.util.Date\n"
+                        "PropertyCollectors=TimestampFileNameExtractorSPI[timeregex](timestamp)\n"
+                        "TimeAttribute=timestamp\n"
+                        "Name=" + exhibitionName +"\n" +
+                        "TypeName=" + exhibitionName +"\n" +
+                        "Caching=false\n";
+
+  QTextStream outStream(&outputFile);
+  outStream << content.c_str();
+
+  /* Close the file */
+  outputFile.close();
+}
+
+void terrama2::services::view::core::GeoServer::createTimeregexPropertiesFile(const std::string& outputFolder,
+                                                                              const std::string& regex) const
+{
+  std::string propertiesFilename = outputFolder + "/timeregex.properties";
+
+  QFile outputFile(propertiesFilename.c_str());
+
+  if(outputFile.exists())
+  {
+    if(!outputFile.remove())
+    {
+      QString errMsg = QObject::tr("Could not remove file: %1").arg(propertiesFilename.c_str());
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw Exception() << ErrorDescription(errMsg);
+    }
+  }
+
+  outputFile.open(QIODevice::WriteOnly);
+
+  /* Check it opened OK */
+  if(!outputFile.isOpen())
+  {
+    QString errMsg = QObject::tr("Could not open file: %1").arg(propertiesFilename.c_str());
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw Exception() << ErrorDescription(errMsg);
+  }
+
+  std::string content = "regex=" + regex + "\n";
+
+  QTextStream outStream(&outputFile);
+  outStream << content.c_str();
+
+  /* Close the file */
+  outputFile.close();
+}
+
 
 void terrama2::services::view::core::GeoServer::createGeoserverPropertiesFile(const std::string& outputFolder,
                                                                               const std::string& exhibitionName,
@@ -1836,3 +1901,38 @@ int terrama2::services::view::core::GeoServer::createGeoserverTempMosaic(terrama
   return geomSRID;
 }
 
+
+void terrama2::services::view::core::GeoServer::createMosaicTable(const std::shared_ptr< te::da::DataSource > dataSource,
+                                                                  const std::string& tableName,
+                                                                  int srid) const
+{
+  te::mem::DataSet* ds;
+  te::da::DataSetType* dt = new te::da::DataSetType(tableName);
+
+  te::gm::GeometryProperty* geomProp = new te::gm::GeometryProperty("the_geom", 0, te::gm::PolygonType, true);
+  geomProp->setSRID(srid);
+
+  te::dt::SimpleProperty* filenameProp = new te::dt::SimpleProperty("\"location\"", te::dt::STRING_TYPE, true);
+  te::dt::StringProperty* sp = static_cast<te::dt::StringProperty*>(filenameProp);
+  sp->setSubtype(te::dt::VAR_STRING);
+  sp->setSize(255);
+
+  te::dt::DateTimeProperty* timestampProp = new te::dt::DateTimeProperty("\"timestamp\"", te::dt::TIME_INSTANT, true);
+
+  std::string pkName = "\""+tableName+"_pkey\"";
+  auto pk = new te::da::PrimaryKey(pkName, dt);
+
+  te::dt::SimpleProperty* serialPk = new te::dt::SimpleProperty("fid", te::dt::INT32_TYPE, true);
+  serialPk->setAutoNumber(true);
+
+  dt->add(serialPk);
+  pk->add(serialPk);
+
+  dt->add(geomProp);
+  dt->add(filenameProp);
+  dt->add(timestampProp);
+
+  ds = new te::mem::DataSet(dt);
+
+  te::da::Create(dataSource.get(), dt, ds);
+}
