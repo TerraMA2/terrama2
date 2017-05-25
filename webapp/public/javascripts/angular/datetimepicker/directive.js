@@ -46,10 +46,20 @@ define([
             this.optionsFrom = {locale: locale, sideBySide: true, toolbarPlacement: "top", allowInputToggle: true, useCurrent: false,  format: "L HH:mm"};
             this.optionsTo = {locale: locale, sideBySide: true, toolbarPlacement: "top", allowInputToggle: true, useCurrent: false,  format: "L HH:mm"};
 
+            $scope.optionsTo = this.optionsTo;
+            $scope.optionsFrom = this.optionsFrom;
             this.update = function (dateFrom, dateTo) {
                 this.optionsFrom.maxDate = dateTo;
                 this.optionsTo.minDate = dateFrom;
             };
+            // change datatimepicker locale when change plataform language
+            $scope.$on("LOCALE_UPDATED", function(event, args){
+              var locale = locales[args.userLanguage];
+              if (locale) {
+                $scope.optionsTo.locale = locale;
+                $scope.optionsFrom.locale = locale;
+              }
+            })
           }]
         };
       }]);
