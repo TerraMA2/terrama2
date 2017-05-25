@@ -240,6 +240,7 @@ var ImportExport = function(io) {
                     analysis.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: analysis.project_id}).id : json.selectedProject;
                     analysis.script_language_id = analysis.script_language;
                     analysis.grid = analysis.output_grid;
+                    analysis.historical = analysis.reprocessing_historical_data;
                     var dataSeriesOutput = Utils.find(output.DataSeries, {
                       $id: analysis.output_dataseries_id
                     });
