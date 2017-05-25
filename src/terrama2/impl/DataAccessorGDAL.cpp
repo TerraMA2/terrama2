@@ -85,7 +85,7 @@ void terrama2::core::DataAccessorGDAL::addToCompleteDataSet(terrama2::core::Data
   int outputSrid = -1;
   try
   {
-    outputSrid = getSrid(dataSet);
+    outputSrid = getSrid(dataSet, false);
     verify::srid(outputSrid);
   }
   catch (const UndefinedTagException&)
