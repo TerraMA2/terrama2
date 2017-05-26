@@ -1,5 +1,5 @@
 define(function() {
-  function RegisterController($scope, $http, $q, $window, $httpParamSerializer, $location, i18n, $timeout, DataProviderService, MessageBoxService, FormTranslator) {
+  function RegisterController($scope, $http, $q, $window, $httpParamSerializer, $location, i18n, $timeout, DataProviderService, MessageBoxService, FormTranslator, Socket) {
     $scope.i18n = i18n;
     var model = {};
     var title = "Data Server Registration";
@@ -30,6 +30,14 @@ define(function() {
     $scope.css = {
       boxType: "box-solid"
     }
+
+    $scope.dirs = {
+      children: []
+    };
+
+    $scope.selectedFolder = null;
+    $scope.loadingFiles = false;
+    $scope.pathLoading = null;
 
     $timeout(function() {
       if(conf.fields) {
@@ -277,9 +285,86 @@ define(function() {
         $scope.isChecking = false;
       });
     };
+
+    var listFilesRequest = function(pathToList, parent) {
+      $scope.loadingFiles = true;
+      $scope.pathLoading = pathToList;
+
+      Socket.emit('listFilesRequest', {
+        host: $scope.model['hostname'],
+        port: $scope.model['port'],
+        username: $scope.model['user'],
+        password: $scope.model['password'],
+        path: pathToList,
+        parent: parent
+      });
+    };
+
+    var setChildren = function(item, pathFolders, i, newChildren, pathToList) {
+      if(i < pathFolders.length) {
+        for(var j = 0, childrenLength = item.children.length; j < childrenLength; j++) {
+          if(item.children[j].name == pathFolders[i]) {
+            setChildren(item.children[j], pathFolders, (i + 1), newChildren, pathToList);
+            break;
+          }
+        }
+      } else {
+        if(newChildren) {
+          item.childrenVisible = true;
+          item.children = newChildren;
+        } else {
+          if(item.childrenVisible) {
+            item.childrenVisible = false;
+
+            if($scope.selectedFolder == item.fullPath)
+              $scope.selectedFolder = null;
+          } else {
+            $scope.selectedFolder = pathToList;
+            listFilesRequest(pathToList, pathToList);
+          }
+        }
+      }
+    };
+
+    Socket.on('listFilesResponse', function(result) {
+      $scope.loadingFiles = false;
+      $scope.pathLoading = null;
+
+      if(result.error) {
+        return MessageBoxService.danger(i18n.__(title), i18n.__(result.error));
+      } else {
+        if(result.parent) {
+          var tempPath = result.parent.replace($scope.model['pathname'], '');
+          var pathFolders = tempPath.split('/');
+          pathFolders = pathFolders.filter(function(a) { return a != '' });
+
+          setChildren($scope.dirs, pathFolders, 0, result.list);
+        } else {
+          $scope.dirs.children = result.list;
+          $('#filesExplorerModal').modal();
+        }
+      }
+    });
+
+    $scope.listFiles = function(path) {
+      if(path) {
+        var tempPath = path.replace($scope.model['pathname'], '');
+        var pathItems = tempPath.split('/');
+        pathItems = pathItems.filter(function(a) { return a != '' });
+
+        setChildren($scope.dirs, pathItems, 0, null, path);
+      } else {
+        listFilesRequest($scope.model['pathname']);
+      }
+    };
+
+    $scope.selectPath = function() {
+      if($scope.selectedFolder)
+        $scope.model['pathname'] = $scope.selectedFolder;
+    };
   }
 
-  RegisterController.$inject = ["$scope", "$http", "$q", "$window", "$httpParamSerializer", "$location", "i18n", "$timeout", "DataProviderService", "MessageBoxService", "FormTranslator"];
+  RegisterController.$inject = ["$scope", "$http", "$q", "$window", "$httpParamSerializer", "$location", "i18n", "$timeout", "DataProviderService", "MessageBoxService", "FormTranslator", "Socket"];
 
   return RegisterController;
 });
