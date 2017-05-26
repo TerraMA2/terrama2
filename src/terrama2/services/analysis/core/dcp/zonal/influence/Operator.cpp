@@ -113,7 +113,7 @@ std::vector< std::string > terrama2::services::analysis::core::dcp::zonal::influ
     }
 
 
-    auto dcpDataSeries = dataManagerPtr->findDataSeries(dataSeriesName);
+    auto dcpDataSeries = dataManagerPtr->findDataSeries(analysis->id, dataSeriesName);
     if(!dcpDataSeries)
     {
       QString errMsg(QObject::tr("Could not recover a data series with name: %1.").arg(dataSeriesName.c_str()));
@@ -253,7 +253,7 @@ std::vector< std::string > terrama2::services::analysis::core::dcp::zonal::influ
 
     std::string geomId = moDsContext->series.syncDataSet->getString(cache.index, moDsContext->identifier);
 
-    auto dcpDataSeries = dataManagerPtr->findDataSeries(dataSeriesName);
+    auto dcpDataSeries = dataManagerPtr->findDataSeries(analysis->id, dataSeriesName);
     if(!dcpDataSeries)
     {
       QString errMsg(QObject::tr("Could not recover a data series with name: %1.").arg(dataSeriesName.c_str()));
