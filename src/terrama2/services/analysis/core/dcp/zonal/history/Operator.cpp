@@ -146,6 +146,7 @@ double terrama2::services::analysis::core::dcp::zonal::history::operatorImpl(Sta
         {
           for(auto dataset : dataSeries->datasetList)
           {
+            //FIXME: can throw out_of_bounds? should have a try catch?
             if(dataset->format.at("alias") != dcpAlias)
               continue;
 
@@ -271,7 +272,7 @@ double terrama2::services::analysis::core::dcp::zonal::history::sum(const std::s
     const std::string& dateFilter,
     boost::python::list ids)
 {
-  return operatorImpl(StatisticOperation::SUM, dataSeriesName, attribute, dateFilter, "", ids);
+  return operatorImpl(StatisticOperation::SUM, dataSeriesName, attribute, dateFilter, "0s", ids);
 }
 
 double terrama2::services::analysis::core::dcp::zonal::history::mean(const std::string& dataSeriesName,
@@ -279,7 +280,7 @@ double terrama2::services::analysis::core::dcp::zonal::history::mean(const std::
     const std::string& dateFilter,
     boost::python::list ids)
 {
-  return operatorImpl(StatisticOperation::MEAN, dataSeriesName, attribute, dateFilter, "",  ids);
+  return operatorImpl(StatisticOperation::MEAN, dataSeriesName, attribute, dateFilter, "0s",  ids);
 }
 
 double terrama2::services::analysis::core::dcp::zonal::history::min(const std::string& dataSeriesName,
@@ -287,7 +288,7 @@ double terrama2::services::analysis::core::dcp::zonal::history::min(const std::s
    const std::string& dateFilter,
    boost::python::list ids)
 {
-  return operatorImpl(StatisticOperation::MIN, dataSeriesName, attribute, dateFilter, "", ids);
+  return operatorImpl(StatisticOperation::MIN, dataSeriesName, attribute, dateFilter, "0s", ids);
 }
 
 double terrama2::services::analysis::core::dcp::zonal::history::max(const std::string& dataSeriesName,
@@ -295,7 +296,7 @@ double terrama2::services::analysis::core::dcp::zonal::history::max(const std::s
    const std::string& dateFilter,
    boost::python::list ids)
 {
-  return operatorImpl(StatisticOperation::MAX, dataSeriesName, attribute, dateFilter, "", ids);
+  return operatorImpl(StatisticOperation::MAX, dataSeriesName, attribute, dateFilter, "0s", ids);
 }
 
 double terrama2::services::analysis::core::dcp::zonal::history::median(const std::string& dataSeriesName,
@@ -303,7 +304,7 @@ double terrama2::services::analysis::core::dcp::zonal::history::median(const std
     const std::string& dateFilter,
     boost::python::list ids)
 {
-  return operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, attribute, dateFilter, "", ids);
+  return operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, attribute, dateFilter, "0s", ids);
 }
 
 double terrama2::services::analysis::core::dcp::zonal::history::standardDeviation(const std::string& dataSeriesName,
@@ -311,7 +312,7 @@ double terrama2::services::analysis::core::dcp::zonal::history::standardDeviatio
    const std::string& dateFilter,
    boost::python::list ids)
 {
-  return operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, attribute, dateFilter, "", ids);
+  return operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, attribute, dateFilter, "0s", ids);
 }
 
 double terrama2::services::analysis::core::dcp::zonal::history::variance(const std::string& dataSeriesName,
@@ -319,5 +320,5 @@ double terrama2::services::analysis::core::dcp::zonal::history::variance(const s
     const std::string& dateFilter,
     boost::python::list ids)
 {
-  return operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, attribute, dateFilter, "", ids);
+  return operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, attribute, dateFilter, "0s", ids);
 }
