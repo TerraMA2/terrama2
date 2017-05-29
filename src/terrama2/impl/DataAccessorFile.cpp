@@ -177,7 +177,7 @@ void terrama2::core::DataAccessorFile::cropRaster(std::shared_ptr<te::mem::DataS
   {
     auto raster = completeDataSet->getRaster(rpos);
 
-    auto croppedRaster = raster->trim(filter.region->getMBR(), {{"FORCE_MEM_DRIVER", "TRUE"}});
+    auto croppedRaster = raster->trim(filter.region->getMBR(), {{"RTYPE", "EXPANSIBLE"}});
     completeDataSet->setRaster(rpos, croppedRaster);
   }
 }
