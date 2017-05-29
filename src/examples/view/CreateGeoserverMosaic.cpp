@@ -152,49 +152,55 @@ terrama2::services::view::core::ViewPtr newView()
 
 int main(int argc, char** argv)
 {
-  QCoreApplication a(argc, argv);
 
-  ::testing::GTEST_FLAG(throw_on_failure) = true;
-  ::testing::InitGoogleMock(&argc, argv);
+    QCoreApplication a(argc, argv);
 
-  std::locale::global(std::locale::classic());
+    ::testing::GTEST_FLAG(throw_on_failure) = true;
+    ::testing::InitGoogleMock(&argc, argv);
 
-  terrama2::core::TerraMA2Init terramaRaii("example", 0);
-  terrama2::core::registerFactories();
+    std::locale::global(std::locale::classic());
 
-  auto dataManager = std::make_shared<terrama2::services::view::core::DataManager>();
+    terrama2::core::TerraMA2Init terramaRaii("example", 0);
+    terrama2::core::registerFactories();
 
-  dataManager->add(inputDataProvider());
-  dataManager->add(inputDataSeries());
-  auto view = newView();
-  dataManager->add(view);
+    auto dataManager = std::make_shared<terrama2::services::view::core::DataManager>();
 
-  auto logger = std::make_shared<ViewLoggerMock>();
-  ::testing::DefaultValue<RegisterId>::Set(1);
-  EXPECT_CALL(*logger.get(), setConnectionInfo(_)).Times(::testing::AtLeast(1));
-  EXPECT_CALL(*logger.get(), start(_)).WillRepeatedly(::testing::Return(1));
-  EXPECT_CALL(*logger.get(), result(_, _, _));
-  EXPECT_CALL(*logger.get(), clone()).WillRepeatedly(::testing::Return(logger));
-  te::core::URI connInfoURI("postgis://postgres:postgres@localhost:5432/terrama2");
-  EXPECT_CALL(*logger.get(), getConnectionInfo()).WillRepeatedly(::testing::Return(connInfoURI));
+    dataManager->add(inputDataProvider());
+    dataManager->add(inputDataSeries());
+    auto view = newView();
+    dataManager->add(view);
 
-  logger->setConnectionInfo(te::core::URI());
+    auto logger = std::make_shared<ViewLoggerMock>();
+    ::testing::DefaultValue<RegisterId>::Set(1);
+    EXPECT_CALL(*logger, setConnectionInfo(_)).Times(::testing::AtLeast(1));
+    EXPECT_CALL(*logger, start(_)).WillRepeatedly(::testing::Return(1));
+    EXPECT_CALL(*logger, result(_, _, _));
+    EXPECT_CALL(*logger, clone()).WillRepeatedly(::testing::Return(logger));
+    te::core::URI connInfoURI("postgis://postgres:postgres@localhost:5432/terrama2");
+    EXPECT_CALL(*logger, getConnectionInfo()).WillRepeatedly(::testing::Return(connInfoURI));
+    EXPECT_CALL(*logger,setStartProcessingTime(_,_));
+    EXPECT_CALL(*logger,setEndProcessingTime(_,_));
 
-  QJsonObject additionalIfo;
-  additionalIfo.insert("maps_server", QString("http://admin:geoserver@localhost:8080/geoserver"));
+    logger->setConnectionInfo(te::core::URI());
 
-  terrama2::core::ServiceManager::getInstance().setInstanceId(1);
+    QJsonObject additionalIfo;
+    additionalIfo.insert("maps_server", QString("http://admin:geoserver@localhost:8080/geoserver"));
 
-  terrama2::services::view::core::Service service(dataManager);
+    terrama2::core::ServiceManager::getInstance().setInstanceId(1);
 
-  service.setLogger(logger);
-  service.updateAdditionalInfo(additionalIfo);
-  service.start();
-  service.addToQueue(view->id, terrama2::core::TimeUtils::nowUTC());
+    terrama2::services::view::core::Service service(dataManager);
 
-  QTimer timer;
-  QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-  timer.start(10000);
-  a.exec();
+    service.setLogger(logger);
+    service.updateAdditionalInfo(additionalIfo);
+    service.start();
+    service.addToQueue(view->id, terrama2::core::TimeUtils::nowUTC());
+
+    QTimer timer;
+    QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
+    timer.start(10000);
+    a.exec();
+
+    EXPECT_TRUE(::testing::Mock::VerifyAndClearExpectations(logger.get()));
+
   return 0;
 }

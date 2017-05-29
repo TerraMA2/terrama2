@@ -177,9 +177,9 @@ namespace terrama2
 
         void internalClone(std::shared_ptr<terrama2::core::ProcessLogger> loggerCopy) const;
         virtual std::shared_ptr<ProcessLogger> clone() const { return nullptr; }
-        
-        void setStartProcessingTime(const std::shared_ptr< te::dt::TimeInstantTZ > processingStartTime, const RegisterId registerId) const;
-        void setEndProcessingTime(const std::shared_ptr< te::dt::TimeInstantTZ > processingEndTime, const RegisterId registerId) const;
+
+        virtual void setStartProcessingTime(const std::shared_ptr< te::dt::TimeInstantTZ > processingStartTime, const RegisterId registerId) const;
+        virtual void setEndProcessingTime(const std::shared_ptr< te::dt::TimeInstantTZ > processingEndTime, const RegisterId registerId) const;
 
         /*!
          * \brief Returns a copy of the logger datasource

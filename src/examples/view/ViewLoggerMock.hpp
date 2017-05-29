@@ -25,6 +25,8 @@ class ViewLoggerMock : public terrama2::services::view::core::ViewLogger
     MOCK_CONST_METHOD0(clone, std::shared_ptr<ProcessLogger>());
     MOCK_METHOD1(setConnectionInfo, void(const te::core::URI& uri));
     MOCK_CONST_METHOD0(getConnectionInfo, te::core::URI(void));
+    MOCK_CONST_METHOD2(setStartProcessingTime, void(const std::shared_ptr< te::dt::TimeInstantTZ > processingStartTime, const RegisterId registerId));
+    MOCK_CONST_METHOD2(setEndProcessingTime, void(const std::shared_ptr< te::dt::TimeInstantTZ > processingEndTime, const RegisterId registerId));
 
     void log(MessageType messageType, const std::string &description, RegisterId registerId) const override
     {
