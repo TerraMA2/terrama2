@@ -160,7 +160,7 @@ terrama2::core::DataSeriesPtr terrama2::services::analysis::core::DataManager::f
 {
   terrama2::core::DataSeriesPtr dataSeries;
   auto analysis = findAnalysis(analysisId);
-  for(auto analysisDataSeries : analysis->analysisDataSeriesList)
+  for(const auto& analysisDataSeries : analysis->analysisDataSeriesList)
   {
     if(analysisDataSeries.alias == name)
     {
@@ -178,7 +178,7 @@ terrama2::core::DataSeriesPtr terrama2::services::analysis::core::DataManager::f
 
 
   bool inAdditionalDataSeriesList = false;
-  for(auto analysisDataSeries : analysis->analysisDataSeriesList)
+  for(const auto& analysisDataSeries : analysis->analysisDataSeriesList)
   {
     if(analysisDataSeries.dataSeriesId == dataSeries->id)
     {

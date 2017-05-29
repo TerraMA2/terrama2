@@ -113,7 +113,7 @@ std::vector< std::string > terrama2::services::analysis::core::dcp::zonal::influ
     }
 
 
-    auto dcpDataSeries = dataManagerPtr->findDataSeries(dataSeriesName);
+    auto dcpDataSeries = dataManagerPtr->findDataSeries(analysis->id, dataSeriesName);
     if(!dcpDataSeries)
     {
       QString errMsg(QObject::tr("Could not recover a data series with name: %1.").arg(dataSeriesName.c_str()));
@@ -127,7 +127,7 @@ std::vector< std::string > terrama2::services::analysis::core::dcp::zonal::influ
       throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
     }
 
-    for(std::string attribute : attributeList)
+    for(const std::string& attribute : attributeList)
     {
       if(!moDsContext->series.teDataSetType)
       {
@@ -148,7 +148,7 @@ std::vector< std::string > terrama2::services::analysis::core::dcp::zonal::influ
         DataSetId dcpId = syncDs->getInt32(cache.index, attribute);
 
         bool found = false;
-        for(auto dataSet : dcpDataSeries->datasetList)
+        for(const auto& dataSet : dcpDataSeries->datasetList)
         {
           if(dcpId == dataSet->id)
           {
@@ -253,7 +253,7 @@ std::vector< std::string > terrama2::services::analysis::core::dcp::zonal::influ
 
     std::string geomId = moDsContext->series.syncDataSet->getString(cache.index, moDsContext->identifier);
 
-    auto dcpDataSeries = dataManagerPtr->findDataSeries(dataSeriesName);
+    auto dcpDataSeries = dataManagerPtr->findDataSeries(analysis->id, dataSeriesName);
     if(!dcpDataSeries)
     {
       QString errMsg(QObject::tr("Could not recover a data series with name: %1.").arg(dataSeriesName.c_str()));
@@ -262,7 +262,7 @@ std::vector< std::string > terrama2::services::analysis::core::dcp::zonal::influ
 
     auto influenceType = zonal::getInfluenceType(analysis);
 
-    for(auto dataset : dcpDataSeries->datasetList)
+    for(const auto& dataset : dcpDataSeries->datasetList)
     {
       auto dcpDataset = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(dataset);
       if(!dcpDataset)

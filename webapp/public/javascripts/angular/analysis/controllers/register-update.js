@@ -84,6 +84,7 @@ define([], function() {
      * @type {Object}
      */
     self.analysis = {
+      historical: {},
       metadata: {}
     };
 
@@ -314,7 +315,21 @@ define([], function() {
             var ds = analysisDs.dataSeries;
 
             if (analysisDs.type === Globals.enums.AnalysisDataSeriesType.ADDITIONAL_DATA_TYPE) {
+              var dataSeriesTemporality = analysisDs.dataSeries.data_series_semantics.temporality == 'DYNAMIC' ? 'dynamic' : 'static';
+              if (dataSeriesTemporality == 'dynamic')
+                ds.isDynamic = true;
+              else
+                ds.isDynamic = false;
+
               self.selectedDataSeriesList.push(ds);
+              self.buffers[dataSeriesTemporality].some(function(element, index, arr) {
+                if (element.id == ds.id) {
+                  arr.splice(index, 1);
+                  return true;
+                }
+                return false;
+              });
+
             } else {
               self.filteredDataSeries.some(function(filteredDs) {
                 if (filteredDs.id === ds.id) {
