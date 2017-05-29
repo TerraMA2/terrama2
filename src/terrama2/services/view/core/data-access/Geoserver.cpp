@@ -1522,7 +1522,7 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
                                return *first == rasterTimeInstantTz;
                              });
 
-      if(it == std::end(vecDates))
+//      if(it == std::end(vecDates))
       {
         auto geom = te::gm::GetGeomFromEnvelope(rasterEnvelope, rasterSRID);
 
@@ -1971,4 +1971,23 @@ void terrama2::services::view::core::GeoServer::createMosaicTable(const std::sha
   ds = new te::mem::DataSet(dt);
 
   te::da::Create(dataSource.get(), dt, ds);
+}
+
+te::gm::Geometry* terrama2::services::view::core::GeoServer::GetGeomFromEnvelope(const te::gm::Envelope* const e,
+                                                                                 int srid) const
+{
+  // create an outer ring with the same envelope as our envelope
+  te::gm::LinearRing* r = new te::gm::LinearRing(5, te::gm::LineStringType, srid, new te::gm::Envelope(*e));
+
+  r->setPoint(0, e->m_llx, e->m_lly);
+  r->setPoint(1, e->m_llx, e->m_ury);
+  r->setPoint(2, e->m_urx, e->m_ury);
+  r->setPoint(3, e->m_urx, e->m_lly);
+  r->setPoint(4, e->m_llx, e->m_lly);
+
+  // create the polygon
+  te::gm::Polygon* p = new te::gm::Polygon(1, te::gm::PolygonType, srid, new te::gm::Envelope(*e));
+  p->setRingN(0, r);
+
+  return p;
 }

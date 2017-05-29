@@ -359,6 +359,17 @@ namespace terrama2
                                    const std::string& tableName,
                                    int srid) const;
 
+            /*!
+             * \brief It creates a Geometry (a polygon) from the given envelope.
+             * \param e    The envelope to extract the coordinates. Don't call with a NULL envelope.
+             * \param srid The Spatial Reference System ID to be associated to the polygon.
+             * \return A polygon (in counter-clock-wise) with rectangle coordinates:
+             * [(MINX, MINY), (MINX, MAXY), (MAXX, MAXY), (MAXX, MINY), (MINX, MINY)].
+             *
+             * \note The caller of this method will take the ownership of the returned geometry.
+             */
+            te::gm::Geometry* GetGeomFromEnvelope(const te::gm::Envelope* const e, int srid) const;
+
           private:
 
             std::string workspace_ = "terrama2"; /*!< A workspace to work in GeoServer */
