@@ -67,7 +67,7 @@ const std::string& terrama2::core::ServiceManager::serviceType() const
 void terrama2::core::ServiceManager::setListeningPort(int listeningPort)
 {
   listeningPort_ = listeningPort;
-  listeningPortUpdated(listeningPort_);
+  emit listeningPortUpdated(listeningPort_);
 }
 int terrama2::core::ServiceManager::listeningPort() const
 {
@@ -101,7 +101,7 @@ QJsonObject terrama2::core::ServiceManager::status() const
     obj.insert("terrama2_version",  QString::fromStdString(TERRAMA2_VERSION_STRING));
     obj.insert("shutting_down",  isShuttingDown_);
   }
-  
+
   return obj;
 }
 

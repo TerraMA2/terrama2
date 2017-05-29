@@ -166,7 +166,7 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
         for(auto& dcpAlias : vecDCPAlias)
         {
           bool found = false;
-          for(auto dataset : dataSeries->datasetList)
+          for(const auto& dataset : dataSeries->datasetList)
           {
             if(dataset->format.at("alias") == dcpAlias)
             {

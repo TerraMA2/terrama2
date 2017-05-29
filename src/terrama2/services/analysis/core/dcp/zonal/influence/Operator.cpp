@@ -127,7 +127,7 @@ std::vector< std::string > terrama2::services::analysis::core::dcp::zonal::influ
       throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
     }
 
-    for(std::string attribute : attributeList)
+    for(const std::string& attribute : attributeList)
     {
       if(!moDsContext->series.teDataSetType)
       {
@@ -148,7 +148,7 @@ std::vector< std::string > terrama2::services::analysis::core::dcp::zonal::influ
         DataSetId dcpId = syncDs->getInt32(cache.index, attribute);
 
         bool found = false;
-        for(auto dataSet : dcpDataSeries->datasetList)
+        for(const auto& dataSet : dcpDataSeries->datasetList)
         {
           if(dcpId == dataSet->id)
           {
@@ -262,7 +262,7 @@ std::vector< std::string > terrama2::services::analysis::core::dcp::zonal::influ
 
     auto influenceType = zonal::getInfluenceType(analysis);
 
-    for(auto dataset : dcpDataSeries->datasetList)
+    for(const auto& dataset : dcpDataSeries->datasetList)
     {
       auto dcpDataset = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(dataset);
       if(!dcpDataset)

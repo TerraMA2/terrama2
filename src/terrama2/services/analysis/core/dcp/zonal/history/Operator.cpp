@@ -144,7 +144,7 @@ double terrama2::services::analysis::core::dcp::zonal::history::operatorImpl(Sta
 
         for(auto& dcpAlias : vecDCPAlias)
         {
-          for(auto dataset : dataSeries->datasetList)
+          for(const auto& dataset : dataSeries->datasetList)
           {
             //FIXME: can throw out_of_bounds? should have a try catch?
             if(dataset->format.at("alias") != dcpAlias)

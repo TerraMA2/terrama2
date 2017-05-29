@@ -99,7 +99,7 @@ std::vector<double> terrama2::services::analysis::core::grid::history::sample(co
     filter.discardAfter = context->getTimeFromString(dateFilterEnd);
 
     auto datasets = dataSeries->datasetList;
-    for(auto dataset : datasets)
+    for(const auto& dataset : datasets)
     {
 
       auto rasterList = context->getRasterList(dataSeries, dataset->id, filter);
