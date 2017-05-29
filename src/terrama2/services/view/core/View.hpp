@@ -111,7 +111,7 @@ namespace terrama2
 
                         return x < y;
                       }
-                      catch(std::invalid_argument& e)
+                      catch(const std::invalid_argument& e)
                       {
                         TERRAMA2_LOG_ERROR() << "Invalid value for legend: " << e.what();
                         return false;

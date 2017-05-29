@@ -12,7 +12,7 @@ TerraMA² {{ i18n.__('User Registration') }}
 {% endblock %}
 
 {% block styles %}
-<link rel="stylesheet" type="text/css" href="/bower_components/intl-tel-input/build/css/intlTelInput.css">
+<link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}bower_components/intl-tel-input/build/css/intlTelInput.css">
 <style type="text/css">
   .intl-tel-input {
     display: block !important;
@@ -22,12 +22,12 @@ TerraMA² {{ i18n.__('User Registration') }}
 {% endblock %}
 
 {% block javascripts %}
-<script type="text/javascript" src="/bower_components/intl-tel-input/build/js/intlTelInput.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/intl-tel-input/build/js/intlTelInput.js"></script>
 <script type="text/javascript">
   $(document).ready(function(){
     $("#cellphone").intlTelInput({
       preferredCountries: [ "br", "us", "es", "fr"],
-      utilsScript: "/bower_components/intl-tel-input/build/js/utils.js"
+      utilsScript: BASE_URL + "bower_components/intl-tel-input/build/js/utils.js"
     });
   });
 </script>
@@ -126,8 +126,8 @@ TerraMA² {{ i18n.__('User Registration') }}
     <!-- ./row -->
 
     <div class="box-footer">
-      <button type="submit" class="btn btn-primary pull-right" ng-click="save();" style="margin-left: 10px;">{{ i18n.__('OK') }}</button>
-      <a href="{[ redirectUrl ]}" class="btn btn-primary pull-right" style="margin-left: 10px;">{{ i18n.__('Cancel') }}</a>
+      <button type="submit" class="btn btn-primary pull-right" ng-click="save();" style="margin-left: 10px;">{{ i18n.__('Save') }}</button>
+      <a href="{[ redirectUrl ]}" class="btn btn-primary pull-left">{{ i18n.__('Cancel') }}</a>
     </div>
   </terrama2-box>
 </div>

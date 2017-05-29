@@ -1,6 +1,8 @@
 {
   "default": {
+    "basePath": "/",
     "port": 36000,
+    "defaultFilePath": "/",
     "db": {
       "username": "postgres",
       "password": "postgres",
@@ -14,6 +16,7 @@
     }
   },
   "tests": {
+    "basePath": "/",
     "port": 37000,
     "db": {
       "username": "postgres",

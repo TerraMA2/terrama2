@@ -4,9 +4,9 @@
 
 {% block styles %}
 
-<link rel="stylesheet" type="text/css" href="ol3/ol.css">
-<link rel="stylesheet" type="text/css" href="TerraMA2WebComponents.min.css">
-<link rel="stylesheet" type="text/css" href="jquery-ui/themes/base/jquery-ui.css">
+<link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}ol3/ol.css">
+<link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}TerraMA2WebComponents.min.css">
+<link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}jquery-ui/themes/base/jquery-ui.css">
 
 
 {% endblock %}
@@ -53,22 +53,22 @@
   </div>
 </div>
 
-<script src="/moment/moment.js"></script>
+<script src="{[ BASE_URL ]}moment/moment.js"></script>
 
-<script src="/javascripts/utils/utils.js"></script>
-<script src="/jquery/dist/jquery.min.js"></script>
-<script src="/jquery-ui/jquery-ui.min.js"></script>
+<script src="{[ BASE_URL ]}javascripts/utils/utils.js"></script>
+<script src="{[ BASE_URL ]}jquery/dist/jquery.min.js"></script>
+<script src="{[ BASE_URL ]}jquery-ui/jquery-ui.min.js"></script>
 
 <!-- Date Range Picker Dependencies -->
-<script type="text/javascript" src="/bootstrap-daterangepicker/daterangepicker.js"></script>
-<link rel="stylesheet" type="text/css" href="/bootstrap-daterangepicker/daterangepicker.css" />
+<script type="text/javascript" src="{[ BASE_URL ]}bootstrap-daterangepicker/daterangepicker.js"></script>
+<link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}bootstrap-daterangepicker/daterangepicker.css" />
 
-<script src="ol3/ol.js"></script>
-<script src="TerraMA2WebComponents.min.js"></script>
-<script type="text/javascript" src="/socket.io/socket.io.js"></script>
-<script src="/javascripts/utils/capabilities.js"></script>
-<script src="/javascripts/utils/calendar.js"></script>
-<script src="/javascripts/utils/slider.js"></script>
+<script src="{[ BASE_URL ]}ol3/ol.js"></script>
+<script src="{[ BASE_URL ]}TerraMA2WebComponents.min.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}socket.io/socket.io.js"></script>
+<script src="{[ BASE_URL ]}javascripts/utils/capabilities.js"></script>
+<script src="{[ BASE_URL ]}javascripts/utils/calendar.js"></script>
+<script src="{[ BASE_URL ]}javascripts/utils/slider.js"></script>
 <script>
     var webadminHostInfo = {[webadminHostInfo|json|safe]};
     var webmonitorHostInfo = {[webmonitorHostInfo|json|safe]};
@@ -100,26 +100,44 @@
     if (TerraMA2WebComponents.MapDisplay.addOSMLayer("osm", "Open street", "Open street", false, "terrama2-layerexplorer", false)){
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("osm", "template", null, "treeview unsortable terrama2-truncate-text", null);
         allLayers.push({id: "osm", name: "Open street"});
+        addLayerStatusIcon("osm");
+        changeLayerStatusIcon("osm", "working");
     }
 
     addTreeviewMenuClass();
-
+    addGroupSpanIcon();
     var socket;
-    if (webmonitorHostInfo && webmonitorHostInfo.port){
-        socket = io.connect(":" + webmonitorHostInfo.port);
+    if (webmonitorHostInfo && webmonitorHostInfo.basePath){
+        socket = io.connect(window.location.origin, {
+            path: webmonitorHostInfo.basePath + 'socket.io'
+        });
     } else {
         socket = io.connect(":36001");
     }
 
     var wepappsocket;
-    if (webadminHostInfo && webadminHostInfo.host && webadminHostInfo.port){
-        wepappsocket = io.connect(webadminHostInfo.host + ":" + webadminHostInfo.port);
+    if (webadminHostInfo && webadminHostInfo.host && webadminHostInfo.port && webadminHostInfo.basePath){
+        wepappsocket = io.connect(webadminHostInfo.host + ":" + webadminHostInfo.port, {
+            path: webadminHostInfo.basePath + 'socket.io'
+        });
     } else {
         wepappsocket = io.connect(":36000");
     }
     
     wepappsocket.emit('viewRequest');
-    wepappsocket.on("viewResponse", function (data){
+    wepappsocket.on("viewResponse", function(data){
+
+        fillLayersData(data);
+        addLayersToSort();
+        setSortable();
+        $("#osm input").trigger("click");
+        
+        changeGroupStatusIcon("template", "working");
+
+    });
+
+    // Add layers in layers explorer menu
+    function fillLayersData(data){
         for (i in data){
             if (data[i].params && data[i].params.hasOwnProperty('mask') && data[i].layers.length > 1){
                 var layerWithDate = getLayersListWithDate(data[i].params.mask, data[i].layers);
@@ -152,7 +170,9 @@
 
                     setTemporarySlider(layerWithDate, layerId, layerName, workspace, uriGeoServer + '/ows', serverType, parent, 0);
                 }
-
+                changeGroupStatusIcon(parent, "working");
+                addLayerStatusIcon(layerId.split('.').join('\\.'));
+                changeLayerStatusIcon(layerId.split('.').join('\\.'), "working");
             }
             else {
                 var workspace = data[i].workspace;
@@ -174,17 +194,61 @@
                             layerId: layerId,
                             parent: data[i].type,
                             url: url,
-                            format: 'xml'
+                            format: 'xml',
+                            update: false
                         }
                         socket.emit('proxyRequestCapabilities', getCapabilitiesUrl);
                     }
                 }
+                changeGroupStatusIcon(data[i].type, "working");
+                addLayerStatusIcon(layerId);
+                changeLayerStatusIcon(layerId, "working");
             }
         }
+    }
 
-        addLayersToSort();
-        setSortable();
-        $("#osm input").trigger("click");
+    // When receive a new view, add in layers component
+    wepappsocket.on('viewReceived', function(data){
+        var layerId = data.workspace + ":" + data.layers[0];
+        var layerName = data.name;
+        var parent = data.type;
+        var newLayer = true;
+        var layerIdToSlide;
+        data.layers.forEach(function(layer){
+            var _layerId = data.workspace + ":" + layer;
+            if (allLayers.map(function(l){return l.id}).indexOf(_layerId) > 0){
+                newLayer = false;
+                layerIdToSlide = _layerId.split('.').join('\\.');
+                layerId = _layerId;
+            }
+        });
+        if (!newLayer){
+            changeLayerStatusIcon(layerIdToSlide, "new");
+            changeGroupStatusIcon(parent, "new");
+            var workspace = data.workspace;
+            var uriGeoServer = data.uriGeoserver;
+            var serverType = data.serverType;
+            if (data.params.mask){
+                var layerWithDate = getLayersListWithDate(data.params.mask, data.layers);
+                setTemporarySlider(layerWithDate, layerId, layerName, workspace, uriGeoServer + '/ows', serverType, parent, 0);
+            } else {
+                var url = uriGeoServer + '/' + workspace + '/' + data.layers[0] + '/wms?service=WMS&version=1.1.0&request=GetCapabilities';
+                var getCapabilitiesUrl = {
+                    layerName: data.layers[0],
+                    layerId: layerId,
+                    parent: data.type,
+                    url: url,
+                    format: 'xml',
+                    update: true
+                }
+                socket.emit('proxyRequestCapabilities', getCapabilitiesUrl);
+            }
+            return;
+        }
+        fillLayersData([data]);
+        addLayerToSort(layerId, layerName);
+        changeLayerStatusIcon(layerId, "new");
+        changeGroupStatusIcon(parent, "new");
     });
 
     // Checking map server connection response
@@ -193,6 +257,7 @@
             //getting element to disable if there are no connection with mapr server
             var listElement = $("li[data-layerid='"+ data.requestId +"']");
             var inputElement = listElement.find('input');
+            var parent = listElement.attr('data-parentid')
 
             //if not connected disabled the layer selection
             if (!data.connected){
@@ -203,12 +268,21 @@
                 if (!inputElement.hasClass("disabled-content")){
                     inputElement.addClass("disabled-content");
                 }
+                changeLayerStatusIcon(data.requestId, "erraccess");
+                changeGroupStatusIcon(parent, "erraccess");
             } 
             // if connected enable the layer selection
             else {
                 listElement.removeProp("title");
                 if (inputElement.hasClass("disabled-content"))
                     inputElement.removeClass("disabled-content");
+                
+                var imageElement = listElement.find("#image-icon");
+                var lastStatus = imageElement.attr("src");
+                if (lastStatus == "{[ BASE_URL ]}images/status/gray_icon.svg"){
+                    changeLayerStatusIcon(data.requestId, "working");
+                    changeGroupStatusIcon(parent, "working");
+                }
             }
         }
     });
@@ -238,23 +312,26 @@
             if (li.length === 0) {
                 return;
             }
-            var sliderDiv = "<div class='slider-content' style='display:none;'><label></label><button type='button' class='close close-slider'>×</button><div id='slider" + $(li).attr("data-layerid").replace(':','') + "'></div></div>";
-            $(li).append(sliderDiv);
 
-            if (layerCapabilities[layerIndex].extent instanceof Array) {
-                sliderCapabilities.push(layerCapabilities[layerIndex]);
-                span += "<span id='terrama2-slider' class='terrama2-datepicker-icon'>" + makeHelperDatePicker(layerCapabilities[layerIndex]) + "<i class='fa fa-sliders'></i></span>";
-            } else if (layerCapabilities[layerIndex].extent instanceof Object) {
-                span += "<span id='terrama2-calendar' class='terrama2-datepicker-icon'>" + makeHelperDatePicker(layerCapabilities[layerIndex]) + "<i class='fa fa-calendar'></i></span>";
+            if (data.update){
+                updateDatePicker(layerCapabilities[layerIndex], data.layerId);
+            } else {
+                var sliderDiv = "<div class='slider-content' style='display:none;'><label></label><button type='button' class='close close-slider'>×</button><div id='slider" + $(li).attr("data-layerid").replace(':','') + "'></div></div>";
+                $(li).append(sliderDiv);
+
+                if (layerCapabilities[layerIndex].extent instanceof Array) {
+                    sliderCapabilities.push(layerCapabilities[layerIndex]);
+                    span += "<span id='terrama2-slider' class='terrama2-datepicker-icon'>" + makeHelperDatePicker(layerCapabilities[layerIndex]) + "<i class='fa fa-sliders'></i></span>";
+                } else if (layerCapabilities[layerIndex].extent instanceof Object) {
+                    span += "<span id='terrama2-calendar' class='terrama2-datepicker-icon'>" + makeHelperDatePicker(layerCapabilities[layerIndex]) + "<i class='fa fa-calendar'></i></span>";
+                }
+                $(li).append($(span));
             }
-            $(li).append($(span));
-
         }
         catch(e) {
             return;
         }
     });
-
 
     function addLayerWithSlider(listLayers, layerId, layerName, workspace, server, serverType, parent, initialValue){
 
@@ -279,12 +356,16 @@
 
             setTemporarySlider(listLayers, layerId, layerName, workspace, server, serverType, parent, initialValue);
 
+            addLayerStatusIcon(layerId.split('.').join('\\.'));
+            changeLayerStatusIcon(layerId.split('.').join('\\.'), "working");
+
             if (!$("#"+ parent).hasClass('open')){
                 $("#"+ parent).addClass('open');
             }
             var children = $('#'+ parent).find(' > ul > li');
             children.show('fast');
             li.find('input').click();
+
         }
     }
 
@@ -514,7 +595,27 @@
             $('#terrama2-sortlayers').find('li#' + layerid.split('.').join('\\.')).removeClass('hide');
             visibleLayers.push(layerid);
         }
+        var imageElement = $(this).closest('li').find("#image-icon");
+        if (imageElement.attr("src") == "{[ BASE_URL ]}images/status/yellow-black.gif"){
+            changeLayerStatusIcon(layerid, "working");
+        }
+
     });
+
+    //change status icon when close the group layer
+    $('.parent_li').on('click', function(){
+        var parent = this.getAttribute('id');
+        var parentLi = $("#"+parent);
+        if (parentLi.hasClass('open')){
+            var imageStatus = parentLi.find("#image-group-icon");
+            var actualStatus = imageStatus.attr("src");
+            if (actualStatus == "{[ BASE_URL ]}images/status/yellow-black.gif"){
+                changeGroupStatusIcon(parent, "working");
+            } else if (actualStatus == "{[ BASE_URL ]}images/status/yellow-gray.gif"){
+                changeGroupStatusIcon(parent, "erraccess");
+            }
+        }
+    })
 
     function addLayersToSort(){
         var itens = "";
@@ -562,6 +663,51 @@
         var customParentLi = $(".parent_li").children('ul');
         for (i = 0; i < customParentLi.length; i++){
             customParentLi[i].className += ' treeview-menu';
+        }
+    }
+
+    function addGroupSpanIcon(){
+        var groupElement = $(".parent_li").children(".group-name");
+        var span = "<span class='span-group-icon pull-left'> <img id='image-group-icon' src=''> </span>";
+        groupElement.prepend(span);
+    }
+
+    function changeGroupStatusIcon(parent, status){
+        var statusElement = $("#"+parent).find('#image-group-icon');
+        statusElement.addClass("status-icon");
+        var statusImage = getStatusIconUrl(status);
+        statusElement.attr('src', statusImage);
+    }
+
+    function addLayerStatusIcon(layerId){
+        var _layerId = layerId.replace(":","");
+        var layerElement = $('#terrama2-layerexplorer').find("#"+_layerId);
+        var span = "<span class='span-layer-icon'> <img id='image-icon' src=''> </span>";
+        layerElement.prepend(span);
+    }
+
+    function changeLayerStatusIcon(layerId, status){
+        var _layerId = layerId.replace(":","");
+        var layerElement = $("#"+_layerId).find("#image-icon");
+        layerElement.addClass("status-icon");
+        var statusImage = getStatusIconUrl(status);
+        layerElement.attr('src', statusImage);
+    }
+
+    function getStatusIconUrl(status){
+        switch(status){
+            case "new":
+                return "{[ BASE_URL ]}images/status/yellow-black.gif";
+            case "newerraccess":
+                return "{[ BASE_URL ]}images/status/yellow-gray.gif";
+            case "working":
+                return "{[ BASE_URL ]}images/status/green_icon.svg";
+            case "erraccess":
+                return "{[ BASE_URL ]}images/status/gray_icon.svg";
+            case "alert":
+                return "{[ BASE_URL ]}images/status/red-black-gif";
+            default:
+                return "";
         }
     }
 

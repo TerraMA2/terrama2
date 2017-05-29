@@ -64,10 +64,10 @@ define([], function() {
       {key: "type.name", as: i18n.__("Type")}
     ];
 
-    $scope.linkToAdd = "/configuration/analysis/new";
+    $scope.linkToAdd = BASE_URL + "configuration/analysis/new";
 
     $scope.link = function(object) {
-      return "/configuration/analysis/" + object.id + "/edit";
+      return BASE_URL + "configuration/analysis/" + object.id + "/edit";
     };
 
     if(config.message !== "") {
@@ -113,7 +113,7 @@ define([], function() {
     };
 
     $scope.remove = function(object) {
-      return "/api/Analysis/" + object.id + "/delete";
+      return BASE_URL + "api/Analysis/" + object.id + "/delete";
     };
 
     $scope.close = function() {
@@ -123,22 +123,30 @@ define([], function() {
     $scope.icon = function(object) {
       switch(object.type.id) {
         case globals.enums.AnalysisType.MONITORED:
-          return "/images/analysis/monitored-object/monitored-object_analysis.png";
+          return BASE_URL + "images/analysis/monitored-object/monitored-object_analysis.png";
         case globals.enums.AnalysisType.GRID:
-          return "/images/analysis/grid/grid_analysis.png";
+          return BASE_URL + "images/analysis/grid/grid_analysis.png";
         default:
-          return "/images/analysis/dcp/dcp_analysis.png";
+          return BASE_URL + "images/analysis/dcp/dcp_analysis.png";
       }
     };
 
     AnalysisService.init(restriction)
       .then(function(analysis) {
         $scope.model = analysis;
-        if (config.extra && config.extra.id){
-          var analysisToRun = $scope.model.filter(function(element){
+
+        $timeout(function() {
+          $scope.model.forEach(function(instance) {
+            instance.type.name = i18n.__(instance.type.name);
+          });
+        }, 500);
+
+        if(config.extra && config.extra.id) {
+          var analysisToRun = $scope.model.filter(function(element) {
             return element.id == config.extra.id;
           });
-          if (analysisToRun.length == 1){
+
+          if(analysisToRun.length == 1) {
             $scope.extra.run(analysisToRun[0]);
           }
         }

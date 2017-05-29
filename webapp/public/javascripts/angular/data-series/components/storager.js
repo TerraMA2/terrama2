@@ -20,7 +20,7 @@ define([], function(){
             options: "=",
             schedule: "<"
         },
-        templateUrl: "/dist/templates/data-series/templates/storager.html",
+        templateUrl: BASE_URL + "dist/templates/data-series/templates/storager.html",
         controller: StoragerController
     };
 
@@ -52,23 +52,25 @@ define([], function(){
 
       self.getImageUrl = getImageUrl;
 
+      $scope.BASE_URL = BASE_URL;
+
       function getImageUrl(object){
         if (typeof object != 'object'){
           return '';
         }
         switch (object.data_provider_type.name){
           case 'POSTGIS':
-            return "/images/data-server/postGIS/postGIS.png";
+            return BASE_URL + "images/data-server/postGIS/postGIS.png";
             break;
           case 'HTTP':
-            return "/images/data-server/http/http.png";
+            return BASE_URL + "images/data-server/http/http.png";
             break;
           case 'FTP':
-            return "/images/data-server/ftp/ftp.png";
+            return BASE_URL + "images/data-server/ftp/ftp.png";
             break;
           case 'FILE':
           default:
-            return "/images/data-server/file/file.png";
+            return BASE_URL + "images/data-server/file/file.png";
             break;
         }
       }
@@ -129,39 +131,38 @@ define([], function(){
         }
 
         //Checking if is updating to change output when changed the parameters in Grads data series type
-        if (self.options.isUpdating && self.series.semantics.code == 'GRID-grads'){
-
-            // function to update model storager properties
-            var updateModelStorage = function(inputModel){
-                self.modelStorager.binary_file_mask = inputModel.binary_file_mask;
-                self.modelStorager.bytes_after = inputModel.bytes_after;
-                self.modelStorager.bytes_before = inputModel.bytes_before;
-                self.modelStorager.ctl_filename = inputModel.ctl_filename;
-                self.modelStorager.data_type = inputModel.data_type;
-                self.modelStorager.number_of_bands = inputModel.number_of_bands;
-                self.modelStorager.srid = inputModel.srid;
-                self.modelStorager.temporal = inputModel.temporal;
-                if (inputModel.time_interval){
-                    self.modelStorager.time_interval = inputModel.time_interval;
-                }
-                if (inputModel.time_interval_unit){
-                    self.modelStorager.time_interval_unit = inputModel.time_interval_unit;
-                }
-                if (inputModel.value_multiplier){
-                    self.modelStorager.value_multiplier = inputModel.value_multiplier;
-                }
+        if(self.options.isUpdating && self.series.semantics.code == 'GRID-grads'){
+          // function to update model storager properties
+          var updateModelStorage = function(inputModel) {
+            self.modelStorager.binary_file_mask = inputModel.binary_file_mask;
+            self.modelStorager.bytes_after = inputModel.bytes_after;
+            self.modelStorager.bytes_before = inputModel.bytes_before;
+            self.modelStorager.ctl_filename = inputModel.ctl_filename;
+            self.modelStorager.data_type = inputModel.data_type;
+            self.modelStorager.number_of_bands = inputModel.number_of_bands;
+            self.modelStorager.srid = inputModel.srid;
+            self.modelStorager.temporal = inputModel.temporal;
+            if(inputModel.time_interval) {
+              self.modelStorager.time_interval = inputModel.time_interval;
             }
+            if(inputModel.time_interval_unit) {
+              self.modelStorager.time_interval_unit = inputModel.time_interval_unit;
+            }
+            if(inputModel.value_multiplier) {
+              self.modelStorager.value_multiplier = inputModel.value_multiplier;
+            }
+          }
 
-            // watch model to update modelStorage
-            var timeoutPromise;
-            $scope.$watch(function(){
-                return self.model;
-            }, function(modelValue){
-                $timeout.cancel(timeoutPromise);
-                timeoutPromise = $timeout(function(){
-                    if (modelValue) updateModelStorage(modelValue);
-                }, 700);
-            }, true);
+          // watch model to update modelStorage
+          var timeoutPromise;
+          $scope.$watch(function() {
+            return self.model;
+          }, function(modelValue) {
+            $timeout.cancel(timeoutPromise);
+            timeoutPromise = $timeout(function() {
+              if(modelValue) updateModelStorage(modelValue);
+            }, 700);
+          }, true);
         }
       }
 
@@ -214,7 +215,7 @@ define([], function(){
 
               var dataToSend = Object.assign({}, self.dcpsStoragerObject[dcpItem.newAlias]);
 
-              $http.post("/configuration/dynamic/dataseries/updateDcpStore", {
+              $http.post(BASE_URL + "configuration/dynamic/dataseries/updateDcpStore", {
                 key: storedDcpsKey,
                 oldAlias: dcpItem.oldAlias,
                 dcp: dataToSend
@@ -335,7 +336,7 @@ define([], function(){
             "processing": true,
             "serverSide": true,
             "ajax": {
-              "url": "/configuration/dynamic/dataseries/paginateDcpsStore",
+              "url": BASE_URL + "configuration/dynamic/dataseries/paginateDcpsStore",
               "type": "POST",
               "data": function(data) {
                 data.key = storedDcpsKey;
@@ -433,7 +434,7 @@ define([], function(){
           self.removePcdStorager(args.dcp);
           removeInput(args.dcp.alias);
 
-          $http.post("/configuration/dynamic/dataseries/removeStoredDcpStore", {
+          $http.post(BASE_URL + "configuration/dynamic/dataseries/removeStoredDcpStore", {
             key: storedDcpsKey,
             alias: args.dcp.alias
           }).then(function(result) {
@@ -455,7 +456,7 @@ define([], function(){
       });
 
       $scope.$on("deleteDcpsStoreKey", function(event) {
-        $http.post("/configuration/dynamic/dataseries/deleteDcpsStoreKey", {
+        $http.post(BASE_URL + "configuration/dynamic/dataseries/deleteDcpsStoreKey", {
           key: storedDcpsKey
         }).error(function(err) {
           console.log("Err in deleting key");
@@ -482,7 +483,7 @@ define([], function(){
       });
 
       self.storageDcpsStore = function(dcps) {
-        $http.post("/configuration/dynamic/dataseries/storeDcpsStore", {
+        $http.post(BASE_URL + "configuration/dynamic/dataseries/storeDcpsStore", {
           key: storedDcpsKey,
           dcps: dcps
         }).then(function(result) {
@@ -591,11 +592,11 @@ define([], function(){
         if(self.formatSelected.data_series_type_name === globals.enums.DataSeriesType.DCP) {
           for(var property in properties) {
             self.tableFieldsStorager.push(property);
-            self.tableFieldsStoragerDataTable.push(property);
+            self.tableFieldsStoragerDataTable.push(properties[property].title);
           }
 
           if(args.viewChange !== undefined && args.viewChange) {
-            $http.post("/configuration/dynamic/dataseries/clearDcpsStore", {
+            $http.post(BASE_URL + "configuration/dynamic/dataseries/clearDcpsStore", {
               key: storedDcpsKey
             }).then(function(result) {
               self.dcpsStoragerObject = {};

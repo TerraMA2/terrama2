@@ -48,11 +48,13 @@
 #include <terralib/datatype/DateTimeProperty.h>
 #include <terralib/geometry/GeometryProperty.h>
 #include <terralib/memory/DataSet.h>
+#include <terralib/memory/DataSetItem.h>
 #include <terralib/datatype/DateTime.h>
 #include <terralib/dataaccess/datasource/DataSource.h>
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 #include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/raster/RasterProperty.h>
+#include <terralib/geometry/Utils.h>
 
 #include <terralib/se/Categorize.h>
 #include <terralib/se/RasterSymbolizer.h>
@@ -63,6 +65,15 @@
 #include <terralib/se/Fill.h>
 #include <terralib/se/ParameterValue.h>
 #include <terralib/se/ColorMap.h>
+
+
+
+// Qt
+#include <QFile>
+#include <QFileInfo>
+#include <QTextStream>
+#include <QString>
+#include <QUrl>
 
 
 void terrama2::services::view::core::registerFactories()

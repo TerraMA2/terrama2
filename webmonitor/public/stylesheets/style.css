@@ -173,7 +173,7 @@
 
 #dynamic div, #static div, #analysis div, #template div, #custom div {
   margin-right: 5px;
-  margin-left: 15px;
+  margin-left: 25px;
 }
 
 #dynamic .pull-right, #static .pull-right, #analysis .pull-right, #template .pull-right, #custom .pull-right {
@@ -349,6 +349,27 @@
   color: #4b646f;
 }
 
+.status-icon {
+  width: 13px;
+  height: 13px;
+}
+
+.span-group-icon {
+  position: absolute;
+  margin-left: 5px;
+  margin-top: -2px;
+}
+
+.span-layer-icon {
+  position: absolute;
+  margin-left: 5px;
+  margin-top: -8px;
+}
+
+.terrama2-layerexplorer-checkbox {
+  margin-left: 25px !important;
+}
+
 /*
   @description It performs a text truncate in string. You should specify width limit using style or another class.
   In Layers Explorer Section, the recommended width is 140px;
@@ -366,6 +387,7 @@
 
 .ui-sortable .terrama2-layerexplorer-checkbox-span {
   width: 140px;
+  margin-left: 40px !important;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

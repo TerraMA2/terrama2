@@ -25,7 +25,7 @@
     <!-- /.box-header -->
     <div style="display: block;" class="box-body">
       <form name="forms.generalDataForm">
-        <div ng-include="'/javascripts/angular/generalData.html'"></div>
+        <div ng-include="'{[ BASE_URL ]}javascripts/angular/generalData.html'"></div>
       </form>
     </div>
   </div>
@@ -55,7 +55,7 @@
             </div>
 
             <terrama2-dcp-importer></terrama2-dcp-importer>
-            <div ng-include="'/javascripts/angular/dcpTable.html'"></div>
+            <div ng-include="'{[ BASE_URL ]}javascripts/angular/dcpTable.html'"></div>
           </div>
 
         </div>
@@ -141,7 +141,7 @@
     <!-- /.box-header -->
     <div class="box-body">
       <form name="filterForm">
-        <div ng-include="'/javascripts/angular/filter.html'"></div>
+        <div ng-include="'{[ BASE_URL ]}javascripts/angular/filter.html'"></div>
       </form>
     </div>
   </div>
@@ -172,24 +172,26 @@
     </div>
     <!-- /.box-header -->
     <div class="box-body">
-      <div ng-include="'/javascripts/angular/data-series/templates/intersection.html'"></div>
+      <div ng-include="'{[ BASE_URL ]}javascripts/angular/data-series/templates/intersection.html'"></div>
     </div>
   </div>
 </div>
 
 <div class="box-footer">
-    <div class="btn-group pull-right" style="margin-left: 10px;" ng-show="isDynamic && storager.format">
-      <button type="button" class="btn btn-primary" ng-bind="i18n.__('Save and Run')" data-ng-click="save(true);"></button>
-      <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        <span class="caret"></span>
-        <span class="sr-only"></span>
-      </button>
-      <ul class="dropdown-menu terrama2-button-dropdown">
-        <li><a href="javascript::void();" data-ng-click="save(false);" ng-bind="i18n.__('Save')"></a></li>
-      </ul>
-    </div>
-    <button type="button" class="btn btn-primary pull-right" style="margin-left: 10px;" ng-bind="i18n.__('Save')" ng-show="isDynamic && !storager.format" data-ng-click="save(false);"></button>
-    <a href="/configuration/dynamic/dataseries/" class="btn btn-primary pull-right" style="margin-left: 10px;">{{ i18n.__('Cancel') }}</a>
+  <div class="btn-group pull-right" style="margin-left: 10px;" ng-show="isDynamic && storager.format">
+    <button type="button" class="btn btn-primary" ng-bind="i18n.__('Save and Run')" data-ng-click="save(true);"></button>
+    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <span class="caret"></span>
+      <span class="sr-only"></span>
+    </button>
+    <ul class="dropdown-menu terrama2-button-dropdown">
+      <li><a href="javascript::void();" data-ng-click="save(false);" ng-bind="i18n.__('Save')"></a></li>
+    </ul>
+  </div>
+  <button type="button" class="btn btn-primary pull-right" style="margin-left: 10px;" ng-bind="i18n.__('Save')" ng-show="!isDynamic" data-ng-click="save(false);"></button>
+  <button type="button" class="btn btn-primary pull-right" style="margin-left: 10px;" ng-bind="i18n.__('Save')" ng-show="isDynamic && !storager.format" data-ng-click="save(false);"></button>
+  <a href="{[ BASE_URL ]}configuration/dynamic/dataseries/" class="btn btn-primary pull-left" ng-show="isDynamic">{{ i18n.__('Cancel') }}</a>
+  <a href="{[ BASE_URL ]}configuration/static/dataseries" class="btn btn-primary pull-left" ng-show="!isDynamic">{{ i18n.__('Cancel') }}</a>
 </div>
 
 

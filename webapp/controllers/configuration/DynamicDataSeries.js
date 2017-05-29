@@ -91,7 +91,7 @@ module.exports = function(app) {
       }).catch(function(err) {
         // check if analysis dataseries
         DataManager.getAnalysis({dataSet: {data_series_id: parseInt(dataSeriesId)}}).then(function(analysis) {
-          response.redirect("/configuration/analysis/"+analysis.id+"/edit");
+          response.redirect(app.locals.BASE_URL + "configuration/analysis/"+analysis.id+"/edit");
         }).catch(function(err) {
           // check if input dataseries (processed)
           DataManager.getDataSeries({id: dataSeriesId}).then(function(dataSeries) {

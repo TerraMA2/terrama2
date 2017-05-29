@@ -86,14 +86,14 @@ void terrama2::services::analysis::core::Service::removeAnalysis(AnalysisId anal
 
     TERRAMA2_LOG_INFO() << tr("Analysis %1 removed successfully.").arg(analysisId);
   }
-  catch(std::exception& e)
-  {
-    TERRAMA2_LOG_ERROR() << e.what();
-    TERRAMA2_LOG_INFO() << tr("Could not remove analysis: %1.").arg(analysisId);
-  }
-  catch(boost::exception& e)
+  catch(const boost::exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
+    TERRAMA2_LOG_INFO() << tr("Could not remove analysis: %1.").arg(analysisId);
+  }
+  catch(const std::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << e.what();
     TERRAMA2_LOG_INFO() << tr("Could not remove analysis: %1.").arg(analysisId);
   }
   catch(...)
@@ -117,7 +117,7 @@ void terrama2::services::analysis::core::Service::prepareTask(const terrama2::co
     auto analysisPtr = dataManager_->findAnalysis(executionPackage.processId);
     taskQueue_.emplace(std::bind(&terrama2::services::analysis::core::AnalysisExecutor::runAnalysis, std::ref(analysisExecutor_), dataManager_, storagerManager_, std::dynamic_pointer_cast<AnalysisLogger>(logger_->clone()), executionPackage, analysisPtr, threadPool_, mainThreadState_));
   }
-  catch(std::exception& e)
+  catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
   }
@@ -226,7 +226,7 @@ void terrama2::services::analysis::core::Service::addToQueue(AnalysisId analysis
   {
     //logged on throw
   }
-  catch(std::exception& e)
+  catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
   }
@@ -251,7 +251,7 @@ void terrama2::services::analysis::core::Service::start(size_t threadNumber)
   threadPool_.reset(new ThreadPool(processingThreadPool_.size()));
 }
 
-void terrama2::services::analysis::core::Service::analysisFinished(AnalysisId analysisId, std::shared_ptr< te::dt::TimeInstantTZ > executionDate, bool success)
+void terrama2::services::analysis::core::Service::analysisFinished(AnalysisId analysisId, std::shared_ptr< te::dt::TimeInstantTZ > executionDate, bool success,  QJsonObject jsonAnswer)
 {
   auto analysis = dataManager_->findAnalysis(analysisId);
 
@@ -260,7 +260,7 @@ void terrama2::services::analysis::core::Service::analysisFinished(AnalysisId an
   if(pqIt != processingQueue_.end())
     processingQueue_.erase(pqIt);
 
-  sendProcessFinishedSignal(analysisId, executionDate, success);
+  sendProcessFinishedSignal(analysisId, executionDate, success, jsonAnswer);
 
   // Verify if there is another execution for the same analysis waiting
   auto& packageQueue = waitQueue_[analysisId];
@@ -303,7 +303,7 @@ void terrama2::services::analysis::core::Service::validateAnalysis(AnalysisPtr a
   {
     //logged on throw
   }
-  catch(std::exception& e)
+  catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
   }

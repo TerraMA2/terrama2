@@ -207,11 +207,11 @@ int main(int argc, char* argv[])
 
     service.stopService();
   }
-  catch(boost::exception& e)
+  catch(const boost::exception& e)
   {
     std::cout << boost::diagnostic_information(e) << std::endl;
   }
-  catch(std::exception& e)
+  catch(const std::exception& e)
   {
     std::cout << e.what() << std::endl;
   }

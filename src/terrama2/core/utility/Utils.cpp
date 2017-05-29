@@ -264,7 +264,7 @@ int terrama2::core::getUTMSrid(te::gm::Geometry* geom)
     auto srsPair = te::srs::SpatialReferenceSystemManager::getInstance().getIdFromP4Txt(p4txt);
     return srsPair.second;
   }
-  catch(std::exception& e)
+  catch(const std::exception& e)
   {
     QString msg(QObject::tr("Could not determine the SRID for a UTM projection"));
     throw InvalidSRIDException() << terrama2::ErrorDescription(msg);

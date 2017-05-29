@@ -169,11 +169,11 @@ te::dt::AbstractData* terrama2::core::DataAccessorOccurrenceLightning::stringToT
 
     return new te::dt::TimeInstant(date.utc_time());
   }
-  catch(std::exception& e)
+  catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
   }
-  catch(boost::exception& e)
+  catch(const boost::exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
   }
@@ -204,11 +204,11 @@ te::dt::AbstractData* terrama2::core::DataAccessorOccurrenceLightning::stringToT
     boost::posix_time::time_duration td = date.time_of_day();
     return new te::dt::TimeDuration(td);
   }
-  catch(std::exception& e)
+  catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
   }
-  catch(boost::exception& e)
+  catch(const boost::exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
   }
@@ -235,11 +235,11 @@ te::dt::AbstractData* terrama2::core::DataAccessorOccurrenceLightning::stringToD
     boost::posix_time::ptime boostDate(boost::posix_time::time_from_string(dateTime));
     return new te::dt::Date(boostDate.date());
   }
-  catch(std::exception& e)
+  catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
   }
-  catch(boost::exception& e)
+  catch(const boost::exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
   }

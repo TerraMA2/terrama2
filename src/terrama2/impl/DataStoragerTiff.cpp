@@ -190,7 +190,14 @@ std::string terrama2::core::DataStoragerTiff::replaceMask(const std::string& mas
 
   pos = fileName.find("%YY");
   if(pos != std::string::npos)
-    fileName.replace(pos, 3, zeroPadNumber(year, 2));
+  {
+    std::string fullYear = std::to_string(year);
+
+    if(fullYear.size() > 2)
+      fullYear.erase(fullYear.begin(), fullYear.begin()+2);
+
+    fileName.replace(pos, 3, zeroPadNumber(std::stol(fullYear), 2));
+  }
 
   pos = fileName.find("%MM");
   if(pos != std::string::npos)

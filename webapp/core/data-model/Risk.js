@@ -27,6 +27,11 @@
      */
     this.id = params.id;
     /**
+     * Project Identifier
+     * @type {number}
+     */
+    this.project_id = params.project_id;
+    /**
      * Risk name
      * @type {string}
      */
@@ -73,6 +78,7 @@
   Risk.prototype.toObject = function() {
     return Object.assign(BaseClass.prototype.toObject.call(this), {
       id: this.id,
+      project_id: this.project_id,
       name: this.name,
       description: this.description,
       levels: this.levels
@@ -89,6 +95,7 @@
     });
     return Object.assign(BaseClass.prototype.toObject.call(this), {
       name: this.name,
+      project_id: this.project_id,
       description: this.description,
       levels: levelsCopy
     });

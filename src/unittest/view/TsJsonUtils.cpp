@@ -99,11 +99,11 @@ void TsJsonUtils::testToJSon()
     QString message(*boost::get_error_info<terrama2::ErrorDescription>(e));
     QFAIL(message.toStdString().c_str());
   }
-  catch(boost::exception& e)
+  catch(const boost::exception& e)
   {
     QFAIL(boost::diagnostic_information(e).c_str());
   }
-  catch(std::exception& e)
+  catch(const std::exception& e)
   {
     QFAIL(e.what());
   }
@@ -215,11 +215,11 @@ void TsJsonUtils::testGoNBackJSon()
     QString message(*boost::get_error_info<terrama2::ErrorDescription>(e));
     QFAIL(message.toStdString().c_str());
   }
-  catch(boost::exception& e)
+  catch(const boost::exception& e)
   {
     QFAIL(boost::diagnostic_information(e).c_str());
   }
-  catch(std::exception& e)
+  catch(const std::exception& e)
   {
     QFAIL(e.what());
   }

@@ -40,9 +40,9 @@ define(function() {
         url: configuration.url,
         data: $scope.project
       }).then(function(response) {
-        $window.location.href = "/configuration/projects/" + $scope.project.name + "/activate/" + response.data.token;
+        $window.location.href = BASE_URL + "configuration/projects/" + $scope.project.name + "/activate/" + response.data.token;
       }).catch(function(response) {
-        MessageBoxService.danger(i18n.__(title), response.data.message);
+        MessageBoxService.danger(i18n.__(title), i18n.__(response.data.message));
       }).finally(function(){
         $scope.isSubmiting = false;
       });

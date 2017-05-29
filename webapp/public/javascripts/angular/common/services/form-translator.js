@@ -67,6 +67,12 @@ define([], function() {
             display[i].validationMessage["302"] = i18n.__("Required");
             display[i].validationMessage["required"] = i18n.__("Required");
           }
+
+          if(display[i].titleMap) {
+            for(var j = 0, titleMapLength = display[i].titleMap.length; j < titleMapLength; j++) {
+              display[i].titleMap[j].name = i18n.__(display[i].titleMap[j].name);
+            }
+          }
         }
 
         return display;

@@ -41,39 +41,39 @@
     "children": [
       {
         "name": "Num",
-        "code": "grid.zonal.num(\"<dynamic_data_grid>\", \"<time>\", <buffer>)"
+        "code": "grid.zonal.history.num(\"<dynamic_data_grid>\", \"<time>\", <buffer>)"
       },
       {
         "name": "List",
-        "code": "grid.zonal.list(\"<dynamic_data_grid>\", \"<time>\", <buffer>)"
+        "code": "grid.zonal.history.list(\"<dynamic_data_grid>\", \"<time>\", <buffer>)"
       },
       {
         "name": "Sum",
-        "code": "grid.zonal.sum(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
+        "code": "grid.zonal.history.sum(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
       },
       {
         "name": "Mean",
-        "code": "grid.zonal.mean(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
+        "code": "grid.zonal.history.mean(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
       },
       {
         "name": "Min",
-        "code": "grid.zonal.min(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
+        "code": "grid.zonal.history.min(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
       },
       {
         "name": "Max",
-        "code": "grid.zonal.max(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
+        "code": "grid.zonal.history.max(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
       },
       {
         "name": "Median",
-        "code": "grid.zonal.median(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
+        "code": "grid.zonal.history.median(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
       },
       {
         "name": "Standard deviation",
-        "code": "grid.zonal.standard_deviation(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
+        "code": "grid.zonal.history.standard_deviation(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
       },
       {
         "name": "Variance",
-        "code": "grid.zonal.variance(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
+        "code": "grid.zonal.history.variance(\"<dynamic_data_grid>\", \"<time>\", <band>, <buffer>)"
       }
     ]
   },

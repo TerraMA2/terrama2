@@ -12,13 +12,13 @@ define([], function() {
     $scope.boxCss = {};
 
     $scope.link = function(object) {
-      return "/administration/services/" + object.id;
+      return BASE_URL + "administration/services/" + object.id;
     };
 
     $scope.model = [];
 
     $scope.remove = function(object) {
-      return "/api/Service/" + object.id + "/delete";
+      return BASE_URL + "api/Service/" + object.id + "/delete";
     };
 
     $scope.confirmRemoval = function(object) {
@@ -56,6 +56,10 @@ define([], function() {
       }
 
       service.online = response.online;
+      if (service.online){
+        service.version = response.terrama2_version;
+        service.start_time = moment(response.start_time).format("lll");
+      }
     });
 
     $scope.socket.on("serviceVersion", function(response) {
@@ -72,7 +76,10 @@ define([], function() {
 
       service.loading = response.loading;
       service.online = response.online;
-
+      if (!service.online){
+        delete service.version;
+        delete service.start_time;
+      }
       if (!response.loading)
         service.requestingForClose = false;
     });
@@ -105,26 +112,28 @@ define([], function() {
         return;
       }
 
-      services.forEach(function(service) {
-        switch(service.service_type_id) {
-          case 1:
-            service.type = i18n.__("Collect");
-            break;
-          case 2:
-            service.type = i18n.__("Analysis");
-            break;
-          case 3:
-            service.type = i18n.__("View");
-            break;
-          case 4:
-            service.type = i18n.__("Alert");
-            break;
-          default:
-            break;
-        }
-      });
-
       $scope.model = services;
+
+      $timeout(function() {
+        $scope.model.forEach(function(service) {
+          switch(service.service_type_id) {
+            case 1:
+              service.type = i18n.__("Collect");
+              break;
+            case 2:
+              service.type = i18n.__("Analysis");
+              break;
+            case 3:
+              service.type = i18n.__("View");
+              break;
+            case 4:
+              service.type = i18n.__("Alert");
+              break;
+            default:
+              break;
+          }
+        });
+      }, 500);
 
       services.forEach(function(service) {
         if (configuration.message && parseInt(configuration.service) === service.id && configuration.restart) {
@@ -155,21 +164,21 @@ define([], function() {
       {key: 'type', as: 'Type'}
     ];
 
-    $scope.linkToAdd = "/administration/services/new";
+    $scope.linkToAdd = BASE_URL + "administration/services/new";
 
     $scope.iconFn = function(object){
       switch(object.type){
         case "Analysis":
-          return "/images/services/analysis/analysis_service.png";
+          return BASE_URL + "images/services/analysis/analysis_service.png";
           break;
         case "Collect":
-          return "/images/services/collector/collector_service.png";
+          return BASE_URL + "images/services/collector/collector_service.png";
           break;
         case "View":
-          return "/images/services/view/view_service.png";
+          return BASE_URL + "images/services/view/view_service.png";
           break;
         default:
-          return "/images/services/alert/alert_service.png";
+          return BASE_URL + "images/services/alert/alert_service.png";
           break;
       }
     };
@@ -243,7 +252,7 @@ define([], function() {
         },
         reload: function(serviceInstance) {
           $HttpTimeout({
-            url: "/api/Remote/reload",
+            url: BASE_URL + "api/Remote/reload",
             data: {serviceId: serviceInstance.id},
             method: 'post'
           }).then(function(data) {

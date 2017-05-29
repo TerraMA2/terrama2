@@ -48,7 +48,7 @@ module.exports = function(app) {
 
       .catch(function(err) {
         logger.error(err);
-        return response.redirect("/");
+        return response.redirect(app.locals.BASE_URL);
       });
   };
 };

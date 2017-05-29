@@ -1,33 +1,29 @@
 var passport = require('passport');
 var DataManager = require('./../core/DataManager');
 
-module.exports = function (app) {
+module.exports = function(app) {
 
   var controller = app.controllers.Login;
 
-  app.get('/login', controller.login);
+  app.get(app.locals.BASE_URL + 'login', controller.login);
 
-  app.post('/login/process', function(request, response, next){
+  app.post(app.locals.BASE_URL + 'login/process', function(request, response, next) {
     passport.authenticate('local', function(err, user, info) {
-      if (err)
+      if(err)
         next(err);
 
-      if (!user) {
-        // response.status(400);
-        // return response.json({status: 400, message: info.message});
-        return response.render('login', {message: info.message});
-      }
+      if(!user)
+        return response.render('login', { message: info.message });
 
       request.logIn(user, function(e) {
-        if (e) {
+        if(e)
           return next(e);
-        }
 
         app.locals.collapsed = false;
-        return response.redirect('/firstAccess')
+        return response.redirect(app.locals.BASE_URL + 'firstAccess')
       })
     })(request, response, next);
   });
 
-  app.get('/logout', controller.logout);
+  app.get(app.locals.BASE_URL + 'logout', controller.logout);
 };

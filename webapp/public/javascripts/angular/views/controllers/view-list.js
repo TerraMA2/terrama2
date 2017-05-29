@@ -157,7 +157,7 @@ define([], function() {
          * A URL to insert a new view
          * @type {string}
          */
-        self.linkToAdd = "/configuration/views/new";
+        self.linkToAdd = BASE_URL + "configuration/views/new";
 
         /**
          * It makes a link to View edit
@@ -166,7 +166,7 @@ define([], function() {
          * @returns {string}
          */
         self.link = function(object) {
-          return "/configuration/views/edit/" + object.id;
+          return BASE_URL + "configuration/views/edit/" + object.id;
         };
 
         /**
@@ -191,30 +191,30 @@ define([], function() {
             case "OCCURRENCE-wfp":
             case "OCCURRENCE-lightning":
             case "Occurrence-generic":
-              return "/images/view/dynamic_data_series/occurrence/large_occurrence_view.png";
+              return BASE_URL + "images/view/dynamic_data_series/occurrence/large_occurrence_view.png";
               break;
             case "STATIC_DATA-postgis":
             case "STATIC_DATA-ogr":
-              return "/images/view/static_data_series/vetor/large_vector_view.png";
+              return BASE_URL + "images/view/static_data_series/vetor/large_vector_view.png";
               break;
             case "GRID-static_gdal":
-              return "/images/view/static_data_series/grid/large_grid_view.png";
+              return BASE_URL + "images/view/static_data_series/grid/large_grid_view.png";
               break;
             case "DCP-inpe":
             case "DCP-toa5":
             case "DCP-postgis":
             case "DCP-generic":
-              return "/images/view/dynamic_data_series/dcp/large_dcp_view.png";
+              return BASE_URL + "images/view/dynamic_data_series/dcp/large_dcp_view.png";
               break;
             case "ANALYSIS_MONITORED_OBJECT-postgis":
-              return "/images/view/analysis/large_analysis_view.png";
+              return BASE_URL + "images/view/analysis/large_analysis_view.png";
               break;
             case "GRID-gdal":
             case "GRID-grads":
-              return "/images/view/dynamic_data_series/grid/large_grid_view.png";
+              return BASE_URL + "images/view/dynamic_data_series/grid/large_grid_view.png";
               break;
             default:
-              return "/images/view/dynamic_data_series/grid/large_grid_view.png";
+              return BASE_URL + "images/view/dynamic_data_series/grid/large_grid_view.png";
               break;
           }
         };
@@ -224,7 +224,7 @@ define([], function() {
          * @param {Object}
          */
         self.remove = function(object) {
-          return "/api/View/" + object.id + "/delete";
+          return BASE_URL + "api/View/" + object.id + "/delete";
         };
 
         /**

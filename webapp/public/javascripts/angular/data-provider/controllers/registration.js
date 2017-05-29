@@ -61,14 +61,14 @@ define(function() {
     }
 
     $scope.schemeList = [];
-    $http.get("/api/DataProviderType/", {}).then(function(response) {
+    $http.get(BASE_URL + "api/DataProviderType/", {}).then(function(response) {
       $scope.typeList = response.data;
     }).catch(function(response) {
       console.log("err type: ", response.data);
     });
 
     var makeRedirectUrl = function(extra) {
-      var redirectUrl = conf.redirectTo.redirectTo || "/configuration/providers/";
+      var redirectUrl = conf.redirectTo.redirectTo || BASE_URL + "configuration/providers/";
       redirectUrl += (redirectUrl.indexOf("?") === -1) ? "?" : "&";
 
       var redirectData = Object.assign(conf.redirectTo, extra instanceof Object ? extra : {});
@@ -152,7 +152,7 @@ define(function() {
 
       var httpRequest = $http({
         method: "GET",
-        url: "/uri/",
+        url: BASE_URL + "uri/",
         params: params
       });
 
@@ -196,7 +196,7 @@ define(function() {
       }).then(function(response) {
         $scope.isEditing = true;
 
-        var defaultRedirectTo = "/configuration/providers?id=" + response.data.result.id + "&method=" + conf.saveConfig.method + "&";
+        var defaultRedirectTo = BASE_URL + "configuration/providers?id=" + response.data.result.id + "&method=" + conf.saveConfig.method + "&";
 
         var redirectData = makeRedirectUrl({data_provider_id: response.data.result.id}) + "&token=" + response.data.token;
 
@@ -205,7 +205,7 @@ define(function() {
 
         $window.location.href = (redirectData || defaultRedirectTo);
       }).catch(function(response) {
-        return MessageBoxService.danger(i18n.__(title), response.data.message);
+        return MessageBoxService.danger(i18n.__(title), i18n.__(response.data.message));
       });
     };
 
@@ -241,7 +241,7 @@ define(function() {
 
         var httpRequest = $http({
           method: "POST",
-          url: "/uri/",
+          url: BASE_URL + "uri/",
           data: params,
           timeout: timeOut.promise
         });
@@ -252,7 +252,7 @@ define(function() {
 
         httpRequest.catch(function(response) {
           if(expired) {
-            result.reject({message: i18n.__("Timeout: Request took longer than ") + $scope.timeOutSeconds + i18n.__(" seconds.")});
+            result.reject({message: i18n.__("Timeout: Request took longer than ") + $scope.timeOutSeconds + i18n.__(" seconds."), translated: true});
           } else {
             result.reject(response.data);
           }
@@ -267,12 +267,12 @@ define(function() {
 
       request.then(function(data) {
         if(data.message) { // error found
-          MessageBoxService.danger(connectionTitle, data.message);
+          MessageBoxService.danger(connectionTitle, (data.translated ? data.message : i18n.__(data.message)));
         } else {
           MessageBoxService.success(connectionTitle, i18n.__("Connection Successful"));
         }
       }).catch(function(err) {
-        MessageBoxService.danger(connectionTitle, err.message);
+        MessageBoxService.danger(connectionTitle, (err.translated ? err.message : i18n.__(err.message)));
       }).finally(function() {
         $scope.isChecking = false;
       });
