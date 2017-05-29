@@ -19,6 +19,10 @@ define([], function() {
     };
 
     /**
+     * Additional class to attributes list in functions
+     */
+    self.addClass = "attributes-list";
+    /**
      * It defines all TerraMA² forms. Due schema form usage, it must be defined in $scope.
      * @type {Object}
      */
