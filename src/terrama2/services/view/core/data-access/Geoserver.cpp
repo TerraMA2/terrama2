@@ -1485,14 +1485,26 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
       createMosaicTable(dataSource, layerName, srid);
     }
 
-    auto dt = dataSource->getDataSetType(layerName);
 
-    auto vecPkProperties = dt->getPrimaryKey()->getProperties();
+    // get all dates stored in the dataset
+    std::vector<std::shared_ptr<te::dt::DateTime> > vecDates;
+
+    {
+      bool exists = dataSource->dataSetExists(layerName);
+      auto teDataSet = dataSource-> getDataSet(layerName);
+
+      vecDates = terrama2::core::getAllDates(teDataSet.get(), "timestamp");
+    }
+
+
+    auto teDataSetType = dataSource->getDataSetType(layerName);
+
+    auto vecPkProperties = teDataSetType->getPrimaryKey()->getProperties();
 
     for(auto property : vecPkProperties)
-      dt->remove(property);
+      teDataSetType->remove(property);
 
-    te::mem::DataSet* ds = new te::mem::DataSet(dt.get());
+    te::mem::DataSet* ds = new te::mem::DataSet(teDataSetType.get());
 
     // Insert data
     for(auto rasterInfo : vecRasterInfo)
@@ -1504,14 +1516,23 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
 
       std::tie(rasterName, rasterTimeInstantTz, rasterSRID, rasterEnvelope) = rasterInfo;
 
-      auto geom = te::gm::GetGeomFromEnvelope(rasterEnvelope, rasterSRID);
+      auto it = std::find_if(vecDates.begin(), vecDates.end(),
+                             [rasterTimeInstantTz](std::shared_ptr<te::dt::DateTime> const& first)
+                             {
+                               return *first == rasterTimeInstantTz;
+                             });
 
-      te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(ds);
-      dsItem->setGeometry("the_geom", geom);
-      dsItem->setString("location", rasterName);
-      dsItem->setDateTime("timestamp", new te::dt::TimeInstant(rasterTimeInstantTz));
+      if(it == std::end(vecDates))
+      {
+        auto geom = te::gm::GetGeomFromEnvelope(rasterEnvelope, rasterSRID);
 
-      ds->add(dsItem);
+        te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(ds);
+        dsItem->setGeometry("the_geom", geom);
+        dsItem->setString("location", rasterName);
+        dsItem->setDateTime("timestamp", new te::dt::TimeInstant(rasterTimeInstantTz));
+
+        ds->add(dsItem);
+      }
     }
 
     ds->moveBeforeFirst();

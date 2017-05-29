@@ -188,6 +188,17 @@ namespace terrama2
      */
     std::vector<std::string> splitString(const std::string& text, char delim);
 
+
+    /*!
+     * \brief Get all the dates avaible from a dataset column, the returned vector do not has duplicated dates and
+     * is ASC ordered
+     * \param teDataset
+     * \param datetimeColumnName
+     * \return A vector with dates, with no duplicated dates
+     */
+    std::vector<std::shared_ptr<te::dt::DateTime> > getAllDates(te::da::DataSet* teDataset,
+                                                                const std::string& datetimeColumnName);
+
   } // end namespace core
 }   // end namespace terrama2
 
