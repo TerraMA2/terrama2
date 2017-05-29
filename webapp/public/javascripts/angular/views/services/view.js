@@ -11,7 +11,7 @@ define([], function() {
     var self = this;
     this.BaseService = BaseService;
     this.$q = $q;
-    this.$baseUrl = "/api/View";
+    this.$baseUrl = BASE_URL + "api/View";
     this.model = [];
 
     /**

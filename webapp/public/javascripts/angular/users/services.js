@@ -8,7 +8,7 @@ define([
    */
   function UserService(BaseService) {
     this.BaseService = BaseService;
-    this.url = "/api/users";
+    this.url = BASE_URL + "api/users";
     /**
      * It stores available users
      * @type {any[]}

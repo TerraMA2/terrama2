@@ -7,15 +7,15 @@
 {% block title %} TerraMA² {% endblock %}
 
 {% block styles %}
-  <link rel="stylesheet" href="/bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css">
+  <link rel="stylesheet" href="{[ BASE_URL ]}bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css">
 
   <!-- Angular tree control -->
   <!-- link for CSS when using the tree as a Dom element -->
-  <link rel="stylesheet" type="text/css" href="/bower_components/angular-tree-control/css/tree-control.css">
+  <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}bower_components/angular-tree-control/css/tree-control.css">
   <!-- link for CSS when using the tree as an attribute -->
-  <link rel="stylesheet" type="text/css" href="/bower_components/angular-tree-control/css/tree-control-attribute.css">
+  <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}bower_components/angular-tree-control/css/tree-control-attribute.css">
 
-  <link rel="stylesheet" href="/bower_components/angular-ui-select/dist/select.min.css" />
+  <link rel="stylesheet" href="{[ BASE_URL ]}bower_components/angular-ui-select/dist/select.min.css" />
   <style>
     table > tbody {
       overflow-y: auto !important;
@@ -65,26 +65,26 @@
 </script>
 
 <!-- Moment Datetime JS -->
-<script type="text/javascript" src="/bower_components/moment/moment.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/moment.js"></script>
 <!-- Angular tree control -->
-<script type="text/javascript" src="/bower_components/angular-tree-control/angular-tree-control.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/angular-tree-control/angular-tree-control.js"></script>
 <!-- Ace editor -->
-<script type="text/javascript" src="/bower_components/ace-builds/src/ace.js"></script>
-<script type="text/javascript" src="/bower_components/ace-builds/src/ext-language_tools.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/ace-builds/src/ace.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/ace-builds/src/ext-language_tools.js"></script>
 
 <!-- Angular Schema Form dependencies -->
-<script type="text/javascript" src="/bower_components/angular-sanitize/angular-sanitize.js"></script>
-<script type="text/javascript" src="/bower_components/tv4/tv4.js"></script>
-<script type="text/javascript" src="/bower_components/objectpath/lib/ObjectPath.js"></script>
-<script type="text/javascript" src="/bower_components/angular-schema-form/dist/schema-form.js"></script>
-<script type="text/javascript" src="/bower_components/angular-schema-form/dist/bootstrap-decorator.min.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/angular-sanitize/angular-sanitize.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/tv4/tv4.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/objectpath/lib/ObjectPath.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/angular-schema-form/dist/schema-form.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/angular-schema-form/dist/bootstrap-decorator.min.js"></script>
 <!-- Bootstrap datetimepicker -->
-<script type="text/javascript" src="/bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
-<script type="text/javascript" src="/bower_components/moment/locale/pt-br.js"></script>
-<script type="text/javascript" src="/bower_components/moment/locale/es.js"></script>
-<script type="text/javascript" src="/bower_components/moment/locale/fr.js"></script>
-<script type="text/javascript" src="/bower_components/angular-eonasdan-datetimepicker/dist/angular-eonasdan-datetimepicker.min.js"></script>
-<script src="/bower_components/angular-ui-select/dist/select.min.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/pt-br.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/es.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/fr.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/angular-eonasdan-datetimepicker/dist/angular-eonasdan-datetimepicker.min.js"></script>
+<script src="{[ BASE_URL ]}bower_components/angular-ui-select/dist/select.min.js"></script>
 
 
 {% endblock %}
@@ -192,23 +192,23 @@
 
           <div class="col-md-8">
             <div class="form-group has-feedback" terrama2-show-errors>
-              <label>{{ i18n.__("Instance") }}:</label>
+              <label>{{ i18n.__("Service") }}:</label>
               <ui-select name="instance" 
                          ng-model="ctrl.analysis.instance_id" 
                          ng-change="ctrl.onServiceChanged()" required>
                 <ui-select-match>
-                  <img ng-src="/images/services/analysis/analysis_service.png" style="height: 20px; margin-top: -10px;"/>
+                  <img ng-src="{[ BASE_URL ]}images/services/analysis/analysis_service.png" style="height: 20px; margin-top: -10px;"/>
                   <span ng-bind="$select.selected.name"></span>
                 </ui-select-match>
                 <ui-select-choices repeat="instance.id as instance in (ctrl.instances | filter: {'name': $select.search}) track by instance.id">
-                  <img ng-src="/images/services/analysis/analysis_service.png" style="height: 20px;"/>
+                  <img ng-src="{[ BASE_URL ]}images/services/analysis/analysis_service.png" style="height: 20px;"/>
                   <span ng-bind="instance.name"></span>
                 </ui-select-choices>
 
               </ui-select>
 
               <span class="help-block" ng-show="forms.generalDataForm.instance.$dirty && forms.generalDataForm.instance.$error.required">
-                {{ i18n.__('Analysis instance is required') }}
+                {{ i18n.__('Analysis service is required') }}
               </span>
             </div>
             <!-- /.form-group -->
@@ -686,7 +686,7 @@
               <div id="scriptCheckResult"></div>
               <div id="systemError" style="display: none;"></div>
 
-              <div terrama2-ace="{}" name="script" ng-model="ctrl.analysis.script">
+              <div terrama2-ace="{}" name="script" ng-model="ctrl.analysis.script" new-value="ctrl.operatorValue">
 
               </div>
 
@@ -702,14 +702,15 @@
 
           <div class="col-md-6">
             <!-- TerraMA² Functions Buttons -->
-            <terrama2-analysis-helpers operators="ctrl.operators.utilities" target="ctrl.analysis.script" restriction="ctrl.analysisHelperRestriction"></terrama2-analysis-helpers>
-            <terrama2-analysis-helpers ng-if="ctrl.analysis.type_id == {[Enums.AnalysisType.MONITORED]}" operators="ctrl.operators.dcp" target="ctrl.analysis.script" restriction="ctrl.analysisHelperRestriction"></terrama2-analysis-helpers>
-            <terrama2-analysis-helpers ng-if="ctrl.analysis.type_id == {[Enums.AnalysisType.MONITORED]}" operators="ctrl.operators.grid_monitored" target="ctrl.analysis.script" restriction="ctrl.analysisHelperRestriction"></terrama2-analysis-helpers>
-            <terrama2-analysis-helpers ng-if="ctrl.analysis.type_id == {[Enums.AnalysisType.GRID]}" operators="ctrl.operators.grid" target="ctrl.analysis.script" restriction="ctrl.analysisHelperRestriction"></terrama2-analysis-helpers>
-            <terrama2-analysis-helpers ng-if="ctrl.analysis.type_id == {[Enums.AnalysisType.GRID]}" operators="ctrl.operators.historical" target="ctrl.analysis.script" restriction="ctrl.analysisHelperRestriction"></terrama2-analysis-helpers>
-            <terrama2-analysis-helpers ng-if="ctrl.analysis.type_id == {[Enums.AnalysisType.GRID]}" operators="ctrl.operators.forecast" target="ctrl.analysis.script" restriction="ctrl.analysisHelperRestriction"></terrama2-analysis-helpers>
-            <terrama2-analysis-helpers ng-if="ctrl.analysis.type_id == {[Enums.AnalysisType.MONITORED]}" operators="ctrl.operators.occurrence" target="ctrl.analysis.script" restriction="ctrl.analysisHelperRestriction"></terrama2-analysis-helpers>
-            <terrama2-analysis-helpers operators="ctrl.operators.python" target="ctrl.analysis.script" restriction="ctrl.analysisHelperRestriction"></terrama2-analysis-helpers>
+            <terrama2-analysis-helpers operators="ctrl.operators.utilities" target="ctrl.operatorValue" restriction="ctrl.analysisHelperRestriction"></terrama2-analysis-helpers>
+            <terrama2-analysis-helpers ng-if="ctrl.operators.attributes.data && ctrl.analysis.type_id == {[Enums.AnalysisType.MONITORED]}" operators="ctrl.operators.attributes" target="ctrl.operatorValue" restriction="ctrl.analysisHelperRestriction"></terrama2-analysis-helpers>            
+            <terrama2-analysis-helpers ng-if="ctrl.analysis.type_id == {[Enums.AnalysisType.MONITORED]}" operators="ctrl.operators.dcp" target="ctrl.operatorValue" restriction="ctrl.analysisHelperRestriction"></terrama2-analysis-helpers>
+            <terrama2-analysis-helpers ng-if="ctrl.analysis.type_id == {[Enums.AnalysisType.MONITORED]}" operators="ctrl.operators.grid_monitored" target="ctrl.operatorValue" restriction="ctrl.analysisHelperRestriction"></terrama2-analysis-helpers>
+            <terrama2-analysis-helpers ng-if="ctrl.analysis.type_id == {[Enums.AnalysisType.GRID]}" operators="ctrl.operators.grid" target="ctrl.operatorValue" restriction="ctrl.analysisHelperRestriction"></terrama2-analysis-helpers>
+            <terrama2-analysis-helpers ng-if="ctrl.analysis.type_id == {[Enums.AnalysisType.GRID]}" operators="ctrl.operators.historical" target="ctrl.operatorValue" restriction="ctrl.analysisHelperRestriction"></terrama2-analysis-helpers>
+            <terrama2-analysis-helpers ng-if="ctrl.analysis.type_id == {[Enums.AnalysisType.GRID]}" operators="ctrl.operators.forecast" target="ctrl.operatorValue" restriction="ctrl.analysisHelperRestriction"></terrama2-analysis-helpers>
+            <terrama2-analysis-helpers ng-if="ctrl.analysis.type_id == {[Enums.AnalysisType.MONITORED]}" operators="ctrl.operators.occurrence" target="ctrl.operatorValue" restriction="ctrl.analysisHelperRestriction"></terrama2-analysis-helpers>
+            <terrama2-analysis-helpers operators="ctrl.operators.python" target="ctrl.operatorValue" restriction="ctrl.analysisHelperRestriction"></terrama2-analysis-helpers>
           </div>
         </div>
       </div>
@@ -718,7 +719,7 @@
 
     <div class="box-footer">
       <div class="btn-group pull-right" style="margin-left: 10px;">
-        <button type="button" class="btn btn-primary" ng-show="ctrl.schedule.frequency_start_time" ng-bind="i18n.__('Save')" data-ng-click="ctrl.save(true);"></button>
+        <button type="button" class="btn btn-primary" ng-show="ctrl.schedule.frequency_start_time" ng-bind="i18n.__('Save')" data-ng-click="ctrl.save(false);"></button>
         <button type="button" class="btn btn-primary" ng-show="!ctrl.schedule.frequency_start_time" ng-bind="i18n.__('Save and Run')" data-ng-click="ctrl.save(true);"></button>
         <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           <span class="caret"></span>
@@ -746,7 +747,7 @@
           <span ng-bind="i18n.__('Validate')" ng-show="!ctrl.validating"></span>
         </button>
       </span>
-      <a href="/configuration/analysis/" class="btn btn-primary pull-left" id="analysisCancelButton">{{ i18n.__('Cancel') }}</a>
+      <a href="{[ BASE_URL ]}configuration/analysis/" class="btn btn-primary pull-left" id="analysisCancelButton">{{ i18n.__('Cancel') }}</a>
     </div>
 
   </terrama2-box>

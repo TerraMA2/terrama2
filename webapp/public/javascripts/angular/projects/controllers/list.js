@@ -1,7 +1,7 @@
 define(function() {
   /**
    * TerraMA² Controller responsible for project listing.
-   * 
+   *
    * @class ListController
    */
   function ListController($scope, $http, Socket, FileDialog, SaveAs, $log, i18n, $window, MessageBoxService, AnalysisService, $timeout) {
@@ -12,7 +12,7 @@ define(function() {
     var importTitle = "Data Import";
     $scope.MessageBoxService = MessageBoxService;
     $scope.i18n = i18n;
-    $scope.linkToAdd = "/configuration/projects/new";
+    $scope.linkToAdd = BASE_URL + "configuration/projects/new";
     $scope.fields = [
       {key: "name", as: i18n.__("Name")},
       {key: "description", as: i18n.__("Description")}
@@ -44,11 +44,11 @@ define(function() {
     $scope.hasAlert = false;
 
     $scope.remove = function(object) {
-      return "/api/Project/" + object.id + "/delete";
+      return BASE_URL + "api/Project/" + object.id + "/delete";
     };
 
     $scope.link = function(object) {
-      return "/configuration/projects/" + object.name + "/activate";
+      return BASE_URL + "configuration/projects/" + object.name + "/activate";
     };
 
     $scope.projectCheck = function(element) {
@@ -140,7 +140,7 @@ define(function() {
     };
 
     $scope.iconFn = function(object){
-      return "/images/project/project.png"
+      return BASE_URL + "images/project/project.png"
     };
 
     $scope.iconProperties = {
@@ -173,7 +173,9 @@ define(function() {
         return;
       }
 
-      SaveAs(result.data, result.projectName + ".terrama2");
+      var extension = result.fileName.split(".");
+
+      SaveAs(result.data, (extension.length > 1 && extension[extension.length - 1] === "terrama2" ? result.fileName : result.fileName + ".terrama2"));
     });
 
     socket.on("getDependenciesResponse", function(result) {
@@ -252,12 +254,12 @@ define(function() {
         if(err)
           return MessageBoxService.danger(i18n.__(title), i18n.__(err.message));
 
-        $window.location.href = "/configuration/projects?token=" + data.token;
+        $window.location.href = BASE_URL + "configuration/projects?token=" + data.token;
       },
 
       project: {
         edit: function(element) {
-          return "/configuration/projects/edit/" + element.name;
+          return BASE_URL + "configuration/projects/edit/" + element.name;
         }
       },
 
@@ -354,6 +356,7 @@ define(function() {
         $scope.extra.isExporting = true;
         $scope.exportData['currentProjectId'] = $scope.currentProjectId;
         $scope.exportData['currentProjectName'] = $scope.currentProjectName;
+        $scope.exportData['fileName'] = $scope.projectsCheckboxes[element.id].fileName;
         socket.emit("export", $scope.exportData);
 
         $scope.exportData = {
@@ -384,8 +387,8 @@ define(function() {
             $scope.$apply(function() {
               $scope.extra.isImporting = true;
               if(error) {
-                MessageBoxService.danger(i18n.__(importTitle), i18n.__(error));
-                console.log(error);
+                $scope.extra.isImporting = false;
+                MessageBoxService.danger(i18n.__(importTitle), i18n.__(error.message));
                 return;
               }
 
@@ -466,7 +469,7 @@ define(function() {
       }
     };
 
-    $http.get("/api/Service/", {}).then(function(services) {
+    $http.get(BASE_URL + "api/Service/", {}).then(function(services) {
       for(var j = 0, servicesLength = services.data.length; j < servicesLength; j++) {
         switch(services.data[j].service_type_id) {
           case 1:
@@ -491,7 +494,7 @@ define(function() {
       $scope.loading = false;
     });
 
-    $http.get("/api/Project/", {}).then(function(response) {
+    $http.get(BASE_URL + "api/Project/", {}).then(function(response) {
       $scope.model = response.data;
       $scope.dataProviders = {};
       $scope.dataSeries = {};
@@ -504,10 +507,11 @@ define(function() {
       response.data.map(function(project, index) {
         if($scope.projectsCheckboxes[project.id] == undefined)
           $scope.projectsCheckboxes[project.id] = {
+            fileName: project.name,
             project: true
           };
 
-        $http.get("/api/DataProvider/project/" + project.id, {}).then(function(dataProviders) {
+        $http.get(BASE_URL + "api/DataProvider/project/" + project.id, {}).then(function(dataProviders) {
           $scope.dataProviders[project.id] = dataProviders.data;
 
           if($scope.projectsCheckboxes[project.id].DataProviders == undefined)
@@ -522,7 +526,7 @@ define(function() {
           $scope.loading = false;
         });
 
-        $http.get("/api/DataSeries/project/" + project.id, {
+        $http.get(BASE_URL + "api/DataSeries/project/" + project.id, {
           params: {
             collector: true,
             type: "dynamic",
@@ -552,7 +556,7 @@ define(function() {
           $scope.loading = false;
         });
 
-        $http.get("/api/DataSeries/project/" + project.id, {
+        $http.get(BASE_URL + "api/DataSeries/project/" + project.id, {
           params: {
             type: "static",
             ignoreAnalysisOutputDataSeries: true
@@ -605,7 +609,7 @@ define(function() {
           $scope.loading = false;
         });
 
-        $http.get("/api/ViewByProject/" + project.id, {}).then(function(views) {
+        $http.get(BASE_URL + "api/ViewByProject/" + project.id, {}).then(function(views) {
           $scope.views[project.id] = views.data;
 
           if($scope.projectsCheckboxes[project.id].Views == undefined)
@@ -629,7 +633,7 @@ define(function() {
           $scope.loading = false;
         });
 
-        $http.get("/api/AlertByProject/" + project.id, {}).then(function(alerts) {
+        $http.get(BASE_URL + "api/AlertByProject/" + project.id, {}).then(function(alerts) {
           $scope.alerts[project.id] = alerts.data;
 
           if($scope.projectsCheckboxes[project.id].Alerts == undefined)
@@ -653,7 +657,7 @@ define(function() {
           $scope.loading = false;
         });
 
-        $http.get("/api/Collector/project/" + project.id, {}).then(function(collectors) {
+        $http.get(BASE_URL + "api/Collector/project/" + project.id, {}).then(function(collectors) {
           $scope.collectors[project.id] = collectors;
         }, function(err) {
           console.log("Err in retrieving collectors");

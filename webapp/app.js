@@ -11,7 +11,8 @@ var express = require('express'),
     session = require('express-session'),
     flash = require('connect-flash'),
     // i18n = require('i18n-2'),
-    i18n = require( "i18n" );
+    i18n = require( "i18n" ),
+    Application = require("./core/Application"),
     i18nRoutes = require( "i18n-node-angular" );
     server = require('http').Server(app);
 
@@ -20,12 +21,16 @@ app.use(session({ secret: KEY, resave: false, saveUninitialized: false }));
 app.use(flash());
 
 // Setting internationalization
-i18n.configure( {
+i18n.configure({
   locales        : [ "en_US", "pt_BR", "fr_FR", "es_ES"],
   directory      : __dirname + "/locales",
   objectNotation : true
-} );
+});
 
+Application.setCurrentContext(process.argv[2]);
+
+// Get base url from environment and store in Express.
+app.locals.BASE_URL = Application.getContextConfig().basePath;
 
 // Set SWIG template engine
 var customSwig = new swig.Swig({varControls: ["{[", "]}"]});
@@ -51,8 +56,8 @@ app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 app.use(methodOverride('_method'));
 
-app.use('/bower_components', express.static('bower_components'));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(app.locals.BASE_URL + 'bower_components', express.static('bower_components'));
+app.use(app.locals.BASE_URL, express.static(path.join(__dirname, 'public')));
 
 passport.setupPassport(app);
 

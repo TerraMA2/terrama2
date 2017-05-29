@@ -134,8 +134,6 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
 
   try
   {
-
-
     //////////////////////////////////////////////////////////
     //  aquiring metadata
     auto lock = dataManager->getLock();
@@ -158,6 +156,8 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
 
     /////////////////////////////////////////////////////////////////////////
     //  recovering data
+
+    auto processingStartTime = terrama2::core::TimeUtils::nowUTC();
 
     terrama2::core::Filter filter = collectorPtr->filter;
     //update filter based on last collected data timestamp
@@ -212,6 +212,11 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
     }
 
     TERRAMA2_LOG_INFO() << tr("Data from collector %1 collected successfully.").arg(executionPackage.processId);
+
+    auto processingEndTime = terrama2::core::TimeUtils::nowUTC();
+
+    logger->setStartProcessingTime(processingStartTime, executionPackage.registerId);
+    logger->setEndProcessingTime(processingEndTime, executionPackage.registerId);
 
     logger->result(CollectorLogger::DONE, lastDateTime, executionPackage.registerId);
 

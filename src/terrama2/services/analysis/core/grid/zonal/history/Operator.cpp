@@ -114,7 +114,7 @@ int terrama2::services::analysis::core::grid::zonal::history::numImpl(const std:
 
     int count = 0;
     auto datasets = dataSeries->datasetList;
-    for(auto dataset : datasets)
+    for(const auto& dataset : datasets)
     {
       auto rasterList = context->getRasterList(dataSeries, dataset->id, filter);
 
@@ -229,7 +229,7 @@ boost::python::list terrama2::services::analysis::core::grid::zonal::history::li
     filter.discardAfter = context->getTimeFromString(dateDiscardAfter);
 
     auto seriesList = context->getSeriesMap(dataSeries->id, filter);
-    for(auto pair : seriesList)
+    for(const auto& pair : seriesList)
     {
       auto series = pair.second;
       auto teDataset = series.syncDataSet->dataset();

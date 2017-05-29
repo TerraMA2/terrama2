@@ -164,7 +164,7 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
 
     std::vector<te::dt::Property*> interProperties;
 
-    for(auto intersectionAttribute : vecAttributes)
+    for(const auto& intersectionAttribute : vecAttributes)
     {
       std::string name = intersectionAttribute.attribute;
       mapAlias[intersectionAttribute.alias] = name;

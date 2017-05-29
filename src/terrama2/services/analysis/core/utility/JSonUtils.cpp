@@ -177,7 +177,7 @@ QJsonObject terrama2::services::analysis::core::toJson(AnalysisPtr analysis)
 
   // Analysis DataSeries
   QJsonArray analysisDataSeriesList;
-  for(auto analysisDataSeries : analysis->analysisDataSeriesList)
+  for(const auto& analysisDataSeries : analysis->analysisDataSeriesList)
   {
     QJsonObject analysisDataSeriesObj;
     analysisDataSeriesObj.insert("class", QString("AnalysisDataSeries"));

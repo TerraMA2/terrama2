@@ -54,6 +54,7 @@
 
         // setting current project scope
         alertObject.project_id = projectId;
+        alertObject.risk.project_id = projectId;
 
         var promiser;
 
@@ -149,6 +150,7 @@
               alertObject.risk_id = alertObject.risk.id;
               return DataManager.updateRisk({id: alertObject.risk.id}, alertObject.risk, options);
             } else {
+              alertObject.risk.project_id = alertObject.project_id;
               return DataManager.addRisk(alertObject.risk, options)
             }
           })
@@ -246,7 +248,7 @@
   Alert.listRisks = function(projectId) {
     return new PromiseClass(function(resolve, reject) {
 
-      return DataManager.listRisks({})
+      return DataManager.listRisks({ project_id: projectId })
         .then(function(risks) {
           return resolve(risks.map(function(risk) {
             return risk.toObject();

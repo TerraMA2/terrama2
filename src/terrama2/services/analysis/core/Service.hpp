@@ -84,7 +84,7 @@ namespace terrama2
               \param analysisId Analysis identifier.
               \param success Analysis finsished with success.
             */
-            void analysisFinished(AnalysisId analysisId, std::shared_ptr< te::dt::TimeInstantTZ > executionDate, bool success);
+            void analysisFinished(AnalysisId analysisId, std::shared_ptr< te::dt::TimeInstantTZ > executionDate, bool success, QJsonObject jsonAnswer = QJsonObject());
 
             /*!
               \brief Adds the analysis to the queue of execution.

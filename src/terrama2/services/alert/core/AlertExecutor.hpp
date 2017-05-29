@@ -162,7 +162,7 @@ namespace terrama2
 
           signals:
             //! Signal to notify that a analysis execution has finished.
-            void alertFinished(size_t, std::shared_ptr< te::dt::TimeInstantTZ >, bool);
+            void alertFinished(size_t, std::shared_ptr< te::dt::TimeInstantTZ >, bool, QJsonObject = QJsonObject());
         };
 
       } /* core */

@@ -28,44 +28,55 @@ module.exports = function(app) {
         var options = {
           transaction: t
         };
-        if (dataSeriesObject.hasOwnProperty('input') && dataSeriesObject.hasOwnProperty('output')) {
-          return DataManager.getServiceInstance({id: serviceId}, options).then(function(serviceResult) {
-            return DataManager.addDataSeriesAndCollector(
-                dataSeriesObject,
-                scheduleObject,
-                filterObject,
-                serviceResult,
-                intersection,
-                active,
-                options
-            ).then(function(collectorResult) {
-              var collector = collectorResult.collector;
-              collector.project_id = app.locals.activeProject.id;
 
+        // check project
+        return DataManager.getProject({name: (dataSeriesObject.project ? dataSeriesObject.project : dataSeriesObject.input.project)}).then(function(project) {
+          if (dataSeriesObject.hasOwnProperty('input') && dataSeriesObject.hasOwnProperty('output')) {
+            dataSeriesObject.input.project_id = project.id;
+            dataSeriesObject.output.project_id = project.id;
+            delete dataSeriesObject.input.project;
+
+            return DataManager.getServiceInstance({id: serviceId}, options).then(function(serviceResult) {
+              return DataManager.addDataSeriesAndCollector(
+                  dataSeriesObject,
+                  scheduleObject,
+                  filterObject,
+                  serviceResult,
+                  intersection,
+                  active,
+                  options
+              ).then(function(collectorResult) {
+                var collector = collectorResult.collector;
+                collector.project_id = app.locals.activeProject.id;
+
+                var output = {
+                  "DataSeries": [collectorResult.input.toObject(), collectorResult.output.toObject()],
+                  "Collectors": [collector.toObject()]
+                };
+
+                logger.debug("OUTPUT: ", JSON.stringify(output));
+                TcpService.send(output);
+
+                return collectorResult.output;
+              });
+            });
+          } else {
+            dataSeriesObject.project_id = project.id;
+            delete dataSeriesObject.project;
+
+            return DataManager.addDataSeries(dataSeriesObject, options).then(function(dataSeriesResult) {
               var output = {
-                "DataSeries": [collectorResult.input.toObject(), collectorResult.output.toObject()],
-                "Collectors": [collector.toObject()]
+                "DataSeries": [dataSeriesResult.toObject()]
               };
 
               logger.debug("OUTPUT: ", JSON.stringify(output));
+
               TcpService.send(output);
 
-              return collectorResult.output;
+              return dataSeriesResult;
             });
-          });
-        } else {
-          return DataManager.addDataSeries(dataSeriesObject, options).then(function(dataSeriesResult) {
-            var output = {
-              "DataSeries": [dataSeriesResult.toObject()]
-            };
-
-            logger.debug("OUTPUT: ", JSON.stringify(output));
-
-            TcpService.send(output);
-
-            return dataSeriesResult;
-          });
-        }
+          }
+        });
       }).then(function(dataSeriesResult) {
         var extra = {};
         if (shouldRun && dataSeriesObject.hasOwnProperty('input') && dataSeriesObject.hasOwnProperty('output')){

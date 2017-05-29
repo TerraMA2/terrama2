@@ -28,9 +28,9 @@ int main(int argc, char *argv[])
     ::testing::InitGoogleMock(&argc, argv);
 
     terrama2::core::TerraMA2Init terramaRaii("unittest", 0);
-    terrama2::core::registerFactories();
     terrama2::core::disableLogger();
-
+    terrama2::core::registerFactories();
+    
     try
     {
       IntRasterTs intRasterTs;

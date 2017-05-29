@@ -84,6 +84,7 @@ define([], function() {
      * @type {Object}
      */
     self.analysis = {
+      historical: {},
       metadata: {}
     };
 
@@ -214,17 +215,17 @@ define([], function() {
           }
           switch (object.data_provider_type.name){
             case "FILE":
-              return "/images/data-server/file/file.png";
+              return BASE_URL + "images/data-server/file/file.png";
               break;
             case "FTP":
-              return "/images/data-server/ftp/ftp.png";
+              return BASE_URL + "images/data-server/ftp/ftp.png";
               break;
             case "HTTP":
-              return "/images/data-server/http/http.png";
+              return BASE_URL + "images/data-server/http/http.png";
               break;
             case "POSTGIS":
             default:
-              return "/images/data-server/postGIS/postGIS.png";
+              return BASE_URL + "images/data-server/postGIS/postGIS.png";
               break;
           }
         }
@@ -314,7 +315,21 @@ define([], function() {
             var ds = analysisDs.dataSeries;
 
             if (analysisDs.type === Globals.enums.AnalysisDataSeriesType.ADDITIONAL_DATA_TYPE) {
+              var dataSeriesTemporality = analysisDs.dataSeries.data_series_semantics.temporality == 'DYNAMIC' ? 'dynamic' : 'static';
+              if (dataSeriesTemporality == 'dynamic')
+                ds.isDynamic = true;
+              else
+                ds.isDynamic = false;
+
               self.selectedDataSeriesList.push(ds);
+              self.buffers[dataSeriesTemporality].some(function(element, index, arr) {
+                if (element.id == ds.id) {
+                  arr.splice(index, 1);
+                  return true;
+                }
+                return false;
+              });
+
             } else {
               self.filteredDataSeries.some(function(filteredDs) {
                 if (filteredDs.id === ds.id) {
@@ -525,6 +540,8 @@ define([], function() {
           return found;
         };
 
+        self.operatorValue = "";
+
         /**
          * It handles analysis validation signal. Once received, it tries to notify the user with callback state
          * 
@@ -556,42 +573,46 @@ define([], function() {
           utilities: {
             name: "Utilities",
             fileName: "utilities.json",
-            imagePath: "/images/analysis/functions/utilities/utilities.png"
+            imagePath: "images/analysis/functions/utilities/utilities.png"
+          },
+          attributes: {
+            name: "Monitored object attributes",
+            imagePath: "images/analysis/functions/monitored-object/attributes/attributes.png"
           },
           dcp: {
-            name: "DCP",
+            name: "DCP operators",
             fileName: "dcp-operators.json",
-            imagePath: "/images/analysis/functions/monitored-object/dcp/dcp.png"
+            imagePath: "images/analysis/functions/monitored-object/dcp/dcp.png"
           },
           grid_monitored: {
-            name: "GRID",
+            name: "Grid operators",
             fileName: "grid-monitored-operators.json",
-            imagePath: "/images/analysis/functions/monitored-object/grid/grid.png"
+            imagePath: "images/analysis/functions/monitored-object/grid/grid.png"
           },
           grid: {
-            name: "GRID",
+            name: "Grid operators",
             fileName: "grid-operators.json",
-            imagePath: "/images/analysis/functions/grid/sample/sample.png"
+            imagePath: "images/analysis/functions/grid/sample/sample.png"
           },
           historical: {
-            name: "Historical",
+            name: "Historical operators",
             fileName: "historical-grid.json",
-            imagePath: "/images/analysis/functions/grid/historic/historic.png"
+            imagePath: "images/analysis/functions/grid/historic/historic.png"
           },
           forecast: {
-            name: "Forecast",
+            name: "Forecast operators",
             fileName: "forecast-grid.json",
-            imagePath: "/images/analysis/functions/grid/forecast/forecast.png"
+            imagePath: "images/analysis/functions/grid/forecast/forecast.png"
           },
           occurrence: {
-            name: "Occurrence",
+            name: "Occurrence operators",
             fileName: "occurrence-operators.json",
-            imagePath: "/images/analysis/functions/monitored-object/occurrence/occurrence.png"
+            imagePath: "images/analysis/functions/monitored-object/occurrence/occurrence.png"
           },
           python: {
             name: "Python",
             fileName: "python.json",
-            imagePath: "/images/analysis/functions/python/python.png"
+            imagePath: "images/analysis/functions/python/python.png"
           }
         };
 
@@ -615,12 +636,14 @@ define([], function() {
               semanticsType = DataSeriesService.DataSeriesType.DCP;
               self.semanticsSelected = "Dcp";
               dataseriesFilterType = 'DCP';
+              delete self.operators.attributes.data;
               break;
             case AnalysisService.types.GRID:
               semanticsType = DataSeriesService.DataSeriesType.GRID;
               self.semanticsSelected = "Grid";
               self.dataSeriesBoxName = i18n.__("Grid Data Series");
               dataseriesFilterType = 'GRID';
+              delete self.operators.attributes.data;
               break;
             case AnalysisService.types.MONITORED:
               semanticsType = DataSeriesService.DataSeriesType.ANALYSIS_MONITORED_OBJECT;
@@ -665,7 +688,7 @@ define([], function() {
 
             var httpRequest = $http({
               method: "GET",
-              url: "/uri/",
+              url: BASE_URL + "uri/",
               params: params
             });
 
@@ -673,6 +696,19 @@ define([], function() {
               self.columnsList = response.data.data.map(function(item, index){
                 return item.column_name;
               });
+              self.attributesList = [];
+              response.data.data.forEach(function(attr){
+                var attributeObject = {
+                  "name": attr.column_name,
+                  "code": "get_value(\""+attr.column_name+"\")"
+                }
+                self.attributesList.push(attributeObject);
+              });
+              if (self.attributesList.length > 0){
+                self.operators.attributes.data = self.attributesList;
+              } else {
+                delete self.operators.attributes.data;
+              }
               result.resolve(response.data.data);
             });
 
@@ -1176,7 +1212,7 @@ define([], function() {
 
             return request
               .then(function(data) {
-                window.location = "/configuration/analysis?token=" + (data.token || (data.data || {}).token);
+                window.location = BASE_URL + "configuration/analysis?token=" + (data.token || (data.data || {}).token);
               })
               .catch(function(err) {
                 MessageBoxService.danger(i18n.__("Analysis"), i18n.__(err.message));
