@@ -387,8 +387,8 @@ define(function() {
             $scope.$apply(function() {
               $scope.extra.isImporting = true;
               if(error) {
+                $scope.extra.isImporting = false;
                 MessageBoxService.danger(i18n.__(importTitle), i18n.__(error.message));
-                console.log(error);
                 return;
               }
 
