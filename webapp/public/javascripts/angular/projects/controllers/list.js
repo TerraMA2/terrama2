@@ -1,7 +1,7 @@
 define(function() {
   /**
    * TerraMA² Controller responsible for project listing.
-   * 
+   *
    * @class ListController
    */
   function ListController($scope, $http, Socket, FileDialog, SaveAs, $log, i18n, $window, MessageBoxService, AnalysisService, $timeout) {

@@ -4,11 +4,11 @@
     "children": [
       {
         "name": "By attribute",
-        "code": "dcp.influence.by_attribute(\"<dynamic_data_dcp>\", [<list_attribute>])"
+        "code": "dcp.zonal.influence.by_attribute(\"<dynamic_data_dcp>\", [<list_attribute>])"
       },
       {
         "name": "By rule",
-        "code": "dcp.influence.by_rule(\"<dynamic_data_dcp>\", <buffer>)"
+        "code": "dcp.zonal.influence.by_rule(\"<dynamic_data_dcp>\", <buffer>)"
       }
     ]
   },

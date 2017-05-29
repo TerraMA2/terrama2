@@ -157,7 +157,7 @@ double terrama2::services::analysis::core::occurrence::zonal::operatorImpl(terra
 
         auto datasets = dataSeries->datasetList;
 
-        for(auto dataset : datasets)
+        for(const auto& dataset : datasets)
         {
 
           contextDataSeries = context->getContextDataset(dataset->id, filter);
