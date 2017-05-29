@@ -1465,7 +1465,6 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
   for(auto& dataset : inputDataSeries->datasetList)
   {
     std::string layerName = viewPtr->viewName + std::to_string(dataset->id);
-
     std::transform(layerName.begin(), layerName.end(),layerName.begin(), ::tolower);
 
     QUrl url(baseUrl.toString() + QString::fromStdString("/" + dataset->format.at("folder")));
@@ -1484,6 +1483,9 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
       createMosaicTable(dataSource, layerName, srid);
     }
 
+    std::unique_ptr<te::da::DataSet> ds = dataSource->getDataSet(layerName);
+
+    // Insert data
     for(auto rasterInfo : vecRasterInfo)
     {
       std::string rasterName;
@@ -1493,18 +1495,22 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
 
       std::tie(rasterName, rasterTimeInstantTz, rasterSRID, rasterEnvelope) = rasterInfo;
 
-      std::string query = "INSERT INTO public.\"" + layerName + "\" " +
-                          "(the_geom, \"location\", \"timestamp\") "
-                          "VALUES (( " +
-                          "ST_Envelope('SRID=" + std::to_string(srid) +
-                          ";LINESTRING(" +
-                          std::to_string(rasterEnvelope.getLowerLeftX()) + " " + std::to_string(rasterEnvelope.getLowerLeftY()) + ", " +
-                          std::to_string(rasterEnvelope.getUpperRightX()) + " " + std::to_string(rasterEnvelope.getUpperRightY()) + ")'::geometry))," +
-                          " '" + rasterName + "', " + "'" + rasterTimeInstantTz.toString() +"'" + ");";
+      auto geom = te::gm::GetGeomFromEnvelope(rasterEnvelope, rasterSRID);
 
-      dataSource->execute(query);
+      te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(ds);
+      dsItem->setGeometry("the_geom", geom);
+      dsItem->setString("\"location\"", rasterName);
+      dsItem->setDateTime("\"timestamp\"", new te::dt::TimeInstant(rasterTimeInstantTz));
+
+      ds->add(dsItem);
     }
 
+    ds->moveBeforeFirst();
+
+    auto dt = dataSource->getDataSetType(layerName);
+    dataSource->add(layerName, dt, ds.release());
+
+    // register datastore and layer if they don't exists
     registerMosaicCoverage(layerName, url.path().toStdString(), layerName, srid, "", "all");
 
     layersNames.push_back(layerName);
