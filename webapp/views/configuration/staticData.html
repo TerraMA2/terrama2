@@ -13,7 +13,7 @@
    }
  };
 
- var baseUrl = "/configuration/static/dataseries/";
+ var baseUrl = "{[ BASE_URL ]}configuration/static/dataseries/";
  var configuration = {
    message: "{[ message ]}",
    dataSeriesType: 'static',
@@ -22,9 +22,9 @@
    },
    iconFn: function(object) {
      if (object.data_series_semantics.data_series_type_name === globals.enums.DataSeriesType.GRID) {
-       return "/images/static-data-series/grid/grid.png";
+       return "{[ BASE_URL ]}images/static-data-series/grid/grid.png";
      } else if (object.data_series_semantics.data_series_type_name === globals.enums.DataSeriesType.GEOMETRIC_OBJECT){
-      return "/images/static-data-series/vetorial/vetorial.png";
+       return "{[ BASE_URL ]}images/static-data-series/vetorial/vetorial.png";
      } else {
        return "";
      }

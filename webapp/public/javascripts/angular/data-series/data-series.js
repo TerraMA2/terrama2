@@ -73,7 +73,7 @@ define([], function() {
     $scope.fields = [];
 
     $scope.remove = function(object) {
-      return "/api/DataSeries/" + object.id + "/delete";
+      return BASE_URL + "api/DataSeries/" + object.id + "/delete";
     };
 
     $scope.extra = {

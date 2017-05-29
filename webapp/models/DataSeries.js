@@ -10,19 +10,32 @@ module.exports = function(sequelize, DataTypes) {
         autoIncrement: true
       },
       name: {
-        type: DataTypes.STRING,
-        unique: true
+        type: DataTypes.STRING
       },
       description: DataTypes.TEXT,
       active: DataTypes.BOOLEAN
     },
     {
+      indexes: [
+        {
+          unique: true,
+          fields: ['project_id', 'name']
+        }
+      ],
       underscored: true,
       underscoredAll: true,
       timestamps: false,
 
       classMethods: {
         associate: function(models) {
+          DataSeries.belongsTo(models.Project, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: "project_id",
+              allowNull: false
+            }
+          });
+
           DataSeries.belongsTo(models.DataProvider, {
             onDelete: "CASCADE",
             foreignKey: {

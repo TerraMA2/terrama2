@@ -3,7 +3,7 @@ var passport = require('../../config/Passport');
 module.exports = function (app) {
   var controller = app.controllers.administration.Service;
 
-  app.get('/administration/services', passport.isAdministrator, controller.get);
-  app.get('/administration/services/new', passport.isAdministrator, controller.new);
-  app.get('/administration/services/:id', passport.isAdministrator, controller.edit);
+  app.get(app.locals.BASE_URL + 'administration/services', passport.isAdministrator, controller.get);
+  app.get(app.locals.BASE_URL + 'administration/services/new', passport.isAdministrator, controller.new);
+  app.get(app.locals.BASE_URL + 'administration/services/:id', passport.isAdministrator, controller.edit);
 };

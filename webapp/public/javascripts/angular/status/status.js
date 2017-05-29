@@ -19,20 +19,20 @@ define([
       $scope.MessageBoxService = MessageBoxService;
       var title = i18n.__("Status");
       var cachedIcons = {};
-      cachedIcons[Globals.enums.StatusLog.DONE] = "/images/status/green.gif";
-      cachedIcons["start_" + Globals.enums.StatusLog.DONE] = "/images/status/green_anime.gif";
-      cachedIcons[Globals.enums.StatusLog.ERROR] = "/images/status/red.gif";
-      cachedIcons["start_" + Globals.enums.StatusLog.ERROR] = "/images/status/red_anime.gif";
-      cachedIcons[Globals.enums.StatusLog.DOWNLOADED] = "/images/status/download.png";
-      cachedIcons["message_" +Globals.enums.MessageType.WARNING_MESSAGE] = "/images/status/yellow.gif";
-      cachedIcons["start_warning"] = "/images/status/yellow_anime.gif";
-      cachedIcons[Globals.enums.StatusLog.START] = "/images/status/grey_anime.gif";
-      cachedIcons["start_" + Globals.enums.StatusLog.START] = "/images/status/grey_anime.gif";
-      cachedIcons[Globals.enums.StatusLog.ON_QUEUE] = "/images/status/clock.png";
-      cachedIcons[Globals.enums.StatusLog.INTERRUPTED] = "/images/status/red.gif";
-      cachedIcons["start_" + Globals.enums.StatusLog.INTERRUPTED] = "/images/status/red_anime.gif";
-      cachedIcons[Globals.enums.StatusLog.NOT_EXECUTED] = "/images/status/grey.gif";
-      cachedIcons["start_" + Globals.enums.StatusLog.NOT_EXECUTED] = "/images/status/grey_anime.gif";
+      cachedIcons[Globals.enums.StatusLog.DONE] = BASE_URL + "images/status/green.gif";
+      cachedIcons["start_" + Globals.enums.StatusLog.DONE] = BASE_URL + "images/status/green_anime.gif";
+      cachedIcons[Globals.enums.StatusLog.ERROR] = BASE_URL + "images/status/red.gif";
+      cachedIcons["start_" + Globals.enums.StatusLog.ERROR] = BASE_URL + "images/status/red_anime.gif";
+      cachedIcons[Globals.enums.StatusLog.DOWNLOADED] = BASE_URL + "images/status/download.png";
+      cachedIcons["message_" +Globals.enums.MessageType.WARNING_MESSAGE] = BASE_URL + "images/status/yellow.gif";
+      cachedIcons["start_warning"] = BASE_URL + "images/status/yellow_anime.gif";
+      cachedIcons[Globals.enums.StatusLog.START] = BASE_URL + "images/status/grey_anime.gif";
+      cachedIcons["start_" + Globals.enums.StatusLog.START] = BASE_URL + "images/status/grey_anime.gif";
+      cachedIcons[Globals.enums.StatusLog.ON_QUEUE] = BASE_URL + "images/status/clock.png";
+      cachedIcons[Globals.enums.StatusLog.INTERRUPTED] = BASE_URL + "images/status/red.gif";
+      cachedIcons["start_" + Globals.enums.StatusLog.INTERRUPTED] = BASE_URL + "images/status/red_anime.gif";
+      cachedIcons[Globals.enums.StatusLog.NOT_EXECUTED] = BASE_URL + "images/status/grey.gif";
+      cachedIcons["start_" + Globals.enums.StatusLog.NOT_EXECUTED] = BASE_URL + "images/status/grey_anime.gif";
 
       $scope.onPageChanged = function(currentPage, previousPage) {
         // TODO: Paginate dinamically
@@ -101,8 +101,9 @@ define([
 
       // Function to get key icon of cached icons based in last service execution
       var getStatusKey = function(statusObject) {
-        if ($scope.groupedModel[statusObject.name].length > 1){
-          var lastObjectStatus = getLastValidStatus($scope.groupedModel[statusObject.name]); 
+        var nameTypeKey = statusObject.name + statusObject.type;
+        if ($scope.groupedModel[nameTypeKey].length > 1){
+          var lastObjectStatus = getLastValidStatus($scope.groupedModel[nameTypeKey]); 
           if (lastObjectStatus.messageType === Globals.enums.MessageType.WARNING_MESSAGE && lastObjectStatus.status !== Globals.enums.StatusLog.ERROR){
             return "start_warning";
           } else {
@@ -161,12 +162,12 @@ define([
             break;
           case Globals.enums.ServiceType.ANALYSIS:
             targetArray = config.analysis;
-            targetMessage = "Analysis ";
+            targetMessage = "Analysis";
             targetKey = "dataSeries";
             break;
           case Globals.enums.ServiceType.VIEW:
             targetArray = config.views;
-            targetMessage = "View ";
+            targetMessage = "View";
             targetKey = "";
             break;
         }
@@ -186,9 +187,9 @@ define([
         };
 
         //Function to get index of object in array
-        var arrayObjectIndexOf = function(myArray, searchTerm, property) {
+        var arrayObjectIndexOf = function(myArray, searchObject) {
           for(var i = 0, len = myArray.length; i < len; i++) {
-              if (myArray[i][property] === searchTerm) return i;
+              if (myArray[i]['name'] === searchObject.name && myArray[i]['type'] === targetMessage) return i;
           }
           return -1;
         }
@@ -198,11 +199,11 @@ define([
           var currentProcess = _findOne(targetArray, logProcess.process_id);
           if (currentProcess){
             var obj = currentProcess[targetKey] || {name: currentProcess.name};
-            var index = arrayObjectIndexOf($scope.model, obj.name, 'name');
+            var index = arrayObjectIndexOf($scope.model, obj);
 
             while(index !== -1){
               $scope.model.splice(index, 1);
-              index = arrayObjectIndexOf($scope.model, obj.name, 'name');
+              index = arrayObjectIndexOf($scope.model, obj);
             }
           }
         });
@@ -311,11 +312,12 @@ define([
             }
 
             $scope.model.push(out);
-            if ($scope.groupedModel.hasOwnProperty(out.name)){
-              $scope.groupedModel[out.name].push(out);
+            var nameTypeKey = out.name + out.type;
+            if ($scope.groupedModel.hasOwnProperty(nameTypeKey)){
+              $scope.groupedModel[nameTypeKey].push(out);
             }
             else {
-              $scope.groupedModel[out.name] = [out];
+              $scope.groupedModel[nameTypeKey] = [out];
             }
           });
         });

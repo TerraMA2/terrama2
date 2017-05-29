@@ -150,6 +150,7 @@ var ImportExport = function(io) {
                 // preparing to insert in DataBase
                 dSeries.data_series_semantics_id = dSeries.data_series_semantics.id;
                 dSeries.data_provider_id = Utils.find(output.DataProviders, {$id: dSeries.data_provider_id}).id;
+                dSeries.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: dSeries.project_id}).id : json.selectedProject;
                 dSeries.dataSets.forEach(function(dSet) {
                   dSet.$id = dSet.id;
                   delete dSet.id;
@@ -350,6 +351,7 @@ var ImportExport = function(io) {
                           delete alert.notifications[i].id;
 
                         alert.risk = risk;
+                        alert.risk.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: alert.risk.project_id}).id : json.selectedProject;
 
                         var addSchedulePromise = DataManager.addSchedule(alert.conditional_schedule, options).then(function(schedule) {
                           alert.conditional_schedule_id = schedule.id;
@@ -468,6 +470,7 @@ var ImportExport = function(io) {
       var getDataSeries = function(id) {
         return DataManager.getDataSeries({id: id}).then(function(dataSeries) {
           if(!isInArray(dataSeries.id, output.DataSeries)) {
+            dataSeries.project_id = null;
             output.DataSeries.push(addID(dataSeries));
 
             return DataManager.getDataProvider({id: dataSeries.data_provider_id});
@@ -495,6 +498,7 @@ var ImportExport = function(io) {
             var dataSeriesPromises = [
               DataManager.getDataSeries({id: collector.data_series_input}).then(function(dataSeries) {
                 if(!isInArray(dataSeries.id, output.DataSeries)) {
+                  dataSeries.project_id = null;
                   output.DataSeries.push(addID(dataSeries));
                   return DataManager.getDataProvider({id: dataSeries.data_provider_id});
                 }
@@ -733,8 +737,10 @@ var ImportExport = function(io) {
 
                 output.Alerts.push(alertToAdd);
 
-                if(!isInArray(risk.id, output.Risks))
+                if(!isInArray(risk.id, output.Risks)) {
+                  risk.project_id = null;
                   output.Risks.push(risk);
+                }
 
                 return getDataSeries(alert.data_series_id);
               } else {
@@ -755,7 +761,7 @@ var ImportExport = function(io) {
         if(output.Alerts.length === 0) delete output.Alerts;
         if(output.Risks.length === 0) delete output.Risks;
 
-        client.emit("exportResponse", { status: 200, data: output, projectName: json.currentProjectName });
+        client.emit("exportResponse", { status: 200, data: output, projectName: json.currentProjectName, fileName: json.fileName });
       }).catch(_emitError);
     });
 

@@ -26,7 +26,7 @@ define([
 
               $http( {
                 method : "get",
-                url    : "/i18n/" + locale,
+                url    : BASE_URL + "i18n/" + locale,
                 cache  : true
               }).then( function( response ) {
                 $rootScope.i18n = response.data;
@@ -60,7 +60,7 @@ define([
               translation = name;
               $rootScope.i18n[ name ] = translation;
               // changing .success to .then to avoid errors in angular >= 1.6 versions
-              $http.get( "/i18n/" + this.userLanguage + "/" + encodeURIComponent( name ) )
+              $http.get( BASE_URL + "i18n/" + this.userLanguage + "/" + encodeURIComponent( name ) )
                 .then( function(response) {
                   $rootScope.i18n[ name ] = response.data;
                 });

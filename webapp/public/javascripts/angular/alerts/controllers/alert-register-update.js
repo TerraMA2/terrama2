@@ -150,7 +150,7 @@ define([], function() {
 
         var riskRequest = $http({
           method: "GET",
-          url: "/api/Risk"
+          url: BASE_URL + "api/Risk"
         });
 
         riskRequest.then(function(response) {
@@ -240,32 +240,32 @@ define([], function() {
 
       switch(dataSeries.data_series_semantics.data_series_type_name) {
         case DataSeriesService.DataSeriesType.DCP:
-          return "/images/dynamic-data-series/dcp/dcp.png";
+          return BASE_URL + "images/dynamic-data-series/dcp/dcp.png";
           break;
         case DataSeriesService.DataSeriesType.OCCURRENCE:
-          return "/images/dynamic-data-series/occurrence/occurrence.png";
+          return BASE_URL + "images/dynamic-data-series/occurrence/occurrence.png";
           break;
         case DataSeriesService.DataSeriesType.GRID:
           if(dataSeries.data_series_semantics.temporality == "STATIC") {
-            return "/images/static-data-series/grid/grid.png";
+            return BASE_URL + "images/static-data-series/grid/grid.png";
             break;
           } else {
             if(dataSeries.isAnalysis)
-              return "/images/analysis/grid/grid_analysis.png";
+              return BASE_URL + "images/analysis/grid/grid_analysis.png";
             else
-              return "/images/dynamic-data-series/grid/grid.png";
+              return BASE_URL + "images/dynamic-data-series/grid/grid.png";
 
             break;
           }
         case DataSeriesService.DataSeriesType.ANALYSIS_MONITORED_OBJECT:
-          return "/images/analysis/monitored-object/monitored-object_analysis.png";
+          return BASE_URL + "images/analysis/monitored-object/monitored-object_analysis.png";
           break;
         case DataSeriesService.DataSeriesType.POSTGIS:
         case DataSeriesService.DataSeriesType.GEOMETRIC_OBJECT:
-          return "/images/static-data-series/vetorial/vetorial.png";
+          return BASE_URL + "images/static-data-series/vetorial/vetorial.png";
           break;
         default:
-          return "/images/dynamic-data-series/occurrence/occurrence.png";
+          return BASE_URL + "images/dynamic-data-series/occurrence/occurrence.png";
           break;
       }
     };
@@ -394,7 +394,7 @@ define([], function() {
 
       var httpRequest = $http({
         method: "GET",
-        url: "/uri/",
+        url: BASE_URL + "uri/",
         params: params
       });
 
@@ -548,10 +548,10 @@ define([], function() {
         var operation = self.isUpdating ? self.AlertService.update(self.alert.id, self.alert) : self.AlertService.create(self.alert);
         operation.then(function(response) {
           $log.info(response);
-          $window.location.href = "/configuration/alerts?token=" + response.token;
+          $window.location.href = BASE_URL + "configuration/alerts?token=" + response.token;
         }).catch(function(err) {
           $log.info(err);
-          self.MessageBoxService.danger(i18n.__("Alert"), err);
+          self.MessageBoxService.danger(i18n.__("Alert"), i18n.__(err));
         });
       });
     };

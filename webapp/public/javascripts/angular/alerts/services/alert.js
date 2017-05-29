@@ -3,7 +3,7 @@ define(function(){
     var self = this;
     this.BaseService = BaseService;
     this.$q = $q;
-    this.$baseUrl = "/api/Alert";
+    this.$baseUrl = BASE_URL + "api/Alert";
     this.model = [];
 
     /**

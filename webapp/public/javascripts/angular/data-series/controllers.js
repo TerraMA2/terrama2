@@ -62,11 +62,11 @@ define([
           .state('wizard', {
             parent: 'main',
             url: "/wizard",
-            templateUrl: '/javascripts/angular/wizard.html'
+            templateUrl: BASE_URL + 'javascripts/angular/wizard.html'
           }).state('advanced', {
             parent: 'main',
             url: "/advanced",
-            templateUrl: '/javascripts/angular/advanced.html'
+            templateUrl: BASE_URL + 'javascripts/angular/advanced.html'
           }
         );
       }])

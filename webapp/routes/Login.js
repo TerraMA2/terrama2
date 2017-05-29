@@ -5,9 +5,9 @@ module.exports = function(app) {
 
   var controller = app.controllers.Login;
 
-  app.get('/login', controller.login);
+  app.get(app.locals.BASE_URL + 'login', controller.login);
 
-  app.post('/login/process', function(request, response, next) {
+  app.post(app.locals.BASE_URL + 'login/process', function(request, response, next) {
     passport.authenticate('local', function(err, user, info) {
       if(err)
         next(err);
@@ -20,10 +20,10 @@ module.exports = function(app) {
           return next(e);
 
         app.locals.collapsed = false;
-        return response.redirect('/firstAccess')
+        return response.redirect(app.locals.BASE_URL + 'firstAccess')
       })
     })(request, response, next);
   });
 
-  app.get('/logout', controller.logout);
+  app.get(app.locals.BASE_URL + 'logout', controller.logout);
 };
