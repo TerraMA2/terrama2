@@ -1447,6 +1447,8 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
                                                                                     const ViewPtr viewPtr,
                                                                                     const te::core::URI& connInfo) const
 {
+  auto remover = std::make_shared<terrama2::core::FileRemover>();
+
   std::shared_ptr< te::da::DataSource > dataSource = te::da::DataSourceFactory::make("POSTGIS", connInfo);
 
   dataSource->open();
@@ -1483,7 +1485,14 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
       createMosaicTable(dataSource, layerName, srid);
     }
 
-    std::unique_ptr<te::da::DataSet> ds = dataSource->getDataSet(layerName);
+    auto dt = dataSource->getDataSetType(layerName);
+
+    auto vecPkProperties = dt->getPrimaryKey()->getProperties();
+
+    for(auto property : vecPkProperties)
+      dt->remove(property);
+
+    te::mem::DataSet* ds = new te::mem::DataSet(dt.get());
 
     // Insert data
     for(auto rasterInfo : vecRasterInfo)
@@ -1491,7 +1500,7 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
       std::string rasterName;
       te::dt::TimeInstant rasterTimeInstantTz;
       int rasterSRID;
-      te::gm::Envelope rasterEnvelope;
+      te::gm::Envelope* rasterEnvelope;
 
       std::tie(rasterName, rasterTimeInstantTz, rasterSRID, rasterEnvelope) = rasterInfo;
 
@@ -1499,16 +1508,16 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
 
       te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(ds);
       dsItem->setGeometry("the_geom", geom);
-      dsItem->setString("\"location\"", rasterName);
-      dsItem->setDateTime("\"timestamp\"", new te::dt::TimeInstant(rasterTimeInstantTz));
+      dsItem->setString("location", rasterName);
+      dsItem->setDateTime("timestamp", new te::dt::TimeInstant(rasterTimeInstantTz));
 
       ds->add(dsItem);
     }
 
     ds->moveBeforeFirst();
 
-    auto dt = dataSource->getDataSetType(layerName);
-    dataSource->add(layerName, dt, ds.release());
+    std::map<std::string, std::string> options;
+    dataSource->add(layerName, ds, options);
 
     // register datastore and layer if they don't exists
     registerMosaicCoverage(layerName, url.path().toStdString(), layerName, srid, "", "all");
@@ -1521,7 +1530,7 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
   return layersNames;
 }
 
-std::vector<std::tuple<std::string, te::dt::TimeInstant, int, te::gm::Envelope>>
+std::vector<std::tuple<std::string, te::dt::TimeInstant, int, te::gm::Envelope*>>
 terrama2::services::view::core::GeoServer::getRasterInfo(terrama2::core::DataManagerPtr dataManager,
                                                          terrama2::core::DataSetPtr dataset,
                                                          const terrama2::core::Filter& filter) const
@@ -1548,7 +1557,7 @@ terrama2::services::view::core::GeoServer::getRasterInfo(terrama2::core::DataMan
   auto remover = std::make_shared<terrama2::core::FileRemover>();
   std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > dataMap = dataAccessor->getSeries(filter, remover);
 
-  std::vector<std::tuple<std::string, te::dt::TimeInstant, int, te::gm::Envelope>> vecRasterInfo;
+  std::vector<std::tuple<std::string, te::dt::TimeInstant, int, te::gm::Envelope*>> vecRasterInfo;
 
   for(auto data : dataMap)
   {
@@ -1574,7 +1583,7 @@ terrama2::services::view::core::GeoServer::getRasterInfo(terrama2::core::DataMan
 
       auto raster = dataSetSeries.syncDataSet->getRaster(row, rasterProperty->getId());
 
-      vecRasterInfo.push_back(std::make_tuple(info.fileName().toStdString(), te::dt::TimeInstant(boostTiTz.utc_time()), raster->getSRID(), *raster->getExtent()));
+      vecRasterInfo.push_back(std::make_tuple(info.fileName().toStdString(), te::dt::TimeInstant(boostTiTz.utc_time()), raster->getSRID(), new te::gm::Envelope(*raster->getExtent())));
     }
   }
 

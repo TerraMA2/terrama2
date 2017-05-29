@@ -351,8 +351,7 @@ namespace terrama2
              * \param filter
              * \return
              */
-            std::vector<std::tuple<std::string, te::dt::TimeInstant, int, te::gm::Envelope>>
-            getRasterInfo(terrama2::core::DataManagerPtr dataManager,
+            std::vector<std::tuple<std::string, te::dt::TimeInstant, int, te::gm::Envelope*> > getRasterInfo(terrama2::core::DataManagerPtr dataManager,
                           terrama2::core::DataSetPtr dataset,
                           const terrama2::core::Filter& filter) const;
 
