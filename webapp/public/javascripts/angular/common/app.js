@@ -37,7 +37,7 @@ define([
                   service._deferredStack.pop().resolve( $rootScope.i18n );
                 }
 
-                $rootScope.$broadcast( "LOCALE_UPDATED" );
+                $rootScope.$broadcast( "LOCALE_UPDATED", {userLanguage: service.userLanguage});
               } ).catch( function( response ) {
                 service._localeLoadedDeferred.reject( response.data );
 

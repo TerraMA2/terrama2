@@ -694,7 +694,7 @@ terrama2::core::DataAccessorGrADS::readDataDescriptor(const std::string& filenam
 
   // Reads the dataset name from CTL
 
-  std::string section, key, value;
+  std::string section;
   enum ParseState
   {
     FindSection, FindKey, FindVar
@@ -773,7 +773,9 @@ terrama2::core::DataAccessorGrADS::readDataDescriptor(const std::string& filenam
         if(line.empty())
           continue;
 
-        if(line == "ENDVARS")
+        auto checkKey = line;
+        boost::to_upper(checkKey);
+        if(checkKey == "ENDVARS")
         {
           state = FindSection;
           continue;

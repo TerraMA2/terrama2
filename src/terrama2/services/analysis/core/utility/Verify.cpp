@@ -154,7 +154,7 @@ std::set<std::string> terrama2::services::analysis::core::verify::attributeIdent
               auto property = it->second.teDataSetType->getProperty(identifier);
               if(property == nullptr)
               {
-                QString errMsg = QObject::tr("Could not find the attribute identifier '%1' in data series '%2'.").arg(identifier.c_str()).arg(dataSeries->name.c_str());
+                QString errMsg = QObject::tr("Could not find the attribute identifier '%1' in data series '%2'.").arg(QString::fromStdString(identifier), QString::fromStdString(dataSeries->name));
                 TERRAMA2_LOG_WARNING() << errMsg;
                 vecMessages.insert(vecMessages.end(), errMsg.toStdString());
               }
@@ -188,15 +188,15 @@ std::set<std::string> terrama2::services::analysis::core::verify::attributeIdent
 void terrama2::services::analysis::core::verify::validateAnalysis(DataManagerPtr dataManager, AnalysisPtr analysis, ValidateResult& validateResult)
 {
   auto messages = inactiveDataSeries(dataManager, analysis);
-  for(auto message : messages)
+  for(const auto& message : messages)
     validateResult.messages.insert(validateResult.messages.end(), message);
 
   messages = dataAvailable(dataManager, analysis);
-  for(auto message : messages)
+  for(const auto& message : messages)
     validateResult.messages.insert(validateResult.messages.end(), message);
 
   messages = attributeIdentifier(dataManager, analysis);
-  for(auto message : messages)
+  for(const auto& message : messages)
     validateResult.messages.insert(validateResult.messages.end(), message);
 
 }
