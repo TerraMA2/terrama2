@@ -139,9 +139,10 @@ var DataManager = module.exports = {
 
         // data provider type defaults
         inserts.push(self.addDataProviderType({id: 1, name: "FILE", description: "Desc File"}));
-        inserts.push(self.addDataProviderType({id: 2, name: "FTP", description: "Desc Type1"}));
+        inserts.push(self.addDataProviderType({id: 2, name: "FTP", description: "Desc FTP"}));
         inserts.push(self.addDataProviderType({id: 3, name: "HTTP", description: "Desc Http"}));
         inserts.push(self.addDataProviderType({id: 4, name: "POSTGIS", description: "Desc Postgis"}));
+        inserts.push(self.addDataProviderType({id: 5, name: "SFTP", description: "Desc SFTP"}));
 
         inserts.push(self.addViewStyleType({id: Enums.ViewStyleType.EQUAL_STEPS, name: "Equal Steps", description: ""}));
         inserts.push(self.addViewStyleType({id: Enums.ViewStyleType.QUANTILE, name: "Quantile", description: ""}));

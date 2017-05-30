@@ -109,8 +109,9 @@
             <h4 class="modal-title" id="dataSeriesModalLabel">{{ i18n.__('Select the Folder') }}</h4>
           </div>
           <div class="modal-body">
+            <div ng-show="!dirs.children || dirs.children.length == 0">{{ i18n.__('No folders to show.') }}</div>
             <script type="text/ng-template" id="files-explorer.html">
-              <div class="name-div" ng-click="listFiles(dir.fullPath)" ng-class="{ 'selected-folder': dir.fullPath == selectedFolder }">
+              <div class="name-div" ng-click="setFolderStatus(dir.fullPath)" ng-class="{ 'selected-folder': dir.fullPath == selectedFolder }">
                 <i class="fa fa-folder" ng-show="pathLoading != dir.fullPath && !dir.childrenVisible"></i>
                 <i class="fa fa-folder-open" ng-show="pathLoading != dir.fullPath && dir.childrenVisible"></i>
                 <img ng-show="pathLoading == dir.fullPath" src="{[ BASE_URL ]}images/loader.gif">
@@ -136,7 +137,6 @@
       <button type="submit" class="btn btn-primary pull-right" ng-click="save();" style="margin-left: 10px;">{{ i18n.__("Save") }}</button>
       <a ng-href="{{ redirectUrl }}" class="btn btn-primary pull-left">{{ i18n.__("Cancel") }}</a>
       <button type="submit" class="btn btn-primary pull-right" ng-click="checkConnection(forms.connectionForm);" style="margin-left: 10px;">{{ i18n.__("Check Connection") }}</button>
-      <button type="submit" class="btn btn-primary pull-right" ng-click="listFiles()" style="margin-left: 10px;">...</button>
     </div>
 
     <div class="overlay" ng-show="isChecking">

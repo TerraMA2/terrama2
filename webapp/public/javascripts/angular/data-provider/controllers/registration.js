@@ -38,6 +38,10 @@ define(function() {
     $scope.selectedFolder = null;
     $scope.loadingFiles = false;
     $scope.pathLoading = null;
+    // The base path of the tree
+    $scope.baseAddress = '/';
+    // The current address, divided per folder in format of array, ignoring the base address
+    $scope.currentPath = [];
 
     $timeout(function() {
       if(conf.fields) {
@@ -286,81 +290,159 @@ define(function() {
       });
     };
 
-    var listFilesRequest = function(pathToList, parent) {
-      $scope.loadingFiles = true;
-      $scope.pathLoading = pathToList;
+    // Validates the connection data, tries to connect and in case of success, it lists all the folder presents in the path
+    $scope.openFileExplorer = function(form) {
+      $scope.$broadcast("schemaFormValidate");
 
-      Socket.emit('listFilesRequest', {
-        host: $scope.model['hostname'],
-        port: $scope.model['port'],
-        username: $scope.model['user'],
-        password: $scope.model['password'],
-        path: pathToList,
-        parent: parent
+      if(form && !$scope.isValidDataProviderTypeForm(form))
+        return;
+
+      $scope.isChecking = true;
+      $scope.currentPath = $scope.model['pathname'].split('/').filter(function(a) { return a != '' });
+
+      listFolders($scope.baseAddress).then(function(data) {
+        if(data.error)
+          return MessageBoxService.danger(i18n.__(title), data.error);
+
+        $scope.dirs.childrenVisible = true;
+        $scope.dirs.children = data.folders;
+
+        if($scope.currentPath.length === 0) {
+          $scope.isChecking = false;
+
+          $('#filesExplorerModal').modal();
+        } else {
+          navigateToFolder($scope.currentPath, $scope.baseAddress, [$scope.currentPath[0]], 0).then(function() {
+            $scope.isChecking = false;
+
+            $('#filesExplorerModal').modal();
+          }).catch(function(err) {
+
+          });
+        }
       });
     };
 
-    var setChildren = function(item, pathFolders, i, newChildren, pathToList) {
-      if(i < pathFolders.length) {
-        for(var j = 0, childrenLength = item.children.length; j < childrenLength; j++) {
-          if(item.children[j].name == pathFolders[i]) {
-            setChildren(item.children[j], pathFolders, (i + 1), newChildren, pathToList);
-            break;
-          }
-        }
-      } else {
-        if(newChildren) {
-          item.childrenVisible = true;
-          item.children = newChildren;
-        } else {
-          if(item.childrenVisible) {
-            item.childrenVisible = false;
-
-            if($scope.selectedFolder == item.fullPath)
-              $scope.selectedFolder = null;
-          } else {
-            $scope.selectedFolder = pathToList;
-            listFilesRequest(pathToList, pathToList);
-          }
-        }
-      }
-    };
-
-    Socket.on('listFilesResponse', function(result) {
-      $scope.loadingFiles = false;
-      $scope.pathLoading = null;
-
-      if(result.error) {
-        return MessageBoxService.danger(i18n.__(title), i18n.__(result.error));
-      } else {
-        if(result.parent) {
-          var tempPath = result.parent.replace($scope.model['pathname'], '');
-          var pathFolders = tempPath.split('/');
-          pathFolders = pathFolders.filter(function(a) { return a != '' });
-
-          setChildren($scope.dirs, pathFolders, 0, result.list);
-        } else {
-          $scope.dirs.children = result.list;
-          $('#filesExplorerModal').modal();
-        }
-      }
-    });
-
-    $scope.listFiles = function(path) {
-      if(path) {
-        var tempPath = path.replace($scope.model['pathname'], '');
-        var pathItems = tempPath.split('/');
-        pathItems = pathItems.filter(function(a) { return a != '' });
-
-        setChildren($scope.dirs, pathItems, 0, null, path);
-      } else {
-        listFilesRequest($scope.model['pathname']);
-      }
-    };
-
+    // Selects the path of the current selected folder
     $scope.selectPath = function() {
       if($scope.selectedFolder)
         $scope.model['pathname'] = $scope.selectedFolder;
+    };
+
+    // Sets the status of a clicked folder
+    $scope.setFolderStatus = function(path) {
+      var tempPath = path;
+      var pathItems = tempPath.split('/');
+      pathItems = pathItems.filter(function(a) { return a != '' });
+
+      var lastFolder = getLastFolder($scope.dirs, pathItems, 0);
+
+      if(lastFolder.childrenVisible) {
+        lastFolder.childrenVisible = false;
+
+        if($scope.selectedFolder == lastFolder.fullPath)
+          $scope.selectedFolder = null;
+      } else {
+        $scope.loadingFiles = true;
+        $scope.pathLoading = path;
+        $scope.selectedFolder = path;
+
+        listFolders(path).then(function(data) {
+          if(data.error)
+            return MessageBoxService.danger(i18n.__(title), data.error);
+
+          lastFolder.childrenVisible = true;
+          lastFolder.children = data.folders;
+
+          $scope.loadingFiles = false;
+          $scope.pathLoading = null;
+        });
+      }
+    };
+
+    // Lists the folders of a given path
+    var listFolders = function(pathToList) {
+      var promiser = $q.defer();
+      var timeOut = $q.defer();
+
+      var params = angular.copy($scope.model);
+
+      params.protocol = $scope.dataProvider.protocol;
+      params.list = true;
+      params.pathname = pathToList;
+
+      $scope.timeOutSeconds = 8;
+
+      var expired = false;
+
+      setTimeout(function() {
+        expired = true;
+        timeOut.resolve();
+      }, 1000 * $scope.timeOutSeconds);
+
+      var request = $http({
+        method: "POST",
+        url: BASE_URL + "uri/",
+        data: params,
+        timeout: timeOut.promise
+      });
+
+      request.then(function(data) {
+        if(data.message)
+          return promiser.reject({ error: i18n.__(data.message) });
+        else
+          return promiser.resolve({ error: null, folders: data.data.data.list });
+      }).catch(function(err) {
+        if(expired)
+          return promiser.reject({ error: i18n.__("Timeout: Request took longer than ") + $scope.timeOutSeconds + i18n.__(" seconds.") });
+        else
+          return promiser.reject({ error: i18n.__(err.data.message) });
+      });
+
+      return promiser.promise;
+    };
+
+    // Opens all the folders present in a given path
+    var navigateToFolder = function(paths, parent, currentChildren, i) {
+      var promiser = $q.defer();
+
+      parent = (parent == '/' ? '' : parent);
+
+      if(i < paths.length) {
+        return listFolders(parent + '/' + paths[i]).then(function(data) {
+          if(data.error)
+            return promiser.reject(data.error);
+
+          var lastFolder = getLastFolder($scope.dirs, currentChildren, 0);
+
+          lastFolder.childrenVisible = true;
+          lastFolder.children = data.folders;
+
+          if((i + 1) < paths.length)
+            currentChildren.push(paths[(i + 1)]);
+          else if((i + 1) === paths.length)
+            $scope.selectedFolder = parent + '/' + paths[i];
+
+          return navigateToFolder(paths, (parent + '/' + paths[i]), currentChildren, (i + 1));
+        });
+      } else {
+        return promiser.resolve();
+      }
+
+      return promiser.promise;
+    };
+
+    // Returns the last folder in the path (Important! For this function to work, all the folders in the path, except the last, must have its folders children populated)
+    var getLastFolder = function(item, pathFolders, i) {
+      if(i < pathFolders.length) {
+        for(var j = 0, childrenLength = item.children.length; j < childrenLength; j++) {
+          if(item.children[j].name == pathFolders[i]) {
+            return getLastFolder(item.children[j], pathFolders, (i + 1));
+          }
+        }
+      } else {
+        return item;
+      }
     };
   }
 

@@ -219,6 +219,9 @@ define([], function() {
             case "FTP":
               return BASE_URL + "images/data-server/ftp/ftp.png";
               break;
+            case "SFTP":
+              return BASE_URL + "images/data-server/sftp/sftp.png";
+              break;
             case "HTTP":
               return BASE_URL + "images/data-server/http/http.png";
               break;

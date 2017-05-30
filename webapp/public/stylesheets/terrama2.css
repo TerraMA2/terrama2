@@ -531,3 +531,9 @@ table.dataTable tbody th, table.dataTable tbody td { padding-left: 12px !importa
   z-index: 999999;
   cursor: wait;
 }
+
+.button-inline-form {
+  margin-top: 25px;
+  height: 34px;
+  width: 90px;
+}
