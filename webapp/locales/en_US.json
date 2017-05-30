@@ -531,7 +531,7 @@
       "": "No dcp available. Please add at least one dcp."
     }
   },
-  "No folders to show.": "No folders to show.",
+  "No directories to show.": "No directories to show.",
   "No intersection data series selected": "No intersection data series selected",
   "No project found": "No project found",
   "No project found.": "No project found.",
@@ -695,7 +695,7 @@
   "Select the Analysis Service to be Used": "Select the Analysis Service to be Used",
   "Select the Collector Service to be Used": "Select the Collector Service to be Used",
   "Select the DataSeries": "Select the DataSeries",
-  "Select the Folder": "Select the Folder",
+  "Select the Directory": "Select the Directory",
   "Select the Monitored Object": "Select the Monitored Object",
   "Select the View Service to be Used": "Select the View Service to be Used",
   "Select the analysis to user": "Select the analysis to user",

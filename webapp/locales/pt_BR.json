@@ -506,7 +506,7 @@
       "": "Nenhuma PCD disponível. Por favor, adicione pelo menos uma PCD."
     }
   },
-  "No folders to show.": "Nenhuma pasta a ser exibida.",
+  "No directories to show.": "Nenhuma pasta a ser exibida.",
   "No intersection data series selected": "Nenhuma interseção da série de dados selecionada",
   "No project found": "Nenhum projeto encontrado",
   "No project found.": "Nenhum projeto encontrado.",
@@ -661,7 +661,7 @@
   "Select the Analysis Service to be Used": "Selecione o serviço de análise para ser usado",
   "Select the Collector Service to be Used": "Selecione o serviço de coleta para ser usado",
   "Select the DataSeries": "Selecione a série de dados",
-  "Select the Folder": "Selecione a pasta desejada",
+  "Select the Directory": "Selecione a pasta desejada",
   "Select the Monitored Object": "Selecionar o Objeto Monitorado",
   "Select the View Service to be Used": "Selecione o serviço de visualização para ser usado",
   "Select the analysis to user": "Selecione a análise para o usuário",

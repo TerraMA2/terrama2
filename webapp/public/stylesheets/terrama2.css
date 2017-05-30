@@ -493,7 +493,7 @@ table.dataTable tbody th, table.dataTable tbody td { padding-left: 12px !importa
 
 .overlay-dcps > .fa { position: fixed !important; }
 
-.selected-folder { background-color: rgba(0, 192, 239, 0.45); }
+.selected-directory { background-color: rgba(0, 192, 239, 0.45); }
 
 #filesExplorerModal .modal-dialog { height: 85%; }
 

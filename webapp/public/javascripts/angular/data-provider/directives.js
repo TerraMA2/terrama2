@@ -8,26 +8,26 @@ define([], function() {
         "<div class=\"modal fade\" id=\"filesExplorerModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"filesExplorerModalLabel\">" +
           "<div class=\"modal-dialog modal-md\" role=\"document\">" +
             "<div class=\"modal-content\">" +
-              "<div class=\"holder-div\" ng-show=\"loadingFiles\"></div>" +
+              "<div class=\"holder-div\" ng-show=\"loadingDirectories\"></div>" +
               "<div class=\"modal-header\">" +
                 "<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button>" +
-                "<h4 class=\"modal-title\" id=\"dataSeriesModalLabel\">{{ i18n.__('Select the Folder') }}</h4>" +
+                "<h4 class=\"modal-title\" id=\"dataSeriesModalLabel\">{{ i18n.__('Select the Directory') }}</h4>" +
               "</div>" +
               "<div class=\"modal-body\">" +
-                "<div ng-show=\"!dirs.children || dirs.children.length == 0\">{{ i18n.__('No folders to show.') }}</div>" +
+                "<div ng-show=\"!rootDirectories.children || rootDirectories.children.length == 0\">{{ i18n.__('No directories to show.') }}</div>" +
                 "<script type=\"text/ng-template\" id=\"files-explorer.html\">" +
-                  "<div class=\"name-div\" ng-click=\"setFolderStatus(dir.fullPath)\" ng-class=\"{ 'selected-folder': dir.fullPath == selectedFolder }\">" +
-                    "<i class=\"fa fa-folder\" ng-show=\"pathLoading != dir.fullPath && !dir.childrenVisible\"></i>" +
-                    "<i class=\"fa fa-folder-open\" ng-show=\"pathLoading != dir.fullPath && dir.childrenVisible\"></i>" +
-                    "<img ng-show=\"pathLoading == dir.fullPath\" src=\"" + BASE_URL + "images/loader.gif\">" +
-                    "{{ dir.name }}" +
+                  "<div class=\"name-div\" ng-click=\"setDirectoryStatus(directory.fullPath)\" ng-class=\"{ 'selected-directory': directory.fullPath == selectedDirectory }\">" +
+                    "<i class=\"fa fa-folder\" ng-show=\"pathLoading != directory.fullPath && !directory.childrenVisible\"></i>" +
+                    "<i class=\"fa fa-folder-open\" ng-show=\"pathLoading != directory.fullPath && directory.childrenVisible\"></i>" +
+                    "<img ng-show=\"pathLoading == directory.fullPath\" src=\"" + BASE_URL + "images/loader.gif\">" +
+                    "{{ directory.name }}" +
                   "</div>" +
-                  "<ul class=\"file-explorer-ul\" ng-if=\"dir.children && dir.children.length > 0 && dir.childrenVisible\">" +
-                    "<li ng-repeat=\"dir in dir.children\" ng-include=\"'files-explorer.html'\"></li>" +
+                  "<ul class=\"file-explorer-ul\" ng-if=\"directory.children && directory.children.length > 0 && directory.childrenVisible\">" +
+                    "<li ng-repeat=\"directory in directory.children\" ng-include=\"'files-explorer.html'\"></li>" +
                   "</ul>" +
                 "</script>" +
                 "<ul class=\"file-explorer-ul\">" +
-                  "<li ng-repeat=\"dir in dirs.children\" ng-include=\"'files-explorer.html'\"></li>" +
+                  "<li ng-repeat=\"directory in rootDirectories.children\" ng-include=\"'files-explorer.html'\"></li>" +
                 "</ul>" +
               "</div>" +
               "<div class=\"modal-footer\">" +
@@ -61,50 +61,54 @@ define([], function() {
         restrict: 'EA',
         templateUrl: 'directoryExplorer.html',
         controller: ['$scope', 'i18n', 'MessageBoxService', '$q', '$http', function($scope, i18n, MessageBoxService, $q, $http) {
-          $scope.dirs = {
+          var title = "Data Server Registration";
+          // Object that contains the root directories
+          $scope.rootDirectories = {
             children: []
           };
-
-          $scope.selectedFolder = null;
-          $scope.loadingFiles = false;
+          // Variable that contains the path of the selected directory
+          $scope.selectedDirectory = null;
+          // Flag that indicates if there are directories being loaded
+          $scope.loadingDirectories = false;
+          // Variable that contains the path of the directory being loaded
           $scope.pathLoading = null;
-          // The base path of the tree
-          $scope.baseAddress = '/';
-          // The current address, divided per folder in format of array, ignoring the base address
+          // Variable that contains the path of the root directory
+          $scope.basePath = '/';
+          // Variable that contains the current path, divided per directory in format of array, ignoring the base path
           $scope.currentPath = [];
 
-          // Validates the connection data, tries to connect and in case of success, it lists all the folder presents in the path
+          // Validates the connection data, tries to connect and in case of success, it lists all the directories present in the path
           $scope.openFileExplorer = function(form) {
             $scope.$broadcast("schemaFormValidate");
 
             if(form && !$scope.isValidDataProviderTypeForm(form))
               return;
 
-            $scope.loadingFiles = false;
+            $scope.loadingDirectories = false;
             $scope.pathLoading = null;
 
             $scope.isChecking = true;
             $scope.currentPath = $scope.model['pathname'].split('/').filter(function(a) { return a != '' });
 
-            listFolders($scope.baseAddress).then(function(data) {
+            listDirectories($scope.basePath).then(function(data) {
               if(data.error) {
                 $scope.isChecking = false;
                 return MessageBoxService.danger(i18n.__(title), data.error);
               }
 
-              $scope.dirs.childrenVisible = true;
-              $scope.dirs.children = data.folders;
+              $scope.rootDirectories.childrenVisible = true;
+              $scope.rootDirectories.children = data.directories;
 
               if($scope.currentPath.length === 0) {
                 $scope.isChecking = false;
                 $('#filesExplorerModal').modal();
               } else {
-                navigateToFolder($scope.currentPath, $scope.baseAddress, [$scope.currentPath[0]], 0).then(function() {
+                navigateToDirectory($scope.currentPath, $scope.basePath, [$scope.currentPath[0]], 0).then(function(lele) {
                   $scope.isChecking = false;
                   $('#filesExplorerModal').modal();
                 }).catch(function(err) {
                   $scope.isChecking = false;
-                  MessageBoxService.danger(i18n.__(title), err.error);
+                  MessageBoxService.danger(i18n.__(title), err.message);
                 });
               }
             }).catch(function(err) {
@@ -113,42 +117,42 @@ define([], function() {
             });
           };
 
-          // Selects the path of the current selected folder
+          // Selects the path of the current selected directory
           $scope.selectPath = function() {
-            if($scope.selectedFolder)
-              $scope.model['pathname'] = $scope.selectedFolder;
+            if($scope.selectedDirectory)
+              $scope.model['pathname'] = $scope.selectedDirectory;
           };
 
-          // Sets the status of a clicked folder
-          $scope.setFolderStatus = function(path) {
+          // Sets the status of a clicked directory
+          $scope.setDirectoryStatus = function(path) {
             var tempPath = path;
             var pathItems = tempPath.split('/');
             pathItems = pathItems.filter(function(a) { return a != '' });
 
-            var lastFolder = getLastFolder($scope.dirs, pathItems, 0);
+            var lastDirectory = getLastDirectory($scope.rootDirectories, pathItems, 0);
 
-            if(lastFolder.childrenVisible) {
-              lastFolder.childrenVisible = false;
+            if(lastDirectory.childrenVisible) {
+              lastDirectory.childrenVisible = false;
 
-              if($scope.selectedFolder == lastFolder.fullPath)
-                $scope.selectedFolder = null;
+              if($scope.selectedDirectory == lastDirectory.fullPath)
+                $scope.selectedDirectory = null;
             } else {
-              $scope.loadingFiles = true;
+              $scope.loadingDirectories = true;
               $scope.pathLoading = path;
 
-              listFolders(path).then(function(data) {
+              listDirectories(path).then(function(data) {
                 if(data.error)
                   return MessageBoxService.danger(i18n.__(title), data.error);
 
-                $scope.selectedFolder = path;
+                $scope.selectedDirectory = path;
 
-                lastFolder.childrenVisible = true;
-                lastFolder.children = data.folders;
+                lastDirectory.childrenVisible = true;
+                lastDirectory.children = data.directories;
 
-                $scope.loadingFiles = false;
+                $scope.loadingDirectories = false;
                 $scope.pathLoading = null;
               }).catch(function(err) {
-                $scope.loadingFiles = false;
+                $scope.loadingDirectories = false;
                 $scope.pathLoading = null;
                 $('#filesExplorerErrorModal .modal-body > p').text(err.error);
                 $('#filesExplorerErrorModal').modal();
@@ -156,8 +160,8 @@ define([], function() {
             }
           };
 
-          // Lists the folders of a given path
-          var listFolders = function(pathToList) {
+          // Lists the directories of a given path
+          var listDirectories = function(pathToList) {
             var promiser = $q.defer();
             var timeOut = $q.defer();
 
@@ -187,7 +191,7 @@ define([], function() {
               if(data.message)
                 return promiser.reject({ error: i18n.__(data.message) });
               else
-                return promiser.resolve({ error: null, folders: data.data.data.list });
+                return promiser.resolve({ error: null, directories: data.data.data.list });
             }).catch(function(err) {
               if(expired)
                 return promiser.reject({ error: i18n.__("Timeout: Request took longer than ") + $scope.timeOutSeconds + i18n.__(" seconds.") });
@@ -198,30 +202,30 @@ define([], function() {
             return promiser.promise;
           };
 
-          // Opens all the folders present in a given path
-          var navigateToFolder = function(paths, parent, currentChildren, i) {
+          // Opens all the directories present in a given path
+          var navigateToDirectory = function(paths, parent, currentChildren, i) {
             var promiser = $q.defer();
 
             parent = (parent == '/' ? '' : parent);
 
             if(i < paths.length) {
-              return listFolders(parent + '/' + paths[i]).then(function(data) {
+              return listDirectories(parent + '/' + paths[i]).then(function(data) {
                 if(data.error)
-                  return promiser.reject(data.error);
+                  throw new Error((err.error ? err.error : err.message));
 
-                var lastFolder = getLastFolder($scope.dirs, currentChildren, 0);
+                var lastDirectory = getLastDirectory($scope.rootDirectories, currentChildren, 0);
 
-                lastFolder.childrenVisible = true;
-                lastFolder.children = data.folders;
+                lastDirectory.childrenVisible = true;
+                lastDirectory.children = data.directories;
 
                 if((i + 1) < paths.length)
                   currentChildren.push(paths[(i + 1)]);
                 else if((i + 1) === paths.length)
-                  $scope.selectedFolder = parent + '/' + paths[i];
+                  $scope.selectedDirectory = parent + '/' + paths[i];
 
-                return navigateToFolder(paths, (parent + '/' + paths[i]), currentChildren, (i + 1));
+                return navigateToDirectory(paths, (parent + '/' + paths[i]), currentChildren, (i + 1));
               }).catch(function(err) {
-                return promiser.reject(err.error);
+                throw new Error((err.error ? err.error : err.message));
               });
             } else {
               return promiser.resolve();
@@ -230,12 +234,12 @@ define([], function() {
             return promiser.promise;
           };
 
-          // Returns the last folder in the path (Important! For this function to work, all the folders in the path, except the last, must have its folders children populated)
-          var getLastFolder = function(item, pathFolders, i) {
-            if(i < pathFolders.length) {
+          // Returns the last directory in the path (Important! For this function to work, all the directories in the path, except the last, must have its children directories populated)
+          var getLastDirectory = function(item, pathDirectories, i) {
+            if(i < pathDirectories.length) {
               for(var j = 0, childrenLength = item.children.length; j < childrenLength; j++) {
-                if(item.children[j].name == pathFolders[i]) {
-                  return getLastFolder(item.children[j], pathFolders, (i + 1));
+                if(item.children[j].name == pathDirectories[i]) {
+                  return getLastDirectory(item.children[j], pathDirectories, (i + 1));
                 }
               }
             } else {
