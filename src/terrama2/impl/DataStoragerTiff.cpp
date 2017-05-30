@@ -299,7 +299,7 @@ void terrama2::core::DataStoragerTiff::store(DataSetSeries series, DataSetPtr ou
       try
       {
         verify::srid(raster->getSRID(), false);
-        std::map<std::string, std::string> map{{"FORCE_MEM_DRIVER", "TRUE"}};
+        std::map<std::string, std::string> map{{"RTYPE", "EXPANSIBLE"}};
         auto temp = raster->transform(outputSrid, map);
         if(!temp)
         {
