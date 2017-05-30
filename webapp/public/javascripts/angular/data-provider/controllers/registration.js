@@ -1,5 +1,5 @@
 define(function() {
-  function RegisterController($scope, $http, $q, $window, $httpParamSerializer, $location, i18n, $timeout, DataProviderService, MessageBoxService, FormTranslator, Socket) {
+  function RegisterController($scope, $http, $q, $window, $httpParamSerializer, $location, i18n, $timeout, DataProviderService, MessageBoxService, FormTranslator) {
     $scope.i18n = i18n;
     var model = {};
     var title = "Data Server Registration";
@@ -279,7 +279,7 @@ define(function() {
     };
   }
 
-  RegisterController.$inject = ["$scope", "$http", "$q", "$window", "$httpParamSerializer", "$location", "i18n", "$timeout", "DataProviderService", "MessageBoxService", "FormTranslator", "Socket"];
+  RegisterController.$inject = ["$scope", "$http", "$q", "$window", "$httpParamSerializer", "$location", "i18n", "$timeout", "DataProviderService", "MessageBoxService", "FormTranslator"];
 
   return RegisterController;
 });
