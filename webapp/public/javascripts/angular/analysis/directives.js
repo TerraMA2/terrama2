@@ -13,7 +13,7 @@ define([
           "<button aria-expanded=\"false\" type=\"button\" class=\"btn dropdown-toggle\" data-toggle=\"dropdown\">" +
             "<img style=\"height: 20px;\" ng-src=\"" + BASE_URL + "{{operators.imagePath}}\"/>" +
           "</button>" +
-          "<terrama2-list class=\"dropdown-menu\" data=\"operatorsData\" expression=\"restriction\"></terrama2-list>" +
+          "<terrama2-list class=\"classes\" data=\"operatorsData\" expression=\"restriction\"></terrama2-list>" +
         "</div>");
     }])
     .directive("terrama2AnalysisHelpers", ["i18n", "$http", terrama2AnalysisHelpersDirective]);
@@ -34,7 +34,8 @@ define([
       scope: {
         target: '=',
         restriction: "=",
-        operators: '='
+        operators: '=',
+        addClass: '='
       },
       controller: ["$scope", "i18n", controllerFn],
       templateUrl: "helper.html",
@@ -48,6 +49,7 @@ define([
      */
     function controllerFn($scope, i18n) {
       $scope.i18n = i18n;
+      $scope.classes = $scope.addClass ? "dropdown-menu " + $scope.addClass : "dropdown-menu";
       $scope.operatorsData = [];
       /**
        * Listener for Item clicked. Whenever retrieve a item, It must have code in order to append script context

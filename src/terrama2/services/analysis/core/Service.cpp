@@ -271,8 +271,6 @@ void terrama2::services::analysis::core::Service::analysisFinished(AnalysisId an
     auto executionPackage = packageQueue.front();
     packageQueue.pop();
 
-    waitQueue_[analysisId].push(executionPackage);
-
     processQueue_.push_back(executionPackage);
     if(packageQueue.empty())
       waitQueue_.erase(analysisId);

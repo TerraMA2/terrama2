@@ -268,7 +268,7 @@
                 if (!inputElement.hasClass("disabled-content")){
                     inputElement.addClass("disabled-content");
                 }
-                changeLayerStatusIcon(data.requestId, "erraccess");
+                changeLayerStatusIcon(data.requestId.split('.').join('\\.'), "erraccess");
                 changeGroupStatusIcon(parent, "erraccess");
             } 
             // if connected enable the layer selection
@@ -280,7 +280,7 @@
                 var imageElement = listElement.find("#image-icon");
                 var lastStatus = imageElement.attr("src");
                 if (lastStatus == "{[ BASE_URL ]}images/status/gray_icon.svg"){
-                    changeLayerStatusIcon(data.requestId, "working");
+                    changeLayerStatusIcon(data.requestId.split('.').join('\\.'), "working");
                     changeGroupStatusIcon(parent, "working");
                 }
             }
@@ -597,7 +597,7 @@
         }
         var imageElement = $(this).closest('li').find("#image-icon");
         if (imageElement.attr("src") == "{[ BASE_URL ]}images/status/yellow-black.gif"){
-            changeLayerStatusIcon(layerid, "working");
+            changeLayerStatusIcon(layerid.split('.').join('\\.'), "working");
         }
 
     });

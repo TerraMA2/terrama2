@@ -213,7 +213,7 @@ void terrama2::services::alert::core::Report::updateReportDataset(const std::sha
   dataSet_ = std::make_shared<te::mem::DataSet>(*dataSet);
 
   // Replace risk values
-  for(auto riskDate : riskDates_)
+  for(const auto& riskDate : riskDates_)
   {
     std::string property = dateTimeToString(riskDate);
     auto pos = terrama2::core::propertyPosition(dataSet_.get(), property);
@@ -453,4 +453,3 @@ std::string terrama2::services::alert::core::Report::imageURI() const
 
   return "";
 }
-

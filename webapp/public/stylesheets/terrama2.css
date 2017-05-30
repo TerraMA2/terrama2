@@ -295,10 +295,15 @@ bootstrap-decorator span {
 .dropdown-submenu:hover>a:after{border-left-color:#ffffff;}
 .dropdown-submenu.pull-left{float:none;}
 .dropdown-submenu.pull-left>.dropdown-menu{left:-100%;margin-left:10px;-webkit-border-radius:6px 0 6px 6px;-moz-border-radius:6px 0 6px 6px;border-radius:6px 0 6px 6px;}
-.dropdown-menu > .operators-list img {width: 20px;}
-.dropdown-menu > .operators-list {min-width: 0px !important;}
+.dropdown-menu > .operators-item-list img {width: 20px;}
+.dropdown-menu > .operators-item-list {min-width: 0px !important;}
 .dropup ul.dropdown-menu ul.dropdown-menu:nth-child(n+1) {
   bottom: 0;
+}
+
+.attributes-list {
+  max-height: 300px;
+  overflow-y: auto;
 }
 
 .terrama2-disabled:hover {
