@@ -116,37 +116,6 @@ terrama2::services::view::core::ViewPtr newView()
   view->dataSeriesID = 1;
   view->filter = terrama2::core::Filter();
 
-  {
-    std::unique_ptr<terrama2::services::view::core::View::Legend> legend(new terrama2::services::view::core::View::Legend());
-
-    legend->operation = terrama2::services::view::core::View::Legend::OperationType::VALUE;
-
-    legend->metadata.emplace("band_number", "0");
-    legend->metadata.emplace("column", "id");
-
-    {
-      terrama2::services::view::core::View::Legend::Rule rule;
-      rule.title = "title1";
-      rule.value = "1";
-      rule.color = "#F10D0D";
-      rule.isDefault = false;
-
-      legend->rules.push_back(rule);
-    }
-
-    {
-      terrama2::services::view::core::View::Legend::Rule rule;
-      rule.title = "title2";
-      rule.value = "2";
-      rule.color = "#2E37CE";
-      rule.isDefault = false;
-
-      legend->rules.push_back(rule);
-
-      view->legend.reset(legend.release());
-    }
-  }
-
   return viewPtr;
 }
 

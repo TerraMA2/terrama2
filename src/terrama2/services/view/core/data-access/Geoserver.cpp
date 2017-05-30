@@ -467,6 +467,40 @@ const std::string& terrama2::services::view::core::GeoServer::getDataStore(const
 }
 
 
+const std::string& terrama2::services::view::core::GeoServer::getCoverageStore(const std::string& name) const
+{
+  te::ws::core::CurlWrapper cURLwrapper;
+
+  te::core::URI uriGet(uri_.uri() + "/rest/workspaces/" + workspace_ + "/coveragestores/"
+                       + QString(QUrl::toPercentEncoding(QString::fromStdString(name), "", "-._~/")).toStdString());
+
+  if(!uriGet.isValid())
+  {
+    QString errMsg = QObject::tr("Invalid URI.");
+    TERRAMA2_LOG_ERROR() << errMsg << uriGet.uri();
+    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriGet.uri()));
+  }
+
+  std::string responseDataStore;
+
+  // Register style
+  cURLwrapper.get(uriGet, responseDataStore);
+
+  if(cURLwrapper.responseCode() == 404)
+  {
+    throw NotFoundGeoserverException() << ErrorDescription(QString::fromStdString(cURLwrapper.response()));
+  }
+  else if(cURLwrapper.responseCode() != 200)
+  {
+    QString errMsg = QObject::tr("Error at get Coverage Store. ");
+    TERRAMA2_LOG_ERROR() << errMsg << uriGet.uri();
+    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
+  }
+
+  return cURLwrapper.response();
+}
+
+
 void terrama2::services::view::core::GeoServer::registerPostGisDataStore(const std::string& dataStoreName,
                                                                          const std::map<std::string, std::string> connInfo) const
 {
@@ -845,71 +879,79 @@ void terrama2::services::view::core::GeoServer::registerMosaicCoverage(const std
                                                                        const std::string& style,
                                                                        const std::string& configure) const
 {
-  te::ws::core::CurlWrapper cURLwrapper;
+  std::string storeName = QString(QUrl::toPercentEncoding(QString::fromStdString(coverageStoreName), "", "-._~/")).toStdString();
 
-  te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/coveragestores/"
-                       + QString(QUrl::toPercentEncoding(QString::fromStdString(coverageStoreName), "", "-._~/")).toStdString()
-                       + "/external.imagemosaic?configure=" + configure);
-
-  if(!uriPut.isValid())
+  try
   {
-    QString errMsg = QObject::tr("Invalid URI.");
-    TERRAMA2_LOG_ERROR() << errMsg << uriPut.uri();
-    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriPut.uri()));
+    getCoverageStore(storeName);
   }
-
-  std::string path = "file://" + mosaicPath;
-
-  // Upload Coverage file
-  cURLwrapper.customRequest(uriPut, "PUT", path, "Content-Type: text/plain");
-
-  if(cURLwrapper.responseCode() != 201)
+  catch(const NotFoundGeoserverException& /*e*/)
   {
-    QString errMsg = QObject::tr(cURLwrapper.response().c_str());
-    TERRAMA2_LOG_ERROR() << errMsg << uriPut.uri();
-    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriPut.uri()));
+    te::ws::core::CurlWrapper cURLwrapper;
+
+    te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/coveragestores/"
+                         + storeName
+                         + "/external.imagemosaic?configure=" + configure);
+
+    if(!uriPut.isValid())
+    {
+      QString errMsg = QObject::tr("Invalid URI.");
+      TERRAMA2_LOG_ERROR() << errMsg << uriPut.uri();
+      throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriPut.uri()));
+    }
+
+    std::string path = "file://" + mosaicPath;
+
+    // Upload Coverage file
+    cURLwrapper.customRequest(uriPut, "PUT", path, "Content-Type: text/plain");
+
+    if(cURLwrapper.responseCode() != 201)
+    {
+      QString errMsg = QObject::tr(cURLwrapper.response().c_str());
+      TERRAMA2_LOG_ERROR() << errMsg << uriPut.uri();
+      throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriPut.uri()));
+    }
+
+    te::core::URI uriPutUpdateCoverage(uri_.uri() + "/rest/workspaces/" + workspace_ + "/coveragestores/"
+                                       + storeName
+                                       + "/coverages/" + coverageName);
+
+    std::string xml = "<coverage>"
+                      "<enabled>true</enabled>"
+                      "<srs>EPSG:"
+                      + std::to_string(srid) +
+                      "</srs>"
+                      "<metadata>"
+                      "<entry key=\"time\">"
+                      "<dimensionInfo>"
+                      "<enabled>true</enabled>"
+                      "<presentation>CONTINUOUS_INTERVAL</presentation>"
+                      "<units>ISO8601</units>"
+                      "<defaultValue>"
+                      "<strategy>MAXIMUM</strategy>"
+                      "</defaultValue>"
+                      "</dimensionInfo>"
+                      "</entry>"
+                      "</metadata>"
+                      "</coverage>";
+
+    cURLwrapper.customRequest(uriPutUpdateCoverage, "PUT", xml, "Content-Type: text/xml");
+
+    if(cURLwrapper.responseCode() != 200)
+    {
+      QString errMsg = QObject::tr(cURLwrapper.response().c_str());
+      TERRAMA2_LOG_ERROR() << errMsg << uriPutUpdateCoverage.uri();
+      throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriPut.uri()));
+    }
+
+    if(!style.empty())
+    {
+      te::core::URI layerStyle(uri_.uri() + "/rest/layers/" + coverageName + ".xml");
+
+      cURLwrapper.customRequest(layerStyle, "PUT",
+                                "<layer><defaultStyle><name>" + style + "</name><workspace>" + workspace_ + "</workspace></defaultStyle></layer>", "Content-Type: text/xml");
+    }
   }
-
-  te::core::URI uriPutUpdateCoverage(uri_.uri() + "/rest/workspaces/" + workspace_ + "/coveragestores/"
-                                     + QString(QUrl::toPercentEncoding(QString::fromStdString(coverageStoreName), "", "-._~/")).toStdString()
-                                     + "/coverages/" + coverageName);
-
-  std::string xml = "<coverage>"
-                    "<enabled>true</enabled>"
-                    "<srs>EPSG:"
-                    + std::to_string(srid) +
-                    "</srs>"
-                    "<metadata>"
-                    "<entry key=\"time\">"
-                    "<dimensionInfo>"
-                    "<enabled>true</enabled>"
-                    "<presentation>CONTINUOUS_INTERVAL</presentation>"
-                    "<units>ISO8601</units>"
-                    "<defaultValue>"
-                    "<strategy>MAXIMUM</strategy>"
-                    "</defaultValue>"
-                    "</dimensionInfo>"
-                    "</entry>"
-                    "</metadata>"
-                    "</coverage>";
-
-  cURLwrapper.customRequest(uriPutUpdateCoverage, "PUT", xml, "Content-Type: text/xml");
-
-  if(cURLwrapper.responseCode() != 200)
-  {
-    QString errMsg = QObject::tr(cURLwrapper.response().c_str());
-    TERRAMA2_LOG_ERROR() << errMsg << uriPutUpdateCoverage.uri();
-    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriPut.uri()));
-  }
-
-  if(!style.empty())
-  {
-    te::core::URI layerStyle(uri_.uri() + "/rest/layers/" + coverageName + ".xml");
-
-    cURLwrapper.customRequest(layerStyle, "PUT",
-                              "<layer><defaultStyle><name>" + style + "</name><workspace>" + workspace_ + "</workspace></defaultStyle></layer>", "Content-Type: text/xml");
-  }
-
 }
 
 
@@ -1490,12 +1532,10 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
     std::vector<std::shared_ptr<te::dt::DateTime> > vecDates;
 
     {
-      bool exists = dataSource->dataSetExists(layerName);
       auto teDataSet = dataSource-> getDataSet(layerName);
 
       vecDates = terrama2::core::getAllDates(teDataSet.get(), "timestamp");
     }
-
 
     auto teDataSetType = dataSource->getDataSetType(layerName);
 
@@ -1522,7 +1562,7 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
                                return *first == rasterTimeInstantTz;
                              });
 
-//      if(it == std::end(vecDates))
+      if(it == std::end(vecDates))
       {
         auto geom = te::gm::GetGeomFromEnvelope(rasterEnvelope, rasterSRID);
 
@@ -1535,15 +1575,19 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
       }
     }
 
-    ds->moveBeforeFirst();
+    if(!ds->isEmpty())
+    {
+      ds->moveBeforeFirst();
 
-    std::map<std::string, std::string> options;
-    dataSource->add(layerName, ds, options);
+      std::map<std::string, std::string> options;
+      dataSource->add(layerName, ds, options);
 
-    // register datastore and layer if they don't exists
-    registerMosaicCoverage(layerName, url.path().toStdString(), layerName, srid, "", "all");
+      // register datastore and layer if they don't exists
+      registerMosaicCoverage(layerName, url.path().toStdString(), layerName, srid, "", "all");
+    }
 
     layersNames.push_back(layerName);
+
   }
 
   dataSource->close();
@@ -1971,23 +2015,4 @@ void terrama2::services::view::core::GeoServer::createMosaicTable(const std::sha
   ds = new te::mem::DataSet(dt);
 
   te::da::Create(dataSource.get(), dt, ds);
-}
-
-te::gm::Geometry* terrama2::services::view::core::GeoServer::GetGeomFromEnvelope(const te::gm::Envelope* const e,
-                                                                                 int srid) const
-{
-  // create an outer ring with the same envelope as our envelope
-  te::gm::LinearRing* r = new te::gm::LinearRing(5, te::gm::LineStringType, srid, new te::gm::Envelope(*e));
-
-  r->setPoint(0, e->m_llx, e->m_lly);
-  r->setPoint(1, e->m_llx, e->m_ury);
-  r->setPoint(2, e->m_urx, e->m_ury);
-  r->setPoint(3, e->m_urx, e->m_lly);
-  r->setPoint(4, e->m_llx, e->m_lly);
-
-  // create the polygon
-  te::gm::Polygon* p = new te::gm::Polygon(1, te::gm::PolygonType, srid, new te::gm::Envelope(*e));
-  p->setRingN(0, r);
-
-  return p;
 }
