@@ -583,6 +583,7 @@
   "Path": "Path",
   "Path is required": "Path is required",
   "Path to script": "Path to script",
+  "Permission denied": "Permission denied",
   "Please fill at least a add_value() in script field": {
     "": "Please fill at least a add_value() in script field."
   },

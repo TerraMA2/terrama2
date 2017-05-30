@@ -49,8 +49,33 @@ FtpRequest.prototype.request = function() {
           client.end();
           return reject(error);
         } else {
-          client.end();
-          return resolve();
+          if(self.params.list) {
+            var items = [];
+
+            for(var i = 0, listLength = list.length; i < listLength; i++) {
+              if(list[i].type == 'd' && list[i].name.charAt(0) != '.')
+                items.push({
+                  name: list[i].name,
+                  fullPath: (self.params[self.syntax().PATHNAME] != '/' ? self.params[self.syntax().PATHNAME] + '/' + list[i].name : self.params[self.syntax().PATHNAME] + list[i].name),
+                  children: [],
+                  childrenVisible: false
+                });
+            }
+
+            items.sort(function(a, b) {
+              if(a.name < b.name) return -1;
+              if(a.name > b.name) return 1;
+              return 0;
+            });
+
+            client.end();
+            return resolve({
+              list: items
+            });
+          } else {
+            client.end();
+            return resolve();
+          }
         }
       });
     });
@@ -123,6 +148,8 @@ FtpRequest.fields = function() {
     type: FormField.TEXT
   };
 
+  fieldProperties['file_explorer_button'] = {};
+
   var orderFields = [
     {
       key: UriPattern.HOST,
@@ -157,7 +184,14 @@ FtpRequest.fields = function() {
     {
       key: UriPattern.PATHNAME,
       type: Form.Field.TEXT,
-      htmlClass: 'col-md-12 terrama2-schema-form'
+      htmlClass: 'col-md-11 terrama2-schema-form'
+    },
+    {
+      key: 'file_explorer_button',
+      type: 'button',
+      htmlClass: 'col-md-1 terrama2-schema-form',
+      style: 'btn-primary pull-right button-inline-form fa fa-folder',
+      onClick: 'openFileExplorer(forms.connectionForm);'
     }
   ];
 

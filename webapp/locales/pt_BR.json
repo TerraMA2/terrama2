@@ -554,6 +554,7 @@
   "Path": "Caminho",
   "Path is required": "Caminho é requerido",
   "Path to script": "Caminho para o script",
+  "Permission denied": "Acesso negado",
   "Please fill at least a add_value() in script field": {
     "": "Insira pelo menos um 'add_value()' no modelo de análise."
   },

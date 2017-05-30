@@ -100,38 +100,7 @@
     </div>
     <!-- /.row -->
 
-    <div class="modal fade" id="filesExplorerModal" tabindex="-1" role="dialog" aria-labelledby="filesExplorerModalLabel">
-      <div class="modal-dialog modal-md" role="document">
-        <div class="modal-content">
-          <div class="holder-div" ng-show="loadingFiles"></div>
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title" id="dataSeriesModalLabel">{{ i18n.__('Select the Folder') }}</h4>
-          </div>
-          <div class="modal-body">
-            <div ng-show="!dirs.children || dirs.children.length == 0">{{ i18n.__('No folders to show.') }}</div>
-            <script type="text/ng-template" id="files-explorer.html">
-              <div class="name-div" ng-click="setFolderStatus(dir.fullPath)" ng-class="{ 'selected-folder': dir.fullPath == selectedFolder }">
-                <i class="fa fa-folder" ng-show="pathLoading != dir.fullPath && !dir.childrenVisible"></i>
-                <i class="fa fa-folder-open" ng-show="pathLoading != dir.fullPath && dir.childrenVisible"></i>
-                <img ng-show="pathLoading == dir.fullPath" src="{[ BASE_URL ]}images/loader.gif">
-                {{ dir.name }}
-              </div>
-              <ul class="file-explorer-ul" ng-if="dir.children && dir.children.length > 0 && dir.childrenVisible">
-                <li ng-repeat="dir in dir.children" ng-include="'files-explorer.html'"></li>
-              </ul>
-            </script>
-            <ul class="file-explorer-ul">
-              <li ng-repeat="dir in dirs.children" ng-include="'files-explorer.html'"></li>
-            </ul>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-primary" data-dismiss="modal">{{ i18n.__('Cancel') }} </button>
-            <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="selectPath()">{{ i18n.__('Select') }}</button>
-          </div>
-        </div>
-      </div>
-    </div>
+    <terrama2-directory-explorer></terrama2-directory-explorer>
 
     <div class="box-footer">
       <button type="submit" class="btn btn-primary pull-right" ng-click="save();" style="margin-left: 10px;">{{ i18n.__("Save") }}</button>

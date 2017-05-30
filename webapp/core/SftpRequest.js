@@ -82,12 +82,10 @@ SftpRequest.prototype.request = function() {
                   return 0;
                 });
 
-                var result = {
-                  list: items
-                };
-
                 client.end();
-                return resolve(result);
+                return resolve({
+                  list: items
+                });
               } else {
                 client.end();
                 return resolve();
