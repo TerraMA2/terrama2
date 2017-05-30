@@ -24,6 +24,43 @@ define([], function() {
      */
     $scope.forms = {};
 
+      self.columnsList = [];
+      self.isDisabled    = false;
+
+      self.querySearch   = querySearch;
+      self.selectedItemChange = selectedItemChange;
+      self.searchTextChange   = searchTextChange;
+
+      // ******************************
+      // Internal methods
+      // ******************************
+      function querySearch (query) {
+        var results = query ? self.columnsList.filter( createFilterFor(query) ) : self.columnsList;
+        return results;
+      }
+
+      function searchTextChange(text) {
+        self.identifier = text;
+        $log.info('Text changed to ' + text);
+      }
+
+      function selectedItemChange(item) {
+        if (item){
+          self.identifier = item;
+        }
+        $log.info('Item changed to ' + JSON.stringify(item));
+      }
+
+      /**
+       * Create filter function for a query string
+       */
+      function createFilterFor(query) {
+        return function filterFn(state) {
+          return (state.indexOf(query) === 0);
+        };
+
+      }
+
     /**
      * It defines a options to use angular tree control directive. It is customized with bootstrap layout
      * 
