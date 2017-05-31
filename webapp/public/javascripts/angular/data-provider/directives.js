@@ -287,6 +287,44 @@ define([], function() {
               return item;
             }
           };
+
+          // new
+
+          var getBasePathByPermissions = function(directories) {
+            var promiser = $q.defer();
+            var promises = [];
+            var originalDirectories = directories;
+
+            for(var i = (directories.length - 1); i >= 0; i--) {
+              promises.push(
+                listDirectories('/' + directories.join('/')).then(function(data) {
+                  if(data.error) {
+                    if(true) {
+                      return promiser.resolve(data);
+                    } else {
+                      return promiser.reject(data.error);
+                    }
+                  }
+                }).catch(function(err) {
+                  if(true) {
+                    return promiser.resolve(data);
+                  } else {
+                    return promiser.reject(data.error);
+                  }
+                })
+              );
+
+              directories.splice(i, 1);
+            }
+
+            $q.all(promises).then(function() {
+              return promiser.resolve('/' + originalDirectories.join('/'));
+            });
+
+            return promiser.promise;
+          };
+
+          // new
         }]
       };
     });
