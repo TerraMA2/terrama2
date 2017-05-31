@@ -1,5 +1,10 @@
 define(
   function (){
+    /**
+     * It defines a directive that use md-autocomplete from AngularJS Material
+     * to create a text input with select options
+     * Use ngMaterial as dependency in module that will use this directive
+     */
     function terrama2TextSelect(){
       return {
         restrict: 'E',
@@ -32,9 +37,7 @@ define(
           scope.selectedItemChange = selectedItemChange;
           scope.searchTextChange = searchTextChange;
 
-          // ******************************
           // Internal methods
-          // ******************************
           function querySearch (query) {
             var results = query ? scope.items.filter( createFilterFor(query) ) : scope.items;
             return results;
@@ -58,8 +61,8 @@ define(
            * Create filter function for a query string
            */
           function createFilterFor(query) {
-            return function filterFn(state) {
-              return (state.indexOf(query) === 0);
+            return function filterFn(item) {
+              return (item.indexOf(query) === 0);
             };
           }
         }
