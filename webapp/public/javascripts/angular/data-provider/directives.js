@@ -61,6 +61,7 @@ define([], function() {
         restrict: 'EA',
         templateUrl: 'directoryExplorer.html',
         controller: ['$scope', 'i18n', 'MessageBoxService', '$q', '$http', function($scope, i18n, MessageBoxService, $q, $http) {
+          // Title of the message boxes
           var title = "Data Server Registration";
           // Object that contains the root directories
           $scope.rootDirectories = {
@@ -77,7 +78,12 @@ define([], function() {
           // Variable that contains the current path, divided per directory in format of array, ignoring the base path
           $scope.currentPath = [];
 
-          // Validates the connection data, tries to connect and in case of success, it lists all the directories present in the path
+          /**
+           * Validates the connection data, tries to connect and in case of success, it lists all the directories present in the path.
+           * @param {object} form - Form to be validated
+           *
+           * @function openFileExplorer
+           */
           $scope.openFileExplorer = function(form) {
             $scope.$broadcast("schemaFormValidate");
 
@@ -117,13 +123,22 @@ define([], function() {
             });
           };
 
-          // Selects the path of the current selected directory
+          /**
+           * Selects the path of the current selected directory.
+           *
+           * @function selectPath
+           */
           $scope.selectPath = function() {
             if($scope.selectedDirectory)
               $scope.model['pathname'] = $scope.selectedDirectory;
           };
 
-          // Sets the status of a clicked directory
+          /**
+           * Sets the status of a clicked directory.
+           * @param {string} path - Path of the directory
+           *
+           * @function setDirectoryStatus
+           */
           $scope.setDirectoryStatus = function(path) {
             var tempPath = path;
             var pathItems = tempPath.split('/');
@@ -160,7 +175,14 @@ define([], function() {
             }
           };
 
-          // Lists the directories of a given path
+          /**
+           * Lists the directories of a given path.
+           * @param {string} pathToList - Path to be listed
+           * @returns {angular.IPromise<Object[]>} promiser.promise - Promise
+           *
+           * @private
+           * @function listDirectories
+           */
           var listDirectories = function(pathToList) {
             var promiser = $q.defer();
             var timeOut = $q.defer();
@@ -202,7 +224,17 @@ define([], function() {
             return promiser.promise;
           };
 
-          // Opens all the directories present in a given path
+          /**
+           * Opens all the directories present in a given path.
+           * @param {array} paths - Path to be listed, divided per directory in format of array
+           * @param {string} parent - Path of the parent directory
+           * @param {array} currentChildren - Array containing the directories already listed
+           * @param {integer} i - Counter
+           * @returns {angular.IPromise<Object[]>} promiser.promise - Promise
+           *
+           * @private
+           * @function navigateToDirectory
+           */
           var navigateToDirectory = function(paths, parent, currentChildren, i) {
             var promiser = $q.defer();
 
@@ -234,7 +266,16 @@ define([], function() {
             return promiser.promise;
           };
 
-          // Returns the last directory in the path (Important! For this function to work, all the directories in the path, except the last, must have its children directories populated)
+          /**
+           * Returns the last directory in the path (Important! For this function to work, all the directories in the path, except the last, must have its children directories populated).
+           * @param {object} item - Object containing the directory explorer
+           * @param {array} pathDirectories - Path to be searched, divided per directory in format of array
+           * @param {integer} i - Counter
+           * @returns {object} item - Last directory object
+           *
+           * @private
+           * @function getLastDirectory
+           */
           var getLastDirectory = function(item, pathDirectories, i) {
             if(i < pathDirectories.length) {
               for(var j = 0, childrenLength = item.children.length; j < childrenLength; j++) {
