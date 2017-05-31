@@ -329,7 +329,7 @@
             </div>
             <!-- ./col-md-6 -->
 
-            <div class="col-md-6">
+            <div class="col-md-6" ng-show="ctrl.analysis.type_id === '{[ Enums.AnalysisType.MONITORED ]}'">
               <div class="form-group" terrama2-show-errors>
                 <label>{{ i18n.__("Attribute Identifier") }}:</label>
 
