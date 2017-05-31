@@ -25,28 +25,32 @@ define(
           selectedItem: "=",
           items: "="
         },
-        controller: ["$scope", function($scope){
-          $scope.isDisabled = false;
+        link: function(scope, el, attrs, formCtrl){
+          scope.isDisabled = false;
 
-          $scope.querySearch = querySearch;
-          $scope.selectedItemChange = selectedItemChange;
-          $scope.searchTextChange = searchTextChange;
+          scope.querySearch = querySearch;
+          scope.selectedItemChange = selectedItemChange;
+          scope.searchTextChange = searchTextChange;
 
           // ******************************
           // Internal methods
           // ******************************
           function querySearch (query) {
-            var results = query ? $scope.items.filter( createFilterFor(query) ) : $scope.items;
+            var results = query ? scope.items.filter( createFilterFor(query) ) : scope.items;
             return results;
           }
 
           function searchTextChange(text) {
-            $scope.selectedItem = text;
+            scope.selectedItem = text;
           }
 
           function selectedItemChange(item) {
             if (item){
-              $scope.selectedItem = item;
+              // when changed, emit change signal to validate field
+              var inputEl = el[0].querySelector("[name]");
+              var inputNgEl = angular.element(inputEl);
+              inputNgEl.change();
+              scope.selectedItem = item;
             }
           }
 
@@ -58,7 +62,7 @@ define(
               return (state.indexOf(query) === 0);
             };
           }
-        }]
+        }
       }
     }
     return terrama2TextSelect;
