@@ -63,7 +63,7 @@ namespace terrama2
       {
         return std::make_shared<DataAccessorGrib>(dataProvider, dataSeries);
       }
-      static DataAccessorType dataAccessorType(){ return "GRID-grib"; }
+      static DataAccessorType dataAccessorType(){ return "GRID-grib"; } 
 
       virtual void addToCompleteDataSet(DataSetPtr dataSet,
                                         std::shared_ptr<te::mem::DataSet> completeDataSet,
@@ -74,7 +74,7 @@ namespace terrama2
     protected:
       virtual std::unique_ptr<te::rst::Raster> getRasterBand(DataSetPtr dataSet,
                                                              std::shared_ptr<te::rst::Raster> gribRaster) const;
-      int getBand(DataSetPtr dataSet, std::shared_ptr<te::rst::Raster> raster) const;
+      std::set<int> getBand(DataSetPtr dataSet, std::shared_ptr<te::rst::Raster> raster) const;
 
     };
   }

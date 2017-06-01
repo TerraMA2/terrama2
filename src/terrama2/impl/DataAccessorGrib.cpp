@@ -39,6 +39,7 @@
 #include <terralib/memory/DataSetItem.h>
 
 #include <boost/range/algorithm/find_if.hpp>
+#include <boost/algorithm/string.hpp>
 
  terrama2::core::DataAccessorGrib::DataAccessorGrib(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics)
   : DataAccessor(dataProvider, dataSeries, false),
@@ -65,7 +66,7 @@
   {
     QString errMsg = QObject::tr("No raster attribute.");
     TERRAMA2_LOG_ERROR() << errMsg;
-    throw DataStoragerException() << ErrorDescription(errMsg);
+    throw DataAccessException() << ErrorDescription(errMsg);
   }
 
   size_t timestampColumn = te::da::GetFirstPropertyPos(completeDataSet.get(), te::dt::DATETIME_TYPE);
@@ -89,69 +90,109 @@
 
 std::unique_ptr<te::rst::Raster> terrama2::core::DataAccessorGrib::getRasterBand(DataSetPtr dataSet, std::shared_ptr<te::rst::Raster> raster) const
 {
-  auto bandIdx = getBand(dataSet, raster);
+  auto bandList = getBand(dataSet, raster);
   std::vector<te::rst::BandProperty*> bands;
-  bands.push_back(new te::rst::BandProperty(*raster->getBand(bandIdx)->getProperty()));
+  for(const auto& bandIdx : bandList)
+    bands.push_back(new te::rst::BandProperty(*raster->getBand(bandIdx)->getProperty()));
 
   auto grid = new te::rst::Grid(raster->getNumberOfColumns(), raster->getNumberOfRows(), new te::gm::Envelope(*raster->getExtent()), raster->getSRID());
   std::unique_ptr<te::rst::Raster> expansible(te::rst::RasterFactory::make("EXPANSIBLE", grid, bands, {}));
 
-  const te::rst::Band* rasterBand = raster->getBand(bandIdx);
-  te::rst::Band* expansibleBand = expansible->getBand(bandIdx);
-
-  const int nblocksX = rasterBand->getProperty()->m_nblocksx;
-  const int nblocksY = rasterBand->getProperty()->m_nblocksy;
-  int blkYIdx = 0;
-
-  for( int blkXIdx = 0 ; blkXIdx < nblocksX ; ++blkXIdx )
+  uint newBand = 0;
+  for(const auto& bandIdx : bandList)
   {
-    for( blkYIdx = 0 ; blkYIdx < nblocksY ; ++blkYIdx )
-    {
-      std::unique_ptr<unsigned char[]> buffer(new unsigned char[rasterBand->getBlockSize()]);
-      rasterBand->read( blkXIdx, blkYIdx, buffer.get());
-      expansibleBand->write( blkXIdx, blkYIdx, buffer.get());
-    }
-  }
+    const te::rst::Band* rasterBand = raster->getBand(bandIdx);
+    te::rst::Band* expansibleBand = expansible->getBand(newBand);
 
+    const int nblocksX = rasterBand->getProperty()->m_nblocksx;
+    const int nblocksY = rasterBand->getProperty()->m_nblocksy;
+    int blkYIdx = 0;
+
+    for( int blkXIdx = 0 ; blkXIdx < nblocksX ; ++blkXIdx )
+    {
+      for( blkYIdx = 0 ; blkYIdx < nblocksY ; ++blkYIdx )
+      {
+        std::unique_ptr<unsigned char[]> buffer(new unsigned char[rasterBand->getBlockSize()]);
+        rasterBand->read( blkXIdx, blkYIdx, buffer.get());
+        expansibleBand->write( blkXIdx, blkYIdx, buffer.get());
+      }
+    }
+
+    ++newBand;
+  }
   return expansible;
 }
 
-int terrama2::core::DataAccessorGrib::getBand(DataSetPtr dataSet, std::shared_ptr<te::rst::Raster> raster) const
+std::set<int> terrama2::core::DataAccessorGrib::getBand(DataSetPtr dataSet, std::shared_ptr<te::rst::Raster> raster) const
 {
   // get band value
   // if it's a numver, return the value
   // if it's a string find a band with property with that string and return the band index
-  auto bandStr = terrama2::core::getProperty(dataSet, dataSeries_, "band");
+  auto bandsStr = terrama2::core::getProperty(dataSet, dataSeries_, "bands");
+  auto isoSurfaceStr = terrama2::core::getProperty(dataSet, dataSeries_, "iso_surface")+"-ISBL";
 
   // default band
-  if(bandStr.empty())
-    return 0;
+  if(bandsStr.empty())
+    return {0};
 
-  if(boost::range::find_if(bandStr, ::isdigit) == bandStr.end())
+  std::vector<std::string> tokens;
+  boost::split(tokens, bandsStr, boost::is_any_of(";"));
+
+  std::set<int> bands;
+  for(const auto& bandStr : tokens)
   {
-    // it's a number, return the number
-    return std::stoi(bandStr);
-  }
-  else
-  {
-    // it's a string,  find a band with property with that string and return the band index
-    for(uint bandIdx = 0; bandIdx < raster->getNumberOfBands(); ++bandIdx)
+    if(boost::range::find_if(bandStr, ::isdigit) != bandStr.end())
     {
-      const te::rst::Band* rasterBand = raster->getBand(bandIdx);
-      const auto property = rasterBand->getProperty();
-
-      const auto& map = property->m_metadata;
-      for(uint i = 0; i < map.size(); ++i)
+      // it's a number, return the number
+      bands.insert(std::stoi(bandStr));
+    }
+    else
+    {
+      // it's a string,  find a band with property with that string and return the band index
+      for(uint bandIdx = 0; bandIdx < raster->getNumberOfBands(); ++bandIdx)
       {
-        auto item = map.at(i);
-        // check if the key value is GRIB_COMMENT or GRIB_ELEMENT
-        // check if the value is the same as bandStr
-        if((item.first == "GRIB_COMMENT" || item.first == "GRIB_ELEMENT") && item.second == bandStr)
-          return i;
+        const te::rst::Band* rasterBand = raster->getBand(bandIdx);
+        const auto property = rasterBand->getProperty();
+
+        auto getThisVar = false;
+        auto getThisSurface = false;
+
+        const auto& map = property->m_metadata;
+        for(uint i = 0; i < map.size(); ++i)
+        {
+          auto item = map.at(i);
+          // check if the key value is GRIB_COMMENT or GRIB_ELEMENT
+          // check if the value is the same as bandStr
+          if((item.first == "GRIB_COMMENT" || item.first == "GRIB_ELEMENT") && item.second == bandStr)
+          {
+            getThisVar = true;
+          }
+
+          // check if we want this isobaric surface
+          if(item.first == "GRIB_SHORT_NAME" && item.second == isoSurfaceStr)
+          {
+            getThisSurface = true;
+          }
+
+          // we found the band, no need to continue
+          if(getThisVar && getThisSurface)
+            break;
+        }
+
+        //add the band index
+        if(getThisVar && getThisSurface)
+          bands.insert(bandIdx);
       }
     }
-
-    // default band
-    return 0;
   }
+
+  //If no band was found, band 0 will be returned
+  if(bands.empty())
+  {
+    QString errMsg = QObject::tr("No band with defined attributes in raster.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw DataAccessException() << ErrorDescription(errMsg);
+  }
+
+  return bands;
 }
