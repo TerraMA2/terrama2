@@ -48,9 +48,6 @@ namespace terrama2
     */
     struct DataSetGrid : public DataSet
     {
-      boost::optional<std::string> bandName;
-      boost::optional<int> bandNumber;
-      boost::optional<std::string> bandCode;
     };
   } // end namespace core
 } // end namespace terrama2

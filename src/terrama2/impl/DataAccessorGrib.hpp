@@ -63,13 +63,13 @@ namespace terrama2
       {
         return std::make_shared<DataAccessorGrib>(dataProvider, dataSeries);
       }
-      static DataAccessorType dataAccessorType(){ return "GRID-grib"; } 
+      static DataAccessorType dataAccessorType(){ return "GRID-grib"; }
 
       virtual void addToCompleteDataSet(DataSetPtr dataSet,
                                         std::shared_ptr<te::mem::DataSet> completeDataSet,
                                         std::shared_ptr<te::da::DataSet> teDataSet,
                                         std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp,
-                                        const std::string&) const override;
+                                        const std::string& filename) const override;
 
     protected:
       virtual std::unique_ptr<te::rst::Raster> getRasterBand(DataSetPtr dataSet,

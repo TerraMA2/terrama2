@@ -57,7 +57,7 @@
                                                              std::shared_ptr<te::mem::DataSet> completeDataSet,
                                                              std::shared_ptr<te::da::DataSet> teDataSet,
                                                              std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp,
-                                                             const std::string&) const
+                                                             const std::string& filename) const
 {
   completeDataSet->moveLast();
 
@@ -83,7 +83,7 @@
     if(isValidColumn(timestampColumn ))
       item->setDateTime(timestampColumn, fileTimestamp.get() ? static_cast<te::dt::DateTime*>(fileTimestamp->clone()) : nullptr);
 
-    item->setString("filename", ""); //TODO: use real filename for grib files
+    item->setString("filename", filename);
     completeDataSet->add(item);
   }
 }
