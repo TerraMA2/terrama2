@@ -28,6 +28,8 @@ define([], function() {
      */
     $scope.forms = {};
 
+    self.columnsList = [];
+
     /**
      * It defines a options to use angular tree control directive. It is customized with bootstrap layout
      * 
