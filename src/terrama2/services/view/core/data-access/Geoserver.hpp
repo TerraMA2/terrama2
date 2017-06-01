@@ -338,10 +338,10 @@ namespace terrama2
                                           const std::string& exhibitionName,
                                           const std::string& outputFolder) const;
 
-            void createPostgisDatastorePropertiesFile(const std::string& outputFolder,
+            std::string createPostgisDatastorePropertiesFile(const std::string& outputFolder,
                                                       const te::core::URI& connInfo) const;
 
-            void createPostgisMosaicLayerPropertiesFile(const std::string& outputFolder,
+            std::string createPostgisMosaicLayerPropertiesFile(const std::string& outputFolder,
                                                         const std::string& exhibitionName,
                                                         const int srid) const;
 
@@ -362,7 +362,7 @@ namespace terrama2
                           terrama2::core::DataSetPtr dataset,
                           const terrama2::core::Filter& filter) const;
 
-            void createMosaicTable(const std::shared_ptr< te::da::DataSource > dataSource,
+            void createMosaicTable(std::shared_ptr<te::da::DataSource> transactor,
                                    const std::string& tableName,
                                    int srid) const;
 

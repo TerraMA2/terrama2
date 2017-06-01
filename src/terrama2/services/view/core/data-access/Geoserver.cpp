@@ -47,6 +47,7 @@
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSource.h>
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
+#include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 #include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/ws/core/CurlWrapper.h>
 #include <terralib/ws/ogc/wms/client/WMSClient.h>
@@ -1489,9 +1490,7 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
                                                                                     const ViewPtr viewPtr,
                                                                                     const te::core::URI& connInfo) const
 {
-  auto remover = std::make_shared<terrama2::core::FileRemover>();
-
-  std::shared_ptr< te::da::DataSource > dataSource = te::da::DataSourceFactory::make("POSTGIS", connInfo);
+  std::shared_ptr< te::da::DataSource > dataSource(te::da::DataSourceFactory::make("POSTGIS", connInfo));
 
   dataSource->open();
 
@@ -1505,6 +1504,8 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
   QUrl baseUrl(QString::fromStdString(inputDataProvider->uri));
 
   std::vector<std::string> layersNames;
+
+  std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource->getTransactor();
 
   for(auto& dataset : inputDataSeries->datasetList)
   {
@@ -1521,6 +1522,7 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
     {
       // Create needed txt mosaic files
       createPostgisDatastorePropertiesFile(url.path().toStdString(), connInfo);
+
       createPostgisMosaicLayerPropertiesFile(url.path().toStdString(), layerName, srid);
 
       // create table
@@ -1532,19 +1534,26 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
     std::vector<std::shared_ptr<te::dt::DateTime> > vecDates;
 
     {
-      auto teDataSet = dataSource-> getDataSet(layerName);
+      if(!transactor->dataSetExists(layerName))
+      {
+        QString errMsg = QObject::tr("Could not find dataset!");
+        TERRAMA2_LOG_ERROR() << errMsg;
+        throw Exception() << ErrorDescription(errMsg);
+      }
+
+      std::unique_ptr<te::da::DataSet> teDataSet(dataSource->getDataSet(layerName));
 
       vecDates = terrama2::core::getAllDates(teDataSet.get(), "timestamp");
     }
 
-    auto teDataSetType = dataSource->getDataSetType(layerName);
+    std::unique_ptr<te::da::DataSetType> teDataSetType(dataSource->getDataSetType(layerName));
 
     auto vecPkProperties = teDataSetType->getPrimaryKey()->getProperties();
 
     for(auto property : vecPkProperties)
       teDataSetType->remove(property);
 
-    te::mem::DataSet* ds = new te::mem::DataSet(teDataSetType.get());
+    std::unique_ptr<te::mem::DataSet> ds(new te::mem::DataSet(teDataSetType.get()));
 
     // Insert data
     for(auto rasterInfo : vecRasterInfo)
@@ -1566,7 +1575,7 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
       {
         auto geom = te::gm::GetGeomFromEnvelope(rasterEnvelope, rasterSRID);
 
-        te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(ds);
+        te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(ds.get());
         dsItem->setGeometry("the_geom", geom);
         dsItem->setString("location", rasterName);
         dsItem->setDateTime("timestamp", new te::dt::TimeInstant(rasterTimeInstantTz));
@@ -1580,7 +1589,7 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
       ds->moveBeforeFirst();
 
       std::map<std::string, std::string> options;
-      dataSource->add(layerName, ds, options);
+      dataSource->add(layerName, ds.get(), options);
 
       // register datastore and layer if they don't exists
       registerMosaicCoverage(layerName, url.path().toStdString(), layerName, srid, "", "all");
@@ -1589,8 +1598,15 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
     layersNames.push_back(layerName);
 
   }
-
-  dataSource->close();
+  try
+  {
+    if(dataSource && dataSource->isOpened())
+      dataSource->close();
+  }
+  catch(const te::da::Exception& e)
+  {
+    // TODO: check postgis close connection pool
+  }
 
   return layersNames;
 }
@@ -1656,10 +1672,9 @@ terrama2::services::view::core::GeoServer::getRasterInfo(terrama2::core::DataMan
 }
 
 
-void terrama2::services::view::core::GeoServer::createPostgisDatastorePropertiesFile(const std::string& outputFolder,
-                                                                                     const te::core::URI& connInfo) const
+std::string terrama2::services::view::core::GeoServer::createPostgisDatastorePropertiesFile(const std::string& outputFolder,
+                                                                                            const te::core::URI& connInfo) const
 {
-  {
     std::string propertiesFilename = outputFolder + "/datastore.properties";
 
     QFile outputFile(propertiesFilename.c_str());
@@ -1705,12 +1720,13 @@ void terrama2::services::view::core::GeoServer::createPostgisDatastoreProperties
 
     /* Close the file */
     outputFile.close();
-  }
+
+    return propertiesFilename;
 }
 
-void terrama2::services::view::core::GeoServer::createPostgisMosaicLayerPropertiesFile(const std::string& outputFolder,
-                                                                                       const std::string& exhibitionName,
-                                                                                       const int srid) const
+std::string terrama2::services::view::core::GeoServer::createPostgisMosaicLayerPropertiesFile(const std::string& outputFolder,
+                                                                                              const std::string& exhibitionName,
+                                                                                              const int srid) const
 {
   std::string propertiesFilename = outputFolder + "/" + exhibitionName + ".properties";
 
@@ -1755,6 +1771,8 @@ void terrama2::services::view::core::GeoServer::createPostgisMosaicLayerProperti
 
   /* Close the file */
   outputFile.close();
+
+  return propertiesFilename;
 }
 
 void terrama2::services::view::core::GeoServer::createPostgisIndexerPropertiesFile(const std::string& outputFolder,
@@ -1982,22 +2000,21 @@ int terrama2::services::view::core::GeoServer::createGeoserverTempMosaic(terrama
 }
 
 
-void terrama2::services::view::core::GeoServer::createMosaicTable(const std::shared_ptr< te::da::DataSource > dataSource,
+void terrama2::services::view::core::GeoServer::createMosaicTable(std::shared_ptr< te::da::DataSource > dataSource,
                                                                   const std::string& tableName,
                                                                   int srid) const
 {
-  te::mem::DataSet* ds;
   te::da::DataSetType* dt = new te::da::DataSetType(tableName);
 
   te::gm::GeometryProperty* geomProp = new te::gm::GeometryProperty("the_geom", 0, te::gm::PolygonType, true);
   geomProp->setSRID(srid);
 
-  te::dt::SimpleProperty* filenameProp = new te::dt::SimpleProperty("\"location\"", te::dt::STRING_TYPE, true);
+  te::dt::SimpleProperty* filenameProp = new te::dt::SimpleProperty("location", te::dt::STRING_TYPE, true);
   te::dt::StringProperty* sp = static_cast<te::dt::StringProperty*>(filenameProp);
   sp->setSubtype(te::dt::VAR_STRING);
   sp->setSize(255);
 
-  te::dt::DateTimeProperty* timestampProp = new te::dt::DateTimeProperty("\"timestamp\"", te::dt::TIME_INSTANT, true);
+  te::dt::DateTimeProperty* timestampProp = new te::dt::DateTimeProperty("timestamp", te::dt::TIME_INSTANT, true);
 
   std::string pkName = "\""+tableName+"_pkey\"";
   auto pk = new te::da::PrimaryKey(pkName, dt);
@@ -2012,7 +2029,6 @@ void terrama2::services::view::core::GeoServer::createMosaicTable(const std::sha
   dt->add(filenameProp);
   dt->add(timestampProp);
 
-  ds = new te::mem::DataSet(dt);
-
-  te::da::Create(dataSource.get(), dt, ds);
+  std::map<std::string, std::string> options;
+  dataSource->createDataSet(dt, options);
 }
