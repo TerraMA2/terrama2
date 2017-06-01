@@ -52,11 +52,13 @@ FtpRequest.prototype.request = function() {
           if(self.params.list) {
             var items = [];
 
+            list = list.filter(function(a) { return a.name.indexOf('/') === -1 && a.name.indexOf('\\') === -1 });
+
             for(var i = 0, listLength = list.length; i < listLength; i++) {
               if(list[i].type == 'd' && list[i].name.charAt(0) != '.')
                 items.push({
                   name: list[i].name,
-                  fullPath: (self.params[self.syntax().PATHNAME] != '/' ? self.params[self.syntax().PATHNAME] + '/' + list[i].name : self.params[self.syntax().PATHNAME] + list[i].name),
+                  fullPath: (self.params[self.syntax().PATHNAME] != self.params.basePath ? self.params[self.syntax().PATHNAME] + '/' + list[i].name : self.params[self.syntax().PATHNAME] + list[i].name),
                   children: [],
                   childrenVisible: false
                 });

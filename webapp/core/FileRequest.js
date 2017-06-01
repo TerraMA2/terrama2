@@ -28,8 +28,10 @@ FileRequest.prototype.request = function() {
               var items = [];
 
               if(!err) {
+                list = list.filter(function(a) { return a.indexOf('/') === -1 && a.indexOf('\\') === -1 });
+
                 for(var i = 0, listLength = list.length; i < listLength; i++) {
-                  var fullPath = (self.params[self.syntax().PATHNAME] != '/' ? self.params[self.syntax().PATHNAME] + '/' + list[i] : self.params[self.syntax().PATHNAME] + list[i]);
+                  var fullPath = (self.params[self.syntax().PATHNAME] != self.params.basePath ? self.params[self.syntax().PATHNAME] + '/' + list[i] : self.params[self.syntax().PATHNAME] + list[i]);
 
                   try {
                     var isDirectory = fs.statSync(fullPath).isDirectory();

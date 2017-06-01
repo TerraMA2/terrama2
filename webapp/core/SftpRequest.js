@@ -66,11 +66,13 @@ SftpRequest.prototype.request = function() {
               if(self.params.list) {
                 var items = [];
 
+                list = list.filter(function(a) { return a.filename.indexOf('/') === -1 && a.filename.indexOf('\\') === -1 });
+
                 for(var i = 0, listLength = list.length; i < listLength; i++) {
                   if(list[i].longname.charAt(0) == 'd' && list[i].filename.charAt(0) != '.')
                     items.push({
                       name: list[i].filename,
-                      fullPath: (self.params[self.syntax().PATHNAME] != '/' ? self.params[self.syntax().PATHNAME] + '/' + list[i].filename : self.params[self.syntax().PATHNAME] + list[i].filename),
+                      fullPath: (self.params[self.syntax().PATHNAME] != self.params.basePath ? self.params[self.syntax().PATHNAME] + '/' + list[i].filename : self.params[self.syntax().PATHNAME] + list[i].filename),
                       children: [],
                       childrenVisible: false
                     });

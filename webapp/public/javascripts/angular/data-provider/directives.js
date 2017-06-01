@@ -74,9 +74,11 @@ define([], function() {
           // Variable that contains the path of the directory being loaded
           $scope.pathLoading = null;
           // Variable that contains the path of the root directory
-          $scope.basePath = '/';
+          $scope.basePath = "/";
           // Variable that contains the current path, divided per directory in format of array, ignoring the base path
           $scope.currentPath = [];
+          // Flag that indicates if the path is in Windows pattern
+          $scope.isWindows = false;
 
           /**
            * Validates the connection data, tries to connect and in case of success, it lists all the directories present in the path.
@@ -94,7 +96,15 @@ define([], function() {
             $scope.pathLoading = null;
 
             $scope.isChecking = true;
-            $scope.currentPath = $scope.model['pathname'].split('/').filter(function(a) { return a != '' });
+
+            var tempCurrentPath = ($scope.model['pathname'] == undefined || $scope.model['pathname'] == "" ? "/" : $scope.model['pathname']).replace(/\\/g, '/');
+
+            setBasePath(tempCurrentPath);
+
+            if($scope.isWindows)
+              tempCurrentPath = tempCurrentPath.substring(3);
+
+            $scope.currentPath = tempCurrentPath.split('/').filter(function(a) { return a != $scope.basePath.replace(/\//g, '') && a != '' });
 
             listDirectories($scope.basePath).then(function(data) {
               if(data.error) {
@@ -105,7 +115,7 @@ define([], function() {
               $scope.rootDirectories.childrenVisible = true;
               $scope.rootDirectories.children = data.directories;
 
-              if($scope.currentPath.length === 0) {
+              if($scope.currentPath.length === 0 || data.directories.length === 0) {
                 $scope.isChecking = false;
                 $('#filesExplorerModal').modal();
               } else {
@@ -130,7 +140,7 @@ define([], function() {
            */
           $scope.selectPath = function() {
             if($scope.selectedDirectory)
-              $scope.model['pathname'] = $scope.selectedDirectory;
+              $scope.model['pathname'] = ($scope.isWindows ? $scope.selectedDirectory.replace(/\//g, '\\') : $scope.selectedDirectory);
           };
 
           /**
@@ -142,9 +152,21 @@ define([], function() {
           $scope.setDirectoryStatus = function(path) {
             var tempPath = path;
             var pathItems = tempPath.split('/');
-            pathItems = pathItems.filter(function(a) { return a != '' });
+            pathItems = pathItems.filter(function(a) { return a != $scope.basePath.replace(/\//g, '') && a != '' });
 
-            var lastDirectory = getLastDirectory($scope.rootDirectories, pathItems, 0);
+            try {
+              var lastDirectory = getLastDirectory($scope.rootDirectories, pathItems, 0);
+            } catch(err) {
+              $('#filesExplorerErrorModal .modal-body > p').text(i18n.__("Invalid path"));
+              $('#filesExplorerErrorModal').modal();
+              return;
+            }
+
+            if(!lastDirectory) {
+              $('#filesExplorerErrorModal .modal-body > p').text(i18n.__("Invalid path"));
+              $('#filesExplorerErrorModal').modal();
+              return;
+            }
 
             if(lastDirectory.childrenVisible) {
               lastDirectory.childrenVisible = false;
@@ -156,8 +178,12 @@ define([], function() {
               $scope.pathLoading = path;
 
               listDirectories(path).then(function(data) {
-                if(data.error)
-                  return MessageBoxService.danger(i18n.__(title), data.error);
+                if(data.error) {
+                  $scope.loadingDirectories = false;
+                  $scope.pathLoading = null;
+                  $('#filesExplorerErrorModal .modal-body > p').text(data.error);
+                  $('#filesExplorerErrorModal').modal();
+                }
 
                 $scope.selectedDirectory = path;
 
@@ -192,6 +218,7 @@ define([], function() {
             params.protocol = $scope.dataProvider.protocol;
             params.list = true;
             params.pathname = pathToList;
+            params.basePath = $scope.basePath;
 
             $scope.timeOutSeconds = 8;
 
@@ -238,14 +265,21 @@ define([], function() {
           var navigateToDirectory = function(paths, parent, currentChildren, i) {
             var promiser = $q.defer();
 
-            parent = (parent == '/' ? '' : parent);
+            parent = (parent == $scope.basePath ? $scope.basePath.replace(/\//g, '') : parent);
 
             if(i < paths.length) {
               return listDirectories(parent + '/' + paths[i]).then(function(data) {
                 if(data.error)
                   throw new Error((err.error ? err.error : err.message));
 
-                var lastDirectory = getLastDirectory($scope.rootDirectories, currentChildren, 0);
+                try {
+                  var lastDirectory = getLastDirectory($scope.rootDirectories, currentChildren, 0);
+                } catch(err) {
+                  throw new Error(i18n.__("Invalid path"));
+                }
+
+                if(!lastDirectory)
+                  throw new Error(i18n.__("Invalid path"));
 
                 lastDirectory.childrenVisible = true;
                 lastDirectory.children = data.directories;
@@ -288,43 +322,32 @@ define([], function() {
             }
           };
 
-          // new
+          /**
+           * Sets the base path accordingly with the pattern of the given path.
+           * @param {string} path - Path inserted by the user
+           *
+           * @private
+           * @function setBasePath
+           */
+          var setBasePath = function(path) {
+            var letter = "A";
+            var isWindowsPath = false;
 
-          var getBasePathByPermissions = function(directories) {
-            var promiser = $q.defer();
-            var promises = [];
-            var originalDirectories = directories;
+            for(var i = 0; i < 26; i++) {
+              if((letter + ":/") == path.substr(0, 3).toUpperCase()) {
+                $scope.basePath = (letter + ":/");
+                isWindowsPath = true;
+                break;
+              }
 
-            for(var i = (directories.length - 1); i >= 0; i--) {
-              promises.push(
-                listDirectories('/' + directories.join('/')).then(function(data) {
-                  if(data.error) {
-                    if(true) {
-                      return promiser.resolve(data);
-                    } else {
-                      return promiser.reject(data.error);
-                    }
-                  }
-                }).catch(function(err) {
-                  if(true) {
-                    return promiser.resolve(data);
-                  } else {
-                    return promiser.reject(data.error);
-                  }
-                })
-              );
-
-              directories.splice(i, 1);
+              letter = String.fromCharCode(letter.charCodeAt() + 1);
             }
 
-            $q.all(promises).then(function() {
-              return promiser.resolve('/' + originalDirectories.join('/'));
-            });
+            if(!isWindowsPath)
+             $scope.basePath = "/";
 
-            return promiser.promise;
+            $scope.isWindows = isWindowsPath;
           };
-
-          // new
         }]
       };
     });
