@@ -6,8 +6,9 @@ define([
   "TerraMA2WebApp/common/directives/datetime-formatter",
   "TerraMA2WebApp/common/directives/fluid",
   "TerraMA2WebApp/common/directives/show-errors",
-  "TerraMA2WebApp/common/directives/compare-to"
-], function(terrama2Box, terrama2Button, terrama2Content, terrama2Datetime, terrama2DateTimeFormatter, terrama2Fluid, terrama2ShowErrors, terrama2CompareTo) {
+  "TerraMA2WebApp/common/directives/compare-to",
+  "TerraMA2WebApp/common/directives/text-select"
+], function(terrama2Box, terrama2Button, terrama2Content, terrama2Datetime, terrama2DateTimeFormatter, terrama2Fluid, terrama2ShowErrors, terrama2CompareTo, terrama2TextSelect) {
   var moduleName = "terrama2.common.directives";
   angular.module(moduleName, [])
     .directive("terrama2Box", terrama2Box)
@@ -17,6 +18,7 @@ define([
     .directive("terrama2Fluid", terrama2Fluid)
     .directive("terrama2ShowErrors", terrama2ShowErrors)
     .directive("terrama2CompareTo", terrama2CompareTo)
+    .directive("terrama2TextSelect", terrama2TextSelect)
     .run(["$templateCache", function($templateCache) {
       // TerraMA2 Box
       $templateCache.put('box.html',

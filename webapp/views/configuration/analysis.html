@@ -87,6 +87,9 @@
 <script src="{[ BASE_URL ]}bower_components/angular-ui-select/dist/select.min.js"></script>
 
 
+<script src="{[ BASE_URL ]}bower_components/angular-aria/angular-aria.min.js"></script>
+<script src="{[ BASE_URL ]}bower_components/angular-animate/angular-animate.min.js"></script>
+<script src="{[ BASE_URL ]}bower_components/angular-material/angular-material.min.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -327,23 +330,19 @@
             <!-- ./col-md-6 -->
 
             <div class="col-md-6" ng-show="ctrl.analysis.type_id === '{[ Enums.AnalysisType.MONITORED ]}'">
-              <div class="form-group has-feedback" terrama2-show-errors>
+              <div class="form-group" terrama2-show-errors>
                 <label>{{ i18n.__("Attribute Identifier") }}:</label>
-                <input type="text" class="form-control"
-                                   name="identifier"
-                                   ng-model="ctrl.identifier"
-                                   ng-required="ctrl.analysis.type_id === '{[ Enums.AnalysisType.MONITORED ]}'"
-                                   id='attribute_identifier'
-                                   list='tableColumnsList'>
 
+                <!-- Input text with optional selection directive-->
+                <terrama2-text-select selected-item="ctrl.identifier" items="ctrl.columnsList"></terrama2-text-select>
                 <!-- required -->
                 <span class="help-block"
-                      ng-show="forms.targetDataSeriesForm.attributeIdentifier.$dirty && forms.targetDataSeriesForm.attributeIdentifier.$error.required">
-                  {{ __('Attribute Identifier') }}
+                      ng-show="forms.targetDataSeriesForm.identifier.$dirty && forms.targetDataSeriesForm.identifier.$error.required">
+                  {{ i18n.__("Attribute Identifier is required") }}
                 </span>
               </div>
             </div>
-            <!-- ./col-md-6 -->
+
           </form>
         </div>
       </div>
