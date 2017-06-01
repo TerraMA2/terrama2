@@ -166,7 +166,7 @@ namespace terrama2
                     continue;
 
                   geomResult->transform(firstRaster->getSRID());
-                  for(auto raster : rasterList)
+                  for(const auto& raster : rasterList)
                   {
                     std::map<std::pair<int, int>, double> tempValuesMap;
                     utils::getRasterValues<double>(geomResult.get(), raster, band, tempValuesMap);

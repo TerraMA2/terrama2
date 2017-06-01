@@ -99,7 +99,7 @@ terrama2::core::DataAccessorPtr terrama2::core::DataAccessorFactory::make(terram
 
   if(it == factoriesMap_.end())
   {
-    QString errMsg = QObject::tr("Could not find a data accessor factory for this semantic: %1.").arg(QString::fromStdString(dataSeries->semantics.driver));
+    QString errMsg = QObject::tr("Could not find a data accessor factory for this semantic: %1.").arg(QString::fromStdString(dataSeries->semantics.code));
     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
     throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
   }

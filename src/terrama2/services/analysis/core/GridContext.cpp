@@ -205,7 +205,7 @@ void terrama2::services::analysis::core::GridContext::addResolutionToRasterInfo(
     {
 
       double  pixelArea = 0;
-      for(auto analysisDataSeries : analysis_->analysisDataSeriesList)
+      for(const auto& analysisDataSeries : analysis_->analysisDataSeriesList)
       {
         try
         {
@@ -258,7 +258,7 @@ void terrama2::services::analysis::core::GridContext::addResolutionToRasterInfo(
     {
 
       double  pixelArea = std::numeric_limits<double>::max();
-      for(auto analysisDataSeries : analysis_->analysisDataSeriesList)
+      for(const auto& analysisDataSeries : analysis_->analysisDataSeriesList)
       {
         try
         {
@@ -335,7 +335,7 @@ void terrama2::services::analysis::core::GridContext::addInterestAreaToRasterInf
   {
     case InterestAreaType::UNION:
     {
-      for(auto analysisDataSeries : analysis_->analysisDataSeriesList)
+      for(const auto& analysisDataSeries : analysis_->analysisDataSeriesList)
       {
         try
         {

@@ -131,7 +131,7 @@ namespace terrama2
         te::dt::AbstractData* stringToInt(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const;
 
         //! Recover projection information from dataset
-        Srid getSrid(DataSetPtr dataSet) const;
+        Srid getSrid(DataSetPtr dataSet, bool logErrors = true) const;
 
         //! Default destructor.
         virtual ~DataAccessor() = default;

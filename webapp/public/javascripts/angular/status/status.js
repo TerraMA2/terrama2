@@ -239,11 +239,13 @@ define([
                   }
                   if (logMessage.data){
                     var dateProcessInfo = getDateProcessInfo(logMessage.data);
-                    var dateProcessObject = {
-                      description: dateProcessInfo,
-                      messagetype: Globals.enums.MessageType.INFO_MESSAGE
-                    };
-                    out.messages.push(dateProcessObject);
+                    if (dateProcessInfo){
+                      var dateProcessObject = {
+                        description: dateProcessInfo,
+                        messagetype: Globals.enums.MessageType.INFO_MESSAGE
+                      };
+                      out.messages.push(dateProcessObject);
+                    }
                   }
                   out.messageType = targetType;
                   break;
@@ -336,7 +338,9 @@ define([
         } else if (difference < 3600000){
           format = "mm[m] ss[s]";
         }
-        var message = i18n.__("Processing time") + ": " + difference.format(format);
+        var message;
+        if (difference.isValid())
+          var message = i18n.__("Processing time") + ": " + difference.format(format);
         return message;
       }
 
