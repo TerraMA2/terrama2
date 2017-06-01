@@ -24,7 +24,11 @@ define([
    * TODO: module loading dinamically pushing into "angular.module(moduleName).requires" array. @note It must be used before
    * directive bootstrapping. 
    */
-  if (moduleLoader("schemaForm", deps) && moduleLoader("treeControl", deps) && moduleLoader("ui.select", deps) && moduleLoader("ngSanitize", deps)) {
+  if (moduleLoader("schemaForm", deps) && 
+      moduleLoader("treeControl", deps) && 
+      moduleLoader("ui.select", deps) && 
+      moduleLoader("ngSanitize", deps) &&
+      moduleLoader("ngMaterial", deps)) {
     // register update dependencies
     deps.push(aceApp);
     deps.push(dataSeriesApp);
