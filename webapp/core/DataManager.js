@@ -2391,7 +2391,7 @@ var DataManager = module.exports = {
    */
   addSchedule: function(scheduleObject, options) {
     return new Promise(function(resolve, reject) {
-      if (scheduleObject.scheduleType == Enums.ScheduleType.CONDITIONAL){
+      if (scheduleObject.scheduleType == Enums.ScheduleType.AUTOMATIC){
         models.db.ConditionalSchedule.create(scheduleObject, options).then(function(schedule) {
           return resolve(new DataModel.ConditionalSchedule(schedule.get()));
         }).catch(function(err) {
@@ -3270,7 +3270,7 @@ var DataManager = module.exports = {
         .then(function(dataSeriesResult) {
           dataSeries = dataSeriesResult;
           var schedulePromise;
-          if (analysisResult.schedule_type == Enums.ScheduleType.CONDITIONAL){
+          if (analysisResult.schedule_type == Enums.ScheduleType.AUTOMATIC){
             schedulePromise = self.getConditionalSchedule({id: analysisResult.conditional_schedule_id}, options);
           } else if (analysisResult.schedule_type == Enums.ScheduleType.SCHEDULE || analysisResult.schedule_type == Enums.ScheduleType.REPROCESSING_HISTORICAL){
             schedulePromise = self.getSchedule({id: analysisResult.schedule_id}, options);            
@@ -3336,7 +3336,7 @@ var DataManager = module.exports = {
 
             var analysisInstance = new DataModel.Analysis(analysisResult);
             analysisInstance.setScriptLanguage(scriptLanguageResult);
-            if (analysisResult.schedule_type == Enums.ScheduleType.CONDITIONAL){
+            if (analysisResult.schedule_type == Enums.ScheduleType.AUTOMATIC){
               analysisInstance.setConditionalSchedule(scheduleResult);
             } else if(analysisResult.schedule_type == Enums.ScheduleType.SCHEDULE || analysisResult.schedule_type == Enums.ScheduleType.REPROCESSING_HISTORICAL){
               analysisInstance.setSchedule(scheduleResult);
@@ -3432,7 +3432,7 @@ var DataManager = module.exports = {
         if (oldScheduleType == newScheduleType){
           if (newScheduleType == Enums.ScheduleType.SCHEDULE || newScheduleType == Enums.ScheduleType.REPROCESSING_HISTORICAL){
             return self.updateSchedule(analysisInstance.schedule.id, scheduleObject, options);
-          } else if (newScheduleType == Enums.ScheduleType.CONDITIONAL){
+          } else if (newScheduleType == Enums.ScheduleType.AUTOMATIC){
             return self.updateConditionalSchedule(analysisInstance.conditionalSchedule.id, scheduleObject, options);
           }
         } else if ((newScheduleType == Enums.ScheduleType.SCHEDULE && oldScheduleType == Enums.ScheduleType.REPROCESSING_HISTORICAL) || 
@@ -3453,7 +3453,7 @@ var DataManager = module.exports = {
               }
             });
             // If old schedule is conditional, remove the schedule
-          } else if (oldScheduleType == Enums.ScheduleType.CONDITIONAL){
+          } else if (oldScheduleType == Enums.ScheduleType.AUTOMATIC){
             removeSchedule = true;
             scheduleIdToRemove = analysisResult.conditionalSchedule.id;
             scheduleTypeToRemove = oldScheduleType;
@@ -3474,7 +3474,7 @@ var DataManager = module.exports = {
             scheduleIdToRemove = analysisResult.schedule.id;
             scheduleTypeToRemove = oldScheduleType;
             analysisObject.schedule_id = null;
-            if (newScheduleType == Enums.ScheduleType.CONDITIONAL){
+            if (newScheduleType == Enums.ScheduleType.AUTOMATIC){
               return self.addSchedule(scheduleObject, options).then(function(newSchedule){
                 analysisObject.conditional_schedule_id = newSchedule.id;
                 analysisResult.conditionalSchedule = newSchedule;
@@ -3545,7 +3545,7 @@ var DataManager = module.exports = {
       .then(function() {
         // remove schedule
         if (removeSchedule){
-          if (scheduleTypeToRemove == Enums.ScheduleType.CONDITIONAL){
+          if (scheduleTypeToRemove == Enums.ScheduleType.AUTOMATIC){
             return DataManager.removeConditionalSchedule({id: scheduleIdToRemove}, options);
           } else {
             return DataManager.removeSchedule({id: scheduleIdToRemove}, options);
@@ -3895,7 +3895,7 @@ var DataManager = module.exports = {
             var removeSchedulePromise;
             if (analysisResult.scheduleType == Enums.ScheduleType.SCHEDULE || analysisResult.scheduleType == Enums.ScheduleType.REPROCESSING_HISTORICAL){
               removeSchedulePromise = self.removeSchedule({id: analysisResult.schedule.id}, options);
-            } else if (analysisResult.scheduleType == Enums.ScheduleType.CONDITIONAL ){
+            } else if (analysisResult.scheduleType == Enums.ScheduleType.AUTOMATIC ){
               removeSchedulePromise = self.removeConditionalSchedule({id: analysisResult.conditionalSchedule.id}, options);
             } else {
               removeSchedulePromise = Promise.resolve();
