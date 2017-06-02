@@ -9,11 +9,11 @@ define([
   angular.module(moduleName, [servicesApp, collapserApp])
     .run(["$templateCache", function($templateCache) {
       $templateCache.put("helper.html",
-        "<div class=\"dropup pull-left\" style=\"margin-left: 10px;\">" + 
+        "<div class=\"dropup pull-left\" style=\"margin-left: 10px;\" data-toggle=\"tooltip\" data-placement=\"bottom\" ng-attr-title=\"{{i18n.__(operators.name)}}\">" + 
           "<button aria-expanded=\"false\" type=\"button\" class=\"btn dropdown-toggle\" data-toggle=\"dropdown\">" +
-            "<img style=\"height: 20px;\" ng-src=\"{{operators.imagePath}}\" data-toggle=\"tooltip\" data-placement=\"top\" ng-attr-title=\"{{operators.name}}\"/>" +
+            "<img style=\"height: 20px;\" ng-src=\"" + BASE_URL + "{{operators.imagePath}}\"/>" +
           "</button>" +
-          "<terrama2-list class=\"dropdown-menu\" data=\"operatorsData\" expression=\"restriction\"></terrama2-list>" +
+          "<terrama2-list class=\"classes\" data=\"operatorsData\" expression=\"restriction\"></terrama2-list>" +
         "</div>");
     }])
     .directive("terrama2AnalysisHelpers", ["i18n", "$http", terrama2AnalysisHelpersDirective]);
@@ -34,7 +34,8 @@ define([
       scope: {
         target: '=',
         restriction: "=",
-        operators: '='
+        operators: '=',
+        addClass: '='
       },
       controller: ["$scope", "i18n", controllerFn],
       templateUrl: "helper.html",
@@ -48,6 +49,7 @@ define([
      */
     function controllerFn($scope, i18n) {
       $scope.i18n = i18n;
+      $scope.classes = $scope.addClass ? "dropdown-menu " + $scope.addClass : "dropdown-menu";
       $scope.operatorsData = [];
       /**
        * Listener for Item clicked. Whenever retrieve a item, It must have code in order to append script context
@@ -82,11 +84,15 @@ define([
       // watch operators to get file data
       scope.$watch('operators', function(operators){
         if (operators){
-          var pathFile = "/javascripts/angular/analysis/data/" + operators.fileName;
+          if (operators.fileName){
+            var pathFile = BASE_URL + "javascripts/angular/analysis/data/" + operators.fileName;
 
-          $http.get(pathFile).then(function(response){
-            scope.operatorsData = response.data;
-          });
+            $http.get(pathFile).then(function(response){
+              scope.operatorsData = response.data;
+            });
+          } else {
+            scope.operatorsData = operators.data;
+          }
         }
       });
     } // end linkFn

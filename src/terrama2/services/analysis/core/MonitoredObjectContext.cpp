@@ -111,7 +111,7 @@ void terrama2::services::analysis::core::MonitoredObjectContext::loadMonitoredOb
     }
     else if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_PCD_TYPE)
     {
-      for(auto dataset : dataSeriesPtr->datasetList)
+      for(const auto& dataset : dataSeriesPtr->datasetList)
       {
         auto dataProvider = dataManagerPtr->findDataProvider(dataSeriesPtr->dataProviderId);
         terrama2::core::Filter filter;
@@ -144,7 +144,7 @@ void terrama2::services::analysis::core::MonitoredObjectContext::addDCPDataSerie
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
   bool needToAdd = false;
-  for(auto dataset : dataSeries->datasetList)
+  for(const auto& dataset : dataSeries->datasetList)
   {
     if(!exists(dataset->id, filter))
     {
@@ -185,7 +185,7 @@ void terrama2::services::analysis::core::MonitoredObjectContext::addDCPDataSerie
     throw EmptyDataSeriesException() << terrama2::ErrorDescription(errMsg);
   }
 
-  for(auto mapItem : seriesMap)
+  for(const auto& mapItem : seriesMap)
   {
     auto series = mapItem.second;
 
@@ -250,7 +250,7 @@ void terrama2::services::analysis::core::MonitoredObjectContext::addDataSeries(t
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
   bool needToAdd = false;
-  for(auto dataset : dataSeries->datasetList)
+  for(const auto& dataset : dataSeries->datasetList)
   {
     if(!exists(dataset->id, filter))
     {
@@ -285,7 +285,7 @@ void terrama2::services::analysis::core::MonitoredObjectContext::addDataSeries(t
     throw EmptyDataSeriesException() << terrama2::ErrorDescription(errMsg);
   }
 
-  for(auto mapItem : seriesMap)
+  for(const auto& mapItem : seriesMap)
   {
     auto series = mapItem.second;
 

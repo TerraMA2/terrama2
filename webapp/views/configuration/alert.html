@@ -1,21 +1,23 @@
 {% extends "../base/layout.html" %}
 
+{% set tabActive = "alerts" %}
+
 {% block title %} TerraMA² {{ i18n.__('Alert Registration') }} {% endblock %}
 
 {% block styles %}
 
-<link rel="stylesheet" href="/bower_components/angular-ui-select/dist/select.min.css" />
+<link rel="stylesheet" href="{[ BASE_URL ]}bower_components/angular-ui-select/dist/select.min.css" />
 
 {% endblock %}
 
 {% block javascripts %}
 
 <!-- Moment Datetime JS -->
-<script type="text/javascript" src="/bower_components/moment/moment.js"></script>
-<script type="text/javascript" src="/bower_components/moment/locale/pt-br.js"></script>
-<script type="text/javascript" src="/bower_components/moment/locale/es.js"></script>
-<script type="text/javascript" src="/bower_components/moment/locale/fr.js"></script>
-<script src="/bower_components/angular-ui-select/dist/select.min.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/moment.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/pt-br.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/es.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/fr.js"></script>
+<script src="{[ BASE_URL ]}bower_components/angular-ui-select/dist/select.min.js"></script>
 
 <script>
   var configuration = {
@@ -59,11 +61,11 @@
                         ng-model="ctrl.alert.service_instance_id"
                         required>
                   <ui-select-match>
-                    <img ng-src="/images/services/alert/alert_service.png" style="height: 20px; margin-top: -7px;"/>
+                    <img ng-src="{[ BASE_URL ]}images/services/alert/alert_service.png" style="height: 20px; margin-top: -7px;"/>
                     <span ng-bind="$select.selected.name"></span>
                   </ui-select-match>
                   <ui-select-choices repeat="instance.id as instance in (ctrl.filteredServices | filter: {'name': $select.search}) track by instance.id">
-                    <img ng-src="/images/services/alert/alert_service.png" style="height: 20px;"/>
+                    <img ng-src="{[ BASE_URL ]}images/services/alert/alert_service.png" style="height: 20px;"/>
                     <span ng-bind="instance.name"></span>
                   </ui-select-choices>
                 </ui-select>
@@ -289,7 +291,7 @@
           <div class="form-group" terrama2-show-errors>
             <select class="form-control" name="reportTypes" ng-model="ctrl.alert.notifications[0].include_report" ng-show="ctrl.includeReport"  ng-required="ctrl.includeReport">
               <option value="PDF">PDF</option>
-              <option value="TXT">TXT</option>
+              <!-- <option value="TXT">TXT</option> -->
             </select>
             <span class="help-block"
                   ng-show="forms.notificationForm.reportTypes.$dirty && forms.notificationForm.reportTypes.$invalid"
@@ -345,9 +347,7 @@
           <li><a href="javascript::void();" ng-disabled="ctrl.isNotValid" data-ng-click="!ctrl.isNotValid && ctrl.save(false);" ng-bind="i18n.__('Save')"></a></li>
         </ul>
       </div>
-      <a href="/configuration/alerts/" class="btn btn-primary pull-right" style="margin-left: 10px;">
-        <span ng-bind="i18n.__('Cancel')"></span>
-      </a>
+      <a href="{[ BASE_URL ]}configuration/alerts/" class="btn btn-primary pull-left"><span ng-bind="i18n.__('Cancel')"></span></a>
     </div>
 
   </terrama2-box>

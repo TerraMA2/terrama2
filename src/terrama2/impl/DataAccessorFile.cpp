@@ -177,7 +177,7 @@ void terrama2::core::DataAccessorFile::cropRaster(std::shared_ptr<te::mem::DataS
   {
     auto raster = completeDataSet->getRaster(rpos);
 
-    auto croppedRaster = raster->trim(filter.region->getMBR(), {{"FORCE_MEM_DRIVER", "TRUE"}});
+    auto croppedRaster = raster->trim(filter.region->getMBR(), {{"RTYPE", "EXPANSIBLE"}});
     completeDataSet->setRaster(rpos, croppedRaster);
   }
 }
@@ -600,7 +600,13 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
 
 
 
-std::shared_ptr<te::dt::TimeInstantTZ> terrama2::core::DataAccessorFile::readFile(DataSetSeries& series, std::shared_ptr<te::mem::DataSet>& completeDataset, std::shared_ptr<te::da::DataSetTypeConverter>& converter, QFileInfo fileInfo, const std::string& mask, terrama2::core::DataSetPtr dataSet) const
+std::shared_ptr<te::dt::TimeInstantTZ>
+terrama2::core::DataAccessorFile::readFile(DataSetSeries& series,
+                                           std::shared_ptr<te::mem::DataSet>& completeDataset,
+                                           std::shared_ptr<te::da::DataSetTypeConverter>& converter,
+                                           QFileInfo fileInfo,
+                                           const std::string& mask,
+                                           terrama2::core::DataSetPtr dataSet) const
 {
 
   //get timezone of the dataset

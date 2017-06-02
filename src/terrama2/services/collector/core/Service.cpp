@@ -63,7 +63,7 @@ void terrama2::services::collector::core::Service::prepareTask(const terrama2::c
     assert(collectorLogger);
     taskQueue_.emplace(std::bind(&terrama2::services::collector::core::Service::collect, this, executionPackage, collectorLogger, dataManager_));
   }
-  catch(std::exception& e)
+  catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
   }
@@ -134,8 +134,6 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
 
   try
   {
-
-
     //////////////////////////////////////////////////////////
     //  aquiring metadata
     auto lock = dataManager->getLock();
@@ -158,6 +156,8 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
 
     /////////////////////////////////////////////////////////////////////////
     //  recovering data
+
+    auto processingStartTime = terrama2::core::TimeUtils::nowUTC();
 
     terrama2::core::Filter filter = collectorPtr->filter;
     //update filter based on last collected data timestamp
@@ -212,6 +212,11 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
     }
 
     TERRAMA2_LOG_INFO() << tr("Data from collector %1 collected successfully.").arg(executionPackage.processId);
+
+    auto processingEndTime = terrama2::core::TimeUtils::nowUTC();
+
+    logger->setStartProcessingTime(processingStartTime, executionPackage.registerId);
+    logger->setEndProcessingTime(processingEndTime, executionPackage.registerId);
 
     logger->result(CollectorLogger::DONE, lastDateTime, executionPackage.registerId);
 
@@ -333,12 +338,12 @@ void terrama2::services::collector::core::Service::removeCollector(CollectorId c
 
     TERRAMA2_LOG_INFO() << tr("Collector %1 removed successfully.").arg(collectorId);
   }
-  catch(std::exception& e)
+  catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
     TERRAMA2_LOG_INFO() << tr("Could not remove collector: %1.").arg(collectorId);
   }
-  catch(boost::exception& e)
+  catch(const boost::exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
     TERRAMA2_LOG_INFO() << tr("Could not remove collector: %1.").arg(collectorId);

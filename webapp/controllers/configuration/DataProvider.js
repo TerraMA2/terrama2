@@ -17,13 +17,13 @@ module.exports = function(app) {
     },
 
     new: function(request, response) {
-      var redirectTo = request.query.redirectTo ? request.query : {redirectTo: "/configuration/providers"};
+      var redirectTo = request.query.redirectTo ? request.query : {redirectTo: app.locals.BASE_URL + "configuration/providers"};
 
       return response.render("configuration/provider", {
         isEditing: false,
         dataProvider: {},
         saveConfig: {
-          url: "/api/DataProvider",
+          url: app.locals.BASE_URL + "api/DataProvider",
           method: "POST"
         },
         redirectTo: redirectTo
@@ -32,7 +32,7 @@ module.exports = function(app) {
 
     edit: function(request, response) {
       var dataProviderId = request.params.id;
-      var redirectTo = request.query.redirectTo ? request.query : {redirectTo: "/configuration/providers"};
+      var redirectTo = request.query.redirectTo ? request.query : {redirectTo: app.locals.BASE_URL + "configuration/providers"};
 
       DataManager.getDataProvider({id: parseInt(dataProviderId || "0")}).then(function(dataProvider) {
         var requester = RequestFactory.buildFromUri(dataProvider.uri);
@@ -49,7 +49,7 @@ module.exports = function(app) {
             uriObject: requester.params
           },
           saveConfig: {
-            url: "/api/DataProvider/" + dataProvider.id,
+            url: app.locals.BASE_URL + "api/DataProvider/" + dataProvider.id,
             method: "PUT"
           },
           fields: requester.constructor.fields(),

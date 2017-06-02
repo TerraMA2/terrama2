@@ -634,7 +634,9 @@ function onStatusReceived(service, response) {
       service: service.id,
       shutting_down: response.shutting_down,
       loading: false,
-      online: Object.keys(response).length > 0
+      online: Object.keys(response).length > 0,
+      start_time: response.start_time,
+      terrama2_version: response.terrama2_version
     });
   }
 }
@@ -682,7 +684,7 @@ function onServiceVersionReceived(service, response) {
  */
 function onProcessFinished(resp) {
   // broadcast to everyone
-  if (resp.view && resp.view instanceof RegisteredView) {
+  if (resp && resp instanceof RegisteredView) {
     tcpService.emit("viewReceived", resp);
   } 
   // Notifies that process finished

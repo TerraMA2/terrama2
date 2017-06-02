@@ -5,12 +5,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>{% block title %}{% endblock %}</title>
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
-    <link rel="stylesheet" href="/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{[ BASE_URL ]}bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
-    <link rel="stylesheet" href="/AdminLTE/dist/css/AdminLTE.min.css">
-    <link rel="stylesheet" href="/AdminLTE/dist/css/skins/skin-black.min.css">
-    <link rel="stylesheet" href="/stylesheets/style.css">
+    <link rel="stylesheet" href="{[ BASE_URL ]}AdminLTE/dist/css/AdminLTE.min.css">
+    <link rel="stylesheet" href="{[ BASE_URL ]}AdminLTE/dist/css/skins/skin-black.min.css">
+    <link rel="stylesheet" href="{[ BASE_URL ]}stylesheets/style.css">
     {% block styles %}{% endblock %}
     <style>
       .map {
@@ -27,9 +27,9 @@
         <!-- Logo -->
         <a href="#" class="logo">
           <!-- mini logo for sidebar mini 50x50 pixels -->
-          <div class="logo-lg"><img src="/images/terrama2_logo2.png" class="img-square" alt="User Image"><b>  TerraMA²</b></div>
+          <div class="logo-lg"><img src="{[ BASE_URL ]}images/terrama2_logo2.png" class="img-square" alt="User Image"><b>  TerraMA²</b></div>
           <!-- logo for regular state and mobile devices -->
-          <div class="logo-mini"><img src="/images/terrama2_logo2.png" class="img-square" alt="User Image"></div>
+          <div class="logo-mini"><img src="{[ BASE_URL ]}images/terrama2_logo2.png" class="img-square" alt="User Image"></div>
         </a>
         <!-- Header Navbar -->
         <nav id="nav" class="navbar navbar-static-top" role="navigation">
@@ -38,11 +38,11 @@
             <span class="sr-only">Toggle navigation</span>
           </a>
           <div style="text-align:center">
-            <span class="imgs"><img src="/images/inpe.png"></span>
-            <span class="imgs"><img src="/images/defra.png"></span>
-            <span class="imgs"><img src="/images/banco_mundial.png"></span>
-            <span class="imgs"><img id="mma" src="/images/mma.png"></span>
-            <span class="imgs"><img src="/images/funcate.png"></span>
+            <span class="imgs"><img src="{[ BASE_URL ]}images/inpe.png"></span>
+            <span class="imgs"><img src="{[ BASE_URL ]}images/defra.png"></span>
+            <span class="imgs"><img src="{[ BASE_URL ]}images/banco_mundial.png"></span>
+            <span class="imgs"><img id="mma" src="{[ BASE_URL ]}images/mma.png"></span>
+            <span class="imgs"><img src="{[ BASE_URL ]}images/funcate.png"></span>
           </div>
         </nav>
       </header>
@@ -90,10 +90,10 @@
       <footer class="main-footer"></footer>
       <footer class="footer-monitor"></footer>
     </div>
-    <script src="/underscore/underscore-min.js"></script>
-    <script src="/bootstrap/dist/js/bootstrap.min.js"></script>
-    <script src="/AdminLTE/dist/js/app.min.js"></script>
-    <script src="/javascripts/app.js"></script>
+    <script src="{[ BASE_URL ]}underscore/underscore-min.js"></script>
+    <script src="{[ BASE_URL ]}bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="{[ BASE_URL ]}AdminLTE/dist/js/app.min.js"></script>
+    <script src="{[ BASE_URL ]}javascripts/app.js"></script>
 
   </body>
 </html>

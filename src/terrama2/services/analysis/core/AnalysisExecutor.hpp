@@ -160,7 +160,7 @@ namespace terrama2
 
           signals:
             //! Signal to notify that a analysis execution has finished.
-            void analysisFinished(size_t, std::shared_ptr< te::dt::TimeInstantTZ >, bool);
+            void analysisFinished(size_t, std::shared_ptr< te::dt::TimeInstantTZ >, bool, QJsonObject = QJsonObject());
 
           private:
             const std::string EXECUTION_DATE_PROPERTY = "execution_date";

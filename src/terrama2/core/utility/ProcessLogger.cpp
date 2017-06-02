@@ -90,13 +90,13 @@ void terrama2::core::ProcessLogger::setConnectionInfo(const te::core::URI& uri)
       isValid_ = true;
       return;
     }
-    catch(std::exception& e)
+    catch(const std::exception& e)
     {
       QString errMsg = QObject::tr("Could not connect to database");
       TERRAMA2_LOG_ERROR() << errMsg << ": " << e.what();
     }
   }
-  catch(std::exception& e)
+  catch(const std::exception& e)
   {
     QString errMsg = QObject::tr("Could not connect to database");
     TERRAMA2_LOG_ERROR() << errMsg << ": " << e.what();
@@ -124,7 +124,7 @@ void terrama2::core::ProcessLogger::setDataSource(te::da::DataSource* dataSource
       throw LogException();
     }
   }
-  catch(std::exception& e)
+  catch(const std::exception& e)
   {
     QString errMsg = QObject::tr("Could not connect to database");
     TERRAMA2_LOG_ERROR() << errMsg << ": " << e.what();
@@ -172,6 +172,16 @@ RegisterId terrama2::core::ProcessLogger::start(ProcessId processId) const
   transactor->commit();
 
   return transactor->getLastGeneratedId();
+}
+
+void terrama2::core::ProcessLogger::setStartProcessingTime(const std::shared_ptr< te::dt::TimeInstantTZ > processingStartTime, const RegisterId registerId) const
+{
+  addValue("processing_start_time", processingStartTime->toString(), registerId);
+}
+
+void terrama2::core::ProcessLogger::setEndProcessingTime(const std::shared_ptr< te::dt::TimeInstantTZ > processingEndTime, const RegisterId registerId) const
+{
+  addValue("processing_end_time", processingEndTime->toString(), registerId);
 }
 
 void terrama2::core::ProcessLogger::addValue(const std::string& tag, const std::string& value, RegisterId registerId) const

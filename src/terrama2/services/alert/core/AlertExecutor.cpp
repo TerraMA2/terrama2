@@ -223,7 +223,7 @@ void terrama2::services::alert::core::AlertExecutor::addAdditionalData(std::shar
     alertDataSet->move(i);
 
     //iterate over all additional dataset to fill each item
-    for(auto additionalData : alertPtr->additionalDataVector)
+    for(const auto& additionalData : alertPtr->additionalDataVector)
     {
       std::string key = std::to_string(additionalData.dataSeriesId)+"_"+std::to_string(additionalData.dataSetId);
       auto join = additionalDataMap.at(key);
@@ -264,7 +264,7 @@ terrama2::services::alert::core::AlertExecutor::monitoredObjectAlert(std::shared
 {
   //Creat a Join class based on the ForeignKey of the dataset
   std::unordered_map<std::string, terrama2::core::TeDataSetFKJoin> additionalDataMap;
-  for(auto additionalData : alertPtr->additionalDataVector)
+  for(const auto& additionalData : alertPtr->additionalDataVector)
   {
     auto pair = tempAdditionalDataVector.at(additionalData.dataSeriesId);
     auto dataSeries = pair.first;
@@ -512,6 +512,8 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
     /////////////////////////////////////////////////////////////////////////
     // analysing data
 
+    auto processingStartTime = terrama2::core::TimeUtils::nowUTC();
+
     auto filter = alertPtr->filter;
 
     auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(inputDataProvider, inputDataSeries);
@@ -544,7 +546,7 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
       {
         datetimeColumnName = dataAccessor->getTimestampPropertyName(dataset, false);
       }
-      catch(const terrama2::core::UndefinedTagException /*e*/)
+      catch(const terrama2::core::UndefinedTagException& /*e*/)
       {
         // do nothing
       }
@@ -680,12 +682,16 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
       return;
     }
 
+    auto processingEndTime = terrama2::core::TimeUtils::nowUTC();
+
+    logger->setStartProcessingTime(processingStartTime, executionPackage.registerId);
+    logger->setEndProcessingTime(processingEndTime, executionPackage.registerId);
+
     logger->result(AlertLogger::DONE, executionPackage.executionDate, executionPackage.registerId);
 
     TERRAMA2_LOG_INFO() << QObject::tr("Alert '%1' generated successfully").arg(alertPtr->name.c_str());
 
     emit alertFinished(alertId, executionPackage.executionDate, true);
-
   }
   catch(const terrama2::Exception& e)
   {
@@ -695,7 +701,7 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
 
     emit alertFinished(alertId, executionPackage.executionDate, false);
   }
-  catch(boost::exception& e)
+  catch(const boost::exception& e)
   {
     logger->result(AlertLogger::ERROR, nullptr, executionPackage.registerId);
     logger->log(AlertLogger::ERROR_MESSAGE, boost::diagnostic_information(e), executionPackage.registerId);
@@ -703,7 +709,7 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
 
     emit alertFinished(alertId, executionPackage.executionDate, false);
   }
-  catch(std::exception& e)
+  catch(const std::exception& e)
   {
     QString errMsg(e.what());
     logger->result(AlertLogger::ERROR, nullptr, executionPackage.registerId);

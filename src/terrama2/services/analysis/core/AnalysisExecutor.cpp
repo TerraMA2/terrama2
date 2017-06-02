@@ -93,6 +93,8 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
     return;
   }
 
+  auto processingStartTime = terrama2::core::TimeUtils::nowUTC();
+
   try
   {
     TERRAMA2_LOG_INFO() << QObject::tr("Starting analysis %1 execution: %2").arg(analysis->id).arg(startTime->toString().c_str());
@@ -101,7 +103,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
     std::set<std::string> messages = verify::inactiveDataSeries(dataManager, analysis);
     if(!messages.empty())
     {
-      for(std::string message : messages)
+      for(const std::string& message : messages)
       {
         logger->log(AnalysisLogger::WARNING_MESSAGE, message, analysis->id);
       }
@@ -130,10 +132,6 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
   {
     ContextManager::getInstance().addError(analysisHashCode,  boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
   }
-  catch(const std::exception& e)
-  {
-    ContextManager::getInstance().addError(analysisHashCode, e.what());
-  }
   catch(const boost::python::error_already_set&)
   {
     std::string errMsg = terrama2::services::analysis::core::python::extractException();
@@ -142,6 +140,10 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
   catch(const boost::exception& e)
   {
     ContextManager::getInstance().addError(analysisHashCode, boost::diagnostic_information(e));
+  }
+  catch(const std::exception& e)
+  {
+    ContextManager::getInstance().addError(analysisHashCode, e.what());
   }
   catch(...)
   {
@@ -154,7 +156,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
     auto warnings = ContextManager::getInstance().getMessages(analysisHashCode, BaseContext::MessageType::WARNING_MESSAGE);
     if(!warnings.empty())
     {
-      for (auto warning: warnings)
+      for (const auto& warning: warnings)
       {
         logger->log(AnalysisLogger::WARNING_MESSAGE, warning, logId);
       }
@@ -165,14 +167,19 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
     {
 
       std::string errorStr;
-      for(auto error : errors)
+      for(const auto& error : errors)
       {
         errorStr += error + "\n";
         logger->log(AnalysisLogger::ERROR_MESSAGE, error, logId);
       }
 
-      QString errMsg = QObject::tr("Analysis %1 (%2) finished with the following error(s):\n%3").arg(analysis->id).arg(startTime->toString().c_str()).arg(QString::fromStdString(errorStr));
+      QString errMsg = QObject::tr("Analysis %1 (%2) finished with the following error(s):\n%3").arg(analysis->id).arg(QString::fromStdString(startTime->toString()), QString::fromStdString(errorStr));
       TERRAMA2_LOG_INFO() << errMsg;
+
+      auto processingEndTime = terrama2::core::TimeUtils::nowUTC();
+
+      logger->setStartProcessingTime(processingStartTime, executionPackage.registerId);
+      logger->setEndProcessingTime(processingEndTime, executionPackage.registerId);
 
       logger->result(AnalysisLogger::ERROR, startTime, logId);
 
@@ -228,7 +235,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::runMonitoredObjectAna
     context->loadMonitoredObject();
 
     size_t size = 0;
-    for(auto analysisDataSeries : analysis->analysisDataSeriesList)
+    for(const auto& analysisDataSeries : analysis->analysisDataSeriesList)
     {
       if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE)
       {
@@ -483,7 +490,7 @@ std::shared_ptr<te::da::DataSetType> terrama2::services::analysis::core::Analysi
 
   dt->add(indexDate);
 
-  for(std::string attribute : attributes)
+  for(const std::string& attribute : attributes)
   {
     te::dt::SimpleProperty* prop = new te::dt::SimpleProperty(attribute, te::dt::DOUBLE_TYPE, false);
     dt->add(prop);
@@ -562,7 +569,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeMonitoredObjectA
 
   bool found = false;
   auto analysisDataSeriesList = analysis->analysisDataSeriesList;
-  for(auto analysisDataSeries : analysisDataSeriesList)
+  for(const auto& analysisDataSeries : analysisDataSeriesList)
   {
     if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE)
     {

@@ -11,19 +11,19 @@
 <script type="text/javascript">
   var configuration = {
     message: "{[ message ]}",
-    iconFn: function(object){
-      switch(object.data_provider_type.name){
+    iconFn: function(object) {
+      switch(object.data_provider_type.name) {
         case "FILE":
-          return "/images/data-server/file/file.png";
+          return BASE_URL + "images/data-server/file/file.png";
           break;
         case "POSTGIS":
-          return "/images/data-server/postGIS/postGIS.png";
+          return BASE_URL + "images/data-server/postGIS/postGIS.png";
           break;
         case "FTP":
-          return "/images/data-server/ftp/ftp.png";
+          return BASE_URL + "images/data-server/ftp/ftp.png";
           break;
         case "HTTP":
-          return "/images/data-server/http/http.png";
+          return BASE_URL + "images/data-server/http/http.png";
           break;
       }
     },

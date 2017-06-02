@@ -67,11 +67,11 @@ void terrama2::services::analysis::core::DataManager::addJSon(const QJsonObject&
   {
     // logged on throw...
   }
-  catch(boost::exception& e)
+  catch(const boost::exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::diagnostic_information(e);
   }
-  catch(std::exception& e)
+  catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
   }
@@ -160,7 +160,7 @@ terrama2::core::DataSeriesPtr terrama2::services::analysis::core::DataManager::f
 {
   terrama2::core::DataSeriesPtr dataSeries;
   auto analysis = findAnalysis(analysisId);
-  for(auto analysisDataSeries : analysis->analysisDataSeriesList)
+  for(const auto& analysisDataSeries : analysis->analysisDataSeriesList)
   {
     if(analysisDataSeries.alias == name)
     {
@@ -178,7 +178,7 @@ terrama2::core::DataSeriesPtr terrama2::services::analysis::core::DataManager::f
 
 
   bool inAdditionalDataSeriesList = false;
-  for(auto analysisDataSeries : analysis->analysisDataSeriesList)
+  for(const auto& analysisDataSeries : analysis->analysisDataSeriesList)
   {
     if(analysisDataSeries.dataSeriesId == dataSeries->id)
     {

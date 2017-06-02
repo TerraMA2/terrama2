@@ -73,7 +73,7 @@ define([], function() {
     $scope.fields = [];
 
     $scope.remove = function(object) {
-      return "/api/DataSeries/" + object.id + "/delete";
+      return BASE_URL + "api/DataSeries/" + object.id + "/delete";
     };
 
     $scope.extra = {
@@ -130,35 +130,37 @@ define([], function() {
     DataSeriesService.init(queryParams).then(function(data) {
       $scope.model = data instanceof Array ? data : [];
 
-      // processing type
-      $scope.model.forEach(function(instance) {
-        var value;
-        switch(instance.data_series_semantics.data_series_type_name) {
-          case globals.enums.DataSeriesType.DCP:
-            value = i18n.__("DCP");
-            break;
-          case globals.enums.DataSeriesType.ANALYSIS_MONITORED_OBJECT:
-            value = i18n.__("Monitored object");
-            break;
-          case globals.enums.DataSeriesType.OCCURRENCE:
-            value = i18n.__("Occurrence");
-            break;
-          case globals.enums.DataSeriesType.GRID:
-            if (instance.isAnalysis) {
-              value = i18n.__("Analysis Grid");
-            } else {
-              value = i18n.__("Grid");
-            }
-            break;
-          case globals.enums.DataSeriesType.GEOMETRIC_OBJECT:
-            value = i18n.__("Geometric Object");
-            break;
-          default:
-            value = instance.data_series_semantics.name;
-        }
+      $timeout(function() {
+        // processing type
+        $scope.model.forEach(function(instance) {
+          var value;
+          switch(instance.data_series_semantics.data_series_type_name) {
+            case globals.enums.DataSeriesType.DCP:
+              value = i18n.__("DCP");
+              break;
+            case globals.enums.DataSeriesType.ANALYSIS_MONITORED_OBJECT:
+              value = i18n.__("Monitored object");
+              break;
+            case globals.enums.DataSeriesType.OCCURRENCE:
+              value = i18n.__("Occurrence");
+              break;
+            case globals.enums.DataSeriesType.GRID:
+              if (instance.isAnalysis) {
+                value = i18n.__("Analysis Grid");
+              } else {
+                value = i18n.__("Grid");
+              }
+              break;
+            case globals.enums.DataSeriesType.GEOMETRIC_OBJECT:
+              value = i18n.__("Geometric Object");
+              break;
+            default:
+              value = instance.data_series_semantics.name;
+          }
 
-        instance.model_type = value;
-      });
+          instance.model_type = value;
+        });
+      }, 500);
 
       if (config.extra && config.extra.id){
         var dataSeriesToRun = $scope.model.filter(function(element){

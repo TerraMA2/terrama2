@@ -12,7 +12,7 @@
        * Remote host url
        * @type {string}
        */
-      var targetUrl = "/javascripts/angular/countries/data.json";
+      var targetUrl = BASE_URL + "javascripts/angular/countries/data.json";
       /**
        * It defines a cached countries
        * @private data
@@ -67,14 +67,14 @@
          * @param {string} country - A selected country in list.
          */
         select: function(country) {
-          return $http.post("/languages", {locale: country});
+          return $http.post(BASE_URL + "languages", {locale: country});
         }
       };
     }])
     .directive("terrama2CountriesList", ["i18n", "$timeout", "$rootScope", "TerraMA2Countries", "$log", function terrama2Flag(i18n, $timeout, $rootScope, TerraMA2Countries, $log) {
       return {
         restrict: "E",
-        templateUrl: "/javascripts/angular/countries/countries-tpl.html",
+        templateUrl: BASE_URL + "javascripts/angular/countries/countries-tpl.html",
         controller: [terrama2FlagController],
         controllerAs: "vm",
         link: function(scope, element, attrs) {         

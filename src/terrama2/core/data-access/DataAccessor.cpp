@@ -99,7 +99,7 @@ te::dt::AbstractData* terrama2::core::DataAccessor::stringToDouble(te::da::DataS
     TERRAMA2_LOG_ERROR() << QObject::tr("Invalid argument: %1").arg(e.what());
   }
 
-  catch(std::exception& e)
+  catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
   }
@@ -140,7 +140,7 @@ te::dt::AbstractData* terrama2::core::DataAccessor::stringToInt(te::da::DataSet*
     TERRAMA2_LOG_ERROR() << e.what();
   }
 
-  catch(std::exception& e)
+  catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
   }
@@ -287,19 +287,9 @@ void terrama2::core::DataAccessor::addColumns(std::shared_ptr<te::da::DataSetTyp
   }
 }
 
-Srid terrama2::core::DataAccessor::getSrid(DataSetPtr dataSet) const
+Srid terrama2::core::DataAccessor::getSrid(DataSetPtr dataSet, bool logErrors) const
 {
-  try
-  {
-    Srid srid = std::stoi(getProperty(dataSet, dataSeries_, "srid"));
-    return srid;
-  }
-  catch(...)
-  {
-    QString errMsg = QObject::tr("Undefined srid in dataset: %1.").arg(dataSet->id);
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw UndefinedTagException() << ErrorDescription(errMsg);
-  }
+  return std::stoi(getProperty(dataSet, dataSeries_, "srid", logErrors));
 }
 
 std::string terrama2::core::DataAccessor::getTimestampPropertyName(DataSetPtr dataSet, const bool logErrors) const

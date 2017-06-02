@@ -90,12 +90,15 @@ FtpRequest.fields = function() {
 
   fieldProperties[UriPattern.PORT] = {
     title: "Port",
+    minimum: 2,
+    maximum: 65535,
     type: FormField.NUMBER,
     default: 21
   };
 
   fieldProperties['timeout'] = {
-    title: "Data server Timeout",
+    title: "Data server Timeout (sec)",
+    minimum: 1,
     type: FormField.NUMBER,
     default: 8
   };

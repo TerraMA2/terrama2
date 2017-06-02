@@ -75,7 +75,7 @@ void terrama2::services::view::core::Service::prepareTask(const terrama2::core::
   {
     taskQueue_.emplace(std::bind(&Service::viewJob, this, executionPackage, std::dynamic_pointer_cast<terrama2::services::view::core::ViewLogger>(logger_->clone()), dataManager_));
   }
-  catch(std::exception& e)
+  catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
   }
@@ -164,14 +164,14 @@ void terrama2::services::view::core::Service::removeView(ViewId viewId) noexcept
 
     TERRAMA2_LOG_INFO() << tr("View %1 removed successfully.").arg(viewId);
   }
-  catch(std::exception& e)
-  {
-    TERRAMA2_LOG_ERROR() << e.what();
-    TERRAMA2_LOG_INFO() << tr("Could not remove view: %1.").arg(viewId);
-  }
-  catch(boost::exception& e)
+  catch(const boost::exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
+    TERRAMA2_LOG_INFO() << tr("Could not remove view: %1.").arg(viewId);
+  }
+  catch(const std::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << e.what();
     TERRAMA2_LOG_INFO() << tr("Could not remove view: %1.").arg(viewId);
   }
   catch(...)
@@ -229,20 +229,27 @@ void terrama2::services::view::core::Service::viewJob(const terrama2::core::Exec
 
     /////////////////////////////////////////////////////////////////////////
 
+    auto processingStartTime = terrama2::core::TimeUtils::nowUTC();
+
     QJsonObject mapsServerAnswer = mapsServer->generateLayers(viewPtr,
                                                               std::make_pair(inputDataSeries, inputDataProvider),
                                                               dataManager,
                                                               logger,
                                                               logId);
 
+    TERRAMA2_LOG_INFO() << tr("View %1(%2) generated successfully.").arg(QString::fromStdString(viewName)).arg(viewId);
+
+    auto processingEndTime = terrama2::core::TimeUtils::nowUTC();
+
+    logger->setStartProcessingTime(processingStartTime, executionPackage.registerId);
+    logger->setEndProcessingTime(processingEndTime, executionPackage.registerId);
+
+    logger->result(ViewLogger::DONE, terrama2::core::TimeUtils::nowUTC(), logId);
+
     jsonAnswer = mapsServerAnswer;
     jsonAnswer.insert("class", QString("RegisteredViews"));
     jsonAnswer.insert("process_id",static_cast<int32_t>(viewPtr->id));
     jsonAnswer.insert("maps_server", QString::fromStdString(mapsServerUri_.uri()));
-
-    TERRAMA2_LOG_INFO() << tr("View %1(%2) generated successfully.").arg(QString::fromStdString(viewName)).arg(viewId);
-
-    logger->result(ViewLogger::DONE, terrama2::core::TimeUtils::nowUTC(), logId);
 
     sendProcessFinishedSignal(viewId, executionPackage.executionDate, true, jsonAnswer);
     notifyWaitQueue(viewId);
