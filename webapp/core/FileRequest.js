@@ -30,8 +30,13 @@ FileRequest.prototype.request = function() {
               if(!err) {
                 list = list.filter(function(a) { return a.indexOf('/') === -1 && a.indexOf('\\') === -1 });
 
+                if(self.params[self.syntax().PATHNAME] == self.params.basePath) {
+                  var lastChar = self.params[self.syntax().PATHNAME].substr(self.params[self.syntax().PATHNAME].length - 1);
+                  self.params[self.syntax().PATHNAME] = (lastChar == '/' ? self.params[self.syntax().PATHNAME].slice(0, -1) : self.params[self.syntax().PATHNAME]);
+                }
+
                 for(var i = 0, listLength = list.length; i < listLength; i++) {
-                  var fullPath = (self.params[self.syntax().PATHNAME] != self.params.basePath ? self.params[self.syntax().PATHNAME] + '/' + list[i] : self.params[self.syntax().PATHNAME] + list[i]);
+                  var fullPath = self.params[self.syntax().PATHNAME] + '/' + list[i];
 
                   try {
                     var isDirectory = fs.statSync(fullPath).isDirectory();

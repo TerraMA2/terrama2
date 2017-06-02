@@ -14,6 +14,10 @@ define([], function() {
                 "<h4 class=\"modal-title\" id=\"dataSeriesModalLabel\">{{ i18n.__('Select the Directory') }}</h4>" +
               "</div>" +
               "<div class=\"modal-body\">" +
+                "<div ng-show=\"dataProvider.protocol == 'FILE'\">" +
+                  "<span style=\"font-size: 16px;\">{{ i18n.__('TerraMA² data directory: ') + terrama2DefaultFilePath }}</span>" +
+                  "<hr/>" +
+                "</div>" +
                 "<div ng-show=\"!rootDirectories.children || rootDirectories.children.length == 0\">{{ i18n.__('No directories to show.') }}</div>" +
                 "<script type=\"text/ng-template\" id=\"files-explorer.html\">" +
                   "<div class=\"name-div\" ng-click=\"setDirectoryStatus(directory.fullPath)\" ng-class=\"{ 'selected-directory': directory.fullPath == selectedDirectory }\">" +
@@ -104,7 +108,21 @@ define([], function() {
             if($scope.isWindows)
               tempCurrentPath = tempCurrentPath.substring(3);
 
-            $scope.currentPath = tempCurrentPath.split('/').filter(function(a) { return a != $scope.basePath.replace(/\//g, '') && a != '' });
+            if($scope.dataProvider.protocol == "FILE") {
+              tempCurrentPath = $scope.basePath + tempCurrentPath;
+              var isWindowsPathResult = isWindowsPath($scope.configuration.defaultFilePath);
+              var terrama2DataPath = (isWindowsPathResult ? isWindowsPathResult + $scope.configuration.defaultFilePath.substring(3) : $scope.configuration.defaultFilePath).replace(/\\/g, '/');
+              $scope.basePath = terrama2DataPath;
+
+              $scope.terrama2DefaultFilePath = (isWindowsPathResult ? $scope.configuration.defaultFilePath.replace(/\//g, '\\') : $scope.configuration.defaultFilePath);
+
+              if(tempCurrentPath.indexOf(terrama2DataPath) !== -1)
+                $scope.currentPath = tempCurrentPath.replace(terrama2DataPath, '').split('/').filter(function(a) { return a != '' });
+              else
+                $scope.currentPath = [];
+            } else {
+              $scope.currentPath = tempCurrentPath.split('/').filter(function(a) { return a != $scope.basePath.replace(/\//g, '') && a != '' });
+            }
 
             listDirectories($scope.basePath).then(function(data) {
               if(data.error) {
@@ -151,8 +169,8 @@ define([], function() {
            */
           $scope.setDirectoryStatus = function(path) {
             var tempPath = path;
-            var pathItems = tempPath.split('/');
-            pathItems = pathItems.filter(function(a) { return a != $scope.basePath.replace(/\//g, '') && a != '' });
+            var pathItems = tempPath.replace($scope.basePath, '').split('/');
+            pathItems = pathItems.filter(function(a) { return a != '' });
 
             try {
               var lastDirectory = getLastDirectory($scope.rootDirectories, pathItems, 0);
@@ -265,7 +283,10 @@ define([], function() {
           var navigateToDirectory = function(paths, parent, currentChildren, i) {
             var promiser = $q.defer();
 
-            parent = (parent == $scope.basePath ? $scope.basePath.replace(/\//g, '') : parent);
+            if(parent == $scope.basePath) {
+              var lastChar = parent.substr(parent.length - 1);
+              parent = (lastChar == '/' ? parent.slice(0, -1) : parent);
+            }
 
             if(i < paths.length) {
               return listDirectories(parent + '/' + paths[i]).then(function(data) {
@@ -330,23 +351,41 @@ define([], function() {
            * @function setBasePath
            */
           var setBasePath = function(path) {
+            var isWindowsPathResult = isWindowsPath(path);
+
+            if(isWindowsPathResult) {
+              $scope.basePath = isWindowsPathResult;
+              $scope.isWindows = true;
+            } else {
+              $scope.basePath = "/";
+              $scope.isWindows = false;
+            }
+          };
+
+          /**
+           * Verifies if a given path is in Windows pattern, case it is, the driver letter is returned, otherwise is returned false.
+           * @param {string} path - Given path
+           * @returns {string|boolean} driveLetter|false - Driver letter of 'false'
+           *
+           * @private
+           * @function isWindowsPath
+           */
+          var isWindowsPath = function(path) {
             var letter = "A";
-            var isWindowsPath = false;
+            var isWindows = false;
+            var driveLetter = null;
 
             for(var i = 0; i < 26; i++) {
               if((letter + ":/") == path.substr(0, 3).toUpperCase()) {
-                $scope.basePath = (letter + ":/");
-                isWindowsPath = true;
+                driveLetter = (letter + ":/");
+                isWindows = true;
                 break;
               }
 
               letter = String.fromCharCode(letter.charCodeAt() + 1);
             }
 
-            if(!isWindowsPath)
-             $scope.basePath = "/";
-
-            $scope.isWindows = isWindowsPath;
+            return (isWindows ? driveLetter : false);
           };
         }]
       };
