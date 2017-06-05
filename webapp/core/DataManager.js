@@ -142,7 +142,7 @@ var DataManager = module.exports = {
         inserts.push(self.addDataProviderType({id: 2, name: "FTP", description: "Desc FTP"}));
         inserts.push(self.addDataProviderType({id: 3, name: "HTTP", description: "Desc Http"}));
         inserts.push(self.addDataProviderType({id: 4, name: "POSTGIS", description: "Desc Postgis"}));
-        inserts.push(self.addDataProviderType({id: 5, name: "SFTP", description: "Desc SFTP"}));
+        //inserts.push(self.addDataProviderType({id: 5, name: "SFTP", description: "Desc SFTP"}));
 
         inserts.push(self.addViewStyleType({id: Enums.ViewStyleType.EQUAL_STEPS, name: "Equal Steps", description: ""}));
         inserts.push(self.addViewStyleType({id: Enums.ViewStyleType.QUANTILE, name: "Quantile", description: ""}));
