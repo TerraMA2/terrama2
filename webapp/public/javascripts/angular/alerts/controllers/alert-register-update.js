@@ -82,7 +82,7 @@ define([], function() {
      * @type {object}
      */
     self.alert = config.alert || {
-      conditional_schedule: {
+      automatic_schedule: {
         data_ids: [],
         scheduleType: 4
       },
@@ -348,7 +348,7 @@ define([], function() {
       }
 
       self.dataSeriesType = dataSeries.data_series_semantics.data_series_type_name;
-      self.alert.conditional_schedule.data_ids = [dataSeries.id];
+      self.alert.automatic_schedule.data_ids = [dataSeries.id];
     };
 
     /**
