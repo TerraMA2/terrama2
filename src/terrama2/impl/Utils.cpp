@@ -33,6 +33,7 @@
 #include "DataAccessorDcpToa5.hpp"
 #include "DataAccessorDcpPostGIS.hpp"
 #include "DataAccessorGDAL.hpp"
+#include "DataAccessorGrib.hpp"
 #include "DataAccessorGrADS.hpp"
 #include "DataAccessorOccurrenceWfp.hpp"
 #include "DataAccessorOccurrenceLightning.hpp"
@@ -63,6 +64,7 @@ void terrama2::core::registerFactories()
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorDcpToa5::dataAccessorType(), terrama2::core::DataAccessorDcpToa5::make);
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorDcpPostGIS::dataAccessorType(), terrama2::core::DataAccessorDcpPostGIS::make);
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorGDAL::dataAccessorType(), terrama2::core::DataAccessorGDAL::make);
+  terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorGrib::dataAccessorType(), terrama2::core::DataAccessorGrib::make);
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorGrADS::dataAccessorType(), terrama2::core::DataAccessorGrADS::make);
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorOccurrenceWfp::dataAccessorType(), terrama2::core::DataAccessorOccurrenceWfp::make);
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorOccurrenceLightning::dataAccessorType(), terrama2::core::DataAccessorOccurrenceLightning::make);

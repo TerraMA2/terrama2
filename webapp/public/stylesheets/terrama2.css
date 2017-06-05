@@ -305,6 +305,14 @@ bootstrap-decorator span {
   bottom: 0;
 }
 
+#select-attr-button {
+  width: 80px;
+}
+
+.invalid-attrs, .invalid-attrs:hover, .invalid-attrs:focus {
+  border-color: #dd4b39;
+}
+
 .attributes-list {
   max-height: 300px;
   overflow-y: auto;

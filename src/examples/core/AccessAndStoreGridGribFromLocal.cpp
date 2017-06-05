@@ -7,9 +7,11 @@
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSetGrid.hpp>
-#include <terrama2/impl/DataAccessorGDAL.hpp>
-#include <terrama2/impl/DataStoragerTiff.hpp>
 #include <terrama2/core/data-access/GridSeries.hpp>
+
+#include <terrama2/impl/DataAccessorGrib.hpp>
+#include <terrama2/impl/DataStoragerTiff.hpp>
+#include <terrama2/impl/Utils.hpp>
 
 #include <iostream>
 
@@ -19,6 +21,7 @@
 int main(int argc, char* argv[])
 {
   terrama2::core::TerraMA2Init terramaRaii("example", 0);
+  terrama2::core::registerFactories();
 
   {
     //DataProvider information
@@ -26,7 +29,7 @@ int main(int argc, char* argv[])
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
     dataProvider->uri = "file://";
     dataProvider->uri += TERRAMA2_DATA_DIR;
-    dataProvider->uri += "/geotiff";
+    dataProvider->uri += "/grib";
 
     dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
     dataProvider->dataProviderType = "FILE";
@@ -36,19 +39,21 @@ int main(int argc, char* argv[])
     terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
     terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
     auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
-    dataSeries->semantics = semanticsManager.getSemantics("GRID-gdal");
+    dataSeries->semantics = semanticsManager.getSemantics("GRID-grib");
 
     terrama2::core::DataSetGrid* dataSet = new terrama2::core::DataSetGrid();
     dataSet->active = true;
-    dataSet->format.emplace("mask", "L5219076_07620040908_r3g2b1.tif");
+    dataSet->format.emplace("mask", "WRF_ams_09km_2016012900_2016012900.grb2");
     dataSet->format.emplace("timezone", "+00");
+    dataSet->format.emplace("bands", "UGRD;VGRD");
+    dataSet->format.emplace("iso_surface", "10000");
 
     dataSeries->datasetList.emplace_back(dataSet);
 
     //empty filter
     terrama2::core::Filter filter;
     //accessing data
-    terrama2::core::DataAccessorGDAL accessor(dataProviderPtr, dataSeriesPtr);
+    terrama2::core::DataAccessorGrib accessor(dataProviderPtr, dataSeriesPtr);
     auto remover = std::make_shared<terrama2::core::FileRemover>();
     terrama2::core::GridSeriesPtr gridSeries = accessor.getGridSeries(filter,remover);
 
@@ -57,8 +62,8 @@ int main(int argc, char* argv[])
     //DataProvider information
     terrama2::core::DataProvider* outputDataProvider = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr outputDataProviderPtr(outputDataProvider);
-    outputDataProvider->uri = "file://";
-    outputDataProvider->uri += TERRAMA2_DATA_DIR;
+    outputDataProvider->uri = "file://"+TERRAMA2_DATA_DIR+"/saida";
+
     terrama2::core::DataStoragerTiff dataStorager(outputDataProviderPtr);
 
     terrama2::core::DataSeries* outputDataSeries = new terrama2::core::DataSeries();
@@ -68,7 +73,7 @@ int main(int argc, char* argv[])
     terrama2::core::DataSetGrid* outputDataSet = new terrama2::core::DataSetGrid();
     terrama2::core::DataSetGridPtr outputDataSetPtr(outputDataSet);
     outputDataSet->active = true;
-    outputDataSet->format.emplace("mask", "L5219076_076%YYYY%MM%DD_r3g2b1.tif");
+    outputDataSet->format.emplace("mask", "ventos.tif");
     outputDataSeries->datasetList.push_back(outputDataSetPtr);
 
     auto seriesMap = gridSeries->getSeries();
