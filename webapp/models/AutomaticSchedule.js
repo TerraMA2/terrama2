@@ -1,5 +1,5 @@
 module.exports = function(sequelize, DataTypes) {
-  var ConditionalSchedule = sequelize.define("ConditionalSchedule",
+  var AutomaticSchedule = sequelize.define("AutomaticSchedule",
     {
       id: {
         type: DataTypes.INTEGER,
@@ -17,28 +17,28 @@ module.exports = function(sequelize, DataTypes) {
       classMethods: {
         associate: function(models) {
 
-          ConditionalSchedule.hasOne(models.Analysis, {
+          AutomaticSchedule.hasOne(models.Analysis, {
             onDelete: "CASCADE",
             foreignKey: {
-              name: 'conditional_schedule_id',
+              name: 'automatic_schedule_id',
               allowNull: true,
               constraints: true
             }
           });
 
-          ConditionalSchedule.hasOne(models.View, {
+          AutomaticSchedule.hasOne(models.View, {
             onDelete: "CASCADE",
             foreignKey: {
-              name: 'conditional_schedule_id',
+              name: 'automatic_schedule_id',
               allowNull: true,
               constraints: true
             }
           });
           
-          ConditionalSchedule.hasOne(models.Alert, {
+          AutomaticSchedule.hasOne(models.Alert, {
             onDelete: "CASCADE",
             foreignKey: {
-              name: 'conditional_schedule_id',
+              name: 'automatic_schedule_id',
               allowNull: true,
               constraints: true
             }
@@ -48,5 +48,5 @@ module.exports = function(sequelize, DataTypes) {
     }
   );
 
-  return ConditionalSchedule;
+  return AutomaticSchedule;
 };
