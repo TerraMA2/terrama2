@@ -64,6 +64,18 @@ var Alert = function(params) {
    */
   this.data_series_id = params.data_series_id;
   /**
+   * Schedule type associated
+   * @name Alert#schedule_type
+   * @type {Schedule}
+   */
+  this.scheduleType = params.schedule_type;
+  /**
+   * Schedule associated
+   * @name Alert#schedule
+   * @type {Schedule}
+   */
+  this.schedule = params.schedule || {};
+  /**
    * @name Alert#automatic_schedule
    * @type {object}
    */
@@ -152,6 +164,8 @@ Alert.prototype.toObject = function() {
     description: this.description,
     data_series_id: this.data_series_id,
     risk_attribute: this.risk_attribute,
+    schedule_type: this.scheduleType,
+    schedule: this.schedule instanceof AbstractClass ? this.schedule.toObject() : {},
     automatic_schedule: this.automatic_schedule instanceof BaseClass ? this.automatic_schedule.toObject() : this.automatic_schedule,
     risk: this.risk instanceof BaseClass ? this.risk.toObject() : this.risk,
     additional_data: this.additional_data,
@@ -203,7 +217,8 @@ Alert.prototype.toService = function() {
     risk: this.risk instanceof BaseClass ? this.risk.toService() : this.risk,
     additional_data: additionalDataList,
     notifications: notificationList,
-    report_metadata: reportMetadataCopy
+    report_metadata: reportMetadataCopy,
+    schedule: this.schedule instanceof AbstractClass ? this.schedule.toObject() : {}
   });
 }
 
