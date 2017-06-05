@@ -66,7 +66,7 @@
           .then(function(schedule) {
             if (schedule) {
               if (viewObject.schedule_type == Enums.ScheduleType.AUTOMATIC){
-                viewObject.conditional_schedule_id = schedule.id;
+                viewObject.automatic_schedule_id = schedule.id;
               } else {
                 viewObject.schedule_id = schedule.id;
               }
@@ -149,10 +149,10 @@
                     return null;
                   });
               } else if (view.scheduleType == Enums.ScheduleType.AUTOMATIC){
-                viewObject.conditional_schedule.data_ids = viewObject.schedule.data_ids;
-                return DataManager.updateConditionalSchedule(view.conditionalSchedule.id, viewObject.conditional_schedule, options)
+                viewObject.automatic_schedule.data_ids = viewObject.schedule.data_ids;
+                return DataManager.updateAutomaticSchedule(view.automaticSchedule.id, viewObject.automatic_schedule, options)
                   .then(function(){
-                    viewObject.conditional_schedule_id = view.conditionalSchedule.id;
+                    viewObject.automatic_schedule_id = view.automaticSchedule.id;
                     return null;
                   });
               }
@@ -167,8 +167,8 @@
                       viewObject.schedule_id = scheduleResult.id;
                       return null;
                     } else {
-                      view.conditionalSchedule = scheduleResult;
-                      viewObject.conditional_schedule_id = scheduleResult.id;
+                      view.automaticSchedule = scheduleResult;
+                      viewObject.automatic_schedule_id = scheduleResult.id;
                       return null;
                     }
                   });
@@ -183,15 +183,15 @@
                   viewObject.schedule.id = null;
                   return DataManager.addSchedule(viewObject.schedule, options)
                     .then(function(scheduleResult){
-                      view.conditionalSchedule = scheduleResult;
-                      viewObject.conditional_schedule_id = scheduleResult.id;    
+                      view.automaticSchedule = scheduleResult;
+                      viewObject.automatic_schedule_id = scheduleResult.id;    
                     });
                 }
               } else {
                 removeSchedule = true;
-                scheduleIdToRemove = view.conditionalSchedule.id;
+                scheduleIdToRemove = view.automaticSchedule.id;
                 scheduleTypeToRemove = Enums.ScheduleType.AUTOMATIC;
-                viewObject.conditional_schedule_id = null;
+                viewObject.automatic_schedule_id = null;
                 if (viewObject.schedule_type == Enums.ScheduleType.SCHEDULE){
                   viewObject.schedule.id = null;
                   return DataManager.addSchedule(viewObject.schedule, options)
@@ -210,7 +210,7 @@
               .then(function() {
                 if (removeSchedule) {
                   if (scheduleTypeToRemove == Enums.ScheduleType.AUTOMATIC){
-                    return DataManager.removeConditionalSchedule({id: scheduleIdToRemove}, options);
+                    return DataManager.removeAutomaticSchedule({id: scheduleIdToRemove}, options);
                   } else {
                     return DataManager.removeSchedule({id: scheduleIdToRemove}, options);
                   }

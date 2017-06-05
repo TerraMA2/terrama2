@@ -58,12 +58,12 @@
 
         var promiser;
 
-        promiser = DataManager.addSchedule(alertObject.conditional_schedule, options);
+        promiser = DataManager.addSchedule(alertObject.automatic_schedule, options);
 
         return promiser
           .then(function(schedule) {
             if (schedule) {
-              alertObject.conditional_schedule_id = schedule.id;
+              alertObject.automatic_schedule_id = schedule.id;
             }
             var riskPromise;
             var riskObject = alertObject.risk;
@@ -185,7 +185,7 @@
             // updating alert
             return DataManager.updateAlert({id: alertId}, alertObject, options)
               .then(function(){
-                return DataManager.updateConditionalSchedule(alertObject.conditional_schedule.id, alertObject.conditional_schedule, options)
+                return DataManager.updateAutomaticSchedule(alertObject.automatic_schedule.id, alertObject.automatic_schedule, options)
               })
               .then(function(){
                 return DataManager.getAlert({id: alertId}, options);

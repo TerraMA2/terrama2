@@ -68,7 +68,7 @@ Analysis.save = function(analysisObject, storager, scheduleObject, projectId) {
               // adding analysis
               analysisObject.dataset_output = dataSeriesResult.dataSets[0].id;
               if (scheduleObject.scheduleType == ScheduleType.AUTOMATIC){
-                analysisObject.conditional_schedule_id = scheduleResult.id
+                analysisObject.automatic_schedule_id = scheduleResult.id
               } else if (scheduleObject.scheduleType == ScheduleType.SCHEDULE || scheduleObject.scheduleType == ScheduleType.REPROCESSING_HISTORICAL){
                 analysisObject.schedule_id = scheduleResult.id;
               }
@@ -76,7 +76,7 @@ Analysis.save = function(analysisObject, storager, scheduleObject, projectId) {
               return DataManager.addAnalysis(analysisObject, options).then(function(analysisResult) {
 
                 if (scheduleObject.scheduleType == ScheduleType.AUTOMATIC){
-                  analysisResult.setConditionalSchedule(scheduleResult);
+                  analysisResult.setAutomaticSchedule(scheduleResult);
                 } else if (scheduleObject.scheduleType == ScheduleType.SCHEDULE || scheduleObject.scheduleType == ScheduleType.REPROCESSING_HISTORICAL){
                   analysisResult.setSchedule(scheduleResult);
                 }
