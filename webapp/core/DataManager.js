@@ -3749,7 +3749,8 @@ var DataManager = module.exports = {
           models.db.AnalysisMetadata,
           models.db.ScriptLanguage,
           models.db.AnalysisType,
-          models.db.Schedule
+          models.db.Schedule,
+          models.db.AutomaticSchedule
         ],
         where: restriction || {}
       }, options)).then(function(analysisResult) {
