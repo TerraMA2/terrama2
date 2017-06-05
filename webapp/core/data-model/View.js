@@ -59,10 +59,10 @@
      */
     this.schedule = params.schedule || {};
     /**
-     * Conditional Schedule associated
+     * Automatic Schedule associated
      * @type {Schedule}
      */
-    this.conditionalSchedule = params.conditionalSchedule || {};
+    this.automaticSchedule = params.automaticSchedule || {};
     /**
      * View state
      * @type {boolean}
@@ -111,7 +111,7 @@
       dataseries_id: this.dataSeriesId,
       dataSeries: this.dataSeries instanceof AbstractClass ? this.dataSeries.toObject() : {},
       schedule: this.schedule instanceof AbstractClass ? this.schedule.toObject() : {},
-      conditional_schedule: this.conditionalSchedule instanceof AbstractClass ? this.conditionalSchedule.toObject() : {},
+      automatic_schedule: this.automaticSchedule instanceof AbstractClass ? this.automaticSchedule.toObject() : {},
       active: this.active,
       service_instance_id: this.serviceInstanceId,
       project_id: this.projectId,
