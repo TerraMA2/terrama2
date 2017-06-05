@@ -337,7 +337,7 @@ var ImportExport = function(io) {
                           }
                         }
 
-                        delete alert.conditional_schedule.id;
+                        delete alert.automatic_schedule.id;
                         delete risk.id;
                         delete alert.report_metadata.id;
 
@@ -353,8 +353,8 @@ var ImportExport = function(io) {
                         alert.risk = risk;
                         alert.risk.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: alert.risk.project_id}).id : json.selectedProject;
 
-                        var addSchedulePromise = DataManager.addSchedule(alert.conditional_schedule, options).then(function(schedule) {
-                          alert.conditional_schedule_id = schedule.id;
+                        var addSchedulePromise = DataManager.addSchedule(alert.automatic_schedule, options).then(function(schedule) {
+                          alert.automatic_schedule_id = schedule.id;
                         });
                         
                         var addRiskPromise = DataManager.addRisk(risk, options).then(function(riskResult) {
@@ -593,7 +593,7 @@ var ImportExport = function(io) {
             var alertToAdd = addID(alert);
             var risk = alertToAdd.risk;
 
-            alertToAdd.conditional_schedule.scheduleType = 4;
+            alertToAdd.automatic_schedule.scheduleType = 4;
             alertToAdd.risk_id = risk.id;
             delete alertToAdd.risk;
 
@@ -731,7 +731,7 @@ var ImportExport = function(io) {
                 var alertToAdd = addID(alert);
                 var risk = alertToAdd.risk;
 
-                alertToAdd.conditional_schedule.scheduleType = 4;
+                alertToAdd.automatic_schedule.scheduleType = 4;
                 alertToAdd.risk_id = risk.id;
                 delete alertToAdd.risk;
 
