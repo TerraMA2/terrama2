@@ -91,10 +91,10 @@ module.exports = function(sequelize, DataTypes) {
             }
           });
 
-          Analysis.belongsTo(models.ConditionalSchedule, {
+          Analysis.belongsTo(models.AutomaticSchedule, {
             onDelete: "CASCADE",
             foreignKey: {
-              name: 'conditional_schedule_id',
+              name: 'automatic_schedule_id',
               allowNull: true
             }
           });
