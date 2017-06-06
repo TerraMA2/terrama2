@@ -4290,7 +4290,7 @@ var DataManager = module.exports = {
       models.db.Alert.update(
         alertObject,
         Utils.extend({
-          fields: ["name", "description", "data_series_id", "active", "service_instance_id", "risk_id", "risk_attribute"],
+          fields: ["name", "description", "data_series_id", "active", "service_instance_id", "risk_id", "risk_attribute", "schedule_type", "schedule_id", "automatic_schedule_id"],
           where: restriction
         }, options))
         .then(function(){
