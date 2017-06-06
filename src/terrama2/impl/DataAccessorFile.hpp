@@ -66,9 +66,6 @@ namespace terrama2
         // Doc in base class
         virtual DataSetSeries getSeries(const std::string& uri, const Filter& filter, DataSetPtr dataSet, std::shared_ptr<terrama2::core::FileRemover> remover) const override;
 
-        //! Recover file mask
-        virtual std::string getMask(DataSetPtr dataset) const;
-
         /*!
          * \brief Check if the URIs and their subfolders matches the folders mask.
          * \param uris The list of URIs to check
@@ -87,10 +84,10 @@ namespace terrama2
         virtual std::vector<std::string> checkSubfolders(const std::vector<std::string>& baseURIs, const std::string& mask) const;
 
         virtual QFileInfoList getFilesList(const std::string& uri,
-                                           const std::string& mask,
+                                           const std::string& fileMask,
+                                           const std::string& folderMask,
                                            const Filter& filter,
                                            const std::string& timezone,
-                                           DataSetPtr dataSet,
                                            std::shared_ptr<terrama2::core::FileRemover> remover) const;
 
         void applyFilters(const terrama2::core::Filter &filter, const terrama2::core::DataSetPtr &dataSet,

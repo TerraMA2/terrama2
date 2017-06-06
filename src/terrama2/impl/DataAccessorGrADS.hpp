@@ -220,7 +220,7 @@ namespace terrama2
 
         std::string getDataType(DataSetPtr dataset) const;
 
-        std::string getMask(DataSetPtr dataset) const override;
+        std::string getBinaryFileMask(DataSetPtr dataset) const;
 
       protected:
         //! Returns the data source type.

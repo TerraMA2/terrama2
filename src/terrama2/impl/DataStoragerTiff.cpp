@@ -28,6 +28,7 @@
  */
 
 #include "DataStoragerTiff.hpp"
+#include "../core/utility/DataAccessorFactory.hpp"
 #include "../core/utility/TimeUtils.hpp"
 #include "../core/utility/Utils.hpp"
 #include "../core/utility/Verify.hpp"
@@ -234,7 +235,7 @@ void terrama2::core::DataStoragerTiff::store(DataSetSeries series, DataSetPtr ou
   std::string outputURI = dataProvider_->uri;
   try
   {
-    std::string folder = terrama2::core::getFolderMask(outputDataSet, nullptr);
+    std::string folder = terrama2::core::getFolderMask(outputDataSet);
     if (!folder.empty())
       outputURI += "/" + folder;
   }
@@ -349,7 +350,7 @@ std::string terrama2::core::DataStoragerTiff::getCompleteURI(DataSetPtr outputDa
   std::string completeUri = dataProvider_->uri;
   try
   {
-    std::string folder = terrama2::core::getFolderMask(outputDataSet, nullptr);
+    std::string folder = terrama2::core::getFolderMask(outputDataSet);
     if (!folder.empty())
       completeUri += "/" + folder;
   }

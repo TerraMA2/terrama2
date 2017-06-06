@@ -58,33 +58,10 @@
 #include <terralib/geometry/GeometryProperty.h>
 
 
-std::string terrama2::core::DataAccessorFile::getMask(DataSetPtr dataSet) const
-{
-  try
-  {
-    return dataSet->format.at("mask");
-  }
-  catch(...)
-  {
-    QString errMsg = QObject::tr("Undefined mask in dataset: %1.").arg(dataSet->id);
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw UndefinedTagException() << ErrorDescription(errMsg);
-  }
-}
-
 std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataset, const Filter& filter, std::shared_ptr<terrama2::core::FileRemover> remover) const
 {
-  std::string mask = getMask(dataset);
-  std::string folderPath = "";
-
-  try
-  {
-    folderPath = getFolderMask(dataset, dataSeries_);
-  }
-  catch(UndefinedTagException& /*e*/)
-  {
-    // Do nothing
-  }
+  std::string mask = getFileMask(dataset);
+  std::string folderPath = getFolderMask(dataset);
 
   std::string timezone = "";
   try
@@ -565,21 +542,23 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
 
   if(hasControlFile())
   {
-    std::string mask = getControlFileMask(dataSet);
-    auto ctlFileList = getFilesList(uri, mask, filter, timezone, dataSet, remover);
+    std::string controlFileMask = getControlFileMask(dataSet);
+    std::string folderMask = getFolderMask(dataSet);
+    auto ctlFileList = getFilesList(uri, controlFileMask, folderMask, filter, timezone, remover);
     for(const auto& ctlFile : ctlFileList)
     {
       std::string binaryFileMask = readControlFile(dataSet, ctlFile.absoluteFilePath().toStdString());
 
-      auto binaryFileList = getFilesList(uri, binaryFileMask, filter, timezone, dataSet, remover);
+      auto binaryFileList = getFilesList(uri, binaryFileMask, folderMask, filter, timezone, remover);
       readFilesAndAddToDataset(series, completeDataset, binaryFileList, binaryFileMask, dataSet);
     }
   }
   else
   {
-    std::string mask = getMask(dataSet);
-    auto binaryFileList = getFilesList(uri, mask, filter, timezone, dataSet, remover);
-    readFilesAndAddToDataset(series, completeDataset, binaryFileList, mask, dataSet);
+    std::string fileMask = getFileMask(dataSet);
+    std::string folderMask = getFolderMask(dataSet);
+    auto binaryFileList = getFilesList(uri, fileMask, folderMask, filter, timezone, remover);
+    readFilesAndAddToDataset(series, completeDataset, binaryFileList, fileMask, dataSet);
   }
 
 
@@ -837,18 +816,13 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::DataAccessorFile::getDa
   return lastDateTimeTz;
 }
 
-QFileInfoList terrama2::core::DataAccessorFile::getFilesList(const std::string& uri, const std::string& mask, const Filter& filter, const std::string& timezone, DataSetPtr dataSet, std::shared_ptr<terrama2::core::FileRemover> remover) const
+QFileInfoList terrama2::core::DataAccessorFile::getFilesList(const std::string& uri,
+                                                             const std::string& fileMask,
+                                                             const std::string& folderMask,
+                                                             const Filter& filter,
+                                                             const std::string& timezone,
+                                                             std::shared_ptr<terrama2::core::FileRemover> remover) const
 {
-  std::string folderMask;
-  try
-  {
-    folderMask = getFolderMask(dataSet, dataSeries_);
-  }
-  catch(const terrama2::core::UndefinedTagException& /*e*/)
-  {
-    folderMask = "";
-  }
-
   QUrl url(QString::fromStdString(uri));
 
   std::vector<std::string> basePathList;
@@ -860,7 +834,7 @@ QFileInfoList terrama2::core::DataAccessorFile::getFilesList(const std::string& 
 
     if(foldersList.empty())
     {
-      QString errMsg = QObject::tr("No files found for dataset: %1.").arg(dataSet->id);
+      QString errMsg = QObject::tr("No files found for dataset!");
       TERRAMA2_LOG_WARNING() << errMsg;
       throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
     }
@@ -874,7 +848,7 @@ QFileInfoList terrama2::core::DataAccessorFile::getFilesList(const std::string& 
   for(auto& folderPath : basePathList)
   {
     newFileInfoList.append(getDataFileInfoList(folderPath,
-                                               mask,
+                                               fileMask,
                                                timezone,
                                                filter,
                                                remover));

@@ -104,7 +104,7 @@ std::string terrama2::core::DataAccessorGrADS::retrieveData(const DataRetrieverP
   std::string folderPath = "";
   try
   {
-    folderPath = getFolderMask(dataset, dataSeries_);
+    folderPath = getFolderMask(dataset);
   }
   catch(UndefinedTagException& /*e*/)
   {
@@ -143,7 +143,7 @@ std::string terrama2::core::DataAccessorGrADS::retrieveData(const DataRetrieverP
     // In case the user specified a binary file mask, use it instead of the one in the CTL file.
     try
     {
-      std::string binaryFileMask = getMask(dataset);
+      std::string binaryFileMask = getBinaryFileMask(dataset);
       if(!binaryFileMask.empty())
       {
         datasetMask = binaryFileMask;
@@ -310,7 +310,8 @@ std::string terrama2::core::DataAccessorGrADS::getConfigFilename(terrama2::core:
   return vrtFilename;
 }
 
-std::string terrama2::core::DataAccessorGrADS::readControlFile(terrama2::core::DataSetPtr dataSet, const std::string& controlFilename) const
+std::string terrama2::core::DataAccessorGrADS::readControlFile(terrama2::core::DataSetPtr dataSet,
+                                                               const std::string& controlFilename) const
 {
   gradsDescriptor_ = readDataDescriptor(controlFilename);
   gradsDescriptor_.srid_ = getSrid(dataSet);
@@ -327,7 +328,7 @@ std::string terrama2::core::DataAccessorGrADS::readControlFile(terrama2::core::D
   // In case the user specified a binary file mask, use it instead of the one in the CTL file.
   try
   {
-    std::string binaryFileMask = getMask(dataSet);
+    std::string binaryFileMask = getFileMask(dataSet);
     if(!binaryFileMask.empty())
     {
       datasetMask = binaryFileMask;
@@ -1003,7 +1004,7 @@ std::string terrama2::core::DataAccessorGrADS::getDataType(terrama2::core::DataS
   }
 }
 
-std::string terrama2::core::DataAccessorGrADS::getMask(terrama2::core::DataSetPtr dataset) const
+std::string terrama2::core::DataAccessorGrADS::getBinaryFileMask(terrama2::core::DataSetPtr dataset) const
 {
   try
   {

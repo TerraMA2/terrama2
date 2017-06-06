@@ -148,11 +148,6 @@ namespace terrama2
     std::string getTimeInterval(terrama2::core::DataSetPtr dataset);
 
     /*!
-      \brief Returns the value for the folder property of the given dataset.
-    */
-    std::string getFolderMask(DataSetPtr dataSet, DataSeriesPtr dataSeries);
-
-    /*!
       \brief Create an expansible raster from another raster.
 
       The content will be copied by block.
@@ -187,6 +182,15 @@ namespace terrama2
      * \return A vector with the splitted parts of the text.
      */
     std::vector<std::string> splitString(const std::string& text, char delim);
+
+    //! Recover complete mask, folder plus file mask
+    std::string getMask(DataSetPtr dataset);
+
+    //Returns the file mask .
+    std::string getFileMask(DataSetPtr dataSet);
+
+    //Returns the folder mask .
+    std::string getFolderMask(DataSetPtr dataSet);
 
   } // end namespace core
 }   // end namespace terrama2
