@@ -30,6 +30,10 @@
 
 #include "DataSet.hpp"
 
+#include <boost/optional.hpp>
+
+#include <string>
+
 namespace terrama2
 {
   namespace core

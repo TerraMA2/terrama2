@@ -8,7 +8,7 @@
  * @type {AbstractData}
  */
 var BaseClass = require('./AbstractData');
-var ConditionalSchedule = require("./ConditionalSchedule");
+var AutomaticSchedule = require("./AutomaticSchedule");
 var Risk = require("./Risk");
 /**
  * TerraMA² Global Utility module
@@ -64,10 +64,10 @@ var Alert = function(params) {
    */
   this.data_series_id = params.data_series_id;
   /**
-   * @name Alert#conditional_schedule
+   * @name Alert#automatic_schedule
    * @type {object}
    */
-  this.conditional_schedule = new ConditionalSchedule(params.ConditionalSchedule ? params.ConditionalSchedule.get() : params.conditionalSchedule || {});
+  this.automatic_schedule = new AutomaticSchedule(params.AutomaticSchedule ? params.AutomaticSchedule.get() : params.automaticSchedule || {});
   /**
    * @name Alert#risk
    * @type {object}
@@ -95,14 +95,14 @@ var Alert = function(params) {
 };
 
 /**
- * It sets conditional schedule data.
+ * It sets automatic schedule data.
  * @param {Sequelize.Model[]|Object[]}
  */
-Alert.prototype.setConditionalSchedule = function(conditionalSchedule) {
-  if (conditionalSchedule.ConditionalSchedule) {
-    this.conditional_schedule = new ConditionalSchedule(conditionalSchedule.ConditionalSchedule.get() || {});
+Alert.prototype.setAutomaticSchedule = function(automaticSchedule) {
+  if (automaticSchedule.AutomaticSchedule) {
+    this.automatic_schedule = new AutomaticSchedule(automaticSchedule.AutomaticSchedule.get() || {});
   } else {
-    this.conditional_schedule = conditionalSchedule || {};
+    this.automatic_schedule = automaticSchedule || {};
   }
 };
 
@@ -152,7 +152,7 @@ Alert.prototype.toObject = function() {
     description: this.description,
     data_series_id: this.data_series_id,
     risk_attribute: this.risk_attribute,
-    conditional_schedule: this.conditional_schedule instanceof BaseClass ? this.conditional_schedule.toObject() : this.conditional_schedule,
+    automatic_schedule: this.automatic_schedule instanceof BaseClass ? this.automatic_schedule.toObject() : this.automatic_schedule,
     risk: this.risk instanceof BaseClass ? this.risk.toObject() : this.risk,
     additional_data: this.additional_data,
     notifications: this.notifications,

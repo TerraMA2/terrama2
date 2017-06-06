@@ -65,8 +65,8 @@
         return promiser
           .then(function(schedule) {
             if (schedule) {
-              if (viewObject.schedule_type == Enums.ScheduleType.CONDITIONAL){
-                viewObject.conditional_schedule_id = schedule.id;
+              if (viewObject.schedule_type == Enums.ScheduleType.AUTOMATIC){
+                viewObject.automatic_schedule_id = schedule.id;
               } else {
                 viewObject.schedule_id = schedule.id;
               }
@@ -148,11 +148,11 @@
                     viewObject.schedule_id = view.schedule.id;
                     return null;
                   });
-              } else if (view.scheduleType == Enums.ScheduleType.CONDITIONAL){
-                viewObject.conditional_schedule.data_ids = viewObject.schedule.data_ids;
-                return DataManager.updateConditionalSchedule(view.conditionalSchedule.id, viewObject.conditional_schedule, options)
+              } else if (view.scheduleType == Enums.ScheduleType.AUTOMATIC){
+                viewObject.automatic_schedule.data_ids = viewObject.schedule.data_ids;
+                return DataManager.updateAutomaticSchedule(view.automaticSchedule.id, viewObject.automatic_schedule, options)
                   .then(function(){
-                    viewObject.conditional_schedule_id = view.conditionalSchedule.id;
+                    viewObject.automatic_schedule_id = view.automaticSchedule.id;
                     return null;
                   });
               }
@@ -167,8 +167,8 @@
                       viewObject.schedule_id = scheduleResult.id;
                       return null;
                     } else {
-                      view.conditionalSchedule = scheduleResult;
-                      viewObject.conditional_schedule_id = scheduleResult.id;
+                      view.automaticSchedule = scheduleResult;
+                      viewObject.automatic_schedule_id = scheduleResult.id;
                       return null;
                     }
                   });
@@ -178,20 +178,20 @@
                 scheduleIdToRemove = view.schedule.id;
                 scheduleTypeToRemove = Enums.ScheduleType.SCHEDULE;
                 viewObject.schedule_id = null;
-                // if new schedule is CONDITIONAL, create the schedule
-                if (viewObject.schedule_type == Enums.ScheduleType.CONDITIONAL){
+                // if new schedule is AUTOMATIC, create the schedule
+                if (viewObject.schedule_type == Enums.ScheduleType.AUTOMATIC){
                   viewObject.schedule.id = null;
                   return DataManager.addSchedule(viewObject.schedule, options)
                     .then(function(scheduleResult){
-                      view.conditionalSchedule = scheduleResult;
-                      viewObject.conditional_schedule_id = scheduleResult.id;    
+                      view.automaticSchedule = scheduleResult;
+                      viewObject.automatic_schedule_id = scheduleResult.id;    
                     });
                 }
               } else {
                 removeSchedule = true;
-                scheduleIdToRemove = view.conditionalSchedule.id;
-                scheduleTypeToRemove = Enums.ScheduleType.CONDITIONAL;
-                viewObject.conditional_schedule_id = null;
+                scheduleIdToRemove = view.automaticSchedule.id;
+                scheduleTypeToRemove = Enums.ScheduleType.AUTOMATIC;
+                viewObject.automatic_schedule_id = null;
                 if (viewObject.schedule_type == Enums.ScheduleType.SCHEDULE){
                   viewObject.schedule.id = null;
                   return DataManager.addSchedule(viewObject.schedule, options)
@@ -209,8 +209,8 @@
             return DataManager.updateView({id: viewId}, viewObject, options)
               .then(function() {
                 if (removeSchedule) {
-                  if (scheduleTypeToRemove == Enums.ScheduleType.CONDITIONAL){
-                    return DataManager.removeConditionalSchedule({id: scheduleIdToRemove}, options);
+                  if (scheduleTypeToRemove == Enums.ScheduleType.AUTOMATIC){
+                    return DataManager.removeAutomaticSchedule({id: scheduleIdToRemove}, options);
                   } else {
                     return DataManager.removeSchedule({id: scheduleIdToRemove}, options);
                   }

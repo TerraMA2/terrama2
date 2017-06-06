@@ -25,6 +25,6 @@ exports.ReprocessingHistoricalData = require("./ReprocessingHistoricalData");
 exports.View = require("./View");
 exports.RegisteredView = require("./RegisteredView");
 exports.ViewStyleLegend = require("./ViewStyleLegend");
-exports.ConditionalSchedule = require("./ConditionalSchedule");
+exports.AutomaticSchedule = require("./AutomaticSchedule");
 exports.Alert = require("./Alert");
 exports.Risk = require("./Risk");
