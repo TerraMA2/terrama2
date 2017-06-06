@@ -17,7 +17,7 @@ module.exports = function(sequelize, DataTypes) {
         allowNull: false,
         unique: true
       },
-      collector: {
+      allow_storage: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         default: false

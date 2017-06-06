@@ -8,6 +8,7 @@
     "temporality": "DYNAMIC",
     "format": "GDAL",
     "providers_type_list": ["FILE", "FTP"],
+    "allow_storage": true,
     "metadata": {
       "timestamp_property": "file_timestamp"
     },
