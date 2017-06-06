@@ -167,14 +167,14 @@ define([], function() {
     $scope.linkToAdd = BASE_URL + "administration/services/new";
 
     $scope.iconFn = function(object){
-      switch(object.type){
-        case "Analysis":
+      switch(object.service_type_id){
+        case 2:
           return BASE_URL + "images/services/analysis/analysis_service.png";
           break;
-        case "Collect":
+        case 1:
           return BASE_URL + "images/services/collector/collector_service.png";
           break;
-        case "View":
+        case 3:
           return BASE_URL + "images/services/view/view_service.png";
           break;
         default:
