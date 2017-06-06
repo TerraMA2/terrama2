@@ -165,7 +165,7 @@ Alert.prototype.toObject = function() {
     data_series_id: this.data_series_id,
     risk_attribute: this.risk_attribute,
     schedule_type: this.scheduleType,
-    schedule: this.schedule instanceof AbstractClass ? this.schedule.toObject() : {},
+    schedule: this.schedule instanceof BaseClass ? this.schedule.toObject() : {},
     automatic_schedule: this.automatic_schedule instanceof BaseClass ? this.automatic_schedule.toObject() : this.automatic_schedule,
     risk: this.risk instanceof BaseClass ? this.risk.toObject() : this.risk,
     additional_data: this.additional_data,
@@ -218,7 +218,7 @@ Alert.prototype.toService = function() {
     additional_data: additionalDataList,
     notifications: notificationList,
     report_metadata: reportMetadataCopy,
-    schedule: this.schedule instanceof AbstractClass ? this.schedule.toObject() : {}
+    schedule: this.schedule instanceof BaseClass ? this.schedule.toObject() : {}
   });
 }
 

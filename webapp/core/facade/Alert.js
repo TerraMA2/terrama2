@@ -4,6 +4,8 @@
   var DataManager = require("./../DataManager");
   var TcpService = require("./../facade/tcp-manager/TcpService");
   var PromiseClass = require("./../Promise");
+  var Enums = require("./../Enums");
+  var Utils = require("./../Utils");
 
   /**
    * It represents a mock to handle alert.
@@ -156,8 +158,8 @@
           .then(function(alertResult){
             alert = alertResult;
 
-            if (alert.schedule_type == alertObject.schedule_type){
-              if (alert.schedule_type == Enums.ScheduleType.SCHEDULE){
+            if (alert.scheduleType == alertObject.schedule_type){
+              if (alert.scheduleType == Enums.ScheduleType.SCHEDULE){
                 // update
                 return DataManager.updateSchedule(alert.schedule.id, alertObject.schedule, options)
                   .then(function() {
@@ -166,9 +168,9 @@
                   });
               } else if (alert.scheduleType == Enums.ScheduleType.AUTOMATIC){
                 alertObject.automatic_schedule.data_ids = alertObject.schedule.data_ids;
-                return DataManager.updateAutomaticSchedule(alert.automaticSchedule.id, alertObject.automatic_schedule, options)
+                return DataManager.updateAutomaticSchedule(alert.automatic_schedule.id, alertObject.automatic_schedule, options)
                   .then(function(){
-                    alertObject.automatic_schedule_id = alert.automaticSchedule.id;
+                    alertObject.automatic_schedule_id = alert.automatic_schedule.id;
                     return null;
                   });
               }
@@ -205,7 +207,7 @@
                 }
               } else {
                 removeSchedule = true;
-                scheduleIdToRemove = alert.automaticSchedule.id;
+                scheduleIdToRemove = alert.automatic_schedule.id;
                 scheduleTypeToRemove = Enums.ScheduleType.AUTOMATIC;
                 alertObject.automatic_schedule_id = null;
                 if (alertObject.schedule_type == Enums.ScheduleType.SCHEDULE){
