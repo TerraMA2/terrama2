@@ -3943,7 +3943,13 @@ var DataManager = module.exports = {
       return models.db.Alert.create(alertObject, options)
         .then(function(alert){
           alertResult = alert;
-          return self.getAutomaticSchedule({id: alertResult.automatic_schedule_id}, options);
+          if (alertResult.schedule_id) {
+           return self.getSchedule({id: alertResult.schedule_id}, options);
+          } else if (alertResult.automatic_schedule_id){
+            return self.getAutomaticSchedule({id: alertResult.automatic_schedule_id}, options);
+          } else {
+            return null;
+          }
         })
         .then(function(schedule){
           scheduleResult = schedule;
@@ -3982,11 +3988,17 @@ var DataManager = module.exports = {
         .then(function(notifications){
           notificationResult = notifications;
           var objectToAssign = {
-            automaticSchedule: scheduleResult,
             reportMetadata: reportMetadataResult,
             additionalData: additionalDataResult,
             risk: riskResult,
             notifications: notificationResult
+          };
+          if (alertResult.shedule_id){
+            objectToAssign.schedule = scheduleResult || {};
+            objectToAssign.automaticSchedule = {}
+          } else {
+            objectToAssign.schedule = {};
+            objectToAssign.automatic_schedule = scheduleResult || {};
           }
           return resolve(new DataModel.Alert(Object.assign(alertResult.get(), objectToAssign)));
         })
@@ -4160,6 +4172,9 @@ var DataManager = module.exports = {
             model: models.db.AlertNotification
           },
           {
+            model: models.db.Schedule
+          },
+          {
             model: models.db.AutomaticSchedule
           },
           {
@@ -4190,6 +4205,7 @@ var DataManager = module.exports = {
             var risk = new DataModel.Risk(alert.Risk.get());
 
             var alertModel = new DataModel.Alert(Object.assign(alert.get(), {
+              schedule: alert.Schedule ? new DataModel.Schedule(alert.Schedule.get()) : {},
               automatic_schedule: alert.AutomaticSchedule ? new DataModel.AutomaticSchedule(alert.AutomaticSchedule.get()) : {},
               additionalData: additionalDatas,
               notifications: notifications,
@@ -4291,7 +4307,7 @@ var DataManager = module.exports = {
       models.db.Alert.update(
         alertObject,
         Utils.extend({
-          fields: ["name", "description", "data_series_id", "active", "service_instance_id", "risk_id", "risk_attribute"],
+          fields: ["name", "description", "data_series_id", "active", "service_instance_id", "risk_id", "risk_attribute", "schedule_type", "schedule_id", "automatic_schedule_id"],
           where: restriction
         }, options))
         .then(function(){
