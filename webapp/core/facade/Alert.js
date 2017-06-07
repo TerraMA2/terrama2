@@ -4,6 +4,8 @@
   var DataManager = require("./../DataManager");
   var TcpService = require("./../facade/tcp-manager/TcpService");
   var PromiseClass = require("./../Promise");
+  var Enums = require("./../Enums");
+  var Utils = require("./../Utils");
 
   /**
    * It represents a mock to handle alert.
@@ -58,12 +60,18 @@
 
         var promiser;
 
-        promiser = DataManager.addSchedule(alertObject.automatic_schedule, options);
+        if (Utils.isEmpty(alertObject.schedule))
+          promiser = PromiseClass.resolve();
+        else
+          promiser = DataManager.addSchedule(alertObject.schedule, options);
 
         return promiser
           .then(function(schedule) {
             if (schedule) {
-              alertObject.automatic_schedule_id = schedule.id;
+              if (alertObject.schedule_type == Enums.ScheduleType.AUTOMATIC)
+                alertObject.automatic_schedule_id = schedule.id;
+              else
+                alertObject.schedule_id = schedule.id;
             }
             var riskPromise;
             var riskObject = alertObject.risk;
@@ -142,9 +150,79 @@
       DataManager.orm.transaction(function(t){
         var options = {transaction: t};
         var oldAlertNotifications = [];
+        var alert;
+        var removeSchedule = null;
+        var scheduleIdToRemove = null;
+        var scheduleTypeToRemove = null;
         return DataManager.getAlert({id: alertId}, options)
           .then(function(alertResult){
-            oldAlertNotifications = alertResult.notifications;
+            alert = alertResult;
+
+            if (alert.scheduleType == alertObject.schedule_type){
+              if (alert.scheduleType == Enums.ScheduleType.SCHEDULE){
+                // update
+                return DataManager.updateSchedule(alert.schedule.id, alertObject.schedule, options)
+                  .then(function() {
+                    alertObject.schedule_id = alert.schedule.id;
+                    return null;
+                  });
+              } else if (alert.scheduleType == Enums.ScheduleType.AUTOMATIC){
+                alertObject.automatic_schedule.data_ids = alertObject.schedule.data_ids;
+                return DataManager.updateAutomaticSchedule(alert.automatic_schedule.id, alertObject.automatic_schedule, options)
+                  .then(function(){
+                    alertObject.automatic_schedule_id = alert.automatic_schedule.id;
+                    return null;
+                  });
+              }
+            } else {
+              // when change type of schedule
+              // if old schedule is MANUAL, create the new schedule
+              if (alert.scheduleType == Enums.ScheduleType.MANUAL){
+                return DataManager.addSchedule(alertObject.schedule, options)
+                  .then(function(scheduleResult){
+                    if (alertObject.schedule_type == Enums.ScheduleType.SCHEDULE){
+                      alert.schedule = scheduleResult;
+                      alertObject.schedule_id = scheduleResult.id;
+                      return null;
+                    } else {
+                      alert.automaticSchedule = scheduleResult;
+                      alertObject.automatic_schedule_id = scheduleResult.id;
+                      return null;
+                    }
+                  });
+              // if old schedule is SCHEDULE, delete schedule
+              } else if (alert.scheduleType == Enums.ScheduleType.SCHEDULE){
+                removeSchedule = true;
+                scheduleIdToRemove = alert.schedule.id;
+                scheduleTypeToRemove = Enums.ScheduleType.SCHEDULE;
+                alertObject.schedule_id = null;
+                // if new schedule is AUTOMATIC, create the schedule
+                if (alertObject.schedule_type == Enums.ScheduleType.AUTOMATIC){
+                  alertObject.schedule.id = null;
+                  return DataManager.addSchedule(alertObject.schedule, options)
+                    .then(function(scheduleResult){
+                      alert.automaticSchedule = scheduleResult;
+                      alertObject.automatic_schedule_id = scheduleResult.id;    
+                    });
+                }
+              } else {
+                removeSchedule = true;
+                scheduleIdToRemove = alert.automatic_schedule.id;
+                scheduleTypeToRemove = Enums.ScheduleType.AUTOMATIC;
+                alertObject.automatic_schedule_id = null;
+                if (alertObject.schedule_type == Enums.ScheduleType.SCHEDULE){
+                  alertObject.schedule.id = null;
+                  return DataManager.addSchedule(alertObject.schedule, options)
+                    .then(function(scheduleResult){
+                      alert.schedule = scheduleResult;
+                      alertObject.schedule_id = scheduleResult.id;    
+                    });
+                }
+              }
+            }
+          })
+          .then(function(){
+            oldAlertNotifications = alert.notifications;
             // Updating or adding a risk
             if (alertObject.risk.id){
               alertObject.risk_id = alertObject.risk.id;
@@ -185,7 +263,13 @@
             // updating alert
             return DataManager.updateAlert({id: alertId}, alertObject, options)
               .then(function(){
-                return DataManager.updateAutomaticSchedule(alertObject.automatic_schedule.id, alertObject.automatic_schedule, options)
+                if (removeSchedule) {
+                  if (scheduleTypeToRemove == Enums.ScheduleType.AUTOMATIC){
+                    return DataManager.removeAutomaticSchedule({id: scheduleIdToRemove}, options);
+                  } else {
+                    return DataManager.removeSchedule({id: scheduleIdToRemove}, options);
+                  }
+                }
               })
               .then(function(){
                 return DataManager.getAlert({id: alertId}, options);
