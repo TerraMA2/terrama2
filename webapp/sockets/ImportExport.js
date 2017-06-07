@@ -266,11 +266,22 @@ var ImportExport = function(io) {
                     if(analysis.service_instance_id === null) analysis.service_instance_id = json.servicesAnalysis;
                     if(analysis.instance_id === null) analysis.instance_id = json.servicesAnalysis;
 
-                    if(countObjectProperties(analysis.schedule)) {
+                    if(countObjectProperties(analysis.schedule) || analysis.automatic_schedule.id) {
                       delete analysis.schedule.id;
+                      delete analysis.automatic_schedule.id;
+                      var scheduleObject;
+                      if (analysis.schedule_type == Enums.ScheduleType.AUTOMATIC){
+                        scheduleObject = analysis.automatic_schedule;
+                        scheduleObject.scheduleType = Enums.ScheduleType.AUTOMATIC;
+                      } else {
+                        scheduleObject = analysis.schedule;
+                      }
 
-                      promises.push(DataManager.addSchedule(analysis.schedule, options).then(function(schedule) {
-                        analysis.schedule_id = schedule.id;
+                      promises.push(DataManager.addSchedule(scheduleObject, options).then(function(schedule) {
+                        if (analysis.schedule_type == Enums.ScheduleType.AUTOMATIC)
+                          analysis.automatic_schedule_id = schedule.id;
+                        else 
+                          analysis.schedule_id = schedule.id;
 
                         return DataManager.addAnalysis(analysis, options).then(function(analysisResult) {
                           if(tcpOutput.Analysis === undefined) tcpOutput.Analysis = [];
@@ -296,12 +307,24 @@ var ImportExport = function(io) {
                       view.data_series_id = Utils.find(output.DataSeries, {$id: view.data_series_id}).id;
                       if(view.service_instance_id === null) view.service_instance_id = json.servicesView;
 
-                      if(countObjectProperties(view.schedule) > 0) {
+                      if(countObjectProperties(view.schedule) > 0 || view.automatic_schedule.id) {
                         delete view.schedule.id;
+                        delete view.automatic_schedule.id;
+                        var scheduleObject;
+                        if (view.schedule_type == Enums.ScheduleType.AUTOMATIC){
+                          scheduleObject = view.automatic_schedule;
+                          scheduleObject.scheduleType = Enums.ScheduleType.AUTOMATIC;
+                        } else {
+                          scheduleObject = view.schedule;
+                        }
 
-                        promises.push(DataManager.addSchedule(view.schedule, options).then(function(schedule) {
-                          if (schedule)
-                            view.schedule_id = schedule.id;
+                        promises.push(DataManager.addSchedule(scheduleObject, options).then(function(schedule) {
+                          if (schedule){
+                            if (view.schedule_type == Enums.ScheduleType.AUTOMATIC)
+                              view.automatic_schedule_id = schedule.id;
+                             else 
+                              view.schedule_id = schedule.id;
+                          }
 
                           return DataManager.addView(view, options).then(function(viewResult) {
                             if(tcpOutput.Views === undefined) tcpOutput.Views = [];
@@ -337,7 +360,7 @@ var ImportExport = function(io) {
                           }
                         }
 
-                        delete alert.conditional_schedule.id;
+                        delete alert.automatic_schedule.id;
                         delete risk.id;
                         delete alert.report_metadata.id;
 
@@ -353,8 +376,8 @@ var ImportExport = function(io) {
                         alert.risk = risk;
                         alert.risk.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: alert.risk.project_id}).id : json.selectedProject;
 
-                        var addSchedulePromise = DataManager.addSchedule(alert.conditional_schedule, options).then(function(schedule) {
-                          alert.conditional_schedule_id = schedule.id;
+                        var addSchedulePromise = DataManager.addSchedule(alert.automatic_schedule, options).then(function(schedule) {
+                          alert.automatic_schedule_id = schedule.id;
                         });
                         
                         var addRiskPromise = DataManager.addRisk(risk, options).then(function(riskResult) {
@@ -593,7 +616,7 @@ var ImportExport = function(io) {
             var alertToAdd = addID(alert);
             var risk = alertToAdd.risk;
 
-            alertToAdd.conditional_schedule.scheduleType = 4;
+            alertToAdd.automatic_schedule.scheduleType = 4;
             alertToAdd.risk_id = risk.id;
             delete alertToAdd.risk;
 
@@ -731,7 +754,7 @@ var ImportExport = function(io) {
                 var alertToAdd = addID(alert);
                 var risk = alertToAdd.risk;
 
-                alertToAdd.conditional_schedule.scheduleType = 4;
+                alertToAdd.automatic_schedule.scheduleType = 4;
                 alertToAdd.risk_id = risk.id;
                 delete alertToAdd.risk;
 

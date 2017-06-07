@@ -44,7 +44,7 @@ define([], function() {
      * @type {Object}
      */
     self.scheduleOptions = {
-      showConditionalOption: true
+      showAutomaticOption: true
     };
     /**
      * It handles if should show schedule or not. It may be changed on view data series change
