@@ -15,7 +15,7 @@ define([], function() {
               "</div>" +
               "<div class=\"modal-body\">" +
                 "<div ng-show=\"dataProvider.protocol == 'FILE'\">" +
-                  "<span style=\"font-size: 16px;\">{{ i18n.__('TerraMA² data directory: ') + terrama2DefaultFilePath }}</span>" +
+                  "<span style=\"font-size: 16px;\">{{ i18n.__('TerraMA² data directory') + ': ' + terrama2DefaultFilePath }}</span>" +
                   "<hr/>" +
                 "</div>" +
                 "<div ng-show=\"!rootDirectories.children || rootDirectories.children.length == 0\">{{ i18n.__('No directories to show.') }}</div>" +
@@ -127,7 +127,7 @@ define([], function() {
             listDirectories($scope.basePath).then(function(data) {
               if(data.error) {
                 $scope.isChecking = false;
-                return MessageBoxService.danger(i18n.__(title), data.error);
+                return MessageBoxService.danger(i18n.__(title), ($scope.dataProvider.protocol == "FILE" ? i18n.__("Invalid configuration for the TerraMA² data directory") : data.error));
               }
 
               $scope.rootDirectories.childrenVisible = true;
@@ -147,7 +147,7 @@ define([], function() {
               }
             }).catch(function(err) {
               $scope.isChecking = false;
-              return MessageBoxService.danger(i18n.__(title), err.error);
+              return MessageBoxService.danger(i18n.__(title), ($scope.dataProvider.protocol == "FILE" ? i18n.__("Invalid configuration for the TerraMA² data directory") : err.error));
             });
           };
 
