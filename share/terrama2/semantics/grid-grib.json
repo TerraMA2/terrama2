@@ -1,13 +1,14 @@
 [
   {
     "id": 15,
-    "name": "Grid - Grib",
+    "name": "Grid - Grib2",
     "code": "GRID-grib",
     "driver": "GRID-grib",
     "type": "GRID",
     "temporality": "DYNAMIC",
     "format": "GDAL",
     "providers_type_list": ["FILE", "FTP"],
+    "allow_direct_access": false,
     "metadata": {
       "timestamp_property": "file_timestamp"
     },
