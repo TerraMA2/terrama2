@@ -53,7 +53,7 @@ namespace terrama2
         ~DataStoragerTiff() {}
 
         static DataStoragerPtr make(DataProviderPtr dataProvider);
-        static DataStoragerType dataStoragerType() { return "GRID-gdal"; }
+        static DataStoragerType dataStoragerType() { return "GRID-geotiff"; }
 
         virtual void store(DataSetSeries series, DataSetPtr outputDataSet) const override;
 
