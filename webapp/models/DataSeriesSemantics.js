@@ -7,32 +7,10 @@ module.exports = function(sequelize, DataTypes) {
         primaryKey: true,
         autoIncrement: true
       },
-      name: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: true
-      },
       code: {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true
-      },
-      allow_storage: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        default: false
-      },
-      temporality: {
-        type: DataTypes.STRING,
-        allowNull: false
-      },
-      allow_direct_access: {
-        type: DataTypes.BOOLEAN,
-        allowNull: true
-      },
-      custom_format: {
-        type: DataTypes.BOOLEAN,
-        allowNull: true
       }
     },
     {
