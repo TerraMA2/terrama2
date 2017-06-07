@@ -1,7 +1,7 @@
 [
   {
     "id": 15,
-    "name": "Grid - Grib",
+    "name": "Grid - Grib2",
     "code": "GRID-grib",
     "driver": "GRID-grib",
     "type": "GRID",
