@@ -50,19 +50,6 @@ terrama2::core::DataStoragerPtr terrama2::core::DataStoragerTiff::make(DataProvi
   return std::make_shared<DataStoragerTiff>(dataProvider);
 }
 
-std::string terrama2::core::DataStoragerTiff::getMask(DataSetPtr dataSet) const
-{
-  try
-  {
-    return dataSet->format.at("mask");
-  }
-  catch(...)
-  {
-    QString errMsg = QObject::tr("Undefined mask in dataset: %1.").arg(dataSet->id);
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw UndefinedTagException() << ErrorDescription(errMsg);
-  }
-}
 
 int terrama2::core::DataStoragerTiff::getSRID(DataSetPtr dataSet, bool log = true) const
 {
@@ -248,7 +235,7 @@ void terrama2::core::DataStoragerTiff::store(DataSetSeries series, DataSetPtr ou
   std::string path = uri.path().toStdString();
 
 
-  std::string mask = getMask(outputDataSet);
+  std::string mask = terrama2::core::getFileMask(outputDataSet);
   if(mask.empty())
   {
     QString errMsg = QObject::tr("Empty mask for output grid.");
@@ -360,7 +347,7 @@ std::string terrama2::core::DataStoragerTiff::getCompleteURI(DataSetPtr outputDa
   }
 
 
-  std::string mask = getMask(outputDataSet);
+  std::string mask = terrama2::core::getFileMask(outputDataSet);
   completeUri += "/" + mask;
   return completeUri;
 }
