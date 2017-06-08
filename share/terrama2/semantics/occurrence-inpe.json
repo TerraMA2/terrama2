@@ -29,7 +29,7 @@
           "mask": {
             "type": "string",
             "title": "Mask",
-            "pattern": ".*"
+            "pattern": "^([\\/\\w()*.-]+|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
           }
         },
         "required": ["mask"]
@@ -83,7 +83,7 @@
           "mask": {
             "type": "string",
             "title": "Mask",
-            "pattern": "^([\\w*.]+|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
+            "pattern": "^([\\/\\w()*.-]+|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
           }
         },
         "required": ["mask"]

@@ -20,7 +20,7 @@
             "mask": {
               "type": "string",
               "title": "Mask",
-              "pattern": ".*"
+              "pattern": "^([\\/\\w()*.-]+|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
             },
             "timezone": {
               "type": "string",

@@ -24,7 +24,7 @@
             "type": "string",
             "title": "Mask",
             "format": "terrama2maskform",
-            "pattern": ".*"
+            "pattern": "^([\\/\\w()*.-]+|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
           },
           "timezone": {
             "type": "string",
