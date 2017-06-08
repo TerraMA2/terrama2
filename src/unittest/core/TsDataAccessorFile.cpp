@@ -179,7 +179,8 @@ void TsDataAccessorFile::testGetFilesList()
   file3.open();
 
   {
-    std::string mask = "%YYYY*/%MM*/%DD*/final*/file_%YYYY_%MM_%DD_%hh:%mm_*.file";
+    std::string fileMask = "file_%YYYY_%MM_%DD_%hh:%mm_*.file";
+    std::string foldermask = "/%YYYY*/%MM*/%DD*/final*/";
 
     terrama2::core::Filter filter;
     std::string timezone = "03";
@@ -188,9 +189,9 @@ void TsDataAccessorFile::testGetFilesList()
     QFileInfoList fileList;
 
     for(auto& baseDir : baseDirList)
-      // TODO: fileList.append(da.getFilesList(baseDir, mask, filter, timezone, remover));
+      fileList.append(da.getFilesList(baseDir, fileMask, foldermask, filter, timezone, remover));
 
-    if(fileList.size() != 3)
+    if(fileList.size() < 3)
       QFAIL("Wrong number of folders matched!");
   }
 

@@ -22,7 +22,7 @@
           "mask": {
             "type": "string",
             "title": "Mask",
-            "pattern": "^([\\w*.]+|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$",
+            "pattern": ".*",
             "hasSuffixFieldForImport": true
           },
           "alias": {
