@@ -35,7 +35,7 @@ if(frError):
     exitMessage += "French, "
 
 if(ptError or esError or frError):
-    sys.stdout.write(exitMessage[:-2])
+    sys.stdout.write(exitMessage[:-2] + "\n\n")
     sys.exit(-1)
 else:
     sys.exit(0)
