@@ -96,29 +96,6 @@ namespace terrama2
 
         virtual bool hasControlFile() const;
 
-        virtual std::string getControlMask(terrama2::core::DataSetPtr dataSet) const;
-
-        //Returns the file mask .
-        virtual std::string getControlFileMask(DataSetPtr dataSet) const;
-
-        //Returns the folder mask .
-        virtual std::string getControlFileFolderMask(DataSetPtr dataSet) const;
-
-        virtual std::string readControlFileBinaryMask(terrama2::core::DataSetPtr dataSet,
-                                                      const std::string& controlFilename) const;
-
-        virtual std::string extractBinaryFileMaskFromControlFile(terrama2::core::DataSetPtr dataSet,
-                                                                 const std::string& controlFilename) const;
-
-        virtual std::string extractBinaryFolderPathFromControlFile(terrama2::core::DataSetPtr dataSet,
-                                                                   const std::string& controlFilename) const;
-
-        virtual std::string getBinaryMask(DataSetPtr dataset) const;
-
-        virtual std::string getBinaryFileMask(terrama2::core::DataSetPtr dataset) const;
-
-        virtual std::string getBinaryFolderMask(terrama2::core::DataSetPtr dataset) const;
-
         virtual bool needToOpenConfigFile() const;
 
         virtual std::string getConfigFilename(terrama2::core::DataSetPtr dataSet, const std::string& binaryFilename) const;
@@ -126,6 +103,13 @@ namespace terrama2
         virtual std::shared_ptr<te::dt::TimeInstantTZ> readFile(DataSetSeries& series, std::shared_ptr<te::mem::DataSet>& completeDataset, std::shared_ptr<te::da::DataSetTypeConverter>& converter, QFileInfo fileInfo, const std::string& mask, terrama2::core::DataSetPtr dataSet) const;
 
         std::shared_ptr<te::dt::TimeInstantTZ> readFilesAndAddToDataset(DataSetSeries& series, std::shared_ptr<te::mem::DataSet>& completeDataset, QFileInfoList fileList, const std::string& mask, terrama2::core::DataSetPtr dataSet) const;
+
+        virtual std::shared_ptr<te::mem::DataSet> method(const std::string& uri,
+                                                         const terrama2::core::Filter& filter,
+                                                         terrama2::core::DataSetPtr dataSet,
+                                                         std::shared_ptr<terrama2::core::FileRemover> remover,
+                                                         const std::string& timezone,
+                                                         DataSetSeries& series) const;
 
 
         /*!

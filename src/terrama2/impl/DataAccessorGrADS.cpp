@@ -1123,3 +1123,36 @@ std::string terrama2::core::trim(const std::string& value)
 
   return QString::fromStdString(str).trimmed().toStdString();
 }
+
+std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorGrADS::method(const std::string& uri,
+                                                                            const terrama2::core::Filter& filter,
+                                                                            terrama2::core::DataSetPtr dataSet,
+                                                                            std::shared_ptr<terrama2::core::FileRemover> remover,
+                                                                            const std::string& timezone,
+                                                                            DataSetSeries& series) const
+{
+  std::shared_ptr<te::mem::DataSet> completeDataset(nullptr);
+
+  std::string controlFileMask = getControlFileMask(dataSet);
+  std::string controlFileFolderMask = getControlFileFolderMask(dataSet);
+  auto ctlFileList = getFilesList(uri, controlFileMask, controlFileFolderMask, filter, timezone, remover);
+  for(const auto& ctlFile : ctlFileList)
+  {
+
+    // In case the user specified a binary file mask, use it instead of the one in the CTL file.
+    std::string binaryFileMask = getBinaryFileMask(dataSet);
+    std::string binaryFolderMask = getBinaryFolderMask(dataSet);
+
+    if(binaryFileMask.empty())
+      binaryFileMask = extractBinaryFileMaskFromControlFile(dataSet, ctlFile.absoluteFilePath().toStdString());
+
+    std::string completePath = controlFileFolderMask +
+                               "/" + extractBinaryFolderPathFromControlFile(dataSet, ctlFile.absoluteFilePath().toStdString()) +
+                               "/" + binaryFolderMask + "/";
+
+    auto binaryFileList = getFilesList(uri, binaryFileMask, completePath, filter, timezone, remover);
+    readFilesAndAddToDataset(series, completeDataset, binaryFileList, binaryFileMask, dataSet);
+  }
+
+  return completeDataset;
+}
