@@ -1,7 +1,7 @@
 'use strict';
 
 var AbstractRequest = require('./AbstractRequest');
-var Client = require('ftp');
+var Client = require('ssh2').Client;
 var Promise = require('bluebird');
 var Exceptions = require("./Exceptions");
 var Form = require("./Enums").Form;
@@ -10,14 +10,14 @@ var UriPattern = require("./Enums").Uri;
 var Utils = require("./Utils");
 
 
-var FtpRequest = function(params) {
+var SftpRequest = function(params) {
   AbstractRequest.apply(this, arguments);
 };
 
-FtpRequest.prototype = Object.create(AbstractRequest.prototype);
-FtpRequest.prototype.constructor = FtpRequest;
+SftpRequest.prototype = Object.create(AbstractRequest.prototype);
+SftpRequest.prototype.constructor = SftpRequest;
 
-FtpRequest.prototype.request = function() {
+SftpRequest.prototype.request = function() {
   var self = this;
   return  new Promise(function(resolve, reject) {
     var host = self.params[self.syntax().HOST];
@@ -26,7 +26,7 @@ FtpRequest.prototype.request = function() {
       host = host.substr(0, host.length - 1);
 
     var config = {
-      user: self.params[self.syntax().USER],
+      username: self.params[self.syntax().USER],
       password: self.params[self.syntax().PASSWORD],
       host: host,
       port: self.params[self.syntax().PORT]
@@ -35,54 +35,70 @@ FtpRequest.prototype.request = function() {
     var client = new Client();
 
     client.on('ready', function() {
-      client.list(self.params[self.syntax().PATHNAME], function(err, list) {
+      client.sftp(function(err, sftp) {
         if(err) {
           var error;
           switch (err.code) {
-            case 450:
+            case 2:
               error = new Exceptions.ConnectionError("Invalid path");
               break;
             default:
-              error = new Exceptions.ConnectionError("Error in connection");
+              error = new Exceptions.ConnectionError(err.message);
           }
 
           client.end();
           return reject(error);
         } else {
-          if(self.params.list) {
-            var items = [];
+          sftp.readdir(self.params[self.syntax().PATHNAME], function(err, list) {
+            if(err) {
+              var error;
+              switch (err.code) {
+                case 2:
+                  error = new Exceptions.ConnectionError("Invalid path");
+                  break;
+                default:
+                  error = new Exceptions.ConnectionError(err.message);
+              }
 
-            list = list.filter(function(a) { return a.name.indexOf('/') === -1 && a.name.indexOf('\\') === -1 });
+              client.end();
+              return reject(error);
+            } else {
+              if(self.params.list) {
+                var items = [];
 
-            if(self.params[self.syntax().PATHNAME] == self.params.basePath) {
-              var lastChar = self.params[self.syntax().PATHNAME].substr(self.params[self.syntax().PATHNAME].length - 1);
-              self.params[self.syntax().PATHNAME] = (lastChar == '/' ? self.params[self.syntax().PATHNAME].slice(0, -1) : self.params[self.syntax().PATHNAME]);
-            }
+                list = list.filter(function(a) { return a.filename.indexOf('/') === -1 && a.filename.indexOf('\\') === -1 });
 
-            for(var i = 0, listLength = list.length; i < listLength; i++) {
-              if(list[i].type == 'd' && list[i].name.charAt(0) != '.')
-                items.push({
-                  name: list[i].name,
-                  fullPath: self.params[self.syntax().PATHNAME] + '/' + list[i].name,
-                  children: [],
-                  childrenVisible: false
+                if(self.params[self.syntax().PATHNAME] == self.params.basePath) {
+                  var lastChar = self.params[self.syntax().PATHNAME].substr(self.params[self.syntax().PATHNAME].length - 1);
+                  self.params[self.syntax().PATHNAME] = (lastChar == '/' ? self.params[self.syntax().PATHNAME].slice(0, -1) : self.params[self.syntax().PATHNAME]);
+                }
+
+                for(var i = 0, listLength = list.length; i < listLength; i++) {
+                  if(list[i].longname.charAt(0) == 'd' && list[i].filename.charAt(0) != '.')
+                    items.push({
+                      name: list[i].filename,
+                      fullPath: self.params[self.syntax().PATHNAME] + '/' + list[i].filename,
+                      children: [],
+                      childrenVisible: false
+                    });
+                }
+
+                items.sort(function(a, b) {
+                  if(a.name < b.name) return -1;
+                  if(a.name > b.name) return 1;
+                  return 0;
                 });
+
+                client.end();
+                return resolve({
+                  list: items
+                });
+              } else {
+                client.end();
+                return resolve();
+              }
             }
-
-            items.sort(function(a, b) {
-              if(a.name < b.name) return -1;
-              if(a.name > b.name) return 1;
-              return 0;
-            });
-
-            client.end();
-            return resolve({
-              list: items
-            });
-          } else {
-            client.end();
-            return resolve();
-          }
+          });
         }
       });
     });
@@ -102,18 +118,40 @@ FtpRequest.prototype.request = function() {
           error = new Exceptions.ConnectionError("Username or password does not match");
           break;
         default:
-          error = new Exceptions.ConnectionError("Error in connection");
+          error = new Exceptions.ConnectionError(err.message);
       }
 
       client.end();
       return reject(error);
     });
 
-    client.connect(config);
+    try {
+      client.connect(config);
+    } catch(err) {
+      var error;
+      var syntax = self.syntax();
+      switch (err.code) {
+        case "ENOTFOUND":
+        case 421:
+          error = new Exceptions.ConnectionError("Host not found");
+          break;
+        case "ECONNREFUSED":
+          error = new Exceptions.ConnectionError("Error in connection, check the host and the port");
+          break;
+        case 530:
+          error = new Exceptions.ConnectionError("Username or password does not match");
+          break;
+        default:
+          error = new Exceptions.ConnectionError(err.message);
+      }
+
+      client.end();
+      return reject(error);
+    }
   });
 };
 
-FtpRequest.fields = function() {
+SftpRequest.fields = function() {
   var fieldProperties = {};
   fieldProperties[UriPattern.HOST] = {
     title: "Address",
@@ -125,7 +163,7 @@ FtpRequest.fields = function() {
     minimum: 2,
     maximum: 65535,
     type: FormField.NUMBER,
-    default: 21
+    default: 22
   };
 
   fieldProperties['timeout'] = {
@@ -203,13 +241,13 @@ FtpRequest.fields = function() {
   ];
 
   var fieldsObject = {
-    name: "FTP",
+    name: "SFTP",
     properties: fieldProperties,
-    required: [UriPattern.HOST, UriPattern.PORT],
+    required: [UriPattern.HOST, UriPattern.PORT, UriPattern.USER, UriPattern.PASSWORD],
     display: orderFields
   };
 
   return fieldsObject;
 };
 
-module.exports = FtpRequest;
+module.exports = SftpRequest;
