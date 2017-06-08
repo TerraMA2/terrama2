@@ -39,6 +39,7 @@
 #include "DataAccessorOccurrenceLightning.hpp"
 #include "DataAccessorOccurrencePostGIS.hpp"
 #include "DataAccessorDCPCSV.hpp"
+#include "DataStoragerDCPPostGIS.hpp"
 #include "DataAccessorOccurrenceCSV.hpp"
 
 #include "DataAccessorStaticDataOGR.hpp"
