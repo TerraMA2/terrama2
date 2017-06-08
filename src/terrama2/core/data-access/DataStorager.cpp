@@ -44,3 +44,16 @@ terrama2::core::DataStorager::DataStorager(DataProviderPtr outputDataProvider)
     throw DataStoragerException() << ErrorDescription(errMsg);
   }
 }
+
+void terrama2::core::DataStorager::store(const std::unordered_map<DataSetPtr,DataSetSeries >&  dataMap,
+                                         const std::vector< DataSetPtr >& dataSetLst,
+                                         const std::map<DataSetId, DataSetId>& inputOutputMap) const
+{
+  for(auto& item : dataMap)
+  {
+    // store each item
+    DataSetId outputDataSetId = inputOutputMap.at(item.first->id);
+    auto outputDataSet = std::find_if(dataSetLst.cbegin(), dataSetLst.cend(), [outputDataSetId](terrama2::core::DataSetPtr dataSet) { return dataSet->id == outputDataSetId; });
+    store(item.second, *outputDataSet);
+  }
+}

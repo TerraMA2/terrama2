@@ -35,6 +35,8 @@
 #include "../data-model/DataManager.hpp"
 #include "../data-access/DataSetSeries.hpp"
 
+#include <unordered_map>
+
 namespace te
 {
   namespace mem
@@ -66,6 +68,10 @@ namespace terrama2
         DataStorager(DataStorager&& other) = delete;
         DataStorager& operator=(const DataStorager& other) = delete;
         DataStorager& operator=(DataStorager&& other) = delete;
+
+        virtual void store(const std::unordered_map<DataSetPtr,DataSetSeries >&  dataMap,
+                           const std::vector< DataSetPtr >& dataSetLst,
+                           const std::map<DataSetId, DataSetId>& inputOutputMap) const;
 
         /*!
           \brief Store the data series in outputDataSet.
