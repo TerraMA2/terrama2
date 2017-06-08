@@ -130,14 +130,20 @@ namespace terrama2
                   QString errMsg(QObject::tr("Could not recover monitored object geometry."));
                   throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
                 }
+
+                std::unordered_map<std::pair<int, int>, std::pair<double, int>, boost::hash<std::pair<int, int> > > valuesMap;
+
+                //if it's an invalid geometry, return nan but continue the analysis
+                if(!moGeom->isValid())
+                  return valuesMap;
+
                 auto geomResult = createBuffer(buffer, moGeom);
 
                 auto dataSeries = context->findDataSeries(dataSeriesName);
 
                 /////////////////////////////////////////////////////////////////
                 //map of sum of values for each pixel
-                std::unordered_map<std::pair<int, int>, std::pair<double, int>, boost::hash<std::pair<int, int> > > valuesMap;
-
+                
                 terrama2::core::Filter filter;
                 filter.discardBefore = context->getTimeFromString(dateDiscardBefore);
                 filter.discardAfter = context->getTimeFromString(dateDiscardAfter);
