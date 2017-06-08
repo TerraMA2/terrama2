@@ -93,6 +93,12 @@ define([], function() {
         }
       ]
     };
+    /**
+     * @type {Object}
+     */
+    self.scheduleOptions = {
+      showAutomaticOption: true
+    };
 
     /**
      * It contains the analysis table columns list
@@ -151,6 +157,14 @@ define([], function() {
         var riskRequest = $http({
           method: "GET",
           url: BASE_URL + "api/Risk"
+        });
+
+        $timeout(function() {
+          if (self.isUpdating) {
+            self.schedule = {};
+            self.alert.schedule.scheduleType = self.alert.schedule_type.toString();
+            $scope.$broadcast("updateSchedule", self.alert.schedule || {});
+          }
         });
 
         riskRequest.then(function(response) {
@@ -348,7 +362,7 @@ define([], function() {
       }
 
       self.dataSeriesType = dataSeries.data_series_semantics.data_series_type_name;
-      self.alert.automatic_schedule.data_ids = [dataSeries.id];
+
     };
 
     /**
@@ -544,6 +558,44 @@ define([], function() {
 
         if(!self.notifyOnRiskLevel && self.alert.notifications[0].notify_on_risk_level !== undefined)
           self.alert.notifications[0].notify_on_risk_level = null;
+
+        
+        if (self.alert.schedule && Object.keys(self.alert.schedule).length !== 0) {
+          self.alert.schedule_type = self.alert.schedule.scheduleType;
+          /**
+           * @todo Implement Angular ScheduleService to handle it, since is common on dynamic data series and analysis registration.
+           */
+          var scheduleForm = angular.element('form[name="scheduleForm"]').scope()['scheduleForm'];
+          // form validation
+          if (scheduleForm.$invalid) {
+            return;
+          }
+
+          // preparing schedule.
+          var scheduleValues = self.alert.schedule;
+          switch(scheduleValues.scheduleHandler) {
+            case "seconds":
+            case "minutes":
+            case "hours":
+              scheduleValues.frequency_unit = scheduleValues.scheduleHandler;
+              scheduleValues.frequency_start_time = scheduleValues.frequency_start_time ? moment(scheduleValues.frequency_start_time).format("HH:mm:ssZ") : "";
+              break;
+            case "weeks":
+            case "monthly":
+            case "yearly":
+              // todo: verify
+              var dt = scheduleValues.schedule_time;
+              scheduleValues.schedule_unit = scheduleValues.scheduleHandler;
+              scheduleValues.schedule_time = moment(dt).format("HH:mm:ss");
+              break;
+
+            default:
+              if (scheduleValues.scheduleType == "4"){
+                scheduleValues.data_ids = [self.alert.data_series_id];
+              }
+              break;
+          }
+        }
 
         var operation = self.isUpdating ? self.AlertService.update(self.alert.id, self.alert) : self.AlertService.create(self.alert);
         operation.then(function(response) {

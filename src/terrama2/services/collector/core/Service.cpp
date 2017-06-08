@@ -194,7 +194,7 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
 
     auto inputOutputMap = collectorPtr->inputOutputMap;
     auto dataSetLst = outputDataSeries->datasetList;
-    auto dataStorager = terrama2::core::DataStoragerFactory::getInstance().make(outputDataSeries->semantics.dataFormat, outputDataProvider);
+    auto dataStorager = terrama2::core::DataStoragerFactory::getInstance().make(outputDataSeries->semantics.code, outputDataProvider);
     for(auto& item : dataMap)
     {
       // intersection

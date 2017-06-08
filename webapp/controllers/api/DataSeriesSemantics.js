@@ -6,17 +6,28 @@ var TemporalityType = require('./../../core/Enums').TemporalityType;
 var Promise = require("./../../core/Promise");
 var logger = require("./../../core/Logger");
 
-function makeMetadata(identifier) {
+function makeMetadata(identifier, metadata) {
   try {
     var semanticsStructure = DataSeriesSemanticsFactory.build({code: identifier});
     var GUIValues = semanticsStructure.gui;
-
-    return {
-      form: GUIValues.form,
-      schema: GUIValues.schema,
-      demand: semanticsStructure.providers_type_list,
-      metadata: semanticsStructure.metadata || {}
+    var semanticsObject = {
+      name: semanticsStructure.name,
+      driver: semanticsStructure.driver,
+      temporality: semanticsStructure.temporality,
+      allow_storage: semanticsStructure.allow_storage || false,
+      allow_direct_access: semanticsStructure.allow_direct_access
     };
+
+    if (metadata){
+      semanticsObject.metadata = {
+        form: GUIValues.form,
+        schema: GUIValues.schema,
+        demand: semanticsStructure.providers_type_list,
+        metadata: semanticsStructure.metadata || {}
+      }
+    }
+
+    return semanticsObject;
   } catch (err) {
     logger.error(Utils.format("No data series semantics match. %s - %s", identifier, err.toString()));
     return null;
@@ -31,14 +42,7 @@ module.exports = function(app) {
       var semanticsType = request.query.type;
 
       var queryParams = {};
-
-      if (semanticsType) {
-        if (semanticsType.toLowerCase() == "static")
-          queryParams["temporality"] = TemporalityType.STATIC;
-        else {
-          queryParams["temporality"] = TemporalityType.DYNAMIC;
-        }
-      }
+      var filterByTemporality = semanticsType ? true : false;
 
       // get just one semantics
       if (semanticsName) {
@@ -46,17 +50,11 @@ module.exports = function(app) {
 
         try {
 
-          var semanticsStructure;
-          if (metadata) {
-            semanticsStructure = makeMetadata(semanticsName);
-          }
+          var semanticsStructure = makeMetadata(semanticsName, metadata);
 
           DataManager.getDataSeriesSemantics(queryParams).then(function(semantics) {
             var output = semantics;
-
-            if (metadata) {
-              output.metadata = semanticsStructure;
-            }
+            Object.assign(output, semanticsStructure);
 
             return response.json(output);
           }).catch(function(err) {
@@ -70,13 +68,17 @@ module.exports = function(app) {
       } else {
         // todo: semantics structure for each semantic in database
         DataManager.listDataSeriesSemantics(queryParams).then(function(semanticsList) {
-          if (metadata) {
-            semanticsList.forEach(function(semantics) {
-              semantics.metadata = makeMetadata(semantics.code);
-            });
-          }
-
-          return response.json(semanticsList);
+          var dataSeriesSemanticsList = [];
+          semanticsList.forEach(function(semantics) {
+            var semanticsObject = makeMetadata(semantics.code, metadata);
+            Object.assign(semantics, semanticsObject);
+            if (filterByTemporality && semanticsObject.temporality.toLowerCase() != semanticsType.toLowerCase())
+              return;
+            else
+              dataSeriesSemanticsList.push(semantics);
+          });
+          
+          return response.json(dataSeriesSemanticsList);
         }).catch(function(err) {
           return Utils.handleRequestError(response, err, 400);
         });

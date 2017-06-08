@@ -48,6 +48,15 @@ module.exports = function(sequelize, DataTypes) {
               constraints: true
             }
           });
+
+          Schedule.hasOne(models.Alert, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: 'schedule_id',
+              allowNull: true,
+              constraints: true
+            }
+          });
         }
       }
     }

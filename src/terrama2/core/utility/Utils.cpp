@@ -509,6 +509,8 @@ std::unique_ptr<te::rst::Raster> terrama2::core::multiplyRaster(const te::rst::R
   for(uint bandIdx = 0; bandIdx < raster.getNumberOfBands(); ++bandIdx)
   {
     const te::rst::Band* rasterBand = raster.getBand(bandIdx);
+    const auto bandProperty = rasterBand->getProperty();
+    auto noData = bandProperty->m_noDataValue;
     te::rst::Band* expansibleBand = expansible->getBand(bandIdx);
 
     for(int col = 0 ; col < columns ; col++)
@@ -517,7 +519,10 @@ std::unique_ptr<te::rst::Raster> terrama2::core::multiplyRaster(const te::rst::R
       {
         double value = 0.0;
         rasterBand->getValue(col, row, value);
-        expansibleBand->setValue(col, row, value * multiplier);
+        if(value != noData)
+          expansibleBand->setValue(col, row, value * multiplier);
+        else
+          expansibleBand->setValue(col, row, noData);
       }
     }
   }

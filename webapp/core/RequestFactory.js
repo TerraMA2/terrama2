@@ -3,6 +3,7 @@
 // Dependencies
 var AbstractRequest = require('./AbstractRequest');
 var FtpRequest = require("./FtpRequest");
+var SftpRequest = require("./SftpRequest");
 var HttpRequest = require("./HttpRequest");
 var FileRequest = require("./FileRequest");
 var PostgisRequest = require("./PostgisRequest");
@@ -23,6 +24,8 @@ function requestHelper(protocol, requestParameters) {
   switch (protocol) {
     case "ftp":
       return new FtpRequest(requestParameters);
+    case "sftp":
+      return new SftpRequest(requestParameters);
     case "http":
       return new HttpRequest(requestParameters);
     case "file":
@@ -96,6 +99,9 @@ var RequestFactory = {
 
     // FtpFields
     array.push(FtpRequest.fields());
+
+    // SftpFields
+    array.push(SftpRequest.fields());
 
     // httpFields
     array.push(HttpRequest.fields());

@@ -35,9 +35,9 @@
 #include <QObject>
 #include <QString>
 
-void terrama2::core::DataStoragerFactory::add(const DataFormat& format, FactoryFnctType f)
+void terrama2::core::DataStoragerFactory::add(const std::string& code, FactoryFnctType f)
 {
-  auto it = factoriesMap_.find(format);
+  auto it = factoriesMap_.find(code);
 
   if(it != factoriesMap_.end())
   {
@@ -46,12 +46,12 @@ void terrama2::core::DataStoragerFactory::add(const DataFormat& format, FactoryF
     throw terrama2::core::DataStoragerException() << ErrorDescription(errMsg);
   }
 
-  factoriesMap_.emplace(format, f);
+  factoriesMap_.emplace(code, f);
 }
 
-void terrama2::core::DataStoragerFactory::remove(const DataFormat& format)
+void terrama2::core::DataStoragerFactory::remove(const std::string& code)
 {
-  auto it = factoriesMap_.find(format);
+  auto it = factoriesMap_.find(code);
 
   if(it == factoriesMap_.end())
   {
@@ -63,16 +63,16 @@ void terrama2::core::DataStoragerFactory::remove(const DataFormat& format)
   factoriesMap_.erase(it);
 }
 
-bool terrama2::core::DataStoragerFactory::find(const DataFormat& format)
+bool terrama2::core::DataStoragerFactory::find(const std::string& code)
 {
-  auto it = factoriesMap_.find(format);
+  auto it = factoriesMap_.find(code);
 
   return (it != factoriesMap_.end());
 }
 
-terrama2::core::DataStoragerPtr terrama2::core::DataStoragerFactory::make(const DataFormat& format, terrama2::core::DataProviderPtr dataProvider) const
+terrama2::core::DataStoragerPtr terrama2::core::DataStoragerFactory::make(const std::string& code, terrama2::core::DataProviderPtr dataProvider) const
 {
-  auto it = factoriesMap_.find(format);
+  auto it = factoriesMap_.find(code);
 
   if(it == factoriesMap_.end())
   {

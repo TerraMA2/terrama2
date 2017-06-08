@@ -71,6 +71,7 @@
   "Alert name is required": "O preenchimento do nome do alerta é obrigatório",
   "Alerts": "Alertas",
   "Alias": "Pseudônimo",
+  "All configured authentication methods failed": "O usuário ou a senha não correspondem",
   "All rights reserved": "Todos os direitos reservados",
   "Analyse only data inside selected plan": "Analisar dados somente dentro do plano selecionado",
   "Analysis": "Análises",
@@ -281,6 +282,7 @@
   "Enter default value": "Insira o valor padrão",
   "Enviroment": "Ambiente",
   "Enviroment Variables": "Variáveis de Ambiente",
+  "Error in connection, check the host and the port": "Erro na conexão, verifique o endereço e a porta",
   "Error in PostGIS connection: Invalid host": "Erro na conexão, endereço inválido",
   "Error creating Alert. \nCould not save risk due SequelizeUniqueConstraintError: Validation error": "Erro ao criar o alerta. Não foi possível salvar o risco, já existe um registro com o nome inserido, e o nome deve ser único.",
   "Error updating Alert. \nCould not save risk due SequelizeUniqueConstraintError: Validation error": "Erro ao atualizar o alerta. Não foi possível salvar o risco, já existe um registro com o nome inserido, e o nome deve ser único.",
@@ -405,6 +407,7 @@
   "Interpolation method is required": "Método de interpolação é requerido",
   "Intersection": "Interseção",
   "Invalid alias": "Pseudônimo inválido",
+  "Invalid configuration for the TerraMA² data directory": "A atual configuração do diretório de dados do TerraMA² é inválida",
   "Invalid folder": "Pasta inválida",
   "Invalid format": "Formato inválido",
   "Invalid intersection. Static data series must have at least a attribute.": "Interseção inválida. Séries de dados estáticos devem possuir pelo menos um atributo.",
@@ -505,6 +508,7 @@
       "": "Nenhuma PCD disponível. Por favor, adicione pelo menos uma PCD."
     }
   },
+  "No directories to show.": "Nenhuma pasta a ser exibida.",
   "No intersection data series selected": "Nenhuma interseção da série de dados selecionada",
   "No project found": "Nenhum projeto encontrado",
   "No project found.": "Nenhum projeto encontrado.",
@@ -552,6 +556,7 @@
   "Path": "Caminho",
   "Path is required": "Caminho é requerido",
   "Path to script": "Caminho para o script",
+  "Permission denied": "Acesso negado",
   "Please fill at least a add_value() in script field": {
     "": "Insira pelo menos um 'add_value()' no modelo de análise."
   },
@@ -659,6 +664,7 @@
   "Select the Analysis Service to be Used": "Selecione o serviço de análise para ser usado",
   "Select the Collector Service to be Used": "Selecione o serviço de coleta para ser usado",
   "Select the DataSeries": "Selecione a série de dados",
+  "Select the Directory": "Selecione a pasta desejada",
   "Select the Monitored Object": "Selecionar o Objeto Monitorado",
   "Select the View Service to be Used": "Selecione o serviço de visualização para ser usado",
   "Select the analysis to user": "Selecione a análise para o usuário",
@@ -693,6 +699,7 @@
   "Service version": "Versão",
   "Services": "Serviços",
   "Services Handling": "Manipulação de Serviços",
+  "SFTP": "SFTP",
   "Show": "Exibir",
   "Showing": "Exibindo de",
   "Showing 0 to 0 of 0 entries": "Exibindo de 0 a 0 de 0 registros",
@@ -750,6 +757,7 @@
   "table_name": "Nome da tabela",
   "Temporal": "Temporal",
   "Test connection": "Testar Conexão",
+  "TerraMA² data directory": "Diretório de dados do TerraMA²",
   "TerraMA² Test Message": "Mensagem de Teste do TerraMA²",
   "Text": "Texto",
   "The connection was refused by the server, verify the connection parameters. Important! Make sure the server's REST API is enabled": "A conexão foi recusada pelo servidor, verifique os parâmetros de conexão. Importante! Certifique-se de que a API REST do servidor está habilitada",
