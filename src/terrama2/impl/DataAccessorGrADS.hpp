@@ -206,9 +206,27 @@ namespace terrama2
 
         std::string getConfigFilename(terrama2::core::DataSetPtr dataSet, const std::string& binaryFilename) const override;
 
+        std::string getControlMask(DataSetPtr dataSet) const override;
+
+        //Returns the file mask .
         std::string getControlFileMask(DataSetPtr dataSet) const override;
 
-        std::string readControlFile(terrama2::core::DataSetPtr dataSet, const std::string& controlFilename) const override;
+        //Returns the folder mask .
+        std::string getControlFileFolderMask(DataSetPtr dataSet) const override;
+
+        std::string readControlFileBinaryMask(terrama2::core::DataSetPtr dataSet, const std::string& controlFilename) const override;
+
+        std::string extractBinaryFileMaskFromControlFile(terrama2::core::DataSetPtr dataSet,
+                                           const std::string& controlFilename) const override;
+
+        std::string extractBinaryFolderPathFromControlFile(terrama2::core::DataSetPtr dataSet,
+                                           const std::string& controlFilename) const override;
+
+        std::string getBinaryMask(DataSetPtr dataset) const override;
+
+        std::string getBinaryFileMask(terrama2::core::DataSetPtr dataset) const override;
+
+        std::string getBinaryFolderMask(terrama2::core::DataSetPtr dataset) const override;
 
         uint32_t getBytesBefore(DataSetPtr dataset) const;
 
@@ -219,8 +237,6 @@ namespace terrama2
         double getValueMultiplier(DataSetPtr dataset) const;
 
         std::string getDataType(DataSetPtr dataset) const;
-
-        std::string getBinaryFileMask(DataSetPtr dataset) const;
 
       protected:
         //! Returns the data source type.

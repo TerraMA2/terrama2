@@ -441,8 +441,7 @@ QFileInfoList terrama2::core::DataAccessorFile::getDataFileInfoList(const std::s
   if(fileInfoList.empty())
   {
     QString errMsg = QObject::tr("No file in folder: %1.").arg(QString::fromStdString(absoluteFolderPath));
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw NoDataException() << ErrorDescription(errMsg);
+    TERRAMA2_LOG_WARNING() << errMsg;
   }
 
   boost::local_time::local_date_time noTime(boost::local_time::not_a_date_time);
@@ -495,21 +494,66 @@ bool terrama2::core::DataAccessorFile::needToOpenConfigFile() const
   return false;
 }
 
-std::string terrama2::core::DataAccessorFile::getControlFileMask(terrama2::core::DataSetPtr /*dataSet*/) const
+std::string terrama2::core::DataAccessorFile::getControlMask(terrama2::core::DataSetPtr /*dataSet*/) const
 {
-  QString errMsg = QObject::tr("Should be override in subclass.");
+  QString errMsg = QObject::tr("Should be overridden in subclass.");
   throw terrama2::core::Exception() << ErrorDescription(errMsg);
 }
 
-std::string terrama2::core::DataAccessorFile::readControlFile(terrama2::core::DataSetPtr /*dataSet*/, const std::string& /*controlFilename*/) const
+std::string terrama2::core::DataAccessorFile::getControlFileMask(terrama2::core::DataSetPtr dataSet) const
 {
-  QString errMsg = QObject::tr("Should be override in subclass.");
+  QString errMsg = QObject::tr("Should be overridden in subclass.");
+  throw terrama2::core::Exception() << ErrorDescription(errMsg);
+}
+
+//Returns the folder mask .
+std::string terrama2::core::DataAccessorFile::getControlFileFolderMask(terrama2::core::DataSetPtr dataSet) const
+{
+  QString errMsg = QObject::tr("Should be overridden in subclass.");
+  throw terrama2::core::Exception() << ErrorDescription(errMsg);
+}
+
+std::string terrama2::core::DataAccessorFile::readControlFileBinaryMask(terrama2::core::DataSetPtr /*dataSet*/, const std::string& /*controlFilename*/) const
+{
+  QString errMsg = QObject::tr("Should be overridden in subclass.");
+  throw terrama2::core::Exception() << ErrorDescription(errMsg);
+}
+
+std::string terrama2::core::DataAccessorFile::extractBinaryFileMaskFromControlFile(terrama2::core::DataSetPtr /*dataSet*/,
+                                                                                   const std::string& /*controlFilename*/) const
+{
+  QString errMsg = QObject::tr("Should be overridden in subclass.");
+  throw terrama2::core::Exception() << ErrorDescription(errMsg);
+}
+
+std::string terrama2::core::DataAccessorFile::extractBinaryFolderPathFromControlFile(terrama2::core::DataSetPtr /*dataSet*/,
+                                                                                     const std::string& /*controlFilename*/) const
+{
+  QString errMsg = QObject::tr("Should be overridden in subclass.");
+  throw terrama2::core::Exception() << ErrorDescription(errMsg);
+}
+
+std::string terrama2::core::DataAccessorFile::getBinaryMask(DataSetPtr /*dataset*/) const
+{
+  QString errMsg = QObject::tr("Should be overridden in subclass.");
+  throw terrama2::core::Exception() << ErrorDescription(errMsg);
+}
+
+std::string terrama2::core::DataAccessorFile::getBinaryFileMask(terrama2::core::DataSetPtr /*dataset*/) const
+{
+  QString errMsg = QObject::tr("Should be overridden in subclass.");
+  throw terrama2::core::Exception() << ErrorDescription(errMsg);
+}
+
+std::string terrama2::core::DataAccessorFile::getBinaryFolderMask(terrama2::core::DataSetPtr /*dataset*/) const
+{
+  QString errMsg = QObject::tr("Should be overridden in subclass.");
   throw terrama2::core::Exception() << ErrorDescription(errMsg);
 }
 
 std::string terrama2::core::DataAccessorFile::getConfigFilename(terrama2::core::DataSetPtr /*dataSet*/, const std::string& /*binaryFilename*/) const
 {
-  QString errMsg = QObject::tr("Should be override in subclass.");
+  QString errMsg = QObject::tr("Should be overridden in subclass.");
   throw terrama2::core::Exception() << ErrorDescription(errMsg);
 }
 
@@ -543,13 +587,23 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
   if(hasControlFile())
   {
     std::string controlFileMask = getControlFileMask(dataSet);
-    std::string folderMask = getFolderMask(dataSet);
-    auto ctlFileList = getFilesList(uri, controlFileMask, folderMask, filter, timezone, remover);
+    std::string controlFileFolderMask = getControlFileFolderMask(dataSet);
+    auto ctlFileList = getFilesList(uri, controlFileMask, controlFileFolderMask, filter, timezone, remover);
     for(const auto& ctlFile : ctlFileList)
     {
-      std::string binaryFileMask = readControlFile(dataSet, ctlFile.absoluteFilePath().toStdString());
 
-      auto binaryFileList = getFilesList(uri, binaryFileMask, folderMask, filter, timezone, remover);
+      // In case the user specified a binary file mask, use it instead of the one in the CTL file.
+      std::string binaryFileMask = getBinaryFileMask(dataSet);
+      std::string binaryFolderMask = getBinaryFolderMask(dataSet);
+
+      if(binaryFileMask.empty())
+        binaryFileMask = extractBinaryFileMaskFromControlFile(dataSet, ctlFile.absoluteFilePath().toStdString());
+
+      std::string completePath = controlFileFolderMask +
+                                 "/" + extractBinaryFolderPathFromControlFile(dataSet, ctlFile.absoluteFilePath().toStdString()) +
+                                 "/" + binaryFolderMask + "/";
+
+      auto binaryFileList = getFilesList(uri, binaryFileMask, completePath, filter, timezone, remover);
       readFilesAndAddToDataset(series, completeDataset, binaryFileList, binaryFileMask, dataSet);
     }
   }

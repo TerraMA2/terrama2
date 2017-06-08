@@ -96,9 +96,28 @@ namespace terrama2
 
         virtual bool hasControlFile() const;
 
-        virtual std::string getControlFileMask(terrama2::core::DataSetPtr dataSet) const;
+        virtual std::string getControlMask(terrama2::core::DataSetPtr dataSet) const;
 
-        virtual std::string readControlFile(terrama2::core::DataSetPtr dataSet, const std::string& controlFilename) const;
+        //Returns the file mask .
+        virtual std::string getControlFileMask(DataSetPtr dataSet) const;
+
+        //Returns the folder mask .
+        virtual std::string getControlFileFolderMask(DataSetPtr dataSet) const;
+
+        virtual std::string readControlFileBinaryMask(terrama2::core::DataSetPtr dataSet,
+                                                      const std::string& controlFilename) const;
+
+        virtual std::string extractBinaryFileMaskFromControlFile(terrama2::core::DataSetPtr dataSet,
+                                                                 const std::string& controlFilename) const;
+
+        virtual std::string extractBinaryFolderPathFromControlFile(terrama2::core::DataSetPtr dataSet,
+                                                                   const std::string& controlFilename) const;
+
+        virtual std::string getBinaryMask(DataSetPtr dataset) const;
+
+        virtual std::string getBinaryFileMask(terrama2::core::DataSetPtr dataset) const;
+
+        virtual std::string getBinaryFolderMask(terrama2::core::DataSetPtr dataset) const;
 
         virtual bool needToOpenConfigFile() const;
 

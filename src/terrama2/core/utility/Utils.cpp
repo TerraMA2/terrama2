@@ -559,7 +559,8 @@ std::vector<std::string> terrama2::core::splitString(const std::string& text, ch
 
   while(std::getline(ss, str, delim))
   {
-    splittedString.push_back(str);
+    if(!str.empty())
+      splittedString.push_back(str);
   }
 
   return splittedString;
