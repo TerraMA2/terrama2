@@ -139,9 +139,10 @@ var DataManager = module.exports = {
 
         // data provider type defaults
         inserts.push(self.addDataProviderType({id: 1, name: "FILE", description: "Desc File"}));
-        inserts.push(self.addDataProviderType({id: 2, name: "FTP", description: "Desc Type1"}));
+        inserts.push(self.addDataProviderType({id: 2, name: "FTP", description: "Desc FTP"}));
         inserts.push(self.addDataProviderType({id: 3, name: "HTTP", description: "Desc Http"}));
         inserts.push(self.addDataProviderType({id: 4, name: "POSTGIS", description: "Desc Postgis"}));
+        //inserts.push(self.addDataProviderType({id: 5, name: "SFTP", description: "Desc SFTP"}));
 
         inserts.push(self.addViewStyleType({id: Enums.ViewStyleType.EQUAL_STEPS, name: "Equal Steps", description: ""}));
         inserts.push(self.addViewStyleType({id: Enums.ViewStyleType.QUANTILE, name: "Quantile", description: ""}));
@@ -332,7 +333,7 @@ var DataManager = module.exports = {
                 name: semanticsElement.name,
                 data_format_name: semanticsElement.format,
                 data_series_type_name: semanticsElement.type,
-                collector: semanticsElement.collector || false,
+                allow_storage: semanticsElement.allow_storage || false,
                 allow_direct_access: semanticsElement.allow_direct_access,
                 custom_format: semanticsElement.custom_format
               }, semanticsElement.providers_type_list, semanticsElement.metadata));
@@ -3273,7 +3274,7 @@ var DataManager = module.exports = {
           if (analysisResult.schedule_type == Enums.ScheduleType.AUTOMATIC){
             schedulePromise = self.getAutomaticSchedule({id: analysisResult.automatic_schedule_id}, options);
           } else if (analysisResult.schedule_type == Enums.ScheduleType.SCHEDULE || analysisResult.schedule_type == Enums.ScheduleType.REPROCESSING_HISTORICAL){
-            schedulePromise = self.getSchedule({id: analysisResult.schedule_id}, options);            
+            schedulePromise = self.getSchedule({id: analysisResult.schedule_id}, options);
           } else {
             schedulePromise = Promise.resolve();
           }
@@ -3435,7 +3436,7 @@ var DataManager = module.exports = {
           } else if (newScheduleType == Enums.ScheduleType.AUTOMATIC){
             return self.updateAutomaticSchedule(analysisInstance.automaticSchedule.id, scheduleObject, options);
           }
-        } else if ((newScheduleType == Enums.ScheduleType.SCHEDULE && oldScheduleType == Enums.ScheduleType.REPROCESSING_HISTORICAL) || 
+        } else if ((newScheduleType == Enums.ScheduleType.SCHEDULE && oldScheduleType == Enums.ScheduleType.REPROCESSING_HISTORICAL) ||
                     (oldScheduleType == Enums.ScheduleType.SCHEDULE && newScheduleType == Enums.ScheduleType.REPROCESSING_HISTORICAL) ){
             return self.updateSchedule(analysisInstance.schedule.id, scheduleObject, options);
         } else {
@@ -4532,7 +4533,7 @@ var DataManager = module.exports = {
         });
     });
   },
-  
+
   /**
    * It retrieves a list of views in database
    *
@@ -4881,7 +4882,7 @@ var DataManager = module.exports = {
         })
 
         .spread(function(legend, schedule) {
-          var objectToAssign = { 
+          var objectToAssign = {
             legend: legend
           };
           if (view.schedule_id){

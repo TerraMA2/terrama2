@@ -6,7 +6,8 @@ var Utils = require('../../helpers/Utils');
 var makeTokenParameters = require('../../core/Utils').makeTokenParameters;
 var UriBuilder = require('../../core/UriBuilder');
 var RequestFactory = require("../../core/RequestFactory");
-
+var fs = require('fs');
+var path = require("path");
 
 module.exports = function(app) {
   return {
@@ -18,6 +19,7 @@ module.exports = function(app) {
 
     new: function(request, response) {
       var redirectTo = request.query.redirectTo ? request.query : {redirectTo: app.locals.BASE_URL + "configuration/providers"};
+      var configFile = JSON.parse(fs.readFileSync(path.join(__dirname, "../../config/config.terrama2"), "utf-8"));
 
       return response.render("configuration/provider", {
         isEditing: false,
@@ -26,13 +28,15 @@ module.exports = function(app) {
           url: app.locals.BASE_URL + "api/DataProvider",
           method: "POST"
         },
-        redirectTo: redirectTo
+        redirectTo: redirectTo,
+        defaultFilePath: configFile.default.defaultFilePath
       });
     },
 
     edit: function(request, response) {
       var dataProviderId = request.params.id;
       var redirectTo = request.query.redirectTo ? request.query : {redirectTo: app.locals.BASE_URL + "configuration/providers"};
+      var configFile = JSON.parse(fs.readFileSync(path.join(__dirname, "../../config/config.terrama2"), "utf-8"));
 
       DataManager.getDataProvider({id: parseInt(dataProviderId || "0")}).then(function(dataProvider) {
         var requester = RequestFactory.buildFromUri(dataProvider.uri);
@@ -53,7 +57,8 @@ module.exports = function(app) {
             method: "PUT"
           },
           fields: requester.constructor.fields(),
-          redirectTo: redirectTo
+          redirectTo: redirectTo,
+          defaultFilePath: configFile.default.defaultFilePath
         });
       }).catch(function(err) {
         logger.debug(err);
