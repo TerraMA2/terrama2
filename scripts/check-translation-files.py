@@ -16,8 +16,8 @@ for k, v in dataEn.items():
     if(k not in dataEs):
         esError = True
 
-    if(k not in dataFr):
-        frError = True
+    #if(k not in dataFr):
+        #frError = True
 
     if(ptError and esError and frError):
         break
