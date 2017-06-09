@@ -16,14 +16,7 @@
     "collector": true,
     "gui": {
       "schema": {
-        "properties": {
-          "folder": {
-            "type": "string",
-            "title": "Folder",
-            "pattern": "^[^?#!$&'()*+,;=^§]+$",
-            "hasDefaultFieldForImport": true,
-            "allowEmptyValue": true
-          },
+        "properties": {          
           "mask": {
             "type": "string",
             "title": "Mask",
@@ -65,14 +58,7 @@
         },
         "required": ["mask", "alias", "timezone", "latitude", "longitude", "projection"]
       },
-      "form": [
-        {
-          "key": "folder",
-          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form",
-          "validationMessage": {
-            "202": "Invalid folder"
-          }
-        },
+      "form": [        
         {
           "key": "mask",
           "htmlClass": "col-md-6",

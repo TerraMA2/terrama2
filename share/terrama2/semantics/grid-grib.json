@@ -15,11 +15,6 @@
     "gui": {
       "schema": {
         "properties": {
-          "folder": {
-            "type": "string",
-            "title": "Folder",
-            "pattern": "^[^?#!$&'()*+,;=^§]+$"
-          },
           "mask": {
             "type": "string",
             "title": "Mask",
@@ -49,13 +44,6 @@
         "required": ["mask", "timezone", "bands", "iso_surface"]
       },
       "form": [
-        {
-          "key": "folder",
-          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form",
-          "validationMessage": {
-            "202": "Invalid folder"
-          }
-        },
         {
           "key": "mask",
           "maskPattern": ["%YYYY", "%YY", "%MM", "%DD", "%hh", "%mm", "%ss"],
