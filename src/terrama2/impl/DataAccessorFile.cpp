@@ -439,10 +439,7 @@ QFileInfoList terrama2::core::DataAccessorFile::getDataFileInfoList(const std::s
   QDir dir(QString::fromStdString(absoluteFolderPath));
   QFileInfoList fileInfoList = dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
   if(fileInfoList.empty())
-  {
-    QString errMsg = QObject::tr("No file in folder: %1.").arg(QString::fromStdString(absoluteFolderPath));
-    TERRAMA2_LOG_WARNING() << errMsg;
-  }
+    return QFileInfoList();
 
   boost::local_time::local_date_time noTime(boost::local_time::not_a_date_time);
 
@@ -524,7 +521,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
   DataSetSeries series;
   series.dataSet = dataSet;
 
-  std::shared_ptr<te::mem::DataSet> completeDataset = method(uri, filter, dataSet, remover, timezone, series);
+  std::shared_ptr<te::mem::DataSet> completeDataset = generateDataSet(uri, filter, dataSet, remover, timezone, series);
 
   if(!completeDataset.get() || completeDataset->isEmpty())
   {
@@ -648,6 +645,11 @@ terrama2::core::DataAccessorFile::readFile(DataSetSeries& series,
 
 std::shared_ptr<te::dt::TimeInstantTZ> terrama2::core::DataAccessorFile::readFilesAndAddToDataset(DataSetSeries& series, std::shared_ptr<te::mem::DataSet>& completeDataset, QFileInfoList fileList, const std::string& mask, terrama2::core::DataSetPtr dataSet) const
 {
+  if(fileList.empty())
+  {
+    QString errMsg = QObject::tr("No file found for DataSet %1.").arg(dataSet->id);
+    TERRAMA2_LOG_WARNING() << errMsg;
+  }
   std::shared_ptr<te::da::DataSetTypeConverter> converter(nullptr);
 
   boost::local_time::local_date_time noTime(boost::local_time::not_a_date_time);
@@ -681,7 +683,6 @@ std::shared_ptr<te::dt::TimeInstantTZ> terrama2::core::DataAccessorFile::readFil
   }// for each file
 
   return lastFileTimestamp;
-
 }
 
 void terrama2::core::DataAccessorFile::applyFilters(const terrama2::core::Filter &filter, const terrama2::core::DataSetPtr &dataSet,
@@ -827,12 +828,12 @@ QFileInfoList terrama2::core::DataAccessorFile::getFilesList(const std::string& 
   return newFileInfoList;
 }
 
-std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorFile::method(const std::string& uri,
-                                                                           const terrama2::core::Filter& filter,
-                                                                           terrama2::core::DataSetPtr dataSet,
-                                                                           std::shared_ptr<terrama2::core::FileRemover> remover,
-                                                                           const std::string& timezone,
-                                                                           DataSetSeries& series) const
+std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorFile::generateDataSet(const std::string& uri,
+                                                                                    const terrama2::core::Filter& filter,
+                                                                                    terrama2::core::DataSetPtr dataSet,
+                                                                                    std::shared_ptr<terrama2::core::FileRemover> remover,
+                                                                                    const std::string& timezone,
+                                                                                    DataSetSeries& series) const
 {
   std::shared_ptr<te::mem::DataSet> completeDataset(nullptr);
 

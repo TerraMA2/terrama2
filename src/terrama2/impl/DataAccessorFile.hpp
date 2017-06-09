@@ -104,12 +104,12 @@ namespace terrama2
 
         std::shared_ptr<te::dt::TimeInstantTZ> readFilesAndAddToDataset(DataSetSeries& series, std::shared_ptr<te::mem::DataSet>& completeDataset, QFileInfoList fileList, const std::string& mask, terrama2::core::DataSetPtr dataSet) const;
 
-        virtual std::shared_ptr<te::mem::DataSet> method(const std::string& uri,
-                                                         const terrama2::core::Filter& filter,
-                                                         terrama2::core::DataSetPtr dataSet,
-                                                         std::shared_ptr<terrama2::core::FileRemover> remover,
-                                                         const std::string& timezone,
-                                                         DataSetSeries& series) const;
+        virtual std::shared_ptr<te::mem::DataSet> generateDataSet(const std::string& uri,
+                                                                  const terrama2::core::Filter& filter,
+                                                                  terrama2::core::DataSetPtr dataSet,
+                                                                  std::shared_ptr<terrama2::core::FileRemover> remover,
+                                                                  const std::string& timezone,
+                                                                  DataSetSeries& series) const;
 
 
         /*!

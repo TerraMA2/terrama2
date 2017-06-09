@@ -1124,12 +1124,12 @@ std::string terrama2::core::trim(const std::string& value)
   return QString::fromStdString(str).trimmed().toStdString();
 }
 
-std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorGrADS::method(const std::string& uri,
-                                                                            const terrama2::core::Filter& filter,
-                                                                            terrama2::core::DataSetPtr dataSet,
-                                                                            std::shared_ptr<terrama2::core::FileRemover> remover,
-                                                                            const std::string& timezone,
-                                                                            DataSetSeries& series) const
+std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorGrADS::generateDataSet(const std::string& uri,
+                                                                                     const terrama2::core::Filter& filter,
+                                                                                     terrama2::core::DataSetPtr dataSet,
+                                                                                     std::shared_ptr<terrama2::core::FileRemover> remover,
+                                                                                     const std::string& timezone,
+                                                                                     DataSetSeries& series) const
 {
   std::shared_ptr<te::mem::DataSet> completeDataset(nullptr);
 
