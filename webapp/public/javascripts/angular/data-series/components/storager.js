@@ -68,6 +68,9 @@ define([], function(){
           case 'FTP':
             return BASE_URL + "images/data-server/ftp/ftp.png";
             break;
+          case 'SFTP':
+            return BASE_URL + "images/data-server/sftp/sftp.png";
+            break;
           case 'FILE':
           default:
             return BASE_URL + "images/data-server/file/file.png";
