@@ -482,6 +482,7 @@ var DataManager = module.exports = {
               }
             ]
           }).then(function(dataSeries) {
+            var semanticsList = Application.get("semantics");
             dataSeries.forEach(function(dSeries) {
               var provider = new DataModel.DataProvider(dSeries.DataProvider.get());
 
@@ -491,7 +492,11 @@ var DataManager = module.exports = {
               builtDataSeries.dataSets.forEach(function(dSet) {
                 self.data.dataSets.push(dSet);
               });
-
+              var semantic = semanticsList.find(function(dSeriesSemantic){
+                return dSeries.DataSeriesSemantic.code == dSeriesSemantic.code;
+              });
+              Object.assign(builtDataSeries.data_series_semantics, semantic);
+              builtDataSeries.semantics = builtDataSeries.data_series_semantics;
               self.data.dataSeries.push(builtDataSeries);
             });
 
@@ -1707,6 +1712,13 @@ var DataManager = module.exports = {
             return Promise.all(dataSets).then(function(dataSets){
               var dataSeriesInstance = new DataModel.DataSeries(output);
               dataSeriesInstance.dataSets = dataSets;
+
+              var semanticsList = Application.get("semantics");
+              var semantic = semanticsList.find(function(dSeriesSemantic){
+                return dataSeriesInstance.data_series_semantics.code == dSeriesSemantic.code;
+              });
+              Object.assign(dataSeriesInstance.data_series_semantics, semantic);
+              dataSeriesInstance.semantics = dataSeriesInstance.data_series_semantics;
               self.data.dataSeries.push(dataSeriesInstance);
 
               // get DataProvider object

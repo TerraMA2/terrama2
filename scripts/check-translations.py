@@ -16,8 +16,8 @@ for k, v in dataEn.items():
   if(k not in dataEs):
     esItens.append(unicodedata.normalize("NFKD", k).encode('ascii', 'ignore'))
 
-  if(k not in dataFr):
-    frItens.append(unicodedata.normalize("NFKD", k).encode('ascii', 'ignore'))
+  #if(k not in dataFr):
+    #frItens.append(unicodedata.normalize("NFKD", k).encode('ascii', 'ignore'))
 
 if(len(ptItens) == 0):
   sys.stdout.write("\n\n-------------------------------------------------\n\nThe Portuguese translation file is correct.\n\n")
@@ -36,7 +36,7 @@ else:
     sys.stdout.write("  " + s + "\n")
 
 if(len(frItens) == 0):
-  sys.stdout.write("\n\n-------------------------------------------------\n\nThe French translation file is correct\n\n.")
+  sys.stdout.write("\n\n-------------------------------------------------\n\nThe French translation file is correct.\n\n")
 else:
   sys.stdout.write("\n\n-------------------------------------------------\n\nMissing translations in French:\n\n")
 
