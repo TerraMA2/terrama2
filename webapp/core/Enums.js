@@ -411,6 +411,6 @@ module.exports = {
     SCHEDULE: "1",
     REPROCESSING_HISTORICAL: "2",
     MANUAL: "3",
-    CONDITIONAL: "4"
+    AUTOMATIC: "4"
   }
 };

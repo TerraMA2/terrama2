@@ -3,7 +3,7 @@
 // dependencies
 var BaseClass = require("./AbstractData");
 var Schedule = require("./Schedule");
-var ConditionalSchedule = require("./ConditionalSchedule");
+var AutomaticSchedule = require("./AutomaticSchedule");
 var AnalysisOutputGrid = require("./AnalysisOutputGrid");
 var AnalysisDataSeries = require("./AnalysisDataSeries");
 var ReprocessingHistoricalData = require("./ReprocessingHistoricalData");
@@ -94,7 +94,7 @@ var Analysis = module.exports = function(params) {
     this.schedule = {};
   }
 
-  this.conditionalSchedule = new ConditionalSchedule(params.ConditionalSchedule ? params.ConditionalSchedule.get() : params.conditionalSchedule || {});
+  this.automaticSchedule = new AutomaticSchedule(params.AutomaticSchedule ? params.AutomaticSchedule.get() : params.automaticSchedule || {});
 
   /**
    * @name Analysis#instance_id
@@ -191,11 +191,11 @@ Analysis.prototype.setSchedule = function(schedule) {
   }
 };
 
-Analysis.prototype.setConditionalSchedule = function(conditionalSchedule) {
-  if (conditionalSchedule.ConditionalSchedule) {
-    this.conditionalSchedule = new ConditionalSchedule(conditionalSchedule.ConditionalSchedule.get() || {});
+Analysis.prototype.setAutomaticSchedule = function(automaticSchedule) {
+  if (automaticSchedule.AutomaticSchedule) {
+    this.automaticSchedule = new AutomaticSchedule(automaticSchedule.AutomaticSchedule.get() || {});
   } else {
-    this.conditionalSchedule = conditionalSchedule || {};
+    this.automaticSchedule = automaticSchedule || {};
   }
 };
 
@@ -247,7 +247,7 @@ Analysis.prototype.toObject = function() {
     metadata: this.metadata,
     'analysis_dataseries_list': outputDataSeriesList,
     schedule: this.schedule instanceof BaseClass ? this.schedule.toObject() : this.schedule,
-    conditional_schedule: this.conditionalSchedule instanceof BaseClass ? this.conditionalSchedule.toObject() : this.conditionalSchedule,
+    automatic_schedule: this.automaticSchedule instanceof BaseClass ? this.automaticSchedule.toObject() : this.automaticSchedule,
     service_instance_id: this.instance_id,
     output_grid: this.outputGrid instanceof BaseClass ? this.outputGrid.toObject() : this.outputGrid,
     reprocessing_historical_data: Utils.isEmpty(historicalData) ? null : historicalData,
@@ -269,7 +269,7 @@ Analysis.prototype.rawObject = function() {
   var historicalData = this.historicalData instanceof BaseClass ? this.historicalData.rawObject() : this.historicalData;
 
   obj.reprocessing_historical_data = historicalData;
-  obj.conditional_schedule = this.conditionalSchedule instanceof BaseClass ? this.conditionalSchedule.rawObject() : this.conditionalSchedule;
+  obj.automatic_schedule = this.automaticSchedule instanceof BaseClass ? this.automaticSchedule.rawObject() : this.automaticSchedule;
   obj.schedule = this.schedule instanceof BaseClass ? this.schedule.rawObject() : this.schedule;
   obj.dataSeries = this.dataSeries instanceof BaseClass ? this.dataSeries.rawObject() : this.dataSeries;
   obj.analysis_dataseries_list = outputDataSeriesList;

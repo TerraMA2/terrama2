@@ -2,7 +2,7 @@
   "default": {
     "basePath": "/",
     "port": 36000,
-    "defaultFilePath": "/",
+    "defaultFilePath": "/home/<USER>/terrama2",
     "db": {
       "username": "postgres",
       "password": "postgres",

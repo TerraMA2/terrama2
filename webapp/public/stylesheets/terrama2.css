@@ -1,3 +1,7 @@
+body, html {
+  height: inherit !important;
+}
+
 .terrama2-checkbox-align {
     margin-top: 19px !important;
     font-weight: 700 !important;
@@ -295,10 +299,23 @@ bootstrap-decorator span {
 .dropdown-submenu:hover>a:after{border-left-color:#ffffff;}
 .dropdown-submenu.pull-left{float:none;}
 .dropdown-submenu.pull-left>.dropdown-menu{left:-100%;margin-left:10px;-webkit-border-radius:6px 0 6px 6px;-moz-border-radius:6px 0 6px 6px;border-radius:6px 0 6px 6px;}
-.dropdown-menu > .operators-list img {width: 20px;}
-.dropdown-menu > .operators-list {min-width: 0px !important;}
+.dropdown-menu > .operators-item-list img {width: 20px;}
+.dropdown-menu > .operators-item-list {min-width: 0px !important;}
 .dropup ul.dropdown-menu ul.dropdown-menu:nth-child(n+1) {
   bottom: 0;
+}
+
+#select-attr-button {
+  width: 80px;
+}
+
+.invalid-attrs, .invalid-attrs:hover, .invalid-attrs:focus {
+  border-color: #dd4b39;
+}
+
+.attributes-list {
+  max-height: 300px;
+  overflow-y: auto;
 }
 
 .terrama2-disabled:hover {
@@ -420,6 +437,29 @@ tbody td:last-child, thead th:last-child {
 .warn-message {
   color: #f39c12;
 }
+
+.md-whiteframe-1dp, .md-whiteframe-z1{
+  box-shadow: none;
+  border: 1px solid #ccc;
+}
+.md-whiteframe-1dp > input, .md-whiteframe-z1 > input {
+  line-height: 34px !important;
+  height: 34px !important;
+}
+
+.form-group.has-success .md-whiteframe-1dp, .form-group.has-success .md-whiteframe-z1{
+  box-shadow: none;
+  border: 1px solid #00a65a;
+}
+
+.form-group.has-error .md-whiteframe-1dp, .form-group.has-error .md-whiteframe-z1{
+  box-shadow: none;
+  border: 1px solid #dd4b39;
+}
+
+md-autocomplete, md-autocomplete md-autocomplete-wrap {
+  height: 34px;
+}
 /**
  *
  * It handles Mozila FireFox CSS specific styles
@@ -487,3 +527,53 @@ table.dataTable tbody th, table.dataTable tbody td { padding-left: 12px !importa
 }
 
 .overlay-dcps > .fa { position: fixed !important; }
+
+.selected-directory { background-color: rgba(0, 192, 239, 0.45); }
+
+#filesExplorerModal .modal-dialog { height: 85%; }
+
+#filesExplorerModal .modal-content { height: 100%; }
+
+#filesExplorerModal .modal-body {
+  height: calc(100% - 120px);
+  overflow: auto;
+  background-color: #dedede;
+  border-top: 1px solid black;
+  border-bottom: 1px solid black;
+}
+
+#filesExplorerModal .name-div {
+  cursor: pointer;
+  padding: 2px 0 0 10px;
+  border-radius: 4px;
+  margin-left: -10px;
+  width: 100%;
+  margin-bottom: 5px;
+}
+
+#filesExplorerModal .name-div > i { margin-right: 10px; }
+
+#filesExplorerModal .name-div > img {
+  margin-right: 8px;
+  width: 15px;
+}
+
+#filesExplorerModal .file-explorer-ul {
+  list-style-type: none;
+  padding-left: 15px;
+}
+
+#filesExplorerModal .modal-content .holder-div {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  background-color: rgba(128,128,128,0.2);
+  z-index: 999999;
+  cursor: wait;
+}
+
+.button-inline-form {
+  margin-top: 25px;
+  height: 34px;
+  width: 90px;
+}

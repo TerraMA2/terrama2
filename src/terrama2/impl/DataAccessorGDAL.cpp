@@ -103,7 +103,7 @@ void terrama2::core::DataAccessorGDAL::addToCompleteDataSet(terrama2::core::Data
       try
       {
         verify::srid(raster->getSRID(), false);
-        std::map<std::string, std::string> map{{"FORCE_MEM_DRIVER", "TRUE"}};
+        std::map<std::string, std::string> map{{"RTYPE", "EXPANSIBLE"}};
         auto temp = raster->transform(outputSrid, map);
         if(!temp)
         {

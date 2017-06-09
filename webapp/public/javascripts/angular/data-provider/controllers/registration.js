@@ -6,10 +6,13 @@ define(function() {
     $scope.MessageBoxService = MessageBoxService;
 
     var conf = $window.configuration;
+
+    $scope.configuration = conf;
+
     if (conf.dataProvider.uriObject) {
       for(var k in conf.dataProvider.uriObject) {
         if (conf.dataProvider.uriObject.hasOwnProperty(k)) {
-          model[k] = conf.dataProvider.uriObject[k];
+          model[k] = decodeURI(conf.dataProvider.uriObject[k]);
         }
       }
     }

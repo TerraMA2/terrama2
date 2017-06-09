@@ -4,13 +4,13 @@
     <div class="col-md-4">
       <div class="form-group" terrama2-show-errors>
         <label ng-bind="$ctrl.i18n.__('Output Format')">:</label>
-          <select id="storageFormat" 
-                  class="form-control" 
-                  name="format" 
+          <select id="storageFormat"
+                  class="form-control"
+                  name="format"
                   ng-model="$ctrl.storager.format"
                   ng-disabled="$ctrl.isUpdating && $ctrl.hasCollector"
                   ng-change="$ctrl.onStoragerFormatChange()"
-                  ng-options="$ctrl.i18n.__(format.name) for format in $ctrl.storagerFormats | filter: { collector: false }" 
+                  ng-options="$ctrl.i18n.__(format.name) for format in $ctrl.storagerFormats | filter: { allow_storage: true }"
                   required>
         </select>
         <label class="help-block text-danger"
@@ -45,7 +45,7 @@
       <div class="form-group" terrama2-show-errors>
         <label ng-bind="$ctrl.i18n.__('Service')">:</label>
         <ui-select id="storageService"
-                name="service" 
+                name="service"
                 ng-model="$ctrl.storager_service"
                 required>
           <ui-select-match>
