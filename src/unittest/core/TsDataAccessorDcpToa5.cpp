@@ -181,9 +181,8 @@ void TsDataAccessorDcpToa5::TestOKDataRetrieverValid()
 
     terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
     dataSet->active = true;
-    dataSet->format.emplace("mask", "GRM_slow_2014_01_02_1713.dat");
+    dataSet->format.emplace("mask", "/GRM/GRM_slow_2014_01_02_1713.dat");
     dataSet->format.emplace("timezone", "+00");
-    dataSet->format.emplace("folder", "GRM");
 
     dataSeries->datasetList.emplace_back(dataSet);
 
@@ -453,12 +452,11 @@ void TsDataAccessorDcpToa5::TestOK()
     auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
     dataSeries->semantics = semanticsManager.getSemantics("DCP-toa5");
 
-    terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
+    std::shared_ptr<terrama2::core::DataSetDcp> dataSet(new terrama2::core::DataSetDcp());
     dataSet->active = true;
-    dataSet->format.emplace("mask", "GRM_slow_2014_01_02_1713.dat");
+    dataSet->format.emplace("mask", "/GRM/GRM_slow_2014_01_02_1713.dat");
 
     dataSet->format.emplace("timezone", "+00");
-    dataSet->format.emplace("folder", "GRM");
 
     dataSeries->datasetList.emplace_back(dataSet);
 
@@ -475,8 +473,8 @@ void TsDataAccessorDcpToa5::TestOK()
     std::shared_ptr<te::da::DataSet> teDataSet = (*dcpSeries->dcpSeriesMap().begin()).second.syncDataSet->dataset();
 
     std::string uri = dataProvider->uri;
-    std::string mask = dataSet->format.at("mask");
-    std::string folder = dataSet->format.at("folder");
+    std::string mask = terrama2::core::getFileMask(dataSet);
+    std::string folder = terrama2::core::getFolderMask(dataSet);
 
     QUrl url(QString::fromStdString(uri+"/"+folder+"/"+mask));
     QFileInfo originalInfo(url.path());
