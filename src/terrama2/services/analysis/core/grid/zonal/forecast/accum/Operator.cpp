@@ -134,6 +134,11 @@ double terrama2::services::analysis::core::grid::zonal::forecast::accum::operato
       QString errMsg(QObject::tr("Could not recover monitored object geometry."));
       throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
     }
+
+    //if it's an invalid geometry, return nan but continue the analysis
+    if(!moGeom->isValid())
+      return std::nan("");
+      
     auto geomResult = createBuffer(buffer, moGeom);
 
     auto dataSeries = context->findDataSeries(dataSeriesName);
