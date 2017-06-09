@@ -43,6 +43,9 @@ define([], function() {
 
       service.checking = response.checking;
 
+      service.hasError = false;
+      service.error = "";
+
       if (!service) {
         return;
       }
@@ -99,8 +102,14 @@ define([], function() {
     $scope.socket.on('errorResponse', function(response) {
       var service = getModel(response.service);
 
-      if (!service)
+      if(!service)
         return;
+
+      if(response.message === "Error: Status Timeout exceeded.")
+        service.checking = false;
+
+      service.hasError = true;
+      service.error = response.message;
 
       service.loading = false;
       service.online = response.online;
