@@ -65,6 +65,7 @@ namespace terrama2
 
               \param statisticOperation The statistic operation chosen by the user.
               \param dataSeriesName DataSeries name.
+              \param attribute Which DCP attribute will be used.
               \param ids A set of identifiers of DataSet.
 
               \return A double value with the result.

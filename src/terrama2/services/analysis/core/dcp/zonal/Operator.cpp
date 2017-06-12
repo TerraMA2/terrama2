@@ -65,6 +65,10 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
     const std::string& attribute,
     boost::python::list pcds)
 {
+  // A DCP attribute must be given
+  if(attribute.empty())
+    return std::nan("");
+
   OperatorCache cache;
   terrama2::services::analysis::core::python::readInfoFromDict (cache);
 
@@ -77,7 +81,7 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
   catch (const terrama2::core::VerifyException&)
   {
     contextManager.addError(cache.analysisHashCode, QObject::tr("Use of invalid operator for analysis %1.").arg(analysis->id).toStdString());
-    return {};
+    return std::nan("");
   }
 
   terrama2::services::analysis::core::MonitoredObjectContextPtr context;
@@ -91,8 +95,6 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
     return std::nan("");
   }
 
-
-
   // After the operator lock is released it's not allowed to return any value because it doesn' have the interpreter lock.
   // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return NAN.
   bool exceptionOccurred = false;
@@ -101,7 +103,7 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
   {
     // In case an error has already occurred, there is nothing to do.
     if(context->hasError())
-	{
+	  {
       return std::nan("");
     }
 
@@ -148,8 +150,6 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
     {
       terrama2::services::analysis::core::python::OperatorLock operatorLock;
 
-
-
       try
       {
 
@@ -161,8 +161,6 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
 
         // For DCP operator count returns the number of DCP that influence the monitored object
         uint32_t influenceCount = 0;
-
-
         for(auto& dcpAlias : vecDCPAlias)
         {
           bool found = false;
@@ -180,19 +178,15 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
               auto dcpSyncDs = dcpContextDataSeries->series.syncDataSet;
 
               int attributeType = 0;
-              if(!attribute.empty())
+              auto property = dcpContextDataSeries->series.teDataSetType->getProperty(attribute);
+
+              // only operation COUNT can be done without attribute.
+              if(!property && statisticOperation != StatisticOperation::COUNT)
               {
-                auto property = dcpContextDataSeries->series.teDataSetType->getProperty(attribute);
-
-                // only operation COUNT can be done without attribute.
-                if(!property && statisticOperation != StatisticOperation::COUNT)
-                {
-                  QString errMsg(QObject::tr("Invalid attribute name"));
-                  throw InvalidParameterException() << terrama2::ErrorDescription(errMsg);
-                }
-                attributeType = property->getType();
+                QString errMsg(QObject::tr("Invalid attribute name"));
+                throw InvalidParameterException() << terrama2::ErrorDescription(errMsg);
               }
-
+              attributeType = property->getType();
 
               if(dcpSyncDs->size() == 0)
               {
@@ -207,7 +201,7 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
               {
                 try
                 {
-                  if(!attribute.empty() && !dcpSyncDs->isNull(i, attribute))
+                  if(!dcpSyncDs->isNull(i, attribute))
                   {
                     hasData = true;
                     double value = getValue(dcpSyncDs, attribute, i, attributeType);
@@ -227,12 +221,10 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
               if(values.empty())
                 continue;
 
+              calculateStatistics(values, cache);
               // Statistics are calculated based on the number of values
               // but the operator count for DCP returns the number of DCPs that influence the monitored object
-
-              cache.count = values.size();
-
-              calculateStatistics(values, cache);
+              cache.count = influenceCount;
             }
           }
 
@@ -263,9 +255,8 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
         context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
         exceptionOccurred = true;
       }
+    } // Destroy the OperatorLock object and acquires the lock
 
-    // Destroy the OperatorLock object and acquires the lock
-    }
     if(exceptionOccurred)
       return std::nan("");
 
@@ -274,6 +265,7 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
       return std::nan("");
     }
 
+    // return value of the operation
     return getOperationResult(cache, statisticOperation);
   }
   catch(const terrama2::Exception& e)
