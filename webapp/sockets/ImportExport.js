@@ -80,6 +80,12 @@ var ImportExport = function(io) {
         var options = {
           transaction: t
         };
+        
+        var dataSeriesSemantics;
+
+        promises.push(DataManager.listDataSeriesSemantics({}, options).then(function(semanticsList){
+          dataSeriesSemantics = semanticsList;
+        }));
 
         var thereAreProjects = (json.Projects !== undefined && json.Projects.length > 0); 
 
@@ -148,7 +154,11 @@ var ImportExport = function(io) {
 
               dataSeries.forEach(function(dSeries) {
                 // preparing to insert in DataBase
-                dSeries.data_series_semantics_id = dSeries.data_series_semantics.id;
+                var semantic = dataSeriesSemantics.find(function(dSeriesSemantics){
+                  return dSeries.data_series_semantics_code == dSeriesSemantics.code;
+                });
+
+                dSeries.data_series_semantics_id = semantic.id;
                 dSeries.data_provider_id = Utils.find(output.DataProviders, {$id: dSeries.data_provider_id}).id;
                 dSeries.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: dSeries.project_id}).id : json.selectedProject;
                 dSeries.dataSets.forEach(function(dSet) {
@@ -583,7 +593,11 @@ var ImportExport = function(io) {
 
           DataManager.listDataSeries({dataProvider: { project_id: projectId }}).then(function(dataSeriesList) {
             dataSeriesList.forEach(function(dataSeries) {
-              output.DataSeries.push(addID(dataSeries));
+              dataSeries.data_series_semantics_code = dataSeries.data_series_semantics.code;
+              var dSeries = addID(dataSeries)
+              delete dSeries.data_series_semantics;
+              delete dSeries.data_series_id;
+              output.DataSeries.push(dSeries);
             });
           });
         }).catch(_emitError));
