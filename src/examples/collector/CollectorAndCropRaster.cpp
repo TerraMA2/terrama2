@@ -31,6 +31,7 @@
 #include <terrama2/core/Shared.hpp>
 
 #include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/utility/GeoUtils.hpp>
 #include <terrama2/core/utility/TimeUtils.hpp>
 #include <terrama2/core/utility/TerraMA2Init.hpp>
 #include <terrama2/core/utility/DataAccessorFactory.hpp>

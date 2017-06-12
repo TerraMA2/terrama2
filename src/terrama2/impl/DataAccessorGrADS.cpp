@@ -30,6 +30,7 @@
 #include "DataAccessorGrADS.hpp"
 #include "../core/utility/Logger.hpp"
 #include "../core/utility/Utils.hpp"
+#include "../core/utility/GeoUtils.hpp"
 #include "../core/utility/FilterUtils.hpp"
 #include "../core/utility/Raii.hpp"
 #include "../core/utility/Unpack.hpp"
