@@ -1,6 +1,5 @@
 [
   {
-    "id": 6,
     "name": "Static grid - GDAL",
     "code": "GRID-static_gdal",
     "driver": "GRID-static_gdal",

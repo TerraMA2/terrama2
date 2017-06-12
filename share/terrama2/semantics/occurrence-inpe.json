@@ -1,6 +1,5 @@
 [
   {
-    "id": 2,
     "name": "Occurrence – INPE fire program",
     "code": "OCCURRENCE-wfp",
     "driver": "OCCURRENCE-wfp",
@@ -41,7 +40,6 @@
     }
   },
   {
-    "id": 3,
     "name": "Occurrence – INPE lightning program",
     "code": "OCCURRENCE-lightning",
     "driver": "OCCURRENCE-lightning",

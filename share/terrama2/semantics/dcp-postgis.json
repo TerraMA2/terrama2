@@ -1,6 +1,5 @@
 [
   {
-    "id": 9,
     "name": "DCP - PostGIS",
     "code": "DCP-postgis",
     "driver": "DCP-postgis",

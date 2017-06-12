@@ -1,6 +1,5 @@
 [
   {
-    "id": 4,
     "name": "Static geometric object - OGR (data file)",
     "code": "STATIC_DATA-ogr",
     "driver": "STATIC_DATA-ogr",

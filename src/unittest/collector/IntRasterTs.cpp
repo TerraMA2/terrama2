@@ -264,6 +264,6 @@ void IntRasterTs::CollectAndCropRaster()
     QVERIFY2(reference == output, errMsg3.toUtf8());
   }
 
-   dtestOutput.removeRecursively();
+   testOutput.removeRecursively();
    testReference.removeRecursively();
 }

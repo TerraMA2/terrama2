@@ -1,6 +1,5 @@
 [
   {
-    "id": 11,
     "name": "Grid - GDAL (other formats)",
     "code": "GRID-gdal",
     "driver": "GRID-gdal",
@@ -82,7 +81,6 @@
     }
   },
   {
-   "id": 16,
    "name": "Grid - Geotiff",
    "code": "GRID-geotiff",
    "driver": "GRID-gdal",
