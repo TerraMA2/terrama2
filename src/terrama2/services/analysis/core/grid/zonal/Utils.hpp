@@ -42,6 +42,8 @@
 #include <terralib/raster/PositionIterator.h>
 
 #include "../../Exception.hpp"
+#include "../../../../../core/utility/BitsetIntersection.hpp"
+#include "../../../../../core/utility/GeoUtils.hpp"
 
 namespace terrama2
 {
@@ -57,45 +59,18 @@ namespace terrama2
           {
             namespace utils
             {
-              struct mapValueIsLesser
-              {
-                  template<class U, class T>
-                  bool operator()(const std::pair<U, T>& left, const std::pair<U, T>& right) const
-                  {
-                      return left.second < right.second;
-                  }
-              };
-
+              /*!
+                \brief Get a map of <row, column> of values of the raster intersection with the geometry
+              */
               template<class T>
-              void getRasterValues( te::gm::Geometry* geom,
-                                    const std::shared_ptr<te::rst::Raster>& raster,
-                                    const size_t band,
-                                    std::map<std::pair<int, int>, T>& valuesMap);
-
-              template<class T>
-              void getRasterValues( te::gm::Polygon* polygon,
-                                    const std::shared_ptr<te::rst::Raster>& raster,
-                                    const size_t band,
-                                    std::map<std::pair<int, int>, T>& valuesMap);
-
-              template<class T>
-              void getRasterValues( std::vector<te::gm::Point*> pointSet,
-                                    const std::shared_ptr<te::rst::Raster>& raster,
-                                    const size_t band,
-                                    std::map<std::pair<int, int>, T>& valuesMap);
-
-              template<class T>
-              void getRasterValues( te::gm::Line* Line,
-                                    const std::shared_ptr<te::rst::Raster>& raster,
-                                    const size_t band,
-                                    std::map<std::pair<int, int>, T>& valuesMap);
-
-              template<template<class> class U, class T>
-              void getRasterValues(U<T>& rasterIt,
-                                   U<T>& end,
+              void getRasterValues(std::shared_ptr<te::gm::Geometry> geom,
+                                   const std::shared_ptr<te::rst::Raster>& raster,
                                    const size_t band,
                                    std::map<std::pair<int, int>, T>& valuesMap);
 
+              /*!
+                \brief Get a map of <row, column> of the <accumulated values, count of values> of the raster intersection with the geometry
+              */
               inline std::unordered_map<std::pair<int, int>, std::pair<double, int>, boost::hash<std::pair<int, int> > >
               getAccumulatedMap(const std::string &dataSeriesName, const std::string &dateDiscardBefore,
                                 const std::string &dateDiscardAfter, const size_t band,
@@ -103,7 +78,6 @@ namespace terrama2
                                 terrama2::services::analysis::core::MonitoredObjectContextPtr context,
                                 terrama2::services::analysis::core::OperatorCache cache)
               {
-
                 auto dataManagerPtr = context->getDataManager().lock();
                 if(!dataManagerPtr)
                 {
@@ -143,7 +117,7 @@ namespace terrama2
 
                 /////////////////////////////////////////////////////////////////
                 //map of sum of values for each pixel
-                
+
                 terrama2::core::Filter filter;
                 filter.discardBefore = context->getTimeFromString(dateDiscardBefore);
                 filter.discardAfter = context->getTimeFromString(dateDiscardAfter);
@@ -175,7 +149,7 @@ namespace terrama2
                   for(const auto& raster : rasterList)
                   {
                     std::map<std::pair<int, int>, double> tempValuesMap;
-                    utils::getRasterValues<double>(geomResult.get(), raster, band, tempValuesMap);
+                    utils::getRasterValues<double>(geomResult, raster, band, tempValuesMap);
 
                     for_each(tempValuesMap.cbegin(), tempValuesMap.cend(), [&valuesMap](const std::pair<std::pair<int, int>, double>& val)
                     {
@@ -200,145 +174,50 @@ namespace terrama2
 
               }
             } /* utils */
-          }
-        }
-      }
-    }
-  }
-}
+          } /* zonal */
+        } /* grid */
+      } /* core */
+    } /* analysis */
+  } /* services */
+} /* terrama2 */
 
 template<class T>
-void terrama2::services::analysis::core::grid::zonal::utils::getRasterValues( te::gm::Geometry* geom,
+void terrama2::services::analysis::core::grid::zonal::utils::getRasterValues(std::shared_ptr<te::gm::Geometry> geom,
                       const std::shared_ptr<te::rst::Raster>& raster,
                       const size_t band,
                       std::map<std::pair<int, int>, T>& valuesMap)
 {
-  //TODO: check for other valid types
-  auto type = geom->getGeomTypeId();
+  terrama2::core::BitsetIntersection intersection = terrama2::core::BitsetIntersection::bitsetIntersection(geom, raster);
 
-  switch(type)
+  auto grid = raster->getGrid();
+  uint32_t lowerLeftCol, lowerLeftRow;
+  std::tie(lowerLeftCol, lowerLeftRow) = terrama2::core::geoToGrid(intersection.lowerLeft(), grid);
+  if(lowerLeftCol == std::numeric_limits<uint32_t>::max()) lowerLeftCol = 0;
+  if(lowerLeftRow == std::numeric_limits<uint32_t>::max()) lowerLeftRow = grid->getNumberOfRows();
+
+  uint32_t upperRightCol, upperRightRow;
+  std::tie(upperRightCol, upperRightRow) = terrama2::core::geoToGrid(intersection.upperRight(), grid);
+  if(upperRightRow == std::numeric_limits<uint32_t>::max()) upperRightRow = 0;
+  if(upperRightCol == std::numeric_limits<uint32_t>::max()) upperRightCol = grid->getNumberOfColumns();
+
+  auto rasterBand = raster->getBand(band);
+  double noData = rasterBand->getProperty()->m_noDataValue;
+  auto bitset = intersection.bitset();
+  uint32_t i = 0;
+  for(uint32_t row = upperRightRow; row <= lowerLeftRow; ++row)
   {
-    case te::gm::PolygonType:
+    for(uint32_t column = lowerLeftCol; column <= upperRightCol; ++column)
     {
-      auto polygon = static_cast<te::gm::Polygon*>(geom);
-      getRasterValues(polygon, raster, band, valuesMap);
-      break;
-    }
-    case te::gm::MultiPolygonType:
-    {
-      auto multiPolygon = static_cast<te::gm::MultiPolygon*>(geom);
-      for(auto geom : multiPolygon->getGeometries())
+      if(bitset[i])
       {
-        auto polygon = static_cast<te::gm::Polygon*>(geom);
-        getRasterValues(polygon, raster, band, valuesMap);
+        auto key = std::make_pair(row, column);
+        double value = noData;
+        rasterBand->getValue(column, row, value);
+        if(value != noData)
+          valuesMap[key] = value;
       }
-      break;
+      ++i;
     }
-    case te::gm::LineStringType:
-    {
-      auto line = static_cast<te::gm::Line*>(geom);
-      getRasterValues(line, raster, band, valuesMap);
-      break;
-    }
-    case te::gm::MultiLineStringType:
-    {
-      auto multiLine = static_cast<te::gm::MultiLineString*>(geom);
-      for(auto geom : multiLine->getGeometries())
-      {
-        auto line = static_cast<te::gm::Line*>(geom);
-        getRasterValues(line, raster, band, valuesMap);
-      }
-      break;
-    }
-    case te::gm::PointType:
-    {
-      auto point = static_cast<te::gm::Point*>(geom);
-      getRasterValues({point}, raster, band, valuesMap);
-      break;
-    }
-    case te::gm::MultiPointType:
-    {
-      auto multiPoint = static_cast<te::gm::MultiPoint*>(geom);
-      std::vector<te::gm::Point*> pointSet;
-      for(auto geom : multiPoint->getGeometries())
-      {
-        auto point = static_cast<te::gm::Point*>(geom);
-        pointSet.push_back(point);
-      }
-
-      getRasterValues(pointSet, raster, band, valuesMap);
-      break;
-    }
-    default:
-      QString errMsg = QObject::tr("Unrecognized geometry type: %1").arg(type);
-      throw InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
-  }
-
-  // Remove the no data values
-  double noData = raster->getBand(band)->getProperty()->m_noDataValue;
-
-  for(auto it = valuesMap.begin(); it != valuesMap.end();)
-  {
-    if(it->second == noData)
-      it = valuesMap.erase(it);
-    else
-      ++it;
-  }
-}
-
-template<class T>
-void terrama2::services::analysis::core::grid::zonal::utils::getRasterValues( te::gm::Polygon* polygon,
-                      const std::shared_ptr<te::rst::Raster>& raster,
-                      const size_t band,
-                      std::map<std::pair<int, int>, T>& valuesMap)
-{
-  //raster values can always be read as double
-  auto rasterIt = te::rst::PolygonIterator<T>::begin(raster.get(), polygon);
-  auto end = te::rst::PolygonIterator<T>::end(raster.get(), polygon);
-
-  getRasterValues(rasterIt, end, band, valuesMap);
-}
-
-template<class T>
-void terrama2::services::analysis::core::grid::zonal::utils::getRasterValues( std::vector<te::gm::Point*> pointSet,
-                      const std::shared_ptr<te::rst::Raster>& raster,
-                      const size_t band,
-                      std::map<std::pair<int, int>, T>& valuesMap)
-{
-  //raster values can always be read as double
-  auto rasterIt = te::rst::PointSetIterator<T>::begin(raster.get(), pointSet);
-  auto end = te::rst::PointSetIterator<T>::end(raster.get(), pointSet);
-
-  getRasterValues(rasterIt, end, band, valuesMap);
-}
-
-template<class T>
-void terrama2::services::analysis::core::grid::zonal::utils::getRasterValues( te::gm::Line* line,
-                      const std::shared_ptr<te::rst::Raster>& raster,
-                      const size_t band,
-                      std::map<std::pair<int, int>, T>& valuesMap)
-{
-  //raster values can always be read as double
-  auto rasterIt = te::rst::LineIterator<T>::begin(raster.get(), line);
-  auto end = te::rst::LineIterator<T>::end(raster.get(), line);
-
-  getRasterValues(rasterIt, end, band, valuesMap);
-}
-
-template<template<class> class U, class T>
-void terrama2::services::analysis::core::grid::zonal::utils::getRasterValues(
-                     U<T>& rasterIt,
-                     U<T>& end,
-                     const size_t band,
-                     std::map<std::pair<int, int>, T>& valuesMap)
-{
-  for(; rasterIt != end; ++rasterIt)
-  {
-    auto column = rasterIt.getColumn();
-    auto row = rasterIt.getRow();
-
-    auto key = std::make_pair(row, column);
-    valuesMap[key] = rasterIt[band];
   }
 }
 

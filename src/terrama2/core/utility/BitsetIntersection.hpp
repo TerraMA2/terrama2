@@ -36,6 +36,9 @@
 
 #include <memory>
 
+#ifndef __TERRAMA2_CORE_UTILS_BITSET_INTERSECTION_HPP__
+#define __TERRAMA2_CORE_UTILS_BITSET_INTERSECTION_HPP__
+
 namespace terrama2 {
   namespace core {
     /*!
@@ -109,3 +112,5 @@ namespace terrama2 {
     };
   } /* core */
 } /* terrama2 */
+
+#endif //__TERRAMA2_CORE_UTILS_BITSET_INTERSECTION_HPP__
