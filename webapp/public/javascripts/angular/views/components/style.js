@@ -23,7 +23,7 @@ define([], function () {
    * @param {ColorFactory} ColorFactory - TerraMA² Color generator
    * @param {any} i18n - TerraMA² Internationalization module
    */
-  function StyleController($scope, ColorFactory, i18n, DataSeriesService, StyleType, StyleOperation) {
+  function StyleController($scope, ColorFactory, i18n, DataSeriesService, StyleType, StyleOperation, $http) {
     var self = this;
     // binding component form into parent module in order to expose Form to help during validation
     self.formCtrl = self.form;
@@ -60,13 +60,39 @@ define([], function () {
         handleColor();
       }
     };
-
+    /**
+     * Setting default parameters when change mode to xml file
+     */
     self.changeMode = function(){
       if (!self.creationMode){
         self.model.operation_id = 4;
         self.model.type = 3;
         self.model.colors = [];
+        self.model.metadata = {};
       }
+    }
+    /**
+     * Get xml file
+     */
+    self.onStyleChange = function(){
+      switch (self.styleId){
+        case "1":
+          self.setXmlInfo("Windbarbs_uv.xml");
+          break;
+        case "0":
+        default:
+          self.model.metadata.xmlStyle = "";
+          break;
+      }
+    }
+    /**
+     * Setting xml data on model
+     */
+    self.setXmlInfo = function(styleFile){
+      var xmlUrl = BASE_URL + "xml_styles/" + styleFile;
+      $http.get(xmlUrl).then(function(response){
+        self.model.metadata.xmlStyle = response.data;
+      });
     }
     /**
      * It handles color summarization (begin and end) based in list of colors
@@ -121,6 +147,6 @@ define([], function () {
   }
 
   // Dependencies Injection
-  StyleController.$inject = ["$scope", "ColorFactory", "i18n", "DataSeriesService", "StyleType", "StyleOperation"];
+  StyleController.$inject = ["$scope", "ColorFactory", "i18n", "DataSeriesService", "StyleType", "StyleOperation", "$http"];
   return terrama2StyleComponent;
 });
