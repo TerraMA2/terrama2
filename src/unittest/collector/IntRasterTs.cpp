@@ -25,7 +25,15 @@
 #include <terrama2/core/utility/ServiceManager.hpp>
 #include <terrama2/core/data-model/DataManager.hpp>
 #include <terrama2/services/collector/core/Service.hpp>
+#include <terrama2/services/collector/core/Collector.hpp>
 #include <terrama2/core/utility/CurlWrapperFtp.hpp>
+#include <terrama2/core/data-model/DataProvider.hpp>
+#include <terrama2/core/data-model/DataSeries.hpp>
+#include <terrama2/core/data-model/DataSet.hpp>
+#include <terrama2/core/data-model/DataSetGrid.hpp>
+#include <terrama2/core/utility/SemanticsManager.hpp>
+#include <terrama2/core/utility/Utils.hpp>
+
 
 #include "MockCollectorLogger.hpp"
 #include "IntRasterTs.hpp"
@@ -40,6 +48,115 @@
 #include <QFileInfo>
 #include <QImage>
 
+void addInput(std::shared_ptr<terrama2::services::collector::core::DataManager> dataManager)
+{
+  ///////////////////////////////////////////////
+  //     input
+  // DataProvider information
+  terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
+  terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
+  dataProvider->id = 2;
+  dataProvider->name = "DSA curso";
+  dataProvider->uri = "ftp://ftp:JenkinsD%40t%40@jenkins-ftp.dpi.inpe.br:21/terrama2/";
+  dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
+  dataProvider->dataProviderType = "FTP";
+  dataProvider->active = true;
+
+  dataManager->add(dataProviderPtr);
+
+  auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
+  // DataSeries information
+  terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
+  terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
+  dataSeries->id = 1;
+  dataSeries->name = "Hidroestimador Amazonia_input";
+  dataSeries->semantics = semanticsManager.getSemantics("GRID-grads");
+  dataSeries->dataProviderId = dataProviderPtr->id;
+  dataSeries->active = true;
+
+  terrama2::core::DataSetGrid* dataSet = new terrama2::core::DataSetGrid();
+  dataSet->id = 1;
+  dataSet->active = true;
+  dataSet->format.emplace("ctl_filename", "/grads/racc.ctl");
+  dataSet->format.emplace("folder", "hidro");
+  dataSet->format.emplace("srid", "4326");
+  dataSet->format.emplace("timezone", "UTC+00");
+  dataSet->format.emplace("data_type", "INT16");
+  dataSet->format.emplace("number_of_bands", "1");
+  dataSet->format.emplace("bytes_before", "0");
+  dataSet->format.emplace("bytes_after", "0");
+  dataSet->format.emplace("value_multiplier", "1");
+  dataSet->format.emplace("temporal", "false");
+
+  dataSeries->datasetList.emplace_back(dataSet);
+
+  dataManager->add(dataSeriesPtr);
+}
+
+void addOutput(std::shared_ptr<terrama2::services::collector::core::DataManager> dataManager)
+{
+  ///////////////////////////////////////////////
+  //     output
+
+  // DataProvider information
+  terrama2::core::DataProvider* outputDataProvider = new terrama2::core::DataProvider();
+  terrama2::core::DataProviderPtr outputDataProviderPtr(outputDataProvider);
+  outputDataProvider->uri = "file://"+TERRAMA2_DATA_DIR+"/";
+
+  outputDataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
+  outputDataProvider->active = true;
+  outputDataProvider->id = 1;
+  outputDataProvider->name = "Dados locais";
+  outputDataProvider->dataProviderType = "FILE";
+  outputDataProvider->active = true;
+
+  dataManager->add(outputDataProviderPtr);
+
+  // DataSeries information
+  terrama2::core::DataSeries* outputDataSeries = new terrama2::core::DataSeries();
+  terrama2::core::DataSeriesPtr outputDataSeriesPtr(outputDataSeries);
+  outputDataSeries->id = 2;
+  outputDataSeries->name = "Hidroestimador Amazonia";
+  outputDataSeries->active = true;
+  auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
+  outputDataSeries->semantics = semanticsManager.getSemantics("GRID-geotiff");
+  outputDataSeries->dataProviderId = outputDataProviderPtr->id;
+
+
+  // DataSet information
+  terrama2::core::DataSetGrid* outputDataSet = new terrama2::core::DataSetGrid();
+  outputDataSet->active = true;
+  outputDataSet->id = 2;
+  outputDataSet->dataSeriesId = outputDataSeries->id;
+  outputDataSet->format.emplace("mask", "/hidroestimador_crop/S10238225_%YYYY%MM%DD%hh%mm");
+  outputDataSet->format.emplace("timestamp_property", "file_timestamp");
+  outputDataSet->format.emplace("timezone", "0");
+
+  outputDataSeries->datasetList.emplace_back(outputDataSet);
+
+  dataManager->add(outputDataSeriesPtr);
+}
+
+void addCollector(std::shared_ptr<terrama2::services::collector::core::DataManager> dataManager)
+{
+  terrama2::services::collector::core::Collector* collector(new terrama2::services::collector::core::Collector());
+  terrama2::services::collector::core::CollectorPtr collectorPtr(collector);
+  collector->id = 1;
+  collector->projectId = 1;
+  collector->serviceInstanceId = 1;
+  collector->active = true;
+
+  collector->filter.region = terrama2::core::ewktToGeom("SRID=4326;POLYGON((-73.8036991603083 -9.81412714740936,-73.8036991603083 2.24662115728613,-56.097053202293 2.24662115728613,-56.097053202293 -9.81412714740936,-73.8036991603083 -9.81412714740936))");
+  collector->filter.cropRaster = true;
+  collector->filter.discardBefore = terrama2::core::TimeUtils::stringToTimestamp("2016-11-25T06:00:00.000-02:00", terrama2::core::TimeUtils::webgui_timefacet);
+  collector->filter.discardAfter = terrama2::core::TimeUtils::stringToTimestamp("2016-11-25T12:00:00.000-02:00", terrama2::core::TimeUtils::webgui_timefacet);
+
+  collector->inputDataSeries = 1;
+  collector->outputDataSeries = 2;
+  collector->inputOutputMap.emplace(1, 2);
+
+  dataManager->add(collectorPtr);
+}
 size_t write_file_names(void* ptr, size_t size, size_t nmemb, void* data)
 {
   size_t sizeRead = size * nmemb;
@@ -87,13 +204,6 @@ void downloadReferenceFiles()
 
 void IntRasterTs::CollectAndCropRaster()
 {
-  QString json = QString::fromStdString("{\"Analysis\": [],"
-                                         "\"DataSeries\": [{\"class\": \"DataSeries\",\"id\": 1,\"name\": \"Hidroestimador Amazonia_input\",\"timeout\": 3000,\"description\": null,\"data_provider_id\": 2,\"semantics\": \"GRID-grads\",\"active\": true,\"datasets\": [{\"class\": \"DataSet\",\"id\": 1,\"data_series_id\": 1,\"active\": true,\"format\": {\"data_type\": \"INT16\",\"timezone\": \"0\",\"srid\": \"4326\",\"ctl_filename\": \"racc.ctl\",\"folder\": \"grads\",\"temporal\": \"false\",\"bytes_after\": \"0\",\"bytes_before\": \"0\",\"value_multiplier\": \"1\",\"number_of_bands\": \"1\"}}]},{\"class\": \"DataSeries\",\"id\": 2,\"name\": \"Hidroestimador Amazonia\",\"description\": null,\"data_provider_id\": 1,\"semantics\": \"GRID-gdal\",\"active\": true,\"datasets\": [{\"class\": \"DataSet\",\"id\": 2,\"data_series_id\": 2,\"active\": true,\"format\": {\"timestamp_property\": \"file_timestamp\",\"timezone\": \"0\",\"mask\": \"S10238225_%YYYY%MM%DD%hh%mm\",\"folder\": \"hidroestimador_crop\"}}]}],"
-                                         "\"DataProviders\": [{\"class\": \"DataProvider\",\"id\": 1,\"timeout\": 8,\"project_id\": 1,\"data_provider_type\": \"FILE\",\"intent\": 1,\"name\": \"Dados locais\",\"description\": null,\"uri\": \"file://"+TERRAMA2_DATA_DIR+"\",\"active\": true},{\"class\": \"DataProvider\",\"id\": 2,\"timeout\": 8,\"project_id\": 1,\"data_provider_type\": \"FTP\",\"intent\": 1,\"name\": \"DSA curso\",\"description\": null,\"uri\": \"ftp://ftp:JenkinsD%40t%40@jenkins-ftp.dpi.inpe.br:21/terrama2\",\"active\": true}],"
-                                         "\"Collectors\": [{\"class\": \"Collector\",\"id\": 1,\"project_id\": 1,\"service_instance_id\": 1,\"input_data_series\": 1,\"output_data_series\": 2,\"input_output_map\": [{\"input\": 1,\"output\": 2}],\"schedule\": {\"class\": \"Schedule\",\"id\": 1,\"frequency\": 0,\"frequency_unit\": \"\",\"frequency_start_time\": \"\",\"schedule\": 0,\"schedule_time\": \"\",\"schedule_unit\": \"\",\"schedule_retry\": 0,\"schedule_retry_unit\": \"\",\"schedule_timeout\": 0,\"schedule_timeout_unit\": \"\"},\"filter\": {\"class\": \"Filter\",\"frequency\": null,\"frequency_unit\": null,\"discard_before\": \"2016-11-25T06:00:00.000-02:00\",\"discard_after\": \"2016-11-25T12:00:00.000-02:00\",\"region\": \"SRID=4326;POLYGON((-73.8036991603083 -9.81412714740936,-73.8036991603083 2.24662115728613,-56.097053202293 2.24662115728613,-56.097053202293 -9.81412714740936,-73.8036991603083 -9.81412714740936))\",\"by_value\": null,\"crop_raster\": true,\"collector_id\": 1},\"intersection\": {},\"active\": true}],"
-                                         "\"Views\": []}");
-
-  QJsonDocument doc = QJsonDocument::fromJson(json.toUtf8());
 
   auto& serviceManager = terrama2::core::ServiceManager::getInstance();
   te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PASSWORD+"@"+TERRAMA2_DATABASE_HOST+":"+TERRAMA2_DATABASE_PORT+"/"+TERRAMA2_DATABASE_DBNAME);
@@ -101,6 +211,10 @@ void IntRasterTs::CollectAndCropRaster()
   serviceManager.setInstanceId(1);
 
   auto dataManager = std::make_shared<terrama2::services::collector::core::DataManager>();
+  addInput(dataManager);
+  addOutput(dataManager);
+  addCollector(dataManager);
+
   terrama2::services::collector::core::Service service(dataManager);
 
   auto loggerCopy = std::make_shared<terrama2::core::MockCollectorLogger>();
@@ -126,8 +240,6 @@ void IntRasterTs::CollectAndCropRaster()
   service.setLogger(logger);
   service.start();
 
-  dataManager->addJSon(doc.object());
-
   service.addToQueue(1, terrama2::core::TimeUtils::nowUTC());
 
   QTimer timer;
@@ -137,10 +249,10 @@ void IntRasterTs::CollectAndCropRaster()
 
   downloadReferenceFiles();
 
-  QDir testOutput(QString::fromStdString(TERRAMA2_DATA_DIR+"/hidroestimador_crop"));
+  QDir testOutput(QString::fromStdString(TERRAMA2_DATA_DIR+"/hidroestimador_crop/"));
   auto fileList = testOutput.entryInfoList(QDir::Files | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
 
-  QDir testReference(QString::fromStdString(TERRAMA2_DATA_DIR+"/hidroestimador_crop_reference"));
+  QDir testReference(QString::fromStdString(TERRAMA2_DATA_DIR+"/hidroestimador_crop_reference/"));
 
   QVERIFY2(5 == fileList.size(), "Wrong number of collected files.");
   for(const auto& fileInfo : fileList )
@@ -152,6 +264,6 @@ void IntRasterTs::CollectAndCropRaster()
     QVERIFY2(reference == output, errMsg3.toUtf8());
   }
 
-   testOutput.removeRecursively();
+   dtestOutput.removeRecursively();
    testReference.removeRecursively();
 }

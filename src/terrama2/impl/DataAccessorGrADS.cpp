@@ -1069,10 +1069,9 @@ std::string terrama2::core::DataAccessorGrADS::getBinaryMask(terrama2::core::Dat
   {
     return dataset->format.at("binary_file_mask");
   }
-  catch(...)
+  catch(const std::out_of_range& /*e*/)
   {
-    QString errMsg = QObject::tr("Undefined tag for binary file mask in dataset: %1.").arg(dataset->id);
-    throw UndefinedTagException() << ErrorDescription(errMsg);
+    return "";
   }
 }
 
