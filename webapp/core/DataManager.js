@@ -147,6 +147,7 @@ var DataManager = module.exports = {
         inserts.push(self.addViewStyleType({id: Enums.ViewStyleType.EQUAL_STEPS, name: "Equal Steps", description: ""}));
         inserts.push(self.addViewStyleType({id: Enums.ViewStyleType.QUANTILE, name: "Quantile", description: ""}));
         inserts.push(self.addViewStyleType({id: Enums.ViewStyleType.BY_VALUE, name: "By Value", description: ""}));
+        inserts.push(self.addViewStyleType({id: Enums.ViewStyleType.XML_STYLE, name: "XML Style", description: ""}));
 
         // default services
         var collectorService = {

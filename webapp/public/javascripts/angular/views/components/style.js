@@ -10,6 +10,7 @@ define([], function () {
       formCtrl: "<", // controller binding in order to throw up
       type: "=",
       model: "=",
+      creationMode: "=",
       options: "="
     },
     templateUrl: BASE_URL + "dist/templates/views/templates/style.html",
@@ -59,11 +60,20 @@ define([], function () {
         handleColor();
       }
     };
+
+    self.changeMode = function(){
+      if (!self.creationMode){
+        self.model.operation_id = 4;
+        self.model.type = 3;
+        self.model.colors = [];
+      }
+    }
     /**
      * It handles color summarization (begin and end) based in list of colors
      */
     $scope.$on("updateStyleColor", function () {
-      handleColor();
+      if (self.creationMode)
+        handleColor();
     });
 
     /**

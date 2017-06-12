@@ -401,7 +401,8 @@ module.exports = {
   ViewStyleType: {
     EQUAL_STEPS: 1,
     QUANTILE: 2,
-    BY_VALUE: 3
+    BY_VALUE: 3,
+    XML_STYLE: 4
   },
 
   /**

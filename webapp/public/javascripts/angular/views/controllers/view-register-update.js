@@ -123,6 +123,8 @@ define([], function() {
         }
       }
     };
+    self.creationMode = true;
+
     /**
      * It contains view instance values
      * @type {Object}
@@ -246,6 +248,10 @@ define([], function() {
               self.legend.operation_id = legend.operation_id;
               self.legend.type = legend.type;
 
+              if (self.legend.operation_id == 4){
+                self.creationMode = false;
+              }
+
               if (legend.type !== StyleType.VALUE) {
                 legend.colors.forEach(function(color) {
                   if (!color.isDefault) {
@@ -364,7 +370,7 @@ define([], function() {
             return;
           }
 
-          if (Object.keys(self.legend).length !== 0) {
+          if (Object.keys(self.legend).length !== 0 && self.creationMode) {
             if (!self.legend.colors || self.legend.colors.length === 0) {
               return MessageBoxService.danger(i18n.__("View"), i18n.__("You must generate the style colors to classify Data Series"));
             }
