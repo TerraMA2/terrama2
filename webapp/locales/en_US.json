@@ -934,5 +934,9 @@
   "to": "to",
   "total entries": "total entries",
   "updated": "updated",
-  "w": "w"
+  "w": "w",
+  "Editor": "Editor",
+  "WIND": "WIND",
+  "GRADIENT": "GRADIENT",
+  "You must generate the style colors to classify Data Series": "You must generate the style colors to classify Data Series"
 }

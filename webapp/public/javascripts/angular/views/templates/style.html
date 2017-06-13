@@ -1,38 +1,26 @@
-<div class="col-md-12 terrama2-nopadding-box">
-  <form name="myForm">
-    <label style="margin-left: 19px;">
-        <input type="radio" ng-model="$ctrl.creationMode" ng-value="true" ng-change="$ctrl.changeMode()">
-        {{$ctrl.i18n.__('Edition')}}
-    </label>
-    <label style="margin-left: 20px;">
-        <input type="radio" ng-model="$ctrl.creationMode" ng-value="false" ng-change="$ctrl.changeMode()">
-        {{$ctrl.i18n.__('XML Style')}}
-    </label>
-  </form>
+<div class="col-md-6 form-group">
+    <label>Creation Type:</label>
+    <select class="form-control" name="styles" ng-change="$ctrl.changeCreationType()" ng-model="$ctrl.model.metadata.creation_type">
+        <option value="0">{{$ctrl.i18n.__('Editor')}}</option>
+        <option value="1">{{$ctrl.i18n.__('XML')}}</option>
+        <option value="2">{{$ctrl.i18n.__('WIND')}}</option>
+    </select>
 </div>
 
-<div ng-if="!$ctrl.creationMode">
+<div ng-if="$ctrl.model.metadata.creation_type == '1' || $ctrl.model.metadata.creation_type == '2' ">
   <div class="col-md-12 terrama2-nopadding-box">
 
     <div class="col-md-8">
       <div class="form-group">
         <label> {{$ctrl.i18n.__('XML') }}:</label>
-        <textarea class="form-control" ng-model="$ctrl.model.metadata.xmlStyle" style="height: 200px;"> </textarea>
+        <textarea class="form-control" ng-model="$ctrl.model.metadata.xml_style" style="height: 200px;"> </textarea>
       </div>
-    </div>
-
-    <div class="col-md-4 form-group">
-      <label>Styles:</label>
-      <select class="form-control" name="styles" ng-change="$ctrl.onStyleChange()" ng-model="$ctrl.styleId">
-          <option value="0">{{$ctrl.i18n.__('New')}}</option>
-          <option value="1">{{$ctrl.i18n.__('Wind')}}</option>
-      </select>
     </div>
 
   </div>
 </div>
 
-<div ng-if="$ctrl.creationMode">
+<div ng-if="$ctrl.model.metadata.creation_type == '0'">
   <div class="col-md-12 terrama2-nopadding-box">
     <div class="col-md-12 terrama2-nopadding-box">
       <div class="col-md-6" ng-if="$ctrl.type === $ctrl.DataSeriesType.GEOMETRIC_OBJECT || $ctrl.type === $ctrl.DataSeriesType.OCCURRENCE || $ctrl.type === $ctrl.DataSeriesType.ANALYSIS_MONITORED_OBJECT">
@@ -50,24 +38,6 @@
           </span>
         </div>
         <!-- ./Column -->
-      </div>
-      <!-- ./GEOMETRIC OR OCCURRENCE -->
-      <div class="col-md-6">
-        <div class="form-group" terrama2-show-errors>
-          <label><span ng-bind="$ctrl.i18n.__('Operation')"></span>:</label>
-          <select class="form-control" 
-                  name="styleOperation" 
-                  ng-model="$ctrl.model.operation_id"
-                  ng-options="value as $ctrl.i18n.__(key) for (key, value) in $ctrl.StyleOperation"
-                  ng-init="$ctrl.model.operation_id = $ctrl.StyleOperation.VALUE;"
-                  required>
-          </select>
-
-          <span class="help-block" 
-            ng-show="$ctrl.formCtrl.styleOperation.$dirty && $ctrl.formCtrl.styleOperation.$error.required"
-            ng-bind="$ctrl.i18n.__('Operation is required')">
-          </span>
-        </div>
       </div>
       <!-- ./col-md-6 Type -->
       <div class="col-md-3" ng-if="$ctrl.type === $ctrl.DataSeriesType.GRID">
@@ -159,7 +129,7 @@
     </div>
   </div>
 
-  <div class="col-md-12" ng-show="$ctrl.model.operation_id && $ctrl.model.colors.length > 0">
+  <div class="col-md-12" ng-show="$ctrl.model.colors.length > 0">
     <table class="table table-hover scroll">
       <thead>
         <th ng-bind="$ctrl.i18n.__('Color')"></th>

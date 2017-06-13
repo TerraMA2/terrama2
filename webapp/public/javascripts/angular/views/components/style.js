@@ -10,7 +10,6 @@ define([], function () {
       formCtrl: "<", // controller binding in order to throw up
       type: "=",
       model: "=",
-      creationMode: "=",
       options: "="
     },
     templateUrl: BASE_URL + "dist/templates/views/templates/style.html",
@@ -23,12 +22,11 @@ define([], function () {
    * @param {ColorFactory} ColorFactory - TerraMA² Color generator
    * @param {any} i18n - TerraMA² Internationalization module
    */
-  function StyleController($scope, ColorFactory, i18n, DataSeriesService, StyleType, StyleOperation, $http) {
+  function StyleController($scope, ColorFactory, i18n, DataSeriesService, StyleType, $http) {
     var self = this;
     // binding component form into parent module in order to expose Form to help during validation
     self.formCtrl = self.form;
     self.DataSeriesType = DataSeriesService.DataSeriesType;
-    self.StyleOperation = StyleOperation;
     self.StyleType = StyleType;
     self.i18n = i18n;
     self.styleTypes = [];
@@ -63,12 +61,28 @@ define([], function () {
     /**
      * Setting default parameters when change mode to xml file
      */
-    self.changeMode = function(){
-      if (!self.creationMode){
-        self.model.operation_id = 4;
+    self.changeCreationType = function(){
+      if (self.model.metadata.creation_type == "0"){
+        delete self.model.metadata.xml_style;
+      } else if (self.model.metadata.creation_type == "1"){
         self.model.type = 3;
         self.model.colors = [];
-        self.model.metadata = {};
+        self.model.metadata = {
+          creation_type: "1"
+        };
+        delete self.model.bands;
+        delete self.model.beginColor;
+        delete self.model.endColor;
+      } else if (self.model.metadata.creation_type == "2"){
+        self.model.type = 3;
+        self.model.colors = [];
+        self.model.metadata = {
+          creation_type: "2"
+        };
+        self.setXmlInfo("Windbarbs_uv.xml");
+        delete self.model.bands;
+        delete self.model.beginColor;
+        delete self.model.endColor;
       }
     }
     /**
@@ -81,7 +95,7 @@ define([], function () {
           break;
         case "0":
         default:
-          self.model.metadata.xmlStyle = "";
+          self.model.metadata.xml_style = "";
           break;
       }
     }
@@ -91,14 +105,14 @@ define([], function () {
     self.setXmlInfo = function(styleFile){
       var xmlUrl = BASE_URL + "xml_styles/" + styleFile;
       $http.get(xmlUrl).then(function(response){
-        self.model.metadata.xmlStyle = response.data;
+        self.model.metadata.xml_style = response.data;
       });
     }
     /**
      * It handles color summarization (begin and end) based in list of colors
      */
     $scope.$on("updateStyleColor", function () {
-      if (self.creationMode)
+      if (self.model.metadata.creation_type == "0")
         handleColor();
     });
 
@@ -147,6 +161,6 @@ define([], function () {
   }
 
   // Dependencies Injection
-  StyleController.$inject = ["$scope", "ColorFactory", "i18n", "DataSeriesService", "StyleType", "StyleOperation", "$http"];
+  StyleController.$inject = ["$scope", "ColorFactory", "i18n", "DataSeriesService", "StyleType", "$http"];
   return terrama2StyleComponent;
 });

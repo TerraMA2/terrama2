@@ -44,14 +44,6 @@
             }
           });
 
-          ViewStyleLegend.belongsTo(models.ViewStyleType, {
-            onDelete: "CASCADE",
-            foreignKey: {
-              name: 'operation_id',
-              allowNull: false
-            }
-          });
-
           ViewStyleLegend.hasMany(models.ViewStyleColor, {
             onDelete: "CASCADE",
             foreignKey: {

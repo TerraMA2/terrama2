@@ -398,13 +398,6 @@ module.exports = {
     COLUMN: "column"
   },
 
-  ViewStyleType: {
-    EQUAL_STEPS: 1,
-    QUANTILE: 2,
-    BY_VALUE: 3,
-    XML_STYLE: 4
-  },
-
   /**
    * List of available schedule type
    */

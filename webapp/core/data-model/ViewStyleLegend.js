@@ -19,12 +19,6 @@
      */
     this.id = params.id;
     /**
-     * ViewStyleLegend Type identifier
-     * @name ViewStyleLegend#operation_id
-     * @type {number}
-     */
-    this.operation_id = params.type_id || params.operation_id;
-    /**
      * ViewStyleLegend column
      * @name ViewStyleLegend#column
      * @type {string}
@@ -92,7 +86,6 @@
     return Object.assign(AbstractClass.prototype.toObject.call(this), {
       id: this.id,
       column: this.column || null,
-      operation_id: this.operation_id,
       type: this.type,
       colors: this.colors,
       dummy: this.dummy,

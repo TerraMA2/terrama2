@@ -219,7 +219,7 @@
           })
 
           .then(function() {
-            if (viewObject.legend && viewObject.legend.operation_id) {
+            if (viewObject.legend) {
               // if there is no legend before, insert a new one
               var legend = viewObject.legend;
               legend.view_id = viewId;
