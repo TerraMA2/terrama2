@@ -926,7 +926,7 @@ void terrama2::services::view::core::GeoServer::registerMosaicCoverage(const std
                       "<entry key=\"time\">"
                       "<dimensionInfo>"
                       "<enabled>true</enabled>"
-                      "<presentation>CONTINUOUS_INTERVAL</presentation>"
+                      "<presentation>LIST</presentation>"
                       "<units>ISO8601</units>"
                       "<defaultValue>"
                       "<strategy>MAXIMUM</strategy>"
@@ -1512,7 +1512,7 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
     std::string layerName = viewPtr->viewName + std::to_string(dataset->id);
     std::transform(layerName.begin(), layerName.end(),layerName.begin(), ::tolower);
 
-    QUrl url(baseUrl.toString() + QString::fromStdString("/" + dataset->format.at("folder")));
+    QUrl url(baseUrl.toString() + QString::fromStdString("/" + terrama2::core::getFolderMask(dataset)));
 
     auto vecRasterInfo = getRasterInfo(dataManager, dataset, viewPtr->filter);
 
