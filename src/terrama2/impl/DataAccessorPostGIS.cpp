@@ -291,13 +291,12 @@ std::string terrama2::core::DataAccessorPostGIS::addLastDatesFilter(terrama2::co
     join += "DISTINCT(t1." + datetimeColumnName + ") ";
     join += "FROM " + getDataSetTableName(dataSet)+" t1";
     if(!whereCondition.empty())
-      join += "WHERE " + whereCondition;
+      join += " WHERE " + whereCondition;
 
     join += " ORDER BY t1." + datetimeColumnName + " DESC limit + " + std::to_string(*filter.lastValues.get()) + ") as last_dates ON ";
     join += "t." + datetimeColumnName + " = last_dates." + datetimeColumnName + " ";
 
     return join;
-
   }
 
   return "";
