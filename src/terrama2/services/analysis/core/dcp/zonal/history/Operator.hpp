@@ -52,27 +52,6 @@ namespace terrama2
           {
             namespace history
             {
-
-              /*!
-              \brief Implementation of history operator for DCP series.
-
-              In case of an error or no data available it will return NAN(Not A Number).
-
-              \param statisticOperation The statistic operation chosen by the user.
-              \param dataSeriesName DataSeries name.
-              \param attribute Which DCP attribute will be used.
-              \param dateFilterBegin Begin of the time interval.
-              \param dateFilterEnd End of the time interval.
-              \param ids List of DCP identifiers.
-
-
-              \return A double value with the result.
-            */
-              double operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
-                                  const std::string& dataSeriesName, const std::string& attribute,
-                                  const std::string& dateFilterBegin, const std::string& dateFilterEnd,
-                                  boost::python::list pcds);
-
               /*!
               \brief Calculates the sum of historic DCP data.
 
