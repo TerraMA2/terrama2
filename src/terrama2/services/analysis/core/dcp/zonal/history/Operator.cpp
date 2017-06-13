@@ -58,6 +58,10 @@ double terrama2::services::analysis::core::dcp::zonal::history::operatorImpl(Sta
     const std::string& dateFilterEnd,
     boost::python::list pcds)
 {
+  // A DCP attribute must be given
+  if(attribute.empty())
+    return std::nan("");
+
   OperatorCache cache;
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
 
@@ -70,7 +74,7 @@ double terrama2::services::analysis::core::dcp::zonal::history::operatorImpl(Sta
   catch (const terrama2::core::VerifyException&)
   {
     contextManager.addError(cache.analysisHashCode, QObject::tr("Use of invalid operator for analysis %1.").arg(analysis->id).toStdString());
-    return {};
+    return std::nan("");
   }
 
   terrama2::services::analysis::core::MonitoredObjectContextPtr context;
@@ -87,7 +91,6 @@ double terrama2::services::analysis::core::dcp::zonal::history::operatorImpl(Sta
   // After the lock is released it's not allowed to return any value because it doesn't have the interpreter lock.
   // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return NAN.
   bool exceptionOccurred = false;
-
 
   try
   {
@@ -169,19 +172,15 @@ double terrama2::services::analysis::core::dcp::zonal::history::operatorImpl(Sta
             auto syncDs = contextDataSeries->series.syncDataSet;
             int attributeType = 0;
 
-            if(!attribute.empty())
+            auto property = contextDataSeries->series.teDataSetType->getProperty(attribute);
+
+           // only operation COUNT can be done without attribute.
+            if(!property && statisticOperation != StatisticOperation::COUNT)
             {
-              auto property = contextDataSeries->series.teDataSetType->getProperty(attribute);
-
-              // only operation COUNT can be done without attribute.
-              if(!property && statisticOperation != StatisticOperation::COUNT)
-              {
-                QString errMsg(QObject::tr("Invalid attribute name"));
-                throw InvalidParameterException() << terrama2::ErrorDescription(errMsg);
-              }
-              attributeType = property->getType();
+              QString errMsg(QObject::tr("Invalid attribute name"));
+              throw InvalidParameterException() << terrama2::ErrorDescription(errMsg);
             }
-
+            attributeType = property->getType();
 
             if(syncDs->size() == 0)
               continue;
@@ -191,7 +190,7 @@ double terrama2::services::analysis::core::dcp::zonal::history::operatorImpl(Sta
             {
               try
               {
-                if(!attribute.empty() && !syncDs->isNull(i, attribute))
+                if(!syncDs->isNull(i, attribute))
                 {
                   hasData = true;
                   double value = getValue(syncDs, attribute, i, attributeType);
@@ -206,8 +205,6 @@ double terrama2::services::analysis::core::dcp::zonal::history::operatorImpl(Sta
                 continue;
               }
             }
-
-
           }
         }
 
@@ -230,12 +227,7 @@ double terrama2::services::analysis::core::dcp::zonal::history::operatorImpl(Sta
         context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
         exceptionOccurred = true;
       }
-
-    // Destroy the OperatorLock object and acquires the lock
-    }
-
-    if(values.empty() && statisticOperation != StatisticOperation::COUNT)
-      return std::nan("");
+    }// Destroy the OperatorLock object and acquires the lock
 
     if(exceptionOccurred)
       return std::nan("");
@@ -245,8 +237,8 @@ double terrama2::services::analysis::core::dcp::zonal::history::operatorImpl(Sta
       return std::nan("");
     }
 
-    double x = getOperationResult(cache, statisticOperation);
-    return x;
+    // return value of the operation
+    return getOperationResult(cache, statisticOperation);
   }
   catch(const terrama2::Exception& e)
   {
