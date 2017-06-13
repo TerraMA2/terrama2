@@ -240,9 +240,8 @@ void TsDataAccessorDcpToa5::TestFailDataRetrieverInvalid()
 
     terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
     dataSet->active = true;
-    dataSet->format.emplace("mask", "GRM_slow_2014_01_02_1713.dat");
+    dataSet->format.emplace("mask", "/GRM/GRM_slow_2014_01_02_1713.dat");
     dataSet->format.emplace("timezone", "+00");
-    dataSet->format.emplace("folder", "GRM");
 
     dataSeries->datasetList.emplace_back(dataSet);
 
@@ -306,10 +305,9 @@ void TsDataAccessorDcpToa5::TestFailDataSourceInvalid()
 
     terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
     dataSet->active = true;
-    dataSet->format.emplace("mask", "GRM_slow_2014_01_02_1713.dat");
+    dataSet->format.emplace("mask", "/GRM/GRM_slow_2014_01_02_1713.dat");
 
     dataSet->format.emplace("timezone", "+00");
-    dataSet->format.emplace("folder", "GRM");
 
     dataSeries->datasetList.emplace_back(dataSet);
 
@@ -328,6 +326,8 @@ void TsDataAccessorDcpToa5::TestFailDataSourceInvalid()
     auto makeMock = std::bind(te::da::MockDataSource::makeMockDataSource, mock_.release());
 
     DataSourceFactoryRaii raiiDataSource("OGR",makeMock);
+
+    EXPECT_TRUE(::testing::Mock::VerifyAndClearExpectations(mock_.get()));
 
     try
     {
@@ -371,8 +371,7 @@ void TsDataAccessorDcpToa5::TestFailDataSetInvalid()
 
     terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
     dataSet->active = true;
-    dataSet->format.emplace("mask", "GRM_slow_2014_01_02_1713.dat");
-    dataSet->format.emplace("folder", "GRM");
+    dataSet->format.emplace("mask", "/GRM/GRM_slow_2014_01_02_1713.dat");
 
     dataSeries->datasetList.emplace_back(dataSet);
 
@@ -452,7 +451,7 @@ void TsDataAccessorDcpToa5::TestOK()
     auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
     dataSeries->semantics = semanticsManager.getSemantics("DCP-toa5");
 
-    std::shared_ptr<terrama2::core::DataSetDcp> dataSet(new terrama2::core::DataSetDcp());
+    terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
     dataSet->active = true;
     dataSet->format.emplace("mask", "/GRM/GRM_slow_2014_01_02_1713.dat");
 
@@ -473,8 +472,10 @@ void TsDataAccessorDcpToa5::TestOK()
     std::shared_ptr<te::da::DataSet> teDataSet = (*dcpSeries->dcpSeriesMap().begin()).second.syncDataSet->dataset();
 
     std::string uri = dataProvider->uri;
-    std::string mask = terrama2::core::getFileMask(dataSet);
-    std::string folder = terrama2::core::getFolderMask(dataSet);
+
+    terrama2::core::DataSetPtr dataSetPtr(new terrama2::core::DataSetDcp(*dataSet));
+    std::string mask = terrama2::core::getFileMask(dataSetPtr);
+    std::string folder = terrama2::core::getFolderMask(dataSetPtr);
 
     QUrl url(QString::fromStdString(uri+"/"+folder+"/"+mask));
     QFileInfo originalInfo(url.path());
