@@ -99,7 +99,14 @@ int main(int argc, char** argv)
 
     QUrl url(QString::fromStdString(dataProvider->uri));
     terrama2::core::Filter filter;
-//    terrama2::services::view::core::GeoServer::createGeoserverTempMosaic(dataManager, dataSetPtr, filter, "Umin", url.path().toStdString());
+
+    terrama2::services::view::core::GeoServer geoserver(te::core::URI("http://lochosts:8080/geoserver/"));
+
+    geoserver.createGeoserverTempMosaic(dataManager,
+                                       dataSetPtr,
+                                       filter,
+                                       "Umin",
+                                       url.path().toStdString());
   }
 
   return 0;
