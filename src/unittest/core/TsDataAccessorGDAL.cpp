@@ -165,7 +165,7 @@ void TsDataAccessorGDAL::TestFailDataRetrieverInvalid()
     //DataSeries information
     terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
     terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
-    dataSeries->semantics.code = "GRID-gdal";
+    dataSeries->semantics.driver = "GRID-gdal";
 
     terrama2::core::DataSetGrid* dataSet = new terrama2::core::DataSetGrid();
     dataSet->active = true;
@@ -224,7 +224,7 @@ void TsDataAccessorGDAL::TestOK()
     //DataSeries information
     terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
     terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
-    dataSeries->semantics.code = "GRID-gdal";
+    dataSeries->semantics.driver = "GRID-gdal";
 
     terrama2::core::DataSetGrid* dataSet = new terrama2::core::DataSetGrid();
     dataSet->active = true;
