@@ -156,7 +156,6 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGIS::getSeries(con
   std::string query = "SELECT ";
   query+="* ";
   query+= "FROM "+tableName+" AS t";
-
   query += whereConditions(dataSet, datetimeColumnName, filter);
 
   std::shared_ptr<te::da::DataSet> tempDataSet = transactor->query(query);
@@ -213,10 +212,10 @@ void terrama2::core::DataAccessorPostGIS::addDateTimeFilter(const std::string da
   }
 
   if(filter.discardBefore.get())
-    whereConditions.push_back(datetimeColumnName+" >= '"+filter.discardBefore->toString() + "'");
+    whereConditions.push_back("t."+datetimeColumnName+" >= '"+filter.discardBefore->toString() + "'");
 
   if(filter.discardAfter.get())
-    whereConditions.push_back(datetimeColumnName+" <= '"+filter.discardAfter->toString() + "'");
+    whereConditions.push_back("t."+datetimeColumnName+" <= '"+filter.discardAfter->toString() + "'");
 }
 
 void terrama2::core::DataAccessorPostGIS::addGeometryFilter(terrama2::core::DataSetPtr dataSet,
@@ -288,12 +287,12 @@ std::string terrama2::core::DataAccessorPostGIS::addLastDatesFilter(terrama2::co
     }
 
     std::string join = " RIGHT JOIN (SELECT ";
-    join += "DISTINCT(t1." + datetimeColumnName + ") ";
-    join += "FROM " + getDataSetTableName(dataSet)+" t1";
+    join += "DISTINCT(t." + datetimeColumnName + ") ";
+    join += "FROM " + getDataSetTableName(dataSet)+" t";
     if(!whereCondition.empty())
       join += " WHERE " + whereCondition;
 
-    join += " ORDER BY t1." + datetimeColumnName + " DESC limit + " + std::to_string(*filter.lastValues.get()) + ") as last_dates ON ";
+    join += " ORDER BY t." + datetimeColumnName + " DESC limit + " + std::to_string(*filter.lastValues.get()) + ") as last_dates ON ";
     join += "t." + datetimeColumnName + " = last_dates." + datetimeColumnName + " ";
 
     return join;

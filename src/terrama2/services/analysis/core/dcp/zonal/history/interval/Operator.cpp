@@ -28,7 +28,7 @@
 */
 
 #include "Operator.hpp"
-#include "../Operator.hpp"
+#include "../../Operator.hpp"
 
 
 double terrama2::services::analysis::core::dcp::zonal::history::interval::sum(const std::string& dataSeriesName,
@@ -37,7 +37,7 @@ double terrama2::services::analysis::core::dcp::zonal::history::interval::sum(co
                                                                        const std::string& dateFilterEnd,
                                                                        boost::python::list ids)
 {
-  return terrama2::services::analysis::core::dcp::zonal::history::operatorImpl(StatisticOperation::SUM, dataSeriesName, attribute, dateFilterBegin, dateFilterEnd, ids);
+  return terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOperation::SUM, dataSeriesName, attribute, ids, dateFilterBegin, dateFilterEnd);
 }
 
 double terrama2::services::analysis::core::dcp::zonal::history::interval::mean(const std::string& dataSeriesName,
@@ -46,7 +46,7 @@ double terrama2::services::analysis::core::dcp::zonal::history::interval::mean(c
                                                                         const std::string& dateFilterEnd,
                                                                         boost::python::list ids)
 {
-  return terrama2::services::analysis::core::dcp::zonal::history::operatorImpl(StatisticOperation::MEAN, dataSeriesName, attribute, dateFilterBegin, dateFilterEnd, ids);
+  return terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOperation::MEAN, dataSeriesName, attribute, ids, dateFilterBegin, dateFilterEnd);
 }
 
 double terrama2::services::analysis::core::dcp::zonal::history::interval::min(const std::string& dataSeriesName,
@@ -55,7 +55,7 @@ double terrama2::services::analysis::core::dcp::zonal::history::interval::min(co
                                                                        const std::string& dateFilterEnd,
                                                                        boost::python::list ids)
 {
-  return terrama2::services::analysis::core::dcp::zonal::history::operatorImpl(StatisticOperation::MIN, dataSeriesName, attribute, dateFilterBegin, dateFilterEnd, ids);
+  return terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOperation::MIN, dataSeriesName, attribute, ids, dateFilterBegin, dateFilterEnd);
 }
 
 double terrama2::services::analysis::core::dcp::zonal::history::interval::max(const std::string& dataSeriesName,
@@ -64,7 +64,7 @@ double terrama2::services::analysis::core::dcp::zonal::history::interval::max(co
                                                                        const std::string& dateFilterEnd,
                                                                        boost::python::list ids)
 {
-  return terrama2::services::analysis::core::dcp::zonal::history::operatorImpl(StatisticOperation::MAX, dataSeriesName, attribute, dateFilterBegin, dateFilterEnd, ids);
+  return terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOperation::MAX, dataSeriesName, attribute, ids, dateFilterBegin, dateFilterEnd);
 }
 
 double terrama2::services::analysis::core::dcp::zonal::history::interval::median(const std::string& dataSeriesName,
@@ -73,7 +73,7 @@ double terrama2::services::analysis::core::dcp::zonal::history::interval::median
                                                                           const std::string& dateFilterEnd,
                                                                           boost::python::list ids)
 {
-  return terrama2::services::analysis::core::dcp::zonal::history::operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, attribute, dateFilterBegin, dateFilterEnd, ids);
+  return terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, attribute, ids, dateFilterBegin, dateFilterEnd);
 }
 
 double terrama2::services::analysis::core::dcp::zonal::history::interval::standardDeviation(const std::string& dataSeriesName,
@@ -82,7 +82,7 @@ double terrama2::services::analysis::core::dcp::zonal::history::interval::standa
                                                                                      const std::string& dateFilterEnd,
                                                                                      boost::python::list ids)
 {
-  return terrama2::services::analysis::core::dcp::zonal::history::operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, attribute, dateFilterBegin, dateFilterEnd, ids);
+  return terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, attribute, ids, dateFilterBegin, dateFilterEnd);
 }
 
 double terrama2::services::analysis::core::dcp::zonal::history::interval::variance(const std::string& dataSeriesName,
@@ -91,5 +91,5 @@ double terrama2::services::analysis::core::dcp::zonal::history::interval::varian
                                                                             const std::string& dateFilterEnd,
                                                                             boost::python::list ids)
 {
-  return terrama2::services::analysis::core::dcp::zonal::history::operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, attribute, dateFilterBegin, dateFilterEnd, ids);
+  return terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, attribute, ids, dateFilterBegin, dateFilterEnd);
 }
