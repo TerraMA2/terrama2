@@ -58,33 +58,10 @@
 #include <terralib/geometry/GeometryProperty.h>
 
 
-std::string terrama2::core::DataAccessorFile::getMask(DataSetPtr dataSet) const
-{
-  try
-  {
-    return dataSet->format.at("mask");
-  }
-  catch(...)
-  {
-    QString errMsg = QObject::tr("Undefined mask in dataset: %1.").arg(dataSet->id);
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw UndefinedTagException() << ErrorDescription(errMsg);
-  }
-}
-
 std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataset, const Filter& filter, std::shared_ptr<terrama2::core::FileRemover> remover) const
 {
-  std::string mask = getMask(dataset);
-  std::string folderPath = "";
-
-  try
-  {
-    folderPath = getFolderMask(dataset, dataSeries_);
-  }
-  catch(UndefinedTagException& /*e*/)
-  {
-    // Do nothing
-  }
+  std::string mask = getFileMask(dataset);
+  std::string folderPath = getFolderMask(dataset);
 
   std::string timezone = "";
   try
@@ -462,11 +439,7 @@ QFileInfoList terrama2::core::DataAccessorFile::getDataFileInfoList(const std::s
   QDir dir(QString::fromStdString(absoluteFolderPath));
   QFileInfoList fileInfoList = dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
   if(fileInfoList.empty())
-  {
-    QString errMsg = QObject::tr("No file in folder: %1.").arg(QString::fromStdString(absoluteFolderPath));
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw NoDataException() << ErrorDescription(errMsg);
-  }
+    return QFileInfoList();
 
   boost::local_time::local_date_time noTime(boost::local_time::not_a_date_time);
 
@@ -518,21 +491,9 @@ bool terrama2::core::DataAccessorFile::needToOpenConfigFile() const
   return false;
 }
 
-std::string terrama2::core::DataAccessorFile::getControlFileMask(terrama2::core::DataSetPtr /*dataSet*/) const
-{
-  QString errMsg = QObject::tr("Should be override in subclass.");
-  throw terrama2::core::Exception() << ErrorDescription(errMsg);
-}
-
-std::string terrama2::core::DataAccessorFile::readControlFile(terrama2::core::DataSetPtr /*dataSet*/, const std::string& /*controlFilename*/) const
-{
-  QString errMsg = QObject::tr("Should be override in subclass.");
-  throw terrama2::core::Exception() << ErrorDescription(errMsg);
-}
-
 std::string terrama2::core::DataAccessorFile::getConfigFilename(terrama2::core::DataSetPtr /*dataSet*/, const std::string& /*binaryFilename*/) const
 {
-  QString errMsg = QObject::tr("Should be override in subclass.");
+  QString errMsg = QObject::tr("Should be overridden in subclass.");
   throw terrama2::core::Exception() << ErrorDescription(errMsg);
 }
 
@@ -541,9 +502,6 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
                                                                           terrama2::core::DataSetPtr dataSet,
                                                                           std::shared_ptr<terrama2::core::FileRemover> remover) const
 {
-
-  std::shared_ptr<te::mem::DataSet> completeDataset(nullptr);
-
   boost::local_time::local_date_time noTime(boost::local_time::not_a_date_time);
   std::shared_ptr< te::dt::TimeInstantTZ > lastFileTimestamp = std::make_shared<te::dt::TimeInstantTZ>(noTime);
 
@@ -562,25 +520,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
   DataSetSeries series;
   series.dataSet = dataSet;
 
-  if(hasControlFile())
-  {
-    std::string mask = getControlFileMask(dataSet);
-    auto ctlFileList = getFilesList(uri, mask, filter, timezone, dataSet, remover);
-    for(const auto& ctlFile : ctlFileList)
-    {
-      std::string binaryFileMask = readControlFile(dataSet, ctlFile.absoluteFilePath().toStdString());
-
-      auto binaryFileList = getFilesList(uri, binaryFileMask, filter, timezone, dataSet, remover);
-      readFilesAndAddToDataset(series, completeDataset, binaryFileList, binaryFileMask, dataSet);
-    }
-  }
-  else
-  {
-    std::string mask = getMask(dataSet);
-    auto binaryFileList = getFilesList(uri, mask, filter, timezone, dataSet, remover);
-    readFilesAndAddToDataset(series, completeDataset, binaryFileList, mask, dataSet);
-  }
-
+  std::shared_ptr<te::mem::DataSet> completeDataset = generateDataSet(uri, filter, dataSet, remover, timezone, series);
 
   if(!completeDataset.get() || completeDataset->isEmpty())
   {
@@ -704,6 +644,11 @@ terrama2::core::DataAccessorFile::readFile(DataSetSeries& series,
 
 std::shared_ptr<te::dt::TimeInstantTZ> terrama2::core::DataAccessorFile::readFilesAndAddToDataset(DataSetSeries& series, std::shared_ptr<te::mem::DataSet>& completeDataset, QFileInfoList fileList, const std::string& mask, terrama2::core::DataSetPtr dataSet) const
 {
+  if(fileList.empty())
+  {
+    QString errMsg = QObject::tr("No file found for DataSet %1.").arg(dataSet->id);
+    TERRAMA2_LOG_WARNING() << errMsg;
+  }
   std::shared_ptr<te::da::DataSetTypeConverter> converter(nullptr);
 
   boost::local_time::local_date_time noTime(boost::local_time::not_a_date_time);
@@ -737,7 +682,6 @@ std::shared_ptr<te::dt::TimeInstantTZ> terrama2::core::DataAccessorFile::readFil
   }// for each file
 
   return lastFileTimestamp;
-
 }
 
 void terrama2::core::DataAccessorFile::applyFilters(const terrama2::core::Filter &filter, const terrama2::core::DataSetPtr &dataSet,
@@ -842,18 +786,13 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::DataAccessorFile::getDa
   return lastDateTimeTz;
 }
 
-QFileInfoList terrama2::core::DataAccessorFile::getFilesList(const std::string& uri, const std::string& mask, const Filter& filter, const std::string& timezone, DataSetPtr dataSet, std::shared_ptr<terrama2::core::FileRemover> remover) const
+QFileInfoList terrama2::core::DataAccessorFile::getFilesList(const std::string& uri,
+                                                             const std::string& fileMask,
+                                                             const std::string& folderMask,
+                                                             const Filter& filter,
+                                                             const std::string& timezone,
+                                                             std::shared_ptr<terrama2::core::FileRemover> remover) const
 {
-  std::string folderMask;
-  try
-  {
-    folderMask = getFolderMask(dataSet, dataSeries_);
-  }
-  catch(const terrama2::core::UndefinedTagException& /*e*/)
-  {
-    folderMask = "";
-  }
-
   QUrl url(QString::fromStdString(uri));
 
   std::vector<std::string> basePathList;
@@ -865,7 +804,7 @@ QFileInfoList terrama2::core::DataAccessorFile::getFilesList(const std::string& 
 
     if(foldersList.empty())
     {
-      QString errMsg = QObject::tr("No files found for dataset: %1.").arg(dataSet->id);
+      QString errMsg = QObject::tr("No files found for dataset!");
       TERRAMA2_LOG_WARNING() << errMsg;
       throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
     }
@@ -879,11 +818,28 @@ QFileInfoList terrama2::core::DataAccessorFile::getFilesList(const std::string& 
   for(auto& folderPath : basePathList)
   {
     newFileInfoList.append(getDataFileInfoList(folderPath,
-                                               mask,
+                                               fileMask,
                                                timezone,
                                                filter,
                                                remover));
   }
 
   return newFileInfoList;
+}
+
+std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorFile::generateDataSet(const std::string& uri,
+                                                                                    const terrama2::core::Filter& filter,
+                                                                                    terrama2::core::DataSetPtr dataSet,
+                                                                                    std::shared_ptr<terrama2::core::FileRemover> remover,
+                                                                                    const std::string& timezone,
+                                                                                    DataSetSeries& series) const
+{
+  std::shared_ptr<te::mem::DataSet> completeDataset(nullptr);
+
+  std::string fileMask = getFileMask(dataSet);
+  std::string folderMask = getFolderMask(dataSet);
+  auto binaryFileList = getFilesList(uri, fileMask, folderMask, filter, timezone, remover);
+  readFilesAndAddToDataset(series, completeDataset, binaryFileList, fileMask, dataSet);
+
+  return completeDataset;
 }

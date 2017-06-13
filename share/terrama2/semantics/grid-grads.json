@@ -14,11 +14,6 @@
     "gui": {
       "schema": {
         "properties": {
-          "folder": {
-            "type": "string",
-            "title": "Folder",
-            "pattern": "^[^?#!$&'()*+,;=^§]+$"
-          },
           "ctl_filename" : {
             "type": "string",
             "title": "CTL File"
@@ -81,13 +76,6 @@
         }
       },
       "form": [
-        {
-          "key": "folder",
-          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form grads-form-item",
-          "validationMessage": {
-            "202": "Invalid folder"
-          }
-        },
         {
           "key": "ctl_filename",
           "htmlClass": "col-md-6 terrama2-schema-form grads-form-item"
