@@ -454,11 +454,6 @@ std::string terrama2::core::getTimeInterval(terrama2::core::DataSetPtr dataset)
   }
 }
 
-std::string terrama2::core::getFolderMask(DataSetPtr dataSet, DataSeriesPtr dataSeries)
-{
-  return getProperty(dataSet, dataSeries, "folder", false);
-}
-
 std::unique_ptr<te::rst::Raster> terrama2::core::cloneRaster(const te::rst::Raster& raster)
 {
   std::vector<te::rst::BandProperty*> bands;
@@ -569,8 +564,60 @@ std::vector<std::string> terrama2::core::splitString(const std::string& text, ch
 
   while(std::getline(ss, str, delim))
   {
-    splittedString.push_back(str);
+    if(!str.empty())
+      splittedString.push_back(str);
   }
 
   return splittedString;
+}
+
+std::string terrama2::core::getMask(DataSetPtr dataSet)
+{
+  try
+  {
+    return dataSet->format.at("mask");
+  }
+  catch(const std::out_of_range& /*e*/)
+  {
+    QString errMsg = QObject::tr("Undefined mask in dataset: %1.").arg(dataSet->id);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw UndefinedTagException() << ErrorDescription(errMsg);
+  }
+}
+
+std::string terrama2::core::getFileMask(DataSetPtr dataSet)
+{
+  std::string mask = getMask(dataSet);
+
+  std::string fileMask = "";
+
+  auto pos = mask.find_last_of("\\/");
+
+  if(pos != std::string::npos)
+  {
+    fileMask = mask.substr(pos+1);
+  }
+  else
+  {
+    fileMask = mask;
+  }
+
+  return fileMask;
+}
+
+std::string terrama2::core::getFolderMask(DataSetPtr dataSet)
+{
+  std::string mask = getMask(dataSet);
+
+  std::string folderMask = "";
+
+  auto pos = mask.find_last_of("\\/");
+
+  if(pos != std::string::npos)
+  {
+    for(size_t i = 0; i < pos; ++i)
+      folderMask +=mask.at(i);
+  }
+
+  return folderMask;
 }

@@ -123,7 +123,7 @@ namespace terrama2
         virtual std::unordered_map<DataSetPtr,DataSetSeries > getSeries(const std::map<DataSetId, std::string> uriMap, const Filter& filter, std::shared_ptr<FileRemover> remover) const;
 
         std::map<DataSetId, std::string> getFiles(const Filter& filter, std::shared_ptr<FileRemover> remover) const;
-        
+
         //! Utility function for converting string to double in the te::da::DataSet construction.
         te::dt::AbstractData* stringToDouble(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const;
 
