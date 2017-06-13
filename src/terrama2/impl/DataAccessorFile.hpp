@@ -66,9 +66,6 @@ namespace terrama2
         // Doc in base class
         virtual DataSetSeries getSeries(const std::string& uri, const Filter& filter, DataSetPtr dataSet, std::shared_ptr<terrama2::core::FileRemover> remover) const override;
 
-        //! Recover file mask
-        virtual std::string getMask(DataSetPtr dataset) const;
-
         /*!
          * \brief Check if the URIs and their subfolders matches the folders mask.
          * \param uris The list of URIs to check
@@ -87,10 +84,10 @@ namespace terrama2
         virtual std::vector<std::string> checkSubfolders(const std::vector<std::string>& baseURIs, const std::string& mask) const;
 
         virtual QFileInfoList getFilesList(const std::string& uri,
-                                           const std::string& mask,
+                                           const std::string& fileMask,
+                                           const std::string& folderMask,
                                            const Filter& filter,
                                            const std::string& timezone,
-                                           DataSetPtr dataSet,
                                            std::shared_ptr<terrama2::core::FileRemover> remover) const;
 
         void applyFilters(const terrama2::core::Filter &filter, const terrama2::core::DataSetPtr &dataSet,
@@ -99,10 +96,6 @@ namespace terrama2
 
         virtual bool hasControlFile() const;
 
-        virtual std::string getControlFileMask(terrama2::core::DataSetPtr dataSet) const;
-
-        virtual std::string readControlFile(terrama2::core::DataSetPtr dataSet, const std::string& controlFilename) const;
-
         virtual bool needToOpenConfigFile() const;
 
         virtual std::string getConfigFilename(terrama2::core::DataSetPtr dataSet, const std::string& binaryFilename) const;
@@ -110,6 +103,13 @@ namespace terrama2
         virtual std::shared_ptr<te::dt::TimeInstantTZ> readFile(DataSetSeries& series, std::shared_ptr<te::mem::DataSet>& completeDataset, std::shared_ptr<te::da::DataSetTypeConverter>& converter, QFileInfo fileInfo, const std::string& mask, terrama2::core::DataSetPtr dataSet) const;
 
         std::shared_ptr<te::dt::TimeInstantTZ> readFilesAndAddToDataset(DataSetSeries& series, std::shared_ptr<te::mem::DataSet>& completeDataset, QFileInfoList fileList, const std::string& mask, terrama2::core::DataSetPtr dataSet) const;
+
+        virtual std::shared_ptr<te::mem::DataSet> generateDataSet(const std::string& uri,
+                                                                  const terrama2::core::Filter& filter,
+                                                                  terrama2::core::DataSetPtr dataSet,
+                                                                  std::shared_ptr<terrama2::core::FileRemover> remover,
+                                                                  const std::string& timezone,
+                                                                  DataSetSeries& series) const;
 
 
         /*!

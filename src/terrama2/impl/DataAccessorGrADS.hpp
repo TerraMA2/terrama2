@@ -63,42 +63,42 @@ namespace terrama2
 
         struct ValueDef
         {
-          int numValues_;
-          DimensionType dimensionType_;
-          std::vector<double> values_;
+            int numValues_;
+            DimensionType dimensionType_;
+            std::vector<double> values_;
 
-          ValueDef() : numValues_(0)
-          {}
+            ValueDef() : numValues_(0)
+            {}
         };
 
 
         struct TValueDef
         {
-          int numValues_;
-          DimensionType dimensionType_;
-          std::vector<std::string> values_;
+            int numValues_;
+            DimensionType dimensionType_;
+            std::vector<std::string> values_;
 
-          TValueDef() : numValues_(0), dimensionType_(LINEAR)
-          {}
+            TValueDef() : numValues_(0), dimensionType_(LINEAR)
+            {}
         };
 
         struct Var
         {
-          std::string varName_;
-          int verticalLevels_;
-          std::string additionalCode_;
-          std::string units_;
-          std::string description_;
+            std::string varName_;
+            int verticalLevels_;
+            std::string additionalCode_;
+            std::string units_;
+            std::string description_;
 
-          Var() : verticalLevels_(0)
-          {}
+            Var() : verticalLevels_(0)
+            {}
         };
 
         struct CHSUB
         {
-          int t1_;
-          int t2_;
-          std::string str_;
+            int t1_;
+            int t2_;
+            std::string str_;
         };
 
         std::string datasetFilename_;
@@ -206,9 +206,27 @@ namespace terrama2
 
         std::string getConfigFilename(terrama2::core::DataSetPtr dataSet, const std::string& binaryFilename) const override;
 
-        std::string getControlFileMask(DataSetPtr dataSet) const override;
+        std::string getControlMask(DataSetPtr dataSet) const;
 
-        std::string readControlFile(terrama2::core::DataSetPtr dataSet, const std::string& controlFilename) const override;
+        //Returns the file mask .
+        std::string getControlFileMask(DataSetPtr dataSet) const;
+
+        //Returns the folder mask .
+        std::string getControlFileFolderMask(DataSetPtr dataSet) const;
+
+        std::string readControlFileBinaryMask(terrama2::core::DataSetPtr dataSet, const std::string& controlFilename) const;
+
+        std::string extractBinaryFileMaskFromControlFile(terrama2::core::DataSetPtr dataSet,
+                                                         const std::string& controlFilename) const;
+
+        std::string extractBinaryFolderPathFromControlFile(terrama2::core::DataSetPtr dataSet,
+                                                           const std::string& controlFilename) const;
+
+        std::string getBinaryMask(DataSetPtr dataset) const;
+
+        std::string getBinaryFileMask(terrama2::core::DataSetPtr dataset) const;
+
+        std::string getBinaryFolderMask(terrama2::core::DataSetPtr dataset) const;
 
         uint32_t getBytesBefore(DataSetPtr dataset) const;
 
@@ -220,7 +238,12 @@ namespace terrama2
 
         std::string getDataType(DataSetPtr dataset) const;
 
-        std::string getMask(DataSetPtr dataset) const override;
+        std::shared_ptr<te::mem::DataSet> generateDataSet(const std::string& uri,
+                                                          const terrama2::core::Filter& filter,
+                                                          terrama2::core::DataSetPtr dataSet,
+                                                          std::shared_ptr<terrama2::core::FileRemover> remover,
+                                                          const std::string& timezone,
+                                                          DataSetSeries& series) const override;
 
       protected:
         //! Returns the data source type.
