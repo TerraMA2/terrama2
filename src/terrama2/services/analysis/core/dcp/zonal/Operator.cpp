@@ -147,7 +147,7 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
       // Frees the GIL, from now on it's not allowed to return any value because it doesn't have the interpreter lock.
       // In case an exception is thrown, we need to catch it and set a flag.
       // Once the code left the lock is acquired we should return NAN.
-      terrama2::services::analysis::core::python::OperatorLock operatorLock;
+      terrama2::services::analysis::core::python::OperatorLock operatorLock; Q_UNUSED(operatorLock)
 
       try
       {
@@ -155,6 +155,8 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
         if(dateFilterBegin.empty() && dateFilterEnd.empty())
         {
           //dcp::zonal::operatorImpl
+          filter.lastValues = std::make_shared<size_t>(1);
+          filter.discardAfter = context->getStartTime();
         }
         else
         {
