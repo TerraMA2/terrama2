@@ -46,4 +46,5 @@ class TsDataAccessorFile : public QObject
     //******Test functions********
 
     void testGetFoldersList();
+    void testGetFilesList();
 };

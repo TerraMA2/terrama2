@@ -39,11 +39,20 @@
 // TerraLib
 #include <terralib/core/utils/Platform.h>
 #include <terralib/common/PlatformUtils.h>
+#include <terralib/common/UnitsOfMeasureManager.h>
 #include <terralib/common.h>
 #include <terralib/core/plugin.h>
 #include <terralib/geometry/Geometry.h>
 #include <terralib/geometry/Utils.h>
 #include <terralib/sa/core/Utils.h>
+#include <terralib/srs/SpatialReferenceSystemManager.h>
+#include <terralib/srs/SpatialReferenceSystem.h>
+#include <terralib/geometry/WKTReader.h>
+#include <terralib/geometry/MultiPolygon.h>
+#include <terralib/raster/RasterFactory.h>
+#include <terralib/raster/Grid.h>
+#include <terralib/raster/Band.h>
+#include <terralib/raster/BandIterator.h>
 
 #include <ctime>
 #include <unordered_map>
@@ -378,11 +387,6 @@ std::string terrama2::core::getTimeInterval(terrama2::core::DataSetPtr dataset)
   }
 }
 
-std::string terrama2::core::getFolderMask(DataSetPtr dataSet, DataSeriesPtr dataSeries)
-{
-  return getProperty(dataSet, dataSeries, "folder", false);
-}
-
 size_t terrama2::core::propertyPosition(const te::da::DataSet* dataSet, const std::string& propertyName)
 {
   for(std::size_t i = 0; i < dataSet->getNumProperties(); i++)
@@ -417,8 +421,60 @@ std::vector<std::string> terrama2::core::splitString(const std::string& text, ch
 
   while(std::getline(ss, str, delim))
   {
+    if(!str.empty())
     splittedString.push_back(str);
   }
 
   return splittedString;
+}
+
+std::string terrama2::core::getMask(DataSetPtr dataSet)
+{
+  try
+  {
+    return dataSet->format.at("mask");
+  }
+  catch(const std::out_of_range& /*e*/)
+  {
+    QString errMsg = QObject::tr("Undefined mask in dataset: %1.").arg(dataSet->id);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw UndefinedTagException() << ErrorDescription(errMsg);
+  }
+}
+
+std::string terrama2::core::getFileMask(DataSetPtr dataSet)
+{
+  std::string mask = getMask(dataSet);
+
+  std::string fileMask = "";
+
+  auto pos = mask.find_last_of("\\/");
+
+  if(pos != std::string::npos)
+  {
+    fileMask = mask.substr(pos+1);
+  }
+  else
+  {
+    fileMask = mask;
+  }
+
+  return fileMask;
+}
+
+std::string terrama2::core::getFolderMask(DataSetPtr dataSet)
+{
+  std::string mask = getMask(dataSet);
+
+  std::string folderMask = "";
+
+  auto pos = mask.find_last_of("\\/");
+
+  if(pos != std::string::npos)
+  {
+    for(size_t i = 0; i < pos; ++i)
+      folderMask +=mask.at(i);
+  }
+
+  return folderMask;
 }

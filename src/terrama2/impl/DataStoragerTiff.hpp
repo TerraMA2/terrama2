@@ -75,7 +75,6 @@ namespace terrama2
         virtual std::string getCompleteURI(DataSetPtr outputDataSet) const override;
 
       protected:
-        std::string getMask(DataSetPtr dataSet) const;
         int getSRID(DataSetPtr dataSet, bool log) const;
         std::string getTimezone(DataSetPtr dataSet, bool logError = true) const;
         std::string zeroPadNumber(long num, int size) const;

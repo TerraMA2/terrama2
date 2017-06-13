@@ -59,7 +59,7 @@ terrama2::core::DataAccessorDcpToa5::DataAccessorDcpToa5(DataProviderPtr dataPro
    DataAccessorDcp(dataProvider, dataSeries, false),
    DataAccessorFile(dataProvider, dataSeries, false)
 {
-  if(checkSemantics && dataSeries->semantics.code != dataAccessorType())
+  if(checkSemantics && dataSeries->semantics.driver != dataAccessorType())
   {
     QString errMsg = QObject::tr("Wrong DataSeries semantics.");
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -196,7 +196,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorDcpToa5::getSeries(con
   std::string folderMask;
   try
   {
-    folderMask = getFolderMask(dataSet, dataSeries_);
+    folderMask = getFolderMask(dataSet);
   }
   catch(const terrama2::core::UndefinedTagException& /*e*/)
   {
@@ -225,7 +225,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorDcpToa5::getSeries(con
   //fill file list
   for(auto& folderURI : pathList)
   {
-    newFileInfoList.append(getDataFileInfoList(folderURI, getMask(dataSet), timezone, filter, remover));
+    newFileInfoList.append(getDataFileInfoList(folderURI, getFileMask(dataSet), timezone, filter, remover));
   }
 
   if(newFileInfoList.empty())
