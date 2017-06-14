@@ -36,6 +36,7 @@
 #include "../../../../core/data-model/DataProvider.hpp"
 #include "../../../../core/utility/DataAccessorFactory.hpp"
 #include "../../../../core/utility/Raii.hpp"
+#include "../../../../core/utility/Utils.hpp"
 
 // TerraLib
 #include "terralib/dataaccess/datasource/DataSourceFactory.h"
@@ -75,10 +76,10 @@ QFileInfoList terrama2::services::view::core::DataAccess::getFilesList(const std
 
   // Get the list of layers to register
   auto fileInfoList = dataAccessorFile->getFilesList(inputDataProvider->uri,
-                                                     dataAccessorFile->getMask(dataSet),
+                                                     terrama2::core::getFileMask(dataSet),
+                                                     terrama2::core::getFolderMask(dataSet),
                                                      filter,
                                                      timezone,
-                                                     dataSet,
                                                      remover);
 
   return fileInfoList;

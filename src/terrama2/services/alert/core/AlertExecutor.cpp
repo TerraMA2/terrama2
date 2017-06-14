@@ -78,31 +78,6 @@ terrama2::services::alert::core::AlertExecutor::AlertExecutor()
   qRegisterMetaType<std::shared_ptr<te::dt::TimeInstantTZ>>("std::shared_ptr<te::dt::TimeInstantTZ>");
 }
 
-std::vector<std::shared_ptr<te::dt::DateTime> > terrama2::services::alert::core::AlertExecutor::getDates(std::shared_ptr<te::da::DataSet> teDataset, std::string datetimeColumnName)
-{
-  std::vector<std::shared_ptr<te::dt::DateTime> > vecDates;
-
-  teDataset->moveBeforeFirst();
-  while(teDataset->moveNext())
-  {
-    // Retrieve all execution dates of dataset
-    std::shared_ptr<te::dt::DateTime> executionDate = teDataset->getDateTime(datetimeColumnName);
-
-    auto it = std::lower_bound(vecDates.begin(), vecDates.end(), executionDate,
-                               [&](std::shared_ptr<te::dt::DateTime> const& first, std::shared_ptr<te::dt::DateTime> const& second)
-    {
-              return *first < *second;
-  });
-
-    if (it != vecDates.end() && **it == *executionDate)
-      continue;
-
-    vecDates.insert(it, executionDate);
-  }
-
-  return vecDates;
-}
-
 std::map<std::shared_ptr<te::dt::AbstractData>, std::map<std::string, std::pair<std::shared_ptr<te::dt::AbstractData>, uint32_t> >, terrama2::services::alert::core::comparatorAbstractData>
 terrama2::services::alert::core::AlertExecutor::getResultMap(AlertPtr alertPtr,
                                                              size_t pos,
@@ -570,7 +545,8 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
       }
 
       // Store execution dates of dataset, ASC order
-      std::vector<std::shared_ptr<te::dt::DateTime> > vecDates = getDates(teDataset, datetimeColumnName);
+      std::vector<std::shared_ptr<te::dt::DateTime> > vecDates = terrama2::core::getAllDates(teDataset.get(),
+                                                                                             datetimeColumnName);
 
       std::shared_ptr<te::mem::DataSet> alertDataSet;
       if(inputDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT)

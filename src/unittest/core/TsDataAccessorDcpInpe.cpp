@@ -390,10 +390,9 @@ void TsDataAccessorDcpInpe::TestOK()
     auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
     dataSeries->semantics = semanticsManager.getSemantics("DCP-inpe");
 
-    terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
+    std::shared_ptr<terrama2::core::DataSetDcp> dataSet(new terrama2::core::DataSetDcp());
     dataSet->active = true;
-    dataSet->format.emplace("folder", "/PCD_serrmar_INPE");
-    dataSet->format.emplace("mask", "30885.txt");
+    dataSet->format.emplace("mask", "/PCD_serrmar_INPE/30885.txt");
     dataSet->format.emplace("timezone", "+00");
 
     dataSeries->datasetList.emplace_back(dataSet);
@@ -411,7 +410,7 @@ void TsDataAccessorDcpInpe::TestOK()
     std::shared_ptr<te::da::DataSet> teDataSet = (*dcpSeries->dcpSeriesMap().begin()).second.syncDataSet->dataset();
 
     std::string uri = dataProvider->uri;
-    std::string mask = dataSet->format.at("mask");
+    std::string mask = terrama2::core::getFileMask(dataSet);
 
     QUrl url((uri+"/PCD_serrmar_INPE/"+mask).c_str());
     QFile file(url.path());

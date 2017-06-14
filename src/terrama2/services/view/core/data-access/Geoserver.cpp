@@ -47,6 +47,7 @@
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSource.h>
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
+#include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 #include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/ws/core/CurlWrapper.h>
 #include <terralib/ws/ogc/wms/client/WMSClient.h>
@@ -56,11 +57,17 @@
 #include <terralib/fe/BinaryComparisonOp.h>
 #include <terralib/fe/Filter.h>
 #include <terralib/fe/Globals.h>
+#include <terralib/geometry/Utils.h>
+#include <terralib/memory/DataSetItem.h>
+#include <terralib/datatype/StringProperty.h>
 
 // Qt
 #include <QTemporaryFile>
 #include <QUrl>
-
+#include <QFile>
+#include <QFileInfo>
+#include <QTextStream>
+#include <QString>
 
 terrama2::services::view::core::GeoServer::GeoServer(const te::core::URI uri)
   : MapsServer(uri)
@@ -72,6 +79,277 @@ terrama2::services::view::core::GeoServer::GeoServer(const te::core::URI uri)
 const te::core::URI& terrama2::services::view::core::GeoServer::uri() const
 {
   return uri_;
+}
+
+
+QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const ViewPtr viewPtr,
+                                                                      const std::pair< terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr >& dataSeriesProvider,
+                                                                      const std::shared_ptr<DataManager> dataManager,
+                                                                      std::shared_ptr<ViewLogger> logger,
+                                                                      const RegisterId logId)
+{
+  QJsonObject jsonAnswer;
+
+  terrama2::core::DataSeriesPtr inputDataSeries = dataSeriesProvider.first;
+  terrama2::core::DataProviderPtr inputDataProvider = dataSeriesProvider.second;
+
+  // Check if the view belongs to this dataSeries
+  if(inputDataSeries->id != viewPtr->dataSeriesID)
+  {
+    QString errorMsg = QString("This View is not from this Data Series.");
+    logger->log(ViewLogger::ERROR_MESSAGE, errorMsg.toStdString(), logId);
+    TERRAMA2_LOG_ERROR() << QObject::tr(errorMsg.toStdString().c_str());
+    throw ViewGeoserverException() << ErrorDescription(errorMsg);
+  }
+
+  // Check if the view can be done by the maps server
+  DataProviderType dataProviderType = inputDataProvider->dataProviderType;
+
+  if(dataProviderType != "POSTGIS" && dataProviderType != "FILE")
+  {
+    QString errorMsg = QString("Data provider not supported: %1.").arg(dataProviderType.c_str());
+    logger->log(ViewLogger::ERROR_MESSAGE, errorMsg.toStdString(), logId);
+    TERRAMA2_LOG_ERROR() << QObject::tr(errorMsg.toStdString().c_str());
+    throw ViewGeoserverException() << ErrorDescription(errorMsg);
+  }
+
+  DataFormat dataFormat = inputDataSeries->semantics.dataFormat;
+
+  if(dataFormat != "OGR" && dataFormat != "POSTGIS" && dataFormat != "GDAL")
+  {
+    QString errorMsg = QString("Data format not supported in the maps server: %1.").arg(dataFormat.c_str());
+    logger->log(ViewLogger::ERROR_MESSAGE, errorMsg.toStdString(), logId);
+    TERRAMA2_LOG_ERROR() << QObject::tr(errorMsg.toStdString().c_str());
+    throw ViewGeoserverException() << ErrorDescription(errorMsg);
+  }
+
+  if(inputDataSeries->datasetList.empty())
+  {
+    logger->log(ViewLogger::WARNING_MESSAGE, "No data to register.", logId);
+    TERRAMA2_LOG_WARNING() << QObject::tr("No data to register in maps server.");
+    return jsonAnswer;
+  }
+
+  setWorkspace("terrama2_" + std::to_string(viewPtr->id));
+
+  registerWorkspace();
+
+  QJsonArray layersArray;
+
+  // Variables to hel in style creation
+  View::Legend::ObjectType objectType = View::Legend::ObjectType::UNKNOWN;
+  te::gm::GeomType geomType = te::gm::UnknownGeometryType;
+
+  if(dataProviderType == "FILE")
+  {
+    const auto& temporality = inputDataSeries->semantics.temporality;
+
+    if(temporality == terrama2::core::DataSeriesTemporality::DYNAMIC && dataFormat == "GDAL")
+    {
+      const auto& layersNames = registerMosaics(inputDataProvider, inputDataSeries, dataManager, viewPtr, logger->getConnectionInfo());
+
+      for(const auto& layerName : layersNames)
+      {
+        QJsonObject layer;
+        layer.insert("layer", QString::fromStdString(layerName));
+        layersArray.push_back(layer);
+      }
+
+      objectType = View::Legend::ObjectType::RASTER;
+    }
+    else
+    {
+      for(auto& dataset : inputDataSeries->datasetList)
+      {
+        // Get the list of layers to register
+        auto fileInfoList = DataAccess::getFilesList(dataSeriesProvider, dataset, viewPtr->filter);
+
+        if(fileInfoList.empty())
+        {
+          QString errorMsg = QString("No data in data series %1.").arg(inputDataSeries->id);
+          logger->log(ViewLogger::WARNING_MESSAGE, errorMsg.toStdString(), logId);
+          TERRAMA2_LOG_WARNING() << QObject::tr(errorMsg.toStdString().c_str());
+          continue;
+        }
+
+        for(auto& fileInfo : fileInfoList)
+        {
+          std::string layerName = fileInfo.fileName().toStdString();
+
+          if(dataFormat == "OGR")
+          {
+            if(objectType ==  View::Legend::ObjectType::UNKNOWN)
+            {
+              std::unique_ptr< te::da::DataSetType > dataSetType(DataAccess::getVectorialDataSetType(fileInfo));
+
+              auto geomProperty = te::da::GetFirstGeomProperty(dataSetType.get());
+
+              if(geomProperty != nullptr)
+                geomType = geomProperty->getGeometryType();
+
+              objectType = View::Legend::ObjectType::GEOMETRY;
+            }
+
+            registerVectorFile(layerName + "_datastore_" + std::to_string(viewPtr->id),
+                               fileInfo.absoluteFilePath().toStdString(),
+                               layerName);
+          }
+          else if(dataFormat == "GDAL")
+          {
+            if(objectType ==  View::Legend::ObjectType::UNKNOWN)
+            {
+              std::unique_ptr< te::da::DataSetType > dataSetType(DataAccess::getGeotiffDataSetType(fileInfo));
+
+              if(dataSetType->hasRaster())
+                objectType = View::Legend::ObjectType::RASTER;
+            }
+
+            registerCoverageFile(layerName + "_coveragestore_" + std::to_string(viewPtr->id),
+                                 fileInfo.absoluteFilePath().toStdString(),
+                                 layerName,
+                                 "geotiff");
+          }
+
+          QJsonObject layer;
+          layer.insert("layer", QString::fromStdString(layerName));
+          layersArray.push_back(layer);
+        }
+      }
+    }
+  }
+  else if(dataProviderType == "POSTGIS")
+  {
+    QUrl url(inputDataProvider->uri.c_str());
+    std::map<std::string, std::string> connInfo
+    {
+      {"PG_HOST", url.host().toStdString()},
+      {"PG_PORT", std::to_string(url.port())},
+      {"PG_USER", url.userName().toStdString()},
+      {"PG_PASSWORD", url.password().toStdString()},
+      {"PG_DB_NAME", url.path().section("/", 1, 1).toStdString()},
+      {"PG_CONNECT_TIMEOUT", "4"},
+      {"PG_CLIENT_ENCODING", "UTF-8"}
+    };
+
+    for(auto& dataset : inputDataSeries->datasetList)
+    {
+      TableInfo tableInfo = DataAccess::getPostgisTableInfo(dataSeriesProvider, dataset);
+
+      std::string tableName = tableInfo.tableName;
+      std::string layerName = terrama2::core::simplifyString(viewPtr->viewName + "_" + std::to_string(viewPtr->id));
+      std::string timestampPropertyName = tableInfo.timestampPropertyName;
+
+      std::unique_ptr<te::da::DataSetType> modelDataSetType = std::move(tableInfo.dataSetType);
+
+      std::string SQL = "";
+
+      if(inputDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT)
+      {
+        const auto& id = dataset->format.find("monitored_object_id");
+
+        if(id == dataset->format.end())
+        {
+          logger->log(ViewLogger::ERROR_MESSAGE, "Data to join not informed.", logId);
+          TERRAMA2_LOG_ERROR() << QObject::tr("Cannot join data from a different DB source!");
+          continue;
+        }
+
+        terrama2::core::DataSeriesPtr monitoredObjectDataSeries = dataManager->findDataSeries(std::stoi(id->second));
+        terrama2::core::DataProviderPtr monitoredObjectProvider = dataManager->findDataProvider(monitoredObjectDataSeries->dataProviderId);
+
+        QUrl monitoredObjectUrl(monitoredObjectProvider->uri.c_str());
+
+        if(monitoredObjectUrl.host() != url.host()
+           || monitoredObjectUrl.port() != url.port()
+           || monitoredObjectUrl.path().section("/", 1, 1) != url.path().section("/", 1, 1))
+        {
+          logger->log(ViewLogger::ERROR_MESSAGE, "Data to join is in a different DB.", logId);
+          TERRAMA2_LOG_ERROR() << QObject::tr("Cannot join data from a different DB source!");
+          continue;
+        }
+
+        if(monitoredObjectDataSeries->datasetList.empty())
+        {
+          logger->log(ViewLogger::ERROR_MESSAGE, "No join data.", logId);
+          TERRAMA2_LOG_ERROR() << QObject::tr("Cannot join data from a different DB source!");
+          continue;
+        }
+
+        const terrama2::core::DataSetPtr monitoredObjectDataset = monitoredObjectDataSeries->datasetList.at(0);
+
+        TableInfo monitoredObjectTableInfo = DataAccess::getPostgisTableInfo(std::make_pair(monitoredObjectDataSeries, monitoredObjectProvider),
+                                                                             monitoredObjectDataset);
+
+        std::string pk = monitoredObjectTableInfo.dataSetType->getPrimaryKey()->getProperties().at(0)->getName();
+
+        auto& propertiesVector = monitoredObjectTableInfo.dataSetType->getProperties();
+
+        SQL = "SELECT ";
+
+        for(auto& property : propertiesVector)
+        {
+          const std::string& propertyName = property->getName();
+          SQL += "t1." + propertyName + " as monitored_" + propertyName + ", ";
+        }
+
+        SQL += "t2.* ";
+        SQL += "FROM " + monitoredObjectTableInfo.tableName;
+        SQL += " as t1 , " + tableName + " as t2 ";
+        SQL += "WHERE t1." + pk + " = t2." + pk;
+
+        modelDataSetType.reset(monitoredObjectTableInfo.dataSetType.release());
+        tableName = layerName;
+      }
+
+      registerPostgisTable(std::to_string(viewPtr->id) + "_" + std::to_string(inputDataSeries->id) + "_datastore",
+                           connInfo,
+                           tableName,
+                           layerName,
+                           modelDataSetType,
+                           timestampPropertyName,
+                           SQL);
+
+      if(objectType ==  View::Legend::ObjectType::UNKNOWN)
+      {
+        if(modelDataSetType->hasGeom())
+        {
+          auto geomProperty = te::da::GetFirstGeomProperty(modelDataSetType.get());
+
+          if(geomProperty != nullptr)
+            geomType = geomProperty->getGeometryType();
+
+          objectType = View::Legend::ObjectType::GEOMETRY;
+        }
+        else if(modelDataSetType->hasRaster())
+        {
+          objectType = View::Legend::ObjectType::RASTER;
+        }
+      }
+
+      QJsonObject layer;
+      layer.insert("layer", QString::fromStdString(layerName));
+      layersArray.push_back(layer);
+    }
+  }
+
+  if(viewPtr->legend)
+  {
+    // Register style
+    std::string styleName = "";
+
+    styleName = inputDataSeries->name + "_style_" + viewPtr->viewName;
+    registerStyle(styleName, *viewPtr->legend.get(), objectType, geomType);
+
+    for(const auto& layer : layersArray)
+    {
+      registerLayerDefaultStyle(styleName, layer.toObject().value("layer").toString().toStdString());
+    }
+  }
+
+  jsonAnswer.insert("workspace", QString::fromStdString(workspace()));
+  jsonAnswer.insert("layers_list", layersArray);
+
+  return jsonAnswer;
 }
 
 
@@ -182,6 +460,40 @@ const std::string& terrama2::services::view::core::GeoServer::getDataStore(const
   else if(cURLwrapper.responseCode() != 200)
   {
     QString errMsg = QObject::tr("Error at get Data Store. ");
+    TERRAMA2_LOG_ERROR() << errMsg << uriGet.uri();
+    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
+  }
+
+  return cURLwrapper.response();
+}
+
+
+const std::string& terrama2::services::view::core::GeoServer::getCoverageStore(const std::string& name) const
+{
+  te::ws::core::CurlWrapper cURLwrapper;
+
+  te::core::URI uriGet(uri_.uri() + "/rest/workspaces/" + workspace_ + "/coveragestores/"
+                       + QString(QUrl::toPercentEncoding(QString::fromStdString(name), "", "-._~/")).toStdString());
+
+  if(!uriGet.isValid())
+  {
+    QString errMsg = QObject::tr("Invalid URI.");
+    TERRAMA2_LOG_ERROR() << errMsg << uriGet.uri();
+    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriGet.uri()));
+  }
+
+  std::string responseDataStore;
+
+  // Register style
+  cURLwrapper.get(uriGet, responseDataStore);
+
+  if(cURLwrapper.responseCode() == 404)
+  {
+    throw NotFoundGeoserverException() << ErrorDescription(QString::fromStdString(cURLwrapper.response()));
+  }
+  else if(cURLwrapper.responseCode() != 200)
+  {
+    QString errMsg = QObject::tr("Error at get Coverage Store. ");
     TERRAMA2_LOG_ERROR() << errMsg << uriGet.uri();
     throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
   }
@@ -565,73 +877,82 @@ void terrama2::services::view::core::GeoServer::registerMosaicCoverage(const std
                                                                        const std::string& mosaicPath,
                                                                        const std::string& coverageName,
                                                                        const int srid,
-                                                                       const std::string& style) const
+                                                                       const std::string& style,
+                                                                       const std::string& configure) const
 {
-  te::ws::core::CurlWrapper cURLwrapper;
+  std::string storeName = QString(QUrl::toPercentEncoding(QString::fromStdString(coverageStoreName), "", "-._~/")).toStdString();
 
-  te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/coveragestores/"
-                       + QString(QUrl::toPercentEncoding(QString::fromStdString(coverageStoreName), "", "-._~/")).toStdString()
-                       + "/external.imagemosaic?configure=all");
-
-  if(!uriPut.isValid())
+  try
   {
-    QString errMsg = QObject::tr("Invalid URI.");
-    TERRAMA2_LOG_ERROR() << errMsg << uriPut.uri();
-    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriPut.uri()));
+    getCoverageStore(storeName);
   }
-
-  std::string path = "file://" + mosaicPath;
-
-  // Upload Coverage file
-  cURLwrapper.customRequest(uriPut, "PUT", path, "Content-Type: text/plain");
-
-  if(cURLwrapper.responseCode() != 201)
+  catch(const NotFoundGeoserverException& /*e*/)
   {
-    QString errMsg = QObject::tr(cURLwrapper.response().c_str());
-    TERRAMA2_LOG_ERROR() << errMsg << uriPut.uri();
-    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriPut.uri()));
+    te::ws::core::CurlWrapper cURLwrapper;
+
+    te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/coveragestores/"
+                         + storeName
+                         + "/external.imagemosaic?configure=" + configure);
+
+    if(!uriPut.isValid())
+    {
+      QString errMsg = QObject::tr("Invalid URI.");
+      TERRAMA2_LOG_ERROR() << errMsg << uriPut.uri();
+      throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriPut.uri()));
+    }
+
+    std::string path = "file://" + mosaicPath;
+
+    // Upload Coverage file
+    cURLwrapper.customRequest(uriPut, "PUT", path, "Content-Type: text/plain");
+
+    if(cURLwrapper.responseCode() != 201)
+    {
+      QString errMsg = QObject::tr(cURLwrapper.response().c_str());
+      TERRAMA2_LOG_ERROR() << errMsg << uriPut.uri();
+      throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriPut.uri()));
+    }
+
+    te::core::URI uriPutUpdateCoverage(uri_.uri() + "/rest/workspaces/" + workspace_ + "/coveragestores/"
+                                       + storeName
+                                       + "/coverages/" + coverageName);
+
+    std::string xml = "<coverage>"
+                      "<enabled>true</enabled>"
+                      "<srs>EPSG:"
+                      + std::to_string(srid) +
+                      "</srs>"
+                      "<metadata>"
+                      "<entry key=\"time\">"
+                      "<dimensionInfo>"
+                      "<enabled>true</enabled>"
+                      "<presentation>LIST</presentation>"
+                      "<units>ISO8601</units>"
+                      "<defaultValue>"
+                      "<strategy>MAXIMUM</strategy>"
+                      "</defaultValue>"
+                      "</dimensionInfo>"
+                      "</entry>"
+                      "</metadata>"
+                      "</coverage>";
+
+    cURLwrapper.customRequest(uriPutUpdateCoverage, "PUT", xml, "Content-Type: text/xml");
+
+    if(cURLwrapper.responseCode() != 200)
+    {
+      QString errMsg = QObject::tr(cURLwrapper.response().c_str());
+      TERRAMA2_LOG_ERROR() << errMsg << uriPutUpdateCoverage.uri();
+      throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriPut.uri()));
+    }
+
+    if(!style.empty())
+    {
+      te::core::URI layerStyle(uri_.uri() + "/rest/layers/" + coverageName + ".xml");
+
+      cURLwrapper.customRequest(layerStyle, "PUT",
+                                "<layer><defaultStyle><name>" + style + "</name><workspace>" + workspace_ + "</workspace></defaultStyle></layer>", "Content-Type: text/xml");
+    }
   }
-
-  te::core::URI uriPutUpdateCoverage(uri_.uri() + "/rest/workspaces/" + workspace_ + "/coveragestores/"
-                                     + QString(QUrl::toPercentEncoding(QString::fromStdString(coverageStoreName), "", "-._~/")).toStdString()
-                                     + "/coverages/" + coverageName);
-
-  std::string xml = "<coverage>"
-                    "<enabled>true</enabled>"
-                    "<srs>EPSG:"
-                    + std::to_string(srid) +
-                    "</srs>"
-                    "<metadata>"
-                    "<entry key=\"time\">"
-                    "<dimensionInfo>"
-                    "<enabled>true</enabled>"
-                    "<presentation>CONTINUOUS_INTERVAL</presentation>"
-                    "<units>ISO8601</units>"
-                    "<defaultValue>"
-                    "<strategy>MAXIMUM</strategy>"
-                    "</defaultValue>"
-                    "</dimensionInfo>"
-                    "</entry>"
-                    "</metadata>"
-                    "</coverage>";
-
-  cURLwrapper.customRequest(uriPutUpdateCoverage, "PUT", xml, "Content-Type: text/xml");
-
-  if(cURLwrapper.responseCode() != 200)
-  {
-    QString errMsg = QObject::tr(cURLwrapper.response().c_str());
-    TERRAMA2_LOG_ERROR() << errMsg << uriPutUpdateCoverage.uri();
-    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriPut.uri()));
-  }
-
-  if(!style.empty())
-  {
-    te::core::URI layerStyle(uri_.uri() + "/rest/layers/" + coverageName + ".xml");
-
-    cURLwrapper.customRequest(layerStyle, "PUT",
-                              "<layer><defaultStyle><name>" + style + "</name><workspace>" + workspace_ + "</workspace></defaultStyle></layer>", "Content-Type: text/xml");
-  }
-
 }
 
 
@@ -754,15 +1075,16 @@ void terrama2::services::view::core::GeoServer::registerStyle(const std::string&
 
 void terrama2::services::view::core::GeoServer::registerStyle(const std::string& name,
                                                               const View::Legend& legend,
-                                                              const std::unique_ptr<te::da::DataSetType>& dataSetType) const
+                                                              const View::Legend::ObjectType& objectType,
+                                                              const te::gm::GeomType& geomType) const
 {
-  if(dataSetType->hasGeom())
+  if(objectType == View::Legend::ObjectType::GEOMETRY)
   {
-    std::unique_ptr<te::se::Style> style(generateVectorialStyle(legend, dataSetType).release());
+    std::unique_ptr<te::se::Style> style(generateVectorialStyle(legend, geomType).release());
 
     registerStyle(name, style);
   }
-  else if(dataSetType->hasRaster())
+  else if(objectType == View::Legend::ObjectType::RASTER)
   {
     QTemporaryFile file;
     if(!file.open())
@@ -796,7 +1118,7 @@ void terrama2::services::view::core::GeoServer::registerStyle(const std::string&
 
 
 std::unique_ptr<te::se::Style> terrama2::services::view::core::GeoServer::generateVectorialStyle(const View::Legend& legend,
-                                                                                                 const std::unique_ptr<te::da::DataSetType>& dataSetType) const
+                                                                                                 const te::gm::GeomType& geomType) const
 {
   std::unique_ptr<te::se::Style> style(new te::se::FeatureTypeStyle());
 
@@ -817,7 +1139,7 @@ std::unique_ptr<te::se::Style> terrama2::services::view::core::GeoServer::genera
 
     for(auto& legendRule : legendRules)
     {
-      te::se::Symbolizer* symbolizer(getSymbolizer(dataSetType, legendRule.color));
+      te::se::Symbolizer* symbolizer(getSymbolizer(geomType, legendRule.color));
 
       te::se::Rule* rule = new te::se::Rule;
       rule->push_back(symbolizer);
@@ -1088,229 +1410,6 @@ void terrama2::services::view::core::GeoServer::getMapWMS(const std::string& sav
   wms.makeFileRequest(uriRequest.uri(), fileName);
 }
 
-QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const ViewPtr viewPtr,
-                                                                      const std::pair< terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr >& dataSeriesProvider,
-                                                                      const std::shared_ptr<DataManager> dataManager,
-                                                                      std::shared_ptr<ViewLogger> logger,
-                                                                      const RegisterId logId)
-{
-  QJsonObject jsonAnswer;
-
-  terrama2::core::DataSeriesPtr inputDataSeries = dataSeriesProvider.first;
-  terrama2::core::DataProviderPtr inputDataProvider = dataSeriesProvider.second;
-
-  // Check if the view belongs to this dataSeries
-  if(inputDataSeries->id != viewPtr->dataSeriesID)
-  {
-    QString errorMsg = QString("This View is not from this Data Series.");
-    logger->log(ViewLogger::ERROR_MESSAGE, errorMsg.toStdString(), logId);
-    TERRAMA2_LOG_ERROR() << QObject::tr(errorMsg.toStdString().c_str());
-    throw ViewGeoserverException() << ErrorDescription(errorMsg);
-  }
-
-  // Check if the view can be done by the maps server
-  DataProviderType dataProviderType = inputDataProvider->dataProviderType;
-
-  if(dataProviderType != "POSTGIS" && dataProviderType != "FILE")
-  {
-    QString errorMsg = QString("Data provider not supported: %1.").arg(dataProviderType.c_str());
-    logger->log(ViewLogger::ERROR_MESSAGE, errorMsg.toStdString(), logId);
-    TERRAMA2_LOG_ERROR() << QObject::tr(errorMsg.toStdString().c_str());
-    throw ViewGeoserverException() << ErrorDescription(errorMsg);
-  }
-
-  DataFormat dataFormat = inputDataSeries->semantics.dataFormat;
-
-  if(dataFormat != "OGR" && dataFormat != "POSTGIS" && dataFormat != "GDAL")
-  {
-    QString errorMsg = QString("Data format not supported in the maps server: %1.").arg(dataFormat.c_str());
-    logger->log(ViewLogger::ERROR_MESSAGE, errorMsg.toStdString(), logId);
-    TERRAMA2_LOG_ERROR() << QObject::tr(errorMsg.toStdString().c_str());
-    throw ViewGeoserverException() << ErrorDescription(errorMsg);
-  }
-
-  if(inputDataSeries->datasetList.empty())
-  {
-    logger->log(ViewLogger::WARNING_MESSAGE, "No data to register.", logId);
-    TERRAMA2_LOG_WARNING() << QObject::tr("No data to register in maps server.");
-    return jsonAnswer;
-  }
-
-  setWorkspace("terrama2_" + std::to_string(viewPtr->id));
-
-  registerWorkspace();
-
-  QJsonArray layersArray;
-
-  // DataSetType model to use in style creation
-  std::unique_ptr< te::da::DataSetType > modelDataSetType;
-
-  if(dataProviderType == "FILE")
-  {
-    for(auto& dataset : inputDataSeries->datasetList)
-    {
-      // Get the list of layers to register
-      auto fileInfoList = DataAccess::getFilesList(dataSeriesProvider, dataset, viewPtr->filter);
-
-      if(fileInfoList.empty())
-      {
-        QString errorMsg = QString("No data in data series %1.").arg(inputDataSeries->id);
-        logger->log(ViewLogger::WARNING_MESSAGE, errorMsg.toStdString(), logId);
-        TERRAMA2_LOG_WARNING() << QObject::tr(errorMsg.toStdString().c_str());
-        continue;
-      }
-
-      for(auto& fileInfo : fileInfoList)
-      {
-        std::string layerName = fileInfo.fileName().toStdString();
-
-        if(dataFormat == "OGR")
-        {
-          if(!modelDataSetType)
-          {
-            modelDataSetType.reset(DataAccess::getVectorialDataSetType(fileInfo));
-          }
-
-          registerVectorFile(layerName + "_datastore_" + std::to_string(viewPtr->id),
-                             fileInfo.absoluteFilePath().toStdString(),
-                             layerName);
-        }
-        else if(dataFormat == "GDAL")
-        {
-          if(!modelDataSetType)
-          {
-            modelDataSetType.reset(DataAccess::getGeotiffDataSetType(fileInfo));
-          }
-
-          registerCoverageFile(layerName + "_coveragestore_" + std::to_string(viewPtr->id),
-                               fileInfo.absoluteFilePath().toStdString(),
-                               layerName,
-                               "geotiff");
-        }
-
-        QJsonObject layer;
-        layer.insert("layer", QString::fromStdString(layerName));
-        layersArray.push_back(layer);
-      }
-    }
-  }
-  else if(dataProviderType == "POSTGIS")
-  {
-    QUrl url(inputDataProvider->uri.c_str());
-    std::map<std::string, std::string> connInfo
-    {
-      {"PG_HOST", url.host().toStdString()},
-      {"PG_PORT", std::to_string(url.port())},
-      {"PG_USER", url.userName().toStdString()},
-      {"PG_PASSWORD", url.password().toStdString()},
-      {"PG_DB_NAME", url.path().section("/", 1, 1).toStdString()},
-      {"PG_CONNECT_TIMEOUT", "4"},
-      {"PG_CLIENT_ENCODING", "UTF-8"}
-    };
-
-    for(auto& dataset : inputDataSeries->datasetList)
-    {
-      TableInfo tableInfo = DataAccess::getPostgisTableInfo(dataSeriesProvider, dataset);
-
-      std::string tableName = tableInfo.tableName;
-      std::string layerName = terrama2::core::simplifyString(viewPtr->viewName + "_" + std::to_string(viewPtr->id));
-      std::string timestampPropertyName = tableInfo.timestampPropertyName;
-
-      modelDataSetType = std::move(tableInfo.dataSetType);
-
-      std::string SQL = "";
-
-      if(inputDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT)
-      {
-        const auto& id = dataset->format.find("monitored_object_id");
-
-        if(id == dataset->format.end())
-        {
-          logger->log(ViewLogger::ERROR_MESSAGE, "Data to join not informed.", logId);
-          TERRAMA2_LOG_ERROR() << QObject::tr("Cannot join data from a different DB source!");
-          continue;
-        }
-
-        terrama2::core::DataSeriesPtr monitoredObjectDataSeries = dataManager->findDataSeries(std::stoi(id->second));
-        terrama2::core::DataProviderPtr monitoredObjectProvider = dataManager->findDataProvider(monitoredObjectDataSeries->dataProviderId);
-
-        QUrl monitoredObjectUrl(monitoredObjectProvider->uri.c_str());
-
-        if(monitoredObjectUrl.host() != url.host()
-           || monitoredObjectUrl.port() != url.port()
-           || monitoredObjectUrl.path().section("/", 1, 1) != url.path().section("/", 1, 1))
-        {
-          logger->log(ViewLogger::ERROR_MESSAGE, "Data to join is in a different DB.", logId);
-          TERRAMA2_LOG_ERROR() << QObject::tr("Cannot join data from a different DB source!");
-          continue;
-        }
-
-        if(monitoredObjectDataSeries->datasetList.empty())
-        {
-          logger->log(ViewLogger::ERROR_MESSAGE, "No join data.", logId);
-          TERRAMA2_LOG_ERROR() << QObject::tr("Cannot join data from a different DB source!");
-          continue;
-        }
-
-        const terrama2::core::DataSetPtr monitoredObjectDataset = monitoredObjectDataSeries->datasetList.at(0);
-
-        TableInfo monitoredObjectTableInfo = DataAccess::getPostgisTableInfo(std::make_pair(monitoredObjectDataSeries, monitoredObjectProvider),
-                                                                             monitoredObjectDataset);
-
-        std::string pk = monitoredObjectTableInfo.dataSetType->getPrimaryKey()->getProperties().at(0)->getName();
-
-        auto& propertiesVector = monitoredObjectTableInfo.dataSetType->getProperties();
-
-        SQL = "SELECT ";
-
-        for(auto& property : propertiesVector)
-        {
-          const std::string& propertyName = property->getName();
-          SQL += "t1." + propertyName + " as monitored_" + propertyName + ", ";
-        }
-
-        SQL += "t2.* ";
-        SQL += "FROM " + monitoredObjectTableInfo.tableName;
-        SQL += " as t1 , " + tableName + " as t2 ";
-        SQL += "WHERE t1." + pk + " = t2." + pk;
-
-        modelDataSetType.reset(monitoredObjectTableInfo.dataSetType.release());
-        tableName = layerName;
-      }
-
-      registerPostgisTable(std::to_string(viewPtr->id) + "_" + std::to_string(inputDataSeries->id) + "_datastore",
-                           connInfo,
-                           tableName,
-                           layerName,
-                           modelDataSetType,
-                           timestampPropertyName,
-                           SQL);
-
-      QJsonObject layer;
-      layer.insert("layer", QString::fromStdString(layerName));
-      layersArray.push_back(layer);
-    }
-  }
-
-  if(viewPtr->legend)
-  {
-    // Register style
-    std::string styleName = "";
-
-    styleName = inputDataSeries->name + "_style_" + viewPtr->viewName;
-    registerStyle(styleName, *viewPtr->legend.get(), modelDataSetType);
-
-    for(const auto& layer : layersArray)
-    {
-      registerLayerDefaultStyle(styleName, layer.toObject().value("layer").toString().toStdString());
-    }
-  }
-
-  jsonAnswer.insert("workspace", QString::fromStdString(workspace()));
-  jsonAnswer.insert("layers_list", layersArray);
-
-  return jsonAnswer;
-}
 
 terrama2::services::view::core::MapsServerPtr terrama2::services::view::core::GeoServer::make(te::core::URI uri)
 {
@@ -1385,3 +1484,551 @@ std::string terrama2::services::view::core::GeoServer::getGeomTypeString(const t
   }
 }
 
+std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosaics(const terrama2::core::DataProviderPtr inputDataProvider,
+                                                                                    const terrama2::core::DataSeriesPtr inputDataSeries,
+                                                                                    const std::shared_ptr<DataManager> dataManager,
+                                                                                    const ViewPtr viewPtr,
+                                                                                    const te::core::URI& connInfo) const
+{
+  std::shared_ptr< te::da::DataSource > dataSource(te::da::DataSourceFactory::make("POSTGIS", connInfo));
+
+  dataSource->open();
+
+  if(!dataSource->isOpened())
+  {
+    QString errMsg = QObject::tr("Could not connect to database");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw Exception() << ErrorDescription(errMsg);
+  }
+
+  QUrl baseUrl(QString::fromStdString(inputDataProvider->uri));
+
+  std::vector<std::string> layersNames;
+
+  std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource->getTransactor();
+
+  for(auto& dataset : inputDataSeries->datasetList)
+  {
+    std::string layerName = viewPtr->viewName + std::to_string(dataset->id);
+    std::transform(layerName.begin(), layerName.end(),layerName.begin(), ::tolower);
+
+    QUrl url(baseUrl.toString() + QString::fromStdString("/" + terrama2::core::getFolderMask(dataset)));
+
+    auto vecRasterInfo = getRasterInfo(dataManager, dataset, viewPtr->filter);
+
+    int srid =std::get<2>(vecRasterInfo.at(0));
+
+    if(!dataSource->dataSetExists(layerName))
+    {
+      // Create needed txt mosaic files
+      createPostgisDatastorePropertiesFile(url.path().toStdString(), connInfo);
+
+      createPostgisMosaicLayerPropertiesFile(url.path().toStdString(), layerName, srid);
+
+      // create table
+      createMosaicTable(dataSource, layerName, srid);
+    }
+
+
+    // get all dates stored in the dataset
+    std::vector<std::shared_ptr<te::dt::DateTime> > vecDates;
+
+    {
+      if(!transactor->dataSetExists(layerName))
+      {
+        QString errMsg = QObject::tr("Could not find dataset!");
+        TERRAMA2_LOG_ERROR() << errMsg;
+        throw Exception() << ErrorDescription(errMsg);
+      }
+
+      std::unique_ptr<te::da::DataSet> teDataSet(dataSource->getDataSet(layerName));
+
+      vecDates = terrama2::core::getAllDates(teDataSet.get(), "timestamp");
+    }
+
+    std::unique_ptr<te::da::DataSetType> teDataSetType(dataSource->getDataSetType(layerName));
+
+    auto vecPkProperties = teDataSetType->getPrimaryKey()->getProperties();
+
+    for(auto property : vecPkProperties)
+      teDataSetType->remove(property);
+
+    std::unique_ptr<te::mem::DataSet> ds(new te::mem::DataSet(teDataSetType.get()));
+
+    // Insert data
+    for(const auto& rasterInfo : vecRasterInfo)
+    {
+      std::string rasterName;
+      te::dt::TimeInstant rasterTimeInstantTz;
+      int rasterSRID;
+      te::gm::Envelope* rasterEnvelope;
+
+      std::tie(rasterName, rasterTimeInstantTz, rasterSRID, rasterEnvelope) = rasterInfo;
+
+      auto it = std::find_if(vecDates.begin(), vecDates.end(),
+                             [rasterTimeInstantTz](std::shared_ptr<te::dt::DateTime> const& first)
+                             {
+                               return *first == rasterTimeInstantTz;
+                             });
+
+      if(it == std::end(vecDates))
+      {
+        auto geom = te::gm::GetGeomFromEnvelope(rasterEnvelope, rasterSRID);
+
+        te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(ds.get());
+        dsItem->setGeometry("the_geom", geom);
+        dsItem->setString("location", rasterName);
+        dsItem->setDateTime("timestamp", new te::dt::TimeInstant(rasterTimeInstantTz));
+
+        ds->add(dsItem);
+      }
+    }
+
+    if(!ds->isEmpty())
+    {
+      ds->moveBeforeFirst();
+
+      std::map<std::string, std::string> options;
+      dataSource->add(layerName, ds.get(), options);
+
+      // register datastore and layer if they don't exists
+      registerMosaicCoverage(layerName, url.path().toStdString(), layerName, srid, "", "all");
+    }
+
+    layersNames.push_back(layerName);
+
+  }
+  try
+  {
+    if(dataSource && dataSource->isOpened())
+      dataSource->close();
+  }
+  catch(const te::da::Exception& e)
+  {
+    // TODO: check postgis close connection pool
+  }
+
+  return layersNames;
+}
+
+std::vector<std::tuple<std::string, te::dt::TimeInstant, int, te::gm::Envelope*>>
+terrama2::services::view::core::GeoServer::getRasterInfo(terrama2::core::DataManagerPtr dataManager,
+                                                         terrama2::core::DataSetPtr dataset,
+                                                         const terrama2::core::Filter& filter) const
+{
+  auto dataSeries = dataManager->findDataSeries(dataset->dataSeriesId);
+
+  if(!dataSeries)
+  {
+    QString errMsg = QObject::tr("Could not find the data series: %1").arg(dataset->dataSeriesId);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw Exception() << ErrorDescription(errMsg);
+  }
+
+  auto dataProvider = dataManager->findDataProvider(dataSeries->dataProviderId);
+
+  if(!dataProvider)
+  {
+    QString errMsg = QObject::tr("Could not find the data provider: %1").arg(dataSeries->dataProviderId);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw Exception() << ErrorDescription(errMsg);
+  }
+
+  auto dataAccessor = std::dynamic_pointer_cast<terrama2::core::DataAccessorFile>(terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeries));
+  auto remover = std::make_shared<terrama2::core::FileRemover>();
+  std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > dataMap = dataAccessor->getSeries(filter, remover);
+
+  std::vector<std::tuple<std::string, te::dt::TimeInstant, int, te::gm::Envelope*>> vecRasterInfo;
+
+  for(const auto& data : dataMap)
+  {
+    const auto& dataSetSeries = data.second;
+
+    auto rasterProperty = te::da::GetFirstRasterProperty(dataSetSeries.teDataSetType.get());
+    if(!rasterProperty)
+    {
+      QString errMsg = QObject::tr("Could a valid raster property for dataset: %1").arg(dataset->id);
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw Exception() << ErrorDescription(errMsg);
+    }
+
+    auto datePropertyPos = te::da::GetFirstPropertyPos(dataSetSeries.syncDataSet->dataset().get(), te::dt::DATETIME_TYPE);
+
+    for(unsigned int row = 0; row < dataSetSeries.syncDataSet->size(); ++row)
+    {
+      auto date = dataSetSeries.syncDataSet->getDateTime(row, datePropertyPos);
+      std::shared_ptr<te::dt::TimeInstantTZ> tiTz(dynamic_cast<te::dt::TimeInstantTZ*>(date->clone()));
+      auto boostTiTz = tiTz->getTimeInstantTZ();
+
+      QFileInfo info(QString::fromStdString(dataSetSeries.syncDataSet->getString(row, "filename")));
+
+      auto raster = dataSetSeries.syncDataSet->getRaster(row, rasterProperty->getId());
+
+      vecRasterInfo.push_back(std::make_tuple(info.fileName().toStdString(), te::dt::TimeInstant(boostTiTz.utc_time()), raster->getSRID(), new te::gm::Envelope(*raster->getExtent())));
+    }
+  }
+
+  return vecRasterInfo;
+}
+
+
+std::string terrama2::services::view::core::GeoServer::createPostgisDatastorePropertiesFile(const std::string& outputFolder,
+                                                                                            const te::core::URI& connInfo) const
+{
+    std::string propertiesFilename = outputFolder + "/datastore.properties";
+
+    QFile outputFile(propertiesFilename.c_str());
+
+    if(outputFile.exists())
+    {
+      if(!outputFile.remove())
+      {
+        QString errMsg = QObject::tr("Could not remove file: %1").arg(propertiesFilename.c_str());
+        TERRAMA2_LOG_ERROR() << errMsg;
+        throw Exception() << ErrorDescription(errMsg);
+      }
+    }
+
+    outputFile.open(QIODevice::WriteOnly);
+
+    /* Check it opened OK */
+    if(!outputFile.isOpen())
+    {
+      QString errMsg = QObject::tr("Could not open file: %1").arg(propertiesFilename.c_str());
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw Exception() << ErrorDescription(errMsg);
+    }
+
+    std::string database = connInfo.path();
+    database.erase(std::remove(database.begin(), database.end(), '/'), database.end());
+
+    std::string content = "SPI=org.geotools.data.postgis.PostgisNGDataStoreFactory\n"
+                          "host=" + connInfo.host() + "\n"
+                                                      "port=" + connInfo.port() + "\n" +
+                          "database=" + database + "\n" +
+                          "schema=public\n"
+                          "user=" + connInfo.user() + "\n" +
+                          "passwd=" + connInfo.password() + "\n" +
+                          "Loose\\ bbox=true\n"
+                          "Estimated\\ extends=false\n"
+                          "validate\\ connections=true\n"
+                          "Connection\\ timeout=10\n"
+                          "preparedStatements=true\n";
+
+    QTextStream outStream(&outputFile);
+    outStream << content.c_str();
+
+    /* Close the file */
+    outputFile.close();
+
+    return propertiesFilename;
+}
+
+std::string terrama2::services::view::core::GeoServer::createPostgisMosaicLayerPropertiesFile(const std::string& outputFolder,
+                                                                                              const std::string& exhibitionName,
+                                                                                              const int srid) const
+{
+  std::string propertiesFilename = outputFolder + "/" + exhibitionName + ".properties";
+
+  QFile outputFile(propertiesFilename.c_str());
+
+  if(outputFile.exists())
+  {
+    if(!outputFile.remove())
+    {
+      QString errMsg = QObject::tr("Could not remove file: %1").arg(propertiesFilename.c_str());
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw Exception() << ErrorDescription(errMsg);
+    }
+  }
+
+  outputFile.open(QIODevice::WriteOnly);
+
+  /* Check it opened OK */
+  if(!outputFile.isOpen())
+  {
+    QString errMsg = QObject::tr("Could not open file: %1").arg(propertiesFilename.c_str());
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw Exception() << ErrorDescription(errMsg);
+  }
+
+  std::string content = "MosaicCRS=EPSG\\:" + std::to_string(srid) + "\n" +
+                        "Levels=0.01,0.01\n"
+                        "Heterogeneous=false\n"
+                        "TimeAttribute=timestamp\n"
+                        "AbsolutePath=false\n"
+                        "Name=" + exhibitionName + "\n" +
+                        "TypeName=" + exhibitionName + "\n" +
+                        "Caching=false\n"
+                        "ExpandToRGB=false\n"
+                        "LocationAttribute=location\n"
+                        "SuggestedSPI=it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReaderSpi\n"
+                        "CheckAuxiliaryMetadata=false\n"
+                        "LevelsNum=1";
+
+  QTextStream outStream(&outputFile);
+  outStream << content.c_str();
+
+  /* Close the file */
+  outputFile.close();
+
+  return propertiesFilename;
+}
+
+void terrama2::services::view::core::GeoServer::createPostgisIndexerPropertiesFile(const std::string& outputFolder,
+                                                                                   const std::string& exhibitionName) const
+{
+  std::string propertiesFilename = outputFolder + "/indexer.properties";
+
+  QFile outputFile(propertiesFilename.c_str());
+
+  if(outputFile.exists())
+  {
+    if(!outputFile.remove())
+    {
+      QString errMsg = QObject::tr("Could not remove file: %1").arg(propertiesFilename.c_str());
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw Exception() << ErrorDescription(errMsg);
+    }
+  }
+
+  outputFile.open(QIODevice::WriteOnly);
+
+  /* Check it opened OK */
+  if(!outputFile.isOpen())
+  {
+    QString errMsg = QObject::tr("Could not open file: %1").arg(propertiesFilename.c_str());
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw Exception() << ErrorDescription(errMsg);
+  }
+
+  std::string content = "Schema=*the_geom:Polygon,location:String,timestamp:java.util.Date\n"
+                        "PropertyCollectors=TimestampFileNameExtractorSPI[timeregex](timestamp)\n"
+                        "TimeAttribute=timestamp\n"
+                        "Name=" + exhibitionName +"\n" +
+                        "TypeName=" + exhibitionName +"\n" +
+                        "Caching=false\n";
+
+  QTextStream outStream(&outputFile);
+  outStream << content.c_str();
+
+  /* Close the file */
+  outputFile.close();
+}
+
+void terrama2::services::view::core::GeoServer::createTimeregexPropertiesFile(const std::string& outputFolder,
+                                                                              const std::string& regex) const
+{
+  std::string propertiesFilename = outputFolder + "/timeregex.properties";
+
+  QFile outputFile(propertiesFilename.c_str());
+
+  if(outputFile.exists())
+  {
+    if(!outputFile.remove())
+    {
+      QString errMsg = QObject::tr("Could not remove file: %1").arg(propertiesFilename.c_str());
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw Exception() << ErrorDescription(errMsg);
+    }
+  }
+
+  outputFile.open(QIODevice::WriteOnly);
+
+  /* Check it opened OK */
+  if(!outputFile.isOpen())
+  {
+    QString errMsg = QObject::tr("Could not open file: %1").arg(propertiesFilename.c_str());
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw Exception() << ErrorDescription(errMsg);
+  }
+
+  std::string content = "regex=" + regex + "\n";
+
+  QTextStream outStream(&outputFile);
+  outStream << content.c_str();
+
+  /* Close the file */
+  outputFile.close();
+}
+
+
+void terrama2::services::view::core::GeoServer::createGeoserverPropertiesFile(const std::string& outputFolder,
+                                                                              const std::string& exhibitionName,
+                                                                              DataSeriesId dataSeriesId) const
+{
+  std::string propertiesFilename = outputFolder + "/data_series_" + std::to_string(dataSeriesId) + ".properties";
+
+  std::string content = "Levels=0.009999999776482582,0.009999999776482582\n"
+                        "Heterogeneous=false\n"
+                        "TimeAttribute=timestamp\n"
+                        "AbsolutePath=false\n"
+                        "Name=" + exhibitionName +"\n" +
+                        "TypeName=data_series_" + std::to_string(dataSeriesId) +"\n" +
+                        "Caching=false\n"
+                        "ExpandToRGB=false\n"
+                        "LocationAttribute=filename\n"
+                        "SuggestedSPI=it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReaderSpi\n"
+                        "CheckAuxiliaryMetadata=false\n"
+                        "LevelsNum=1";
+
+  /* Try and open a file for output */
+
+  QFile outputFile(propertiesFilename.c_str());
+  outputFile.open(QIODevice::WriteOnly);
+
+  /* Check it opened OK */
+  if(!outputFile.isOpen())
+  {
+    QString errMsg = QObject::tr("Could not open file: %1").arg(propertiesFilename.c_str());
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw Exception() << ErrorDescription(errMsg);
+  }
+
+  QTextStream outStream(&outputFile);
+  outStream << content.c_str();
+
+  /* Close the file */
+  outputFile.close();
+}
+
+int terrama2::services::view::core::GeoServer::createGeoserverTempMosaic(terrama2::core::DataManagerPtr dataManager,
+                                                                         terrama2::core::DataSetPtr dataset,
+                                                                         const terrama2::core::Filter& filter,
+                                                                         const std::string& exhibitionName,
+                                                                         const std::string& outputFolder) const
+{
+  auto dataSeries = dataManager->findDataSeries(dataset->dataSeriesId);
+
+  if(!dataSeries)
+  {
+    QString errMsg = QObject::tr("Could not find the data series: %1").arg(dataset->dataSeriesId);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw Exception() << ErrorDescription(errMsg);
+  }
+
+  auto dataProvider = dataManager->findDataProvider(dataSeries->dataProviderId);
+
+  if(!dataProvider)
+  {
+    QString errMsg = QObject::tr("Could not find the data provider: %1").arg(dataSeries->dataProviderId);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw Exception() << ErrorDescription(errMsg);
+  }
+
+  // Delete file if it exists.
+  std::string shpFilename = outputFolder + "/data_series_" + std::to_string(dataSeries->id) + ".shp";
+  QFileInfo checkFile(shpFilename.c_str());
+  if(checkFile.exists())
+  {
+    QFile file(shpFilename.c_str());
+    file.remove();
+  }
+
+  auto dataAccessor = std::dynamic_pointer_cast<terrama2::core::DataAccessorFile>(terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeries));
+  auto remover = std::make_shared<terrama2::core::FileRemover>();
+  std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > dataMap = dataAccessor->getSeries(filter, remover);
+
+  te::mem::DataSet* ds;
+  te::da::DataSetType* dt = new te::da::DataSetType(dataSeries->name);
+  int geomSRID = 0;
+
+  for(const auto& data : dataMap)
+  {
+    const auto& dataSetSeries = data.second;
+    auto rasterProperty = te::da::GetFirstRasterProperty(dataSetSeries.teDataSetType.get());
+    if(!rasterProperty)
+    {
+      QString errMsg = QObject::tr("Could a valid raster property for dataset: %1").arg(dataset->id);
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw Exception() << ErrorDescription(errMsg);
+    }
+
+    auto datePropertyPos = te::da::GetFirstPropertyPos(dataSetSeries.syncDataSet->dataset().get(), te::dt::DATETIME_TYPE);
+
+    for(unsigned int row = 0; row < dataSetSeries.syncDataSet->size(); ++row)
+    {
+      auto raster = dataSetSeries.syncDataSet->getRaster(row, rasterProperty->getId());
+
+      // If is the first row, configure dataSet
+      if(row == 0)
+      {
+        geomSRID = raster->getSRID();
+
+        te::dt::SimpleProperty* filenameProp = new te::dt::SimpleProperty("filename", te::dt::STRING_TYPE, true);
+
+        te::gm::GeometryProperty* geomProp = new te::gm::GeometryProperty("geom", 0, te::gm::PolygonType, true);
+        geomProp->setSRID(geomSRID);
+
+        te::dt::DateTimeProperty* timestampProp = new te::dt::DateTimeProperty("timestamp", te::dt::TIME_INSTANT, true);
+
+        dt->add(filenameProp);
+        dt->add(geomProp);
+        dt->add(timestampProp);
+
+        ds = new te::mem::DataSet(dt);
+      }
+
+      auto date = dataSetSeries.syncDataSet->getDateTime(row, datePropertyPos);
+      std::shared_ptr<te::dt::TimeInstantTZ> tiTz(dynamic_cast<te::dt::TimeInstantTZ*>(date->clone()));
+      auto boostTiTz = tiTz->getTimeInstantTZ();
+
+      auto geom = te::gm::GetGeomFromEnvelope(raster->getExtent(), raster->getSRID());
+
+      te::mem::DataSetItem* dsItem01 = new te::mem::DataSetItem(ds);
+      QFileInfo info(QString::fromStdString(dataSetSeries.syncDataSet->getString(row, "filename")));
+      dsItem01->setString(0, info.fileName().toStdString());
+      dsItem01->setGeometry(1, geom);
+      dsItem01->setDateTime(2, new te::dt::TimeInstant(boostTiTz.utc_time()));
+
+      ds->add(dsItem01);
+    }
+  }
+
+  std::shared_ptr<te::da::DataSource> dsOGR = te::da::DataSourceFactory::make("OGR", "file://"+shpFilename);
+  dsOGR->open();
+
+  ds->moveBeforeFirst();
+
+  te::da::Create(dsOGR.get(), dt, ds);
+
+  dsOGR->close();
+
+  createGeoserverPropertiesFile(outputFolder, exhibitionName, dataSeries->id);
+
+  return geomSRID;
+}
+
+
+void terrama2::services::view::core::GeoServer::createMosaicTable(std::shared_ptr< te::da::DataSource > dataSource,
+                                                                  const std::string& tableName,
+                                                                  int srid) const
+{
+  te::da::DataSetType* dt = new te::da::DataSetType(tableName);
+
+  te::gm::GeometryProperty* geomProp = new te::gm::GeometryProperty("the_geom", 0, te::gm::PolygonType, true);
+  geomProp->setSRID(srid);
+
+  te::dt::SimpleProperty* filenameProp = new te::dt::SimpleProperty("location", te::dt::STRING_TYPE, true);
+  te::dt::StringProperty* sp = static_cast<te::dt::StringProperty*>(filenameProp);
+  sp->setSubtype(te::dt::VAR_STRING);
+  sp->setSize(255);
+
+  te::dt::DateTimeProperty* timestampProp = new te::dt::DateTimeProperty("timestamp", te::dt::TIME_INSTANT, true);
+
+  std::string pkName = "\""+tableName+"_pkey\"";
+  auto pk = new te::da::PrimaryKey(pkName, dt);
+
+  te::dt::SimpleProperty* serialPk = new te::dt::SimpleProperty("fid", te::dt::INT32_TYPE, true);
+  serialPk->setAutoNumber(true);
+
+  dt->add(serialPk);
+  pk->add(serialPk);
+
+  dt->add(geomProp);
+  dt->add(filenameProp);
+  dt->add(timestampProp);
+
+  std::map<std::string, std::string> options;
+  dataSource->createDataSet(dt, options);
+}
