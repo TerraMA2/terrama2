@@ -73,7 +73,8 @@
             "type": "string",
             "title": "Time Interval Unit"
           }
-        }
+        },
+        "required": ["ctl_filename", "timezone", "srid"]
       },
       "form": [
         {
