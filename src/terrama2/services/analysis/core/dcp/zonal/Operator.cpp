@@ -56,7 +56,9 @@
 #include <terralib/srs/SpatialReferenceSystem.h>
 
 #include <cmath>
-#include <boost/range/algorithm/transform.hpp>
+#include <algorithm>
+#include <boost/range/algorithm_ext/for_each.hpp>
+#include <boost/range/join.hpp>
 
 using namespace boost::python;
 
@@ -142,7 +144,7 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
     ///////////////////////////////////////////////////////////////
 
     //results map
-    std::map<std::string, OperatorCache> cacheMap;
+    std::map<std::string, std::vector<double> > valuesMap;
 
     {
       // Frees the GIL, from now on it's not allowed to return any value because it doesn't have the interpreter lock.
@@ -237,11 +239,7 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
                 continue;
               }
 
-              OperatorCache localCache;
-              calculateStatistics(values, localCache);
-              localCache.count = influenceCount;
-
-              cacheMap[dcpAlias] = localCache;
+              valuesMap[dcpAlias] = values;
             }//end for syncDs
           }//end for each dataSeries->datasetList
         }//end for each vecDCPAlias
@@ -273,11 +271,7 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
     }
 
     std::vector<double> results;
-    boost::range::transform(cacheMap, back_inserter(results),
-    [&statisticOperation](std::pair<std::string, OperatorCache> result)
-    {
-      return getOperationResult(result.second, statisticOperation);
-    });
+    std::for_each(valuesMap.begin(), valuesMap.end(), [&results](std::pair<std::string, std::vector<double> > item) { results.insert(results.end(), item.second.begin(), item.second.end());});
 
     calculateStatistics(results, cache);
     // return value of the operation
