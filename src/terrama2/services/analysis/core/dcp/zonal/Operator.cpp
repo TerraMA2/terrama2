@@ -144,7 +144,7 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
     ///////////////////////////////////////////////////////////////
 
     //results map
-    std::map<std::string, std::vector<double> > valuesMap;
+    std::vector<double> results;
 
     {
       // Frees the GIL, from now on it's not allowed to return any value because it doesn't have the interpreter lock.
@@ -239,7 +239,7 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
                 continue;
               }
 
-              valuesMap[dcpAlias] = values;
+              results.insert(results.end(), values.begin(), values.end());
             }//end for syncDs
           }//end for each dataSeries->datasetList
         }//end for each vecDCPAlias
@@ -269,9 +269,6 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
     {
       return std::nan("");
     }
-
-    std::vector<double> results;
-    std::for_each(valuesMap.begin(), valuesMap.end(), [&results](std::pair<std::string, std::vector<double> > item) { results.insert(results.end(), item.second.begin(), item.second.end());});
 
     calculateStatistics(results, cache);
     // return value of the operation
