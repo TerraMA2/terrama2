@@ -337,6 +337,8 @@ std::string terrama2::core::DataAccessorGrADS::getConfigFilename(terrama2::core:
   std::string extension = boost::filesystem::extension(binaryFilename);
   std::string vrtFilename = binaryFilename;
   boost::replace_last(vrtFilename, extension, ".vrt");
+  if(extension.empty())
+    vrtFilename = binaryFilename+".vrt";
 
   writeVRTFile(gradsDescriptor_, binaryFilename, vrtFilename, dataSet);
 
