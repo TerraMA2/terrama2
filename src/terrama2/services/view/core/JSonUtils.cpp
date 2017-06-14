@@ -135,7 +135,6 @@ terrama2::services::view::core::View::Legend* terrama2::services::view::core::fr
   }
 
   if(!json.contains("type")
-     || !json.contains("operation_id")
      || !json.contains("metadata")
      || !json.contains("colors"))
   {
@@ -146,7 +145,6 @@ terrama2::services::view::core::View::Legend* terrama2::services::view::core::fr
 
   View::Legend* legend = new View::Legend();
 
-  legend->operation = View::Legend::OperationType(json["operation_id"].toInt());
   legend->classify = View::Legend::ClassifyType(json["type"].toInt());
 
   auto metadataObj= json["metadata"].toObject();
@@ -185,7 +183,6 @@ QJsonObject terrama2::services::view::core::toJson(View::Legend legend)
   QJsonObject obj;
   obj.insert("class", QString("ViewStyleLegend"));
   obj.insert("type", static_cast<int32_t>(legend.classify));
-  obj.insert("operation_id", static_cast<int32_t>(legend.operation));
 
   QJsonObject metadataObj;
 

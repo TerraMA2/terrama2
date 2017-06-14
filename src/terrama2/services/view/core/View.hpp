@@ -119,7 +119,7 @@ namespace terrama2
                     }
                 };
 
-                OperationType operation;
+                OperationType operation = OperationType::VALUE;
                 ClassifyType classify;
                 std::unordered_map<std::string, std::string> metadata;
                 std::vector< Rule > rules;

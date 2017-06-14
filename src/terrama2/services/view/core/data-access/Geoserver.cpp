@@ -1080,12 +1080,26 @@ void terrama2::services::view::core::GeoServer::registerStyle(const std::string&
 {
   if(objectType == View::Legend::ObjectType::GEOMETRY)
   {
+    if(legend.metadata.at("creation_type") != "0")
+    {
+      registerStyle(name, legend.metadata.at("xml_style"));
+
+      return;
+    }
+
     std::unique_ptr<te::se::Style> style(generateVectorialStyle(legend, geomType).release());
 
     registerStyle(name, style);
   }
   else if(objectType == View::Legend::ObjectType::RASTER)
   {
+    if(legend.metadata.at("creation_type") != "0")
+    {
+      registerStyle(name, legend.metadata.at("xml_style"), "1.0.0");
+
+      return;
+    }
+
     QTemporaryFile file;
     if(!file.open())
     {
