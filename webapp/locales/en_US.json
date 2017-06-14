@@ -173,6 +173,7 @@
   "Could not save data series due:  project_id: project_id must be unique,\nname: name must be unique": "Could not save data series due: name must be unique.",
   "Could not save project: name must be unique": "Could not save project: name must be unique",
   "Count": "Count",
+  "Creation Type": "Creation Type",
   "Crop raster": "Crop raster",
   "Custom": "Custom",
   "DB connection": "DB connection",
