@@ -25,7 +25,7 @@
       type: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        comment: "Target type to generate legend (Ramp, Interval and Value)"
+        comment: "Target type to generate legend (Gradient, Interval and Value)"
       }
     }, {
       underscored: true,

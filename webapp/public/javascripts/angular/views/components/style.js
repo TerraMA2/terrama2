@@ -31,7 +31,8 @@ define([], function () {
     self.i18n = i18n;
     self.styleTypes = [];
     // Function bindings
-    self.generate = generateColors;
+    self.addColor = addColor;
+    self.removeColor = removeColor;
     self.typeFilter = typeFilter;
 
     // digesting StyleType enum into array
@@ -64,6 +65,14 @@ define([], function () {
     self.changeCreationType = function(){
       if (self.model.metadata.creation_type == "0"){
         delete self.model.metadata.xml_style;
+        self.model.colors = [
+          {
+            color: "#FFFFFF",
+            isDefault: true,
+            title: "Default",
+            value: ""
+          }
+        ];
       } else if (self.model.metadata.creation_type == "1"){
         self.model.type = 3;
         self.model.colors = [];
@@ -131,32 +140,28 @@ define([], function () {
      * @returns {any}
      */
     function typeFilter(item) {
-      if (!(self.type !== self.DataSeriesType.GRID && item.value === StyleType.RAMP)) {
+      if (!(self.type !== self.DataSeriesType.GRID && item.value === StyleType.GRADIENT)) {
         return item;
       }
     }
 
     /**
-     * It generate colors arrays and store in ctrl.colors
+     * It adds color in model array ctrl.model.colors
      */
-    function generateColors() {
-      if (!self.model || !self.model.bands || self.model.bands < 2) {
-        $scope.$broadcast("formFieldValidation", self.formCtrl);
-        return;
+    function addColor() {  
+      var colorsLength = self.model.colors.length;
+      var newColor = {
+        color: "#FFFFFF",
+        isDefault: false,
+        title: "Color Title"
       }
-      var colorsArr = ColorFactory.generateColor(self.model.beginColor, self.model.endColor, self.model.bands + 1).reverse();
-      for (var i = 1; i < colorsArr.length; ++i) {
-        colorsArr[i] = { title: i18n.__("Color") + " " + i, color: colorsArr[i], value: i, isDefault: false };
-      }
-      var firstColor = colorsArr[0];
-      colorsArr[0] = {
-        title: i18n.__("Default"),
-        color: firstColor,
-        isDefault: true,
-        value: ""
-      };
-
-      self.model.colors = colorsArr;
+      self.model.colors.push(newColor);
+    }
+    /**
+     * It removes color of model array ctrl.model.colors
+     */
+    function removeColor(index) {  
+      self.model.colors.splice(index, 1);
     }
   }
 

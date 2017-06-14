@@ -31,7 +31,7 @@
      */
     this.band_number = params.band_number;
     /**
-     * ViewStyleLegend type (Ramp, Interval and Value)
+     * ViewStyleLegend type (Gradient, Interval and Value)
      * @name ViewStyleLegend#type
      * @type {string}
      */
