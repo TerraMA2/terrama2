@@ -517,7 +517,6 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
     timezone = "UTC+00";
   }
 
-
   DataSetSeries series;
   series.dataSet = dataSet;
 

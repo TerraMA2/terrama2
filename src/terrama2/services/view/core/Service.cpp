@@ -73,7 +73,9 @@ void terrama2::services::view::core::Service::prepareTask(const terrama2::core::
 {
   try
   {
-    taskQueue_.emplace(std::bind(&Service::viewJob, this, executionPackage, std::dynamic_pointer_cast<terrama2::services::view::core::ViewLogger>(logger_->clone()), dataManager_));
+    auto viewLogger = std::dynamic_pointer_cast<ViewLogger>(logger_->clone());
+    assert(viewLogger);
+    taskQueue_.emplace(std::bind(&Service::viewJob, this, executionPackage, viewLogger, dataManager_));
   }
   catch(const std::exception& e)
   {

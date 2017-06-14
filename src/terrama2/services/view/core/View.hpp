@@ -67,6 +67,13 @@ namespace terrama2
         {
             struct Legend
             {
+                enum class ObjectType
+                {
+                  UNKNOWN = 1,
+                  RASTER = 2,
+                  GEOMETRY = 3
+                };
+
                 enum class OperationType
                 {
                   EQUAL_STEPS = 1,

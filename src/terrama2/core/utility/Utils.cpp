@@ -428,6 +428,32 @@ std::vector<std::string> terrama2::core::splitString(const std::string& text, ch
   return splittedString;
 }
 
+std::vector<std::shared_ptr<te::dt::DateTime> > terrama2::core::getAllDates(te::da::DataSet* teDataset,
+                                                                            const std::string& datetimeColumnName)
+{
+  std::vector<std::shared_ptr<te::dt::DateTime> > vecDates;
+
+  teDataset->moveBeforeFirst();
+  while(teDataset->moveNext())
+  {
+    // Retrieve all execution dates of dataset
+    std::shared_ptr<te::dt::DateTime> executionDate = teDataset->getDateTime(datetimeColumnName);
+
+    auto it = std::lower_bound(vecDates.begin(), vecDates.end(), executionDate,
+                               [&](std::shared_ptr<te::dt::DateTime> const& first, std::shared_ptr<te::dt::DateTime> const& second)
+    {
+              return *first < *second;
+  });
+
+    if (it != vecDates.end() && **it == *executionDate)
+      continue;
+
+    vecDates.insert(it, executionDate);
+  }
+
+  return vecDates;
+}
+
 std::string terrama2::core::getMask(DataSetPtr dataSet)
 {
   try
