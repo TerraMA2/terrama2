@@ -251,6 +251,11 @@
                             promises.push(DataManager.upsertViewStyleLegendMetadata({key: k, legend_id: view.legend.id}, {key: k, value: legend.metadata[k], legend_id: view.legend.id}, options));
                           }
                         }
+                        for (var k in view.legend.metadata){
+                          if (!legend.metadata.hasOwnProperty(k)) {
+                            promises.push(DataManager.removeViewStyleLegendMetadata({key: k, legend_id: view.legend.id}, options));
+                          }
+                        }
                         return PromiseClass.all(promises);
                       });
                   });

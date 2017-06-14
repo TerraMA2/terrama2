@@ -4731,6 +4731,18 @@ var DataManager = module.exports = {
         });
     });
   },
+  removeViewStyleLegendMetadata: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return models.db.ViewStyleLegendMetadata.destroy(Utils.extend({where: restriction}, options))
+        .then(function() {
+          return resolve();
+        })
+        .catch(function(err) {
+          return reject(err);
+        });
+    });
+  },
   /**
    * It performs update or insert view legend color in database.
    *
@@ -4848,7 +4860,7 @@ var DataManager = module.exports = {
       return models.db.View.create(viewObject, options)
         .then(function(viewResult) {
           view = viewResult;
-          if (!Utils.isEmpty(viewObject.legend)) {
+          if (!Utils.isEmpty(viewObject.legend) && !Utils.isEmpty(viewObject.legend.metadata)) {
             var legend = viewObject.legend;
             legend.view_id = view.id;
             return self.addViewStyleLegend(legend, options);
