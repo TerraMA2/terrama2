@@ -30,6 +30,7 @@
 #include <memory>
 
 #include <terrama2/services/view/core/Utils.hpp>
+#include <terrama2/services/view/core/data-access/Geoserver.hpp>
 #include <terrama2/core/Shared.hpp>
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/core/utility/TerraMA2Init.hpp>
@@ -59,7 +60,7 @@ int main(int argc, char** argv)
     // DataProvider information
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
-    dataProvider->uri = "file:///" + TERRAMA2_DATA_DIR + "/grads";
+    dataProvider->uri = "file:///" + TERRAMA2_DATA_DIR + "/umidade";
 
     dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
     dataProvider->dataProviderType = "FILE";
@@ -98,7 +99,14 @@ int main(int argc, char** argv)
 
     QUrl url(QString::fromStdString(dataProvider->uri));
     terrama2::core::Filter filter;
-    terrama2::services::view::core::createGeoserverTempMosaic(dataManager, dataSetPtr, filter, "Umin", url.path().toStdString());
+
+    terrama2::services::view::core::GeoServer geoserver(te::core::URI("http://lochosts:8080/geoserver/"));
+
+    geoserver.createGeoserverTempMosaic(dataManager,
+                                       dataSetPtr,
+                                       filter,
+                                       "Umin",
+                                       url.path().toStdString());
   }
 
   return 0;

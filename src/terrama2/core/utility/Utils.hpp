@@ -147,7 +147,7 @@ namespace terrama2
     */
     std::string getTimeInterval(terrama2::core::DataSetPtr dataset);
 
-    /*!
+     /*!
       \brief Create an expansible raster from another raster.
 
       The content will be copied by block.
@@ -182,6 +182,16 @@ namespace terrama2
      * \return A vector with the splitted parts of the text.
      */
     std::vector<std::string> splitString(const std::string& text, char delim);
+
+    /*!
+     * \brief Get all the dates avaible from a dataset column, the returned vector do not has duplicated dates and
+     * is ASC ordered
+     * \param teDataset
+     * \param datetimeColumnName
+     * \return A vector with dates, with no duplicated dates
+     */
+    std::vector<std::shared_ptr<te::dt::DateTime> > getAllDates(te::da::DataSet* teDataset,
+                                                                const std::string& datetimeColumnName);
 
     //! Recover complete mask, folder plus file mask
     std::string getMask(DataSetPtr dataset);
