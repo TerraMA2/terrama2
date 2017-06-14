@@ -33,6 +33,7 @@
 #include <terrama2/core/data-model/DataSetGrid.hpp>
 #include <terrama2/core/utility/SemanticsManager.hpp>
 #include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/utility/GeoUtils.hpp>
 
 
 #include "MockCollectorLogger.hpp"

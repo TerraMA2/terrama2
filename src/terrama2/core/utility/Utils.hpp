@@ -105,16 +105,6 @@ namespace terrama2
     */
     void enableLogger();
 
-    /*!
-      \brief Returns the SRID of a UTM projection based on the zone of given coordinate.
-    */
-    int getUTMSrid(te::gm::Geometry* geom);
-
-    /*!
-      \brief Converts the distance from the given unit to the target unit.
-    */
-    double convertDistanceUnit(double distance, const std::string& fromUnit, const std::string& targetUnit);
-
     DataSeriesType dataSeriesTypeFromString(const std::string& type);
 
     DataSeriesTemporality dataSeriesTemporalityFromString(const std::string& temporality);
@@ -122,8 +112,6 @@ namespace terrama2
     bool isValidColumn(size_t value);
 
     std::string getProperty(DataSetPtr dataSet, DataSeriesPtr dataSeries, std::string tag, bool logErrors = true);
-
-    std::shared_ptr<te::gm::Geometry> ewktToGeom(const std::string& ewkt);
 
     /*!
       \brief Remove complex characters from the string
@@ -146,23 +134,6 @@ namespace terrama2
       \brief Returns the value for the time interval property of a temporal dataset.
     */
     std::string getTimeInterval(terrama2::core::DataSetPtr dataset);
-
-     /*!
-      \brief Create an expansible raster from another raster.
-
-      The content will be copied by block.
-    */
-    std::unique_ptr<te::rst::Raster> cloneRaster(const te::rst::Raster& raster);
-
-
-    /*!
-     * \brief Create an expansible raster from another raster.
-              Each value of raster will be multiplied by multiplier parameter.
-     * \param raster The raster to copy
-     * \param multiplier The value to multiply the raster values
-     * \return An expansible raster
-     */
-    std::unique_ptr<te::rst::Raster> multiplyRaster(const te::rst::Raster& raster, const double& multiplier);
 
 
     size_t propertyPosition(const te::da::DataSet* dataSet, const std::string& propertyName);

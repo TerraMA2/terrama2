@@ -133,7 +133,7 @@ double terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl( 
     //if it's an invalid geometry, return nan but continue the analysis
     if(!moGeom->isValid())
       return std::nan("");
-      
+
     auto geomResult = createBuffer(buffer, moGeom);
 
     auto dataSeries = context->findDataSeries(dataSeriesName);
@@ -188,7 +188,7 @@ double terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl( 
         std::map<std::pair<int, int>, double> tempValuesMap;
         for(size_t band = bandBegin; band <= bandEnd; ++ band)
         {
-          utils::getRasterValues<double>(geomResult.get(), raster, band, tempValuesMap);
+          utils::getRasterValues<double>(geomResult, raster, band, tempValuesMap);
           transform(tempValuesMap.cbegin(), tempValuesMap.cend(), back_inserter(values), [](const std::pair<std::pair<int, int>, double>& val){ return val.second;} );
         }
       }

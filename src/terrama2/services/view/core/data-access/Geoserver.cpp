@@ -1556,7 +1556,7 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
     std::unique_ptr<te::mem::DataSet> ds(new te::mem::DataSet(teDataSetType.get()));
 
     // Insert data
-    for(auto rasterInfo : vecRasterInfo)
+    for(const auto& rasterInfo : vecRasterInfo)
     {
       std::string rasterName;
       te::dt::TimeInstant rasterTimeInstantTz;
@@ -1640,7 +1640,7 @@ terrama2::services::view::core::GeoServer::getRasterInfo(terrama2::core::DataMan
 
   std::vector<std::tuple<std::string, te::dt::TimeInstant, int, te::gm::Envelope*>> vecRasterInfo;
 
-  for(auto data : dataMap)
+  for(const auto& data : dataMap)
   {
     const auto& dataSetSeries = data.second;
 
@@ -1933,7 +1933,7 @@ int terrama2::services::view::core::GeoServer::createGeoserverTempMosaic(terrama
   te::da::DataSetType* dt = new te::da::DataSetType(dataSeries->name);
   int geomSRID = 0;
 
-  for(auto data : dataMap)
+  for(const auto& data : dataMap)
   {
     const auto& dataSetSeries = data.second;
     auto rasterProperty = te::da::GetFirstRasterProperty(dataSetSeries.teDataSetType.get());

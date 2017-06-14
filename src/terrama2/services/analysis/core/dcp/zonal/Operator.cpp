@@ -40,6 +40,7 @@
 #include "../../../../../core/data-access/SynchronizedDataSet.hpp"
 #include "../../../../../core/Shared.hpp"
 #include "../../../../../core/utility/Logger.hpp"
+#include "../../../../../core/utility/GeoUtils.hpp"
 #include "../zonal/influence/Operator.hpp"
 
 // QT
