@@ -50,12 +50,13 @@
 // QT
 #include <QString>
 
+#include <boost/algorithm/string.hpp>
 
 std::vector< std::string > terrama2::services::analysis::core::dcp::zonal::influence::byAttribute(const std::string& dataSeriesName, std::vector<std::string> attributeList)
 {
 
-  std::vector< std::string > vecDCP;
-
+  /////////////////////////////////////////
+  // verify input data
   OperatorCache cache;
   python::readInfoFromDict(cache);
 
@@ -79,39 +80,42 @@ std::vector< std::string > terrama2::services::analysis::core::dcp::zonal::influ
   catch(const terrama2::Exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
-    return vecDCP;
+    return {};
   }
-
 
   // In case an error has already occurred, there is nothing to do.
   if(context->hasError())
-  {
-    return vecDCP;
-  }
+    return {};
 
-  if(dataSeriesName.empty())
-  {
-    QString errMsg(QObject::tr("Invalid data series name"));
-    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
-    return vecDCP;
-  }
+    if(dataSeriesName.empty())
+    {
+      QString errMsg(QObject::tr("Invalid data series name"));
+      context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
+      return {};
+    }
 
-  if(attributeList.empty())
-  {
-    QString errMsg(QObject::tr("Empty attribute list"));
-    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
-    return vecDCP;
-  }
+    if(attributeList.empty())
+    {
+      QString errMsg(QObject::tr("Empty attribute list"));
+      context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
+      return {};
+    }
+
+  // end verify input data
+  ////////////////////////////////////////////////////////
+
 
   try
   {
+    /////////////////////////////////////////////////////////////
+    // recover operation data
+
     auto dataManagerPtr = context->getDataManager().lock();
     if(!dataManagerPtr)
     {
       QString errMsg(QObject::tr("Invalid data manager."));
       throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(errMsg);
     }
-
 
     auto dcpDataSeries = dataManagerPtr->findDataSeries(analysis->id, dataSeriesName);
     if(!dcpDataSeries)
@@ -127,68 +131,67 @@ std::vector< std::string > terrama2::services::analysis::core::dcp::zonal::influ
       throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
     }
 
+    if(!moDsContext->series.teDataSetType)
+    {
+      QString errMsg(QObject::tr("Invalid dataset type for monitored object data series."));
+      throw terrama2::services::analysis::core::InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
+    }
+    // end recover operation data
+    ////////////////////////////////
+
+    ////////////////////////////////
+    // find influence
+
+    // set of unique dcp alias
+    std::set< std::string > vecDCP;
+    terrama2::core::SynchronizedDataSetPtr syncDs = moDsContext->series.syncDataSet;
     for(const std::string& attribute : attributeList)
     {
-      if(!moDsContext->series.teDataSetType)
-      {
-        QString errMsg(QObject::tr("Invalid dataset type for monitored object data series."));
-        throw terrama2::services::analysis::core::InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
-      }
-
       if(moDsContext->series.teDataSetType->getProperty(attribute) == nullptr)
       {
         QString errMsg(QObject::tr("Invalid monitored object attribute: %1.").arg(attribute.c_str()));
         throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
       }
 
-      if(!moDsContext->series.syncDataSet->isNull(cache.index, attribute))
-      {
-        // Stores the result in the context
-        auto syncDs = moDsContext->series.syncDataSet;
-        DataSetId dcpId = syncDs->getInt32(cache.index, attribute);
+      if(syncDs->isNull(cache.index, attribute))
+        continue;
 
-        bool found = false;
-        for(const auto& dataSet : dcpDataSeries->datasetList)
-        {
-          if(dcpId == dataSet->id)
-          {
-            vecDCP.push_back(dataSet->format.at("alias"));
-            found = true;
-            break;
-          }
-        }
+      auto dataSetAliasListStr = syncDs->getString(cache.index, attribute);
+      if(dataSetAliasListStr.empty())
+        continue;
 
-        if(!found)
-        {
-          QString errMsg(QObject::tr("Could not find DCP identifier (%1) in dataseries %2.").arg(dcpId).arg(dataSeriesName.c_str()));
-          throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
-        }
-      }
+
+      std::vector<std::string> aliasVec;
+      boost::split(aliasVec, dataSetAliasListStr, [](char c){return c == ';';});
+
+      vecDCP.insert(aliasVec.begin(), aliasVec.end());
     }
+    // end find influence
+    ////////////////////////////////
 
+    if(!vecDCP.empty())
+    {
+      TERRAMA2_LOG_DEBUG() << syncDs->getString(cache.index, "nome");
+      std::for_each(vecDCP.begin(), vecDCP.end(), [](const std::string& dcp){ TERRAMA2_LOG_DEBUG() << dcp; });
+    }
+    return std::vector<std::string>(vecDCP.begin(), vecDCP.end());
   }
   catch(const terrama2::Exception& e)
   {
     context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
-    vecDCP.clear();
-    return vecDCP;
+    return {};
   }
   catch(const std::exception& e)
   {
     context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, e.what());
-    vecDCP.clear();
-    return vecDCP;
+    return {};
   }
   catch(...)
   {
-    QString errMsg = QObject::tr("An unknown exception occurred.");
+    QString errMsg = QObject::tr("An unknown exception occurred in dcp::zonal::influence::byAttribute.");
     context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
-    vecDCP.clear();
-    return vecDCP;
+    return {};
   }
-
-  return vecDCP;
-
 }
 
 std::vector< std::string > terrama2::services::analysis::core::dcp::zonal::influence::byRule(const std::string& dataSeriesName,
