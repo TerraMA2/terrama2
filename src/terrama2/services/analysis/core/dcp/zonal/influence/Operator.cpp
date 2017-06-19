@@ -169,11 +169,6 @@ std::vector< std::string > terrama2::services::analysis::core::dcp::zonal::influ
     // end find influence
     ////////////////////////////////
 
-    if(!vecDCP.empty())
-    {
-      TERRAMA2_LOG_DEBUG() << syncDs->getString(cache.index, "nome");
-      std::for_each(vecDCP.begin(), vecDCP.end(), [](const std::string& dcp){ TERRAMA2_LOG_DEBUG() << dcp; });
-    }
     return std::vector<std::string>(vecDCP.begin(), vecDCP.end());
   }
   catch(const terrama2::Exception& e)
