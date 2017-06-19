@@ -111,8 +111,6 @@ namespace terrama2
             //! Get the propper function to evaluate the risk level of a value.
             std::function<std::tuple<int, std::string, std::string>(size_t pos)> createGetRiskFunction(terrama2::core::Risk risk, std::shared_ptr<te::da::DataSet> teDataSet);
 
-            std::vector<std::shared_ptr<te::dt::DateTime> > getDates(std::shared_ptr<te::da::DataSet> teDataset, std::string datetimeColumnName);
-
             std::map<std::shared_ptr<te::dt::AbstractData>, std::map<std::string, std::pair<std::shared_ptr<te::dt::AbstractData>, uint32_t> >, terrama2::services::alert::core::comparatorAbstractData>
             getResultMap(AlertPtr alertPtr,
                          size_t pos,

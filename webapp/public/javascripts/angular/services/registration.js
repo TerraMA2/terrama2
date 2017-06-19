@@ -354,7 +354,13 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
        * is responsible to compare the values.
        */
       $scope.$watch(function() {
-        return self.ssh.isValid && self.db.isValid && self.portNumber.isValid && self.mailConnection.isValid && self.geoserverConnection.isValid;
+        if(self.service.service_type_id == 4) {
+          return self.ssh.isValid && self.db.isValid && self.portNumber.isValid && self.mailConnection.isValid;
+        } else if(self.service.service_type_id == 3) {
+          return self.ssh.isValid && self.db.isValid && self.portNumber.isValid && self.geoserverConnection.isValid;
+        } else {
+          return self.ssh.isValid && self.db.isValid && self.portNumber.isValid;
+        }
       }, function(value) {
         if (initializing) {
           initializing = false;

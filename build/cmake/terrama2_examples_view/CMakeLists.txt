@@ -30,6 +30,10 @@
 
 SET(TERRAMA2_EXAMPLE_VIEW "${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/examples/view/")
 
+if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR (CMAKE_CXX_COMPILER MATCHES ".*clang") OR (CMAKE_CXX_COMPILER_ID STREQUAL "Clang"))
+   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+endif()
+
 file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_EXAMPLE_VIEW}*.cpp)
 file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_EXAMPLE_VIEW}*.hpp)
 
@@ -43,6 +47,8 @@ include_directories ( SYSTEM
   ${terralib_INCLUDE_DIRS}
   ${terralib_DIR}
   ${Qt5Core_INCLUDE_DIRS}
+  ${GTEST_INCLUDE_DIRS}
+  ${GMOCK_INCLUDE_DIRS}
 )
 
 set(CMAKE_AUTOMOC ON)
@@ -60,9 +66,9 @@ foreach(FILE ${TERRAMA2_SRC_FILES})
 
    qt5_use_modules(${EXAMPLE} Core )
 
-   target_link_libraries(${EXAMPLE} terrama2_view_core
+   target_link_libraries(${EXAMPLE} terrama2_core
                                     terrama2_impl
-                                    terralib_mod_common
-                                    terralib_mod_qt_widgets
-                                    terralib_mod_maptools)
+                                    terrama2_view_core
+                                    ${GTEST_BOTH_LIBRARIES}
+                                    ${GMOCK_BOTH_LIBRARIES})
 endforeach()

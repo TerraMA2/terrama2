@@ -33,6 +33,7 @@
 #include "../../../../core/Exception.hpp"
 #include "../../../../core/utility/JSonUtils.hpp"
 #include "../../../../core/utility/Utils.hpp"
+#include "../../../../core/utility/GeoUtils.hpp"
 #include "../../../../core/utility/Logger.hpp"
 #include "../../../../core/utility/TimeUtils.hpp"
 

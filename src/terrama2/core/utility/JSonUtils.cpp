@@ -35,6 +35,7 @@
 #include "../data-model/DataSetOccurrence.hpp"
 #include "../utility/SemanticsManager.hpp"
 #include "../utility/TimeUtils.hpp"
+#include "../utility/GeoUtils.hpp"
 #include "../utility/Utils.hpp"
 #include "../utility/Logger.hpp"
 #include "../utility/Verify.hpp"

@@ -42,6 +42,7 @@
 #include <terralib/core/uri/URI.h>
 #include <terralib/se/Style.h>
 #include <terralib/geometry/Envelope.h>
+#include <terralib/datatype/DateTimeProperty.h>
 
 // STL
 #include <string>
@@ -187,10 +188,11 @@ namespace terrama2
                                         const std::string& mosaicPath,
                                         const std::string& coverageName,
                                         const int srid,
-                                        const std::string& style = "") const;
+                                        const std::string& style = "",
+                                        const std::string& configure = "all") const;
 
             std::unique_ptr<te::se::Style> generateVectorialStyle(const View::Legend& legend,
-                                                         const std::unique_ptr<te::da::DataSetType>& dataSetType) const;
+                                                                  const te::gm::GeomType& geomType) const;
 
             /*!
              * \brief Method to register a style in the GeoServer from a text file
@@ -216,7 +218,8 @@ namespace terrama2
 
             void registerStyle(const std::string& name,
                                const View::Legend& legend,
-                               const std::unique_ptr<te::da::DataSetType>& dataSetType) const;
+                               const View::Legend::ObjectType&objectType,
+                               const te::gm::GeomType& geomType = te::gm::UnknownGeometryType) const;
 
             /*!
              * \brief Method to delete a workspace in Geoserver
@@ -274,6 +277,13 @@ namespace terrama2
             const std::string& getDataStore(const std::string& name) const;
 
             /*!
+             * \brief getCoverageStore
+             * \param name The name of the store in GeoServer
+             * \return
+             */
+            const std::string& getCoverageStore(const std::string& name) const;
+
+            /*!
              * \brief getFeature
              * \param dataStoreName The name of the store in GeoServer
              * \param name The name of the layer in GeoServer
@@ -303,6 +313,58 @@ namespace terrama2
                                            const std::string& layerName) const;
 
             std::string getGeomTypeString(const te::gm::GeomType& geomType) const;
+
+            std::vector<std::string> registerMosaics(const terrama2::core::DataProviderPtr inputDataProvider,
+                                                     const terrama2::core::DataSeriesPtr inputDataSeries,
+                                                     const std::shared_ptr<DataManager> dataManager,
+                                                     const ViewPtr viewPtr, const te::core::URI& connInfo) const;
+
+            void createGeoserverPropertiesFile(const std::string& outputFolder,
+                                               const std::string& exhibitionName,
+                                               DataSeriesId dataSeriesId) const;
+
+            /*!
+             * \brief createGeoserverTempMosaic
+             * \param dataManager
+             * \param dataset
+             * \param filter
+             * \param exhibitionName
+             * \param outputFolder
+             * \return Return the geometry SRID
+             */
+            int createGeoserverTempMosaic(terrama2::core::DataManagerPtr dataManager,
+                                          terrama2::core::DataSetPtr dataset,
+                                          const terrama2::core::Filter& filter,
+                                          const std::string& exhibitionName,
+                                          const std::string& outputFolder) const;
+
+            std::string createPostgisDatastorePropertiesFile(const std::string& outputFolder,
+                                                      const te::core::URI& connInfo) const;
+
+            std::string createPostgisMosaicLayerPropertiesFile(const std::string& outputFolder,
+                                                        const std::string& exhibitionName,
+                                                        const int srid) const;
+
+            void createPostgisIndexerPropertiesFile(const std::string& outputFolder,
+                                                    const std::string& exhibitionName) const;
+
+            void createTimeregexPropertiesFile(const std::string& outputFolder,
+                                               const std::string& regex) const;
+
+            /*!
+             * \brief
+             * \param dataManager
+             * \param dataset
+             * \param filter
+             * \return
+             */
+            std::vector<std::tuple<std::string, te::dt::TimeInstant, int, te::gm::Envelope*> > getRasterInfo(terrama2::core::DataManagerPtr dataManager,
+                          terrama2::core::DataSetPtr dataset,
+                          const terrama2::core::Filter& filter) const;
+
+            void createMosaicTable(std::shared_ptr<te::da::DataSource> transactor,
+                                   const std::string& tableName,
+                                   int srid) const;
 
           private:
 

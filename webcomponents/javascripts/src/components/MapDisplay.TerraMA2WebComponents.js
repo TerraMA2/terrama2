@@ -114,7 +114,7 @@ define(
      * Updates the opacity of the layer, allowed values range from 0 to 1.
      * @param {string} layerId - Layer id
      * @param {number} opacityValue = Opacity value to set in layer
-     * 
+     *
      * @function updateLayerOpacity
      * @memberof MapDisplay
      * @inner
@@ -127,7 +127,7 @@ define(
     /**
      * Get the opacity of the layer.
      * @param {string} layerId - Layer id
-     * 
+     *
      * @function getLayerOpacity
      * @memberof MapDisplay
      * @inner
@@ -1396,7 +1396,7 @@ define(
      * @inner
      */
     var applyCQLFilter = function(cql, layerId) {
-      findBy(memberOlMap.getLayerGroup(), 'id', layerId).getSource().updateParams({ "CQL_FILTER": cql });
+      findBy(memberOlMap.getLayerGroup(), 'id', layerId).getSource().updateParams({ "CQL_FILTER": (cql == "" ? null : cql) });
     };
 
     /**

@@ -437,7 +437,7 @@ void terrama2::services::analysis::core::python::readInfoFromDict(OperatorCache&
   // Analysis ID
   PyObject* analysisKey = PyString_FromString("analysisHashCode");
   PyObject* analysisPy = PyDict_GetItem(pDict, analysisKey);
-  if(analysisPy != NULL)
+  if(analysisPy != nullptr)
   {
     cache.analysisHashCode = PyInt_AsLong(analysisPy);
   }

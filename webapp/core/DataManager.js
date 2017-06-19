@@ -327,15 +327,9 @@ var DataManager = module.exports = {
             semanticsObject.forEach(function(semanticsElement) {
               semanticsWithProviders[semanticsElement.code] = semanticsElement.providers_type_list;
               promises.push(self.addDataSeriesSemantics({
-                id: semanticsElement.id,
-                temporality: semanticsElement.temporality,
                 code: semanticsElement.code,
-                name: semanticsElement.name,
                 data_format_name: semanticsElement.format,
-                data_series_type_name: semanticsElement.type,
-                allow_storage: semanticsElement.allow_storage || false,
-                allow_direct_access: semanticsElement.allow_direct_access,
-                custom_format: semanticsElement.custom_format
+                data_series_type_name: semanticsElement.type
               }, semanticsElement.providers_type_list, semanticsElement.metadata));
             });
 
@@ -1835,6 +1829,12 @@ var DataManager = module.exports = {
         })
 
         .then(function(dataSeriesSemantics) {
+          var semanticsList = Application.get("semantics");
+          var semantic = semanticsList.find(function(dSeriesSemantic){
+            return dataSeriesSemantics.code == dSeriesSemantic.code;
+          });
+          Object.assign(dataSeriesSemantics, semantic);
+          dataSeries.semantics = dataSeriesSemantics;
           dataSeries.data_series_semantics = dataSeriesSemantics;
           /**
            * Helper to iterate over formats in order to build promise "upsertDataSetFormats"

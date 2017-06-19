@@ -1,6 +1,5 @@
 [
   {
-    "id": 1,
     "name": "Occurrence – PostGIS",
     "code": "OCCURRENCE-postgis",
     "driver": "OCCURRENCE-postgis",
