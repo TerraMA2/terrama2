@@ -67,6 +67,7 @@ namespace terrama2
     {
       //! DCP position
       std::shared_ptr<te::gm::Point> position;//TODO: A posição é sempre um ponto? pode ser uma região?
+      inline const std::string& alias() const { return format.at("alias"); }
     };
   } // end namespace core
 } // end namespace terrama2
