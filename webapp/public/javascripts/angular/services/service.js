@@ -213,6 +213,8 @@ define([], function() {
         startAll: function() {
           $scope.extra.service.starting = true;
           $scope.model.forEach(function(modelInstance) {
+            modelInstance.showErrorButton = true;
+
             if (!modelInstance.online) {
               if (!modelInstance.loading) {
                 modelInstance.loading = true;
@@ -252,6 +254,8 @@ define([], function() {
         },
 
         handler: function(serviceInstance) {
+          serviceInstance.showErrorButton = true;
+
           if (!serviceInstance.online) {
             $scope.socket.emit('start', {service: serviceInstance.id});
           } else {

@@ -153,7 +153,7 @@
           </td>
 
           <td ng-if="extra.service">
-            <button ng-show="element.hasError" ng-click="showErrorInfo(element)" class="btn btn-default btn-sm pull-right" style="color: red; border-color: red;"> 
+            <button ng-show="element.showErrorButton && element.hasError" ng-click="showErrorInfo(element)" class="btn btn-default btn-sm pull-right" style="color: red; border-color: red;"> 
               <i class="fa fa-warning"></i>
             </button>
           </td>
