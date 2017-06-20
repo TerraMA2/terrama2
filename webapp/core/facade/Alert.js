@@ -23,14 +23,17 @@
    */
   function sendAlert(args, shouldRun) {
     var objToSend = {
-      "Alerts": []
+      "Alerts": [],
+      "Legends": []
     };
     if (args instanceof Array) {
       args.forEach(function(arg) {
         objToSend.Alerts.push(arg.toService());
+        objToSend.Legends.push(arg.legend.toService());
       });
     } else {
       objToSend.Alerts.push(args.toService());
+      objToSend.Legends.push(args.legend.toService());
     }
 
     TcpService.send(objToSend)

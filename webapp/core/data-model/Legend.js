@@ -94,6 +94,7 @@
       levelsCopy.push(level);
     });
     return Object.assign(BaseClass.prototype.toObject.call(this), {
+      id: this.id,
       name: this.name,
       project_id: this.project_id,
       description: this.description,
