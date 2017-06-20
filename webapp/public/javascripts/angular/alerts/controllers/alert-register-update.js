@@ -134,6 +134,21 @@ define([], function() {
       }
     ];
 
+    self.color = "#FF00FF";
+
+    self.defaultColorOpts = {
+      format: "hex",
+      required: true
+    };
+    /**
+     * It defines a event listeners for color handling
+     */
+    self.events = {
+      onChange: function (api, color, $event) {
+        console.log("fra");
+      }
+    };
+    
     $q.all([
       i18n.ensureLocaleIsLoaded(),
       DataSeriesService.init({schema: "all"}),
@@ -178,6 +193,9 @@ define([], function() {
             });
 
             for(var j = 0, levelsLength = risk.levels.length; j < levelsLength; j++) {
+              if (risk.levels[j].value == null){
+                risk.levels[j].isDefault = true;
+              }
               risk.levels[j]._id = UniqueNumber();
               delete risk.levels[j].risk_id;
             }
@@ -190,6 +208,12 @@ define([], function() {
               if(self.risks[i].id === self.alert.risk.id) {
                 self.riskModel = self.risks[i];
 
+                for(var j = 0, levelsLength = self.riskModel.levels.length; j < levelsLength; j++) {
+                  if (self.riskModel.levels[j].value == null){
+                    self.riskModel.levels[j].isDefault = true;
+                    break;
+                  }
+                }
                 for(var j = 0, levelsLength = self.riskModel.levels.length; j < levelsLength; j++) {
                   if(self.riskModel.levels[j].level === self.alert.notifications[0].notify_on_risk_level) {
                     self.notify_on_risk_level = self.riskModel.levels[j]._id;
@@ -296,6 +320,11 @@ define([], function() {
             self.risks[i].name = i18n.__("New Risk");
             self.risks[i].description = "";
             self.risks[i].levels = [
+              {
+                _id: UniqueNumber(),
+                name: "Default",
+                isDefault: true
+              },
               {
                 _id: UniqueNumber(),
                 name: "",
@@ -472,17 +501,19 @@ define([], function() {
       if(self.riskLevelNameError === undefined) self.riskLevelNameError = {};
 
       for(var i = 0, levelsLength = self.riskModel.levels.length; i < levelsLength; i++) {
-        if(isNaN(self.riskModel.levels[i].value) || self.riskModel.levels[i].value === "") {
-          self.riskLevelValueError[self.riskModel.levels[i]._id] = true;
-          self.isNotValid = true;
-        } else if(lastValue !== null && parseFloat(lastValue) > parseFloat(self.riskModel.levels[i].value)) {
-          self.riskLevelOrderError = true;
-          self.riskLevelValueError[self.riskModel.levels[i]._id] = false;
-          lastValue = self.riskModel.levels[i].value;
-          self.isNotValid = true;
-        } else {
-          self.riskLevelValueError[self.riskModel.levels[i]._id] = false;
-          lastValue = self.riskModel.levels[i].value;
+        if(!self.riskModel.levels[i].isDefault){
+          if(isNaN(self.riskModel.levels[i].value) || self.riskModel.levels[i].value === "") {
+            self.riskLevelValueError[self.riskModel.levels[i]._id] = true;
+            self.isNotValid = true;
+          } else if(lastValue !== null && parseFloat(lastValue) > parseFloat(self.riskModel.levels[i].value)) {
+            self.riskLevelOrderError = true;
+            self.riskLevelValueError[self.riskModel.levels[i]._id] = false;
+            lastValue = self.riskModel.levels[i].value;
+            self.isNotValid = true;
+          } else {
+            self.riskLevelValueError[self.riskModel.levels[i]._id] = false;
+            lastValue = self.riskModel.levels[i].value;
+          }
         }
 
         if(self.riskModel.levels[i].name === undefined || self.riskModel.levels[i].name === "") {
@@ -540,6 +571,9 @@ define([], function() {
         var level = 1;
 
         for(var i = 0, levelsLength = riskTemp.levels.length; i < levelsLength; i++) {
+          if (riskTemp.levels[i].isDefault){
+            continue;
+          }
           if(self.notify_on_risk_level === riskTemp.levels[i]._id)
             self.alert.notifications[0].notify_on_risk_level = level;
 

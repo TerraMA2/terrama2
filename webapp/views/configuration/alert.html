@@ -10,6 +10,10 @@
 <link rel="stylesheet" href="{[ BASE_URL ]}bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css">
 <link rel="stylesheet" href="{[ BASE_URL ]}bower_components/angular-ui-select/dist/select.min.css" />
 
+<!-- Angular Color Picker -->
+<link rel="stylesheet" href="{[ BASE_URL ]}bower_components/angular-color-picker/dist/angularjs-color-picker.min.css" />
+<link rel="stylesheet" href="{[ BASE_URL ]}bower_components/angular-ui-select/dist/select.min.css" />
+
 {% endblock %}
 
 {% block javascripts %}
@@ -28,6 +32,11 @@
 <script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/es.js"></script>
 <script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/fr.js"></script>
 <script type="text/javascript" src="{[ BASE_URL ]}bower_components/angular-eonasdan-datetimepicker/dist/angular-eonasdan-datetimepicker.min.js"></script>
+<script src="{[ BASE_URL ]}bower_components/angular-ui-select/dist/select.min.js"></script>
+
+<!-- Angular Color Picker -->
+<script src="{[ BASE_URL ]}bower_components/tinycolor/dist/tinycolor-min.js"></script>
+<script src="{[ BASE_URL ]}bower_components/angular-color-picker/dist/angularjs-color-picker.min.js"></script>
 <script src="{[ BASE_URL ]}bower_components/angular-ui-select/dist/select.min.js"></script>
 
 <script>
@@ -103,7 +112,7 @@
             </div> <!-- ./col-md-2 -->
           </div><!-- ./col-md-12 -->
           <div class="col-md-12">
-            <div class="col-md-12">
+            <div class="col-md-10">
               <div class="form-group">
                 <label><span ng-bind="i18n.__('Description')"></span>:</label>
                 <textarea class="form-control"
@@ -114,6 +123,21 @@
               </div>
               <!-- /.form-group -->
             </div>
+
+            <div class="col-md-2">
+              <div class="form-group">
+                <div class="checkbox">
+                  <label style="font-weight: 700; margin-top:19px;">
+                    <input type="checkbox"
+                           name="create_view"
+                           ng-model="ctrl.alert.hasView"
+                           ng-true-value="true"
+                           ng-false-value="false"> <span ng-bind="i18n.__('Create View')"></span>
+                  </label>
+                </div>
+              </div>
+            </div> <!-- ./col-md-2 -->
+
           </div>
         </div>
       </form>
@@ -217,21 +241,29 @@
             </div>
           </div>
           <span ng-repeat="level in ctrl.riskModel.levels">
-            <div ng-class="{ 'col-md-5': ctrl.riskModel.levels.length > 1, 'col-md-6': ctrl.riskModel.levels.length === 1 }">
-              <div class="form-group" ng-class="{'has-error': ctrl.riskLevelNameError[level._id]}">
-                <label><span ng-bind="i18n.__('Level Name')"></span>:</label>
-                <input class="form-control" name="levelName{{ level._id }}" ng-model="level.name" type="text" placeholder="{{ i18n.__('Level Name') }}">
+            <div class="col-md-12 row">
+              <div class="col-md-4">
+                <div class="form-group" ng-class="{'has-error': ctrl.riskLevelNameError[level._id]}">
+                  <label><span ng-bind="i18n.__('Level Name')"></span>:</label>
+                  <input class="form-control" name="levelName{{ level._id }}" ng-model="level.name" type="text" placeholder="{{ i18n.__('Level Name') }}">
+                </div>
               </div>
-            </div>
-            <div ng-class="{ 'col-md-5': ctrl.riskModel.levels.length > 1, 'col-md-6': ctrl.riskModel.levels.length === 1 }">
-              <div class="form-group" ng-class="{'has-error': ctrl.riskLevelValueError[level._id] || ctrl.riskLevelOrderError}">
-                <label><span ng-bind="i18n.__('Risk Value')"></span>:</label>
-                <input class="form-control" name="levelValue{{ level._id }}" ng-model="level.value" type="number" placeholder="{{ i18n.__('Risk Value') }}">
+              <div class="col-md-4">
+                <div ng-show="!level.isDefault" class="form-group" ng-class="{'has-error': ctrl.riskLevelValueError[level._id] || ctrl.riskLevelOrderError}">
+                  <label><span ng-bind="i18n.__('Risk Value')"></span>:</label>
+                  <input class="form-control" name="levelValue{{ level._id }}" ng-model="level.value" type="number" placeholder="{{ i18n.__('Risk Value') }}">
+                </div>
               </div>
-            </div>
-            <div class="col-md-2">
-              <div class="form-group">
-                <button type="button" class="btn btn-primary" ng-click="ctrl.removeLevel(level)" style="margin-top: 25px;" ng-show="ctrl.riskModel.levels.length > 1"><span ng-bind="i18n.__('Remove')"></span></button>
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label><span ng-bind="i18n.__('Color')"></span>:</label>
+                  <color-picker ng-model="ctrl.color" options="ctrl.defaultColorOpts" event-api="ctrl.events"></color-picker>
+                </div>
+              </div>
+              <div class="col-md-1">
+                <div ng-show="!level.isDefault" class="form-group">
+                  <button type="button" class="btn btn-primary" ng-click="ctrl.removeLevel(level)" style="margin-top: 25px;" ng-show="ctrl.riskModel.levels.length > 1"><span>&times</span></button>
+                </div>
               </div>
             </div>
           </span>
@@ -327,7 +359,7 @@
             </div>
           </div>
           <div class="form-group" terrama2-show-errors>
-            <select class="form-control" name="riskLevels" ng-model="ctrl.notify_on_risk_level" ng-show="ctrl.notifyOnRiskLevel" ng-options="risk._id as risk.name for risk in ctrl.riskModel.levels" ng-required="ctrl.notifyOnRiskLevel"></select>
+            <select class="form-control" name="riskLevels" ng-model="ctrl.notify_on_risk_level" ng-show="ctrl.notifyOnRiskLevel" ng-options="risk._id as risk.name disable when risk.isDefault for risk in ctrl.riskModel.levels" ng-required="ctrl.notifyOnRiskLevel"></select>
             <span class="help-block"
                   ng-show="forms.notificationForm.riskLevels.$dirty && forms.notificationForm.riskLevels.$invalid"
                   ng-class="{'has-error': notificationForm.riskLevels.$invalid}"
