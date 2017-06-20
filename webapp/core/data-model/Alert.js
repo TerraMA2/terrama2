@@ -79,7 +79,7 @@ var Alert = function(params) {
    * @name Alert#automatic_schedule
    * @type {object}
    */
-  this.conditional_schedule = new ConditionalSchedule(params.ConditionalSchedule ? params.ConditionalSchedule.get() : params.conditionalSchedule || {});
+  this.automatic_schedule = new AutomaticSchedule(params.AutomaticSchedule ? params.AutomaticSchedule.get() : params.automaticSchedule || {});
   /**
    * @name Alert#legend
    * @type {object}
