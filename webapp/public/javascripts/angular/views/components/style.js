@@ -88,7 +88,7 @@ define([], function () {
         self.model.metadata = {
           creation_type: "2"
         };
-        self.setXmlInfo("Windbarbs_uv.xml");
+        self.setXmlInfo("wind_style.json");
         delete self.model.bands;
         delete self.model.beginColor;
         delete self.model.endColor;
@@ -100,7 +100,7 @@ define([], function () {
     self.onStyleChange = function(){
       switch (self.styleId){
         case "1":
-          self.setXmlInfo("Windbarbs_uv.xml");
+          self.setXmlInfo("wind_style.json");
           break;
         case "0":
         default:
@@ -112,9 +112,9 @@ define([], function () {
      * Setting xml data on model
      */
     self.setXmlInfo = function(styleFile){
-      var xmlUrl = BASE_URL + "xml_styles/" + styleFile;
+      var xmlUrl = BASE_URL + "json_styles/" + styleFile;
       $http.get(xmlUrl).then(function(response){
-        self.model.metadata.xml_style = response.data;
+        self.model.metadata.xml_style = response.data.xml;
       });
     }
     /**

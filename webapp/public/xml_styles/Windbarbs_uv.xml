@@ -55,12 +55,12 @@
                         <ogc:Function name="sqrt">
                           <ogc:Add>
                               <ogc:Mul>
-                                <ogc:PropertyName>u</ogc:PropertyName>
-                                <ogc:PropertyName>u</ogc:PropertyName>
+                                <ogc:PropertyName>%band1</ogc:PropertyName>
+                                <ogc:PropertyName>%band1</ogc:PropertyName>
                               </ogc:Mul>
                               <ogc:Mul>
-                                <ogc:PropertyName>v</ogc:PropertyName>
-                                <ogc:PropertyName>v</ogc:PropertyName>
+                                <ogc:PropertyName>%band2</ogc:PropertyName>
+                                <ogc:PropertyName>%band2</ogc:PropertyName>
                               </ogc:Mul>
                           </ogc:Add>
                          </ogc:Function>)[m/s]?emisphere=
@@ -77,12 +77,12 @@
                              <ogc:Function name="sqrt">
                               <ogc:Add>
                                 <ogc:Mul>
-                                 <ogc:PropertyName>u</ogc:PropertyName>
-                                 <ogc:PropertyName>u</ogc:PropertyName>
+                                 <ogc:PropertyName>%band1</ogc:PropertyName>
+                                 <ogc:PropertyName>%band1</ogc:PropertyName>
                                 </ogc:Mul>
                                 <ogc:Mul>
-                                 <ogc:PropertyName>v</ogc:PropertyName>
-                                 <ogc:PropertyName>v</ogc:PropertyName>
+                                 <ogc:PropertyName>%band2</ogc:PropertyName>
+                                 <ogc:PropertyName>%band2</ogc:PropertyName>
                                 </ogc:Mul>
                               </ogc:Add>
                              </ogc:Function>
@@ -97,12 +97,12 @@
                                <ogc:Function name="sqrt">
                                 <ogc:Add>
                                     <ogc:Mul>
-                                      <ogc:PropertyName>u</ogc:PropertyName>
-                                      <ogc:PropertyName>u</ogc:PropertyName>
+                                      <ogc:PropertyName>%band1</ogc:PropertyName>
+                                      <ogc:PropertyName>%band1</ogc:PropertyName>
                                     </ogc:Mul>
                                     <ogc:Mul>
-                                      <ogc:PropertyName>v</ogc:PropertyName>
-                                      <ogc:PropertyName>v</ogc:PropertyName>
+                                      <ogc:PropertyName>%band2</ogc:PropertyName>
+                                      <ogc:PropertyName>%band2</ogc:PropertyName>
                                     </ogc:Mul>
                                 </ogc:Add>
                               </ogc:Function>
@@ -112,8 +112,8 @@
                                <ogc:Literal>1.543333332</ogc:Literal>
                                 <ogc:Function name="toDegrees">
                             <ogc:Function name="atan2">
-                            <ogc:PropertyName>u</ogc:PropertyName>
-                            <ogc:PropertyName>v</ogc:PropertyName>
+                            <ogc:PropertyName>%band1</ogc:PropertyName>
+                            <ogc:PropertyName>%band2</ogc:PropertyName>
                          </ogc:Function>
                           </ogc:Function>
                         </ogc:Function>
