@@ -365,10 +365,11 @@ terrama2::services::analysis::core::MonitoredObjectContext::getMonitoredObjectCo
   return contextDataSeries;
 }
 
-std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::MonitoredObjectContext::getDCPBuffer(const DataSetId datasetId, const terrama2::core::Filter& filter)
+std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::MonitoredObjectContext::getDCPBuffer(const DataSetId datasetId)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
+  terrama2::core::Filter filter;
   ObjectKey key(datasetId, filter);
 
   try
@@ -377,14 +378,15 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::MonitoredO
   }
   catch (const std::out_of_range&)
   {
-    return std::shared_ptr<te::gm::Geometry>();
+    return nullptr;
   }
 }
 
-void terrama2::services::analysis::core::MonitoredObjectContext::addDCPBuffer(const DataSetId datasetId, std::shared_ptr<te::gm::Geometry> buffer, const terrama2::core::Filter& filter)
+void terrama2::services::analysis::core::MonitoredObjectContext::addDCPBuffer(const DataSetId datasetId, std::shared_ptr<te::gm::Geometry> buffer)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
+  terrama2::core::Filter filter;
   ObjectKey key(datasetId, filter);
   bufferDcpMap_[key] = buffer;
 }
