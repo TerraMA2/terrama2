@@ -160,7 +160,7 @@ namespace terrama2
               \param filter The filter to be used as key.
               \return The DCP buffer.
             */
-            std::shared_ptr<te::gm::Geometry> getDCPBuffer(const DataSetId datasetId, const terrama2::core::Filter& filter);
+            std::shared_ptr<te::gm::Geometry> getDCPBuffer(const DataSetId datasetId);
 
             /*!
               \brief Adds the given DCP buffer to the context.
@@ -170,7 +170,7 @@ namespace terrama2
               \param filter The filter to be used as key.
 
             */
-            void addDCPBuffer(const DataSetId datasetId, std::shared_ptr<te::gm::Geometry> buffer, const terrama2::core::Filter& filter);
+            void addDCPBuffer(const DataSetId datasetId, std::shared_ptr<te::gm::Geometry> buffer);
 
 
           protected:
