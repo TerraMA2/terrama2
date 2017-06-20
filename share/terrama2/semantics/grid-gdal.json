@@ -1,6 +1,5 @@
 [
   {
-    "id": 11,
     "name": "Grid - GDAL (other formats)",
     "code": "GRID-gdal",
     "driver": "GRID-gdal",
@@ -14,16 +13,11 @@
     "gui": {
       "schema": {
         "properties": {
-          "folder": {
-            "type": "string",
-            "title": "Folder",
-            "pattern": "^[^?#!$&'()*+,;=^§]+$"
-          },
           "mask": {
             "type": "string",
             "title": "Mask",
             "format": "terrama2maskform",
-            "pattern": "^([\\w*.]+|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
+            "pattern": "^([\\/\\w()*.-]+|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
           },
           "timezone": {
             "type": "string",
@@ -39,13 +33,6 @@
         "required": ["mask", "timezone"]
       },
       "form": [
-        {
-          "key": "folder",
-          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form",
-          "validationMessage": {
-            "202": "Invalid folder"
-          }
-        },
         {
           "key": "mask",
           "maskPattern": ["%YYYY", "%YY", "%MM", "%DD", "%hh", "%mm", "%ss"],
@@ -92,5 +79,176 @@
         }
       ]
     }
-  }
+  },
+  {
+   "name": "Grid - Geotiff",
+   "code": "GRID-geotiff",
+   "driver": "GRID-gdal",
+   "type": "GRID",
+   "temporality": "DYNAMIC",
+   "format": "GDAL",
+   "providers_type_list": [
+     "FILE",
+     "FTP"
+   ],
+   "allow_storage": true,
+   "metadata": {
+     "timestamp_property": "file_timestamp"
+   },
+   "gui": {
+     "schema": {
+       "properties": {
+         "mask": {
+           "type": "string",
+           "title": "Mask",
+           "format": "terrama2maskform",
+           "pattern": "^([\\/\\w()*.-]+|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
+         },
+         "timezone": {
+           "type": "string",
+           "title": "Timezone"
+         },
+         "srid": {
+           "type": "number",
+           "minimum": 0,
+           "maximum": 998999,
+           "title": "Projection (SRID)"
+         }
+       },
+       "required": [
+         "mask",
+         "timezone"
+       ]
+     },
+     "form": [
+       {
+         "key": "mask",
+         "maskPattern": [
+           "%YYYY",
+           "%YY",
+           "%MM",
+           "%DD",
+           "%hh",
+           "%mm",
+           "%ss"
+         ],
+         "htmlClass": "col-md-6",
+         "validationMessage": {
+           "202": "Invalid mask"
+         }
+       },
+       {
+         "key": "timezone",
+         "htmlClass": "col-md-6 terrama2-schema-form",
+         "type": "select",
+         "titleMap": [
+           {
+             "name": "-12",
+             "value": "-12"
+           },
+           {
+             "name": "-11",
+             "value": "-11"
+           },
+           {
+             "name": "-10",
+             "value": "-10"
+           },
+           {
+             "name": "-9",
+             "value": "-9"
+           },
+           {
+             "name": "-8",
+             "value": "-8"
+           },
+           {
+             "name": "-7",
+             "value": "-7"
+           },
+           {
+             "name": "-6",
+             "value": "-6"
+           },
+           {
+             "name": "-5",
+             "value": "-5"
+           },
+           {
+             "name": "-4",
+             "value": "-4"
+           },
+           {
+             "name": "-3",
+             "value": "-3"
+           },
+           {
+             "name": "-2",
+             "value": "-2"
+           },
+           {
+             "name": "-1",
+             "value": "-1"
+           },
+           {
+             "name": "0",
+             "value": "0"
+           },
+           {
+             "name": "1",
+             "value": "1"
+           },
+           {
+             "name": "2",
+             "value": "2"
+           },
+           {
+             "name": "3",
+             "value": "3"
+           },
+           {
+             "name": "4",
+             "value": "4"
+           },
+           {
+             "name": "5",
+             "value": "5"
+           },
+           {
+             "name": "6",
+             "value": "6"
+           },
+           {
+             "name": "7",
+             "value": "7"
+           },
+           {
+             "name": "8",
+             "value": "8"
+           },
+           {
+             "name": "9",
+             "value": "9"
+           },
+           {
+             "name": "10",
+             "value": "10"
+           },
+           {
+             "name": "11",
+             "value": "11"
+           },
+           {
+             "name": "12",
+             "value": "12"
+           }
+         ]
+       },
+       {
+         "key": "srid",
+         "htmlClass": "col-md-6"
+       }
+     ]
+   }
+ }
 ]

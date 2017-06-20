@@ -31,6 +31,7 @@
 #include "BufferMemory.hpp"
 #include "utility/Utils.hpp"
 #include "../../../core/utility/Utils.hpp"
+#include "../../../core/utility/GeoUtils.hpp"
 #include "../../../core/utility/Logger.hpp"
 
 // TerraLib

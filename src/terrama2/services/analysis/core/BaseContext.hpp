@@ -115,7 +115,7 @@ namespace terrama2
           }
         };
 
-        class BaseContext : public std::enable_shared_from_this<BaseContext>
+        class BaseContext
         {
           public:
 

@@ -53,20 +53,8 @@ namespace terrama2
 
         void registerFactories();
 
-        /*!
-         * \brief createGeoserverTempMosaic
-         * \param dataManager
-         * \param dataset
-         * \param filter
-         * \param exhibitionName
-         * \param outputFolder
-         * \return Return the geometry SRID
-         */
-        int createGeoserverTempMosaic(terrama2::core::DataManagerPtr dataManager, terrama2::core::DataSetPtr dataset, const terrama2::core::Filter& filter, const std::string& exhibitionName, const std::string& outputFolder);
 
-        void createGeoserverPropertiesFile(const std::string& outputFolder, const std::string& exhibitionName, DataSeriesId dataSeriesId);
-
-        te::se::Symbolizer* getSymbolizer(const std::unique_ptr<te::da::DataSetType>& dataSetType,
+        te::se::Symbolizer* getSymbolizer(const te::gm::GeomType& geomType,
                                           const std::string& color) noexcept;
 
         te::se::Stroke* CreateStroke(const std::string& color,

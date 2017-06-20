@@ -165,15 +165,18 @@
                 <td>{{ inter.data_series.name }}</td>
                 <td>{{ inter.data_series.data_series_semantics.name }}</td>
                 <td class="pull-cell-left">
-                  <button type="button"
+                  <button id="select-attr-button"
+                          type="button"
                           class="btn btn-default btn-sm"
+                          ng-class="{'invalid-attrs': inter.attributes.length == 0}"
                           data-toggle="modal"
                           data-placement="top"
-                          title='{{ i18n.__("Select attributes") }}'
+                          title='{{ i18n.__("Select at least one attribute") }}'
                           name="button"
                           data-target="#attributesModal"
                           data-ng-click="onIntersectionDataSeriesClick(inter.data_series)">
                         {{ i18n.__("Attributes") }}
+                        <i ng-show="inter.attributes.length == 0" class="fa fa-times" style="color: #dd4b39"></i>
                   </button>
                 </td>
                 <td class="pull-cell-left">

@@ -305,6 +305,14 @@ bootstrap-decorator span {
   bottom: 0;
 }
 
+#select-attr-button {
+  width: 80px;
+}
+
+.invalid-attrs, .invalid-attrs:hover, .invalid-attrs:focus {
+  border-color: #dd4b39;
+}
+
 .attributes-list {
   max-height: 300px;
   overflow-y: auto;
@@ -519,3 +527,53 @@ table.dataTable tbody th, table.dataTable tbody td { padding-left: 12px !importa
 }
 
 .overlay-dcps > .fa { position: fixed !important; }
+
+.selected-directory { background-color: rgba(0, 192, 239, 0.45); }
+
+#filesExplorerModal .modal-dialog { height: 85%; }
+
+#filesExplorerModal .modal-content { height: 100%; }
+
+#filesExplorerModal .modal-body {
+  height: calc(100% - 120px);
+  overflow: auto;
+  background-color: #dedede;
+  border-top: 1px solid black;
+  border-bottom: 1px solid black;
+}
+
+#filesExplorerModal .name-div {
+  cursor: pointer;
+  padding: 2px 0 0 10px;
+  border-radius: 4px;
+  margin-left: -10px;
+  width: 100%;
+  margin-bottom: 5px;
+}
+
+#filesExplorerModal .name-div > i { margin-right: 10px; }
+
+#filesExplorerModal .name-div > img {
+  margin-right: 8px;
+  width: 15px;
+}
+
+#filesExplorerModal .file-explorer-ul {
+  list-style-type: none;
+  padding-left: 15px;
+}
+
+#filesExplorerModal .modal-content .holder-div {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  background-color: rgba(128,128,128,0.2);
+  z-index: 999999;
+  cursor: wait;
+}
+
+.button-inline-form {
+  margin-top: 25px;
+  height: 34px;
+  width: 90px;
+}

@@ -6,17 +6,28 @@
 
 {% block styles %}
 
+<!-- Bootstrap Eonasdan datatimepicker (used in TerraMA² datetimepicker wrapper) -->
+<link rel="stylesheet" href="{[ BASE_URL ]}bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css">
 <link rel="stylesheet" href="{[ BASE_URL ]}bower_components/angular-ui-select/dist/select.min.css" />
 
 {% endblock %}
 
 {% block javascripts %}
+<!-- Moment Datetime JS -->
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/moment.js"></script>
+<!-- Bootstrap datetimepicker -->
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
+
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/pt-br.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/es.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/fr.js"></script>
 
 <!-- Moment Datetime JS -->
 <script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/moment.js"></script>
 <script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/pt-br.js"></script>
 <script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/es.js"></script>
 <script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/fr.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/angular-eonasdan-datetimepicker/dist/angular-eonasdan-datetimepicker.min.js"></script>
 <script src="{[ BASE_URL ]}bower_components/angular-ui-select/dist/select.min.js"></script>
 
 <script>
@@ -106,6 +117,12 @@
           </div>
         </div>
       </form>
+    </terrama2-box>
+    
+    <terrama2-box title="i18n.__('Schedule')" css="ctrl.css">
+      <div class="col-md-12">
+        <terrama2-schedule model="ctrl.alert.schedule" options="ctrl.scheduleOptions"></terrama2-schedule>
+      </div>
     </terrama2-box>
 
     <terrama2-box title="i18n.__('Data Series')" css="ctrl.css">

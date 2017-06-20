@@ -10,8 +10,8 @@ module.exports = function(app) {
         // requesting for an object to check connection
         var factoryResult = RequestFactory.build(obj);
 
-        factoryResult.request().then(function() {
-          return response.json({status:200});
+        factoryResult.request().then(function(data) {
+          return response.json({status: 200, data: data});
         }).catch(function(err) {
           handleRequestError(response, err, 400);
         });

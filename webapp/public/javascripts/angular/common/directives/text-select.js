@@ -9,7 +9,6 @@ define(
       return {
         restrict: 'E',
         template: '<md-autocomplete ' +
-                      'required ' +
                       'name="identifier" ' +
                       'md-no-cache="true" ' +
                       'md-selected-item="selectedItem" ' +

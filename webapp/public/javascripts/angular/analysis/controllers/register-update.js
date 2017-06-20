@@ -64,7 +64,7 @@ define([], function() {
      */
     self.scheduleOptions = {
       showHistoricalOption: true,
-      showConditionalOption: true
+      showAutomaticOption: true
     };
     /**
      * It defines a helper messages associated a components. For example, there is no active service... The validate button will be disabled with
@@ -225,6 +225,9 @@ define([], function() {
               break;
             case "FTP":
               return BASE_URL + "images/data-server/ftp/ftp.png";
+              break;
+            case "SFTP":
+              return BASE_URL + "images/data-server/sftp/sftp.png";
               break;
             case "HTTP":
               return BASE_URL + "images/data-server/http/http.png";
@@ -751,7 +754,7 @@ define([], function() {
           // filtering formats
           self.storagerFormats = [];
           DataSeriesSemanticsService.list().forEach(function(dSemantics) {
-            if(dSemantics.data_series_type_name === semanticsType && !dSemantics.collector && dSemantics.temporality === Globals.enums.TemporalityType.DYNAMIC) {
+            if(dSemantics.data_series_type_name === semanticsType && dSemantics.allow_storage && dSemantics.temporality === Globals.enums.TemporalityType.DYNAMIC) {
               self.storagerFormats.push(Object.assign({}, dSemantics));
             }
           });

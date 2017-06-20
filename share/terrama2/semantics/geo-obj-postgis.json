@@ -1,6 +1,5 @@
 [
   {
-    "id": 5,
     "name": "Static geometric object - PostGIS",
     "code": "STATIC_DATA-postgis",
     "driver": "STATIC_DATA-postgis",

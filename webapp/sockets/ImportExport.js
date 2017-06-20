@@ -81,6 +81,12 @@ var ImportExport = function(io) {
         var options = {
           transaction: t
         };
+        
+        var dataSeriesSemantics;
+
+        promises.push(DataManager.listDataSeriesSemantics({}, options).then(function(semanticsList){
+          dataSeriesSemantics = semanticsList;
+        }));
 
         var thereAreProjects = (json.Projects !== undefined && json.Projects.length > 0); 
 
@@ -149,7 +155,11 @@ var ImportExport = function(io) {
 
               dataSeries.forEach(function(dSeries) {
                 // preparing to insert in DataBase
-                dSeries.data_series_semantics_id = dSeries.data_series_semantics.id;
+                var semantic = dataSeriesSemantics.find(function(dSeriesSemantics){
+                  return dSeries.data_series_semantics_code == dSeriesSemantics.code;
+                });
+
+                dSeries.data_series_semantics_id = semantic.id;
                 dSeries.data_provider_id = Utils.find(output.DataProviders, {$id: dSeries.data_provider_id}).id;
                 dSeries.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: dSeries.project_id}).id : json.selectedProject;
                 dSeries.dataSets.forEach(function(dSet) {
@@ -267,11 +277,22 @@ var ImportExport = function(io) {
                     if(analysis.service_instance_id === null) analysis.service_instance_id = json.servicesAnalysis;
                     if(analysis.instance_id === null) analysis.instance_id = json.servicesAnalysis;
 
-                    if(countObjectProperties(analysis.schedule)) {
+                    if(countObjectProperties(analysis.schedule) || analysis.automatic_schedule.id) {
                       delete analysis.schedule.id;
+                      delete analysis.automatic_schedule.id;
+                      var scheduleObject;
+                      if (analysis.schedule_type == Enums.ScheduleType.AUTOMATIC){
+                        scheduleObject = analysis.automatic_schedule;
+                        scheduleObject.scheduleType = Enums.ScheduleType.AUTOMATIC;
+                      } else {
+                        scheduleObject = analysis.schedule;
+                      }
 
-                      promises.push(DataManager.addSchedule(analysis.schedule, options).then(function(schedule) {
-                        analysis.schedule_id = schedule.id;
+                      promises.push(DataManager.addSchedule(scheduleObject, options).then(function(schedule) {
+                        if (analysis.schedule_type == Enums.ScheduleType.AUTOMATIC)
+                          analysis.automatic_schedule_id = schedule.id;
+                        else 
+                          analysis.schedule_id = schedule.id;
 
                         return DataManager.addAnalysis(analysis, options).then(function(analysisResult) {
                           if(tcpOutput.Analysis === undefined) tcpOutput.Analysis = [];
@@ -297,12 +318,24 @@ var ImportExport = function(io) {
                       view.data_series_id = Utils.find(output.DataSeries, {$id: view.data_series_id}).id;
                       if(view.service_instance_id === null) view.service_instance_id = json.servicesView;
 
-                      if(countObjectProperties(view.schedule) > 0) {
+                      if(countObjectProperties(view.schedule) > 0 || view.automatic_schedule.id) {
                         delete view.schedule.id;
+                        delete view.automatic_schedule.id;
+                        var scheduleObject;
+                        if (view.schedule_type == Enums.ScheduleType.AUTOMATIC){
+                          scheduleObject = view.automatic_schedule;
+                          scheduleObject.scheduleType = Enums.ScheduleType.AUTOMATIC;
+                        } else {
+                          scheduleObject = view.schedule;
+                        }
 
-                        promises.push(DataManager.addSchedule(view.schedule, options).then(function(schedule) {
-                          if (schedule)
-                            view.schedule_id = schedule.id;
+                        promises.push(DataManager.addSchedule(scheduleObject, options).then(function(schedule) {
+                          if (schedule){
+                            if (view.schedule_type == Enums.ScheduleType.AUTOMATIC)
+                              view.automatic_schedule_id = schedule.id;
+                             else 
+                              view.schedule_id = schedule.id;
+                          }
 
                           return DataManager.addView(view, options).then(function(viewResult) {
                             if(tcpOutput.Views === undefined) tcpOutput.Views = [];
@@ -355,7 +388,6 @@ var ImportExport = function(io) {
 
                           if(alert.service_instance_id === null) alert.service_instance_id = json.servicesAlert;
 
-                          delete alert.conditional_schedule.id;
                           delete alert.report_metadata.id;
 
                           for(var i = 0, additionalDataLength = alert.additional_data.length; i < additionalDataLength; i++)
@@ -364,9 +396,27 @@ var ImportExport = function(io) {
                           for(var i = 0, notificationsLength = alert.notifications.length; i < notificationsLength; i++)
                             delete alert.notifications[i].id;
 
+                          delete alert.schedule.id;
+                          delete alert.automatic_schedule.id;
+                          var scheduleObject = {};
+                          if (alert.schedule_type == Enums.ScheduleType.AUTOMATIC){
+                            scheduleObject = alert.automatic_schedule;
+                            scheduleObject.scheduleType = Enums.ScheduleType.AUTOMATIC;
+                          } else if (alert.schedule_type == Enums.ScheduleType.SCHEDULE){
+                            scheduleObject = alert.schedule;
+                            scheduleObject.scheduleType = Enums.ScheduleType.SCHEDULE;
+                          } else {
+                            scheduleObject.scheduleType = Enums.ScheduleType.MANUAL;
+                          }
+
                           promises.push(
-                            DataManager.addSchedule(alert.conditional_schedule, options).then(function(schedule) {
-                              alert.conditional_schedule_id = schedule.id;
+                            DataManager.addSchedule(scheduleObject, options).then(function(schedule) {
+                              if (schedule){
+                                if (alert.schedule_type == Enums.ScheduleType.AUTOMATIC)
+                                  alert.automatic_schedule_id = schedule.id;
+                                else 
+                                  alert.schedule_id = schedule.id;
+                              }
 
                               return DataManager.addAlert(alert, options).then(function(alertResult) {
                                 if(tcpOutput.Alerts === undefined) tcpOutput.Alerts = [];
@@ -549,7 +599,11 @@ var ImportExport = function(io) {
 
           DataManager.listDataSeries({dataProvider: { project_id: projectId }}).then(function(dataSeriesList) {
             dataSeriesList.forEach(function(dataSeries) {
-              output.DataSeries.push(addID(dataSeries));
+              dataSeries.data_series_semantics_code = dataSeries.data_series_semantics.code;
+              var dSeries = addID(dataSeries)
+              delete dSeries.data_series_semantics;
+              delete dSeries.data_series_id;
+              output.DataSeries.push(dSeries);
             });
           });
         }).catch(_emitError));
@@ -599,7 +653,9 @@ var ImportExport = function(io) {
             var alertToAdd = addID(alert);
             var legend = alertToAdd.legend;
 
-            alertToAdd.conditional_schedule.scheduleType = 4;
+            if(countObjectProperties(alertToAdd.schedule) > 0)
+              alertToAdd.schedule.scheduleType = alertToAdd.schedule_type;
+              
             alertToAdd.legend_id = legend.id;
             delete alertToAdd.legend;
 
@@ -753,7 +809,7 @@ var ImportExport = function(io) {
                 var alertToAdd = addID(alert);
                 var legend = alertToAdd.legend;
 
-                alertToAdd.conditional_schedule.scheduleType = 4;
+                alertToAdd.automatic_schedule.scheduleType = 4;
                 alertToAdd.legend_id = legend.id;
                 delete alertToAdd.legend;
 

@@ -1,6 +1,5 @@
 [
   {
-    "id": 8,
     "name": "DCP - TOA5",
     "code": "DCP-toa5",
     "driver": "DCP-toa5",
@@ -16,18 +15,11 @@
     "collector": true,
     "gui": {
       "schema": {
-        "properties": {
-          "folder": {
-            "type": "string",
-            "title": "Folder",
-            "pattern": "^[^?#!$&'()*+,;=^§]+$",
-            "hasDefaultFieldForImport": true,
-            "allowEmptyValue": true
-          },
+        "properties": {          
           "mask": {
             "type": "string",
             "title": "Mask",
-            "pattern": "^([\\w*.]+|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$",
+            "pattern": "^([\\/\\w()*.-]+|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$",
             "hasSuffixFieldForImport": true
           },
           "alias": {
@@ -65,14 +57,7 @@
         },
         "required": ["mask", "alias", "timezone", "latitude", "longitude", "projection"]
       },
-      "form": [
-        {
-          "key": "folder",
-          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form",
-          "validationMessage": {
-            "202": "Invalid folder"
-          }
-        },
+      "form": [        
         {
           "key": "mask",
           "htmlClass": "col-md-6",

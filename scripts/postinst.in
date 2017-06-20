@@ -53,6 +53,7 @@ npm list pm2 -g
 if [ $? != 0 ]; then
   # Install pm2
   npm install pm2 -g
+  pm2 install pm2-logrotate
   valid $? "Error installing pm2."
   # Allows the service to start with the system
   env PATH=$PATH:/usr/local/bin pm2 startup

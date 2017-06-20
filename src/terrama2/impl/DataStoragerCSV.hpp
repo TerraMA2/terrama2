@@ -44,7 +44,6 @@ namespace terrama2
                 : DataStoragerTable(outputDataProvider) {}
         ~DataStoragerCSV() {}
 
-        static DataStoragerType dataStoragerType() { return "CSV"; }
         static DataStoragerPtr make(DataProviderPtr dataProvider);
 
         virtual std::string getCompleteURI(DataSetPtr outputDataSet) const override;
@@ -53,6 +52,24 @@ namespace terrama2
         std::string getDataSetMask(DataSetPtr dataSet) const;
         virtual std::string getDataSetName(DataSetPtr dataSet) const override;
         virtual std::string driver() const override { return "OGR"; }
+    };
+
+    class DataStoragerInpeWfpCSV : public DataStoragerCSV
+    {
+      public:
+        static DataStoragerType dataStoragerType() { return "OCCURRENCE-wfp"; }
+    };
+
+    class DataStoragerOccurrenceCSV : public DataStoragerCSV
+    {
+      public:
+        static DataStoragerType dataStoragerType() { return "Occurrence-generic"; }
+    };
+
+    class DataStoragerDCPCSV : public DataStoragerCSV
+    {
+      public:
+        static DataStoragerType dataStoragerType() { return "DCP-generic"; }
     };
   }
 }

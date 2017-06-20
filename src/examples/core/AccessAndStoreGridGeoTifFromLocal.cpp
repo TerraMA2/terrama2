@@ -18,7 +18,7 @@
 
 int main(int argc, char* argv[])
 {
-  terrama2::core::TerraMA2Init terramaRaii("unittest", 0);
+  terrama2::core::TerraMA2Init terramaRaii("example", 0);
 
   {
     //DataProvider information

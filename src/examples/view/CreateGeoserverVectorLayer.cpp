@@ -140,7 +140,17 @@ int main(int argc, char** argv)
     te::core::URI geoserverURI("http://admin:geoserver@localhost:8080/geoserver");
 
     terrama2::services::view::core::GeoServer geoserver(geoserverURI);
-    geoserver.registerStyle("name3", legend, dataSetType);
+
+    te::gm::GeomType geomType = te::gm::UnknownGeometryType;
+
+    auto geomProperty = te::da::GetFirstGeomProperty(dataSetType.get());
+
+    if(geomProperty != nullptr)
+      geomType = geomProperty->getGeometryType();
+
+    terrama2::services::view::core::View::Legend::ObjectType objectType = terrama2::services::view::core::View::Legend::ObjectType::GEOMETRY;
+
+    geoserver.registerStyle("name3", legend, objectType, geomType);
   }
   catch(const std::exception& e)
   {
