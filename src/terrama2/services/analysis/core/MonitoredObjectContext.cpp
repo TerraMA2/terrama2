@@ -50,6 +50,8 @@
 #include <boost/python/make_function.hpp>
 #include <boost/bind.hpp>
 
+#include <utility>
+
 terrama2::services::analysis::core::MonitoredObjectContext::MonitoredObjectContext(terrama2::services::analysis::core::DataManagerPtr dataManager, terrama2::services::analysis::core::AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime)
   : BaseContext(dataManager, analysis, startTime)
 {
@@ -312,14 +314,14 @@ void terrama2::services::analysis::core::MonitoredObjectContext::addDataSeries(t
   }
 }
 
-void terrama2::services::analysis::core::MonitoredObjectContext::addAttribute(const std::string& attribute)
+void terrama2::services::analysis::core::MonitoredObjectContext::addAttribute(const std::string& attribute, int dataType)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
-  attributes_.insert(attribute);
+  attributes_.insert(std::make_pair(attribute, dataType));
 }
 
-void terrama2::services::analysis::core::MonitoredObjectContext::setAnalysisResult(const int index, const std::string& attribute, double result)
+void terrama2::services::analysis::core::MonitoredObjectContext::setAnalysisResult(const int index, const std::string& attribute, boost::any result)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
