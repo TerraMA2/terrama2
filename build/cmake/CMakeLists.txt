@@ -142,16 +142,6 @@ if(NOT DEFINED TERRAMA2_DESTINATION)
   set(TERRAMA2_DESTINATION "${TERRAMA2_BASE_DESTINATION_DIR}")
 endif()
 
-# variables that controls what is built
-if(NOT DEFINED TERRAMA2_BUILD_EXAMPLES_ENABLED)
-  set(TERRAMA2_BUILD_EXAMPLES_ENABLED ON CACHE BOOL "If on, shows the list of examples to be built")
-endif()
-
-if(NOT DEFINED TERRAMA2_BUILD_UNITTEST_ENABLED)
-  set(TERRAMA2_BUILD_UNITTEST_ENABLED ON CACHE BOOL "If on, shows the list of unit-tests to be built")
-endif()
-
-
 #
 # global definitions, includes and config
 #
@@ -299,6 +289,17 @@ else(NOT VMIME_FOUND)
 endif()
 
 set(ThreadPool_INCLUDE_DIRS "${TERRAMA2_ABSOLUTE_ROOT_DIR}/third-party/ThreadPool/")
+
+
+
+# variables that controls what is built
+if(NOT DEFINED TERRAMA2_BUILD_EXAMPLES_ENABLED)
+  CMAKE_DEPENDENT_OPTION(TERRAMA2_BUILD_EXAMPLES_ENABLED "Build examples?" ON "GMOCK_FOUND" OFF)
+endif()
+
+if(NOT DEFINED TERRAMA2_BUILD_UNITTEST_ENABLED)
+  CMAKE_DEPENDENT_OPTION(TERRAMA2_BUILD_UNITTEST_ENABLED "Build unit-test module?" ON "GMOCK_FOUND" OFF)
+endif()
 
 #
 # build options
