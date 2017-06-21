@@ -41,6 +41,8 @@
 // STL
 #include <vector>
 
+#include <boost/any.hpp>
+
 // QT
 #include <QObject>
 
@@ -170,12 +172,12 @@ namespace terrama2
                                                                std::shared_ptr<te::da::DataSetType> dt,
                                                                te::da::PrimaryKey* pkMonitoredObject,
                                                                te::dt::Property* identifierProperty,
-                                                               std::unordered_map<int, std::map<std::string, double> > resultMap,
+                                                               std::unordered_map<int, std::map<std::string, boost::any> > resultMap,
                                                                std::shared_ptr<te::dt::TimeInstantTZ>  date);
             std::shared_ptr<te::da::DataSetType> createDatasetType(std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> moDsContext,
                                                                    te::da::PrimaryKey* pkMonitoredObject,
                                                                    te::dt::Property* identifierProperty,
-                                                                   std::set<std::string> attributes,
+                                                                   std::set<std::pair<std::string, int> > attributes,
                                                                    std::string outputDatasetName);
         };
 

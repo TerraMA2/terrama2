@@ -380,12 +380,13 @@ void terrama2::services::analysis::core::AnalysisExecutor::runDCPAnalysis(DataMa
   throw Exception() << ErrorDescription(errMsg);
 }
 
-std::shared_ptr<te::mem::DataSet> terrama2::services::analysis::core::AnalysisExecutor::addDataToDataSet(std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> moDsContext,
-                                                                                                         std::shared_ptr<te::da::DataSetType> dt,
-                                                                                                         te::da::PrimaryKey* pkMonitoredObject,
-                                                                                                         te::dt::Property* identifierProperty,
-                                                                                                         std::unordered_map<int, std::map<std::string, double> > resultMap,
-                                                                                                         std::shared_ptr<te::dt::TimeInstantTZ>  date)
+std::shared_ptr<te::mem::DataSet>
+terrama2::services::analysis::core::AnalysisExecutor::addDataToDataSet(std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> moDsContext,
+                                                                       std::shared_ptr<te::da::DataSetType> dt,
+                                                                       te::da::PrimaryKey* pkMonitoredObject,
+                                                                       te::dt::Property* identifierProperty,
+                                                                       std::unordered_map<int, std::map<std::string, boost::any> > resultMap,
+                                                                       std::shared_ptr<te::dt::TimeInstantTZ>  date)
 {
   std::shared_ptr<te::mem::DataSet> ds = std::make_shared<te::mem::DataSet>(static_cast<te::da::DataSetType*>(dt->clone()));
   for(auto it = resultMap.begin(); it != resultMap.end(); ++it)
@@ -414,7 +415,30 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::analysis::core::AnalysisEx
     dsItem->setDateTime(EXECUTION_DATE_PROPERTY,  dynamic_cast<te::dt::DateTimeInstant*>(date.get()->clone()));
     for(auto itAttribute = it->second.begin(); itAttribute != it->second.end(); ++itAttribute)
     {
-      dsItem->setDouble(itAttribute->first, itAttribute->second);
+      try
+      {
+        auto value = boost::any_cast<double>(itAttribute->second);
+        dsItem->setDouble(itAttribute->first, value);
+        continue;
+      }
+      catch (...)
+      {
+        /* code */
+      }
+
+      try
+      {
+        auto value = boost::any_cast<std::string>(itAttribute->second);
+        dsItem->setString(itAttribute->first, value);
+        continue;
+      }
+      catch (...)
+      {
+        /* code */
+      }
+
+      QString errMsg = QObject::tr("Unknown data type in analysis result.");
+      TERRAMA2_LOG_ERROR() << errMsg;
     }
 
     ds->add(dsItem);
@@ -426,7 +450,7 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::analysis::core::AnalysisEx
 std::shared_ptr<te::da::DataSetType> terrama2::services::analysis::core::AnalysisExecutor::createDatasetType(std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> moDsContext,
                                                                                                              te::da::PrimaryKey* pkMonitoredObject,
                                                                                                              te::dt::Property* identifierProperty,
-                                                                                                             std::set<std::string> attributes,
+                                                                                                             std::set<std::pair<std::string, int> > attributes,
                                                                                                              std::string outputDatasetName)
 {
   std::shared_ptr<te::da::DataSetType> dt = std::make_shared<te::da::DataSetType>(outputDatasetName);
@@ -490,9 +514,13 @@ std::shared_ptr<te::da::DataSetType> terrama2::services::analysis::core::Analysi
 
   dt->add(indexDate);
 
-  for(const std::string& attribute : attributes)
+  for(const auto& attribute : attributes)
   {
-    te::dt::SimpleProperty* prop = new te::dt::SimpleProperty(attribute, te::dt::DOUBLE_TYPE, false);
+    te::dt::SimpleProperty* prop = nullptr;
+    if(attribute.second == te::dt::STRING_TYPE)
+      prop = new te::dt::StringProperty(attribute.first);
+    else
+      prop = new te::dt::SimpleProperty(attribute.first, attribute.second, false);
     dt->add(prop);
   }
 

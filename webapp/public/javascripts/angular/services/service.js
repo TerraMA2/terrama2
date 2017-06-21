@@ -43,6 +43,9 @@ define([], function() {
 
       service.checking = response.checking;
 
+      service.hasError = false;
+      service.error = "";
+
       if (!service) {
         return;
       }
@@ -99,12 +102,33 @@ define([], function() {
     $scope.socket.on('errorResponse', function(response) {
       var service = getModel(response.service);
 
-      if (!service)
-        return;
+      if(!service) return;
+
+      if(response.message === "Error: Status Timeout exceeded.")
+        service.checking = false;
+
+      service.hasError = true;
+      service.error = i18n.__(response.message);
 
       service.loading = false;
       service.online = response.online;
-    })
+    });
+
+    $scope.socket.on('testPortNumberResponse', function(result) {
+      if(result.error) {
+        var service = getModel(result.service);
+
+        if(!service) return;
+
+        service.hasError = true;
+        service.error = i18n.__(result.message) + result.port;
+
+        service.loading = false;
+        service.online = false;
+      } else {
+        $scope.socket.emit('start', {service: result.service});
+      }
+    });
 
     Service.init().then(function(services) {
       if (services.length === 0) {
@@ -204,10 +228,12 @@ define([], function() {
         startAll: function() {
           $scope.extra.service.starting = true;
           $scope.model.forEach(function(modelInstance) {
+            modelInstance.showErrorButton = true;
+
             if (!modelInstance.online) {
               if (!modelInstance.loading) {
                 modelInstance.loading = true;
-                $scope.socket.emit('start', {service: modelInstance.id});
+                $scope.socket.emit('testPortNumber', {port: modelInstance.port, service: modelInstance.id});
               }
             }
           });
@@ -243,8 +269,10 @@ define([], function() {
         },
 
         handler: function(serviceInstance) {
+          serviceInstance.showErrorButton = true;
+
           if (!serviceInstance.online) {
-            $scope.socket.emit('start', {service: serviceInstance.id});
+            $scope.socket.emit('testPortNumber', {port: serviceInstance.port, service: serviceInstance.id});
           } else {
             serviceInstance.requestingForClose = true;
             $scope.socket.emit('stop', {service: serviceInstance.id});

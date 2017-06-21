@@ -64,6 +64,12 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
    */
   self.ssh = {};
   /**
+   * It defines a validation of port number
+   *
+   * @type {Object}
+   */
+  self.portNumber = {};
+  /**
    * It defines a connection validation of SMTP
    *
    * @type {Object}
@@ -192,10 +198,13 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
        * It just reset message box panel in order to hide
        */
       self.close = function() {
+        self.extraProperties.showConfirmButton = false;
         MessageBoxService.reset();
       };
 
-      self.extraProperties = {};
+      self.extraProperties = {
+        showConfirmButton: false
+      };
 
       /**
        * Cache list. Used to auto-complete database during registration based in other services
@@ -281,6 +290,28 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
         }
       });
 
+      Socket.on('testPortNumberResponse', function(result) {
+        if(result.checkConnection) {
+          self.portNumber.isLoading = false;
+          if (result.error) {
+            self.portNumber.isValid = false;
+            self.portNumber.message = i18n.__(result.message) + result.port;
+          } else {
+            self.portNumber.isValid = true;
+          }
+        } else {
+          if(result.error) {
+            MessageBoxService.warning(i18n.__("Service Registration"), i18n.__(result.message) + result.port);
+            self.extraProperties.confirmButtonFn = self.confirmBusyPort;
+            self.extraProperties.showConfirmButton = true;
+            self.extraProperties.object = {};
+            return;
+          }
+
+          self.confirmBusyPort();
+        }
+      });
+
       Socket.on('testSMTPConnectionResponse', function(result) {
         self.mailConnection.isLoading = false;
 
@@ -324,17 +355,20 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
        */
       $scope.$watch(function() {
         if(self.service.service_type_id == 4) {
-          return self.ssh.isValid && self.db.isValid && self.mailConnection.isValid;
+          return self.ssh.isValid && self.db.isValid && self.portNumber.isValid && self.mailConnection.isValid;
         } else if(self.service.service_type_id == 3) {
-          return self.ssh.isValid && self.db.isValid && self.geoserverConnection.isValid;
+          return self.ssh.isValid && self.db.isValid && self.portNumber.isValid && self.geoserverConnection.isValid;
         } else {
-          return self.ssh.isValid && self.db.isValid;
+          return self.ssh.isValid && self.db.isValid && self.portNumber.isValid;
         }
       }, function(value) {
         if (initializing) {
           initializing = false;
           return;
         }
+
+        self.extraProperties.showConfirmButton = false;
+
         if (value === true) {
           MessageBoxService.success(i18n.__("Connection"), "");
         } else if (value === false) {
@@ -361,6 +395,10 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
         };
 
         self.db = {
+          isLoading: true
+        };
+
+        self.portNumber = {
           isLoading: true
         };
 
@@ -394,6 +432,8 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
           }
 
           Socket.emit('testDbConnection', logCredentials);
+
+          Socket.emit('testPortNumber', { port: self.service.port, checkConnection: true });
 
           if(self.service.service_type_id == 4) {
             if(self.metadata.emailServer === undefined) {
@@ -467,6 +507,8 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
        * @returns {void}
        */
       self._save = function() {
+        self.extraProperties.showConfirmButton = false;
+
         self.isChecking = true;
         var request;
 
@@ -507,6 +549,7 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
             $window.location.href = BASE_URL + "administration/services?token=" + data.token+"&service="+data.service + "&restart="+data.restart;
           })
           .catch(function(err) {
+            self.extraProperties.showConfirmButton = false;
             MessageBoxService.danger(i18n.__("Service Registration"), err.message);
           })
           .finally(function() {
@@ -515,37 +558,26 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
       };
 
       /**
-       * It handles Test port number response. Used after saving. On valid validation, it 
-       * save/update service. If a error found, it notifies user. 
-       * 
-       * @param {Object} response - Response object
-       * @param {boolean} response.error - Determines if error occurred
+       * It confirms the saving process after busy port confirmation.
        */
-      Socket.on('testPortNumberResponse', function(response) {
-        if (response.error) {
-          if (config.service.port !== self.service.port) {
-            MessageBoxService.danger(i18n.__("Service Registration"), response.message);
-            return;
-          }
-        }
-
-        // continue save process
+      self.confirmBusyPort = function() {
+        self.extraProperties.showConfirmButton = false;
 
         // checking port number with a registered service
         for(var i = 0; i < self.services.length; ++i) {
           var service = self.services[i];
 
           if (service.id !== self.service.id && service.port === self.service.port) {
-            MessageBoxService.warning(i18n.__("Service Registration"),
-                                      i18n.__("There is already a service registered in same port ") + service.port + " (" + service.name + ")");
+            MessageBoxService.warning(i18n.__("Service Registration"), i18n.__("There is already a service registered in same port ") + service.port + " (" + service.name + ")");
             self.extraProperties.confirmButtonFn = self._save;
+            self.extraProperties.showConfirmButton = true;
             self.extraProperties.object = {};
             return;
           }
         }
 
         self._save();
-      });
+      };
 
       /**
        * It handles TerraMA² Service Save button. It emits form validation and wait for socket response in order to notify user about port values
@@ -589,6 +621,7 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
     })
     // on error
     .catch(function(err) {
+      self.extraProperties.showConfirmButton = false;
       MessageBoxService.danger(i18n.__("Service"), 
                                i18n.__("An error occurred during TerraMA² Service Page loading." + err.toString()));
     });

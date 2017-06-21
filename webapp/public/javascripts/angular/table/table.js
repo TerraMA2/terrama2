@@ -74,6 +74,11 @@ define([
             $('#infoModal').modal();
           }
 
+          $scope.showErrorInfo = function(object) {
+            $('#serviceErrorModal .modal-body > p').text(object.error);
+            $('#serviceErrorModal').modal();
+          }
+
           $scope.resetObjectToRemove = function() {
             $scope.objectToRemove = null;
           };
