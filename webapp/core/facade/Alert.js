@@ -6,6 +6,7 @@
   var PromiseClass = require("./../Promise");
   var Enums = require("./../Enums");
   var Utils = require("./../Utils");
+  var ViewFacade = require("./../facade/View")
 
   /**
    * It represents a mock to handle alert.
@@ -60,28 +61,8 @@
 
         var viewPromise;
         if (alertObject.hasView){
-
-          alertObject.view.project_id = projectId;
           var viewObject = alertObject.view;
-
-          var viewSchedulePromise;
-          if (Utils.isEmpty(viewObject.schedule)) {
-            viewSchedulePromise = PromiseClass.resolve();
-          } else {
-            viewSchedulePromise = DataManager.addSchedule(viewObject.schedule, options);
-          }
-
-          viewPromise = viewSchedulePromise.then(function(scheduleView){
-            if (scheduleView){
-              if (viewObject.schedule_type == Enums.ScheduleType.AUTOMATIC){
-                viewObject.automatic_schedule_id = scheduleView.id;
-              } else {
-                viewObject.schedule_id = scheduleView.id;
-              }
-            }
-            return DataManager.addView(viewObject, options);
-          });
-
+          viewPromise = ViewFacade.save(viewObject, projectId);
         } else {
           viewPromise = PromiseClass.resolve();
         }

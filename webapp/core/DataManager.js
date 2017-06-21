@@ -4530,9 +4530,11 @@ var DataManager = module.exports = {
     var self = this;
     return new Promise(function(resolve, reject) {
       var alert;
+      var viewId;
       return self.getAlert(restriction, options)
         .then(function(alertResult) {
           alert = alertResult;
+          viewId = alertResult.view_id;
           return self.removeAutomaticSchedule({id: alert.automatic_schedule.id}, options);
         })
 
@@ -4541,6 +4543,12 @@ var DataManager = module.exports = {
         })
 
         .then(function() {
+          if (viewId)
+            return self.removeView({id: viewId}, options);
+          else
+            return null;
+        })
+        .then(function(){
           return resolve();
         })
 

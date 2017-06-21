@@ -658,9 +658,9 @@ define([], function() {
           var viewLegend = {
             colors: [],
             metadata: {
-              column: self.alert.risk_attribute
+              column: self.alert.risk_attribute,
+              creation_type: "0"
             },
-            operation_id: 3,
             type: 2
           };
           for (var i = 0; i < self.colors.length; i++){
