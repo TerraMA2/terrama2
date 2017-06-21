@@ -28,6 +28,9 @@ var ServicePortChecker = function(io) {
         message: ""
       };
 
+      if(json.service)
+        returnObject.service = json.service;
+
       var host = json.host,
           port = json.port;
 

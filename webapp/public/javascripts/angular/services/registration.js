@@ -507,6 +507,8 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
        * @returns {void}
        */
       self._save = function() {
+        self.extraProperties.showConfirmButton = false;
+
         self.isChecking = true;
         var request;
 
@@ -566,9 +568,9 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
           var service = self.services[i];
 
           if (service.id !== self.service.id && service.port === self.service.port) {
-            MessageBoxService.warning(i18n.__("Service Registration"),
-                                      i18n.__("There is already a service registered in same port ") + service.port + " (" + service.name + ")");
+            MessageBoxService.warning(i18n.__("Service Registration"), i18n.__("There is already a service registered in same port ") + service.port + " (" + service.name + ")");
             self.extraProperties.confirmButtonFn = self._save;
+            self.extraProperties.showConfirmButton = true;
             self.extraProperties.object = {};
             return;
           }

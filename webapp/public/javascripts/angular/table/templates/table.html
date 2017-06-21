@@ -147,14 +147,11 @@
           </td>
 
           <td ng-if="extra.service">
-            <button ng-show="element.online" ng-click="showInfo(element)" class="btn btn-default btn-sm pull-right"> 
-              <i class="fa fa-info"></i>
-            </button>
-          </td>
-
-          <td ng-if="extra.service">
-            <button ng-show="element.showErrorButton && element.hasError" ng-click="showErrorInfo(element)" class="btn btn-default btn-sm pull-right" style="color: red; border-color: red;"> 
+            <button ng-show="element.showErrorButton && element.hasError" ng-click="showErrorInfo(element)" class="btn btn-default btn-sm pull-right" style="color: red; border-color: red; width: 34px; height: 30px;"> 
               <i class="fa fa-warning"></i>
+            </button>
+            <button ng-show="element.online" ng-click="showInfo(element)" class="btn btn-default btn-sm pull-right" style="width: 34px; height: 30px;"> 
+              <i class="fa fa-info" style="font-size: 16px;"></i>
             </button>
           </td>
 
