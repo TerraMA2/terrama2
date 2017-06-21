@@ -73,6 +73,14 @@ module.exports = function(sequelize, DataTypes) {
             }
           });
 
+          Alert.belongsTo(models.View, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: 'view_id',
+              allowNull: true
+            }
+          });
+
           Alert.hasOne(models.ReportMetadata, {
             onDelete: "CASCADE",
             foreignKey: {

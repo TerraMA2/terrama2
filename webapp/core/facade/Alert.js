@@ -58,38 +58,72 @@
         alertObject.project_id = projectId;
         alertObject.risk.project_id = projectId;
 
-        var promiser;
+        var viewPromise;
+        if (alertObject.hasView){
 
-        if (Utils.isEmpty(alertObject.schedule))
-          promiser = PromiseClass.resolve();
-        else
-          promiser = DataManager.addSchedule(alertObject.schedule, options);
+          alertObject.view.project_id = projectId;
+          var viewObject = alertObject.view;
 
-        return promiser
-          .then(function(schedule) {
-            if (schedule) {
-              if (alertObject.schedule_type == Enums.ScheduleType.AUTOMATIC)
-                alertObject.automatic_schedule_id = schedule.id;
-              else
-                alertObject.schedule_id = schedule.id;
+          var viewSchedulePromise;
+          if (Utils.isEmpty(viewObject.schedule)) {
+            viewSchedulePromise = PromiseClass.resolve();
+          } else {
+            viewSchedulePromise = DataManager.addSchedule(viewObject.schedule, options);
+          }
+
+          viewPromise = viewSchedulePromise.then(function(scheduleView){
+            if (scheduleView){
+              if (viewObject.schedule_type == Enums.ScheduleType.AUTOMATIC){
+                viewObject.automatic_schedule_id = schedule.id;
+              } else {
+                viewObject.schedule_id = schedule.id;
+              }
             }
-            var riskPromise;
-            var riskObject = alertObject.risk;
-            if (riskObject.id){
-              riskPromise = DataManager.updateRisk({id: riskObject.id}, riskObject, options);
-            } else {
-              riskPromise = DataManager.addRisk(riskObject, options);
-            }
-            return riskPromise
-              .then(function(riskResult){
-                if (!alertObject.risk.id){
-                  alertObject.risk_id = riskResult.id;
-                } else {
-                  alertObject.risk_id = alertObject.risk.id;
-                }
-                return DataManager.addAlert(alertObject, options);
-              });
+            return DataManager.addView(viewObject, options);
           });
+
+        } else {
+          viewPromise = PromiseClass.resolve();
+        }
+
+        return viewPromise.then(function(view){
+          if (view){
+            alertObject.view_id = view.id;
+          }
+          var promiser;
+
+          if (Utils.isEmpty(alertObject.schedule))
+            promiser = PromiseClass.resolve();
+          else
+            promiser = DataManager.addSchedule(alertObject.schedule, options);
+
+          return promiser
+            .then(function(schedule) {
+              if (schedule) {
+                if (alertObject.schedule_type == Enums.ScheduleType.AUTOMATIC)
+                  alertObject.automatic_schedule_id = schedule.id;
+                else
+                  alertObject.schedule_id = schedule.id;
+              }
+              var riskPromise;
+              var riskObject = alertObject.risk;
+              if (riskObject.id){
+                riskPromise = DataManager.updateRisk({id: riskObject.id}, riskObject, options);
+              } else {
+                riskPromise = DataManager.addRisk(riskObject, options);
+              }
+              return riskPromise
+                .then(function(riskResult){
+                  if (!alertObject.risk.id){
+                    alertObject.risk_id = riskResult.id;
+                  } else {
+                    alertObject.risk_id = alertObject.risk.id;
+                  }
+                  return DataManager.addAlert(alertObject, options);
+                });
+            });
+
+        })
       })
 
       .then(function(alert) {

@@ -90,6 +90,14 @@
             }
           });
 
+          View.hasOne(models.Alert, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: "view_id",
+              allowNull: true
+            }
+          });
+
           View.hasOne(models.ViewStyleLegend, {
             onDelete: "CASCADE",
             foreignKey: {

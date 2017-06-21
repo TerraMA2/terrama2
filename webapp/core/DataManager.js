@@ -4199,6 +4199,42 @@ var DataManager = module.exports = {
                 model: models.db.RiskLevel
               }
             ]
+          },
+          {
+            model: models.db.View,
+            include: [
+              {
+                model: models.db.Schedule,
+                required: false
+              },
+              {
+                model: models.db.AutomaticSchedule,
+                required: false
+              },
+              {
+                model: models.db.DataSeries,
+                include: [
+                  {
+                    model: models.db.DataProvider
+                  },
+                  {
+                    model: models.db.DataSeriesSemantics
+                  }
+                ]
+              },
+              {
+                model: models.db.ViewStyleLegend,
+                required: false,
+                include: [
+                  {
+                    model: models.db.ViewStyleColor
+                  },
+                  {
+                    model: models.db.ViewStyleLegendMetadata
+                  }
+                ]
+              }
+            ]
           }
         ]
       }, options))
@@ -4216,13 +4252,27 @@ var DataManager = module.exports = {
 
             var risk = new DataModel.Risk(alert.Risk.get());
 
+            var view = alert.View ? new DataModel.View(Object.assign(alert.View.get(), {
+              schedule: alert.View.Schedule ? new DataModel.Schedule(alert.View.Schedule.get()) : {},
+              automaticSchedule: alert.View.AutomaticSchedule ? new DataModel.AutomaticSchedule(alert.View.AutomaticSchedule.get()) : {},
+              dataSeries: alert.View.DataSery ? new DataModel.DataSeries(alert.View.DataSery.get()) : {}
+            })) : {};
+
+            if (alert.View && alert.View.ViewStyleLegend) {
+              var legendModel = new DataModel.ViewStyleLegend(Utils.extend(
+                alert.View.ViewStyleLegend.get(), {colors: alert.View.ViewStyleLegend.ViewStyleColors ? alert.View.ViewStyleLegend.ViewStyleColors.map(function(elm) { return elm.get(); }) : []}));
+              legendModel.setMetadata(Utils.formatMetadataFromDB(alert.View.ViewStyleLegend.ViewStyleLegendMetadata));
+              view.setLegend(legendModel);
+            }
+
             var alertModel = new DataModel.Alert(Object.assign(alert.get(), {
               schedule: alert.Schedule ? new DataModel.Schedule(alert.Schedule.get()) : {},
               automatic_schedule: alert.AutomaticSchedule ? new DataModel.AutomaticSchedule(alert.AutomaticSchedule.get()) : {},
               additionalData: additionalDatas,
               notifications: notifications,
               reportMetadata: alert.ReportMetadatum.get(),
-              risk: risk
+              risk: risk,
+              view: view
             }));
             return alertModel;
           }))
