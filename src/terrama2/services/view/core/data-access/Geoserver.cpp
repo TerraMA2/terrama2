@@ -1519,11 +1519,9 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
 
   std::vector<std::string> layersNames;
 
-  std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource->getTransactor();
-
   for(auto& dataset : inputDataSeries->datasetList)
   {
-    std::string layerName = viewPtr->viewName + std::to_string(dataset->id);
+    std::string layerName = viewPtr->viewName + std::to_string(viewPtr->id);
     std::transform(layerName.begin(), layerName.end(),layerName.begin(), ::tolower);
 
     QUrl url(baseUrl.toString() + QString::fromStdString("/" + terrama2::core::getFolderMask(dataset)));
@@ -1548,7 +1546,7 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
     std::vector<std::shared_ptr<te::dt::DateTime> > vecDates;
 
     {
-      if(!transactor->dataSetExists(layerName))
+      if(!dataSource->dataSetExists(layerName))
       {
         QString errMsg = QObject::tr("Could not find dataset!");
         TERRAMA2_LOG_ERROR() << errMsg;
@@ -2018,31 +2016,36 @@ void terrama2::services::view::core::GeoServer::createMosaicTable(std::shared_pt
                                                                   const std::string& tableName,
                                                                   int srid) const
 {
-  te::da::DataSetType* dt = new te::da::DataSetType(tableName);
+  std::shared_ptr<te::da::DataSourceTransactor> transactor = dataSource->getTransactor();
+
+  std::shared_ptr< te::da::DataSetType > dt(new te::da::DataSetType(tableName));
 
   te::gm::GeometryProperty* geomProp = new te::gm::GeometryProperty("the_geom", 0, te::gm::PolygonType, true);
   geomProp->setSRID(srid);
 
-  te::dt::SimpleProperty* filenameProp = new te::dt::SimpleProperty("location", te::dt::STRING_TYPE, true);
+  te::dt::StringProperty* filenameProp = new te::dt::StringProperty("location", te::dt::STRING, 0, true);
   te::dt::StringProperty* sp = static_cast<te::dt::StringProperty*>(filenameProp);
   sp->setSubtype(te::dt::VAR_STRING);
   sp->setSize(255);
 
   te::dt::DateTimeProperty* timestampProp = new te::dt::DateTimeProperty("timestamp", te::dt::TIME_INSTANT, true);
 
-  std::string pkName = "\""+tableName+"_pkey\"";
-  auto pk = new te::da::PrimaryKey(pkName, dt);
-
-  te::dt::SimpleProperty* serialPk = new te::dt::SimpleProperty("fid", te::dt::INT32_TYPE, true);
+  std::shared_ptr< te::dt::SimpleProperty > serialPk(new te::dt::SimpleProperty("fid", te::dt::INT32_TYPE, true));
   serialPk->setAutoNumber(true);
 
-  dt->add(serialPk);
-  pk->add(serialPk);
-
+  dt->add(serialPk->clone());
   dt->add(geomProp);
   dt->add(filenameProp);
   dt->add(timestampProp);
 
   std::map<std::string, std::string> options;
-  dataSource->createDataSet(dt, options);
+  transactor->createDataSet(dt.get(), options);
+
+  std::shared_ptr<te::dt::Property> id_pk1 = transactor->getProperty(dt->getName(),"fid");
+  auto pk = new te::da::PrimaryKey(tableName + "_pkey");
+  pk->add(id_pk1.get());
+
+  transactor->addPrimaryKey(dt->getName(),pk);
+
+  transactor->commit();
 }
