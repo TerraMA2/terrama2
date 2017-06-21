@@ -144,10 +144,6 @@ var DataManager = module.exports = {
         inserts.push(self.addDataProviderType({id: 4, name: "POSTGIS", description: "Desc Postgis"}));
         //inserts.push(self.addDataProviderType({id: 5, name: "SFTP", description: "Desc SFTP"}));
 
-        inserts.push(self.addViewStyleType({id: Enums.ViewStyleType.EQUAL_STEPS, name: "Equal Steps", description: ""}));
-        inserts.push(self.addViewStyleType({id: Enums.ViewStyleType.QUANTILE, name: "Quantile", description: ""}));
-        inserts.push(self.addViewStyleType({id: Enums.ViewStyleType.BY_VALUE, name: "By Value", description: ""}));
-
         // default services
         var collectorService = {
           name: "Local Collector",
@@ -4637,25 +4633,6 @@ var DataManager = module.exports = {
     });
   },
   /**
-   * It performs a save view style type and retrieve it
-   *
-   * @param {Object} styleTypeObject - A type object to save
-   * @param {Object} options - An ORM query options
-   * @param {Transaction} options.transaction - An ORM transaction
-   * @returns {Promise<Object>}
-   */
-  addViewStyleType: function(styleTypeObject, options) {
-    return new Promise(function(resolve, reject) {
-      return models.db.ViewStyleType.create(styleTypeObject, options)
-        .then(function(typeResult) {
-          return resolve(typeResult.get());
-        })
-        .catch(function(err) {
-          return reject(new exceptions.ViewStyleTypeError(Utils.format("Could not save view style type due %s", err.toString())));
-        });
-    });
-  },
-  /**
    * It performs a save view legend
    *
    * @param {Object} styleLegendObject         - A type object to save
@@ -4700,7 +4677,7 @@ var DataManager = module.exports = {
         })
         // any error
         .catch(function(err) {
-          return reject(new exceptions.ViewStyleTypeError(Utils.format("Could not save view style type due %s", err.toString())));
+          return reject(new Error(Utils.format("Could not save view style due %s", err.toString())));
         });
     });
   },
@@ -4749,6 +4726,18 @@ var DataManager = module.exports = {
           return resolve();
         })
 
+        .catch(function(err) {
+          return reject(err);
+        });
+    });
+  },
+  removeViewStyleLegendMetadata: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return models.db.ViewStyleLegendMetadata.destroy(Utils.extend({where: restriction}, options))
+        .then(function() {
+          return resolve();
+        })
         .catch(function(err) {
           return reject(err);
         });
@@ -4824,7 +4813,7 @@ var DataManager = module.exports = {
     var self = this;
     return new Promise(function(resolve, reject) {
       return models.db.ViewStyleLegend.update(styleLegendObject, Utils.extend({
-          fields: ["operation_id", "type"],
+          fields: ["type"],
           where: restriction
         }, options))
         .then(function() {
@@ -4871,14 +4860,10 @@ var DataManager = module.exports = {
       return models.db.View.create(viewObject, options)
         .then(function(viewResult) {
           view = viewResult;
-          if (!Utils.isEmpty(viewObject.legend)) {
-            return models.db.ViewStyleType.findOne(Utils.extend({where: {id: viewObject.legend.operation_id}}, options))
-              .then(function(viewType) {
-                var legend = viewObject.legend;
-                legend.operation_id = viewType.id;
-                legend.view_id = view.id;
-                return self.addViewStyleLegend(legend, options);
-              });
+          if (!Utils.isEmpty(viewObject.legend) && !Utils.isEmpty(viewObject.legend.metadata)) {
+            var legend = viewObject.legend;
+            legend.view_id = view.id;
+            return self.addViewStyleLegend(legend, options);
           }
           return null;
         })

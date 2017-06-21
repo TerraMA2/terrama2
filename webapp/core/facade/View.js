@@ -219,7 +219,7 @@
           })
 
           .then(function() {
-            if (viewObject.legend && viewObject.legend.operation_id) {
+            if (viewObject.legend) {
               // if there is no legend before, insert a new one
               var legend = viewObject.legend;
               legend.view_id = viewId;
@@ -249,6 +249,11 @@
                         for(var k in legend.metadata) {
                           if (legend.metadata.hasOwnProperty(k)) {
                             promises.push(DataManager.upsertViewStyleLegendMetadata({key: k, legend_id: view.legend.id}, {key: k, value: legend.metadata[k], legend_id: view.legend.id}, options));
+                          }
+                        }
+                        for (var k in view.legend.metadata){
+                          if (!legend.metadata.hasOwnProperty(k)) {
+                            promises.push(DataManager.removeViewStyleLegendMetadata({key: k, legend_id: view.legend.id}, options));
                           }
                         }
                         return PromiseClass.all(promises);

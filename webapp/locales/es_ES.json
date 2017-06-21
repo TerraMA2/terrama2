@@ -928,5 +928,11 @@
   "Error: The port number is busy, port ": "",
   "Service error": "",
   "Error: Error occurred during the service startup. Error: Error: exit code 127": "",
-  "Error: Status Timeout exceeded.": ""
+  "Error: Status Timeout exceeded.": "",
+  "GRADIENT": "",
+  "Creation Type": "",
+  "WIND": "",
+  "XML": "",
+  "Editor": "",
+  "Add color": ""
 }
