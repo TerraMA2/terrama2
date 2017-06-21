@@ -23,9 +23,13 @@ var ServicePortChecker = function(io) {
 
     client.on('testPortNumber', function(json) {
       var returnObject = {
+        checkConnection: (json.checkConnection ? true : false),
         error: false,
         message: ""
       };
+
+      if(json.service)
+        returnObject.service = json.service;
 
       var host = json.host,
           port = json.port;
@@ -37,7 +41,8 @@ var ServicePortChecker = function(io) {
       }).catch(function(err) {
         returnObject.status = 400;
         returnObject.error = true;
-        returnObject.message = err.toString();
+        returnObject.port = port;
+        returnObject.message = err.toString() + ", port ";
       }).finally(function() {
         client.emit('testPortNumberResponse', returnObject);
       })

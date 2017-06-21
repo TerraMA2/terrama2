@@ -119,10 +119,13 @@ define([], function() {
         },
         click: function() {
           self.hasStyle = false;
-          self.legend = {};
+          self.legend = {
+            metadata: {}
+          };
         }
       }
     };
+
     /**
      * It contains view instance values
      * @type {Object}
@@ -132,7 +135,9 @@ define([], function() {
     /**
      * It stores a legend values (Geometric, Grid, etc)
      */
-    self.legend = {};
+    self.legend = {
+      metadata: {}
+    };
     /**
      * It defines a selected View DataSeries object
      * @type {DataSeries}
@@ -243,7 +248,6 @@ define([], function() {
 
             var legend = config.view.legend;
             if (legend && Object.keys(legend).length !== 0) {
-              self.legend.operation_id = legend.operation_id;
               self.legend.type = legend.type;
 
               if (legend.type !== StyleType.VALUE) {
@@ -364,7 +368,7 @@ define([], function() {
             return;
           }
 
-          if (Object.keys(self.legend).length !== 0) {
+          if (Object.keys(self.legend).length !== 0 && self.legend.metadata.creation_type == "0") {
             if (!self.legend.colors || self.legend.colors.length === 0) {
               return MessageBoxService.danger(i18n.__("View"), i18n.__("You must generate the style colors to classify Data Series"));
             }

@@ -18,7 +18,7 @@
         comment: "ViewStyleLegendMetadata identifier"
       },
       key: DataTypes.STRING,
-      value: DataTypes.STRING
+      value: DataTypes.TEXT
     }, {
       underscored: true,
       underscoredAll: true,
