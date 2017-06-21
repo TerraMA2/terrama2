@@ -66,9 +66,9 @@ var Service = module.exports = function(serviceInstance) {
   self.writeData = function(buffer, timeout, timeoutCallback, writeCallback) {
     self.socket.write(buffer, writeCallback || function() {});
 
-    if (timeout) {
-      timeoutCallback = timeoutCallback || function() { };
-      self.socket.setTimeout(timeout, timeoutCallback);
+    if(timeout) {
+      timeoutCallback = timeoutCallback || function() {};
+      setTimeout(timeoutCallback, timeout);
     }
   };
 

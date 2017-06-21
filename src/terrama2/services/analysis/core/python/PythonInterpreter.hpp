@@ -100,7 +100,7 @@ namespace terrama2
             \param attribute The name of the attribute.
             \param value The result value.
           */
-          void addValue(const std::string& attribute, double value);
+          void addValue(const std::string& attribute, boost::python::object pyObjValue);
 
           void populateNamespace();
 

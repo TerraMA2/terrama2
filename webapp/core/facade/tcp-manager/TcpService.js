@@ -264,7 +264,7 @@ TcpService.prototype.start = function(json) {
       })
       // on any error
       .catch(function(err) {
-        var exception = new Error(Utils.format("Error occurred during start service %s. %s", json.service, err.toString()));
+        var exception = new Error(Utils.format("Error occurred during the service startup. %s", err.toString()));
         logger.error(exception);
         // emits exception before reject promise
         self.emit("serviceError", {
