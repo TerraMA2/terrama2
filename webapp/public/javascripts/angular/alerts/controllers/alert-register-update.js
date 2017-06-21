@@ -144,14 +144,16 @@ define([], function() {
       }
       self.alert.hasView = true;
       self.view_service_instance_id = self.alert.view.service_instance_id;
+      self.alert.schedule = Object.assign({}, self.alert.view.schedule);
+      self.alert.automatic_schedule = Object.assign({}, self.alert.view.automatic_schedule);
+      self.alert.schedule_type = self.alert.view.schedule_type;
+
     } else {
       self.colors = [
         "#FFFFFF",
         "#FFFFFF"      
       ];
     }
-
-    self.color = "#FF00FF";
 
     self.defaultColorOpts = {
       format: "hex",
