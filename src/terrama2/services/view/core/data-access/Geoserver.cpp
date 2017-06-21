@@ -1521,7 +1521,7 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
 
   for(auto& dataset : inputDataSeries->datasetList)
   {
-    std::string layerName = viewPtr->viewName + std::to_string(dataset->id);
+    std::string layerName = viewPtr->viewName + std::to_string(viewPtr->id);
     std::transform(layerName.begin(), layerName.end(),layerName.begin(), ::tolower);
 
     QUrl url(baseUrl.toString() + QString::fromStdString("/" + terrama2::core::getFolderMask(dataset)));
