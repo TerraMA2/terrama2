@@ -56,7 +56,9 @@
 #include <terralib/srs/SpatialReferenceSystem.h>
 
 #include <cmath>
-#include <boost/range/algorithm/transform.hpp>
+#include <algorithm>
+#include <boost/range/algorithm_ext/for_each.hpp>
+#include <boost/range/join.hpp>
 
 using namespace boost::python;
 
@@ -142,7 +144,7 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
     ///////////////////////////////////////////////////////////////
 
     //results map
-    std::map<std::string, OperatorCache> cacheMap;
+    std::vector<double> results;
 
     {
       // Frees the GIL, from now on it's not allowed to return any value because it doesn't have the interpreter lock.
@@ -173,23 +175,23 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
         {
           for(const auto& dataset : dataSeries->datasetList)
           {
+            auto dcpDataset = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(dataset);
+            if(!dcpDataset)
+            {
+              QString errMsg(QObject::tr("Invalid dataset for data series: ").arg(dataSeriesName.c_str()));
+              throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
+            }
+
             ///////////////////////////////////////////////////////////////
             // check dataset
             try
             {
-              if(dataset->format.at("alias") != dcpAlias)
+              if(dcpDataset->alias() != dcpAlias)
                 continue;
             }
             catch(const std::out_of_range&)
             {
               QString errMsg(QObject::tr("DCP dataset does not have an alias."));
-              throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
-            }
-
-            terrama2::core::DataSetDcpPtr dcpDataset = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(dataset);
-            if(!dcpDataset)
-            {
-              QString errMsg(QObject::tr("Could not recover DCP dataset: %1.").arg(dataset->id));
               throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
             }
 
@@ -199,7 +201,7 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
               throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
             }
 
-            std::shared_ptr<ContextDataSeries> contextDataSeries = context->getContextDataset(dataset->id, filter);
+            std::shared_ptr<ContextDataSeries> contextDataSeries = context->getContextDataset(dcpDataset->id, filter);
             auto syncDs = contextDataSeries->series.syncDataSet;
             if(syncDs->size() == 0)
               continue;
@@ -237,11 +239,7 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
                 continue;
               }
 
-              OperatorCache localCache;
-              calculateStatistics(values, localCache);
-              localCache.count = influenceCount;
-
-              cacheMap[dcpAlias] = localCache;
+              results.insert(results.end(), values.begin(), values.end());
             }//end for syncDs
           }//end for each dataSeries->datasetList
         }//end for each vecDCPAlias
@@ -271,13 +269,6 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
     {
       return std::nan("");
     }
-
-    std::vector<double> results;
-    boost::range::transform(cacheMap, back_inserter(results),
-    [&statisticOperation](std::pair<std::string, OperatorCache> result)
-    {
-      return getOperationResult(result.second, statisticOperation);
-    });
 
     calculateStatistics(results, cache);
     // return value of the operation
