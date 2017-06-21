@@ -74,9 +74,9 @@
           viewPromise = viewSchedulePromise.then(function(scheduleView){
             if (scheduleView){
               if (viewObject.schedule_type == Enums.ScheduleType.AUTOMATIC){
-                viewObject.automatic_schedule_id = schedule.id;
+                viewObject.automatic_schedule_id = scheduleView.id;
               } else {
-                viewObject.schedule_id = schedule.id;
+                viewObject.schedule_id = scheduleView.id;
               }
             }
             return DataManager.addView(viewObject, options);
