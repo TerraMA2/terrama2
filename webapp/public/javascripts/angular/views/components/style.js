@@ -42,9 +42,12 @@ define([], function () {
       }
     }
 
+    self.minColorsLength = 1;
+    
     var defaultColorOpts = {
-      format: "hex",
-      required: true
+      format: "hex8",
+      required: true,
+      alpha: true
     };
     /**
      * It configures color picker (Angular Color Picker dependency)
@@ -67,7 +70,7 @@ define([], function () {
         delete self.model.metadata.xml_style;
         self.model.colors = [
           {
-            color: "#FFFFFF",
+            color: "#FFFFFFFF",
             isDefault: true,
             title: "Default",
             value: ""
@@ -93,6 +96,41 @@ define([], function () {
         delete self.model.beginColor;
         delete self.model.endColor;
       }
+    }
+
+    self.changeColorType = function(){
+      if (self.model.type == 1){
+        self.minColorsLength = 2;
+        self.model.colors = [
+          {
+            color: "#FFFFFFFF",
+            isDefault: false,
+            title: "Color 1",
+            value: ""
+          },
+          {
+            color: "#FFFFFFFF",
+            isDefault: false,
+            title: "Color 1",
+            value: ""
+          }
+        ];
+      } else {
+        self.minColorsLength = 1;
+        self.model.colors = [
+          {
+            color: "#FFFFFFFF",
+            isDefault: true,
+            title: "Default",
+            value: ""
+          }
+        ];
+      }
+    }
+
+    self.initColorType = function(){
+      if (!self.model.type)
+        self.model.type = 3;
     }
     /**
      * Get xml file
@@ -151,7 +189,7 @@ define([], function () {
     function addColor() {  
       var colorsLength = self.model.colors.length;
       var newColor = {
-        color: "#FFFFFF",
+        color: "#FFFFFFFF",
         isDefault: false,
         title: "Color Title"
       }
