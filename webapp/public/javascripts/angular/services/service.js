@@ -246,6 +246,8 @@ define([], function() {
         stopAll: function() {
           $scope.extra.service.stoping = true;
           $scope.model.forEach(function(modelInstance) {
+            modelInstance.showErrorButton = false;
+
             if (modelInstance.online) {
               if (!modelInstance.loading) {
                 $scope.socket.emit('stop', {service: modelInstance.id});
@@ -269,11 +271,11 @@ define([], function() {
         },
 
         handler: function(serviceInstance) {
-          serviceInstance.showErrorButton = true;
-
           if (!serviceInstance.online) {
+            serviceInstance.showErrorButton = true;
             $scope.socket.emit('testPortNumber', {port: serviceInstance.port, service: serviceInstance.id});
           } else {
+            serviceInstance.showErrorButton = false;
             serviceInstance.requestingForClose = true;
             $scope.socket.emit('stop', {service: serviceInstance.id});
           }
