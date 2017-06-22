@@ -62,7 +62,7 @@
         var viewPromise;
         if (alertObject.hasView){
           var viewObject = alertObject.view;
-          viewPromise = ViewFacade.save(viewObject, projectId);
+          viewPromise = ViewFacade.save(viewObject, projectId, options);
         } else {
           viewPromise = PromiseClass.resolve();
         }
@@ -169,6 +169,8 @@
         var removeSchedule = null;
         var scheduleIdToRemove = null;
         var scheduleTypeToRemove = null;
+        var removeView = null;
+        var viewIdToRemove = null;
         return DataManager.getAlert({id: alertId}, options)
           .then(function(alertResult){
             alert = alertResult;
@@ -274,21 +276,48 @@
             });
             return Promise.all(alertNotificationsPromises);
           })
+          //updating view alert
           .then(function(){
-            // updating alert
-            return DataManager.updateAlert({id: alertId}, alertObject, options)
-              .then(function(){
-                if (removeSchedule) {
-                  if (scheduleTypeToRemove == Enums.ScheduleType.AUTOMATIC){
-                    return DataManager.removeAutomaticSchedule({id: scheduleIdToRemove}, options);
-                  } else {
-                    return DataManager.removeSchedule({id: scheduleIdToRemove}, options);
+            var oldView = alert.view;
+            var newView = alertObject.view;
+            var alertViewPromise;
+            if (oldView.id && newView) {
+              alertViewPromise = ViewFacade.update(oldView.id, newView, projectId);
+            } else if (oldView.id && !newView){
+              removeView = true;
+              viewIdToRemove = oldView.id;
+              alertObject.view_id = null;
+              alertViewPromise = PromiseClass.resolve();
+            } else if (!oldView.id && newView){
+              alertViewPromise = ViewFacade.save(newView, projectId, options);
+            } else {
+              alertViewPromise = PromiseClass.resolve();
+            }
+            return alertViewPromise.then(function(alertViewResult){
+              if(alertViewResult){
+                alertObject.view_id = alertViewResult.id;
+              }
+              // updating alert
+              return DataManager.updateAlert({id: alertId}, alertObject, options)
+                .then(function(){
+                  if (removeSchedule) {
+                    if (scheduleTypeToRemove == Enums.ScheduleType.AUTOMATIC){
+                      return DataManager.removeAutomaticSchedule({id: scheduleIdToRemove}, options);
+                    } else {
+                      return DataManager.removeSchedule({id: scheduleIdToRemove}, options);
+                    }
                   }
-                }
-              })
-              .then(function(){
-                return DataManager.getAlert({id: alertId}, options);
-              })
+                })
+                .then(function(){
+                  if (removeView)
+                    return DataManager.removeView({id: viewIdToRemove}, options);
+                  else
+                    return null;
+                })
+                .then(function(){
+                  return DataManager.getAlert({id: alertId}, options);
+                })
+            });
           })
       })
       .then(function(alert){

@@ -4365,7 +4365,7 @@ var DataManager = module.exports = {
       models.db.Alert.update(
         alertObject,
         Utils.extend({
-          fields: ["name", "description", "data_series_id", "active", "service_instance_id", "risk_id", "risk_attribute", "schedule_type", "schedule_id", "automatic_schedule_id"],
+          fields: ["name", "description", "data_series_id", "active", "service_instance_id", "risk_id", "risk_attribute", "schedule_type", "schedule_id", "automatic_schedule_id", "view_id"],
           where: restriction
         }, options))
         .then(function(){
@@ -4530,11 +4530,11 @@ var DataManager = module.exports = {
     var self = this;
     return new Promise(function(resolve, reject) {
       var alert;
-      var viewId;
+      var view;
       return self.getAlert(restriction, options)
         .then(function(alertResult) {
           alert = alertResult;
-          viewId = alertResult.view_id;
+          view = alertResult.view;
           return self.removeAutomaticSchedule({id: alert.automatic_schedule.id}, options);
         })
 
@@ -4543,8 +4543,8 @@ var DataManager = module.exports = {
         })
 
         .then(function() {
-          if (viewId)
-            return self.removeView({id: viewId}, options);
+          if (view.id)
+            return self.removeView({id: view.id}, options);
           else
             return null;
         })

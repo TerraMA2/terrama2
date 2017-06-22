@@ -686,6 +686,9 @@ define([], function() {
           self.alert.view = viewModel;
           self.alert.schedule_type = "3";
           self.alert.schedule = {scheduleType: "3"};
+        } else {
+          delete self.alert.view;
+          delete self.alert.view_id;
         }
 
         var operation = self.isUpdating ? self.AlertService.update(self.alert.id, self.alert) : self.AlertService.create(self.alert);

@@ -107,12 +107,6 @@ var Alert = function(params) {
   this.notifications = params.notifications || [];
 
   /**
-   * @name Alert#view_id
-   * @type {object}
-   */
-  this.view_id = params.view_id;
-
-  /**
    * @name Alert#view
    * @type {object}
    */
@@ -192,7 +186,6 @@ Alert.prototype.toObject = function() {
     additional_data: this.additional_data,
     notifications: this.notifications,
     report_metadata: this.report_metadata,
-    view_id: this.view_id,
     view: this.view instanceof BaseClass ? this.view.toObject() : this.view,
   });
 };
@@ -241,8 +234,7 @@ Alert.prototype.toService = function() {
     additional_data: additionalDataList,
     notifications: notificationList,
     report_metadata: reportMetadataCopy,
-    schedule: this.schedule instanceof BaseClass ? this.schedule.toObject() : {},
-    view_id: this.view_id
+    schedule: this.schedule instanceof BaseClass ? this.schedule.toObject() : {}
   });
 }
 
