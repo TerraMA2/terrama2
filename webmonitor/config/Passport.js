@@ -23,8 +23,11 @@ var setupPassport = function(app) {
     },
     function(username, password, done) {
       var options = {
-        url: 'http://localhost:36000/login/remote',
-        form: {username:username,password:password},
+        url: app.locals.ADMIN_URL + 'login/remote',
+        form: {
+          username: username,
+          password: password
+        },
         method: 'POST',
         headers: {
           'accept': 'application/json',
