@@ -1,3 +1,5 @@
+const KEY = 'terrama2Monitor.sid';
+
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
@@ -5,11 +7,14 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var fs = require("fs");
-
 var swig = require('swig');
-
 var routes = require('./routes/index');
 var users = require('./routes/users');
+var login = require('./routes/Login');
+var passport = require('./config/Passport');
+var session = require('express-session');
+var sharedsession = require('express-socket.io-session');
+var io = require('socket.io')();
 
 var app = express();
 
@@ -27,15 +32,29 @@ app.set('view engine', 'html');
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
+app.use(cookieParser());
+var webMonitorSession = session({ secret: KEY, resave: false, saveUninitialized: false });
+
+app.use(webMonitorSession);
+
+io.use(sharedsession(webMonitorSession, {
+  autoSave: true
+}));
+
+app.getIo = function() {
+  return io;
+}
+
+passport.setupPassport(app);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
 app.use(app.locals.BASE_URL, express.static(path.join(__dirname, 'bower_components')));
 app.use(app.locals.BASE_URL, express.static(path.join(__dirname, 'public')));
 app.use(app.locals.BASE_URL, express.static(path.join(__dirname, '../webcomponents/dist')));
 
 app.use(app.locals.BASE_URL, routes);
 app.use(app.locals.BASE_URL + 'users', users);
+app.use(app.locals.BASE_URL + 'login', login);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -67,6 +86,5 @@ app.use(function(err, req, res, next) {
     error: {}
   });
 });
-
 
 module.exports = app;
