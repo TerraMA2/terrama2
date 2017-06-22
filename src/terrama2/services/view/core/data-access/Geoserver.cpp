@@ -2023,10 +2023,7 @@ void terrama2::services::view::core::GeoServer::createMosaicTable(std::shared_pt
   te::gm::GeometryProperty* geomProp = new te::gm::GeometryProperty("the_geom", 0, te::gm::PolygonType, true);
   geomProp->setSRID(srid);
 
-  te::dt::StringProperty* filenameProp = new te::dt::StringProperty("location", te::dt::STRING, 0, true);
-  te::dt::StringProperty* sp = static_cast<te::dt::StringProperty*>(filenameProp);
-  sp->setSubtype(te::dt::VAR_STRING);
-  sp->setSize(255);
+  te::dt::StringProperty* filenameProp = new te::dt::StringProperty("location", te::dt::VAR_STRING, 255, true);
 
   te::dt::DateTimeProperty* timestampProp = new te::dt::DateTimeProperty("timestamp", te::dt::TIME_INSTANT, true);
 
