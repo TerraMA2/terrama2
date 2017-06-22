@@ -111,7 +111,7 @@ define([], function () {
           {
             color: "#FFFFFFFF",
             isDefault: false,
-            title: "Color 1",
+            title: "Color 2",
             value: ""
           }
         ];
@@ -191,7 +191,7 @@ define([], function () {
       var newColor = {
         color: "#FFFFFFFF",
         isDefault: false,
-        title: "Color Title"
+        title: "Color " + colorsLength
       }
       self.model.colors.push(newColor);
     }
