@@ -26,13 +26,14 @@
 
 {% set webadminHostInfo = webadminHostInfo || {} %}
 {% set webmonitorHostInfo = webmonitorHostInfo || {} %}
+{% set message = message || {} %}
 
 <div id="terrama2-map" class="terrama2-map"></div>
 
 <!-- Alert message -->
 <div id="terrama2Alert" class="alert alert-danger hide">
   <a href="#" id="close-alert" class="close" aria-label="close">&times;</a>
-  <strong>Invalid URL!</strong> Error to find capabilities.
+  <p><strong></strong> <span></span></p>
 </div>
 
 <!-- Layers Modal -->
@@ -76,6 +77,13 @@
     var visibleLayers = [];
     var capabilities;
     var sliderCapabilities = [];
+    var message = "{[message.content]}";
+
+    if(message != "") {
+        $("#terrama2Alert > p > strong").text('');
+        $("#terrama2Alert > p > span").text(message);
+        $("#terrama2Alert").removeClass('hide');
+    }
 
     TerraMA2WebComponents.LayerExplorer.init();
     TerraMA2WebComponents.MapDisplay.init();
@@ -484,6 +492,8 @@
             $('#layersModal').modal('show');
         }
         catch(e) {
+            $("#terrama2Alert > p > strong").text('Invalid URL!');
+            $("#terrama2Alert > p > span").text('Error to find capabilities.');
             $("#terrama2Alert").removeClass('hide');
         }
     })

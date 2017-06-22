@@ -8,12 +8,10 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var fs = require("fs");
 var swig = require('swig');
-var routes = require('./routes/index');
-var users = require('./routes/users');
-var login = require('./routes/login');
 var passport = require('./config/Passport');
 var session = require('express-session');
 var sharedsession = require('express-socket.io-session');
+var load = require('express-load');
 var io = require('socket.io')();
 
 var app = express();
@@ -50,9 +48,7 @@ app.use(app.locals.BASE_URL, express.static(path.join(__dirname, 'bower_componen
 app.use(app.locals.BASE_URL, express.static(path.join(__dirname, 'public')));
 app.use(app.locals.BASE_URL, express.static(path.join(__dirname, '../webcomponents/dist')));
 
-app.use(app.locals.BASE_URL, routes);
-app.use(app.locals.BASE_URL + 'users', users);
-app.use(app.locals.BASE_URL + 'login', login);
+load('routes').into(app);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

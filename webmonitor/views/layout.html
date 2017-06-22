@@ -56,7 +56,7 @@
                       <p class="user-name">{[ currentUser.name ]}</p>
                     </li>
                     <li class="user-footer">
-                      <div class="pull-right"><a href="/login/logout" class="btn btn-default btn-flat" id="signout">Sign out</a></div>
+                      <div class="pull-right"><a href="{[ BASE_URL ]}logout" class="btn btn-default btn-flat" id="signout">Sign out</a></div>
                     </li>
                   </ul>
                 </li>
@@ -72,7 +72,7 @@
                   </a>
                   <ul class="dropdown-menu">
                     <li class="user-body">
-                      <form method="POST" action="/login">
+                      <form method="POST" action="{[ BASE_URL ]}login">
                         <div class="form-group has-feedback">
                           <input type="text" class="form-control" placeholder="Username" name="username" id="username">
                           <span class="fa fa-user form-control-feedback"></span>
