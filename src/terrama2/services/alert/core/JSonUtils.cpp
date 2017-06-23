@@ -96,7 +96,14 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
     for(const auto& tempAttribute : attributesArray)
       attributes.push_back(tempAttribute.toString().toStdString());
 
-    alert->additionalDataVector.push_back({id, datasetid, referrerAttribute, referredAttribute, attributes});
+    AdditionalData additionalData;
+    additionalData.dataSeriesId = id;
+    additionalData.dataSetId = datasetid;
+    additionalData.referrerAttribute = referrerAttribute;
+    additionalData.referredAttribute = referredAttribute;
+    additionalData.attributes = attributes;
+
+    alert->additionalDataVector.push_back(additionalData);
   }
 
   auto reportMetadata = json["report_metadata"].toObject();

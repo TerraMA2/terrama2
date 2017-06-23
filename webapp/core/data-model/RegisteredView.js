@@ -150,6 +150,7 @@
     return Object.assign(AbstractClass.prototype.toObject.call(this), {
       id: this.id,
       name: this.view.name,
+      private: this.view.private,
       workspace: this.workspace,
       uriGeoserver: uri,
       layers: this.layers.map(function(layer) { return layer.name; }),

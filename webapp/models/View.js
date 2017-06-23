@@ -43,6 +43,12 @@
         default: true,
         comment: "It defines view can be used and retrieved. Default is true."
       },
+      private: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        default: false,
+        comment: "It defines if the view is private. Default is false."
+      },
       schedule_type: {
         type: DataTypes.INTEGER,
         allowNull: true
