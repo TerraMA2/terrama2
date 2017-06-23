@@ -78,6 +78,11 @@
      * @type {any}
      */
     this.legend = params.legend || null;
+    /**
+     * Flag that indicates if the view is private
+     * @type {boolean}
+     */
+    this.private = params.private;
   }
 
   View.prototype = Object.create(AbstractClass.prototype);
@@ -116,6 +121,7 @@
       service_instance_id: this.serviceInstanceId,
       project_id: this.projectId,
       legend: this.legend instanceof AbstractClass ? this.legend.toObject() : this.legend,
+      private: this.private,
       schedule_type: this.scheduleType
     });
   };

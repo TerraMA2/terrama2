@@ -43,6 +43,58 @@
             <span class="imgs"><img src="{[ BASE_URL ]}images/banco_mundial.png"></span>
             <span class="imgs"><img id="mma" src="{[ BASE_URL ]}images/mma.png"></span>
             <span class="imgs"><img src="{[ BASE_URL ]}images/funcate.png"></span>
+
+            {% if (currentUser !== null) %}
+            <div class="navbar-custom-menu" id="user-nav">
+              <ul class="nav navbar-nav">
+                <li class="dropdown user user-menu">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+                    <span class="hidden-xs user-name">{[ currentUser.name ]}</span>
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li class="user-header" style="height: auto;">
+                      <p class="user-name">{[ currentUser.name ]}</p>
+                    </li>
+                    <li class="user-footer">
+                      <div class="pull-right"><a href="{[ BASE_URL ]}logout" class="btn btn-default btn-flat" id="signout">Sign out</a></div>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+            {% endif %}
+            {% if (currentUser === null) %}
+            <div class="navbar-custom-menu" id="login-nav">
+              <ul class="nav navbar-nav">
+                <li class="dropdown user user-menu">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+                    <span class="hidden-xs">Login</span>
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li class="user-body">
+                      <form method="POST" action="{[ BASE_URL ]}login">
+                        <div class="form-group has-feedback">
+                          <input type="text" class="form-control" placeholder="Username" name="username" id="username">
+                          <span class="fa fa-user form-control-feedback"></span>
+                        </div>
+                        <div class="form-group has-feedback">
+                          <input type="password" class="form-control" placeholder="Password" name="password" id="password">
+                          <span class="fa fa-key form-control-feedback"></span>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-12">
+                            <button type="submit" name="btnLogin" class="btn btn-primary btn-block btn-flat" id="signin">
+                              <span ng-bind="i18n.__('Sign In')" class="ng-binding">Sign In</span>
+                            </button>
+                          </div>
+                        </div>
+                      </form>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+            {% endif %}
           </div>
         </nav>
       </header>
