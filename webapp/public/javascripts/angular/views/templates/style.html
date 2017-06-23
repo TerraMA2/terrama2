@@ -21,6 +21,28 @@
 
 <div ng-if="$ctrl.model.metadata.creation_type == '0'">
   <div class="col-md-12 terrama2-nopadding-box">
+
+    <div class="col-md-6">
+      <div class="form-group" terrama2-show-errors>
+        <label><span ng-bind="$ctrl.i18n.__('Type')"></span>:</label>
+        <select class="form-control"
+                name="styleType"
+                ng-model="$ctrl.model.type"
+                ng-init="$ctrl.initColorType()"
+                ng-change="$ctrl.changeColorType()"
+                ng-options="elementType.value as $ctrl.i18n.__(elementType.name) for elementType in $ctrl.styleTypes | filter: $ctrl.typeFilter"
+                required>
+        </select>
+
+        <span class="help-block"
+          ng-show="$ctrl.formCtrl.styleType.$dirty && $ctrl.formCtrl.styleType.$error.required"
+          ng-bind="$ctrl.i18n.__('Type is required')">
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-12 terrama2-nopadding-box">
     <div class="col-md-6 terrama2-nopadding-box">
       <div class="col-md-12" ng-if="$ctrl.type === $ctrl.DataSeriesType.GEOMETRIC_OBJECT || $ctrl.type === $ctrl.DataSeriesType.OCCURRENCE || $ctrl.type === $ctrl.DataSeriesType.ANALYSIS_MONITORED_OBJECT">
         <div class="form-group" terrama2-show-errors>
@@ -39,16 +61,6 @@
         <!-- ./Column -->
       </div>
       <!-- ./col-md-6 Type -->
-      <div class="col-md-6" ng-if="$ctrl.type === $ctrl.DataSeriesType.GRID">
-        <div class="form-group" terrama2-show-errors>
-          <label><span ng-bind="$ctrl.i18n.__('Dummy Value')"></span>:</label>
-          <input class="form-control" 
-                name="dummy" 
-                ng-model="$ctrl.model.metadata.dummy" 
-                type="text">
-        </div>
-        <!-- ./Dummy -->
-      </div>
       <div class="col-md-6"ng-if="$ctrl.type === $ctrl.DataSeriesType.GRID" >
         <div class="form-group"  terrama2-show-errors>
           <label><span ng-bind="$ctrl.i18n.__('Band Number')"></span>:</label>
@@ -64,25 +76,19 @@
           </span>
         </div>
       </div>
+      <div class="col-md-6" ng-if="$ctrl.type === $ctrl.DataSeriesType.GRID && $ctrl.model.type != 1">
+        <div class="form-group" terrama2-show-errors>
+          <label><span ng-bind="$ctrl.i18n.__('Dummy Value')"></span>:</label>
+          <input class="form-control" 
+                name="dummy" 
+                ng-model="$ctrl.model.metadata.dummy" 
+                type="text">
+        </div>
+        <!-- ./Dummy -->
+      </div>
       <!-- ./GRID -->
     </div>
     <!-- ./col-md-6 -->
-    <div class="col-md-6">
-      <div class="form-group" terrama2-show-errors>
-        <label><span ng-bind="$ctrl.i18n.__('Type')"></span>:</label>
-        <select class="form-control"
-                name="styleType"
-                ng-model="$ctrl.model.type"
-                ng-options="elementType.value as $ctrl.i18n.__(elementType.name) for elementType in $ctrl.styleTypes | filter: $ctrl.typeFilter"
-                required>
-        </select>
-
-        <span class="help-block"
-          ng-show="$ctrl.formCtrl.styleType.$dirty && $ctrl.formCtrl.styleType.$error.required"
-          ng-bind="$ctrl.i18n.__('Type is required')">
-        </span>
-      </div>
-    </div>
   </div>
   <div class="col-md-12 terrama2-nopadding-box" >
     <hr>
@@ -145,7 +151,7 @@
               </span>
             </div>
 
-            <div class="form-group col-md-3" ng-if="!elm.isDefault">
+            <div class="form-group col-md-3" ng-if="!elm.isDefault && $ctrl.model.colors.length > $ctrl.minColorsLength">
               <button type="button"
                       class="btn btn-primary"
                       style="margin-left: 9px;"
