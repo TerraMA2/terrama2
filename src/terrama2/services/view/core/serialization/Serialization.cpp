@@ -222,6 +222,46 @@ void terrama2::services::view::core::Serialization::writeCoverageStyleGeoserverX
 
   writer->writeStartElement("FeatureTypeStyle");
   writer->writeStartElement("Rule");
+
+
+  View::Legend::Rule defaultRule;
+  std::vector<View::Legend::Rule> rules;
+
+  for(const auto& rule : legend.rules)
+  {
+    if(rule.isDefault)
+    {
+      defaultRule = rule;
+      continue;
+    }
+
+    rules.push_back(rule);
+  }
+
+
+  // default color
+  writer->writeStartElement("RasterSymbolizer");
+  writer->writeStartElement("ColorMap");
+  writer->writeAttribute("type", "ramp");
+
+  writer->writeStartElement("ColorMapEntry");
+  writer->writeAttribute("color", defaultRule.color);
+  writer->writeAttribute("quantity", "0");
+  writer->writeAttribute("label", defaultRule.title);
+  writer->writeAttribute("opacity", "1");
+  writer->writeEndElement("ColorMapEntry");
+
+  writer->writeStartElement("ColorMapEntry");
+  writer->writeAttribute("color", defaultRule.color);
+  writer->writeAttribute("quantity", "1");
+  writer->writeAttribute("label", defaultRule.title);
+  writer->writeAttribute("opacity", "1");
+  writer->writeEndElement("ColorMapEntry");
+
+  writer->writeEndElement("ColorMap");
+  writer->writeEndElement("RasterSymbolizer");
+
+  // assigned colors
   writer->writeStartElement("RasterSymbolizer");
   writer->writeStartElement("ColorMap");
 
@@ -242,28 +282,29 @@ void terrama2::services::view::core::Serialization::writeCoverageStyleGeoserverX
 
   writer->writeAttribute("type", classifyType);
 
-  std::vector< View::Legend::Rule > rules;
-
-  for(auto& rule : legend.rules)
-  {
-    if(!rule.isDefault)
-    {
-      rules.push_back(rule);
-      continue;
-    }
-    // TODO: add default value in style
-  }
-
   std::sort(rules.begin(), rules.end(), View::Legend::Rule::compareByNumericValue);
 
-  for(auto& rule : rules)
+  for(const auto& rule : rules)
   {
+    if(rule.isDefault)
+      continue;
+
     writer->writeStartElement("ColorMapEntry");
     writer->writeAttribute("color", rule.color);
     writer->writeAttribute("quantity", rule.value);
     writer->writeAttribute("label", rule.title);
     writer->writeAttribute("opacity", "1");
     writer->writeEndElement("ColorMapEntry");
+
+    if(rule == rules.back())
+    {
+      writer->writeStartElement("ColorMapEntry");
+      writer->writeAttribute("color", rule.color);
+      writer->writeAttribute("quantity", rule.value);
+      writer->writeAttribute("label", rule.title);
+      writer->writeAttribute("opacity", "0");
+      writer->writeEndElement("ColorMapEntry");
+    }
   }
 
   writer->writeEndElement("ColorMap");
