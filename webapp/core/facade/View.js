@@ -219,7 +219,7 @@
           })
 
           .then(function() {
-            if (viewObject.legend) {
+            if (!Utils.isEmpty(viewObject.legend) && !Utils.isEmpty(viewObject.legend.metadata)) {
               // if there is no legend before, insert a new one
               var legend = viewObject.legend;
               legend.view_id = viewId;
