@@ -178,12 +178,11 @@ if(CPACK_GENERATOR MATCHES "DEB")
   # set(CPACK_DEBIAN_PACKAGE_NAME "terrama2-@TERRAMA2_VERSION_STRING@-@TERRAMA2_PKG_ARCHITECTURE@")
 
   set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_FILE_NAME}-${LSB_RELEASE_ID_SHORT}-${LSB_RELEASE_VERSION}")
-  #NOTE: the python-psycopg2 package in needed only to remove the database on package purge
   IF(LSB_RELEASE_ID_SHORT MATCHES "Ubuntu")
     IF(LSB_RELEASE_VERSION MATCHES "14.04")
-      set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.3.1-6), libgcc1 (>= 1:3.4.2-12), terralib-5.2.1, nodejs (>= 4.7.0), libquazip0 (>= 0.6), build-essential, git, screen, python-psycopg2")
+      set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.3.1-6), libgcc1 (>= 1:3.4.2-12), terralib-5.2.1, nodejs (>= 4.7.0), libquazip0 (>= 0.6), build-essential, git, screen")
     ELSEIF(LSB_RELEASE_VERSION MATCHES "16.04")
-      set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.3.1-6), libgcc1 (>= 1:3.4.2-12), terralib-5.2.1, nodejs (>= 4.7.0), libquazip1 (>= 0.6), build-essential, git, screen, python-psycopg2")
+      set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.3.1-6), libgcc1 (>= 1:3.4.2-12), terralib-5.2.1, nodejs (>= 4.7.0), libquazip1 (>= 0.6), build-essential, git, screen")
     ENDIF()
   ENDIF()
 
