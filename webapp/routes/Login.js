@@ -1,5 +1,6 @@
 var passport = require('passport');
 var DataManager = require('./../core/DataManager');
+var bcrypt = require('bcrypt');
 
 module.exports = function(app) {
 
@@ -23,6 +24,48 @@ module.exports = function(app) {
         return response.redirect(app.locals.BASE_URL + 'firstAccess')
       })
     })(request, response, next);
+  });
+
+  app.post(app.locals.BASE_URL + 'login/remote', function(request, response) {
+    DataManager.getUser({'username': request.body.username}).then(function(userObj) {
+      if(userObj === null)
+        return response.json({
+          error: true,
+          message: 'Incorrect user.',
+          user: null
+        });
+
+      var hashedPassword = bcrypt.hashSync(request.body.password, userObj.salt);
+
+      if(userObj.password === hashedPassword) {
+        var user = {
+          id: userObj.id,
+          name: userObj.name,
+          email: userObj.email,
+          cellphone: userObj.cellphone,
+          username: userObj.username,
+          administrator: userObj.administrator
+        };
+
+        return response.json({
+          error: false,
+          message: null,
+          user: user
+        });
+      }
+
+      return response.json({
+        error: true,
+        message: 'Incorrect password.',
+        user: null
+      });
+    }).catch(function(err) {
+      return response.json({
+        error: true,
+        message: 'Incorrect user.',
+        user: null
+      });
+    });
   });
 
   app.get(app.locals.BASE_URL + 'logout', controller.logout);

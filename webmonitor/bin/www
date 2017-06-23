@@ -8,7 +8,7 @@ var app = require('../app');
 var debug = require('debug')('myapp:server');
 var load = require('express-load');
 var http = require('http');
-var io = require('socket.io')();
+var io = app.getIo();
 var fs = require("fs");
 var path = require("path");
 /**
