@@ -147,6 +147,7 @@ define([], function() {
     // function initializer
     self.onDataSeriesChanged = onDataSeriesChanged;
     self.initActive = initActive;
+    self.initPrivate = initPrivate;
     // Setting view service dao
     self.ViewService = ViewService;
     // setting message box close fn
@@ -305,6 +306,18 @@ define([], function() {
       // wait angular digest cycle
       $timeout(function() {
         self.view.active = (config.view.active === false || config.view.active) ? config.view.active : true;
+      });
+    }
+
+    /**
+     * It is used on ng-init private view. It will wait for angular ready condition and set private view checkbox
+     *
+     * @returns {void}
+     */
+    function initPrivate() {
+      // wait angular digest cycle
+      $timeout(function() {
+        self.view.private = (config.view.private === false || config.view.private) ? config.view.private : false;
       });
     }
 

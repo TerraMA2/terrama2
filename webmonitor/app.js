@@ -16,7 +16,7 @@ var io = require('socket.io')();
 
 var app = express();
 
-var webMonitorSession = session({ secret: KEY, resave: false, saveUninitialized: false });
+var webMonitorSession = session({ secret: KEY, name: "TerraMA2WebMonitor", resave: false, saveUninitialized: false });
 
 // reading TerraMA² config.json
 var config = JSON.parse(fs.readFileSync(path.join(__dirname, "./config/config.terrama2monitor"), "utf-8"));

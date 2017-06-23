@@ -8,7 +8,7 @@ var setupPassport = function(app) {
 
   app.use(function(req, res, next) {
     if(req.session.passport !== undefined && req.session.passport.user !== undefined) {
-      res.locals.currentUser = app.locals.user;
+      res.locals.currentUser = req.session.passport.user;
       next();
     } else {
       res.locals.currentUser = null;
@@ -44,18 +44,17 @@ var setupPassport = function(app) {
         if(response.error)
           return done(null, false, { message: response.message });
 
-        app.locals.user = response.user;
         return done(null, response.user);
       });
     }
   ));
 
   passport.serializeUser(function(userObj, done) {
-    return done(null, userObj.id);
+    return done(null, userObj);
   });
 
-  passport.deserializeUser(function(id, done) {
-    return done(null, app.locals.user);
+  passport.deserializeUser(function(userObj, done) {
+    return done(null, userObj);
   });
 };
 
