@@ -187,7 +187,7 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::AlertExecutor
   return alertDataSet;
 }
 
-void terrama2::services::alert::core::AlertExecutor::addAdditionalData(std::shared_ptr<te::mem::DataSet> alertDataSet, AlertPtr alertPtr, std::unordered_map<std::string, terrama2::core::TeDataSetFKJoin> additionalDataMap)
+void terrama2::services::alert::core::AlertExecutor::addAdditionalData(std::shared_ptr<te::mem::DataSet> alertDataSet, const std::vector<AdditionalData>& additionalDataVector, std::unordered_map<std::string, terrama2::core::TeDataSetFKJoin> additionalDataMap)
 {
   // list of additional properties
   std::set<std::string> propertyNames;
@@ -198,7 +198,7 @@ void terrama2::services::alert::core::AlertExecutor::addAdditionalData(std::shar
     alertDataSet->move(i);
 
     //iterate over all additional dataset to fill each item
-    for(const auto& additionalData : alertPtr->additionalDataVector)
+    for(const auto& additionalData : additionalDataVector)
     {
       std::string key = std::to_string(additionalData.dataSeriesId)+"_"+std::to_string(additionalData.dataSetId);
       auto join = additionalDataMap.at(key);
@@ -234,22 +234,34 @@ terrama2::services::alert::core::AlertExecutor::monitoredObjectAlert(std::shared
                                                                      terrama2::core::DataSetPtr dataset,
                                                                      std::shared_ptr<te::da::DataSet> teDataset,
                                                                      te::dt::Property* idProperty,
+                                                                     const std::vector<AdditionalData>& additionalDataVector,
                                                                      std::unordered_map<DataSeriesId, std::pair<terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr> > tempAdditionalDataVector,
                                                                      std::shared_ptr<terrama2::core::FileRemover> remover)
 {
   //Creat a Join class based on the ForeignKey of the dataset
   std::unordered_map<std::string, terrama2::core::TeDataSetFKJoin> additionalDataMap;
-  for(const auto& additionalData : alertPtr->additionalDataVector)
+  for(const auto& additionalData : additionalDataVector)
   {
     auto pair = tempAdditionalDataVector.at(additionalData.dataSeriesId);
     auto dataSeries = pair.first;
     auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(pair.second, dataSeries);
     auto dataMap = dataAccessor->getSeries(filter, remover);
 
-    auto iter = std::find_if(dataMap.begin(), dataMap.end(), [&additionalData](std::pair<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries> pair)
+    decltype(dataMap.begin()) iter;
+    if(additionalData.dataSetId == terrama2::core::InvalidId())
     {
-                return pair.first->id == additionalData.dataSetId;
-  });
+      //if no dataset configured
+      iter = dataMap.begin();
+    }
+    else
+    {
+      //find selected dataset
+      iter = std::find_if(dataMap.begin(), dataMap.end(), [&additionalData](std::pair<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries> pair)
+      {
+        return pair.first->id == additionalData.dataSetId;
+      });
+    }
+
     auto referredDataSeries = dataMap.at(iter->first);
 
     terrama2::core::TeDataSetFKJoin join(dataSetType,
@@ -300,7 +312,7 @@ terrama2::services::alert::core::AlertExecutor::monitoredObjectAlert(std::shared
 
   auto riskResultMap = getResultMap(alertPtr, pos, idProperty, datetimeColumnName, teDataset, vecDates);
   std::shared_ptr<te::mem::DataSet> alertDataSet = populateMonitoredObjectAlertDataset(vecDates, riskResultMap, comparisonPreviosProperty, alertPtr, fkProperty, alertDataSetType);
-  addAdditionalData(alertDataSet, alertPtr, additionalDataMap);
+  addAdditionalData(alertDataSet, additionalDataVector, additionalDataMap);
 
   // remove fk column
   size_t fkPos = terrama2::core::propertyPosition(alertDataSet.get(), fkProperty->getName());
@@ -472,8 +484,9 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
     auto inputDataProvider = dataManager->findDataProvider(inputDataSeries->dataProviderId);
 
     //retrieve additional data
+    std::vector<AdditionalData> additionalDataVector = alertPtr->additionalDataVector;
     std::unordered_map<DataSeriesId, std::pair<terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr> > tempAdditionalDataVector;
-    for(auto additionalData : alertPtr->additionalDataVector)
+    for(auto additionalData : additionalDataVector)
     {
       auto dataSeries = dataManager->findDataSeries(additionalData.dataSeriesId);
       auto dataProvider = dataManager->findDataProvider(dataSeries->dataProviderId);
@@ -561,7 +574,7 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
 
         auto tempProperties = dataSetType->getForeignKey(0)->getProperties();
         auto idProperty = tempProperties.front();
-        if(tempProperties.size() != 1 || !idProperty)
+        if(!idProperty)
         {
           QString errMsg = QObject::tr("Invalid identifier attribute.");
           logger->result(AlertLogger::ERROR, nullptr, executionPackage.registerId);
@@ -569,6 +582,24 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
           TERRAMA2_LOG_ERROR() << errMsg;
           return;
         }
+
+        ////////////////////////////////////
+        // Include identifier attribute to alert aditional data
+        {
+          AdditionalData indentifierData;
+          indentifierData.dataSeriesId = std::stoi(dataset->format.at("monitored_object_id"));
+          indentifierData.attributes.push_back(dataset->format.at("monitored_object_pk"));
+          indentifierData.referrerAttribute = idProperty->getName();
+          indentifierData.referredAttribute = idProperty->getName();
+
+          additionalDataVector.push_back(indentifierData);
+
+          auto dataSeries = dataManager->findDataSeries(indentifierData.dataSeriesId);
+          auto dataProvider = dataManager->findDataProvider(dataSeries->dataProviderId);
+
+          tempAdditionalDataVector.emplace(indentifierData.dataSeriesId, std::make_pair(dataSeries, dataProvider));
+        }
+        ////////////////////////////////////
 
         alertDataSet = monitoredObjectAlert(dataSetType,
                                             datetimeColumnName,
@@ -578,6 +609,7 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
                                             dataset,
                                             teDataset,
                                             idProperty,
+                                            additionalDataVector,
                                             tempAdditionalDataVector,
                                             remover);
       }
@@ -626,9 +658,17 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
 
         try
         {
-          NotifierPtr notifierPtr = NotifierFactory::getInstance().make("EMAIL", serverMap, reportPtr);
-
-          notifierPtr->send(notification, documentURI);
+          if(serverMap.empty())
+          {
+            QString errMsg("No message server configured");
+            logger->log(AlertLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+            TERRAMA2_LOG_ERROR() << errMsg;
+          }
+          else
+          {
+            NotifierPtr notifierPtr = NotifierFactory::getInstance().make("EMAIL", serverMap, reportPtr);
+            notifierPtr->send(notification, documentURI);
+          }
         }
         catch(const NotifierException& e)
         {
