@@ -406,5 +406,15 @@ module.exports = {
     REPROCESSING_HISTORICAL: "2",
     MANUAL: "3",
     AUTOMATIC: "4"
+  },
+
+  /**
+   * List of source type to create view 
+   */
+  ViewSourceType: {
+    STATIC: 1,
+    DYNAMIC: 2,
+    ANALYSIS: 3,
+    ALERT: 4
   }
 };

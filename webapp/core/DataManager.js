@@ -4973,7 +4973,7 @@ var DataManager = module.exports = {
       models.db.View.update(
         viewObject,
         Utils.extend({
-          fields: ["name", "description", "data_series_id", "style", "active", "service_instance_id", "schedule_id", "automatic_schedule_id", "schedule_type"],
+          fields: ["name", "description", "data_series_id", "style", "active", "service_instance_id", "schedule_id", "automatic_schedule_id", "schedule_type", "source_type"],
           where: restriction
         }, options))
 
@@ -5174,7 +5174,7 @@ var DataManager = module.exports = {
               return dataSeriesList.some(function(dataSeries) {
                 if (dataSeries.id === registeredView.View.data_series_id) {
                   var dModel = new DataModel.RegisteredView(registeredView.get());
-                  dModel.setDataSeriesType(key);
+                  dModel.setDataSeriesType(registeredView.View.source_type);
                   dModel.setDataSeries(dataSeries);
                   output.push(dModel);
                   return true;

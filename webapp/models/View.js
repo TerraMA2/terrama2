@@ -52,6 +52,11 @@
       schedule_type: {
         type: DataTypes.INTEGER,
         allowNull: true
+      },
+      source_type: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        comment: "It defines the type of data source that create the view. Alert, Analysis, Static Data or Dynamic Data"
       }
     }, {
       underscored: true,

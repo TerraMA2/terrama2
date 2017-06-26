@@ -681,7 +681,8 @@ define([], function() {
             active: true,
             data_series_id: self.alert.data_series_id,
             service_instance_id: self.view_service_instance_id,
-            legend: viewLegend
+            legend: viewLegend,
+            source_type: 4
           }
           self.alert.view = viewModel;
           self.alert.schedule_type = "3";
