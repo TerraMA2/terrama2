@@ -38,6 +38,24 @@
       </div>
     </div>
 
+    <!-- Service Error Modal -->
+    <div ng-if="extra.service" class="modal fade" id="serviceErrorModal" tabindex="-1" role="dialog" aria-labelledby="serviceErrorModalLabel">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="serviceErrorModalTitle">{{ i18n.__('Service error') }}</h4>
+          </div>
+          <div class="modal-body">
+            <p></p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-dismiss="modal">{{ i18n.__('Close') }}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="col-md-12">
       <div class="col-md-8 col-xs-12">
         <div class="form-group">
@@ -129,8 +147,11 @@
           </td>
 
           <td ng-if="extra.service">
-            <button ng-show="element.online" ng-click="showInfo(element)" class="btn btn-default btn-sm pull-right"> 
-              <i class="fa fa-info"></i>
+            <button ng-show="element.showErrorButton && element.hasError" ng-click="showErrorInfo(element)" class="btn btn-default btn-sm pull-right" style="color: red; border-color: red; width: 34px; height: 30px;"> 
+              <i class="fa fa-warning"></i>
+            </button>
+            <button ng-show="element.online" ng-click="showInfo(element)" class="btn btn-default btn-sm pull-right" style="width: 34px; height: 30px;"> 
+              <i class="fa fa-info" style="font-size: 16px;"></i>
             </button>
           </td>
 

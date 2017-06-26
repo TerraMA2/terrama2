@@ -22,17 +22,17 @@ define([], function () {
    * @param {ColorFactory} ColorFactory - TerraMA² Color generator
    * @param {any} i18n - TerraMA² Internationalization module
    */
-  function StyleController($scope, ColorFactory, i18n, DataSeriesService, StyleType, StyleOperation) {
+  function StyleController($scope, ColorFactory, i18n, DataSeriesService, StyleType, $http) {
     var self = this;
     // binding component form into parent module in order to expose Form to help during validation
     self.formCtrl = self.form;
     self.DataSeriesType = DataSeriesService.DataSeriesType;
-    self.StyleOperation = StyleOperation;
     self.StyleType = StyleType;
     self.i18n = i18n;
     self.styleTypes = [];
     // Function bindings
-    self.generate = generateColors;
+    self.addColor = addColor;
+    self.removeColor = removeColor;
     self.typeFilter = typeFilter;
 
     // digesting StyleType enum into array
@@ -60,10 +60,69 @@ define([], function () {
       }
     };
     /**
+     * Setting default parameters when change mode to xml file
+     */
+    self.changeCreationType = function(){
+      if (self.model.metadata.creation_type == "0"){
+        delete self.model.metadata.xml_style;
+        self.model.colors = [
+          {
+            color: "#FFFFFF",
+            isDefault: true,
+            title: "Default",
+            value: ""
+          }
+        ];
+      } else if (self.model.metadata.creation_type == "1"){
+        self.model.type = 3;
+        self.model.colors = [];
+        self.model.metadata = {
+          creation_type: "1"
+        };
+        delete self.model.bands;
+        delete self.model.beginColor;
+        delete self.model.endColor;
+      } else if (self.model.metadata.creation_type == "2"){
+        self.model.type = 3;
+        self.model.colors = [];
+        self.model.metadata = {
+          creation_type: "2"
+        };
+        self.setXmlInfo("wind_style.json");
+        delete self.model.bands;
+        delete self.model.beginColor;
+        delete self.model.endColor;
+      }
+    }
+    /**
+     * Get xml file
+     */
+    self.onStyleChange = function(){
+      switch (self.styleId){
+        case "1":
+          self.setXmlInfo("wind_style.json");
+          break;
+        case "0":
+        default:
+          self.model.metadata.xml_style = "";
+          break;
+      }
+    }
+    /**
+     * Setting xml data on model
+     */
+    self.setXmlInfo = function(styleFile){
+      var xmlUrl = BASE_URL + "json_styles/" + styleFile;
+      $http.get(xmlUrl).then(function(response){
+        self.model.metadata.xml_style = response.data.xml;
+      });
+    }
+    /**
      * It handles color summarization (begin and end) based in list of colors
      */
     $scope.$on("updateStyleColor", function () {
-      handleColor();
+      if (self.model.metadata.creation_type == "0")
+        handleColor();
     });
 
     /**
@@ -81,36 +140,32 @@ define([], function () {
      * @returns {any}
      */
     function typeFilter(item) {
-      if (!(self.type !== self.DataSeriesType.GRID && item.value === StyleType.RAMP)) {
+      if (!(self.type !== self.DataSeriesType.GRID && item.value === StyleType.GRADIENT)) {
         return item;
       }
     }
 
     /**
-     * It generate colors arrays and store in ctrl.colors
+     * It adds color in model array ctrl.model.colors
      */
-    function generateColors() {
-      if (!self.model || !self.model.bands || self.model.bands < 2) {
-        $scope.$broadcast("formFieldValidation", self.formCtrl);
-        return;
+    function addColor() {  
+      var colorsLength = self.model.colors.length;
+      var newColor = {
+        color: "#FFFFFF",
+        isDefault: false,
+        title: "Color Title"
       }
-      var colorsArr = ColorFactory.generateColor(self.model.beginColor, self.model.endColor, self.model.bands + 1).reverse();
-      for (var i = 1; i < colorsArr.length; ++i) {
-        colorsArr[i] = { title: i18n.__("Color") + " " + i, color: colorsArr[i], value: i, isDefault: false };
-      }
-      var firstColor = colorsArr[0];
-      colorsArr[0] = {
-        title: i18n.__("Default"),
-        color: firstColor,
-        isDefault: true,
-        value: ""
-      };
-
-      self.model.colors = colorsArr;
+      self.model.colors.push(newColor);
+    }
+    /**
+     * It removes color of model array ctrl.model.colors
+     */
+    function removeColor(index) {  
+      self.model.colors.splice(index, 1);
     }
   }
 
   // Dependencies Injection
-  StyleController.$inject = ["$scope", "ColorFactory", "i18n", "DataSeriesService", "StyleType", "StyleOperation"];
+  StyleController.$inject = ["$scope", "ColorFactory", "i18n", "DataSeriesService", "StyleType", "$http"];
   return terrama2StyleComponent;
 });

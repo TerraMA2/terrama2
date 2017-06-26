@@ -59,7 +59,7 @@ namespace terrama2
   namespace core
   {
     //! Defines an invalid ID
-    inline uint32_t InvalidId() { return 0;}
+    constexpr uint32_t InvalidId() { return 0;}
   } /* core */
 } /* terrama2 */
 

@@ -310,7 +310,8 @@
   z-index: 99999;
   position: fixed;
   top: 60px;
-  left: 50%;
+  left: 45%;
+  width: 450px;
 }
 
 #terrama2-sortlayers{

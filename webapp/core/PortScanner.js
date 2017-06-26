@@ -42,7 +42,7 @@ PortScanner.checkPortState = function(portNumber, address, callback) {
 
   socket.on('connect', function() {
     // reject
-    callback(new Error("Port number busy"));
+    callback(new Error("The port number is busy"));
     socket.end();
   });
 

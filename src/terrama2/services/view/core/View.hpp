@@ -95,6 +95,14 @@ namespace terrama2
                     std::string color = "";
                     bool isDefault = false;
 
+                    bool operator ==(const Rule& other) const
+                    {
+                      return (title == other.title &&
+                              value == other.value &&
+                              color == other.color &&
+                              isDefault == other.isDefault);
+                    }
+
                     static bool compareByNumericValue(const Rule& a,
                                                       const Rule& b)
                     {
@@ -119,7 +127,7 @@ namespace terrama2
                     }
                 };
 
-                OperationType operation;
+                OperationType operation = OperationType::VALUE;
                 ClassifyType classify;
                 std::unordered_map<std::string, std::string> metadata;
                 std::vector< Rule > rules;
