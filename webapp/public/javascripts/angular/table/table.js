@@ -38,11 +38,19 @@ define([
           extra: '=?extra'
         },
 
-        controller: ["$scope", "$http", "i18n", function($scope, $http, i18n) {
+        controller: ["$scope", "$http", "i18n", "$timeout", function($scope, $http, i18n, $timeout) {
           $scope.i18n = i18n;
           $scope.searchInput = '';
           $scope.selected = {};
           $scope.emptyMessage = 'No ' + ($scope.context || 'data') + ' found.';
+
+          $scope.advancedFilterModel = [];
+
+          $timeout(function() {
+            for(var i = 0, modelLength = $scope.model.length; i < modelLength; i++) {
+              $scope.advancedFilterModel.push(angular.copy($scope.model[i]));
+            }
+          }, 500);
 
           // defines display fields in table
           $scope.displayFields = [];
@@ -67,7 +75,39 @@ define([
 
           $scope.serviceStartTime = null;
           $scope.serviceVersion = null;
-          
+          $scope.showAdvancedFilter = false;
+
+          $scope.showHideAdvancedFilter = function() {
+            if($scope.showAdvancedFilter)
+              $scope.showAdvancedFilter = false;
+            else
+              $scope.showAdvancedFilter = true;
+          }
+
+          var getJsonValue = function(json, curIdx, indexes) {
+            if(curIdx === (indexes.length - 1))
+              return json[indexes[curIdx]];
+            else
+              return getJsonValue(json[indexes[curIdx]], curIdx + 1, indexes);
+          }
+
+          $scope.executeAdvancedFilter = function() {
+            $scope.advancedFilterModel = [];
+            var indexes = $scope.extra.advancedFilterField.split('.');
+
+            for(var i = 0, advancedFiltersLength = $scope.extra.advancedFilters.length; i < advancedFiltersLength; i++) {
+              if($scope.extra.advancedFilters[i].checked) {
+                for(var j = 0, modelLength = $scope.model.length; j < modelLength; j++) {
+                  var jsonValue = getJsonValue($scope.model[j], 0, indexes);
+
+                  if($scope.extra.advancedFilters[i].value === jsonValue) {
+                    $scope.advancedFilterModel.push(angular.copy($scope.model[j]));
+                  }
+                }
+              }
+            }
+          }
+
           $scope.showInfo = function(object){
             $scope.serviceStartTime = object.start_time;
             $scope.serviceVersion = object.version;
@@ -95,7 +135,7 @@ define([
                 method: 'DELETE',
                 url: $scope.remove({object: object})
               }).then(function(response) {
-                $scope.model.forEach(function(element, index, arr) {
+                $scope.advancedFilterModel.forEach(function(element, index, arr) {
                   if (element.id == object.id)
                     arr.splice(index, 1);
 
@@ -231,12 +271,12 @@ define([
             ++counter;
           });
 
-          // TODO: Fix the ng if. "model.length" is hardcoded. It should get from expression
+          // TODO: Fix the ng if. "advancedFilterModel.length" is hardcoded. It should get from expression
           var template = '<table class="table table-hover">' +
               '<thead>' + th + '</thead>' +
               '<tbody>' +
               '<tr ng-repeat="' + expression + '">'+ td +'</tr>' +
-              '<tr ng-if="model.length === 0"><td colspan="' +  counter + '">{{ i18n.__("'+ context +'") }}</td></tr>' +
+              '<tr ng-if="advancedFilterModel.length === 0"><td colspan="' +  counter + '">{{ i18n.__("'+ context +'") }}</td></tr>' +
               '</tbody>' +
               '</table>';
           return template;
@@ -259,7 +299,7 @@ define([
         link: function(scope, element, attrs, transclude) {
           scope.link = attrs.link;
 
-          scope.$watch('model', function(value) {
+          scope.$watch('advancedFilterModel', function(value) {
             console.log(value);
           });
 
