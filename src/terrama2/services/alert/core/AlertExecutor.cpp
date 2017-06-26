@@ -211,6 +211,15 @@ void terrama2::services::alert::core::AlertExecutor::addAdditionalData(std::shar
         auto referredProperty = join.getProperty(propertyName);
 
         std::string newPropertyName = dataSetType->getName()+"_"+propertyName;
+        try
+        {
+          newPropertyName = additionalData.alias.at(propertyName);
+        }
+        catch(...)
+        {
+          //no alias for the property
+        }
+
         if(propertyNames.find(newPropertyName) == propertyNames.end() )
         {
           // create the property in the alert dataset
@@ -588,7 +597,10 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
         {
           AdditionalData indentifierData;
           indentifierData.dataSeriesId = std::stoi(dataset->format.at("monitored_object_id"));
-          indentifierData.attributes.push_back(dataset->format.at("monitored_object_pk"));
+          auto attribute = dataset->format.at("monitored_object_pk");
+          indentifierData.attributes.push_back(attribute);
+          indentifierData.alias.emplace(attribute, attribute);
+
           indentifierData.referrerAttribute = idProperty->getName();
           indentifierData.referredAttribute = idProperty->getName();
 
