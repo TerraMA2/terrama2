@@ -56,6 +56,7 @@ namespace terrama2
           std::string referrerAttribute;
           std::string referredAttribute;
           std::vector<std::string> attributes;//!< attributes that will be copied to the alert
+          std::map<std::string, std::string> alias;//!< attributes alias
         };
 
         //! Notification rules and targets .
