@@ -110,7 +110,6 @@
         this.dataSeriesType = "alert";
         break;
     }
-    this.dataSeriesType = dsType;
   };
   /**
    * It sets TerraMA² Data Series object to the RegisteredView instance

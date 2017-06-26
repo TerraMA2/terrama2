@@ -163,6 +163,20 @@
               </div>
             </div> <!-- ./col-md-5 -->
 
+            <div ng-if="ctrl.alert.hasView" class="col-md-2">
+              <div class="form-group">
+                <div class="checkbox">
+                  <label style="font-weight: 700; margin-top:19px;">
+                    <input type="checkbox"
+                            name="view_private"
+                            ng-model="ctrl.view_private"
+                            ng-true-value="true"
+                            ng-false-value="false"> <span ng-bind="i18n.__('Private')"></span>
+                  </label>
+                </div>
+              </div>
+            </div> <!-- ./col-md-2 -->
+
           </div>
 
         </div>
