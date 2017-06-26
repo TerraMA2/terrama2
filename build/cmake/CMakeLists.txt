@@ -502,6 +502,12 @@ install(EXPORT terrama2-targets
 
 install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/remove-config.py
         DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT runtime)
+install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postinst
+        DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT runtime)
+install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/prerm
+        DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT runtime)
+install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postrm
+        DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT runtime)
 
 install(DIRECTORY ${TERRAMA2_ABSOLUTE_ROOT_DIR}/share/terrama2
         DESTINATION ${TERRAMA2_DESTINATION_SHARE} COMPONENT runtime)
@@ -529,7 +535,7 @@ configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postrm.in
 # sa: build/cmake/terrama2-cpack-options.cmake.in
 #
 if(NOT CPACK_BINARY_DEB)
-  install(CODE "execute_process(COMMAND sh ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postinst)")
+  install(CODE "execute_process(COMMAND sh ${TERRAMA2_DESTINATION_SHARE}/scripts/postinst)")
 endif()
 
 #
