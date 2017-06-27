@@ -4195,6 +4195,20 @@ var DataManager = module.exports = {
                 model: models.db.RiskLevel
               }
             ]
+          },
+          {
+            model: models.db.DataSeries,
+            include: [
+              {
+                model: models.db.DataProvider
+              },
+              {
+                model: models.db.DataSeriesSemantics
+              },
+              {
+                model: models.db.DataSet
+              }
+            ]
           }
         ]
       }, options))
@@ -4218,7 +4232,8 @@ var DataManager = module.exports = {
               additionalData: additionalDatas,
               notifications: notifications,
               reportMetadata: alert.ReportMetadatum.get(),
-              risk: risk
+              risk: risk,
+              dataSeries: alert.DataSery ? new DataModel.DataSeries(alert.DataSery.get()) : {}
             }));
             return alertModel;
           }))
@@ -4572,6 +4587,9 @@ var DataManager = module.exports = {
               },
               {
                 model: models.db.DataSeriesSemantics
+              },
+              {
+                model: models.db.DataSet
               }
             ]
           },

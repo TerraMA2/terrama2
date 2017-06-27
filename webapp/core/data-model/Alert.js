@@ -10,6 +10,7 @@
 var BaseClass = require('./AbstractData');
 var AutomaticSchedule = require("./AutomaticSchedule");
 var Risk = require("./Risk");
+var DataSeries = require("./DataSeries");
 /**
  * TerraMA² Global Utility module
  * @type {Utils}
@@ -85,6 +86,11 @@ var Alert = function(params) {
    * @type {object}
    */
   this.risk = new Risk(params.Risk ? params.Risk.get() : params.risk || {});
+  /**
+   * @name Alert#dataSeries
+   * @type {object}
+   */
+  this.dataSeries = new DataSeries(params.DataSeries ? params.DataSeries.get() : params.dataSeries || {});
 
   /**
    * @name Alert#report_metadata
@@ -168,6 +174,7 @@ Alert.prototype.toObject = function() {
     schedule: this.schedule instanceof BaseClass ? this.schedule.toObject() : {},
     automatic_schedule: this.automatic_schedule instanceof BaseClass ? this.automatic_schedule.toObject() : this.automatic_schedule,
     risk: this.risk instanceof BaseClass ? this.risk.toObject() : this.risk,
+    dataSeries: this.dataSeries instanceof BaseClass ? this.dataSeries.toObject() : this.dataSeries,
     additional_data: this.additional_data,
     notifications: this.notifications,
     report_metadata: this.report_metadata

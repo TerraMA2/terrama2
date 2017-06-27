@@ -44,12 +44,30 @@ define([
           $scope.selected = {};
           $scope.emptyMessage = 'No ' + ($scope.context || 'data') + ' found.';
 
-          $scope.advancedFilterModel = [];
-
           $timeout(function() {
-            for(var i = 0, modelLength = $scope.model.length; i < modelLength; i++) {
-              $scope.advancedFilterModel.push(angular.copy($scope.model[i]));
+            for(var j = 0, modelLength = $scope.model.length; j < modelLength; j++) {
+              $scope.model[j].showInTable = true;
             }
+
+            if($scope.extra.executeAdvancedFilter !== undefined)
+              $scope.executeAdvancedFilter = $scope.extra.executeAdvancedFilter;
+            else
+              $scope.executeAdvancedFilter = function() {
+                var indexes = $scope.extra.advancedFilterField.split('.');
+
+                for(var i = 0, advancedFiltersLength = $scope.extra.advancedFilters.length; i < advancedFiltersLength; i++) {
+                  for(var j = 0, modelLength = $scope.model.length; j < modelLength; j++) {
+                    var jsonValue = getJsonValue($scope.model[j], 0, indexes);
+
+                    if(i18n.__($scope.extra.advancedFilters[i].value) === jsonValue) {
+                      if($scope.extra.advancedFilters[i].checked)
+                        $scope.model[j].showInTable = true;
+                      else
+                        $scope.model[j].showInTable = false;
+                    }
+                  }
+                }
+              };
           }, 500);
 
           // defines display fields in table
@@ -91,21 +109,8 @@ define([
               return getJsonValue(json[indexes[curIdx]], curIdx + 1, indexes);
           }
 
-          $scope.executeAdvancedFilter = function() {
-            $scope.advancedFilterModel = [];
-            var indexes = $scope.extra.advancedFilterField.split('.');
-
-            for(var i = 0, advancedFiltersLength = $scope.extra.advancedFilters.length; i < advancedFiltersLength; i++) {
-              if($scope.extra.advancedFilters[i].checked) {
-                for(var j = 0, modelLength = $scope.model.length; j < modelLength; j++) {
-                  var jsonValue = getJsonValue($scope.model[j], 0, indexes);
-
-                  if($scope.extra.advancedFilters[i].value === jsonValue) {
-                    $scope.advancedFilterModel.push(angular.copy($scope.model[j]));
-                  }
-                }
-              }
-            }
+          $scope.showInTableFilter = function(item) {
+            return item.showInTable || item.showInTable === undefined;
           }
 
           $scope.showInfo = function(object){
@@ -135,7 +140,7 @@ define([
                 method: 'DELETE',
                 url: $scope.remove({object: object})
               }).then(function(response) {
-                $scope.advancedFilterModel.forEach(function(element, index, arr) {
+                $scope.model.forEach(function(element, index, arr) {
                   if (element.id == object.id)
                     arr.splice(index, 1);
 
@@ -271,12 +276,12 @@ define([
             ++counter;
           });
 
-          // TODO: Fix the ng if. "advancedFilterModel.length" is hardcoded. It should get from expression
+          // TODO: Fix the ng if. "model.length" is hardcoded. It should get from expression
           var template = '<table class="table table-hover">' +
               '<thead>' + th + '</thead>' +
               '<tbody>' +
               '<tr ng-repeat="' + expression + '">'+ td +'</tr>' +
-              '<tr ng-if="advancedFilterModel.length === 0"><td colspan="' +  counter + '">{{ i18n.__("'+ context +'") }}</td></tr>' +
+              '<tr ng-if="model.length === 0"><td colspan="' +  counter + '">{{ i18n.__("'+ context +'") }}</td></tr>' +
               '</tbody>' +
               '</table>';
           return template;
@@ -299,7 +304,7 @@ define([
         link: function(scope, element, attrs, transclude) {
           scope.link = attrs.link;
 
-          scope.$watch('advancedFilterModel', function(value) {
+          scope.$watch('model', function(value) {
             console.log(value);
           });
 

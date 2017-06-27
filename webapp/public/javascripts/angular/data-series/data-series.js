@@ -114,6 +114,23 @@ define([], function() {
       }
     };
 
+    if(config.dataSeriesType == "static") {
+      $scope.extra.advancedFilters = [
+        {
+          name: "Geometric Object",
+          value: "Geometric Object",
+          checked: true
+        },
+        {
+          name: "Grid",
+          value: "Grid",
+          checked: true
+        }
+      ];
+
+      $scope.extra.advancedFilterField = "model_type";
+    }
+
     if(config.message) {
       var messageArray = config.message.split(" ");
       var tokenCodeMessage = messageArray[messageArray.length - 1];

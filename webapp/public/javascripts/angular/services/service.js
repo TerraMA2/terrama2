@@ -214,6 +214,31 @@ define([], function() {
     };
 
     $scope.extra = {
+      advancedFilters: [
+        {
+          name: "Collect",
+          value: "Collect",
+          checked: true
+        },
+        {
+          name: "Analysis",
+          value: "Analysis",
+          checked: true
+        },
+        {
+          name: "View",
+          value: "View",
+          checked: true
+        },
+        {
+          name: "Alert",
+          value: "Alert",
+          checked: true
+        }
+      ],
+
+      advancedFilterField: "type",
+
       removeOperationCallback: function(err, data) {
         if(err) {
           MessageBoxService.danger(i18n.__($scope.title), i18n.__(err.message));
