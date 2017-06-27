@@ -95,9 +95,9 @@ define([], function() {
         }
       ],
       executeAdvancedFilter: function() {
-        for(var i = 0, advancedFiltersLength = self.extra.advancedFilters.length; i < advancedFiltersLength; i++) {
-          for(var j = 0, modelLength = self.model.length; j < modelLength; j++) {
-            var semantics = self.model[j].dataSeries.semantics;
+        for(var i = 0, advancedFiltersLength = $scope.extra.advancedFilters.length; i < advancedFiltersLength; i++) {
+          for(var j = 0, modelLength = $scope.model.length; j < modelLength; j++) {
+            var semantics = $scope.model[j].data_series_semantics_code;
             var type;
 
             switch(semantics) {
@@ -124,7 +124,7 @@ define([], function() {
               case "GRID-ascii":
               case "GRID-grads":
               case "GRID-grib":
-                if(self.model[j].dataSeries.isAnalysis)
+                if($scope.model[j].isAnalysis)
                   type = i18n.__("Analysis");
                 else {
                   if($scope.extra.canRun($scope.model[j]))
@@ -142,11 +142,11 @@ define([], function() {
                 break;
             }
 
-            if(i18n.__(self.extra.advancedFilters[i].value) === type) {
-              if(self.extra.advancedFilters[i].checked)
-                self.model[j].showInTable = true;
+            if(i18n.__($scope.extra.advancedFilters[i].value) === type) {
+              if($scope.extra.advancedFilters[i].checked)
+                $scope.model[j].showInTable = true;
               else
-                self.model[j].showInTable = false;
+                $scope.model[j].showInTable = false;
             }
           }
         }

@@ -118,7 +118,7 @@
 
     <div class="col-md-12" style="margin: 0 0 10px 5px;" ng-show="showAdvancedFilter && extra.advancedFilters.length > 0">
       <div class="col-md-12 col-xs-12">
-        <div class="col-md-1" ng-repeat="advancedFilter in extra.advancedFilters">
+        <div class="col-md-2" ng-repeat="advancedFilter in extra.advancedFilters">
           <div class="form-group">
             <div class="checkbox">
               <span style="font-weight: 700;"><input type="checkbox" ng-model="advancedFilter.checked" ng-click="executeAdvancedFilter()"/> {{ i18n.__(advancedFilter.name) }}</span>
