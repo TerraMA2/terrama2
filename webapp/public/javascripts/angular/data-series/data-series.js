@@ -77,6 +77,80 @@ define([], function() {
     };
 
     $scope.extra = {
+      advancedFilters: [
+        {
+          name: "Analysis",
+          value: "Analysis",
+          checked: true
+        },
+        {
+          name: "Collector",
+          value: "Collector",
+          checked: true
+        },
+        {
+          name: "Direct Access",
+          value: "Direct Access",
+          checked: true
+        }
+      ],
+      executeAdvancedFilter: function() {
+        for(var i = 0, advancedFiltersLength = self.extra.advancedFilters.length; i < advancedFiltersLength; i++) {
+          for(var j = 0, modelLength = self.model.length; j < modelLength; j++) {
+            var semantics = self.model[j].dataSeries.semantics;
+            var type;
+
+            switch(semantics) {
+              case "ANALYSIS_MONITORED_OBJECT-postgis":
+                type = i18n.__("Analysis");
+                break;
+
+              case "DCP-toa5":
+              case "DCP-generic":
+              case "DCP-inpe":
+              case "DCP-postgis":
+              case "Occurrence-generic":
+              case "OCCURRENCE-wfp":
+              case "OCCURRENCE-lightning":
+              case "OCCURRENCE-postgis":
+                if($scope.extra.canRun($scope.model[j]))
+                  type = i18n.__("Collector");
+                else
+                  type = i18n.__("Direct Access");
+                break;
+
+              case "GRID-gdal":
+              case "GRID-geotiff":
+              case "GRID-ascii":
+              case "GRID-grads":
+              case "GRID-grib":
+                if(self.model[j].dataSeries.isAnalysis)
+                  type = i18n.__("Analysis");
+                else {
+                  if($scope.extra.canRun($scope.model[j]))
+                    type = i18n.__("Collector");
+                  else
+                    type = i18n.__("Direct Access");
+                }
+                break;
+
+              default:
+                if($scope.extra.canRun($scope.model[j]))
+                  type = i18n.__("Collector");
+                else
+                  type = i18n.__("Direct Access");
+                break;
+            }
+
+            if(i18n.__(self.extra.advancedFilters[i].value) === type) {
+              if(self.extra.advancedFilters[i].checked)
+                self.model[j].showInTable = true;
+              else
+                self.model[j].showInTable = false;
+            }
+          }
+        }
+      },
       removeOperationCallback: function(err, data) {
         if (err) {
           return MessageBoxService.danger(i18n.__(title), err.message);
