@@ -55,7 +55,8 @@ namespace terrama2
 
 
         te::se::Symbolizer* getSymbolizer(const te::gm::GeomType& geomType,
-                                          const std::string& color) noexcept;
+                                          const std::string& color,
+                                          const std::string& opacity) noexcept;
 
         te::se::Stroke* CreateStroke(const std::string& color,
                                      const std::string& width,
