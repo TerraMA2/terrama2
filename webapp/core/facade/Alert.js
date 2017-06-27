@@ -37,7 +37,7 @@
     TcpService.send(objToSend)
       .then(function() {
         if (shouldRun && !(args instanceof Array)) {
-          return TcpService.run({"ids": [args.id], "service_instance": args.instance_id});
+          return TcpService.run({"ids": [args.id], "service_instance": args.service_instance_id});
         }
       });
   }

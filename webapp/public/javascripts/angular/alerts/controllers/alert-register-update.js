@@ -693,7 +693,7 @@ define([], function() {
           delete self.alert.view;
           delete self.alert.view_id;
         }
-
+        self.alert.run = shouldRun;
         var operation = self.isUpdating ? self.AlertService.update(self.alert.id, self.alert) : self.AlertService.create(self.alert);
         operation.then(function(response) {
           $log.info(response);
