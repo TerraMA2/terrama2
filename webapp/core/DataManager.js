@@ -4195,6 +4195,42 @@ var DataManager = module.exports = {
                 model: models.db.RiskLevel
               }
             ]
+          },
+          {
+            model: models.db.View,
+            include: [
+              {
+                model: models.db.Schedule,
+                required: false
+              },
+              {
+                model: models.db.AutomaticSchedule,
+                required: false
+              },
+              {
+                model: models.db.DataSeries,
+                include: [
+                  {
+                    model: models.db.DataProvider
+                  },
+                  {
+                    model: models.db.DataSeriesSemantics
+                  }
+                ]
+              },
+              {
+                model: models.db.ViewStyleLegend,
+                required: false,
+                include: [
+                  {
+                    model: models.db.ViewStyleColor
+                  },
+                  {
+                    model: models.db.ViewStyleLegendMetadata
+                  }
+                ]
+              }
+            ]
           }
         ]
       }, options))
@@ -4212,13 +4248,27 @@ var DataManager = module.exports = {
 
             var risk = new DataModel.Risk(alert.Risk.get());
 
+            var view = alert.View ? new DataModel.View(Object.assign(alert.View.get(), {
+              schedule: alert.View.Schedule ? new DataModel.Schedule(alert.View.Schedule.get()) : {},
+              automaticSchedule: alert.View.AutomaticSchedule ? new DataModel.AutomaticSchedule(alert.View.AutomaticSchedule.get()) : {},
+              dataSeries: alert.View.DataSery ? new DataModel.DataSeries(alert.View.DataSery.get()) : {}
+            })) : {};
+
+            if (alert.View && alert.View.ViewStyleLegend) {
+              var legendModel = new DataModel.ViewStyleLegend(Utils.extend(
+                alert.View.ViewStyleLegend.get(), {colors: alert.View.ViewStyleLegend.ViewStyleColors ? alert.View.ViewStyleLegend.ViewStyleColors.map(function(elm) { return elm.get(); }) : []}));
+              legendModel.setMetadata(Utils.formatMetadataFromDB(alert.View.ViewStyleLegend.ViewStyleLegendMetadata));
+              view.setLegend(legendModel);
+            }
+
             var alertModel = new DataModel.Alert(Object.assign(alert.get(), {
               schedule: alert.Schedule ? new DataModel.Schedule(alert.Schedule.get()) : {},
               automatic_schedule: alert.AutomaticSchedule ? new DataModel.AutomaticSchedule(alert.AutomaticSchedule.get()) : {},
               additionalData: additionalDatas,
               notifications: notifications,
               reportMetadata: alert.ReportMetadatum.get(),
-              risk: risk
+              risk: risk,
+              view: view
             }));
             return alertModel;
           }))
@@ -4315,7 +4365,7 @@ var DataManager = module.exports = {
       models.db.Alert.update(
         alertObject,
         Utils.extend({
-          fields: ["name", "description", "data_series_id", "active", "service_instance_id", "risk_id", "risk_attribute", "schedule_type", "schedule_id", "automatic_schedule_id"],
+          fields: ["name", "description", "data_series_id", "active", "service_instance_id", "risk_id", "risk_attribute", "schedule_type", "schedule_id", "automatic_schedule_id", "view_id"],
           where: restriction
         }, options))
         .then(function(){
@@ -4480,9 +4530,11 @@ var DataManager = module.exports = {
     var self = this;
     return new Promise(function(resolve, reject) {
       var alert;
+      var view;
       return self.getAlert(restriction, options)
         .then(function(alertResult) {
           alert = alertResult;
+          view = alertResult.view;
           return self.removeAutomaticSchedule({id: alert.automatic_schedule.id}, options);
         })
 
@@ -4491,6 +4543,12 @@ var DataManager = module.exports = {
         })
 
         .then(function() {
+          if (view.id)
+            return self.removeView({id: view.id}, options);
+          else
+            return null;
+        })
+        .then(function(){
           return resolve();
         })
 
@@ -4915,7 +4973,7 @@ var DataManager = module.exports = {
       models.db.View.update(
         viewObject,
         Utils.extend({
-          fields: ["name", "description", "data_series_id", "style", "active", "service_instance_id", "schedule_id", "automatic_schedule_id", "schedule_type", "private"],
+          fields: ["name", "description", "data_series_id", "style", "active", "service_instance_id", "schedule_id", "automatic_schedule_id", "schedule_type", "private", "source_type"],
           where: restriction
         }, options))
 
@@ -5116,7 +5174,7 @@ var DataManager = module.exports = {
               return dataSeriesList.some(function(dataSeries) {
                 if (dataSeries.id === registeredView.View.data_series_id) {
                   var dModel = new DataModel.RegisteredView(registeredView.get());
-                  dModel.setDataSeriesType(key);
+                  dModel.setDataSeriesType(registeredView.View.source_type);
                   dModel.setDataSeries(dataSeries);
                   output.push(dModel);
                   return true;

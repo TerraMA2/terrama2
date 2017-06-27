@@ -320,6 +320,23 @@ define([], function() {
         self.view.private = (config.view.private === false || config.view.private) ? config.view.private : false;
       });
     }
+    /**
+     * function to get source type of view creation
+     * @param {Object} dataSeries 
+     */
+    function getSourceType(dataSeries){
+      if (!dataSeries) 
+        return;
+      else {
+        if (dataSeries.data_series_semantics.temporality == "STATIC"){
+          return Globals.enums.ViewSourceType.STATIC;
+        } else if (dataSeries.isAnalysis){
+          return Globals.enums.ViewSourceType.ANALYSIS;
+        } else {
+          return Globals.enums.ViewSourceType.DYNAMIC;
+        }
+      }
+    }
 
     /**
      * It handles Data Series combobox change. If it is GRID data series, there is a default style script
@@ -346,6 +363,7 @@ define([], function() {
           } else {
             self.isValid = true;
           }
+          self.view.source_type = getSourceType(dSeries);
 
           // breaking loop
           return true;
