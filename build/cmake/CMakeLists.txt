@@ -500,15 +500,6 @@ install(EXPORT terrama2-targets
         FILE terrama2-exports.cmake
         COMPONENT devel)
 
-install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/remove-config.py
-        DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT runtime)
-install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postinst
-        DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT runtime)
-install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/prerm
-        DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT runtime)
-install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postrm
-        DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT runtime)
-
 install(DIRECTORY ${TERRAMA2_ABSOLUTE_ROOT_DIR}/share/terrama2
         DESTINATION ${TERRAMA2_DESTINATION_SHARE} COMPONENT runtime)
 
@@ -530,12 +521,21 @@ configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/prerm.in
               ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/prerm @ONLY)
 configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postrm.in
                ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postrm @ONLY)
+
+install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/remove-config.py
+        DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT scripts)
+install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postinst
+        DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT scripts)
+install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/prerm
+        DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT scripts)
+install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postrm
+        DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT scripts)
 #
 # If generating a deb package the script is executed by the debian post install configuration
 # sa: build/cmake/terrama2-cpack-options.cmake.in
 #
 if(NOT CPACK_BINARY_DEB)
-  install(CODE "execute_process(COMMAND sh ${TERRAMA2_DESTINATION_SHARE}/scripts/postinst)")
+  install(CODE "execute_process(COMMAND ${TERRAMA2_DESTINATION_SHARE}/scripts/./postinst)" COMPONENT scripts)
 endif()
 
 #
