@@ -248,14 +248,14 @@ void terrama2::services::view::core::Serialization::writeCoverageStyleGeoserverX
   writer->writeAttribute("color", defaultRule.color);
   writer->writeAttribute("quantity", "0");
   writer->writeAttribute("label", defaultRule.title);
-  writer->writeAttribute("opacity", "1");
+  writer->writeAttribute("opacity", defaultRule.opacity);
   writer->writeEndElement("ColorMapEntry");
 
   writer->writeStartElement("ColorMapEntry");
   writer->writeAttribute("color", defaultRule.color);
   writer->writeAttribute("quantity", "1");
   writer->writeAttribute("label", defaultRule.title);
-  writer->writeAttribute("opacity", "1");
+  writer->writeAttribute("opacity", defaultRule.opacity);
   writer->writeEndElement("ColorMapEntry");
 
   writer->writeEndElement("ColorMap");
@@ -293,7 +293,7 @@ void terrama2::services::view::core::Serialization::writeCoverageStyleGeoserverX
     writer->writeAttribute("color", rule.color);
     writer->writeAttribute("quantity", rule.value);
     writer->writeAttribute("label", rule.title);
-    writer->writeAttribute("opacity", "1");
+    writer->writeAttribute("opacity", rule.opacity);
     writer->writeEndElement("ColorMapEntry");
 
     if(rule == rules.back())

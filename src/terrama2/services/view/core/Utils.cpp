@@ -83,7 +83,8 @@ void terrama2::services::view::core::registerFactories()
 }
 
 te::se::Symbolizer* terrama2::services::view::core::getSymbolizer(const te::gm::GeomType& geomType,
-                                                                  const std::string& color) noexcept
+                                                                  const std::string& color,
+                                                                  const std::string& opacity) noexcept
 {
     switch(geomType)
     {
@@ -100,8 +101,8 @@ te::se::Symbolizer* terrama2::services::view::core::getSymbolizer(const te::gm::
       case te::gm::MultiSurfaceZType:
       case te::gm::MultiSurfaceZMType:
       {
-        te::se::Fill* fill = CreateFill(color, "1.0");
-        te::se::Stroke* stroke = CreateStroke("#000000", "1", "", "", "", "");
+        te::se::Fill* fill = CreateFill(color, opacity);
+        te::se::Stroke* stroke = CreateStroke("#000000", "1", opacity, "", "", "");
 
         te::se::PolygonSymbolizer* symbolizer(new te::se::PolygonSymbolizer);
 
@@ -120,7 +121,7 @@ te::se::Symbolizer* terrama2::services::view::core::getSymbolizer(const te::gm::
       case te::gm::MultiLineStringZType:
       case te::gm::MultiLineStringZMType:
       {
-        te::se::Stroke* stroke = CreateStroke(color, "1", "", "", "", "");
+        te::se::Stroke* stroke = CreateStroke(color, "1", opacity, "", "", "");
 
         te::se::LineSymbolizer* symbolizer(new te::se::LineSymbolizer);
 
@@ -138,11 +139,11 @@ te::se::Symbolizer* terrama2::services::view::core::getSymbolizer(const te::gm::
       case te::gm::MultiPointZType:
       case te::gm::MultiPointZMType:
       {
-        te::se::Fill* markFill = CreateFill(color, "1.0");
-        te::se::Stroke* markStroke = CreateStroke("#000000", "1", "", "", "", "");
+        te::se::Fill* markFill = CreateFill(color, opacity);
+        te::se::Stroke* markStroke = CreateStroke("#000000", "1", opacity, "", "", "");
         te::se::Mark* mark = te::se::CreateMark("circle", markStroke, markFill);
 
-        te::se::Graphic* graphic = te::se::CreateGraphic(mark, "8", "", "");;
+        te::se::Graphic* graphic = te::se::CreateGraphic(mark, "8", "", opacity);;
 
         te::se::PointSymbolizer* symbolizer(new te::se::PointSymbolizer);
 
