@@ -600,6 +600,7 @@
     document.getElementById("saveLayers").addEventListener("click", saveLayers);
 
     $('#terrama2-layerexplorer').on('click', 'input.terrama2-layerexplorer-checkbox', function(){
+        var completeLayerId = $(this).closest('li').data('layerid');
         var layerid = $(this).closest('li').data('layerid');
         if (layerid.includes(':')){
             layerid = layerid.replace(':','')
@@ -615,6 +616,7 @@
         }
         var imageElement = $(this).closest('li').find("#image-icon");
         if (imageElement.attr("src") == "{[ BASE_URL ]}images/status/yellow-black.gif"){
+            TerraMA2WebComponents.MapDisplay.updateLayerSourceParams(completeLayerId, {"": Date.now().toString()}, true);
             changeLayerStatusIcon(layerid.split('.').join('\\.'), "working");
         }
 

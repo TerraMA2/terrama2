@@ -151,14 +151,15 @@ define([], function() {
 
     } else {
       self.colors = [
-        "#FFFFFF",
-        "#FFFFFF"      
+        "#FFFFFFFF",
+        "#FFFFFFFF"      
       ];
     }
 
     self.defaultColorOpts = {
-      format: "hex",
-      required: true
+      format: "hex8",
+      required: true,
+      alpha: true
     };
     /**
      * It defines a event listeners for color handling
@@ -430,7 +431,7 @@ define([], function() {
         value: ""
       });
 
-      self.colors.push("#FFFFFF");
+      self.colors.push("#FFFFFFFF");
     };
 
     /**
