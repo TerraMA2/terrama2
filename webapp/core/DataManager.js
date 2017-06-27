@@ -4587,9 +4587,6 @@ var DataManager = module.exports = {
               },
               {
                 model: models.db.DataSeriesSemantics
-              },
-              {
-                model: models.db.DataSet
               }
             ]
           },

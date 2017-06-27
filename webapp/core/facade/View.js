@@ -107,29 +107,9 @@
 
       return DataManager.listViews({project_id: projectId})
         .then(function(views) {
-          return DataManager.listAnalysis({}).then(function(analysisList) {
-            var viewsObjects = [];
-
-            views.map(function(view) {
-              var viewObject = view.toObject();
-              var isAnalysis = false;
-
-              analysisList.map(function(analysis) {
-                viewObject.dataSeries.datasets.map(function(dataSet) {
-                  if(analysis.dataset_output == dataSet.id) {
-                    isAnalysis = true;
-                    return;
-                  }
-                });
-              });
-
-              viewObject.dataSeries.isAnalysis = isAnalysis;
-
-              viewsObjects.push(viewObject);
-            });
-
-            return resolve(viewsObjects);
-          });
+          return resolve(views.map(function(view) {
+            return view.toObject();
+          }));
         })
 
         .catch(function(err) {
