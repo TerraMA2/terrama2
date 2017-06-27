@@ -93,6 +93,7 @@ namespace terrama2
                     std::string title = "";
                     std::string value = "";
                     std::string color = "";
+                    std::string opacity = "1";
                     bool isDefault = false;
 
                     bool operator ==(const Rule& other) const
@@ -100,6 +101,7 @@ namespace terrama2
                       return (title == other.title &&
                               value == other.value &&
                               color == other.color &&
+                              opacity == other.opacity &&
                               isDefault == other.isDefault);
                     }
 

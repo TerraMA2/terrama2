@@ -1153,7 +1153,7 @@ std::unique_ptr<te::se::Style> terrama2::services::view::core::GeoServer::genera
 
     for(auto& legendRule : legendRules)
     {
-      te::se::Symbolizer* symbolizer(getSymbolizer(geomType, legendRule.color));
+      te::se::Symbolizer* symbolizer(getSymbolizer(geomType, legendRule.color, legendRule.opacity));
 
       te::se::Rule* rule = new te::se::Rule;
       rule->push_back(symbolizer);

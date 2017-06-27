@@ -73,7 +73,11 @@ define([], function(){
     Socket.on('statusResponse', function(response) {
       if(response.checking === undefined || (!response.checking && response.status == 400)) {
         if(response.online) {
-          Socket.emit('run', serviceCache[response.service].process_ids);
+          if (serviceCache[response.service].view && serviceCache[response.service].view.id){
+            self.extra.run(serviceCache[response.service].view);
+          } else {
+            Socket.emit('run', serviceCache[response.service].process_ids);
+          }
         } else {
           if(serviceCache[response.service] != undefined) {
             var service = Service.get(serviceCache[response.service].process_ids.service_instance);
@@ -178,7 +182,8 @@ define([], function(){
                 "service_instance": object.service_instance_id
               },
               "service_id": object.id,
-              "service_name": object.name
+              "service_name": object.name,
+              "view": object.view
             };
 
             $scope.disabledButtons[object.id] = true;
