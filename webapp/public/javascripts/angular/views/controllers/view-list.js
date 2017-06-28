@@ -237,6 +237,24 @@ define([], function() {
          * @type {Object}
          */
         self.extra = {
+          advancedFilters: [
+            {
+              name: "Analysis",
+              value: 3,
+              checked: true
+            },
+            {
+              name: "Dynamic Data",
+              value: 2,
+              checked: true
+            },
+            {
+              name: "Static Data",
+              value: 1,
+              checked: true
+            }
+          ],
+          advancedFilterField: "source_type",
           removeOperationCallback: function(err, data) {
             MessageBoxService.reset();
             if (err) {

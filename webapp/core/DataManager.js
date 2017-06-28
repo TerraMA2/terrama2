@@ -4231,6 +4231,20 @@ var DataManager = module.exports = {
                 ]
               }
             ]
+          },
+          {
+            model: models.db.DataSeries,
+            include: [
+              {
+                model: models.db.DataProvider
+              },
+              {
+                model: models.db.DataSeriesSemantics
+              },
+              {
+                model: models.db.DataSet
+              }
+            ]
           }
         ]
       }, options))
@@ -4268,7 +4282,8 @@ var DataManager = module.exports = {
               notifications: notifications,
               reportMetadata: alert.ReportMetadatum.get(),
               risk: risk,
-              view: view
+              view: view,
+              dataSeries: alert.DataSery ? new DataModel.DataSeries(alert.DataSery.get()) : {}
             }));
             return alertModel;
           }))
