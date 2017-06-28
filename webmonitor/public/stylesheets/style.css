@@ -171,15 +171,16 @@
   color: #b8c7ce;
 }
 
-#dynamic div, #static div, #analysis div, #template div, #custom div {
+#dynamic div, #static div, #analysis div, #template div, #custom div, #alert div {
   margin-right: 5px;
   margin-left: 25px;
 }
 
-#dynamic .pull-right, #static .pull-right, #analysis .pull-right, #template .pull-right, #custom .pull-right {
+#dynamic .pull-right, #static .pull-right, #analysis .pull-right, #template .pull-right, #custom .pull-right, #alert .pull-right {
   padding-right: 15px;
 }
 
+.sidebar-mini.sidebar-collapse #alert .pull-right,
 .sidebar-mini.sidebar-collapse #dynamic .pull-right,
 .sidebar-mini.sidebar-collapse #static .pull-right,
 .sidebar-mini.sidebar-collapse #analysis .pull-right,

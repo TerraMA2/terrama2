@@ -150,8 +150,12 @@ define([], function() {
     // Initializing async modules
     $q.all([ViewService.init()])
       .then(function() {
+        //Dont show views created by alerts
+        var viewRestriction = {
+          source_type: '!4'
+        }
         // Setting loaded views into model
-        self.model = ViewService.list();
+        self.model = ViewService.list(viewRestriction);
 
         /**
          * A URL to insert a new view

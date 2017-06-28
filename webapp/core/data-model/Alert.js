@@ -10,6 +10,8 @@
 var BaseClass = require('./AbstractData');
 var AutomaticSchedule = require("./AutomaticSchedule");
 var Risk = require("./Risk");
+var View = require("./View");
+var ViewStyleLegend = require("./ViewStyleLegend");
 var DataSeries = require("./DataSeries");
 /**
  * TerraMA² Global Utility module
@@ -109,7 +111,20 @@ var Alert = function(params) {
    * @type {object}
    */
   this.notifications = params.notifications || [];
-  
+
+  /**
+   * @name Alert#view
+   * @type {object}
+   */
+  this.view = new View(params.View ? params.View.get() : params.view || {});
+
+  if (params.View && params.View.ViewStyleLegend){
+    var legendModel = new ViewStyleLegend(Utils.extend(
+      params.View.ViewStyleLegend.get(), {colors: params.View.ViewStyleLegend.ViewStyleColors ? params.View.ViewStyleLegend.ViewStyleColors.map(function(elm) { return elm.get(); }) : []}));
+    legendModel.setMetadata(Utils.formatMetadataFromDB(params.View.ViewStyleLegend.ViewStyleLegendMetadata));
+    this.view.setLegend(legendModel);
+  }
+
 };
 
 /**
@@ -177,7 +192,8 @@ Alert.prototype.toObject = function() {
     dataSeries: this.dataSeries instanceof BaseClass ? this.dataSeries.toObject() : this.dataSeries,
     additional_data: this.additional_data,
     notifications: this.notifications,
-    report_metadata: this.report_metadata
+    report_metadata: this.report_metadata,
+    view: this.view instanceof BaseClass ? this.view.toObject() : this.view,
   });
 };
 

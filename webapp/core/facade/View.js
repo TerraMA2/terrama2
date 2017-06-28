@@ -44,13 +44,14 @@
    * 
    * @param {Object} viewObject - A view object to save
    * @param {number} projectId - A project identifier
+   * @param {Object} options - Transaction options
    * @returns {Promise<View>}
    */
-  View.save = function(viewObject, projectId) {
+  View.save = function(viewObject, projectId, options) {
     return new PromiseClass(function(resolve, reject) {
-      DataManager.orm.transaction(function(t) {
-        var options = {transaction: t};
-
+      var saveViewPromise;
+      // Function to save view and dependencies on db
+      var saveViewOnDb = function(options){
         // setting current project scope
         viewObject.project_id = projectId;
 
@@ -73,18 +74,27 @@
             }
             return DataManager.addView(viewObject, options);
           });
-      })
+      };
 
-      .then(function(view) {
-        // sending to the services
-        sendView(view);
-
-        return resolve(view);
-      })
-      
-      .catch(function(err){
-        return reject(err);
-      });
+      // If already have a transaction, use to save view
+      // else create a transaction
+      if (options){
+        saveViewPromise = saveViewOnDb(options);
+      } else {
+        saveViewPromise = DataManager.orm.transaction(function(t) {
+          var options = {transaction: t};
+          return saveViewOnDb(options);
+        })
+      }
+      saveViewPromise
+        .then(function(view) {
+          // sending to the services
+          sendView(view);
+          return resolve(view);
+        })
+        .catch(function(err){
+          return reject(err);
+        });
     });
   };
   /**

@@ -134,6 +134,42 @@ define([], function() {
       }
     ];
 
+    if (self.isUpdating && self.alert.view && self.alert.view.legend){
+      self.colors = [];
+      var legendColors = self.alert.view.legend.colors.sort(function(a, b){
+        return a.id - b.id;
+      })
+      for (var i = 0; i < legendColors.length; i ++){
+        self.colors.push(legendColors[i].color);
+      }
+      self.alert.hasView = true;
+      self.view_private = self.alert.view.private;
+      self.view_service_instance_id = self.alert.view.service_instance_id;
+      self.alert.schedule = Object.assign({}, self.alert.view.schedule);
+      self.alert.automatic_schedule = Object.assign({}, self.alert.view.automatic_schedule);
+      self.alert.schedule_type = self.alert.view.schedule_type;
+
+    } else {
+      self.colors = [
+        "#FFFFFFFF",
+        "#FFFFFFFF"      
+      ];
+    }
+
+    self.defaultColorOpts = {
+      format: "hex8",
+      required: true,
+      alpha: true
+    };
+    /**
+     * It defines a event listeners for color handling
+     */
+    self.events = {
+      onChange: function (api, color, $event) {
+        //console.log("fra");
+      }
+    };
+    
     $q.all([
       i18n.ensureLocaleIsLoaded(),
       DataSeriesService.init({schema: "all"}),
@@ -146,6 +182,8 @@ define([], function() {
       return self.ServiceInstance.init().then(function() {
         // Setting all alert services in cache
         self.filteredServices = self.ServiceInstance.list({'service_type_id': self.ServiceInstance.types.ALERT});
+
+        self.filteredViewServices = self.ServiceInstance.list({'service_type_id': self.ServiceInstance.types.VIEW});
 
         /**
          * Retrieve data series
@@ -178,6 +216,9 @@ define([], function() {
             });
 
             for(var j = 0, levelsLength = risk.levels.length; j < levelsLength; j++) {
+              if (risk.levels[j].value == null){
+                risk.levels[j].isDefault = true;
+              }
               risk.levels[j]._id = UniqueNumber();
               delete risk.levels[j].risk_id;
             }
@@ -190,6 +231,12 @@ define([], function() {
               if(self.risks[i].id === self.alert.risk.id) {
                 self.riskModel = self.risks[i];
 
+                for(var j = 0, levelsLength = self.riskModel.levels.length; j < levelsLength; j++) {
+                  if (self.riskModel.levels[j].value == null){
+                    self.riskModel.levels[j].isDefault = true;
+                    break;
+                  }
+                }
                 for(var j = 0, levelsLength = self.riskModel.levels.length; j < levelsLength; j++) {
                   if(self.riskModel.levels[j].level === self.alert.notifications[0].notify_on_risk_level) {
                     self.notify_on_risk_level = self.riskModel.levels[j]._id;
@@ -298,6 +345,11 @@ define([], function() {
             self.risks[i].levels = [
               {
                 _id: UniqueNumber(),
+                name: "Default",
+                isDefault: true
+              },
+              {
+                _id: UniqueNumber(),
                 name: "",
                 value: ""
               }
@@ -378,6 +430,8 @@ define([], function() {
         name: "",
         value: ""
       });
+
+      self.colors.push("#FFFFFFFF");
     };
 
     /**
@@ -389,6 +443,7 @@ define([], function() {
       for(var j = 0, levelsLength = self.riskModel.levels.length; j < levelsLength; j++) {
         if(self.riskModel.levels[j]._id === level._id) {
           self.riskModel.levels.splice(j, 1);
+          self.colors.splice(j, 1);
           break;
         }
       }
@@ -472,17 +527,19 @@ define([], function() {
       if(self.riskLevelNameError === undefined) self.riskLevelNameError = {};
 
       for(var i = 0, levelsLength = self.riskModel.levels.length; i < levelsLength; i++) {
-        if(isNaN(self.riskModel.levels[i].value) || self.riskModel.levels[i].value === "") {
-          self.riskLevelValueError[self.riskModel.levels[i]._id] = true;
-          self.isNotValid = true;
-        } else if(lastValue !== null && parseFloat(lastValue) > parseFloat(self.riskModel.levels[i].value)) {
-          self.riskLevelOrderError = true;
-          self.riskLevelValueError[self.riskModel.levels[i]._id] = false;
-          lastValue = self.riskModel.levels[i].value;
-          self.isNotValid = true;
-        } else {
-          self.riskLevelValueError[self.riskModel.levels[i]._id] = false;
-          lastValue = self.riskModel.levels[i].value;
+        if(!self.riskModel.levels[i].isDefault){
+          if(isNaN(self.riskModel.levels[i].value) || self.riskModel.levels[i].value === "") {
+            self.riskLevelValueError[self.riskModel.levels[i]._id] = true;
+            self.isNotValid = true;
+          } else if(lastValue !== null && parseFloat(lastValue) > parseFloat(self.riskModel.levels[i].value)) {
+            self.riskLevelOrderError = true;
+            self.riskLevelValueError[self.riskModel.levels[i]._id] = false;
+            lastValue = self.riskModel.levels[i].value;
+            self.isNotValid = true;
+          } else {
+            self.riskLevelValueError[self.riskModel.levels[i]._id] = false;
+            lastValue = self.riskModel.levels[i].value;
+          }
         }
 
         if(self.riskModel.levels[i].name === undefined || self.riskModel.levels[i].name === "") {
@@ -540,6 +597,9 @@ define([], function() {
         var level = 1;
 
         for(var i = 0, levelsLength = riskTemp.levels.length; i < levelsLength; i++) {
+          if (riskTemp.levels[i].isDefault){
+            continue;
+          }
           if(self.notify_on_risk_level === riskTemp.levels[i]._id)
             self.alert.notifications[0].notify_on_risk_level = level;
 
@@ -596,7 +656,45 @@ define([], function() {
               break;
           }
         }
-
+        if (self.alert.hasView){
+          var viewLegend = {
+            colors: [],
+            metadata: {
+              column: self.alert.risk_attribute,
+              creation_type: "0"
+            },
+            type: 2
+          };
+          for (var i = 0; i < self.colors.length; i++){
+            var colorModel = {
+              color: self.colors[i],
+              isDefault: i == 0,
+              title: self.alert.risk.levels[i].name,
+              value: self.alert.risk.levels[i].value ? self.alert.risk.levels[i].value : ""
+            }
+            viewLegend.colors.push(colorModel);
+          }
+          var viewModel = {
+            name: self.alert.name,
+            description: "Generated by alert: " + self.alert.name,
+            schedule_type: self.alert.schedule_type,
+            schedule: Object.assign({}, self.alert.schedule),
+            automatic_schedule: self.alert.automatic_schedule,
+            active: true,
+            data_series_id: self.alert.data_series_id,
+            service_instance_id: self.view_service_instance_id,
+            private: self.view_private ? true : false,
+            legend: viewLegend,
+            source_type: 4
+          }
+          self.alert.view = viewModel;
+          self.alert.schedule_type = "3";
+          self.alert.schedule = {scheduleType: "3"};
+        } else {
+          delete self.alert.view;
+          delete self.alert.view_id;
+        }
+        self.alert.run = shouldRun;
         var operation = self.isUpdating ? self.AlertService.update(self.alert.id, self.alert) : self.AlertService.create(self.alert);
         operation.then(function(response) {
           $log.info(response);

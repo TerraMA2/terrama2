@@ -106,6 +106,9 @@ $(function () {
     $("#analysis").find("div").each(function() {
         $(this).addClass("fa fa-search");
     });
+    $("#alert").find("div").each(function() {
+        $(this).addClass("fa fa-warning");
+    });
     $("#template").find("div").each(function() {
         $(this).addClass("fa fa-map");
     });
@@ -122,6 +125,9 @@ $(function () {
         $(this).append(leftArrow);
     });
     $("#analysis").children("span").each(function() {
+        $(this).append(leftArrow);
+    });
+    $("#alert").children("span").each(function() {
         $(this).append(leftArrow);
     });
     $("#template").children("span").each(function() {
