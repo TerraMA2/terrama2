@@ -535,7 +535,7 @@ install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postrm
 # sa: build/cmake/terrama2-cpack-options.cmake.in
 #
 if(NOT CPACK_BINARY_DEB)
-  install(CODE "execute_process(COMMAND ${TERRAMA2_DESTINATION_SHARE}/scripts/./postinst)" COMPONENT scripts)
+  install(CODE "execute_process(COMMAND bash postinst ${TERRAMA2_BASE_DESTINATION_DIR} WORKING_DIRECTORY ${TERRAMA2_DESTINATION_SHARE}/scripts/ )" COMPONENT scripts)
 endif()
 
 #
