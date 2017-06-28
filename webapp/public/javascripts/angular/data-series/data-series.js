@@ -77,7 +77,60 @@ define([], function() {
     };
 
     $scope.extra = {
-      advancedFilters: [
+      removeOperationCallback: function(err, data) {
+        if (err) {
+          return MessageBoxService.danger(i18n.__(title), err.message);
+        }
+        MessageBoxService.success(i18n.__(title), data.name + i18n.__(" removed"));
+      },
+      showRunButton: config.showRunButton,
+      canRun: function(object){
+        var foundCollector = config.collectors.find(function(collector){
+          return collector.output_data_series == object.id;
+        });
+        var foundAnalysis = config.analysis.find(function(analysi){
+          return analysi.dataSeries.id == object.id;
+        })
+        return foundCollector || foundAnalysis;
+      },
+      run: function(object){
+        var service_instance = this.canRun(object);
+
+        serviceCache[service_instance.service_instance_id] = {
+          "process_ids": {
+            "ids": [service_instance.id],
+            "service_instance": service_instance.service_instance_id
+          },
+          "service_id": object.id,
+          "service_name": object.name
+        };
+
+        $scope.disabledButtons[object.id] = true;
+
+        Socket.emit('status', {service: service_instance.service_instance_id});
+      },
+      disabledButtons: function(object){
+        return $scope.disabledButtons[object.id];
+      }
+    };
+
+    if(config.dataSeriesType == "static") {
+      $scope.extra.advancedFilters = [
+        {
+          name: "Geometric Object",
+          value: "Geometric Object",
+          checked: true
+        },
+        {
+          name: "Grid",
+          value: "Grid",
+          checked: true
+        }
+      ];
+
+      $scope.extra.advancedFilterField = "model_type";
+    } else {
+      $scope.extra.advancedFilters = [
         {
           name: "Analysis",
           value: "Analysis",
@@ -93,8 +146,9 @@ define([], function() {
           value: "Direct Access",
           checked: true
         }
-      ],
-      executeAdvancedFilter: function() {
+      ];
+
+      $scope.extra.executeAdvancedFilter = function() {
         for(var i = 0, advancedFiltersLength = $scope.extra.advancedFilters.length; i < advancedFiltersLength; i++) {
           for(var j = 0, modelLength = $scope.model.length; j < modelLength; j++) {
             var semantics = $scope.model[j].data_series_semantics_code;
@@ -150,59 +204,7 @@ define([], function() {
             }
           }
         }
-      },
-      removeOperationCallback: function(err, data) {
-        if (err) {
-          return MessageBoxService.danger(i18n.__(title), err.message);
-        }
-        MessageBoxService.success(i18n.__(title), data.name + i18n.__(" removed"));
-      },
-      showRunButton: config.showRunButton,
-      canRun: function(object){
-        var foundCollector = config.collectors.find(function(collector){
-          return collector.output_data_series == object.id;
-        });
-        var foundAnalysis = config.analysis.find(function(analysi){
-          return analysi.dataSeries.id == object.id;
-        })
-        return foundCollector || foundAnalysis;
-      },
-      run: function(object){
-        var service_instance = this.canRun(object);
-
-        serviceCache[service_instance.service_instance_id] = {
-          "process_ids": {
-            "ids": [service_instance.id],
-            "service_instance": service_instance.service_instance_id
-          },
-          "service_id": object.id,
-          "service_name": object.name
-        };
-
-        $scope.disabledButtons[object.id] = true;
-
-        Socket.emit('status', {service: service_instance.service_instance_id});
-      },
-      disabledButtons: function(object){
-        return $scope.disabledButtons[object.id];
-      }
-    };
-
-    if(config.dataSeriesType == "static") {
-      $scope.extra.advancedFilters = [
-        {
-          name: "Geometric Object",
-          value: "Geometric Object",
-          checked: true
-        },
-        {
-          name: "Grid",
-          value: "Grid",
-          checked: true
-        }
-      ];
-
-      $scope.extra.advancedFilterField = "model_type";
+      };
     }
 
     if(config.message) {

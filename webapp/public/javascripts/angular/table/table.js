@@ -59,7 +59,7 @@ define([
                   for(var j = 0, modelLength = $scope.model.length; j < modelLength; j++) {
                     var jsonValue = getJsonValue($scope.model[j], 0, indexes);
 
-                    if(i18n.__($scope.extra.advancedFilters[i].value) === jsonValue) {
+                    if((isNaN($scope.extra.advancedFilters[i].value) ? i18n.__($scope.extra.advancedFilters[i].value) : $scope.extra.advancedFilters[i].value) === jsonValue) {
                       if($scope.extra.advancedFilters[i].checked)
                         $scope.model[j].showInTable = true;
                       else

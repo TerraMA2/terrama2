@@ -92,7 +92,7 @@ var Alert = function(params) {
    * @name Alert#dataSeries
    * @type {object}
    */
-  this.dataSeries = new DataSeries(params.DataSeries ? params.DataSeries.get() : params.dataSeries || {});
+  this.dataSeries = params.DataSeries || params.dataSeries ? new DataSeries(params.DataSeries || params.dataSeries) : null;
 
   /**
    * @name Alert#report_metadata
