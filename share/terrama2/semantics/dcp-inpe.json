@@ -19,7 +19,8 @@
             "type": "string",
             "title": "Mask",
             "pattern": "^([\\/\\w()*.-]+|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$",
-            "hasSuffixFieldForImport": true
+            "hasSuffixFieldForImport": true,
+            "hasPrefixFieldForImport": true
           },
           "alias": {
             "type": "string",
