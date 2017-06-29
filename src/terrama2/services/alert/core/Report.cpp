@@ -262,9 +262,15 @@ void terrama2::services::alert::core::Report::updateReportDataset(const std::sha
       if(resComp == 0)
         comp = "SAME";
       else if(resComp == 1)
+      {
+        riskChanged_ = true;
         comp = "INCREASED";
+      }
       else if(resComp == -1)
+      {
+        riskChanged_= true;
         comp = "DECREASED";
+      }
       else
         comp = "UNKNOW";
     }

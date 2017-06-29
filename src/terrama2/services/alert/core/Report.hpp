@@ -47,8 +47,6 @@
 #include <string>
 #include <unordered_map>
 
-
-
 namespace te
 {
   namespace dt
@@ -193,6 +191,8 @@ namespace terrama2
 
             double retrieveMeanValue() const;
 
+            bool riskChanged() const { return riskChanged_; }
+
             terrama2::core::DataSeriesType dataSeriesType() const;
 
           protected:
@@ -211,6 +211,7 @@ namespace terrama2
             std::vector<std::shared_ptr<te::dt::DateTime>> riskDates_; //!< A list with the datetime of each risk calculation
             mutable terrama2::core::FileRemover fileRemover_;
 
+            bool riskChanged_ = false; //!< Flags if the alert dataset has changed the value from last time.
         };
       } /* core */
     } /* alert */

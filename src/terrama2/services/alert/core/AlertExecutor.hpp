@@ -161,6 +161,17 @@ namespace terrama2
             std::shared_ptr<te::da::DataSetType> createAlertDataSetType(AlertPtr alertPtr,
                                                                         terrama2::core::DataSetPtr dataset);
 
+            //! Create an alert document and return the uri
+            std::string makeDocument(ReportPtr reportPtr, const Notification& notification, const terrama2::core::ExecutionPackage& executionPackage, std::shared_ptr< AlertLogger > logger) const;
+
+            //! Send alert notification
+            void sendNotification(const std::map<std::string, std::string>& serverMap,
+                                  ReportPtr reportPtr,
+                                  const Notification& notification,
+                                  const std::string& documentURI,
+                                  terrama2::core::ExecutionPackage executionPackage,
+                                  std::shared_ptr< AlertLogger > logger) const ;
+
           signals:
             //! Signal to notify that a analysis execution has finished.
             void alertFinished(size_t, std::shared_ptr< te::dt::TimeInstantTZ >, bool, QJsonObject = QJsonObject());

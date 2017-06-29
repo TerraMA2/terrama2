@@ -260,14 +260,32 @@ void terrama2::services::view::core::Service::viewJob(const terrama2::core::Exec
   }
   catch(const terrama2::core::LogException& e)
   {
-    std::string errMsg = boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
-    TERRAMA2_LOG_ERROR() << errMsg << std::endl;
+    auto error = boost::get_error_info<terrama2::ErrorDescription>(e);
+    std::string errMsg;
+    if(error)
+    {
+      errMsg = error->toStdString();
+      TERRAMA2_LOG_ERROR() << errMsg;
+    }
+    else
+    {
+      TERRAMA2_LOG_ERROR() << QObject::tr("Error logging view build error.");
+    }
     TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1(%2) finished with error(s).").arg(QString::fromStdString(viewName)).arg(viewId);
   }
   catch(const terrama2::Exception& e)
   {
-    std::string errMsg = boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
-    TERRAMA2_LOG_ERROR() << errMsg << std::endl;
+    auto error = boost::get_error_info<terrama2::ErrorDescription>(e);
+    std::string errMsg;
+    if(error)
+    {
+      errMsg = error->toStdString();
+      TERRAMA2_LOG_ERROR() << errMsg;
+    }
+    else
+    {
+      TERRAMA2_LOG_ERROR() << QObject::tr("Error logging view build error.");
+    }
     TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1(%2) finished with error(s).").arg(QString::fromStdString(viewName)).arg(viewId);
 
     if(logId != 0)
@@ -275,8 +293,17 @@ void terrama2::services::view::core::Service::viewJob(const terrama2::core::Exec
   }
   catch(const boost::exception& e)
   {
-    std::string errMsg = boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
-    TERRAMA2_LOG_ERROR() << errMsg;
+    auto error = boost::get_error_info<terrama2::ErrorDescription>(e);
+    std::string errMsg;
+    if(error)
+    {
+      errMsg = error->toStdString();
+      TERRAMA2_LOG_ERROR() << errMsg;
+    }
+    else
+    {
+      TERRAMA2_LOG_ERROR() << QObject::tr("Error logging view build error.");
+    }
     TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1(%2) finished with error(s).").arg(QString::fromStdString(viewName)).arg(viewId);
 
     if(logId != 0)
