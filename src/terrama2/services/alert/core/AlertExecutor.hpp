@@ -162,7 +162,7 @@ namespace terrama2
                                                                         terrama2::core::DataSetPtr dataset);
 
             //! Create an alert document and return the uri
-            std::string makeDocument(ReportPtr reportPtr, const Notification& notification, std::shared_ptr< AlertLogger > logger) const;
+            std::string makeDocument(ReportPtr reportPtr, const Notification& notification, const terrama2::core::ExecutionPackage& executionPackage, std::shared_ptr< AlertLogger > logger) const;
 
             //! Send alert notification
             void sendNotification(const std::map<std::string, std::string>& serverMap,

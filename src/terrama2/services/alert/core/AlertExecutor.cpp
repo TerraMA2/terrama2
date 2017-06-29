@@ -653,14 +653,14 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
       std::tie(maxRiskLevel, maxLevelName) = risk.riskLevel(reportPtr->retrieveMaxValue());
       for(const auto& notification : alertPtr->notifications)
       {
-        std::string documentURI = makeDocument(reportPtr, notification);
+        std::string documentURI = makeDocument(reportPtr, notification, executionPackage, logger);
 
         //check if should emit a notification
         if((notification.notifyOnRiskLevel <= maxRiskLevel)
             || (notification.notifyOnChange && reportPtr->riskChanged()))
         {
           notify = true;
-          sendNotification(serverMap, reportPtr, notification, documentURI, executionPackage);
+          sendNotification(serverMap, reportPtr, notification, documentURI, executionPackage, logger);
         }
       }
 
@@ -728,7 +728,7 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
   }
 }
 
-std::string terrama2::services::alert::core::AlertExecutor::makeDocument(ReportPtr reportPtr, const Notification& notification, std::shared_ptr< AlertLogger > logger) const
+std::string terrama2::services::alert::core::AlertExecutor::makeDocument(ReportPtr reportPtr, const Notification& notification, const terrama2::core::ExecutionPackage& executionPackage, std::shared_ptr< AlertLogger > logger) const
 {
   try
   {
