@@ -185,15 +185,17 @@ namespace terrama2
              */
             std::shared_ptr<te::da::DataSet> retrieveDataBelowRisk(const int risk) const;
 
+            bool riskChanged() const { return riskChanged_; }
+            uint32_t maxRisk() const { return maxRisk_; }
+            uint32_t minRisk() const { return minRisk_; }
+
+            terrama2::core::DataSeriesType dataSeriesType() const;
+
             double retrieveMaxValue() const;
 
             double retrieveMinValue() const;
 
             double retrieveMeanValue() const;
-
-            bool riskChanged() const { return riskChanged_; }
-
-            terrama2::core::DataSeriesType dataSeriesType() const;
 
           protected:
 
@@ -202,6 +204,8 @@ namespace terrama2
              * \param The DataSet
              */
             void updateReportDataset(const std::shared_ptr<te::da::DataSet> dataSet);
+            void updateReportGridDataset(const std::shared_ptr<te::da::DataSet> dataSet);
+            void updateReportMonitoredObjectDataset(const std::shared_ptr<te::da::DataSet> dataSet);
 
           protected:
 
@@ -212,6 +216,8 @@ namespace terrama2
             mutable terrama2::core::FileRemover fileRemover_;
 
             bool riskChanged_ = false; //!< Flags if the alert dataset has changed the value from last time.
+            uint32_t maxRisk_ = std::numeric_limits<uint32_t>::min();
+            uint32_t minRisk_ = std::numeric_limits<uint32_t>::max();
         };
       } /* core */
     } /* alert */
