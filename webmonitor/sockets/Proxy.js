@@ -42,7 +42,7 @@ var Proxy = function(io){
             }
           }
           // Socket response
-          client.emit('proxyResponse', { msg: body, requestId: json.requestId });
+          client.emit('proxyResponse', { msg: body, requestId: json.requestId, params: json.params });
         });
       }).on("error", function(e) {
         console.error(e.message);

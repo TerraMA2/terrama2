@@ -48,6 +48,10 @@ define([], function() {
               "</div>" +
               "<div class=\"modal-body\">" +
                 "<div ng-repeat=\"semantic in dataSeries.semantics.metadata.form | filter: defaultValueFilter\">" +
+                  "<div class=\"form-group col-md-{{ importationModalColSize[semantic.key] }}\" ng-show=\"dataSeries.semantics.metadata.schema.properties[semantic.key].hasPrefixFieldForImport\">" +
+                    "<label>{{ i18n.__('Prefix') }}:</label>" +
+                    "<input class=\"form-control\" id=\"{{ semantic.key + dataSeries.semantics.code }}Prefix\" name=\"{{ semantic.key + dataSeries.semantics.code }}Prefix\" ng-model=\"importationFields[dataSeries.semantics.code][semantic.key + 'Prefix']\" placeholder=\"{{ i18n.__('Prefix') }}\" type=\"text\">" +
+                  "</div>" +
                   "<div class=\"form-group col-md-{{ importationModalColSize[semantic.key] }}\">" +
                     "<label>{{ dataSeries.semantics.metadata.schema.properties[semantic.key].title }}:</label>" +
                     "<select class=\"form-control\" name=\"{{ semantic.key + dataSeries.semantics.code }}\" ng-change=\"verifyDefault(dataSeries.semantics.code, semantic.key);\" ng-model=\"importationFields[dataSeries.semantics.code][semantic.key]\">" +
@@ -67,10 +71,6 @@ define([], function() {
                   "<div class=\"form-group col-md-{{ importationModalColSize[semantic.key] }}\" ng-show=\"dataSeries.semantics.metadata.schema.properties[semantic.key].hasDefaultFieldForImport && !semantic.titleMap\">" +
                     "<label>{{ i18n.__('Default') }}:</label>" +
                     "<input class=\"form-control\" ng-disabled=\"importationFields[dataSeries.semantics.code][semantic.key] != 'default'\" id=\"{{ semantic.key + dataSeries.semantics.code }}Default\" name=\"{{ semantic.key + dataSeries.semantics.code }}Default\" ng-model=\"importationFields[dataSeries.semantics.code][semantic.key + 'Default']\" placeholder=\"{{ i18n.__('Default') }}\" type=\"text\">" +
-                  "</div>" +
-                  "<div class=\"form-group col-md-{{ importationModalColSize[semantic.key] }}\" ng-show=\"dataSeries.semantics.metadata.schema.properties[semantic.key].hasPrefixFieldForImport\">" +
-                    "<label>{{ i18n.__('Prefix') }}:</label>" +
-                    "<input class=\"form-control\" id=\"{{ semantic.key + dataSeries.semantics.code }}Prefix\" name=\"{{ semantic.key + dataSeries.semantics.code }}Prefix\" ng-model=\"importationFields[dataSeries.semantics.code][semantic.key + 'Prefix']\" placeholder=\"{{ i18n.__('Prefix') }}\" type=\"text\">" +
                   "</div>" +
                   "<div class=\"form-group col-md-{{ importationModalColSize[semantic.key] }}\" ng-show=\"dataSeries.semantics.metadata.schema.properties[semantic.key].hasSuffixFieldForImport\">" +
                     "<label>{{ i18n.__('Suffix') }}:</label>" +
