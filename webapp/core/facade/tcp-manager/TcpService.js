@@ -749,7 +749,11 @@ function onProcessFinished(resp) {
  */
 function onNotifyView(resp) {
   if (resp.registeredView){
-    tcpService.emit("notifyView", resp);
+    var viewObject = {
+      workspace: resp.registeredView.workspace,
+      layer: resp.registeredView.layers[0]
+    };
+    tcpService.emit("notifyView", viewObject);
   }
 }
 
