@@ -218,6 +218,10 @@ void terrama2::services::alert::core::Report::updateReportDataset(const std::sha
 void terrama2::services::alert::core::Report::updateReportGridDataset(const std::shared_ptr<te::da::DataSet> dataSet)
 {
   dataSet_ = std::dynamic_pointer_cast<te::mem::DataSet>(dataSet);
+  auto risk = alert_->risk;
+  std::string riskName;
+  std::tie(maxRisk_, riskName) = risk.riskLevel(retrieveMaxValue());
+  std::tie(minRisk_, riskName) = risk.riskLevel(retrieveMinValue());
 }
 
 void terrama2::services::alert::core::Report::updateReportMonitoredObjectDataset(const std::shared_ptr<te::da::DataSet> dataSet)
@@ -249,7 +253,7 @@ void terrama2::services::alert::core::Report::updateReportMonitoredObjectDataset
 
         //update max and min risk values
         if(it == riskDates_.begin())
-        {  
+        {
           if(numericRisk > maxRisk_)
             maxRisk_ = numericRisk;
 
