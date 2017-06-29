@@ -15,12 +15,13 @@
     "collector": true,
     "gui": {
       "schema": {
-        "properties": {          
+        "properties": {
           "mask": {
             "type": "string",
             "title": "Mask",
             "pattern": "^([\\/\\w()*.-]+|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$",
-            "hasSuffixFieldForImport": true
+            "hasSuffixFieldForImport": true,
+            "hasPrefixFieldForImport": true
           },
           "alias": {
             "type": "string",
@@ -57,7 +58,7 @@
         },
         "required": ["mask", "alias", "timezone", "latitude", "longitude", "projection"]
       },
-      "form": [        
+      "form": [
         {
           "key": "mask",
           "htmlClass": "col-md-6",
