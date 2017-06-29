@@ -426,3 +426,65 @@
       margin-top: -20px !important;
     }
 }
+
+.map-tool-button {
+  z-index: 9999;
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.4);
+  border-radius: 2px;
+  right: 15px;
+  padding: 3px;
+  max-height: 350px;
+}
+
+.map-tool-button > button {
+  width: 29px;
+  height: 29px;
+  background-color: rgba(241,241,241,.8);
+  font-size: 1.14em;
+  border: none;
+  border-radius: 2px;
+  outline: 0;
+}
+
+.map-tool-button > button:hover { background-color: rgba(241,241,241,1); }
+
+.map-tool-button.active > button { background-color: rgba(255, 255, 255, 1); }
+
+#map-tools {
+  z-index: 9999;
+  position: absolute;
+  right: 0px;
+}
+
+#moveMap { top: 92px; }
+
+#getAttributes { top: 134px; }
+
+#getAttributes.with-select { width: 190px; }
+
+#getAttributes > button {
+  float: right;
+}
+
+#getAttributes > select {
+  float: left;
+  width: 150px;
+  height: 29px;
+}
+
+#feature-info-box, #map-info-box {
+  width: 100% !important;
+  white-space: nowrap;
+  font-size: 13px;
+}
+
+.feature-info-box .ui-dialog-title, .map-info-box .ui-dialog-title { font-size: 13px; }
+
+.cursor-crosshair { cursor: crosshair !important; }
+
+.cursor-move { cursor: move !important; }
+
+.cursor-pointer { cursor: pointer !important; }
+
+.ol-zoom, .ol-zoom:hover { background-color: rgba(0, 0, 0, 0.4) !important; }
