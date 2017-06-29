@@ -222,16 +222,13 @@
           return DataManager.getAlert({id: alertResultObject.process_id}, options)
             .then(function(alert){
               if (alertResultObject.notify && alert.view && alert.view.id){
-                return DataManager.getView({id: alert.view.id}. options)
-                  .then(function(view){
-                    return DataManager.getRegisteredView({view_id: view.id}, options)
-                      .then(function(registeredView){
-                        var objectResponse = {
-                          serviceType: ServiceType.ALERT,
-                          registeredView: registeredView
-                        };
-                        return resolve(objectResponse);
-                      });
+                return DataManager.getRegisteredView({view_id: alert.view.id}, options)
+                  .then(function(registeredView){
+                    var objectResponse = {
+                      serviceType: ServiceType.ALERT,
+                      registeredView: registeredView
+                    };
+                    return resolve(objectResponse);
                   });
               } else {
                 return resolve();
