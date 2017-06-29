@@ -650,7 +650,7 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
       ReportPtr reportPtr = std::make_shared<Report>(alertPtr, inputDataSeries, alertDataSet, vecDates);
       int maxRiskLevel;
       std::string maxLevelName;
-      std::tie(maxRiskLevel, maxLevelName) = risk.riskLevel(reportPtr->retrieveMaxValue());
+      std::tie(maxRiskLevel, maxLevelName) = risk.riskLevel(reportPtr->maxRisk());
       for(const auto& notification : alertPtr->notifications)
       {
         std::string documentURI = makeDocument(reportPtr, notification, executionPackage, logger);
