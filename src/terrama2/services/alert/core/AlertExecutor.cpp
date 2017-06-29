@@ -648,15 +648,12 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
 
       auto risk = alertPtr->risk;
       ReportPtr reportPtr = std::make_shared<Report>(alertPtr, inputDataSeries, alertDataSet, vecDates);
-      int maxRiskLevel;
-      std::string maxLevelName;
-      std::tie(maxRiskLevel, maxLevelName) = risk.riskLevel(reportPtr->maxRisk());
       for(const auto& notification : alertPtr->notifications)
       {
         std::string documentURI = makeDocument(reportPtr, notification, executionPackage, logger);
 
         //check if should emit a notification
-        if((notification.notifyOnRiskLevel <= maxRiskLevel)
+        if((notification.notifyOnRiskLevel <= reportPtr->maxRisk())
             || (notification.notifyOnChange && reportPtr->riskChanged()))
         {
           notify = true;
