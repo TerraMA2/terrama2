@@ -32,7 +32,8 @@
   };
   var globals = {
     enums: {
-      ScheduleType: {[ ScheduleType|json|safe ]}
+      ScheduleType: {[ ScheduleType|json|safe ]},
+      ViewSourceType: {[ ViewSourceType|json|safe ]}
     }
   };
 </script>
@@ -118,9 +119,9 @@
                 <div class="checkbox">
                   <label style="font-weight: 700; margin-top:19px;">
                     <input type="checkbox"
-                           name="active"
-                           ng-model="ctrl.view.active"
-                           ng-init="ctrl.initActive()"> <span ng-bind="i18n.__('Active')"></span>
+                            name="ptivate"
+                            ng-model="ctrl.view.private"
+                            ng-init="ctrl.initPrivate()"> <span ng-bind="i18n.__('Private')"></span>
                   </label>
                 </div>
               </div>
@@ -137,6 +138,20 @@
               </div>
               <!-- /.form-group -->
             </div>
+          </div>
+          <div class="col-md-12">
+            <div class="col-md-12">
+              <div class="form-group" style="float: right;">
+                <div class="checkbox">
+                  <label style="font-weight: 700; margin-top:19px;">
+                    <input type="checkbox"
+                            name="active"
+                            ng-model="ctrl.view.active"
+                            ng-init="ctrl.initActive()"> <span ng-bind="i18n.__('Active')"></span>
+                  </label>
+                </div>
+              </div>
+            </div> <!-- ./col-md-2 -->
           </div>
         </div>
       </form>

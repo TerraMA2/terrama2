@@ -104,6 +104,11 @@ int terrama2::services::analysis::core::grid::zonal::history::numImpl(const std:
       QString errMsg(QObject::tr("Could not recover monitored object geometry."));
       throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
     }
+
+    //if it's an invalid geometry, return nan but continue the analysis
+    if(!moGeom->isValid())
+      return std::nan("");
+
     auto geomResult = createBuffer(buffer, moGeom);
 
     auto dataSeries = context->findDataSeries(dataSeriesName);
@@ -219,6 +224,10 @@ boost::python::list terrama2::services::analysis::core::grid::zonal::history::li
       QString errMsg(QObject::tr("Could not recover monitored object geometry."));
       throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
     }
+
+    //if it's an invalid geometry, return nan but continue the analysis
+    if(!moGeom->isValid())
+      return {};
 
     auto geomResult = createBuffer(buffer, moGeom);
 

@@ -16,7 +16,7 @@ var express = require('express'),
     i18nRoutes = require( "i18n-node-angular" );
     server = require('http').Server(app);
 
-app.use(session({ secret: KEY, resave: false, saveUninitialized: false }));
+app.use(session({ secret: KEY, name: "TerraMA2WebApp", resave: false, saveUninitialized: false }));
 
 app.use(flash());
 

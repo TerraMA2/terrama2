@@ -65,14 +65,16 @@ namespace terrama2
 
               \param statisticOperation The statistic operation chosen by the user.
               \param dataSeriesName DataSeries name.
+              \param attribute Which DCP attribute will be used.
               \param ids A set of identifiers of DataSet.
 
               \return A double value with the result.
             */
             double operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
                                 const std::string& dataSeriesName, const std::string& attribute,
-                                boost::python::list pcds);
-
+                                boost::python::list pcds, const std::string& dateFilterBegin = "",
+                                const std::string& dateFilterEnd = "");
+                              
             /*!
               \brief It returns the number of DCPs that have influence over the current monitored object.
 

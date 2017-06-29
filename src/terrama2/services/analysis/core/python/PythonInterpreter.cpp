@@ -326,7 +326,7 @@ void terrama2::services::analysis::core::python::runScriptDCPAnalysis(PyThreadSt
   }
 }
 
-void terrama2::services::analysis::core::python::addValue(const std::string& attribute, double value)
+void terrama2::services::analysis::core::python::addValue(const std::string& attribute, boost::python::object pyObjValue)
 {
   OperatorCache cache;
 
@@ -350,8 +350,29 @@ void terrama2::services::analysis::core::python::addValue(const std::string& att
     AnalysisPtr analysis = context->getAnalysis();
     if(analysis->type == AnalysisType::MONITORED_OBJECT_TYPE)
     {
-      context->addAttribute(attrName);
-      context->setAnalysisResult(cache.index, attrName, value);
+      // if the return value is a double
+      boost::python::extract<double> extDouble(pyObjValue);
+      if(extDouble.check())
+      {
+        context->addAttribute(attrName, te::dt::DOUBLE_TYPE);
+        double value = extDouble;
+        context->setAnalysisResult(cache.index, attrName, value);
+        return;
+      }
+
+      // if the return value is a string
+      boost::python::extract<std::string> extString(pyObjValue);
+      if(extString.check())
+      {
+        context->addAttribute(attrName, te::dt::STRING_TYPE);
+        std::string value = extString;
+        context->setAnalysisResult(cache.index, attrName, value);
+        return;
+      }
+
+      QString errMsg = QObject::tr("Unknown type in 'add_value'.");
+      context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
+      return;
     }
   }
   catch(const terrama2::Exception& e)
@@ -370,8 +391,6 @@ void terrama2::services::analysis::core::python::addValue(const std::string& att
     context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
     return;
   }
-
-
 }
 
 BOOST_PYTHON_MODULE(terrama2)
@@ -379,7 +398,6 @@ BOOST_PYTHON_MODULE(terrama2)
   // specify that this module is actually a package
   object package = scope();
   package.attr("__path__") = "terrama2";
-
 
   def("add_value", terrama2::services::analysis::core::python::addValue);
   def("get_attribute_value_as_json", terrama2::services::analysis::core::python::getAttributeValueAsJson);
@@ -437,7 +455,7 @@ void terrama2::services::analysis::core::python::readInfoFromDict(OperatorCache&
   // Analysis ID
   PyObject* analysisKey = PyString_FromString("analysisHashCode");
   PyObject* analysisPy = PyDict_GetItem(pDict, analysisKey);
-  if(analysisPy != NULL)
+  if(analysisPy != nullptr)
   {
     cache.analysisHashCode = PyInt_AsLong(analysisPy);
   }

@@ -43,9 +43,20 @@
         default: true,
         comment: "It defines view can be used and retrieved. Default is true."
       },
+      private: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        default: false,
+        comment: "It defines if the view is private. Default is false."
+      },
       schedule_type: {
         type: DataTypes.INTEGER,
         allowNull: true
+      },
+      source_type: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        comment: "It defines the type of data source that create the view. Alert, Analysis, Static Data or Dynamic Data"
       }
     }, {
       underscored: true,
@@ -87,6 +98,14 @@
             foreignKey: {
               name: "view_id",
               allowNull: false
+            }
+          });
+
+          View.hasOne(models.Alert, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: "view_id",
+              allowNull: true
             }
           });
 

@@ -1,182 +1,175 @@
-<div class="col-md-12 terrama2-nopadding-box">
+<div class="col-md-6 form-group">
+    <label>{{$ctrl.i18n.__('Creation Type') }}:</label>
+    <select class="form-control" name="styles" ng-change="$ctrl.changeCreationType()" ng-model="$ctrl.model.metadata.creation_type">
+        <option value="0">{{$ctrl.i18n.__('Editor')}}</option>
+        <option value="1">{{$ctrl.i18n.__('XML')}}</option>
+    </select>
+</div>
+
+<div ng-if="$ctrl.model.metadata.creation_type == '1' || $ctrl.model.metadata.creation_type == '2' ">
   <div class="col-md-12 terrama2-nopadding-box">
-    <div class="col-md-6" ng-if="$ctrl.type === $ctrl.DataSeriesType.GEOMETRIC_OBJECT || $ctrl.type === $ctrl.DataSeriesType.OCCURRENCE || $ctrl.type === $ctrl.DataSeriesType.ANALYSIS_MONITORED_OBJECT">
-      <div class="form-group" terrama2-show-errors>
-        <label><span ng-bind="$ctrl.i18n.__('Column')"></span>:</label>
-        <input class="form-control" 
-              name="column" 
-              ng-model="$ctrl.model.metadata.column" 
-              type="text"
-              ng-required="$ctrl.type === $ctrl.DataSeriesType.GEOMETRIC_OBJECT || $ctrl.type === $ctrl.DataSeriesType.OCCURRENCE || $ctrl.type === $ctrl.DataSeriesType.ANALYSIS_MONITORED_OBJECT">
 
-        <span class="help-block" 
-          ng-show="$ctrl.formCtrl.column.$dirty && $ctrl.formCtrl.column.$error.required"
-          ng-bind="$ctrl.i18n.__('Column is required')">
-        </span>
-      </div>
-      <!-- ./Column -->
-    </div>
-    <!-- ./GEOMETRIC OR OCCURRENCE -->
-    <div class="col-md-6">
-      <div class="form-group" terrama2-show-errors>
-        <label><span ng-bind="$ctrl.i18n.__('Operation')"></span>:</label>
-        <select class="form-control" 
-                name="styleOperation" 
-                ng-model="$ctrl.model.operation_id"
-                ng-options="value as $ctrl.i18n.__(key) for (key, value) in $ctrl.StyleOperation"
-                ng-init="$ctrl.model.operation_id = $ctrl.StyleOperation.VALUE;"
-                required>
-        </select>
-
-        <span class="help-block" 
-          ng-show="$ctrl.formCtrl.styleOperation.$dirty && $ctrl.formCtrl.styleOperation.$error.required"
-          ng-bind="$ctrl.i18n.__('Operation is required')">
-        </span>
+    <div class="col-md-8">
+      <div class="form-group">
+        <label> {{$ctrl.i18n.__('XML') }}:</label>
+        <textarea class="form-control" ng-model="$ctrl.model.metadata.xml_style" style="height: 200px;"> </textarea>
       </div>
     </div>
-    <!-- ./col-md-6 Type -->
-    <div class="col-md-3" ng-if="$ctrl.type === $ctrl.DataSeriesType.GRID">
-      <div class="form-group" terrama2-show-errors>
-        <label><span ng-bind="$ctrl.i18n.__('Dummy Value')"></span>:</label>
-        <input class="form-control" 
-              name="dummy" 
-              ng-model="$ctrl.model.metadata.dummy" 
-              type="text">
-      </div>
-      <!-- ./Dummy -->
-    </div>
-    <div class="col-md-3"ng-if="$ctrl.type === $ctrl.DataSeriesType.GRID" >
-      <div class="form-group"  terrama2-show-errors>
-        <label><span ng-bind="$ctrl.i18n.__('Band Number')"></span>:</label>
-        <input class="form-control" 
-              name="band_number" 
-              ng-model="$ctrl.model.metadata.band_number" 
-              type="number"
-              ng-required="$ctrl.type === $ctrl.DataSeriesType.GRID">
 
-        <span class="help-block" 
-          ng-show="$ctrl.formCtrl.band_number.$dirty && $ctrl.formCtrl.band_number.$error.required"
-          ng-bind="$ctrl.i18n.__('Band number is required')">
-        </span>
-      </div>
-    </div>
-    <!-- ./GRID -->
-  </div>
-  <!-- ./col-md-12 -->
-  <div class="col-md-6">
-    <div class="form-group" terrama2-show-errors>
-      <label><span ng-bind="$ctrl.i18n.__('Type')"></span>:</label>
-      <select class="form-control"
-              name="styleType"
-              ng-model="$ctrl.model.type"
-              ng-options="elementType.value as $ctrl.i18n.__(elementType.name) for elementType in $ctrl.styleTypes | filter: $ctrl.typeFilter"
-              required>
-      </select>
-
-      <span class="help-block"
-        ng-show="$ctrl.formCtrl.styleType.$dirty && $ctrl.formCtrl.styleType.$error.required"
-        ng-bind="$ctrl.i18n.__('Type is required')">
-      </span>
-    </div>
-  </div>
-  <!-- ./col-md-6 Type -->
-  <div class="col-md-6">
-    <div class="form-group" terrama2-show-errors>
-        <label><span ng-bind="$ctrl.i18n.__('Number of Colors')">:</span></label>
-        <input class="form-control"
-              name="bands"
-              ng-model="$ctrl.model.bands"
-              type="number"
-              min="2"
-              required>
-
-        <span class="help-block"
-              ng-show="$ctrl.formCtrl.bands.$dirty && $ctrl.formCtrl.bands.$error.required"
-              ng-bind="$ctrl.i18n.__('Number of Colors is required')">
-        </span>
-        <span class="help-block"
-              ng-show="$ctrl.formCtrl.bands.$dirty && $ctrl.formCtrl.bands.$error.min"
-              ng-bind="$ctrl.i18n.__('Minimum 2')">
-        </span>
-    </div>
-  </div>
-
-  <div class="col-md-3">
-    <div class="form-group" terrama2-show-errors>
-      <label ng-bind="$ctrl.i18n.__('Begin')"></label>
-      <color-picker contenteditable="true" ng-model="$ctrl.model.beginColor" options="$ctrl.colorOptions"></color-picker>
-    </div>
-  </div>
-
-  <div class="col-md-3">
-    <div class="form-group" terrama2-show-errors>
-      <label ng-bind="$ctrl.i18n.__('End')"></label>
-      <color-picker contenteditable="true" ng-model="$ctrl.model.endColor" options="$ctrl.colorOptions"></color-picker>
-    </div>
-  </div>
-
-  <div class="col-md-2">
-    <button type="button"
-            class="btn btn-primary"
-            style="margin-top: 25px;"
-            ng-bind="$ctrl.i18n.__('Generate')"
-            data-ng-click="$ctrl.generate();"></button>
   </div>
 </div>
 
-<div class="col-md-12" ng-show="$ctrl.model.operation_id && $ctrl.model.colors.length > 0">
-  <table class="table table-hover scroll">
-    <thead>
-      <th ng-bind="$ctrl.i18n.__('Color')"></th>
-      <th ng-bind="$ctrl.i18n.__('Title')"></th>
-      <th ng-bind="$ctrl.i18n.__('Value')"></th>
-    </thead>
-    <tbody>
-      <tr ng-repeat="elm in $ctrl.model.colors track by $index">
-        <td>
-          <color-picker ng-model="elm.color" options="$ctrl.colorOptions" event-api="$ctrl.events"></color-picker>
-        </td>
-        <td>
-          <div class="form-group" 
-              ng-class="{'has-error': $ctrl.formCtrl['field_color_' + $index].$invalid, 'has-success': $ctrl.formCtrl['field_color_' + $index].$valid}">
-            <input type="text" class="form-control" name="field_color_{{ $index }}" ng-model="elm.title" required>
+<div ng-if="$ctrl.model.metadata.creation_type == '0'">
+  <div class="col-md-12 terrama2-nopadding-box">
 
-            <span class="help-block"
-                  ng-show="$ctrl.formCtrl['field_color_' + $index].$error.required" ng-bind="$ctrl.i18n.__('Title is required')">
-            </span>
-          </div>
-        </td>
-        <td>
-          <div class="form-group" 
-              ng-class="{'has-error': $ctrl.formCtrl['field_value_' + $index].$invalid, 'has-success': $ctrl.formCtrl['field_value_' + $index].$valid}" ng-if="!elm.isDefault">
-            <!-- Value Type -->
-            <input type="text" 
-                   class="form-control"
-                   name="field_value_{{$index}}"
-                   ng-model="elm.value"
-                   ng-if="$ctrl.model.type === $ctrl.StyleType.VALUE">
-            <!-- Interval and Ramp Types -->
-            <input type="number" 
-                  class="form-control" 
-                  name="field_value_{{$index}}" 
-                  ng-model="elm.value" 
-                  ng-if="$ctrl.model.type === $ctrl.StyleType.INTERVAL || $ctrl.model.type === $ctrl.StyleType.RAMP">
+    <div class="col-md-6">
+      <div class="form-group" terrama2-show-errors>
+        <label><span ng-bind="$ctrl.i18n.__('Type')"></span>:</label>
+        <select class="form-control"
+                name="styleType"
+                ng-model="$ctrl.model.type"
+                ng-init="$ctrl.initColorType()"
+                ng-change="$ctrl.changeColorType()"
+                ng-options="elementType.value as $ctrl.i18n.__(elementType.name) for elementType in $ctrl.styleTypes | filter: $ctrl.typeFilter"
+                required>
+        </select>
 
-            <span class="help-block"
-                  ng-show="$ctrl.formCtrl['field_value_' + $index].$error.required" ng-bind="$ctrl.i18n.__('Value is required')">
-            </span>
-            <!-- For number fields -->
-            <span class="help-block"
-                  ng-show="($ctrl.model.type === $ctrl.StyleType.INTERVAL || $ctrl.model.type === $ctrl.StyleType.RAMP) && $ctrl.formCtrl['field_value_' + $index].$error.number"
-                  ng-bind="$ctrl.i18n.__('Value must be a number')">
-            </span>
-            <span class="help-block"
-                  ng-show="($ctrl.model.type === $ctrl.StyleType.INTERVAL || $ctrl.model.type === $ctrl.StyleType.RAMP) && $ctrl.formCtrl['field_value_' + $index].$error.number"
-                  ng-bind="$ctrl.i18n.__('Value must be unique')">
-            </span>
+        <span class="help-block"
+          ng-show="$ctrl.formCtrl.styleType.$dirty && $ctrl.formCtrl.styleType.$error.required"
+          ng-bind="$ctrl.i18n.__('Type is required')">
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-12 terrama2-nopadding-box">
+    <div class="col-md-6 terrama2-nopadding-box">
+      <div class="col-md-12" ng-if="$ctrl.type === $ctrl.DataSeriesType.GEOMETRIC_OBJECT || $ctrl.type === $ctrl.DataSeriesType.OCCURRENCE || $ctrl.type === $ctrl.DataSeriesType.ANALYSIS_MONITORED_OBJECT">
+        <div class="form-group" terrama2-show-errors>
+          <label><span ng-bind="$ctrl.i18n.__('Column')"></span>:</label>
+          <input class="form-control" 
+                name="column" 
+                ng-model="$ctrl.model.metadata.column" 
+                type="text"
+                ng-required="$ctrl.type === $ctrl.DataSeriesType.GEOMETRIC_OBJECT || $ctrl.type === $ctrl.DataSeriesType.OCCURRENCE || $ctrl.type === $ctrl.DataSeriesType.ANALYSIS_MONITORED_OBJECT">
+
+          <span class="help-block" 
+            ng-show="$ctrl.formCtrl.column.$dirty && $ctrl.formCtrl.column.$error.required"
+            ng-bind="$ctrl.i18n.__('Column is required')">
+          </span>
+        </div>
+        <!-- ./Column -->
+      </div>
+      <!-- ./col-md-6 Type -->
+      <div class="col-md-6"ng-if="$ctrl.type === $ctrl.DataSeriesType.GRID" >
+        <div class="form-group"  terrama2-show-errors>
+          <label><span ng-bind="$ctrl.i18n.__('Band Number')"></span>:</label>
+          <input class="form-control" 
+                name="band_number" 
+                ng-model="$ctrl.model.metadata.band_number" 
+                type="number"
+                ng-required="$ctrl.type === $ctrl.DataSeriesType.GRID">
+
+          <span class="help-block" 
+            ng-show="$ctrl.formCtrl.band_number.$dirty && $ctrl.formCtrl.band_number.$error.required"
+            ng-bind="$ctrl.i18n.__('Band number is required')">
+          </span>
+        </div>
+      </div>
+      <div class="col-md-6" ng-if="$ctrl.type === $ctrl.DataSeriesType.GRID && $ctrl.model.type != 1">
+        <div class="form-group" terrama2-show-errors>
+          <label><span ng-bind="$ctrl.i18n.__('Dummy Value')"></span>:</label>
+          <input class="form-control" 
+                name="dummy" 
+                ng-model="$ctrl.model.metadata.dummy" 
+                type="text">
+        </div>
+        <!-- ./Dummy -->
+      </div>
+      <!-- ./GRID -->
+    </div>
+    <!-- ./col-md-6 -->
+  </div>
+  <div class="col-md-12 terrama2-nopadding-box" >
+    <hr>
+  </div>
+  <div class="form-group">
+    <div class="col-md-12 row" ng-show="$ctrl.model.colors.length > 0">
+      <div class="col-md-12 row">
+        <div class="col-md-3">
+          <label><span ng-bind="$ctrl.i18n.__('Color')"></span>:</label>
+        </div> 
+        <div class="col-md-3">
+          <label><span ng-bind="$ctrl.i18n.__('Title')"></span>:</label>
+        </div> 
+        <div class="col-md-3">
+          <label ng-show="$ctrl.model.colors.length > 1"><span ng-bind="$ctrl.i18n.__('Value')"></span>:</label>
+        </div>
+      </div> 
+      <div class="col-md-12 row">
+        <span ng-repeat="elm in $ctrl.model.colors track by $index">
+          <div class="col-md-12 row">
+            <div class="col-md-3">
+              <color-picker ng-model="elm.color" options="$ctrl.colorOptions" event-api="$ctrl.events"></color-picker>
+            </div>
+
+            <div class="form-group col-md-3" 
+                ng-class="{'has-error': $ctrl.formCtrl['field_color_' + $index].$invalid, 'has-success': $ctrl.formCtrl['field_color_' + $index].$valid}">
+              <input type="text" class="form-control" name="field_color_{{ $index }}" ng-model="elm.title" required>
+
+              <span class="help-block"
+                    ng-show="$ctrl.formCtrl['field_color_' + $index].$error.required" ng-bind="$ctrl.i18n.__('Title is required')">
+              </span>
+            </div>
+
+            <div class="form-group col-md-3" 
+                ng-class="{'has-error': $ctrl.formCtrl['field_value_' + $index].$invalid, 'has-success': $ctrl.formCtrl['field_value_' + $index].$valid}" ng-if="!elm.isDefault">
+              <!-- Value Type -->
+              <input type="text" 
+                    class="form-control"
+                    name="field_value_{{$index}}"
+                    ng-model="elm.value"
+                    ng-if="$ctrl.model.type === $ctrl.StyleType.VALUE">
+              <!-- Interval and Gradient Types -->
+              <input type="number" 
+                    class="form-control" 
+                    name="field_value_{{$index}}" 
+                    ng-model="elm.value" 
+                    ng-if="$ctrl.model.type === $ctrl.StyleType.INTERVAL || $ctrl.model.type === $ctrl.StyleType.GRADIENT">
+
+              <span class="help-block"
+                    ng-show="$ctrl.formCtrl['field_value_' + $index].$error.required" ng-bind="$ctrl.i18n.__('Value is required')">
+              </span>
+              <!-- For number fields -->
+              <span class="help-block"
+                    ng-show="($ctrl.model.type === $ctrl.StyleType.INTERVAL || $ctrl.model.type === $ctrl.StyleType.GRADIENT) && $ctrl.formCtrl['field_value_' + $index].$error.number"
+                    ng-bind="$ctrl.i18n.__('Value must be a number')">
+              </span>
+              <span class="help-block"
+                    ng-show="($ctrl.model.type === $ctrl.StyleType.INTERVAL || $ctrl.model.type === $ctrl.StyleType.GRADIENT) && $ctrl.formCtrl['field_value_' + $index].$error.number"
+                    ng-bind="$ctrl.i18n.__('Value must be unique')">
+              </span>
+            </div>
+
+            <div class="form-group col-md-3" ng-if="!elm.isDefault && $ctrl.model.colors.length > $ctrl.minColorsLength">
+              <button type="button"
+                      class="btn btn-primary"
+                      style="margin-left: 9px;"
+                      ng-bind="$ctrl.i18n.__('Remove')"
+                      data-ng-click="$ctrl.removeColor($index);"></button>
+            </div>
+
           </div>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+
+        </span>
+      </div>
+    </div>
+
+  <div class="col-md-12">
+    <button type="button"
+            class="btn btn-primary"
+            ng-bind="$ctrl.i18n.__('Add color')"
+            data-ng-click="$ctrl.addColor();"></button>
+  </div>
+
 </div>

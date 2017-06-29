@@ -44,13 +44,14 @@
    * 
    * @param {Object} viewObject - A view object to save
    * @param {number} projectId - A project identifier
+   * @param {Object} options - Transaction options
    * @returns {Promise<View>}
    */
-  View.save = function(viewObject, projectId) {
+  View.save = function(viewObject, projectId, options) {
     return new PromiseClass(function(resolve, reject) {
-      DataManager.orm.transaction(function(t) {
-        var options = {transaction: t};
-
+      var saveViewPromise;
+      // Function to save view and dependencies on db
+      var saveViewOnDb = function(options){
         // setting current project scope
         viewObject.project_id = projectId;
 
@@ -73,18 +74,27 @@
             }
             return DataManager.addView(viewObject, options);
           });
-      })
+      };
 
-      .then(function(view) {
-        // sending to the services
-        sendView(view);
-
-        return resolve(view);
-      })
-      
-      .catch(function(err){
-        return reject(err);
-      });
+      // If already have a transaction, use to save view
+      // else create a transaction
+      if (options){
+        saveViewPromise = saveViewOnDb(options);
+      } else {
+        saveViewPromise = DataManager.orm.transaction(function(t) {
+          var options = {transaction: t};
+          return saveViewOnDb(options);
+        })
+      }
+      saveViewPromise
+        .then(function(view) {
+          // sending to the services
+          sendView(view);
+          return resolve(view);
+        })
+        .catch(function(err){
+          return reject(err);
+        });
     });
   };
   /**
@@ -219,7 +229,7 @@
           })
 
           .then(function() {
-            if (viewObject.legend && viewObject.legend.operation_id) {
+            if (!Utils.isEmpty(viewObject.legend) && !Utils.isEmpty(viewObject.legend.metadata)) {
               // if there is no legend before, insert a new one
               var legend = viewObject.legend;
               legend.view_id = viewId;
@@ -249,6 +259,11 @@
                         for(var k in legend.metadata) {
                           if (legend.metadata.hasOwnProperty(k)) {
                             promises.push(DataManager.upsertViewStyleLegendMetadata({key: k, legend_id: view.legend.id}, {key: k, value: legend.metadata[k], legend_id: view.legend.id}, options));
+                          }
+                        }
+                        for (var k in view.legend.metadata){
+                          if (!legend.metadata.hasOwnProperty(k)) {
+                            promises.push(DataManager.removeViewStyleLegendMetadata({key: k, legend_id: view.legend.id}, options));
                           }
                         }
                         return PromiseClass.all(promises);

@@ -12,10 +12,11 @@ module.exports = function(app) {
       .all([
         DataManager.listCollectors(),
         DataManager.listAnalysis(),
-        DataManager.listViews()
+        DataManager.listViews(),
+        DataManager.listAlerts()
       ])
 
-      .spread(function(collectors, analysisList, views) {
+      .spread(function(collectors, analysisList, views, alerts) {
         var outputAnalysis = [];
         analysisList.forEach(function(analysis) {
           outputAnalysis.push(analysis.rawObject());
@@ -30,11 +31,16 @@ module.exports = function(app) {
           return view.rawObject();
         });
 
+        var outputAlerts = alerts.map(function(alert){
+          return alert.rawObject();
+        })
+
         var renderParams = {
           "Enums": Enums,
           "analysis": outputAnalysis,
           "collectors": outputCollectors,
           "views": outputViews,
+          "alerts": outputAlerts,
           "parameters": null
         };
 

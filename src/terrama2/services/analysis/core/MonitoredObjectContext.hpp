@@ -40,6 +40,8 @@
 #include <terralib/geometry/Coord2D.h>
 #include <terralib/sam/kdtree.h>
 
+#include <boost/any.hpp>
+
 // Forward declaration
 namespace te
 {
@@ -89,7 +91,7 @@ namespace terrama2
 
               \param analysisHashCode Hash code of the analysis.
             */
-            std::set<std::string> getAttributes() const { return attributes_;}
+            std::set<std::pair<std::string, int> > getAttributes() const { return attributes_;}
             /*!
             \brief Reads the DataSeries that fits the date filter and adds it to the context.
 
@@ -125,7 +127,7 @@ namespace terrama2
 
               \return The map with the analysis result.
             */
-            inline std::unordered_map<int, std::map<std::string, double> > analysisResult() const { return analysisResult_; }
+            inline std::unordered_map<int, std::map<std::string, boost::any> > analysisResult() const { return analysisResult_; }
 
             /*!
             \brief Sets the analysis result for a geometry and a given attribute.
@@ -135,14 +137,14 @@ namespace terrama2
             \result The result value.
             */
             void setAnalysisResult(const int index, const std::string& attribute,
-                                   double result);
+                                   boost::any result);
 
             /*!
               \brief Adds an attribute to the result list of the given analysis.
 
               \param attribute The name of the attribute.
             */
-            void addAttribute(const std::string& attribute);
+            void addAttribute(const std::string& attribute, int dataType);
 
             /*!
               \brief Returns the ContextDataSeries of the monitored object for the given analysis.
@@ -160,7 +162,7 @@ namespace terrama2
               \param filter The filter to be used as key.
               \return The DCP buffer.
             */
-            std::shared_ptr<te::gm::Geometry> getDCPBuffer(const DataSetId datasetId, const terrama2::core::Filter& filter);
+            std::shared_ptr<te::gm::Geometry> getDCPBuffer(const DataSetId datasetId);
 
             /*!
               \brief Adds the given DCP buffer to the context.
@@ -170,12 +172,12 @@ namespace terrama2
               \param filter The filter to be used as key.
 
             */
-            void addDCPBuffer(const DataSetId datasetId, std::shared_ptr<te::gm::Geometry> buffer, const terrama2::core::Filter& filter);
+            void addDCPBuffer(const DataSetId datasetId, std::shared_ptr<te::gm::Geometry> buffer);
 
 
           protected:
-            std::set<std::string> attributes_;
-            std::unordered_map<int, std::map<std::string, double> >  analysisResult_;
+            std::set<std::pair<std::string, int> > attributes_; //!< Set of attributes and datatypes
+            std::unordered_map<int, std::map<std::string, boost::any> >  analysisResult_;
             std::unordered_map<ObjectKey, std::shared_ptr<ContextDataSeries>, ObjectKeyHash, EqualKeyComparator > datasetMap_; //!< Map containing all loaded datasets.
             std::unordered_map<ObjectKey, std::shared_ptr<te::gm::Geometry>, ObjectKeyHash, EqualKeyComparator > bufferDcpMap_; //!< Map containing DCP buffers.
         };

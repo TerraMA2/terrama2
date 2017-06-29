@@ -5,7 +5,7 @@ define([], function() {
    * @enum {number}
    */
   return {
-    "RAMP": 1,
+    "GRADIENT": 1,
     "INTERVAL": 2,
     "VALUE": 3
   };

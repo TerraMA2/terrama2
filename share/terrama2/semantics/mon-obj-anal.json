@@ -1,6 +1,5 @@
 [
   {
-    "id": 10,
     "name": "Monitored object analysis",
     "code": "ANALYSIS_MONITORED_OBJECT-postgis",
     "driver": "ANALYSIS_MONITORED_OBJECT-postgis",
@@ -8,6 +7,7 @@
     "temporality": "DYNAMIC",
     "format": "POSTGIS",
     "providers_type_list": ["POSTGIS"],
+    "allow_storage": true,
     "gui": {
       "schema": {
         "properties": {

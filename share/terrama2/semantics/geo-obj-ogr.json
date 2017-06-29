@@ -1,6 +1,5 @@
 [
   {
-    "id": 4,
     "name": "Static geometric object - OGR (data file)",
     "code": "STATIC_DATA-ogr",
     "driver": "STATIC_DATA-ogr",
@@ -10,12 +9,7 @@
     "providers_type_list": ["FILE"],
     "gui": {
       "schema": {
-        "properties": {
-          "folder": {
-            "type": "string",
-            "title": "Folder",
-            "pattern": "^[^?#!$&'()*+,;=^§]+$"
-          },
+        "properties": {          
           "mask": {
             "type": "string",
             "title": "Mask"
@@ -24,13 +18,6 @@
         "required": ["mask"]
       },
       "form": [
-        {
-          "key": "folder",
-          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form",
-          "validationMessage": {
-            "202": "Invalid folder"
-          }
-        },
         {
           "key": "mask",
           "htmlClass": "col-md-6"

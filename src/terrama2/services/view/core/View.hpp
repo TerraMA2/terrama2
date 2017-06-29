@@ -67,6 +67,13 @@ namespace terrama2
         {
             struct Legend
             {
+                enum class ObjectType
+                {
+                  UNKNOWN = 1,
+                  RASTER = 2,
+                  GEOMETRY = 3
+                };
+
                 enum class OperationType
                 {
                   EQUAL_STEPS = 1,
@@ -86,7 +93,17 @@ namespace terrama2
                     std::string title = "";
                     std::string value = "";
                     std::string color = "";
+                    std::string opacity = "1";
                     bool isDefault = false;
+
+                    bool operator ==(const Rule& other) const
+                    {
+                      return (title == other.title &&
+                              value == other.value &&
+                              color == other.color &&
+                              opacity == other.opacity &&
+                              isDefault == other.isDefault);
+                    }
 
                     static bool compareByNumericValue(const Rule& a,
                                                       const Rule& b)
@@ -112,7 +129,7 @@ namespace terrama2
                     }
                 };
 
-                OperationType operation;
+                OperationType operation = OperationType::VALUE;
                 ClassifyType classify;
                 std::unordered_map<std::string, std::string> metadata;
                 std::vector< Rule > rules;

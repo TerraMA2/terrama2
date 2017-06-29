@@ -51,11 +51,12 @@ namespace terrama2
         //! Additional dataseries for alert process.
         struct AdditionalData
         {
-          DataSeriesId dataSeriesId;//!< Identifier of the additional dataseries
-          DataSetId dataSetId;//!< Identifier of the dataset referred
+          DataSeriesId dataSeriesId = terrama2::core::InvalidId();//!< Identifier of the additional dataseries
+          DataSetId dataSetId = terrama2::core::InvalidId();//!< Identifier of the dataset referred
           std::string referrerAttribute;
           std::string referredAttribute;
           std::vector<std::string> attributes;//!< attributes that will be copied to the alert
+          std::map<std::string, std::string> alias;//!< attributes alias
         };
 
         //! Notification rules and targets .

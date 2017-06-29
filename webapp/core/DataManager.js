@@ -139,13 +139,10 @@ var DataManager = module.exports = {
 
         // data provider type defaults
         inserts.push(self.addDataProviderType({id: 1, name: "FILE", description: "Desc File"}));
-        inserts.push(self.addDataProviderType({id: 2, name: "FTP", description: "Desc Type1"}));
+        inserts.push(self.addDataProviderType({id: 2, name: "FTP", description: "Desc FTP"}));
         inserts.push(self.addDataProviderType({id: 3, name: "HTTP", description: "Desc Http"}));
         inserts.push(self.addDataProviderType({id: 4, name: "POSTGIS", description: "Desc Postgis"}));
-
-        inserts.push(self.addViewStyleType({id: Enums.ViewStyleType.EQUAL_STEPS, name: "Equal Steps", description: ""}));
-        inserts.push(self.addViewStyleType({id: Enums.ViewStyleType.QUANTILE, name: "Quantile", description: ""}));
-        inserts.push(self.addViewStyleType({id: Enums.ViewStyleType.BY_VALUE, name: "By Value", description: ""}));
+        //inserts.push(self.addDataProviderType({id: 5, name: "SFTP", description: "Desc SFTP"}));
 
         // default services
         var collectorService = {
@@ -326,15 +323,9 @@ var DataManager = module.exports = {
             semanticsObject.forEach(function(semanticsElement) {
               semanticsWithProviders[semanticsElement.code] = semanticsElement.providers_type_list;
               promises.push(self.addDataSeriesSemantics({
-                id: semanticsElement.id,
-                temporality: semanticsElement.temporality,
                 code: semanticsElement.code,
-                name: semanticsElement.name,
                 data_format_name: semanticsElement.format,
-                data_series_type_name: semanticsElement.type,
-                allow_storage: semanticsElement.allow_storage || false,
-                allow_direct_access: semanticsElement.allow_direct_access,
-                custom_format: semanticsElement.custom_format
+                data_series_type_name: semanticsElement.type
               }, semanticsElement.providers_type_list, semanticsElement.metadata));
             });
 
@@ -481,6 +472,7 @@ var DataManager = module.exports = {
               }
             ]
           }).then(function(dataSeries) {
+            var semanticsList = Application.get("semantics");
             dataSeries.forEach(function(dSeries) {
               var provider = new DataModel.DataProvider(dSeries.DataProvider.get());
 
@@ -490,7 +482,11 @@ var DataManager = module.exports = {
               builtDataSeries.dataSets.forEach(function(dSet) {
                 self.data.dataSets.push(dSet);
               });
-
+              var semantic = semanticsList.find(function(dSeriesSemantic){
+                return dSeries.DataSeriesSemantic.code == dSeriesSemantic.code;
+              });
+              Object.assign(builtDataSeries.data_series_semantics, semantic);
+              builtDataSeries.semantics = builtDataSeries.data_series_semantics;
               self.data.dataSeries.push(builtDataSeries);
             });
 
@@ -1706,6 +1702,13 @@ var DataManager = module.exports = {
             return Promise.all(dataSets).then(function(dataSets){
               var dataSeriesInstance = new DataModel.DataSeries(output);
               dataSeriesInstance.dataSets = dataSets;
+
+              var semanticsList = Application.get("semantics");
+              var semantic = semanticsList.find(function(dSeriesSemantic){
+                return dataSeriesInstance.data_series_semantics.code == dSeriesSemantic.code;
+              });
+              Object.assign(dataSeriesInstance.data_series_semantics, semantic);
+              dataSeriesInstance.semantics = dataSeriesInstance.data_series_semantics;
               self.data.dataSeries.push(dataSeriesInstance);
 
               // get DataProvider object
@@ -1822,6 +1825,12 @@ var DataManager = module.exports = {
         })
 
         .then(function(dataSeriesSemantics) {
+          var semanticsList = Application.get("semantics");
+          var semantic = semanticsList.find(function(dSeriesSemantic){
+            return dataSeriesSemantics.code == dSeriesSemantic.code;
+          });
+          Object.assign(dataSeriesSemantics, semantic);
+          dataSeries.semantics = dataSeriesSemantics;
           dataSeries.data_series_semantics = dataSeriesSemantics;
           /**
            * Helper to iterate over formats in order to build promise "upsertDataSetFormats"
@@ -4186,6 +4195,56 @@ var DataManager = module.exports = {
                 model: models.db.RiskLevel
               }
             ]
+          },
+          {
+            model: models.db.View,
+            include: [
+              {
+                model: models.db.Schedule,
+                required: false
+              },
+              {
+                model: models.db.AutomaticSchedule,
+                required: false
+              },
+              {
+                model: models.db.DataSeries,
+                include: [
+                  {
+                    model: models.db.DataProvider
+                  },
+                  {
+                    model: models.db.DataSeriesSemantics
+                  }
+                ]
+              },
+              {
+                model: models.db.ViewStyleLegend,
+                required: false,
+                include: [
+                  {
+                    model: models.db.ViewStyleColor
+                  },
+                  {
+                    model: models.db.ViewStyleLegendMetadata
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            model: models.db.DataSeries,
+            include: [
+              {
+                model: models.db.DataProvider
+              },
+              {
+                model: models.db.DataSeriesSemantics
+              },
+              {
+                model: models.db.DataSet
+              }
+            ]
           }
         ]
       }, options))
@@ -4203,13 +4262,28 @@ var DataManager = module.exports = {
 
             var risk = new DataModel.Risk(alert.Risk.get());
 
+            var view = alert.View ? new DataModel.View(Object.assign(alert.View.get(), {
+              schedule: alert.View.Schedule ? new DataModel.Schedule(alert.View.Schedule.get()) : {},
+              automaticSchedule: alert.View.AutomaticSchedule ? new DataModel.AutomaticSchedule(alert.View.AutomaticSchedule.get()) : {},
+              dataSeries: alert.View.DataSery ? new DataModel.DataSeries(alert.View.DataSery.get()) : {}
+            })) : {};
+
+            if (alert.View && alert.View.ViewStyleLegend) {
+              var legendModel = new DataModel.ViewStyleLegend(Utils.extend(
+                alert.View.ViewStyleLegend.get(), {colors: alert.View.ViewStyleLegend.ViewStyleColors ? alert.View.ViewStyleLegend.ViewStyleColors.map(function(elm) { return elm.get(); }) : []}));
+              legendModel.setMetadata(Utils.formatMetadataFromDB(alert.View.ViewStyleLegend.ViewStyleLegendMetadata));
+              view.setLegend(legendModel);
+            }
+
             var alertModel = new DataModel.Alert(Object.assign(alert.get(), {
               schedule: alert.Schedule ? new DataModel.Schedule(alert.Schedule.get()) : {},
               automatic_schedule: alert.AutomaticSchedule ? new DataModel.AutomaticSchedule(alert.AutomaticSchedule.get()) : {},
               additionalData: additionalDatas,
               notifications: notifications,
               reportMetadata: alert.ReportMetadatum.get(),
-              risk: risk
+              risk: risk,
+              view: view,
+              dataSeries: alert.DataSery ? new DataModel.DataSeries(alert.DataSery.get()) : {}
             }));
             return alertModel;
           }))
@@ -4306,7 +4380,7 @@ var DataManager = module.exports = {
       models.db.Alert.update(
         alertObject,
         Utils.extend({
-          fields: ["name", "description", "data_series_id", "active", "service_instance_id", "risk_id", "risk_attribute", "schedule_type", "schedule_id", "automatic_schedule_id"],
+          fields: ["name", "description", "data_series_id", "active", "service_instance_id", "risk_id", "risk_attribute", "schedule_type", "schedule_id", "automatic_schedule_id", "view_id"],
           where: restriction
         }, options))
         .then(function(){
@@ -4471,9 +4545,11 @@ var DataManager = module.exports = {
     var self = this;
     return new Promise(function(resolve, reject) {
       var alert;
+      var view;
       return self.getAlert(restriction, options)
         .then(function(alertResult) {
           alert = alertResult;
+          view = alertResult.view;
           return self.removeAutomaticSchedule({id: alert.automatic_schedule.id}, options);
         })
 
@@ -4482,6 +4558,12 @@ var DataManager = module.exports = {
         })
 
         .then(function() {
+          if (view.id)
+            return self.removeView({id: view.id}, options);
+          else
+            return null;
+        })
+        .then(function(){
           return resolve();
         })
 
@@ -4624,25 +4706,6 @@ var DataManager = module.exports = {
     });
   },
   /**
-   * It performs a save view style type and retrieve it
-   *
-   * @param {Object} styleTypeObject - A type object to save
-   * @param {Object} options - An ORM query options
-   * @param {Transaction} options.transaction - An ORM transaction
-   * @returns {Promise<Object>}
-   */
-  addViewStyleType: function(styleTypeObject, options) {
-    return new Promise(function(resolve, reject) {
-      return models.db.ViewStyleType.create(styleTypeObject, options)
-        .then(function(typeResult) {
-          return resolve(typeResult.get());
-        })
-        .catch(function(err) {
-          return reject(new exceptions.ViewStyleTypeError(Utils.format("Could not save view style type due %s", err.toString())));
-        });
-    });
-  },
-  /**
    * It performs a save view legend
    *
    * @param {Object} styleLegendObject         - A type object to save
@@ -4687,7 +4750,7 @@ var DataManager = module.exports = {
         })
         // any error
         .catch(function(err) {
-          return reject(new exceptions.ViewStyleTypeError(Utils.format("Could not save view style type due %s", err.toString())));
+          return reject(new Error(Utils.format("Could not save view style due %s", err.toString())));
         });
     });
   },
@@ -4736,6 +4799,18 @@ var DataManager = module.exports = {
           return resolve();
         })
 
+        .catch(function(err) {
+          return reject(err);
+        });
+    });
+  },
+  removeViewStyleLegendMetadata: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return models.db.ViewStyleLegendMetadata.destroy(Utils.extend({where: restriction}, options))
+        .then(function() {
+          return resolve();
+        })
         .catch(function(err) {
           return reject(err);
         });
@@ -4811,7 +4886,7 @@ var DataManager = module.exports = {
     var self = this;
     return new Promise(function(resolve, reject) {
       return models.db.ViewStyleLegend.update(styleLegendObject, Utils.extend({
-          fields: ["operation_id", "type"],
+          fields: ["type"],
           where: restriction
         }, options))
         .then(function() {
@@ -4858,14 +4933,10 @@ var DataManager = module.exports = {
       return models.db.View.create(viewObject, options)
         .then(function(viewResult) {
           view = viewResult;
-          if (!Utils.isEmpty(viewObject.legend)) {
-            return models.db.ViewStyleType.findOne(Utils.extend({where: {id: viewObject.legend.operation_id}}, options))
-              .then(function(viewType) {
-                var legend = viewObject.legend;
-                legend.operation_id = viewType.id;
-                legend.view_id = view.id;
-                return self.addViewStyleLegend(legend, options);
-              });
+          if (!Utils.isEmpty(viewObject.legend) && !Utils.isEmpty(viewObject.legend.metadata)) {
+            var legend = viewObject.legend;
+            legend.view_id = view.id;
+            return self.addViewStyleLegend(legend, options);
           }
           return null;
         })
@@ -4917,7 +4988,7 @@ var DataManager = module.exports = {
       models.db.View.update(
         viewObject,
         Utils.extend({
-          fields: ["name", "description", "data_series_id", "style", "active", "service_instance_id", "schedule_id", "automatic_schedule_id", "schedule_type"],
+          fields: ["name", "description", "data_series_id", "style", "active", "service_instance_id", "schedule_id", "automatic_schedule_id", "schedule_type", "private", "source_type"],
           where: restriction
         }, options))
 
@@ -5118,7 +5189,7 @@ var DataManager = module.exports = {
               return dataSeriesList.some(function(dataSeries) {
                 if (dataSeries.id === registeredView.View.data_series_id) {
                   var dModel = new DataModel.RegisteredView(registeredView.get());
-                  dModel.setDataSeriesType(key);
+                  dModel.setDataSeriesType(registeredView.View.source_type);
                   dModel.setDataSeries(dataSeries);
                   output.push(dModel);
                   return true;

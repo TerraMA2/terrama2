@@ -15,7 +15,8 @@ function makeMetadata(identifier, metadata) {
       driver: semanticsStructure.driver,
       temporality: semanticsStructure.temporality,
       allow_storage: semanticsStructure.allow_storage || false,
-      allow_direct_access: semanticsStructure.allow_direct_access
+      allow_direct_access: semanticsStructure.allow_direct_access,
+      custom_format: semanticsStructure.custom_format || false
     };
 
     if (metadata){

@@ -43,6 +43,9 @@ define([], function() {
 
       service.checking = response.checking;
 
+      service.hasError = false;
+      service.error = "";
+
       if (!service) {
         return;
       }
@@ -99,12 +102,33 @@ define([], function() {
     $scope.socket.on('errorResponse', function(response) {
       var service = getModel(response.service);
 
-      if (!service)
-        return;
+      if(!service) return;
+
+      if(response.message === "Error: Status Timeout exceeded.")
+        service.checking = false;
+
+      service.hasError = true;
+      service.error = i18n.__(response.message);
 
       service.loading = false;
       service.online = response.online;
-    })
+    });
+
+    $scope.socket.on('testPortNumberResponse', function(result) {
+      if(result.error) {
+        var service = getModel(result.service);
+
+        if(!service) return;
+
+        service.hasError = true;
+        service.error = i18n.__(result.message) + result.port;
+
+        service.loading = false;
+        service.online = false;
+      } else {
+        $scope.socket.emit('start', {service: result.service});
+      }
+    });
 
     Service.init().then(function(services) {
       if (services.length === 0) {
@@ -190,6 +214,31 @@ define([], function() {
     };
 
     $scope.extra = {
+      advancedFilters: [
+        {
+          name: "Collect",
+          value: "Collect",
+          checked: true
+        },
+        {
+          name: "Analysis",
+          value: "Analysis",
+          checked: true
+        },
+        {
+          name: "View",
+          value: "View",
+          checked: true
+        },
+        {
+          name: "Alert",
+          value: "Alert",
+          checked: true
+        }
+      ],
+
+      advancedFilterField: "type",
+
       removeOperationCallback: function(err, data) {
         if(err) {
           MessageBoxService.danger(i18n.__($scope.title), i18n.__(err.message));
@@ -204,10 +253,12 @@ define([], function() {
         startAll: function() {
           $scope.extra.service.starting = true;
           $scope.model.forEach(function(modelInstance) {
+            modelInstance.showErrorButton = true;
+
             if (!modelInstance.online) {
               if (!modelInstance.loading) {
                 modelInstance.loading = true;
-                $scope.socket.emit('start', {service: modelInstance.id});
+                $scope.socket.emit('testPortNumber', {port: modelInstance.port, service: modelInstance.id});
               }
             }
           });
@@ -220,6 +271,8 @@ define([], function() {
         stopAll: function() {
           $scope.extra.service.stoping = true;
           $scope.model.forEach(function(modelInstance) {
+            modelInstance.showErrorButton = false;
+
             if (modelInstance.online) {
               if (!modelInstance.loading) {
                 $scope.socket.emit('stop', {service: modelInstance.id});
@@ -244,8 +297,10 @@ define([], function() {
 
         handler: function(serviceInstance) {
           if (!serviceInstance.online) {
-            $scope.socket.emit('start', {service: serviceInstance.id});
+            serviceInstance.showErrorButton = true;
+            $scope.socket.emit('testPortNumber', {port: serviceInstance.port, service: serviceInstance.id});
           } else {
+            serviceInstance.showErrorButton = false;
             serviceInstance.requestingForClose = true;
             $scope.socket.emit('stop', {service: serviceInstance.id});
           }

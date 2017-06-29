@@ -131,6 +131,10 @@ double terrama2::services::analysis::core::occurrence::zonal::operatorImpl(terra
       throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
     }
 
+    //if it's an invalid geometry, return nan but continue the analysis
+    if(!moGeom->isValid())
+      return std::nan("");
+
     //////////////////////////////////////////////////////////////////////////////////////
     // Save thread state and unlock python interpreter before entering multi-thread zone
     {

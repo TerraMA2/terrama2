@@ -62,6 +62,7 @@ void TsJsonUtils::testToJSon()
     rule.title = "Class 1";
     rule.value = "1";
     rule.color = "#000000";
+    rule.opacity ="1";
     rule.isDefault = true;
 
     terrama2::services::view::core::View::Legend* legend = new terrama2::services::view::core::View::Legend();
@@ -135,6 +136,7 @@ void TsJsonUtils::testGoNBackJSon()
     rule.title = "Class 1";
     rule.value = "1";
     rule.color = "#000000";
+    rule.opacity ="1";
     rule.isDefault = true;
 
     terrama2::services::view::core::View::Legend* legend = new terrama2::services::view::core::View::Legend();

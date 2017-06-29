@@ -38,6 +38,24 @@
       </div>
     </div>
 
+    <!-- Service Error Modal -->
+    <div ng-if="extra.service" class="modal fade" id="serviceErrorModal" tabindex="-1" role="dialog" aria-labelledby="serviceErrorModalLabel">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="serviceErrorModalTitle">{{ i18n.__('Service error') }}</h4>
+          </div>
+          <div class="modal-body">
+            <p></p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-dismiss="modal">{{ i18n.__('Close') }}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="col-md-12">
       <div class="col-md-8 col-xs-12">
         <div class="form-group">
@@ -46,7 +64,7 @@
       </div>
       <div class="col-md-2 col-xs-6">
         <div class="form-group">
-          <button class="btn btn-default" style="margin-top: 24px;"><i class="fa fa-search" style="margin-right: 5px;"></i>{{ i18n.__('Advanced') }}</button>
+          <button class="btn btn-default" style="margin-top: 24px;" ng-click="showHideAdvancedFilter()" ng-show="extra.advancedFilters.length > 0"><i class="fa fa-search" style="margin-right: 5px;"></i>{{ i18n.__('Advanced') }}</button>
         </div>
       </div>
       <div class="col-md-2 col-xs-6 terrama2-nopadding-box" ng-show="linkToAdd">
@@ -97,6 +115,18 @@
         </div>
       </div>
     </div>
+
+    <div class="col-md-12" style="margin: 0 0 10px 5px;" ng-show="showAdvancedFilter && extra.advancedFilters.length > 0">
+      <div class="col-md-12 col-xs-12">
+        <div class="col-md-2" ng-repeat="advancedFilter in extra.advancedFilters">
+          <div class="form-group">
+            <div class="checkbox">
+              <span style="font-weight: 700;"><input type="checkbox" ng-model="advancedFilter.checked" ng-click="executeAdvancedFilter()"/> {{ i18n.__(advancedFilter.name) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="col-md-12 col-xs-12">
@@ -111,7 +141,7 @@
           <td ng-if="extra.export"></td>
           <td ng-if="isFunction(remove)">
         </tr>
-        <tr ng-repeat="element in filteredModel = (model | filter:searchInput) | pagingToolLimit: 10 | orderBy: orderElementby track by $index">
+        <tr ng-repeat="element in filteredModel = (model | filter:searchInput | filter:showInTableFilter) | pagingToolLimit: 10 | orderBy: orderElementby track by $index">
           <td ng-show="isFunction(icon())" style="width: 50px;">
             <img style="margin-left: 5px;" ng-if="iconProperties.type === 'img'" ng-src="{{ icon()(element) }}" alt="" width="{{ width }}" height="{{ height }}"/>
             <span ng-if="iconProperties.type === 'icon'" class="label">
@@ -129,8 +159,11 @@
           </td>
 
           <td ng-if="extra.service">
-            <button ng-show="element.online" ng-click="showInfo(element)" class="btn btn-default btn-sm pull-right"> 
-              <i class="fa fa-info"></i>
+            <button ng-show="element.showErrorButton && element.hasError" ng-click="showErrorInfo(element)" class="btn btn-default btn-sm pull-right" style="color: red; border-color: red; width: 34px; height: 30px;"> 
+              <i class="fa fa-warning"></i>
+            </button>
+            <button ng-show="element.online" ng-click="showInfo(element)" class="btn btn-default btn-sm pull-right" style="width: 34px; height: 30px;"> 
+              <i class="fa fa-info" style="font-size: 16px;"></i>
             </button>
           </td>
 

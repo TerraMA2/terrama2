@@ -78,31 +78,6 @@ terrama2::services::alert::core::AlertExecutor::AlertExecutor()
   qRegisterMetaType<std::shared_ptr<te::dt::TimeInstantTZ>>("std::shared_ptr<te::dt::TimeInstantTZ>");
 }
 
-std::vector<std::shared_ptr<te::dt::DateTime> > terrama2::services::alert::core::AlertExecutor::getDates(std::shared_ptr<te::da::DataSet> teDataset, std::string datetimeColumnName)
-{
-  std::vector<std::shared_ptr<te::dt::DateTime> > vecDates;
-
-  teDataset->moveBeforeFirst();
-  while(teDataset->moveNext())
-  {
-    // Retrieve all execution dates of dataset
-    std::shared_ptr<te::dt::DateTime> executionDate = teDataset->getDateTime(datetimeColumnName);
-
-    auto it = std::lower_bound(vecDates.begin(), vecDates.end(), executionDate,
-                               [&](std::shared_ptr<te::dt::DateTime> const& first, std::shared_ptr<te::dt::DateTime> const& second)
-    {
-              return *first < *second;
-  });
-
-    if (it != vecDates.end() && **it == *executionDate)
-      continue;
-
-    vecDates.insert(it, executionDate);
-  }
-
-  return vecDates;
-}
-
 std::map<std::shared_ptr<te::dt::AbstractData>, std::map<std::string, std::pair<std::shared_ptr<te::dt::AbstractData>, uint32_t> >, terrama2::services::alert::core::comparatorAbstractData>
 terrama2::services::alert::core::AlertExecutor::getResultMap(AlertPtr alertPtr,
                                                              size_t pos,
@@ -212,7 +187,7 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::AlertExecutor
   return alertDataSet;
 }
 
-void terrama2::services::alert::core::AlertExecutor::addAdditionalData(std::shared_ptr<te::mem::DataSet> alertDataSet, AlertPtr alertPtr, std::unordered_map<std::string, terrama2::core::TeDataSetFKJoin> additionalDataMap)
+void terrama2::services::alert::core::AlertExecutor::addAdditionalData(std::shared_ptr<te::mem::DataSet> alertDataSet, const std::vector<AdditionalData>& additionalDataVector, std::unordered_map<std::string, terrama2::core::TeDataSetFKJoin> additionalDataMap)
 {
   // list of additional properties
   std::set<std::string> propertyNames;
@@ -223,7 +198,7 @@ void terrama2::services::alert::core::AlertExecutor::addAdditionalData(std::shar
     alertDataSet->move(i);
 
     //iterate over all additional dataset to fill each item
-    for(const auto& additionalData : alertPtr->additionalDataVector)
+    for(const auto& additionalData : additionalDataVector)
     {
       std::string key = std::to_string(additionalData.dataSeriesId)+"_"+std::to_string(additionalData.dataSetId);
       auto join = additionalDataMap.at(key);
@@ -236,6 +211,15 @@ void terrama2::services::alert::core::AlertExecutor::addAdditionalData(std::shar
         auto referredProperty = join.getProperty(propertyName);
 
         std::string newPropertyName = dataSetType->getName()+"_"+propertyName;
+        try
+        {
+          newPropertyName = additionalData.alias.at(propertyName);
+        }
+        catch(...)
+        {
+          //no alias for the property
+        }
+
         if(propertyNames.find(newPropertyName) == propertyNames.end() )
         {
           // create the property in the alert dataset
@@ -259,22 +243,34 @@ terrama2::services::alert::core::AlertExecutor::monitoredObjectAlert(std::shared
                                                                      terrama2::core::DataSetPtr dataset,
                                                                      std::shared_ptr<te::da::DataSet> teDataset,
                                                                      te::dt::Property* idProperty,
+                                                                     const std::vector<AdditionalData>& additionalDataVector,
                                                                      std::unordered_map<DataSeriesId, std::pair<terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr> > tempAdditionalDataVector,
                                                                      std::shared_ptr<terrama2::core::FileRemover> remover)
 {
   //Creat a Join class based on the ForeignKey of the dataset
   std::unordered_map<std::string, terrama2::core::TeDataSetFKJoin> additionalDataMap;
-  for(const auto& additionalData : alertPtr->additionalDataVector)
+  for(const auto& additionalData : additionalDataVector)
   {
     auto pair = tempAdditionalDataVector.at(additionalData.dataSeriesId);
     auto dataSeries = pair.first;
     auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(pair.second, dataSeries);
     auto dataMap = dataAccessor->getSeries(filter, remover);
 
-    auto iter = std::find_if(dataMap.begin(), dataMap.end(), [&additionalData](std::pair<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries> pair)
+    decltype(dataMap.begin()) iter;
+    if(additionalData.dataSetId == terrama2::core::InvalidId())
     {
-                return pair.first->id == additionalData.dataSetId;
-  });
+      //if no dataset configured
+      iter = dataMap.begin();
+    }
+    else
+    {
+      //find selected dataset
+      iter = std::find_if(dataMap.begin(), dataMap.end(), [&additionalData](std::pair<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries> pair)
+      {
+        return pair.first->id == additionalData.dataSetId;
+      });
+    }
+
     auto referredDataSeries = dataMap.at(iter->first);
 
     terrama2::core::TeDataSetFKJoin join(dataSetType,
@@ -325,7 +321,7 @@ terrama2::services::alert::core::AlertExecutor::monitoredObjectAlert(std::shared
 
   auto riskResultMap = getResultMap(alertPtr, pos, idProperty, datetimeColumnName, teDataset, vecDates);
   std::shared_ptr<te::mem::DataSet> alertDataSet = populateMonitoredObjectAlertDataset(vecDates, riskResultMap, comparisonPreviosProperty, alertPtr, fkProperty, alertDataSetType);
-  addAdditionalData(alertDataSet, alertPtr, additionalDataMap);
+  addAdditionalData(alertDataSet, additionalDataVector, additionalDataMap);
 
   // remove fk column
   size_t fkPos = terrama2::core::propertyPosition(alertDataSet.get(), fkProperty->getName());
@@ -497,8 +493,9 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
     auto inputDataProvider = dataManager->findDataProvider(inputDataSeries->dataProviderId);
 
     //retrieve additional data
+    std::vector<AdditionalData> additionalDataVector = alertPtr->additionalDataVector;
     std::unordered_map<DataSeriesId, std::pair<terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr> > tempAdditionalDataVector;
-    for(auto additionalData : alertPtr->additionalDataVector)
+    for(auto additionalData : additionalDataVector)
     {
       auto dataSeries = dataManager->findDataSeries(additionalData.dataSeriesId);
       auto dataProvider = dataManager->findDataProvider(dataSeries->dataProviderId);
@@ -530,6 +527,8 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
 
     // Flag to check if at least one alert was generated
     bool alertGenerated = false;
+    // flag to notify the wemmonitor
+    bool notify = false;
 
     for(const auto& data : dataMap)
     {
@@ -570,7 +569,8 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
       }
 
       // Store execution dates of dataset, ASC order
-      std::vector<std::shared_ptr<te::dt::DateTime> > vecDates = getDates(teDataset, datetimeColumnName);
+      std::vector<std::shared_ptr<te::dt::DateTime> > vecDates = terrama2::core::getAllDates(teDataset.get(),
+                                                                                             datetimeColumnName);
 
       std::shared_ptr<te::mem::DataSet> alertDataSet;
       if(inputDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT)
@@ -585,7 +585,7 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
 
         auto tempProperties = dataSetType->getForeignKey(0)->getProperties();
         auto idProperty = tempProperties.front();
-        if(tempProperties.size() != 1 || !idProperty)
+        if(!idProperty)
         {
           QString errMsg = QObject::tr("Invalid identifier attribute.");
           logger->result(AlertLogger::ERROR, nullptr, executionPackage.registerId);
@@ -593,6 +593,27 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
           TERRAMA2_LOG_ERROR() << errMsg;
           return;
         }
+
+        ////////////////////////////////////
+        // Include identifier attribute to alert aditional data
+        {
+          AdditionalData indentifierData;
+          indentifierData.dataSeriesId = std::stoi(dataset->format.at("monitored_object_id"));
+          auto attribute = dataset->format.at("monitored_object_pk");
+          indentifierData.attributes.push_back(attribute);
+          indentifierData.alias.emplace(attribute, attribute);
+
+          indentifierData.referrerAttribute = idProperty->getName();
+          indentifierData.referredAttribute = idProperty->getName();
+
+          additionalDataVector.push_back(indentifierData);
+
+          auto dataSeries = dataManager->findDataSeries(indentifierData.dataSeriesId);
+          auto dataProvider = dataManager->findDataProvider(dataSeries->dataProviderId);
+
+          tempAdditionalDataVector.emplace(indentifierData.dataSeriesId, std::make_pair(dataSeries, dataProvider));
+        }
+        ////////////////////////////////////
 
         alertDataSet = monitoredObjectAlert(dataSetType,
                                             datetimeColumnName,
@@ -602,6 +623,7 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
                                             dataset,
                                             teDataset,
                                             idProperty,
+                                            additionalDataVector,
                                             tempAdditionalDataVector,
                                             remover);
       }
@@ -624,47 +646,21 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
         return;
       }
 
+      auto risk = alertPtr->risk;
       ReportPtr reportPtr = std::make_shared<Report>(alertPtr, inputDataSeries, alertDataSet, vecDates);
-
+      int maxRiskLevel;
+      std::string maxLevelName;
+      std::tie(maxRiskLevel, maxLevelName) = risk.riskLevel(reportPtr->retrieveMaxValue());
       for(const auto& notification : alertPtr->notifications)
       {
+        std::string documentURI = makeDocument(reportPtr, notification, executionPackage, logger);
 
-        std::string documentURI;
-
-        try
+        //check if should emit a notification
+        if((notification.notifyOnRiskLevel <= maxRiskLevel)
+            || (notification.notifyOnChange && reportPtr->riskChanged()))
         {
-          documentURI = DocumentFactory::getInstance().makeDocument(notification.includeReport, reportPtr);
-        }
-        catch(const NotifierException& e)
-        {
-          QString errMsg("Error: ");
-          const auto msg = boost::get_error_info<terrama2::ErrorDescription>(e);
-          if (msg != nullptr)
-          {
-            errMsg.append(msg);
-          }
-
-          logger->log(AlertLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
-          TERRAMA2_LOG_ERROR() << errMsg;
-        }
-
-        try
-        {
-          NotifierPtr notifierPtr = NotifierFactory::getInstance().make("EMAIL", serverMap, reportPtr);
-
-          notifierPtr->send(notification, documentURI);
-        }
-        catch(const NotifierException& e)
-        {
-          QString errMsg("Error: ");
-          const auto msg = boost::get_error_info<terrama2::ErrorDescription>(e);
-          if (msg != nullptr)
-          {
-            errMsg.append(msg);
-          }
-
-          logger->log(AlertLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
-          TERRAMA2_LOG_ERROR() << errMsg;
+          notify = true;
+          sendNotification(serverMap, reportPtr, notification, documentURI, executionPackage, logger);
         }
       }
 
@@ -691,7 +687,10 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
 
     TERRAMA2_LOG_INFO() << QObject::tr("Alert '%1' generated successfully").arg(alertPtr->name.c_str());
 
-    emit alertFinished(alertId, executionPackage.executionDate, true);
+    QJsonObject obj;
+    obj.insert("notify", notify);
+
+    emit alertFinished(alertId, executionPackage.executionDate, true, obj);
   }
   catch(const terrama2::Exception& e)
   {
@@ -726,6 +725,63 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
     TERRAMA2_LOG_ERROR() << errMsg;
 
     emit alertFinished(alertId, executionPackage.executionDate, false);
+  }
+}
+
+std::string terrama2::services::alert::core::AlertExecutor::makeDocument(ReportPtr reportPtr, const Notification& notification, const terrama2::core::ExecutionPackage& executionPackage, std::shared_ptr< AlertLogger > logger) const
+{
+  try
+  {
+    return DocumentFactory::getInstance().makeDocument(notification.includeReport, reportPtr);
+  }
+  catch(const NotifierException& e)
+  {
+    QString errMsg("Error: ");
+    const auto msg = boost::get_error_info<terrama2::ErrorDescription>(e);
+    if (msg != nullptr)
+    {
+      errMsg.append(msg);
+    }
+
+    logger->log(AlertLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+    TERRAMA2_LOG_ERROR() << errMsg;
+  }
+
+  return "";
+}
+
+void terrama2::services::alert::core::AlertExecutor::sendNotification(const std::map<std::string, std::string>& serverMap,
+                                                                      ReportPtr reportPtr,
+                                                                      const Notification& notification,
+                                                                      const std::string& documentURI,
+                                                                      terrama2::core::ExecutionPackage executionPackage,
+                                                                      std::shared_ptr< AlertLogger > logger) const
+{
+  try
+  {
+    if(serverMap.empty())
+    {
+      QString errMsg("No message server configured");
+      logger->log(AlertLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+      TERRAMA2_LOG_ERROR() << errMsg;
+    }
+    else
+    {
+      NotifierPtr notifierPtr = NotifierFactory::getInstance().make("EMAIL", serverMap, reportPtr);
+      notifierPtr->send(notification, documentURI);
+    }
+  }
+  catch(const NotifierException& e)
+  {
+    QString errMsg("Error: ");
+    const auto msg = boost::get_error_info<terrama2::ErrorDescription>(e);
+    if (msg != nullptr)
+    {
+      errMsg.append(msg);
+    }
+
+    logger->log(AlertLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+    TERRAMA2_LOG_ERROR() << errMsg;
   }
 }
 

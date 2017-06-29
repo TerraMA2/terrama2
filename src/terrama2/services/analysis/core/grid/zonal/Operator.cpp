@@ -136,6 +136,11 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
       QString errMsg(QObject::tr("Could not recover monitored object geometry."));
       throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
     }
+
+    //if it's an invalid geometry, return nan but continue the analysis
+    if(!moGeom->isValid())
+      return std::nan("");
+
     auto geomResult = createBuffer(buffer, moGeom);
 
     auto dataSeries = context->findDataSeries(dataSeriesName);
@@ -166,7 +171,7 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
           continue;
 
         std::map<std::pair<int, int>, double> tempValuesMap;
-        utils::getRasterValues<double>(geomResult.get(), raster, band, tempValuesMap);
+        utils::getRasterValues<double>(geomResult, raster, band, tempValuesMap);
 
         transform(tempValuesMap.cbegin(), tempValuesMap.cend(), back_inserter(values), [](const std::pair<std::pair<int, int>, double>& val){ return val.second;} );
       }

@@ -58,6 +58,18 @@ namespace terrama2
       public:
         static DataStoragerType dataStoragerType() { return "OCCURRENCE-postgis"; }
     };
+
+    class DataStoragerAnalysisMonitoredObject : public DataStoragerPostGIS
+    {
+      public:
+        static DataStoragerType dataStoragerType() { return "ANALYSIS_MONITORED_OBJECT-postgis"; }
+    };
+
+    class DataStoragerDCPPostGIS : public DataStoragerPostGIS
+    {
+      public:
+        static DataStoragerType dataStoragerType() { return "DCP-postgis"; }
+    };
   }
 }
 

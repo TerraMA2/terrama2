@@ -7,6 +7,7 @@
   var View = require("./View");
   var URIBuilder = require("./../UriBuilder");
   var DataSeriesType = require("./../Enums").DataSeriesType;
+  var ViewSourceType = require("./../Enums").ViewSourceType;
   /**
    * Default URI syntax
    * @type {Enums.Uri}
@@ -95,7 +96,20 @@
    * @param {string} dsType - Data Series Type
    */
   RegisteredView.prototype.setDataSeriesType = function(dsType) {
-    this.dataSeriesType = dsType;
+    switch(dsType){
+      case ViewSourceType.STATIC:
+        this.dataSeriesType = "static";
+        break;
+      case ViewSourceType.DYNAMIC:
+        this.dataSeriesType = "dynamic";
+        break;
+      case ViewSourceType.ANALYSIS:
+        this.dataSeriesType = "analysis";
+        break;
+      case ViewSourceType.ALERT:
+        this.dataSeriesType = "alert";
+        break;
+    }
   };
   /**
    * It sets TerraMA² Data Series object to the RegisteredView instance
@@ -150,6 +164,7 @@
     return Object.assign(AbstractClass.prototype.toObject.call(this), {
       id: this.id,
       name: this.view.name,
+      private: this.view.private,
       workspace: this.workspace,
       uriGeoserver: uri,
       layers: this.layers.map(function(layer) { return layer.name; }),

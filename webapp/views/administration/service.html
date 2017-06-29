@@ -22,22 +22,18 @@
   <terrama2-box title="i18n.__('Service Registration')">
     <div class="row">
       <div class="col-md-12">
-        <terrama2-alert-box2 handler="ctrl.MessageBoxService.alertBox"
-                             close="ctrl.close()">
+        <terrama2-alert-box2 handler="ctrl.MessageBoxService.alertBox" close="ctrl.close()">
           <button type="button" class="close" ng-click="ctrl.MessageBoxService.reset()">×</button>
           <h4><i class="icon fa" ng-class="ctrl.MessageBoxService.getIcon()"></i> {{ ctrl.MessageBoxService.alertBox.title }}</h4>
-          <div class="col-md-12" ng-bind="ctrl.MessageBoxService.alertBox.message"></div>
+          <div class="col-md-12" ng-bind="ctrl.MessageBoxService.alertBox.message" style="margin-bottom: 10px;"></div>
 
           <div ng-show="ctrl.isCheckingConnection">
             <ul class="nav nav-list" terrama2-collapse>
               <li class="terrama2-list-error">
                 <i ng-show="ctrl.ssh.message" class="fa fa-caret-right"></i> <label ng-bind="i18n.__('Host connection')" class="tree-toogler nav-header"></label>
-
                 <span ng-if="ctrl.ssh.isLoading" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
-                <span ng-if="!ctrl.ssh.isLoading && ctrl.ssh.isValid" class="glyphicon glyphicon-ok">
-                </span>
+                <span ng-if="!ctrl.ssh.isLoading && ctrl.ssh.isValid" class="glyphicon glyphicon-ok"></span>
                 <span ng-if="!ctrl.ssh.isLoading && !ctrl.ssh.isValid" class="glyphicon glyphicon-remove"></span>
-
                 <ul class="nav nav-list tree">
                   <li ng-show="!ctrl.ssh.isValid && ctrl.ssh.message">
                     <span ng-bind="ctrl.ssh.message"></span>
@@ -47,13 +43,9 @@
 
               <li class="terrama2-list-error">
                 <i ng-show="ctrl.db.message" class="fa fa-caret-right"></i> <label ng-bind="i18n.__('DB connection')" class="tree-toogler nav-header"></label>
-
                 <span ng-if="ctrl.db.isLoading" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
-                <span ng-if="!ctrl.db.isLoading && ctrl.db.isValid"
-                      class="glyphicon glyphicon-ok">
-                </span>
+                <span ng-if="!ctrl.db.isLoading && ctrl.db.isValid" class="glyphicon glyphicon-ok"></span>
                 <span ng-if="!ctrl.db.isLoading && !ctrl.db.isValid" class="glyphicon glyphicon-remove"></span>
-
                 <ul class="nav nav-list tree">
                   <li ng-show="!ctrl.db.isValid && ctrl.db.message">
                     <span ng-bind="ctrl.db.message"></span>
@@ -61,15 +53,23 @@
                 </ul>
               </li>
 
+              <li class="terrama2-list-error">
+                <i ng-show="ctrl.portNumber.message" class="fa fa-caret-right"></i> <label ng-bind="i18n.__('Port number')" class="tree-toogler nav-header"></label>
+                <span ng-if="ctrl.portNumber.isLoading" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
+                <span ng-if="!ctrl.portNumber.isLoading && ctrl.portNumber.isValid" class="glyphicon glyphicon-ok"></span>
+                <span ng-if="!ctrl.portNumber.isLoading && !ctrl.portNumber.isValid" class="glyphicon glyphicon-remove"></span>
+                <ul class="nav nav-list tree">
+                  <li ng-show="!ctrl.portNumber.isValid && ctrl.portNumber.message">
+                    <span ng-bind="ctrl.portNumber.message"></span>
+                  </li>
+                </ul>
+              </li>
+
               <li class="terrama2-list-error" ng-show="ctrl.service.service_type_id == 4">
                 <i ng-show="ctrl.mailConnection.message" class="fa fa-caret-right"></i> <label ng-bind="i18n.__('Email Server Connection')" class="tree-toogler nav-header"></label>
-
                 <span ng-if="ctrl.mailConnection.isLoading" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
-                <span ng-if="!ctrl.mailConnection.isLoading && ctrl.mailConnection.isValid"
-                      class="glyphicon glyphicon-ok">
-                </span>
+                <span ng-if="!ctrl.mailConnection.isLoading && ctrl.mailConnection.isValid" class="glyphicon glyphicon-ok"></span>
                 <span ng-if="!ctrl.mailConnection.isLoading && !ctrl.mailConnection.isValid" class="glyphicon glyphicon-remove"></span>
-
                 <ul class="nav nav-list tree">
                   <li ng-show="!ctrl.mailConnection.isValid && ctrl.mailConnection.message">
                     <span ng-bind="ctrl.mailConnection.message"></span>
@@ -79,13 +79,9 @@
 
               <li class="terrama2-list-error" ng-show="ctrl.service.service_type_id == 3">
                 <i ng-show="ctrl.geoserverConnection.message" class="fa fa-caret-right"></i> <label ng-bind="i18n.__('Maps Server Connection')" class="tree-toogler nav-header"></label>
-
                 <span ng-if="ctrl.geoserverConnection.isLoading" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
-                <span ng-if="!ctrl.geoserverConnection.isLoading && ctrl.geoserverConnection.isValid"
-                      class="glyphicon glyphicon-ok">
-                </span>
+                <span ng-if="!ctrl.geoserverConnection.isLoading && ctrl.geoserverConnection.isValid" class="glyphicon glyphicon-ok"></span>
                 <span ng-if="!ctrl.geoserverConnection.isLoading && !ctrl.geoserverConnection.isValid" class="glyphicon glyphicon-remove"></span>
-
                 <ul class="nav nav-list tree">
                   <li ng-show="!ctrl.geoserverConnection.isValid && ctrl.geoserverConnection.message">
                     <span ng-bind="ctrl.geoserverConnection.message"></span>
@@ -94,6 +90,12 @@
               </li>
             </ul>
           </div>
+          <div class="col-md-12" ng-if="ctrl.extraProperties.showConfirmButton">
+            <button type="button" class="btn btn-primary pull-right" ng-click="ctrl.extraProperties.confirmButtonFn(extra.object)">
+              {{ ctrl.extraProperties.confirmButtonName || i18n.__("Confirm") }}
+            </button>
+          </div>
+          <div style="clear: both;"></div>
         </terrama2-alert-box2>
 
         <terrama2-modal-box  title="i18n.__('Connection')" modal-id="'modalConnection'">

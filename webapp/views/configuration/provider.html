@@ -29,7 +29,8 @@
     dataProvider: {[ dataProvider|json|safe || {} ]},
     saveConfig: {[ saveConfig|json|safe ]},
     fields: {[ fields|json|safe || {} ]},
-    redirectTo: {[ (redirectTo || {})|json|safe ]}
+    redirectTo: {[ (redirectTo || {})|json|safe ]},
+    defaultFilePath: "{[ defaultFilePath ]}"
   };
 </script>
 
@@ -99,6 +100,8 @@
       </terrama2-box>
     </div>
     <!-- /.row -->
+
+    <terrama2-directory-explorer></terrama2-directory-explorer>
 
     <div class="box-footer">
       <button type="submit" class="btn btn-primary pull-right" ng-click="save();" style="margin-left: 10px;">{{ i18n.__("Save") }}</button>

@@ -55,6 +55,9 @@ namespace terrama2
       DYNAMIC
     };
 
+    using SemanticsCode = std::string;
+    using SemanticsDriver = std::string;
+
     /*!
       \struct DataSeriesSemantics
 
@@ -70,8 +73,8 @@ namespace terrama2
     struct DataSeriesSemantics
     {
       std::string name;//!< Name of the semantics.
-      std::string code;//!< Unique code of the semantics.
-      std::string driver;//!< Drive code of the DataAcessor.
+      SemanticsCode code;//!< Unique code of the semantics.
+      SemanticsDriver driver;//!< Drive code of the DataAcessor.
       DataSeriesType dataSeriesType = DataSeriesType::GEOMETRIC_OBJECT;//!< Semantics type of DataSeries
       DataSeriesTemporality temporality = DataSeriesTemporality::STATIC;
       DataFormat dataFormat;//!< Text unique identifier for the data format.

@@ -119,10 +119,13 @@ define([], function() {
         },
         click: function() {
           self.hasStyle = false;
-          self.legend = {};
+          self.legend = {
+            metadata: {}
+          };
         }
       }
     };
+
     /**
      * It contains view instance values
      * @type {Object}
@@ -132,7 +135,9 @@ define([], function() {
     /**
      * It stores a legend values (Geometric, Grid, etc)
      */
-    self.legend = {};
+    self.legend = {
+      metadata: {}
+    };
     /**
      * It defines a selected View DataSeries object
      * @type {DataSeries}
@@ -142,6 +147,7 @@ define([], function() {
     // function initializer
     self.onDataSeriesChanged = onDataSeriesChanged;
     self.initActive = initActive;
+    self.initPrivate = initPrivate;
     // Setting view service dao
     self.ViewService = ViewService;
     // setting message box close fn
@@ -243,7 +249,6 @@ define([], function() {
 
             var legend = config.view.legend;
             if (legend && Object.keys(legend).length !== 0) {
-              self.legend.operation_id = legend.operation_id;
               self.legend.type = legend.type;
 
               if (legend.type !== StyleType.VALUE) {
@@ -305,6 +310,35 @@ define([], function() {
     }
 
     /**
+     * It is used on ng-init private view. It will wait for angular ready condition and set private view checkbox
+     *
+     * @returns {void}
+     */
+    function initPrivate() {
+      // wait angular digest cycle
+      $timeout(function() {
+        self.view.private = (config.view.private === false || config.view.private) ? config.view.private : false;
+      });
+    }
+    /**
+     * function to get source type of view creation
+     * @param {Object} dataSeries 
+     */
+    function getSourceType(dataSeries){
+      if (!dataSeries) 
+        return;
+      else {
+        if (dataSeries.data_series_semantics.temporality == "STATIC"){
+          return Globals.enums.ViewSourceType.STATIC;
+        } else if (dataSeries.isAnalysis){
+          return Globals.enums.ViewSourceType.ANALYSIS;
+        } else {
+          return Globals.enums.ViewSourceType.DYNAMIC;
+        }
+      }
+    }
+
+    /**
      * It handles Data Series combobox change. If it is GRID data series, there is a default style script
      * @param {DataSeries}
      */
@@ -329,6 +363,7 @@ define([], function() {
           } else {
             self.isValid = true;
           }
+          self.view.source_type = getSourceType(dSeries);
 
           // breaking loop
           return true;
@@ -364,7 +399,7 @@ define([], function() {
             return;
           }
 
-          if (Object.keys(self.legend).length !== 0) {
+          if (Object.keys(self.legend).length !== 0 && self.legend.metadata.creation_type == "0") {
             if (!self.legend.colors || self.legend.colors.length === 0) {
               return MessageBoxService.danger(i18n.__("View"), i18n.__("You must generate the style colors to classify Data Series"));
             }
