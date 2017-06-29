@@ -152,7 +152,8 @@ void terrama2::services::alert::core::Service::removeAlert(AlertId alertId) noex
     { return alertId == executionPackage.processId; }), processQueue_.end());
 
     auto itWaitQueue = waitQueue_.find(alertId);
-    waitQueue_.erase(itWaitQueue);
+    if(itWaitQueue != waitQueue_.end())
+      waitQueue_.erase(itWaitQueue);
 
 
     TERRAMA2_LOG_INFO() << tr("Alert %1 removed successfully.").arg(alertId);

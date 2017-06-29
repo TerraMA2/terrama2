@@ -527,6 +527,8 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
 
     // Flag to check if at least one alert was generated
     bool alertGenerated = false;
+    // flag to notify the wemmonitor
+    bool notify = false;
 
     for(const auto& data : dataMap)
     {
@@ -644,55 +646,21 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
         return;
       }
 
+      auto risk = alertPtr->risk;
       ReportPtr reportPtr = std::make_shared<Report>(alertPtr, inputDataSeries, alertDataSet, vecDates);
-
+      int maxRiskLevel;
+      std::string maxLevelName;
+      std::tie(maxRiskLevel, maxLevelName) = risk.riskLevel(reportPtr->retrieveMaxValue());
       for(const auto& notification : alertPtr->notifications)
       {
+        std::string documentURI = makeDocument(reportPtr, notification, executionPackage, logger);
 
-        std::string documentURI;
-
-        try
+        //check if should emit a notification
+        if((notification.notifyOnRiskLevel <= maxRiskLevel)
+            || (notification.notifyOnChange && reportPtr->riskChanged()))
         {
-          documentURI = DocumentFactory::getInstance().makeDocument(notification.includeReport, reportPtr);
-        }
-        catch(const NotifierException& e)
-        {
-          QString errMsg("Error: ");
-          const auto msg = boost::get_error_info<terrama2::ErrorDescription>(e);
-          if (msg != nullptr)
-          {
-            errMsg.append(msg);
-          }
-
-          logger->log(AlertLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
-          TERRAMA2_LOG_ERROR() << errMsg;
-        }
-
-        try
-        {
-          if(serverMap.empty())
-          {
-            QString errMsg("No message server configured");
-            logger->log(AlertLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
-            TERRAMA2_LOG_ERROR() << errMsg;
-          }
-          else
-          {
-            NotifierPtr notifierPtr = NotifierFactory::getInstance().make("EMAIL", serverMap, reportPtr);
-            notifierPtr->send(notification, documentURI);
-          }
-        }
-        catch(const NotifierException& e)
-        {
-          QString errMsg("Error: ");
-          const auto msg = boost::get_error_info<terrama2::ErrorDescription>(e);
-          if (msg != nullptr)
-          {
-            errMsg.append(msg);
-          }
-
-          logger->log(AlertLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
-          TERRAMA2_LOG_ERROR() << errMsg;
+          notify = true;
+          sendNotification(serverMap, reportPtr, notification, documentURI, executionPackage, logger);
         }
       }
 
@@ -719,7 +687,10 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
 
     TERRAMA2_LOG_INFO() << QObject::tr("Alert '%1' generated successfully").arg(alertPtr->name.c_str());
 
-    emit alertFinished(alertId, executionPackage.executionDate, true);
+    QJsonObject obj;
+    obj.insert("notify", notify);
+
+    emit alertFinished(alertId, executionPackage.executionDate, true, obj);
   }
   catch(const terrama2::Exception& e)
   {
@@ -754,6 +725,63 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
     TERRAMA2_LOG_ERROR() << errMsg;
 
     emit alertFinished(alertId, executionPackage.executionDate, false);
+  }
+}
+
+std::string terrama2::services::alert::core::AlertExecutor::makeDocument(ReportPtr reportPtr, const Notification& notification, const terrama2::core::ExecutionPackage& executionPackage, std::shared_ptr< AlertLogger > logger) const
+{
+  try
+  {
+    return DocumentFactory::getInstance().makeDocument(notification.includeReport, reportPtr);
+  }
+  catch(const NotifierException& e)
+  {
+    QString errMsg("Error: ");
+    const auto msg = boost::get_error_info<terrama2::ErrorDescription>(e);
+    if (msg != nullptr)
+    {
+      errMsg.append(msg);
+    }
+
+    logger->log(AlertLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+    TERRAMA2_LOG_ERROR() << errMsg;
+  }
+
+  return "";
+}
+
+void terrama2::services::alert::core::AlertExecutor::sendNotification(const std::map<std::string, std::string>& serverMap,
+                                                                      ReportPtr reportPtr,
+                                                                      const Notification& notification,
+                                                                      const std::string& documentURI,
+                                                                      terrama2::core::ExecutionPackage executionPackage,
+                                                                      std::shared_ptr< AlertLogger > logger) const
+{
+  try
+  {
+    if(serverMap.empty())
+    {
+      QString errMsg("No message server configured");
+      logger->log(AlertLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+      TERRAMA2_LOG_ERROR() << errMsg;
+    }
+    else
+    {
+      NotifierPtr notifierPtr = NotifierFactory::getInstance().make("EMAIL", serverMap, reportPtr);
+      notifierPtr->send(notification, documentURI);
+    }
+  }
+  catch(const NotifierException& e)
+  {
+    QString errMsg("Error: ");
+    const auto msg = boost::get_error_info<terrama2::ErrorDescription>(e);
+    if (msg != nullptr)
+    {
+      errMsg.append(msg);
+    }
+
+    logger->log(AlertLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+    TERRAMA2_LOG_ERROR() << errMsg;
   }
 }
 
