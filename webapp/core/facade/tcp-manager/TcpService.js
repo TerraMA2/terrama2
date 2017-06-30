@@ -143,6 +143,7 @@ TcpService.prototype.init = function(shouldConnect) {
           TcpManager.on("processFinished", onProcessFinished);
           TcpManager.on("serviceVersion", onServiceVersionReceived);
           TcpManager.on("processValidated", onProcessValidated);
+          TcpManager.on("notifyView", onNotifyView);
 
           self.$loaded = true;
           instances.forEach(function(instance) {
@@ -182,6 +183,7 @@ TcpService.prototype.finalize = function() {
       TcpManager.removeListener("processFinished", onProcessFinished);
       TcpManager.removeListener("serviceVersion", onServiceVersionReceived);
       TcpManager.removeListener("processValidated", onProcessValidated);
+      TcpManager.removeListener("notifyView", onNotifyView);
       self.$loaded = false;
     }
     // resetting cache
@@ -735,6 +737,24 @@ function onProcessFinished(resp) {
   } 
   // Notifies that process finished
   tcpService.emit("processFinished", resp.process);
+}
+
+/**
+ * It emits a signal to nofity webMonitor. 
+ * If service has a view, it emits #notifyView with the registered view object.
+ * 
+ * @param {Object} resp - Process Object
+ * @param {RegisteredView?} resp.registeredView - TerraMA² Registered View
+ * @returns {void}
+ */
+function onNotifyView(resp) {
+  if (resp.registeredView){
+    var viewObject = {
+      workspace: resp.registeredView.workspace,
+      layer: resp.registeredView.layers[0]
+    };
+    tcpService.emit("notifyView", viewObject);
+  }
 }
 
 /**
