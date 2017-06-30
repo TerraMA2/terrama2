@@ -4090,6 +4090,28 @@ var DataManager = module.exports = {
   },
 
   /**
+   * It removes an legend from database
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object?} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise}
+   */
+  removeLegend: function(restriction, options){
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return models.db.Legend.destroy(Utils.extend({where: restriction}, options))
+        .then(function(){
+          return resolve();
+        })
+
+        .catch(function(err) {
+          return reject(new Error("Could not remove legend " + err.toString()));
+        });
+    });
+  },
+
+  /**
    * It performs a save legend level and retrieve it
    *
    * @param {Object} legendLevelObject - Legend level object to save

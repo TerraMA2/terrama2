@@ -71,6 +71,11 @@ define([], function() {
       levels: [
         {
           _id: UniqueNumber(),
+          name: "Default",
+          isDefault: true
+        },
+        {
+          _id: UniqueNumber(),
           name: "",
           value: ""
         }
@@ -88,6 +93,9 @@ define([], function() {
         });
 
         for(var j = 0, levelsLength = self.legend.levels.length; j < levelsLength; j++) {
+          if(self.legend.levels[j].value == null)
+            self.legend.levels[j].isDefault = true;
+
           self.legend.levels[j]._id = UniqueNumber();
           delete self.legend.levels[j].legend_id;
         }
@@ -137,17 +145,19 @@ define([], function() {
       if(self.legendLevelNameError === undefined) self.legendLevelNameError = {};
 
       for(var i = 0, levelsLength = self.legend.levels.length; i < levelsLength; i++) {
-        if(isNaN(self.legend.levels[i].value) || self.legend.levels[i].value === "") {
-          self.legendLevelValueError[self.legend.levels[i]._id] = true;
-          self.isNotValid = true;
-        } else if(lastValue !== null && parseFloat(lastValue) > parseFloat(self.legend.levels[i].value)) {
-          self.legendLevelOrderError = true;
-          self.legendLevelValueError[self.legend.levels[i]._id] = false;
-          lastValue = self.legend.levels[i].value;
-          self.isNotValid = true;
-        } else {
-          self.legendLevelValueError[self.legend.levels[i]._id] = false;
-          lastValue = self.legend.levels[i].value;
+        if(!self.legend.levels[i].isDefault) {
+          if(isNaN(self.legend.levels[i].value) || self.legend.levels[i].value === "") {
+            self.legendLevelValueError[self.legend.levels[i]._id] = true;
+            self.isNotValid = true;
+          } else if(lastValue !== null && parseFloat(lastValue) > parseFloat(self.legend.levels[i].value)) {
+            self.legendLevelOrderError = true;
+            self.legendLevelValueError[self.legend.levels[i]._id] = false;
+            lastValue = self.legend.levels[i].value;
+            self.isNotValid = true;
+          } else {
+            self.legendLevelValueError[self.legend.levels[i]._id] = false;
+            lastValue = self.legend.levels[i].value;
+          }
         }
 
         if(self.legend.levels[i].name === undefined || self.legend.levels[i].name === "") {
@@ -199,6 +209,9 @@ define([], function() {
         var level = 1;
 
         for(var i = 0, levelsLength = self.legend.levels.length; i < levelsLength; i++) {
+          if(self.legend.levels[i].isDefault)
+            continue;
+
           delete self.legend.levels[i]._id;
           self.legend.levels[i].level = level;
           level++;

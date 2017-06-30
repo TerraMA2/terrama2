@@ -66,7 +66,7 @@ module.exports = function(sequelize, DataTypes) {
           });
 
           Alert.belongsTo(models.Legend, {
-            onDelete: "CASCADE",
+            onDelete: "NO ACTION",
             foreignKey: {
               name: 'legend_id',
               allowNull: false

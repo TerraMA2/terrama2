@@ -34,6 +34,7 @@ define([
           linkToAdd: '=?linkToAdd',
           context: '=context',
           remove: '&?',
+          modalId: '=?modalId',
           run: '&?',
           extra: '=?extra'
         },
@@ -43,6 +44,10 @@ define([
           $scope.searchInput = '';
           $scope.selected = {};
           $scope.emptyMessage = 'No ' + ($scope.context || 'data') + ' found.';
+
+          if($scope.modalId === undefined || $scope.modalId === null || $scope.modalId === "") {
+            $scope.modalId = "removalModal";
+          }
 
           $timeout(function() {
             for(var j = 0, modelLength = $scope.model.length; j < modelLength; j++) {
@@ -88,7 +93,7 @@ define([
           $scope.confirmRemoval = function(object) {
             $scope.objectToRemove = object;
 
-            $('#myModal').modal();
+            $("#" + $scope.modalId).modal();
           };
 
           $scope.serviceStartTime = null;

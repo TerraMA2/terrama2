@@ -168,6 +168,7 @@
   "Connection timeout, verify the port. Important! Make sure the server's REST API is enabled": "Tempo limite de conexão excedido, verifique a porta. Importante! Certifique-se de que a API REST do servidor está habilitada",
   "Connection with service refused, check if the service is running!": "Conexão com o serviço recusada, verifique se o mesmo está em execução!",
   "Convert all": "Converter todos",
+  "Could not remove legend SequelizeForeignKeyConstraintError: update or delete on table \"legends\" violates foreign key constraint \"alerts_legend_id_fkey\" on table \"alerts\"": "Não foi possível remover a legenda: a legenda está sendo usada por um alerta.",
   "Could not save data provider due: name must be unique;  name: name must be unique": "Não foi possível salvar o servidor de dados, já existe um registro com o nome inserido, e o nome deve ser único.",
   "Could not save data provider due: project_id must be unique; name must be unique;  project_id: project_id must be unique,\nname: name must be unique": "Não foi possível salvar o servidor de dados, já existe um registro com o nome inserido, e o nome deve ser único.",
   "Could not save data series due:  name: name must be unique": "Não foi possível salvar a série de dados, já existe um registro com o nome inserido, e o nome deve ser único.",
