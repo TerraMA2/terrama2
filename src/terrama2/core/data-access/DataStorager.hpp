@@ -60,7 +60,7 @@ namespace terrama2
           \brief The constructor stores the destination server information.
           \exception DataStoragerException Raised if the DataProvider is NULL
         */
-        DataStorager(DataProviderPtr outputDataProvider);
+        DataStorager(DataSeriesPtr outputDataSeries, DataProviderPtr outputDataProvider);
         //! Default destructor.
         virtual ~DataStorager() = default;
 
@@ -81,6 +81,7 @@ namespace terrama2
         virtual std::string getCompleteURI(DataSetPtr outputDataSet) const = 0;
 
       protected:
+        DataSeriesPtr dataSeries_;
         DataProviderPtr dataProvider_;//!< Destination server information.
     };
   }

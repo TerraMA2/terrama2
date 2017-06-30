@@ -51,11 +51,11 @@ namespace terrama2
     class DataStoragerTiff : public DataStorager
     {
       public:
-        DataStoragerTiff(DataProviderPtr outputDataProvider)
-                : DataStorager(outputDataProvider) {}
+        DataStoragerTiff(DataSeriesPtr dataSeries, DataProviderPtr outputDataProvider)
+                : DataStorager(dataSeries, outputDataProvider) {}
         ~DataStoragerTiff() {}
 
-        static DataStoragerPtr make(DataProviderPtr dataProvider);
+        static DataStoragerPtr make(DataSeriesPtr dataSeries, DataProviderPtr dataProvider);
         static DataStoragerType dataStoragerType() { return "GRID-geotiff"; }
 
         /*!

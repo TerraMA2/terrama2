@@ -40,11 +40,11 @@ namespace terrama2
     class DataStoragerPostGIS : public DataStoragerTable
     {
       public:
-        DataStoragerPostGIS(DataProviderPtr outputDataProvider)
-                : DataStoragerTable(outputDataProvider) {}
+        DataStoragerPostGIS(DataSeriesPtr dataSeries, DataProviderPtr outputDataProvider)
+                : DataStoragerTable(dataSeries, outputDataProvider) {}
         ~DataStoragerPostGIS() {}
 
-        static DataStoragerPtr make(DataProviderPtr dataProvider);
+        static DataStoragerPtr make(DataSeriesPtr dataSeries, DataProviderPtr dataProvider);
       protected:
         std::string getDataSetTableName(DataSetPtr dataSet) const;
         virtual std::string getCompleteURI(DataSetPtr outputDataSet) const override;

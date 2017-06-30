@@ -45,9 +45,9 @@
 
 #include <boost/filesystem.hpp>
 
-terrama2::core::DataStoragerPtr terrama2::core::DataStoragerTiff::make(DataProviderPtr dataProvider)
+terrama2::core::DataStoragerPtr terrama2::core::DataStoragerTiff::make(DataSeriesPtr dataSeries, DataProviderPtr dataProvider)
 {
-  return std::make_shared<DataStoragerTiff>(dataProvider);
+  return std::make_shared<DataStoragerTiff>(dataSeries, dataProvider);
 }
 
 

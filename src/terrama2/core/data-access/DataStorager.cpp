@@ -34,8 +34,9 @@
 #include "../Exception.hpp"
 #include "../../Config.hpp"
 
-terrama2::core::DataStorager::DataStorager(DataProviderPtr outputDataProvider)
-        : dataProvider_(outputDataProvider)
+terrama2::core::DataStorager::DataStorager(DataSeriesPtr outputDataSeries, DataProviderPtr outputDataProvider)
+        : dataSeries_(outputDataSeries),
+          dataProvider_(outputDataProvider)
 {
   if(!dataProvider_.get())
   {

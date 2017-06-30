@@ -41,13 +41,27 @@ namespace terrama2
     class DataStoragerDCPPostGIS : public DataStoragerPostGIS
     {
       public:
+        DataStoragerDCPPostGIS(DataSeriesPtr dataSeries, DataProviderPtr outputDataProvider)
+          : DataStoragerPostGIS(dataSeries, outputDataProvider) {}
+
         static DataStoragerType dataStoragerType() { return "DCP-postgis"; }
+
+        static DataStoragerPtr make(DataSeriesPtr dataSeries, DataProviderPtr dataProvider);
 
         using DataStorager::store;
 
         virtual void store(const std::unordered_map<DataSetPtr,DataSetSeries >&  dataMap,
                            const std::vector< DataSetPtr >& dataSetLst,
                            const std::map<DataSetId, DataSetId>& inputOutputMap) const override;
+
+      protected:
+        virtual void storePositions(const std::unordered_map<DataSetPtr,DataSetSeries >&  dataMap,
+                                    const std::vector< DataSetPtr >& dataSetLst,
+                                    const std::map<DataSetId, DataSetId>& inputOutputMap) const;
+
+        const std::string ID_PROPERTY_NAME = "id";
+        const std::string GEOM_PROPERTY_NAME = "geom";
+        const std::string TABLE_NAME_PROPERTY_NAME = "table_name";
     };
   }
 }
