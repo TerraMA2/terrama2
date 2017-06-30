@@ -4,8 +4,6 @@
 
 {% block styles %}
 
-<link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}ol3/ol.css">
-<link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}TerraMA2WebComponents.min.css">
 <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}jquery-ui/themes/base/jquery-ui.css">
 
 
@@ -28,7 +26,15 @@
 {% set webmonitorHostInfo = webmonitorHostInfo || {} %}
 {% set message = message || {} %}
 
-<div id="terrama2-map" class="terrama2-map"></div>
+<div id="terrama2-map" class="terrama2-map cursor-move">
+    <div id="map-tools">
+        <div id="moveMap" class="map-tool-button mouse-function-btn active"><button type="button"><i class="fa fa-hand-rock-o"></i></button></div>
+        <div id="getAttributes" class="map-tool-button mouse-function-btn">
+            <select class="form-control hidden"></select>
+            <button type="button"><i class="fa fa-info"></i></button>
+        </div>
+    </div>
+</div>
 
 <!-- Alert message -->
 <div id="terrama2Alert" class="alert alert-danger hide">
@@ -53,6 +59,8 @@
     </div>
   </div>
 </div>
+
+<div id="feature-info-box"></div>
 
 <script src="{[ BASE_URL ]}moment/moment.js"></script>
 
@@ -104,10 +112,15 @@
     if (TerraMA2WebComponents.MapDisplay.addLayerGroup("analysis", "Analysis", "terrama2-layerexplorer"))
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("analysis", "terrama2-layerexplorer", null, "treeview unsortable", null);
         allLayers.push({id: "analysis", name: "Analysis"});
+    if (TerraMA2WebComponents.MapDisplay.addLayerGroup("alert", "Alert", "terrama2-layerexplorer"))
+        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("alert", "terrama2-layerexplorer", null, "treeview unsortable", null);
+        allLayers.push({id: "alert", name: "Alert"});
 
     //Adding open map street
     if (TerraMA2WebComponents.MapDisplay.addOSMLayer("osm", "Open street", "Open street", false, "terrama2-layerexplorer", false)){
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("osm", "template", null, "treeview unsortable terrama2-truncate-text", null);
+        TerraMA2WebComponents.MapDisplay.setLayerProperty("osm", "layerType", "template");
+        TerraMA2WebComponents.MapDisplay.setLayerProperty("osm", "layerName", "Open street");
         allLayers.push({id: "osm", name: "Open street"});
         addLayerStatusIcon("osm");
         changeLayerStatusIcon("osm", "working");
@@ -163,6 +176,8 @@
                     }
                     if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(layerId, layerName, layerName, uriGeoServer + '/ows', serverType, false, false, "terrama2-layerexplorer", {version: "1.1.0"})){
                         TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, data[i].type, null, "treeview unsortable terrama2-truncate-text", null);
+                        TerraMA2WebComponents.MapDisplay.setLayerProperty(layerId, "layerType", data[i].type);
+                        TerraMA2WebComponents.MapDisplay.setLayerProperty(layerId, "layerName", layerName);
                         allLayers.push({id: layerId, name: layerName, url: uriGeoServer});
 
                         var span = "";
@@ -196,6 +211,8 @@
                     }
                     if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(layerId, layerName, layerName, uriGeoServer + '/ows', serverType, false, false, "terrama2-layerexplorer", {version: "1.1.0"})){
                         TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, data[i].type, null, "treeview unsortable terrama2-truncate-text", null);
+                        TerraMA2WebComponents.MapDisplay.setLayerProperty(layerId, "layerType", data[i].type);
+                        TerraMA2WebComponents.MapDisplay.setLayerProperty(layerId, "layerName", layerName);
                         allLayers.push({id: layerId, name: layerName, url: uriGeoServer});
                         if (data[i].type == 'analysis' || data[i].type == 'dynamic'){
                             var url = uriGeoServer + '/' + workspace + '/' + data[i].layers[0] + '/wms?service=WMS&version=1.1.0&request=GetCapabilities';
@@ -263,6 +280,13 @@
             changeGroupStatusIcon(parent, "new");
         }
     });
+    
+    wepappsocket.on("notifyView", function(data){
+      var layerId = data.workspace + ":" + data.layer.name;
+      changeLayerStatusIcon(layerId, "alert");
+      changeGroupStatusIcon("alert", "alert");
+      console.log(data);
+    })
 
     // Checking map server connection response
     socket.on('connectionResponse', function(data){
@@ -350,6 +374,8 @@
 
         if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(layerId, layerName, layerName, server + '/ows', serverType, false, false, "terrama2-layerexplorer", {version: "1.1.0"})){
             TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, parent, null, "unsortable terrama2-truncate-text", null);
+            TerraMA2WebComponents.MapDisplay.setLayerProperty(layerId, "layerType", parent);
+            TerraMA2WebComponents.MapDisplay.setLayerProperty(layerId, "layerName", layerName);
             addLayerToSort(layerId, layerName);
             allLayers.push({id: layerId, name: layerName, url: server + '/ows'});
 
@@ -413,6 +439,7 @@
                 var elementVisibleIndex = visibleLayers.indexOf(layerId.replace(':',''));
                 if (elementVisibleIndex >= 0){
                     visibleLayers.splice(elementVisibleIndex, 1);
+                    setGetFeatureInfoToolSelect();
                 }
 
                 addLayerWithSlider(valMap, workspace + ":" + layer.layer, layerName, workspace, server, serverType, parent, ui.value);
@@ -490,16 +517,134 @@
         }
     });
 
-    socket.on('proxyResponse', function(data){
-        try {
-            capabilities = getMapCapabilitiesLayers(data.msg);
-            fillModal(capabilities);
-            $('#layersModal').modal('show');
+    var resetMapMouseTools = function() {
+        TerraMA2WebComponents.MapDisplay.unsetMapSingleClickEvent();
+        $('.mouse-function-btn').removeClass('active');
+        $('#terrama2-map').removeClass('cursor-move');
+        $('#terrama2-map').removeClass('cursor-pointer');
+        $('#getAttributes').removeClass('with-select');
+        $('#getAttributes > select').addClass('hidden');
+        if($('#feature-info-box').hasClass('ui-dialog-content'))
+            $('#feature-info-box').dialog('close');
+    };
+
+    var activateMoveMapTool = function() {
+        $('#moveMap').addClass('active');
+        $('#terrama2-map').addClass('cursor-move');
+    };
+
+    var featureInfo = function() {
+        TerraMA2WebComponents.MapDisplay.setGetFeatureInfoUrlOnClick($('#getAttributes > select').val(), function(url) {
+            if($('#feature-info-box').hasClass('ui-dialog-content'))
+                $('#feature-info-box').dialog('close');
+
+            if(url !== null) 
+                socket.emit('proxyRequest', { url: url, requestId: 'GetFeatureInfoTool', format: 'json', params: { layerName: $('#getAttributes > select option:selected').text() } });
+        });
+    };
+
+    var activateGetFeatureInfoTool = function() {
+        $('#getAttributes').addClass('active');
+        $('#terrama2-map').addClass('cursor-pointer');
+        $('#getAttributes').addClass('with-select');
+        $('#getAttributes > select').removeClass('hidden');
+        setGetFeatureInfoToolSelect();
+    };
+
+    var setGetFeatureInfoToolSelect = function() {
+        $('#getAttributes > select').empty();
+        var showButton = false;
+
+        for(var i = 0, visibleLayersLength = visibleLayers.length; i < visibleLayersLength; i++) {
+            var layerId = $('#' + visibleLayers[i]).data('layerid');
+            var layerName = TerraMA2WebComponents.MapDisplay.getLayerProperty(layerId, "layerName");
+            var layerType = TerraMA2WebComponents.MapDisplay.getLayerProperty(layerId, "layerType");
+
+            if(layerType !== "template" && layerType !== "custom") {
+                $('#getAttributes > select').append($('<option></option>').attr('value', layerId).text(layerName));
+                if(!showButton) showButton = true;
+            }
         }
-        catch(e) {
-            $("#terrama2Alert > p > strong").text('Invalid URL!');
-            $("#terrama2Alert > p > span").text('Error to find capabilities.');
-            $("#terrama2Alert").removeClass('hide');
+
+        if(!showButton) {
+            if(!$('#getAttributes').hasClass('hidden'))
+                $('#getAttributes').addClass('hidden');
+
+            resetMapMouseTools();
+            activateMoveMapTool();
+        } else {
+            $('#getAttributes').removeClass('hidden');
+            if(!$('#getAttributes > select').hasClass('hidden'))
+                featureInfo();
+        }
+    };
+
+    $('#getAttributes > select').on('change', featureInfo);
+
+    $('#moveMap').on('click', function() {
+        resetMapMouseTools();
+        activateMoveMapTool();
+    });
+
+    $('#getAttributes > button').on('click', function() {
+        resetMapMouseTools();
+        activateGetFeatureInfoTool();
+    });
+
+    socket.on('proxyResponse', function(data){
+        if(data.requestId == "GetFeatureInfoTool") {
+            var featureInfo = data.msg;
+            var featuresLength = featureInfo.features.length;
+
+            if(featuresLength > 0) {
+                var firesAttributes = "";
+
+                for(var i = 0; i < featuresLength; i++) {
+                    firesAttributes += "<table class=\"table table-striped\"><tbody>";
+
+                    for(key in featureInfo.features[i].properties) {
+                        firesAttributes += "<tr><td><strong>" + key + "</strong></td><td>" + featureInfo.features[i].properties[key] + "</td></tr>";
+                    }
+
+                    firesAttributes += "</tbody></table>";
+
+                    if(featuresLength > (i + 1)) firesAttributes += "<hr/>";
+                }
+
+                $('#feature-info-box').html(firesAttributes);
+
+                $('#feature-info-box').dialog({
+                    dialogClass: "feature-info-box",
+                    title: "Attributes of layer: " + data.params.layerName,
+                    width: 400,
+                    height: 380,
+                    modal: false,
+                    resizable: true,
+                    draggable: true,
+                    closeOnEscape: true,
+                    closeText: "",
+                    position: { my: 'top', at: 'top+75' },
+                    open: function () {
+                        var closeBtn = $('.ui-dialog-titlebar-close');
+                        closeBtn.append('<span class="ui-button-icon-primary ui-icon ui-icon-closethick" style="margin-top: -.55em !important; margin-left: -.07em !important;"></span>');
+                    },
+                    close: function () {
+                        var closeBtn = $('.ui-dialog-titlebar-close');
+                        closeBtn.html('');
+                    }
+                });
+            }
+        } else {
+            try {
+                capabilities = getMapCapabilitiesLayers(data.msg);
+                fillModal(capabilities);
+                $('#layersModal').modal('show');
+            }
+            catch(e) {
+                $("#terrama2Alert > p > strong").text('Invalid URL!');
+                $("#terrama2Alert > p > span").text('Error to find capabilities.');
+                $("#terrama2Alert").removeClass('hide');
+            }
         }
     })
 
@@ -532,6 +677,8 @@
                     }
                     if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(capabilities[i].name, capabilities[i].title, capabilities[i].title, geoUrl, "geoserver", false, false, "terrama2-layerexplorer", {version: "1.1.0"})) {
                         TerraMA2WebComponents.LayerExplorer.addLayersFromMap(capabilities[i].name, "custom", true, "treeview unsortable terrama2-truncate-text", null);
+                        TerraMA2WebComponents.MapDisplay.setLayerProperty(capabilities[i].name, "layerType", "custom");
+                        TerraMA2WebComponents.MapDisplay.setLayerProperty(capabilities[i].name, "layerName", capabilities[i].title);
                         allLayers.push({id: capabilities[i].name, name: capabilities[i].title, extent: capabilities[i].extent, url: geoUrl});
                         addLayerToSort(capabilities[i].name, capabilities[i].title);
 
@@ -597,6 +744,7 @@
     document.getElementById("saveLayers").addEventListener("click", saveLayers);
 
     $('#terrama2-layerexplorer').on('click', 'input.terrama2-layerexplorer-checkbox', function(){
+        var completeLayerId = $(this).closest('li').data('layerid');
         var layerid = $(this).closest('li').data('layerid');
         if (layerid.includes(':')){
             layerid = layerid.replace(':','')
@@ -610,8 +758,11 @@
             $('#terrama2-sortlayers').find('li#' + layerid.split('.').join('\\.')).removeClass('hide');
             visibleLayers.push(layerid);
         }
+        setGetFeatureInfoToolSelect();
         var imageElement = $(this).closest('li').find("#image-icon");
-        if (imageElement.attr("src") == "{[ BASE_URL ]}images/status/yellow-black.gif"){
+        if (imageElement.attr("src") == "{[ BASE_URL ]}images/status/yellow-black.gif" || 
+              imageElement.attr("src") == "{[ BASE_URL ]}images/status/red-black.gif"){
+            TerraMA2WebComponents.MapDisplay.updateLayerSourceParams(completeLayerId, {"": Date.now().toString()}, true);
             changeLayerStatusIcon(layerid.split('.').join('\\.'), "working");
         }
 
@@ -624,9 +775,11 @@
         if (parentLi.hasClass('open')){
             var imageStatus = parentLi.find("#image-group-icon");
             var actualStatus = imageStatus.attr("src");
-            if (actualStatus == "{[ BASE_URL ]}images/status/yellow-black.gif"){
+            if (actualStatus == "{[ BASE_URL ]}images/status/yellow-black.gif" || 
+              actualStatus == "{[ BASE_URL ]}images/status/red-black.gif"){
                 changeGroupStatusIcon(parent, "working");
-            } else if (actualStatus == "{[ BASE_URL ]}images/status/yellow-gray.gif"){
+            } else if (actualStatus == "{[ BASE_URL ]}images/status/yellow-gray.gif" || 
+              actualStatus == "{[ BASE_URL ]}images/status/red-black.gif"){
                 changeGroupStatusIcon(parent, "erraccess");
             }
         }
@@ -720,7 +873,7 @@
             case "erraccess":
                 return "{[ BASE_URL ]}images/status/gray_icon.svg";
             case "alert":
-                return "{[ BASE_URL ]}images/status/red-black-gif";
+                return "{[ BASE_URL ]}images/status/red-black.gif";
             default:
                 return "";
         }

@@ -199,22 +199,39 @@ std::shared_ptr<te::da::DataSet> terrama2::services::alert::core::Report::retrie
   return  filteredDataSet;
 }
 
-
 void terrama2::services::alert::core::Report::updateReportDataset(const std::shared_ptr<te::da::DataSet> dataSet)
 {
   dataSet->moveBeforeFirst();
-
   if(alertDataSeries_->semantics.dataSeriesType == terrama2::core::DataSeriesType::GRID)
   {
-    dataSet_ = std::dynamic_pointer_cast<te::mem::DataSet>(dataSet);
+    updateReportGridDataset(dataSet);
     return;
   }
 
+  if(alertDataSeries_->semantics.dataSeriesType == terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT)
+  {
+    updateReportMonitoredObjectDataset(dataSet);
+    return;
+  }
+}
+
+void terrama2::services::alert::core::Report::updateReportGridDataset(const std::shared_ptr<te::da::DataSet> dataSet)
+{
+  dataSet_ = std::dynamic_pointer_cast<te::mem::DataSet>(dataSet);
+  auto risk = alert_->risk;
+  std::string riskName;
+  std::tie(maxRisk_, riskName) = risk.riskLevel(retrieveMaxValue());
+  std::tie(minRisk_, riskName) = risk.riskLevel(retrieveMinValue());
+}
+
+void terrama2::services::alert::core::Report::updateReportMonitoredObjectDataset(const std::shared_ptr<te::da::DataSet> dataSet)
+{
   dataSet_ = std::make_shared<te::mem::DataSet>(*dataSet);
 
   // Replace risk values
-  for(const auto& riskDate : riskDates_)
+  for(auto it = riskDates_.begin(); it != riskDates_.end(); ++it)
   {
+    const auto& riskDate = *it;
     std::string property = dateTimeToString(riskDate);
     auto pos = terrama2::core::propertyPosition(dataSet_.get(), property);
 
@@ -226,13 +243,23 @@ void terrama2::services::alert::core::Report::updateReportDataset(const std::sha
     }
 
     dataSet_->moveBeforeFirst();
-
+    //risk value to risk name
     while(dataSet_->moveNext())
     {
       if(!dataSet_->isNull(pos))
       {
         int numericRisk = dataSet_->getInt32(pos);
         dataSet_->setString(property, alert_->risk.riskName(numericRisk));
+
+        //update max and min risk values
+        if(it == riskDates_.begin())
+        {
+          if(numericRisk > maxRisk_)
+            maxRisk_ = numericRisk;
+
+          if(numericRisk < minRisk_)
+            minRisk_ = numericRisk;
+        }
       }
     }
 
@@ -241,7 +268,6 @@ void terrama2::services::alert::core::Report::updateReportDataset(const std::sha
 
   // Replace comparison property
   auto posComparison = terrama2::core::propertyPosition(dataSet_.get(), "comparison_previous");
-
   if(posComparison == std::numeric_limits<size_t>::max())
   {
     QString errMsg = QObject::tr("Can't find property %1 !").arg(QString("comparison_previous"));
@@ -250,7 +276,6 @@ void terrama2::services::alert::core::Report::updateReportDataset(const std::sha
   }
 
   dataSet_->moveBeforeFirst();
-
   while(dataSet_->moveNext())
   {
     std::string comp = "NULL";
@@ -262,9 +287,15 @@ void terrama2::services::alert::core::Report::updateReportDataset(const std::sha
       if(resComp == 0)
         comp = "SAME";
       else if(resComp == 1)
+      {
+        riskChanged_ = true;
         comp = "INCREASED";
+      }
       else if(resComp == -1)
+      {
+        riskChanged_= true;
         comp = "DECREASED";
+      }
       else
         comp = "UNKNOW";
     }

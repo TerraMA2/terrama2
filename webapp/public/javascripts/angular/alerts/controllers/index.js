@@ -12,6 +12,7 @@ define([
   var moduleName = "terrama2.alerts.controllers";
 
   var deps = [messageBoxApp];
+  moduleLoader("color.picker", deps)
   moduleLoader("ui.select", deps);
   moduleLoader(dataSeriesServiceApp, deps);
   moduleLoader(datetimepicker, deps);

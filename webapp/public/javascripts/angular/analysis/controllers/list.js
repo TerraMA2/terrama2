@@ -82,6 +82,19 @@ define([], function() {
     }
 
     $scope.extra = {
+      advancedFilters: [
+        {
+          name: "Grid",
+          value: "Grid",
+          checked: true
+        },
+        {
+          name: "Monitored Object",
+          value: "Monitored Object",
+          checked: true
+        }
+      ],
+      advancedFilterField: "type.name",
       removeOperationCallback: function(err, data) {
         if (err) {
           MessageBoxService.danger(i18n.__(title), i18n.__(err.message));

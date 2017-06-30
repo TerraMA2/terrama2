@@ -64,11 +64,11 @@ int main(int argc, char* argv[])
     terrama2::core::DataProviderPtr outputDataProviderPtr(outputDataProvider);
     outputDataProvider->uri = "file://"+TERRAMA2_DATA_DIR+"/saida";
 
-    terrama2::core::DataStoragerTiff dataStorager(outputDataProviderPtr);
-
     terrama2::core::DataSeries* outputDataSeries = new terrama2::core::DataSeries();
     terrama2::core::DataSeriesPtr outputDataSeriesPtr(outputDataSeries);
     outputDataSeries->semantics = semanticsManager.getSemantics("GRID-gdal");
+
+    terrama2::core::DataStoragerTiff dataStorager(outputDataSeriesPtr, outputDataProviderPtr);
 
     terrama2::core::DataSetGrid* outputDataSet = new terrama2::core::DataSetGrid();
     terrama2::core::DataSetGridPtr outputDataSetPtr(outputDataSet);

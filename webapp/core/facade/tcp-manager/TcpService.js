@@ -143,6 +143,7 @@ TcpService.prototype.init = function(shouldConnect) {
           TcpManager.on("processFinished", onProcessFinished);
           TcpManager.on("serviceVersion", onServiceVersionReceived);
           TcpManager.on("processValidated", onProcessValidated);
+          TcpManager.on("notifyView", onNotifyView);
 
           self.$loaded = true;
           instances.forEach(function(instance) {
@@ -182,6 +183,7 @@ TcpService.prototype.finalize = function() {
       TcpManager.removeListener("processFinished", onProcessFinished);
       TcpManager.removeListener("serviceVersion", onServiceVersionReceived);
       TcpManager.removeListener("processValidated", onProcessValidated);
+      TcpManager.removeListener("notifyView", onNotifyView);
       self.$loaded = false;
     }
     // resetting cache
@@ -297,10 +299,38 @@ TcpService.prototype.run = function(processObject) {
     delete processObject.service_instance;
     return DataManager.getServiceInstance({id: service})
       .then(function(instance) {
-        // Forcing a process to run
-        TcpManager.startProcess(instance, processObject);
-        // Retrieving log status of process (STARTED/ON_QUEUED, etc)
-        TcpManager.logData(instance, {begin: 0, end: 2, process_ids: processObject.ids});
+        // If alert service, check if have a view to start first
+        if (instance.service_type_id == ServiceType.ALERT){
+          return DataManager.getAlert({id: processObject.ids[0]}).then(function(alert){
+            // if alert has view, start the view process
+            if (alert.view && alert.view.id){
+              return DataManager.getView({id: alert.view.id}).then(function(view){
+                return DataManager.getServiceInstance({id: view.serviceInstanceId}).then(function(view_instance){
+                  var viewProcessObject = {
+                    execution_date: processObject.execution_date,
+                    ids: [view.id]
+                  };
+                  startProcess(view_instance, viewProcessObject);
+                  // Notify children listeners the process has been scheduled
+                  self.emit("processRun", viewProcessObject);
+                  return resolve();
+                })
+              });
+            // else start alert process normally
+            } else {
+              startProcess(instance, processObject);
+              // Notify children listeners the process has been scheduled
+              self.emit("processRun", processObject);
+              return resolve();
+            }
+          })
+          .catch(function(err) {
+            logger.debug(err);
+            return reject(err);
+          });
+        }
+        
+        startProcess(instance, processObject);
         // Notify children listeners the process has been scheduled
         self.emit("processRun", processObject);
         return resolve();
@@ -533,10 +563,11 @@ TcpService.prototype.log = function(json) {
         DataManager.listServiceInstances(),
         DataManager.listAnalysis(),
         DataManager.listCollectors(),
-        DataManager.listViews()
+        DataManager.listViews(),
+        DataManager.listAlerts()
       ])
       // spreading promiser result into services, analysisList, collectors and views variables
-      .spread(function(services, analysisList, collectors, views) {
+      .spread(function(services, analysisList, collectors, views, alerts) {
         var obj = {
           begin: begin,
           end: end
@@ -559,6 +590,7 @@ TcpService.prototype.log = function(json) {
               obj.process_ids = views.map(function(elm) { return elm.id; });
               break;
             case ServiceType.ALERT:
+              obj.process_ids = alerts.map(function(elm) { return elm.id; });
               break;
             default:
               throw new Error("Invalid service type");
@@ -686,9 +718,55 @@ function onProcessFinished(resp) {
   // broadcast to everyone
   if (resp && resp instanceof RegisteredView) {
     tcpService.emit("viewReceived", resp);
+    // check if is a view from alert to execute the alert process
+    DataManager.getAlert({view_id: resp.view.id})
+      .then(function(alert){
+        DataManager.getServiceInstance({id: alert.service_instance_id}).then(function(instance){
+          var alertProcessObject = {
+            ids: [alert.id],
+            execution_date: new Date().toISOString()
+          };
+          startProcess(instance, alertProcessObject);
+          // Notify children listeners the process has been scheduled
+          tcpService.emit("processRun", alertProcessObject);
+        })
+      })
+      .catch(function(){
+        logger.debug("Dont have alert of the view");
+      });
   } 
   // Notifies that process finished
   tcpService.emit("processFinished", resp.process);
+}
+
+/**
+ * It emits a signal to nofity webMonitor. 
+ * If service has a view, it emits #notifyView with the registered view object.
+ * 
+ * @param {Object} resp - Process Object
+ * @param {RegisteredView?} resp.registeredView - TerraMA² Registered View
+ * @returns {void}
+ */
+function onNotifyView(resp) {
+  if (resp.registeredView){
+    var viewObject = {
+      workspace: resp.registeredView.workspace,
+      layer: resp.registeredView.layers[0]
+    };
+    tcpService.emit("notifyView", viewObject);
+  }
+}
+
+/**
+ * Start process
+ * @param {*} instance 
+ * @param {*} processObject 
+ */
+function startProcess(instance, processObject){
+  // Forcing a process to run
+  TcpManager.startProcess(instance, processObject);
+  // Retrieving log status of process (STARTED/ON_QUEUED, etc)
+  TcpManager.logData(instance, {begin: 0, end: 2, process_ids: processObject.ids});
 }
 
 /**

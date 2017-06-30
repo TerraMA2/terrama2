@@ -25,7 +25,7 @@
     <!-- /.box-header -->
     <div style="display: block;" class="box-body">
       <form name="forms.generalDataForm">
-        <div ng-include="'{[ BASE_URL ]}javascripts/angular/generalData.html'"></div>
+        <div id="includeGeneralData" ng-include=""></div>
       </form>
     </div>
   </div>
@@ -55,7 +55,7 @@
             </div>
 
             <terrama2-dcp-importer></terrama2-dcp-importer>
-            <div ng-include="'{[ BASE_URL ]}javascripts/angular/dcpTable.html'"></div>
+            <div id="includeDcpTable" ng-include=""></div>
           </div>
 
         </div>
@@ -141,7 +141,7 @@
     <!-- /.box-header -->
     <div class="box-body">
       <form name="filterForm">
-        <div ng-include="'{[ BASE_URL ]}javascripts/angular/filter.html'"></div>
+        <div id="includeFilter" ng-include=""></div>
       </form>
     </div>
   </div>
@@ -172,7 +172,7 @@
     </div>
     <!-- /.box-header -->
     <div class="box-body">
-      <div ng-include="'{[ BASE_URL ]}javascripts/angular/data-series/templates/intersection.html'"></div>
+      <div id="includeIntersection" ng-include=""></div>
     </div>
   </div>
 </div>
@@ -190,10 +190,27 @@
   </div>
   <button type="button" class="btn btn-primary pull-right" style="margin-left: 10px;" ng-bind="i18n.__('Save')" ng-show="!isDynamic" data-ng-click="save(false);"></button>
   <button type="button" class="btn btn-primary pull-right" style="margin-left: 10px;" ng-bind="i18n.__('Save')" ng-show="isDynamic && !storager.format" data-ng-click="save(false);"></button>
-  <a href="{[ BASE_URL ]}configuration/dynamic/dataseries/" class="btn btn-primary pull-left" ng-show="isDynamic">{{ i18n.__('Cancel') }}</a>
-  <a href="{[ BASE_URL ]}configuration/static/dataseries" class="btn btn-primary pull-left" ng-show="!isDynamic">{{ i18n.__('Cancel') }}</a>
+  <a href="" class="btn btn-primary pull-left cancel-dynamic" ng-show="isDynamic">{{ i18n.__('Cancel') }}</a>
+  <a href="" class="btn btn-primary pull-left cancel-static" ng-show="!isDynamic">{{ i18n.__('Cancel') }}</a>
 </div>
 
+<script>
+  var includeDcpTable = "'" + BASE_URL + "javascripts/angular/dcpTable.html'";
+  var includeIntersection = "'" + BASE_URL + "javascripts/angular/data-series/templates/intersection.html'";
+  var includeFilter = "'" + BASE_URL + "javascripts/angular/filter.html'";
+  var includeGeneralData = "'" + BASE_URL + "javascripts/angular/generalData.html'";
+
+  var cancelDynamic = BASE_URL + "configuration/dynamic/dataseries/";
+  var cancelStatic = BASE_URL + "configuration/static/dataseries";
+
+  $("#includeDcpTable").attr("ng-include", includeDcpTable);
+  $("#includeIntersection").attr("ng-include", includeIntersection);
+  $("#includeFilter").attr("ng-include", includeFilter);
+  $("#includeGeneralData").attr("ng-include", includeGeneralData);
+
+  $(".cancel-dynamic").attr("href", cancelDynamic);
+  $(".cancel-static").attr("href", cancelStatic);
+</script>
 
 <!-- List with database tables -->
 <datalist id='databaseTableList'>

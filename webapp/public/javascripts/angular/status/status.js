@@ -170,6 +170,11 @@ define([
             targetMessage = "View";
             targetKey = "";
             break;
+          case Globals.enums.ServiceType.ALERT:
+            targetArray = config.alerts;
+            targetMessage = "Alert";
+            targetKey = "";
+            break;
         }
 
         var logArray = response.logs;

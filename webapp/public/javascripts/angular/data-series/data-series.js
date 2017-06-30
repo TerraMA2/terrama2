@@ -114,6 +114,99 @@ define([], function() {
       }
     };
 
+    if(config.dataSeriesType == "static") {
+      $scope.extra.advancedFilters = [
+        {
+          name: "Geometric Object",
+          value: "Geometric Object",
+          checked: true
+        },
+        {
+          name: "Grid",
+          value: "Grid",
+          checked: true
+        }
+      ];
+
+      $scope.extra.advancedFilterField = "model_type";
+    } else {
+      $scope.extra.advancedFilters = [
+        {
+          name: "Analysis",
+          value: "Analysis",
+          checked: true
+        },
+        {
+          name: "Collector",
+          value: "Collector",
+          checked: true
+        },
+        {
+          name: "Direct Access",
+          value: "Direct Access",
+          checked: true
+        }
+      ];
+
+      $scope.extra.executeAdvancedFilter = function() {
+        for(var i = 0, advancedFiltersLength = $scope.extra.advancedFilters.length; i < advancedFiltersLength; i++) {
+          for(var j = 0, modelLength = $scope.model.length; j < modelLength; j++) {
+            var semantics = $scope.model[j].data_series_semantics_code;
+            var type;
+
+            switch(semantics) {
+              case "ANALYSIS_MONITORED_OBJECT-postgis":
+                type = i18n.__("Analysis");
+                break;
+
+              case "DCP-toa5":
+              case "DCP-generic":
+              case "DCP-inpe":
+              case "DCP-postgis":
+              case "Occurrence-generic":
+              case "OCCURRENCE-wfp":
+              case "OCCURRENCE-lightning":
+              case "OCCURRENCE-postgis":
+                if($scope.extra.canRun($scope.model[j]))
+                  type = i18n.__("Collector");
+                else
+                  type = i18n.__("Direct Access");
+                break;
+
+              case "GRID-gdal":
+              case "GRID-geotiff":
+              case "GRID-ascii":
+              case "GRID-grads":
+              case "GRID-grib":
+                if($scope.model[j].isAnalysis)
+                  type = i18n.__("Analysis");
+                else {
+                  if($scope.extra.canRun($scope.model[j]))
+                    type = i18n.__("Collector");
+                  else
+                    type = i18n.__("Direct Access");
+                }
+                break;
+
+              default:
+                if($scope.extra.canRun($scope.model[j]))
+                  type = i18n.__("Collector");
+                else
+                  type = i18n.__("Direct Access");
+                break;
+            }
+
+            if(i18n.__($scope.extra.advancedFilters[i].value) === type) {
+              if($scope.extra.advancedFilters[i].checked)
+                $scope.model[j].showInTable = true;
+              else
+                $scope.model[j].showInTable = false;
+            }
+          }
+        }
+      };
+    }
+
     if(config.message) {
       var messageArray = config.message.split(" ");
       var tokenCodeMessage = messageArray[messageArray.length - 1];

@@ -190,11 +190,8 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
     auto lastDateTime = dataAccessor->lastDateTime();
 
     /////////////////////////////////////////////////////////////////////////
-    // storing data
+    // data intersection
 
-    auto inputOutputMap = collectorPtr->inputOutputMap;
-    auto dataSetLst = outputDataSeries->datasetList;
-    auto dataStorager = terrama2::core::DataStoragerFactory::getInstance().make(outputDataSeries->semantics.code, outputDataProvider);
     for(auto& item : dataMap)
     {
       // intersection
@@ -203,13 +200,16 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
         //FIXME: the datamanager is being used outside the lock
         item.second = processIntersection(dataManager, collectorPtr->intersection, item.second);
       }
-
-
-      // store each item
-      DataSetId outputDataSetId = inputOutputMap.at(item.first->id);
-      auto outputDataSet = std::find_if(dataSetLst.cbegin(), dataSetLst.cend(), [outputDataSetId](terrama2::core::DataSetPtr dataSet) { return dataSet->id == outputDataSetId; });
-      dataStorager->store(item.second, *outputDataSet);
     }
+
+    /////////////////////////////////////////////////////////////////////////
+    // storing data
+
+    auto inputOutputMap = collectorPtr->inputOutputMap;
+    auto dataSetLst = outputDataSeries->datasetList;
+    auto dataStorager = terrama2::core::DataStoragerFactory::getInstance().make(outputDataSeries, outputDataProvider);
+
+    dataStorager->store(dataMap, dataSetLst, inputOutputMap);
 
     TERRAMA2_LOG_INFO() << tr("Data from collector %1 collected successfully.").arg(executionPackage.processId);
 
