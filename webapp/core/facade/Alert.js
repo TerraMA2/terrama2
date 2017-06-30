@@ -6,6 +6,7 @@
   var PromiseClass = require("./../Promise");
   var Enums = require("./../Enums");
   var Utils = require("./../Utils");
+  var ViewFacade = require("./../facade/View")
 
   /**
    * It represents a mock to handle alert.
@@ -39,7 +40,7 @@
     TcpService.send(objToSend)
       .then(function() {
         if (shouldRun && !(args instanceof Array)) {
-          return TcpService.run({"ids": [args.id], "service_instance": args.instance_id});
+          return TcpService.run({"ids": [args.id], "service_instance": args.service_instance_id});
         }
       });
   }
@@ -61,38 +62,52 @@
         alertObject.project_id = projectId;
         alertObject.legend.project_id = projectId;
 
-        var promiser;
+        var viewPromise;
+        if (alertObject.hasView){
+          var viewObject = alertObject.view;
+          viewPromise = ViewFacade.save(viewObject, projectId, options);
+        } else {
+          viewPromise = PromiseClass.resolve();
+        }
 
-        if (Utils.isEmpty(alertObject.schedule))
-          promiser = PromiseClass.resolve();
-        else
-          promiser = DataManager.addSchedule(alertObject.schedule, options);
+        return viewPromise.then(function(view){
+          if (view){
+            alertObject.view_id = view.id;
+          }
+          var promiser;
 
-        return promiser
-          .then(function(schedule) {
-            if (schedule) {
-              if (alertObject.schedule_type == Enums.ScheduleType.AUTOMATIC)
-                alertObject.automatic_schedule_id = schedule.id;
-              else
-                alertObject.schedule_id = schedule.id;
-            }
-            var legendPromise;
-            var legendObject = alertObject.legend;
-            if (legendObject.id){
-              legendPromise = DataManager.updateLegend({id: legendObject.id}, legendObject, options);
-            } else {
-              legendPromise = DataManager.addLegend(legendObject, options);
-            }
-            return legendPromise
-              .then(function(legendResult){
-                if (!alertObject.legend.id){
-                  alertObject.legend_id = legendResult.id;
-                } else {
-                  alertObject.legend_id = alertObject.legend.id;
-                }
-                return DataManager.addAlert(alertObject, options);
-              });
-          });
+		      if (Utils.isEmpty(alertObject.schedule))
+            promiser = PromiseClass.resolve();
+          else
+            promiser = DataManager.addSchedule(alertObject.schedule, options);
+
+          return promiser
+		        .then(function(schedule) {
+		          if (schedule) {
+		            if (alertObject.schedule_type == Enums.ScheduleType.AUTOMATIC)
+		              alertObject.automatic_schedule_id = schedule.id;
+		            else
+		              alertObject.schedule_id = schedule.id;
+		          }
+		          var legendPromise;
+		          var legendObject = alertObject.legend;
+		          if (legendObject.id){
+		            legendPromise = DataManager.updateLegend({id: legendObject.id}, legendObject, options);
+		          } else {
+		            legendPromise = DataManager.addLegend(legendObject, options);
+		          }
+		          return legendPromise
+		            .then(function(legendResult){
+		              if (!alertObject.legend.id){
+		                alertObject.legend_id = legendResult.id;
+		              } else {
+		                alertObject.legend_id = alertObject.legend.id;
+		              }
+		              return DataManager.addAlert(alertObject, options);
+		            });
+		        });
+
+        })
       })
 
       .then(function(alert) {
@@ -128,9 +143,29 @@
 
       return DataManager.listAlerts({project_id: projectId})
         .then(function(alerts) {
-          return resolve(alerts.map(function(alert) {
-            return alert.toObject();
-          }));
+          return DataManager.listAnalysis({}).then(function(analysisList) {
+            var alertsObjects = [];
+
+            alerts.map(function(alert) {
+              var alertObject = alert.toObject();
+              var isAnalysis = false;
+
+              analysisList.map(function(analysis) {
+                alertObject.dataSeries.datasets.map(function(dataSet) {
+                  if(analysis.dataset_output == dataSet.id) {
+                    isAnalysis = true;
+                    return;
+                  }
+                });
+              });
+
+              alertObject.dataSeries.isAnalysis = isAnalysis;
+
+              alertsObjects.push(alertObject);
+            });
+
+            return resolve(alertsObjects);
+          });
         })
 
         .catch(function(err) {
@@ -157,6 +192,8 @@
         var removeSchedule = null;
         var scheduleIdToRemove = null;
         var scheduleTypeToRemove = null;
+        var removeView = null;
+        var viewIdToRemove = null;
         return DataManager.getAlert({id: alertId}, options)
           .then(function(alertResult){
             alert = alertResult;
@@ -262,21 +299,48 @@
             });
             return Promise.all(alertNotificationsPromises);
           })
+          //updating view alert
           .then(function(){
-            // updating alert
-            return DataManager.updateAlert({id: alertId}, alertObject, options)
-              .then(function(){
-                if (removeSchedule) {
-                  if (scheduleTypeToRemove == Enums.ScheduleType.AUTOMATIC){
-                    return DataManager.removeAutomaticSchedule({id: scheduleIdToRemove}, options);
-                  } else {
-                    return DataManager.removeSchedule({id: scheduleIdToRemove}, options);
+            var oldView = alert.view;
+            var newView = alertObject.view;
+            var alertViewPromise;
+            if (oldView.id && newView) {
+              alertViewPromise = ViewFacade.update(oldView.id, newView, projectId);
+            } else if (oldView.id && !newView){
+              removeView = true;
+              viewIdToRemove = oldView.id;
+              alertObject.view_id = null;
+              alertViewPromise = PromiseClass.resolve();
+            } else if (!oldView.id && newView){
+              alertViewPromise = ViewFacade.save(newView, projectId, options);
+            } else {
+              alertViewPromise = PromiseClass.resolve();
+            }
+            return alertViewPromise.then(function(alertViewResult){
+              if(alertViewResult){
+                alertObject.view_id = alertViewResult.id;
+              }
+              // updating alert
+              return DataManager.updateAlert({id: alertId}, alertObject, options)
+                .then(function(){
+                  if (removeSchedule) {
+                    if (scheduleTypeToRemove == Enums.ScheduleType.AUTOMATIC){
+                      return DataManager.removeAutomaticSchedule({id: scheduleIdToRemove}, options);
+                    } else {
+                      return DataManager.removeSchedule({id: scheduleIdToRemove}, options);
+                    }
                   }
-                }
-              })
-              .then(function(){
-                return DataManager.getAlert({id: alertId}, options);
-              })
+                })
+                .then(function(){
+                  if (removeView)
+                    return DataManager.removeView({id: viewIdToRemove}, options);
+                  else
+                    return null;
+                })
+                .then(function(){
+                  return DataManager.getAlert({id: alertId}, options);
+                })
+            });
           })
       })
       .then(function(alert){

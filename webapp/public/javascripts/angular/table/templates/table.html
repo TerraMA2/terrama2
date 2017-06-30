@@ -64,7 +64,7 @@
       </div>
       <div class="col-md-2 col-xs-6">
         <div class="form-group">
-          <button class="btn btn-default" style="margin-top: 24px;"><i class="fa fa-search" style="margin-right: 5px;"></i>{{ i18n.__('Advanced') }}</button>
+          <button class="btn btn-default" style="margin-top: 24px;" ng-click="showHideAdvancedFilter()" ng-show="extra.advancedFilters.length > 0"><i class="fa fa-search" style="margin-right: 5px;"></i>{{ i18n.__('Advanced') }}</button>
         </div>
       </div>
       <div class="col-md-2 col-xs-6 terrama2-nopadding-box" ng-show="linkToAdd">
@@ -115,6 +115,18 @@
         </div>
       </div>
     </div>
+
+    <div class="col-md-12" style="margin: 0 0 10px 5px;" ng-show="showAdvancedFilter && extra.advancedFilters.length > 0">
+      <div class="col-md-12 col-xs-12">
+        <div class="col-md-2" ng-repeat="advancedFilter in extra.advancedFilters">
+          <div class="form-group">
+            <div class="checkbox">
+              <span style="font-weight: 700;"><input type="checkbox" ng-model="advancedFilter.checked" ng-click="executeAdvancedFilter()"/> {{ i18n.__(advancedFilter.name) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="col-md-12 col-xs-12">
@@ -129,7 +141,7 @@
           <td ng-if="extra.export"></td>
           <td ng-if="isFunction(remove)">
         </tr>
-        <tr ng-repeat="element in filteredModel = (model | filter:searchInput) | pagingToolLimit: 10 | orderBy: orderElementby track by $index">
+        <tr ng-repeat="element in filteredModel = (model | filter:searchInput | filter:showInTableFilter) | pagingToolLimit: 10 | orderBy: orderElementby track by $index">
           <td ng-show="isFunction(icon())" style="width: 50px;">
             <img style="margin-left: 5px;" ng-if="iconProperties.type === 'img'" ng-src="{{ icon()(element) }}" alt="" width="{{ width }}" height="{{ height }}"/>
             <span ng-if="iconProperties.type === 'icon'" class="label">

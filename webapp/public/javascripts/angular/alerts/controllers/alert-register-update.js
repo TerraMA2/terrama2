@@ -134,6 +134,42 @@ define([], function() {
       }
     ];
 
+    if (self.isUpdating && self.alert.view && self.alert.view.legend){
+      self.colors = [];
+      var legendColors = self.alert.view.legend.colors.sort(function(a, b){
+        return a.id - b.id;
+      })
+      for (var i = 0; i < legendColors.length; i ++){
+        self.colors.push(legendColors[i].color);
+      }
+      self.alert.hasView = true;
+      self.view_private = self.alert.view.private;
+      self.view_service_instance_id = self.alert.view.service_instance_id;
+      self.alert.schedule = Object.assign({}, self.alert.view.schedule);
+      self.alert.automatic_schedule = Object.assign({}, self.alert.view.automatic_schedule);
+      self.alert.schedule_type = self.alert.view.schedule_type;
+
+    } else {
+      self.colors = [
+        "#FFFFFFFF",
+        "#FFFFFFFF"      
+      ];
+    }
+
+    self.defaultColorOpts = {
+      format: "hex8",
+      required: true,
+      alpha: true
+    };
+    /**
+     * It defines a event listeners for color handling
+     */
+    self.events = {
+      onChange: function (api, color, $event) {
+        //console.log("fra");
+      }
+    };
+    
     $q.all([
       i18n.ensureLocaleIsLoaded(),
       DataSeriesService.init({schema: "all"}),
@@ -146,6 +182,8 @@ define([], function() {
       return self.ServiceInstance.init().then(function() {
         // Setting all alert services in cache
         self.filteredServices = self.ServiceInstance.list({'service_type_id': self.ServiceInstance.types.ALERT});
+
+        self.filteredViewServices = self.ServiceInstance.list({'service_type_id': self.ServiceInstance.types.VIEW});
 
         /**
          * Retrieve data series
@@ -178,6 +216,9 @@ define([], function() {
             });
 
             for(var j = 0, levelsLength = legend.levels.length; j < levelsLength; j++) {
+              if (legend.levels[j].value == null){
+                legend.levels[j].isDefault = true;
+              }
               legend.levels[j]._id = UniqueNumber();
               delete legend.levels[j].legend_id;
             }
@@ -190,6 +231,12 @@ define([], function() {
               if(self.legends[i].id === self.alert.legend.id) {
                 self.legendModel = self.legends[i];
 
+                for(var j = 0, levelsLength = self.legendModel.levels.length; j < levelsLength; j++) {
+                  if (self.legendModel.levels[j].value == null){
+                    self.legendModel.levels[j].isDefault = true;
+                    break;
+                  }
+                }
                 for(var j = 0, levelsLength = self.legendModel.levels.length; j < levelsLength; j++) {
                   if(self.legendModel.levels[j].level === self.alert.notifications[0].notify_on_legend_level) {
                     self.notify_on_legend_level = self.legendModel.levels[j]._id;
@@ -298,6 +345,11 @@ define([], function() {
             self.legends[i].levels = [
               {
                 _id: UniqueNumber(),
+                name: "Default",
+                isDefault: true
+              },
+              {
+                _id: UniqueNumber(),
                 name: "",
                 value: ""
               }
@@ -378,6 +430,8 @@ define([], function() {
         name: "",
         value: ""
       });
+
+      self.colors.push("#FFFFFFFF");
     };
 
     /**
@@ -389,6 +443,7 @@ define([], function() {
       for(var j = 0, levelsLength = self.legendModel.levels.length; j < levelsLength; j++) {
         if(self.legendModel.levels[j]._id === level._id) {
           self.legendModel.levels.splice(j, 1);
+          self.colors.splice(j, 1);
           break;
         }
       }
@@ -472,17 +527,19 @@ define([], function() {
       if(self.legendLevelNameError === undefined) self.legendLevelNameError = {};
 
       for(var i = 0, levelsLength = self.legendModel.levels.length; i < levelsLength; i++) {
-        if(isNaN(self.legendModel.levels[i].value) || self.legendModel.levels[i].value === "") {
-          self.legendLevelValueError[self.legendModel.levels[i]._id] = true;
-          self.isNotValid = true;
-        } else if(lastValue !== null && parseFloat(lastValue) > parseFloat(self.legendModel.levels[i].value)) {
-          self.legendLevelOrderError = true;
-          self.legendLevelValueError[self.legendModel.levels[i]._id] = false;
-          lastValue = self.legendModel.levels[i].value;
-          self.isNotValid = true;
-        } else {
-          self.legendLevelValueError[self.legendModel.levels[i]._id] = false;
-          lastValue = self.legendModel.levels[i].value;
+        if(!self.legendModel.levels[i].isDefault){
+		      if(isNaN(self.legendModel.levels[i].value) || self.legendModel.levels[i].value === "") {
+		        self.legendLevelValueError[self.legendModel.levels[i]._id] = true;
+		        self.isNotValid = true;
+		      } else if(lastValue !== null && parseFloat(lastValue) > parseFloat(self.legendModel.levels[i].value)) {
+		        self.legendLevelOrderError = true;
+		        self.legendLevelValueError[self.legendModel.levels[i]._id] = false;
+		        lastValue = self.legendModel.levels[i].value;
+		        self.isNotValid = true;
+		      } else {
+		        self.legendLevelValueError[self.legendModel.levels[i]._id] = false;
+		        lastValue = self.legendModel.levels[i].value;
+		      }
         }
 
         if(self.legendModel.levels[i].name === undefined || self.legendModel.levels[i].name === "") {
@@ -540,6 +597,9 @@ define([], function() {
         var level = 1;
 
         for(var i = 0, levelsLength = legendTemp.levels.length; i < levelsLength; i++) {
+          if (legendTemp.levels[i].isDefault){
+            continue;
+          }
           if(self.notify_on_legend_level === legendTemp.levels[i]._id)
             self.alert.notifications[0].notify_on_legend_level = level;
 
@@ -596,7 +656,45 @@ define([], function() {
               break;
           }
         }
-
+        if (self.alert.hasView){
+          var viewLegend = {
+            colors: [],
+            metadata: {
+              column: self.alert.legend_attribute,
+              creation_type: "0"
+            },
+            type: 2
+          };
+          for (var i = 0; i < self.colors.length; i++){
+            var colorModel = {
+              color: self.colors[i],
+              isDefault: i == 0,
+              title: self.alert.legend.levels[i].name,
+              value: self.alert.legend.levels[i].value ? self.alert.legend.levels[i].value : ""
+            }
+            viewLegend.colors.push(colorModel);
+          }
+          var viewModel = {
+            name: self.alert.name,
+            description: "Generated by alert: " + self.alert.name,
+            schedule_type: self.alert.schedule_type,
+            schedule: Object.assign({}, self.alert.schedule),
+            automatic_schedule: self.alert.automatic_schedule,
+            active: true,
+            data_series_id: self.alert.data_series_id,
+            service_instance_id: self.view_service_instance_id,
+            private: self.view_private ? true : false,
+            legend: viewLegend,
+            source_type: 4
+          }
+          self.alert.view = viewModel;
+          self.alert.schedule_type = "3";
+          self.alert.schedule = {scheduleType: "3"};
+        } else {
+          delete self.alert.view;
+          delete self.alert.view_id;
+        }
+        self.alert.run = shouldRun;
         var operation = self.isUpdating ? self.AlertService.update(self.alert.id, self.alert) : self.AlertService.create(self.alert);
         operation.then(function(response) {
           $log.info(response);

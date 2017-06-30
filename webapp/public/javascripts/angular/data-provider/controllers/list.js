@@ -40,6 +40,29 @@ define(function() {
 
         $scope.errorFound = false;
         $scope.extra = {
+          advancedFilters: [
+            {
+              name: "FILE",
+              value: "FILE",
+              checked: true
+            },
+            {
+              name: "FTP",
+              value: "FTP",
+              checked: true
+            },
+            {
+              name: "HTTP",
+              value: "HTTP",
+              checked: true
+            },
+            {
+              name: "POSTGIS",
+              value: "POSTGIS",
+              checked: true
+            }
+          ],
+          advancedFilterField: "data_provider_type.name",
           removeOperationCallback: function(err, data) {
             if(err) {
               MessageBoxService.danger(i18n.__(title), err.message);

@@ -169,7 +169,25 @@ terrama2::services::view::core::View::Legend* terrama2::services::view::core::fr
 
     c.title = obj["title"].toString().toStdString();
     c.value = obj["value"].toString().toStdString();
-    c.color = obj["color"].toString().toStdString();
+
+    std::string colorOpacity = obj["color"].toString().toStdString();
+
+    if(colorOpacity.size() == 9)
+    {
+      c.color = colorOpacity.substr(0, colorOpacity.size()-2);
+
+      std::string hexOpacity = colorOpacity.substr(colorOpacity.size()-2);
+
+      auto hex = std::strtoul(hexOpacity.c_str(), nullptr, 16);
+
+      c.opacity = std::to_string(hex/255.0);
+    }
+    else
+    {
+      c.color = colorOpacity;
+    }
+
+
     c.isDefault = obj["isDefault"].toBool();
 
     legend->rules.push_back(c);
@@ -211,7 +229,14 @@ QJsonObject terrama2::services::view::core::toJson(View::Legend::Rule rule)
 
   obj.insert("title", QString::fromStdString(rule.title));
   obj.insert("value", QString::fromStdString(rule.value));
+
+  auto longOpacity = std::stol(rule.opacity);
+
+  std::stringstream stream;
+  stream << std::hex << longOpacity;
+
   obj.insert("color", QString::fromStdString(rule.color));
+  obj.insert("opacity", QString::fromStdString(stream.str()));
   obj.insert("isDefault", rule.isDefault);
 
   return obj;
