@@ -670,6 +670,8 @@
   "Risk Value": "Valor do Risco",
   "Risk attribute": "Atributo de Risco",
   "Risk attribute is required": "O preenchimento do atributo de risco é obrigatório",
+  "Risk band": "Banda do risco",
+  "Risk band is required": "O preenchimento da banda de risco é obrigatório",
   "Risks": "Riscos",
   "Run": "Executar",
   "SRID": "SRID",
