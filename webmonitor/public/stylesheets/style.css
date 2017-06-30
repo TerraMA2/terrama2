@@ -504,6 +504,8 @@
    background-color: white;
    border-radius: 5px;
    height: 90%;
+   overflow-y: auto;
+   overflow-x: hidden;
 }
 
 #table-div > div > ul.pagination {
