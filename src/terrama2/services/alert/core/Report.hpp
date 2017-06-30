@@ -191,10 +191,10 @@ namespace terrama2
 
             terrama2::core::DataSeriesType dataSeriesType() const;
 
+
+//TODO: review these functions visibility, not to be used publicly
             double retrieveMaxValue() const;
-
             double retrieveMinValue() const;
-
             double retrieveMeanValue() const;
 
           protected:

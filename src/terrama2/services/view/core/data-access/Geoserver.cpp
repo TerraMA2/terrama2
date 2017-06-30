@@ -52,14 +52,17 @@
 #include <terralib/ws/core/CurlWrapper.h>
 #include <terralib/ws/ogc/wms/client/WMSClient.h>
 #include <terralib/geometry/Envelope.h>
+#include <terralib/geometry/Utils.h>
+#include <terralib/memory/DataSetItem.h>
+#include <terralib/datatype/StringProperty.h>
+
+// TerraLib FE - Style Filter Operator
 #include <terralib/fe/PropertyName.h>
 #include <terralib/fe/Literal.h>
 #include <terralib/fe/BinaryComparisonOp.h>
 #include <terralib/fe/Filter.h>
+#include <terralib/fe/And.h>
 #include <terralib/fe/Globals.h>
-#include <terralib/geometry/Utils.h>
-#include <terralib/memory/DataSetItem.h>
-#include <terralib/datatype/StringProperty.h>
 
 // Qt
 #include <QTemporaryFile>
@@ -1151,8 +1154,9 @@ std::unique_ptr<te::se::Style> terrama2::services::view::core::GeoServer::genera
     std::vector<te::se::Rule*> rules;
     te::se::Rule* ruleDefault;
 
-    for(auto& legendRule : legendRules)
+    for(std::size_t i = 0; i < legendRules.size(); ++i)
     {
+      auto legendRule = legendRules[i];
       te::se::Symbolizer* symbolizer(getSymbolizer(geomType, legendRule.color, legendRule.opacity));
 
       te::se::Rule* rule = new te::se::Rule;
@@ -1168,28 +1172,46 @@ std::unique_ptr<te::se::Style> terrama2::services::view::core::GeoServer::genera
       te::fe::PropertyName* propertyName = new te::fe::PropertyName(legend.metadata.at("column"));
       te::fe::Literal* value = new te::fe::Literal(legendRule.value);
 
-      te::fe::BinaryComparisonOp* operation = nullptr;
+      // Defining OGC Style Filter
+      std::unique_ptr<te::fe::Filter> filter(new te::fe::Filter);
 
       if(legend.classify == View::Legend::ClassifyType::VALUES)
-      {
-        operation = new te::fe::BinaryComparisonOp(te::fe::Globals::sm_propertyIsEqualTo, propertyName, value);
-      }
+        filter->setOp(new te::fe::BinaryComparisonOp(te::fe::Globals::sm_propertyIsEqualTo, propertyName, value));
       else if(legend.classify == View::Legend::ClassifyType::INTERVALS)
       {
-        operation = new te::fe::BinaryComparisonOp(te::fe::Globals::sm_propertyIsGreaterThanOrEqualTo, propertyName,value);
+        // If second node, use LessThanOrEqualTo operator (<=)
+        if (i == 1)
+          filter->setOp(new te::fe::BinaryComparisonOp(te::fe::Globals::sm_propertyIsLessThanOrEqualTo, propertyName,value));
+        else if (i < legendRules.size())
+        {
+          // For next nodes, make interval AND with GreaterThan and LessThanOrEqualTo
+          // to avoid GeoServer merge colors while re-painting
+
+          // Retrieve prior rule value to use as initial value
+          te::fe::Literal* priorValue = new te::fe::Literal(legendRules[i-1].value);
+
+          // Making a check for values greater than last legend
+          te::fe::BinaryComparisonOp* minOperator = new te::fe::BinaryComparisonOp(te::fe::Globals::sm_propertyIsGreaterThan,
+                                                                                   propertyName,
+                                                                                   priorValue);
+
+          // Making a check for values less than or equal to current rule
+          te::fe::BinaryComparisonOp* maxOperator = new te::fe::BinaryComparisonOp(te::fe::Globals::sm_propertyIsLessThanOrEqualTo,
+                                                                                   propertyName->clone(),
+                                                                                   value);
+
+          filter->setOp(new te::fe::And(minOperator, maxOperator));
+        }
       }
 
-      if(operation == nullptr)
+      if(filter->getOp() == nullptr)
       {
-        QString errMsg = QObject::tr("Unknow classification type!");
+        QString errMsg = QObject::tr("Unknown classification type!");
         TERRAMA2_LOG_ERROR() << errMsg;
         throw ViewGeoserverException() << ErrorDescription(errMsg);
       }
 
-      te::fe::Filter* filter = new te::fe::Filter;
-      filter->setOp(operation);
-
-      rule->setFilter(filter);
+      rule->setFilter(filter.release());
 
       rules.push_back(rule);
     }
