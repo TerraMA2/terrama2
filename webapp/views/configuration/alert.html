@@ -220,7 +220,7 @@
         <span ng-if="ctrl.dataSeriesType !== null">
           <div class="col-md-6" ng-show="ctrl.dataSeriesType === 'GRID'">
             <div class="form-group" terrama2-show-errors>
-              <label><span ng-bind="i18n.__('Risk attribute')"></span>:</label>
+              <label><span ng-bind="i18n.__('Risk band')"></span>:</label>
               <input type="number"
                     class="form-control"
                     name="riskAttributeGrid"
@@ -229,7 +229,7 @@
               <span class="help-block"
                   ng-show="forms.dataSeriesForm.riskAttributeGrid.$dirty && forms.dataSeriesForm.riskAttributeGrid.$invalid"
                   ng-class="{'has-error': dataSeriesForm.riskAttributeGrid.$invalid}"
-                  ng-bind="i18n.__('Risk attribute is required')">
+                  ng-bind="i18n.__('Risk band is required')">
               </span>
             </div>
           </div>

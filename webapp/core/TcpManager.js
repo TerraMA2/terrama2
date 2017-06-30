@@ -453,6 +453,10 @@ TcpManager.prototype.initialize = function(client) {
             // if the finished process ir from view, save/update the registered view
             else if (targetProcess.serviceType == ServiceType.VIEW){
               self.emit("processFinished", targetProcess.registeredView);
+            } 
+            else if (targetProcess.serviceType == ServiceType.ALERT){
+              if (response.notify)
+                self.emit("notifyView", targetProcess);
             }
           }
         })
