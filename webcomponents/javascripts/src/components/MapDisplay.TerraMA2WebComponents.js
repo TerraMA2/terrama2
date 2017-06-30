@@ -766,6 +766,48 @@ define(
     };
 
     /**
+     * Adds a new image wms layer to the map.
+     * @param {string} layerId - Layer id
+     * @param {string} layerName - Layer name
+     * @param {string} layerTitle - Layer title
+     * @param {string} url - Url to the wms layer
+     * @param {string} type - Server type
+     * @param {boolean} layerVisible - Flag that indicates if the layer should be visible on the map when created
+     * @param {boolean} disabled - Flag that indicates if the layer should be disabled in the layer explorer when created
+     * @param {string} parentGroup - Parent group id
+     * @param {object} params - Optional parameters, there are the following items:
+     *    {float} minResolution - Layer minimum resolution,
+     *    {float} maxResolution - Layer maximum resolution,
+     *    {string} time - Time parameter for temporal layers,
+     *    {integer} buffer - Buffer of additional border pixels that are used in the GetMap and GetFeatureInfo operations,
+     *    {string} version - WMS version,
+     *    {string} format - Layer format,
+     *    {object} tileGrid - Grid pattern for accessing the tiles
+     *    {object} sourceParams - Layer source parameters
+     * @returns {boolean} layerGroupExists - Indicates if the layer group exists
+     *
+     * @function addImageWMSLayer
+     * @memberof MapDisplay
+     * @inner
+     */
+    var addImageWMSLayer = function(layerId, layerName, layerTitle, url, type, layerVisible, disabled, parentGroup, params) {
+      var layerGroup = findBy(memberOlMap.getLayerGroup(), 'id', parentGroup);
+      var layerGroupExists = layerGroup !== null;
+
+      if(layerGroupExists) {
+        var layers = layerGroup.getLayers();
+
+        layers.push(
+          createImageWMSLayer(layerId, layerName, layerTitle, url, type, layerVisible, disabled, params)
+        );
+
+        layerGroup.setLayers(layers);
+      }
+
+      return layerGroupExists;
+    };
+
+    /**
      * Adds a new WMTS layer to the map.
      * @param {string} layerId - Layer id
      * @param {string} layerName - Layer name
@@ -1583,6 +1625,7 @@ define(
       addLayerGroup: addLayerGroup,
       updateLayerTime: updateLayerTime,
       addImageWMSLayer: addImageWMSLayer,
+      addTileWMSLayer: addTileWMSLayer,
       addWMTSLayer: addWMTSLayer,
       addBingMapsLayer: addBingMapsLayer,
       addGeoJSONVectorLayer: addGeoJSONVectorLayer,
