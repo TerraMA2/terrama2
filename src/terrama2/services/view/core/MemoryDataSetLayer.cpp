@@ -101,7 +101,6 @@ std::auto_ptr<te::da::DataSet> te::map::MemoryDataSetLayer::getData(te::da::Expr
                                        te::common::TraverseType /*travType*/,
                                        const te::common::AccessPolicy /*accessPolicy*/) const
 {
-  std::auto_ptr<te::da::DataSet> ds;
   throw Exception((TE_TR("This method was not implemented.!")));
 }
 
