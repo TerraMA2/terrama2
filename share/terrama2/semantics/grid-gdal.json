@@ -221,6 +221,7 @@
             "%mm",
             "%ss"
           ],
+          "ngModelOptions": { "updateOn": "blur" },
           "htmlClass": "col-md-6",
           "validationMessage": {
             "202": "Invalid mask"
