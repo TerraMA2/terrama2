@@ -258,6 +258,10 @@ void terrama2::services::view::core::Serialization::writeCoverageStyleGeoserverX
     rules.push_back(rule);
   }
 
+  // Ordering rules by value asc
+  std::sort(rules.begin(), rules.end(), View::Legend::Rule::compareByNumericValue);
+
+  // Retrieving VIEW classification type string
   std::string classifyType = View::Legend::to_string(legend.classify);
 
   // Dont create default value for RAMP type
@@ -268,8 +272,47 @@ void terrama2::services::view::core::Serialization::writeCoverageStyleGeoserverX
     writer->writeStartElement("ColorMap");
     writer->writeAttribute("type", "ramp");
 
-    writeColorMapEntry(writer.get(), defaultRule.color, "0", defaultRule.title, defaultRule.opacity);
-    writeColorMapEntry(writer.get(), defaultRule.color, "1", defaultRule.title, defaultRule.opacity);
+    // Looking for dummy value
+    std::unordered_map<std::string, std::string>::const_iterator it = legend.metadata.find("dummy");
+
+    if (it != legend.metadata.end())
+    {
+      /*
+        #TODO: Should open dataset and retrieve the values to make both default values and dummy data?
+
+        Temporary Solution. The GeoServer Styling does not provide a handy way to work both
+        default value (whatever value not mapped) and dummy data (No data in Raster - Transparent).
+        The last implementation tried to use Ramp generation to affect all elements before proceed. But it does
+        not work for Dummy data values that are transparent. In order to skip it, we must define intervals
+        to do not let GeoServer perform color composition. First of all, looking for dummy data.
+        If found, just generate three extra map entries. These entries must contain same values of default
+        rule.
+
+          - Entry 1 (-2)
+          - Entry 2 (-1)
+          - Dummy Entry
+          - Entry 3 (+1)
+          ...
+
+        The first one value must be "dummy - 2". The second one value must be "dummy - 1". And the last one value
+        must be "dummy + 1". These values are important to keep GeoServer Color Composition works properly
+      */
+
+      const double dummy = std::stod(it->second);
+
+      writeColorMapEntry(writer.get(), defaultRule.color, std::to_string(dummy - 2), defaultRule.title, defaultRule.opacity);
+      writeColorMapEntry(writer.get(), defaultRule.color, std::to_string(dummy - 1), defaultRule.title, defaultRule.opacity);
+
+      // Dummy Entry (The color doesn't matter since opacity is 0)
+      writeColorMapEntry(writer.get(), defaultRule.color, it->second, "Dummy[No Data]", "0");
+      // Continue gradient scale factor for other valeus
+      writeColorMapEntry(writer.get(), defaultRule.color, std::to_string(dummy + 1), defaultRule.title, defaultRule.opacity);
+    }
+    else
+    {
+      writeColorMapEntry(writer.get(), defaultRule.color, "0", defaultRule.title, defaultRule.opacity);
+      writeColorMapEntry(writer.get(), defaultRule.color, "1", defaultRule.title, defaultRule.opacity);
+    }
 
     writer->writeEndElement("ColorMap");
     writer->writeEndElement("RasterSymbolizer");
@@ -280,12 +323,6 @@ void terrama2::services::view::core::Serialization::writeCoverageStyleGeoserverX
   writer->writeStartElement("ColorMap");
 
   writer->writeAttribute("type", classifyType);
-
-  if (legend.classify != View::Legend::ClassifyType::RAMP)
-    // Dummy Entry (Doesnt matter the color, since opacity is 0)
-    writeColorMapEntry(writer.get(), "#FFFFFF", legend.metadata.find("dummy")->second, "Dummy[No Data]", "0");
-
-  std::sort(rules.begin(), rules.end(), View::Legend::Rule::compareByNumericValue);
 
   for(const auto& rule : rules)
   {
