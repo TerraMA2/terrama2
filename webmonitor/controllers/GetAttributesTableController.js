@@ -14,6 +14,7 @@ var GetAttributesTableController = function(app) {
 
   var describeFeatureTypeTemplateURL = "/wms?service=WFS&version=1.0.0&request=DescribeFeatureType&outputFormat=application/json&typename={{LAYER_NAME}}";
   var getFeatureTemplateURL = "/wfs?service=wfs&version=2.0.0&request=GetFeature&outputFormat=application/json&typeNames={{LAYER_NAME}}&propertyName={{PROPERTIES}}&sortBy={{SORT}}&startIndex={{START_INDEX}}&count={{COUNT}}";
+  var getLegendGraphicTemplateURL = "/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&legend_options=forceLabels:on&LAYER={{LAYER_NAME}}";
 
   var getValidProperties = function(layer, geoserverUri, callback) {
     memberHttp.get(geoserverUri + describeFeatureTypeTemplateURL.replace('{{LAYER_NAME}}', layer), function(resp) {
@@ -134,9 +135,20 @@ var GetAttributesTableController = function(app) {
     }
   };
 
+  var getLegend = function(request, response) {
+    memberHttp.get(request.query.geoserverUri + getLegendGraphicTemplateURL.replace('{{LAYER_NAME}}', request.query.layer), function(resp) {
+      resp.pipe(response, {
+        end: true
+      });
+    }).on("error", function(e) {
+      console.error(e.message);
+    });
+  };
+
   return {
     getAttributesTableController: getAttributesTableController,
-    getColumns: getColumns
+    getColumns: getColumns,
+    getLegend: getLegend
   };
 };
 

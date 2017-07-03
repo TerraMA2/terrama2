@@ -457,11 +457,11 @@
   right: 0px;
 }
 
-#moveMap { top: 92px; }
+#moveMap { top: 293px; }
 
-#tableButton { top: 134px; }
+#tableButton { top: 336px; }
 
-#getAttributes { top: 176px; }
+#getAttributes { top: 378px; }
 
 #getAttributes.with-select { width: 190px; }
 
@@ -489,7 +489,10 @@
 
 .cursor-pointer { cursor: pointer !important; }
 
-.ol-zoom, .ol-zoom:hover { background-color: rgba(0, 0, 0, 0.4) !important; }
+.ol-zoom, .ol-zoom:hover, .ol-control, .ol-control:hover {
+  margin-top: 200px;
+  background-color: rgba(0, 0, 0, 0.4) !important;
+}
 
 #table-div {
   position: absolute;
@@ -524,3 +527,32 @@
   float: left;
   margin: 4px 15px 0 0;
 }
+
+#attributes-table-select > span { float: left; }
+
+#attributes-table-select > select {
+  width: 200px;
+  float: left;
+}
+
+#legend-box {
+  position: absolute;
+  width: 150px;
+  height: 200px;
+  background-color: white;
+  z-index: 9999;
+  overflow: auto;
+  border-radius: 5px;
+  border: 1px solid;
+  right: 15px;
+  top: 60px;
+}
+
+#legend-box > .legend-header {
+  padding: 10px;
+  font-size: 15px;
+  background-color: #d8d8d8;
+  color: #000000;
+}
+
+#legend-box > .legend-body { padding: 10px; }

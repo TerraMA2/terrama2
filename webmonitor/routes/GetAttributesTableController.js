@@ -3,4 +3,5 @@ module.exports = function(app) {
 
   app.post(app.locals.BASE_URL + 'get-attributes-table', controller.getAttributesTableController);
   app.get(app.locals.BASE_URL + 'get-columns', controller.getColumns);
+  app.get(app.locals.BASE_URL + 'get-legend', controller.getLegend);
 };

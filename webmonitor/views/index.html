@@ -37,10 +37,10 @@
         </div>
     </div>
     <div id="table-div" style="height: 0px;">
-        <div>
-            <div>
-                <span style="float: left;">Layers:</span>
-                <select class="form-control" id="attributes-table-select" style="width: 200px; float: left;"></select>
+        <div class="hidden">
+            <div id="attributes-table-select">
+                <span>Layers:</span>
+                <select class="form-control"></select>
             </div>
             <div style="clear: both; height: 10px;"></div>
             <div id="attributes-table-div">
@@ -76,6 +76,11 @@
 
 <div id="feature-info-box"></div>
 
+<div id="legend-box">
+    <div class="legend-header">Legends</div>
+    <div class="legend-body"></div>
+</div>
+
 <script src="{[ BASE_URL ]}moment/moment.js"></script>
 
 <script src="{[ BASE_URL ]}javascripts/utils/utils.js"></script>
@@ -96,129 +101,6 @@
 <script src="{[ BASE_URL ]}datatables/media/js/dataTables.bootstrap.min.js"></script>
 <script>
     var BASE_URL = "{[ BASE_URL ]}";
-
-    var createTableSelect = function() {
-        var showButton = false;
-
-        for(var i = 0, visibleLayersLength = visibleLayers.length; i < visibleLayersLength; i++) {
-            var layerId = $('#' + visibleLayers[i]).data('layerid');
-            var layerName = TerraMA2WebComponents.MapDisplay.getLayerProperty(layerId, "layerName");
-            var layerType = TerraMA2WebComponents.MapDisplay.getLayerProperty(layerId, "layerType");
-
-            if(layerType !== "template" && layerType !== "custom") {
-                $('#attributes-table-select').append($('<option></option>').attr('value', layerId).text(layerName));
-                if(!showButton) showButton = true;
-            }
-        }
-
-        if(!showButton) {
-            $("#attributes-table-div").empty();
-            $("#table-div").css('height', '0px');
-
-            if(!$('#tableButton').hasClass('hidden'))
-                $('#tableButton').addClass('hidden');
-
-            resetMapMouseTools();
-            activateMoveMapTool();
-        } else {
-            $('#tableButton').removeClass('hidden');
-        }
-    };
-
-    var setAttributesTable = function() {
-        if($('#attributes-table-select').val() !== null) {
-            var layerId = null;
-            var geoserverUri = null;
-
-            for(var i = 0, allLayersLength = allLayers.length; i < allLayersLength; i++) {
-                if($('#attributes-table-select').val() === allLayers[i].id) {
-                    layerId = allLayers[i].id;
-                    geoserverUri = allLayers[i].url;
-                    break;
-                }
-            }
-
-            if(layerId !== null && geoserverUri !== null) {
-                if($("#tableButton").hasClass('hidden'))
-                    $("#tableButton").removeClass('hidden');
-
-                $.get(BASE_URL + 'get-columns',
-                    {
-                        layer: layerId,
-                        geoserverUri: geoserverUri
-                    },
-                    function(response) {
-                        var columns = response.fields;
-                        var columnsLength = columns.length;
-                        var columnsArray = [];
-                        var titles = "";
-
-                        for(var i = 0; i < columnsLength; i++) {
-                            columnsArray.push({ "name": columns[i].name });
-                            titles += "<th>" + columns[i].name + "</th>";
-                        }
-
-                        $("#attributes-table-div").empty().html("<table class=\"table table-bordered table-hover\" id=\"attributes-table\"><thead>" + titles + "</thead><tfoot>" + titles + "</tfoot></table>");
-
-                        $('#attributes-table').DataTable({
-                            "order": [[0, "asc"]],
-                            "processing": true,
-                            "serverSide": true,
-                            "ajax": {
-                                "url": BASE_URL + "get-attributes-table",
-                                "type": "POST",
-                                "data": function(data) {
-                                    data.layer = $('#attributes-table-select').val();
-                                    data.geoserverUri = geoserverUri;
-                                }
-                            },
-                            "columns": columnsArray,
-                            "language": {
-                                "emptyTable": "<p class='text-center'>Nenhum registro a ser exibido</p>",
-                                "info": "Exibindo _START_ at&eacute; _END_ de _TOTAL_ registros",
-                                "infoEmpty": "Exibindo 0 at&eacute; 0 de 0 registros",
-                                "infoFiltered": "(filtrado de _MAX_ registros)",
-                                "lengthMenu": "Exibir _MENU_ registros",
-                                "loadingRecords": "Carregando...",
-                                "processing": "Processando...",
-                                "search": "Pesquisa:",
-                                "zeroRecords": "<p class='text-center'>Nenhum registro encontrado</p>",
-                                "paginate": {
-                                    "first": "Primeira",
-                                    "last": "&Uacute;ltima",
-                                    "next": "Pr&oacute;xima",
-                                    "previous": "Anterior"
-                                }
-                            }
-                        });
-                    }
-                );
-            } else {
-                $("#attributes-table-div").empty();
-                $("#table-div").css('height', '0px');
-
-                if(!$("#tableButton").hasClass('hidden'))
-                    $("#tableButton").addClass('hidden');
-            }
-        } else {
-            $("#attributes-table-div").empty();
-            $("#table-div").css('height', '0px');
-
-            if(!$("#tableButton").hasClass('hidden'))
-                $("#tableButton").addClass('hidden');
-        }
-    };
-
-    $('#attributes-table-select').on('change', setAttributesTable);
-
-    $('#tableButton > button').on('click', function() {
-        if($('#table-div').css('height') === '0px') {
-            $('#table-div').css('height', '400px');
-            setAttributesTable();
-        } else {
-            $('#table-div').css('height', '0px');
-        }
-    });
 
     var webadminHostInfo = {[webadminHostInfo|json|safe]};
     var webmonitorHostInfo = {[webmonitorHostInfo|json|safe]};
@@ -720,6 +602,175 @@
         }
     };
 
+    var createAttributesTable = function() {
+        var showButton = false;
+
+        for(var i = 0, visibleLayersLength = visibleLayers.length; i < visibleLayersLength; i++) {
+            var layerId = $('#' + visibleLayers[i]).data('layerid');
+            var layerName = TerraMA2WebComponents.MapDisplay.getLayerProperty(layerId, "layerName");
+            var layerType = TerraMA2WebComponents.MapDisplay.getLayerProperty(layerId, "layerType");
+
+            if(layerType !== "template" && layerType !== "custom") {
+                $('#attributes-table-select > select').append($('<option></option>').attr('value', layerId).text(layerName));
+                if(!showButton) showButton = true;
+            }
+        }
+
+        if(!showButton) {
+            $("#attributes-table-div").empty();
+
+            if(!$('#table-div > div').hasClass('hidden'))
+                $('#table-div > div').addClass('hidden');
+
+            $("#table-div").css('height', '0px');
+
+            if(!$('#tableButton').hasClass('hidden'))
+                $('#tableButton').addClass('hidden');
+
+            resetMapMouseTools();
+            activateMoveMapTool();
+        } else {
+            $('#tableButton').removeClass('hidden');
+        }
+    };
+
+    var setAttributesTable = function() {
+        if($('#attributes-table-select > select').val() !== null) {
+            var layerData = getLayerData($('#attributes-table-select > select').val());
+
+            if(layerData !== null && layerData.id !== undefined && layerData.url !== undefined) {
+                if($("#tableButton").hasClass('hidden'))
+                    $("#tableButton").removeClass('hidden');
+
+                if($('#table-div > div').hasClass('hidden'))
+                    $('#table-div > div').removeClass('hidden');
+
+                $.get(BASE_URL + 'get-columns',
+                    {
+                        layer: layerData.id,
+                        geoserverUri: layerData.url
+                    },
+                    function(response) {
+                        var columns = response.fields;
+                        var columnsLength = columns.length;
+                        var columnsArray = [];
+                        var titles = "";
+
+                        for(var i = 0; i < columnsLength; i++) {
+                            columnsArray.push({ "name": columns[i].name });
+                            titles += "<th>" + columns[i].name + "</th>";
+                        }
+
+                        $("#attributes-table-div").empty().html("<table class=\"table table-bordered table-hover\" id=\"attributes-table\"><thead>" + titles + "</thead><tfoot>" + titles + "</tfoot></table>");
+
+                        $('#attributes-table').DataTable({
+                            "order": [[0, "asc"]],
+                            "processing": true,
+                            "serverSide": true,
+                            "ajax": {
+                                "url": BASE_URL + "get-attributes-table",
+                                "type": "POST",
+                                "data": function(data) {
+                                    data.layer = $('#attributes-table-select > select').val();
+                                    data.geoserverUri = layerData.url;
+                                }
+                            },
+                            "columns": columnsArray,
+                            "language": {
+                                "emptyTable": "<p class='text-center'>Nenhum registro a ser exibido</p>",
+                                "info": "Exibindo _START_ at&eacute; _END_ de _TOTAL_ registros",
+                                "infoEmpty": "Exibindo 0 at&eacute; 0 de 0 registros",
+                                "infoFiltered": "(filtrado de _MAX_ registros)",
+                                "lengthMenu": "Exibir _MENU_ registros",
+                                "loadingRecords": "Carregando...",
+                                "processing": "Processando...",
+                                "search": "Pesquisa:",
+                                "zeroRecords": "<p class='text-center'>Nenhum registro encontrado</p>",
+                                "paginate": {
+                                    "first": "Primeira",
+                                    "last": "&Uacute;ltima",
+                                    "next": "Pr&oacute;xima",
+                                    "previous": "Anterior"
+                                }
+                            }
+                        });
+                    }
+                );
+            } else {
+                $("#attributes-table-div").empty();
+
+                if(!$('#table-div > div').hasClass('hidden'))
+                    $('#table-div > div').addClass('hidden');
+
+                $("#table-div").css('height', '0px');
+
+                if(!$("#tableButton").hasClass('hidden'))
+                    $("#tableButton").addClass('hidden');
+            }
+        } else {
+            $("#attributes-table-div").empty();
+
+            if(!$('#table-div > div').hasClass('hidden'))
+                $('#table-div > div').addClass('hidden');
+
+            $("#table-div").css('height', '0px');
+
+            if(!$("#tableButton").hasClass('hidden'))
+                $("#tableButton").addClass('hidden');
+        }
+    };
+
+    var setLegends = function() {
+        var html = "";
+
+        for(var i = 0, visibleLayersLength = visibleLayers.length; i < visibleLayersLength; i++) {
+            var layerId = $('#' + visibleLayers[i]).data('layerid');
+            var layerName = TerraMA2WebComponents.MapDisplay.getLayerProperty(layerId, "layerName");
+            var layerType = TerraMA2WebComponents.MapDisplay.getLayerProperty(layerId, "layerType");
+
+            if(layerType !== "template" && layerType !== "custom") {
+                var layerData = getLayerData(layerId);
+
+                if(layerData !== null && layerData.id !== undefined && layerData.url !== undefined) {
+                    html += "<strong>" + layerName + "</strong><br/><br/><img src='" + BASE_URL + "get-legend?layer=" + layerId + "&geoserverUri=" + layerData.url + "'/><br/>"
+                }
+            }
+        }
+
+        $('#legend-box > .legend-body').html((html !== "" ? html : "<strong>No data to show.</strong>"));
+
+        $("#legend-box").draggable({
+            containment: "window"
+        }).resizable({
+            handles: "n, e, s, w"
+        });
+    };
+
+    var getLayerData = function(layerId) {
+        for(var i = 0, allLayersLength = allLayers.length; i < allLayersLength; i++) {
+            if(layerId === allLayers[i].id) {
+                return allLayers[i];
+            }
+        }
+
+        return null;
+    };
+
+    $('#attributes-table-select > select').on('change', setAttributesTable);
+
+    $('#tableButton > button').on('click', function() {
+        if($('#table-div').css('height') === '0px') {
+            $('#table-div').css('height', '400px');
+            $('#table-div > div').removeClass('hidden');
+            setAttributesTable();
+        } else {
+            if(!$('#table-div > div').hasClass('hidden'))
+                $('#table-div > div').addClass('hidden');
+
+            $('#table-div').css('height', '0px');
+        }
+    });
+
     $('#getAttributes > select').on('change', featureInfo);
 
     $('#moveMap').on('click', function() {
@@ -900,7 +951,8 @@
             visibleLayers.push(layerid);
         }
         setGetFeatureInfoToolSelect();
-        createTableSelect();
+        createAttributesTable();
+        setLegends();
         var imageElement = $(this).closest('li').find("#image-icon");
         if (imageElement.attr("src") == "{[ BASE_URL ]}images/status/yellow-black.gif" || 
               imageElement.attr("src") == "{[ BASE_URL ]}images/status/red-black.gif"){
