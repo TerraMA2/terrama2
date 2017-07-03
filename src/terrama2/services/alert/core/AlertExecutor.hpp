@@ -110,10 +110,10 @@ namespace terrama2
             //! Get the name of the property used as unique key of the DataSet
             std::string getIdentifierPropertyName(terrama2::core::DataSetPtr dataSet, terrama2::core::DataSeriesPtr dataSeries);
             //! Get the propper function to evaluate the risk level of a value.
-            std::function<std::tuple<int, std::string, std::string>(size_t pos)> createGetRiskFunction(terrama2::core::Risk risk, std::shared_ptr<te::da::DataSet> teDataSet);
+            std::function<std::tuple<int, std::string, std::string>(size_t pos)> createGetRiskFunction(terrama2::core::LegendPtr legend, std::shared_ptr<te::da::DataSet> teDataSet);
 
             std::map<std::shared_ptr<te::dt::AbstractData>, std::map<std::string, std::pair<std::shared_ptr<te::dt::AbstractData>, uint32_t> >, terrama2::services::alert::core::comparatorAbstractData>
-            getResultMap(AlertPtr alertPtr,
+            getResultMap(terrama2::core::LegendPtr risk,
                          size_t pos,
                          te::dt::Property* idProperty,
                          std::string datetimeColumnName,
@@ -129,6 +129,7 @@ namespace terrama2
 
             std::shared_ptr<te::mem::DataSet> populateGridAlertDataset( terrama2::core::DataSetPtr dataset,
                                                                         AlertPtr alertPtr,
+                                                                        terrama2::core::LegendPtr legend,
                                                                         std::vector<std::shared_ptr<te::dt::DateTime> > vecDates,
                                                                         std::shared_ptr<te::da::DataSet> teDataset,
                                                                         std::shared_ptr<te::da::DataSetType> dataSetType,
@@ -142,6 +143,7 @@ namespace terrama2
                                                                    std::string datetimeColumnName,
                                                                    std::vector<std::shared_ptr<te::dt::DateTime> > vecDates,
                                                                    AlertPtr alertPtr,
+                                                                   terrama2::core::LegendPtr legend,
                                                                    terrama2::core::Filter filter,
                                                                    terrama2::core::DataSetPtr dataset,
                                                                    std::shared_ptr<te::da::DataSet> teDataset,
@@ -154,6 +156,7 @@ namespace terrama2
                                                         std::string datetimeColumnName,
                                                         std::vector<std::shared_ptr<te::dt::DateTime> > vecDates,
                                                         AlertPtr alertPtr,
+                                                        terrama2::core::LegendPtr legend,
                                                         terrama2::core::Filter filter,
                                                         terrama2::core::DataSetPtr dataset,
                                                         std::shared_ptr<te::da::DataSet> teDataset);

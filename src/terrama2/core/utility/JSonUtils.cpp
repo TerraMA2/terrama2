@@ -43,6 +43,10 @@
 
 #include "JSonUtils.hpp"
 
+//STL
+#include <limits>
+
+
 //Qt
 #include <QJsonDocument>
 #include <QJsonArray>
@@ -332,17 +336,17 @@ terrama2::core::Filter terrama2::core::fromFilterJson(QJsonObject json, DataMana
   return filter;
 }
 
-terrama2::core::Risk terrama2::core::fromRiskJson(QJsonObject json)
+terrama2::core::LegendPtr terrama2::core::fromRiskJson(QJsonObject json)
 {
-  if(json["class"].toString() != "Risk")
+  if(json["class"].toString() != "Legend")
   {
-    QString errMsg = QObject::tr("Invalid Risk JSON object.");
+    QString errMsg = QObject::tr("Invalid Legend JSON object.");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
 
   if(!(json.contains("name")
-//       && json.contains("description")
+       && json.contains("description")
        && json.contains("levels")))
   {
     QString errMsg = QObject::tr("Invalid Risk JSON object.");
@@ -350,9 +354,9 @@ terrama2::core::Risk terrama2::core::fromRiskJson(QJsonObject json)
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
 
-  terrama2::core::Risk risk;
-  risk.name = json["name"].toString().toStdString();
-//  risk.description = json["description"].toString().toStdString();
+  std::unique_ptr<terrama2::core::Risk> risk(new terrama2::core::Risk());
+  risk->name = json["name"].toString().toStdString();
+  risk->description = json["description"].toString().toStdString();
 
   auto riskLevelsArray = json["levels"].toArray();
   for(const auto& value : riskLevelsArray)
@@ -360,14 +364,23 @@ terrama2::core::Risk terrama2::core::fromRiskJson(QJsonObject json)
     auto obj = value.toObject();
     terrama2::core::RiskLevel riskLevel;
     riskLevel.name = obj["name"].toString().toStdString();
-    riskLevel.level = static_cast<uint32_t>(obj["level"].toInt());
     riskLevel.value = obj["value"].toDouble();
 
-    risk.riskLevels.push_back(riskLevel);
+    if(obj["level"].isNull())
+    {
+      //default risk
+      riskLevel.level = std::numeric_limits<uint32_t>::max();
+      risk->defaultRisk = riskLevel;
+    }
+    else
+    {
+      riskLevel.level = static_cast<uint32_t>(obj["level"].toInt());
+      risk->riskLevels.push_back(riskLevel);
+    }
   }
-  std::sort(std::begin(risk.riskLevels), std::end(risk.riskLevels));
+  std::sort(std::begin(risk->riskLevels), std::end(risk->riskLevels));
 
-  return risk;
+  return terrama2::core::LegendPtr(risk.release());
 }
 
 QJsonObject terrama2::core::toJson(const terrama2::core::Risk& risk)
