@@ -12,11 +12,11 @@ var GetAttributesTableController = function(app) {
 
   var memberHttp = require('http');
 
-  var describeFeatureTypeTemplateURL = "http://localhost:8080/geoserver/wms?service=WFS&version=1.0.0&request=DescribeFeatureType&outputFormat=application/json&typename={{LAYER_NAME}}";
-  var getFeatureTemplateURL = "http://localhost:8080/geoserver/wfs?service=wfs&version=2.0.0&request=GetFeature&outputFormat=application/json&typeNames={{LAYER_NAME}}&propertyName={{PROPERTIES}}&sortBy={{SORT}}+A&startIndex={{START_INDEX}}&count={{COUNT}}";
+  var describeFeatureTypeTemplateURL = "/wms?service=WFS&version=1.0.0&request=DescribeFeatureType&outputFormat=application/json&typename={{LAYER_NAME}}";
+  var getFeatureTemplateURL = "/wfs?service=wfs&version=2.0.0&request=GetFeature&outputFormat=application/json&typeNames={{LAYER_NAME}}&propertyName={{PROPERTIES}}&sortBy={{SORT}}&startIndex={{START_INDEX}}&count={{COUNT}}";
 
-  var getValidProperties = function(layer, callback) {
-    memberHttp.get(describeFeatureTypeTemplateURL.replace('{{LAYER_NAME}}', layer), function(resp) {
+  var getValidProperties = function(layer, geoserverUri, callback) {
+    memberHttp.get(geoserverUri + describeFeatureTypeTemplateURL.replace('{{LAYER_NAME}}', layer), function(resp) {
       var body = '';
       var fields = [];
 
@@ -32,7 +32,7 @@ var GetAttributesTableController = function(app) {
             var type = body.featureTypes[0].properties[i].type.split(':');
 
             if(type[0] !== "gml")
-              fields.push(body.featureTypes[0].properties[i].name);
+              fields.push({ name: body.featureTypes[0].properties[i].name, string: (body.featureTypes[0].properties[i].localType === "string" ? true : false) });
           }
         } catch(ex) {
           body = {};
@@ -56,20 +56,29 @@ var GetAttributesTableController = function(app) {
    * @inner
    */
   var getAttributesTableController = function(request, response) {
-    getValidProperties(request.body.layer, function(fields) {
+    getValidProperties(request.body.layer, request.body.geoserverUri, function(fields) {
       var properties = "";
+      var search = (request.body['search[value]'] !== "" ? "&cql_filter=" : "");
 
       for(var i = 0, fieldsLength = fields.length; i < fieldsLength; i++) {
-        properties += fields[i] + ",";
+        properties += fields[i].name + ",";
+
+        if(request.body['search[value]'] !== "" && fields[i].string)
+          search += "strToLowerCase(Concatenate(" + fields[i].name + ", '')) like '%25" + request.body['search[value]'].toLowerCase() + "%25' or ";
       }
-    
+
+      var order = fields[request.body['order[0][column]']].name + (request.body['order[0][dir]'] === "desc" ? "+D" : "+A");
+
       properties = (properties !== "" ? properties.substring(0, properties.length - 1) : properties);
 
-      var url = getFeatureTemplateURL.replace('{{LAYER_NAME}}', request.body.layer);
+      var url = request.body.geoserverUri + getFeatureTemplateURL.replace('{{LAYER_NAME}}', request.body.layer);
       url = url.replace('{{PROPERTIES}}', properties);
-      url = url.replace('{{SORT}}', fields[0]);
+      url = url.replace('{{SORT}}', order);
       url = url.replace('{{START_INDEX}}', request.body.start);
       url = url.replace('{{COUNT}}', request.body.length);
+
+      if(search !== "")
+        url += search.substring(0, search.length - 4);
 
       memberHttp.get(url, function(resp) {
         var body = '';
@@ -117,7 +126,7 @@ var GetAttributesTableController = function(app) {
           fields: []
         });
     } else {
-      getValidProperties(request.query.layer, function(fields) {
+      getValidProperties(request.query.layer, request.query.geoserverUri, function(fields) {
         response.json({
           fields: fields
         });
