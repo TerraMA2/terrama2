@@ -649,7 +649,7 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
         return;
       }
 
-      ReportPtr reportPtr = std::make_shared<Report>(alertPtr, inputDataSeries, alertDataSet, vecDates);
+      ReportPtr reportPtr = std::make_shared<Report>(alertPtr, legend, inputDataSeries, alertDataSet, vecDates);
       for(const auto& notification : alertPtr->notifications)
       {
         std::string documentURI = makeDocument(reportPtr, notification, executionPackage, logger);

@@ -49,9 +49,15 @@ std::tuple<int, std::string> terrama2::core::Risk::riskLevel(double value) const
 
 std::string terrama2::core::Risk::riskName(const int level) const
 {
+  //default risk
+  if(level == defaultRisk.level)
+    return defaultRisk.name;
+
+  //find risk level
   auto it = std::find_if(riskLevels.begin(), riskLevels.end(), [level](const RiskLevel &b){ return level == b.level;});
   if(it == riskLevels.end())
   {
+    //the level is not a valid
     QString errMsg = QObject::tr("Risk not defined for level: %1").arg(level);
     TERRAMA2_LOG_ERROR() << errMsg;
     throw DataSeriesRiskException() << ErrorDescription(errMsg);
