@@ -44,6 +44,9 @@
             case ServiceType.VIEW:
               handler = self.handleRegisteredViews(response);
               break;
+            case ServiceType.ALERT:
+              handler = self.handleFinishedAlert(response);
+              break;
             default:
               throw new ServiceTypeError(Utils.format("Invalid instance id %s", response.instance_id));
           }
@@ -204,6 +207,42 @@
       }
     });
   };
+  /**
+   * It handles alert process finished. Once alertResultObject.notify is true, send signal to web monitor notify the user
+   * 
+   * @param {Object} alertResultObject - An alert result object retrieved from C++ services.
+   * 
+   * @returns {Promise}
+   */
+  ProcessFinished.handleFinishedAlert = function(alertResultObject){
+    return new PromiseClass(function(resolve, reject){
+      if (alertResultObject.result){
+        return DataManager.orm.transaction(function(t){
+          var options = {transaction: t};
+          return DataManager.getAlert({id: alertResultObject.process_id}, options)
+            .then(function(alert){
+              if (alertResultObject.notify && alert.view && alert.view.id){
+                return DataManager.getRegisteredView({view_id: alert.view.id}, options)
+                  .then(function(registeredView){
+                    var objectResponse = {
+                      serviceType: ServiceType.ALERT,
+                      registeredView: registeredView
+                    };
+                    return resolve(objectResponse);
+                  });
+              } else {
+                return resolve();
+              }
+            })
+            .catch(function(err){
+              return reject(new Error(err.toString()));
+            });
+        })
+      } else {
+        return reject(new Error("The alert process finished with error"));
+      }
+    });
+  }
   /**
    * Function to list conditioned process
    */

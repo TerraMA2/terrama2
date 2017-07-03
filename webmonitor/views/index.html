@@ -421,6 +421,13 @@
             changeGroupStatusIcon(parent, "new");
         }
     });
+    
+    wepappsocket.on("notifyView", function(data){
+      var layerId = data.workspace + ":" + data.layer.name;
+      changeLayerStatusIcon(layerId, "alert");
+      changeGroupStatusIcon("alert", "alert");
+      console.log(data);
+    })
 
     // Checking map server connection response
     socket.on('connectionResponse', function(data){
@@ -895,7 +902,8 @@
         setGetFeatureInfoToolSelect();
         createTableSelect();
         var imageElement = $(this).closest('li').find("#image-icon");
-        if (imageElement.attr("src") == "{[ BASE_URL ]}images/status/yellow-black.gif"){
+        if (imageElement.attr("src") == "{[ BASE_URL ]}images/status/yellow-black.gif" || 
+              imageElement.attr("src") == "{[ BASE_URL ]}images/status/red-black.gif"){
             TerraMA2WebComponents.MapDisplay.updateLayerSourceParams(completeLayerId, {"": Date.now().toString()}, true);
             changeLayerStatusIcon(layerid.split('.').join('\\.'), "working");
         }
@@ -909,9 +917,11 @@
         if (parentLi.hasClass('open')){
             var imageStatus = parentLi.find("#image-group-icon");
             var actualStatus = imageStatus.attr("src");
-            if (actualStatus == "{[ BASE_URL ]}images/status/yellow-black.gif"){
+            if (actualStatus == "{[ BASE_URL ]}images/status/yellow-black.gif" || 
+              actualStatus == "{[ BASE_URL ]}images/status/red-black.gif"){
                 changeGroupStatusIcon(parent, "working");
-            } else if (actualStatus == "{[ BASE_URL ]}images/status/yellow-gray.gif"){
+            } else if (actualStatus == "{[ BASE_URL ]}images/status/yellow-gray.gif" || 
+              actualStatus == "{[ BASE_URL ]}images/status/red-black.gif"){
                 changeGroupStatusIcon(parent, "erraccess");
             }
         }
@@ -1005,7 +1015,7 @@
             case "erraccess":
                 return "{[ BASE_URL ]}images/status/gray_icon.svg";
             case "alert":
-                return "{[ BASE_URL ]}images/status/red-black-gif";
+                return "{[ BASE_URL ]}images/status/red-black.gif";
             default:
                 return "";
         }
