@@ -361,6 +361,7 @@
   "Grid analysis script must end with 'return' statement": "Os modelos de análises do tipo Grade devem terminar com um 'return'",
   "Grid configuration": "Configuração da Grade",
   "Grid operators": "Operadores Grade",
+  "Grid - ASCII": "Matriz - ASCII",
   "Grid - ASC-Grid": "Matriz - ASC-Grid",
   "Grid - GDAL (other formats)": "Matriz - GDAL (demais formatos)",
   "Grid - GeoTiff": "Matriz - GeoTiff",

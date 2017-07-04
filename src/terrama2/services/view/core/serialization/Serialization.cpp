@@ -31,6 +31,7 @@
 #include "Serialization.hpp"
 #include "Exception.hpp"
 #include "../../../../core/utility/Logger.hpp"
+#include "../Utils.hpp"
 
 // TerraLib
 #include <terralib/xml/ReaderFactory.h>
@@ -194,6 +195,27 @@ terrama2::services::view::core::Serialization::readVectorialStyleXML(const std::
   return style;
 }
 
+//! Generates OGC ColorMapEntry XML elements with color attributes.
+void writeColorMapEntry(te::xml::AbstractWriter* writer,
+                        const std::string& color,
+                        const std::string& value,
+                        const std::string& title,
+                        const std::string& opacity)
+{
+  writer->writeStartElement("ColorMapEntry");
+  writer->writeAttribute("color", color);
+  writer->writeAttribute("quantity", value);
+  writer->writeAttribute("label", title);
+  writer->writeAttribute("opacity", opacity);
+  writer->writeEndElement("ColorMapEntry");
+}
+
+//! Wrapper ColorMapEntry for TerraMA² Rule
+void writeColorMapEntry(te::xml::AbstractWriter* writer,
+                        const terrama2::services::view::core::View::Legend::Rule& rule)
+{
+  writeColorMapEntry(writer, rule.color, rule.value, rule.title, rule.opacity);
+}
 
 void terrama2::services::view::core::Serialization::writeCoverageStyleGeoserverXML(const View::Legend legend,
                                                                                    const std::string path)
@@ -223,7 +245,6 @@ void terrama2::services::view::core::Serialization::writeCoverageStyleGeoserverX
   writer->writeStartElement("FeatureTypeStyle");
   writer->writeStartElement("Rule");
 
-
   View::Legend::Rule defaultRule;
   std::vector<View::Legend::Rule> rules;
 
@@ -238,73 +259,76 @@ void terrama2::services::view::core::Serialization::writeCoverageStyleGeoserverX
     rules.push_back(rule);
   }
 
+  // Ordering rules by value asc
+  std::sort(rules.begin(), rules.end(), View::Legend::Rule::compareByNumericValue);
 
-  // default color
-  writer->writeStartElement("RasterSymbolizer");
-  writer->writeStartElement("ColorMap");
-  writer->writeAttribute("type", "ramp");
+  // Retrieving VIEW classification type string
+  std::string classifyType = View::Legend::to_string(legend.classify);
 
-  writer->writeStartElement("ColorMapEntry");
-  writer->writeAttribute("color", defaultRule.color);
-  writer->writeAttribute("quantity", "0");
-  writer->writeAttribute("label", defaultRule.title);
-  writer->writeAttribute("opacity", defaultRule.opacity);
-  writer->writeEndElement("ColorMapEntry");
+  // Dont create default value for RAMP type
+  if(legend.classify != View::Legend::ClassifyType::RAMP)
+  {
+    // default color
+    writer->writeStartElement("RasterSymbolizer");
+    writer->writeStartElement("ColorMap");
+    writer->writeAttribute("type", "ramp");
 
-  writer->writeStartElement("ColorMapEntry");
-  writer->writeAttribute("color", defaultRule.color);
-  writer->writeAttribute("quantity", "1");
-  writer->writeAttribute("label", defaultRule.title);
-  writer->writeAttribute("opacity", defaultRule.opacity);
-  writer->writeEndElement("ColorMapEntry");
+    // Looking for dummy value
+    std::unordered_map<std::string, std::string>::const_iterator it = legend.metadata.find("dummy");
 
-  writer->writeEndElement("ColorMap");
-  writer->writeEndElement("RasterSymbolizer");
+    if (it != legend.metadata.end())
+    {
+      /*
+       * #FIXME: Temporary Solution. The GeoServer Styling does not provide a handy way to work both
+       * default value (whatever value not mapped) and dummy data (No data in Raster - Transparent).
+       * The last implementation tried to use Ramp generation to affect all elements before proceed. But it does
+       * not work for Dummy data values that are transparent. In order to skip it, we must define intervals
+       * to do not let GeoServer perform color composition. First of all, looking for dummy data.
+       * If found, just generate three extra map entries. These entries must contain same values of default
+       * rule.
+       *
+       *  - Entry 1 (-2)
+       *  - Entry 2 (-.00000001)
+       *  - Dummy Entry
+       *  - Entry 3 (+.00000001)
+       *  ...
+       *
+       * The first one value must be "dummy - 2". The second one and the last one value
+       * must be nearest zero negative and positive respectively. These values are important to keep GeoServer Color Composition works properly.
+       *
+       * Note that this approach does not generate GeoServer Legends.
+      */
+
+      const double dummy = std::stod(it->second);
+
+      writeColorMapEntry(writer.get(), defaultRule.color, toString(dummy - 2), defaultRule.title, defaultRule.opacity);
+      writeColorMapEntry(writer.get(), defaultRule.color, toString(dummy - 0.00000001), defaultRule.title, defaultRule.opacity);
+
+      // Dummy Entry (The color doesn't matter since opacity is 0)
+      writeColorMapEntry(writer.get(), defaultRule.color, it->second, "Dummy[No Data]", "0");
+      // Continue gradient scale factor for other valeus
+      writeColorMapEntry(writer.get(), defaultRule.color, toString(dummy + 0.00000001), defaultRule.title, defaultRule.opacity);
+    } // endif it != legend.metadata.end()
+    else
+    {
+      writeColorMapEntry(writer.get(), defaultRule.color, "0", defaultRule.title, defaultRule.opacity);
+      writeColorMapEntry(writer.get(), defaultRule.color, "1", defaultRule.title, defaultRule.opacity);
+    }
+
+    writer->writeEndElement("ColorMap");
+    writer->writeEndElement("RasterSymbolizer");
+  }
 
   // assigned colors
   writer->writeStartElement("RasterSymbolizer");
   writer->writeStartElement("ColorMap");
 
-  std::string classifyType;
-
-  if(legend.classify == View::Legend::ClassifyType::INTERVALS)
-  {
-    classifyType = "intervals";
-  }
-  else if(legend.classify == View::Legend::ClassifyType::VALUES)
-  {
-    classifyType = "values";
-  }
-  else
-  {
-    classifyType =  "ramp";
-  }
-
   writer->writeAttribute("type", classifyType);
-
-  std::sort(rules.begin(), rules.end(), View::Legend::Rule::compareByNumericValue);
 
   for(const auto& rule : rules)
   {
-    if(rule.isDefault)
-      continue;
-
-    writer->writeStartElement("ColorMapEntry");
-    writer->writeAttribute("color", rule.color);
-    writer->writeAttribute("quantity", rule.value);
-    writer->writeAttribute("label", rule.title);
-    writer->writeAttribute("opacity", rule.opacity);
-    writer->writeEndElement("ColorMapEntry");
-
-    if(rule == rules.back())
-    {
-      writer->writeStartElement("ColorMapEntry");
-      writer->writeAttribute("color", rule.color);
-      writer->writeAttribute("quantity", rule.value);
-      writer->writeAttribute("label", rule.title);
-      writer->writeAttribute("opacity", "0");
-      writer->writeEndElement("ColorMapEntry");
-    }
+    if(!rule.isDefault)
+      writeColorMapEntry(writer.get(), rule);
   }
 
   writer->writeEndElement("ColorMap");
@@ -317,5 +341,4 @@ void terrama2::services::view::core::Serialization::writeCoverageStyleGeoserverX
 
   writer->writeEndElement("StyledLayerDescriptor");
   writer->writeToFile();
-
 }
