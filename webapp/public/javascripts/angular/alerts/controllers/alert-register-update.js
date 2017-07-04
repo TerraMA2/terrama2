@@ -665,7 +665,7 @@ define([], function() {
             },
             type: 2
           };
-          for (var i = 0; i < self.colors.length; i++){
+          for (var i = 0; i < self.alert.risk.levels.length; i++){
             var colorModel = {
               color: self.colors[i],
               isDefault: i == 0,
