@@ -45,10 +45,6 @@
 #include "ViewLogger.hpp"
 #include "Exception.hpp"
 
-// TerraLib
-#include <terralib/se/Style.h>
-#include <terralib/core/uri/URI.h>
-
 // STL
 #include <string>
 #include <vector>

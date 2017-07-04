@@ -31,6 +31,7 @@
 #include "Serialization.hpp"
 #include "Exception.hpp"
 #include "../../../../core/utility/Logger.hpp"
+#include "../Utils.hpp"
 
 // TerraLib
 #include <terralib/xml/ReaderFactory.h>
@@ -278,36 +279,36 @@ void terrama2::services::view::core::Serialization::writeCoverageStyleGeoserverX
     if (it != legend.metadata.end())
     {
       /*
-        #TODO: Should open dataset and retrieve the values to make both default values and dummy data?
-
-        Temporary Solution. The GeoServer Styling does not provide a handy way to work both
-        default value (whatever value not mapped) and dummy data (No data in Raster - Transparent).
-        The last implementation tried to use Ramp generation to affect all elements before proceed. But it does
-        not work for Dummy data values that are transparent. In order to skip it, we must define intervals
-        to do not let GeoServer perform color composition. First of all, looking for dummy data.
-        If found, just generate three extra map entries. These entries must contain same values of default
-        rule.
-
-          - Entry 1 (-2)
-          - Entry 2 (-1)
-          - Dummy Entry
-          - Entry 3 (+1)
-          ...
-
-        The first one value must be "dummy - 2". The second one value must be "dummy - 1". And the last one value
-        must be "dummy + 1". These values are important to keep GeoServer Color Composition works properly
+       * #FIXME: Temporary Solution. The GeoServer Styling does not provide a handy way to work both
+       * default value (whatever value not mapped) and dummy data (No data in Raster - Transparent).
+       * The last implementation tried to use Ramp generation to affect all elements before proceed. But it does
+       * not work for Dummy data values that are transparent. In order to skip it, we must define intervals
+       * to do not let GeoServer perform color composition. First of all, looking for dummy data.
+       * If found, just generate three extra map entries. These entries must contain same values of default
+       * rule.
+       *
+       *  - Entry 1 (-2)
+       *  - Entry 2 (-.00000001)
+       *  - Dummy Entry
+       *  - Entry 3 (+.00000001)
+       *  ...
+       *
+       * The first one value must be "dummy - 2". The second one and the last one value
+       * must be nearest zero negative and positive respectively. These values are important to keep GeoServer Color Composition works properly.
+       *
+       * Note that this approach does not generate GeoServer Legends.
       */
 
       const double dummy = std::stod(it->second);
 
-      writeColorMapEntry(writer.get(), defaultRule.color, std::to_string(dummy - 2), defaultRule.title, defaultRule.opacity);
-      writeColorMapEntry(writer.get(), defaultRule.color, std::to_string(dummy - 1), defaultRule.title, defaultRule.opacity);
+      writeColorMapEntry(writer.get(), defaultRule.color, toString(dummy - 2), defaultRule.title, defaultRule.opacity);
+      writeColorMapEntry(writer.get(), defaultRule.color, toString(dummy - 0.00000001), defaultRule.title, defaultRule.opacity);
 
       // Dummy Entry (The color doesn't matter since opacity is 0)
       writeColorMapEntry(writer.get(), defaultRule.color, it->second, "Dummy[No Data]", "0");
       // Continue gradient scale factor for other valeus
-      writeColorMapEntry(writer.get(), defaultRule.color, std::to_string(dummy + 1), defaultRule.title, defaultRule.opacity);
-    }
+      writeColorMapEntry(writer.get(), defaultRule.color, toString(dummy + 0.00000001), defaultRule.title, defaultRule.opacity);
+    } // endif it != legend.metadata.end()
     else
     {
       writeColorMapEntry(writer.get(), defaultRule.color, "0", defaultRule.title, defaultRule.opacity);
@@ -340,5 +341,4 @@ void terrama2::services::view::core::Serialization::writeCoverageStyleGeoserverX
 
   writer->writeEndElement("StyledLayerDescriptor");
   writer->writeToFile();
-
 }
