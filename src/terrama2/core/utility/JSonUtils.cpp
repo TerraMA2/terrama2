@@ -357,6 +357,7 @@ terrama2::core::LegendPtr terrama2::core::fromRiskJson(QJsonObject json)
   std::unique_ptr<terrama2::core::Risk> risk(new terrama2::core::Risk());
   risk->name = json["name"].toString().toStdString();
   risk->description = json["description"].toString().toStdString();
+  risk->id = json["id"].toInt();
 
   auto riskLevelsArray = json["levels"].toArray();
   for(const auto& value : riskLevelsArray)

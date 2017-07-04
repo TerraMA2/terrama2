@@ -64,7 +64,11 @@ double terrama2::services::analysis::core::occurrence::zonal::operatorImpl(terra
   catch (const terrama2::core::VerifyException&)
   {
     contextManager.addError(cache.analysisHashCode, QObject::tr("Use of invalid operator for analysis %1.").arg(analysis->id).toStdString());
-    return {};
+
+    if(statisticOperation == StatisticOperation::COUNT)
+      return 0;
+    else
+      return std::nan("");
   }
 
   // After the operator lock is released it's not allowed to return any value because it doesn' have the interpreter lock.
