@@ -227,6 +227,7 @@ module.exports = function(app) {
         };
 
         if (dataSeriesObject.hasOwnProperty('input') && dataSeriesObject.hasOwnProperty('output')) {
+          dataSeriesObject.input.project_id = app.locals.activeProject.id;
           return DataManager.getCollector({data_series_input: dataSeriesId}, options)
             .then(function(collector) {
               collector.service_instance_id = serviceId;

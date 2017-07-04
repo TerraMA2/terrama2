@@ -68,6 +68,14 @@ namespace terrama2
         te::se::Fill* CreateFill(const std::string& color,
                                  const std::string& opacity);
 
+        /*!
+         * \brief Retrieves a string representation of double value with pre-defined precision
+         * \param value - Value to cast
+         * \param precision - Decimal precision
+         * \return String value
+         */
+        std::string toString(const double value, const int& precision = 8);
+
       } // end namespace core
     }   // end namespace view
   }     // end namespace services

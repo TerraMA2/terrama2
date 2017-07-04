@@ -457,9 +457,13 @@
   right: 0px;
 }
 
-#moveMap { top: 92px; }
+#moveMap { top: 90px; }
 
-#getAttributes { top: 134px; }
+#legendsButton { top: 130px; }
+
+#tableButton { top: 170px; }
+
+#getAttributes { top: 210px; }
 
 #getAttributes.with-select { width: 190px; }
 
@@ -487,4 +491,82 @@
 
 .cursor-pointer { cursor: pointer !important; }
 
-.ol-zoom, .ol-zoom:hover { background-color: rgba(0, 0, 0, 0.4) !important; }
+.ol-zoom, .ol-zoom:hover, .ol-control, .ol-control:hover { background-color: rgba(0, 0, 0, 0.4) !important; }
+
+#table-div {
+  position: absolute;
+  background-color: rgba(255,255,255,0.6);
+  width: 100%;
+  bottom: 0;
+  z-index: 99999;
+}
+
+#table-div > div.main-div {
+   margin: 20px;
+   padding: 10px 10px 40px 10px;
+   background-color: white;
+   border-radius: 5px;
+   height: 90%;
+   overflow-y: auto;
+   overflow-x: hidden;
+}
+
+#table-div > .ui-resizable-n {
+  top: 0px;
+  height: 18px;
+  background-image: url('../images/icon-arrow-up-b-128.png');
+  background-size: 20px;
+  background-repeat: no-repeat;
+  background-position-x: center;
+  background-position-y: 1px;
+}
+
+#table-div > div.main-div > ul.pagination {
+   bottom: 30px;
+   position: absolute;
+   right: 30px;
+}
+
+#table-div > div.main-div > select {
+  width: 200px;
+}
+
+#table-div > div.main-div > span {
+  font-size: 18px;
+  float: left;
+  margin: 4px 15px 0 0;
+}
+
+#attributes-table-select > span {
+  float: left;
+  font-size: 16px;
+  font-weight: bold;
+  margin: 5px 10px 0 10px;
+}
+
+#attributes-table-select > select {
+  width: 300px;
+  float: left;
+}
+
+#legend-box {
+  position: absolute;
+  width: 320px;
+  height: 480px;
+  background-color: white;
+  z-index: 99999;
+  overflow: auto;
+  border-radius: 5px;
+  border: 1px solid;
+  right: 65px;
+  top: 21px;
+}
+
+#legend-box > .legend-header {
+  padding: 10px;
+  font-size: 15px;
+  background-color: #d8d8d8;
+  color: #000000;
+}
+
+#legend-box > .legend-body { padding: 10px; }

@@ -360,6 +360,7 @@
   "Grid analysis script must end with 'return' statement": "Grid analysis script must end with 'return' statement",
   "Grid configuration": "Grid configuration",
   "Grid operators": "Grid operators",
+  "Grid - ASCII": "Grid - ASCII",
   "Grid - ASC-Grid": "Grid - ASC-Grid",
   "Grid - GDAL (other formats)": "Grid - GDAL (other formats)",
   "Grid - Geotiff": "Grid - Geotiff",
