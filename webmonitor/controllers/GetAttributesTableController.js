@@ -6,18 +6,35 @@
  *
  * @author Jean Souza [jean.souza@funcate.org.br]
  *
- * @property {object} memberAttributesTable - 'AttributesTable' model.
+ * @property {object} memberHttp - 'http' module.
+ * @property {string} memberDescribeFeatureTypeTemplateURL - Url template for the GeoServer 'DescribeFeatureType' request.
+ * @property {string} memberGetFeatureTemplateURL - Url template for the GeoServer 'GetFeature' request.
+ * @property {string} memberGetLegendGraphicTemplateURL - Url template for the GeoServer 'GetLegendGraphic' request.
  */
 var GetAttributesTableController = function(app) {
 
+  // 'http' module
   var memberHttp = require('http');
+  // Url template for the GeoServer 'DescribeFeatureType' request
+  var memberDescribeFeatureTypeTemplateURL = "/wms?service=WFS&version=1.0.0&request=DescribeFeatureType&outputFormat=application/json&typename={{LAYER_NAME}}";
+  // Url template for the GeoServer 'GetFeature' request
+  var memberGetFeatureTemplateURL = "/wfs?service=wfs&version=2.0.0&request=GetFeature&outputFormat=application/json&typeNames={{LAYER_NAME}}&propertyName={{PROPERTIES}}&sortBy={{SORT}}&startIndex={{START_INDEX}}&count={{COUNT}}";
+  // Url template for the GeoServer 'GetLegendGraphic' request
+  var memberGetLegendGraphicTemplateURL = "/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&legend_options=forceLabels:on&LAYER={{LAYER_NAME}}";
 
-  var describeFeatureTypeTemplateURL = "/wms?service=WFS&version=1.0.0&request=DescribeFeatureType&outputFormat=application/json&typename={{LAYER_NAME}}";
-  var getFeatureTemplateURL = "/wfs?service=wfs&version=2.0.0&request=GetFeature&outputFormat=application/json&typeNames={{LAYER_NAME}}&propertyName={{PROPERTIES}}&sortBy={{SORT}}&startIndex={{START_INDEX}}&count={{COUNT}}";
-  var getLegendGraphicTemplateURL = "/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&legend_options=forceLabels:on&LAYER={{LAYER_NAME}}";
-
+  /**
+   * Returns the valid properties (non geometric properties) of a given layer.
+   * @param {string} layer - Layer id
+   * @param {string} geoserverUri - GeoServer base url
+   * @param {function} callback - Callback function to be executed
+   *
+   * @private
+   * @function getValidProperties
+   * @memberof GetAttributesTableController
+   * @inner
+   */
   var getValidProperties = function(layer, geoserverUri, callback) {
-    memberHttp.get(geoserverUri + describeFeatureTypeTemplateURL.replace('{{LAYER_NAME}}', layer), function(resp) {
+    memberHttp.get(geoserverUri + memberDescribeFeatureTypeTemplateURL.replace('{{LAYER_NAME}}', layer), function(resp) {
       var body = '';
       var fields = [];
 
@@ -52,11 +69,11 @@ var GetAttributesTableController = function(app) {
    * @param {json} request - JSON containing the request data
    * @param {json} response - JSON containing the response data
    *
-   * @function getAttributesTableController
+   * @function getAttributesTable
    * @memberof GetAttributesTableController
    * @inner
    */
-  var getAttributesTableController = function(request, response) {
+  var getAttributesTable = function(request, response) {
     getValidProperties(request.body.layer, request.body.geoserverUri, function(fields) {
       var properties = "";
       var search = (request.body['search[value]'] !== "" ? "&cql_filter=" : "");
@@ -72,7 +89,7 @@ var GetAttributesTableController = function(app) {
 
       properties = (properties !== "" ? properties.substring(0, properties.length - 1) : properties);
 
-      var url = request.body.geoserverUri + getFeatureTemplateURL.replace('{{LAYER_NAME}}', request.body.layer);
+      var url = request.body.geoserverUri + memberGetFeatureTemplateURL.replace('{{LAYER_NAME}}', request.body.layer);
       url = url.replace('{{PROPERTIES}}', properties);
       url = url.replace('{{SORT}}', order);
       url = url.replace('{{START_INDEX}}', request.body.start);
@@ -121,6 +138,15 @@ var GetAttributesTableController = function(app) {
     });
   };
 
+  /**
+   * Processes the request and returns a response.
+   * @param {json} request - JSON containing the request data
+   * @param {json} response - JSON containing the response data
+   *
+   * @function getColumns
+   * @memberof GetAttributesTableController
+   * @inner
+   */
   var getColumns = function(request, response) {
     if(request.query.layer === undefined || request.query.layer === null || request.query.layer === "") {
         response.json({
@@ -135,8 +161,17 @@ var GetAttributesTableController = function(app) {
     }
   };
 
+  /**
+   * Processes the request and returns a response.
+   * @param {json} request - JSON containing the request data
+   * @param {json} response - JSON containing the response data
+   *
+   * @function getLegend
+   * @memberof GetAttributesTableController
+   * @inner
+   */
   var getLegend = function(request, response) {
-    memberHttp.get(request.query.geoserverUri + getLegendGraphicTemplateURL.replace('{{LAYER_NAME}}', request.query.layer), function(resp) {
+    memberHttp.get(request.query.geoserverUri + memberGetLegendGraphicTemplateURL.replace('{{LAYER_NAME}}', request.query.layer), function(resp) {
       resp.pipe(response, {
         end: true
       });
@@ -146,7 +181,7 @@ var GetAttributesTableController = function(app) {
   };
 
   return {
-    getAttributesTableController: getAttributesTableController,
+    getAttributesTable: getAttributesTable,
     getColumns: getColumns,
     getLegend: getLegend
   };
