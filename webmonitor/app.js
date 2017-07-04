@@ -48,7 +48,7 @@ app.use(app.locals.BASE_URL, express.static(path.join(__dirname, 'bower_componen
 app.use(app.locals.BASE_URL, express.static(path.join(__dirname, 'public')));
 app.use(app.locals.BASE_URL, express.static(path.join(__dirname, '../webcomponents/dist')));
 
-load('routes').into(app);
+load('controllers').then('routes').into(app);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
