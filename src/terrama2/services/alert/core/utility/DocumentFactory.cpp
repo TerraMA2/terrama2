@@ -69,6 +69,9 @@ bool terrama2::services::alert::core::DocumentFactory::find(const std::string& d
 std::string terrama2::services::alert::core::DocumentFactory::makeDocument(const std::string& documentCode,
                                                                            ReportPtr report)
 {
+  if(documentCode.empty())
+    return "";
+    
   std::map<std::string, FactoryFnctType>::const_iterator it = factoriesMap_.find(documentCode);
   if(it == factoriesMap_.end())
   {

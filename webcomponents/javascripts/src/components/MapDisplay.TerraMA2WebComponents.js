@@ -1334,16 +1334,24 @@ define(
     var setGetFeatureInfoUrlOnClick = function(layerId, callback) {
       unsetMapSingleClickEvent();
       setMapSingleClickEvent(function(longitude, latitude) {
-        var source = findBy(memberOlMap.getLayerGroup(), 'id', layerId).getSource();
-        var coordinate = [longitude, latitude];
-        var resolution = memberOlMap.getView().getResolution();
-        var projection = 'EPSG:4326';
-        var params = { 'INFO_FORMAT': 'application/json' };
+        var layer = findBy(memberOlMap.getLayerGroup(), 'id', layerId);
 
-        var url = source.getGetFeatureInfoUrl(coordinate, resolution, projection, params);
+        if(layer !== null) {
+          var source = layer.getSource();
+          var coordinate = [longitude, latitude];
+          var resolution = memberOlMap.getView().getResolution();
+          var projection = 'EPSG:4326';
+          var params = { 'INFO_FORMAT': 'application/json' };
 
-        if(url) callback(url);
-        else callback(null);
+          try {
+            var url = source.getGetFeatureInfoUrl(coordinate, resolution, projection, params);
+          } catch(e) {
+            var url = null;
+          }
+
+          if(url) callback(url);
+          else callback(null);
+        } else callback(null);
       });
     };
 
@@ -1356,6 +1364,48 @@ define(
      */
     var unsetGetFeatureInfoUrlOnClick = function() {
       unsetMapSingleClickEvent();
+    };
+
+    /**
+     * Sets a property of a given layer, with a given property key and value.
+     * @param {string} layerId - Layer id
+     * @param {string} property - Property key
+     * @param {string} value - Property value
+     *
+     * @function setLayerProperty
+     * @memberof MapDisplay
+     * @inner
+     */
+    var setLayerProperty = function(layerId, property, value) {
+      var layer = findBy(memberOlMap.getLayerGroup(), 'id', layerId);
+
+      try {
+        layer.set(property, value);
+      } catch(e) {
+        console.error("TerraMA2WebComponents: Layer '" + layerId + "' not found!");
+      }
+    };
+
+    /**
+     * Returns the property of a given layer and property key.
+     * @param {string} layerId - Layer id
+     * @param {string} property - Property key
+     * @returns {string} value - Property value
+     *
+     * @function getLayerProperty
+     * @memberof MapDisplay
+     * @inner
+     */
+    var getLayerProperty = function(layerId, property) {
+      var layer = findBy(memberOlMap.getLayerGroup(), 'id', layerId);
+
+      try {
+        var value = layer.get(property);
+      } catch(e) {
+        var value = null;
+      }
+
+      return value;
     };
 
     /**
@@ -1482,6 +1532,8 @@ define(
       unsetMapSingleClickEvent: unsetMapSingleClickEvent,
       setGetFeatureInfoUrlOnClick: setGetFeatureInfoUrlOnClick,
       unsetGetFeatureInfoUrlOnClick: unsetGetFeatureInfoUrlOnClick,
+      setLayerProperty: setLayerProperty,
+      getLayerProperty: getLayerProperty,
       findBy: findBy,
       applyCQLFilter: applyCQLFilter,
       alterLayerIndex: alterLayerIndex,
