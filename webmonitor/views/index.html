@@ -4,7 +4,8 @@
 
 {% block styles %}
 
-<link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}jquery-ui/themes/base/jquery-ui.css">
+<link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}jquery-ui/themes/base/jquery-ui.min.css">
+<link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}datatables/media/css/dataTables.bootstrap.css">
 
 
 {% endblock %}
@@ -27,11 +28,31 @@
 {% set message = message || {} %}
 
 <div id="terrama2-map" class="terrama2-map cursor-move">
+    <div id="legend-box">
+        <div class="legend-header">Legends</div>
+        <div class="legend-body"></div>
+    </div>
     <div id="map-tools">
         <div id="moveMap" class="map-tool-button mouse-function-btn active"><button type="button"><i class="fa fa-hand-rock-o"></i></button></div>
-        <div id="getAttributes" class="map-tool-button mouse-function-btn">
+        <div id="legendsButton" class="map-tool-button mouse-function-btn"><button type="button"><i class="fa fa-list"></i></button></div>
+        <div id="tableButton" class="map-tool-button mouse-function-btn hidden"><button type="button"><i class="fa fa-table"></i></button></div>
+        <div id="getAttributes" class="map-tool-button mouse-function-btn hidden">
             <select class="form-control hidden"></select>
             <button type="button"><i class="fa fa-info"></i></button>
+        </div>
+    </div>
+    <div id="table-div" style="display: none; height: 400px;">
+        <div class="main-div hidden">
+            <div id="attributes-table-select">
+                <span>Layers:</span>
+                <select class="form-control"></select>
+            </div>
+            <div style="clear: both; height: 5px;"></div>
+            <hr/>
+            <div style="clear: both; height: 5px;"></div>
+            <div id="attributes-table-div">
+                <table class="table table-bordered table-hover" id="attributes-table"></table>
+            </div>
         </div>
     </div>
 </div>
@@ -50,8 +71,7 @@
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
         <h4 class="modal-title" id="layersModalLabel">Layers</h4>
       </div>
-      <div id="layersModalBody" class="modal-body">
-      </div>
+      <div id="layersModalBody" class="modal-body"></div>
       <div class="modal-footer">
         <button id="closeLayers" type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         <button id="saveLayers" type="button" class="btn btn-primary">Save changes</button>
@@ -78,7 +98,11 @@
 <script src="{[ BASE_URL ]}javascripts/utils/capabilities.js"></script>
 <script src="{[ BASE_URL ]}javascripts/utils/calendar.js"></script>
 <script src="{[ BASE_URL ]}javascripts/utils/slider.js"></script>
+<script src="{[ BASE_URL ]}datatables/media/js/jquery.dataTables.min.js"></script>
+<script src="{[ BASE_URL ]}datatables/media/js/dataTables.bootstrap.min.js"></script>
 <script>
+    var BASE_URL = "{[ BASE_URL ]}";
+
     var webadminHostInfo = {[webadminHostInfo|json|safe]};
     var webmonitorHostInfo = {[webmonitorHostInfo|json|safe]};
     var allLayers = [];
@@ -87,6 +111,15 @@
     var sliderCapabilities = [];
     var message = "{[message.content]}";
     var userLogged = {[ currentUser !== null ? "true" : "false" ]};
+
+    $("#legend-box").draggable({
+        containment: $('#terrama2-map')
+    });
+
+    $("#table-div").resizable({
+        minHeight: 400,
+        handles: "n"
+    });
 
     if(message != "") {
         $("#terrama2Alert > p > strong").text('');
@@ -579,6 +612,172 @@
         }
     };
 
+    var createAttributesTable = function() {
+        var showButton = false;
+
+        $('#attributes-table-select > select').empty();
+
+        for(var i = 0, visibleLayersLength = visibleLayers.length; i < visibleLayersLength; i++) {
+            var layerId = $('#' + visibleLayers[i]).data('layerid');
+            var layerName = TerraMA2WebComponents.MapDisplay.getLayerProperty(layerId, "layerName");
+            var layerType = TerraMA2WebComponents.MapDisplay.getLayerProperty(layerId, "layerType");
+
+            if(layerType !== "template" && layerType !== "custom") {
+                $('#attributes-table-select > select').append($('<option></option>').attr('value', layerId).text(layerName));
+                if(!showButton) showButton = true;
+            }
+        }
+
+        if(!showButton) {
+            $("#attributes-table-div").empty();
+
+            if(!$('#table-div > div.main-div').hasClass('hidden'))
+                $('#table-div > div.main-div').addClass('hidden');
+
+            $("#table-div").css('display', 'none');
+
+            if(!$('#tableButton').hasClass('hidden'))
+                $('#tableButton').addClass('hidden');
+
+            resetMapMouseTools();
+            activateMoveMapTool();
+        } else {
+            $('#tableButton').removeClass('hidden');
+        }
+    };
+
+    var setAttributesTable = function() {
+        if($('#attributes-table-select > select').val() !== null) {
+            var layerData = getLayerData($('#attributes-table-select > select').val());
+
+            if(layerData !== null && layerData.id !== undefined && layerData.url !== undefined) {
+                if($("#tableButton").hasClass('hidden'))
+                    $("#tableButton").removeClass('hidden');
+
+                if($('#table-div > div.main-div').hasClass('hidden'))
+                    $('#table-div > div.main-div').removeClass('hidden');
+
+                $.get(BASE_URL + 'get-columns',
+                    {
+                        layer: layerData.id,
+                        geoserverUri: layerData.url
+                    },
+                    function(response) {
+                        var columns = response.fields;
+                        var columnsLength = columns.length;
+                        var columnsArray = [];
+                        var titles = "";
+
+                        for(var i = 0; i < columnsLength; i++) {
+                            columnsArray.push({ "name": columns[i].name });
+                            titles += "<th>" + columns[i].name + "</th>";
+                        }
+
+                        $("#attributes-table-div").empty().html("<table class=\"table table-bordered table-hover\" id=\"attributes-table\"><thead>" + titles + "</thead><tfoot>" + titles + "</tfoot></table>");
+
+                        $('#attributes-table').DataTable({
+                            "order": [[0, "asc"]],
+                            "processing": true,
+                            "serverSide": true,
+                            "ajax": {
+                                "url": BASE_URL + "get-attributes-table",
+                                "type": "POST",
+                                "data": function(data) {
+                                    data.layer = $('#attributes-table-select > select').val();
+                                    data.geoserverUri = layerData.url;
+                                }
+                            },
+                            "columns": columnsArray,
+                            "language": {
+                                "emptyTable": "<p class='text-center'>Nenhum registro a ser exibido</p>",
+                                "info": "Exibindo _START_ at&eacute; _END_ de _TOTAL_ registros",
+                                "infoEmpty": "Exibindo 0 at&eacute; 0 de 0 registros",
+                                "infoFiltered": "(filtrado de _MAX_ registros)",
+                                "lengthMenu": "Exibir _MENU_ registros",
+                                "loadingRecords": "Carregando...",
+                                "processing": "Processando...",
+                                "search": "Pesquisa:",
+                                "zeroRecords": "<p class='text-center'>Nenhum registro encontrado</p>",
+                                "paginate": {
+                                    "first": "Primeira",
+                                    "last": "&Uacute;ltima",
+                                    "next": "Pr&oacute;xima",
+                                    "previous": "Anterior"
+                                }
+                            }
+                        });
+                    }
+                );
+            } else {
+                $("#attributes-table-div").empty();
+
+                if(!$('#table-div > div.main-div').hasClass('hidden'))
+                    $('#table-div > div.main-div').addClass('hidden');
+
+                $("#table-div").css('display', 'none');
+
+                if(!$("#tableButton").hasClass('hidden'))
+                    $("#tableButton").addClass('hidden');
+            }
+        } else {
+            $("#attributes-table-div").empty();
+
+            if(!$('#table-div > div.main-div').hasClass('hidden'))
+                $('#table-div > div.main-div').addClass('hidden');
+
+            $("#table-div").css('display', 'none');
+
+            if(!$("#tableButton").hasClass('hidden'))
+                $("#tableButton").addClass('hidden');
+        }
+    };
+
+    var setLegends = function() {
+        var html = "";
+
+        for(var i = 0, visibleLayersLength = visibleLayers.length; i < visibleLayersLength; i++) {
+            var layerId = $('#' + visibleLayers[i]).data('layerid');
+            var layerName = TerraMA2WebComponents.MapDisplay.getLayerProperty(layerId, "layerName");
+            var layerType = TerraMA2WebComponents.MapDisplay.getLayerProperty(layerId, "layerType");
+
+            if(layerType !== "template" && layerType !== "custom") {
+                var layerData = getLayerData(layerId);
+
+                if(layerData !== null && layerData.id !== undefined && layerData.url !== undefined) {
+                    html += "<strong>" + layerName + "</strong><br/><img src='" + BASE_URL + "get-legend?layer=" + layerId + "&geoserverUri=" + layerData.url + "'/>";
+                    if(visibleLayersLength > 1 && i < (visibleLayersLength - 1)) html += "<hr/>";
+                }
+            }
+        }
+
+        $('#legend-box > .legend-body').html((html !== "" ? html : "<strong>No data to show.</strong>"));
+    };
+
+    var getLayerData = function(layerId) {
+        for(var i = 0, allLayersLength = allLayers.length; i < allLayersLength; i++) {
+            if(layerId === allLayers[i].id) {
+                return allLayers[i];
+            }
+        }
+
+        return null;
+    };
+
+    $('#attributes-table-select > select').on('change', setAttributesTable);
+
+    $('#tableButton > button').on('click', function() {
+        if($('#table-div').css('display') === 'none') {
+            $('#table-div').css('display', '');
+            $('#table-div > div.main-div').removeClass('hidden');
+            setAttributesTable();
+        } else {
+            if(!$('#table-div > div.main-div').hasClass('hidden'))
+                $('#table-div > div.main-div').addClass('hidden');
+
+            $('#table-div').css('display', 'none');
+        }
+    });
+
     $('#getAttributes > select').on('change', featureInfo);
 
     $('#moveMap').on('click', function() {
@@ -589,6 +788,14 @@
     $('#getAttributes > button').on('click', function() {
         resetMapMouseTools();
         activateGetFeatureInfoTool();
+    });
+
+    $('#legendsButton > button').on('click', function() {
+        if($('#legend-box').hasClass('hidden')) {
+            $('#legend-box').removeClass('hidden');
+        } else {
+            $('#legend-box').addClass('hidden');
+        }
     });
 
     socket.on('proxyResponse', function(data){
@@ -625,12 +832,14 @@
                     closeText: "",
                     position: { my: 'top', at: 'top+75' },
                     open: function () {
-                        var closeBtn = $('.ui-dialog-titlebar-close');
-                        closeBtn.append('<span class="ui-button-icon-primary ui-icon ui-icon-closethick" style="margin-top: -.55em !important; margin-left: -.07em !important;"></span>');
+                        $('.ui-dialog-titlebar-close').css('background-image', 'url(../images/close.png)');
+                        $('.ui-dialog-titlebar-close').css('background-position', 'center');
+                        $('.ui-dialog-titlebar-close').css('background-size', '20px');
                     },
                     close: function () {
-                        var closeBtn = $('.ui-dialog-titlebar-close');
-                        closeBtn.html('');
+                        $('.ui-dialog-titlebar-close').css('background-image', '');
+                        $('.ui-dialog-titlebar-close').css('background-position', '');
+                        $('.ui-dialog-titlebar-close').css('background-size', '');
                     }
                 });
             }
@@ -759,6 +968,8 @@
             visibleLayers.push(layerid);
         }
         setGetFeatureInfoToolSelect();
+        createAttributesTable();
+        setLegends();
         var imageElement = $(this).closest('li').find("#image-icon");
         if (imageElement.attr("src") == "{[ BASE_URL ]}images/status/yellow-black.gif" || 
               imageElement.attr("src") == "{[ BASE_URL ]}images/status/red-black.gif"){

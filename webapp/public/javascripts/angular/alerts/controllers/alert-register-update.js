@@ -275,6 +275,9 @@ define([], function() {
                 self.alert.service_instance_id = self.filteredServices[0].id;
             });
           }
+
+          if(self.alert.notifications[0].include_report === undefined || self.alert.notifications[0].include_report === null)
+            self.alert.notifications[0].include_report = "PDF";
         });
       });
     });
