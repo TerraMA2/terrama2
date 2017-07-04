@@ -369,7 +369,7 @@
           </div>
         </div>
 
-        <div class="col-md-3">
+        <div ng-class="{ 'col-md-3': ctrl.dataSeriesType !== undefined && ctrl.dataSeriesType !== null && ctrl.dataSeriesType !== 'GRID', 'col-md-4': ctrl.dataSeriesType === undefined || ctrl.dataSeriesType === null || ctrl.dataSeriesType === 'GRID' }">
           <div class="form-group">
             <div class="checkbox">
               <label style="font-weight: 700;">
@@ -390,7 +390,7 @@
           </div>
         </div>
 
-        <div class="col-md-3">
+        <div ng-class="{ 'col-md-3': ctrl.dataSeriesType !== undefined && ctrl.dataSeriesType !== null && ctrl.dataSeriesType !== 'GRID', 'col-md-4': ctrl.dataSeriesType === undefined || ctrl.dataSeriesType === null || ctrl.dataSeriesType === 'GRID' }">
           <div class="form-group">
             <div class="checkbox">
               <label style="font-weight: 700;">
@@ -408,7 +408,7 @@
           </div>
         </div>
 
-        <div class="col-md-2">
+        <div class="col-md-2" ng-show="ctrl.dataSeriesType !== undefined && ctrl.dataSeriesType !== null && ctrl.dataSeriesType !== 'GRID'">
           <div class="form-group">
             <div class="checkbox">
               <label style="font-weight: 700;">
