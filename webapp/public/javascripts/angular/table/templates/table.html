@@ -1,7 +1,7 @@
 <div>
   <div class="col-md-12">
     <!-- Modal -->
-    <div ng-if="isFunction(remove)" class="modal fade modal-danger" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div ng-if="isFunction(remove)" id="{{ modalId }}" class="modal fade modal-danger" ng-init="removalModalCreated=true" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
       <div class="modal-dialog modal-sm" role="document">
         <div class="modal-content">
           <div class="modal-header">

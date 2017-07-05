@@ -273,14 +273,22 @@ var Utils = module.exports = {
                   alertsArr.push(alert.toService());
                 });
 
-                return resolve({
-                  "Analysis": analysisArr,
-                  "DataSeries": series,
-                  "DataProviders": providers,
-                  "Collectors": collectors,
-                  "Views": viewsArr,
-                  "Alerts": alertsArr
-                });
+                DataManager.listLegends().then(function(legends){
+                  var legendsArr = [];
+                  legends.forEach(function(legend){
+                    legendsArr.push(legend.toService());
+                  });
+
+                  return resolve({
+                    "Analysis": analysisArr,
+                    "DataSeries": series,
+                    "DataProviders": providers,
+                    "Collectors": collectors,
+                    "Views": viewsArr,
+                    "Alerts": alertsArr,
+                    "Legends": legendsArr
+                  });
+                }).catch(_handleError); // end listLegends
               }).catch(_handleError); // end listAlerts
             }).catch(_handleError); // end views
           }).catch(_handleError); // end listAnalysis

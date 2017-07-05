@@ -51,6 +51,7 @@ var ImportExport = function(io) {
      *   "DataSeries":    [dataSeriesA, dataSeriesB, ...dataSeriesN],
      *   "Analysis":      [analysisA, analysisB, ...analysisN],
      *   "Views":      [viewA, viewB, ...viewN],
+     *   "Legends":      [legendA, legendB, ...legendN],
      *   "Alerts":      [alertA, alertB, ...alertN],
      * })
      */
@@ -396,80 +397,87 @@ var ImportExport = function(io) {
                     return Promise.all(promises).then(function() {
                       promises = [];
 
-                      if(json.Alerts) {
-                        var alertsList = json.Alerts || [];
+                      if(json.Legends) {
+                        var legendsList = json.Legends || [];
+                        output.Legends = [];
 
-                        alertsList.forEach(function(alert) {
-                          alert.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: alert.project_id}).id : json.selectedProject;
-                          alert.data_series_id = Utils.find(output.DataSeries, {$id: alert.data_series_id}).id;
-                          if(alert.service_instance_id === null) alert.service_instance_id = json.servicesAlert;
-                          if (alert.view && alert.view.$id){
-                            var viewId = Utils.find(tcpOutput.Views, {$id: alert.view.$id}).id;
-                            alert.view_id = viewId;
-                          }
-                          var risk;
 
-                          for(var i = 0, risksLength = json.Risks.length; i < risksLength; i++) {
-                            if(alert.risk_id === json.Risks[i].id) {
-                              risk = clone(json.Risks[i]);
-                              break;
-                            }
-                          }
+                        legendsList.forEach(function(legend) {
+                          legend.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: legend.project_id}).id : json.selectedProject;
 
-                          delete risk.id;
-                          delete alert.report_metadata.id;
-
-                          for(var i = 0, levelsLength = risk.levels.length; i < levelsLength; i++)
-                            delete risk.levels[i].id;
-
-                          for(var i = 0, additionalDataLength = alert.additional_data.length; i < additionalDataLength; i++)
-                            delete alert.additional_data[i].id;
-
-                          for(var i = 0, notificationsLength = alert.notifications.length; i < notificationsLength; i++)
-                            delete alert.notifications[i].id;
-
-                          alert.risk = risk;
-                          alert.risk.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: alert.risk.project_id}).id : json.selectedProject;
-
-                          delete alert.schedule.id;
-                          delete alert.automatic_schedule.id;
-                          var scheduleObject = {};
-                          if (alert.schedule_type == Enums.ScheduleType.AUTOMATIC){
-                            scheduleObject = alert.automatic_schedule;
-                            scheduleObject.scheduleType = Enums.ScheduleType.AUTOMATIC;
-                          } else if (alert.schedule_type == Enums.ScheduleType.SCHEDULE){
-                            scheduleObject = alert.schedule;
-                            scheduleObject.scheduleType = Enums.ScheduleType.SCHEDULE;
-                          } else {
-                            scheduleObject.scheduleType = Enums.ScheduleType.MANUAL;
-                          }
-
-                          var addSchedulePromise = DataManager.addSchedule(scheduleObject, options).then(function(schedule) {
-                            if (schedule){
-                              if (alert.schedule_type == Enums.ScheduleType.AUTOMATIC)
-                                alert.automatic_schedule_id = schedule.id;
-                              else 
-                                alert.schedule_id = schedule.id;
-                            }
-                          });
-                          
-                          var addRiskPromise = DataManager.addRisk(risk, options).then(function(riskResult) {
-                            alert.risk_id = riskResult.id;
-                          });
+                          for(var i = 0, levelsLength = legend.levels.length; i < levelsLength; i++)
+                            delete legend.levels[i].id;
 
                           promises.push(
-                            Promise.join(addSchedulePromise, addRiskPromise).then(function() {
-                              return DataManager.addAlert(alert, options).then(function(alertResult) {
-                                if(tcpOutput.Alerts === undefined) tcpOutput.Alerts = [];
-                                tcpOutput.Alerts.push(alertResult);
-                              });
+                            DataManager.addLegend(legend, options).then(function(legendResult) {
+                              if(tcpOutput.Legends === undefined) tcpOutput.Legends = [];
+                                tcpOutput.Legends.push(legendResult);
+
+                              output.Legends.push(_updateID(legend, legendResult));
                             })
                           );
                         });
                       }
 
                       return Promise.all(promises).then(function() {
-                        TcpService.send(tcpOutput);
+                        promises = [];
+
+                        if(json.Alerts) {
+                          var alertsList = json.Alerts || [];
+
+                          alertsList.forEach(function(alert) {
+                            alert.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: alert.project_id}).id : json.selectedProject;
+                            alert.data_series_id = Utils.find(output.DataSeries, {$id: alert.data_series_id}).id;
+                            alert.legend_id = Utils.find(output.Legends, {$id: alert.legend_id}).id;
+
+                            if(alert.service_instance_id === null) alert.service_instance_id = json.servicesAlert;
+                            if (alert.view && alert.view.$id){
+                              var viewId = Utils.find(tcpOutput.Views, {$id: alert.view.$id}).id;
+                              alert.view_id = viewId;
+                            }
+
+                            delete alert.report_metadata.id;
+
+                            for(var i = 0, additionalDataLength = alert.additional_data.length; i < additionalDataLength; i++)
+                              delete alert.additional_data[i].id;
+
+                            for(var i = 0, notificationsLength = alert.notifications.length; i < notificationsLength; i++)
+                              delete alert.notifications[i].id;
+
+                            delete alert.schedule.id;
+                            delete alert.automatic_schedule.id;
+                            var scheduleObject = {};
+                            if (alert.schedule_type == Enums.ScheduleType.AUTOMATIC){
+                              scheduleObject = alert.automatic_schedule;
+                              scheduleObject.scheduleType = Enums.ScheduleType.AUTOMATIC;
+                            } else if (alert.schedule_type == Enums.ScheduleType.SCHEDULE){
+                              scheduleObject = alert.schedule;
+                              scheduleObject.scheduleType = Enums.ScheduleType.SCHEDULE;
+                            } else {
+                              scheduleObject.scheduleType = Enums.ScheduleType.MANUAL;
+                            }
+
+                            promises.push(
+                              DataManager.addSchedule(scheduleObject, options).then(function(schedule) {
+                                if (schedule){
+                                  if (alert.schedule_type == Enums.ScheduleType.AUTOMATIC)
+                                    alert.automatic_schedule_id = schedule.id;
+                                  else 
+                                    alert.schedule_id = schedule.id;
+                                }
+
+                                return DataManager.addAlert(alert, options).then(function(alertResult) {
+                                  if(tcpOutput.Alerts === undefined) tcpOutput.Alerts = [];
+                                  tcpOutput.Alerts.push(alertResult);
+                                });
+                              })
+                            );
+                          });
+                        }
+
+                        return Promise.all(promises).then(function() {
+                          TcpService.send(tcpOutput);
+                        });
                       });
                     });
                   });
@@ -532,7 +540,7 @@ var ImportExport = function(io) {
         Analysis: [],
         Views: [],
         Alerts: [],
-        Risks: []
+        Legends: []
       };
 
       var _emitError = function(err) {
@@ -692,18 +700,21 @@ var ImportExport = function(io) {
         promises.push(DataManager.listAlerts({project_id: target.id}).then(function(alertsList) {
           alertsList.forEach(function(alert) {
             var alertToAdd = addID(alert);
-            var risk = alertToAdd.risk;
+            var legend = alertToAdd.legend;
 
             if(countObjectProperties(alertToAdd.schedule) > 0)
               alertToAdd.schedule.scheduleType = alertToAdd.schedule_type;
               
-            alertToAdd.risk_id = risk.id;
-            delete alertToAdd.risk;
+            alertToAdd.legend_id = legend.id;
+            delete alertToAdd.legend;
 
             output.Alerts.push(alertToAdd);
+          });
+        }));
 
-            if(!isInArray(risk.id, output.Risks))
-              output.Risks.push(risk);
+        promises.push(DataManager.listLegends({project_id: target.id}).then(function(legends) {
+          legends.forEach(function(legend) {
+            output.Legends.push(addID(legend));
           });
         }));
       } // end if projects
@@ -823,6 +834,19 @@ var ImportExport = function(io) {
         }
       }
 
+      if(json.Legends) {
+        for(var i = 0, legendsLength = json.Legends.length; i < legendsLength; i++) {
+          promises.push(
+            DataManager.getLegend({id: json.Legends[i].id}).then(function(legend) {
+              if(!isInArray(legend.id, output.Legends)) {
+                legend.project_id = null;
+                output.Legends.push(addID(legend));
+              }
+            })
+          );
+        }
+      }
+
       if(json.Alerts) {
         for(var i = 0, alertsLength = json.Alerts.length; i < alertsLength; i++) {
           promises.push(
@@ -832,18 +856,13 @@ var ImportExport = function(io) {
                 alert.service_instance_id = null;
 
                 var alertToAdd = addID(alert);
-                var risk = alertToAdd.risk;
+                var legend = alertToAdd.legend;
 
                 alertToAdd.automatic_schedule.scheduleType = 4;
-                alertToAdd.risk_id = risk.id;
-                delete alertToAdd.risk;
+                alertToAdd.legend_id = legend.id;
+                delete alertToAdd.legend;
 
                 output.Alerts.push(alertToAdd);
-
-                if(!isInArray(risk.id, output.Risks)) {
-                  risk.project_id = null;
-                  output.Risks.push(risk);
-                }
 
                 return getDataSeries(alert.data_series_id);
               } else {
@@ -862,7 +881,7 @@ var ImportExport = function(io) {
         if(output.Analysis.length === 0) delete output.Analysis;
         if(output.Views.length === 0) delete output.Views;
         if(output.Alerts.length === 0) delete output.Alerts;
-        if(output.Risks.length === 0) delete output.Risks;
+        if(output.Legends.length === 0) delete output.Legends;
 
         client.emit("exportResponse", { status: 200, data: output, projectName: json.currentProjectName, fileName: json.fileName });
       }).catch(_emitError);
@@ -996,11 +1015,19 @@ var ImportExport = function(io) {
             })
           );
         }
+      } else if(json.objectType == "Legends") {
+        for(var i = 0, idsLength = json.ids.length; i < idsLength; i++) {
+          output["Legends_" + json.ids[i]] = {};
+        }
       } else if(json.objectType == "Alerts") {
         for(var i = 0, idsLength = json.ids.length; i < idsLength; i++) {
           promises.push(
             DataManager.getAlert({id: json.ids[i]}).then(function(alert) {
-              if(output["Alerts_" + alert.id] === undefined) output["Alerts_" + alert.id] = {};
+              if(output["Alerts_" + alert.id] === undefined) {
+                output["Alerts_" + alert.id] = {
+                  Legends: [alert.legend.id]
+                };
+              }
 
               var getDataSeriesDependenciesPromise = getDataSeriesDependencies(alert.data_series_id, null, "Alerts_" + alert.id);
 
