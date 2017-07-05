@@ -27,4 +27,4 @@ exports.RegisteredView = require("./RegisteredView");
 exports.ViewStyleLegend = require("./ViewStyleLegend");
 exports.AutomaticSchedule = require("./AutomaticSchedule");
 exports.Alert = require("./Alert");
-exports.Risk = require("./Risk");
+exports.Legend = require("./Legend");

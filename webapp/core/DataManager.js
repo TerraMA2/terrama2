@@ -3946,7 +3946,7 @@ var DataManager = module.exports = {
       var scheduleResult;
       var reportMetadataResult;
       var additionalDataResult;
-      var riskResult;
+      var legendResult;
       var notificationResult;
       return models.db.Alert.create(alertObject, options)
         .then(function(alert){
@@ -3979,12 +3979,10 @@ var DataManager = module.exports = {
         })
         .then(function(additionalData){
           additionalDataResult = additionalData;
-          var risk = alertObject.risk;
-          risk.alert_id = alertResult.id;
-          return self.getRisk({id: alertResult.risk_id}, options);
+          return self.getLegend({id: alertResult.legend_id}, options);
         })
-        .then(function(risk){
-          riskResult = risk;
+        .then(function(legend){
+          legendResult = legend;
           var notifications = alertObject.notifications;
           var notificationsPromises = [];
           notifications.forEach(function(notification){
@@ -3998,7 +3996,7 @@ var DataManager = module.exports = {
           var objectToAssign = {
             reportMetadata: reportMetadataResult,
             additionalData: additionalDataResult,
-            risk: riskResult,
+            legend: legendResult,
             notifications: notificationResult
           };
           if (alertResult.shedule_id){
@@ -4057,56 +4055,78 @@ var DataManager = module.exports = {
   },
 
   /**
-   * It performs a save risk and retrieve it
+   * It performs a save legend and retrieve it
    *
-   * @param {Object} riskObject - Risk object to save
+   * @param {Object} legendObject - Legend object to save
    * @param {Object} options - An ORM query options
    * @param {Transaction} options.transaction - An ORM transaction
-   * @returns {Promise<Object>} A risk object created
+   * @returns {Promise<Object>} A legend object created
    */
-  addRisk: function(riskObject, options){
+  addLegend: function(legendObject, options){
     var self = this;
     return new Promise(function(resolve, reject){
-      var riskObjectResult;
-      return models.db.Risk.create(riskObject, options)
-        .then(function(riskResult){
-          riskObjectResult = riskResult;
-          var riskLevelPromises = [];
-          var riskLevels = riskObject.levels;
-          riskLevels.forEach(function(riskLevel){
-            riskLevel.risk_id = riskResult.id;
-            riskLevelPromises.push(self.addRiskLevel(riskLevel, options));
+      var legendObjectResult;
+      return models.db.Legend.create(legendObject, options)
+        .then(function(legendResult){
+          legendObjectResult = legendResult;
+          var legendLevelPromises = [];
+          var legendLevels = legendObject.levels;
+          legendLevels.forEach(function(legendLevel){
+            legendLevel.legend_id = legendResult.id;
+            legendLevelPromises.push(self.addLegendLevel(legendLevel, options));
           });
-          return Promise.all(riskLevelPromises)
-          .then(function(riskLevelResult){
+          return Promise.all(legendLevelPromises)
+          .then(function(legendLevelResult){
             var objectToAssign = {
-              riskLevels: riskLevelResult
+              legendLevels: legendLevelResult
             }
-            return resolve(new DataModel.Risk(Object.assign(riskObjectResult.get(), objectToAssign)));
+            return resolve(new DataModel.Legend(Object.assign(legendObjectResult.get(), objectToAssign)));
           })
         })
         .catch(function(err){
-          return reject(new Error(Utils.format("Could not save risk due %s", err.toString())));
+          return reject(new Error(Utils.format("Could not save legend due %s", err.toString())));
         });
     });
   },
 
   /**
-   * It performs a save risk level and retrieve it
+   * It removes an legend from database
    *
-   * @param {Object} riskLevelObject - Risk level object to save
+   * @param {Object} restriction - A query restriction
+   * @param {Object?} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise}
+   */
+  removeLegend: function(restriction, options){
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return models.db.Legend.destroy(Utils.extend({where: restriction}, options))
+        .then(function(){
+          return resolve();
+        })
+
+        .catch(function(err) {
+          return reject(new Error("Could not remove legend " + err.toString()));
+        });
+    });
+  },
+
+  /**
+   * It performs a save legend level and retrieve it
+   *
+   * @param {Object} legendLevelObject - Legend level object to save
    * @param {Object} options - An ORM query options
    * @param {Transaction} options.transaction - An ORM transaction
-   * @returns {Promise<Object>} A risk level object created
+   * @returns {Promise<Object>} A legend level object created
    */
-  addRiskLevel: function(riskLevelObject, options){
+  addLegendLevel: function(legendLevelObject, options){
     return new Promise(function(resolve, reject){
-      return models.db.RiskLevel.create(riskLevelObject, options)
-        .then(function(riskLevelResult){
-          return resolve(riskLevelResult.get());
+      return models.db.LegendLevel.create(legendLevelObject, options)
+        .then(function(legendLevelResult){
+          return resolve(legendLevelResult.get());
         })
         .catch(function(err){
-          return reject(new Error(Utils.format("Could not save risk level due %s", err.toString())));
+          return reject(new Error(Utils.format("Could not save legend level due %s", err.toString())));
         });
     });
   },
@@ -4189,10 +4209,10 @@ var DataManager = module.exports = {
             model: models.db.ReportMetadata
           },
           {
-            model: models.db.Risk,
+            model: models.db.Legend,
             include: [
               {
-                model: models.db.RiskLevel
+                model: models.db.LegendLevel
               }
             ]
           },
@@ -4260,7 +4280,7 @@ var DataManager = module.exports = {
               notifications.push(notification.get());
             });
 
-            var risk = new DataModel.Risk(alert.Risk.get());
+            var legend = new DataModel.Legend(alert.Legend.get());
 
             var view = alert.View ? new DataModel.View(Object.assign(alert.View.get(), {
               schedule: alert.View.Schedule ? new DataModel.Schedule(alert.View.Schedule.get()) : {},
@@ -4281,7 +4301,7 @@ var DataManager = module.exports = {
               additionalData: additionalDatas,
               notifications: notifications,
               reportMetadata: alert.ReportMetadatum.get(),
-              risk: risk,
+              legend: legend,
               view: view,
               dataSeries: alert.DataSery ? new DataModel.DataSeries(alert.DataSery.get()) : {}
             }));
@@ -4295,72 +4315,72 @@ var DataManager = module.exports = {
   },
 
   /**
-   * It retrieves a risk from database
+   * It retrieves a legend from database
    *
    * @param {Object} restriction - A query restriction
    * @param {Object} options - An ORM query options
    * @param {Transaction} options.transaction - An ORM transaction
-   * @return {Promise<DataModel.Risk>}
+   * @return {Promise<DataModel.Legend>}
    */
-  getRisk: function(restriction, options){
+  getLegend: function(restriction, options){
     var self = this;
     return new Promise(function(resolve, reject) {
-      models.db.Risk.findOne(Utils.extend({
+      models.db.Legend.findOne(Utils.extend({
         where: restriction || {},
         include: [
           {
-            model: models.db.RiskLevel
+            model: models.db.LegendLevel
           }
         ]
-      }, options)).then(function(risk) {
-        if (risk) {
-          var riskLevels = [];
-          risk.RiskLevels.forEach(function(riskLevel){
-            riskLevels.push(riskLevel.get());
+      }, options)).then(function(legend) {
+        if (legend) {
+          var legendLevels = [];
+          legend.LegendLevels.forEach(function(legendLevel){
+            legendLevels.push(legendLevel.get());
           });
-          var riskObject = new DataModel.Risk(Object.assign(risk.get(),{
-            riskLevels: riskLevels
+          var legendObject = new DataModel.Legend(Object.assign(legend.get(),{
+            legendLevels: legendLevels
           }));
-          return resolve(riskObject);
+          return resolve(legendObject);
         }
-        return reject(new Error("Could not find risk"));
+        return reject(new Error("Could not find legend"));
       });
     });
   },
 
   /**
-   * It retrieves a list of risks in database
+   * It retrieves a list of legends in database
    *
    * @param {Object} restriction - A query restriction
    * @param {Object} options - An ORM query options
    * @param {Transaction} options.transaction - An ORM transaction
-   * @return {Promise<DataModel.Risk[]>}
+   * @return {Promise<DataModel.Legend[]>}
    */
-  listRisks: function(restriction, options){
+  listLegends: function(restriction, options){
     var self = this;
     return new Promise(function(resolve, reject){
-      models.db.Risk.findAll(Utils.extend({
+      models.db.Legend.findAll(Utils.extend({
         where: restriction || {},
         include: [
           {
-            model: models.db.RiskLevel
+            model: models.db.LegendLevel
           }
         ]
       }, options))
-        .then(function(risks){
-          return resolve(risks.map(function(risk){
-            var riskLevels = [];
-            risk.RiskLevels.forEach(function(riskLevel){
-              riskLevels.push(riskLevel.get());
+        .then(function(legends){
+          return resolve(legends.map(function(legend){
+            var legendLevels = [];
+            legend.LegendLevels.forEach(function(legendLevel){
+              legendLevels.push(legendLevel.get());
             });
-            var riskModel = new DataModel.Risk(Object.assign(risk.get(), {
-              riskLevels: riskLevels
+            var legendModel = new DataModel.Legend(Object.assign(legend.get(), {
+              legendLevels: legendLevels
             }));
-            return riskModel;
+            return legendModel;
           }))
         })
         .catch(function(err){
-          return reject(new Error("Could not list risks " + err.toString()));
+          return reject(new Error("Could not list legends " + err.toString()));
         });
     });
   },
@@ -4380,7 +4400,7 @@ var DataManager = module.exports = {
       models.db.Alert.update(
         alertObject,
         Utils.extend({
-          fields: ["name", "description", "data_series_id", "active", "service_instance_id", "risk_id", "risk_attribute", "schedule_type", "schedule_id", "automatic_schedule_id", "view_id"],
+          fields: ["name", "description", "data_series_id", "active", "service_instance_id", "legend_id", "legend_attribute", "schedule_type", "schedule_id", "automatic_schedule_id", "view_id"],
           where: restriction
         }, options))
         .then(function(){
@@ -4426,74 +4446,74 @@ var DataManager = module.exports = {
   },
 
   /**
-   * It performs update risk from given restriction
+   * It performs update legend from given restriction
    *
    * @param {Object} restriction - A query restriction
-   * @param {Object} alertObject - A risk values to update
+   * @param {Object} alertObject - A legend values to update
    * @param {Object} options - An ORM query options
    * @param {Transaction} options.transaction - An ORM transaction
    */
-  updateRisk: function(restriction, riskObject, options){
+  updateLegend: function(restriction, legendObject, options){
     var self = this;
     return new Promise(function(resolve, reject){
-      return self.getRisk({id: restriction.id}, options)
-        // Updating Risk Levels
-        .then(function(riskResult){
-          var oldRiskLevels = riskResult.levels;
-          var newRiskLevels = riskObject.levels;
-          var riskLevelPromises = [];
-          newRiskLevels.forEach(function(riskLevel){
-            if (riskLevel.id){
-              riskLevelPromises.push(self.updateRiskLevel({id: riskLevel.id}, riskLevel, options));
+      return self.getLegend({id: restriction.id}, options)
+        // Updating Legend Levels
+        .then(function(legendResult){
+          var oldLegendLevels = legendResult.levels;
+          var newLegendLevels = legendObject.levels;
+          var legendLevelPromises = [];
+          newLegendLevels.forEach(function(legendLevel){
+            if (legendLevel.id){
+              legendLevelPromises.push(self.updateLegendLevel({id: legendLevel.id}, legendLevel, options));
             }
             else {
-              riskLevel.risk_id = restriction.id;
-              riskLevelPromises.push(self.addRiskLevel(riskLevel, options));
+              legendLevel.legend_id = restriction.id;
+              legendLevelPromises.push(self.addLegendLevel(legendLevel, options));
             }
           });
-          oldRiskLevels.forEach(function(riskLevel){
-            var found = newRiskLevels.some(function(newRiskLevel){
-              return newRiskLevel.id === riskLevel.id;
+          oldLegendLevels.forEach(function(legendLevel){
+            var found = newLegendLevels.some(function(newLegendLevel){
+              return newLegendLevel.id === legendLevel.id;
             });
             if (!found){
-              riskLevelPromises.push(self.removeRiskLevel({id: riskLevel.id}, options));
+              legendLevelPromises.push(self.removeLegendLevel({id: legendLevel.id}, options));
             }
           });
-          return Promise.all(riskLevelPromises);
+          return Promise.all(legendLevelPromises);
         })
 
         .then(function(){
-          models.db.Risk.update(
-            riskObject,
+          models.db.Legend.update(
+            legendObject,
             Utils.extend({
               fields: ['name', 'description'],
               where: restriction
             }, options))
 
-            .then(function(risk) {
+            .then(function(legend) {
               return resolve();
             })
         })
 
         .catch(function(err) {
-          return reject(new Error("Could not update Risk " + err.toString()));
+          return reject(new Error("Could not update Legend " + err.toString()));
         });
     });
   },
 
   /**
-   * It performs update risk level from given restriction
+   * It performs update legend level from given restriction
    *
    * @param {Object} restriction - A query restriction
-   * @param {Object} alertObject - A risk level values to update
+   * @param {Object} alertObject - A legend level values to update
    * @param {Object} options - An ORM query options
    * @param {Transaction} options.transaction - An ORM transaction
    */
-  updateRiskLevel: function(restriction, riskLevelObject, options){
+  updateLegendLevel: function(restriction, legendLevelObject, options){
     var self = this;
     return new Promise(function(resolve, reject){
-      models.db.RiskLevel.update(
-        riskLevelObject,
+      models.db.LegendLevel.update(
+        legendLevelObject,
         Utils.extend({
           fields: ['name', 'value', 'level'],
           where: restriction
@@ -4502,7 +4522,7 @@ var DataManager = module.exports = {
           return resolve();
         })
         .catch(function(err){
-          return reject(new Error("Could not update RiskLevel " + err.toString()));
+          return reject(new Error("Could not update LegendLevel " + err.toString()));
         })
     })
   },
@@ -4521,7 +4541,7 @@ var DataManager = module.exports = {
       models.db.AlertNotification.update(
         alertNotificationObject,
         Utils.extend({
-          fields: ['include_report', 'notify_on_change', 'simplified_report', 'notify_on_risk_level', 'recipients'],
+          fields: ['include_report', 'notify_on_change', 'simplified_report', 'notify_on_legend_level', 'recipients'],
           where: restriction
         }, options))
         .then(function(){
@@ -4574,17 +4594,17 @@ var DataManager = module.exports = {
   },
 
   /**
-   * It removes risk level of database from given restriction
+   * It removes legend level of database from given restriction
    *
    * @param {Object} restriction - A query restriction
    * @param {Object} options - An ORM query options
    * @param {Transaction} options.transaction - An ORM transaction
    * @returns {Promise}
    */
-  removeRiskLevel: function(restriction, options){
+  removeLegendLevel: function(restriction, options){
     var self = this;
     return new Promise(function(resolve, reject) {
-      return models.db.RiskLevel.destroy(Utils.extend({where: restriction}, options))
+      return models.db.LegendLevel.destroy(Utils.extend({where: restriction}, options))
         .then(function() {
           return resolve();
         })

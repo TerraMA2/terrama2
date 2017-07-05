@@ -54,7 +54,7 @@ namespace terrama2
     struct DataSetGrid;
     //! Shared smart pointer for DataSetGrid
     typedef std::shared_ptr<const terrama2::core::DataSetGrid> DataSetGridPtr;
-    
+
     struct Process;
     //! Shared smart pointer for Process
     typedef std::shared_ptr<const terrama2::core::Process> ProcessPtr;
@@ -98,6 +98,10 @@ namespace terrama2
     class StoragerManager;
     //! Shared smart pointer for StoragerManager
     typedef std::shared_ptr<terrama2::core::StoragerManager> StoragerManagerPtr;
+
+    struct Risk;
+    //! Shared smart pointer for Legend
+    typedef std::shared_ptr<const terrama2::core::Risk> LegendPtr;
   }
 }
 

@@ -204,6 +204,12 @@ namespace terrama2
         */
         virtual void update(DataProviderPtr provider);
 
+        virtual void add(LegendPtr legend);
+        virtual void update(LegendPtr legend);
+        virtual bool hasLegend(LegendId id) const;
+        virtual void removeLegend(const LegendId id);
+        virtual LegendPtr findLegend(const LegendId id) const;
+
         /*!
           \brief Update a given DataSeries.
 
@@ -275,6 +281,7 @@ namespace terrama2
           \note Thread-safe.
         */
         virtual DataProviderPtr findDataProvider(const DataProviderId id) const;
+
         virtual bool hasDataProvider(const DataProviderId id) const;
 
         /*!
@@ -326,6 +333,7 @@ namespace terrama2
       protected:
         std::map<DataProviderId, DataProviderPtr> providers_; //!< A map from DataProviderId to DataProvider.
         std::map<DataSeriesId, DataSeriesPtr> dataseries_;    //!< A map from DataSeriesId to DataSeries.
+        std::map<LegendId, LegendPtr> legends_;    //!< A map from LegendId to Legend.
         mutable std::recursive_mutex mtx_;                    //!< A mutex to synchronize all operations.
     };
 
