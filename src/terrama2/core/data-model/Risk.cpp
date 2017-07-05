@@ -34,11 +34,16 @@
 #include <QString>
 #include <QObject>
 
-
 std::tuple<int, std::string> terrama2::core::Risk::riskLevel(double value) const
 {
+  struct lessThen
+  {
+    bool operator()(const double &a, const terrama2::core::RiskLevel &b){ return a < b.value; }
+    bool operator()(const terrama2::core::RiskLevel &a, const double &b){ return a.value < b; }
+  };
+
   // find the first level lower than value
-  auto lowerBound = std::lower_bound(riskLevels.begin(), riskLevels.end(), value, [](const double &a, const RiskLevel &b){ return a < b.value; });
+  auto lowerBound = std::lower_bound(riskLevels.begin(), riskLevels.end(), value, lessThen());
   //get next level, same as value or greater
   ++lowerBound;
 
