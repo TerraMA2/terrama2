@@ -220,32 +220,32 @@
         <span ng-if="ctrl.dataSeriesType !== null">
           <div class="col-md-6" ng-show="ctrl.dataSeriesType === 'GRID'">
             <div class="form-group" terrama2-show-errors>
-              <label><span ng-bind="i18n.__('Risk band')"></span>:</label>
+              <label><span ng-bind="i18n.__('Legend band')"></span>:</label>
               <input type="number"
                     class="form-control"
-                    name="riskAttributeGrid"
-                    ng-model="ctrl.risk_attribute_grid"
+                    name="legendAttributeGrid"
+                    ng-model="ctrl.legend_attribute_grid"
                     ng-required="ctrl.dataSeriesType === 'GRID'">
               <span class="help-block"
-                  ng-show="forms.dataSeriesForm.riskAttributeGrid.$dirty && forms.dataSeriesForm.riskAttributeGrid.$invalid"
-                  ng-class="{'has-error': dataSeriesForm.riskAttributeGrid.$invalid}"
-                  ng-bind="i18n.__('Risk band is required')">
+                  ng-show="forms.dataSeriesForm.legendAttributeGrid.$dirty && forms.dataSeriesForm.legendAttributeGrid.$invalid"
+                  ng-class="{'has-error': dataSeriesForm.legendAttributeGrid.$invalid}"
+                  ng-bind="i18n.__('Legend band is required')">
               </span>
             </div>
           </div>
           <div class="col-md-6" ng-show="ctrl.dataSeriesType === 'ANALYSIS_MONITORED_OBJECT'">
             <div class="form-group" terrama2-show-errors>
-              <label><span ng-bind="i18n.__('Risk attribute')"></span>:</label>
+              <label><span ng-bind="i18n.__('Legend attribute')"></span>:</label>
               <input type="text"
                     class="form-control"
-                    name="riskAttributeMo"
-                    ng-model="ctrl.risk_attribute_mo"
+                    name="legendAttributeMo"
+                    ng-model="ctrl.legend_attribute_mo"
                     ng-required="ctrl.dataSeriesType === 'ANALYSIS_MONITORED_OBJECT'"
                     list='tableColumnsList'>
               <span class="help-block"
-                  ng-show="forms.dataSeriesForm.riskAttributeMo.$dirty && forms.dataSeriesForm.riskAttributeMo.$invalid"
-                  ng-class="{'has-error': dataSeriesForm.riskAttributeMo.$invalid}"
-                  ng-bind="i18n.__('Risk attribute is required')">
+                  ng-show="forms.dataSeriesForm.legendAttributeMo.$dirty && forms.dataSeriesForm.legendAttributeMo.$invalid"
+                  ng-class="{'has-error': dataSeriesForm.legendAttributeMo.$invalid}"
+                  ng-bind="i18n.__('Legend attribute is required')">
               </span>
             </div>
           </div>
@@ -253,45 +253,45 @@
       </form>
     </terrama2-box>
 
-    <terrama2-box title="i18n.__('Risk Level')" css="ctrl.css">
-      <form name="forms.riskLevel">
+    <terrama2-box title="i18n.__('Legend Level')" css="ctrl.css">
+      <form name="forms.legendLevel">
 
         <div class="col-md-4">
           <div class="form-group" terrama2-show-errors>
-            <label><span ng-bind="i18n.__('Risks')"></span>:</label>
-            <select id="risks" class="form-control"
-                        name="risks"
-                        ng-change="ctrl.onRisksChange()"
-                        ng-model="ctrl.riskModel"
-                        ng-options="risk.name for risk in ctrl.risks" required>
+            <label><span ng-bind="i18n.__('Legends')"></span>:</label>
+            <select id="legends" class="form-control"
+                        name="legends"
+                        ng-change="ctrl.onLegendsChange()"
+                        ng-model="ctrl.legendModel"
+                        ng-options="legend.name for legend in ctrl.legends" required>
             </select>
           </div>
         </div>
         <div class="col-md-8 row">
           <div class="col-md-12">
             <div class="form-group" terrama2-show-errors>
-              <label><span ng-bind="i18n.__('Risk Name')"></span>:</label>
-              <input class="form-control" name="riskLevelName" ng-model="ctrl.riskModel.name" type="text" placeholder="{{ i18n.__('Risk Name') }}" required>
+              <label><span ng-bind="i18n.__('Legend Name')"></span>:</label>
+              <input class="form-control" name="legendLevelName" ng-model="ctrl.legendModel.name" type="text" placeholder="{{ i18n.__('Legend Name') }}" required>
             </div>
           </div>
           <div class="col-md-12">
             <div class="form-group" terrama2-show-errors>
-              <label><span ng-bind="i18n.__('Risk Description')"></span>:</label>
-              <textarea class="form-control" name="riskDescription" ng-model="ctrl.riskModel.description" rows="3" placeholder="{{ i18n.__('Risk Description') }}"></textarea>
+              <label><span ng-bind="i18n.__('Legend Description')"></span>:</label>
+              <textarea class="form-control" name="legendDescription" ng-model="ctrl.legendModel.description" rows="3" placeholder="{{ i18n.__('Legend Description') }}"></textarea>
             </div>
           </div>
-          <span ng-repeat="level in ctrl.riskModel.levels track by $index">
+          <span ng-repeat="level in ctrl.legendModel.levels track by $index">
             <div class="col-md-12 row">
               <div ng-class="{'col-md-6': !ctrl.alert.hasView, 'col-md-4': ctrl.alert.hasView}">
-                <div class="form-group" ng-class="{'has-error': ctrl.riskLevelNameError[level._id]}">
+                <div class="form-group" ng-class="{'has-error': ctrl.legendLevelNameError[level._id]}">
                   <label><span ng-bind="i18n.__('Level Name')"></span>:</label>
                   <input class="form-control" name="levelName{{ level._id }}" ng-model="level.name" type="text" placeholder="{{ i18n.__('Level Name') }}">
                 </div>
               </div>
               <div ng-class="{'col-md-5': !ctrl.alert.hasView, 'col-md-4': ctrl.alert.hasView}">
-                <div ng-show="!level.isDefault" class="form-group" ng-class="{'has-error': ctrl.riskLevelValueError[level._id] || ctrl.riskLevelOrderError}">
-                  <label><span ng-bind="i18n.__('Risk Value')"></span>:</label>
-                  <input class="form-control" name="levelValue{{ level._id }}" ng-model="level.value" type="number" placeholder="{{ i18n.__('Risk Value') }}">
+                <div ng-show="!level.isDefault" class="form-group" ng-class="{'has-error': ctrl.legendLevelValueError[level._id] || ctrl.legendLevelOrderError}">
+                  <label><span ng-bind="i18n.__('Legend Value')"></span>:</label>
+                  <input class="form-control" name="levelValue{{ level._id }}" ng-model="level.value" type="number" placeholder="{{ i18n.__('Legend Value') }}">
                 </div>
               </div>
               <div ng-if="ctrl.alert.hasView" class="col-md-3">
@@ -302,7 +302,7 @@
               </div>
               <div class="col-md-1">
                 <div ng-show="!level.isDefault" class="form-group">
-                  <button type="button" class="btn btn-primary" ng-click="ctrl.removeLevel(level)" style="margin-top: 25px;" ng-show="ctrl.riskModel.levels.length > 1"><span>&times</span></button>
+                  <button type="button" class="btn btn-primary" ng-click="ctrl.removeLevel(level)" style="margin-top: 25px;" ng-show="ctrl.legendModel.levels.length > 1"><span>&times</span></button>
                 </div>
               </div>
             </div>
@@ -369,7 +369,7 @@
           </div>
         </div>
 
-        <div class="col-md-3">
+        <div ng-class="{ 'col-md-3': ctrl.dataSeriesType !== undefined && ctrl.dataSeriesType !== null && ctrl.dataSeriesType !== 'GRID', 'col-md-4': ctrl.dataSeriesType === undefined || ctrl.dataSeriesType === null || ctrl.dataSeriesType === 'GRID' }">
           <div class="form-group">
             <div class="checkbox">
               <label style="font-weight: 700;">
@@ -390,25 +390,25 @@
           </div>
         </div>
 
-        <div class="col-md-3">
+        <div ng-class="{ 'col-md-3': ctrl.dataSeriesType !== undefined && ctrl.dataSeriesType !== null && ctrl.dataSeriesType !== 'GRID', 'col-md-4': ctrl.dataSeriesType === undefined || ctrl.dataSeriesType === null || ctrl.dataSeriesType === 'GRID' }">
           <div class="form-group">
             <div class="checkbox">
               <label style="font-weight: 700;">
-                <input type="checkbox" name="notifyOnRiskLevel" ng-model="ctrl.notifyOnRiskLevel" ng-true-value="true" ng-false-value="false"> <span ng-bind="i18n.__('Notify on risk level')"></span>
+                <input type="checkbox" name="notifyOnLegendLevel" ng-model="ctrl.notifyOnLegendLevel" ng-true-value="true" ng-false-value="false"> <span ng-bind="i18n.__('Notify on legend level')"></span>
               </label>
             </div>
           </div>
           <div class="form-group" terrama2-show-errors>
-            <select class="form-control" name="riskLevels" ng-model="ctrl.notify_on_risk_level" ng-show="ctrl.notifyOnRiskLevel" ng-options="risk._id as risk.name disable when risk.isDefault for risk in ctrl.riskModel.levels" ng-required="ctrl.notifyOnRiskLevel"></select>
+            <select class="form-control" name="legendLevels" ng-model="ctrl.notify_on_legend_level" ng-show="ctrl.notifyOnLegendLevel" ng-options="legend._id as legend.name disable when legend.isDefault for legend in ctrl.legendModel.levels" ng-required="ctrl.notifyOnLegendLevel"></select>
             <span class="help-block"
-                  ng-show="forms.notificationForm.riskLevels.$dirty && forms.notificationForm.riskLevels.$invalid"
-                  ng-class="{'has-error': notificationForm.riskLevels.$invalid}"
+                  ng-show="forms.notificationForm.legendLevels.$dirty && forms.notificationForm.legendLevels.$invalid"
+                  ng-class="{'has-error': notificationForm.legendLevels.$invalid}"
                   ng-bind="i18n.__('Select a level')">
             </span>
           </div>
         </div>
 
-        <div class="col-md-2">
+        <div class="col-md-2" ng-show="ctrl.dataSeriesType !== undefined && ctrl.dataSeriesType !== null && ctrl.dataSeriesType !== 'GRID'">
           <div class="form-group">
             <div class="checkbox">
               <label style="font-weight: 700;">

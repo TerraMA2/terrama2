@@ -72,10 +72,36 @@ terrama2::core::DataSeriesPtr inputDataSeries()
   return dataSeriesPtr;
 }
 
+terrama2::core::LegendPtr newLegend()
+{
+  auto legend = std::make_shared<terrama2::core::Risk>();
+  legend->name = "Temperature levels";
+  legend->id = 1;
+
+  terrama2::core::RiskLevel level1;
+  level1.level = 0;
+  level1.value = 0;
+  level1.name = "low";
+  legend->riskLevels.push_back(level1);
+
+  terrama2::core::RiskLevel level2;
+  level2.level = 1;
+  level2.value = 3;
+  level2.name = "medium";
+  legend->riskLevels.push_back(level2);
+
+  terrama2::core::RiskLevel level3;
+  level3.level = 2;
+  level3.value = 21;
+  level3.name = "high";
+  legend->riskLevels.push_back(level3);
+
+  return legend;
+}
+
 terrama2::services::alert::core::AlertPtr newAlert()
 {
-  auto alert = new terrama2::services::alert::core::Alert();
-  terrama2::services::alert::core::AlertPtr alertPtr(alert);
+  auto alert = std::make_shared<terrama2::services::alert::core::Alert>();
 
   alert->id = 1;
   alert->projectId = 1;
@@ -85,28 +111,7 @@ terrama2::services::alert::core::AlertPtr newAlert()
   alert->name = "Example alert";
   alert->serviceInstanceId = 1;
 
-  terrama2::core::Risk risk;
-  risk.name = "Temperature levels";
-
-  terrama2::core::RiskLevel level1;
-  level1.level = 0;
-  level1.value = 0;
-  level1.name = "low";
-  risk.riskLevels.push_back(level1);
-
-  terrama2::core::RiskLevel level2;
-  level2.level = 1;
-  level2.value = 3;
-  level2.name = "medium";
-  risk.riskLevels.push_back(level2);
-
-  terrama2::core::RiskLevel level3;
-  level3.level = 2;
-  level3.value = 21;
-  level3.name = "high";
-  risk.riskLevels.push_back(level3);
-
-  alert->risk = risk;
+  alert->riskId = 1;
 
   std::unordered_map<std::string, std::string> reportMetadata;
 
@@ -130,7 +135,7 @@ terrama2::services::alert::core::AlertPtr newAlert()
   notification.includeReport = "PDF";
   alert->notifications = { notification };
 
-  return alertPtr;
+  return alert;
 }
 
 
@@ -150,7 +155,9 @@ int main(int argc, char* argv[])
   dataManager->add(inputDataProvider());
   dataManager->add(inputDataSeries());
   auto alert = newAlert();
+  auto legend = newLegend();
   dataManager->add(alert);
+  dataManager->add(legend);
 
   auto logger = std::make_shared<AlertLoggerMock>();
   ::testing::DefaultValue<RegisterId>::Set(1);
