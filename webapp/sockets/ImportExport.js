@@ -338,6 +338,20 @@ var ImportExport = function(io) {
                     promises = [];
 
                     if(json.Views) {
+                      //check if have alert view
+                      if (json.Alerts){
+                        var alertsList = json.Alerts || [];
+                        alertsList.forEach(function(alert){
+                          var viewAlert;
+                          if (alert.view && alert.view.id){
+                            viewAlert = alert.view;
+                            viewAlert.$id = viewAlert.id;
+                            viewAlert.data_series_id = viewAlert.dataseries_id;
+                            delete viewAlert.id;
+                            json.Views.push(viewAlert);
+                          }
+                        });
+                      }
                       var viewsList = json.Views || [];
                       viewsList.forEach(function(view) {
                         view.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: view.project_id}).id : json.selectedProject;
@@ -365,13 +379,15 @@ var ImportExport = function(io) {
 
                             return DataManager.addView(view, options).then(function(viewResult) {
                               if(tcpOutput.Views === undefined) tcpOutput.Views = [];
-                              tcpOutput.Views.push(viewResult.toObject());
+                              var viewObject = Object.assign({$id: view.$id}, viewResult.toObject());
+                              tcpOutput.Views.push(viewObject);
                             });
                           }));
                         } else {
                           promises.push(DataManager.addView(view, options).then(function(viewResult) {
                             if(tcpOutput.Views === undefined) tcpOutput.Views = [];
-                            tcpOutput.Views.push(viewResult.toObject());
+                            var viewObject = Object.assign({$id: view.$id}, viewResult.toObject());
+                            tcpOutput.Views.push(viewObject);
                           }));
                         }
                       });
@@ -387,7 +403,10 @@ var ImportExport = function(io) {
                           alert.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: alert.project_id}).id : json.selectedProject;
                           alert.data_series_id = Utils.find(output.DataSeries, {$id: alert.data_series_id}).id;
                           if(alert.service_instance_id === null) alert.service_instance_id = json.servicesAlert;
-
+                          if (alert.view && alert.view.$id){
+                            var viewId = Utils.find(tcpOutput.Views, {$id: alert.view.$id}).id;
+                            alert.view_id = viewId;
+                          }
                           var risk;
 
                           for(var i = 0, risksLength = json.Risks.length; i < risksLength; i++) {
@@ -658,8 +677,8 @@ var ImportExport = function(io) {
             output.Analysis.push(rawAnalysis);
           });
         }));
-
-        promises.push(DataManager.listViews({project_id: target.id}).then(function(viewsList) {
+        // do not include the alert views (source_type = 4)
+        promises.push(DataManager.listViews({project_id: target.id, source_type: {$ne: 4}}).then(function(viewsList) {
           viewsList.forEach(function(view) {
             var viewToAdd = addID(view);
 

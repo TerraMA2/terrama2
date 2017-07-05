@@ -610,16 +610,19 @@ define(function() {
         });
 
         $http.get(BASE_URL + "api/ViewByProject/" + project.id, {}).then(function(views) {
-          $scope.views[project.id] = views.data;
+          var viewFiltered = [];
+          //Removing alerts view
+          views.data.map(function(view){if (view.source_type != 4) viewFiltered.push(view);})
+          $scope.views[project.id] = viewFiltered;
 
           if($scope.projectsCheckboxes[project.id].Views == undefined)
             $scope.projectsCheckboxes[project.id].Views = {};
 
           var viewsIds = [];
 
-          for(var j = 0, viewsLength = views.data.length; j < viewsLength; j++) {
-            $scope.projectsCheckboxes[project.id].Views[views.data[j].id] = true;
-            viewsIds.push(views.data[j].id);
+          for(var j = 0, viewsLength = viewFiltered.length; j < viewsLength; j++) {
+            $scope.projectsCheckboxes[project.id].Views[viewFiltered[j].id] = true;
+            viewsIds.push(viewFiltered[j].id);
           }
 
           socket.emit("getDependencies", {
