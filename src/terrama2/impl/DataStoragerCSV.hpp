@@ -40,11 +40,11 @@ namespace terrama2
     class DataStoragerCSV : public DataStoragerTable
     {
       public:
-        DataStoragerCSV(DataProviderPtr outputDataProvider)
-                : DataStoragerTable(outputDataProvider) {}
+        DataStoragerCSV(DataSeriesPtr dataSeries, DataProviderPtr outputDataProvider)
+                : DataStoragerTable(dataSeries, outputDataProvider) {}
         ~DataStoragerCSV() {}
 
-        static DataStoragerPtr make(DataProviderPtr dataProvider);
+        static DataStoragerPtr make(DataSeriesPtr dataSeries, DataProviderPtr dataProvider);
 
         virtual std::string getCompleteURI(DataSetPtr outputDataSet) const override;
 

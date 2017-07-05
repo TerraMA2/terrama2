@@ -83,7 +83,6 @@ void terrama2::core::DataStoragerTable::store(DataSetSeries series, DataSetPtr o
 
   std::shared_ptr<te::da::DataSetType> datasetType = series.teDataSetType;
 
-  std::map<std::string, std::string> options;
   std::shared_ptr<te::da::DataSetType> newDataSetType;
   if (!transactorDestination->dataSetExists(destinationDataSetName))
   {
@@ -102,7 +101,7 @@ void terrama2::core::DataStoragerTable::store(DataSetSeries series, DataSetPtr o
     }
 
     newDataSetType->setName(destinationDataSetName);
-    transactorDestination->createDataSet(newDataSetType.get(),options);
+    transactorDestination->createDataSet(newDataSetType.get(), {});
 
     //Get original geometry to get srid
     te::gm::GeometryProperty* geom = GetFirstGeomProperty(datasetType.get());
@@ -129,7 +128,7 @@ void terrama2::core::DataStoragerTable::store(DataSetSeries series, DataSetPtr o
   }
 
   series.syncDataSet->dataset()->moveBeforeFirst();
-  transactorDestination->add(newDataSetType->getName(), series.syncDataSet->dataset().get(), options);
+  transactorDestination->add(newDataSetType->getName(), series.syncDataSet->dataset().get(), {});
 
   scopedTransaction.commit();
 }

@@ -40,8 +40,8 @@ namespace terrama2
     class DataStoragerTable : public DataStorager
     {
       public:
-        DataStoragerTable(DataProviderPtr outputDataProvider)
-                : DataStorager(outputDataProvider) {}
+        DataStoragerTable(DataSeriesPtr dataSeries, DataProviderPtr outputDataProvider)
+                : DataStorager(dataSeries, outputDataProvider) {}
         ~DataStoragerTable() {}
 
         virtual void store(DataSetSeries series, DataSetPtr outputDataSet) const override;

@@ -46,9 +46,9 @@
 //STL
 #include <algorithm>
 
-terrama2::core::DataStoragerPtr terrama2::core::DataStoragerPostGIS::make(DataProviderPtr dataProvider)
+terrama2::core::DataStoragerPtr terrama2::core::DataStoragerPostGIS::make(DataSeriesPtr dataSeries, DataProviderPtr dataProvider)
 {
-  return std::make_shared<DataStoragerPostGIS>(dataProvider);
+  return std::make_shared<DataStoragerPostGIS>(dataSeries, dataProvider);
 }
 
 std::string terrama2::core::DataStoragerPostGIS::getCompleteURI(DataSetPtr outputDataSet) const

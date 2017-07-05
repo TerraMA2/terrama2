@@ -65,7 +65,7 @@ void terrama2::core::StoragerManager::store(terrama2::core::DataSetSeries series
     throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
 
-  auto dataStorager = terrama2::core::DataStoragerFactory::getInstance().make(dataSeries->semantics.code, dataProvider);
+  auto dataStorager = terrama2::core::DataStoragerFactory::getInstance().make(dataSeries, dataProvider);
 
   std::string uri = dataStorager->getCompleteURI(outputDataSet);
 
