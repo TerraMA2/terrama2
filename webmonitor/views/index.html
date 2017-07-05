@@ -744,7 +744,7 @@
                 var layerData = getLayerData(layerId);
 
                 if(layerData !== null && layerData.id !== undefined && layerData.url !== undefined) {
-                    html += "<strong>" + layerName + "</strong><br/><img src='" + BASE_URL + "get-legend?layer=" + layerId + "&geoserverUri=" + layerData.url + "'/>";
+                    html += "<strong>" + layerName + "</strong><br/><img src='" + BASE_URL + "get-legend?layer=" + layerId + "&geoserverUri=" + layerData.url + "&random=" + Date.now().toString() + "'/>";
                     if(visibleLayersLength > 1 && i < (visibleLayersLength - 1)) html += "<hr/>";
                 }
             }
