@@ -561,6 +561,15 @@ define([], function(){
         } else {
           var copyFormat = angular.merge({}, self.series.semantics.metadata.metadata);
           angular.merge(copyFormat, self.model);
+          // if geotiff - add .tif extension
+          if (self.series.semantics.code == "GRID-geotiff"){
+            if (!copyFormat.mask.endsWith(".tif")){
+              if (copyFormat.mask.indexOf(".") > -1){
+                copyFormat.mask = copyFormat.mask.slice(0, copyFormat.mask.indexOf("."));
+              }
+              copyFormat.mask += ".tif";
+            }
+          }
           self.modelStorager = SemanticsParserFactory.parseKeys(copyFormat);
           self.filter.area = {
             srid: 4326
@@ -661,6 +670,21 @@ define([], function(){
         } else {
           // occurrence
           var formTranslatorResult = FormTranslator(metadata.schema.properties, metadata.form, metadata.schema.required);
+
+          // if semantics is geotiff, complete the mask with .tif extension
+          if (self.series.semantics.code == "GRID-geotiff"){
+            formTranslatorResult.display[0].onChange = function(modelValue,form){
+              if (modelValue){
+                if (!modelValue.endsWith(".tif")){
+                  if (modelValue.indexOf(".") > -1){
+                    modelValue = modelValue.slice(0, modelValue.indexOf("."));
+                  }
+                  modelValue += ".tif";
+                  $scope.$ctrl.modelStorager.mask = modelValue;
+                }
+              }
+            }
+          }
 
           self.formStorager = formTranslatorResult.display;
           self.schemaStorager = {

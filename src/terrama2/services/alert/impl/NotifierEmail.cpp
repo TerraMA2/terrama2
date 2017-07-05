@@ -101,7 +101,7 @@ void terrama2::services::alert::impl::NotifierEmail::send(const core::Notificati
 
   mb.constructTextPart(vmime::mediaType(vmime::mediaTypes::TEXT, vmime::mediaTypes::TEXT_HTML));
   vmime::shared_ptr<vmime::htmlTextPart> textPart = vmime::dynamicCast<vmime::htmlTextPart>(mb.getTextPart());
-  textPart->setCharset(vmime::charsets::ISO8859_15);
+  textPart->setCharset(vmime::charsets::UTF_8);
 
   textPart->setText(vmime::make_shared <vmime::stringContentHandler>(body));
 

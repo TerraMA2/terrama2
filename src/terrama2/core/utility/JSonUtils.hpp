@@ -103,7 +103,7 @@ namespace terrama2
     Filter fromFilterJson(QJsonObject json, DataManager* dataManager);
     QJsonObject toJson(const Filter& filter);
 
-    Risk fromRiskJson(QJsonObject json);
+    LegendPtr fromRiskJson(QJsonObject json);
     QJsonObject toJson(const terrama2::core::Risk& risk);
 
     /*!

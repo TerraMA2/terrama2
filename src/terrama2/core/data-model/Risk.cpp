@@ -34,24 +34,41 @@
 #include <QString>
 #include <QObject>
 
-
 std::tuple<int, std::string> terrama2::core::Risk::riskLevel(double value) const
 {
-  auto upperBound = std::upper_bound(riskLevels.begin(), riskLevels.end(), value, [](const double &a, const RiskLevel &b){ return a < b.value; });
-  if(upperBound == riskLevels.begin())
-    return std::make_tuple(upperBound->level, upperBound->name);
-  else
+  struct lessThen
   {
-    --upperBound;
-    return std::make_tuple(upperBound->level, upperBound->name);
-  }
+    bool operator()(const double &a, const terrama2::core::RiskLevel &b){ return a < b.value; }
+    bool operator()(const terrama2::core::RiskLevel &a, const double &b){ return a.value < b; }
+  };
+
+  // find the first level lower than value
+  auto lowerBound = std::lower_bound(riskLevels.begin(), riskLevels.end(), value, lessThen());
+  // if level not found, return defaultLevel
+  if(lowerBound == riskLevels.end())
+    return std::make_tuple(defaultRisk.level, defaultRisk.name);
+
+  //get next level, same as value or greater
+  ++lowerBound;
+
+  // if level not found, return defaultLevel
+  if(lowerBound == riskLevels.end())
+    return std::make_tuple(defaultRisk.level, defaultRisk.name);
+
+  return std::make_tuple(lowerBound->level, lowerBound->name);
 }
 
 std::string terrama2::core::Risk::riskName(const int level) const
 {
+  //default risk
+  if(level == defaultRisk.level)
+    return defaultRisk.name;
+
+  //find risk level
   auto it = std::find_if(riskLevels.begin(), riskLevels.end(), [level](const RiskLevel &b){ return level == b.level;});
   if(it == riskLevels.end())
   {
+    //the level is not a valid
     QString errMsg = QObject::tr("Risk not defined for level: %1").arg(level);
     TERRAMA2_LOG_ERROR() << errMsg;
     throw DataSeriesRiskException() << ErrorDescription(errMsg);

@@ -65,17 +65,6 @@
           .catch(function(err) {
             return handleRequestError(response, err, 400);
           });
-      },
-      listRisks: function(request, response){
-        var projectId = request.params.project_id;
-
-        AlertFacade.listRisks((projectId ? projectId : app.locals.activeProject.id))
-          .then(function(risks) {
-            return response.json(risks);
-          })
-          .catch(function(err) {
-            return handleRequestError(response, err, 400);
-          });
       }
     }
   }

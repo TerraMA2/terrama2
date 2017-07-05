@@ -214,7 +214,7 @@ define([], function() {
 
       $timeout(function() {
         var finalMessage = messageArray.join(" ") + " " + i18n.__(tokenCodeMessage);
-        MessageBoxService.success(i18n.__(title), finalMessage);
+        if(!MessageBoxService.alertBox.display) MessageBoxService.success(i18n.__(title), finalMessage);
       }, 1000);
     }
 

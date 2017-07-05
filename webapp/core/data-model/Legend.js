@@ -15,14 +15,14 @@
   var Utils = require("./../Utils");
 
   /**
-   * TerraMA² Risk Data Model representation
+   * TerraMA² Legend Data Model representation
    * 
-   * @class Risk
+   * @class Legend
    */
-  var Risk = function(params) {
-    BaseClass.call(this, {'class': 'Risk'});
+  var Legend = function(params) {
+    BaseClass.call(this, {'class': 'Legend'});
     /**
-     * Risk Identifier
+     * Legend Identifier
      * @type {number}
      */
     this.id = params.id;
@@ -32,12 +32,12 @@
      */
     this.project_id = params.project_id;
     /**
-     * Risk name
+     * Legend name
      * @type {string}
      */
     this.name = params.name;
     /**
-     * Risk description
+     * Legend description
      * @type {string}
      */
     this.description = params.description;
@@ -45,11 +45,11 @@
     this.levels = [];
 
 
-    if (params.levels || params.riskLevels){
-      this.levels = params.levels || params.riskLevels;
-    } else if (params.RiskLevels) {
+    if (params.levels || params.legendLevels){
+      this.levels = params.levels || params.legendLevels;
+    } else if (params.LegendLevels) {
       var levelsList = [];
-      params.RiskLevels.forEach(function(level){
+      params.LegendLevels.forEach(function(level){
         levelsList.push(level.get());
       });
       this.levels = levelsList;
@@ -58,24 +58,24 @@
   };
 
   /**
-   * It sets risk levels data.
+   * It sets legend levels data.
    * @param {Sequelize.Model[]|Object[]}
    */
-  Risk.prototype.setRiskLevels = function(RiskLevels) {
+  Legend.prototype.setLegendLevels = function(LegendLevels) {
     var output = [];
-    RiskLevels.forEach(function(RiskLevel) {
-      var obj = RiskLevel;
-      if (Utils.isFunction(RiskLevel.get)) {
-        obj = RiskLevel.get();
+    LegendLevels.forEach(function(LegendLevel) {
+      var obj = LegendLevel;
+      if (Utils.isFunction(LegendLevel.get)) {
+        obj = LegendLevel.get();
       }
       output.push(obj);
     });
     this.levels = output;
   };
-  Risk.prototype = Object.create(BaseClass.prototype);
-  Risk.prototype.constructor = Risk;
+  Legend.prototype = Object.create(BaseClass.prototype);
+  Legend.prototype.constructor = Legend;
 
-  Risk.prototype.toObject = function() {
+  Legend.prototype.toObject = function() {
     return Object.assign(BaseClass.prototype.toObject.call(this), {
       id: this.id,
       project_id: this.project_id,
@@ -85,15 +85,16 @@
     });
   };
 
-  Risk.prototype.toService = function() {
+  Legend.prototype.toService = function() {
     var levelsCopy =[];
     //Removing unnecessary properties to send to service
     this.levels.forEach(function(level){
       delete level.id;
-      delete level.risk_id;
+      delete level.legend_id;
       levelsCopy.push(level);
     });
     return Object.assign(BaseClass.prototype.toObject.call(this), {
+      id: this.id,
       name: this.name,
       project_id: this.project_id,
       description: this.description,
@@ -101,11 +102,11 @@
     });
   };
 
-  Risk.prototype.rawObject = function() {
+  Legend.prototype.rawObject = function() {
     var toObject = this.toObject();
     return toObject;
   };
 
-  module.exports = Risk;
+  module.exports = Legend;
 
 } ());

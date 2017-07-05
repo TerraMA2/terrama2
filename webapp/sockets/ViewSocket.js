@@ -32,6 +32,15 @@
       ioSocket.emit("viewReceived", registeredView.toObject());
     });
 
+    /**
+     * Defines an alert notify. Triggered when C++ services done alert execution and TerraMA² WebApp send info to WebMonitor
+     * 
+     * @param {Object} viewInfo - View info to notify
+     */
+    TcpService.on("notifyView", function(viewInfo){
+      ioSocket.emit("notifyView", viewInfo);
+    })
+
     // Socket connection event
     ioSocket.on('connection', function(client) {
       /**
