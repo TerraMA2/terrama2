@@ -47,6 +47,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(app.locals.BASE_URL, express.static(path.join(__dirname, 'bower_components')));
 app.use(app.locals.BASE_URL, express.static(path.join(__dirname, 'public')));
 app.use(app.locals.BASE_URL, express.static(path.join(__dirname, '../webcomponents/dist')));
+app.use(app.locals.BASE_URL + 'require.js', express.static(path.join(__dirname, 'node_modules/requirejs/require.js')));
 
 load('controllers').then('routes').into(app);
 
@@ -64,7 +65,7 @@ app.use(function(req, res, next) {
 if (app.get('env') === 'development') {
   app.use(function(err, req, res, next) {
     res.status(err.status || 500);
-    res.render('error', {
+    res.render('index', {
       message: err.message,
       error: err
     });
@@ -75,7 +76,7 @@ if (app.get('env') === 'development') {
 // no stacktraces leaked to user
 app.use(function(err, req, res, next) {
   res.status(err.status || 500);
-  res.render('error', {
+  res.render('index', {
     message: err.message,
     error: {}
   });
