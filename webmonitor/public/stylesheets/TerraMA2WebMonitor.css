@@ -1,3 +1,7 @@
+.map {
+  width: 100%;
+}
+
 .main-header .logo-lg > img {
   max-height: 50px;
 }
