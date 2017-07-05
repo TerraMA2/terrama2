@@ -51,7 +51,7 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
        && json.contains("project_id")
        && json.contains("service_instance_id")
        && json.contains("data_series_id")
-       && json.contains("risk_attribute")
+       && json.contains("legend_attribute")
        && json.contains("active")
        && json.contains("name")
        && json.contains("description")
@@ -74,7 +74,7 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
   alert->projectId = static_cast<uint32_t>(json["project_id"].toInt());
   alert->serviceInstanceId = static_cast<uint32_t>(json["service_instance_id"].toInt());
   alert->dataSeriesId = static_cast<uint32_t>(json["data_series_id"].toInt());
-  alert->riskAttribute = json["risk_attribute"].toString().toStdString();
+  alert->riskAttribute = json["legend_attribute"].toString().toStdString();
   alert->active = json["active"].toBool();
   alert->name = json["name"].toString().toStdString();
   alert->description = json["description"].toString().toStdString();

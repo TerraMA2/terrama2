@@ -44,6 +44,10 @@ std::tuple<int, std::string> terrama2::core::Risk::riskLevel(double value) const
 
   // find the first level lower than value
   auto lowerBound = std::lower_bound(riskLevels.begin(), riskLevels.end(), value, lessThen());
+  // if level not found, return defaultLevel
+  if(lowerBound == riskLevels.end())
+    return std::make_tuple(defaultRisk.level, defaultRisk.name);
+
   //get next level, same as value or greater
   ++lowerBound;
 
