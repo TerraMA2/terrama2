@@ -35,11 +35,8 @@
 #include "../Utils.hpp"
 #include "../DataManager.hpp"
 #include "../serialization/Serialization.hpp"
-#include "../../core/JSonUtils.hpp"
 #include "../../../../impl/DataAccessorFile.hpp"
-#include "../../../../impl/DataAccessorPostGIS.hpp"
 #include "../../../../core/data-model/DataProvider.hpp"
-#include "../../../../core/utility/Raii.hpp"
 #include "../../../../core/utility/Logger.hpp"
 #include "../../../../core/utility/DataAccessorFactory.hpp"
 #include "../../../../core/utility/Utils.hpp"
@@ -665,7 +662,7 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::
                    "<dimensionInfo>"
                    "<enabled>true</enabled>"
                    "<attribute>"+timestampPropertyName+"</attribute>"+
-                   "<presentation>CONTINUOUS_INTERVAL</presentation>"
+                   "<presentation>LIST</presentation>"
                    "<units>ISO8601</units>"
                    "<defaultValue>"
                    "<strategy>MAXIMUM</strategy>"
@@ -761,7 +758,7 @@ void terrama2::services::view::core::GeoServer::registerVectorFile(const std::st
   {
     deleteVectorLayer(dataStoreName, layerName, true);
   }
-  catch(NotFoundGeoserverException /*e*/)
+  catch(const NotFoundGeoserverException&)
   {
     // Do nothing
   }
