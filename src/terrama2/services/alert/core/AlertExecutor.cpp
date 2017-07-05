@@ -477,35 +477,41 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
     return;
   }
 
+
+  //////////////////////////////////////////////////////////
+  //  aquiring metadata
+  auto lock = dataManager->getLock();
+
+  AlertPtr alertPtr = dataManager->findAlert(alertId);
+  terrama2::core::LegendPtr legend = dataManager->findLegend(alertPtr->riskId);
+  if(!legend.get())
+  {
+    TERRAMA2_LOG_ERROR() << QObject::tr("Unable to find legend with id: %1").arg(alertPtr->riskId);
+    emit alertFinished(alertId, executionPackage.executionDate, false);
+    return;
+  }
+
+  // input data
+  auto inputDataSeries = dataManager->findDataSeries(alertPtr->dataSeriesId);
+  auto inputDataProvider = dataManager->findDataProvider(inputDataSeries->dataProviderId);
+
+  //retrieve additional data
+  std::vector<AdditionalData> additionalDataVector = alertPtr->additionalDataVector;
+  std::unordered_map<DataSeriesId, std::pair<terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr> > tempAdditionalDataVector;
+  for(auto additionalData : additionalDataVector)
+  {
+    auto dataSeries = dataManager->findDataSeries(additionalData.dataSeriesId);
+    auto dataProvider = dataManager->findDataProvider(dataSeries->dataProviderId);
+
+    tempAdditionalDataVector.emplace(additionalData.dataSeriesId, std::make_pair(dataSeries, dataProvider));
+  }
+
+  // dataManager no longer in use
+  lock.unlock();
+
   try
   {
     TERRAMA2_LOG_DEBUG() << QObject::tr("Starting alert generation");
-
-    //////////////////////////////////////////////////////////
-    //  aquiring metadata
-    auto lock = dataManager->getLock();
-
-    AlertPtr alertPtr = dataManager->findAlert(alertId);
-    terrama2::core::LegendPtr legend = dataManager->findLegend(alertPtr->riskId);
-    assert(legend.get());
-
-    // input data
-    auto inputDataSeries = dataManager->findDataSeries(alertPtr->dataSeriesId);
-    auto inputDataProvider = dataManager->findDataProvider(inputDataSeries->dataProviderId);
-
-    //retrieve additional data
-    std::vector<AdditionalData> additionalDataVector = alertPtr->additionalDataVector;
-    std::unordered_map<DataSeriesId, std::pair<terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr> > tempAdditionalDataVector;
-    for(auto additionalData : additionalDataVector)
-    {
-      auto dataSeries = dataManager->findDataSeries(additionalData.dataSeriesId);
-      auto dataProvider = dataManager->findDataProvider(dataSeries->dataProviderId);
-
-      tempAdditionalDataVector.emplace(additionalData.dataSeriesId, std::make_pair(dataSeries, dataProvider));
-    }
-
-    // dataManager no longer in use
-    lock.unlock();
 
     /////////////////////////////////////////////////////////////////////////
     // analysing data
