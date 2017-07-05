@@ -187,7 +187,11 @@ define([], function(){
         };
 
          self.icon = function(object) {
-           return BASE_URL + "images/alert/monitored-object/monitored-object_alert.png"
+           if (object.dataSeries.isAnalysis && object.dataSeries.semantics == "ANALYSIS_MONITORED_OBJECT-postgis"){
+            return BASE_URL + "images/alert/monitored-object/monitored-object_alert.png";
+           } else {
+            return BASE_URL + "images/alert/grid/grid_alert.png";
+           }
          }
 
         /**
