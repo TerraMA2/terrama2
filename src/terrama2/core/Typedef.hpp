@@ -49,6 +49,8 @@ typedef uint32_t DataProviderId;
 typedef uint32_t ProcessId;
 //! Unique identifier for Processes log
 typedef uint32_t RegisterId;
+//! Unique identifier for Legend
+typedef uint32_t LegendId;
 //! DataProviderType code
 typedef std::string DataProviderType;
 //! Format of the data series semantics

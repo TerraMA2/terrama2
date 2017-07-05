@@ -148,6 +148,93 @@ void terrama2::core::DataManager::update(terrama2::core::DataProviderPtr provide
   emit dataProviderUpdated(provider);
 }
 
+void terrama2::core::DataManager::add(terrama2::core::LegendPtr legend)
+{
+  // Inside a block so the lock is released before emitting the signal
+  {
+    std::lock_guard<std::recursive_mutex> lock(mtx_);
+
+    if(legend->name.empty())
+    {
+      QString errMsg = QObject::tr("Can not add a legend with empty name.");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+    }
+
+    if(legend->id == terrama2::core::InvalidId())
+    {
+      QString errMsg = QObject::tr("Can not add a legend with invalid identifier.");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+    }
+
+    try
+    {
+      legends_.at(legend->id);
+
+      QString errMsg = QObject::tr("Legend already registered.");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+    }
+    catch (const std::out_of_range&)
+    {
+      //Expected behavior
+    }
+
+    legends_.emplace(legend->id, legend);
+  }
+}
+
+void terrama2::core::DataManager::update(terrama2::core::LegendPtr legend)
+{
+  {
+    std::lock_guard<std::recursive_mutex> lock(mtx_);
+    blockSignals(true);
+    removeLegend(legend->id);
+    add(legend);
+    blockSignals(false);
+  }
+}
+
+bool terrama2::core::DataManager::hasLegend(LegendId id) const
+{
+  std::lock_guard<std::recursive_mutex> lock(mtx_);
+
+  const auto& it = legends_.find(id);
+  return it != legends_.cend();
+}
+
+void terrama2::core::DataManager::removeLegend(const LegendId id)
+{
+  {
+    std::lock_guard<std::recursive_mutex> lock(mtx_);
+    auto itPr = legends_.find(id);
+    if(itPr == legends_.end())
+    {
+      QString errMsg = QObject::tr("Could not find a legend with the given id: %1.").arg(id);
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+    }
+
+    legends_.erase(itPr);
+  }
+}
+
+terrama2::core::LegendPtr terrama2::core::DataManager::findLegend(const LegendId id) const
+{
+  std::lock_guard<std::recursive_mutex> lock(mtx_);
+
+  const auto& it = legends_.find(id);
+  if(it == legends_.cend())
+  {
+    QString errMsg = QObject::tr("Could not find a legend with the given id: %1.").arg(id);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+  }
+
+  return it->second;
+}
+
 void terrama2::core::DataManager::update(terrama2::core::DataSeriesPtr dataseries, const bool shallowSave)
 {
   {
@@ -308,6 +395,16 @@ void terrama2::core::DataManager::addJSon(const QJsonObject& obj)
   {
     auto dataPtr = terrama2::core::fromDataSeriesJson(json.toObject());
     if(hasDataSeries(dataPtr->id))
+      update(dataPtr);
+    else
+      add(dataPtr);
+  }
+
+  auto legends = obj["Legends"].toArray();
+  for(auto json : legends)
+  {
+    auto dataPtr = terrama2::core::fromRiskJson(json.toObject());
+    if(hasLegend(dataPtr->id))
       update(dataPtr);
     else
       add(dataPtr);

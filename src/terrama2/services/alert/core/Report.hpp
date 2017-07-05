@@ -87,6 +87,7 @@ namespace terrama2
         {
           public:
             Report(AlertPtr alert,
+                   terrama2::core::LegendPtr legend,
                    terrama2::core::DataSeriesPtr alertDataSeries,
                    std::shared_ptr<te::da::DataSet> alertDataSet,
                    std::vector<std::shared_ptr<te::dt::DateTime>> riskDates);
@@ -210,6 +211,7 @@ namespace terrama2
           protected:
 
             AlertPtr alert_; //!< The alert information
+            terrama2::core::LegendPtr legend_; //!< Alert legend data.
             terrama2::core::DataSeriesPtr alertDataSeries_;
             std::shared_ptr<te::mem::DataSet> dataSet_; //!< The dataSet with alert data
             std::vector<std::shared_ptr<te::dt::DateTime>> riskDates_; //!< A list with the datetime of each risk calculation

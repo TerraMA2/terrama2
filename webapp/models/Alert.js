@@ -10,7 +10,7 @@ module.exports = function(sequelize, DataTypes) {
       active: DataTypes.BOOLEAN,
       name: DataTypes.STRING,
       description: DataTypes.TEXT,
-      risk_attribute: DataTypes.STRING,
+      legend_attribute: DataTypes.STRING,
       schedule_type: {
         type: DataTypes.INTEGER,
         allowNull: true
@@ -65,10 +65,10 @@ module.exports = function(sequelize, DataTypes) {
             }
           });
 
-          Alert.belongsTo(models.Risk, {
-            onDelete: "CASCADE",
+          Alert.belongsTo(models.Legend, {
+            onDelete: "NO ACTION",
             foreignKey: {
-              name: 'risk_id',
+              name: 'legend_id',
               allowNull: false
             }
           });

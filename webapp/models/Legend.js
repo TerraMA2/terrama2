@@ -1,5 +1,5 @@
 module.exports = function(sequelize, DataTypes) {
-  var Risk = sequelize.define("Risk",
+  var Legend = sequelize.define("Legend",
     {
       id: {
         type: DataTypes.INTEGER,
@@ -23,7 +23,7 @@ module.exports = function(sequelize, DataTypes) {
 
       classMethods: {
         associate: function(models) {
-          Risk.belongsTo(models.Project, {
+          Legend.belongsTo(models.Project, {
             onDelete: "CASCADE",
             foreignKey: {
               name: "project_id",
@@ -31,15 +31,15 @@ module.exports = function(sequelize, DataTypes) {
             }
           });
 
-          Risk.hasOne(models.Alert, {
-            onDelete: "CASCADE",
+          Legend.hasOne(models.Alert, {
+            onDelete: "NO ACTION",
             foreignKey: {
-              name: 'risk_id',
+              name: 'legend_id',
               allowNull: false
             }
           });
 
-          Risk.hasMany(models.RiskLevel, {
+          Legend.hasMany(models.LegendLevel, {
             onDelete: 'CASCADE',
             foreignKey: {
               allowNull: false
@@ -50,5 +50,5 @@ module.exports = function(sequelize, DataTypes) {
     }
   );
 
-  return Risk;
+  return Legend;
 };

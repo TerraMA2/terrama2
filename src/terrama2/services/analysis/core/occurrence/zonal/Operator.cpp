@@ -64,7 +64,8 @@ double terrama2::services::analysis::core::occurrence::zonal::operatorImpl(terra
   catch (const terrama2::core::VerifyException&)
   {
     contextManager.addError(cache.analysisHashCode, QObject::tr("Use of invalid operator for analysis %1.").arg(analysis->id).toStdString());
-    return {};
+
+    return std::nan("");
   }
 
   // After the operator lock is released it's not allowed to return any value because it doesn' have the interpreter lock.
@@ -80,22 +81,14 @@ double terrama2::services::analysis::core::occurrence::zonal::operatorImpl(terra
   {
     TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
 
-    if(statisticOperation == StatisticOperation::COUNT)
-      return 0;
-    else
-      return std::nan("");
+    return std::nan("");
   }
 
   try
   {
     // In case an error has already occurred, there is nothing to do.
     if(context->hasError())
-    {
-      if(statisticOperation == StatisticOperation::COUNT)
-        return 0;
-      else
-        return std::nan("");
-    }
+      return std::nan("");
 
 
     bool hasData = false;
@@ -108,8 +101,6 @@ double terrama2::services::analysis::core::occurrence::zonal::operatorImpl(terra
     }
 
     AnalysisPtr analysis = context->getAnalysis();
-
-
 
     std::shared_ptr<ContextDataSeries> moDsContext = context->getMonitoredObjectContextDataSeries(dataManagerPtr);
     if(!moDsContext)
@@ -352,38 +343,28 @@ double terrama2::services::analysis::core::occurrence::zonal::operatorImpl(terra
   catch(const terrama2::Exception& e)
   {
     context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
-
-    if(statisticOperation == StatisticOperation::COUNT)
-      return 0;
-    else
-      return std::nan("");
   }
   catch(const std::exception& e)
   {
     context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, e.what());
-
-    if(statisticOperation == StatisticOperation::COUNT)
-      return 0;
-    else
-      return std::nan("");
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
     context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
-
-    if(statisticOperation == StatisticOperation::COUNT)
-      return 0;
-    else
-      return std::nan("");
   }
+
+  if(statisticOperation == StatisticOperation::COUNT)
+    return 0;
+  else
+    return std::nan("");
 }
 
-int terrama2::services::analysis::core::occurrence::zonal::count(const std::string& dataSeriesName,
+double terrama2::services::analysis::core::occurrence::zonal::count(const std::string& dataSeriesName,
     const std::string& dateFilter, Buffer buffer, const std::string& restriction)
 {
-  return (int) operatorImpl(StatisticOperation::COUNT, dataSeriesName, buffer, dateFilter, "0s", Buffer(),
-                            "", StatisticOperation::INVALID, restriction);
+  return operatorImpl(StatisticOperation::COUNT, dataSeriesName, buffer, dateFilter, "0s", Buffer(),
+                      "", StatisticOperation::INVALID, restriction);
 }
 
 double terrama2::services::analysis::core::occurrence::zonal::min(const std::string& dataSeriesName,

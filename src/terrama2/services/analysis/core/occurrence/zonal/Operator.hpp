@@ -82,7 +82,7 @@ namespace terrama2
 
               \return The number of occurrences in the monitored object.
             */
-            int count(const std::string& dataSeriesName, const std::string& dateFilter,
+            double count(const std::string& dataSeriesName, const std::string& dateFilter,
                       terrama2::services::analysis::core::Buffer buffer = Buffer(),
                       const std::string& restriction= "");
 
