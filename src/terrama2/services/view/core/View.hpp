@@ -43,10 +43,7 @@
 #include "Typedef.hpp"
 #include "Shared.hpp"
 #include "ViewLogger.hpp"
-
-// TerraLib
-#include <terralib/se/Style.h>
-#include <terralib/core/uri/URI.h>
+#include "Exception.hpp"
 
 // STL
 #include <string>
@@ -128,6 +125,27 @@ namespace terrama2
                       }
                     }
                 };
+
+                /*!
+                 * \brief Retrieves string representation of classify type supported by GeoServer
+                 *
+                 * \param classify - Type of ColorMap handling
+                 * \return String representation of GeoServer ColorMap Classify Type
+                 */
+                static std::string to_string(ClassifyType classify)
+                {
+                  switch(classify)
+                  {
+                    case ClassifyType::INTERVALS:
+                      return "intervals";
+                    case ClassifyType::RAMP:
+                      return "ramp";
+                    case ClassifyType::VALUES:
+                      return "values";
+                    default:
+                      throw Exception() << ErrorDescription("Invalid View Classification type");
+                  }
+                }
 
                 OperationType operation = OperationType::VALUE;
                 ClassifyType classify;

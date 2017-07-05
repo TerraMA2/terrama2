@@ -47,10 +47,12 @@
 #include <memory>
 
 terrama2::services::alert::core::Report::Report(AlertPtr alert,
+                                                terrama2::core::LegendPtr legend,
                                                 terrama2::core::DataSeriesPtr alertDataSeries,
                                                 std::shared_ptr<te::da::DataSet> alertDataSet,
                                                 std::vector<std::shared_ptr<te::dt::DateTime>> riskDates)
   : alert_(alert),
+    legend_(legend),
     alertDataSeries_(alertDataSeries),
     riskDates_(riskDates)
 {
@@ -218,10 +220,9 @@ void terrama2::services::alert::core::Report::updateReportDataset(const std::sha
 void terrama2::services::alert::core::Report::updateReportGridDataset(const std::shared_ptr<te::da::DataSet> dataSet)
 {
   dataSet_ = std::dynamic_pointer_cast<te::mem::DataSet>(dataSet);
-  auto risk = alert_->risk;
   std::string riskName;
-  std::tie(maxRisk_, riskName) = risk.riskLevel(retrieveMaxValue());
-  std::tie(minRisk_, riskName) = risk.riskLevel(retrieveMinValue());
+  std::tie(maxRisk_, riskName) = legend_->riskLevel(retrieveMaxValue());
+  std::tie(minRisk_, riskName) = legend_->riskLevel(retrieveMinValue());
 }
 
 void terrama2::services::alert::core::Report::updateReportMonitoredObjectDataset(const std::shared_ptr<te::da::DataSet> dataSet)
@@ -249,7 +250,7 @@ void terrama2::services::alert::core::Report::updateReportMonitoredObjectDataset
       if(!dataSet_->isNull(pos))
       {
         int numericRisk = dataSet_->getInt32(pos);
-        dataSet_->setString(property, alert_->risk.riskName(numericRisk));
+        dataSet_->setString(property, legend_->riskName(numericRisk));
 
         //update max and min risk values
         if(it == riskDates_.begin())

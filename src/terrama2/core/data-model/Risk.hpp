@@ -32,9 +32,11 @@
 
 #include "DataSet.hpp"
 #include "../Shared.hpp"
+#include "../Typedef.hpp"
 
 #include <vector>
 #include <algorithm>
+#include <limits>
 
 namespace terrama2
 {
@@ -43,11 +45,12 @@ namespace terrama2
     struct RiskLevel
     {
       std::string name;
-      uint32_t level = 0; //!< Level of the risk, should be unique in a Risk.
+      uint32_t level = std::numeric_limits<uint32_t>::max(); //!< Level of the risk, should be unique in a Risk.
       double value = 0; //!< Numeric value for the risk level..
 
       //! Minor operator for sorting.
       bool operator<(const RiskLevel& rhs) const { return level < rhs.level; }
+      bool isDefault() const { return level == std::numeric_limits<uint32_t>::max(); }
     };
 
     /*!
@@ -57,7 +60,10 @@ namespace terrama2
     {
       std::string name; //!< Name of the Risk.
       std::string description; //!< Short description of the purpose of the Risk.
+
+      RiskLevel defaultRisk;//!< Default valle for Risks.
       std::vector<RiskLevel> riskLevels;//!< List of risk levels of the Risk.
+      LegendId id; //!< Unique identifier of the Risk.
 
       /*!
         \brief Compute risk level for the value

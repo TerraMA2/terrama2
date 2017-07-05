@@ -44,18 +44,6 @@
 #include "../../../core/utility/Utils.hpp"
 
 // TerraLib
-#include <terralib/datatype/SimpleProperty.h>
-#include <terralib/datatype/DateTimeProperty.h>
-#include <terralib/geometry/GeometryProperty.h>
-#include <terralib/memory/DataSet.h>
-#include <terralib/memory/DataSetItem.h>
-#include <terralib/datatype/DateTime.h>
-#include <terralib/dataaccess/datasource/DataSource.h>
-#include <terralib/dataaccess/datasource/DataSourceFactory.h>
-#include <terralib/dataaccess/utils/Utils.h>
-#include <terralib/raster/RasterProperty.h>
-#include <terralib/geometry/Utils.h>
-
 #include <terralib/se/Categorize.h>
 #include <terralib/se/RasterSymbolizer.h>
 #include <terralib/se/PolygonSymbolizer.h>
@@ -63,17 +51,10 @@
 #include <terralib/se/PointSymbolizer.h>
 #include <terralib/se/Stroke.h>
 #include <terralib/se/Fill.h>
-#include <terralib/se/ParameterValue.h>
-#include <terralib/se/ColorMap.h>
 
-
-
-// Qt
-#include <QFile>
-#include <QFileInfo>
-#include <QTextStream>
-#include <QString>
-#include <QUrl>
+// STL
+#include <sstream>
+#include <iomanip>
 
 
 void terrama2::services::view::core::registerFactories()
@@ -215,4 +196,12 @@ te::se::Fill* terrama2::services::view::core::CreateFill(const std::string& colo
     fill->setOpacity(opacity);
 
   return fill;
+}
+
+std::string terrama2::services::view::core::toString(const double value, const int& precision)
+{
+  std::stringstream ss;
+  ss << std::fixed << std::setprecision(precision) << value;
+
+  return ss.str();
 }

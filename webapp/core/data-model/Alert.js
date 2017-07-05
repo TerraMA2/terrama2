@@ -9,7 +9,7 @@
  */
 var BaseClass = require('./AbstractData');
 var AutomaticSchedule = require("./AutomaticSchedule");
-var Risk = require("./Risk");
+var Legend = require("./Legend");
 var View = require("./View");
 var ViewStyleLegend = require("./ViewStyleLegend");
 var DataSeries = require("./DataSeries");
@@ -57,10 +57,10 @@ var Alert = function(params) {
    */
   this.description = params.description;
   /**
-   * @name Alert#risk_attribute
+   * @name Alert#legend_attribute
    * @type {string}
    */
-  this.risk_attribute = params.risk_attribute;
+  this.legend_attribute = params.legend_attribute;
   /**
    * @name Alert#data_series_id
    * @type {string}
@@ -84,10 +84,10 @@ var Alert = function(params) {
    */
   this.automatic_schedule = new AutomaticSchedule(params.AutomaticSchedule ? params.AutomaticSchedule.get() : params.automaticSchedule || {});
   /**
-   * @name Alert#risk
+   * @name Alert#legend
    * @type {object}
    */
-  this.risk = new Risk(params.Risk ? params.Risk.get() : params.risk || {});
+  this.legend = new Legend(params.Legend ? params.Legend.get() : params.legend || {});
   /**
    * @name Alert#dataSeries
    * @type {object}
@@ -184,11 +184,11 @@ Alert.prototype.toObject = function() {
     name: this.name,
     description: this.description,
     data_series_id: this.data_series_id,
-    risk_attribute: this.risk_attribute,
+    legend_attribute: this.legend_attribute,
     schedule_type: this.scheduleType,
     schedule: this.schedule instanceof BaseClass ? this.schedule.toObject() : {},
     automatic_schedule: this.automatic_schedule instanceof BaseClass ? this.automatic_schedule.toObject() : this.automatic_schedule,
-    risk: this.risk instanceof BaseClass ? this.risk.toObject() : this.risk,
+    legend: this.legend instanceof BaseClass ? this.legend.toObject() : this.legend,
     dataSeries: this.dataSeries instanceof BaseClass ? this.dataSeries.toObject() : this.dataSeries,
     additional_data: this.additional_data,
     notifications: this.notifications,
@@ -236,8 +236,8 @@ Alert.prototype.toService = function() {
     name: this.name,
     description: this.description,
     data_series_id: this.data_series_id,
-    risk_attribute: this.risk_attribute,
-    risk: this.risk instanceof BaseClass ? this.risk.toService() : this.risk,
+    legend_attribute: this.legend_attribute,
+    legend_id: this.legend.id,
     additional_data: additionalDataList,
     notifications: notificationList,
     report_metadata: reportMetadataCopy,

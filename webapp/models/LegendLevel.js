@@ -1,5 +1,5 @@
 module.exports = function(sequelize, DataTypes) {
-  var RiskLevel = sequelize.define("RiskLevel",
+  var LegendLevel = sequelize.define("LegendLevel",
     {
       id: {
         type: DataTypes.INTEGER,
@@ -18,11 +18,11 @@ module.exports = function(sequelize, DataTypes) {
 
       classMethods: {
         associate: function(models) {
-          RiskLevel.belongsTo(models.Risk, {
+          LegendLevel.belongsTo(models.Legend, {
             onDelete: "CASCADE",
             foreignKey: {
               allowNull: false,
-              name: 'risk_id',
+              name: 'legend_id',
             }
           });
         }
@@ -30,5 +30,5 @@ module.exports = function(sequelize, DataTypes) {
     }
   );
 
-  return RiskLevel;
+  return LegendLevel;
 };
