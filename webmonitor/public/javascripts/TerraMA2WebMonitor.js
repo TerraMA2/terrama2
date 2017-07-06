@@ -7,7 +7,6 @@ define(
 		var allLayers = [];
 		var visibleLayers = [];
 		var capabilities;
-		var sliderCapabilities = [];
 		var selectedLayers = [];
 		var socket;
 		var wepappsocket;
@@ -162,33 +161,6 @@ define(
 
 					addLayerWithSlider(valMap, workspace + ":" + layer.layer, layerName, workspace, server, serverType, parent, ui.value);
 				}
-			});
-    };
-
-    var setSlider = function(rangeDate, layerId) {
-			var valMap = rangeDate;
-
-			var slider = $("#slider" + layerId.replace(':',''));
-			var sliderParent = $(slider).parent();
-			if (!$(sliderParent).is(":visible")) {
-				$(sliderParent).show();
-			} else {
-				$(sliderParent).hide();
-			}
-
-			var labelDate = $(sliderParent).find("label");
-			$(labelDate).text(moment(rangeDate[0]).format("lll"));
-			
-			$(slider).slider({
-				min: 0,
-				max: valMap.length - 1,
-				value: 0,
-				slide: function(event, ui) {
-					$(labelDate).text(moment(rangeDate[ui.value]).format("lll"));
-				},
-				stop: function(event, ui) {                        
-					Slider.doSlide(layerId, rangeDate[ui.value]);
-				}       
 			});
     };
 
@@ -834,7 +806,7 @@ define(
 						$(li).append(sliderDiv);
 
 						if(layerCapabilities[layerIndex].extent instanceof Array) {
-							sliderCapabilities.push(layerCapabilities[layerIndex]);
+							Slider.insertIntoSliderCapabilities(layerCapabilities[layerIndex]);
 							span += "<span id='terrama2-slider' class='terrama2-datepicker-icon'>" + Calendar.makeHelperDatePicker(layerCapabilities[layerIndex]) + "<i class='fa fa-sliders'></i></span>";
 						} else if (layerCapabilities[layerIndex].extent instanceof Object) {
 							span += "<span id='terrama2-calendar' class='terrama2-datepicker-icon'>" + Calendar.makeHelperDatePicker(layerCapabilities[layerIndex]) + "<i class='fa fa-calendar'></i></span>";
