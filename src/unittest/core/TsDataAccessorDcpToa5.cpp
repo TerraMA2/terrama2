@@ -192,14 +192,6 @@ void TsDataAccessorDcpToa5::TestOKDataRetrieverValid()
     //accessing data
     terrama2::core::DataAccessorDcpToa5 accessor(dataProviderPtr, dataSeriesPtr);
 
-    auto mock_ = std::make_shared<MockDataRetriever>(dataProviderPtr);
-
-    EXPECT_CALL(*mock_, isRetrivable()).WillOnce(Return(false));
-
-    auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
-
-    DataRetrieverFactoryRaii raiiDataRetriever("MOCK",makeMock);
-
     try
     {
       auto remover = std::make_shared<terrama2::core::FileRemover>();
@@ -248,21 +240,8 @@ void TsDataAccessorDcpToa5::TestFailDataRetrieverInvalid()
     //empty filter
     terrama2::core::Filter filter;
 
-    QString errMsg = QObject::tr("Non retrievable DataRetriever.");
-    terrama2::core::NotRetrivableException exceptionMock;
-    exceptionMock << terrama2::ErrorDescription(errMsg);
-
     //accessing data
     terrama2::core::DataAccessorDcpToa5 accessor(dataProviderPtr, dataSeriesPtr);
-
-    auto mock_ = std::make_shared<MockDataRetriever>(dataProviderPtr);
-
-    EXPECT_CALL(*mock_, isRetrivable()).WillOnce(Return(true));
-    EXPECT_CALL(*mock_, retrieveData(_,_,_,_,_,_)).WillOnce(testing::Throw(exceptionMock));
-
-    auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
-
-    DataRetrieverFactoryRaii raiiDataRetriever("MOCK",makeMock);
 
     try
     {
@@ -316,18 +295,6 @@ void TsDataAccessorDcpToa5::TestFailDataSourceInvalid()
 
     //accessing data
     terrama2::core::DataAccessorDcpToa5 accessor(dataProviderPtr, dataSeriesPtr);
-
-    std::unique_ptr<te::da::MockDataSource> mock_(new ::testing::NiceMock<te::da::MockDataSource>());
-
-    EXPECT_CALL(*mock_, open()).WillRepeatedly(Return());
-    EXPECT_CALL(*mock_, isOpened()).WillRepeatedly(Return(false));
-    EXPECT_CALL(*mock_, close()).WillRepeatedly(Return());
-
-    auto makeMock = std::bind(te::da::MockDataSource::makeMockDataSource, mock_.release());
-
-    DataSourceFactoryRaii raiiDataSource("OGR",makeMock);
-
-    EXPECT_TRUE(::testing::Mock::VerifyAndClearExpectations(mock_.get()));
 
     try
     {
