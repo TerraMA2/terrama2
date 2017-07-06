@@ -244,7 +244,9 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
       logger->result(CollectorLogger::DONE, nullptr, executionPackage.registerId);
     }
 
-    sendProcessFinishedSignal(executionPackage.processId, executionPackage.executionDate, true);
+    QJsonObject jsonAnswer;
+    jsonAnswer.insert(ReturnTags::AUTOMATIC, false);
+    sendProcessFinishedSignal(executionPackage.processId, executionPackage.executionDate, true, jsonAnswer);
     notifyWaitQueue(executionPackage.processId);
     return;
   }
