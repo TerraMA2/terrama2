@@ -3,6 +3,40 @@
 define(
   ['TerraMA2WebComponents'],
   function(TerraMA2WebComponents) {
+
+    var sliderCapabilities = [];
+
+    var insertIntoSliderCapabilities = function(capability){
+      sliderCapabilities.push(capability);
+    }
+
+    var setSlider = function(rangeDate, layerId) {
+			var valMap = rangeDate;
+
+			var slider = $("#slider" + layerId.replace(':',''));
+			var sliderParent = $(slider).parent();
+			if (!$(sliderParent).is(":visible")) {
+				$(sliderParent).show();
+			} else {
+				$(sliderParent).hide();
+			}
+
+			var labelDate = $(sliderParent).find("label");
+			$(labelDate).text(moment(rangeDate[0]).format("lll"));
+			
+			$(slider).slider({
+				min: 0,
+				max: valMap.length - 1,
+				value: 0,
+				slide: function(event, ui) {
+					$(labelDate).text(moment(rangeDate[ui.value]).format("lll"));
+				},
+				stop: function(event, ui) {                        
+					doSlide(layerId, rangeDate[ui.value]);
+				}       
+			});
+    };
+
     var doSlide = function(layerId, layerTime) {
       //  DO REQUEST
       var timeFormat = moment(layerTime).format("YYYY-MM-DDThh:mm:ss") + "Z";
@@ -108,6 +142,7 @@ define(
     };
 
     return {
+      insertIntoSliderCapabilities: insertIntoSliderCapabilities,
       doSlide: doSlide,
       changeLayerOpacity: changeLayerOpacity,
       init: init
