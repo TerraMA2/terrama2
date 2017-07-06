@@ -779,7 +779,7 @@ define(
 			socket.on('connectionResponse', function(data) {
 				if(data.url) {
 					//getting element to disable if there are no connection with mapr server
-					var listElement = $("li[data-layerid='"+ data.requestId +"']");
+					var listElement = $("li[data-layerid='"+ data.requestId +"'].treeview");
 					var inputElement = listElement.find('input');
 					var parent = listElement.attr('data-parentid')
 
@@ -795,7 +795,7 @@ define(
 						changeLayerStatusIcon(data.requestId.split('.').join('\\.'), "erraccess");
 						changeGroupStatusIcon(parent, "erraccess");
 					} else {
-						listElement.removeProp("title");
+						listElement[0].removeAttribute("title");
 						if (inputElement.hasClass("disabled-content"))
 							inputElement.removeClass("disabled-content");
 						
