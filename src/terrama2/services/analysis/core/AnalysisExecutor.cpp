@@ -415,6 +415,12 @@ terrama2::services::analysis::core::AnalysisExecutor::addDataToDataSet(std::shar
     dsItem->setDateTime(EXECUTION_DATE_PROPERTY,  dynamic_cast<te::dt::DateTimeInstant*>(date.get()->clone()));
     for(auto itAttribute = it->second.begin(); itAttribute != it->second.end(); ++itAttribute)
     {
+      if(itAttribute->second.empty())
+      {
+        dsItem->setValue(itAttribute->first, nullptr);
+        continue;
+      }
+
       try
       {
         auto value = boost::any_cast<double>(itAttribute->second);
