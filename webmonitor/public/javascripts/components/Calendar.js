@@ -1,8 +1,8 @@
 'use strict';
 
 define(
-  ['TerraMA2WebComponents'],
-  function(TerraMA2WebComponents) {
+  ['components/AttributesTable', 'TerraMA2WebComponents'],
+  function(AttributesTable, TerraMA2WebComponents) {
 
     /**
      * It makes a input hidden with date limits (startDate & endDate)
@@ -104,6 +104,8 @@ define(
             $(hidden).attr('start-date', pickerStartDate);
             $(hidden).attr('end-date', pickerEndDate);
 
+            AttributesTable.setAttributesTable();
+
             var layerTime = pickerStartDate + "Z/" + pickerEndDate + "Z";
             TerraMA2WebComponents.MapDisplay.updateLayerTime(/**id */layerId, /** time */layerTime);
           });
@@ -127,6 +129,8 @@ define(
             var pickerEndDate = picker.endDate.format(timeFormat);
             $(hidden).attr('start-date', pickerStartDate);
             $(hidden).attr('end-date', pickerEndDate);
+
+            AttributesTable.setAttributesTable();
 
             var layerTime = pickerStartDate + "Z/" + pickerEndDate + "Z";
             TerraMA2WebComponents.MapDisplay.updateLayerTime(/**id */layerId, /** time */layerTime);

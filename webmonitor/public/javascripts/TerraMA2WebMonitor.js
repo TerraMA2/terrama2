@@ -1,8 +1,8 @@
 "use strict";
 
 define(
-  ['components/Calendar', 'components/Capabilities', 'components/Slider', 'components/Utils', 'TerraMA2WebComponents'],
-  function(Calendar, Capabilities, Slider, Utils, TerraMA2WebComponents) {
+  ['components/Calendar', 'components/Capabilities', 'components/Slider', 'components/Utils', 'components/AttributesTable', 'TerraMA2WebComponents'],
+  function(Calendar, Capabilities, Slider, Utils, AttributesTable, TerraMA2WebComponents) {
 
 		var allLayers = [];
 		var visibleLayers = [];
@@ -175,6 +175,21 @@ define(
 			socket.emit('proxyRequest', jsonData);
     };
 
+    var featureInfo = function() {
+			TerraMA2WebComponents.MapDisplay.setGetFeatureInfoUrlOnClick($('#getAttributes > select').val(), function(url) {
+				if($('#feature-info-box').hasClass('ui-dialog-content'))
+					$('#feature-info-box').dialog('close');
+
+				if(url !== null) 
+					socket.emit('proxyRequest', { url: url, requestId: 'GetFeatureInfoTool', format: 'json', params: { layerName: $('#getAttributes > select option:selected').text() } });
+			});
+    };
+
+		var activateMoveMapTool = function() {
+			$('#moveMap').addClass('active');
+			$('#terrama2-map').addClass('cursor-move');
+    };
+
     var resetMapMouseTools  = function() {
 			TerraMA2WebComponents.MapDisplay.unsetMapSingleClickEvent();
 			$('.mouse-function-btn').removeClass('active');
@@ -184,21 +199,6 @@ define(
 			$('#getAttributes > select').addClass('hidden');
 			if($('#feature-info-box').hasClass('ui-dialog-content'))
 				$('#feature-info-box').dialog('close');
-    };
-
-    var activateMoveMapTool = function() {
-			$('#moveMap').addClass('active');
-			$('#terrama2-map').addClass('cursor-move');
-    };
-
-    var featureInfo = function() {
-			TerraMA2WebComponents.MapDisplay.setGetFeatureInfoUrlOnClick($('#getAttributes > select').val(), function(url) {
-				if($('#feature-info-box').hasClass('ui-dialog-content'))
-					$('#feature-info-box').dialog('close');
-
-				if(url !== null) 
-					socket.emit('proxyRequest', { url: url, requestId: 'GetFeatureInfoTool', format: 'json', params: { layerName: $('#getAttributes > select option:selected').text() } });
-			});
     };
 
     var activateGetFeatureInfoTool = function() {
@@ -237,126 +237,6 @@ define(
 			}
     };
 
-    var createAttributesTable = function() {
-			var showButton = false;
-
-			$('#attributes-table-select > select').empty();
-
-			for(var i = 0, visibleLayersLength = visibleLayers.length; i < visibleLayersLength; i++) {
-				var layerId = $('#' + visibleLayers[i]).data('layerid');
-				var layerName = TerraMA2WebComponents.MapDisplay.getLayerProperty(layerId, "layerName");
-				var layerType = TerraMA2WebComponents.MapDisplay.getLayerProperty(layerId, "layerType");
-
-				if(layerType !== "template" && layerType !== "custom") {
-					$('#attributes-table-select > select').append($('<option></option>').attr('value', layerId).text(layerName));
-					if(!showButton) showButton = true;
-				}
-			}
-
-			if(!showButton) {
-				$("#attributes-table-div").empty();
-
-				if(!$('#table-div > div.main-div').hasClass('hidden'))
-					$('#table-div > div.main-div').addClass('hidden');
-
-				$("#table-div").css('display', 'none');
-
-				if(!$('#tableButton').hasClass('hidden'))
-					$('#tableButton').addClass('hidden');
-
-				resetMapMouseTools();
-				activateMoveMapTool();
-			} else {
-				$('#tableButton').removeClass('hidden');
-			}
-    };
-
-    var setAttributesTable = function() {
-			if($('#attributes-table-select > select').val() !== null) {
-				var layerData = getLayerData($('#attributes-table-select > select').val());
-
-				if(layerData !== null && layerData.id !== undefined && layerData.url !== undefined) {
-					if($("#tableButton").hasClass('hidden'))
-						$("#tableButton").removeClass('hidden');
-
-					if($('#table-div > div.main-div').hasClass('hidden'))
-						$('#table-div > div.main-div').removeClass('hidden');
-
-					$.get(BASE_URL + 'get-columns',
-						{
-							layer: layerData.id,
-							geoserverUri: layerData.url
-						},
-						function(response) {
-							var columns = response.fields;
-							var columnsLength = columns.length;
-							var columnsArray = [];
-							var titles = "";
-
-							for(var i = 0; i < columnsLength; i++) {
-								columnsArray.push({ "name": columns[i].name });
-								titles += "<th>" + columns[i].name + "</th>";
-							}
-
-							$("#attributes-table-div").empty().html("<table class=\"table table-bordered table-hover\" id=\"attributes-table\"><thead>" + titles + "</thead><tfoot>" + titles + "</tfoot></table>");
-
-							$('#attributes-table').DataTable({
-								"order": [[0, "asc"]],
-								"processing": true,
-								"serverSide": true,
-								"ajax": {
-									"url": BASE_URL + "get-attributes-table",
-									"type": "POST",
-									"data": function(data) {
-										data.layer = $('#attributes-table-select > select').val();
-										data.geoserverUri = layerData.url;
-									}
-								},
-								"columns": columnsArray,
-								"language": {
-									"emptyTable": "<p class='text-center'>Nenhum registro a ser exibido</p>",
-									"info": "Exibindo _START_ at&eacute; _END_ de _TOTAL_ registros",
-									"infoEmpty": "Exibindo 0 at&eacute; 0 de 0 registros",
-									"infoFiltered": "(filtrado de _MAX_ registros)",
-									"lengthMenu": "Exibir _MENU_ registros",
-									"loadingRecords": "Carregando...",
-									"processing": "Processando...",
-									"search": "Pesquisa:",
-									"zeroRecords": "<p class='text-center'>Nenhum registro encontrado</p>",
-									"paginate": {
-										"first": "Primeira",
-										"last": "&Uacute;ltima",
-										"next": "Pr&oacute;xima",
-										"previous": "Anterior"
-									}
-								}
-							});
-						}
-					);
-				} else {
-					$("#attributes-table-div").empty();
-
-					if(!$('#table-div > div.main-div').hasClass('hidden'))
-						$('#table-div > div.main-div').addClass('hidden');
-
-					$("#table-div").css('display', 'none');
-
-					if(!$("#tableButton").hasClass('hidden'))
-						$("#tableButton").addClass('hidden');
-				}
-			} else {
-				$("#attributes-table-div").empty();
-
-				if(!$('#table-div > div.main-div').hasClass('hidden'))
-					$('#table-div > div.main-div').addClass('hidden');
-
-				$("#table-div").css('display', 'none');
-
-				if(!$("#tableButton").hasClass('hidden'))
-					$("#tableButton").addClass('hidden');
-			}
-    };
-
     var setLegends = function() {
 			var html = "";
 
@@ -366,7 +246,14 @@ define(
 				var layerType = TerraMA2WebComponents.MapDisplay.getLayerProperty(layerId, "layerType");
 
 				if(layerType !== "template" && layerType !== "custom") {
-					var layerData = getLayerData(layerId);
+					var layerData = null;
+
+					for(var j = 0, allLayersLength = allLayers.length; j < allLayersLength; j++) {
+						if(layerId === allLayers[j].id) {
+							layerData = allLayers[j];
+							break;
+						}
+					}
 
 					if(layerData !== null && layerData.id !== undefined && layerData.url !== undefined) {
 						html += "<strong>" + layerName + "</strong><br/><img src='" + BASE_URL + "get-legend?layer=" + layerId + "&geoserverUri=" + layerData.url + "&random=" + Date.now().toString() + "'/>";
@@ -376,16 +263,6 @@ define(
 			}
 
 			$('#legend-box > .legend-body').html((html !== "" ? html : "<strong>No data to show.</strong>"));
-    };
-
-    var getLayerData = function(layerId) {
-			for(var i = 0, allLayersLength = allLayers.length; i < allLayersLength; i++) {
-				if(layerId === allLayers[i].id) {
-					return allLayers[i];
-				}
-			}
-
-			return null;
     };
 
     var fillModal = function(capabilities) {
@@ -476,11 +353,11 @@ define(
       $('#terrama2-sortlayers').sortable({
         items: "li",
         start: function(event, ui) {
-        $(this).attr('data-previndex', (ui.item.context.parentNode.childElementCount - 2) - ui.item.index());
+        	$(this).attr('data-previndex', (ui.item.context.parentNode.childElementCount - 2) - ui.item.index());
         },
         update: function(event, ui) {
-        TerraMA2WebComponents.MapDisplay.alterLayerIndex(ui.item.attr('data-parentid'), $(this).attr('data-previndex'), (ui.item.context.parentNode.childElementCount - 1) - ui.item.index());
-        $(this).removeAttr('data-previndex');
+        	TerraMA2WebComponents.MapDisplay.alterLayerIndex(ui.item.attr('data-parentid'), $(this).attr('data-previndex'), (ui.item.context.parentNode.childElementCount - 1) - ui.item.index());
+        	$(this).removeAttr('data-previndex');
         }
       });
     };
@@ -580,21 +457,6 @@ define(
 				}
 			});
 
-			$('#attributes-table-select > select').on('change', setAttributesTable);
-
-			$('#tableButton > button').on('click', function() {
-				if($('#table-div').css('display') === 'none') {
-					$('#table-div').css('display', '');
-					$('#table-div > div.main-div').removeClass('hidden');
-					setAttributesTable();
-				} else {
-					if(!$('#table-div > div.main-div').hasClass('hidden'))
-						$('#table-div > div.main-div').addClass('hidden');
-
-					$('#table-div').css('display', 'none');
-				}
-			});
-
 			$('#getAttributes > select').on('change', featureInfo);
 
 			$('#moveMap').on('click', function() {
@@ -657,7 +519,7 @@ define(
 				}
 
 				setGetFeatureInfoToolSelect();
-				createAttributesTable();
+				AttributesTable.createAttributesTable(visibleLayers, allLayers);
 				setLegends();
 
 				var imageElement = $(this).closest('li').find("#image-icon");
