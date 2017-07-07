@@ -133,6 +133,11 @@ void terrama2::core::DataStoragerTable::store(DataSetSeries series, DataSetPtr o
   scopedTransaction.commit();
 }
 
+std::string terrama2::core::DataStoragerTable::getGeometryPropertyName(DataSetPtr dataSet) const
+{
+  return getProperty(dataSet, dataSeries_, "geometry_property");
+}
+
 bool terrama2::core::DataStoragerTable::isPropertyEqual(te::dt::Property* newProperty, te::dt::Property* oldMember) const
 {
   std::string newPropertyName = newProperty->getName();
