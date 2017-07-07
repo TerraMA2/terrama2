@@ -156,8 +156,8 @@ var GetAttributesTableController = function(app) {
             memberCurrentLayer.id = request.body.layer;
             memberCurrentLayer.numberOfFeatures = body.totalFeatures;
             memberCurrentLayer.search = request.body['search[value]'];
-            memberCurrentLayer.timeStart = memberCurrentLayer.timeStart;
-            memberCurrentLayer.timeEnd = memberCurrentLayer.timeEnd;
+            memberCurrentLayer.timeStart = request.body.timeStart;
+            memberCurrentLayer.timeEnd = request.body.timeEnd;
           }
 
           // JSON response

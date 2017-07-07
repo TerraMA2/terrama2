@@ -6,6 +6,7 @@ define(
     var memberTable = null;
     var memberLayersData = [];
     var memberDefaultTableOptions = {
+      "bAutoWidth": false,
       "order": [[0, "asc"]],
       "processing": true,
       "serverSide": true,

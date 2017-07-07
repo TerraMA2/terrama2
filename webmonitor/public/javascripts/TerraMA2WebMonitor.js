@@ -433,6 +433,9 @@ define(
 			 * When window resize the map must follow the width
 			 */
 			$(window).resize(function() {
+				memberWindowHeight = $(window).height();
+				memberReducedHeight = memberWindowHeight - $("#terrama-header").height();
+
 				if ($("body").hasClass('full_screen')) {
 					var interval = window.setInterval(function() { $("#terrama2-map").width("100%"); }, 100);
 					window.setTimeout(function() { clearInterval(interval); }, 2000);
