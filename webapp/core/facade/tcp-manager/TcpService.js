@@ -632,6 +632,21 @@ TcpService.prototype.disconnect = function() {
 };
 
 /**
+ * Send signal to monitor remove a layer
+ * 
+ * @param {Object} registeredView - View info to remove
+ * @return {Promise}
+ */
+TcpService.prototype.removeView = function(registeredView){
+  var self = this;
+  var viewObject = {
+    workspace: registeredView.workspace,
+    layer: registeredView.layers[0]
+  }
+  self.emit("removeView", viewObject);
+}
+
+/**
  * TcpService Singleton. It will be exported
  * @type {TcpService}
  */
@@ -755,6 +770,21 @@ function onNotifyView(resp) {
     };
     tcpService.emit("notifyView", viewObject);
   }
+}
+
+/**
+ * It emits a signal to nofity webMonitor to remove a layer. 
+ * 
+ * @param {Object} resp - Process Object
+ * @param {RegisteredView?} resp.registeredView - TerraMA² Registered View
+ * @returns {void}
+ */
+function RemoveView(registeredView){
+  var viewObject = {
+    workspace: registeredView.workspace,
+    layer: registeredView.layers[0]
+  }
+  tcpService.emit("removeView", viewObject);
 }
 
 /**
