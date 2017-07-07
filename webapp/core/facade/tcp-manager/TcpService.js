@@ -641,7 +641,8 @@ TcpService.prototype.removeView = function(registeredView){
   var self = this;
   var viewObject = {
     workspace: registeredView.workspace,
-    layer: registeredView.layers[0]
+    layer: registeredView.layers[0],
+    parent: registeredView.dataSeriesType
   }
   self.emit("removeView", viewObject);
 }
