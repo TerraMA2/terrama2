@@ -510,7 +510,7 @@
    padding: 10px 10px 40px 10px;
    background-color: white;
    border-radius: 5px;
-   height: 90%;
+   height: calc(100% - 50px);
    overflow-y: auto;
    overflow-x: hidden;
 }
