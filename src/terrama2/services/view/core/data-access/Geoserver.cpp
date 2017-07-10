@@ -2045,6 +2045,9 @@ void terrama2::services::view::core::GeoServer::createMosaicTable(std::shared_pt
   te::gm::GeometryProperty* geomProp = new te::gm::GeometryProperty("the_geom", 0, te::gm::PolygonType, true);
   geomProp->setSRID(srid);
 
+  // the newDataSetType takes ownership of the pointer
+  auto spatialIndex = new te::da::Index("spatial_index", te::da::B_TREE_TYPE, {geomProp});
+  
   te::dt::StringProperty* filenameProp = new te::dt::StringProperty("location", te::dt::VAR_STRING, 255, true);
 
   te::dt::DateTimeProperty* timestampProp = new te::dt::DateTimeProperty("timestamp", te::dt::TIME_INSTANT, true);
@@ -2054,6 +2057,7 @@ void terrama2::services::view::core::GeoServer::createMosaicTable(std::shared_pt
 
   dt->add(serialPk->clone());
   dt->add(geomProp);
+  dt->add(spatialIndex);
   dt->add(filenameProp);
   dt->add(timestampProp);
 

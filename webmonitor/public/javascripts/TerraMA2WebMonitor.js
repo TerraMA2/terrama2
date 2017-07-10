@@ -278,6 +278,9 @@ define(
       var statusElement = $("#"+parent).find('#image-group-icon');
       statusElement.addClass("status-icon");
       var statusImage = getStatusIconUrl(status);
+      if (statusImage == ""){
+        statusElement.removeClass("status-icon");
+      }
       statusElement.attr('src', statusImage);
     };
 
@@ -489,6 +492,24 @@ define(
 				var layerId = data.workspace + ":" + data.layer.name;
 				changeLayerStatusIcon(layerId, "alert");
 				changeGroupStatusIcon("alert", "alert");
+			});
+
+			wepappsocket.on("removeView", function(data) {
+        var layerId = data.workspace + ":" + data.layer.name;
+        var parent = data.parent;
+        var index = allLayers.map(function (l){return l.id}).indexOf(layerId);
+        if (index >= 0){
+          allLayers.splice(index, 1);
+        }
+        var elementVisibleIndex = visibleLayers.indexOf(layerId.replace(':',''));
+        if (elementVisibleIndex >= 0){
+          $("#"+layerId.replace(':','') + " input").trigger("click");
+        }
+        $("#terrama2-sortlayers").find('li#' + layerId.replace(':','').split('.').join('\\.')).remove();
+        TerraMA2WebComponents.LayerExplorer.removeLayer(layerId, parent);
+        if ($("#" + parent + " li").length == 0){
+          changeGroupStatusIcon(parent, "");
+        }
 			});
 
 			// Checking map server connection response
