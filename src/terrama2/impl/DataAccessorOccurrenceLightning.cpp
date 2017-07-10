@@ -84,10 +84,10 @@ void terrama2::core::DataAccessorOccurrenceLightning::adapt(DataSetPtr dataSet, 
 
   auto timestampPropertyName = terrama2::core::simplifyString(getTimestampPropertyName(dataSet));
 
-  te::dt::DateTimeProperty* timestampProperty = new te::dt::DateTimeProperty(timestampPropertyName, te::dt::TIME_INSTANT);
-  te::dt::SimpleProperty* latProperty = new te::dt::SimpleProperty(getLatitudePropertyName(dataSet), te::dt::DOUBLE_TYPE);
-  te::dt::SimpleProperty* lonProperty = new te::dt::SimpleProperty(getLongitudePropertyName(dataSet), te::dt::DOUBLE_TYPE);
-  te::gm::GeometryProperty* geomProperty = new te::gm::GeometryProperty("geom", srid, te::gm::PointType);
+  std::unique_ptr<te::dt::DateTimeProperty> timestampProperty(new te::dt::DateTimeProperty(timestampPropertyName, te::dt::TIME_INSTANT));
+  std::unique_ptr<te::dt::SimpleProperty> latProperty(new te::dt::SimpleProperty(getLatitudePropertyName(dataSet), te::dt::DOUBLE_TYPE));
+  std::unique_ptr<te::dt::SimpleProperty> lonProperty(new te::dt::SimpleProperty(getLongitudePropertyName(dataSet), te::dt::DOUBLE_TYPE));
+  std::unique_ptr<te::gm::GeometryProperty> geomProperty(new te::gm::GeometryProperty("geom", srid, te::gm::PointType));
 
   // Find the right column to adapt
   std::vector<te::dt::Property*> properties = converter->getConvertee()->getProperties();
@@ -97,7 +97,7 @@ void terrama2::core::DataAccessorOccurrenceLightning::adapt(DataSetPtr dataSet, 
     if(property->getName() == getTimestampPropertyName(dataSet))
     {
       // datetime column found
-      converter->add(i, timestampProperty,
+      converter->add(i, timestampProperty.release(),
                      boost::bind(&terrama2::core::DataAccessorOccurrenceLightning::stringToTimestamp, this, _1, _2, _3, getTimeZone(dataSet)));
     }
     else if(property->getName() == getLatitudePropertyName(dataSet) || property->getName() == getLongitudePropertyName(dataSet))
@@ -106,14 +106,14 @@ void terrama2::core::DataAccessorOccurrenceLightning::adapt(DataSetPtr dataSet, 
       if(property->getName() == getLatitudePropertyName(dataSet))
       {
         latPos = i;
-        converter->add(i, latProperty, boost::bind(&terrama2::core::DataAccessor::stringToDouble, this, _1, _2, _3));
+        converter->add(i, latProperty.release(), boost::bind(&terrama2::core::DataAccessor::stringToDouble, this, _1, _2, _3));
       }
 
       // update longitude column index
       if(property->getName() == getLongitudePropertyName(dataSet))
       {
         lonPos = i;
-        converter->add(i, lonProperty, boost::bind(&terrama2::core::DataAccessor::stringToDouble, this, _1, _2, _3));
+        converter->add(i, lonProperty.release(), boost::bind(&terrama2::core::DataAccessor::stringToDouble, this, _1, _2, _3));
       }
 
       if(!isValidColumn(latPos) || !isValidColumn(lonPos))
@@ -124,14 +124,14 @@ void terrama2::core::DataAccessorOccurrenceLightning::adapt(DataSetPtr dataSet, 
       latLonAttributes.push_back(lonPos);
       latLonAttributes.push_back(latPos);
 
-      converter->add(latLonAttributes, geomProperty, boost::bind(&terrama2::core::DataAccessorOccurrenceLightning::stringToPoint, this, _1, _2, _3, srid));
+      converter->add(latLonAttributes, geomProperty.release(), boost::bind(&terrama2::core::DataAccessorOccurrenceLightning::stringToPoint, this, _1, _2, _3, srid));
     }
     else
     {
       auto newName = terrama2::core::simplifyString(converter->getConvertee()->getProperty(i)->getName());
-      te::dt::SimpleProperty* property = new te::dt::SimpleProperty(newName, te::dt::DOUBLE_TYPE);
+      std::unique_ptr<te::dt::SimpleProperty> property(new te::dt::SimpleProperty(newName, te::dt::DOUBLE_TYPE));
       
-      converter->add(i, property, boost::bind(&terrama2::core::DataAccessor::stringToDouble, this, _1, _2, _3));
+      converter->add(i, property.release(), boost::bind(&terrama2::core::DataAccessor::stringToDouble, this, _1, _2, _3));
     }
   }
 }

@@ -51,11 +51,11 @@ define(function() {
               value: "FTP",
               checked: true
             },
-            {
+            /*{
               name: "HTTP",
               value: "HTTP",
               checked: true
-            },
+            },*/
             {
               name: "POSTGIS",
               value: "POSTGIS",

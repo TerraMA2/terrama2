@@ -31,6 +31,7 @@
 
 #include "../core/data-model/DataProvider.hpp"
 #include "../core/utility/Raii.hpp"
+#include "../core/utility/Utils.hpp"
 
 //terralib
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
@@ -46,9 +47,9 @@
 //STL
 #include <algorithm>
 
-terrama2::core::DataStoragerPtr terrama2::core::DataStoragerPostGIS::make(DataProviderPtr dataProvider)
+terrama2::core::DataStoragerPtr terrama2::core::DataStoragerPostGIS::make(DataSeriesPtr dataSeries, DataProviderPtr dataProvider)
 {
-  return std::make_shared<DataStoragerPostGIS>(dataProvider);
+  return std::make_shared<DataStoragerPostGIS>(dataSeries, dataProvider);
 }
 
 std::string terrama2::core::DataStoragerPostGIS::getCompleteURI(DataSetPtr outputDataSet) const
@@ -58,14 +59,5 @@ std::string terrama2::core::DataStoragerPostGIS::getCompleteURI(DataSetPtr outpu
 
 std::string terrama2::core::DataStoragerPostGIS::getDataSetTableName(DataSetPtr dataSet) const
 {
-  try
-  {
-    return dataSet->format.at("table_name");
-  }
-  catch (...)
-  {
-    QString errMsg = QObject::tr("Undefined table name in dataset: %1.").arg(dataSet->id);
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw UndefinedTagException() << ErrorDescription(errMsg);
-  }
+  return getProperty(dataSet, dataSeries_, "table_name");
 }

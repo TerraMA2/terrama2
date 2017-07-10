@@ -40,8 +40,8 @@ namespace terrama2
     class DataStoragerTable : public DataStorager
     {
       public:
-        DataStoragerTable(DataProviderPtr outputDataProvider)
-                : DataStorager(outputDataProvider) {}
+        DataStoragerTable(DataSeriesPtr dataSeries, DataProviderPtr outputDataProvider)
+                : DataStorager(dataSeries, outputDataProvider) {}
         ~DataStoragerTable() {}
 
         virtual void store(DataSetSeries series, DataSetPtr outputDataSet) const override;
@@ -49,6 +49,7 @@ namespace terrama2
       protected:
         //! Return the dataset name
         virtual std::string getDataSetName(DataSetPtr dataSet) const = 0;
+        virtual std::string getGeometryPropertyName(DataSetPtr dataSet) const;
         /*!
            \brief Check if the two properties have same name and type.
            \exception DataStoragerException Raise if have the same name and different types

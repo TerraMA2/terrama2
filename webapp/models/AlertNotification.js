@@ -10,7 +10,7 @@ module.exports = function(sequelize, DataTypes) {
       include_report: DataTypes.STRING,
       notify_on_change: DataTypes.BOOLEAN,
       simplified_report: DataTypes.BOOLEAN,
-      notify_on_risk_level: DataTypes.INTEGER,
+      notify_on_legend_level: DataTypes.INTEGER,
       recipients: DataTypes.TEXT
     },
     {

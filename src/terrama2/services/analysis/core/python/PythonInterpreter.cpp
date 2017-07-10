@@ -356,7 +356,10 @@ void terrama2::services::analysis::core::python::addValue(const std::string& att
       {
         context->addAttribute(attrName, te::dt::DOUBLE_TYPE);
         double value = extDouble;
-        context->setAnalysisResult(cache.index, attrName, value);
+        if(std::isnan(value))
+          context->setAnalysisResult(cache.index, attrName, boost::any());
+        else
+          context->setAnalysisResult(cache.index, attrName, value);
         return;
       }
 

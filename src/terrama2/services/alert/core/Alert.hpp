@@ -83,7 +83,7 @@ namespace terrama2
           ServiceInstanceId serviceInstanceId; //!< Identifier of the service instance that should run the alert.
 
           std::string riskAttribute;//!< Attribute of the DataSeries that will be used for risk analysis.
-          terrama2::core::Risk risk;//!< Risk rule of the alert
+          LegendId riskId;//!< Risk rule of the alert
           terrama2::core::Filter filter;//!< Information on how input data should be filtered before the alert is created.
 
           std::vector<AdditionalData> additionalDataVector;//!< Vector of additional DataSeries and attributes that should be included in the result.

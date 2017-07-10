@@ -35,6 +35,8 @@
 #include "../data-model/DataManager.hpp"
 #include "../data-access/DataSetSeries.hpp"
 
+#include <unordered_map>
+
 namespace te
 {
   namespace mem
@@ -58,7 +60,7 @@ namespace terrama2
           \brief The constructor stores the destination server information.
           \exception DataStoragerException Raised if the DataProvider is NULL
         */
-        DataStorager(DataProviderPtr outputDataProvider);
+        DataStorager(DataSeriesPtr outputDataSeries, DataProviderPtr outputDataProvider);
         //! Default destructor.
         virtual ~DataStorager() = default;
 
@@ -66,6 +68,10 @@ namespace terrama2
         DataStorager(DataStorager&& other) = delete;
         DataStorager& operator=(const DataStorager& other) = delete;
         DataStorager& operator=(DataStorager&& other) = delete;
+
+        virtual void store(const std::unordered_map<DataSetPtr,DataSetSeries >&  dataMap,
+                           const std::vector< DataSetPtr >& dataSetLst,
+                           const std::map<DataSetId, DataSetId>& inputOutputMap) const;
 
         /*!
           \brief Store the data series in outputDataSet.
@@ -75,6 +81,7 @@ namespace terrama2
         virtual std::string getCompleteURI(DataSetPtr outputDataSet) const = 0;
 
       protected:
+        DataSeriesPtr dataSeries_;
         DataProviderPtr dataProvider_;//!< Destination server information.
     };
   }

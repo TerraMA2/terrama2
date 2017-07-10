@@ -70,9 +70,9 @@ bool terrama2::core::DataStoragerFactory::find(const std::string& code)
   return (it != factoriesMap_.end());
 }
 
-terrama2::core::DataStoragerPtr terrama2::core::DataStoragerFactory::make(const std::string& code, terrama2::core::DataProviderPtr dataProvider) const
+terrama2::core::DataStoragerPtr terrama2::core::DataStoragerFactory::make(terrama2::core::DataSeriesPtr outputDataSeries, terrama2::core::DataProviderPtr dataProvider) const
 {
-  auto it = factoriesMap_.find(code);
+  auto it = factoriesMap_.find(outputDataSeries->semantics.code);
 
   if(it == factoriesMap_.end())
   {
@@ -81,5 +81,5 @@ terrama2::core::DataStoragerPtr terrama2::core::DataStoragerFactory::make(const 
     throw terrama2::core::DataStoragerException() << ErrorDescription(errMsg);
   }
 
-  return it->second(dataProvider);
+  return it->second(outputDataSeries, dataProvider);
 }

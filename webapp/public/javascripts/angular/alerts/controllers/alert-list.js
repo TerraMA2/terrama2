@@ -1,7 +1,7 @@
 define([], function(){
   "use strict";
 
-  function AlertList($scope, i18n, $q, AlertService, MessageBoxService, Socket, Service, $window, $log, $timeout) {
+  function AlertList($scope, i18n, $q, AlertService, LegendService, MessageBoxService, Socket, Service, $window, $log, $timeout) {
     var config = $window.configuration;
     var globals = $window.globals;
 
@@ -9,6 +9,7 @@ define([], function(){
     self.i18n = i18n;
 
     self.AlertService = AlertService;
+    self.LegendService = LegendService;
 
     /**
      * Helper to reset alert box instance
@@ -27,12 +28,18 @@ define([], function(){
      * It represents a cached alerts
      * @type {Object[]}
      */
-    self.model = [];    
+    self.model = [];
+
+    /**
+     * List of legends
+     * @type {Object[]}
+     */
+    self.legendModel = [];
+
     /**
      * Control to disable the run buttons
      * @type {Object}
      */
-
     $scope.disabledButtons = {};
     /**
      * Keeps services data
@@ -52,7 +59,26 @@ define([], function(){
      * @param {Object} response.message - Error message
      */
     Socket.on('errorResponse', function(response){
-      self.MessageBoxService.danger(i18n.__("Alerts"), i18n.__(response.message));
+      var errorMessage = response.message;
+      var targetMethod = null;
+      if (serviceCache[response.service] != undefined){
+        var service = Service.get(serviceCache[response.service].process_ids.service_instance);
+        if (service != null) {
+          errorMessage = i18n.__(errorMessage) + " " + i18n.__("Service") + ": '" + service.name + "' ";
+        }
+        if (config.extra && config.extra.id){
+          var warningMessage = config.message + ". ";
+          errorMessage = warningMessage + errorMessage;
+          targetMethod = MessageBoxService.warning; // setting warning method to display message
+          delete config.extra;
+          delete config.message;
+        } 
+        else {
+          targetMethod = MessageBoxService.danger;
+        }
+      }
+      targetMethod.call(MessageBoxService, i18n.__("Alerts"), errorMessage);
+      delete serviceCache[response.service];
     });
 
     /**
@@ -78,22 +104,12 @@ define([], function(){
           } else {
             Socket.emit('run', serviceCache[response.service].process_ids);
           }
+          delete $scope.disabledButtons[serviceCache[response.service].service_id];
+          delete serviceCache[response.service];
         } else {
-          if(serviceCache[response.service] != undefined) {
-            var service = Service.get(serviceCache[response.service].process_ids.service_instance);
-
-            if(service != null) {
-              self.MessageBoxService.danger(i18n.__("Alerts"), i18n.__("Service") + " '" + service.name + "' " + i18n.__("is not active"));
-            } else {
-              self.MessageBoxService.danger(i18n.__("Alerts"), i18n.__("Service not active"));
-            }
-          } else {
-            self.MessageBoxService.danger(i18n.__("Alerts"), i18n.__("Service not active"));
-          }
+          delete $scope.disabledButtons[serviceCache[response.service].service_id];
         }
 
-        delete $scope.disabledButtons[serviceCache[response.service].service_id];
-        delete serviceCache[response.service];
       }
     });
 
@@ -109,11 +125,32 @@ define([], function(){
       as: i18n.__("Description")
     }];
 
-    $q.all([AlertService.init()])
+    /**
+     * Legend fields to display in table
+     * @type {Object[]}
+     */
+    self.legendFields = [{
+      key: "name",
+      as: i18n.__("Name")
+    }, {
+      key: "description",
+      as: i18n.__("Description")
+    }];
+
+    $q.all(
+      [
+        AlertService.init(),
+        LegendService.init()
+      ]
+    )
       .then(function(){
         self.model = AlertService.list();
+        self.legendModel = LegendService.list();
 
         self.linkToAdd = BASE_URL + "configuration/alerts/new";
+        self.legendLinkToAdd = BASE_URL + "configuration/legends/new";
+
+        self.activeTab = (config.legendsTab ? 2 : 1);
 
         if(config.message !== "") {
           var messageArray = config.message.split(" ");
@@ -122,7 +159,7 @@ define([], function(){
 
           $timeout(function() {
             var finalMessage = messageArray.join(" ") + " " + i18n.__(tokenCodeMessage);
-            self.MessageBoxService.success(i18n.__("Alerts"), finalMessage);
+            self.MessageBoxService.success((config.legendsTab ? i18n.__("Legends") : i18n.__("Alerts")), finalMessage);
           }, 1000);
         }
 
@@ -138,6 +175,17 @@ define([], function(){
         };
 
         /**
+         * It makes a link to Legend edit
+         *
+         * @param {Legend} object - Selected legend
+         * @returns {string}
+         */
+        self.legendLink = function(object) {
+          return BASE_URL + "configuration/legends/edit/" + object.id;
+          //return "";
+        };
+
+        /**
          * Icon properties to display in table like size, type (img/icon)
          * @type {Object}
          */
@@ -148,7 +196,11 @@ define([], function(){
         };
 
          self.icon = function(object) {
-           return BASE_URL + "images/alert/monitored-object/monitored-object_alert.png"
+           if (object.dataSeries.isAnalysis && object.dataSeries.semantics == "ANALYSIS_MONITORED_OBJECT-postgis"){
+            return BASE_URL + "images/alert/monitored-object/monitored-object_alert.png";
+           } else {
+            return BASE_URL + "images/alert/grid/grid_alert.png";
+           }
          }
 
         /**
@@ -254,6 +306,26 @@ define([], function(){
           }
 
         }
+
+        /**
+         * Defines a properties to TerraMA² Table handle.
+         *
+         * @type {Object}
+         */
+        self.legendExtra = {
+          removeOperationCallback: function(err, data) {
+            MessageBoxService.reset();
+            if(err) {
+              MessageBoxService.danger(i18n.__("Legends"), i18n.__(err.message));
+              return;
+            }
+            MessageBoxService.success(i18n.__("Legends"), data.result.name + i18n.__(" removed"));
+          },
+          disabledButtons: function(object) {
+            return $scope.disabledButtons[object.id];
+          }
+        }
+
         /**
          * Functor to make URL to remove selected alert
          * @param {Object}
@@ -261,13 +333,21 @@ define([], function(){
         self.remove = function(object) {
           return BASE_URL + "api/Alert/" + object.id + "/delete";
         };
+
+        /**
+         * Function to make URL to remove selected legend
+         * @param {Object}
+         */
+        self.removeLegend = function(object) {
+          return BASE_URL + "api/Legend/" + object.id + "/delete";
+        };
       })
       .catch(function(err) {
         $log.log("Could not load alerts due " + err.toString() + ". Please refresh page (F5)");
       });
   }
 
-  AlertList.$inject = ["$scope", "i18n", "$q", "AlertService", "MessageBoxService", "Socket", "Service", "$window", "$log", "$timeout"];
+  AlertList.$inject = ["$scope", "i18n", "$q", "AlertService", "LegendService", "MessageBoxService", "Socket", "Service", "$window", "$log", "$timeout"];
 
   return AlertList;
 });

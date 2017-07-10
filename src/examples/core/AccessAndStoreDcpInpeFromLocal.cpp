@@ -83,7 +83,7 @@ terrama2::core::TerraMA2Init terramaRaii("example", 0);
   dataSetOutput->format.emplace("table_name", "inpe");
   dataSetOutput->format.emplace("timestamp_column", "datetime");
 
-  terrama2::core::DataStoragerPostGIS dataStorager(dataProviderPostGISPtr);
+  terrama2::core::DataStoragerPostGIS dataStorager(outputDataSeriesPtr, dataProviderPostGISPtr);
 
   dataStorager.store( (*dcpSeries->dcpSeriesMap().begin()).second, dataSetOutputPtr);
 

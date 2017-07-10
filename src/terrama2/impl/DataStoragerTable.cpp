@@ -31,6 +31,7 @@
 
 #include "../core/data-model/DataProvider.hpp"
 #include "../core/utility/Raii.hpp"
+#include "../core/utility/Utils.hpp"
 
 //terralib
 #include <terralib/dataaccess/datasource/DataSourceCapabilities.h>
@@ -83,7 +84,6 @@ void terrama2::core::DataStoragerTable::store(DataSetSeries series, DataSetPtr o
 
   std::shared_ptr<te::da::DataSetType> datasetType = series.teDataSetType;
 
-  std::map<std::string, std::string> options;
   std::shared_ptr<te::da::DataSetType> newDataSetType;
   if (!transactorDestination->dataSetExists(destinationDataSetName))
   {
@@ -93,27 +93,35 @@ void terrama2::core::DataStoragerTable::store(DataSetSeries series, DataSetPtr o
     if(typeCapabilities.supportsPrimaryKey() && !newDataSetType->getPrimaryKey())
     {
       std::string pkName = "\""+destinationDataSetName+"_pk\"";
-      auto pk = new te::da::PrimaryKey(pkName, newDataSetType.get());
+      std::unique_ptr<te::da::PrimaryKey> pk(new te::da::PrimaryKey(pkName));
 
-      te::dt::SimpleProperty* serialPk = new te::dt::SimpleProperty("pid", te::dt::INT32_TYPE, true);
+      std::unique_ptr<te::dt::SimpleProperty> serialPk(new te::dt::SimpleProperty ("pid", te::dt::INT32_TYPE, true));
       serialPk->setAutoNumber(true);
-      newDataSetType->add(serialPk);
-      pk->add(serialPk);
+      pk->add(serialPk.get());
+      newDataSetType->add(pk.release());
+      newDataSetType->add(serialPk.release());
     }
-
-    newDataSetType->setName(destinationDataSetName);
-    transactorDestination->createDataSet(newDataSetType.get(),options);
 
     //Get original geometry to get srid
     te::gm::GeometryProperty* geom = GetFirstGeomProperty(datasetType.get());
     //configure if there is a geometry property
     if(geom)
     {
-      auto geomProp = GetFirstGeomProperty(newDataSetType.get());
-      geomProp->setSRID(geom->getSRID());
-      geomProp->setGeometryType(te::gm::GeometryType);
+      auto geomPropertyName = getGeometryPropertyName(outputDataSet);
+      te::gm::GeometryProperty* geomProperty = dynamic_cast<te::gm::GeometryProperty*>(newDataSetType->getProperty(geomPropertyName));
+      geomProperty->setSRID(geom->getSRID());
+       geomProperty->setGeometryType(geom->getGeometryType());
+
+      if(typeCapabilities.supportsBTreeIndex())
+      {
+        // the newDataSetType takes ownership of the pointer
+        auto spatialIndex = new te::da::Index("spatial_index", te::da::B_TREE_TYPE, {geomProperty});
+        newDataSetType->add(spatialIndex);
+      }
     }
 
+    newDataSetType->setName(destinationDataSetName);
+    transactorDestination->createDataSet(newDataSetType.get(), {});
   }
   else
   {
@@ -129,9 +137,14 @@ void terrama2::core::DataStoragerTable::store(DataSetSeries series, DataSetPtr o
   }
 
   series.syncDataSet->dataset()->moveBeforeFirst();
-  transactorDestination->add(newDataSetType->getName(), series.syncDataSet->dataset().get(), options);
+  transactorDestination->add(newDataSetType->getName(), series.syncDataSet->dataset().get(), {});
 
   scopedTransaction.commit();
+}
+
+std::string terrama2::core::DataStoragerTable::getGeometryPropertyName(DataSetPtr dataSet) const
+{
+  return getProperty(dataSet, dataSeries_, "geometry_property");
 }
 
 bool terrama2::core::DataStoragerTable::isPropertyEqual(te::dt::Property* newProperty, te::dt::Property* oldMember) const

@@ -127,6 +127,21 @@
                 </ul>
               </div>
             </div>
+            <div class="box collapsed-box" ng-show="legends[element.id].length > 0">
+              <div class="box-header with-border">
+                <span class="box-title" style="font-size: 14px;">{{ i18n.__("Legends") }}</span>
+                <div class="box-tools pull-right">
+                  <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+                </div>
+              </div>
+              <div class="box-body" style="display: none;">
+                <ul style="list-style-type: none; padding-left: 0 !important;">
+                  <li ng-repeat="legend in legends[element.id]">
+                    <input type="checkbox" value="{{ legend.id }}" ng-model="projectsCheckboxes[element.id].Legends[legend.id]" ng-disabled="projectsCheckboxes[element.id].project" ng-change="itemCheck(element.id, legend.id, 'Legends')"/><div style="margin-top: -23px; margin-left: 18px;">{{ legend.name }}</div>
+                  </li>
+                </ul>
+              </div>
+            </div>
             <div class="box collapsed-box" ng-show="alerts[element.id].length > 0">
               <div class="box-header with-border">
                 <span class="box-title" style="font-size: 14px;">{{ i18n.__("Alerts") }}</span>

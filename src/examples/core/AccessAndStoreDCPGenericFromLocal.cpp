@@ -212,7 +212,7 @@ int main(int argc, char* argv[])
   dataSetOutput->format.emplace("table_name", "dcp_generic");
   dataSetOutput->format.emplace("timestamp_column", "datetime");
 
-  auto dataStorager = terrama2::core::DataStoragerFactory::getInstance().make(outputDataSeriesPtr->semantics.code, dataProviderPostGISPtr);
+  auto dataStorager = terrama2::core::DataStoragerFactory::getInstance().make(outputDataSeriesPtr, dataProviderPostGISPtr);
 
   for(auto& item : dataMap)
   {
