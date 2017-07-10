@@ -39,7 +39,16 @@
      */
     TcpService.on("notifyView", function(viewInfo){
       ioSocket.emit("notifyView", viewInfo);
-    })
+    });
+
+    /**
+     * Defines a remove notify. Triggered when remove a view in WebApp
+     * 
+     * @param {Object} viewInfo - View info to remove
+     */
+    TcpService.on("removeView", function(viewInfo){
+      ioSocket.emit("removeView", viewInfo);
+    });
 
     // Socket connection event
     ioSocket.on('connection', function(client) {
