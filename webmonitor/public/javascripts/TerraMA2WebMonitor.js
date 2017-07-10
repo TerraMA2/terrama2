@@ -1,8 +1,8 @@
 "use strict";
 
 define(
-  ['components/Calendar', 'components/Capabilities', 'components/Slider', 'components/Utils', 'components/AttributesTable', 'TerraMA2WebComponents'],
-  function(Calendar, Capabilities, Slider, Utils, AttributesTable, TerraMA2WebComponents) {
+  ['components/Calendar', 'components/Capabilities', 'components/Slider', 'components/AttributesTable', 'TerraMA2WebComponents'],
+  function(Calendar, Capabilities, Slider, AttributesTable, TerraMA2WebComponents) {
 
 		var allLayers = [];
 		var visibleLayers = [];
@@ -17,151 +17,40 @@ define(
     var fillLayersData = function(data) {
 			for(var i in data) {
 				if(!data[i].private || (data[i].private && userLogged)) {
-					if (data[i].params && data[i].params.hasOwnProperty('mask') && data[i].layers.length > 1){
-						var layerWithDate = Utils.getLayersListWithDate(data[i].params.mask, data[i].layers);
-						var workspace = data[i].workspace;
-						var layerName = data[i].name;
-						var uriGeoServer = data[i].uriGeoserver;
-						var serverType = data[i].serverType;
-						var layerId = workspace + ":" + layerWithDate[layerWithDate.length - 1].layer;
-						socket.emit('checkConnection', {url: uriGeoServer, requestId: layerId});
-						var parent = data[i].type;
-						if (allLayers.map(function (l){return l.id}).indexOf(layerId) > 0){
-							continue;
-						}
-						if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(layerId, layerName, layerName, uriGeoServer + '/ows', serverType, false, false, "terrama2-layerexplorer", {version: "1.1.0"})){
-							TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, data[i].type, null, "treeview unsortable terrama2-truncate-text", null);
-							TerraMA2WebComponents.MapDisplay.setLayerProperty(layerId, "layerType", data[i].type);
-							TerraMA2WebComponents.MapDisplay.setLayerProperty(layerId, "layerName", layerName);
-							allLayers.push({id: layerId, name: layerName, url: uriGeoServer});
+          var workspace = data[i].workspace;
+          var layerName = data[i].name;
+          var uriGeoServer = data[i].uriGeoserver;
+          var serverType = data[i].serverType;
+          var layerId = workspace + ":" + data[i].layers[0];
+          socket.emit('checkConnection', {url: uriGeoServer, requestId: layerId});
+          if (allLayers.map(function (l){return l.id}).indexOf(layerId) > 0)
+            continue;
 
-							var span = "";
-							var listElement = $("li[data-layerid='" + data[i].type + "']");
-							var li = $(listElement).find("li[data-layerid='" + layerId.split('.').join('\\.') +"']");
-
-							if(li.length === 0)
-								continue;
-
-							var sliderDiv = "<div class='slider-content' style='display:none;'><label></label><button type='button' class='close close-slider'>×</button><div id='slider" + $(li).attr("data-layerid").replace(':','') + "'></div></div>";
-							$(li).append(sliderDiv);
-
-							span += "<span id='terrama2-slider-mask' class='terrama2-datepicker-icon'><i class='fa fa-sliders'></i></span>";
-							$(li).append($(span));
-
-							setTemporarySlider(layerWithDate, layerId, layerName, workspace, uriGeoServer + '/ows', serverType, parent, 0);
-						}
-						changeGroupStatusIcon(parent, "working");
-						addLayerStatusIcon(layerId.split('.').join('\\.'));
-						changeLayerStatusIcon(layerId.split('.').join('\\.'), "working");
-					} else {
-						var workspace = data[i].workspace;
-						var layerName = data[i].name;
-						var uriGeoServer = data[i].uriGeoserver;
-						var serverType = data[i].serverType;
-						var layerId = workspace + ":" + data[i].layers[0];
-						socket.emit('checkConnection', {url: uriGeoServer, requestId: layerId});
-						if (allLayers.map(function (l){return l.id}).indexOf(layerId) > 0)
-							continue;
-
-						if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(layerId, layerName, layerName, uriGeoServer + '/ows', serverType, false, false, "terrama2-layerexplorer", {version: "1.1.0"})){
-							TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, data[i].type, null, "treeview unsortable terrama2-truncate-text", null);
-							TerraMA2WebComponents.MapDisplay.setLayerProperty(layerId, "layerType", data[i].type);
-							TerraMA2WebComponents.MapDisplay.setLayerProperty(layerId, "layerName", layerName);
-							allLayers.push({id: layerId, name: layerName, url: uriGeoServer});
-							if (data[i].type == 'analysis' || data[i].type == 'dynamic'){
-								var url = uriGeoServer + '/' + workspace + '/' + data[i].layers[0] + '/wms?service=WMS&version=1.1.0&request=GetCapabilities';
-								var getCapabilitiesUrl = {
-									layerName: data[i].layers[0],
-									layerId: layerId,
-									parent: data[i].type,
-									url: url,
-									format: 'xml',
-									update: false
-								}
-								socket.emit('proxyRequestCapabilities', getCapabilitiesUrl);
-							}
-						}
-						changeGroupStatusIcon(data[i].type, "working");
-						addLayerStatusIcon(layerId);
-						changeLayerStatusIcon(layerId, "working");
-					}
+          if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(layerId, layerName, layerName, uriGeoServer + '/ows', serverType, false, false, "terrama2-layerexplorer", {version: "1.1.0"})){
+            TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, data[i].type, null, "treeview unsortable terrama2-truncate-text", null);
+            TerraMA2WebComponents.MapDisplay.setLayerProperty(layerId, "layerType", data[i].type);
+            TerraMA2WebComponents.MapDisplay.setLayerProperty(layerId, "layerName", layerName);
+            allLayers.push({id: layerId, name: layerName, url: uriGeoServer});
+            if (data[i].type == 'analysis' || data[i].type == 'dynamic'){
+              var url = uriGeoServer + '/' + workspace + '/' + data[i].layers[0] + '/wms?service=WMS&version=1.1.0&request=GetCapabilities';
+              var getCapabilitiesUrl = {
+                layerName: data[i].layers[0],
+                layerId: layerId,
+                parent: data[i].type,
+                url: url,
+                format: 'xml',
+                update: false
+              }
+              socket.emit('proxyRequestCapabilities', getCapabilitiesUrl);
+            }
+          }
+          changeGroupStatusIcon(data[i].type, "working");
+          addLayerStatusIcon(layerId);
+          changeLayerStatusIcon(layerId, "working");
+          addLayerToSort(layerId, layerName);
 				}
+
 			}
-    };
-
-    var addLayerWithSlider = function(listLayers, layerId, layerName, workspace, server, serverType, parent, initialValue) {
-			if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(layerId, layerName, layerName, server + '/ows', serverType, false, false, "terrama2-layerexplorer", {version: "1.1.0"})){
-				TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, parent, null, "unsortable terrama2-truncate-text", null);
-				TerraMA2WebComponents.MapDisplay.setLayerProperty(layerId, "layerType", parent);
-				TerraMA2WebComponents.MapDisplay.setLayerProperty(layerId, "layerName", layerName);
-				addLayerToSort(layerId, layerName);
-				allLayers.push({id: layerId, name: layerName, url: server + '/ows'});
-
-				var span = "";
-				var listElement = $("li[data-layerid='" + parent + "']");
-				var li = $(listElement).find("li[data-layerid='" + layerId.split('.').join('\\.') +"']");
-				
-				if (li.length === 0) {
-					return;
-				}
-				var sliderDiv = "<div class='slider-content' style='display:none;'><label></label><button type='button' class='close close-slider'>×</button><div id='slider" + $(li).attr("data-layerid").replace(':','') + "'></div></div>";
-				$(li).append(sliderDiv);
-
-				span += "<span id='terrama2-slider-mask' class='terrama2-datepicker-icon'><i class='fa fa-sliders'></i></span>";
-				$(li).append($(span));
-				// .find(".terrama2-layerexplorer-checkbox-span")
-
-				setTemporarySlider(listLayers, layerId, layerName, workspace, server, serverType, parent, initialValue);
-
-				addLayerStatusIcon(layerId.split('.').join('\\.'));
-				changeLayerStatusIcon(layerId.split('.').join('\\.'), "working");
-
-				if (!$("#"+ parent).hasClass('open')){
-					$("#"+ parent).addClass('open');
-				}
-				var children = $('#'+ parent).find(' > ul > li');
-				children.show('fast');
-				li.find('input').click();
-			}
-    };
-
-    var setTemporarySlider = function(rangeDate, layerId, layerName, workspace, server, serverType, parent, initialValue) {
-			var valMap = rangeDate;
-
-			var slider = $("#slider" + layerId.replace(':','').split('.').join('\\.'));
-			var sliderParent = $(slider).parent();
-
-			var labelDate = $(sliderParent).find("label");
-			$(labelDate).text(moment(rangeDate[initialValue].date).format("lll"));
-			
-			$(slider).slider({
-				min: 0,
-				max: valMap.length - 1,
-				value: initialValue,
-				slide: function(event, ui) {
-					$(labelDate).text(moment(rangeDate[ui.value].date).format("lll"));
-				},
-				stop: function(event, ui) {
-					var layer = valMap[ui.value];
-
-					TerraMA2WebComponents.MapDisplay.removeLayer(layerId, "terrama2-layerexplorer");
-					$("#terrama2-layerexplorer").find('li#' + layerId.replace(':','').split('.').join('\\.')).remove();
-					$("#terrama2-sortlayers").find('li#' + layerId.replace(':','').split('.').join('\\.')).remove();
-
-					var elementIndex = allLayers.map(function (l){return l.id}).indexOf(layerId);
-					if (elementIndex >= 0){
-						allLayers.splice(elementIndex, 1);
-					}
-
-					var elementVisibleIndex = visibleLayers.indexOf(layerId.replace(':',''));
-					if (elementVisibleIndex >= 0){
-						visibleLayers.splice(elementVisibleIndex, 1);
-						setGetFeatureInfoToolSelect();
-					}
-
-					addLayerWithSlider(valMap, workspace + ":" + layer.layer, layerName, workspace, server, serverType, parent, ui.value);
-				}
-			});
     };
 
     var addLayers = function() {
@@ -553,10 +442,6 @@ define(
     var loadSocketsListeners = function() {
 			wepappsocket.on("viewResponse", function(data) {
 				fillLayersData(data);
-				addLayersToSort();
-				setSortable();
-				$("#osm input").trigger("click");
-				changeGroupStatusIcon("template", "working");
 			});
 
 			// When receive a new view, add in layers component
@@ -581,25 +466,20 @@ define(
 						var workspace = data.workspace;
 						var uriGeoServer = data.uriGeoserver;
 						var serverType = data.serverType;
-						if(data.params.mask) {
-							var layerWithDate = Utils.getLayersListWithDate(data.params.mask, data.layers);
-							setTemporarySlider(layerWithDate, layerId, layerName, workspace, uriGeoServer + '/ows', serverType, parent, 0);
-						} else {
-							var url = uriGeoServer + '/' + workspace + '/' + data.layers[0] + '/wms?service=WMS&version=1.1.0&request=GetCapabilities';
-							var getCapabilitiesUrl = {
-								layerName: data.layers[0],
-								layerId: layerId,
-								parent: data.type,
-								url: url,
-								format: 'xml',
-								update: true
-							}
-							socket.emit('proxyRequestCapabilities', getCapabilitiesUrl);
-						}
+            var url = uriGeoServer + '/' + workspace + '/' + data.layers[0] + '/wms?service=WMS&version=1.1.0&request=GetCapabilities';
+            var getCapabilitiesUrl = {
+              layerName: data.layers[0],
+              layerId: layerId,
+              parent: data.type,
+              url: url,
+              format: 'xml',
+              update: true
+            }
+            socket.emit('proxyRequestCapabilities', getCapabilitiesUrl);
+						
 						return;
 					}
 					fillLayersData([data]);
-					addLayerToSort(layerId, layerName);
 					changeLayerStatusIcon(layerId, "new");
 					changeGroupStatusIcon(parent, "new");
 				}
@@ -609,7 +489,6 @@ define(
 				var layerId = data.workspace + ":" + data.layer.name;
 				changeLayerStatusIcon(layerId, "alert");
 				changeGroupStatusIcon("alert", "alert");
-				console.log(data);
 			});
 
 			// Checking map server connection response
@@ -933,6 +812,9 @@ define(
 
 			addTreeviewMenuClass();
 			addGroupSpanIcon();
+      addLayersToSort();
+      setSortable();
+      changeGroupStatusIcon("template", "working");
 
 			if(webmonitorHostInfo && webmonitorHostInfo.basePath) {
 				socket = io.connect(window.location.origin, {
@@ -950,8 +832,6 @@ define(
 				wepappsocket = io.connect(":36000");
 			}
 
-			wepappsocket.emit('viewRequest');
-
 			// Check connections every 30 seconds
 			var intervalID = setInterval(function(){
 				allLayers.forEach(function(layerObject){
@@ -962,6 +842,9 @@ define(
 			loadSocketsListeners();
 			loadEvents();
 			loadLayout();
+      $("#osm input").trigger("click");
+      
+			wepappsocket.emit('viewRequest');
     };
 
     return {
