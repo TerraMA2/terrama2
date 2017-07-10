@@ -311,18 +311,39 @@
         
         return DataManager.getView({id: viewId}, options)
           .then(function(view) {
-            return DataManager.removeView({id: viewId}, options)
-              .then(function() {
-                return view;
+            // try get registered view to send info to monitor
+            return DataManager.getRegisteredView({view_id: viewId}, options)
+              .then(function(registeredView){
+                return DataManager.removeView({id: viewId}, options)
+                  .then(function(){
+                    var viewObject = {
+                      view: view,
+                      registeredView: registeredView
+                    };
+                    return viewObject;
+                  })
+              })
+              .catch(function(){
+                return DataManager.removeView({id: viewId}, options)
+                  .then(function() {
+                    var viewObject = {
+                      view: view
+                    };
+                    return viewObject;
+                  });
+
               });
           });
       })
       
-      .then(function(view) {
+      .then(function(viewObject) {
         // removing views from tcp services
-        TcpService.remove({"Views": [view.id]});
-
-        return resolve(view);
+        TcpService.remove({"Views": [viewObject.view.id]});
+        // if has view on monitor, send signal to remove
+        if (viewObject.registeredView){
+          TcpService.removeView(viewObject.registeredView);
+        }
+        return resolve(viewObject.view);
       })
       
       .catch(function(err) {
