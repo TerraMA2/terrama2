@@ -130,7 +130,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
     return jsonAnswer;
   }
 
-  setWorkspace("terrama2_" + std::to_string(viewPtr->id));
+  setWorkspace(generateWorkspaceName(viewPtr->id));
 
   registerWorkspace();
 
@@ -1244,17 +1244,12 @@ std::unique_ptr<te::se::Style> terrama2::services::view::core::GeoServer::genera
   return style;
 }
 
-
-void terrama2::services::view::core::GeoServer::deleteWorkspace(bool recursive) const
+void terrama2::services::view::core::GeoServer::cleanup(const ViewId& id)
 {
-  te::ws::core::CurlWrapper cURLwrapper;
+  te::ws::core::CurlWrapper curl;
 
-  std::string url = "/rest/workspaces/" + workspace_;
-
-  if(recursive)
-  {
-    url += "?recurse=true";
-  }
+  // Generating Rest Workspace URI to force removal of all layers, data stores and so on.
+  std::string url = "/rest/workspaces/" + generateWorkspaceName(id)+ "?recurse=true";
 
   te::core::URI uriDelete(uri_.uri() + url);
 
@@ -1265,20 +1260,20 @@ void terrama2::services::view::core::GeoServer::deleteWorkspace(bool recursive) 
     throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriDelete.uri()));
   }
 
-  cURLwrapper.customRequest(uriDelete, "DELETE");
+  curl.customRequest(uriDelete, "DELETE");
 
-  if(cURLwrapper.responseCode() == 404)
+  switch(curl.responseCode())
   {
-    throw NotFoundGeoserverException() << ErrorDescription(QString::fromStdString(cURLwrapper.response()));
-  }
-  else if(cURLwrapper.responseCode() != 200)
-  {
-    QString errMsg = QObject::tr("Error at delete Workspace. ");
-    TERRAMA2_LOG_ERROR() << errMsg << uriDelete.uri();
-    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
+    case 200:
+      break; // Successfully
+    case 404:
+      throw NotFoundGeoserverException() << ErrorDescription(QString::fromStdString(curl.response()));
+    default:
+      QString errMsg = QObject::tr("Error at delete Workspace. ");
+      TERRAMA2_LOG_ERROR() << errMsg << uriDelete.uri();
+      throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(curl.response()));
   }
 }
-
 
 void terrama2::services::view::core::GeoServer::deleteVectorLayer(const std::string& dataStoreName,
                                                                   const std::string &fileName,
@@ -1549,17 +1544,23 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
 
     int srid =std::get<2>(vecRasterInfo.at(0));
 
+    /*
+     * Creating GeoServer metadata files. These files are named as .properties
+     *   - datastore.properties - Contains metadata information of store connection to join
+     *   - LayerName.properties - Meta information of layer, such time attribute, cache function, crs, etc.
+     *
+     * The .properties file must be same level of data directory
+     */
+
     if(!dataSource->dataSetExists(layerName))
     {
       // Create needed txt mosaic files
       createPostgisDatastorePropertiesFile(url.path().toStdString(), connInfo);
-
-      createPostgisMosaicLayerPropertiesFile(url.path().toStdString(), layerName, srid);
-
       // create table
       createMosaicTable(dataSource, layerName, srid);
     }
 
+    createPostgisMosaicLayerPropertiesFile(url.path().toStdString(), layerName, srid);
 
     // get all dates stored in the dataset
     std::vector<std::shared_ptr<te::dt::DateTime> > vecDates;
@@ -2064,4 +2065,9 @@ void terrama2::services::view::core::GeoServer::createMosaicTable(std::shared_pt
   transactor->addPrimaryKey(dt->getName(),pk);
 
   transactor->commit();
+}
+
+std::string terrama2::services::view::core::GeoServer::generateWorkspaceName(const ViewId& id)
+{
+  return "terrama2_" + std::to_string(id);
 }

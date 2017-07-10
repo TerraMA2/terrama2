@@ -33,9 +33,8 @@
 #include "MemoryDataSetLayer.hpp"
 #include "Utils.hpp"
 #include "MapsServerFactory.hpp"
-
 #include "data-access/Geoserver.hpp"
-
+#include "data-access/Exception.hpp"
 #include "../../../core/Shared.hpp"
 #include "../../../core/utility/TimeUtils.hpp"
 
@@ -145,8 +144,7 @@ void terrama2::services::view::core::Service::removeView(ViewId viewId) noexcept
   {
     std::lock_guard<std::mutex> lock(mutex_);
 
-
-    TERRAMA2_LOG_INFO() << tr("Removing view %1.").arg(viewId);
+    TERRAMA2_LOG_INFO() << tr("Trying to remove view %1.").arg(viewId);
 
     auto it = timers_.find(viewId);
     if(it != timers_.end())
@@ -161,8 +159,23 @@ void terrama2::services::view::core::Service::removeView(ViewId viewId) noexcept
                                        [viewId](const terrama2::core::ExecutionPackage& executionPackage)
                                        { return viewId == executionPackage.processId; }), processQueue_.end());
 
-    waitQueue_.erase(viewId);
+    // removing from geoserver
+    try
+    {
+      MapsServerPtr mapsServer = MapsServerFactory::getInstance().make(mapsServerUri_, "GEOSERVER");
+      mapsServer->cleanup(viewId);
+    }
+    catch(const terrama2::services::view::core::NotFoundGeoserverException& e)
+    {
+      // Nothing
+      TERRAMA2_LOG_DEBUG() << tr("There is no workspace in GeoServer");
+    }
+    catch(const terrama2::services::view::core::ViewGeoserverException&)
+    {
+      TERRAMA2_LOG_WARNING() << tr("Could not remove GeoServer workspace. Please remove it manually");
+    }
 
+    waitQueue_.erase(viewId);
 
     TERRAMA2_LOG_INFO() << tr("View %1 removed successfully.").arg(viewId);
   }
