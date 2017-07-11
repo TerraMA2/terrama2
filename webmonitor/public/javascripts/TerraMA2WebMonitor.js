@@ -1,15 +1,13 @@
 "use strict";
 
 define(
-  ['components/Calendar', 'components/Capabilities', 'components/Slider', 'components/AttributesTable', 'TerraMA2WebComponents'],
-  function(Calendar, Capabilities, Slider, AttributesTable, TerraMA2WebComponents) {
+  ['components/Calendar', 'components/Capabilities', 'components/Slider', 'components/Utils', 'TerraMA2WebComponents'],
+  function(Calendar, Capabilities, Slider, Utils, TerraMA2WebComponents) {
 
 		var allLayers = [];
 		var visibleLayers = [];
 		var capabilities;
 		var selectedLayers = [];
-		var socket;
-		var wepappsocket;
 		var memberWindowHeight;
 		var memberReducedHeight;
 
@@ -22,7 +20,7 @@ define(
           var uriGeoServer = data[i].uriGeoserver;
           var serverType = data[i].serverType;
           var layerId = workspace + ":" + data[i].layers[0];
-          socket.emit('checkConnection', {url: uriGeoServer, requestId: layerId});
+          Utils.getSocket().emit('checkConnection', {url: uriGeoServer, requestId: layerId});
           if (allLayers.map(function (l){return l.id}).indexOf(layerId) > 0)
             continue;
 
@@ -41,7 +39,7 @@ define(
                 format: 'xml',
                 update: false
               }
-              socket.emit('proxyRequestCapabilities', getCapabilitiesUrl);
+              Utils.getSocket().emit('proxyRequestCapabilities', getCapabilitiesUrl);
             }
           }
           changeGroupStatusIcon(data[i].type, "working");
@@ -61,97 +59,7 @@ define(
 				url: url,
 				format: 'xml'
 			}
-			socket.emit('proxyRequest', jsonData);
-    };
-
-    var featureInfo = function() {
-			TerraMA2WebComponents.MapDisplay.setGetFeatureInfoUrlOnClick($('#getAttributes > select').val(), function(url) {
-				if($('#feature-info-box').hasClass('ui-dialog-content'))
-					$('#feature-info-box').dialog('close');
-
-				if(url !== null) 
-					socket.emit('proxyRequest', { url: url, requestId: 'GetFeatureInfoTool', format: 'json', params: { layerName: $('#getAttributes > select option:selected').text() } });
-			});
-    };
-
-		var activateMoveMapTool = function() {
-			$('#moveMap').addClass('active');
-			$('#terrama2-map').addClass('cursor-move');
-    };
-
-    var resetMapMouseTools  = function() {
-			TerraMA2WebComponents.MapDisplay.unsetMapSingleClickEvent();
-			$('.mouse-function-btn').removeClass('active');
-			$('#terrama2-map').removeClass('cursor-move');
-			$('#terrama2-map').removeClass('cursor-pointer');
-			$('#getAttributes').removeClass('with-select');
-			$('#getAttributes > select').addClass('hidden');
-			if($('#feature-info-box').hasClass('ui-dialog-content'))
-				$('#feature-info-box').dialog('close');
-    };
-
-    var activateGetFeatureInfoTool = function() {
-			$('#getAttributes').addClass('active');
-			$('#terrama2-map').addClass('cursor-pointer');
-			$('#getAttributes').addClass('with-select');
-			$('#getAttributes > select').removeClass('hidden');
-			setGetFeatureInfoToolSelect();
-    };
-
-    var setGetFeatureInfoToolSelect = function() {
-			$('#getAttributes > select').empty();
-			var showButton = false;
-
-			for(var i = 0, visibleLayersLength = visibleLayers.length; i < visibleLayersLength; i++) {
-				var layerId = $('#' + visibleLayers[i]).data('layerid');
-				var layerName = TerraMA2WebComponents.MapDisplay.getLayerProperty(layerId, "layerName");
-				var layerType = TerraMA2WebComponents.MapDisplay.getLayerProperty(layerId, "layerType");
-
-				if(layerType !== "template" && layerType !== "custom") {
-					$('#getAttributes > select').append($('<option></option>').attr('value', layerId).text(layerName));
-					if(!showButton) showButton = true;
-				}
-			}
-
-			if(!showButton) {
-				if(!$('#getAttributes').hasClass('hidden'))
-					$('#getAttributes').addClass('hidden');
-
-				resetMapMouseTools();
-				activateMoveMapTool();
-			} else {
-				$('#getAttributes').removeClass('hidden');
-				if(!$('#getAttributes > select').hasClass('hidden'))
-					featureInfo();
-			}
-    };
-
-    var setLegends = function() {
-			var html = "";
-
-			for(var i = 0, visibleLayersLength = visibleLayers.length; i < visibleLayersLength; i++) {
-				var layerId = $('#' + visibleLayers[i]).data('layerid');
-				var layerName = TerraMA2WebComponents.MapDisplay.getLayerProperty(layerId, "layerName");
-				var layerType = TerraMA2WebComponents.MapDisplay.getLayerProperty(layerId, "layerType");
-
-				if(layerType !== "template" && layerType !== "custom") {
-					var layerData = null;
-
-					for(var j = 0, allLayersLength = allLayers.length; j < allLayersLength; j++) {
-						if(layerId === allLayers[j].id) {
-							layerData = allLayers[j];
-							break;
-						}
-					}
-
-					if(layerData !== null && layerData.id !== undefined && layerData.url !== undefined) {
-						html += "<strong>" + layerName + "</strong><br/><img src='" + BASE_URL + "get-legend?layer=" + layerId + "&geoserverUri=" + layerData.url + "&random=" + Date.now().toString() + "'/>";
-						if(visibleLayersLength > 1 && i < (visibleLayersLength - 1)) html += "<hr/>";
-					}
-				}
-			}
-
-			$('#legend-box > .legend-body').html((html !== "" ? html : "<strong>No data to show.</strong>"));
+			Utils.getSocket().emit('proxyRequest', jsonData);
     };
 
     var fillModal = function(capabilities) {
@@ -352,24 +260,6 @@ define(
 				}
 			});
 
-			$('#getAttributes > select').on('change', featureInfo);
-
-			$('#moveMap').on('click', function() {
-				resetMapMouseTools();
-				activateMoveMapTool();
-			});
-
-			$('#getAttributes > button').on('click', function() {
-				resetMapMouseTools();
-				activateGetFeatureInfoTool();
-			});
-
-			$('#legendsButton > button').on('click', function() {
-				if($('#legend-box').hasClass('hidden'))
-					$('#legend-box').removeClass('hidden');
-				else
-					$('#legend-box').addClass('hidden');
-			});
 
 			document.getElementById("addLayers").addEventListener("click", addLayers);
 
@@ -413,9 +303,9 @@ define(
 					visibleLayers.push(layerid);
 				}
 
-				setGetFeatureInfoToolSelect();
-				AttributesTable.createAttributesTable(visibleLayers, allLayers);
-				setLegends();
+        $("#terrama2-map").trigger("setGetFeatureInfoToolSelect", [visibleLayers]);
+        $("#terrama2-map").trigger("createAttributesTable", [visibleLayers, allLayers]);
+        $("#legend-box").trigger("setLegends", [visibleLayers, allLayers]);
 
 				var imageElement = $(this).closest('li').find("#image-icon");
 
@@ -443,12 +333,12 @@ define(
     };
 
     var loadSocketsListeners = function() {
-			wepappsocket.on("viewResponse", function(data) {
+			Utils.getWebAppSocket().on("viewResponse", function(data) {
 				fillLayersData(data);
 			});
 
 			// When receive a new view, add in layers component
-			wepappsocket.on('viewReceived', function(data){
+			Utils.getWebAppSocket().on('viewReceived', function(data){
 				if(!data.private || (data.private && userLogged)) {
 					var layerId = data.workspace + ":" + data.layers[0];
 					var layerName = data.name;
@@ -478,7 +368,7 @@ define(
               format: 'xml',
               update: true
             }
-            socket.emit('proxyRequestCapabilities', getCapabilitiesUrl);
+            Utils.getSocket().emit('proxyRequestCapabilities', getCapabilitiesUrl);
 						
 						return;
 					}
@@ -488,13 +378,13 @@ define(
 				}
 			});
 
-			wepappsocket.on("notifyView", function(data) {
+			Utils.getWebAppSocket().on("notifyView", function(data) {
 				var layerId = data.workspace + ":" + data.layer.name;
 				changeLayerStatusIcon(layerId, "alert");
 				changeGroupStatusIcon("alert", "alert");
 			});
 
-			wepappsocket.on("removeView", function(data) {
+			Utils.getWebAppSocket().on("removeView", function(data) {
         var layerId = data.workspace + ":" + data.layer.name;
         var parent = data.parent;
         var index = allLayers.map(function (l){return l.id}).indexOf(layerId);
@@ -513,7 +403,7 @@ define(
 			});
 
 			// Checking map server connection response
-			socket.on('connectionResponse', function(data) {
+			Utils.getSocket().on('connectionResponse', function(data) {
 				if(data.url) {
 					//getting element to disable if there are no connection with mapr server
 					var listElement = $("li[data-layerid='"+ data.requestId +"'].treeview");
@@ -546,7 +436,7 @@ define(
 				}
 			});
 
-			socket.on('proxyResponseCapabilities', function(data) {
+			Utils.getSocket().on('proxyResponseCapabilities', function(data) {
 				try {
 					var layerCapabilities = Capabilities.getMapCapabilitiesLayers(data.msg);
 					var layerIndex = layerCapabilities.map(function (c){return c.name}).indexOf(data.layerName);
@@ -584,7 +474,7 @@ define(
 				}
 			});
 
-			socket.on('proxyResponse', function(data){
+			Utils.getSocket().on('proxyResponse', function(data){
 				if(data.requestId == "GetFeatureInfoTool") {
 					var featureInfo = data.msg;
 					var featuresLength = featureInfo.features.length;
@@ -774,14 +664,6 @@ define(
 				$(this).append(leftArrow);
 			});
 
-			$("#legend-box").draggable({
-				containment: $('#terrama2-map')
-			});
-
-			$("#table-div").resizable({
-				minHeight: 400,
-				handles: "n"
-			});
 		};
 
     var init = function() {
@@ -837,26 +719,10 @@ define(
       setSortable();
       changeGroupStatusIcon("template", "working");
 
-			if(webmonitorHostInfo && webmonitorHostInfo.basePath) {
-				socket = io.connect(window.location.origin, {
-					path: webmonitorHostInfo.basePath + 'socket.io'
-				});
-			} else {
-				socket = io.connect(":36001");
-			}
-
-			if(webadminHostInfo && webadminHostInfo.host && webadminHostInfo.port && webadminHostInfo.basePath) {
-				wepappsocket = io.connect(webadminHostInfo.host + ":" + webadminHostInfo.port, {
-					path: webadminHostInfo.basePath + 'socket.io'
-				});
-			} else {
-				wepappsocket = io.connect(":36000");
-			}
-
 			// Check connections every 30 seconds
 			var intervalID = setInterval(function(){
 				allLayers.forEach(function(layerObject){
-					socket.emit('checkConnection', {url: layerObject.url, requestId: layerObject.id});
+					Utils.getSocket().emit('checkConnection', {url: layerObject.url, requestId: layerObject.id});
 				});
 			}, 30000);
 
@@ -865,7 +731,7 @@ define(
 			loadLayout();
       $("#osm input").trigger("click");
       
-			wepappsocket.emit('viewRequest');
+			Utils.getWebAppSocket().emit('viewRequest');
     };
 
     return {

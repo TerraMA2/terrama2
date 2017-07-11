@@ -145,15 +145,26 @@ define(
 				} else
 					hideAttributesTable(false);
 			});
+
+      $("#terrama2-map").on("createAttributesTable", function(event, visibleLayers, layersData){
+        createAttributesTable(visibleLayers, layersData);
+      });
+
+      $("#attributes-table-select").on("setAttributesTable", function(event){
+        setAttributesTable();
+      });
     };
 
     var init = function() {
+			$("#table-div").resizable({
+				minHeight: 400,
+				handles: "n"
+			});
+
       loadEvents();
     };
 
     return {
-      createAttributesTable: createAttributesTable,
-      setAttributesTable: setAttributesTable,
       init: init
     };
   }
