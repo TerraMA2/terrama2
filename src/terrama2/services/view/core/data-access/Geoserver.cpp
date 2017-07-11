@@ -27,7 +27,6 @@
   \author Vinicius Campanha
 */
 
-
 // TerraMA2
 #include "Geoserver.hpp"
 #include "Exception.hpp"
@@ -52,6 +51,7 @@
 #include <terralib/geometry/Utils.h>
 #include <terralib/memory/DataSetItem.h>
 #include <terralib/datatype/StringProperty.h>
+#include <terralib/geometry/GeometryProperty.h>
 
 // TerraLib FE - Style Filter Operator
 #include <terralib/fe/PropertyName.h>
@@ -341,9 +341,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
     registerStyle(styleName, *viewPtr->legend.get(), objectType, geomType);
 
     for(const auto& layer : layersArray)
-    {
       registerLayerDefaultStyle(styleName, layer.toObject().value("layer").toString().toStdString());
-    }
   }
 
   jsonAnswer.insert("workspace", QString::fromStdString(workspace()));
@@ -1552,15 +1550,15 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
      * The .properties file must be same level of data directory
      */
 
+    createPostgisMosaicLayerPropertiesFile(url.path().toStdString(), layerName, srid);
+    // Create needed txt mosaic files
+    createPostgisDatastorePropertiesFile(url.path().toStdString(), connInfo);
+
     if(!dataSource->dataSetExists(layerName))
     {
-      // Create needed txt mosaic files
-      createPostgisDatastorePropertiesFile(url.path().toStdString(), connInfo);
       // create table
       createMosaicTable(dataSource, layerName, srid);
     }
-
-    createPostgisMosaicLayerPropertiesFile(url.path().toStdString(), layerName, srid);
 
     // get all dates stored in the dataset
     std::vector<std::shared_ptr<te::dt::DateTime> > vecDates;
@@ -2044,7 +2042,7 @@ void terrama2::services::view::core::GeoServer::createMosaicTable(std::shared_pt
   geomProp->setSRID(srid);
 
   // the newDataSetType takes ownership of the pointer
-  auto spatialIndex = new te::da::Index("spatial_index", te::da::B_TREE_TYPE, {geomProp});
+  auto spatialIndex = new te::da::Index("spatial_index_" + tableName, te::da::B_TREE_TYPE, {geomProp});
   
   te::dt::StringProperty* filenameProp = new te::dt::StringProperty("location", te::dt::VAR_STRING, 255, true);
 
