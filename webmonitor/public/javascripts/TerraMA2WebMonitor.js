@@ -29,7 +29,7 @@ define(
 						if (allLayers.map(function (l){return l.id}).indexOf(layerId) > 0){
 							continue;
 						}
-						if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(layerId, layerName, layerName, uriGeoServer + '/ows', serverType, false, false, "terrama2-layerexplorer", {version: "1.1.0"})){
+						if (TerraMA2WebComponents.MapDisplay.addImageWMSLayer(layerId, layerName, layerName, uriGeoServer + '/ows', serverType, false, false, "terrama2-layerexplorer", {version: "1.1.0"})){
 							TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, data[i].type, null, "treeview unsortable terrama2-truncate-text", null);
 							TerraMA2WebComponents.MapDisplay.setLayerProperty(layerId, "layerType", data[i].type);
 							TerraMA2WebComponents.MapDisplay.setLayerProperty(layerId, "layerName", layerName);
@@ -63,7 +63,7 @@ define(
 						if (allLayers.map(function (l){return l.id}).indexOf(layerId) > 0)
 							continue;
 
-						if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(layerId, layerName, layerName, uriGeoServer + '/ows', serverType, false, false, "terrama2-layerexplorer", {version: "1.1.0"})){
+						if (TerraMA2WebComponents.MapDisplay.addImageWMSLayer(layerId, layerName, layerName, uriGeoServer + '/ows', serverType, false, false, "terrama2-layerexplorer", {version: "1.1.0"})){
 							TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, data[i].type, null, "treeview unsortable terrama2-truncate-text", null);
 							TerraMA2WebComponents.MapDisplay.setLayerProperty(layerId, "layerType", data[i].type);
 							TerraMA2WebComponents.MapDisplay.setLayerProperty(layerId, "layerName", layerName);
@@ -90,7 +90,7 @@ define(
     };
 
     var addLayerWithSlider = function(listLayers, layerId, layerName, workspace, server, serverType, parent, initialValue) {
-			if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(layerId, layerName, layerName, server + '/ows', serverType, false, false, "terrama2-layerexplorer", {version: "1.1.0"})){
+			if (TerraMA2WebComponents.MapDisplay.addImageWMSLayer(layerId, layerName, layerName, server + '/ows', serverType, false, false, "terrama2-layerexplorer", {version: "1.1.0"})){
 				TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, parent, null, "unsortable terrama2-truncate-text", null);
 				TerraMA2WebComponents.MapDisplay.setLayerProperty(layerId, "layerType", parent);
 				TerraMA2WebComponents.MapDisplay.setLayerProperty(layerId, "layerName", layerName);
@@ -290,7 +290,7 @@ define(
 						if (allLayers.map(function (l){return l.id}).indexOf(capabilities[i].name) > 0){
 							continue;
 						}
-						if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(capabilities[i].name, capabilities[i].title, capabilities[i].title, geoUrl, "geoserver", false, false, "terrama2-layerexplorer", {version: "1.1.0"})) {
+						if (TerraMA2WebComponents.MapDisplay.addImageWMSLayer(capabilities[i].name, capabilities[i].title, capabilities[i].title, geoUrl, "geoserver", false, false, "terrama2-layerexplorer", {version: "1.1.0"})) {
 							TerraMA2WebComponents.LayerExplorer.addLayersFromMap(capabilities[i].name, "custom", true, "treeview unsortable terrama2-truncate-text", null);
 							TerraMA2WebComponents.MapDisplay.setLayerProperty(capabilities[i].name, "layerType", "custom");
 							TerraMA2WebComponents.MapDisplay.setLayerProperty(capabilities[i].name, "layerName", capabilities[i].title);
@@ -389,6 +389,9 @@ define(
       var statusElement = $("#"+parent).find('#image-group-icon');
       statusElement.addClass("status-icon");
       var statusImage = getStatusIconUrl(status);
+      if (statusImage == ""){
+        statusElement.removeClass("status-icon");
+      }
       statusElement.attr('src', statusImage);
     };
 
@@ -609,7 +612,24 @@ define(
 				var layerId = data.workspace + ":" + data.layer.name;
 				changeLayerStatusIcon(layerId, "alert");
 				changeGroupStatusIcon("alert", "alert");
-				console.log(data);
+			});
+
+			wepappsocket.on("removeView", function(data) {
+        var layerId = data.workspace + ":" + data.layer.name;
+        var parent = data.parent;
+        var index = allLayers.map(function (l){return l.id}).indexOf(layerId);
+        if (index >= 0){
+          allLayers.splice(index, 1);
+        }
+        var elementVisibleIndex = visibleLayers.indexOf(layerId.replace(':',''));
+        if (elementVisibleIndex >= 0){
+          $("#"+layerId.replace(':','') + " input").trigger("click");
+        }
+        $("#terrama2-sortlayers").find('li#' + layerId.replace(':','').split('.').join('\\.')).remove();
+        TerraMA2WebComponents.LayerExplorer.removeLayer(layerId, parent);
+        if ($("#" + parent + " li").length == 0){
+          changeGroupStatusIcon(parent, "");
+        }
 			});
 
 			// Checking map server connection response
