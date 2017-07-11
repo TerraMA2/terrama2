@@ -129,7 +129,7 @@ int main(int argc, char** argv)
 
     geoserver.deleteVectorLayer("ashapesfolder", "Rod_Principais_SP_lin", true);
 
-    geoserver.deleteWorkspace(true);
+    geoserver.cleanup();
 
   }
   catch(const std::exception& e)

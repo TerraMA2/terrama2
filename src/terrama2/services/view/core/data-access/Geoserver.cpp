@@ -1247,7 +1247,7 @@ void terrama2::services::view::core::GeoServer::cleanup(const ViewId& id)
   te::ws::core::CurlWrapper curl;
 
   // Generating Rest Workspace URI to force removal of all layers, data stores and so on.
-  std::string url = "/rest/workspaces/" + generateWorkspaceName(id)+ "?recurse=true";
+  std::string url = "/rest/workspaces/" + (id == 0 ? workspace_ : generateWorkspaceName(id))+ "?recurse=true";
 
   te::core::URI uriDelete(uri_.uri() + url);
 

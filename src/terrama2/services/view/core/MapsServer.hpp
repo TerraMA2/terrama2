@@ -75,7 +75,7 @@ namespace terrama2
              *
              * \param p Current View Id to remove
              */
-            virtual void cleanup(const ViewId& v) = 0;
+            virtual void cleanup(const ViewId& v = 0) = 0;
 
           protected:
 

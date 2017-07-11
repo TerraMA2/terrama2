@@ -201,9 +201,9 @@ namespace terrama2
              * Since TerraMA² View Service generates a individual workspace for each view, you can use this method
              * to remove entire workspace in GeoServer environment.
              *
-             * \param v - Current view id object to remove
+             * \param v - Current view id object to remove. Default is selected workspace
              */
-            void cleanup(const ViewId& id) override;
+            void cleanup(const ViewId& id = 0) override;
 
 
             /*!
