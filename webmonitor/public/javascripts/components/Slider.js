@@ -143,8 +143,6 @@ define(
 
     return {
       insertIntoSliderCapabilities: insertIntoSliderCapabilities,
-      doSlide: doSlide,
-      changeLayerOpacity: changeLayerOpacity,
       init: init
     };
   }

@@ -1,10 +1,11 @@
 'use strict';
 
 define(
-  ['TerraMA2WebComponents'],
-  function(TerraMA2WebComponents) {
+  ['components/Layers', 'TerraMA2WebComponents'],
+  function(Layers, TerraMA2WebComponents) {
 
-    var setLegends = function(visibleLayers, allLayers) {
+    var setLegends = function(visibleLayers) {
+      var allLayers = Layers.getAllLayers();
 			var html = "";
 
 			for(var i = 0, visibleLayersLength = visibleLayers.length; i < visibleLayersLength; i++) {
@@ -41,8 +42,8 @@ define(
 					$('#legend-box').addClass('hidden');
 			});
 
-      $("#legend-box").on("setLegends", function(event, visibleLayers, allLayers){
-        setLegends(visibleLayers, allLayers);
+      $("#legend-box").on("setLegends", function(event, visibleLayers){
+        setLegends(visibleLayers);
       });
     }
 

@@ -1,36 +1,36 @@
 'use strict';
 
 define(
-  ['TerraMA2WebComponents'],
-  function(TerraMA2WebComponents) {
+  [],
+  function() {
     
-		var socket;
-		var webAppSocket;
+		var memberSocket;
+		var memberWebAppSocket;
 
     var getSocket = function(){
-      return socket;
+      return memberSocket;
     }
 
     var getWebAppSocket = function(){
-      return webAppSocket;
+      return memberWebAppSocket;
     }
 
     var init = function(){
 
 			if(webmonitorHostInfo && webmonitorHostInfo.basePath) {
-				socket = io.connect(window.location.origin, {
+				memberSocket = io.connect(window.location.origin, {
 					path: webmonitorHostInfo.basePath + 'socket.io'
 				});
 			} else {
-				socket = io.connect(":36001");
+				memberSocket = io.connect(":36001");
 			}
 
 			if(webadminHostInfo && webadminHostInfo.host && webadminHostInfo.port && webadminHostInfo.basePath) {
-				webAppSocket = io.connect(webadminHostInfo.host + ":" + webadminHostInfo.port, {
+				memberWebAppSocket = io.connect(webadminHostInfo.host + ":" + webadminHostInfo.port, {
 					path: webadminHostInfo.basePath + 'socket.io'
 				});
 			} else {
-				webAppSocket = io.connect(":36000");
+				memberWebAppSocket = io.connect(":36000");
 			}
 
     }

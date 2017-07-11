@@ -1,8 +1,8 @@
 'use strict';
 
 define(
-  ['TerraMA2WebComponents'],
-  function(TerraMA2WebComponents) {
+  ['components/Layers', 'TerraMA2WebComponents'],
+  function(Layers, TerraMA2WebComponents) {
     var memberTable = null;
     var memberLayersData = [];
     var memberDefaultTableOptions = {
@@ -43,9 +43,9 @@ define(
 			return null;
     };
 
-    var createAttributesTable = function(visibleLayers, layersData) {
+    var createAttributesTable = function(visibleLayers) {
 			var showButton = false;
-      memberLayersData = layersData;
+      memberLayersData = Layers.getAllLayers();
 
 			$('#attributes-table-select > select').empty();
 
@@ -146,8 +146,8 @@ define(
 					hideAttributesTable(false);
 			});
 
-      $("#terrama2-map").on("createAttributesTable", function(event, visibleLayers, layersData){
-        createAttributesTable(visibleLayers, layersData);
+      $("#terrama2-map").on("createAttributesTable", function(event, visibleLayers){
+        createAttributesTable(visibleLayers);
       });
 
       $("#attributes-table-select").on("setAttributesTable", function(event){
