@@ -39,14 +39,12 @@ define(
       var allLayersLength = allLayers.length;
       for (var i = allLayersLength -1; i >= 0; i--){
         var layerId = allLayers[i].id;
-        if (layerId.includes(':')){
-          layerId = layerId.replace(':','')
-        }
+        var htmlId = allLayers[i].htmlId;
 
-        var sliderDiv = "<div class='slider-content' style='display:none;'><label></label><button type='button' class='close close-slider'>×</button><div id='opacity" + layerId + "'></div></div>";
+        var sliderDiv = "<div class='slider-content' style='display:none;'><label></label><button type='button' class='close close-slider'>×</button><div id='opacity" + htmlId + "'></div></div>";
         var spanIcon = "<span id='terrama2-opacity-slider' class='terrama2-datepicker-icon' data-toggle='tooltip' title='Change opacity'> <i class='fa fa-sliders'></i></span>"; 
         
-        itens += '<li id="' + layerId + '" data-layerid="' + allLayers[i].id + '" data-parentid="terrama2-layerexplorer" class="hide">' + allLayers[i].name + sliderDiv + spanIcon + '</li>';
+        itens += '<li id="' + htmlId + '" data-layerid="' + layerId + '" data-parentid="terrama2-layerexplorer" class="hide">' + allLayers[i].name + sliderDiv + spanIcon + '</li>';
       }
       var list = '<ul>' + itens + '</ul>';
       $('#terrama2-sortlayers').append(list);
@@ -89,7 +87,6 @@ define(
           LayerStatus.changeLayerStatusIcon(layerId, "working");
           Sortable.addLayerToSort(layerId, layerName);
 				}
-
 			}
     };
 

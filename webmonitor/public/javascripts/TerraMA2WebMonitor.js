@@ -490,7 +490,7 @@ define(
 			var intervalID = setInterval(function(){
         var allLayers = Layers.getAllLayers();
 				allLayers.forEach(function(layerObject){
-					Utils.getSocket().emit('checkConnection', {url: layerObject.url, requestId: layerObject.id});
+					Utils.getSocket().emit('checkConnection', {url: layerObject.uriGeoServer, requestId: layerObject.id});
 				});
 			}, 30000);
 
