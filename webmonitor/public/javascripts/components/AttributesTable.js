@@ -78,11 +78,11 @@ define(
         var startDate = $('#' + layerId.replace(':', '') + ' > #terrama2-calendar > input').attr('start-date');
         var endDate = $('#' + layerId.replace(':', '') + ' > #terrama2-calendar > input').attr('end-date');
 
-				if(layerData !== null && layerData.id !== undefined && layerData.url !== undefined) {
+				if(layerData !== null && layerData.id !== undefined && layerData.uriGeoServer !== undefined) {
 					$.get(BASE_URL + 'get-columns',
 						{
 							layer: layerData.id,
-							geoserverUri: layerData.url
+							geoserverUri: layerData.uriGeoServer
 						},
 						function(response) {
               if(response.fields.length > 0) {
@@ -105,7 +105,7 @@ define(
 
                 tableOptions.ajax.data = function(data) {
                   data.layer = $('#attributes-table-select > select').val();
-                  data.geoserverUri = layerData.url;
+                  data.geoserverUri = layerData.uriGeoServer;
                   data.timeStart = (startDate !== undefined && startDate !== "" ? startDate : (maxDate !== undefined && maxDate !== "" ? maxDate : null));
                   data.timeEnd = (endDate !== undefined && endDate !== "" ? endDate : (maxDate !== undefined && maxDate !== "" ? maxDate : null));
                 };

@@ -435,32 +435,38 @@ define(
 
 			if(TerraMA2WebComponents.MapDisplay.addLayerGroup("custom", "Custom", "terrama2-layerexplorer")) {
 				TerraMA2WebComponents.LayerExplorer.addLayersFromMap("custom", "terrama2-layerexplorer", null, "treeview unsortable", null);
-				Layers.addLayer({id: "custom", name: "Custom"});
+        var layerObject = Layers.createLayerObject({layers:["custom"], name: "Custom"});
+        Layers.addLayer(layerObject);
 			}
 
 			if(TerraMA2WebComponents.MapDisplay.addLayerGroup("template", "Template", "terrama2-layerexplorer")) {
 				TerraMA2WebComponents.LayerExplorer.addLayersFromMap("template", "terrama2-layerexplorer", null, "treeview unsortable", null);
-				Layers.addLayer({id: "template", name: "Template"});
+        var layerObject = Layers.createLayerObject({layers:["template"], name: "Template"});
+        Layers.addLayer(layerObject);
 			}
 
 			if(TerraMA2WebComponents.MapDisplay.addLayerGroup("static", "Static Data", "terrama2-layerexplorer")) {
 				TerraMA2WebComponents.LayerExplorer.addLayersFromMap("static", "terrama2-layerexplorer", null, "treeview unsortable", null);
-				Layers.addLayer({id: "static", name: "Static Data"});
+        var layerObject = Layers.createLayerObject({layers:["static"], name: "Static Data"});
+        Layers.addLayer(layerObject);
 			}
 
 			if(TerraMA2WebComponents.MapDisplay.addLayerGroup("dynamic", "Dynamic Data", "terrama2-layerexplorer")) {
 				TerraMA2WebComponents.LayerExplorer.addLayersFromMap("dynamic", "terrama2-layerexplorer", null, "treeview unsortable", null);
-				Layers.addLayer({id: "dynamic", name: "Dynamic Data"});
+        var layerObject = Layers.createLayerObject({layers:["dynamic"], name: "Dynamic Data"});
+        Layers.addLayer(layerObject);
 			}
 
 			if(TerraMA2WebComponents.MapDisplay.addLayerGroup("analysis", "Analysis", "terrama2-layerexplorer")) {
 				TerraMA2WebComponents.LayerExplorer.addLayersFromMap("analysis", "terrama2-layerexplorer", null, "treeview unsortable", null);
-				Layers.addLayer({id: "analysis", name: "Analysis"});
+        var layerObject = Layers.createLayerObject({layers:["analysis"], name: "Analysis"});
+        Layers.addLayer(layerObject);
 			}
 
 			if(TerraMA2WebComponents.MapDisplay.addLayerGroup("alert", "Alert", "terrama2-layerexplorer")) {
 				TerraMA2WebComponents.LayerExplorer.addLayersFromMap("alert", "terrama2-layerexplorer", null, "treeview unsortable", null);
-				Layers.addLayer({id: "alert", name: "Alert"});
+        var layerObject = Layers.createLayerObject({layers:["alert"], name: "Alert"});
+        Layers.addLayer(layerObject);
 			}
 
 			//Adding open map street
@@ -468,7 +474,8 @@ define(
 				TerraMA2WebComponents.LayerExplorer.addLayersFromMap("osm", "template", null, "treeview unsortable terrama2-truncate-text", null);
 				TerraMA2WebComponents.MapDisplay.setLayerProperty("osm", "layerType", "template");
 				TerraMA2WebComponents.MapDisplay.setLayerProperty("osm", "layerName", "Open street");
-				Layers.addLayer({id: "osm", name: "Open street"});
+        var layerObject = Layers.createLayerObject({layers:["osm"], name: "Open street", serverType: "template"});
+        Layers.addLayer(layerObject);
 				LayerStatus.addLayerStatusIcon("osm");
 				LayerStatus.changeLayerStatusIcon("osm", "working");
 			}

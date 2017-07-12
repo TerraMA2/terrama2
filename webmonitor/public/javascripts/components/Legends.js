@@ -23,8 +23,8 @@ define(
 						}
 					}
 
-					if(layerData !== null && layerData.id !== undefined && layerData.url !== undefined) {
-						html += "<strong>" + layerName + "</strong><br/><img src='" + BASE_URL + "get-legend?layer=" + layerId + "&geoserverUri=" + layerData.url + "&random=" + Date.now().toString() + "'/>";
+					if(layerData !== null && layerData.id !== undefined && layerData.uriGeoServer !== undefined) {
+						html += "<strong>" + layerName + "</strong><br/><img src='" + BASE_URL + "get-legend?layer=" + layerId + "&geoserverUri=" + layerData.uriGeoServer + "&random=" + Date.now().toString() + "'/>";
 						if(visibleLayersLength > 1 && i < (visibleLayersLength - 1)) html += "<hr/>";
 					}
 				}
