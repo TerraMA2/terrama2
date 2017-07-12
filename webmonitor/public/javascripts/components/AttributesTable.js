@@ -1,8 +1,8 @@
 'use strict';
 
 define(
-  ['TerraMA2WebComponents'],
-  function(TerraMA2WebComponents) {
+  ['components/Layers', 'TerraMA2WebComponents'],
+  function(Layers, TerraMA2WebComponents) {
     var memberTable = null;
     var memberLayersData = [];
     var memberDefaultTableOptions = {
@@ -43,9 +43,9 @@ define(
 			return null;
     };
 
-    var createAttributesTable = function(visibleLayers, layersData) {
+    var createAttributesTable = function(visibleLayers) {
 			var showButton = false;
-      memberLayersData = layersData;
+      memberLayersData = Layers.getAllLayers();
 
 			$('#attributes-table-select > select').empty();
 
@@ -78,11 +78,11 @@ define(
         var startDate = $('#' + layerId.replace(':', '') + ' > #terrama2-calendar > input').attr('start-date');
         var endDate = $('#' + layerId.replace(':', '') + ' > #terrama2-calendar > input').attr('end-date');
 
-				if(layerData !== null && layerData.id !== undefined && layerData.url !== undefined) {
+				if(layerData !== null && layerData.id !== undefined && layerData.uriGeoServer !== undefined) {
 					$.get(BASE_URL + 'get-columns',
 						{
 							layer: layerData.id,
-							geoserverUri: layerData.url
+							geoserverUri: layerData.uriGeoServer
 						},
 						function(response) {
               if(response.fields.length > 0) {
@@ -105,7 +105,7 @@ define(
 
                 tableOptions.ajax.data = function(data) {
                   data.layer = $('#attributes-table-select > select').val();
-                  data.geoserverUri = layerData.url;
+                  data.geoserverUri = layerData.uriGeoServer;
                   data.timeStart = (startDate !== undefined && startDate !== "" ? startDate : (maxDate !== undefined && maxDate !== "" ? maxDate : null));
                   data.timeEnd = (endDate !== undefined && endDate !== "" ? endDate : (maxDate !== undefined && maxDate !== "" ? maxDate : null));
                 };
@@ -145,15 +145,26 @@ define(
 				} else
 					hideAttributesTable(false);
 			});
+
+      $("#terrama2-map").on("createAttributesTable", function(event, visibleLayers){
+        createAttributesTable(visibleLayers);
+      });
+
+      $("#attributes-table-select").on("setAttributesTable", function(event){
+        setAttributesTable();
+      });
     };
 
     var init = function() {
+			$("#table-div").resizable({
+				minHeight: 400,
+				handles: "n"
+			});
+
       loadEvents();
     };
 
     return {
-      createAttributesTable: createAttributesTable,
-      setAttributesTable: setAttributesTable,
       init: init
     };
   }
