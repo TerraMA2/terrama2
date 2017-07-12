@@ -92,7 +92,12 @@ define(
 
     var loadSocketsListeners = function() {
 			Utils.getWebAppSocket().on("viewResponse", function(data) {
-				Layers.fillLayersData(data);
+				Layers.fillLayersData(data.views);
+
+				$('#projects').empty();
+
+				for(var i = 0, projectsLength = data.projects.length; i < projectsLength; i++)
+					$('#projects').append($('<option></option>').attr('value', data.projects[i].id).text(data.projects[i].name));
 			});
 
 			// When receive a new view, add in layers component
