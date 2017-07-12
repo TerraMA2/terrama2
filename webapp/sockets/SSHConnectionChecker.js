@@ -19,6 +19,8 @@ var SSHConnectionChecker = function(io) {
 
   var fs = require('fs');
 
+  var Application = require('../core/Application');
+
   // Socket connection event
   memberSockets.on('connection', function(client) {
 
@@ -46,21 +48,55 @@ var SSHConnectionChecker = function(io) {
             if (!stats.isDirectory() && (stats.mode & 1)) { //TODO: improve it. When is executable, the current solution is checking mode "x"
               returnObject.message = "Success";
             } else {
-            throw new Error("Invalid service executable");
+              throw new Error("Invalid service executable");
             }
           }
-        }
-        catch (e) {
-          returnObject.error = true;
-          var message = "";
-          switch (e.code) {
-            case "ENOENT":
-              message = "No such file \""+ pathToBinary +"\" in directory";
-              break;
-            default:
-              message = e.toString();
+        } catch (e) {
+          var config = Application.getContextConfig();
+          var tryDefaultPath = (pathToBinary === config.defaultExecutableName);
+          var enoentError = "No such file \""+ pathToBinary +"\" in directory";
+
+          if(tryDefaultPath) {
+            pathToBinary = (config.defaultExecutablePath.endsWith("/") ? config.defaultExecutablePath : config.defaultExecutablePath + "/") + config.defaultExecutableName;
+
+            try {
+              // Query the entry
+              var stats = fs.lstatSync(pathToBinary);
+
+              // Is it a file?
+              if (stats.isFile()) {
+                returnObject.message = "Success";
+              } else {
+                if (!stats.isDirectory() && (stats.mode & 1)) { //TODO: improve it. When is executable, the current solution is checking mode "x"
+                  returnObject.message = "Success";
+                } else {
+                  throw new Error("Invalid service executable");
+                }
+              }
+            } catch (error) {
+              returnObject.error = true;
+              var message = "";
+              switch (e.code) {
+                case "ENOENT":
+                  message = enoentError;
+                  break;
+                default:
+                  message = e.toString();
+              }
+              returnObject.message = message;
+            }
+          } else {
+            returnObject.error = true;
+            var message = "";
+            switch (e.code) {
+              case "ENOENT":
+                message = "No such file \""+ pathToBinary +"\" in directory";
+                break;
+              default:
+                message = e.toString();
+            }
+            returnObject.message = message;
           }
-          returnObject.message = message;
         } finally {
           client.emit('testSSHConnectionResponse', returnObject);
           return;

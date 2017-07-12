@@ -50,7 +50,7 @@ define(
           if (memberAllLayers.map(function (l){return l.id}).indexOf(layerId) > 0)
             continue;
 
-          if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(layerId, layerName, layerName, uriGeoServer + '/ows', serverType, false, false, "terrama2-layerexplorer", {version: "1.1.0"})){
+          if (TerraMA2WebComponents.MapDisplay.addImageWMSLayer(layerId, layerName, layerName, uriGeoServer + '/ows', serverType, false, false, "terrama2-layerexplorer", {version: "1.1.0"})){
             TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, data[i].type, null, "treeview unsortable terrama2-truncate-text", null);
             TerraMA2WebComponents.MapDisplay.setLayerProperty(layerId, "layerType", data[i].type);
             TerraMA2WebComponents.MapDisplay.setLayerProperty(layerId, "layerName", layerName);
