@@ -33,8 +33,7 @@
 // TerraMA2
 #include "Shared.hpp"
 #include "ViewLogger.hpp"
-#include "../../../core/Shared.hpp"
-#include "../../../core/Typedef.hpp"
+#include "Typedef.hpp"
 
 // TerraLib
 #include <terralib/core/uri/URI.h>
@@ -66,6 +65,17 @@ namespace terrama2
                                                const std::shared_ptr<DataManager> dataManager,
                                                std::shared_ptr<ViewLogger> logger,
                                                const RegisterId logId) = 0;
+
+            /*!
+             * \brief This methods performs a Maps Server cleanup operation.
+             *
+             * Use this when you want to remove complete environment on MapsServer, such GeoServer
+             *
+             * \note It may throw exception
+             *
+             * \param p Current View Id to remove
+             */
+            virtual void cleanup(const ViewId& v = 0) = 0;
 
           protected:
 
