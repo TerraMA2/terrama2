@@ -157,7 +157,7 @@ void terrama2::services::view::core::DataManager::removeJSon(const QJsonObject& 
   try
   {
     std::lock_guard<std::recursive_mutex> lock(mtx_);
-    auto view = obj["View"].toArray();
+    auto view = obj["Views"].toArray();
     for(auto json : view)
     {
       auto dataId = json.toInt();

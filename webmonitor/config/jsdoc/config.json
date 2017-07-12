@@ -33,7 +33,7 @@
     "inverseNav": false
   },
   "opts": {
-    "template": "config/jsdoc/templates/terrama2webmonitor",
+    "template": "./config/jsdoc/templates/terrama2webmonitor",
     "encoding": "utf8",
     "destination": "public/docs",
     "recurse": true,

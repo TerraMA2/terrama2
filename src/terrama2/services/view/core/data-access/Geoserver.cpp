@@ -27,7 +27,6 @@
   \author Vinicius Campanha
 */
 
-
 // TerraMA2
 #include "Geoserver.hpp"
 #include "Exception.hpp"
@@ -35,11 +34,8 @@
 #include "../Utils.hpp"
 #include "../DataManager.hpp"
 #include "../serialization/Serialization.hpp"
-#include "../../core/JSonUtils.hpp"
 #include "../../../../impl/DataAccessorFile.hpp"
-#include "../../../../impl/DataAccessorPostGIS.hpp"
 #include "../../../../core/data-model/DataProvider.hpp"
-#include "../../../../core/utility/Raii.hpp"
 #include "../../../../core/utility/Logger.hpp"
 #include "../../../../core/utility/DataAccessorFactory.hpp"
 #include "../../../../core/utility/Utils.hpp"
@@ -55,6 +51,7 @@
 #include <terralib/geometry/Utils.h>
 #include <terralib/memory/DataSetItem.h>
 #include <terralib/datatype/StringProperty.h>
+#include <terralib/geometry/GeometryProperty.h>
 
 // TerraLib FE - Style Filter Operator
 #include <terralib/fe/PropertyName.h>
@@ -133,7 +130,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
     return jsonAnswer;
   }
 
-  setWorkspace("terrama2_" + std::to_string(viewPtr->id));
+  setWorkspace(generateWorkspaceName(viewPtr->id));
 
   registerWorkspace();
 
@@ -344,9 +341,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
     registerStyle(styleName, *viewPtr->legend.get(), objectType, geomType);
 
     for(const auto& layer : layersArray)
-    {
       registerLayerDefaultStyle(styleName, layer.toObject().value("layer").toString().toStdString());
-    }
   }
 
   jsonAnswer.insert("workspace", QString::fromStdString(workspace()));
@@ -665,7 +660,7 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::
                    "<dimensionInfo>"
                    "<enabled>true</enabled>"
                    "<attribute>"+timestampPropertyName+"</attribute>"+
-                   "<presentation>CONTINUOUS_INTERVAL</presentation>"
+                   "<presentation>LIST</presentation>"
                    "<units>ISO8601</units>"
                    "<defaultValue>"
                    "<strategy>MAXIMUM</strategy>"
@@ -761,7 +756,7 @@ void terrama2::services::view::core::GeoServer::registerVectorFile(const std::st
   {
     deleteVectorLayer(dataStoreName, layerName, true);
   }
-  catch(NotFoundGeoserverException /*e*/)
+  catch(const NotFoundGeoserverException&)
   {
     // Do nothing
   }
@@ -1247,17 +1242,12 @@ std::unique_ptr<te::se::Style> terrama2::services::view::core::GeoServer::genera
   return style;
 }
 
-
-void terrama2::services::view::core::GeoServer::deleteWorkspace(bool recursive) const
+void terrama2::services::view::core::GeoServer::cleanup(const ViewId& id)
 {
-  te::ws::core::CurlWrapper cURLwrapper;
+  te::ws::core::CurlWrapper curl;
 
-  std::string url = "/rest/workspaces/" + workspace_;
-
-  if(recursive)
-  {
-    url += "?recurse=true";
-  }
+  // Generating Rest Workspace URI to force removal of all layers, data stores and so on.
+  std::string url = "/rest/workspaces/" + (id == 0 ? workspace_ : generateWorkspaceName(id))+ "?recurse=true";
 
   te::core::URI uriDelete(uri_.uri() + url);
 
@@ -1268,20 +1258,20 @@ void terrama2::services::view::core::GeoServer::deleteWorkspace(bool recursive) 
     throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriDelete.uri()));
   }
 
-  cURLwrapper.customRequest(uriDelete, "DELETE");
+  curl.customRequest(uriDelete, "DELETE");
 
-  if(cURLwrapper.responseCode() == 404)
+  switch(curl.responseCode())
   {
-    throw NotFoundGeoserverException() << ErrorDescription(QString::fromStdString(cURLwrapper.response()));
-  }
-  else if(cURLwrapper.responseCode() != 200)
-  {
-    QString errMsg = QObject::tr("Error at delete Workspace. ");
-    TERRAMA2_LOG_ERROR() << errMsg << uriDelete.uri();
-    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
+    case 200:
+      break; // Successfully
+    case 404:
+      throw NotFoundGeoserverException() << ErrorDescription(QString::fromStdString(curl.response()));
+    default:
+      QString errMsg = QObject::tr("Error at delete Workspace. ");
+      TERRAMA2_LOG_ERROR() << errMsg << uriDelete.uri();
+      throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(curl.response()));
   }
 }
-
 
 void terrama2::services::view::core::GeoServer::deleteVectorLayer(const std::string& dataStoreName,
                                                                   const std::string &fileName,
@@ -1543,7 +1533,7 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
 
   for(auto& dataset : inputDataSeries->datasetList)
   {
-    std::string layerName = viewPtr->viewName + std::to_string(viewPtr->id);
+    std::string layerName = terrama2::core::simplifyString(viewPtr->viewName + "_" + std::to_string(viewPtr->id));
     std::transform(layerName.begin(), layerName.end(),layerName.begin(), ::tolower);
 
     QUrl url(baseUrl.toString() + QString::fromStdString("/" + terrama2::core::getFolderMask(dataset)));
@@ -1552,17 +1542,23 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
 
     int srid =std::get<2>(vecRasterInfo.at(0));
 
+    /*
+     * Creating GeoServer metadata files. These files are named as .properties
+     *   - datastore.properties - Contains metadata information of store connection to join
+     *   - LayerName.properties - Meta information of layer, such time attribute, cache function, crs, etc.
+     *
+     * The .properties file must be same level of data directory
+     */
+
+    createPostgisMosaicLayerPropertiesFile(url.path().toStdString(), layerName, srid);
+    // Create needed txt mosaic files
+    createPostgisDatastorePropertiesFile(url.path().toStdString(), connInfo);
+
     if(!dataSource->dataSetExists(layerName))
     {
-      // Create needed txt mosaic files
-      createPostgisDatastorePropertiesFile(url.path().toStdString(), connInfo);
-
-      createPostgisMosaicLayerPropertiesFile(url.path().toStdString(), layerName, srid);
-
       // create table
       createMosaicTable(dataSource, layerName, srid);
     }
-
 
     // get all dates stored in the dataset
     std::vector<std::shared_ptr<te::dt::DateTime> > vecDates;
@@ -2046,7 +2042,7 @@ void terrama2::services::view::core::GeoServer::createMosaicTable(std::shared_pt
   geomProp->setSRID(srid);
 
   // the newDataSetType takes ownership of the pointer
-  auto spatialIndex = new te::da::Index("spatial_index", te::da::B_TREE_TYPE, {geomProp});
+  auto spatialIndex = new te::da::Index("spatial_index_" + tableName, te::da::B_TREE_TYPE, {geomProp});
   
   te::dt::StringProperty* filenameProp = new te::dt::StringProperty("location", te::dt::VAR_STRING, 255, true);
 
@@ -2071,4 +2067,9 @@ void terrama2::services::view::core::GeoServer::createMosaicTable(std::shared_pt
   transactor->addPrimaryKey(dt->getName(),pk);
 
   transactor->commit();
+}
+
+std::string terrama2::services::view::core::GeoServer::generateWorkspaceName(const ViewId& id)
+{
+  return "terrama2_" + std::to_string(id);
 }
