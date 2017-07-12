@@ -96,58 +96,6 @@ terrama2::core::DataRetrieverHTTP::~DataRetrieverHTTP()
 
 }
 
-std::vector<std::string> terrama2::core::DataRetrieverHTTP::getFoldersList(const std::vector<std::string>& uris,
-                                                                          const std::string& foldersMask)
-{
-  std::vector<std::string> maskList = splitString(foldersMask, '/');
-
-  if(maskList.empty())
-    return uris;
-
-  std::vector<std::string> folders = uris;
-
-  for(const auto& mask : maskList)
-  {
-    if(!mask.empty())
-      folders = checkSubfolders(folders, mask);
-  }
-
-  if(folders.empty())
-  {
-    QString errMsg = QObject::tr("No directory matches the mask.");
-    TERRAMA2_LOG_ERROR() << errMsg;
-    return {};
-  }
-
-  return folders;
-}
-
-std::vector<std::string> terrama2::core::DataRetrieverHTTP::checkSubfolders(const std::vector<std::string> baseURIs, const std::string mask)
-{
-  std::vector<std::string> folders;
-
-  for(const auto& uri : baseURIs)
-  {
-    std::vector<std::string> dirList = curlwrapper_->listFiles(te::core::URI(uri));
-
-    if(dirList.empty())
-    {
-      continue;
-    }
-
-    for(const auto& folder : dirList)
-    {
-      if(!terramaMaskMatch(mask, folder))
-        continue;
-
-      folders.push_back(uri + "/" + folder + "/");
-    }
-  }
-
-  return folders;
-}
-
-
 std::string terrama2::core::DataRetrieverHTTP::retrieveData(const std::string& mask,
                                                            const Filter& filter,
                                                            const std::string& timezone,
@@ -177,61 +125,35 @@ std::string terrama2::core::DataRetrieverHTTP::retrieveData(const std::string& m
 
   try
   {
-    // find valid directories
-    std::vector< std::string > baseUriList;
-    baseUriList.push_back(dataProvider_->uri);
+    // Create directory struct
+    QString saveDir(QString::fromStdString(dataProvider_->uri));
+    saveDir.replace(QString::fromStdString(dataProvider_->uri), QString::fromStdString(downloadBaseFolderUri));
 
-    if(!foldersMask.empty())
+    QString savePath = QUrl(saveDir).toString(QUrl::RemoveScheme);
+    QDir dir(savePath);
+    if(!dir.exists())
+      dir.mkpath(savePath);
+
+    std::string uriOrigin = dataProvider_->uri + "/" + mask;
+    std::string filePath = savePath.toStdString() + "/" + mask;
+
+    try
     {
-      auto uriList = getFoldersList(baseUriList, foldersMask);
+      curlwrapper_->downloadFile(uriOrigin, filePath);
+    }
+    catch(const te::Exception& e)
+    {
+      QString errMsg = QObject::tr("Error during download of file %1.\n").arg(QString::fromStdString(mask));
+      auto errStr = boost::get_error_info<te::ErrorDescription>(e);
+      if(errStr)
+        errMsg.append(QString::fromStdString(*errStr));
+      errMsg.append(e.what());
 
-      if(uriList.empty())
-      {
-        QString errMsg = QObject::tr("No files found!");
-        TERRAMA2_LOG_WARNING() << errMsg;
-        throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
-      }
-
-      baseUriList = uriList;
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw DataRetrieverException() << ErrorDescription(errMsg);
     }
 
-    // Get a file listing from server
-    for(const auto& uri : baseUriList)
-    {
-      // Create directory struct
-      QString saveDir(QString::fromStdString(uri));
-      saveDir.replace(QString::fromStdString(dataProvider_->uri), QString::fromStdString(downloadBaseFolderUri));
-
-      QString savePath = QUrl(saveDir).toString(QUrl::RemoveScheme);
-      QDir dir(savePath);
-      if(!dir.exists())
-        dir.mkpath(savePath);
-
-      // Performs the download of files in the vectorNames
-      //for(const auto& file: vectorNames)
-      //{
-        std::string uriOrigin = uri + "/" + mask;
-        std::string filePath = savePath.toStdString() + "/" + mask;
-
-        try
-        {
-          curlwrapper_->downloadFile(uriOrigin, filePath);
-        }
-        catch(const te::Exception& e)
-        {
-          QString errMsg = QObject::tr("Error during download of file %1.\n").arg(QString::fromStdString(mask));
-          auto errStr = boost::get_error_info<te::ErrorDescription>(e);
-          if(errStr)
-            errMsg.append(QString::fromStdString(*errStr));
-          errMsg.append(e.what());
-
-          TERRAMA2_LOG_ERROR() << errMsg;
-          throw DataRetrieverException() << ErrorDescription(errMsg);
-        }
-
-        remover->addTemporaryFile(filePath);
-      //}
-    }
+    remover->addTemporaryFile(filePath);
   }
   catch(const NoDataException&)
   {

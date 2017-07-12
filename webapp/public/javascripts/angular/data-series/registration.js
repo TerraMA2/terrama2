@@ -449,7 +449,7 @@ define([], function() {
         $scope.dataProviders = [];
         $scope.providersList.forEach(function(dataProvider) {
           dataSeriesSemantics.data_providers_semantics.forEach(function(demand) {
-            if (dataProvider.data_provider_type.id == demand.data_provider_type_id)
+            //if (dataProvider.data_provider_type.id == demand.data_provider_type_id)
               $scope.dataProviders.push(dataProvider);
           });
         });

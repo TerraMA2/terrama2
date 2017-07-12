@@ -28,12 +28,15 @@
 
 int main(int argc, char* argv[])
 {
-  QUrl url("https://prodwww-queimadas.dgi.inpe.br/sld/");
+  QUrl url("https://prodwww-queimadas.dgi.inpe.br/users/cbm_mt/focos24h/");
+
+  url.setUserName("cbm_mt");
+  url.setPassword("xae9aiva");
 
   curl_global_init(CURL_GLOBAL_ALL);
 
   std::string path;
-  std::string mask = "focos_novos_ql.sld";
+  std::string mask = "focosINPE_24H_20170301.txt";
 
   auto remover = std::make_shared<terrama2::core::FileRemover>();
   {
