@@ -28,7 +28,7 @@
 
 int main(int argc, char* argv[])
 {
-  QUrl url("");
+  QUrl url("http://dadosabertos.rio.rj.gov.br/apiEducacao/apresentacao/csv/");
 
   url.setUserName("");
   url.setPassword("");
@@ -36,7 +36,7 @@ int main(int argc, char* argv[])
   curl_global_init(CURL_GLOBAL_ALL);
 
   std::string path;
-  std::string mask = "";
+  std::string mask = "freqMediaIndAprovMunicipioPorAno.csv";
 
   auto remover = std::make_shared<terrama2::core::FileRemover>();
   {
