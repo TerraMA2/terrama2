@@ -24,7 +24,33 @@ define(
       }
     };
 
+    var changeProjects = function(){
+      var allLayers = Layers.getAllLayers();
+      allLayers.forEach(function(layer){
+        if (layer.projectId){
+          removeLayer(layer);
+        }
+      });
+      Layers.fillLayersData();
+    }
+
+    var removeLayer = function(layer){
+      var layerId = layer.id;
+      var parent = layer.parent;
+
+      var elementVisibleIndex = visibleLayers.indexOf(layerId.replace(':',''));
+      if (elementVisibleIndex >= 0){
+        $("#"+layerId.replace(':','') + " input.terrama2-layerexplorer-checkbox").trigger("click");
+      }
+      $("#terrama2-sortlayers").find('li#' + layerId.replace(':','').split('.').join('\\.')).remove();
+      TerraMA2WebComponents.LayerExplorer.removeLayer(layerId, "terrama2-layerexplorer");
+      if ($("#" + parent + " li").length == 0){
+        LayerStatus.changeGroupStatusIcon(parent, "");
+      }
+    }
+
     var loadEvents = function() {
+      $('#projects').on('change', changeProjects);
 			$('#mini-toggle').click(function(){
 				TerraMA2WebComponents.MapDisplay.updateMapSize();
 			});
@@ -92,48 +118,51 @@ define(
 
     var loadSocketsListeners = function() {
 			Utils.getWebAppSocket().on("viewResponse", function(data) {
-				Layers.fillLayersData(data);
+				$('#projects').empty();
+				for(var i = 0, projectsLength = data.projects.length; i < projectsLength; i++)
+					$('#projects').append($('<option></option>').attr('value', data.projects[i].id).text(data.projects[i].name));
+        
+        data.views.forEach(function(view){
+          var objectLayer = Layers.createLayerObject(view);
+          Layers.addLayer(objectLayer);
+        });
+
+				Layers.fillLayersData();
+
 			});
 
 			// When receive a new view, add in layers component
 			Utils.getWebAppSocket().on('viewReceived', function(data){
 				if(!data.private || (data.private && userLogged)) {
-					var layerId = data.workspace + ":" + data.layers[0];
-					var layerName = data.name;
-					var parent = data.type;
-					var newLayer = true;
-					var layerIdToSlide;
-					data.layers.forEach(function(layer){
-						var _layerId = data.workspace + ":" + layer;
-            var allLayers = Layers.getAllLayers();
-						if(allLayers.map(function(l){return l.id}).indexOf(_layerId) > 0) {
-							newLayer = false;
-							layerIdToSlide = _layerId.split('.').join('\\.');
-							layerId = _layerId;
-						}
-					});
+
+          var layerObject = Layers.createLayerObject(data);
+          var newLayer = Layers.getLayerById(layerObject.id) == null ? true : false;
+
 					if(!newLayer) {
-						LayerStatus.changeLayerStatusIcon(layerIdToSlide, "new");
-						LayerStatus.changeGroupStatusIcon(parent, "new");
-						var workspace = data.workspace;
-						var uriGeoServer = data.uriGeoserver;
-						var serverType = data.serverType;
-            var url = uriGeoServer + '/' + workspace + '/' + data.layers[0] + '/wms?service=WMS&version=1.1.0&request=GetCapabilities';
+						LayerStatus.changeLayerStatusIcon(layerObject.id.split('.').join('\\.'), "new");
+						LayerStatus.changeGroupStatusIcon(layerObject.parent, "new");
+						var workspace = layerObject.workspace;
+						var uriGeoServer = layerObject.uriGeoServer;
+						var serverType = layerObject.serverType;
+            var url = uriGeoServer + '/' + workspace + '/' + layerObject.nameId + '/wms?service=WMS&version=1.1.0&request=GetCapabilities';
             var getCapabilitiesUrl = {
-              layerName: data.layers[0],
-              layerId: layerId,
-              parent: data.type,
+              layerName: layerObject.nameId,
+              layerId: layerObject.id,
+              parent: layerObject.parent,
               url: url,
               format: 'xml',
               update: true
             }
             Utils.getSocket().emit('proxyRequestCapabilities', getCapabilitiesUrl);
-						
 						return;
 					}
-					Layers.fillLayersData([data]);
-					LayerStatus.changeLayerStatusIcon(layerId, "new");
-					LayerStatus.changeGroupStatusIcon(parent, "new");
+          var currentProject = $("#projects").val();
+          Layers.addLayer(layerObject);
+          if (layerObject.projectId == currentProject){
+            Layers.fillLayersData([layerObject]);
+            LayerStatus.changeLayerStatusIcon(layerObject.id, "new");
+            LayerStatus.changeGroupStatusIcon(layerObject.parent, "new");
+          }
 				}
 			});
 
@@ -151,15 +180,8 @@ define(
         if (index >= 0){
           Layers.removeLayer(index);
         }
-        var elementVisibleIndex = visibleLayers.indexOf(layerId.replace(':',''));
-        if (elementVisibleIndex >= 0){
-          $("#"+layerId.replace(':','') + " input").trigger("click");
-        }
-        $("#terrama2-sortlayers").find('li#' + layerId.replace(':','').split('.').join('\\.')).remove();
-        TerraMA2WebComponents.LayerExplorer.removeLayer(layerId, parent);
-        if ($("#" + parent + " li").length == 0){
-          LayerStatus.changeGroupStatusIcon(parent, "");
-        }
+
+        removeLayer({id: layerId, parent: parent});
 			});
 
 			// Checking map server connection response
@@ -490,7 +512,9 @@ define(
 			var intervalID = setInterval(function(){
         var allLayers = Layers.getAllLayers();
 				allLayers.forEach(function(layerObject){
-					Utils.getSocket().emit('checkConnection', {url: layerObject.uriGeoServer, requestId: layerObject.id});
+          var currentProject = $("#projects").val();
+          if (currentProject == layerObject.projectId)
+					  Utils.getSocket().emit('checkConnection', {url: layerObject.uriGeoServer, requestId: layerObject.id});
 				});
 			}, 30000);
 

@@ -63,9 +63,12 @@
         // TODO: filter user permission
         return DataManager.listRegisteredViews()
           .then(function(views) {
-            return client.emit("viewResponse", views.map(function(view) {
-              return view.toObject();
-            }));
+            return client.emit("viewResponse", {
+              views: views.map(function(view) {
+                return view.toObject();
+              }),
+              projects: DataManager.listProjects()
+            });
           })
 
           .catch(function(err) {

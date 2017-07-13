@@ -172,7 +172,8 @@
       password: this.$uriObject[URISyntax.PASSWORD],
       serverType: "geoserver", // TODO: change it. It should be received from c++ service or even during view registration
       type: this.dataSeriesType,
-      params: params
+      params: params,
+      projectId: this.view.projectId
     });
   };
 
