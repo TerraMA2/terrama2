@@ -10,8 +10,10 @@ define(
 
 			for(var i = 0, visibleLayersLength = visibleLayers.length; i < visibleLayersLength; i++) {
 				var layerId = $('#' + visibleLayers[i]).data('layerid');
-				var layerName = TerraMA2WebComponents.MapDisplay.getLayerProperty(layerId, "layerName");
-				var layerType = TerraMA2WebComponents.MapDisplay.getLayerProperty(layerId, "layerType");
+
+        var layerObject = Layers.getLayerById(layerId);
+				var layerName = layerObject.name;
+				var layerType = layerObject.parent;
 
 				if(layerType !== "template" && layerType !== "custom") {
 					var layerData = null;

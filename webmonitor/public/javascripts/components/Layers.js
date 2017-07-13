@@ -81,8 +81,6 @@ define(
 
           if (TerraMA2WebComponents.MapDisplay.addImageWMSLayer(layerId, layerName, layerName, uriGeoServer + '/ows', serverType, false, false, "terrama2-layerexplorer", {version: "1.1.0"})){
             TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, parent, null, "treeview unsortable terrama2-truncate-text", null);
-            TerraMA2WebComponents.MapDisplay.setLayerProperty(layerId, "layerType", parent);
-            TerraMA2WebComponents.MapDisplay.setLayerProperty(layerId, "layerName", layerName);
             if (parent == 'analysis' || parent == 'dynamic'){
               var url = uriGeoServer + '/' + workspace + '/' + data[i].nameId + '/wms?service=WMS&version=1.1.0&request=GetCapabilities';
               var getCapabilitiesUrl = {

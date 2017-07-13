@@ -53,8 +53,8 @@ define(
 				var layerId = $('#' + visibleLayers[i]).data('layerid');
         var layerObject = Layers.getLayerById(layerId);
 
-				var layerName = TerraMA2WebComponents.MapDisplay.getLayerProperty(layerId, "layerName");
-				var layerType = TerraMA2WebComponents.MapDisplay.getLayerProperty(layerId, "layerType");
+				var layerName = layerObject.name;
+				var layerType = layerObject.parent;
 
 				if(layerType !== "template" && layerType !== "custom" && (layerObject && layerObject.dataSeriesTypeName != "GRID")) {
           var layerData = getLayerData(layerId);

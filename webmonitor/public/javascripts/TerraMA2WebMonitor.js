@@ -494,9 +494,7 @@ define(
 			//Adding open map street
 			if(TerraMA2WebComponents.MapDisplay.addOSMLayer("osm", "Open street", "Open street", false, "terrama2-layerexplorer", false)) {
 				TerraMA2WebComponents.LayerExplorer.addLayersFromMap("osm", "template", null, "treeview unsortable terrama2-truncate-text", null);
-				TerraMA2WebComponents.MapDisplay.setLayerProperty("osm", "layerType", "template");
-				TerraMA2WebComponents.MapDisplay.setLayerProperty("osm", "layerName", "Open street");
-        var layerObject = Layers.createLayerObject({layers:["osm"], name: "Open street", parent: "template"});
+        var layerObject = Layers.createLayerObject({layers:["osm"], name: "Open street", type: "template"});
         Layers.addLayer(layerObject);
 				LayerStatus.addLayerStatusIcon("osm");
 				LayerStatus.changeLayerStatusIcon("osm", "working");
