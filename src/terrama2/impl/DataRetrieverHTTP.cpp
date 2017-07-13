@@ -59,7 +59,7 @@
 #include <QDebug>
 #include <QUrl>
 
-terrama2::core::DataRetrieverHTTP::DataRetrieverHTTP(DataProviderPtr dataprovider, std::unique_ptr<te::ws::core::CurlWrapper>&& curlwrapper)
+terrama2::core::DataRetrieverHTTP::DataRetrieverHTTP(DataProviderPtr dataprovider, std::unique_ptr<CurlWrapperHttp>&& curlwrapper)
   : DataRetriever(dataprovider),
     curlwrapper_(std::move(curlwrapper))
 {
@@ -137,20 +137,51 @@ std::string terrama2::core::DataRetrieverHTTP::retrieveData(const std::string& m
     std::string uriOrigin = dataProvider_->uri + "/" + mask;
     std::string filePath = savePath.toStdString() + "/" + mask;
 
+    te::core::URI uri(uriOrigin);
+
+    std::string user = uri.user();
+    std::string password = uri.password();
+
+    if(!user.empty() && !password.empty())
+    {
+      curlwrapper_->setAuthenticationMethod(te::ws::core::HTTP_BASIC);
+      curlwrapper_->setUsername(user);
+      curlwrapper_->setPassword(password);
+    }
+
     try
     {
       curlwrapper_->downloadFile(uriOrigin, filePath);
     }
     catch(const te::Exception& e)
     {
-      QString errMsg = QObject::tr("Error during download of file %1.\n").arg(QString::fromStdString(mask));
-      auto errStr = boost::get_error_info<te::ErrorDescription>(e);
-      if(errStr)
-        errMsg.append(QString::fromStdString(*errStr));
-      errMsg.append(e.what());
+      auto downloadException = [&mask](const te::Exception& e) {
+        QString errMsg = QObject::tr("Error during download of file %1.\n").arg(QString::fromStdString(mask));
+        auto errStr = boost::get_error_info<te::ErrorDescription>(e);
+        if(errStr)
+          errMsg.append(QString::fromStdString(*errStr));
+        errMsg.append(e.what());
 
-      TERRAMA2_LOG_ERROR() << errMsg;
-      throw DataRetrieverException() << ErrorDescription(errMsg);
+        TERRAMA2_LOG_ERROR() << errMsg;
+        throw DataRetrieverException() << ErrorDescription(errMsg);
+      };
+
+      if(!user.empty() && !password.empty())
+      {
+        try
+        {
+          curlwrapper_->setAuthenticationMethod(te::ws::core::HTTP_DIGEST);
+          curlwrapper_->downloadFile(uriOrigin, filePath);
+        }
+        catch(const te::Exception& e)
+        {
+          downloadException(e);
+        }
+      }
+      else
+      {
+        downloadException(e);
+      }
     }
 
     remover->addTemporaryFile(filePath);
@@ -191,6 +222,6 @@ std::string terrama2::core::DataRetrieverHTTP::retrieveData(const std::string& m
 
 terrama2::core::DataRetrieverPtr terrama2::core::DataRetrieverHTTP::make(DataProviderPtr dataProvider)
 {
-  std::unique_ptr<te::ws::core::CurlWrapper> curlwrapper(new te::ws::core::CurlWrapper());
+  std::unique_ptr<CurlWrapperHttp> curlwrapper(new CurlWrapperHttp());
   return std::make_shared<DataRetrieverHTTP>(dataProvider, std::move(curlwrapper));
 }

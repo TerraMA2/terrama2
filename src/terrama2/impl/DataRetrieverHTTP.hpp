@@ -36,12 +36,13 @@
 #include <cassert>
 
 // TerraLib
-#include <terralib/ws/core/CurlWrapper.h>
+#include <terralib/core/uri/URI.h>
 
 // TerraMA2
 #include "../core/utility/Raii.hpp"
 #include "../core/data-access/DataRetriever.hpp"
 #include "../core/Shared.hpp"
+#include "../core/utility/CurlWrapperHttp.hpp"
 
 // LibCurl
 #include <curl/curl.h>
@@ -73,7 +74,7 @@ namespace terrama2
          * \exception DataRetrieverException when HTTP address is invalid.
          * \exception DataRetreiverHTTPException when unknown Error, HTTP address is invalid.
         */
-        explicit DataRetrieverHTTP(DataProviderPtr dataprovider, std::unique_ptr<te::ws::core::CurlWrapper>&& curlwrapper);
+        explicit DataRetrieverHTTP(DataProviderPtr dataprovider, std::unique_ptr<CurlWrapperHttp>&& curlwrapper);
 
         /*!
          * \brief DataRetrieverHTTP Default Destructor.
@@ -103,7 +104,7 @@ namespace terrama2
         static DataRetrieverType dataRetrieverType() { return "HTTP"; }
 
       private:
-        std::unique_ptr<te::ws::core::CurlWrapper> curlwrapper_; //!< Curl handler.
+        std::unique_ptr<CurlWrapperHttp> curlwrapper_; //!< Curl handler.
     };
 
     typedef std::shared_ptr<DataRetriever> DataRetrieverPtr;//!< Shared pointer to a DataRetriever.

@@ -28,22 +28,22 @@
 
 int main(int argc, char* argv[])
 {
-  QUrl url("https://prodwww-queimadas.dgi.inpe.br/users/cbm_mt/focos24h/");
+  QUrl url("");
 
-  url.setUserName("cbm_mt");
-  url.setPassword("xae9aiva");
+  url.setUserName("");
+  url.setPassword("");
 
   curl_global_init(CURL_GLOBAL_ALL);
 
   std::string path;
-  std::string mask = "focosINPE_24H_20170301.txt";
+  std::string mask = "";
 
   auto remover = std::make_shared<terrama2::core::FileRemover>();
   {
     //DataProvider information
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
 
-    std::unique_ptr<te::ws::core::CurlWrapper> curlwrapper(new te::ws::core::CurlWrapper());
+    std::unique_ptr<terrama2::core::CurlWrapperHttp> curlwrapper(new terrama2::core::CurlWrapperHttp());
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
     dataProvider->uri = url.url().toStdString();
     dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
