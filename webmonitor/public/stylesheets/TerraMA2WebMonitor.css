@@ -465,9 +465,9 @@
 
 #legendsButton { top: 130px; }
 
-#tableButton { top: 170px; }
+#tableButton { top: 210px; }
 
-#getAttributes { top: 210px; }
+#getAttributes { top: 170px; }
 
 #getAttributes.with-select { width: 190px; }
 

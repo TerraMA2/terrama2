@@ -153,12 +153,15 @@
                                          uriObject[URISyntax.PATHNAME]);
 
     var params = {};
+    var dataSeriesTypeName;
     if (this.dataSeries) {
       var semantics = this.dataSeries.data_series_semantics;
       if (semantics && semantics.data_series_type_name === DataSeriesType.GRID) {
         var mask = this.dataSeries.dataSets[0].format.mask;
         params.mask = mask;
       }
+      if (this.dataSeries.data_series_semantics)
+        dataSeriesTypeName = this.dataSeries.data_series_semantics.data_series_type_name;
     }
 
     return Object.assign(AbstractClass.prototype.toObject.call(this), {
@@ -173,7 +176,8 @@
       serverType: "geoserver", // TODO: change it. It should be received from c++ service or even during view registration
       type: this.dataSeriesType,
       params: params,
-      projectId: this.view.projectId
+      projectId: this.view.projectId,
+      dataSeriesTypeName: dataSeriesTypeName
     });
   };
 
