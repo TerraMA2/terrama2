@@ -20,7 +20,6 @@ define(
         return memberAllLayers[indexLayer];
       else 
         return null;
-      
     }
 
     var createLayerObject = function (layerData){
@@ -83,8 +82,6 @@ define(
             TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, parent, null, "treeview unsortable terrama2-truncate-text", null);
             TerraMA2WebComponents.MapDisplay.setLayerProperty(layerId, "layerType", parent);
             TerraMA2WebComponents.MapDisplay.setLayerProperty(layerId, "layerName", layerName);
-            //var objectLayer = createLayerObject(data[i]);
-            //addLayer(objectLayer);
             if (parent == 'analysis' || parent == 'dynamic'){
               var url = uriGeoServer + '/' + workspace + '/' + data[i].nameId + '/wms?service=WMS&version=1.1.0&request=GetCapabilities';
               var getCapabilitiesUrl = {
@@ -102,7 +99,7 @@ define(
           LayerStatus.addLayerStatusIcon(layerId);
           LayerStatus.changeLayerStatusIcon(layerId, "working");
           Sortable.addLayerToSort(layerId, layerName);
-          //Utils.getSocket().emit('checkConnection', {url: uriGeoServer, requestId: layerId});
+          Utils.getSocket().emit('checkConnection', {url: uriGeoServer, requestId: layerId});
 				}
 			}
     };

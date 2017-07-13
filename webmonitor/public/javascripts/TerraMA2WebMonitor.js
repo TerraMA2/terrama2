@@ -28,12 +28,9 @@ define(
       var allLayers = Layers.getAllLayers();
       allLayers.forEach(function(layer){
         if (layer.projectId){
-          removeLayer(layer)
+          removeLayer(layer);
         }
       });
-      $("#terrama2-sortlayers").empty();
-      Layers.addLayersToSort();
-      Sortable.setSortable();
       Layers.fillLayersData();
     }
 
@@ -46,7 +43,7 @@ define(
         $("#"+layerId.replace(':','') + " input.terrama2-layerexplorer-checkbox").trigger("click");
       }
       $("#terrama2-sortlayers").find('li#' + layerId.replace(':','').split('.').join('\\.')).remove();
-      TerraMA2WebComponents.LayerExplorer.removeLayer(layerId, parent);
+      TerraMA2WebComponents.LayerExplorer.removeLayer(layerId, "terrama2-layerexplorer");
       if ($("#" + parent + " li").length == 0){
         LayerStatus.changeGroupStatusIcon(parent, "");
       }
@@ -183,15 +180,8 @@ define(
         if (index >= 0){
           Layers.removeLayer(index);
         }
-        var elementVisibleIndex = visibleLayers.indexOf(layerId.replace(':',''));
-        if (elementVisibleIndex >= 0){
-          $("#"+layerId.replace(':','') + " input").trigger("click");
-        }
-        $("#terrama2-sortlayers").find('li#' + layerId.replace(':','').split('.').join('\\.')).remove();
-        TerraMA2WebComponents.LayerExplorer.removeLayer(layerId, parent);
-        if ($("#" + parent + " li").length == 0){
-          LayerStatus.changeGroupStatusIcon(parent, "");
-        }
+
+        removeLayer({id: layerId, parent: parent});
 			});
 
 			// Checking map server connection response
