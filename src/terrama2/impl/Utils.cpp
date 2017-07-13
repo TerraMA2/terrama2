@@ -53,6 +53,7 @@
 #include "DataStoragerCSV.hpp"
 
 #include "DataRetrieverFTP.hpp"
+#include "DataRetrieverHTTP.hpp"
 
 #include "../core/utility/DataAccessorFactory.hpp"
 #include "../core/utility/DataStoragerFactory.hpp"
@@ -87,4 +88,5 @@ void terrama2::core::registerFactories()
   terrama2::core::DataStoragerFactory::getInstance().add(terrama2::core::DataStoragerOccurrenceCSV::dataStoragerType(), terrama2::core::DataStoragerOccurrenceCSV::make);
 
   terrama2::core::DataRetrieverFactory::getInstance().add(terrama2::core::DataRetrieverFTP::dataRetrieverType(), terrama2::core::DataRetrieverFTP::make);
+  terrama2::core::DataRetrieverFactory::getInstance().add(terrama2::core::DataRetrieverHTTP::dataRetrieverType(), terrama2::core::DataRetrieverHTTP::make);
 }
