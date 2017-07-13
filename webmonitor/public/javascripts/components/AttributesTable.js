@@ -51,10 +51,12 @@ define(
 
 			for(var i = 0, visibleLayersLength = visibleLayers.length; i < visibleLayersLength; i++) {
 				var layerId = $('#' + visibleLayers[i]).data('layerid');
+        var layerObject = Layers.getLayerById(layerId);
+
 				var layerName = TerraMA2WebComponents.MapDisplay.getLayerProperty(layerId, "layerName");
 				var layerType = TerraMA2WebComponents.MapDisplay.getLayerProperty(layerId, "layerType");
 
-				if(layerType !== "template" && layerType !== "custom") {
+				if(layerType !== "template" && layerType !== "custom" && (layerObject && layerObject.dataSeriesTypeName != "GRID")) {
           var layerData = getLayerData(layerId);
 
           $('#attributes-table-select > select').append($('<option></option>').attr('value', layerId).text(layerName));

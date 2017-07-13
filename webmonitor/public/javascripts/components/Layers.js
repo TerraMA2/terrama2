@@ -35,6 +35,7 @@ define(
       layerObject.isParent = layerData.serverType ? false : true;
       layerObject.projectId = layerData.projectId;
       layerObject.private = layerData.private;
+      layerObject.dataSeriesTypeName = layerData.dataSeriesTypeName;
 
       return layerObject;
     }

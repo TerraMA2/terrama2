@@ -496,7 +496,7 @@ define(
 				TerraMA2WebComponents.LayerExplorer.addLayersFromMap("osm", "template", null, "treeview unsortable terrama2-truncate-text", null);
 				TerraMA2WebComponents.MapDisplay.setLayerProperty("osm", "layerType", "template");
 				TerraMA2WebComponents.MapDisplay.setLayerProperty("osm", "layerName", "Open street");
-        var layerObject = Layers.createLayerObject({layers:["osm"], name: "Open street", serverType: "template"});
+        var layerObject = Layers.createLayerObject({layers:["osm"], name: "Open street", type: "template"});
         Layers.addLayer(layerObject);
 				LayerStatus.addLayerStatusIcon("osm");
 				LayerStatus.changeLayerStatusIcon("osm", "working");
