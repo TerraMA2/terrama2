@@ -343,18 +343,6 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::AlertExecutor
                                                                                             terrama2::core::DataSetPtr dataset,
                                                                                             std::shared_ptr<te::da::DataSet> teDataset)
 {
-  //get band used for risk
-  int riskBand = std::numeric_limits<int>::max();
-  try
-  {
-    riskBand = std::stoi(alertPtr->riskAttribute);
-  }
-  catch(...)
-  {
-    TERRAMA2_LOG_ERROR() << QObject::tr("Risk band %1 doesn't exist in dataset %2").arg(QString::fromStdString(alertPtr->riskAttribute)).arg(dataset->id);
-    return nullptr;
-  }
-
   // Remove uneccessary oldest dates
   auto lastValues = *filter.lastValues;
 
@@ -398,7 +386,17 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::AlertExecutor
   alertDataSetType->add(timestampProp);
 
   auto alertDataSet = std::make_shared<te::mem::DataSet>(alertDataSetType.get());
-  int riskBand = std::stoi(alertPtr->riskAttribute);
+  //get band used for risk
+  int riskBand = std::numeric_limits<int>::max();
+  try
+  {
+    riskBand = std::stoi(alertPtr->riskAttribute);
+  }
+  catch(...)
+  {
+    TERRAMA2_LOG_ERROR() << QObject::tr("Risk band %1 doesn't exist in dataset %2").arg(QString::fromStdString(alertPtr->riskAttribute)).arg(dataset->id);
+    return nullptr;
+  }
 
   // iterate over all raster of the input dataset
   teDataset->moveBeforeFirst();
