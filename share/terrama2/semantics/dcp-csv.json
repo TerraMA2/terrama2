@@ -7,7 +7,7 @@
     "temporality": "DYNAMIC",
     "format": "CSV",
     "custom_format": true,
-    "providers_type_list": ["FILE", "FTP"],
+    "providers_type_list": ["FILE", "FTP", "HTTP"],
     "gui": {
       "schema": {
         "properties": {
