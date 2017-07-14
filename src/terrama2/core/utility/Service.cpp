@@ -236,6 +236,8 @@ void terrama2::core::Service::processingTaskThread() noexcept
 
 void terrama2::core::Service::updateNumberOfThreads(size_t numberOfThreads) noexcept
 {
+  numberOfThreads = verifyNumberOfThreads(numberOfThreads);
+
   //service not runnig, start service with numberOfThreads threads
   if(!mainLoopThread_.valid())
   {
@@ -245,8 +247,7 @@ void terrama2::core::Service::updateNumberOfThreads(size_t numberOfThreads) noex
 
   std::unique_lock<std::mutex> lock(mutex_);
   TERRAMA2_LOG_DEBUG() << tr("Old number of threads: %1").arg(processingThreadPool_.size());
-
-  numberOfThreads = verifyNumberOfThreads(numberOfThreads);
+  
   //same number of threads, nothing to do
   if(numberOfThreads == processingThreadPool_.size())
     return;
