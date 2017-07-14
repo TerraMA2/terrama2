@@ -1,8 +1,8 @@
 'use strict';
 
 define(
-  ['components/MapTools', 'components/Utils', 'TerraMA2WebComponents'],
-  function(MapTools, Utils, TerraMA2WebComponents) {
+  ['components/Layers', 'components/MapTools', 'components/Utils', 'TerraMA2WebComponents'],
+  function(Layers, MapTools, Utils, TerraMA2WebComponents) {
 
     var featureInfo = function() {
 			TerraMA2WebComponents.MapDisplay.setGetFeatureInfoUrlOnClick($('#getAttributes > select').val(), function(url) {
@@ -23,14 +23,18 @@ define(
       featureInfo();
     };
 
-    var setGetFeatureInfoToolSelect = function(visibleLayers) {
+    var setGetFeatureInfoToolSelect = function() {
 			$('#getAttributes > select').empty();
 			var showButton = false;
 
+      var visibleLayers = Layers.getVisibleLayers();
+
 			for(var i = 0, visibleLayersLength = visibleLayers.length; i < visibleLayersLength; i++) {
-				var layerId = $('#' + visibleLayers[i]).data('layerid');
-				var layerName = TerraMA2WebComponents.MapDisplay.getLayerProperty(layerId, "layerName");
-				var layerType = TerraMA2WebComponents.MapDisplay.getLayerProperty(layerId, "layerType");
+				var layerId = visibleLayers[i].id
+
+        var layerObject = Layers.getLayerById(layerId);
+				var layerName = layerObject.name;
+				var layerType = layerObject.parent;
 
 				if(layerType !== "template" && layerType !== "custom") {
 					$('#getAttributes > select').append($('<option></option>').attr('value', layerId).text(layerName));
@@ -60,8 +64,8 @@ define(
 				activateGetFeatureInfoTool();
 			});
 
-      $("#terrama2-map").on("setGetFeatureInfoToolSelect", function(event, visibleLayers){
-        setGetFeatureInfoToolSelect(visibleLayers);
+      $("#terrama2-map").on("setGetFeatureInfoToolSelect", function(event){
+        setGetFeatureInfoToolSelect();
       });
     }
 

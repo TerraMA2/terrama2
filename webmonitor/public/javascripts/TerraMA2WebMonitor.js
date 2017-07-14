@@ -28,21 +28,20 @@ define(
       var allLayers = Layers.getAllLayers();
       allLayers.forEach(function(layer){
         if (layer.projectId){
-          removeLayer(layer);
+          removeLayerOfExplorer(layer);
         }
       });
       Layers.fillLayersData();
     }
 
-    var removeLayer = function(layer){
+    var removeLayerOfExplorer = function(layer){
       var layerId = layer.id;
       var parent = layer.parent;
 
-      var elementVisibleIndex = visibleLayers.indexOf(layerId.replace(':',''));
-      if (elementVisibleIndex >= 0){
-        $("#"+layerId.replace(':','') + " input.terrama2-layerexplorer-checkbox").trigger("click");
+      if (layer.visible){
+        $("#"+ layer.htmlId + " input.terrama2-layerexplorer-checkbox").trigger("click");
       }
-      $("#terrama2-sortlayers").find('li#' + layerId.replace(':','').split('.').join('\\.')).remove();
+      $("#terrama2-sortlayers").find('li#' + layer.htmlId).remove();
       TerraMA2WebComponents.LayerExplorer.removeLayer(layerId, "terrama2-layerexplorer");
       if ($("#" + parent + " li").length == 0){
         LayerStatus.changeGroupStatusIcon(parent, "");
@@ -51,6 +50,7 @@ define(
 
     var loadEvents = function() {
       $('#projects').on('change', changeProjects);
+      
 			$('#mini-toggle').click(function(){
 				TerraMA2WebComponents.MapDisplay.updateMapSize();
 			});
@@ -85,32 +85,27 @@ define(
 			});
 
 			$('#terrama2-layerexplorer').on('click', 'input.terrama2-layerexplorer-checkbox', function(){
-				var completeLayerId = $(this).closest('li').data('layerid');
+
 				var layerid = $(this).closest('li').data('layerid');
-
-				if(layerid.includes(':')) {
-					layerid = layerid.replace(':','')
-				}
-
-				var index = visibleLayers.indexOf(layerid);
-
-				if(index > -1) {
-					$('#terrama2-sortlayers').find('li#' + layerid.split('.').join('\\.')).addClass('hide');
-					visibleLayers.splice(index, 1);
+        var layerObject = Layers.getLayerById(layerid);
+        var isVisible = layerObject.visible;
+				if(isVisible) {
+					$('#terrama2-sortlayers').find('li#' + layerObject.htmlId).addClass('hide');
+          Layers.changeLayerVisible(layerObject.id, false);
 				} else {
-					$('#terrama2-sortlayers').find('li#' + layerid.split('.').join('\\.')).removeClass('hide');
-					visibleLayers.push(layerid);
+					$('#terrama2-sortlayers').find('li#' + layerObject.htmlId).removeClass('hide');
+          Layers.changeLayerVisible(layerObject.id, true);
 				}
 
-        $("#terrama2-map").trigger("setGetFeatureInfoToolSelect", [visibleLayers]);
-        $("#terrama2-map").trigger("createAttributesTable", [visibleLayers]);
-        $("#legend-box").trigger("setLegends", [visibleLayers]);
+        $("#terrama2-map").trigger("setGetFeatureInfoToolSelect");
+        $("#terrama2-map").trigger("createAttributesTable");
+        $("#legend-box").trigger("setLegends");
 
 				var imageElement = $(this).closest('li').find("#image-icon");
 
 				if(imageElement.attr("src") == BASE_URL + "images/status/yellow-black.gif" || imageElement.attr("src") == BASE_URL + "images/status/red-black.gif") {
-					TerraMA2WebComponents.MapDisplay.updateLayerSourceParams(completeLayerId, { "": Date.now().toString() }, true);
-					LayerStatus.changeLayerStatusIcon(layerid.split('.').join('\\.'), "working");
+					TerraMA2WebComponents.MapDisplay.updateLayerSourceParams(layerObject.id, { "": Date.now().toString() }, true);
+					LayerStatus.changeLayerStatusIcon(layerObject.htmlId, "working");
 				}
 			});
 
@@ -139,7 +134,7 @@ define(
           var newLayer = Layers.getLayerById(layerObject.id) == null ? true : false;
 
 					if(!newLayer) {
-						LayerStatus.changeLayerStatusIcon(layerObject.id.split('.').join('\\.'), "new");
+						LayerStatus.changeLayerStatusIcon(layerObject.htmlId, "new");
 						LayerStatus.changeGroupStatusIcon(layerObject.parent, "new");
 						var workspace = layerObject.workspace;
 						var uriGeoServer = layerObject.uriGeoServer;
@@ -160,7 +155,7 @@ define(
           Layers.addLayer(layerObject);
           if (layerObject.projectId == currentProject){
             Layers.fillLayersData([layerObject]);
-            LayerStatus.changeLayerStatusIcon(layerObject.id, "new");
+            LayerStatus.changeLayerStatusIcon(layerObject.htmlId, "new");
             LayerStatus.changeGroupStatusIcon(layerObject.parent, "new");
           }
 				}
@@ -168,20 +163,21 @@ define(
 
 			Utils.getWebAppSocket().on("notifyView", function(data) {
 				var layerId = data.workspace + ":" + data.layer.name;
-				LayerStatus.changeLayerStatusIcon(layerId, "alert");
-				LayerStatus.changeGroupStatusIcon("alert", "alert");
+        var layerObject = Layers.getLayerById(layerId);
+        if (layerObject){
+          LayerStatus.changeLayerStatusIcon(layerObject.htmlId, "alert");
+          LayerStatus.changeGroupStatusIcon("alert", "alert");
+        }
 			});
 
 			Utils.getWebAppSocket().on("removeView", function(data) {
         var layerId = data.workspace + ":" + data.layer.name;
         var parent = data.parent;
-        var allLayers = Layers.getAllLayers();
-        var index = allLayers.map(function (l){return l.id}).indexOf(layerId);
-        if (index >= 0){
-          Layers.removeLayer(index);
+        var layerObject = Layers.getLayerById(layerId);
+        if (layerObject){
+          removeLayerOfExplorer(layerObject);
+          Layers.removeLayer(layerObject.id);
         }
-
-        removeLayer({id: layerId, parent: parent});
 			});
 
 			// Checking map server connection response
@@ -201,7 +197,7 @@ define(
 						if(!inputElement.hasClass("disabled-content"))
 							inputElement.addClass("disabled-content");
 
-						LayerStatus.changeLayerStatusIcon(data.requestId.split('.').join('\\.'), "erraccess");
+						LayerStatus.changeLayerStatusIcon(data.requestId.replace(':','').split('.').join('\\.'), "erraccess");
 						LayerStatus.changeGroupStatusIcon(parent, "erraccess");
 					} else {
 						listElement[0].removeAttribute("title");
@@ -211,7 +207,7 @@ define(
 						var imageElement = listElement.find("#image-icon");
 						var lastStatus = imageElement.attr("src");
 						if(lastStatus == BASE_URL + "images/status/gray_icon.svg") {
-							LayerStatus.changeLayerStatusIcon(data.requestId.split('.').join('\\.'), "working");
+							LayerStatus.changeLayerStatusIcon(data.requestId.replace(':','').split('.').join('\\.'), "working");
 							LayerStatus.changeGroupStatusIcon(parent, "working");
 						}
 					}
@@ -494,8 +490,6 @@ define(
 			//Adding open map street
 			if(TerraMA2WebComponents.MapDisplay.addOSMLayer("osm", "Open street", "Open street", false, "terrama2-layerexplorer", false)) {
 				TerraMA2WebComponents.LayerExplorer.addLayersFromMap("osm", "template", null, "treeview unsortable terrama2-truncate-text", null);
-				TerraMA2WebComponents.MapDisplay.setLayerProperty("osm", "layerType", "template");
-				TerraMA2WebComponents.MapDisplay.setLayerProperty("osm", "layerName", "Open street");
         var layerObject = Layers.createLayerObject({layers:["osm"], name: "Open street", type: "template"});
         Layers.addLayer(layerObject);
 				LayerStatus.addLayerStatusIcon("osm");
