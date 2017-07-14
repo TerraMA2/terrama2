@@ -4,7 +4,6 @@ define(
   ['components/Layers', 'TerraMA2WebComponents'],
   function(Layers, TerraMA2WebComponents) {
     var memberTable = null;
-    var memberLayersData = [];
     var memberDefaultTableOptions = {
       "bAutoWidth": false,
       "order": [[0, "asc"]],
@@ -33,31 +32,20 @@ define(
       }
     };
 
-    var getLayerData = function(layerId) {
-			for(var i = 0, memberLayersDataLength = memberLayersData.length; i < memberLayersDataLength; i++) {
-				if(layerId === memberLayersData[i].id) {
-					return memberLayersData[i];
-				}
-			}
-
-			return null;
-    };
-
-    var createAttributesTable = function(visibleLayers) {
+    var createAttributesTable = function() {
 			var showButton = false;
-      memberLayersData = Layers.getAllLayers();
+      var visibleLayers = Layers.getVisibleLayers();
 
 			$('#attributes-table-select > select').empty();
 
 			for(var i = 0, visibleLayersLength = visibleLayers.length; i < visibleLayersLength; i++) {
-				var layerId = $('#' + visibleLayers[i]).data('layerid');
-        var layerObject = Layers.getLayerById(layerId);
+        var layerObject = visibleLayers[i];
 
+				var layerId = layerObject.id;
 				var layerName = layerObject.name;
 				var layerType = layerObject.parent;
 
 				if(layerType !== "template" && layerType !== "custom" && (layerObject && layerObject.dataSeriesTypeName != "GRID")) {
-          var layerData = getLayerData(layerId);
 
           $('#attributes-table-select > select').append($('<option></option>').attr('value', layerId).text(layerName));
           if(!showButton) showButton = true;
@@ -73,7 +61,8 @@ define(
     var setAttributesTable = function() {
 			if($('#attributes-table-select > select').val() !== null) {
         var layerId = $('#attributes-table-select > select').val();
-				var layerData = getLayerData(layerId);
+        
+				var layerData = Layers.getLayerById(layerId);
 
         var minDate = $('#' + layerId.replace(':', '') + ' > #terrama2-calendar > input').attr('data-min-date');
         var maxDate = $('#' + layerId.replace(':', '') + ' > #terrama2-calendar > input').attr('data-max-date');
@@ -148,8 +137,8 @@ define(
 					hideAttributesTable(false);
 			});
 
-      $("#terrama2-map").on("createAttributesTable", function(event, visibleLayers){
-        createAttributesTable(visibleLayers);
+      $("#terrama2-map").on("createAttributesTable", function(event){
+        createAttributesTable();
       });
 
       $("#attributes-table-select").on("setAttributesTable", function(event){

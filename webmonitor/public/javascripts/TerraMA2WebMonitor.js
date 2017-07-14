@@ -38,11 +38,10 @@ define(
       var layerId = layer.id;
       var parent = layer.parent;
 
-      var elementVisibleIndex = visibleLayers.indexOf(layerId.replace(':',''));
-      if (elementVisibleIndex >= 0){
-        $("#"+layerId.replace(':','') + " input.terrama2-layerexplorer-checkbox").trigger("click");
+      if (layer.visible){
+        $("#"+ layer.htmlId + " input.terrama2-layerexplorer-checkbox").trigger("click");
       }
-      $("#terrama2-sortlayers").find('li#' + layerId.replace(':','').split('.').join('\\.')).remove();
+      $("#terrama2-sortlayers").find('li#' + layer.htmlId).remove();
       TerraMA2WebComponents.LayerExplorer.removeLayer(layerId, "terrama2-layerexplorer");
       if ($("#" + parent + " li").length == 0){
         LayerStatus.changeGroupStatusIcon(parent, "");
@@ -89,20 +88,18 @@ define(
 
 				var layerid = $(this).closest('li').data('layerid');
         var layerObject = Layers.getLayerById(layerid);
-
-				var index = visibleLayers.indexOf(layerObject.htmlId);
-
-				if(index > -1) {
+        var isVisible = layerObject.visible;
+				if(isVisible) {
 					$('#terrama2-sortlayers').find('li#' + layerObject.htmlId).addClass('hide');
-					visibleLayers.splice(index, 1);
+          Layers.changeLayerVisible(layerObject.id, false);
 				} else {
 					$('#terrama2-sortlayers').find('li#' + layerObject.htmlId).removeClass('hide');
-					visibleLayers.push(layerObject.htmlId);
+          Layers.changeLayerVisible(layerObject.id, true);
 				}
 
-        $("#terrama2-map").trigger("setGetFeatureInfoToolSelect", [visibleLayers]);
-        $("#terrama2-map").trigger("createAttributesTable", [visibleLayers]);
-        $("#legend-box").trigger("setLegends", [visibleLayers]);
+        $("#terrama2-map").trigger("setGetFeatureInfoToolSelect");
+        $("#terrama2-map").trigger("createAttributesTable");
+        $("#legend-box").trigger("setLegends");
 
 				var imageElement = $(this).closest('li').find("#image-icon");
 
@@ -176,13 +173,11 @@ define(
 			Utils.getWebAppSocket().on("removeView", function(data) {
         var layerId = data.workspace + ":" + data.layer.name;
         var parent = data.parent;
-        var allLayers = Layers.getAllLayers();
-        var index = allLayers.map(function (l){return l.id}).indexOf(layerId);
-        removeLayerOfExplorer({id: layerId, parent: parent});
-        if (index >= 0){
-          Layers.removeLayer(index);
+        var layerObject = Layers.getLayerById(layerId);
+        if (layerObject){
+          removeLayerOfExplorer(layerObject);
+          Layers.removeLayer(layerObject.id);
         }
-
 			});
 
 			// Checking map server connection response

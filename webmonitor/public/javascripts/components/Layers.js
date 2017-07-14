@@ -36,12 +36,31 @@ define(
       layerObject.projectId = layerData.projectId;
       layerObject.private = layerData.private;
       layerObject.dataSeriesTypeName = layerData.dataSeriesTypeName;
+      layerObject.visible = false;
 
       return layerObject;
     }
 
-    var removeLayer = function(layerIndex){
-      memberAllLayers.splice(layerIndex, 1);
+    var changeLayerVisible = function(layerId, newVisible){
+      var indexLayer = memberAllLayers.map(function(l){return l.id}).indexOf(layerId);
+      if (indexLayer != -1){
+        memberAllLayers[indexLayer].visible = newVisible;
+      }
+    };
+
+    var getVisibleLayers = function(){
+      var visibleLayers = [];
+      memberAllLayers.forEach(function(layers){
+        if (layers.visible)
+          visibleLayers.push(layers);
+      });
+      return visibleLayers;
+    }
+
+    var removeLayer = function(layerId){
+      var indexLayer = memberAllLayers.map(function(l){return l.id}).indexOf(layerId);
+      if (indexLayer != -1)
+        memberAllLayers.splice(indexLayer, 1);
     };
 
     var addLayersToSort = function() {
@@ -111,7 +130,9 @@ define(
       createLayerObject: createLayerObject,
       addLayer: addLayer,
       getAllLayers: getAllLayers,
-      getLayerById: getLayerById
+      getLayerById: getLayerById,
+      changeLayerVisible: changeLayerVisible,
+      getVisibleLayers: getVisibleLayers
     }
     
   }

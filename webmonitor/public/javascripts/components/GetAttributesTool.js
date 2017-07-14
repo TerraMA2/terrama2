@@ -23,12 +23,14 @@ define(
       featureInfo();
     };
 
-    var setGetFeatureInfoToolSelect = function(visibleLayers) {
+    var setGetFeatureInfoToolSelect = function() {
 			$('#getAttributes > select').empty();
 			var showButton = false;
 
+      var visibleLayers = Layers.getVisibleLayers();
+
 			for(var i = 0, visibleLayersLength = visibleLayers.length; i < visibleLayersLength; i++) {
-				var layerId = $('#' + visibleLayers[i]).data('layerid');
+				var layerId = visibleLayers[i].id
 
         var layerObject = Layers.getLayerById(layerId);
 				var layerName = layerObject.name;
@@ -62,8 +64,8 @@ define(
 				activateGetFeatureInfoTool();
 			});
 
-      $("#terrama2-map").on("setGetFeatureInfoToolSelect", function(event, visibleLayers){
-        setGetFeatureInfoToolSelect(visibleLayers);
+      $("#terrama2-map").on("setGetFeatureInfoToolSelect", function(event){
+        setGetFeatureInfoToolSelect();
       });
     }
 
