@@ -33,6 +33,10 @@ define(
     var init = function() {
       loadSocketsListeners();
       loadEvents();
+
+      $("#layer-toolbox").draggable({
+				containment: $('#terrama2-map')
+			});
     };
 
     return {

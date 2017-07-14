@@ -553,7 +553,7 @@
   float: left;
 }
 
-#legend-box {
+#legend-box, #layer-toolbox {
   position: absolute;
   width: 320px;
   height: 480px;
@@ -561,11 +561,14 @@
   z-index: 99999;
   border-radius: 5px;
   border: 1px solid;
-  right: 65px;
   top: 21px;
 }
 
-#legend-box > .legend-header {
+#legend-box { right: 65px; }
+
+#layer-toolbox { left: 21px; }
+
+#legend-box > .legend-header, #layer-toolbox > .layer-toolbox-header {
   padding: 10px;
   font-size: 15px;
   background-color: #d8d8d8;
@@ -575,7 +578,7 @@
   border-radius: 5px 5px 0px 0px;
 }
 
-#legend-box > .legend-body {
+#legend-box > .legend-body, #layer-toolbox > .layer-toolbox-body {
   padding: 10px;
   margin-top: 41px;
   overflow: auto;
