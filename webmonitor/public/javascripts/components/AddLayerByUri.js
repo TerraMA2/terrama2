@@ -24,8 +24,6 @@ define(
 						}
 						if (TerraMA2WebComponents.MapDisplay.addImageWMSLayer(memberCapabilities[i].name, memberCapabilities[i].title, memberCapabilities[i].title, geoUrl, "geoserver", false, false, "terrama2-layerexplorer", {version: "1.1.0"})) {
 							TerraMA2WebComponents.LayerExplorer.addLayersFromMap(memberCapabilities[i].name, "custom", true, "treeview unsortable terrama2-truncate-text", null);
-							TerraMA2WebComponents.MapDisplay.setLayerProperty(memberCapabilities[i].name, "layerType", "custom");
-							TerraMA2WebComponents.MapDisplay.setLayerProperty(memberCapabilities[i].name, "layerName", memberCapabilities[i].title);
 							allLayers.push({id: memberCapabilities[i].name, name: memberCapabilities[i].title, extent: memberCapabilities[i].extent, url: geoUrl});
 							Sortable.addLayerToSort(memberCapabilities[i].name, memberCapabilities[i].title);
 

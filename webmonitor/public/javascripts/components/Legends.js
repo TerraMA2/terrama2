@@ -4,14 +4,19 @@ define(
   ['components/Layers', 'TerraMA2WebComponents'],
   function(Layers, TerraMA2WebComponents) {
 
-    var setLegends = function(visibleLayers) {
+    var setLegends = function() {
       var allLayers = Layers.getAllLayers();
+      var visibleLayers = Layers.getVisibleLayers();
 			var html = "";
 
 			for(var i = 0, visibleLayersLength = visibleLayers.length; i < visibleLayersLength; i++) {
-				var layerId = $('#' + visibleLayers[i]).data('layerid');
-				var layerName = TerraMA2WebComponents.MapDisplay.getLayerProperty(layerId, "layerName");
-				var layerType = TerraMA2WebComponents.MapDisplay.getLayerProperty(layerId, "layerType");
+
+        var layerObject = visibleLayers[i];
+				var layerId = layerObject.id;
+
+        var layerObject = Layers.getLayerById(layerId);
+				var layerName = layerObject.name;
+				var layerType = layerObject.parent;
 
 				if(layerType !== "template" && layerType !== "custom") {
 					var layerData = null;
@@ -42,8 +47,8 @@ define(
 					$('#legend-box').addClass('hidden');
 			});
 
-      $("#legend-box").on("setLegends", function(event, visibleLayers){
-        setLegends(visibleLayers);
+      $("#legend-box").on("setLegends", function(event){
+        setLegends();
       });
     }
 
