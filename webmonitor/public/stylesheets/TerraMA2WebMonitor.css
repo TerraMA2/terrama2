@@ -559,7 +559,6 @@
   height: 480px;
   background-color: white;
   z-index: 99999;
-  overflow: auto;
   border-radius: 5px;
   border: 1px solid;
   right: 65px;
@@ -571,6 +570,16 @@
   font-size: 15px;
   background-color: #d8d8d8;
   color: #000000;
+  height: 41px;
+  overflow: hidden;
+  border-radius: 5px 5px 0px 0px;
 }
 
-#legend-box > .legend-body { padding: 10px; }
+#legend-box > .legend-body {
+  padding: 41px 10px 10px 10px;
+  overflow: auto;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+}

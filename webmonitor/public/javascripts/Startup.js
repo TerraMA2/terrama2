@@ -16,9 +16,10 @@ requirejs(
   'components/LayerStatus',
   'components/Utils',
   'components/AddLayerByUri',
+  'components/Exportation',
   'TerraMA2WebComponents'],
   function(TerraMA2WebMonitor, Calendar, Slider, AttributesTable, Legends, GetAttributesTool,
-            MapTools, LayerStatus, Utils, AddLayerByUri, TerraMA2WebComponents) {
+            MapTools, LayerStatus, Utils, AddLayerByUri, Exportation, TerraMA2WebComponents) {
     TerraMA2WebComponents.LayerExplorer.init();
     TerraMA2WebComponents.MapDisplay.init();
     
@@ -32,5 +33,6 @@ requirejs(
     GetAttributesTool.init();
     MapTools.init();
     AddLayerByUri.init();
+    Exportation.init();
   }
 );

@@ -50,6 +50,8 @@ define(
     var init = function(){
 			$("#legend-box").draggable({
 				containment: $('#terrama2-map')
+			}).resizable({
+				handles: "all"
 			});
 
       loadEvents();
