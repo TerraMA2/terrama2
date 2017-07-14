@@ -51,6 +51,7 @@ define(
 
     var loadEvents = function() {
       $('#projects').on('change', changeProjects);
+      
 			$('#mini-toggle').click(function(){
 				TerraMA2WebComponents.MapDisplay.updateMapSize();
 			});
