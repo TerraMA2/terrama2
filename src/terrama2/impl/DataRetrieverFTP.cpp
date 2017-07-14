@@ -93,7 +93,7 @@ terrama2::core::DataRetrieverFTP::DataRetrieverFTP(DataProviderPtr dataprovider,
   }
   catch(...)
   {
-    throw DataRetrieverException() << ErrorDescription(QObject::tr("Unknown Error, FTP address is invalid!"));
+    throw DataRetrieverException() << ErrorDescription(QObject::tr("Unknown Error!"));
   }
 
 }

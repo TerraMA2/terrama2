@@ -81,7 +81,7 @@ terrama2::core::DataRetrieverHTTP::DataRetrieverHTTP(DataProviderPtr dataprovide
   }
   catch(...)
   {
-    throw DataRetrieverException() << ErrorDescription(QObject::tr("Unknown Error, HTTP address is invalid!"));
+    throw DataRetrieverException() << ErrorDescription(QObject::tr("Unknown Error!"));
   }
 
 }
@@ -155,6 +155,7 @@ std::string terrama2::core::DataRetrieverHTTP::retrieveData(const std::string& m
     }
     catch(const te::Exception& e)
     {
+      // Creating a lambda to use in the catch block, the purpose of this is to avoid code repetition
       auto downloadException = [&mask](const te::Exception& e) {
         QString errMsg = QObject::tr("Error during download of file %1.\n").arg(QString::fromStdString(mask));
         auto errStr = boost::get_error_info<te::ErrorDescription>(e);
