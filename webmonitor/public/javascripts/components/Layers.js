@@ -78,6 +78,7 @@ define(
           var serverType = data[i].serverType;
           var parent = data[i].parent;
           var layerId = data[i].id;
+          var htmlId = data[i].htmlId;
 
           if (TerraMA2WebComponents.MapDisplay.addImageWMSLayer(layerId, layerName, layerName, uriGeoServer + '/ows', serverType, false, false, "terrama2-layerexplorer", {version: "1.1.0"})){
             TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, parent, null, "treeview unsortable terrama2-truncate-text", null);
@@ -95,8 +96,8 @@ define(
             }
           }
           LayerStatus.changeGroupStatusIcon(parent, "working");
-          LayerStatus.addLayerStatusIcon(layerId);
-          LayerStatus.changeLayerStatusIcon(layerId, "working");
+          LayerStatus.addLayerStatusIcon(htmlId);
+          LayerStatus.changeLayerStatusIcon(htmlId, "working");
           Sortable.addLayerToSort(layerId, layerName);
           Utils.getSocket().emit('checkConnection', {url: uriGeoServer, requestId: layerId});
 				}

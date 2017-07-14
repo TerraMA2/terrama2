@@ -28,13 +28,13 @@ define(
       var allLayers = Layers.getAllLayers();
       allLayers.forEach(function(layer){
         if (layer.projectId){
-          removeLayer(layer);
+          removeLayerOfExplorer(layer);
         }
       });
       Layers.fillLayersData();
     }
 
-    var removeLayer = function(layer){
+    var removeLayerOfExplorer = function(layer){
       var layerId = layer.id;
       var parent = layer.parent;
 
@@ -86,21 +86,18 @@ define(
 			});
 
 			$('#terrama2-layerexplorer').on('click', 'input.terrama2-layerexplorer-checkbox', function(){
-				var completeLayerId = $(this).closest('li').data('layerid');
+
 				var layerid = $(this).closest('li').data('layerid');
+        var layerObject = Layers.getLayerById(layerid);
 
-				if(layerid.includes(':')) {
-					layerid = layerid.replace(':','')
-				}
-
-				var index = visibleLayers.indexOf(layerid);
+				var index = visibleLayers.indexOf(layerObject.htmlId);
 
 				if(index > -1) {
-					$('#terrama2-sortlayers').find('li#' + layerid.split('.').join('\\.')).addClass('hide');
+					$('#terrama2-sortlayers').find('li#' + layerObject.htmlId).addClass('hide');
 					visibleLayers.splice(index, 1);
 				} else {
-					$('#terrama2-sortlayers').find('li#' + layerid.split('.').join('\\.')).removeClass('hide');
-					visibleLayers.push(layerid);
+					$('#terrama2-sortlayers').find('li#' + layerObject.htmlId).removeClass('hide');
+					visibleLayers.push(layerObject.htmlId);
 				}
 
         $("#terrama2-map").trigger("setGetFeatureInfoToolSelect", [visibleLayers]);
@@ -110,8 +107,8 @@ define(
 				var imageElement = $(this).closest('li').find("#image-icon");
 
 				if(imageElement.attr("src") == BASE_URL + "images/status/yellow-black.gif" || imageElement.attr("src") == BASE_URL + "images/status/red-black.gif") {
-					TerraMA2WebComponents.MapDisplay.updateLayerSourceParams(completeLayerId, { "": Date.now().toString() }, true);
-					LayerStatus.changeLayerStatusIcon(layerid.split('.').join('\\.'), "working");
+					TerraMA2WebComponents.MapDisplay.updateLayerSourceParams(layerObject.id, { "": Date.now().toString() }, true);
+					LayerStatus.changeLayerStatusIcon(layerObject.htmlId, "working");
 				}
 			});
 
@@ -140,7 +137,7 @@ define(
           var newLayer = Layers.getLayerById(layerObject.id) == null ? true : false;
 
 					if(!newLayer) {
-						LayerStatus.changeLayerStatusIcon(layerObject.id.split('.').join('\\.'), "new");
+						LayerStatus.changeLayerStatusIcon(layerObject.htmlId, "new");
 						LayerStatus.changeGroupStatusIcon(layerObject.parent, "new");
 						var workspace = layerObject.workspace;
 						var uriGeoServer = layerObject.uriGeoServer;
@@ -161,7 +158,7 @@ define(
           Layers.addLayer(layerObject);
           if (layerObject.projectId == currentProject){
             Layers.fillLayersData([layerObject]);
-            LayerStatus.changeLayerStatusIcon(layerObject.id, "new");
+            LayerStatus.changeLayerStatusIcon(layerObject.htmlId, "new");
             LayerStatus.changeGroupStatusIcon(layerObject.parent, "new");
           }
 				}
@@ -169,8 +166,11 @@ define(
 
 			Utils.getWebAppSocket().on("notifyView", function(data) {
 				var layerId = data.workspace + ":" + data.layer.name;
-				LayerStatus.changeLayerStatusIcon(layerId, "alert");
-				LayerStatus.changeGroupStatusIcon("alert", "alert");
+        var layerObject = Layers.getLayerById(layerId);
+        if (layerObject){
+          LayerStatus.changeLayerStatusIcon(layerObject.htmlId, "alert");
+          LayerStatus.changeGroupStatusIcon("alert", "alert");
+        }
 			});
 
 			Utils.getWebAppSocket().on("removeView", function(data) {
@@ -178,11 +178,11 @@ define(
         var parent = data.parent;
         var allLayers = Layers.getAllLayers();
         var index = allLayers.map(function (l){return l.id}).indexOf(layerId);
+        removeLayerOfExplorer({id: layerId, parent: parent});
         if (index >= 0){
           Layers.removeLayer(index);
         }
 
-        removeLayer({id: layerId, parent: parent});
 			});
 
 			// Checking map server connection response
@@ -202,7 +202,7 @@ define(
 						if(!inputElement.hasClass("disabled-content"))
 							inputElement.addClass("disabled-content");
 
-						LayerStatus.changeLayerStatusIcon(data.requestId.split('.').join('\\.'), "erraccess");
+						LayerStatus.changeLayerStatusIcon(data.requestId.replace(':','').split('.').join('\\.'), "erraccess");
 						LayerStatus.changeGroupStatusIcon(parent, "erraccess");
 					} else {
 						listElement[0].removeAttribute("title");
@@ -212,7 +212,7 @@ define(
 						var imageElement = listElement.find("#image-icon");
 						var lastStatus = imageElement.attr("src");
 						if(lastStatus == BASE_URL + "images/status/gray_icon.svg") {
-							LayerStatus.changeLayerStatusIcon(data.requestId.split('.').join('\\.'), "working");
+							LayerStatus.changeLayerStatusIcon(data.requestId.replace(':','').split('.').join('\\.'), "working");
 							LayerStatus.changeGroupStatusIcon(parent, "working");
 						}
 					}

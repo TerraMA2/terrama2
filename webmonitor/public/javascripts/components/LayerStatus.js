@@ -20,16 +20,14 @@ define(
       statusElement.attr('src', statusImage);
     };
 
-    var addLayerStatusIcon = function(layerId) {
-      var _layerId = layerId.replace(":","");
-      var layerElement = $('#terrama2-layerexplorer').find("#"+_layerId);
+    var addLayerStatusIcon = function(htmlLayerId) {
+      var layerElement = $('#terrama2-layerexplorer').find("#"+htmlLayerId);
       var span = "<span class='span-layer-icon'> <img id='image-icon' src=''> </span>";
       layerElement.prepend(span);
     };
 
-    var changeLayerStatusIcon = function(layerId, status) {
-      var _layerId = layerId.replace(":","");
-      var layerElement = $("#"+_layerId).find("#image-icon");
+    var changeLayerStatusIcon = function(htmlLayerId, status) {
+      var layerElement = $("#"+htmlLayerId).find("#image-icon");
       layerElement.addClass("status-icon");
       var statusImage = getStatusIconUrl(status);
       layerElement.attr('src', statusImage);
