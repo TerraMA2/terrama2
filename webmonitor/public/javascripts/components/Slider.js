@@ -115,7 +115,6 @@ define(
           sliderContent.show();
         else
           sliderContent.hide();
-
       });
 
 
@@ -126,13 +125,11 @@ define(
        */
 
       $("#terrama2-sortlayers").on("click", "#terrama2-opacity-slider", function(event) {
-        
         var self = $(this);
         var parentLi = $(self).parent();
         var parentId = $(parentLi).attr("data-layerid");
         var actualOpacity = TerraMA2WebComponents.MapDisplay.getLayerOpacity(parentId) * 100;
         setOpacitySlider(parentId, actualOpacity);
-
       });
 
 

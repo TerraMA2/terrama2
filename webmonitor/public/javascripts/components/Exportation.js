@@ -1,6 +1,8 @@
 'use strict';
 
-define(['components/Utils'],
+define(
+  ['components/Utils'],
+
   function(Utils) {
     var loadSocketsListeners = function() {
       Utils.getWebAppSocket().on('generateFileResponse', function(result) {
@@ -37,4 +39,4 @@ define(['components/Utils'],
       init: init
     };
   }
-)
+);

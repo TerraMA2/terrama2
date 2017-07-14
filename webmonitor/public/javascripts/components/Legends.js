@@ -33,8 +33,7 @@ define(
 			$('#legend-box > .legend-body').html((html !== "" ? html : "<strong>No data to show.</strong>"));
     };
 
-    var loadEvents = function(){
-
+    var loadEvents = function() {
 			$('#legendsButton > button').on('click', function() {
 				if($('#legend-box').hasClass('hidden'))
 					$('#legend-box').removeClass('hidden');
@@ -45,21 +44,22 @@ define(
       $("#legend-box").on("setLegends", function(event, visibleLayers){
         setLegends(visibleLayers);
       });
-    }
+    };
 
-    var init = function(){
+    var init = function() {
 			$("#legend-box").draggable({
 				containment: $('#terrama2-map')
 			}).resizable({
-				handles: "all"
+				handles: 'all',
+				minHeight: 100,
+				minWidth: 100
 			});
 
       loadEvents();
-    }
+    };
 
     return {
       init: init
-    }
-
+    };
   }
 );

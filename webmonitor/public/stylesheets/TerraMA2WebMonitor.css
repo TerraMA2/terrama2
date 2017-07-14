@@ -407,28 +407,28 @@
  * It handles Mozila FireFox CSS specific styles
  */
 @-moz-document url-prefix() {
-    /*
-      It fixes the position of dropdown icon on layer explorer. Without it, the icon will overflow to the next li item
-    */
-    .ui-sortable .group-name span i {
-      margin-top: -16px !important;
-    }
+  /*
+    It fixes the position of dropdown icon on layer explorer. Without it, the icon will overflow to the next li item
+  */
+  .ui-sortable .group-name span i {
+    margin-top: -16px !important;
+  }
 
-    .sidebar-collapse .ui-sortable .group-name span i {
-      margin-top: 0px !important;
-    }
+  .sidebar-collapse .ui-sortable .group-name span i {
+    margin-top: 0px !important;
+  }
 
-    .terrama2-layerexplorer-checkbox-span {
-      text-indent: 8px !important;
-    }
+  .terrama2-layerexplorer-checkbox-span {
+    text-indent: 8px !important;
+  }
 
-    .slider-content button[class~="close-slider"]{
-      margin-top: -25px !important;
-    }
+  .slider-content button[class~="close-slider"]{
+    margin-top: -25px !important;
+  }
 
-    #terrama2-opacity-slider{
-      margin-top: -20px !important;
-    }
+  #terrama2-opacity-slider{
+    margin-top: -20px !important;
+  }
 }
 
 .map-tool-button {
@@ -576,10 +576,11 @@
 }
 
 #legend-box > .legend-body {
-  padding: 41px 10px 10px 10px;
+  padding: 10px;
+  margin-top: 41px;
   overflow: auto;
   position: absolute;
   width: 100%;
-  height: 100%;
+  height: calc(100% - 41px);
   top: 0;
 }
