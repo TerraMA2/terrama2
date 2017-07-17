@@ -1,8 +1,8 @@
 'use strict';
 
 define(
-  ['components/LayerStatus', 'components/Sortable', 'components/Utils', 'TerraMA2WebComponents'],
-  function(LayerStatus, Sortable, Utils, TerraMA2WebComponents) {
+  ['components/LayerStatus', 'components/Sortable', 'components/Utils', 'enums/LayerStatusEnum', 'TerraMA2WebComponents'],
+  function(LayerStatus, Sortable, Utils, LayerStatusEnum, TerraMA2WebComponents) {
 
     var memberAllLayers = [];
 
@@ -22,7 +22,7 @@ define(
         return null;
     }
 
-    var createLayerObject = function (layerData){
+    var createLayerObject = function(layerData){
       var layerObject = {};
       layerObject.name = layerData.name;
       layerObject.nameId = layerData.layers[0];
@@ -37,9 +37,26 @@ define(
       layerObject.private = layerData.private;
       layerObject.dataSeriesTypeName = layerData.dataSeriesTypeName;
       layerObject.visible = false;
+      layerObject.status = LayerStatusEnum.ONLINE;
 
       return layerObject;
-    }
+    };
+
+    var changeLayerStatus = function(layerId, newStatus){
+      var indexLayer = memberAllLayers.map(function(l){return l.id}).indexOf(layerId);
+      if (indexLayer != -1){
+        memberAllLayers[indexLayer].status = newStatus;
+        LayerStatus.changeLayerStatusIcon(memberAllLayers[indexLayer].htmlId, newStatus);
+      }
+    };
+
+    var changeParentLayerStatus = function(layerId, newStatus){
+      var indexLayer = memberAllLayers.map(function(l){return l.id}).indexOf(layerId);
+      if (indexLayer != -1){
+        memberAllLayers[indexLayer].status = newStatus;
+        LayerStatus.changeGroupStatusIcon(memberAllLayers[indexLayer].id, newStatus);
+      }
+    };
 
     var changeLayerVisible = function(layerId, newVisible){
       var indexLayer = memberAllLayers.map(function(l){return l.id}).indexOf(layerId);
@@ -72,10 +89,9 @@ define(
           var layerId = allLayers[i].id;
           var htmlId = allLayers[i].htmlId;
 
-          var sliderDiv = "<div class='slider-content' style='display:none;'><label></label><button type='button' class='close close-slider'>×</button><div id='opacity" + htmlId + "'></div></div>";
-          var spanIcon = "<span id='terrama2-opacity-slider' class='terrama2-datepicker-icon' data-toggle='tooltip' title='Change opacity'> <i class='fa fa-sliders'></i></span>"; 
+          var spanIcon = "<span class='terrama2-layer-tools terrama2-datepicker-icon' data-toggle='tooltip' title='Layer Tools'> <i class='fa fa-gears'></i></span>"; 
           
-          itens += '<li id="' + htmlId + '" data-layerid="' + layerId + '" data-parentid="terrama2-layerexplorer" class="hide">' + allLayers[i].name + sliderDiv + spanIcon + '</li>';
+          itens += '<li id="' + htmlId + '" data-layerid="' + layerId + '" data-parentid="terrama2-layerexplorer" class="hide">' + allLayers[i].name + spanIcon + '</li>';
         }
       }
       var list = '<ul>' + itens + '</ul>';
@@ -114,9 +130,9 @@ define(
               Utils.getSocket().emit('proxyRequestCapabilities', getCapabilitiesUrl);
             }
           }
-          LayerStatus.changeGroupStatusIcon(parent, "working");
+          LayerStatus.changeGroupStatusIcon(parent, LayerStatusEnum.ONLINE);
           LayerStatus.addLayerStatusIcon(htmlId);
-          LayerStatus.changeLayerStatusIcon(htmlId, "working");
+          LayerStatus.changeLayerStatusIcon(htmlId, LayerStatusEnum.ONLINE);
           Sortable.addLayerToSort(layerId, layerName);
           Utils.getSocket().emit('checkConnection', {url: uriGeoServer, requestId: layerId});
 				}
@@ -132,7 +148,9 @@ define(
       getAllLayers: getAllLayers,
       getLayerById: getLayerById,
       changeLayerVisible: changeLayerVisible,
-      getVisibleLayers: getVisibleLayers
+      getVisibleLayers: getVisibleLayers,
+      changeLayerStatus: changeLayerStatus,
+      changeParentLayerStatus: changeParentLayerStatus
     }
     
   }

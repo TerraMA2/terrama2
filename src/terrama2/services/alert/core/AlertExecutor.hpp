@@ -122,7 +122,6 @@ namespace terrama2
 
             std::shared_ptr<te::mem::DataSet> populateMonitoredObjectAlertDataset(std::vector<std::shared_ptr<te::dt::DateTime> > vecDates,
                                                                                   std::map<std::shared_ptr<te::dt::AbstractData>, std::map<std::string, std::pair<std::shared_ptr<te::dt::AbstractData>, uint32_t> >, comparatorAbstractData> riskResultMap,
-                                                                                  const std::string comparisonPreviosProperty,
                                                                                   AlertPtr alertPtr,
                                                                                   te::dt::Property* fkProperty,
                                                                                   std::shared_ptr<te::da::DataSetType> alertDataSetType);

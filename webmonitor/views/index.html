@@ -146,8 +146,25 @@
 
           <div id="terrama2-map" class="terrama2-map cursor-move">
               <div id="legend-box">
-                  <div class="legend-header">Legends</div>
-                  <div class="legend-body"><strong>No data to show.</strong></div>
+                <div class="legend-header">Legends</div>
+                <div class="legend-body"><strong>No data to show.</strong></div>
+              </div>
+              <div id="layer-toolbox" class="hidden">
+                <div class="layer-toolbox-header"><span class="layer-name"></span> - Layer Tools<span class="btn btn-default" style="padding: 0 4px 0 4px; float: right;"><i class="fa fa-close"></i></span></div>
+                <div class="layer-toolbox-body">
+                  <div id="slider-box"></div>
+                  <hr class="hidden"/>
+                  <div id="exportation-box" class="hidden">
+                    <select multiple id="exportation-type" class="form-control">
+                      <option value="all">All Formats</option>
+                      <option selected value="csv">CSV</option>
+                      <option value="geojson">GeoJSON</option>
+                      <option value="kml">KML</option>
+                      <option value="shapefile">Shapefile</option>
+                    </select>
+                    <button id="export" type="button" class="btn btn-default" style="margin-top: 10px;">Export Data</button>
+                  </div>
+                </div>
               </div>
               <div id="map-tools">
                   <div id="moveMap" class="map-tool-button mouse-function-btn active"><button type="button"><i class="fa fa-hand-rock-o"></i></button></div>
@@ -227,5 +244,6 @@
     </script>
     <script type="text/javascript" src="{[ BASE_URL ]}dist/TerraMA2WebMonitor.min.js"></script>
     <!--<script type="text/javascript" data-main="{[ BASE_URL ]}javascripts/Startup.js" src="{[ BASE_URL ]}require.js"></script>-->
+    <iframe id="exportation-iframe" class="hidden"></iframe>
   </body>
 </html>
