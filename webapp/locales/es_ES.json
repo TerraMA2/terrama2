@@ -959,5 +959,6 @@
   "Legend Registration": "",
   "Legend Name": "",
   "Error creating Alert. \nCould not save legend due SequelizeUniqueConstraintError: Validation error": "Error creating Alert. Could not save legend due: name must be unique.",
-  "Error updating Alert. \nCould not save legend due SequelizeUniqueConstraintError: Validation error": "Error updating Alert. Could not save legend due: name must be unique."
+  "Error updating Alert. \nCould not save legend due SequelizeUniqueConstraintError: Validation error": "Error updating Alert. Could not save legend due: name must be unique.",
+  "Invalid address": ""
 }
