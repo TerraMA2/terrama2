@@ -72,7 +72,7 @@ void terrama2::core::Service::start(size_t threadNumber)
 
     //Starts collection threads
     for(uint i = 0; i < threadNumber; ++i)
-      processingThreadPool_.push_back(std::async(std::launch::async, &Service::processingTaskThread, this));
+      processingThreadPool_.push_back(std::async(std::launch::async, &Service::processingTaskThread, this, logger_));
   }
   catch(const std::exception& e)
   {
@@ -195,7 +195,7 @@ void terrama2::core::Service::mainLoopThread() noexcept
   }
 }
 
-void terrama2::core::Service::processingTaskThread() noexcept
+void terrama2::core::Service::processingTaskThread(const std::shared_ptr< const ProcessLogger > logger) noexcept
 {
   try
   {
@@ -210,6 +210,12 @@ void terrama2::core::Service::processingTaskThread() noexcept
 
         if(stop_)
           break;
+
+        if(!logger->isValid())
+        {
+          TERRAMA2_LOG_DEBUG() << tr("Error in logger state.\nProcess not executed.");
+          continue;
+        }
 
         if(!taskQueue_.empty())
         {
@@ -247,7 +253,7 @@ void terrama2::core::Service::updateNumberOfThreads(size_t numberOfThreads) noex
 
   std::unique_lock<std::mutex> lock(mutex_);
   TERRAMA2_LOG_DEBUG() << tr("Old number of threads: %1").arg(processingThreadPool_.size());
-  
+
   //same number of threads, nothing to do
   if(numberOfThreads == processingThreadPool_.size())
     return;
@@ -263,7 +269,7 @@ void terrama2::core::Service::updateNumberOfThreads(size_t numberOfThreads) noex
 
   //create threads until there are numberOfThreads threads
   while(numberOfThreads > processingThreadPool_.size())
-    processingThreadPool_.push_back(std::async(std::launch::async, &Service::processingTaskThread, this));
+    processingThreadPool_.push_back(std::async(std::launch::async, &Service::processingTaskThread, this, logger_));
 
   TERRAMA2_LOG_DEBUG() << tr("Actual number of threads: %1").arg(processingThreadPool_.size());
 }

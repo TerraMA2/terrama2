@@ -50,6 +50,17 @@ void terrama2::core::ServiceManager::setInstanceId(ServiceInstanceId instanceId)
   instanceId_ = instanceId;
   serviceLoaded_ = true;
 }
+
+void terrama2::core::ServiceManager::setLogger(std::shared_ptr<terrama2::core::ProcessLogger> logger)
+{
+  if(!logger)
+  {
+    throw std::invalid_argument(tr("Error registering logger.").toStdString());
+  }
+
+  logger_ = logger;
+}
+
 ServiceInstanceId terrama2::core::ServiceManager::instanceId() const
 {
   return instanceId_;
@@ -100,6 +111,7 @@ QJsonObject terrama2::core::ServiceManager::status() const
     obj.insert("start_time", QString::fromStdString(startTime_->toString()));
     obj.insert("terrama2_version",  QString::fromStdString(TERRAMA2_VERSION_STRING));
     obj.insert("shutting_down",  isShuttingDown_);
+    obj.insert("logger_online",  logger_->isValid());
   }
 
   return obj;
@@ -131,7 +143,7 @@ void terrama2::core::ServiceManager::updateService(const QJsonObject& obj)
 void terrama2::core::ServiceManager::setLogConnectionInfo(const te::core::URI& logDbUri)
 {
   logDbUri_ = logDbUri;
-  emit logConnectionInfoUpdated(logDbUri);
+  logger_->setConnectionInfo(logDbUri);
 }
 
 te::core::URI terrama2::core::ServiceManager::logConnectionInfo() const

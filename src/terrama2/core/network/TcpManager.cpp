@@ -145,7 +145,6 @@ void terrama2::core::TcpManager::addData(const QByteArray& bytearray)
   }
 }
 
-
 void terrama2::core::TcpManager::validateData(const QByteArray& bytearray)
 {
   TERRAMA2_LOG_DEBUG() << "JSon size: " << bytearray.size();
@@ -382,6 +381,10 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
 
     if(tcpSocket && !tcpSocket->atEnd())
       readReadySlot(tcpSocket);
+  }
+  catch(const LogException&)
+  {
+    TERRAMA2_LOG_ERROR() << QObject::tr("Erro in logger, check your log database connection information.");
   }
   catch(...)
   {
