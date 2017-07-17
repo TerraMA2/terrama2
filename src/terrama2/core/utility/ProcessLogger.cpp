@@ -112,6 +112,7 @@ void terrama2::core::ProcessLogger::setConnectionInfo(const te::core::URI& uri)
   }
 }
 
+bool terrama2::core::ProcessLogger::isValid() const { return isValid_; }
 
 void terrama2::core::ProcessLogger::setDataSource(te::da::DataSource* dataSource)
 {

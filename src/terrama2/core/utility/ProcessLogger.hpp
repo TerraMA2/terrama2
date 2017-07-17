@@ -109,7 +109,7 @@ namespace terrama2
          */
         virtual ~ProcessLogger();
 
-        bool isValid() const { return isValid_; }
+        virtual bool isValid() const;
 
 
         /*!

@@ -74,6 +74,8 @@ namespace terrama2
                          ProcessId(const RegisterId registerId));
       MOCK_CONST_METHOD0(clone,
                          std::shared_ptr<terrama2::core::ProcessLogger>());
+
+      MOCK_CONST_METHOD0(isValid, bool());
     };
 
   }  // namespace core

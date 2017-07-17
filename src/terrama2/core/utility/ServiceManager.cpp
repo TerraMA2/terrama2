@@ -143,6 +143,9 @@ void terrama2::core::ServiceManager::updateService(const QJsonObject& obj)
 void terrama2::core::ServiceManager::setLogConnectionInfo(const te::core::URI& logDbUri)
 {
   logDbUri_ = logDbUri;
+  if(!logger_)
+    throw std::runtime_error(tr("Error: no logger registered.").toStdString());
+
   logger_->setConnectionInfo(logDbUri);
 }
 
