@@ -43,6 +43,11 @@
 #include "../../../core/utility/TimeUtils.hpp"
 #include "../../../core/utility/Utils.hpp"
 
+// TerraLib Datasource
+#include <terralib/dataaccess/datasource/DataSource.h>
+#include <terralib/dataaccess/datasource/DataSourceFactory.h>
+#include <terralib/dataaccess/datasource/DataSourceTransactor.h>
+
 // TerraLib
 #include <terralib/se/Categorize.h>
 #include <terralib/se/RasterSymbolizer.h>
@@ -204,4 +209,22 @@ std::string terrama2::services::view::core::toString(const double value, const i
   ss << std::fixed << std::setprecision(precision) << value;
 
   return ss.str();
+}
+
+void terrama2::services::view::core::removeTable(const std::string& name, const te::core::URI& uri)
+{
+  std::shared_ptr<te::da::DataSource> dataSource = te::da::DataSourceFactory::make("POSTGIS", uri);
+
+  try
+  {
+    dataSource->open();
+    dataSource->dropDataSet(name);
+  }
+  catch(...)
+  {
+    // Nothing.
+  }
+
+  if (dataSource->isOpened())
+    dataSource->close();
 }

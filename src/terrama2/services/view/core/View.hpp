@@ -153,6 +153,35 @@ namespace terrama2
                 std::vector< Rule > rules;
             };
 
+          View() = default;
+          View(View&& v)
+            : viewName(v.viewName),
+              dataSeriesID(v.dataSeriesID),
+              legend(std::move(v.legend)),
+              imageName(v.imageName),
+              imageType(v.imageType),
+              imageResolutionWidth(v.imageResolutionWidth),
+              imageResolutionHeight(v.imageResolutionHeight),
+              srid(v.srid)
+          {
+          }
+
+          View& operator=(View&& v)
+          {
+            if (this != &v)
+            {
+              viewName = v.viewName;
+              dataSeriesID = v.dataSeriesID;
+              legend = std::move(v.legend);
+              imageName = v.imageName;
+              imageType = v.imageType;
+              imageResolutionWidth = v.imageResolutionWidth;
+              imageResolutionHeight = v.imageResolutionHeight;
+              srid = v.srid;
+            }
+            return *this;
+          }
+
           std::string viewName = "";
 
           DataSeriesId dataSeriesID; //!< DataSeries ID that compose this view

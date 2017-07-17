@@ -74,6 +74,7 @@ namespace terrama2
              * \note It may throw exception
              *
              * \param p Current View Id to remove
+             * \param recursive Flag for deep removing.
              */
             virtual void cleanup(const ViewId& v = 0) = 0;
 

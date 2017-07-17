@@ -38,6 +38,7 @@
 
 // TerraLib
 #include <terralib/se/Symbolizer.h>
+#include <terralib/core/uri.h>
 
 // STD
 #include <memory>
@@ -75,6 +76,8 @@ namespace terrama2
          * \return String value
          */
         std::string toString(const double value, const int& precision = 8);
+
+        void removeTable(const std::string& name, const te::core::URI& uri);
 
       } // end namespace core
     }   // end namespace view
