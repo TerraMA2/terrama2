@@ -235,6 +235,9 @@ define(
 				try {
 					var layerCapabilities = Capabilities.getMapCapabilitiesLayers(data.msg);
 					var layerIndex = layerCapabilities.map(function (c){return c.name}).indexOf(data.layerName);
+          
+          if (data.parent == "analysis")
+            return;
 
 					if(layerIndex < 0)
 						return;
