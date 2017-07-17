@@ -1060,7 +1060,7 @@ define([], function() {
           }
 
           // cheking influence form: DCP and influence form valid
-          if (self.analysis.type_id == 1) {
+          if (self.analysis.type_id == 1 || self.hasDcp()) {
             var form = $scope.forms.influenceForm;
             if (form.$invalid) {
               throw new Error(errMessageEmptyFields);
