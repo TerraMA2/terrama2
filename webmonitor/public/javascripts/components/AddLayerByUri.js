@@ -15,7 +15,7 @@ define(
 
 			memberSelectedLayers.forEach(addInLayerExplorer);
 
-			function addInLayerExplorer(element, index, array){
+			function addInLayerExplorer(element, index, array) {
         var allLayers = Layers.getAllLayers();
 				for (var i in memberCapabilities){
 					if (memberCapabilities[i].name == element){
@@ -58,6 +58,7 @@ define(
 				var groupSpanName = $('#custom').find(' span.group-name');
 				groupSpanName.click();
 			}
+
 			$("#layersModal").modal('hide');
     };
 
@@ -84,7 +85,7 @@ define(
 			Utils.getSocket().emit('proxyRequest', jsonData);
     };
 
-    var loadEvents = function(){
+    var loadEvents = function() {
 			$("#wmsUri").on('keyup', function (e) {
 				if (e.keyCode == 13) {
 					e.preventDefault();
@@ -112,13 +113,13 @@ define(
 			});
     };
 
-    var init = function(){
+    var init = function() {
       loadEvents();
-    }
+    };
 
     return {
       init: init,
       fillModal: fillModal
-    }
+    };
   }
 );
