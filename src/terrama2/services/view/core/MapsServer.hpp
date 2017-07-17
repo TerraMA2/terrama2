@@ -76,7 +76,10 @@ namespace terrama2
              * \param p Current View Id to remove
              * \param recursive Flag for deep removing.
              */
-            virtual void cleanup(const ViewId& v = 0) = 0;
+            virtual void cleanup(const ViewId& id = 0,
+                                 const std::string& viewName = "",
+                                 terrama2::core::DataProviderPtr dataProvider = nullptr,
+                                 std::shared_ptr<terrama2::core::ProcessLogger> logger = nullptr) = 0;
 
           protected:
 

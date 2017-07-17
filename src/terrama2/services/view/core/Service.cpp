@@ -138,12 +138,12 @@ void terrama2::services::view::core::Service::connectDataManager()
           &terrama2::services::view::core::Service::updateView);
 }
 
-void terrama2::services::view::core::Service::removeView(ViewId id, std::string viewName) noexcept
+void terrama2::services::view::core::Service::removeView(ViewId id, const std::string viewName, DataSeriesId dataSeriesId) noexcept
 {
-  removeCompleteView(id, viewName);
+  removeCompleteView(id, viewName, dataSeriesId);
 }
 
-void terrama2::services::view::core::Service::removeCompleteView(const ViewId id, const std::string& viewName, bool removeAll) noexcept
+void terrama2::services::view::core::Service::removeCompleteView(ViewId id, const std::string viewName, DataSeriesId dataSeriesId, bool removeAll) noexcept
 {
   try
   {
@@ -166,12 +166,25 @@ void terrama2::services::view::core::Service::removeCompleteView(const ViewId id
 
     if (removeAll)
     {
+      terrama2::core::DataSeriesPtr inputDataSeries;
+      terrama2::core::DataProviderPtr inputDataProvider;
+
+      // Locking datamanager
+      {
+        auto dataManager = dataManager_.lock();
+        auto lock = dataManager->getLock();
+        inputDataSeries = dataManager->findDataSeries(dataSeriesId);
+        inputDataProvider = dataManager->findDataProvider(inputDataSeries->dataProviderId);
+
+        lock.unlock();
+      }
+
       // Retrieving Maps server handler
       MapsServerPtr mapsServer = MapsServerFactory::getInstance().make(mapsServerUri_, "GEOSERVER");
       try
       {
         // removing from geoserver
-        mapsServer->cleanup(id);
+        mapsServer->cleanup(id, viewName, inputDataProvider, logger_);
       }
       catch(const terrama2::services::view::core::NotFoundGeoserverException& e)
       {
@@ -183,13 +196,6 @@ void terrama2::services::view::core::Service::removeCompleteView(const ViewId id
         // TODO: Improve validation in order to notify WebApp
         TERRAMA2_LOG_WARNING() << tr("Could not remove GeoServer workspace. Please remove it manually");
       }
-
-      // TODO: move it to specific method
-      const std::string& tableName = viewName + std::to_string(id);
-      // Removing view table
-      removeTable(tableName, logger_->getConnectionInfo());
-      // Remove files
-
     }
 
     waitQueue_.erase(id);
@@ -215,7 +221,7 @@ void terrama2::services::view::core::Service::removeCompleteView(const ViewId id
 
 void terrama2::services::view::core::Service::updateView(ViewPtr view) noexcept
 {
-  removeCompleteView(view->id, view->viewName, false);
+  removeCompleteView(view->id, view->viewName, view->dataSeriesID, false);
   addProcessToSchedule(view);
 }
 

@@ -1242,12 +1242,43 @@ std::unique_ptr<te::se::Style> terrama2::services::view::core::GeoServer::genera
   return style;
 }
 
-void terrama2::services::view::core::GeoServer::cleanup(const ViewId& id)
+void terrama2::services::view::core::GeoServer::cleanup(const ViewId& id,
+                                                        const std::string& viewName,
+                                                        terrama2::core::DataProviderPtr dataProvider,
+                                                        std::shared_ptr<terrama2::core::ProcessLogger> logger)
 {
+  std::string workspace_to_remove = workspace_;
+  if (id != 0 && logger != nullptr)
+  {
+    workspace_to_remove = generateWorkspaceName(id);
+
+    // Try to remove cached view table
+    const std::string& tableName = viewName + std::to_string(id);
+    // Removing view table
+    try
+    {
+      TERRAMA2_LOG_DEBUG() << "Removing " + tableName;
+      removeTable(tableName, logger->getConnectionInfo());
+    }
+    catch(...)
+    {
+      TERRAMA2_LOG_DEBUG() << "Could not remove view table " + tableName;
+    }
+
+    if (dataProvider != nullptr)
+    {
+      QUrl uri(dataProvider->uri.c_str());
+      const std::string& layerName = generateLayerName(viewName, id);
+
+      removeFile(uri.toString().toStdString() + "/" + layerName + ".properties");
+      removeFile(uri.toString().toStdString() + "/datastore.properties");
+    }
+  }
+
   te::ws::core::CurlWrapper curl;
 
   // Generating Rest Workspace URI to force removal of all layers, data stores and so on.
-  std::string url = "/rest/workspaces/" + (id == 0 ? workspace_ : generateWorkspaceName(id))+ "?recurse=true";
+  std::string url = "/rest/workspaces/" + workspace_to_remove+ "?recurse=true";
 
   te::core::URI uriDelete(uri_.uri() + url);
 
@@ -1533,7 +1564,7 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
 
   for(auto& dataset : inputDataSeries->datasetList)
   {
-    std::string layerName = terrama2::core::simplifyString(viewPtr->viewName + "_" + std::to_string(viewPtr->id));
+    std::string layerName = generateLayerName(viewPtr->viewName, viewPtr->id);
     std::transform(layerName.begin(), layerName.end(),layerName.begin(), ::tolower);
 
     QUrl url(baseUrl.toString() + QString::fromStdString("/" + terrama2::core::getFolderMask(dataset)));
@@ -1709,15 +1740,7 @@ std::string terrama2::services::view::core::GeoServer::createPostgisDatastorePro
 
     QFile outputFile(propertiesFilename.c_str());
 
-    if(outputFile.exists())
-    {
-      if(!outputFile.remove())
-      {
-        QString errMsg = QObject::tr("Could not remove file: %1").arg(propertiesFilename.c_str());
-        TERRAMA2_LOG_ERROR() << errMsg;
-        throw Exception() << ErrorDescription(errMsg);
-      }
-    }
+    removeFile(propertiesFilename);
 
     outputFile.open(QIODevice::WriteOnly);
 
@@ -2072,4 +2095,9 @@ void terrama2::services::view::core::GeoServer::createMosaicTable(std::shared_pt
 std::string terrama2::services::view::core::GeoServer::generateWorkspaceName(const ViewId& id)
 {
   return "terrama2_" + std::to_string(id);
+}
+
+std::string terrama2::services::view::core::GeoServer::generateLayerName(const std::string& viewName, const ViewId& id) const
+{
+  return terrama2::core::simplifyString(viewName + "_" + std::to_string(id));
 }

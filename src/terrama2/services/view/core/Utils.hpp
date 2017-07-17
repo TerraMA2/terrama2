@@ -77,7 +77,23 @@ namespace terrama2
          */
         std::string toString(const double value, const int& precision = 8);
 
+        /*!
+         * \brief Removes table from provided URI.
+         * \param name Table name
+         * \param uri Connection URI
+         */
         void removeTable(const std::string& name, const te::core::URI& uri);
+
+        /*!
+         * \brief Tries to remove file from disk
+         *
+         * \note It does not throw exception if files does not exist.
+         *
+         * \throws Exception when could not remove file.
+         *
+         * \param filepath Path to file
+         */
+        void removeFile(const std::string& filepath);
 
       } // end namespace core
     }   // end namespace view

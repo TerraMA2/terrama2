@@ -109,11 +109,12 @@ void terrama2::services::view::core::DataManager::removeView(ViewId viewId)
     throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
 
+  const DataSeriesId dataSeriesId = itPr->second->dataSeriesID;
   const std::string viewName = itPr->second->viewName;
 
   view_.erase(itPr);
 
-  emit viewRemoved(viewId, viewName);
+  emit viewRemoved(viewId, viewName, dataSeriesId);
 }
 
 void terrama2::services::view::core::DataManager::addJSon(const QJsonObject& obj)

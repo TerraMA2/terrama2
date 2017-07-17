@@ -51,6 +51,10 @@
 
 namespace terrama2
 {
+  namespace core
+  {
+    class ProcessLogger;
+  }
   namespace services
   {
     namespace view
@@ -203,7 +207,10 @@ namespace terrama2
              *
              * \param v - Current view id object to remove. Default is selected workspace
              */
-            void cleanup(const ViewId& id = 0) override;
+            void cleanup(const ViewId& id = 0,
+                         const std::string& viewName = "",
+                         terrama2::core::DataProviderPtr dataProvider = nullptr,
+                         std::shared_ptr<terrama2::core::ProcessLogger> logger = nullptr) override;
 
 
             /*!
@@ -381,9 +388,15 @@ namespace terrama2
              */
             std::string generateWorkspaceName(const ViewId& id);
 
+            /*!
+             * \brief Retrieves a layer name based view name and view id.
+             * \param view View object
+             * \return Unique Layer Name
+             */
+            std::string generateLayerName(const std::string& viewName, const ViewId& id) const;
+
 
             std::string workspace_ = "terrama2"; /*!< A workspace to work in GeoServer */
-
         };
       }
     }

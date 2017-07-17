@@ -61,6 +61,8 @@
 #include <sstream>
 #include <iomanip>
 
+// QT
+#include <QFile>
 
 void terrama2::services::view::core::registerFactories()
 {
@@ -215,16 +217,22 @@ void terrama2::services::view::core::removeTable(const std::string& name, const 
 {
   std::shared_ptr<te::da::DataSource> dataSource = te::da::DataSourceFactory::make("POSTGIS", uri);
 
-  try
-  {
-    dataSource->open();
-    dataSource->dropDataSet(name);
-  }
-  catch(...)
-  {
-    // Nothing.
-  }
+  dataSource->open();
+  dataSource->dropDataSet(name);
 
   if (dataSource->isOpened())
     dataSource->close();
+}
+
+void terrama2::services::view::core::removeFile(const std::string& filepath)
+{
+  QFile file(filepath.c_str());
+
+  if (file.exists())
+    if (!file.remove())
+    {
+      QString errMsg = QObject::tr("Could not remove file: %1").arg(filepath.c_str());
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw Exception() << ErrorDescription(errMsg);
+    }
 }

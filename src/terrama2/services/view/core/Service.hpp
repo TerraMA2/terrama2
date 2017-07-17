@@ -79,7 +79,7 @@ namespace terrama2
 
             Rennuning processes will continue until finished.
           */
-          void removeView(ViewId id, std::string viewName) noexcept;
+          void removeView(ViewId id, const std::string viewName, DataSeriesId dataSeriesId) noexcept;
 
           /*!
            * \brief Receive a jSon and update service information with it
@@ -93,7 +93,7 @@ namespace terrama2
            * \param viewId View identifier
            * \param removeAll Flag to remove everything. It includes both geoserver workspace as table metadata. Default "false"
            */
-          void removeCompleteView(const ViewId id, const std::string& viewName, bool removeAll = true) noexcept;
+          void removeCompleteView(ViewId id, const std::string viewName, DataSeriesId dataSeriesId, bool removeAll = true) noexcept;
 
         protected:
 
