@@ -21,15 +21,19 @@ define(
 
     var loadEvents = function() {
       $('#export').on('click', function() {
-				Utils.getWebAppSocket().emit('generateFileRequest', {
-					format: $("#exportation-type").val().toString(),
-					dateTimeFrom: '2017-07-10 00:00:00',
-					dateTimeTo: '2017-07-12 23:59:59',
-					schema: 'public',
-					table: 'focos_saida',
-					dateTimeField: 'data_pas',
-					dataProviderId: 2
-				});
+        var layer = Layers.getLayerById($(this).data("layerid"));
+
+        if(layer.exportation !== null) {
+          Utils.getWebAppSocket().emit('generateFileRequest', {
+            format: $("#exportation-type").val().toString(),
+            dateTimeFrom: '2017-07-10 00:00:00',
+            dateTimeTo: '2017-07-12 23:59:59',
+            schema: layer.exportation.schema,
+            table: layer.exportation.table,
+            dateTimeField: layer.exportation.dateField,
+            dataProviderId: layer.exportation.dataProviderId
+          });
+        }
 			});
 
       $("#terrama2-sortlayers").on("click", ".terrama2-layer-tools", function() {
@@ -37,6 +41,7 @@ define(
 
         if(layer !== null) {
           $("#layer-toolbox > .layer-toolbox-body > #slider-box").empty().html("<label></label><br/><div id=\"opacity" + layer.htmlId + "\"></div>");
+          $("#export").data("layerid", layer.id);
           
           var currentOpacity = TerraMA2WebComponents.MapDisplay.getLayerOpacity(layer.id) * 100;
           Slider.setOpacitySlider(layer.id, currentOpacity);

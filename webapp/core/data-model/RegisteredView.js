@@ -7,6 +7,7 @@
   var View = require("./View");
   var URIBuilder = require("./../UriBuilder");
   var DataSeriesType = require("./../Enums").DataSeriesType;
+  var DataSeriesFormat = require("./../Enums").DataSeriesFormat;
   var ViewSourceType = require("./../Enums").ViewSourceType;
   /**
    * Default URI syntax
@@ -154,14 +155,35 @@
 
     var params = {};
     var dataSeriesTypeName;
-    if (this.dataSeries) {
+    var exportation = {
+      data: null,
+      error: null
+    };
+
+    if(this.dataSeries) {
       var semantics = this.dataSeries.data_series_semantics;
-      if (semantics && semantics.data_series_type_name === DataSeriesType.GRID) {
+
+      if(semantics && semantics.data_series_type_name === DataSeriesType.GRID) {
         var mask = this.dataSeries.dataSets[0].format.mask;
         params.mask = mask;
       }
-      if (this.dataSeries.data_series_semantics)
+
+      if(this.dataSeries.data_series_semantics) {
         dataSeriesTypeName = this.dataSeries.data_series_semantics.data_series_type_name;
+
+        if(this.dataSeries.data_series_semantics.data_format_name === DataSeriesFormat.POSTGIS) {
+          if(this.dataSeries.dataSets.length > 1 || this.dataSeries.dataSets.length === 0) {
+            exportation.error = "Invalid data sets!";
+          } else {
+            exportation.data = {
+              dataProviderId: this.dataSeries.dataProvider.id,
+              schema: "public",
+              table: this.dataSeries.dataSets[0].format.table_name,
+              dateField: (this.dataSeries.dataSets[0].format.timestamp_property !== undefined ? this.dataSeries.dataSets[0].format.timestamp_property : null)
+            };
+          }
+        }
+      }
     }
 
     return Object.assign(AbstractClass.prototype.toObject.call(this), {
@@ -177,7 +199,8 @@
       type: this.dataSeriesType,
       params: params,
       projectId: this.view.projectId,
-      dataSeriesTypeName: dataSeriesTypeName
+      dataSeriesTypeName: dataSeriesTypeName,
+      exportation: exportation
     });
   };
 

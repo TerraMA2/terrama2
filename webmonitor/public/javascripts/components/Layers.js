@@ -38,6 +38,7 @@ define(
       layerObject.dataSeriesTypeName = layerData.dataSeriesTypeName;
       layerObject.visible = false;
       layerObject.status = LayerStatusEnum.ONLINE;
+      layerObject.exportation = (layerData.exportation !== undefined && layerData.exportation.error === null && layerData.exportation.data !== null ? layerData.exportation.data : null);
 
       return layerObject;
     };
