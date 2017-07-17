@@ -684,7 +684,8 @@ function onStatusReceived(service, response) {
       loading: false,
       online: Object.keys(response).length > 0,
       start_time: response.start_time,
-      terrama2_version: response.terrama2_version
+      terrama2_version: response.terrama2_version,
+      logger_online: response.logger_online
     });
   }
 }
