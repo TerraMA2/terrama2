@@ -293,7 +293,7 @@ terrama2::services::alert::core::AlertExecutor::monitoredObjectAlert(std::shared
   auto riskAttributeProp = dataSetType->getProperty(alertPtr->riskAttribute)->clone();
   alertDataSetType->add(riskAttributeProp);
 
-  const std::string comparisonPreviosProperty = "comparison_previous";
+  const std::string comparisonPreviosProperty = COMPARISON_PROPERTY_NAME;
   te::dt::SimpleProperty* comparisonPreviousProp = new te::dt::SimpleProperty(comparisonPreviosProperty, te::dt::INT32_TYPE);
   alertDataSetType->add(comparisonPreviousProp);
 

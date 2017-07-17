@@ -75,7 +75,7 @@ std::shared_ptr<te::da::DataSet> terrama2::services::alert::core::Report::retrie
 
   std::vector<std::size_t> positions;
 
-  size_t compPos = terrama2::core::propertyPosition(dataSet_.get(), "comparison_previous");
+  size_t compPos = terrama2::core::propertyPosition(dataSet_.get(), COMPARISON_PROPERTY_NAME);
 
   for(std::size_t i = 0; i < dataSet_->size(); i++)
   {
@@ -268,10 +268,10 @@ void terrama2::services::alert::core::Report::updateReportMonitoredObjectDataset
   }
 
   // Replace comparison property
-  auto posComparison = terrama2::core::propertyPosition(dataSet_.get(), "comparison_previous");
+  auto posComparison = terrama2::core::propertyPosition(dataSet_.get(), COMPARISON_PROPERTY_NAME);
   if(posComparison == std::numeric_limits<size_t>::max())
   {
-    QString errMsg = QObject::tr("Can't find property %1 !").arg(QString("comparison_previous"));
+    QString errMsg = QObject::tr("Can't find property %1 !").arg(QString::fromStdString(COMPARISON_PROPERTY_NAME));
     TERRAMA2_LOG_ERROR() << errMsg;
     throw ReportException() << ErrorDescription(errMsg);
   }
@@ -301,11 +301,10 @@ void terrama2::services::alert::core::Report::updateReportMonitoredObjectDataset
         comp = "UNKNOW";
     }
 
-    dataSet_->setString("comparison_previous" , comp);
+    dataSet_->setString(COMPARISON_PROPERTY_NAME , comp);
   }
 
   dataSet_->setPropertyDataType(te::dt::STRING_TYPE, posComparison);
-  dataSet_->setPropertyName("comparison", posComparison);
 }
 
 
