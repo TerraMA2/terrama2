@@ -426,7 +426,7 @@
     margin-top: -25px !important;
   }
 
-  #terrama2-opacity-slider{
+  .terrama2-layer-tools {
     margin-top: -20px !important;
   }
 }
@@ -555,13 +555,21 @@
 
 #legend-box, #layer-toolbox {
   position: absolute;
-  width: 320px;
-  height: 480px;
   background-color: white;
   z-index: 99999;
   border-radius: 5px;
   border: 1px solid;
   top: 21px;
+}
+
+#legend-box {
+  width: 320px;
+  height: 480px;
+}
+
+#layer-toolbox {
+  width: 220px;
+  height: 100px/*275px*/;
 }
 
 #legend-box { right: 65px; }
@@ -586,4 +594,5 @@
   width: 100%;
   height: calc(100% - 41px);
   top: 0;
+  cursor: default;
 }

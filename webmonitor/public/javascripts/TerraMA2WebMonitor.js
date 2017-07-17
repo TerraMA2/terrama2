@@ -13,8 +13,8 @@ define(
   function(Calendar, Capabilities, Slider, Utils, LayerStatus, Layers, AddLayerByUri, Sortable, TerraMA2WebComponents) {
 
 		var visibleLayers = [];
-		var memberWindowHeight;
-		var memberReducedHeight;
+    var memberWindowHeight;
+    var memberReducedHeight;
 
     // function to add class treeview-menu to work lte admin css behavior when sidebar is mini
     var addTreeviewMenuClass = function() {
@@ -123,7 +123,6 @@ define(
         });
 
 				Layers.fillLayersData();
-
 			});
 
 			// When receive a new view, add in layers component
@@ -390,7 +389,9 @@ define(
 
 			$("#content").height(memberReducedHeight + "px");
 			$("#terrama2-map").height(memberReducedHeight + "px");
-			$("#terrama2-map").width("auto");
+
+			var mapWidthInterval = window.setInterval(function() { $("#terrama2-map").width($("#content").width() + "px"); }, 100);
+			window.setTimeout(function() { clearInterval(mapWidthInterval); }, 2000);
 
 			$("#dynamic").find("div").each(function() {
 				$(this).addClass("fa fa-clock-o");

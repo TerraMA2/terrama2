@@ -55,8 +55,7 @@ define(
 			}
     };
 
-    var loadEvents = function(){
-
+    var loadEvents = function() {
 			$('#getAttributes > select').on('change', featureInfo);
 
 			$('#getAttributes > button').on('click', function() {
@@ -67,14 +66,14 @@ define(
       $("#terrama2-map").on("setGetFeatureInfoToolSelect", function(event){
         setGetFeatureInfoToolSelect();
       });
-    }
+    };
 
-    var init = function(){
+    var init = function() {
       loadEvents();
-    }
+    };
 
     return {
       init: init
-    }
+    };
   }
 );

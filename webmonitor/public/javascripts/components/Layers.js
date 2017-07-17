@@ -72,10 +72,9 @@ define(
           var layerId = allLayers[i].id;
           var htmlId = allLayers[i].htmlId;
 
-          var sliderDiv = "<div class='slider-content' style='display:none;'><label></label><button type='button' class='close close-slider'>×</button><div id='opacity" + htmlId + "'></div></div>";
-          var spanIcon = "<span id='terrama2-opacity-slider' class='terrama2-datepicker-icon' data-toggle='tooltip' title='Change opacity'> <i class='fa fa-sliders'></i></span>"; 
+          var spanIcon = "<span class='terrama2-layer-tools terrama2-datepicker-icon' data-toggle='tooltip' title='Layer Tools'> <i class='fa fa-gears'></i></span>"; 
           
-          itens += '<li id="' + htmlId + '" data-layerid="' + layerId + '" data-parentid="terrama2-layerexplorer" class="hide">' + allLayers[i].name + sliderDiv + spanIcon + '</li>';
+          itens += '<li id="' + htmlId + '" data-layerid="' + layerId + '" data-parentid="terrama2-layerexplorer" class="hide">' + allLayers[i].name + spanIcon + '</li>';
         }
       }
       var list = '<ul>' + itens + '</ul>';

@@ -53,7 +53,8 @@ define(
 
     var init = function() {
 			$("#legend-box").draggable({
-				containment: $('#terrama2-map')
+				containment: $('#terrama2-map'),
+				handle: '.legend-header'
 			}).resizable({
 				handles: 'all',
 				minHeight: 100,
