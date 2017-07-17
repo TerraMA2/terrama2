@@ -1,8 +1,8 @@
 'use strict';
 
 define(
-  ['TerraMA2WebComponents'],
-  function(TerraMA2WebComponents) {
+  ['enums/LayerStatusEnum', 'TerraMA2WebComponents'],
+  function(LayerStatusEnum, TerraMA2WebComponents) {
     
     var addGroupSpanIcon = function() {
       var groupElement = $(".parent_li").children(".group-name");
@@ -35,45 +35,22 @@ define(
 
     var getStatusIconUrl = function(status) {
       switch(status){
-        case "new":
+        case LayerStatusEnum.NEW:
           return BASE_URL + "images/status/yellow-black.gif";
-        case "newerraccess":
+        case LayerStatusEnum.NEW_OFFLINE:
           return BASE_URL + "images/status/yellow-gray.gif";
-        case "working":
+        case LayerStatusEnum.ONLINE:
           return BASE_URL + "images/status/green_icon.svg";
-        case "erraccess":
+        case LayerStatusEnum.OFFLINE:
           return BASE_URL + "images/status/gray_icon.svg";
-        case "alert":
+        case LayerStatusEnum.ALERT:
           return BASE_URL + "images/status/red-black.gif";
         default:
         	return "";
       }
     };
 
-    var loadEvents = function(){
-			//change status icon when close the group layer
-			$('.parent_li').on('click', function() {
-				var parent = this.getAttribute('id');
-				var parentLi = $("#" + parent);
-
-				if(parentLi.hasClass('open')) {
-					var imageStatus = parentLi.find("#image-group-icon");
-					var actualStatus = imageStatus.attr("src");
-
-					if(actualStatus == BASE_URL + "images/status/yellow-black.gif" || actualStatus == BASE_URL + "images/status/red-black.gif")
-						changeGroupStatusIcon(parent, "working");
-					else if (actualStatus == BASE_URL + "images/status/yellow-gray.gif" || actualStatus == BASE_URL + "images/status/red-black.gif")
-						changeGroupStatusIcon(parent, "erraccess");
-				}
-			});
-    };
-
-    var init = function(){
-      loadEvents();
-    }
-
     return {
-      init: init,
       changeLayerStatusIcon: changeLayerStatusIcon,
       addLayerStatusIcon: addLayerStatusIcon,
       changeGroupStatusIcon: changeGroupStatusIcon,

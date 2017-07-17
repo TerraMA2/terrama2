@@ -9,8 +9,9 @@ define(
   'components/Layers',
   'components/AddLayerByUri',
   'components/Sortable',
+  'enums/LayerStatusEnum',  
   'TerraMA2WebComponents'],
-  function(Calendar, Capabilities, Slider, Utils, LayerStatus, Layers, AddLayerByUri, Sortable, TerraMA2WebComponents) {
+  function(Calendar, Capabilities, Slider, Utils, LayerStatus, Layers, AddLayerByUri, Sortable, LayerStatusEnum, TerraMA2WebComponents) {
 
 		var visibleLayers = [];
     var memberWindowHeight;
@@ -44,7 +45,7 @@ define(
       $("#terrama2-sortlayers").find('li#' + layer.htmlId).remove();
       TerraMA2WebComponents.LayerExplorer.removeLayer(layerId, "terrama2-layerexplorer");
       if ($("#" + parent + " li").length == 0){
-        LayerStatus.changeGroupStatusIcon(parent, "");
+        Layers.changeParentLayerStatus(parent, "");
       }
     }
 
@@ -101,11 +102,26 @@ define(
         $("#terrama2-map").trigger("createAttributesTable");
         $("#legend-box").trigger("setLegends");
 
-				var imageElement = $(this).closest('li').find("#image-icon");
-
-				if(imageElement.attr("src") == BASE_URL + "images/status/yellow-black.gif" || imageElement.attr("src") == BASE_URL + "images/status/red-black.gif") {
+        if (layerObject.status == LayerStatusEnum.NEW || layerObject.status == LayerStatusEnum.ALERT){
 					TerraMA2WebComponents.MapDisplay.updateLayerSourceParams(layerObject.id, { "": Date.now().toString() }, true);
-					LayerStatus.changeLayerStatusIcon(layerObject.htmlId, "working");
+					Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.ONLINE);
+        }
+        
+			});
+
+			//change status icon when close the group layer
+			$('.parent_li').on('click', function() {
+				var parent = this.getAttribute('id');
+				var parentLi = $("#" + parent);
+        var parentLayer = Layers.getLayerById(parent);
+        if (!parentLayer)
+          return;
+
+				if(parentLi.hasClass('open')) {
+          if (parentLayer.status == LayerStatusEnum.NEW || parentLayer.status == LayerStatusEnum.ALERT)
+            Layers.changeParentLayerStatus(parentLayer.id, LayerStatusEnum.ONLINE);
+          else if (parentLayer.status == LayerStatusEnum.NEW_OFFLINE || parentLayer.status == LayerStatusEnum.ALERT)
+            Layers.changeParentLayerStatus(parentLayer.id, LayerStatusEnum.OFFLINE);
 				}
 			});
 
@@ -133,8 +149,8 @@ define(
           var newLayer = Layers.getLayerById(layerObject.id) == null ? true : false;
 
 					if(!newLayer) {
-						LayerStatus.changeLayerStatusIcon(layerObject.htmlId, "new");
-						LayerStatus.changeGroupStatusIcon(layerObject.parent, "new");
+						Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.NEW);
+						Layers.changeParentLayerStatus(layerObject.parent, LayerStatusEnum.NEW);
 						var workspace = layerObject.workspace;
 						var uriGeoServer = layerObject.uriGeoServer;
 						var serverType = layerObject.serverType;
@@ -154,8 +170,8 @@ define(
           Layers.addLayer(layerObject);
           if (layerObject.projectId == currentProject){
             Layers.fillLayersData([layerObject]);
-            LayerStatus.changeLayerStatusIcon(layerObject.htmlId, "new");
-            LayerStatus.changeGroupStatusIcon(layerObject.parent, "new");
+            Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.NEW);
+            Layers.changeParentLayerStatus(layerObject.parent, LayerStatusEnum.NEW);
           }
 				}
 			});
@@ -164,8 +180,8 @@ define(
 				var layerId = data.workspace + ":" + data.layer.name;
         var layerObject = Layers.getLayerById(layerId);
         if (layerObject){
-          LayerStatus.changeLayerStatusIcon(layerObject.htmlId, "alert");
-          LayerStatus.changeGroupStatusIcon("alert", "alert");
+          Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.ALERT);
+          Layers.changeParentLayerStatus("alert", LayerStatusEnum.ALERT);
         }
 			});
 
@@ -182,10 +198,13 @@ define(
 			// Checking map server connection response
 			Utils.getSocket().on('connectionResponse', function(data) {
 				if(data.url) {
-					//getting element to disable if there are no connection with mapr server
+					//getting element to disable if there are no connection with map server
 					var listElement = $("li[data-layerid='"+ data.requestId +"'].treeview");
 					var inputElement = listElement.find('input');
 					var parent = listElement.attr('data-parentid')
+          var layerObject = Layers.getLayerById(data.requestId);
+          if (!layerObject)
+            return;
 
 					//if not connected disabled the layer selection
 					if(!data.connected) {
@@ -196,18 +215,17 @@ define(
 						if(!inputElement.hasClass("disabled-content"))
 							inputElement.addClass("disabled-content");
 
-						LayerStatus.changeLayerStatusIcon(data.requestId.replace(':','').split('.').join('\\.'), "erraccess");
-						LayerStatus.changeGroupStatusIcon(parent, "erraccess");
+						Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.OFFLINE);
+            Layers.changeParentLayerStatus(parent, LayerStatusEnum.OFFLINE);
 					} else {
 						listElement[0].removeAttribute("title");
 						if (inputElement.hasClass("disabled-content"))
 							inputElement.removeClass("disabled-content");
 						
-						var imageElement = listElement.find("#image-icon");
-						var lastStatus = imageElement.attr("src");
-						if(lastStatus == BASE_URL + "images/status/gray_icon.svg") {
-							LayerStatus.changeLayerStatusIcon(data.requestId.replace(':','').split('.').join('\\.'), "working");
-							LayerStatus.changeGroupStatusIcon(parent, "working");
+						var lastStatus = layerObject.status;
+						if(lastStatus == LayerStatusEnum.OFFLINE) {
+							Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.ONLINE);
+              Layers.changeParentLayerStatus(parent, LayerStatusEnum.ONLINE);
 						}
 					}
 				}
@@ -494,14 +512,14 @@ define(
         var layerObject = Layers.createLayerObject({layers:["osm"], name: "Open street", type: "template"});
         Layers.addLayer(layerObject);
 				LayerStatus.addLayerStatusIcon("osm");
-				LayerStatus.changeLayerStatusIcon("osm", "working");
+				Layers.changeLayerStatus("osm", LayerStatusEnum.ONLINE);
 			}
 
 			addTreeviewMenuClass();
 			LayerStatus.addGroupSpanIcon();
       Layers.addLayersToSort();
       Sortable.setSortable();
-      LayerStatus.changeGroupStatusIcon("template", "working");
+      Layers.changeParentLayerStatus("template", LayerStatusEnum.ONLINE);
 
 			// Check connections every 30 seconds
 			var intervalID = setInterval(function(){
