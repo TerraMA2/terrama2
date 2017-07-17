@@ -269,42 +269,38 @@ void terrama2::services::alert::core::Report::updateReportMonitoredObjectDataset
 
   // Replace comparison property
   auto posComparison = terrama2::core::propertyPosition(dataSet_.get(), COMPARISON_PROPERTY_NAME);
-  if(posComparison == std::numeric_limits<size_t>::max())
+  if(posComparison != std::numeric_limits<size_t>::max())
   {
-    QString errMsg = QObject::tr("Can't find property %1 !").arg(QString::fromStdString(COMPARISON_PROPERTY_NAME));
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw ReportException() << ErrorDescription(errMsg);
-  }
-
-  dataSet_->moveBeforeFirst();
-  while(dataSet_->moveNext())
-  {
-    std::string comp = "NULL";
-
-    if(!dataSet_->isNull(posComparison))
+    dataSet_->moveBeforeFirst();
+    while(dataSet_->moveNext())
     {
-      int resComp = dataSet_->getInt32(posComparison);
+      std::string comp = "NULL";
 
-      if(resComp == 0)
-        comp = "SAME";
-      else if(resComp == 1)
+      if(!dataSet_->isNull(posComparison))
       {
-        riskChanged_ = true;
-        comp = "INCREASED";
+        int resComp = dataSet_->getInt32(posComparison);
+
+        if(resComp == 0)
+          comp = "SAME";
+        else if(resComp == 1)
+        {
+          riskChanged_ = true;
+          comp = "INCREASED";
+        }
+        else if(resComp == -1)
+        {
+          riskChanged_= true;
+          comp = "DECREASED";
+        }
+        else
+          comp = "UNKNOW";
       }
-      else if(resComp == -1)
-      {
-        riskChanged_= true;
-        comp = "DECREASED";
-      }
-      else
-        comp = "UNKNOW";
+
+      dataSet_->setString(COMPARISON_PROPERTY_NAME , comp);
     }
 
-    dataSet_->setString(COMPARISON_PROPERTY_NAME , comp);
+    dataSet_->setPropertyDataType(te::dt::STRING_TYPE, posComparison);
   }
-
-  dataSet_->setPropertyDataType(te::dt::STRING_TYPE, posComparison);
 }
 
 
