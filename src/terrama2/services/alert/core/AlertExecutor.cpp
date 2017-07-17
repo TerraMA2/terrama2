@@ -126,7 +126,6 @@ terrama2::services::alert::core::AlertExecutor::getResultMap(terrama2::core::Leg
 
 std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::AlertExecutor::populateMonitoredObjectAlertDataset( std::vector<std::shared_ptr<te::dt::DateTime> > vecDates,
                                                                                                                        std::map<std::shared_ptr<te::dt::AbstractData>, std::map<std::string, std::pair<std::shared_ptr<te::dt::AbstractData>, uint32_t> >, comparatorAbstractData> riskResultMap,
-                                                                                                                       const std::string comparisonPreviosProperty,
                                                                                                                        AlertPtr alertPtr,
                                                                                                                        te::dt::Property* fkProperty,
                                                                                                                        std::shared_ptr<te::da::DataSetType> alertDataSetType)
@@ -167,7 +166,7 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::AlertExecutor
       std::string pastRiskProperty = dateTimeToString(previousDate);
 
       dsItem->setInt32(pastRiskProperty, static_cast<int>(pastRisk));
-      dsItem->setInt32(comparisonPreviosProperty, comparisonResult);
+      dsItem->setInt32(COMPARISON_PROPERTY_NAME, comparisonResult);
 
       if(vecDates.size() > 2)
       {
@@ -293,10 +292,6 @@ terrama2::services::alert::core::AlertExecutor::monitoredObjectAlert(std::shared
   auto riskAttributeProp = dataSetType->getProperty(alertPtr->riskAttribute)->clone();
   alertDataSetType->add(riskAttributeProp);
 
-  const std::string comparisonPreviosProperty = "comparison_previous";
-  te::dt::SimpleProperty* comparisonPreviousProp = new te::dt::SimpleProperty(comparisonPreviosProperty, te::dt::INT32_TYPE);
-  alertDataSetType->add(comparisonPreviousProp);
-
   auto pos = dataSetType->getPropertyPosition(alertPtr->riskAttribute);
   if(pos == std::numeric_limits<decltype(pos)>::max())
   {
@@ -319,8 +314,14 @@ terrama2::services::alert::core::AlertExecutor::monitoredObjectAlert(std::shared
     alertDataSetType->add(riskLevelProp);
   }
 
+  if(vecDates.size() > 1)
+  {
+    te::dt::SimpleProperty* comparisonPreviousProp = new te::dt::SimpleProperty(COMPARISON_PROPERTY_NAME, te::dt::INT32_TYPE);
+    alertDataSetType->add(comparisonPreviousProp);
+  }
+
   auto riskResultMap = getResultMap(legend, pos, idProperty, datetimeColumnName, teDataset, vecDates);
-  std::shared_ptr<te::mem::DataSet> alertDataSet = populateMonitoredObjectAlertDataset(vecDates, riskResultMap, comparisonPreviosProperty, alertPtr, fkProperty, alertDataSetType);
+  std::shared_ptr<te::mem::DataSet> alertDataSet = populateMonitoredObjectAlertDataset(vecDates, riskResultMap, alertPtr, fkProperty, alertDataSetType);
   addAdditionalData(alertDataSet, additionalDataVector, additionalDataMap);
 
   // remove fk column
