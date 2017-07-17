@@ -193,7 +193,7 @@ namespace terrama2
         virtual void prepareTask(const ExecutionPackage& executionPackage) = 0;
 
         //! Process a queued task.
-        void processingTaskThread() noexcept;
+        void processingTaskThread(const std::shared_ptr< const ProcessLogger > logger) noexcept;
 
         //! Verifys if the number of threads is greater than 0.
         size_t verifyNumberOfThreads(size_t numberOfThreads) const;

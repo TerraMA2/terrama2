@@ -98,6 +98,7 @@ define([
 
           $scope.serviceStartTime = null;
           $scope.serviceVersion = null;
+          $scope.showServiceLoggerOffline = false;
           $scope.showAdvancedFilter = false;
 
           $scope.showHideAdvancedFilter = function() {
@@ -121,6 +122,11 @@ define([
           $scope.showInfo = function(object){
             $scope.serviceStartTime = object.start_time;
             $scope.serviceVersion = object.version;
+            if(!object.logger_online)
+              $scope.showServiceLoggerOffline = true;
+            else 
+              $scope.showServiceLoggerOffline = false;
+
             $('#infoModal').modal();
           }
 
