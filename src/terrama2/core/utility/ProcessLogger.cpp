@@ -79,8 +79,7 @@ void terrama2::core::ProcessLogger::setConnectionInfo(const te::core::URI& uri)
     try
     {
       dataSource_->open();
-
-      if(!dataSource_->isOpened())
+      if(dataSource_->isOpened())
       {
         isValid_ = true;
         return;
