@@ -153,8 +153,7 @@
                 <div class="layer-toolbox-header"><span class="layer-name"></span> - Layer Tools<span class="btn btn-default" style="padding: 0 4px 0 4px; float: right;"><i class="fa fa-close"></i></span></div>
                 <div class="layer-toolbox-body">
                   <div id="slider-box"></div>
-                  <hr class=""/>
-                  <div id="exportation-box" class="">
+                  <div id="exportation-box">
                     <select multiple id="exportation-type" class="form-control">
                       <option value="all">All Formats</option>
                       <option selected value="csv">CSV</option>
@@ -242,8 +241,8 @@
       var message = "{[message.content]}";
       var userLogged = {[ currentUser !== null ? "true" : "false" ]};
     </script>
-    <!--<script type="text/javascript" src="{[ BASE_URL ]}dist/TerraMA2WebMonitor.min.js"></script>-->
-    <script type="text/javascript" data-main="{[ BASE_URL ]}javascripts/Startup.js" src="{[ BASE_URL ]}require.js"></script>
+    <script type="text/javascript" src="{[ BASE_URL ]}dist/TerraMA2WebMonitor.min.js"></script>
+    <!--<script type="text/javascript" data-main="{[ BASE_URL ]}javascripts/Startup.js" src="{[ BASE_URL ]}require.js"></script>-->
     <iframe id="exportation-iframe" class="hidden"></iframe>
   </body>
 </html>

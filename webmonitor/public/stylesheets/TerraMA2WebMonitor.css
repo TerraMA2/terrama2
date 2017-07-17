@@ -569,7 +569,6 @@
 
 #layer-toolbox {
   width: 220px;
-  height: 100px/*275px*/;
 }
 
 #legend-box { right: 65px; }
@@ -595,4 +594,10 @@
   height: calc(100% - 41px);
   top: 0;
   cursor: default;
+}
+
+#exportation-box {
+  margin-top: 15px;
+  border-top: 1px solid #d8d8d8;
+  padding-top: 15px;
 }
