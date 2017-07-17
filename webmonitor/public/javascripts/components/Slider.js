@@ -6,20 +6,20 @@ define(
 
     var sliderCapabilities = [];
 
-    var insertIntoSliderCapabilities = function(capability){
+    var insertIntoSliderCapabilities = function(capability) {
       sliderCapabilities.push(capability);
-    }
+    };
 
     var setSlider = function(rangeDate, layerId) {
 			var valMap = rangeDate;
 
 			var slider = $("#slider" + layerId.replace(':',''));
 			var sliderParent = $(slider).parent();
-			if (!$(sliderParent).is(":visible")) {
+
+			if(!$(sliderParent).is(":visible"))
 				$(sliderParent).show();
-			} else {
+			else
 				$(sliderParent).hide();
-			}
 
 			var labelDate = $(sliderParent).find("label");
 			$(labelDate).text(moment(rangeDate[0]).format("lll"));
@@ -38,24 +38,18 @@ define(
     };
 
     var doSlide = function(layerId, layerTime) {
-      //  DO REQUEST
       var timeFormat = moment(layerTime).format("YYYY-MM-DDThh:mm:ss") + "Z";
-
-      TerraMA2WebComponents.MapDisplay.updateLayerTime(/**id */layerId, /** time */layerTime);
+      TerraMA2WebComponents.MapDisplay.updateLayerTime(layerId, layerTime);
     };
 
-    var changeLayerOpacity = function(layerId, opacityValue){
+    var changeLayerOpacity = function(layerId, opacityValue) {
       TerraMA2WebComponents.MapDisplay.updateLayerOpacity(layerId, opacityValue/100);
     };
 
     var setOpacitySlider = function(layerId, initialValue) {
 			var slider = $("#opacity" + layerId.replace(':','').split('.').join('\\.'));
 			var sliderParent = $(slider).parent();
-			if (!$(sliderParent).is(":visible")) {
-				$(sliderParent).show();
-			} else {
-				$(sliderParent).hide();
-			}
+
 			var label = $(sliderParent).find("label");
 			$(label).text("Opacity: " + initialValue + "%");
 
@@ -100,31 +94,11 @@ define(
       $("#terrama2-layerexplorer").on("click", "button[class~='close-slider']", function(e) {
         $(this).parent().hide();
       });
-
-      /**
-       * Triggered when user clicks on TerraMA² Slider of opacity
-       * 
-       * @param {Event}
-       */
-
-      $("#terrama2-sortlayers").on("click", "#terrama2-opacity-slider", function(event) {
-        
-        var self = $(this);
-        var parentLi = $(self).parent();
-        var parentId = $(parentLi).attr("data-layerid");
-        var actualOpacity = TerraMA2WebComponents.MapDisplay.getLayerOpacity(parentId) * 100;
-        setOpacitySlider(parentId, actualOpacity);
-
-      });
-
-
-      $("#terrama2-sortlayers").on("click", "button[class~='close-slider']", function(e) {
-        $(this).parent().hide();
-      });
     };
 
     return {
       insertIntoSliderCapabilities: insertIntoSliderCapabilities,
+      setOpacitySlider: setOpacitySlider,
       init: init
     };
   }

@@ -19,10 +19,9 @@ define(
 
     var addLayerToSort = function(layerId, layerName) {
       var _layerId = layerId.replace(':','');
-      var sliderDiv = "<div class='slider-content' style='display:none;'><label></label><button type='button' class='close close-slider'>×</button><div id='opacity" + _layerId + "'></div></div>";
-      var spanIcon = "<span id='terrama2-opacity-slider' class='terrama2-datepicker-icon' data-toggle='tooltip' title='Change opacity'> <i class='fa fa-sliders'></i></span>";
+      var spanIcon = "<span class='terrama2-layer-tools terrama2-datepicker-icon' data-toggle='tooltip' title='Layer Tools'> <i class='fa fa-gears'></i></span>";
 
-      var liHtml = '<li id="' + _layerId + '" data-layerid="' + layerId + '" data-parentid="terrama2-layerexplorer" class="hide">' + layerName + sliderDiv + spanIcon + '</li>';
+      var liHtml = '<li id="' + _layerId + '" data-layerid="' + layerId + '" data-parentid="terrama2-layerexplorer" class="hide">' + layerName + spanIcon + '</li>';
       $('#terrama2-sortlayers').children('ul').prepend(liHtml);
     };
 
