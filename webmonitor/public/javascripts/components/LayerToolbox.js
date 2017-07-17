@@ -37,7 +37,6 @@ define(
 
         if(layer !== null) {
           $("#layer-toolbox > .layer-toolbox-body > #slider-box").empty().html("<label></label><br/><div id=\"opacity" + layer.htmlId + "\"></div>");
-          //$("#layer-toolbox > .layer-toolbox-body > #exportation-box").empty().html();
           
           var currentOpacity = TerraMA2WebComponents.MapDisplay.getLayerOpacity(layer.id) * 100;
           Slider.setOpacitySlider(layer.id, currentOpacity);
