@@ -12,24 +12,23 @@ define(
       var capabilitiesList = [];
 
       var layersLength = layers.Layer.length;
-      for (var i = 0; i < layersLength; i++) {
-        if (layers.Layer[i].hasOwnProperty('Layer')) {
+      for(var i = 0; i < layersLength; i++) {
+        if(layers.Layer[i].hasOwnProperty('Layer')) {
           var subLayersLength = layers.Layer[i].Layer.length;
-          for (var j = 0; j < subLayersLength; j++) {
+          for(var j = 0; j < subLayersLength; j++) {
             var extent = undefined;
-            if (layers.Layer[i].Layer[j].hasOwnProperty('Extent')){
+            if(layers.Layer[i].Layer[j].hasOwnProperty('Extent')) {
               var stringextent = layers.Layer[i].Layer[j].Extent[0]._;
-              if (stringextent.includes('/')){
+              if(stringextent.includes('/')) {
                 var startDate = stringextent.split('/')[0];
                 var endDate = stringextent.split('/')[1];
-                if (startDate != endDate){
+                if(startDate != endDate) {
                   extent = {
                     startDate: startDate,
                     endDate: endDate
                   }
                 }
-              }
-              else {
+              } else {
                 extent = stringextent.split(',');
               }
             }
@@ -41,19 +40,18 @@ define(
           }
         } else {
           var extent = undefined;
-          if (layers.Layer[i].hasOwnProperty('Extent')){
+          if(layers.Layer[i].hasOwnProperty('Extent')) {
             var stringextent = layers.Layer[i].Extent[0]._;
-            if (stringextent.includes('/')){
+            if(stringextent.includes('/')) {
               var startDate = stringextent.split('/')[0];
               var endDate = stringextent.split('/')[1];
-              if (startDate != endDate){
+              if(startDate != endDate) {
                 extent = {
                   startDate: startDate,
                   endDate: endDate
                 }
               }
-            }
-            else {
+            } else {
               extent = stringextent.split(',');
             }
           }

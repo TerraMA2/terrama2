@@ -47,10 +47,20 @@ var Exportation = function(io) {
       var options = {};
 
       options.format = requestFormats;
+      options.Schema = json.schema;
+      options.TableName = json.table;
 
-      var dataTimeFrom = json.dateTimeFrom.split(' ');
-      var dataTimeTo = json.dateTimeTo.split(' ');
-      var fileName = 'Dados.' + dataTimeFrom[0] + '.' + dataTimeTo[0];
+      if(json.dateTimeField !== undefined && json.dateTimeFrom !== undefined && json.dateTimeTo !== undefined) {
+        options.dateTimeField = json.dateTimeField;
+        options.dateTimeFrom = json.dateTimeFrom;
+        options.dateTimeTo = json.dateTimeTo;
+
+        var dataTimeFrom = json.dateTimeFrom.split(' ');
+        var dataTimeTo = json.dateTimeTo.split(' ');
+        var fileName = json.fileName + '.' + dataTimeFrom[0] + '.' + dataTimeTo[0];
+      } else {
+        var fileName = json.fileName;
+      }
 
       require('crypto').randomBytes(24, function(err, buffer) {
         var today = new Date();
@@ -108,14 +118,10 @@ var Exportation = function(io) {
               }
             }
 
-            options.Schema = json.schema;
-            options.TableName = json.table;
-            options.DateTimeFieldName = json.dateTimeField;
-
             var ogr2ogr = memberExportation.ogr2ogr();
             var filePath = memberPath.join(__dirname, '../tmp/' + filesFolder + (requestFormats[i] == 'shapefile' ? '/shapefile/' : '/') + fileName + fileExtention);
 
-            var args = ['-progress', '-F', ogr2ogrFormat, filePath, connectionString, '-sql', memberExportation.getQuery(json.dateTimeFrom, json.dateTimeTo, options), '-skipfailures'];
+            var args = ['-progress', '-F', ogr2ogrFormat, filePath, connectionString, '-sql', memberExportation.getQuery(options), '-skipfailures'];
 
             if(requestFormats[i] == "csv")
               args.push('-lco', 'LINEFORMAT=CRLF', '-lco', 'SEPARATOR=' + separator);

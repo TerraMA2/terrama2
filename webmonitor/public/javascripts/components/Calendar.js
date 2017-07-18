@@ -10,7 +10,7 @@ define(
      * @returns {string}
      */
     var makeHelperDatePicker = function(capability) {
-      if (!capability) {
+      if(!capability) {
         throw new Error("Invalid capability while making date picker");
       }
       /**
@@ -19,10 +19,10 @@ define(
        */
       var datepicker = "<input type='hidden' name='" + capability.name + "'";
 
-      if (capability.extent instanceof Array) {
+      if(capability.extent instanceof Array) {
         datepicker += " data-min-date='" + capability.extent[0] + "' data-max-date='" + capability.extent[capability.extent.length - 1] + "'>";
-      } else if (capability.extent instanceof Object) {
-        datepicker += " data-min-date='" + capability.extent.startDate + "' data-max-date='" + capability.extent.endDate + "' start-date='' end-date=''" +">";
+      } else if(capability.extent instanceof Object) {
+        datepicker += " data-min-date='" + capability.extent.startDate + "' data-max-date='" + capability.extent.endDate + "' start-date='' end-date=''" + ">";
       }
 
       return datepicker;
@@ -33,15 +33,15 @@ define(
      * @param {object} capability - object with dates 
      * @param {string} layerId - layer id to update
      */
-    var updateDatePicker = function(capability, layerId){
-      var listElement = $("li[data-layerid='"+ layerId +"']");
+    var updateDatePicker = function(capability, layerId) {
+      var listElement = $("li[data-layerid='" + layerId + "']");
       var layerName = layerId.split(":")[1];
-      var calendar = listElement.find("input[name='" + layerName +"']");
+      var calendar = listElement.find("input[name='" + layerName + "']");
 
-      if (capability.extent instanceof Array) {
+      if(capability.extent instanceof Array) {
         calendar.attr("data-min-date", capability.extent[0]);
         calendar.attr("data-max-date", capability.extent[capability.extent.length - 1]);
-      } else if (capability.extent instanceof Object) {
+      } else if(capability.extent instanceof Object) {
         calendar.attr("data-min-date", capability.extent.startDate);
         calendar.attr("data-max-date", capability.extent.endDate);
       }
@@ -52,28 +52,28 @@ define(
         var self = $(this);
         var parentLi = $(self).parent();
         var capability = $(self).attr("data-layerid");
-        var calendar = $(self).find("input[id='"+ capability +"']");
+        var calendar = $(self).find("input[id='" + capability + "']");
         var hidden = $(self).find("input[type='hidden']");
         var minDate = $(hidden).attr('data-min-date');
         var maxDate = $(hidden).attr('data-max-date');
         var startDate = $(hidden).attr('start-date');
         var endDate = $(hidden).attr('end-date');
 
-        if (!minDate || !maxDate) {
+        if(!minDate || !maxDate) {
           return;
         }
         var mMinDate = moment(minDate);
         var mMaxDate = moment(maxDate);
         var mStartDate;
         var mEndDate;
-        if (!startDate || !endDate){
+        if(!startDate || !endDate) {
           mStartDate = mMaxDate;
           mEndDate = mMaxDate;
         } else {
           mStartDate = moment(startDate);
           mEndDate = moment(endDate);
         }
-        if (calendar.length === 0) {
+        if(calendar.length === 0) {
           calendar = $("<input type='text' id='" + capability + "' value='' style='display:none;'>");
           /**
            * Important: Due date range picker implementation, we must configure startDate and endDate. Otherwise, it will display NaN
@@ -107,7 +107,7 @@ define(
             $("#attributes-table-select").trigger("setAttributesTable");
 
             var layerTime = pickerStartDate + "Z/" + pickerEndDate + "Z";
-            TerraMA2WebComponents.MapDisplay.updateLayerTime(/**id */layerId, /** time */layerTime);
+            TerraMA2WebComponents.MapDisplay.updateLayerTime( /**id */ layerId, /** time */ layerTime);
           });
         } else {
 
@@ -133,7 +133,7 @@ define(
             $("#attributes-table-select").trigger("setAttributesTable", []);
 
             var layerTime = pickerStartDate + "Z/" + pickerEndDate + "Z";
-            TerraMA2WebComponents.MapDisplay.updateLayerTime(/**id */layerId, /** time */layerTime);
+            TerraMA2WebComponents.MapDisplay.updateLayerTime( /**id */ layerId, /** time */ layerTime);
           });
         }
 

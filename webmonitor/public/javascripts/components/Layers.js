@@ -6,23 +6,25 @@ define(
 
     var memberAllLayers = [];
 
-    var getAllLayers = function(){
+    var getAllLayers = function() {
       return memberAllLayers;
     }
 
-    var addLayer = function(layerObject){
+    var addLayer = function(layerObject) {
       memberAllLayers.push(layerObject);
     }
 
-    var getLayerById = function(layerId){
-      var indexLayer = memberAllLayers.map(function(l){return l.id}).indexOf(layerId);
-      if( indexLayer > 0)
+    var getLayerById = function(layerId) {
+      var indexLayer = memberAllLayers.map(function(l) {
+        return l.id
+      }).indexOf(layerId);
+      if(indexLayer > 0)
         return memberAllLayers[indexLayer];
-      else 
+      else
         return null;
     }
 
-    var createLayerObject = function(layerData){
+    var createLayerObject = function(layerData) {
       var layerObject = {};
       layerObject.name = layerData.name;
       layerObject.nameId = layerData.layers[0];
@@ -38,45 +40,54 @@ define(
       layerObject.dataSeriesTypeName = layerData.dataSeriesTypeName;
       layerObject.visible = false;
       layerObject.status = LayerStatusEnum.ONLINE;
+      layerObject.exportation = (layerData.exportation !== undefined && layerData.exportation.error === null && layerData.exportation.data !== null ? layerData.exportation.data : null);
 
       return layerObject;
     };
 
-    var changeLayerStatus = function(layerId, newStatus){
-      var indexLayer = memberAllLayers.map(function(l){return l.id}).indexOf(layerId);
-      if (indexLayer != -1){
+    var changeLayerStatus = function(layerId, newStatus) {
+      var indexLayer = memberAllLayers.map(function(l) {
+        return l.id
+      }).indexOf(layerId);
+      if(indexLayer != -1) {
         memberAllLayers[indexLayer].status = newStatus;
         LayerStatus.changeLayerStatusIcon(memberAllLayers[indexLayer].htmlId, newStatus);
       }
     };
 
-    var changeParentLayerStatus = function(layerId, newStatus){
-      var indexLayer = memberAllLayers.map(function(l){return l.id}).indexOf(layerId);
-      if (indexLayer != -1){
+    var changeParentLayerStatus = function(layerId, newStatus) {
+      var indexLayer = memberAllLayers.map(function(l) {
+        return l.id
+      }).indexOf(layerId);
+      if(indexLayer != -1) {
         memberAllLayers[indexLayer].status = newStatus;
         LayerStatus.changeGroupStatusIcon(memberAllLayers[indexLayer].id, newStatus);
       }
     };
 
-    var changeLayerVisible = function(layerId, newVisible){
-      var indexLayer = memberAllLayers.map(function(l){return l.id}).indexOf(layerId);
-      if (indexLayer != -1){
+    var changeLayerVisible = function(layerId, newVisible) {
+      var indexLayer = memberAllLayers.map(function(l) {
+        return l.id
+      }).indexOf(layerId);
+      if(indexLayer != -1) {
         memberAllLayers[indexLayer].visible = newVisible;
       }
     };
 
-    var getVisibleLayers = function(){
+    var getVisibleLayers = function() {
       var visibleLayers = [];
-      memberAllLayers.forEach(function(layers){
-        if (layers.visible)
+      memberAllLayers.forEach(function(layers) {
+        if(layers.visible)
           visibleLayers.push(layers);
       });
       return visibleLayers;
     }
 
-    var removeLayer = function(layerId){
-      var indexLayer = memberAllLayers.map(function(l){return l.id}).indexOf(layerId);
-      if (indexLayer != -1)
+    var removeLayer = function(layerId) {
+      var indexLayer = memberAllLayers.map(function(l) {
+        return l.id
+      }).indexOf(layerId);
+      if(indexLayer != -1)
         memberAllLayers.splice(indexLayer, 1);
     };
 
@@ -84,13 +95,13 @@ define(
       var itens = "";
       var allLayers = getAllLayers();
       var allLayersLength = allLayers.length;
-      for (var i = allLayersLength -1; i >= 0; i--){
-        if (!allLayers[i].projectId){
+      for(var i = allLayersLength - 1; i >= 0; i--) {
+        if(!allLayers[i].projectId) {
           var layerId = allLayers[i].id;
           var htmlId = allLayers[i].htmlId;
 
-          var spanIcon = "<span class='terrama2-layer-tools terrama2-datepicker-icon' data-toggle='tooltip' title='Layer Tools'> <i class='fa fa-gears'></i></span>"; 
-          
+          var spanIcon = "<span class='terrama2-layer-tools terrama2-datepicker-icon' data-toggle='tooltip' title='Layer Tools'> <i class='fa fa-gears'></i></span>";
+
           itens += '<li id="' + htmlId + '" data-layerid="' + layerId + '" data-parentid="terrama2-layerexplorer" class="hide">' + allLayers[i].name + spanIcon + '</li>';
         }
       }
@@ -101,12 +112,12 @@ define(
     // Add layers in layers explorer menu
     var fillLayersData = function(layers) {
       var data = layers;
-      if (!data){
+      if(!data) {
         data = memberAllLayers;
       }
       var currentProject = $("#projects").val();
-			for(var i in data) {
-				if((!data[i].private || (data[i].private && userLogged)) && data[i].projectId && data[i].projectId == currentProject) {
+      for(var i in data) {
+        if((!data[i].private || (data[i].private && userLogged)) && data[i].projectId && data[i].projectId == currentProject) {
           var workspace = data[i].workspace;
           var layerName = data[i].name;
           var uriGeoServer = data[i].uriGeoServer;
@@ -115,9 +126,11 @@ define(
           var layerId = data[i].id;
           var htmlId = data[i].htmlId;
 
-          if (TerraMA2WebComponents.MapDisplay.addImageWMSLayer(layerId, layerName, layerName, uriGeoServer + '/ows', serverType, false, false, "terrama2-layerexplorer", {version: "1.1.0"})){
+          if(TerraMA2WebComponents.MapDisplay.addImageWMSLayer(layerId, layerName, layerName, uriGeoServer + '/ows', serverType, false, false, "terrama2-layerexplorer", {
+              version: "1.1.0"
+            })) {
             TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, parent, null, "treeview unsortable terrama2-truncate-text", null);
-            if (parent == 'analysis' || parent == 'dynamic'){
+            if(parent == 'dynamic') {
               var url = uriGeoServer + '/' + workspace + '/' + data[i].nameId + '/wms?service=WMS&version=1.1.0&request=GetCapabilities';
               var getCapabilitiesUrl = {
                 layerName: data[i].nameId,
@@ -134,9 +147,12 @@ define(
           LayerStatus.addLayerStatusIcon(htmlId);
           LayerStatus.changeLayerStatusIcon(htmlId, LayerStatusEnum.ONLINE);
           Sortable.addLayerToSort(layerId, layerName);
-          Utils.getSocket().emit('checkConnection', {url: uriGeoServer, requestId: layerId});
-				}
-			}
+          Utils.getSocket().emit('checkConnection', {
+            url: uriGeoServer,
+            requestId: layerId
+          });
+        }
+      }
     };
 
     return {
@@ -151,7 +167,6 @@ define(
       getVisibleLayers: getVisibleLayers,
       changeLayerStatus: changeLayerStatus,
       changeParentLayerStatus: changeParentLayerStatus
-    }
-    
+    };
   }
 );
