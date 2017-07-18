@@ -1253,7 +1253,7 @@ void terrama2::services::view::core::GeoServer::cleanup(const ViewId& id,
     workspace_to_remove = generateWorkspaceName(id);
 
     // Try to remove cached view table
-    const std::string& tableName = generateLayerName(viewName, id);
+    const std::string& tableName = generateLayerName("view", id);
     // Removing view table
     try
     {
@@ -1561,7 +1561,7 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
 
   for(auto& dataset : inputDataSeries->datasetList)
   {
-    std::string layerName = generateLayerName(viewPtr->viewName, viewPtr->id);
+    std::string layerName = generateLayerName("view", viewPtr->id);
     std::transform(layerName.begin(), layerName.end(),layerName.begin(), ::tolower);
 
     QUrl url(baseUrl.toString() + QString::fromStdString("/" + terrama2::core::getFolderMask(dataset) + "/" + layerName));
@@ -1571,17 +1571,15 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
     int srid =std::get<2>(vecRasterInfo.at(0));
 
     /*
-     * Creating GeoServer metadata files. These files are named as .properties
-     *   - datastore.properties - Contains metadata information of store connection to join
-     *   - LayerName.properties - Meta information of layer, such time attribute, cache function, crs, etc.
+     * Resetting properties files tree.
+     * Now we defined a sub directory containing both LayerName.properties and datastore.properties.
      *
-     * The .properties file must be same level of data directory
+     * For each execution, we reset this folder and rewrite with new files. Its important due ViewName may change.
      */
-
     recreateFolder(url.path().toStdString());
-
+    // Creating LayerName.properties
     createPostgisMosaicLayerPropertiesFile(url.path().toStdString(), layerName, srid);
-    // Create needed txt mosaic files
+    // Create datastore.properties
     createPostgisDatastorePropertiesFile(url.path().toStdString(), connInfo);
 
     if(!dataSource->dataSetExists(layerName))
@@ -1822,8 +1820,6 @@ void terrama2::services::view::core::GeoServer::createPostgisIndexerPropertiesFi
 
   QFile outputFile(propertiesFilename.c_str());
 
-  recreateFolder(outputFolder);
-
   outputFile.open(QIODevice::WriteOnly);
 
   /* Check it opened OK */
@@ -1854,8 +1850,6 @@ void terrama2::services::view::core::GeoServer::createTimeregexPropertiesFile(co
   std::string propertiesFilename = outputFolder + "/timeregex.properties";
 
   QFile outputFile(propertiesFilename.c_str());
-
-  recreateFolder(outputFolder);
 
   outputFile.open(QIODevice::WriteOnly);
 
