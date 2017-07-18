@@ -130,7 +130,7 @@ define(
               version: "1.1.0"
             })) {
             TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, parent, null, "treeview unsortable terrama2-truncate-text", null);
-            if(parent == 'analysis' || parent == 'dynamic') {
+            if(parent == 'dynamic') {
               var url = uriGeoServer + '/' + workspace + '/' + data[i].nameId + '/wms?service=WMS&version=1.1.0&request=GetCapabilities';
               var getCapabilitiesUrl = {
                 layerName: data[i].nameId,

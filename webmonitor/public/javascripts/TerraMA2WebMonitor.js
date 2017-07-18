@@ -249,6 +249,9 @@ define(
             return c.name
           }).indexOf(data.layerName);
 
+					if(data.parent == "analysis")
+						return;
+
           if(layerIndex < 0)
             return;
 
