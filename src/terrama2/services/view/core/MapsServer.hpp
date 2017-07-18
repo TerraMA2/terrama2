@@ -71,13 +71,13 @@ namespace terrama2
              *
              * Use this when you want to remove complete environment on MapsServer, such GeoServer
              *
-             * \note It may throw exception
+             * \note It may throw Exception
              *
-             * \param p Current View Id to remove
-             * \param recursive Flag for deep removing.
+             * \param id Current View Id to remove
+             * \param dataProvider Pointer to view data provider (optional)
+             * \param logger Logger to perform database cleanup. Useful to retrieve database connection arguments.
              */
             virtual void cleanup(const ViewId& id = 0,
-                                 const std::string& viewName = "",
                                  terrama2::core::DataProviderPtr dataProvider = nullptr,
                                  std::shared_ptr<terrama2::core::ProcessLogger> logger = nullptr) = 0;
 

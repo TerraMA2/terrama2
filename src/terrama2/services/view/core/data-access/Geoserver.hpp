@@ -208,7 +208,6 @@ namespace terrama2
              * \param v - Current view id object to remove. Default is selected workspace
              */
             void cleanup(const ViewId& id = 0,
-                         const std::string& viewName = "",
                          terrama2::core::DataProviderPtr dataProvider = nullptr,
                          std::shared_ptr<terrama2::core::ProcessLogger> logger = nullptr) override;
 

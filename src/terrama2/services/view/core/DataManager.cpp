@@ -101,7 +101,6 @@ void terrama2::services::view::core::DataManager::update(terrama2::services::vie
 void terrama2::services::view::core::DataManager::removeView(ViewId viewId)
 {
   DataSeriesId dataSeriesId;
-  std::string viewName;
 
   {
     std::lock_guard<std::recursive_mutex> lock(mtx_);
@@ -113,11 +112,10 @@ void terrama2::services::view::core::DataManager::removeView(ViewId viewId)
       throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
     dataSeriesId = itPr->second->dataSeriesID;
-    viewName = itPr->second->viewName;
     view_.erase(itPr);
   }
 
-  emit viewRemoved(viewId, viewName, dataSeriesId);
+  emit viewRemoved(viewId, dataSeriesId);
 }
 
 void terrama2::services::view::core::DataManager::addJSon(const QJsonObject& obj)

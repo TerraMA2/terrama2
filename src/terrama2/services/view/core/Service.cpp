@@ -138,12 +138,12 @@ void terrama2::services::view::core::Service::connectDataManager()
           &terrama2::services::view::core::Service::updateView);
 }
 
-void terrama2::services::view::core::Service::removeView(ViewId id, const std::string viewName, DataSeriesId dataSeriesId) noexcept
+void terrama2::services::view::core::Service::removeView(ViewId id, DataSeriesId dataSeriesId) noexcept
 {
-  removeCompleteView(id, viewName, dataSeriesId);
+  removeCompleteView(id, dataSeriesId);
 }
 
-void terrama2::services::view::core::Service::removeCompleteView(ViewId id, const std::string viewName, DataSeriesId dataSeriesId, bool removeAll) noexcept
+void terrama2::services::view::core::Service::removeCompleteView(ViewId id, DataSeriesId dataSeriesId, bool removeAll) noexcept
 {
   try
   {
@@ -184,7 +184,7 @@ void terrama2::services::view::core::Service::removeCompleteView(ViewId id, cons
       try
       {
         // removing from geoserver
-        mapsServer->cleanup(id, viewName, inputDataProvider, logger_);
+        mapsServer->cleanup(id, inputDataProvider, logger_);
       }
       catch(const terrama2::services::view::core::NotFoundGeoserverException& e)
       {
@@ -194,7 +194,7 @@ void terrama2::services::view::core::Service::removeCompleteView(ViewId id, cons
       catch(const terrama2::services::view::core::ViewGeoserverException&)
       {
         // TODO: Improve validation in order to notify WebApp
-        TERRAMA2_LOG_WARNING() << tr("Could not remove GeoServer workspace. Please remove it manually");
+        TERRAMA2_LOG_WARNING() << tr("Could not perform clean up in GeoServer and database. Please remove it manually");
       }
     }
 
@@ -221,7 +221,7 @@ void terrama2::services::view::core::Service::removeCompleteView(ViewId id, cons
 
 void terrama2::services::view::core::Service::updateView(ViewPtr view) noexcept
 {
-  removeCompleteView(view->id, view->viewName, view->dataSeriesID, false);
+  removeCompleteView(view->id, view->dataSeriesID, false);
   addProcessToSchedule(view);
 }
 

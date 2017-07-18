@@ -1243,7 +1243,6 @@ std::unique_ptr<te::se::Style> terrama2::services::view::core::GeoServer::genera
 }
 
 void terrama2::services::view::core::GeoServer::cleanup(const ViewId& id,
-                                                        const std::string& viewName,
                                                         terrama2::core::DataProviderPtr dataProvider,
                                                         std::shared_ptr<terrama2::core::ProcessLogger> logger)
 {
