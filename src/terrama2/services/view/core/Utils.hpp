@@ -87,13 +87,36 @@ namespace terrama2
         /*!
          * \brief Tries to remove file from disk
          *
-         * \note It does not throw exception if files does not exist.
+         * \note It only throw exception when the filepath exists but could not remove (Permission management/Lock)
          *
          * \throws Exception when could not remove file.
          *
          * \param filepath Path to file
          */
         void removeFile(const std::string& filepath);
+
+        /*!
+         * \brief Tries to remove folder
+         *
+         * \throws Exception when could not remove folder
+         *
+         * \param folderpath Path to create
+         */
+        void removeFolder(const std::string& folderpath);
+
+        /*!
+         * \brief Tries to create folder
+         * \param folderpath Path to create
+         */
+        void createFolder(const std::string& folderpath);
+
+        /*!
+         * \brief Tries to remove and then create folder
+         * \throws Exception when could not remove folder
+         *
+         * \param folderpath Path to re-criate
+         */
+        void recreateFolder(const std::string& folderpath);
 
       } // end namespace core
     }   // end namespace view

@@ -64,6 +64,7 @@
 // QT
 #include <QFile>
 #include <QFileInfo>
+#include <QDir>
 
 void terrama2::services::view::core::registerFactories()
 {
@@ -248,4 +249,36 @@ void terrama2::services::view::core::removeFile(const std::string& filepath)
       throw Exception() << ErrorDescription(errMsg);
     }
   }
+}
+
+void terrama2::services::view::core::createFolder(const std::string& folderpath)
+{
+  QDir directory(folderpath.c_str());
+
+  if (!directory.exists())
+    if (!directory.mkdir(directory.path()))
+    {
+      const QString errMsg = QObject::tr("Could not create directory %1").arg(directory.path());
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw Exception() << ErrorDescription(errMsg);
+    }
+}
+
+void terrama2::services::view::core::removeFolder(const std::string& folderpath)
+{
+  QDir directory(folderpath.c_str());
+
+  if (directory.exists())
+    if (!directory.removeRecursively())
+    {
+      const QString errMsg = QObject::tr("Could not remove directory %1").arg(directory.path());
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw Exception() << ErrorDescription(errMsg);
+    }
+}
+
+void terrama2::services::view::core::recreateFolder(const std::string& folderpath)
+{
+  removeFolder(folderpath);
+  createFolder(folderpath);
 }

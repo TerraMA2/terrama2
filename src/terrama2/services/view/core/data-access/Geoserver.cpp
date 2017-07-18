@@ -1267,11 +1267,8 @@ void terrama2::services::view::core::GeoServer::cleanup(const ViewId& id,
 
     if (dataProvider != nullptr)
     {
-      QUrl uri((dataProvider->uri+ "/" + tableName + ".properties").c_str());
-      removeFile(uri.toLocalFile().toStdString());
-
-      uri.setUrl((dataProvider->uri + "/datastore.properties").c_str());
-      removeFile(uri.toLocalFile().toStdString());
+      QUrl uri((dataProvider->uri+ "/" + tableName).c_str());
+      removeFolder(uri.toLocalFile().toStdString());
     }
   }
 
@@ -1567,7 +1564,7 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
     std::string layerName = generateLayerName(viewPtr->viewName, viewPtr->id);
     std::transform(layerName.begin(), layerName.end(),layerName.begin(), ::tolower);
 
-    QUrl url(baseUrl.toString() + QString::fromStdString("/" + terrama2::core::getFolderMask(dataset)));
+    QUrl url(baseUrl.toString() + QString::fromStdString("/" + terrama2::core::getFolderMask(dataset) + "/" + layerName));
 
     auto vecRasterInfo = getRasterInfo(dataManager, dataset, viewPtr->filter);
 
@@ -1580,6 +1577,8 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
      *
      * The .properties file must be same level of data directory
      */
+
+    recreateFolder(url.path().toStdString());
 
     createPostgisMosaicLayerPropertiesFile(url.path().toStdString(), layerName, srid);
     // Create needed txt mosaic files
@@ -1638,7 +1637,7 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
 
         te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(ds.get());
         dsItem->setGeometry("the_geom", geom);
-        dsItem->setString("location", rasterName);
+        dsItem->setString("location", baseUrl.toLocalFile().toStdString() + "/" + terrama2::core::getFolderMask(dataset) + rasterName);
         dsItem->setDateTime("timestamp", new te::dt::TimeInstant(rasterTimeInstantTz));
 
         ds->add(dsItem);
@@ -1740,8 +1739,6 @@ std::string terrama2::services::view::core::GeoServer::createPostgisDatastorePro
 
     QFile outputFile(propertiesFilename.c_str());
 
-    removeFile(propertiesFilename);
-
     outputFile.open(QIODevice::WriteOnly);
 
     /* Check it opened OK */
@@ -1785,16 +1782,6 @@ std::string terrama2::services::view::core::GeoServer::createPostgisMosaicLayerP
 
   QFile outputFile(propertiesFilename.c_str());
 
-  if(outputFile.exists())
-  {
-    if(!outputFile.remove())
-    {
-      QString errMsg = QObject::tr("Could not remove file: %1").arg(propertiesFilename.c_str());
-      TERRAMA2_LOG_ERROR() << errMsg;
-      throw Exception() << ErrorDescription(errMsg);
-    }
-  }
-
   outputFile.open(QIODevice::WriteOnly);
 
   /* Check it opened OK */
@@ -1809,7 +1796,7 @@ std::string terrama2::services::view::core::GeoServer::createPostgisMosaicLayerP
                         "Levels=0.01,0.01\n"
                         "Heterogeneous=false\n"
                         "TimeAttribute=timestamp\n"
-                        "AbsolutePath=false\n"
+                        "AbsolutePath=true\n"
                         "Name=" + exhibitionName + "\n" +
                         "TypeName=" + exhibitionName + "\n" +
                         "Caching=false\n"
@@ -1835,15 +1822,7 @@ void terrama2::services::view::core::GeoServer::createPostgisIndexerPropertiesFi
 
   QFile outputFile(propertiesFilename.c_str());
 
-  if(outputFile.exists())
-  {
-    if(!outputFile.remove())
-    {
-      QString errMsg = QObject::tr("Could not remove file: %1").arg(propertiesFilename.c_str());
-      TERRAMA2_LOG_ERROR() << errMsg;
-      throw Exception() << ErrorDescription(errMsg);
-    }
-  }
+  recreateFolder(outputFolder);
 
   outputFile.open(QIODevice::WriteOnly);
 
@@ -1876,15 +1855,7 @@ void terrama2::services::view::core::GeoServer::createTimeregexPropertiesFile(co
 
   QFile outputFile(propertiesFilename.c_str());
 
-  if(outputFile.exists())
-  {
-    if(!outputFile.remove())
-    {
-      QString errMsg = QObject::tr("Could not remove file: %1").arg(propertiesFilename.c_str());
-      TERRAMA2_LOG_ERROR() << errMsg;
-      throw Exception() << ErrorDescription(errMsg);
-    }
-  }
+  recreateFolder(outputFolder);
 
   outputFile.open(QIODevice::WriteOnly);
 
