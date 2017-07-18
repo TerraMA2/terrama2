@@ -236,7 +236,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
       TableInfo tableInfo = DataAccess::getPostgisTableInfo(dataSeriesProvider, dataset);
 
       std::string tableName = tableInfo.tableName;
-      std::string layerName = terrama2::core::simplifyString(viewPtr->viewName + "_" + std::to_string(viewPtr->id));
+      std::string layerName = generateLayerName(viewPtr->viewName, viewPtr->id);
       std::string timestampPropertyName = tableInfo.timestampPropertyName;
 
       std::unique_ptr<te::da::DataSetType> modelDataSetType = std::move(tableInfo.dataSetType);
@@ -1253,7 +1253,7 @@ void terrama2::services::view::core::GeoServer::cleanup(const ViewId& id,
     workspace_to_remove = generateWorkspaceName(id);
 
     // Try to remove cached view table
-    const std::string& tableName = viewName + std::to_string(id);
+    const std::string& tableName = generateLayerName(viewName, id);
     // Removing view table
     try
     {
@@ -1267,11 +1267,11 @@ void terrama2::services::view::core::GeoServer::cleanup(const ViewId& id,
 
     if (dataProvider != nullptr)
     {
-      QUrl uri(dataProvider->uri.c_str());
-      const std::string& layerName = generateLayerName(viewName, id);
+      QUrl uri((dataProvider->uri+ "/" + tableName + ".properties").c_str());
+      removeFile(uri.toLocalFile().toStdString());
 
-      removeFile(uri.toString().toStdString() + "/" + layerName + ".properties");
-      removeFile(uri.toString().toStdString() + "/datastore.properties");
+      uri.setUrl((dataProvider->uri + "/datastore.properties").c_str());
+      removeFile(uri.toLocalFile().toStdString());
     }
   }
 
