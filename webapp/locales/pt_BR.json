@@ -954,5 +954,6 @@
   "total entries": "total de registros",
   "updated": "atualizado",
   "w": "w",
-  "Invalid address": "Endereço inválido"
+  "Invalid address": "Endereço inválido",
+  "The service can not access the log database!": "O serviço não pode acessar o banco de logs!"
 }

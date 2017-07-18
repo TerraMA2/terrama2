@@ -952,5 +952,6 @@
   "total entries": "total entries",
   "updated": "updated",
   "w": "w",
-  "Invalid address": "Invalid address"
+  "Invalid address": "Invalid address",
+  "The service can not access the log database!": "The service can not access the log database!"
 }
