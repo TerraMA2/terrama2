@@ -32,7 +32,7 @@
       },
       {
         "name": "Variance",
-        "code": "occurrence.zonal.zonal.variance(\"<dynamic_data_occurrence>\", \"<attribute>\", \"<time>\",<buffer>, \"<restriction>\")"
+        "code": "occurrence.zonal.variance(\"<dynamic_data_occurrence>\", \"<attribute>\", \"<time>\",<buffer>, \"<restriction>\")"
       }
     ]
   },
