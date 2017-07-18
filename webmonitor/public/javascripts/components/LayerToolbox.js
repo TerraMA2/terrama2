@@ -3,13 +3,40 @@
 define(
   ['components/Utils', 'components/Slider', 'components/Layers', 'TerraMA2WebComponents'],
   function(Utils, Slider, Layers, TerraMA2WebComponents) {
+
+    // Flag that indicates if there is a exportation in progress
+    var memberExportationInProgress = false;
+    // Timeout used to update exportation text
+    var memberExportationTextTimeout = null;
+
     var loadSocketsListeners = function() {
       Utils.getWebAppSocket().on('generateFileResponse', function(result) {
         if(result.progress !== undefined && result.progress >= 100) {
-          console.log('Quase lá! O arquivo está sendo preparado para o download<span>...</span>');
+          $('#exportation-status > div > span').html('Almost there! The file is being prepared for download<span>...</span>');
+          $('#exportation-status > div > div').addClass('hidden');
+
+          $('#exportation-status > div > div > div > span').text('0% Complete');
+          $('#exportation-status > div > div > div').css('width', '0%');
+          $('#exportation-status > div > div > div').attr('aria-valuenow', 0);
         } else if(result.progress !== undefined) {
-          console.log(result.progress + '% Completo');
+          if($('#exportation-status > div > div').hasClass('hidden')) {
+            $('#exportation-status > div > span').html('Please wait, the requested data is being exported<span>...</span>');
+            $('#exportation-status > div > div').removeClass('hidden');
+          }
+
+          $('#exportation-status > div > div > div > span').text(result.progress + '% Complete');
+          $('#exportation-status > div > div > div').css('width', result.progress + '%');
+          $('#exportation-status > div > div > div').attr('aria-valuenow', result.progress);
         } else {
+          memberExportationInProgress = false;
+          $('#exportation-status').addClass('hidden');
+          window.clearInterval(memberExportationTextTimeout);
+          memberExportationTextTimeout = null;
+          $('#exportation-status > div > span').html('');
+          $('#exportation-status > div > div').addClass('hidden');
+          $('#exportation-status > div > div > div > span').text('0% Complete');
+          $('#exportation-status > div > div > div').css('width', '0%');
+
           var exportLink = webadminHostInfo.protocol + webadminHostInfo.host + ":" + webadminHostInfo.port + webadminHostInfo.basePath + "export?folder=" + result.folder + "&file=" + result.file;
           $('#exportation-iframe').attr('src', exportLink);
         }
@@ -35,9 +62,28 @@ define(
             exportationParams.dateTimeTo = $("#terrama2-calendar").find("input[type='hidden']").attr("end-date");
           }
 
+          $('#exportation-status > div > span').html('Verifying data for export<span>...</span>');
+
+          memberExportationTextTimeout = setInterval(function() {
+            var text = $('#exportation-status > div > span > span').html();
+
+            if(text === "...")
+              $('#exportation-status > div > span > span').html('&nbsp;&nbsp;&nbsp;');
+            else if(text === "..&nbsp;")
+              $('#exportation-status > div > span > span').html('...');
+            else if(text === ".&nbsp;&nbsp;")
+              $('#exportation-status > div > span > span').html('..&nbsp;');
+            else
+              $('#exportation-status > div > span > span').html('.&nbsp;&nbsp;');
+          }, 800);
+
+          $('#exportation-status').removeClass('hidden');
+
+          memberExportationInProgress = true;
+
           Utils.getWebAppSocket().emit('generateFileRequest', exportationParams);
         }
-			});
+      });
 
       $("#terrama2-sortlayers").on("click", ".terrama2-layer-tools", function() {
         var layer = Layers.getLayerById($(this).parent().data("layerid"));
@@ -78,8 +124,8 @@ define(
       loadEvents();
 
       $("#layer-toolbox").draggable({
-				containment: $('#terrama2-map')
-			});
+        containment: $('#terrama2-map')
+      });
     };
 
     return {

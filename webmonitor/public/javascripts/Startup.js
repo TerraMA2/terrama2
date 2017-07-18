@@ -7,21 +7,22 @@ requirejs.config({
 
 requirejs(
   ['TerraMA2WebMonitor',
-  'components/Calendar',
-  'components/Slider',
-  'components/AttributesTable',
-  'components/Legends',
-  'components/GetAttributesTool',
-  'components/MapTools',
-  'components/Utils',
-  'components/AddLayerByUri',
-  'components/LayerToolbox',
-  'TerraMA2WebComponents'],
+    'components/Calendar',
+    'components/Slider',
+    'components/AttributesTable',
+    'components/Legends',
+    'components/GetAttributesTool',
+    'components/MapTools',
+    'components/Utils',
+    'components/AddLayerByUri',
+    'components/LayerToolbox',
+    'TerraMA2WebComponents'
+  ],
   function(TerraMA2WebMonitor, Calendar, Slider, AttributesTable, Legends, GetAttributesTool,
-            MapTools, Utils, AddLayerByUri, LayerToolbox, TerraMA2WebComponents) {
+    MapTools, Utils, AddLayerByUri, LayerToolbox, TerraMA2WebComponents) {
     TerraMA2WebComponents.LayerExplorer.init();
     TerraMA2WebComponents.MapDisplay.init();
-    
+
     Utils.init();
     TerraMA2WebMonitor.init();
     Calendar.init();
