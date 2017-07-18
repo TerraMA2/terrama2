@@ -113,9 +113,9 @@
             <!-- Optionally, you can add icons to the links -->
             <div id="terrama2-layerexplorer"></div>
             <form onsubmit="return false" class="form-inline"> 
-                <div class="form-group">
-                    <input id='wmsUri' class="form-control" type='search' placeholder='WMS URI'> <button id='addLayers' type='submit' class="btn btn-default">Add</button>
-                </div>
+              <div class="form-group">
+                <input id='wmsUri' class="form-control" type='search' placeholder='WMS URI'> <button id='addLayers' type='submit' class="btn btn-default">Add</button>
+              </div>
             </form>
             <li class="header">VISIBLE LAYERS</li>
             <div id="terrama2-sortlayers"></div>
@@ -153,8 +153,17 @@
                 <div class="layer-toolbox-header"><span class="layer-name"></span> - Layer Tools<span class="btn btn-default" style="padding: 0 4px 0 4px; float: right;"><i class="fa fa-close"></i></span></div>
                 <div class="layer-toolbox-body">
                   <div id="slider-box"></div>
-                  <hr class="hidden"/>
-                  <div id="exportation-box" class="hidden">
+                  <div id="exportation-box">
+                    <div id="exportation-status" class="hidden">
+                      <div>
+                        <span></span>
+                        <div class="progress progress-sm active hidden">
+                          <div class="progress-bar progress-bar-danger progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+                            <span class="sr-only">0% Complete</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                     <select multiple id="exportation-type" class="form-control">
                       <option value="all">All Formats</option>
                       <option selected value="csv">CSV</option>
@@ -167,27 +176,27 @@
                 </div>
               </div>
               <div id="map-tools">
-                  <div id="moveMap" class="map-tool-button mouse-function-btn active"><button type="button"><i class="fa fa-hand-rock-o"></i></button></div>
-                  <div id="legendsButton" class="map-tool-button mouse-function-btn"><button type="button"><i class="fa fa-list"></i></button></div>
-                  <div id="tableButton" class="map-tool-button mouse-function-btn hidden"><button type="button"><i class="fa fa-table"></i></button></div>
-                  <div id="getAttributes" class="map-tool-button mouse-function-btn hidden">
-                      <select class="form-control hidden"></select>
-                      <button type="button"><i class="fa fa-info"></i></button>
-                  </div>
+                <div id="moveMap" class="map-tool-button mouse-function-btn active"><button type="button"><i class="fa fa-hand-rock-o"></i></button></div>
+                <div id="legendsButton" class="map-tool-button mouse-function-btn"><button type="button"><i class="fa fa-list"></i></button></div>
+                <div id="tableButton" class="map-tool-button mouse-function-btn hidden"><button type="button"><i class="fa fa-table"></i></button></div>
+                <div id="getAttributes" class="map-tool-button mouse-function-btn hidden">
+                  <select class="form-control hidden"></select>
+                  <button type="button"><i class="fa fa-info"></i></button>
+                </div>
               </div>
               <div id="table-div" style="display: none; height: 400px;">
-                  <div class="main-div hidden">
-                      <div id="attributes-table-select">
-                          <span>Layers:</span>
-                          <select class="form-control"></select>
-                      </div>
-                      <div style="clear: both; height: 5px;"></div>
-                      <hr/>
-                      <div style="clear: both; height: 5px;"></div>
-                      <div id="attributes-table-div">
-                          <table class="table table-bordered table-hover" id="attributes-table"></table>
-                      </div>
+                <div class="main-div hidden">
+                  <div id="attributes-table-select">
+                    <span>Layers:</span>
+                    <select class="form-control"></select>
                   </div>
+                  <div style="clear: both; height: 5px;"></div>
+                  <hr/>
+                  <div style="clear: both; height: 5px;"></div>
+                  <div id="attributes-table-div">
+                    <table class="table table-bordered table-hover" id="attributes-table"></table>
+                  </div>
+                </div>
               </div>
           </div>
 

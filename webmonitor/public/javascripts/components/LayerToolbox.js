@@ -3,17 +3,41 @@
 define(
   ['components/Utils', 'components/Slider', 'components/Layers', 'TerraMA2WebComponents'],
   function(Utils, Slider, Layers, TerraMA2WebComponents) {
+
+    // Flag that indicates if there is a exportation in progress
+    var memberExportationInProgress = false;
+    // Timeout used to update exportation text
+    var memberExportationTextTimeout = null;
+
     var loadSocketsListeners = function() {
       Utils.getWebAppSocket().on('generateFileResponse', function(result) {
         if(result.progress !== undefined && result.progress >= 100) {
-          console.log('Quase lá! O arquivo está sendo preparado para o download<span>...</span>');
+          $('#exportation-status > div > span').html('Almost there! The file is being prepared for download<span>...</span>');
+          $('#exportation-status > div > div').addClass('hidden');
+
+          $('#exportation-status > div > div > div > span').text('0% Complete');
+          $('#exportation-status > div > div > div').css('width', '0%');
+          $('#exportation-status > div > div > div').attr('aria-valuenow', 0);
         } else if(result.progress !== undefined) {
-          console.log(result.progress + '% Completo');
+          if($('#exportation-status > div > div').hasClass('hidden')) {
+            $('#exportation-status > div > span').html('Please wait, the requested data is being exported<span>...</span>');
+            $('#exportation-status > div > div').removeClass('hidden');
+          }
+
+          $('#exportation-status > div > div > div > span').text(result.progress + '% Complete');
+          $('#exportation-status > div > div > div').css('width', result.progress + '%');
+          $('#exportation-status > div > div > div').attr('aria-valuenow', result.progress);
         } else {
-          console.log("folder=" + result.folder + "&file=" + result.file);
+          memberExportationInProgress = false;
+          $('#exportation-status').addClass('hidden');
+          window.clearInterval(memberExportationTextTimeout);
+          memberExportationTextTimeout = null;
+          $('#exportation-status > div > span').html('');
+          $('#exportation-status > div > div').addClass('hidden');
+          $('#exportation-status > div > div > div > span').text('0% Complete');
+          $('#exportation-status > div > div > div').css('width', '0%');
 
-          var exportLink = "http://localhost:36000/export?folder=" + result.folder + "&file=" + result.file;
-
+          var exportLink = webadminHostInfo.protocol + webadminHostInfo.host + ":" + webadminHostInfo.port + webadminHostInfo.basePath + "export?folder=" + result.folder + "&file=" + result.file;
           $('#exportation-iframe').attr('src', exportLink);
         }
       });
@@ -21,27 +45,69 @@ define(
 
     var loadEvents = function() {
       $('#export').on('click', function() {
-				Utils.getWebAppSocket().emit('generateFileRequest', {
-					format: $("#exportation-type").val().toString(),
-					dateTimeFrom: '2017-07-10 00:00:00',
-					dateTimeTo: '2017-07-12 23:59:59',
-					schema: 'public',
-					table: 'focos_saida',
-					dateTimeField: 'data_pas',
-					dataProviderId: 2
-				});
-			});
+        var layer = Layers.getLayerById($(this).data("layerid"));
+
+        if(layer !== null && layer.exportation !== null) {
+          var exportationParams = {
+            format: $("#exportation-type").val().toString(),
+            schema: layer.exportation.schema,
+            table: layer.exportation.table,
+            dataProviderId: layer.exportation.dataProviderId,
+            fileName: layer.name
+          };
+
+          if(layer.exportation.dateField !== null) {
+            exportationParams.dateTimeField = layer.exportation.dateField;
+            exportationParams.dateTimeFrom = $("#terrama2-calendar").find("input[type='hidden']").attr("start-date");
+            exportationParams.dateTimeTo = $("#terrama2-calendar").find("input[type='hidden']").attr("end-date");
+          }
+
+          $('#exportation-status > div > span').html('Verifying data for export<span>...</span>');
+
+          memberExportationTextTimeout = setInterval(function() {
+            var text = $('#exportation-status > div > span > span').html();
+
+            if(text === "...")
+              $('#exportation-status > div > span > span').html('&nbsp;&nbsp;&nbsp;');
+            else if(text === "..&nbsp;")
+              $('#exportation-status > div > span > span').html('...');
+            else if(text === ".&nbsp;&nbsp;")
+              $('#exportation-status > div > span > span').html('..&nbsp;');
+            else
+              $('#exportation-status > div > span > span').html('.&nbsp;&nbsp;');
+          }, 800);
+
+          $('#exportation-status').removeClass('hidden');
+
+          memberExportationInProgress = true;
+
+          Utils.getWebAppSocket().emit('generateFileRequest', exportationParams);
+        }
+      });
 
       $("#terrama2-sortlayers").on("click", ".terrama2-layer-tools", function() {
         var layer = Layers.getLayerById($(this).parent().data("layerid"));
 
         if(layer !== null) {
-          $("#layer-toolbox > .layer-toolbox-body > #slider-box").empty().html("<label></label><br/><div id=\"opacity" + layer.htmlId + "\"></div>");
-          
-          var currentOpacity = TerraMA2WebComponents.MapDisplay.getLayerOpacity(layer.id) * 100;
-          Slider.setOpacitySlider(layer.id, currentOpacity);
+          if(layer.exportation !== null) {
+            $("#export").data("layerid", layer.id);
+
+            if($("#exportation-box").hasClass("hidden"))
+              $("#exportation-box").removeClass("hidden");
+
+            $("#layer-toolbox").css("height", "265px");
+          } else {
+            if(!$("#exportation-box").hasClass("hidden"))
+              $("#exportation-box").addClass("hidden");
+
+            $("#layer-toolbox").css("height", "100px");
+          }
 
           $("#layer-toolbox > .layer-toolbox-header .layer-name").text(layer.name);
+
+          $("#layer-toolbox > .layer-toolbox-body > #slider-box").empty().html("<label></label><br/><div id=\"opacity" + layer.htmlId + "\"></div>");
+          var currentOpacity = TerraMA2WebComponents.MapDisplay.getLayerOpacity(layer.id) * 100;
+          Slider.setOpacitySlider(layer.id, currentOpacity);
 
           if($("#layer-toolbox").hasClass("hidden"))
             $("#layer-toolbox").removeClass("hidden");
@@ -58,8 +124,8 @@ define(
       loadEvents();
 
       $("#layer-toolbox").draggable({
-				containment: $('#terrama2-map')
-			});
+        containment: $('#terrama2-map')
+      });
     };
 
     return {

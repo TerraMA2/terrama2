@@ -186,9 +186,9 @@ var GetAttributesTableController = function(app) {
    */
   var getColumns = function(request, response) {
     if(request.query.layer === undefined || request.query.layer === null || request.query.layer === "") {
-        response.json({
-          fields: []
-        });
+      response.json({
+        fields: []
+      });
     } else {
       getValidProperties(request.query.layer, request.query.geoserverUri, function(fields) {
         response.json({

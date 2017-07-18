@@ -72,8 +72,6 @@ var Exportation = function() {
 
   /**
    * Returns the query accordingly with the received parameters.
-   * @param {string} dateTimeFrom - Initial date / time
-   * @param {string} dateTimeTo - Final date / time
    * @param {json} options - Filtering options
    * @returns {string} finalQuery - Query
    *
@@ -81,15 +79,21 @@ var Exportation = function() {
    * @memberof Exportation
    * @inner
    */
-  this.getQuery = function(dateTimeFrom, dateTimeTo, options) {
+  this.getQuery = function(options) {
     // Creation of the query
-    var query = "select * from " + options.Schema + "." + options.TableName + " where (" + options.DateTimeFieldName + " between %L and %L)",
-        params = [dateTimeFrom, dateTimeTo];
+    var query = "select * from " + options.Schema + "." + options.TableName;
+    
+    if(options.dateTimeField !== undefined && options.dateTimeFrom !== undefined && options.dateTimeTo !== undefined) {
+      query += " where (" + options.dateTimeField + " between %L and %L)";
+      var params = [options.dateTimeFrom, options.dateTimeTo];
 
-    // Adds the query to the params array
-    params.splice(0, 0, query);
+      // Adds the query to the params array
+      params.splice(0, 0, query);
 
-    var finalQuery = memberPgFormat.apply(null, params);
+      var finalQuery = memberPgFormat.apply(null, params);
+    } else {
+      var finalQuery = query;
+    }
 
     return finalQuery;
   };
