@@ -30,6 +30,8 @@
           <div class="modal-body">
             <p><b>{{ i18n.__('Service version')}}</b>{{": " + serviceVersion}}</p>
             <p><b>{{ i18n.__('Service start time')}}</b>{{": " + serviceStartTime}}</p>
+            <p ng-if="showServiceLoggerOffline" style="color: red;"><b>{{ i18n.__('The service can not access the log database!')}}</b></p>
+
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-primary" data-dismiss="modal">{{ i18n.__('Close') }}</button>
@@ -162,8 +164,8 @@
             <button ng-show="element.showErrorButton && element.hasError" ng-click="showErrorInfo(element)" class="btn btn-default btn-sm pull-right" style="color: red; border-color: red; width: 34px; height: 30px;"> 
               <i class="fa fa-warning"></i>
             </button>
-            <button ng-show="element.online" ng-click="showInfo(element)" class="btn btn-default btn-sm pull-right" style="width: 34px; height: 30px;"> 
-              <i class="fa fa-info" style="font-size: 16px;"></i>
+            <button ng-show="element.online" ng-click="showInfo(element)" class="btn btn-default btn-sm pull-right" style="width: 34px; height: 30px;" ng-class="{'service-warning': !element.logger_online}"> 
+              <i ng-class="{ 'fa fa-info': element.logger_online, 'fa fa-warning': !element.logger_online}" ></i>
             </button>
           </td>
 

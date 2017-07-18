@@ -281,12 +281,12 @@ int main(int argc, char* argv[])
         exit(TCP_SERVER_ERROR);
       }
 
+      serviceManager.setLogger(logger);
+
       QObject::connect(&serviceManager, &terrama2::core::ServiceManager::listeningPortUpdated, tcpManager.get(), &terrama2::core::TcpManager::updateListeningPort);
 
       QObject::connect(tcpManager.get(), &terrama2::core::TcpManager::startProcess, service.get(), &terrama2::core::Service::addToQueue);
       QObject::connect(&serviceManager, &terrama2::core::ServiceManager::numberOfThreadsUpdated, service.get(), &terrama2::core::Service::updateNumberOfThreads);
-
-      QObject::connect(&serviceManager, &terrama2::core::ServiceManager::logConnectionInfoUpdated, logger.get(), &terrama2::core::ProcessLogger::setConnectionInfo);
 
       QObject::connect(service.get(), &terrama2::core::Service::processFinishedSignal, tcpManager.get(),
                        &terrama2::core::TcpManager::sendProcessFinishedSlot);
