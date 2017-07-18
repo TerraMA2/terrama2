@@ -8,31 +8,31 @@
       },
       {
         "name": "Min",
-        "code": "occurrence.zonal.min(\"<dynamic_data_occurrence>\", \"<time>\", \"<attribute>\", <buffer>, \"<restriction>\")"
+        "code": "occurrence.zonal.min(\"<dynamic_data_occurrence>\", \"<attribute>\", \"<time>\",<buffer>, \"<restriction>\")"
       },
       {
         "name": "Max",
-        "code": "occurrence.zonal.max(\"<dynamic_data_occurrence>\", \"<time>\", \"<attribute>\", <buffer>, \"<restriction>\")"
+        "code": "occurrence.zonal.max(\"<dynamic_data_occurrence>\", \"<attribute>\", \"<time>\",<buffer>, \"<restriction>\")"
       },
       {
         "name": "Mean",
-        "code": "occurrence.zonal.mean(\"<dynamic_data_occurrence>\", \"<time>\", \"<attribute>\", <buffer>, \"<restriction>\")"
+        "code": "occurrence.zonal.mean(\"<dynamic_data_occurrence>\", \"<attribute>\", \"<time>\",<buffer>, \"<restriction>\")"
       },
       {
         "name": "Median",
-        "code": "occurrence.zonal.median(\"<dynamic_data_occurrence>\", \"<time>\", \"<attribute>\", <buffer>, \"<restriction>\")"
+        "code": "occurrence.zonal.median(\"<dynamic_data_occurrence>\", \"<attribute>\", \"<time>\",<buffer>, \"<restriction>\")"
       },
       {
         "name": "Sum",
-        "code": "occurrence.zonal.sum(\"<dynamic_data_occurrence>\", \"<time>\", \"<attribute>\", <buffer>, \"<restriction>\")"
+        "code": "occurrence.zonal.sum(\"<dynamic_data_occurrence>\", \"<attribute>\", \"<time>\",<buffer>, \"<restriction>\")"
       },
       {
         "name": "Standard deviation",
-        "code": "occurrence.zonal.standard_deviation(\"<dynamic_data_occurrence>\", \"<time>\", \"<attribute>\", <buffer>, \"<restriction>\")"
+        "code": "occurrence.zonal.standard_deviation(\"<dynamic_data_occurrence>\", \"<attribute>\", \"<time>\",<buffer>, \"<restriction>\")"
       },
       {
         "name": "Variance",
-        "code": "occurrence.zonal.zonal.variance(\"<dynamic_data_occurrence>\", \"<time>\", \"<attribute>\", <buffer>, \"<restriction>\")"
+        "code": "occurrence.zonal.variance(\"<dynamic_data_occurrence>\", \"<attribute>\", \"<time>\",<buffer>, \"<restriction>\")"
       }
     ]
   },
@@ -45,31 +45,31 @@
       },
       {
         "name": "Min",
-        "code": "occurrence.zonal.aggregation.min(\"<dynamic_data_occurrence>\", \"<time>\", \"<attribute>\", aggregationStatistic, aggregationBuffer, <buffer>, \"<restriction>\")"
+        "code": "occurrence.zonal.aggregation.min(\"<dynamic_data_occurrence>\", \"<attribute>\", \"<time>\",aggregationStatistic, aggregationBuffer, <buffer>, \"<restriction>\")"
       },
       {
         "name": "Max",
-        "code": "occurrence.zonal.aggregation.max(\"<dynamic_data_occurrence>\", \"<time>\", \"<attribute>\", aggregationStatistic, aggregationBuffer, <buffer>, \"<restriction>\")"
+        "code": "occurrence.zonal.aggregation.max(\"<dynamic_data_occurrence>\", \"<attribute>\", \"<time>\",aggregationStatistic, aggregationBuffer, <buffer>, \"<restriction>\")"
       },
       {
         "name": "Mean",
-        "code": "occurrence.zonal.aggregation.mean(\"<dynamic_data_occurrence>\", \"<time>\", \"<attribute>\", aggregationStatistic, aggregationBuffer, <buffer>, \"<restriction>\")"
+        "code": "occurrence.zonal.aggregation.mean(\"<dynamic_data_occurrence>\", \"<attribute>\", \"<time>\",aggregationStatistic, aggregationBuffer, <buffer>, \"<restriction>\")"
       },
       {
         "name": "Median",
-        "code": "occurrence.zonal.aggregation.median(\"<dynamic_data_occurrence>\", \"<time>\", \"<attribute>\", aggregationStatistic, aggregationBuffer, <buffer>, \"<restriction>\")"
+        "code": "occurrence.zonal.aggregation.median(\"<dynamic_data_occurrence>\", \"<attribute>\", \"<time>\",aggregationStatistic, aggregationBuffer, <buffer>, \"<restriction>\")"
       },
       {
         "name": "Sum",
-        "code": "occurrence.zonal.aggregation.sum(\"<dynamic_data_occurrence>\", \"<time>\", \"<attribute>\", aggregationStatistic, aggregationBuffer, <buffer>, \"<restriction>\")"
+        "code": "occurrence.zonal.aggregation.sum(\"<dynamic_data_occurrence>\", \"<attribute>\", \"<time>\",aggregationStatistic, aggregationBuffer, <buffer>, \"<restriction>\")"
       },
       {
         "name": "Standard deviation",
-        "code": "occurrence.zonal.aggregation.standard_deviation(\"<dynamic_data_occurrence>\", \"<time>\", \"<attribute>\", aggregationStatistic, aggregationBuffer, <buffer>, \"<restriction>\")"
+        "code": "occurrence.zonal.aggregation.standard_deviation(\"<dynamic_data_occurrence>\", \"<attribute>\", \"<time>\",aggregationStatistic, aggregationBuffer, <buffer>, \"<restriction>\")"
       },
       {
         "name": "Variance",
-        "code": "occurrence.zonal.aggregation.variance(\"<dynamic_data_occurrence>\", \"<time>\", \"<attribute>\", aggregationStatistic, aggregationBuffer, <buffer>, \"<restriction>\")"
+        "code": "occurrence.zonal.aggregation.variance(\"<dynamic_data_occurrence>\", \"<attribute>\", \"<time>\",aggregationStatistic, aggregationBuffer, <buffer>, \"<restriction>\")"
       }
     ]
   },
@@ -82,31 +82,31 @@
       },
       {
         "name": "Min",
-        "code": "occurrence.zonal.interval.min(\"<dynamic_data_occurrence>\", \"<time_begin>\",  \"<time_end>\", \"<attribute>\", <buffer>, \"<restriction>\")"
+        "code": "occurrence.zonal.interval.min(\"<dynamic_data_occurrence>\", \"<attribute>\", \"<time_begin>\",  \"<time_end>\", <buffer>, \"<restriction>\")"
       },
       {
         "name": "Max",
-        "code": "occurrence.zonal.interval.max(\"<dynamic_data_occurrence>\", \"<time_begin>\",  \"<time_end>\", \"<attribute>\", <buffer>, \"<restriction>\")"
+        "code": "occurrence.zonal.interval.max(\"<dynamic_data_occurrence>\", \"<attribute>\", \"<time_begin>\",  \"<time_end>\", <buffer>, \"<restriction>\")"
       },
       {
         "name": "Mean",
-        "code": "occurrence.zonal.interval.mean(\"<dynamic_data_occurrence>\", \"<time_begin>\",  \"<time_end>\", \"<attribute>\", <buffer>, \"<restriction>\")"
+        "code": "occurrence.zonal.interval.mean(\"<dynamic_data_occurrence>\", \"<attribute>\", \"<time_begin>\",  \"<time_end>\", <buffer>, \"<restriction>\")"
       },
       {
         "name": "Median",
-        "code": "occurrence.zonal.interval.median(\"<dynamic_data_occurrence>\", \"<time_begin>\",  \"<time_end>\", \"<attribute>\", <buffer>, \"<restriction>\")"
+        "code": "occurrence.zonal.interval.median(\"<dynamic_data_occurrence>\", \"<attribute>\", \"<time_begin>\",  \"<time_end>\", <buffer>, \"<restriction>\")"
       },
       {
         "name": "Sum",
-        "code": "occurrence.zonal.interval.sum(\"<dynamic_data_occurrence>\", \"<time_begin>\",  \"<time_end>\", \"<attribute>\", <buffer>, \"<restriction>\")"
+        "code": "occurrence.zonal.interval.sum(\"<dynamic_data_occurrence>\", \"<attribute>\", \"<time_begin>\",  \"<time_end>\", <buffer>, \"<restriction>\")"
       },
       {
         "name": "Standard deviation",
-        "code": "occurrence.zonal.interval.standard_deviation(\"<dynamic_data_occurrence>\", \"<time_begin>\",  \"<time_end>\", \"<attribute>\", <buffer>, \"<restriction>\")"
+        "code": "occurrence.zonal.interval.standard_deviation(\"<dynamic_data_occurrence>\", \"<attribute>\", \"<time_begin>\",  \"<time_end>\", <buffer>, \"<restriction>\")"
       },
       {
         "name": "Variance",
-        "code": "occurrence.zonal.interval.zonal.variance(\"<dynamic_data_occurrence>\", \"<time_begin>\",  \"<time_end>\", \"<attribute>\", <buffer>, \"<restriction>\")"
+        "code": "occurrence.zonal.interval.zonal.variance(\"<dynamic_data_occurrence>\", \"<attribute>\", \"<time_begin>\",  \"<time_end>\", <buffer>, \"<restriction>\")"
       }
     ]
   }
