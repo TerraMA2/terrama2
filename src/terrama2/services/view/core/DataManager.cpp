@@ -100,20 +100,22 @@ void terrama2::services::view::core::DataManager::update(terrama2::services::vie
 
 void terrama2::services::view::core::DataManager::removeView(ViewId viewId)
 {
+  DataSeriesId dataSeriesId;
+
   {
     std::lock_guard<std::recursive_mutex> lock(mtx_);
     auto itPr = view_.find(viewId);
     if(itPr == view_.end())
     {
-      QString errMsg = QObject::tr("DataProvider not registered.");
+      QString errMsg = QObject::tr("View not registered.");
       TERRAMA2_LOG_ERROR() << errMsg;
       throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
-
+    dataSeriesId = itPr->second->dataSeriesID;
     view_.erase(itPr);
   }
 
-  emit viewRemoved(viewId);
+  emit viewRemoved(viewId, dataSeriesId);
 }
 
 void terrama2::services::view::core::DataManager::addJSon(const QJsonObject& obj)

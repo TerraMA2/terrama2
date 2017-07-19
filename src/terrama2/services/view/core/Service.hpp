@@ -77,15 +77,23 @@ namespace terrama2
           /*!
             \brief Removes the View.
 
-            Rennuning processes will continue until finished.
+            Running processes will continue until finished.
           */
-          void removeView(ViewId viewId) noexcept;
+          void removeView(ViewId id, DataSeriesId dataSeriesId) noexcept;
 
           /*!
            * \brief Receive a jSon and update service information with it
            * \param obj jSon with additional information for service
            */
           virtual void updateAdditionalInfo(const QJsonObject& obj) noexcept override;
+
+        private:
+          /*!
+           * \brief Removes View from memory and tries to remove entire workspace of GeoServer
+           * \param viewId View identifier
+           * \param removeAll Flag to remove everything. It includes both geoserver workspace as table metadata. Default "true"
+           */
+          void removeCompleteView(ViewId id, DataSeriesId dataSeriesId, bool removeAll = true) noexcept;
 
         protected:
 
