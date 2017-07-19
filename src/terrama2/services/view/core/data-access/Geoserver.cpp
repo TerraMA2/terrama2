@@ -1572,8 +1572,6 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
     /*
      * Resetting properties files tree.
      * Now we defined a sub directory containing both LayerName.properties and datastore.properties.
-     *
-     * For each execution, we reset this folder and rewrite with new files. Its important due ViewName may change.
      */
     recreateFolder(url.path().toStdString());
     // Creating LayerName.properties
@@ -2063,5 +2061,5 @@ std::string terrama2::services::view::core::GeoServer::generateWorkspaceName(con
 
 std::string terrama2::services::view::core::GeoServer::generateLayerName(const ViewId& id) const
 {
-  return terrama2::core::simplifyString("view_" + std::to_string(id));
+  return "view" + std::to_string(id);
 }

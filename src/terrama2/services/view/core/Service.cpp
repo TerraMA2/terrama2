@@ -178,10 +178,10 @@ void terrama2::services::view::core::Service::removeCompleteView(ViewId id, Data
         lock.unlock();
       }
 
-      // Retrieving Maps server handler
-      MapsServerPtr mapsServer = MapsServerFactory::getInstance().make(mapsServerUri_, "GEOSERVER");
       try
       {
+        // Retrieving Maps server handler
+        MapsServerPtr mapsServer = MapsServerFactory::getInstance().make(mapsServerUri_, "GEOSERVER");
         // removing from geoserver
         mapsServer->cleanup(id, inputDataProvider, logger_);
       }
