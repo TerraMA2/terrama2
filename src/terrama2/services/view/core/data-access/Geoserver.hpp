@@ -388,11 +388,11 @@ namespace terrama2
             std::string generateWorkspaceName(const ViewId& id);
 
             /*!
-             * \brief Retrieves a layer name based view name and view id.
-             * \param view View object
+             * \brief Helper to retrieve common view name with view id.
+             * \param id View identifier
              * \return Unique Layer Name
              */
-            std::string generateLayerName(const std::string& viewName, const ViewId& id) const;
+            std::string generateLayerName(const ViewId& id) const;
 
 
             std::string workspace_ = "terrama2"; /*!< A workspace to work in GeoServer */
