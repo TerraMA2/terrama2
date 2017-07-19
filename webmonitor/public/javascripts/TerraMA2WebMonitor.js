@@ -139,70 +139,88 @@ define(
     };
 
     var loadSocketsListeners = function() {
-      Utils.getWebAppSocket().on("viewResponse", function(data) {
-        $('#projects').empty();
-        for(var i = 0, projectsLength = data.projects.length; i < projectsLength; i++)
-          $('#projects').append($('<option></option>').attr('value', data.projects[i].id).text(data.projects[i].name));
-
-        data.views.forEach(function(view) {
-          var objectLayer = Layers.createLayerObject(view);
-          Layers.addLayer(objectLayer);
-        });
-
-        Layers.fillLayersData();
+      Utils.getWebAppSocket().on("notifyView", function() {
+        Utils.getSocket().emit('retrieveNotifiedViews', { clientId: Utils.getWebAppSocket().id });
       });
 
-      // When receive a new view, add in layers component
-      Utils.getWebAppSocket().on('viewReceived', function(data) {
-        if(!data.private || (data.private && userLogged)) {
+      Utils.getWebAppSocket().on("removeView", function() {
+        Utils.getSocket().emit('retrieveRemovedViews', { clientId: Utils.getWebAppSocket().id });
+      });
 
-          var layerObject = Layers.createLayerObject(data);
-          var newLayer = Layers.getLayerById(layerObject.id) == null ? true : false;
+      Utils.getWebAppSocket().on('viewReceived', function() {
+        Utils.getSocket().emit('retrieveViews', { clientId: Utils.getWebAppSocket().id });
+      });
 
-          if(!newLayer) {
-            Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.NEW);
-            Layers.changeParentLayerStatus(layerObject.parent, LayerStatusEnum.NEW);
-            var workspace = layerObject.workspace;
-            var uriGeoServer = layerObject.uriGeoServer;
-            var serverType = layerObject.serverType;
-            var url = uriGeoServer + '/' + workspace + '/' + layerObject.nameId + '/wms?service=WMS&version=1.1.0&request=GetCapabilities';
-            var getCapabilitiesUrl = {
-              layerName: layerObject.nameId,
-              layerId: layerObject.id,
-              parent: layerObject.parent,
-              url: url,
-              format: 'xml',
-              update: true
+      Utils.getSocket().on("retrieveNotifiedViewsResponse", function(data) {
+        for(var i = 0, viewsLength = data.views.length; i < viewsLength; i++) {
+          var layerId = data.views[i].workspace + ":" + data.views[i].layer.name;
+          var layerObject = Layers.getLayerById(layerId);
+          if(layerObject) {
+            Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.ALERT);
+            Layers.changeParentLayerStatus("alert", LayerStatusEnum.ALERT);
+          }
+        }
+      });
+
+      Utils.getSocket().on("retrieveRemovedViewsResponse", function(data) {
+        for(var i = 0, viewsLength = data.views.length; i < viewsLength; i++) {
+          var layerId = data.views[i].workspace + ":" + data.views[i].layer.name;
+          var parent = data.views[i].parent;
+          var layerObject = Layers.getLayerById(layerId);
+          if(layerObject) {
+            removeLayerOfExplorer(layerObject);
+            Layers.removeLayer(layerObject.id);
+          }
+        }
+      });
+
+      Utils.getSocket().on("retrieveViewsResponse", function(viewsData) {
+        if(viewsData.initialRequest) {
+          $('#projects').empty();
+          for(var i = 0, projectsLength = viewsData.projects.length; i < projectsLength; i++)
+            $('#projects').append($('<option></option>').attr('value', viewsData.projects[i].id).text(viewsData.projects[i].name));
+
+          viewsData.views.forEach(function(view) {
+            var objectLayer = Layers.createLayerObject(view);
+            Layers.addLayer(objectLayer);
+          });
+
+          Layers.fillLayersData();
+        } else {
+          for(var i = 0, viewsLength = viewsData.views.length; i < viewsLength; i++) {
+            var data = viewsData.views[i];
+
+            if(!data.private || (data.private && userLogged)) {
+              var layerObject = Layers.createLayerObject(data);
+              var newLayer = Layers.getLayerById(layerObject.id) == null ? true : false;
+
+              if(!newLayer) {
+                Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.NEW);
+                Layers.changeParentLayerStatus(layerObject.parent, LayerStatusEnum.NEW);
+                var workspace = layerObject.workspace;
+                var uriGeoServer = layerObject.uriGeoServer;
+                var serverType = layerObject.serverType;
+                var url = uriGeoServer + '/' + workspace + '/' + layerObject.nameId + '/wms?service=WMS&version=1.1.0&request=GetCapabilities';
+                var getCapabilitiesUrl = {
+                  layerName: layerObject.nameId,
+                  layerId: layerObject.id,
+                  parent: layerObject.parent,
+                  url: url,
+                  format: 'xml',
+                  update: true
+                }
+                Utils.getSocket().emit('proxyRequestCapabilities', getCapabilitiesUrl);
+                return;
+              }
+              var currentProject = $("#projects").val();
+              Layers.addLayer(layerObject);
+              if(layerObject.projectId == currentProject) {
+                Layers.fillLayersData([layerObject]);
+                Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.NEW);
+                Layers.changeParentLayerStatus(layerObject.parent, LayerStatusEnum.NEW);
+              }
             }
-            Utils.getSocket().emit('proxyRequestCapabilities', getCapabilitiesUrl);
-            return;
           }
-          var currentProject = $("#projects").val();
-          Layers.addLayer(layerObject);
-          if(layerObject.projectId == currentProject) {
-            Layers.fillLayersData([layerObject]);
-            Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.NEW);
-            Layers.changeParentLayerStatus(layerObject.parent, LayerStatusEnum.NEW);
-          }
-        }
-      });
-
-      Utils.getWebAppSocket().on("notifyView", function(data) {
-        var layerId = data.workspace + ":" + data.layer.name;
-        var layerObject = Layers.getLayerById(layerId);
-        if(layerObject) {
-          Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.ALERT);
-          Layers.changeParentLayerStatus("alert", LayerStatusEnum.ALERT);
-        }
-      });
-
-      Utils.getWebAppSocket().on("removeView", function(data) {
-        var layerId = data.workspace + ":" + data.layer.name;
-        var parent = data.parent;
-        var layerObject = Layers.getLayerById(layerId);
-        if(layerObject) {
-          removeLayerOfExplorer(layerObject);
-          Layers.removeLayer(layerObject.id);
         }
       });
 
@@ -584,7 +602,7 @@ define(
       loadLayout();
       $("#osm input").trigger("click");
 
-      Utils.getWebAppSocket().emit('viewRequest');
+      Utils.getSocket().emit('retrieveViews', { clientId: Utils.getWebAppSocket().id, initialRequest: true });
     };
 
     return {
