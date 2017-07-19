@@ -46,16 +46,24 @@ void terrama2::core::PythonInterpreter::setDouble(const std::string& name, const
 {
   auto lock = holdState();
 
-  boost::python::object pyScope = boost::python::scope();
-  pyScope.attr(name.c_str()) = value;
+  using namespace boost::python;
+
+  object main = object(handle<>(borrowed(PyImport_AddModule("__main__"))));
+  object nspace = main.attr("__dict__");
+
+  nspace[name] = value;
 }
 
 void terrama2::core::PythonInterpreter::setString(const std::string& name, const std::string value)
 {
   auto lock = holdState();
 
-  boost::python::object pyScope = boost::python::scope();
-  pyScope.attr(name.c_str()) = value;
+  using namespace boost::python;
+
+  object main = object(handle<>(borrowed(PyImport_AddModule("__main__"))));
+  object nspace = main.attr("__dict__");
+
+  nspace[name] = value;
 }
 
 std::string terrama2::core::PythonInterpreter::extractException()
@@ -87,10 +95,13 @@ boost::optional<double> terrama2::core::PythonInterpreter::getNumeric(const std:
 {
   auto lock = holdState();
 
-  boost::python::object pyScope = boost::python::scope();
-  boost::python::object obj = pyScope.attr(name.c_str());
+  using namespace boost::python;
 
-  boost::python::extract<double> value(obj);
+  object main = object(handle<>(borrowed(PyImport_AddModule("__main__"))));
+  object nspace = main.attr("__dict__");
+  object obj = nspace[name];
+
+  extract<double> value(obj);
 
   return value.check() ? boost::optional<double>(value()) : boost::none;
 }
@@ -99,10 +110,13 @@ boost::optional<std::string> terrama2::core::PythonInterpreter::getString(const 
 {
   auto lock = holdState();
 
-  boost::python::object pyScope = boost::python::scope();
-  boost::python::object obj = pyScope.attr(name.c_str());
+  using namespace boost::python;
 
-  boost::python::extract<std::string> value(obj);
+  object main = object(handle<>(borrowed(PyImport_AddModule("__main__"))));
+  object nspace = main.attr("__dict__");
+  object obj = nspace[name];
+
+  extract<std::string> value(obj);
 
   return value.check() ? boost::optional<std::string>(value()) : boost::none;
 }
@@ -111,6 +125,23 @@ void terrama2::core::PythonInterpreter::runScript(const std::string& script)
 {
   auto lock = holdState();
 
+  using namespace boost::python;
+
+  try
+  {
+    object main = object(handle<>(borrowed(PyImport_AddModule("__main__"))));
+    object nspace = main.attr("__dict__");
+
+    handle<> ignored(( PyRun_String( script.c_str(),
+                                     Py_file_input,
+                                     nspace.ptr(),
+                                     nspace.ptr() ) ));
+  }
+  catch( error_already_set )
+  {
+    // extractException();
+    PyErr_Print();
+  }
 }
 
 terrama2::core::PythonInterpreter::StateLock terrama2::core::PythonInterpreter::holdState() const
