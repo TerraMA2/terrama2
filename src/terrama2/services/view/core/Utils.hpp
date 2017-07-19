@@ -85,17 +85,6 @@ namespace terrama2
         void removeTable(const std::string& name, const te::core::URI& uri);
 
         /*!
-         * \brief Tries to remove file from disk
-         *
-         * \note It only throw exception when the filepath exists but could not remove (Permission management/Lock)
-         *
-         * \throws Exception when could not remove file.
-         *
-         * \param filepath Path to file
-         */
-        void removeFile(const std::string& filepath);
-
-        /*!
          * \brief Tries to remove folder
          *
          * \throws Exception when could not remove folder
@@ -111,8 +100,8 @@ namespace terrama2
         void createFolder(const std::string& folderpath);
 
         /*!
-         * \brief Tries to remove and then create folder
-         * \throws Exception when could not remove folder
+         * \brief Tries to remove and then create new folder
+         * \throws Exception when could not create or remove folder
          *
          * \param folderpath Path to re-criate
          */

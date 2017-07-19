@@ -91,7 +91,7 @@ namespace terrama2
           /*!
            * \brief Removes View from memory and tries to remove entire workspace of GeoServer
            * \param viewId View identifier
-           * \param removeAll Flag to remove everything. It includes both geoserver workspace as table metadata. Default "false"
+           * \param removeAll Flag to remove everything. It includes both geoserver workspace as table metadata. Default "true"
            */
           void removeCompleteView(ViewId id, DataSeriesId dataSeriesId, bool removeAll = true) noexcept;
 

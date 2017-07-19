@@ -166,14 +166,13 @@ void terrama2::services::view::core::Service::removeCompleteView(ViewId id, Data
 
     if (removeAll)
     {
-      terrama2::core::DataSeriesPtr inputDataSeries;
       terrama2::core::DataProviderPtr inputDataProvider;
 
       // Locking datamanager
       {
         auto dataManager = dataManager_.lock();
         auto lock = dataManager->getLock();
-        inputDataSeries = dataManager->findDataSeries(dataSeriesId);
+        terrama2::core::DataSeriesPtr inputDataSeries = dataManager->findDataSeries(dataSeriesId);
         inputDataProvider = dataManager->findDataProvider(inputDataSeries->dataProviderId);
 
         lock.unlock();

@@ -104,7 +104,7 @@ void terrama2::services::view::core::DataManager::removeView(ViewId viewId)
 
   {
     std::lock_guard<std::recursive_mutex> lock(mtx_);
-    std::map<ViewId, ViewPtr>::const_iterator itPr = view_.find(viewId);
+    auto itPr = view_.find(viewId);
     if(itPr == view_.end())
     {
       QString errMsg = QObject::tr("View not registered.");
