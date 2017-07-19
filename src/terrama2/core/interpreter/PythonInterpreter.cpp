@@ -34,11 +34,14 @@
 terrama2::core::PythonInterpreter::PythonInterpreter()
   : Interpreter()
 {
+  mainThreadState_ = PyThreadState_Get();
+  StateLock lock(mainThreadState_);
   interpreterState_ = Py_NewInterpreter();
 }
 
 terrama2::core::PythonInterpreter::~PythonInterpreter()
 {
+  StateLock lock(holdState());
   Py_EndInterpreter(interpreterState_);
 }
 

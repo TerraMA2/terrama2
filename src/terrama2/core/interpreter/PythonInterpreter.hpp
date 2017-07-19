@@ -82,6 +82,7 @@ namespace terrama2
       //! Lock the instance and aquire the current state.
       StateLock holdState() const;
       PyThreadState *interpreterState_;
+      PyThreadState *mainThreadState_;
     };
   } /* core */
 } /* terrama2 */
