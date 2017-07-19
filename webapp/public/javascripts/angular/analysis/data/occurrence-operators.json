@@ -106,7 +106,7 @@
       },
       {
         "name": "Variance",
-        "code": "occurrence.zonal.interval.zonal.variance(\"<dynamic_data_occurrence>\", \"<attribute>\", \"<time_begin>\",  \"<time_end>\", <buffer>, \"<restriction>\")"
+        "code": "occurrence.zonal.interval.variance(\"<dynamic_data_occurrence>\", \"<attribute>\", \"<time_begin>\",  \"<time_end>\", <buffer>, \"<restriction>\")"
       }
     ]
   }
