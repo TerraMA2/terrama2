@@ -527,7 +527,7 @@ void terrama2::services::view::core::GeoServer::registerPostGisDataStore(const s
                       "<port>" + connInfo.at("PG_PORT") +"</port>" +
                       "<database>" + connInfo.at("PG_DB_NAME") + "</database>" +
                       "<user>" + connInfo.at("PG_USER") + "</user>" +
-                      "<passwd>" + connInfo.at("PG_USER") + "</passwd>" +
+                      "<passwd>" + connInfo.at("PG_PASSWORD") + "</passwd>" +
                       "<dbtype>postgis</dbtype>" +
                       "</connectionParameters>" +
                       "</dataStore>";
