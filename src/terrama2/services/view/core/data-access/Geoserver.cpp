@@ -302,6 +302,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
       }
 
       registerPostgisTable(std::to_string(viewPtr->id) + "_" + std::to_string(inputDataSeries->id) + "_datastore",
+                           inputDataSeries->semantics.dataSeriesType,
                            connInfo,
                            tableName,
                            layerName,
@@ -526,7 +527,7 @@ void terrama2::services::view::core::GeoServer::registerPostGisDataStore(const s
                       "<port>" + connInfo.at("PG_PORT") +"</port>" +
                       "<database>" + connInfo.at("PG_DB_NAME") + "</database>" +
                       "<user>" + connInfo.at("PG_USER") + "</user>" +
-                      "<passwd>" + connInfo.at("PG_USER") + "</passwd>" +
+                      "<passwd>" + connInfo.at("PG_PASSWORD") + "</passwd>" +
                       "<dbtype>postgis</dbtype>" +
                       "</connectionParameters>" +
                       "</dataStore>";
@@ -625,6 +626,7 @@ const std::string& terrama2::services::view::core::GeoServer::getFeature(const s
 
 
 void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::string& dataStoreName,
+                                                                     terrama2::core::DataSeriesType dataSeriesType,
                                                                      std::map<std::string, std::string> connInfo,
                                                                      const std::string& tableName,
                                                                      const std::string& layerName,
@@ -654,13 +656,19 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::
   std::string metadataTime = "";
   std::string metadataSQL = "";
 
+  std::string presentation;
+  if(dataSeriesType == terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT)
+    presentation = "LIST";
+  else
+    presentation = "CONTINUOUS_INTERVAL";
+
   if(!timestampPropertyName.empty())
   {
     metadataTime = "<entry key=\"time\">"
                    "<dimensionInfo>"
                    "<enabled>true</enabled>"
                    "<attribute>"+timestampPropertyName+"</attribute>"+
-                   "<presentation>LIST</presentation>"
+                   "<presentation>"+presentation+"</presentation>"
                    "<units>ISO8601</units>"
                    "<defaultValue>"
                    "<strategy>MAXIMUM</strategy>"
@@ -2028,7 +2036,7 @@ void terrama2::services::view::core::GeoServer::createMosaicTable(std::shared_pt
 
   // the newDataSetType takes ownership of the pointer
   auto spatialIndex = new te::da::Index("spatial_index_" + tableName, te::da::B_TREE_TYPE, {geomProp});
-  
+
   te::dt::StringProperty* filenameProp = new te::dt::StringProperty("location", te::dt::VAR_STRING, 255, true);
 
   te::dt::DateTimeProperty* timestampProp = new te::dt::DateTimeProperty("timestamp", te::dt::TIME_INSTANT, true);

@@ -34,8 +34,8 @@ int main(int argc, char* argv[])
   url.setPath("/focos_operacao/");
   url.setScheme("FTP");
   url.setPort(21);
-  url.setUserName("queimadas");
-  url.setPassword("inpe_2012");
+  url.setUserName("");
+  url.setPassword("");
 
   curl_global_init(CURL_GLOBAL_ALL);
 

@@ -124,6 +124,7 @@ namespace terrama2
              * \param sql The SQL statements to create the view
              */
             void registerPostgisTable(const std::string& dataStoreName,
+                                      terrama2::core::DataSeriesType dataSeriesType,
                                       std::map<std::string, std::string> connInfo,
                                       const std::string& tableName,
                                       const std::string& layerName,

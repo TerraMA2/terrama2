@@ -207,10 +207,6 @@ void IntRasterTs::CollectAndCropRaster()
 {
 
   auto& serviceManager = terrama2::core::ServiceManager::getInstance();
-  te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PASSWORD+"@"+TERRAMA2_DATABASE_HOST+":"+TERRAMA2_DATABASE_PORT+"/"+TERRAMA2_DATABASE_DBNAME);
-  serviceManager.setLogConnectionInfo(uri);
-  serviceManager.setInstanceId(1);
-
   auto dataManager = std::make_shared<terrama2::services::collector::core::DataManager>();
   addInput(dataManager);
   addOutput(dataManager);
@@ -226,6 +222,7 @@ void IntRasterTs::CollectAndCropRaster()
   EXPECT_CALL(*loggerCopy, getDataLastTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
   EXPECT_CALL(*loggerCopy, done(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
   EXPECT_CALL(*loggerCopy, start(::testing::_)).WillRepeatedly(::testing::Return(0));
+  EXPECT_CALL(*loggerCopy, isValid()).WillRepeatedly(::testing::Return(true));
 
   auto logger = std::make_shared<terrama2::core::MockCollectorLogger>();
 
@@ -236,8 +233,15 @@ void IntRasterTs::CollectAndCropRaster()
   EXPECT_CALL(*logger, done(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
   EXPECT_CALL(*logger, start(::testing::_)).WillRepeatedly(::testing::Return(0));
   EXPECT_CALL(*logger, clone()).WillRepeatedly(::testing::Return(loggerCopy));
+  EXPECT_CALL(*logger, isValid()).WillRepeatedly(::testing::Return(true));
 
+  te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PASSWORD+"@"+TERRAMA2_DATABASE_HOST+":"+TERRAMA2_DATABASE_PORT+"/"+TERRAMA2_DATABASE_DBNAME);
   logger->setConnectionInfo(uri);
+
+  serviceManager.setLogger(logger);
+  serviceManager.setLogConnectionInfo(uri);
+  serviceManager.setInstanceId(1);
+
   service.setLogger(logger);
   service.start();
 

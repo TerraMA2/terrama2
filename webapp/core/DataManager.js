@@ -5176,7 +5176,12 @@ var DataManager = module.exports = {
             model: models.db.Layer
           },
           {
-            model: models.db.View
+            model: models.db.View,
+            include: [
+              {
+                model: models.db.DataSeries
+              }
+            ]
           }
         ]
       }, options))

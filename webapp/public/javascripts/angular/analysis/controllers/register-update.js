@@ -675,6 +675,9 @@ define([], function() {
 
           self.onTargetDataSeriesChange = function() {
             if (self.targetDataSeries && self.targetDataSeries.name) {
+              if(parseInt(self.analysis.type_id) === AnalysisService.types.MONITORED)
+                self.analysis.data_provider_id = self.targetDataSeries.data_provider_id;
+
               self.metadata[self.targetDataSeries.name] = {
                 alias: self.targetDataSeries.name
               };
@@ -1057,7 +1060,7 @@ define([], function() {
           }
 
           // cheking influence form: DCP and influence form valid
-          if (self.analysis.type_id == 1) {
+          if (self.analysis.type_id == 1 || self.hasDcp()) {
             var form = $scope.forms.influenceForm;
             if (form.$invalid) {
               throw new Error(errMessageEmptyFields);

@@ -3,7 +3,7 @@ define([], function() {
 
   function ListController($scope, Service, $HttpTimeout, Socket, i18n, MessageBoxService, $timeout) {
     $scope.socket = Socket;
-
+    $scope.i18n = i18n;
     $scope.title = 'Services';
     $scope.MessageBoxService = MessageBoxService;
     $scope.helperMessage = "This page shows available services in TerraMA2 application";
@@ -61,7 +61,10 @@ define([], function() {
       service.online = response.online;
       if (service.online){
         service.version = response.terrama2_version;
-        service.start_time = moment(response.start_time).format("lll");
+        var date = new Date(response.start_time);
+        moment.locale($scope.i18n.userLanguage);
+        service.start_time = moment(date).format("lll");
+        service.logger_online = response.logger_online;
       }
     });
 

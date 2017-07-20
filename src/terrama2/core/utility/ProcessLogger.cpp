@@ -74,40 +74,45 @@ void terrama2::core::ProcessLogger::setConnectionInfo(const te::core::URI& uri)
   try
   {
     closeConnection();
-
     dataSource_ = te::da::DataSourceFactory::make("POSTGIS", uri);
 
     try
     {
       dataSource_->open();
-
-      if(!dataSource_->isOpened())
+      if(dataSource_->isOpened())
+      {
+        isValid_ = true;
+        return;
+      }
+      else
       {
         QString errMsg = QObject::tr("Could not connect to database");
         TERRAMA2_LOG_ERROR() << errMsg;
+        throw LogException() << ErrorDescription(errMsg);
       }
-
-      isValid_ = true;
-      return;
     }
     catch(const std::exception& e)
     {
       QString errMsg = QObject::tr("Could not connect to database");
       TERRAMA2_LOG_ERROR() << errMsg << ": " << e.what();
+      throw LogException() << ErrorDescription(errMsg);
     }
   }
   catch(const std::exception& e)
   {
     QString errMsg = QObject::tr("Could not connect to database");
     TERRAMA2_LOG_ERROR() << errMsg << ": " << e.what();
+    throw LogException() << ErrorDescription(errMsg);
   }
   catch(...)
   {
-    // exception guard, slots should never emit exceptions.
-    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception...");
+    QString errMsg = QObject::tr("Unknown exception in ProcessLogger::setConnectionInfo ...");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw LogException() << ErrorDescription(errMsg);
   }
 }
 
+bool terrama2::core::ProcessLogger::isValid() const { return isValid_; }
 
 void terrama2::core::ProcessLogger::setDataSource(te::da::DataSource* dataSource)
 {
@@ -148,8 +153,7 @@ terrama2::core::ProcessLogger::~ProcessLogger()
 
 RegisterId terrama2::core::ProcessLogger::start(ProcessId processId) const
 {
-  if(!isValid_)
-    throw terrama2::core::LogException() << ErrorDescription("Error on log!");
+  checkLogger();
 
   // send start to database
   if(tableName_.empty())
@@ -186,8 +190,7 @@ void terrama2::core::ProcessLogger::setEndProcessingTime(const std::shared_ptr< 
 
 void terrama2::core::ProcessLogger::addValue(const std::string& tag, const std::string& value, RegisterId registerId) const
 {
-  if(!isValid_)
-    throw terrama2::core::LogException() << ErrorDescription("Error on log!");
+  checkLogger();
 
   if(tableName_.empty())
   {
@@ -232,8 +235,7 @@ void terrama2::core::ProcessLogger::addValue(const std::string& tag, const std::
 void
 terrama2::core::ProcessLogger::log(MessageType messageType, const std::string &description, RegisterId registerId) const
 {
-  if(!isValid_)
-    throw terrama2::core::LogException() << ErrorDescription("Error on log!");
+  checkLogger();
 
   if(tableName_.empty() || messagesTableName_.empty())
   {
@@ -259,12 +261,16 @@ terrama2::core::ProcessLogger::log(MessageType messageType, const std::string &d
   transactor->commit();
 }
 
+void terrama2::core::ProcessLogger::checkLogger() const
+{
+  if(!isValid_)
+    throw terrama2::core::LogException() << ErrorDescription("Error on log!");
+}
 
 void terrama2::core::ProcessLogger::result(Status status, const std::shared_ptr<te::dt::TimeInstantTZ> &dataTimestamp,
                                            RegisterId registerId) const
 {
-  if(!isValid_)
-    throw terrama2::core::LogException() << ErrorDescription("Error on log!");
+  checkLogger();
 
   if(tableName_.empty())
   {
@@ -299,8 +305,7 @@ void terrama2::core::ProcessLogger::result(Status status, const std::shared_ptr<
 
 std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::ProcessLogger::getLastProcessTimestamp(const ProcessId processId) const
 {
-  if(!isValid_)
-    throw terrama2::core::LogException() << ErrorDescription("Error on log!");
+  checkLogger();
 
   if(tableName_.empty())
   {
@@ -328,8 +333,7 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::ProcessLogger::getLastP
 
 std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::ProcessLogger::getDataLastTimestamp(const ProcessId processId) const
 {
-  if(!isValid_)
-    throw terrama2::core::LogException() << ErrorDescription("Error on log!");
+  checkLogger();
 
   if(tableName_.empty())
   {
@@ -357,8 +361,7 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::ProcessLogger::getDataL
 
 std::vector< terrama2::core::ProcessLogger::Log > terrama2::core::ProcessLogger::getLogs(const ProcessId processId, uint32_t begin, uint32_t end) const
 {
-  if(!isValid_)
-    throw terrama2::core::LogException() << ErrorDescription("Error on log!");
+  checkLogger();
 
   if(tableName_.empty())
   {
@@ -428,8 +431,7 @@ std::vector< terrama2::core::ProcessLogger::Log > terrama2::core::ProcessLogger:
 
 ProcessId terrama2::core::ProcessLogger::processID(const RegisterId registerId) const
 {
-  if(!isValid_)
-    throw terrama2::core::LogException() << ErrorDescription("Error on log!");
+  checkLogger();
 
   if(tableName_.empty())
   {
@@ -464,8 +466,7 @@ ProcessId terrama2::core::ProcessLogger::processID(const RegisterId registerId) 
 
 void terrama2::core::ProcessLogger::update(std::string& column, std::string& value, std::string& whereCondition) const
 {
-  if(!isValid_)
-    throw terrama2::core::LogException() << ErrorDescription("Error on log!");
+  checkLogger();
 
   if(tableName_.empty())
   {
@@ -515,8 +516,7 @@ void terrama2::core::ProcessLogger::updateStatus(std::vector<Status> oldStatus, 
 
 void terrama2::core::ProcessLogger::setTableName(std::string tableName)
 {
-  if(!isValid_)
-    throw terrama2::core::LogException() << ErrorDescription("Error on log!");
+  checkLogger();
 
   // Check if schema_ exists in database
   {
@@ -618,8 +618,7 @@ void terrama2::core::ProcessLogger::setTableName(std::string tableName)
 
 void terrama2::core::ProcessLogger::updateData(const ProcessId registerId, const QJsonObject obj) const
 {
-  if(!isValid_)
-    throw terrama2::core::LogException() << ErrorDescription("Error on log!");
+  checkLogger();
 
   if(tableName_.empty())
   {

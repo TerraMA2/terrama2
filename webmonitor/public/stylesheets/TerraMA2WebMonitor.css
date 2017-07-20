@@ -407,28 +407,28 @@
  * It handles Mozila FireFox CSS specific styles
  */
 @-moz-document url-prefix() {
-    /*
-      It fixes the position of dropdown icon on layer explorer. Without it, the icon will overflow to the next li item
-    */
-    .ui-sortable .group-name span i {
-      margin-top: -16px !important;
-    }
+  /*
+    It fixes the position of dropdown icon on layer explorer. Without it, the icon will overflow to the next li item
+  */
+  .ui-sortable .group-name span i {
+    margin-top: -16px !important;
+  }
 
-    .sidebar-collapse .ui-sortable .group-name span i {
-      margin-top: 0px !important;
-    }
+  .sidebar-collapse .ui-sortable .group-name span i {
+    margin-top: 0px !important;
+  }
 
-    .terrama2-layerexplorer-checkbox-span {
-      text-indent: 8px !important;
-    }
+  .terrama2-layerexplorer-checkbox-span {
+    text-indent: 8px !important;
+  }
 
-    .slider-content button[class~="close-slider"]{
-      margin-top: -25px !important;
-    }
+  .slider-content button[class~="close-slider"]{
+    margin-top: -25px !important;
+  }
 
-    #terrama2-opacity-slider{
-      margin-top: -20px !important;
-    }
+  .terrama2-layer-tools {
+    margin-top: -20px !important;
+  }
 }
 
 .map-tool-button {
@@ -465,9 +465,9 @@
 
 #legendsButton { top: 130px; }
 
-#tableButton { top: 170px; }
+#tableButton { top: 210px; }
 
-#getAttributes { top: 210px; }
+#getAttributes { top: 170px; }
 
 #getAttributes.with-select { width: 190px; }
 
@@ -553,24 +553,71 @@
   float: left;
 }
 
-#legend-box {
+#legend-box, #layer-toolbox {
   position: absolute;
-  width: 320px;
-  height: 480px;
   background-color: white;
   z-index: 99999;
-  overflow: auto;
   border-radius: 5px;
   border: 1px solid;
-  right: 65px;
   top: 21px;
 }
 
-#legend-box > .legend-header {
+#legend-box {
+  width: 320px;
+  height: 480px;
+}
+
+#layer-toolbox {
+  width: 220px;
+}
+
+#legend-box { right: 65px; }
+
+#layer-toolbox { left: 21px; }
+
+#legend-box > .legend-header, #layer-toolbox > .layer-toolbox-header {
   padding: 10px;
   font-size: 15px;
   background-color: #d8d8d8;
   color: #000000;
+  height: 41px;
+  overflow: hidden;
+  border-radius: 5px 5px 0px 0px;
 }
 
-#legend-box > .legend-body { padding: 10px; }
+#legend-box > .legend-body, #layer-toolbox > .layer-toolbox-body {
+  padding: 10px;
+  margin-top: 41px;
+  overflow: auto;
+  position: absolute;
+  width: 100%;
+  height: calc(100% - 41px);
+  top: 0;
+  cursor: default;
+}
+
+#exportation-box {
+  margin-top: 15px;
+  border-top: 1px solid #d8d8d8;
+  padding-top: 15px;
+}
+
+#exportation-status {
+  position: absolute;
+  width: 100%;
+  height: 160px;
+  background-color: rgba(255, 255, 255, 0.75);
+  margin-left: -10px;
+  margin-top: -15px;
+}
+
+#exportation-status > div {
+  padding: 34px 10px 0 10px;
+  text-align: center;
+  font-weight: 900;
+  font-size: 15px;
+}
+
+#exportation-status > div > div {
+  margin-top: 7px;
+}
