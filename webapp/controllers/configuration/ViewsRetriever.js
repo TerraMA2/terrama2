@@ -17,24 +17,41 @@ var ViewsRetriever = function(app) {
   var memberDataManager = require("../../core/DataManager");
 
   var retrieveFunction = function(params, response) {
-    if(params.type === memberViewsCache.TYPES.NEW_AND_UPDATED && params.initialRequest) {
-      return memberDataManager.listRegisteredViews().then(function(views) {
-        var viewsObjects = views.map(function(view) {
-          return view.toObject();
-        });
+    var sendPrivate = false;
 
-        response.json({
-          views: viewsObjects,
-          projects: memberDataManager.listProjects(),
-          initialRequest: true
+    var processViews = function() {
+      if(params.type === memberViewsCache.TYPES.NEW_AND_UPDATED && params.initialRequest) {
+        return memberDataManager.listRegisteredViews().then(function(views) {
+          var viewsObjects = views.map(function(view) {
+            return view.toObject();
+          });
+
+          response.json({
+            views: viewsObjects,
+            projects: memberDataManager.listProjects(),
+            initialRequest: true
+          });
+        }).catch(function(err) {
+          console.error(err);
+          response.json({});
         });
+      } else {
+        response.json({ views: memberViewsCache.getViews(params.type, params.clientId), initialRequest: false });
+        memberViewsCache.emptyViews(params.type, params.clientId);
+      }
+    };
+
+    if(params.userToken !== null && params.userToken !== "") {
+      memberDataManager.getUser({ token: params.userToken }).then(function(user) {
+        if(user.token === params.userToken)
+          sendPrivate = true;
+
+        processViews();
       }).catch(function(err) {
-        console.error(err);
-        response.json({});
+        processViews();
       });
     } else {
-      response.json({ views: memberViewsCache.getViews(params.type, params.clientId), initialRequest: false });
-      memberViewsCache.emptyViews(params.type, params.clientId);
+      processViews();
     }
   };
 
@@ -42,6 +59,7 @@ var ViewsRetriever = function(app) {
     retrieveFunction({
       type: memberViewsCache.TYPES.NEW_AND_UPDATED,
       clientId: request.body.clientId,
+      userToken: request.body.userToken,
       initialRequest: request.body.initialRequest
     }, response);
   };
@@ -49,14 +67,16 @@ var ViewsRetriever = function(app) {
   var retrieveRemovedViews = function(request, response) {
     retrieveFunction({
       type: memberViewsCache.TYPES.REMOVED,
-      clientId: request.body.clientId
+      clientId: request.body.clientId,
+      userToken: request.body.userToken
     }, response);
   };
 
   var retrieveNotifiedViews = function(request, response) {
     retrieveFunction({
       type: memberViewsCache.TYPES.NOTIFIED,
-      clientId: request.body.clientId
+      clientId: request.body.clientId,
+      userToken: request.body.userToken
     }, response);
   };
 

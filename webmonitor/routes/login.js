@@ -7,13 +7,24 @@ module.exports = function(app) {
         console.log(err);
 
       if(!user)
-        return response.redirect(app.locals.BASE_URL + "?message=" + info.message);
+        return response.json({
+          error: info.message
+        });
       else {
         request.logIn(user, function(e) {
           if(e)
             return next(e);
 
-          return response.redirect(app.locals.BASE_URL);
+          var io = app.getIo();
+
+          for(var key in io.sockets.sockets) {
+            io.sockets.sockets[key].userToken = user.token;
+          }
+
+          return response.json({
+            error: null,
+            username: user.name
+          });
         });
       }
     })(request, response, next);
@@ -21,6 +32,13 @@ module.exports = function(app) {
 
   app.get(app.locals.BASE_URL + 'logout', function(request, response) {
     request.logout();
-    return response.redirect(app.locals.BASE_URL);
+
+    var io = app.getIo();
+
+    for(var key in io.sockets.sockets) {
+      delete io.sockets.sockets[key].userToken;
+    }
+
+    return response.json({ error: null });
   });
 };

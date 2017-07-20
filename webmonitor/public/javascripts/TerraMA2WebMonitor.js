@@ -30,25 +30,11 @@ define(
       var allLayers = Layers.getAllLayers();
       allLayers.forEach(function(layer) {
         if(layer.projectId) {
-          removeLayerOfExplorer(layer);
+          Layers.removeLayerOfExplorer(layer);
         }
       });
       Layers.fillLayersData();
-    }
-
-    var removeLayerOfExplorer = function(layer) {
-      var layerId = layer.id;
-      var parent = layer.parent;
-
-      if(layer.visible) {
-        $("#" + layer.htmlId + " input.terrama2-layerexplorer-checkbox").trigger("click");
-      }
-      $("#terrama2-sortlayers").find('li#' + layer.htmlId).remove();
-      TerraMA2WebComponents.LayerExplorer.removeLayer(layerId, "terrama2-layerexplorer");
-      if($("#" + parent + " li").length == 0) {
-        Layers.changeParentLayerStatus(parent, "");
-      }
-    }
+    };
 
     var loadEvents = function() {
       $('#projects').on('change', changeProjects);
@@ -155,6 +141,7 @@ define(
         for(var i = 0, viewsLength = data.views.length; i < viewsLength; i++) {
           var layerId = data.views[i].workspace + ":" + data.views[i].layer.name;
           var layerObject = Layers.getLayerById(layerId);
+
           if(layerObject) {
             Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.ALERT);
             Layers.changeParentLayerStatus("alert", LayerStatusEnum.ALERT);
@@ -165,63 +152,44 @@ define(
       Utils.getSocket().on("retrieveRemovedViewsResponse", function(data) {
         for(var i = 0, viewsLength = data.views.length; i < viewsLength; i++) {
           var layerId = data.views[i].workspace + ":" + data.views[i].layer.name;
-          var parent = data.views[i].parent;
           var layerObject = Layers.getLayerById(layerId);
-          if(layerObject) {
-            removeLayerOfExplorer(layerObject);
-            Layers.removeLayer(layerObject.id);
-          }
+
+          if(layerObject)
+            Layers.removeLayer(layerObject);
         }
       });
 
       Utils.getSocket().on("retrieveViewsResponse", function(viewsData) {
-        if(viewsData.initialRequest) {
+        if(viewsData.projects) {
           $('#projects').empty();
+
           for(var i = 0, projectsLength = viewsData.projects.length; i < projectsLength; i++)
             $('#projects').append($('<option></option>').attr('value', viewsData.projects[i].id).text(viewsData.projects[i].name));
+        }
 
-          viewsData.views.forEach(function(view) {
-            var objectLayer = Layers.createLayerObject(view);
-            Layers.addLayer(objectLayer);
-          });
+        var currentProject = $("#projects").val();
 
-          Layers.fillLayersData();
-        } else {
-          for(var i = 0, viewsLength = viewsData.views.length; i < viewsLength; i++) {
-            var data = viewsData.views[i];
+        for(var i = 0, viewsLength = viewsData.views.length; i < viewsLength; i++) {
+          var layerObject = Layers.createLayerObject(viewsData.views[i]);
+          var newLayer = Layers.getLayerById(layerObject.id) == null ? true : false;
 
-            if(!data.private || (data.private && userLogged)) {
-              var layerObject = Layers.createLayerObject(data);
-              var newLayer = Layers.getLayerById(layerObject.id) == null ? true : false;
+          if(newLayer) {
+            Layers.addLayer(layerObject);
 
-              if(!newLayer) {
-                Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.NEW);
-                Layers.changeParentLayerStatus(layerObject.parent, LayerStatusEnum.NEW);
-                var workspace = layerObject.workspace;
-                var uriGeoServer = layerObject.uriGeoServer;
-                var serverType = layerObject.serverType;
-                var url = uriGeoServer + '/' + workspace + '/' + layerObject.nameId + '/wms?service=WMS&version=1.1.0&request=GetCapabilities';
-                var getCapabilitiesUrl = {
-                  layerName: layerObject.nameId,
-                  layerId: layerObject.id,
-                  parent: layerObject.parent,
-                  url: url,
-                  format: 'xml',
-                  update: true
-                }
-                Utils.getSocket().emit('proxyRequestCapabilities', getCapabilitiesUrl);
-                return;
-              }
-              var currentProject = $("#projects").val();
-              Layers.addLayer(layerObject);
-              if(layerObject.projectId == currentProject) {
-                Layers.fillLayersData([layerObject]);
-                Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.NEW);
-                Layers.changeParentLayerStatus(layerObject.parent, LayerStatusEnum.NEW);
-              }
+            if(!viewsData.initialRequest && layerObject.projectId == currentProject) {
+              Layers.fillLayersData([layerObject]);
+              Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.NEW);
+              Layers.changeParentLayerStatus(layerObject.parent, LayerStatusEnum.NEW);
             }
+          } else {
+            Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.NEW);
+            Layers.changeParentLayerStatus(layerObject.parent, LayerStatusEnum.NEW);
+            Layers.getLayerCapabilities(layerObject.uriGeoServer, layerObject.workspace, layerObject.nameId, layerObject.id, layerObject.parent, true);
           }
         }
+
+        if(viewsData.initialRequest)
+          Layers.fillLayersData();
       });
 
       // Checking map server connection response

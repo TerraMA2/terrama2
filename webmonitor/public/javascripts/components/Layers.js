@@ -83,18 +83,38 @@ define(
       return visibleLayers;
     }
 
-    var removeLayer = function(layerId) {
-      var indexLayer = memberAllLayers.map(function(l) {
-        return l.id
-      }).indexOf(layerId);
+    var removeLayer = function(layer) {
+      removeLayerOfExplorer(layer);
+
+      var indexLayer = memberAllLayers.map(function(l) { return l.id; }).indexOf(layer.id);
+
       if(indexLayer != -1)
         memberAllLayers.splice(indexLayer, 1);
+    };
+
+    var removeLayerOfExplorer = function(layer) {
+      if(layer.visible)
+        $("#" + layer.htmlId + " input.terrama2-layerexplorer-checkbox").trigger("click");
+
+      $("#terrama2-sortlayers").find('li#' + layer.htmlId).remove();
+      TerraMA2WebComponents.LayerExplorer.removeLayer(layer.id, "terrama2-layerexplorer");
+
+      if($("#" + layer.parent + " li").length == 0)
+        changeParentLayerStatus(layer.parent, "");
+    };
+
+    var removePrivateLayers = function() {
+      for(var i = 0, allLayersLength = memberAllLayers.length; i < allLayersLength; i++) {
+        if(memberAllLayers[i].private)
+          removeLayer(memberAllLayers[i]);
+      }
     };
 
     var addLayersToSort = function() {
       var itens = "";
       var allLayers = getAllLayers();
       var allLayersLength = allLayers.length;
+
       for(var i = allLayersLength - 1; i >= 0; i--) {
         if(!allLayers[i].projectId) {
           var layerId = allLayers[i].id;
@@ -105,17 +125,15 @@ define(
           itens += '<li id="' + htmlId + '" data-layerid="' + layerId + '" data-parentid="terrama2-layerexplorer" class="hide">' + allLayers[i].name + spanIcon + '</li>';
         }
       }
-      var list = '<ul>' + itens + '</ul>';
-      $('#terrama2-sortlayers').append(list);
+
+      $('#terrama2-sortlayers').append('<ul>' + itens + '</ul>');
     };
 
     // Add layers in layers explorer menu
     var fillLayersData = function(layers) {
-      var data = layers;
-      if(!data) {
-        data = memberAllLayers;
-      }
+      var data = (layers ? layers : memberAllLayers);
       var currentProject = $("#projects").val();
+
       for(var i in data) {
         if((!data[i].private || (data[i].private && userLogged)) && data[i].projectId && data[i].projectId == currentProject) {
           var workspace = data[i].workspace;
@@ -126,27 +144,19 @@ define(
           var layerId = data[i].id;
           var htmlId = data[i].htmlId;
 
-          if(TerraMA2WebComponents.MapDisplay.addImageWMSLayer(layerId, layerName, layerName, uriGeoServer + '/ows', serverType, false, false, "terrama2-layerexplorer", {
-              version: "1.1.0"
-            })) {
+          if(TerraMA2WebComponents.MapDisplay.addImageWMSLayer(layerId, layerName, layerName, uriGeoServer + '/ows', serverType, false, false, "terrama2-layerexplorer", { version: "1.1.0" })) {
             TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, parent, null, "treeview unsortable terrama2-truncate-text", null);
+
             if(parent == 'dynamic') {
-              var url = uriGeoServer + '/' + workspace + '/' + data[i].nameId + '/wms?service=WMS&version=1.1.0&request=GetCapabilities';
-              var getCapabilitiesUrl = {
-                layerName: data[i].nameId,
-                layerId: layerId,
-                parent: parent,
-                url: url,
-                format: 'xml',
-                update: false
-              }
-              Utils.getSocket().emit('proxyRequestCapabilities', getCapabilitiesUrl);
+              getLayerCapabilities(uriGeoServer, workspace, data[i].nameId, layerId, parent, false);
             }
           }
+
           LayerStatus.changeGroupStatusIcon(parent, LayerStatusEnum.ONLINE);
           LayerStatus.addLayerStatusIcon(htmlId);
           LayerStatus.changeLayerStatusIcon(htmlId, LayerStatusEnum.ONLINE);
           Sortable.addLayerToSort(layerId, layerName);
+
           Utils.getSocket().emit('checkConnection', {
             url: uriGeoServer,
             requestId: layerId
@@ -155,9 +165,26 @@ define(
       }
     };
 
+    var getLayerCapabilities = function(uriGeoServer, workspace, nameId, layerId, parent, update) {
+      var url = uriGeoServer + '/' + workspace + '/' + nameId + '/wms?service=WMS&version=1.1.0&request=GetCapabilities';
+
+      var getCapabilitiesUrl = {
+        layerName: nameId,
+        layerId: layerId,
+        parent: parent,
+        url: url,
+        format: 'xml',
+        update: update
+      };
+
+      Utils.getSocket().emit('proxyRequestCapabilities', getCapabilitiesUrl);
+    };
+
     return {
       fillLayersData: fillLayersData,
       removeLayer: removeLayer,
+      removeLayerOfExplorer: removeLayerOfExplorer,
+      removePrivateLayers: removePrivateLayers,
       addLayersToSort: addLayersToSort,
       createLayerObject: createLayerObject,
       addLayer: addLayer,
@@ -166,7 +193,8 @@ define(
       changeLayerVisible: changeLayerVisible,
       getVisibleLayers: getVisibleLayers,
       changeLayerStatus: changeLayerStatus,
-      changeParentLayerStatus: changeParentLayerStatus
+      changeParentLayerStatus: changeParentLayerStatus,
+      getLayerCapabilities: getLayerCapabilities
     };
   }
 );

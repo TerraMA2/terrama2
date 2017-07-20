@@ -16,10 +16,23 @@ requirejs(
     'components/Utils',
     'components/AddLayerByUri',
     'components/LayerToolbox',
+    'components/Login',
     'TerraMA2WebComponents'
   ],
-  function(TerraMA2WebMonitor, Calendar, Slider, AttributesTable, Legends, GetAttributesTool,
-    MapTools, Utils, AddLayerByUri, LayerToolbox, TerraMA2WebComponents) {
+  function(
+    TerraMA2WebMonitor,
+    Calendar,
+    Slider,
+    AttributesTable,
+    Legends,
+    GetAttributesTool,
+    MapTools,
+    Utils,
+    AddLayerByUri,
+    LayerToolbox,
+    Login,
+    TerraMA2WebComponents
+  ) {
     TerraMA2WebComponents.LayerExplorer.init();
     TerraMA2WebComponents.MapDisplay.init();
 
@@ -33,5 +46,6 @@ requirejs(
     MapTools.init();
     AddLayerByUri.init();
     LayerToolbox.init();
+    Login.init();
   }
 );

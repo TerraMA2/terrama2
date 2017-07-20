@@ -32,6 +32,7 @@ var ViewsHandlers = function(io) {
         url: memberConfig.webadmin.protocol + memberConfig.webadmin.host + ":" + memberConfig.webadmin.port + memberConfig.webadmin.basePath + action,
         form: {
           clientId: json.clientId,
+          userToken: (client.userToken !== undefined ? client.userToken : null),
           initialRequest: json.initialRequest
         }
       };

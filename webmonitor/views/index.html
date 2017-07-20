@@ -42,27 +42,24 @@
             <span class="imgs"><img id="mma" src="{[ BASE_URL ]}images/mma.png"></span>
             <span class="imgs"><img src="{[ BASE_URL ]}images/funcate.png"></span>
 
-            {% if (currentUser !== null) %}
-            <div class="navbar-custom-menu" id="user-nav">
+            <div class="navbar-custom-menu{% if currentUser === null %} hidden{% endif %}" id="user-nav">
               <ul class="nav navbar-nav">
                 <li class="dropdown user user-menu">
                   <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
-                    <span class="hidden-xs user-name">{[ currentUser.name ]}</span>
+                    <span class="hidden-xs user-name">{% if currentUser !== null %}{[ currentUser.name ]}{% endif %}</span>
                   </a>
                   <ul class="dropdown-menu">
                     <li class="user-header" style="height: auto;">
-                      <p class="user-name">{[ currentUser.name ]}</p>
+                      <p class="user-name">{% if currentUser !== null %}{[ currentUser.name ]}{% endif %}</p>
                     </li>
                     <li class="user-footer">
-                      <div class="pull-right"><a href="{[ BASE_URL ]}logout" class="btn btn-default btn-flat" id="signout">Sign out</a></div>
+                      <div class="pull-right"><a href="#" class="btn btn-default btn-flat" id="signout">Sign out</a></div>
                     </li>
                   </ul>
                 </li>
               </ul>
             </div>
-            {% endif %}
-            {% if (currentUser === null) %}
-            <div class="navbar-custom-menu" id="login-nav">
+            <div class="navbar-custom-menu{% if currentUser !== null %} hidden{% endif %}" id="login-nav">
               <ul class="nav navbar-nav">
                 <li class="dropdown user user-menu">
                   <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
@@ -70,7 +67,7 @@
                   </a>
                   <ul class="dropdown-menu">
                     <li class="user-body">
-                      <form method="POST" action="{[ BASE_URL ]}login">
+                      <form>
                         <div class="form-group has-feedback">
                           <input type="text" class="form-control" placeholder="Username" name="username" id="username">
                           <span class="fa fa-user form-control-feedback"></span>
@@ -81,7 +78,7 @@
                         </div>
                         <div class="row">
                           <div class="col-md-12">
-                            <button type="submit" name="btnLogin" class="btn btn-primary btn-block btn-flat" id="signin">
+                            <button type="button" name="btnLogin" class="btn btn-primary btn-block btn-flat" id="signin">
                               <span ng-bind="i18n.__('Sign In')" class="ng-binding">Sign In</span>
                             </button>
                           </div>
@@ -92,7 +89,6 @@
                 </li>
               </ul>
             </div>
-            {% endif %}
           </div>
         </nav>
       </header>
@@ -145,59 +141,59 @@
           {% set message = message || {} %}
 
           <div id="terrama2-map" class="terrama2-map cursor-move">
-              <div id="legend-box">
-                <div class="legend-header">Legends</div>
-                <div class="legend-body"><strong>No data to show.</strong></div>
-              </div>
-              <div id="layer-toolbox" class="hidden">
-                <div class="layer-toolbox-header"><span class="layer-name"></span> - Layer Tools<span class="btn btn-default" style="padding: 0 4px 0 4px; float: right;"><i class="fa fa-close"></i></span></div>
-                <div class="layer-toolbox-body">
-                  <div id="slider-box"></div>
-                  <div id="exportation-box">
-                    <div id="exportation-status" class="hidden">
-                      <div>
-                        <span></span>
-                        <div class="progress progress-sm active hidden">
-                          <div class="progress-bar progress-bar-danger progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
-                            <span class="sr-only">0% Complete</span>
-                          </div>
+            <div id="legend-box">
+              <div class="legend-header">Legends</div>
+              <div class="legend-body"><strong>No data to show.</strong></div>
+            </div>
+            <div id="layer-toolbox" class="hidden">
+              <div class="layer-toolbox-header"><span class="layer-name"></span> - Layer Tools<span class="btn btn-default" style="padding: 0 4px 0 4px; float: right;"><i class="fa fa-close"></i></span></div>
+              <div class="layer-toolbox-body">
+                <div id="slider-box"></div>
+                <div id="exportation-box">
+                  <div id="exportation-status" class="hidden">
+                    <div>
+                      <span></span>
+                      <div class="progress progress-sm active hidden">
+                        <div class="progress-bar progress-bar-danger progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+                          <span class="sr-only">0% Complete</span>
                         </div>
                       </div>
                     </div>
-                    <select multiple id="exportation-type" class="form-control">
-                      <option value="all">All Formats</option>
-                      <option selected value="csv">CSV</option>
-                      <option value="geojson">GeoJSON</option>
-                      <option value="kml">KML</option>
-                      <option value="shapefile">Shapefile</option>
-                    </select>
-                    <button id="export" type="button" class="btn btn-default" style="margin-top: 10px;">Export Data</button>
                   </div>
+                  <select multiple id="exportation-type" class="form-control">
+                    <option value="all">All Formats</option>
+                    <option selected value="csv">CSV</option>
+                    <option value="geojson">GeoJSON</option>
+                    <option value="kml">KML</option>
+                    <option value="shapefile">Shapefile</option>
+                  </select>
+                  <button id="export" type="button" class="btn btn-default" style="margin-top: 10px;">Export Data</button>
                 </div>
               </div>
-              <div id="map-tools">
-                <div id="moveMap" class="map-tool-button mouse-function-btn active"><button type="button"><i class="fa fa-hand-rock-o"></i></button></div>
-                <div id="legendsButton" class="map-tool-button mouse-function-btn"><button type="button"><i class="fa fa-list"></i></button></div>
-                <div id="tableButton" class="map-tool-button mouse-function-btn hidden"><button type="button"><i class="fa fa-table"></i></button></div>
-                <div id="getAttributes" class="map-tool-button mouse-function-btn hidden">
-                  <select class="form-control hidden"></select>
-                  <button type="button"><i class="fa fa-info"></i></button>
+            </div>
+            <div id="map-tools">
+              <div id="moveMap" class="map-tool-button mouse-function-btn active"><button type="button"><i class="fa fa-hand-rock-o"></i></button></div>
+              <div id="legendsButton" class="map-tool-button mouse-function-btn"><button type="button"><i class="fa fa-list"></i></button></div>
+              <div id="tableButton" class="map-tool-button mouse-function-btn hidden"><button type="button"><i class="fa fa-table"></i></button></div>
+              <div id="getAttributes" class="map-tool-button mouse-function-btn hidden">
+                <select class="form-control hidden"></select>
+                <button type="button"><i class="fa fa-info"></i></button>
+              </div>
+            </div>
+            <div id="table-div" style="display: none; height: 400px;">
+              <div class="main-div hidden">
+                <div id="attributes-table-select">
+                  <span>Layers:</span>
+                  <select class="form-control"></select>
+                </div>
+                <div style="clear: both; height: 5px;"></div>
+                <hr/>
+                <div style="clear: both; height: 5px;"></div>
+                <div id="attributes-table-div">
+                  <table class="table table-bordered table-hover" id="attributes-table"></table>
                 </div>
               </div>
-              <div id="table-div" style="display: none; height: 400px;">
-                <div class="main-div hidden">
-                  <div id="attributes-table-select">
-                    <span>Layers:</span>
-                    <select class="form-control"></select>
-                  </div>
-                  <div style="clear: both; height: 5px;"></div>
-                  <hr/>
-                  <div style="clear: both; height: 5px;"></div>
-                  <div id="attributes-table-div">
-                    <table class="table table-bordered table-hover" id="attributes-table"></table>
-                  </div>
-                </div>
-              </div>
+            </div>
           </div>
 
           <!-- Alert message -->
