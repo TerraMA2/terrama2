@@ -7,6 +7,7 @@
   var View = require("./View");
   var URIBuilder = require("./../UriBuilder");
   var DataSeriesType = require("./../Enums").DataSeriesType;
+  var DataSeriesFormat = require("./../Enums").DataSeriesFormat;
   var ViewSourceType = require("./../Enums").ViewSourceType;
   /**
    * Default URI syntax
@@ -153,11 +154,35 @@
                                          uriObject[URISyntax.PATHNAME]);
 
     var params = {};
-    if (this.dataSeries) {
+    var dataSeriesTypeName;
+    var exportation = {
+      data: null,
+      error: null
+    };
+
+    if(this.dataSeries) {
       var semantics = this.dataSeries.data_series_semantics;
-      if (semantics && semantics.data_series_type_name === DataSeriesType.GRID) {
+
+      if(semantics && semantics.data_series_type_name === DataSeriesType.GRID) {
         var mask = this.dataSeries.dataSets[0].format.mask;
         params.mask = mask;
+      }
+
+      if(this.dataSeries.data_series_semantics) {
+        dataSeriesTypeName = this.dataSeries.data_series_semantics.data_series_type_name;
+
+        if(this.dataSeries.data_series_semantics.data_format_name === DataSeriesFormat.POSTGIS) {
+          if(this.dataSeries.dataSets.length > 1 || this.dataSeries.dataSets.length === 0) {
+            exportation.error = "Invalid data sets!";
+          } else {
+            exportation.data = {
+              dataProviderId: this.dataSeries.dataProvider.id,
+              schema: "public",
+              table: this.dataSeries.dataSets[0].format.table_name,
+              dateField: (this.dataSeries.dataSets[0].format.timestamp_property !== undefined ? this.dataSeries.dataSets[0].format.timestamp_property : null)
+            };
+          }
+        }
       }
     }
 
@@ -173,7 +198,9 @@
       serverType: "geoserver", // TODO: change it. It should be received from c++ service or even during view registration
       type: this.dataSeriesType,
       params: params,
-      projectId: this.view.projectId
+      projectId: this.view.projectId,
+      dataSeriesTypeName: dataSeriesTypeName,
+      exportation: exportation
     });
   };
 

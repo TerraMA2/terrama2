@@ -3,6 +3,7 @@
 var PromiseClass = require('./Promise');
 var util = require('util');
 var Utils = require('./Utils');
+var config = require('./Application').getContextConfig();
 
 var Process = module.exports = function(adapter) {
   // TODO: validate it
@@ -48,7 +49,11 @@ Process.prototype.startService = function(command) {
     var port = serviceInstance.port.toString();
     var serviceTypeString = Utils.getServiceTypeName(serviceInstance.service_type_id);
 
-    var command = util.format("%s %s %s", executable, serviceTypeString, port);
+    if(config.disablePDF) {
+      var command = util.format("%s %s %s %s %s", executable, serviceTypeString, port, '-platform', 'minimal');
+    } else {
+      var command = util.format("%s %s %s", executable, serviceTypeString, port);
+    }
 
     return self.adapter.startService(command)
       .then(function(code) {

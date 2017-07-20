@@ -1,28 +1,30 @@
 'use strict';
 
 define(
-  ['components/LayerStatus', 'components/Sortable', 'components/Utils', 'TerraMA2WebComponents'],
-  function(LayerStatus, Sortable, Utils, TerraMA2WebComponents) {
+  ['components/LayerStatus', 'components/Sortable', 'components/Utils', 'enums/LayerStatusEnum', 'TerraMA2WebComponents'],
+  function(LayerStatus, Sortable, Utils, LayerStatusEnum, TerraMA2WebComponents) {
 
     var memberAllLayers = [];
 
-    var getAllLayers = function(){
+    var getAllLayers = function() {
       return memberAllLayers;
     }
 
-    var addLayer = function(layerObject){
+    var addLayer = function(layerObject) {
       memberAllLayers.push(layerObject);
     }
 
-    var getLayerById = function(layerId){
-      var indexLayer = memberAllLayers.map(function(l){return l.id}).indexOf(layerId);
-      if( indexLayer > 0)
+    var getLayerById = function(layerId) {
+      var indexLayer = memberAllLayers.map(function(l) {
+        return l.id
+      }).indexOf(layerId);
+      if(indexLayer > 0)
         return memberAllLayers[indexLayer];
-      else 
+      else
         return null;
     }
 
-    var createLayerObject = function (layerData){
+    var createLayerObject = function(layerData) {
       var layerObject = {};
       layerObject.name = layerData.name;
       layerObject.nameId = layerData.layers[0];
@@ -35,27 +37,72 @@ define(
       layerObject.isParent = layerData.serverType ? false : true;
       layerObject.projectId = layerData.projectId;
       layerObject.private = layerData.private;
+      layerObject.dataSeriesTypeName = layerData.dataSeriesTypeName;
+      layerObject.visible = false;
+      layerObject.status = LayerStatusEnum.ONLINE;
+      layerObject.exportation = (layerData.exportation !== undefined && layerData.exportation.error === null && layerData.exportation.data !== null ? layerData.exportation.data : null);
 
       return layerObject;
+    };
+
+    var changeLayerStatus = function(layerId, newStatus) {
+      var indexLayer = memberAllLayers.map(function(l) {
+        return l.id
+      }).indexOf(layerId);
+      if(indexLayer != -1) {
+        memberAllLayers[indexLayer].status = newStatus;
+        LayerStatus.changeLayerStatusIcon(memberAllLayers[indexLayer].htmlId, newStatus);
+      }
+    };
+
+    var changeParentLayerStatus = function(layerId, newStatus) {
+      var indexLayer = memberAllLayers.map(function(l) {
+        return l.id
+      }).indexOf(layerId);
+      if(indexLayer != -1) {
+        memberAllLayers[indexLayer].status = newStatus;
+        LayerStatus.changeGroupStatusIcon(memberAllLayers[indexLayer].id, newStatus);
+      }
+    };
+
+    var changeLayerVisible = function(layerId, newVisible) {
+      var indexLayer = memberAllLayers.map(function(l) {
+        return l.id
+      }).indexOf(layerId);
+      if(indexLayer != -1) {
+        memberAllLayers[indexLayer].visible = newVisible;
+      }
+    };
+
+    var getVisibleLayers = function() {
+      var visibleLayers = [];
+      memberAllLayers.forEach(function(layers) {
+        if(layers.visible)
+          visibleLayers.push(layers);
+      });
+      return visibleLayers;
     }
 
-    var removeLayer = function(layerIndex){
-      memberAllLayers.splice(layerIndex, 1);
+    var removeLayer = function(layerId) {
+      var indexLayer = memberAllLayers.map(function(l) {
+        return l.id
+      }).indexOf(layerId);
+      if(indexLayer != -1)
+        memberAllLayers.splice(indexLayer, 1);
     };
 
     var addLayersToSort = function() {
       var itens = "";
       var allLayers = getAllLayers();
       var allLayersLength = allLayers.length;
-      for (var i = allLayersLength -1; i >= 0; i--){
-        if (!allLayers[i].projectId){
+      for(var i = allLayersLength - 1; i >= 0; i--) {
+        if(!allLayers[i].projectId) {
           var layerId = allLayers[i].id;
           var htmlId = allLayers[i].htmlId;
 
-          var sliderDiv = "<div class='slider-content' style='display:none;'><label></label><button type='button' class='close close-slider'>×</button><div id='opacity" + htmlId + "'></div></div>";
-          var spanIcon = "<span id='terrama2-opacity-slider' class='terrama2-datepicker-icon' data-toggle='tooltip' title='Change opacity'> <i class='fa fa-sliders'></i></span>"; 
-          
-          itens += '<li id="' + htmlId + '" data-layerid="' + layerId + '" data-parentid="terrama2-layerexplorer" class="hide">' + allLayers[i].name + sliderDiv + spanIcon + '</li>';
+          var spanIcon = "<span class='terrama2-layer-tools terrama2-datepicker-icon' data-toggle='tooltip' title='Layer Tools'> <i class='fa fa-gears'></i></span>";
+
+          itens += '<li id="' + htmlId + '" data-layerid="' + layerId + '" data-parentid="terrama2-layerexplorer" class="hide">' + allLayers[i].name + spanIcon + '</li>';
         }
       }
       var list = '<ul>' + itens + '</ul>';
@@ -65,24 +112,25 @@ define(
     // Add layers in layers explorer menu
     var fillLayersData = function(layers) {
       var data = layers;
-      if (!data){
+      if(!data) {
         data = memberAllLayers;
       }
       var currentProject = $("#projects").val();
-			for(var i in data) {
-				if((!data[i].private || (data[i].private && userLogged)) && data[i].projectId && data[i].projectId == currentProject) {
+      for(var i in data) {
+        if((!data[i].private || (data[i].private && userLogged)) && data[i].projectId && data[i].projectId == currentProject) {
           var workspace = data[i].workspace;
           var layerName = data[i].name;
           var uriGeoServer = data[i].uriGeoServer;
           var serverType = data[i].serverType;
           var parent = data[i].parent;
           var layerId = data[i].id;
+          var htmlId = data[i].htmlId;
 
-          if (TerraMA2WebComponents.MapDisplay.addImageWMSLayer(layerId, layerName, layerName, uriGeoServer + '/ows', serverType, false, false, "terrama2-layerexplorer", {version: "1.1.0"})){
+          if(TerraMA2WebComponents.MapDisplay.addImageWMSLayer(layerId, layerName, layerName, uriGeoServer + '/ows', serverType, false, false, "terrama2-layerexplorer", {
+              version: "1.1.0"
+            })) {
             TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, parent, null, "treeview unsortable terrama2-truncate-text", null);
-            TerraMA2WebComponents.MapDisplay.setLayerProperty(layerId, "layerType", parent);
-            TerraMA2WebComponents.MapDisplay.setLayerProperty(layerId, "layerName", layerName);
-            if (parent == 'analysis' || parent == 'dynamic'){
+            if(parent == 'dynamic') {
               var url = uriGeoServer + '/' + workspace + '/' + data[i].nameId + '/wms?service=WMS&version=1.1.0&request=GetCapabilities';
               var getCapabilitiesUrl = {
                 layerName: data[i].nameId,
@@ -95,13 +143,16 @@ define(
               Utils.getSocket().emit('proxyRequestCapabilities', getCapabilitiesUrl);
             }
           }
-          LayerStatus.changeGroupStatusIcon(parent, "working");
-          LayerStatus.addLayerStatusIcon(layerId);
-          LayerStatus.changeLayerStatusIcon(layerId, "working");
+          LayerStatus.changeGroupStatusIcon(parent, LayerStatusEnum.ONLINE);
+          LayerStatus.addLayerStatusIcon(htmlId);
+          LayerStatus.changeLayerStatusIcon(htmlId, LayerStatusEnum.ONLINE);
           Sortable.addLayerToSort(layerId, layerName);
-          Utils.getSocket().emit('checkConnection', {url: uriGeoServer, requestId: layerId});
-				}
-			}
+          Utils.getSocket().emit('checkConnection', {
+            url: uriGeoServer,
+            requestId: layerId
+          });
+        }
+      }
     };
 
     return {
@@ -111,8 +162,11 @@ define(
       createLayerObject: createLayerObject,
       addLayer: addLayer,
       getAllLayers: getAllLayers,
-      getLayerById: getLayerById
-    }
-    
+      getLayerById: getLayerById,
+      changeLayerVisible: changeLayerVisible,
+      getVisibleLayers: getVisibleLayers,
+      changeLayerStatus: changeLayerStatus,
+      changeParentLayerStatus: changeParentLayerStatus
+    };
   }
 );

@@ -1665,17 +1665,16 @@ define([], function() {
           var tempEditedDcps = [];
 
           for(var i = 0, dSetsLength = dSets.length; i < dSetsLength; i++) {
-            if ($scope.custom_format){
-              var output_timestamp_property_field = dataObject.dataSeries.dataSets[0].format.output_timestamp_property;
-              if (output_timestamp_property_field){
-                dSets[i].timestamp_property = output_timestamp_property_field
-              }
-
-              var output_geometry_property_field = dataObject.dataSeries.dataSets[0].format.output_geometry_property;
-              if (output_geometry_property_field){
-                dSets[i].geometry_property = output_geometry_property_field;
-              }
+            var output_timestamp_property_field = dataObject.dataSeries.dataSets[0].format.output_timestamp_property;
+            if (output_timestamp_property_field){
+              dSets[i].timestamp_property = output_timestamp_property_field
             }
+
+            var output_geometry_property_field = dataObject.dataSeries.dataSets[0].format.output_geometry_property;
+            if (output_geometry_property_field){
+              dSets[i].geometry_property = output_geometry_property_field;
+            }
+            
 
             var outputDcp = {
               active: dSets[i].active,

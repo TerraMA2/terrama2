@@ -427,6 +427,11 @@ tbody td:last-child, thead th:last-child {
   pointer-events: none !important;
 }
 
+.service-warning {
+  color: red; 
+  border-color: red;
+}
+
 /*
   It fixes intersection nav to include check icon
 */

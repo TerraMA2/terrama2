@@ -109,6 +109,8 @@ namespace terrama2
          */
         virtual ~ProcessLogger();
 
+        virtual bool isValid() const;
+
 
         /*!
          * \brief Log the start of the process.
@@ -187,7 +189,6 @@ namespace terrama2
          */
          virtual te::core::URI getConnectionInfo() const { return dataSource_->getConnectionInfo(); }
 
-      public slots:
         /*!
         * \brief Reset connection to log database information
         * \param uri Datasource connection information.
@@ -229,6 +230,9 @@ namespace terrama2
          * \brief Check the log consistency
          */
         void checkTableConsistency();
+
+        //! Check if the logger is in a valid state.
+        void checkLogger() const;
 
       private:
         /*!

@@ -4,10 +4,11 @@ define(
   ['components/Layers', 'TerraMA2WebComponents'],
   function(Layers, TerraMA2WebComponents) {
     var memberTable = null;
-    var memberLayersData = [];
     var memberDefaultTableOptions = {
       "bAutoWidth": false,
-      "order": [[0, "asc"]],
+      "order": [
+        [0, "asc"]
+      ],
       "processing": true,
       "serverSide": true,
       "ajax": {
@@ -33,34 +34,24 @@ define(
       }
     };
 
-    var getLayerData = function(layerId) {
-			for(var i = 0, memberLayersDataLength = memberLayersData.length; i < memberLayersDataLength; i++) {
-				if(layerId === memberLayersData[i].id) {
-					return memberLayersData[i];
-				}
-			}
+    var createAttributesTable = function() {
+      var showButton = false;
+      var visibleLayers = Layers.getVisibleLayers();
 
-			return null;
-    };
+      $('#attributes-table-select > select').empty();
 
-    var createAttributesTable = function(visibleLayers) {
-			var showButton = false;
-      memberLayersData = Layers.getAllLayers();
+      for(var i = 0, visibleLayersLength = visibleLayers.length; i < visibleLayersLength; i++) {
+        var layerObject = visibleLayers[i];
 
-			$('#attributes-table-select > select').empty();
+        var layerId = layerObject.id;
+        var layerName = layerObject.name;
+        var layerType = layerObject.parent;
 
-			for(var i = 0, visibleLayersLength = visibleLayers.length; i < visibleLayersLength; i++) {
-				var layerId = $('#' + visibleLayers[i]).data('layerid');
-				var layerName = TerraMA2WebComponents.MapDisplay.getLayerProperty(layerId, "layerName");
-				var layerType = TerraMA2WebComponents.MapDisplay.getLayerProperty(layerId, "layerType");
-
-				if(layerType !== "template" && layerType !== "custom") {
-          var layerData = getLayerData(layerId);
-
+        if(layerType !== "template" && layerType !== "custom" && (layerObject && layerObject.dataSeriesTypeName != "GRID")) {
           $('#attributes-table-select > select').append($('<option></option>').attr('value', layerId).text(layerName));
           if(!showButton) showButton = true;
-				}
-			}
+        }
+      }
 
       if(!showButton)
         hideAttributesTable(true);
@@ -69,22 +60,22 @@ define(
     };
 
     var setAttributesTable = function() {
-			if($('#attributes-table-select > select').val() !== null) {
+      if($('#attributes-table-select > select').val() !== null) {
         var layerId = $('#attributes-table-select > select').val();
-				var layerData = getLayerData(layerId);
+
+        var layerData = Layers.getLayerById(layerId);
 
         var minDate = $('#' + layerId.replace(':', '') + ' > #terrama2-calendar > input').attr('data-min-date');
         var maxDate = $('#' + layerId.replace(':', '') + ' > #terrama2-calendar > input').attr('data-max-date');
         var startDate = $('#' + layerId.replace(':', '') + ' > #terrama2-calendar > input').attr('start-date');
         var endDate = $('#' + layerId.replace(':', '') + ' > #terrama2-calendar > input').attr('end-date');
 
-				if(layerData !== null && layerData.id !== undefined && layerData.uriGeoServer !== undefined) {
-					$.get(BASE_URL + 'get-columns',
-						{
-							layer: layerData.id,
-							geoserverUri: layerData.uriGeoServer
-						},
-						function(response) {
+        if(layerData !== null && layerData.id !== undefined && layerData.uriGeoServer !== undefined) {
+          $.get(BASE_URL + 'get-columns', {
+              layer: layerData.id,
+              geoserverUri: layerData.uriGeoServer
+            },
+            function(response) {
               if(response.fields.length > 0) {
                 var columns = response.fields;
                 var columnsLength = columns.length;
@@ -92,7 +83,9 @@ define(
                 var titles = "";
 
                 for(var i = 0; i < columnsLength; i++) {
-                  columnsArray.push({ "name": columns[i].name });
+                  columnsArray.push({
+                    "name": columns[i].name
+                  });
                   titles += "<th>" + columns[i].name + "</th>";
                 }
 
@@ -114,12 +107,12 @@ define(
 
                 memberTable = $('#attributes-table').DataTable(tableOptions);
               }
-						}
-					);
-				} else
-					hideAttributesTable(true);
-			} else
-				hideAttributesTable(true);
+            }
+          );
+        } else
+          hideAttributesTable(true);
+      } else
+        hideAttributesTable(true);
     };
 
     var hideAttributesTable = function(hideButton) {
@@ -137,29 +130,29 @@ define(
     var loadEvents = function() {
       $('#attributes-table-select > select').on('change', setAttributesTable);
 
-			$('#tableButton > button').on('click', function() {
-				if($('#table-div').css('display') === 'none') {
-					$('#table-div').css('display', '');
-					$('#table-div > div.main-div').removeClass('hidden');
-					setAttributesTable();
-				} else
-					hideAttributesTable(false);
-			});
-
-      $("#terrama2-map").on("createAttributesTable", function(event, visibleLayers){
-        createAttributesTable(visibleLayers);
+      $('#tableButton > button').on('click', function() {
+        if($('#table-div').css('display') === 'none') {
+          $('#table-div').css('display', '');
+          $('#table-div > div.main-div').removeClass('hidden');
+          setAttributesTable();
+        } else
+          hideAttributesTable(false);
       });
 
-      $("#attributes-table-select").on("setAttributesTable", function(event){
+      $("#terrama2-map").on("createAttributesTable", function(event) {
+        createAttributesTable();
+      });
+
+      $("#attributes-table-select").on("setAttributesTable", function(event) {
         setAttributesTable();
       });
     };
 
     var init = function() {
-			$("#table-div").resizable({
-				minHeight: 400,
-				handles: "n"
-			});
+      $("#table-div").resizable({
+        minHeight: 400,
+        handles: "n"
+      });
 
       loadEvents();
     };
