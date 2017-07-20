@@ -1640,7 +1640,7 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
 
         te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(ds.get());
         dsItem->setGeometry("the_geom", geom);
-        dsItem->setString("location", baseUrl.toLocalFile().toStdString() + "/" + terrama2::core::getFolderMask(dataset) + rasterName);
+        dsItem->setString("location", baseUrl.toLocalFile().toStdString() + "/" + terrama2::core::getFolderMask(dataset) + "/" + rasterName);
         dsItem->setDateTime("timestamp", new te::dt::TimeInstant(rasterTimeInstantTz));
 
         ds->add(dsItem);
