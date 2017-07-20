@@ -621,3 +621,9 @@
 #exportation-status > div > div {
   margin-top: 7px;
 }
+
+#layer-toolbox > .layer-toolbox-body .layer-name {
+  text-align: center;
+  font-size: 15px;
+  font-weight: 900;
+}
