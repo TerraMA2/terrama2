@@ -19,6 +19,13 @@ define([], function() {
     var config = window.configuration;
 
     /**
+     * Flag that indicates if the PDF is disabled.
+     *
+     * @type {boolean}
+     */
+    self.disablePDF = config.disablePDF;
+
+    /**
      * It retrieves Global variables from main window.
      * 
      * @type {object}
