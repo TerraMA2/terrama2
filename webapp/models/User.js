@@ -38,6 +38,10 @@ module.exports = function(sequelize, DataTypes) {
       administrator: {
         type: DataTypes.BOOLEAN,
         allowNull: false
+      },
+      token: {
+        type: DataTypes.STRING,
+        allowNull: false
       }
     },
     {
@@ -50,6 +54,9 @@ module.exports = function(sequelize, DataTypes) {
         },
         generateHash: function(password, salt) {
           return bcrypt.hashSync(password, salt);
+        },
+        generateToken: function(userString) {
+          return bcrypt.hashSync(userString, 10);
         }
       }
     }

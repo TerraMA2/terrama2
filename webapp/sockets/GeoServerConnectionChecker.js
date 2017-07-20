@@ -99,13 +99,13 @@ var GeoServerConnectionChecker = function(io) {
             try {
               var returnedData = JSON.parse(html);
 
-              if(returnedData.layers.layer.length >= 0) {
+              //if(returnedData.layers.layer.length >= 0) {
                 returnObject.error = false;
                 returnObject.message = "Success";
-              } else {
-                returnObject.error = true;
-                returnObject.message = "Failed to connect, verify the connection parameters";
-              }
+              //} else {
+                //returnObject.error = true;
+                //returnObject.message = "Failed to connect, verify the connection parameters";
+              //}
             } catch(err) {
               returnObject.error = true;
               returnObject.message = "Failed to connect, verify the connection parameters";
