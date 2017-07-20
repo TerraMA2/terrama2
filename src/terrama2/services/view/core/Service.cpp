@@ -138,67 +138,89 @@ void terrama2::services::view::core::Service::connectDataManager()
           &terrama2::services::view::core::Service::updateView);
 }
 
-void terrama2::services::view::core::Service::removeView(ViewId viewId) noexcept
+void terrama2::services::view::core::Service::removeView(ViewId id, DataSeriesId dataSeriesId) noexcept
+{
+  removeCompleteView(id, dataSeriesId);
+}
+
+void terrama2::services::view::core::Service::removeCompleteView(ViewId id, DataSeriesId dataSeriesId, bool removeAll) noexcept
 {
   try
   {
     std::lock_guard<std::mutex> lock(mutex_);
 
-    TERRAMA2_LOG_INFO() << tr("Trying to remove view %1.").arg(viewId);
+    TERRAMA2_LOG_INFO() << tr("Trying to remove view %1.").arg(id);
 
-    auto it = timers_.find(viewId);
+    auto it = timers_.find(id);
     if(it != timers_.end())
     {
-      auto timer = timers_.at(viewId);
+      auto timer = timers_.at(id);
       timer->disconnect();
-      timers_.erase(viewId);
+      timers_.erase(id);
     }
 
     // remove from queue
     processQueue_.erase(std::remove_if(processQueue_.begin(), processQueue_.end(),
-                                       [viewId](const terrama2::core::ExecutionPackage& executionPackage)
-                                       { return viewId == executionPackage.processId; }), processQueue_.end());
+                                       [&id](const terrama2::core::ExecutionPackage& executionPackage)
+                                       { return id == executionPackage.processId; }), processQueue_.end());
 
-    // removing from geoserver
-    try
+    if (removeAll)
     {
-      MapsServerPtr mapsServer = MapsServerFactory::getInstance().make(mapsServerUri_, "GEOSERVER");
-      mapsServer->cleanup(viewId);
-    }
-    catch(const terrama2::services::view::core::NotFoundGeoserverException& e)
-    {
-      // Nothing
-      TERRAMA2_LOG_DEBUG() << tr("There is no workspace in GeoServer");
-    }
-    catch(const terrama2::services::view::core::ViewGeoserverException&)
-    {
-      TERRAMA2_LOG_WARNING() << tr("Could not remove GeoServer workspace. Please remove it manually");
+      terrama2::core::DataProviderPtr inputDataProvider;
+
+      // Locking datamanager
+      {
+        auto dataManager = dataManager_.lock();
+        auto lock = dataManager->getLock();
+        terrama2::core::DataSeriesPtr inputDataSeries = dataManager->findDataSeries(dataSeriesId);
+        inputDataProvider = dataManager->findDataProvider(inputDataSeries->dataProviderId);
+
+        lock.unlock();
+      }
+
+      try
+      {
+        // Retrieving Maps server handler
+        MapsServerPtr mapsServer = MapsServerFactory::getInstance().make(mapsServerUri_, "GEOSERVER");
+        // removing from geoserver
+        mapsServer->cleanup(id, inputDataProvider, logger_);
+      }
+      catch(const terrama2::services::view::core::NotFoundGeoserverException& e)
+      {
+        // Nothing
+        TERRAMA2_LOG_DEBUG() << tr("There is no workspace in GeoServer");
+      }
+      catch(const terrama2::services::view::core::ViewGeoserverException&)
+      {
+        // TODO: Improve validation in order to notify WebApp
+        TERRAMA2_LOG_WARNING() << tr("Could not perform clean up in GeoServer and database. Please remove it manually");
+      }
     }
 
-    waitQueue_.erase(viewId);
+    waitQueue_.erase(id);
 
-    TERRAMA2_LOG_INFO() << tr("View %1 removed successfully.").arg(viewId);
+    TERRAMA2_LOG_INFO() << tr("View %1 removed successfully.").arg(id);
   }
   catch(const boost::exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
-    TERRAMA2_LOG_INFO() << tr("Could not remove view: %1.").arg(viewId);
+    TERRAMA2_LOG_INFO() << tr("Could not remove view: %1.").arg(id);
   }
   catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
-    TERRAMA2_LOG_INFO() << tr("Could not remove view: %1.").arg(viewId);
+    TERRAMA2_LOG_INFO() << tr("Could not remove view: %1.").arg(id);
   }
   catch(...)
   {
     TERRAMA2_LOG_ERROR() << tr("Unknown error");
-    TERRAMA2_LOG_INFO() << tr("Could not remove view: %1.").arg(viewId);
+    TERRAMA2_LOG_INFO() << tr("Could not remove view: %1.").arg(id);
   }
 }
 
 void terrama2::services::view::core::Service::updateView(ViewPtr view) noexcept
 {
-  removeView(view->id);
+  removeCompleteView(view->id, view->dataSeriesID, false);
   addProcessToSchedule(view);
 }
 
@@ -352,11 +374,7 @@ void terrama2::services::view::core::Service::viewJob(const terrama2::core::Exec
 void terrama2::services::view::core::Service::updateAdditionalInfo(const QJsonObject& obj) noexcept
 {
   if(!obj.contains("maps_server"))
-  {
     TERRAMA2_LOG_ERROR() << tr("Missing the Maps Server URI in service additional info!");
-  }
   else
-  {
     mapsServerUri_ = te::core::URI(obj["maps_server"].toString().toStdString());
-  }
 }
