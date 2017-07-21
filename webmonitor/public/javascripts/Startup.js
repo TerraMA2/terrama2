@@ -36,16 +36,17 @@ requirejs(
     TerraMA2WebComponents.LayerExplorer.init();
     TerraMA2WebComponents.MapDisplay.init();
 
-    Utils.init();
-    TerraMA2WebMonitor.init();
-    Calendar.init();
-    Slider.init();
-    AttributesTable.init();
-    Legends.init();
-    GetAttributesTool.init();
-    MapTools.init();
-    AddLayerByUri.init();
-    LayerToolbox.init();
-    Login.init();
+    Utils.init(null, function() {
+      TerraMA2WebMonitor.init();
+      Calendar.init();
+      Slider.init();
+      AttributesTable.init();
+      Legends.init();
+      GetAttributesTool.init();
+      MapTools.init();
+      AddLayerByUri.init();
+      LayerToolbox.init();
+      Login.init();
+    });
   }
 );

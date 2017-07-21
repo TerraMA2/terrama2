@@ -1,8 +1,8 @@
 'use strict';
 
 define(
-  ['components/Layers'],
-  function(Layers) {
+  ['components/Layers', 'components/Utils'],
+  function(Layers, Utils) {
     var loadEvents = function() {
       $('#signin').on('click', function() {
         $.post(BASE_URL + "login", {
@@ -21,6 +21,8 @@ define(
 
             if($("#user-nav").hasClass("hidden"))
               $("#user-nav").removeClass("hidden");
+
+            Utils.getSocket().emit('retrieveViews', { clientId: Utils.getWebAppSocket().id, onlyPrivate: true });
           }
         });
       });

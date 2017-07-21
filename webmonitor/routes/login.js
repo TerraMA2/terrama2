@@ -1,4 +1,5 @@
 var passport = require('passport');
+var userToken = require('../config/UserToken');
 
 module.exports = function(app) {
   app.post(app.locals.BASE_URL + 'login', function (request, response, next) {
@@ -15,11 +16,7 @@ module.exports = function(app) {
           if(e)
             return next(e);
 
-          var io = app.getIo();
-
-          for(var key in io.sockets.sockets) {
-            io.sockets.sockets[key].userToken = user.token;
-          }
+          userToken.setToken(user.token);
 
           return response.json({
             error: null,
@@ -33,11 +30,7 @@ module.exports = function(app) {
   app.get(app.locals.BASE_URL + 'logout', function(request, response) {
     request.logout();
 
-    var io = app.getIo();
-
-    for(var key in io.sockets.sockets) {
-      delete io.sockets.sockets[key].userToken;
-    }
+    userToken.setToken(null);
 
     return response.json({ error: null });
   });

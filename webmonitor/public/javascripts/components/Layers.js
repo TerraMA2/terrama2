@@ -104,10 +104,10 @@ define(
     };
 
     var removePrivateLayers = function() {
-      for(var i = 0, allLayersLength = memberAllLayers.length; i < allLayersLength; i++) {
-        if(memberAllLayers[i].private)
-          removeLayer(memberAllLayers[i]);
-      }
+      memberAllLayers.forEach(function(layer) {
+        if(layer.private)
+          removeLayer(layer);
+      });
     };
 
     var addLayersToSort = function() {
@@ -135,7 +135,7 @@ define(
       var currentProject = $("#projects").val();
 
       for(var i in data) {
-        if((!data[i].private || (data[i].private && userLogged)) && data[i].projectId && data[i].projectId == currentProject) {
+        if(data[i].projectId && data[i].projectId == currentProject) {
           var workspace = data[i].workspace;
           var layerName = data[i].name;
           var uriGeoServer = data[i].uriGeoServer;

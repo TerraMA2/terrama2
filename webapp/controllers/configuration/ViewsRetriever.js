@@ -20,23 +20,37 @@ var ViewsRetriever = function(app) {
     var sendPrivate = false;
 
     var processViews = function() {
-      if(params.type === memberViewsCache.TYPES.NEW_AND_UPDATED && params.initialRequest) {
+      var objectsToSend = [];
+
+      if(params.type === memberViewsCache.TYPES.NEW_AND_UPDATED && (params.initialRequest || params.onlyPrivate)) {
         return memberDataManager.listRegisteredViews().then(function(views) {
           var viewsObjects = views.map(function(view) {
             return view.toObject();
           });
 
+          for(var i = 0, viewsLength = viewsObjects.length; i < viewsLength; i++) {
+            if((viewsObjects[i].private && sendPrivate) || (!params.onlyPrivate && !viewsObjects[i].private))
+              objectsToSend.push(viewsObjects[i]);
+          }
+
           response.json({
-            views: viewsObjects,
+            views: objectsToSend,
             projects: memberDataManager.listProjects(),
-            initialRequest: true
+            initialRequest: params.initialRequest
           });
         }).catch(function(err) {
           console.error(err);
           response.json({});
         });
       } else {
-        response.json({ views: memberViewsCache.getViews(params.type, params.clientId), initialRequest: false });
+        var viewsObjects = memberViewsCache.getViews(params.type, params.clientId);
+
+        for(var i = 0, viewsLength = viewsObjects.length; i < viewsLength; i++) {
+          if((viewsObjects[i].private && sendPrivate) || !viewsObjects[i].private)
+            objectsToSend.push(viewsObjects[i]);
+        }
+
+        response.json({ views: objectsToSend, initialRequest: false });
         memberViewsCache.emptyViews(params.type, params.clientId);
       }
     };
@@ -60,7 +74,8 @@ var ViewsRetriever = function(app) {
       type: memberViewsCache.TYPES.NEW_AND_UPDATED,
       clientId: request.body.clientId,
       userToken: request.body.userToken,
-      initialRequest: request.body.initialRequest
+      initialRequest: request.body.initialRequest,
+      onlyPrivate: request.body.onlyPrivate
     }, response);
   };
 
