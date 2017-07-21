@@ -59,7 +59,7 @@ void terrama2::core::DataStoragerDCPPostGIS::store(const std::unordered_map<Data
                                                    const std::vector< DataSetPtr >& dataSetLst,
                                                    const std::map<DataSetId, DataSetId>& inputOutputMap) const
 {
-  storePositions(dataMap, dataSetLst, inputOutputMap);
+//  storePositions(dataMap, dataSetLst, inputOutputMap);
   DataStorager::store(dataMap, dataSetLst, inputOutputMap);
 }
 
