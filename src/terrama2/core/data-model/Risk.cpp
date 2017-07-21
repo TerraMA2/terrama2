@@ -48,13 +48,6 @@ std::tuple<int, std::string> terrama2::core::Risk::riskLevel(double value) const
   if(lowerBound == riskLevels.end())
     return std::make_tuple(defaultRisk.level, defaultRisk.name);
 
-  //get next level, same as value or greater
-  ++lowerBound;
-
-  // if level not found, return defaultLevel
-  if(lowerBound == riskLevels.end())
-    return std::make_tuple(defaultRisk.level, defaultRisk.name);
-
   return std::make_tuple(lowerBound->level, lowerBound->name);
 }
 
