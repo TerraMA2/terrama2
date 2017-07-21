@@ -159,7 +159,7 @@ define([], function(){
 
           $timeout(function() {
             var finalMessage = messageArray.join(" ") + " " + i18n.__(tokenCodeMessage);
-            self.MessageBoxService.success((config.legendsTab ? i18n.__("Legends") : i18n.__("Alerts")), finalMessage);
+            if(!self.MessageBoxService.alertBox.display) self.MessageBoxService.success((config.legendsTab ? i18n.__("Legends") : i18n.__("Alerts")), finalMessage);
           }, 1000);
         }
 

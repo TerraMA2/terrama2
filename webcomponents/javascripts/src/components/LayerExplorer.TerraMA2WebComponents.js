@@ -131,7 +131,7 @@ define(
      * @inner
      */
     var removeLayer = function(layerId, parentGroupId) {
-      $('#' + layerId.replace(':', '')).remove();
+      $('#' + layerId.replace(':', '').split('.').join('\\.')).remove();
       memberMapDisplay.removeLayer(layerId, parentGroupId);
     };
 
