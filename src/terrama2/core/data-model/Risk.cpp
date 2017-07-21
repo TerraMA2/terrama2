@@ -34,7 +34,7 @@
 #include <QString>
 #include <QObject>
 
-std::tuple<int, std::string> terrama2::core::Risk::riskLevel(double value) const
+std::tuple<uint32_t, std::string> terrama2::core::Risk::riskLevel(double value) const
 {
   struct lessThen
   {
@@ -48,17 +48,10 @@ std::tuple<int, std::string> terrama2::core::Risk::riskLevel(double value) const
   if(lowerBound == riskLevels.end())
     return std::make_tuple(defaultRisk.level, defaultRisk.name);
 
-  //get next level, same as value or greater
-  ++lowerBound;
-
-  // if level not found, return defaultLevel
-  if(lowerBound == riskLevels.end())
-    return std::make_tuple(defaultRisk.level, defaultRisk.name);
-
   return std::make_tuple(lowerBound->level, lowerBound->name);
 }
 
-std::string terrama2::core::Risk::riskName(const int level) const
+std::string terrama2::core::Risk::riskName(const uint32_t level) const
 {
   //default risk
   if(level == defaultRisk.level)
