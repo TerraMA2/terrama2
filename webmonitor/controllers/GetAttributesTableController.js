@@ -118,12 +118,12 @@ var GetAttributesTableController = function(app) {
       if(search !== "") {
         search = search.substring(0, search.length - 4) + ")";
 
-        if(request.body.timeStart !== null && request.body.timeEnd !== null && (dateTimeField !== null || dateField !== null)) {
+        if(request.body.timeStart !== null && request.body.timeEnd !== null && request.body.timeStart !== "" && request.body.timeEnd !== "" && (dateTimeField !== null || dateField !== null)) {
           search += " and (" + (dateTimeField !== null ? dateTimeField : dateField) + " between '" + request.body.timeStart + "' and '" + request.body.timeEnd + "')";
         }
 
         url += search;
-      } else if(request.body.timeStart !== null && request.body.timeEnd !== null && (dateTimeField !== null || dateField !== null)) {
+      } else if(request.body.timeStart !== null && request.body.timeEnd !== null && request.body.timeStart !== "" && request.body.timeEnd !== "" && (dateTimeField !== null || dateField !== null)) {
         url += "&cql_filter=(" + (dateTimeField !== null ? dateTimeField : dateField) + " between '" + request.body.timeStart + "' and '" + request.body.timeEnd + "')";
       }
 

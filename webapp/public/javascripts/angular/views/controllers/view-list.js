@@ -51,7 +51,7 @@ define([], function() {
 
       $timeout(function() {
         var finalMessage = messageArray.join(" ") + " " + i18n.__(tokenCodeMessage);
-        self.MessageBoxService.success(i18n.__("View"), finalMessage);
+        if(!self.MessageBoxService.alertBox.display) self.MessageBoxService.success(i18n.__("View"), finalMessage);
       }, 1000);
     }
 
