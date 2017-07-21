@@ -95,7 +95,7 @@ define(
             if($("#exportation-box").hasClass("hidden"))
               $("#exportation-box").removeClass("hidden");
 
-            $("#layer-toolbox").css("height", "265px");
+            $("#layer-toolbox").css("height", "307px");
           } else {
             if(!$("#exportation-box").hasClass("hidden"))
               $("#exportation-box").addClass("hidden");
@@ -103,7 +103,7 @@ define(
             $("#layer-toolbox").css("height", "100px");
           }
 
-          $("#layer-toolbox > .layer-toolbox-header .layer-name").text(layer.name);
+          $("#layer-toolbox > .layer-toolbox-body .layer-name").text(layer.name);
 
           $("#layer-toolbox > .layer-toolbox-body > #slider-box").empty().html("<label></label><br/><div id=\"opacity" + layer.htmlId + "\"></div>");
           var currentOpacity = TerraMA2WebComponents.MapDisplay.getLayerOpacity(layer.id) * 100;

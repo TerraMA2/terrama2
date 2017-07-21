@@ -503,6 +503,7 @@
   width: 100%;
   bottom: 0;
   z-index: 99999;
+  cursor: default;
 }
 
 #table-div > div.main-div {
@@ -511,8 +512,7 @@
    background-color: white;
    border-radius: 5px;
    height: calc(100% - 50px);
-   overflow-y: auto;
-   overflow-x: hidden;
+   overflow: auto;
 }
 
 #table-div > .ui-resizable-n {
@@ -620,4 +620,10 @@
 
 #exportation-status > div > div {
   margin-top: 7px;
+}
+
+#layer-toolbox > .layer-toolbox-body .layer-name {
+  text-align: center;
+  font-size: 15px;
+  font-weight: 900;
 }

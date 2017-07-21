@@ -236,7 +236,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
       TableInfo tableInfo = DataAccess::getPostgisTableInfo(dataSeriesProvider, dataset);
 
       std::string tableName = tableInfo.tableName;
-      std::string layerName = terrama2::core::simplifyString(viewPtr->viewName + "_" + std::to_string(viewPtr->id));
+      std::string layerName = generateLayerName(viewPtr->id);
       std::string timestampPropertyName = tableInfo.timestampPropertyName;
 
       std::unique_ptr<te::da::DataSetType> modelDataSetType = std::move(tableInfo.dataSetType);
@@ -1250,12 +1250,39 @@ std::unique_ptr<te::se::Style> terrama2::services::view::core::GeoServer::genera
   return style;
 }
 
-void terrama2::services::view::core::GeoServer::cleanup(const ViewId& id)
+void terrama2::services::view::core::GeoServer::cleanup(const ViewId& id,
+                                                        terrama2::core::DataProviderPtr dataProvider,
+                                                        std::shared_ptr<terrama2::core::ProcessLogger> logger)
 {
+  std::string workspace_to_remove = workspace_;
+  if (id != 0 && logger != nullptr)
+  {
+    workspace_to_remove = generateWorkspaceName(id);
+
+    // Try to remove cached view table
+    const std::string& tableName = generateLayerName(id);
+    // Removing view table
+    try
+    {
+      TERRAMA2_LOG_DEBUG() << "Removing " + tableName;
+      removeTable(tableName, logger->getConnectionInfo());
+    }
+    catch(...)
+    {
+      TERRAMA2_LOG_DEBUG() << "Could not remove view table " + tableName;
+    }
+
+    if (dataProvider != nullptr)
+    {
+      const QUrl uri((dataProvider->uri+ "/" + tableName).c_str());
+      removeFolder(uri.toLocalFile().toStdString());
+    }
+  }
+
   te::ws::core::CurlWrapper curl;
 
   // Generating Rest Workspace URI to force removal of all layers, data stores and so on.
-  std::string url = "/rest/workspaces/" + (id == 0 ? workspace_ : generateWorkspaceName(id))+ "?recurse=true";
+  std::string url = "/rest/workspaces/" + workspace_to_remove+ "?recurse=true";
 
   te::core::URI uriDelete(uri_.uri() + url);
 
@@ -1541,25 +1568,23 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
 
   for(auto& dataset : inputDataSeries->datasetList)
   {
-    std::string layerName = terrama2::core::simplifyString(viewPtr->viewName + "_" + std::to_string(viewPtr->id));
+    std::string layerName = generateLayerName(viewPtr->id);
     std::transform(layerName.begin(), layerName.end(),layerName.begin(), ::tolower);
 
-    QUrl url(baseUrl.toString() + QString::fromStdString("/" + terrama2::core::getFolderMask(dataset)));
+    QUrl url(baseUrl.toString() + QString::fromStdString("/" + terrama2::core::getFolderMask(dataset) + "/" + layerName));
 
     auto vecRasterInfo = getRasterInfo(dataManager, dataset, viewPtr->filter);
 
     int srid =std::get<2>(vecRasterInfo.at(0));
 
     /*
-     * Creating GeoServer metadata files. These files are named as .properties
-     *   - datastore.properties - Contains metadata information of store connection to join
-     *   - LayerName.properties - Meta information of layer, such time attribute, cache function, crs, etc.
-     *
-     * The .properties file must be same level of data directory
+     * Resetting properties files tree.
+     * Now we defined a sub directory containing both LayerName.properties and datastore.properties.
      */
-
+    recreateFolder(url.path().toStdString());
+    // Creating LayerName.properties
     createPostgisMosaicLayerPropertiesFile(url.path().toStdString(), layerName, srid);
-    // Create needed txt mosaic files
+    // Create datastore.properties
     createPostgisDatastorePropertiesFile(url.path().toStdString(), connInfo);
 
     if(!dataSource->dataSetExists(layerName))
@@ -1615,7 +1640,7 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
 
         te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(ds.get());
         dsItem->setGeometry("the_geom", geom);
-        dsItem->setString("location", rasterName);
+        dsItem->setString("location", baseUrl.toLocalFile().toStdString() + "/" + terrama2::core::getFolderMask(dataset) + "/" + rasterName);
         dsItem->setDateTime("timestamp", new te::dt::TimeInstant(rasterTimeInstantTz));
 
         ds->add(dsItem);
@@ -1717,16 +1742,6 @@ std::string terrama2::services::view::core::GeoServer::createPostgisDatastorePro
 
     QFile outputFile(propertiesFilename.c_str());
 
-    if(outputFile.exists())
-    {
-      if(!outputFile.remove())
-      {
-        QString errMsg = QObject::tr("Could not remove file: %1").arg(propertiesFilename.c_str());
-        TERRAMA2_LOG_ERROR() << errMsg;
-        throw Exception() << ErrorDescription(errMsg);
-      }
-    }
-
     outputFile.open(QIODevice::WriteOnly);
 
     /* Check it opened OK */
@@ -1770,16 +1785,6 @@ std::string terrama2::services::view::core::GeoServer::createPostgisMosaicLayerP
 
   QFile outputFile(propertiesFilename.c_str());
 
-  if(outputFile.exists())
-  {
-    if(!outputFile.remove())
-    {
-      QString errMsg = QObject::tr("Could not remove file: %1").arg(propertiesFilename.c_str());
-      TERRAMA2_LOG_ERROR() << errMsg;
-      throw Exception() << ErrorDescription(errMsg);
-    }
-  }
-
   outputFile.open(QIODevice::WriteOnly);
 
   /* Check it opened OK */
@@ -1794,7 +1799,7 @@ std::string terrama2::services::view::core::GeoServer::createPostgisMosaicLayerP
                         "Levels=0.01,0.01\n"
                         "Heterogeneous=false\n"
                         "TimeAttribute=timestamp\n"
-                        "AbsolutePath=false\n"
+                        "AbsolutePath=true\n"
                         "Name=" + exhibitionName + "\n" +
                         "TypeName=" + exhibitionName + "\n" +
                         "Caching=false\n"
@@ -1819,16 +1824,6 @@ void terrama2::services::view::core::GeoServer::createPostgisIndexerPropertiesFi
   std::string propertiesFilename = outputFolder + "/indexer.properties";
 
   QFile outputFile(propertiesFilename.c_str());
-
-  if(outputFile.exists())
-  {
-    if(!outputFile.remove())
-    {
-      QString errMsg = QObject::tr("Could not remove file: %1").arg(propertiesFilename.c_str());
-      TERRAMA2_LOG_ERROR() << errMsg;
-      throw Exception() << ErrorDescription(errMsg);
-    }
-  }
 
   outputFile.open(QIODevice::WriteOnly);
 
@@ -1860,16 +1855,6 @@ void terrama2::services::view::core::GeoServer::createTimeregexPropertiesFile(co
   std::string propertiesFilename = outputFolder + "/timeregex.properties";
 
   QFile outputFile(propertiesFilename.c_str());
-
-  if(outputFile.exists())
-  {
-    if(!outputFile.remove())
-    {
-      QString errMsg = QObject::tr("Could not remove file: %1").arg(propertiesFilename.c_str());
-      TERRAMA2_LOG_ERROR() << errMsg;
-      throw Exception() << ErrorDescription(errMsg);
-    }
-  }
 
   outputFile.open(QIODevice::WriteOnly);
 
@@ -2080,4 +2065,9 @@ void terrama2::services::view::core::GeoServer::createMosaicTable(std::shared_pt
 std::string terrama2::services::view::core::GeoServer::generateWorkspaceName(const ViewId& id)
 {
   return "terrama2_" + std::to_string(id);
+}
+
+std::string terrama2::services::view::core::GeoServer::generateLayerName(const ViewId& id) const
+{
+  return "view" + std::to_string(id);
 }
