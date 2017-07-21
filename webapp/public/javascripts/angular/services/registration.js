@@ -151,7 +151,7 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
               self.metadata.emailServer.host = parsed.hostname;
               self.metadata.emailServer.port = parseInt(parsed.port);
               self.metadata.emailServer.user = decodeURIComponent(parsed.username);
-              self.metadata.emailServer.password = parsed.password;
+              self.metadata.emailServer.password = decodeURIComponent(parsed.password);
             }
             break;
         }
