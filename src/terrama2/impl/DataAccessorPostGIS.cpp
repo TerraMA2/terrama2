@@ -202,7 +202,7 @@ void terrama2::core::DataAccessorPostGIS::addDateTimeFilter(const std::string da
   }
 
   if(filter.discardBefore.get())
-    whereConditions.push_back("t."+datetimeColumnName+" >= '"+filter.discardBefore->toString() + "'");
+    whereConditions.push_back("t."+datetimeColumnName+" > '"+filter.discardBefore->toString() + "'");
 
   if(filter.discardAfter.get())
     whereConditions.push_back("t."+datetimeColumnName+" <= '"+filter.discardAfter->toString() + "'");
