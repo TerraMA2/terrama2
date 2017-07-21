@@ -236,7 +236,7 @@ void terrama2::core::DataAccessorFile::filterDataSetByLastValues(std::shared_ptr
     auto timesIntant = std::dynamic_pointer_cast<te::dt::TimeInstantTZ>(dateTime);
 
     bool found = false;
-    for(int32_t j =0; j < *filter.lastValues.get() && j < vecLastValues.size(); ++j)
+    for(size_t j =0; j < *filter.lastValues.get() && j < vecLastValues.size(); ++j)
     {
       auto value = vecLastValues[j];
 
