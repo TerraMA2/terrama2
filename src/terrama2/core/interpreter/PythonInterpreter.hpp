@@ -35,8 +35,9 @@
 #include <memory>
 #include <mutex>
 
-// Boost
-#include <boost/python.hpp>
+#include <Python.h>
+
+struct StateLock;
 
 namespace terrama2
 {
@@ -61,23 +62,6 @@ namespace terrama2
 
     private:
       std::string extractException();
-
-      //! RAII class to ensure thread safety and state encapsulation
-      struct StateLock
-      {
-        public:
-          StateLock(PyThreadState * state);
-          virtual ~StateLock();
-          StateLock(const StateLock& other) = delete;
-          StateLock(StateLock&& other) = default;
-          StateLock& operator=(const StateLock& other) = delete;
-          StateLock& operator=(StateLock&& other) = default;
-
-        protected:
-          static std::mutex mutex_;
-          PyThreadState *oldState_;
-          PyGILState_STATE gilState_;
-      };
 
       //! Lock the instance and aquire the current state.
       StateLock holdState() const;

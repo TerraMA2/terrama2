@@ -29,7 +29,25 @@
 
 #include "PythonInterpreter.hpp"
 
+// Boost
+#include <boost/python.hpp>
 #include <boost/algorithm/string/replace.hpp>
+
+struct StateLock
+{
+  public:
+    StateLock(PyThreadState * state);
+    virtual ~StateLock();
+    StateLock(const StateLock& other) = delete;
+    StateLock(StateLock&& other) = default;
+    StateLock& operator=(const StateLock& other) = delete;
+    StateLock& operator=(StateLock&& other) = default;
+
+  protected:
+    static std::mutex mutex_;
+    PyThreadState *oldState_;
+    PyGILState_STATE gilState_;
+};
 
 terrama2::core::PythonInterpreter::PythonInterpreter()
   : Interpreter()
@@ -147,21 +165,21 @@ void terrama2::core::PythonInterpreter::runScript(const std::string& script)
   }
 }
 
-terrama2::core::PythonInterpreter::StateLock terrama2::core::PythonInterpreter::holdState() const
+StateLock terrama2::core::PythonInterpreter::holdState() const
 {
   return StateLock(interpreterState_);
 }
 
-std::mutex terrama2::core::PythonInterpreter::StateLock::mutex_;
+std::mutex StateLock::mutex_;
 
-terrama2::core::PythonInterpreter::StateLock::StateLock(PyThreadState * state)
+StateLock::StateLock(PyThreadState * state)
 {
   mutex_.lock();
   gilState_ = PyGILState_Ensure();
   oldState_ = PyThreadState_Swap(state);
 }
 
-terrama2::core::PythonInterpreter::StateLock::~StateLock()
+StateLock::~StateLock()
 {
   PyThreadState_Swap(oldState_);
   PyGILState_Release(gilState_);
