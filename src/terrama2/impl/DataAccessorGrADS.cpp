@@ -1131,7 +1131,8 @@ std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorGrADS::generateDat
                                                                                      terrama2::core::DataSetPtr dataSet,
                                                                                      std::shared_ptr<terrama2::core::FileRemover> remover,
                                                                                      const std::string& timezone,
-                                                                                     DataSetSeries& series) const
+                                                                                     DataSetSeries& series,
+                                                                                     std::shared_ptr< te::dt::TimeInstantTZ >& lastFileTimestamp) const
 {
   std::shared_ptr<te::mem::DataSet> completeDataset(nullptr);
 
@@ -1153,7 +1154,7 @@ std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorGrADS::generateDat
                                "/" + binaryFolderMask + "/";
 
     auto binaryFileList = getFilesList(uri, binaryFileMask, completePath, filter, timezone, remover);
-    readFilesAndAddToDataset(series, completeDataset, binaryFileList, binaryFileMask, dataSet);
+    lastFileTimestamp = readFilesAndAddToDataset(series, completeDataset, binaryFileList, binaryFileMask, dataSet);
   }
 
   return completeDataset;

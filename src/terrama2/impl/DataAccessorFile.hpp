@@ -109,7 +109,8 @@ namespace terrama2
                                                                   terrama2::core::DataSetPtr dataSet,
                                                                   std::shared_ptr<terrama2::core::FileRemover> remover,
                                                                   const std::string& timezone,
-                                                                  DataSetSeries& series) const;
+                                                                  DataSetSeries& series,
+                                                                  std::shared_ptr< te::dt::TimeInstantTZ >& lastFileTimestamp) const;
 
 
         /*!
