@@ -35,8 +35,6 @@
 #include <memory>
 #include <mutex>
 
-#include <Python.h>
-
 struct StateLock;
 
 namespace terrama2
@@ -65,8 +63,8 @@ namespace terrama2
 
       //! Lock the instance and aquire the current state.
       StateLock holdState() const;
-      PyThreadState *interpreterState_;
-      PyThreadState *mainThreadState_;
+      struct Impl;
+      Impl* impl_;
     };
   } /* core */
 } /* terrama2 */

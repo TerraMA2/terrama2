@@ -30,8 +30,8 @@
 #include "PythonInterpreter.hpp"
 
 // Boost
-#include <boost/python.hpp>
 #include <boost/algorithm/string/replace.hpp>
+#include <boost/python.hpp>
 
 struct StateLock
 {
@@ -49,18 +49,25 @@ struct StateLock
     PyGILState_STATE gilState_;
 };
 
-terrama2::core::PythonInterpreter::PythonInterpreter()
-  : Interpreter()
+struct terrama2::core::PythonInterpreter::Impl
 {
-  mainThreadState_ = PyThreadState_Get();
-  StateLock lock(mainThreadState_);
-  interpreterState_ = Py_NewInterpreter();
+  PyThreadState *interpreterState_;
+  PyThreadState *mainThreadState_;
+};
+
+terrama2::core::PythonInterpreter::PythonInterpreter()
+  : Interpreter(),
+  impl_(new Impl())
+{
+  impl_->mainThreadState_ = PyThreadState_Get();
+  StateLock lock(impl_->mainThreadState_);
+  impl_->interpreterState_ = Py_NewInterpreter();
 }
 
 terrama2::core::PythonInterpreter::~PythonInterpreter()
 {
   StateLock lock(holdState());
-  Py_EndInterpreter(interpreterState_);
+  Py_EndInterpreter(impl_->interpreterState_);
 }
 
 void terrama2::core::PythonInterpreter::setDouble(const std::string& name, const double value)
@@ -167,7 +174,7 @@ void terrama2::core::PythonInterpreter::runScript(const std::string& script)
 
 StateLock terrama2::core::PythonInterpreter::holdState() const
 {
-  return StateLock(interpreterState_);
+  return StateLock(impl_->interpreterState_);
 }
 
 std::mutex StateLock::mutex_;
