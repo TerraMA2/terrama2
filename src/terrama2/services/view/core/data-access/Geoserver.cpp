@@ -1272,7 +1272,8 @@ void terrama2::services::view::core::GeoServer::cleanup(const ViewId& id,
       TERRAMA2_LOG_DEBUG() << "Could not remove view table " + tableName;
     }
 
-    if (dataProvider != nullptr)
+    // Do not remove folder (properties files) for PostGIS
+    if (dataProvider != nullptr && dataProvider->dataProviderType != "POSTGIS")
     {
       const QUrl uri((dataProvider->uri+ "/" + tableName).c_str());
       removeFolder(uri.toLocalFile().toStdString());
