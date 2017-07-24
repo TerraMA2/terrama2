@@ -29,20 +29,45 @@
 
 #include "PythonInterpreter.hpp"
 
+// Boost
 #include <boost/algorithm/string/replace.hpp>
+#include <boost/python.hpp>
+
+struct StateLock
+{
+  public:
+    StateLock(PyThreadState * state);
+    virtual ~StateLock();
+    StateLock(const StateLock& other) = delete;
+    StateLock(StateLock&& other) = default;
+    StateLock& operator=(const StateLock& other) = delete;
+    StateLock& operator=(StateLock&& other) = default;
+
+  protected:
+    static std::mutex mutex_;
+    PyThreadState *oldState_;
+    PyGILState_STATE gilState_;
+};
+
+struct terrama2::core::PythonInterpreter::Impl
+{
+  PyThreadState *interpreterState_;
+  PyThreadState *mainThreadState_;
+};
 
 terrama2::core::PythonInterpreter::PythonInterpreter()
-  : Interpreter()
+  : Interpreter(),
+  impl_(new Impl())
 {
-  mainThreadState_ = PyThreadState_Get();
-  StateLock lock(mainThreadState_);
-  interpreterState_ = Py_NewInterpreter();
+  impl_->mainThreadState_ = PyThreadState_Get();
+  StateLock lock(impl_->mainThreadState_);
+  impl_->interpreterState_ = Py_NewInterpreter();
 }
 
 terrama2::core::PythonInterpreter::~PythonInterpreter()
 {
   StateLock lock(holdState());
-  Py_EndInterpreter(interpreterState_);
+  Py_EndInterpreter(impl_->interpreterState_);
 }
 
 void terrama2::core::PythonInterpreter::setDouble(const std::string& name, const double value)
@@ -147,21 +172,21 @@ void terrama2::core::PythonInterpreter::runScript(const std::string& script)
   }
 }
 
-terrama2::core::PythonInterpreter::StateLock terrama2::core::PythonInterpreter::holdState() const
+StateLock terrama2::core::PythonInterpreter::holdState() const
 {
-  return StateLock(interpreterState_);
+  return StateLock(impl_->interpreterState_);
 }
 
-std::mutex terrama2::core::PythonInterpreter::StateLock::mutex_;
+std::mutex StateLock::mutex_;
 
-terrama2::core::PythonInterpreter::StateLock::StateLock(PyThreadState * state)
+StateLock::StateLock(PyThreadState * state)
 {
   mutex_.lock();
   gilState_ = PyGILState_Ensure();
   oldState_ = PyThreadState_Swap(state);
 }
 
-terrama2::core::PythonInterpreter::StateLock::~StateLock()
+StateLock::~StateLock()
 {
   PyThreadState_Swap(oldState_);
   PyGILState_Release(gilState_);
