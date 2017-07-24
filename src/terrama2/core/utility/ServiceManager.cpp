@@ -111,7 +111,7 @@ QJsonObject terrama2::core::ServiceManager::status() const
     obj.insert("start_time", QString::fromStdString(startTime_->toString()));
     obj.insert("terrama2_version",  QString::fromStdString(TERRAMA2_VERSION_STRING));
     obj.insert("shutting_down",  isShuttingDown_);
-    obj.insert("logger_online",  logger_->isValid());
+    obj.insert("logger_online",  logger_.lock()->isValid());
   }
 
   return obj;
@@ -143,10 +143,11 @@ void terrama2::core::ServiceManager::updateService(const QJsonObject& obj)
 void terrama2::core::ServiceManager::setLogConnectionInfo(const te::core::URI& logDbUri)
 {
   logDbUri_ = logDbUri;
-  if(!logger_)
+  auto logger = logger_.lock();
+  if(!logger)
     throw std::runtime_error(tr("Error: no logger registered.").toStdString());
 
-  logger_->setConnectionInfo(logDbUri);
+  logger->setConnectionInfo(logDbUri);
 }
 
 te::core::URI terrama2::core::ServiceManager::logConnectionInfo() const
