@@ -52,9 +52,9 @@ define(
               $(li).append(sliderDiv);
 
               if(memberCapabilities[i].extent instanceof Array) {
-                span += "<span id='terrama2-slider' class='terrama2-datepicker-icon'>" + Calendar.makeHelperDatePicker(memberCapabilities[i]) + "<i class='fa fa-sliders'></i></span>";
+                span += "<span id='terrama2-slider' class='terrama2-datepicker-icon'> <i class='fa fa-sliders'></i></span>";
               } else if(memberCapabilities[i].extent instanceof Object) {
-                span += "<span id='terrama2-calendar' class='terrama2-datepicker-icon'>" + Calendar.makeHelperDatePicker(memberCapabilities[i]) + "<i class='fa fa-calendar'></i></span>";
+                span += "<span id='terrama2-calendar' class='terrama2-datepicker-icon'> <i class='fa fa-calendar'></i></span>";
               }
               $(li).append($(span));
             }

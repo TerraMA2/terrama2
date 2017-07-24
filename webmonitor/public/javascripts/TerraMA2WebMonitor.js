@@ -249,37 +249,43 @@ define(
             return c.name
           }).indexOf(data.layerName);
 
-					if(data.parent == "analysis")
-						return;
-
-          if(layerIndex < 0)
+          if(data.parent == "analysis" || layerIndex < 0 || !layerCapabilities[layerIndex].extent)
             return;
 
-          if(!layerCapabilities[layerIndex].extent)
-            return;
-
-          var span = "";
           var listElement = $("li[data-layerid='" + data.parent + "']");
           var li = $(listElement).find("li[data-layerid='" + data.layerId + "']");
 
           if(li.length === 0)
             return;
 
+          var dateObject = {
+            dates: layerCapabilities[layerIndex].extent
+          };
+
           if(data.update) {
-            Calendar.updateDatePicker(layerCapabilities[layerIndex], data.layerId);
-          } else {
-            var sliderDiv = "<div class='slider-content' style='display:none;'><label></label><button type='button' class='close close-slider'>×</button><div id='slider" + $(li).attr("data-layerid").replace(':', '') + "'></div></div>";
-            $(li).append(sliderDiv);
-
-            if(layerCapabilities[layerIndex].extent instanceof Array) {
-              Slider.insertIntoSliderCapabilities(layerCapabilities[layerIndex]);
-              span += "<span id='terrama2-slider' class='terrama2-datepicker-icon'>" + Calendar.makeHelperDatePicker(layerCapabilities[layerIndex]) + "<i class='fa fa-sliders'></i></span>";
-            } else if(layerCapabilities[layerIndex].extent instanceof Object) {
-              span += "<span id='terrama2-calendar' class='terrama2-datepicker-icon'>" + Calendar.makeHelperDatePicker(layerCapabilities[layerIndex]) + "<i class='fa fa-calendar'></i></span>";
+            if(layerCapabilities[layerIndex].extent instanceof Array){
+              dateObject.initialDateIndex = 0;
+            } else if(layerCapabilities[layerIndex].extent instanceof Object){
+              dateObject.startDate = layerCapabilities[layerIndex].extent.endDate;
+              dateObject.endDate = layerCapabilities[layerIndex].extent.endDate;
             }
-
+          } else {
+            var span = "";
+            if(layerCapabilities[layerIndex].extent instanceof Array) {
+              var sliderDiv = "<div class='slider-content' style='display:none;'><label></label><button type='button' class='close close-slider'>×</button><div id='slider" + $(li).attr("data-layerid").replace(':', '') + "'></div></div>";
+              $(li).append(sliderDiv);
+              span += "<span id='terrama2-slider' class='terrama2-datepicker-icon'> <i class='fa fa-sliders'></i></span>";
+              dateObject.initialDateIndex = 0;
+            } else if(layerCapabilities[layerIndex].extent instanceof Object) {
+              span += "<span id='terrama2-calendar' class='terrama2-datepicker-icon'> <i class='fa fa-calendar'></i></span>";
+              dateObject.startDate = layerCapabilities[layerIndex].extent.endDate;
+              dateObject.endDate = layerCapabilities[layerIndex].extent.endDate;
+            }
             $(li).append($(span));
           }
+
+          Layers.changeDateInfo(dateObject, data.layerId);
+
         } catch(e) {
           return;
         }

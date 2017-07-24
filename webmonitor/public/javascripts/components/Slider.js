@@ -1,17 +1,12 @@
 'use strict';
 
 define(
-  ['TerraMA2WebComponents'],
-  function(TerraMA2WebComponents) {
+  ['components/Layers', 'TerraMA2WebComponents'],
+  function(Layers, TerraMA2WebComponents) {
 
-    var sliderCapabilities = [];
-
-    var insertIntoSliderCapabilities = function(capability) {
-      sliderCapabilities.push(capability);
-    };
-
-    var setSlider = function(rangeDate, layerId) {
-      var valMap = rangeDate;
+    var setSlider = function(dateInfo, layerId) {
+      var valMap = dateInfo.dates;
+      var initDate = dateInfo.initialDateIndex;
 
       var slider = $("#slider" + layerId.replace(':', ''));
       var sliderParent = $(slider).parent();
@@ -22,17 +17,19 @@ define(
         $(sliderParent).hide();
 
       var labelDate = $(sliderParent).find("label");
-      $(labelDate).text(moment(rangeDate[0]).format("lll"));
+      $(labelDate).text(moment(dateInfo.dates[initDate]).format("lll"));
 
       $(slider).slider({
         min: 0,
         max: valMap.length - 1,
-        value: 0,
+        value: initDate,
         slide: function(event, ui) {
-          $(labelDate).text(moment(rangeDate[ui.value]).format("lll"));
+          $(labelDate).text(moment(dateInfo.dates[ui.value]).format("lll"));
         },
         stop: function(event, ui) {
-          doSlide(layerId, rangeDate[ui.value]);
+          doSlide(layerId, dateInfo.dates[ui.value]);
+          dateInfo.initialDateIndex = ui.value;
+          Layers.changeDateInfo(dateInfo, layerId);
         }
       });
     };
@@ -76,21 +73,19 @@ define(
         var self = $(this);
         var parentLi = $(self).parent();
         var parentId = $(parentLi).attr("data-layerid");
-        var layerName = parentId.split(':')[1];
-        var capability = sliderCapabilities.find(function(capability) {
-          return capability.name === layerName;
-        });
+        var layerObject = Layers.getLayerById(parentId);
+        var dateInfo = layerObject.dateInfo;
 
-        if(!capability) {
-          console.log("Capability not found...");
+        if(!dateInfo) {
+          console.log("Date info not found...");
           return;
         }
-        if(!capability.extent instanceof Array) {
-          console.log("Capability has not extent array.");
+        if(!dateInfo.dates instanceof Array) {
+          console.log("Date info has not dates array.");
           return;
         }
 
-        setSlider(capability.extent, parentId);
+        setSlider(dateInfo, parentId);
       });
 
       $("#terrama2-layerexplorer").on("click", "button[class~='close-slider']", function(e) {
@@ -99,7 +94,6 @@ define(
     };
 
     return {
-      insertIntoSliderCapabilities: insertIntoSliderCapabilities,
       setOpacitySlider: setOpacitySlider,
       init: init
     };
