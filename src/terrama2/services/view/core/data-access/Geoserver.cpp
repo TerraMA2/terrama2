@@ -1273,11 +1273,45 @@ void terrama2::services::view::core::GeoServer::cleanup(const ViewId& id,
     }
 
     // Do not remove folder (properties files) for PostGIS
-    if (dataProvider != nullptr && dataProvider->dataProviderType != "POSTGIS")
+    if (dataProvider != nullptr && dataProvider->dataProviderType == "FILE")
     {
-      const QUrl uri((dataProvider->uri+ "/" + tableName).c_str());
-      removeFolder(uri.toLocalFile().toStdString());
-    }
+      QUrl uri((dataProvider->uri+ "/" + tableName).c_str());
+
+      if (!uri.toLocalFile().toStdString().empty())
+      {
+        QDir directory(uri.toLocalFile());
+
+        // Extra validations
+        directory.setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
+
+        // Counting number of files. If only 2, might to be only *.properties files
+        const int numberFiles = directory.count();
+
+        // Retrieve files that match filter "*.properties"
+        QStringList filters;
+        filters << "*.properties";
+
+        const QStringList files = directory.entryList(filters);
+
+        // If exactly 2, remove folder
+        if ((numberFiles == files.size()) && (numberFiles == 2))
+          removeFolder(uri.toLocalFile().toStdString());
+        else
+        {
+          // If matched files exist
+          if (files.size() > 0)
+          {
+            /*
+             * It should never happen since we are working with unique view names (view + viewID)
+             * But the user can manually rename/remove folder. TODO: Should notify a warn?
+             * We must ensure that only properties files will be removed.
+             */
+            for(const auto& fileName: files)
+              removeFile(uri.toLocalFile().toStdString() + "/" + fileName.toStdString());
+          }
+        }
+      } // endif !directory.currentPath().toStdString().empty()
+    } // endif (dataProvider != nullptr && dataProvider->dataProviderType == "FILE")
   }
 
   te::ws::core::CurlWrapper curl;
