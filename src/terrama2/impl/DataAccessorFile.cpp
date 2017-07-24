@@ -520,7 +520,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
   DataSetSeries series;
   series.dataSet = dataSet;
 
-  std::shared_ptr<te::mem::DataSet> completeDataset = generateDataSet(uri, filter, dataSet, remover, timezone, series);
+  std::shared_ptr<te::mem::DataSet> completeDataset = generateDataSet(uri, filter, dataSet, remover, timezone, series, lastFileTimestamp);
   if(!completeDataset.get() || completeDataset->isEmpty())
   {
     QString errMsg = QObject::tr("No data in dataset: %1.").arg(dataSet->id);
@@ -837,14 +837,15 @@ std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorFile::generateData
                                                                                     terrama2::core::DataSetPtr dataSet,
                                                                                     std::shared_ptr<terrama2::core::FileRemover> remover,
                                                                                     const std::string& timezone,
-                                                                                    DataSetSeries& series) const
+                                                                                    DataSetSeries& series,
+                                                                                    std::shared_ptr< te::dt::TimeInstantTZ >& lastFileTimestamp) const
 {
   std::shared_ptr<te::mem::DataSet> completeDataset(nullptr);
 
   std::string fileMask = getFileMask(dataSet);
   std::string folderMask = getFolderMask(dataSet);
   auto binaryFileList = getFilesList(uri, fileMask, folderMask, filter, timezone, remover);
-  readFilesAndAddToDataset(series, completeDataset, binaryFileList, fileMask, dataSet);
+  lastFileTimestamp = readFilesAndAddToDataset(series, completeDataset, binaryFileList, fileMask, dataSet);
 
   return completeDataset;
 }
