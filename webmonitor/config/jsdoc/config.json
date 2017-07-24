@@ -1,0 +1,42 @@
+{
+  "tags": {
+    "allowUnknownTags": true
+  },
+  "source": {
+    "include": ["."],
+    "exclude": [
+      ".git",
+      ".vscode",
+      "bower_components",
+      "config",
+      "node_modules",
+      "public/dist",
+      "public/images",
+      "public/stylesheets",
+      "views",
+      "npm-debug.log",
+      "package.json"
+    ],
+    "includePattern": ".+\\.js(doc)?$",
+    "excludePattern": "public/docs"
+  },
+  "plugins": [],
+  "templates": {
+    "cleverLinks": false,
+    "monospaceLinks": true,
+    "systemName": "TerraMA2WebMonitor",
+    "footer": "TerraMA2WebMonitor",
+    "copyright": "2017",
+    "navType": "vertical",
+    "linenums": true,
+    "collapseSymbols": true,
+    "inverseNav": false
+  },
+  "opts": {
+    "template": "./config/jsdoc/templates/terrama2webmonitor",
+    "encoding": "utf8",
+    "destination": "public/docs",
+    "recurse": true,
+    "private": true
+  }
+}

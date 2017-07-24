@@ -34,8 +34,8 @@ int main(int argc, char* argv[])
   url.setPath("/pcd/");
   url.setScheme("FTP");
   url.setPort(21);
-  url.setUserName("ddpi");
-  url.setPassword("mtv.0789");
+  url.setUserName("");
+  url.setPassword("");
 
   curl_global_init(CURL_GLOBAL_ALL);
 

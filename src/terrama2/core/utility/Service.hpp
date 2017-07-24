@@ -68,6 +68,17 @@ namespace terrama2
     };
 
     /*!
+    \brief Tags used when returning values at the end of a process.
+    */
+    namespace ReturnTags
+    {
+      const QString PROCESS_ID = "process_id";//!< ID of the process finished, int.
+      const QString RESULT = "result";//!< Result of te process, boolean.
+      const QString AUTOMATIC = "automatic";//!< Flag if other processes should be started after this, boolean.
+      const QString EXECUTION_DATE = "execution_date";//!< Reference date of the process, string.
+    } /* ReturnTags */
+
+    /*!
       \brief The Service provides thread and time management for processes.
 
       This class is used to manage thread sync and timer listening for derived TerraMA2 services.
@@ -182,7 +193,7 @@ namespace terrama2
         virtual void prepareTask(const ExecutionPackage& executionPackage) = 0;
 
         //! Process a queued task.
-        void processingTaskThread() noexcept;
+        void processingTaskThread(const std::shared_ptr< const ProcessLogger > logger) noexcept;
 
         //! Verifys if the number of threads is greater than 0.
         size_t verifyNumberOfThreads(size_t numberOfThreads) const;

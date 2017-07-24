@@ -43,6 +43,11 @@
 #include "../../../core/utility/TimeUtils.hpp"
 #include "../../../core/utility/Utils.hpp"
 
+// TerraLib Datasource
+#include <terralib/dataaccess/datasource/DataSource.h>
+#include <terralib/dataaccess/datasource/DataSourceFactory.h>
+#include <terralib/dataaccess/datasource/DataSourceTransactor.h>
+
 // TerraLib
 #include <terralib/se/Categorize.h>
 #include <terralib/se/RasterSymbolizer.h>
@@ -56,6 +61,10 @@
 #include <sstream>
 #include <iomanip>
 
+// QT
+#include <QFile>
+#include <QFileInfo>
+#include <QDir>
 
 void terrama2::services::view::core::registerFactories()
 {
@@ -204,4 +213,47 @@ std::string terrama2::services::view::core::toString(const double value, const i
   ss << std::fixed << std::setprecision(precision) << value;
 
   return ss.str();
+}
+
+void terrama2::services::view::core::removeTable(const std::string& name, const te::core::URI& uri)
+{
+  std::shared_ptr<te::da::DataSource> dataSource = te::da::DataSourceFactory::make("POSTGIS", uri);
+
+  dataSource->open();
+  dataSource->dropDataSet(name);
+
+  if (dataSource->isOpened())
+    dataSource->close();
+}
+
+void terrama2::services::view::core::createFolder(const std::string& folderpath)
+{
+  QDir directory(folderpath.c_str());
+
+  if (!directory.exists())
+    if (!directory.mkdir(directory.path()))
+    {
+      const QString errMsg = QObject::tr("Could not create directory %1").arg(directory.path());
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw Exception() << ErrorDescription(errMsg);
+    }
+}
+
+void terrama2::services::view::core::removeFolder(const std::string& folderpath)
+{
+  QDir directory(folderpath.c_str());
+
+  if (directory.exists())
+    if (!directory.removeRecursively())
+    {
+      const QString errMsg = QObject::tr("Could not remove directory %1").arg(directory.path());
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw Exception() << ErrorDescription(errMsg);
+    }
+}
+
+void terrama2::services::view::core::recreateFolder(const std::string& folderpath)
+{
+  removeFolder(folderpath);
+  createFolder(folderpath);
 }

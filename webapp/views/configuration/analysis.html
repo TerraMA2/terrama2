@@ -259,7 +259,7 @@
             </div>
           </div>
 
-          <div class="col-md-4">
+          <div class="col-md-4" ng-show="ctrl.analysis.type_id != ctrl.AnalysisService.types.MONITORED">
             <div class="form-group" terrama2-show-errors>
               <label>{{ i18n.__('Data Store') }}:</label>
               <ui-select name="storager_data_provider_id" ng-model="ctrl.analysis.data_provider_id" ng-required="ctrl.storager.format.name" required>

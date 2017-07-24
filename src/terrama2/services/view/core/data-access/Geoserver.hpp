@@ -51,6 +51,10 @@
 
 namespace terrama2
 {
+  namespace core
+  {
+    class ProcessLogger;
+  }
   namespace services
   {
     namespace view
@@ -120,6 +124,7 @@ namespace terrama2
              * \param sql The SQL statements to create the view
              */
             void registerPostgisTable(const std::string& dataStoreName,
+                                      terrama2::core::DataSeriesType dataSeriesType,
                                       std::map<std::string, std::string> connInfo,
                                       const std::string& tableName,
                                       const std::string& layerName,
@@ -194,6 +199,20 @@ namespace terrama2
             std::unique_ptr<te::se::Style> generateVectorialStyle(const View::Legend& legend,
                                                                   const te::gm::GeomType& geomType) const;
 
+
+            /*!
+             * \brief Removes GeoServer Workspace.
+             *
+             * Since TerraMA² View Service generates a individual workspace for each view, you can use this method
+             * to remove entire workspace in GeoServer environment.
+             *
+             * \param v - Current view id object to remove. Default is selected workspace
+             */
+            void cleanup(const ViewId& id = 0,
+                         terrama2::core::DataProviderPtr dataProvider = nullptr,
+                         std::shared_ptr<terrama2::core::ProcessLogger> logger = nullptr) override;
+
+
             /*!
              * \brief Method to register a style in the GeoServer from a text file
              * \param name The name of the style
@@ -220,12 +239,6 @@ namespace terrama2
                                const View::Legend& legend,
                                const View::Legend::ObjectType&objectType,
                                const te::gm::GeomType& geomType = te::gm::UnknownGeometryType) const;
-
-            /*!
-             * \brief Method to delete a workspace in Geoserver
-             * \param recursive If true will delete all data associated with this workspace in server
-             */
-            void deleteWorkspace(bool recursive) const;
 
             /*!
              * \brief Method to delete a vector file in Geoserver
@@ -367,9 +380,23 @@ namespace terrama2
                                    int srid) const;
 
           private:
+            /*!
+             * \brief Retrieves a unique workspace name using view id.
+             *
+             * \param id - View identifier
+             * \return Workspace name: "terrama2_ViewId"
+             */
+            std::string generateWorkspaceName(const ViewId& id);
+
+            /*!
+             * \brief Helper to retrieve common view name with view id.
+             * \param id View identifier
+             * \return Unique Layer Name
+             */
+            std::string generateLayerName(const ViewId& id) const;
+
 
             std::string workspace_ = "terrama2"; /*!< A workspace to work in GeoServer */
-
         };
       }
     }

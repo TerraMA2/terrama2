@@ -49,6 +49,7 @@ namespace terrama2
       protected:
         //! Return the dataset name
         virtual std::string getDataSetName(DataSetPtr dataSet) const = 0;
+        virtual std::string getGeometryPropertyName(DataSetPtr dataSet) const;
         /*!
            \brief Check if the two properties have same name and type.
            \exception DataStoragerException Raise if have the same name and different types

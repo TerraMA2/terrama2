@@ -10,6 +10,8 @@ webapp/bower_components
 webapp/*_terrama2.log
 webmonitor/node_modules
 webmonitor/public/external
+webmonitor/public/dist
+webmonitor/public/docs
 webmonitor/bower_components
 webapp/terrama2.log
 .vscode

@@ -79,18 +79,6 @@ void terrama2::core::DataAccessorPostGIS::addValueFilter(const terrama2::core::F
                                                          std::string& conditions) const
 {
   std::string condition = filter.byValue;
-  //Protect from single quote based injections
-  boost::replace_all(condition, "'", "''");
-
-  //Protect from injections with semi-colon
-  size_t off = condition.find(';');
-  if (off != std::string::npos)
-  {
-    QString errMsg = QObject::tr("Malformed or malicious filter condition.\n%1").arg(QString::fromStdString(filter.byValue));
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw Exception() << ErrorDescription(errMsg);;
-  }
-
   if(!filter.byValue.empty())
   {
     if(!conditions.empty())
@@ -158,6 +146,8 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGIS::getSeries(con
   query+= "FROM "+tableName+" AS t";
   query += whereConditions(dataSet, datetimeColumnName, filter);
 
+  TERRAMA2_LOG_DEBUG() << query;
+
   std::shared_ptr<te::da::DataSet> tempDataSet = transactor->query(query);
 
   if(tempDataSet->isEmpty())
@@ -212,7 +202,7 @@ void terrama2::core::DataAccessorPostGIS::addDateTimeFilter(const std::string da
   }
 
   if(filter.discardBefore.get())
-    whereConditions.push_back("t."+datetimeColumnName+" >= '"+filter.discardBefore->toString() + "'");
+    whereConditions.push_back("t."+datetimeColumnName+" > '"+filter.discardBefore->toString() + "'");
 
   if(filter.discardAfter.get())
     whereConditions.push_back("t."+datetimeColumnName+" <= '"+filter.discardAfter->toString() + "'");

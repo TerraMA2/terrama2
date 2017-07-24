@@ -59,7 +59,26 @@ define([], function(){
      * @param {Object} response.message - Error message
      */
     Socket.on('errorResponse', function(response){
-      self.MessageBoxService.danger(i18n.__("Alerts"), i18n.__(response.message));
+      var errorMessage = response.message;
+      var targetMethod = null;
+      if (serviceCache[response.service] != undefined){
+        var service = Service.get(serviceCache[response.service].process_ids.service_instance);
+        if (service != null) {
+          errorMessage = i18n.__(errorMessage) + " " + i18n.__("Service") + ": '" + service.name + "' ";
+        }
+        if (config.extra && config.extra.id){
+          var warningMessage = config.message + ". ";
+          errorMessage = warningMessage + errorMessage;
+          targetMethod = MessageBoxService.warning; // setting warning method to display message
+          delete config.extra;
+          delete config.message;
+        } 
+        else {
+          targetMethod = MessageBoxService.danger;
+        }
+      }
+      targetMethod.call(MessageBoxService, i18n.__("Alerts"), errorMessage);
+      delete serviceCache[response.service];
     });
 
     /**
@@ -85,22 +104,12 @@ define([], function(){
           } else {
             Socket.emit('run', serviceCache[response.service].process_ids);
           }
+          delete $scope.disabledButtons[serviceCache[response.service].service_id];
+          delete serviceCache[response.service];
         } else {
-          if(serviceCache[response.service] != undefined) {
-            var service = Service.get(serviceCache[response.service].process_ids.service_instance);
-
-            if(service != null) {
-              self.MessageBoxService.danger(i18n.__("Alerts"), i18n.__("Service") + " '" + service.name + "' " + i18n.__("is not active"));
-            } else {
-              self.MessageBoxService.danger(i18n.__("Alerts"), i18n.__("Service not active"));
-            }
-          } else {
-            self.MessageBoxService.danger(i18n.__("Alerts"), i18n.__("Service not active"));
-          }
+          delete $scope.disabledButtons[serviceCache[response.service].service_id];
         }
 
-        delete $scope.disabledButtons[serviceCache[response.service].service_id];
-        delete serviceCache[response.service];
       }
     });
 
@@ -150,7 +159,7 @@ define([], function(){
 
           $timeout(function() {
             var finalMessage = messageArray.join(" ") + " " + i18n.__(tokenCodeMessage);
-            self.MessageBoxService.success((config.legendsTab ? i18n.__("Legends") : i18n.__("Alerts")), finalMessage);
+            if(!self.MessageBoxService.alertBox.display) self.MessageBoxService.success((config.legendsTab ? i18n.__("Legends") : i18n.__("Alerts")), finalMessage);
           }, 1000);
         }
 
@@ -187,7 +196,11 @@ define([], function(){
         };
 
          self.icon = function(object) {
-           return BASE_URL + "images/alert/monitored-object/monitored-object_alert.png"
+           if (object.dataSeries.isAnalysis && object.dataSeries.semantics == "ANALYSIS_MONITORED_OBJECT-postgis"){
+            return BASE_URL + "images/alert/monitored-object/monitored-object_alert.png";
+           } else {
+            return BASE_URL + "images/alert/grid/grid_alert.png";
+           }
          }
 
         /**

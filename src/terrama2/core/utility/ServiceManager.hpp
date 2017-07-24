@@ -26,6 +26,7 @@
 #define __TERRAMA2_CORE_SERVICE_MANAGER_HPP__
 
 #include "../Typedef.hpp"
+#include "ProcessLogger.hpp"
 
 //Qt
 #include <QJsonObject>
@@ -83,6 +84,8 @@ namespace terrama2
         void setNumberOfThreads(int numberOfThreads);
         virtual int numberOfThreads() const;
 
+        void setLogger(std::shared_ptr<terrama2::core::ProcessLogger> logger);
+
         //! Return the Date/Time when the service was started.
         virtual const std::shared_ptr< te::dt::TimeInstantTZ >& startTime() const;
 
@@ -134,6 +137,8 @@ namespace terrama2
         ServiceManager(ServiceManager&& other) = delete;
         ServiceManager& operator=(const ServiceManager& other) = delete;
         ServiceManager& operator=(ServiceManager&& other) = delete;
+
+        std::weak_ptr<terrama2::core::ProcessLogger> logger_;
 
         std::string instanceName_;
         ServiceInstanceId instanceId_ = 0;

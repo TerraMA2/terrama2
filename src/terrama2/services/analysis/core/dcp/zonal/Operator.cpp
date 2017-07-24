@@ -238,9 +238,9 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
                 // In case the DCP doesn't have the specified column
                 continue;
               }
-
-              results.insert(results.end(), values.begin(), values.end());
             }//end for syncDs
+
+            results.insert(results.end(), values.begin(), values.end());
           }//end for each dataSeries->datasetList
         }//end for each vecDCPAlias
       }

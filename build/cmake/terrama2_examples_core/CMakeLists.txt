@@ -40,6 +40,7 @@ include_directories (
 
 include_directories ( SYSTEM
   ${Boost_INCLUDE_DIR}
+  ${PYTHON_INCLUDE_DIRS}
   ${terralib_INCLUDE_DIRS}
   ${terralib_DIR}
   ${Qt5Core_INCLUDE_DIRS}

@@ -112,10 +112,14 @@ void terrama2::services::collector::core::Service::addToQueue(CollectorId collec
 
     mainLoopCondition_.notify_one();
   }
+  catch(const terrama2::core::LogException&)
+  {
+    TERRAMA2_LOG_ERROR() << QObject::tr("Unable to access log database.");
+  }
   catch(...)
   {
     // exception guard, slots should never emit exceptions.
-    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception...");
+    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception durring collector edd to queue...");
   }
 }
 
@@ -244,7 +248,9 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
       logger->result(CollectorLogger::DONE, nullptr, executionPackage.registerId);
     }
 
-    sendProcessFinishedSignal(executionPackage.processId, executionPackage.executionDate, true);
+    QJsonObject jsonAnswer;
+    jsonAnswer.insert(terrama2::core::ReturnTags::AUTOMATIC, false);
+    sendProcessFinishedSignal(executionPackage.processId, executionPackage.executionDate, true, jsonAnswer);
     notifyWaitQueue(executionPackage.processId);
     return;
   }

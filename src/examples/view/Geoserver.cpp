@@ -94,9 +94,9 @@ int main(int argc, char** argv)
     std::unique_ptr<te::da::DataSetType> dsType(terrama2::services::view::core::DataAccess::getDataSetType("dataSourceURI",
                                                                "muni", "POSTGIS"));
 
-    geoserver.registerPostgisTable("ashapepostgis", connInfo, "muni", "muni", dsType);
+    geoserver.registerPostgisTable("ashapepostgis", terrama2::core::DataSeriesType::GEOMETRIC_OBJECT, connInfo, "muni", "muni", dsType);
 
-    geoserver.registerPostgisTable("aviewpostgis", connInfo, "view_muni", "view_muni", dsType, "", "SELECT * FROM muni WHERE gid = 558");
+    geoserver.registerPostgisTable("aviewpostgis", terrama2::core::DataSeriesType::GEOMETRIC_OBJECT, connInfo, "view_muni", "view_muni", dsType, "", "SELECT * FROM muni WHERE gid = 558");
 
     // Registering a style
     geoserver.registerStyle("astyle", "style");
@@ -129,7 +129,7 @@ int main(int argc, char** argv)
 
     geoserver.deleteVectorLayer("ashapesfolder", "Rod_Principais_SP_lin", true);
 
-    geoserver.deleteWorkspace(true);
+    geoserver.cleanup();
 
   }
   catch(const std::exception& e)

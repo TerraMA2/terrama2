@@ -140,53 +140,62 @@ var DataManager = module.exports = {
         // data provider type defaults
         inserts.push(self.addDataProviderType({id: 1, name: "FILE", description: "Desc File"}));
         inserts.push(self.addDataProviderType({id: 2, name: "FTP", description: "Desc FTP"}));
-        //inserts.push(self.addDataProviderType({id: 3, name: "HTTP", description: "Desc Http"}));
+        inserts.push(self.addDataProviderType({id: 3, name: "HTTP", description: "Desc Http"}));
         inserts.push(self.addDataProviderType({id: 4, name: "POSTGIS", description: "Desc Postgis"}));
         //inserts.push(self.addDataProviderType({id: 5, name: "SFTP", description: "Desc SFTP"}));
 
-        // default services
-        var collectorService = {
-          name: "Local Collector",
-          description: "Local service for Collect",
-          port: 6543,
-          pathToBinary: "terrama2_service",
-          numberOfThreads: 0,
-          service_type_id: Enums.ServiceType.COLLECTOR,
-          log: {
-            host: "127.0.0.1",
-            port: 5432,
-            user: "postgres",
-            password: "postgres",
-            database: dbConfig.database
+        var listServicesPromise = self.listServiceInstances({}).then(function(services){
+          var servicesInsert = [];
+          if (services.length == 0 ){
+
+            // default services
+            var collectorService = {
+              name: "Local Collector",
+              description: "Local service for Collect",
+              port: 6543,
+              pathToBinary: "terrama2_service",
+              numberOfThreads: 0,
+              service_type_id: Enums.ServiceType.COLLECTOR,
+              log: {
+                host: "127.0.0.1",
+                port: 5432,
+                user: "postgres",
+                password: "postgres",
+                database: dbConfig.database
+              }
+            };
+
+            var analysisService = Object.assign({}, collectorService);
+            analysisService.name = "Local Analysis";
+            analysisService.description = "Local service for Analysis";
+            analysisService.port = 6544;
+            analysisService.service_type_id = Enums.ServiceType.ANALYSIS;
+
+            var viewService = Object.assign({}, collectorService);
+            viewService.name = "Local View";
+            viewService.description = "Local service for View";
+            viewService.port = 6545;
+            viewService.service_type_id = Enums.ServiceType.VIEW;
+            viewService.metadata = {
+              maps_server: "http://admin:geoserver@localhost:8080/geoserver"
+            };
+
+            var alertService = Object.assign({}, collectorService);
+            alertService.name = "Local Alert";
+            alertService.description = "Local service for Alert";
+            alertService.port = 6546;
+            alertService.service_type_id = Enums.ServiceType.ALERT;
+            alertService.metadata = { };
+
+            servicesInsert.push(self.addServiceInstance(collectorService));
+            servicesInsert.push(self.addServiceInstance(analysisService));
+            servicesInsert.push(self.addServiceInstance(viewService));
+            servicesInsert.push(self.addServiceInstance(alertService));
           }
-        };
+          return Promise.all(servicesInsert);
+        });
+        inserts.push(listServicesPromise);
 
-        var analysisService = Object.assign({}, collectorService);
-        analysisService.name = "Local Analysis";
-        analysisService.description = "Local service for Analysis";
-        analysisService.port = 6544;
-        analysisService.service_type_id = Enums.ServiceType.ANALYSIS;
-
-        var viewService = Object.assign({}, collectorService);
-        viewService.name = "Local View";
-        viewService.description = "Local service for View";
-        viewService.port = 6545;
-        viewService.service_type_id = Enums.ServiceType.VIEW;
-        viewService.metadata = {
-          maps_server: "http://admin:geoserver@localhost:8080/geoserver"
-        };
-
-        var alertService = Object.assign({}, collectorService);
-        alertService.name = "Local Alert";
-        alertService.description = "Local service for Alert";
-        alertService.port = 6546;
-        alertService.service_type_id = Enums.ServiceType.ALERT;
-        alertService.metadata = { };
-
-        inserts.push(self.addServiceInstance(collectorService));
-        inserts.push(self.addServiceInstance(analysisService));
-        inserts.push(self.addServiceInstance(viewService));
-        inserts.push(self.addServiceInstance(alertService));
 
         // data provider intent defaults
         inserts.push(models.db.DataProviderIntent.create({
@@ -5167,7 +5176,12 @@ var DataManager = module.exports = {
             model: models.db.Layer
           },
           {
-            model: models.db.View
+            model: models.db.View,
+            include: [
+              {
+                model: models.db.DataSeries
+              }
+            ]
           }
         ]
       }, options))

@@ -511,6 +511,84 @@ define(
         tile.setMaxResolution(params.maxResolution);
 
       return tile;
+    }; 
+
+    /**
+     * Creates a new image wms layer.
+     * @param {string} layerId - Layer id
+     * @param {string} layerName - Layer name
+     * @param {string} layerTitle - Layer title
+     * @param {string} url - Url to the wms layer
+     * @param {string} type - Server type
+     * @param {boolean} layerVisible - Flag that indicates if the layer should be visible on the map when created
+     * @param {boolean} disabled - Flag that indicates if the layer should be disabled in the layer explorer when created
+     * @param {object} params - Optional parameters, there are the following items:
+     *    {float} minResolution - Layer minimum resolution,
+     *    {float} maxResolution - Layer maximum resolution,
+     *    {string} time - Time parameter for temporal layers,
+     *    {integer} buffer - Buffer of additional border pixels that are used in the GetMap and GetFeatureInfo operations,
+     *    {string} version - WMS version,
+     *    {string} format - Layer format,
+     *    {object} tileGrid - Grid pattern for accessing the tiles
+     *    {object} sourceParams - Layer source parameters
+     * @returns {ol.layer.Image} tile - New image wms layer
+     *
+     * @private
+     * @function createImageWMSLayer
+     * @memberof MapDisplay
+     * @inner
+     */
+
+    var createImageWMSLayer = function(layerId, layerName, layerTitle, url, type, layerVisible, disabled, params) {
+      params = params !== undefined && params !== null ? params : {};
+
+      var sourceParams = params.sourceParams !== undefined && params.sourceParams !== null ? params.sourceParams : {};
+
+      sourceParams['LAYERS'] = layerId;
+
+      if(params.time !== undefined && params.time !== null && params.time !== '')
+        sourceParams['TIME'] = params.time;
+
+      if(params.buffer !== undefined && params.buffer !== null && params.buffer !== '')
+        sourceParams['BUFFER'] = params.buffer;
+
+      if(params.version !== undefined && params.version !== null && params.version !== '')
+        sourceParams['VERSION'] = params.version;
+
+      if(params.format !== undefined && params.format !== null && params.format !== '')
+        sourceParams['FORMAT'] = params.format;
+
+      var layerSourceOptions = {
+        url: url,
+        serverType: type,
+        params: sourceParams
+      };
+
+      var layerSource = new ol.source.ImageWMS(layerSourceOptions);
+
+      if(memberLayersStartLoadingFunction !== null && memberLayersEndLoadingFunction !== null) {
+        layerSource.on('imageloadstart', function() { increaseLoading(layerId); });
+        layerSource.on('imageloadend', function() { increaseLoaded(layerId); });
+        layerSource.on('imageloaderror', function() { increaseLoaded(layerId); });
+      }
+
+      var image = new ol.layer.Image({
+        source: layerSource,
+        id: layerId,
+        name: layerName,
+        title: layerTitle,
+        visible: layerVisible,
+        preload: Infinity,
+        disabled: disabled
+      });
+
+      if(params.minResolution !== undefined && params.minResolution !== null)
+        tile.setMinResolution(params.minResolution);
+
+      if(params.maxResolution !== undefined && params.maxResolution !== null)
+        tile.setMaxResolution(params.maxResolution);
+
+      return image;
     };
 
     /**
@@ -679,6 +757,48 @@ define(
 
         layers.push(
           createTileWMSLayer(layerId, layerName, layerTitle, url, type, layerVisible, disabled, params)
+        );
+
+        layerGroup.setLayers(layers);
+      }
+
+      return layerGroupExists;
+    };
+
+    /**
+     * Adds a new image wms layer to the map.
+     * @param {string} layerId - Layer id
+     * @param {string} layerName - Layer name
+     * @param {string} layerTitle - Layer title
+     * @param {string} url - Url to the wms layer
+     * @param {string} type - Server type
+     * @param {boolean} layerVisible - Flag that indicates if the layer should be visible on the map when created
+     * @param {boolean} disabled - Flag that indicates if the layer should be disabled in the layer explorer when created
+     * @param {string} parentGroup - Parent group id
+     * @param {object} params - Optional parameters, there are the following items:
+     *    {float} minResolution - Layer minimum resolution,
+     *    {float} maxResolution - Layer maximum resolution,
+     *    {string} time - Time parameter for temporal layers,
+     *    {integer} buffer - Buffer of additional border pixels that are used in the GetMap and GetFeatureInfo operations,
+     *    {string} version - WMS version,
+     *    {string} format - Layer format,
+     *    {object} tileGrid - Grid pattern for accessing the tiles
+     *    {object} sourceParams - Layer source parameters
+     * @returns {boolean} layerGroupExists - Indicates if the layer group exists
+     *
+     * @function addImageWMSLayer
+     * @memberof MapDisplay
+     * @inner
+     */
+    var addImageWMSLayer = function(layerId, layerName, layerTitle, url, type, layerVisible, disabled, parentGroup, params) {
+      var layerGroup = findBy(memberOlMap.getLayerGroup(), 'id', parentGroup);
+      var layerGroupExists = layerGroup !== null;
+
+      if(layerGroupExists) {
+        var layers = layerGroup.getLayers();
+
+        layers.push(
+          createImageWMSLayer(layerId, layerName, layerTitle, url, type, layerVisible, disabled, params)
         );
 
         layerGroup.setLayers(layers);
@@ -1504,6 +1624,7 @@ define(
       disableDoubleClickZoom: disableDoubleClickZoom,
       addLayerGroup: addLayerGroup,
       updateLayerTime: updateLayerTime,
+      addImageWMSLayer: addImageWMSLayer,
       addTileWMSLayer: addTileWMSLayer,
       addWMTSLayer: addWMTSLayer,
       addBingMapsLayer: addBingMapsLayer,

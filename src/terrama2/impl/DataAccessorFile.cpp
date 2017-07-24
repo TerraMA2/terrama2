@@ -236,7 +236,7 @@ void terrama2::core::DataAccessorFile::filterDataSetByLastValues(std::shared_ptr
     auto timesIntant = std::dynamic_pointer_cast<te::dt::TimeInstantTZ>(dateTime);
 
     bool found = false;
-    for(int32_t j =0; j < *filter.lastValues.get() && j < vecLastValues.size(); ++j)
+    for(size_t j =0; j < *filter.lastValues.get() && j < vecLastValues.size(); ++j)
     {
       auto value = vecLastValues[j];
 
@@ -521,7 +521,6 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
   series.dataSet = dataSet;
 
   std::shared_ptr<te::mem::DataSet> completeDataset = generateDataSet(uri, filter, dataSet, remover, timezone, series);
-
   if(!completeDataset.get() || completeDataset->isEmpty())
   {
     QString errMsg = QObject::tr("No data in dataset: %1.").arg(dataSet->id);
@@ -530,6 +529,12 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
   }
 
   applyFilters(filter, dataSet, completeDataset, lastFileTimestamp);
+  if(!completeDataset.get() || completeDataset->isEmpty())
+  {
+    QString errMsg = QObject::tr("No data in dataset: %1.").arg(dataSet->id);
+    TERRAMA2_LOG_WARNING() << errMsg;
+    throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
+  }
 
 
   std::shared_ptr<SynchronizedDataSet> syncDataset(new SynchronizedDataSet(completeDataset));

@@ -33,8 +33,7 @@
 // TerraMA2
 #include "Shared.hpp"
 #include "ViewLogger.hpp"
-#include "../../../core/Shared.hpp"
-#include "../../../core/Typedef.hpp"
+#include "Typedef.hpp"
 
 // TerraLib
 #include <terralib/core/uri/URI.h>
@@ -66,6 +65,21 @@ namespace terrama2
                                                const std::shared_ptr<DataManager> dataManager,
                                                std::shared_ptr<ViewLogger> logger,
                                                const RegisterId logId) = 0;
+
+            /*!
+             * \brief This methods performs a Maps Server cleanup operation.
+             *
+             * Use this when you want to remove complete environment on MapsServer, such GeoServer
+             *
+             * \note It may throw Exception
+             *
+             * \param id Current View Id to remove
+             * \param dataProvider Pointer to view data provider (optional)
+             * \param logger Logger to perform database cleanup. Useful to retrieve database connection arguments.
+             */
+            virtual void cleanup(const ViewId& id = 0,
+                                 terrama2::core::DataProviderPtr dataProvider = nullptr,
+                                 std::shared_ptr<terrama2::core::ProcessLogger> logger = nullptr) = 0;
 
           protected:
 
