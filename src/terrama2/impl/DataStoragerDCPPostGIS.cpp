@@ -33,6 +33,7 @@
 #include "../core/data-model/DataProvider.hpp"
 #include "../core/data-model/DataSetDcp.hpp"
 #include "../core/utility/Raii.hpp"
+#include "../core/utility/Utils.hpp"
 
 #include <terralib/dataaccess/datasource/DataSourceCapabilities.h>
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
@@ -76,7 +77,7 @@ void terrama2::core::DataStoragerDCPPostGIS::storePositions(const std::unordered
 
   std::shared_ptr<te::mem::DataSet> dataset;
   // DCP positions table name
-  std::string destinationDataSetName = "dcp_series_"+std::to_string(dataSeries_->id);
+  std::string destinationDataSetName = getDCPPositionsTableName(dataSeries_);
   auto newDataSetType = std::make_shared<te::da::DataSetType>(destinationDataSetName);
 
   //drop old table
