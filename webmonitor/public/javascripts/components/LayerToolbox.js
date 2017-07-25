@@ -57,9 +57,10 @@ define(
           };
 
           if(layer.exportation.dateField !== null) {
+            var dateInfo = layer.dateInfo;
             exportationParams.dateTimeField = layer.exportation.dateField;
-            exportationParams.dateTimeFrom = $("#terrama2-calendar").find("input[type='hidden']").attr("start-date");
-            exportationParams.dateTimeTo = $("#terrama2-calendar").find("input[type='hidden']").attr("end-date");
+            exportationParams.dateTimeFrom = dateInfo.startDate;
+            exportationParams.dateTimeTo = dateInfo.endDate;
           }
 
           $('#exportation-status > div > span').html('Verifying data for export<span>...</span>');
@@ -100,7 +101,7 @@ define(
             if(!$("#exportation-box").hasClass("hidden"))
               $("#exportation-box").addClass("hidden");
 
-            $("#layer-toolbox").css("height", "100px");
+            $("#layer-toolbox").css("height", "150px");
           }
 
           $("#layer-toolbox > .layer-toolbox-body .layer-name").text(layer.name);
