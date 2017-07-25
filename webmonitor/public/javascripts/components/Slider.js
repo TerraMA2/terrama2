@@ -29,7 +29,7 @@ define(
         stop: function(event, ui) {
           doSlide(layerId, dateInfo.dates[ui.value]);
           dateInfo.initialDateIndex = ui.value;
-          Layers.changeDateInfo(dateInfo, layerId);
+          Layers.updateDateInfo(dateInfo, layerId);
         }
       });
     };

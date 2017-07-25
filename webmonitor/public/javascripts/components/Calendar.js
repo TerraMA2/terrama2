@@ -14,16 +14,16 @@ define(
         var calendar = $(self).find("input[id='" + layerId + "']");
         var minDate = dateInfo.dates.startDate;
         var maxDate = dateInfo.dates.endDate;
-        var startDate = dateInfo.startDate;
-        var endDate = dateInfo.endDate;
+        var startFilterDate = dateInfo.startFilterDate;
+        var endFilterDate = dateInfo.endFilterDate;
 
         if(!minDate || !maxDate) {
           return;
         }
         var mMinDate = moment(minDate);
         var mMaxDate = moment(maxDate);
-        var mStartDate = moment(startDate);
-        var mEndDate = moment(endDate);
+        var mStartDate = moment(startFilterDate);
+        var mEndDate = moment(endFilterDate);
 
         if(calendar.length === 0) {
           calendar = $("<input type='text' id='" + layerId + "' value='' style='display:none;'>");
@@ -53,9 +53,9 @@ define(
             var timeFormat = "YYYY-MM-DDTHH:mm:ss";
             var pickerStartDate = picker.startDate.format(timeFormat);
             var pickerEndDate = picker.endDate.format(timeFormat);
-            dateInfo.startDate = pickerStartDate;
-            dateInfo.endDate = pickerEndDate;
-            Layers.changeDateInfo(dateInfo, layerId);
+            dateInfo.startFilterDate = pickerStartDate;
+            dateInfo.endFilterDate = pickerEndDate;
+            Layers.updateDateInfo(dateInfo, layerId);
 
             $("#attributes-table-select").trigger("setAttributesTable");
 
@@ -80,9 +80,9 @@ define(
             var timeFormat = "YYYY-MM-DDTHH:mm:ss";
             var pickerStartDate = picker.startDate.format(timeFormat);
             var pickerEndDate = picker.endDate.format(timeFormat);
-            dateInfo.startDate = pickerStartDate;
-            dateInfo.endDate = pickerEndDate;
-            Layers.changeDateInfo(dateInfo, layerId);
+            dateInfo.startFilterDate = pickerStartDate;
+            dateInfo.endFilterDate = pickerEndDate;
+            Layers.updateDateInfo(dateInfo, layerId);
 
             $("#attributes-table-select").trigger("setAttributesTable", []);
 

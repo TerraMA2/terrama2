@@ -46,7 +46,7 @@ define(
       return layerObject;
     };
 
-    var changeDateInfo = function(dateInfo, layerId){
+    var updateDateInfo = function(dateInfo, layerId){
       var indexLayer = memberAllLayers.map(function(l) {
         return l.id
       }).indexOf(layerId);
@@ -177,7 +177,7 @@ define(
       getVisibleLayers: getVisibleLayers,
       changeLayerStatus: changeLayerStatus,
       changeParentLayerStatus: changeParentLayerStatus,
-      changeDateInfo: changeDateInfo
+      updateDateInfo: updateDateInfo
     };
   }
 );

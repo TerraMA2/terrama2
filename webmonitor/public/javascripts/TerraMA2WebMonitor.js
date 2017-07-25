@@ -266,8 +266,8 @@ define(
             if(layerCapabilities[layerIndex].extent instanceof Array){
               dateObject.initialDateIndex = 0;
             } else if(layerCapabilities[layerIndex].extent instanceof Object){
-              dateObject.startDate = layerCapabilities[layerIndex].extent.endDate;
-              dateObject.endDate = layerCapabilities[layerIndex].extent.endDate;
+              dateObject.startFilterDate = layerCapabilities[layerIndex].extent.endDate;
+              dateObject.endFilterDate = layerCapabilities[layerIndex].extent.endDate;
             }
           } else {
             var span = "";
@@ -278,15 +278,16 @@ define(
               dateObject.initialDateIndex = 0;
             } else if(layerCapabilities[layerIndex].extent instanceof Object) {
               span += "<span id='terrama2-calendar' class='terrama2-datepicker-icon'> <i class='fa fa-calendar'></i></span>";
-              dateObject.startDate = layerCapabilities[layerIndex].extent.endDate;
-              dateObject.endDate = layerCapabilities[layerIndex].extent.endDate;
+              dateObject.startFilterDate = layerCapabilities[layerIndex].extent.endDate;
+              dateObject.endFilterDate = layerCapabilities[layerIndex].extent.endDate;
             }
             $(li).append($(span));
           }
 
-          Layers.changeDateInfo(dateObject, data.layerId);
+          Layers.updateDateInfo(dateObject, data.layerId);
 
         } catch(e) {
+          console.log(e);
           return;
         }
       });
