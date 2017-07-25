@@ -2,6 +2,8 @@
 #include <terrama2/core/interpreter/PythonInterpreter.hpp>
 #include <iostream>
 
+#include <Python.h>
+
 int main(int argc, char* argv[])
 {
   PyEval_InitThreads();
