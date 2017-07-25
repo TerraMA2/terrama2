@@ -65,8 +65,8 @@ define(
 
         var layerData = Layers.getLayerById(layerId);
 
-        var startDate = layerData.dateInfo.startDate;
-        var endDate = layerData.dateInfo.endDate;
+        var startDate = layerData.dateInfo.startFilterDate;
+        var endDate = layerData.dateInfo.endFilterDate;
 
         if(layerData !== null && layerData.id !== undefined && layerData.uriGeoServer !== undefined) {
           $.get(BASE_URL + 'get-columns', {
