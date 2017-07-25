@@ -171,6 +171,10 @@
   padding: 0;
 }
 
+.sidebar-menu {
+  overflow: visible !important;
+}
+
 .sidebar-menu > div {
   color: #b8c7ce;
 }

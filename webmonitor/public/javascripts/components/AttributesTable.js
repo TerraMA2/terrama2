@@ -65,10 +65,8 @@ define(
 
         var layerData = Layers.getLayerById(layerId);
 
-        var minDate = $('#' + layerId.replace(':', '') + ' > #terrama2-calendar > input').attr('data-min-date');
-        var maxDate = $('#' + layerId.replace(':', '') + ' > #terrama2-calendar > input').attr('data-max-date');
-        var startDate = $('#' + layerId.replace(':', '') + ' > #terrama2-calendar > input').attr('start-date');
-        var endDate = $('#' + layerId.replace(':', '') + ' > #terrama2-calendar > input').attr('end-date');
+        var startDate = layerData.dateInfo.startFilterDate;
+        var endDate = layerData.dateInfo.endFilterDate;
 
         if(layerData !== null && layerData.id !== undefined && layerData.uriGeoServer !== undefined) {
           $.get(BASE_URL + 'get-columns', {
@@ -99,8 +97,8 @@ define(
                 tableOptions.ajax.data = function(data) {
                   data.layer = $('#attributes-table-select > select').val();
                   data.geoserverUri = layerData.uriGeoServer;
-                  data.timeStart = (startDate !== undefined && startDate !== "" ? startDate : (maxDate !== undefined && maxDate !== "" ? maxDate : null));
-                  data.timeEnd = (endDate !== undefined && endDate !== "" ? endDate : (maxDate !== undefined && maxDate !== "" ? maxDate : null));
+                  data.timeStart = startDate;
+                  data.timeEnd = endDate;
                 };
 
                 tableOptions.columns = columnsArray;
