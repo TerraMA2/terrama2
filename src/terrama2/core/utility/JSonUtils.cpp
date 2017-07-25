@@ -295,7 +295,7 @@ terrama2::core::Filter terrama2::core::fromFilterJson(QJsonObject json, DataMana
     verify::date(filter.discardAfter);
   }
 
-  if(*filter.discardBefore > *filter.discardAfter)
+  if(filter.discardBefore && filter.discardAfter && (*filter.discardBefore > *filter.discardAfter))
   {
     QString errMsg = QObject::tr("Invalid Filter JSON object./nEmpty date filter interval.");
     TERRAMA2_LOG_ERROR() << errMsg;
