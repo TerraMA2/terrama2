@@ -642,7 +642,8 @@ TcpService.prototype.removeView = function(registeredView){
   var viewObject = {
     workspace: registeredView.workspace,
     layer: registeredView.layers[0],
-    parent: registeredView.dataSeriesType
+    parent: registeredView.dataSeriesType,
+    private: registeredView.view.private
   }
   self.emit("removeView", viewObject);
 }
@@ -768,7 +769,8 @@ function onNotifyView(resp) {
   if (resp.registeredView){
     var viewObject = {
       workspace: resp.registeredView.workspace,
-      layer: resp.registeredView.layers[0]
+      layer: resp.registeredView.layers[0],
+      private: resp.registeredView.view.private
     };
     tcpService.emit("notifyView", viewObject);
   }
@@ -784,7 +786,8 @@ function onNotifyView(resp) {
 function RemoveView(registeredView){
   var viewObject = {
     workspace: registeredView.workspace,
-    layer: registeredView.layers[0]
+    layer: registeredView.layers[0],
+    private: registeredView.view.private
   }
   tcpService.emit("removeView", viewObject);
 }
