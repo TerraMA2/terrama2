@@ -1272,16 +1272,16 @@ void terrama2::services::view::core::GeoServer::cleanup(const ViewId& id,
       TERRAMA2_LOG_DEBUG() << "Could not remove view table " + tableName;
     }
 
-    // Do not remove folder (properties files) for PostGIS
+    // Performs disk files removal only for data providers FILE
     if (dataProvider != nullptr && dataProvider->dataProviderType == "FILE")
     {
       QUrl uri((dataProvider->uri+ "/" + tableName).c_str());
-
+      // If provided URI is empty, skip it
       if (!uri.toLocalFile().toStdString().empty())
       {
         QDir directory(uri.toLocalFile());
 
-        // Extra validations
+        // Extra validations to skip "." and ".."
         directory.setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
 
         // Counting number of files. If only 2, might to be only *.properties files
@@ -1303,11 +1303,19 @@ void terrama2::services::view::core::GeoServer::cleanup(const ViewId& id,
           {
             /*
              * It should never happen since we are working with unique view names (view + viewID)
-             * But the user can manually rename/remove folder. TODO: Should notify a warn?
+             * But the user can manually rename/remove folder or even put new files inside. TODO: Should notify a warn?
              * We must ensure that only properties files will be removed.
              */
+            std::string warningMessage = "The directory \""+ uri.toLocalFile().toStdString() + "\" is not empty. " +
+                                         "The following files has been removed: ";
             for(const auto& fileName: files)
-              removeFile(uri.toLocalFile().toStdString() + "/" + fileName.toStdString());
+            {
+              const std::string fileURI = uri.toLocalFile().toStdString() + "/" + fileName.toStdString();
+              removeFile(fileURI);
+              warningMessage += "\n  -" + fileURI;
+            }
+
+            logger->log(terrama2::core::ProcessLogger::WARNING_MESSAGE, warningMessage, id);
           }
         }
       } // endif !directory.currentPath().toStdString().empty()
