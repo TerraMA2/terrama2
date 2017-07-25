@@ -169,7 +169,7 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
 
     if(lastCollectedDataTimestamp.get() && filter.discardBefore.get())
     {
-      if(filter.discardBefore < lastCollectedDataTimestamp)
+      if(*filter.discardBefore < *lastCollectedDataTimestamp)
         filter.discardBefore = lastCollectedDataTimestamp;
     }
     else if(lastCollectedDataTimestamp.get())
