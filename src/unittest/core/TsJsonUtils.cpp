@@ -30,6 +30,7 @@
 #include "TsJsonUtils.hpp"
 
 #include <terrama2/core/utility/JSonUtils.hpp>
+#include <terrama2/core/Exception.hpp>
 
 
 #include <QJsonDocument>
