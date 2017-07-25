@@ -138,7 +138,7 @@ namespace terrama2
         ServiceManager& operator=(const ServiceManager& other) = delete;
         ServiceManager& operator=(ServiceManager&& other) = delete;
 
-        std::shared_ptr<terrama2::core::ProcessLogger> logger_;
+        std::weak_ptr<terrama2::core::ProcessLogger> logger_;
 
         std::string instanceName_;
         ServiceInstanceId instanceId_ = 0;
