@@ -172,7 +172,7 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
       QString errMsg = QObject::tr("Empty filter time range.");
 
       TERRAMA2_LOG_WARNING() << errMsg.toStdString();
-      throw terrama2::core::DataProviderException() << ErrorDescription(errMsg);
+      throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
     }
 
     //update filter based on last collected data timestamp
