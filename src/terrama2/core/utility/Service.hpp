@@ -33,6 +33,7 @@
 #include "../Typedef.hpp"
 #include "../Shared.hpp"
 #include "../data-model/Schedule.hpp"
+#include "../data-model/Filter.hpp"
 #include "ProcessLogger.hpp"
 
 //STL
@@ -172,6 +173,7 @@ namespace terrama2
         virtual void updateAdditionalInfo(const QJsonObject& obj) noexcept = 0;
 
       protected:
+        void updateFilterDiscardDates(terrama2::core::Filter& filter, std::shared_ptr<ProcessLogger> logger, ProcessId processId) const;
 
         TimerPtr createTimer(const terrama2::core::Schedule& schedule, ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> lastProcess) const;
         /*!
