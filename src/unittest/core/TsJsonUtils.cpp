@@ -118,3 +118,42 @@ void TsJsonUtils::emptyDiscardDateRange()
     QFAIL("Unexpected exception.");
   }
 }
+
+void TsJsonUtils::emptyDiscardDate()
+{
+  std::string filterJson =  "{"
+                              "\"class\": \"Filter\","
+                              "\"frequency\": null,"
+                              "\"frequency_unit\": null,"
+                              "\"discard_before\": null,"
+                              "\"discard_after\": null,"
+                              "\"region\": null,"
+                              "\"by_value\": null,"
+                              "\"crop_raster\": null,"
+                              "\"collector_id\": null,"
+                              "\"data_series_id\": null"
+                            "}";
+
+  try
+  {
+    QJsonParseError error;
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(filterJson.c_str(), &error);
+
+    if(error.error != QJsonParseError::NoError)
+      QFAIL("Error parsing filter json.");
+
+    try
+    {
+      terrama2::core::fromFilterJson(jsonDoc.object(), nullptr);
+    }
+    catch (...)
+    {
+      QFAIL("Unexpected exception.");
+    }
+
+  }
+  catch (...)
+  {
+    QFAIL("Unexpected exception.");
+  }
+}

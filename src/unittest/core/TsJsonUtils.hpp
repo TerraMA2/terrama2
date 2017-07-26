@@ -42,6 +42,7 @@ private slots:
 
   void OkFilter();
   void emptyDiscardDateRange();
+  void emptyDiscardDate();
 
 };
 
