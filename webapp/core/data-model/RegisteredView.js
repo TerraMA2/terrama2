@@ -148,10 +148,23 @@
    */
   RegisteredView.prototype.toObject = function() {
     var uriObject = URIBuilder.buildObject(this.uri, URISyntax);
-    var uri = Utils.format("%s://%s:%s%s", uriObject[URISyntax.SCHEME].toLowerCase(),
-                                         uriObject[URISyntax.HOST],
-                                         uriObject[URISyntax.PORT],
-                                         uriObject[URISyntax.PATHNAME]);
+
+    if(!isNaN(uriObject[URISyntax.PORT])) {
+      var uri = Utils.format(
+        "%s://%s:%s%s",
+        uriObject[URISyntax.SCHEME].toLowerCase(),
+        uriObject[URISyntax.HOST],
+        uriObject[URISyntax.PORT],
+        uriObject[URISyntax.PATHNAME]
+      );
+    } else {
+      var uri = Utils.format(
+        "%s://%s%s",
+        uriObject[URISyntax.SCHEME].toLowerCase(),
+        uriObject[URISyntax.HOST],
+        uriObject[URISyntax.PATHNAME]
+      );
+    }
 
     var params = {};
     var dataSeriesTypeName;

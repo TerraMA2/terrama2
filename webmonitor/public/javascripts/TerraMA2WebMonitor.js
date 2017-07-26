@@ -158,6 +158,26 @@ define(
         else
           $('#authentication-div').addClass('hidden');
       });
+
+      $('#about-btn').on('click', function() {
+        $('#about-dialog').dialog({
+          width: 800,
+          height: $(window).outerHeight() - 30,
+          closeOnEscape: true,
+          closeText: "",
+          position: { my: 'top', at: 'top+15' },
+          open: function() {
+            $('.ui-dialog-titlebar-close').css('background-image', 'url(../images/close.png)');
+            $('.ui-dialog-titlebar-close').css('background-position', 'center');
+            $('.ui-dialog-titlebar-close').css('background-size', '20px');
+          },
+          close: function() {
+            $('.ui-dialog-titlebar-close').css('background-image', '');
+            $('.ui-dialog-titlebar-close').css('background-position', '');
+            $('.ui-dialog-titlebar-close').css('background-size', '');
+          }
+        });
+      });
     };
 
     var loadSocketsListeners = function() {
