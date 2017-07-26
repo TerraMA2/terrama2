@@ -1,9 +1,14 @@
 module.exports = function (app) {
+  var passport = require('./../config/Passport');
   var controller = app.controllers.index;
 
   app.get(app.locals.BASE_URL, controller);
 
   app.get(app.locals.BASE_URL + 'firstAccess', controller);
+
+  app.get(app.locals.BASE_URL + 'about', passport.isAuthenticated, function(request, response) {
+    response.render('about');
+  });
 
   app.post(app.locals.BASE_URL + 'userDefaults', function(request, response) {
     app.locals.collapsed = !(request.body.collapsed == "true");

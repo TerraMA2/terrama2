@@ -62,7 +62,7 @@ define(
        */
       $(window).resize(function() {
         memberWindowHeight = $(window).height();
-        memberReducedHeight = memberWindowHeight - $("#terrama-header").height();
+        memberReducedHeight = memberWindowHeight - $("#institutions-logos").height();
 
         if($("body").hasClass('full_screen')) {
           var interval = window.setInterval(function() {
@@ -82,8 +82,8 @@ define(
             clearInterval(interval);
           }, 2000);
 
-          $("#terrama2-map").height(memberReducedHeight + "px");
-          $("#content").height(memberReducedHeight + "px");
+          $("#terrama2-map").height(memberWindowHeight + "px");
+          $("#content").height(memberWindowHeight + "px");
         }
 
         TerraMA2WebComponents.MapDisplay.updateMapSize();
@@ -136,6 +136,48 @@ define(
         }
       });
 
+      $("#inpe-image").on('click', function() {
+        window.open('http://www.inpe.br/', '_blank');
+      });
+
+      $("#programa-queimadas-image").on('click', function() {
+        window.open('http://www.inpe.br/queimadas/', '_blank');
+      });
+
+      $("#defra-image").on('click', function() {
+        window.open('https://www.gov.uk/government/organisations/department-for-environment-food-rural-affairs', '_blank');
+      });
+
+      $("#world-bank-image").on('click', function() {
+        window.open('http://www.worldbank.org/', '_blank');
+      });
+
+      $("#loginButton").on("click", function() {
+        if($('#authentication-div').hasClass('hidden'))
+          $('#authentication-div').removeClass('hidden');
+        else
+          $('#authentication-div').addClass('hidden');
+      });
+
+      $('#about-btn').on('click', function() {
+        $('#about-dialog').dialog({
+          width: 800,
+          height: $(window).outerHeight() - 30,
+          closeOnEscape: true,
+          closeText: "",
+          position: { my: 'top', at: 'top+15' },
+          open: function() {
+            $('.ui-dialog-titlebar-close').css('background-image', 'url(../images/close.png)');
+            $('.ui-dialog-titlebar-close').css('background-position', 'center');
+            $('.ui-dialog-titlebar-close').css('background-size', '20px');
+          },
+          close: function() {
+            $('.ui-dialog-titlebar-close').css('background-image', '');
+            $('.ui-dialog-titlebar-close').css('background-position', '');
+            $('.ui-dialog-titlebar-close').css('background-size', '');
+          }
+        });
+      });
     };
 
     var loadSocketsListeners = function() {
@@ -355,7 +397,7 @@ define(
 
     var loadLayout = function() {
       memberWindowHeight = $(window).height();
-      memberReducedHeight = memberWindowHeight - $("#terrama-header").height();
+      memberReducedHeight = memberWindowHeight - $("#institutions-logos").height();
 
       $.TerraMAMonitor = {};
 
@@ -372,16 +414,16 @@ define(
               $("body").removeClass('full_screen');
               $("body").addClass('sidebar-mini');
 
-              $("#content").height(memberReducedHeight + "px");
-              $("#terrama2-map").height(memberReducedHeight + "px");
               $("#terrama2-map").width("auto");
+
+              $('.logo').css('margin-top', '');
             } else {
               $("body").addClass('full_screen');
               $("body").removeClass('sidebar-mini');
 
-              $("#content").height(memberWindowHeight + "px");
-              $("#terrama2-map").height(memberWindowHeight + "px");
               $("#terrama2-map").width("100%");
+
+              $('.logo').css('margin-top', '-2px');
             }
 
             TerraMA2WebComponents.MapDisplay.updateMapSize();
@@ -431,8 +473,8 @@ define(
       $.TerraMAMonitor.pushMenu.activate(o.sidebarToggleSelector);
       $.TerraMAMonitor.tree('.sidebar');
 
-      $("#content").height(memberReducedHeight + "px");
-      $("#terrama2-map").height(memberReducedHeight + "px");
+      $("#content").height(memberWindowHeight + "px");
+      $("#terrama2-map").height(memberWindowHeight + "px");
 
       var mapWidthInterval = window.setInterval(function() {
         $("#terrama2-map").width($("#content").width() + "px");
