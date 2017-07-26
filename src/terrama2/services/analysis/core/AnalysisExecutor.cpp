@@ -371,13 +371,19 @@ void terrama2::services::analysis::core::AnalysisExecutor::runMonitoredObjectAna
   }
 }
 
-
-void terrama2::services::analysis::core::AnalysisExecutor::runDCPAnalysis(DataManagerPtr dataManager, terrama2::core::StoragerManagerPtr storagerManager, AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime, ThreadPoolPtr threadPool, PyThreadState* mainThreadState)
+void terrama2::services::analysis::core::AnalysisExecutor::runDCPAnalysis(DataManagerPtr dataManager,
+                                                                          terrama2::core::StoragerManagerPtr storagerManager,
+                                                                          AnalysisPtr analysis,
+                                                                          std::shared_ptr<te::dt::TimeInstantTZ> startTime,
+                                                                          ThreadPoolPtr threadPool,
+                                                                          PyThreadState* mainThreadState)
 {
-  // TODO: Ticket #433
-  QString errMsg = QObject::tr("NOT IMPLEMENTED YET.");
-  TERRAMA2_LOG_ERROR() << errMsg;
-  throw Exception() << ErrorDescription(errMsg);
+  runMonitoredObjectAnalysis(dataManager,
+                             storagerManager,
+                             analysis,
+                             startTime,
+                             threadPool,
+                             mainThreadState);
 }
 
 std::shared_ptr<te::mem::DataSet>
