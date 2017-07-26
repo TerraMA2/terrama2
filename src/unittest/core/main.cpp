@@ -52,6 +52,7 @@
 #include "TsDataAccessorGDAL.hpp"
 #include "TsDataAccessorOccurrenceWfp.hpp"
 #include "TsDataStoragerTiff.hpp"
+#include "TsJsonUtils.hpp"
 
 int main(int argc, char** argv)
 {
@@ -162,6 +163,16 @@ int main(int argc, char** argv)
     {
       TsDataStoragerTiff tsDatatStoragerTiff;
       ret += QTest::qExec(&tsDatatStoragerTiff, argc, argv);
+    }
+    catch(...)
+    {
+
+    }
+
+    try
+    {
+      TsJsonUtils tsJsonUtils;
+      ret += QTest::qExec(&tsJsonUtils, argc, argv);
     }
     catch(...)
     {
