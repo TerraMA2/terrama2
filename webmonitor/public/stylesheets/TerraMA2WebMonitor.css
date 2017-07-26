@@ -3,16 +3,19 @@
 }
 
 .main-header .logo-lg > img {
-  max-height: 50px;
+  max-height: 40px;
+  margin-top: -2px;
+  margin-left: -2px;
 }
 
 .main-header .logo-mini > img {
-  max-height: 50px;
+  max-height: 40px;
 }
 
-.imgs img{
-  max-height: 50px;
+.imgs img {
+  max-height: 40px;
   padding: 3px;
+  cursor: pointer;
 }
 
 /* Show menu button */
@@ -97,17 +100,29 @@
 }
 
 .full_screen .main-header .logo-mini {
-    display: block;
-    margin-left: -15px;
-    margin-right: -15px;
-    font-size: 18px;
-    position: absolute;
+  display: block;
+  margin-left: -10px;
+  margin-right: -15px;
+  font-size: 18px;
+  position: fixed;
+  margin-top: 50px
 }
 
 .full_screen .main-header .logo {
   width: 50px;
   position: absolute;
   min-height: 50px;
+}
+
+.main-header .logo {
+  background-color: #222d32 !important;
+  color: white !important;
+  border-right: none !important;
+  margin-top: 5px;
+}
+
+.main-header .logo:hover {
+  background-color: #222d32 !important;
 }
 
 .full_screen .main-footer {
@@ -332,6 +347,10 @@
   padding-left: 10px;
 }
 
+#terrama2-sortlayers ul li {
+  padding: 5px 0 5px 0;
+}
+
 .terrama2-datepicker-icon {
   margin-right: 15px;
   float: right;
@@ -460,18 +479,24 @@
 .map-tool-button.active > button { background-color: rgba(255, 255, 255, 1); }
 
 #map-tools {
-  z-index: 9999;
+  z-index: 999999;
   position: absolute;
   right: 0px;
 }
 
-#moveMap { top: 90px; }
+#loginButton { top: 20px; }
 
-#legendsButton { top: 130px; }
+#terrama2-map .ol-zoom { top: 60px; }
 
-#tableButton { top: 210px; }
+#toggleButton { top: 130px; }
 
-#getAttributes { top: 170px; }
+#moveMap { top: 170px; }
+
+#legendsButton { top: 210px; }
+
+#getAttributes { top: 250px; }
+
+#tableButton { top: 290px; }
 
 #getAttributes.with-select { width: 190px; }
 
@@ -630,4 +655,43 @@
   text-align: center;
   font-size: 15px;
   font-weight: 900;
+}
+
+#projects {
+  background-color: #1a2226;
+  color: #b8c7ce;
+  border: none;
+  width: 100%;
+  height: 40px;
+  font-size: 15px;
+  margin: 10px 0 10px 0;
+}
+
+#institutions-logos {
+  text-align: center;
+  bottom: 0;
+  position: absolute;
+  z-index: 999;
+  width: 230px;
+  border: 2px solid;
+  left: 0;
+  background-color: #e0e0e0;
+  height: 50px;
+}
+
+.font-red { color: red; }
+
+.font-green { color: #09d409; }
+
+#authentication-div {
+  background-color: #e2e2e2;
+  padding: 10px;
+  list-style-type: none;
+  top: 20px;
+  position: absolute;
+  z-index: 9999999;
+  right: 60px;
+  width: 250px;
+  border-radius: 5px;
+  border: 1px solid #c5c5c5;
 }
