@@ -1932,6 +1932,9 @@ var DataManager = module.exports = {
                     dataSet.format = dataSetUpdated.format;
                     if(dataSetUpdated.position) {
                       dataSet.position = dataSetUpdated.position;
+                      promisesFormatArray.push(self.getWKT(dataSetUpdated.position).then(function(posWkt){
+                        dataSet.positionWkt = posWkt;
+                      }));
                     }
                   }
                 }
