@@ -414,8 +414,6 @@ define(
               $("body").removeClass('full_screen');
               $("body").addClass('sidebar-mini');
 
-              //$("#content").height(memberWindowHeight + "px");
-              //$("#terrama2-map").height(memberWindowHeight + "px");
               $("#terrama2-map").width("auto");
 
               $('.logo').css('margin-top', '');
@@ -423,8 +421,6 @@ define(
               $("body").addClass('full_screen');
               $("body").removeClass('sidebar-mini');
 
-              //$("#content").height(memberWindowHeight + "px");
-              //$("#terrama2-map").height(memberWindowHeight + "px");
               $("#terrama2-map").width("100%");
 
               $('.logo').css('margin-top', '-2px');
