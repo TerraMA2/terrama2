@@ -115,12 +115,12 @@
             </div>
             <div id="map-tools">
               <div id="authentication-div" class="hidden">
-                {% if (currentUser !== null) %}
-                <p class="user-name" style="text-align: center; font-size: 15px; font-weight: 800;">{[ currentUser.name ]}</p>
-                <hr/>
-                <div class="pull-right"><a href="{[ BASE_URL ]}logout" class="btn btn-default btn-flat" id="signout">Sign out</a></div>
-                {% else %}
-                <form method="POST" action="{[ BASE_URL ]}login">
+                <div id="user-div" class="{% if (currentUser === null) %}hidden{% endif %}">
+                  <p class="user-name" style="text-align: center; font-size: 15px; font-weight: 800;">{% if currentUser !== null %}{[ currentUser.name ]}{% endif %}</p>
+                  <hr/>
+                  <div class="pull-right"><a href="#" class="btn btn-default btn-flat" id="signout">Sign out</a></div>
+                </div>
+                <div id="login-div" class="{% if (currentUser !== null) %}hidden{% endif %}">
                   <div class="form-group has-feedback">
                     <input type="text" class="form-control" placeholder="Username" name="username" id="username">
                     <span class="fa fa-user form-control-feedback"></span>
@@ -136,8 +136,7 @@
                       </button>
                     </div>
                   </div>
-                </form>
-                {% endif %}
+                </div>
               </div>
               <div id="loginButton" class="map-tool-button"><button type="button"><i class="fa {% if (currentUser !== null) %}fa-user font-green{% else %}fa-user-times font-red{% endif %}"></i></button></div>
               <div id="toggleButton" class="map-tool-button sidebar-toggle" full_screen="true" data-toggle="offcanvas" role="button"><button type="button"><i class="fa fa-arrows-alt"></i></button></div>

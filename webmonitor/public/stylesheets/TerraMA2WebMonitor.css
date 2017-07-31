@@ -474,6 +474,17 @@
   outline: 0;
 }
 
+.ol-zoom-in, .ol-zoom-out {
+  width: 29px !important;
+  height: 29px !important;
+  background-color: rgba(241,241,241,.8) !important;
+  font-size: 1.14em !important;
+  border: none !important;
+  border-radius: 2px !important;
+  outline: 0 !important;
+  font-size: 21px !important;
+}
+
 .map-tool-button > button:hover { background-color: rgba(241,241,241,1); }
 
 .map-tool-button.active > button { background-color: rgba(255, 255, 255, 1); }
@@ -524,7 +535,7 @@
 
 .cursor-pointer { cursor: pointer !important; }
 
-.ol-zoom, .ol-zoom:hover, .ol-control, .ol-control:hover { background-color: rgba(0, 0, 0, 0.4) !important; }
+.ol-overlaycontainer, .ol-overlaycontainer:hover, .ol-zoom, .ol-zoom:hover, .ol-unselectable, .ol-unselectable:hover, .ol-control, .ol-control:hover { background-color: rgba(0, 0, 0, 0.4) !important; }
 
 #table-div {
   position: absolute;

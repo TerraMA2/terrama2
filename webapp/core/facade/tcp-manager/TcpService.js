@@ -511,6 +511,16 @@ TcpService.prototype.send = function(data, serviceId) {
 };
 
 /**
+ * Emits a given event sending a given object.
+ * 
+ * @param {String} event - Event to be emitted
+ * @param {Object} data - Data to be sent
+ */
+TcpService.prototype.emitEvent = function(event, data) {
+  tcpService.emit(event, data);
+};
+
+/**
  * Listener for remove data from C++ services. It does not emits signal even exception.
  * @param {Object} data - A given arguments sent by client
  * @param {Analysis[]} data.Analysis - A list of Analysis to send

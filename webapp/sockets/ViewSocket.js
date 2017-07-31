@@ -58,6 +58,24 @@
 
       memberIoSocket.emit("removeView");
     });
+
+    /**
+     * Defines a project listener. Triggered when a project is added or updated.
+     * 
+     * @param {Object} project - Project object
+     */
+    memberTcpService.on("projectReceived", function(project) {
+      memberIoSocket.emit("projectReceived", project);
+    });
+
+    /**
+     * Defines a project removal listener. Triggered when a project is removed.
+     * 
+     * @param {Object} project - Project object
+     */
+    memberTcpService.on("projectDeleted", function(project) {
+      memberIoSocket.emit("projectDeleted", project);
+    });
   };
 
   module.exports = ViewSocket;

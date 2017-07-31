@@ -9,10 +9,11 @@ define(
     'components/Layers',
     'components/AddLayerByUri',
     'components/Sortable',
+    'components/Login',
     'enums/LayerStatusEnum',
     'TerraMA2WebComponents'
   ],
-  function(Calendar, Capabilities, Slider, Utils, LayerStatus, Layers, AddLayerByUri, Sortable, LayerStatusEnum, TerraMA2WebComponents) {
+  function(Calendar, Capabilities, Slider, Utils, LayerStatus, Layers, AddLayerByUri, Sortable, Login, LayerStatusEnum, TerraMA2WebComponents) {
 
     var visibleLayers = [];
     var memberWindowHeight;
@@ -177,6 +178,36 @@ define(
 
       Utils.getWebAppSocket().on('viewReceived', function() {
         Utils.getSocket().emit('retrieveViews', { clientId: Utils.getWebAppSocket().id });
+      });
+
+      Utils.getWebAppSocket().on('projectReceived', function(project) {
+        var newProject = true;
+
+        $("#projects > option").each(function() {
+          if(parseInt(this.value) === parseInt(project.id)) {
+            this.text = project.name;
+            newProject = false;
+            return;
+          }
+        });
+
+        if(newProject)
+          $('#projects').append($('<option></option>').attr('value', project.id).text(project.name));
+      });
+
+      Utils.getWebAppSocket().on('projectDeleted', function(project) {
+        $("#projects > option").each(function() {
+          if(parseInt(this.value) === parseInt(project.id)) {
+            var oldValue = $("#projects").val();
+
+            this.remove();
+
+            if(parseInt(this.value) === parseInt(oldValue))
+              changeProjects();
+
+            return;
+          }
+        });
       });
 
       Utils.getSocket().on("retrieveNotifiedViewsResponse", function(data) {
@@ -604,13 +635,21 @@ define(
       // Check connections every 30 seconds
       var intervalID = setInterval(function() {
         var allLayers = Layers.getAllLayers();
+
         allLayers.forEach(function(layerObject) {
-          var currentProject = $("#projects").val();
-          if(currentProject == layerObject.projectId)
+          if($("#projects").val() == layerObject.projectId) {
             Utils.getSocket().emit('checkConnection', {
               url: layerObject.uriGeoServer,
               requestId: layerObject.id
             });
+          }
+        });
+
+        $.post(BASE_URL + "check-authentication", function(data) {
+          if(data.isAuthenticated && !$("#loginButton > button > i").hasClass("fa-user"))
+            Login.signin(null, data.username);
+          else if(!data.isAuthenticated && !$("#loginButton > button > i").hasClass("fa-user-times"))
+            Login.signout();
         });
       }, 30000);
 
