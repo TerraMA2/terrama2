@@ -167,7 +167,7 @@ define(
           closeText: "",
           position: { my: 'top', at: 'top+15' },
           open: function() {
-            $('.ui-dialog-titlebar-close').css('background-image', 'url(../images/close.png)');
+            $('.ui-dialog-titlebar-close').css('background-image', 'url(images/close.png)');
             $('.ui-dialog-titlebar-close').css('background-position', 'center');
             $('.ui-dialog-titlebar-close').css('background-size', '20px');
           },
@@ -370,7 +370,7 @@ define(
                 at: 'top+75'
               },
               open: function() {
-                $('.ui-dialog-titlebar-close').css('background-image', 'url(../images/close.png)');
+                $('.ui-dialog-titlebar-close').css('background-image', 'url(images/close.png)');
                 $('.ui-dialog-titlebar-close').css('background-position', 'center');
                 $('.ui-dialog-titlebar-close').css('background-size', '20px');
               },
