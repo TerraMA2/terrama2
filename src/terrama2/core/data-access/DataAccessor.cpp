@@ -195,10 +195,12 @@ terrama2::core::DataAccessor::getSeries(const std::map<DataSetId, std::string> u
   if(filter.discardAfter.get() && filter.discardBefore.get()
       && (*filter.discardAfter) < (*filter.discardBefore))
   {
-    QString errMsg = QObject::tr("Empty filter time range.");
+    // inconsistent discard dates is checked in filter construction
+    // here it means that there is no data available
+    QString errMsg = QObject::tr("No data available.");
 
     TERRAMA2_LOG_WARNING() << errMsg.toStdString();
-    throw DataProviderException() << ErrorDescription(errMsg);
+    throw terrama2::core::DataProviderException() << ErrorDescription(errMsg);
   }
 
   std::unordered_map<DataSetPtr,DataSetSeries> series;

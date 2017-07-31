@@ -41,8 +41,18 @@ define(
       layerObject.visible = false;
       layerObject.status = LayerStatusEnum.ONLINE;
       layerObject.exportation = (layerData.exportation !== undefined && layerData.exportation.error === null && layerData.exportation.data !== null ? layerData.exportation.data : null);
+      layerObject.dateInfo = {};
 
       return layerObject;
+    };
+
+    var updateDateInfo = function(dateInfo, layerId){
+      var indexLayer = memberAllLayers.map(function(l) {
+        return l.id
+      }).indexOf(layerId);
+      if(indexLayer != -1) {
+        memberAllLayers[indexLayer].dateInfo = dateInfo;
+      }
     };
 
     var changeLayerStatus = function(layerId, newStatus) {
@@ -194,6 +204,7 @@ define(
       getVisibleLayers: getVisibleLayers,
       changeLayerStatus: changeLayerStatus,
       changeParentLayerStatus: changeParentLayerStatus,
+      updateDateInfo: updateDateInfo,
       getLayerCapabilities: getLayerCapabilities
     };
   }

@@ -118,7 +118,7 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
         var uriObject = URIParser(targetURI);
         if (uriObject && uriObject.length !== 0) {
           self.mapsServer.address = uriObject.protocol + "//" + uriObject.hostname + uriObject.pathname;
-          self.mapsServer.port = parseInt(uriObject.port === undefined ? "80" : uriObject.port) || self.mapsServer.port || 8080;
+          self.mapsServer.port = parseInt((uriObject.port === undefined || uriObject.port === "" )? "80" : uriObject.port) || self.mapsServer.port || 8080;
           self.mapsServer.user = uriObject.username || self.mapsServer.user;
           self.mapsServer.password = uriObject.password || self.mapsServer.password;
         }

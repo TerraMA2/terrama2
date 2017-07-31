@@ -29,68 +29,6 @@
           <!-- logo for regular state and mobile devices -->
           <div class="logo-mini"><img src="{[ BASE_URL ]}images/terrama2_logo2.png" class="img-square" alt="User Image"></div>
         </a>
-        <!-- Header Navbar -->
-        <nav id="nav" class="navbar navbar-static-top" role="navigation">
-          <!-- Sidebar toggle button-->
-          <a href="#" class="sidebar-toggle" full_screen="true" data-toggle="offcanvas" role="button">
-            <span class="sr-only">Toggle navigation</span>
-          </a>
-          <div style="text-align:center">
-            <span class="imgs"><img src="{[ BASE_URL ]}images/inpe.png"></span>
-            <span class="imgs"><img src="{[ BASE_URL ]}images/defra.png"></span>
-            <span class="imgs"><img src="{[ BASE_URL ]}images/banco_mundial.png"></span>
-            <span class="imgs"><img id="mma" src="{[ BASE_URL ]}images/mma.png"></span>
-            <span class="imgs"><img src="{[ BASE_URL ]}images/funcate.png"></span>
-
-            <div class="navbar-custom-menu{% if currentUser === null %} hidden{% endif %}" id="user-nav">
-              <ul class="nav navbar-nav">
-                <li class="dropdown user user-menu">
-                  <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
-                    <span class="hidden-xs user-name">{% if currentUser !== null %}{[ currentUser.name ]}{% endif %}</span>
-                  </a>
-                  <ul class="dropdown-menu">
-                    <li class="user-header" style="height: auto;">
-                      <p class="user-name">{% if currentUser !== null %}{[ currentUser.name ]}{% endif %}</p>
-                    </li>
-                    <li class="user-footer">
-                      <div class="pull-right"><a href="#" class="btn btn-default btn-flat" id="signout">Sign out</a></div>
-                    </li>
-                  </ul>
-                </li>
-              </ul>
-            </div>
-            <div class="navbar-custom-menu{% if currentUser !== null %} hidden{% endif %}" id="login-nav">
-              <ul class="nav navbar-nav">
-                <li class="dropdown user user-menu">
-                  <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
-                    <span class="hidden-xs">Login</span>
-                  </a>
-                  <ul class="dropdown-menu">
-                    <li class="user-body">
-                      <form>
-                        <div class="form-group has-feedback">
-                          <input type="text" class="form-control" placeholder="Username" name="username" id="username">
-                          <span class="fa fa-user form-control-feedback"></span>
-                        </div>
-                        <div class="form-group has-feedback">
-                          <input type="password" class="form-control" placeholder="Password" name="password" id="password">
-                          <span class="fa fa-key form-control-feedback"></span>
-                        </div>
-                        <div class="row">
-                          <div class="col-md-12">
-                            <button type="button" name="btnLogin" class="btn btn-primary btn-block btn-flat" id="signin">
-                              <span ng-bind="i18n.__('Sign In')" class="ng-binding">Sign In</span>
-                            </button>
-                          </div>
-                        </div>
-                      </form>
-                    </li>
-                  </ul>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </nav>
       </header>
       
       <!-- Left side column. contains the logo and sidebar -->
@@ -101,14 +39,10 @@
 
           <!-- Sidebar Menu -->
           <ul class="sidebar-menu">
-            <div class="form-group" style="margin: 10px;">
-              <label>Projects:</label>
-              <select class="form-control" id="projects" name="projects"></select>
-            </div>
-            <li class="header">VIEWS</li>
+            <select class="form-control" id="projects" name="projects"></select>
             <!-- Optionally, you can add icons to the links -->
             <div id="terrama2-layerexplorer"></div>
-            <form onsubmit="return false" class="form-inline"> 
+            <form onsubmit="return false" class="form-inline" style="margin-top: 10px;"> 
               <div class="form-group">
                 <input id='wmsUri' class="form-control" type='search' placeholder='WMS URI'> <button id='addLayers' type='submit' class="btn btn-default">Add</button>
               </div>
@@ -118,12 +52,23 @@
           </ul>
           <!-- /.sidebar-menu -->
         </section>
-        <!--
-        <div id="mini-toggle" data-toggle="offcanvas">
-           <span class="glyphicon glyphicon-menu-left"></span> 
+        <span style="position: fixed; bottom: 60px; font-size: 15px; margin-left: 10px;">
+          <a href="#" id="about-btn" style="color: #b8c7ce;"><div class="fa fa-info"></div><span style="margin-left: 10px;">About</span></a>
+        </span>
+        <div id="institutions-logos">
+          <span class="imgs">
+            <img id="inpe-image" src="{[ BASE_URL ]}images/inpe.png">
+          </span>
+          <span class="imgs">
+            <img id="programa-queimadas-image" src="{[ BASE_URL ]}images/programa_queimadas.png">
+          </span>
+          <span class="imgs">
+            <img id="defra-image" src="{[ BASE_URL ]}images/defra.png">
+          </span>
+          <span class="imgs">
+            <img id="world-bank-image" src="{[ BASE_URL ]}images/banco_mundial.png">
+          </span>
         </div>
-        -->
-        <!-- /.sidebar -->
       </aside>
 
       <!-- Content Wrapper. Contains page content -->
@@ -131,34 +76,28 @@
 
         <!-- Main content -->
         <div id="content" class="content">
-          <div id="show-menu">
-            <a href="#" class="sidebar-toggle" data-toggle="offcanvas" full_screen="true" role="button">
-              <span class="sr-only">Toggle navigation</span>
-            </a>
-          </div>
           {% set webadminHostInfo = webadminHostInfo || {} %}
           {% set webmonitorHostInfo = webmonitorHostInfo || {} %}
           {% set message = message || {} %}
 
           <div id="terrama2-map" class="terrama2-map cursor-move">
-              <div id="legend-box">
-                <div class="legend-header">Legends</div>
-                <div class="legend-body"><strong>No data to show.</strong></div>
-              </div>
-              <div id="layer-toolbox" class="hidden">
-                <div class="layer-toolbox-header">Layer Tools<span class="btn btn-default" style="padding: 0 4px 0 4px; float: right;"><i class="fa fa-close"></i></span></div>
-                <div class="layer-toolbox-body">
-                  <div class="layer-name"></div>
-                  <hr style="margin: 10px 0 10px 0;"/>
-                  <div id="slider-box"></div>
-                  <div id="exportation-box">
-                    <div id="exportation-status" class="hidden">
-                      <div>
-                        <span></span>
-                        <div class="progress progress-sm active hidden">
-                          <div class="progress-bar progress-bar-danger progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
-                            <span class="sr-only">0% Complete</span>
-                          </div>
+            <div id="legend-box">
+              <div class="legend-header">Legends</div>
+              <div class="legend-body"><strong>No data to show.</strong></div>
+            </div>
+            <div id="layer-toolbox" class="hidden">
+              <div class="layer-toolbox-header">Layer Tools<span class="btn btn-default" style="padding: 0 4px 0 4px; float: right;"><i class="fa fa-close"></i></span></div>
+              <div class="layer-toolbox-body">
+                <div class="layer-name"></div>
+                <hr style="margin: 10px 0 10px 0;"/>
+                <div id="slider-box"></div>
+                <div id="exportation-box">
+                  <div id="exportation-status" class="hidden">
+                    <div>
+                      <span></span>
+                      <div class="progress progress-sm active hidden">
+                        <div class="progress-bar progress-bar-danger progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+                          <span class="sr-only">0% Complete</span>
                         </div>
                       </div>
                     </div>
@@ -175,6 +114,33 @@
               </div>
             </div>
             <div id="map-tools">
+              <div id="authentication-div" class="hidden">
+                {% if (currentUser !== null) %}
+                <p class="user-name" style="text-align: center; font-size: 15px; font-weight: 800;">{[ currentUser.name ]}</p>
+                <hr/>
+                <div class="pull-right"><a href="{[ BASE_URL ]}logout" class="btn btn-default btn-flat" id="signout">Sign out</a></div>
+                {% else %}
+                <form method="POST" action="{[ BASE_URL ]}login">
+                  <div class="form-group has-feedback">
+                    <input type="text" class="form-control" placeholder="Username" name="username" id="username">
+                    <span class="fa fa-user form-control-feedback"></span>
+                  </div>
+                  <div class="form-group has-feedback">
+                    <input type="password" class="form-control" placeholder="Password" name="password" id="password">
+                    <span class="fa fa-key form-control-feedback"></span>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-12">
+                      <button type="submit" name="btnLogin" class="btn btn-primary btn-block btn-flat" id="signin">
+                        <span ng-bind="i18n.__('Sign In')" class="ng-binding">Sign In</span>
+                      </button>
+                    </div>
+                  </div>
+                </form>
+                {% endif %}
+              </div>
+              <div id="loginButton" class="map-tool-button"><button type="button"><i class="fa {% if (currentUser !== null) %}fa-user font-green{% else %}fa-user-times font-red{% endif %}"></i></button></div>
+              <div id="toggleButton" class="map-tool-button sidebar-toggle" full_screen="true" data-toggle="offcanvas" role="button"><button type="button"><i class="fa fa-arrows-alt"></i></button></div>
               <div id="moveMap" class="map-tool-button mouse-function-btn active"><button type="button"><i class="fa fa-hand-rock-o"></i></button></div>
               <div id="legendsButton" class="map-tool-button mouse-function-btn"><button type="button"><i class="fa fa-list"></i></button></div>
               <div id="tableButton" class="map-tool-button mouse-function-btn hidden"><button type="button"><i class="fa fa-table"></i></button></div>
@@ -231,6 +197,25 @@
       <!-- Main Footer -->
       <footer class="main-footer"></footer>
       <footer class="footer-monitor"></footer>
+    </div>
+    <div id="about-dialog" title="About">
+      <div id="programa-cerrado-image"></div>
+      <p>
+        <span>
+          Projeto <em>Platform of Monitoring and Warning of Forest Fires in the Cerrado</em> (ProCerrado INPE)
+        </span>
+        <br/><br/>
+        Este projeto &eacute; parte integrante do Programa Cerrado, uma iniciativa de
+        coopera&ccedil;&atilde;o entre os governos do Brasil e do Reino Unido, com apoio do Banco Mundial. O Ministério do Meio Ambiente (MMA), por
+        meio de sua Secretaria de Mudan&ccedil;as Clim&aacute;ticas e Qualidade Ambiental (SMCQ), &eacute; o respons&aacute;vel pela coordena&ccedil;&atilde;o geral do programa.
+        O objetivo da iniciativa &eacute; contribuir para a mitiga&ccedil;&atilde;o da mudan&ccedil;a do clima e para melhoria da gest&atilde;o de recursos naturais no bioma
+        Cerrado por meio do aprimoramento de pol&iacute;ticas p&uacute;blicas e de pr&aacute;ticas de produtores rurais.
+      </p>
+      <p><span>PROJETO INPE</span></p>
+      <div id="projeto-inpe-image"></div>
+      <p><span>REALIZAÇÃO</span></p>
+      <div id="realizacao-image"></div>
+      <p style="margin-top: 40px;"><span>Plataforma digital para monitoramento e alerta de fogo na vegeta&ccedil;&atilde;o no Cerrado brasileiro (Banco Mundial TF018566)</span></p>
     </div>
     <script type="text/javascript" src="{[ BASE_URL ]}moment/moment.js"></script>
     <script type="text/javascript" src="{[ BASE_URL ]}jquery/dist/jquery.min.js"></script>
