@@ -291,7 +291,7 @@ define(
             return c.name
           }).indexOf(data.layerName);
 
-          if(data.parent == "analysis" || layerIndex < 0 || !layerCapabilities[layerIndex].extent)
+          if(layerIndex < 0 || !layerCapabilities[layerIndex].extent)
             return;
 
           var listElement = $("li[data-layerid='" + data.parent + "']");
