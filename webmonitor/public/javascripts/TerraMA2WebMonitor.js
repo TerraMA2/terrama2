@@ -61,6 +61,7 @@ define(
 
           $("#terrama2-map").height(memberWindowHeight + "px");
           $("#content").height(memberWindowHeight + "px");
+          $(".content-wrapper").css('min-height', memberWindowHeight + "px");
         } else {
           var interval = window.setInterval(function() {
             $("#terrama2-map").width($("#content").width() + "px");
@@ -71,7 +72,10 @@ define(
 
           $("#terrama2-map").height(memberWindowHeight + "px");
           $("#content").height(memberWindowHeight + "px");
+          $(".content-wrapper").css('min-height', memberWindowHeight + "px");
         }
+
+        $(".sidebar-menu").height((memberWindowHeight - 195) + "px");
 
         TerraMA2WebComponents.MapDisplay.updateMapSize();
       });
@@ -491,7 +495,9 @@ define(
       $.TerraMAMonitor.tree('.sidebar');
 
       $("#content").height(memberWindowHeight + "px");
+      $(".content-wrapper").css('min-height', memberWindowHeight + "px");
       $("#terrama2-map").height(memberWindowHeight + "px");
+      $(".sidebar-menu").height((memberWindowHeight - 195) + "px");
 
       var mapWidthInterval = window.setInterval(function() {
         $("#terrama2-map").width($("#content").width() + "px");
@@ -549,7 +555,6 @@ define(
       $("#custom").children("span").each(function() {
         $(this).append(leftArrow);
       });
-
     };
 
     var init = function() {

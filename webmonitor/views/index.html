@@ -15,7 +15,7 @@
     <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}dist/TerraMA2WebMonitor.min.css">
     <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}jquery-ui/themes/base/jquery-ui.min.css">
     <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}datatables/media/css/dataTables.bootstrap.css">
-    <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}bootstrap-daterangepicker/daterangepicker.css" />
+    <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}bootstrap-daterangepicker/daterangepicker.css">
   </head>
   <body class="hold-transition skin-black sidebar-mini">
     <div class="wrapper">
@@ -30,17 +30,10 @@
           <div class="logo-mini"><img src="{[ BASE_URL ]}images/terrama2_logo2.png" class="img-square" alt="User Image"></div>
         </a>
       </header>
-      
-      <!-- Left side column. contains the logo and sidebar -->
       <aside class="main-sidebar">
-
-        <!-- sidebar: style can be found in sidebar.less -->
         <section class="sidebar">
-
-          <!-- Sidebar Menu -->
+          <select class="form-control" id="projects" name="projects"></select>
           <ul class="sidebar-menu">
-            <select class="form-control" id="projects" name="projects"></select>
-            <!-- Optionally, you can add icons to the links -->
             <div id="terrama2-layerexplorer"></div>
             <form onsubmit="return false" class="form-inline" style="margin-top: 10px;"> 
               <div class="form-group">
@@ -50,7 +43,6 @@
             <li class="header">VISIBLE LAYERS</li>
             <div id="terrama2-sortlayers"></div>
           </ul>
-          <!-- /.sidebar-menu -->
         </section>
         <span style="position: fixed; bottom: 60px; font-size: 15px; margin-left: 10px;">
           <a href="#" id="about-btn" style="color: #b8c7ce;"><div class="fa fa-info"></div><span style="margin-left: 10px;">About</span></a>
