@@ -15,7 +15,7 @@
     <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}dist/TerraMA2WebMonitor.min.css">
     <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}jquery-ui/themes/base/jquery-ui.min.css">
     <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}datatables/media/css/dataTables.bootstrap.css">
-    <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}bootstrap-daterangepicker/daterangepicker.css" />
+    <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}bootstrap-daterangepicker/daterangepicker.css">
   </head>
   <body class="hold-transition skin-black sidebar-mini">
     <div class="wrapper">
@@ -29,19 +29,11 @@
           <!-- logo for regular state and mobile devices -->
           <div class="logo-mini"><img src="{[ BASE_URL ]}images/terrama2_logo2.png" class="img-square" alt="User Image"></div>
         </a>
-        <!-- Header Navbar -->
       </header>
-      
-      <!-- Left side column. contains the logo and sidebar -->
       <aside class="main-sidebar">
-
-        <!-- sidebar: style can be found in sidebar.less -->
         <section class="sidebar">
-
-          <!-- Sidebar Menu -->
+          <select class="form-control" id="projects" name="projects"></select>
           <ul class="sidebar-menu">
-            <select class="form-control" id="projects" name="projects"></select>
-            <!-- Optionally, you can add icons to the links -->
             <div id="terrama2-layerexplorer"></div>
             <form onsubmit="return false" class="form-inline" style="margin-top: 10px;"> 
               <div class="form-group">
@@ -51,7 +43,6 @@
             <li class="header">VISIBLE LAYERS</li>
             <div id="terrama2-sortlayers"></div>
           </ul>
-          <!-- /.sidebar-menu -->
         </section>
         <span style="position: fixed; bottom: 60px; font-size: 15px; margin-left: 10px;">
           <a href="#" id="about-btn" style="color: #b8c7ce;"><div class="fa fa-info"></div><span style="margin-left: 10px;">About</span></a>
@@ -82,8 +73,8 @@
           {% set message = message || {} %}
 
           <div id="terrama2-map" class="terrama2-map cursor-move">
-            <div id="legend-box">
-              <div class="legend-header">Legends</div>
+            <div id="legend-box" class="hidden">
+              <div class="legend-header">Legends<span class="btn btn-default" style="padding: 0 4px 0 4px; float: right;"><i class="fa fa-close"></i></span></div>
               <div class="legend-body"><strong>No data to show.</strong></div>
             </div>
             <div id="layer-toolbox" class="hidden">
@@ -116,12 +107,12 @@
             </div>
             <div id="map-tools">
               <div id="authentication-div" class="hidden">
-                {% if (currentUser !== null) %}
-                <p class="user-name" style="text-align: center; font-size: 15px; font-weight: 800;">{[ currentUser.name ]}</p>
-                <hr/>
-                <div class="pull-right"><a href="{[ BASE_URL ]}logout" class="btn btn-default btn-flat" id="signout">Sign out</a></div>
-                {% else %}
-                <form method="POST" action="{[ BASE_URL ]}login">
+                <div id="user-div" class="{% if (currentUser === null) %}hidden{% endif %}">
+                  <p class="user-name" style="text-align: center; font-size: 15px; font-weight: 800;">{% if currentUser !== null %}{[ currentUser.name ]}{% endif %}</p>
+                  <hr/>
+                  <div class="pull-right"><a href="#" class="btn btn-default btn-flat" id="signout">Sign out</a></div>
+                </div>
+                <div id="login-div" class="{% if (currentUser !== null) %}hidden{% endif %}">
                   <div class="form-group has-feedback">
                     <input type="text" class="form-control" placeholder="Username" name="username" id="username">
                     <span class="fa fa-user form-control-feedback"></span>
@@ -137,8 +128,7 @@
                       </button>
                     </div>
                   </div>
-                </form>
-                {% endif %}
+                </div>
               </div>
               <div id="loginButton" class="map-tool-button"><button type="button"><i class="fa {% if (currentUser !== null) %}fa-user font-green{% else %}fa-user-times font-red{% endif %}"></i></button></div>
               <div id="toggleButton" class="map-tool-button sidebar-toggle" full_screen="true" data-toggle="offcanvas" role="button"><button type="button"><i class="fa fa-arrows-alt"></i></button></div>
@@ -234,7 +224,6 @@
       var webadminHostInfo = {[webadminHostInfo|json|safe]};
       var webmonitorHostInfo = {[webmonitorHostInfo|json|safe]};
       var message = "{[message.content]}";
-      var userLogged = {[ currentUser !== null ? "true" : "false" ]};
     </script>
     <script type="text/javascript" src="{[ BASE_URL ]}dist/TerraMA2WebMonitor.min.js"></script>
     <!--<script type="text/javascript" data-main="{[ BASE_URL ]}javascripts/Startup.js" src="{[ BASE_URL ]}require.js"></script>-->

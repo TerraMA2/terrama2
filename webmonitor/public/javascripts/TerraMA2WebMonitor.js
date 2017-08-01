@@ -9,10 +9,11 @@ define(
     'components/Layers',
     'components/AddLayerByUri',
     'components/Sortable',
+    'components/Login',
     'enums/LayerStatusEnum',
     'TerraMA2WebComponents'
   ],
-  function(Calendar, Capabilities, Slider, Utils, LayerStatus, Layers, AddLayerByUri, Sortable, LayerStatusEnum, TerraMA2WebComponents) {
+  function(Calendar, Capabilities, Slider, Utils, LayerStatus, Layers, AddLayerByUri, Sortable, Login, LayerStatusEnum, TerraMA2WebComponents) {
 
     var visibleLayers = [];
     var memberWindowHeight;
@@ -30,25 +31,11 @@ define(
       var allLayers = Layers.getAllLayers();
       allLayers.forEach(function(layer) {
         if(layer.projectId) {
-          removeLayerOfExplorer(layer);
+          Layers.removeLayerOfExplorer(layer);
         }
       });
       Layers.fillLayersData();
-    }
-
-    var removeLayerOfExplorer = function(layer) {
-      var layerId = layer.id;
-      var parent = layer.parent;
-
-      if(layer.visible) {
-        $("#" + layer.htmlId + " input.terrama2-layerexplorer-checkbox").trigger("click");
-      }
-      $("#terrama2-sortlayers").find('li#' + layer.htmlId).remove();
-      TerraMA2WebComponents.LayerExplorer.removeLayer(layerId, "terrama2-layerexplorer");
-      if($("#" + parent + " li").length == 0) {
-        Layers.changeParentLayerStatus(parent, "");
-      }
-    }
+    };
 
     var loadEvents = function() {
       $('#projects').on('change', changeProjects);
@@ -74,6 +61,7 @@ define(
 
           $("#terrama2-map").height(memberWindowHeight + "px");
           $("#content").height(memberWindowHeight + "px");
+          $(".content-wrapper").css('min-height', memberWindowHeight + "px");
         } else {
           var interval = window.setInterval(function() {
             $("#terrama2-map").width($("#content").width() + "px");
@@ -84,7 +72,10 @@ define(
 
           $("#terrama2-map").height(memberWindowHeight + "px");
           $("#content").height(memberWindowHeight + "px");
+          $(".content-wrapper").css('min-height', memberWindowHeight + "px");
         }
+
+        $(".sidebar-menu").height((memberWindowHeight - 195) + "px");
 
         TerraMA2WebComponents.MapDisplay.updateMapSize();
       });
@@ -181,71 +172,101 @@ define(
     };
 
     var loadSocketsListeners = function() {
-      Utils.getWebAppSocket().on("viewResponse", function(data) {
-        $('#projects').empty();
-        for(var i = 0, projectsLength = data.projects.length; i < projectsLength; i++)
-          $('#projects').append($('<option></option>').attr('value', data.projects[i].id).text(data.projects[i].name));
-
-        data.views.forEach(function(view) {
-          var objectLayer = Layers.createLayerObject(view);
-          Layers.addLayer(objectLayer);
-        });
-
-        Layers.fillLayersData();
+      Utils.getWebAppSocket().on("notifyView", function() {
+        Utils.getSocket().emit('retrieveNotifiedViews', { clientId: Utils.getWebAppSocket().id });
       });
 
-      // When receive a new view, add in layers component
-      Utils.getWebAppSocket().on('viewReceived', function(data) {
-        if(!data.private || (data.private && userLogged)) {
+      Utils.getWebAppSocket().on("removeView", function() {
+        Utils.getSocket().emit('retrieveRemovedViews', { clientId: Utils.getWebAppSocket().id });
+      });
 
-          var layerObject = Layers.createLayerObject(data);
-          var newLayer = Layers.getLayerById(layerObject.id) == null ? true : false;
+      Utils.getWebAppSocket().on('viewReceived', function() {
+        Utils.getSocket().emit('retrieveViews', { clientId: Utils.getWebAppSocket().id });
+      });
 
-          if(!newLayer) {
-            Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.NEW);
-            Layers.changeParentLayerStatus(layerObject.parent, LayerStatusEnum.NEW);
-            var workspace = layerObject.workspace;
-            var uriGeoServer = layerObject.uriGeoServer;
-            var serverType = layerObject.serverType;
-            var url = uriGeoServer + '/' + workspace + '/' + layerObject.nameId + '/wms?service=WMS&version=1.1.0&request=GetCapabilities';
-            var getCapabilitiesUrl = {
-              layerName: layerObject.nameId,
-              layerId: layerObject.id,
-              parent: layerObject.parent,
-              url: url,
-              format: 'xml',
-              update: true
-            }
-            Utils.getSocket().emit('proxyRequestCapabilities', getCapabilitiesUrl);
+      Utils.getWebAppSocket().on('projectReceived', function(project) {
+        var newProject = true;
+
+        $("#projects > option").each(function() {
+          if(parseInt(this.value) === parseInt(project.id)) {
+            this.text = project.name;
+            newProject = false;
             return;
           }
-          var currentProject = $("#projects").val();
-          Layers.addLayer(layerObject);
-          if(layerObject.projectId == currentProject) {
-            Layers.fillLayersData([layerObject]);
-            Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.NEW);
-            Layers.changeParentLayerStatus(layerObject.parent, LayerStatusEnum.NEW);
+        });
+
+        if(newProject)
+          $('#projects').append($('<option></option>').attr('value', project.id).text(project.name));
+      });
+
+      Utils.getWebAppSocket().on('projectDeleted', function(project) {
+        $("#projects > option").each(function() {
+          if(parseInt(this.value) === parseInt(project.id)) {
+            var oldValue = $("#projects").val();
+
+            this.remove();
+
+            if(parseInt(this.value) === parseInt(oldValue))
+              changeProjects();
+
+            return;
+          }
+        });
+      });
+
+      Utils.getSocket().on("retrieveNotifiedViewsResponse", function(data) {
+        for(var i = 0, viewsLength = data.views.length; i < viewsLength; i++) {
+          var layerId = data.views[i].workspace + ":" + data.views[i].layer.name;
+          var layerObject = Layers.getLayerById(layerId);
+
+          if(layerObject) {
+            Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.ALERT);
+            Layers.changeParentLayerStatus("alert", LayerStatusEnum.ALERT);
           }
         }
       });
 
-      Utils.getWebAppSocket().on("notifyView", function(data) {
-        var layerId = data.workspace + ":" + data.layer.name;
-        var layerObject = Layers.getLayerById(layerId);
-        if(layerObject) {
-          Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.ALERT);
-          Layers.changeParentLayerStatus("alert", LayerStatusEnum.ALERT);
+      Utils.getSocket().on("retrieveRemovedViewsResponse", function(data) {
+        for(var i = 0, viewsLength = data.views.length; i < viewsLength; i++) {
+          var layerId = data.views[i].workspace + ":" + data.views[i].layer.name;
+          var layerObject = Layers.getLayerById(layerId);
+
+          if(layerObject)
+            Layers.removeLayer(layerObject);
         }
       });
 
-      Utils.getWebAppSocket().on("removeView", function(data) {
-        var layerId = data.workspace + ":" + data.layer.name;
-        var parent = data.parent;
-        var layerObject = Layers.getLayerById(layerId);
-        if(layerObject) {
-          removeLayerOfExplorer(layerObject);
-          Layers.removeLayer(layerObject.id);
+      Utils.getSocket().on("retrieveViewsResponse", function(viewsData) {
+        if(viewsData.projects) {
+          $('#projects').empty();
+
+          for(var i = 0, projectsLength = viewsData.projects.length; i < projectsLength; i++)
+            $('#projects').append($('<option></option>').attr('value', viewsData.projects[i].id).text(viewsData.projects[i].name));
         }
+
+        var currentProject = $("#projects").val();
+
+        for(var i = 0, viewsLength = viewsData.views.length; i < viewsLength; i++) {
+          var layerObject = Layers.createLayerObject(viewsData.views[i]);
+          var newLayer = Layers.getLayerById(layerObject.id) == null ? true : false;
+
+          if(newLayer) {
+            Layers.addLayer(layerObject);
+
+            if(!viewsData.initialRequest && layerObject.projectId == currentProject) {
+              Layers.fillLayersData([layerObject]);
+              Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.NEW);
+              Layers.changeParentLayerStatus(layerObject.parent, LayerStatusEnum.NEW);
+            }
+          } else {
+            Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.NEW);
+            Layers.changeParentLayerStatus(layerObject.parent, LayerStatusEnum.NEW);
+            Layers.getLayerCapabilities(layerObject.uriGeoServer, layerObject.workspace, layerObject.nameId, layerObject.id, layerObject.parent, true);
+          }
+        }
+
+        if(viewsData.initialRequest)
+          Layers.fillLayersData();
       });
 
       // Checking map server connection response
@@ -474,7 +495,9 @@ define(
       $.TerraMAMonitor.tree('.sidebar');
 
       $("#content").height(memberWindowHeight + "px");
+      $(".content-wrapper").css('min-height', memberWindowHeight + "px");
       $("#terrama2-map").height(memberWindowHeight + "px");
+      $(".sidebar-menu").height((memberWindowHeight - 195) + "px");
 
       var mapWidthInterval = window.setInterval(function() {
         $("#terrama2-map").width($("#content").width() + "px");
@@ -532,7 +555,6 @@ define(
       $("#custom").children("span").each(function() {
         $(this).append(leftArrow);
       });
-
     };
 
     var init = function() {
@@ -618,13 +640,21 @@ define(
       // Check connections every 30 seconds
       var intervalID = setInterval(function() {
         var allLayers = Layers.getAllLayers();
+
         allLayers.forEach(function(layerObject) {
-          var currentProject = $("#projects").val();
-          if(currentProject == layerObject.projectId)
+          if($("#projects").val() == layerObject.projectId) {
             Utils.getSocket().emit('checkConnection', {
               url: layerObject.uriGeoServer,
               requestId: layerObject.id
             });
+          }
+        });
+
+        $.post(BASE_URL + "check-authentication", function(data) {
+          if(data.isAuthenticated && !$("#loginButton > button > i").hasClass("fa-user"))
+            Login.signin(null, data.username);
+          else if(!data.isAuthenticated && !$("#loginButton > button > i").hasClass("fa-user-times"))
+            Login.signout();
         });
       }, 30000);
 
@@ -633,7 +663,7 @@ define(
       loadLayout();
       $("#osm input").trigger("click");
 
-      Utils.getWebAppSocket().emit('viewRequest');
+      Utils.getSocket().emit('retrieveViews', { clientId: Utils.getWebAppSocket().id, initialRequest: true });
     };
 
     return {

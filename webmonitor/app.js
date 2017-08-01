@@ -10,7 +10,6 @@ var fs = require("fs");
 var swig = require('swig');
 var passport = require('./config/Passport');
 var session = require('express-session');
-var sharedsession = require('express-socket.io-session');
 var load = require('express-load');
 var io = require('socket.io')();
 
@@ -35,10 +34,6 @@ app.set('view engine', 'html');
 app.use(logger('dev'));
 app.use(cookieParser());
 app.use(webMonitorSession);
-
-io.use(sharedsession(webMonitorSession, {
-  autoSave: true
-}));
 
 passport.setupPassport(app);
 

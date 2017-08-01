@@ -2,34 +2,37 @@
   'use strict';
 
   /**
-   * Socket responsible for delivery real time views
+   * Socket responsible for delivering views real time data.
    * @class ViewSocket
    *
    * @author Raphael Willian da Costa [raphael.costa@dpi.inpe.br]
    *
    * @param {}
-   * @property {Object} ioSocket - Sockets IO object.
-   * @property {TcpService} TcpService - TerraMA² Tcp Manager
-   * @property {DataManager} DataManager - TerraMA² Data Manager
-   * @property {Object} Utils - TerraMA² global utility module
-   * @property {ServiceType} ServiceType - TerraMA² Service Type enum  
+   * @property {Object} memberIoSocket - Sockets IO object.
+   * @property {TcpService} memberTcpService - TerraMA² Tcp Manager.
+   * @property {ViewsCache} memberViewsCache - TerraMA² Views Cache.
    */
   var ViewSocket = function(io) {
+
     // Sockets object
-    var ioSocket = io.sockets;
+    var memberIoSocket = io.sockets;
     // TerraMA² Tcp Manager
-    var TcpService = require("./../core/facade/tcp-manager/TcpService");
-    var DataManager = require("./../core/DataManager");
-    var ServiceType = require("./../core/Enums").ServiceType;
-    var Utils = require("./../core/Utils");
+    var memberTcpService = require("./../core/facade/tcp-manager/TcpService");
+    // TerraMA² Views Cache
+    var memberViewsCache = require("./../core/ViewsCache");
 
     /**
      * Defines a registered view listener. Triggered when C++ services done view execution and TerraMA² WebApp re-save in database
      * 
      * @param {RegisteredView} registeredView - TerraMA² RegisteredView
      */
-    TcpService.on("viewReceived", function(registeredView) {
-      ioSocket.emit("viewReceived", registeredView.toObject());
+    memberTcpService.on("viewReceived", function(registeredView) {
+      var registeredViewObject = registeredView.toObject();
+
+      for(var key in memberIoSocket.sockets)
+        memberViewsCache.addViewToViewCache(memberViewsCache.TYPES.NEW_AND_UPDATED, key, registeredViewObject);
+
+      memberIoSocket.emit("viewReceived");
     });
 
     /**
@@ -37,8 +40,11 @@
      * 
      * @param {Object} viewInfo - View info to notify
      */
-    TcpService.on("notifyView", function(viewInfo){
-      ioSocket.emit("notifyView", viewInfo);
+    memberTcpService.on("notifyView", function(viewInfo) {
+      for(var key in memberIoSocket.sockets)
+        memberViewsCache.addViewToViewCache(memberViewsCache.TYPES.NOTIFIED, key, viewInfo);
+
+      memberIoSocket.emit("notifyView");
     });
 
     /**
@@ -46,38 +52,29 @@
      * 
      * @param {Object} viewInfo - View info to remove
      */
-    TcpService.on("removeView", function(viewInfo){
-      ioSocket.emit("removeView", viewInfo);
+    memberTcpService.on("removeView", function(viewInfo) {
+      for(var key in memberIoSocket.sockets)
+        memberViewsCache.addViewToViewCache(memberViewsCache.TYPES.REMOVED, key, viewInfo);
+
+      memberIoSocket.emit("removeView");
     });
 
-    // Socket connection event
-    ioSocket.on('connection', function(client) {
-      /**
-       * It handles client view request. Once requested, it checks in database for cached views and tries to return
-       * @check If there is not, send Views to the service and wait for a response. Once available, it delivery
-       * in real-time the changes in schedule.
-       * 
-       * @returns {void} 
-       */
-      function onViewRequest() {
-        // TODO: filter user permission
-        return DataManager.listRegisteredViews()
-          .then(function(views) {
-            return client.emit("viewResponse", {
-              views: views.map(function(view) {
-                return view.toObject();
-              }),
-              projects: DataManager.listProjects()
-            });
-          })
+    /**
+     * Defines a project listener. Triggered when a project is added or updated.
+     * 
+     * @param {Object} project - Project object
+     */
+    memberTcpService.on("projectReceived", function(project) {
+      memberIoSocket.emit("projectReceived", project);
+    });
 
-          .catch(function(err) {
-            return client.emit("error", err.toString());
-          });
-      }
-
-      // Registering front end client listeners
-      client.on("viewRequest", onViewRequest);
+    /**
+     * Defines a project removal listener. Triggered when a project is removed.
+     * 
+     * @param {Object} project - Project object
+     */
+    memberTcpService.on("projectDeleted", function(project) {
+      memberIoSocket.emit("projectDeleted", project);
     });
   };
 

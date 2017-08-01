@@ -128,7 +128,8 @@ var DataManager = module.exports = {
           salt: salt,
           cellphone: '14578942362',
           email: 'admin@terrama2.inpe.br',
-          administrator: true
+          administrator: true,
+          token: models.db.User.generateToken("admin@terrama2.inpe.bradmin")
         }));
 
         // services type
@@ -683,6 +684,7 @@ var DataManager = module.exports = {
       var salt = models.db.User.generateSalt();
       userObject.salt = salt;
       userObject.administrator = userObject.administrator !== undefined && userObject.administrator === true;
+      userObject.token = models.db.User.generateToken(userObject.email + userObject.password);
       userObject.password = models.db.User.generateHash(userObject.password, salt);
 
       return models.db.User.create(userObject, options)
