@@ -49,6 +49,10 @@ define(
       $("#legend-box").on("setLegends", function(event) {
         setLegends();
       });
+
+      $("#legend-box > .legend-header > .btn").on("click", function() {
+        $("#legend-box").addClass("hidden");
+      });
     };
 
     var init = function() {

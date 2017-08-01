@@ -16,6 +16,8 @@ module.exports = function(app) {
       var projectObject = request.body;
 
       DataManager.addProject(projectObject).then(function(project) {
+        TcpService.emitEvent("projectReceived", project);
+
         // Creating default PostGIS and File providers
         var configFile = JSON.parse(fs.readFileSync(path.join(__dirname, "../../config/config.terrama2"), "utf-8"));
 
@@ -81,6 +83,8 @@ module.exports = function(app) {
         var projectGiven = request.body;
         projectGiven.id = id;
         DataManager.updateProject(projectGiven).then(function(project) {
+          TcpService.emitEvent("projectReceived", project);
+
           var token = Utils.generateToken(app, TokenCode.UPDATE, project.name);
           response.json({status: 200, result: project, token: token});
         }).catch(function(err) {
@@ -97,6 +101,8 @@ module.exports = function(app) {
       if (id) {
         DataManager.getProject({id: id}).then(function(project) {
           DataManager.removeProject({id: id}).then(function() {
+            TcpService.emitEvent("projectDeleted", { id: id });
+
             // un-setting cache project
             app.locals.activeProject = {};
             var token = Utils.generateToken(app, TokenCode.DELETE, project.name);
