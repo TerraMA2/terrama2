@@ -188,7 +188,7 @@ var ImportExport = function(io) {
                         if (format.hasOwnProperty(key)){
                           if (key == "monitored_object_id"){
                             var monitoredObjectId = Utils.find(output.DataSeries, {$id: format[key]}).id;
-                            format[key] = monitoredObjectId;
+                            format[key] = monitoredObjectId.toString();
                             var restriction = {
                               data_set_id: dataSet.id,
                               key: "monitored_object_id"
