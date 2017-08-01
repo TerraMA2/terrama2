@@ -192,6 +192,7 @@ html, body, .content, .content, .content-wrapper, #terrama2-map {
 
 .sidebar-menu {
   overflow-y: auto !important;
+  overflow-x: hidden !important;
 }
 
 .sidebar-menu > div {

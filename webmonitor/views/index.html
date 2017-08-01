@@ -73,8 +73,8 @@
           {% set message = message || {} %}
 
           <div id="terrama2-map" class="terrama2-map cursor-move">
-            <div id="legend-box">
-              <div class="legend-header">Legends</div>
+            <div id="legend-box" class="hidden">
+              <div class="legend-header">Legends<span class="btn btn-default" style="padding: 0 4px 0 4px; float: right;"><i class="fa fa-close"></i></span></div>
               <div class="legend-body"><strong>No data to show.</strong></div>
             </div>
             <div id="layer-toolbox" class="hidden">
@@ -225,8 +225,8 @@
       var webmonitorHostInfo = {[webmonitorHostInfo|json|safe]};
       var message = "{[message.content]}";
     </script>
-    <!--<script type="text/javascript" src="{[ BASE_URL ]}dist/TerraMA2WebMonitor.min.js"></script>-->
-    <script type="text/javascript" data-main="{[ BASE_URL ]}javascripts/Startup.js" src="{[ BASE_URL ]}require.js"></script>
+    <script type="text/javascript" src="{[ BASE_URL ]}dist/TerraMA2WebMonitor.min.js"></script>
+    <!--<script type="text/javascript" data-main="{[ BASE_URL ]}javascripts/Startup.js" src="{[ BASE_URL ]}require.js"></script>-->
     <iframe id="exportation-iframe" class="hidden"></iframe>
   </body>
 </html>
