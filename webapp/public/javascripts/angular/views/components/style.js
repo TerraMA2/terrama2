@@ -132,20 +132,7 @@ define([], function () {
       if (!self.model.type)
         self.model.type = 3;
     }
-    /**
-     * Get xml file
-     */
-    self.onStyleChange = function(){
-      switch (self.styleId){
-        case "1":
-          self.setXmlInfo("wind_style.json");
-          break;
-        case "0":
-        default:
-          self.model.metadata.xml_style = "";
-          break;
-      }
-    }
+
     /**
      * Setting xml data on model
      */

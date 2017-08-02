@@ -415,6 +415,10 @@ define([], function() {
               }
             }
           }
+          else if (Object.keys(self.legend).length !== 0 && self.legend.metadata.creation_type == "2"){
+            self.legend.metadata.xml_style = self.legend.metadata.xml_style.split("%band1").join(self.legend.metadata.band1);
+            self.legend.metadata.xml_style = self.legend.metadata.xml_style.split("%band2").join(self.legend.metadata.band2);
+          }
 
           // If dynamic, schedule validation is required
           if (self.isDynamic) {
