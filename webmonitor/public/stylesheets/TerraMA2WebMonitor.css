@@ -766,3 +766,7 @@ html, body, .content, .content, .content-wrapper, #terrama2-map {
   max-width: 100%;
   margin-top: 4px !important;
 }
+
+#terrama2-sortlayers i { font-size: 16px; }
+
+#terrama2-sortlayers .fa-arrows-h { margin-right: 5px; }

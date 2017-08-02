@@ -86,8 +86,16 @@ define(
         }
       });
 
-      $("#terrama2-sortlayers").on("click", ".terrama2-layer-tools", function() {
-        var layer = Layers.getLayerById($(this).parent().data("layerid"));
+      $("#terrama2-sortlayers").on("click", ".fa-arrows-h", function() {
+        var layer = Layers.getLayerById($(this).parent().parent().data("layerid"));
+
+        if(layer !== null) {
+          TerraMA2WebComponents.MapDisplay.zoomToExtent(layer.boundingBox);
+        }
+      });
+
+      $("#terrama2-sortlayers").on("click", ".fa-gear", function() {
+        var layer = Layers.getLayerById($(this).parent().parent().data("layerid"));
 
         if(layer !== null) {
           if(layer.exportation !== null) {

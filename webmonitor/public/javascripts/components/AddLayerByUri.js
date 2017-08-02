@@ -34,7 +34,7 @@ define(
                 extent: memberCapabilities[i].extent,
                 url: geoUrl
               });
-              Sortable.addLayerToSort(memberCapabilities[i].name, memberCapabilities[i].title);
+              Sortable.addLayerToSort(memberCapabilities[i].name, memberCapabilities[i].title, memberCapabilities[i].parent);
 
               var span = "";
               var listElement = $("li[data-layerid='custom']");
