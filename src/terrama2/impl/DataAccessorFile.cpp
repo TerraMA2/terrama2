@@ -295,10 +295,14 @@ bool terrama2::core::DataAccessorFile::isValidGeometry(std::shared_ptr<te::mem::
 
 
   std::shared_ptr< te::gm::Geometry > region(dataSet->getGeometry(geomColumn));
-
   // Apply filter by area
-  if(filter.region.get() && !region->intersects(filter.region.get()))
-    return false;
+  if(filter.region)
+  {
+    std::shared_ptr< te::gm::Geometry > filterRegion(static_cast<te::gm::Geometry*>(filter.region->clone()));
+    filterRegion->transform(region->getSRID());
+    if(!region->intersects(filterRegion.get()))
+      return false;
+  }
 
 
   if(!seriesStaticData.empty())
@@ -311,6 +315,7 @@ bool terrama2::core::DataAccessorFile::isValidGeometry(std::shared_ptr<te::mem::
 
       auto extentDs = syncDs->getExtent(geomPropertyPosition);
       std::shared_ptr<te::gm::Geometry> envelopeGeom(te::gm::GetGeomFromEnvelope(extentDs.get(), property->getSRID()));
+      region->transform(property->getSRID());
       if(region->intersects(envelopeGeom.get()))
       {
         for(unsigned int j = 0; j < syncDs->size(); ++j)
