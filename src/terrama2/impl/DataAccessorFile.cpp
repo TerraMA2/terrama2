@@ -401,8 +401,6 @@ bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<te::mem::Da
           //update raster for consistency in the function
           raster = std::shared_ptr< te::rst::Raster >(dataSet->getRaster(rasterColumn));
         }
-
-        return true;
       }
       else
       {
@@ -411,8 +409,6 @@ bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<te::mem::Da
         throw terrama2::core::DataAccessException() << ErrorDescription(errMsg);
       }
     }
-
-    return false;
   }
 
   return true;
