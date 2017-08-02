@@ -511,6 +511,16 @@ TcpService.prototype.send = function(data, serviceId) {
 };
 
 /**
+ * Emits a given event sending a given object.
+ * 
+ * @param {String} event - Event to be emitted
+ * @param {Object} data - Data to be sent
+ */
+TcpService.prototype.emitEvent = function(event, data) {
+  tcpService.emit(event, data);
+};
+
+/**
  * Listener for remove data from C++ services. It does not emits signal even exception.
  * @param {Object} data - A given arguments sent by client
  * @param {Analysis[]} data.Analysis - A list of Analysis to send
@@ -642,7 +652,8 @@ TcpService.prototype.removeView = function(registeredView){
   var viewObject = {
     workspace: registeredView.workspace,
     layer: registeredView.layers[0],
-    parent: registeredView.dataSeriesType
+    parent: registeredView.dataSeriesType,
+    private: registeredView.view.private
   }
   self.emit("removeView", viewObject);
 }
@@ -768,7 +779,8 @@ function onNotifyView(resp) {
   if (resp.registeredView){
     var viewObject = {
       workspace: resp.registeredView.workspace,
-      layer: resp.registeredView.layers[0]
+      layer: resp.registeredView.layers[0],
+      private: resp.registeredView.view.private
     };
     tcpService.emit("notifyView", viewObject);
   }
@@ -784,7 +796,8 @@ function onNotifyView(resp) {
 function RemoveView(registeredView){
   var viewObject = {
     workspace: registeredView.workspace,
-    layer: registeredView.layers[0]
+    layer: registeredView.layers[0],
+    private: registeredView.view.private
   }
   tcpService.emit("removeView", viewObject);
 }

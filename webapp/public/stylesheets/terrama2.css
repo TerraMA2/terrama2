@@ -582,3 +582,74 @@ table.dataTable tbody th, table.dataTable tbody td { padding-left: 12px !importa
   height: 34px;
   width: 90px;
 }
+
+#institutions-logos {
+  text-align: center;
+  bottom: 0;
+  position: absolute;
+  z-index: 999;
+  width: 230px;
+  border: 2px solid;
+  left: 0;
+  background-color: #e0e0e0;
+}
+
+.imgs img {
+  max-height: 40px;
+  padding: 3px;
+  cursor: pointer;
+}
+
+#about-dialog {
+  padding: 0 !important;
+}
+
+#programa-cerrado-image {
+  background-image: url('../images/about/header.png');
+  background-size: 800px;
+  background-repeat: no-repeat;
+  background-position: center;
+  height: 830px;
+  width: 100%;
+  padding: 0 !important;
+  margin: 0 !important;
+  max-width: 100%;
+  margin-top: 4px !important;
+}
+
+#about-dialog > p {
+  margin: 10px;
+  text-align: center;
+  margin-top: 70px;
+}
+
+#about-dialog > p > span {
+  font-size: 15px;
+  font-weight: bold;
+}
+
+#projeto-inpe-image {
+  background-image: url('../images/about/inpe.png');
+  background-size: 700px;
+  background-repeat: no-repeat;
+  background-position: center;
+  height: 130px;
+  width: 100%;
+  padding: 0 !important;
+  margin: 0 !important;
+  max-width: 100%;
+  margin-top: 4px !important;
+}
+
+#realizacao-image {
+  background-image: url('../images/about/realizacao.png');
+  background-size: 700px;
+  background-repeat: no-repeat;
+  background-position: center;
+  height: 130px;
+  width: 100%;
+  padding: 0 !important;
+  margin: 0 !important;
+  max-width: 100%;
+  margin-top: 4px !important;
+}

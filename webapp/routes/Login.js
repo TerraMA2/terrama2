@@ -44,7 +44,8 @@ module.exports = function(app) {
           email: userObj.email,
           cellphone: userObj.cellphone,
           username: userObj.username,
-          administrator: userObj.administrator
+          administrator: userObj.administrator,
+          token: userObj.token
         };
 
         return response.json({
