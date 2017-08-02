@@ -62,12 +62,15 @@ namespace terrama2
       {
         /*!
           \brief Defines the type of the analysis.
+
+          DCP_TYPE is a special case of MONITORED_OBJECT_TYPE, thus testing MONITORED_OBJECT_TYPE & DCP_TYPE returns true.
         */
         enum class AnalysisType
         {
-          DCP_TYPE = 1, //!< Analysis for DCP.
+          // value 1 should not be used, implicitly used in DCP_TYPE
           MONITORED_OBJECT_TYPE = 2, //!< Analysis for monitored objects.
-          GRID_TYPE = 3, //!< Analysis for grids.
+          DCP_TYPE = 3, //!< Analysis for DCP.
+          GRID_TYPE = 4, //!< Analysis for grids.
         };
 
         /*!

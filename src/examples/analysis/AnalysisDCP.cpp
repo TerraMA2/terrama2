@@ -38,7 +38,7 @@ int main(int argc, char* argv[])
 
   {
     auto& serviceManager = terrama2::core::ServiceManager::getInstance();
-    te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PASSWORD+"@"+TERRAMA2_DATABASE_HOST+":"+TERRAMA2_DATABASE_PORT+"/"+TERRAMA2_DATABASE_DBNAME);
+    te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PASSWORD+"@"+TERRAMA2_DATABASE_HOST+":"+TERRAMA2_DATABASE_PORT+"/pcd_angra");
     serviceManager.setInstanceId(1);
     auto logger = std::make_shared<AnalysisLogger>();
     logger->setConnectionInfo(uri);
@@ -87,20 +87,7 @@ int main(int argc, char* argv[])
 
     dataManager->add(outputDataSeriesPtr);
 
-    std::string script = "moBuffer = Buffer(BufferType.Out_union, 2., \"km\")\n"
-                         "ids = dcp.zonal.influence.by_rule(\"Serra do Mar\", moBuffer)\n"
-                         "x = dcp.zonal.count(\"Serra do Mar\", moBuffer)\n"
-                         "add_value(\"count\", x)\n"
-                         "x = dcp.zonal.min(\"Serra do Mar\", \"Pluvio\", ids)\n"
-                         "add_value(\"min\", x)\n"
-                         "x = dcp.zonal.max(\"Serra do Mar\", \"Pluvio\", ids)\n"
-                         "add_value(\"max\", x)\n"
-                         "x = dcp.zonal.mean(\"Serra do Mar\", \"Pluvio\", ids)\n"
-                         "add_value(\"mean\", x)\n"
-                         "x = dcp.zonal.median(\"Serra do Mar\", \"Pluvio\", ids)\n"
-                         "add_value(\"median\", x)\n"
-                         "x = dcp.zonal.standard_deviation(\"Serra do Mar\", \"Pluvio\", ids)\n"
-                         "add_value(\"standard_deviation\", x)\n";
+    std::string script = "add_value(\"standard_deviation\", 10)\n";
 
     Analysis* analysis = new Analysis;
     AnalysisPtr analysisPtr(analysis);
@@ -109,9 +96,10 @@ int main(int argc, char* argv[])
     analysis->name = "Min DCP";
     analysis->script = script;
     analysis->scriptLanguage = ScriptLanguage::PYTHON;
-    analysis->type = AnalysisType::MONITORED_OBJECT_TYPE;
+    analysis->type = AnalysisType::DCP_TYPE;
     analysis->active = true;
-    analysis->outputDataSeriesId = 3;
+    analysis->outputDataSeriesId = outputDataSeries->id;
+    analysis->outputDataSetId = outputDataSet->id;
     analysis->serviceInstanceId = 1;
 
     analysis->metadata["INFLUENCE_TYPE"] = "1";
@@ -123,7 +111,7 @@ int main(int argc, char* argv[])
     dataSeries->dataProviderId = dataProvider->id;
     dataSeries->semantics = semanticsManager.getSemantics("DCP-postgis");
     dataSeries->name = "Monitored Object";
-    dataSeries->id = 1;
+    dataSeries->id = 57;
     dataSeries->active = true;
     outputDataSeries->dataProviderId = dataProviderPtr->id;
 
@@ -158,8 +146,8 @@ int main(int argc, char* argv[])
     terrama2::core::DataSetPtr dataSet3Ptr(dataSet3);
     dataSet3->active = true;
     dataSet3->format.emplace("timestamp_property", "datetime");
-    dataSet3->format.emplace("alias", "cunha");
-    dataSet3->format.emplace("table_name", "cunha");
+    dataSet3->format.emplace("alias", "itanhaem");
+    dataSet3->format.emplace("table_name", "itanhaem");
     dataSet3->format.emplace("timezone", "0");
     auto geom3 = terrama2::core::ewktToGeom("SRID=4618;POINT(-44.941 -23.074)");
     dataSet3->position = std::dynamic_pointer_cast<te::gm::Point>(geom3);
@@ -189,7 +177,7 @@ int main(int argc, char* argv[])
 
     QTimer timer;
     QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-    timer.start(100000);
+    timer.start(10000);
 
     app.exec();
   }
