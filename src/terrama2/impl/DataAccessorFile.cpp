@@ -56,6 +56,9 @@
 #include <terralib/memory/DataSetItem.h>
 #include <terralib/geometry/Utils.h>
 #include <terralib/geometry/GeometryProperty.h>
+#include <terralib/geometry/Envelope.h>
+#include <terralib/raster/BandProperty.h>
+#include <terralib/raster/Band.h>
 
 
 std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataset, const Filter& filter, std::shared_ptr<terrama2::core::FileRemover> remover) const
@@ -129,7 +132,7 @@ void terrama2::core::DataAccessorFile::filterDataSet(std::shared_ptr<te::mem::Da
     completeDataSet->move(i);
     if(!isValidTimestamp(completeDataSet, filter, dateColumn)
         || !isValidGeometry(completeDataSet, filter, geomColumn, seriesStaticData)
-        || !isValidRaster(completeDataSet, filter, rasterColumn))
+        || !isValidRaster(completeDataSet, filter, rasterColumn, seriesStaticData))
     {
       completeDataSet->remove();
       --size;
@@ -137,25 +140,6 @@ void terrama2::core::DataAccessorFile::filterDataSet(std::shared_ptr<te::mem::Da
     }
 
     ++i;
-  }
-}
-
-void terrama2::core::DataAccessorFile::cropRaster(std::shared_ptr<te::mem::DataSet> completeDataSet, const Filter& filter) const
-{
-  if(!filter.cropRaster)
-    return;
-
-  std::size_t rpos = te::da::GetFirstPropertyPos(completeDataSet.get(), te::dt::RASTER_TYPE);
-  if(!isValidColumn(rpos))
-    return;
-
-  completeDataSet->moveBeforeFirst();
-  while (completeDataSet->moveNext())
-  {
-    auto raster = completeDataSet->getRaster(rpos);
-
-    auto croppedRaster = raster->trim(filter.region->getMBR(), {{"RTYPE", "EXPANSIBLE"}});
-    completeDataSet->setRaster(rpos, croppedRaster);
   }
 }
 
@@ -338,9 +322,9 @@ bool terrama2::core::DataAccessorFile::isValidGeometry(std::shared_ptr<te::mem::
 
 }
 
-bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<te::mem::DataSet> dataSet, const Filter&  filter, size_t rasterColumn) const
+bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<te::mem::DataSet> dataSet, const Filter&  filter, size_t rasterColumn, std::unordered_map<DataSetPtr, DataSetSeries>& seriesStaticData) const
 {
-  if(!isValidColumn(rasterColumn) || !filter.region.get())
+  if(!isValidColumn(rasterColumn))
     return true;
 
   if(dataSet->isNull(rasterColumn))
@@ -352,9 +336,80 @@ bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<te::mem::Da
 
   std::shared_ptr< te::rst::Raster > raster(dataSet->getRaster(rasterColumn));
 
-  auto envelope = filter.region->getMBR();
-  if(!raster->getExtent(filter.region->getSRID())->intersects(*envelope))
-    return false;
+  //if filter by regio/box
+  if(filter.region.get())
+  {
+    auto envelope = filter.region->getMBR();
+    if(!raster->getExtent(filter.region->getSRID())->intersects(*envelope))
+      return false;
+
+    if(filter.cropRaster)
+    {
+      //clip raster by box
+      auto clipedRaster = raster->clip({filter.region.get()}, {}, "EXPANSIBLE");
+      //update raster in the dataset
+      dataSet->setRaster(rasterColumn, clipedRaster);
+      //update raster for consistency in the function
+      raster = std::shared_ptr< te::rst::Raster >(dataSet->getRaster(rasterColumn));
+    }
+  }
+
+  //if filter by dataseries
+  if(!seriesStaticData.empty())
+  {
+    for(auto& it : seriesStaticData)
+    {
+      std::shared_ptr<te::gm::Geometry> rasterBox(te::gm::GetGeomFromEnvelope(raster->getExtent(raster->getSRID()), raster->getSRID()));
+
+      auto syncDs = it.second.syncDataSet;
+      std::size_t geomPropertyPosition = te::da::GetFirstPropertyPos(syncDs->dataset().get(), te::dt::GEOMETRY_TYPE);
+
+      auto teDataset = syncDs->dataset();
+      if(teDataset->moveBeforeFirst())
+      {
+        //create a union of all geometries of the dataset
+        std::shared_ptr<te::gm::Geometry> unitedGeom;
+        bool first = true;
+        while (teDataset->moveNext())
+        {
+          if(teDataset->isNull(geomPropertyPosition))
+            continue;
+
+          if(first)
+          {
+            unitedGeom = std::shared_ptr<te::gm::Geometry>(teDataset->getGeometry(geomPropertyPosition));
+            first = false;
+            continue;
+          }
+
+          auto geom(teDataset->getGeometry(geomPropertyPosition));
+          unitedGeom = std::shared_ptr<te::gm::Geometry>(unitedGeom->Union(geom.release()));
+        }
+
+        unitedGeom->transform(rasterBox->getSRID());
+        //check if the raster intersects the data
+        if(!rasterBox->intersects(unitedGeom.get()))
+          return false;
+
+        //crop the raster using the dataset
+        if(filter.cropRaster)
+        {
+          //clip raster by union
+          auto clipedRaster = raster->clip({unitedGeom.get()}, {}, "EXPANSIBLE");
+          //update raster in the dataset
+          dataSet->setRaster(rasterColumn, clipedRaster);
+          //update raster for consistency in the function
+          raster = std::shared_ptr< te::rst::Raster >(dataSet->getRaster(rasterColumn));
+        }
+      }
+      else
+      {
+        QString errMsg = QObject::tr("Invalid filter dataseries.");
+        TERRAMA2_LOG_WARNING() << errMsg;
+        throw terrama2::core::DataAccessException() << ErrorDescription(errMsg);
+      }
+    }
+  }
 
   return true;
 }
@@ -704,8 +759,6 @@ void terrama2::core::DataAccessorFile::applyFilters(const terrama2::core::Filter
   std::shared_ptr<te::dt::TimeInstantTZ> dataTimeStamp = getDataLastTimestamp(dataSet, completeDataset);
 
   filterDataSetByLastValues(completeDataset, filter);
-
-  cropRaster(completeDataset, filter);
 
   //if both dates are valid
   if((lastFileTimestamp.get() && !lastFileTimestamp->getTimeInstantTZ().is_special())
