@@ -113,7 +113,7 @@ int main(int argc, char* argv[])
     dataSeries->name = "Monitored Object";
     dataSeries->id = 57;
     dataSeries->active = true;
-    outputDataSeries->dataProviderId = dataProviderPtr->id;
+    dataSeries->dataProviderId = dataProviderPtr->id;
 
     //DataSet information
     terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp{};
