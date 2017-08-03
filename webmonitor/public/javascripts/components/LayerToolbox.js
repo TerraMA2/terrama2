@@ -144,7 +144,7 @@ define(
 
           $("#layer-toolbox > .layer-toolbox-body .layer-name").text(layer.name);
 
-          $("#layer-toolbox > .layer-toolbox-body > #slider-box").empty().html("<label></label><br/><div id=\"opacity" + layer.htmlId + "\"></div>");
+          $("#layer-toolbox > .layer-toolbox-body > #slider-box").empty().html("<label></label><br/><div id=\"opacity" + layer.id.replace(":","") + "\"></div>");
           var currentOpacity = TerraMA2WebComponents.MapDisplay.getLayerOpacity(layer.id) * 100;
           Slider.setOpacitySlider(layer.id, currentOpacity);
 

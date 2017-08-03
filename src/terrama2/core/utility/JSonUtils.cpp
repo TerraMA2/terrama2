@@ -308,11 +308,6 @@ terrama2::core::Filter terrama2::core::fromFilterJson(QJsonObject json, DataMana
     filter.region = ewktToGeom(ewkt);
 
     verify::srid(filter.region->getSRID());
-
-    if (json.contains("crop_raster"))
-      filter.cropRaster = json["crop_raster"].toBool();
-    else
-      filter.cropRaster = false;
   }
 
   if(json.contains("by_value") && !json.value("by_value").isNull())
@@ -339,6 +334,11 @@ terrama2::core::Filter terrama2::core::fromFilterJson(QJsonObject json, DataMana
       filter.dataProvider = dataProvider;
     }
   }
+
+  if (json.contains("crop_raster"))
+    filter.cropRaster = json["crop_raster"].toBool();
+  else
+    filter.cropRaster = false;
 
   return filter;
 }
