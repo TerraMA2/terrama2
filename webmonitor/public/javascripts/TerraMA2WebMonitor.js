@@ -49,31 +49,21 @@ define(
        */
       $(window).resize(function() {
         memberWindowHeight = $(window).height();
-        memberReducedHeight = memberWindowHeight - $("#institutions-logos").height();
+        memberReducedHeight = memberWindowHeight - $(".footer-monitor").outerHeight();
 
-        if($("body").hasClass('full_screen')) {
-          var interval = window.setInterval(function() {
-            $("#terrama2-map").width("100%");
-          }, 100);
-          window.setTimeout(function() {
-            clearInterval(interval);
-          }, 2000);
+        $("#terrama2-map").height(memberReducedHeight + "px");
+        $("#content").height(memberWindowHeight + "px");
+        $(".content-wrapper").css('min-height', memberWindowHeight + "px");
 
-          $("#terrama2-map").height(memberWindowHeight + "px");
-          $("#content").height(memberWindowHeight + "px");
-          $(".content-wrapper").css('min-height', memberWindowHeight + "px");
-        } else {
-          var interval = window.setInterval(function() {
-            $("#terrama2-map").width($("#content").width() + "px");
-          }, 100);
-          window.setTimeout(function() {
-            clearInterval(interval);
-          }, 2000);
+        var terrama2MapWidth = ($("body").hasClass('full_screen') ? "100%" : $("#content").width() + "px");
 
-          $("#terrama2-map").height(memberWindowHeight + "px");
-          $("#content").height(memberWindowHeight + "px");
-          $(".content-wrapper").css('min-height', memberWindowHeight + "px");
-        }
+        var interval = window.setInterval(function() {
+          $("#terrama2-map").width(terrama2MapWidth);
+        }, 100);
+
+        window.setTimeout(function() {
+          clearInterval(interval);
+        }, 2000);
 
         $(".sidebar-menu").height((memberWindowHeight - 195) + "px");
 
@@ -327,8 +317,15 @@ define(
             };
 
             if(data.update) {
-              if(layerCapabilities[layerIndex].extent instanceof Array){
-                dateObject.initialDateIndex = 0;
+              if(layerCapabilities[layerIndex].extent instanceof Array) {
+                if(layerCapabilities[layerIndex].extent.length > 1 && !$(li).has("#terrama2-slider").length) {
+                  var span = "";
+                  var sliderDiv = "<div class='slider-content' style='display:none;'><label></label><button type='button' class='close close-slider'>×</button><div id='slider" + $(li).attr("data-layerid").replace(':', '') + "'></div></div>";
+                  $(li).append(sliderDiv);
+                  span += "<span id='terrama2-slider' class='terrama2-datepicker-icon'> <i class='fa fa-sliders'></i></span>";
+                  $(li).append($(span));
+                  dateObject.initialDateIndex = 0;
+                }
               } else if(layerCapabilities[layerIndex].extent instanceof Object){
                 dateObject.startFilterDate = layerCapabilities[layerIndex].extent.endDate;
                 dateObject.endFilterDate = layerCapabilities[layerIndex].extent.endDate;
@@ -336,10 +333,12 @@ define(
             } else {
               var span = "";
               if(layerCapabilities[layerIndex].extent instanceof Array) {
-                var sliderDiv = "<div class='slider-content' style='display:none;'><label></label><button type='button' class='close close-slider'>×</button><div id='slider" + $(li).attr("data-layerid").replace(':', '') + "'></div></div>";
-                $(li).append(sliderDiv);
-                span += "<span id='terrama2-slider' class='terrama2-datepicker-icon'> <i class='fa fa-sliders'></i></span>";
-                dateObject.initialDateIndex = 0;
+                if(layerCapabilities[layerIndex].extent.length > 1) {
+                  var sliderDiv = "<div class='slider-content' style='display:none;'><label></label><button type='button' class='close close-slider'>×</button><div id='slider" + $(li).attr("data-layerid").replace(':', '') + "'></div></div>";
+                  $(li).append(sliderDiv);
+                  span += "<span id='terrama2-slider' class='terrama2-datepicker-icon'> <i class='fa fa-sliders'></i></span>";
+                  dateObject.initialDateIndex = 0;
+                }
               } else if(layerCapabilities[layerIndex].extent instanceof Object) {
                 span += "<span id='terrama2-calendar' class='terrama2-datepicker-icon'> <i class='fa fa-calendar'></i></span>";
                 dateObject.startFilterDate = layerCapabilities[layerIndex].extent.endDate;
@@ -411,8 +410,8 @@ define(
           try {
             var capabilities = Capabilities.getMapCapabilitiesLayers(data.msg);
             AddLayerByUri.fillModal(capabilities);
-            $('#layersModal').modal('show');
           } catch(e) {
+            $('#layersModal').modal('hide');
             $("#terrama2Alert > p > strong").text('Invalid URL!');
             $("#terrama2Alert > p > span").text('Error to find capabilities.');
             $("#terrama2Alert").removeClass('hide');
@@ -423,7 +422,7 @@ define(
 
     var loadLayout = function() {
       memberWindowHeight = $(window).height();
-      memberReducedHeight = memberWindowHeight - $("#institutions-logos").height();
+      memberReducedHeight = memberWindowHeight - $(".footer-monitor").outerHeight();
 
       $.TerraMAMonitor = {};
 
@@ -501,7 +500,7 @@ define(
 
       $("#content").height(memberWindowHeight + "px");
       $(".content-wrapper").css('min-height', memberWindowHeight + "px");
-      $("#terrama2-map").height(memberWindowHeight + "px");
+      $("#terrama2-map").height(memberReducedHeight + "px");
       $(".sidebar-menu").height((memberWindowHeight - 195) + "px");
 
       var mapWidthInterval = window.setInterval(function() {
@@ -559,6 +558,7 @@ define(
 
       $("#custom").children("span").each(function() {
         $(this).append(leftArrow);
+        $(this).append("<span class='pull-right-container'> <i class='fa fa-plus pull-right' style='margin-top: 1px;'></i> </span>");
       });
     };
 
@@ -656,9 +656,9 @@ define(
         });
 
         $.post(BASE_URL + "check-authentication", function(data) {
-          if(data.isAuthenticated && !$("#loginButton > button > i").hasClass("fa-user"))
+          if(data.isAuthenticated && $("#loginButton .fa-circle").hasClass("hidden"))
             Login.signin(null, data.username);
-          else if(!data.isAuthenticated && !$("#loginButton > button > i").hasClass("fa-user-times"))
+          else if(!data.isAuthenticated && $("#loginButton .fa-times").hasClass("hidden"))
             Login.signout();
         });
       }, 30000);

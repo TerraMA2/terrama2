@@ -315,23 +315,27 @@ html, body, .content, .content, .content-wrapper, #terrama2-map {
   }
 }
 
-
 #wmsUri {
-  width: 168px;
+  width: 505px;
   margin-left: 5px;
+  float: left;
 }
 
-#layersModalBody {
+#addLayers {
+  float: left;
+}
+
+#layersModalBody > span {
   max-height: 370px;
   /*overflow: overlay;*/
   overflow-y: auto;
 }
 
-#layersModalBody > ul > li > span {
+#layersModalBody > span > ul > li > span {
   margin-left: 5px;
 }
 
-#layersModalBody > ul {
+#layersModalBody > span > ul {
   list-style: none;
 }
 
@@ -508,11 +512,13 @@ html, body, .content, .content, .content-wrapper, #terrama2-map {
 
 #moveMap { top: 170px; }
 
-#legendsButton { top: 210px; }
+#dragbox { top: 210px; }
 
-#getAttributes { top: 250px; }
+#legendsButton { top: 250px; }
 
-#tableButton { top: 290px; }
+#getAttributes { top: 290px; }
+
+#tableButton { top: 330px; }
 
 #getAttributes.with-select { width: 190px; }
 
@@ -769,4 +775,23 @@ html, body, .content, .content, .content-wrapper, #terrama2-map {
 
 #terrama2-sortlayers i { font-size: 16px; }
 
-#terrama2-sortlayers .fa-arrows-h { margin-right: 5px; }
+#terrama2-sortlayers .glyphicon-resize-full {
+  font-size: 15px;
+  margin-right: 10px;
+}
+
+#loginButton .fa-times {
+  position: absolute;
+  color: red;
+  left: 19px;
+  top: 17px;
+  font-size: 14px;
+}
+
+#loginButton .fa-circle {
+  position: absolute;
+  color: #0fd00f;
+  left: 20px;
+  top: 19px;
+  font-size: 10px;
+}

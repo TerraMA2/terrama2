@@ -141,7 +141,7 @@ define(
           var layerId = allLayers[i].id;
           var htmlId = allLayers[i].htmlId;
 
-          var spanIcon = "<span class='terrama2-layer-tools terrama2-datepicker-icon' data-toggle='tooltip' title='Layer Tools'>" + (allLayers[i].parent != 'custom' && allLayers[i].parent != 'template' ? " <i class='fa fa-arrows-h'></i>" : "") + " <i class='fa fa-gear'></i></span>";
+          var spanIcon = "<span class='terrama2-layer-tools terrama2-datepicker-icon' data-toggle='tooltip' title='Layer Tools'>" + (allLayers[i].parent != 'custom' && allLayers[i].parent != 'template' ? " <i class='glyphicon glyphicon-resize-full'></i>" : "") + " <i class='fa fa-gear'></i></span>";
 
           itens += '<li id="' + htmlId + '" data-layerid="' + layerId + '" data-parentid="terrama2-layerexplorer" class="hide">' + allLayers[i].name + spanIcon + '</li>';
         }

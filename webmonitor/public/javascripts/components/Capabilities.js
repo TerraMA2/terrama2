@@ -26,8 +26,8 @@ define(
         }
       }
 
-      if(layer.hasOwnProperty('BoundingBox')) {
-        boundingBox = [Number(layer.BoundingBox[0].$.minx), Number(layer.BoundingBox[0].$.miny), Number(layer.BoundingBox[0].$.maxx), Number(layer.BoundingBox[0].$.maxy)];
+      if(layer.hasOwnProperty('LatLonBoundingBox')) {
+        boundingBox = [Number(layer.LatLonBoundingBox[0].$.minx), Number(layer.LatLonBoundingBox[0].$.miny), Number(layer.LatLonBoundingBox[0].$.maxx), Number(layer.LatLonBoundingBox[0].$.maxy)];
       }
 
       return {
