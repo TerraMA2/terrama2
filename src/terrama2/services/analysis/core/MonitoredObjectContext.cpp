@@ -36,11 +36,20 @@
 #include "../../../core/data-access/DataAccessor.hpp"
 #include "../../../core/utility/DataAccessorFactory.hpp"
 #include "../../../core/utility/TimeUtils.hpp"
+#include "../../../core/utility/Raii.hpp"
 
 // TerraLib
 #include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/srs/SpatialReferenceSystemManager.h>
 #include <terralib/srs/SpatialReferenceSystem.h>
+
+//terralib
+#include <terralib/dataaccess/datasource/DataSourceCapabilities.h>
+#include <terralib/dataaccess/datasource/DataSourceTransactor.h>
+#include <terralib/dataaccess/datasource/ScopedTransaction.h>
+#include <terralib/dataaccess/datasource/DataSourceFactory.h>
+#include <terralib/dataaccess/datasource/DataSource.h>
+#include <terralib/dataaccess/utils/Utils.h>
 
 // Boost Python
 #include <boost/python/call.hpp>
@@ -134,6 +143,36 @@ void terrama2::services::analysis::core::MonitoredObjectContext::loadMonitoredOb
         dataSeriesContext->geometryPos = geomPropertyPosition;
 
         ObjectKey key(dataset->id);
+        datasetMap_[key] = dataSeriesContext;
+      }
+
+      if(analysis->type == AnalysisType::DCP_TYPE)
+      {
+        auto dataProvider = dataManagerPtr->findDataProvider(dataSeriesPtr->dataProviderId);
+        te::core::URI uri(dataProvider->uri);
+        std::shared_ptr<te::da::DataSource> datasourceDestination(te::da::DataSourceFactory::make("POSTGIS", uri));
+
+        terrama2::core::OpenClose< std::shared_ptr<te::da::DataSource> > openClose(datasourceDestination); Q_UNUSED(openClose);
+
+        std::string destinationDataSetName = getDCPPositionsTableName(dataSeriesPtr);
+
+        std::shared_ptr<te::da::DataSourceTransactor> transactorDestination(datasourceDestination->getTransactor());
+        te::da::ScopedTransaction scopedTransaction(*transactorDestination);
+
+        std::shared_ptr<te::da::DataSet> teDataset = transactorDestination->getDataSet(destinationDataSetName);
+        std::shared_ptr<te::da::DataSetType> teDataSetType = transactorDestination->getDataSetType(destinationDataSetName);
+
+        terrama2::core::DataSetSeries series;
+        series.dataSet = nullptr;
+        series.syncDataSet = std::make_shared<terrama2::core::SynchronizedDataSet>(teDataset);
+        series.teDataSetType = teDataSetType;
+
+        std::shared_ptr<ContextDataSeries> dataSeriesContext(new ContextDataSeries);
+        dataSeriesContext->series = series;
+        dataSeriesContext->identifier = "table_name";
+        dataSeriesContext->geometryPos = teDataSetType->getPropertyPosition("geom");
+
+        ObjectKey key(DCP_ANALYSIS_DATASET);
         datasetMap_[key] = dataSeriesContext;
       }
     }
@@ -335,34 +374,43 @@ terrama2::services::analysis::core::MonitoredObjectContext::getMonitoredObjectCo
 
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
-  std::shared_ptr<ContextDataSeries> contextDataSeries;
-
   auto analysis = getAnalysis();
-
   for(const AnalysisDataSeries& analysisDataSeries : analysis->analysisDataSeriesList)
   {
     terrama2::core::DataSeriesPtr dataSeries = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
 
-    if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE)
+    if(analysis->type == AnalysisType::MONITORED_OBJECT_TYPE && analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE)
     {
       assert(dataSeries->datasetList.size() == 1);
       auto datasetMO = dataSeries->datasetList[0];
 
       terrama2::core::Filter filter;
-
       if(!exists(datasetMO->id, filter))
       {
         QString errMsg(QObject::tr("Could not recover monitored object dataset."));
 
         addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
-        return contextDataSeries;
+        return nullptr;
       }
 
       return getContextDataset(datasetMO->id, filter);
     }
+    else if(analysis->type == AnalysisType::DCP_TYPE && analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_PCD_TYPE)
+    {
+      terrama2::core::Filter filter;
+      if(!exists(DCP_ANALYSIS_DATASET, filter))
+      {
+        QString errMsg(QObject::tr("Could not recover monitored object dataset."));
+
+        addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
+        return nullptr;
+      }
+
+      return getContextDataset(DCP_ANALYSIS_DATASET, filter);
+    }
   }
 
-  return contextDataSeries;
+  return nullptr;
 }
 
 std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::MonitoredObjectContext::getDCPBuffer(const DataSetId datasetId)
