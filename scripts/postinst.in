@@ -71,6 +71,11 @@ fi
 # Add webapp to pm2 startup
 (
   cd @TERRAMA2_DESTINATION@webapp
+
+  if ! [ -f "config.terrama2" ]; then
+    cp sample_config.terrama2 config.terrama2
+  fi
+  
   pm2 start npm --name webapp -- start
   valid $? "Error executing webapp."
   pm2 save
