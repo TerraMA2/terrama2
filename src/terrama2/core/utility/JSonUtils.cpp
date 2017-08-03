@@ -295,17 +295,19 @@ terrama2::core::Filter terrama2::core::fromFilterJson(QJsonObject json, DataMana
     verify::date(filter.discardAfter);
   }
 
+  if(filter.discardBefore && filter.discardAfter && (*filter.discardBefore > *filter.discardAfter))
+  {
+    QString errMsg = QObject::tr("Invalid Filter JSON object./nEmpty date filter interval.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
+  }
+
   if(json.contains("region") && !json.value("region").isNull())
   {
     auto ewkt = json["region"].toString().toStdString();
     filter.region = ewktToGeom(ewkt);
 
     verify::srid(filter.region->getSRID());
-
-    if (json.contains("crop_raster"))
-      filter.cropRaster = json["crop_raster"].toBool();
-    else
-      filter.cropRaster = false;
   }
 
   if(json.contains("by_value") && !json.value("by_value").isNull())
@@ -332,6 +334,11 @@ terrama2::core::Filter terrama2::core::fromFilterJson(QJsonObject json, DataMana
       filter.dataProvider = dataProvider;
     }
   }
+
+  if (json.contains("crop_raster"))
+    filter.cropRaster = json["crop_raster"].toBool();
+  else
+    filter.cropRaster = false;
 
   return filter;
 }

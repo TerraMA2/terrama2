@@ -109,7 +109,8 @@ namespace terrama2
                                                                   terrama2::core::DataSetPtr dataSet,
                                                                   std::shared_ptr<terrama2::core::FileRemover> remover,
                                                                   const std::string& timezone,
-                                                                  DataSetSeries& series) const;
+                                                                  DataSetSeries& series,
+                                                                  std::shared_ptr< te::dt::TimeInstantTZ >& lastFileTimestamp) const;
 
 
         /*!
@@ -193,7 +194,7 @@ namespace terrama2
            - Raster attribute is null (will be logged)
 
         */
-        virtual bool isValidRaster(std::shared_ptr<te::mem::DataSet> dataSet, const Filter&  filter, size_t rasterColumn) const;
+        virtual bool isValidRaster(std::shared_ptr<te::mem::DataSet> dataSet, const Filter&  filter, size_t rasterColumn, std::unordered_map<DataSetPtr, DataSetSeries>& seriesStaticData) const;
 
         std::shared_ptr< te::dt::TimeInstantTZ > getDataLastTimestamp(DataSetPtr dataSet, std::shared_ptr<te::da::DataSet> teDataSet) const;
 

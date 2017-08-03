@@ -15,7 +15,7 @@ define(
       return memberWebAppSocket;
     };
 
-    var init = function() {
+    var init = function(webMonitorSocketCallback, webAppSocketCallback) {
       if(webmonitorHostInfo && webmonitorHostInfo.basePath) {
         memberSocket = io.connect(window.location.origin, {
           path: webmonitorHostInfo.basePath + 'socket.io'
@@ -30,6 +30,18 @@ define(
         });
       } else {
         memberWebAppSocket = io.connect(":36000");
+      }
+
+      if(webMonitorSocketCallback) {
+        memberSocket.on('connect', function() {
+          webMonitorSocketCallback();
+        });
+      }
+
+      if(webAppSocketCallback) {
+        memberWebAppSocket.on('connect', function() {
+          webAppSocketCallback();
+        });
       }
     };
 

@@ -454,6 +454,11 @@ std::vector<std::shared_ptr<te::dt::DateTime> > terrama2::core::getAllDates(te::
   return vecDates;
 }
 
+std::string terrama2::core::getDCPPositionsTableName(DataSeriesPtr dataSeries)
+{
+  return "dcp_series_"+std::to_string(dataSeries->id);
+}
+
 std::string terrama2::core::getMask(DataSetPtr dataSet)
 {
   try

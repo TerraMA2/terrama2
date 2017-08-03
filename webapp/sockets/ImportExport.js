@@ -188,7 +188,7 @@ var ImportExport = function(io) {
                         if (format.hasOwnProperty(key)){
                           if (key == "monitored_object_id"){
                             var monitoredObjectId = Utils.find(output.DataSeries, {$id: format[key]}).id;
-                            format[key] = monitoredObjectId;
+                            format[key] = monitoredObjectId.toString();
                             var restriction = {
                               data_set_id: dataSet.id,
                               key: "monitored_object_id"
@@ -358,7 +358,14 @@ var ImportExport = function(io) {
                         view.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: view.project_id}).id : json.selectedProject;
                         view.data_series_id = Utils.find(output.DataSeries, {$id: view.data_series_id}).id;
                         if(view.service_instance_id === null) view.service_instance_id = json.servicesView;
-
+                        if (view.legend){
+                          delete view.legend.id;
+                          if (view.legend.colors){
+                            view.legend.colors.forEach(function(color){
+                              delete color.id;
+                            });
+                          }
+                        }
                         if(countObjectProperties(view.schedule) > 0 || view.automatic_schedule.id) {
                           delete view.schedule.id;
                           delete view.automatic_schedule.id;
