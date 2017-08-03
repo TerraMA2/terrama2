@@ -520,17 +520,18 @@ std::shared_ptr<te::da::DataSetType> terrama2::services::analysis::core::Analysi
   dt->add(fk.release());
 
   //second property: analysis execution date
-  te::dt::DateTimeProperty* dateProp = new te::dt::DateTimeProperty(EXECUTION_DATE_PROPERTY, te::dt::TIME_INSTANT_TZ, true);
-  dt->add(dateProp);
-  uk->add(dateProp);
+  std::unique_ptr<te::dt::DateTimeProperty> dateProp(new te::dt::DateTimeProperty(EXECUTION_DATE_PROPERTY, te::dt::TIME_INSTANT_TZ, true));
+  dateProp->setPrecision(3);
+  dt->add(dateProp.get());
+  uk->add(dateProp.get());
 
   dt->add(uk.release());
 
   //create index on date column
-  te::da::Index* indexDate = new te::da::Index(outputDatasetName+ "_idx", te::da::B_TREE_TYPE);
-  indexDate->add(dateProp);
+  std::unique_ptr<te::da::Index> indexDate(new te::da::Index(outputDatasetName+ "_idx", te::da::B_TREE_TYPE));
+  indexDate->add(dateProp.release());
 
-  dt->add(indexDate);
+  dt->add(indexDate.release());
 
   for(const auto& attribute : attributes)
   {
