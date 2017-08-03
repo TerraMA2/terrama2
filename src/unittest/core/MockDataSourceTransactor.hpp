@@ -347,11 +347,12 @@ namespace te
                    void(const std::string& name));
       MOCK_METHOD2(renameDataSet,
                    void(const std::string& name, const std::string& newName));
-      MOCK_METHOD4(add,
+      MOCK_METHOD5(add,
                    void(const std::string&,
                         DataSet*,
                         const std::map<std::string, std::string>&,
-                        std::size_t));
+                        std::size_t,
+                        bool));
       MOCK_METHOD2(remove,
                    void(const std::string&,
                         const ObjectIdSet*));
