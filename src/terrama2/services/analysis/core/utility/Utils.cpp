@@ -61,6 +61,7 @@ using namespace boost::accumulators;
 
 terrama2::services::analysis::core::AnalysisType terrama2::services::analysis::core::ToAnalysisType(uint32_t type)
 {
+  //Map webapp enum to c++ enum
   switch(type)
   {
     case 1:

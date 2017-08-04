@@ -19,7 +19,7 @@ module.exports = function(app) {
 
     new: function(request, response) {
       var redirectTo = request.query.redirectTo ? request.query : {redirectTo: app.locals.BASE_URL + "configuration/providers"};
-      var configFile = JSON.parse(fs.readFileSync(path.join(__dirname, "../../config/config.terrama2"), "utf-8"));
+      var configFile = JSON.parse(fs.readFileSync(path.join(__dirname, "../../config/webapp.json"), "utf-8"));
 
       return response.render("configuration/provider", {
         isEditing: false,
@@ -36,7 +36,7 @@ module.exports = function(app) {
     edit: function(request, response) {
       var dataProviderId = request.params.id;
       var redirectTo = request.query.redirectTo ? request.query : {redirectTo: app.locals.BASE_URL + "configuration/providers"};
-      var configFile = JSON.parse(fs.readFileSync(path.join(__dirname, "../../config/config.terrama2"), "utf-8"));
+      var configFile = JSON.parse(fs.readFileSync(path.join(__dirname, "../../config/webapp.json"), "utf-8"));
 
       DataManager.getDataProvider({id: parseInt(dataProviderId || "0")}).then(function(dataProvider) {
         var requester = RequestFactory.buildFromUri(dataProvider.uri);
