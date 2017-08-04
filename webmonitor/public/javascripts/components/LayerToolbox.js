@@ -59,8 +59,8 @@ define(
           if(layer.exportation.dateField !== null) {
             var dateInfo = layer.dateInfo;
             exportationParams.dateTimeField = layer.exportation.dateField;
-            exportationParams.dateTimeFrom = dateInfo.startDate;
-            exportationParams.dateTimeTo = dateInfo.endDate;
+            exportationParams.dateTimeFrom = dateInfo.startFilterDate;
+            exportationParams.dateTimeTo = dateInfo.endFilterDate;
           }
 
           $('#exportation-status > div > span').html('Verifying data for export<span>...</span>');

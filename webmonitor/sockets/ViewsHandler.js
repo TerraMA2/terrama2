@@ -36,7 +36,8 @@ var ViewsHandlers = function(io) {
           clientId: json.clientId,
           userToken: userToken.getToken(),
           initialRequest: json.initialRequest,
-          onlyPrivate: json.onlyPrivate
+          onlyPrivate: json.onlyPrivate,
+          views: (json.views ? json.views : null)
         }
       };
 

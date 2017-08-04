@@ -167,11 +167,23 @@ define(
       });
 
       Utils.getWebAppSocket().on("removeView", function() {
-        Utils.getSocket().emit('retrieveRemovedViews', { clientId: Utils.getWebAppSocket().id });
+        var allLayers = Layers.getAllLayers();
+        var viewsToSend = {};
+
+        for(var i = 0, allLayersLength = allLayers.length; i < allLayersLength; i++)
+          viewsToSend[allLayers[i].id] = allLayers[i].private;
+
+        Utils.getSocket().emit('retrieveRemovedViews', { clientId: Utils.getWebAppSocket().id, views: viewsToSend });
       });
 
       Utils.getWebAppSocket().on('viewReceived', function() {
-        Utils.getSocket().emit('retrieveViews', { clientId: Utils.getWebAppSocket().id });
+        var allLayers = Layers.getAllLayers();
+        var viewsToSend = {};
+
+        for(var i = 0, allLayersLength = allLayers.length; i < allLayersLength; i++)
+          viewsToSend[allLayers[i].id] = allLayers[i].private;
+
+        Utils.getSocket().emit('retrieveViews', { clientId: Utils.getWebAppSocket().id, views: viewsToSend });
       });
 
       Utils.getWebAppSocket().on('projectReceived', function(project) {
@@ -218,7 +230,8 @@ define(
 
       Utils.getSocket().on("retrieveRemovedViewsResponse", function(data) {
         for(var i = 0, viewsLength = data.views.length; i < viewsLength; i++) {
-          var layerId = data.views[i].workspace + ":" + data.views[i].layer.name;
+          var layerIdOrig = (data.views[i].layer && data.views[i].layer.name ? data.views[i].layer.name : data.views[i].layers[0]);
+          var layerId = (data.views[i].workspace ? data.views[i].workspace + ":" + layerIdOrig : layerIdOrig);
           var layerObject = Layers.getLayerById(layerId);
 
           if(layerObject)
