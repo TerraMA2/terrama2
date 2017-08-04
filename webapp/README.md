@@ -37,7 +37,7 @@ grunt # To compile and prepares TerraMA2 FrontEnd app
 
 TerraMA2 web application uses NodeJS Sequelize ORM for handling database manipulation. Make sure you have PostgreSQL database and PostGIS spatial extension installed before.
 
-In order to execute, check available contexts names in [config/config.json](https://raw.githubusercontent.com/TerraMA2/terrama2/master/webapp/config/config.terrama2) (Feel free to add a new one following section [Configuration File](#configuration-file)).
+In order to execute, check available contexts names in [config/config.json](https://raw.githubusercontent.com/TerraMA2/terrama2/master/webapp/config/webapp.json) (Feel free to add a new one following section [Configuration File](#configuration-file)).
 
 After that, run ```npm start ContextName``` where **ContextName** is a key pointing to context credentials. 
 Example:
@@ -50,7 +50,7 @@ npm start tests # it will use credentials of tests context
 Remember that context name is optional. By default, TerraMA² will use ```default``` credentials;
 
 ## Configuration File
-The TerraMA² Web settings can be found in [config/config.json](https://raw.githubusercontent.com/TerraMA2/terrama2/master/webapp/config/config.terrama2).
+The TerraMA² Web settings can be found in [config/config.json](https://raw.githubusercontent.com/TerraMA2/terrama2/master/webapp/config/webapp.json).
 
 Key               | Description
 ----------------- | -----------------------------------------------------------------
