@@ -13,6 +13,7 @@ webmonitor/public/external
 webmonitor/public/dist
 webmonitor/public/docs
 webmonitor/bower_components
+webmonitor/config/monitor.json
 webapp/terrama2.log
 .vscode
 webapp/public/dist
