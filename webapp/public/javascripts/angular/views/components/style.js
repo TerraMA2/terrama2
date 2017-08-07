@@ -42,6 +42,15 @@ define([], function () {
       }
     }
 
+    self.predefinedStyles = [];
+
+    var predefinedStylesUrl = BASE_URL + "predefined-styles/";
+    $http.get(predefinedStylesUrl).then(function(response){
+      if (response.data){
+        self.predefinedStyles = response.data.styles;
+      }
+    });
+
     self.minColorsLength = 1;
     
     var defaultColorOpts = {
@@ -85,16 +94,14 @@ define([], function () {
         delete self.model.bands;
         delete self.model.beginColor;
         delete self.model.endColor;
-      } else if (self.model.metadata.creation_type == "2"){
+      } else {
         self.model.type = 3;
         self.model.colors = [];
-        self.model.metadata = {
-          creation_type: "2"
-        };
-        self.setXmlInfo("wind_style.json");
+        self.setXmlStyleInfo(self.model.metadata.creation_type);
         delete self.model.bands;
         delete self.model.beginColor;
         delete self.model.endColor;
+        $scope.$broadcast("schemaFormRedraw");
       }
     }
 
@@ -136,18 +143,29 @@ define([], function () {
     /**
      * Setting xml data on model
      */
-    self.setXmlInfo = function(styleFile){
-      var xmlUrl = BASE_URL + "json_styles/" + styleFile;
-      $http.get(xmlUrl).then(function(response){
-        self.model.metadata.xml_style = response.data.xml;
-      });
+    self.setXmlStyleInfo = function(styleId){
+
+      var predefinedStyleInfo = self.predefinedStyles.find(style => style.id == styleId);
+      if (predefinedStyleInfo){
+        self.model.metadata.xml_style = predefinedStyleInfo.xml;
+        self.model.fieldsToReplace = predefinedStyleInfo.fields;
+        self.model.fieldsToReplace.forEach(function(field){
+          if (self.model.metadata[field])
+            self.model.metadata[field] = parseInt(self.model.metadata[field])
+        })
+        self.predefinedStyleSchema = predefinedStyleInfo.gui.schema;
+        self.predefinedStyleForm = predefinedStyleInfo.gui.form;
+      }
     }
     /**
      * It handles color summarization (begin and end) based in list of colors
      */
     $scope.$on("updateStyleColor", function () {
-      if (self.model.metadata.creation_type == "0")
+      if (self.model.metadata.creation_type == "0"){
         handleColor();
+      } else if (self.model.metadata.creation_type != undefined){
+        self.changeCreationType();
+      }
     });
 
     /**
