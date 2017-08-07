@@ -46,6 +46,9 @@
 // QT
 #include <QObject>
 
+// Python
+#include <Python.h>
+
 namespace terrama2
 {
   namespace services
