@@ -68,6 +68,11 @@ if [ $? != 0 ]; then
   valid $? "Error adding pm2 to startup."
 fi
 
+# Create a terrama2 user
+(
+  adduser --system terrama2
+)
+
 # Add webapp to pm2 startup
 (
   cd @TERRAMA2_DESTINATION@webapp
