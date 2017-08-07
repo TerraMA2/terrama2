@@ -882,7 +882,7 @@ void terrama2::services::view::core::GeoServer::registerCoverageFile(const std::
 void terrama2::services::view::core::GeoServer::registerMosaicCoverage(const std::string& coverageStoreName,
                                                                        const std::string& mosaicPath,
                                                                        const std::string& coverageName,
-                                                                       const int srid,
+                                                                       const int srid, te::gm::Envelope* envelope,
                                                                        const std::string& style,
                                                                        const std::string& configure) const
 {
@@ -923,8 +923,56 @@ void terrama2::services::view::core::GeoServer::registerMosaicCoverage(const std
                                        + storeName
                                        + "/coverages/" + coverageName);
 
-    std::string xml = "<coverage>"
-                      "<enabled>true</enabled>"
+    std::string xml = "<coverage>";
+
+    if (envelope != nullptr)
+    {
+      // Settings bounds
+      xml += "<nativeBoundingBox>";
+
+      xml += "<minx>" + std::to_string(envelope->getLowerLeftX()) + "</minx>";
+      xml += "<miny>" + std::to_string(envelope->getLowerLeftY()) + "</miny>";
+      xml += "<maxx>" + std::to_string(envelope->getUpperRightX()) + "</maxx>";
+      xml += "<maxy>" + std::to_string(envelope->getUpperRightY()) + "</maxy>";
+
+      xml += "</nativeBoundingBox>";
+
+      // Settingd grid
+      xml += "<latLonBoundingBox>";
+
+      xml += "<minx>" + std::to_string(envelope->getLowerLeftX()) + "</minx>";
+      xml += "<miny>" + std::to_string(envelope->getLowerLeftY()) + "</miny>";
+      xml += "<maxx>" + std::to_string(envelope->getUpperRightX()) + "</maxx>";
+      xml += "<maxy>" + std::to_string(envelope->getUpperRightY()) + "</maxy>";
+
+      xml += "</latLonBoundingBox>";
+
+//      xml += "<grid dimension=\"2\">";
+//      xml += "  <range>";
+//      xml += "  <low>0 0</low>";
+//      xml += "  <high>5945 5127</high>";
+//      xml += "  </range>";
+//      xml += "  <transform>";
+//      xml += "    <scaleX>0.01</scaleX>";
+//      xml += "    <scaleY>-0.01</scaleY>";
+//      xml += "    <shearX>0.0</shearX>";
+//      xml += "    <shearY>0.0</shearY>";
+//      xml += "    <translateX>-88.3189999999999</translateX>";
+//      xml += "    <translateY>13.995728320931999</translateY>";
+//      xml += "  </transform>";
+//      xml += "  <crs>EPSG:4326</crs>";
+//      xml += "</grid>";
+
+      /**
+        <nativeBoundingBox>
+          <minx|y|max>
+        </nativeBoundingBox>
+
+       */
+
+    }
+
+    xml += "<enabled>true</enabled>"
                       "<srs>EPSG:"
                       + std::to_string(srid) +
                       "</srs>"
@@ -1620,16 +1668,6 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
 
     int srid =std::get<2>(vecRasterInfo.at(0));
 
-    /*
-     * Resetting properties files tree.
-     * Now we defined a sub directory containing both LayerName.properties and datastore.properties.
-     */
-    recreateFolder(url.path().toStdString());
-    // Creating LayerName.properties
-    createPostgisMosaicLayerPropertiesFile(url.path().toStdString(), layerName, srid);
-    // Create datastore.properties
-    createPostgisDatastorePropertiesFile(url.path().toStdString(), connInfo);
-
     if(!dataSource->dataSetExists(layerName))
     {
       // create table
@@ -1665,6 +1703,8 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
 
     std::unique_ptr<te::mem::DataSet> ds(new te::mem::DataSet(teDataSetType.get()));
 
+    te::gm::Envelope* envelope;
+
     // Insert data
     for(const auto& rasterInfo : vecRasterInfo)
     {
@@ -1683,7 +1723,9 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
 
       if(it == std::end(vecDates))
       {
-        auto geom = te::gm::GetGeomFromEnvelope(rasterEnvelope, rasterSRID);
+        te::gm::Geometry* geom = te::gm::GetGeomFromEnvelope(rasterEnvelope, rasterSRID);
+
+        envelope = const_cast<te::gm::Envelope*>(geom->getMBR());
 
         te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(ds.get());
         dsItem->setGeometry("the_geom", geom);
@@ -1694,6 +1736,16 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
       }
     }
 
+    /*
+     * Resetting properties files tree.
+     * Now we defined a sub directory containing both LayerName.properties and datastore.properties.
+     */
+    recreateFolder(url.path().toStdString());
+    // Creating LayerName.properties
+    createPostgisMosaicLayerPropertiesFile(url.path().toStdString(), layerName, srid);
+    // Create datastore.properties
+    createPostgisDatastorePropertiesFile(url.path().toStdString(), connInfo);
+
     if(!ds->isEmpty())
     {
       ds->moveBeforeFirst();
@@ -1702,7 +1754,7 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
       dataSource->add(layerName, ds.get(), options);
 
       // register datastore and layer if they don't exists
-      registerMosaicCoverage(layerName, url.path().toStdString(), layerName, srid, "", "all");
+      registerMosaicCoverage(layerName, url.path().toStdString(), layerName, srid, envelope, "", "all");
     }
 
     layersNames.push_back(layerName);

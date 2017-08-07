@@ -193,6 +193,7 @@ namespace terrama2
                                         const std::string& mosaicPath,
                                         const std::string& coverageName,
                                         const int srid,
+                                        te::gm::Envelope* envelope = nullptr,
                                         const std::string& style = "",
                                         const std::string& configure = "all") const;
 
