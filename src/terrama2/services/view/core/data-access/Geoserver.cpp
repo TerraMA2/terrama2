@@ -693,6 +693,9 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::
       srid = std::to_string(geomProperty->getSRID());
     }
 
+    // Configuring SRID on Root XML configuration
+    xml += "<srs>EPSG:" + srid + "</srs>";
+
     metadataSQL = "<entry key=\"JDBC_VIRTUAL_TABLE\">"
                   "<virtualTable>"
                   "<name>"+layerName+"</name>" +
