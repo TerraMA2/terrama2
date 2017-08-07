@@ -47,7 +47,6 @@
 // STL
 #include <string>
 #include <map>
-#include <list>
 
 namespace terrama2
 {
@@ -61,6 +60,24 @@ namespace terrama2
     {
       namespace core
       {
+        /*!
+         * \brief Defines a struct to store helpers while perform GeoServer configuration
+         */
+        struct RasterInfo
+        {
+          RasterInfo() = default;
+          RasterInfo(const RasterInfo&) = delete;
+          RasterInfo& operator=(const RasterInfo&) = delete;
+          RasterInfo(RasterInfo&&) = default;
+
+          std::string name; //!< Defines Raster Name
+          int srid; //!< Raster SRID
+          double resolutionX;
+          double resolutionY;
+          te::dt::TimeInstant timeTz; //!< Raster Time Instant TZ
+          std::unique_ptr<te::gm::Envelope> envelope; //!< Raster envelope limits
+        };
+
         /*!
             \brief GeoServer class for working with GeoServer through RESTful.
 
@@ -357,7 +374,7 @@ namespace terrama2
 
             std::string createPostgisMosaicLayerPropertiesFile(const std::string& outputFolder,
                                                         const std::string& exhibitionName,
-                                                        const int srid) const;
+                                                        const RasterInfo& rasterInfo) const;
 
             void createPostgisIndexerPropertiesFile(const std::string& outputFolder,
                                                     const std::string& exhibitionName) const;
@@ -372,9 +389,9 @@ namespace terrama2
              * \param filter
              * \return
              */
-            std::vector<std::tuple<std::string, te::dt::TimeInstant, int, te::gm::Envelope*> > getRasterInfo(terrama2::core::DataManagerPtr dataManager,
-                          terrama2::core::DataSetPtr dataset,
-                          const terrama2::core::Filter& filter) const;
+            std::vector<RasterInfo> getRasterInfo(terrama2::core::DataManagerPtr dataManager,
+                                                  terrama2::core::DataSetPtr dataset,
+                                                  const terrama2::core::Filter& filter) const;
 
             void createMosaicTable(std::shared_ptr<te::da::DataSource> transactor,
                                    const std::string& tableName,
