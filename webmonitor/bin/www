@@ -16,7 +16,7 @@ var path = require("path");
  */
 
 // reading TerraMA² config.json
-var config = JSON.parse(fs.readFileSync(path.join(__dirname, "../config/config.terrama2monitor"), "utf-8"));
+var config = JSON.parse(fs.readFileSync(path.join(__dirname, "../config/monitor.json"), "utf-8"));
 var webMonitorConfig = config.webmonitor;
 
 var port = normalizePort(process.env.PORT || webMonitorConfig.port);

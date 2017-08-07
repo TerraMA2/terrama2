@@ -176,6 +176,7 @@ namespace terrama2
 
 
           protected:
+            const int DCP_ANALYSIS_DATASET = 0;
             std::set<std::pair<std::string, int> > attributes_; //!< Set of attributes and datatypes
             std::unordered_map<int, std::map<std::string, boost::any> >  analysisResult_;
             std::unordered_map<ObjectKey, std::shared_ptr<ContextDataSeries>, ObjectKeyHash, EqualKeyComparator > datasetMap_; //!< Map containing all loaded datasets.

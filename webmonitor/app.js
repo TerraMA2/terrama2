@@ -18,7 +18,7 @@ var app = express();
 var webMonitorSession = session({ secret: KEY, name: "TerraMA2WebMonitor", resave: false, saveUninitialized: false });
 
 // reading TerraMA² config.json
-var config = JSON.parse(fs.readFileSync(path.join(__dirname, "./config/config.terrama2monitor"), "utf-8"));
+var config = JSON.parse(fs.readFileSync(path.join(__dirname, "./config/monitor.json"), "utf-8"));
 
 app.locals.BASE_URL = config.webmonitor.basePath;
 app.locals.ADMIN_URL = config.webadmin.protocol + config.webadmin.host + (config.webadmin.port != "" ? ":" + config.webadmin.port : "") + config.webadmin.basePath;
