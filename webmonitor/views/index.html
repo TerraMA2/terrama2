@@ -35,12 +35,12 @@
           <select class="form-control" id="projects" name="projects"></select>
           <ul class="sidebar-menu">
             <div id="terrama2-layerexplorer"></div>
-            <form onsubmit="return false" class="form-inline" style="margin-top: 10px;">
-              <div class="form-group">
-                <input id='wmsUri' class="form-control" type='search' placeholder='WMS URI'> <button id='addLayers' type='submit' class="btn btn-default">Add</button>
-              </div>
-            </form>
-            <li class="header">VISIBLE LAYERS</li>
+            <li class="header" style="color: #b8c7ce;">
+              VISIBLE LAYERS
+              <span id="visible-layers-extent" class="pull-right" style="font-size: 15px; cursor: pointer;">
+                <i class="glyphicon glyphicon-resize-full"></i>
+              </span>
+            </li>
             <div id="terrama2-sortlayers"></div>
           </ul>
         </section>
@@ -130,9 +130,17 @@
                   </div>
                 </div>
               </div>
-              <div id="loginButton" class="map-tool-button"><button type="button"><i class="fa {% if (currentUser !== null) %}fa-user font-green{% else %}fa-user-times font-red{% endif %}"></i></button></div>
+              <div id="loginButton" class="map-tool-button">
+                <button type="button">
+                  <i class="fa fa-user">
+                    <i class="fa fa-times{% if (currentUser !== null) %} hidden{% endif %}"></i>
+                    <i class="fa fa-circle{% if (currentUser === null) %} hidden{% endif %}"></i>
+                  </i>
+                </button>
+              </div>
               <div id="toggleButton" class="map-tool-button sidebar-toggle" full_screen="true" data-toggle="offcanvas" role="button"><button type="button"><i class="fa fa-arrows-alt"></i></button></div>
               <div id="moveMap" class="map-tool-button mouse-function-btn active"><button type="button"><i class="fa fa-hand-rock-o"></i></button></div>
+              <div id="dragbox" class="map-tool-button mouse-function-btn"><button type="button"><i class="glyphicon glyphicon-zoom-in"></i></button></div>
               <div id="legendsButton" class="map-tool-button mouse-function-btn"><button type="button"><i class="fa fa-list"></i></button></div>
               <div id="tableButton" class="map-tool-button mouse-function-btn hidden"><button type="button"><i class="fa fa-table"></i></button></div>
               <div id="getAttributes" class="map-tool-button mouse-function-btn hidden">
@@ -168,12 +176,19 @@
               <div class="modal-content">
                 <div class="modal-header">
                   <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                  <h4 class="modal-title" id="layersModalLabel">Layers</h4>
+                  <h4 class="modal-title" id="layersModalLabel">Add Layers</h4>
                 </div>
-                <div id="layersModalBody" class="modal-body"></div>
+                <div id="layersModalBody" class="modal-body">
+                  <div style="height: 35px;">
+                    <input id="wmsUri" class="form-control" type="search" placeholder="WMS URI">
+                    <button id="addLayers" type="submit" class="btn btn-default" style="margin-left: 10px;">Add</button>
+                  </div>
+                  <span></span>
+                </div>
                 <div class="modal-footer">
+                  <button id="restart" type="button" class="btn btn-default pull-left hidden">Restart</button>
                   <button id="closeLayers" type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                  <button id="saveLayers" type="button" class="btn btn-primary">Save changes</button>
+                  <button id="saveLayers" type="button" class="btn btn-primary hidden">Save changes</button>
                 </div>
               </div>
             </div>

@@ -59,8 +59,8 @@ define(
           if(layer.exportation.dateField !== null) {
             var dateInfo = layer.dateInfo;
             exportationParams.dateTimeField = layer.exportation.dateField;
-            exportationParams.dateTimeFrom = dateInfo.startDate;
-            exportationParams.dateTimeTo = dateInfo.endDate;
+            exportationParams.dateTimeFrom = dateInfo.startFilterDate;
+            exportationParams.dateTimeTo = dateInfo.endFilterDate;
           }
 
           $('#exportation-status > div > span').html('Verifying data for export<span>...</span>');
@@ -86,8 +86,46 @@ define(
         }
       });
 
-      $("#terrama2-sortlayers").on("click", ".terrama2-layer-tools", function() {
-        var layer = Layers.getLayerById($(this).parent().data("layerid"));
+      $("#terrama2-sortlayers").on("click", ".glyphicon-resize-full", function() {
+        var layer = Layers.getLayerById($(this).parent().parent().data("layerid"));
+
+        if(layer !== null) {
+          TerraMA2WebComponents.MapDisplay.zoomToExtent(layer.boundingBox);
+        }
+      });
+
+      $("#visible-layers-extent").on("click", function() {
+        var allVisibleLayers = Layers.getVisibleLayers();
+        var visibleLayers = [];
+
+        for(var i = 1, allVisibleLayersLength = allVisibleLayers.length; i < allVisibleLayersLength; i++) {
+          if(allVisibleLayers[i].parent !== "custom" && allVisibleLayers[i].parent !== "template")
+            visibleLayers.push(allVisibleLayers[i]);
+        }
+
+        if(visibleLayers.length > 0) {
+          var boundingBox = [visibleLayers[0].boundingBox[0], visibleLayers[0].boundingBox[1], visibleLayers[0].boundingBox[2], visibleLayers[0].boundingBox[3]];
+
+          for(var i = 1, visibleLayersLength = visibleLayers.length; i < visibleLayersLength; i++) {
+            if(visibleLayers[i].boundingBox[0] < boundingBox[0])
+              boundingBox[0] = visibleLayers[i].boundingBox[0];
+
+            if(visibleLayers[i].boundingBox[1] < boundingBox[1])
+              boundingBox[1] = visibleLayers[i].boundingBox[1];
+
+            if(visibleLayers[i].boundingBox[2] > boundingBox[2])
+              boundingBox[2] = visibleLayers[i].boundingBox[2];
+
+            if(visibleLayers[i].boundingBox[3] > boundingBox[3])
+              boundingBox[3] = visibleLayers[i].boundingBox[3];
+          }
+
+          TerraMA2WebComponents.MapDisplay.zoomToExtent(boundingBox);
+        }
+      });
+
+      $("#terrama2-sortlayers").on("click", ".fa-gear", function() {
+        var layer = Layers.getLayerById($(this).parent().parent().data("layerid"));
 
         if(layer !== null) {
           if(layer.exportation !== null) {
