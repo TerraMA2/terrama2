@@ -69,8 +69,11 @@ if [ $? != 0 ]; then
 fi
 
 # Create a terrama2 user
+# and default data folder
 (
   adduser --system terrama2
+  mkdir -p /var/lib/terrama2/data
+  chown terrama2:terrama2 /var/lib/terrama2 -R
 )
 
 # Add webapp to pm2 startup
