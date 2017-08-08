@@ -882,7 +882,7 @@ void terrama2::services::view::core::GeoServer::registerCoverageFile(const std::
 void terrama2::services::view::core::GeoServer::registerMosaicCoverage(const std::string& coverageStoreName,
                                                                        const std::string& mosaicPath,
                                                                        const std::string& coverageName,
-                                                                       const int srid, te::gm::Envelope* envelope,
+                                                                       const RasterInfo& rasterInfo,
                                                                        const std::string& style,
                                                                        const std::string& configure) const
 {
@@ -925,80 +925,47 @@ void terrama2::services::view::core::GeoServer::registerMosaicCoverage(const std
 
     std::string xml = "<coverage>";
 
-    if (envelope != nullptr)
-    {
-      // Settings bounds
-      xml += "<nativeBoundingBox>"
-             "<minx>-88.32399999999994</minx>"
-             "<maxx>-28.867863777777494</maxx>"
-             "<miny>-37.274000000000015</miny>"
-             "<maxy>14.000728320932035</maxy>"
-             "<crs>EPSG:4326</crs>";
+    // Using TerraMA² toString to keep precision
+    const std::string llx = toString(rasterInfo.envelope->getLowerLeftX(), 14);
+    const std::string urx = toString(rasterInfo.envelope->getUpperRightX(), 14);
+    const std::string lly = toString(rasterInfo.envelope->getLowerLeftY(), 14);
+    const std::string ury = toString(rasterInfo.envelope->getUpperRightY(), 14);
+    const std::string srid = std::to_string(rasterInfo.srid);
+    // Settings bounds
+    xml += "<nativeBoundingBox>"
+           "  <minx>"+llx+"</minx>"
+           "  <maxx>"+urx+"</maxx>"
+           "  <miny>"+lly+"</miny>"
+           "  <maxy>"+ury+"</maxy>"
+           "  <crs>EPSG:"+srid+"</crs>"
+           "</nativeBoundingBox>";
 
-//      xml += "<minx>" + std::to_string(envelope->getLowerLeftX()) + "</minx>";
-//      xml += "<miny>" + std::to_string(envelope->getLowerLeftY()) + "</miny>";
-//      xml += "<maxx>" + std::to_string(envelope->getUpperRightX()) + "</maxx>";
-//      xml += "<maxy>" + std::to_string(envelope->getUpperRightY()) + "</maxy>";
-
-      xml += "</nativeBoundingBox>";
-
-      // Settingd grid
-      xml += "<latLonBoundingBox>"
-
-      "<minx>-88.32399999999994</minx>"
-      "<maxx>-28.867863777777494</maxx>"
-      "<miny>-37.274000000000015</miny>"
-      "<maxy>14.000728320932035</maxy>"
-      "<crs>EPSG:4326</crs>";
-//      xml += "<minx>" + std::to_string(envelope->getLowerLeftX()) + "</minx>";
-//      xml += "<miny>" + std::to_string(envelope->getLowerLeftY()) + "</miny>";
-//      xml += "<maxx>" + std::to_string(envelope->getUpperRightX()) + "</maxx>";
-//      xml += "<maxy>" + std::to_string(envelope->getUpperRightY()) + "</maxy>";
-
-      xml += "</latLonBoundingBox>";
-
-      xml += "<grid dimension=\"2\">"
-             "  <range>"
-             "  <low>0 0</low>"
-             "  <high>538 492</high>"
-             "  </range>"
-             "  <transform>"
-             "    <scaleX>0.11051326435357332</scaleX>"
-             "    <scaleY>-0.1042169274815692</scaleY>"
-             "    <shearX>0.0</shearX>"
-             "    <shearY>0.0</shearY>"
-             "    <translateX>-88.26874336782315</translateX>"
-             "    <translateY>13.94861985719125</translateY>"
-             "  </transform>"
-             "  <crs>EPSG:4326</crs>"
-             "</grid>";
-
-      /**
-        <nativeBoundingBox>
-          <minx|y|max>
-        </nativeBoundingBox>
-
-       */
-
-    }
+    // Settingd grid
+    xml += "<latLonBoundingBox>"
+           "  <minx>"+llx+"</minx>"
+           "  <maxx>"+urx+"</maxx>"
+           "  <miny>"+lly+"</miny>"
+           "  <maxy>"+ury+"</maxy>"
+           "  <crs>EPSG:"+srid+"</crs>"
+           "</latLonBoundingBox>";
 
     xml += "<enabled>true</enabled>"
-                      "<srs>EPSG:"
-                      + std::to_string(srid) +
-                      "</srs>"
-                      "<metadata>"
-                      "<entry key=\"time\">"
-                      "<dimensionInfo>"
-                      "<enabled>true</enabled>"
-                      "<presentation>LIST</presentation>"
-                      "<units>ISO8601</units>"
-                      "<defaultValue>"
-                      "<strategy>MAXIMUM</strategy>"
-                      "</defaultValue>"
-                      "</dimensionInfo>"
-                      "</entry>"
-                      "</metadata>"
-                      "</coverage>";
+           "  <srs>EPSG:"+
+           std::to_string(rasterInfo.srid) +
+           "  </srs>"
+           "  <metadata>"
+           "  <entry key=\"time\">"
+           "  <dimensionInfo>"
+           "  <enabled>true</enabled>"
+           "<presentation>LIST</presentation>"
+           "<units>ISO8601</units>"
+           "<defaultValue>"
+           "<strategy>MAXIMUM</strategy>"
+           "</defaultValue>"
+           "</dimensionInfo>"
+           "</entry>"
+           "</metadata>"
+           "</coverage>";
 
     cURLwrapper.customRequest(uriPutUpdateCoverage, "PUT", xml, "Content-Type: text/xml");
 
@@ -1713,8 +1680,6 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
 
     std::unique_ptr<te::mem::DataSet> ds(new te::mem::DataSet(teDataSetType.get()));
 
-    te::gm::Envelope* envelope;
-
     // Insert data
     for(const auto& rasterInfo : vecRasterInfo)
     {
@@ -1727,8 +1692,6 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
       if(it == std::end(vecDates))
       {
         te::gm::Geometry* geom = te::gm::GetGeomFromEnvelope(rasterInfo.envelope.get(), rasterInfo.srid);
-
-        envelope = const_cast<te::gm::Envelope*>(geom->getMBR());
 
         te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(ds.get());
         dsItem->setGeometry("the_geom", geom);
@@ -1758,7 +1721,7 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
       dataSource->add(layerName, ds.get(), options);
 
       // register datastore and layer if they don't exists
-      registerMosaicCoverage(layerName, url.path().toStdString(), layerName, srid, envelope, "", "all");
+      registerMosaicCoverage(layerName, url.path().toStdString(), layerName, vecRasterInfo[0], "", "all");
     }
 
     layersNames.push_back(layerName);

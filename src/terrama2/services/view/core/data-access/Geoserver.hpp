@@ -66,14 +66,14 @@ namespace terrama2
         struct RasterInfo
         {
           RasterInfo() = default;
+          RasterInfo(RasterInfo&&) = default;
           RasterInfo(const RasterInfo&) = delete;
           RasterInfo& operator=(const RasterInfo&) = delete;
-          RasterInfo(RasterInfo&&) = default;
 
           std::string name; //!< Defines Raster Name
           int srid; //!< Raster SRID
-          double resolutionX;
-          double resolutionY;
+          double resolutionX; //!< Represents Raster Resolution X Pixel
+          double resolutionY; //!< Represents Raster Resolution Y Pixel
           te::dt::TimeInstant timeTz; //!< Raster Time Instant TZ
           std::unique_ptr<te::gm::Envelope> envelope; //!< Raster envelope limits
         };
@@ -209,8 +209,7 @@ namespace terrama2
             void registerMosaicCoverage(const std::string& coverageStoreName,
                                         const std::string& mosaicPath,
                                         const std::string& coverageName,
-                                        const int srid,
-                                        te::gm::Envelope* envelope = nullptr,
+                                        const RasterInfo& rasterInfo,
                                         const std::string& style = "",
                                         const std::string& configure = "all") const;
 

@@ -112,8 +112,6 @@ int main(int argc, char** argv)
     // Uploading many coverages from a zip file
     geoserver.uploadZipCoverageFile("acoverage", TERRAMA2_DATA_DIR + "/geotiff/geotiff.zip", "geotiff");
 
-    geoserver.registerMosaicCoverage("mosaicStore", TERRAMA2_DATA_DIR + "/umidade/", "Umin", 4326, nullptr, "");
-
     std::list<std::pair<std::string, std::string>> layersAndStyles;
 
     layersAndStyles.push_back(std::make_pair("aworkspace:Spot_Vegetacao_Jul2001_SP", ""));
