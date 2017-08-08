@@ -71,7 +71,7 @@ fi
 # Create a terrama2 user
 # and default data folder
 (
-  adduser --system terrama2
+  adduser --system --no-create-home terrama2
   mkdir -p /var/lib/terrama2/data
   chown terrama2:terrama2 /var/lib/terrama2 -R
 )
@@ -84,7 +84,7 @@ fi
     cp sample_webapp.json webapp.json
   fi
 
-  pm2 start npm --name webapp -- start
+  pm2 --run-as-user terrama2 start npm --name webapp -- start
   valid $? "Error executing webapp."
   pm2 save
   valid $? "Error saving pm2 state."
@@ -98,7 +98,7 @@ fi
     cp sample_monitor.json monitor.json
   fi
 
-  pm2 start npm --name webmonitor -- start
+  pm2 --run-as-user terrama2 start npm --name webmonitor -- start
   valid $? "Error executing webmonitor."
   pm2 save
   valid $? "Error saving pm2 state."
