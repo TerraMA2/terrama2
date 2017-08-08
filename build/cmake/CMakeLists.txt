@@ -342,6 +342,11 @@ if(TERRAMA2_ARCHIVER_ENABLED)
   add_definitions(-DTERRAMA2_ARCHIVER_ENABLED)
 endif()
 
+CMAKE_DEPENDENT_OPTION(TERRAMA2_INTERPOLATOR_ENABLED "Build Interpolator module?" ON "TERRAMA2_CORE_ENABLED" OFF)
+if(TERRAMA2_INTERPOLATOR_ENABLED)
+  add_definitions(-DTERRAMA2_INTERPOLATOR_ENABLED)
+endif()
+
 #####################################
 
 #####################################
@@ -377,6 +382,8 @@ CMAKE_DEPENDENT_OPTION(TERRAMA2_EXAMPLES_ALERT_ENABLED "Build examples for alert
 CMAKE_DEPENDENT_OPTION(TERRAMA2_EXAMPLES_VIEW_ENABLED "Build examples for view module?" ON "TERRAMA2_VIEW_ENABLED;TERRAMA2_IMPLEMENTATION_ENABLED;TERRAMA2_BUILD_EXAMPLES_ENABLED" OFF)
 
 CMAKE_DEPENDENT_OPTION(TERRAMA2_EXAMPLES_ARCHIVER_ENABLED "Build examples for archiver module?" ON "TERRAMA2_ARCHIVER_ENABLED;TERRAMA2_IMPLEMENTATION_ENABLED;TERRAMA2_BUILD_EXAMPLES_ENABLED" OFF)
+
+CMAKE_DEPENDENT_OPTION(TERRAMA2_EXAMPLES_INTERPOLATOR_ENABLED "Build examples for interpolator module?" ON "TERRAMA2_INTERPOLATOR_ENABLED;TERRAMA2_IMPLEMENTATION_ENABLED;TERRAMA2_BUILD_EXAMPLES_ENABLED" OFF)
 
 ######################################
 
@@ -431,6 +438,10 @@ if(TERRAMA2_ALERT_ENABLED)
   add_subdirectory(terrama2_alert_impl)
 endif()
 
+if(TERRAMA2_INTERPOLATOR_ENABLED)
+  add_subdirectory(terrama2_interpolator_core)
+endif()
+
 if(TERRAMA2_VIEW_ENABLED)
   add_subdirectory(terrama2_view_core)
 endif()
@@ -473,6 +484,10 @@ endif()
 
 if(TERRAMA2_EXAMPLES_ARCHIVER_ENABLED)
   add_subdirectory(terrama2_examples_archiver)
+endif()
+
+if(TERRAMA2_EXAMPLES_INTERPOLATOR_ENABLED)
+  add_subdirectory(terrama2_examples_interpolator)
 endif()
 
 if(TERRAMA2_DOXYGEN_ENABLED)
