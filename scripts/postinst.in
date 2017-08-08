@@ -80,13 +80,17 @@ fi
 (
   cd @TERRAMA2_DESTINATION@webapp
 
-  if ! [ -f "webapp.json" ]; then
-    cp sample_webapp.json webapp.json
-  fi
+  (
+    cd config
+    if ! [ -f "webapp.json" ]; then
+      cp sample_webapp.json webapp.json
+    fi
+  )
 
-  pm2 --run-as-user terrama2 start npm --name webapp -- start
+  su terrama2
+  sudo pm2 start npm --name webapp -- start
   valid $? "Error executing webapp."
-  pm2 save
+  sudo pm2 save
   valid $? "Error saving pm2 state."
 )
 
@@ -94,13 +98,17 @@ fi
 (
   cd @TERRAMA2_DESTINATION@webmonitor
 
-  if ! [ -f "monitor.json" ]; then
-    cp sample_monitor.json monitor.json
-  fi
+  (
+    cd config
+    if ! [ -f "monitor.json" ]; then
+      cp sample_monitor.json monitor.json
+    fi
+  )
 
-  pm2 --run-as-user terrama2 start npm --name webmonitor -- start
+  su terrama2
+  sudo pm2 start npm --name webmonitor -- start
   valid $? "Error executing webmonitor."
-  pm2 save
+  sudo pm2 save
   valid $? "Error saving pm2 state."
 )
 
