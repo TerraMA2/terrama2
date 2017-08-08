@@ -55,19 +55,12 @@ define(
         $("#content").height(memberWindowHeight + "px");
         $(".content-wrapper").css('min-height', memberWindowHeight + "px");
 
-        var terrama2MapWidth = ($("body").hasClass('full_screen') ? "100%" : $("#content").width() + "px");
-
-        var interval = window.setInterval(function() {
-          $("#terrama2-map").width(terrama2MapWidth);
+        window.setTimeout(function() {
+          $("#terrama2-map").width(($("body").hasClass('full_screen') ? "100%" : $("#content").width() + "px"));
+          TerraMA2WebComponents.MapDisplay.updateMapSize();
         }, 100);
 
-        window.setTimeout(function() {
-          clearInterval(interval);
-        }, 2000);
-
-        $(".sidebar-menu").height((memberWindowHeight - 195) + "px");
-
-        TerraMA2WebComponents.MapDisplay.updateMapSize();
+        $(".sidebar-menu").height((memberWindowHeight - 195) + "px");        
       });
 
       $('#close-alert').on('click', function() {
