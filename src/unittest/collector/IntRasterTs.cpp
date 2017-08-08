@@ -58,7 +58,8 @@ void addInput(std::shared_ptr<terrama2::services::collector::core::DataManager> 
   terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
   dataProvider->id = 2;
   dataProvider->name = "DSA curso";
-  dataProvider->uri = "ftp://ftp:JenkinsD%40t%40@jenkins-ftp.dpi.inpe.br:21/terrama2/";
+  //dataProvider->uri = "ftp://ftp:JenkinsD%40t%40@jenkins-ftp.dpi.inpe.br:21/terrama2/";
+  dataProvider->uri = "file://"+TERRAMA2_DATA_DIR+"/";
   dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
   dataProvider->dataProviderType = "FTP";
   dataProvider->active = true;
@@ -177,7 +178,8 @@ size_t write_response(void* ptr, size_t size, size_t nmemb, void* data)
 void downloadReferenceFiles()
 {
   terrama2::core::CurlWrapperFtp curl;
-  std::string referenceUrl = "ftp://ftp:JenkinsD%40t%40@jenkins-ftp.dpi.inpe.br:21/terrama2/reference_data/";
+  //std::string referenceUrl = "ftp://ftp:JenkinsD%40t%40@jenkins-ftp.dpi.inpe.br:21/terrama2/reference_data/";
+  std::string referenceUrl = "file://"+TERRAMA2_DATA_DIR+"/";
 
   try
   {
@@ -185,7 +187,7 @@ void downloadReferenceFiles()
   }
   catch(...)
   {
-    QFAIL("FTP address is invalid.");
+    QFAIL("Dir File is invalid.");
   }
 
   std::string outDir = TERRAMA2_DATA_DIR+"/hidroestimador_crop_reference";
