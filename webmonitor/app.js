@@ -18,7 +18,7 @@ var app = express();
 var webMonitorSession = session({ secret: KEY, name: "TerraMA2WebMonitor", resave: false, saveUninitialized: false });
 
 // reading TerraMA² config.json
-var config = JSON.parse(fs.readFileSync(path.join(__dirname, "./config/config.terrama2monitor"), "utf-8"));
+var config = JSON.parse(fs.readFileSync(path.join(__dirname, "./config/monitor.json"), "utf-8"));
 
 app.locals.BASE_URL = config.webmonitor.basePath;
 app.locals.ADMIN_URL = config.webadmin.protocol + config.webadmin.host + (config.webadmin.port != "" ? ":" + config.webadmin.port : "") + config.webadmin.basePath;
@@ -43,6 +43,8 @@ app.use(app.locals.BASE_URL, express.static(path.join(__dirname, 'bower_componen
 app.use(app.locals.BASE_URL, express.static(path.join(__dirname, 'public')));
 app.use(app.locals.BASE_URL, express.static(path.join(__dirname, '../webcomponents/dist')));
 app.use(app.locals.BASE_URL + 'require.js', express.static(path.join(__dirname, 'node_modules/requirejs/require.js')));
+app.use(app.locals.BASE_URL + 'openlayers/ol.js', express.static(path.join(__dirname, 'node_modules/openlayers/dist/ol.js')));
+app.use(app.locals.BASE_URL + 'openlayers/ol.css', express.static(path.join(__dirname, 'node_modules/openlayers/dist/ol.css')));
 
 load('controllers').then('routes').into(app);
 

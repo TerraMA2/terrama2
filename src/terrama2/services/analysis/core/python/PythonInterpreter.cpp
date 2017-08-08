@@ -348,7 +348,8 @@ void terrama2::services::analysis::core::python::addValue(const std::string& att
   try
   {
     AnalysisPtr analysis = context->getAnalysis();
-    if(analysis->type == AnalysisType::MONITORED_OBJECT_TYPE)
+    verify::analysisType(analysis, AnalysisType::MONITORED_OBJECT_TYPE);
+
     {
       // if the return value is a double
       boost::python::extract<double> extDouble(pyObjValue);
@@ -476,7 +477,6 @@ void terrama2::services::analysis::core::python::readInfoFromDict(OperatorCache&
   switch(analysis->type)
   {
     case AnalysisType::DCP_TYPE:
-      break;
     case AnalysisType::MONITORED_OBJECT_TYPE:
     {
       // Geom index

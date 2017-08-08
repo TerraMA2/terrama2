@@ -693,6 +693,9 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::
       srid = std::to_string(geomProperty->getSRID());
     }
 
+    // Configuring SRID on Root XML configuration
+    xml += "<srs>EPSG:" + srid + "</srs>";
+
     metadataSQL = "<entry key=\"JDBC_VIRTUAL_TABLE\">"
                   "<virtualTable>"
                   "<name>"+layerName+"</name>" +
@@ -1612,10 +1615,14 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
 
     std::unique_ptr<te::da::DataSetType> teDataSetType(dataSource->getDataSetType(layerName));
 
-    auto vecPkProperties = teDataSetType->getPrimaryKey()->getProperties();
+    auto primaryKey = teDataSetType->getPrimaryKey();
+    if(primaryKey != nullptr)
+    {
+      auto vecPkProperties = primaryKey->getProperties();
 
-    for(auto property : vecPkProperties)
-      teDataSetType->remove(property);
+      for(auto property : vecPkProperties)
+        teDataSetType->remove(property);
+    }
 
     std::unique_ptr<te::mem::DataSet> ds(new te::mem::DataSet(teDataSetType.get()));
 

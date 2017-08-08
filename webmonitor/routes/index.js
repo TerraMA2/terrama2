@@ -4,7 +4,7 @@ var path = require("path");
 module.exports = function(app) {
   app.get(app.locals.BASE_URL, function(req, res, next) {
     // reading TerraMA² config.json
-    var hostInfo = JSON.parse(fs.readFileSync(path.join(__dirname, "../config/config.terrama2monitor"), "utf-8"));
+    var hostInfo = JSON.parse(fs.readFileSync(path.join(__dirname, "../config/monitor.json"), "utf-8"));
     var webmonitorHostInfo = hostInfo.webmonitor;
     var webadminHostInfo = hostInfo.webadmin;
     var message = {
