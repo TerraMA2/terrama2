@@ -165,6 +165,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
     auto errors = ContextManager::getInstance().getMessages(analysisHashCode, BaseContext::MessageType::ERROR_MESSAGE);
     if(!errors.empty())
     {
+      // Analysis finished with errors
 
       std::string errorStr;
       for(const auto& error : errors)
@@ -176,17 +177,20 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
       QString errMsg = QObject::tr("Analysis %1 (%2) finished with the following error(s):\n%3").arg(analysis->id).arg(QString::fromStdString(startTime->toString()), QString::fromStdString(errorStr));
       TERRAMA2_LOG_INFO() << errMsg;
 
-      auto processingEndTime = terrama2::core::TimeUtils::nowUTC();
-
-      logger->setStartProcessingTime(processingStartTime, executionPackage.registerId);
-      logger->setEndProcessingTime(processingEndTime, executionPackage.registerId);
-
       logger->result(AnalysisLogger::ERROR, startTime, logId);
 
       emit analysisFinished(analysis->id, startTime, false);
     }
     else
     {
+      // Analysis finished successfully
+
+      auto processingEndTime = terrama2::core::TimeUtils::nowUTC();
+
+      // log star and end processing time
+      logger->setStartProcessingTime(processingStartTime, executionPackage.registerId);
+      logger->setEndProcessingTime(processingEndTime, executionPackage.registerId);
+
       logger->result(AnalysisLogger::DONE, startTime, logId);
 
       QString errMsg = QObject::tr("Analysis %1 finished successfully: %2").arg(analysis->id).arg(startTime->toString().c_str());
