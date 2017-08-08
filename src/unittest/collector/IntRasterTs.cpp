@@ -61,7 +61,7 @@ void addInput(std::shared_ptr<terrama2::services::collector::core::DataManager> 
   //dataProvider->uri = "ftp://ftp:JenkinsD%40t%40@jenkins-ftp.dpi.inpe.br:21/terrama2/";
   dataProvider->uri = "file://"+TERRAMA2_DATA_DIR+"/";
   dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
-  dataProvider->dataProviderType = "FTP";
+  dataProvider->dataProviderType = "FILE";
   dataProvider->active = true;
 
   dataManager->add(dataProviderPtr);
