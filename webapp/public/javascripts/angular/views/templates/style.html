@@ -3,10 +3,11 @@
     <select class="form-control" name="styles" ng-change="$ctrl.changeCreationType()" ng-model="$ctrl.model.metadata.creation_type">
         <option value="0">{{$ctrl.i18n.__('Editor')}}</option>
         <option value="1">{{$ctrl.i18n.__('XML')}}</option>
+        <option ng-if="$ctrl.type === $ctrl.DataSeriesType.GRID" ng-repeat="option in $ctrl.predefinedStyles" value="{{option.id}}">{{option.name}}</option>
     </select>
 </div>
 
-<div ng-if="$ctrl.model.metadata.creation_type == '1' || $ctrl.model.metadata.creation_type == '2' ">
+<div ng-if="$ctrl.model.metadata.creation_type == '1'">
   <div class="col-md-12 terrama2-nopadding-box">
 
     <div class="col-md-8">
@@ -15,6 +16,14 @@
         <textarea class="form-control" ng-model="$ctrl.model.metadata.xml_style" style="height: 200px;"> </textarea>
       </div>
     </div>
+
+  </div>
+</div>
+
+<div ng-if="$ctrl.model.metadata.creation_type != '0' && $ctrl.model.metadata.creation_type != '1' && $ctrl.model.metadata.creation_type != undefined">
+  <div class="col-md-12 terrama2-nopadding-box">
+      
+    <div sf-schema="$ctrl.predefinedStyleSchema" sf-form="$ctrl.predefinedStyleForm" sf-model="$ctrl.model.metadata"></div>
 
   </div>
 </div>
