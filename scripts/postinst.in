@@ -87,11 +87,11 @@ fi
     fi
   )
 
-  su terrama2
-  sudo pm2 start npm --name webapp -- start
+  sudo -H -u terrama2 sudo pm2 start npm --name webapp -- start
   valid $? "Error executing webapp."
-  sudo pm2 save
+  sudo -H -u terrama2 sudo pm2 save
   valid $? "Error saving pm2 state."
+  exit
 )
 
 # Add webmonitor to pm2 startup
@@ -105,11 +105,11 @@ fi
     fi
   )
 
-  su terrama2
-  sudo pm2 start npm --name webmonitor -- start
+  sudo -H -u terrama2 sudo pm2 start npm --name webmonitor -- start
   valid $? "Error executing webmonitor."
-  sudo pm2 save
+  sudo -H -u terrama2 sudo pm2 save
   valid $? "Error saving pm2 state."
+  exit
 )
 
 echo "End post-installation script..."
