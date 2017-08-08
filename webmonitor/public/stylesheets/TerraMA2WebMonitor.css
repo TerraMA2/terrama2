@@ -1,4 +1,4 @@
-html, body, .content, .content, .content-wrapper, #terrama2-map {
+html, body, #content, .content, .content-wrapper, #terrama2-map {
   overflow: hidden !important;
 }
 
@@ -376,6 +376,7 @@ html, body, .content, .content, .content-wrapper, #terrama2-map {
   z-index: 2000;
   opacity: 0.9;
   border-radius: 10px;
+  margin-left: -10px !important;
 }
 
 .slider-content > div {

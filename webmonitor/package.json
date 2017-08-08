@@ -14,6 +14,7 @@
     "express-load": "^1.1.15",
     "express-session": "^1.15.3",
     "morgan": "~1.7.0",
+    "openlayers": "^4.2.0",
     "passport": "^0.3.2",
     "passport-local": "^1.0.0",
     "request": "^2.81.0",

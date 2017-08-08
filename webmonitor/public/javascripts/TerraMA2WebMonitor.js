@@ -55,19 +55,12 @@ define(
         $("#content").height(memberWindowHeight + "px");
         $(".content-wrapper").css('min-height', memberWindowHeight + "px");
 
-        var terrama2MapWidth = ($("body").hasClass('full_screen') ? "100%" : $("#content").width() + "px");
-
-        var interval = window.setInterval(function() {
-          $("#terrama2-map").width(terrama2MapWidth);
+        window.setTimeout(function() {
+          $("#terrama2-map").width(($("body").hasClass('full_screen') ? "100%" : $("#content").width() + "px"));
+          TerraMA2WebComponents.MapDisplay.updateMapSize();
         }, 100);
 
-        window.setTimeout(function() {
-          clearInterval(interval);
-        }, 2000);
-
-        $(".sidebar-menu").height((memberWindowHeight - 195) + "px");
-
-        TerraMA2WebComponents.MapDisplay.updateMapSize();
+        $(".sidebar-menu").height((memberWindowHeight - 195) + "px");        
       });
 
       $('#close-alert').on('click', function() {
@@ -637,11 +630,11 @@ define(
       }
 
       //Adding open map street
-      if(TerraMA2WebComponents.MapDisplay.addOSMLayer("osm", "Open street", "Open street", false, "terrama2-layerexplorer", false)) {
+      if(TerraMA2WebComponents.MapDisplay.addOSMLayer("osm", "OpenStreetMap", "OpenStreetMap", false, "terrama2-layerexplorer", false)) {
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("osm", "template", null, "treeview unsortable terrama2-truncate-text", null);
         var layerObject = Layers.createLayerObject({
           layers: ["osm"],
-          name: "Open street",
+          name: "OpenStreetMap",
           type: "template"
         });
         Layers.addLayer(layerObject);
