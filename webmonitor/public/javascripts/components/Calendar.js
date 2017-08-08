@@ -20,10 +20,10 @@ define(
         if(!minDate || !maxDate) {
           return;
         }
-        var mMinDate = moment.utc(minDate);
-        var mMaxDate = moment.utc(maxDate);
-        var mStartDate = moment.utc(startFilterDate);
-        var mEndDate = moment.utc(endFilterDate);
+        var mMinDate = moment(minDate.replace('Z', ''));
+        var mMaxDate = moment(maxDate.replace('Z', ''));
+        var mStartDate = moment(startFilterDate.replace('Z', ''));
+        var mEndDate = moment(endFilterDate.replace('Z', ''));
 
         if(calendar.length === 0) {
           calendar = $("<input type='text' id='" + layerId + "' value='' style='display:none;'>");
