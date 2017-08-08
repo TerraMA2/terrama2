@@ -213,8 +213,8 @@ define([
 
           });
 
-          $scope.width = $scope.iconProperties.width || 24;
-          $scope.width = $scope.iconProperties.height || 24;
+          $scope.width = $scope.iconProperties.width || 20;
+          $scope.height = $scope.iconProperties.height || 20;
 
           $scope.isFunction = function(target) {
             return angular.isFunction(target);
