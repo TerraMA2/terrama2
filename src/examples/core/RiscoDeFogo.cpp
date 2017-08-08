@@ -1,4 +1,4 @@
-
+#include <terrama2/Config.hpp>
 #include <terrama2/core/utility/TerraMA2Init.hpp>
 #include <terrama2/core/utility/Raii.hpp>
 
@@ -328,19 +328,19 @@ int main(int argc, char *argv[])
             "S10648241_201707161200.tif"
         };
 
-        std::string umidade = "/home/bianca/Teste/dados_amb/saida/umidade/";
+        std::string umidade = TERRAMA2_DATA_DIR+"/dados_amb/saida/umidade/";
         std::string nomeArquivoUmidade = "UMRS201707161820.tif";
 
-        std::string temperatura = "/home/bianca/Teste/dados_amb/saida/temperatura/";
+        std::string temperatura = TERRAMA2_DATA_DIR+"/dados_amb/saida/temperatura/";
         std::string nomeArquivoTemperatura = "TEMP201707161820.tif";
 
-        std::string resultado = "/home/bianca/Teste/dados_amb/saida/resultado/";
+        std::string resultado = TERRAMA2_DATA_DIR+"/dados_amb/saida/resultado/";
         std::string nomeArquivoResultado = "result201707162120.tif";
 
-        std::string landcover = "/home/bianca/Teste/dados_amb/entrada/rf/landcover/";
+        std::string landcover = TERRAMA2_DATA_DIR+"/dados_amb/entrada/rf/landcover/";
         std::string nomeArquivoLand = "landcover_2012.tif";
 
-        std::string gabarito = "/home/bianca/Teste/dados_amb/entrada/";
+        std::string gabarito = TERRAMA2_DATA_DIR+"/dados_amb/entrada/";
         std::string nomeArquivoGab = "RF.20170716.tif";
 
 
@@ -357,7 +357,7 @@ int main(int argc, char *argv[])
         double prec61_90  = 0;
         double prec91_120 = 0;
 
-        std::string path = "/home/bianca/Teste/dados_amb/saida/precipitacao/";
+        std::string path = TERRAMA2_DATA_DIR+"/dados_amb/saida/precipitacao/";
         for(int i = 0; i < 120; ++i)
         {
             const auto& prec = *(precipitacao.rbegin()+i);
@@ -424,8 +424,6 @@ int main(int argc, char *argv[])
         double pse = 105. * fp1 * fp2 * fp3 * fp4 * fp5 * fp6_10 *  fp11_15 * fp16_30 * fp31_60 * fp61_90 * fp91_120;
 
         //4 - risco de fogo básico
-        //tipo_vegetacao = grid.sample("lancover");
-
         double tipo_vegetacao = riscodefogo->XYLinhaCol(x, y, landcover, nomeArquivoLand);
 
         double a = riscodefogo->valorAVegetacao(tipo_vegetacao);
@@ -435,7 +433,6 @@ int main(int argc, char *argv[])
         double PSE = riscodefogo->maxPSE(tipo_vegetacao, pse);
         std::cout << "PSE: " << PSE << std::endl;
 
-        //rb = 0.9 * (1. + math.sin((a*pse))) / 2.
         double rb = 0.9 * (1. + std::sin((a*PSE-90.)*3.1416/180.)) * 0.5;
         if(rb > 0.9)
             rb = 0.9;
@@ -444,7 +441,6 @@ int main(int argc, char *argv[])
 
         //5 - fator umidade
 
-        //ur = grid.history.interval.sum("umidade", "1d", "0d", 0)
         double ur = riscodefogo->XYLinhaCol(x,y, umidade, nomeArquivoUmidade);
         std::cout << "UR: " << ur << std::endl;
         double fu = ur * -0.006 + 1.3;
@@ -455,7 +451,6 @@ int main(int argc, char *argv[])
         double tempMax = riscodefogo->XYLinhaCol(x,y,temperatura, nomeArquivoTemperatura);
         std::cout << "TEMPMAX: " << tempMax << "\t" << tempMax-273.15 << std::endl;
 
-        //grid.history.interval.sum("temperatura", "1d", "0d", 0);
         double ft = (tempMax-273.15) * 0.02 + 0.4;
         std::cout << "FT: " << ft << std::endl;
 
@@ -466,7 +461,6 @@ int main(int argc, char *argv[])
             rf = 1;
 
         std::cout << "RF: " << rf << std::endl;
-
 
 
         double res = riscodefogo->XYLinhaCol(x,y, resultado, nomeArquivoResultado);
