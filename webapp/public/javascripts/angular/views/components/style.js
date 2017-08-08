@@ -145,7 +145,7 @@ define([], function () {
      */
     self.setXmlStyleInfo = function(styleId){
 
-      var predefinedStyleInfo = self.predefinedStyles.find(style => style.id == styleId);
+      var predefinedStyleInfo = self.predefinedStyles.find(function(style){ return style.id == styleId});
       if (predefinedStyleInfo){
         self.model.metadata.xml_style = predefinedStyleInfo.xml;
         self.model.fieldsToReplace = predefinedStyleInfo.fields;
