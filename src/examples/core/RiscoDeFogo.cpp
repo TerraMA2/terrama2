@@ -202,8 +202,8 @@ int main(int argc, char *argv[])
 
     terrama2::core::TerraMA2Init terrama2Init("", 0);
     {
-        int x = -45.166;
-        int y = -19.424;
+        double x = -44.166;
+        double y = -19.424;
 
         std::vector<std::string> precipitacao = {
             "S10648241_201703191200.tif",
@@ -437,6 +437,9 @@ int main(int argc, char *argv[])
 
         //rb = 0.9 * (1. + math.sin((a*pse))) / 2.
         double rb = 0.9 * (1. + std::sin((a*PSE-90.)*3.1416/180.)) * 0.5;
+        if(rb > 0.9)
+            rb = 0.9;
+
         std::cout << "RB: " << rb << std::endl;
 
         //5 - fator umidade
@@ -450,7 +453,7 @@ int main(int argc, char *argv[])
 
         //6 - fator temperatura
         double tempMax = riscodefogo->XYLinhaCol(x,y,temperatura, nomeArquivoTemperatura);
-        std::cout << "TEMPMAX: " << tempMax << std::endl;
+        std::cout << "TEMPMAX: " << tempMax << "\t" << tempMax-273.15 << std::endl;
 
         //grid.history.interval.sum("temperatura", "1d", "0d", 0);
         double ft = (tempMax-273.15) * 0.02 + 0.4;
@@ -458,6 +461,10 @@ int main(int argc, char *argv[])
 
         //7 - gerar risco observatorio
         double rf = rb * ft * fu;
+
+        if(rf > 1)
+            rf = 1;
+
         std::cout << "RF: " << rf << std::endl;
 
 
