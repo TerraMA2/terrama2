@@ -78,7 +78,7 @@ void terrama2::services::analysis::core::MonitoredObjectContext::loadMonitoredOb
 
   auto analysis = getAnalysis();
 
-  for(auto analysisDataSeries : analysis->analysisDataSeriesList)
+  for(const auto& analysisDataSeries : analysis->analysisDataSeriesList)
   {
     auto dataSeriesPtr = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
     auto datasets = dataSeriesPtr->datasetList;
@@ -95,7 +95,15 @@ void terrama2::services::analysis::core::MonitoredObjectContext::loadMonitoredOb
       auto seriesMap = accessor->getSeries(filter, remover_);
       auto series = seriesMap[dataset];
 
-      std::string identifier = analysisDataSeries.metadata["identifier"];
+      std::string identifier;
+      try
+      {
+        identifier = analysisDataSeries.metadata.at("identifier");
+      }
+      catch (...)
+      {
+        /* code */
+      }
 
       std::shared_ptr<ContextDataSeries> dataSeriesContext(new ContextDataSeries);
 
@@ -119,6 +127,36 @@ void terrama2::services::analysis::core::MonitoredObjectContext::loadMonitoredOb
 
       ObjectKey key(dataset->id);
       datasetMap_[key] = dataSeriesContext;
+
+      if(analysis->type == AnalysisType::DCP_TYPE)
+      {
+        auto dataProvider = dataManagerPtr->findDataProvider(dataSeriesPtr->dataProviderId);
+        te::core::URI uri(dataProvider->uri);
+        std::shared_ptr<te::da::DataSource> datasourceDestination(te::da::DataSourceFactory::make("POSTGIS", uri));
+
+        terrama2::core::OpenClose< std::shared_ptr<te::da::DataSource> > openClose(datasourceDestination); Q_UNUSED(openClose);
+
+        std::string destinationDataSetName = getDCPPositionsTableName(dataSeriesPtr);
+
+        std::shared_ptr<te::da::DataSourceTransactor> transactorDestination(datasourceDestination->getTransactor());
+        te::da::ScopedTransaction scopedTransaction(*transactorDestination);
+
+        std::shared_ptr<te::da::DataSet> teDataset = transactorDestination->getDataSet(destinationDataSetName);
+        std::shared_ptr<te::da::DataSetType> teDataSetType = transactorDestination->getDataSetType(destinationDataSetName);
+
+        terrama2::core::DataSetSeries series;
+        series.dataSet = nullptr;
+        series.syncDataSet = std::make_shared<terrama2::core::SynchronizedDataSet>(teDataset);
+        series.teDataSetType = teDataSetType;
+
+        std::shared_ptr<ContextDataSeries> dataSeriesContext(new ContextDataSeries);
+        dataSeriesContext->series = series;
+        dataSeriesContext->identifier = "table_name";
+        dataSeriesContext->geometryPos = teDataSetType->getPropertyPosition("geom");
+
+        ObjectKey key(DCP_ANALYSIS_DATASET);
+        datasetMap_[key] = dataSeriesContext;
+      }
     }
     else if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_PCD_TYPE)
     {
@@ -132,7 +170,16 @@ void terrama2::services::analysis::core::MonitoredObjectContext::loadMonitoredOb
         auto seriesMap = accessor->getSeries(filter, remover_);
         auto series = seriesMap[dataset];
 
-        std::string identifier = analysisDataSeries.metadata["identifier"];
+        std::string identifier;
+        try
+        {
+          identifier = analysisDataSeries.metadata.at("identifier");
+        }
+        catch (...)
+        {
+          /* code */
+        }
+
 
         std::shared_ptr<ContextDataSeries> dataSeriesContext(new ContextDataSeries);
 
@@ -395,7 +442,7 @@ terrama2::services::analysis::core::MonitoredObjectContext::getMonitoredObjectCo
 
       return getContextDataset(datasetMO->id, filter);
     }
-    else if(analysis->type == AnalysisType::DCP_TYPE && analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_PCD_TYPE)
+    else if(analysis->type == AnalysisType::DCP_TYPE && analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE)
     {
       terrama2::core::Filter filter;
       if(!exists(DCP_ANALYSIS_DATASET, filter))

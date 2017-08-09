@@ -350,6 +350,12 @@ void terrama2::services::analysis::core::python::addValue(const std::string& att
     AnalysisPtr analysis = context->getAnalysis();
     verify::analysisType(analysis, AnalysisType::MONITORED_OBJECT_TYPE);
 
+    if(pyObjValue.is_none())
+    {
+      context->setAnalysisResult(cache.index, attrName, boost::any());
+      return;
+    }
+
     {
       // if the return value is a double
       boost::python::extract<double> extDouble(pyObjValue);

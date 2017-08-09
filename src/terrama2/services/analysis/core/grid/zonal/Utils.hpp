@@ -144,13 +144,7 @@ terrama2::services::analysis::core::grid::zonal::utils::getAccumulatedMap(
   }
 
   std::shared_ptr<ContextDataSeries> moDsContext = context->getMonitoredObjectContextDataSeries(dataManagerPtr);
-  if(!moDsContext)
-  {
-    QString errMsg(QObject::tr("Could not recover monitored object data series."));
-    throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
-  }
-
-  if(moDsContext->series.syncDataSet->size() == 0)
+  if(!moDsContext || moDsContext->series.syncDataSet->size() == 0)
   {
     QString errMsg(QObject::tr("Could not recover monitored object data series."));
     throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
