@@ -42,16 +42,27 @@ define(
       layerObject.status = LayerStatusEnum.ONLINE;
       layerObject.exportation = (layerData.exportation !== undefined && layerData.exportation.error === null && layerData.exportation.data !== null ? layerData.exportation.data : null);
       layerObject.dateInfo = {};
+      layerObject.boundingBox = [];
 
       return layerObject;
     };
 
-    var updateDateInfo = function(dateInfo, layerId){
+    var updateDateInfo = function(dateInfo, layerId) {
       var indexLayer = memberAllLayers.map(function(l) {
         return l.id
       }).indexOf(layerId);
       if(indexLayer != -1) {
         memberAllLayers[indexLayer].dateInfo = dateInfo;
+      }
+    };
+
+    var updateBoundingBox = function(boundingBox, layerId) {
+      var indexLayer = memberAllLayers.map(function(l) {
+        return l.id
+      }).indexOf(layerId);
+
+      if(indexLayer != -1) {
+        memberAllLayers[indexLayer].boundingBox = boundingBox;
       }
     };
 
@@ -130,7 +141,7 @@ define(
           var layerId = allLayers[i].id;
           var htmlId = allLayers[i].htmlId;
 
-          var spanIcon = "<span class='terrama2-layer-tools terrama2-datepicker-icon' data-toggle='tooltip' title='Layer Tools'> <i class='fa fa-gears'></i></span>";
+          var spanIcon = "<span class='terrama2-layer-tools terrama2-datepicker-icon' data-toggle='tooltip' title='Layer Tools'>" + (allLayers[i].parent != 'custom' && allLayers[i].parent != 'template' ? " <i class='glyphicon glyphicon-resize-full'></i>" : "") + " <i class='fa fa-gear'></i></span>";
 
           itens += '<li id="' + htmlId + '" data-layerid="' + layerId + '" data-parentid="terrama2-layerexplorer" class="hide">' + allLayers[i].name + spanIcon + '</li>';
         }
@@ -157,7 +168,7 @@ define(
           if(TerraMA2WebComponents.MapDisplay.addImageWMSLayer(layerId, layerName, layerName, uriGeoServer + '/ows', serverType, false, false, "terrama2-layerexplorer", { version: "1.1.0" })) {
             TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, parent, null, "treeview unsortable terrama2-truncate-text", null);
 
-            if(parent == 'dynamic' || parent == 'analysis') {
+            if(parent != 'custom' && parent != 'template') {
               getLayerCapabilities(uriGeoServer, workspace, data[i].nameId, layerId, parent, false);
             }
           }
@@ -165,7 +176,7 @@ define(
           LayerStatus.changeGroupStatusIcon(parent, LayerStatusEnum.ONLINE);
           LayerStatus.addLayerStatusIcon(htmlId);
           LayerStatus.changeLayerStatusIcon(htmlId, LayerStatusEnum.ONLINE);
-          Sortable.addLayerToSort(layerId, layerName);
+          Sortable.addLayerToSort(layerId, layerName, parent);
 
           Utils.getSocket().emit('checkConnection', {
             url: uriGeoServer,
@@ -205,6 +216,7 @@ define(
       changeLayerStatus: changeLayerStatus,
       changeParentLayerStatus: changeParentLayerStatus,
       updateDateInfo: updateDateInfo,
+      updateBoundingBox: updateBoundingBox,
       getLayerCapabilities: getLayerCapabilities
     };
   }
