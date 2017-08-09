@@ -542,7 +542,7 @@ std::string terrama2::services::analysis::core::python::prepareScript(AnalysisPt
                    "    answer = get_attribute_value_as_json(attr)\n"
                    "    if(answer):\n"
                    "        attr_json = json.loads(answer)\n"
-                   "        return attr_json[attr]\n"
+                   "        return attr_json[attr].encode('utf-8')\n"
                    "    else:\n"
                    "        return None\n\n"
                    "def analysis():\n"
