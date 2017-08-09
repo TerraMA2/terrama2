@@ -11,6 +11,8 @@
  * @property {object} memberDataManager - 'DataManager' module.
  * @property {object} memberUriBuilder - 'UriBuilder' module.
  * @property {object} memberConfig - Application configurations.
+ * @property {object} memberFs - 'fs' module.
+ * @property {object} memberPath - 'path' module.
  */
 var Exportation = function() {
 
@@ -24,6 +26,10 @@ var Exportation = function() {
   var memberUriBuilder = require('./UriBuilder');
   // Application configurations
   var memberConfig = require('./Application').getContextConfig();
+  // 'fs' module
+  var memberFs = require('fs');
+  // 'path' module
+  var memberPath = require('path');
 
    /**
     * Returns the PostgreSQL connection string.
@@ -96,6 +102,88 @@ var Exportation = function() {
     }
 
     return finalQuery;
+  };
+
+  this.getGridFilePath = function(dataProviderId, mask) {
+    return new memberPromise(function(resolve, reject) {
+      return memberDataManager.getDataProvider({ id: dataProviderId }).then(function(dataProvider) {
+        var folder = dataProvider.uri.replace("file://", "");
+
+        if(folder.substr(folder.length - 1) === "/")
+          folder = folder.slice(0, -1);
+
+        return resolve(folder + "/" + mask);
+      }).catch(function(err) {
+        return reject(err);
+      });
+    });
+  };
+
+  this.createFolder = function(path) {
+    try {
+      memberFs.mkdirSync(path);
+    } catch(e) {
+      if(e.code != 'EEXIST')
+        return e;
+    }
+
+    return null;
+  };
+
+  this.generateRandomFolder = function() {
+    var self = this;
+
+    return new memberPromise(function(resolve, reject) {
+      require('crypto').randomBytes(24, function(err, buffer) {
+        if(err)
+          return reject(err);
+
+        var today = new Date();
+
+        var dd = today.getDate();
+        var mm = today.getMonth() + 1;
+        var yyyy = today.getFullYear();
+
+        if(dd < 10) dd = '0' + dd;
+        if(mm < 10) mm = '0' + mm;
+
+        var todayString = yyyy + '-' + mm + '-' + dd;
+        var filesFolder = buffer.toString('hex') + '_--_' + todayString;
+        var folderPath = memberPath.join(__dirname, '../tmp/' + filesFolder);
+
+        var folderResult = self.createFolder(folderPath);
+
+        if(folderResult)
+          return reject(folderResult);
+
+        return resolve(filesFolder, folderPath);
+      });
+    });
+  };
+
+  this.getFormatStrings = function(format) {
+    switch(format) {
+      case 'csv':
+        var fileExtention = '.csv';
+        var ogr2ogrFormat = 'CSV';
+        break;
+      case 'shapefile':
+        var fileExtention = '.shp';
+        var ogr2ogrFormat = 'ESRI Shapefile';
+        break;
+      case 'kml':
+        var fileExtention = '.kml';
+        var ogr2ogrFormat = 'KML';
+        break;
+      default:
+        var fileExtention = '.json';
+        var ogr2ogrFormat = 'GeoJSON';
+    }
+
+    return {
+      fileExtention: fileExtention,
+      ogr2ogrFormat: ogr2ogrFormat
+    };
   };
 };
 

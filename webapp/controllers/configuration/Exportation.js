@@ -9,6 +9,7 @@
  * @property {object} memberFs - 'fs' module.
  * @property {object} memberPath - 'path' module.
  * @property {object} memberUtils - 'Utils' model.
+ * @property {object} memberExportation - 'Exportation' model.
  */
 var Exportation = function(app) {
 
@@ -18,6 +19,8 @@ var Exportation = function(app) {
   var memberPath = require('path');
   // 'Utils' model
   var memberUtils = require('../../core/Utils.js');
+  // 'Exportation' model
+  var memberExportation = new (require('../../core/Exportation.js'))();
 
   /**
    * Processes the request and returns a response.
@@ -35,6 +38,18 @@ var Exportation = function(app) {
       if(err) return console.error(err);
 
       memberUtils.deleteFolderRecursively(memberPath.join(__dirname, '../../tmp/' + request.query.folder), function() {});
+    });
+
+    deleteInvalidFolders();
+  };
+
+  var exportGridFile = function(request, response) {
+    memberExportation.getGridFilePath(request.query.dpi, request.query.mask).then(function(gridFilePath) {
+      var fileName = request.query.file + memberPath.extname(gridFilePath);
+
+      response.download(gridFilePath, fileName);
+    }).catch(function(err) {
+      return console.error(err);
     });
 
     deleteInvalidFolders();
@@ -83,7 +98,10 @@ var Exportation = function(app) {
     }
   };
 
-  return exportData;
+  return {
+    exportData: exportData,
+    exportGridFile: exportGridFile
+  };
 };
 
 module.exports = Exportation;

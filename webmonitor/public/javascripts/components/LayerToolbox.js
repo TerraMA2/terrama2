@@ -48,41 +48,46 @@ define(
         var layer = Layers.getLayerById($(this).data("layerid"));
 
         if(layer !== null && layer.exportation !== null) {
-          var exportationParams = {
-            format: $("#exportation-type").val().toString(),
-            schema: layer.exportation.schema,
-            table: layer.exportation.table,
-            dataProviderId: layer.exportation.dataProviderId,
-            fileName: layer.name
-          };
+          if(layer.exportation.hasOwnProperty("table")) {
+            var exportationParams = {
+              format: $("#exportation-type").val().toString(),
+              schema: layer.exportation.schema,
+              table: layer.exportation.table,
+              dataProviderId: layer.exportation.dataProviderId,
+              fileName: layer.name
+            };
 
-          if(layer.exportation.dateField !== null) {
-            var dateInfo = layer.dateInfo;
-            exportationParams.dateTimeField = layer.exportation.dateField;
-            exportationParams.dateTimeFrom = dateInfo.startFilterDate;
-            exportationParams.dateTimeTo = dateInfo.endFilterDate;
+            if(layer.exportation.dateField !== null) {
+              var dateInfo = layer.dateInfo;
+              exportationParams.dateTimeField = layer.exportation.dateField;
+              exportationParams.dateTimeFrom = dateInfo.startFilterDate;
+              exportationParams.dateTimeTo = dateInfo.endFilterDate;
+            }
+
+            $('#exportation-status > div > span').html('Verifying data for export<span>...</span>');
+
+            memberExportationTextTimeout = setInterval(function() {
+              var text = $('#exportation-status > div > span > span').html();
+
+              if(text === "...")
+                $('#exportation-status > div > span > span').html('&nbsp;&nbsp;&nbsp;');
+              else if(text === "..&nbsp;")
+                $('#exportation-status > div > span > span').html('...');
+              else if(text === ".&nbsp;&nbsp;")
+                $('#exportation-status > div > span > span').html('..&nbsp;');
+              else
+                $('#exportation-status > div > span > span').html('.&nbsp;&nbsp;');
+            }, 800);
+
+            $('#exportation-status').removeClass('hidden');
+
+            memberExportationInProgress = true;
+
+            Utils.getWebAppSocket().emit('generateFileRequest', exportationParams);
+          } else {
+            var exportLink = webadminHostInfo.protocol + webadminHostInfo.host + ":" + webadminHostInfo.port + webadminHostInfo.basePath + "export-grid?file=" + layer.name + "&dpi=" + layer.exportation.dataProviderId + "&mask=" + layer.exportation.mask;
+            $('#exportation-iframe').attr('src', exportLink);
           }
-
-          $('#exportation-status > div > span').html('Verifying data for export<span>...</span>');
-
-          memberExportationTextTimeout = setInterval(function() {
-            var text = $('#exportation-status > div > span > span').html();
-
-            if(text === "...")
-              $('#exportation-status > div > span > span').html('&nbsp;&nbsp;&nbsp;');
-            else if(text === "..&nbsp;")
-              $('#exportation-status > div > span > span').html('...');
-            else if(text === ".&nbsp;&nbsp;")
-              $('#exportation-status > div > span > span').html('..&nbsp;');
-            else
-              $('#exportation-status > div > span > span').html('.&nbsp;&nbsp;');
-          }, 800);
-
-          $('#exportation-status').removeClass('hidden');
-
-          memberExportationInProgress = true;
-
-          Utils.getWebAppSocket().emit('generateFileRequest', exportationParams);
         }
       });
 
@@ -128,7 +133,20 @@ define(
         var layer = Layers.getLayerById($(this).parent().parent().data("layerid"));
 
         if(layer !== null) {
-          if(layer.exportation !== null) {
+          if(layer.exportation !== null && layer.dataSeriesTypeName === "GRID") {
+            if(!$("#exportation-type").hasClass("hidden"))
+              $("#exportation-type").addClass("hidden");
+
+            $("#export").data("layerid", layer.id);
+
+            if($("#exportation-box").hasClass("hidden"))
+              $("#exportation-box").removeClass("hidden");
+
+            $("#layer-toolbox").css("height", "220px");
+          } else if(layer.exportation !== null) {
+            if($("#exportation-type").hasClass("hidden"))
+              $("#exportation-type").removeClass("hidden");
+
             $("#export").data("layerid", layer.id);
 
             if($("#exportation-box").hasClass("hidden"))
