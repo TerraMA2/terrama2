@@ -58,7 +58,6 @@ void addInput(std::shared_ptr<terrama2::services::collector::core::DataManager> 
   terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
   dataProvider->id = 2;
   dataProvider->name = "DSA curso";
-  //dataProvider->uri = "ftp://ftp:JenkinsD%40t%40@jenkins-ftp.dpi.inpe.br:21/terrama2/";
   dataProvider->uri = "file://"+TERRAMA2_DATA_DIR+"/";
   dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
   dataProvider->dataProviderType = "FILE";
@@ -177,31 +176,31 @@ size_t write_response(void* ptr, size_t size, size_t nmemb, void* data)
 
 void downloadReferenceFiles()
 {
-  terrama2::core::CurlWrapperFtp curl;
-  //std::string referenceUrl = "ftp://ftp:JenkinsD%40t%40@jenkins-ftp.dpi.inpe.br:21/terrama2/reference_data/";
-  std::string referenceUrl = "file://"+TERRAMA2_DATA_DIR+"/";
 
-  try
-  {
-    curl.verifyURL(referenceUrl, 8);
-  }
-  catch(...)
-  {
-    QFAIL("Dir File is invalid.");
-  }
+  std::string referenceUrl = TERRAMA2_DATA_DIR+"/reference_data";
 
   std::string outDir = TERRAMA2_DATA_DIR+"/hidroestimador_crop_reference";
+
   QDir dir(QString::fromStdString(outDir));
   if(!dir.mkpath(QString::fromStdString(outDir)))
     QFAIL("Unable to create reference folder.");
 
-  std::vector<std::string> vectorFiles = curl.listFiles(te::core::URI(referenceUrl));
-  for(const auto& file : vectorFiles)
-  {
-    std::string fileUri = referenceUrl + file;
+  QFile filecopy;
 
-    std::string filePath = outDir + "/" + file;
-    curl.downloadFile(fileUri, filePath);
+  QDir  dir2(QString::fromStdString(referenceUrl));
+
+  QStringList filters;
+  filters << "*.tif";
+  dir2.setNameFilters(filters);
+
+
+  QStringList listFiles = dir2.entryList(QDir::Files);
+  for(const auto& file : listFiles)
+  {
+    std::string fileUri = referenceUrl + "/"  + file.toStdString();
+
+    std::string filePath = outDir + "/" + file.toStdString();
+    filecopy.copy(QString::fromStdString(fileUri), QString::fromStdString(filePath));
   }
 }
 
@@ -271,6 +270,6 @@ void IntRasterTs::CollectAndCropRaster()
     QVERIFY2(reference == output, errMsg3.toUtf8());
   }
 
-   testOutput.removeRecursively();
-   testReference.removeRecursively();
+  testOutput.removeRecursively();
+  testReference.removeRecursively();
 }
