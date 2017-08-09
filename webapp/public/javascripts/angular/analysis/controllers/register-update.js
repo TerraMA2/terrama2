@@ -663,10 +663,11 @@ define([], function() {
               $log.log("Invalid analysis type ID");
               return;
           }
-
+          //using the same operator of monitored object when DCP;
+          var filterHelper = dataseriesFilterType == 'DCP' ? 'GEOMETRIC_OBJECT' : dataseriesFilterType;
           self.analysisHelperRestriction = {
             "type": {
-              "$in": [dataseriesFilterType]
+              "$in": [filterHelper]
             }
           };
 
