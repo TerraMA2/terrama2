@@ -27,6 +27,20 @@
 
 #include "Interpolator.hpp"
 
+#define BICUBIC_MODULE( x ) ( ( x < 0 ) ? ( -1 * x ) : x )
+#define BICUBIC_K1( x , a ) ( ( ( a + 2 ) * x * x * x ) - \
+  ( ( a + 3 ) * x * x ) + 1 )
+#define BICUBIC_K2( x , a ) ( ( a * x * x * x ) - ( 5 * a * x * x ) + \
+  ( 8 * a * x ) - ( 4 * a ) )
+#define BICUBIC_RANGES(x,a) \
+  ( ( ( 0 <= x ) && ( x <= 1 ) ) ? \
+    BICUBIC_K1(x,a) \
+  : ( ( ( 1 < x ) && ( x <= 2 ) ) ? \
+      BICUBIC_K2(x,a) \
+    : 0 ) )
+#define BICUBIC_KERNEL( x , a ) BICUBIC_RANGES( BICUBIC_MODULE(x) , a )
+
+
 terrama2::services::interpolator::core::Interpolator::Interpolator(terrama2::services::interpolator::core::InterpolatorParamsPtr params) :
   Process(),
   interpolationParams(params)
@@ -42,7 +56,7 @@ terrama2::services::interpolator::core::NNInterpolator::NNInterpolator(terrama2:
 
 terrama2::services::interpolator::core::RasterPtr terrama2::services::interpolator::core::NNInterpolator::makeInterpolation()
 {
-
+  return RasterPtr();
 }
 
 
@@ -54,7 +68,7 @@ terrama2::services::interpolator::core::BLInterpolator::BLInterpolator(terrama2:
 
 terrama2::services::interpolator::core::RasterPtr terrama2::services::interpolator::core::BLInterpolator::makeInterpolation()
 {
-
+  return RasterPtr();
 }
 
 
@@ -66,5 +80,5 @@ terrama2::services::interpolator::core::BCInterpolator::BCInterpolator(terrama2:
 
 terrama2::services::interpolator::core::RasterPtr terrama2::services::interpolator::core::BCInterpolator::makeInterpolation()
 {
-
+  return RasterPtr();
 }

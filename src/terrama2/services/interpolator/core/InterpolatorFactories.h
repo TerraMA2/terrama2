@@ -56,6 +56,11 @@ namespace terrama2
         class InterpolatorFactories : public te::common::ParameterizedAbstractFactory<Interpolator, int, InterpolatorParams>
         {
         public:
+
+          /*!
+           * \brief InterpolatorFactories
+           * \param key
+           */
           InterpolatorFactories(const int& key);
         };
 
@@ -67,10 +72,19 @@ namespace terrama2
         class NNInterpolatorFactory : public InterpolatorFactories
         {
         public:
+          /*!
+           * \brief NNInterpolatorFactory
+           */
           NNInterpolatorFactory();
 
         protected:
-          Interpolator* build(const InterpolatorParams& p);
+
+          /*!
+           * \brief build
+           * \param p
+           * \return
+           */
+          Interpolator* build(InterpolatorParams p);
         };
 
         /*!
@@ -81,10 +95,20 @@ namespace terrama2
         class BLInterpolatorFactory : public InterpolatorFactories
         {
         public:
+
+          /*!
+           * \brief BLInterpolatorFactory
+           */
           BLInterpolatorFactory();
 
         protected:
-          Interpolator* build(const InterpolatorParams& p);
+
+          /*!
+           * \brief build
+           * \param p
+           * \return
+           */
+          Interpolator* build(InterpolatorParams p);
         };
 
         /*!
@@ -95,10 +119,20 @@ namespace terrama2
         class BCInterpolatorFactory : public InterpolatorFactories
         {
         public:
+
+          /*!
+           * \brief BCInterpolatorFactory
+           */
           BCInterpolatorFactory();
 
         protected:
-          Interpolator* build(const InterpolatorParams& p);
+
+          /*!
+           * \brief build
+           * \param p
+           * \return
+           */
+          Interpolator* build(InterpolatorParams p);
         };
       } // namespace core
     } // namespace interpolator
