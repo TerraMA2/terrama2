@@ -1120,7 +1120,9 @@ define([], function() {
 
           // setting target data series metadata (monitored object, dcp..)
           if (typeId !== Globals.enums.AnalysisType.GRID) {
-            analysisDataSeriesArray.push(_makeAnalysisDataSeries(self.targetDataSeries, analysisTypeId));
+            //If analysis type is DCP, save analysis data series as monitored object
+            var analysisTypeIdAdapted = analysisTypeId == Globals.enums.AnalysisDataSeriesType.DATASERIES_DCP_TYPE ? Globals.enums.AnalysisDataSeriesType.DATASERIES_MONITORED_OBJECT_TYPE : analysisTypeId;
+            analysisDataSeriesArray.push(_makeAnalysisDataSeries(self.targetDataSeries, analysisTypeIdAdapted));
           } else {
             // checking geojson
             if (self.analysis.grid && self.analysis.grid.area_of_interest_bounded &&
