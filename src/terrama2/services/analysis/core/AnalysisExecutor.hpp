@@ -61,6 +61,11 @@ namespace terrama2
         struct Analysis;
 
 
+        /*
+          \brief Class that executes the analysis
+
+          The AnalysisExecutor identify and execute the appropriate analysis type.
+        */
         class AnalysisExecutor : public QObject
         {
           Q_OBJECT
@@ -103,6 +108,23 @@ namespace terrama2
                              PyThreadState* mainThreadState);
 
             /*!
+              \brief Validates the parameters of an analysis.
+              \param dataManager A smart pointer to the data manager.
+              \param dataManager The analysis configuration.
+              \return The validation result.
+            */
+            ValidateResult validateAnalysis(DataManagerPtr dataManager, AnalysisPtr analysis);
+
+          signals:
+            //! Signal to notify that a analysis execution has finished.
+            void analysisFinished(size_t, std::shared_ptr< te::dt::TimeInstantTZ >, bool, QJsonObject = QJsonObject());
+
+          private:
+            const std::string EXECUTION_DATE_PROPERTY = "execution_date";
+            const std::string ALTERNATE_EXECUTION_DATE_PROPERTY = "execution_date_1";
+
+
+            /*!
               \brief Prepare the context for a monitored object analysis and run the analysis.
               \param dataManager A smart pointer to the data manager.
 
@@ -143,33 +165,19 @@ namespace terrama2
                                  ThreadPoolPtr threadPool,
                                  PyThreadState* mainThreadState);
 
-            /*!
-              \brief Reads the analysis result from context and stores it to the configured output dataset.
-              \param dataManager A smart pointer to the data manager.
-            */
-            void storeMonitoredObjectAnalysisResult(DataManagerPtr dataManager, terrama2::core::StoragerManagerPtr storagerManager, MonitoredObjectContextPtr context);
 
-            /*!
-              \brief Reads the analysis result from context and stores it to the configured output dataset.
-              \param dataManager A smart pointer to the data manager.
-            */
-            void storeGridAnalysisResult(terrama2::core::StoragerManagerPtr storagerManager, terrama2::services::analysis::core::GridContextPtr context);
+           /*!
+             \brief Reads the analysis result from context and stores it to the configured output dataset.
+             \param dataManager A smart pointer to the data manager.
+           */
+           void storeMonitoredObjectAnalysisResult(DataManagerPtr dataManager, terrama2::core::StoragerManagerPtr storagerManager, MonitoredObjectContextPtr context);
 
-            /*!
-              \brief Validates the parameters of an analysis.
-              \param dataManager A smart pointer to the data manager.
-              \param dataManager The analysis configuration.
-              \return The validation result.
-            */
-            ValidateResult validateAnalysis(DataManagerPtr dataManager, AnalysisPtr analysis);
+           /*!
+             \brief Reads the analysis result from context and stores it to the configured output dataset.
+             \param dataManager A smart pointer to the data manager.
+           */
+           void storeGridAnalysisResult(terrama2::core::StoragerManagerPtr storagerManager, terrama2::services::analysis::core::GridContextPtr context);
 
-          signals:
-            //! Signal to notify that a analysis execution has finished.
-            void analysisFinished(size_t, std::shared_ptr< te::dt::TimeInstantTZ >, bool, QJsonObject = QJsonObject());
-
-          private:
-            const std::string EXECUTION_DATE_PROPERTY = "execution_date";
-            const std::string ALTERNATE_EXECUTION_DATE_PROPERTY = "execution_date_1";
 
             std::shared_ptr<te::mem::DataSet> addDataToDataSet(std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> moDsContext,
                                                                std::shared_ptr<te::da::DataSetType> dt,

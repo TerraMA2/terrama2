@@ -8,6 +8,7 @@
  *
  * @property {object} memberViewsCache - 'ViewsCache' class.
  * @property {object} memberDataManager - 'DataManager' class.
+ * @property {object} memberTcpService - 'TcpService' class.
  */
 var ViewsRetriever = function(app) {
 
@@ -15,6 +16,8 @@ var ViewsRetriever = function(app) {
   var memberViewsCache = require("../../core/ViewsCache");
   // 'DataManager' class
   var memberDataManager = require("../../core/DataManager");
+  // 'TcpService' class
+  var memberTcpService = require('./../../core/facade/tcp-manager/TcpService');
 
   var retrieveFunction = function(params, response) {
     var sendPrivate = false;
@@ -33,11 +36,15 @@ var ViewsRetriever = function(app) {
               objectsToSend.push(viewsObjects[i]);
           }
 
-          response.json({
+          var returnData = {
             views: objectsToSend,
-            projects: memberDataManager.listProjects(),
             initialRequest: params.initialRequest
-          });
+          };
+
+          if(params.initialRequest)
+            returnData.projects = memberDataManager.listProjects();
+
+          response.json(returnData);
         }).catch(function(err) {
           console.error(err);
           response.json({});
@@ -46,8 +53,19 @@ var ViewsRetriever = function(app) {
         var viewsObjects = memberViewsCache.getViews(params.type, params.clientId);
 
         for(var i = 0, viewsLength = viewsObjects.length; i < viewsLength; i++) {
-          if((viewsObjects[i].private && sendPrivate) || !viewsObjects[i].private)
+          var viewSetPrivate = false;
+
+          if(params.views) {
+            var layerId = (viewsObjects[i].workspace ? viewsObjects[i].workspace + ":" + viewsObjects[i].layers[0] : viewsObjects[i].layers[0]);
+
+            if((!params.views[layerId] || params.views[layerId] == "false") && viewsObjects[i].private)
+              viewSetPrivate = true;
+          }
+
+          if((viewsObjects[i].private && sendPrivate) || !viewsObjects[i].private || (params.type === memberViewsCache.TYPES.REMOVED && viewSetPrivate))
             objectsToSend.push(viewsObjects[i]);
+          else if(viewSetPrivate)
+            memberTcpService.emitEvent("removeView", viewsObjects[i]);
         }
 
         response.json({ views: objectsToSend, initialRequest: false });
@@ -75,7 +93,8 @@ var ViewsRetriever = function(app) {
       clientId: request.body.clientId,
       userToken: request.body.userToken,
       initialRequest: request.body.initialRequest,
-      onlyPrivate: request.body.onlyPrivate
+      onlyPrivate: request.body.onlyPrivate,
+      views: request.body.views
     }, response);
   };
 
@@ -83,7 +102,8 @@ var ViewsRetriever = function(app) {
     retrieveFunction({
       type: memberViewsCache.TYPES.REMOVED,
       clientId: request.body.clientId,
-      userToken: request.body.userToken
+      userToken: request.body.userToken,
+      views: request.body.views
     }, response);
   };
 

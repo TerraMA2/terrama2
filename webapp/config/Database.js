@@ -20,7 +20,7 @@ var sequelize = null;
  */
 var Database = function(pathToConfig) {
   if (pathToConfig === undefined || !pathToConfig) {
-    pathToConfig = path.join(__dirname, 'config.terrama2');
+    pathToConfig = path.join(__dirname, 'webapp.json');
   }
 
   /**

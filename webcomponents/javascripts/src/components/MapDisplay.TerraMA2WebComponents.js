@@ -1351,7 +1351,7 @@ define(
      * @inner
      */
     var zoomToExtent = function(extent) {
-      memberOlMap.getView().fit(extent, memberOlMap.getSize(), { constrainResolution: false });
+      memberOlMap.getView().fit(extent, { size: memberOlMap.getSize(), constrainResolution: false });
     };
 
     /**
