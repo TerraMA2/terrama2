@@ -257,3 +257,28 @@ void terrama2::services::view::core::recreateFolder(const std::string& folderpat
   removeFolder(folderpath);
   createFolder(folderpath);
 }
+
+void terrama2::services::view::core::removeFile(const std::string& filepath)
+{
+  QFileInfo file(filepath.c_str());
+
+  if (file.exists())
+  {
+    if (file.isFile())
+    {
+      QFile f(file.filePath());
+      if (!f.remove())
+      {
+        QString errMsg = QObject::tr("Could not remove file: %1").arg(filepath.c_str());
+        TERRAMA2_LOG_ERROR() << errMsg;
+        throw Exception() << ErrorDescription(errMsg);
+      }
+    }
+    else
+    {
+      const QString errMsg = QObject::tr("Not a file: %1").arg(filepath.c_str());
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw Exception() << ErrorDescription(errMsg);
+    }
+  }
+}
