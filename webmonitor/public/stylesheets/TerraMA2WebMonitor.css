@@ -627,7 +627,7 @@ html, body, #content, .content, .content-wrapper, #terrama2-map {
 
 #layer-toolbox { left: 21px; }
 
-#legend-box > .legend-header, #layer-toolbox > .layer-toolbox-header {
+#legend-box > .legend-header, #layer-toolbox > .layer-toolbox-header, #animated-map-box > .animated-map-header{
   padding: 10px;
   font-size: 15px;
   background-color: #d8d8d8;
@@ -646,6 +646,18 @@ html, body, #content, .content, .content-wrapper, #terrama2-map {
   height: calc(100% - 41px);
   top: 0;
   cursor: default;
+}
+
+#animated-map-box {
+  position: absolute;
+  background-color: white;
+  z-index: 99999;
+  border-radius: 5px;
+  border: 1px solid;
+  top: 21px;
+  left: 26px;
+  width: 620px;
+  height: 480px;
 }
 
 #exportation-box {
