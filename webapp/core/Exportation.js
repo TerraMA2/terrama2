@@ -104,13 +104,42 @@ var Exportation = function() {
     return finalQuery;
   };
 
-  this.getGridFilePath = function(dataProviderId, mask) {
+  /**
+   * Returns a grid file path for a given data provider id and file mask.
+   * @param {integer} dataProviderId - Data provider id
+   * @param {string} mask - File mask
+   * @return {Promise} Promise - A 'bluebird' promise with a grid file path or error callback
+   *
+   * @function getGridFilePath
+   * @memberof Exportation
+   * @inner
+   */
+  this.getGridFilePath = function(dataProviderId, mask, date) {
     return new memberPromise(function(resolve, reject) {
       return memberDataManager.getDataProvider({ id: dataProviderId }).then(function(dataProvider) {
         var folder = dataProvider.uri.replace("file://", "");
 
         if(folder.substr(folder.length - 1) === "/")
           folder = folder.slice(0, -1);
+
+        if(date !== undefined) {
+          var dateObject = new Date(date.replace('Z', ''));
+
+          var year = dateObject.getUTCFullYear().toString();
+          var month = ('0' + (dateObject.getUTCMonth() + 1)).slice(-2);
+          var day = ('0' + dateObject.getUTCDate()).slice(-2);
+          var hours = ('0' + dateObject.getUTCHours()).slice(-2);
+          var minutes = ('0' + dateObject.getUTCMinutes()).slice(-2);
+          var seconds = ('0' + dateObject.getUTCSeconds()).slice(-2);
+
+          mask = mask.split('%YYYY').join(year);
+          mask = mask.split('%YY').join(year.substr(year.length - 2));
+          mask = mask.split('%MM').join(month);
+          mask = mask.split('%DD').join(day);
+          mask = mask.split('%hh').join(hours);
+          mask = mask.split('%mm').join(minutes);
+          mask = mask.split('%ss').join(seconds);
+        }
 
         return resolve(folder + "/" + mask);
       }).catch(function(err) {
@@ -119,6 +148,15 @@ var Exportation = function() {
     });
   };
 
+  /**
+   * Creates a new folder in a given path.
+   * @param {string} path - Path where the folder should be created
+   * @return {object} object - Null in case of success, and error object otherwise
+   *
+   * @function createFolder
+   * @memberof Exportation
+   * @inner
+   */
   this.createFolder = function(path) {
     try {
       memberFs.mkdirSync(path);
@@ -130,6 +168,14 @@ var Exportation = function() {
     return null;
   };
 
+  /**
+   * Generates a new folder (in the temp directory) with a random name and the current date as suffix.
+   * @return {Promise} Promise - A 'bluebird' promise with the name and path of the folder or error callback
+   *
+   * @function generateRandomFolder
+   * @memberof Exportation
+   * @inner
+   */
   this.generateRandomFolder = function() {
     var self = this;
 
@@ -161,6 +207,15 @@ var Exportation = function() {
     });
   };
 
+  /**
+   * Returns the proper file extension and ogr2ogr format string.
+   * @param {string} format - Format
+   * @return {object} object - Object containing the proper file extension and the ogr2ogr format string
+   *
+   * @function getFormatStrings
+   * @memberof Exportation
+   * @inner
+   */
   this.getFormatStrings = function(format) {
     switch(format) {
       case 'csv':

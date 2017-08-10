@@ -43,8 +43,17 @@ var Exportation = function(app) {
     deleteInvalidFolders();
   };
 
+  /**
+   * Processes the request and returns a response.
+   * @param {json} request - JSON containing the request data
+   * @param {json} response - JSON containing the response data
+   *
+   * @function exportGridFile
+   * @memberof Exportation
+   * @inner
+   */
   var exportGridFile = function(request, response) {
-    memberExportation.getGridFilePath(request.query.dpi, request.query.mask).then(function(gridFilePath) {
+    memberExportation.getGridFilePath(request.query.dpi, request.query.mask, request.query.date).then(function(gridFilePath) {
       var fileName = request.query.file + memberPath.extname(gridFilePath);
 
       response.download(gridFilePath, fileName);

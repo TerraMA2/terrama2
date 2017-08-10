@@ -85,7 +85,13 @@ define(
 
             Utils.getWebAppSocket().emit('generateFileRequest', exportationParams);
           } else {
-            var exportLink = webadminHostInfo.protocol + webadminHostInfo.host + ":" + webadminHostInfo.port + webadminHostInfo.basePath + "export-grid?file=" + layer.name + "&dpi=" + layer.exportation.dataProviderId + "&mask=" + layer.exportation.mask;
+            var exportLink = webadminHostInfo.protocol + webadminHostInfo.host + ":" + webadminHostInfo.port + webadminHostInfo.basePath + "export-grid?dpi=" + layer.exportation.dataProviderId + "&mask=" + layer.exportation.mask;
+
+            if(layer.dateInfo.dates !== undefined && layer.dateInfo.dates.length > 0)
+              exportLink += "&file=" + layer.name + "." + layer.dateInfo.dates[layer.dateInfo.initialDateIndex] + "&date=" + layer.dateInfo.dates[layer.dateInfo.initialDateIndex];
+            else
+              exportLink += "&file=" + layer.name;
+
             $('#exportation-iframe').attr('src', exportLink);
           }
         }
