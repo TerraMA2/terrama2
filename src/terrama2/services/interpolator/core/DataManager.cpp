@@ -43,7 +43,7 @@
 #include <QJsonValue>
 #include <QJsonArray>
 
-terrama2::services::interpolator::core::CollectorPtr terrama2::services::interpolator::core::DataManager::findInterpolator(InterpolatorId id) const
+terrama2::services::interpolator::core::InterpolatorPtr terrama2::services::interpolator::core::DataManager::findInterpolator(InterpolatorId id) const
 {
   std::lock_guard<std::recursive_mutex> lock(mtx_);
 
@@ -66,7 +66,7 @@ bool terrama2::services::interpolator::core::DataManager::hasInterpolator(Interp
   return it != interpolators_.cend();
 }
 
-void terrama2::services::interpolator::core::DataManager::add(terrama2::services::interpolator::core::InterpolaPtr interpolator)
+void terrama2::services::interpolator::core::DataManager::add(terrama2::services::interpolator::core::InterpolatorPtr interpolator)
 {
   // Inside a block so the lock is released before emitting the signal
   {
@@ -92,7 +92,7 @@ void terrama2::services::interpolator::core::DataManager::update(terrama2::servi
     std::lock_guard<std::recursive_mutex> lock(mtx_);
     blockSignals(true);
     removeInterpolator(interpolator->id);
-    add(collector);
+    add(interpolator);
     blockSignals(false);
   }
 

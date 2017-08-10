@@ -30,7 +30,11 @@
 #ifndef __TERRAMA2_SERVICES_INTERPOLATOR_CORE_SERVICE_HPP__
 #define __TERRAMA2_SERVICES_INTERPOLATOR_CORE_SERVICE_HPP__
 
-//#include "../../../core/utility/Service.hpp"
+#include "../../../core/data-model/Process.hpp"
+
+#include "Shared.hpp"
+#include "Typedef.hpp"
+
 //#include "../../../core/Typedef.hpp"
 //#include "../../../core/Shared.hpp"
 //#include "../core/Shared.hpp"
@@ -41,6 +45,16 @@
 // STL
 #include <memory>
 
+
+namespace te
+{
+  namespace rst
+  {
+    // Forward declaration
+    class Raster;
+  }
+}
+
 namespace terrama2
 {
   namespace services
@@ -49,9 +63,93 @@ namespace terrama2
     {
       namespace core
       {
+        // Forward declaration
+        struct InterpolatorParams;
+
+        /*!
+         * \struct
+         *
+         * \brief The Interpolator struct
+         */
         struct Interpolator : public terrama2::core::Process
         {
+          /*!
+           * \brief
+           *
+           * \param
+           */
+          Interpolator(InterpolatorParamsPtr params);
 
+          /*!
+           * \brief makeInterpolation
+           *
+           * \return
+           */
+          virtual RasterPtr makeInterpolation() = 0;
+
+          InterpolatorParamsPtr interpolationParams; //!< Parameters of interpolation.
+        };
+
+        /*!
+         * \struct
+         *
+         * \brief The NNInterpolator struct
+         */
+        struct NNInterpolator : public Interpolator
+        {
+          /*!
+           * \brief
+           *
+           * \param
+           */
+          NNInterpolator(InterpolatorParamsPtr params);
+
+          /*!
+           * \brief makeInterpolation
+           * \return
+           */
+          RasterPtr makeInterpolation();
+        };
+
+        /*!
+         * \struct
+         *
+         * \brief The BLInterpolator struct
+         */
+        struct BLInterpolator : public Interpolator
+        {
+          /*!
+           * \brief
+           *
+           * \param
+           */
+          BLInterpolator(InterpolatorParamsPtr params);
+
+          /*!
+           * \brief makeInterpolation
+           * \return
+           */
+          RasterPtr makeInterpolation();
+        };
+
+        /*!
+         * \struct
+         *
+         * \brief The BCInterpolator struct
+         */
+        struct BCInterpolator : public Interpolator
+        {
+          /*!
+           * \brief BCInterpolator
+           * \param params
+           */
+          BCInterpolator(InterpolatorParamsPtr params);
+
+          /*!
+           * \brief makeInterpolation
+           * \return
+           */
+          RasterPtr makeInterpolation();
         };
       } // end namespace core
     }   // end namespace interpolator

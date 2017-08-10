@@ -119,7 +119,7 @@ namespace terrama2
 
               \note Thread-safe.
             */
-            void add(InterpolatorPtr interpolator) override;
+            void add(InterpolatorPtr interpolator);
 
             /*!
               \brief
@@ -128,7 +128,7 @@ namespace terrama2
 
               \note Thread-safe.
             */
-            void update(InterpolatorPtr interpolator) override;
+            void update(InterpolatorPtr interpolator);
 
             /*!
               \brief .
@@ -160,7 +160,7 @@ namespace terrama2
 
             void interpolatorUpdated(InterpolatorPtr);
 
-            void InterpolatorRemoved(CollectorId);
+            void interpolatorRemoved(InterpolatorId);
 
           protected:
             std::map<InterpolatorId, InterpolatorPtr> interpolators_;//!< A map from InterpolatorId to Interpolator.

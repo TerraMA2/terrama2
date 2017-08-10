@@ -28,7 +28,16 @@
 #ifndef __TERRAMA2_SERVICES_INTERPOLATOR_SHARED_HPP__
 #define __TERRAMA2_SERVICES_INTERPOLATOR_SHARED_HPP__
 
+// STL
 #include <memory>
+
+namespace te
+{
+  namespace rst
+  {
+    class Raster;
+  }
+}
 
 namespace terrama2
 {
@@ -38,22 +47,25 @@ namespace terrama2
     {
       namespace core
       {
+        // Forward declarations
+        class DataManager;
+        struct Interpolator;
+        struct InterpolatorParams;
 
-//        struct Collector;
-//        //! Shared smart pointer for Collector
-//        typedef std::shared_ptr<const terrama2::services::collector::core::Collector> CollectorPtr;
+        //! Shared smart pointer for Interpolator
+        typedef std::shared_ptr<terrama2::services::interpolator::core::Interpolator> InterpolatorPtr;
 
-//        struct Intersection;
-//        //! Shared smart pointer for Intersection
-//        typedef std::shared_ptr<const terrama2::services::collector::core::Intersection> IntersectionPtr;
+        //! Shared smart pointer for InterpolatorParams
+        typedef std::shared_ptr<terrama2::services::interpolator::core::InterpolatorParams> InterpolatorParamsPtr;
 
-//        class DataManager;
-//        //! Shared smart pointer for DataManager
-//        typedef std::shared_ptr<terrama2::services::collector::core::DataManager> DataManagerPtr;
+        //! Shared smart pointer for DataManager
+        typedef std::shared_ptr<terrama2::services::interpolator::core::DataManager> DataManagerPtr;
 
+        //! Shared smart pointer for te::rst::Raster
+        typedef std::shared_ptr<te::rst::Raster> RasterPtr;
       } /* core */
     }   /* interpolator */
-  }
-}
+  }     /* services */
+}       /* terrama2 */
 
 #endif // __TERRAMA2_SERVICES_INTERPOLATOR_SHARED_HPP__

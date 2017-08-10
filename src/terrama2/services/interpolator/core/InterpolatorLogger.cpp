@@ -30,7 +30,7 @@
 #include "../../../core/utility/ServiceManager.hpp"
 
 
-terrama2::services::interpolator::core::InterpolatorLogger::CollectorLogger()
+terrama2::services::interpolator::core::InterpolatorLogger::InterpolatorLogger()
  : ProcessLogger()
 {
 }

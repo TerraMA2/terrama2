@@ -93,10 +93,16 @@ namespace terrama2
         struct NNIterpolatorParams : public InterpolatorParams
         {
           NNIterpolatorParams() :
-            interpolationType(NEARESTNEIGHBOR)
+            InterpolatorParams()
           {
-
+            InterpolatorParams::interpolationType = NEARESTNEIGHBOR;
           }
+
+          unsigned int nnCR;
+          unsigned int nnRR;
+          double nnLastRow;                               //!< Last row available for nearest Neighbor interpolation.
+          double nnLastCol;                               //!< Last column available for nearest Neighbor interpolation.
+
         };
 
         /*!
@@ -107,10 +113,24 @@ namespace terrama2
         struct BLInterpolatorParams : public InterpolatorParams
         {
           BLInterpolatorParams() :
-            interpolationType(BILINEAR)
+            InterpolatorParams()
           {
-
+            InterpolatorParams::interpolationType = BILINEAR;
           }
+
+          double bilRowMin;                                //!< Minimum row for bilinear interpolation.
+          double bilRowMax;                                //!< Maximum row for bilinear interpolation.
+          double bilColMin;                                //!< Minimum column for bilinear interpolation.
+          double bilColMax;                                //!< Maximum column for bilinear interpolation.
+          double bilRowDifMin;                             //!< Minimum difference between rows (min/max).
+          double bilRowDifMax;                             //!< Maximum difference between rows (min/max).
+          double bilColDifMin;                             //!< Minimum difference between columns (min/max).
+          double bilColDifMax;                             //!< Maximum difference between columns (min/max).
+          double bilDistances[4];                          //!< Bilinear distances.
+          double bilWeights[4];                            //!< Bilinear weights;
+          std::vector<std::complex<double> > bilValues;    //!< Bilinear values;
+          double bilLastRow;                               //!< Last row available for bilinear interpolation.
+          double bilLastCol;                               //!< Last column available for bilinear interpolation.
         };
 
         /*!
@@ -121,10 +141,32 @@ namespace terrama2
         struct BCInterpolatorParams : public InterpolatorParams
         {
           BCInterpolatorParams() :
-            interpolationType(BICUBIC)
+            InterpolatorParams()
           {
-
+            InterpolatorParams::interpolationType = BICUBIC;
           }
+
+          unsigned bicGridRow;
+          unsigned bicGridCol;
+          unsigned bicBufRow;
+          unsigned bicBufCol;
+          double bicReadRealValue;
+          double bicReadImagValue;
+          double bicBbufferReal[4][4];
+          double bicBbufferImag[4][4];
+          double bicOffsetX;
+          double bicOffsetY;
+          double bicKernel;
+          double bicHWeights[4];
+          double bicVWeights[4];
+          double bicHSum;
+          double bicVSum;
+          double bicRowAccumReal;
+          double bicRowAccumImag;
+          double bicRowsValuesReal[4];
+          double bicRowsValuesImag[4];
+          double bicRowBound;                              //!< Last row available for bicubic interpolation.
+          double bicColBound;                              //!< Last column available for bicubic interpolation.
         };
       }
     }

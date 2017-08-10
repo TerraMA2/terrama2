@@ -71,7 +71,7 @@ void terrama2::services::interpolator::core::Service::prepareTask(const terrama2
 //  }
 }
 
-void terrama2::services::interpolator::core::Service::addToQueue(CollectorId collectorId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept
+void terrama2::services::interpolator::core::Service::addToQueue(InterpolatorId interpolatorId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept
 {
 //  try
 //  {
