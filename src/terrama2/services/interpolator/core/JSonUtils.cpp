@@ -41,6 +41,9 @@
 
 terrama2::services::interpolator::core::InterpolatorPtr terrama2::services::interpolator::core::fromInterpolatorJson(QJsonObject json, terrama2::core::DataManager* dataManager)
 {
+  InterpolatorPtr res;
+
+  return res;
 //  if(json["class"].toString() != "Collector")
 //  {
 //    QString errMsg = QObject::tr("Invalid Collector JSON object.");
@@ -135,7 +138,7 @@ terrama2::services::interpolator::core::InterpolatorPtr terrama2::services::inte
 
 QJsonObject terrama2::services::interpolator::core::toJson(InterpolatorPtr interpolator)
 {
-//  QJsonObject obj;
+  QJsonObject obj;
 //  obj.insert("class", QString("Collector"));
 //  obj.insert("id", static_cast<int32_t>(collector->id));
 //  obj.insert("project_id", static_cast<int32_t>(collector->projectId));
@@ -156,7 +159,7 @@ QJsonObject terrama2::services::interpolator::core::toJson(InterpolatorPtr inter
 //  }
 //  obj.insert("input_output_map", array);
 
-//  return obj;
+  return obj;
 }
 
 //QJsonObject terrama2::services::collector::core::toJson(IntersectionPtr intersection)

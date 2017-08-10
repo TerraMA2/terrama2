@@ -87,7 +87,14 @@ namespace terrama2
            */
           virtual RasterPtr makeInterpolation() = 0;
 
+          /*!
+           * \brief
+           */
+          void fillTree();
+
           InterpolatorParamsPtr interpolationParams; //!< Parameters of interpolation.
+
+          std::unique_ptr<InterpolatorTree> tree;                     //!<
         };
 
         /*!

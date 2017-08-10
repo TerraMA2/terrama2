@@ -31,12 +31,14 @@
 #define __TERRAMA2_SERVICES_INTERPOLATOR_TYPEDEF_HPP__
 
 #include "../../../core/data-model/Process.hpp"
-//#include "../../../core/data-model/DataSeries.hpp"
+#include "../../../core/data-model/DataSeries.hpp"
 #include "../../../core/data-model/Filter.hpp"
 #include "../../../core/Typedef.hpp"
 
 // TerraLib
+#include <terralib/geometry/Coord2D.h>
 #include <terralib/geometry/Envelope.h>
+#include <terralib/sam/kdtree.h>
 
 //! Unique identifier of a Interpolator.
 typedef ProcessId InterpolatorId;
@@ -65,9 +67,9 @@ namespace terrama2
          */
         enum InterpolatorType
         {
-          NEARESTNEIGHBOR,
-          BILINEAR,
-          BICUBIC
+          NEARESTNEIGHBOR,  //!<
+          BILINEAR,         //!<
+          BICUBIC           //!<
         };
 
         /*!
@@ -77,12 +79,13 @@ namespace terrama2
          */
         struct InterpolatorParams
         {
-          int resolutionX;
-          int resolutionY;
-          InterpolatorType interpolationType;
-          te::gm::Envelope bRect;
-          std::string fileName;
+          int resolutionX;                    //!<
+          int resolutionY;                    //!<
+          InterpolatorType interpolationType; //!<
+          te::gm::Envelope bRect;             //!<
+          std::string fileName;               //!<
           terrama2::core::Filter filter;      //!< Information on how input data should be filtered before storage.
+          DataSeriesId series;
         };
 
         /*!
@@ -92,14 +95,17 @@ namespace terrama2
          */
         struct NNIterpolatorParams : public InterpolatorParams
         {
+          /*!
+           * \brief NNIterpolatorParams
+           */
           NNIterpolatorParams() :
             InterpolatorParams()
           {
             InterpolatorParams::interpolationType = NEARESTNEIGHBOR;
           }
 
-          unsigned int nnCR;
-          unsigned int nnRR;
+          unsigned int nnCR;                              //!<
+          unsigned int nnRR;                              //!<
           double nnLastRow;                               //!< Last row available for nearest Neighbor interpolation.
           double nnLastCol;                               //!< Last column available for nearest Neighbor interpolation.
 
@@ -112,6 +118,9 @@ namespace terrama2
          */
         struct BLInterpolatorParams : public InterpolatorParams
         {
+          /*!
+           * \brief BLInterpolatorParams
+           */
           BLInterpolatorParams() :
             InterpolatorParams()
           {
@@ -140,34 +149,43 @@ namespace terrama2
          */
         struct BCInterpolatorParams : public InterpolatorParams
         {
+          /*!
+           * \brief BCInterpolatorParams
+           */
           BCInterpolatorParams() :
             InterpolatorParams()
           {
             InterpolatorParams::interpolationType = BICUBIC;
           }
 
-          unsigned bicGridRow;
-          unsigned bicGridCol;
-          unsigned bicBufRow;
-          unsigned bicBufCol;
-          double bicReadRealValue;
-          double bicReadImagValue;
-          double bicBbufferReal[4][4];
-          double bicBbufferImag[4][4];
-          double bicOffsetX;
-          double bicOffsetY;
-          double bicKernel;
-          double bicHWeights[4];
-          double bicVWeights[4];
-          double bicHSum;
-          double bicVSum;
-          double bicRowAccumReal;
-          double bicRowAccumImag;
-          double bicRowsValuesReal[4];
-          double bicRowsValuesImag[4];
-          double bicRowBound;                              //!< Last row available for bicubic interpolation.
-          double bicColBound;                              //!< Last column available for bicubic interpolation.
+          unsigned bicGridRow;                            //!<
+          unsigned bicGridCol;                            //!<
+          unsigned bicBufRow;                             //!<
+          unsigned bicBufCol;                             //!<
+          double bicReadRealValue;                        //!<
+          double bicReadImagValue;                        //!<
+          double bicBbufferReal[4][4];                    //!<
+          double bicBbufferImag[4][4];                    //!<
+          double bicOffsetX;                              //!<
+          double bicOffsetY;                              //!<
+          double bicKernel;                               //!<
+          double bicHWeights[4];                          //!<
+          double bicVWeights[4];                          //!<
+          double bicHSum;                                 //!<
+          double bicVSum;                                 //!<
+          double bicRowAccumReal;                         //!<
+          double bicRowAccumImag;                         //!<
+          double bicRowsValuesReal[4];                    //!<
+          double bicRowsValuesImag[4];                    //!<
+          double bicRowBound;                             //!< Last row available for bicubic interpolation.
+          double bicColBound;                             //!< Last column available for bicubic interpolation.
         };
+
+        //! Node of a kd-tree specialized to use with the Interpolator.
+        typedef te::sam::kdtree::AdaptativeNode<te::gm::Coord2D, int, int> InterpolatorNode;
+
+        //! Kd-tree specialized to use InterpolatorNode.
+        typedef te::sam::kdtree::AdaptativeIndex<InterpolatorNode> InterpolatorTree;
       }
     }
   }

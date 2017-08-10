@@ -47,6 +47,11 @@ terrama2::services::interpolator::core::Interpolator::Interpolator(terrama2::ser
 {
 }
 
+void terrama2::services::interpolator::core::Interpolator::fillTree()
+{
+
+}
+
 
 terrama2::services::interpolator::core::NNInterpolator::NNInterpolator(terrama2::services::interpolator::core::InterpolatorParamsPtr params) :
   Interpolator(params)
