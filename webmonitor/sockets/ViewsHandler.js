@@ -10,7 +10,7 @@ var ViewsHandlers = function(io) {
   // 'request' module
   var memberRequest = require('request');
   // WebMonitor configuration
-  var memberConfig = JSON.parse(memberFs.readFileSync(memberPath.join(__dirname, "../config/config.terrama2monitor"), "utf-8"));
+  var memberConfig = JSON.parse(memberFs.readFileSync(memberPath.join(__dirname, "../config/monitor.json"), "utf-8"));
 
   var userToken = require('../config/UserToken');
 
@@ -36,7 +36,8 @@ var ViewsHandlers = function(io) {
           clientId: json.clientId,
           userToken: userToken.getToken(),
           initialRequest: json.initialRequest,
-          onlyPrivate: json.onlyPrivate
+          onlyPrivate: json.onlyPrivate,
+          views: (json.views ? json.views : null)
         }
       };
 

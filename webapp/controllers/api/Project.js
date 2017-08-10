@@ -19,7 +19,7 @@ module.exports = function(app) {
         TcpService.emitEvent("projectReceived", project);
 
         // Creating default PostGIS and File providers
-        var configFile = JSON.parse(fs.readFileSync(path.join(__dirname, "../../config/config.terrama2"), "utf-8"));
+        var configFile = JSON.parse(fs.readFileSync(path.join(__dirname, "../../config/webapp.json"), "utf-8"));
 
         // File data provider object
         var DefaultFileProvider = {

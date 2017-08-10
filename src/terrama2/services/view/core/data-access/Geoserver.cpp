@@ -693,6 +693,9 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::
       srid = std::to_string(geomProperty->getSRID());
     }
 
+    // Configuring SRID on Root XML configuration
+    xml += "<srs>EPSG:" + srid + "</srs>";
+
     metadataSQL = "<entry key=\"JDBC_VIRTUAL_TABLE\">"
                   "<virtualTable>"
                   "<name>"+layerName+"</name>" +
@@ -882,7 +885,7 @@ void terrama2::services::view::core::GeoServer::registerCoverageFile(const std::
 void terrama2::services::view::core::GeoServer::registerMosaicCoverage(const std::string& coverageStoreName,
                                                                        const std::string& mosaicPath,
                                                                        const std::string& coverageName,
-                                                                       const int srid,
+                                                                       const RasterInfo& rasterInfo,
                                                                        const std::string& style,
                                                                        const std::string& configure) const
 {
@@ -923,24 +926,49 @@ void terrama2::services::view::core::GeoServer::registerMosaicCoverage(const std
                                        + storeName
                                        + "/coverages/" + coverageName);
 
-    std::string xml = "<coverage>"
-                      "<enabled>true</enabled>"
-                      "<srs>EPSG:"
-                      + std::to_string(srid) +
-                      "</srs>"
-                      "<metadata>"
-                      "<entry key=\"time\">"
-                      "<dimensionInfo>"
-                      "<enabled>true</enabled>"
-                      "<presentation>LIST</presentation>"
-                      "<units>ISO8601</units>"
-                      "<defaultValue>"
-                      "<strategy>MAXIMUM</strategy>"
-                      "</defaultValue>"
-                      "</dimensionInfo>"
-                      "</entry>"
-                      "</metadata>"
-                      "</coverage>";
+    std::string xml = "<coverage>";
+
+    // Using TerraMA² toString to keep precision
+    const std::string llx = toString(rasterInfo.envelope->getLowerLeftX(), 14);
+    const std::string urx = toString(rasterInfo.envelope->getUpperRightX(), 14);
+    const std::string lly = toString(rasterInfo.envelope->getLowerLeftY(), 14);
+    const std::string ury = toString(rasterInfo.envelope->getUpperRightY(), 14);
+    const std::string srid = std::to_string(rasterInfo.srid);
+    // Settings bounds
+    xml += "<nativeBoundingBox>"
+           "  <minx>"+llx+"</minx>"
+           "  <maxx>"+urx+"</maxx>"
+           "  <miny>"+lly+"</miny>"
+           "  <maxy>"+ury+"</maxy>"
+           "  <crs>EPSG:"+srid+"</crs>"
+           "</nativeBoundingBox>";
+
+    // Settingd grid
+    xml += "<latLonBoundingBox>"
+           "  <minx>"+llx+"</minx>"
+           "  <maxx>"+urx+"</maxx>"
+           "  <miny>"+lly+"</miny>"
+           "  <maxy>"+ury+"</maxy>"
+           "  <crs>EPSG:"+srid+"</crs>"
+           "</latLonBoundingBox>";
+
+    xml += "<enabled>true</enabled>"
+           "  <srs>EPSG:"+
+           std::to_string(rasterInfo.srid) +
+           "  </srs>"
+           "  <metadata>"
+           "  <entry key=\"time\">"
+           "  <dimensionInfo>"
+           "  <enabled>true</enabled>"
+           "<presentation>LIST</presentation>"
+           "<units>ISO8601</units>"
+           "<defaultValue>"
+           "<strategy>MAXIMUM</strategy>"
+           "</defaultValue>"
+           "</dimensionInfo>"
+           "</entry>"
+           "</metadata>"
+           "</coverage>";
 
     cURLwrapper.customRequest(uriPutUpdateCoverage, "PUT", xml, "Content-Type: text/xml");
 
@@ -1272,12 +1300,54 @@ void terrama2::services::view::core::GeoServer::cleanup(const ViewId& id,
       TERRAMA2_LOG_DEBUG() << "Could not remove view table " + tableName;
     }
 
-    // Do not remove folder (properties files) for PostGIS
-    if (dataProvider != nullptr && dataProvider->dataProviderType != "POSTGIS")
+    // Performs disk files removal only for data providers FILE
+    if (dataProvider != nullptr && dataProvider->dataProviderType == "FILE")
     {
-      const QUrl uri((dataProvider->uri+ "/" + tableName).c_str());
-      removeFolder(uri.toLocalFile().toStdString());
-    }
+      QUrl uri((dataProvider->uri+ "/" + tableName).c_str());
+      // If provided URI is empty, skip it
+      if (!uri.toLocalFile().toStdString().empty())
+      {
+        QDir directory(uri.toLocalFile());
+
+        // Extra validations to skip "." and ".."
+        directory.setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
+
+        // Counting number of files. If only 2, might to be only *.properties files
+        const int numberFiles = directory.count();
+
+        // Retrieve files that match filter "*.properties"
+        QStringList filters;
+        filters << "*.properties";
+
+        const QStringList files = directory.entryList(filters);
+
+        // If exactly 2, remove folder
+        if ((numberFiles == files.size()) && (numberFiles == 2))
+          removeFolder(uri.toLocalFile().toStdString());
+        else
+        {
+          // If matched files exist
+          if (files.size() > 0)
+          {
+            /*
+             * It should never happen since we are working with unique view names (view + viewID)
+             * But the user can manually rename/remove folder or even put new files inside. TODO: Should notify a warn?
+             * We must ensure that only properties files will be removed.
+             */
+            std::string warningMessage = "The directory \""+ uri.toLocalFile().toStdString() + "\" is not empty. " +
+                                         "The following files has been removed: ";
+            for(const auto& fileName: files)
+            {
+              const std::string fileURI = uri.toLocalFile().toStdString() + "/" + fileName.toStdString();
+              removeFile(fileURI);
+              warningMessage += "\n  -" + fileURI;
+            }
+
+            logger->log(terrama2::core::ProcessLogger::WARNING_MESSAGE, warningMessage, id);
+          }
+        }
+      } // endif !directory.currentPath().toStdString().empty()
+    } // endif (dataProvider != nullptr && dataProvider->dataProviderType == "FILE")
   }
 
   te::ws::core::CurlWrapper curl;
@@ -1576,17 +1646,7 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
 
     auto vecRasterInfo = getRasterInfo(dataManager, dataset, viewPtr->filter);
 
-    int srid =std::get<2>(vecRasterInfo.at(0));
-
-    /*
-     * Resetting properties files tree.
-     * Now we defined a sub directory containing both LayerName.properties and datastore.properties.
-     */
-    recreateFolder(url.path().toStdString());
-    // Creating LayerName.properties
-    createPostgisMosaicLayerPropertiesFile(url.path().toStdString(), layerName, srid);
-    // Create datastore.properties
-    createPostgisDatastorePropertiesFile(url.path().toStdString(), connInfo);
+    int srid = vecRasterInfo[0].srid;
 
     if(!dataSource->dataSetExists(layerName))
     {
@@ -1612,41 +1672,49 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
 
     std::unique_ptr<te::da::DataSetType> teDataSetType(dataSource->getDataSetType(layerName));
 
-    auto vecPkProperties = teDataSetType->getPrimaryKey()->getProperties();
+    auto primaryKey = teDataSetType->getPrimaryKey();
+    if(primaryKey != nullptr)
+    {
+      auto vecPkProperties = primaryKey->getProperties();
 
-    for(auto property : vecPkProperties)
-      teDataSetType->remove(property);
+      for(auto property : vecPkProperties)
+        teDataSetType->remove(property);
+    }
 
     std::unique_ptr<te::mem::DataSet> ds(new te::mem::DataSet(teDataSetType.get()));
 
     // Insert data
     for(const auto& rasterInfo : vecRasterInfo)
     {
-      std::string rasterName;
-      te::dt::TimeInstant rasterTimeInstantTz;
-      int rasterSRID;
-      te::gm::Envelope* rasterEnvelope;
-
-      std::tie(rasterName, rasterTimeInstantTz, rasterSRID, rasterEnvelope) = rasterInfo;
-
       auto it = std::find_if(vecDates.begin(), vecDates.end(),
-                             [rasterTimeInstantTz](std::shared_ptr<te::dt::DateTime> const& first)
+                             [&rasterInfo](std::shared_ptr<te::dt::DateTime> const& first)
                              {
-                               return *first == rasterTimeInstantTz;
+                               return *first == rasterInfo.timeTz;
                              });
 
       if(it == std::end(vecDates))
       {
-        auto geom = te::gm::GetGeomFromEnvelope(rasterEnvelope, rasterSRID);
+        te::gm::Geometry* geom = te::gm::GetGeomFromEnvelope(rasterInfo.envelope.get(), rasterInfo.srid);
 
         te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(ds.get());
         dsItem->setGeometry("the_geom", geom);
-        dsItem->setString("location", baseUrl.toLocalFile().toStdString() + "/" + terrama2::core::getFolderMask(dataset) + "/" + rasterName);
-        dsItem->setDateTime("timestamp", new te::dt::TimeInstant(rasterTimeInstantTz));
+        dsItem->setString("location", baseUrl.toLocalFile().toStdString() + "/" + terrama2::core::getFolderMask(dataset) + "/" + rasterInfo.name);
+        dsItem->setDateTime("timestamp", new te::dt::TimeInstant(rasterInfo.timeTz));
 
         ds->add(dsItem);
       }
     }
+
+
+    /*
+     * Resetting properties files tree.
+     * Now we defined a sub directory containing both LayerName.properties and datastore.properties.
+     */
+    recreateFolder(url.path().toStdString());
+    // Creating LayerName.properties
+    createPostgisMosaicLayerPropertiesFile(url.path().toStdString(), layerName, vecRasterInfo[0]);
+    // Create datastore.properties
+    createPostgisDatastorePropertiesFile(url.path().toStdString(), connInfo);
 
     if(!ds->isEmpty())
     {
@@ -1656,7 +1724,7 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
       dataSource->add(layerName, ds.get(), options);
 
       // register datastore and layer if they don't exists
-      registerMosaicCoverage(layerName, url.path().toStdString(), layerName, srid, "", "all");
+      registerMosaicCoverage(layerName, url.path().toStdString(), layerName, vecRasterInfo[0], "", "all");
     }
 
     layersNames.push_back(layerName);
@@ -1675,7 +1743,7 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
   return layersNames;
 }
 
-std::vector<std::tuple<std::string, te::dt::TimeInstant, int, te::gm::Envelope*>>
+std::vector<terrama2::services::view::core::RasterInfo>
 terrama2::services::view::core::GeoServer::getRasterInfo(terrama2::core::DataManagerPtr dataManager,
                                                          terrama2::core::DataSetPtr dataset,
                                                          const terrama2::core::Filter& filter) const
@@ -1702,7 +1770,7 @@ terrama2::services::view::core::GeoServer::getRasterInfo(terrama2::core::DataMan
   auto remover = std::make_shared<terrama2::core::FileRemover>();
   std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > dataMap = dataAccessor->getSeries(filter, remover);
 
-  std::vector<std::tuple<std::string, te::dt::TimeInstant, int, te::gm::Envelope*>> vecRasterInfo;
+  std::vector<RasterInfo> vecRasterInfo;
 
   for(const auto& data : dataMap)
   {
@@ -1728,7 +1796,18 @@ terrama2::services::view::core::GeoServer::getRasterInfo(terrama2::core::DataMan
 
       auto raster = dataSetSeries.syncDataSet->getRaster(row, rasterProperty->getId());
 
-      vecRasterInfo.push_back(std::make_tuple(info.fileName().toStdString(), te::dt::TimeInstant(boostTiTz.utc_time()), raster->getSRID(), new te::gm::Envelope(*raster->getExtent())));
+      auto grid = raster->getGrid();
+
+      std::unique_ptr<te::gm::Envelope> extent(new te::gm::Envelope(*raster->getExtent()));
+
+      RasterInfo rinfo;
+      rinfo.name = info.fileName().toStdString();
+      rinfo.timeTz = te::dt::TimeInstant(boostTiTz.utc_time()), raster->getSRID();
+      rinfo.srid = raster->getSRID();
+      rinfo.resolutionX = grid->getResolutionX();
+      rinfo.resolutionY = grid->getResolutionY();
+      rinfo.envelope = std::move(extent);
+      vecRasterInfo.push_back(std::move(rinfo));
     }
   }
 
@@ -1780,7 +1859,7 @@ std::string terrama2::services::view::core::GeoServer::createPostgisDatastorePro
 
 std::string terrama2::services::view::core::GeoServer::createPostgisMosaicLayerPropertiesFile(const std::string& outputFolder,
                                                                                               const std::string& exhibitionName,
-                                                                                              const int srid) const
+                                                                                              const RasterInfo& rasterInfo) const
 {
   std::string propertiesFilename = outputFolder + "/" + exhibitionName + ".properties";
 
@@ -1796,8 +1875,8 @@ std::string terrama2::services::view::core::GeoServer::createPostgisMosaicLayerP
     throw Exception() << ErrorDescription(errMsg);
   }
 
-  std::string content = "MosaicCRS=EPSG\\:" + std::to_string(srid) + "\n" +
-                        "Levels=0.01,0.01\n"
+  std::string content = "MosaicCRS=EPSG\\:" + std::to_string(rasterInfo.srid) + "\n" +
+                        "Levels=" + toString(rasterInfo.resolutionX) + "," + toString(rasterInfo.resolutionY) + "\n"
                         "Heterogeneous=false\n"
                         "TimeAttribute=timestamp\n"
                         "AbsolutePath=true\n"
