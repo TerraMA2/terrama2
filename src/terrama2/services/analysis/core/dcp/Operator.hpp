@@ -32,10 +32,10 @@
 #define __TERRAMA2_ANALYSIS_CORE_DCP_OPERATOR_HPP__
 
 // TerraMA2
-#include "../../python/PythonInterpreter.hpp"
-#include "../../BufferMemory.hpp"
-#include "../../Analysis.hpp"
-#include "../../Shared.hpp"
+#include "../python/PythonInterpreter.hpp"
+#include "../BufferMemory.hpp"
+#include "../Analysis.hpp"
+#include "../Shared.hpp"
 
 // STL
 #include <string>
@@ -74,6 +74,8 @@ namespace terrama2
                               boost::python::list pcds, const std::string& dateFilterBegin = "",
                               const std::string& dateFilterEnd = "");
 
+          double sample(const std::string& attribute);
+
           /*!
             \brief It returns the number of DCPs that have influence over the current monitored object.
 
@@ -84,7 +86,7 @@ namespace terrama2
 
             \return The number of DCP that have influence over the current monitored object.
           */
-          int count(terrama2::services::analysis::core::Buffer buffer);
+          int count(terrama2::services::analysis::core::Buffer buffer = terrama2::services::analysis::core::Buffer());
 
           /*!
             \brief Calculates the minimum value of the latest DCP series data.
@@ -205,6 +207,11 @@ namespace terrama2
             */
             double variance(const std::string& attribute,
                             boost::python::list ids);
+
+            namespace influence
+            {
+              std::vector< std::string > byRule(const terrama2::services::analysis::core::Buffer& buffer);
+            }
 
         } // end namespace dcp
       }   // end namespace core

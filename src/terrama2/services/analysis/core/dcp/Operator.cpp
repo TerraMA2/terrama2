@@ -42,6 +42,8 @@
 #include "../../../../core/utility/Logger.hpp"
 #include "../../../../core/utility/GeoUtils.hpp"
 #include "zonal/influence/Operator.hpp"
+#include "zonal/Operator.hpp"
+#include "../MonitoredObjectContext.hpp"
 
 // QT
 #include <QObject>
@@ -82,7 +84,7 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
   auto analysis = cache.analysisPtr;
   try
   {
-    terrama2::services::analysis::core::verify::analysisMonitoredObject(analysis);
+    terrama2::services::analysis::core::verify::analysisDCP(analysis);
   }
   catch (const terrama2::core::VerifyException&)
   {
@@ -90,25 +92,107 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
     return std::nan("");
   }
 
-  terrama2::services::analysis::core::MonitoredObjectContextPtr context;
+  auto monitoredObjectContext = contextManager.getMonitoredObjectContext(cache.analysisHashCode);
+  auto dataManagerPtr = monitoredObjectContext->getDataManager().lock();
+  auto moDsContext = monitoredObjectContext->getMonitoredObjectContextDataSeries(dataManagerPtr);
+
+  for(const auto& analysisDataSeries : analysis->analysisDataSeriesList)
+  {
+    if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE)
+    {
+      // found monitored dataseries
+
+      auto dataSeriesPtr = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
+      if(pcds.is_none() || (boost::python::len(pcds) == 0))
+      {
+        // if no dcp was given as argument use current
+        terrama2::core::SynchronizedDataSetPtr syncDs = moDsContext->series.syncDataSet;
+        auto dataSetId = moDsContext->series.syncDataSet->getInt32(cache.index, "id");
+
+        auto datasets = dataSeriesPtr->datasetList;
+        auto dataset = std::find_if(datasets.begin(), datasets.end(), [&dataSetId](const terrama2::core::DataSetPtr& dataset){ return dataSetId == dataset->id; });
+        auto dataSetDcp = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(*dataset);
+        if(!dataSetDcp)
+        {
+          QString errMsg(QObject::tr("Invalid dataset for data series: %1").arg(QString::fromStdString(dataSeriesPtr->name)));
+          throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
+        }
+
+        auto alias = dataSetDcp->alias();
+        pcds.append(alias);
+      }
+
+      return zonal::operatorImpl(statisticOperation, dataSeriesPtr->name, attribute, pcds, dateFilterBegin, dateFilterEnd);
+    }
+  }
+
+  contextManager.addError(cache.analysisHashCode, QObject::tr("Unable to find DCP monitored object for analysis %1.").arg(analysis->id).toStdString());
+  return std::nan("");
+}
+
+double terrama2::services::analysis::core::dcp::sample(const std::string& attribute)
+{
+  OperatorCache cache;
+  terrama2::services::analysis::core::python::readInfoFromDict(cache);
+
+  auto& contextManager = ContextManager::getInstance();
+  auto analysis = cache.analysisPtr;
   try
   {
-    context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
-    // In case an error has already occurred, there is nothing to do.
-    if(context->hasError())
-      return std::nan("");
+    terrama2::services::analysis::core::verify::analysisDCP(analysis);
   }
-  catch(const terrama2::Exception& e)
+  catch (const terrama2::core::VerifyException&)
   {
-    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
+    contextManager.addError(cache.analysisHashCode, QObject::tr("Use of invalid operator for analysis %1.").arg(analysis->id).toStdString());
     return std::nan("");
   }
 
+  auto monitoredObjectContext = contextManager.getMonitoredObjectContext(cache.analysisHashCode);
+  auto dataManagerPtr = monitoredObjectContext->getDataManager().lock();
+  auto moDsContext = monitoredObjectContext->getMonitoredObjectContextDataSeries(dataManagerPtr);
+  if(!moDsContext || !moDsContext->series.teDataSetType)
+  {
+    QString errMsg(QObject::tr("Could not recover monitored object data series."));
+    throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
+  }
+
+  // end recover operation data
+  ////////////////////////////////
+
+  terrama2::core::SynchronizedDataSetPtr syncDs = moDsContext->series.syncDataSet;
+  auto dataSetId = moDsContext->series.syncDataSet->getInt32(cache.index, "id");
+
+  for(const auto& analysisDataSeries : analysis->analysisDataSeriesList)
+  {
+    if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE)
+    {
+      // found monitored dataseries
+      auto dataSeriesPtr = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
+
+      auto datasets = dataSeriesPtr->datasetList;
+      auto dataset = std::find_if(datasets.begin(), datasets.end(), [&dataSetId](const terrama2::core::DataSetPtr& dataset){ return dataSetId == dataset->id; });
+      auto dataSetDcp = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(*dataset);
+      if(!dataSetDcp)
+      {
+        QString errMsg(QObject::tr("Invalid dataset for data series: %1").arg(QString::fromStdString(dataSeriesPtr->name)));
+        throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
+      }
+
+      auto alias = dataSetDcp->alias();
+      boost::python::list pcds;
+      pcds.append(alias);
+
+      return zonal::operatorImpl(StatisticOperation::MAX, dataSeriesPtr->name, attribute, pcds);
+    }
+  }
+
+  contextManager.addError(cache.analysisHashCode, QObject::tr("Unable to find DCP monitored object for analysis %1.").arg(analysis->id).toStdString());
+  return std::nan("");
 }
 
 int terrama2::services::analysis::core::dcp::count(Buffer buffer)
 {
-  return static_cast<int>(zonal::influence::byRule(buffer).size());
+  return static_cast<int>(influence::byRule(buffer).size());
 }
 
 double terrama2::services::analysis::core::dcp::min(const std::string& attribute, boost::python::list ids)
@@ -140,16 +224,47 @@ double terrama2::services::analysis::core::dcp::sum(const std::string& attribute
   return operatorImpl(StatisticOperation::SUM, attribute, ids);
 }
 
-double terrama2::services::analysis::core::dcp::standardDeviation(const std::string& dataSeriesName,
-    const std::string& attribute,
-    boost::python::list ids)
+double terrama2::services::analysis::core::dcp::standardDeviation(const std::string& attribute,
+                                                                  boost::python::list ids)
 {
   return operatorImpl(StatisticOperation::STANDARD_DEVIATION, attribute, ids);
 }
 
-double terrama2::services::analysis::core::dcp::variance(const std::string& dataSeriesName,
-    const std::string& attribute,
-    boost::python::list ids)
+double terrama2::services::analysis::core::dcp::variance(const std::string& attribute,
+                                                         boost::python::list ids)
 {
   return operatorImpl(StatisticOperation::VARIANCE, attribute, ids);
+}
+
+std::vector< std::string > terrama2::services::analysis::core::dcp::influence::byRule(const terrama2::services::analysis::core::Buffer& buffer)
+{
+  OperatorCache cache;
+  terrama2::services::analysis::core::python::readInfoFromDict(cache);
+
+  auto& contextManager = ContextManager::getInstance();
+  auto analysis = cache.analysisPtr;
+  try
+  {
+    terrama2::services::analysis::core::verify::analysisDCP(analysis);
+  }
+  catch (const terrama2::core::VerifyException&)
+  {
+    contextManager.addError(cache.analysisHashCode, QObject::tr("Use of invalid operator for analysis %1.").arg(analysis->id).toStdString());
+    return {};
+  }
+
+  auto monitoredObjectContext = contextManager.getMonitoredObjectContext(cache.analysisHashCode);
+  auto dataManagerPtr = monitoredObjectContext->getDataManager().lock();
+
+  for(const auto& analysisDataSeries : analysis->analysisDataSeriesList)
+  {
+    if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE)
+    {
+      auto dataSeriesPtr = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
+      return zonal::influence::byRule(dataSeriesPtr->name, buffer);
+    }
+  }
+
+  contextManager.addError(cache.analysisHashCode, QObject::tr("Unable to find DCP monitored object for analysis %1.").arg(analysis->id).toStdString());
+  return {};
 }

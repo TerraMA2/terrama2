@@ -27,34 +27,29 @@
   \author Jano Simas
 */
 
+#include "PythonBindingDCP.hpp"
+#include "../dcp/Operator.hpp"
 
-#ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_PYTHON_DCP_HPP__
-#define __TERRAMA2_SERVICES_ANALYSIS_CORE_PYTHON_DCP_HPP__
-
-namespace terrama2
+void terrama2::services::analysis::core::python::DCP::registerFunctions()
 {
-  namespace services
-  {
-    namespace analysis
-    {
-      namespace core
-      {
-        namespace python
-        {
-          namespace DCP
-          {
-            /*!
-              \brief Registers all functions for monitored object analysis.
-            */
-            void registerFunctions();
-
-            void registerDCPFunctions();
-
-          } /* MonitoredObject */
-        } /* python */
-      }
-    }
-  }
+  registerDCPFunctions();
 }
 
-#endif // __TERRAMA2_SERVICES_ANALYSIS_CORE_PYTHON_DCP_HPP__
+void terrama2::services::analysis::core::python::DCP::registerDCPFunctions()
+{
+  using namespace boost::python;
+
+  // set the current scope to the new sub-module
+  scope scpScope = import("terrama2.dcp");
+
+  // export functions inside dcp namespace
+  def("sample", terrama2::services::analysis::core::dcp::sample);
+  def("min", terrama2::services::analysis::core::dcp::min);
+  def("max", terrama2::services::analysis::core::dcp::max);
+  def("mean", terrama2::services::analysis::core::dcp::mean);
+  def("median", terrama2::services::analysis::core::dcp::median);
+  def("sum", terrama2::services::analysis::core::dcp::sum);
+  def("standard_deviation", terrama2::services::analysis::core::dcp::standardDeviation);
+  def("variance", terrama2::services::analysis::core::dcp::variance);
+  def("count", terrama2::services::analysis::core::dcp::count);
+}

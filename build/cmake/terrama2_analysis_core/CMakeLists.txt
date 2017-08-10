@@ -37,8 +37,11 @@ file(GLOB TERRAMA2_UTILITY_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/
 file(GLOB TERRAMA2_PYTHON_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/python/*.cpp)
 file(GLOB TERRAMA2_PYTHON_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/python/*.hpp)
 
-file(GLOB TERRAMA2_DCP_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/dcp/zonal/*.cpp)
-file(GLOB TERRAMA2_DCP_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/dcp/zonal/*.hpp)
+file(GLOB TERRAMA2_DCP_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/dcp/*.cpp)
+file(GLOB TERRAMA2_DCP_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/dcp/*.hpp)
+
+file(GLOB TERRAMA2_DCP_ZONAL_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/dcp/zonal/*.cpp)
+file(GLOB TERRAMA2_DCP_ZONAL_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/dcp/zonal/*.hpp)
 
 file(GLOB TERRAMA2_DCP_HISTORY_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/dcp/zonal/history/*.cpp)
 file(GLOB TERRAMA2_DCP_HISTORY_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/dcp/zonal/history/*.hpp)
@@ -105,8 +108,10 @@ source_group("Source Files\\utility"  FILES ${TERRAMA2_UTILITY_SRC_FILES})
 source_group("Header Files\\utility"  FILES ${TERRAMA2_UTILITY_HDR_FILES})
 source_group("Source Files\\python"  FILES ${TERRAMA2_PYTHON_SRC_FILES})
 source_group("Header Files\\python"  FILES ${TERRAMA2_PYTHON_HDR_FILES})
-source_group("Source Files\\dcp\\zonal"  FILES ${TERRAMA2_DCP_SRC_FILES})
-source_group("Header Files\\dcp\\zonal"  FILES ${TERRAMA2_DCP_HDR_FILES})
+source_group("Source Files\\zonal"  FILES ${TERRAMA2_DCP_SRC_FILES})
+source_group("Header Files\\zonal"  FILES ${TERRAMA2_DCP_HDR_FILES})
+source_group("Source Files\\dcp\\zonal"  FILES ${TERRAMA2_DCP_ZONAL_HDR_FILES})
+source_group("Header Files\\dcp\\zonal"  FILES ${TERRAMA2_DCP_ZONAL_SRC_FILES})
 source_group("Source Files\\dcp\\zonal\\history"  FILES ${TERRAMA2_DCP_HISTORY_SRC_FILES})
 source_group("Header Files\\dcp\\zonal\\history"  FILES ${TERRAMA2_DCP_HISTORY_HDR_FILES})
 source_group("Source Files\\dcp\\zonal\\history\\interval"  FILES ${TERRAMA2_DCP_ZONAL_HISTORY_INTERVAL_SRC_FILES})
@@ -167,6 +172,8 @@ add_library(terrama2_analysis_core SHARED ${TERRAMA2_SRC_FILES}
                                           ${TERRAMA2_PYTHON_HDR_FILES}
                                           ${TERRAMA2_DCP_SRC_FILES}
                                           ${TERRAMA2_DCP_HDR_FILES}
+                                          ${TERRAMA2_DCP_ZONAL_SRC_FILES}
+                                          ${TERRAMA2_DCP_ZONAL_HDR_FILES}
                                           ${TERRAMA2_DCP_HISTORY_SRC_FILES}
                                           ${TERRAMA2_DCP_HISTORY_HDR_FILES}
                                           ${TERRAMA2_DCP_ZONAL_HISTORY_INTERVAL_SRC_FILES}
