@@ -108,6 +108,7 @@ var Exportation = function() {
    * Returns a grid file path for a given data provider id and file mask.
    * @param {integer} dataProviderId - Data provider id
    * @param {string} mask - File mask
+   * @param {string} date - Date to filter (undefined in case there's no date to filter)
    * @return {Promise} Promise - A 'bluebird' promise with a grid file path or error callback
    *
    * @function getGridFilePath
