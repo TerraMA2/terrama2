@@ -34,8 +34,13 @@ define(
       });
 
       $('#dragbox').on('click', function() {
-        resetMapMouseTools();
-        activateDragboxTool();
+        if(!$('#dragbox').hasClass('active')) {
+          resetMapMouseTools();
+          activateDragboxTool();
+        } else {
+          resetMapMouseTools();
+          activateMoveMapTool();
+        }
       });
 
       TerraMA2WebComponents.MapDisplay.setZoomDragBoxEndEvent(function() {
