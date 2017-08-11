@@ -126,6 +126,7 @@ define(
 
       $("#terrama2-sortlayers").on("click", ".fa-gear", function() {
         var layer = Layers.getLayerById($(this).parent().parent().data("layerid"));
+        $("#animate").data("layerid", layer.id);
 
         if(layer !== null) {
           if(layer.exportation !== null) {
@@ -155,10 +156,10 @@ define(
 
       $("#animate").on("click", function(){
 
-          if($("#animated-map-box").hasClass("hidden"))
-            $("#animated-map-box").removeClass("hidden");
-          
-          AnimatedLayer.createMap();
+        if($("#animated-map-box").hasClass("hidden"))
+          $("#animated-map-box").removeClass("hidden");
+        var layer = Layers.getLayerById($(this).data("layerid"));
+        AnimatedLayer.createMap(layer);
       })
 
       $("#layer-toolbox > .layer-toolbox-header > .btn").on("click", function() {

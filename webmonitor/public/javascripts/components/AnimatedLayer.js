@@ -1,7 +1,7 @@
 'use strict';
 
-define(['components/Layers'],
-  function(Layers){
+define(['components/Layers', 'TerraMA2WebComponents'],
+  function(Layers, TerraMA2WebComponents){
 
     var loadEvents = function(){
       
@@ -16,41 +16,43 @@ define(['components/Layers'],
       loadEvents();
     }
 
-    var createMap = function(){
+    var createMap = function(layer){
+
       function threeHoursAgo() {
         return new Date(Math.round(Date.now() / 3600000) * 3600000 - 3600000 * 3);
       }
-
-      var extent = ol.proj.transformExtent([-126, 24, -66, 50], 'EPSG:4326', 'EPSG:3857');
-      var startDate = threeHoursAgo();
+      var dates = layer.dateInfo.dates;
+      var initialIndexDate = 0;
+      var extent = ol.proj.transformExtent(layer.boundingBox, 'EPSG:4326', 'EPSG:3857');
       var frameRate = 0.5; // frames per second
       var animationId = null;
       var layers = [
-        new ol.layer.Tile({
-          source: new ol.source.Stamen({
-            layer: 'terrain'
-          })
-        }),
-        new ol.layer.Tile({
-          extent: extent,
-          source: new ol.source.TileWMS(/** @type {olx.source.TileWMSOptions} */ ({
-            attributions: ['Iowa State University'],
-            url: 'https://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r-t.cgi',
-            params: {'LAYERS': 'nexrad-n0r-wmst'}
-          }))
-        }),
         new ol.layer.Tile({
           source: new ol.source.TileWMS({
             url: "http://localhost:8080/geoserver/ows",
             serverType: "geoserver",
             params: {
-              LAYERS: 'terrama2_7:view7',
+              LAYERS: 'terrama2_8:view8',
               TILED: true
             }
           }),
-          id: "terrama2_7:view7",
-          name: "Nombre",
-          title: "Nombre",
+          id: "terrama2_8:view8",
+          name: "Ei",
+          title: "fd",
+          visible: true
+        }),
+        new ol.layer.Tile({
+          source: new ol.source.TileWMS({
+            url: layer.uriGeoServer + "/ows",
+            serverType: layer.serverType,
+            params: {
+              LAYERS: layer.id,
+              TILED: true
+            }
+          }),
+          id: layer.id,
+          name: layer.name,
+          title: layer.name,
           visible: true
         })
       ];
@@ -65,15 +67,15 @@ define(['components/Layers'],
 
       function updateInfo() {
         var el = document.getElementById('info');
-        el.innerHTML = startDate.toISOString();
+        el.innerHTML = dates[initialIndexDate];
       }
 
       function setTime() {
-        startDate.setMinutes(startDate.getMinutes() + 15);
-        if (startDate > Date.now()) {
-          startDate = threeHoursAgo();
+        initialIndexDate++;
+        if (initialIndexDate >= dates.length){
+          initialIndexDate = 0;
         }
-        layers[1].getSource().updateParams({'TIME': startDate.toISOString()});
+        TerraMA2WebComponents.MapDisplay.updateLayerTime(layer.id, dates[initialIndexDate]);
         updateInfo();
       }
       setTime();
