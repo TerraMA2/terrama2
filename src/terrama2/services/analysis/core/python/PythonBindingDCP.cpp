@@ -29,10 +29,34 @@
 
 #include "PythonBindingDCP.hpp"
 #include "../dcp/Operator.hpp"
+#include "../dcp/history/Operator.hpp"
+#include "../dcp/history/interval/Operator.hpp"
+
+// pragma to silence python macros warnings
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-local-typedef"
+
+BOOST_PYTHON_FUNCTION_OVERLOADS(dcpHistoryMin_overloads, terrama2::services::analysis::core::dcp::history::min, 2, 3)
+BOOST_PYTHON_FUNCTION_OVERLOADS(dcpHistoryMax_overloads, terrama2::services::analysis::core::dcp::history::max, 2, 3)
+BOOST_PYTHON_FUNCTION_OVERLOADS(dcpHistoryMean_overloads, terrama2::services::analysis::core::dcp::history::mean, 2, 3)
+BOOST_PYTHON_FUNCTION_OVERLOADS(dcpHistoryMedian_overloads, terrama2::services::analysis::core::dcp::history::median, 2, 3)
+BOOST_PYTHON_FUNCTION_OVERLOADS(dcpHistorySum_overloads, terrama2::services::analysis::core::dcp::history::sum, 2, 3)
+BOOST_PYTHON_FUNCTION_OVERLOADS(dcpHistoryStandardDeviation_overloads, terrama2::services::analysis::core::dcp::history::standardDeviation, 2, 3)
+BOOST_PYTHON_FUNCTION_OVERLOADS(dcpHistoryVariance_overloads, terrama2::services::analysis::core::dcp::history::variance, 2, 3)
+
+BOOST_PYTHON_FUNCTION_OVERLOADS(dcpHistoryIntervalMin_overloads, terrama2::services::analysis::core::dcp::history::interval::min, 3, 4)
+BOOST_PYTHON_FUNCTION_OVERLOADS(dcpHistoryIntervalMax_overloads, terrama2::services::analysis::core::dcp::history::interval::max, 3, 4)
+BOOST_PYTHON_FUNCTION_OVERLOADS(dcpHistoryIntervalMean_overloads, terrama2::services::analysis::core::dcp::history::interval::mean, 3, 4)
+BOOST_PYTHON_FUNCTION_OVERLOADS(dcpHistoryIntervalMedian_overloads, terrama2::services::analysis::core::dcp::history::interval::median, 3, 4)
+BOOST_PYTHON_FUNCTION_OVERLOADS(dcpHistoryIntervalSum_overloads, terrama2::services::analysis::core::dcp::history::interval::sum, 3, 4)
+BOOST_PYTHON_FUNCTION_OVERLOADS(dcpHistoryIntervalStandardDeviation_overloads, terrama2::services::analysis::core::dcp::history::interval::standardDeviation, 3, 4)
+BOOST_PYTHON_FUNCTION_OVERLOADS(dcpHistoryIntervalVariance_overloads, terrama2::services::analysis::core::dcp::history::interval::variance, 3, 4)
 
 void terrama2::services::analysis::core::python::DCP::registerFunctions()
 {
   registerDCPFunctions();
+  registerDCPHistoryFunctions();
+  registerDCPHistoryIntervalFunctions();
 }
 
 void terrama2::services::analysis::core::python::DCP::registerDCPFunctions()
@@ -52,4 +76,75 @@ void terrama2::services::analysis::core::python::DCP::registerDCPFunctions()
   def("standard_deviation", terrama2::services::analysis::core::dcp::standardDeviation);
   def("variance", terrama2::services::analysis::core::dcp::variance);
   def("count", terrama2::services::analysis::core::dcp::count);
+}
+
+void terrama2::services::analysis::core::python::DCP::registerDCPHistoryFunctions()
+{
+  using namespace boost::python;
+
+  // Register operations for dcp.history
+  object dcpHistoryModule(handle<>(borrowed(PyImport_AddModule("terrama2.dcp.history"))));
+  // make "from terrama2.dcp import history" work
+  import("terrama2.dcp").attr("history") = dcpHistoryModule;
+  // set the current scope to the new sub-module
+  scope dcpHistoryScope = dcpHistoryModule;
+
+  // export functions inside history namespace
+  def("min", terrama2::services::analysis::core::dcp::history::min,
+    dcpHistoryMin_overloads(args("attribute", "dateFilter", "ids"),
+                              "Min history operator for dcp"));
+  def("max", terrama2::services::analysis::core::dcp::history::max,
+    dcpHistoryMax_overloads(args("attribute", "dateFilter", "ids"),
+                              "Max history operator for dcp"));
+  def("mean", terrama2::services::analysis::core::dcp::history::mean,
+    dcpHistoryMean_overloads(args("attribute", "dateFilter", "ids"),
+                              "Mean history operator for dcp"));
+  def("median", terrama2::services::analysis::core::dcp::history::median,
+    dcpHistoryMedian_overloads(args("attribute", "dateFilter", "ids"),
+                              "Median history operator for dcp"));
+  def("sum", terrama2::services::analysis::core::dcp::history::sum,
+    dcpHistorySum_overloads(args("attribute", "dateFilter", "ids"),
+                              "Sum history operator for dcp"));
+  def("standard_deviation", terrama2::services::analysis::core::dcp::history::standardDeviation,
+    dcpHistoryStandardDeviation_overloads(args("attribute", "dateFilter", "ids"),
+                              "Standard deviation history operator for dcp"));
+  def("variance", terrama2::services::analysis::core::dcp::history::variance,
+    dcpHistoryVariance_overloads(args("attribute", "dateFilter", "ids"),
+                              "Variance history operator for dcp"));
+}
+
+void terrama2::services::analysis::core::python::DCP::registerDCPHistoryIntervalFunctions()
+{
+  using namespace boost::python;
+
+  // Register operations for dcp.history
+  object dcpHistoryIntervalModule(handle<>(borrowed(PyImport_AddModule("terrama2.dcp.history.interval"))));
+  // make "from terrama2.dcp import history" work
+  import("terrama2.dcp.history").attr("interval") = dcpHistoryIntervalModule;
+  // set the current scope to the new sub-module
+  scope dcpHistoryIntervalScope = dcpHistoryIntervalModule;
+
+
+  // export functions inside history namespace
+  def("min", terrama2::services::analysis::core::dcp::history::interval::min,
+    dcpHistoryIntervalMin_overloads(args("attribute", "dateFilterBegin", "dateFilterEnd", "ids"),
+                              "Min interval history operator for dcp"));
+  def("max", terrama2::services::analysis::core::dcp::history::interval::max,
+    dcpHistoryIntervalMax_overloads(args("attribute", "dateFilterBegin", "dateFilterEnd", "ids"),
+                              "Max interval history operator for dcp"));
+  def("mean", terrama2::services::analysis::core::dcp::history::interval::mean,
+    dcpHistoryIntervalMean_overloads(args("attribute", "dateFilterBegin", "dateFilterEnd", "ids"),
+                              "Mean interval history operator for dcp"));
+  def("median", terrama2::services::analysis::core::dcp::history::interval::median,
+    dcpHistoryIntervalMedian_overloads(args("attribute", "dateFilterBegin", "dateFilterEnd", "ids"),
+                              "Median interval history operator for dcp"));
+  def("sum", terrama2::services::analysis::core::dcp::history::interval::sum,
+    dcpHistoryIntervalSum_overloads(args("attribute", "dateFilterBegin", "dateFilterEnd", "ids"),
+                              "Sum interval history operator for dcp"));
+  def("standard_deviation", terrama2::services::analysis::core::dcp::history::interval::standardDeviation,
+    dcpHistoryIntervalStandardDeviation_overloads(args("attribute", "dateFilterBegin", "dateFilterEnd", "ids"),
+                              "Standard deviation interval history operator for dcp"));
+  def("variance", terrama2::services::analysis::core::dcp::history::interval::variance,
+    dcpHistoryIntervalVariance_overloads(args("attribute", "dateFilterBegin", "dateFilterEnd", "ids"),
+                              "Variance interval history operator for dcp"));
 }
