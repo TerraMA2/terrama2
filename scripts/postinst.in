@@ -70,7 +70,13 @@ fi
 # Create a terrama2 user
 # and default data folder
 (
-  adduser --system --no-create-home terrama2 --password terrama4
+  adduser --system --no-create-home terrama2
+  if [ $? -eq 0 ]; then
+    # new user created
+    # setting new password
+    echo terrama2:terrama4 | chpasswd
+  fi
+  
   mkdir -p /var/lib/terrama2/data
   chown terrama2:terrama2 /var/lib/terrama2 -R
 )
