@@ -83,7 +83,12 @@
               <div class="layer-toolbox-body">
                 <div class="layer-name"></div>
                 <div class="animate-layer">
-                  <button id="animate" type="button" class="btn btn-default" style="margin-top: 10px;">Animate Layer</button>
+                  <div role="group" aria-label="Animation controls">
+                    <button id="play" type="button">Play</button>
+                    <button id="pause" type="button">Pause</button>
+                    <span id="info"></span>
+                  </div>
+                  <div id="slider-dates"></div>
                 </div>
                 <hr style="margin: 10px 0 10px 0;"/>
                 <div id="slider-box"></div>
