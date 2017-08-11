@@ -148,3 +148,17 @@ void terrama2::services::analysis::core::python::DCP::registerDCPHistoryInterval
     dcpHistoryIntervalVariance_overloads(args("attribute", "dateFilterBegin", "dateFilterEnd", "ids"),
                               "Variance interval history operator for dcp"));
 }
+
+void terrama2::services::analysis::core::python::DCP::registerDCPInfluenceFunctions()
+{
+  using namespace boost::python;
+
+  // Register operations for dcp.influence
+  object dcpHistoryModule(handle<>(borrowed(PyImport_AddModule("terrama2.dcp.influence"))));
+  // make "from terrama2.dcp import influence" work
+  import("terrama2.dcp").attr("influence") = dcpHistoryModule;
+  // set the current scope to the new sub-module
+  scope dcpHistoryScope = dcpHistoryModule;
+
+  def("byRule", terrama2::services::analysis::core::dcp::influence::byRule);
+}

@@ -127,10 +127,6 @@
         "name": "Influence",
         "children": [
           {
-            "name": "By attribute",
-            "code": "dcp.influence.by_attribute([<list_attribute>])"
-          },
-          {
             "name": "By rule",
             "code": "dcp.influence.by_rule(<buffer>)"
           }
