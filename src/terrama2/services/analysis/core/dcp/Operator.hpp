@@ -74,7 +74,7 @@ namespace terrama2
                               boost::python::list pcds, const std::string& dateFilterBegin = "",
                               const std::string& dateFilterEnd = "");
 
-          double sample(const std::string& attribute);
+          double value(const std::string& attribute);
 
           /*!
             \brief It returns the number of DCPs that have influence over the current monitored object.

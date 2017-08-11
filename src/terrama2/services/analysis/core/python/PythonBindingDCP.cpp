@@ -43,7 +43,7 @@ void terrama2::services::analysis::core::python::DCP::registerDCPFunctions()
   scope scpScope = import("terrama2.dcp");
 
   // export functions inside dcp namespace
-  def("sample", terrama2::services::analysis::core::dcp::sample);
+  def("value", terrama2::services::analysis::core::dcp::value);
   def("min", terrama2::services::analysis::core::dcp::min);
   def("max", terrama2::services::analysis::core::dcp::max);
   def("mean", terrama2::services::analysis::core::dcp::mean);

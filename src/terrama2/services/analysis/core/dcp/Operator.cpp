@@ -130,7 +130,7 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
   return std::nan("");
 }
 
-double terrama2::services::analysis::core::dcp::sample(const std::string& attribute)
+double terrama2::services::analysis::core::dcp::value(const std::string& attribute)
 {
   OperatorCache cache;
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
