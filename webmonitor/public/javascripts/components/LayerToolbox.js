@@ -85,14 +85,18 @@ define(
 
             Utils.getWebAppSocket().emit('generateFileRequest', exportationParams);
           } else {
-            var exportLink = webadminHostInfo.protocol + webadminHostInfo.host + ":" + webadminHostInfo.port + webadminHostInfo.basePath + "export-grid?dpi=" + layer.exportation.dataProviderId + "&mask=" + layer.exportation.mask;
+            var baseUrl = webadminHostInfo.protocol + webadminHostInfo.host + ":" + webadminHostInfo.port + webadminHostInfo.basePath;
+            var urlParams = "?dpi=" + layer.exportation.dataProviderId + "&mask=" + layer.exportation.mask + "&file=" + layer.name;
 
             if(layer.dateInfo.dates !== undefined && layer.dateInfo.dates.length > 0)
-              exportLink += "&file=" + layer.name + "." + layer.dateInfo.dates[layer.dateInfo.initialDateIndex] + "&date=" + layer.dateInfo.dates[layer.dateInfo.initialDateIndex];
-            else
-              exportLink += "&file=" + layer.name;
+              urlParams += "." + layer.dateInfo.dates[layer.dateInfo.initialDateIndex] + "&date=" + layer.dateInfo.dates[layer.dateInfo.initialDateIndex];
 
-            $('#exportation-iframe').attr('src', exportLink);
+            $.get(baseUrl + "check-grid" + urlParams, function(data) {
+              if(data.result)
+                $('#exportation-iframe').attr('src', baseUrl + "export-grid" + urlParams);
+              else
+                alert('O arquivo não existe!');
+            });
           }
         }
       });
