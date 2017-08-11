@@ -17,14 +17,14 @@ define(
         $(sliderParent).hide();
 
       var labelDate = $(sliderParent).find("label");
-      $(labelDate).text(moment.utc(dateInfo.dates[initDate]).format("lll"));
+      $(labelDate).text(moment(dateInfo.dates[initDate].replace('Z', '')).format("lll"));
 
       $(slider).slider({
         min: 0,
         max: valMap.length - 1,
         value: initDate,
         slide: function(event, ui) {
-          $(labelDate).text(moment.utc(dateInfo.dates[ui.value]).format("lll"));
+          $(labelDate).text(moment(dateInfo.dates[ui.value].replace('Z', '')).format("lll"));
         },
         stop: function(event, ui) {
           doSlide(layerId, dateInfo.dates[ui.value]);
@@ -35,7 +35,7 @@ define(
     };
 
     var doSlide = function(layerId, layerTime) {
-      var timeFormat = moment.utc(layerTime).format("YYYY-MM-DDThh:mm:ss") + "Z";
+      var timeFormat = moment(layerTime.replace('Z', '')).format("YYYY-MM-DDThh:mm:ss") + "Z";
       TerraMA2WebComponents.MapDisplay.updateLayerTime(layerId, layerTime);
     };
 
