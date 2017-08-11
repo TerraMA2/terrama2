@@ -622,6 +622,11 @@ define([], function() {
             name: "Python",
             fileName: "python.json",
             imagePath: "images/analysis/functions/python/python.png"
+          },
+          dcp_analysis: {
+            name: "DCP operators",
+            fileName: "dcp-analysis-operators.json",
+            imagePath: "images/analysis/functions/monitored-object/dcp/dcp.png"
           }
         };
 
