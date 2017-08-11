@@ -1,0 +1,244 @@
+[
+  {
+    "name": "Monitored Object",
+    "children": [
+      {
+        "name": "Influence",
+        "children": [
+          {
+            "name": "By attribute",
+            "code": "dcp.zonal.influence.by_attribute(\"<dynamic_data_dcp>\", [<list_attribute>])"
+          },
+          {
+            "name": "By rule",
+            "code": "dcp.zonal.influence.by_rule(\"<dynamic_data_dcp>\", <buffer>)"
+          }
+        ]
+      },
+      {
+        "name": "Zonal",
+        "children": [
+          {
+            "name": "Count",
+            "code": "dcp.zonal.count(\"<dynamic_data_dcp>\", [<buffer>])"
+          },
+          {
+            "name": "Min",
+            "code": "dcp.zonal.min(\"<dynamic_data_dcp>\", \"<attribute>\", <list_dcp>)"
+          },
+          {
+            "name": "Max",
+            "code": "dcp.zonal.max(\"<dynamic_data_dcp>\", \"<attribute>\", <list_dcp>)"
+          },
+          {
+            "name": "Mean",
+            "code": "dcp.zonal.mean(\"<dynamic_data_dcp>\", \"<attribute>\", <list_dcp>)"
+          },
+          {
+            "name": "Median",
+            "code": "dcp.zonal.median(\"<dynamic_data_dcp>\", \"<attribute>\", <list_dcp>)"
+          },
+          {
+            "name": "Sum",
+            "code": "dcp.zonal.sum(\"<dynamic_data_dcp>\", \"<attribute>\", <list_dcp>)"
+          },
+          {
+            "name": "Standard deviation",
+            "code": "dcp.zonal.standard_deviation(\"<dynamic_data_dcp>\", \"<attribute>\", <list_dcp>)"
+          },
+          {
+            "name": "Variance",
+            "code": "dcp.zonal.variance(\"<dynamic_data_dcp>\", \"<attribute>\", <list_dcp>)"
+          }
+        ]
+      },
+      {
+        "name": "Zonal History",
+        "children": [
+          {
+            "name": "Min",
+            "code": "dcp.zonal.history.min(\"<dynamic_data_dcp>\", \"<attribute>\", \"<time>\", <list_dcp>)"
+          },
+          {
+            "name": "Max",
+            "code": "dcp.zonal.history.max(\"<dynamic_data_dcp>\", \"<attribute>\", \"<time>\", <list_dcp>)"
+          },
+          {
+            "name": "Mean",
+            "code": "dcp.zonal.history.mean(\"<dynamic_data_dcp>\", \"<attribute>\", \"<time>\", <list_dcp>)"
+          },
+          {
+            "name": "Median",
+            "code": "dcp.zonal.history.median(\"<dynamic_data_dcp>\", \"<attribute>\", \"<time>\", <list_dcp>)"
+          },
+          {
+            "name": "Sum",
+            "code": "dcp.zonal.history.sum(\"<dynamic_data_dcp>\", \"<attribute>\", \"<time>\", <list_dcp>)"
+          },
+          {
+            "name": "Standard deviation",
+            "code": "dcp.zonal.history.standard_deviation(\"<dynamic_data_dcp>\", \"<attribute>\", \"<time>\", <list_dcp>)"
+          },
+          {
+            "name": "Variance",
+            "code": "dcp.zonal.history.variance(\"<dynamic_data_dcp>\", \"<attribute>\", \"<time>\", <list_dcp>)"
+          }
+        ]
+      },
+      {
+        "name": "Zonal history interval",
+        "children": [
+          {
+            "name": "Min",
+            "code": "dcp.zonal.history.interval.min(\"<dynamic_data_dcp>\", \"<attribute>\", \"<time_begin>\", \"<time_end>\", <list_dcp>)"
+          },
+          {
+            "name": "Max",
+            "code": "dcp.zonal.history.interval.max(\"<dynamic_data_dcp>\", \"<attribute>\", \"<time_begin>\", \"<time_end>\", <list_dcp>)"
+          },
+          {
+            "name": "Mean",
+            "code": "dcp.zonal.history.interval.mean(\"<dynamic_data_dcp>\", \"<attribute>\", \"<time_begin>\", \"<time_end>\", <list_dcp>)"
+          },
+          {
+            "name": "Median",
+            "code": "dcp.zonal.history.interval.median(\"<dynamic_data_dcp>\", \"<attribute>\", \"<time_begin>\", \"<time_end>\", <list_dcp>)"
+          },
+          {
+            "name": "Sum",
+            "code": "dcp.zonal.history.interval.sum(\"<dynamic_data_dcp>\", \"<attribute>\", \"<time_begin>\", \"<time_end>\", <list_dcp>)"
+          },
+          {
+            "name": "Standard deviation",
+            "code": "dcp.zonal.history.interval.standard_deviation(\"<dynamic_data_dcp>\", \"<attribute>\", \"<time_begin>\", \"<time_end>\", <list_dcp>)"
+          },
+          {
+            "name": "Variance",
+            "code": "dcp.zonal.history.interval.variance(\"<dynamic_data_dcp>\", \"<attribute>\", \"<time_begin>\", \"<time_end>\", <list_dcp>)"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "DCP",
+    "children": [
+      {
+        "name": "Influence",
+        "children": [
+          {
+            "name": "By attribute",
+            "code": "dcp.zonal.influence.by_attribute([<list_attribute>])"
+          },
+          {
+            "name": "By rule",
+            "code": "dcp.zonal.influence.by_rule(<buffer>)"
+          }
+        ]
+      },
+      {
+        "name": "Zonal",
+        "children": [
+          {
+            "name": "Count",
+            "code": "dcp.zonal.count([<buffer>], [<isActive>])"
+          },
+          {
+            "name": "Min",
+            "code": "dcp.zonal.min(\"<attribute>\", <list_dcp>)"
+          },
+          {
+            "name": "Max",
+            "code": "dcp.zonal.max(\"<attribute>\", <list_dcp>)"
+          },
+          {
+            "name": "Mean",
+            "code": "dcp.zonal.mean(\"<attribute>\", <list_dcp>)"
+          },
+          {
+            "name": "Median",
+            "code": "dcp.zonal.median(\"<attribute>\", <list_dcp>)"
+          },
+          {
+            "name": "Sum",
+            "code": "dcp.zonal.sum(\"<attribute>\", <list_dcp>)"
+          },
+          {
+            "name": "Standard deviation",
+            "code": "dcp.zonal.standard_deviation(\"<attribute>\", <list_dcp>)"
+          },
+          {
+            "name": "Variance",
+            "code": "dcp.zonal.variance(\"<attribute>\", <list_dcp>)"
+          }
+        ]
+      },
+      {
+        "name": "Zonal History",
+        "children": [
+          {
+            "name": "Min",
+            "code": "dcp.zonal.history.min(\"<attribute>\", \"<time>\", [<list_dcp>])"
+          },
+          {
+            "name": "Max",
+            "code": "dcp.zonal.history.max(\"<attribute>\", \"<time>\", [<list_dcp>])"
+          },
+          {
+            "name": "Mean",
+            "code": "dcp.zonal.history.mean(\"<attribute>\", \"<time>\", [<list_dcp>])"
+          },
+          {
+            "name": "Median",
+            "code": "dcp.zonal.history.median(\"<attribute>\", \"<time>\", [<list_dcp>])"
+          },
+          {
+            "name": "Sum",
+            "code": "dcp.zonal.history.sum(\"<attribute>\", \"<time>\", [<list_dcp>])"
+          },
+          {
+            "name": "Standard deviation",
+            "code": "dcp.zonal.history.standard_deviation(\"<attribute>\", \"<time>\", [<list_dcp>])"
+          },
+          {
+            "name": "Variance",
+            "code": "dcp.zonal.history.variance(\"<attribute>\", \"<time>\", [<list_dcp>])"
+          }
+        ]
+      },
+      {
+        "name": "Zonal history interval",
+        "children": [
+          {
+            "name": "Min",
+            "code": "dcp.zonal.history.interval.min(\"<attribute>\", \"<time_begin>\", \"<time_end>\", [<list_dcp>])"
+          },
+          {
+            "name": "Max",
+            "code": "dcp.zonal.history.interval.max(\"<attribute>\", \"<time_begin>\", \"<time_end>\", [<list_dcp>])"
+          },
+          {
+            "name": "Mean",
+            "code": "dcp.zonal.history.interval.mean(\"<attribute>\", \"<time_begin>\", \"<time_end>\", [<list_dcp>])"
+          },
+          {
+            "name": "Median",
+            "code": "dcp.zonal.history.interval.median(\"<attribute>\", \"<time_begin>\", \"<time_end>\", [<list_dcp>])"
+          },
+          {
+            "name": "Sum",
+            "code": "dcp.zonal.history.interval.sum(\"<attribute>\", \"<time_begin>\", \"<time_end>\", [<list_dcp>])"
+          },
+          {
+            "name": "Standard deviation",
+            "code": "dcp.zonal.history.interval.standard_deviation(\"<attribute>\", \"<time_begin>\", \"<time_end>\", [<list_dcp>])"
+          },
+          {
+            "name": "Variance",
+            "code": "dcp.zonal.history.interval.variance(\"<attribute>\", \"<time_begin>\", \"<time_end>\", [<list_dcp>])"
+          }
+        ]
+      }
+    ]
+  }
+]
