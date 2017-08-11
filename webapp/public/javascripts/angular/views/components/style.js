@@ -88,9 +88,6 @@ define([], function () {
       } else if (self.model.metadata.creation_type == "1"){
         self.model.type = 3;
         self.model.colors = [];
-        self.model.metadata = {
-          creation_type: "1"
-        };
         delete self.model.bands;
         delete self.model.beginColor;
         delete self.model.endColor;

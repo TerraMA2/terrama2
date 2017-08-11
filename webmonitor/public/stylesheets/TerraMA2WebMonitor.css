@@ -796,3 +796,9 @@ html, body, #content, .content, .content-wrapper, #terrama2-map {
   top: 19px;
   font-size: 10px;
 }
+
+@-moz-document url-prefix() {
+  #custom > span > span > .fa-plus {
+    margin-right: 15px;
+  }
+}
