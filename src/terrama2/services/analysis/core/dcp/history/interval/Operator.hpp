@@ -70,7 +70,7 @@ namespace terrama2
               */
               double sum(const std::string& attribute,
                          const std::string& dateFilterBegin, const std::string& dateFilterEnd,
-                         boost::python::list ids);
+                         boost::python::list ids = boost::python::list());
 
               /*!
                 \brief Calculates the mean of historic DCP data.
@@ -87,7 +87,7 @@ namespace terrama2
               */
               double mean(const std::string& attribute,
                           const std::string& dateFilterBegin, const std::string& dateFilterEnd,
-                          boost::python::list ids);
+                          boost::python::list ids = boost::python::list());
 
               /*!
                 \brief Calculates the min of historic DCP data.
@@ -104,7 +104,7 @@ namespace terrama2
               */
               double min(const std::string& attribute,
                          const std::string& dateFilterBegin, const std::string& dateFilterEnd,
-                         boost::python::list ids);
+                         boost::python::list ids = boost::python::list());
 
               /*!
                 \brief Calculates the max of historic DCP data.
@@ -121,7 +121,7 @@ namespace terrama2
               */
               double max(const std::string& attribute,
                          const std::string& dateFilterBegin, const std::string& dateFilterEnd,
-                         boost::python::list ids);
+                         boost::python::list ids = boost::python::list());
 
               /*!
                 \brief Calculates the median of historic DCP data.
@@ -138,7 +138,7 @@ namespace terrama2
               */
               double median(const std::string& attribute,
                             const std::string& dateFilterBegin, const std::string& dateFilterEnd,
-                            boost::python::list ids);
+                            boost::python::list ids = boost::python::list());
 
               /*!
                 \brief Calculates the standard deviation of historic DCP data.
@@ -155,7 +155,7 @@ namespace terrama2
               */
               double standardDeviation(const std::string& attribute,
                                        const std::string& dateFilterBegin, const std::string& dateFilterEnd,
-                                       boost::python::list ids);
+                                       boost::python::list ids = boost::python::list());
 
               /*!
                 \brief Calculates the variance of historic DCP data.
@@ -172,7 +172,7 @@ namespace terrama2
               */
               double variance(const std::string& attribute,
                               const std::string& dateFilterBegin, const std::string& dateFilterEnd,
-                              boost::python::list ids);
+                              boost::python::list ids = boost::python::list());
 
             } // end namespace interval
           }   // end namespace history
