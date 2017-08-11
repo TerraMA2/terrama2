@@ -48,6 +48,7 @@ requirejs(
       MapTools.init();
       AddLayerByUri.init();
       LayerToolbox.init();
+      AnimatedLayer.init();
       Login.init();
     });
   }

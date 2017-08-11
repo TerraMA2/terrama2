@@ -1,8 +1,8 @@
 'use strict';
 
 define(
-  ['components/Utils', 'components/Slider', 'components/Layers', 'TerraMA2WebComponents'],
-  function(Utils, Slider, Layers, TerraMA2WebComponents) {
+  ['components/Utils', 'components/Slider', 'components/Layers', 'components/AnimatedLayer','TerraMA2WebComponents'],
+  function(Utils, Slider, Layers, AnimatedLayer, TerraMA2WebComponents) {
 
     // Flag that indicates if there is a exportation in progress
     var memberExportationInProgress = false;
@@ -152,6 +152,14 @@ define(
             $("#layer-toolbox").removeClass("hidden");
         }
       });
+
+      $("#animate").on("click", function(){
+
+          if($("#animated-map-box").hasClass("hidden"))
+            $("#animated-map-box").removeClass("hidden");
+          
+          AnimatedLayer.createMap();
+      })
 
       $("#layer-toolbox > .layer-toolbox-header > .btn").on("click", function() {
         $("#layer-toolbox").addClass("hidden");
