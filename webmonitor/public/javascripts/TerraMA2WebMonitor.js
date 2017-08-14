@@ -296,6 +296,8 @@ define(
             if(lastStatus == LayerStatusEnum.OFFLINE) {
               Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.ONLINE);
               Layers.changeParentLayerStatus(parent, LayerStatusEnum.ONLINE);
+
+              Layers.getLayerCapabilities(layerObject.uriGeoServer, layerObject.workspace, layerObject.nameId, layerObject.id, layerObject.parent, true);
             }
           }
         }
@@ -322,37 +324,24 @@ define(
               dates: layerCapabilities[layerIndex].extent
             };
 
-            if(data.update) {
-              if(layerCapabilities[layerIndex].extent instanceof Array) {
-                if(layerCapabilities[layerIndex].extent.length > 1 && !$(li).has("#terrama2-slider").length) {
-                  var span = "";
-                  var sliderDiv = "<div class='slider-content' style='display:none;'><label></label><button type='button' class='close close-slider'>×</button><div id='slider" + $(li).attr("data-layerid").replace(':', '') + "'></div></div>";
-                  $(li).append(sliderDiv);
-                  span += "<span id='terrama2-slider' class='terrama2-datepicker-icon'> <i class='fa fa-sliders'></i></span>";
-                  $(li).append($(span));
-                  dateObject.initialDateIndex = 0;
-                }
-              } else if(layerCapabilities[layerIndex].extent instanceof Object){
-                dateObject.startFilterDate = layerCapabilities[layerIndex].extent.endDate;
-                dateObject.endFilterDate = layerCapabilities[layerIndex].extent.endDate;
+            var span = "";
+
+            if(layerCapabilities[layerIndex].extent instanceof Array) {
+              if(layerCapabilities[layerIndex].extent.length > 1 && (!data.update || !$(li).has("#terrama2-slider").length)) {
+                var sliderDiv = "<div class='slider-content' style='display:none;'><label></label><button type='button' class='close close-slider'>×</button><div id='slider" + $(li).attr("data-layerid").replace(':', '') + "'></div></div>";
+                $(li).append(sliderDiv);
+                span += "<span id='terrama2-slider' class='terrama2-datepicker-icon'> <i class='fa fa-sliders'></i></span>";
+                dateObject.initialDateIndex = 0;
               }
-            } else {
-              var span = "";
-              if(layerCapabilities[layerIndex].extent instanceof Array) {
-                if(layerCapabilities[layerIndex].extent.length > 1) {
-                  var sliderDiv = "<div class='slider-content' style='display:none;'><label></label><button type='button' class='close close-slider'>×</button><div id='slider" + $(li).attr("data-layerid").replace(':', '') + "'></div></div>";
-                  $(li).append(sliderDiv);
-                  span += "<span id='terrama2-slider' class='terrama2-datepicker-icon'> <i class='fa fa-sliders'></i></span>";
-                  dateObject.initialDateIndex = 0;
-                }
-              } else if(layerCapabilities[layerIndex].extent instanceof Object) {
+            } else if(layerCapabilities[layerIndex].extent instanceof Object) {
+              if(!data.update || !$(li).has("#terrama2-calendar").length)
                 span += "<span id='terrama2-calendar' class='terrama2-datepicker-icon'> <i class='fa fa-calendar'></i></span>";
-                dateObject.startFilterDate = layerCapabilities[layerIndex].extent.endDate;
-                dateObject.endFilterDate = layerCapabilities[layerIndex].extent.endDate;
-              }
-              $(li).append($(span));
+
+              dateObject.startFilterDate = layerCapabilities[layerIndex].extent.endDate;
+              dateObject.endFilterDate = layerCapabilities[layerIndex].extent.endDate;
             }
 
+            $(li).append($(span));
             Layers.updateDateInfo(dateObject, data.layerId);
           }
 
