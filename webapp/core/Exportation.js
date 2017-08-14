@@ -150,6 +150,30 @@ var Exportation = function() {
   };
 
   /**
+   * Returns a grid folder path for a given data provider id.
+   * @param {integer} dataProviderId - Data provider id
+   * @return {Promise} Promise - A 'bluebird' promise with a grid folder path or error callback
+   *
+   * @function getGridFolderPath
+   * @memberof Exportation
+   * @inner
+   */
+  this.getGridFolderPath = function(dataProviderId) {
+    return new memberPromise(function(resolve, reject) {
+      return memberDataManager.getDataProvider({ id: dataProviderId }).then(function(dataProvider) {
+        var folder = dataProvider.uri.replace("file://", "");
+
+        if(folder.substr(folder.length - 1) === "/")
+          folder = folder.slice(0, -1);
+
+        return resolve(folder);
+      }).catch(function(err) {
+        return reject(err);
+      });
+    });
+  };
+
+  /**
    * Creates a new folder in a given path.
    * @param {string} path - Path where the folder should be created
    * @return {object} object - Null in case of success, and error object otherwise

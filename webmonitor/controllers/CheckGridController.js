@@ -1,8 +1,8 @@
 "use strict";
 
 /**
- * Controller responsible for checking if a grid file exists.
- * @class CheckGridFileController
+ * Controller responsible for checking if a grid file / folder exists.
+ * @class CheckGridController
  *
  * @author Jean Souza [jean.souza@funcate.org.br]
  *
@@ -11,7 +11,7 @@
  * @property {object} memberPath - 'path' module.
  * @property {object} memberAdminHostInfo - WebAdmin host info.
  */
-var CheckGridFileController = function(app) {
+var CheckGridController = function(app) {
 
   // 'http' module
   var memberHttp = require('http');
@@ -28,7 +28,7 @@ var CheckGridFileController = function(app) {
    * @param {json} response - JSON containing the response data
    *
    * @function checkGridFile
-   * @memberof CheckGridFileController
+   * @memberof CheckGridController
    * @inner
    */
   var checkGridFile = function(request, response) {
@@ -60,7 +60,45 @@ var CheckGridFileController = function(app) {
     });
   };
 
-  return checkGridFile;
+    /**
+   * Processes the request and returns a response.
+   * @param {json} request - JSON containing the request data
+   * @param {json} response - JSON containing the response data
+   *
+   * @function checkGridFolder
+   * @memberof CheckGridController
+   * @inner
+   */
+  var checkGridFolder = function(request, response) {
+    var url = memberAdminHostInfo.protocol + memberAdminHostInfo.host + ":" + memberAdminHostInfo.port + memberAdminHostInfo.basePath + "check-grid-folder?dpi=" + request.body.dpi;
+
+    memberHttp.get(url, function(resp) {
+      var body = '';
+
+      resp.on('data', function(chunk) {
+        body += chunk;
+      });
+
+      resp.on('end', function() {
+        try {
+          body = JSON.parse(body);
+        } catch(ex) {
+          body = { result: false };
+        }
+
+        // JSON response
+        response.json(body);
+      });
+    }).on("error", function(e) {
+      console.error(e.message);
+      response.json({ result: false });
+    });
+  };
+
+  return {
+    checkGridFile: checkGridFile,
+    checkGridFolder: checkGridFolder
+  };
 };
 
-module.exports = CheckGridFileController;
+module.exports = CheckGridController;

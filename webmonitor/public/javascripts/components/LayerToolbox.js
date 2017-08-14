@@ -102,8 +102,11 @@ define(
             $.post(BASE_URL + "check-grid", params, function(data) {
               if(data.result)
                 $('#exportation-iframe').attr('src', webadminHostInfo.protocol + webadminHostInfo.host + ":" + webadminHostInfo.port + webadminHostInfo.basePath + "export-grid" + urlParams);
-              else
-                alert('O arquivo não existe!');
+              else {
+                $("#terrama2Alert > p > strong").text('');
+                $("#terrama2Alert > p > span").text('O arquivo não foi encontrado.');
+                $("#terrama2Alert").removeClass('hide');
+              }
             });
           }
         }
@@ -151,16 +154,38 @@ define(
         var layer = Layers.getLayerById($(this).parent().parent().data("layerid"));
 
         if(layer !== null) {
+          var openLayerToolbox = function() {
+            $("#layer-toolbox > .layer-toolbox-body .layer-name").text(layer.name);
+
+            $("#layer-toolbox > .layer-toolbox-body > #slider-box").empty().html("<label></label><br/><div id=\"opacity" + layer.id.replace(":","") + "\"></div>");
+            var currentOpacity = TerraMA2WebComponents.MapDisplay.getLayerOpacity(layer.id) * 100;
+            Slider.setOpacitySlider(layer.id, currentOpacity);
+
+            if($("#layer-toolbox").hasClass("hidden"))
+              $("#layer-toolbox").removeClass("hidden");
+          };
+
           if(layer.exportation !== null && layer.dataSeriesTypeName === "GRID") {
-            if(!$("#exportation-type").hasClass("hidden"))
-              $("#exportation-type").addClass("hidden");
+            $.post(BASE_URL + "check-grid-folder", { dpi: layer.exportation.dataProviderId }, function(data) {
+              if(data.result) {
+                if(!$("#exportation-type").hasClass("hidden"))
+                  $("#exportation-type").addClass("hidden");
 
-            $("#export").data("layerid", layer.id);
+                $("#export").data("layerid", layer.id);
 
-            if($("#exportation-box").hasClass("hidden"))
-              $("#exportation-box").removeClass("hidden");
+                if($("#exportation-box").hasClass("hidden"))
+                  $("#exportation-box").removeClass("hidden");
 
-            $("#layer-toolbox").css("height", "220px");
+                $("#layer-toolbox").css("height", "220px");
+              } else {
+                if(!$("#exportation-box").hasClass("hidden"))
+                  $("#exportation-box").addClass("hidden");
+
+                $("#layer-toolbox").css("height", "150px");
+              }
+
+              openLayerToolbox();
+            });
           } else if(layer.exportation !== null) {
             if($("#exportation-type").hasClass("hidden"))
               $("#exportation-type").removeClass("hidden");
@@ -171,21 +196,16 @@ define(
               $("#exportation-box").removeClass("hidden");
 
             $("#layer-toolbox").css("height", "307px");
+
+            openLayerToolbox();
           } else {
             if(!$("#exportation-box").hasClass("hidden"))
               $("#exportation-box").addClass("hidden");
 
             $("#layer-toolbox").css("height", "150px");
+
+            openLayerToolbox();
           }
-
-          $("#layer-toolbox > .layer-toolbox-body .layer-name").text(layer.name);
-
-          $("#layer-toolbox > .layer-toolbox-body > #slider-box").empty().html("<label></label><br/><div id=\"opacity" + layer.id.replace(":","") + "\"></div>");
-          var currentOpacity = TerraMA2WebComponents.MapDisplay.getLayerOpacity(layer.id) * 100;
-          Slider.setOpacitySlider(layer.id, currentOpacity);
-
-          if($("#layer-toolbox").hasClass("hidden"))
-            $("#layer-toolbox").removeClass("hidden");
         }
       });
 

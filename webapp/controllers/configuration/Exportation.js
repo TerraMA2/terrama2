@@ -84,6 +84,25 @@ var Exportation = function(app) {
   };
 
   /**
+   * Processes the request and returns a response.
+   * @param {json} request - JSON containing the request data
+   * @param {json} response - JSON containing the response data
+   *
+   * @function checkGridFolder
+   * @memberof Exportation
+   * @inner
+   */
+  var checkGridFolder = function(request, response) {
+    memberExportation.getGridFolderPath(request.query.dpi).then(function(gridFolderPath) {
+      memberFs.stat(gridFolderPath, function(err, stat) {
+        response.json({ result: err === null });
+      });
+    }).catch(function(err) {
+      return console.error(err);
+    });
+  };
+
+  /**
    * Returns the difference in days between the current date and a given date.
    * @param {string} dateString - Date (YYYY-MM-DD)
    * @returns {integer} difference - Difference between the dates
@@ -129,7 +148,8 @@ var Exportation = function(app) {
   return {
     exportData: exportData,
     exportGridFile: exportGridFile,
-    checkGridFile: checkGridFile
+    checkGridFile: checkGridFile,
+    checkGridFolder: checkGridFolder
   };
 };
 
