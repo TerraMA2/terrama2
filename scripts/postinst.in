@@ -70,7 +70,7 @@ fi
 # Create a terrama2 user
 # and default data folder
 (
-  adduser --system --no-create-home terrama2
+  adduser --system --no-create-home terrama2 sudo
   if [ $? -eq 0 ]; then
     # new user created
     # setting new password
