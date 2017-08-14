@@ -76,9 +76,9 @@ fi
     # setting new password
     echo terrama2:terrama4 | chpasswd
   fi
-  
+
   mkdir -p /var/lib/terrama2/data
-  chown terrama2:terrama2 /var/lib/terrama2 -R
+  chown terrama2 /var/lib/terrama2 -R
 )
 
 # Add webapp to pm2 startup
