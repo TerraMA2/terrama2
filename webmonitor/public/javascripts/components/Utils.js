@@ -6,6 +6,8 @@ define(
 
     var memberSocket;
     var memberWebAppSocket;
+    var memberWebMonitorSocketCallbackExecuted = false;
+    var memberWebAppSocketCallbackExecuted = false;
 
     var getSocket = function() {
       return memberSocket;
@@ -34,13 +36,19 @@ define(
 
       if(webMonitorSocketCallback) {
         memberSocket.on('connect', function() {
-          webMonitorSocketCallback();
+          if(!memberWebMonitorSocketCallbackExecuted) {
+            webMonitorSocketCallback();
+            memberWebMonitorSocketCallbackExecuted = true;
+          }
         });
       }
 
       if(webAppSocketCallback) {
         memberWebAppSocket.on('connect', function() {
-          webAppSocketCallback();
+          if(!memberWebAppSocketCallbackExecuted) {
+            webAppSocketCallback();
+            memberWebAppSocketCallbackExecuted = true;
+          }
         });
       }
     };
