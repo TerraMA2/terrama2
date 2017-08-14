@@ -27,6 +27,14 @@
 
 #include "Interpolator.hpp"
 
+#include "../../../core/data-model/DataSeries.hpp"
+
+#include "Typedef.hpp"
+
+// TerraLib
+#include <terralib/sam/kdtree.h>
+
+
 #define BICUBIC_MODULE( x ) ( ( x < 0 ) ? ( -1 * x ) : x )
 #define BICUBIC_K1( x , a ) ( ( ( a + 2 ) * x * x * x ) - \
   ( ( a + 3 ) * x * x ) + 1 )
@@ -43,13 +51,15 @@
 
 terrama2::services::interpolator::core::Interpolator::Interpolator(terrama2::services::interpolator::core::InterpolatorParamsPtr params) :
   Process(),
-  interpolationParams(params)
+  interpolationParams_(params)
 {
+  te::gm::Envelope env;
+  tree_.reset(new InterpolatorTree(env));
 }
 
 void terrama2::services::interpolator::core::Interpolator::fillTree()
 {
-
+  DataSeriesId dId = interpolationParams_->series;
 }
 
 

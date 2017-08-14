@@ -33,10 +33,10 @@
 #include "../../../core/utility/Service.hpp"
 #include "../../../core/Typedef.hpp"
 #include "../../../core/Shared.hpp"
-#include "../core/Shared.hpp"
-#include "../core/Typedef.hpp"
-//#include "DataManager.hpp"
-//#include "CollectorLogger.hpp"
+
+#include "Typedef.hpp"
+
+#include "Interpolator.hpp"
 
 // STL
 #include <memory>
@@ -49,51 +49,106 @@ namespace terrama2
     {
       namespace core
       {
-        /*!
-          \class
+        // Forward declarations
+        class DataManager;
+//        struct Interpolator;
+        class InterpolatorLogger;
 
-          \brief
-        */
+        /*!
+         * \class
+         *
+         * \brief The Service class
+         */
         class Service : public terrama2::core::Service
         {
-            Q_OBJECT
+          Q_OBJECT
 
-          public:
-            Service(/*std::weak_ptr<DataManager> dataManager*/);
+        public:
+          /*!
+           * \brief Service
+           * \param dataManager
+           */
+          Service(std::weak_ptr<DataManager> dataManager);
 
-            ~Service() = default;
-            Service(const Service& other) = delete;
-            Service(Service&& other) = default;
-            Service& operator=(const Service& other) = delete;
-            Service& operator=(Service&& other) = default;
+          /*!
+           * \brief
+           */
+          ~Service() = default;
 
-            public slots:
-            //! Slot to be called when a DataSetTimer times out.
-            virtual void addToQueue(InterpolatorId interpolatorId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept override;
+          /*!
+           * \brief Service
+           * \param other
+           */
+          Service(const Service& other) = delete;
 
+          /*!
+           * \brief
+           * \param other
+           */
+          Service(Service&& other) = default;
 
-            /*!
-             * \brief Receive a jSon and update service information with it
-             * \param obj jSon with additional information for service
-             */
-            virtual void updateAdditionalInfo(const QJsonObject& obj) noexcept override;
+          /*!
+           * \brief operator =
+           * \param other
+           * \return
+           */
+          Service& operator=(const Service& other) = delete;
 
-          protected:
+          /*!
+           * \brief
+           * \param
+           * \return
+           */
+          Service& operator=(Service&& other) = default;
 
-            //*! Create a process task and add to taskQueue_
-            virtual void prepareTask(const terrama2::core::ExecutionPackage& executionPackage) override;
-            /*!
-              \brief Callback method to collect and store data.
-            */
-//            void collect(terrama2::core::ExecutionPackage executionPackage, std::shared_ptr<CollectorLogger> logger,
-//                         std::weak_ptr<DataManager> weakDataManager);
+        public slots:
 
-//            //! Connects signals from DataManager
-//            void connectDataManager();
+          /*!
+           * \brief addToQueue
+           * \param interpolatorId
+           * \param startTime
+           */
+          void addToQueue(InterpolatorId interpolatorId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept override;
 
-//            std::weak_ptr<DataManager> dataManager_; //!< Weak pointer to the DataManager
+          /*!
+           * \brief Receive a jSon and update service information with it
+           * \param obj jSon with additional information for service
+           */
+          void updateAdditionalInfo(const QJsonObject& obj) noexcept override;
+
+          /*!
+           * \brief removeInterpolator
+           * \param interpolatorId
+           */
+          void removeInterpolator(InterpolatorId interpolatorId) noexcept;
+
+          /*!
+           * \brief updateInterpolator
+           * \param interpolator
+           */
+          void updateInterpolator(InterpolatorPtr interpolator) noexcept;
+
+        protected:
+
+          //*! Create a process task and add to taskQueue_
+          virtual void prepareTask(const terrama2::core::ExecutionPackage& executionPackage) override;
+
+          /*!
+           * \brief interpolate
+           * \param executionPackage
+           * \param logger
+           * \param weakDataManager
+           */
+          void interpolate(terrama2::core::ExecutionPackage executionPackage, std::shared_ptr<InterpolatorLogger> logger,
+                           std::weak_ptr<DataManager> weakDataManager);
+
+          /*!
+           * \brief connectDataManager
+           */
+          void connectDataManager();
+
+          std::weak_ptr<DataManager> dataManager_; //!< Weak pointer to the DataManager
         };
-
       } // end namespace core
     }   // end namespace interpolator
   }     // end namespace services

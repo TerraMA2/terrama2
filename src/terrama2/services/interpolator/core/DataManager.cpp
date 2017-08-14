@@ -128,10 +128,10 @@ void terrama2::services::interpolator::core::DataManager::addJSon(const QJsonObj
     {
       auto dataPtr = terrama2::services::interpolator::core::fromInterpolatorJson(json.toObject(), this);
 
-      if(hasInterpolator(dataPtr->id))
-        update(dataPtr);
-      else
-        add(dataPtr);
+//      if(hasInterpolator(dataPtr->id))
+//        update(dataPtr);
+//      else
+//        add(dataPtr);
     }
   }
   catch(const terrama2::Exception& /*e*/)

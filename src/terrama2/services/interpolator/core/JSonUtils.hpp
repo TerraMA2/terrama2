@@ -31,8 +31,8 @@
 #ifndef __TERRAMA2_SERVICES_INTERPOLATOR_CORE_JSONUTILS_HPP__
 #define __TERRAMA2_SERVICES_INTERPOLATOR_CORE_JSONUTILS_HPP__
 
-#include "Interpolator.hpp"
-#include "../core/Shared.hpp"
+//#include "Interpolator.hpp"
+//#include "../core/Shared.hpp"
 #include "../../../core/data-model/DataManager.hpp"
 
 // Qt
@@ -46,13 +46,16 @@ namespace terrama2
     {
       namespace core
       {
+        struct Interpolator;
+        class DataManager;
+
         /*!
          * \brief fromInterpolatorJson
          * \param json
          * \param dataManager
          * \return
          */
-        InterpolatorPtr fromInterpolatorJson(QJsonObject json, terrama2::core::DataManager* dataManager);
+        Interpolator* fromInterpolatorJson(QJsonObject json, terrama2::core::DataManager* dataManager);
 
         /*!
          * \brief fromIntersectionJson
@@ -66,7 +69,7 @@ namespace terrama2
          * \param interpolator
          * \return
          */
-        QJsonObject toJson(InterpolatorPtr interpolator);
+        QJsonObject toJson(Interpolator* interpolator);
 
         /*!
          * \brief toJson

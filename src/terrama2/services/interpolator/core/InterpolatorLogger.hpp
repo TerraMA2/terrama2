@@ -20,17 +20,17 @@
 */
 
 /*!
-  \file interpolator/core/InterpolatorLogger.hpp
+  \file InterpolatorLogger.hpp
 
   \brief
 
   \author Frederico Augusto Bedê
 */
 
-#ifndef __TERRAMA2_SERVICES_INTERPOLATOR_CORE_COLLECTORLOG_HPP__
-#define __TERRAMA2_SERVICES_INTERPOLATOR_CORE_COLLECTORLOG_HPP__
+#ifndef __TERRAMA2_SERVICES_INTERPOLATOR_CORE_INTERPOLATORLOG_HPP__
+#define __TERRAMA2_SERVICES_INTERPOLATOR_CORE_INTERPOLATORLOG_HPP__
 
-#include "../core/Typedef.hpp"
+//#include "../core/Typedef.hpp"
 #include "../../../core/utility/ProcessLogger.hpp"
 
 namespace terrama2
@@ -41,22 +41,50 @@ namespace terrama2
     {
       namespace core
       {
+        /*!
+         * \class
+         *
+         * \brief The InterpolatorLogger class
+         */
         class InterpolatorLogger : public terrama2::core::ProcessLogger
         {
           Q_OBJECT
         public:
 
-
+          /*!
+           * \brief InterpolatorLogger
+           */
           InterpolatorLogger();
 
+          /*!
+           * \brief ~InterpolatorLogger
+           */
           virtual ~InterpolatorLogger() {}
 
+          /*!
+           * \brief addInput
+           * \param value
+           * \param registerID
+           */
           void addInput(std::string value, RegisterId registerID);
 
+          /*!
+           * \brief addOutput
+           * \param value
+           * \param registerID
+           */
           void addOutput(std::string value, RegisterId registerID);
 
+          /*!
+           * \brief setConnectionInfo
+           * \param uri
+           */
           virtual void setConnectionInfo(const te::core::URI& uri) override;
 
+          /*!
+           * \brief clone
+           * \return
+           */
           virtual std::shared_ptr<ProcessLogger> clone() const override;
 
         };
@@ -64,4 +92,4 @@ namespace terrama2
     }
   }
 }
-#endif // __TERRAMA2_SERVICES_INTERPOLATOR_CORE_COLLECTORLOG_HPP__
+#endif // __TERRAMA2_SERVICES_INTERPOLATOR_CORE_INTERPOLATORLOG_HPP__

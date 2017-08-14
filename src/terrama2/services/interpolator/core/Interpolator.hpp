@@ -27,24 +27,17 @@
   \author Frederico Augusto Bedê
 */
 
-#ifndef __TERRAMA2_SERVICES_INTERPOLATOR_CORE_SERVICE_HPP__
-#define __TERRAMA2_SERVICES_INTERPOLATOR_CORE_SERVICE_HPP__
+#ifndef __TERRAMA2_SERVICES_INTERPOLATOR_CORE_INTERPOLATOR_HPP__
+#define __TERRAMA2_SERVICES_INTERPOLATOR_CORE_INTERPOLATOR_HPP__
 
 #include "../../../core/data-model/Process.hpp"
+#include "../../../core/Typedef.hpp"
 
-#include "Shared.hpp"
+#include "InterpolatorParams.hpp"
 #include "Typedef.hpp"
-
-//#include "../../../core/Typedef.hpp"
-//#include "../../../core/Shared.hpp"
-//#include "../core/Shared.hpp"
-//#include "../core/Typedef.hpp"
-//#include "DataManager.hpp"
-//#include "CollectorLogger.hpp"
 
 // STL
 #include <memory>
-
 
 namespace te
 {
@@ -63,9 +56,6 @@ namespace terrama2
     {
       namespace core
       {
-        // Forward declaration
-        struct InterpolatorParams;
-
         /*!
          * \struct
          *
@@ -92,9 +82,9 @@ namespace terrama2
            */
           void fillTree();
 
-          InterpolatorParamsPtr interpolationParams; //!< Parameters of interpolation.
+          InterpolatorParamsPtr interpolationParams_; //!< Parameters of interpolation.
 
-          std::unique_ptr<InterpolatorTree> tree;                     //!<
+          std::unique_ptr<InterpolatorTree> tree_;    //!<
         };
 
         /*!
@@ -163,4 +153,4 @@ namespace terrama2
   }     // end namespace services
 } // end namespace terrama2
 
-#endif //__TERRAMA2_SERVICES_INTERPOLATOR_CORE_SERVICE_HPP__
+#endif //__TERRAMA2_SERVICES_INTERPOLATOR_CORE_INTERPOLATOR_HPP__

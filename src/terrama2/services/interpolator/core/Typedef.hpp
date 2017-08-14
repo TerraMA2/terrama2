@@ -31,16 +31,16 @@
 #define __TERRAMA2_SERVICES_INTERPOLATOR_TYPEDEF_HPP__
 
 #include "../../../core/data-model/Process.hpp"
-#include "../../../core/data-model/DataSeries.hpp"
-#include "../../../core/data-model/Filter.hpp"
-#include "../../../core/Typedef.hpp"
+//#include "../../../core/data-model/DataSeries.hpp"
+//#include "../../../core/Typedef.hpp"
 
 // TerraLib
 #include <terralib/geometry/Coord2D.h>
-#include <terralib/geometry/Envelope.h>
 #include <terralib/sam/kdtree.h>
 
-//! Unique identifier of a Interpolator.
+//#include "Interpolator.hpp"
+
+//! Unique identifier of a Collector
 typedef ProcessId InterpolatorId;
 
 namespace te
@@ -60,137 +60,31 @@ namespace terrama2
     {
       namespace core
       {
-        /*!
-         * \enum
-         *
-         * \brief The InterpolatorTypes enum
-         */
-        enum InterpolatorType
-        {
-          NEARESTNEIGHBOR,  //!<
-          BILINEAR,         //!<
-          BICUBIC           //!<
-        };
-
-        /*!
-         * \struct InterpolatorParams
-         *
-         * \brief Generic params for interpolation algorithms.
-         */
-        struct InterpolatorParams
-        {
-          int resolutionX;                    //!<
-          int resolutionY;                    //!<
-          InterpolatorType interpolationType; //!<
-          te::gm::Envelope bRect;             //!<
-          std::string fileName;               //!<
-          terrama2::core::Filter filter;      //!< Information on how input data should be filtered before storage.
-          DataSeriesId series;
-        };
-
-        /*!
-         * \struct NNIterpolatorParams
-         *
-         * \brief Params for a nearest neigbor strategy of interpolation.
-         */
-        struct NNIterpolatorParams : public InterpolatorParams
-        {
-          /*!
-           * \brief NNIterpolatorParams
-           */
-          NNIterpolatorParams() :
-            InterpolatorParams()
-          {
-            InterpolatorParams::interpolationType = NEARESTNEIGHBOR;
-          }
-
-          unsigned int nnCR;                              //!<
-          unsigned int nnRR;                              //!<
-          double nnLastRow;                               //!< Last row available for nearest Neighbor interpolation.
-          double nnLastCol;                               //!< Last column available for nearest Neighbor interpolation.
-
-        };
-
-        /*!
-         * \struct BLInterpolatorParams
-         *
-         * \brief Params for a bilinear strategy of interpolation.
-         */
-        struct BLInterpolatorParams : public InterpolatorParams
-        {
-          /*!
-           * \brief BLInterpolatorParams
-           */
-          BLInterpolatorParams() :
-            InterpolatorParams()
-          {
-            InterpolatorParams::interpolationType = BILINEAR;
-          }
-
-          double bilRowMin;                                //!< Minimum row for bilinear interpolation.
-          double bilRowMax;                                //!< Maximum row for bilinear interpolation.
-          double bilColMin;                                //!< Minimum column for bilinear interpolation.
-          double bilColMax;                                //!< Maximum column for bilinear interpolation.
-          double bilRowDifMin;                             //!< Minimum difference between rows (min/max).
-          double bilRowDifMax;                             //!< Maximum difference between rows (min/max).
-          double bilColDifMin;                             //!< Minimum difference between columns (min/max).
-          double bilColDifMax;                             //!< Maximum difference between columns (min/max).
-          double bilDistances[4];                          //!< Bilinear distances.
-          double bilWeights[4];                            //!< Bilinear weights;
-          std::vector<std::complex<double> > bilValues;    //!< Bilinear values;
-          double bilLastRow;                               //!< Last row available for bilinear interpolation.
-          double bilLastCol;                               //!< Last column available for bilinear interpolation.
-        };
-
-        /*!
-         * \struct BCInterpolatorParams
-         *
-         * \brief Params for  a bicubic strategy of interpolation.
-         */
-        struct BCInterpolatorParams : public InterpolatorParams
-        {
-          /*!
-           * \brief BCInterpolatorParams
-           */
-          BCInterpolatorParams() :
-            InterpolatorParams()
-          {
-            InterpolatorParams::interpolationType = BICUBIC;
-          }
-
-          unsigned bicGridRow;                            //!<
-          unsigned bicGridCol;                            //!<
-          unsigned bicBufRow;                             //!<
-          unsigned bicBufCol;                             //!<
-          double bicReadRealValue;                        //!<
-          double bicReadImagValue;                        //!<
-          double bicBbufferReal[4][4];                    //!<
-          double bicBbufferImag[4][4];                    //!<
-          double bicOffsetX;                              //!<
-          double bicOffsetY;                              //!<
-          double bicKernel;                               //!<
-          double bicHWeights[4];                          //!<
-          double bicVWeights[4];                          //!<
-          double bicHSum;                                 //!<
-          double bicVSum;                                 //!<
-          double bicRowAccumReal;                         //!<
-          double bicRowAccumImag;                         //!<
-          double bicRowsValuesReal[4];                    //!<
-          double bicRowsValuesImag[4];                    //!<
-          double bicRowBound;                             //!< Last row available for bicubic interpolation.
-          double bicColBound;                             //!< Last column available for bicubic interpolation.
-        };
+        // Forward declaration
+        class DataManager;
+        struct Interpolator;
+        struct InterpolatorParams;
 
         //! Node of a kd-tree specialized to use with the Interpolator.
         typedef te::sam::kdtree::AdaptativeNode<te::gm::Coord2D, int, int> InterpolatorNode;
 
         //! Kd-tree specialized to use InterpolatorNode.
         typedef te::sam::kdtree::AdaptativeIndex<InterpolatorNode> InterpolatorTree;
+
+        //! Shared smart pointer for InterpolatorParams
+        typedef std::shared_ptr<terrama2::services::interpolator::core::InterpolatorParams> InterpolatorParamsPtr;
+
+        //! Shared smart pointer for Interpolator
+        typedef std::shared_ptr<Interpolator> InterpolatorPtr;
+
+        //! Shared smart pointer for DataManager
+        typedef std::shared_ptr<terrama2::services::interpolator::core::DataManager> DataManagerPtr;
+
+        //! Shared smart pointer for te::rst::Raster
+        typedef std::shared_ptr<te::rst::Raster> RasterPtr;
       }
     }
   }
 }
-
-
 
 #endif // __TERRAMA2_SERVICES_INTERPOLATOR_TYPEDEF_HPP__

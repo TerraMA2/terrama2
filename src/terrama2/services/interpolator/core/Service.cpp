@@ -28,9 +28,11 @@
 */
 
 #include "Service.hpp"
-//#include "Collector.hpp"
-//#include "CollectorLogger.hpp"
-//#include "IntersectionOperation.hpp"
+
+#include "DataManager.hpp"
+#include "InterpolatorLogger.hpp"
+
+//#include "Shared.hpp"
 
 //#include "../../../core/Shared.hpp"
 
@@ -41,88 +43,92 @@
 //#include "../../../core/data-access/DataAccessor.hpp"
 //#include "../../../core/data-access/DataStorager.hpp"
 
-//#include "../../../core/utility/Timer.hpp"
+#include "../../../core/utility/Timer.hpp"
 //#include "../../../core/utility/TimeUtils.hpp"
-//#include "../../../core/utility/Logger.hpp"
+#include "../../../core/utility/Logger.hpp"
 //#include "../../../core/utility/DataAccessorFactory.hpp"
 //#include "../../../core/utility/DataStoragerFactory.hpp"
-//#include "../../../core/utility/ServiceManager.hpp"
+#include "../../../core/utility/ServiceManager.hpp"
 //#include "../../../core/utility/FileRemover.hpp"
 
 #include "../../../core/Exception.hpp"
 
-terrama2::services::interpolator::core::Service::Service(/*std::weak_ptr<terrama2::services::interpolator::core::DataManager> dataManager*/)
-//  : dataManager_(dataManager)
+terrama2::services::interpolator::core::Service::Service(std::weak_ptr<terrama2::services::interpolator::core::DataManager> dataManager):
+  dataManager_(dataManager)
 {
-//  connectDataManager();
+  connectDataManager();
 }
 
 void terrama2::services::interpolator::core::Service::prepareTask(const terrama2::core::ExecutionPackage& executionPackage)
 {
-//  try
-//  {
-//    auto collectorLogger = std::dynamic_pointer_cast<CollectorLogger>(logger_->clone());
-//    assert(collectorLogger);
-//    taskQueue_.emplace(std::bind(&terrama2::services::interpolator::core::Service::collect, this, executionPackage, collectorLogger, dataManager_));
-//  }
-//  catch(const std::exception& e)
-//  {
-//    TERRAMA2_LOG_ERROR() << e.what();
-//  }
+  try
+  {
+    auto interpolatorLogger = std::dynamic_pointer_cast<InterpolatorLogger>(logger_->clone());
+    assert(interpolatorLogger);
+    taskQueue_.emplace(std::bind(&terrama2::services::interpolator::core::Service::interpolate, this, executionPackage, interpolatorLogger, dataManager_));
+  }
+  catch(const std::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << e.what();
+  }
+}
+
+void terrama2::services::interpolator::core::Service::interpolate(terrama2::core::ExecutionPackage executionPackage, std::shared_ptr<InterpolatorLogger> logger, std::weak_ptr<terrama2::services::interpolator::core::DataManager> weakDataManager)
+{
+
 }
 
 void terrama2::services::interpolator::core::Service::addToQueue(InterpolatorId interpolatorId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept
 {
-//  try
-//  {
-//    std::lock_guard<std::mutex> lock(mutex_);
+  try
+  {
+    std::lock_guard<std::mutex> lock(mutex_);
 
-//    auto datamanager = dataManager_.lock();
-//    auto collector = datamanager->findCollector(collectorId);
+    auto datamanager1 = dataManager_.lock();
+    auto interpolator = datamanager1->findInterpolator(interpolatorId);
 
-//    const auto& serviceManager = terrama2::core::ServiceManager::getInstance();
-//    auto serviceInstanceId = serviceManager.instanceId();
+    const auto& serviceManager = terrama2::core::ServiceManager::getInstance();
+    auto serviceInstanceId = serviceManager.instanceId();
 
-//    // Check if this collector should be executed in this instance
-//    if(collector->serviceInstanceId != serviceInstanceId)
-//      return;
+    // Check if this collector should be executed in this instance
+    if(interpolator->serviceInstanceId != serviceInstanceId)
+      return;
 
-//    RegisterId registerId = logger_->start(collectorId);
+    RegisterId registerId = logger_->start(interpolatorId);
 
-//    terrama2::core::ExecutionPackage executionPackage;
-//    executionPackage.processId = collectorId;
-//    executionPackage.executionDate = startTime;
-//    executionPackage.registerId = registerId;
+    terrama2::core::ExecutionPackage executionPackage;
+    executionPackage.processId = interpolatorId;
+    executionPackage.executionDate = startTime;
+    executionPackage.registerId = registerId;
 
-//    // if this collector id is already being processed put it on the wait queue
-//    auto pqIt = std::find(processingQueue_.begin(), processingQueue_.end(), collectorId);
-//    if(pqIt == processingQueue_.end())
-//    {
-//      processQueue_.push_back(executionPackage);
-//      processingQueue_.push_back(collectorId);
+    // if this collector id is already being processed put it on the wait queue
+    auto pqIt = std::find(processingQueue_.begin(), processingQueue_.end(), interpolatorId);
+    if(pqIt == processingQueue_.end())
+    {
+      processQueue_.push_back(executionPackage);
+      processingQueue_.push_back(interpolatorId);
 
-//      //wake loop thread
-//      mainLoopCondition_.notify_one();
-//    }
-//    else
-//    {
-//      waitQueue_[collectorId].push(executionPackage);
-//      logger_->result(CollectorLogger::ON_QUEUE, nullptr, executionPackage.registerId);
-//      TERRAMA2_LOG_INFO() << tr("Collector %1 added to wait queue.").arg(collectorId);
-//    }
+      //wake loop thread
+      mainLoopCondition_.notify_one();
+    }
+    else
+    {
+      waitQueue_[interpolatorId].push(executionPackage);
+      logger_->result(InterpolatorLogger::ON_QUEUE, nullptr, executionPackage.registerId);
+      TERRAMA2_LOG_INFO() << tr("Interpolator %1 added to wait queue.").arg(interpolatorId);
+    }
 
-
-//    mainLoopCondition_.notify_one();
-//  }
-//  catch(const terrama2::core::LogException&)
-//  {
-//    TERRAMA2_LOG_ERROR() << QObject::tr("Unable to access log database.");
-//  }
-//  catch(...)
-//  {
-//    // exception guard, slots should never emit exceptions.
-//    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception durring collector edd to queue...");
-//  }
+    mainLoopCondition_.notify_one();
+  }
+  catch(const terrama2::core::LogException&)
+  {
+    TERRAMA2_LOG_ERROR() << QObject::tr("Unable to access log database.");
+  }
+  catch(...)
+  {
+    // exception guard, slots should never emit exceptions.
+    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception durring collector edd to queue...");
+  }
 }
 
 //void terrama2::services::interpolator::core::Service::collect(terrama2::core::ExecutionPackage executionPackage,
@@ -309,66 +315,67 @@ void terrama2::services::interpolator::core::Service::addToQueue(InterpolatorId 
 //  notifyWaitQueue(executionPackage.processId);
 //}
 
-//void terrama2::services::interpolator::core::Service::connectDataManager()
-//{
-////  auto dataManager = dataManager_.lock();
-////  connect(dataManager.get(), &terrama2::services::interpolator::core::DataManager::collectorAdded, this,
-////          &terrama2::services::interpolator::core::Service::addProcessToSchedule);
-////  connect(dataManager.get(), &terrama2::services::interpolator::core::DataManager::collectorRemoved, this,
-////          &terrama2::services::interpolator::core::Service::removeCollector);
-////  connect(dataManager.get(), &terrama2::services::interpolator::core::DataManager::collectorUpdated, this,
-////          &terrama2::services::interpolator::core::Service::updateCollector);
-//}
+void terrama2::services::interpolator::core::Service::connectDataManager()
+{
+  auto dataManager1 = dataManager_.lock();
 
-//void terrama2::services::interpolator::core::Service::removeCollector(CollectorId collectorId) noexcept
-//{
-////  try
-////  {
-////    std::lock_guard<std::mutex> lock(mutex_);
+  connect(dataManager1.get(), &terrama2::services::interpolator::core::DataManager::interpolatorAdded, this,
+          &terrama2::services::interpolator::core::Service::addProcessToSchedule);
+  connect(dataManager1.get(), &terrama2::services::interpolator::core::DataManager::interpolatorRemoved, this,
+          &terrama2::services::interpolator::core::Service::removeInterpolator);
+  connect(dataManager1.get(), &terrama2::services::interpolator::core::DataManager::interpolatorUpdated, this,
+          &terrama2::services::interpolator::core::Service::updateInterpolator);
+}
 
-
-////    TERRAMA2_LOG_INFO() << tr("Removing collector %1.").arg(collectorId);
-
-////    auto it = timers_.find(collectorId);
-////    if(it != timers_.end())
-////    {
-////      auto timer = timers_.at(collectorId);
-////      timer->disconnect();
-////      timers_.erase(collectorId);
-////    }
-
-////    // remove from queue
-////    processQueue_.erase(std::remove_if(processQueue_.begin(), processQueue_.end(),
-////                                       [collectorId](const terrama2::core::ExecutionPackage& executionPackage)
-////                                       { return collectorId == executionPackage.processId; }), processQueue_.end());
-
-////    waitQueue_.erase(collectorId);
+void terrama2::services::interpolator::core::Service::removeInterpolator(InterpolatorId interpolatorId) noexcept
+{
+  try
+  {
+    std::lock_guard<std::mutex> lock(mutex_);
 
 
-////    TERRAMA2_LOG_INFO() << tr("Collector %1 removed successfully.").arg(collectorId);
-////  }
-////  catch(const std::exception& e)
-////  {
-////    TERRAMA2_LOG_ERROR() << e.what();
-////    TERRAMA2_LOG_INFO() << tr("Could not remove collector: %1.").arg(collectorId);
-////  }
-////  catch(const boost::exception& e)
-////  {
-////    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
-////    TERRAMA2_LOG_INFO() << tr("Could not remove collector: %1.").arg(collectorId);
-////  }
-////  catch(...)
-////  {
-////    TERRAMA2_LOG_ERROR() << tr("Unknown error");
-////    TERRAMA2_LOG_INFO() << tr("Could not remove collector: %1.").arg(collectorId);
-////  }
-//}
+    TERRAMA2_LOG_INFO() << tr("Removing interpolator %1.").arg(interpolatorId);
 
-//void terrama2::services::interpolator::core::Service::updateCollector(CollectorPtr collector) noexcept
-//{
-////  removeCollector(collector->id);
-////  addProcessToSchedule(collector);
-//}
+    auto it = timers_.find(interpolatorId);
+    if(it != timers_.end())
+    {
+      auto timer = timers_.at(interpolatorId);
+      timer->disconnect();
+      timers_.erase(interpolatorId);
+    }
+
+    // remove from queue
+    processQueue_.erase(std::remove_if(processQueue_.begin(), processQueue_.end(),
+                                       [interpolatorId](const terrama2::core::ExecutionPackage& executionPackage)
+    { return interpolatorId == executionPackage.processId; }), processQueue_.end());
+
+    waitQueue_.erase(interpolatorId);
+
+
+    TERRAMA2_LOG_INFO() << tr("Interpolator %1 removed successfully.").arg(interpolatorId);
+  }
+  catch(const std::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << e.what();
+    TERRAMA2_LOG_INFO() << tr("Could not remove interpolator: %1.").arg(interpolatorId);
+  }
+  catch(const boost::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
+    TERRAMA2_LOG_INFO() << tr("Could not remove interpolator: %1.").arg(interpolatorId);
+  }
+  catch(...)
+  {
+    TERRAMA2_LOG_ERROR() << tr("Unknown error");
+    TERRAMA2_LOG_INFO() << tr("Could not remove interpolator: %1.").arg(interpolatorId);
+  }
+}
+
+void terrama2::services::interpolator::core::Service::updateInterpolator(InterpolatorPtr interpolator) noexcept
+{
+  removeInterpolator(interpolator->id);
+  addProcessToSchedule(interpolator);
+}
 
 void terrama2::services::interpolator::core::Service::updateAdditionalInfo(const QJsonObject& obj) noexcept
 {

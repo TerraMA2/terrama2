@@ -31,41 +31,5 @@
 // STL
 #include <memory>
 
-namespace te
-{
-  namespace rst
-  {
-    class Raster;
-  }
-}
-
-namespace terrama2
-{
-  namespace services
-  {
-    namespace interpolator
-    {
-      namespace core
-      {
-        // Forward declarations
-        class DataManager;
-        struct Interpolator;
-        struct InterpolatorParams;
-
-        //! Shared smart pointer for Interpolator
-        typedef std::shared_ptr<terrama2::services::interpolator::core::Interpolator> InterpolatorPtr;
-
-        //! Shared smart pointer for InterpolatorParams
-        typedef std::shared_ptr<terrama2::services::interpolator::core::InterpolatorParams> InterpolatorParamsPtr;
-
-        //! Shared smart pointer for DataManager
-        typedef std::shared_ptr<terrama2::services::interpolator::core::DataManager> DataManagerPtr;
-
-        //! Shared smart pointer for te::rst::Raster
-        typedef std::shared_ptr<te::rst::Raster> RasterPtr;
-      } /* core */
-    }   /* interpolator */
-  }     /* services */
-}       /* terrama2 */
 
 #endif // __TERRAMA2_SERVICES_INTERPOLATOR_SHARED_HPP__

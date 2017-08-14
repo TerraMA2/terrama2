@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file interpolator/core/InterpolatorLogger.cpp
+  \file InterpolatorLogger.cpp
 
   \author Frederico Augusto Bedê
 */

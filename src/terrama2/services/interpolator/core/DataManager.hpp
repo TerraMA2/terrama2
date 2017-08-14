@@ -31,8 +31,10 @@
 #define __TERRAMA2_SERVICES_INTERPOLATOR_CORE_DATAMANAGER_HPP__
 
 #include "../../../core/data-model/DataManager.hpp"
-#include "../core/Typedef.hpp"
-#include "../core/Shared.hpp"
+
+#include "Typedef.hpp"
+#include "Interpolator.hpp"
+//#include "Shared.hpp"
 
 namespace terrama2
 {
