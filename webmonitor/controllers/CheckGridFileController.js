@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Controller responsible for returning the attributes table data accordingly with the received parameters.
+ * Controller responsible for checking if a grid file exists.
  * @class CheckGridFileController
  *
  * @author Jean Souza [jean.souza@funcate.org.br]
@@ -32,10 +32,10 @@ var CheckGridFileController = function(app) {
    * @inner
    */
   var checkGridFile = function(request, response) {
-    var url = memberAdminHostInfo.protocol + memberAdminHostInfo.host + ":" + memberAdminHostInfo.port + memberAdminHostInfo.basePath + "check-grid?dpi=" + layer.exportation.dataProviderId + "&mask=" + layer.exportation.mask + "&file=" + layer.name;
+    var url = memberAdminHostInfo.protocol + memberAdminHostInfo.host + ":" + memberAdminHostInfo.port + memberAdminHostInfo.basePath + "check-grid?dpi=" + request.body.dpi + "&mask=" + request.body.mask + "&file=" + request.body.file;
 
-    if(layer.dateInfo.dates !== undefined && layer.dateInfo.dates.length > 0)
-      url += "." + layer.dateInfo.dates[layer.dateInfo.initialDateIndex] + "&date=" + layer.dateInfo.dates[layer.dateInfo.initialDateIndex];
+    if(request.body.date !== undefined)
+      url += "." + request.body.date + "&date=" + request.body.date;
 
     memberHttp.get(url, function(resp) {
       var body = '';

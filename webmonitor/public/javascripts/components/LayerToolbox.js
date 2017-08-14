@@ -85,15 +85,23 @@ define(
 
             Utils.getWebAppSocket().emit('generateFileRequest', exportationParams);
           } else {
-            var baseUrl = webadminHostInfo.protocol + webadminHostInfo.host + ":" + webadminHostInfo.port + webadminHostInfo.basePath;
             var urlParams = "?dpi=" + layer.exportation.dataProviderId + "&mask=" + layer.exportation.mask + "&file=" + layer.name;
 
-            if(layer.dateInfo.dates !== undefined && layer.dateInfo.dates.length > 0)
-              urlParams += "." + layer.dateInfo.dates[layer.dateInfo.initialDateIndex] + "&date=" + layer.dateInfo.dates[layer.dateInfo.initialDateIndex];
+            var params = {
+              dpi: layer.exportation.dataProviderId,
+              mask: layer.exportation.mask,
+              file: layer.name
+            };
 
-            $.get(baseUrl + "check-grid" + urlParams, function(data) {
+            if(layer.dateInfo.dates !== undefined && layer.dateInfo.dates.length > 0) {
+              urlParams += "." + layer.dateInfo.dates[layer.dateInfo.initialDateIndex] + "&date=" + layer.dateInfo.dates[layer.dateInfo.initialDateIndex];
+              params.date = layer.dateInfo.dates[layer.dateInfo.initialDateIndex];
+              params.file += "." + layer.dateInfo.dates[layer.dateInfo.initialDateIndex];
+            }
+
+            $.post(BASE_URL + "check-grid", params, function(data) {
               if(data.result)
-                $('#exportation-iframe').attr('src', baseUrl + "export-grid" + urlParams);
+                $('#exportation-iframe').attr('src', webadminHostInfo.protocol + webadminHostInfo.host + ":" + webadminHostInfo.port + webadminHostInfo.basePath + "export-grid" + urlParams);
               else
                 alert('O arquivo não existe!');
             });
