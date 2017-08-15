@@ -145,7 +145,7 @@
         </tr>
         <tr ng-repeat="element in filteredModel = (model | filter:searchInput | filter:showInTableFilter) | pagingToolLimit: 10 | orderBy: orderElementby track by $index">
           <td ng-show="isFunction(icon())" style="width: 50px;">
-            <img style="margin-left: 5px;" ng-if="iconProperties.type === 'img'" ng-src="{{ icon()(element) }}" alt="" width="{{ width }}" height="{{ height }}"/>
+            <img style="margin-left: 5px;" ng-if="iconProperties.type === 'img'" ng-src="{{ icon()(element) }}" alt="" max-width="{{ width }}" height="{{ height }}"/>
             <span ng-if="iconProperties.type === 'icon'" class="label">
               <i class="terrama2-alert-icon {{ icon()(element) }}"></i>
             </span>

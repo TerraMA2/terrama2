@@ -260,7 +260,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::runMonitoredObjectAna
         break;
       }
 
-      if(analysis->type == AnalysisType::DCP_TYPE && analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_PCD_TYPE)
+      if(analysis->type == AnalysisType::DCP_TYPE && analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE)
       {
         auto dataSeries = dataManager->findDataSeries(analysisDataSeries.dataSeriesId);
         size = dataSeries->datasetList.size();
