@@ -41,6 +41,7 @@ namespace terrama2
 {
   namespace core
   {
+    class Service;
     /*!
       \brief Controls service instance information.
 
@@ -85,6 +86,7 @@ namespace terrama2
         virtual int numberOfThreads() const;
 
         void setLogger(std::shared_ptr<terrama2::core::ProcessLogger> logger);
+        void setService(std::shared_ptr<terrama2::core::Service> service);
 
         //! Return the Date/Time when the service was started.
         virtual const std::shared_ptr< te::dt::TimeInstantTZ >& startTime() const;
@@ -139,6 +141,7 @@ namespace terrama2
         ServiceManager& operator=(ServiceManager&& other) = delete;
 
         std::weak_ptr<terrama2::core::ProcessLogger> logger_;
+        std::weak_ptr<terrama2::core::Service> service_;
 
         std::string instanceName_;
         ServiceInstanceId instanceId_ = 0;
