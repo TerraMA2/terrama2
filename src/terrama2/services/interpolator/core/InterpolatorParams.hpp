@@ -35,6 +35,8 @@
 // TerraLib
 #include <terralib/geometry/Envelope.h>
 
+//STL
+#include <memory>
 
 namespace terrama2
 {
@@ -65,7 +67,7 @@ namespace terrama2
         {
           InterpolatorParams()
           {
-
+            filter.reset(new terrama2::core::Filter);
           }
 
           InterpolatorParams(const InterpolatorParams& other)
@@ -75,7 +77,7 @@ namespace terrama2
             interpolationType = other.interpolationType;
             bRect = other.bRect;
             fileName = other.fileName;
-            filter = other.filter;
+            filter.reset(new terrama2::core::Filter(*other.filter.get()));
             series = other.series;
           }
 
@@ -86,19 +88,19 @@ namespace terrama2
             interpolationType = other.interpolationType;
             bRect = other.bRect;
             fileName = other.fileName;
-            filter = other.filter;
+            filter.reset(new terrama2::core::Filter(*other.filter.get()));
             series = other.series;
 
             return *this;
           }
 
-          int resolutionX;                    //!<
-          int resolutionY;                    //!<
-          InterpolatorType interpolationType; //!<
-          te::gm::Envelope bRect;             //!<
-          std::string fileName;               //!<
-          terrama2::core::Filter filter;      //!< Information on how input data should be filtered before storage.
-          DataSeriesId series;                //!<
+          int resolutionX;                                     //!<
+          int resolutionY;                                     //!<
+          InterpolatorType interpolationType;                  //!<
+          te::gm::Envelope bRect;                              //!<
+          std::string fileName;                                //!<
+          std::unique_ptr<terrama2::core::Filter> filter;      //!< Information on how input data should be filtered before storage.
+          DataSeriesId series;                                 //!<
         };
 
         /*!
@@ -137,7 +139,6 @@ namespace terrama2
 
             return *this;
           }
-
 
           unsigned int nnCR;                              //!<
           unsigned int nnRR;                              //!<
