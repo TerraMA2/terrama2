@@ -36,7 +36,8 @@ var logger = require("./../../Logger");
  * @returns {string}
  */
 LocalSystemAdapter.prototype.make = function(service, command) {
-  return Utils.format("nohup sudo -H -u terrama2 %s > terrama2.out > terrama2.err < /dev/null &", command);
+  return Utils.format("nohup %s > terrama2.out > terrama2.err < /dev/null &", command);
+  // return Utils.format("nohup sudo -H -u terrama2 %s > terrama2.out > terrama2.err < /dev/null &", command);
 };
 
 /**

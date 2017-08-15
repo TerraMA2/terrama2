@@ -35,7 +35,8 @@ ScreenAdapter.prototype.constructor = ScreenAdapter;
  */
 ScreenAdapter.prototype.make = function(serviceInstance, command) {
   var commandId = util.format("%s_%s", serviceInstance.id, serviceInstance.port);
-  return util.format("screen -dmS %s sudo -H -u terrama2 %s", commandId, command);
+  return util.format("screen -dmS %s %s", commandId, command);
+  // return util.format("screen -dmS %s sudo -H -u terrama2 %s", commandId, command);
 };
 
 /**
