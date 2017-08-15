@@ -18,9 +18,13 @@
           "timestamp_property": {
             "type": "string",
             "title": "Timestamp property"
+          },
+          "geometry_property": {
+            "type": "string",
+            "title": "Geometry property"
           }
         },
-        "required": ["table_name", "timestamp_property"]
+        "required": ["table_name", "timestamp_property", "geometry_property"]
       },
       "form": ["*"]
     }
