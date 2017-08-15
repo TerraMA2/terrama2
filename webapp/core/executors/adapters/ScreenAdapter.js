@@ -13,7 +13,7 @@ var BaseAdapter = require("./BaseAdapter");
 
 /**
  * An adapter of Screen. It executes a screen command from executor in both SSH or Local.
- * 
+ *
  * @inherits BaseAdapter
  * @class ScreenAdapter
  */
@@ -26,9 +26,9 @@ ScreenAdapter.prototype = Object.create(BaseAdapter.prototype);
 ScreenAdapter.prototype.constructor = ScreenAdapter;
 
 /**
- * It formats a terrama2 service command. 
+ * It formats a terrama2 service command.
  * Syntax is: screen -dmS pathToExecutable serviceType servicePort
- * 
+ *
  * @param {ServiceInstance} serviceInstance - A TerraMA² service instance data model
  * @param {string} command - A brief command. "ANALYSIS 10000"
  * @return {string} a command formatted.
@@ -36,6 +36,7 @@ ScreenAdapter.prototype.constructor = ScreenAdapter;
 ScreenAdapter.prototype.make = function(serviceInstance, command) {
   var commandId = util.format("%s_%s", serviceInstance.id, serviceInstance.port);
   return util.format("screen -dmS %s %s", commandId, command);
+  // return util.format("screen -dmS %s sudo -H -u terrama2 %s", commandId, command);
 };
 
 /**

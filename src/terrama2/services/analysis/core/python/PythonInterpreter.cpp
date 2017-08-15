@@ -350,6 +350,12 @@ void terrama2::services::analysis::core::python::addValue(const std::string& att
     AnalysisPtr analysis = context->getAnalysis();
     verify::analysisType(analysis, AnalysisType::MONITORED_OBJECT_TYPE);
 
+    if(pyObjValue.is_none())
+    {
+      context->setAnalysisResult(cache.index, attrName, boost::any());
+      return;
+    }
+
     {
       // if the return value is a double
       boost::python::extract<double> extDouble(pyObjValue);
@@ -534,6 +540,7 @@ std::string terrama2::services::analysis::core::python::prepareScript(AnalysisPt
     pos += formatedLineBreak.length();
   }
 
+//TODO: The functions get_string_value and get_numeric_value can be improved with a simple python dict populated in the c++
   // Adds indent to the first line
   formatedScript = "    "  + formatedScript;
   formatedScript = "from terrama2 import *\n"
@@ -542,7 +549,11 @@ std::string terrama2::services::analysis::core::python::prepareScript(AnalysisPt
                    "    answer = get_attribute_value_as_json(attr)\n"
                    "    if(answer):\n"
                    "        attr_json = json.loads(answer)\n"
-                   "        return attr_json[attr]\n"
+                   "        value = attr_json[attr]\n"
+                   "        if isinstance(value, unicode):\n"
+                   "            return value.encode('UTF-8')\n"
+                   "        else:\n"
+                   "            return value\n"
                    "    else:\n"
                    "        return None\n\n"
                    "def analysis():\n"

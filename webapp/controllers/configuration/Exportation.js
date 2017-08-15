@@ -9,6 +9,7 @@
  * @property {object} memberFs - 'fs' module.
  * @property {object} memberPath - 'path' module.
  * @property {object} memberUtils - 'Utils' model.
+ * @property {object} memberExportation - 'Exportation' model.
  */
 var Exportation = function(app) {
 
@@ -18,6 +19,8 @@ var Exportation = function(app) {
   var memberPath = require('path');
   // 'Utils' model
   var memberUtils = require('../../core/Utils.js');
+  // 'Exportation' model
+  var memberExportation = new (require('../../core/Exportation.js'))();
 
   /**
    * Processes the request and returns a response.
@@ -38,6 +41,65 @@ var Exportation = function(app) {
     });
 
     deleteInvalidFolders();
+  };
+
+  /**
+   * Processes the request and returns a response.
+   * @param {json} request - JSON containing the request data
+   * @param {json} response - JSON containing the response data
+   *
+   * @function exportGridFile
+   * @memberof Exportation
+   * @inner
+   */
+  var exportGridFile = function(request, response) {
+    memberExportation.getGridFilePath(request.query.dpi, request.query.mask, request.query.date).then(function(gridFilePath) {
+      var fileName = request.query.file + memberPath.extname(gridFilePath);
+
+      response.download(gridFilePath, fileName);
+    }).catch(function(err) {
+      return console.error(err);
+    });
+
+    deleteInvalidFolders();
+  };
+
+  /**
+   * Processes the request and returns a response.
+   * @param {json} request - JSON containing the request data
+   * @param {json} response - JSON containing the response data
+   *
+   * @function checkGridFile
+   * @memberof Exportation
+   * @inner
+   */
+  var checkGridFile = function(request, response) {
+    memberExportation.getGridFilePath(request.query.dpi, request.query.mask, request.query.date).then(function(gridFilePath) {
+      memberFs.stat(gridFilePath, function(err, stat) {
+        response.json({ result: err === null });
+      });
+    }).catch(function(err) {
+      return console.error(err);
+    });
+  };
+
+  /**
+   * Processes the request and returns a response.
+   * @param {json} request - JSON containing the request data
+   * @param {json} response - JSON containing the response data
+   *
+   * @function checkGridFolder
+   * @memberof Exportation
+   * @inner
+   */
+  var checkGridFolder = function(request, response) {
+    memberExportation.getGridFolderPath(request.query.dpi).then(function(gridFolderPath) {
+      memberFs.stat(gridFolderPath, function(err, stat) {
+        response.json({ result: err === null });
+      });
+    }).catch(function(err) {
+      return console.error(err);
+    });
   };
 
   /**
@@ -83,7 +145,12 @@ var Exportation = function(app) {
     }
   };
 
-  return exportData;
+  return {
+    exportData: exportData,
+    exportGridFile: exportGridFile,
+    checkGridFile: checkGridFile,
+    checkGridFolder: checkGridFolder
+  };
 };
 
 module.exports = Exportation;

@@ -5,7 +5,7 @@
     "defaultFilePath": "/var/lib/terrama2/data",
     "defaultExecutablePath": "/opt/terrama2/4.0.0/bin",
     "defaultExecutableName": "terrama2_service",
-    "disablePDF": false,
+    "disablePDF": true,
     "OGR2OGR": "ogr2ogr",
     "db": {
       "username": "postgres",

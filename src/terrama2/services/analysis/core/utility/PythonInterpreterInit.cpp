@@ -31,6 +31,7 @@
 #include "../python/PythonInterpreter.hpp"
 #include "../python/PythonBindingGrid.hpp"
 #include "../python/PythonBindingMonitoredObject.hpp"
+#include "../python/PythonBindingDCP.hpp"
 
 terrama2::services::analysis::core::PythonInterpreterInit::PythonInterpreterInit()
 {
@@ -40,7 +41,8 @@ terrama2::services::analysis::core::PythonInterpreterInit::PythonInterpreterInit
   python::populateNamespace();
   terrama2::services::analysis::core::python::Grid::registerFunctions();
   terrama2::services::analysis::core::python::MonitoredObject::registerFunctions();
-
+  terrama2::services::analysis::core::python::DCP::registerFunctions();
+  
   PyEval_ReleaseLock();
 }
 
