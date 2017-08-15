@@ -75,10 +75,11 @@ fi
     # new user created
     # setting new password
     echo terrama2:terrama4 | chpasswd
+    sudo usermod -a -G sudo terrama2
   fi
-  
+
   mkdir -p /var/lib/terrama2/data
-  chown terrama2:terrama2 /var/lib/terrama2 -R
+  chown terrama2 /var/lib/terrama2 -R
 )
 
 # Add webapp to pm2 startup
