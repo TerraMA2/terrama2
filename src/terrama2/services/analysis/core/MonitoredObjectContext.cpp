@@ -78,7 +78,7 @@ void terrama2::services::analysis::core::MonitoredObjectContext::loadMonitoredOb
 
   auto analysis = getAnalysis();
 
-  for(auto analysisDataSeries : analysis->analysisDataSeriesList)
+  for(const auto& analysisDataSeries : analysis->analysisDataSeriesList)
   {
     auto dataSeriesPtr = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
     auto datasets = dataSeriesPtr->datasetList;
@@ -95,7 +95,15 @@ void terrama2::services::analysis::core::MonitoredObjectContext::loadMonitoredOb
       auto seriesMap = accessor->getSeries(filter, remover_);
       auto series = seriesMap[dataset];
 
-      std::string identifier = analysisDataSeries.metadata["identifier"];
+      std::string identifier;
+      try
+      {
+        identifier = analysisDataSeries.metadata.at("identifier");
+      }
+      catch (...)
+      {
+        /* code */
+      }
 
       std::shared_ptr<ContextDataSeries> dataSeriesContext(new ContextDataSeries);
 
@@ -119,32 +127,6 @@ void terrama2::services::analysis::core::MonitoredObjectContext::loadMonitoredOb
 
       ObjectKey key(dataset->id);
       datasetMap_[key] = dataSeriesContext;
-    }
-    else if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_PCD_TYPE)
-    {
-      for(const auto& dataset : dataSeriesPtr->datasetList)
-      {
-        auto dataProvider = dataManagerPtr->findDataProvider(dataSeriesPtr->dataProviderId);
-        terrama2::core::Filter filter;
-
-        //accessing data
-        terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeriesPtr);
-        auto seriesMap = accessor->getSeries(filter, remover_);
-        auto series = seriesMap[dataset];
-
-        std::string identifier = analysisDataSeries.metadata["identifier"];
-
-        std::shared_ptr<ContextDataSeries> dataSeriesContext(new ContextDataSeries);
-
-        std::size_t geomPropertyPosition = te::da::GetFirstPropertyPos(series.syncDataSet->dataset().get(), te::dt::GEOMETRY_TYPE);
-
-        dataSeriesContext->series = series;
-        dataSeriesContext->identifier = identifier;
-        dataSeriesContext->geometryPos = geomPropertyPosition;
-
-        ObjectKey key(dataset->id);
-        datasetMap_[key] = dataSeriesContext;
-      }
 
       if(analysis->type == AnalysisType::DCP_TYPE)
       {
@@ -173,6 +155,41 @@ void terrama2::services::analysis::core::MonitoredObjectContext::loadMonitoredOb
         dataSeriesContext->geometryPos = teDataSetType->getPropertyPosition("geom");
 
         ObjectKey key(DCP_ANALYSIS_DATASET);
+        datasetMap_[key] = dataSeriesContext;
+      }
+    }
+    else if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_PCD_TYPE)
+    {
+      for(const auto& dataset : dataSeriesPtr->datasetList)
+      {
+        auto dataProvider = dataManagerPtr->findDataProvider(dataSeriesPtr->dataProviderId);
+        terrama2::core::Filter filter;
+
+        //accessing data
+        terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeriesPtr);
+        auto seriesMap = accessor->getSeries(filter, remover_);
+        auto series = seriesMap[dataset];
+
+        std::string identifier;
+        try
+        {
+          identifier = analysisDataSeries.metadata.at("identifier");
+        }
+        catch (...)
+        {
+          /* code */
+        }
+
+
+        std::shared_ptr<ContextDataSeries> dataSeriesContext(new ContextDataSeries);
+
+        std::size_t geomPropertyPosition = te::da::GetFirstPropertyPos(series.syncDataSet->dataset().get(), te::dt::GEOMETRY_TYPE);
+
+        dataSeriesContext->series = series;
+        dataSeriesContext->identifier = identifier;
+        dataSeriesContext->geometryPos = geomPropertyPosition;
+
+        ObjectKey key(dataset->id);
         datasetMap_[key] = dataSeriesContext;
       }
     }
@@ -395,7 +412,7 @@ terrama2::services::analysis::core::MonitoredObjectContext::getMonitoredObjectCo
 
       return getContextDataset(datasetMO->id, filter);
     }
-    else if(analysis->type == AnalysisType::DCP_TYPE && analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_PCD_TYPE)
+    else if(analysis->type == AnalysisType::DCP_TYPE && analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE)
     {
       terrama2::core::Filter filter;
       if(!exists(DCP_ANALYSIS_DATASET, filter))
