@@ -14,9 +14,13 @@
           "table_name": {
             "type": "string",
             "title": "Table Name"
+          },
+          "timestamp_property": {
+            "type": "string",
+            "title": "Timestamp property"
           }
         },
-        "required": ["table_name"]
+        "required": ["table_name", "timestamp_property"]
       },
       "form": ["*"]
     }
