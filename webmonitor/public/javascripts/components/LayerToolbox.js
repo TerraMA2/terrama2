@@ -140,7 +140,7 @@ define(
             if(!$("#exportation-box").hasClass("hidden"))
               $("#exportation-box").addClass("hidden");
 
-            $("#layer-toolbox").css("height", "150px");
+            $("#layer-toolbox").css("height", "307px");
           }
 
           $("#layer-toolbox > .layer-toolbox-body .layer-name").text(layer.name);
@@ -151,16 +151,21 @@ define(
 
           if($("#layer-toolbox").hasClass("hidden"))
             $("#layer-toolbox").removeClass("hidden");
+
+          if (layer.dateInfo && layer.dateInfo.dates){
+            if($("#animate-layer-box").hasClass("hidden"))
+              $("#animate-layer-box").removeClass("hidden");
+
+            $("#layer-toolbox > .layer-toolbox-body > #animate-layer-box #dates-slider").empty().html("<div id=\"dates" + layer.id.replace(":","") + "\"></div><label>From: </label><span id=\"initialDate\"></span></br><label>To: </label><span id=\"finalDate\"></span>");
+            AnimatedLayer.setDatesSlider(layer);
+            AnimatedLayer.createAnimation(layer);
+          } else {
+            if(!$("#animate-layer-box").hasClass("hidden"))
+              $("#animate-layer-box").addClass("hidden");
+            $("#layer-toolbox > .layer-toolbox-body > #animate-layer-box #dates-slider").empty();
+          }
         }
       });
-
-      $("#animate").on("click", function(){
-
-        if($("#animated-map-box").hasClass("hidden"))
-          $("#animated-map-box").removeClass("hidden");
-        var layer = Layers.getLayerById($(this).data("layerid"));
-        AnimatedLayer.createMap(layer);
-      })
 
       $("#layer-toolbox > .layer-toolbox-header > .btn").on("click", function() {
         $("#layer-toolbox").addClass("hidden");

@@ -82,13 +82,14 @@
               <div class="layer-toolbox-header">Layer Tools<span class="btn btn-default" style="padding: 0 4px 0 4px; float: right;"><i class="fa fa-close"></i></span></div>
               <div class="layer-toolbox-body">
                 <div class="layer-name"></div>
-                <div class="animate-layer">
-                  <div role="group" aria-label="Animation controls">
-                    <button id="play" type="button">Play</button>
-                    <button id="pause" type="button">Pause</button>
-                    <span id="info"></span>
+                <div id="animate-layer-box" class="hidden">
+                  <hr style="margin: 10px 0 10px 0;"/>  
+                  <div role="group" aria-label="Animation controls" style="text-align: center;">
+                    <button id="reload" type="button"><i class="fa fa-repeat"></i></button>
+                    <button id="play" type="button"><i class="fa fa-play"></i></button>
+                    <button id="pause" type="button"><i class="fa fa-pause"></i></button>
                   </div>
-                  <div id="slider-dates"></div>
+                  <div id="dates-slider" style="margin-top: 10px;"></div>
                 </div>
                 <hr style="margin: 10px 0 10px 0;"/>
                 <div id="slider-box"></div>
@@ -157,6 +158,13 @@
                 <button type="button"><i class="fa fa-info"></i></button>
               </div>
             </div>
+            <div id="animate-tools" class="hidden">
+              <div id="currentDate"><label></label></div>
+              <div id="reloadAnimation" class="animate-tool-button mouse-function-btn"><button type="button"><i class="fa fa-repeat"></i></button></div>
+              <div id="playAnimation" class="animate-tool-button mouse-function-btn"><button type="button"><i class="fa fa-play"></i></button></div>
+              <div id="pauseAnimation" class="animate-tool-button mouse-function-btn hidden"><button type="button"><i class="fa fa-pause"></i></button></div>
+              <div id="stopAnimation" class="animate-tool-button mouse-function-btn"><button type="button"><i class="fa fa-times"></i></button></div>
+            </div>
             <div id="table-div" style="display: none; height: 400px;">
               <div class="main-div hidden">
                 <div id="attributes-table-select">
@@ -169,15 +177,6 @@
                 <div id="attributes-table-div">
                   <table class="table table-bordered table-hover" id="attributes-table"></table>
                 </div>
-              </div>
-            </div>
-            <div id="animated-map-box" class="hidden">
-              <div class="animated-map-header">Animation<span class="btn btn-default" style="padding: 0 4px 0 4px; float: right;"><i class="fa fa-close"></i></span></div>
-              <div id="animated-map"></div>
-              <div role="group" aria-label="Animation controls">
-                <button id="play" type="button">Play</button>
-                <button id="pause" type="button">Pause</button>
-                <span id="info"></span>
               </div>
             </div>
           </div>
