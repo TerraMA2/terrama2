@@ -115,7 +115,7 @@ void terrama2::core::DataStoragerTable::store(DataSetSeries series, DataSetPtr o
       if(typeCapabilities.supportsBTreeIndex())
       {
         // the newDataSetType takes ownership of the pointer
-        auto spatialIndex = new te::da::Index("spatial_index", te::da::B_TREE_TYPE, {geomProperty});
+        auto spatialIndex = new te::da::Index("spatial_index_" + destinationDataSetName, te::da::B_TREE_TYPE, {geomProperty});
         newDataSetType->add(spatialIndex);
       }
     }
