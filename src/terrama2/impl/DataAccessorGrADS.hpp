@@ -111,7 +111,7 @@ namespace terrama2
         ValueDef* yDef_;
         ValueDef* zDef_;
         TValueDef* tDef_;
-        std::vector<Var*> vecVars_;
+        std::vector<std::unique_ptr<Var> > vecVars_;
         Srid srid_;
         uint32_t numberOfBands_;
         double valueMultiplier_;
