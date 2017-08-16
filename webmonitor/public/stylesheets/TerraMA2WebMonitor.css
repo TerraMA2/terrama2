@@ -494,16 +494,19 @@ html, body, #content, .content, .content-wrapper, #terrama2-map {
   background-color: rgba(0,0,0,.4);
   border-radius: 2px;
   height: 35px;
-  width: 140px;
+  width: 145px;
 }
 
-#currentDate > label {
+#currentDate > div {
   background-color: rgba(255,255,255,1);
   margin-bottom: 0px !important;
   height: 29px;
+  width: 139px;
   padding-top: 4px;
   padding-left: 3px;
   padding-right: 3px;
+  text-align: center;
+  border-radius: 2px;
 }
 
 .map-tool-button > button, .animate-tool-button > button {
@@ -553,11 +556,30 @@ html, body, #content, .content, .content-wrapper, #terrama2-map {
 
 #tableButton { top: 330px; }
 
-#reloadAnimation {left: 155px; }
+#reloadAnimation {left: 160px; }
 
-#playAnimation, #pauseAnimation {left: 195px;}
+#playAnimation, #pauseAnimation {left: 200px;}
 
-#stopAnimation {left: 235px;}
+#stopAnimation {left: 240px;}
+
+#reload, #play {margin-right: 5px;}
+
+#dates-slider {
+  width: 180px;
+  margin-left: 10px;
+}
+#rangeDates {
+  margin-top: 5px;
+}
+#rangeDates label {
+  width: 43px;
+  text-align: right;
+}
+
+#slider-box {
+  width: 180px;
+  margin-left: 10px;
+}
 
 #getAttributes.with-select { width: 190px; }
 
