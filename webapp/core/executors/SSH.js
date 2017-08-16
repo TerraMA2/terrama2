@@ -156,7 +156,11 @@ SSHDispatcher.prototype.startService = function(commandType) {
       var serviceTypeString = Utils.getServiceTypeName(serviceInstance.service_type_id);
       var enviromentVars = serviceInstance.runEnviroment;
 
-      if(config.disablePDF) {
+      if(config.disablePDF && !config.debug) {
+        var command = util.format("%s %s %s %s %s %s %s %s %s", "sudo", "-H", "-u", "terrama2", executable, serviceTypeString, port, '-platform', 'minimal');
+      } else if(!config.disablePDF && !config.debug) {
+        var command = util.format("%s %s %s %s %s %s %s", "sudo", "-H", "-u", "terrama2", executable, serviceTypeString, port);
+      } else if(config.disablePDF && config.debug) {
         var command = util.format("%s %s %s %s %s", executable, serviceTypeString, port, '-platform', 'minimal');
       } else {
         var command = util.format("%s %s %s", executable, serviceTypeString, port);
