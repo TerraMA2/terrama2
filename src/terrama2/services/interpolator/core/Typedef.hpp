@@ -30,17 +30,16 @@
 #ifndef __TERRAMA2_SERVICES_INTERPOLATOR_TYPEDEF_HPP__
 #define __TERRAMA2_SERVICES_INTERPOLATOR_TYPEDEF_HPP__
 
+#include "../../../core/data-access/DataSetSeries.hpp"
 #include "../../../core/data-model/Process.hpp"
-//#include "../../../core/data-model/DataSeries.hpp"
 //#include "../../../core/Typedef.hpp"
 
 // TerraLib
-#include <terralib/geometry/Coord2D.h>
+#include <terralib/geometry/Point.h>
 #include <terralib/sam/kdtree.h>
 
-//#include "Interpolator.hpp"
 
-//! Unique identifier of a Collector
+//! Unique identifier of a Interpolator
 typedef ProcessId InterpolatorId;
 
 namespace te
@@ -66,10 +65,10 @@ namespace terrama2
         struct InterpolatorParams;
 
         //! Node of a kd-tree specialized to use with the Interpolator.
-        typedef te::sam::kdtree::AdaptativeNode<te::gm::Coord2D, int, int> InterpolatorNode;
+        typedef te::sam::kdtree::Node<te::gm::Point, terrama2::core::DataSetSeries, terrama2::core::DataSetSeries> InterpolatorNode;
 
         //! Kd-tree specialized to use InterpolatorNode.
-        typedef te::sam::kdtree::AdaptativeIndex<InterpolatorNode> InterpolatorTree;
+        typedef te::sam::kdtree::Index<InterpolatorNode> InterpolatorTree;
 
         //! Shared smart pointer for InterpolatorParams
         typedef std::shared_ptr<terrama2::services::interpolator::core::InterpolatorParams> InterpolatorParamsPtr;

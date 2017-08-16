@@ -30,6 +30,7 @@
 #include "../../../core/data-access/DataAccessor.hpp"
 #include "../../../core/data-model/DataProvider.hpp"
 #include "../../../core/data-model/DataSeries.hpp"
+#include "../../../core/data-model/DataSetDcp.hpp"
 #include "../../../core/Exception.hpp"
 #include "../../../core/Typedef.hpp"
 #include "../../../core/utility/DataAccessorFactory.hpp"
@@ -114,7 +115,10 @@ void terrama2::services::interpolator::core::Interpolator::fillTree()
 
     for (auto it : dataMap)
     {
-//      it->
+      auto dataSet = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(it.first);
+      auto dataSeries = it.second;
+
+      tree_->insert(*dataSet->position.get(), dataSeries);
     }
 
   //  auto lastDateTime = dataAccessor->lastDateTime();
