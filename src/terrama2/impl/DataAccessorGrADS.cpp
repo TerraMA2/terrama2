@@ -416,18 +416,18 @@ void terrama2::core::GrADSDataDescriptor::addVar(const std::string& strVar)
   {
     var->varName_ = tokens.at(0);
 
+    try
     {
       //read number of vertical levels
-      bool ok = true;
       std::vector<std::string> levesField;
       boost::split(levesField, tokens.at(1), boost::is_any_of(";"));
       var->verticalLevels_ = std::stoi(levesField.at(0));
-      if(!ok)
-      {
-        QString errMsg = QObject::tr("Invalid value for VAR, expected an INT and found: %1").arg(QString::fromStdString(tokens.at(1)));
-        TERRAMA2_LOG_ERROR() << errMsg;
-        throw DataAccessorException() << ErrorDescription(errMsg);
-      }
+    }
+    catch(const std::invalid_argument&)
+    {
+      QString errMsg = QObject::tr("Invalid value for VAR, expected an INT and found: %1").arg(QString::fromStdString(tokens.at(1)));
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw DataAccessorException() << ErrorDescription(errMsg);
     }
 
     var->units_ = tokens.at(2);
