@@ -64,6 +64,7 @@
 //Boost
 #include <boost/filesystem/operations.hpp>
 #include <boost/regex.hpp>
+#include <boost/algorithm/string.hpp>
 
 //STL
 #include <unordered_set>
@@ -407,41 +408,46 @@ std::string terrama2::core::DataAccessorGrADS::extractBinaryFolderPathFromContro
 
 void terrama2::core::GrADSDataDescriptor::addVar(const std::string& strVar)
 {
-  Var* var = new Var;
-  QStringList tokens = QString::fromStdString(strVar).split(" ");
+  std::unique_ptr<Var> var(new Var);
+  std::vector<std::string> tokens;
+  boost::split(tokens, strVar, boost::is_any_of(" "));
 
   if(tokens.size() >= 4)
   {
-    var->varName_ = tokens[0].toStdString();
+    var->varName_ = tokens.at(0);
 
-    bool ok = true;
-    var->verticalLevels_ = tokens[1].toInt(&ok);
-    if(!ok)
+    try
     {
-      QString errMsg = QObject::tr("Invalid value for VAR, expected an INT and found: %1").arg(tokens[1]);
+      //read number of vertical levels
+      std::vector<std::string> levesField;
+      boost::split(levesField, tokens.at(1), boost::is_any_of(";"));
+      var->verticalLevels_ = std::stoi(levesField.at(0));
+    }
+    catch(const std::invalid_argument&)
+    {
+      QString errMsg = QObject::tr("Invalid value for VAR, expected an INT and found: %1").arg(QString::fromStdString(tokens.at(1)));
       TERRAMA2_LOG_ERROR() << errMsg;
       throw DataAccessorException() << ErrorDescription(errMsg);
     }
 
-    var->units_ = tokens[2].toStdString();
+    var->units_ = tokens.at(2);
 
     // Description may have spaces, need to concatenate all pieces
-    for(int i = 3; i < tokens.size(); ++i)
+    for(size_t i = 3; i < tokens.size(); ++i)
     {
       if(!var->description_.empty())
         var->description_ += " ";
-      var->description_ += tokens[i].toStdString();
+      var->description_ += tokens.at(i);
     }
   }
   else
   {
-    delete var;
     QString errMsg = QObject::tr("Wrong number of fields in VAR configuration, expected at least 4");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw DataAccessorException() << ErrorDescription(errMsg);
   }
 
-  vecVars_.push_back(var);
+  vecVars_.push_back(std::move(var));
 }
 
 void terrama2::core::GrADSDataDescriptor::setKeyValue(const std::string& key, const std::string& value)
@@ -648,8 +654,6 @@ terrama2::core::GrADSDataDescriptor& terrama2::core::GrADSDataDescriptor::operat
     zDef_ = nullptr;
   }
 
-  for(size_t i = 0; i < vecVars_.size(); ++i)
-    delete vecVars_[i];
   vecVars_.clear();
 
   //copy values from rhs
@@ -675,8 +679,11 @@ terrama2::core::GrADSDataDescriptor& terrama2::core::GrADSDataDescriptor::operat
   if(rhs.tDef_ != nullptr)
     tDef_ = new TValueDef(*rhs.tDef_);
 
-  for(size_t i = 0; i < rhs.vecVars_.size(); ++i)
-    vecVars_.push_back(new Var(*rhs.vecVars_[i]));
+// copy values of vecVars_ from rhs
+  std::transform(rhs.vecVars_.begin(),
+                 rhs.vecVars_.end(),
+                 std::back_inserter(vecVars_),
+                 [](const std::unique_ptr<Var>& var){ return std::unique_ptr<Var>(new Var(*var)); });
 
   return *this;
 }
@@ -705,8 +712,11 @@ terrama2::core::GrADSDataDescriptor::GrADSDataDescriptor(const GrADSDataDescript
   if(rhs.tDef_ != nullptr)
     tDef_ = new TValueDef(*rhs.tDef_);
 
-  for(size_t i = 0; i < rhs.vecVars_.size(); ++i)
-    vecVars_.push_back(new Var(*rhs.vecVars_[i]));
+// copy values of vecVars_ from rhs
+  std::transform(rhs.vecVars_.begin(),
+                 rhs.vecVars_.end(),
+                 std::back_inserter(vecVars_),
+                 [](const std::unique_ptr<Var>& var){ return std::unique_ptr<Var>(new Var(*var)); });
 }
 
 terrama2::core::GrADSDataDescriptor::~GrADSDataDescriptor()
@@ -725,9 +735,6 @@ terrama2::core::GrADSDataDescriptor::~GrADSDataDescriptor()
 
   if(tDef_ != nullptr)
     delete tDef_;
-
-  for(size_t i = 0; i < vecVars_.size(); ++i)
-    delete vecVars_[i];
 }
 
 terrama2::core::GrADSDataDescriptor::GrADSDataDescriptor() : undef_(0.),
