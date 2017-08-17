@@ -22,9 +22,14 @@
 /*!
   \file InterpolatorParams.hpp
 
-  \brief
+  \brief This file contains definitions of parameters to be passed to the interpolators.
 
   \author Frederico Augusto Bedê
+
+  \todo Finish the comments of the definition of struct terrama2::services::interpolator::core::InterpolationTypes.
+  \todo Comment the attributes of terrama2::services::interpolator::core::NNInterpolatorParams.
+  \todo Comment the attributes of terrama2::services::interpolator::core::BLInterpolatorParams.
+  \todo Comment the attributes of terrama2::services::interpolator::core::BCInterpolatorParams.
 */
 
 #ifndef __TERRAMA2_SERVICES_INTERPOLATOR_INTERPOLATORPARAMS_HPP__
@@ -47,282 +52,352 @@ namespace terrama2
       namespace core
       {
         /*!
-         * \enum
+         * \enum InterpolatorTypes
          *
-         * \brief The InterpolatorTypes enum
+         * \brief There are three algorithms to use on interpolations:
+         *
+         * <UL>
+         *  <LI>Nearest-neighbor interpolation.</LI>
+         *  <LI>Bilinerar interpolation.</LI>
+         *  <LI>Bicubic interpolation.</LI>
+         * </UL>
+         *
+         * The aproach of the nearest neighbor aproach uses the nearest sample value to use as value of some coordinate being analysed. For more details
+         * about this aproach can be found in: <A HREF="https://en.wikipedia.org/wiki/Nearest-neighbor_interpolation">Nearest-neighbor interpolation on Wikipedia.</A>
          */
         enum InterpolatorType
         {
-          NEARESTNEIGHBOR,  //!<
-          BILINEAR,         //!<
-          BICUBIC           //!<
+          NEARESTNEIGHBOR,  //!< Nearest-neighbor aproach.
+          BILINEAR,         //!< Bilinear aproach.
+          BICUBIC           //!< Bicubic aproach.
         };
 
         /*!
          * \struct InterpolatorParams
          *
-         * \brief Generic params for interpolation algorithms.
+         * \brief Generic parameters for interpolation algorithms.
          */
         struct InterpolatorParams
         {
-          InterpolatorParams()
+          /*!
+           * \brief Default constructor.
+           */
+          InterpolatorParams() :
+            resolutionX_(0),
+            resolutionY_(0),
+            interpolationType_(NEARESTNEIGHBOR),
+            srid_(0)
           {
-            filter.reset(new terrama2::core::Filter);
+            filter_.reset(new terrama2::core::Filter);
           }
 
+          /*!
+           * \brief Copy constructor.
+           *
+           * \param other The parameters to e copied.
+           */
           InterpolatorParams(const InterpolatorParams& other)
           {
-            resolutionX = other.resolutionX;
-            resolutionY = other.resolutionY;
-            interpolationType = other.interpolationType;
-            bRect = other.bRect;
-            fileName = other.fileName;
-            filter.reset(new terrama2::core::Filter(*other.filter.get()));
-            series = other.series;
+            resolutionX_ = other.resolutionX_;
+            resolutionY_ = other.resolutionY_;
+            interpolationType_ = other.interpolationType_;
+            bRect_ = other.bRect_;
+            fileName_ = other.fileName_;
+            filter_.reset(new terrama2::core::Filter(*other.filter_.get()));
+            series_ = other.series_;
+            srid_ = other.srid_;
+            attributeName_ = other.attributeName_;
           }
 
+          /*!
+           * \brief Copy operator.
+           *
+           * \param other The parameters to be copied.
+           *
+           * \return A pointer to the object itself.
+           */
           virtual InterpolatorParams& operator=(const InterpolatorParams& other)
           {
-            resolutionX = other.resolutionX;
-            resolutionY = other.resolutionY;
-            interpolationType = other.interpolationType;
-            bRect = other.bRect;
-            fileName = other.fileName;
-            filter.reset(new terrama2::core::Filter(*other.filter.get()));
-            series = other.series;
+            resolutionX_ = other.resolutionX_;
+            resolutionY_ = other.resolutionY_;
+            interpolationType_ = other.interpolationType_;
+            bRect_ = other.bRect_;
+            fileName_ = other.fileName_;
+            filter_.reset(new terrama2::core::Filter(*other.filter_.get()));
+            series_ = other.series_;
+            srid_ = other.srid_;
+            attributeName_ = other.attributeName_;
 
             return *this;
           }
 
-          int resolutionX;                                     //!<
-          int resolutionY;                                     //!<
-          InterpolatorType interpolationType;                  //!<
-          te::gm::Envelope bRect;                              //!<
-          std::string fileName;                                //!<
-          std::unique_ptr<terrama2::core::Filter> filter;      //!< Information on how input data should be filtered before storage.
-          DataSeriesId series;                                 //!<
+          int resolutionX_;                                     //!< Number of columns of the output raster file.
+          int resolutionY_;                                     //!< Number of rows of the output raster file.
+          InterpolatorType interpolationType_;                  //!< The interpolation algorithm to be used.
+          te::gm::Envelope bRect_;                              //!< The bounding rect of the output raster.
+          std::string fileName_;                                //!< The name of the output raster.
+          std::unique_ptr<terrama2::core::Filter> filter_;      //!< Information on how input data should be filtered before storage.
+          DataSeriesId series_;                                 //!< The indentifier of the data to be used by the interpolator.
+          int srid_;                                           //!< SRID for the output.
+          std::string attributeName_;                           //!< Name of the attribute to be used by the interpolator;
         };
 
         /*!
          * \struct NNIterpolatorParams
          *
-         * \brief Params for a nearest neigbor strategy of interpolation.
+         * \brief Parameters for a nearest-neigbor strategy of interpolation.
          */
         struct NNInterpolatorParams : public InterpolatorParams
         {
           /*!
-           * \brief NNIterpolatorParams
+           * \brief Default constructor.
            */
           NNInterpolatorParams() :
             InterpolatorParams()
           {
-            InterpolatorParams::interpolationType = NEARESTNEIGHBOR;
+            InterpolatorParams::interpolationType_ = NEARESTNEIGHBOR;
           }
 
+          /*!
+           * \brief Copy constructor.
+           *
+           * \param other The parameters to e copied.
+           */
           NNInterpolatorParams(const NNInterpolatorParams& other) :
             InterpolatorParams(other)
           {
-            nnCR = other.nnCR;
-            nnRR = other.nnRR;
-            nnLastRow = other.nnLastRow;
-            nnLastCol = other.nnLastCol;
+            nnCR_ = other.nnCR_;
+            nnRR_ = other.nnRR_;
+            nnLastRow_ = other.nnLastRow_;
+            nnLastCol_ = other.nnLastCol_;
           }
 
+          /*!
+           * \brief Copy operator.
+           *
+           * \param other The parameters to be copied.
+           *
+           * \return A pointer to the object itself.
+           */
           NNInterpolatorParams& operator=(const NNInterpolatorParams& other)
           {
             InterpolatorParams::operator =(other);
 
-            nnCR = other.nnCR;
-            nnRR = other.nnRR;
-            nnLastRow = other.nnLastRow;
-            nnLastCol = other.nnLastCol;
+            nnCR_ = other.nnCR_;
+            nnRR_ = other.nnRR_;
+            nnLastRow_ = other.nnLastRow_;
+            nnLastCol_ = other.nnLastCol_;
 
             return *this;
           }
 
-          unsigned int nnCR;                              //!<
-          unsigned int nnRR;                              //!<
-          double nnLastRow;                               //!< Last row available for nearest Neighbor interpolation.
-          double nnLastCol;                               //!< Last column available for nearest Neighbor interpolation.
+          unsigned int nnCR_;                              //!<
+          unsigned int nnRR_;                              //!<
+          double nnLastRow_;                               //!< Last row available for nearest Neighbor interpolation.
+          double nnLastCol_;                               //!< Last column available for nearest Neighbor interpolation.
 
         };
 
         /*!
          * \struct BLInterpolatorParams
          *
-         * \brief Params for a bilinear strategy of interpolation.
+         * \brief Parameters for a bilinear strategy of interpolation.
          */
         struct BLInterpolatorParams : public InterpolatorParams
         {
           /*!
-           * \brief BLInterpolatorParams
+           * \brief Default constructor.
            */
           BLInterpolatorParams() :
             InterpolatorParams()
           {
-            InterpolatorParams::interpolationType = BILINEAR;
+            InterpolatorParams::interpolationType_ = BILINEAR;
           }
 
+          /*!
+           * \brief Copy constructor.
+           *
+           * \param other The parameters to e copied.
+           */
           BLInterpolatorParams(const BLInterpolatorParams& other) :
             InterpolatorParams(other)
           {
-            bilRowMin = other.bilRowMin;
-            bilRowMax = other.bilRowMax;
-            bilColMin = other.bilColMin;
-            bilColMax = other.bilColMax;
-            bilRowDifMin = other.bilRowDifMin;
-            bilRowDifMax = other.bilRowDifMax;
-            bilColDifMin = other.bilColDifMin;
-            bilColDifMax = other.bilColDifMax;
-            std::copy(other.bilDistances, other.bilDistances + 4, bilDistances);
-            std::copy(other.bilWeights, other.bilWeights + 4, bilWeights);
-            bilValues = other.bilValues;
-            bilLastRow = other.bilLastRow;
-            bilLastCol = other.bilLastCol;
+            bilRowMin_ = other.bilRowMin_;
+            bilRowMax_ = other.bilRowMax_;
+            bilColMin_ = other.bilColMin_;
+            bilColMax_ = other.bilColMax_;
+            bilRowDifMin_ = other.bilRowDifMin_;
+            bilRowDifMax_ = other.bilRowDifMax_;
+            bilColDifMin_ = other.bilColDifMin_;
+            bilColDifMax_ = other.bilColDifMax_;
+            std::copy(other.bilDistances_, other.bilDistances_ + 4, bilDistances_);
+            std::copy(other.bilWeights_, other.bilWeights_ + 4, bilWeights_);
+            bilValues_ = other.bilValues_;
+            bilLastRow_ = other.bilLastRow_;
+            bilLastCol_ = other.bilLastCol_;
           }
 
+          /*!
+           * \brief Copy operator.
+           *
+           * \param other The parameters to be copied.
+           *
+           * \return A pointer to the object itself.
+           */
           BLInterpolatorParams& operator=(const BLInterpolatorParams& other)
           {
             InterpolatorParams::operator =(other);
 
-            bilRowMin = other.bilRowMin;
-            bilRowMax = other.bilRowMax;
-            bilColMin = other.bilColMin;
-            bilColMax = other.bilColMax;
-            bilRowDifMin = other.bilRowDifMin;
-            bilRowDifMax = other.bilRowDifMax;
-            bilColDifMin = other.bilColDifMin;
-            bilColDifMax = other.bilColDifMax;
-            std::copy(other.bilDistances, other.bilDistances + 4, bilDistances);
-            std::copy(other.bilWeights, other.bilWeights + 4, bilWeights);
-            bilValues = other.bilValues;
-            bilLastRow = other.bilLastRow;
-            bilLastCol = other.bilLastCol;
+            bilRowMin_ = other.bilRowMin_;
+            bilRowMax_ = other.bilRowMax_;
+            bilColMin_ = other.bilColMin_;
+            bilColMax_ = other.bilColMax_;
+            bilRowDifMin_ = other.bilRowDifMin_;
+            bilRowDifMax_ = other.bilRowDifMax_;
+            bilColDifMin_ = other.bilColDifMin_;
+            bilColDifMax_ = other.bilColDifMax_;
+            std::copy(other.bilDistances_, other.bilDistances_ + 4, bilDistances_);
+            std::copy(other.bilWeights_, other.bilWeights_ + 4, bilWeights_);
+            bilValues_ = other.bilValues_;
+            bilLastRow_ = other.bilLastRow_;
+            bilLastCol_ = other.bilLastCol_;
 
             return *this;
           }
 
-          double bilRowMin;                                //!< Minimum row for bilinear interpolation.
-          double bilRowMax;                                //!< Maximum row for bilinear interpolation.
-          double bilColMin;                                //!< Minimum column for bilinear interpolation.
-          double bilColMax;                                //!< Maximum column for bilinear interpolation.
-          double bilRowDifMin;                             //!< Minimum difference between rows (min/max).
-          double bilRowDifMax;                             //!< Maximum difference between rows (min/max).
-          double bilColDifMin;                             //!< Minimum difference between columns (min/max).
-          double bilColDifMax;                             //!< Maximum difference between columns (min/max).
-          double bilDistances[4];                          //!< Bilinear distances.
-          double bilWeights[4];                            //!< Bilinear weights;
-          std::vector<std::complex<double> > bilValues;    //!< Bilinear values;
-          double bilLastRow;                               //!< Last row available for bilinear interpolation.
-          double bilLastCol;                               //!< Last column available for bilinear interpolation.
+          double bilRowMin_;                                //!< Minimum row for bilinear interpolation.
+          double bilRowMax_;                                //!< Maximum row for bilinear interpolation.
+          double bilColMin_;                                //!< Minimum column for bilinear interpolation.
+          double bilColMax_;                                //!< Maximum column for bilinear interpolation.
+          double bilRowDifMin_;                             //!< Minimum difference between rows (min/max).
+          double bilRowDifMax_;                             //!< Maximum difference between rows (min/max).
+          double bilColDifMin_;                             //!< Minimum difference between columns (min/max).
+          double bilColDifMax_;                             //!< Maximum difference between columns (min/max).
+          double bilDistances_[4];                          //!< Bilinear distances.
+          double bilWeights_[4];                            //!< Bilinear weights;
+          std::vector<std::complex<double> > bilValues_;    //!< Bilinear values;
+          double bilLastRow_;                               //!< Last row available for bilinear interpolation.
+          double bilLastCol_;                               //!< Last column available for bilinear interpolation.
         };
 
         /*!
          * \struct BCInterpolatorParams
          *
-         * \brief Params for  a bicubic strategy of interpolation.
+         * \brief Parameters for a bicubic strategy of interpolation.
          */
         struct BCInterpolatorParams : public InterpolatorParams
         {
           /*!
-           * \brief BCInterpolatorParams
+           * \brief Default constructor.
            */
           BCInterpolatorParams() :
             InterpolatorParams()
           {
-            InterpolatorParams::interpolationType = BICUBIC;
+            InterpolatorParams::interpolationType_ = BICUBIC;
           }
 
+          /*!
+           * \brief Copy constructor.
+           *
+           * \param other The parameters to e copied.
+           */
           BCInterpolatorParams(const BCInterpolatorParams& other) :
             InterpolatorParams(other)
           {
-            bicGridRow = other.bicGridRow;
-            bicGridCol = other.bicGridCol;
-            bicBufRow = other.bicBufRow;
-            bicBufCol = other.bicBufCol;
-            bicReadRealValue = other.bicReadRealValue;
-            bicReadImagValue = other.bicReadImagValue;
+            bicGridRow_ = other.bicGridRow_;
+            bicGridCol_ = other.bicGridCol_;
+            bicBufRow_ = other.bicBufRow_;
+            bicBufCol_ = other.bicBufCol_;
+            bicReadRealValue_ = other.bicReadRealValue_;
+            bicReadImagValue_ = other.bicReadImagValue_;
 
             for(size_t i = 0; i < 4; i++)
               for(size_t j = 0; j < 4; j++)
-                bicBbufferReal[i][j] = other.bicBbufferReal[i][j];
+                bicBbufferReal_[i][j] = other.bicBbufferReal_[i][j];
 
             for(size_t i = 0; i < 4; i++)
               for(size_t j = 0; j < 4; j++)
-                bicBbufferImag[i][j] = other.bicBbufferImag[i][j];
+                bicBbufferImag_[i][j] = other.bicBbufferImag_[i][j];
 
-            bicOffsetX = other.bicOffsetX;
-            bicOffsetY = other.bicOffsetY;
-            bicKernel = other.bicKernel;
-            std::copy(other.bicHWeights, other.bicHWeights + 4, bicHWeights);
-            std::copy(other.bicVWeights, other.bicVWeights + 4, bicVWeights);
-            bicHSum = other.bicHSum;
-            bicVSum = other.bicVSum;
-            bicRowAccumReal = other.bicRowAccumReal;
-            bicRowAccumImag = other.bicRowAccumImag;
-            std::copy(other.bicRowsValuesReal, other.bicRowsValuesReal + 4, bicRowsValuesReal);
-            std::copy(other.bicRowsValuesImag, other.bicRowsValuesImag + 4, bicRowsValuesImag);
-            bicRowBound = other.bicRowBound;
-            bicColBound = other.bicColBound;
+            bicOffsetX_ = other.bicOffsetX_;
+            bicOffsetY_ = other.bicOffsetY_;
+            bicKernel_ = other.bicKernel_;
+            std::copy(other.bicHWeights_, other.bicHWeights_ + 4, bicHWeights_);
+            std::copy(other.bicVWeights_, other.bicVWeights_ + 4, bicVWeights_);
+            bicHSum_ = other.bicHSum_;
+            bicVSum_ = other.bicVSum_;
+            bicRowAccumReal_ = other.bicRowAccumReal_;
+            bicRowAccumImag_ = other.bicRowAccumImag_;
+            std::copy(other.bicRowsValuesReal_, other.bicRowsValuesReal_ + 4, bicRowsValuesReal_);
+            std::copy(other.bicRowsValuesImag_, other.bicRowsValuesImag_ + 4, bicRowsValuesImag_);
+            bicRowBound_ = other.bicRowBound_;
+            bicColBound_ = other.bicColBound_;
           }
 
+          /*!
+           * \brief Copy operator.
+           *
+           * \param other The parameters to be copied.
+           *
+           * \return A pointer to the object itself.
+           */
           BCInterpolatorParams& operator=(const BCInterpolatorParams& other)
           {
             InterpolatorParams::operator =(other);
 
-            bicGridRow = other.bicGridRow;
-            bicGridCol = other.bicGridCol;
-            bicBufRow = other.bicBufRow;
-            bicBufCol = other.bicBufCol;
-            bicReadRealValue = other.bicReadRealValue;
-            bicReadImagValue = other.bicReadImagValue;
+            bicGridRow_ = other.bicGridRow_;
+            bicGridCol_ = other.bicGridCol_;
+            bicBufRow_ = other.bicBufRow_;
+            bicBufCol_ = other.bicBufCol_;
+            bicReadRealValue_ = other.bicReadRealValue_;
+            bicReadImagValue_ = other.bicReadImagValue_;
 
             for(size_t i = 0; i < 4; i++)
               for(size_t j = 0; j < 4; j++)
-                bicBbufferReal[i][j] = other.bicBbufferReal[i][j];
+                bicBbufferReal_[i][j] = other.bicBbufferReal_[i][j];
 
             for(size_t i = 0; i < 4; i++)
               for(size_t j = 0; j < 4; j++)
-                bicBbufferImag[i][j] = other.bicBbufferImag[i][j];
+                bicBbufferImag_[i][j] = other.bicBbufferImag_[i][j];
 
-            bicOffsetX = other.bicOffsetX;
-            bicOffsetY = other.bicOffsetY;
-            bicKernel = other.bicKernel;
-            std::copy(other.bicHWeights, other.bicHWeights + 4, bicHWeights);
-            std::copy(other.bicVWeights, other.bicVWeights + 4, bicVWeights);
-            bicHSum = other.bicHSum;
-            bicVSum = other.bicVSum;
-            bicRowAccumReal = other.bicRowAccumReal;
-            bicRowAccumImag = other.bicRowAccumImag;
-            std::copy(other.bicRowsValuesReal, other.bicRowsValuesReal + 4, bicRowsValuesReal);
-            std::copy(other.bicRowsValuesImag, other.bicRowsValuesImag + 4, bicRowsValuesImag);
-            bicRowBound = other.bicRowBound;
-            bicColBound = other.bicColBound;
+            bicOffsetX_ = other.bicOffsetX_;
+            bicOffsetY_ = other.bicOffsetY_;
+            bicKernel_ = other.bicKernel_;
+            std::copy(other.bicHWeights_, other.bicHWeights_ + 4, bicHWeights_);
+            std::copy(other.bicVWeights_, other.bicVWeights_ + 4, bicVWeights_);
+            bicHSum_ = other.bicHSum_;
+            bicVSum_ = other.bicVSum_;
+            bicRowAccumReal_ = other.bicRowAccumReal_;
+            bicRowAccumImag_ = other.bicRowAccumImag_;
+            std::copy(other.bicRowsValuesReal_, other.bicRowsValuesReal_ + 4, bicRowsValuesReal_);
+            std::copy(other.bicRowsValuesImag_, other.bicRowsValuesImag_ + 4, bicRowsValuesImag_);
+            bicRowBound_ = other.bicRowBound_;
+            bicColBound_ = other.bicColBound_;
 
             return *this;
           }
 
-          unsigned bicGridRow;                            //!<
-          unsigned bicGridCol;                            //!<
-          unsigned bicBufRow;                             //!<
-          unsigned bicBufCol;                             //!<
-          double bicReadRealValue;                        //!<
-          double bicReadImagValue;                        //!<
-          double bicBbufferReal[4][4];                    //!<
-          double bicBbufferImag[4][4];                    //!<
-          double bicOffsetX;                              //!<
-          double bicOffsetY;                              //!<
-          double bicKernel;                               //!<
-          double bicHWeights[4];                          //!<
-          double bicVWeights[4];                          //!<
-          double bicHSum;                                 //!<
-          double bicVSum;                                 //!<
-          double bicRowAccumReal;                         //!<
-          double bicRowAccumImag;                         //!<
-          double bicRowsValuesReal[4];                    //!<
-          double bicRowsValuesImag[4];                    //!<
-          double bicRowBound;                             //!< Last row available for bicubic interpolation.
-          double bicColBound;                             //!< Last column available for bicubic interpolation.
+          unsigned bicGridRow_;                            //!<
+          unsigned bicGridCol_;                            //!<
+          unsigned bicBufRow_;                             //!<
+          unsigned bicBufCol_;                             //!<
+          double bicReadRealValue_;                        //!<
+          double bicReadImagValue_;                        //!<
+          double bicBbufferReal_[4][4];                    //!<
+          double bicBbufferImag_[4][4];                    //!<
+          double bicOffsetX_;                              //!<
+          double bicOffsetY_;                              //!<
+          double bicKernel_;                               //!<
+          double bicHWeights_[4];                          //!<
+          double bicVWeights_[4];                          //!<
+          double bicHSum_;                                 //!<
+          double bicVSum_;                                 //!<
+          double bicRowAccumReal_;                         //!<
+          double bicRowAccumImag_;                         //!<
+          double bicRowsValuesReal_[4];                    //!<
+          double bicRowsValuesImag_[4];                    //!<
+          double bicRowBound_;                             //!< Last row available for bicubic interpolation.
+          double bicColBound_;                             //!< Last column available for bicubic interpolation.
         };
       }
     }

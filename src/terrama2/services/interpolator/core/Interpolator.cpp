@@ -104,15 +104,12 @@ void terrama2::services::interpolator::core::Interpolator::fillTree()
     if(dataMap.empty())
     {
       QString errMsg = QObject::tr("No data to fullfill the tree.");
-//      logger->result(InterpolatorLogger::DONE, nullptr, executionPackage.registerId);
-//      logger->log(CollectorLogger::WARNING_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
-//      TERRAMA2_LOG_WARNING() << errMsg;
-
-//      notifyWaitQueue(executionPackage.processId);
-//      sendProcessFinishedSignal(executionPackage.processId, executionPackage.executionDate, false);
+      TERRAMA2_LOG_WARNING() << errMsg;
       return;
     }
 
+    /////////////////////////////////////////////////////////////////////////
+    //  building the kd-tree
     for (auto it : dataMap)
     {
       auto dataSet = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(it.first);
@@ -121,64 +118,13 @@ void terrama2::services::interpolator::core::Interpolator::fillTree()
       tree_->insert(*dataSet->position.get(), dataSeries);
     }
 
-  //  auto lastDateTime = dataAccessor->lastDateTime();
-
 //    /////////////////////////////////////////////////////////////////////////
-    TERRAMA2_LOG_INFO() << QObject::tr("Data retrieved successfully.");
-
-  }
-  catch(const terrama2::core::LogException& e)
-  {
-    std::string errMsg = boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
-//    if(executionPackage.registerId != 0 )
-//    {
-//      TERRAMA2_LOG_ERROR() << errMsg << std::endl;
-//      TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(executionPackage.processId);
-//    }
-  }
-  catch(const terrama2::core::NoDataException& e)
-  {
-//    TERRAMA2_LOG_INFO() << tr("Collection finished but there was no data available for collector %1.").arg(executionPackage.processId);
-
-//    if(executionPackage.registerId != 0)
-//    {
-//      logger->log(CollectorLogger::WARNING_MESSAGE, tr("No data available").toStdString(), executionPackage.registerId);
-//      logger->result(CollectorLogger::DONE, nullptr, executionPackage.registerId);
-//    }
-
-//    QJsonObject jsonAnswer;
-//    jsonAnswer.insert(terrama2::core::ReturnTags::AUTOMATIC, false);
-//    sendProcessFinishedSignal(executionPackage.processId, executionPackage.executionDate, true, jsonAnswer);
-//    notifyWaitQueue(executionPackage.processId);
-//    return;
-  }
-  catch(const terrama2::Exception& e)
-  {
-//    QString errMsg = *boost::get_error_info<terrama2::ErrorDescription>(e);
-//    TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(executionPackage.processId);
-
-//    if(executionPackage.registerId != 0)
-//    {
-//      logger->log(CollectorLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
-//      logger->result(CollectorLogger::ERROR, nullptr, executionPackage.registerId);
-//    }
-  }
-  catch(const boost::exception& e)
-  {
-//    std::string errMsg = boost::diagnostic_information(e);
-//    TERRAMA2_LOG_ERROR() << errMsg;
-//    TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(executionPackage.processId);
-
-//    if(executionPackage.registerId != 0)
-//    {
-//      logger->log(CollectorLogger::ERROR_MESSAGE, errMsg, executionPackage.registerId);
-//      logger->result(CollectorLogger::ERROR, nullptr, executionPackage.registerId);
-//    }
+    TERRAMA2_LOG_INFO() << QObject::tr("Tree filled successfully.");
   }
   catch(const std::exception& e)
   {
-//    TERRAMA2_LOG_ERROR() << e.what();
-//    TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(executionPackage.processId);
+    TERRAMA2_LOG_ERROR() << e.what();
+    TERRAMA2_LOG_INFO() << QObject::tr("Fail to build the kd-tree!");
 
 //    if(executionPackage.registerId != 0)
 //    {
@@ -188,9 +134,9 @@ void terrama2::services::interpolator::core::Interpolator::fillTree()
   }
   catch(...)
   {
-//    QString errMsg = tr("Unknown error.");
-//    TERRAMA2_LOG_ERROR() << errMsg;
-//    TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(executionPackage.processId);
+    QString errMsg = QObject::tr("Unknown error.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    TERRAMA2_LOG_INFO() << QObject::tr("Fail to build the kd-tree!");
 
 //    if(executionPackage.registerId != 0)
 //    {
