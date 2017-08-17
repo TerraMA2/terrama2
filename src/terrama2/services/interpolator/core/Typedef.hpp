@@ -64,11 +64,32 @@ namespace terrama2
         struct Interpolator;
         struct InterpolatorParams;
 
+        //!
+        struct InterpolatorData
+        {
+          double getX() const
+          {
+            return pt_->getX();
+          }
+
+          double getY() const
+          {
+            return pt_->getY();
+          }
+
+          te::gm::Point* pt_;
+          terrama2::core::DataSetSeries series_;
+        };
+
+
+        //! Vector of data series.
+        typedef std::vector<InterpolatorData> DataSeriesVector;
+
         //! Node of a kd-tree specialized to use with the Interpolator.
-        typedef te::sam::kdtree::Node<te::gm::Point, terrama2::core::DataSetSeries, terrama2::core::DataSetSeries> InterpolatorNode;
+        typedef te::sam::kdtree::AdaptativeNode<te::gm::Point, DataSeriesVector, InterpolatorData> InterpolatorNode;
 
         //! Kd-tree specialized to use InterpolatorNode.
-        typedef te::sam::kdtree::Index<InterpolatorNode> InterpolatorTree;
+        typedef te::sam::kdtree::AdaptativeIndex<InterpolatorNode> InterpolatorTree;
 
         //! Shared smart pointer for InterpolatorParams
         typedef std::shared_ptr<terrama2::services::interpolator::core::InterpolatorParams> InterpolatorParamsPtr;

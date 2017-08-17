@@ -131,14 +131,14 @@ namespace terrama2
             return *this;
           }
 
-          int resolutionX_;                                     //!< Number of columns of the output raster file.
-          int resolutionY_;                                     //!< Number of rows of the output raster file.
+          unsigned int resolutionX_;                            //!< Number of columns of the output raster file.
+          unsigned int resolutionY_;                            //!< Number of rows of the output raster file.
           InterpolatorType interpolationType_;                  //!< The interpolation algorithm to be used.
           te::gm::Envelope bRect_;                              //!< The bounding rect of the output raster.
-          std::string fileName_;                                //!< The name of the output raster.
+          std::string fileName_;                                //!< The complete path for the output raster.
           std::unique_ptr<terrama2::core::Filter> filter_;      //!< Information on how input data should be filtered before storage.
           DataSeriesId series_;                                 //!< The indentifier of the data to be used by the interpolator.
-          int srid_;                                           //!< SRID for the output.
+          int srid_;                                            //!< SRID for the output.
           std::string attributeName_;                           //!< Name of the attribute to be used by the interpolator;
         };
 

@@ -28,6 +28,7 @@
 #include "Interpolator.hpp"
 
 #include "../../../core/data-access/DataAccessor.hpp"
+#include "../../../core/data-access/SynchronizedDataSet.hpp"
 #include "../../../core/data-model/DataProvider.hpp"
 #include "../../../core/data-model/DataSeries.hpp"
 #include "../../../core/data-model/DataSetDcp.hpp"
@@ -41,7 +42,15 @@
 #include "Typedef.hpp"
 
 // TerraLib
+#include <terralib/geometry/Point.h>
+#include <terralib/raster/Raster.h>
+#include <terralib/raster/BandProperty.h>
+#include <terralib/raster/Grid.h>
+#include <terralib/raster/RasterFactory.h>
 #include <terralib/sam/kdtree.h>
+
+// STL
+#include <utility> //std::pair, std::make_pair
 
 
 #define BICUBIC_MODULE( x ) ( ( x < 0 ) ? ( -1 * x ) : x )
@@ -70,7 +79,7 @@ terrama2::services::interpolator::core::Interpolator::Interpolator(terrama2::ser
 
 void terrama2::services::interpolator::core::Interpolator::fillTree()
 {
-  DataSeriesId dId = interpolationParams_->series;
+  DataSeriesId dId = interpolationParams_->series_;
 
   try
   {
@@ -95,7 +104,7 @@ void terrama2::services::interpolator::core::Interpolator::fillTree()
 
     auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(provider, inputDataSeries);
 
-    std::unique_ptr<terrama2::core::Filter> filter(interpolationParams_->filter.release());
+    std::unique_ptr<terrama2::core::Filter> filter(interpolationParams_->filter_.release());
 
     auto uriMap = dataAccessor->getFiles(*filter.get(), remover);
 
@@ -110,15 +119,24 @@ void terrama2::services::interpolator::core::Interpolator::fillTree()
 
     /////////////////////////////////////////////////////////////////////////
     //  building the kd-tree
+
+    std::vector< std::pair<te::gm::Point, InterpolatorData> > dataSetVec;
+
     for (auto it : dataMap)
     {
       auto dataSet = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(it.first);
       auto dataSeries = it.second;
-
-      tree_->insert(*dataSet->position.get(), dataSeries);
+      auto pt1 = *(dataSet->position.get());
+      InterpolatorData node;
+      node.pt_ = &pt1;
+      node.series_ = dataSeries;
+      auto pair = std::make_pair(pt1, node);
+      dataSetVec.push_back(pair);
     }
 
-//    /////////////////////////////////////////////////////////////////////////
+    tree_->build(dataSetVec);
+
+    //    /////////////////////////////////////////////////////////////////////////
     TERRAMA2_LOG_INFO() << QObject::tr("Tree filled successfully.");
   }
   catch(const std::exception& e)
@@ -126,11 +144,11 @@ void terrama2::services::interpolator::core::Interpolator::fillTree()
     TERRAMA2_LOG_ERROR() << e.what();
     TERRAMA2_LOG_INFO() << QObject::tr("Fail to build the kd-tree!");
 
-//    if(executionPackage.registerId != 0)
-//    {
-//      logger->log(CollectorLogger::ERROR_MESSAGE, e.what(), executionPackage.registerId);
-//      logger->result(CollectorLogger::ERROR, nullptr, executionPackage.registerId);
-//    }
+    //    if(executionPackage.registerId != 0)
+    //    {
+    //      logger->log(CollectorLogger::ERROR_MESSAGE, e.what(), executionPackage.registerId);
+    //      logger->result(CollectorLogger::ERROR, nullptr, executionPackage.registerId);
+    //    }
   }
   catch(...)
   {
@@ -138,15 +156,14 @@ void terrama2::services::interpolator::core::Interpolator::fillTree()
     TERRAMA2_LOG_ERROR() << errMsg;
     TERRAMA2_LOG_INFO() << QObject::tr("Fail to build the kd-tree!");
 
-//    if(executionPackage.registerId != 0)
-//    {
-//      logger->log(CollectorLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
-//      logger->result(CollectorLogger::ERROR, nullptr, executionPackage.registerId);
-//    }
+    //    if(executionPackage.registerId != 0)
+    //    {
+    //      logger->log(CollectorLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+    //      logger->result(CollectorLogger::ERROR, nullptr, executionPackage.registerId);
+    //    }
 
   }
 }
-
 
 terrama2::services::interpolator::core::NNInterpolator::NNInterpolator(terrama2::services::interpolator::core::InterpolatorParamsPtr params) :
   Interpolator(params)
@@ -156,9 +173,66 @@ terrama2::services::interpolator::core::NNInterpolator::NNInterpolator(terrama2:
 
 terrama2::services::interpolator::core::RasterPtr terrama2::services::interpolator::core::NNInterpolator::makeInterpolation()
 {
-  return RasterPtr();
-}
+  RasterPtr r;
 
+  /////////////////////////////////////////////////////////////////////////
+  //  Creating and configuring the output raster.
+
+  unsigned int resolutionX = interpolationParams_->resolutionX_;
+  unsigned int resolutionY = interpolationParams_->resolutionY_;
+  int srid = interpolationParams_->srid_;
+  te::gm::Envelope* env = new te::gm::Envelope(interpolationParams_->bRect_);
+  te::rst::Grid* grid = new te::rst::Grid(resolutionX, resolutionY, env, srid);
+
+  // Creating bands
+  te::rst::BandProperty* bProp = new te::rst::BandProperty(0, te::dt::DOUBLE_TYPE, "");
+  std::vector<te::rst::BandProperty*> vecBandProp(1, bProp);
+
+  // Creating raster info
+  std::map<std::string, std::string> conInfo;
+  conInfo["URI"] = interpolationParams_->fileName_;
+
+  // create raster
+  r.reset(te::rst::RasterFactory::make("GDAL", grid, vecBandProp, conInfo));
+  /////////////////////////////////////////////////////////////////////////
+
+  /////////////////////////////////////////////////////////////////////////
+  //  Making the interpolation using the nearest neighbor.
+  te::gm::Point pt1;
+  std::vector<InterpolatorData> res;
+  std::vector<double> dist;
+
+  for(unsigned int col = 0; col < resolutionX; col++)
+    for(unsigned int row = 0; row < resolutionY; row++)
+    {
+      double x,
+          y;
+
+      res.clear();
+      dist.clear();
+
+      r->getGrid()->gridToGeo((double) col, (double)row, x, y);
+
+      pt1.setX(x);
+      pt1.setY(y);
+
+      // Finding the nearest neighbor.
+      tree_->nearestNeighborSearch(pt1, res, dist, 1);
+
+      if(res.empty())
+        continue;
+
+      // Getting the attribute and setting the interpolation value
+      terrama2::core::DataSetSeries ds = (res.begin())->series_;
+      terrama2::core::SynchronizedDataSetPtr dSet = ds.syncDataSet;
+      double value = dSet->getDouble(0, interpolationParams_->attributeName_);
+
+      r->setValue(col, row, value, 0);
+    }
+  /////////////////////////////////////////////////////////////////////////
+
+  return r;
+}
 
 terrama2::services::interpolator::core::BLInterpolator::BLInterpolator(terrama2::services::interpolator::core::InterpolatorParamsPtr params) :
   Interpolator(params)

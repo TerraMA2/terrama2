@@ -20,12 +20,14 @@
 */
 
 /*!
-  \file interpolator/core/Service.hpp
-
-  \brief This class defines an interpolator.
-
-  \author Frederico Augusto Bedê
-*/
+ * \file interpolator/core/Service.hpp
+ *
+ * \brief This class defines an interpolator.
+ *
+ * \author Frederico Augusto Bedê
+ *
+ * \todo Finish the comments of the file interpolator/core/Service.hpp.
+ */
 
 #ifndef __TERRAMA2_SERVICES_INTERPOLATOR_CORE_INTERPOLATOR_HPP__
 #define __TERRAMA2_SERVICES_INTERPOLATOR_CORE_INTERPOLATOR_HPP__
