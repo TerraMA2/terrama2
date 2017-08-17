@@ -62,6 +62,20 @@ namespace terrama2
            * \param key
            */
           InterpolatorFactories(const int& key);
+
+          /*!
+           * \brief initialize
+           */
+          static void initialize();
+
+          /*!
+           * \brief finalize
+           */
+          static void finalize();
+
+        protected:
+
+          static std::vector<InterpolatorFactories*> factories_; //!<
         };
 
         /*!

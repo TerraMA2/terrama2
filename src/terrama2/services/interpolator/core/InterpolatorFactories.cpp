@@ -3,10 +3,25 @@
 #include "Interpolator.hpp"
 #include "Typedef.hpp"
 
+// TerraLib
+#include <terralib/common/STLUtils.h>
+
 terrama2::services::interpolator::core::InterpolatorFactories::InterpolatorFactories(const int& key) :
   te::common::ParameterizedAbstractFactory<Interpolator, int, InterpolatorParams>(key)
 {
 
+}
+
+void terrama2::services::interpolator::core::InterpolatorFactories::initialize()
+{
+  factories_.push_back(new NNInterpolatorFactory);
+  factories_.push_back(new BLInterpolatorFactory);
+  factories_.push_back(new BCInterpolatorFactory);
+}
+
+void terrama2::services::interpolator::core::InterpolatorFactories::finalize()
+{
+  te::common::FreeContents(factories_);
 }
 
 terrama2::services::interpolator::core::NNInterpolatorFactory::NNInterpolatorFactory() :
