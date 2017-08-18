@@ -39,6 +39,7 @@
 #include "../../../../core/utility/Logger.hpp"
 #include "../../../../core/utility/DataAccessorFactory.hpp"
 #include "../../../../core/utility/Utils.hpp"
+#include "../../../../core/utility/Raii.hpp"
 
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSource.h>
@@ -1623,9 +1624,7 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
                                                                                     const te::core::URI& connInfo) const
 {
   std::shared_ptr< te::da::DataSource > dataSource(te::da::DataSourceFactory::make("POSTGIS", connInfo));
-
-  dataSource->open();
-
+  terrama2::core::OpenClose<std::shared_ptr<te::da::DataSource>> openClose(dataSource);
   if(!dataSource->isOpened())
   {
     QString errMsg = QObject::tr("Could not connect to database");
@@ -1729,15 +1728,6 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
 
     layersNames.push_back(layerName);
 
-  }
-  try
-  {
-    if(dataSource && dataSource->isOpened())
-      dataSource->close();
-  }
-  catch(const te::da::Exception& e)
-  {
-    // TODO: check postgis close connection pool
   }
 
   return layersNames;
@@ -2088,14 +2078,14 @@ int terrama2::services::view::core::GeoServer::createGeoserverTempMosaic(terrama
     }
   }
 
-  std::shared_ptr<te::da::DataSource> dsOGR = te::da::DataSourceFactory::make("OGR", "file://"+shpFilename);
-  dsOGR->open();
+  {
+    std::shared_ptr<te::da::DataSource> dsOGR = te::da::DataSourceFactory::make("OGR", "file://"+shpFilename);
+    terrama2::core::OpenClose<std::shared_ptr<te::da::DataSource>> openClose(dsOGR);
 
-  ds->moveBeforeFirst();
+    ds->moveBeforeFirst();
 
-  te::da::Create(dsOGR.get(), dt, ds);
-
-  dsOGR->close();
+    te::da::Create(dsOGR.get(), dt, ds);
+  }
 
   createGeoserverPropertiesFile(outputFolder, exhibitionName, dataSeries->id);
 

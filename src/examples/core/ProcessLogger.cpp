@@ -10,7 +10,6 @@
 #include <vector>
 #include <iostream>
 
-
 /* Create a derived class is required to access protected members
 *   from the base class Process Logger
 */
@@ -31,6 +30,8 @@ public:
    * \brief Class destructor
    */
   virtual ~Logger() = default;
+
+  virtual std::shared_ptr<ProcessLogger> clone() const override {return nullptr; };
 
   /*!
    * \brief The method start is protected in ProcessLog, so is needed implement a method

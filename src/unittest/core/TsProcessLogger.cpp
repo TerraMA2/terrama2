@@ -40,7 +40,20 @@ void TsProcessLogger::testProcessLogger()
 {
   try
   {
-    TestLogger log;
+    std::unique_ptr<te::da::MockDataSource> mockDataSource(new ::testing::NiceMock<te::da::MockDataSource>());
+
+    EXPECT_CALL(*mockDataSource, open()).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*mockDataSource, isOpened()).WillRepeatedly(::testing::Return(true));
+    EXPECT_CALL(*mockDataSource, dataSetExists(::testing::_)).WillRepeatedly(::testing::Return(false));
+
+    /* Every time the mockDataSource object calls a method that returns a DataSourceTransactor
+     * the actualy method called will be the createMockDataSourceTransactor() that returns a
+     * new mocked DataSourceTransactor.
+     * A new mocked object is needed in every call because TerraLib takes ownership from the pointer.
+     */
+    EXPECT_CALL(*mockDataSource, DataSourceTransactoPtrReturn()).WillRepeatedly(::testing::Invoke(&createMockDataSourceTransactor));
+
+    TestLogger log(mockDataSource.release());
 
     RegisterId registerID = log.start(1);
 
