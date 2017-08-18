@@ -28,6 +28,9 @@
 */
 
 #include "JSonUtils.hpp"
+
+#include "InterpolatorParams.hpp"
+
 //#include "Intersection.hpp"
 //#include "../../../core/Exception.hpp"
 //#include "../../../core/data-model/DataManager.hpp"
@@ -39,9 +42,9 @@
 #include <QJsonArray>
 #include <QObject>
 
-terrama2::services::interpolator::core::Interpolator* terrama2::services::interpolator::core::fromInterpolatorJson(QJsonObject json, terrama2::core::DataManager* dataManager)
+terrama2::services::interpolator::core::InterpolatorParams* terrama2::services::interpolator::core::fromInterpolatorJson(QJsonObject json, terrama2::core::DataManager* dataManager)
 {
-  Interpolator* res = 0;
+  InterpolatorParams* res = 0;
 
   return res;
 //  if(json["class"].toString() != "Collector")
@@ -136,7 +139,7 @@ terrama2::services::interpolator::core::Interpolator* terrama2::services::interp
 //  return intersectionPtr;
 //}
 
-QJsonObject terrama2::services::interpolator::core::toJson(Interpolator* interpolator)
+QJsonObject terrama2::services::interpolator::core::toJson(InterpolatorParams* interpolator)
 {
   QJsonObject obj;
 //  obj.insert("class", QString("Collector"));

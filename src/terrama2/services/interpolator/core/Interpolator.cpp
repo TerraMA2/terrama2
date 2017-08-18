@@ -73,8 +73,6 @@ terrama2::services::interpolator::core::Interpolator::Interpolator(terrama2::ser
 {
   te::gm::Envelope env;
   tree_.reset(new InterpolatorTree(env));
-
-  fillTree();
 }
 
 void terrama2::services::interpolator::core::Interpolator::fillTree()
@@ -175,6 +173,15 @@ terrama2::services::interpolator::core::RasterPtr terrama2::services::interpolat
 {
   RasterPtr r;
 
+  // Reseting the kd-tree
+  /////////////////////////////////////////////////////////////////////////
+  if(!tree_->isEmpty())
+    tree_->clear();
+
+  fillTree();
+  /////////////////////////////////////////////////////////////////////////
+
+
   /////////////////////////////////////////////////////////////////////////
   //  Creating and configuring the output raster.
 
@@ -225,6 +232,10 @@ terrama2::services::interpolator::core::RasterPtr terrama2::services::interpolat
       // Getting the attribute and setting the interpolation value
       terrama2::core::DataSetSeries ds = (res.begin())->series_;
       terrama2::core::SynchronizedDataSetPtr dSet = ds.syncDataSet;
+
+      if(dSet->isNull(row, col))
+        continue;
+
       double value = dSet->getDouble(0, interpolationParams_->attributeName_);
 
       r->setValue(col, row, value, 0);

@@ -73,7 +73,7 @@ namespace terrama2
           /*!
            * \brief
            */
-          ~Service() = default;
+          ~Service();
 
           /*!
            * \brief Service
@@ -103,6 +103,8 @@ namespace terrama2
 
         public slots:
 
+          void addInterpolator(const InterpolatorParamsPtr& params);
+
           /*!
            * \brief addToQueue
            * \param interpolatorId
@@ -126,7 +128,7 @@ namespace terrama2
            * \brief updateInterpolator
            * \param interpolator
            */
-          void updateInterpolator(InterpolatorPtr interpolator) noexcept;
+          void updateInterpolator(InterpolatorParamsPtr interpolator) noexcept;
 
         protected:
 
@@ -146,6 +148,8 @@ namespace terrama2
            * \brief connectDataManager
            */
           void connectDataManager();
+
+//          void addInterpolator(const InterpolatorParamsPtr& params);
 
           std::weak_ptr<DataManager> dataManager_; //!< Weak pointer to the DataManager
         };

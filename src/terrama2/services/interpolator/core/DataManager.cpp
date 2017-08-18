@@ -29,7 +29,7 @@
 
 #include "DataManager.hpp"
 #include "Interpolator.hpp"
-//#include "Exception.hpp"
+#include "InterpolatorFactories.h"
 #include "JSonUtils.hpp"
 #include "../../../core/Exception.hpp"
 #include "../../../core/data-model/Filter.hpp"
@@ -66,37 +66,40 @@ bool terrama2::services::interpolator::core::DataManager::hasInterpolator(Interp
   return it != interpolators_.cend();
 }
 
-void terrama2::services::interpolator::core::DataManager::add(terrama2::services::interpolator::core::InterpolatorPtr interpolator)
+void terrama2::services::interpolator::core::DataManager::add(terrama2::services::interpolator::core::InterpolatorParamsPtr params)
 {
   // Inside a block so the lock is released before emitting the signal
   {
     std::lock_guard<std::recursive_mutex> lock(mtx_);
 
-    if(interpolator->id == terrama2::core::InvalidId())
+    if(params->id_ == terrama2::core::InvalidId())
     {
       QString errMsg = QObject::tr("Can not add a data provider with an invalid id.");
       TERRAMA2_LOG_ERROR() << errMsg;
       throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
 
+    InterpolatorPtr interpolator(InterpolatorFactories::make(params->interpolationType_, *params.get()));
+    interpolator->id = params->id_;
+
     TERRAMA2_LOG_DEBUG() << tr("Interpolator added");
-    interpolators_[interpolator->id] = interpolator;
+    interpolators_[params->id_] = interpolator;
   }
 
-  emit interpolatorAdded(interpolator);
+  emit interpolatorAdded(params);
 }
 
-void terrama2::services::interpolator::core::DataManager::update(terrama2::services::interpolator::core::InterpolatorPtr interpolator)
+void terrama2::services::interpolator::core::DataManager::update(terrama2::services::interpolator::core::InterpolatorParamsPtr params)
 {
   {
     std::lock_guard<std::recursive_mutex> lock(mtx_);
     blockSignals(true);
-    removeInterpolator(interpolator->id);
-    add(interpolator);
+    removeInterpolator(params->id_);
+    add(params);
     blockSignals(false);
   }
 
-  emit interpolatorUpdated(interpolator);
+  emit interpolatorUpdated(params);
 }
 
 void terrama2::services::interpolator::core::DataManager::removeInterpolator(InterpolatorId interpolatorId)
@@ -126,12 +129,12 @@ void terrama2::services::interpolator::core::DataManager::addJSon(const QJsonObj
     auto interpolators = obj["Interpolators"].toArray();
     for(auto json : interpolators)
     {
-      auto dataPtr = terrama2::services::interpolator::core::fromInterpolatorJson(json.toObject(), this);
+      InterpolatorParamsPtr dataPtr(terrama2::services::interpolator::core::fromInterpolatorJson(json.toObject(), this));
 
-//      if(hasInterpolator(dataPtr->id))
-//        update(dataPtr);
-//      else
-//        add(dataPtr);
+      if(hasInterpolator(dataPtr->id_))
+        update(dataPtr);
+      else
+        add(dataPtr);
     }
   }
   catch(const terrama2::Exception& /*e*/)

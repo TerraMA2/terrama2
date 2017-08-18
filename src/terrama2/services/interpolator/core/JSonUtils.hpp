@@ -46,7 +46,7 @@ namespace terrama2
     {
       namespace core
       {
-        struct Interpolator;
+        struct InterpolatorParams;
         class DataManager;
 
         /*!
@@ -55,7 +55,7 @@ namespace terrama2
          * \param dataManager
          * \return
          */
-        Interpolator* fromInterpolatorJson(QJsonObject json, terrama2::core::DataManager* dataManager);
+        InterpolatorParams* fromInterpolatorJson(QJsonObject json, terrama2::core::DataManager* dataManager);
 
         /*!
          * \brief fromIntersectionJson
@@ -69,7 +69,7 @@ namespace terrama2
          * \param interpolator
          * \return
          */
-        QJsonObject toJson(Interpolator* interpolator);
+        QJsonObject toJson(InterpolatorParams* interpolator);
 
         /*!
          * \brief toJson

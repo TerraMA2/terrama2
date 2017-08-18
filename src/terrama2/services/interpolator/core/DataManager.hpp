@@ -33,8 +33,6 @@
 #include "../../../core/data-model/DataManager.hpp"
 
 #include "Typedef.hpp"
-#include "Interpolator.hpp"
-//#include "Shared.hpp"
 
 namespace terrama2
 {
@@ -45,10 +43,10 @@ namespace terrama2
       namespace core
       {
         /*!
-          \class
-
-          \brief
-        */
+         * \class
+         *
+         * \brief The DataManager class
+         */
         class DataManager : public terrama2::core::DataManager
         {
             Q_OBJECT
@@ -121,7 +119,7 @@ namespace terrama2
 
               \note Thread-safe.
             */
-            void add(InterpolatorPtr interpolator);
+            void add(InterpolatorParamsPtr params);
 
             /*!
               \brief
@@ -130,7 +128,7 @@ namespace terrama2
 
               \note Thread-safe.
             */
-            void update(InterpolatorPtr interpolator);
+            void update(InterpolatorParamsPtr params);
 
             /*!
               \brief .
@@ -158,9 +156,9 @@ namespace terrama2
 
           signals:
 
-            void interpolatorAdded(InterpolatorPtr);
+            void interpolatorAdded(InterpolatorParamsPtr);
 
-            void interpolatorUpdated(InterpolatorPtr);
+            void interpolatorUpdated(InterpolatorParamsPtr);
 
             void interpolatorRemoved(InterpolatorId);
 

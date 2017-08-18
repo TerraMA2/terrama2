@@ -36,6 +36,7 @@
 #define __TERRAMA2_SERVICES_INTERPOLATOR_INTERPOLATORPARAMS_HPP__
 
 #include "../../../core/data-model/Filter.hpp"
+#include "Typedef.hpp"
 
 // TerraLib
 #include <terralib/geometry/Envelope.h>
@@ -140,6 +141,7 @@ namespace terrama2
           DataSeriesId series_;                                 //!< The indentifier of the data to be used by the interpolator.
           int srid_;                                            //!< SRID for the output.
           std::string attributeName_;                           //!< Name of the attribute to be used by the interpolator;
+          InterpolatorId id_;
         };
 
         /*!
