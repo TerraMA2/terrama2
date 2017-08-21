@@ -202,8 +202,9 @@ int main(int argc, char *argv[])
 
     terrama2::core::TerraMA2Init terrama2Init("", 0);
     {
-        double x = -44.166;
-        double y = -19.424;
+       // double x = -50.6529; double y = -23.1469;
+        double x = -52.1958;
+        double y = -21.700;
 
         std::vector<std::string> precipitacao = {
             "S10648241_201703191200.tif",
@@ -318,15 +319,28 @@ int main(int argc, char *argv[])
             "S10648241_201707061200.tif",
             "S10648241_201707071200.tif",
             "S10648241_201707081200.tif",
-            "S10648241_201707091200.tif",
-            "S10648241_201707101200.tif",
+           "S10648241_201707091200.tif",
+           "S10648241_201707101200.tif",
             "S10648241_201707111200.tif",
-            "S10648241_201707121200.tif",
+           "S10648241_201707121200.tif",
             "S10648241_201707131200.tif",
             "S10648241_201707141200.tif",
-            "S10648241_201707151200.tif",
+           "S10648241_201707151200.tif",
             "S10648241_201707161200.tif"
         };
+
+ /*
+  * //            "S10648241_201707071200.tif",
+//            "S10648241_201707081200.tif",
+//            "S10648241_201707091200.tif",
+//            "S10648241_201707101200.tif",
+            "S10648241_201707111200.tif",
+//           "S10648241_201707121200.tif",
+//            "S10648241_201707131200.tif",
+//            "S10648241_201707141200.tif",
+//            "S10648241_201707151200.tif",
+//            "S10648241_201707161200.tif"
+ */
 
         std::string umidade = TERRAMA2_DATA_DIR+"/dados_amb/saida/umidade/";
         std::string nomeArquivoUmidade = "UMRS201707161820.tif";
@@ -334,7 +348,7 @@ int main(int argc, char *argv[])
         std::string temperatura = TERRAMA2_DATA_DIR+"/dados_amb/saida/temperatura/";
         std::string nomeArquivoTemperatura = "TEMP201707161820.tif";
 
-        std::string resultado = TERRAMA2_DATA_DIR+"/dados_amb/saida/resultado/";
+        std::string resultado = TERRAMA2_DATA_DIR+"/dados_amb/saida/resultado_Script_Guilherme3/";
         std::string nomeArquivoResultado = "result201707162120.tif";
 
         std::string landcover = TERRAMA2_DATA_DIR+"/dados_amb/entrada/rf/landcover/";
@@ -425,9 +439,14 @@ int main(int argc, char *argv[])
 
         //4 - risco de fogo básico
         double tipo_vegetacao = riscodefogo->XYLinhaCol(x, y, landcover, nomeArquivoLand);
+        std::cout << "tipo_vegetacao: " << tipo_vegetacao << std::endl;
 
         double a = riscodefogo->valorAVegetacao(tipo_vegetacao);
         std::cout << "A: " << a << std::endl;
+
+        std::cout << "prec1: " << prec1 << "\t" <<  "prec2: " << prec2 << "\t" <<  "prec3: " << prec3 << "\t" <<
+                "prec4: " << prec4 << "\t" << "prec5: " << prec5 << "\t" <<  "prec6_10: " << prec6_10 << "\t" <<  "prec11_15: " << prec11_15
+             << "\t" <<  "prec16_30: " << prec16_30 << "\t" <<  "prec31_60: " << prec31_60 << "\t" <<  "prec61_90: " << prec61_90 << "\t" <<  "prec91_120: " << prec91_120 << std::endl;
 
         // Ajuste
         double PSE = riscodefogo->maxPSE(tipo_vegetacao, pse);
@@ -442,17 +461,17 @@ int main(int argc, char *argv[])
         //5 - fator umidade
 
         double ur = riscodefogo->XYLinhaCol(x,y, umidade, nomeArquivoUmidade);
-        std::cout << "UR: " << ur << std::endl;
+        //std::cout << "UR: " << ur << std::endl;
         double fu = ur * -0.006 + 1.3;
-        std::cout << "FU: " << fu << std::endl;
+        //std::cout << "FU: " << fu << std::endl;
 
 
         //6 - fator temperatura
         double tempMax = riscodefogo->XYLinhaCol(x,y,temperatura, nomeArquivoTemperatura);
-        std::cout << "TEMPMAX: " << tempMax << "\t" << tempMax-273.15 << std::endl;
+        //std::cout << "TEMPMAX: " << tempMax << "\t" << tempMax-273.15 << std::endl;
 
         double ft = (tempMax-273.15) * 0.02 + 0.4;
-        std::cout << "FT: " << ft << std::endl;
+        //std::cout << "FT: " << ft << std::endl;
 
         //7 - gerar risco observatorio
         double rf = rb * ft * fu;
