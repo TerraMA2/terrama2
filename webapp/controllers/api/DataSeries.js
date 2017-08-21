@@ -311,7 +311,7 @@ module.exports = function(app) {
                             });
                         });
                     } else {
-                      if (Utils.isEmpty(filterObject.date)) {
+                      if (Utils.isEmpty(filterObject.date) && filterObject.filterArea == "1") {
                         return null;
                       } else {
                         filterObject.collector_id = collector.id;

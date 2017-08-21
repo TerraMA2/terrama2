@@ -1,8 +1,8 @@
 'use strict';
 
 define(
-  ['components/Utils', 'components/Slider', 'components/Layers', 'TerraMA2WebComponents'],
-  function(Utils, Slider, Layers, TerraMA2WebComponents) {
+  ['components/Utils', 'components/Slider', 'components/Layers', 'components/AnimatedLayer','TerraMA2WebComponents'],
+  function(Utils, Slider, Layers, AnimatedLayer, TerraMA2WebComponents) {
 
     // Flag that indicates if there is a exportation in progress
     var memberExportationInProgress = false;
@@ -152,6 +152,7 @@ define(
 
       $("#terrama2-sortlayers").on("click", ".fa-gear", function() {
         var layer = Layers.getLayerById($(this).parent().parent().data("layerid"));
+        $("#animate").data("layerid", layer.id);
 
         if(layer !== null) {
           var openLayerToolbox = function() {
@@ -164,7 +165,7 @@ define(
             if($("#layer-toolbox").hasClass("hidden"))
               $("#layer-toolbox").removeClass("hidden");
           };
-
+          var toolbookHeight = 150;
           if(layer.exportation !== null && layer.dataSeriesTypeName === "GRID") {
             $.post(BASE_URL + "check-grid-folder", { dpi: layer.exportation.dataProviderId }, function(data) {
               if(data.result) {
@@ -176,12 +177,11 @@ define(
                 if($("#exportation-box").hasClass("hidden"))
                   $("#exportation-box").removeClass("hidden");
 
-                $("#layer-toolbox").css("height", "220px");
+                toolbookHeight += 70;
+                $("#layer-toolbox").css("height", toolbookHeight + "px");
               } else {
                 if(!$("#exportation-box").hasClass("hidden"))
                   $("#exportation-box").addClass("hidden");
-
-                $("#layer-toolbox").css("height", "150px");
               }
 
               openLayerToolbox();
@@ -195,17 +195,31 @@ define(
             if($("#exportation-box").hasClass("hidden"))
               $("#exportation-box").removeClass("hidden");
 
-            $("#layer-toolbox").css("height", "307px");
+            toolbookHeight += 157;
 
             openLayerToolbox();
           } else {
             if(!$("#exportation-box").hasClass("hidden"))
               $("#exportation-box").addClass("hidden");
 
-            $("#layer-toolbox").css("height", "150px");
-
             openLayerToolbox();
           }
+
+          if (layer.dateInfo && layer.dateInfo.dates && Array.isArray(layer.dateInfo.dates)){
+            if($("#animate-layer-box").hasClass("hidden"))
+              $("#animate-layer-box").removeClass("hidden");
+
+            $("#layer-toolbox > .layer-toolbox-body > #animate-layer-box #dates-slider").empty().html("<div id=\"dates" + layer.id.replace(":","") + "\"></div><div id=\"rangeDates\"><label>From:&nbsp</label><span id=\"initialDate\"></span></br><label>To:&nbsp </label><span id=\"finalDate\"></span></div>");
+            AnimatedLayer.setDatesSlider(layer);
+            toolbookHeight += 145;
+            
+          } else {
+            if(!$("#animate-layer-box").hasClass("hidden"))
+              $("#animate-layer-box").addClass("hidden");
+            $("#layer-toolbox > .layer-toolbox-body > #animate-layer-box #dates-slider").empty();
+          }
+          $("#layer-toolbox").css("height", toolbookHeight + "px");
+          
         }
       });
 

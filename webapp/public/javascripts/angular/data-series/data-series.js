@@ -263,7 +263,7 @@ define([], function() {
           $scope.extra.run(dataSeriesToRun[0]);
         }
       }
-      $scope.fields = [{key: 'name', as: i18n.__("Name")}, {key: "model_type", as: i18n.__("Type")}];
+      $scope.fields = [{key: 'name', as: i18n.__("Name")}, {key: "model_type", as: i18n.__("Type")}, {key: "description", as: i18n.__("Description")}];
     });
 
     $scope.link = config.link || null;
