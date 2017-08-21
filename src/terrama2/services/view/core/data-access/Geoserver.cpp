@@ -182,6 +182,13 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
             if(objectType ==  View::Legend::ObjectType::UNKNOWN)
             {
               std::unique_ptr< te::da::DataSetType > dataSetType(DataAccess::getVectorialDataSetType(fileInfo));
+              if(!dataSetType)
+              {
+                QString errorMsg = QString("Unable to access data series %1.").arg(inputDataSeries->id);
+                logger->log(ViewLogger::ERROR_MESSAGE, errorMsg.toStdString(), logId);
+                TERRAMA2_LOG_ERROR() << QObject::tr(errorMsg.toStdString().c_str());
+                break;
+              }
 
               auto geomProperty = te::da::GetFirstGeomProperty(dataSetType.get());
 
