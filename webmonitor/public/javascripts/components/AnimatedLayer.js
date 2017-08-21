@@ -10,38 +10,63 @@ define(['components/Layers', 'TerraMA2WebComponents'],
     // Layer member to animate
     var memberLayer;
     // Array with dates of layer
-    var memberDates;
-    // Current index of array date
-    var memberCurrentIndexDate;
+    var memberDatesList;
+    // Object with dates of layer
+    var memberDatesObject;
+    // Type of dates - continuous or list
+    var memberDateType;
+    // Current date of animation - index of type if list, date string if continuous
+    var memberCurrentDate;
+    // Period date to animation
+    var memberPeriodDate = 1;
+    // Id used to get id of setInterval() and use to stop the animation in clearInterval()
+    var animationId = null;
+
+    // Set layer info to animate
+    var setLayerToAnimate = function(layer){
+      pause();
+      memberLayer = layer;
+      if (Array.isArray(memberLayer.dateInfo.dates))
+        memberDateType = 'list';
+      else
+        memberDateType = 'continuous';
+    }
+
+    // Set info when type of dates is continuous
+    var setDatesCalendar = function(){
+      memberDatesObject = memberLayer.dateInfo.dates;
+      memberInitialDate = memberDatesObject.startDate;
+      memberFinalDate = memberDatesObject.endDate;
+      memberCurrentDate = memberInitialDate;
+    }
 
     // Function to create and set the slider to user choose de range of animation
-    var setDatesSlider = function(layer){
-      memberLayer = layer;
-      memberDates = layer.dateInfo.dates;
+    var setDatesSlider = function(){
+      memberDatesList = memberLayer.dateInfo.dates;
       memberInitialDate = 0;
-      memberFinalDate = memberDates.length - 1;
-      memberCurrentIndexDate = 0;
+      memberFinalDate = memberDatesList.length - 1;
+      memberCurrentDate = 0;
       var slider = $("#dates" + memberLayer.id.replace(':', ''));
       var sliderParent = $(slider).parent();
 
       var initialLabelDate = $(sliderParent).find("#initialDate");
       var finalLabelDate = $(sliderParent).find("#finalDate");
 
-      $(initialLabelDate).text(moment(memberDates[memberInitialDate].replace('Z', '')).format('L LT'));
-      $(finalLabelDate).text(moment(memberDates[memberFinalDate].replace('Z', '')).format('L LT'));
+      $(initialLabelDate).text(moment(memberDatesList[memberInitialDate].replace('Z', '')).format('L LT'));
+      $(finalLabelDate).text(moment(memberDatesList[memberFinalDate].replace('Z', '')).format('L LT'));
 
       $(slider).slider({
         range: true,
         min: 0,
-        max: memberDates.length - 1,
-        values: [0, memberDates.length - 1],
+        max: memberDatesList.length - 1,
+        values: [0, memberDatesList.length - 1],
         slide: function(event, ui) {
-          $(initialLabelDate).text(moment(memberDates[ui.values[0]].replace('Z', '')).format('L LT'));
-          $(finalLabelDate).text(moment(memberDates[ui.values[1]].replace('Z', '')).format('L LT'));
+          $(initialLabelDate).text(moment(memberDatesList[ui.values[0]].replace('Z', '')).format('L LT'));
+          $(finalLabelDate).text(moment(memberDatesList[ui.values[1]].replace('Z', '')).format('L LT'));
         },
         stop: function(event, ui) {
           memberInitialDate = ui.values[0];
-          memberCurrentIndexDate = ui.values[0];
+          memberCurrentDate = ui.values[0];
           memberFinalDate = ui.values[1];
         }
       });
@@ -50,27 +75,59 @@ define(['components/Layers', 'TerraMA2WebComponents'],
 
     // Update info of current date
     function updateInfo() {
-      if (memberCurrentIndexDate != undefined){
-        var el = $("#currentDate").find('label');
-        $(el).text(moment(memberDates[memberCurrentIndexDate].replace('Z', '')).format("lll"));
+      var el = $("#currentDate").find('label');
+      $(el).text(getDateStringInfo());
+    }
+
+    // Get date string to show current date of animation
+    function getDateStringInfo(){
+      if (memberDateType == 'list'){
+        return moment(memberDatesList[memberCurrentDate].replace('Z', '')).format("lll");
+      } else {
+        return moment(memberCurrentDate).format("lll") + " - " + getEndTime().format("lll");
       }
+    }
+
+    // Get end time when type of date is continuous
+    function getEndTime(){
+      var endDate = moment(memberCurrentDate.replace('Z', '')).add(1, 'days');
+      return endDate;
     }
 
     // Function to update layer time
     function setTime() {
-      if (memberCurrentIndexDate > memberFinalDate){
-        memberCurrentIndexDate = memberInitialDate;
-      }
-      memberLayer.dateInfo.initialDateIndex = memberCurrentIndexDate;
-      Layers.updateDateInfo(memberLayer.id, memberLayer.dateInfo);
-      TerraMA2WebComponents.MapDisplay.updateLayerTime(memberLayer.id, memberDates[memberCurrentIndexDate]);
-      updateInfo();
-      memberCurrentIndexDate++;
+      if (memberDateType == 'list')
+        setListTime();
+      else 
+        setCountinuousTime();
     }
 
-    // Id used to get id of setInterval() and use to stop the animation in clearInterval()
-    var animationId = null;
+    // Set new layer time when date type is list
+    function setListTime(){
+      if (memberCurrentDate > memberFinalDate){
+        memberCurrentDate = memberInitialDate;
+      }
+      memberLayer.dateInfo.initialDateIndex = memberCurrentDate;
+      Layers.updateDateInfo(memberLayer.id, memberLayer.dateInfo);
+      TerraMA2WebComponents.MapDisplay.updateLayerTime(memberLayer.id, memberDatesList[memberCurrentDate]);
+      updateInfo();
+      memberCurrentDate++;
+    }
 
+    // Set new layer time when date type is continuous
+    function setCountinuousTime(){
+      if (memberCurrentDate > memberFinalDate){
+        memberCurrentDate = memberInitialDate;
+      }
+      var timeFormat = "YYYY-MM-DDTHH:mm:ss";
+      var endDate = getEndTime().format(timeFormat);
+      var rangeDate = memberCurrentDate + "/" + endDate + 'Z';
+      TerraMA2WebComponents.MapDisplay.updateLayerTime(memberLayer.id, rangeDate);
+      updateInfo();
+      memberCurrentDate = endDate + 'Z';
+    }
+
+    // Pause animation
     var pause = function() {
       if (animationId !== null) {
         window.clearInterval(animationId);
@@ -84,14 +141,36 @@ define(['components/Layers', 'TerraMA2WebComponents'],
         $("#pauseAnimation").addClass("hidden");
     };
 
+    // Start animation
     var play = function() {
 
       pause();
 
-      if (!memberCurrentIndexDate){
-        memberCurrentIndexDate = memberInitialDate;
+      if (!memberCurrentDate){
+        memberCurrentDate = memberInitialDate;
       }
       updateInfo();
+
+      showAnimationTools();
+
+      animationId = window.setInterval(setTime, 1000);
+    };
+
+    // Reset the animation
+    var reload = function(){
+      memberCurrentDate = memberInitialDate;
+    }
+
+    // Close animation tools
+    var closeAnimateTools = function(){
+      pause();
+
+      if(!$("#animate-tools").hasClass("hidden"))
+        $("#animate-tools").addClass("hidden");
+    }
+
+    // Show animation tools and adjust css
+    var showAnimationTools = function(){
 
       if($("#animate-tools").hasClass("hidden"))
         $("#animate-tools").removeClass("hidden");
@@ -102,18 +181,22 @@ define(['components/Layers', 'TerraMA2WebComponents'],
       if(!$("#playAnimation").hasClass("hidden"))
         $("#playAnimation").addClass("hidden");
 
-      animationId = window.setInterval(setTime, 1000);
-    };
+      if (memberDateType == 'list'){
+        $("#currentDate").css('width', '145px');
+        $("#currentDate > div").css('width', '139px');
+        $("#reloadAnimation").css('left', '160px');
+        $("#playAnimation").css('left', '200px');
+        $("#pauseAnimation").css('left', '200px');
+        $("#stopAnimation").css('left', '240px');
+      } else {
+        $("#currentDate").css('width', '300px');
+        $("#currentDate > div").css('width', '294px');
+        $("#reloadAnimation").css('left', '315px');
+        $("#playAnimation").css('left', '355px');
+        $("#pauseAnimation").css('left', '355px');
+        $("#stopAnimation").css('left', '395px');
+      }
 
-    var reload = function(){
-      memberCurrentIndexDate = memberInitialDate;
-    }
-
-    var closeAnimateTools = function(){
-      pause();
-
-      if(!$("#animate-tools").hasClass("hidden"))
-        $("#animate-tools").addClass("hidden");
     }
 
     var loadEvents = function(){
@@ -145,7 +228,9 @@ define(['components/Layers', 'TerraMA2WebComponents'],
 
     return {
       init: init,
-      setDatesSlider: setDatesSlider
+      setDatesSlider: setDatesSlider,
+      setLayerToAnimate: setLayerToAnimate,
+      setDatesCalendar: setDatesCalendar
     }
   }
 )

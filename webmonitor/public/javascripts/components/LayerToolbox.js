@@ -210,9 +210,15 @@ define(
               $("#animate-layer-box").removeClass("hidden");
 
             $("#layer-toolbox > .layer-toolbox-body > #animate-layer-box #dates-slider").empty().html("<div id=\"dates" + layer.id.replace(":","") + "\"></div><div id=\"rangeDates\"><label>From:&nbsp</label><span id=\"initialDate\"></span></br><label>To:&nbsp </label><span id=\"finalDate\"></span></div>");
-            AnimatedLayer.setDatesSlider(layer);
+            AnimatedLayer.setLayerToAnimate(layer);
+            AnimatedLayer.setDatesSlider();
             toolbookHeight += 145;
             
+          } else if (layer.dateInfo && layer.dateInfo.dates && typeof layer.dateInfo.dates === "object"){
+            AnimatedLayer.setLayerToAnimate(layer);
+            AnimatedLayer.setDatesCalendar();
+            if($("#animate-layer-box").hasClass("hidden"))
+              $("#animate-layer-box").removeClass("hidden");
           } else {
             if(!$("#animate-layer-box").hasClass("hidden"))
               $("#animate-layer-box").addClass("hidden");
