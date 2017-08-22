@@ -8,10 +8,10 @@ var BaseAdapter = require("./BaseAdapter");
 
 /**
  * Enable to run TerraMA² service using local resource.
- * 
+ *
  * For Linux/MacOSX enviroments, it uses "nohup" and background processes "&"
  * For Windows enviroment, it uses "start" background process
- * 
+ *
  * @class LocalSystemAdapter
  * @inherits BaseAdapter
  */
@@ -24,13 +24,13 @@ var logger = require("./../../Logger");
 
 /**
  * It will generates command to use in executor. The output might be: nohup COMMAND &
- * 
+ *
  * @example
  * ... collectorService...
  * var local = new LocalSystemAdapter()
  * local.make(collectorService, "./terrama2_service COLLECTOR 6543");
  * >> nohup ./terrama2_service COLLECTOR 6543 &
- * 
+ *
  * @param {ServiceInstance} service - A TerraMA² service to execute
  * @param {string} command - A built command to run terrama2_service
  * @returns {string}
@@ -41,7 +41,7 @@ LocalSystemAdapter.prototype.make = function(service, command) {
 
 /**
  * It prepares a command as array of string in order to spawn as nodejs process
- * 
+ *
  * @param {string} command - A command to split
  * @returns {string[]}
  */
@@ -51,7 +51,7 @@ LocalSystemAdapter.prototype.commandArgs = function(command) {
 
 /**
  * It performs command execution on executor
- * 
+ *
  * @param {Executor} executor - A TerraMA² enviroment executor where command should run.
  * @param {string} command - A built command to run terrama2_service
  * @param {ServiceInstance} service - A TerraMA² service to execute

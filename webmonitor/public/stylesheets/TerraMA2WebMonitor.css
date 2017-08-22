@@ -1,4 +1,4 @@
-html, body, .content, .content, .content-wrapper, #terrama2-map {
+html, body, #content, .content, .content-wrapper, #terrama2-map {
   overflow: hidden !important;
 }
 
@@ -315,23 +315,27 @@ html, body, .content, .content, .content-wrapper, #terrama2-map {
   }
 }
 
-
 #wmsUri {
-  width: 168px;
+  width: 505px;
   margin-left: 5px;
+  float: left;
 }
 
-#layersModalBody {
+#addLayers {
+  float: left;
+}
+
+#layersModalBody > span {
   max-height: 370px;
   /*overflow: overlay;*/
   overflow-y: auto;
 }
 
-#layersModalBody > ul > li > span {
+#layersModalBody > span > ul > li > span {
   margin-left: 5px;
 }
 
-#layersModalBody > ul {
+#layersModalBody > span > ul {
   list-style: none;
 }
 
@@ -372,6 +376,7 @@ html, body, .content, .content, .content-wrapper, #terrama2-map {
   z-index: 2000;
   opacity: 0.9;
   border-radius: 10px;
+  margin-left: -10px !important;
 }
 
 .slider-content > div {
@@ -469,7 +474,42 @@ html, body, .content, .content, .content-wrapper, #terrama2-map {
   max-height: 350px;
 }
 
-.map-tool-button > button {
+.animate-tool-button {
+  z-index: 9999;
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.4);
+  border-radius: 2px;
+  bottom: 2px;
+  padding: 3px;
+  max-height: 350px;
+}
+
+#currentDate {
+  z-index: 9999;
+  position: absolute;
+  padding: 3px;
+  max-height: 350px;
+  left: 10px;
+  bottom: 2px;
+  background-color: rgba(0,0,0,.4);
+  border-radius: 2px;
+  height: 35px;
+  width: 145px;
+}
+
+#currentDate > div {
+  background-color: rgba(255,255,255,1);
+  margin-bottom: 0px !important;
+  height: 29px;
+  width: 139px;
+  padding-top: 4px;
+  padding-left: 3px;
+  padding-right: 3px;
+  text-align: center;
+  border-radius: 2px;
+}
+
+.map-tool-button > button, .animate-tool-button > button {
   width: 29px;
   height: 29px;
   background-color: rgba(241,241,241,.8);
@@ -490,9 +530,9 @@ html, body, .content, .content, .content-wrapper, #terrama2-map {
   font-size: 21px !important;
 }
 
-.map-tool-button > button:hover { background-color: rgba(241,241,241,1); }
+.map-tool-button > button:hover, .animate-tool-button > button:hover { background-color: rgba(241,241,241,1); }
 
-.map-tool-button.active > button { background-color: rgba(255, 255, 255, 1); }
+.map-tool-button.active > button, .animate-tool-button > button { background-color: rgba(255, 255, 255, 1); }
 
 #map-tools {
   z-index: 999999;
@@ -508,11 +548,38 @@ html, body, .content, .content, .content-wrapper, #terrama2-map {
 
 #moveMap { top: 170px; }
 
-#legendsButton { top: 210px; }
+#dragbox { top: 210px; }
 
-#getAttributes { top: 250px; }
+#legendsButton { top: 250px; }
 
-#tableButton { top: 290px; }
+#getAttributes { top: 290px; }
+
+#tableButton { top: 330px; }
+
+#reloadAnimation {left: 160px; }
+
+#playAnimation, #pauseAnimation {left: 200px;}
+
+#stopAnimation {left: 240px;}
+
+#reload, #play {margin-right: 5px;}
+
+#dates-slider {
+  width: 180px;
+  margin-left: 10px;
+}
+#rangeDates {
+  margin-top: 5px;
+}
+#rangeDates label {
+  width: 43px;
+  text-align: right;
+}
+
+#slider-box {
+  width: 180px;
+  margin-left: 10px;
+}
 
 #getAttributes.with-select { width: 190px; }
 
@@ -620,7 +687,7 @@ html, body, .content, .content, .content-wrapper, #terrama2-map {
 
 #layer-toolbox { left: 21px; }
 
-#legend-box > .legend-header, #layer-toolbox > .layer-toolbox-header {
+#legend-box > .legend-header, #layer-toolbox > .layer-toolbox-header{
   padding: 10px;
   font-size: 15px;
   background-color: #d8d8d8;
@@ -765,4 +832,33 @@ html, body, .content, .content, .content-wrapper, #terrama2-map {
   margin: 0 !important;
   max-width: 100%;
   margin-top: 4px !important;
+}
+
+#terrama2-sortlayers i { font-size: 16px; }
+
+#terrama2-sortlayers .glyphicon-resize-full {
+  font-size: 15px;
+  margin-right: 10px;
+}
+
+#loginButton .fa-times {
+  position: absolute;
+  color: red;
+  left: 19px;
+  top: 17px;
+  font-size: 14px;
+}
+
+#loginButton .fa-circle {
+  position: absolute;
+  color: #0fd00f;
+  left: 20px;
+  top: 19px;
+  font-size: 10px;
+}
+
+@-moz-document url-prefix() {
+  #custom > span > span > .fa-plus {
+    margin-right: 15px;
+  }
 }

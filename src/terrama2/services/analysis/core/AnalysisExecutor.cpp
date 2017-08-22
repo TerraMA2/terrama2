@@ -162,6 +162,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
     auto errors = ContextManager::getInstance().getMessages(analysisHashCode, BaseContext::MessageType::ERROR_MESSAGE);
     if(!errors.empty())
     {
+      // Analysis finished with errors
 
       std::string errorStr;
       for(const auto& error : errors)
@@ -173,17 +174,20 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
       QString errMsg = QObject::tr("Analysis %1 (%2) finished with the following error(s):\n%3").arg(analysis->id).arg(QString::fromStdString(startTime->toString()), QString::fromStdString(errorStr));
       TERRAMA2_LOG_INFO() << errMsg;
 
-      auto processingEndTime = terrama2::core::TimeUtils::nowUTC();
-
-      logger->setStartProcessingTime(processingStartTime, executionPackage.registerId);
-      logger->setEndProcessingTime(processingEndTime, executionPackage.registerId);
-
       logger->result(AnalysisLogger::ERROR, startTime, logId);
 
       emit analysisFinished(analysis->id, startTime, false);
     }
     else
     {
+      // Analysis finished successfully
+
+      auto processingEndTime = terrama2::core::TimeUtils::nowUTC();
+
+      // log star and end processing time
+      logger->setStartProcessingTime(processingStartTime, executionPackage.registerId);
+      logger->setEndProcessingTime(processingEndTime, executionPackage.registerId);
+
       logger->result(AnalysisLogger::DONE, startTime, logId);
 
       QString errMsg = QObject::tr("Analysis %1 finished successfully: %2").arg(analysis->id).arg(startTime->toString().c_str());
@@ -234,7 +238,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::runMonitoredObjectAna
     size_t size = 0;
     for(const auto& analysisDataSeries : analysis->analysisDataSeriesList)
     {
-      if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE)
+      if(analysis->type == AnalysisType::MONITORED_OBJECT_TYPE && analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE)
       {
         auto dataSeries = dataManager->findDataSeries(analysisDataSeries.dataSeriesId);
         auto datasets = dataSeries->datasetList;
@@ -251,6 +255,12 @@ void terrama2::services::analysis::core::AnalysisExecutor::runMonitoredObjectAna
         size = contextDataset->series.syncDataSet->size();
 
         break;
+      }
+
+      if(analysis->type == AnalysisType::DCP_TYPE && analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE)
+      {
+        auto dataSeries = dataManager->findDataSeries(analysisDataSeries.dataSeriesId);
+        size = dataSeries->datasetList.size();
       }
     }
 
@@ -368,13 +378,19 @@ void terrama2::services::analysis::core::AnalysisExecutor::runMonitoredObjectAna
   }
 }
 
-
-void terrama2::services::analysis::core::AnalysisExecutor::runDCPAnalysis(DataManagerPtr dataManager, terrama2::core::StoragerManagerPtr storagerManager, AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime, ThreadPoolPtr threadPool, PyThreadState* mainThreadState)
+void terrama2::services::analysis::core::AnalysisExecutor::runDCPAnalysis(DataManagerPtr dataManager,
+                                                                          terrama2::core::StoragerManagerPtr storagerManager,
+                                                                          AnalysisPtr analysis,
+                                                                          std::shared_ptr<te::dt::TimeInstantTZ> startTime,
+                                                                          ThreadPoolPtr threadPool,
+                                                                          PyThreadState* mainThreadState)
 {
-  // TODO: Ticket #433
-  QString errMsg = QObject::tr("NOT IMPLEMENTED YET.");
-  TERRAMA2_LOG_ERROR() << errMsg;
-  throw Exception() << ErrorDescription(errMsg);
+  runMonitoredObjectAnalysis(dataManager,
+                             storagerManager,
+                             analysis,
+                             startTime,
+                             threadPool,
+                             mainThreadState);
 }
 
 std::shared_ptr<te::mem::DataSet>
@@ -505,17 +521,18 @@ std::shared_ptr<te::da::DataSetType> terrama2::services::analysis::core::Analysi
   dt->add(fk.release());
 
   //second property: analysis execution date
-  te::dt::DateTimeProperty* dateProp = new te::dt::DateTimeProperty(EXECUTION_DATE_PROPERTY, te::dt::TIME_INSTANT_TZ, true);
-  dt->add(dateProp);
-  uk->add(dateProp);
+  std::unique_ptr<te::dt::DateTimeProperty> dateProp(new te::dt::DateTimeProperty(EXECUTION_DATE_PROPERTY, te::dt::TIME_INSTANT_TZ, true));
+  dateProp->setPrecision(3);
+  dt->add(dateProp.get());
+  uk->add(dateProp.get());
 
   dt->add(uk.release());
 
   //create index on date column
-  te::da::Index* indexDate = new te::da::Index(outputDatasetName+ "_idx", te::da::B_TREE_TYPE);
-  indexDate->add(dateProp);
+  std::unique_ptr<te::da::Index> indexDate(new te::da::Index(outputDatasetName+ "_idx", te::da::B_TREE_TYPE));
+  indexDate->add(dateProp.release());
 
-  dt->add(indexDate);
+  dt->add(indexDate.release());
 
   for(const auto& attribute : attributes)
   {
@@ -556,11 +573,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeMonitoredObjectA
   }
 
 
-  if(analysis->type != AnalysisType::MONITORED_OBJECT_TYPE)
-  {
-    QString errMsg = QObject::tr("Invalid analysis type.");
-    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
-  }
+  verify::analysisType(analysis, AnalysisType::MONITORED_OBJECT_TYPE);
 
   auto outputDataSeries = dataManager->findDataSeries(analysis->outputDataSeriesId);
 
@@ -598,70 +611,33 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeMonitoredObjectA
   te::da::PrimaryKey* pkMonitoredObject = nullptr;
   te::dt::Property* identifierProperty = nullptr;
 
-  bool found = false;
-  auto analysisDataSeriesList = analysis->analysisDataSeriesList;
-  for(const auto& analysisDataSeries : analysisDataSeriesList)
+  moDsContext = context->getMonitoredObjectContextDataSeries(dataManager);
+  if(moDsContext->identifier.empty())
   {
-    if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE)
-    {
-      found = true;
-
-      auto dataSeries = dataManager->findDataSeries(analysisDataSeries.dataSeriesId);
-      assert(dataSeries->datasetList.size() == 1);
-      auto datasetMO = dataSeries->datasetList[0];
-
-      terrama2::core::Filter filter;
-      if(!context->exists(datasetMO->id, filter))
-      {
-        QString errMsg(QObject::tr("Could not recover monitored object dataset."));
-        context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
-        return;
-      }
-
-      moDsContext = context->getContextDataset(datasetMO->id, filter);
-
-      if(moDsContext->identifier.empty())
-      {
-        QString errMsg(QObject::tr("Monitored object identifier is empty."));
-        context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
-        return;
-      }
-
-      if(!moDsContext->series.teDataSetType)
-      {
-        QString errMsg(QObject::tr("Invalid dataset type."));
-        context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
-        return;
-      }
-
-      pkMonitoredObject = moDsContext->series.teDataSetType->getPrimaryKey();
-
-      // In case no primary key is found use the identifier property as key
-      if(pkMonitoredObject == nullptr)
-      {
-        auto property = moDsContext->series.teDataSetType->getProperty(moDsContext->identifier);
-        if(property != nullptr)
-        {
-          identifierProperty = property->clone();
-        }
-      }
-
-      break;
-
-    }
-  }
-
-  if(!found)
-  {
-    QString errMsg(QObject::tr("Could not find a monitored object data series."));
+    QString errMsg(QObject::tr("Monitored object identifier is empty."));
     context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
     return;
   }
+
+  if(!moDsContext->series.teDataSetType)
+  {
+    QString errMsg(QObject::tr("Invalid dataset type."));
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
+    return;
+  }
+
+  pkMonitoredObject = moDsContext->series.teDataSetType->getPrimaryKey();
 
   // we need a unique identifier attribute,
   // if there is no primary key nor an identifier, return
   if(pkMonitoredObject == nullptr)
   {
+    auto property = moDsContext->series.teDataSetType->getProperty(moDsContext->identifier);
+    if(property != nullptr)
+    {
+      identifierProperty = property->clone();
+    }
+
     if(!identifierProperty)
     {
       QString errMsg(QObject::tr("Invalid monitored object attribute identifier."));
@@ -865,11 +841,8 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeGridAnalysisResu
     throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
 
-  if(analysis->type != AnalysisType::GRID_TYPE)
-  {
-    QString errMsg = QObject::tr("Invalid analysis type.");
-    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
-  }
+  verify::analysisType(analysis, AnalysisType::GRID_TYPE);
+
   auto dataManager = context->getDataManager().lock();
   if(!dataManager.get())
   {

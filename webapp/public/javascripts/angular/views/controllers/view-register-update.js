@@ -415,6 +415,16 @@ define([], function() {
               }
             }
           }
+          else if (Object.keys(self.legend).length !== 0 && self.legend.metadata.creation_type != "0" && self.legend.metadata.creation_type != "1"){
+            if (self.legend.fieldsToReplace){
+              self.legend.fieldsToReplace.forEach(function(field){
+                //Must increase 1 because geoserver starts the band name from 1
+                var bandNumber = self.legend.metadata[field] + 1;
+                self.legend.metadata.xml_style = self.legend.metadata.xml_style.split("%"+field).join("Band"+bandNumber);            
+              });
+              delete self.legend.fieldsToReplace;
+            }
+          }
 
           // If dynamic, schedule validation is required
           if (self.isDynamic) {

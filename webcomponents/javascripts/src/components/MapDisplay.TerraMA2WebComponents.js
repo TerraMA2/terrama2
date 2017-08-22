@@ -1351,7 +1351,7 @@ define(
      * @inner
      */
     var zoomToExtent = function(extent) {
-      memberOlMap.getView().fit(extent, memberOlMap.getSize(), { constrainResolution: false });
+      memberOlMap.getView().fit(extent, { size: memberOlMap.getSize(), constrainResolution: false });
     };
 
     /**
@@ -1391,7 +1391,7 @@ define(
      * @inner
      */
     var setMapResolutionChangeEvent = function(eventFunction) {
-      if(memberResolutionChangeEventKey !== null) memberOlMap.getView().unByKey(memberResolutionChangeEventKey);
+      if(memberResolutionChangeEventKey !== null) ol.Observable.unByKey(memberResolutionChangeEventKey);
       memberResolutionChangeEventKey = memberOlMap.getView().on('propertychange', function(e) {
         switch(e.key) {
           case 'resolution':
@@ -1410,7 +1410,7 @@ define(
      * @inner
      */
     var setMapDoubleClickEvent = function(eventFunction) {
-      if(memberDoubleClickEventKey !== null) memberOlMap.getView().unByKey(memberDoubleClickEventKey);
+      if(memberDoubleClickEventKey !== null) ol.Observable.unByKey(memberDoubleClickEventKey);
       memberDoubleClickEventKey = memberOlMap.on('dblclick', function(e) {
         eventFunction(correctLongitude(e.coordinate[0]), e.coordinate[1]);
       });
@@ -1425,7 +1425,7 @@ define(
      * @inner
      */
     var setMapSingleClickEvent = function(eventFunction) {
-      if(memberSingleClickEventKey !== null) memberOlMap.getView().unByKey(memberSingleClickEventKey);
+      if(memberSingleClickEventKey !== null) ol.Observable.unByKey(memberSingleClickEventKey);
       memberSingleClickEventKey = memberOlMap.on('click', function(e) {
         eventFunction(correctLongitude(e.coordinate[0]), e.coordinate[1]);
       });
@@ -1439,7 +1439,7 @@ define(
      * @inner
      */
     var unsetMapSingleClickEvent = function() {
-      if(memberSingleClickEventKey !== null) memberOlMap.getView().unByKey(memberSingleClickEventKey);
+      if(memberSingleClickEventKey !== null) ol.Observable.unByKey(memberSingleClickEventKey);
     };
 
     /**

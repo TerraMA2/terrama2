@@ -84,7 +84,7 @@ void terrama2::core::DataAccessorOccurrenceWfp::adapt(DataSetPtr dataSet, std::s
 
   te::dt::DateTimeProperty* dateProperty = new te::dt::DateTimeProperty("data", te::dt::DATE);
   te::dt::DateTimeProperty* timeProperty = new te::dt::DateTimeProperty("hora", te::dt::TIME_DURATION);
-  te::dt::DateTimeProperty* timestampProperty = new te::dt::DateTimeProperty(getTimestampPropertyName(dataSet), te::dt::TIME_INSTANT);
+  te::dt::DateTimeProperty* timestampProperty = new te::dt::DateTimeProperty(getTimestampPropertyName(dataSet), te::dt::TIME_INSTANT_TZ);
   te::dt::SimpleProperty* latProperty = new te::dt::SimpleProperty(getLatitudePropertyName(dataSet), te::dt::DOUBLE_TYPE);
   te::dt::SimpleProperty* lonProperty = new te::dt::SimpleProperty(getLongitudePropertyName(dataSet), te::dt::DOUBLE_TYPE);
   te::gm::GeometryProperty* geomProperty = new te::gm::GeometryProperty(getOutputGeometryPropertyName(dataSet), srid, te::gm::PointType);
