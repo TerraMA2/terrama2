@@ -73,8 +73,7 @@ void terrama2::core::ProcessLogger::setConnectionInfo(const te::core::URI& uri)
 
   try
   {
-    closeConnection();
-    dataSource_ = te::da::DataSourceFactory::make("POSTGIS", uri);
+    dataSource_ = terrama2::core::makeDataSourcePtr(te::da::DataSourceFactory::make("POSTGIS", uri));
 
     try
     {
@@ -118,7 +117,7 @@ void terrama2::core::ProcessLogger::setDataSource(te::da::DataSource* dataSource
 {
   isValid_ = false;
 
-  dataSource_.reset(dataSource);
+  dataSource_ = terrama2::core::makeDataSourcePtr(dataSource);
 
   try
   {
@@ -126,7 +125,9 @@ void terrama2::core::ProcessLogger::setDataSource(te::da::DataSource* dataSource
 
     if(!dataSource_->isOpened())
     {
-      throw LogException();
+      QString errMsg = QObject::tr("Could not connect to database");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw LogException() << ErrorDescription(errMsg);
     }
   }
   catch(const std::exception& e)
@@ -138,18 +139,6 @@ void terrama2::core::ProcessLogger::setDataSource(te::da::DataSource* dataSource
 
   isValid_ = true;
 }
-
-void terrama2::core::ProcessLogger::closeConnection()
-{
-  if(dataSource_ && dataSource_->isOpened())
-    dataSource_->close();
-}
-
-terrama2::core::ProcessLogger::~ProcessLogger()
-{
-  closeConnection();
-}
-
 
 RegisterId terrama2::core::ProcessLogger::start(ProcessId processId) const
 {
