@@ -38,6 +38,23 @@ define(['components/Layers', 'TerraMA2WebComponents'],
       memberInitialDate = memberDatesObject.startDate;
       memberFinalDate = memberDatesObject.endDate;
       memberCurrentDate = memberInitialDate;
+      var calendar = $('#animation-calendar');
+      calendar.daterangepicker({
+        "timePicker": true,
+        "minDate": moment(memberDatesObject.startDate),
+        "startDate": moment(memberInitialDate),
+        "endDate": moment(memberFinalDate),
+        "maxDate": moment(memberDatesObject.endDate),
+        "timePicker24Hour": true,
+        "opens": "right"
+      });
+
+      $(calendar).on("apply.daterangepicker", function(ev, picker) {
+        var timeFormat = "YYYY-MM-DDTHH:mm:ss.SSS";
+        memberInitialDate = picker.startDate.format(timeFormat) + 'Z';
+        memberFinalDate = picker.endDate.format(timeFormat) + 'Z';
+        memberCurrentDate = picker.startDate.format(timeFormat) + 'Z';
+      });
     }
 
     // Function to create and set the slider to user choose de range of animation
@@ -84,13 +101,15 @@ define(['components/Layers', 'TerraMA2WebComponents'],
       if (memberDateType == 'list'){
         return moment(memberDatesList[memberCurrentDate].replace('Z', '')).format("lll");
       } else {
-        return moment(memberCurrentDate).format("lll") + " - " + getEndTime().format("lll");
+        return moment(memberCurrentDate.replace('Z', '')).format("lll") + " - " + getEndTime().format("lll");
       }
     }
 
     // Get end time when type of date is continuous
     function getEndTime(){
-      var endDate = moment(memberCurrentDate.replace('Z', '')).add(1, 'days');
+      var frequencyValue = document.getElementById('frequency').value;
+      var unitValue = document.getElementById('unitTime').value;
+      var endDate = moment(memberCurrentDate.replace('Z', '')).add(parseInt(frequencyValue), unitValue);
       return endDate;
     }
 
