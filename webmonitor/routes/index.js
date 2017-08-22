@@ -10,6 +10,9 @@ module.exports = function(app) {
     var message = {
       content: (req.query.message && req.query.message != "" ? req.query.message : "")
     };
-    res.render('index', { title: 'Express', webmonitorHostInfo: webmonitorHostInfo, webadminHostInfo: webadminHostInfo, message: message});
+
+    var state = JSON.parse(fs.readFileSync(path.join(__dirname, "../myjsonfile.json"), "utf-8"));
+
+    res.render('index', { title: 'Express', webmonitorHostInfo: webmonitorHostInfo, webadminHostInfo: webadminHostInfo, message: message, state: state});
   });
 };

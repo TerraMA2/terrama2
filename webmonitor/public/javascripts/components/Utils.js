@@ -17,7 +17,31 @@ define(
       return memberWebAppSocket;
     };
 
+    var orderByProperty = function(array, property, order) {
+      function compare(a, b) {
+        if(a[property] < b[property]) return (order == "desc" ? 1 : -1);
+        if(a[property] > b[property]) return (order == "desc" ? -1 : 1);
+        return 0;
+      };
+
+      return array.sort(compare);
+    };
+
     var init = function(webMonitorSocketCallback, webAppSocketCallback) {
+      jQuery.fn.insertAt = function(index, element) {
+        var lastIndex = this.children().size();
+
+        if(index < 0)
+          index = Math.max(0, lastIndex + 1 + index);
+
+        this.append(element);
+
+        if(index < lastIndex)
+          this.children().eq(index).before(this.children().last());
+
+        return this;
+      };
+
       if(webmonitorHostInfo && webmonitorHostInfo.basePath) {
         memberSocket = io.connect(window.location.origin, {
           path: webmonitorHostInfo.basePath + 'socket.io'
@@ -56,7 +80,8 @@ define(
     return {
       init: init,
       getSocket: getSocket,
-      getWebAppSocket: getWebAppSocket
+      getWebAppSocket: getWebAppSocket,
+      orderByProperty: orderByProperty
     };
   }
 );

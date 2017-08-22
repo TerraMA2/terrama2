@@ -155,6 +155,7 @@
               <div id="moveMap" class="map-tool-button mouse-function-btn active"><button type="button"><i class="fa fa-hand-rock-o"></i></button></div>
               <div id="dragbox" class="map-tool-button mouse-function-btn"><button type="button"><i class="glyphicon glyphicon-zoom-in"></i></button></div>
               <div id="legendsButton" class="map-tool-button mouse-function-btn"><button type="button"><i class="fa fa-list"></i></button></div>
+              <div id="saveState" class="map-tool-button mouse-function-btn" style="right: 50px;"><button type="button"><i class="fa fa-download"></i></button></div>
               <div id="tableButton" class="map-tool-button mouse-function-btn hidden"><button type="button"><i class="fa fa-table"></i></button></div>
               <div id="getAttributes" class="map-tool-button mouse-function-btn hidden">
                 <select class="form-control hidden"></select>
@@ -259,9 +260,11 @@
       var webadminHostInfo = {[webadminHostInfo|json|safe]};
       var webmonitorHostInfo = {[webmonitorHostInfo|json|safe]};
       var message = "{[message.content]}";
+
+      var state = {[state|json|safe]};
     </script>
-    <script type="text/javascript" src="{[ BASE_URL ]}dist/TerraMA2WebMonitor.min.js"></script>
-    <!--<script type="text/javascript" data-main="{[ BASE_URL ]}javascripts/Startup.js" src="{[ BASE_URL ]}require.js"></script>-->
+    <!--<script type="text/javascript" src="{[ BASE_URL ]}dist/TerraMA2WebMonitor.min.js"></script>-->
+    <script type="text/javascript" data-main="{[ BASE_URL ]}javascripts/Startup.js" src="{[ BASE_URL ]}require.js"></script>
     <iframe id="exportation-iframe" class="hidden"></iframe>
   </body>
 </html>
