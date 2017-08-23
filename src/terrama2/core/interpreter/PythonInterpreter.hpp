@@ -64,7 +64,7 @@ namespace terrama2
       //! Lock the instance and aquire the current state.
       StateLock holdState() const;
       struct Impl;
-      Impl* impl_;
+      std::unique_ptr<Impl> impl_;
     };
   } /* core */
 } /* terrama2 */
