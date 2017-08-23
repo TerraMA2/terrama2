@@ -54,11 +54,6 @@ terrama2::services::interpolator::core::Service::~Service()
   InterpolatorFactories::finalize();
 }
 
-//void terrama2::services::interpolator::core::Service::addInterpolator(const terrama2::services::interpolator::core::InterpolatorParamsPtr& params)
-//{
-
-//}
-
 void terrama2::services::interpolator::core::Service::prepareTask(const terrama2::core::ExecutionPackage& executionPackage)
 {
   try
@@ -90,93 +85,65 @@ void terrama2::services::interpolator::core::Service::interpolate(terrama2::core
     //////////////////////////////////////////////////////////
     //  aquiring metadata
 
-//    auto lock = dataManager->getLock();
-//    auto interpolatorPtr = dataManager->findInterpolator(executionPackage.processId);
+    auto lock = dataManager->getLock();
+    auto interpolatorParamsPtr = dataManager->findInterpolatorParams(executionPackage.processId);
 
-//    // input data
+    // input data
 //    auto inputDataSeries = dataManager->findDataSeries(interpolatorPtr->interpolationParams_->series_);
 //    auto inputDataProvider = dataManager->findDataProvider(inputDataSeries->dataProviderId);
 
 //    TERRAMA2_LOG_DEBUG() << tr("Starting interpolation for data series '%1'").arg(inputDataSeries->name.c_str());
 
-//    //    // output data
-//    //    auto outputDataSeries = dataManager->findDataSeries(collectorPtr->outputDataSeries);
-//    //    auto outputDataProvider = dataManager->findDataProvider(outputDataSeries->dataProviderId);
+    //    //    // output data
+    //    //    auto outputDataSeries = dataManager->findDataSeries(collectorPtr->outputDataSeries);
+    //    //    auto outputDataProvider = dataManager->findDataProvider(outputDataSeries->dataProviderId);
 
-//        // dataManager no longer in use
-//        lock.unlock();
+    // dataManager no longer in use
+    lock.unlock();
+    /////////////////////////////////////////////////////////////////////////
 
-//        /////////////////////////////////////////////////////////////////////////
-//        //  recovering data
+    /////////////////////////////////////////////////////////////////////////
+            //  recovering data
 
-//        auto processingStartTime = terrama2::core::TimeUtils::nowUTC();
+    auto processingStartTime = terrama2::core::TimeUtils::nowUTC();
 
-//        terrama2::core::Filter* filter = interpolatorPtr->interpolationParams_->filter_.get();
+    terrama2::core::Filter* filter = interpolatorParamsPtr->filter_.get();
 
-//        if(filter->discardAfter.get() && filter->discardBefore.get()
-//            && (*filter->discardAfter) < (*filter->discardBefore))
-//        {
-//          QString errMsg = QObject::tr("Empty filter time range.");
+    if(filter == 0)
+      filter = new terrama2::core::Filter;
+    else if(*filter->lastValues.get() != 1)
+      filter->lastValues = std::make_shared<long unsigned int>(1);
 
-//          TERRAMA2_LOG_WARNING() << errMsg.toStdString();
-//          throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
-//        }
 
-//        //update filter based on last collected data timestamp
-//        updateFilterDiscardDates(*filter, logger, executionPackage.processId);
+    if(filter->discardAfter.get() && filter->discardBefore.get()
+       && (*filter->discardAfter) < (*filter->discardBefore))
+    {
+      QString errMsg = QObject::tr("Empty filter time range.");
 
-    //    auto remover = std::make_shared<terrama2::core::FileRemover>();
-    //    auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(inputDataProvider, inputDataSeries);
+      TERRAMA2_LOG_WARNING() << errMsg.toStdString();
+      throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
+    }
 
-    //    auto uriMap = dataAccessor->getFiles(filter, remover);
-    //    auto dataMap = dataAccessor->getSeries(uriMap, filter, remover);
-    //    if(dataMap.empty())
-    //    {
-    //      QString errMsg = tr("No data to collect.");
-    //      logger->result(CollectorLogger::DONE, nullptr, executionPackage.registerId);
-    //      logger->log(CollectorLogger::WARNING_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
-    //      TERRAMA2_LOG_WARNING() << errMsg;
+    //update filter based on last collected data timestamp
+//    updateFilterDiscardDates(*filter, logger, executionPackage.processId);
 
-    //      notifyWaitQueue(executionPackage.processId);
-    //      sendProcessFinishedSignal(executionPackage.processId, executionPackage.executionDate, false);
-    //      return;
-    //    }
-    //    auto lastDateTime = dataAccessor->lastDateTime();
+    InterpolatorPtr interpolatorPtr(InterpolatorFactories::make(interpolatorParamsPtr->interpolationType_, *interpolatorParamsPtr.get()));
 
-    //    /////////////////////////////////////////////////////////////////////////
-    //    // data intersection
+    auto res = interpolatorPtr->makeInterpolation();
 
-    //    for(auto& item : dataMap)
-    //    {
-    //      // intersection
-    //      if(collectorPtr->intersection)
-    //      {
-    //        //FIXME: the datamanager is being used outside the lock
-    //        item.second = processIntersection(dataManager, collectorPtr->intersection, item.second);
-    //      }
-    //    }
+    TERRAMA2_LOG_INFO() << tr("Data from process %1 interpolated successfully.").arg(executionPackage.processId);
 
-    //    /////////////////////////////////////////////////////////////////////////
-    //    // storing data
+    auto processingEndTime = terrama2::core::TimeUtils::nowUTC();
 
-    //    auto inputOutputMap = collectorPtr->inputOutputMap;
-    //    auto dataSetLst = outputDataSeries->datasetList;
-    //    auto dataStorager = terrama2::core::DataStoragerFactory::getInstance().make(outputDataSeries, outputDataProvider);
+    logger->setStartProcessingTime(processingStartTime, executionPackage.registerId);
 
-    //    dataStorager->store(dataMap, dataSetLst, inputOutputMap);
+    logger->setEndProcessingTime(processingEndTime, executionPackage.registerId);
 
-    //    TERRAMA2_LOG_INFO() << tr("Data from collector %1 collected successfully.").arg(executionPackage.processId);
+    logger->result(InterpolatorLogger::DONE, processingEndTime, executionPackage.registerId);
 
-    //    auto processingEndTime = terrama2::core::TimeUtils::nowUTC();
+    sendProcessFinishedSignal(executionPackage.processId, executionPackage.executionDate, true);
 
-    //    logger->setStartProcessingTime(processingStartTime, executionPackage.registerId);
-    //    logger->setEndProcessingTime(processingEndTime, executionPackage.registerId);
-
-    //    logger->result(CollectorLogger::DONE, lastDateTime, executionPackage.registerId);
-
-    //    sendProcessFinishedSignal(executionPackage.processId, executionPackage.executionDate, true);
-    //    notifyWaitQueue(executionPackage.processId);
-    //    return;
+    notifyWaitQueue(executionPackage.processId);
   }
   catch(std::exception&)
   {
@@ -195,13 +162,13 @@ void terrama2::services::interpolator::core::Service::addToQueue(InterpolatorId 
     std::lock_guard<std::mutex> lock(mutex_);
 
     auto datamanager1 = dataManager_.lock();
-    auto interpolator = datamanager1->findInterpolator(interpolatorId);
+    auto interpolator = datamanager1->findInterpolatorParams(interpolatorId);
 
     const auto& serviceManager = terrama2::core::ServiceManager::getInstance();
     auto serviceInstanceId = serviceManager.instanceId();
 
     // Check if this collector should be executed in this instance
-    if(interpolator->serviceInstanceId != serviceInstanceId)
+    if(interpolator->serviceInstanceId_ != serviceInstanceId)
       return;
 
     RegisterId registerId = logger_->start(interpolatorId);
@@ -241,190 +208,6 @@ void terrama2::services::interpolator::core::Service::addToQueue(InterpolatorId 
   }
 }
 
-//void terrama2::services::interpolator::core::Service::collect(terrama2::core::ExecutionPackage executionPackage,
-//                                                           std::shared_ptr<CollectorLogger> logger,
-//                                                           std::weak_ptr<DataManager> weakDataManager)
-//{
-//  auto dataManager = weakDataManager.lock();
-//  if(!dataManager.get())
-//  {
-//    TERRAMA2_LOG_ERROR() << tr("Unable to access DataManager");
-//    notifyWaitQueue(executionPackage.processId);
-//    sendProcessFinishedSignal(executionPackage.processId, executionPackage.executionDate, false);
-//    return;
-//  }
-
-//  try
-//  {
-//    //////////////////////////////////////////////////////////
-//    //  aquiring metadata
-//    auto lock = dataManager->getLock();
-
-//    auto collectorPtr = dataManager->findCollector(executionPackage.processId);
-
-//    // input data
-//    auto inputDataSeries = dataManager->findDataSeries(collectorPtr->inputDataSeries);
-//    auto inputDataProvider = dataManager->findDataProvider(inputDataSeries->dataProviderId);
-
-
-//    TERRAMA2_LOG_DEBUG() << tr("Starting collection for data series '%1'").arg(inputDataSeries->name.c_str());
-
-//    // output data
-//    auto outputDataSeries = dataManager->findDataSeries(collectorPtr->outputDataSeries);
-//    auto outputDataProvider = dataManager->findDataProvider(outputDataSeries->dataProviderId);
-
-//    // dataManager no longer in use
-//    lock.unlock();
-
-//    /////////////////////////////////////////////////////////////////////////
-//    //  recovering data
-
-//    auto processingStartTime = terrama2::core::TimeUtils::nowUTC();
-
-//    terrama2::core::Filter filter = collectorPtr->filter;
-//    if(filter.discardAfter.get() && filter.discardBefore.get()
-//        && (*filter.discardAfter) < (*filter.discardBefore))
-//    {
-//      QString errMsg = QObject::tr("Empty filter time range.");
-
-//      TERRAMA2_LOG_WARNING() << errMsg.toStdString();
-//      throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
-//    }
-
-//    //update filter based on last collected data timestamp
-//    updateFilterDiscardDates(filter, logger, executionPackage.processId);
-
-//    auto remover = std::make_shared<terrama2::core::FileRemover>();
-//    auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(inputDataProvider, inputDataSeries);
-
-//    auto uriMap = dataAccessor->getFiles(filter, remover);
-//    auto dataMap = dataAccessor->getSeries(uriMap, filter, remover);
-//    if(dataMap.empty())
-//    {
-//      QString errMsg = tr("No data to collect.");
-//      logger->result(CollectorLogger::DONE, nullptr, executionPackage.registerId);
-//      logger->log(CollectorLogger::WARNING_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
-//      TERRAMA2_LOG_WARNING() << errMsg;
-
-//      notifyWaitQueue(executionPackage.processId);
-//      sendProcessFinishedSignal(executionPackage.processId, executionPackage.executionDate, false);
-//      return;
-//    }
-//    auto lastDateTime = dataAccessor->lastDateTime();
-
-//    /////////////////////////////////////////////////////////////////////////
-//    // data intersection
-
-//    for(auto& item : dataMap)
-//    {
-//      // intersection
-//      if(collectorPtr->intersection)
-//      {
-//        //FIXME: the datamanager is being used outside the lock
-//        item.second = processIntersection(dataManager, collectorPtr->intersection, item.second);
-//      }
-//    }
-
-//    /////////////////////////////////////////////////////////////////////////
-//    // storing data
-
-//    auto inputOutputMap = collectorPtr->inputOutputMap;
-//    auto dataSetLst = outputDataSeries->datasetList;
-//    auto dataStorager = terrama2::core::DataStoragerFactory::getInstance().make(outputDataSeries, outputDataProvider);
-
-//    dataStorager->store(dataMap, dataSetLst, inputOutputMap);
-
-//    TERRAMA2_LOG_INFO() << tr("Data from collector %1 collected successfully.").arg(executionPackage.processId);
-
-//    auto processingEndTime = terrama2::core::TimeUtils::nowUTC();
-
-//    logger->setStartProcessingTime(processingStartTime, executionPackage.registerId);
-//    logger->setEndProcessingTime(processingEndTime, executionPackage.registerId);
-
-//    logger->result(CollectorLogger::DONE, lastDateTime, executionPackage.registerId);
-
-//    sendProcessFinishedSignal(executionPackage.processId, executionPackage.executionDate, true);
-//    notifyWaitQueue(executionPackage.processId);
-//    return;
-
-//  }
-//  catch(const terrama2::core::LogException& e)
-//  {
-//    std::string errMsg = boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
-//    if(executionPackage.registerId != 0 )
-//    {
-//      TERRAMA2_LOG_ERROR() << errMsg << std::endl;
-//      TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(executionPackage.processId);
-//    }
-//  }
-//  catch(const terrama2::core::NoDataException& e)
-//  {
-//    TERRAMA2_LOG_INFO() << tr("Collection finished but there was no data available for collector %1.").arg(executionPackage.processId);
-
-//    if(executionPackage.registerId != 0)
-//    {
-//      logger->log(CollectorLogger::WARNING_MESSAGE, tr("No data available").toStdString(), executionPackage.registerId);
-//      logger->result(CollectorLogger::DONE, nullptr, executionPackage.registerId);
-//    }
-
-//    QJsonObject jsonAnswer;
-//    jsonAnswer.insert(terrama2::core::ReturnTags::AUTOMATIC, false);
-//    sendProcessFinishedSignal(executionPackage.processId, executionPackage.executionDate, true, jsonAnswer);
-//    notifyWaitQueue(executionPackage.processId);
-//    return;
-//  }
-//  catch(const terrama2::Exception& e)
-//  {
-//    QString errMsg = *boost::get_error_info<terrama2::ErrorDescription>(e);
-//    TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(executionPackage.processId);
-
-//    if(executionPackage.registerId != 0)
-//    {
-//      logger->log(CollectorLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
-//      logger->result(CollectorLogger::ERROR, nullptr, executionPackage.registerId);
-//    }
-//  }
-//  catch(const boost::exception& e)
-//  {
-//    std::string errMsg = boost::diagnostic_information(e);
-//    TERRAMA2_LOG_ERROR() << errMsg;
-//    TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(executionPackage.processId);
-
-//    if(executionPackage.registerId != 0)
-//    {
-//      logger->log(CollectorLogger::ERROR_MESSAGE, errMsg, executionPackage.registerId);
-//      logger->result(CollectorLogger::ERROR, nullptr, executionPackage.registerId);
-//    }
-//  }
-//  catch(const std::exception& e)
-//  {
-//    TERRAMA2_LOG_ERROR() << e.what();
-//    TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(executionPackage.processId);
-
-//    if(executionPackage.registerId != 0)
-//    {
-//      logger->log(CollectorLogger::ERROR_MESSAGE, e.what(), executionPackage.registerId);
-//      logger->result(CollectorLogger::ERROR, nullptr, executionPackage.registerId);
-//    }
-//  }
-//  catch(...)
-//  {
-//    QString errMsg = tr("Unknown error.");
-//    TERRAMA2_LOG_ERROR() << errMsg;
-//    TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(executionPackage.processId);
-
-//    if(executionPackage.registerId != 0)
-//    {
-//      logger->log(CollectorLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
-//      logger->result(CollectorLogger::ERROR, nullptr, executionPackage.registerId);
-//    }
-
-//  }
-
-//  sendProcessFinishedSignal(executionPackage.processId, executionPackage.executionDate, false);
-//  notifyWaitQueue(executionPackage.processId);
-//}
-
 void terrama2::services::interpolator::core::Service::connectDataManager()
 {
   auto dataManager1 = dataManager_.lock();
@@ -450,7 +233,6 @@ void terrama2::services::interpolator::core::Service::removeInterpolator(Interpo
   {
     std::lock_guard<std::mutex> lock(mutex_);
 
-
     TERRAMA2_LOG_INFO() << tr("Removing interpolator %1.").arg(interpolatorId);
 
     auto it = timers_.find(interpolatorId);
@@ -467,7 +249,6 @@ void terrama2::services::interpolator::core::Service::removeInterpolator(Interpo
     { return interpolatorId == executionPackage.processId; }), processQueue_.end());
 
     waitQueue_.erase(interpolatorId);
-
 
     TERRAMA2_LOG_INFO() << tr("Interpolator %1 removed successfully.").arg(interpolatorId);
   }
@@ -491,7 +272,6 @@ void terrama2::services::interpolator::core::Service::removeInterpolator(Interpo
 void terrama2::services::interpolator::core::Service::updateInterpolator(InterpolatorParamsPtr params) noexcept
 {
   removeInterpolator(params->id_);
-
   addInterpolator(params);
 }
 

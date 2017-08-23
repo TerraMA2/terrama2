@@ -1,13 +1,16 @@
 #include "InterpolatorFactories.h"
 
 #include "Interpolator.hpp"
+#include "InterpolatorParams.hpp"
 #include "Typedef.hpp"
 
 // TerraLib
 #include <terralib/common/STLUtils.h>
 
+std::vector<terrama2::services::interpolator::core::InterpolatorFactories*> terrama2::services::interpolator::core::InterpolatorFactories::factories_;
+
 terrama2::services::interpolator::core::InterpolatorFactories::InterpolatorFactories(const int& key) :
-  te::common::ParameterizedAbstractFactory<Interpolator, int, InterpolatorParams>(key)
+  te::common::ParameterizedAbstractFactory<Interpolator, int, const InterpolatorParams&>(key)
 {
 
 }
@@ -29,9 +32,12 @@ terrama2::services::interpolator::core::NNInterpolatorFactory::NNInterpolatorFac
 {
 }
 
-terrama2::services::interpolator::core::Interpolator* terrama2::services::interpolator::core::NNInterpolatorFactory::build(InterpolatorParams p)
+terrama2::services::interpolator::core::Interpolator* terrama2::services::interpolator::core::NNInterpolatorFactory::build(const InterpolatorParams& p)
 {
-  InterpolatorParamsPtr pptr(&p);
+//  InterpolatorParams* p1 = &p;
+  const NNInterpolatorParams* pp = dynamic_cast<const NNInterpolatorParams*>(&p);
+
+  InterpolatorParamsPtr pptr(new NNInterpolatorParams(*pp));
 
   NNInterpolator* i = new NNInterpolator(pptr);
 
@@ -43,9 +49,11 @@ terrama2::services::interpolator::core::BLInterpolatorFactory::BLInterpolatorFac
 {
 }
 
-terrama2::services::interpolator::core::Interpolator* terrama2::services::interpolator::core::BLInterpolatorFactory::build(InterpolatorParams p)
+terrama2::services::interpolator::core::Interpolator* terrama2::services::interpolator::core::BLInterpolatorFactory::build(const InterpolatorParams& p)
 {
-  InterpolatorParamsPtr pptr(&p);
+  const BLInterpolatorParams* pp = dynamic_cast<const BLInterpolatorParams*>(&p);
+
+  InterpolatorParamsPtr pptr(new BLInterpolatorParams(*pp));
 
   BLInterpolator* i = new BLInterpolator(pptr);
 
@@ -58,9 +66,11 @@ terrama2::services::interpolator::core::BCInterpolatorFactory::BCInterpolatorFac
 
 }
 
-terrama2::services::interpolator::core::Interpolator* terrama2::services::interpolator::core::BCInterpolatorFactory::build(InterpolatorParams p)
+terrama2::services::interpolator::core::Interpolator* terrama2::services::interpolator::core::BCInterpolatorFactory::build(const InterpolatorParams& p)
 {
-  InterpolatorParamsPtr pptr(&p);
+  const BCInterpolatorParams* pp = dynamic_cast<const BCInterpolatorParams*>(&p);
+
+  InterpolatorParamsPtr pptr(new BCInterpolatorParams(*pp));
 
   BCInterpolator* i = new BCInterpolator(pptr);
 

@@ -30,12 +30,15 @@
   \todo Comment the attributes of terrama2::services::interpolator::core::NNInterpolatorParams.
   \todo Comment the attributes of terrama2::services::interpolator::core::BLInterpolatorParams.
   \todo Comment the attributes of terrama2::services::interpolator::core::BCInterpolatorParams.
+  \todo Prevent PCD's without information to be inserted on kd-tree.
 */
 
 #ifndef __TERRAMA2_SERVICES_INTERPOLATOR_INTERPOLATORPARAMS_HPP__
 #define __TERRAMA2_SERVICES_INTERPOLATOR_INTERPOLATORPARAMS_HPP__
 
 #include "../../../core/data-model/Filter.hpp"
+#include "../../../core/Typedef.hpp"
+
 #include "Typedef.hpp"
 
 // TerraLib
@@ -90,6 +93,7 @@ namespace terrama2
             srid_(0)
           {
             filter_.reset(new terrama2::core::Filter);
+            filter_->lastValues = std::make_shared<long unsigned int>(1);
           }
 
           /*!
@@ -108,6 +112,9 @@ namespace terrama2
             series_ = other.series_;
             srid_ = other.srid_;
             attributeName_ = other.attributeName_;
+            id_ = other.id_;
+            serviceInstanceId_ = other.serviceInstanceId_;
+            dataManager_ = other.dataManager_;
           }
 
           /*!
@@ -128,6 +135,9 @@ namespace terrama2
             series_ = other.series_;
             srid_ = other.srid_;
             attributeName_ = other.attributeName_;
+            id_ = other.id_;
+            serviceInstanceId_ = other.serviceInstanceId_;
+            dataManager_ = other.dataManager_;
 
             return *this;
           }
@@ -142,6 +152,8 @@ namespace terrama2
           int srid_;                                            //!< SRID for the output.
           std::string attributeName_;                           //!< Name of the attribute to be used by the interpolator;
           InterpolatorId id_;
+          ServiceInstanceId serviceInstanceId_;
+          DataManagerPtr dataManager_;
         };
 
         /*!
@@ -160,6 +172,20 @@ namespace terrama2
             InterpolatorParams::interpolationType_ = NEARESTNEIGHBOR;
           }
 
+          NNInterpolatorParams(const InterpolatorParams& other) :
+            InterpolatorParams(other)
+          {
+            const InterpolatorParams* otherP = &other;
+
+            const NNInterpolatorParams* nnPar = dynamic_cast<const NNInterpolatorParams*>(otherP);
+
+            if(nnPar != 0)
+              *this = NNInterpolatorParams::operator=(*nnPar);
+            else
+              *this = InterpolatorParams::operator=(other);
+          }
+
+
           /*!
            * \brief Copy constructor.
            *
@@ -172,6 +198,23 @@ namespace terrama2
             nnRR_ = other.nnRR_;
             nnLastRow_ = other.nnLastRow_;
             nnLastCol_ = other.nnLastCol_;
+          }
+
+          /*!
+           * \brief operator =
+           * \param other
+           * \return
+           */
+          InterpolatorParams& operator=(const InterpolatorParams& other)
+          {
+            const InterpolatorParams* otherP = &other;
+
+            const NNInterpolatorParams* nnPar = dynamic_cast<const NNInterpolatorParams*>(otherP);
+
+            if(nnPar != 0)
+              return NNInterpolatorParams::operator=(*nnPar);
+            else
+              return InterpolatorParams::operator=(other);
           }
 
           /*!

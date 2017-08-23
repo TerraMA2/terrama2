@@ -145,7 +145,7 @@ namespace terrama2
 
               \note Thread-safe.
             */
-            InterpolatorPtr findInterpolator(InterpolatorId id) const;
+            InterpolatorParamsPtr findInterpolatorParams(InterpolatorId id) const;
 
             /*!
              * \brief hasCollector
@@ -163,7 +163,7 @@ namespace terrama2
             void interpolatorRemoved(InterpolatorId);
 
           protected:
-            std::map<InterpolatorId, InterpolatorPtr> interpolators_;//!< A map from InterpolatorId to Interpolator.
+            std::map<InterpolatorId, InterpolatorParamsPtr> interpolatorsParams_;//!< A map from InterpolatorId to Interpolator.
         };
       } // end namespace core
     }   // end namespace collector

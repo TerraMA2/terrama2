@@ -53,7 +53,7 @@ namespace terrama2
          *
          * \brief The InterpolatorFactories class
          */
-        class InterpolatorFactories : public te::common::ParameterizedAbstractFactory<Interpolator, int, InterpolatorParams>
+        class InterpolatorFactories : public te::common::ParameterizedAbstractFactory<Interpolator, int, const InterpolatorParams&>
         {
         public:
 
@@ -98,7 +98,7 @@ namespace terrama2
            * \param p
            * \return
            */
-          Interpolator* build(InterpolatorParams p);
+          Interpolator* build(const InterpolatorParams& p);
         };
 
         /*!
@@ -122,7 +122,7 @@ namespace terrama2
            * \param p
            * \return
            */
-          Interpolator* build(InterpolatorParams p);
+          Interpolator* build(const InterpolatorParams& p);
         };
 
         /*!
@@ -146,7 +146,7 @@ namespace terrama2
            * \param p
            * \return
            */
-          Interpolator* build(InterpolatorParams p);
+          Interpolator* build(const InterpolatorParams& p);
         };
       } // namespace core
     } // namespace interpolator

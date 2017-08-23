@@ -43,12 +43,12 @@
 #include <QJsonValue>
 #include <QJsonArray>
 
-terrama2::services::interpolator::core::InterpolatorPtr terrama2::services::interpolator::core::DataManager::findInterpolator(InterpolatorId id) const
+terrama2::services::interpolator::core::InterpolatorParamsPtr terrama2::services::interpolator::core::DataManager::findInterpolatorParams(InterpolatorId id) const
 {
   std::lock_guard<std::recursive_mutex> lock(mtx_);
 
-  const auto& it = interpolators_.find(id);
-  if(it == interpolators_.cend())
+  const auto& it = interpolatorsParams_.find(id);
+  if(it == interpolatorsParams_.cend())
   {
     QString errMsg = QObject::tr("Interpolator not registered.");
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -62,8 +62,8 @@ bool terrama2::services::interpolator::core::DataManager::hasInterpolator(Interp
 {
   std::lock_guard<std::recursive_mutex> lock(mtx_);
 
-  const auto& it = interpolators_.find(id);
-  return it != interpolators_.cend();
+  const auto& it = interpolatorsParams_.find(id);
+  return it != interpolatorsParams_.cend();
 }
 
 void terrama2::services::interpolator::core::DataManager::add(terrama2::services::interpolator::core::InterpolatorParamsPtr params)
@@ -79,11 +79,10 @@ void terrama2::services::interpolator::core::DataManager::add(terrama2::services
       throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
 
-    InterpolatorPtr interpolator(InterpolatorFactories::make(params->interpolationType_, *params.get()));
-    interpolator->id = params->id_;
+    params->dataManager_.reset(this);
 
-    TERRAMA2_LOG_DEBUG() << tr("Interpolator added");
-    interpolators_[params->id_] = interpolator;
+    TERRAMA2_LOG_DEBUG() << tr("Interpolator parameters added");
+    interpolatorsParams_[params->id_] = params;
   }
 
   emit interpolatorAdded(params);
@@ -106,15 +105,15 @@ void terrama2::services::interpolator::core::DataManager::removeInterpolator(Int
 {
   {
     std::lock_guard<std::recursive_mutex> lock(mtx_);
-    auto itPr = interpolators_.find(interpolatorId);
-    if(itPr == interpolators_.end())
+    auto itPr = interpolatorsParams_.find(interpolatorId);
+    if(itPr == interpolatorsParams_.end())
     {
       QString errMsg = QObject::tr("DataProvider not registered.");
       TERRAMA2_LOG_ERROR() << errMsg;
       throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
 
-    interpolators_.erase(itPr);
+    interpolatorsParams_.erase(itPr);
   }
 
   emit interpolatorRemoved(interpolatorId);
