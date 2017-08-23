@@ -117,9 +117,50 @@ define(
         $('#tableButton > button').click();
     };
 
+    var verifyState = function() {
+      Utils.getSocket().emit('getState', { verifyState: true });
+    };
+
+    var loadSocketsListeners = function() {
+      Utils.getSocket().on('getStateResponse', function(result) {
+        if(result.verifyState) {
+          if(result.result !== undefined && result.result.state !== undefined) {
+            if($("#load-state").hasClass("hidden"))
+              $("#load-state").removeClass("hidden");
+          } else {
+            if(!$("#load-state").hasClass("hidden"))
+              $("#load-state").addClass("hidden");
+          }
+        } else {
+          if(result.result !== undefined && result.result.state !== undefined && result.result.state.state !== undefined)
+            setState(JSON.parse(result.result.state.state));
+        }
+      });
+
+      Utils.getSocket().on('saveStateResponse', function(result) {
+        verifyState();
+      });
+    };
+
+    var loadEvents = function() {
+      $("#save-state").on("click", function() {
+        Utils.getSocket().emit("saveState", { state: JSON.stringify(getState()) });
+      });
+
+      $("#load-state").on("click", function() {
+        Utils.getSocket().emit('getState');
+      });
+    };
+
+    var init = function() {
+      loadEvents();
+      loadSocketsListeners();
+      verifyState();
+    };
+
     return {
-      getState: getState,
-      setState: setState
+      init: init,
+      verifyState: verifyState
     };
   }
 );

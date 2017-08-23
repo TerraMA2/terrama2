@@ -873,3 +873,13 @@ html, body, #content, .content, .content-wrapper, #terrama2-map {
     margin-right: 15px;
   }
 }
+
+#user-div > p {
+  text-align: center;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+#user-div > div > a { padding: 8px; }
+
+#user-div > div > #load-state { margin-left: 2px; }

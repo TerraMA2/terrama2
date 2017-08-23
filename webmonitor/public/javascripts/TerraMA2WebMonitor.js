@@ -10,11 +10,10 @@ define(
     'components/AddLayerByUri',
     'components/Sortable',
     'components/Login',
-    'components/State',
     'enums/LayerStatusEnum',
     'TerraMA2WebComponents'
   ],
-  function(Calendar, Capabilities, Slider, Utils, LayerStatus, Layers, AddLayerByUri, Sortable, Login, State, LayerStatusEnum, TerraMA2WebComponents) {
+  function(Calendar, Capabilities, Slider, Utils, LayerStatus, Layers, AddLayerByUri, Sortable, Login, LayerStatusEnum, TerraMA2WebComponents) {
 
     var visibleLayers = [];
     var memberWindowHeight;
@@ -153,10 +152,6 @@ define(
           }
         });
       });
-
-      $("#saveState").on("click", function() {
-        Utils.getSocket().emit("saveState", {content:State.getState()});
-      });
     };
 
     var loadSocketsListeners = function() {
@@ -266,13 +261,8 @@ define(
           }
         }
 
-        if(viewsData.initialRequest) {
+        if(viewsData.initialRequest)
           Layers.fillLayersData();
-
-          setTimeout(function() {
-            State.setState(state);
-          }, 3000);
-        }
       });
 
       // Checking map server connection response
