@@ -19,8 +19,6 @@ var State = function(io) {
 
     // check connection event
     client.on('saveState', function(json) {
-      //memberFs.writeFile('myjsonfile.json', JSON.stringify(json.content), 'utf8');
-
       var options = {
         url: memberConfig.webadmin.protocol + memberConfig.webadmin.host + ":" + memberConfig.webadmin.port + memberConfig.webadmin.basePath + "save-state",
         form: {

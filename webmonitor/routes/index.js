@@ -11,8 +11,6 @@ module.exports = function(app) {
       content: (req.query.message && req.query.message != "" ? req.query.message : "")
     };
 
-    var state = JSON.parse(fs.readFileSync(path.join(__dirname, "../myjsonfile.json"), "utf-8"));
-
-    res.render('index', { title: 'Express', webmonitorHostInfo: webmonitorHostInfo, webadminHostInfo: webadminHostInfo, message: message, state: state});
+    res.render('index', { title: 'Express', webmonitorHostInfo: webmonitorHostInfo, webadminHostInfo: webadminHostInfo, message: message });
   });
 };
