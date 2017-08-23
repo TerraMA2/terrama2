@@ -65,6 +65,8 @@ define([], function() {
         moment.locale($scope.i18n.userLanguage);
         service.start_time = moment(date).format("lll");
         service.logger_online = response.logger_online;
+        if (response.maps_server_connection === false)
+          service.maps_server_connection = false;
       }
     });
 
