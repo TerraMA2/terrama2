@@ -20,7 +20,7 @@ define(['components/Layers', 'TerraMA2WebComponents'],
     // Period date to animation
     var memberPeriodDate = 1;
     // Id used to get id of setInterval() and use to stop the animation in clearInterval()
-    var animationId = null;
+    var memberAnimationId = null;
 
     // Set layer info to animate
     var setLayerToAnimate = function(layer){
@@ -91,13 +91,13 @@ define(['components/Layers', 'TerraMA2WebComponents'],
     }
 
     // Update info of current date
-    function updateInfo() {
+    var updateInfo = function() {
       var el = $("#currentDate").find('label');
       $(el).text(getDateStringInfo());
     }
 
     // Get date string to show current date of animation
-    function getDateStringInfo(){
+    var getDateStringInfo = function(){
       if (memberDateType == 'list'){
         return moment(memberDatesList[memberCurrentDate].replace('Z', '')).format("lll");
       } else {
@@ -106,7 +106,7 @@ define(['components/Layers', 'TerraMA2WebComponents'],
     }
 
     // Get end time when type of date is continuous
-    function getEndTime(){
+    var getEndTime = function(){
       var frequencyValue = document.getElementById('frequency').value;
       var unitValue = document.getElementById('unitTime').value;
       var endDate = moment(memberCurrentDate.replace('Z', '')).add(parseInt(frequencyValue), unitValue);
@@ -114,7 +114,7 @@ define(['components/Layers', 'TerraMA2WebComponents'],
     }
 
     // Function to update layer time
-    function setTime() {
+    var setTime = function() {
       if (memberDateType == 'list')
         setListTime();
       else 
@@ -122,7 +122,7 @@ define(['components/Layers', 'TerraMA2WebComponents'],
     }
 
     // Set new layer time when date type is list
-    function setListTime(){
+    var setListTime = function(){
       if (memberCurrentDate > memberFinalDate){
         memberCurrentDate = memberInitialDate;
       }
@@ -134,7 +134,7 @@ define(['components/Layers', 'TerraMA2WebComponents'],
     }
 
     // Set new layer time when date type is continuous
-    function setCountinuousTime(){
+    var setCountinuousTime = function(){
       if (memberCurrentDate > memberFinalDate){
         memberCurrentDate = memberInitialDate;
       }
@@ -148,9 +148,9 @@ define(['components/Layers', 'TerraMA2WebComponents'],
 
     // Pause animation
     var pause = function() {
-      if (animationId !== null) {
-        window.clearInterval(animationId);
-        animationId = null;
+      if (memberAnimationId !== null) {
+        window.clearInterval(memberAnimationId);
+        memberAnimationId = null;
       }
 
       if($("#playAnimation").hasClass("hidden"))
@@ -172,7 +172,7 @@ define(['components/Layers', 'TerraMA2WebComponents'],
 
       showAnimationTools();
 
-      animationId = window.setInterval(setTime, 1000);
+      memberAnimationId = window.setInterval(setTime, 1000);
     };
 
     // Reset the animation
