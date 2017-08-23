@@ -41,6 +41,8 @@
 //terralib
 #include <terralib/datatype/TimeInstantTZ.h>
 
+#include <memory>
+
 namespace terrama2
 {
   namespace core
@@ -84,7 +86,7 @@ namespace terrama2
 
 
       struct Impl;
-      Impl* impl_;
+      std::unique_ptr<Impl> impl_;
     };
   }
 }

@@ -17,6 +17,7 @@ function Filter(params) {
   this.crop_raster = params.crop_raster;
   this.collector_id = params.collector_id;
   this.data_series_id = params.data_series_id;
+  this.srid = params.srid
 }
 
 Filter.prototype = Object.create(AbstractClass.prototype);
@@ -24,7 +25,10 @@ Filter.prototype.constructor = Filter;
 
 Filter.prototype.rawObject = function() {
   var obj = this.toObject();
-  obj.region = this.region;
+  if (this.region){
+    obj.region = this.region;
+    obj.region.srid = this.srid;
+  }
   return obj;
 };
 

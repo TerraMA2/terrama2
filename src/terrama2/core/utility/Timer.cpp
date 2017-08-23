@@ -44,7 +44,8 @@
 struct terrama2::core::Timer::Impl
 {
   Impl()
-    : schedule_(0,0,0) {}
+    : schedule_{0,0,0},
+      processId_{0} {}
 
   Schedule             dataSchedule_;
   QTimer               timer_;//<! Timer to next collection.
@@ -56,7 +57,7 @@ struct terrama2::core::Timer::Impl
 terrama2::core::Timer::Timer(const Schedule& dataSchedule, ProcessId processId, std::shared_ptr< te::dt::TimeInstantTZ > lastEmit)
 {
 
-  impl_ = new Impl();
+  impl_ = std::unique_ptr<Impl>{new Impl{} };
   impl_->dataSchedule_ = dataSchedule;
   impl_->processId_ = processId;
   impl_->lastEmit_ = lastEmit;
@@ -66,7 +67,6 @@ terrama2::core::Timer::Timer(const Schedule& dataSchedule, ProcessId processId, 
 
 terrama2::core::Timer::~Timer()
 {
-  delete impl_;
 }
 
 void terrama2::core::Timer::timeoutSlot() noexcept
