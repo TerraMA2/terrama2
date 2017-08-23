@@ -241,7 +241,7 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
       TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(executionPackage.processId);
     }
   }
-  catch(const terrama2::core::NoDataException& e)
+  catch(const terrama2::core::NoDataException&)
   {
     TERRAMA2_LOG_INFO() << tr("Collection finished but there was no data available for collector %1.").arg(executionPackage.processId);
 
