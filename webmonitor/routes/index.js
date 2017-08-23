@@ -10,7 +10,6 @@ module.exports = function(app) {
     var message = {
       content: (req.query.message && req.query.message != "" ? req.query.message : "")
     };
-
-    res.render('index', { title: 'Express', webmonitorHostInfo: webmonitorHostInfo, webadminHostInfo: webadminHostInfo, message: message });
+    res.render('index', { title: 'Express', webmonitorHostInfo: webmonitorHostInfo, webadminHostInfo: webadminHostInfo, message: message});
   });
 };
