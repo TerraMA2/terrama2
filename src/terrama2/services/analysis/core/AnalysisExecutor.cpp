@@ -49,9 +49,6 @@
 //ThreadPool
 #include <ThreadPool.h>
 
-// Python
-#include <Python.h>
-
 // TerraLib
 #include <terralib/datatype/SimpleProperty.h>
 #include <terralib/datatype/StringProperty.h>

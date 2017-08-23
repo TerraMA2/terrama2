@@ -61,7 +61,8 @@ define([], function() {
 
     $scope.fields = [
       {key: "name", as: i18n.__("Name")},
-      {key: "type.name", as: i18n.__("Type")}
+      {key: "type.name", as: i18n.__("Type")},
+      {key: "description", as: i18n.__("Description")}
     ];
 
     $scope.linkToAdd = BASE_URL + "configuration/analysis/new";

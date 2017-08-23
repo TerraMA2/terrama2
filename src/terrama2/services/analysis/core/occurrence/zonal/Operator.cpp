@@ -290,14 +290,14 @@ double terrama2::services::analysis::core::occurrence::zonal::operatorImpl(terra
 
         }
       }
-      catch(const EmptyDataSeriesException& e)
+      catch(const EmptyDataSeriesException&)
       {
         if(statisticOperation == StatisticOperation::COUNT)
           return 0;
         else
           return std::nan("");
       }
-      catch(const terrama2::core::NoDataException& e)
+      catch(const terrama2::core::NoDataException&)
       {
         if(statisticOperation == StatisticOperation::COUNT)
           return 0;

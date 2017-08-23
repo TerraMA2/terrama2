@@ -60,6 +60,10 @@ define([
           as: i18n.__('Name')
         },
         {
+          key: 'project',
+          as: i18n.__('Project')
+        },
+        {
           key: 'message',
           as: i18n.__('Message')
         },
@@ -227,7 +231,17 @@ define([
 
             var obj = currentProcess[targetKey] || {name: currentProcess.name};
 
+            var projectName = "";
+
+            for(var i = 0, projectsLength = config.projects.length; i < projectsLength; i++) {
+              if(currentProcess.project_id === config.projects[i].id) {
+                projectName = config.projects[i].name;
+                break;
+              }
+            }
+
             out.name = obj.name;
+            out.project = projectName;
             var messageString = "";
             out.messages = logMessage.messages;
             if (logMessage.messages && logMessage.messages.length > 0){

@@ -645,14 +645,18 @@ terrama2::core::DataAccessorFile::readFile(DataSetSeries& series,
   // creates a DataSource to the data and filters the dataset,
   // also joins if the DCP comes from separated files
   std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make(dataSourceType(), fileUri));
+  if(!datasource)
+  {
+    QString errMsg = QObject::tr("DataProvider could not be opened.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
+  }
 
   //RAII for open/closing the datasource
   OpenClose<std::shared_ptr<te::da::DataSource> > openClose(datasource);
 
   if(!datasource->isOpened())
   {
-    // Can't throw here, inside loop
-    // just log and continue
     QString errMsg = QObject::tr("DataProvider could not be opened.");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
