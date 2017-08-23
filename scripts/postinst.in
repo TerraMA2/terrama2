@@ -93,13 +93,9 @@ fi
     fi
   )
 
-  printf "\n\n------------------------------\n"
-  printf "\tTo register the TerraMA2 as a service enter the 'terrama2' user password.\n"
-  printf "\tIf you didn't have a 'terrama2' user the password is 'terrama4'.\n\n"
-
-  sudo -H -u terrama2 sudo pm2 start npm --name webapp -- start
-  valid $? "Error registering webapp."
-  sudo -H -u terrama2 sudo pm2 save
+  pm2 start npm --name webapp -- start
+  valid $? "Error executing webapp."
+  pm2 save
   valid $? "Error saving pm2 state."
 )
 
@@ -114,9 +110,9 @@ fi
     fi
   )
 
-  sudo -H -u terrama2 sudo pm2 start npm --name webmonitor -- start
-  valid $? "Error registering webmonitor."
-  sudo -H -u terrama2 sudo pm2 save
+  pm2 start npm --name webmonitor -- start
+  valid $? "Error executing webmonitor."
+  pm2 save
   valid $? "Error saving pm2 state."
 )
 
