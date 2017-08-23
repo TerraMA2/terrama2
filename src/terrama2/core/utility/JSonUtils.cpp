@@ -352,7 +352,7 @@ terrama2::core::LegendPtr terrama2::core::fromRiskJson(QJsonObject json)
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
 
-  std::unique_ptr<terrama2::core::Risk> risk(new terrama2::core::Risk());
+  std::shared_ptr<terrama2::core::Risk> risk = std::make_shared<terrama2::core::Risk>();
   risk->name = json["name"].toString().toStdString();
   risk->description = json["description"].toString().toStdString();
   risk->id = json["id"].toInt();
@@ -379,7 +379,7 @@ terrama2::core::LegendPtr terrama2::core::fromRiskJson(QJsonObject json)
   }
   std::sort(std::begin(risk->riskLevels), std::end(risk->riskLevels));
 
-  return terrama2::core::LegendPtr(risk.release());
+  return risk;
 }
 
 QJsonObject terrama2::core::toJson(const terrama2::core::Risk& risk)
