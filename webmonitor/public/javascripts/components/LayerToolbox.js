@@ -209,13 +209,55 @@ define(
             if($("#animate-layer-box").hasClass("hidden"))
               $("#animate-layer-box").removeClass("hidden");
 
+            if($("#dates-slider").hasClass("hidden"))
+              $("#dates-slider").removeClass("hidden");
+
+            if(!$("#dates-calendar").hasClass("hidden"))
+              $("#dates-calendar").addClass("hidden");
+
+            $("#layer-toolbox > .layer-toolbox-body > #animate-layer-box #dates-calendar").empty();
             $("#layer-toolbox > .layer-toolbox-body > #animate-layer-box #dates-slider").empty().html("<div id=\"dates" + layer.id.replace(":","") + "\"></div><div id=\"rangeDates\"><label>From:&nbsp</label><span id=\"initialDate\"></span></br><label>To:&nbsp </label><span id=\"finalDate\"></span></div>");
-            AnimatedLayer.setDatesSlider(layer);
+            AnimatedLayer.setLayerToAnimate(layer);
+            AnimatedLayer.setDatesSlider();
             toolbookHeight += 145;
             
+          } else if (layer.dateInfo && layer.dateInfo.dates && typeof layer.dateInfo.dates === "object"){
+
+            if($("#animate-layer-box").hasClass("hidden"))
+              $("#animate-layer-box").removeClass("hidden");
+
+            if($("#dates-calendar").hasClass("hidden"))
+              $("#dates-calendar").removeClass("hidden");
+
+            if(!$("#dates-slider").hasClass("hidden"))
+              $("#dates-slider").addClass("hidden");
+
+            var calendarFieldsHtml = "<div class=\"input-group date\" datetimepicker><input type=\"text\" id=\"animation-calendar\" class=\"form-control\" style=\"padding-left:5px\"/>" +
+                                       "<span class=\"input-group-addon\">" +
+                                         "<span class=\"glyphicon glyphicon-calendar\"></span>" +
+                                       "</span>" +
+                                     "</div>" +
+                                     "<div style=\"margin-top:8px\">" +
+                                       "<label>Period:&nbsp</label>" +
+                                       "<input type=\"number\" id=\"frequency\" value=1 min=1>&nbsp" +
+                                       "<select id=\"unitTime\" class=\"form-control\">" +
+                                         "<option value=\"minutes\">Minutes</option>" + 
+                                         "<option value=\"hours\" selected=\"selected\">Hours</option>" + 
+                                         "<option value=\"days\">Days</option>" + 
+                                       "</select>" +
+                                     "</div>"
+
+            $("#layer-toolbox > .layer-toolbox-body > #animate-layer-box #dates-calendar").empty().html(calendarFieldsHtml);
+            $("#layer-toolbox > .layer-toolbox-body > #animate-layer-box #dates-slider").empty();
+            AnimatedLayer.setLayerToAnimate(layer);
+            AnimatedLayer.setDatesCalendar();
+            toolbookHeight += 158;
           } else {
+            
             if(!$("#animate-layer-box").hasClass("hidden"))
               $("#animate-layer-box").addClass("hidden");
+
+            $("#layer-toolbox > .layer-toolbox-body > #animate-layer-box #dates-calendar").empty();
             $("#layer-toolbox > .layer-toolbox-body > #animate-layer-box #dates-slider").empty();
           }
           $("#layer-toolbox").css("height", toolbookHeight + "px");
