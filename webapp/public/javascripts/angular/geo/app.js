@@ -50,13 +50,7 @@ angular.module(moduleName, [directivesApp, servicesApp])
             model.minY = coordinates[0][1];
             model.maxX = coordinates[2][0];
             model.maxY = coordinates[2][1];
-            var defaultSRID = 4326;
-            if (model.srid) {
-              var sridStr = (((model.crs || {}).properties || {}).name || "");
-              model.srid = parseInt(sridStr.substring(4, sridStr.length));
-            } else {
-              model.srid = defaultSRID;
-            }
+            model.srid = geojson.srid || 4326;
             break;
           case GeometryFormat.WKT: // TODO: implement it
             break;
