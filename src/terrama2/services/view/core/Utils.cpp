@@ -42,6 +42,7 @@
 #include "../../../core/utility/FileRemover.hpp"
 #include "../../../core/utility/TimeUtils.hpp"
 #include "../../../core/utility/Utils.hpp"
+#include "../../../core/utility/Raii.hpp"
 
 // TerraLib Datasource
 #include <terralib/dataaccess/datasource/DataSource.h>
@@ -218,12 +219,16 @@ std::string terrama2::services::view::core::toString(const double value, const i
 void terrama2::services::view::core::removeTable(const std::string& name, const te::core::URI& uri)
 {
   std::shared_ptr<te::da::DataSource> dataSource = te::da::DataSourceFactory::make("POSTGIS", uri);
-
-  dataSource->open();
-  dataSource->dropDataSet(name);
+  terrama2::core::OpenClose<std::shared_ptr<te::da::DataSource>> openClose(dataSource);
 
   if (dataSource->isOpened())
-    dataSource->close();
+    dataSource->dropDataSet(name);
+  else
+  {
+    const QString errMsg = QObject::tr("Unable to remove view table %1.").arg(QString::fromStdString(name));
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw Exception() << ErrorDescription(errMsg);
+  }
 }
 
 void terrama2::services::view::core::createFolder(const std::string& folderpath)

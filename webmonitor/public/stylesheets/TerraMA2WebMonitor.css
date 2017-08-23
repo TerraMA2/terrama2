@@ -564,6 +564,17 @@ html, body, #content, .content, .content-wrapper, #terrama2-map {
 
 #reload, #play {margin-right: 5px;}
 
+#unitTime {
+  display: inline !important;
+  width: 97px;  
+}
+
+#frequency {
+  height: 34px;
+  width: 50px;
+  display: inline !important;
+}
+
 #dates-slider {
   width: 180px;
   margin-left: 10px;

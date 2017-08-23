@@ -2755,7 +2755,7 @@ var DataManager = module.exports = {
                 return resolve(collector);
               }
 
-              if (_.isEmpty(filterObject.date) && _.isEmpty(filterObject.region||{})) {
+              if (_.isEmpty(filterObject.date) && _.isEmpty(filterObject.region||{}) && !filterObject.data_series_id) {
                 return resolve(collector);
               } else {
                 filterObject.collector_id = collectorResult.id;

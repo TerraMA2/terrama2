@@ -66,13 +66,13 @@ namespace terrama2
                                               const terrama2::core::DataSetPtr dataSet,
                                               const terrama2::core::Filter& filter);
 
-            static te::da::DataSetType* getVectorialDataSetType(const QFileInfo& fileInfo);
+            static std::unique_ptr< te::da::DataSetType > getVectorialDataSetType(const QFileInfo& fileInfo);
 
-            static te::da::DataSetType* getGeotiffDataSetType(const QFileInfo& fileInfo);
+            static std::unique_ptr< te::da::DataSetType > getGeotiffDataSetType(const QFileInfo& fileInfo);
 
-            static te::da::DataSetType* getDataSetType(const std::string& dataSourceURI,
-                                                       const std::string& dataSetName,
-                                                       const std::string& driver);
+            static std::unique_ptr< te::da::DataSetType > getDataSetType(const std::string& dataSourceURI,
+                                                                         const std::string& dataSetName,
+                                                                         const std::string& driver);
 
             static TableInfo getPostgisTableInfo(const std::pair<terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr>& dataSeriesProvider,
                                                    const terrama2::core::DataSetPtr dataSet);
