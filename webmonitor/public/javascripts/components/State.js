@@ -62,18 +62,38 @@ define(
     var setState = function(state) {
       $("#projects").val(state.project);
 
-      for(var i = 0, layersLength = state.customLayers.length; i < layersLength; i++)
-        AddLayerByUri.addCustomLayer(state.customLayers[i]);
+      var allLayers = Layers.getAllLayers();
+
+      for(var i = 0, layersLength = state.customLayers.length; i < layersLength; i++) {
+        var layerAlreadyExists = false;
+
+        for(var j = 0, allLayersLength = allLayers.length; j < allLayersLength; j++) {
+          if(state.customLayers[i].id === allLayers[j].id) {
+            layerAlreadyExists = true;
+            break;
+          }
+        }
+
+        if(!layerAlreadyExists)
+          AddLayerByUri.addCustomLayer(state.customLayers[i]);
+      }
 
       var layers = Layers.getLayersByProject($("#projects").val(), true, true);
 
       for(var i = 0, layersLength = layers.length; i < layersLength; i++) {
         if(!layers[i].isParent) {
+          var visibleLayer = false;
+
           for(var j = 0, visibleLayersLength = state.visibleLayers.length; j < visibleLayersLength; j++) {
             if(layers[i].id === state.visibleLayers[j]) {
               if(!$("#" + layers[i].htmlId + " > input").prop('checked')) $("#" + layers[i].htmlId + " > input").click();
+              visibleLayer = true;
+              break;
             }
           }
+
+          if($("#" + layers[i].htmlId + " > input").prop('checked') && !visibleLayer)
+            $("#" + layers[i].htmlId + " > input").click();
 
           if(state.opacities[layers[i].id] !== undefined) {
             Slider.changeLayerOpacity(layers[i].id, state.opacities[layers[i].id] * 100);
@@ -110,10 +130,10 @@ define(
 
       TerraMA2WebComponents.MapDisplay.zoomToExtent(state.extent);
 
-      if(state.isLegendsOpen)
+      if((state.isLegendsOpen && $('#legend-box').hasClass('hidden')) || (!state.isLegendsOpen && !$('#legend-box').hasClass('hidden')))
         $('#legendsButton > button').click();
 
-      if(state.isTableOpen)
+      if((state.isTableOpen && $('#table-div').css('display') === 'none') || (!state.isTableOpen && $('#table-div').css('display') !== 'none'))
         $('#tableButton > button').click();
     };
 
