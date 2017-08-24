@@ -56,7 +56,7 @@
               <div class="col-md-12 row">
                 <div class="col-md-6">
                   <div class="form-group" ng-class="{'has-error': ctrl.legendLevelNameError[level._id]}">
-                    <label><span ng-bind="i18n.__('Level Name')"></span>:</label>
+                    <label><span ng-bind="i18n.__(level.isDefault ? 'Default Level Name' : 'Level Name')"></span>:</label>
                     <input class="form-control" name="levelName{{ level._id }}" ng-model="level.name" type="text" placeholder="{{ i18n.__('Level Name') }}">
                   </div>
                 </div>
