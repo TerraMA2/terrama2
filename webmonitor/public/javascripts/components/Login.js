@@ -1,8 +1,8 @@
 'use strict';
 
 define(
-  ['components/Layers', 'components/Utils'],
-  function(Layers, Utils) {
+  ['components/Layers', 'components/Utils', 'components/State'],
+  function(Layers, Utils, State) {
 
     var signin = function(error, username) {
       if(!$('#authentication-div').hasClass('hidden'))
@@ -30,6 +30,7 @@ define(
         if($("#user-div").hasClass("hidden"))
           $("#user-div").removeClass("hidden");
 
+        State.verifyState();
         Utils.getSocket().emit('retrieveViews', { clientId: Utils.getWebAppSocket().id, onlyPrivate: true });
       }
     };

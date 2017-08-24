@@ -22,6 +22,7 @@
 */
 
 #include "TimeUtils.hpp"
+#include "Utils.hpp"
 #include "ServiceManager.hpp"
 #include "../../Version.hpp"
 
@@ -108,7 +109,7 @@ QJsonObject terrama2::core::ServiceManager::status() const
   {
     obj.insert("instance_id", static_cast<int>(instanceId()));
     obj.insert("instance_name", QString::fromStdString(instanceName()));
-    obj.insert("start_time", QString::fromStdString(startTime_->toString()));
+    obj.insert("start_time", QString::fromStdString(TimeUtils::getISOString(startTime_)));
     obj.insert("terrama2_version",  QString::fromStdString(TERRAMA2_VERSION_STRING));
     obj.insert("shutting_down",  isShuttingDown_);
     obj.insert("logger_online",  logger_.lock()->isValid());
