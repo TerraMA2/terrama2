@@ -514,14 +514,8 @@ std::string terrama2::core::getISOString(std::shared_ptr<te::dt::TimeInstantTZ> 
 {
   auto localTime = timeinstant->getTimeInstantTZ();
 
-  std::string timeString;
   if(localTime.is_special())
     return "";
 
-  timeString = boost::posix_time::to_iso_extended_string(localTime.utc_time());
-
-  if(localTime.zone().get() != nullptr)
-    timeString += localTime.zone()->to_posix_string();
-
-  return timeString;
+  return boost::posix_time::to_iso_extended_string(localTime.utc_time())+"Z";
 }
