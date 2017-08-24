@@ -60,6 +60,6 @@ target_link_libraries(terrama2_unittest_analysis terrama2_core
                                                   ${GMOCK_BOTH_LIBRARIES}
                                                   ${PYTHON_LIBRARIES})
 
-qt5_use_modules(terrama2_unittest_analysis Test)
+qt5_use_modules(terrama2_unittest_analysis Test Gui)
 
 add_test(NAME terrama2_unittest_analysis COMMAND terrama2_unittest_analysis)
