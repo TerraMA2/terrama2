@@ -92,7 +92,8 @@
                     <button id="play" type="button"><i class="fa fa-play"></i></button>
                     <button id="pause" type="button"><i class="fa fa-pause"></i></button>
                   </div>
-                  <div id="dates-slider" style="margin-top: 10px;"></div>
+                  <div id="dates-slider" style="margin-top: 10px;" class="hidden"></div>
+                  <div id="dates-calendar" style="margin-top: 10px;" class="hidden"></div>
                 </div>
                 <hr style="margin: 10px 0 10px 0;"/>
                 <div id="slider-box"></div>
@@ -121,8 +122,10 @@
             <div id="map-tools">
               <div id="authentication-div" class="hidden">
                 <div id="user-div" class="{% if (currentUser === null) %}hidden{% endif %}">
-                  <p class="user-name" style="text-align: center; font-size: 15px; font-weight: 800;">{% if currentUser !== null %}{[ currentUser.name ]}{% endif %}</p>
+                  <p class="user-name">{% if currentUser !== null %}{[ currentUser.name ]}{% endif %}</p>
                   <hr/>
+                  <div class="pull-left"><a href="#" class="btn btn-default btn-flat" id="save-state">Save State</a></div>
+                  <div class="pull-left"><a href="#" class="btn btn-default btn-flat hidden" id="load-state">Load State</a></div>
                   <div class="pull-right"><a href="#" class="btn btn-default btn-flat" id="signout">Sign out</a></div>
                 </div>
                 <div id="login-div" class="{% if (currentUser !== null) %}hidden{% endif %}">

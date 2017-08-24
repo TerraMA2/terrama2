@@ -14,6 +14,9 @@
 #include <QCoreApplication>
 #include <QTimer>
 
+#include "NovaFriburgoTs.hpp"
+
+
 
 int main(int argc, char *argv[])
 {
@@ -28,6 +31,16 @@ int main(int argc, char *argv[])
 
     terrama2::core::TerraMA2Init terramaRaii("unittest", 0);
     terrama2::core::disableLogger();
+
+    try
+    {
+      NovaFriburgoTs novaFriburgoTS;
+      returnVal += QTest::qExec(&novaFriburgoTS, argc, argv);
+    }
+    catch(...)
+    {
+
+    }
 
   }
   catch (const terrama2::Exception& e)

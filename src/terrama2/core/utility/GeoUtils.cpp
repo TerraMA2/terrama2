@@ -90,8 +90,9 @@ std::unique_ptr<te::rst::Raster> terrama2::core::cloneRaster(const te::rst::Rast
   {
     bands.push_back(new te::rst::BandProperty(*raster.getBand(i)->getProperty()));
   }
-  auto grid = new te::rst::Grid(raster.getNumberOfColumns(), raster.getNumberOfRows(), new te::gm::Envelope(*raster.getExtent()), raster.getSRID());
-  std::unique_ptr<te::rst::Raster> expansible(te::rst::RasterFactory::make("EXPANSIBLE", grid, bands, {}));
+  std::unique_ptr<te::gm::Envelope> envelope(new te::gm::Envelope(*raster.getExtent()));
+  std::unique_ptr<te::rst::Grid> grid(new te::rst::Grid(raster.getNumberOfColumns(), raster.getNumberOfRows(), envelope.release(), raster.getSRID()));
+  std::unique_ptr<te::rst::Raster> expansible(te::rst::RasterFactory::make("EXPANSIBLE", grid.release(), bands, {}));
 
   for(uint bandIdx = 0; bandIdx < raster.getNumberOfBands(); ++bandIdx)
   {
@@ -128,8 +129,9 @@ std::unique_ptr<te::rst::Raster> terrama2::core::multiplyRaster(const te::rst::R
     bands.push_back(bProp);
   }
 
-  auto grid = new te::rst::Grid(raster.getNumberOfColumns(), raster.getNumberOfRows(), new te::gm::Envelope(*raster.getExtent()), raster.getSRID());
-  std::unique_ptr<te::rst::Raster> expansible(te::rst::RasterFactory::make("EXPANSIBLE", grid, bands, {}));
+  std::unique_ptr<te::gm::Envelope> envelope(new te::gm::Envelope(*raster.getExtent()));
+  std::unique_ptr<te::rst::Grid> grid(new te::rst::Grid(raster.getNumberOfColumns(), raster.getNumberOfRows(), envelope.release(), raster.getSRID()));
+  std::unique_ptr<te::rst::Raster> expansible(te::rst::RasterFactory::make("EXPANSIBLE", grid.release(), bands, {}));
 
   int columns = raster.getNumberOfColumns();
   int rows = raster.getNumberOfRows();

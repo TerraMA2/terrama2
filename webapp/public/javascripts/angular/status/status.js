@@ -182,7 +182,6 @@ define([
         }
 
         var logArray = response.logs;
-        var currentOffSet = (new Date().getTimezoneOffset());
 
         var _findOne = function(array, identifier) {
           var output = {};
@@ -221,7 +220,7 @@ define([
           $scope.logSize += logProcess.log.length;
           logProcess.log.forEach(function(logMessage) {
             var out = {
-              date: moment(logMessage.last_process_timestamp.split('.')[0], "YYYY-MMM-DD hh:mm:ss").subtract(currentOffSet/60, 'hours'),
+              date: moment(logMessage.last_process_timestamp, "YYYY-MM-DDThh:mm:ss.SSSSSSZ"),
               status: logMessage.status,
               type: targetMessage,
               service: service
@@ -232,9 +231,10 @@ define([
             var obj = currentProcess[targetKey] || {name: currentProcess.name};
 
             var projectName = "";
+            var projectId = (currentProcess.class === "Collector" ? currentProcess.dataSeriesOutput.project_id : currentProcess.project_id);
 
             for(var i = 0, projectsLength = config.projects.length; i < projectsLength; i++) {
-              if(currentProcess.project_id === config.projects[i].id) {
+              if(projectId === config.projects[i].id) {
                 projectName = config.projects[i].name;
                 break;
               }

@@ -18,6 +18,7 @@ requirejs(
     'components/LayerToolbox',
     'components/Login',
     'components/AnimatedLayer',
+    'components/State',
     'TerraMA2WebComponents'
   ],
   function(
@@ -33,6 +34,7 @@ requirejs(
     LayerToolbox,
     Login,
     AnimatedLayer,
+    State,
     TerraMA2WebComponents
   ) {
     TerraMA2WebComponents.LayerExplorer.init();
@@ -49,6 +51,7 @@ requirejs(
       AddLayerByUri.init();
       LayerToolbox.init();
       AnimatedLayer.init();
+      State.init();
       Login.init();
     });
   }

@@ -183,8 +183,6 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
     std::string scheme = "file://";
     downloadBaseFolderUri = scheme + downloadBaseDir.string();
     remover->addTemporaryFolder(downloadBaseFolderUri);
-
-    downloadBaseFolderUri = scheme + downloadBaseDir.string();
   }
 
   try
