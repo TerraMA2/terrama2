@@ -31,6 +31,7 @@
 #define __TERRAMA2_CORE_PYTHON_INTERPRETER_HPP__
 
 #include "Interpreter.hpp"
+#include "../Shared.hpp"
 
 #include <memory>
 #include <mutex>
@@ -57,6 +58,9 @@ namespace terrama2
       virtual boost::optional<double> getNumeric(const std::string& name) const;
       virtual boost::optional<std::string> getString(const std::string& name) const;
       virtual void runScript(const std::string& script);
+
+      static InterpreterType interpreterType() { return "PYTHON"; };
+      static InterpreterPtr make();
 
     private:
       std::string extractException();
