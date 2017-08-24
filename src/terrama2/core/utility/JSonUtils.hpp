@@ -58,7 +58,7 @@ namespace terrama2
     /*!
       \brief Add base DataSet information to derived classes when constructing from QJsonObject.
       */
-    void addBaseDataSetData(QJsonObject json, DataSet* dataset);
+    void addBaseDataSetData(QJsonObject json, std::shared_ptr<terrama2::core::DataSet> dataset);
 
     /*!
       \brief Creates a DataSet from a QJsonObject.
