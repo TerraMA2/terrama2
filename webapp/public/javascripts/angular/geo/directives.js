@@ -83,7 +83,7 @@ app.run(["$templateCache", function($templateCache) {
           "<div class=\"checkbox\" style=\"margin-left: 20px; margin-top:30px;\">" +
             "<span style=\"font-weight: 700;\" >" +
               "<input type=\"checkbox\" id=\"projection\" name=\"crop_raster\" ng-model=\"model.crop_raster\"> {{ i18n.__('Crop raster') }} "+
-            "<\span>" +
+            "</span>" +
           "</div>" +
         "</div>" +
       "</div>" +

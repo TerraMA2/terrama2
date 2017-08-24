@@ -75,8 +75,7 @@ terrama2::core::DataProviderPtr terrama2::core::fromDataProviderJson(QJsonObject
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
 
-  terrama2::core::DataProvider* provider = new terrama2::core::DataProvider();
-  terrama2::core::DataProviderPtr providerPtr(provider);
+  std::shared_ptr<terrama2::core::DataProvider> provider = std::make_shared<terrama2::core::DataProvider>();
 
   provider->id = json["id"].toInt();
   provider->projectId = json["project_id"].toInt();
@@ -106,7 +105,7 @@ terrama2::core::DataProviderPtr terrama2::core::fromDataProviderJson(QJsonObject
     provider->timeout = 8;
   }
 
-  return providerPtr;
+  return provider;
 }
 
 terrama2::core::DataSeriesPtr terrama2::core::fromDataSeriesJson(QJsonObject json)
@@ -130,8 +129,7 @@ terrama2::core::DataSeriesPtr terrama2::core::fromDataSeriesJson(QJsonObject jso
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
 
-  terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
-  terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
+  std::shared_ptr<terrama2::core::DataSeries> dataSeries = std::make_shared<terrama2::core::DataSeries>();
 
   dataSeries->id = json["id"].toInt();
   dataSeries->dataProviderId = json["data_provider_id"].toInt();
@@ -174,10 +172,10 @@ terrama2::core::DataSeriesPtr terrama2::core::fromDataSeriesJson(QJsonObject jso
       throw terrama2::core::JSonParserException() << ErrorDescription(QObject::tr("Invalid DataSet JSON object."));
   }
 
-  return dataSeriesPtr;
+  return dataSeries;
 }
 
-void terrama2::core::addBaseDataSetData(QJsonObject json, terrama2::core::DataSet* dataSet)
+void terrama2::core::addBaseDataSetData(QJsonObject json, std::shared_ptr<terrama2::core::DataSet> dataSet)
 {
   if(json["class"].toString() != "DataSet")
   {
@@ -210,8 +208,7 @@ void terrama2::core::addBaseDataSetData(QJsonObject json, terrama2::core::DataSe
 
 terrama2::core::DataSetPtr terrama2::core::fromDataSetDcpJson(QJsonObject json)
 {
-  terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
-  terrama2::core::DataSetDcpPtr dataSetPtr(dataSet);
+  std::shared_ptr<terrama2::core::DataSetDcp> dataSet = std::make_shared<terrama2::core::DataSetDcp>();
 
   addBaseDataSetData(json, dataSet);
 
@@ -235,38 +232,32 @@ terrama2::core::DataSetPtr terrama2::core::fromDataSetDcpJson(QJsonObject json)
 
   dataSet->position = point;
 
-  return dataSetPtr;
+  return dataSet;
 }
 
 
 terrama2::core::DataSetPtr terrama2::core::fromDataSetJson(QJsonObject json)
 {
-  terrama2::core::DataSet* dataSet = new terrama2::core::DataSet();
-  terrama2::core::DataSetPtr dataSetPtr(dataSet);
-
+  std::shared_ptr<terrama2::core::DataSet> dataSet = std::make_shared<terrama2::core::DataSet>();
   addBaseDataSetData(json, dataSet);
 
-  return dataSetPtr;
+  return dataSet;
 }
 
 terrama2::core::DataSetPtr terrama2::core::fromDataSetOccurrenceJson(QJsonObject json)
 {
-  terrama2::core::DataSetOccurrence* dataSet = new terrama2::core::DataSetOccurrence();
-  terrama2::core::DataSetOccurrencePtr dataSetPtr(dataSet);
-
+  std::shared_ptr<terrama2::core::DataSet> dataSet = std::make_shared<terrama2::core::DataSetOccurrence>();
   addBaseDataSetData(json, dataSet);
 
-  return dataSetPtr;
+  return dataSet;
 }
 
 terrama2::core::DataSetPtr terrama2::core::fromDataSetGridJson(QJsonObject json)
 {
-  terrama2::core::DataSetGrid* dataSet = new terrama2::core::DataSetGrid();
-  terrama2::core::DataSetGridPtr dataSetPtr(dataSet);
-
+  std::shared_ptr<terrama2::core::DataSet> dataSet = std::make_shared<terrama2::core::DataSetGrid>();
   addBaseDataSetData(json, dataSet);
 
-  return dataSetPtr;
+  return dataSet;
 }
 
 terrama2::core::Filter terrama2::core::fromFilterJson(QJsonObject json, DataManager* dataManager)
@@ -361,7 +352,7 @@ terrama2::core::LegendPtr terrama2::core::fromRiskJson(QJsonObject json)
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
 
-  std::unique_ptr<terrama2::core::Risk> risk(new terrama2::core::Risk());
+  std::shared_ptr<terrama2::core::Risk> risk = std::make_shared<terrama2::core::Risk>();
   risk->name = json["name"].toString().toStdString();
   risk->description = json["description"].toString().toStdString();
   risk->id = json["id"].toInt();
@@ -388,7 +379,7 @@ terrama2::core::LegendPtr terrama2::core::fromRiskJson(QJsonObject json)
   }
   std::sort(std::begin(risk->riskLevels), std::end(risk->riskLevels));
 
-  return terrama2::core::LegendPtr(risk.release());
+  return risk;
 }
 
 QJsonObject terrama2::core::toJson(const terrama2::core::Risk& risk)

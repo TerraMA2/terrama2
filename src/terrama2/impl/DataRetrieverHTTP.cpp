@@ -119,22 +119,18 @@ std::string terrama2::core::DataRetrieverHTTP::retrieveData(const std::string& m
     std::string scheme = "file://";
     downloadBaseFolderUri = scheme + downloadBaseDir.string();
     remover->addTemporaryFolder(downloadBaseFolderUri);
-
-    downloadBaseFolderUri = scheme + downloadBaseDir.string();
   }
 
   try
   {
     // Create directory struct
-    QString saveDir(QString::fromStdString(dataProvider_->uri));
-    saveDir.replace(QString::fromStdString(dataProvider_->uri), QString::fromStdString(downloadBaseFolderUri));
-
+    QString saveDir(QString::fromStdString(downloadBaseFolderUri+ "/" + foldersMask));
     QString savePath = QUrl(saveDir).toString(QUrl::RemoveScheme);
     QDir dir(savePath);
     if(!dir.exists())
       dir.mkpath(savePath);
 
-    std::string uriOrigin = dataProvider_->uri + "/" + mask;
+    std::string uriOrigin = dataProvider_->uri + "/" + foldersMask + "/" + mask;
     std::string filePath = savePath.toStdString() + "/" + mask;
 
     te::core::URI uri(uriOrigin);

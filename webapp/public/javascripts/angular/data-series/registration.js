@@ -441,6 +441,9 @@ define([], function() {
           if (filter.data_series_id){
             $scope.$emit('updateFilterArea', "3");
             $scope.filter.data_series_id = filter.data_series_id; 
+            if (filter.crop_raster){
+              $scope.filter.area.crop_raster = true;
+            }
           }
         }
 
@@ -973,7 +976,7 @@ define([], function() {
 
       $scope.onFilterRegion = function() {
         if ($scope.filter.filterArea === $scope.filterTypes.NO_FILTER.value) {
-          $scope.filter.area = {};
+          $scope.filter.area = {srid: 4326, showCrop: $scope.filter.area.showCrop};
           delete $scope.filter.data_series_id;
         } 
         else if ($scope.filter.filterArea === $scope.filterTypes.AREA.value){
@@ -985,7 +988,7 @@ define([], function() {
           }
         }
         else {
-          $scope.filter.area = {};
+          $scope.filter.area = {srid: 4326, showCrop: $scope.filter.area.showCrop};
         }
       };
 
@@ -1013,7 +1016,7 @@ define([], function() {
             editedDcps: (viewChange !== undefined && viewChange ? $scope.editedStoragerDcps : []),
             removedDcps: (viewChange !== undefined && viewChange ? $scope.removedStoragerDcps : [])
           });
-        });
+        }, 1000);
       };
 
       // schedule
@@ -1860,6 +1863,9 @@ define([], function() {
         }
         else if ($scope.filter.filterArea === $scope.filterTypes.STATIC_DATA.value){
           filterValues.data_series_id = $scope.filter.data_series_id;
+          if ($scope.filter.area.crop_raster){
+            filterValues.crop_raster = true;
+          }
         }
 
         var scheduleValues = Object.assign({}, $scope.schedule);
