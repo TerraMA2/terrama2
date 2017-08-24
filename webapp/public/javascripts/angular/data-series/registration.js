@@ -1016,7 +1016,7 @@ define([], function() {
             editedDcps: (viewChange !== undefined && viewChange ? $scope.editedStoragerDcps : []),
             removedDcps: (viewChange !== undefined && viewChange ? $scope.removedStoragerDcps : [])
           });
-        });
+        }, 1000);
       };
 
       // schedule
