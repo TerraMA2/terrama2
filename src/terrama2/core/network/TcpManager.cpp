@@ -194,9 +194,9 @@ QJsonObject terrama2::core::TcpManager::logToJson(const terrama2::core::ProcessL
   QJsonObject obj;
   obj.insert("process_id", static_cast<int>(log.processId));
   obj.insert("status", static_cast<int>(log.status));
-  obj.insert("start_timestamp", log.start_timestamp.get() ? QString::fromStdString(log.start_timestamp->toString()) : "");
-  obj.insert("data_timestamp", log.data_timestamp.get() ? QString::fromStdString(log.data_timestamp->toString()) : "");
-  obj.insert("last_process_timestamp", log.last_process_timestamp.get() ? QString::fromStdString(log.last_process_timestamp->toString()) : "");
+  obj.insert("start_timestamp", QString::fromStdString(TimeUtils::getISOString(log.start_timestamp)));
+  obj.insert("data_timestamp", QString::fromStdString(TimeUtils::getISOString(log.data_timestamp)));
+  obj.insert("last_process_timestamp", QString::fromStdString(TimeUtils::getISOString(log.last_process_timestamp)));
   obj.insert("data", QString::fromStdString(log.data));
 
   QJsonArray msgArray;
@@ -205,7 +205,7 @@ QJsonObject terrama2::core::TcpManager::logToJson(const terrama2::core::ProcessL
     QJsonObject msgObj;
     msgObj.insert("type", static_cast<int>(msg.type));
     msgObj.insert("description", QString::fromStdString(msg.description));
-    msgObj.insert("timestamp", msg.timestamp.get() ? QString::fromStdString(msg.timestamp->toString()) : "");
+    msgObj.insert("timestamp", QString::fromStdString(TimeUtils::getISOString(msg.timestamp)));
 
     msgArray.append(msgObj);
   }

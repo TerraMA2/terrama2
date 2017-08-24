@@ -509,13 +509,3 @@ std::string terrama2::core::getFolderMask(DataSetPtr dataSet)
 
   return folderMask;
 }
-
-std::string terrama2::core::getISOString(std::shared_ptr<te::dt::TimeInstantTZ> timeinstant)
-{
-  auto localTime = timeinstant->getTimeInstantTZ();
-
-  if(localTime.is_special())
-    return "";
-
-  return boost::posix_time::to_iso_extended_string(localTime.utc_time())+"Z";
-}

@@ -175,10 +175,6 @@ namespace terrama2
 
     //! Returns the folder mask .
     std::string getFolderMask(DataSetPtr dataSet);
-
-    //! Return iso string from TimeInstantTZ
-    std::string getISOString(std::shared_ptr<te::dt::TimeInstantTZ> timeinstant);
-
   } // end namespace core
 }   // end namespace terrama2
 
