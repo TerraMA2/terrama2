@@ -20,12 +20,12 @@
 */
 
 /*!
-  \file interpolator/core/Interpolator.hpp
-
-  \brief .
-
-  \author Frederico Augusto Bedê
-*/
+ * \file interpolator/core/DataManager.hpp
+ *
+ * \brief This file contains a class that manages the interpolation parameters.
+ *
+ * \author Frederico Augusto Bedê
+ */
 
 #ifndef __TERRAMA2_SERVICES_INTERPOLATOR_CORE_DATAMANAGER_HPP__
 #define __TERRAMA2_SERVICES_INTERPOLATOR_CORE_DATAMANAGER_HPP__
@@ -43,9 +43,11 @@ namespace terrama2
       namespace core
       {
         /*!
-         * \class
+         * \class DataManager
          *
-         * \brief The DataManager class
+         * \brief This class is used to manage the interpolation parameters created and used by TerraMA2.
+         *
+         * \ingroup interpolator
          */
         class DataManager : public terrama2::core::DataManager
         {
@@ -53,121 +55,158 @@ namespace terrama2
 
           public:
 
+
+            /** @name Initializer Methods
+            *  Methods related to instantiation and destruction.
+            */
+            //@{
+
             /*!
-              \brief Default constructor
+             * \brief Default constructor.
              */
             DataManager() = default;
 
             /*!
-              \brief Default destructor
+             * \brief Destructor.
              */
             ~DataManager() = default;
+            //@}
+
+
+            /** @name JSon methods
+             *  Methods used to manipulate .json based objects.
+             */
+            //@{
 
             /*!
-              \brief Parsers the QJsonObject for terrama2::core::DataProvider, terrama2::core::DataSeries and Collector to be added.
-
-              The valid tags are:
-                - "dataproviders"
-                - "dataseries"
-                - "collectors"
-            */
+             * \brief Adds the parameters to the manager. Decode the json object and transforms it into a InterpolatorParams object.
+             *
+             * \param obj The object to be converted and added.
+             */
             void addJSon(const QJsonObject& obj);
 
             /*!
-              \brief Parsers the QJsonObject for terrama2::core::DataProvider, terrama2::core::DataSeries and Collector to be removed.
-
-              The valid tags are:
-                - "dataproviders"
-                - "dataseries"
-                - "collectors"
-            */
+             * \brief Removes the InterpolatorParams object based on json object \a obj.
+             *
+             * \param obj The object to be removed.
+             */
             void removeJSon(const QJsonObject& obj);
+            //@}
+
+
+            /** @name Copy Methods
+            *  Methods related to copy. Copy NOT allowed.
+            */
+            //@{
 
             /*!
-             * \brief DataManager
-             * \param other
+             * \brief Copy constructor.
              */
-            DataManager(const DataManager& other) = delete;
+            DataManager(const DataManager&) = delete;
 
             /*!
-             * \brief DataManager
-             * \param other
+             * \brief Copy constructor. (Using pointer as argument)
              */
-            DataManager(DataManager&& other) = delete;
+            DataManager(DataManager&&) = delete;
 
             /*!
-             * \brief operator =
-             * \param other
-             * \return
+             * \brief Copy operator.
+             * \return No matters.
              */
-            DataManager& operator=(const DataManager& other) = delete;
+            DataManager& operator=(const DataManager&) = delete;
 
             /*!
-             * \brief operator =
-             * \param other
-             * \return
+             * \brief Copy operator. (Using pointer as argument)
+             * \return No matters.
              */
-            DataManager& operator=(DataManager&& other) = delete;
+            DataManager& operator=(DataManager&&) = delete;
+            //@}
 
             using terrama2::core::DataManager::add;
             using terrama2::core::DataManager::update;
 
-            /*!
-              \brief
-
-              \exception terrama2::InvalidArgumentException If it is not possible to add the Interpolator.
-
-              \note Thread-safe.
+            /** @name Manipulating Parameters Methods
+            *  Methods related to the manipulation of the parameters.
             */
+            //@{
+
+            /*!
+             * \brief Adds the parameters tho the manage.
+             *
+             * \param params The parameters to be inserted.
+             *
+             * \exception terrama2::InvalidArgumentException If the identifier of the given parameters was invalid an exception will be raised.
+             */
             void add(InterpolatorParamsPtr params);
 
             /*!
-              \brief
-
-              \exception terrama2::InvalidArgumentException If it is not possible to update the Interpolator.
-
-              \note Thread-safe.
-            */
+             * \brief Updates the parameters int the manager.
+             *
+             * \param params The parameters to be updated.
+             *
+             * \exception terrama2::InvalidArgumentException If the identifier of the given parameters does not exists an exception will be raised.
+             */
             void update(InterpolatorParamsPtr params);
 
             /*!
-              \brief .
-
-              \exception terrama2::InvalidArgumentException If it is not possible to remove the Interpolator.
-
-              \note Thread-safe.
-            */
+             * \brief Removes the parameters identified by \a id, from the manager.
+             *
+             * \param id Identifier of the parameters to be removed.
+             *
+             * \exception terrama2::InvalidArgumentException If the identifier of the given parameters does not exists an exception will be raised.
+             */
             void removeInterpolator(InterpolatorId id);
+
             /*!
-              \brief
-
-              \exception terrama2::InvalidArgumentException If some error occur when trying to find the Interpolator.
-
-              \note Thread-safe.
-            */
+             * \brief Finds the identified by \a id.
+             *
+             * \param id Identifer of the parameters of interest.
+             *
+             * \return The parameters found.
+             *
+             * \exception terrama2::InvalidArgumentException If the identifier of the given parameters does not exists an exception will be raised.
+             */
             InterpolatorParamsPtr findInterpolatorParams(InterpolatorId id) const;
 
             /*!
-             * \brief hasCollector
-             * \param id
-             * \return
+             * \brief Searches for the parameters indentified by \a id.
+             *
+             * \param id Identifier of the parameters to be serched.
+             *
+             * \return \a True if the parameters were found and \a false otherwise.
              */
             bool hasInterpolator(InterpolatorId id) const;
+            //@}
 
           signals:
 
+            /** @name Signals
+            *  Signals emmited by the object to warn of the changings occurring in it.
+            */
+            //@{
+
+            /*!
+             * \brief Parameters added.
+             */
             void interpolatorAdded(InterpolatorParamsPtr);
 
+            /*!
+             * \brief Parameters updated
+             */
             void interpolatorUpdated(InterpolatorParamsPtr);
 
+            /*!
+             * \brief Parameters removed
+             */
             void interpolatorRemoved(InterpolatorId);
+            //@}
 
           protected:
-            std::map<InterpolatorId, InterpolatorParamsPtr> interpolatorsParams_;//!< A map from InterpolatorId to Interpolator.
+            std::map<InterpolatorId, InterpolatorParamsPtr> interpolatorsParams_; //!< A map from InterpolatorId to Interpolator.
         };
       } // end namespace core
-    }   // end namespace collector
+    }   // end namespace interpolator
   }     // end namespace services
-} // end namespace terrama2
+}       // end namespace terrama2
 
 #endif //__TERRAMA2_SERVICES_INTERPOLATOR_CORE_DATAMANAGER_HPP__

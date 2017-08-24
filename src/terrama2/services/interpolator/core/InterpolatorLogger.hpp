@@ -20,17 +20,16 @@
 */
 
 /*!
-  \file InterpolatorLogger.hpp
-
-  \brief
-
-  \author Frederico Augusto Bedê
-*/
+ * \file InterpolatorLogger.hpp
+ *
+ * \brief Contains a definition of a logger to be used by interpolation framework.
+ *
+ * \author Frederico Augusto Bedê
+ */
 
 #ifndef __TERRAMA2_SERVICES_INTERPOLATOR_CORE_INTERPOLATORLOG_HPP__
 #define __TERRAMA2_SERVICES_INTERPOLATOR_CORE_INTERPOLATORLOG_HPP__
 
-//#include "../core/Typedef.hpp"
 #include "../../../core/utility/ProcessLogger.hpp"
 
 namespace terrama2
@@ -42,9 +41,11 @@ namespace terrama2
       namespace core
       {
         /*!
-         * \class
+         * \class InterpolatorLogger
          *
-         * \brief The InterpolatorLogger class
+         * \brief A class that defines objects to be used by interpolation mechanism for getting informations about the execution.
+         *
+         * \ingroup interpolator
          */
         class InterpolatorLogger : public terrama2::core::ProcessLogger
         {
@@ -52,44 +53,50 @@ namespace terrama2
         public:
 
           /*!
-           * \brief InterpolatorLogger
+           * \brief Default constructor.
            */
           InterpolatorLogger();
 
           /*!
-           * \brief ~InterpolatorLogger
+           * \brief Destructor.
            */
-          virtual ~InterpolatorLogger() {}
+          ~InterpolatorLogger() {}
 
           /*!
-           * \brief addInput
-           * \param value
-           * \param registerID
+           * \brief This method will log a file input for a determinated process log.
+           *
+           * \param value The input file to add in logger.
+           *
+           * \param registerID The table id to update with the input file.
            */
           void addInput(std::string value, RegisterId registerID);
 
           /*!
-           * \brief addOutput
-           * \param value
-           * \param registerID
+           * \brief This method will log a file output for a determinated process log.
+           *
+           * \param value The output file to add in logger.
+           *
+           * \param registerID The table id to update with the output file.
            */
           void addOutput(std::string value, RegisterId registerID);
 
           /*!
-           * \brief setConnectionInfo
-           * \param uri
+           * \brief Updates the information about the connection.
+           *
+           * \param uri The connection informations.
            */
           virtual void setConnectionInfo(const te::core::URI& uri) override;
 
           /*!
-           * \brief clone
-           * \return
+           * \brief Does a copy of the logger.
+           *
+           * \return A copy of the logger.
            */
           virtual std::shared_ptr<ProcessLogger> clone() const override;
-
         };
-      }
-    }
-  }
-}
+      }   // end namespace core
+    }     // end namespace interpolator
+  }       // end namespace services
+}         // end namespace terrama2
+
 #endif // __TERRAMA2_SERVICES_INTERPOLATOR_CORE_INTERPOLATORLOG_HPP__

@@ -20,18 +20,14 @@
 */
 
 /*!
-  \file InterpolatorParams.hpp
-
-  \brief This file contains definitions of parameters to be passed to the interpolators.
-
-  \author Frederico Augusto Bedê
-
-  \todo Finish the comments of the definition of struct terrama2::services::interpolator::core::InterpolationTypes.
-  \todo Comment the attributes of terrama2::services::interpolator::core::NNInterpolatorParams.
-  \todo Comment the attributes of terrama2::services::interpolator::core::BLInterpolatorParams.
-  \todo Comment the attributes of terrama2::services::interpolator::core::BCInterpolatorParams.
-  \todo Prevent PCD's without information to be inserted on kd-tree.
-*/
+ * \file InterpolatorParams.hpp
+ *
+ * \brief This file contains definitions of parameters to be passed to the interpolators.
+ *
+ * \author Frederico Augusto Bedê
+ *
+ * \todo Comment the attributes of terrama2::services::interpolator::core::BCInterpolatorParams.
+ */
 
 #ifndef __TERRAMA2_SERVICES_INTERPOLATOR_INTERPOLATORPARAMS_HPP__
 #define __TERRAMA2_SERVICES_INTERPOLATOR_INTERPOLATORPARAMS_HPP__
@@ -56,18 +52,11 @@ namespace terrama2
       namespace core
       {
         /*!
-         * \enum InterpolatorTypes
+         * \enum InterpolatorType
          *
-         * \brief There are three algorithms to use on interpolations:
+         * See the Interpolator documentation for more details about the algorithms available.
          *
-         * <UL>
-         *  <LI>Nearest-neighbor interpolation.</LI>
-         *  <LI>Bilinerar interpolation.</LI>
-         *  <LI>Bicubic interpolation.</LI>
-         * </UL>
-         *
-         * The aproach of the nearest neighbor aproach uses the nearest sample value to use as value of some coordinate being analysed. For more details
-         * about this aproach can be found in: <A HREF="https://en.wikipedia.org/wiki/Nearest-neighbor_interpolation">Nearest-neighbor interpolation on Wikipedia.</A>
+         * \ingroup interpolator
          */
         enum InterpolatorType
         {
@@ -80,6 +69,8 @@ namespace terrama2
          * \struct InterpolatorParams
          *
          * \brief Generic parameters for interpolation algorithms.
+         *
+         * \ingroup interpolator
          */
         struct InterpolatorParams
         {
@@ -150,16 +141,18 @@ namespace terrama2
           std::unique_ptr<terrama2::core::Filter> filter_;      //!< Information on how input data should be filtered before storage.
           DataSeriesId series_;                                 //!< The indentifier of the data to be used by the interpolator.
           int srid_;                                            //!< SRID for the output.
-          std::string attributeName_;                           //!< Name of the attribute to be used by the interpolator;
-          InterpolatorId id_;
-          ServiceInstanceId serviceInstanceId_;
-          DataManagerPtr dataManager_;
+          std::string attributeName_;                           //!< Name of the attribute to be used by the interpolator.
+          InterpolatorId id_;                                   //!< Identifier of the interpolator being used.
+          ServiceInstanceId serviceInstanceId_;                 //!< Identifier of the service.
+          DataManagerPtr dataManager_;                          //!< Pointer to the data manager.
         };
 
         /*!
-         * \struct NNIterpolatorParams
+         * \struct NNInterpolatorParams
          *
          * \brief Parameters for a nearest-neigbor strategy of interpolation.
+         *
+         * \ingroup interpolator
          */
         struct NNInterpolatorParams : public InterpolatorParams
         {
@@ -172,6 +165,11 @@ namespace terrama2
             InterpolatorParams::interpolationType_ = NEARESTNEIGHBOR;
           }
 
+          /*!
+           * \brief Copy constructor.
+           *
+           * \param other The object to be copied.
+           */
           NNInterpolatorParams(const InterpolatorParams& other) :
             InterpolatorParams(other)
           {
@@ -194,16 +192,15 @@ namespace terrama2
           NNInterpolatorParams(const NNInterpolatorParams& other) :
             InterpolatorParams(other)
           {
-            nnCR_ = other.nnCR_;
-            nnRR_ = other.nnRR_;
-            nnLastRow_ = other.nnLastRow_;
-            nnLastCol_ = other.nnLastCol_;
+
           }
 
           /*!
-           * \brief operator =
-           * \param other
-           * \return
+           * \brief Copy operator.
+           *
+           * \param other The object to be copied.
+           *
+           * \return A pointer to the object itself.
            */
           InterpolatorParams& operator=(const InterpolatorParams& other)
           {
@@ -228,25 +225,16 @@ namespace terrama2
           {
             InterpolatorParams::operator =(other);
 
-            nnCR_ = other.nnCR_;
-            nnRR_ = other.nnRR_;
-            nnLastRow_ = other.nnLastRow_;
-            nnLastCol_ = other.nnLastCol_;
-
             return *this;
           }
-
-          unsigned int nnCR_;                              //!<
-          unsigned int nnRR_;                              //!<
-          double nnLastRow_;                               //!< Last row available for nearest Neighbor interpolation.
-          double nnLastCol_;                               //!< Last column available for nearest Neighbor interpolation.
-
         };
 
         /*!
          * \struct BLInterpolatorParams
          *
          * \brief Parameters for a bilinear strategy of interpolation.
+         *
+         * \ingroup interpolator
          */
         struct BLInterpolatorParams : public InterpolatorParams
         {
@@ -329,6 +317,8 @@ namespace terrama2
          * \struct BCInterpolatorParams
          *
          * \brief Parameters for a bicubic strategy of interpolation.
+         *
+         * \ingroup interpolator
          */
         struct BCInterpolatorParams : public InterpolatorParams
         {

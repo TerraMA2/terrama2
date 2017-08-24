@@ -20,18 +20,15 @@
 */
 
 /*!
-  \file InterpolatorFactories.h
-
-  \brief
-
-  \author Frederico Augusto Bedê
-*/
+ * \file InterpolatorFactories.h
+ *
+ * \brief Defines factories for interpolators.
+ *
+ * \author Frederico Augusto Bedê
+ */
 
 #ifndef TERRAMA2_INTERPOLATOR_CORE_INTERPOLATORFACTORIES_H
 #define TERRAMA2_INTERPOLATOR_CORE_INTERPOLATORFACTORIES_H
-
-//#include "Shared.hpp"
-//#include "Typedef.hpp"
 
 // TerraLib
 #include <terralib/common/ParameterizedAbstractFactory.h>
@@ -49,108 +46,133 @@ namespace terrama2
         struct InterpolatorParams;
 
         /*!
-         * \class
+         * \class InterpolatorFactories
          *
-         * \brief The InterpolatorFactories class
+         * \brief Implementation of the ParameterizedAbstractFactory to construct Interpolator objects given an InterpolatorParams instance.
+         *
+         * \tparam Interpolator Return type.
+         *
+         * \tparam int Type of the factories key.
+         *
+         * \tparam InterpolatorParams Parameters to be used to build the interpolators.
+         *
+         * \ingroup interpolator
          */
         class InterpolatorFactories : public te::common::ParameterizedAbstractFactory<Interpolator, int, const InterpolatorParams&>
         {
         public:
 
           /*!
-           * \brief InterpolatorFactories
-           * \param key
+           * \brief Constructor.
+           *
+           * \param key The identifier of the registered factory.
            */
           InterpolatorFactories(const int& key);
 
           /*!
-           * \brief initialize
+           * \brief Initializes the interpolator factories. This method MUST BE called before the factories can be used.
+           * It registers the specialized factories.
            */
           static void initialize();
 
           /*!
-           * \brief finalize
+           * \brief Unregisters the interpolators factories. This method MUST BE called before the end of the service.
            */
           static void finalize();
 
         protected:
 
-          static std::vector<InterpolatorFactories*> factories_; //!<
+          static std::vector<InterpolatorFactories*> factories_;  //!< Registered factories.
         };
 
         /*!
-         * \class
+         * \class NNInterpolatorFactory
          *
-         * \brief The NNInterpolatorFactory class
+         * \brief Factory specialized to construct NNInterpolator objects. These objects realizes interpolation
+         * using the nearest-neighbor algorithm.
+         *
+         * \ingroup interpolator
          */
         class NNInterpolatorFactory : public InterpolatorFactories
         {
         public:
           /*!
-           * \brief NNInterpolatorFactory
+           * \brief Constructor.
            */
           NNInterpolatorFactory();
 
         protected:
 
           /*!
-           * \brief build
-           * \param p
-           * \return
+           * \brief build Constructs an NNInterpolator object.
+           *
+           * \param p The parameters to be used on build. It MUST BE an instance of NNInterpolatorParams, or it will not work well.
+           *
+           * \return A NNInterpolator object.
            */
           Interpolator* build(const InterpolatorParams& p);
         };
 
         /*!
-         * \class
+         * \class BLInterpolatorFactory
          *
-         * \brief The BLInterpolatorFactory class
+         * \brief Factory specialized to construct BLInterpolator objects. These objects realizes interpolation
+         * using the bilinear algorithm.
+         *
+         * \ingroup interpolator
          */
         class BLInterpolatorFactory : public InterpolatorFactories
         {
         public:
 
           /*!
-           * \brief BLInterpolatorFactory
+           * \brief Constructor.
            */
           BLInterpolatorFactory();
 
         protected:
 
           /*!
-           * \brief build
-           * \param p
-           * \return
+           * \brief build Constructs an BLInterpolator object.
+           *
+           * \param p The parameters to be used on build. It MUST BE an instance of BLInterpolatorParams, or it will not work well.
+           *
+           * \return A BLInterpolator object.
            */
           Interpolator* build(const InterpolatorParams& p);
         };
 
         /*!
-         * \class
+         * \class BCInterpolatorFactory
          *
-         * \brief The BCInterpolatorFactory class
+         * \brief Factory specialized to construct BCInterpolator objects. These objects realizes interpolation
+         * using the bicubic algorithm.
+         *
+         * \ingroup interpolator
          */
         class BCInterpolatorFactory : public InterpolatorFactories
         {
         public:
 
           /*!
-           * \brief BCInterpolatorFactory
+           * \brief Constructor.
            */
           BCInterpolatorFactory();
 
         protected:
 
           /*!
-           * \brief build
-           * \param p
-           * \return
+           * \brief build Constructs an BCInterpolator object.
+           *
+           * \param p The parameters to be used on build. It MUST BE an instance of BCInterpolatorParams, or it will not work well.
+           *
+           * \return A BCInterpolator object.
            */
           Interpolator* build(const InterpolatorParams& p);
         };
-      } // namespace core
-    } // namespace interpolator
-  } //services
-} // namespace terrama2
+      } // end namespace core
+    }   // end namespace interpolator
+  }     // end namespace services
+}       // end namespace terrama2
 
 #endif // TERRAMA2_INTERPOLATOR_CORE_INTERPOLATORFACTORIES_H

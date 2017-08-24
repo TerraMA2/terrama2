@@ -20,11 +20,9 @@
 */
 
 /*!
-  \file Interpolator/core/Collector.hpp
-
-  \brief .
-
-  \author Frederico Augusto Bedê
+ * \file interpolator/core/DataManager.cpp
+ *
+ * \author Frederico Augusto Bedê
 */
 
 #include "DataManager.hpp"

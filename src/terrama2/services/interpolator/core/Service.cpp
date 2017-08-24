@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/services/interpolator/core/Service.cpp
+  \file interpolator/core/Service.cpp
 
   \brief
 
@@ -41,7 +41,7 @@
 #include "InterpolatorFactories.h"
 #include "InterpolatorLogger.hpp"
 
-terrama2::services::interpolator::core::Service::Service(std::weak_ptr<terrama2::services::interpolator::core::DataManager> dataManager):
+terrama2::services::interpolator::core::Service::Service(std::weak_ptr<DataManager> dataManager):
   dataManager_(dataManager)
 {
   connectDataManager();

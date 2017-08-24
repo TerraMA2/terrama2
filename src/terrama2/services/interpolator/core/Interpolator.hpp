@@ -20,13 +20,17 @@
 */
 
 /*!
- * \file interpolator/core/Service.hpp
+ * \file Interpolator.hpp
  *
  * \brief This class defines an interpolator.
  *
  * \author Frederico Augusto Bedê
  *
- * \todo Finish the comments of the file interpolator/core/Service.hpp.
+ * \defgroup interpolator Interpolator framework.
+ * Defines classes and structures for executing algorithms of interpolation over the PCDs data from TerraMA2.
+ *
+ * \todo Implements the interpolator based on bicubic algorithm.
+ * \todo Implements the interpolator based on bicubic algorithm.
  */
 
 #ifndef __TERRAMA2_SERVICES_INTERPOLATOR_CORE_INTERPOLATOR_HPP__
@@ -59,100 +63,136 @@ namespace terrama2
       namespace core
       {
         /*!
-         * \struct
+         * \struct Interpolator
          *
-         * \brief The Interpolator struct
+         * \brief Generic structure for an interpolator object.
+         *
+         * There are three algorithms to use on interpolations:
+         *
+         * <UL>
+         *  <LI>Nearest-neighbor interpolation.</LI>
+         *  <LI>Bilinerar interpolation.</LI>
+         *  <LI>Bicubic interpolation.</LI>
+         * </UL>
+         *
+         * The aproach of the nearest neighbor aproach uses the nearest sample value to use as value of some coordinate being analysed. For more details
+         * about this aproach can be found in: <A HREF="https://en.wikipedia.org/wiki/Nearest-neighbor_interpolation">Nearest-neighbor interpolation on Wikipedia.</A>
+         *
+         * The aproach of the bilinear interpolation uses the bilinear algorithm to interpolate. For more details
+         * about this aproach can be found in: <A HREF="https://en.wikipedia.org/wiki/Bilinear_interpolation">Bilinear interpolation on Wikipedia.</A>
+         *
+         * The aproach of the bicubic interpolation uses the bicubic algorithm to interpolate. For more details
+         * about this aproach can be found in: <A HREF="https://en.wikipedia.org/wiki/Bicubic_interpolation">Bicubic interpolation on Wikipedia.</A>
+         *
+         * \ingroup interpolator
          */
         struct Interpolator : public terrama2::core::Process
         {
           /*!
-           * \brief
+           * \brief Default constructor.
            *
-           * \param
+           * \param params The parameters to be used.
            */
           Interpolator(InterpolatorParamsPtr params);
 
           /*!
-           * \brief makeInterpolation
+           * \brief Method must be implemented by the subclasses to execute the specific algorithm.
            *
-           * \return
+           * \return The interpolated raster.
            */
           virtual RasterPtr makeInterpolation() = 0;
 
           /*!
-           * \brief
+           * \brief Fills the kd-tree with the data defined by the parameters. This is usefull to quickly find the neighbors used in the
+           * computations.
            */
           void fillTree();
 
           InterpolatorParamsPtr interpolationParams_; //!< Parameters of interpolation.
 
-          std::unique_ptr<InterpolatorTree> tree_;    //!<
+          std::unique_ptr<InterpolatorTree> tree_;    //!< A kd-tree used to determine neighborhood.
         };
 
         /*!
-         * \struct
+         * \struct NNInterpolator
          *
-         * \brief The NNInterpolator struct
+         * \brief Interpolator specialized to execute the nearest-neighbor algorithm of interpolation.
+         *
+         * \ingroup interpolator
          */
         struct NNInterpolator : public Interpolator
         {
           /*!
-           * \brief
+           * \brief Constructor.
            *
-           * \param
+           * \param params The parameters to used to build an object of this type.
+           *
+           * \note \a params MUST be an instance of NNInterpolatorParams structure, or it will not work well.
            */
           NNInterpolator(InterpolatorParamsPtr params);
 
           /*!
-           * \brief makeInterpolation
-           * \return
+           * \brief Executes interpolation based on the nearest-neighbor approach.
+           *
+           * \return The interpolated raster.
            */
           RasterPtr makeInterpolation();
         };
 
         /*!
-         * \struct
+         * \struct BLInterpolator
          *
-         * \brief The BLInterpolator struct
+         * \brief Interpolator specialized to execute the bilinear algorithm of interpolation.
+         *
+         * \ingroup interpolator
          */
         struct BLInterpolator : public Interpolator
         {
           /*!
-           * \brief
+           * \brief Constructor.
            *
-           * \param
+           * \param params The parameters to used to build an object of this type.
+           *
+           * \note \a params MUST be an instance of BLInterpolatorParams structure, or it will not work well.
            */
           BLInterpolator(InterpolatorParamsPtr params);
 
           /*!
-           * \brief makeInterpolation
-           * \return
+           * \brief Executes interpolation based on the bilinear approach.
+           *
+           * \return The interpolated raster.
            */
           RasterPtr makeInterpolation();
         };
 
         /*!
-         * \struct
+         * \struct BCInterpolator
          *
-         * \brief The BCInterpolator struct
+         * \brief Interpolator specialized to execute the bicubic algorithm of interpolation.
+         *
+         * \ingroup interpolator
          */
         struct BCInterpolator : public Interpolator
         {
           /*!
-           * \brief BCInterpolator
-           * \param params
+           * \brief Constructor.
+           *
+           * \param params The parameters to used to build an object of this type.
+           *
+           * \note \a params MUST be an instance of BCInterpolatorParams structure, or it will not work well.
            */
           BCInterpolator(InterpolatorParamsPtr params);
 
           /*!
-           * \brief makeInterpolation
-           * \return
+           * \brief Executes interpolation based on the bilinear approach.
+           *
+           * \return The interpolated raster.
            */
           RasterPtr makeInterpolation();
         };
       } // end namespace core
     }   // end namespace interpolator
   }     // end namespace services
-} // end namespace terrama2
+}       // end namespace terrama2
 
 #endif //__TERRAMA2_SERVICES_INTERPOLATOR_CORE_INTERPOLATOR_HPP__

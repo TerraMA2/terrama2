@@ -32,7 +32,6 @@
 
 #include "../../../core/data-access/DataSetSeries.hpp"
 #include "../../../core/data-model/Process.hpp"
-//#include "../../../core/Typedef.hpp"
 
 // TerraLib
 #include <terralib/geometry/Point.h>
@@ -46,7 +45,7 @@ namespace te
 {
   namespace rst
   {
-    // Forward declarations
+    // Forward declaration
     class Raster;
   }
 }
@@ -59,52 +58,110 @@ namespace terrama2
     {
       namespace core
       {
-        // Forward declaration
+        // Forward declarations
         class DataManager;
         struct Interpolator;
         struct InterpolatorParams;
 
-        //!
+        /*!
+         * \struct InterpolatorData
+         *
+         * \brief Defines an object containing data, to be used by the KD-tree.
+         *
+         * \ingroup interpolator
+         */
         struct InterpolatorData
         {
+          /*!
+           * \brief Returns the x-asis component of the coordinate.
+           *
+           * \return The x-asis component of the coordinate.
+           */
           double getX() const
           {
             return pt_->getX();
           }
 
+          /*!
+           * \brief Returns the y-asis component of the coordinate.
+           *
+           * \return The y-asis component of the coordinate.
+           */
           double getY() const
           {
             return pt_->getY();
           }
 
-          te::gm::Point* pt_;
-          terrama2::core::DataSetSeries series_;
+          te::gm::Point* pt_;                     //!< Coordinate of the sample.
+          terrama2::core::DataSetSeries series_;  //!< Data of the sample.
         };
 
 
-        //! Vector of data series.
+        /*!
+         * \typedef DataSeriesVector
+         *
+         * \brief Defines a vector of InterpolatorData objects.
+         *
+         * \ingroup interpolator
+         */
         typedef std::vector<InterpolatorData> DataSeriesVector;
 
-        //! Node of a kd-tree specialized to use with the Interpolator.
+        /*!
+         * \typedef InterpolatorNode
+         *
+         * \brief Defines a specialized node to be used with kd-tree.
+         *
+         * \ingroup interpolator
+         */
         typedef te::sam::kdtree::AdaptativeNode<te::gm::Point, DataSeriesVector, InterpolatorData> InterpolatorNode;
 
-        //! Kd-tree specialized to use InterpolatorNode.
+        /*!
+         * \typedef InterpolatorTree
+         *
+         * \brief Defines a specialized kd-tree to be used by the interpolation mechanism.
+         *
+         * \ingroup interpolator
+         */
         typedef te::sam::kdtree::AdaptativeIndex<InterpolatorNode> InterpolatorTree;
 
-        //! Shared smart pointer for InterpolatorParams
+        /*!
+         * \typedef InterpolatorParamsPtr
+         *
+         * \brief Defines a smart pointer for the InterpolatorParams struct.
+         *
+         * \ingroup interpolator
+         */
         typedef std::shared_ptr<terrama2::services::interpolator::core::InterpolatorParams> InterpolatorParamsPtr;
 
-        //! Shared smart pointer for Interpolator
+        /*!
+         * \typedef InterpolatorPtr
+         *
+         * \brief Defines a smart pointer for the Interpolator class.
+         *
+         * \ingroup interpolator
+         */
         typedef std::shared_ptr<Interpolator> InterpolatorPtr;
 
-        //! Shared smart pointer for DataManager
+        /*!
+         * \typedef DataManagerPtr
+         *
+         * \brief Defines a smart pointer for the DataManager class.
+         *
+         * \ingroup interpolator
+         */
         typedef std::shared_ptr<terrama2::services::interpolator::core::DataManager> DataManagerPtr;
 
-        //! Shared smart pointer for te::rst::Raster
+        /*!
+         * \typedef RasterPtr
+         *
+         * \brief Defines a smart pointer for the te::rst::Raster objects.
+         *
+         * \ingroup interpolator
+         */
         typedef std::shared_ptr<te::rst::Raster> RasterPtr;
-      }
-    }
-  }
-}
+      } // end namespace core
+    }   // end namespace interpolator
+  }     // end namespace services
+}       // end namespace terrama2
 
 #endif // __TERRAMA2_SERVICES_INTERPOLATOR_TYPEDEF_HPP__

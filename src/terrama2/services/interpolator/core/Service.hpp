@@ -20,12 +20,12 @@
 */
 
 /*!
-  \file interpolator/core/Service.hpp
-
-  \brief
-
-  \author Frederico Augusto Bedê
-*/
+ * \file interpolator/core/Service.hpp
+ *
+ * \brief Defines the service of interpolation class.
+ *
+ * \author Frederico Augusto Bedê
+ */
 
 #ifndef __TERRAMA2_SERVICES_INTERPOLATOR_CORE_SERVICE_HPP__
 #define __TERRAMA2_SERVICES_INTERPOLATOR_CORE_SERVICE_HPP__
@@ -34,9 +34,8 @@
 #include "../../../core/Typedef.hpp"
 #include "../../../core/Shared.hpp"
 
-#include "Typedef.hpp"
-
 #include "Interpolator.hpp"
+#include "Typedef.hpp"
 
 // STL
 #include <memory>
@@ -51,13 +50,14 @@ namespace terrama2
       {
         // Forward declarations
         class DataManager;
-//        struct Interpolator;
         class InterpolatorLogger;
 
         /*!
-         * \class
+         * \class Service
          *
-         * \brief The Service class
+         * \brief Implementation of the interpolation service.
+         *
+         * \ingroup interpolator
          */
         class Service : public terrama2::core::Service
         {
@@ -65,97 +65,117 @@ namespace terrama2
 
         public:
           /*!
-           * \brief Service
-           * \param dataManager
+           * \brief Constructor.
+           *
+           * \param dataManager The manager to be used.
            */
           Service(std::weak_ptr<DataManager> dataManager);
 
           /*!
-           * \brief
+           * \brief Destructor.
            */
           ~Service();
 
-          /*!
-           * \brief Service
-           * \param other
-           */
-          Service(const Service& other) = delete;
+          /** @name Copying Methods
+          *  Methods related to copy. (Copies are NOT allowed)
+          */
+          //@{
 
           /*!
-           * \brief
-           * \param other
+           * \brief Copy constructor.
            */
-          Service(Service&& other) = default;
+          Service(const Service&) = delete;
 
           /*!
-           * \brief operator =
-           * \param other
-           * \return
+           * \brief Copy constructor. (Unsing a pointer as argument).
            */
-          Service& operator=(const Service& other) = delete;
+          Service(Service&&) = default;
 
           /*!
-           * \brief
-           * \param
-           * \return
+           * \brief Copy operator
+           *
+           * \return Does not matters.
            */
-          Service& operator=(Service&& other) = default;
+          Service& operator=(const Service&) = delete;
+
+          /*!
+           * \brief Copy operator. (Unsing a pointer as argument).
+           *
+           * \return Does not matters.
+           */
+          Service& operator=(Service&&) = default;
+          //@}
 
         public slots:
 
+          /*!
+           * \brief Adds the params to set of params.
+           *
+           * \param params The parameters to be stored.
+           */
           void addInterpolator(const InterpolatorParamsPtr& params);
 
           /*!
-           * \brief addToQueue
-           * \param interpolatorId
-           * \param startTime
+           * \brief Adds the service to the execution queue.
+           *
+           * \param interpolatorId Identifier of the interpolation service.
+           *
+           * \param startTime Process start timing.
            */
           void addToQueue(InterpolatorId interpolatorId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept override;
 
           /*!
-           * \brief Receive a jSon and update service information with it
-           * \param obj jSon with additional information for service
+           * \brief Receive a jSon and update service information with it.
+           *
+           * \param obj jSon with additional information for service.
            */
           void updateAdditionalInfo(const QJsonObject& obj) noexcept override;
 
           /*!
-           * \brief removeInterpolator
-           * \param interpolatorId
+           * \brief Reomves the interpolator from the service.
+           *
+           * \param interpolatorId Identifier of the Interpolator to be removed.
            */
           void removeInterpolator(InterpolatorId interpolatorId) noexcept;
 
           /*!
-           * \brief updateInterpolator
-           * \param interpolator
+           * \brief Updates the information about the \a interpolator.
+           *
+           * \param interpolator The new parameters to be used.
            */
           void updateInterpolator(InterpolatorParamsPtr interpolator) noexcept;
 
         protected:
 
-          //*! Create a process task and add to taskQueue_
+          /*!
+           * \brief Prespares the task to be executed.
+           *
+           * \param executionPackage Informations about the service to be stored.
+           */
           virtual void prepareTask(const terrama2::core::ExecutionPackage& executionPackage) override;
 
           /*!
-           * \brief interpolate
-           * \param executionPackage
-           * \param logger
-           * \param weakDataManager
+           * \brief Executes the interpolation service.
+           *
+           * \param executionPackage Informations about the service.
+           *
+           * \param logger Object used to store informations about the execution of the process.
+           *
+           * \param weakDataManager The DataManager object being used.
            */
           void interpolate(terrama2::core::ExecutionPackage executionPackage, std::shared_ptr<InterpolatorLogger> logger,
                            std::weak_ptr<DataManager> weakDataManager);
 
           /*!
-           * \brief connectDataManager
+           * \brief Make the connections between the DataManager and the object itself.
            */
           void connectDataManager();
-
-//          void addInterpolator(const InterpolatorParamsPtr& params);
 
           std::weak_ptr<DataManager> dataManager_; //!< Weak pointer to the DataManager
         };
       } // end namespace core
     }   // end namespace interpolator
   }     // end namespace services
-} // end namespace terrama2
+}       // end namespace terrama2
 
 #endif //__TERRAMA2_SERVICES_INTERPOLATOR_CORE_SERVICE_HPP__

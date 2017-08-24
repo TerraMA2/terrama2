@@ -20,19 +20,18 @@
 */
 
 /*!
-  \file interpolator/core/JSonUtils.hpp
-
-  \brief
-
-  \author Frederico Augusto Bedê
-*/
-
+ * \file interpolator/core/JSonUtils.hpp
+ *
+ * \brief Contains utility functions that can be used to turn json files into InterpolatorParams objects.
+ *
+ * \author Frederico Augusto Bedê
+ *
+ * \todo Implement all functionalities.
+ */
 
 #ifndef __TERRAMA2_SERVICES_INTERPOLATOR_CORE_JSONUTILS_HPP__
 #define __TERRAMA2_SERVICES_INTERPOLATOR_CORE_JSONUTILS_HPP__
 
-//#include "Interpolator.hpp"
-//#include "../core/Shared.hpp"
 #include "../../../core/data-model/DataManager.hpp"
 
 // Qt
@@ -46,38 +45,28 @@ namespace terrama2
     {
       namespace core
       {
+        // Foward declarations
         struct InterpolatorParams;
-        class DataManager;
 
         /*!
-         * \brief fromInterpolatorJson
-         * \param json
-         * \param dataManager
-         * \return
+         * \brief Returns an InterpolatorParams object based on the \a json object.
+         *
+         * \param json Object that represents an .json file.
+         *
+         * \param dataManager The data manager being used.
+         *
+         * \return An InterpolatorParams object.
          */
         InterpolatorParams* fromInterpolatorJson(QJsonObject json, terrama2::core::DataManager* dataManager);
 
         /*!
-         * \brief fromIntersectionJson
-         * \param json
-         * \return
-         */
-//        IntersectionPtr fromIntersectionJson(QJsonObject json);
-
-        /*!
-         * \brief toJson
-         * \param interpolator
-         * \return
+         * \brief Returns a QJasonObject object based on the \a interpolator object parameters.
+         *
+         * \param interpolator The object to be analysed.
+         *
+         * \return A QJsonObject that represents the paramaters object.
          */
         QJsonObject toJson(InterpolatorParams* interpolator);
-
-        /*!
-         * \brief toJson
-         * \param intersection
-         * \return
-         */
-//        QJsonObject toJson(IntersectionPtr intersection);
-
       } // end namespace core
     }   // end namespace interpolator
   }     // end namespace services

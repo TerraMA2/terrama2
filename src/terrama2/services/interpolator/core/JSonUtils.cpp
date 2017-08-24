@@ -20,11 +20,9 @@
 */
 
 /*!
-  \file src/terrama2/services/collector/core/JSonUtils.cpp
+  \file interpolator/core/JSonUtils.cpp
 
-  \brief
-
-  \author Jano Simas
+  \author Frederico Augusto Bedê Teotônio
 */
 
 #include "JSonUtils.hpp"

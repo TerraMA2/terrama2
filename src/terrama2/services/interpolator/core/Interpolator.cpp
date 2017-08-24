@@ -23,6 +23,8 @@
   \file interpolator/core/Interpolator.cpp
 
   \author Frederico Augusto Bedê
+
+ * \todo Prevent PCD's without information to be inserted on kd-tree.
 */
 
 #include "Interpolator.hpp"
@@ -68,6 +70,15 @@
 #define BICUBIC_KERNEL( x , a ) BICUBIC_RANGES( BICUBIC_MODULE(x) , a )
 
 
+/*!
+ * \brief Fills the vector with empty data \a nneighbors times.
+ *
+ * \param[in,out] data The vector containing data.
+ *
+ * \param[in,out] dists The vector containing distances between the sample and the neighbor.
+ *
+ * \param nneighbors Number of neighbors to be used.
+ */
 void FillEmptyData(std::vector<terrama2::services::interpolator::core::InterpolatorData>& data,
                    std::vector<double>& dists, const unsigned int& nneighbors)
 {
@@ -171,26 +182,12 @@ void terrama2::services::interpolator::core::Interpolator::fillTree()
   catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
-    TERRAMA2_LOG_INFO() << QObject::tr("Fail to build the kd-tree!");
-
-    //    if(executionPackage.registerId != 0)
-    //    {
-    //      logger->log(CollectorLogger::ERROR_MESSAGE, e.what(), executionPackage.registerId);
-    //      logger->result(CollectorLogger::ERROR, nullptr, executionPackage.registerId);
-    //    }
+    TERRAMA2_LOG_INFO() << QObject::tr("Fail to build the kd-tree.");
   }
   catch(...)
   {
-    QString errMsg = QObject::tr("Unknown error.");
-    TERRAMA2_LOG_ERROR() << errMsg;
+    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown error.");
     TERRAMA2_LOG_INFO() << QObject::tr("Fail to build the kd-tree!");
-
-    //    if(executionPackage.registerId != 0)
-    //    {
-    //      logger->log(CollectorLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
-    //      logger->result(CollectorLogger::ERROR, nullptr, executionPackage.registerId);
-    //    }
-
   }
 }
 
@@ -221,7 +218,6 @@ terrama2::services::interpolator::core::RasterPtr terrama2::services::interpolat
   int srid = interpolationParams_->srid_;
 
   // For testing assume the bounding rect calculated by kd-tree
-  //  te::gm::Envelope* env = new te::gm::Envelope(interpolationParams_->bRect_);
   te::gm::Envelope* env = new te::gm::Envelope(interpolationParams_->bRect_);
 
   te::rst::Grid* grid = new te::rst::Grid(resolutionX, resolutionY, env, srid);
