@@ -122,8 +122,10 @@
             <div id="map-tools">
               <div id="authentication-div" class="hidden">
                 <div id="user-div" class="{% if (currentUser === null) %}hidden{% endif %}">
-                  <p class="user-name" style="text-align: center; font-size: 15px; font-weight: 800;">{% if currentUser !== null %}{[ currentUser.name ]}{% endif %}</p>
+                  <p class="user-name">{% if currentUser !== null %}{[ currentUser.name ]}{% endif %}</p>
                   <hr/>
+                  <div class="pull-left"><a href="#" class="btn btn-default btn-flat" id="save-state">Save State</a></div>
+                  <div class="pull-left"><a href="#" class="btn btn-default btn-flat hidden" id="load-state">Load State</a></div>
                   <div class="pull-right"><a href="#" class="btn btn-default btn-flat" id="signout">Sign out</a></div>
                 </div>
                 <div id="login-div" class="{% if (currentUser !== null) %}hidden{% endif %}">

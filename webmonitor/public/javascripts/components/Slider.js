@@ -41,6 +41,7 @@ define(
 
     var changeLayerOpacity = function(layerId, opacityValue) {
       TerraMA2WebComponents.MapDisplay.updateLayerOpacity(layerId, opacityValue / 100);
+      Layers.setLayerOpacity(layerId, opacityValue / 100);
     };
 
     var setOpacitySlider = function(layerId, initialValue) {
@@ -94,6 +95,8 @@ define(
     };
 
     return {
+      doSlide: doSlide,
+      changeLayerOpacity: changeLayerOpacity,
       setOpacitySlider: setOpacitySlider,
       init: init
     };
