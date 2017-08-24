@@ -87,14 +87,14 @@ QFileInfoList terrama2::services::view::core::DataAccess::getFilesList(const std
 
 std::unique_ptr< te::da::DataSetType > terrama2::services::view::core::DataAccess::getVectorialDataSetType(const QFileInfo& fileInfo)
 {
-  return getDataSetType("file://"+fileInfo.absolutePath().toStdString(),
+  return getDataSetType("file://"+fileInfo.absoluteFilePath().toStdString(),
                        fileInfo.baseName().toStdString(),
                        "OGR");
 }
 
 std::unique_ptr< te::da::DataSetType > terrama2::services::view::core::DataAccess::getGeotiffDataSetType(const QFileInfo& fileInfo)
 {
-  return getDataSetType("file://"+fileInfo.absolutePath().toStdString(),
+  return getDataSetType("file://"+fileInfo.absoluteFilePath().toStdString(),
                        fileInfo.fileName().toStdString(),
                        "GDAL");
 }
