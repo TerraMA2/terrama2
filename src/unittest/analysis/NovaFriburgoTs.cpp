@@ -55,15 +55,18 @@
 
 #include <terrama2/Config.hpp>
 
-//#include <Q
+
 #include <QString>
 #include <QJsonDocument>
 #include <QCoreApplication>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+//#include <QtGui/QImage>
+#include <QImage>
 
-std::string scriptAnalise()
+
+std::string NovaFriburgoTs::scriptAnalise()
 {
     return "# Parametros de entrada\n"
     "c1 = 0.02  # Coesao minima (adimissional)\n"
@@ -546,16 +549,13 @@ std::string scriptAnalise()
     "\n";
 }
 
-void NovaFriburgoTs::Analysis()
+void NovaFriburgoTs::AnalysisTS()
 {
-    //terrama2::core::TerraMA2Init terramaRaii("analysis", 0);
-
     terrama2::core::registerFactories();
 
     terrama2::services::analysis::core::PythonInterpreterInit pythonInterpreterInit;
 
     {
-      //QCoreApplication app(argc, argv);
 
       using namespace terrama2::services::analysis::core;
 
@@ -601,34 +601,32 @@ void NovaFriburgoTs::Analysis()
 
       auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
 
-      //////////////////////////////////////////////////////
+      /////////////////////////////////////////////////////////////////////////////////////////////////////////
       //     input
-      //DADO HIDRO - Servidor de entrada Dado Coletado
+      //Servidor de entrada: Dado Coletado, Arquivo de Referencia, Arquivos de modelo de terreno
       //DataProvider information
-      //////////////////////////////////////////////////////
+      ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
-      terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
+      auto dataProvider = std::make_shared<terrama2::core::DataProvider>();
       dataProvider->id = 1;
-      dataProvider->name = "Servidor de Saída";
-      dataProvider->uri = "file:///home/bianca/Teste/dados_amb/saida/";
+      dataProvider->name = "Servidor de Entrada";
+      dataProvider->uri = "file://"+TERRAMA2_DATA_DIR+"/";
       dataProvider->dataProviderType = "FILE";
       dataProvider->active = true;
 
-      dataManager->add(dataProviderPtr);
+      dataManager->add(dataProvider);
 
       //semantica
       // DataSeries information
-      terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
-      terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
+      std::shared_ptr<terrama2::core::DataSeries> dataSeries = std::make_shared<terrama2::core::DataSeries>();
       dataSeries->id = 1;
       dataSeries->name = "Hidro";
       dataSeries->semantics = semanticsManager.getSemantics("GRID-geotiff");
-      dataSeries->dataProviderId = dataProviderPtr->id;
+      dataSeries->dataProviderId = dataProvider->id;
       dataSeries->active = true;
 
       //dado dinamico = hidro_2011
-      terrama2::core::DataSetGrid* dataSet = new terrama2::core::DataSetGrid();
+      std::shared_ptr<terrama2::core::DataSetGrid> dataSet = std::make_shared<terrama2::core::DataSetGrid>();
       dataSet->id = 1;
       dataSet->active = true;
       dataSet->format.emplace("mask", "hidro_diario_jan2011/S11216377_%YYYY%MM%DD%hh%mm.tif");
@@ -636,51 +634,35 @@ void NovaFriburgoTs::Analysis()
 
       dataSeries->datasetList.emplace_back(dataSet);
 
-      dataManager->add(dataSeriesPtr);
+      dataManager->add(dataSet);
 
       //ANÁLISE DATA SERIES = hidro_2011
 
       AnalysisDataSeries hidro;
       hidro.id = 13;
       hidro.alias = "hidro_2011";
-      hidro.dataSeriesId = dataProviderPtr->id;
+      hidro.dataSeriesId = dataProvider->id;
       hidro.type = AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE;
 
 
-      ////////////////////////////////////////////////////
-      //     input
-      //DADO SRTM - Servidor de entrada Dados Estáticos
-      // DataProvider information
-      ///////////////////////////////////////////////////
-
-      terrama2::core::DataProvider* dataProviderDE = new terrama2::core::DataProvider();
-      terrama2::core::DataProviderPtr dataProviderPtrDE(dataProviderDE);
-      dataProviderDE->id = 2;
-      dataProviderDE->name = "Servidor de dados estáticos";
-      dataProviderDE->uri = "file:///home/bianca/Teste/dados_geo/";
-      dataProviderDE->dataProviderType = "FILE";
-      dataProviderDE->active = true;
-
-      dataManager->add(dataProviderPtrDE);
 
       // semantica e DataSeries information  - SRTM_a_latlong_sad69
 
-      terrama2::core::DataSeries* dataSeriesA = new terrama2::core::DataSeries();
-      terrama2::core::DataSeriesPtr dataSeriesPtrA(dataSeriesA);
+      std::shared_ptr<terrama2::core::DataSeries> dataSeriesA = std::make_shared<terrama2::core::DataSeries>();
       dataSeriesA->id = 2;
       dataSeriesA->name = "SRTM_a_latlong_sad69";
       dataSeriesA->semantics = semanticsManager.getSemantics("GRID-static_gdal");
-      dataSeriesA->dataProviderId = dataProviderPtrDE->id;
+      dataSeriesA->dataProviderId = dataProvider->id;
       dataSeriesA->active = true;
 
       //dado estatico  - SRTM_a_latlong_sad69
-      terrama2::core::DataSetGrid* dataSetA = new terrama2::core::DataSetGrid();
+      std::shared_ptr<terrama2::core::DataSetGrid> dataSetA = std::make_shared<terrama2::core::DataSetGrid>();
       dataSetA->id = 2;
       dataSetA->active = true;
       dataSetA->format.emplace("mask", "Rio_Friburgo/SRTM_a_latlong_sad69.tif");
 
       dataSeriesA->datasetList.emplace_back(dataSetA);
-      dataManager->add(dataSeriesPtrA);
+      dataManager->add(dataSeriesA);
 
 
       //ANÁLISE DATA SERIES = SRTM_a_latlong_sad69
@@ -688,7 +670,7 @@ void NovaFriburgoTs::Analysis()
       AnalysisDataSeries SRTM_a_latlong_sad69;
       SRTM_a_latlong_sad69.id = 2;
       SRTM_a_latlong_sad69.alias = "SRTM_a_latlong_sad69";
-      SRTM_a_latlong_sad69.dataSeriesId = dataSeriesPtrA->id;
+      SRTM_a_latlong_sad69.dataSeriesId = dataSeriesA->id;
       SRTM_a_latlong_sad69.type = AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE;
 
 
@@ -697,19 +679,18 @@ void NovaFriburgoTs::Analysis()
       // semantica e DataSeries information - SRTM_s_latlong_sad69
       ////////////////////////////////////////////////////////////
 
-      terrama2::core::DataSeries* dataSeriesS = new terrama2::core::DataSeries();
-      terrama2::core::DataSeriesPtr dataSeriesPtrS(dataSeriesS);
+      std::shared_ptr<terrama2::core::DataSeries> dataSeriesS = std::make_shared<terrama2::core::DataSeries>();
       dataSeriesS->id = 7;
       dataSeriesS->name = "SRTM_s_latlong_sad69";
       dataSeriesS->semantics = semanticsManager.getSemantics("GRID-static_gdal");
-      dataSeriesS->dataProviderId = dataProviderPtrDE->id;
+      dataSeriesS->dataProviderId = dataProvider->id;
       dataSeriesS->active = true;
 
-      dataManager->add(dataSeriesPtrS);
+      dataManager->add(dataSeriesS);
 
       //dado estatico  - SRTM_s_latlong_sad69
 
-      terrama2::core::DataSetGrid* dataSetS = new terrama2::core::DataSetGrid();
+      std::shared_ptr<terrama2::core::DataSetGrid> dataSetS = std::make_shared<terrama2::core::DataSetGrid>();
       dataSetS->id = 8;
       dataSetS->active = true;
       dataSetS->format.emplace("mask", "Rio_Friburgo/SRTM_s_latlong_sad69.tif");
@@ -721,7 +702,7 @@ void NovaFriburgoTs::Analysis()
       AnalysisDataSeries SRTM_s_latlong_sad69;
       SRTM_s_latlong_sad69.id = 15;
       SRTM_s_latlong_sad69.alias = "SRTM_s_latlong_sad69";
-      SRTM_s_latlong_sad69.dataSeriesId = dataSeriesPtrS->id;
+      SRTM_s_latlong_sad69.dataSeriesId = dataSetS->id;
       SRTM_s_latlong_sad69.type = AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE;
 
 
@@ -730,14 +711,13 @@ void NovaFriburgoTs::Analysis()
       //////////////////////////////
 
       // DataSeries information - Saida
-      terrama2::core::DataSeries* outputDataSeries = new terrama2::core::DataSeries();
-      terrama2::core::DataSeriesPtr outputDataSeriesPtr(outputDataSeries);
+      std::shared_ptr<terrama2::core::DataSeries> outputDataSeries = std::make_shared<terrama2::core::DataSeries>();
       outputDataSeries->id = 31;
       outputDataSeries->name = "Análise Saida";
       outputDataSeries->semantics = semanticsManager.getSemantics("GRID-geotiff");
       outputDataSeries->dataProviderId = dataProvider->id;
       outputDataSeries->active = true;
-      dataManager->add(outputDataSeriesPtr);
+      dataManager->add(outputDataSeries);
 
 
       // DataSet information
@@ -747,13 +727,11 @@ void NovaFriburgoTs::Analysis()
       outputDataSet->dataSeriesId = outputDataSeries->id;
       outputDataSet->format.emplace("timezone", "UTC+00");
       outputDataSet->format.emplace("srid", "4618");
-      outputDataSet->format.emplace("mask", "AnResultTesteNF/FS_%YYYY%MM%DD%hh%mm.tif");
+      outputDataSet->format.emplace("mask", "AnResultTestAutoNF/FS_%YYYY%MM%DD_%hh%mm.tif");
 
       outputDataSeries->datasetList.emplace_back(outputDataSet);
 
-      Analysis* analysis = new Analysis;
-      AnalysisPtr analysisPtr(analysis);
-
+      std::shared_ptr<terrama2::services::analysis::core::Analysis> analysis = std::make_shared<terrama2::services::analysis::core::Analysis>();
       analysis->id = 9;
       analysis->name = "An_FS_SINMAP";
       analysis->script = scriptAnalise();
@@ -763,15 +741,14 @@ void NovaFriburgoTs::Analysis()
       analysis->outputDataSeriesId = outputDataSeries->id;
       analysis->outputDataSetId = outputDataSet->id;
       analysis->serviceInstanceId = serviceManager.instanceId();
-      dataManager->add(analysisPtr);
+      dataManager->add(analysis);
 
       analysis->schedule.frequency = 24;
       analysis->schedule.frequencyUnit = "hours";
 
 
       //Saída em tiff
-      AnalysisOutputGrid* outputGrid = new AnalysisOutputGrid();
-      AnalysisOutputGridPtr outputGridPtr(outputGrid);
+      std::shared_ptr<AnalysisOutputGrid> outputGrid = std::make_shared<AnalysisOutputGrid>();
 
       outputGrid->analysisId = analysis->id;
       outputGrid->interpolationMethod = InterpolationMethod::NEARESTNEIGHBOR;
@@ -781,7 +758,8 @@ void NovaFriburgoTs::Analysis()
       outputGrid->resolutionDataSeriesId =  SRTM_a_latlong_sad69.id;
       outputGrid->interpolationDummy = 0;
 
-      analysis->outputGridPtr = outputGridPtr;
+      analysis->outputGridPtr = outputGrid;
+
 
       //Add as analises dados dinamicos e dados estaticos
       std::vector<AnalysisDataSeries> analysisDataSeriesList;
@@ -791,18 +769,20 @@ void NovaFriburgoTs::Analysis()
 
       analysis->analysisDataSeriesList = analysisDataSeriesList;
 
-      service.start();
-      service.addToQueue(analysisPtr->id, terrama2::core::TimeUtils::nowUTC());
+      service.addToQueue(analysis->id, terrama2::core::TimeUtils::stringToTimestamp("2011-01-11T12:00:00.000-02:00", terrama2::core::TimeUtils::webgui_timefacet));
+
 
       QTimer timer;
-      QObject::connect(&timer, &QTimer::timeout, &service, &Service::stopService);
       QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
       timer.start(10000);
-      app.exec();
+      QCoreApplication::exec();
 
-      QImage output("file:///home/bianca/Teste/dados_amb/saida/AnResultTestAutoNF");
-      QImage reference("file:///home/bianca/Teste/dados_amb/saida/referenciaNF");
+
+      QDir outputFolder(QString::fromStdString(TERRAMA2_DATA_DIR +"/" + "AnResultTestAutoNF"));
+      QImage output(outputFolder.absolutePath()+"/FS_20110111_1400.tif");
+      QImage reference(QString::fromStdString(TERRAMA2_DATA_DIR +"/referenciaNF/FS_20110111_1400.tif"));
       QVERIFY(reference == output);
 
+      outputFolder.removeRecursively();
     }
 }

@@ -33,10 +33,11 @@ class NovaFriburgoTs: public QObject
     Q_OBJECT
 
     std::string scriptAnalise();
+    void initService();
 
     // o QTest chamará as funções abaixo do "private slots" na hora de executar os testes.
   private slots:
-    void Analysis();
+    void AnalysisTS();
 
 };
 
