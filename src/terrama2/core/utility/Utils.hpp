@@ -170,11 +170,14 @@ namespace terrama2
     //! Recover table name of the DCP postions table_name
     std::string getDCPPositionsTableName(DataSeriesPtr dataSeries);
 
-    //Returns the file mask .
+    //! Returns the file mask .
     std::string getFileMask(DataSetPtr dataSet);
 
-    //Returns the folder mask .
+    //! Returns the folder mask .
     std::string getFolderMask(DataSetPtr dataSet);
+
+    //! Return iso string from TimeInstantTZ
+    std::string getISOString(std::shared_ptr<te::dt::TimeInstantTZ> timeinstant);
 
   } // end namespace core
 }   // end namespace terrama2

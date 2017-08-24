@@ -32,6 +32,7 @@
 #include "TimeUtils.hpp"
 #include "../utility/Logger.hpp"
 #include "../utility/Verify.hpp"
+#include "../utility/Utils.hpp"
 
 //TerraLib
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
@@ -169,12 +170,12 @@ RegisterId terrama2::core::ProcessLogger::start(ProcessId processId) const
 
 void terrama2::core::ProcessLogger::setStartProcessingTime(const std::shared_ptr< te::dt::TimeInstantTZ > processingStartTime, const RegisterId registerId) const
 {
-  addValue("processing_start_time", processingStartTime->toString(), registerId);
+  addValue("processing_start_time", getISOString(processingStartTime), registerId);
 }
 
 void terrama2::core::ProcessLogger::setEndProcessingTime(const std::shared_ptr< te::dt::TimeInstantTZ > processingEndTime, const RegisterId registerId) const
 {
-  addValue("processing_end_time", processingEndTime->toString(), registerId);
+  addValue("processing_end_time", getISOString(processingEndTime), registerId);
 }
 
 void terrama2::core::ProcessLogger::addValue(const std::string& tag, const std::string& value, RegisterId registerId) const
