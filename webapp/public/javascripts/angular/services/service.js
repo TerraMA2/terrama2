@@ -303,6 +303,8 @@ define([], function() {
         handler: function(serviceInstance) {
           if (!serviceInstance.online) {
             serviceInstance.showErrorButton = true;
+            var service = getModel(serviceInstance.id);
+            $scope.socket.emit('testServiceConnectionsRequest', {service: service});
             $scope.socket.emit('testPortNumber', {port: serviceInstance.port, service: serviceInstance.id});
           } else {
             serviceInstance.showErrorButton = false;
