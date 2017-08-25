@@ -30,6 +30,10 @@
 
 SET(TERRAMA2_EXAMPLE_DIR "${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/examples/analysis/")
 
+if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR (CMAKE_CXX_COMPILER MATCHES ".*clang") OR (CMAKE_CXX_COMPILER_ID STREQUAL "Clang"))
+   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+endif()
+
 file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_EXAMPLE_DIR}*.cpp)
 file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_EXAMPLE_DIR}*.hpp)
 
@@ -62,5 +66,7 @@ foreach(FILE ${TERRAMA2_SRC_FILES})
                                     terrama2_analysis_core
                                     terrama2_impl
                                     terralib_mod_common
+                                    ${GTEST_BOTH_LIBRARIES}
+                                    ${GMOCK_BOTH_LIBRARIES}
                                     ${PYTHON_LIBRARIES})
 endforeach()

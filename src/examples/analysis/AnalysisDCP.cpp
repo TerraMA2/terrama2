@@ -17,6 +17,9 @@
 #include <terrama2/services/analysis/core/Service.hpp>
 #include <terrama2/services/analysis/core/DataManager.hpp>
 
+#include<terrama2/services/analysis/mock/MockAnalysisLogger.hpp>
+
+
 #include <terrama2/impl/Utils.hpp>
 #include <terrama2/Config.hpp>
 
@@ -38,23 +41,49 @@ int main(int argc, char* argv[])
 
   {
     auto& serviceManager = terrama2::core::ServiceManager::getInstance();
+
+    auto dataManager = std::make_shared<terrama2::services::analysis::core::DataManager>();
+
+    // Starts the service and adds the analysis
+
+    auto loggerCopy = std::make_shared<terrama2::core::MockAnalysisLogger>();
+
+    EXPECT_CALL(*loggerCopy, setConnectionInfo(::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*loggerCopy, setTableName(::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*loggerCopy, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
+    EXPECT_CALL(*loggerCopy, getDataLastTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
+    EXPECT_CALL(*loggerCopy, done(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*loggerCopy, start(::testing::_)).WillRepeatedly(::testing::Return(0));
+    EXPECT_CALL(*loggerCopy, isValid()).WillRepeatedly(::testing::Return(true));
+
+    auto logger = std::make_shared<terrama2::core::MockAnalysisLogger>();
+
+    EXPECT_CALL(*logger, setConnectionInfo(::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*logger, setTableName(::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*logger, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
+    EXPECT_CALL(*logger, getDataLastTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
+    EXPECT_CALL(*logger, done(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*logger, start(::testing::_)).WillRepeatedly(::testing::Return(0));
+    EXPECT_CALL(*logger, clone()).WillRepeatedly(::testing::Return(loggerCopy));
+    EXPECT_CALL(*logger, isValid()).WillRepeatedly(::testing::Return(true));
+
     te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PASSWORD+"@"+TERRAMA2_DATABASE_HOST+":"+TERRAMA2_DATABASE_PORT+"/pcd_angra");
-    serviceManager.setInstanceId(1);
-    auto logger = std::make_shared<AnalysisLogger>();
     logger->setConnectionInfo(uri);
+
+    serviceManager.setInstanceId(1);
     serviceManager.setLogger(logger);
     serviceManager.setLogConnectionInfo(uri);
+
 
     terrama2::services::analysis::core::PythonInterpreterInit pythonInterpreterInit;
 
     QCoreApplication app(argc, argv);
 
 
-    DataManagerPtr dataManager(new DataManager());
+
 
     // DataProvider information
-    terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
-    terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
+    std::shared_ptr<terrama2::core::DataProvider> dataProvider = std::make_shared<terrama2::core::DataProvider>();
     dataProvider->id = 3;
     dataProvider->name = "DataProvider postgis";
     dataProvider->uri = uri.uri();
@@ -62,17 +91,16 @@ int main(int argc, char* argv[])
     dataProvider->dataProviderType = "POSTGIS";
     dataProvider->active = true;
 
-    dataManager->add(dataProviderPtr);
+    dataManager->add(dataProvider);
 
     auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
 
     // DataSeries information
-    terrama2::core::DataSeries* outputDataSeries = new terrama2::core::DataSeries();
-    terrama2::core::DataSeriesPtr outputDataSeriesPtr(outputDataSeries);
+    std::shared_ptr<terrama2::core::DataSeries> outputDataSeries = std::make_shared<terrama2::core::DataSeries>();
     outputDataSeries->id = 3;
     outputDataSeries->name = "Analysis result";
     outputDataSeries->semantics = semanticsManager.getSemantics("ANALYSIS_MONITORED_OBJECT-postgis");
-    outputDataSeries->dataProviderId = dataProviderPtr->id;
+    outputDataSeries->dataProviderId = dataProvider->id;
 
 
     // DataSet information
@@ -85,12 +113,11 @@ int main(int argc, char* argv[])
     outputDataSeries->datasetList.emplace_back(outputDataSet);
 
 
-    dataManager->add(outputDataSeriesPtr);
+    dataManager->add(outputDataSeries);
 
     std::string script = "add_value(\"standard_deviation\", 10)\n";
 
-    Analysis* analysis = new Analysis;
-    AnalysisPtr analysisPtr(analysis);
+    std::shared_ptr<terrama2::services::analysis::core::Analysis> analysis = std::make_shared<terrama2::services::analysis::core::Analysis>();
 
     analysis->id = 1;
     analysis->name = "Min DCP";
@@ -106,18 +133,16 @@ int main(int argc, char* argv[])
     analysis->metadata["INFLUENCE_RADIUS"] = "50";
     analysis->metadata["INFLUENCE_RADIUS_UNIT"] = "km";
 
-    terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
-    terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
+    std::shared_ptr<terrama2::core::DataSeries> dataSeries = std::make_shared<terrama2::core::DataSeries>();
     dataSeries->dataProviderId = dataProvider->id;
     dataSeries->semantics = semanticsManager.getSemantics("DCP-postgis");
     dataSeries->name = "Monitored Object";
     dataSeries->id = 57;
     dataSeries->active = true;
-    dataSeries->dataProviderId = dataProviderPtr->id;
+    dataSeries->dataProviderId = dataProvider->id;
 
     //DataSet information
-    terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp{};
-    terrama2::core::DataSetPtr dataSetPtr(dataSet);
+    std::shared_ptr<terrama2::core::DataSetDcp> dataSet = std::make_shared<terrama2::core::DataSetDcp>();
     dataSet->active = true;
     dataSet->format.emplace("timestamp_property", "datetime");
     dataSet->format.emplace("alias", "paraibuna");
@@ -126,11 +151,10 @@ int main(int argc, char* argv[])
     auto geom = terrama2::core::ewktToGeom("SRID=4618;POINT(-61 -23.408)");
     dataSet->position = std::dynamic_pointer_cast<te::gm::Point>(geom);
     dataSet->id = 1;
-    dataSeries->datasetList.push_back(dataSetPtr);
+    dataSeries->datasetList.push_back(dataSet);
 
     //DataSet information
-    terrama2::core::DataSetDcp* dataSet2 = new terrama2::core::DataSetDcp{};
-    terrama2::core::DataSetPtr dataSet2Ptr(dataSet2);
+    std::shared_ptr<terrama2::core::DataSetDcp> dataSet2 = std::make_shared<terrama2::core::DataSetDcp>();
     dataSet2->active = true;
     dataSet2->format.emplace("timestamp_property", "datetime");
     dataSet2->format.emplace("alias", "picinguaba");
@@ -139,10 +163,10 @@ int main(int argc, char* argv[])
     auto geom2 = terrama2::core::ewktToGeom("SRID=4618;POINT(-44.85 -23.355)");
     dataSet2->position = std::dynamic_pointer_cast<te::gm::Point>(geom2);
     dataSet2->id = 2;
-    dataSeries->datasetList.push_back(dataSet2Ptr);
+    dataSeries->datasetList.push_back(dataSet2);
 
     //DataSet information
-    terrama2::core::DataSetDcp* dataSet3 = new terrama2::core::DataSetDcp{};
+    std::shared_ptr<terrama2::core::DataSetDcp> dataSet3 = std::make_shared<terrama2::core::DataSetDcp>();
     terrama2::core::DataSetPtr dataSet3Ptr(dataSet3);
     dataSet3->active = true;
     dataSet3->format.emplace("timestamp_property", "datetime");
@@ -154,11 +178,11 @@ int main(int argc, char* argv[])
     dataSet3->id = 3;
     dataSeries->datasetList.push_back(dataSet3Ptr);
 
-    dataManager->add(dataSeriesPtr);
+    dataManager->add(dataSeries);
 
     AnalysisDataSeries monitoredObjectADS;
     monitoredObjectADS.id = 1;
-    monitoredObjectADS.dataSeriesId = dataSeriesPtr->id;
+    monitoredObjectADS.dataSeriesId = dataSeries->id;
     monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_PCD_TYPE;
     monitoredObjectADS.metadata["identifier"] = "table_name";
 
@@ -166,14 +190,14 @@ int main(int argc, char* argv[])
     analysisDataSeriesList.push_back(monitoredObjectADS);
     analysis->analysisDataSeriesList = analysisDataSeriesList;
 
-    dataManager->add(analysisPtr);
+    dataManager->add(analysis);
 
     // Starts the service and adds the analysis
     Service service(dataManager);
     service.setLogger(logger);
 
     service.start();
-    service.addToQueue(analysisPtr->id, terrama2::core::TimeUtils::nowUTC());
+    service.addToQueue(analysis->id, terrama2::core::TimeUtils::nowUTC());
 
     QTimer timer;
     QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));

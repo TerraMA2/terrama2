@@ -420,10 +420,12 @@ endif()
 
 if(TERRAMA2_COLLECTOR_ENABLED)
   add_subdirectory(terrama2_collector_core)
+  add_subdirectory(terrama2_collector_mock)
 endif()
 
 if(TERRAMA2_ANALYSIS_CORE_ENABLED)
   add_subdirectory(terrama2_analysis_core)
+  add_subdirectory(terrama2_analysis_mock)
 endif()
 
 if(TERRAMA2_ALERT_ENABLED)
