@@ -56,7 +56,7 @@ var ViewsRetriever = function(app) {
           var viewSetPrivate = false;
 
           if(params.views) {
-            var layerId = (viewsObjects[i].workspace ? viewsObjects[i].workspace + ":" + viewsObjects[i].layers[0] : viewsObjects[i].layers[0]);
+            var layerId = (viewsObjects[i].workspace ? viewsObjects[i].workspace + ":" + viewsObjects[i].layer : viewsObjects[i].layer);
 
             if((!params.views[layerId] || params.views[layerId] == "false") && viewsObjects[i].private)
               viewSetPrivate = true;

@@ -53,6 +53,11 @@
     "code": "get_value(\"<attribute_name>\")"
   },
   {
+    "name": "Get date",
+    "description": "Get date of execution of the analysis.",
+    "code": "get_analysis_date()"
+  },
+  {
     "name": "Distance units",
     "children": [
       {

@@ -583,14 +583,12 @@ void NovaFriburgoTs::AnalysisTS()
       EXPECT_CALL(*logger, clone()).WillRepeatedly(::testing::Return(loggerCopy));
       EXPECT_CALL(*logger, isValid()).WillRepeatedly(::testing::Return(true));
 
-      te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PASSWORD+"@"+TERRAMA2_DATABASE_HOST+":"+TERRAMA2_DATABASE_PORT+"/"+TERRAMA2_DATABASE_DBNAME);
-      logger->setConnectionInfo(uri);
-
+      te::core::URI uri("");
 
       Service service(dataManager);
       serviceManager.setInstanceId(1);
       serviceManager.setLogger(logger);
-      serviceManager.setLogConnectionInfo(te::core::URI(uri));
+      serviceManager.setLogConnectionInfo(uri);
       serviceManager.setInstanceId(1);
 
       service.setLogger(logger);
@@ -601,21 +599,20 @@ void NovaFriburgoTs::AnalysisTS()
 
       /////////////////////////////////////////////////////////////////////////////////////////////////////////
       //     input
-      //Servidor de entrada: Dado Coletado, Arquivo de Referencia, Arquivos de modelo de terreno
+      //Input Server: Data Collected, Reference File, Terrain Model Files
       //DataProvider information
       ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
       auto dataProvider = std::make_shared<terrama2::core::DataProvider>();
       dataProvider->id = 1;
-      dataProvider->name = "Servidor de Entrada";
+      dataProvider->name = "Input Server";
       dataProvider->uri = "file://"+TERRAMA2_DATA_DIR+"/";
       dataProvider->dataProviderType = "FILE";
       dataProvider->active = true;
 
       dataManager->add(dataProvider);
 
-      //semantica
-      // DataSeries information
+      //semantics DataSeries information
       std::shared_ptr<terrama2::core::DataSeries> dataSeries = std::make_shared<terrama2::core::DataSeries>();
       dataSeries->id = 1;
       dataSeries->name = "Hidro";
@@ -623,7 +620,7 @@ void NovaFriburgoTs::AnalysisTS()
       dataSeries->dataProviderId = dataProvider->id;
       dataSeries->active = true;
 
-      //dado dinamico = hidro_2011
+      //Dynamic Data  = hidro_2011
       std::shared_ptr<terrama2::core::DataSetGrid> dataSet = std::make_shared<terrama2::core::DataSetGrid>();
       dataSet->id = 1;
       dataSet->active = true;
@@ -632,9 +629,9 @@ void NovaFriburgoTs::AnalysisTS()
 
       dataSeries->datasetList.emplace_back(dataSet);
 
-      dataManager->add(dataProvider);
+      dataManager->add(dataSeries);
 
-      //ANÁLISE DATA SERIES = hidro_2011
+      //ANALYSIS DATA SERIES = hidro_2011
 
       AnalysisDataSeries hidro;
       hidro.id = 13;
@@ -642,9 +639,7 @@ void NovaFriburgoTs::AnalysisTS()
       hidro.dataSeriesId = dataProvider->id;
       hidro.type = AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE;
 
-
-
-      // semantica e DataSeries information  - SRTM_a_latlong_sad69
+      // semantics e DataSeries information  - SRTM_a_latlong_sad69
 
       std::shared_ptr<terrama2::core::DataSeries> dataSeriesA = std::make_shared<terrama2::core::DataSeries>();
       dataSeriesA->id = 2;
@@ -653,7 +648,7 @@ void NovaFriburgoTs::AnalysisTS()
       dataSeriesA->dataProviderId = dataProvider->id;
       dataSeriesA->active = true;
 
-      //dado estatico  - SRTM_a_latlong_sad69
+      //Dynamic Data  - SRTM_a_latlong_sad69
       std::shared_ptr<terrama2::core::DataSetGrid> dataSetA = std::make_shared<terrama2::core::DataSetGrid>();
       dataSetA->id = 2;
       dataSetA->active = true;
@@ -663,7 +658,7 @@ void NovaFriburgoTs::AnalysisTS()
       dataManager->add(dataSeriesA);
 
 
-      //ANÁLISE DATA SERIES = SRTM_a_latlong_sad69
+      //Analysis DATA SERIES = SRTM_a_latlong_sad69
 
       AnalysisDataSeries SRTM_a_latlong_sad69;
       SRTM_a_latlong_sad69.id = 2;
@@ -673,9 +668,9 @@ void NovaFriburgoTs::AnalysisTS()
 
 
 
-      ////////////////////////////////////////////////////////////
-      // semantica e DataSeries information - SRTM_s_latlong_sad69
-      ////////////////////////////////////////////////////////////
+      ///////////////////////////////////////////////////////////////
+      // semantics and DataSeries information - SRTM_s_latlong_sad69
+      ///////////////////////////////////////////////////////////////
 
       std::shared_ptr<terrama2::core::DataSeries> dataSeriesS = std::make_shared<terrama2::core::DataSeries>();
       dataSeriesS->id = 7;
@@ -686,7 +681,7 @@ void NovaFriburgoTs::AnalysisTS()
 
       dataManager->add(dataSeriesS);
 
-      //dado estatico  - SRTM_s_latlong_sad69
+      //Dynamic  - SRTM_s_latlong_sad69
 
       std::shared_ptr<terrama2::core::DataSetGrid> dataSetS = std::make_shared<terrama2::core::DataSetGrid>();
       dataSetS->id = 8;
@@ -695,7 +690,7 @@ void NovaFriburgoTs::AnalysisTS()
 
       dataSeriesS->datasetList.emplace_back(dataSetS);
 
-      //ANÁLISE DATA SERIES = SRTM_s_latlong_sad69
+      //Analysis and DATA SERIES = SRTM_s_latlong_sad69
 
       AnalysisDataSeries SRTM_s_latlong_sad69;
       SRTM_s_latlong_sad69.id = 15;
@@ -705,13 +700,13 @@ void NovaFriburgoTs::AnalysisTS()
 
 
       ///////////////////////////////
-      // Dados de saída
+      // Output data
       //////////////////////////////
 
-      // DataSeries information - Saida
+      // DataSeries information - Output
       std::shared_ptr<terrama2::core::DataSeries> outputDataSeries = std::make_shared<terrama2::core::DataSeries>();
       outputDataSeries->id = 31;
-      outputDataSeries->name = "Análise Saida";
+      outputDataSeries->name = "Analysis Output";
       outputDataSeries->semantics = semanticsManager.getSemantics("GRID-geotiff");
       outputDataSeries->dataProviderId = dataProvider->id;
       outputDataSeries->active = true;
@@ -745,7 +740,7 @@ void NovaFriburgoTs::AnalysisTS()
       analysis->schedule.frequencyUnit = "hours";
 
 
-      //Saída em tiff
+      //Output tiff
       std::shared_ptr<AnalysisOutputGrid> outputGrid = std::make_shared<AnalysisOutputGrid>();
 
       outputGrid->analysisId = analysis->id;
@@ -759,7 +754,7 @@ void NovaFriburgoTs::AnalysisTS()
       analysis->outputGridPtr = outputGrid;
 
 
-      //Add as analises dados dinamicos e dados estaticos
+      //Add analysis data dynamic and static
       std::vector<AnalysisDataSeries> analysisDataSeriesList;
       analysisDataSeriesList.push_back(hidro);
       analysisDataSeriesList.push_back(SRTM_a_latlong_sad69);
