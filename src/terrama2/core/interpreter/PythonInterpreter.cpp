@@ -177,6 +177,11 @@ StateLock terrama2::core::PythonInterpreter::holdState() const
   return StateLock(impl_->interpreterState_);
 }
 
+terrama2::core::InterpreterPtr terrama2::core::PythonInterpreter::make()
+{
+  return std::make_shared<terrama2::core::PythonInterpreter>();
+}
+
 std::mutex StateLock::mutex_;
 
 StateLock::StateLock(PyThreadState * state)

@@ -125,6 +125,8 @@ namespace terrama2
 
       std::string terramaDateMask2BoostFormat(const std::string& mask);
 
+      //! Return iso string from TimeInstantTZ
+      std::string getISOString(std::shared_ptr<te::dt::TimeInstantTZ> timeinstant);
     }
   }
 }

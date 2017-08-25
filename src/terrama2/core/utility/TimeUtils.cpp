@@ -325,3 +325,15 @@ std::string terrama2::core::TimeUtils::terramaDateMask2BoostFormat(const std::st
 
   return m.toStdString();
 }
+
+std::string terrama2::core::TimeUtils::getISOString(std::shared_ptr<te::dt::TimeInstantTZ> timeinstant)
+{
+  if(!timeinstant)
+    return "";
+
+  auto localTime = timeinstant->getTimeInstantTZ();
+  if(localTime.is_special())
+    return "";
+
+  return boost::posix_time::to_iso_extended_string(localTime.utc_time())+"Z";
+}
