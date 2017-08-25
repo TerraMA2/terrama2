@@ -76,6 +76,14 @@ If you want to build yourself TerraMA² then you need to install some third-part
 
 - **Google Test (Optional):** Google Test is the Google's C++ test framework. You can download it from: https://github.com/google/googletest.
 
+## Build Instructions
+
+### Packages
+
+If you want to build and generate TerraMA² packages, first take a look at the sections below and read the right tips for automatically building in your platform:
+
+- **[MAC:](https://github.com/TerraMA2/terrama2/blob/master/MAC.md)** Contains instructions about how to build and generate TerraMA² package on Mac OS.
+
 ## Web Application and Components Dependencies
 
 All the web application dependencies and install steps you can find in: https://github.com/TerraMA2/terrama2/tree/master/webapp#terrama-webapp.

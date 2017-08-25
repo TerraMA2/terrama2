@@ -23,22 +23,27 @@
 #  Author: Gilberto Ribeiro de Queiroz
 #          Vinicius Campanha
 #
-set(BU_CHMOD_BUNDLE_ITEMS @BU_CHMOD_BUNDLE_ITEMS@)
 
-# TODO: list TerraLib plugins
+include(BundleUtilities)
 
 set(TERRAMA2_BUILD_AS_BUNDLE @TERRAMA2_BUILD_AS_BUNDLE@)
 set(TERRAMA2_DESTINATION_RUNTIME @TERRAMA2_DESTINATION_RUNTIME@)
 set(TERRAMA2_DESTINATION_LIBRARY @TERRAMA2_DESTINATION_LIBRARY@)
 set(Qt5_DIR @Qt5_DIR@)
 
+
+# List TerraMa2 Libraries
+file(GLOB_RECURSE TERRAMA2_LIBS ${CMAKE_INSTALL_PREFIX}/libterrama2*@CMAKE_SHARED_LIBRARY_SUFFIX@)
+
+# List TerraLib Libraries
+file(GLOB_RECURSE TERRALIB_PLGS ${CMAKE_INSTALL_PREFIX}/libterralib_mod*@CMAKE_SHARED_LIBRARY_SUFFIX@)
+
+
 if(WIN32)
   set(TERRAMA2_LIBS_LOCATION ${CMAKE_INSTALL_PREFIX}/${TERRAMA2_DESTINATION_RUNTIME})
 else()
   set(TERRAMA2_LIBS_LOCATION ${CMAKE_INSTALL_PREFIX}/${TERRAMA2_DESTINATION_LIBRARY})
 endif()
-
-set(TERRAMA2_DIRS "@Qt5_DIR@/../..")
 
 set(TERRAMA2_APPLICATION "")
 set(QT_PLUGINS "")
@@ -47,31 +52,22 @@ if(WIN32)
 
   set(TERRAMA2_APPLICATION "${CMAKE_INSTALL_PREFIX}/bin/terrama2_admin@CMAKE_EXECUTABLE_SUFFIX@")
   set(QT_PLUGINS "${CMAKE_INSTALL_PREFIX}/qtplugins")
+  set(TERRAMA2_DIRS "@Qt5_DIR@/../..")
 
-elseif(APPLE)
-
-  if(TERRAMA2_BUILD_AS_BUNDLE)
-
-    set(TERRAMA2_APPLICATION "${CMAKE_INSTALL_PREFIX}/terrama2.app")
+elseif(APPLE AND TERRAMA2_BUILD_AS_BUNDLE)
+    
+    set(BU_CHMOD_BUNDLE_ITEMS ON)
+    set(TERRAMA2_APPLICATION "${CMAKE_INSTALL_PREFIX}/terrama2_service.app")
     set(QT_PLUGINS "${TERRAMA2_APPLICATION}/Contents/qtplugins")
-
-  else()
-
-    set(TERRAMA2_APPLICATION "${CMAKE_INSTALL_PREFIX}/bin/terrama2_admin")
-    set(QT_PLUGINS "${CMAKE_INSTALL_PREFIX}/qtplugins")
-
-  endif()
-
+    set(TERRAMA2_DIRS "@terralib_DIR@/../..;@Qt5_DIR@/../..")
+    
 endif()
 
 if(QT_PLUGINS)
   file(GLOB_RECURSE QT_PLUGINS "${QT_PLUGINS}/*@CMAKE_SHARED_LIBRARY_SUFFIX@")
 endif()
 
-
-set(TERRAMA2_LIBRARIES ${QT_PLUGINS})
-
-include(BundleUtilities)
+set(TERRAMA2_LIBRARIES ${TERRALIB_PLGS} ${QT_PLUGINS} "${TERRAMA2_APPLICATION}/Contents/MacOS/terrama2_service")
 
 if(APPLE AND TERRAMA2_BUILD_AS_BUNDLE)
 
@@ -83,30 +79,30 @@ if(APPLE AND TERRAMA2_BUILD_AS_BUNDLE)
     set (is_QSQLDrivers FALSE)
     set (is_QPlatforms FALSE)
     set (is_Lib FALSE)
-
-    get_filename_component (resolved_file ${item} PATH)
-
-    if("${resolved_file}" STREQUAL "")
-      set (is_Lib TRUE)
-    elseif(resolved_file MATCHES "^(@rpath)")
-      set(is_Lib TRUE)
-    elseif(resolved_file MATCHES "^(/System/Library/|/usr/lib/|/usr/local|@loader_path)")
-      set(is_System TRUE)
-    elseif(resolved_file MATCHES "(imageformats)$")
-      set (is_QImageFormat TRUE)
-    elseif(resolved_file MATCHES "(iconengines)$")
-      set (is_QIconEngine TRUE)
-    elseif(resolved_file MATCHES "(sqldrivers)$")
-      set (is_QSQLDrivers TRUE)
-    elseif(resolved_file MATCHES "(platforms)$")
-      set (is_QPlatforms TRUE)
-    elseif(resolved_file MATCHES "(lib)$")
-      set (is_Lib TRUE)
-    endif()
-
+    
+     get_filename_component (resolved_file ${item} PATH)
+     
+     if("${resolved_file}" STREQUAL "")
+       set (is_Lib TRUE)
+     elseif(resolved_file MATCHES "^(@rpath)")
+       set(is_Lib TRUE)
+     elseif(resolved_file MATCHES "^(/System/Library/|/usr/lib/|/usr/local|@loader_path)")
+       set(is_System TRUE)
+     elseif(resolved_file MATCHES "(imageformats)$")
+       set (is_QImageFormat TRUE)
+     elseif(resolved_file MATCHES "(iconengines)$")
+       set (is_QIconEngine TRUE)
+     elseif(resolved_file MATCHES "(sqldrivers)$")
+       set (is_QSQLDrivers TRUE)
+     elseif(resolved_file MATCHES "(platforms)$")
+       set (is_QPlatforms TRUE)
+     elseif(resolved_file MATCHES "(lib)$")
+       set (is_Lib TRUE)
+     endif()
+    
     if(item MATCHES "\\.dylib$")
       if(is_System)
-        set(${default_embedded_path_var} "@executable_path/../MacOS" PARENT_SCOPE)
+        set(${default_embedded_path_var} "@executable_path/../lib" PARENT_SCOPE)
       elseif(is_QImageFormat)
         set(${default_embedded_path_var} "@executable_path/../qtplugins/imageformats" PARENT_SCOPE)
       elseif(is_QIconEngine)
