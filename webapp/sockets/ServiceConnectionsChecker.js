@@ -1,5 +1,7 @@
 "use strict";
 
+var ServiceTypeEnum = require('./../core/Enums').ServiceType;
+const url = require('url');
 /**
  * Socket responsible for checking the service connections.
  * @class ServiceConnectionsChecker
@@ -25,8 +27,62 @@ var ServiceConnectionsChecker = function(io) {
 
   // Socket connection event
   memberSockets.on('connection', function(client) {
-    client.on('testServiceConnectionsRequest', function(json) {
-      console.log(json);
+    client.on('testServiceConnectionsRequest', function(serviceToCheck) {
+      var responseObject = {};
+      var serviceObject = serviceToCheck.service;
+      var paramsToCheckSSH = {
+        host: serviceObject.host,
+        port: serviceObject.sshPort,
+        username: serviceObject.sshUser,
+        isLocal: serviceObject.sshUser == null ,
+        pathToBinary: serviceObject.pathToBinary
+      };
+      memberSSHConnectionChecker(paramsToCheckSSH, function(response){
+        responseObject.sshConnectionResponse = response;
+        var paramsToCheckDb = serviceObject.log;
+        memberDbConnection(paramsToCheckDb, function(response){
+          responseObject.dbConnectionResponse = response;
+          var paramsToCheckPort = {
+            port: serviceObject.port,
+            service: serviceObject.id
+          };
+          memberServicePortNumberChecker(paramsToCheckPort, function(response){
+            responseObject.portNumberConnectionResponse = response;
+            if (serviceObject.service_type_id == ServiceTypeEnum.ALERT){
+              var emailServerUrl = url.parse(serviceObject.metadata.email_server);
+              var username = emailServerUrl.auth.split(":")[0];
+              var password = emailServerUrl.auth.split(":")[1];
+              var paramsToCheckEmailServer = {
+                host: emailServerUrl.hostname,
+                port: emailServerUrl.port,
+                username: username,
+                password: password
+              };
+              memberSMTPConnectionChecker(paramsToCheckEmailServer, function(response){
+                responseObject.smtpConnectionResponse = response;
+                client.emit('testServiceConnectionsResponse', responseObject);
+              });
+            } else if (serviceObject.service_type_id == ServiceTypeEnum.VIEW){
+              var mapServerUrl = url.parse(serviceObject.metadata.maps_server);
+              var username = mapServerUrl.auth.split(":")[0];
+              var password = mapServerUrl.auth.split(":")[1];
+              var paramsToCheckMapServer = {
+                host: mapServerUrl.hostname,
+                port: mapServerUrl.port,
+                username: username,
+                password: password
+              };
+              memberGeoServerConnection(paramsToCheckMapServer, function(response){
+                responseObject.mapServerConnectionResponse = response;
+                client.emit('testServiceConnectionsResponse', responseObject);
+              });
+            } else {
+              client.emit('testServiceConnectionsResponse', responseObject);
+            }
+          });
+        });
+      });
+
     });
   });
 };

@@ -135,6 +135,10 @@ define([], function() {
       }
     });
 
+    $scope.socket.on('testServiceConnectionsResponse', function(result){
+      console.log(result);
+    });
+
     Service.init().then(function(services) {
       if (services.length === 0) {
         $scope.extra.service.starting = false;
