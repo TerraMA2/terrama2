@@ -20,12 +20,10 @@
 */
 
 /*!
-  \file interpolator/core/Interpolator.cpp
-
-  \author Frederico Augusto Bedê
-
- * \todo Prevent PCD's without information to be inserted on kd-tree.
-*/
+ * \file interpolator/core/Interpolator.cpp
+ *
+ * \author Frederico Augusto Bedê
+ */
 
 #include "Interpolator.hpp"
 
@@ -56,20 +54,6 @@
 #include <utility> //std::pair, std::make_pair
 
 
-#define BICUBIC_MODULE( x ) ( ( x < 0 ) ? ( -1 * x ) : x )
-#define BICUBIC_K1( x , a ) ( ( ( a + 2 ) * x * x * x ) - \
-  ( ( a + 3 ) * x * x ) + 1 )
-#define BICUBIC_K2( x , a ) ( ( a * x * x * x ) - ( 5 * a * x * x ) + \
-  ( 8 * a * x ) - ( 4 * a ) )
-#define BICUBIC_RANGES(x,a) \
-  ( ( ( 0 <= x ) && ( x <= 1 ) ) ? \
-  BICUBIC_K1(x,a) \
-  : ( ( ( 1 < x ) && ( x <= 2 ) ) ? \
-  BICUBIC_K2(x,a) \
-  : 0 ) )
-#define BICUBIC_KERNEL( x , a ) BICUBIC_RANGES( BICUBIC_MODULE(x) , a )
-
-
 /*!
  * \brief Fills the vector with empty data \a nneighbors times.
  *
@@ -92,8 +76,8 @@ void FillEmptyData(std::vector<terrama2::services::interpolator::core::Interpola
   d.pt_ = &pt;
   d.series_ = dset;
 
-  data.resize(1, d);
-  dists.resize(1, std::numeric_limits<double>::max());
+  data.resize(nneighbors, d);
+  dists.resize(nneighbors, std::numeric_limits<double>::max());
 }
 
 
@@ -108,6 +92,46 @@ terrama2::services::interpolator::core::Interpolator::Interpolator(terrama2::ser
   this->id = interpolationParams_->id_;
   this->serviceInstanceId = interpolationParams_->serviceInstanceId_;
   this->active = true;
+}
+
+terrama2::services::interpolator::core::RasterPtr terrama2::services::interpolator::core::Interpolator::makeRaster()
+{
+  RasterPtr r;
+
+  // Reseting the kd-tree
+  /////////////////////////////////////////////////////////////////////////
+  if(!tree_->isEmpty())
+    tree_->clear();
+
+  fillTree();
+  /////////////////////////////////////////////////////////////////////////
+
+
+  /////////////////////////////////////////////////////////////////////////
+  //  Creating and configuring the output raster.
+
+  unsigned int resolutionX = interpolationParams_->resolutionX_;
+  unsigned int resolutionY = interpolationParams_->resolutionY_;
+  int srid = interpolationParams_->srid_;
+
+  // For testing assume the bounding rect calculated by kd-tree
+  te::gm::Envelope* env = new te::gm::Envelope(interpolationParams_->bRect_);
+
+  te::rst::Grid* grid = new te::rst::Grid(resolutionX, resolutionY, env, srid);
+
+  // Creating bands
+  te::rst::BandProperty* bProp = new te::rst::BandProperty(0, te::dt::DOUBLE_TYPE, "");
+  std::vector<te::rst::BandProperty*> vecBandProp(1, bProp);
+
+  // Creating raster info
+  std::map<std::string, std::string> conInfo;
+  conInfo["URI"] = interpolationParams_->fileName_;
+
+  // create raster
+  r.reset(te::rst::RasterFactory::make("GDAL", grid, vecBandProp, conInfo));
+  /////////////////////////////////////////////////////////////////////////
+
+  return r;
 }
 
 void terrama2::services::interpolator::core::Interpolator::fillTree()
@@ -165,6 +189,10 @@ void terrama2::services::interpolator::core::Interpolator::fillTree()
       InterpolatorData node;
       node.pt_ = &pt1;
       node.series_ = dataSeries;
+
+      if(!node.isValid())
+        continue;
+
       auto pair = std::make_pair(pt1, node);
       dataSetVec.push_back(pair);
 
@@ -199,46 +227,14 @@ terrama2::services::interpolator::core::NNInterpolator::NNInterpolator(terrama2:
 
 terrama2::services::interpolator::core::RasterPtr terrama2::services::interpolator::core::NNInterpolator::makeInterpolation()
 {
-  RasterPtr r;
-
-  // Reseting the kd-tree
-  /////////////////////////////////////////////////////////////////////////
-  if(!tree_->isEmpty())
-    tree_->clear();
-
-  fillTree();
-  /////////////////////////////////////////////////////////////////////////
-
-
-  /////////////////////////////////////////////////////////////////////////
-  //  Creating and configuring the output raster.
-
-  unsigned int resolutionX = interpolationParams_->resolutionX_;
-  unsigned int resolutionY = interpolationParams_->resolutionY_;
-  int srid = interpolationParams_->srid_;
-
-  // For testing assume the bounding rect calculated by kd-tree
-  te::gm::Envelope* env = new te::gm::Envelope(interpolationParams_->bRect_);
-
-  te::rst::Grid* grid = new te::rst::Grid(resolutionX, resolutionY, env, srid);
-
-  // Creating bands
-  te::rst::BandProperty* bProp = new te::rst::BandProperty(0, te::dt::DOUBLE_TYPE, "");
-  std::vector<te::rst::BandProperty*> vecBandProp(1, bProp);
-
-  // Creating raster info
-  std::map<std::string, std::string> conInfo;
-  conInfo["URI"] = interpolationParams_->fileName_;
-
-  // create raster
-  r.reset(te::rst::RasterFactory::make("GDAL", grid, vecBandProp, conInfo));
-  /////////////////////////////////////////////////////////////////////////
-
+  RasterPtr r = makeRaster();
   /////////////////////////////////////////////////////////////////////////
   //  Making the interpolation using the nearest neighbor.
   te::gm::Point pt1;
   std::vector<InterpolatorData> res;
   std::vector<double> dist;
+  unsigned int resolutionY = interpolationParams_->resolutionY_,
+      resolutionX = interpolationParams_->resolutionX_;
 
   for(unsigned int row = 0; row < resolutionY; row++)
     for(unsigned int col = 0; col < resolutionX; col++)
@@ -262,6 +258,9 @@ terrama2::services::interpolator::core::RasterPtr terrama2::services::interpolat
       terrama2::core::DataSetSeries ds = (res.begin())->series_;
       terrama2::core::SynchronizedDataSetPtr dSet = ds.syncDataSet;
 
+      if(dSet->isNull(0, interpolationParams_->attributeName_))
+        continue;
+
       double value = dSet->getDouble(0, interpolationParams_->attributeName_);
 
       r->setValue(col, row, value, 0);
@@ -271,25 +270,128 @@ terrama2::services::interpolator::core::RasterPtr terrama2::services::interpolat
   return r;
 }
 
-terrama2::services::interpolator::core::BLInterpolator::BLInterpolator(terrama2::services::interpolator::core::InterpolatorParamsPtr params) :
+terrama2::services::interpolator::core::AvgDistInterpolator::AvgDistInterpolator(terrama2::services::interpolator::core::InterpolatorParamsPtr params) :
   Interpolator(params)
 {
 
 }
 
-terrama2::services::interpolator::core::RasterPtr terrama2::services::interpolator::core::BLInterpolator::makeInterpolation()
+terrama2::services::interpolator::core::RasterPtr terrama2::services::interpolator::core::AvgDistInterpolator::makeInterpolation()
 {
-  return RasterPtr();
+  RasterPtr r = makeRaster();
+
+  /////////////////////////////////////////////////////////////////////////
+  //  Making the interpolation using the nearest neighbor.
+  te::gm::Point pt1;
+  std::vector<InterpolatorData> res;
+  std::vector<double> dist;
+  unsigned int resolutionY = interpolationParams_->resolutionY_,
+      resolutionX = interpolationParams_->resolutionX_;
+
+  for(unsigned int row = 0; row < resolutionY; row++)
+    for(unsigned int col = 0; col < resolutionX; col++)
+    {
+      double x,
+          y;
+
+      res.clear();
+      dist.clear();
+
+      r->getGrid()->gridToGeo((double) col, (double)row, x, y);
+
+      pt1.setX(x);
+      pt1.setY(y);
+
+      // Finding the nearest neighbor.
+      FillEmptyData(res, dist, interpolationParams_->numNeighbors_);
+      tree_->nearestNeighborSearch(pt1, res, dist, interpolationParams_->numNeighbors_);
+
+      double value = 0;
+      double numNeighs = 0;
+
+      for(size_t i = 0; i < res.size(); i++)
+      {
+        // Getting the attribute and setting the interpolation value
+        terrama2::core::DataSetSeries ds = res[i].series_;
+        terrama2::core::SynchronizedDataSetPtr dSet = ds.syncDataSet;
+
+        if(!res[i].isValid())
+          continue;
+
+        numNeighs++;
+
+        value += dSet->getDouble(0, interpolationParams_->attributeName_);
+      }
+
+      r->setValue(col, row, value / numNeighs, 0);
+    }
+  /////////////////////////////////////////////////////////////////////////
+
+  return r;
 }
 
 
-terrama2::services::interpolator::core::BCInterpolator::BCInterpolator(terrama2::services::interpolator::core::InterpolatorParamsPtr params) :
+terrama2::services::interpolator::core::SqrAvgDistInterpolator::SqrAvgDistInterpolator(terrama2::services::interpolator::core::InterpolatorParamsPtr params) :
   Interpolator(params)
 {
 
 }
 
-terrama2::services::interpolator::core::RasterPtr terrama2::services::interpolator::core::BCInterpolator::makeInterpolation()
+terrama2::services::interpolator::core::RasterPtr terrama2::services::interpolator::core::SqrAvgDistInterpolator::makeInterpolation()
 {
-  return RasterPtr();
+  RasterPtr r = makeRaster();
+
+  /////////////////////////////////////////////////////////////////////////
+  //  Making the interpolation using the nearest neighbor.
+  te::gm::Point pt1;
+  std::vector<InterpolatorData> res;
+  std::vector<double> dist;
+  unsigned int resolutionY = interpolationParams_->resolutionY_,
+      resolutionX = interpolationParams_->resolutionX_;
+
+  auto avgPar = std::dynamic_pointer_cast<SqrAvgDistInterpolatorParams>(interpolationParams_);
+
+  int powF = avgPar->pow_;
+
+  for(unsigned int row = 0; row < resolutionY; row++)
+    for(unsigned int col = 0; col < resolutionX; col++)
+    {
+      double x,
+          y;
+
+      res.clear();
+      dist.clear();
+
+      r->getGrid()->gridToGeo((double) col, (double)row, x, y);
+
+      pt1.setX(x);
+      pt1.setY(y);
+
+      // Finding the nearest neighbor.
+      FillEmptyData(res, dist, interpolationParams_->numNeighbors_);
+      tree_->nearestNeighborSearch(pt1, res, dist, interpolationParams_->numNeighbors_);
+
+      double value = 0;
+      double den = 0;
+
+      for(size_t i = 0; i < res.size(); i++)
+      {
+        // Getting the attribute and setting the interpolation value
+        terrama2::core::DataSetSeries ds = res[i].series_;
+        terrama2::core::SynchronizedDataSetPtr dSet = ds.syncDataSet;
+
+        if(!res[i].isValid())
+          continue;
+
+        double wi = 1 / std::pow(std::sqrt(dist[i]), powF);
+
+        value += wi * dSet->getDouble(0, interpolationParams_->attributeName_);
+        den += wi;
+      }
+
+      r->setValue(col, row, value / den, 0);
+    }
+  /////////////////////////////////////////////////////////////////////////
+
+  return r;
 }

@@ -73,6 +73,41 @@ namespace terrama2
         struct InterpolatorData
         {
           /*!
+           * \brief Default constructor.
+           */
+          InterpolatorData()
+          {
+            pt_ = new te::gm::Point(std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
+          }
+
+          /*!
+           * \brief Copy constructor.
+           *
+           * \param other The data to e copied.
+           */
+          InterpolatorData(const InterpolatorData& other)
+          {
+            pt_ = new te::gm::Point(*other.pt_);
+            series_ = other.series_;
+          }
+
+          /*!
+           * \brief Copy operator.
+           *
+           * \param other The data to be copied.
+           *
+           * \return A pointer to the object itself.
+           */
+          InterpolatorData& operator=(const InterpolatorData& other)
+          {
+            pt_ = new te::gm::Point(*other.pt_);
+            series_ = other.series_;
+
+            return *this;
+          }
+
+
+          /*!
            * \brief Returns the x-asis component of the coordinate.
            *
            * \return The x-asis component of the coordinate.
@@ -90,6 +125,18 @@ namespace terrama2
           double getY() const
           {
             return pt_->getY();
+          }
+
+          /*!
+           * \brief Returns \a true if both \a x and \a y are different of max double value, and \a false otherwise.
+           *
+           * \return \a True if coordinate is valid and \a false oherwise.
+           */
+          bool isValid() const
+          {
+            double max = std::numeric_limits<double>::max();
+
+            return ((getX() != max) && (getY() != max));
           }
 
           te::gm::Point* pt_;                     //!< Coordinate of the sample.

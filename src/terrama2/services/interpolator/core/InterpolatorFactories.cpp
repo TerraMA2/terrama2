@@ -18,8 +18,8 @@ terrama2::services::interpolator::core::InterpolatorFactories::InterpolatorFacto
 void terrama2::services::interpolator::core::InterpolatorFactories::initialize()
 {
   factories_.push_back(new NNInterpolatorFactory);
-  factories_.push_back(new BLInterpolatorFactory);
-  factories_.push_back(new BCInterpolatorFactory);
+  factories_.push_back(new AvgDistInterpolatorFactory);
+  factories_.push_back(new SqrAvgDistInterpolatorFactory);
 }
 
 void terrama2::services::interpolator::core::InterpolatorFactories::finalize()
@@ -44,35 +44,35 @@ terrama2::services::interpolator::core::Interpolator* terrama2::services::interp
   return i;
 }
 
-terrama2::services::interpolator::core::BLInterpolatorFactory::BLInterpolatorFactory() :
-  InterpolatorFactories(BILINEAR)
+terrama2::services::interpolator::core::AvgDistInterpolatorFactory::AvgDistInterpolatorFactory() :
+  InterpolatorFactories(AVGDIST)
 {
 }
 
-terrama2::services::interpolator::core::Interpolator* terrama2::services::interpolator::core::BLInterpolatorFactory::build(const InterpolatorParams& p)
+terrama2::services::interpolator::core::Interpolator* terrama2::services::interpolator::core::AvgDistInterpolatorFactory::build(const InterpolatorParams& p)
 {
-  const BLInterpolatorParams* pp = dynamic_cast<const BLInterpolatorParams*>(&p);
+  const AvgDistInterpolatorParams* pp = dynamic_cast<const AvgDistInterpolatorParams*>(&p);
 
-  InterpolatorParamsPtr pptr(new BLInterpolatorParams(*pp));
+  InterpolatorParamsPtr pptr(new AvgDistInterpolatorParams(*pp));
 
-  BLInterpolator* i = new BLInterpolator(pptr);
+  AvgDistInterpolator* i = new AvgDistInterpolator(pptr);
 
   return i;
 }
 
-terrama2::services::interpolator::core::BCInterpolatorFactory::BCInterpolatorFactory() :
-  InterpolatorFactories(BICUBIC)
+terrama2::services::interpolator::core::SqrAvgDistInterpolatorFactory::SqrAvgDistInterpolatorFactory() :
+  InterpolatorFactories(SQRAVGDIST)
 {
 
 }
 
-terrama2::services::interpolator::core::Interpolator* terrama2::services::interpolator::core::BCInterpolatorFactory::build(const InterpolatorParams& p)
+terrama2::services::interpolator::core::Interpolator* terrama2::services::interpolator::core::SqrAvgDistInterpolatorFactory::build(const InterpolatorParams& p)
 {
-  const BCInterpolatorParams* pp = dynamic_cast<const BCInterpolatorParams*>(&p);
+  const SqrAvgDistInterpolatorParams* pp = dynamic_cast<const SqrAvgDistInterpolatorParams*>(&p);
 
-  InterpolatorParamsPtr pptr(new BCInterpolatorParams(*pp));
+  InterpolatorParamsPtr pptr(new SqrAvgDistInterpolatorParams(*pp));
 
-  BCInterpolator* i = new BCInterpolator(pptr);
+  SqrAvgDistInterpolator* i = new SqrAvgDistInterpolator(pptr);
 
   return i;
 }

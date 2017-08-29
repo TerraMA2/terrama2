@@ -197,15 +197,16 @@ int main(int argc, char* argv[])
   /// starts the service.
   //////////////////////////////////////////////////////
 
-  terrama2::services::interpolator::core::InterpolatorParams* params = new terrama2::services::interpolator::core::NNInterpolatorParams;
+  terrama2::services::interpolator::core::InterpolatorParams* params = new terrama2::services::interpolator::core::SqrAvgDistInterpolatorParams;
   params->resolutionX_ = 100;
   params->resolutionY_ = 100;
   params->series_ = pcdSeries->id;
-  params->attributeName_ = "pluvio";
+  params->attributeName_ = "velvento";
   params->srid_ = 4326;
   params->id_ = 1;
   params->serviceInstanceId_ = 1;
-  params->fileName_ = "/home/fredbd/Documents/funcate/MyDevel/tma2_results/teste1.tif";
+  params->fileName_ = "/home/fredbd/Documents/funcate/MyDevel/tma2_results/teste_sqr_avg.tif";
+  params->numNeighbors_ = 2;
 
   terrama2::services::interpolator::core::InterpolatorParamsPtr pPtr(params);
   dataManager->add(pPtr);

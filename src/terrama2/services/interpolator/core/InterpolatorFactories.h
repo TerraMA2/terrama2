@@ -106,7 +106,7 @@ namespace terrama2
           /*!
            * \brief build Constructs an NNInterpolator object.
            *
-           * \param p The parameters to be used on build. It MUST BE an instance of NNInterpolatorParams, or it will not work well.
+           * \param p The parameters to be used on build. It MUST BE an instance of NNInterpolatorParams, or it will not work properly.
            *
            * \return A NNInterpolator object.
            */
@@ -114,59 +114,59 @@ namespace terrama2
         };
 
         /*!
-         * \class BLInterpolatorFactory
+         * \class AvgDistInterpolatorFactory
          *
-         * \brief Factory specialized to construct BLInterpolator objects. These objects realizes interpolation
-         * using the bilinear algorithm.
+         * \brief Factory specialized to construct AvgDistInterpolator objects. These objects realizes interpolation
+         * using the algorithm of the simple average of the neighbors.
          *
          * \ingroup interpolator
          */
-        class BLInterpolatorFactory : public InterpolatorFactories
+        class AvgDistInterpolatorFactory : public InterpolatorFactories
         {
         public:
 
           /*!
            * \brief Constructor.
            */
-          BLInterpolatorFactory();
+          AvgDistInterpolatorFactory();
 
         protected:
 
           /*!
-           * \brief build Constructs an BLInterpolator object.
+           * \brief build Constructs an AvgDistInterpolator object.
            *
-           * \param p The parameters to be used on build. It MUST BE an instance of BLInterpolatorParams, or it will not work well.
+           * \param p The parameters to be used on build. It MUST BE an instance of AvgDistInterpolatorParams, or it will not work properly.
            *
-           * \return A BLInterpolator object.
+           * \return A AvgDistInterpolator object.
            */
           Interpolator* build(const InterpolatorParams& p);
         };
 
         /*!
-         * \class BCInterpolatorFactory
+         * \class SqrAvgDistInterpolatorFactory
          *
-         * \brief Factory specialized to construct BCInterpolator objects. These objects realizes interpolation
-         * using the bicubic algorithm.
+         * \brief Factory specialized to construct SqrAvgDistInterpolator objects. These objects realizes interpolation
+         * using the algorithm of the weight average of the neigbors.
          *
          * \ingroup interpolator
          */
-        class BCInterpolatorFactory : public InterpolatorFactories
+        class SqrAvgDistInterpolatorFactory : public InterpolatorFactories
         {
         public:
 
           /*!
            * \brief Constructor.
            */
-          BCInterpolatorFactory();
+          SqrAvgDistInterpolatorFactory();
 
         protected:
 
           /*!
-           * \brief build Constructs an BCInterpolator object.
+           * \brief build Constructs an SqrAvgDistInterpolator object.
            *
-           * \param p The parameters to be used on build. It MUST BE an instance of BCInterpolatorParams, or it will not work well.
+           * \param p The parameters to be used on build. It MUST BE an instance of SqrAvgDistInterpolatorParams, or it will not work properly.
            *
-           * \return A BCInterpolator object.
+           * \return A SqrAvgDistInterpolator object.
            */
           Interpolator* build(const InterpolatorParams& p);
         };

@@ -23,6 +23,8 @@
  * \file interpolator/core/DataManager.cpp
  *
  * \author Frederico Augusto Bedê
+ *
+ * \todo Crashing at the end of service. Fix-me.
 */
 
 #include "DataManager.hpp"

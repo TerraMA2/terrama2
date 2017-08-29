@@ -28,9 +28,6 @@
  *
  * \defgroup interpolator Interpolator framework.
  * Defines classes and structures for executing algorithms of interpolation over the PCDs data from TerraMA2.
- *
- * \todo Implements the interpolator based on bicubic algorithm.
- * \todo Implements the interpolator based on bicubic algorithm.
  */
 
 #ifndef __TERRAMA2_SERVICES_INTERPOLATOR_CORE_INTERPOLATOR_HPP__
@@ -71,18 +68,11 @@ namespace terrama2
          *
          * <UL>
          *  <LI>Nearest-neighbor interpolation.</LI>
-         *  <LI>Bilinerar interpolation.</LI>
-         *  <LI>Bicubic interpolation.</LI>
+         *  <LI>Simple average of the nearest neighbor interpolation.</LI>
+         *  <LI>Weight average of the nearest neighbor interpolation (inverse of square distance).</LI>
          * </UL>
          *
-         * The aproach of the nearest neighbor aproach uses the nearest sample value to use as value of some coordinate being analysed. For more details
-         * about this aproach can be found in: <A HREF="https://en.wikipedia.org/wiki/Nearest-neighbor_interpolation">Nearest-neighbor interpolation on Wikipedia.</A>
-         *
-         * The aproach of the bilinear interpolation uses the bilinear algorithm to interpolate. For more details
-         * about this aproach can be found in: <A HREF="https://en.wikipedia.org/wiki/Bilinear_interpolation">Bilinear interpolation on Wikipedia.</A>
-         *
-         * The aproach of the bicubic interpolation uses the bicubic algorithm to interpolate. For more details
-         * about this aproach can be found in: <A HREF="https://en.wikipedia.org/wiki/Bicubic_interpolation">Bicubic interpolation on Wikipedia.</A>
+         * Youd can be found more information about interpolation methods in: <A HREF="http://www.gisresources.com/types-interpolation-methods_3/">Interpolation methods on GIS Resources main site.</A>
          *
          * \ingroup interpolator
          */
@@ -101,6 +91,15 @@ namespace terrama2
            * \return The interpolated raster.
            */
           virtual RasterPtr makeInterpolation() = 0;
+
+        protected:
+
+          /*!
+           * \brief Builds a raster with the given parameters.
+           *
+           * \return A raster with the dimensions defined by the parameters.
+           */
+          RasterPtr makeRaster();
 
           /*!
            * \brief Fills the kd-tree with the data defined by the parameters. This is usefull to quickly find the neighbors used in the
@@ -127,7 +126,7 @@ namespace terrama2
            *
            * \param params The parameters to used to build an object of this type.
            *
-           * \note \a params MUST be an instance of NNInterpolatorParams structure, or it will not work well.
+           * \note \a params MUST be an instance of NNInterpolatorParams structure, or it will not work properly.
            */
           NNInterpolator(InterpolatorParamsPtr params);
 
@@ -140,25 +139,25 @@ namespace terrama2
         };
 
         /*!
-         * \struct BLInterpolator
+         * \struct AvgDistInterpolator
          *
-         * \brief Interpolator specialized to execute the bilinear algorithm of interpolation.
+         * \brief Interpolator specialized to execute simple average of the neighbors algorithm of interpolation.
          *
          * \ingroup interpolator
          */
-        struct BLInterpolator : public Interpolator
+        struct AvgDistInterpolator : public Interpolator
         {
           /*!
            * \brief Constructor.
            *
            * \param params The parameters to used to build an object of this type.
            *
-           * \note \a params MUST be an instance of BLInterpolatorParams structure, or it will not work well.
+           * \note \a params MUST be an instance of AvgDistInterpolatorParams structure, or it will not work properly.
            */
-          BLInterpolator(InterpolatorParamsPtr params);
+          AvgDistInterpolator(InterpolatorParamsPtr params);
 
           /*!
-           * \brief Executes interpolation based on the bilinear approach.
+           * \brief Executes interpolation based on the simple average neighbor approach.
            *
            * \return The interpolated raster.
            */
@@ -166,22 +165,22 @@ namespace terrama2
         };
 
         /*!
-         * \struct BCInterpolator
+         * \struct SqrAvgDistInterpolator
          *
-         * \brief Interpolator specialized to execute the bicubic algorithm of interpolation.
+         * \brief Interpolator specialized to execute the weight average neighbor algorithm of interpolation.
          *
          * \ingroup interpolator
          */
-        struct BCInterpolator : public Interpolator
+        struct SqrAvgDistInterpolator : public Interpolator
         {
           /*!
            * \brief Constructor.
            *
            * \param params The parameters to used to build an object of this type.
            *
-           * \note \a params MUST be an instance of BCInterpolatorParams structure, or it will not work well.
+           * \note \a params MUST be an instance of SqrAvgDistInterpolatorParams structure, or it will not work properly.
            */
-          BCInterpolator(InterpolatorParamsPtr params);
+          SqrAvgDistInterpolator(InterpolatorParamsPtr params);
 
           /*!
            * \brief Executes interpolation based on the bilinear approach.
