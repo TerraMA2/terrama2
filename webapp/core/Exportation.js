@@ -63,6 +63,41 @@ var Exportation = function() {
    };
 
    /**
+    * Returns the PostgreSQL psql connection string.
+    * @param {integer} dataProviderId - Id to get the connection parameters in the DataProvider
+    * @returns {Promise} Promise - Promise to be resolved
+    *
+    * @function getPsqlString
+    * @memberof Exportation
+    * @inner
+    */
+   this.getPsqlString = function(dataProviderId) {
+    return new memberPromise(function(resolve, reject) {
+      return memberDataManager.getDataProvider({ id: dataProviderId }).then(function(dataProvider) {
+        var uriObject = memberUriBuilder.buildObject(dataProvider.uri, {
+          HOST: 'host',
+          PORT: 'port',
+          USER: 'user',
+          PASSWORD: 'password',
+          PATHNAME: 'database'
+        });
+
+        var database = (uriObject.database.charAt(0) === '/' ? uriObject.database.substr(1) : uriObject.database);
+
+        var connectionString = "psql -h " + uriObject.host + " -d " + database + " -U " + uriObject.user;
+        var exportPassword = "export PGPASSWORD='" + uriObject.password + "';";
+
+        return resolve({
+          connectionString: connectionString,
+          exportPassword: exportPassword
+        });
+      }).catch(function(err) {
+        return reject(err);
+      });
+    });
+   };
+
+   /**
     * Returns the ogr2ogr application string.
     * @returns {string} ogr2ogr - ogr2ogr application
     *
@@ -74,6 +109,20 @@ var Exportation = function() {
      var ogr2ogr = memberConfig.OGR2OGR;
 
      return ogr2ogr;
+   };
+
+   /**
+    * Returns the shp2pgsql application string.
+    * @returns {string} shp2pgsql - shp2pgsql application
+    *
+    * @function shp2pgsql
+    * @memberof Exportation
+    * @inner
+    */
+   this.shp2pgsql = function() {
+     var shp2pgsql = memberConfig.SHP2PGSQL;
+
+     return shp2pgsql;
    };
 
   /**
@@ -227,7 +276,10 @@ var Exportation = function() {
         if(folderResult)
           return reject(folderResult);
 
-        return resolve(filesFolder, folderPath);
+        return resolve({
+          filesFolder: filesFolder,
+          folderPath: folderPath
+        });
       });
     });
   };
