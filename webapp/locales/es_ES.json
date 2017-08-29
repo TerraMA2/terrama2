@@ -966,5 +966,10 @@
   "Error": "",
   "The service can not access the map server!": "",
   "Default Level Name": "",
-	"Insert the Color": ""
+	"Insert the Color": "",
+  "Host service error": "",
+	"Log database error": "",
+	"Port error": "",
+	"Email server error": "",
+	"Map server error": ""
 }

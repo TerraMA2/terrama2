@@ -28,8 +28,10 @@ var ServiceConnectionsChecker = function(io) {
   // Socket connection event
   memberSockets.on('connection', function(client) {
     client.on('testServiceConnectionsRequest', function(serviceToCheck) {
-      var responseObject = {};
       var serviceObject = serviceToCheck.service;
+      var responseObject = { 
+        service_id: serviceObject.id 
+      };
       var paramsToCheckSSH = {
         host: serviceObject.host,
         port: serviceObject.sshPort,
@@ -67,7 +69,7 @@ var ServiceConnectionsChecker = function(io) {
               var username = mapServerUrl.auth.split(":")[0];
               var password = mapServerUrl.auth.split(":")[1];
               var paramsToCheckMapServer = {
-                host: mapServerUrl.hostname,
+                host: mapServerUrl.hostname + mapServerUrl.path,
                 port: mapServerUrl.port,
                 username: username,
                 password: password

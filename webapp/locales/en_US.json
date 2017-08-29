@@ -958,5 +958,10 @@
   "Invalid address": "Invalid address",
   "The service can not access the log database!": "The service can not access the log database!",
   "Error": " read ECONNRESET",
-  "The service can not access the map server!": "The service can not access the map server!"
+  "The service can not access the map server!": "The service can not access the map server!",
+  "Host service error": "Host service error: ",
+  "Log database error": "Log database error: ",
+  "Port error": "Port error: ",
+  "Email server error": "Email server error: ",
+  "Map server error": "Map server error: "
 }
