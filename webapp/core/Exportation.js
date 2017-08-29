@@ -13,6 +13,7 @@
  * @property {object} memberConfig - Application configurations.
  * @property {object} memberFs - 'fs' module.
  * @property {object} memberPath - 'path' module.
+ * @property {object} memberPg - 'pg' module.
  */
 var Exportation = function() {
 
@@ -30,17 +31,19 @@ var Exportation = function() {
   var memberFs = require('fs');
   // 'path' module
   var memberPath = require('path');
+  // 'pg' module
+  var memberPg = require('pg');
 
-   /**
-    * Returns the PostgreSQL connection string.
-    * @param {integer} dataProviderId - Id to get the connection parameters in the DataProvider
-    * @returns {Promise} Promise - Promise to be resolved
-    *
-    * @function getPgConnectionString
-    * @memberof Exportation
-    * @inner
-    */
-   this.getPgConnectionString = function(dataProviderId) {
+  /**
+   * Returns the PostgreSQL connection string.
+   * @param {integer} dataProviderId - Id to get the connection parameters in the DataProvider
+   * @returns {Promise} Promise - Promise to be resolved
+   *
+   * @function getPgConnectionString
+   * @memberof Exportation
+   * @inner
+   */
+  this.getPgConnectionString = function(dataProviderId) {
     return new memberPromise(function(resolve, reject) {
       return memberDataManager.getDataProvider({ id: dataProviderId }).then(function(dataProvider) {
         var uriObject = memberUriBuilder.buildObject(dataProvider.uri, {
@@ -60,18 +63,18 @@ var Exportation = function() {
         return reject(err);
       });
     });
-   };
+  };
 
-   /**
-    * Returns the PostgreSQL psql connection string.
-    * @param {integer} dataProviderId - Id to get the connection parameters in the DataProvider
-    * @returns {Promise} Promise - Promise to be resolved
-    *
-    * @function getPsqlString
-    * @memberof Exportation
-    * @inner
-    */
-   this.getPsqlString = function(dataProviderId) {
+  /**
+   * Returns the PostgreSQL psql connection string.
+   * @param {integer} dataProviderId - Id to get the connection parameters in the DataProvider
+   * @returns {Promise} Promise - Promise to be resolved
+   *
+   * @function getPsqlString
+   * @memberof Exportation
+   * @inner
+   */
+  this.getPsqlString = function(dataProviderId) {
     return new memberPromise(function(resolve, reject) {
       return memberDataManager.getDataProvider({ id: dataProviderId }).then(function(dataProvider) {
         var uriObject = memberUriBuilder.buildObject(dataProvider.uri, {
@@ -95,35 +98,72 @@ var Exportation = function() {
         return reject(err);
       });
     });
-   };
+  };
 
-   /**
-    * Returns the ogr2ogr application string.
-    * @returns {string} ogr2ogr - ogr2ogr application
-    *
-    * @function ogr2ogr
-    * @memberof Exportation
-    * @inner
-    */
-   this.ogr2ogr = function() {
-     var ogr2ogr = memberConfig.OGR2OGR;
+  this.tableExists = function(tableName, dataProviderId) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return memberDataManager.getDataProvider({ id: dataProviderId }).then(function(dataProvider) {
+        var uriObject = memberUriBuilder.buildObject(dataProvider.uri, {
+          HOST: 'host',
+          PORT: 'port',
+          USER: 'user',
+          PASSWORD: 'password',
+          PATHNAME: 'database'
+        });
 
-     return ogr2ogr;
-   };
+        uriObject.database = (uriObject.database.charAt(0) === '/' ? uriObject.database.substr(1) : uriObject.database);
 
-   /**
-    * Returns the shp2pgsql application string.
-    * @returns {string} shp2pgsql - shp2pgsql application
-    *
-    * @function shp2pgsql
-    * @memberof Exportation
-    * @inner
-    */
-   this.shp2pgsql = function() {
-     var shp2pgsql = memberConfig.SHP2PGSQL;
+        var client = new memberPg.Client(uriObject);
 
-     return shp2pgsql;
-   };
+        client.on('error', function(err) {
+          return reject(err.toString());
+        });
+
+        client.connect(function(err) {
+          if(err)
+            return reject(err.toString());
+
+          client.query("SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_name = $1;", [tableName], function(err, result) {
+            client.end();
+
+            if(err) return reject(err.toString());
+            else return resolve(result);
+          });
+        });
+      }).catch(function(err) {
+        return reject(err.toString());
+      });
+    });
+  };
+
+  /**
+   * Returns the ogr2ogr application string.
+   * @returns {string} ogr2ogr - ogr2ogr application
+   *
+   * @function ogr2ogr
+   * @memberof Exportation
+   * @inner
+   */
+  this.ogr2ogr = function() {
+    var ogr2ogr = memberConfig.OGR2OGR;
+
+    return ogr2ogr;
+  };
+
+  /**
+  * Returns the shp2pgsql application string.
+  * @returns {string} shp2pgsql - shp2pgsql application
+  *
+  * @function shp2pgsql
+  * @memberof Exportation
+  * @inner
+  */
+  this.shp2pgsql = function() {
+    var shp2pgsql = memberConfig.SHP2PGSQL;
+
+    return shp2pgsql;
+  };
 
   /**
    * Returns the query accordingly with the received parameters.

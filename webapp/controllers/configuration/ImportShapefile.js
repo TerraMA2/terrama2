@@ -46,56 +46,78 @@ var ImportShapefile = function(app) {
       return memberExportation.getPsqlString(request.body.dataProviderId);
     }).then(function(connectionString) {
       memberFs.readFile(request.files.file.path, function(err, data) {
-        var path = memberPath.join(__dirname, '../../tmp/' + filesFolder + '/' + request.files.file.name);
+        if(err)
+          return response.json({ error: err.toString() });
+        else {
+          var path = memberPath.join(__dirname, '../../tmp/' + filesFolder + '/' + request.files.file.name);
 
-        memberFs.writeFile(path, data, function(err) {
-          if(err)
-            return console.warn(err);
+          memberFs.writeFile(path, data, function(err) {
+            if(err)
+              return response.json({ error: err.toString() });
+            else {
+              try {
+                memberFs.createReadStream(path).pipe(memberUnzip.Extract({ path: folderPath })).on('close', function() {
+                  var files = memberFs.readdirSync(folderPath);
+                  var shpName = null;
+                  var shpCount = 0;
 
-          try {
-            memberFs.createReadStream(path).pipe(memberUnzip.Extract({ path: folderPath })).on('close', function() {
-              var files = memberFs.readdirSync(folderPath);
-              var shpName = null;
-              var shpCount = 0;
+                  for(var i = 0, filesLength = files.length; i < filesLength; i++) {
+                    var filename = memberPath.join(folderPath, files[i]);
+                    var stat = memberFs.lstatSync(filename);
 
-              for(var i = 0, filesLength = files.length; i < filesLength; i++) {
-                var filename = memberPath.join(folderPath, files[i]);
-                var stat = memberFs.lstatSync(filename);
+                    if(!stat.isDirectory() && filename.indexOf(".shp") >= 0) {
+                      shpName = filename;
+                      shpCount++;
+                    };
+                  }
 
-                if(!stat.isDirectory() && filename.indexOf(".shp") >= 0) {
-                  shpName = filename;
-                  shpCount++;
-                };
+                  if(shpName !== null) {
+                    if(shpCount === 1) {
+                      var progress = null;
+                      var progressStep = 1;//2.5 / requestFormats.length;
+
+                      var shp2pgsql = memberExportation.shp2pgsql();
+
+                      memberExportation.tableExists(request.body.tableName, request.body.dataProviderId).then(function(resultTable) {
+                        if(resultTable.rowCount > 0 && resultTable.rows[0].table_name == request.body.tableName) {
+                          return response.json({ error: "Table already exists!" });
+                        } else {
+                          memberExec(connectionString.exportPassword + shp2pgsql + " -I -s " + request.body.srid + " -W \"" + request.body.encoding + "\" " + shpName + " " + request.body.tableName + " | " + connectionString.connectionString, function(commandErr, commandOut, commandCode) {
+                            if(commandErr)
+                              return response.json({ error: commandErr });
+
+                            memberExportation.tableExists(request.body.tableName, request.body.dataProviderId).then(function(resultTable) {
+                              if(resultTable.rowCount > 0 && resultTable.rows[0].table_name == request.body.tableName) {
+                                memberUtils.deleteFolderRecursively(folderPath, function() {});
+
+                                return response.json({ error: null, message: "Sucess: " + shpName });
+                              } else {
+                                return response.json({ error: commandCode });
+                              }
+                            }).catch(function(err) {
+                              return response.json({ error: err.toString() });
+                            });
+                          });
+                        }
+                      }).catch(function(err) {
+                        return response.json({ error: err.toString() });
+                      });
+                    } else {
+                      return response.json({ error: "Error: More than one shapefile found!" });
+                    }
+                  } else {
+                    return response.json({ error: "Error: No shapefile found!" });
+                  }
+                });
+              } catch(err) {
+                return response.json({ error: err.toString() });
               }
-
-              if(shpName !== null) {
-                if(shpCount === 1) {
-                  var progress = null;
-                  var progressStep = 1;//2.5 / requestFormats.length;
-
-                  var shp2pgsql = memberExportation.shp2pgsql();
-
-                  memberExec(connectionString.exportPassword + shp2pgsql + " -I -s " + request.body.srid + " -W \"" + request.body.encoding + "\" " + shpName + " " + request.body.tableName + " | " + connectionString.connectionString, function(commandErr, commandOut, commandCode) {
-                    if(commandErr) return console.error(commandErr);
-
-                    response.json({ error: null, message: "Sucess: " + shpName });
-
-                    memberUtils.deleteFolderRecursively(folderPath, function() {});
-                  });
-                } else {
-                  response.json({ error: "Error: More than one shapefile found!" });
-                }
-              } else {
-                response.json({ error: "Error: No shapefile found!" });
-              }
-            });
-          } catch(err) {
-            console.log(err);
-          }
-        });
+            }
+          });
+        }
       });
     }).catch(function(err) {
-      return console.error(err);
+      return response.json({ error: err.toString() });
     });
   };
 

@@ -1456,17 +1456,21 @@ define([], function() {
 
       $scope.shpImport = {
         srid: null,
-        encoding: "latin1"
+        encoding: "latin1",
+        error: null
       };
 
       $scope.openImportShapefileModal = function() {
+        $scope.clearImportError();
+
         if($scope.model['table_name'] !== undefined && $scope.model['table_name'] !== null && $scope.model['table_name'] != "")
           $("#shapefileModal").modal();
         else
-          alert("Insert the desired table name!");
+          MessageBoxService.danger(i18n.__("Field error"), i18n.__("Enter the table name!"));
       };
 
       $scope.uploadFile = function(file, errFiles) {
+        $scope.clearImportError();
         $scope.f = file;
         $scope.errFile = errFiles && errFiles[0];
         if (file) {
@@ -1483,7 +1487,7 @@ define([], function() {
 
           file.upload.then(function (response) {
             $timeout(function () {
-              if(response.data.error) alert(response.data.error);
+              if(response.data.error) $scope.shpImport.error = response.data.error;
               else alert(response.data.message);
             });
           }, function (response) {
@@ -1495,6 +1499,10 @@ define([], function() {
           });
         }   
       }
+
+      $scope.clearImportError = function() {
+        $scope.shpImport.error = null;
+      };
 
       $scope.addDcp = function() {
         if(isValidParametersForm($scope.forms.parametersForm)) {

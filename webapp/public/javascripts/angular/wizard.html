@@ -91,6 +91,16 @@
                     </div>
                   </div>
                 </div>
+                <div class="row" ng-show="shpImport.error">
+                  <div class="col-md-12">
+                    <hr/>
+                    <div class="alert alert-danger alert-dismissible">
+                      <button type="button" class="close" ng-click="clearImportError()" aria-hidden="true">×</button>
+                      <h4><i class="icon fa fa-ban"></i> {{ i18n.__('Error!') }}</h4>
+                      {{ shpImport.error }}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
