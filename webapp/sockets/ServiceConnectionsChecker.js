@@ -46,7 +46,8 @@ var ServiceConnectionsChecker = function(io) {
           responseObject.dbConnectionResponse = response;
           var paramsToCheckPort = {
             port: serviceObject.port,
-            service: serviceObject.id
+            service: serviceObject.id,
+            checkConnection: true
           };
           memberServicePortNumberChecker(paramsToCheckPort, function(response){
             responseObject.portNumberConnectionResponse = response;

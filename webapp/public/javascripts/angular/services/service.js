@@ -132,27 +132,27 @@ define([], function() {
       var mapServerConnectionResponse = connectionsResult.mapServerConnectionResponse;
       if (sshConnectionResponse && sshConnectionResponse.error){
         service.hasError = true;
-        service.error = i18n.__("Host service error: ") + i18n.__(sshConnectionResponse.message);
+        service.error = i18n.__("Host service error") + i18n.__(sshConnectionResponse.message);
         service.loading = false;
         service.online = false;
       } else if (dbConnectionResponse && dbConnectionResponse.error){
         service.hasError = true;
-        service.error = i18n.__("Log database error: ") + i18n.__(dbConnectionResponse.message);
+        service.error = i18n.__("Log database error") + i18n.__(dbConnectionResponse.message);
         service.loading = false;
         service.online = false;
       } else if (portNumberConnectionResponse && portNumberConnectionResponse.error){
         service.hasError = true;
-        service.error = i18n.__("Port error: ") + i18n.__(portNumberConnectionResponse.message) + portNumberConnectionResponse.port;
+        service.error = i18n.__("Port error") + i18n.__(portNumberConnectionResponse.message) + portNumberConnectionResponse.port;
         service.loading = false;
         service.online = false;
       } else if (smtpConnectionResponse && smtpConnectionResponse.error){
         service.hasError = true;
-        service.error = i18n.__("Email server error: ") + i18n.__(smtpConnectionResponse.message);
+        service.error = i18n.__("Email server error") + i18n.__(smtpConnectionResponse.message);
         service.loading = false;
         service.online = false;
       } else if (mapServerConnectionResponse && mapServerConnectionResponse.error){
         service.hasError = true;
-        service.error = i18n.__("Map server error: ") + i18n.__(mapServerConnectionResponse.message);
+        service.error = i18n.__("Map server error") + i18n.__(mapServerConnectionResponse.message);
         service.loading = false;
         service.online = false;
       } else {
