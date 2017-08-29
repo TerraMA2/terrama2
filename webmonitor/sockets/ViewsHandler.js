@@ -10,7 +10,8 @@ var ViewsHandlers = function(io) {
   // 'request' module
   var memberRequest = require('request');
   // WebMonitor configuration
-  var memberConfig = JSON.parse(memberFs.readFileSync(memberPath.join(__dirname, "../config/monitor.json"), "utf-8"));
+  var Application = require('./../core/Application');
+  var memberConfig = Application.getContextConfig();
 
   var userToken = require('../config/UserToken');
 
