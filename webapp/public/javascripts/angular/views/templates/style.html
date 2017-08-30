@@ -105,12 +105,15 @@
   <div class="form-group">
     <div class="col-md-12 row" ng-show="$ctrl.model.colors.length > 0">
       <div class="col-md-12 row">
-        <div class="col-md-3">
+        <div class="col-md-2">
           <label><span ng-bind="$ctrl.i18n.__('Color')"></span>:</label>
-        </div> 
+        </div>
+        <div class="col-md-1">
+          <label></label>
+        </div>
         <div class="col-md-3">
           <label><span ng-bind="$ctrl.i18n.__('Title')"></span>:</label>
-        </div> 
+        </div>
         <div class="col-md-3">
           <label ng-show="$ctrl.model.colors.length > 1"><span ng-bind="$ctrl.i18n.__('Value')"></span>:</label>
         </div>
@@ -118,8 +121,12 @@
       <div class="col-md-12 row">
         <span ng-repeat="elm in $ctrl.model.colors track by $index">
           <div class="col-md-12 row">
-            <div class="col-md-3">
+            <div class="col-md-2">
               <color-picker ng-model="elm.color" options="$ctrl.colorOptions" event-api="$ctrl.events"></color-picker>
+            </div>
+
+            <div class="col-md-1">
+              <button type="button" class="btn btn-primary" data-ng-click="$ctrl.rgbaModal(elm)">RGBA</button>
             </div>
 
             <div class="form-group col-md-3" 
@@ -181,4 +188,48 @@
             data-ng-click="$ctrl.addColor();"></button>
   </div>
 
+</div>
+<div class="modal fade" id="rgbaModal" tabindex="-1" role="dialog" aria-labelledby="rgbaModalLabel">
+  <div class="modal-dialog modal-md" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="rgbaModalLabel">{{ $ctrl.i18n.__('Insert the Color') }}</h4>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>R</label>
+                <input class="form-control" ng-model="$ctrl.rgba.r"/>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>G</label>
+                <input class="form-control" ng-model="$ctrl.rgba.g"/>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>B</label>
+                <input class="form-control" ng-model="$ctrl.rgba.b"/>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>A</label>
+                <input class="form-control" ng-model="$ctrl.rgba.a"/>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">{{ $ctrl.i18n.__('Cancel') }} </button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal" data-ng-click="$ctrl.rgba2hex()">{{ $ctrl.i18n.__('OK') }}</button>
+      </div>
+    </div>
+  </div>
 </div>
