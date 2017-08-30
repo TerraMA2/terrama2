@@ -28,48 +28,10 @@
 #  add_definitions(-DTMA_CORE_DLL)
 #endif()
 
-file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/collector/mock/*.cpp)
 file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/collector/mock/*.hpp)
 
-
-source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
 source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
-
-include_directories ( SYSTEM
-  ${Boost_INCLUDE_DIR}
-  ${terralib_INCLUDE_DIRS}
-  ${terralib_DIR}
-  ${Qt5Core_INCLUDE_DIRS}
-)
-
-set(CMAKE_AUTOMOC ON)
-
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
-add_library(terrama2_collector_mock SHARED ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES})
-
-qt5_use_modules(terrama2_collector_mock Core)
-
-target_link_libraries(terrama2_collector_mock terrama2_core
-                                             terrama2_collector_core
-                                             terralib_mod_dataaccess)
-
-IF(Qt5_VERSION VERSION_LESS "5.3")
-  add_definitions(-DQt5_BELLOW_5_3)
-ENDIF()
-
-set_target_properties(terrama2_collector_mock
-                      PROPERTIES VERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}
-                                 SOVERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}
-                                 INSTALL_NAME_DIR "@executable_path/../lib")
-
-install(TARGETS terrama2_collector_mock
-        EXPORT terrama2-targets
-        RUNTIME DESTINATION ${TERRAMA2_DESTINATION_RUNTIME} COMPONENT runtime
-        LIBRARY DESTINATION ${TERRAMA2_DESTINATION_LIBRARY} COMPONENT runtime
-        ARCHIVE DESTINATION ${TERRAMA2_DESTINATION_ARCHIVE} COMPONENT runtime)
 
 install(FILES ${TERRAMA2_HDR_FILES}
 DESTINATION ${TERRAMA2_DESTINATION_HEADERS}/terrama2/collector COMPONENT devel)
 
-export(TARGETS terrama2_collector_mock APPEND FILE ${CMAKE_BINARY_DIR}/terrama2-exports.cmake)

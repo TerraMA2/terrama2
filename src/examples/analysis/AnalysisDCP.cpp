@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
     EXPECT_CALL(*logger, clone()).WillRepeatedly(::testing::Return(loggerCopy));
     EXPECT_CALL(*logger, isValid()).WillRepeatedly(::testing::Return(true));
 
-    te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PASSWORD+"@"+TERRAMA2_DATABASE_HOST+":"+TERRAMA2_DATABASE_PORT+"/pcd_angra");
+    te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PASSWORD+"@"+TERRAMA2_DATABASE_HOST+":"+TERRAMA2_DATABASE_PORT+"/Teste");
     logger->setConnectionInfo(uri);
 
     serviceManager.setInstanceId(1);
@@ -167,7 +167,6 @@ int main(int argc, char* argv[])
 
     //DataSet information
     std::shared_ptr<terrama2::core::DataSetDcp> dataSet3 = std::make_shared<terrama2::core::DataSetDcp>();
-    terrama2::core::DataSetPtr dataSet3Ptr(dataSet3);
     dataSet3->active = true;
     dataSet3->format.emplace("timestamp_property", "datetime");
     dataSet3->format.emplace("alias", "itanhaem");
@@ -176,7 +175,7 @@ int main(int argc, char* argv[])
     auto geom3 = terrama2::core::ewktToGeom("SRID=4618;POINT(-44.941 -23.074)");
     dataSet3->position = std::dynamic_pointer_cast<te::gm::Point>(geom3);
     dataSet3->id = 3;
-    dataSeries->datasetList.push_back(dataSet3Ptr);
+    dataSeries->datasetList.push_back(dataSet3);
 
     dataManager->add(dataSeries);
 
