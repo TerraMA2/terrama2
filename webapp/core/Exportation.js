@@ -13,6 +13,8 @@
  * @property {object} memberConfig - Application configurations.
  * @property {object} memberFs - 'fs' module.
  * @property {object} memberPath - 'path' module.
+ * @property {object} memberPg - 'pg' module.
+ * @property {object} memberUtils - 'Utils' model.
  */
 var Exportation = function() {
 
@@ -30,17 +32,21 @@ var Exportation = function() {
   var memberFs = require('fs');
   // 'path' module
   var memberPath = require('path');
+  // 'pg' module
+  var memberPg = require('pg');
+  // 'Utils' model
+  var memberUtils = require('./Utils.js');
 
-   /**
-    * Returns the PostgreSQL connection string.
-    * @param {integer} dataProviderId - Id to get the connection parameters in the DataProvider
-    * @returns {Promise} Promise - Promise to be resolved
-    *
-    * @function getPgConnectionString
-    * @memberof Exportation
-    * @inner
-    */
-   this.getPgConnectionString = function(dataProviderId) {
+  /**
+   * Returns the PostgreSQL connection string.
+   * @param {integer} dataProviderId - Id to get the connection parameters in the DataProvider
+   * @returns {Promise} Promise - Promise to be resolved
+   *
+   * @function getPgConnectionString
+   * @memberof Exportation
+   * @inner
+   */
+  this.getPgConnectionString = function(dataProviderId) {
     return new memberPromise(function(resolve, reject) {
       return memberDataManager.getDataProvider({ id: dataProviderId }).then(function(dataProvider) {
         var uriObject = memberUriBuilder.buildObject(dataProvider.uri, {
@@ -60,21 +66,117 @@ var Exportation = function() {
         return reject(err);
       });
     });
-   };
+  };
 
-   /**
-    * Returns the ogr2ogr application string.
-    * @returns {string} ogr2ogr - ogr2ogr application
-    *
-    * @function ogr2ogr
-    * @memberof Exportation
-    * @inner
-    */
-   this.ogr2ogr = function() {
-     var ogr2ogr = memberConfig.OGR2OGR;
+  /**
+   * Returns the PostgreSQL psql connection string.
+   * @param {integer} dataProviderId - Id to get the connection parameters in the DataProvider
+   * @returns {Promise} Promise - Promise to be resolved
+   *
+   * @function getPsqlString
+   * @memberof Exportation
+   * @inner
+   */
+  this.getPsqlString = function(dataProviderId) {
+    return new memberPromise(function(resolve, reject) {
+      return memberDataManager.getDataProvider({ id: dataProviderId }).then(function(dataProvider) {
+        var uriObject = memberUriBuilder.buildObject(dataProvider.uri, {
+          HOST: 'host',
+          PORT: 'port',
+          USER: 'user',
+          PASSWORD: 'password',
+          PATHNAME: 'database'
+        });
 
-     return ogr2ogr;
-   };
+        var database = (uriObject.database.charAt(0) === '/' ? uriObject.database.substr(1) : uriObject.database);
+
+        var connectionString = "psql -h " + uriObject.host + " -d " + database + " -U " + uriObject.user;
+        var exportPassword = "export PGPASSWORD='" + uriObject.password + "';";
+
+        return resolve({
+          connectionString: connectionString,
+          exportPassword: exportPassword
+        });
+      }).catch(function(err) {
+        return reject(err);
+      });
+    });
+  };
+
+  /**
+   * Verifies if a table exists.
+   * @param {integer} tableName - Table name
+   * @param {integer} dataProviderId - Id to get the connection parameters in the DataProvider
+   * @returns {Promise} Promise - Promise to be resolved
+   *
+   * @function tableExists
+   * @memberof Exportation
+   * @inner
+   */
+  this.tableExists = function(tableName, dataProviderId) {
+    var self = this;
+    return new memberPromise(function(resolve, reject) {
+      return memberDataManager.getDataProvider({ id: dataProviderId }).then(function(dataProvider) {
+        var uriObject = memberUriBuilder.buildObject(dataProvider.uri, {
+          HOST: 'host',
+          PORT: 'port',
+          USER: 'user',
+          PASSWORD: 'password',
+          PATHNAME: 'database'
+        });
+
+        uriObject.database = (uriObject.database.charAt(0) === '/' ? uriObject.database.substr(1) : uriObject.database);
+
+        var client = new memberPg.Client(uriObject);
+
+        client.on('error', function(err) {
+          return reject(err.toString());
+        });
+
+        client.connect(function(err) {
+          if(err)
+            return reject(err.toString());
+
+          client.query("SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_name = $1;", [tableName], function(err, result) {
+            client.end();
+
+            if(err) return reject(err.toString());
+            else return resolve(result);
+          });
+        });
+      }).catch(function(err) {
+        return reject(err.toString());
+      });
+    });
+  };
+
+  /**
+   * Returns the ogr2ogr application string.
+   * @returns {string} ogr2ogr - ogr2ogr application
+   *
+   * @function ogr2ogr
+   * @memberof Exportation
+   * @inner
+   */
+  this.ogr2ogr = function() {
+    var ogr2ogr = memberConfig.OGR2OGR;
+
+    return ogr2ogr;
+  };
+
+  /**
+  * Returns the shp2pgsql application string.
+  * @returns {string} shp2pgsql - shp2pgsql application
+  *
+  * @function shp2pgsql
+  * @memberof Exportation
+  * @inner
+  */
+  this.shp2pgsql = function() {
+    var shp2pgsql = memberConfig.SHP2PGSQL;
+
+    return shp2pgsql;
+  };
 
   /**
    * Returns the query accordingly with the received parameters.
@@ -227,7 +329,10 @@ var Exportation = function() {
         if(folderResult)
           return reject(folderResult);
 
-        return resolve(filesFolder, folderPath);
+        return resolve({
+          filesFolder: filesFolder,
+          folderPath: folderPath
+        });
       });
     });
   };
@@ -264,6 +369,47 @@ var Exportation = function() {
       fileExtention: fileExtention,
       ogr2ogrFormat: ogr2ogrFormat
     };
+  };
+
+  /**
+   * Returns the difference in days between the current date and a given date.
+   * @param {string} dateString - Date (YYYY-MM-DD)
+   * @returns {integer} difference - Difference between the dates
+   *
+   * @function getDateDifferenceInDays
+   * @memberof Exportation
+   * @inner
+   */
+  this.getDateDifferenceInDays = function(dateString) {
+    var now = new Date();
+    var date = new Date(dateString + " " + now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds());
+
+    var utc1 = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+    var utc2 = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
+
+    var difference = Math.floor((utc1 - utc2) / (1000 * 3600 * 24));
+
+    return difference;
+  };
+
+  /**
+   * Deletes the invalid folders (older than one day) from the tmp folder.
+   *
+   * @function deleteInvalidFolders
+   * @memberof Exportation
+   * @inner
+   */
+  this.deleteInvalidFolders = function() {
+    var tmpDir = memberPath.join(__dirname, '../tmp');
+    var dirs = memberFs.readdirSync(tmpDir).filter(file => memberFs.statSync(memberPath.join(tmpDir, file)).isDirectory());
+
+    for(var i = 0, count = dirs.length; i < count; i++) {
+      var dir = memberPath.join(__dirname, '../tmp/' + dirs[i]);
+      var date = dirs[i].split('_--_');
+
+      if(this.getDateDifferenceInDays(date[1]) > 1)
+        memberUtils.deleteFolderRecursively(dir, function() {});
+    }
   };
 };
 

@@ -8,6 +8,7 @@
     "disablePDF": true,
     "debug": true,
     "OGR2OGR": "ogr2ogr",
+    "SHP2PGSQL": "shp2pgsql",
     "db": {
       "username": "postgres",
       "password": "postgres",
