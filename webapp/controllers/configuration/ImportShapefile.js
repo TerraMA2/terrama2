@@ -34,6 +34,15 @@ var ImportShapefile = function(app) {
   // 'Utils' model
   var memberUtils = require('../../core/Utils.js');
 
+  /**
+   * Processes the request and returns a response.
+   * @param {json} request - JSON containing the request data
+   * @param {json} response - JSON containing the response data
+   *
+   * @function importShapefile
+   * @memberof ImportShapefile
+   * @inner
+   */
   var importShapefile = function(request, response) {
     var sendResponse = function(error, folder) {
       if(folder !== null) memberUtils.deleteFolderRecursively(folder, function() {});

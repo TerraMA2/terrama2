@@ -103,6 +103,16 @@ var Exportation = function() {
     });
   };
 
+  /**
+   * Verifies if a table exists.
+   * @param {integer} tableName - Table name
+   * @param {integer} dataProviderId - Id to get the connection parameters in the DataProvider
+   * @returns {Promise} Promise - Promise to be resolved
+   *
+   * @function tableExists
+   * @memberof Exportation
+   * @inner
+   */
   this.tableExists = function(tableName, dataProviderId) {
     var self = this;
     return new memberPromise(function(resolve, reject) {
