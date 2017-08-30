@@ -48,8 +48,6 @@
           <!-- schema form -->
           <form name="forms.parametersForm" sf-schema="schema" sf-form="form" sf-model="model" sf-options="options"></form>
 
-          <button class="btn btn-default" ng-click="openImportShapefileModal()">{{ i18n.__('Import Shapefile') }}</button>
-
           <div class="col-md-3 terrama2-top-field">
             <button class="btn btn-default" ng-show="semantics === 'DCP'" ng-click="addDcp(parametersForm)">{{ i18n.__('Add') }}</button>
             <button class="btn btn-default" ng-show="semantics === 'DCP'" ng-click="openImportParametersModal()">{{ i18n.__('Import CSV') }}</button>
@@ -59,53 +57,12 @@
           <div id="includeDcpTable" ng-include=""></div>
         </div>
 
-        <div class="modal fade" id="shapefileModal" tabindex="-1" role="dialog" aria-labelledby="shapefileModalLabel">
-          <div class="modal-dialog modal-md" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="shapefileModalLabel">{{ i18n.__('Import Shapefile') }}</h4>
-              </div>
-              <div class="modal-body">
-                <div class="row">
-                  <div class="col-md-12">
-                    <div class="col-md-4">
-                      <div class="form-group">
-                        <label>SRID</label>
-                        <input class="form-control" type="text" ng-model="shpImport.srid"/>
-                      </div>
-                    </div>
-                    <div class="col-md-4">
-                      <div class="form-group">
-                        <label>Encoding</label>
-                        <select class="form-control" ng-model="shpImport.encoding">
-                          <option value="latin1">LATIN1</option>
-                          <option value="utf8">UTF-8</option>
-                        </select>
-                      </div>
-                    </div>
-                    <div class="col-md-4">
-                      <div class="form-group">
-                        <button class="btn btn-primary" style="margin-top: 26px;" type="file" ngf-select="uploadFile($file, $invalidFiles)" accept="application/zip" ngf-max-size="500MB" ng-disabled="shpImport.srid === null">{{ i18n.__('Select File') }}</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="row" ng-show="shpImport.error">
-                  <div class="col-md-12">
-                    <hr/>
-                    <div class="alert alert-danger alert-dismissible">
-                      <button type="button" class="close" ng-click="clearImportError()" aria-hidden="true">×</button>
-                      <h4><i class="icon fa fa-ban"></i> {{ i18n.__('Error!') }}</h4>
-                      {{ shpImport.error }}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+      </div>
 
+      <div class="col-md-12" ng-if="!isDynamic">
+        <div class="col-md-12">
+          <terrama2-shapefile-importer></terrama2-shapefile-importer>
+        </div>
       </div>
 
       <div class="col-md-12" style="margin-top: 30px;">

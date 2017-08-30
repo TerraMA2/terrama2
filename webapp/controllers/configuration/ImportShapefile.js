@@ -35,6 +35,11 @@ var ImportShapefile = function(app) {
   var memberUtils = require('../../core/Utils.js');
 
   var importShapefile = function(request, response) {
+    var sendResponse = function(error, folder) {
+      if(folder !== null) memberUtils.deleteFolderRecursively(folder, function() {});
+      memberExportation.deleteInvalidFolders();
+      return response.json({ error: error });
+    };
 
     var filesFolder = null;
     var folderPath = null;
@@ -47,77 +52,77 @@ var ImportShapefile = function(app) {
     }).then(function(connectionString) {
       memberFs.readFile(request.files.file.path, function(err, data) {
         if(err)
-          return response.json({ error: err.toString() });
+          return sendResponse(err.toString(), folderPath);
         else {
           var path = memberPath.join(__dirname, '../../tmp/' + filesFolder + '/' + request.files.file.name);
 
           memberFs.writeFile(path, data, function(err) {
             if(err)
-              return response.json({ error: err.toString() });
+              return sendResponse(err.toString(), folderPath);
             else {
               try {
                 memberFs.createReadStream(path).pipe(memberUnzip.Extract({ path: folderPath })).on('close', function() {
                   var files = memberFs.readdirSync(folderPath);
                   var shpName = null;
                   var shpCount = 0;
+                  var shpError = null;
 
                   for(var i = 0, filesLength = files.length; i < filesLength; i++) {
                     var filename = memberPath.join(folderPath, files[i]);
                     var stat = memberFs.lstatSync(filename);
 
-                    if(!stat.isDirectory() && filename.indexOf(".shp") >= 0) {
+                    if(!stat.isDirectory() && filename.substr(filename.length - 4) !== ".zip" && (stat.size / 1048576) > 300) {
+                      shpError = "File is too large!";
+                      break;
+                    }
+
+                    if(!stat.isDirectory() && filename.substr(filename.length - 4) === ".shp") {
                       shpName = filename;
                       shpCount++;
                     };
                   }
 
-                  if(shpName !== null) {
+                  if(shpError !== null) {
+                    return sendResponse(shpError, folderPath);
+                  } else if(shpName !== null) {
                     if(shpCount === 1) {
-                      var progress = null;
-                      var progressStep = 1;//2.5 / requestFormats.length;
-
-                      var shp2pgsql = memberExportation.shp2pgsql();
-
                       memberExportation.tableExists(request.body.tableName, request.body.dataProviderId).then(function(resultTable) {
                         if(resultTable.rowCount > 0 && resultTable.rows[0].table_name == request.body.tableName) {
-                          return response.json({ error: "Table already exists!" });
+                          return sendResponse("Table already exists!", folderPath);
                         } else {
-                          memberExec(connectionString.exportPassword + shp2pgsql + " -I -s " + request.body.srid + " -W \"" + request.body.encoding + "\" " + shpName + " " + request.body.tableName + " | " + connectionString.connectionString, function(commandErr, commandOut, commandCode) {
+                          memberExec(connectionString.exportPassword + memberExportation.shp2pgsql() + " -I -s " + request.body.srid + " -W \"" + request.body.encoding + "\" " + shpName + " " + request.body.tableName + " | " + connectionString.connectionString, function(commandErr, commandOut, commandCode) {
                             if(commandErr)
-                              return response.json({ error: commandErr });
+                              return sendResponse(commandErr.toString(), folderPath);
 
                             memberExportation.tableExists(request.body.tableName, request.body.dataProviderId).then(function(resultTable) {
-                              if(resultTable.rowCount > 0 && resultTable.rows[0].table_name == request.body.tableName) {
-                                memberUtils.deleteFolderRecursively(folderPath, function() {});
-
-                                return response.json({ error: null, message: "Sucess: " + shpName });
-                              } else {
-                                return response.json({ error: commandCode });
-                              }
+                              if(resultTable.rowCount > 0 && resultTable.rows[0].table_name == request.body.tableName)
+                                return sendResponse(null, folderPath);
+                              else
+                                return sendResponse(commandCode, folderPath);
                             }).catch(function(err) {
-                              return response.json({ error: err.toString() });
+                              return sendResponse(err.toString(), folderPath);
                             });
                           });
                         }
                       }).catch(function(err) {
-                        return response.json({ error: err.toString() });
+                        return sendResponse(err.toString(), folderPath);
                       });
                     } else {
-                      return response.json({ error: "Error: More than one shapefile found!" });
+                      return sendResponse("More than one shapefile found!", folderPath);
                     }
                   } else {
-                    return response.json({ error: "Error: No shapefile found!" });
+                    return sendResponse("No shapefile found!", folderPath);
                   }
                 });
               } catch(err) {
-                return response.json({ error: err.toString() });
+                return sendResponse(err.toString(), folderPath);
               }
             }
           });
         }
       });
     }).catch(function(err) {
-      return response.json({ error: err.toString() });
+      return sendResponse(err.toString(), folderPath);
     });
   };
 

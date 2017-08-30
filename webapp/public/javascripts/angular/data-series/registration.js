@@ -2,7 +2,7 @@ define([], function() {
   function RegisterDataSeries($scope, $http, i18n, $window, $state, $httpParamSerializer,
                               DataSeriesSemanticsService, DataProviderService, DataSeriesService,
                               Service, $timeout, WizardHandler, UniqueNumber, 
-                              FilterForm, MessageBoxService, $q, GeoLibs, $compile, DateParser, FormTranslator, FileDialog, Upload) {
+                              FilterForm, MessageBoxService, $q, GeoLibs, $compile, DateParser, FormTranslator) {
 
     $scope.forms = {};
     $scope.isDynamic = configuration.dataSeriesType === "dynamic";
@@ -1454,56 +1454,6 @@ define([], function() {
         if(insertDcp) $scope.editedDcps.push(id);
       };
 
-      $scope.shpImport = {
-        srid: null,
-        encoding: "latin1",
-        error: null
-      };
-
-      $scope.openImportShapefileModal = function() {
-        $scope.clearImportError();
-
-        if($scope.model['table_name'] !== undefined && $scope.model['table_name'] !== null && $scope.model['table_name'] != "")
-          $("#shapefileModal").modal();
-        else
-          MessageBoxService.danger(i18n.__("Field error"), i18n.__("Enter the table name!"));
-      };
-
-      $scope.uploadFile = function(file, errFiles) {
-        $scope.clearImportError();
-        $scope.f = file;
-        $scope.errFile = errFiles && errFiles[0];
-        if (file) {
-          file.upload = Upload.upload({
-            url: BASE_URL + 'import-shapefile',
-            file: file,
-            data: {
-              srid: $scope.shpImport.srid,
-              encoding: $scope.shpImport.encoding,
-              tableName: $scope.model['table_name'],
-              dataProviderId: $scope.dataSeries.data_provider_id
-            }
-          });
-
-          file.upload.then(function (response) {
-            $timeout(function () {
-              if(response.data.error) $scope.shpImport.error = response.data.error;
-              else alert(response.data.message);
-            });
-          }, function (response) {
-            if (response.status > 0)
-              $scope.errorMsg = response.status + ': ' + response.data;
-          }, function (evt) {
-            file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
-            console.log(file.progress);
-          });
-        }   
-      }
-
-      $scope.clearImportError = function() {
-        $scope.shpImport.error = null;
-      };
-
       $scope.addDcp = function() {
         if(isValidParametersForm($scope.forms.parametersForm)) {
           var data = Object.assign({}, $scope.model);
@@ -2067,7 +2017,7 @@ define([], function() {
       };
     })
   }
-    RegisterDataSeries.$inject = ["$scope", "$http", "i18n", "$window", "$state", "$httpParamSerializer", "DataSeriesSemanticsService", "DataProviderService", "DataSeriesService", "Service", "$timeout", "WizardHandler", "UniqueNumber", "FilterForm", "MessageBoxService", "$q", "GeoLibs", "$compile", "DateParser", "FormTranslator", "FileDialog", "Upload"];
+    RegisterDataSeries.$inject = ["$scope", "$http", "i18n", "$window", "$state", "$httpParamSerializer", "DataSeriesSemanticsService", "DataProviderService", "DataSeriesService", "Service", "$timeout", "WizardHandler", "UniqueNumber", "FilterForm", "MessageBoxService", "$q", "GeoLibs", "$compile", "DateParser", "FormTranslator"];
 
     return { "RegisterDataSeries": RegisterDataSeries};
 })

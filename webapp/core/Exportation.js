@@ -14,6 +14,7 @@
  * @property {object} memberFs - 'fs' module.
  * @property {object} memberPath - 'path' module.
  * @property {object} memberPg - 'pg' module.
+ * @property {object} memberUtils - 'Utils' model.
  */
 var Exportation = function() {
 
@@ -33,6 +34,8 @@ var Exportation = function() {
   var memberPath = require('path');
   // 'pg' module
   var memberPg = require('pg');
+  // 'Utils' model
+  var memberUtils = require('./Utils.js');
 
   /**
    * Returns the PostgreSQL connection string.
@@ -102,7 +105,7 @@ var Exportation = function() {
 
   this.tableExists = function(tableName, dataProviderId) {
     var self = this;
-    return new Promise(function(resolve, reject) {
+    return new memberPromise(function(resolve, reject) {
       return memberDataManager.getDataProvider({ id: dataProviderId }).then(function(dataProvider) {
         var uriObject = memberUriBuilder.buildObject(dataProvider.uri, {
           HOST: 'host',
@@ -356,6 +359,47 @@ var Exportation = function() {
       fileExtention: fileExtention,
       ogr2ogrFormat: ogr2ogrFormat
     };
+  };
+
+  /**
+   * Returns the difference in days between the current date and a given date.
+   * @param {string} dateString - Date (YYYY-MM-DD)
+   * @returns {integer} difference - Difference between the dates
+   *
+   * @function getDateDifferenceInDays
+   * @memberof Exportation
+   * @inner
+   */
+  this.getDateDifferenceInDays = function(dateString) {
+    var now = new Date();
+    var date = new Date(dateString + " " + now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds());
+
+    var utc1 = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+    var utc2 = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
+
+    var difference = Math.floor((utc1 - utc2) / (1000 * 3600 * 24));
+
+    return difference;
+  };
+
+  /**
+   * Deletes the invalid folders (older than one day) from the tmp folder.
+   *
+   * @function deleteInvalidFolders
+   * @memberof Exportation
+   * @inner
+   */
+  this.deleteInvalidFolders = function() {
+    var tmpDir = memberPath.join(__dirname, '../tmp');
+    var dirs = memberFs.readdirSync(tmpDir).filter(file => memberFs.statSync(memberPath.join(tmpDir, file)).isDirectory());
+
+    for(var i = 0, count = dirs.length; i < count; i++) {
+      var dir = memberPath.join(__dirname, '../tmp/' + dirs[i]);
+      var date = dirs[i].split('_--_');
+
+      if(this.getDateDifferenceInDays(date[1]) > 1)
+        memberUtils.deleteFolderRecursively(dir, function() {});
+    }
   };
 };
 
