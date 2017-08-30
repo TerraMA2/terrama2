@@ -9,7 +9,7 @@ module.exports = function(app) {
       DataManager.load().then(function() {
         var parameters = makeTokenParameters(request.query.token, app);
 
-        response.render("configuration/projects", Object.assign({context: request.query.context}, parameters));
+        response.render("configuration/projects", Object.assign({context: request.query.context, user_id: request.user.id}, parameters));
       });
     },
 
@@ -31,7 +31,7 @@ module.exports = function(app) {
       var projectName = request.params.name;
 
       DataManager.getProject({name: projectName}).then(function(project) {
-        app.locals.activeProject = {id: project.id, name: project.name};
+        app.locals.activeProject = {id: project.id, name: project.name, private: project.private, userId: project.user_id};
 
         // Redirect for start application
         if(request.params.token !== undefined)

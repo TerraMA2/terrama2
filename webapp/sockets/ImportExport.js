@@ -96,6 +96,7 @@ var ImportExport = function(io) {
           output.Projects = [];
           projects.forEach(function(project) {
             // Try to get project by unique name
+            project.user_id = parseInt(json.userId);
             promises.push(DataManager.addProject(project, options).then(function(proj) {
               output.Projects.push(Object.assign({ $id: project.$id }, proj));
             }));
@@ -645,7 +646,7 @@ var ImportExport = function(io) {
           var projectId = project.id;
           project.$id = project.id;
           delete project.id;
-
+          delete project.user_id;
           output.Projects.push(project);
 
           var providers = DataManager.listDataProviders({project_id: projectId});

@@ -49,6 +49,15 @@ module.exports = function(sequelize, DataTypes) {
       underscoredAll: true,
       timestamps: false,
       classMethods: {
+        associate: function(models){
+          User.hasMany(models.Project, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: 'user_id',
+              allowNull: false
+            }
+          });
+        },
         generateSalt: function() {
           return bcrypt.genSaltSync(10);
         },

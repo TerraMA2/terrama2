@@ -16,7 +16,8 @@ module.exports = function(sequelize, DataTypes) {
       description: {
         type: DataTypes.TEXT,
         comment: "Project description."
-      }
+      },
+      private: DataTypes.BOOLEAN
     },
     {
       underscored: true,
@@ -25,6 +26,14 @@ module.exports = function(sequelize, DataTypes) {
 
       classMethods: {
         associate: function(models) {
+          Project.belongsTo(models.User, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: "user_id",
+              allowNull: false
+            }
+          });
+
           Project.hasMany(models.DataProvider, {
             onDelete: "CASCADE",
             foreignKey: {

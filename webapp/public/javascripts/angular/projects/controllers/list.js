@@ -424,6 +424,7 @@ define(function() {
               }
 
               if(json.Projects !== undefined && json.Projects.length > 0) {
+                json.userId = config.user_id
                 socket.emit("import", json);
               } else {
                 $scope.extra.isImporting = false;

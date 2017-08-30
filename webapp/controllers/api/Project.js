@@ -14,6 +14,7 @@ module.exports = function(app) {
   return {
     post: function(request, response) {
       var projectObject = request.body;
+      projectObject.user_id = request.user.id;
 
       DataManager.addProject(projectObject).then(function(project) {
         TcpService.emitEvent("projectReceived", project);
