@@ -433,6 +433,36 @@ TcpService.prototype.status = function(json) {
 }; // end client status listener
 
 /**
+ * Listener for handling status signal when try to delete an object. 
+ * 
+ * @param {Object} json - A given arguments sent by client
+ * @param {number} json.service - A TerraMA² service instance id
+ */
+TcpService.prototype.statusToDelete = function(json) {
+  var self = this;
+  return new PromiseClass(function(resolve, reject) {
+    return DataManager.getServiceInstance({id: json.service})
+      .then(function(instance) {
+        return TcpManager.connect(instance)
+          .then(function() {
+            var params = {
+              online: true,
+              service: instance.id
+            };
+            return resolve(params);
+          })
+          .catch(function() {
+            var params = {
+              online: false,
+              service: instance.id
+            };
+            return resolve(params);
+          });
+      });
+  });
+}; // end client status to delete listener
+
+/**
  * Listener for handling STOP service signal. When called, it sends a STOP_SERVICE signal followed by a STATUS_SERVICE.
  * Once TerraMA² executable receives STOP_SERVICE, it starts changing shutdown the running active processes, so it may
  * take a few seconds/minutes to finish. 

@@ -258,8 +258,13 @@ define([], function() {
           removeOperationCallback: function(err, data) {
             MessageBoxService.reset();
             if (err) {
-              MessageBoxService.danger(i18n.__("View"), i18n.__(err.message));
-              return;
+              if (err.serviceStoppedError){
+                var errorWhenDeleteMessage = "Can not delete the view. The service is stopped";
+                return MessageBoxService.danger(i18n.__("View"), errorWhenDeleteMessage);            
+              } else {
+                MessageBoxService.danger(i18n.__("View"), i18n.__(err.message));
+                return;
+              }
             }
             MessageBoxService.success(i18n.__("View"), data.result.name + i18n.__(" removed"));
           },
