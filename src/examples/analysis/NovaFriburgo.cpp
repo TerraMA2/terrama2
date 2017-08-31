@@ -23,6 +23,7 @@
 #include <terrama2/services/analysis/core/Analysis.hpp>
 #include <terrama2/services/analysis/core/Service.hpp>
 #include <terrama2/services/analysis/core/DataManager.hpp>
+#include <terrama2/services/analysis/mock/MockAnalysisLogger.hpp>
 
 
 #include <terrama2/Config.hpp>
@@ -537,48 +538,64 @@ int main(int argc, char* argv[])
 
     auto& serviceManager = terrama2::core::ServiceManager::getInstance();
     auto dataManager = std::make_shared<terrama2::services::analysis::core::DataManager>();
+    auto loggerCopy = std::make_shared<terrama2::core::MockAnalysisLogger>();
 
-    // Starts the service and adds the analysis
+    EXPECT_CALL(*loggerCopy, setConnectionInfo(::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*loggerCopy, setTableName(::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*loggerCopy, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
+    EXPECT_CALL(*loggerCopy, getDataLastTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
+    EXPECT_CALL(*loggerCopy, done(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*loggerCopy, start(::testing::_)).WillRepeatedly(::testing::Return(0));
+    EXPECT_CALL(*loggerCopy, isValid()).WillRepeatedly(::testing::Return(true));
+
+    auto logger = std::make_shared<terrama2::core::MockAnalysisLogger>();
+
+    EXPECT_CALL(*logger, setConnectionInfo(::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*logger, setTableName(::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*logger, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
+    EXPECT_CALL(*logger, getDataLastTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
+    EXPECT_CALL(*logger, done(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*logger, start(::testing::_)).WillRepeatedly(::testing::Return(0));
+    EXPECT_CALL(*logger, clone()).WillRepeatedly(::testing::Return(loggerCopy));
+    EXPECT_CALL(*logger, isValid()).WillRepeatedly(::testing::Return(true));
+
+    te::core::URI uri("");
+
     Service service(dataManager);
     serviceManager.setInstanceId(1);
-
-    te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PASSWORD+"@"+TERRAMA2_DATABASE_HOST+":"+TERRAMA2_DATABASE_PORT+"/"+TERRAMA2_DATABASE_DBNAME);
-
-    auto logger = std::make_shared<AnalysisLogger>();
-    logger->setConnectionInfo(te::core::URI(uri));
-    service.setLogger(logger);
     serviceManager.setLogger(logger);
     serviceManager.setLogConnectionInfo(uri);
+    serviceManager.setInstanceId(1);
+
+    service.setLogger(logger);
+    service.start();
 
     auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
 
     //////////////////////////////////////////////////////
     //     input
-    //DADO HIDRO - Servidor de entrada Dado Coletado
+    // Input Server: Data Collected, Reference File, Terrain Model Files
     // DataProvider information
     //////////////////////////////////////////////////////
 
-    terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
-    terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
+    auto dataProvider = std::make_shared<terrama2::core::DataProvider>();
     dataProvider->id = 1;
-    dataProvider->name = "Servidor de Saída";
-    dataProvider->uri = "file:///home/bianca/Teste/dados_amb/saida/";
+    dataProvider->name = "Input Server";
+    dataProvider->uri = "file://"+TERRAMA2_DATA_DIR+"/";
     dataProvider->dataProviderType = "FILE";
     dataProvider->active = true;
 
-    dataManager->add(dataProviderPtr);
+    dataManager->add(dataProvider);
 
-    //semantica
-    // DataSeries information
-    terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
-    terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
+    //semantics DataSeries information
+    std::shared_ptr<terrama2::core::DataSeries> dataSeries = std::make_shared<terrama2::core::DataSeries>();
     dataSeries->id = 1;
     dataSeries->name = "Hidro";
     dataSeries->semantics = semanticsManager.getSemantics("GRID-geotiff");
-    dataSeries->dataProviderId = dataProviderPtr->id;
+    dataSeries->dataProviderId = dataProvider->id;
     dataSeries->active = true;
 
-    //dado dinamico = hidro_2011
+    //hidro_2011
     terrama2::core::DataSetGrid* dataSet = new terrama2::core::DataSetGrid();
     dataSet->id = 1;
     dataSet->active = true;
@@ -587,78 +604,59 @@ int main(int argc, char* argv[])
 
     dataSeries->datasetList.emplace_back(dataSet);
 
-    dataManager->add(dataSeriesPtr);
+    dataManager->add(dataSeries);
 
-    //ANÁLISE DATA SERIES = hidro_2011
+    //Analysis DATA SERIES = hidro_2011
 
     AnalysisDataSeries hidro;
     hidro.id = 13;
     hidro.alias = "hidro_2011";
-    hidro.dataSeriesId = dataProviderPtr->id;
+    hidro.dataSeriesId = dataProvider->id;
     hidro.type = AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE;
 
+    // semantics DataSeries information  - SRTM_a_latlong_sad69
 
-    ////////////////////////////////////////////////////
-    //     input
-    //DADO SRTM - Servidor de entrada Dados Estáticos
-    // DataProvider information
-    ///////////////////////////////////////////////////
-
-    terrama2::core::DataProvider* dataProviderDE = new terrama2::core::DataProvider();
-    terrama2::core::DataProviderPtr dataProviderPtrDE(dataProviderDE);
-    dataProviderDE->id = 2;
-    dataProviderDE->name = "Servidor de dados estáticos";
-    dataProviderDE->uri = "file:///home/bianca/Teste/dados_geo/";
-    dataProviderDE->dataProviderType = "FILE";
-    dataProviderDE->active = true;
-
-    dataManager->add(dataProviderPtrDE);
-
-    // semantica e DataSeries information  - SRTM_a_latlong_sad69
-
-    terrama2::core::DataSeries* dataSeriesA = new terrama2::core::DataSeries();
-    terrama2::core::DataSeriesPtr dataSeriesPtrA(dataSeriesA);
+    std::shared_ptr<terrama2::core::DataSeries> dataSeriesA = std::make_shared<terrama2::core::DataSeries>();
     dataSeriesA->id = 2;
     dataSeriesA->name = "SRTM_a_latlong_sad69";
     dataSeriesA->semantics = semanticsManager.getSemantics("GRID-static_gdal");
-    dataSeriesA->dataProviderId = dataProviderPtrDE->id;
+    dataSeriesA->dataProviderId = dataProvider->id;
     dataSeriesA->active = true;
 
-    //dado estatico  - SRTM_a_latlong_sad69
+    //SRTM_a_latlong_sad69
     terrama2::core::DataSetGrid* dataSetA = new terrama2::core::DataSetGrid();
     dataSetA->id = 2;
     dataSetA->active = true;
     dataSetA->format.emplace("mask", "Rio_Friburgo/SRTM_a_latlong_sad69.tif");
 
     dataSeriesA->datasetList.emplace_back(dataSetA);
-    dataManager->add(dataSeriesPtrA);
+    dataManager->add(dataSeriesA);
 
 
-    //ANÁLISE DATA SERIES = SRTM_a_latlong_sad69
+    //Analysis DATA SERIES = SRTM_a_latlong_sad69
 
     AnalysisDataSeries SRTM_a_latlong_sad69;
     SRTM_a_latlong_sad69.id = 2;
     SRTM_a_latlong_sad69.alias = "SRTM_a_latlong_sad69";
-    SRTM_a_latlong_sad69.dataSeriesId = dataSeriesPtrA->id;
+    SRTM_a_latlong_sad69.dataSeriesId = dataSeriesA->id;
     SRTM_a_latlong_sad69.type = AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE;
 
 
 
     ////////////////////////////////////////////////////////////
-    // semantica e DataSeries information - SRTM_s_latlong_sad69
+    // semantics DataSeries information - SRTM_s_latlong_sad69
     ////////////////////////////////////////////////////////////
 
-    terrama2::core::DataSeries* dataSeriesS = new terrama2::core::DataSeries();
-    terrama2::core::DataSeriesPtr dataSeriesPtrS(dataSeriesS);
+    std::shared_ptr<terrama2::core::DataSeries> dataSeriesS = std::make_shared<terrama2::core::DataSeries>();
     dataSeriesS->id = 7;
     dataSeriesS->name = "SRTM_s_latlong_sad69";
     dataSeriesS->semantics = semanticsManager.getSemantics("GRID-static_gdal");
-    dataSeriesS->dataProviderId = dataProviderPtrDE->id;
+    dataSeriesS->dataProviderId = dataProvider->id;
     dataSeriesS->active = true;
 
-    dataManager->add(dataSeriesPtrS);
+    dataManager->add(dataSeriesS);
 
-    //dado estatico  - SRTM_s_latlong_sad69
+    //SRTM_s_latlong_sad69
 
     terrama2::core::DataSetGrid* dataSetS = new terrama2::core::DataSetGrid();
     dataSetS->id = 8;
@@ -667,28 +665,27 @@ int main(int argc, char* argv[])
 
     dataSeriesS->datasetList.emplace_back(dataSetS);
 
-    //ANÁLISE DATA SERIES = SRTM_s_latlong_sad69
+    //Analysis DATA SERIES = SRTM_s_latlong_sad69
 
     AnalysisDataSeries SRTM_s_latlong_sad69;
     SRTM_s_latlong_sad69.id = 15;
     SRTM_s_latlong_sad69.alias = "SRTM_s_latlong_sad69";
-    SRTM_s_latlong_sad69.dataSeriesId = dataSeriesPtrS->id;
+    SRTM_s_latlong_sad69.dataSeriesId = dataSeriesS->id;
     SRTM_s_latlong_sad69.type = AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE;
 
 
     ///////////////////////////////
-    // Dados de saída
+    // Output data
     //////////////////////////////
 
-    // DataSeries information - Saida
-    terrama2::core::DataSeries* outputDataSeries = new terrama2::core::DataSeries();
-    terrama2::core::DataSeriesPtr outputDataSeriesPtr(outputDataSeries);
+    // DataSeries information - Output
+    std::shared_ptr<terrama2::core::DataSeries> outputDataSeries = std::make_shared<terrama2::core::DataSeries>();
     outputDataSeries->id = 31;
     outputDataSeries->name = "Análise Saida";
     outputDataSeries->semantics = semanticsManager.getSemantics("GRID-geotiff");
     outputDataSeries->dataProviderId = dataProvider->id;
     outputDataSeries->active = true;
-    dataManager->add(outputDataSeriesPtr);
+    dataManager->add(outputDataSeries);
 
 
     // DataSet information
@@ -702,9 +699,7 @@ int main(int argc, char* argv[])
 
     outputDataSeries->datasetList.emplace_back(outputDataSet);
 
-    Analysis* analysis = new Analysis;
-    AnalysisPtr analysisPtr(analysis);
-
+    std::shared_ptr<terrama2::services::analysis::core::Analysis> analysis = std::make_shared<terrama2::services::analysis::core::Analysis>();
     analysis->id = 9;
     analysis->name = "An_FS_SINMAP";
     analysis->script = scriptAnalise();
@@ -714,16 +709,14 @@ int main(int argc, char* argv[])
     analysis->outputDataSeriesId = outputDataSeries->id;
     analysis->outputDataSetId = outputDataSet->id;
     analysis->serviceInstanceId = serviceManager.instanceId();
-    dataManager->add(analysisPtr);
+    dataManager->add(analysis);
 
     analysis->schedule.frequency = 24;
     analysis->schedule.frequencyUnit = "hours";
 
 
-    //Saída em tiff
-    AnalysisOutputGrid* outputGrid = new AnalysisOutputGrid();
-    AnalysisOutputGridPtr outputGridPtr(outputGrid);
-
+    //Output tiff
+    std::shared_ptr<AnalysisOutputGrid> outputGrid = std::make_shared<AnalysisOutputGrid>();
     outputGrid->analysisId = analysis->id;
     outputGrid->interpolationMethod = InterpolationMethod::NEARESTNEIGHBOR;
     outputGrid->interestAreaType = InterestAreaType::SAME_FROM_DATASERIES;
@@ -732,10 +725,10 @@ int main(int argc, char* argv[])
     outputGrid->resolutionDataSeriesId =  SRTM_a_latlong_sad69.id;
     outputGrid->interpolationDummy = 0;
 
-    analysis->outputGridPtr = outputGridPtr;
+    analysis->outputGridPtr = outputGrid;
 
 
-    //Add as analises dados dinamicos e dados estaticos
+    //Add analysis data dynamic and static
     std::vector<AnalysisDataSeries> analysisDataSeriesList;
     analysisDataSeriesList.push_back(hidro);
     analysisDataSeriesList.push_back(SRTM_a_latlong_sad69);
@@ -743,12 +736,7 @@ int main(int argc, char* argv[])
 
     analysis->analysisDataSeriesList = analysisDataSeriesList;
 
-
-
-
-
-    service.start();
-    service.addToQueue(analysisPtr->id, terrama2::core::TimeUtils::nowUTC());
+    service.addToQueue(analysis->id, terrama2::core::TimeUtils::nowUTC());
 
     QTimer timer;
     QObject::connect(&timer, &QTimer::timeout, &service, &Service::stopService);
