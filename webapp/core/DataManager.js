@@ -144,6 +144,7 @@ var DataManager = module.exports = {
         inserts.push(self.addDataProviderType({id: 3, name: "HTTP", description: "Desc Http"}));
         inserts.push(self.addDataProviderType({id: 4, name: "POSTGIS", description: "Desc Postgis"}));
         //inserts.push(self.addDataProviderType({id: 5, name: "SFTP", description: "Desc SFTP"}));
+        inserts.push(self.addDataProviderType({id: 6, name: "HTTPS", description: "Desc Https"}));
 
         var listServicesPromise = self.listServiceInstances({}).then(function(services){
           var servicesInsert = [];

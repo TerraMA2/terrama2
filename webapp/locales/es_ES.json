@@ -563,6 +563,7 @@
 	"Python": "Python",
 	"SRID": "SRID",
 	"HTTP": "HTTP",
+  "HTTPS": "HTTPS",
 	"FTP": "FTP",
 
 
