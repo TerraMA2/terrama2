@@ -331,8 +331,8 @@ define(
                 var sliderDiv = "<div class='slider-content' style='display:none;'><label></label><button type='button' class='close close-slider'>×</button><div id='slider" + $(li).attr("data-layerid").replace(':', '') + "'></div></div>";
                 $(li).append(sliderDiv);
                 span += "<span id='terrama2-slider' class='terrama2-datepicker-icon'> <i class='fa fa-sliders'></i></span>";
-                dateObject.initialDateIndex = 0;
               }
+              dateObject.initialDateIndex = dateObject.dates.length - 1;
             } else if(layerCapabilities[layerIndex].extent instanceof Object) {
               if(!data.update || !$(li).has("#terrama2-calendar").length)
                 span += "<span id='terrama2-calendar' class='terrama2-datepicker-icon'> <i class='fa fa-calendar'></i></span>";
