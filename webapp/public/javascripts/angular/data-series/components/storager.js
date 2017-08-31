@@ -63,6 +63,7 @@ define([], function(){
             return BASE_URL + "images/data-server/postGIS/postGIS.png";
             break;
           case 'HTTP':
+          case "HTTPS":
             return BASE_URL + "images/data-server/http/http.png";
             break;
           case 'FTP':
