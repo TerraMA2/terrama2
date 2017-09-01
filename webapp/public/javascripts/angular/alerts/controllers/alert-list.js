@@ -272,7 +272,9 @@ define([], function(){
             MessageBoxService.reset();
             if (err) {
               if (err.serviceStoppedError){
-                var errorWhenDeleteMessage = "Can not delete the alert. The service is stopped";
+                var errorWhenDeleteMessage = i18n.__("Can not delete the alert if the service is not running. ");
+                if(err.service && err.service.instance_name)
+                  errorWhenDeleteMessage += i18n.__("Service") + ": " + err.service.instance_name;
                 return MessageBoxService.danger(i18n.__("Alerts"), errorWhenDeleteMessage);            
               } else {
                 MessageBoxService.danger(i18n.__("Alerts"), i18n.__(err.message));

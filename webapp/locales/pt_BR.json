@@ -973,5 +973,17 @@
   "updated": "atualizado",
   "w": "w",
   "Invalid address": "Endereço inválido",
-  "The service can not access the log database!": "O serviço não pode acessar o banco de logs!"
+  "The service can not access the log database!": "O serviço não pode acessar o banco de logs!",
+  "Can not delete the data series if the service is not running": {
+    " ": "Não pode deletar a série de dados se o serviço não estiver rodando. "
+  },
+  "Can not delete the analysis if the service is not running": {
+    " ": "Não pode deletar a análise se o serviço não estiver rodando. "
+  },
+  "Can not delete the view if the service is not running": {
+    " ": "Não pode deletar a visualização se o serviço não estiver rodando. "
+  },
+  "Can not delete the alert if the service is not running": {
+    " ": "Não pode deletar o alerta se o serviço não estiver rodando. "
+  }
 }

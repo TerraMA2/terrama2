@@ -979,5 +979,17 @@
 	"No shapefile found!": "",
 	"File is too large!": "",
 	"Important!": "",
-	"To upload your shapefile you have to create a .zip compressed file containing all the shapefile files (.shp, .dbf, .shx, etc). The size limit is 300 MB per file, therefore, neither of the shapefile files can be larger than 300 MB.": ""
+  "To upload your shapefile you have to create a .zip compressed file containing all the shapefile files (.shp, .dbf, .shx, etc). The size limit is 300 MB per file, therefore, neither of the shapefile files can be larger than 300 MB.": "",
+  "Can not delete the view if the service is not running": {
+    " ": ""
+  },
+  "Can not delete the analysis if the service is not running": {
+    " ": ""
+  },
+  "Can not delete the data series if the service is not running": {
+    " ": ""
+  },
+  "Can not delete the alert if the service is not running": {
+    " ": ""
+  }
 }

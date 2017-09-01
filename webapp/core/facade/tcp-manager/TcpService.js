@@ -447,14 +447,14 @@ TcpService.prototype.statusToDelete = function(json) {
           .then(function() {
             var params = {
               online: true,
-              service: instance.id
+              service: instance
             };
             return resolve(params);
           })
           .catch(function() {
             var params = {
               online: false,
-              service: instance.id
+              service: instance
             };
             return resolve(params);
           });

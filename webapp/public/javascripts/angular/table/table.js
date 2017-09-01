@@ -104,7 +104,8 @@ define([
               $("#" + $scope.modalId).modal();
             } else {
               var errorObject = {
-                serviceStoppedError: true
+                serviceStoppedError: true,
+                service: response.service ? JSON.parse(response.service) : {}
               }
               $scope.extra.removeOperationCallback(errorObject, $scope.objectToRemove);
               $scope.resetObjectToRemove();
