@@ -30,6 +30,10 @@ define([], function() {
 
     self.columnsList = [];
 
+    // Flag to verify if can not save if the service is not running
+    var canSave = true;
+    var serviceOfflineMessage = "If service is not running you can not save the analysis. Start the service before create or update an analysis!";
+
     /**
      * It defines a options to use angular tree control directive. It is customized with bootstrap layout
      * 
@@ -241,11 +245,18 @@ define([], function() {
         }
 
         socket.on('statusResponse', function onServiceStatusResponse(response) {
-          self.helperMessages.validate.error = null;
-          if (response.checking === undefined || (!response.checking && response.status === 400)) {
-            if (!response.online) {
-              var service = Service.get(response.service);
-              self.helperMessages.validate.error = i18n.__("Service") + " '" + service.name + "' " + i18n.__("is not active");
+          if(response.service == self.analysis.instance_id){
+            self.helperMessages.validate.error = null;
+            if (response.checking === undefined || (!response.checking && response.status === 400)) {
+              if (!response.online) {
+                var service = Service.get(response.service);
+                self.helperMessages.validate.error = i18n.__("Service") + " '" + service.name + "' " + i18n.__("is not active");
+                canSave = false;
+                MessageBoxService.danger(i18n.__("Analysis"), i18n.__(serviceOfflineMessage));
+              } else {
+                canSave = true;
+                self.close();
+              }
             }
           }
         });
@@ -1223,6 +1234,10 @@ define([], function() {
         self.save = function(shouldRun) {
           try {
             var objectToSend = self.$prepare(shouldRun);
+
+            if(!canSave){
+              return MessageBoxService.danger(i18n.__("Analysis"), i18n.__(serviceOfflineMessage));
+            }
 
             /**
              * Target object request (update/insert)

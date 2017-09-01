@@ -5,7 +5,7 @@ define([], function() {
    * It represents a Controller to handle View form registration.
    * @class ViewRegistration
    */
-  function ViewRegisterUpdate($scope, i18n, ViewService, $log, $http, $timeout, MessageBoxService, $window, DataSeriesService, Service, StringFormat, ColorFactory, StyleType) {
+  function ViewRegisterUpdate($scope, i18n, ViewService, $log, $http, $timeout, MessageBoxService, $window, DataSeriesService, Service, StringFormat, ColorFactory, StyleType, Socket) {
     /**
      * @type {ViewRegisterUpdate}
      */
@@ -104,6 +104,10 @@ define([], function() {
 
     self.hasStyle = false;
 
+    // Flag to verify if can not save if the service is not running
+    var canSave = true;
+    var serviceOfflineMessage = "If service is not running you can not save the view. Start the service before create or update a view!";
+
     self.styleButtons = {
       circle: {
         show: function () {
@@ -163,6 +167,20 @@ define([], function() {
     };
 
     self.filterByType = filterByType;
+
+    Socket.on('statusResponse', function(response){
+      if(response.service == self.view.service_instance_id){
+        if (response.checking === undefined || (!response.checking && response.status === 400)) {
+          if (!response.online){
+            MessageBoxService.danger(i18n.__("View"), i18n.__(serviceOfflineMessage));
+            canSave = false;
+          } else {
+            canSave = true;
+            self.close();
+          }
+        }
+      }
+    });
 
     // Filter function
     function filterByType(dataSeries) {
@@ -297,6 +315,12 @@ define([], function() {
       self.MessageBoxService.danger(i18n.__("View"), err);
     });
 
+    // Watch service select, to check status
+    $scope.$watch("ctrl.view.service_instance_id", function(service_id) {
+      if (service_id)
+        Socket.emit('status', {service: service_id});
+    }, true);
+  
     /**
      * It is used on ng-init active view. It will wait for angular ready condition and set active view checkbox
      *
@@ -389,6 +413,10 @@ define([], function() {
 
       if (!self.isValid) {
         return;
+      }
+
+      if (!canSave){
+        return MessageBoxService.danger(i18n.__("View"), i18n.__(serviceOfflineMessage));
       }
 
       $timeout(function(){
@@ -487,7 +515,7 @@ define([], function() {
   }
 
   ViewRegisterUpdate.$inject = ["$scope", "i18n", "ViewService", "$log", "$http", "$timeout", "MessageBoxService", "$window",
-    "DataSeriesService", "Service", "StringFormat", "ColorFactory", "StyleType"];
+    "DataSeriesService", "Service", "StringFormat", "ColorFactory", "StyleType", "Socket"];
 
   return ViewRegisterUpdate;
 });
