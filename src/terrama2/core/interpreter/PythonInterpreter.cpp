@@ -59,6 +59,7 @@ terrama2::core::PythonInterpreter::PythonInterpreter()
   : Interpreter(),
   impl_(new Impl())
 {
+  Py_Initialize();
   impl_->mainThreadState_ = PyThreadState_Get();
   StateLock lock(impl_->mainThreadState_);
   impl_->interpreterState_ = Py_NewInterpreter();
@@ -157,13 +158,18 @@ void terrama2::core::PythonInterpreter::runScript(const std::string& script)
 
   try
   {
-    object main = object(handle<>(borrowed(PyImport_AddModule("__main__"))));
-    object nspace = main.attr("__dict__");
+    //object main = object(handle<>(borrowed(PyImport_AddModule("__main__"))));
+    PyObject *main = PyImport_AddModule("__main__");
+    //object nspace = main->attr("__dict__");
 
-    handle<> ignored(( PyRun_String( script.c_str(),
-                                     Py_file_input,
-                                     nspace.ptr(),
-                                     nspace.ptr() ) ));
+    //PyRun_String( script.c_str(), Py_file_input, nspace.ptr(), nspace.ptr() );
+
+    PyRun_SimpleString(script.c_str());
+
+    PyObject *catcher = PyObject_GetAttrString(main, "files");
+
+    std::string out = PyString_AsString(catcher);
+    printf("%s", out.c_str());
   }
   catch( error_already_set )
   {
