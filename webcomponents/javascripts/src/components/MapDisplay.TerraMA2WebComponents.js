@@ -980,7 +980,7 @@ define(
         var layers = layerGroup.getLayers();
 
         layers.forEach(function(layer, i, array) {
-          if(layerId === layer.get('id')) {
+          if(layer !== undefined && layerId === layer.get('id')) {
             layers.remove(layer);
             return false;
           }
