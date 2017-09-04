@@ -1,8 +1,8 @@
 'use strict';
 
 define(
-  ['components/Utils', 'components/Slider', 'components/Layers', 'TerraMA2WebComponents'],
-  function(Utils, Slider, Layers, TerraMA2WebComponents) {
+  ['components/Utils', 'components/Slider', 'components/Layers', 'components/AnimatedLayer','TerraMA2WebComponents'],
+  function(Utils, Slider, Layers, AnimatedLayer, TerraMA2WebComponents) {
 
     // Flag that indicates if there is a exportation in progress
     var memberExportationInProgress = false;
@@ -48,41 +48,67 @@ define(
         var layer = Layers.getLayerById($(this).data("layerid"));
 
         if(layer !== null && layer.exportation !== null) {
-          var exportationParams = {
-            format: $("#exportation-type").val().toString(),
-            schema: layer.exportation.schema,
-            table: layer.exportation.table,
-            dataProviderId: layer.exportation.dataProviderId,
-            fileName: layer.name
-          };
+          if(layer.exportation.hasOwnProperty("table")) {
+            var exportationParams = {
+              format: $("#exportation-type").val().toString(),
+              schema: layer.exportation.schema,
+              table: layer.exportation.table,
+              dataProviderId: layer.exportation.dataProviderId,
+              fileName: layer.name
+            };
 
-          if(layer.exportation.dateField !== null) {
-            var dateInfo = layer.dateInfo;
-            exportationParams.dateTimeField = layer.exportation.dateField;
-            exportationParams.dateTimeFrom = dateInfo.startFilterDate;
-            exportationParams.dateTimeTo = dateInfo.endFilterDate;
+            if(layer.exportation.dateField !== null) {
+              var dateInfo = layer.dateInfo;
+              exportationParams.dateTimeField = layer.exportation.dateField;
+              exportationParams.dateTimeFrom = dateInfo.startFilterDate;
+              exportationParams.dateTimeTo = dateInfo.endFilterDate;
+            }
+
+            $('#exportation-status > div > span').html('Verifying data for export<span>...</span>');
+
+            memberExportationTextTimeout = setInterval(function() {
+              var text = $('#exportation-status > div > span > span').html();
+
+              if(text === "...")
+                $('#exportation-status > div > span > span').html('&nbsp;&nbsp;&nbsp;');
+              else if(text === "..&nbsp;")
+                $('#exportation-status > div > span > span').html('...');
+              else if(text === ".&nbsp;&nbsp;")
+                $('#exportation-status > div > span > span').html('..&nbsp;');
+              else
+                $('#exportation-status > div > span > span').html('.&nbsp;&nbsp;');
+            }, 800);
+
+            $('#exportation-status').removeClass('hidden');
+
+            memberExportationInProgress = true;
+
+            Utils.getWebAppSocket().emit('generateFileRequest', exportationParams);
+          } else {
+            var urlParams = "?dpi=" + layer.exportation.dataProviderId + "&mask=" + layer.exportation.mask + "&file=" + layer.name;
+
+            var params = {
+              dpi: layer.exportation.dataProviderId,
+              mask: layer.exportation.mask,
+              file: layer.name
+            };
+
+            if(layer.dateInfo.dates !== undefined && layer.dateInfo.dates.length > 0) {
+              urlParams += "." + layer.dateInfo.dates[layer.dateInfo.initialDateIndex] + "&date=" + layer.dateInfo.dates[layer.dateInfo.initialDateIndex];
+              params.date = layer.dateInfo.dates[layer.dateInfo.initialDateIndex];
+              params.file += "." + layer.dateInfo.dates[layer.dateInfo.initialDateIndex];
+            }
+
+            $.post(BASE_URL + "check-grid", params, function(data) {
+              if(data.result)
+                $('#exportation-iframe').attr('src', webadminHostInfo.protocol + webadminHostInfo.host + ":" + webadminHostInfo.port + webadminHostInfo.basePath + "export-grid" + urlParams);
+              else {
+                $("#terrama2Alert > p > strong").text('');
+                $("#terrama2Alert > p > span").text('O arquivo não foi encontrado.');
+                $("#terrama2Alert").removeClass('hide');
+              }
+            });
           }
-
-          $('#exportation-status > div > span').html('Verifying data for export<span>...</span>');
-
-          memberExportationTextTimeout = setInterval(function() {
-            var text = $('#exportation-status > div > span > span').html();
-
-            if(text === "...")
-              $('#exportation-status > div > span > span').html('&nbsp;&nbsp;&nbsp;');
-            else if(text === "..&nbsp;")
-              $('#exportation-status > div > span > span').html('...');
-            else if(text === ".&nbsp;&nbsp;")
-              $('#exportation-status > div > span > span').html('..&nbsp;');
-            else
-              $('#exportation-status > div > span > span').html('.&nbsp;&nbsp;');
-          }, 800);
-
-          $('#exportation-status').removeClass('hidden');
-
-          memberExportationInProgress = true;
-
-          Utils.getWebAppSocket().emit('generateFileRequest', exportationParams);
         }
       });
 
@@ -126,30 +152,116 @@ define(
 
       $("#terrama2-sortlayers").on("click", ".fa-gear", function() {
         var layer = Layers.getLayerById($(this).parent().parent().data("layerid"));
+        $("#animate").data("layerid", layer.id);
 
         if(layer !== null) {
-          if(layer.exportation !== null) {
+          var openLayerToolbox = function() {
+            $("#layer-toolbox > .layer-toolbox-body .layer-name").text(layer.name);
+
+            $("#layer-toolbox > .layer-toolbox-body > #slider-box").empty().html("<label></label><br/><div id=\"opacity" + layer.id.replace(":","") + "\"></div>");
+            var currentOpacity = TerraMA2WebComponents.MapDisplay.getLayerOpacity(layer.id) * 100;
+            Slider.setOpacitySlider(layer.id, currentOpacity);
+
+            if($("#layer-toolbox").hasClass("hidden"))
+              $("#layer-toolbox").removeClass("hidden");
+          };
+          var toolbookHeight = 150;
+          if(layer.exportation !== null && layer.dataSeriesTypeName === "GRID") {
+            $.post(BASE_URL + "check-grid-folder", { dpi: layer.exportation.dataProviderId }, function(data) {
+              if(data.result) {
+                if(!$("#exportation-type").hasClass("hidden"))
+                  $("#exportation-type").addClass("hidden");
+
+                $("#export").data("layerid", layer.id);
+
+                if($("#exportation-box").hasClass("hidden"))
+                  $("#exportation-box").removeClass("hidden");
+
+                toolbookHeight += 70;
+                $("#layer-toolbox").css("height", toolbookHeight + "px");
+              } else {
+                if(!$("#exportation-box").hasClass("hidden"))
+                  $("#exportation-box").addClass("hidden");
+              }
+
+              openLayerToolbox();
+            });
+          } else if(layer.exportation !== null) {
+            if($("#exportation-type").hasClass("hidden"))
+              $("#exportation-type").removeClass("hidden");
+
             $("#export").data("layerid", layer.id);
 
             if($("#exportation-box").hasClass("hidden"))
               $("#exportation-box").removeClass("hidden");
 
-            $("#layer-toolbox").css("height", "307px");
+            toolbookHeight += 157;
+
+            openLayerToolbox();
           } else {
             if(!$("#exportation-box").hasClass("hidden"))
               $("#exportation-box").addClass("hidden");
 
-            $("#layer-toolbox").css("height", "150px");
+            openLayerToolbox();
           }
 
-          $("#layer-toolbox > .layer-toolbox-body .layer-name").text(layer.name);
+          if (layer.dateInfo && layer.dateInfo.dates && Array.isArray(layer.dateInfo.dates)){
+            if($("#animate-layer-box").hasClass("hidden"))
+              $("#animate-layer-box").removeClass("hidden");
 
-          $("#layer-toolbox > .layer-toolbox-body > #slider-box").empty().html("<label></label><br/><div id=\"opacity" + layer.id.replace(":","") + "\"></div>");
-          var currentOpacity = TerraMA2WebComponents.MapDisplay.getLayerOpacity(layer.id) * 100;
-          Slider.setOpacitySlider(layer.id, currentOpacity);
+            if($("#dates-slider").hasClass("hidden"))
+              $("#dates-slider").removeClass("hidden");
 
-          if($("#layer-toolbox").hasClass("hidden"))
-            $("#layer-toolbox").removeClass("hidden");
+            if(!$("#dates-calendar").hasClass("hidden"))
+              $("#dates-calendar").addClass("hidden");
+
+            $("#layer-toolbox > .layer-toolbox-body > #animate-layer-box #dates-calendar").empty();
+            $("#layer-toolbox > .layer-toolbox-body > #animate-layer-box #dates-slider").empty().html("<div id=\"dates" + layer.id.replace(":","") + "\"></div><div id=\"rangeDates\"><label>From:&nbsp</label><span id=\"initialDate\"></span></br><label>To:&nbsp </label><span id=\"finalDate\"></span></div>");
+            AnimatedLayer.setLayerToAnimate(layer);
+            AnimatedLayer.setDatesSlider();
+            toolbookHeight += 145;
+            
+          } else if (layer.dateInfo && layer.dateInfo.dates && typeof layer.dateInfo.dates === "object"){
+
+            if($("#animate-layer-box").hasClass("hidden"))
+              $("#animate-layer-box").removeClass("hidden");
+
+            if($("#dates-calendar").hasClass("hidden"))
+              $("#dates-calendar").removeClass("hidden");
+
+            if(!$("#dates-slider").hasClass("hidden"))
+              $("#dates-slider").addClass("hidden");
+
+            var calendarFieldsHtml = "<div class=\"input-group date\" datetimepicker><input type=\"text\" id=\"animation-calendar\" class=\"form-control\" style=\"padding-left:5px\"/>" +
+                                       "<span class=\"input-group-addon\">" +
+                                         "<span class=\"glyphicon glyphicon-calendar\"></span>" +
+                                       "</span>" +
+                                     "</div>" +
+                                     "<div style=\"margin-top:8px\">" +
+                                       "<label>Period:&nbsp</label>" +
+                                       "<input type=\"number\" id=\"frequency\" value=1 min=1>&nbsp" +
+                                       "<select id=\"unitTime\" class=\"form-control\">" +
+                                         "<option value=\"minutes\">Minutes</option>" + 
+                                         "<option value=\"hours\" selected=\"selected\">Hours</option>" + 
+                                         "<option value=\"days\">Days</option>" + 
+                                       "</select>" +
+                                     "</div>"
+
+            $("#layer-toolbox > .layer-toolbox-body > #animate-layer-box #dates-calendar").empty().html(calendarFieldsHtml);
+            $("#layer-toolbox > .layer-toolbox-body > #animate-layer-box #dates-slider").empty();
+            AnimatedLayer.setLayerToAnimate(layer);
+            AnimatedLayer.setDatesCalendar();
+            toolbookHeight += 158;
+          } else {
+            
+            if(!$("#animate-layer-box").hasClass("hidden"))
+              $("#animate-layer-box").addClass("hidden");
+
+            $("#layer-toolbox > .layer-toolbox-body > #animate-layer-box #dates-calendar").empty();
+            $("#layer-toolbox > .layer-toolbox-body > #animate-layer-box #dates-slider").empty();
+          }
+          $("#layer-toolbox").css("height", toolbookHeight + "px");
+          
         }
       });
 

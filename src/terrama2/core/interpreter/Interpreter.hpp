@@ -38,12 +38,7 @@ namespace terrama2
 {
   namespace core
   {
-    enum class Type
-    {
-      NUMERIC,
-      STRING
-    };
-
+    using InterpreterType = std::string;
     /*!
       \brief Interpreter encapsulating class
 

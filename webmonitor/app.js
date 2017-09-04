@@ -11,13 +11,14 @@ var passport = require('./config/Passport');
 var session = require('express-session');
 var load = require('express-load');
 var io = require('socket.io')();
+var Application = require('./core/Application');
 
 var app = express();
 
-var webMonitorSession = session({ secret: KEY, name: "TerraMA2WebMonitor", resave: false, saveUninitialized: false });
+var webMonitorSession = session({ secret: KEY, name: "TerraMA2WebMonitor_" + (process.argv[2] !== undefined ? process.argv[2] : "default"), resave: false, saveUninitialized: false });
 
 // reading TerraMA² config.json
-var config = JSON.parse(fs.readFileSync(path.join(__dirname, "./config/monitor.json"), "utf-8"));
+var config = Application.getContextConfig();
 
 app.locals.BASE_URL = config.webmonitor.basePath;
 app.locals.ADMIN_URL = config.webadmin.protocol + config.webadmin.host + (config.webadmin.port != "" ? ":" + config.webadmin.port : "") + config.webadmin.basePath;

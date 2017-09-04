@@ -82,6 +82,19 @@
               <div class="layer-toolbox-header">Layer Tools<span class="btn btn-default" style="padding: 0 4px 0 4px; float: right;"><i class="fa fa-close"></i></span></div>
               <div class="layer-toolbox-body">
                 <div class="layer-name"></div>
+                <div id="animate-layer-box" class="hidden">
+                  <hr style="margin: 10px 0 10px 0;"/>  
+                  <div style="text-align: center;">
+                    <label>Animation</label>
+                  </div>
+                  <div role="group" aria-label="Animation controls" style="text-align: center;">
+                    <button id="reload" type="button"><i class="fa fa-repeat"></i></button>
+                    <button id="play" type="button"><i class="fa fa-play"></i></button>
+                    <button id="pause" type="button"><i class="fa fa-pause"></i></button>
+                  </div>
+                  <div id="dates-slider" style="margin-top: 10px;" class="hidden"></div>
+                  <div id="dates-calendar" style="margin-top: 10px;" class="hidden"></div>
+                </div>
                 <hr style="margin: 10px 0 10px 0;"/>
                 <div id="slider-box"></div>
                 <div id="exportation-box">
@@ -109,8 +122,10 @@
             <div id="map-tools">
               <div id="authentication-div" class="hidden">
                 <div id="user-div" class="{% if (currentUser === null) %}hidden{% endif %}">
-                  <p class="user-name" style="text-align: center; font-size: 15px; font-weight: 800;">{% if currentUser !== null %}{[ currentUser.name ]}{% endif %}</p>
+                  <p class="user-name">{% if currentUser !== null %}{[ currentUser.name ]}{% endif %}</p>
                   <hr/>
+                  <div class="pull-left"><a href="#" class="btn btn-default btn-flat" id="save-state">Save State</a></div>
+                  <div class="pull-left"><a href="#" class="btn btn-default btn-flat hidden" id="load-state">Load State</a></div>
                   <div class="pull-right"><a href="#" class="btn btn-default btn-flat" id="signout">Sign out</a></div>
                 </div>
                 <div id="login-div" class="{% if (currentUser !== null) %}hidden{% endif %}">
@@ -148,6 +163,13 @@
                 <select class="form-control hidden"></select>
                 <button type="button"><i class="fa fa-info"></i></button>
               </div>
+            </div>
+            <div id="animate-tools" class="hidden">
+              <div id="currentDate"><div><label></label></div></div>
+              <div id="reloadAnimation" class="animate-tool-button mouse-function-btn"><button type="button"><i class="fa fa-repeat"></i></button></div>
+              <div id="playAnimation" class="animate-tool-button mouse-function-btn"><button type="button"><i class="fa fa-play"></i></button></div>
+              <div id="pauseAnimation" class="animate-tool-button mouse-function-btn hidden"><button type="button"><i class="fa fa-pause"></i></button></div>
+              <div id="stopAnimation" class="animate-tool-button mouse-function-btn"><button type="button"><i class="fa fa-times"></i></button></div>
             </div>
             <div id="table-div" style="display: none; height: 400px;">
               <div class="main-div hidden">

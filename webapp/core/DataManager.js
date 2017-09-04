@@ -144,6 +144,7 @@ var DataManager = module.exports = {
         inserts.push(self.addDataProviderType({id: 3, name: "HTTP", description: "Desc Http"}));
         inserts.push(self.addDataProviderType({id: 4, name: "POSTGIS", description: "Desc Postgis"}));
         //inserts.push(self.addDataProviderType({id: 5, name: "SFTP", description: "Desc SFTP"}));
+        inserts.push(self.addDataProviderType({id: 6, name: "HTTPS", description: "Desc Https"}));
 
         var listServicesPromise = self.listServiceInstances({}).then(function(services){
           var servicesInsert = [];
@@ -777,6 +778,105 @@ var DataManager = module.exports = {
         .catch(function(err) {
           return reject(new exceptions.UserError("Could not remove user " + err.toString()));
         });
+    });
+  },
+
+  /**
+   * Adds a new monitor state.
+   * @param {Object} stateObject - A javascript object with state values
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise} a bluebird promise
+   */
+  addMonitorState: function(stateObject, options) {
+    return new Promise(function(resolve, reject) {
+      return models.db.MonitorState.create(stateObject, options).then(function(newState) {
+        return resolve(newState.get());
+      }).catch(function(err) {
+        return reject(new Error(Utils.format("Could not save state due %s", err.toString())));
+      });
+    });
+  },
+
+  /**
+   * Updates a monitor state.
+   * @param {Object} restriction - A javascript object to identify a state
+   * @param {Object} stateObject - A javascript object with state values
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise} a bluebird promise
+   */
+  updateMonitorState: function(restriction, stateObject, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return models.db.MonitorState.update(stateObject, Utils.extend({
+        fields: ['name', 'state'],
+        where: restriction || {}
+      }, options)).then(function() {
+        return resolve();
+      }).catch(function(err) {
+        logger.error(err);
+        return reject(new Error("Could not update state.", err.errors));
+      });
+    });
+  },
+
+  /**
+   * Retrieves all monitor states in database filtering from given restriction.
+   *
+   * @param {Object} restriction - A javascript object with restriction
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<Array<MonitorState>>} a bluebird module with states
+   */
+  listMonitorStates: function(restriction, options) {
+    return new Promise(function(resolve, reject) {
+      models.db.MonitorState.findAll(Utils.extend({ where: restriction || {} }, options)).then(function(states) {
+        return resolve(
+          states.map(function(stateInstance) {
+            return stateInstance.get();
+          })
+        );
+      }).catch(function(err) {
+        return reject(new Error("Could not list states.", err.errors || []));
+      });
+    });
+  },
+
+  /**
+   * Retrieves a monitor state from given restriction
+   *
+   * @param {Object} restriction - A javascript object with query restriction
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<MonitorState>} a bluebird module with state sequelize instance
+   */
+  getMonitorState: function(restriction, options) {
+    return new Promise(function(resolve, reject) {
+      models.db.MonitorState.findOne(Utils.extend({ where: restriction || {} }, options)).then(function(state) {
+        if(state === null) return reject(new Error("Could not get state.", []));
+        return resolve(state);
+      }).catch(function(err) {
+        return reject(new Error("Could not get state.", err.errors || []));
+      });
+    });
+  },
+
+  /**
+   * Removes a monitor state from the database.
+   *
+   * @param {Object} restriction - A javascript object with query restriction
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise} a bluebird promise
+   */
+  removeMonitorState: function(restriction, options) {
+    return new Promise(function(resolve, reject) {
+      return models.db.MonitorState.destroy(Utils.extend({ where: restriction }, options)).then(function() {
+        return resolve();
+      }).catch(function(err) {
+        return reject(new Error("Could not remove state " + err.toString()));
+      });
     });
   },
 
@@ -2656,7 +2756,7 @@ var DataManager = module.exports = {
                 return resolve(collector);
               }
 
-              if (_.isEmpty(filterObject.date) && _.isEmpty(filterObject.region||{})) {
+              if (_.isEmpty(filterObject.date) && _.isEmpty(filterObject.region||{}) && !filterObject.data_series_id) {
                 return resolve(collector);
               } else {
                 filterObject.collector_id = collectorResult.id;
@@ -2888,7 +2988,7 @@ var DataManager = module.exports = {
           {
             model: models.db.Filter,
             required: false,
-            attributes: { include: [[orm.fn('ST_AsEwkt', orm.col('region')), 'region_wkt']] }
+            attributes: { include: [[orm.fn('ST_AsEwkt', orm.col('region')), 'region_wkt'], [orm.fn('ST_srid', orm.col('region')), 'srid']] }
           },
           {
             model: models.db.Intersection,
@@ -3084,7 +3184,7 @@ var DataManager = module.exports = {
     return new Promise(function(resolve, reject) {
       var filterValues = _processFilter(filterObject);
       return models.db.Filter.update(filterValues, Utils.extend({
-        fields: ['frequency', 'frequency_unit', 'discard_before', 'discard_after', 'region', 'by_value', 'data_series_id'],
+        fields: ['frequency', 'frequency_unit', 'discard_before', 'discard_after', 'region', 'by_value', 'crop_raster', 'data_series_id'],
         where: {
           id: filterId
         }

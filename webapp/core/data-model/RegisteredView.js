@@ -184,16 +184,23 @@
       if(this.dataSeries.data_series_semantics) {
         dataSeriesTypeName = this.dataSeries.data_series_semantics.data_series_type_name;
 
-        if(this.dataSeries.data_series_semantics.data_format_name === DataSeriesFormat.POSTGIS) {
+        if(this.dataSeries.data_series_semantics.data_format_name === DataSeriesFormat.POSTGIS || this.dataSeries.data_series_semantics.code === "GRID-static_gdal" || this.dataSeries.data_series_semantics.code === "GRID-geotiff") {
           if(this.dataSeries.dataSets.length > 1 || this.dataSeries.dataSets.length === 0) {
             exportation.error = "Invalid data sets!";
           } else {
-            exportation.data = {
-              dataProviderId: this.dataSeries.dataProvider.id,
-              schema: "public",
-              table: this.dataSeries.dataSets[0].format.table_name,
-              dateField: (this.dataSeries.dataSets[0].format.timestamp_property !== undefined ? this.dataSeries.dataSets[0].format.timestamp_property : null)
-            };
+            if(this.dataSeries.data_series_semantics.code === "GRID-static_gdal" || this.dataSeries.data_series_semantics.code === "GRID-geotiff") {
+              exportation.data = {
+                dataProviderId: this.dataSeries.dataProvider.id,
+                mask: this.dataSeries.dataSets[0].format.mask
+              };
+            } else {
+              exportation.data = {
+                dataProviderId: this.dataSeries.dataProvider.id,
+                schema: "public",
+                table: this.dataSeries.dataSets[0].format.table_name,
+                dateField: (this.dataSeries.dataSets[0].format.timestamp_property !== undefined ? this.dataSeries.dataSets[0].format.timestamp_property : null)
+              };
+            }
           }
         }
       }

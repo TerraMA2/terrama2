@@ -32,6 +32,7 @@
 #include "TimeUtils.hpp"
 #include "../utility/Logger.hpp"
 #include "../utility/Verify.hpp"
+#include "../utility/Utils.hpp"
 
 //TerraLib
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
@@ -73,8 +74,7 @@ void terrama2::core::ProcessLogger::setConnectionInfo(const te::core::URI& uri)
 
   try
   {
-    closeConnection();
-    dataSource_ = te::da::DataSourceFactory::make("POSTGIS", uri);
+    dataSource_ = terrama2::core::makeDataSourcePtr(te::da::DataSourceFactory::make("POSTGIS", uri));
 
     try
     {
@@ -118,7 +118,7 @@ void terrama2::core::ProcessLogger::setDataSource(te::da::DataSource* dataSource
 {
   isValid_ = false;
 
-  dataSource_.reset(dataSource);
+  dataSource_ = terrama2::core::makeDataSourcePtr(dataSource);
 
   try
   {
@@ -126,7 +126,9 @@ void terrama2::core::ProcessLogger::setDataSource(te::da::DataSource* dataSource
 
     if(!dataSource_->isOpened())
     {
-      throw LogException();
+      QString errMsg = QObject::tr("Could not connect to database");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw LogException() << ErrorDescription(errMsg);
     }
   }
   catch(const std::exception& e)
@@ -138,18 +140,6 @@ void terrama2::core::ProcessLogger::setDataSource(te::da::DataSource* dataSource
 
   isValid_ = true;
 }
-
-void terrama2::core::ProcessLogger::closeConnection()
-{
-  if(dataSource_ && dataSource_->isOpened())
-    dataSource_->close();
-}
-
-terrama2::core::ProcessLogger::~ProcessLogger()
-{
-  closeConnection();
-}
-
 
 RegisterId terrama2::core::ProcessLogger::start(ProcessId processId) const
 {
@@ -180,12 +170,12 @@ RegisterId terrama2::core::ProcessLogger::start(ProcessId processId) const
 
 void terrama2::core::ProcessLogger::setStartProcessingTime(const std::shared_ptr< te::dt::TimeInstantTZ > processingStartTime, const RegisterId registerId) const
 {
-  addValue("processing_start_time", processingStartTime->toString(), registerId);
+  addValue("processing_start_time", TimeUtils::getISOString(processingStartTime), registerId);
 }
 
 void terrama2::core::ProcessLogger::setEndProcessingTime(const std::shared_ptr< te::dt::TimeInstantTZ > processingEndTime, const RegisterId registerId) const
 {
-  addValue("processing_end_time", processingEndTime->toString(), registerId);
+  addValue("processing_end_time", TimeUtils::getISOString(processingEndTime), registerId);
 }
 
 void terrama2::core::ProcessLogger::addValue(const std::string& tag, const std::string& value, RegisterId registerId) const

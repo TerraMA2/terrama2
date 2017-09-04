@@ -39,7 +39,7 @@ define([
           extra: '=?extra'
         },
 
-        controller: ["$scope", "$http", "i18n", "$timeout", function($scope, $http, i18n, $timeout) {
+        controller: ["$scope", "$http", "i18n", "$timeout", "Socket", function($scope, $http, i18n, $timeout, Socket) {
           $scope.i18n = i18n;
           $scope.searchInput = '';
           $scope.selected = {};
@@ -92,9 +92,25 @@ define([
 
           $scope.confirmRemoval = function(object) {
             $scope.objectToRemove = object;
-
-            $("#" + $scope.modalId).modal();
+            if (object.service_instance_id){
+              Socket.emit('statusToDelete', {service: object.service_instance_id});
+            } else {
+              $("#" + $scope.modalId).modal();
+            }
           };
+
+          Socket.on('statusToDeleteResponse', function(response){
+            if (response.online){
+              $("#" + $scope.modalId).modal();
+            } else {
+              var errorObject = {
+                serviceStoppedError: true,
+                service: response.service ? JSON.parse(response.service) : {}
+              }
+              $scope.extra.removeOperationCallback(errorObject, $scope.objectToRemove);
+              $scope.resetObjectToRemove();
+            }
+          });
 
           $scope.serviceStartTime = null;
           $scope.serviceVersion = null;
@@ -213,8 +229,8 @@ define([
 
           });
 
-          $scope.width = $scope.iconProperties.width || 24;
-          $scope.width = $scope.iconProperties.height || 24;
+          $scope.width = $scope.iconProperties.width || 20;
+          $scope.height = $scope.iconProperties.height || 20;
 
           $scope.isFunction = function(target) {
             return angular.isFunction(target);

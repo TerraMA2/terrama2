@@ -30,6 +30,10 @@ define([], function() {
 
     self.columnsList = [];
 
+    // Flag to verify if can not save if the service is not running
+    var canSave = true;
+    var serviceOfflineMessage = "If service is not running you can not save the analysis. Start the service before create or update an analysis!";
+
     /**
      * It defines a options to use angular tree control directive. It is customized with bootstrap layout
      * 
@@ -230,6 +234,7 @@ define([], function() {
               return BASE_URL + "images/data-server/sftp/sftp.png";
               break;
             case "HTTP":
+            case "HTTPS":
               return BASE_URL + "images/data-server/http/http.png";
               break;
             case "POSTGIS":
@@ -240,11 +245,18 @@ define([], function() {
         }
 
         socket.on('statusResponse', function onServiceStatusResponse(response) {
-          self.helperMessages.validate.error = null;
-          if (response.checking === undefined || (!response.checking && response.status === 400)) {
-            if (!response.online) {
-              var service = Service.get(response.service);
-              self.helperMessages.validate.error = i18n.__("Service") + " '" + service.name + "' " + i18n.__("is not active");
+          if(response.service == self.analysis.instance_id){
+            self.helperMessages.validate.error = null;
+            if (response.checking === undefined || (!response.checking && response.status === 400)) {
+              if (!response.online) {
+                var service = Service.get(response.service);
+                self.helperMessages.validate.error = i18n.__("Service") + " '" + service.name + "' " + i18n.__("is not active");
+                canSave = false;
+                MessageBoxService.danger(i18n.__("Analysis"), i18n.__(serviceOfflineMessage));
+              } else {
+                canSave = true;
+                self.close();
+              }
             }
           }
         });
@@ -622,6 +634,11 @@ define([], function() {
             name: "Python",
             fileName: "python.json",
             imagePath: "images/analysis/functions/python/python.png"
+          },
+          dcp_analysis: {
+            name: "DCP operators",
+            fileName: "dcp-analysis-operators.json",
+            imagePath: "images/analysis/functions/monitored-object/dcp/dcp.png"
           }
         };
 
@@ -663,10 +680,11 @@ define([], function() {
               $log.log("Invalid analysis type ID");
               return;
           }
-
+          //using the same operator of monitored object when DCP;
+          var filterHelper = dataseriesFilterType == 'DCP' ? 'GEOMETRIC_OBJECT' : dataseriesFilterType;
           self.analysisHelperRestriction = {
             "type": {
-              "$in": [dataseriesFilterType]
+              "$in": [filterHelper]
             }
           };
 
@@ -675,7 +693,7 @@ define([], function() {
 
           self.onTargetDataSeriesChange = function() {
             if (self.targetDataSeries && self.targetDataSeries.name) {
-              if(parseInt(self.analysis.type_id) === AnalysisService.types.MONITORED)
+              if(parseInt(self.analysis.type_id) === AnalysisService.types.MONITORED || parseInt(self.analysis.type_id) === AnalysisService.types.DCP)
                 self.analysis.data_provider_id = self.targetDataSeries.data_provider_id;
 
               self.metadata[self.targetDataSeries.name] = {
@@ -684,7 +702,7 @@ define([], function() {
               var dataProvider = DataProviderService.list().filter(function(dProvider){
                 return dProvider.id == self.targetDataSeries.data_provider_id;
               });
-              if (dataProvider.length > 0 && dataProvider[0].data_provider_type.id == 4){
+              if (dataProvider.length > 0 && dataProvider[0].data_provider_type.id == 4 && parseInt(self.analysis.type_id) === AnalysisService.types.MONITORED ){
                 var table_name = self.targetDataSeries.dataSets[0].format.table_name;
                 listColumns(dataProvider[0], table_name);
               }
@@ -756,8 +774,9 @@ define([], function() {
 
           // filtering formats
           self.storagerFormats = [];
+          var semanticsTypeToFilter = semanticsType == DataSeriesService.DataSeriesType.DCP ? DataSeriesService.DataSeriesType.ANALYSIS_MONITORED_OBJECT : semanticsType;
           DataSeriesSemanticsService.list().forEach(function(dSemantics) {
-            if(dSemantics.data_series_type_name === semanticsType && dSemantics.allow_storage && dSemantics.temporality === Globals.enums.TemporalityType.DYNAMIC) {
+            if(dSemantics.data_series_type_name === semanticsTypeToFilter && dSemantics.allow_storage && dSemantics.temporality === Globals.enums.TemporalityType.DYNAMIC) {
               self.storagerFormats.push(Object.assign({}, dSemantics));
             }
           });
@@ -1099,6 +1118,7 @@ define([], function() {
           switch(typeId) {
             case Globals.enums.AnalysisType.DCP:
               analysisTypeId = Globals.enums.AnalysisDataSeriesType.DATASERIES_DCP_TYPE;
+              self.metadata[self.targetDataSeries.name]['identifier'] = 'table_name';
               break;
             case Globals.enums.AnalysisType.GRID:
               analysisTypeId = Globals.enums.AnalysisDataSeriesType.DATASERIES_GRID_TYPE;
@@ -1117,7 +1137,9 @@ define([], function() {
 
           // setting target data series metadata (monitored object, dcp..)
           if (typeId !== Globals.enums.AnalysisType.GRID) {
-            analysisDataSeriesArray.push(_makeAnalysisDataSeries(self.targetDataSeries, analysisTypeId));
+            //If analysis type is DCP, save analysis data series as monitored object
+            var analysisTypeIdAdapted = analysisTypeId == Globals.enums.AnalysisDataSeriesType.DATASERIES_DCP_TYPE ? Globals.enums.AnalysisDataSeriesType.DATASERIES_MONITORED_OBJECT_TYPE : analysisTypeId;
+            analysisDataSeriesArray.push(_makeAnalysisDataSeries(self.targetDataSeries, analysisTypeIdAdapted));
           } else {
             // checking geojson
             if (self.analysis.grid && self.analysis.grid.area_of_interest_bounded &&
@@ -1212,6 +1234,10 @@ define([], function() {
         self.save = function(shouldRun) {
           try {
             var objectToSend = self.$prepare(shouldRun);
+
+            if(!canSave){
+              return MessageBoxService.danger(i18n.__("Analysis"), i18n.__(serviceOfflineMessage));
+            }
 
             /**
              * Target object request (update/insert)

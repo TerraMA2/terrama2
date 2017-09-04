@@ -42,6 +42,8 @@
 #include "../core/utility/FilterUtils.hpp"
 #include "../core/utility/Utils.hpp"
 
+#include "../core/interpreter/InterpreterFactory.hpp"
+
 // TerraLib
 #include <terralib/core/uri/URI.h>
 #include <terralib/core/Exception.h>
@@ -119,22 +121,25 @@ std::string terrama2::core::DataRetrieverHTTP::retrieveData(const std::string& m
     std::string scheme = "file://";
     downloadBaseFolderUri = scheme + downloadBaseDir.string();
     remover->addTemporaryFolder(downloadBaseFolderUri);
+  }
 
-    downloadBaseFolderUri = scheme + downloadBaseDir.string();
+  {
+    auto interpreter = terrama2::core::InterpreterFactory::getInstance().make("PYTHON");
+    interpreter->runScript("print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')");
+    interpreter->runScript("print('I have been here!')");
+    interpreter->runScript("print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')");
   }
 
   try
   {
     // Create directory struct
-    QString saveDir(QString::fromStdString(dataProvider_->uri));
-    saveDir.replace(QString::fromStdString(dataProvider_->uri), QString::fromStdString(downloadBaseFolderUri));
-
+    QString saveDir(QString::fromStdString(downloadBaseFolderUri+ "/" + foldersMask));
     QString savePath = QUrl(saveDir).toString(QUrl::RemoveScheme);
     QDir dir(savePath);
     if(!dir.exists())
       dir.mkpath(savePath);
 
-    std::string uriOrigin = dataProvider_->uri + "/" + mask;
+    std::string uriOrigin = dataProvider_->uri + "/" + foldersMask + "/" + mask;
     std::string filePath = savePath.toStdString() + "/" + mask;
 
     te::core::URI uri(uriOrigin);
