@@ -15,7 +15,7 @@ var Application = require('./core/Application');
 
 var app = express();
 
-var webMonitorSession = session({ secret: KEY, name: "TerraMA2WebMonitor", resave: false, saveUninitialized: false });
+var webMonitorSession = session({ secret: KEY, name: "TerraMA2WebMonitor_" + (process.argv[2] !== undefined ? process.argv[2] : "default"), resave: false, saveUninitialized: false });
 
 // reading TerraMA² config.json
 var config = Application.getContextConfig();
