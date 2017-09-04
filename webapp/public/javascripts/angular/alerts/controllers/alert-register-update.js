@@ -5,7 +5,7 @@ define([], function() {
    * It represents a Controller to handle Alert form registration.
    * @class AlertRegistration
    */
-  var AlertRegisterUpdate = function($scope, $q, $window, $log, $http, $timeout, i18n, MessageBoxService, AlertService, DataSeriesService, DataProviderService, AnalysisService, Service, UniqueNumber, Utility) {
+  var AlertRegisterUpdate = function($scope, $q, $window, $log, $http, $timeout, i18n, MessageBoxService, AlertService, DataSeriesService, DataProviderService, AnalysisService, Service, UniqueNumber, Utility, Socket) {
     /**
      * @type {AlertRegisterUpdate}
      */
@@ -189,6 +189,10 @@ define([], function() {
         //console.log("fra");
       }
     };
+
+    // Flag to verify if can not save if the service is not running
+    var canSave = true;
+    var serviceOfflineMessage = "If service is not running you can not save the alert. Start the service before create or update an alert!";
     
     $q.all([
       i18n.ensureLocaleIsLoaded(),
@@ -599,6 +603,25 @@ define([], function() {
       }
     }, true);
 
+    $scope.$watch("ctrl.alert.service_instance_id", function(instanceId){
+      if (instanceId)
+        Socket.emit('status', {service: instanceId});
+    }, true);
+
+    Socket.on('statusResponse', function(response){
+      if(response.service == self.alert.service_instance_id){
+        if (response.checking === undefined || (!response.checking && response.status === 400)) {
+          if (!response.online){
+            self.MessageBoxService.danger(i18n.__("Alerts"), i18n.__(serviceOfflineMessage));
+            canSave = false;
+          } else {
+            canSave = true;
+            self.close();
+          }
+        }
+      }
+    });
+
     /**
      * Helper to reset alert box instance.
      * 
@@ -632,6 +655,11 @@ define([], function() {
 
       if(self.isNotValid) {
         self.MessageBoxService.danger(i18n.__("Alerts"), errMessageInvalidFields);
+        return;
+      }
+
+      if (!canSave){
+        self.MessageBoxService.danger(i18n.__("Alerts"), i18n.__(serviceOfflineMessage));
         return;
       }
 
@@ -755,7 +783,7 @@ define([], function() {
     };
   };
 
-  AlertRegisterUpdate.$inject = ["$scope", "$q", "$window", "$log", "$http", "$timeout", "i18n", "MessageBoxService", "AlertService", "DataSeriesService", "DataProviderService", "AnalysisService", "Service", "UniqueNumber", "Utility"];
+  AlertRegisterUpdate.$inject = ["$scope", "$q", "$window", "$log", "$http", "$timeout", "i18n", "MessageBoxService", "AlertService", "DataSeriesService", "DataProviderService", "AnalysisService", "Service", "UniqueNumber", "Utility", "Socket"];
 
   return AlertRegisterUpdate;
 });
