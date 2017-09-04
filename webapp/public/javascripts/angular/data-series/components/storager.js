@@ -29,7 +29,7 @@ define([], function(){
    *
    * @param {any} i18n - TerraMA² Internationalization module
    */
-    function StoragerController($scope, i18n, DataSeriesSemanticsService, GeoLibs, SemanticsParserFactory, $timeout, $window, Service, $http, $compile, FormTranslator){
+    function StoragerController($scope, i18n, DataSeriesSemanticsService, GeoLibs, SemanticsParserFactory, $timeout, $window, Service, $http, $compile, FormTranslator, Socket){
       var self = this;
       self.i18n = i18n;
       self.formStorager = [];
@@ -163,6 +163,11 @@ define([], function(){
           }, true);
         }
       }
+
+      $scope.$watch("$ctrl.storager_service", function(serviceId){
+        if (serviceId)
+          Socket.emit('status', {service: serviceId});
+      }, true);
 
       $scope.$watch(function(){
           return self.series.semantics.data_series_type_name;
@@ -710,6 +715,6 @@ define([], function(){
       });
     }
 
-    StoragerController.$inject = ['$scope', 'i18n', 'DataSeriesSemanticsService', 'GeoLibs', 'SemanticsParserFactory', '$timeout', '$window', 'Service', '$http', '$compile', 'FormTranslator'];
+    StoragerController.$inject = ['$scope', 'i18n', 'DataSeriesSemanticsService', 'GeoLibs', 'SemanticsParserFactory', '$timeout', '$window', 'Service', '$http', '$compile', 'FormTranslator', 'Socket'];
     return terrama2StoragerComponent;
 });

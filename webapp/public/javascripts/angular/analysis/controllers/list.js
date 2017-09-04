@@ -98,8 +98,15 @@ define([], function() {
       advancedFilterField: "type.name",
       removeOperationCallback: function(err, data) {
         if (err) {
-          MessageBoxService.danger(i18n.__(title), i18n.__(err.message));
-          return;
+          if (err.serviceStoppedError){
+            var errorWhenDeleteMessage = i18n.__("Can not delete the analysis if the service is not running. ");
+            if (err.service && err.service.instance_name)
+              errorWhenDeleteMessage += i18n.__("Service") + ": " + err.service.instance_name;
+            return MessageBoxService.danger(i18n.__(title), errorWhenDeleteMessage);            
+          } else {
+            MessageBoxService.danger(i18n.__(title), i18n.__(err.message));
+            return;
+          }
         }
         MessageBoxService.success(i18n.__(title), data.name + i18n.__(" removed"));
       },
