@@ -18,7 +18,7 @@ var ImportExport = function(io) {
   var Enums = require('./../core/Enums');
   var DataManager = require("./../core/DataManager");
   var TcpService = require("./../core/facade/tcp-manager/TcpService");
-  var ImportProjectmember = require("./../core/ImportProject");
+  var ImportProjectMember = require("./../core/ImportProject");
 
   // bluebird promise
   var Promise = require("bluebird");
@@ -58,7 +58,7 @@ var ImportExport = function(io) {
      */
     client.on("import", function(json) {
 
-      ImportProject(json, function(result){
+      ImportProjectMember(json, function(result){
         client.emit("importResponse", result);
       });
     });

@@ -10,6 +10,8 @@
  */
 var ImportProject = function(json, callback){
 
+  var Utils = require('./Utils');
+  
   if(!json || !Utils.isObject(json)) {
     callback({status: 400, err: "Unknown error: the parameter must be a object"});
     return;
@@ -24,7 +26,6 @@ var ImportProject = function(json, callback){
     return count;
   };
   
-  var Utils = require('./Utils');
   var Enums = require('./Enums');
   var DataManager = require("./DataManager");
   var TcpService = require("./facade/tcp-manager/TcpService");
