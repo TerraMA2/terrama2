@@ -973,5 +973,29 @@
   "updated": "atualizado",
   "w": "w",
   "Invalid address": "Endereço inválido",
-  "The service can not access the log database!": "O serviço não pode acessar o banco de logs!"
+  "The service can not access the log database!": "O serviço não pode acessar o banco de logs!",
+  "Can not delete the data series if the service is not running": {
+    " ": "Não pode deletar a série de dados se o serviço não estiver rodando. "
+  },
+  "Can not delete the analysis if the service is not running": {
+    " ": "Não pode deletar a análise se o serviço não estiver rodando. "
+  },
+  "Can not delete the view if the service is not running": {
+    " ": "Não pode deletar a visualização se o serviço não estiver rodando. "
+  },
+  "Can not delete the alert if the service is not running": {
+    " ": "Não pode deletar o alerta se o serviço não estiver rodando. "
+  },
+  "If service is not running you can not save the data series": {
+    " Start the service before create or update a data series!": "Se o serviço não estiver rodando não pode salvar a série de dados. Rode o serviço antes de criar ou alterar uma série de dados!"
+  },
+  "If service is not running you can not save the analysis": {
+    " Start the service before create or update an analysis!": "Se o serviço não estiver rodando não pode salvar a análise. Rode o serviço antes de criar ou alterar uma análise!"
+  },
+  "If service is not running you can not save the view": {
+    " Start the service before create or update a view!": "Se o serviço não estiver rodando não pode salvar a visualização. Rode o serviço antes de criar ou alterar uma visualização!"
+  },
+  "If service is not running you can not save the alert": {
+    " Start the service before create or update an alert!": "Se o serviço não estiver rodando não pode salvar o alerta. Rode o serviço antes de criar ou alterar um alerta!"
+  }
 }
