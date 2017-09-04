@@ -70,7 +70,7 @@ terrama2::core::DataRetrieverHTTP::DataRetrieverHTTP(DataProviderPtr dataprovide
   // Verifies if the HTTP address is valid
   try
   {
-    curlwrapper_->verifyURL(dataprovider->uri, dataProvider_->timeout);
+    curlwrapper_->verifyURL(dataProvider_->uri, dataProvider_->timeout);
   }
   catch(const te::Exception& e)
   {
@@ -98,12 +98,6 @@ bool terrama2::core::DataRetrieverHTTP::isRetrivable() const noexcept
 terrama2::core::DataRetrieverHTTP::~DataRetrieverHTTP()
 {
 
-}
-
-static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp)
-{
-    ((std::string*)userp)->append((char*)contents, size * nmemb);
-    return size * nmemb;
 }
 
 std::string terrama2::core::DataRetrieverHTTP::retrieveData(const std::string& mask,
@@ -156,44 +150,23 @@ std::string terrama2::core::DataRetrieverHTTP::retrieveData(const std::string& m
     }
 
     {
-      CURL *curl;
-      CURLcode res;
-      std::string readBuffer;
-      std::string urlQueim = "";
+      std::string scriptPath = FindInTerraMA2Path("scripts/parse-http-server-html.py");
+      std::ifstream scriptIfs(scriptPath);
+      std::string script((std::istreambuf_iterator<char>(scriptIfs)), (std::istreambuf_iterator<char>()));
 
-      curl = curl_easy_init();
+      std::vector<std::string> dirList = curlwrapper_->listFiles(te::core::URI(dataProvider_->uri + "/" + foldersMask));
 
-      if(curl) {
-        curl_easy_setopt(curl, CURLOPT_URL, urlQueim.c_str());
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
-        curl_easy_setopt(curl, CURLOPT_USERPWD, "");
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
-        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-        curl_easy_setopt(curl, CURLOPT_UNRESTRICTED_AUTH, 1L);
-        res = curl_easy_perform(curl);
-        curl_easy_cleanup(curl);
-      }
+      std::string httpServerHtml = std::accumulate(begin(dirList), end(dirList), httpServerHtml);
 
-      std::string file_path = FindInTerraMA2Path("scripts/parse-http-server-html.py");
-
-      std::ifstream ifs(file_path);
-      std::string content((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
-
-      std::string contenth = readBuffer;
-
-      boost::replace_all(contenth, "\"", "\\\"");
-      contenth.erase(std::remove(contenth.begin(), contenth.end(), '\n'), contenth.end());
-      boost::replace_all(content, "{HTML_CODE}", contenth);
+      boost::replace_all(httpServerHtml, "\"", "\\\"");
+      httpServerHtml.erase(std::remove(httpServerHtml.begin(), httpServerHtml.end(), '\n'), httpServerHtml.end());
+      boost::replace_all(script, "{HTML_CODE}", httpServerHtml);
 
       auto interpreter = terrama2::core::InterpreterFactory::getInstance().make("PYTHON");
-      //interpreter->runScript("print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')");
-      //interpreter->runScript("print('I have been here!')");
-      //interpreter->setString("files", "teste123");
-      interpreter->runScript(content);
 
-      //std::cout << interpreter->getString("files") << std::endl;
+      std::string fileNames = interpreter->runScriptWithStringResult(script, "files");
 
-      //interpreter->runScript("print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')");
+      printf("%s", fileNames.c_str());
     }
 
     try

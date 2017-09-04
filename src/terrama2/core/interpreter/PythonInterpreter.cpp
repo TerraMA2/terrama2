@@ -158,22 +158,38 @@ void terrama2::core::PythonInterpreter::runScript(const std::string& script)
 
   try
   {
-    //object main = object(handle<>(borrowed(PyImport_AddModule("__main__"))));
-    PyObject *main = PyImport_AddModule("__main__");
-    //object nspace = main->attr("__dict__");
+    object main = object(handle<>(borrowed(PyImport_AddModule("__main__"))));
+    object nspace = main.attr("__dict__");
 
-    //PyRun_String( script.c_str(), Py_file_input, nspace.ptr(), nspace.ptr() );
-
-    PyRun_SimpleString(script.c_str());
-
-    PyObject *catcher = PyObject_GetAttrString(main, "files");
-
-    std::string out = PyString_AsString(catcher);
-    printf("%s", out.c_str());
+    handle<> ignored(( PyRun_String( script.c_str(),
+                                     Py_file_input,
+                                     nspace.ptr(),
+                                     nspace.ptr() ) ));
   }
   catch( error_already_set )
   {
     // extractException();
+    PyErr_Print();
+  }
+}
+
+std::string terrama2::core::PythonInterpreter::runScriptWithStringResult(const std::string& script, const std::string& variableToReturn)
+{
+  auto lock = holdState();
+
+  using namespace boost::python;
+
+  try
+  {
+    PyObject *main = PyImport_AddModule("__main__");
+    PyRun_SimpleString(script.c_str());
+    PyObject *catcher = PyObject_GetAttrString(main, variableToReturn.c_str());
+    std::string out = PyString_AsString(catcher);
+
+    return out;
+  }
+  catch( error_already_set )
+  {
     PyErr_Print();
   }
 }

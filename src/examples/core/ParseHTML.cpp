@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
 {
   terrama2::core::registerFactories();
 
-  QUrl url("");
+  QUrl url("http://dadosabertos.rio.rj.gov.br/apiEducacao/apresentacao/csv/");
 
   url.setUserName("");
   url.setPassword("");
@@ -39,7 +39,7 @@ int main(int argc, char* argv[])
   curl_global_init(CURL_GLOBAL_ALL);
 
   std::string path;
-  std::string mask = "focosINPE_24H_%YYYY%MM%DD.txt";
+  std::string mask = "freqMediaIndAprovMunicipioPorAno.csv";
 
   auto remover = std::make_shared<terrama2::core::FileRemover>();
   {
@@ -50,8 +50,9 @@ int main(int argc, char* argv[])
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
     dataProvider->uri = url.url().toStdString();
     dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
-    dataProvider->dataProviderType = "HTTPS";
+    dataProvider->dataProviderType = "HTTP";
     dataProvider->active = true;
+    dataProvider->timeout = 16;
 
     //empty filter
     terrama2::core::Filter filter;
