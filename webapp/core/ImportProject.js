@@ -1,4 +1,4 @@
-"user strict"
+"use strict";
 
 /**
  * Class responsible to import a project
@@ -11,7 +11,10 @@
 var ImportProject = function(json, callback){
 
   var Utils = require('./Utils');
-  
+  var Enums = require('./Enums');
+  var DataManager = require("./DataManager");
+  var Promise = require("bluebird");
+
   if(!json || !Utils.isObject(json)) {
     callback({status: 400, err: "Unknown error: the parameter must be a object"});
     return;
@@ -26,17 +29,12 @@ var ImportProject = function(json, callback){
     return count;
   };
   
-  var Enums = require('./Enums');
-  var DataManager = require("./DataManager");
-  var TcpService = require("./facade/tcp-manager/TcpService");
-  // bluebird promise
-  var Promise = require("bluebird");
-
   /**
    * @type {Array<Promise>}
    */
   var promises = [];
   var output = {};
+  var tcpOutput = {};
 
   var _updateID = function(old, object) {
     var o = object.rawObject();
@@ -71,19 +69,8 @@ var ImportProject = function(json, callback){
       });
     }
 
-    /**
-     * Error helper for promises exception handler. It emits a client response with error
-     * @param {Error} err - An exception occurred
-     */
-    var _emitError = function(err) {
-      // TODO: rollback
-      return Promise.reject(err);
-    };
-
     return Promise.all(promises).then(function() {
       promises = [];
-
-      var tcpOutput = {};
 
       if(json.DataProviders) {
         var dataProviders = json.DataProviders || [];
@@ -451,9 +438,7 @@ var ImportProject = function(json, callback){
                       });
                     }
 
-                    return Promise.all(promises).then(function() {
-                      TcpService.send(tcpOutput);
-                    });
+                    return Promise.all(promises);
                   });
                 });
               });
@@ -464,7 +449,7 @@ var ImportProject = function(json, callback){
     });
   }).then(function() {
     console.log("Commited");
-    callback({status: 200, data: output});
+    callback({status: 200, data: output, tcpOutput: tcpOutput});
   }).catch(function(err){
     // remove cached data in DataManager
     if(output.Projects && output.Projects.length > 0) {
