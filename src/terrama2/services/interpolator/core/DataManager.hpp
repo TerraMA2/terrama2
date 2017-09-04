@@ -64,12 +64,12 @@ namespace terrama2
             /*!
              * \brief Default constructor.
              */
-            DataManager() = default;
+            DataManager();
 
             /*!
              * \brief Destructor.
              */
-            ~DataManager() = default;
+            ~DataManager();
             //@}
 
 

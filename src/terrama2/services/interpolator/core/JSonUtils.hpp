@@ -25,8 +25,6 @@
  * \brief Contains utility functions that can be used to turn json files into InterpolatorParams objects.
  *
  * \author Frederico Augusto Bedê
- *
- * \todo Implement all functionalities.
  */
 
 #ifndef __TERRAMA2_SERVICES_INTERPOLATOR_CORE_JSONUTILS_HPP__
@@ -66,7 +64,7 @@ namespace terrama2
          *
          * \return A QJsonObject that represents the paramaters object.
          */
-        QJsonObject toJson(InterpolatorParams* interpolator);
+        QJsonObject toJson(InterpolatorParams* params);
       } // end namespace core
     }   // end namespace interpolator
   }     // end namespace services

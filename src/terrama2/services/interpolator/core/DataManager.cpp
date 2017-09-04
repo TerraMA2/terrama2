@@ -79,7 +79,7 @@ void terrama2::services::interpolator::core::DataManager::add(terrama2::services
       throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
 
-    params->dataManager_.reset(this);
+    params->dataManager_ = this;
 
     TERRAMA2_LOG_DEBUG() << tr("Interpolator parameters added");
     interpolatorsParams_[params->id_] = params;
@@ -117,6 +117,16 @@ void terrama2::services::interpolator::core::DataManager::removeInterpolator(Int
   }
 
   emit interpolatorRemoved(interpolatorId);
+}
+
+terrama2::services::interpolator::core::DataManager::DataManager()
+{
+
+}
+
+terrama2::services::interpolator::core::DataManager::~DataManager()
+{
+
 }
 
 void terrama2::services::interpolator::core::DataManager::addJSon(const QJsonObject& obj)

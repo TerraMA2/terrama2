@@ -27,164 +27,130 @@
 
 #include "JSonUtils.hpp"
 
+#include "../../../core/utility/GeoUtils.hpp"
+#include "../../../core/utility/JSonUtils.hpp"
+#include "../../../core/utility/Logger.hpp"
 #include "InterpolatorParams.hpp"
 
-//#include "Intersection.hpp"
-//#include "../../../core/Exception.hpp"
-//#include "../../../core/data-model/DataManager.hpp"
-//#include "../../../core/utility/JSonUtils.hpp"
-//#include "../../../core/utility/Logger.hpp"
+// TerraLib
+#include <terralib/geometry/Point.h>
+#include <terralib/geometry/WKTWriter.h>
 
 // Qt
 #include <QJsonDocument>
 #include <QJsonArray>
-#include <QObject>
+
+/*!
+ * \brief Transforms the envelope into a JSon object.
+ *
+ * \param env Envelope to be used.
+ *
+ * \return JSon object representing the bounding rect.
+ */
+QJsonObject GetBoundingRect(const te::gm::Envelope& env)
+{
+  QJsonObject obj;
+  std::unique_ptr<te::gm::Point> p1(new te::gm::Point(env.getLowerLeftX(), env.getLowerLeftY()));
+  std::unique_ptr<te::gm::Point> p2(new te::gm::Point(env.getUpperRightX(), env.getUpperRightY()));
+  std::ostringstream llOs,
+      urOs;
+
+  te::gm::WKTWriter::write(p1.get(), llOs);
+  te::gm::WKTWriter::write(p2.get(), urOs);
+
+  obj["ll_corner"] = QString::fromStdString(llOs.str());
+  obj["ur_corner"] = QString::fromStdString(urOs.str());
+
+  return obj;
+}
 
 terrama2::services::interpolator::core::InterpolatorParams* terrama2::services::interpolator::core::fromInterpolatorJson(QJsonObject json, terrama2::core::DataManager* dataManager)
 {
   InterpolatorParams* res = 0;
 
+  if(json["class"].toString() != "Interpolator")
+  {
+    QString errMsg = QObject::tr("Invalid Interpolator JSON object.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
+  }
+
+  if(!(json.contains("id")
+       && json.contains("project_id")
+       && json.contains("service_instance_id")
+       && json.contains("input_data_serQJsonObjecties")
+       && json.contains("output_data_series")
+       && json.contains("bounding_rect")
+       && json.contains("interpolator_strategy")
+       && json.contains("number_of_neighbors")
+       && json.contains("resolution_x")
+       && json.contains("resolution_y")
+       && json.contains("interpolation_attribute")
+       && json.contains("srid")
+       && json.contains("filter")
+       && json.contains("active")))
+  {
+    QString errMsg = QObject::tr("Invalid Interpolator JSON object.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
+  }
+
+  InterpolatorParams* params = new InterpolatorParams;
+  InterpolatorParamsPtr parPtr(params);
+
+  parPtr->id_ = static_cast<uint32_t>(json["id"].toInt());
+  parPtr->projectId_ = static_cast<uint32_t>(json["project_id"].toInt());
+  parPtr->serviceInstanceId_ = static_cast<uint32_t>(json["service_instance_id"].toInt());
+
+  parPtr->series_ = static_cast<uint32_t>(json["input_data_series"].toInt());
+  parPtr->outSeries_ = static_cast<uint32_t>(json["output_data_series"].toInt());
+
+  parPtr->filter_ = terrama2::core::fromFilterJson(json["filter"].toObject(), dataManager);
+  parPtr->active_ = json["active"].toBool();
+
+  parPtr->interpolationType_ = static_cast<terrama2::services::interpolator::core::InterpolatorType>(json["interpolator_strategy"].toInt());
+  parPtr->attributeName_ = json["interpolation_attribute"].toString().toStdString();
+  parPtr->resolutionX_ = json["resolution_x"].toDouble();
+  parPtr->resolutionY_ = json["resolution_y"].toDouble();
+  parPtr->srid_ = json["srid"].toInt();
+  parPtr->numNeighbors_ = json["number_of_neighbors"].toInt();
+
+  auto bboxObj = json["bounding_rect"].toObject();
+
+  std::string llS = bboxObj.take("ll_corner").toString().toStdString(),
+            urS = bboxObj.take("ur_corner").toString().toStdString();
+
+  auto gLl = terrama2::core::ewktToGeom(llS);
+  auto gUr = terrama2::core::ewktToGeom(urS);
+
+  auto ll = std::dynamic_pointer_cast<te::gm::Point>(gLl),
+      ur = std::dynamic_pointer_cast<te::gm::Point>(gUr);
+
+  te::gm::Envelope env(ll->getX(), ll->getY(), ur->getX(), ur->getY());
+
+  parPtr->bRect_ = env;
+
   return res;
-//  if(json["class"].toString() != "Collector")
-//  {
-//    QString errMsg = QObject::tr("Invalid Collector JSON object.");
-//    TERRAMA2_LOG_ERROR() << errMsg;
-//    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
-//  }
-
-//  if(!(json.contains("id")
-//   && json.contains("project_id")
-//    && json.contains("service_instance_id")
-//     && json.contains("input_data_series")
-//      && json.contains("output_data_series")
-//       && json.contains("input_output_map")
-//         && json.contains("active")))
-//  {
-//    QString errMsg = QObject::tr("Invalid Collector JSON object.");
-//    TERRAMA2_LOG_ERROR() << errMsg;
-//    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
-//  }
-
-//  terrama2::services::collector::core::Collector* collector = new terrama2::services::collector::core::Collector();
-//  terrama2::services::collector::core::CollectorPtr collectorPtr(collector);
-
-//  collector->id = static_cast<uint32_t>(json["id"].toInt());
-//  collector->projectId = static_cast<uint32_t>(json["project_id"].toInt());
-//  collector->serviceInstanceId = static_cast<uint32_t>(json["service_instance_id"].toInt());
-
-//  collector->inputDataSeries = static_cast<uint32_t>(json["input_data_series"].toInt());
-//  collector->outputDataSeries = static_cast<uint32_t>(json["output_data_series"].toInt());
-
-//  auto inOutArray = json["input_output_map"].toArray();
-//  auto it = inOutArray.begin();
-//  for(; it != inOutArray.end(); ++it)
-//  {
-//    auto obj = (*it).toObject();
-//    collector->inputOutputMap.emplace(obj["input"].toInt(), obj["output"].toInt());
-//  }
-
-//  if(json.contains("schedule") && !json["schedule"].isNull())
-//  {
-//    collector->schedule = terrama2::core::fromScheduleJson(json["schedule"].toObject());
-//  }
-//  QJsonObject json
-//  collector->filter = terrama2::core::fromFilterJson(json["filter"].toObject(), dataManager);
-//  collector->intersection = terrama2::services::collector::core::fromIntersectionJson(json["intersection"].toObject());
-//  collector->active = json["active"].toBool();
-
-//  return collectorPtr;
 }
 
-//terrama2::services::collector::core::IntersectionPtr terrama2::services::collector::core::fromIntersectionJson(QJsonObject json)
-//{
-//  if(json.empty())
-//    return nullptr;
-
-//  if(! (json.contains("collector_id") && json.contains("attribute_map")))
-//  {
-//    QString errMsg = QObject::tr("Invalid Intersection JSON object.");
-//    TERRAMA2_LOG_ERROR() << errMsg;
-//    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
-//  }
-
-//  Intersection* intersection = new Intersection();
-//  IntersectionPtr intersectionPtr(intersection);
-
-//  intersection->collectorId = json["collector_id"].toInt();
-
-//  QJsonObject attributeMapJson = json["attribute_map"].toObject();
-//  std::map<DataSeriesId, std::vector<IntersectionAttribute> > attributeMap;
-//  for(auto it = attributeMapJson.begin(); it != attributeMapJson.end(); ++it)
-//  {
-//    QJsonArray attrListJson = it.value().toArray();
-
-//    std::vector<IntersectionAttribute> vecAttributes;
-//    for(int index = 0; index < attrListJson.size(); ++index)
-//    {
-//      QJsonObject value = attrListJson[index].toObject();
-//      IntersectionAttribute intersectionAttribute;
-//      intersectionAttribute.attribute = value["attribute"].toString().toStdString();
-//      intersectionAttribute.alias = value["alias"].toString().toStdString();
-//      vecAttributes.push_back(intersectionAttribute);
-//    }
-
-//    attributeMap[it.key().toInt()] = vecAttributes;
-//  }
-//  intersection->attributeMap = attributeMap;
-
-
-
-//  return intersectionPtr;
-//}
-
-QJsonObject terrama2::services::interpolator::core::toJson(InterpolatorParams* interpolator)
+QJsonObject terrama2::services::interpolator::core::toJson(InterpolatorParams* params)
 {
   QJsonObject obj;
-//  obj.insert("class", QString("Collector"));
-//  obj.insert("id", static_cast<int32_t>(collector->id));
-//  obj.insert("project_id", static_cast<int32_t>(collector->projectId));
-//  obj.insert("service_instance_id", static_cast<int32_t>(collector->serviceInstanceId));
-//  obj.insert("input_data_series", static_cast<int32_t>(collector->inputDataSeries));
-//  obj.insert("output_data_series", static_cast<int32_t>(collector->outputDataSeries));
-//  obj.insert("schedule", terrama2::core::toJson(collector->schedule));
-//  obj.insert("intersection", terrama2::services::collector::core::toJson(collector->intersection));
-//  obj.insert("active", collector->active);
+  obj.insert("class", QString("Interpolator"));
+  obj.insert("id", static_cast<int32_t>(params->id_));
+  obj.insert("project_id", static_cast<int32_t>(params->projectId_));
+  obj.insert("service_instance_id", static_cast<int32_t>(params->serviceInstanceId_));
+  obj.insert("input_data_series", static_cast<int32_t>(params->series_));
+  obj.insert("output_data_series", static_cast<int32_t>(params->outSeries_));
+  obj.insert("interpolator_strategy", static_cast<int32_t>(params->interpolationType_));
+  obj.insert("number_of_neighbors", static_cast<int32_t>(params->numNeighbors_));
+  obj.insert("resolution_x", static_cast<double>(params->resolutionX_));
+  obj.insert("resolution_y", static_cast<double>(params->resolutionY_));
+  obj.insert("interpolation_attribute", QString::fromStdString(params->attributeName_));
+  obj.insert("srid", static_cast<int32_t>(params->srid_));
+  obj.insert("active", params->active_);
 
-//  QJsonArray array;
-//  for(auto it : collector->inputOutputMap)
-//  {
-//    QJsonObject dataset;
-//    dataset.insert("input", static_cast<int32_t>(it.first));
-//    dataset.insert("output", static_cast<int32_t>(it.second));
-//    array.push_back(dataset);
-//  }
-//  obj.insert("input_output_map", array);
+  obj.insert("bounding_rect", GetBoundingRect(params->bRect_));
 
   return obj;
 }
-
-//QJsonObject terrama2::services::collector::core::toJson(IntersectionPtr intersection)
-//{
-//  QJsonObject json;
-
-//  json["class"] = QString("Intersection");
-
-//  json["collector_id"] = static_cast<qint32>(intersection->collectorId);
-
-//  QJsonObject attributeMapJson;
-//  for(auto it = intersection->attributeMap.begin(); it != intersection->attributeMap.end(); ++it)
-//  {
-//    QJsonArray attrList;
-//    for(auto& intersectionAttribute : it->second)
-//    {
-//      QJsonObject value;
-//      value["attribute"] = (QString(intersectionAttribute.attribute.c_str()));
-//      value["alias"] = (QString(intersectionAttribute.alias.c_str()));
-//      attrList.push_back(value);
-//    }
-//    attributeMapJson[QString(it->first)] = attrList;
-//  }
-//  json["attribute_map"] = attributeMapJson;
-
-//  return json;
-//}

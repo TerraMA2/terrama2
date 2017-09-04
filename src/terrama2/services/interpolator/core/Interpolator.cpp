@@ -81,7 +81,7 @@ void FillEmptyData(std::vector<terrama2::services::interpolator::core::Interpola
 }
 
 
-terrama2::services::interpolator::core::Interpolator::Interpolator(terrama2::services::interpolator::core::InterpolatorParamsPtr params) :
+terrama2::services::interpolator::core::Interpolator::Interpolator(const InterpolatorParams* params) :
   Process(),
   interpolationParams_(params)
 {
@@ -125,12 +125,13 @@ terrama2::services::interpolator::core::RasterPtr terrama2::services::interpolat
 
   // Creating raster info
   std::map<std::string, std::string> conInfo;
-  conInfo["URI"] = interpolationParams_->fileName_;
+//  conInfo["URI"] = interpolationParams_->fileName_;
 
-  // create raster
-  r.reset(te::rst::RasterFactory::make("GDAL", grid, vecBandProp, conInfo));
+//  // create raster
+//  r.reset(te::rst::RasterFactory::make("GDAL", grid, vecBandProp, conInfo));
   /////////////////////////////////////////////////////////////////////////
 
+//  interpolationParams_.
   return r;
 }
 
@@ -161,11 +162,11 @@ void terrama2::services::interpolator::core::Interpolator::fillTree()
 
     auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(provider, inputDataSeries);
 
-    std::unique_ptr<terrama2::core::Filter> filter(interpolationParams_->filter_.release());
+    terrama2::core::Filter filter = interpolationParams_->filter_;
 
-    auto uriMap = dataAccessor->getFiles(*filter.get(), remover);
+    auto uriMap = dataAccessor->getFiles(filter, remover);
 
-    auto dataMap = dataAccessor->getSeries(uriMap, *filter.get(), remover);
+    auto dataMap = dataAccessor->getSeries(uriMap, filter, remover);
 
     if(dataMap.empty())
     {
@@ -202,7 +203,8 @@ void terrama2::services::interpolator::core::Interpolator::fillTree()
     tree_->setMBR(*pts.getMBR());
     tree_->build(dataSetVec);
 
-    interpolationParams_->bRect_ = tree_->getMBR();
+    if(!interpolationParams_->bRect_.isValid())
+      interpolationParams_->bRect_ = tree_->getMBR();
 
     /////////////////////////////////////////////////////////////////////////
     TERRAMA2_LOG_INFO() << QObject::tr("Tree filled successfully.");
@@ -219,7 +221,7 @@ void terrama2::services::interpolator::core::Interpolator::fillTree()
   }
 }
 
-terrama2::services::interpolator::core::NNInterpolator::NNInterpolator(terrama2::services::interpolator::core::InterpolatorParamsPtr params) :
+terrama2::services::interpolator::core::NNInterpolator::NNInterpolator(const InterpolatorParams* params) :
   Interpolator(params)
 {
 
@@ -270,7 +272,7 @@ terrama2::services::interpolator::core::RasterPtr terrama2::services::interpolat
   return r;
 }
 
-terrama2::services::interpolator::core::AvgDistInterpolator::AvgDistInterpolator(terrama2::services::interpolator::core::InterpolatorParamsPtr params) :
+terrama2::services::interpolator::core::AvgDistInterpolator::AvgDistInterpolator(const InterpolatorParams* params) :
   Interpolator(params)
 {
 
@@ -331,7 +333,7 @@ terrama2::services::interpolator::core::RasterPtr terrama2::services::interpolat
 }
 
 
-terrama2::services::interpolator::core::SqrAvgDistInterpolator::SqrAvgDistInterpolator(terrama2::services::interpolator::core::InterpolatorParamsPtr params) :
+terrama2::services::interpolator::core::SqrAvgDistInterpolator::SqrAvgDistInterpolator(const InterpolatorParams* params) :
   Interpolator(params)
 {
 
@@ -349,9 +351,9 @@ terrama2::services::interpolator::core::RasterPtr terrama2::services::interpolat
   unsigned int resolutionY = interpolationParams_->resolutionY_,
       resolutionX = interpolationParams_->resolutionX_;
 
-  auto avgPar = std::dynamic_pointer_cast<SqrAvgDistInterpolatorParams>(interpolationParams_);
+//  auto avgPar = dynamic_cast<SqrAvgDistInterpolatorParams*>(interpolationParams_);
 
-  int powF = avgPar->pow_;
+  int powF = ((SqrAvgDistInterpolatorParams*)interpolationParams_)->pow_;
 
   for(unsigned int row = 0; row < resolutionY; row++)
     for(unsigned int col = 0; col < resolutionX; col++)

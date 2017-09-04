@@ -37,9 +37,7 @@ terrama2::services::interpolator::core::Interpolator* terrama2::services::interp
 //  InterpolatorParams* p1 = &p;
   const NNInterpolatorParams* pp = dynamic_cast<const NNInterpolatorParams*>(&p);
 
-  InterpolatorParamsPtr pptr(new NNInterpolatorParams(*pp));
-
-  NNInterpolator* i = new NNInterpolator(pptr);
+  NNInterpolator* i = new NNInterpolator(pp);
 
   return i;
 }
@@ -53,9 +51,7 @@ terrama2::services::interpolator::core::Interpolator* terrama2::services::interp
 {
   const AvgDistInterpolatorParams* pp = dynamic_cast<const AvgDistInterpolatorParams*>(&p);
 
-  InterpolatorParamsPtr pptr(new AvgDistInterpolatorParams(*pp));
-
-  AvgDistInterpolator* i = new AvgDistInterpolator(pptr);
+  AvgDistInterpolator* i = new AvgDistInterpolator(pp);
 
   return i;
 }
@@ -70,9 +66,7 @@ terrama2::services::interpolator::core::Interpolator* terrama2::services::interp
 {
   const SqrAvgDistInterpolatorParams* pp = dynamic_cast<const SqrAvgDistInterpolatorParams*>(&p);
 
-  InterpolatorParamsPtr pptr(new SqrAvgDistInterpolatorParams(*pp));
-
-  SqrAvgDistInterpolator* i = new SqrAvgDistInterpolator(pptr);
+  SqrAvgDistInterpolator* i = new SqrAvgDistInterpolator(pp);
 
   return i;
 }

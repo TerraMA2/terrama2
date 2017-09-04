@@ -83,7 +83,7 @@ namespace terrama2
            *
            * \param params The parameters to be used.
            */
-          Interpolator(InterpolatorParamsPtr params);
+          Interpolator(const InterpolatorParams* params);
 
           /*!
            * \brief Method must be implemented by the subclasses to execute the specific algorithm.
@@ -107,7 +107,7 @@ namespace terrama2
            */
           void fillTree();
 
-          InterpolatorParamsPtr interpolationParams_; //!< Parameters of interpolation.
+          const InterpolatorParams* interpolationParams_; //!< Parameters of interpolation.
 
           std::unique_ptr<InterpolatorTree> tree_;    //!< A kd-tree used to determine neighborhood.
         };
@@ -128,7 +128,7 @@ namespace terrama2
            *
            * \note \a params MUST be an instance of NNInterpolatorParams structure, or it will not work properly.
            */
-          NNInterpolator(InterpolatorParamsPtr params);
+          NNInterpolator(const InterpolatorParams* params);
 
           /*!
            * \brief Executes interpolation based on the nearest-neighbor approach.
@@ -154,7 +154,7 @@ namespace terrama2
            *
            * \note \a params MUST be an instance of AvgDistInterpolatorParams structure, or it will not work properly.
            */
-          AvgDistInterpolator(InterpolatorParamsPtr params);
+          AvgDistInterpolator(const InterpolatorParams* params);
 
           /*!
            * \brief Executes interpolation based on the simple average neighbor approach.
@@ -180,7 +180,7 @@ namespace terrama2
            *
            * \note \a params MUST be an instance of SqrAvgDistInterpolatorParams structure, or it will not work properly.
            */
-          SqrAvgDistInterpolator(InterpolatorParamsPtr params);
+          SqrAvgDistInterpolator(const InterpolatorParams* params);
 
           /*!
            * \brief Executes interpolation based on the bilinear approach.

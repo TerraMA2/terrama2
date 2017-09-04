@@ -107,16 +107,13 @@ void terrama2::services::interpolator::core::Service::interpolate(terrama2::core
 
     auto processingStartTime = terrama2::core::TimeUtils::nowUTC();
 
-    terrama2::core::Filter* filter = interpolatorParamsPtr->filter_.get();
+    terrama2::core::Filter filter = interpolatorParamsPtr->filter_;
 
-    if(filter == 0)
-      filter = new terrama2::core::Filter;
-    else if(*filter->lastValues.get() != 1)
-      filter->lastValues = std::make_shared<long unsigned int>(1);
+    if(*filter.lastValues.get() != 1)
+      filter.lastValues = std::make_shared<long unsigned int>(1);
 
-
-    if(filter->discardAfter.get() && filter->discardBefore.get()
-       && (*filter->discardAfter) < (*filter->discardBefore))
+    if(filter.discardAfter.get() && filter.discardBefore.get()
+        && (*filter.discardAfter) < (*filter.discardBefore))
     {
       QString errMsg = QObject::tr("Empty filter time range.");
 

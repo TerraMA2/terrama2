@@ -79,10 +79,10 @@ namespace terrama2
             resolutionX_(0),
             resolutionY_(0),
             interpolationType_(NEARESTNEIGHBOR),
-            srid_(0)
+            srid_(0),
+            active_(false)
           {
-            filter_.reset(new terrama2::core::Filter);
-            filter_->lastValues = std::make_shared<long unsigned int>(1);
+            filter_.lastValues = std::make_shared<long unsigned int>(1);
           }
 
           /*!
@@ -96,15 +96,22 @@ namespace terrama2
             resolutionY_ = other.resolutionY_;
             interpolationType_ = other.interpolationType_;
             bRect_ = other.bRect_;
-            fileName_ = other.fileName_;
-            filter_.reset(new terrama2::core::Filter(*other.filter_.get()));
+            filter_ = other.filter_;
             series_ = other.series_;
+            outSeries_ = other.outSeries_;
             srid_ = other.srid_;
             attributeName_ = other.attributeName_;
             id_ = other.id_;
             serviceInstanceId_ = other.serviceInstanceId_;
             dataManager_ = other.dataManager_;
             numNeighbors_ = other.numNeighbors_;
+            projectId_ = other.projectId_;
+            active_ = other.active_;
+          }
+
+          virtual ~InterpolatorParams()
+          {
+
           }
 
           /*!
@@ -120,32 +127,36 @@ namespace terrama2
             resolutionY_ = other.resolutionY_;
             interpolationType_ = other.interpolationType_;
             bRect_ = other.bRect_;
-            fileName_ = other.fileName_;
-            filter_.reset(new terrama2::core::Filter(*other.filter_.get()));
+            filter_ = other.filter_;
             series_ = other.series_;
+            outSeries_ = other.outSeries_;
             srid_ = other.srid_;
             attributeName_ = other.attributeName_;
             id_ = other.id_;
             serviceInstanceId_ = other.serviceInstanceId_;
             dataManager_ = other.dataManager_;
             numNeighbors_ = other.numNeighbors_;
+            projectId_ = other.projectId_;
+            active_ = other.active_;
 
             return *this;
           }
 
-          unsigned int resolutionX_;                            //!< Number of columns of the output raster file.
-          unsigned int resolutionY_;                            //!< Number of rows of the output raster file.
+          double resolutionX_;                            //!< Resolution in x-asis of the output (unit of the output srid).
+          double resolutionY_;                            //!< Resolution in y-asis of the output (unit of the output srid).
           InterpolatorType interpolationType_;                  //!< The interpolation algorithm to be used.
-          te::gm::Envelope bRect_;                              //!< The bounding rect of the output raster.
-          std::string fileName_;                                //!< The complete path for the output raster.
-          std::unique_ptr<terrama2::core::Filter> filter_;      //!< Information on how input data should be filtered before storage.
+          mutable te::gm::Envelope bRect_;                      //!< The bounding rect of the output raster.
+          terrama2::core::Filter filter_;      //!< Information on how input data should be filtered before storage.
           DataSeriesId series_;                                 //!< The indentifier of the data to be used by the interpolator.
+          DataSeriesId outSeries_;                              //!< The indentifier of the output data.
           int srid_;                                            //!< SRID for the output.
           std::string attributeName_;                           //!< Name of the attribute to be used by the interpolator.
           InterpolatorId id_;                                   //!< Identifier of the interpolator being used.
           ServiceInstanceId serviceInstanceId_;                 //!< Identifier of the service.
-          DataManagerPtr dataManager_;                          //!< Pointer to the data manager.
+          DataManager* dataManager_;                            //!< Pointer to the data manager.
           int numNeighbors_;                                    //!< Number of neighbors to be used in computations.
+          ProjectId projectId_;                                 //!< Identifier of the project.
+          bool active_;                                         //!< True if the service is active, false otherwise.
         };
 
         /*!
@@ -185,6 +196,10 @@ namespace terrama2
               *this = InterpolatorParams::operator=(other);
           }
 
+          ~NNInterpolatorParams()
+          {
+
+          }
 
           /*!
            * \brief Copy constructor.
@@ -260,6 +275,11 @@ namespace terrama2
           {
           }
 
+          ~AvgDistInterpolatorParams()
+          {
+
+          }
+
           /*!
            * \brief Copy operator.
            *
@@ -304,6 +324,11 @@ namespace terrama2
             InterpolatorParams(other)
           {
             pow_ = other.pow_;
+          }
+
+          ~SqrAvgDistInterpolatorParams()
+          {
+
           }
 
           /*!
