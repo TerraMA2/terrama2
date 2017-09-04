@@ -271,8 +271,15 @@ define([], function(){
           removeOperationCallback: function(err, data) {
             MessageBoxService.reset();
             if (err) {
-              MessageBoxService.danger(i18n.__("Alerts"), i18n.__(err.message));
-              return;
+              if (err.serviceStoppedError){
+                var errorWhenDeleteMessage = i18n.__("Can not delete the alert if the service is not running. ");
+                if(err.service && err.service.instance_name)
+                  errorWhenDeleteMessage += i18n.__("Service") + ": " + err.service.instance_name;
+                return MessageBoxService.danger(i18n.__("Alerts"), errorWhenDeleteMessage);            
+              } else {
+                MessageBoxService.danger(i18n.__("Alerts"), i18n.__(err.message));
+                return;
+              }
             }
             MessageBoxService.success(i18n.__("Alerts"), data.result.name + i18n.__(" removed"));
           },
@@ -314,12 +321,15 @@ define([], function(){
          */
         self.legendExtra = {
           removeOperationCallback: function(err, data) {
-            MessageBoxService.reset();
-            if(err) {
+            if(err && err.message) {
+              MessageBoxService.reset();
               MessageBoxService.danger(i18n.__("Legends"), i18n.__(err.message));
               return;
+            } else if (data){
+              MessageBoxService.reset();
+              MessageBoxService.success(i18n.__("Legends"), data.result.name + i18n.__(" removed"));
+              return;
             }
-            MessageBoxService.success(i18n.__("Legends"), data.result.name + i18n.__(" removed"));
           },
           disabledButtons: function(object) {
             return $scope.disabledButtons[object.id];
