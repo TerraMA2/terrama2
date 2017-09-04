@@ -37,6 +37,24 @@ define(
       Layers.fillLayersData();
     };
 
+    // Function to get initial date of the day
+    var getInitialDateToCalendar = function(dates){
+      var timeFormat = "YYYY-MM-DDTHH:mm:ss";
+      var initialDate = moment(dates.endDate.replace("Z",""));
+      initialDate.set({hour:0,minute:0,second:0,millisecond:0});
+      var initialDateString = initialDate.format(timeFormat) + "Z";
+      if (initialDate < moment(dates.startDate.replace("Z",""))){
+        initialDateString = dates.startDate;
+      }
+      return initialDateString;
+    };
+
+    //Function to update map date on initial request
+    var updateMapDate = function(layerId, dates){
+      var layerTime = dates.startFilterDate + "/" + dates.endFilterDate;
+      TerraMA2WebComponents.MapDisplay.updateLayerTime( /**id */ layerId, /** time */ layerTime);
+    }
+
     var loadEvents = function() {
       $('#projects').on('change', changeProjects);
 
@@ -337,8 +355,9 @@ define(
               if(!data.update || !$(li).has("#terrama2-calendar").length)
                 span += "<span id='terrama2-calendar' class='terrama2-datepicker-icon'> <i class='fa fa-calendar'></i></span>";
 
-              dateObject.startFilterDate = layerCapabilities[layerIndex].extent.endDate;
+              dateObject.startFilterDate = getInitialDateToCalendar(layerCapabilities[layerIndex].extent);
               dateObject.endFilterDate = layerCapabilities[layerIndex].extent.endDate;
+              updateMapDate(data.layerId, dateObject);
             }
 
             $(li).append($(span));
