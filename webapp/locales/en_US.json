@@ -972,7 +972,6 @@
   "w": "w",
   "Invalid address": "Invalid address",
   "The service can not access the log database!": "The service can not access the log database!",
-  "Can not delete the data series if the service is stopped": "Can not delete the data series if the service is stopped",
   "Can not delete the view if the service is not running": {
     " ": "Can not delete the view if the service is not running. "
   },
