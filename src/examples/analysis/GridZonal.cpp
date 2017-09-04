@@ -19,6 +19,9 @@
 #include <terrama2/services/analysis/core/utility/PythonInterpreterInit.hpp>
 #include <terrama2/services/analysis/core/Shared.hpp>
 
+#include <terrama2/services/analysis/mock/MockAnalysisLogger.hpp>
+
+
 #include <terrama2/impl/Utils.hpp>
 
 // STL
@@ -39,16 +42,45 @@ int main(int argc, char* argv[])
 
   terrama2::core::registerFactories();
 
-  auto& serviceManager = terrama2::core::ServiceManager::getInstance();
-  te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PASSWORD+"@"+TERRAMA2_DATABASE_HOST+":"+TERRAMA2_DATABASE_PORT+"/"+TERRAMA2_DATABASE_DBNAME);
-  serviceManager.setLogConnectionInfo(uri);
-
   terrama2::services::analysis::core::PythonInterpreterInit pythonInterpreterInit;
 
   {
     QCoreApplication app(argc, argv);
 
-    DataManagerPtr dataManager(new DataManager());
+    auto& serviceManager = terrama2::core::ServiceManager::getInstance();
+    auto dataManager = std::make_shared<terrama2::services::analysis::core::DataManager>();
+    auto loggerCopy = std::make_shared<terrama2::core::MockAnalysisLogger>();
+
+    EXPECT_CALL(*loggerCopy, setConnectionInfo(::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*loggerCopy, setTableName(::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*loggerCopy, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
+    EXPECT_CALL(*loggerCopy, getDataLastTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
+    EXPECT_CALL(*loggerCopy, done(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*loggerCopy, start(::testing::_)).WillRepeatedly(::testing::Return(0));
+    EXPECT_CALL(*loggerCopy, isValid()).WillRepeatedly(::testing::Return(true));
+
+    auto logger = std::make_shared<terrama2::core::MockAnalysisLogger>();
+
+    EXPECT_CALL(*logger, setConnectionInfo(::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*logger, setTableName(::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*logger, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
+    EXPECT_CALL(*logger, getDataLastTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
+    EXPECT_CALL(*logger, done(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*logger, start(::testing::_)).WillRepeatedly(::testing::Return(0));
+    EXPECT_CALL(*logger, clone()).WillRepeatedly(::testing::Return(loggerCopy));
+    EXPECT_CALL(*logger, isValid()).WillRepeatedly(::testing::Return(true));
+
+    te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PASSWORD+"@"+TERRAMA2_DATABASE_HOST+":"+TERRAMA2_DATABASE_PORT+"/"+TERRAMA2_DATABASE_DBNAME);
+
+    Service service(dataManager);
+    serviceManager.setInstanceId(1);
+    serviceManager.setLogger(logger);
+    serviceManager.setLogConnectionInfo(uri);
+    serviceManager.setInstanceId(1);
+
+    service.setLogger(logger);
+    service.start();
+
 
     // DataProvider information
     terrama2::core::DataProvider* outputDataProvider = new terrama2::core::DataProvider();
@@ -125,6 +157,7 @@ int main(int argc, char* argv[])
     dataSeries->name = "Monitored Object";
     dataSeries->id = 1;
     dataSeries->dataProviderId = 1;
+    dataSeries->active = true;
 
     //DataSet information
     terrama2::core::DataSet* dataSet = new terrama2::core::DataSet;
@@ -167,6 +200,7 @@ int main(int argc, char* argv[])
     dataSeries2->name = "geotiff 1";
     dataSeries2->id = 2;
     dataSeries2->dataProviderId = 2;
+    dataSeries2->active = true;
 
     terrama2::core::DataSetGrid* dataSet1 = new terrama2::core::DataSetGrid();
     dataSet1->active = true;
@@ -207,12 +241,8 @@ int main(int argc, char* argv[])
 
     terrama2::core::ServiceManager::getInstance().setInstanceId(1);
 
-    Service service(dataManager);
-    auto logger = std::make_shared<AnalysisLogger>();
-    logger->setConnectionInfo(uri);
 
-    service.setLogger(logger);
-    service.start();
+
     service.addToQueue(analysisPtr->id, terrama2::core::TimeUtils::nowUTC());
 
 

@@ -1,35 +1,32 @@
 #include <terrama2/core/Shared.hpp>
+#include <terrama2/impl/Utils.hpp>
 #include <terrama2/core/utility/Utils.hpp>
-#include <terrama2/core/utility/TimeUtils.hpp>
+
 #include <terrama2/core/utility/TerraMA2Init.hpp>
+#include <terrama2/core/utility/TimeUtils.hpp>
 #include <terrama2/core/utility/ServiceManager.hpp>
 #include <terrama2/core/utility/SemanticsManager.hpp>
+#include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/core/utility/GeoUtils.hpp>
 
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSet.hpp>
 #include <terrama2/core/data-model/DataSetDcp.hpp>
+#include <terrama2/core/data-model/DataManager.hpp>
 
-#include <terrama2/services/analysis/core/python/PythonInterpreter.hpp>
 #include <terrama2/services/analysis/core/utility/PythonInterpreterInit.hpp>
 #include <terrama2/services/analysis/core/Analysis.hpp>
 #include <terrama2/services/analysis/core/Service.hpp>
 #include <terrama2/services/analysis/core/DataManager.hpp>
+#include <terrama2/services/analysis/mock/MockAnalysisLogger.hpp>
 
-#include<terrama2/services/analysis/mock/MockAnalysisLogger.hpp>
 
-
-#include <terrama2/impl/Utils.hpp>
 #include <terrama2/Config.hpp>
-
-#include <iostream>
 
 // QT
 #include <QTimer>
 #include <QCoreApplication>
-#include <QUrl>
-
 
 using namespace terrama2::services::analysis::core;
 
@@ -78,9 +75,6 @@ int main(int argc, char* argv[])
     terrama2::services::analysis::core::PythonInterpreterInit pythonInterpreterInit;
 
     QCoreApplication app(argc, argv);
-
-
-
 
     // DataProvider information
     std::shared_ptr<terrama2::core::DataProvider> dataProvider = std::make_shared<terrama2::core::DataProvider>();
