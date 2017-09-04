@@ -63,9 +63,9 @@ var Exportation = function(io) {
       var filesFolder = null;
       var folderPath = null;
 
-      memberExportation.generateRandomFolder().then(function(filesFolderParam, folderPathParam) {
-        filesFolder = filesFolderParam;
-        folderPath = folderPathParam;
+      memberExportation.generateRandomFolder().then(function(randomFolderResult) {
+        filesFolder = randomFolderResult.filesFolder;
+        folderPath = randomFolderResult.folderPath;
 
         return memberExportation.getPgConnectionString(json.dataProviderId);
       }).then(function(connectionString) {

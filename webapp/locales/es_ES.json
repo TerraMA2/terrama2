@@ -563,6 +563,7 @@
 	"Python": "Python",
 	"SRID": "SRID",
 	"HTTP": "HTTP",
+  "HTTPS": "HTTPS",
 	"FTP": "FTP",
 
 
@@ -971,5 +972,46 @@
 	"Log database error": "",
 	"Port error": "",
 	"Email server error": "",
-	"Map server error": ""
+	"Map server error": "",
+	"About": "",
+	"Default Level Name": "",
+	"Insert the Color": "",
+	"Encoding": "",
+	"Enter the table name!": "",
+	"Error!": "",
+	"Error": "",
+	"Import Shapefile": "",
+	"Select File": "",
+	"Shapefile imported with success!": "",
+	"Success!": "",
+	"Table already exists!": "",
+	"More than one shapefile found!": "",
+	"No shapefile found!": "",
+	"File is too large!": "",
+	"Important!": "",
+  "To upload your shapefile you have to create a .zip compressed file containing all the shapefile files (.shp, .dbf, .shx, etc). The size limit is 300 MB per file, therefore, neither of the shapefile files can be larger than 300 MB.": "",
+  "Can not delete the view if the service is not running": {
+    " ": ""
+  },
+  "Can not delete the analysis if the service is not running": {
+    " ": ""
+  },
+  "Can not delete the data series if the service is not running": {
+    " ": ""
+  },
+  "Can not delete the alert if the service is not running": {
+    " ": ""
+  },
+  "If service is not running you can not save the data series": {
+    " Start the service before create or update a data series!": ""
+  },
+  "If service is not running you can not save the analysis": {
+    " Start the service before create or update an analysis!": ""
+  },
+  "If service is not running you can not save the view": {
+    " Start the service before create or update a view!": ""
+  },
+  "If service is not running you can not save the alert": {
+    " Start the service before create or update an alert!": ""
+  }
 }

@@ -2,7 +2,7 @@ define([], function() {
   function RegisterDataSeries($scope, $http, i18n, $window, $state, $httpParamSerializer,
                               DataSeriesSemanticsService, DataProviderService, DataSeriesService,
                               Service, $timeout, WizardHandler, UniqueNumber, 
-                              FilterForm, MessageBoxService, $q, GeoLibs, $compile, DateParser, FormTranslator) {
+                              FilterForm, MessageBoxService, $q, GeoLibs, $compile, DateParser, FormTranslator, Socket) {
 
     $scope.forms = {};
     $scope.isDynamic = configuration.dataSeriesType === "dynamic";
@@ -20,6 +20,24 @@ define([], function() {
     $scope.dataSeriesSemantics = [];
     $scope.storeOptions = {};
     $scope.storeOptions.isDynamic = $scope.isDynamic;
+
+    // Flag to verify if can not save if the service is not running
+    var canSave = true;
+    var serviceOfflineMessage = "If service is not running you can not save the data series. Start the service before create or update a data series!";
+
+    Socket.on('statusResponse', function(response){
+      if ($scope.forms.storagerDataForm.service && $scope.forms.storagerDataForm.service.$modelValue == response.service){
+        if (response.checking === undefined || (!response.checking && response.status === 400)) {
+          if (!response.online){
+            MessageBoxService.danger(i18n.__("Data Registration"), i18n.__(serviceOfflineMessage));
+            canSave = false;
+          } else {
+            canSave = true;
+            MessageBoxService.reset();
+          }
+        }
+      }
+    });
 
     // Functions to enable and disable forms
     // clear optional forms
@@ -287,6 +305,7 @@ define([], function() {
             return BASE_URL + "images/data-server/sftp/sftp.png";
             break;
           case "HTTP":
+          case "HTTPS":
             return BASE_URL + "images/data-server/http/http.png";
             break;
           case "POSTGIS":
@@ -1916,6 +1935,11 @@ define([], function() {
           isWizardStepValid();
         }
 
+        if (!canSave){
+          MessageBoxService.danger(i18n.__("Data Registration"), i18n.__(serviceOfflineMessage));
+          return;
+        }
+
         if($scope.forms.generalDataForm.$invalid) {
           MessageBoxService.danger(i18n.__("Data Registration"), i18n.__("There are invalid fields on form"));
           return;
@@ -2017,7 +2041,7 @@ define([], function() {
       };
     })
   }
-    RegisterDataSeries.$inject = ["$scope", "$http", "i18n", "$window", "$state", "$httpParamSerializer", "DataSeriesSemanticsService", "DataProviderService", "DataSeriesService", "Service", "$timeout", "WizardHandler", "UniqueNumber", "FilterForm", "MessageBoxService", "$q", "GeoLibs", "$compile", "DateParser", "FormTranslator"];
+    RegisterDataSeries.$inject = ["$scope", "$http", "i18n", "$window", "$state", "$httpParamSerializer", "DataSeriesSemanticsService", "DataProviderService", "DataSeriesService", "Service", "$timeout", "WizardHandler", "UniqueNumber", "FilterForm", "MessageBoxService", "$q", "GeoLibs", "$compile", "DateParser", "FormTranslator", "Socket"];
 
     return { "RegisterDataSeries": RegisterDataSeries};
 })

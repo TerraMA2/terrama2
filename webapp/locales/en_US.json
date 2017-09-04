@@ -292,6 +292,10 @@
   "Email Server Test": "Email Server Test",
   "Email successfully sent": "Email successfully sent",
   "Emails": "Emails",
+  "Encoding": "Encoding",
+  "Enter the table name!": "Enter the table name!",
+  "Error!": "Error!",
+  "Error": "Error",
   "End": "End",
   "End Date": "End Date",
   "Enter default value": "Enter default value",
@@ -310,6 +314,7 @@
   "Fields": "Fields",
   "FILE": "FILE",
   "File": "File",
+  "File is too large!": "File is too large!",
   "File name:": "File name:",
   "File name": "File name",
   "File static data": "File static data",
@@ -379,6 +384,7 @@
   "Host not found": "Host not found",
   "Hours": "Hours",
   "HTTP": "HTTP",
+  "HTTPS": "HTTPS",
   "I forgot my password": "I forgot my password",
   "ID": "ID",
   "INPE's DCP data format": "INPE's DCP data format",
@@ -396,8 +402,10 @@
   "Image Generate": "Image Generate",
   "Import": "Import",
   "Import CSV": "Import CSV",
+  "Import Shapefile": "Import Shapefile",
   "Import process executed with success": "Import process executed with success",
   "Import process executed with success, but there were duplicated Alias, check the values": "Import process executed with success, but there were duplicated Alias, check the values",
+  "Important!": "Important!",
   "Inactive": "Inactive",
   "Include Report": "Include Report",
   "Include report": "Include report",
@@ -525,6 +533,7 @@
   "Monitored object analysis": "Monitored object analysis",
   "Monitored object analysis result": "Monitored object analysis result",
   "Monitored object attributes": "Monitored object attributes",
+  "More than one shapefile found!": "More than one shapefile found!",
   "Multiplier": "Multiplier",
   "Must have a valid store values to create an intersection": "Must have a valid store values to create an intersection",
   "Name": "Name",
@@ -554,6 +563,7 @@
   "No project found": "No project found",
   "No project found.": "No project found.",
   "No projects found.": "No projects found.",
+  "No shapefile found!": "No shapefile found!",
   "No view service found": "No view service found",
   "Nome": "Nome",
   "None": "None",
@@ -713,6 +723,7 @@
   "Select at least one attribute": "Select at least one attribute",
   "Select attribute identifier": "Select attribute identifier",
   "Select attributes": "Select attributes",
+  "Select File": "Select File",
   "Select the Alert Service to be Used": "Select the Alert Service to be Used",
   "Select the Analysis Service to be Used": "Select the Analysis Service to be Used",
   "Select the Collector Service to be Used": "Select the Collector Service to be Used",
@@ -756,6 +767,7 @@
   "Services": "Services",
   "Services Handling": "Services Handling",
   "SFTP": "SFTP",
+  "Shapefile imported with success!": "Shapefile imported with success!",
   "Show": "Show",
   "Showing": "Showing",
   "Showing 0 to 0 of 0 entries": "Showing 0 to 0 of 0 entries",
@@ -805,11 +817,13 @@
   "Storager": "Storager",
   "Store": "Store",
   "Style": "Style",
+  "Success!": "Success!",
   "Suffix": "Suffix",
   "Sum": "Sum",
   "Sunday": "Sunday",
   "Syntax Check": "Syntax Check",
   "TOA5 DCP format": "TOA5 DCP format",
+  "Table already exists!": "Table already exists!",
   "Table Name": "Table Name",
   "Table_name": "Table name",
   "table_name": "Table name",
@@ -846,6 +860,7 @@
   "To import this file you need to have at least one collector service": "To import this file you need to have at least one collector service",
   "To import this file you need to have at least one project": "To import this file you need to have at least one project",
   "To import this file you need to have at least one view service": "To import this file you need to have at least one view service",
+  "To upload your shapefile you have to create a .zip compressed file containing all the shapefile files (.shp, .dbf, .shx, etc). The size limit is 300 MB per file, therefore, neither of the shapefile files can be larger than 300 MB.": "To upload your shapefile you have to create a .zip compressed file containing all the shapefile files (.shp, .dbf, .shx, etc). The size limit is 300 MB per file, therefore, neither of the shapefile files can be larger than 300 MB.",
   "Tuesday": "Tuesday",
   "Type": "Type",
   "Type a projetion": {
@@ -957,11 +972,34 @@
   "w": "w",
   "Invalid address": "Invalid address",
   "The service can not access the log database!": "The service can not access the log database!",
-  "Error": " read ECONNRESET",
   "The service can not access the map server!": "The service can not access the map server!",
   "Host service error": "Host service error: ",
   "Log database error": "Log database error: ",
   "Port error": "Port error: ",
   "Email server error": "Email server error: ",
-  "Map server error": "Map server error: "
+  "Map server error": "Map server error: ",
+  "Can not delete the view if the service is not running": {
+    " ": "Can not delete the view if the service is not running. "
+  },
+  "Can not delete the analysis if the service is not running": {
+    " ": "Can not delete the analysis if the service is not running. "
+  },
+  "Can not delete the data series if the service is not running": {
+    " ": "Can not delete the data series if the service is not running. "
+  },
+  "Can not delete the alert if the service is not running": {
+    " ": "Can not delete the alert if the service is not running. "
+  },
+  "If service is not running you can not save the data series": {
+    " Start the service before create or update a data series!": "If service is not running you can not save the data series. Start the service before create or update a data series!"
+  },
+  "If service is not running you can not save the analysis": {
+    " Start the service before create or update an analysis!": "If service is not running you can not save the analysis. Start the service before create or update an analysis!"
+  },
+  "If service is not running you can not save the view": {
+    " Start the service before create or update a view!": "If service is not running you can not save the view. Start the service before create or update a view!"
+  },
+  "If service is not running you can not save the alert": {
+    " Start the service before create or update an alert!": "If service is not running you can not save the alert. Start the service before create or update an alert!"
+  }
 }

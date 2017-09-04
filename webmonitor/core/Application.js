@@ -50,7 +50,7 @@ Application.prototype.setCurrentContext = function(context) {
   }
   // checking if there is a context in configuration file
   if (_settings && !_settings.hasOwnProperty(context)) {
-    var msg = util.format("\"%s\" not found in configuration file. Please check \"webapp/config/monitor.json\"", context);
+    var msg = "\"" + context + "\" not found in configuration file. Please check \"webapp/config/monitor.json\"";
     throw new Error(msg);
   }
 
