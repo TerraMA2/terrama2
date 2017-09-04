@@ -4,14 +4,12 @@
  * Class responsible to export a project
  * @class ExportProject
  * 
- * 
  * @property {object} json - Object with data to export.
  * @property {object} callback - Function to callback the result.
  */
 var ExportProject = function(json, callback){
 
   var DataManager = require("./DataManager");
-  // bluebird promise
   var Promise = require("bluebird");
 
   var countObjectProperties = function(object) {
@@ -22,7 +20,7 @@ var ExportProject = function(json, callback){
 
     return count;
   };
-  
+
   var output = {
     Projects: [],
     DataProviders: [],

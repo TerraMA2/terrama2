@@ -22,7 +22,7 @@ var ImportProject = function(json, callback){
 
   var countObjectProperties = function(object) {
     var count = 0;
-    
+
     if(object !== undefined && object !== null && typeof object === "object")
       for(var key in object) if(object.hasOwnProperty(key)) count++;
 
