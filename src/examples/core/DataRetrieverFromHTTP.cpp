@@ -52,6 +52,7 @@ int main(int argc, char* argv[])
     dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
     dataProvider->dataProviderType = "HTTP";
     dataProvider->active = true;
+    dataProvider->timeout = 16;
 
     //empty filter
     terrama2::core::Filter filter;
