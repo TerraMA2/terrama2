@@ -1,37 +1,36 @@
-
 #include <terrama2/core/Shared.hpp>
+#include <terrama2/impl/Utils.hpp>
 #include <terrama2/core/utility/Utils.hpp>
-#include <terrama2/core/utility/TimeUtils.hpp>
+
 #include <terrama2/core/utility/TerraMA2Init.hpp>
-#include <terrama2/core/utility/DataAccessorFactory.hpp>
-#include <terrama2/core/utility/Logger.hpp>
+#include <terrama2/core/utility/TimeUtils.hpp>
 #include <terrama2/core/utility/ServiceManager.hpp>
 #include <terrama2/core/utility/SemanticsManager.hpp>
+#include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/utility/GeoUtils.hpp>
+
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSet.hpp>
 #include <terrama2/core/data-model/DataSetGrid.hpp>
+#include <terrama2/core/data-model/DataManager.hpp>
 
-#include <terrama2/services/analysis/core/Analysis.hpp>
-#include <terrama2/services/analysis/core/DataManager.hpp>
-#include <terrama2/services/analysis/core/Service.hpp>
-#include <terrama2/services/analysis/core/python/PythonInterpreter.hpp>
+#include <terrama2/services/collector/core/Service.hpp>
+#include <terrama2/services/collector/core/Collector.hpp>
+
 #include <terrama2/services/analysis/core/utility/PythonInterpreterInit.hpp>
-#include <terrama2/services/analysis/core/Shared.hpp>
-
+#include <terrama2/services/analysis/core/Analysis.hpp>
+#include <terrama2/services/analysis/core/Service.hpp>
+#include <terrama2/services/analysis/core/DataManager.hpp>
 #include <terrama2/services/analysis/mock/MockAnalysisLogger.hpp>
 
 
-#include <terrama2/impl/Utils.hpp>
-
-// STL
-#include <iostream>
-#include <memory>
+#include <terrama2/Config.hpp>
 
 // QT
 #include <QTimer>
+#include <QString>
 #include <QCoreApplication>
-#include <QUrl>
 
 using namespace terrama2::services::analysis::core;
 
@@ -48,7 +47,9 @@ int main(int argc, char* argv[])
     QCoreApplication app(argc, argv);
 
     auto& serviceManager = terrama2::core::ServiceManager::getInstance();
+
     auto dataManager = std::make_shared<terrama2::services::analysis::core::DataManager>();
+
     auto loggerCopy = std::make_shared<terrama2::core::MockAnalysisLogger>();
 
     EXPECT_CALL(*loggerCopy, setConnectionInfo(::testing::_)).WillRepeatedly(::testing::Return());
@@ -75,7 +76,7 @@ int main(int argc, char* argv[])
     Service service(dataManager);
     serviceManager.setInstanceId(1);
     serviceManager.setLogger(logger);
-    serviceManager.setLogConnectionInfo(uri);
+    serviceManager.setLogConnectionInfo(te::core::URI(""));
     serviceManager.setInstanceId(1);
 
     service.setLogger(logger);
@@ -83,8 +84,7 @@ int main(int argc, char* argv[])
 
 
     // DataProvider information
-    terrama2::core::DataProvider* outputDataProvider = new terrama2::core::DataProvider();
-    terrama2::core::DataProviderPtr outputDataProviderPtr(outputDataProvider);
+    std::shared_ptr<terrama2::core::DataProvider> outputDataProvider = std::make_shared<terrama2::core::DataProvider>();
     outputDataProvider->id = 3;
     outputDataProvider->name = "DataProvider postgis";
     outputDataProvider->uri = uri.uri();
@@ -93,17 +93,16 @@ int main(int argc, char* argv[])
     outputDataProvider->active = true;
 
 
-    dataManager->add(outputDataProviderPtr);
+    dataManager->add(outputDataProvider);
 
     auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
 
     // DataSeries information
-    terrama2::core::DataSeries* outputDataSeries = new terrama2::core::DataSeries();
-    terrama2::core::DataSeriesPtr outputDataSeriesPtr(outputDataSeries);
+    std::shared_ptr<terrama2::core::DataSeries> outputDataSeries = std::make_shared<terrama2::core::DataSeries>();
     outputDataSeries->id = 3;
     outputDataSeries->name = "Analysis result";
     outputDataSeries->semantics = semanticsManager.getSemantics("ANALYSIS_MONITORED_OBJECT-postgis");
-    outputDataSeries->dataProviderId = outputDataProviderPtr->id;
+    outputDataSeries->dataProviderId = outputDataProvider->id;
 
 
     // DataSet information
@@ -116,43 +115,40 @@ int main(int argc, char* argv[])
     outputDataSeries->datasetList.emplace_back(outputDataSet);
 
 
-    dataManager->add(outputDataSeriesPtr);
+    dataManager->add(outputDataSeries);
 
 
-    Analysis* analysis = new Analysis;
-    AnalysisPtr analysisPtr(analysis);
-
+    std::shared_ptr<terrama2::services::analysis::core::Analysis> analysis = std::make_shared<terrama2::services::analysis::core::Analysis>();
     analysis->id = 1;
     analysis->name = "Analysis";
     analysis->active = true;
-
+    analysis->outputDataSetId = outputDataSet->id;
+    analysis->outputDataSeriesId = 3;
     std::string script = "x = grid.zonal.count(\"geotiff 1\")\n"
                          "add_value(\"min\", x)\n"
                          "return";
 
 
     analysis->script = script;
-    analysis->outputDataSeriesId = 3;
     analysis->scriptLanguage = ScriptLanguage::PYTHON;
     analysis->type = AnalysisType::MONITORED_OBJECT_TYPE;
     analysis->serviceInstanceId = 1;
 
-    terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
-    terrama2::core::DataProviderPtr dataProvider1Ptr(dataProvider);
+
+    std::shared_ptr<terrama2::core::DataProvider> dataProvider = std::make_shared<terrama2::core::DataProvider>();
     dataProvider->name = "Provider";
-    dataProvider->uri += TERRAMA2_DATA_DIR + "/shapefile";
+    dataProvider->uri = uri.uri();
     dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
-    dataProvider->dataProviderType = "FILE";
+    dataProvider->dataProviderType = "POSTGIS";
     dataProvider->active = true;
     dataProvider->id = 1;
 
-    dataManager->add(dataProvider1Ptr);
+    dataManager->add(dataProvider);
 
 
-    terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
-    terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
+    std::shared_ptr<terrama2::core::DataSeries> dataSeries = std::make_shared<terrama2::core::DataSeries>();
     dataSeries->dataProviderId = dataProvider->id;
-    dataSeries->semantics = semanticsManager.getSemantics("STATIC_DATA-ogr");
+    dataSeries->semantics = semanticsManager.getSemantics("STATIC_DATA-postgis");
     dataSeries->semantics.dataSeriesType = terrama2::core::DataSeriesType::GEOMETRIC_OBJECT;
     dataSeries->name = "Monitored Object";
     dataSeries->id = 1;
@@ -160,42 +156,37 @@ int main(int argc, char* argv[])
     dataSeries->active = true;
 
     //DataSet information
-    terrama2::core::DataSet* dataSet = new terrama2::core::DataSet;
-    terrama2::core::DataSetPtr dataSetPtr(dataSet);
+    std::shared_ptr<terrama2::core::DataSet> dataSet = std::make_shared<terrama2::core::DataSet>();
     dataSet->active = true;
-    dataSet->format.emplace("mask", "estados_2010.shp");
-    dataSet->format.emplace("srid", "4326");
+    dataSet->format.emplace("table_name", "estados_2010");
     dataSet->id = 1;
     dataSet->dataSeriesId = 1;
 
-    dataSeries->datasetList.push_back(dataSetPtr);
-    dataManager->add(dataSeriesPtr);
+    dataSeries->datasetList.push_back(dataSet);
+    dataManager->add(dataSeries);
 
     AnalysisDataSeries monitoredObjectADS;
     monitoredObjectADS.id = 1;
-    monitoredObjectADS.dataSeriesId = dataSeriesPtr->id;
+    monitoredObjectADS.dataSeriesId = dataSeries->id;
     monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
     monitoredObjectADS.metadata["identifier"] = "nome";
 
 
     // DataProvider information
-    terrama2::core::DataProvider* dataProvider2 = new terrama2::core::DataProvider();
-    terrama2::core::DataProviderPtr dataProvider2Ptr(dataProvider2);
+    std::shared_ptr<terrama2::core::DataProvider> dataProvider2 = std::make_shared<terrama2::core::DataProvider>();
     dataProvider2->uri = "file://"+TERRAMA2_DATA_DIR+"/geotiff";
-
     dataProvider2->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
     dataProvider2->dataProviderType = "FILE";
     dataProvider2->active = true;
     dataProvider2->id = 2;
     dataProvider2->name = "Local Geotiff";
 
-    dataManager->add(dataProvider2Ptr);
+    dataManager->add(dataProvider2);
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Data Series 2
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
-    terrama2::core::DataSeries* dataSeries2 = new terrama2::core::DataSeries();
-    terrama2::core::DataSeriesPtr dataSeries2Ptr(dataSeries2);
+    std::shared_ptr<terrama2::core::DataSeries> dataSeries2 = std::make_shared<terrama2::core::DataSeries>();
     dataSeries2->semantics = semanticsManager.getSemantics("GRID-static_gdal");
     dataSeries2->name = "geotiff 1";
     dataSeries2->id = 2;
@@ -211,11 +202,11 @@ int main(int argc, char* argv[])
 
     AnalysisDataSeries gridADS1;
     gridADS1.id = 2;
-    gridADS1.dataSeriesId = dataSeries2Ptr->id;
+    gridADS1.dataSeriesId = dataSeries2->id;
     gridADS1.type = AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE;
 
 
-    dataManager->add(dataSeries2Ptr);
+    dataManager->add(dataSeries2);
 
     std::vector<AnalysisDataSeries> analysisDataSeriesList;
     analysisDataSeriesList.push_back(monitoredObjectADS);
@@ -224,9 +215,7 @@ int main(int argc, char* argv[])
     analysis->analysisDataSeriesList = analysisDataSeriesList;
 
 
-    AnalysisOutputGrid* outputGrid = new AnalysisOutputGrid();
-    AnalysisOutputGridPtr outputGridPtr(outputGrid);
-
+    std::shared_ptr<AnalysisOutputGrid> outputGrid = std::make_shared<AnalysisOutputGrid>();
     outputGrid->analysisId = 1;
     outputGrid->interpolationMethod = InterpolationMethod::BILINEAR;
     outputGrid->interestAreaType = InterestAreaType::SAME_FROM_DATASERIES;
@@ -235,15 +224,15 @@ int main(int argc, char* argv[])
     outputGrid->resolutionDataSeriesId = 1;
     outputGrid->interpolationDummy = -1;
 
-    analysis->outputGridPtr = outputGridPtr;
+    analysis->outputGridPtr = outputGrid;
 
-    dataManager->add(analysisPtr);
+    dataManager->add(analysis);
 
     terrama2::core::ServiceManager::getInstance().setInstanceId(1);
 
 
 
-    service.addToQueue(analysisPtr->id, terrama2::core::TimeUtils::nowUTC());
+    service.addToQueue(analysis->id, terrama2::core::TimeUtils::nowUTC());
 
 
     QTimer timer;
