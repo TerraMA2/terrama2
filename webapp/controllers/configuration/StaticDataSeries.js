@@ -22,9 +22,10 @@ module.exports = function(app) {
 
     edit: function(request, response) {
       var dataSeriesId = request.params.id;
+      var hasPermissionToEdit = app.locals.activeProject.hasPermissionToEdit;
 
       DataManager.getDataSeries({id: dataSeriesId}).then(function(dataSeriesResult) {
-        response.render('configuration/dataset', {type: "static", "Enums": Enums, dataSeries: {input: dataSeriesResult.rawObject()}});
+        response.render('configuration/dataset', {type: "static", "Enums": Enums, dataSeries: {input: dataSeriesResult.rawObject()}, hasPermissionToEdit: hasPermissionToEdit});
       }).catch(function(err) {
         response.render('base/404');
       })

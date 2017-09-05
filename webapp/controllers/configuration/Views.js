@@ -16,9 +16,10 @@ module.exports = function(app) {
       return response.render("configuration/view", {ScheduleType: ScheduleType, ViewSourceType: ViewSourceType});
     },
     edit: function(request, response) {
+      var hasPermissionToEdit = app.locals.activeProject.hasPermissionToEdit;
       DataManager.getView({id: parseInt(request.params.id)})
         .then(function(view) {
-          return response.render("configuration/view", {view: view.rawObject(), ScheduleType: ScheduleType, ViewSourceType: ViewSourceType});
+          return response.render("configuration/view", {view: view.rawObject(), ScheduleType: ScheduleType, ViewSourceType: ViewSourceType, hasPermissionToEdit: hasPermissionToEdit});
         }).catch(function(err) {
           return response.render("base/404");
         });

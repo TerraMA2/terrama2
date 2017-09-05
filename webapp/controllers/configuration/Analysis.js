@@ -16,12 +16,14 @@ module.exports = function(app) {
 
     edit: function(request, response) {
       var analysisId = request.params.id;
+      var hasPermissionToEdit = app.locals.activeProject.hasPermissionToEdit;
 
       DataManager.getAnalysis({id: analysisId, project_id: app.locals.activeProject.id}).then(function(analysisResult) {
         response.render("configuration/analysis", {
           Enums: Enums,
           analysis: analysisResult.rawObject(),
-          projectId: app.locals.activeProject.id
+          projectId: app.locals.activeProject.id,
+          hasPermissionToEdit: hasPermissionToEdit
         });
       }).catch(function(err) {
         response.render("base/404");

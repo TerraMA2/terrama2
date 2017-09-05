@@ -66,6 +66,7 @@ module.exports = function(app) {
 
     edit: function(request, response) {
       var dataSeriesId = request.params.id;
+      var hasPermissionToEdit = app.locals.activeProject.hasPermissionToEdit;
 
       DataManager.getCollector({
         output: {
@@ -85,7 +86,8 @@ module.exports = function(app) {
               input: dataSeriesResults[0].rawObject(),
               output: dataSeriesResults[1].rawObject()
             },
-            collector: collectorResult.rawObject()
+            collector: collectorResult.rawObject(),
+            hasPermissionToEdit: hasPermissionToEdit
           });
         });
       }).catch(function(err) {
@@ -101,7 +103,8 @@ module.exports = function(app) {
               "Enums": Enums,
               dataSeries: {
                 input: dataSeries.rawObject()
-              }
+              },
+              hasPermissionToEdit: hasPermissionToEdit
             });
           }).catch(function(err) {
             response.render('base/404');

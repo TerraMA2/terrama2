@@ -1003,5 +1003,21 @@
   },
   "If service is not running you can not save the alert": {
     " Start the service before create or update an alert!": ""
-  }
+  },
+	"Permission": "",
+	"You can not edit this data server": {
+		" He belongs to a private project!": ""
+	},
+	"You can not edit this data series": {
+		" He belongs to a private project!": ""
+	},
+	"You can not edit this analysis": {
+		" He belongs to a private project!": ""
+	},
+	"You can not edit this view": {
+		" He belongs to a private project!": ""
+	},
+	"You can not edit this alert": {
+		" He belongs to a private project!": ""
+	}
 }

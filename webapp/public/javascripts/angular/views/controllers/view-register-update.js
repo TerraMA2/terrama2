@@ -104,6 +104,12 @@ define([], function() {
 
     self.hasStyle = false;
 
+    var hasPermissionToEdit = config.hasPermissionToEdit;
+
+    if (self.isUpdating && !hasPermissionToEdit){
+      MessageBoxService.danger(i18n.__("Permission"), i18n.__("You can not edit this view. He belongs to a private project!"));
+    }
+
     // Flag to verify if can not save if the service is not running
     var canSave = true;
     var serviceOfflineMessage = "If service is not running you can not save the view. Start the service before create or update a view!";
@@ -176,7 +182,6 @@ define([], function() {
             canSave = false;
           } else {
             canSave = true;
-            self.close();
           }
         }
       }
@@ -369,8 +374,6 @@ define([], function() {
     function onDataSeriesChanged(dataSeriesId) {
       self.dataSeries.some(function(dSeries) {
         if (dSeries.id === dataSeriesId) {
-          // reset message box
-          self.close();
           // setting view data series
           self.viewDataSeries = dSeries;
           // setting target data series type name in order to display style view
@@ -413,6 +416,10 @@ define([], function() {
 
       if (!self.isValid) {
         return;
+      }
+
+      if (self.isUpdating && !hasPermissionToEdit){
+        return MessageBoxService.danger(i18n.__("Permission"), i18n.__("You can not edit this view. He belongs to a private project!"));
       }
 
       if (!canSave){

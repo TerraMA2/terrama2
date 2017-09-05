@@ -19,9 +19,10 @@ module.exports = function(app) {
         response.render("configuration/alert", { disablePDF: config.disablePDF });
     },
     edit: function(request, response) {
+      var hasPermissionToEdit = app.locals.activeProject.hasPermissionToEdit;
       DataManager.getAlert({id: parseInt(request.params.id)})
         .then(function(alert) {
-          return response.render("configuration/alert", { disablePDF: config.disablePDF, alert: alert.rawObject() });
+          return response.render("configuration/alert", { disablePDF: config.disablePDF, alert: alert.rawObject(), hasPermissionToEdit: hasPermissionToEdit });
         }).catch(function(err) {
           return response.render("base/404");
         });

@@ -95,6 +95,12 @@ define(function() {
       protocol: conf.dataProvider.data_provider_type_name
     };
 
+    var hasPermissionToEdit = conf.hasPermissionToEdit;
+    
+    if ($scope.isEditing && !hasPermissionToEdit){
+      MessageBoxService.danger(i18n.__("Permission"), i18n.__("You can not edit this data server. He belongs to a private project!"));
+    }
+
     $scope.initActive = function() {
       $scope.dataProvider.active = (conf.dataProvider.active === false || conf.dataProvider.active) ? conf.dataProvider.active : true;
     };
@@ -179,6 +185,11 @@ define(function() {
 
     $scope.save = function() {
       $scope.close();
+
+      if ($scope.isEditing && !hasPermissionToEdit){
+        return MessageBoxService.danger(i18n.__("Permission"), i18n.__("You can not edit this data server. He belongs to a private project!"));
+      }
+
       $scope.$broadcast("formFieldValidation");
 
       // calling auto generate form validation
