@@ -172,7 +172,7 @@ void terrama2::core::PythonInterpreter::runScript(const std::string& script)
                                      nspace.ptr(),
                                      nspace.ptr() ) ));
   }
-  catch( error_already_set )
+  catch(const error_already_set&)
   {
     // extractException();
     PyErr_Print();
@@ -194,7 +194,7 @@ std::string terrama2::core::PythonInterpreter::runScriptWithStringResult(const s
 
     return out;
   }
-  catch( error_already_set )
+  catch(const error_already_set&)
   {
     PyErr_Print();
   }
