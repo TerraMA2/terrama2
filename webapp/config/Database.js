@@ -20,7 +20,7 @@ var sequelize = null;
  */
 var Database = function(pathToConfig) {
   if (pathToConfig === undefined || !pathToConfig) {
-    pathToConfig = path.join(__dirname, 'webapp.json');
+    pathToConfig = path.join(__dirname, '/instances/default.json');
   }
 
   /**

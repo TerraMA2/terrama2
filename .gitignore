@@ -21,3 +21,4 @@ webapp/public/dist
 scripts/postinst
 scripts/prerm
 scripts/postrm
+webapp/config/instances
