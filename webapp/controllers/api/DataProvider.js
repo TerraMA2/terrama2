@@ -42,11 +42,13 @@ module.exports = function(app) {
                 active: dataProviderReceived.active || false
               };
 
-              if (uriObject.protocol == 'FTP'){
+              if(uriObject.protocol == 'FTP' || uriObject.protocol == 'HTTP' || uriObject.protocol == 'HTTPS') {
                 dataProviderObject['configuration'] = {
-                  active_mode: uriObject.active_mode,
                   timeout: uriObject.timeout
                 }
+
+                if(uriObject.protocol == 'FTP')
+                  dataProviderObject['configuration']['active_mode'] = uriObject.active_mode;
               }
 
               // try to save
@@ -119,11 +121,13 @@ module.exports = function(app) {
         uri: requester.uri
       };
 
-      if (uriObject.protocol == 'FTP'){
+      if(uriObject.protocol == 'FTP' || uriObject.protocol == 'HTTP' || uriObject.protocol == 'HTTPS') {
         toUpdate['configuration'] = {
-          active_mode: uriObject.active_mode,
           timeout: uriObject.timeout
         }
+
+        if(uriObject.protocol == 'FTP')
+          toUpdate['configuration']['active_mode'] = uriObject.active_mode;
       }
 
       if (dataProviderId) {
