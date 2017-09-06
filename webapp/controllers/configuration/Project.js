@@ -8,6 +8,8 @@ module.exports = function(app) {
     get: function (request, response) {
       DataManager.load().then(function() {
         var parameters = makeTokenParameters(request.query.token, app);
+        var hasProjectPermission = app.locals.activeProject.hasProjectPermission;
+        parameters.hasProjectPermission = hasProjectPermission;
 
         response.render("configuration/projects", Object.assign({context: request.query.context, user_id: request.user.id}, parameters));
       });

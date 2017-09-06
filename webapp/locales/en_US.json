@@ -1011,5 +1011,6 @@
   },
   "You can not edit this alert": {
     " He belongs to a private project!": "You can not edit this alert. He belongs to a private project!"
-  }
+  },
+  "User is not allowed": "User is not allowed"
 }

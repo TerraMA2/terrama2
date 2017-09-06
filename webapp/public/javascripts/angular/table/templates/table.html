@@ -243,12 +243,13 @@
             </button>
           </td>
 
-          <td ng-if="isFunction(remove)" class="pull-cell-left">
+          <td ng-if="isFunction(remove)" class="pull-cell-left"
+              data-toggle="tooltip"
+              data-placement="top"
+              title="{{ extra.canRemove ? i18n.__('Remove data') : i18n.__('User is not allowed') }}">
             <button class="btn btn-sm btn-danger"
                     ng-click="confirmRemoval(element)"
-                    data-toggle="tooltip"
-                    data-placement="top"
-                    title="{{ i18n.__('Remove data') }}">
+                    ng-disabled="!extra.canRemove">
               <span class="glyphicon glyphicon-remove"></span>
               <span class="hidden-xs"></span>
               <span ng-bind="i18n.__('Remove')"></span>
