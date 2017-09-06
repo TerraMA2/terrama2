@@ -59,13 +59,6 @@ terrama2::core::PythonInterpreter::PythonInterpreter()
   : Interpreter(),
   impl_(new Impl())
 {
-  if(Py_IsInitialized())
-  {
-    Py_Finalize();
-  }
-
-  Py_Initialize();
-
   impl_->mainThreadState_ = PyThreadState_Get();
   StateLock lock(impl_->mainThreadState_);
   impl_->interpreterState_ = Py_NewInterpreter();
