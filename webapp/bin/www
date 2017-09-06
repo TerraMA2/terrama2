@@ -176,7 +176,7 @@ io.attach(server);
 load('sockets').into(io);
 
 // getting db configuration and initializes data manager
-return DataManager.init(function (error) {
+return DataManager.init(null, function (error) {
   if (error) {
     logger.error(error);
     return process.exit(1);

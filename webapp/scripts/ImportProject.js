@@ -4,11 +4,17 @@ var fs = require('fs');
 var ImportProjectMember = require("./../core/ImportProject");
 var projectFilePath = process.argv[2];
 if (!projectFilePath) {
-  console.log("Invalid path");
+  console.log("Invalid project path");
   return;
 }
+var configFilePath = process.argv[3];
+if (!configFilePath){
+  console.log("Invalid database configuration file path");
+  return;
+}
+
 var DataManager = require("./../core/DataManager");
-DataManager.init(function(err){
+DataManager.init(configFilePath, function(err){
   if (err){
     console.log("Error to load database. Error: " + err);
   }
