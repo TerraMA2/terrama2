@@ -89,6 +89,13 @@ namespace terrama2
           - any alteration of the instance is persisted.
       */
       virtual void runScript(const std::string& script) = 0;
+      /*!
+        \brief Execute the script in the interpreter instance and returns the value of a given string variable.
+
+          - any former modification is still valid.
+          - any alteration of the instance is persisted.
+      */
+      virtual std::string runScriptWithStringResult(const std::string& script, const std::string& variableToReturn) = 0;
     };
   } /* core */
 } /* terrama2 */
