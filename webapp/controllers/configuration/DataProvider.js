@@ -8,6 +8,7 @@ var UriBuilder = require('../../core/UriBuilder');
 var RequestFactory = require("../../core/RequestFactory");
 var fs = require('fs');
 var path = require("path");
+var Application = require("./../../core/Application");
 
 module.exports = function(app) {
   return {
@@ -19,7 +20,8 @@ module.exports = function(app) {
 
     new: function(request, response) {
       var redirectTo = request.query.redirectTo ? request.query : {redirectTo: app.locals.BASE_URL + "configuration/providers"};
-      var configFile = JSON.parse(fs.readFileSync(path.join(__dirname, "../../config/webapp.json"), "utf-8"));
+      // Creating default PostGIS and File providers
+      var configFile = Application.getContextConfig();
 
       return response.render("configuration/provider", {
         isEditing: false,
@@ -29,14 +31,15 @@ module.exports = function(app) {
           method: "POST"
         },
         redirectTo: redirectTo,
-        defaultFilePath: configFile.default.defaultFilePath
+        defaultFilePath: configFile.defaultFilePath
       });
     },
 
     edit: function(request, response) {
       var dataProviderId = request.params.id;
       var redirectTo = request.query.redirectTo ? request.query : {redirectTo: app.locals.BASE_URL + "configuration/providers"};
-      var configFile = JSON.parse(fs.readFileSync(path.join(__dirname, "../../config/webapp.json"), "utf-8"));
+      // Creating default PostGIS and File providers
+      var configFile = Application.getContextConfig();
 
       DataManager.getDataProvider({id: parseInt(dataProviderId || "0")}).then(function(dataProvider) {
         var requester = RequestFactory.buildFromUri(dataProvider.uri);
@@ -58,7 +61,7 @@ module.exports = function(app) {
           },
           fields: requester.constructor.fields(),
           redirectTo: redirectTo,
-          defaultFilePath: configFile.default.defaultFilePath
+          defaultFilePath: configFile.defaultFilePath
         });
       }).catch(function(err) {
         logger.debug(err);
