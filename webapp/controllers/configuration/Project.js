@@ -8,7 +8,7 @@ module.exports = function(app) {
     get: function (request, response) {
       DataManager.load().then(function() {
         var parameters = makeTokenParameters(request.query.token, app);
-        var hasProjectPermission = app.locals.activeProject.hasProjectPermission;
+        var hasProjectPermission = app.locals.activeProject.hasProjectPermission || true;
         parameters.hasProjectPermission = hasProjectPermission;
 
         response.render("configuration/projects", Object.assign({context: request.query.context, user_id: request.user.id}, parameters));
@@ -34,7 +34,7 @@ module.exports = function(app) {
 
       DataManager.getProject({name: projectName}).then(function(project) {
         var hasProjectPermission = false;
-        if (request.user.id == project.user_id || project.private == false){
+        if (request.user.id == project.user_id || !project.private){
           hasProjectPermission = true;
         } 
         app.locals.activeProject = {id: project.id, name: project.name, private: project.private, userId: project.user_id, hasProjectPermission: hasProjectPermission};

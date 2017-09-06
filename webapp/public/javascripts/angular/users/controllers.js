@@ -85,6 +85,7 @@ define([
 
       // callback after remove operation
       $scope.extra = {
+        canRemove: true,
         removeOperationCallback: function(err, data) {
           if(err) {
             return MessageBoxService.danger(i18n.__(title), i18n.__(err.message));
