@@ -78,7 +78,7 @@ terrama2::services::interpolator::core::InterpolatorParams* terrama2::services::
   if(!(json.contains("id")
        && json.contains("project_id")
        && json.contains("service_instance_id")
-       && json.contains("input_data_serQJsonObjecties")
+       && json.contains("input_data_series")
        && json.contains("output_data_series")
        && json.contains("bounding_rect")
        && json.contains("interpolator_strategy")

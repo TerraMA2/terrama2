@@ -34,7 +34,6 @@ terrama2::services::interpolator::core::NNInterpolatorFactory::NNInterpolatorFac
 
 terrama2::services::interpolator::core::Interpolator* terrama2::services::interpolator::core::NNInterpolatorFactory::build(const InterpolatorParams& p)
 {
-//  InterpolatorParams* p1 = &p;
   const NNInterpolatorParams* pp = dynamic_cast<const NNInterpolatorParams*>(&p);
 
   NNInterpolator* i = new NNInterpolator(pp);

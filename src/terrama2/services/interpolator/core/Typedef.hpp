@@ -197,15 +197,6 @@ namespace terrama2
          * \ingroup interpolator
          */
         typedef std::shared_ptr<terrama2::services::interpolator::core::DataManager> DataManagerPtr;
-
-        /*!
-         * \typedef RasterPtr
-         *
-         * \brief Defines a smart pointer for the te::rst::Raster objects.
-         *
-         * \ingroup interpolator
-         */
-        typedef std::shared_ptr<te::rst::Raster> RasterPtr;
       } // end namespace core
     }   // end namespace interpolator
   }     // end namespace services

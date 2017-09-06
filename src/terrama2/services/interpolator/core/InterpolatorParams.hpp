@@ -109,6 +109,9 @@ namespace terrama2
             active_ = other.active_;
           }
 
+          /*!
+           * \brief Destructor.
+           */
           virtual ~InterpolatorParams()
           {
 
@@ -142,11 +145,11 @@ namespace terrama2
             return *this;
           }
 
-          double resolutionX_;                            //!< Resolution in x-asis of the output (unit of the output srid).
-          double resolutionY_;                            //!< Resolution in y-asis of the output (unit of the output srid).
+          double resolutionX_;                                  //!< Resolution in x-asis of the output (unit of the output srid).
+          double resolutionY_;                                  //!< Resolution in y-asis of the output (unit of the output srid).
           InterpolatorType interpolationType_;                  //!< The interpolation algorithm to be used.
           mutable te::gm::Envelope bRect_;                      //!< The bounding rect of the output raster.
-          terrama2::core::Filter filter_;      //!< Information on how input data should be filtered before storage.
+          terrama2::core::Filter filter_;                       //!< Information on how input data should be filtered before storage.
           DataSeriesId series_;                                 //!< The indentifier of the data to be used by the interpolator.
           DataSeriesId outSeries_;                              //!< The indentifier of the output data.
           int srid_;                                            //!< SRID for the output.
@@ -154,7 +157,7 @@ namespace terrama2
           InterpolatorId id_;                                   //!< Identifier of the interpolator being used.
           ServiceInstanceId serviceInstanceId_;                 //!< Identifier of the service.
           DataManager* dataManager_;                            //!< Pointer to the data manager.
-          int numNeighbors_;                                    //!< Number of neighbors to be used in computations.
+          size_t numNeighbors_;                                 //!< Number of neighbors to be used in computations.
           ProjectId projectId_;                                 //!< Identifier of the project.
           bool active_;                                         //!< True if the service is active, false otherwise.
         };
@@ -196,6 +199,9 @@ namespace terrama2
               *this = InterpolatorParams::operator=(other);
           }
 
+          /*!
+           * \brief Destructor.
+           */
           ~NNInterpolatorParams()
           {
 
@@ -275,6 +281,9 @@ namespace terrama2
           {
           }
 
+          /*!
+           * \brief Destructor.
+           */
           ~AvgDistInterpolatorParams()
           {
 
@@ -326,6 +335,9 @@ namespace terrama2
             pow_ = other.pow_;
           }
 
+          /*!
+           * \brief Destructor.
+           */
           ~SqrAvgDistInterpolatorParams()
           {
 

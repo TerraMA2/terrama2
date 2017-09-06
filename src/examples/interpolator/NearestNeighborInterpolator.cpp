@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
   // Registering input data provider
   terrama2::core::DataProvider* inputDataProvider = new terrama2::core::DataProvider();
   terrama2::core::DataProviderPtr inputDataProviderPtr(inputDataProvider);
-  inputDataProvider->id = 3;
+  inputDataProvider->id = 2;
   inputDataProvider->name = "DataProvider postgis";
   inputDataProvider->uri = uri.uri();
   inputDataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
@@ -102,34 +102,13 @@ int main(int argc, char* argv[])
 
   terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
   terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
-  dataProvider->id = 1;
+  dataProvider->id = 3;
   dataProvider->name = "Servidor de Saída";
-  dataProvider->uri = "file:////home/fredbd/Documents/funcate/MyDevel/saida/terrama2";
+  dataProvider->uri = "file://" + std::string(TERRAMA2_DATA_DIR) + "/interpolation";
   dataProvider->dataProviderType = "FILE";
   dataProvider->active = true;
 
   dataManager->add(dataProviderPtr);
-
-  // semantics
-  // DataSeries information
-  terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
-  terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
-  dataSeries->id = 22;
-  dataSeries->name = "Interpolation";
-  dataSeries->semantics = semanticsManager.getSemantics("GRID-geotiff");
-  dataSeries->dataProviderId = dataProviderPtr->id;
-  dataSeries->active = true;
-
-  //dado estatico = interpolacao/I11216377_2017
-  terrama2::core::DataSetGrid* dataSet = new terrama2::core::DataSetGrid();
-  dataSet->id = 31;
-  dataSet->active = true;
-  dataSet->format.emplace("mask", "interpolacao/I11216377_%YYYY%MM%DD%hh%mm.tif");
-  dataSet->format.emplace("timezone", "UTC+00");
-
-  dataSeries->datasetList.emplace_back(dataSet);
-
-  dataManager->add(dataSeriesPtr);
   //////////////////////////////////////////////////////
 
   //////////////////////////////////////////////////////
@@ -144,7 +123,7 @@ int main(int argc, char* argv[])
   pcdSeries->dataProviderId = inputDataProvider->id;
   pcdSeries->semantics = semanticsManager.getSemantics("DCP-postgis");
   pcdSeries->name = "Monitored PCD";
-  pcdSeries->id = 2;
+  pcdSeries->id = 4;
   pcdSeries->active = true;
 
   terrama2::core::DataSetDcp* dataSetPcd1 = new terrama2::core::DataSetDcp{};
@@ -154,7 +133,7 @@ int main(int argc, char* argv[])
   dataSetPcd1->format.emplace("alias", "itanhaem");
   dataSetPcd1->format.emplace("table_name", "itanhaem");
   dataSetPcd1->format.emplace("timezone", "0");
-  dataSetPcd1->id = 32;
+  dataSetPcd1->id = 5;
   dataSetPcd1->dataSeriesId = pcdSeries->id;
   dataSetPcd1->position = std::shared_ptr<te::gm::Point>(new te::gm::Point(-46.79, -24.174, 4326, te::gm::PointType,  nullptr));
   pcdSeries->datasetList.push_back(dataSetPcd1Ptr);
@@ -168,7 +147,7 @@ int main(int argc, char* argv[])
   dataSetPcd2->format.emplace("alias", "paraibuna");
   dataSetPcd2->format.emplace("table_name", "paraibuna");
   dataSetPcd2->format.emplace("timezone", "0");
-  dataSetPcd2->id = 33;
+  dataSetPcd2->id = 6;
   dataSetPcd2->dataSeriesId = pcdSeries->id;
   dataSetPcd2->position = std::shared_ptr<te::gm::Point>(new te::gm::Point(-45.6, -23.408, 4326, te::gm::PointType,  nullptr));
   pcdSeries->datasetList.push_back(dataSetPcd2Ptr);
@@ -182,7 +161,7 @@ int main(int argc, char* argv[])
   dataSetPcd3->format.emplace("alias", "picinguaba");
   dataSetPcd3->format.emplace("table_name", "picinguaba");
   dataSetPcd3->format.emplace("timezone", "0");
-  dataSetPcd3->id = 34;
+  dataSetPcd3->id = 7;
   dataSetPcd3->dataSeriesId = pcdSeries->id;
   dataSetPcd3->position = std::shared_ptr<te::gm::Point>(new te::gm::Point(-44.85, -23.355, 4326, te::gm::PointType,  nullptr));
   pcdSeries->datasetList.push_back(dataSetPcd3Ptr);
@@ -198,14 +177,14 @@ int main(int argc, char* argv[])
   //////////////////////////////////////////////////////
 
   terrama2::services::interpolator::core::InterpolatorParams* params = new terrama2::services::interpolator::core::SqrAvgDistInterpolatorParams;
-  params->resolutionX_ = 100;
-  params->resolutionY_ = 100;
+  params->resolutionX_ = 0.15;
+  params->resolutionY_ = 0.15;
   params->series_ = pcdSeries->id;
   params->attributeName_ = "pluvio";
   params->srid_ = 4326;
-  params->id_ = 1;
+  params->id_ = 8;
   params->serviceInstanceId_ = 1;
-  params->outSeries_ = 1;
+//  params->outSeries_ = 22;
   params->numNeighbors_ = 2;
 
   terrama2::services::interpolator::core::InterpolatorParamsPtr pPtr(params);
@@ -220,6 +199,8 @@ int main(int argc, char* argv[])
   timer.start(10000);
 
   app.exec();
+
+  service.stopService();
 
   return 0;
 }

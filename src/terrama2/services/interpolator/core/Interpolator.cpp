@@ -64,7 +64,7 @@
  * \param nneighbors Number of neighbors to be used.
  */
 void FillEmptyData(std::vector<terrama2::services::interpolator::core::InterpolatorData>& data,
-                   std::vector<double>& dists, const unsigned int& nneighbors)
+                   std::vector<double>& dists, const size_t& nneighbors)
 {
   data.clear();
   dists.clear();
@@ -80,6 +80,8 @@ void FillEmptyData(std::vector<terrama2::services::interpolator::core::Interpola
   dists.resize(nneighbors, std::numeric_limits<double>::max());
 }
 
+/// End utilities functions section.
+/*! -------------------------------*/
 
 terrama2::services::interpolator::core::Interpolator::Interpolator(const InterpolatorParams* params) :
   Process(),
@@ -94,9 +96,9 @@ terrama2::services::interpolator::core::Interpolator::Interpolator(const Interpo
   this->active = true;
 }
 
-terrama2::services::interpolator::core::RasterPtr terrama2::services::interpolator::core::Interpolator::makeRaster()
+te::rst::Raster* terrama2::services::interpolator::core::Interpolator::makeRaster()
 {
-  RasterPtr r;
+  te::rst::Raster* r;
 
   // Reseting the kd-tree
   /////////////////////////////////////////////////////////////////////////
@@ -110,8 +112,8 @@ terrama2::services::interpolator::core::RasterPtr terrama2::services::interpolat
   /////////////////////////////////////////////////////////////////////////
   //  Creating and configuring the output raster.
 
-  unsigned int resolutionX = interpolationParams_->resolutionX_;
-  unsigned int resolutionY = interpolationParams_->resolutionY_;
+  double resolutionX = interpolationParams_->resolutionX_;
+  double resolutionY = interpolationParams_->resolutionY_;
   int srid = interpolationParams_->srid_;
 
   // For testing assume the bounding rect calculated by kd-tree
@@ -125,13 +127,13 @@ terrama2::services::interpolator::core::RasterPtr terrama2::services::interpolat
 
   // Creating raster info
   std::map<std::string, std::string> conInfo;
-//  conInfo["URI"] = interpolationParams_->fileName_;
 
-//  // create raster
-//  r.reset(te::rst::RasterFactory::make("GDAL", grid, vecBandProp, conInfo));
+  conInfo["FORCE_MEM_DRIVER"] = "TRUE";
+
+  // create raster
+  r = te::rst::RasterFactory::make("MEM", grid, vecBandProp, conInfo);
   /////////////////////////////////////////////////////////////////////////
 
-//  interpolationParams_.
   return r;
 }
 
@@ -227,16 +229,16 @@ terrama2::services::interpolator::core::NNInterpolator::NNInterpolator(const Int
 
 }
 
-terrama2::services::interpolator::core::RasterPtr terrama2::services::interpolator::core::NNInterpolator::makeInterpolation()
+te::rst::Raster* terrama2::services::interpolator::core::NNInterpolator::makeInterpolation()
 {
-  RasterPtr r = makeRaster();
+  te::rst::Raster* r = makeRaster();
   /////////////////////////////////////////////////////////////////////////
   //  Making the interpolation using the nearest neighbor.
   te::gm::Point pt1;
   std::vector<InterpolatorData> res;
   std::vector<double> dist;
-  unsigned int resolutionY = interpolationParams_->resolutionY_,
-      resolutionX = interpolationParams_->resolutionX_;
+  unsigned int resolutionY = r->getGrid()->getNumberOfRows(),
+      resolutionX = r->getGrid()->getNumberOfColumns();
 
   for(unsigned int row = 0; row < resolutionY; row++)
     for(unsigned int col = 0; col < resolutionX; col++)
@@ -278,17 +280,17 @@ terrama2::services::interpolator::core::AvgDistInterpolator::AvgDistInterpolator
 
 }
 
-terrama2::services::interpolator::core::RasterPtr terrama2::services::interpolator::core::AvgDistInterpolator::makeInterpolation()
+te::rst::Raster* terrama2::services::interpolator::core::AvgDistInterpolator::makeInterpolation()
 {
-  RasterPtr r = makeRaster();
+  te::rst::Raster* r = makeRaster();
 
   /////////////////////////////////////////////////////////////////////////
   //  Making the interpolation using the nearest neighbor.
   te::gm::Point pt1;
   std::vector<InterpolatorData> res;
   std::vector<double> dist;
-  unsigned int resolutionY = interpolationParams_->resolutionY_,
-      resolutionX = interpolationParams_->resolutionX_;
+  unsigned int resolutionY = r->getGrid()->getNumberOfRows(),
+      resolutionX = r->getGrid()->getNumberOfColumns();
 
   for(unsigned int row = 0; row < resolutionY; row++)
     for(unsigned int col = 0; col < resolutionX; col++)
@@ -339,21 +341,19 @@ terrama2::services::interpolator::core::SqrAvgDistInterpolator::SqrAvgDistInterp
 
 }
 
-terrama2::services::interpolator::core::RasterPtr terrama2::services::interpolator::core::SqrAvgDistInterpolator::makeInterpolation()
+te::rst::Raster* terrama2::services::interpolator::core::SqrAvgDistInterpolator::makeInterpolation()
 {
-  RasterPtr r = makeRaster();
+  te::rst::Raster* r = makeRaster();
 
   /////////////////////////////////////////////////////////////////////////
   //  Making the interpolation using the nearest neighbor.
   te::gm::Point pt1;
   std::vector<InterpolatorData> res;
   std::vector<double> dist;
-  unsigned int resolutionY = interpolationParams_->resolutionY_,
-      resolutionX = interpolationParams_->resolutionX_;
+  unsigned int resolutionY = r->getGrid()->getNumberOfRows(),
+      resolutionX = r->getGrid()->getNumberOfColumns();
 
-//  auto avgPar = dynamic_cast<SqrAvgDistInterpolatorParams*>(interpolationParams_);
-
-  int powF = ((SqrAvgDistInterpolatorParams*)interpolationParams_)->pow_;
+  unsigned int powF = ((SqrAvgDistInterpolatorParams*)interpolationParams_)->pow_;
 
   for(unsigned int row = 0; row < resolutionY; row++)
     for(unsigned int col = 0; col < resolutionX; col++)

@@ -25,6 +25,10 @@
  * \brief Defines the service of interpolation class.
  *
  * \author Frederico Augusto Bedê
+ *
+ * \todo Fix the name of resulting file, not using mask properly.
+ *
+ * \todo Change example to use JSon files.
  */
 
 #ifndef __TERRAMA2_SERVICES_INTERPOLATOR_CORE_SERVICE_HPP__

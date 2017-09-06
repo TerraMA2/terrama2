@@ -37,7 +37,7 @@
 #include "../../../core/Typedef.hpp"
 
 #include "InterpolatorParams.hpp"
-#include "Typedef.hpp"
+//#include "Typedef.hpp"
 
 // STL
 #include <memory>
@@ -90,7 +90,7 @@ namespace terrama2
            *
            * \return The interpolated raster.
            */
-          virtual RasterPtr makeInterpolation() = 0;
+          virtual te::rst::Raster* makeInterpolation() = 0;
 
         protected:
 
@@ -99,7 +99,7 @@ namespace terrama2
            *
            * \return A raster with the dimensions defined by the parameters.
            */
-          RasterPtr makeRaster();
+          te::rst::Raster* makeRaster();
 
           /*!
            * \brief Fills the kd-tree with the data defined by the parameters. This is usefull to quickly find the neighbors used in the
@@ -135,7 +135,7 @@ namespace terrama2
            *
            * \return The interpolated raster.
            */
-          RasterPtr makeInterpolation();
+          te::rst::Raster* makeInterpolation();
         };
 
         /*!
@@ -161,7 +161,7 @@ namespace terrama2
            *
            * \return The interpolated raster.
            */
-          RasterPtr makeInterpolation();
+          te::rst::Raster* makeInterpolation();
         };
 
         /*!
@@ -187,7 +187,7 @@ namespace terrama2
            *
            * \return The interpolated raster.
            */
-          RasterPtr makeInterpolation();
+          te::rst::Raster* makeInterpolation();
         };
       } // end namespace core
     }   // end namespace interpolator
