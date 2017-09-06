@@ -1,37 +1,3 @@
-/*
-#include <terrama2/core/Shared.hpp>
-#include <terrama2/core/utility/Utils.hpp>
-#include <terrama2/core/utility/TimeUtils.hpp>
-#include <terrama2/core/utility/TerraMA2Init.hpp>
-#include <terrama2/core/utility/DataAccessorFactory.hpp>
-#include <terrama2/core/utility/Logger.hpp>
-#include <terrama2/core/utility/ServiceManager.hpp>
-#include <terrama2/core/utility/SemanticsManager.hpp>
-#include <terrama2/core/data-model/DataProvider.hpp>
-#include <terrama2/core/data-model/DataSeries.hpp>
-#include <terrama2/core/data-model/DataSet.hpp>
-#include <terrama2/core/data-model/DataSetGrid.hpp>
-
-#include <terrama2/services/analysis/core/Analysis.hpp>
-#include <terrama2/services/analysis/core/DataManager.hpp>
-#include <terrama2/services/analysis/core/Service.hpp>
-#include <terrama2/services/analysis/core/utility/PythonInterpreterInit.hpp>
-#include <terrama2/services/analysis/core/Shared.hpp>
-
-#include <terrama2/services/analysis/mock/MockAnalysisLogger.hpp>
-
-
-#include <terrama2/impl/Utils.hpp>
-
-// STL
-#include <iostream>
-#include <memory>
-
-// QT
-#include <QTimer>
-#include <QCoreApplication>
-#include <QUrl>
-*/
 #include <terrama2/core/Shared.hpp>
 #include <terrama2/impl/Utils.hpp>
 #include <terrama2/core/utility/Utils.hpp>
@@ -42,7 +8,6 @@
 #include <terrama2/core/utility/SemanticsManager.hpp>
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/core/utility/GeoUtils.hpp>
-#include <terrama2/core/utility/CurlWrapperFtp.hpp>
 
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
@@ -65,12 +30,7 @@
 // QT
 #include <QTimer>
 #include <QString>
-#include <QJsonDocument>
 #include <QCoreApplication>
-#include <QDir>
-#include <QFile>
-#include <QFileInfo>
-#include <QObject>
 
 using namespace terrama2::services::analysis::core;
 
@@ -86,7 +46,9 @@ int main(int argc, char* argv[])
   {
     QCoreApplication app(argc, argv);
     auto& serviceManager = terrama2::core::ServiceManager::getInstance();
+
     auto dataManager = std::make_shared<terrama2::services::analysis::core::DataManager>();
+
     auto loggerCopy = std::make_shared<terrama2::core::MockAnalysisLogger>();
 
     EXPECT_CALL(*loggerCopy, setConnectionInfo(::testing::_)).WillRepeatedly(::testing::Return());
@@ -191,7 +153,6 @@ int main(int argc, char* argv[])
     std::shared_ptr<terrama2::core::DataSet> dataSet = std::make_shared<terrama2::core::DataSet>();
     dataSet->active = true;
     dataSet->format.emplace("table_name", "estados_2010");
-    //dataSet->format.emplace("srid", "4326");
     dataSet->id = 1;
     dataSet->dataSeriesId = 1;
 
