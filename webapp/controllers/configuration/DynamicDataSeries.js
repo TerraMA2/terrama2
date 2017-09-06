@@ -45,6 +45,8 @@ module.exports = function(app) {
   return {
     get: function(request, response) {
       var parameters = makeTokenParameters(request.query.token, app);
+      var hasProjectPermission = app.locals.activeProject.hasProjectPermission;
+      parameters.hasProjectPermission = hasProjectPermission;
       DataManager.listCollectors().then(function(collectors){
         DataManager.listAnalysis().then(function(analysis){
           response.render('configuration/dynamicDataSeries', Object.assign({}, parameters, {"Enums": Enums, "collectors": collectors.map(
@@ -66,7 +68,7 @@ module.exports = function(app) {
 
     edit: function(request, response) {
       var dataSeriesId = request.params.id;
-      var hasPermissionToEdit = app.locals.activeProject.hasPermissionToEdit;
+      var hasProjectPermission = app.locals.activeProject.hasProjectPermission;
 
       DataManager.getCollector({
         output: {
@@ -87,7 +89,7 @@ module.exports = function(app) {
               output: dataSeriesResults[1].rawObject()
             },
             collector: collectorResult.rawObject(),
-            hasPermissionToEdit: hasPermissionToEdit
+            hasProjectPermission: hasProjectPermission
           });
         });
       }).catch(function(err) {
@@ -104,7 +106,7 @@ module.exports = function(app) {
               dataSeries: {
                 input: dataSeries.rawObject()
               },
-              hasPermissionToEdit: hasPermissionToEdit
+              hasProjectPermission: hasProjectPermission
             });
           }).catch(function(err) {
             response.render('base/404');

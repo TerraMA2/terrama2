@@ -31,11 +31,11 @@ module.exports = function(app) {
       var projectName = request.params.name;
 
       DataManager.getProject({name: projectName}).then(function(project) {
-        var hasPermissionToEdit = false;
+        var hasProjectPermission = false;
         if (request.user.id == project.user_id || project.private == false){
-          hasPermissionToEdit = true;
+          hasProjectPermission = true;
         } 
-        app.locals.activeProject = {id: project.id, name: project.name, private: project.private, userId: project.user_id, hasPermissionToEdit: hasPermissionToEdit};
+        app.locals.activeProject = {id: project.id, name: project.name, private: project.private, userId: project.user_id, hasProjectPermission: hasProjectPermission};
 
         // Redirect for start application
         if(request.params.token !== undefined)

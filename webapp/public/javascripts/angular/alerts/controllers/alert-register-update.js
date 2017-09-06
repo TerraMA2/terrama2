@@ -190,9 +190,9 @@ define([], function() {
       }
     };
 
-    var hasPermissionToEdit = config.hasPermissionToEdit;
+    var hasProjectPermission = config.hasProjectPermission;
     
-    if (self.isUpdating && !hasPermissionToEdit){
+    if (self.isUpdating && !hasProjectPermission){
       MessageBoxService.danger(i18n.__("Permission"), i18n.__("You can not edit this alert. He belongs to a private project!"));
     }
     
@@ -663,7 +663,7 @@ define([], function() {
         return;
       }
 
-      if (self.isUpdating && !hasPermissionToEdit){
+      if (self.isUpdating && !hasProjectPermission){
         return MessageBoxService.danger(i18n.__("Permission"), i18n.__("You can not edit this alert. He belongs to a private project!"));
       }
 

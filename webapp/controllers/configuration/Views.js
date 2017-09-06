@@ -10,16 +10,18 @@ module.exports = function(app) {
   return {
     get: function(request, response) {
       var parameters = makeTokenParameters(request.query.token, app);
+      var hasProjectPermission = app.locals.activeProject.hasProjectPermission;
+      parameters.hasProjectPermission = hasProjectPermission;
       response.render("configuration/views", parameters);
     },
     new: function(request, response) {
       return response.render("configuration/view", {ScheduleType: ScheduleType, ViewSourceType: ViewSourceType});
     },
     edit: function(request, response) {
-      var hasPermissionToEdit = app.locals.activeProject.hasPermissionToEdit;
+      var hasProjectPermission = app.locals.activeProject.hasProjectPermission;
       DataManager.getView({id: parseInt(request.params.id)})
         .then(function(view) {
-          return response.render("configuration/view", {view: view.rawObject(), ScheduleType: ScheduleType, ViewSourceType: ViewSourceType, hasPermissionToEdit: hasPermissionToEdit});
+          return response.render("configuration/view", {view: view.rawObject(), ScheduleType: ScheduleType, ViewSourceType: ViewSourceType, hasProjectPermission: hasProjectPermission});
         }).catch(function(err) {
           return response.render("base/404");
         });

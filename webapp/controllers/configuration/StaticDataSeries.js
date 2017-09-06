@@ -13,6 +13,8 @@ module.exports = function(app) {
   return {
     get: function(request, response) {
       var parameters = makeTokenParameters(request.query.token, app);
+      var hasProjectPermission = app.locals.activeProject.hasProjectPermission;
+      parameters.hasProjectPermission = hasProjectPermission;
       response.render('configuration/staticData', Object.assign({}, parameters, {"Enums": Enums}));
     },
 
@@ -22,10 +24,10 @@ module.exports = function(app) {
 
     edit: function(request, response) {
       var dataSeriesId = request.params.id;
-      var hasPermissionToEdit = app.locals.activeProject.hasPermissionToEdit;
+      var hasProjectPermission = app.locals.activeProject.hasProjectPermission;
 
       DataManager.getDataSeries({id: dataSeriesId}).then(function(dataSeriesResult) {
-        response.render('configuration/dataset', {type: "static", "Enums": Enums, dataSeries: {input: dataSeriesResult.rawObject()}, hasPermissionToEdit: hasPermissionToEdit});
+        response.render('configuration/dataset', {type: "static", "Enums": Enums, dataSeries: {input: dataSeriesResult.rawObject()}, hasProjectPermission: hasProjectPermission});
       }).catch(function(err) {
         response.render('base/404');
       })

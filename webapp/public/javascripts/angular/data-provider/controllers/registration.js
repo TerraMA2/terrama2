@@ -95,9 +95,9 @@ define(function() {
       protocol: conf.dataProvider.data_provider_type_name
     };
 
-    var hasPermissionToEdit = conf.hasPermissionToEdit;
+    var hasProjectPermission = conf.hasProjectPermission;
     
-    if ($scope.isEditing && !hasPermissionToEdit){
+    if ($scope.isEditing && !hasProjectPermission){
       MessageBoxService.danger(i18n.__("Permission"), i18n.__("You can not edit this data server. He belongs to a private project!"));
     }
 
@@ -186,7 +186,7 @@ define(function() {
     $scope.save = function() {
       $scope.close();
 
-      if ($scope.isEditing && !hasPermissionToEdit){
+      if ($scope.isEditing && !hasProjectPermission){
         return MessageBoxService.danger(i18n.__("Permission"), i18n.__("You can not edit this data server. He belongs to a private project!"));
       }
 
