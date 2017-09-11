@@ -257,7 +257,12 @@ define(function() {
 
     // callback after remove operation
     $scope.extra = {
-      canRemove: config.hasProjectPermission,
+      canRemove: function(element){
+        return element.hasPermission;
+      },
+      canEdit: function(element){
+        return element.canEdit
+      },
       importJson: null,
 
       removeOperationCallback: function(err, data) {

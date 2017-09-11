@@ -34,7 +34,7 @@ module.exports = function(app) {
 
       DataManager.getProject({name: projectName}).then(function(project) {
         var hasProjectPermission = false;
-        if (request.user.id == project.user_id || !project.private){
+        if (project.user_id == null || request.user.id == project.user_id || !project.private){
           hasProjectPermission = true;
         } 
         app.locals.activeProject = {id: project.id, name: project.name, private: project.private, userId: project.user_id, hasProjectPermission: hasProjectPermission};
