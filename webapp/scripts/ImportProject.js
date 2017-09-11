@@ -3,10 +3,13 @@
 var fs = require('fs');
 var ImportProjectMember = require("./../core/ImportProject");
 
-var configFilePath = process.argv[2];
-if (!configFilePath){
-  console.log("Invalid database configuration file path");
+var configFile = process.argv[2];
+var configFilePath = "";
+if (!configFile){
+  console.log("Invalid database configuration");
   return;
+} else {
+  configFilePath = "./../config/instances/" + configFile + ".json";
 }
 
 var projectFilePath = process.argv[3];
