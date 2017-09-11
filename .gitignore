@@ -22,3 +22,4 @@ scripts/postinst
 scripts/prerm
 scripts/postrm
 webapp/config/instances
+webmonitor/config/instances
