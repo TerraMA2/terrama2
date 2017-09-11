@@ -2,14 +2,16 @@
 
 var fs = require('fs');
 var ImportProjectMember = require("./../core/ImportProject");
-var projectFilePath = process.argv[2];
-if (!projectFilePath) {
-  console.log("Invalid project path");
-  return;
-}
-var configFilePath = process.argv[3];
+
+var configFilePath = process.argv[2];
 if (!configFilePath){
   console.log("Invalid database configuration file path");
+  return;
+}
+
+var projectFilePath = process.argv[3];
+if (!projectFilePath) {
+  console.log("Invalid project path");
   return;
 }
 
