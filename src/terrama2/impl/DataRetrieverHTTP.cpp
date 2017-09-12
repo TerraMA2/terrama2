@@ -114,13 +114,22 @@ std::vector<std::string> terrama2::core::DataRetrieverHTTP::listFiles(const std:
   std::string script((std::istreambuf_iterator<char>(scriptIfs)), (std::istreambuf_iterator<char>()));
   boost::replace_all(script, "{HTML_CODE}", httpServerHtml);
 
-  auto interpreter = terrama2::core::InterpreterFactory::getInstance().make("PYTHON");
   std::vector<std::string> vectorFiles;
-  interpreter->runScript(script);
-  auto fileNames = interpreter->getString("files");
+  try
+  {
+    auto interpreter = terrama2::core::InterpreterFactory::getInstance().make("PYTHON");
+    interpreter->runScript(script);
+    auto fileNames = interpreter->getString("files");
 
-  if(fileNames)
-    boost::split(vectorFiles, *fileNames, [](char c){return c == ',';});
+    if(fileNames)
+      boost::split(vectorFiles, *fileNames, [](char c){return c == ',';});
+  }
+  catch (const InterpreterException& e)
+  {
+    QString errMsg = "Error listing files:\n";
+    errMsg.append(boost::get_error_info<terrama2::ErrorDescription>(e));
+    throw DataRetrieverException() << ErrorDescription(errMsg);
+  }
 
   return vectorFiles;
 }

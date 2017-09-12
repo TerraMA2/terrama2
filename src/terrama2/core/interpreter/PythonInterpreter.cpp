@@ -28,6 +28,7 @@
 */
 
 #include "PythonInterpreter.hpp"
+#include "../utility/Logger.hpp"
 
 // Boost
 #include <boost/algorithm/string/replace.hpp>
@@ -126,13 +127,22 @@ boost::optional<double> terrama2::core::PythonInterpreter::getNumeric(const std:
 
   using namespace boost::python;
 
-  object main = object(handle<>(borrowed(PyImport_AddModule("__main__"))));
-  object nspace = main.attr("__dict__");
-  object obj = nspace[name];
+  try
+  {
+    object main = object(handle<>(borrowed(PyImport_AddModule("__main__"))));
+    object nspace = main.attr("__dict__");
+    object obj = nspace[name];
 
-  extract<double> value(obj);
+    extract<double> value(obj);
 
-  return value.check() ? boost::optional<double>(value()) : boost::none;
+    return value.check() ? boost::optional<double>(value()) : boost::none;
+  }
+  catch(const error_already_set&)
+  {
+    auto errMsg = extractException();
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::InterpreterException() << ErrorDescription(QString::fromStdString(errMsg));
+  }
 }
 
 boost::optional<std::string> terrama2::core::PythonInterpreter::getString(const std::string& name) const
@@ -147,7 +157,6 @@ boost::optional<std::string> terrama2::core::PythonInterpreter::getString(const 
     // load the dictionary object out of the main module
     object main_namespace = main_module.attr("__dict__");
     object obj = main_namespace[name.c_str()];
-    object pp = main_module[name.c_str()];
 
     extract<const char*> value(str(obj).encode("utf-8"));
 
@@ -155,9 +164,9 @@ boost::optional<std::string> terrama2::core::PythonInterpreter::getString(const 
   }
   catch(const error_already_set&)
   {
-    PyErr_Print();
-
-    return boost::none;
+    auto errMsg = extractException();
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::InterpreterException() << ErrorDescription(QString::fromStdString(errMsg));
   }
 }
 
@@ -180,8 +189,9 @@ void terrama2::core::PythonInterpreter::runScript(const std::string& script)
     }
     catch(const error_already_set&)
     {
-      // extractException();
-      PyErr_Print();
+      auto errMsg = extractException();
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::core::InterpreterException() << ErrorDescription(QString::fromStdString(errMsg));
     }
   }
 }
@@ -203,8 +213,9 @@ std::string terrama2::core::PythonInterpreter::runScriptWithStringResult(const s
   }
   catch(const error_already_set&)
   {
-    PyErr_Print();
-    return "";
+    auto errMsg = extractException();
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::InterpreterException() << ErrorDescription(QString::fromStdString(errMsg));
   }
 }
 
