@@ -32,7 +32,7 @@ var ExportProject = function(json){
   };
 
   var _emitError = function(err) {
-    return Promise.resolve({err: err.toString(), status: 400});
+    return Promise.reject({err: err.toString(), status: 400});
   };
 
   var target;

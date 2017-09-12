@@ -15,7 +15,7 @@ var ImportProject = function(json){
   var Promise = require("bluebird");
 
   if(!json || !Utils.isObject(json)) {
-    return Promise.resolve({status: 400, err: "Unknown error: the parameter must be a object"});
+    return Promise.reject({status: 400, err: "Unknown error: the parameter must be a object"});
   }
 
   var countObjectProperties = function(object) {
@@ -466,7 +466,7 @@ var ImportProject = function(json){
       var providers = Utils.removeAll(DataManager.data.dataProviders, {id: {$in: output.DataProviders.map(function(prov) { return prov.id; }) }});
       console.log("Removed " + providers.length + " providers");
     }
-    return Promise.resolve({status: 400, err: err.toString()});
+    return Promise.reject({status: 400, err: err.toString()});
   });
 }
 

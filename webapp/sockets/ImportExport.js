@@ -44,6 +44,8 @@ var ImportExport = function(io) {
           delete result.tcpOutput;
         }
         client.emit("importResponse", result);
+      }).catch(function(err){
+        client.emit("importResponse", err);
       });
     });
 
@@ -65,7 +67,9 @@ var ImportExport = function(io) {
     client.on("export", function(json) {
       return ExportProjectMember(json).then(function(result){
         client.emit("exportResponse", result);
-      })
+      }).catch(function(err){
+        client.emit("exportResponse", err);
+      });
     });
 
     /**
@@ -75,6 +79,8 @@ var ImportExport = function(io) {
     client.on("getDependencies", function(json) {
       return ObjectDependencies(json).then(function(result){
         client.emit("getDependenciesResponse", result);
+      }).catch(function(err){
+        client.emit("getDependenciesResponse", err);
       });
     });
   });
