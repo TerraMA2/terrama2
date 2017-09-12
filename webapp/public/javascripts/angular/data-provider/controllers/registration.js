@@ -17,9 +17,11 @@ define(function() {
       }
     }
 
-    if (conf.dataProvider.data_provider_type_name == 'FTP'){
-      model['active_mode'] = conf.dataProvider.active_mode;
+    if(conf.dataProvider.data_provider_type_name == 'FTP' || conf.dataProvider.data_provider_type_name == 'HTTP' || conf.dataProvider.data_provider_type_name == 'HTTPS') {
       model['timeout'] = conf.dataProvider.timeout;
+
+      if(conf.dataProvider.data_provider_type_name == 'FTP')
+        model['active_mode'] = conf.dataProvider.active_mode;
     }
 
     // forcing port value to number

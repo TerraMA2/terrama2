@@ -165,9 +165,30 @@ void terrama2::core::PythonInterpreter::runScript(const std::string& script)
                                      nspace.ptr(),
                                      nspace.ptr() ) ));
   }
-  catch( error_already_set )
+  catch(const error_already_set&)
   {
     // extractException();
+    PyErr_Print();
+  }
+}
+
+std::string terrama2::core::PythonInterpreter::runScriptWithStringResult(const std::string& script, const std::string& variableToReturn)
+{
+  auto lock = holdState();
+
+  using namespace boost::python;
+
+  try
+  {
+    PyObject *main = PyImport_AddModule("__main__");
+    PyRun_SimpleString(script.c_str());
+    PyObject *catcher = PyObject_GetAttrString(main, variableToReturn.c_str());
+    std::string out = PyString_AsString(catcher);
+
+    return out;
+  }
+  catch(const error_already_set&)
+  {
     PyErr_Print();
   }
 }

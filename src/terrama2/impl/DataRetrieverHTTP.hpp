@@ -103,6 +103,8 @@ namespace terrama2
         static DataRetrieverPtr make(DataProviderPtr dataProvider);
         static DataRetrieverType dataRetrieverType() { return "HTTP"; }
 
+        std::vector<std::string> listFiles(const std::string& uri);
+
       private:
         std::unique_ptr<CurlWrapperHttp> curlwrapper_; //!< Curl handler.
     };
