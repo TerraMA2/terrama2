@@ -34,10 +34,10 @@ module.exports = function(app) {
 
       DataManager.getProject({name: projectName}).then(function(project) {
         var hasProjectPermission = false;
-        if (project.user_id == null || request.user.id == project.user_id || !project.private){
+        if (project.user_id == null || request.user.id == project.user_id || !project.protected){
           hasProjectPermission = true;
         } 
-        app.locals.activeProject = {id: project.id, name: project.name, private: project.private, userId: project.user_id, hasProjectPermission: hasProjectPermission};
+        app.locals.activeProject = {id: project.id, name: project.name, protected: project.protected, userId: project.user_id, hasProjectPermission: hasProjectPermission};
 
         // Redirect for start application
         if(request.params.token !== undefined)

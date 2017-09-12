@@ -107,7 +107,7 @@ define([], function() {
     var hasProjectPermission = config.hasProjectPermission;
 
     if (self.isUpdating && !hasProjectPermission){
-      MessageBoxService.danger(i18n.__("Permission"), i18n.__("You can not edit this view. He belongs to a private project!"));
+      MessageBoxService.danger(i18n.__("Permission"), i18n.__("You can not edit this view. He belongs to a protected project!"));
     }
 
     // Flag to verify if can not save if the service is not running
@@ -419,7 +419,7 @@ define([], function() {
       }
 
       if (self.isUpdating && !hasProjectPermission){
-        return MessageBoxService.danger(i18n.__("Permission"), i18n.__("You can not edit this view. He belongs to a private project!"));
+        return MessageBoxService.danger(i18n.__("Permission"), i18n.__("You can not edit this view. He belongs to a protected project!"));
       }
 
       if (!canSave){

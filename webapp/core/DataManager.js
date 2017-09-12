@@ -579,7 +579,7 @@ var DataManager = module.exports = {
       self.getProject({id: projectObject.id}).then(function(project) {
 
         return models.db.Project.update(projectObject, Utils.extend({
-          fields: ["name", "description", "version", "private"],
+          fields: ["name", "description", "version", "protected"],
           where: {
             id: project.id
           }
@@ -588,7 +588,7 @@ var DataManager = module.exports = {
           projectItem.name = projectObject.name;
           projectItem.description = projectObject.description;
           projectItem.version = projectObject.version;
-          projectItem.private = projectObject.private;
+          projectItem.protected = projectObject.protected;
 
           return resolve(Utils.clone(projectItem));
         }).catch(function(err) {

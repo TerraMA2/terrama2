@@ -1207,7 +1207,7 @@ define([], function() {
 
       if ($scope.isUpdating) {
         if (!$scope.hasProjectPermission){
-          MessageBoxService.danger(i18n.__("Permission"), i18n.__("You can not edit this data series. He belongs to a private project!"));
+          MessageBoxService.danger(i18n.__("Permission"), i18n.__("You can not edit this data series. He belongs to a protected project!"));
         }
         // setting intersection values
         var collector = configuration.collector || {};
@@ -1939,7 +1939,7 @@ define([], function() {
         }
 
         if (!$scope.hasProjectPermission && $scope.isUpdating){
-          MessageBoxService.danger(i18n.__("Permission"), i18n.__("You can not edit this data series. He belongs to a private project!"));
+          MessageBoxService.danger(i18n.__("Permission"), i18n.__("You can not edit this data series. He belongs to a protected project!"));
           return;
         }
 

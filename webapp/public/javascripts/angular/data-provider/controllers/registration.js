@@ -100,7 +100,7 @@ define(function() {
     var hasProjectPermission = conf.hasProjectPermission;
     
     if ($scope.isEditing && !hasProjectPermission){
-      MessageBoxService.danger(i18n.__("Permission"), i18n.__("You can not edit this data server. He belongs to a private project!"));
+      MessageBoxService.danger(i18n.__("Permission"), i18n.__("You can not edit this data server. He belongs to a protected project!"));
     }
 
     $scope.initActive = function() {
@@ -189,7 +189,7 @@ define(function() {
       $scope.close();
 
       if ($scope.isEditing && !hasProjectPermission){
-        return MessageBoxService.danger(i18n.__("Permission"), i18n.__("You can not edit this data server. He belongs to a private project!"));
+        return MessageBoxService.danger(i18n.__("Permission"), i18n.__("You can not edit this data server. He belongs to a protected project!"));
       }
 
       $scope.$broadcast("formFieldValidation");

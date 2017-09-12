@@ -140,7 +140,7 @@ define([], function() {
         self.isUpdating = Object.keys(config.analysis).length > 0;
 
         if (self.isUpdating && !hasProjectPermission){
-          MessageBoxService.danger(i18n.__("Permission"), i18n.__("You can not edit this analysis. He belongs to a private project!"));
+          MessageBoxService.danger(i18n.__("Permission"), i18n.__("You can not edit this analysis. He belongs to a protected project!"));
         }
 
         /**
@@ -1241,7 +1241,7 @@ define([], function() {
             var objectToSend = self.$prepare(shouldRun);
 
             if (self.isUpdating && !hasProjectPermission){
-              return MessageBoxService.danger(i18n.__("Permission"), i18n.__("You can not edit this analysis. He belongs to a private project!"));
+              return MessageBoxService.danger(i18n.__("Permission"), i18n.__("You can not edit this analysis. He belongs to a protected project!"));
             }
 
             if (!canSave){

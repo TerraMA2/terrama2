@@ -1000,19 +1000,20 @@
   },
 	"Permission": "Permissão",
 	"You can not edit this data server": {
-		" He belongs to a private project!": "Você não pode editar essa servidor de dados. Ele pertence a um projeto privado!"
+		" He belongs to a protected project!": "Você não pode editar essa servidor de dados. Ele pertence a um projeto protegido!"
 	},
 	"You can not edit this data series": {
-		" He belongs to a private project!": "Você não pode editar essa série de dados. Ela pertence a um projeto privado!"
+		" He belongs to a protected project!": "Você não pode editar essa série de dados. Ela pertence a um projeto protegido!"
 	},
 	"You can not edit this analysis": {
-		" He belongs to a private project!": "Você não pode editar essa análise. Ela pertence a um projeto privado!"
+		" He belongs to a protected project!": "Você não pode editar essa análise. Ela pertence a um projeto protegido!"
 	},
 	"You can not edit this view": {
-		" He belongs to a private project!": "Você não pode editar essa visualização. Ela pertence a um projeto privado!"
+		" He belongs to a protected project!": "Você não pode editar essa visualização. Ela pertence a um projeto protegido!"
 	},
 	"You can not edit this alert": {
-		" He belongs to a private project!": "Você não pode editar esse alerta. Ele pertence a um projeto privado!"
+		" He belongs to a protected project!": "Você não pode editar esse alerta. Ele pertence a um projeto protegido!"
 	},
-	"User is not allowed": "Usuário não tem permissão"
+	"User is not allowed": "Usuário não tem permissão",
+  "Protected": "Protegido"
 }

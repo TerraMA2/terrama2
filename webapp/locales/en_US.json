@@ -998,19 +998,20 @@
   },
   "Permission": "Permission",
   "You can not edit this data server": {
-    " He belongs to a private project!": "You can not edit this data server. He belongs to a private project!"
+    " He belongs to a protected project!": "You can not edit this data server. He belongs to a protected project!"
   },
   "You can not edit this data series": {
-    " He belongs to a private project!": "You can not edit this data series. He belongs to a private project!"
+    " He belongs to a protected project!": "You can not edit this data series. He belongs to a protected project!"
   },
   "You can not edit this analysis": {
-    " He belongs to a private project!": "You can not edit this analysis. He belongs to a private project!"
+    " He belongs to a protected project!": "You can not edit this analysis. He belongs to a protected project!"
   },
   "You can not edit this view": {
-    " He belongs to a private project!": "You can not edit this view. He belongs to a private project!"
+    " He belongs to a protected project!": "You can not edit this view. He belongs to a protected project!"
   },
   "You can not edit this alert": {
-    " He belongs to a private project!": "You can not edit this alert. He belongs to a private project!"
+    " He belongs to a protected project!": "You can not edit this alert. He belongs to a protected project!"
   },
-  "User is not allowed": "User is not allowed"
+  "User is not allowed": "User is not allowed",
+  "Protected": "Protected"
 }
