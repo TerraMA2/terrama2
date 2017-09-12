@@ -38,12 +38,14 @@ var ImportExport = function(io) {
      * })
      */
     client.on("import", function(json) {
-      ImportProjectMember(json, function(result){
+      return ImportProjectMember(json).then(function(result){
         if (result.tcpOutput){
           TcpService.send(result.tcpOutput);
           delete result.tcpOutput;
         }
         client.emit("importResponse", result);
+      }).catch(function(err){
+        client.emit("importResponse", err);
       });
     });
 
@@ -63,9 +65,11 @@ var ImportExport = function(io) {
      * })
      */
     client.on("export", function(json) {
-      ExportProjectMember(json, function(result){
+      return ExportProjectMember(json).then(function(result){
         client.emit("exportResponse", result);
-      })
+      }).catch(function(err){
+        client.emit("exportResponse", err);
+      });
     });
 
     /**
@@ -73,8 +77,10 @@ var ImportExport = function(io) {
      * @param {Object} json - A javascript object containing the object id to list its dependencies.
      */
     client.on("getDependencies", function(json) {
-      ObjectDependencies(json, function(result){
+      return ObjectDependencies(json).then(function(result){
         client.emit("getDependenciesResponse", result);
+      }).catch(function(err){
+        client.emit("getDependenciesResponse", err);
       });
     });
   });

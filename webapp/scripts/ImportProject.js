@@ -25,12 +25,10 @@ DataManager.init(configFilePath, function(err){
   }
   try {
     var projectJson = JSON.parse(fs.readFileSync(projectFilePath));
-    ImportProjectMember(projectJson, function(result){
-      if (result.err){
-        console.log("Error to import the Project. Error: " + result.err);
-      } else {
-        console.log("Project successfully imported!");
-      }
+    ImportProjectMember(projectJson).then(function(result){
+      console.log("Project successfully imported!");
+    }).catch(function(result){
+      console.log("Error to import the Project. Error: " + result.err);
     });
   }
   catch(err){
