@@ -237,7 +237,6 @@ StateLock::StateLock(PyThreadState * state)
   oldState_ = PyThreadState_Get();
   PyEval_AcquireLock();
   PyThreadState_Swap(state);
-  oldState_ = state;
 }
 
 StateLock::~StateLock()
