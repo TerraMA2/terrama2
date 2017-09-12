@@ -45,7 +45,7 @@ struct StateLock
 
   protected:
     static std::mutex mutex_;
-    PyThreadState *oldState_;
+    PyThreadState *oldState_ = nullptr;
     PyGILState_STATE gilState_;
 };
 
@@ -61,12 +61,13 @@ terrama2::core::PythonInterpreter::PythonInterpreter()
 {
   impl_->mainThreadState_ = PyThreadState_Get();
   StateLock lock(impl_->mainThreadState_);
+
   impl_->interpreterState_ = Py_NewInterpreter();
 }
 
 terrama2::core::PythonInterpreter::~PythonInterpreter()
 {
-  StateLock lock(holdState());
+  auto lock = holdState();
   Py_EndInterpreter(impl_->interpreterState_);
 }
 
@@ -94,7 +95,7 @@ void terrama2::core::PythonInterpreter::setString(const std::string& name, const
   nspace[name] = value;
 }
 
-std::string terrama2::core::PythonInterpreter::extractException()
+std::string terrama2::core::PythonInterpreter::extractException() const
 {
   using namespace boost::python;
 
@@ -140,35 +141,48 @@ boost::optional<std::string> terrama2::core::PythonInterpreter::getString(const 
 
   using namespace boost::python;
 
-  object main = object(handle<>(borrowed(PyImport_AddModule("__main__"))));
-  object nspace = main.attr("__dict__");
-  object obj = nspace[name];
+  try
+  {
+    object main_module = import("__main__");
+    // load the dictionary object out of the main module
+    object main_namespace = main_module.attr("__dict__");
+    object obj = main_namespace[name.c_str()];
+    object pp = main_module[name.c_str()];
 
-  extract<std::string> value(obj);
+    extract<const char*> value(str(obj).encode("utf-8"));
 
-  return value.check() ? boost::optional<std::string>(value()) : boost::none;
+    return value.check() ? boost::optional<std::string>(value()) : boost::none;
+  }
+  catch(const error_already_set&)
+  {
+    PyErr_Print();
+
+    return boost::none;
+  }
 }
 
 void terrama2::core::PythonInterpreter::runScript(const std::string& script)
 {
-  auto lock = holdState();
-
-  using namespace boost::python;
-
-  try
   {
-    object main = object(handle<>(borrowed(PyImport_AddModule("__main__"))));
-    object nspace = main.attr("__dict__");
+    auto lock = holdState();
 
-    handle<> ignored(( PyRun_String( script.c_str(),
-                                     Py_file_input,
-                                     nspace.ptr(),
-                                     nspace.ptr() ) ));
-  }
-  catch(const error_already_set&)
-  {
-    // extractException();
-    PyErr_Print();
+    using namespace boost::python;
+
+    try
+    {
+      object main = object(handle<>(borrowed(PyImport_AddModule("__main__"))));
+      object nspace = main.attr("__dict__");
+
+      handle<> ignored(( PyRun_String( script.c_str(),
+                                       Py_file_input,
+                                       nspace.ptr(),
+                                       nspace.ptr() ) ));
+    }
+    catch(const error_already_set&)
+    {
+      // extractException();
+      PyErr_Print();
+    }
   }
 }
 
@@ -190,6 +204,7 @@ std::string terrama2::core::PythonInterpreter::runScriptWithStringResult(const s
   catch(const error_already_set&)
   {
     PyErr_Print();
+    return "";
   }
 }
 
@@ -208,13 +223,15 @@ std::mutex StateLock::mutex_;
 StateLock::StateLock(PyThreadState * state)
 {
   mutex_.lock();
-  gilState_ = PyGILState_Ensure();
-  oldState_ = PyThreadState_Swap(state);
+  oldState_ = PyThreadState_Get();
+  PyEval_AcquireLock();
+  PyThreadState_Swap(state);
+  oldState_ = state;
 }
 
 StateLock::~StateLock()
 {
+  PyEval_ReleaseLock();
   PyThreadState_Swap(oldState_);
-  PyGILState_Release(gilState_);
   mutex_.unlock();
 }

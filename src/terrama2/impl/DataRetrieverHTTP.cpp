@@ -115,10 +115,12 @@ std::vector<std::string> terrama2::core::DataRetrieverHTTP::listFiles(const std:
   boost::replace_all(script, "{HTML_CODE}", httpServerHtml);
 
   auto interpreter = terrama2::core::InterpreterFactory::getInstance().make("PYTHON");
-  std::string fileNames = interpreter->runScriptWithStringResult(script, "files");
   std::vector<std::string> vectorFiles;
+  interpreter->runScript(script);
+  auto fileNames = interpreter->getString("files");
 
-  boost::split(vectorFiles, fileNames, [](char c){return c == ',';});
+  if(fileNames)
+    boost::split(vectorFiles, *fileNames, [](char c){return c == ',';});
 
   return vectorFiles;
 }

@@ -39,10 +39,6 @@
 #include <terrama2/services/analysis/core/Service.hpp>
 #include <terrama2/services/analysis/core/DataManager.hpp>
 #include <terrama2/services/analysis/core/utility/PythonInterpreterInit.hpp>
-#else
-#ifdef TERRAMA2_COLLECTOR_ENABLED
-#include <terrama2/services/analysis/core/utility/PythonInterpreterInit.hpp>
-#endif
 #endif
 
 #ifdef TERRAMA2_VIEW_ENABLED
@@ -263,11 +259,6 @@ int main(int argc, char* argv[])
 #ifdef TERRAMA2_ANALYSIS_CORE_ENABLED
       // Must initialize the python interpreter before creating any thread.
       terrama2::services::analysis::core::PythonInterpreterInit pythonInterpreterInit;
-#else
-#ifdef TERRAMA2_COLLECTOR_ENABLED
-      // Must initialize the python interpreter before creating any thread.
-      terrama2::services::analysis::core::PythonInterpreterInit pythonInterpreterInit;
-#endif
 #endif
 
       // Changes in the initialization order may cause locale problems
