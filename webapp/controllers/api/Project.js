@@ -8,6 +8,7 @@ var Promise = require('bluebird');
 var TcpService = require('./../../core/facade/tcp-manager/TcpService');
 var fs = require('fs');
 var path = require("path");
+var Application = require("./../../core/Application");
 
 
 module.exports = function(app) {
@@ -20,12 +21,12 @@ module.exports = function(app) {
         TcpService.emitEvent("projectReceived", project);
 
         // Creating default PostGIS and File providers
-        var configFile = JSON.parse(fs.readFileSync(path.join(__dirname, "../../config/webapp.json"), "utf-8"));
+        var configFile = Application.getContextConfig();
 
         // File data provider object
         var DefaultFileProvider = {
           name: "Local Folder",
-          uri: "file://" + configFile.default.defaultFilePath,
+          uri: "file://" + configFile.defaultFilePath,
           description: "Local Folder data server",
           data_provider_intent_id: 1,
           data_provider_type_id: 1,
@@ -34,7 +35,7 @@ module.exports = function(app) {
         };
 
         // PostGIS data provider object
-        var uriPostgis = "postgis://" + configFile.default.db.username + ":" + configFile.default.db.password + "@" + configFile.default.db.host + ":5432/" + configFile.default.db.database;
+        var uriPostgis = "postgis://" + configFile.db.username + ":" + configFile.db.password + "@" + configFile.db.host + ":5432/" + configFile.db.database;
         var DefaultPostgisProvider = {
           name: "Local Database PostGIS",
           uri: uriPostgis,

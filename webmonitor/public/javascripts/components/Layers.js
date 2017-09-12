@@ -147,9 +147,15 @@ define(
     };
 
     var removePrivateLayers = function() {
+      var layersToRemove = [];
+
       memberAllLayers.forEach(function(layer) {
         if(layer.private)
-          removeLayer(layer);
+          layersToRemove.push($.extend(true, {}, layer));
+      });
+
+      layersToRemove.forEach(function(layer) {
+        removeLayer(layer);
       });
     };
 

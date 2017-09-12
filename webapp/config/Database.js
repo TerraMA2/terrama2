@@ -20,7 +20,7 @@ var sequelize = null;
  */
 var Database = function(pathToConfig) {
   if (pathToConfig === undefined || !pathToConfig) {
-    pathToConfig = path.join(__dirname, 'webapp.json');
+    pathToConfig = path.join(__dirname, '/instances/default.json');
   }
 
   /**
@@ -51,18 +51,27 @@ Database.prototype.getORM = function() {
 
 /**
  * It initializes database, creating database, schema and postgis support. Once prepared, it retrieves a ORM instance
- * 
+ *    
+ * @param {function} configFile - Optional db configuration file to initialize de Postgres 
  * @returns {Promise<Connection>}
  */
-Database.prototype.init = function() {
+Database.prototype.init = function(configFile) {
   var self = this;
 
   return new Promise(function(resolve, reject) {
     if (self.isInitialized()) {
       return resolve(sequelize);
     }
-
-    var currentContext = Application.getContextConfig();
+    var currentContext;
+    if (configFile){
+      try {
+        currentContext = JSON.parse(fs.readFileSync(configFile, "utf-8"));
+      } catch(err){
+        console.log(err.message);
+      }
+    } else {
+      currentContext = Application.getContextConfig();
+    }
 
     /**
      * Current database configuration context

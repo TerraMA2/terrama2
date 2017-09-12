@@ -99,13 +99,14 @@ var DataManager = module.exports = {
 
   /**
    * It initializes DataManager, loading models and database synchronization
+   * @param {function} dbConfigPath - Optional database config file path
    * @param {function} callback - A callback function for waiting async operation
    */
-  init: function(callback) {
+  init: function(dbConfigPath, callback) {
     var self = this;
     logger.info("Initializing database...");
 
-    return Database.init().then(function(dbORM) {
+    return Database.init(dbConfigPath).then(function(dbORM) {
       logger.info("Database loaded.");
       self.orm = orm = dbORM;
 
