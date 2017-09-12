@@ -257,6 +257,12 @@ define(function() {
 
     // callback after remove operation
     $scope.extra = {
+      canRemove: function(element){
+        return element.hasPermission;
+      },
+      canEdit: function(element){
+        return element.canEdit
+      },
       importJson: null,
 
       removeOperationCallback: function(err, data) {
@@ -424,6 +430,7 @@ define(function() {
               }
 
               if(json.Projects !== undefined && json.Projects.length > 0) {
+                json.userId = config.user_id
                 socket.emit("import", json);
               } else {
                 $scope.extra.isImporting = false;

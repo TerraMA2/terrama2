@@ -15,6 +15,7 @@ module.exports = function(app) {
   return {
     post: function(request, response) {
       var projectObject = request.body;
+      projectObject.user_id = request.user.id;
 
       DataManager.addProject(projectObject).then(function(project) {
         TcpService.emitEvent("projectReceived", project);
@@ -73,7 +74,12 @@ module.exports = function(app) {
           Utils.handleRequestError(response, err, 400);
         });
       } else {
-        response.json(DataManager.listProjects());
+        var projects = DataManager.listProjects();
+        projects.forEach(function(project){
+          project.hasPermission = request.user.administrator;
+          project.canEdit = request.user.administrator;
+        });
+        response.json(projects);
       }
     },
 
@@ -83,6 +89,7 @@ module.exports = function(app) {
       if (id) {
         var projectGiven = request.body;
         projectGiven.id = id;
+        projectGiven.user_id = request.user.id;
         DataManager.updateProject(projectGiven).then(function(project) {
           TcpService.emitEvent("projectReceived", project);
 
