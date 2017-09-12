@@ -123,6 +123,7 @@ var ExportProject = function(json){
       var projectId = project.id;
       project.$id = project.id;
       delete project.id;
+      delete project.user_id;
 
       output.Projects.push(project);
 

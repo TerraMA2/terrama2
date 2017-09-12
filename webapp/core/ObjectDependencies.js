@@ -172,7 +172,7 @@ var ObjectDependencies = function(json){
     }
   }
 
-  Promise.all(promises).then(function() {
+  return Promise.all(promises).then(function() {
     return Promise.resolve({ status: 200, data: output, projectId: json.projectId });
   }).catch(_emitError);
 };
