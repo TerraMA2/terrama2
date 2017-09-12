@@ -99,13 +99,14 @@ var DataManager = module.exports = {
 
   /**
    * It initializes DataManager, loading models and database synchronization
+   * @param {function} dbConfigPath - Optional database config file path
    * @param {function} callback - A callback function for waiting async operation
    */
-  init: function(callback) {
+  init: function(dbConfigPath, callback) {
     var self = this;
     logger.info("Initializing database...");
 
-    return Database.init().then(function(dbORM) {
+    return Database.init(dbConfigPath).then(function(dbORM) {
       logger.info("Database loaded.");
       self.orm = orm = dbORM;
 
@@ -577,9 +578,14 @@ var DataManager = module.exports = {
     var self = this;
     return new Promise(function(resolve, reject) {
       self.getProject({id: projectObject.id}).then(function(project) {
+        var fieldsToUpdate = ["name", "description", "version", "protected"];
+        // Add user if the project dont have one
+        if (!project.user_id){
+          fieldsToUpdate.push("user_id");
+        }
 
         return models.db.Project.update(projectObject, Utils.extend({
-          fields: ["name", "description", "version"],
+          fields: fieldsToUpdate,
           where: {
             id: project.id
           }
@@ -588,6 +594,8 @@ var DataManager = module.exports = {
           projectItem.name = projectObject.name;
           projectItem.description = projectObject.description;
           projectItem.version = projectObject.version;
+          projectItem.protected = projectObject.protected;
+          projectItem.user_id = projectObject.user_id;
 
           return resolve(Utils.clone(projectItem));
         }).catch(function(err) {

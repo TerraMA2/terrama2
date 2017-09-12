@@ -237,6 +237,7 @@ define([], function() {
          * @type {Object}
          */
         self.extra = {
+          canRemove: config.hasProjectPermission,
           advancedFilters: [
             {
               name: "Analysis",

@@ -88,8 +88,8 @@ fi
 
   (
     cd config
-    if ! [ -f "webapp.json" ]; then
-      cp sample_webapp.json webapp.json
+    if ! [ -d "instances" ]; then
+      cp -r sample_instances instances
     fi
   )
 
@@ -105,8 +105,8 @@ fi
 
   (
     cd config
-    if ! [ -f "monitor.json" ]; then
-      cp sample_monitor.json monitor.json
+    if ! [ -d "instances" ]; then
+      cp -r sample_instances instances
     fi
   )
 

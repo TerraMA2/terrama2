@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * It defines which context nodejs should initialize. The context names are available in {@link config/monitor.json}
+ * It defines which context nodejs should initialize. The context names are available in {@link config/instances}
  * @typeof {string}
  */
 var nodeContext = process.argv[2];

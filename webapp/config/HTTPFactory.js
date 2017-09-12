@@ -10,7 +10,7 @@ var HttpFactory = module.exports = {};
  * It configures a SSL options if there is in settings.
  * 
  * @example
- * // webapp.json
+ * 
  * {default: {..., ssl: true}} - It will use default SSL path (webapp/config/key|cert)
  * 
  * {default: {..., ssl: {key: pathToKey, cert: pathToCert}}} - It will use custom key path (Remember it based in webapp/config path if not starts with slash) 
