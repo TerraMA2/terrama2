@@ -268,3 +268,52 @@ std::vector< std::string > terrama2::services::analysis::core::dcp::influence::b
   contextManager.addError(cache.analysisHashCode, QObject::tr("Unable to find DCP monitored object for analysis %1.").arg(analysis->id).toStdString());
   return {};
 }
+
+std::vector< std::string > terrama2::services::analysis::core::dcp::influence::all(bool isActive)
+{
+  OperatorCache cache;
+  terrama2::services::analysis::core::python::readInfoFromDict(cache);
+
+  auto& contextManager = ContextManager::getInstance();
+  auto analysis = cache.analysisPtr;
+  try
+  {
+    terrama2::services::analysis::core::verify::analysisDCP(analysis);
+  }
+  catch (const terrama2::core::VerifyException&)
+  {
+    contextManager.addError(cache.analysisHashCode, QObject::tr("Use of invalid operator for analysis %1.").arg(analysis->id).toStdString());
+    return {};
+  }
+
+  auto monitoredObjectContext = contextManager.getMonitoredObjectContext(cache.analysisHashCode);
+  auto dataManagerPtr = monitoredObjectContext->getDataManager().lock();
+
+  for(const auto& analysisDataSeries : analysis->analysisDataSeriesList)
+  {
+    if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE)
+    {
+      std::vector< std::string > vecDCP;
+      auto dataSeriesPtr = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
+      for(const auto& dataset : dataSeriesPtr->datasetList)
+      {
+        auto dcpDataset = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(dataset);
+        if(!dcpDataset)
+        {
+          QString errMsg(QObject::tr("Invalid dataset for data series: ").arg(QString::fromStdString(dataSeriesPtr->name)));
+          throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
+        }
+
+        if(isActive && dcpDataset->active)//only add active DCP
+          vecDCP.push_back(dcpDataset->alias());
+        else
+          vecDCP.push_back(dcpDataset->alias());
+      }
+
+      return vecDCP;
+    }
+  }
+
+  contextManager.addError(cache.analysisHashCode, QObject::tr("Unable to find DCP monitored object for analysis %1.").arg(analysis->id).toStdString());
+  return {};
+}

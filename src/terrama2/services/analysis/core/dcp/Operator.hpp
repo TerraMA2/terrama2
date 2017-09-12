@@ -211,6 +211,7 @@ namespace terrama2
             namespace influence
             {
               std::vector< std::string > byRule(const terrama2::services::analysis::core::Buffer& buffer);
+              std::vector< std::string > all(bool isActive);
             }
 
         } // end namespace dcp
