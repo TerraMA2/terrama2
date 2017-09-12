@@ -6,9 +6,8 @@
  * 
  * 
  * @property {object} json - Object with data to import.
- * @property {object} callback - Function to callback the result.
  */
-var ImportProject = function(json, callback){
+var ImportProject = function(json){
 
   var Utils = require('./Utils');
   var Enums = require('./Enums');
@@ -16,8 +15,7 @@ var ImportProject = function(json, callback){
   var Promise = require("bluebird");
 
   if(!json || !Utils.isObject(json)) {
-    callback({status: 400, err: "Unknown error: the parameter must be a object"});
-    return;
+    return Promise.resolve({status: 400, err: "Unknown error: the parameter must be a object"});
   }
 
   var countObjectProperties = function(object) {
@@ -41,7 +39,7 @@ var ImportProject = function(json, callback){
     return Object.assign({$id: old.$id}, o);
   };
 
-  DataManager.orm.transaction(function(t) {
+  return DataManager.orm.transaction(function(t) {
     /**
      * @type {Object} options
      */
@@ -449,7 +447,7 @@ var ImportProject = function(json, callback){
     });
   }).then(function() {
     console.log("Commited");
-    callback({status: 200, data: output, tcpOutput: tcpOutput});
+    return Promise.resolve({status: 200, data: output, tcpOutput: tcpOutput});
   }).catch(function(err){
     // remove cached data in DataManager
     if(output.Projects && output.Projects.length > 0) {
@@ -466,7 +464,7 @@ var ImportProject = function(json, callback){
       var providers = Utils.removeAll(DataManager.data.dataProviders, {id: {$in: output.DataProviders.map(function(prov) { return prov.id; }) }});
       console.log("Removed " + providers.length + " providers");
     }
-    callback({status: 400, err: err.toString()});
+    return Promise.resolve({status: 400, err: err.toString()});
   });
 }
 

@@ -5,15 +5,14 @@
  * @class ExportProject
  * 
  * @property {object} json - A javascript object containing the object id to list its dependencies.
- * @property {object} callback - Function to callback the result.
  */
-var ObjectDependencies = function(json, callback){
+var ObjectDependencies = function(json){
 
   var DataManager = require("./DataManager");
   var output = {};
   
   var _emitError = function(err) {
-    callback({err: err.toString(), status: 400});
+    return Promise.resolve({err: err.toString(), status: 400});
   };
 
   var isInArray = function(id, array) {
@@ -174,7 +173,7 @@ var ObjectDependencies = function(json, callback){
   }
 
   Promise.all(promises).then(function() {
-    callback({ status: 200, data: output, projectId: json.projectId });
+    return Promise.resolve({ status: 200, data: output, projectId: json.projectId });
   }).catch(_emitError);
 };
 
