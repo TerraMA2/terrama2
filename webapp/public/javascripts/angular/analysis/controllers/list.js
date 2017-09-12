@@ -83,6 +83,7 @@ define([], function() {
     }
 
     $scope.extra = {
+      canRemove: config.hasProjectPermission,
       advancedFilters: [
         {
           name: "Grid",

@@ -90,6 +90,7 @@ define([], function() {
     };
 
     $scope.extra = {
+      canRemove: config.hasProjectPermission,
       removeOperationCallback: function(err, data) {
         if (err) {
           if (err.serviceStoppedError){

@@ -6,6 +6,7 @@ define([], function() {
 
     $scope.forms = {};
     $scope.isDynamic = configuration.dataSeriesType === "dynamic";
+    $scope.hasProjectPermission = configuration.hasProjectPermission;
     $scope.semantics = "";
     var queryParameters = {
       metadata: true,
@@ -33,7 +34,6 @@ define([], function() {
             canSave = false;
           } else {
             canSave = true;
-            MessageBoxService.reset();
           }
         }
       }
@@ -1206,6 +1206,9 @@ define([], function() {
       });
 
       if ($scope.isUpdating) {
+        if (!$scope.hasProjectPermission){
+          MessageBoxService.danger(i18n.__("Permission"), i18n.__("You can not edit this data series. He belongs to a protected project!"));
+        }
         // setting intersection values
         var collector = configuration.collector || {};
         var intersection = collector.intersection || [];
@@ -1933,6 +1936,11 @@ define([], function() {
 
         if($scope.isWizard) {
           isWizardStepValid();
+        }
+
+        if (!$scope.hasProjectPermission && $scope.isUpdating){
+          MessageBoxService.danger(i18n.__("Permission"), i18n.__("You can not edit this data series. He belongs to a protected project!"));
+          return;
         }
 
         if (!canSave){

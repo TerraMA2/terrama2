@@ -60,7 +60,7 @@ describe('DataManager', function() {
 
   // It runs before all tests. It initializes database, creating tables
   before(function(done){
-    DataManager.init(function() {
+    DataManager.init(null, function() {
       return done();
     });
   });
@@ -75,7 +75,7 @@ describe('DataManager', function() {
 
   //describe("DataManager#init", function() {
   it('initializes DataManager database connection', function(done) {
-    DataManager.init(function(){
+    DataManager.init(null, function(){
       assert(DataManager.connection !== null);
       return done();
     });
