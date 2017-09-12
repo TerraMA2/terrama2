@@ -45,11 +45,109 @@
 #include <terrama2/services/interpolator/core/Interpolator.hpp>
 #include <terrama2/services/interpolator/core/InterpolatorFactories.h>
 #include <terrama2/services/interpolator/core/InterpolatorLogger.hpp>
+#include <terrama2/services/interpolator/core/JSonUtils.hpp>
 #include <terrama2/services/interpolator/core/Service.hpp>
 
 // Qt
 #include <QCoreApplication>
+#include <QFile>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QTimer>
+
+
+std::string GetNNJson()
+{
+  return "{ \
+         \"active\": \"true\", \
+         \"bounding_rect\": { \
+             \"ll_corner\": [ \
+                 -46.79, \
+                 -24.174 \
+             ], \
+             \"ur_corner\": [ \
+                 -44.85, \
+                 -23.355 \
+             ] \
+         }, \
+         \"class\": \"Interpolator\", \
+         \"filter\": \"\", \
+         \"id\": \"8\", \
+         \"input_data_series\": \"4\", \
+         \"interpolation_attribute\": \"pluvio\", \
+         \"interpolator_strategy\": \"0\", \
+         \"output_data_series\": \"9\", \
+         \"project_id\": \"\", \
+         \"resolution_x\": \"0.11\", \
+         \"resolution_y\": \"0.11\", \
+         \"service_instance_id\": \"1\", \
+         \"srid\": \"4326\", \
+         \"number_of_neighbors\": \"2\" \
+     }";
+}
+
+std::string GetAvgJson()
+{
+  return "{ \
+         \"active\": \"true\", \
+         \"bounding_rect\": { \
+             \"ll_corner\": [ \
+                 -46.79, \
+                 -24.174 \
+             ], \
+             \"ur_corner\": [ \
+                 -44.85, \
+                 -23.355 \
+             ] \
+         }, \
+         \"class\": \"Interpolator\", \
+         \"filter\": \"\", \
+         \"id\": \"9\", \
+         \"input_data_series\": \"4\", \
+         \"interpolation_attribute\": \"pluvio\", \
+         \"interpolator_strategy\": \"1\", \
+         \"output_data_series\": \"555\", \
+         \"project_id\": \"\", \
+         \"resolution_x\": \"0.11\", \
+         \"resolution_y\": \"0.11\", \
+         \"service_instance_id\": \"1\", \
+         \"srid\": \"4326\", \
+         \"number_of_neighbors\": \"2\" \
+     }";
+}
+
+std::string GetSqrAvgJson()
+{
+  return "{ \
+         \"active\": \"true\", \
+         \"bounding_rect\": { \
+             \"ll_corner\": [ \
+                 -46.79, \
+                 -24.174 \
+             ], \
+             \"ur_corner\": [ \
+                 -44.85, \
+                 -23.355 \
+             ] \
+         }, \
+         \"class\": \"Interpolator\", \
+         \"filter\": \"\", \
+         \"id\": \"10\", \
+         \"input_data_series\": \"4\", \
+         \"interpolation_attribute\": \"pluvio\", \
+         \"interpolator_strategy\": \"2\", \
+         \"output_data_series\": \"556\", \
+         \"project_id\": \"\", \
+         \"resolution_x\": \"0.11\", \
+         \"resolution_y\": \"0.11\", \
+         \"service_instance_id\": \"1\", \
+         \"srid\": \"4326\", \
+         \"number_of_neighbors\": \"2\", \
+         \"power_factor\": \"5\" \
+     }";
+}
+
 
 int main(int argc, char* argv[])
 {
@@ -112,11 +210,11 @@ int main(int argc, char* argv[])
 
   dataManager->add(dataProviderPtr);
 
-  // DataSeries information
+  // DataSeries information - Nearest-neighbor
   terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries;
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
   dataSeries->id = 9;
-  dataSeries->name = "Interpolation";
+  dataSeries->name = "Interpolation nn";
   dataSeries->semantics = semanticsManager.getSemantics("GRID-geotiff");
   dataSeries->dataProviderId = dataProvider->id;
   dataSeries->active = true;
@@ -127,13 +225,54 @@ int main(int argc, char* argv[])
   dsetPtr->active = true;
   dsetPtr->dataSeriesId = dataSeries->id;
   dsetPtr->id = 10;
-  dsetPtr->format.emplace("mask", "sqr_avg_%YYYY%MM%DD%hh%mm.tif");
+  dsetPtr->format.emplace("mask", "nn_%YYYY%MM%DD%hh%mm.tif");
   dsetPtr->format.emplace("timezone", "UTC+00");
-  dsetPtr->format.emplace("srid", "4326");
 
   dataSeries->datasetList.emplace_back(dsetPtr);
-
   dataManager->add(dataSeriesPtr);
+
+
+  // DataSeries information - Average-neighbor
+  terrama2::core::DataSeries* dataSeries2 = new terrama2::core::DataSeries;
+  terrama2::core::DataSeriesPtr dataSeriesPtr2(dataSeries2);
+  dataSeries2->id = 555;
+  dataSeries2->name = "Interpolation avg";
+  dataSeries2->semantics = semanticsManager.getSemantics("GRID-geotiff");
+  dataSeries2->dataProviderId = dataProvider->id;
+  dataSeries2->active = true;
+
+  terrama2::core::DataSet* dset2 = new terrama2::core::DataSetGrid;
+  std::shared_ptr<terrama2::core::DataSet> dsetPtr2(dset2);
+
+  dsetPtr2->active = true;
+  dsetPtr2->dataSeriesId = dataSeries2->id;
+  dsetPtr2->id = 111;
+  dsetPtr2->format.emplace("mask", "avg_%YYYY%MM%DD%hh%mm.tif");
+  dsetPtr2->format.emplace("timezone", "UTC+00");
+
+  dataSeries2->datasetList.emplace_back(dsetPtr2);
+  dataManager->add(dataSeriesPtr2);
+
+  // DataSeries information - Square distance average-neighbor
+  terrama2::core::DataSeries* dataSeries3 = new terrama2::core::DataSeries;
+  terrama2::core::DataSeriesPtr dataSeriesPtr3(dataSeries3);
+  dataSeries3->id = 556;
+  dataSeries3->name = "Interpolation sqr-avg";
+  dataSeries3->semantics = semanticsManager.getSemantics("GRID-geotiff");
+  dataSeries3->dataProviderId = dataProvider->id;
+  dataSeries3->active = true;
+
+  terrama2::core::DataSet* dset3 = new terrama2::core::DataSetGrid;
+  std::shared_ptr<terrama2::core::DataSet> dsetPtr3(dset3);
+
+  dsetPtr3->active = true;
+  dsetPtr3->dataSeriesId = dataSeries3->id;
+  dsetPtr3->id = 112;
+  dsetPtr3->format.emplace("mask", "sqr_avg_%YYYY%MM%DD%hh%mm.tif");
+  dsetPtr3->format.emplace("timezone", "UTC+00");
+
+  dataSeries3->datasetList.emplace_back(dsetPtr3);
+  dataManager->add(dataSeriesPtr3);
   //////////////////////////////////////////////////////
 
   //////////////////////////////////////////////////////
@@ -200,24 +339,24 @@ int main(int argc, char* argv[])
   /// Creating services by nearest-neighbor and
   /// starts the service.
   //////////////////////////////////////////////////////
+  ///
 
-  terrama2::services::interpolator::core::SqrAvgDistInterpolatorParams* params = new terrama2::services::interpolator::core::SqrAvgDistInterpolatorParams;
-  params->resolutionX_ = 0.15;
-  params->resolutionY_ = 0.15;
-  params->series_ = pcdSeries->id;
-  params->attributeName_ = "pluvio";
-  params->srid_ = 4326;
-  params->id_ = 8;
-  params->serviceInstanceId_ = 1;
-  params->numNeighbors_ = 2;
-  params->outSeries_ = dataSeries->id;
-  params->pow_ = 2;
+  QJsonDocument doc1 = QJsonDocument::fromJson(QString::fromStdString(GetNNJson()).toUtf8());
+  QJsonDocument doc2 = QJsonDocument::fromJson(QString::fromStdString(GetAvgJson()).toUtf8());
+  QJsonDocument doc3 = QJsonDocument::fromJson(QString::fromStdString(GetSqrAvgJson()).toUtf8());
 
-  terrama2::services::interpolator::core::InterpolatorParamsPtr pPtr(params);
-  dataManager->add(pPtr);
+  terrama2::services::interpolator::core::InterpolatorParamsPtr pPtr1(terrama2::services::interpolator::core::fromInterpolatorJson(doc1.object(), dataManager.get()));
+  terrama2::services::interpolator::core::InterpolatorParamsPtr pPtr2(terrama2::services::interpolator::core::fromInterpolatorJson(doc2.object(), dataManager.get()));
+  terrama2::services::interpolator::core::InterpolatorParamsPtr pPtr3(terrama2::services::interpolator::core::fromInterpolatorJson(doc3.object(), dataManager.get()));
+
+  dataManager->add(pPtr1);
+  dataManager->add(pPtr2);
+  dataManager->add(pPtr3);
 
   service.start();
-  service.addToQueue(pPtr->id_, terrama2::core::TimeUtils::nowUTC());
+  service.addToQueue(pPtr1->id_, terrama2::core::TimeUtils::nowUTC());
+  service.addToQueue(pPtr2->id_, terrama2::core::TimeUtils::nowUTC());
+  service.addToQueue(pPtr3->id_, terrama2::core::TimeUtils::nowUTC());
   //////////////////////////////////////////////////////
 
   QTimer timer;

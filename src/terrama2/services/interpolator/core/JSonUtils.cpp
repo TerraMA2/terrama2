@@ -27,14 +27,15 @@
 
 #include "JSonUtils.hpp"
 
+#include "../../../core/data-model/Filter.hpp"
 #include "../../../core/utility/GeoUtils.hpp"
 #include "../../../core/utility/JSonUtils.hpp"
 #include "../../../core/utility/Logger.hpp"
 #include "InterpolatorParams.hpp"
 
 // TerraLib
-#include <terralib/geometry/Point.h>
-#include <terralib/geometry/WKTWriter.h>
+//#include <terralib/geometry/Point.h>
+//#include <terralib/geometry/WKTWriter.h>
 
 // Qt
 #include <QJsonDocument>
@@ -50,19 +51,49 @@
 QJsonObject GetBoundingRect(const te::gm::Envelope& env)
 {
   QJsonObject obj;
-  std::unique_ptr<te::gm::Point> p1(new te::gm::Point(env.getLowerLeftX(), env.getLowerLeftY()));
-  std::unique_ptr<te::gm::Point> p2(new te::gm::Point(env.getUpperRightX(), env.getUpperRightY()));
-  std::ostringstream llOs,
-      urOs;
 
-  te::gm::WKTWriter::write(p1.get(), llOs);
-  te::gm::WKTWriter::write(p2.get(), urOs);
+  QJsonArray ll,
+      ur;
 
-  obj["ll_corner"] = QString::fromStdString(llOs.str());
-  obj["ur_corner"] = QString::fromStdString(urOs.str());
+  ll <<env.getLowerLeftX() <<env.getLowerLeftY();
+  ur <<env.getUpperRightX() <<env.getUpperRightY();
+
+  obj.insert("ll_corner", ll);
+  obj.insert("ur_corner", ur);
 
   return obj;
 }
+
+/*!
+ * \brief Returns the specialized parameters giving the \a type.
+ *
+ * \param type Type of interpolator to be used.
+ *
+ * \return A specialized parameters object.
+ */
+terrama2::services::interpolator::core::InterpolatorParams* GetParameters(const int& type)
+{
+  switch (type)
+  {
+    case terrama2::services::interpolator::core::NEARESTNEIGHBOR:
+      return new terrama2::services::interpolator::core::NNInterpolatorParams;
+    break;
+
+    case terrama2::services::interpolator::core::AVGDIST:
+      return new terrama2::services::interpolator::core::AvgDistInterpolatorParams;
+    break;
+
+    case terrama2::services::interpolator::core::SQRAVGDIST:
+      return new terrama2::services::interpolator::core::SqrAvgDistInterpolatorParams;
+    break;
+
+    default:
+      return 0;
+  }
+
+
+}
+
 
 terrama2::services::interpolator::core::InterpolatorParams* terrama2::services::interpolator::core::fromInterpolatorJson(QJsonObject json, terrama2::core::DataManager* dataManager)
 {
@@ -95,40 +126,48 @@ terrama2::services::interpolator::core::InterpolatorParams* terrama2::services::
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
 
-  InterpolatorParams* params = new InterpolatorParams;
-  InterpolatorParamsPtr parPtr(params);
+  terrama2::services::interpolator::core::InterpolatorType interpolType = static_cast<terrama2::services::interpolator::core::InterpolatorType>(json["interpolator_strategy"].toString().toInt());
 
-  parPtr->id_ = static_cast<uint32_t>(json["id"].toInt());
-  parPtr->projectId_ = static_cast<uint32_t>(json["project_id"].toInt());
-  parPtr->serviceInstanceId_ = static_cast<uint32_t>(json["service_instance_id"].toInt());
+  res = GetParameters(interpolType);
 
-  parPtr->series_ = static_cast<uint32_t>(json["input_data_series"].toInt());
-  parPtr->outSeries_ = static_cast<uint32_t>(json["output_data_series"].toInt());
+  res->id_ = static_cast<uint32_t>(json["id"].toString().toInt());
+  res->projectId_ = static_cast<uint32_t>(json["project_id"].toString().toInt());
+  res->serviceInstanceId_ = static_cast<uint32_t>(json["service_instance_id"].toString().toInt());
 
-  parPtr->filter_ = terrama2::core::fromFilterJson(json["filter"].toObject(), dataManager);
-  parPtr->active_ = json["active"].toBool();
+  res->series_ = static_cast<uint32_t>(json["input_data_series"].toString().toInt());
+  res->outSeries_ = static_cast<uint32_t>(json["output_data_series"].toString().toInt());
 
-  parPtr->interpolationType_ = static_cast<terrama2::services::interpolator::core::InterpolatorType>(json["interpolator_strategy"].toInt());
-  parPtr->attributeName_ = json["interpolation_attribute"].toString().toStdString();
-  parPtr->resolutionX_ = json["resolution_x"].toDouble();
-  parPtr->resolutionY_ = json["resolution_y"].toDouble();
-  parPtr->srid_ = json["srid"].toInt();
-  parPtr->numNeighbors_ = json["number_of_neighbors"].toInt();
+  res->filter_ = terrama2::core::Filter();
+//  res->filter_ = terrama2::core::fromFilterJson(json["filter"].toObject(), dataManager);
+  res->active_ = json["active"].toString().toLower() == "true" ?
+                      true :
+                      false;
+
+  res->interpolationType_ = interpolType;
+
+  res->attributeName_ = json["interpolation_attribute"].toString().toStdString();
+  res->resolutionX_ = json["resolution_x"].toString().toDouble();
+  res->resolutionY_ = json["resolution_y"].toString().toDouble();
+  res->srid_ = json["srid"].toString().toInt();
+  res->numNeighbors_ = json["number_of_neighbors"].toString().toInt();
 
   auto bboxObj = json["bounding_rect"].toObject();
 
-  std::string llS = bboxObj.take("ll_corner").toString().toStdString(),
-            urS = bboxObj.take("ur_corner").toString().toStdString();
+  auto llArray = bboxObj["ll_corner"].toArray();
 
-  auto gLl = terrama2::core::ewktToGeom(llS);
-  auto gUr = terrama2::core::ewktToGeom(urS);
+  auto urArray = bboxObj["ur_corner"].toArray();
 
-  auto ll = std::dynamic_pointer_cast<te::gm::Point>(gLl),
-      ur = std::dynamic_pointer_cast<te::gm::Point>(gUr);
+  double x1 = llArray[0].toDouble(),
+      y1 = llArray[1].toDouble(),
+      x2 = urArray[0].toDouble(),
+      y2 = urArray[1].toDouble();
 
-  te::gm::Envelope env(ll->getX(), ll->getY(), ur->getX(), ur->getY());
+  te::gm::Envelope env(x1, y1, x2, y2);
 
-  parPtr->bRect_ = env;
+  res->bRect_ = env;
+
+  if(res->interpolationType_ == terrama2::services::interpolator::core::SQRAVGDIST)
+    ((terrama2::services::interpolator::core::SqrAvgDistInterpolatorParams*)res)->pow_ = json["power_factor"].toString().toInt();
 
   return res;
 }
@@ -149,6 +188,9 @@ QJsonObject terrama2::services::interpolator::core::toJson(InterpolatorParams* p
   obj.insert("interpolation_attribute", QString::fromStdString(params->attributeName_));
   obj.insert("srid", static_cast<int32_t>(params->srid_));
   obj.insert("active", params->active_);
+
+  if(params->interpolationType_ == terrama2::services::interpolator::core::SQRAVGDIST)
+    obj.insert("power_factor", QString::number(((terrama2::services::interpolator::core::SqrAvgDistInterpolatorParams*)params)->pow_));
 
   obj.insert("bounding_rect", GetBoundingRect(params->bRect_));
 

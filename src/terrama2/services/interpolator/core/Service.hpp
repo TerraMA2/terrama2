@@ -26,7 +26,7 @@
  *
  * \author Frederico Augusto Bedê
  *
- * \todo Change example to use JSon files.
+ * \todo The filter must be completed.
  */
 
 #ifndef __TERRAMA2_SERVICES_INTERPOLATOR_CORE_SERVICE_HPP__

@@ -220,7 +220,7 @@ void terrama2::services::interpolator::core::Service::interpolate(terrama2::core
 
     terrama2::core::Filter filter = interpolatorParamsPtr->filter_;
 
-    if(*filter.lastValues.get() != 1)
+    if(filter.lastValues.get() == 0 || *filter.lastValues.get() != 1)
       filter.lastValues = std::make_shared<long unsigned int>(1);
 
     if(filter.discardAfter.get() && filter.discardBefore.get()
