@@ -29,6 +29,8 @@
 */
 
 // TerraMA2
+#include <terrama2/core/data-access/DataSetSeries.hpp>
+
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSetGrid.hpp>
 #include <terrama2/core/data-model/DataSetDcp.hpp>
@@ -109,6 +111,29 @@ int main(int argc, char* argv[])
   dataProvider->active = true;
 
   dataManager->add(dataProviderPtr);
+
+  // DataSeries information
+  terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries;
+  terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
+  dataSeries->id = 9;
+  dataSeries->name = "Interpolation";
+  dataSeries->semantics = semanticsManager.getSemantics("GRID-geotiff");
+  dataSeries->dataProviderId = dataProvider->id;
+  dataSeries->active = true;
+
+  terrama2::core::DataSet* dset = new terrama2::core::DataSetGrid;
+  std::shared_ptr<terrama2::core::DataSet> dsetPtr(dset);
+
+  dsetPtr->active = true;
+  dsetPtr->dataSeriesId = dataSeries->id;
+  dsetPtr->id = 10;
+  dsetPtr->format.emplace("mask", "sqr_avg_%YYYY%MM%DD%hh%mm.tif");
+  dsetPtr->format.emplace("timezone", "UTC+00");
+  dsetPtr->format.emplace("srid", "4326");
+
+  dataSeries->datasetList.emplace_back(dsetPtr);
+
+  dataManager->add(dataSeriesPtr);
   //////////////////////////////////////////////////////
 
   //////////////////////////////////////////////////////
@@ -176,7 +201,7 @@ int main(int argc, char* argv[])
   /// starts the service.
   //////////////////////////////////////////////////////
 
-  terrama2::services::interpolator::core::InterpolatorParams* params = new terrama2::services::interpolator::core::SqrAvgDistInterpolatorParams;
+  terrama2::services::interpolator::core::SqrAvgDistInterpolatorParams* params = new terrama2::services::interpolator::core::SqrAvgDistInterpolatorParams;
   params->resolutionX_ = 0.15;
   params->resolutionY_ = 0.15;
   params->series_ = pcdSeries->id;
@@ -184,8 +209,9 @@ int main(int argc, char* argv[])
   params->srid_ = 4326;
   params->id_ = 8;
   params->serviceInstanceId_ = 1;
-//  params->outSeries_ = 22;
   params->numNeighbors_ = 2;
+  params->outSeries_ = dataSeries->id;
+  params->pow_ = 2;
 
   terrama2::services::interpolator::core::InterpolatorParamsPtr pPtr(params);
   dataManager->add(pPtr);

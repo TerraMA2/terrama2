@@ -128,8 +128,6 @@ te::rst::Raster* terrama2::services::interpolator::core::Interpolator::makeRaste
   // Creating raster info
   std::map<std::string, std::string> conInfo;
 
-  conInfo["FORCE_MEM_DRIVER"] = "TRUE";
-
   // create raster
   r = te::rst::RasterFactory::make("MEM", grid, vecBandProp, conInfo);
   /////////////////////////////////////////////////////////////////////////

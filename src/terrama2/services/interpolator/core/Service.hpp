@@ -26,8 +26,6 @@
  *
  * \author Frederico Augusto Bedê
  *
- * \todo Fix the name of resulting file, not using mask properly.
- *
  * \todo Change example to use JSon files.
  */
 

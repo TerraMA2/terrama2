@@ -29,23 +29,14 @@
 
 #include "Service.hpp"
 
-#include "../../../core/data-access/DataAccessorGrid.hpp"
-#include "../../../core/data-access/DataSetSeries.hpp"
 #include "../../../core/data-access/DataStorager.hpp"
-#include "../../../core/data-access/GridSeries.hpp"
-#include "../../../core/data-access/SynchronizedDataSet.hpp"
-#include "../../../core/data-model/DataSeries.hpp"
-#include "../../../core/data-model/DataSetGrid.hpp"
-#include "../../../core/data-model/Filter.hpp"
 #include "../../../core/utility/DataStoragerFactory.hpp"
 #include "../../../core/utility/DataAccessorFactory.hpp"
 #include "../../../core/utility/FileRemover.hpp"
 #include "../../../core/utility/Timer.hpp"
 #include "../../../core/utility/TimeUtils.hpp"
 #include "../../../core/utility/Logger.hpp"
-#include "../../../core/utility/SemanticsManager.hpp"
 #include "../../../core/utility/ServiceManager.hpp"
-#include "../../../core/Exception.hpp"
 
 #include "DataManager.hpp"
 #include "InterpolatorFactories.h"
@@ -53,6 +44,7 @@
 
 // TerraLib
 #include <terralib/dataaccess/dataset/DataSetType.h>
+#include <terralib/datatype/DateTimeProperty.h>
 #include <terralib/memory/DataSet.h>
 #include <terralib/memory/DataSetItem.h>
 #include <terralib/raster/Band.h>
@@ -61,52 +53,6 @@
 #include <terralib/raster/Raster.h>
 #include <terralib/raster/RasterProperty.h>
 
-
-/*!
- * \brief Returns the name of strategy of interpolation given its code.
- *
- * \param strategy Code of strategy to use on interpolation see InterpolatorType for the codes.
- *
- * \return The name of the interpolation strategy identified by \a strategy.
- */
-std::string GetStrategy(const int& strategy)
-{
-  switch (strategy)
-  {
-    case terrama2::services::interpolator::core::NEARESTNEIGHBOR :
-      return "nearest_neighbor";
-    break;
-
-    case terrama2::services::interpolator::core::AVGDIST :
-      return "average_neighbor";
-    break;
-
-    case terrama2::services::interpolator::core::SQRAVGDIST :
-      return "weight_nearest_neighbor";
-    break;
-
-    default:
-      throw;
-  }
-}
-
-/*!
- * \brief Returns the complete file name for the output.
- *
- * \param par Parameters of the interpolations.
- *
- * \return The file name.
- */
-std::string GetFileName(const terrama2::services::interpolator::core::InterpolatorParams* par)
-{
-  std::string fileName = GetStrategy(par->interpolationType_);
-
-  fileName += "_" + par->attributeName_;
-
-  fileName += "_%YYYY%MM%DD%hh%mm.tif";
-
-  return fileName;
-}
 
 /*!
  * \brief Returns a te::da::DataSetType for a given raster object.
@@ -121,7 +67,11 @@ te::da::DataSetType* GetDataSetType(te::rst::Raster* raster)
 
   te::rst::RasterProperty* rp = new te::rst::RasterProperty("raster");
 
+  te::dt::DateTimeProperty* dp = new te::dt::DateTimeProperty("date_time", te::dt::TIME_INSTANT_TZ);
+
   dataSetType->add(rp);
+
+  dataSetType->add(dp);
 
   for(size_t i = 0; i < raster->getNumberOfBands(); i++)
     rp->add(new te::rst::BandProperty(*raster->getBand(i)->getProperty()));
@@ -136,13 +86,17 @@ te::da::DataSetType* GetDataSetType(te::rst::Raster* raster)
  *
  * \param raster Pointer to a valid raster object.
  *
+ * \param time The time of the data processing.
+ *
  * \return A valid dataset.
  */
-te::mem::DataSet* GetDataSet(te::rst::Raster* raster)
+te::mem::DataSet* GetDataSet(te::rst::Raster* raster, std::shared_ptr<te::dt::TimeInstantTZ> time)
 {
   te::mem::DataSet* dset = new te::mem::DataSet(GetDataSetType(raster));
 
   te::mem::DataSetItem* item = new te::mem::DataSetItem(dset);
+
+  item->setDateTime("date_time", new te::dt::TimeInstantTZ(*time.get()));
 
   dset->add(item);
 
@@ -160,14 +114,14 @@ te::mem::DataSet* GetDataSet(te::rst::Raster* raster)
  *
  * \param par Parameters used by the interpolator.
  *
- * \param filter Geographic filter.
- *
  * \param weakDataManager The Dataanager.
+ *
+ * \param time The time of the data processing.
  *
  * \exception A terrama2::core::NoDataException can be raised.
  */
-void StoreInterpolateResult(te::rst::Raster* raster, terrama2::services::interpolator::core::InterpolatorParams* par, const terrama2::core::Filter& filter,
-                            std::weak_ptr<terrama2::services::interpolator::core::DataManager> weakDataManager)
+void StoreInterpolateResult(te::rst::Raster* raster, terrama2::services::interpolator::core::InterpolatorParams* par, std::weak_ptr<terrama2::services::interpolator::core::DataManager> weakDataManager,
+                            std::shared_ptr<te::dt::TimeInstantTZ> time)
 {
   auto dataManager = weakDataManager.lock();
 
@@ -182,19 +136,8 @@ void StoreInterpolateResult(te::rst::Raster* raster, terrama2::services::interpo
 
   //////////////////////////////////////////////////////////
   // output data
-  auto dataProvider = dataManager->findDataProvider(3);
-  auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
-
-  // DataSeries information
-  terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries;
-  terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
-  dataSeries->id = 9;
-  dataSeries->name = "Interpolation";
-  dataSeries->semantics = semanticsManager.getSemantics("GRID-geotiff");
-  dataSeries->dataProviderId = dataProvider->id;
-  dataSeries->active = true;
-
-  dataManager->add(dataSeriesPtr);
+  auto dataSeriesPtr = dataManager->findDataSeries(par->outSeries_);
+  auto dataProvider = dataManager->findDataProvider(dataSeriesPtr->dataProviderId);
   /////////////////////////////////////////////////////////////////////////
 
 
@@ -203,12 +146,7 @@ void StoreInterpolateResult(te::rst::Raster* raster, terrama2::services::interpo
   auto accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeriesPtr);
   auto remover = std::make_shared<terrama2::core::FileRemover>();
 
-  std::shared_ptr<te::da::DataSet> dsetRasterPtr(GetDataSet(raster));
-  terrama2::core::DataSet* dset = new terrama2::core::DataSetGrid;
-  std::shared_ptr<terrama2::core::DataSet> dsetPtr(dset);
-  dsetPtr->active = true;
-  dsetPtr->dataSeriesId = 9;
-  dsetPtr->id = 10;
+  std::shared_ptr<te::da::DataSet> dsetRasterPtr(GetDataSet(raster, time));
 
   auto teDset = new terrama2::core::SynchronizedDataSet(dsetRasterPtr);
   std::shared_ptr<terrama2::core::SynchronizedDataSet> teDsetPtr(teDset);
@@ -216,20 +154,9 @@ void StoreInterpolateResult(te::rst::Raster* raster, terrama2::services::interpo
   terrama2::core::DataSetSeries series;
   series.syncDataSet = teDsetPtr;
 
-  dataSeries->datasetList.emplace_back(dsetPtr);
-
-  dsetPtr->format.emplace("mask", GetFileName(par));
-  dsetPtr->format.emplace("folder", "geotiff");
-  dsetPtr->format.emplace("timezone", "UTC+00");
-  dsetPtr->format.emplace("folder", "interpolation");
-  dsetPtr->format.emplace("srid", QString::number(par->srid_).toStdString());
-  dsetPtr->format.emplace("data_type", "DOUBLE");
-  dsetPtr->format.emplace("number_of_bands", "1");
-  dsetPtr->format.emplace("bytes_before", "0");
-  dsetPtr->format.emplace("bytes_after", "0");
-
   auto dataStorager = terrama2::core::DataStoragerFactory::getInstance().make(dataSeriesPtr, dataProvider);
-  dataStorager->store(series, dsetPtr);
+
+  dataStorager->store(series, *dataSeriesPtr->datasetList.begin());
 }
 
 /// End utilities functions section.
@@ -311,7 +238,7 @@ void terrama2::services::interpolator::core::Service::interpolate(terrama2::core
 
     TERRAMA2_LOG_INFO() << tr("Data from process %1 interpolated successfully.").arg(executionPackage.processId);
 
-    StoreInterpolateResult(res, interpolatorParamsPtr.get(), filter, dataManager);
+    StoreInterpolateResult(res, interpolatorParamsPtr.get(), dataManager, executionPackage.executionDate);
 
     TERRAMA2_LOG_INFO() << tr("Data from process %1 stored successfully.").arg(executionPackage.processId);
 
@@ -336,7 +263,7 @@ void terrama2::services::interpolator::core::Service::interpolate(terrama2::core
       TERRAMA2_LOG_INFO() << tr("Collection for interpolator %1 finished with error(s).").arg(executionPackage.processId);
     }
   }
-  catch(const terrama2::core::NoDataException& e)
+  catch(const terrama2::core::NoDataException&)
   {
     TERRAMA2_LOG_INFO() << tr("Collection finished but there was no data available for interpolator %1.").arg(executionPackage.processId);
 
