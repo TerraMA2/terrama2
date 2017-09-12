@@ -578,9 +578,14 @@ var DataManager = module.exports = {
     var self = this;
     return new Promise(function(resolve, reject) {
       self.getProject({id: projectObject.id}).then(function(project) {
+        var fieldsToUpdate = ["name", "description", "version", "protected"];
+        // Add user if the project dont have one
+        if (!project.user_id){
+          fieldsToUpdate.push("user_id");
+        }
 
         return models.db.Project.update(projectObject, Utils.extend({
-          fields: ["name", "description", "version"],
+          fields: fieldsToUpdate,
           where: {
             id: project.id
           }
@@ -589,6 +594,8 @@ var DataManager = module.exports = {
           projectItem.name = projectObject.name;
           projectItem.description = projectObject.description;
           projectItem.version = projectObject.version;
+          projectItem.protected = projectObject.protected;
+          projectItem.user_id = projectObject.user_id;
 
           return resolve(Utils.clone(projectItem));
         }).catch(function(err) {

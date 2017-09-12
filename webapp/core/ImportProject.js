@@ -63,6 +63,7 @@ var ImportProject = function(json, callback){
       output.Projects = [];
       projects.forEach(function(project) {
         // Try to get project by unique name
+        project.user_id = parseInt(json.userId);
         promises.push(DataManager.addProject(project, options).then(function(proj) {
           output.Projects.push(Object.assign({ $id: project.$id }, proj));
         }));

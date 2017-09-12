@@ -217,6 +217,7 @@ define([], function() {
     };
 
     $scope.extra = {
+      canRemove: true,
       advancedFilters: [
         {
           name: "Collect",
