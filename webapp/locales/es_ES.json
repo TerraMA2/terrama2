@@ -699,7 +699,6 @@
 	"Database": "",
 	"Grid - Grib2": "",
 	"Risk Level Description": "",
-	"Static grid - GDAL": "",
 	"total entries": "",
 	"Grid - GrADS": "",
 	"CTL File": "",
@@ -735,7 +734,6 @@
 	"Polygon Stroke Width": "",
 	"Risk Value": "",
 	"DCP Import Process": "",
-	"Static geometric object - PostGIS": "",
 	"Invalid mask": "",
 	"Tipo": "",
 	"Select the Directory": "",
@@ -759,7 +757,6 @@
 	"Email Server Connection": "",
 	"Point Size": "",
 	"Prefix": "",
-	"Static geometric object - OGR (data file)": "",
 	"Select at least one attribute": "",
 	"All configured authentication methods failed": "",
 	"table_name": "",
@@ -1021,5 +1018,8 @@
 		" He belongs to a protected project!": ""
 	},
 	"User is not allowed": "",
-  "Protected": ""
+  "Protected": "",
+  "Features table (PostgreSQL/PostGIS)": "",
+  "Grid Files (GeoTIFF)": "",
+  "Vector Files (ESRI Shapefile)": ""
 }
