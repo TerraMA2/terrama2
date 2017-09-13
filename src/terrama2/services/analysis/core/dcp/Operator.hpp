@@ -104,7 +104,7 @@ namespace terrama2
             \return A double with the minimum value.
           */
           double min(const std::string& attribute,
-                     boost::python::list ids);
+                     boost::python::list ids = boost::python::list());
 
           /*!
             \brief Calculates the maximum value of the latest DCP series data.
@@ -121,7 +121,7 @@ namespace terrama2
             \return A double with the maximum value.
           */
           double max(const std::string& attribute,
-                     boost::python::list ids);
+                     boost::python::list ids = boost::python::list());
 
           /*!
             \brief Calculates the mean of the latest DCP series data.
@@ -138,7 +138,7 @@ namespace terrama2
             \return A double with the mean.
           */
           double mean(const std::string& attribute,
-                      boost::python::list ids);
+                      boost::python::list ids = boost::python::list());
 
           /*!
             \brief Calculates the median value of the latest DCP series data.
@@ -155,7 +155,7 @@ namespace terrama2
             \return A double with the median.
           */
           double median(const std::string& attribute,
-                        boost::python::list ids);
+                        boost::python::list ids = boost::python::list());
 
           /*!
             \brief Calculates the sum of the latest DCP series data.
@@ -172,7 +172,7 @@ namespace terrama2
             \return A double with the sum.
            */
           double sum(const std::string& attribute,
-                     boost::python::list ids);
+                     boost::python::list ids = boost::python::list());
 
           /*!
             \brief Calculates the standard deviation of the latest DCP series data.
@@ -189,7 +189,7 @@ namespace terrama2
             \return A double with the standard deviation.
           */
           double standardDeviation(const std::string& attribute,
-                                   boost::python::list ids);
+                                   boost::python::list ids = boost::python::list());
 
           /*!
             \brief Calculates the variance of the latest DCP series data.
@@ -206,7 +206,7 @@ namespace terrama2
               \return A double with the variance between DCP values.
             */
             double variance(const std::string& attribute,
-                            boost::python::list ids);
+                            boost::python::list ids = boost::python::list());
 
             namespace influence
             {
