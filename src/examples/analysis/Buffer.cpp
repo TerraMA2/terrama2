@@ -73,7 +73,7 @@ int main(int argc, char* argv[])
     Service service(dataManager);
     serviceManager.setInstanceId(1);
     serviceManager.setLogger(logger);
-    serviceManager.setLogConnectionInfo(uri);
+    serviceManager.setLogConnectionInfo(te::core::URI(""));
     serviceManager.setInstanceId(1);
 
     service.setLogger(logger);
@@ -151,17 +151,18 @@ int main(int argc, char* argv[])
 
 
     analysis->script = script;
-    analysis->outputDataSeriesId = 3;
+    analysis->outputDataSeriesId = outputDataSeries->id;
+    analysis->outputDataSetId = outputDataSet->id;
     analysis->scriptLanguage = ScriptLanguage::PYTHON;
     analysis->type = AnalysisType::MONITORED_OBJECT_TYPE;
     analysis->serviceInstanceId = 1;
+    dataManager->add(analysis);
 
     std::shared_ptr<terrama2::core::DataProvider> dataProvider = std::make_shared<terrama2::core::DataProvider>();
     dataProvider->name = "Provider";
-    dataProvider->uri += TERRAMA2_DATA_DIR;
-    dataProvider->uri += "/shapefile";
+    dataProvider->uri = uri.uri();
     dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
-    dataProvider->dataProviderType = "FILE";
+    dataProvider->dataProviderType = "POSTGIS";
     dataProvider->active = true;
     dataProvider->id = 1;
 
@@ -170,7 +171,7 @@ int main(int argc, char* argv[])
 
     std::shared_ptr<terrama2::core::DataSeries> dataSeries = std::make_shared<terrama2::core::DataSeries>();
     dataSeries->dataProviderId = dataProvider->id;
-    dataSeries->semantics = semanticsManager.getSemantics("STATIC_DATA-ogr");
+    dataSeries->semantics = semanticsManager.getSemantics("STATIC_DATA-postgis");
     dataSeries->name = "Monitored Object";
     dataSeries->id = 1;
     dataSeries->dataProviderId = 1;
@@ -179,8 +180,7 @@ int main(int argc, char* argv[])
     //DataSet information
     std::shared_ptr<terrama2::core::DataSet> dataSet = std::make_shared<terrama2::core::DataSet>();
     dataSet->active = true;
-    dataSet->format.emplace("mask", "estados_2010.shp");
-    dataSet->format.emplace("srid", "4326");
+    dataSet->format.emplace("table_name", "estados_2010");
     dataSet->id = 1;
     dataSet->dataSeriesId = 1;
 
@@ -241,7 +241,7 @@ int main(int argc, char* argv[])
     analysis->schedule.frequency = 1;
     analysis->schedule.frequencyUnit = "min";
 
-    dataManager->add(analysis);
+
 
     terrama2::core::ServiceManager::getInstance().setInstanceId(1);
 

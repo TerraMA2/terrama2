@@ -20,6 +20,9 @@
 #include <terrama2/impl/Utils.hpp>
 #include <terrama2/Config.hpp>
 
+#include "UtilsPostGis.hpp"
+#include "UtilsDCPSerrmarInpe.hpp"
+
 #include <iostream>
 
 // QT
@@ -65,7 +68,6 @@ int main(int argc, char* argv[])
   EXPECT_CALL(*logger, clone()).WillRepeatedly(::testing::Return(loggerCopy));
   EXPECT_CALL(*logger, isValid()).WillRepeatedly(::testing::Return(true));
 
-  te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PASSWORD+"@"+TERRAMA2_DATABASE_HOST+":"+TERRAMA2_DATABASE_PORT+"/"+TERRAMA2_DATABASE_DBNAME);
 
   Service service(dataManager);
   serviceManager.setInstanceId(1);
@@ -77,40 +79,13 @@ int main(int argc, char* argv[])
   service.start();
 
 
-  // DataProvider information
-  std::shared_ptr<terrama2::core::DataProvider> outputDataProvider = std::make_shared<terrama2::core::DataProvider>();
-  outputDataProvider->id = 3;
-  outputDataProvider->name = "DataProvider postgis";
-  outputDataProvider->uri = uri.uri();
-  outputDataProvider->intent = terrama2::core::DataProviderIntent::PROCESS_INTENT;
-  outputDataProvider->dataProviderType = "POSTGIS";
-  outputDataProvider->active = true;
-
-
+  auto outputDataProvider = terrama2::examples::analysis::utilspostgis::outputDataProviderPostGis();
   dataManager->add(outputDataProvider);
 
 
-  auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
-
-  // DataSeries information
-  std::shared_ptr<terrama2::core::DataSeries> outputDataSeries = std::make_shared<terrama2::core::DataSeries>();
-  outputDataSeries->id = 3;
-  outputDataSeries->name = "Analysis result";
-  outputDataSeries->semantics = semanticsManager.getSemantics("ANALYSIS_MONITORED_OBJECT-postgis");
-  outputDataSeries->dataProviderId = outputDataProvider->id;
-
-
-  // DataSet information
-  terrama2::core::DataSet* outputDataSet = new terrama2::core::DataSet();
-  outputDataSet->active = true;
-  outputDataSet->id = 2;
-  outputDataSet->dataSeriesId = outputDataSeries->id;
-  outputDataSet->format.emplace("table_name", "history_dcp_result");
-
-  outputDataSeries->datasetList.emplace_back(outputDataSet);
-
-
+  auto outputDataSeries = terrama2::examples::analysis::utilspostgis::outputDataSeriesPostGis(outputDataProvider, terrama2::examples::analysis::utilspostgis::history_dcp_result);
   dataManager->add(outputDataSeries);
+
 
   std::string script = "moBuffer = Buffer(BufferType.Out_union, 2., \"km\")\n"
           "ids = dcp.zonal.influence.by_rule(\"Serra do Mar\", moBuffer)\n"
@@ -136,8 +111,8 @@ int main(int argc, char* argv[])
   analysis->script = script;
   analysis->scriptLanguage = ScriptLanguage::PYTHON;
   analysis->type = AnalysisType::MONITORED_OBJECT_TYPE;
-  analysis->outputDataSeriesId = 3;
-  analysis->outputDataSetId = outputDataSet->id;
+  analysis->outputDataSeriesId = outputDataSeries->id;
+  analysis->outputDataSetId = outputDataSeries->datasetList.front()->id;
   analysis->active = true;
   analysis->serviceInstanceId = 1;
 
@@ -146,45 +121,15 @@ int main(int argc, char* argv[])
   analysis->metadata["INFLUENCE_RADIUS"] = "50";
   analysis->metadata["INFLUENCE_RADIUS_UNIT"] = "km";
 
-  std::shared_ptr<terrama2::core::DataProvider> dataProvider = std::make_shared<terrama2::core::DataProvider>();
-  dataProvider->name = "Provider";
-  dataProvider->uri = uri.uri();
-  dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
-  dataProvider->dataProviderType = "POSTGIS";
-  dataProvider->active = true;
-  dataProvider->id = 1;
 
-
+  auto dataProvider = terrama2::examples::analysis::utilspostgis::dataProviderPostGis();
   dataManager->add(dataProvider);
 
-  std::shared_ptr<terrama2::core::DataSeries> dataSeries = std::make_shared<terrama2::core::DataSeries>();
-  dataSeries->dataProviderId = dataProvider->id;
-  dataSeries->semantics = semanticsManager.getSemantics("STATIC_DATA-postgis");
-  dataSeries->name = "Monitored Object";
-  dataSeries->id = 1;
-  dataSeries->dataProviderId = 1;
-  dataSeries->active = true;
-
-  //DataSet information
-  std::shared_ptr<terrama2::core::DataSet> dataSet = std::make_shared<terrama2::core::DataSet>();
-  dataSet->active = true;
-  dataSet->format.emplace("table_name", "estados_2010");
-  dataSet->id = 1;
-
-  dataSeries->datasetList.push_back(dataSet);
+  auto dataSeries = terrama2::examples::analysis::utilspostgis::dataSeriesPostGis(dataProvider);
   dataManager->add(dataSeries);
 
 
-  std::shared_ptr<terrama2::core::DataProvider> dataProvider2 = std::make_shared<terrama2::core::DataProvider>();
-  dataProvider2->name = "Provider";
-  dataProvider2->uri += TERRAMA2_DATA_DIR;
-  dataProvider2->uri += "/PCD_serrmar_INPE";
-  dataProvider2->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
-  dataProvider2->dataProviderType = "FILE";
-  dataProvider2->active = true;
-  dataProvider2->id = 2;
-
-
+  auto dataProvider2 = terrama2::examples::analysis::utilsdcpserrmarinpe::dataProvider();
   dataManager->add(dataProvider2);
 
   AnalysisDataSeries monitoredObjectADS;
@@ -194,36 +139,7 @@ int main(int argc, char* argv[])
   monitoredObjectADS.metadata["identifier"] = "nome";
 
 
-  //DataSeries information
-  std::shared_ptr<terrama2::core::DataSeries> dcpSeries = std::make_shared<terrama2::core::DataSeries>();
-  dcpSeries->dataProviderId = dataProvider2->id;
-  dcpSeries->semantics = semanticsManager.getSemantics("DCP-inpe");
-  dcpSeries->name = "Serra do Mar";
-  dcpSeries->id = 2;
-  dcpSeries->dataProviderId = 2;
-  dcpSeries->active = true;
-
-  //DataSet information
-  std::shared_ptr<terrama2::core::DataSetDcp> dcpDataset69034 = std::make_shared<terrama2::core::DataSetDcp>();
-  dcpDataset69034->active = true;
-  dcpDataset69034->format.emplace("mask", "69034.txt");
-  dcpDataset69034->format.emplace("alias", "dcp_69034");
-  dcpDataset69034->format.emplace("timezone", "-02:00");
-  dcpDataset69034->dataSeriesId = 2;
-  dcpDataset69034->id = 2;
-  dcpDataset69034->position = std::shared_ptr<te::gm::Point>(new te::gm::Point(-44.46540, -23.00506, 4618, te::gm::PointType, nullptr));
-  dcpSeries->datasetList.push_back(dcpDataset69034);
-
-
-  std::shared_ptr<terrama2::core::DataSetDcp> dcpDataset30885 = std::make_shared<terrama2::core::DataSetDcp>();
-  dcpDataset30885->active = true;
-  dcpDataset30885->format.emplace("mask", "30885.txt");
-  dcpDataset30885->format.emplace("alias", "dcp_30885");
-  dcpDataset30885->format.emplace("timezone", "-02:00");
-  dcpDataset30885->dataSeriesId = 2;
-  dcpDataset30885->id = 3;
-  dcpDataset30885->position = std::shared_ptr<te::gm::Point>(new te::gm::Point(-46.121, -23.758, 4618, te::gm::PointType, nullptr));
-  dcpSeries->datasetList.push_back(dcpDataset30885);
+  auto dcpSeries = terrama2::examples::analysis::utilsdcpserrmarinpe::dataSeries(dataProvider2);
 
   AnalysisDataSeries dcpADS;
   dcpADS.id = 2;

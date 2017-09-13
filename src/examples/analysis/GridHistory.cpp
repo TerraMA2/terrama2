@@ -77,10 +77,7 @@ int main(int argc, char* argv[])
 
     // DataProvider information
     std::shared_ptr<terrama2::core::DataProvider> dataProvider = std::make_shared<terrama2::core::DataProvider>();
-    dataProvider->uri = "file://";
-    dataProvider->uri += TERRAMA2_DATA_DIR;
-    dataProvider->uri += "/geotiff/historical";
-
+    dataProvider->uri = "file://" + TERRAMA2_DATA_DIR + "/geotiff/historical";
     dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
     dataProvider->dataProviderType = "FILE";
     dataProvider->active = true;
@@ -97,10 +94,13 @@ int main(int argc, char* argv[])
     outputDataSeries->name = "Output Grid";
     outputDataSeries->id = 5;
     outputDataSeries->dataProviderId = 1;
+    outputDataSeries->active = true;
 
     terrama2::core::DataSetGrid* outputDataSet = new terrama2::core::DataSetGrid();
     outputDataSet->active = true;
     outputDataSet->format.emplace("mask", "output_history_grid.tif");
+    outputDataSet->id = 30;
+    outputDataSet->dataSeriesId = outputDataSeries->id;
 
     outputDataSeries->datasetList.emplace_back(outputDataSet);
 
@@ -148,7 +148,8 @@ int main(int argc, char* argv[])
     analysis->scriptLanguage = ScriptLanguage::PYTHON;
     analysis->type = AnalysisType::GRID_TYPE;
     analysis->active = true;
-    analysis->outputDataSeriesId = 5;
+    analysis->outputDataSeriesId = outputDataSeries->id;
+    analysis->outputDataSetId = outputDataSet->id;
     analysis->serviceInstanceId = 1;
 
     std::vector<AnalysisDataSeries> analysisDataSeriesList;
