@@ -85,21 +85,21 @@ QFileInfoList terrama2::services::view::core::DataAccess::getFilesList(const std
   return fileInfoList;
 }
 
-te::da::DataSetType* terrama2::services::view::core::DataAccess::getVectorialDataSetType(const QFileInfo& fileInfo)
+std::unique_ptr< te::da::DataSetType > terrama2::services::view::core::DataAccess::getVectorialDataSetType(const QFileInfo& fileInfo)
 {
-  return getDataSetType("file://"+fileInfo.absolutePath().toStdString(),
+  return getDataSetType("file://"+fileInfo.absoluteFilePath().toStdString(),
                        fileInfo.baseName().toStdString(),
                        "OGR");
 }
 
-te::da::DataSetType* terrama2::services::view::core::DataAccess::getGeotiffDataSetType(const QFileInfo& fileInfo)
+std::unique_ptr< te::da::DataSetType > terrama2::services::view::core::DataAccess::getGeotiffDataSetType(const QFileInfo& fileInfo)
 {
-  return getDataSetType("file://"+fileInfo.absolutePath().toStdString(),
+  return getDataSetType("file://"+fileInfo.absoluteFilePath().toStdString(),
                        fileInfo.fileName().toStdString(),
                        "GDAL");
 }
 
-te::da::DataSetType* terrama2::services::view::core::DataAccess::getDataSetType(const std::string& dataSourceURI,
+std::unique_ptr< te::da::DataSetType > terrama2::services::view::core::DataAccess::getDataSetType(const std::string& dataSourceURI,
                                                                                 const std::string& dataSetName,
                                                                                 const std::string& driver)
 {
@@ -107,7 +107,6 @@ te::da::DataSetType* terrama2::services::view::core::DataAccess::getDataSetType(
                                                                                  dataSourceURI));
 
   terrama2::core::OpenClose<std::shared_ptr<te::da::DataSource>> openClose(datasource);
-
   if(!datasource->isOpened())
   {
     QString errMsg = QObject::tr("DataProvider could not be opened.");
@@ -115,7 +114,7 @@ te::da::DataSetType* terrama2::services::view::core::DataAccess::getDataSetType(
     return nullptr;
   }
 
-  return datasource->getDataSetType(dataSetName).release();
+  return std::unique_ptr< te::da::DataSetType >(datasource->getDataSetType(dataSetName));
 }
 
 
@@ -143,10 +142,9 @@ terrama2::services::view::core::TableInfo terrama2::services::view::core::DataAc
 
   }
 
-  tableInfo.dataSetType.reset(getDataSetType(inputDataProvider->uri,
-                                             tableInfo.tableName,
-                                             "POSTGIS"));
+  tableInfo.dataSetType = getDataSetType(inputDataProvider->uri,
+                                         tableInfo.tableName,
+                                         "POSTGIS");
 
   return tableInfo;
 }
-

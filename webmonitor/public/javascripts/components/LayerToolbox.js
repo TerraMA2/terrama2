@@ -1,8 +1,8 @@
 'use strict';
 
 define(
-  ['components/Utils', 'components/Slider', 'components/Layers', 'TerraMA2WebComponents'],
-  function(Utils, Slider, Layers, TerraMA2WebComponents) {
+  ['components/Utils', 'components/Slider', 'components/Layers', 'components/AnimatedLayer','TerraMA2WebComponents'],
+  function(Utils, Slider, Layers, AnimatedLayer, TerraMA2WebComponents) {
 
     // Flag that indicates if there is a exportation in progress
     var memberExportationInProgress = false;
@@ -152,6 +152,7 @@ define(
 
       $("#terrama2-sortlayers").on("click", ".fa-gear", function() {
         var layer = Layers.getLayerById($(this).parent().parent().data("layerid"));
+        $("#animate").data("layerid", layer.id);
 
         if(layer !== null) {
           var openLayerToolbox = function() {
@@ -164,7 +165,7 @@ define(
             if($("#layer-toolbox").hasClass("hidden"))
               $("#layer-toolbox").removeClass("hidden");
           };
-
+          var toolbookHeight = 150;
           if(layer.exportation !== null && layer.dataSeriesTypeName === "GRID") {
             $.post(BASE_URL + "check-grid-folder", { dpi: layer.exportation.dataProviderId }, function(data) {
               if(data.result) {
@@ -176,12 +177,11 @@ define(
                 if($("#exportation-box").hasClass("hidden"))
                   $("#exportation-box").removeClass("hidden");
 
-                $("#layer-toolbox").css("height", "220px");
+                toolbookHeight += 70;
+                $("#layer-toolbox").css("height", toolbookHeight + "px");
               } else {
                 if(!$("#exportation-box").hasClass("hidden"))
                   $("#exportation-box").addClass("hidden");
-
-                $("#layer-toolbox").css("height", "150px");
               }
 
               openLayerToolbox();
@@ -195,17 +195,73 @@ define(
             if($("#exportation-box").hasClass("hidden"))
               $("#exportation-box").removeClass("hidden");
 
-            $("#layer-toolbox").css("height", "307px");
+            toolbookHeight += 157;
 
             openLayerToolbox();
           } else {
             if(!$("#exportation-box").hasClass("hidden"))
               $("#exportation-box").addClass("hidden");
 
-            $("#layer-toolbox").css("height", "150px");
-
             openLayerToolbox();
           }
+
+          if (layer.dateInfo && layer.dateInfo.dates && Array.isArray(layer.dateInfo.dates)){
+            if($("#animate-layer-box").hasClass("hidden"))
+              $("#animate-layer-box").removeClass("hidden");
+
+            if($("#dates-slider").hasClass("hidden"))
+              $("#dates-slider").removeClass("hidden");
+
+            if(!$("#dates-calendar").hasClass("hidden"))
+              $("#dates-calendar").addClass("hidden");
+
+            $("#layer-toolbox > .layer-toolbox-body > #animate-layer-box #dates-calendar").empty();
+            $("#layer-toolbox > .layer-toolbox-body > #animate-layer-box #dates-slider").empty().html("<div id=\"dates" + layer.id.replace(":","") + "\"></div><div id=\"rangeDates\"><label>From:&nbsp</label><span id=\"initialDate\"></span></br><label>To:&nbsp </label><span id=\"finalDate\"></span></div>");
+            AnimatedLayer.setLayerToAnimate(layer);
+            AnimatedLayer.setDatesSlider();
+            toolbookHeight += 145;
+            
+          } else if (layer.dateInfo && layer.dateInfo.dates && typeof layer.dateInfo.dates === "object"){
+
+            if($("#animate-layer-box").hasClass("hidden"))
+              $("#animate-layer-box").removeClass("hidden");
+
+            if($("#dates-calendar").hasClass("hidden"))
+              $("#dates-calendar").removeClass("hidden");
+
+            if(!$("#dates-slider").hasClass("hidden"))
+              $("#dates-slider").addClass("hidden");
+
+            var calendarFieldsHtml = "<div class=\"input-group date\" datetimepicker><input type=\"text\" id=\"animation-calendar\" class=\"form-control\" style=\"padding-left:5px\"/>" +
+                                       "<span class=\"input-group-addon\">" +
+                                         "<span class=\"glyphicon glyphicon-calendar\"></span>" +
+                                       "</span>" +
+                                     "</div>" +
+                                     "<div style=\"margin-top:8px\">" +
+                                       "<label>Period:&nbsp</label>" +
+                                       "<input type=\"number\" id=\"frequency\" value=1 min=1>&nbsp" +
+                                       "<select id=\"unitTime\" class=\"form-control\">" +
+                                         "<option value=\"minutes\">Minutes</option>" + 
+                                         "<option value=\"hours\" selected=\"selected\">Hours</option>" + 
+                                         "<option value=\"days\">Days</option>" + 
+                                       "</select>" +
+                                     "</div>"
+
+            $("#layer-toolbox > .layer-toolbox-body > #animate-layer-box #dates-calendar").empty().html(calendarFieldsHtml);
+            $("#layer-toolbox > .layer-toolbox-body > #animate-layer-box #dates-slider").empty();
+            AnimatedLayer.setLayerToAnimate(layer);
+            AnimatedLayer.setDatesCalendar();
+            toolbookHeight += 158;
+          } else {
+            
+            if(!$("#animate-layer-box").hasClass("hidden"))
+              $("#animate-layer-box").addClass("hidden");
+
+            $("#layer-toolbox > .layer-toolbox-body > #animate-layer-box #dates-calendar").empty();
+            $("#layer-toolbox > .layer-toolbox-body > #animate-layer-box #dates-slider").empty();
+          }
+          $("#layer-toolbox").css("height", toolbookHeight + "px");
+          
         }
       });
 

@@ -22,7 +22,7 @@ define([], function () {
    * @param {ColorFactory} ColorFactory - TerraMA² Color generator
    * @param {any} i18n - TerraMA² Internationalization module
    */
-  function StyleController($scope, ColorFactory, i18n, DataSeriesService, StyleType, $http) {
+  function StyleController($scope, ColorFactory, i18n, DataSeriesService, StyleType, $http, Utility) {
     var self = this;
     // binding component form into parent module in order to expose Form to help during validation
     self.formCtrl = self.form;
@@ -34,6 +34,44 @@ define([], function () {
     self.addColor = addColor;
     self.removeColor = removeColor;
     self.typeFilter = typeFilter;
+
+    /**
+     * It keeps the rgba color values
+     * 
+     * @type {object}
+     */
+    self.rgba = {
+      r: null,
+      g: null,
+      b: null,
+      a: 1,
+      elm: null
+    };
+
+    /**
+     * It opens the rgba modal.
+     * 
+     * @returns {void}
+     */
+    self.rgbaModal = function(elm) {
+      self.rgba.elm = elm;
+      $("#rgbaModal").modal();
+    };
+
+    /**
+     * It fillls the hex color field, converting the rgba to hex8.
+     * 
+     * @returns {void}
+     */
+    self.rgba2hex = function() {
+      self.rgba.elm.color = Utility.rgba2hex(self.rgba.r, self.rgba.g, self.rgba.b, self.rgba.a);
+
+      self.rgba.r = null;
+      self.rgba.g = null;
+      self.rgba.b = null;
+      self.rgba.a = 1;
+      self.rgba.elm = null;
+    };
 
     // digesting StyleType enum into array
     for(var k in StyleType) {
@@ -206,6 +244,6 @@ define([], function () {
   }
 
   // Dependencies Injection
-  StyleController.$inject = ["$scope", "ColorFactory", "i18n", "DataSeriesService", "StyleType", "$http"];
+  StyleController.$inject = ["$scope", "ColorFactory", "i18n", "DataSeriesService", "StyleType", "$http", "Utility"];
   return terrama2StyleComponent;
 });

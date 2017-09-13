@@ -5,7 +5,7 @@ define([], function() {
    * It represents a Controller to handle Alert form registration.
    * @class AlertRegistration
    */
-  var AlertRegisterUpdate = function($scope, $q, $window, $log, $http, $timeout, i18n, MessageBoxService, AlertService, DataSeriesService, DataProviderService, AnalysisService, Service, UniqueNumber) {
+  var AlertRegisterUpdate = function($scope, $q, $window, $log, $http, $timeout, i18n, MessageBoxService, AlertService, DataSeriesService, DataProviderService, AnalysisService, Service, UniqueNumber, Utility, Socket) {
     /**
      * @type {AlertRegisterUpdate}
      */
@@ -74,6 +74,19 @@ define([], function() {
      */
     self.css = {
       boxType: "box-solid"
+    };
+
+    /**
+     * It keeps the rgba color values
+     * 
+     * @type {object}
+     */
+    self.rgba = {
+      r: null,
+      g: null,
+      b: null,
+      a: 1,
+      index: null
     };
 
     /**
@@ -176,6 +189,16 @@ define([], function() {
         //console.log("fra");
       }
     };
+
+    var hasProjectPermission = config.hasProjectPermission;
+    
+    if (self.isUpdating && !hasProjectPermission){
+      MessageBoxService.danger(i18n.__("Permission"), i18n.__("You can not edit this alert. He belongs to a protected project!"));
+    }
+    
+    // Flag to verify if can not save if the service is not running
+    var canSave = true;
+    var serviceOfflineMessage = "If service is not running you can not save the alert. Start the service before create or update an alert!";
     
     $q.all([
       i18n.ensureLocaleIsLoaded(),
@@ -460,6 +483,31 @@ define([], function() {
     };
 
     /**
+     * It opens the rgba modal.
+     * 
+     * @returns {void}
+     */
+    self.rgbaModal = function(index) {
+      self.rgba.index = index;
+      $("#rgbaModal").modal();
+    };
+
+    /**
+     * It fillls the hex color field, converting the rgba to hex8.
+     * 
+     * @returns {void}
+     */
+    self.rgba2hex = function() {
+      self.colors[self.rgba.index] = Utility.rgba2hex(self.rgba.r, self.rgba.g, self.rgba.b, self.rgba.a);
+
+      self.rgba.r = null;
+      self.rgba.g = null;
+      self.rgba.b = null;
+      self.rgba.a = 1;
+      self.rgba.index = null;
+    };
+
+    /**
      * Lists the columns from a given table.
      * 
      * @returns {void}
@@ -561,6 +609,24 @@ define([], function() {
       }
     }, true);
 
+    $scope.$watch("ctrl.alert.service_instance_id", function(instanceId){
+      if (instanceId)
+        Socket.emit('status', {service: instanceId});
+    }, true);
+
+    Socket.on('statusResponse', function(response){
+      if(response.service == self.alert.service_instance_id){
+        if (response.checking === undefined || (!response.checking && response.status === 400)) {
+          if (!response.online){
+            self.MessageBoxService.danger(i18n.__("Alerts"), i18n.__(serviceOfflineMessage));
+            canSave = false;
+          } else {
+            canSave = true;
+          }
+        }
+      }
+    });
+
     /**
      * Helper to reset alert box instance.
      * 
@@ -594,6 +660,15 @@ define([], function() {
 
       if(self.isNotValid) {
         self.MessageBoxService.danger(i18n.__("Alerts"), errMessageInvalidFields);
+        return;
+      }
+
+      if (self.isUpdating && !hasProjectPermission){
+        return MessageBoxService.danger(i18n.__("Permission"), i18n.__("You can not edit this alert. He belongs to a protected project!"));
+      }
+
+      if (!canSave){
+        self.MessageBoxService.danger(i18n.__("Alerts"), i18n.__(serviceOfflineMessage));
         return;
       }
 
@@ -717,7 +792,7 @@ define([], function() {
     };
   };
 
-  AlertRegisterUpdate.$inject = ["$scope", "$q", "$window", "$log", "$http", "$timeout", "i18n", "MessageBoxService", "AlertService", "DataSeriesService", "DataProviderService", "AnalysisService", "Service", "UniqueNumber"];
+  AlertRegisterUpdate.$inject = ["$scope", "$q", "$window", "$log", "$http", "$timeout", "i18n", "MessageBoxService", "AlertService", "DataSeriesService", "DataProviderService", "AnalysisService", "Service", "UniqueNumber", "Utility", "Socket"];
 
   return AlertRegisterUpdate;
 });

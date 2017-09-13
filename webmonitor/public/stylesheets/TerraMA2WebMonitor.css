@@ -474,7 +474,42 @@ html, body, #content, .content, .content-wrapper, #terrama2-map {
   max-height: 350px;
 }
 
-.map-tool-button > button {
+.animate-tool-button {
+  z-index: 9999;
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.4);
+  border-radius: 2px;
+  bottom: 2px;
+  padding: 3px;
+  max-height: 350px;
+}
+
+#currentDate {
+  z-index: 9999;
+  position: absolute;
+  padding: 3px;
+  max-height: 350px;
+  left: 10px;
+  bottom: 2px;
+  background-color: rgba(0,0,0,.4);
+  border-radius: 2px;
+  height: 35px;
+  width: 145px;
+}
+
+#currentDate > div {
+  background-color: rgba(255,255,255,1);
+  margin-bottom: 0px !important;
+  height: 29px;
+  width: 139px;
+  padding-top: 4px;
+  padding-left: 3px;
+  padding-right: 3px;
+  text-align: center;
+  border-radius: 2px;
+}
+
+.map-tool-button > button, .animate-tool-button > button {
   width: 29px;
   height: 29px;
   background-color: rgba(241,241,241,.8);
@@ -495,9 +530,9 @@ html, body, #content, .content, .content-wrapper, #terrama2-map {
   font-size: 21px !important;
 }
 
-.map-tool-button > button:hover { background-color: rgba(241,241,241,1); }
+.map-tool-button > button:hover, .animate-tool-button > button:hover { background-color: rgba(241,241,241,1); }
 
-.map-tool-button.active > button { background-color: rgba(255, 255, 255, 1); }
+.map-tool-button.active > button, .animate-tool-button > button { background-color: rgba(255, 255, 255, 1); }
 
 #map-tools {
   z-index: 999999;
@@ -520,6 +555,42 @@ html, body, #content, .content, .content-wrapper, #terrama2-map {
 #getAttributes { top: 290px; }
 
 #tableButton { top: 330px; }
+
+#reloadAnimation {left: 160px; }
+
+#playAnimation, #pauseAnimation {left: 200px;}
+
+#stopAnimation {left: 240px;}
+
+#reload, #play {margin-right: 5px;}
+
+#unitTime {
+  display: inline !important;
+  width: 97px;  
+}
+
+#frequency {
+  height: 34px;
+  width: 50px;
+  display: inline !important;
+}
+
+#dates-slider {
+  width: 180px;
+  margin-left: 10px;
+}
+#rangeDates {
+  margin-top: 5px;
+}
+#rangeDates label {
+  width: 43px;
+  text-align: right;
+}
+
+#slider-box {
+  width: 180px;
+  margin-left: 10px;
+}
 
 #getAttributes.with-select { width: 190px; }
 
@@ -627,7 +698,7 @@ html, body, #content, .content, .content-wrapper, #terrama2-map {
 
 #layer-toolbox { left: 21px; }
 
-#legend-box > .legend-header, #layer-toolbox > .layer-toolbox-header {
+#legend-box > .legend-header, #layer-toolbox > .layer-toolbox-header{
   padding: 10px;
   font-size: 15px;
   background-color: #d8d8d8;
@@ -802,3 +873,13 @@ html, body, #content, .content, .content-wrapper, #terrama2-map {
     margin-right: 15px;
   }
 }
+
+#user-div > p {
+  text-align: center;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+#user-div > div > a { padding: 8px; }
+
+#user-div > div > #load-state { margin-left: 2px; }

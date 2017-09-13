@@ -66,7 +66,7 @@ BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationStandardDeviation_overloads
 
 BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationVariance_overloads, terrama2::services::analysis::core::occurrence::zonal::aggregation::variance, 5, 7)
 
-BOOST_PYTHON_FUNCTION_OVERLOADS(dcpInfluenceByRule_overloads, terrama2::services::analysis::core::dcp::zonal::influence::python::byRule, 1, 2)
+BOOST_PYTHON_FUNCTION_OVERLOADS(dcpInfluenceByRule_overloads, terrama2::services::analysis::core::dcp::zonal::influence::python::byRule, 1, 3)
 
 // closing "-Wunused-local-typedef" pragma
 #pragma GCC diagnostic pop
@@ -254,7 +254,7 @@ void terrama2::services::analysis::core::python::MonitoredObject::registerDCPZon
   def("by_attribute", terrama2::services::analysis::core::dcp::zonal::influence::python::byAttribute);
 
   def("by_rule", terrama2::services::analysis::core::dcp::zonal::influence::python::byRule,
-      dcpInfluenceByRule_overloads(args("dataSeriesName", "buffer"), "Influence by rule operator"));
+      dcpInfluenceByRule_overloads(args("dataSeriesName", "buffer", "isActive"), "Influence by rule operator"));
 }
 
 void terrama2::services::analysis::core::python::MonitoredObject::registerOccurrenceAggregationFunctions()

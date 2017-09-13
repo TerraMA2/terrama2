@@ -19,8 +19,10 @@ var CheckGridController = function(app) {
   var memberFs = require('fs');
   // 'path' module
   var memberPath = require('path');
+  
+  var Application = require('./../core/Application');
   // WebAdmin host info
-  var memberAdminHostInfo = JSON.parse(memberFs.readFileSync(memberPath.join(__dirname, "../config/monitor.json"), "utf-8")).webadmin;
+  var memberAdminHostInfo = Application.getContextConfig().webadmin;
 
   /**
    * Processes the request and returns a response.

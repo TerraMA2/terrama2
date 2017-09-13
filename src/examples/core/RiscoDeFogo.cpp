@@ -33,12 +33,11 @@ namespace terrama2
         double valorAVegetacao(double tipo_vegetacao);
         double converteIGBP_INPE(double igbp);
         double maxPSE(double igbp, double pse);
-        double XYLinhaCol(double x, double y, const std::__cxx11::string &path, const std::__cxx11::string &filename) const;
+        double XYLinhaCol(double x, double y, const std::string &path, const std::string &filename) const;
 
     };
   }
 }
-
 double terrama2::core::RiscoDeFogo::valorAVegetacao(double tipo_vegetacao)
 {
     if (tipo_vegetacao == 0 || tipo_vegetacao == 11 || tipo_vegetacao == 13 || tipo_vegetacao == 15 || tipo_vegetacao == 16)

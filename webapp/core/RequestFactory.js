@@ -5,12 +5,12 @@ var AbstractRequest = require('./AbstractRequest');
 var FtpRequest = require("./FtpRequest");
 var SftpRequest = require("./SftpRequest");
 var HttpRequest = require("./HttpRequest");
+var HttpsRequest = require("./HttpsRequest");
 var FileRequest = require("./FileRequest");
 var PostgisRequest = require("./PostgisRequest");
 var WcsRequest = require("./WcsRequest");
 var ConnectionError = require("./Exceptions").ConnectionError;
 var PluginLoader = require('./PluginLoader');
-
 
 /**
  * Request Helper: It prepares entire supported protocols e applies a switch to build the respective Request
@@ -28,6 +28,8 @@ function requestHelper(protocol, requestParameters) {
       return new SftpRequest(requestParameters);
     case "http":
       return new HttpRequest(requestParameters);
+    case "https":
+      return new HttpsRequest(requestParameters);
     case "file":
       return new FileRequest(requestParameters);
     case "postgis":
@@ -105,6 +107,9 @@ var RequestFactory = {
 
     // httpFields
     array.push(HttpRequest.fields());
+
+    // httpsFields
+    array.push(HttpsRequest.fields());
 
     // fileFields
     array.push(FileRequest.fields());

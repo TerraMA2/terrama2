@@ -8,23 +8,25 @@ var Promise = require('bluebird');
 var TcpService = require('./../../core/facade/tcp-manager/TcpService');
 var fs = require('fs');
 var path = require("path");
+var Application = require("./../../core/Application");
 
 
 module.exports = function(app) {
   return {
     post: function(request, response) {
       var projectObject = request.body;
+      projectObject.user_id = request.user.id;
 
       DataManager.addProject(projectObject).then(function(project) {
         TcpService.emitEvent("projectReceived", project);
 
         // Creating default PostGIS and File providers
-        var configFile = JSON.parse(fs.readFileSync(path.join(__dirname, "../../config/webapp.json"), "utf-8"));
+        var configFile = Application.getContextConfig();
 
         // File data provider object
         var DefaultFileProvider = {
           name: "Local Folder",
-          uri: "file://" + configFile.default.defaultFilePath,
+          uri: "file://" + configFile.defaultFilePath,
           description: "Local Folder data server",
           data_provider_intent_id: 1,
           data_provider_type_id: 1,
@@ -33,7 +35,7 @@ module.exports = function(app) {
         };
 
         // PostGIS data provider object
-        var uriPostgis = "postgis://" + configFile.default.db.username + ":" + configFile.default.db.password + "@" + configFile.default.db.host + ":5432/" + configFile.default.db.database;
+        var uriPostgis = "postgis://" + configFile.db.username + ":" + configFile.db.password + "@" + configFile.db.host + ":5432/" + configFile.db.database;
         var DefaultPostgisProvider = {
           name: "Local Database PostGIS",
           uri: uriPostgis,
@@ -72,7 +74,12 @@ module.exports = function(app) {
           Utils.handleRequestError(response, err, 400);
         });
       } else {
-        response.json(DataManager.listProjects());
+        var projects = DataManager.listProjects();
+        projects.forEach(function(project){
+          project.hasPermission = request.user.administrator;
+          project.canEdit = request.user.administrator;
+        });
+        response.json(projects);
       }
     },
 
@@ -82,6 +89,7 @@ module.exports = function(app) {
       if (id) {
         var projectGiven = request.body;
         projectGiven.id = id;
+        projectGiven.user_id = request.user.id;
         DataManager.updateProject(projectGiven).then(function(project) {
           TcpService.emitEvent("projectReceived", project);
 

@@ -42,6 +42,7 @@
 #include "../BufferMemory.hpp"
 
 #include "../../../../core/utility/Logger.hpp"
+#include "../../../../core/utility/TimeUtils.hpp"
 #include "../../../../core/data-model/Filter.hpp"
 #include "../utility/Verify.hpp"
 
@@ -350,6 +351,12 @@ void terrama2::services::analysis::core::python::addValue(const std::string& att
     AnalysisPtr analysis = context->getAnalysis();
     verify::analysisType(analysis, AnalysisType::MONITORED_OBJECT_TYPE);
 
+    if(pyObjValue.is_none())
+    {
+      context->setAnalysisResult(cache.index, attrName, boost::any());
+      return;
+    }
+
     {
       // if the return value is a double
       boost::python::extract<double> extDouble(pyObjValue);
@@ -405,6 +412,7 @@ BOOST_PYTHON_MODULE(terrama2)
 
   def("add_value", terrama2::services::analysis::core::python::addValue);
   def("get_attribute_value_as_json", terrama2::services::analysis::core::python::getAttributeValueAsJson);
+  def("get_current_execution_date", terrama2::services::analysis::core::python::getCurrentExecutionDate);
 
   // Export BufferType enum to python
   enum_<terrama2::services::analysis::core::BufferType>("BufferType")
@@ -534,20 +542,30 @@ std::string terrama2::services::analysis::core::python::prepareScript(AnalysisPt
     pos += formatedLineBreak.length();
   }
 
+//TODO: The functions get_string_value and get_numeric_value can be improved with a simple python dict populated in the c++
   // Adds indent to the first line
   formatedScript = "    "  + formatedScript;
   formatedScript = "from terrama2 import *\n"
                    "import json\n"
+                   "import datetime\n"
                    "def get_value(attr):\n"
                    "    answer = get_attribute_value_as_json(attr)\n"
                    "    if(answer):\n"
                    "        attr_json = json.loads(answer)\n"
-                   "        return attr_json[attr]\n"
+                   "        value = attr_json[attr]\n"
+                   "        if isinstance(value, unicode):\n"
+                   "            return value.encode('UTF-8')\n"
+                   "        else:\n"
+                   "            return value\n"
                    "    else:\n"
                    "        return None\n\n"
+                   "def get_analysis_date():\n"
+                   "    iso_string_date = get_current_execution_date()\n"
+                   "    return datetime.datetime.strptime(iso_string_date.translate(None, ':-'), '%Y%m%dT%H%M%S.%fZ')\n\n"
                    "def analysis():\n"
                    + formatedScript;
 
+  std::cout << "\n\n\n" << formatedScript << "\n\n\n";
   return formatedScript;
 }
 
@@ -590,6 +608,65 @@ void terrama2::services::analysis::core::python::validateAnalysisScript(Analysis
     QString errMsg = QObject::tr("An unknown exception occurred.");
     validateResult.messages.insert(validateResult.messages.end(), errMsg.toStdString());
   }
+}
+
+std::string terrama2::services::analysis::core::python::getCurrentExecutionDate()
+{
+  OperatorCache cache;
+  terrama2::services::analysis::core::python::readInfoFromDict(cache);
+  // After the operator lock is released it's not allowed to return any value because it doesn' have the interpreter lock.
+  // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return NAN.
+  bool exceptionOccurred = false;
+
+  auto& contextManager = ContextManager::getInstance();
+  auto analysis = cache.analysisPtr;
+
+  //////////////////////////////////////////////////////
+  // If this a monitored object analysis
+  try
+  {
+    terrama2::services::analysis::core::verify::analysisMonitoredObject(analysis);
+    terrama2::services::analysis::core::MonitoredObjectContextPtr context;
+    try
+    {
+      context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
+    }
+    catch(const terrama2::Exception& e)
+    {
+      TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
+      return "";
+    }
+
+    return terrama2::core::TimeUtils::getISOString(context->getStartTime());
+  }
+  catch (const terrama2::core::VerifyException&)
+  {
+  }
+
+  //////////////////////////////////////////////////////
+  // If this a grid analysis
+  try
+  {
+    terrama2::services::analysis::core::verify::analysisGrid(analysis);
+    terrama2::services::analysis::core::GridContextPtr context;
+    try
+    {
+      context = ContextManager::getInstance().getGridContext(cache.analysisHashCode);
+    }
+    catch(const terrama2::Exception& e)
+    {
+      TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
+      return "";
+    }
+
+    return terrama2::core::TimeUtils::getISOString(context->getStartTime());
+  }
+  catch (const terrama2::core::VerifyException&)
+  {
+  }
+
+  contextManager.addError(cache.analysisHashCode, QObject::tr("Error in analysis type for analysis %1.").arg(analysis->id).toStdString());
+  return "";
 }
 
 std::string terrama2::services::analysis::core::python::getAttributeValueAsJson(const std::string &attribute)

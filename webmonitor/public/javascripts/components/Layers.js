@@ -24,6 +24,18 @@ define(
         return null;
     }
 
+    var getLayersByProject = function(projectId, includeTemplates, includeCustomLayers) {
+      includeTemplates = (includeTemplates !== undefined ? includeTemplates : false);
+      includeCustomLayers = (includeCustomLayers !== undefined ? includeCustomLayers : false);
+      var layersToReturn = [];
+
+      for(var i = 0, layersLength = memberAllLayers.length; i < layersLength; i++)
+        if(memberAllLayers[i].projectId == projectId || (includeTemplates && memberAllLayers[i].parent === "template") || (includeCustomLayers && memberAllLayers[i].custom))
+          layersToReturn.push($.extend({}, memberAllLayers[i]));
+
+      return layersToReturn;
+    };
+
     var createLayerObject = function(layerData) {
       var layerObject = {};
       layerObject.name = layerData.name;
@@ -34,7 +46,7 @@ define(
       layerObject.uriGeoServer = layerData.uriGeoserver;
       layerObject.parent = layerData.type;
       layerObject.serverType = layerData.serverType;
-      layerObject.isParent = layerData.serverType ? false : true;
+      layerObject.isParent = layerData.type ? false : true;
       layerObject.projectId = layerData.projectId;
       layerObject.private = layerData.private;
       layerObject.dataSeriesTypeName = layerData.dataSeriesTypeName;
@@ -44,7 +56,17 @@ define(
       layerObject.dateInfo = {};
       layerObject.boundingBox = [];
 
+      if(layerData.type)
+        layerObject.opacity = 1;
+
       return layerObject;
+    };
+
+    var setLayerOpacity = function(id, opacity) {
+      var indexLayer = memberAllLayers.map(function(l) { return l.id; }).indexOf(id);
+
+      if(indexLayer != -1)
+        memberAllLayers[indexLayer].opacity = opacity;
     };
 
     var updateDateInfo = function(dateInfo, layerId) {
@@ -125,9 +147,15 @@ define(
     };
 
     var removePrivateLayers = function() {
+      var layersToRemove = [];
+
       memberAllLayers.forEach(function(layer) {
         if(layer.private)
-          removeLayer(layer);
+          layersToRemove.push($.extend(true, {}, layer));
+      });
+
+      layersToRemove.forEach(function(layer) {
+        removeLayer(layer);
       });
     };
 
@@ -208,9 +236,11 @@ define(
       removePrivateLayers: removePrivateLayers,
       addLayersToSort: addLayersToSort,
       createLayerObject: createLayerObject,
+      setLayerOpacity: setLayerOpacity,
       addLayer: addLayer,
       getAllLayers: getAllLayers,
       getLayerById: getLayerById,
+      getLayersByProject: getLayersByProject,
       changeLayerVisible: changeLayerVisible,
       getVisibleLayers: getVisibleLayers,
       changeLayerStatus: changeLayerStatus,

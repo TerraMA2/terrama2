@@ -13,10 +13,11 @@ module.exports = function(app) {
         DataManager.listCollectors(),
         DataManager.listAnalysis(),
         DataManager.listViews(),
-        DataManager.listAlerts()
+        DataManager.listAlerts(),
+        DataManager.listProjects()
       ])
 
-      .spread(function(collectors, analysisList, views, alerts) {
+      .spread(function(collectors, analysisList, views, alerts, projects) {
         var outputAnalysis = [];
         analysisList.forEach(function(analysis) {
           outputAnalysis.push(analysis.rawObject());
@@ -41,6 +42,7 @@ module.exports = function(app) {
           "collectors": outputCollectors,
           "views": outputViews,
           "alerts": outputAlerts,
+          "projects": projects,
           "parameters": null
         };
 

@@ -75,10 +75,11 @@ fi
     # new user created
     # setting new password
     echo terrama2:terrama4 | chpasswd
+    sudo usermod -a -G sudo terrama2
   fi
-  
+
   mkdir -p /var/lib/terrama2/data
-  chown terrama2:terrama2 /var/lib/terrama2 -R
+  chown terrama2 /var/lib/terrama2 -R
 )
 
 # Add webapp to pm2 startup
@@ -87,18 +88,14 @@ fi
 
   (
     cd config
-    if ! [ -f "webapp.json" ]; then
-      cp sample_webapp.json webapp.json
+    if ! [ -d "instances" ]; then
+      cp -r sample_instances instances
     fi
   )
 
-  printf "\n\n------------------------------\n"
-  printf "\tTo register the TerraMA2 as a service enter the 'terrama2' user password.\n"
-  printf "\tIf you didn't have a 'terrama2' user the password is 'terrama4'.\n\n"
-
-  sudo -H -u terrama2 sudo pm2 start npm --name webapp -- start
-  valid $? "Error registering webapp."
-  sudo -H -u terrama2 sudo pm2 save
+  pm2 start npm --name webapp -- start
+  valid $? "Error executing webapp."
+  pm2 save
   valid $? "Error saving pm2 state."
 )
 
@@ -108,14 +105,14 @@ fi
 
   (
     cd config
-    if ! [ -f "monitor.json" ]; then
-      cp sample_monitor.json monitor.json
+    if ! [ -d "instances" ]; then
+      cp -r sample_instances instances
     fi
   )
 
-  sudo -H -u terrama2 sudo pm2 start npm --name webmonitor -- start
-  valid $? "Error registering webmonitor."
-  sudo -H -u terrama2 sudo pm2 save
+  pm2 start npm --name webmonitor -- start
+  valid $? "Error executing webmonitor."
+  pm2 save
   valid $? "Error saving pm2 state."
 )
 
