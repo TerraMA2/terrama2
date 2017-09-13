@@ -1015,5 +1015,6 @@
   "Protected": "Protegido",
   "Features table (PostgreSQL/PostGIS)": "Tabelas com Feições (PostgreSQL/PostGIS)",
   "Grid Files (GeoTIFF)": "Arquivos Matriciais (GeoTIFF)",
-  "Vector Files (ESRI Shapefile)": "Arquivos Vetoriais (ESRI Shapefile)"
+  "Vector Files (ESRI Shapefile)": "Arquivos Vetoriais (ESRI Shapefile)",
+  "Dcp": "Pcd"
 }
