@@ -328,33 +328,21 @@ int main(int argc, char *argv[])
             "S10648241_201707161200.tif"
         };
 
- /*
-  * //            "S10648241_201707071200.tif",
-//            "S10648241_201707081200.tif",
-//            "S10648241_201707091200.tif",
-//            "S10648241_201707101200.tif",
-            "S10648241_201707111200.tif",
-//           "S10648241_201707121200.tif",
-//            "S10648241_201707131200.tif",
-//            "S10648241_201707141200.tif",
-//            "S10648241_201707151200.tif",
-//            "S10648241_201707161200.tif"
- */
 
-        std::string umidade = TERRAMA2_DATA_DIR+"/dados_amb/saida/umidade/";
-        std::string nomeArquivoUmidade = "UMRS201707161820.tif";
+        std::string humidity = TERRAMA2_DATA_DIR+"/dados_amb/saida/umidade/";
+        std::string nameFileHumidity = "UMRS201707161820.tif";
 
-        std::string temperatura = TERRAMA2_DATA_DIR+"/dados_amb/saida/temperatura/";
-        std::string nomeArquivoTemperatura = "TEMP201707161820.tif";
+        std::string temperature = TERRAMA2_DATA_DIR+"/dados_amb/saida/temperatura/";
+        std::string nameFileTemperature = "TEMP201707161820.tif";
 
-        std::string resultado = TERRAMA2_DATA_DIR+"/dados_amb/saida/resultado_Script_Guilherme3/";
-        std::string nomeArquivoResultado = "result201707162120.tif";
+        std::string result = TERRAMA2_DATA_DIR+"/dados_amb/saida/resultado_Script_Guilherme3/";
+        std::string nameFileResult = "result201707162120.tif";
 
         std::string landcover = TERRAMA2_DATA_DIR+"/dados_amb/entrada/rf/landcover/";
-        std::string nomeArquivoLand = "landcover_2012.tif";
+        std::string nameFileLand = "landcover_2012.tif";
 
         std::string gabarito = TERRAMA2_DATA_DIR+"/dados_amb/entrada/";
-        std::string nomeArquivoGab = "RF.20170716.tif";
+        std::string nameFileGab = "RF.20170716.tif";
 
 
 
@@ -420,7 +408,7 @@ int main(int argc, char *argv[])
                 prec91_120 += value;
 
         }
-        // 2 - calc fatores de precipitações
+        // 2 - Calc Precipitation factors
         double fp1 = exp(-0.14 * prec1);
         double fp2 = exp(-0.07 * prec2);
         double fp3 = exp(-0.04 * prec3);
@@ -433,11 +421,11 @@ int main(int argc, char *argv[])
         double fp61_90 = exp(-0.001 * prec61_90);
         double fp91_120 = exp(-0.0007 * prec91_120);
 
-        //3 - calc dias de secura
+        //3 - calc days of dryness
         double pse = 105. * fp1 * fp2 * fp3 * fp4 * fp5 * fp6_10 *  fp11_15 * fp16_30 * fp31_60 * fp61_90 * fp91_120;
 
-        //4 - risco de fogo básico
-        double tipo_vegetacao = riscodefogo->XYLinhaCol(x, y, landcover, nomeArquivoLand);
+        //4 - basic fire hazard
+        double tipo_vegetacao = riscodefogo->XYLinhaCol(x, y, landcover, nameFileLand);
         std::cout << "tipo_vegetacao: " << tipo_vegetacao << std::endl;
 
         double a = riscodefogo->valorAVegetacao(tipo_vegetacao);
@@ -447,7 +435,7 @@ int main(int argc, char *argv[])
                 "prec4: " << prec4 << "\t" << "prec5: " << prec5 << "\t" <<  "prec6_10: " << prec6_10 << "\t" <<  "prec11_15: " << prec11_15
              << "\t" <<  "prec16_30: " << prec16_30 << "\t" <<  "prec31_60: " << prec31_60 << "\t" <<  "prec61_90: " << prec61_90 << "\t" <<  "prec91_120: " << prec91_120 << std::endl;
 
-        // Ajuste
+        // Adjustment
         double PSE = riscodefogo->maxPSE(tipo_vegetacao, pse);
         std::cout << "PSE: " << PSE << std::endl;
 
@@ -457,22 +445,22 @@ int main(int argc, char *argv[])
 
         std::cout << "RB: " << rb << std::endl;
 
-        //5 - fator umidade
+        //5 - humidity factor
 
-        double ur = riscodefogo->XYLinhaCol(x,y, umidade, nomeArquivoUmidade);
-        //std::cout << "UR: " << ur << std::endl;
+        double ur = riscodefogo->XYLinhaCol(x,y, humidity, nameFileHumidity);
+        std::cout << "UR: " << ur << std::endl;
         double fu = ur * -0.006 + 1.3;
-        //std::cout << "FU: " << fu << std::endl;
+        std::cout << "FU: " << fu << std::endl;
 
 
-        //6 - fator temperatura
-        double tempMax = riscodefogo->XYLinhaCol(x,y,temperatura, nomeArquivoTemperatura);
-        //std::cout << "TEMPMAX: " << tempMax << "\t" << tempMax-273.15 << std::endl;
+        //6 - factor temperature
+        double tempMax = riscodefogo->XYLinhaCol(x,y,temperature, nameFileTemperature);
+        std::cout << "TEMPMAX: " << tempMax << "\t" << tempMax-273.15 << std::endl;
 
         double ft = (tempMax-273.15) * 0.02 + 0.4;
-        //std::cout << "FT: " << ft << std::endl;
+        std::cout << "FT: " << ft << std::endl;
 
-        //7 - gerar risco observatorio
+        //7 - generate observatory risk
         double rf = rb * ft * fu;
 
         if(rf > 1)
@@ -481,10 +469,10 @@ int main(int argc, char *argv[])
         std::cout << "RF: " << rf << std::endl;
 
 
-        double res = riscodefogo->XYLinhaCol(x,y, resultado, nomeArquivoResultado);
-        std::cout << "RESULTADO: " << res << std::endl;
+        double res = riscodefogo->XYLinhaCol(x,y, result, nameFileResult);
+        std::cout << "RESULT: " << res << std::endl;
 
-        double gab = riscodefogo->XYLinhaCol(x,y,gabarito, nomeArquivoGab);
+        double gab = riscodefogo->XYLinhaCol(x,y,gabarito, nameFileGab);
         std::cout << "GABARITO: " << gab << std::endl;
     }
 
