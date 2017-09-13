@@ -8,6 +8,8 @@ module.exports = function(app) {
   var controllers = {
     get: function(request, response){
         var parameters = makeTokenParameters(request.query.token, app);
+        var hasProjectPermission = app.locals.activeProject.hasProjectPermission;
+        parameters.hasProjectPermission = hasProjectPermission;
         response.render("configuration/alerts", parameters);
     },
     getLegends: function(request, response){
@@ -19,9 +21,10 @@ module.exports = function(app) {
         response.render("configuration/alert", { disablePDF: config.disablePDF });
     },
     edit: function(request, response) {
+      var hasProjectPermission = app.locals.activeProject.hasProjectPermission;
       DataManager.getAlert({id: parseInt(request.params.id)})
         .then(function(alert) {
-          return response.render("configuration/alert", { disablePDF: config.disablePDF, alert: alert.rawObject() });
+          return response.render("configuration/alert", { disablePDF: config.disablePDF, alert: alert.rawObject(), hasProjectPermission: hasProjectPermission });
         }).catch(function(err) {
           return response.render("base/404");
         });
