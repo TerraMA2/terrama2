@@ -126,16 +126,16 @@ terrama2::services::interpolator::core::InterpolatorParams* terrama2::services::
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
 
-  terrama2::services::interpolator::core::InterpolatorType interpolType = static_cast<terrama2::services::interpolator::core::InterpolatorType>(json["interpolator_strategy"].toString().toInt());
+  terrama2::services::interpolator::core::InterpolatorType interpolType = static_cast<terrama2::services::interpolator::core::InterpolatorType>(json["interpolator_strategy"].toInt());
 
   res = GetParameters(interpolType);
 
-  res->id_ = static_cast<uint32_t>(json["id"].toString().toInt());
-  res->projectId_ = static_cast<uint32_t>(json["project_id"].toString().toInt());
-  res->serviceInstanceId_ = static_cast<uint32_t>(json["service_instance_id"].toString().toInt());
+  res->id_ = static_cast<uint32_t>(json["id"].toInt());
+  res->projectId_ = static_cast<uint32_t>(json["project_id"].toInt());
+  res->serviceInstanceId_ = static_cast<uint32_t>(json["service_instance_id"].toInt());
 
-  res->series_ = static_cast<uint32_t>(json["input_data_series"].toString().toInt());
-  res->outSeries_ = static_cast<uint32_t>(json["output_data_series"].toString().toInt());
+  res->series_ = static_cast<uint32_t>(json["input_data_series"].toInt());
+  res->outSeries_ = static_cast<uint32_t>(json["output_data_series"].toInt());
 
   res->filter_ = terrama2::core::Filter();
 //  res->filter_ = terrama2::core::fromFilterJson(json["filter"].toObject(), dataManager);
@@ -146,10 +146,10 @@ terrama2::services::interpolator::core::InterpolatorParams* terrama2::services::
   res->interpolationType_ = interpolType;
 
   res->attributeName_ = json["interpolation_attribute"].toString().toStdString();
-  res->resolutionX_ = json["resolution_x"].toString().toDouble();
-  res->resolutionY_ = json["resolution_y"].toString().toDouble();
-  res->srid_ = json["srid"].toString().toInt();
-  res->numNeighbors_ = json["number_of_neighbors"].toString().toInt();
+  res->resolutionX_ = json["resolution_x"].toDouble();
+  res->resolutionY_ = json["resolution_y"].toDouble();
+  res->srid_ = json["srid"].toInt();
+  res->numNeighbors_ = json["number_of_neighbors"].toInt();
 
   auto bboxObj = json["bounding_rect"].toObject();
 
@@ -167,7 +167,7 @@ terrama2::services::interpolator::core::InterpolatorParams* terrama2::services::
   res->bRect_ = env;
 
   if(res->interpolationType_ == terrama2::services::interpolator::core::SQRAVGDIST)
-    ((terrama2::services::interpolator::core::SqrAvgDistInterpolatorParams*)res)->pow_ = json["power_factor"].toString().toInt();
+    ((terrama2::services::interpolator::core::SqrAvgDistInterpolatorParams*)res)->pow_ = json["power_factor"].toInt();
 
   return res;
 }
@@ -190,7 +190,7 @@ QJsonObject terrama2::services::interpolator::core::toJson(InterpolatorParams* p
   obj.insert("active", params->active_);
 
   if(params->interpolationType_ == terrama2::services::interpolator::core::SQRAVGDIST)
-    obj.insert("power_factor", QString::number(((terrama2::services::interpolator::core::SqrAvgDistInterpolatorParams*)params)->pow_));
+    obj.insert("power_factor", static_cast<int32_t>(((terrama2::services::interpolator::core::SqrAvgDistInterpolatorParams*)params)->pow_));
 
   obj.insert("bounding_rect", GetBoundingRect(params->bRect_));
 

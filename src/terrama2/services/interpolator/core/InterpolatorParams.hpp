@@ -358,7 +358,7 @@ namespace terrama2
             return *this;
           }
 
-          unsigned int pow_;                            //!< The expoent of to use with distance.
+          int pow_;                            //!< The expoent of to use with distance.
         };
       }
     }

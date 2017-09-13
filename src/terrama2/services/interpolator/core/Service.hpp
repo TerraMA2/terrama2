@@ -25,8 +25,6 @@
  * \brief Defines the service of interpolation class.
  *
  * \author Frederico Augusto Bedê
- *
- * \todo The filter must be completed.
  */
 
 #ifndef __TERRAMA2_SERVICES_INTERPOLATOR_CORE_SERVICE_HPP__
