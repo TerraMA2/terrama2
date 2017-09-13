@@ -89,6 +89,8 @@ namespace terrama2
            * \brief Method must be implemented by the subclasses to execute the specific algorithm.
            *
            * \return The interpolated raster.
+           *
+           * \exception If the bounding rect, of the parameters used by the interpolator, is invalid a NoDataException will be raised.
            */
           virtual te::rst::Raster* makeInterpolation() = 0;
 
@@ -98,12 +100,16 @@ namespace terrama2
            * \brief Builds a raster with the given parameters.
            *
            * \return A raster with the dimensions defined by the parameters.
+           *
+           * \exception If the bounding rect, of the parameters used by the interpolator, is invalid a NoDataException will be raised.
            */
           te::rst::Raster* makeRaster();
 
           /*!
            * \brief Fills the kd-tree with the data defined by the parameters. This is usefull to quickly find the neighbors used in the
            * computations.
+           *
+           * \exception If the bounding rect, of the parameters used by the interpolator, is invalid a NoDataException will be raised.
            */
           void fillTree();
 

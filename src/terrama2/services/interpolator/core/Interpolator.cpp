@@ -98,6 +98,17 @@ terrama2::services::interpolator::core::Interpolator::Interpolator(const Interpo
 
 te::rst::Raster* terrama2::services::interpolator::core::Interpolator::makeRaster()
 {
+  te::gm::Envelope* env = new te::gm::Envelope(interpolationParams_->bRect_);
+
+  if(!env->isValid())
+  {
+    QString errMsg = QObject::tr("The bounding rect is not valid.");
+
+    TERRAMA2_LOG_WARNING() << errMsg.toStdString();
+    throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
+  }
+
+
   te::rst::Raster* r;
 
   // Reseting the kd-tree
@@ -111,13 +122,9 @@ te::rst::Raster* terrama2::services::interpolator::core::Interpolator::makeRaste
 
   /////////////////////////////////////////////////////////////////////////
   //  Creating and configuring the output raster.
-
   double resolutionX = interpolationParams_->resolutionX_;
   double resolutionY = interpolationParams_->resolutionY_;
   int srid = interpolationParams_->srid_;
-
-  // For testing assume the bounding rect calculated by kd-tree
-  te::gm::Envelope* env = new te::gm::Envelope(interpolationParams_->bRect_);
 
   te::rst::Grid* grid = new te::rst::Grid(resolutionX, resolutionY, env, srid);
 
