@@ -201,7 +201,6 @@ int main(int argc, char *argv[])
 
     terrama2::core::TerraMA2Init terrama2Init("", 0);
     {
-       // double x = -50.6529; double y = -23.1469;
         double x = -52.1958;
         double y = -21.700;
 
