@@ -61,93 +61,99 @@
 
 std::string GetNNJson()
 {
-  return "{ \
-         \"active\": \"true\", \
-         \"bounding_rect\": { \
-             \"ll_corner\": [ \
-                 -46.79, \
-                 -24.174 \
-             ], \
-             \"ur_corner\": [ \
-                 -44.85, \
-                 -23.355 \
-             ] \
-         }, \
-         \"class\": \"Interpolator\", \
-         \"filter\": \"\", \
-         \"id\": 8, \
-         \"input_data_series\": 4, \
-         \"interpolation_attribute\": \"pluvio\", \
-         \"interpolator_strategy\": 0, \
-         \"output_data_series\": 9, \
-         \"project_id\": 0, \
-         \"resolution_x\": 0.11, \
-         \"resolution_y\": 0.11, \
-         \"service_instance_id\": 1, \
-         \"srid\": 4326, \
-         \"number_of_neighbors\": 2 \
-     }";
+  return std::string(R"(
+     {
+         "class": "Interpolator",
+         "active": "true",
+         "bounding_rect": {
+            "ll_corner": [
+                -46.79,
+                -24.174
+            ],
+            "ur_corner": [
+                -44.85,
+                -23.355
+            ]
+         },
+         "filter": "",
+         "id": 8,
+         "input_data_series": 4,
+         "interpolation_attribute": "pluvio",
+         "interpolator_strategy": 0,
+         "output_data_series": 9,
+         "project_id": 0,
+         "resolution_x": 0.11,
+         "resolution_y": 0.11,
+         "service_instance_id": 1,
+         "srid": 4326,
+         "number_of_neighbors": 2
+     }
+    )");
 }
 
 std::string GetAvgJson()
 {
-  return "{ \
-         \"active\": \"true\", \
-         \"bounding_rect\": { \
-             \"ll_corner\": [ \
-                 -46.79, \
-                 -24.174 \
-             ], \
-             \"ur_corner\": [ \
-                 -44.85, \
-                 -23.355 \
-             ] \
-         }, \
-         \"class\": \"Interpolator\", \
-         \"filter\": \"\", \
-         \"id\": 9, \
-         \"input_data_series\": 4, \
-         \"interpolation_attribute\": \"pluvio\", \
-         \"interpolator_strategy\": 1, \
-         \"output_data_series\": 555, \
-         \"project_id\": 0, \
-         \"resolution_x\": 0.11, \
-         \"resolution_y\": 0.11, \
-         \"service_instance_id\": 1, \
-         \"srid\": 4326, \
-         \"number_of_neighbors\": 2 \
-     }";
+  return std::string(R"(
+     {
+         "class": "Interpolator",
+         "active": "true",
+         "bounding_rect": {
+            "ll_corner": [
+                -46.79,
+                -24.174
+            ],
+            "ur_corner": [
+                -44.85,
+                -23.355
+            ]
+         },
+         "filter": "",
+         "id": 9,
+         "input_data_series": 4,
+         "interpolation_attribute": "pluvio",
+         "interpolator_strategy": 1,
+         "output_data_series": 555,
+         "project_id": 0,
+         "resolution_x": 0.11,
+         "resolution_y": 0.11,
+         "service_instance_id": 1,
+         "srid": 4326,
+         "number_of_neighbors": 2
+     }
+    )");
 }
 
 std::string GetSqrAvgJson()
 {
-  return "{ \
-         \"active\": \"true\", \
-         \"bounding_rect\": { \
-             \"ll_corner\": [ \
-                 -46.79, \
-                 -24.174 \
-             ], \
-             \"ur_corner\": [ \
-                 -44.85, \
-                 -23.355 \
-             ] \
-         }, \
-         \"class\": \"Interpolator\", \
-         \"filter\": \"\", \
-         \"id\": 10, \
-         \"input_data_series\": 4, \
-         \"interpolation_attribute\": \"pluvio\", \
-         \"interpolator_strategy\": 2, \
-         \"output_data_series\": 556, \
-         \"project_id\": 0, \
-         \"resolution_x\": 0.11, \
-         \"resolution_y\": 0.11, \
-         \"service_instance_id\": 1, \
-         \"srid\": 4326, \
-         \"number_of_neighbors\": 2, \
-         \"power_factor\": 2 \
-     }";
+  return std::string(R"(
+     {
+         "class": "Interpolator",
+         "active": "true",
+         "bounding_rect": {
+            "ll_corner": [
+                -46.79,
+                -24.174
+            ],
+            "ur_corner": [
+                -44.85,
+                -23.355
+            ]
+         },
+         "filter": "",
+         "id": 10,
+         "input_data_series": 4,
+         "interpolation_attribute": "pluvio",
+         "interpolator_strategy": 2,
+         "output_data_series": 556,
+         "project_id": 0,
+         "resolution_x": 0.11,
+         "resolution_y": 0.11,
+         "service_instance_id": 1,
+         "srid": 4326,
+         "number_of_neighbors": 2,
+         "power_factor": 3
+     }
+    )");
 }
 
 
