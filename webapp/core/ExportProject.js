@@ -5,9 +5,8 @@
  * @class ExportProject
  * 
  * @property {object} json - Object with data to export.
- * @property {object} callback - Function to callback the result.
  */
-var ExportProject = function(json, callback){
+var ExportProject = function(json){
 
   var DataManager = require("./DataManager");
   var Promise = require("bluebird");
@@ -33,7 +32,7 @@ var ExportProject = function(json, callback){
   };
 
   var _emitError = function(err) {
-    callback({err: err.toString(), status: 400});
+    return Promise.reject({err: err.toString(), status: 400});
   };
 
   var target;
@@ -124,6 +123,7 @@ var ExportProject = function(json, callback){
       var projectId = project.id;
       project.$id = project.id;
       delete project.id;
+      delete project.user_id;
 
       output.Projects.push(project);
 
@@ -359,7 +359,7 @@ var ExportProject = function(json, callback){
     }
   }
 
-  Promise.all(promises).then(function() {
+  return Promise.all(promises).then(function() {
     if(output.Projects.length === 0) delete output.Projects;
     if(output.DataProviders.length === 0) delete output.DataProviders;
     if(output.DataSeries.length === 0) delete output.DataSeries;
@@ -369,7 +369,7 @@ var ExportProject = function(json, callback){
     if(output.Alerts.length === 0) delete output.Alerts;
     if(output.Legends.length === 0) delete output.Legends;
 
-    callback({ status: 200, data: output, projectName: json.currentProjectName, fileName: json.fileName});
+    return Promise.resolve({ status: 200, data: output, projectName: json.currentProjectName, fileName: json.fileName});
   }).catch(_emitError);
 
 }
