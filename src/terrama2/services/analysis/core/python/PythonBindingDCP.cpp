@@ -65,6 +65,7 @@ void terrama2::services::analysis::core::python::DCP::registerFunctions()
   registerDCPFunctions();
   registerDCPHistoryFunctions();
   registerDCPHistoryIntervalFunctions();
+  registerDCPInfluenceFunctions();
 }
 
 void terrama2::services::analysis::core::python::DCP::registerDCPFunctions()
@@ -182,5 +183,5 @@ void terrama2::services::analysis::core::python::DCP::registerDCPInfluenceFuncti
   // set the current scope to the new sub-module
   scope dcpHistoryScope = dcpHistoryModule;
 
-  def("byRule", terrama2::services::analysis::core::dcp::influence::byRule);
+  def("by_rule", terrama2::services::analysis::core::dcp::influence::byRule);
 }
