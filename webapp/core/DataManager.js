@@ -138,6 +138,7 @@ var DataManager = module.exports = {
         inserts.push(models.db.ServiceType.create({id: Enums.ServiceType.ANALYSIS, name: "ANALYSIS"}));
         inserts.push(models.db.ServiceType.create({id: Enums.ServiceType.VIEW, name: "VIEW"}));
         inserts.push(models.db.ServiceType.create({id: Enums.ServiceType.ALERT, name: "ALERT"}));
+        inserts.push(models.db.ServiceType.create({id: Enums.ServiceType.INTERPOLATION, name: "INTERPOLATION"}));
 
         // data provider type defaults
         inserts.push(self.addDataProviderType({id: 1, name: "FILE", description: "Desc File"}));
@@ -190,10 +191,17 @@ var DataManager = module.exports = {
             alertService.service_type_id = Enums.ServiceType.ALERT;
             alertService.metadata = { };
 
+            var interpolationService = Object.assign({}, collectorService);
+            interpolationService.name = "Local Interpolation";
+            interpolationService.description = "Local service for Interpolation";
+            interpolationService.port = 6547;
+            interpolationService.service_type_id = Enums.ServiceType.INTERPOLATION;
+
             servicesInsert.push(self.addServiceInstance(collectorService));
             servicesInsert.push(self.addServiceInstance(analysisService));
             servicesInsert.push(self.addServiceInstance(viewService));
             servicesInsert.push(self.addServiceInstance(alertService));
+            servicesInsert.push(self.addServiceInstance(interpolationService));
           }
           return Promise.all(servicesInsert);
         });

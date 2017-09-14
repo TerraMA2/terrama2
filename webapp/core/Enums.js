@@ -129,7 +129,12 @@ module.exports = {
      * Defines Alert Service
      * @type {number}
      */
-    ALERT: 4
+    ALERT: 4,
+    /**
+     * Defines Interpolation Service
+     * @type {number}
+     */
+    INTERPOLATION: 5
   },
 
   DataSeriesType: {
