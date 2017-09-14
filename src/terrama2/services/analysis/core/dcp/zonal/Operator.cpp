@@ -352,7 +352,7 @@ terrama2::services::analysis::core::InfluenceType terrama2::services::analysis::
     errMsg = errMsg.arg(analysis->id);
     throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
-  InfluenceType influenceType = (InfluenceType) type;
+  InfluenceType influenceType = static_cast<InfluenceType>(type);
   return influenceType;
 }
 
