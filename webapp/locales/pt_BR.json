@@ -1016,5 +1016,8 @@
   "Features table (PostgreSQL/PostGIS)": "Tabelas com Feições (PostgreSQL/PostGIS)",
   "Grid Files (GeoTIFF)": "Arquivos Matriciais (GeoTIFF)",
   "Vector Files (ESRI Shapefile)": "Arquivos Vetoriais (ESRI Shapefile)",
-  "Dcp": "Pcd"
+  "Dcp": "Pcd",
+  " Data Series": " Data Series",
+  "Dcp Data Series": "Séries de Dados PCD",
+  "Object Monitored Data Series": "Objeto Monitorado"
 }

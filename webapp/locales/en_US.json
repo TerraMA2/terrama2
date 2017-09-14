@@ -1014,5 +1014,8 @@
   "Features table (PostgreSQL/PostGIS)": "Features table (PostgreSQL/PostGIS)",
   "Grid Files (GeoTIFF)": "Grid Files (GeoTIFF)",
   "Vector Files (ESRI Shapefile)": "Vector Files (ESRI Shapefile)",
-  "Dcp": "Dcp"
+  "Dcp": "Dcp",
+  " Data Series": " Data Series",
+  "Dcp Data Series": "Dcp Data Series",
+  "Object Monitored Data Series": "Object Monitored Data Series"
 }

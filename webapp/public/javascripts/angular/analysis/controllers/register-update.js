@@ -678,7 +678,7 @@ define([], function() {
               break;
             case AnalysisService.types.MONITORED:
               semanticsType = DataSeriesService.DataSeriesType.ANALYSIS_MONITORED_OBJECT;
-              self.semanticsSelected = i18n.__("Object Monitored");
+              self.semanticsSelected = "Object Monitored";
               dataseriesFilterType = 'GEOMETRIC_OBJECT';
               break;
             default:
