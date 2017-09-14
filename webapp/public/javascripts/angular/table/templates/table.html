@@ -237,7 +237,7 @@
           </td>
 
           <td ng-if="extra.showRunButton" ng-disabled class="pull-cell-left">
-            <button ng-disabled="!extra.canRun(element) || extra.disabledButtons(element)"
+            <button ng-disabled="!extra.canRun(element) || extra.disabledButtons(element) || !extra.canRemove"
                     class="btn btn-default btn-sm"
                     ng-class="{ 'loading-button': extra.disabledButtons(element) }"
                     ng-click="extra.run(element)">
