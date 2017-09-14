@@ -60,11 +60,11 @@ namespace terrama2
       virtual void runScript(const std::string& script);
       virtual std::string runScriptWithStringResult(const std::string& script, const std::string& variableToReturn);
 
-      static InterpreterType interpreterType() { return "PYTHON"; };
+      static InterpreterType interpreterType() { return "PYTHON"; }
       static InterpreterPtr make();
 
     private:
-      std::string extractException();
+      std::string extractException() const;
 
       //! Lock the instance and aquire the current state.
       StateLock holdState() const;

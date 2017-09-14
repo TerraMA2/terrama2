@@ -60,6 +60,8 @@ namespace terrama2
 
             virtual ~MapsServer() = default;
 
+            virtual bool checkConnection() const;
+
             virtual QJsonObject generateLayers(const ViewPtr viewPtr,
                                                const std::pair< terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr >& dataSeriesProviders,
                                                const std::shared_ptr<DataManager> dataManager,

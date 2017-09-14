@@ -330,7 +330,24 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
           TERRAMA2_LOG_DEBUG() << "ADD_DATA_SIGNAL";
           QByteArray bytearray = tcpSocket->read(blockSize_);
 
-          addData(bytearray);
+          try
+          {
+            addData(bytearray);
+          }
+          catch(const terrama2::Exception& exception)
+          {
+            const auto msg = boost::get_error_info<terrama2::ErrorDescription>(exception);
+            QString message;
+            if (msg != nullptr)
+              message = *msg;
+            else
+              message = QObject::tr("Unknown error occurred at data insertion.");
+
+            QJsonObject obj;
+            obj.insert("add_data_error", message);
+            QJsonDocument answer(obj);
+            sendSignalSlot(tcpSocket, TcpSignal::ADD_DATA_SIGNAL, answer);
+          }
           break;
         }
         case TcpSignal::VALIDATE_PROCESS_SIGNAL:
