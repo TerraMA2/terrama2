@@ -33,10 +33,12 @@
 #include "../utility/Logger.hpp"
 #include "../utility/Verify.hpp"
 #include "../utility/Utils.hpp"
+#include "../utility/Raii.hpp"
 
 //TerraLib
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
+#include <terralib/dataaccess/datasource/ScopedTransaction.h>
 #include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/dataaccess/dataset/DataSet.h>
 #include <terralib/datatype.h>
@@ -75,10 +77,9 @@ void terrama2::core::ProcessLogger::setConnectionInfo(const te::core::URI& uri)
   try
   {
     dataSource_ = terrama2::core::makeDataSourcePtr(te::da::DataSourceFactory::make("POSTGIS", uri));
-
     try
     {
-      dataSource_->open();
+      OpenClose<DataSourcePtr> lock(dataSource_);
       if(dataSource_->isOpened())
       {
         isValid_ = true;
@@ -334,7 +335,9 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::ProcessLogger::getDataL
 
   std::string sql = "SELECT MAX(data_timestamp) FROM "+ tableName_ + " WHERE process_id = " + std::to_string(processId);
 
+  OpenClose<DataSourcePtr> lock(dataSource_);
   std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();
+  te::da::ScopedTransaction scopedTransaction(*transactor);
 
   std::unique_ptr<te::da::DataSet> tempDataSet(transactor->query(sql));
 
@@ -371,7 +374,9 @@ std::vector< terrama2::core::ProcessLogger::Log > terrama2::core::ProcessLogger:
                    " LIMIT " + std::to_string(rowNumbers) +
                    " OFFSET " + std::to_string(begin);
 
+   OpenClose<DataSourcePtr> lock(dataSource_);
   std::unique_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();
+  te::da::ScopedTransaction scopedTransaction(*transactor);
 
   std::unique_ptr<te::da::DataSet> tempDataSet(transactor->query(sql));
 
@@ -432,7 +437,9 @@ ProcessId terrama2::core::ProcessLogger::processID(const RegisterId registerId) 
 
   std::string sql = "SELECT process_id FROM "+ tableName_ + " WHERE id = " + QString::number(registerId).toStdString();
 
+  OpenClose<DataSourcePtr> lock(dataSource_);
   std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();
+  te::da::ScopedTransaction scopedTransaction(*transactor);
 
   std::shared_ptr<te::da::DataSet> tempDataSet(transactor->query(sql));
 
@@ -476,9 +483,11 @@ void terrama2::core::ProcessLogger::update(std::string& column, std::string& val
                    " SET " + column + " = " + value +
                    " WHERE " + whereCondition;
 
+  OpenClose<DataSourcePtr> lock(dataSource_);
   std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();
+  te::da::ScopedTransaction scopedTransaction(*transactor);
   transactor->execute(sql);
-  transactor->commit();
+  scopedTransaction.commit();
 }
 
 
@@ -510,10 +519,12 @@ void terrama2::core::ProcessLogger::setTableName(std::string tableName)
 
   // Check if schema_ exists in database
   {
+    OpenClose<DataSourcePtr> lock(dataSource_);
     std::shared_ptr<te::da::DataSourceTransactor> transactor = dataSource_->getTransactor();
+    te::da::ScopedTransaction scopedTransaction(*transactor);
     transactor->execute("CREATE SCHEMA IF NOT EXISTS " + schema_);
 
-    transactor->commit();
+    scopedTransaction.commit();
   }
 
   std::transform(tableName.begin(), tableName.end(), tableName.begin(), ::tolower);
@@ -522,7 +533,9 @@ void terrama2::core::ProcessLogger::setTableName(std::string tableName)
 
   if(!dataSource_->dataSetExists(tableName_))
   {
+    OpenClose<DataSourcePtr> lock(dataSource_);
     std::shared_ptr<te::da::DataSourceTransactor> transactor = dataSource_->getTransactor();
+    te::da::ScopedTransaction scopedTransaction(*transactor);
 
     std::shared_ptr< te::da::DataSetType > datasetType(new te::da::DataSetType(tableName_));
 
@@ -553,14 +566,16 @@ void terrama2::core::ProcessLogger::setTableName(std::string tableName)
       throw terrama2::core::LogException() << ErrorDescription(errMsg);
     }
 
-    transactor->commit();
+    scopedTransaction.commit();
   }
 
   messagesTableName_ = tableName_ + "_messages";
 
   if(!dataSource_->dataSetExists(messagesTableName_))
   {
+    OpenClose<DataSourcePtr> lock(dataSource_);
     std::shared_ptr<te::da::DataSourceTransactor> transactor = dataSource_->getTransactor();
+    te::da::ScopedTransaction scopedTransaction(*transactor);
 
     std::shared_ptr< te::da::DataSetType > datasetType(new te::da::DataSetType(messagesTableName_));
 
@@ -600,7 +615,7 @@ void terrama2::core::ProcessLogger::setTableName(std::string tableName)
       throw terrama2::core::LogException() << ErrorDescription(errMsg);
     }
 
-    transactor->commit();
+    scopedTransaction.commit();
   }
 
   checkTableConsistency();
@@ -624,9 +639,11 @@ void terrama2::core::ProcessLogger::updateData(const ProcessId registerId, const
 
   query.bind_arg(1, QString(json).toStdString());
 
+  OpenClose<DataSourcePtr> lock(dataSource_);
   std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();
+  te::da::ScopedTransaction scopedTransaction(*transactor);
   transactor->execute(query.str());
-  transactor->commit();
+  scopedTransaction.commit();
 }
 
 
