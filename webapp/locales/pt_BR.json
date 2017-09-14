@@ -974,6 +974,13 @@
   "w": "w",
   "Invalid address": "Endereço inválido",
   "The service can not access the log database!": "O serviço não pode acessar o banco de logs!",
+	"Error": " read ECONNRESET",
+  "The service can not access the map server!": "O serviço não pode acessar o servidor de mapas!",
+  "Host service error": "Erro no executável do serviço: ",
+	"Log database error": "Erro no banco de dados de log: ",
+	"Port error": "Erro na porta: ",
+	"Email server error": "Erro no servidor de email: ",
+	"Map server error": "Erro no servidor de mapas: ",
   "Can not delete the data series if the service is not running": {
     " ": "Não pode deletar a série de dados se o serviço não estiver rodando. "
   },
