@@ -265,11 +265,27 @@ void terrama2::services::view::core::Serialization::writeCoverageStyleGeoserverX
   // Retrieving VIEW classification type string
   std::string classifyType = View::Legend::to_string(legend.classify);
 
+  // Band Number as String
+  const auto band_number = legend.metadata.find("band_number")->second;
+
   // Dont create default value for RAMP type
   if(legend.classify != View::Legend::ClassifyType::RAMP)
   {
     // default color
     writer->writeStartElement("RasterSymbolizer");
+
+    {
+      writer->writeStartElement("ChannelSelection");
+      {
+        writer->writeStartElement("GrayChannel");
+        writer->writeStartElement("SourceChannelName");
+        writer->writeValue(band_number);
+        writer->writeEndElement("SourceChannelName");
+        writer->writeEndElement("GrayChannel");
+      }
+      writer->writeEndElement("ChannelSelection");
+    }
+
     writer->writeStartElement("ColorMap");
     writer->writeAttribute("type", "ramp");
 
@@ -321,6 +337,17 @@ void terrama2::services::view::core::Serialization::writeCoverageStyleGeoserverX
 
   // assigned colors
   writer->writeStartElement("RasterSymbolizer");
+  {
+    writer->writeStartElement("ChannelSelection");
+    {
+      writer->writeStartElement("GrayChannel");
+      writer->writeStartElement("SourceChannelName");
+      writer->writeValue(band_number);
+      writer->writeEndElement("SourceChannelName");
+      writer->writeEndElement("GrayChannel");
+    }
+    writer->writeEndElement("ChannelSelection");
+  }
   writer->writeStartElement("ColorMap");
 
   writer->writeAttribute("type", classifyType);
