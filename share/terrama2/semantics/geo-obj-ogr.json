@@ -1,6 +1,6 @@
 [
   {
-    "name": "Static geometric object - OGR (data file)",
+    "name": "Vector Files (ESRI Shapefile)",
     "code": "STATIC_DATA-ogr",
     "driver": "STATIC_DATA-ogr",
     "type": "GEOMETRIC_OBJECT",
