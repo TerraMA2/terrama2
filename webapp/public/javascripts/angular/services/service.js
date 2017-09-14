@@ -65,6 +65,8 @@ define([], function() {
         moment.locale($scope.i18n.userLanguage);
         service.start_time = moment(date).format("lll");
         service.logger_online = response.logger_online;
+        if (response.maps_server_connection === false)
+          service.maps_server_connection = false;
       }
     });
 
@@ -117,20 +119,49 @@ define([], function() {
       service.online = response.online;
     });
 
-    $scope.socket.on('testPortNumberResponse', function(result) {
-      if(result.error) {
-        var service = getModel(result.service);
-
-        if(!service) return;
-
+    var checkServiceConnections = function(connectionsResult){
+      if (!connectionsResult)
+        return;
+      var service = getModel(connectionsResult.service_id);
+      if (!service)
+        return;
+      var sshConnectionResponse = connectionsResult.sshConnectionResponse;
+      var dbConnectionResponse = connectionsResult.dbConnectionResponse;
+      var portNumberConnectionResponse = connectionsResult.portNumberConnectionResponse;
+      var smtpConnectionResponse = connectionsResult.smtpConnectionResponse;
+      var mapServerConnectionResponse = connectionsResult.mapServerConnectionResponse;
+      if (sshConnectionResponse && sshConnectionResponse.error){
         service.hasError = true;
-        service.error = i18n.__(result.message) + result.port;
-
+        service.error = i18n.__("Host service error") + i18n.__(sshConnectionResponse.message);
+        service.loading = false;
+        service.online = false;
+      } else if (dbConnectionResponse && dbConnectionResponse.error){
+        service.hasError = true;
+        service.error = i18n.__("Log database error") + i18n.__(dbConnectionResponse.message);
+        service.loading = false;
+        service.online = false;
+      } else if (portNumberConnectionResponse && portNumberConnectionResponse.error){
+        service.hasError = true;
+        service.error = i18n.__("Port error") + i18n.__(portNumberConnectionResponse.message) + portNumberConnectionResponse.port;
+        service.loading = false;
+        service.online = false;
+      } else if (smtpConnectionResponse && smtpConnectionResponse.error){
+        service.hasError = true;
+        service.error = i18n.__("Email server error") + i18n.__(smtpConnectionResponse.message);
+        service.loading = false;
+        service.online = false;
+      } else if (mapServerConnectionResponse && mapServerConnectionResponse.error){
+        service.hasError = true;
+        service.error = i18n.__("Map server error") + i18n.__(mapServerConnectionResponse.message);
         service.loading = false;
         service.online = false;
       } else {
-        $scope.socket.emit('start', {service: result.service});
+        $scope.socket.emit('start', {service: connectionsResult.service_id});
       }
+    }
+
+    $scope.socket.on('testServiceConnectionsResponse', function(result){
+      checkServiceConnections(result);
     });
 
     Service.init().then(function(services) {
@@ -262,7 +293,8 @@ define([], function() {
             if (!modelInstance.online) {
               if (!modelInstance.loading) {
                 modelInstance.loading = true;
-                $scope.socket.emit('testPortNumber', {port: modelInstance.port, service: modelInstance.id});
+                var service = getModel(modelInstance.id);
+                $scope.socket.emit('testServiceConnectionsRequest', {service: service});
               }
             }
           });
@@ -302,7 +334,8 @@ define([], function() {
         handler: function(serviceInstance) {
           if (!serviceInstance.online) {
             serviceInstance.showErrorButton = true;
-            $scope.socket.emit('testPortNumber', {port: serviceInstance.port, service: serviceInstance.id});
+            var service = getModel(serviceInstance.id);
+            $scope.socket.emit('testServiceConnectionsRequest', {service: service});
           } else {
             serviceInstance.showErrorButton = false;
             serviceInstance.requestingForClose = true;
