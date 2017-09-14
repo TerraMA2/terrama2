@@ -1,6 +1,5 @@
 "use strict";
 
-var UriPattern = require('./../core/Enums').Uri;
 
 /**
  * Socket responsible for checking the database connection with a given host.
@@ -9,51 +8,23 @@ var UriPattern = require('./../core/Enums').Uri;
  * @author Raphael Willian da Costa
  *
  * @property {object} memberSockets - Sockets object.
- * @property {object} memberPostgis - PostgisRequest class.
+ * @property {object} memberDbConnection - DbConnectionChecker class.
  */
 var DbConnectionChecker = function(io) {
 
   // Sockets object
   var memberSockets = io.sockets;
-  // PostgisRequest class
-  var memberPostgis = require("../core/PostgisRequest.js");
+  // memberDbConnectionChecker member
+  var memberDbConnection = require('./../core/DbConnectionChecker');
 
   // Socket connection event
   memberSockets.on('connection', function(client) {
 
     // Postgis connection request event
     client.on('testDbConnection', function(json) {
-      var returnObject = {
-        error: false,
-        message: ""
-      };
-
-      var params = {};
-      params[UriPattern.SCHEME] = "POSTGIS";
-      params[UriPattern.HOST] = json.host;
-      params[UriPattern.PORT] = json.port;
-      params["database"] = json.database;
-      params[UriPattern.USER] = json.user;
-      params[UriPattern.PASSWORD] = json.password;
-
-      try {
-        var dbRequester = new memberPostgis(params);
-
-        dbRequester.request().then(function() {
-          returnObject.message = "Success";
-          client.emit('testDbConnectionResponse', returnObject);
-        }).catch(function(err) {
-          returnObject.error = true;
-          returnObject.message = err.toString();
-
-          client.emit('testDbConnectionResponse', returnObject);
-        })
-      } catch (e) {
-        returnObject.error = true;
-        returnObject.message = "Invalid connection parameters";
-
-        client.emit('testDbConnectionResponse', returnObject);
-      }
+      memberDbConnection(json, function(response){
+        client.emit('testDbConnectionResponse', response);
+      })
     });
   });
 };
