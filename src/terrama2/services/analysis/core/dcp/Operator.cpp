@@ -200,7 +200,7 @@ double terrama2::services::analysis::core::dcp::min(const std::string& attribute
   if(ids.is_none())
   {
     auto all_dcps = influence::all(true);
-    std::for_each(all_dcps.begin(), all_dcps.end(), [&ids](const std::string& dcp_name){ids.append(dcp_name);});
+    std::for_each(all_dcps.begin(), all_dcps.end(), [&ids](const std::string& dcp_name){ids.append(boost::python::object(dcp_name));});
   }
   return operatorImpl(StatisticOperation::MIN, attribute, ids);
 }
@@ -211,7 +211,7 @@ double terrama2::services::analysis::core::dcp::max(const std::string& attribute
   if(ids.is_none())
   {
     auto all_dcps = influence::all(true);
-    std::for_each(all_dcps.begin(), all_dcps.end(), [&ids](const std::string& dcp_name){ids.append(dcp_name);});
+    std::for_each(all_dcps.begin(), all_dcps.end(), [&ids](const std::string& dcp_name){ids.append(boost::python::object(dcp_name));});
   }
   return operatorImpl(StatisticOperation::MAX, attribute, ids);
 }
@@ -222,7 +222,7 @@ double terrama2::services::analysis::core::dcp::mean(const std::string& attribut
   if(ids.is_none())
   {
     auto all_dcps = influence::all(true);
-    std::for_each(all_dcps.begin(), all_dcps.end(), [&ids](const std::string& dcp_name){ids.append(dcp_name);});
+    std::for_each(all_dcps.begin(), all_dcps.end(), [&ids](const std::string& dcp_name){ids.append(boost::python::object(dcp_name));});
   }
   return operatorImpl(StatisticOperation::MEAN, attribute, ids);
 }
@@ -233,7 +233,7 @@ double terrama2::services::analysis::core::dcp::median(const std::string& attrib
   if(ids.is_none())
   {
     auto all_dcps = influence::all(true);
-    std::for_each(all_dcps.begin(), all_dcps.end(), [&ids](const std::string& dcp_name){ids.append(dcp_name);});
+    std::for_each(all_dcps.begin(), all_dcps.end(), [&ids](const std::string& dcp_name){ids.append(boost::python::object(dcp_name));});
   }
   return operatorImpl(StatisticOperation::MEDIAN, attribute, ids);
 }
@@ -244,7 +244,7 @@ double terrama2::services::analysis::core::dcp::sum(const std::string& attribute
   if(ids.is_none())
   {
     auto all_dcps = influence::all(true);
-    std::for_each(all_dcps.begin(), all_dcps.end(), [&ids](const std::string& dcp_name){ids.append(dcp_name);});
+    std::for_each(all_dcps.begin(), all_dcps.end(), [&ids](const std::string& dcp_name){ids.append(boost::python::object(dcp_name));});
   }
   return operatorImpl(StatisticOperation::SUM, attribute, ids);
 }
@@ -255,7 +255,7 @@ double terrama2::services::analysis::core::dcp::standardDeviation(const std::str
   if(ids.is_none())
   {
     auto all_dcps = influence::all(true);
-    std::for_each(all_dcps.begin(), all_dcps.end(), [&ids](const std::string& dcp_name){ids.append(dcp_name);});
+    std::for_each(all_dcps.begin(), all_dcps.end(), [&ids](const std::string& dcp_name){ids.append(boost::python::object(dcp_name));});
   }
   return operatorImpl(StatisticOperation::STANDARD_DEVIATION, attribute, ids);
 }
@@ -266,7 +266,7 @@ double terrama2::services::analysis::core::dcp::variance(const std::string& attr
   if(ids.is_none())
   {
     auto all_dcps = influence::all(true);
-    std::for_each(all_dcps.begin(), all_dcps.end(), [&ids](const std::string& dcp_name){ids.append(dcp_name);});
+    std::for_each(all_dcps.begin(), all_dcps.end(), [&ids](const std::string& dcp_name){ids.append(boost::python::object(dcp_name));});
   }
   return operatorImpl(StatisticOperation::VARIANCE, attribute, ids);
 }
