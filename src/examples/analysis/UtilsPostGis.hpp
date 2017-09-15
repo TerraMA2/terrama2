@@ -33,7 +33,7 @@
 #include <terrama2/core/data-model/DataSet.hpp>
 #include <terrama2/core/data-model/DataSetDcp.hpp>
 
-#include <terrama2/core/utility/JSonUtils.cpp>
+#include <terrama2/core/utility/JSonUtils.hpp>
 #include <terrama2/services/analysis/mock/MockAnalysisLogger.hpp>
 
 #include <QJsonDocument>
@@ -57,7 +57,10 @@ namespace examples
 
     const std::string dcp_result = "dcp_result";
     const std::string history_dcp_result = "history_dcp_result";
+    const std::string dcp_history_interval_result = "dcp_history_interval_result";
+    const std::string occurrence_analysis_result = "occurrence_analysis_result";
 
+    //DataProvider Collector_intent
     terrama2::core::DataProviderPtr dataProviderPostGis()
     {
         QString json = QString(R"(
@@ -69,7 +72,7 @@ namespace examples
                                     "name": "Provider",
                                     "intent": "COLLECTOR_INTENT",
                                     "data_provider_type": "POSTGIS",
-                                    "description": "null",
+                                    "description": null,
                                     "active": true
                                   }
                                  )"
@@ -88,7 +91,7 @@ namespace examples
                                     "class": "DataSeries",
                                     "id": 1,
                                     "name": "Monitored Object",
-                                    "description": "null",
+                                    "description": null,
                                     "data_provider_id":  %1,
                                     "semantics": "STATIC_DATA-postgis",
                                     "active": true,
@@ -107,34 +110,50 @@ namespace examples
                                )"
                              ).arg(dataProvider->id);
 
+
          QJsonDocument doc = QJsonDocument::fromJson(json.toUtf8());
          QJsonObject obj = doc.object();
          return terrama2::core::fromDataSeriesJson(obj);
 
     }
 
-
-    terrama2::core::DataProviderPtr outputDataProviderPostGis()
+    terrama2::core::DataSeriesPtr occurrenceDataSeriesPostGis(terrama2::core::DataProviderPtr dataProvider)
     {
-      QString json = QString(R"(
-                               {
-                                   "class": "DataProvider",
-                                   "uri": "%1",
-                                   "project_id": 0,
-                                   "id": 3,
-                                   "name": "DataProvider postgis",
-                                   "intent": "PROCESS_INTENT",
-                                   "data_provider_type": "POSTGIS",
-                                   "description": "null",
-                                   "active": true
-                                }
-                                )"
-                             ).arg(QString::fromStdString("pgsql://"+TERRAMA2_DATABASE_USERNAME+ ":"+TERRAMA2_DATABASE_PASSWORD+"@"+TERRAMA2_DATABASE_HOST+":"+TERRAMA2_DATABASE_PORT+"/"+TERRAMA2_DATABASE_DBNAME));
+
+        QString json = QString(R"(
+                                        {
+                                            "class": "DataSeries",
+                                            "id": 2,
+                                            "name": "Occurrence",
+                                            "description": "null",
+                                            "data_provider_id":  %1,
+                                            "semantics": "OCCURRENCE-postgis",
+                                            "active": true,
+                                            "datasets": [
+                                              {
+                                                "class": "DataSet",
+                                                "id": 2,
+                                                "data_series_id": 3,
+                                                "active": true,
+                                                "format": {
+                                                    "table_name": "queimadas_test_table",
+                                                    "timestamp_property": "data_pas",
+                                                    "geometry_property": "geom",
+                                                    "timezone": "UTC-03"
+                                                }
+                                              }
+                                            ]
+                                        }
+                                        )"
+                                    ).arg(dataProvider->id);
+
+
 
         QJsonDocument doc = QJsonDocument::fromJson(json.toUtf8());
         QJsonObject obj = doc.object();
-        return terrama2::core::fromDataProviderJson(obj);
+        return terrama2::core::fromDataSeriesJson(obj);
     }
+
 
 
     terrama2::core::DataSeriesPtr outputDataSeriesPostGis(terrama2::core::DataProviderPtr outputDataProvider, std::string nameTableResult)
@@ -170,7 +189,6 @@ namespace examples
         QJsonObject obj = doc.object();
         return terrama2::core::fromDataSeriesJson(obj);
     }
-
 
 
    } // end namespace utilspostgis

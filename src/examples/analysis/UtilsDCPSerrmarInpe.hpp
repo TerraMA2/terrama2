@@ -33,8 +33,8 @@
 #include <terrama2/core/data-model/DataSet.hpp>
 #include <terrama2/core/data-model/DataSetDcp.hpp>
 
-
 #include <terrama2/services/analysis/mock/MockAnalysisLogger.hpp>
+#include <terrama2/core/utility/JSonUtils.hpp>
 
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -54,7 +54,7 @@ namespace terrama2
   namespace utilsdcpserrmarinpe
   {
 
-    terrama2::core::DataProviderPtr dataProvider()
+    terrama2::core::DataProviderPtr dataProviderFile()
     {
          QString json = QString(R"(
                                     {
@@ -69,7 +69,7 @@ namespace terrama2
                                         "active": true
                                    }
                                  )"
-                               ).arg(QString::fromStdString(TERRAMA2_DATA_DIR + "/PCD_serrmar_INPE"));
+                               ).arg(QString::fromStdString(TERRAMA2_DATA_DIR+"/PCD_serrmar_INPE/"));
 
         QJsonDocument doc = QJsonDocument::fromJson(json.toUtf8());
         QJsonObject obj = doc.object();
@@ -77,25 +77,25 @@ namespace terrama2
 
     }
 
-    terrama2::core::DataSeriesPtr dataSeries(terrama2::core::DataProviderPtr dataProviderId)
+    terrama2::core::DataSeriesPtr dataSeries(terrama2::core::DataProviderPtr dataProvider)
     {
 
         QString json = QString(R"x(
                                     {
                                         "class": "DataSeries",
-                                        "id": 2,
+                                        "id": 25,
                                         "name": "Serra do Mar",
-                                        "description": "null",
+                                        "description": null,
                                         "data_provider_id":  %1,
                                         "semantics": "DCP-inpe",
                                         "active": true,
                                         "datasets":[
                                              {
                                                 "class": "DataSet",
-                                                "id": 2,
-                                                "data_series_id": 2,
+                                                "id": 25,
+                                                "data_series_id": 25,
                                                 "active": true,
-                                                "position": "SRID=4618;POINT(-44.46540 -23.00506)",
+                                                "position": "SRID=4618;POINT(-46.492000 -23.889000)",
                                                 "format": {
                                                         "mask": "69034.txt",
                                                         "alias": "dcp_69034",
@@ -107,7 +107,7 @@ namespace terrama2
                                                 "id": 3,
                                                 "data_series_id": 2,
                                                 "active": true,
-                                                "position": "SRID=4618;POINT(-46.121 -23.758)",
+                                                "position": "SRID=4618;POINT(-44.941000 -23.074000)",
                                                 "format": {
                                                     "mask": "30885.txt",
                                                     "alias": "dcp_30885",
@@ -117,12 +117,45 @@ namespace terrama2
                                         ]
                                        }
                                      )x"
-                                   ).arg(dataProviderId->id);
+                                   ).arg(dataProvider->id);
+            QJsonDocument doc = QJsonDocument::fromJson(json.toUtf8());
+            QJsonObject obj = doc.object();
+            return terrama2::core::fromDataSeriesJson(obj);
+    }
 
-         QJsonDocument doc = QJsonDocument::fromJson(json.toUtf8());
-         QJsonObject obj = doc.object();
-         return terrama2::core::fromDataSeriesJson(obj);
-     }
+    terrama2::core::DataSeriesPtr dataSeriesDCP69031(terrama2::core::DataProviderPtr dataProvider)
+    {
+
+        QString json = QString(R"x(
+                                    {
+                                        "class": "DataSeries",
+                                        "id": 26,
+                                        "name": "Serra do Mar",
+                                        "description": null,
+                                        "data_provider_id":  %1,
+                                        "semantics": "DCP-inpe",
+                                        "active": true,
+                                        "datasets":[
+                                             {
+                                                "class": "DataSet",
+                                                "id": 26,
+                                                "data_series_id": 26,
+                                                "active": true,
+                                                "position": "SRID=4618;POINT(-44.46540 -23.00506)",
+                                                "format": {
+                                                        "mask": "69031.txt",
+                                                        "alias": "dcp_69031",
+                                                        "timezone": "-02:00"
+                                                }
+                                             }
+                                        ]
+                                       }
+                                     )x"
+                                   ).arg(dataProvider->id);
+            QJsonDocument doc = QJsonDocument::fromJson(json.toUtf8());
+            QJsonObject obj = doc.object();
+            return terrama2::core::fromDataSeriesJson(obj);
+    }
 
     }  // end namespace utilsdcpserrmarinpe
    }  // end namespace analysis
