@@ -210,6 +210,19 @@ void writeColorMapEntry(te::xml::AbstractWriter* writer,
   writer->writeEndElement("ColorMapEntry");
 }
 
+void writeChannelSelection(te::xml::AbstractWriter* writer, const std::string& band)
+{
+  writer->writeStartElement("ChannelSelection");
+  {
+    writer->writeStartElement("GrayChannel");
+    writer->writeStartElement("SourceChannelName");
+    writer->writeValue(band);
+    writer->writeEndElement("SourceChannelName");
+    writer->writeEndElement("GrayChannel");
+  }
+  writer->writeEndElement("ChannelSelection");
+}
+
 //! Wrapper ColorMapEntry for TerraMA² Rule
 void writeColorMapEntry(te::xml::AbstractWriter* writer,
                         const terrama2::services::view::core::View::Legend::Rule& rule)
@@ -274,17 +287,8 @@ void terrama2::services::view::core::Serialization::writeCoverageStyleGeoserverX
     // default color
     writer->writeStartElement("RasterSymbolizer");
 
-    {
-      writer->writeStartElement("ChannelSelection");
-      {
-        writer->writeStartElement("GrayChannel");
-        writer->writeStartElement("SourceChannelName");
-        writer->writeValue(band_number);
-        writer->writeEndElement("SourceChannelName");
-        writer->writeEndElement("GrayChannel");
-      }
-      writer->writeEndElement("ChannelSelection");
-    }
+    // Writing Grey Band channel - Default
+    writeChannelSelection(writer.get(), band_number);
 
     writer->writeStartElement("ColorMap");
     writer->writeAttribute("type", "ramp");
@@ -337,17 +341,10 @@ void terrama2::services::view::core::Serialization::writeCoverageStyleGeoserverX
 
   // assigned colors
   writer->writeStartElement("RasterSymbolizer");
-  {
-    writer->writeStartElement("ChannelSelection");
-    {
-      writer->writeStartElement("GrayChannel");
-      writer->writeStartElement("SourceChannelName");
-      writer->writeValue(band_number);
-      writer->writeEndElement("SourceChannelName");
-      writer->writeEndElement("GrayChannel");
-    }
-    writer->writeEndElement("ChannelSelection");
-  }
+
+  // Write Grey Band Channel - Composition
+  writeChannelSelection(writer.get(), band_number);
+
   writer->writeStartElement("ColorMap");
 
   writer->writeAttribute("type", classifyType);
