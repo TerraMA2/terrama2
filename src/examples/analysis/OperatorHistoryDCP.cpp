@@ -79,11 +79,11 @@ int main(int argc, char* argv[])
   service.start();
 
 
-  auto outputDataProvider = terrama2::examples::analysis::utilspostgis::outputDataProviderPostGis();
-  dataManager->add(outputDataProvider);
+  auto dataProvider = terrama2::examples::analysis::utilspostgis::dataProviderPostGis();
+  dataManager->add(dataProvider);
 
 
-  auto outputDataSeries = terrama2::examples::analysis::utilspostgis::outputDataSeriesPostGis(outputDataProvider, terrama2::examples::analysis::utilspostgis::history_dcp_result);
+  auto outputDataSeries = terrama2::examples::analysis::utilspostgis::outputDataSeriesPostGis(dataProvider, terrama2::examples::analysis::utilspostgis::history_dcp_result);
   dataManager->add(outputDataSeries);
 
 
@@ -122,15 +122,12 @@ int main(int argc, char* argv[])
   analysis->metadata["INFLUENCE_RADIUS_UNIT"] = "km";
 
 
-  auto dataProvider = terrama2::examples::analysis::utilspostgis::dataProviderPostGis();
-  dataManager->add(dataProvider);
-
   auto dataSeries = terrama2::examples::analysis::utilspostgis::dataSeriesPostGis(dataProvider);
   dataManager->add(dataSeries);
 
 
-  auto dataProvider2 = terrama2::examples::analysis::utilsdcpserrmarinpe::dataProvider();
-  dataManager->add(dataProvider2);
+  auto dataProviderFile = terrama2::examples::analysis::utilsdcpserrmarinpe::dataProviderFile();
+  dataManager->add(dataProviderFile);
 
   AnalysisDataSeries monitoredObjectADS;
   monitoredObjectADS.id = 1;
@@ -139,7 +136,7 @@ int main(int argc, char* argv[])
   monitoredObjectADS.metadata["identifier"] = "nome";
 
 
-  auto dcpSeries = terrama2::examples::analysis::utilsdcpserrmarinpe::dataSeries(dataProvider2);
+  auto dcpSeries = terrama2::examples::analysis::utilsdcpserrmarinpe::dataSeries(dataProviderFile);
 
   AnalysisDataSeries dcpADS;
   dcpADS.id = 2;
