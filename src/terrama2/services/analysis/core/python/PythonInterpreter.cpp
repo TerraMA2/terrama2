@@ -565,7 +565,6 @@ std::string terrama2::services::analysis::core::python::prepareScript(AnalysisPt
                    "def analysis():\n"
                    + formatedScript;
 
-  std::cout << "\n\n\n" << formatedScript << "\n\n\n";
   return formatedScript;
 }
 
