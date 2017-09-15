@@ -1023,5 +1023,6 @@
   "Dcp": "Dcp",
   " Data Series": " Data Series",
   "Dcp Data Series": "Dcp Data Series",
-  "Object Monitored Data Series": "Object Monitored Data Series"
+  "Object Monitored Data Series": "Object Monitored Data Series",
+  "Interpolation": "Interpolation"
 }

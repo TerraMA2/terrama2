@@ -263,6 +263,7 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
         switch(parseInt(value)) {
           case Service.types.COLLECTOR: // collect
           case Service.types.ANALYSIS: // analysis
+          case Service.types.INTERPOLATION: // analysis
           case Service.types.VIEW:
             self.service.pathToBinary = self.service.pathToBinary || "terrama2_service";
             break;

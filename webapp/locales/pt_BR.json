@@ -1026,5 +1026,6 @@
   "Dcp": "Pcd",
   " Data Series": " Data Series",
   "Dcp Data Series": "Séries de Dados PCD",
-  "Object Monitored Data Series": "Objeto Monitorado"
+  "Object Monitored Data Series": "Objeto Monitorado",
+	"Interpolation": "Interpolação"
 }

@@ -1033,7 +1033,8 @@
   "Grid Files (GeoTIFF)": "",
   "Vector Files (ESRI Shapefile)": "",
   "Dcp": "",
-  " Data Series": " Data Series",
-  "Dcp Data Series": "Séries de Dados PCD",
-  "Object Monitored Data Series": "Objeto Monitorado"
+  " Data Series": "",
+  "Dcp Data Series": "",
+  "Object Monitored Data Series": "",
+	"Interpolation": ""
 }
