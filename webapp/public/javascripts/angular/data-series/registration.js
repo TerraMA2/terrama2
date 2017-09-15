@@ -12,7 +12,7 @@ define([], function() {
       metadata: true,
       type: $scope.isDynamic ? "dynamic" : "static"
     };
-    $scope.csvFormatData = { fields: [{type: "DATETIME"}]};
+    $scope.csvFormatData = { fields: [{type: "DATETIME"}], convert_all: false};
     // defining box
     $scope.cssBoxSolid = {
       boxType: "box-solid"
@@ -421,7 +421,7 @@ define([], function() {
 
         $scope.semantics = $scope.dataSeries.semantics.data_series_type_name;
         if (!$scope.isUpdating){
-          $scope.csvFormatData = { fields: [{type: "DATETIME"}]};
+          $scope.csvFormatData = { fields: [{type: "DATETIME"}], convert_all: false};
           clearStoreForm();
         }
         $scope.custom_format = $scope.dataSeries.semantics.custom_format;

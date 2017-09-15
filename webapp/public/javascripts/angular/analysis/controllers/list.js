@@ -94,6 +94,11 @@ define([], function() {
           name: "Monitored Object",
           value: "Monitored Object",
           checked: true
+        },
+        {
+          name: "DCP",
+          value: "Dcp",
+          checked: true
         }
       ],
       advancedFilterField: "type.name",

@@ -138,6 +138,7 @@ define([
           $scope.showInfo = function(object){
             $scope.serviceStartTime = object.start_time;
             $scope.serviceVersion = object.version;
+            $scope.maps_server_connection = object.maps_server_connection;
             if(!object.logger_online)
               $scope.showServiceLoggerOffline = true;
             else 
