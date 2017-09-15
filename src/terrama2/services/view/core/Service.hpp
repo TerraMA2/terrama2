@@ -62,6 +62,8 @@ namespace terrama2
           Service& operator=(const Service& other) = delete;
           Service& operator=(Service&& other) = default;
 
+          virtual void getStatus(QJsonObject& obj) const;
+
         public slots:
 
           //! Slot to be called when a DataSetTimer times out.
@@ -115,6 +117,7 @@ namespace terrama2
 
           std::weak_ptr<DataManager> dataManager_; //!< Weak pointer to the DataManager
           te::core::URI mapsServerUri_;
+          bool mapsServerConnectionStatus_ = false;
         };
 
       } // end namespace core

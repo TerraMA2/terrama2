@@ -805,9 +805,6 @@
   "Static Data Registration": "Static Data Registration",
   "Static GDAL grid": "Static GDAL grid",
   "Static GeoTIFF grid": "Static GeoTIFF grid",
-  "Static geometric object - OGR (data file)": "Static geometric object - OGR (data file)",
-  "Static geometric object - PostGIS": "Static geometric object - PostGIS",
-  "Static grid - GDAL": "Static grid - GDAL",
   "Static Themes": "Static Themes",
   "Statistics": "Statistics",
   "Status": "Status",
@@ -972,6 +969,12 @@
   "w": "w",
   "Invalid address": "Invalid address",
   "The service can not access the log database!": "The service can not access the log database!",
+  "The service can not access the map server!": "The service can not access the map server!",
+  "Host service error": "Host service error: ",
+  "Log database error": "Log database error: ",
+  "Port error": "Port error: ",
+  "Email server error": "Email server error: ",
+  "Map server error": "Map server error: ",
   "Can not delete the view if the service is not running": {
     " ": "Can not delete the view if the service is not running. "
   },
@@ -1013,5 +1016,12 @@
     " He belongs to a protected project!": "You can not edit this alert. He belongs to a protected project!"
   },
   "User is not allowed": "User is not allowed",
-  "Protected": "Protected"
+  "Protected": "Protected",
+  "Features table (PostgreSQL/PostGIS)": "Features table (PostgreSQL/PostGIS)",
+  "Grid Files (GeoTIFF)": "Grid Files (GeoTIFF)",
+  "Vector Files (ESRI Shapefile)": "Vector Files (ESRI Shapefile)",
+  "Dcp": "Dcp",
+  " Data Series": " Data Series",
+  "Dcp Data Series": "Dcp Data Series",
+  "Object Monitored Data Series": "Object Monitored Data Series"
 }
