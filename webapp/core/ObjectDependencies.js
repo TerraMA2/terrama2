@@ -9,6 +9,7 @@
 var ObjectDependencies = function(json){
 
   var DataManager = require("./DataManager");
+  var Promise = require("bluebird");
   var output = {};
   
   var _emitError = function(err) {
