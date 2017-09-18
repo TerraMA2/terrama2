@@ -133,36 +133,45 @@
         ]
       },
       {
-        "name": "Count",
-        "code": "dcp.count([<buffer>], [<isActive>])"
-      },
-      {
-        "name": "Min",
-        "code": "dcp.min(\"<attribute>\", <list_dcp>)"
-      },
-      {
-        "name": "Max",
-        "code": "dcp.max(\"<attribute>\", <list_dcp>)"
-      },
-      {
-        "name": "Mean",
-        "code": "dcp.mean(\"<attribute>\", <list_dcp>)"
-      },
-      {
-        "name": "Median",
-        "code": "dcp.median(\"<attribute>\", <list_dcp>)"
-      },
-      {
-        "name": "Sum",
-        "code": "dcp.sum(\"<attribute>\", <list_dcp>)"
-      },
-      {
-        "name": "Standard deviation",
-        "code": "dcp.standard_deviation(\"<attribute>\", <list_dcp>)"
-      },
-      {
-        "name": "Variance",
-        "code": "dcp.variance(\"<attribute>\", <list_dcp>)"
+        "name": "DCP",
+        "children": [
+          {
+            "name": "Value",
+            "code": "dcp.value(<attribute>)"
+          },
+          {
+            "name": "Count",
+            "code": "dcp.count([<buffer>], [<isActive>])"
+          },
+          {
+            "name": "Min",
+            "code": "dcp.min(\"<attribute>\", <list_dcp>)"
+          },
+          {
+            "name": "Max",
+            "code": "dcp.max(\"<attribute>\", <list_dcp>)"
+          },
+          {
+            "name": "Mean",
+            "code": "dcp.mean(\"<attribute>\", <list_dcp>)"
+          },
+          {
+            "name": "Median",
+            "code": "dcp.median(\"<attribute>\", <list_dcp>)"
+          },
+          {
+            "name": "Sum",
+            "code": "dcp.sum(\"<attribute>\", <list_dcp>)"
+          },
+          {
+            "name": "Standard deviation",
+            "code": "dcp.standard_deviation(\"<attribute>\", <list_dcp>)"
+          },
+          {
+            "name": "Variance",
+            "code": "dcp.variance(\"<attribute>\", <list_dcp>)"
+          }
+        ]
       },
       {
         "name": "History",

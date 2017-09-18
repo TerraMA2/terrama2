@@ -202,6 +202,8 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
             }
 
             std::shared_ptr<ContextDataSeries> contextDataSeries = context->getContextDataset(dcpDataset->id, filter);
+            if(!contextDataSeries)
+              continue;
             auto syncDs = contextDataSeries->series.syncDataSet;
             if(syncDs->size() == 0)
               continue;
@@ -209,10 +211,7 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
             auto property = contextDataSeries->series.teDataSetType->getProperty(attribute);
            // only operation COUNT can be done without attribute.
             if(!property && statisticOperation != StatisticOperation::COUNT)
-            {
-              QString errMsg(QObject::tr("Invalid attribute name"));
-              throw InvalidParameterException() << terrama2::ErrorDescription(errMsg);
-            }
+              continue;
 
             // end check dataset
             ///////////////////////////////////////////////////////////////
@@ -294,7 +293,7 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
 
 int terrama2::services::analysis::core::dcp::zonal::count(const std::string& dataSeriesName, Buffer buffer)
 {
-  return (int)terrama2::services::analysis::core::dcp::zonal::influence::byRule(dataSeriesName, buffer).size();
+  return static_cast<int>(terrama2::services::analysis::core::dcp::zonal::influence::byRule(dataSeriesName, buffer).size());
 }
 
 double terrama2::services::analysis::core::dcp::zonal::min(const std::string& dataSeriesName, const std::string& attribute, boost::python::list ids)
@@ -344,7 +343,12 @@ terrama2::services::analysis::core::InfluenceType terrama2::services::analysis::
   AnalysisPtr analysis)
 {
   // Reads influence type
-  std::string typeStr = analysis->metadata.at("INFLUENCE_TYPE");
+  auto it = analysis->metadata.find("INFLUENCE_TYPE");
+
+  if(it == analysis->metadata.cend())
+    return InfluenceType::RADIUS_TOUCHES;
+
+  std::string typeStr = it->second;
   int type = std::atoi(typeStr.c_str());
   if(type == 0 || type > 3)
   {
@@ -352,7 +356,7 @@ terrama2::services::analysis::core::InfluenceType terrama2::services::analysis::
     errMsg = errMsg.arg(analysis->id);
     throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
-  InfluenceType influenceType = (InfluenceType) type;
+  InfluenceType influenceType = static_cast<InfluenceType>(type);
   return influenceType;
 }
 
@@ -371,28 +375,20 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::dcp::zonal
     case InfluenceType::RADIUS_CENTER:
     case InfluenceType::RADIUS_TOUCHES:
     {
-      if(analysis->metadata.at("INFLUENCE_RADIUS").empty())
-      {
-        QString errMsg(QObject::tr("Invalid influence radius."));
-        errMsg = errMsg.arg(analysis->id);
-        throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
-      }
+      // Reads influence type
+      auto itRad = analysis->metadata.find("INFLUENCE_RADIUS");
+      auto itUnit = analysis->metadata.find("INFLUENCE_RADIUS_UNIT");
 
-      std::string radiusStr = analysis->metadata.at("INFLUENCE_RADIUS");
-      std::string radiusUnit = analysis->metadata.at("INFLUENCE_RADIUS_UNIT");
-
-      if(radiusStr.empty())
-        radiusStr = "0";
-      if(radiusUnit.empty())
-        radiusUnit = "km";
-
-      double influenceRadius = std::atof(radiusStr.c_str());
-
-      influenceRadius =
-              te::common::UnitsOfMeasureManager::getInstance().getConversion(radiusUnit, "METER") * influenceRadius;
+      std::string radiusStr = itRad == analysis->metadata.cend() ? "0" : itRad->second;
+      std::string radiusUnit = itUnit == analysis->metadata.cend() ? "km" : itUnit->second;
 
       std::shared_ptr<te::gm::Geometry> geomPosition(dynamic_cast<te::gm::Geometry*>(position->clone()));
 
+      double influenceRadius = std::atof(radiusStr.c_str());
+      if(influenceRadius <= 0)
+        return geomPosition;
+
+      influenceRadius = te::common::UnitsOfMeasureManager::getInstance().getConversion(radiusUnit, "METER") * influenceRadius;
       auto spatialReferenceSystem = te::srs::SpatialReferenceSystemManager::getInstance().getSpatialReferenceSystem(geomPosition->getSRID());
       std::string unitName = spatialReferenceSystem->getUnitName();
 

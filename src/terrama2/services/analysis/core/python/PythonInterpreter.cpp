@@ -349,7 +349,7 @@ void terrama2::services::analysis::core::python::addValue(const std::string& att
   try
   {
     AnalysisPtr analysis = context->getAnalysis();
-    verify::analysisType(analysis, AnalysisType::MONITORED_OBJECT_TYPE);
+    verify::analysisMonitoredObject(analysis);
 
     if(pyObjValue.is_none())
     {

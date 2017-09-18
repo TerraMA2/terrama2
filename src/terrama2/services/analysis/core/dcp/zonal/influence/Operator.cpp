@@ -257,57 +257,37 @@ std::vector< std::string > terrama2::services::analysis::core::dcp::zonal::influ
     /////////////////////////////////////////////////////////////
 
     std::vector< std::string > vecDCP;
-    if (buffer.bufferType != BufferType::NONE)
+
+    // create monitored object buffer
+    auto geomResult = createBuffer(buffer, moGeom);
+
+    auto influenceType = zonal::getInfluenceType(analysis);
+    for(const auto& dataset : dcpDataSeries->datasetList)
     {
-      // create monitored object buffer
-      auto geomResult = createBuffer(buffer, moGeom);
-
-      auto influenceType = zonal::getInfluenceType(analysis);
-      for(const auto& dataset : dcpDataSeries->datasetList)
+      auto dcpDataset = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(dataset);
+      if(!dcpDataset)
       {
-        auto dcpDataset = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(dataset);
-        if(!dcpDataset)
-        {
-          QString errMsg(QObject::tr("Invalid dataset for data series: ").arg(dataSeriesName.c_str()));
-          throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
-        }
-
-        terrama2::core::Filter filter;
-        auto dcpInfluenceBuffer = context->getDCPBuffer(dcpDataset->id);
-        if(!dcpInfluenceBuffer)
-        {
-          dcpInfluenceBuffer = zonal::createDCPInfluenceBuffer(analysis, dcpDataset->position, geomResult->getSRID(),
-          influenceType);
-          context->addDCPBuffer(dcpDataset->id, dcpInfluenceBuffer);
-        }
-
-        if(zonal::verifyDCPInfluence(influenceType, geomResult, dcpInfluenceBuffer))
-        {
-          if(isActive && dcpDataset->active)//only add active DCP
-            vecDCP.push_back(dcpDataset->alias());
-          else
-            vecDCP.push_back(dcpDataset->alias());
-        }
+        QString errMsg(QObject::tr("Invalid dataset for data series: ").arg(dataSeriesName.c_str()));
+        throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
       }
-    }
-    else
-    {
-      for(const auto& dataset : dcpDataSeries->datasetList)
-      {
-        auto dcpDataset = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(dataset);
-        if(!dcpDataset)
-        {
-          QString errMsg(QObject::tr("Invalid dataset for data series: ").arg(dataSeriesName.c_str()));
-          throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
-        }
 
+      terrama2::core::Filter filter;
+      auto dcpInfluenceBuffer = context->getDCPBuffer(dcpDataset->id);
+      if(!dcpInfluenceBuffer)
+      {
+        dcpInfluenceBuffer = zonal::createDCPInfluenceBuffer(analysis, dcpDataset->position, geomResult->getSRID(), influenceType);
+        context->addDCPBuffer(dcpDataset->id, dcpInfluenceBuffer);
+      }
+
+      if(zonal::verifyDCPInfluence(influenceType, geomResult, dcpInfluenceBuffer))
+      {
         if(isActive && dcpDataset->active)//only add active DCP
           vecDCP.push_back(dcpDataset->alias());
         else
           vecDCP.push_back(dcpDataset->alias());
       }
     }
-
+    
     return vecDCP;
   }
   catch(const terrama2::Exception& e)

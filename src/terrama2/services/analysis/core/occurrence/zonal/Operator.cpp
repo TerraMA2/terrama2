@@ -192,8 +192,7 @@ double terrama2::services::analysis::core::occurrence::zonal::operatorImpl(terra
               // only operation COUNT can be done without attribute.
               if(!property && statisticOperation != StatisticOperation::COUNT)
               {
-                QString errMsg(QObject::tr("Invalid attribute name"));
-                throw InvalidParameterException() << terrama2::ErrorDescription(errMsg);
+                return std::nan("");
               }
               attributeType = property->getType();
             }
