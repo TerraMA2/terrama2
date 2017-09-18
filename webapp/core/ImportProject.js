@@ -64,12 +64,33 @@ var ImportProject = function(json){
               return Promise.resolve(false);
           });
         case 'analysis':
-          DataManager.listAnalysis(restriction, options).then(function(analysis){
+          return DataManager.listAnalysis(restriction, options).then(function(analysis){
             if (analysis.length > 0)
               return Promise.resolve(true);
             else
               return Promise.resolve(false);
-          })
+          });
+        case 'view':
+          return DataManager.listViews(restriction, options).then(function(views){
+            if (views.length > 0)
+              return Promise.resolve(true);
+            else
+              return Promise.resolve(false);
+        });
+        case 'legend':
+          return DataManager.listLegends(restriction, options).then(function(legends){
+            if (legends.length > 0)
+              return Promise.resolve(true);
+            else
+              return Promise.resolve(false);
+        });
+        case 'alert':
+          return DataManager.listAlerts(restriction, options).then(function(alerts){
+            if (alerts.length > 0)
+              return Promise.resolve(true);
+            else
+              return Promise.resolve(false);
+        });
         default:
           return Promise.resolve(false);
       }
@@ -254,6 +275,9 @@ var ImportProject = function(json){
                 var analysisList = json.Analysis || [];
                 analysisList.forEach(function(analysis) {
                   promises.push(nameAlreadyInUse(analysis.name, 'analysis').then(function(result){
+                    var nameInUse = result;
+                    if (nameInUse && !thereAreProjects)
+                      analysis.name += json.selectedProject;
                     analysis.analysisDataSeries = analysis.analysis_dataseries_list;
   
                     for(var i = 0; i < analysis.analysisDataSeries.length; ++i) {
@@ -351,49 +375,55 @@ var ImportProject = function(json){
                   }
                   var viewsList = json.Views || [];
                   viewsList.forEach(function(view) {
-                    view.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: view.project_id}).id : json.selectedProject;
-                    view.data_series_id = Utils.find(output.DataSeries, {$id: view.data_series_id}).id;
-                    if(view.service_instance_id === null) view.service_instance_id = json.servicesView;
-                    if (view.legend){
-                      delete view.legend.id;
-                      if (view.legend.colors){
-                        view.legend.colors.forEach(function(color){
-                          delete color.id;
-                        });
-                      }
-                    }
-                    if(countObjectProperties(view.schedule) > 0 || view.automatic_schedule.id) {
-                      delete view.schedule.id;
-                      delete view.automatic_schedule.id;
-                      var scheduleObject;
-                      if (view.schedule_type == Enums.ScheduleType.AUTOMATIC){
-                        scheduleObject = view.automatic_schedule;
-                        scheduleObject.scheduleType = Enums.ScheduleType.AUTOMATIC;
-                      } else {
-                        scheduleObject = view.schedule;
-                      }
+                    promises.push(nameAlreadyInUse(view.name, 'view').then(function(result){
+                      var nameInUse = result;
+                      if (nameInUse && !thereAreProjects)
+                        view.name += json.selectedProject;
 
-                      promises.push(DataManager.addSchedule(scheduleObject, options).then(function(schedule) {
-                        if (schedule){
-                          if (view.schedule_type == Enums.ScheduleType.AUTOMATIC)
-                            view.automatic_schedule_id = schedule.id;
-                          else 
-                            view.schedule_id = schedule.id;
+                      view.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: view.project_id}).id : json.selectedProject;
+                      view.data_series_id = Utils.find(output.DataSeries, {$id: view.data_series_id}).id;
+                      if(view.service_instance_id === null) view.service_instance_id = json.servicesView;
+                      if (view.legend){
+                        delete view.legend.id;
+                        if (view.legend.colors){
+                          view.legend.colors.forEach(function(color){
+                            delete color.id;
+                          });
                         }
-
+                      }
+                      if(countObjectProperties(view.schedule) > 0 || view.automatic_schedule.id) {
+                        delete view.schedule.id;
+                        delete view.automatic_schedule.id;
+                        var scheduleObject;
+                        if (view.schedule_type == Enums.ScheduleType.AUTOMATIC){
+                          scheduleObject = view.automatic_schedule;
+                          scheduleObject.scheduleType = Enums.ScheduleType.AUTOMATIC;
+                        } else {
+                          scheduleObject = view.schedule;
+                        }
+  
+                        return DataManager.addSchedule(scheduleObject, options).then(function(schedule) {
+                          if (schedule){
+                            if (view.schedule_type == Enums.ScheduleType.AUTOMATIC)
+                              view.automatic_schedule_id = schedule.id;
+                            else 
+                              view.schedule_id = schedule.id;
+                          }
+  
+                          return DataManager.addView(view, options).then(function(viewResult) {
+                            if(tcpOutput.Views === undefined) tcpOutput.Views = [];
+                            var viewObject = Object.assign({$id: view.$id}, viewResult.toObject());
+                            tcpOutput.Views.push(viewObject);
+                          });
+                        });
+                      } else {
                         return DataManager.addView(view, options).then(function(viewResult) {
                           if(tcpOutput.Views === undefined) tcpOutput.Views = [];
                           var viewObject = Object.assign({$id: view.$id}, viewResult.toObject());
                           tcpOutput.Views.push(viewObject);
                         });
-                      }));
-                    } else {
-                      promises.push(DataManager.addView(view, options).then(function(viewResult) {
-                        if(tcpOutput.Views === undefined) tcpOutput.Views = [];
-                        var viewObject = Object.assign({$id: view.$id}, viewResult.toObject());
-                        tcpOutput.Views.push(viewObject);
-                      }));
-                    }
+                      }
+                    }));
                   });
                 }
 
@@ -404,21 +434,24 @@ var ImportProject = function(json){
                     var legendsList = json.Legends || [];
                     output.Legends = [];
 
-
                     legendsList.forEach(function(legend) {
-                      legend.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: legend.project_id}).id : json.selectedProject;
+                      promises.push(nameAlreadyInUse(legend.name, 'legend').then(function(result){
+                        var nameInUse = result;
+                        if (nameInUse && !thereAreProjects)
+                          legend.name += json.selectedProject;
 
-                      for(var i = 0, levelsLength = legend.levels.length; i < levelsLength; i++)
-                        delete legend.levels[i].id;
-
-                      promises.push(
-                        DataManager.addLegend(legend, options).then(function(legendResult) {
+                        legend.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: legend.project_id}).id : json.selectedProject;
+  
+                        for(var i = 0, levelsLength = legend.levels.length; i < levelsLength; i++)
+                          delete legend.levels[i].id;
+  
+                        return DataManager.addLegend(legend, options).then(function(legendResult) {
                           if(tcpOutput.Legends === undefined) tcpOutput.Legends = [];
                             tcpOutput.Legends.push(legendResult);
 
                           output.Legends.push(_updateID(legend, legendResult));
-                        })
-                      );
+                        });
+                      }));
                     });
                   }
 
@@ -426,42 +459,47 @@ var ImportProject = function(json){
                     promises = [];
 
                     if(json.Alerts) {
+
                       var alertsList = json.Alerts || [];
 
                       alertsList.forEach(function(alert) {
-                        alert.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: alert.project_id}).id : json.selectedProject;
-                        alert.data_series_id = Utils.find(output.DataSeries, {$id: alert.data_series_id}).id;
-                        alert.legend_id = Utils.find(output.Legends, {$id: alert.legend_id}).id;
+                        promises.push(nameAlreadyInUse(alert.name, 'alert').then(function(result){
+                          var nameInUse = result;
+                          if (nameInUse && !thereAreProjects)
+                            alert.name += json.selectedProject;
 
-                        if(alert.service_instance_id === null) alert.service_instance_id = json.servicesAlert;
-                        if (alert.view && alert.view.$id){
-                          var viewId = Utils.find(tcpOutput.Views, {$id: alert.view.$id}).id;
-                          alert.view_id = viewId;
-                        }
-
-                        delete alert.report_metadata.id;
-
-                        for(var i = 0, additionalDataLength = alert.additional_data.length; i < additionalDataLength; i++)
-                          delete alert.additional_data[i].id;
-
-                        for(var i = 0, notificationsLength = alert.notifications.length; i < notificationsLength; i++)
-                          delete alert.notifications[i].id;
-
-                        delete alert.schedule.id;
-                        delete alert.automatic_schedule.id;
-                        var scheduleObject = {};
-                        if (alert.schedule_type == Enums.ScheduleType.AUTOMATIC){
-                          scheduleObject = alert.automatic_schedule;
-                          scheduleObject.scheduleType = Enums.ScheduleType.AUTOMATIC;
-                        } else if (alert.schedule_type == Enums.ScheduleType.SCHEDULE){
-                          scheduleObject = alert.schedule;
-                          scheduleObject.scheduleType = Enums.ScheduleType.SCHEDULE;
-                        } else {
-                          scheduleObject.scheduleType = Enums.ScheduleType.MANUAL;
-                        }
-
-                        promises.push(
-                          DataManager.addSchedule(scheduleObject, options).then(function(schedule) {
+                          alert.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: alert.project_id}).id : json.selectedProject;
+                          alert.data_series_id = Utils.find(output.DataSeries, {$id: alert.data_series_id}).id;
+                          alert.legend_id = Utils.find(output.Legends, {$id: alert.legend_id}).id;
+  
+                          if(alert.service_instance_id === null) alert.service_instance_id = json.servicesAlert;
+                          if (alert.view && alert.view.$id){
+                            var viewId = Utils.find(tcpOutput.Views, {$id: alert.view.$id}).id;
+                            alert.view_id = viewId;
+                          }
+  
+                          delete alert.report_metadata.id;
+  
+                          for(var i = 0, additionalDataLength = alert.additional_data.length; i < additionalDataLength; i++)
+                            delete alert.additional_data[i].id;
+  
+                          for(var i = 0, notificationsLength = alert.notifications.length; i < notificationsLength; i++)
+                            delete alert.notifications[i].id;
+  
+                          delete alert.schedule.id;
+                          delete alert.automatic_schedule.id;
+                          var scheduleObject = {};
+                          if (alert.schedule_type == Enums.ScheduleType.AUTOMATIC){
+                            scheduleObject = alert.automatic_schedule;
+                            scheduleObject.scheduleType = Enums.ScheduleType.AUTOMATIC;
+                          } else if (alert.schedule_type == Enums.ScheduleType.SCHEDULE){
+                            scheduleObject = alert.schedule;
+                            scheduleObject.scheduleType = Enums.ScheduleType.SCHEDULE;
+                          } else {
+                            scheduleObject.scheduleType = Enums.ScheduleType.MANUAL;
+                          }
+  
+                          return DataManager.addSchedule(scheduleObject, options).then(function(schedule) {
                             if (schedule){
                               if (alert.schedule_type == Enums.ScheduleType.AUTOMATIC)
                                 alert.automatic_schedule_id = schedule.id;
@@ -473,11 +511,10 @@ var ImportProject = function(json){
                               if(tcpOutput.Alerts === undefined) tcpOutput.Alerts = [];
                               tcpOutput.Alerts.push(alertResult);
                             });
-                          })
-                        );
+                          });
+                        }));
                       });
                     }
-
                     return Promise.all(promises);
                   });
                 });
