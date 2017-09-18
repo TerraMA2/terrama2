@@ -211,9 +211,7 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
             auto property = contextDataSeries->series.teDataSetType->getProperty(attribute);
            // only operation COUNT can be done without attribute.
             if(!property && statisticOperation != StatisticOperation::COUNT)
-            {
-              return std::nan("");
-            }
+              continue;
 
             // end check dataset
             ///////////////////////////////////////////////////////////////
