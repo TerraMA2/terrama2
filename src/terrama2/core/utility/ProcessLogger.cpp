@@ -161,6 +161,7 @@ RegisterId terrama2::core::ProcessLogger::start(ProcessId processId) const
   query.bind_arg(3, TimeUtils::nowUTC()->toString());
   query.bind_arg(4, TimeUtils::nowUTC()->toString());
 
+  OpenClose<DataSourcePtr> lock(dataSource_);
   std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();
   transactor->execute(query.str());
 
@@ -192,32 +193,38 @@ void terrama2::core::ProcessLogger::addValue(const std::string& tag, const std::
 
   std::string sql = "SELECT data FROM "+ tableName_ + " WHERE id = " + QString::number(registerId).toStdString();
 
-  std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();
-
-  std::shared_ptr<te::da::DataSet> tempDataSet(transactor->query(sql));
-
-  if(!tempDataSet)
+  QJsonObject obj;
+  // Connection scope
   {
-    QString errMsg = QObject::tr("Can not find log message table name!");
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw terrama2::core::LogException() << ErrorDescription(errMsg);
+    OpenClose<DataSourcePtr> lock(dataSource_);
+    std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();
+
+    std::shared_ptr<te::da::DataSet> tempDataSet(transactor->query(sql));
+
+    if(!tempDataSet)
+    {
+      QString errMsg = QObject::tr("Can not find log message table name!");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::core::LogException() << ErrorDescription(errMsg);
+    }
+
+    if(!tempDataSet->moveFirst())
+    {
+      QString errMsg = QObject::tr("Error to access log message table!");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::core::LogException() << ErrorDescription(errMsg);
+    }
+
+    QByteArray readJson = tempDataSet->getAsString("data").c_str();
+
+    QJsonDocument docJson(QJsonDocument::fromJson(readJson));
+    QJsonObject tempObj = docJson.object();
+    QString qtag = QString::fromStdString(tag);
+    QJsonArray array = tempObj[qtag].toArray();
+    array.push_back(QString::fromStdString(value));
+    tempObj.insert(qtag, array);
+    obj = tempObj;
   }
-
-  if(!tempDataSet->moveNext())
-  {
-    QString errMsg = QObject::tr("Error to access log message table!");
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw terrama2::core::LogException() << ErrorDescription(errMsg);
-  }
-
-  QByteArray readJson = tempDataSet->getAsString("data").c_str();
-
-  QJsonDocument docJson(QJsonDocument::fromJson(readJson));
-  QJsonObject obj = docJson.object();
-  QString qtag = QString::fromStdString(tag);
-  QJsonArray array = obj[qtag].toArray();
-  array.push_back(QString::fromStdString(value));
-  obj.insert(qtag, array);
 
   updateData(registerId, obj);
 }
@@ -246,6 +253,7 @@ terrama2::core::ProcessLogger::log(MessageType messageType, const std::string &d
   queryMessages.bind_arg(2, escapedDescription);
   queryMessages.bind_arg(3, now->toString());
 
+  OpenClose<DataSourcePtr> lock(dataSource_);
   std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();
   transactor->execute(transactor->escape(queryMessages.str()));
 
@@ -289,6 +297,7 @@ void terrama2::core::ProcessLogger::result(Status status, const std::shared_ptr<
   query.bind_arg(2, timestamp);
   query.bind_arg(3, TimeUtils::nowUTC()->toString());
 
+  OpenClose<DataSourcePtr> lock(dataSource_);
   std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();
   transactor->execute(query.str());
   transactor->commit();
@@ -307,6 +316,7 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::ProcessLogger::getLastP
 
   std::string sql = "SELECT MAX(last_process_timestamp) FROM "+ tableName_ + " WHERE process_id = " + std::to_string(processId);
 
+  OpenClose<DataSourcePtr> lock(dataSource_);
   std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();
 
   std::shared_ptr<te::da::DataSet> tempDataSet(transactor->query(sql));
