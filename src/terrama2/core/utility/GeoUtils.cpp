@@ -167,9 +167,9 @@ std::pair<uint32_t, uint32_t> terrama2::core::geoToGrid(const te::gm::Coord2D& c
   int col = std::round(colD);
   int row = std::round(rowD);
 
-  if(col < 0)
+  if(col < 0 || col >= grid->getNumberOfColumns())
     col = std::numeric_limits<uint32_t>::max();
-  if(row >= grid->getNumberOfRows())
+  if(row < 0 || row >= grid->getNumberOfRows())
     row = std::numeric_limits<uint32_t>::max();
 
   return std::make_pair(col, row);
