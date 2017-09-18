@@ -146,7 +146,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGIS::getSeries(con
   query+= "FROM "+tableName+" AS t";
   query += whereConditions(dataSet, datetimeColumnName, filter);
 
-  TERRAMA2_LOG_DEBUG() << query;
+//  TERRAMA2_LOG_DEBUG() << query;
 
   std::shared_ptr<te::da::DataSet> tempDataSet = transactor->query(query);
 
