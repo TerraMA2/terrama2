@@ -17,5 +17,8 @@ module.exports = function(config) {
   } else {
     config.logging = false;
   }
+  config.dialectOptions = {
+    application_name: 'terrama2web'
+  }
   return new Sequelize(config.database, config.username, config.password, config);
 };

@@ -115,6 +115,9 @@ namespace terrama2
     struct VerifyException: virtual UtilityException { };
 
     //#################################
+    //     Utility Module Exceptions
+    
+    struct InterpreterException: virtual UtilityException { };
 
   }  // end namespace core
 }  // end namespace terrama2

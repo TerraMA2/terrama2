@@ -129,6 +129,7 @@ namespace terrama2
 
          */
         virtual void start(size_t threadNumber = 0);
+        virtual void getStatus(QJsonObject& obj) const {};
 
       signals:
         void serviceFinishedSignal();

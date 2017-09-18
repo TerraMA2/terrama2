@@ -807,9 +807,6 @@
   "Static Data Registration": "Registro de Dado Estático",
   "Static GDAL grid": "Grade estática GDAL",
   "Static GeoTIFF grid": "Grade estático GeoTIFF",
-  "Static geometric object - OGR (data file)": "Objeto geométrico estático - OGR (arquivo)",
-  "Static geometric object - PostGIS": "Objeto geométrico estático - PostGIS",
-  "Static grid - GDAL": "Matriz estática - GDAL",
   "Static Themes": "Temas Estáticos",
   "Statistics": "Estatísticas",
   "Status": "Situação Atual",
@@ -974,6 +971,13 @@
   "w": "w",
   "Invalid address": "Endereço inválido",
   "The service can not access the log database!": "O serviço não pode acessar o banco de logs!",
+	"Error": " read ECONNRESET",
+  "The service can not access the map server!": "O serviço não pode acessar o servidor de mapas!",
+  "Host service error": "Erro no executável do serviço: ",
+	"Log database error": "Erro no banco de dados de log: ",
+	"Port error": "Erro na porta: ",
+	"Email server error": "Erro no servidor de email: ",
+	"Map server error": "Erro no servidor de mapas: ",
   "Can not delete the data series if the service is not running": {
     " ": "Não pode deletar a série de dados se o serviço não estiver rodando. "
   },
@@ -998,22 +1002,29 @@
   "If service is not running you can not save the alert": {
     " Start the service before create or update an alert!": "Se o serviço não estiver rodando não pode salvar o alerta. Rode o serviço antes de criar ou alterar um alerta!"
   },
-	"Permission": "Permissão",
-	"You can not edit this data server": {
-		" He belongs to a protected project!": "Você não pode editar essa servidor de dados. Ele pertence a um projeto protegido!"
-	},
-	"You can not edit this data series": {
-		" He belongs to a protected project!": "Você não pode editar essa série de dados. Ela pertence a um projeto protegido!"
-	},
-	"You can not edit this analysis": {
-		" He belongs to a protected project!": "Você não pode editar essa análise. Ela pertence a um projeto protegido!"
-	},
-	"You can not edit this view": {
-		" He belongs to a protected project!": "Você não pode editar essa visualização. Ela pertence a um projeto protegido!"
-	},
-	"You can not edit this alert": {
-		" He belongs to a protected project!": "Você não pode editar esse alerta. Ele pertence a um projeto protegido!"
-	},
-	"User is not allowed": "Usuário não tem permissão",
-  "Protected": "Protegido"
+  "Permission": "Permissão",
+  "You can not edit this data server": {
+    " He belongs to a protected project!": "Você não pode editar essa servidor de dados. Ele pertence a um projeto protegido!"
+  },
+  "You can not edit this data series": {
+    " He belongs to a protected project!": "Você não pode editar essa série de dados. Ela pertence a um projeto protegido!"
+  },
+  "You can not edit this analysis": {
+    " He belongs to a protected project!": "Você não pode editar essa análise. Ela pertence a um projeto protegido!"
+  },
+  "You can not edit this view": {
+    " He belongs to a protected project!": "Você não pode editar essa visualização. Ela pertence a um projeto protegido!"
+  },
+  "You can not edit this alert": {
+    " He belongs to a protected project!": "Você não pode editar esse alerta. Ele pertence a um projeto protegido!"
+  },
+  "User is not allowed": "Usuário não tem permissão",
+  "Protected": "Protegido",
+  "Features table (PostgreSQL/PostGIS)": "Tabelas com Feições (PostgreSQL/PostGIS)",
+  "Grid Files (GeoTIFF)": "Arquivos Matriciais (GeoTIFF)",
+  "Vector Files (ESRI Shapefile)": "Arquivos Vetoriais (ESRI Shapefile)",
+  "Dcp": "Pcd",
+  " Data Series": " Data Series",
+  "Dcp Data Series": "Séries de Dados PCD",
+  "Object Monitored Data Series": "Objeto Monitorado"
 }

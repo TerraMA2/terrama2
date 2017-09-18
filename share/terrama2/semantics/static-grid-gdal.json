@@ -1,6 +1,6 @@
 [
   {
-    "name": "Static grid - GDAL",
+    "name": "Grid Files (GeoTIFF)",
     "code": "GRID-static_gdal",
     "driver": "GRID-static_gdal",
     "type": "GRID",
