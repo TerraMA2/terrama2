@@ -326,6 +326,11 @@ var DataManager = module.exports = {
         inserts.push(models.db.ScriptLanguage.create({id: Enums.ScriptLanguage.PYTHON, name: "PYTHON"}));
         inserts.push(models.db.ScriptLanguage.create({id: Enums.ScriptLanguage.LUA, name: "LUA"}));
 
+        // inteporlation strategies
+        inserts.push(models.db.InterpolatorStrategy.create({name: "Nearest neighbor", code: "NEAREST-NEIGHBOR"}));
+        inserts.push(models.db.InterpolatorStrategy.create({name: "Average neighbor", code: "AVERAGE-NEIGHBOR"}));
+        inserts.push(models.db.InterpolatorStrategy.create({name: "Weight average neighbor", code: "W-AVERAGE-NEIGHBOR"}));
+
         // it will match each of semantics with providers
         return Promise.all(inserts)
           .catch(function(err) {

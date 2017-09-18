@@ -9,6 +9,11 @@ module.exports = function(sequelize, DataTypes) {
       },
       active: DataTypes.BOOLEAN,
       schedule_type: DataTypes.INTEGER,
+      bounding_rect: DataTypes.TEXT,
+      interpolation_attribute: DataTypes.STRING,
+      resolution_x: DataTypes.DECIMAL,
+      resolution_y: DataTypes.DECIMAL,
+      srid: DataTypes.INTEGER
     },
     {
       underscored: true,
@@ -66,10 +71,18 @@ module.exports = function(sequelize, DataTypes) {
             }
           });
 
+          Interpolator.hasMany(models.InterpolatorMetadata, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: 'interpolator_id',
+              allowNull: false
+            }
+          });
+
         }
       }
     }
   );
 
-  return Collector;
+  return Interpolator;
 };
