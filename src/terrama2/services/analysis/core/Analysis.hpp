@@ -69,8 +69,8 @@ namespace terrama2
         {
           // value 1 should not be used, implicitly used in DCP_TYPE
           MONITORED_OBJECT_TYPE = 2, //!< Analysis for monitored objects.
-          DCP_TYPE = 3, //!< Analysis for DCP.
           GRID_TYPE = 4, //!< Analysis for grids.
+          DCP_TYPE = 8, //!< Analysis for DCP.
         };
 
         /*!

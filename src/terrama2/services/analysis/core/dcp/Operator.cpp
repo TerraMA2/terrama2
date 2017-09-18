@@ -271,6 +271,18 @@ double terrama2::services::analysis::core::dcp::variance(const std::string& attr
   return operatorImpl(StatisticOperation::VARIANCE, attribute, ids);
 }
 
+boost::python::list terrama2::services::analysis::core::dcp::influence::python::byRule(const terrama2::services::analysis::core::Buffer& buffer)
+{
+  auto vecDCP = influence::byRule(buffer);
+
+  boost::python::list pyList;
+  for(const auto& dcp : vecDCP)
+  {
+    pyList.append(boost::python::object(dcp));
+  }
+  return pyList;
+}
+
 std::vector< std::string > terrama2::services::analysis::core::dcp::influence::byRule(const terrama2::services::analysis::core::Buffer& buffer)
 {
   OperatorCache cache;
