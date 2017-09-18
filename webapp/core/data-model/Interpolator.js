@@ -18,9 +18,12 @@
     this.resolution_x =  params.resolution_x;
     this.resolution_y = params.resolution_y;
     this.srid = params.srid;
-    this.schedule = params.schedule || {};
+    this.schedule_type = params.schedule_type;
     this.schedule = params.schedule || {};
     this.automaticSchedule = params.automaticSchedule || {};
+    this.dataSeriesOutput = params.dataSeriesOutput || {};
+    this.dataSeriesInput = params.dataSeriesInput || {};
   }
 
+  module.exports = Interpolator;
 }());
