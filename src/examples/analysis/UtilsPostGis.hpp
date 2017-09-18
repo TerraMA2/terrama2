@@ -59,6 +59,7 @@ namespace examples
     const std::string history_dcp_result = "history_dcp_result";
     const std::string dcp_history_interval_result = "dcp_history_interval_result";
     const std::string occurrence_analysis_result = "occurrence_analysis_result";
+    const std::string zonal_history_ratio_analysis_result = "zonal_history_ratio_analysis_result";
 
     //DataProvider Collector_intent
     terrama2::core::DataProviderPtr dataProviderPostGis()
@@ -171,7 +172,7 @@ namespace examples
                                             "datasets": [
                                               {
                                                 "class": "DataSet",
-                                                "id": 2,
+                                                "id": 3,
                                                 "data_series_id": 3,
                                                 "active": true,
                                                 "format": {

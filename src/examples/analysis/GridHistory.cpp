@@ -23,6 +23,8 @@
 
 #include <terrama2/Config.hpp>
 
+#include "UtilsGeotiff.hpp"
+
 // QT
 #include <QTimer>
 #include <QCoreApplication>
@@ -76,66 +78,25 @@ int main(int argc, char* argv[])
 
 
     // DataProvider information
-    std::shared_ptr<terrama2::core::DataProvider> dataProvider = std::make_shared<terrama2::core::DataProvider>();
-    dataProvider->uri = "file://" + TERRAMA2_DATA_DIR + "/geotiff/historical";
-    dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
-    dataProvider->dataProviderType = "FILE";
-    dataProvider->active = true;
-    dataProvider->id = 1;
-    dataProvider->name = "Local Geotiff";
-
+    auto dataProvider = terrama2::examples::analysis::utilsgeotiff::dataProviderFile();
     dataManager->add(dataProvider);
 
-    auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
 
     //DataSeries information
-    std::shared_ptr<terrama2::core::DataSeries> outputDataSeries = std::make_shared<terrama2::core::DataSeries>();
-    outputDataSeries->semantics = semanticsManager.getSemantics("GRID-gdal");
-    outputDataSeries->name = "Output Grid";
-    outputDataSeries->id = 5;
-    outputDataSeries->dataProviderId = 1;
-    outputDataSeries->active = true;
-
-    terrama2::core::DataSetGrid* outputDataSet = new terrama2::core::DataSetGrid();
-    outputDataSet->active = true;
-    outputDataSet->format.emplace("mask", "output_history_grid.tif");
-    outputDataSet->id = 30;
-    outputDataSet->dataSeriesId = outputDataSeries->id;
-
-    outputDataSeries->datasetList.emplace_back(outputDataSet);
-
+    auto outputDataSeries =  terrama2::examples::analysis::utilsgeotiff::outputDataSeries(dataProvider);
     dataManager->add(outputDataSeries);
 
-    dataManager->add(dataProvider);
 
 
+    auto dataSeries = terrama2::examples::analysis::utilsgeotiff::dataSeries(dataProvider);
+    dataManager->add(dataSeries);
 
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Data Series 1
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    std::shared_ptr<terrama2::core::DataSeries> dataSeries1 = std::make_shared<terrama2::core::DataSeries>();
-    dataSeries1->semantics = semanticsManager.getSemantics("GRID-gdal");
-    dataSeries1->name = "geotiff 1";
-    dataSeries1->id = 1;
-    dataSeries1->dataProviderId = 1;
-    dataSeries1->active = true;
-
-    terrama2::core::DataSetGrid* dataSet1 = new terrama2::core::DataSetGrid();
-    dataSet1->active = true;
-    dataSet1->format.emplace("mask", "%YYYY%MM%DD_%hh%mm%ss.tif");
-    dataSet1->format.emplace("timezone", "UTC+00");
-    dataSet1->id = 1;
-
-    dataSeries1->datasetList.emplace_back(dataSet1);
 
     AnalysisDataSeries gridADS1;
     gridADS1.id = 1;
-    gridADS1.dataSeriesId = dataSeries1->id;
+    gridADS1.dataSeriesId = dataSeries->id;
     gridADS1.type = AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE;
 
-
-    dataManager->add(dataSeries1);
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Analysis
@@ -149,7 +110,7 @@ int main(int argc, char* argv[])
     analysis->type = AnalysisType::GRID_TYPE;
     analysis->active = true;
     analysis->outputDataSeriesId = outputDataSeries->id;
-    analysis->outputDataSetId = outputDataSet->id;
+    analysis->outputDataSetId = outputDataSeries->datasetList.front()->id;
     analysis->serviceInstanceId = 1;
 
     std::vector<AnalysisDataSeries> analysisDataSeriesList;
