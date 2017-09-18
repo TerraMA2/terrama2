@@ -275,8 +275,7 @@ std::vector< std::string > terrama2::services::analysis::core::dcp::zonal::influ
       auto dcpInfluenceBuffer = context->getDCPBuffer(dcpDataset->id);
       if(!dcpInfluenceBuffer)
       {
-        dcpInfluenceBuffer = zonal::createDCPInfluenceBuffer(analysis, dcpDataset->position, geomResult->getSRID(),
-        influenceType);
+        dcpInfluenceBuffer = zonal::createDCPInfluenceBuffer(analysis, dcpDataset->position, geomResult->getSRID(), influenceType);
         context->addDCPBuffer(dcpDataset->id, dcpInfluenceBuffer);
       }
 

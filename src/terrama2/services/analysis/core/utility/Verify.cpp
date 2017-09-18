@@ -38,11 +38,11 @@
 #include <QObject>
 #include <QString>
 
-void terrama2::services::analysis::core::verify::analysisType(terrama2::services::analysis::core::AnalysisPtr analysis, terrama2::services::analysis::core::AnalysisType analysisType)
+void terrama2::services::analysis::core::verify::analysisType(terrama2::services::analysis::core::AnalysisPtr analysis, int analysisType)
 {
   // Use bitwise comparison
   // DCP_TYPE is a special case of MONITORED_OBJECT_TYPE, thus testing MONITORED_OBJECT_TYPE & DCP_TYPE returns true.
-  if((static_cast<int>(analysis->type) & static_cast<int>(analysisType)) == 0)
+  if((static_cast<int>(analysis->type) & analysisType) == 0)
   {
     QString errMsg = QObject::tr("Wrong analysis type.");
     throw terrama2::core::VerifyException() << terrama2::ErrorDescription(errMsg);
@@ -51,17 +51,18 @@ void terrama2::services::analysis::core::verify::analysisType(terrama2::services
 
 void terrama2::services::analysis::core::verify::analysisGrid(const terrama2::services::analysis::core::AnalysisPtr analysis)
 {
-  analysisType(analysis, terrama2::services::analysis::core::AnalysisType::GRID_TYPE);
+  analysisType(analysis, static_cast<int>(terrama2::services::analysis::core::AnalysisType::GRID_TYPE));
 }
 
 void terrama2::services::analysis::core::verify::analysisMonitoredObject(const terrama2::services::analysis::core::AnalysisPtr analysis)
 {
-  analysisType(analysis, terrama2::services::analysis::core::AnalysisType::MONITORED_OBJECT_TYPE);
+  // DCP_TYPE is a special case of MONITORED_OBJECT_TYPE, thus testing MONITORED_OBJECT_TYPE & DCP_TYPE returns true.
+  analysisType(analysis, static_cast<int>(terrama2::services::analysis::core::AnalysisType::DCP_TYPE) | static_cast<int>(terrama2::services::analysis::core::AnalysisType::MONITORED_OBJECT_TYPE));
 }
 
 void terrama2::services::analysis::core::verify::analysisDCP(const terrama2::services::analysis::core::AnalysisPtr analysis)
 {
-  analysisType(analysis, terrama2::services::analysis::core::AnalysisType::DCP_TYPE);
+  analysisType(analysis, static_cast<int>(terrama2::services::analysis::core::AnalysisType::DCP_TYPE));
 }
 
 std::set<std::string> terrama2::services::analysis::core::verify::inactiveDataSeries(DataManagerPtr dataManager, AnalysisPtr analysis)
