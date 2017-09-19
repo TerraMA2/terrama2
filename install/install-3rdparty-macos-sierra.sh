@@ -77,40 +77,13 @@ function valid()
   fi
 }
 
-
-#
-# Check for terrama2-3rdparty-macos-sierra.tar.gz
-#
-if [ ! -f ./terrama2-3rdparty-macos-sierra.tar.gz ]; then
-  echo "Please, make sure to have terrama2-3rdparty-macos-sierra.tar.gz in the current directory!"
-  exit
-fi
-
-#
-# Extract packages
-#
-echo "extracting packages..."
-sleep 1s
-
-tar xzvf terrama2-3rdparty-macos-sierra.tar.gz
-valid $? "Error: could not extract 3rd party libraries (terrama2-3rdparty-macos-sierra.tar.gz)"
-
-echo "packages extracted!"
-sleep 1s
-
-#
-# Go to 3rd party libraries dir
-#
-cd terrama2-3rdparty-macos-sierra
-valid $? "Error: could not enter 3rd-party libraries dir (terrama2-3rdparty-macos-sierra)"
-
 #
 # Check installation dir
 #
-if [ "$1" == "" ]; then
- TERRAMA2_DEPENDENCIES_DIR="$HOME/mylibs-teste"
-else
- TERRAMA2_DEPENDENCIES_DIR="$1"
+
+if [ -z "$TERRAMA2_DEPENDENCIES_DIR" ]; then
+  echo "Please, select the installation folder of the third-party libraries through the variable TERRAMA2_DEPENDENCIES_DIR."
+  exit
 fi
 
 export PATH=$PATH:$HOME/Qt5.4.1/5.4/clang_64/bin:/Applications/CMake.app/Contents/bin
@@ -229,6 +202,7 @@ fi
 # Finished!
 #
 clear
+echo ""
 echo "****************************************"
 echo "* TerraMA2 Installer for Mac OS Sierra *"
 echo "****************************************"

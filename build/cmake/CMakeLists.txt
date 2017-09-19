@@ -517,24 +517,6 @@ install(DIRECTORY ${TERRAMA2_ABSOLUTE_ROOT_DIR}/third-party
 #
 # Generate a post installation script with the installation folder
 #
-<<<<<<< HEAD
-configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postinst.in
-               ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postinst @ONLY)
-configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/prerm.in
-              ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/prerm @ONLY)
-configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postrm.in
-               ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postrm @ONLY)
-
-install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/remove-config.py
-        DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT scripts)
-# Copy instalation and removal scripts
-install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postinst
-        DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT scripts)
-install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/prerm
-        DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT scripts)
-install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postrm
-        DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT scripts)
-=======
 if(APPLE)
 
  install(DIRECTORY ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/mac/
@@ -565,7 +547,6 @@ elseif(UNIX)
           DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT scripts)  
 endif()
 
->>>>>>> Adding support for Mac package generation
 #
 # If generating a deb package the script is executed by the debian post install configuration
 # sa: build/cmake/terrama2-cpack-options.cmake.in
