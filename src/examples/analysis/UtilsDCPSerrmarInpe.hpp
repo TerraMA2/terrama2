@@ -105,7 +105,7 @@ namespace terrama2
                                              {
                                                 "class": "DataSet",
                                                 "id": 3,
-                                                "data_series_id": 2,
+                                                "data_series_id": 25,
                                                 "active": true,
                                                 "position": "SRID=4618;POINT(-44.941000 -23.074000)",
                                                 "format": {
@@ -156,6 +156,54 @@ namespace terrama2
             QJsonObject obj = doc.object();
             return terrama2::core::fromDataSeriesJson(obj);
     }
+
+     //DCP  PICINGUABA, ITANHAEM
+     terrama2::core::DataSeriesPtr dataSeries2DCP(terrama2::core::DataProviderPtr dataProvider)
+     {
+
+                QString json = QString(R"x(
+                                            {
+                                                "class": "DataSeries",
+                                                "id": 27,
+                                                "name": "Monitored Object",
+                                                "description": null,
+                                                "data_provider_id":  %1,
+                                                "semantics": "DCP-inpe",
+                                                "active": true,
+                                                "datasets":[
+                                                     {
+                                                        "class": "DataSet",
+                                                        "id": 28,
+                                                        "data_series_id": 27,
+                                                        "active": true,
+                                                        "position": "SRID=4618;POINT(-44.85 -23.355)",
+                                                        "format": {
+                                                            "mask": "30887.txt",
+                                                            "alias": "dcp_30887",
+                                                            "timezone": "-02:00"
+                                                        }
+                                                     },
+                                                     {
+                                                        "class": "DataSet",
+                                                        "id": 29,
+                                                        "data_series_id": 27,
+                                                        "active": true,
+                                                        "position": "SRID=4618;POINT(-46.79 -23.408000)",
+                                                        "format": {
+                                                            "mask": "30889.txt",
+                                                            "alias": "dcp_30889",
+                                                            "timezone": "-02:00"
+                                                        }
+                                                     }
+                                                ]
+                                               }
+                                             )x"
+                                           ).arg(dataProvider->id);
+                    QJsonDocument doc = QJsonDocument::fromJson(json.toUtf8());
+                    QJsonObject obj = doc.object();
+                    return terrama2::core::fromDataSeriesJson(obj);
+      }
+
 
     }  // end namespace utilsdcpserrmarinpe
    }  // end namespace analysis
