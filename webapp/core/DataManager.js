@@ -5500,5 +5500,35 @@ var DataManager = module.exports = {
           return reject(err);
         });
     });
+  },
+
+  listInterpolators: function(restriction, options) {
+    return new Promise(function(resolve, reject){
+      return resolve(["list"]);
+    });
+  },
+
+  getInterpolator: function(restriction, options){
+    return new Promise(function(resolve, reject){
+      return resolve("interpolator");
+    });
+  },
+
+  addInterpolator: function(interpolatorObject, options){
+    return new Promise(function(resolve, reject){
+      return resolve("saved");
+    });
+  },
+
+  updateInterpolator: function(restriction, interpolatorObject, options){
+    return new Promise(function(resolve, reject){
+      return resolve("updated");
+    });
+  },
+
+  removeInterpolator: function(restriction, options){
+    return new Promise(function(resolve, reject){
+      return resolve("removed");
+    });
   }
 };
