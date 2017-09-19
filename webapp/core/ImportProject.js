@@ -52,44 +52,26 @@ var ImportProject = function(json){
       switch(type){
         case 'provider':
           var providers = DataManager.listDataProviders(restriction);
-          if (providers.length > 0)
-            return Promise.resolve(true);
-          else
-            return Promise.resolve(false);
+          return Promise.resolve(providers.length > 0);
         case 'dataseries':
           return DataManager.listDataSeries(restriction, options).then(function(dataSeries){
-            if (dataSeries.length > 0)
-              return Promise.resolve(true);
-            else
-              return Promise.resolve(false);
+            return Promise.resolve(dataSeries.length > 0);
           });
         case 'analysis':
           return DataManager.listAnalysis(restriction, options).then(function(analysis){
-            if (analysis.length > 0)
-              return Promise.resolve(true);
-            else
-              return Promise.resolve(false);
+            return Promise.resolve(analysis.length > 0);
           });
         case 'view':
           return DataManager.listViews(restriction, options).then(function(views){
-            if (views.length > 0)
-              return Promise.resolve(true);
-            else
-              return Promise.resolve(false);
+            return Promise.resolve(views.length > 0);
         });
         case 'legend':
           return DataManager.listLegends(restriction, options).then(function(legends){
-            if (legends.length > 0)
-              return Promise.resolve(true);
-            else
-              return Promise.resolve(false);
+            return Promise.resolve(legends.length > 0);
         });
         case 'alert':
           return DataManager.listAlerts(restriction, options).then(function(alerts){
-            if (alerts.length > 0)
-              return Promise.resolve(true);
-            else
-              return Promise.resolve(false);
+            return Promise.resolve(alerts.length > 0);
         });
         default:
           return Promise.resolve(false);
@@ -125,8 +107,7 @@ var ImportProject = function(json){
         var dataProviders = json.DataProviders || [];
         output.DataProviders = [];
         dataProviders.forEach(function(dataProvider) {
-          promises.push(nameAlreadyInUse(dataProvider.name, 'provider').then(function(result){
-            var nameInUse = result;
+          promises.push(nameAlreadyInUse(dataProvider.name, 'provider').then(function(nameInUse){
             if (nameInUse && !thereAreProjects)
               dataProvider.name += json.selectedProject;
             dataProvider.data_provider_type_id = dataProvider.data_provider_type.id;
@@ -164,8 +145,7 @@ var ImportProject = function(json){
           };
 
           dataSeries.forEach(function(dSeries) {
-            promises.push(nameAlreadyInUse(dSeries.name, 'dataseries').then(function(result){
-              var nameInUse = result;
+            promises.push(nameAlreadyInUse(dSeries.name, 'dataseries').then(function(nameInUse){
               if (nameInUse && !thereAreProjects)
                 dSeries.name += json.selectedProject;
               // preparing to insert in DataBase
@@ -274,8 +254,7 @@ var ImportProject = function(json){
               if(json.Analysis) {
                 var analysisList = json.Analysis || [];
                 analysisList.forEach(function(analysis) {
-                  promises.push(nameAlreadyInUse(analysis.name, 'analysis').then(function(result){
-                    var nameInUse = result;
+                  promises.push(nameAlreadyInUse(analysis.name, 'analysis').then(function(nameInUse){
                     if (nameInUse && !thereAreProjects)
                       analysis.name += json.selectedProject;
                     analysis.analysisDataSeries = analysis.analysis_dataseries_list;
@@ -375,8 +354,7 @@ var ImportProject = function(json){
                   }
                   var viewsList = json.Views || [];
                   viewsList.forEach(function(view) {
-                    promises.push(nameAlreadyInUse(view.name, 'view').then(function(result){
-                      var nameInUse = result;
+                    promises.push(nameAlreadyInUse(view.name, 'view').then(function(nameInUse){
                       if (nameInUse && !thereAreProjects)
                         view.name += json.selectedProject;
 
@@ -435,8 +413,7 @@ var ImportProject = function(json){
                     output.Legends = [];
 
                     legendsList.forEach(function(legend) {
-                      promises.push(nameAlreadyInUse(legend.name, 'legend').then(function(result){
-                        var nameInUse = result;
+                      promises.push(nameAlreadyInUse(legend.name, 'legend').then(function(nameInUse){
                         if (nameInUse && !thereAreProjects)
                           legend.name += json.selectedProject;
 
@@ -463,8 +440,7 @@ var ImportProject = function(json){
                       var alertsList = json.Alerts || [];
 
                       alertsList.forEach(function(alert) {
-                        promises.push(nameAlreadyInUse(alert.name, 'alert').then(function(result){
-                          var nameInUse = result;
+                        promises.push(nameAlreadyInUse(alert.name, 'alert').then(function(nameInUse){
                           if (nameInUse && !thereAreProjects)
                             alert.name += json.selectedProject;
 
