@@ -197,43 +197,90 @@ int terrama2::services::analysis::core::dcp::count(Buffer buffer)
 
 double terrama2::services::analysis::core::dcp::min(const std::string& attribute, boost::python::list ids)
 {
+  if(ids.is_none())
+  {
+    auto all_dcps = influence::all(true);
+    std::for_each(all_dcps.begin(), all_dcps.end(), [&ids](const std::string& dcp_name){ids.append(boost::python::object(dcp_name));});
+  }
   return operatorImpl(StatisticOperation::MIN, attribute, ids);
 }
 
 double terrama2::services::analysis::core::dcp::max(const std::string& attribute,
     boost::python::list ids)
 {
+  if(ids.is_none())
+  {
+    auto all_dcps = influence::all(true);
+    std::for_each(all_dcps.begin(), all_dcps.end(), [&ids](const std::string& dcp_name){ids.append(boost::python::object(dcp_name));});
+  }
   return operatorImpl(StatisticOperation::MAX, attribute, ids);
 }
 
 double terrama2::services::analysis::core::dcp::mean(const std::string& attribute,
     boost::python::list ids)
 {
+  if(ids.is_none())
+  {
+    auto all_dcps = influence::all(true);
+    std::for_each(all_dcps.begin(), all_dcps.end(), [&ids](const std::string& dcp_name){ids.append(boost::python::object(dcp_name));});
+  }
   return operatorImpl(StatisticOperation::MEAN, attribute, ids);
 }
 
 double terrama2::services::analysis::core::dcp::median(const std::string& attribute,
     boost::python::list ids)
 {
+  if(ids.is_none())
+  {
+    auto all_dcps = influence::all(true);
+    std::for_each(all_dcps.begin(), all_dcps.end(), [&ids](const std::string& dcp_name){ids.append(boost::python::object(dcp_name));});
+  }
   return operatorImpl(StatisticOperation::MEDIAN, attribute, ids);
 }
 
 double terrama2::services::analysis::core::dcp::sum(const std::string& attribute,
     boost::python::list ids)
 {
+  if(ids.is_none())
+  {
+    auto all_dcps = influence::all(true);
+    std::for_each(all_dcps.begin(), all_dcps.end(), [&ids](const std::string& dcp_name){ids.append(boost::python::object(dcp_name));});
+  }
   return operatorImpl(StatisticOperation::SUM, attribute, ids);
 }
 
 double terrama2::services::analysis::core::dcp::standardDeviation(const std::string& attribute,
                                                                   boost::python::list ids)
 {
+  if(ids.is_none())
+  {
+    auto all_dcps = influence::all(true);
+    std::for_each(all_dcps.begin(), all_dcps.end(), [&ids](const std::string& dcp_name){ids.append(boost::python::object(dcp_name));});
+  }
   return operatorImpl(StatisticOperation::STANDARD_DEVIATION, attribute, ids);
 }
 
 double terrama2::services::analysis::core::dcp::variance(const std::string& attribute,
                                                          boost::python::list ids)
 {
+  if(ids.is_none())
+  {
+    auto all_dcps = influence::all(true);
+    std::for_each(all_dcps.begin(), all_dcps.end(), [&ids](const std::string& dcp_name){ids.append(boost::python::object(dcp_name));});
+  }
   return operatorImpl(StatisticOperation::VARIANCE, attribute, ids);
+}
+
+boost::python::list terrama2::services::analysis::core::dcp::influence::python::byRule(const terrama2::services::analysis::core::Buffer& buffer)
+{
+  auto vecDCP = influence::byRule(buffer);
+
+  boost::python::list pyList;
+  for(const auto& dcp : vecDCP)
+  {
+    pyList.append(boost::python::object(dcp));
+  }
+  return pyList;
 }
 
 std::vector< std::string > terrama2::services::analysis::core::dcp::influence::byRule(const terrama2::services::analysis::core::Buffer& buffer)
@@ -262,6 +309,55 @@ std::vector< std::string > terrama2::services::analysis::core::dcp::influence::b
     {
       auto dataSeriesPtr = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
       return zonal::influence::byRule(dataSeriesPtr->name, buffer);
+    }
+  }
+
+  contextManager.addError(cache.analysisHashCode, QObject::tr("Unable to find DCP monitored object for analysis %1.").arg(analysis->id).toStdString());
+  return {};
+}
+
+std::vector< std::string > terrama2::services::analysis::core::dcp::influence::all(bool isActive)
+{
+  OperatorCache cache;
+  terrama2::services::analysis::core::python::readInfoFromDict(cache);
+
+  auto& contextManager = ContextManager::getInstance();
+  auto analysis = cache.analysisPtr;
+  try
+  {
+    terrama2::services::analysis::core::verify::analysisDCP(analysis);
+  }
+  catch (const terrama2::core::VerifyException&)
+  {
+    contextManager.addError(cache.analysisHashCode, QObject::tr("Use of invalid operator for analysis %1.").arg(analysis->id).toStdString());
+    return {};
+  }
+
+  auto monitoredObjectContext = contextManager.getMonitoredObjectContext(cache.analysisHashCode);
+  auto dataManagerPtr = monitoredObjectContext->getDataManager().lock();
+
+  for(const auto& analysisDataSeries : analysis->analysisDataSeriesList)
+  {
+    if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE)
+    {
+      std::vector< std::string > vecDCP;
+      auto dataSeriesPtr = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
+      for(const auto& dataset : dataSeriesPtr->datasetList)
+      {
+        auto dcpDataset = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(dataset);
+        if(!dcpDataset)
+        {
+          QString errMsg(QObject::tr("Invalid dataset for data series: ").arg(QString::fromStdString(dataSeriesPtr->name)));
+          throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
+        }
+
+        if(isActive && dcpDataset->active)//only add active DCP
+          vecDCP.push_back(dcpDataset->alias());
+        else
+          vecDCP.push_back(dcpDataset->alias());
+      }
+
+      return vecDCP;
     }
   }
 

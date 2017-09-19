@@ -243,7 +243,7 @@ namespace terrama2
         std::string schema_ = "terrama2";
         std::string tableName_ = "";
         std::string messagesTableName_ = "";
-        DataSourcePtr dataSource_;
+        mutable DataSourcePtr dataSource_;
         bool isValid_ = false;
         bool consistent_ = false;
 

@@ -349,7 +349,7 @@ void terrama2::services::analysis::core::python::addValue(const std::string& att
   try
   {
     AnalysisPtr analysis = context->getAnalysis();
-    verify::analysisType(analysis, AnalysisType::MONITORED_OBJECT_TYPE);
+    verify::analysisMonitoredObject(analysis);
 
     if(pyObjValue.is_none())
     {
@@ -565,7 +565,6 @@ std::string terrama2::services::analysis::core::python::prepareScript(AnalysisPt
                    "def analysis():\n"
                    + formatedScript;
 
-  std::cout << "\n\n\n" << formatedScript << "\n\n\n";
   return formatedScript;
 }
 
