@@ -60,8 +60,13 @@ namespace examples
     const std::string dcp_history_interval_result = "dcp_history_interval_result";
     const std::string occurrence_analysis_result = "occurrence_analysis_result";
     const std::string zonal_history_ratio_analysis_result = "zonal_history_ratio_analysis_result";
+    const std::string zonal_analysis_result = "zonal_analysis_result";
+    const std::string analysis_dcp_result = "analysis_dcp_result";
 
-    //DataProvider Collector_intent
+
+
+
+
     terrama2::core::DataProviderPtr dataProviderPostGis()
     {
         QString json = QString(R"(
