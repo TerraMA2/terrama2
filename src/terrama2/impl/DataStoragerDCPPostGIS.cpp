@@ -101,7 +101,8 @@ void terrama2::core::DataStoragerDCPPostGIS::storePositions(const std::unordered
 
 // create properties
   auto geomProperty = new te::gm::GeometryProperty(GEOM_PROPERTY_NAME, true);
-  geomProperty->setGeometryType(te::gm::GeometryType);
+  geomProperty->setGeometryType(te::gm::PointType);
+  geomProperty->setSRID(4326);
   newDataSetType->add(geomProperty);
   auto teableNameProperty = new te::dt::StringProperty(TABLE_NAME_PROPERTY_NAME);
   newDataSetType->add(teableNameProperty);
@@ -121,7 +122,9 @@ void terrama2::core::DataStoragerDCPPostGIS::storePositions(const std::unordered
     auto dataSetDcp = std::dynamic_pointer_cast<const DataSetDcp>(*outputDataSet);
     auto dataSetItem = std::unique_ptr<te::mem::DataSetItem>(new te::mem::DataSetItem(dataset.get()));
     dataSetItem->setInt32(ID_PROPERTY_NAME, outputDataSetId);
-    dataSetItem->setGeometry(GEOM_PROPERTY_NAME, static_cast<te::gm::Geometry*>(dataSetDcp->position->clone()));
+    auto locale = dataSetDcp->position->clone();
+    locale->transform(4326);
+    dataSetItem->setGeometry(GEOM_PROPERTY_NAME, locale);
     dataSetItem->setString(TABLE_NAME_PROPERTY_NAME, destinationDataSetName);
 
     dataset->add(dataSetItem.release());
