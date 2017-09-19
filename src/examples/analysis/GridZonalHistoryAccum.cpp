@@ -26,6 +26,8 @@
 
 
 #include <terrama2/Config.hpp>
+#include "UtilsPostGis.hpp"
+#include "UtilsGeotiff.hpp"
 
 // QT
 #include <QTimer>
@@ -82,81 +84,29 @@ int main(int argc, char* argv[])
     service.start();
 
     // DataProvider information
-    std::shared_ptr<terrama2::core::DataProvider> outputDataProvider = std::make_shared<terrama2::core::DataProvider>();
-    outputDataProvider->id = 3;
-    outputDataProvider->name = "DataProvider postgis";
-    outputDataProvider->uri = uri.uri();
-    outputDataProvider->intent = terrama2::core::DataProviderIntent::PROCESS_INTENT;
-    outputDataProvider->dataProviderType = "POSTGIS";
-    outputDataProvider->active = true;
-
-    dataManager->add(outputDataProvider);
-
-    auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
+    auto dataProvider = terrama2::examples::analysis::utilspostgis::dataProviderPostGis();
+    dataManager->add(dataProvider);
 
     // DataSeries information
-    std::shared_ptr<terrama2::core::DataSeries> outputDataSeries = std::make_shared<terrama2::core::DataSeries>();
-    outputDataSeries->id = 3;
-    outputDataSeries->name = "Analysis result";
-    outputDataSeries->semantics = semanticsManager.getSemantics("ANALYSIS_MONITORED_OBJECT-postgis");
-    outputDataSeries->dataProviderId = outputDataProvider->id;
-
-
-    // DataSet information
-    terrama2::core::DataSet* outputDataSet = new terrama2::core::DataSet();
-    outputDataSet->active = true;
-    outputDataSet->id = 2;
-    outputDataSet->dataSeriesId = outputDataSeries->id;
-    outputDataSet->format.emplace("table_name", "zonal_history_ratio_analysis_result");
-
-    outputDataSeries->datasetList.emplace_back(outputDataSet);
-
-
+    auto outputDataSeries = terrama2::examples::analysis::utilspostgis::outputDataSeriesPostGis(dataProvider, terrama2::examples::analysis::utilspostgis::zonal_history_ratio_analysis_result);
     dataManager->add(outputDataSeries);
 
     std::shared_ptr<terrama2::services::analysis::core::Analysis> analysis = std::make_shared<terrama2::services::analysis::core::Analysis>();
     analysis->id = 1;
     analysis->name = "Analysis";
     analysis->active = true;
-    analysis->outputDataSetId = outputDataSet->id;
-
     std::string script = "x = grid.zonal.history.accum.max(\"geotiff 1\", \"30d\")\n"
                          "add_value(\"max\", x)\n";
 
     analysis->script = script;
-    analysis->outputDataSeriesId = 3;
+    analysis->outputDataSeriesId = outputDataSeries->id;
+    analysis->outputDataSetId = outputDataSeries->datasetList.front()->id;
     analysis->scriptLanguage = ScriptLanguage::PYTHON;
     analysis->type = AnalysisType::MONITORED_OBJECT_TYPE;
     analysis->serviceInstanceId = 1;
 
-    std::shared_ptr<terrama2::core::DataProvider> dataProvider = std::make_shared<terrama2::core::DataProvider>();
-    dataProvider->name = "Provider";
-    dataProvider->uri = uri.uri();
-    dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
-    dataProvider->dataProviderType = "POSTGIS";
-    dataProvider->active = true;
-    dataProvider->id = 1;
 
-    dataManager->add(dataProvider);
-
-
-    std::shared_ptr<terrama2::core::DataSeries> dataSeries = std::make_shared<terrama2::core::DataSeries>();
-    dataSeries->dataProviderId = dataProvider->id;
-    dataSeries->semantics = semanticsManager.getSemantics("STATIC_DATA-postgis");
-    dataSeries->semantics.dataSeriesType = terrama2::core::DataSeriesType::GEOMETRIC_OBJECT;
-    dataSeries->name = "Monitored Object";
-    dataSeries->id = 1;
-    dataSeries->dataProviderId = 1;
-    dataSeries->active = true;
-
-    //DataSet information
-    std::shared_ptr<terrama2::core::DataSet> dataSet = std::make_shared<terrama2::core::DataSet>();
-    dataSet->active = true;
-    dataSet->format.emplace("table_name", "estados_2010");
-    dataSet->id = 1;
-    dataSet->dataSeriesId = 1;
-
-    dataSeries->datasetList.push_back(dataSet);
+    auto dataSeries = terrama2::examples::analysis::utilspostgis::dataSeriesPostGis(dataProvider);
     dataManager->add(dataSeries);
 
     AnalysisDataSeries monitoredObjectADS;
@@ -167,40 +117,17 @@ int main(int argc, char* argv[])
 
 
     // DataProvider information
-    std::shared_ptr<terrama2::core::DataProvider> dataProvider2 = std::make_shared<terrama2::core::DataProvider>();
-    dataProvider2->uri = "file://"+TERRAMA2_DATA_DIR+"/geotiff";
-    dataProvider2->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
-    dataProvider2->dataProviderType = "FILE";
-    dataProvider2->active = true;
-    dataProvider2->id = 2;
-    dataProvider2->name = "Local Geotiff";
+    auto dataProviderGeoTif = terrama2::examples::analysis::utilsgeotiff::dataProviderFile();
+    dataManager->add(dataProviderGeoTif);
 
-    dataManager->add(dataProvider2);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Data Series 2
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////
-    std::shared_ptr<terrama2::core::DataSeries> dataSeries2 = std::make_shared<terrama2::core::DataSeries>();
-    dataSeries2->semantics = semanticsManager.getSemantics("GRID-static_gdal");
-    dataSeries2->name = "geotiff 1";
-    dataSeries2->id = 2;
-    dataSeries2->dataProviderId = 2;
-    dataSeries2->active = true;
-
-    terrama2::core::DataSetGrid* dataSet1 = new terrama2::core::DataSetGrid();
-    dataSet1->active = true;
-    dataSet1->format.emplace("mask", "Spot_Vegetacao_Jul2001_SP.tif");
-    dataSet1->id = 2;
-
-    dataSeries2->datasetList.emplace_back(dataSet1);
+    auto dataSeriesStaticGdal = terrama2::examples::analysis::utilsgeotiff::dataSeriesStaticGdal(dataProviderGeoTif);
+    dataManager->add(dataSeriesStaticGdal);
 
     AnalysisDataSeries gridADS1;
     gridADS1.id = 2;
-    gridADS1.dataSeriesId = dataSeries2->id;
+    gridADS1.dataSeriesId = dataSeriesStaticGdal->id;
     gridADS1.type = AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE;
 
-
-    dataManager->add(dataSeries2);
 
     std::vector<AnalysisDataSeries> analysisDataSeriesList;
     analysisDataSeriesList.push_back(monitoredObjectADS);

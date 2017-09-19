@@ -88,6 +88,7 @@ int main(int argc, char* argv[])
 
 
 
+    //DATASERIES AND DATASET folder TERRAMA2_DATA_DIR+"/geotiff/historical
     auto dataSeries = terrama2::examples::analysis::utilsgeotiff::dataSeries(dataProvider);
     dataManager->add(dataSeries);
 
