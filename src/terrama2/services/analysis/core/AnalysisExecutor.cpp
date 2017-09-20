@@ -238,29 +238,11 @@ void terrama2::services::analysis::core::AnalysisExecutor::runMonitoredObjectAna
     size_t size = 0;
     for(const auto& analysisDataSeries : analysis->analysisDataSeriesList)
     {
-      if(analysis->type == AnalysisType::MONITORED_OBJECT_TYPE && analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE)
+      if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE)
       {
-        auto dataSeries = dataManager->findDataSeries(analysisDataSeries.dataSeriesId);
-        auto datasets = dataSeries->datasetList;
-        assert(datasets.size() == 1);
-        auto dataset = datasets[0];
-
-        terrama2::core::Filter filter;
-        auto contextDataset = context->getContextDataset(dataset->id, filter);
-        if(!contextDataset->series.syncDataSet->dataset())
-        {
-          QString errMsg = QObject::tr("Could not recover monitored object dataset.");
-          throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
-        }
-        size = contextDataset->series.syncDataSet->size();
-
-        break;
-      }
-
-      if(analysis->type == AnalysisType::DCP_TYPE && analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE)
-      {
-        auto moDataSeries = context->getMonitoredObjectContextDataSeries(dataManager);
+        auto moDataSeries = context->getMonitoredObjectContextDataSeries();
         size = moDataSeries->series.syncDataSet->size();
+        break;
       }
     }
 
@@ -611,7 +593,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeMonitoredObjectA
   te::da::PrimaryKey* pkMonitoredObject = nullptr;
   te::dt::Property* identifierProperty = nullptr;
 
-  moDsContext = context->getMonitoredObjectContextDataSeries(dataManager);
+  moDsContext = context->getMonitoredObjectContextDataSeries();
   if(moDsContext->identifier.empty())
   {
     QString errMsg(QObject::tr("Monitored object identifier is empty."));
