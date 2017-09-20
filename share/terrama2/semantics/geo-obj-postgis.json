@@ -1,6 +1,6 @@
 [
   {
-    "name": "Static geometric object - PostGIS",
+    "name": "Features table (PostgreSQL/PostGIS)",
     "code": "STATIC_DATA-postgis",
     "driver": "STATIC_DATA-postgis",
     "type": "GEOMETRIC_OBJECT",

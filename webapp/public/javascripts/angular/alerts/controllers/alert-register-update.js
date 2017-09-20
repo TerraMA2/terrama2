@@ -190,6 +190,12 @@ define([], function() {
       }
     };
 
+    var hasProjectPermission = config.hasProjectPermission;
+    
+    if (self.isUpdating && !hasProjectPermission){
+      MessageBoxService.danger(i18n.__("Permission"), i18n.__("You can not edit this alert. He belongs to a protected project!"));
+    }
+    
     // Flag to verify if can not save if the service is not running
     var canSave = true;
     var serviceOfflineMessage = "If service is not running you can not save the alert. Start the service before create or update an alert!";
@@ -616,7 +622,6 @@ define([], function() {
             canSave = false;
           } else {
             canSave = true;
-            self.close();
           }
         }
       }
@@ -656,6 +661,10 @@ define([], function() {
       if(self.isNotValid) {
         self.MessageBoxService.danger(i18n.__("Alerts"), errMessageInvalidFields);
         return;
+      }
+
+      if (self.isUpdating && !hasProjectPermission){
+        return MessageBoxService.danger(i18n.__("Permission"), i18n.__("You can not edit this alert. He belongs to a protected project!"));
       }
 
       if (!canSave){

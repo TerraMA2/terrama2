@@ -180,7 +180,8 @@ We have the following branches:
 - **b-4.0.0-beta1:** GDAL driver for raster and Generic CSV driver for occurrences and DCP
 - **b-4.0.0-beta2:** Alert service
 - **b-4.0.0-beta3:** Improvements to WebMonitor
-- **b-4.0.0-rc1:** *under development*
+- **b-4.0.0-rc1:** Analysis DCP and improvements to WebMonitor
+- **b-4.0.0-rc2:** Analysis DCP and lots of minor improvements
 
 For a more complete releases info, check: https://github.com/TerraMA2/terrama2/releases
 

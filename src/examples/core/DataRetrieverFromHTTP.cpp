@@ -3,6 +3,7 @@
 #include <terrama2/core/Shared.hpp>
 #include <terrama2/impl/DataRetrieverHTTP.hpp>
 #include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/impl/Utils.hpp>
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/Filter.hpp>
 #include <terrama2/core/utility/Raii.hpp>
@@ -28,6 +29,8 @@
 
 int main(int argc, char* argv[])
 {
+  terrama2::core::registerFactories();
+
   QUrl url("http://dadosabertos.rio.rj.gov.br/apiEducacao/apresentacao/csv/");
 
   url.setUserName("");
@@ -49,6 +52,7 @@ int main(int argc, char* argv[])
     dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
     dataProvider->dataProviderType = "HTTP";
     dataProvider->active = true;
+    dataProvider->timeout = 16;
 
     //empty filter
     terrama2::core::Filter filter;

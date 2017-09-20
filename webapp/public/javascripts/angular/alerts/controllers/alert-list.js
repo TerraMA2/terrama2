@@ -209,6 +209,7 @@ define([], function(){
          * @type {Object}
          */
         self.extra = {
+          canRemove: config.hasProjectPermission,
           advancedFilters: [
             {
               name: "Analysis",
@@ -320,6 +321,7 @@ define([], function(){
          * @type {Object}
          */
         self.legendExtra = {
+          canRemove: config.hasProjectPermission,
           removeOperationCallback: function(err, data) {
             if(err && err.message) {
               MessageBoxService.reset();

@@ -51,6 +51,7 @@ te::da::MockDataSet* createMockDataSet()
   EXPECT_CALL(*mockDataSet, getAsString(::testing::An<std::size_t>(),::testing::_)).WillRepeatedly(::testing::Return(""));
   EXPECT_CALL(*mockDataSet, isNull(std::string())).WillRepeatedly(::testing::Return(false));
   EXPECT_CALL(*mockDataSet, getNumProperties()).WillRepeatedly(::testing::Return(0));
+  EXPECT_CALL(*mockDataSet, moveFirst()).WillRepeatedly(::testing::Return(true));
 
   return mockDataSet;
 }
@@ -72,6 +73,8 @@ te::da::MockDataSourceTransactor* createMockDataSourceTransactor()
   EXPECT_CALL(*mockDataSourceTransactor, addPrimaryKey(::testing::An<const std::string&>(), ::testing::_)).WillRepeatedly(::testing::Return());
   EXPECT_CALL(*mockDataSourceTransactor, addForeignKey(::testing::An<const std::string&>(), ::testing::_)).WillRepeatedly(::testing::Return());
   EXPECT_CALL(*mockDataSourceTransactor, escape(::testing::An<const std::string&>())).WillRepeatedly(::testing::Return(""));
+  EXPECT_CALL(*mockDataSourceTransactor, isInTransaction()).WillRepeatedly(::testing::Return(false));
+  EXPECT_CALL(*mockDataSourceTransactor, begin()).WillRepeatedly(::testing::Return());
 
 
   /* Every time the mockDataSourceTransactor object calls a method that returns a DataSet

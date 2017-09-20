@@ -376,5 +376,15 @@ void terrama2::services::view::core::Service::updateAdditionalInfo(const QJsonOb
   if(!obj.contains("maps_server"))
     TERRAMA2_LOG_ERROR() << tr("Missing the Maps Server URI in service additional info!");
   else
+  {
     mapsServerUri_ = te::core::URI(obj["maps_server"].toString().toStdString());
+    auto mapsServer = MapsServerFactory::getInstance().make(mapsServerUri_, "GEOSERVER");
+
+    mapsServerConnectionStatus_ = mapsServer->checkConnection();
+  }
+}
+
+void terrama2::services::view::core::Service::getStatus(QJsonObject& obj) const
+{
+  obj.insert("maps_server_connection", mapsServerConnectionStatus_);
 }

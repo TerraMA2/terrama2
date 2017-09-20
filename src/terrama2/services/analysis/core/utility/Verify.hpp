@@ -47,7 +47,7 @@ namespace terrama2
       {
         namespace verify
         {
-          void analysisType(const terrama2::services::analysis::core::AnalysisPtr analysis, terrama2::services::analysis::core::AnalysisType analysisType);
+          void analysisType(const terrama2::services::analysis::core::AnalysisPtr analysis, int analysisType);
           void analysisGrid(const terrama2::services::analysis::core::AnalysisPtr analysis);
           void analysisMonitoredObject(const terrama2::services::analysis::core::AnalysisPtr analysis);
           void analysisDCP(const terrama2::services::analysis::core::AnalysisPtr analysis);

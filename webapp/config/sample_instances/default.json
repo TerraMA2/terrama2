@@ -1,0 +1,22 @@
+{
+  "basePath": "/",
+  "port": 36000,
+  "defaultFilePath": "/home/<USER>/terrama2",
+  "defaultExecutablePath": "/opt/terrama2/4.0.0/bin",
+  "defaultExecutableName": "terrama2_service",
+  "disablePDF": true,
+  "debug": true,
+  "OGR2OGR": "ogr2ogr",
+  "SHP2PGSQL": "shp2pgsql",
+  "db": {
+    "username": "postgres",
+    "password": "postgres",
+    "database": "terrama2",
+    "host": "127.0.0.1",
+    "dialect": "postgres",
+    "define": {
+      "schema": "terrama2"
+    },
+    "logging": false
+  }
+}

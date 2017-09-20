@@ -17,9 +17,11 @@ define(function() {
       }
     }
 
-    if (conf.dataProvider.data_provider_type_name == 'FTP'){
-      model['active_mode'] = conf.dataProvider.active_mode;
+    if(conf.dataProvider.data_provider_type_name == 'FTP' || conf.dataProvider.data_provider_type_name == 'HTTP' || conf.dataProvider.data_provider_type_name == 'HTTPS') {
       model['timeout'] = conf.dataProvider.timeout;
+
+      if(conf.dataProvider.data_provider_type_name == 'FTP')
+        model['active_mode'] = conf.dataProvider.active_mode;
     }
 
     // forcing port value to number
@@ -94,6 +96,12 @@ define(function() {
       active: conf.dataProvider.active,
       protocol: conf.dataProvider.data_provider_type_name
     };
+
+    var hasProjectPermission = conf.hasProjectPermission;
+    
+    if ($scope.isEditing && !hasProjectPermission){
+      MessageBoxService.danger(i18n.__("Permission"), i18n.__("You can not edit this data server. He belongs to a protected project!"));
+    }
 
     $scope.initActive = function() {
       $scope.dataProvider.active = (conf.dataProvider.active === false || conf.dataProvider.active) ? conf.dataProvider.active : true;
@@ -179,6 +187,11 @@ define(function() {
 
     $scope.save = function() {
       $scope.close();
+
+      if ($scope.isEditing && !hasProjectPermission){
+        return MessageBoxService.danger(i18n.__("Permission"), i18n.__("You can not edit this data server. He belongs to a protected project!"));
+      }
+
       $scope.$broadcast("formFieldValidation");
 
       // calling auto generate form validation

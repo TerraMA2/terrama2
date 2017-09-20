@@ -16,7 +16,7 @@ var _context = "default";
 /**
  * It defines a TerraMA² Monitor configuration.
  * 
- * It loads TerraMA² Monitor configuration (config/monitor.json)
+ * It loads TerraMA² Monitor configuration (config/instances/*.json)
  * 
  * @class Application
  */
@@ -31,16 +31,22 @@ function Application() {
  */
 Application.prototype.load = function() {
 
-  // reading TerraMA² config.json
-  buffer = JSON.parse(fs.readFileSync(path.join(__dirname, "../config/monitor.json"), "utf-8"));
-  _settings = buffer;
+  // reading TerraMA² monitor instances configuration
+  var configFiles = fs.readdirSync(path.join(__dirname, "../config/instances"));
+  var configObject = {};
+  configFiles.forEach(function(configFile){
+    var configFileContent = JSON.parse(fs.readFileSync(path.join(__dirname, "../config/instances/" + configFile), "utf-8"));
+    var configName = configFile.split(".")[0];
+    configObject[configName] = configFileContent;
+  });
+  _settings = configObject;
 
 };
 
 /**
  * It sets current terrama2 context
  *
- * @throws {Error} When a contexts is not in monitor.json 
+ * @throws {Error} When a contexts is not in /config/instances/*.json 
  * @param {string} context
  * @returns {void}
  */
@@ -50,7 +56,7 @@ Application.prototype.setCurrentContext = function(context) {
   }
   // checking if there is a context in configuration file
   if (_settings && !_settings.hasOwnProperty(context)) {
-    var msg = "\"" + context + "\" not found in configuration file. Please check \"webapp/config/monitor.json\"";
+    var msg = "\"" + context + "\" not found in configuration file. Please check \"webapp/config/instances/*.json\"";
     throw new Error(msg);
   }
 

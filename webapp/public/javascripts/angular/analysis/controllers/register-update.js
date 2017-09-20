@@ -30,6 +30,8 @@ define([], function() {
 
     self.columnsList = [];
 
+    var hasProjectPermission = config.hasProjectPermission;
+
     // Flag to verify if can not save if the service is not running
     var canSave = true;
     var serviceOfflineMessage = "If service is not running you can not save the analysis. Start the service before create or update an analysis!";
@@ -136,6 +138,10 @@ define([], function() {
          * It defines if UPDATE mode or SAVE mode
          */
         self.isUpdating = Object.keys(config.analysis).length > 0;
+
+        if (self.isUpdating && !hasProjectPermission){
+          MessageBoxService.danger(i18n.__("Permission"), i18n.__("You can not edit this analysis. He belongs to a protected project!"));
+        }
 
         /**
          * It defines a cached service instances
@@ -255,7 +261,6 @@ define([], function() {
                 MessageBoxService.danger(i18n.__("Analysis"), i18n.__(serviceOfflineMessage));
               } else {
                 canSave = true;
-                self.close();
               }
             }
           }
@@ -410,7 +415,7 @@ define([], function() {
             }
           } else { // if  monitored object or dcp
             self.analysis.metadata.INFLUENCE_TYPE = analysisInstance.metadata.INFLUENCE_TYPE;
-            self.analysis.metadata.INFLUENCE_RADIUS = Number(analysisInstance.metadata.INFLUENCE_RADIUS);
+            self.analysis.metadata.INFLUENCE_RADIUS = !isNaN(Number(analysisInstance.metadata.INFLUENCE_RADIUS)) ? Number(analysisInstance.metadata.INFLUENCE_RADIUS) : undefined;
             self.analysis.metadata.INFLUENCE_RADIUS_UNIT = analysisInstance.metadata.INFLUENCE_RADIUS_UNIT;
             self.analysis.metadata.INFLUENCE_DATASERIES_ID = analysisInstance.metadata.INFLUENCE_DATASERIES_ID;
             self.analysis.metadata.INFLUENCE_ATTRIBUTE = analysisInstance.metadata.INFLUENCE_ATTRIBUTE;
@@ -673,7 +678,7 @@ define([], function() {
               break;
             case AnalysisService.types.MONITORED:
               semanticsType = DataSeriesService.DataSeriesType.ANALYSIS_MONITORED_OBJECT;
-              self.semanticsSelected = i18n.__("Object Monitored");
+              self.semanticsSelected = "Object Monitored";
               dataseriesFilterType = 'GEOMETRIC_OBJECT';
               break;
             default:
@@ -1235,7 +1240,11 @@ define([], function() {
           try {
             var objectToSend = self.$prepare(shouldRun);
 
-            if(!canSave){
+            if (self.isUpdating && !hasProjectPermission){
+              return MessageBoxService.danger(i18n.__("Permission"), i18n.__("You can not edit this analysis. He belongs to a protected project!"));
+            }
+
+            if (!canSave){
               return MessageBoxService.danger(i18n.__("Analysis"), i18n.__(serviceOfflineMessage));
             }
 

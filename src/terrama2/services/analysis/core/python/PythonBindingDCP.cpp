@@ -36,6 +36,14 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-local-typedef"
 
+BOOST_PYTHON_FUNCTION_OVERLOADS(dcpMin_overloads, terrama2::services::analysis::core::dcp::min, 1, 2)
+BOOST_PYTHON_FUNCTION_OVERLOADS(dcpMax_overloads, terrama2::services::analysis::core::dcp::max, 1, 2)
+BOOST_PYTHON_FUNCTION_OVERLOADS(dcpMean_overloads, terrama2::services::analysis::core::dcp::mean, 1, 2)
+BOOST_PYTHON_FUNCTION_OVERLOADS(dcpMedian_overloads, terrama2::services::analysis::core::dcp::median, 1, 2)
+BOOST_PYTHON_FUNCTION_OVERLOADS(dcpSum_overloads, terrama2::services::analysis::core::dcp::sum, 1, 2)
+BOOST_PYTHON_FUNCTION_OVERLOADS(dcpStandardDeviation_overloads, terrama2::services::analysis::core::dcp::standardDeviation, 1, 2)
+BOOST_PYTHON_FUNCTION_OVERLOADS(dcpVariance_overloads, terrama2::services::analysis::core::dcp::variance, 1, 2)
+
 BOOST_PYTHON_FUNCTION_OVERLOADS(dcpHistoryMin_overloads, terrama2::services::analysis::core::dcp::history::min, 2, 3)
 BOOST_PYTHON_FUNCTION_OVERLOADS(dcpHistoryMax_overloads, terrama2::services::analysis::core::dcp::history::max, 2, 3)
 BOOST_PYTHON_FUNCTION_OVERLOADS(dcpHistoryMean_overloads, terrama2::services::analysis::core::dcp::history::mean, 2, 3)
@@ -57,6 +65,7 @@ void terrama2::services::analysis::core::python::DCP::registerFunctions()
   registerDCPFunctions();
   registerDCPHistoryFunctions();
   registerDCPHistoryIntervalFunctions();
+  registerDCPInfluenceFunctions();
 }
 
 void terrama2::services::analysis::core::python::DCP::registerDCPFunctions()
@@ -68,13 +77,27 @@ void terrama2::services::analysis::core::python::DCP::registerDCPFunctions()
 
   // export functions inside dcp namespace
   def("value", terrama2::services::analysis::core::dcp::value);
-  def("min", terrama2::services::analysis::core::dcp::min);
-  def("max", terrama2::services::analysis::core::dcp::max);
-  def("mean", terrama2::services::analysis::core::dcp::mean);
-  def("median", terrama2::services::analysis::core::dcp::median);
-  def("sum", terrama2::services::analysis::core::dcp::sum);
-  def("standard_deviation", terrama2::services::analysis::core::dcp::standardDeviation);
-  def("variance", terrama2::services::analysis::core::dcp::variance);
+  def("min", terrama2::services::analysis::core::dcp::min,
+    dcpMin_overloads(args("attribute", "ids"),
+                          "Min operator for dcp"));
+  def("max", terrama2::services::analysis::core::dcp::max,
+    dcpMax_overloads(args("attribute", "ids"),
+                          "Max operator for dcp"));
+  def("mean", terrama2::services::analysis::core::dcp::mean,
+    dcpMean_overloads(args("attribute", "ids"),
+                          "Mean operator for dcp"));
+  def("median", terrama2::services::analysis::core::dcp::median,
+    dcpMedian_overloads(args("attribute", "ids"),
+                          "Median operator for dcp"));
+  def("sum", terrama2::services::analysis::core::dcp::sum,
+    dcpSum_overloads(args("attribute", "ids"),
+                          "Sum operator for dcp"));
+  def("Standard_deviation", terrama2::services::analysis::core::dcp::standardDeviation,
+    dcpStandardDeviation_overloads(args("attribute", "ids"),
+                          "Standard deviation operator for dcp"));
+  def("variance", terrama2::services::analysis::core::dcp::variance,
+    dcpVariance_overloads(args("attribute", "ids"),
+                          "Variance operator for dcp"));
   def("count", terrama2::services::analysis::core::dcp::count);
 }
 
@@ -160,5 +183,5 @@ void terrama2::services::analysis::core::python::DCP::registerDCPInfluenceFuncti
   // set the current scope to the new sub-module
   scope dcpHistoryScope = dcpHistoryModule;
 
-  def("byRule", terrama2::services::analysis::core::dcp::influence::byRule);
+  def("by_rule", terrama2::services::analysis::core::dcp::influence::python::byRule);
 }

@@ -41,7 +41,6 @@
 #include "../core/data-model/Filter.hpp"
 #include "../core/utility/FilterUtils.hpp"
 #include "../core/utility/Utils.hpp"
-
 #include "../core/interpreter/InterpreterFactory.hpp"
 
 // TerraLib
@@ -68,7 +67,7 @@ terrama2::core::DataRetrieverHTTP::DataRetrieverHTTP(DataProviderPtr dataprovide
   // Verifies if the HTTP address is valid
   try
   {
-    curlwrapper_->verifyURL(dataprovider->uri, dataProvider_->timeout);
+    curlwrapper_->verifyURL(dataProvider_->uri, dataProvider_->timeout);
   }
   catch(const te::Exception& e)
   {
@@ -98,6 +97,43 @@ terrama2::core::DataRetrieverHTTP::~DataRetrieverHTTP()
 
 }
 
+std::vector<std::string> terrama2::core::DataRetrieverHTTP::listFiles(const std::string& uri)
+{
+  std::vector<std::string> dirList = curlwrapper_->listFiles(te::core::URI(uri));
+  std::string httpServerHtml;
+
+  for(auto const& s : dirList) {
+    httpServerHtml += s;
+  }
+
+  boost::replace_all(httpServerHtml, "\"", "\\\"");
+  httpServerHtml.erase(std::remove(httpServerHtml.begin(), httpServerHtml.end(), '\n'), httpServerHtml.end());
+
+  std::string scriptPath = FindInTerraMA2Path("scripts/parse-http-server-html.py");
+  std::ifstream scriptIfs(scriptPath);
+  std::string script((std::istreambuf_iterator<char>(scriptIfs)), (std::istreambuf_iterator<char>()));
+  boost::replace_all(script, "{HTML_CODE}", httpServerHtml);
+
+  std::vector<std::string> vectorFiles;
+  try
+  {
+    auto interpreter = terrama2::core::InterpreterFactory::getInstance().make("PYTHON");
+    interpreter->runScript(script);
+    auto fileNames = interpreter->getString("files");
+
+    if(fileNames)
+      boost::split(vectorFiles, *fileNames, [](char c){return c == ',';});
+  }
+  catch (const InterpreterException& e)
+  {
+    QString errMsg = "Error listing files:\n";
+    errMsg.append(boost::get_error_info<terrama2::ErrorDescription>(e));
+    throw DataRetrieverException() << ErrorDescription(errMsg);
+  }
+
+  return vectorFiles;
+}
+
 std::string terrama2::core::DataRetrieverHTTP::retrieveData(const std::string& mask,
                                                            const Filter& filter,
                                                            const std::string& timezone,
@@ -123,74 +159,86 @@ std::string terrama2::core::DataRetrieverHTTP::retrieveData(const std::string& m
     remover->addTemporaryFolder(downloadBaseFolderUri);
   }
 
-  {
-    auto interpreter = terrama2::core::InterpreterFactory::getInstance().make("PYTHON");
-    interpreter->runScript("print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')");
-    interpreter->runScript("print('I have been here!')");
-    interpreter->runScript("print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')");
-  }
-
   try
   {
-    // Create directory struct
-    QString saveDir(QString::fromStdString(downloadBaseFolderUri+ "/" + foldersMask));
-    QString savePath = QUrl(saveDir).toString(QUrl::RemoveScheme);
-    QDir dir(savePath);
-    if(!dir.exists())
-      dir.mkpath(savePath);
+    std::vector<std::string> vectorFiles = listFiles(dataProvider_->uri + "/" + foldersMask);
 
-    std::string uriOrigin = dataProvider_->uri + "/" + foldersMask + "/" + mask;
-    std::string filePath = savePath.toStdString() + "/" + mask;
-
-    te::core::URI uri(uriOrigin);
-
-    std::string user = uri.user();
-    std::string password = uri.password();
-
-    if(!user.empty() && !password.empty())
+    std::vector<std::string> vectorNames;
+    // filter file names that should be downloaded.
+    for(const std::string& fileName: vectorFiles)
     {
-      curlwrapper_->setAuthenticationMethod(te::ws::core::HTTP_BASIC);
-      curlwrapper_->setUsername(user);
-      curlwrapper_->setPassword(password);
+      // FIXME: use timestamp
+      std::shared_ptr< te::dt::TimeInstantTZ > timestamp;
+      if(terrama2::core::isValidDataSetName(mask,filter, timezone.empty() ? "UTC+00" : timezone, fileName,timestamp))
+        vectorNames.push_back(fileName);
     }
 
-    try
+    if(!vectorNames.empty())
     {
-      curlwrapper_->downloadFile(uriOrigin, filePath);
-    }
-    catch(const te::Exception& e)
-    {
-      // Creating a lambda to use in the catch block, the purpose of this is to avoid code repetition
-      auto downloadException = [&mask](const te::Exception& e) {
-        QString errMsg = QObject::tr("Error during download of file %1.\n").arg(QString::fromStdString(mask));
-        auto errStr = boost::get_error_info<te::ErrorDescription>(e);
-        if(errStr)
-          errMsg.append(QString::fromStdString(*errStr));
-        errMsg.append(e.what());
+      // Create directory struct
+      QString saveDir(QString::fromStdString(downloadBaseFolderUri+ "/" + foldersMask));
+      QString savePath = QUrl(saveDir).toString(QUrl::RemoveScheme);
+      QDir dir(savePath);
+      if(!dir.exists())
+        dir.mkpath(savePath);
 
-        TERRAMA2_LOG_ERROR() << errMsg;
-        throw DataRetrieverException() << ErrorDescription(errMsg);
-      };
-
-      if(!user.empty() && !password.empty())
+      // Performs the download of files in the vectorNames
+      for(const auto& file: vectorNames)
       {
+        std::string uriOrigin = dataProvider_->uri + "/" + foldersMask + "/" + file;
+        std::string filePath = savePath.toStdString() + "/" + file;
+
+        te::core::URI uri(uriOrigin);
+
+        std::string user = uri.user();
+        std::string password = uri.password();
+
+        if(!user.empty() && !password.empty())
+        {
+          curlwrapper_->setAuthenticationMethod(te::ws::core::HTTP_BASIC);
+          curlwrapper_->setUsername(user);
+          curlwrapper_->setPassword(password);
+        }
+
         try
         {
-          curlwrapper_->setAuthenticationMethod(te::ws::core::HTTP_DIGEST);
           curlwrapper_->downloadFile(uriOrigin, filePath);
         }
         catch(const te::Exception& e)
         {
-          downloadException(e);
+          // Creating a lambda to use in the catch block, the purpose of this is to avoid code repetition
+          auto downloadException = [&file](const te::Exception& e) {
+            QString errMsg = QObject::tr("Error during download of file %1.\n").arg(QString::fromStdString(file));
+            auto errStr = boost::get_error_info<te::ErrorDescription>(e);
+            if(errStr)
+              errMsg.append(QString::fromStdString(*errStr));
+            errMsg.append(e.what());
+
+            TERRAMA2_LOG_ERROR() << errMsg;
+            throw DataRetrieverException() << ErrorDescription(errMsg);
+          };
+
+          if(!user.empty() && !password.empty())
+          {
+            try
+            {
+              curlwrapper_->setAuthenticationMethod(te::ws::core::HTTP_DIGEST);
+              curlwrapper_->downloadFile(uriOrigin, filePath);
+            }
+            catch(const te::Exception& e)
+            {
+              downloadException(e);
+            }
+          }
+          else
+          {
+            downloadException(e);
+          }
         }
-      }
-      else
-      {
-        downloadException(e);
+
+        remover->addTemporaryFile(filePath);
       }
     }
-
-    remover->addTemporaryFile(filePath);
   }
   catch(const NoDataException&)
   {

@@ -259,8 +259,8 @@ void terrama2::services::analysis::core::AnalysisExecutor::runMonitoredObjectAna
 
       if(analysis->type == AnalysisType::DCP_TYPE && analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE)
       {
-        auto dataSeries = dataManager->findDataSeries(analysisDataSeries.dataSeriesId);
-        size = dataSeries->datasetList.size();
+        auto moDataSeries = context->getMonitoredObjectContextDataSeries(dataManager);
+        size = moDataSeries->series.syncDataSet->size();
       }
     }
 
@@ -573,7 +573,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeMonitoredObjectA
   }
 
 
-  verify::analysisType(analysis, AnalysisType::MONITORED_OBJECT_TYPE);
+  verify::analysisMonitoredObject(analysis);
 
   auto outputDataSeries = dataManager->findDataSeries(analysis->outputDataSeriesId);
 
@@ -841,7 +841,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeGridAnalysisResu
     throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
 
-  verify::analysisType(analysis, AnalysisType::GRID_TYPE);
+  verify::analysisGrid(analysis);
 
   auto dataManager = context->getDataManager().lock();
   if(!dataManager.get())
