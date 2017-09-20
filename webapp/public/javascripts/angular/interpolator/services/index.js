@@ -1,10 +1,10 @@
 define([
-  "TerraMA2WebApp/interpolation/services/interpolation"
-], function(InterpolationService) {
-  var moduleName = "terrama2.interpolation.services";
+  "TerraMA2WebApp/interpolator/services/interpolator"
+], function(InterpolatorService) {
+  var moduleName = "terrama2.interpolator.services";
 
   angular.module(moduleName, [])
-    .service("InterpolationService", InterpolationService);
+    .service("InterpolatorService", InterpolatorService);
   
   return moduleName;
 });
