@@ -58,7 +58,7 @@ var ServiceConnectionsChecker = function(io) {
                 var password = emailServerUrl.auth.split(":")[1];
                 var paramsToCheckEmailServer = {
                   host: emailServerUrl.hostname,
-                  port: emailServerUrl.port,
+                  port: emailServerUrl.port || 80,
                   username: username,
                   password: password
                 };
@@ -81,7 +81,7 @@ var ServiceConnectionsChecker = function(io) {
                 var password = mapServerUrl.auth.split(":")[1];
                 var paramsToCheckMapServer = {
                   host: mapServerUrl.hostname + mapServerUrl.path,
-                  port: mapServerUrl.port,
+                  port: mapServerUrl.port || 80,
                   username: username,
                   password: password
                 };
