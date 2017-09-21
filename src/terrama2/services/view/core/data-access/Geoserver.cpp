@@ -139,7 +139,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
     auto it = legend->metadata.find("creation_type");
 
     if (it == legend->metadata.end())
-      throw;
+      throw ViewGeoserverException() << ErrorDescription("The band number is required.");;
 
 
     // For Grid Legends, a Band value is required and then it must be valid. (band_number >= 0)
