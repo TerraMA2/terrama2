@@ -6,6 +6,7 @@
     "type": "GEOMETRIC_OBJECT",
     "temporality": "DYNAMIC",
     "format": "POSTGIS",
+    "allow_storage": true,
     "providers_type_list": ["POSTGIS"],
     "gui": {
       "schema": {

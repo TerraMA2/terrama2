@@ -49,11 +49,6 @@ terrama2::core::DataAccessorGeometricObjectOGR::DataAccessorGeometricObjectOGR(D
  }
 }
 
-terrama2::core::DataAccessorGeometricObjectOGR::~DataAccessorGeometricObjectOGR()
-{
-
-}
-
 std::string terrama2::core::DataAccessorGeometricObjectOGR::dataSourceType() const
 {
   return "OGR";

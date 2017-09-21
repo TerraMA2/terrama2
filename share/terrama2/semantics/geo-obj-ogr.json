@@ -13,11 +13,11 @@
           "mask": {
             "type": "string",
             "title": "Mask"
+          },
+          "timezone": {
+            "type": "string",
+            "title": "Timezone"
           }
-        },
-        "timezone": {
-          "type": "string",
-          "title": "Timezone"
         },
         "required": ["mask", "timezone"]
       },

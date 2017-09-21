@@ -60,7 +60,7 @@ namespace terrama2
       public:
 
         DataAccessorGeometricObjectOGR(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true);
-        virtual ~DataAccessorGeometricObjectOGR();
+        virtual ~DataAccessorGeometricObjectOGR() = default;
 
         static DataAccessorPtr make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries)
         {

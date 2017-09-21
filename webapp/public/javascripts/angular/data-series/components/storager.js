@@ -411,6 +411,7 @@ define([], function(){
               break;
             case "GRID":
             case "OCCURRENCE":
+            case "GEOMETRIC_OBJECT":
               $scope.$emit("storageValuesReceive", {
                 data: self.modelStorager,
                 data_provider: self['storager_data_provider_id'],
