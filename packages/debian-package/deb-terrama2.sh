@@ -18,7 +18,7 @@ echo ""
 echo "Check TerraLib Installation:"
 echo ""
 
-terralib_test=`dpkg -s terralib-5.2.1 | grep Status`
+terralib_test=`dpkg -s terralib-5.2.2 | grep Status`
 
 if [ "$terralib_test" != "Status: install ok installed" ]; then
   echo "TerraLib is not installed!"
