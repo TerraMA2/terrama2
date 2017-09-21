@@ -135,8 +135,16 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
   if (viewPtr->legend != nullptr)
   {
     View::Legend* legend = viewPtr->legend.get();
+
+    auto it = legend->metadata.find("creation_type");
+
+    if (it == legend->metadata.end())
+      throw;
+
+
     // For Grid Legends, a Band value is required and then it must be valid. (band_number >= 0)
-    if (inputDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::GRID)
+    if (inputDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::GRID &&
+        View::Legend::CREATION_TYPE(std::stoi(it->second)) == View::Legend::CREATION_TYPE::EDITOR)
     {
       auto it = legend->metadata.find("band_number");
 
