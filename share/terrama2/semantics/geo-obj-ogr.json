@@ -66,6 +66,43 @@
     }
   },
   {
+    "name": "Wild fire event (ESRI Shapefile)",
+    "code": "GEOMETRIC_OBJECT-wfe",
+    "driver": "GEOMETRIC_OBJECT-wfe",
+    "type": "GEOMETRIC_OBJECT",
+    "temporality": "DYNAMIC",
+    "format": "OGR",
+    "providers_type_list": ["FILE"],
+    "metadata": {
+      "timestamp_property": "data",
+      "geometry_property": "OGR_GEOMETRY",
+      "output_timestamp_property": "timestamp",
+      "timezone": "UTM+00",
+      "srid": "4326"
+    },
+    "gui": {
+      "schema": {
+        "properties": {
+          "mask": {
+            "type": "string",
+            "title": "Mask"
+          }
+        },
+        "required": ["mask"]
+      },
+      "form": [
+        {
+          "key": "mask",
+          "htmlClass": "col-md-6",
+          "copyValueTo": ["alias"],
+          "validationMessage": {
+            "202": "Invalid mask"
+          }
+        }
+      ]
+    }
+  },
+  {
     "name": "Vector Files (ESRI Shapefile)",
     "code": "STATIC_DATA-ogr",
     "driver": "STATIC_DATA-ogr",
