@@ -1,6 +1,72 @@
 [
   {
     "name": "Vector Files (ESRI Shapefile)",
+    "code": "GEOMETRIC_OBJECT-ogr",
+    "driver": "GEOMETRIC_OBJECT-ogr",
+    "type": "GEOMETRIC_OBJECT",
+    "temporality": "DYNAMIC",
+    "format": "OGR",
+    "providers_type_list": ["FILE"],
+    "gui": {
+      "schema": {
+        "properties": {
+          "mask": {
+            "type": "string",
+            "title": "Mask"
+          }
+        },
+        "timezone": {
+          "type": "string",
+          "title": "Timezone"
+        },
+        "required": ["mask", "timezone"]
+      },
+      "form": [
+        {
+          "key": "mask",
+          "htmlClass": "col-md-6",
+          "copyValueTo": ["alias"],
+          "validationMessage": {
+            "202": "Invalid mask"
+          }
+        },
+        {
+          "key": "timezone",
+          "htmlClass": "col-md-2",
+          "type": "select",
+          "titleMap": [
+            {"name": "-12", "value": "-12"},
+            {"name": "-11", "value": "-11"},
+            {"name": "-10", "value": "-10"},
+            {"name": "-9", "value": "-9"},
+            {"name": "-8", "value": "-8"},
+            {"name": "-7", "value": "-7"},
+            {"name": "-6", "value": "-6"},
+            {"name": "-5", "value": "-5"},
+            {"name": "-4", "value": "-4"},
+            {"name": "-3", "value": "-3"},
+            {"name": "-2", "value": "-2"},
+            {"name": "-1", "value": "-1"},
+            {"name": "0", "value": "0"},
+            {"name": "1", "value": "1"},
+            {"name": "2", "value": "2"},
+            {"name": "3", "value": "3"},
+            {"name": "4", "value": "4"},
+            {"name": "5", "value": "5"},
+            {"name": "6", "value": "6"},
+            {"name": "7", "value": "7"},
+            {"name": "8", "value": "8"},
+            {"name": "9", "value": "9"},
+            {"name": "10", "value": "10"},
+            {"name": "11", "value": "11"},
+            {"name": "12", "value": "12"}
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "Vector Files (ESRI Shapefile)",
     "code": "STATIC_DATA-ogr",
     "driver": "STATIC_DATA-ogr",
     "type": "GEOMETRIC_OBJECT",
@@ -9,7 +75,7 @@
     "providers_type_list": ["FILE"],
     "gui": {
       "schema": {
-        "properties": {          
+        "properties": {
           "mask": {
             "type": "string",
             "title": "Mask"
