@@ -131,6 +131,33 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
     return jsonAnswer;
   }
 
+  // If it has a legend, performs extra validations
+  if (viewPtr->legend != nullptr)
+  {
+    View::Legend* legend = viewPtr->legend.get();
+    // For Grid Legends, a Band value is required and then it must be valid. (band_number >= 0)
+    if (inputDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::GRID)
+    {
+      auto it = legend->metadata.find("band_number");
+
+      if (it == legend->metadata.end())
+        throw ViewGeoserverException() << ErrorDescription("No band number provided");
+
+      try
+      {
+        int band_number = std::stoi(it->second);
+
+        if (band_number < 0)
+          throw ViewGeoserverException();
+      }
+      catch(const std::exception& e)
+      {
+        throw ViewGeoserverException() <<
+              ErrorDescription(("The band number provided is invalid. " + it->second).c_str());
+      }
+    }
+  }
+
   setWorkspace(generateWorkspaceName(viewPtr->id));
 
   registerWorkspace();
