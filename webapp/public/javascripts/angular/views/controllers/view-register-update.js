@@ -262,8 +262,15 @@ define([], function() {
          * Retrieve all data series
          */
         return DataSeriesService.init({schema: "all"}).then(function(dataSeries) {
-          //Filter data series to not show dcp - remove when back implements dcp creation view
-          self.dataSeries = dataSeries;
+          self.dataSeries = [];
+          dataSeries.forEach(function(data){
+            if (data.data_provider && data.data_provider.data_provider_type.name){
+              if (data.data_provider.data_provider_type.name == "FILE" || data.data_provider.data_provider_type.name == "POSTGIS" )
+                self.dataSeries.push(data);              
+            } else {
+              self.dataSeries.push(data);
+            }
+          });
 
           var styleCache = config.view.style;
 

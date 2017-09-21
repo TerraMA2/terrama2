@@ -112,6 +112,12 @@ DataSeries.prototype.rawObject = function() {
       dSets.push(dSet);
     }
   });
+  var dataProvider = {};
+  if (this.dataProvider instanceof BaseClass){
+    dataProvider = this.dataProvider.rawObject();
+  } else {
+    dataProvider = this.dataProvider;
+  }
   return {
     id: this.id,
     project_id: this.project_id,
@@ -122,7 +128,8 @@ DataSeries.prototype.rawObject = function() {
     data_series_semantics_code: this.data_series_semantics.code,
     data_series_semantics: this.data_series_semantics,
     active: this.active,
-    dataSets: dSets
+    dataSets: dSets,
+    data_provider: dataProvider
   };
 };
 
