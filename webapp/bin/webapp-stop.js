@@ -36,41 +36,57 @@ function onTimeoutOccurred() {
  */
 function onConnectError(err) {
   logger.error("Could not connect due " + err.toString());
-  process.exit(1);
+  connectionAttempts++;
+  //Only finish the process by connection error, if cant connect in every socket (3 is for attempts)
+  if (connectionAttempts >= 3 * configQuantity ){
+    process.exit(1);
+  }
 }
+
+var configQuantity;
+var connectionAttempts = 0;
 
 try {
   Application.load();
 
-  var config = Application.getContextConfig();
-  var protocol = config.ssl ? "https://" : "http://";
-  var connURL = protocol + "0.0.0.0:" + config.port;
+  var configList = Application.getAllConfigs();
+  var socketList = [];
+  for(key in configList){
+    var config = configList[key];
+    var protocol = config.ssl ? "https://" : "http://";
+    var connURL = protocol + "0.0.0.0:" + config.port;
+    /**
+     * Socket options
+     * 
+     * @type {any}
+     */
+    var options = {
+      reconnectionAttempts: 3, // only three times
+      timeout: 10000 // 10 seconds
+    };
+    logger.info("Connecting to " + connURL);
+  
+    socketList.push(require("socket.io-client")(connURL, options));
+  }
 
-  /**
-   * Socket options
-   * 
-   * @type {any}
-   */
-  var options = {
-    reconnectionAttempts: 3, // only three times
-    timeout: 10000 // 10 seconds
-  };
-  logger.info("Connecting to " + connURL);
+  configQuantity = socketList.length;
 
-  var socket = require("socket.io-client")(connURL, options);
-  socket.on("connect", function handleConnected() {
-    logger.info("connected, sending STOP_ALL");
-
-    socket.emit("stopAll");
-    setTimeout(function() {
-      logger.info("Done");
-      process.exit(0);
-    }, 2000);
+  socketList.forEach(function(socket){
+    socket.on("connect", function handleConnected() {
+      logger.info("connected, sending STOP_ALL");
+  
+      socket.emit("stopAll");
+      setTimeout(function() {
+        logger.info("Done");
+        process.exit(0);
+      }, 2000);
+    });
+  
+    socket.on("connect_timeout", onTimeoutOccurred);
+    socket.on("disconnect", onSocketDisconnected);
+    socket.on("connect_error", onConnectError);
   });
 
-  socket.on("connect_timeout", onTimeoutOccurred);
-  socket.on("disconnect", onSocketDisconnected);
-  socket.on("connect_error", onConnectError);
 } catch (e) {
   logger.error("Could not loading TerraMA² configuration due " + e.stack);
   process.exit(1);
