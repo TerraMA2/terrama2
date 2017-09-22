@@ -10,7 +10,7 @@
     return new PromiseClass(function(resolve, reject){
       DataManager.orm.transaction(function(t){
         var options = {transaction: t};
-        return DataManager.addinterpolator(interpolatorObject, options);
+        return DataManager.addInterpolator(interpolatorObject, options);
       }).then(function(interpolator){
         return resolve(interpolator);
       }).catch(function(err){
