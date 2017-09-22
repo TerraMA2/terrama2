@@ -57,9 +57,11 @@ Application.prototype.load = function() {
   var configFiles = fs.readdirSync(path.join(__dirname, "../config/instances"));
   var configObject = {};
   configFiles.forEach(function(configFile){
-    var configFileContent = JSON.parse(fs.readFileSync(path.join(__dirname, "../config/instances/" + configFile), "utf-8"));
-    var configName = configFile.split(".")[0];
-    configObject[configName] = configFileContent;
+    if (configFile.endsWith(".json")){
+      var configFileContent = JSON.parse(fs.readFileSync(path.join(__dirname, "../config/instances/" + configFile), "utf-8"));
+      var configName = configFile.split(".")[0];
+      configObject[configName] = configFileContent;
+    }
   });
   _data.settings = configObject;
 
@@ -67,10 +69,12 @@ Application.prototype.load = function() {
   var semanticsFiles = fs.readdirSync(path.join(__dirname, "../../share/terrama2/semantics"));
   var semanticsArray = [];
   semanticsFiles.forEach(function(semanticFile){
-    var semanticFileContent = JSON.parse(fs.readFileSync(path.join(__dirname, "../../share/terrama2/semantics/" + semanticFile)));
-    semanticFileContent.forEach(function(semanticContent){
-      semanticsArray.push(semanticContent);
-    });
+    if (semanticFile.endsWith(".json")){
+      var semanticFileContent = JSON.parse(fs.readFileSync(path.join(__dirname, "../../share/terrama2/semantics/" + semanticFile)));
+      semanticFileContent.forEach(function(semanticContent){
+        semanticsArray.push(semanticContent);
+      });
+    }
   });
   _data.semantics = semanticsArray;
 };
@@ -103,6 +107,15 @@ Application.prototype.setCurrentContext = function(context) {
 Application.prototype.getContextConfig = function() {
   return _data.settings[_context];
 };
+
+/**
+ * It retrieves all context configs
+ * 
+ * @returns {Object}
+ */
+Application.prototype.getAllConfigs = function() {
+  return _data.settings;
+}
 
 /**
  * It retrieves a TerraMA² running aplication settings. It contains name, version

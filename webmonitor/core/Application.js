@@ -35,9 +35,11 @@ Application.prototype.load = function() {
   var configFiles = fs.readdirSync(path.join(__dirname, "../config/instances"));
   var configObject = {};
   configFiles.forEach(function(configFile){
-    var configFileContent = JSON.parse(fs.readFileSync(path.join(__dirname, "../config/instances/" + configFile), "utf-8"));
-    var configName = configFile.split(".")[0];
-    configObject[configName] = configFileContent;
+    if (configFile.endsWith(".json")){
+      var configFileContent = JSON.parse(fs.readFileSync(path.join(__dirname, "../config/instances/" + configFile), "utf-8"));
+      var configName = configFile.split(".")[0];
+      configObject[configName] = configFileContent;
+    }
   });
   _settings = configObject;
 
