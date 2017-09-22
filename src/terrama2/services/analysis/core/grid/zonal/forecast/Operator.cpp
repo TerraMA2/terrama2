@@ -110,13 +110,7 @@ double terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl( 
       throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(errMsg);
     }
 
-    std::shared_ptr<ContextDataSeries> moDsContext = context->getMonitoredObjectContextDataSeries(dataManagerPtr);
-    if(!moDsContext)
-    {
-      QString errMsg(QObject::tr("Could not recover monitored object data series."));
-      throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
-    }
-
+    std::shared_ptr<ContextDataSeries> moDsContext = context->getMonitoredObjectContextDataSeries();
     if(moDsContext->series.syncDataSet->size() == 0)
     {
       QString errMsg(QObject::tr("Could not recover monitored object data series."));
