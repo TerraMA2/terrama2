@@ -210,13 +210,13 @@ void writeColorMapEntry(te::xml::AbstractWriter* writer,
   writer->writeEndElement("ColorMapEntry");
 }
 
-void writeChannelSelection(te::xml::AbstractWriter* writer, const std::string& band)
+void writeChannelSelection(te::xml::AbstractWriter* writer, const int& band)
 {
   writer->writeStartElement("ChannelSelection");
   {
     writer->writeStartElement("GrayChannel");
     writer->writeStartElement("SourceChannelName");
-    writer->writeValue(band);
+    writer->writeValue(std::to_string(band));
     writer->writeEndElement("SourceChannelName");
     writer->writeEndElement("GrayChannel");
   }
@@ -278,8 +278,11 @@ void terrama2::services::view::core::Serialization::writeCoverageStyleGeoserverX
   // Retrieving VIEW classification type string
   std::string classifyType = View::Legend::to_string(legend.classify);
 
-  // Band Number as String
-  const auto band_number = legend.metadata.find("band_number")->second;
+  // Band Number
+  int band_number = std::stoi(legend.metadata.find("band_number")->second);
+
+  // Incrementing band number since the user will inform value from 0
+  ++band_number;
 
   // Dont create default value for RAMP type
   if(legend.classify != View::Legend::ClassifyType::RAMP)
