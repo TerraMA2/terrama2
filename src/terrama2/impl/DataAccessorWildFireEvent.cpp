@@ -32,11 +32,14 @@
 
 #include "../core/Exception.hpp"
 #include "../core/utility/Logger.hpp"
+#include "../core/utility/Utils.hpp"
 
 #include <terralib/datatype/DateTimeProperty.h>
 
 // QT
 #include <QObject>
+
+#include <boost/algorithm/string/replace.hpp>
 
 terrama2::core::DataAccessorWildFireEvent::DataAccessorWildFireEvent(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics)
 : DataAccessor(dataProvider, dataSeries, false),
@@ -56,6 +59,9 @@ void terrama2::core::DataAccessorWildFireEvent::adapt(DataSetPtr dataSet, std::s
   std::string timestampPropertyName = getTimestampPropertyName(dataSet);
   std::string outputTimestampPropertyName = getOutputTimestampPropertyName(dataSet);
 
+  std::string geometryPropertyName = getGeometryPropertyName(dataSet);
+  std::string outputGeometryPropertyName = getOutputGeometryPropertyName(dataSet);
+
   te::dt::DateTimeProperty* dtProperty = new te::dt::DateTimeProperty(outputTimestampPropertyName, te::dt::TIME_INSTANT_TZ);
 
   //Find the rigth column to adapt
@@ -68,21 +74,26 @@ void terrama2::core::DataAccessorWildFireEvent::adapt(DataSetPtr dataSet, std::s
       // datetime column found
       converter->add(i, dtProperty, boost::bind(&terrama2::core::DataAccessorWildFireEvent::numberToTimestamp, this, _1, _2, _3, DataAccessorFile::getTimeZone(dataSet)));
     }
+    else if(property->getName() == geometryPropertyName)
+    {
+      auto geomProperty = property->clone();
+      geomProperty->setName(outputGeometryPropertyName);
+      converter->add(i, geomProperty);
+    }
+    else
+    {
+      // future date field, not currently used
+      if(property->getName() == "dt")
+        continue;
+
+      converter->add(i,property->clone());
+    }
   }
 }
 
-void terrama2::core::DataAccessorWildFireEvent::addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const
+void terrama2::core::DataAccessorWildFireEvent::addColumns(std::shared_ptr<te::da::DataSetTypeConverter> /*converter*/, const std::shared_ptr<te::da::DataSetType>& /*datasetType*/) const
 {
-  for(std::size_t i = 0, size = datasetType->size(); i < size; ++i)
-  {
-    te::dt::Property* p = datasetType->getProperty(i);
-
-    // future date field, not currently used
-    if(p->getName() == "dt")
-      continue;
-
-    converter->add(i,p->clone());
-  }
+  //columns add by the adapt method
 }
 
 te::dt::AbstractData* terrama2::core::DataAccessorWildFireEvent::numberToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/, const std::string& timezone) const
@@ -124,4 +135,37 @@ te::dt::AbstractData* terrama2::core::DataAccessorWildFireEvent::numberToTimesta
   }
 
   return nullptr;
+}
+
+std::string terrama2::core::DataAccessorWildFireEvent::retrieveData(const DataRetrieverPtr dataRetriever,
+                                                                    DataSetPtr dataSet,
+                                                                    const Filter& filter,
+                                                                    std::shared_ptr<FileRemover> remover) const
+{
+  std::string mask = getFileMask(dataSet);
+  std::string folderPath = getFolderMask(dataSet);
+
+  std::string timezone = "";
+  try
+  {
+    timezone = DataAccessorFile::getTimeZone(dataSet);
+  }
+  catch(UndefinedTagException& /*e*/)
+  {
+    // Do nothing
+  }
+
+//download shp files
+  auto tempFolder =  dataRetriever->retrieveData(mask, filter, timezone, remover, "", folderPath);
+
+//download auxiliary files
+  std::string dbfFile = std::string{mask.cbegin(), mask.cend()-3}+"dbf";
+  std::string prjFile = std::string{mask.cbegin(), mask.cend()-3}+"prj";
+  std::string shxFile = std::string{mask.cbegin(), mask.cend()-3}+"shx";
+
+  dataRetriever->retrieveData(dbfFile, filter, timezone, remover, tempFolder, folderPath);
+  dataRetriever->retrieveData(prjFile, filter, timezone, remover, tempFolder, folderPath);
+  dataRetriever->retrieveData(shxFile, filter, timezone, remover, tempFolder, folderPath);
+
+  return tempFolder;
 }
