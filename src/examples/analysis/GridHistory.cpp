@@ -83,7 +83,7 @@ int main(int argc, char* argv[])
 
 
     //DataSeries information
-    auto outputDataSeries =  terrama2::examples::analysis::utilsgeotiff::outputDataSeries(dataProvider);
+    auto outputDataSeries =  terrama2::examples::analysis::utilsgeotiff::outputDataSeriesHistory(dataProvider);
     dataManager->add(outputDataSeries);
 
 

@@ -18,6 +18,8 @@
 
 #include <terrama2/services/analysis/mock/MockAnalysisLogger.hpp>
 
+#include "UtilsGeotiff.hpp"
+
 #include <terrama2/impl/Utils.hpp>
 #include <terrama2/Config.hpp>
 
@@ -67,99 +69,48 @@ int main(int argc, char* argv[])
     EXPECT_CALL(*logger, clone()).WillRepeatedly(::testing::Return(loggerCopy));
     EXPECT_CALL(*logger, isValid()).WillRepeatedly(::testing::Return(true));
 
-    te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PASSWORD+"@"+TERRAMA2_DATABASE_HOST+":"+TERRAMA2_DATABASE_PORT+"/"+TERRAMA2_DATABASE_DBNAME);
-
     Service service(dataManager);
     serviceManager.setInstanceId(1);
     serviceManager.setLogger(logger);
     serviceManager.setLogConnectionInfo(te::core::URI(""));
-    serviceManager.setInstanceId(1);
+
 
     service.setLogger(logger);
     service.start();
 
-    // DataProvider information
-    terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
-    terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
-    dataProvider->uri = "file://";
-    dataProvider->uri += TERRAMA2_DATA_DIR;
-    dataProvider->uri += "/geotiff";
-    dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
-    dataProvider->dataProviderType = "FILE";
-    dataProvider->active = true;
-    dataProvider->id = 1;
-    dataProvider->name = "Local Geotiff";
+    using namespace terrama2::examples::analysis::utilsgeotiff;
 
-    dataManager->add(dataProviderPtr);
-
-    auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
-
-    //DataSeries information
-    terrama2::core::DataSeries* outputDataSeries = new terrama2::core::DataSeries();
-    terrama2::core::DataSeriesPtr outputDataSeriesPtr(outputDataSeries);
-    outputDataSeries->semantics = semanticsManager.getSemantics("GRID-gdal");
-    outputDataSeries->name = "Output Grid";
-    outputDataSeries->id = 5;
-    outputDataSeries->dataProviderId = 1;
+    auto dataProvider = dataProviderFile();
+    dataManager->add(dataProvider);
 
 
-    terrama2::core::DataSetGrid* outputDataSet = new terrama2::core::DataSetGrid();
-    outputDataSet->active = true;
-    outputDataSet->format.emplace("mask", "output_grid.tif");
-    outputDataSet->dataSeriesId = outputDataSeries->id;
-    outputDataSet->id = 7;
-
-    outputDataSeries->datasetList.emplace_back(outputDataSet);
-
-    dataManager->add(outputDataSeriesPtr);
-
-    dataManager->add(dataProviderPtr);
+    auto outputDataSeries = terrama2::examples::analysis::utilsgeotiff::outputDataSeries(dataProvider);
+    dataManager->add(outputDataSeries);
 
 
 
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Data Series 1
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    terrama2::core::DataSeries* dataSeries1 = new terrama2::core::DataSeries();
-    terrama2::core::DataSeriesPtr dataSeries1Ptr(dataSeries1);
-    dataSeries1->semantics = semanticsManager.getSemantics("GRID-gdal");
-    dataSeries1->name = "geotiff 1";
-    dataSeries1->id = 1;
-    dataSeries1->dataProviderId = 1;
-    dataSeries1->active = true;
+    auto dataSeries = dataSeriesGridGdal(dataProvider);
+    dataManager->add(dataSeries);
 
-    terrama2::core::DataSetGrid* dataSet1 = new terrama2::core::DataSetGrid();
-    dataSet1->active = true;
-    dataSet1->format.emplace("mask", "L5219076_07620040908_r3g2b1.tif");
-    dataSet1->id = 1;
-
-    dataSeries1->datasetList.emplace_back(dataSet1);
 
     AnalysisDataSeries gridADS1;
     gridADS1.id = 1;
-    gridADS1.dataSeriesId = dataSeries1Ptr->id;
+    gridADS1.dataSeriesId = dataSeries->id;
     gridADS1.type = AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE;
 
 
-    dataManager->add(dataSeries1Ptr);
 
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Analysis
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    Analysis* analysis = new Analysis;
-    AnalysisPtr analysisPtr(analysis);
-
+    std::shared_ptr<terrama2::services::analysis::core::Analysis> analysis = std::make_shared<terrama2::services::analysis::core::Analysis>();
 
     analysis->id = 1;
     analysis->name = "Grid Sample";
-    analysis->script = "return grid.sample(\"geotiff 1\")";
+    analysis->script = R"x(return grid.sample("geotiff 1"))x";
     analysis->scriptLanguage = ScriptLanguage::PYTHON;
     analysis->type = AnalysisType::GRID_TYPE;
     analysis->active = true;
-    analysis->outputDataSeriesId = 5;
-    analysis->outputDataSetId = outputDataSet->id;
+    analysis->outputDataSeriesId = outputDataSeries->id;
+    analysis->outputDataSetId = outputDataSeries->datasetList.front()->id;
     analysis->serviceInstanceId = 1;
 
 
@@ -173,25 +124,24 @@ int main(int argc, char* argv[])
     analysis->schedule.frequencyUnit = "min";
 
 
-    AnalysisOutputGrid* outputGrid = new AnalysisOutputGrid();
-    AnalysisOutputGridPtr outputGridPtr(outputGrid);
+    std::shared_ptr<AnalysisOutputGrid> outputGrid = std::make_shared<AnalysisOutputGrid>();
 
     outputGrid->analysisId = 1;
     outputGrid->interpolationMethod = InterpolationMethod::BILINEAR;
     outputGrid->interestAreaType = InterestAreaType::SAME_FROM_DATASERIES;
-    outputGrid->interestAreaDataSeriesId = 1;
+    outputGrid->interestAreaDataSeriesId = dataSeries->id;
     outputGrid->resolutionType = ResolutionType::SAME_FROM_DATASERIES;
-    outputGrid->resolutionDataSeriesId = 1;
+    outputGrid->resolutionDataSeriesId = dataSeries->id;
     outputGrid->interpolationDummy = 266;
 
-    analysis->outputGridPtr = outputGridPtr;
+    analysis->outputGridPtr = outputGrid;
 
-    dataManager->add(analysisPtr);
+    dataManager->add(analysis);
 
 
 
     //service.addProcessToSchedule(analysisPtr);
-    service.addToQueue(analysisPtr->id, terrama2::core::TimeUtils::nowUTC());
+    service.addToQueue(analysis->id, terrama2::core::TimeUtils::nowUTC());
 
 
     QTimer timer;

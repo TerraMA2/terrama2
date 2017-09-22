@@ -35,7 +35,8 @@
 #include <QTimer>
 #include <QCoreApplication>
 #include <QUrl>
-/*
+
+
 using namespace terrama2::services::analysis::core;
 
 int main(int argc, char* argv[])
@@ -95,8 +96,8 @@ int main(int argc, char* argv[])
   analysis->name = "Analysis";
   analysis->active = true;
 
-  std::string script = "x = occurrence.count(\"Occurrence\", \"500d\")\n"
-                       "add_value(\"count\", x)\n";
+  std::string script = R"z(x = occurrence.zonal.count("Occurrence", "2d")
+add_value("count", x))z";
 
 
   analysis->script = script;
@@ -139,7 +140,7 @@ int main(int argc, char* argv[])
 
   dataManager->add(analysis);
 
-  service.addProcessToSchedule(analysis);
+  service.addToQueue(analysis->id, terrama2::core::TimeUtils::stringToTimestamp("2016-04-30T20:15:00-03", terrama2::core::TimeUtils::webgui_timefacet));
 
 
   QTimer timer;
@@ -152,4 +153,4 @@ int main(int argc, char* argv[])
 
   return 0;
 }
-*/
+
