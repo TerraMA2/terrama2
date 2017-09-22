@@ -71,6 +71,13 @@ namespace terrama2
                   GEOMETRY = 3
                 };
 
+                enum class CREATION_TYPE
+                {
+                  EDITOR = 0,
+                  XML = 1,
+                  WIND = 2
+                };
+
                 enum class OperationType
                 {
                   EQUAL_STEPS = 1,
