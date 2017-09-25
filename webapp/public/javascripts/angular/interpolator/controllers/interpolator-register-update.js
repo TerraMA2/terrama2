@@ -54,9 +54,11 @@ define([], function(){
         power_factor: 3
       }
     };
+
+    self.interpolator.bounding_rect = JSON.stringify(self.interpolator.bounding_rect);
     
     self.save = function(){
-      var operation = self.InterpolatorService.create(self.interpolator);
+      var operation = self.InterpolatorService.create({interpolator: self.interpolator, schedule:{schedule_type: 3}});
       operation.then(function(response) {
         console.log(response);
         $log.info(response);

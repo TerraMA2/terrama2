@@ -13,6 +13,8 @@
         // if does not have project_id, getting from cache
         if (!interpolatorObject.project_id)
           interpolatorObject.project_id = projectId;
+        if (!interpolatorObject.data_series_output.project_id)
+          interpolatorObject.data_series_output.project_id = projectId;
   
         DataManager.orm.transaction(function(t){
           var options = {transaction: t};

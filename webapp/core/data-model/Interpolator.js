@@ -31,16 +31,22 @@
     }
   }
 
-  Interpolator.prototype.setMetadata = function(formats) {
-    var formatOutput = {};
-    if (formats instanceof Array) {
-      formats.forEach(function(format) {
-        formatOutput[format.key] = format.value;
+  Interpolator.prototype.setMetadata = function(metadata) {
+    var meta = {};
+    if (metadata instanceof Array) {
+      // array of sequelize model
+      metadata.forEach(function(element) {
+        meta[element.key] = element.value;
       });
     } else {
-      formatOutput = formats;
+      for(var key in metadata) {
+        if (metadata.hasOwnProperty(key)) {
+          meta[key] = metadata[key];
+        }
+      }
     }
-    this.metadata = formatOutput;
+  
+    this.metadata = meta;
   };
 
   Interpolator.prototype.toObject = function() {

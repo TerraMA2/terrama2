@@ -5515,6 +5515,7 @@ var DataManager = module.exports = {
   },
 
   addInterpolator: function(interpolatorObject, options){
+    var self = this;
     return new Promise(function(resolve, reject){
       models.db.Interpolator.create(interpolatorObject, options)
         .then(function(interpolatorResult){
@@ -5522,7 +5523,7 @@ var DataManager = module.exports = {
           for(var key in interpolatorObject.metadata) {
             if (interpolatorObject.metadata.hasOwnProperty(key)) {
               interpolatorMetadata.push({
-                analysis_id: interpolatorResult.id,
+                interpolator_id: interpolatorResult.id,
                 key: key,
                 value: interpolatorObject.metadata[key]
               });
@@ -5533,6 +5534,8 @@ var DataManager = module.exports = {
 
               var interpolatorInstance = new DataModel.Interpolator(interpolatorResult);
               interpolatorInstance.setMetadata(interpolatorMetadataResult);
+
+              return resolve(interpolatorInstance);
             }).catch(function(err) {
               // rollback interpolator metadata
               Utils.rollbackPromises([
@@ -5549,6 +5552,7 @@ var DataManager = module.exports = {
   },
 
   addInterpolatorMetadata: function(interpolatorMetadataObject, options){
+    var self = this;
     return new Promise(function(resolve, reject) {
       return models.db.InterpolatorMetadata.bulkCreate(interpolatorMetadataObject, options)
         .then(function(bulkInterpolatorMetadata) {
