@@ -261,7 +261,7 @@ define(function() {
         return element.hasPermission;
       },
       canEdit: function(element){
-        return element.canEdit
+        return element.hasPermission
       },
       importJson: null,
 
