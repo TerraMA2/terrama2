@@ -62,7 +62,7 @@ namespace examples
     const std::string zonal_history_ratio_analysis_result = "zonal_history_ratio_analysis_result";
     const std::string zonal_analysis_result = "zonal_analysis_result";
     const std::string analysis_dcp_result = "analysis_dcp_result";
-
+    const std::string occurrence_aggregation_analysis_result = "occurrence_aggregation_analysis_result";
 
 
 
@@ -131,7 +131,7 @@ namespace examples
                                             "class": "DataSeries",
                                             "id": 2,
                                             "name": "Occurrence",
-                                            "description": "null",
+                                            "description": null,
                                             "data_provider_id":  %1,
                                             "semantics": "OCCURRENCE-postgis",
                                             "active": true,
@@ -139,7 +139,7 @@ namespace examples
                                               {
                                                 "class": "DataSet",
                                                 "id": 2,
-                                                "data_series_id": 3,
+                                                "data_series_id": 2,
                                                 "active": true,
                                                 "format": {
                                                     "table_name": "queimadas_test_table",
@@ -170,7 +170,7 @@ namespace examples
                                             "class": "DataSeries",
                                             "id": 3,
                                             "name": "Analysis result",
-                                            "description": "null",
+                                            "description": null,
                                             "data_provider_id":  %1,
                                             "semantics": "ANALYSIS_MONITORED_OBJECT-postgis",
                                             "active": true,
