@@ -90,7 +90,7 @@ int main(int argc, char* argv[])
 
 
 
-    auto dataSeries = dataSeriesGridGdal(dataProvider);
+    auto dataSeries = dataSeriesGridGeotiff(dataProvider);
     dataManager->add(dataSeries);
 
 
@@ -139,8 +139,6 @@ int main(int argc, char* argv[])
     dataManager->add(analysis);
 
 
-
-    //service.addProcessToSchedule(analysisPtr);
     service.addToQueue(analysis->id, terrama2::core::TimeUtils::nowUTC());
 
 

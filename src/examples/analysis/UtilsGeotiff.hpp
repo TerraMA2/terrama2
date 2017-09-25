@@ -118,7 +118,7 @@ namespace terrama2
                                         "name": "Output Grid",
                                         "description": null,
                                         "data_provider_id":  %1,
-                                        "semantics": "GRID-gdal",
+                                        "semantics": "GRID-geotiff",
                                         "active": true,
                                         "datasets":[
                                              {
@@ -205,7 +205,7 @@ namespace terrama2
             return terrama2::core::fromDataSeriesJson(obj);
     }
 
-    terrama2::core::DataSeriesPtr dataSeriesGridGdal(terrama2::core::DataProviderPtr dataProvider)
+    terrama2::core::DataSeriesPtr dataSeriesGridGeotiff(terrama2::core::DataProviderPtr dataProvider)
     {
 
         QString json = QString(R"x(
@@ -215,7 +215,7 @@ namespace terrama2
                                         "name": "geotiff 1",
                                         "description": null,
                                         "data_provider_id":  %1,
-                                        "semantics": "GRID-gdal",
+                                        "semantics": "GRID-geotiff",
                                         "active": true,
                                         "datasets":[
                                              {
