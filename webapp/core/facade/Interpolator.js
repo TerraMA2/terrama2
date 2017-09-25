@@ -5,17 +5,40 @@
 
   var DataManager = require("./../DataManager");
   var PromiseClass = require("./../Promise");
+  var ScheduleType = require("./../Enums").ScheduleType;
 
-  Interpolator.save = function(interpolatorObject, projectId){
+  Interpolator.save = function(interpolatorObject, scheduleObject, projectId){
     return new PromiseClass(function(resolve, reject){
-      DataManager.orm.transaction(function(t){
-        var options = {transaction: t};
-        return DataManager.addInterpolator(interpolatorObject, options);
-      }).then(function(interpolator){
-        return resolve(interpolator);
-      }).catch(function(err){
-        reject(err);
-      });
+      try{
+        // if does not have project_id, getting from cache
+        if (!interpolatorObject.project_id)
+          interpolatorObject.project_id = projectId;
+  
+        DataManager.orm.transaction(function(t){
+          var options = {transaction: t};
+          return DataManager.addDataSeries(interpolatorObject.data_series_output, null, options)
+            .then(function(dataSeriesResult){
+              interpolatorObject.data_series_output = dataSeriesResult.id;
+              return DataManager.addSchedule(scheduleObject, options).then(function(scheduleResult){
+
+                if (scheduleObject.scheduleType == ScheduleType.AUTOMATIC){
+                  interpolatorObject.automatic_schedule_id = scheduleResult.id
+                } else if (scheduleObject.scheduleType == ScheduleType.SCHEDULE || scheduleObject.scheduleType == ScheduleType.REPROCESSING_HISTORICAL){
+                  interpolatorObject.schedule_id = scheduleResult.id;
+                }
+                return DataManager.addInterpolator(interpolatorObject, options).then(function(interpolatorResult){
+                  return interpolatorResult;
+                });
+              });
+            });
+        }).then(function(interpolator){
+          return resolve(interpolator);
+        }).catch(function(err){
+          return reject(err);
+        });
+      } catch (err){
+        return reject(err);
+      }
     });
   };
 

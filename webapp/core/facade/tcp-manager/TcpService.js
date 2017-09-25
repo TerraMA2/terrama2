@@ -632,6 +632,8 @@ TcpService.prototype.log = function(json) {
             case ServiceType.ALERT:
               obj.process_ids = alerts.map(function(elm) { return elm.id; });
               break;
+              case ServiceType.INTERPOLATION:
+                break;
             default:
               throw new Error("Invalid service type");
           }

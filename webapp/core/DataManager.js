@@ -5516,8 +5516,34 @@ var DataManager = module.exports = {
 
   addInterpolator: function(interpolatorObject, options){
     return new Promise(function(resolve, reject){
+      models.db.Interpolator.create(interpolatorObject, options)
+        .then(function(interpolatorResult){
+          var interpolatorMetadata = [];
+          for(var key in interpolatorObject.metadata) {
+            if (interpolatorObject.metadata.hasOwnProperty(key)) {
+              interpolatorMetadata.push({
+                analysis_id: analysisResult.id,
+                key: key,
+                value: interpolatorObject.metadata[key]
+              });
+            }
+          }
+        })
       return resolve("saved");
     });
+  },
+
+  addInterpolatorMetadata: function(interpolatorMetadataObject, options){
+    return new Promise(function(resolve, reject) {
+      return models.db.InterpolatorMetadata.bulkCreate(interpolatorMetadataObject, options)
+        .then(function(bulkInterpolatorMetadata) {
+          return resolve(Utils.formatMetadataFromDB(bulkInterpolatorMetadata));
+        })
+        .catch(function(err) {
+          return reject(new Error(Utils.format("Could not save interpolator metadata due ", err.toString())));
+        });
+    });
+
   },
 
   updateInterpolator: function(restriction, interpolatorObject, options){

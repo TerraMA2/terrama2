@@ -12,8 +12,9 @@
         });
       },
       post: function(request, response) {
-        var interpolatorObject = request.body;
-        InterpolatorFacade.save(interpolatorObject, app.locals.activeProject.id)
+        var interpolatorObject = request.body.interpolator;
+        var scheduleObject = request.body.schedule;
+        InterpolatorFacade.save(interpolatorObject, scheduleObject, app.locals.activeProject.id)
           .then(function(interpolator){
             return response.json({status: 200, interpolator: interpolator});
           });
