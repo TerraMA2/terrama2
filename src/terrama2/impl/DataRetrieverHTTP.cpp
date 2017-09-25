@@ -177,10 +177,11 @@ std::string terrama2::core::DataRetrieverHTTP::retrieveData(const std::string& m
     {
       // Create directory struct
       QString saveDir(QString::fromStdString(downloadBaseFolderUri+ "/" + foldersMask));
-      QString savePath = QUrl(saveDir).toString(QUrl::RemoveScheme);
+      QString savePath = QUrl(saveDir).toLocalFile();
       QDir dir(savePath);
       if(!dir.exists())
         dir.mkpath(savePath);
+
 
       // Performs the download of files in the vectorNames
       for(const auto& file: vectorNames)
