@@ -94,7 +94,7 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
 
   auto monitoredObjectContext = contextManager.getMonitoredObjectContext(cache.analysisHashCode);
   auto dataManagerPtr = monitoredObjectContext->getDataManager().lock();
-  auto moDsContext = monitoredObjectContext->getMonitoredObjectContextDataSeries(dataManagerPtr);
+  auto moDsContext = monitoredObjectContext->getMonitoredObjectContextDataSeries();
 
   for(const auto& analysisDataSeries : analysis->analysisDataSeriesList)
   {
@@ -149,7 +149,7 @@ double terrama2::services::analysis::core::dcp::value(const std::string& attribu
 
   auto monitoredObjectContext = contextManager.getMonitoredObjectContext(cache.analysisHashCode);
   auto dataManagerPtr = monitoredObjectContext->getDataManager().lock();
-  auto moDsContext = monitoredObjectContext->getMonitoredObjectContextDataSeries(dataManagerPtr);
+  auto moDsContext = monitoredObjectContext->getMonitoredObjectContextDataSeries();
   if(!moDsContext || !moDsContext->series.teDataSetType)
   {
     QString errMsg(QObject::tr("Could not recover monitored object data series."));
