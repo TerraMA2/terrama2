@@ -28,3 +28,4 @@ exports.ViewStyleLegend = require("./ViewStyleLegend");
 exports.AutomaticSchedule = require("./AutomaticSchedule");
 exports.Alert = require("./Alert");
 exports.Legend = require("./Legend");
+exports.Interpolator = require("./Interpolator");

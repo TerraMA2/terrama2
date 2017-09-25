@@ -5522,14 +5522,29 @@ var DataManager = module.exports = {
           for(var key in interpolatorObject.metadata) {
             if (interpolatorObject.metadata.hasOwnProperty(key)) {
               interpolatorMetadata.push({
-                analysis_id: analysisResult.id,
+                analysis_id: interpolatorResult.id,
                 key: key,
                 value: interpolatorObject.metadata[key]
               });
             }
           }
+          return self.addInterpolatorMetadata(interpolatorMetadata, options)
+            .then(function(interpolatorMetadataResult){
+
+              var interpolatorInstance = new DataModel.Interpolator(interpolatorResult);
+              interpolatorInstance.setMetadata(interpolatorMetadataResult);
+            }).catch(function(err) {
+              // rollback interpolator metadata
+              Utils.rollbackPromises([
+                self.removeInterpolator({id: interpolatorResult.id}, options)
+              ], new exceptions.InterpolatorError("Could not save interpolator metadata " + err.toString()), reject);
+            });
+
         })
-      return resolve("saved");
+        .catch(function(err) {
+          logger.error(err);
+          return reject(new exceptions.InterpolatorError("Could not save interpolator " + err.toString()));
+        });
     });
   },
 
