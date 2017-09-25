@@ -23,6 +23,7 @@ module.exports = function(app) {
       var projectName = request.params.name;
 
       DataManager.getProject({name: projectName}).then(function(project) {
+        project.canProtect = request.user.id == project.user_id || project.user_id == null;
         response.render("configuration/project", {project: project, method: "PUT", url: app.locals.BASE_URL + "api/Project/"+project.id});
       }).catch(function(err) {
         response.render("base/404");
