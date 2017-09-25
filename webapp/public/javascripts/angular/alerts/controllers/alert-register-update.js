@@ -746,7 +746,7 @@ define([], function() {
             colors: [],
             metadata: {
               column: self.alert.legend_attribute,
-              creation_type: "0"
+              creation_type: "editor"
             },
             type: 2
           };

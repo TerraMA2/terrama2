@@ -1,18 +1,18 @@
 <div class="col-md-6 form-group">
     <label>{{$ctrl.i18n.__('Creation Type') }}:</label>
     <select class="form-control" name="styles" ng-change="$ctrl.changeCreationType()" ng-model="$ctrl.model.metadata.creation_type">
-        <option value="0">{{$ctrl.i18n.__('Editor')}}</option>
-        <option value="1">{{$ctrl.i18n.__('XML')}}</option>
+        <option value="editor">{{$ctrl.i18n.__('Editor')}}</option>
+        <option value="xml">{{$ctrl.i18n.__('SLD')}}</option>
         <option ng-if="$ctrl.type === $ctrl.DataSeriesType.GRID" ng-repeat="option in $ctrl.predefinedStyles" value="{{option.id}}">{{option.name}}</option>
     </select>
 </div>
 
-<div ng-if="$ctrl.model.metadata.creation_type == '1'">
+<div ng-if="$ctrl.model.metadata.creation_type == 'xml'">
   <div class="col-md-12 terrama2-nopadding-box">
 
     <div class="col-md-8">
       <div class="form-group">
-        <label> {{$ctrl.i18n.__('XML') }}:</label>
+        <label> {{$ctrl.i18n.__('SLD') }}:</label>
         <textarea class="form-control" ng-model="$ctrl.model.metadata.xml_style" style="height: 200px;"> </textarea>
       </div>
     </div>
@@ -20,7 +20,7 @@
   </div>
 </div>
 
-<div ng-if="$ctrl.model.metadata.creation_type != '0' && $ctrl.model.metadata.creation_type != '1' && $ctrl.model.metadata.creation_type != undefined">
+<div ng-if="$ctrl.model.metadata.creation_type != 'editor' && $ctrl.model.metadata.creation_type != 'xml' && $ctrl.model.metadata.creation_type != undefined">
   <div class="col-md-12 terrama2-nopadding-box">
       
     <div sf-schema="$ctrl.predefinedStyleSchema" sf-form="$ctrl.predefinedStyleForm" sf-model="$ctrl.model.metadata"></div>
@@ -28,7 +28,7 @@
   </div>
 </div>
 
-<div ng-if="$ctrl.model.metadata.creation_type == '0'">
+<div ng-if="$ctrl.model.metadata.creation_type == 'editor'">
   <div class="col-md-12 terrama2-nopadding-box">
 
     <div class="col-md-6">
