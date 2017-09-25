@@ -76,7 +76,7 @@ namespace terrama2
 
     }
 
-    terrama2::core::DataSeriesPtr outputDataSeries(terrama2::core::DataProviderPtr dataProvider)
+    terrama2::core::DataSeriesPtr outputDataSeriesHistory(terrama2::core::DataProviderPtr dataProvider)
     {
 
         QString json = QString(R"x(
@@ -97,6 +97,39 @@ namespace terrama2
                                                  "format": {
                                                         "mask": "/historical/output_history_grid.tif",
                                                         "timezone": "00:00"
+                                                }
+                                             }
+                                        ]
+                                       }
+                                     )x"
+                                   ).arg(dataProvider->id);
+            QJsonDocument doc = QJsonDocument::fromJson(json.toUtf8());
+            QJsonObject obj = doc.object();
+            return terrama2::core::fromDataSeriesJson(obj);
+    }
+
+    terrama2::core::DataSeriesPtr outputDataSeries(terrama2::core::DataProviderPtr dataProvider)
+    {
+
+        QString json = QString(R"x(
+                                    {
+                                        "class": "DataSeries",
+                                        "id": 6,
+                                        "name": "Output Grid",
+                                        "description": null,
+                                        "data_provider_id":  %1,
+                                        "semantics": "GRID-gdal",
+                                        "active": true,
+                                        "datasets":[
+                                             {
+                                                "class": "DataSet",
+                                                "id": 6,
+                                                "data_series_id": 6,
+                                                "active": true,
+                                                 "format": {
+                                                        "mask": "output_grid.tif",
+                                                        "timezone": "00:00",
+                                                        "srid": 4326
                                                 }
                                              }
                                         ]
@@ -172,6 +205,38 @@ namespace terrama2
             return terrama2::core::fromDataSeriesJson(obj);
     }
 
+    terrama2::core::DataSeriesPtr dataSeriesGridGdal(terrama2::core::DataProviderPtr dataProvider)
+    {
+
+        QString json = QString(R"x(
+                                    {
+                                        "class": "DataSeries",
+                                        "id": 3,
+                                        "name": "geotiff 1",
+                                        "description": null,
+                                        "data_provider_id":  %1,
+                                        "semantics": "GRID-gdal",
+                                        "active": true,
+                                        "datasets":[
+                                             {
+                                                "class": "DataSet",
+                                                "id": 3,
+                                                "data_series_id": 3,
+                                                "active": true,
+                                                 "format": {
+                                                        "mask": "L5219076_07620040908_r3g2b1.tif",
+                                                        "timezone": "00:00"
+
+                                                }
+                                             }
+                                        ]
+                                       }
+                                     )x"
+                                   ).arg(dataProvider->id);
+            QJsonDocument doc = QJsonDocument::fromJson(json.toUtf8());
+            QJsonObject obj = doc.object();
+            return terrama2::core::fromDataSeriesJson(obj);
+    }
     }  // end namespace utilsdcpserrmarinpe
    }  // end namespace analysis
   }  // end namespace examples
