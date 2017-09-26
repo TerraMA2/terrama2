@@ -8,17 +8,7 @@ function valid()
   fi
 }
 
-#
-# Check if running as root
-#
-SUDO=false
-if [ "$EUID" -eq 0 ]; then
-  SUDO=true
-fi
-
 printf "Post-installation script...\n"
-
-
 
 (
   printf "Webapp dependencies...\n"
@@ -66,7 +56,7 @@ printf "Post-installation script...\n"
   valid $? "Unable to install Bower."
   npm install grunt
   valid $? "Unable to install Grunt."
-  
+
   npm install
   valid $? "Unable to install NodeJs dependencies."
   npm run bower install --allow-root
@@ -80,7 +70,6 @@ printf "Post-installation script...\n"
 #
 (
   cd @TERRAMA2_DESTINATION@webapp/config
-  cd config
   if ! [ -d "instances" ]; then
     cp -r sample_instances instances
   fi
@@ -93,7 +82,7 @@ printf "Post-installation script...\n"
 )
 
 # If not root, end script
-if [[ $SUDO -ne true ]]; then
+if [ "$EUID" -ne 0 ]; then
   printf "End post-installation script...\n\n"
   exit 0
 fi
