@@ -79,7 +79,6 @@ int main(int argc, char* argv[])
     serviceManager.setInstanceId(1);
     serviceManager.setLogger(logger);
     serviceManager.setLogConnectionInfo(te::core::URI(""));
-    serviceManager.setInstanceId(1);
 
     service.setLogger(logger);
     service.start();
@@ -101,10 +100,9 @@ int main(int argc, char* argv[])
     analysis->active = true;
     analysis->outputDataSeriesId = outputDataSeries->id;
     analysis->outputDataSetId = outputDataSeries->datasetList.front()->id;
-    std::string script = "x = grid.zonal.count(\"geotiff 1\")\n"
-                         "add_value(\"min\", x)\n"
-                         "return";
 
+    std::string script = "x = grid.zonal.count(\"geotiff 1\")\n"
+                         "add_value(\"min\", x)\n";
 
     analysis->script = script;
     analysis->scriptLanguage = ScriptLanguage::PYTHON;
@@ -127,9 +125,7 @@ int main(int argc, char* argv[])
     auto dataProviderFile = terrama2::examples::analysis::utilsgeotiff::dataProviderFile();
     dataManager->add(dataProviderFile);
 
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Data Series 2
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     auto dataSeriesStatic = terrama2::examples::analysis::utilsgeotiff::dataSeriesStaticGdal(dataProviderFile);
     dataManager->add(dataSeriesStatic);
 
@@ -146,21 +142,7 @@ int main(int argc, char* argv[])
     analysis->analysisDataSeriesList = analysisDataSeriesList;
 
 
-    std::shared_ptr<AnalysisOutputGrid> outputGrid = std::make_shared<AnalysisOutputGrid>();
-    outputGrid->analysisId = 1;
-    outputGrid->interpolationMethod = InterpolationMethod::BILINEAR;
-    outputGrid->interestAreaType = InterestAreaType::SAME_FROM_DATASERIES;
-    outputGrid->interestAreaDataSeriesId = 1;
-    outputGrid->resolutionType = ResolutionType::SAME_FROM_DATASERIES;
-    outputGrid->resolutionDataSeriesId = 1;
-    outputGrid->interpolationDummy = -1;
-
-    analysis->outputGridPtr = outputGrid;
-
     dataManager->add(analysis);
-
-    terrama2::core::ServiceManager::getInstance().setInstanceId(1);
-
 
 
     service.addToQueue(analysis->id, terrama2::core::TimeUtils::nowUTC());

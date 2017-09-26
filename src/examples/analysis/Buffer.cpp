@@ -170,7 +170,6 @@ int main(int argc, char* argv[])
 
     terrama2::core::ServiceManager::getInstance().setInstanceId(1);
 
-    //service.addToQueue(analysis->id, terrama2::core::TimeUtils::nowUTC());
 
     service.addToQueue(analysis->id, terrama2::core::TimeUtils::stringToTimestamp("2016-04-30T22:30:00-03", terrama2::core::TimeUtils::webgui_timefacet));
 
