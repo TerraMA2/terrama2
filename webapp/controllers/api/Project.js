@@ -76,8 +76,7 @@ module.exports = function(app) {
       } else {
         var projects = DataManager.listProjects();
         projects.forEach(function(project){
-          project.hasPermission = request.user.administrator;
-          project.canEdit = request.user.administrator;
+          project.hasPermission = !project.protected || request.user.administrator || request.user.id == project.user_id;
         });
         response.json(projects);
       }
@@ -89,7 +88,7 @@ module.exports = function(app) {
       if (id) {
         var projectGiven = request.body;
         projectGiven.id = id;
-        projectGiven.user_id = request.user.id;
+        projectGiven.user_id = projectGiven.user_id ? projectGiven.user_id : request.user.id;
         DataManager.updateProject(projectGiven).then(function(project) {
           TcpService.emitEvent("projectReceived", project);
 

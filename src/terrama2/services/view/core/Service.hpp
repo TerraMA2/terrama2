@@ -62,7 +62,7 @@ namespace terrama2
           Service& operator=(const Service& other) = delete;
           Service& operator=(Service&& other) = default;
 
-          virtual void getStatus(QJsonObject& obj) const;
+          virtual void getStatus(QJsonObject& obj) const override;
 
         public slots:
 

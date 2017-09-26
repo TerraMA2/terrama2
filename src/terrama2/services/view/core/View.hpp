@@ -74,8 +74,7 @@ namespace terrama2
                 enum class CREATION_TYPE
                 {
                   EDITOR = 0,
-                  XML = 1,
-                  WIND = 2
+                  XML = 1
                 };
 
                 enum class OperationType

@@ -137,28 +137,27 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
     View::Legend* legend = viewPtr->legend.get();
 
     auto it = legend->metadata.find("creation_type");
-
     if (it == legend->metadata.end())
-      throw ViewGeoserverException() << ErrorDescription("The band number is required.");;
+      throw ViewGeoserverException() << ErrorDescription("The band number is required.");
 
+    // Predefined styles as XML styles
+    View::Legend::CREATION_TYPE creationType = it->second == "editor" ? View::Legend::CREATION_TYPE::EDITOR : View::Legend::CREATION_TYPE::XML;
 
     // For Grid Legends, a Band value is required and then it must be valid. (band_number >= 0)
     if (inputDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::GRID &&
-        View::Legend::CREATION_TYPE(std::stoi(it->second)) == View::Legend::CREATION_TYPE::EDITOR)
+        creationType == View::Legend::CREATION_TYPE::EDITOR)
     {
       auto it = legend->metadata.find("band_number");
-
       if (it == legend->metadata.end())
         throw ViewGeoserverException() << ErrorDescription("No band number provided");
 
       try
       {
         int band_number = std::stoi(it->second);
-
         if (band_number < 0)
           throw ViewGeoserverException();
       }
-      catch(const std::exception& e)
+      catch(const std::exception&)
       {
         throw ViewGeoserverException() <<
               ErrorDescription(("The band number provided is invalid. " + it->second).c_str());

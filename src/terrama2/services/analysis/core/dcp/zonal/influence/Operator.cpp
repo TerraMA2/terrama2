@@ -124,7 +124,7 @@ std::vector< std::string > terrama2::services::analysis::core::dcp::zonal::influ
       throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
     }
 
-    auto moDsContext = context->getMonitoredObjectContextDataSeries(dataManagerPtr);
+    auto moDsContext = context->getMonitoredObjectContextDataSeries();
     if(!moDsContext || !moDsContext->series.teDataSetType)
     {
       QString errMsg(QObject::tr("Could not recover monitored object data series."));
@@ -231,14 +231,7 @@ std::vector< std::string > terrama2::services::analysis::core::dcp::zonal::influ
 
     AnalysisPtr analysis = context->getAnalysis();
 
-    auto moDsContext = context->getMonitoredObjectContextDataSeries(dataManagerPtr);
-    if(!moDsContext)
-    {
-      QString errMsg(QObject::tr("Could not recover monitored object data series."));
-      errMsg = errMsg.arg(analysis->id);
-      throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
-    }
-
+    auto moDsContext = context->getMonitoredObjectContextDataSeries();
     auto moGeom = moDsContext->series.syncDataSet->getGeometry(cache.index, moDsContext->geometryPos);
     if(!moGeom)
     {
