@@ -8,18 +8,6 @@ function valid()
   fi
 }
 
-function installDependenciesManagers()
-{
-  #
-  # Install web dependencies
-  #
-  npm install bower
-  valid $? "Unable to install Bower."
-  npm install grunt
-  valid $? "Unable to install Grunt."
-}
-
-
 #
 # Check if running as root
 #
@@ -36,7 +24,14 @@ printf "Post-installation script...\n"
   printf "Webapp dependencies...\n"
   cd @TERRAMA2_DESTINATION@webapp
 
-  installDependenciesManagers()
+  #
+  # Install web dependencies
+  #
+  npm install bower
+  valid $? "Unable to install Bower."
+  npm install grunt
+  valid $? "Unable to install Grunt."
+
   npm install
   valid $? "Unable to install NodeJs dependencies."
   npm run bower install --allow-root
@@ -53,7 +48,7 @@ printf "Post-installation script...\n"
 
   npm install grunt
   valid $? "Unable to install Grunt."
-  
+
   npm install
   valid $? "Unable to install NodeJs dependencies."
   npm run grunt
@@ -64,7 +59,14 @@ printf "Post-installation script...\n"
   printf "Webmonitor dependencies...\n"
   cd @TERRAMA2_DESTINATION@webmonitor
 
-  installDependenciesManagers()
+  #
+  # Install web dependencies
+  #
+  npm install bower
+  valid $? "Unable to install Bower."
+  npm install grunt
+  valid $? "Unable to install Grunt."
+  
   npm install
   valid $? "Unable to install NodeJs dependencies."
   npm run bower install --allow-root
