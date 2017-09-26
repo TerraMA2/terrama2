@@ -1,0 +1,99 @@
+<div class="row">
+  <wizard id="wizard" template="">
+      <wz-step wz-title="General">
+        <div class="col-md-12">
+          <form name="forms.generalDataForm">
+            <div id="includeGeneralData" ng-include=""></div>
+          </form>
+        </div>
+
+        <div class="col-md-12" style="margin-top: 30px;">
+
+          <a href="" class="btn btn-primary pull-left cancel">Cancel</a>
+          <div class="pull-right">
+            <button class="btn btn-primary" type="submit" wz-next>Next</button>
+            <div class="btn-group pull-right" style="margin-left: 3px;">
+              <button type="button" class="btn btn-primary" data-ng-click="save(true);">Save and Run</button>
+              <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="caret"></span>
+                <span class="sr-only"></span>
+              </button>
+              <ul class="dropdown-menu terrama2-button-dropdown">
+                <li><a href="javascript::void();" data-ng-click="save(false);">Save</a></li>
+              </ul>
+            </div>
+
+          </div>
+        </div>
+      </wz-step>
+
+      <wz-step wz-title="Parameters">
+        <div class="col-md-12">
+          <form name="forms.parameterDataForm">
+            <div id="includeParameterData" ng-include=""></div>
+          </form>
+        </div>
+
+        <div class="col-md-12" style="margin-top: 30px;">
+
+          <a href="" class="btn btn-primary pull-left cancel">Cancel</a>
+          <div class="pull-right">
+            <button class="btn btn-primary" type="submit" wz-previous>Previous</button>
+            <button class="btn btn-primary" type="submit" wz-next>Next</button>
+            <div class="btn-group pull-right" style="margin-left: 3px;">
+              <button type="button" class="btn btn-primary" data-ng-click="save(true);">Save and Run</button>
+              <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="caret"></span>
+                <span class="sr-only"></span>
+              </button>
+              <ul class="dropdown-menu terrama2-button-dropdown">
+                <li><a href="javascript::void();" data-ng-click="save(false);">Save</a></li>
+              </ul>
+            </div>
+
+          </div>
+        </div>
+      </wz-step>
+      
+      <wz-step wz-title="Store">
+
+          <div class="col-md-12">
+            <form name="forms.storeDataForm">
+              <div id="includeStoreData" ng-include=""></div>
+            </form>
+          </div>
+
+          <div class="col-md-12" style="margin-top: 30px;">
+            <a href="" class="btn btn-primary pull-left cancel">Cancel</a>
+            <div class="pull-right">
+              <button class="btn btn-primary" type="submit" wz-previous>Previous</button>
+              <div class="btn-group pull-right" style="margin-left: 3px;">
+                <button type="button" class="btn btn-primary" data-ng-click="save(true);">Save and Run</button>
+                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <span class="caret"></span>
+                  <span class="sr-only"></span>
+                </button>
+                <ul class="dropdown-menu terrama2-button-dropdown">
+                  <li><a href="javascript::void();" data-ng-click="save(false);">Save</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+      </wz-step>
+  </wizard>
+
+  <script>
+    var templatePath = BASE_URL + "dist/templates/templates/terrama2-wizard.html";
+    var includeGeneralData = "'" + BASE_URL + "dist/templates/interpolator/templates/inter-general.html'";
+    var includeParameterData = "'" + BASE_URL + "dist/templates/interpolator/templates/inter-parameter.html'";
+    var includeStoreData = "'" + BASE_URL + "dist/templates/interpolator/templates/inter-store.html'";
+    var cancel = BASE_URL + "configuration/dynamic/dataseries/";
+
+    $("#wizard").attr("template", templatePath);
+    $("#includeGeneralData").attr("ng-include", includeGeneralData);
+    $("#includeParameterData").attr("ng-include", includeParameterData);
+    $("#includeStoreData").attr("ng-include", includeStoreData);
+    $(".cancel").attr("href", cancel);
+  
+  </script>
+</div>

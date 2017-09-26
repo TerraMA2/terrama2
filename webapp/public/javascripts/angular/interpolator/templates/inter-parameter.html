@@ -1,0 +1,88 @@
+<div class="row">
+  <!-- bounding_rect -->
+  <div class="col-md-12">
+    <div class="col-md-6">
+      <div class="form-group">
+        <div class="col-md-12">
+          <label>lower_left_corner</label>
+        </div>
+        <div class="col-md-6">
+          <label>X ll</label>
+          <input class="form-control" id="llx" name="llx" ng-model="bounding_rect.ll_corner.x" type="number" required>
+        </div>
+        <div class="col-md-6">
+          <label>Y ll</label>
+          <input class="form-control" id="lly" name="lly" ng-model="bounding_rect.ll_corner.y" type="number" required>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="form-group">
+        <div class="col-md-12">
+          <label>upper_right_corner</label>
+        </div>
+        <div class="col-md-6">
+          <label>X ll</label>
+          <input class="form-control" id="urx" name="urx" ng-model="bounding_rect.ur_corner.x" type="number" required>
+        </div>
+        <div class="col-md-6">
+          <label>Y ll</label>
+          <input class="form-control" id="urx" name="ury" ng-model="bounding_rect.ur_corner.y" type="number" required>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-12">
+    <div class="form-group">
+      <div class="col-md-6">
+        <label>interpolation_attribute</label>
+        <input class="form-control" id="interpolation_attribute" name="interpolation_attribute" ng-model="interpolation_attribute" type="text" required>
+      </div>
+      <div class="col-md-6">
+        <label>srid</label>
+        <input class="form-control" id="srid" name="srid" ng-model="srid" type="number" required>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-12">
+    <div class="form-group">
+      <div class="col-md-6">
+        <label>resolution_x</label>
+        <input class="form-control" id="resolution_x" name="resolution_x" ng-model="resolution_x" type="number" required>
+      </div>
+      <div class="col-md-6">
+        <label>resolution_y</label>
+        <input class="form-control" id="resolution_y" name="resolution_y" ng-model="resolution_y" type="number" required>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-12">
+    <div class="form-group">
+      <div class="col-md-6">
+        <label>interpolator_strategy</label>
+        <select class="form-control" name="interpolator_strategy" ng-model="interpolator_strategy">
+          <option value="0">Nearest neighbor</option>
+          <option value="1">Average neighbor</option>
+          <option value="2">Weight average neighbor</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-12">
+    <div class="form-group">
+      <div class="col-md-6">
+        <label>number_of_neighbors</label>
+        <input class="form-control" id="number_of_neighbors" name="number_of_neighbors" ng-model="number_of_neighbors" type="number" required>
+      </div>
+      <div class="col-md-6" ng-if="interpolator_strategy == 2">
+        <label>power_factor</label>
+        <input class="form-control" id="power_factor" name="power_factor" ng-model="power_factor" type="number" required>
+      </div>
+    </div>
+  </div>
+
+</div>

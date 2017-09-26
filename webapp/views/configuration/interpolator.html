@@ -6,15 +6,31 @@
 {% block title %} TerraMA² {{ i18n.__('Interpolator Registration') }} {% endblock %}
 
 {% block styles %}
+<link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}bower_components/angular-wizard/dist/angular-wizard.min.css">
 {% endblock %}
 
 
 {% block javascripts %}
+<!-- Angular -->
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/angular-wizard/dist/angular-wizard.js"></script>
+<!-- Angular ui router -->
+<script type="text/javascript" src="{[ BASE_URL ]}bower_components/angular-ui-router/release/angular-ui-router.min.js"></script>
 {% endblock %}
 
 
 {% block content %}
-<div ng-controller="InterpolatorRegisterUpdateController as ctrl">
-  <button data-ng-click="ctrl.save()">Save</button>
-</div>
+
+<div class="col-md-12">
+  <div class="box box-default">
+    <div class="box-header with-border">
+      <h3 class="box-title">Interpolation register</h3>
+    </div>
+
+    <!-- /.box-header -->
+    <div style="display: block;" class="box-body" ui-view>
+
+    </div>
+    <!-- /.box body -->
+  </div>
+</div> <!-- end col md 12 -->
 {% endblock %}
