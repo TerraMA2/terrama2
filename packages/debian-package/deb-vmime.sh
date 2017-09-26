@@ -39,7 +39,7 @@ export DEBNAME=terrama2-vmime
 export DEBVERSION=0.9.2
 export DEBARC=amd64
 export LIBRARYNAME=Vmime
-export FILENAME=vmime-0.9.2.tar.gz
+export FILENAME=v0.9.2.tar.gz
 export FOLDERNAME=vmime-0.9.2
 export DOWNLOAD_LINK=https://github.com/kisli/vmime/archive/v0.9.2.tar.gz
 
@@ -150,7 +150,7 @@ echo "8" > debian/compat
 mkdir -p debian/source
 echo "3.0 (quilt)" > debian/source/format
 
-cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE:STRING="Release" -DCMAKE_PREFIX_PATH:PATH="/opt/terralib/5.2.1/3rdparty" -DVMIME_HAVE_MESSAGING_PROTO_SENDMAIL:BOOL=false -DVMIME_BUILD_SAMPLES:BOOL=false -DCMAKE_INSTALL_PREFIX:PATH="`pwd`/debian/${DEBNAME}/opt/terrama2/${TMVERSION}/3rdparty" -DCMAKE_INSTALL_RPATH:PATH="`pwd`/debian/${DEBNAME}/opt/terrama2/${TMVERSION}/3rdparty/lib"
+cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE:STRING="Release" -DCMAKE_PREFIX_PATH:PATH="/opt/terralib/5.2.1/3rdparty" -DVMIME_HAVE_MESSAGING_PROTO_SENDMAIL:BOOL=false -DVMIME_BUILD_SAMPLES:BOOL=false -DVMIME_SHARED_PTR_USE_CXX:BOOL=true -DVMIME_SHARED_PTR_USE_BOOST:BOOL=false -DCMAKE_INSTALL_PREFIX:PATH="`pwd`/debian/${DEBNAME}/opt/terrama2/${TMVERSION}/3rdparty" -DCMAKE_INSTALL_RPATH:PATH="`pwd`/debian/${DEBNAME}/opt/terrama2/${TMVERSION}/3rdparty/lib"
 
 valid $? "Error at cmake"
 #
