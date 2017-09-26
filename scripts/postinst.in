@@ -8,23 +8,32 @@ function valid()
   fi
 }
 
+#
+# Check if running as root
+#
+SUDO=false
+if [ "$EUID" -eq 0 ]; then
+  SUDO=true
+fi
+
 printf "Post-installation script...\n"
 
 #
 # Install web dependencies
 #
-
-npm install bower -g
-npm install grunt -g
+npm install bower
+valid $? "Unable to install Bower."
+npm install grunt
+valid $? "Unable to install Grunt."
 
 (
   printf "Webapp dependencies...\n"
   cd @TERRAMA2_DESTINATION@webapp
   npm install
   valid $? "Unable to install NodeJs dependencies."
-  bower install --allow-root
+  npm run bower install --allow-root
   valid $? "Unable to install Bower dependencies."
-  grunt
+  npm run grunt
   valid $? "Error executing grunt.\n"
 
   chmod +x bin/webapp-stop.js
@@ -35,7 +44,7 @@ npm install grunt -g
   cd @TERRAMA2_DESTINATION@webcomponents
   npm install
   valid $? "Unable to install NodeJs dependencies."
-  grunt
+  npm run grunt
   valid $? "Error executing grunt."
 )
 
@@ -44,11 +53,34 @@ npm install grunt -g
   cd @TERRAMA2_DESTINATION@webmonitor
   npm install
   valid $? "Unable to install NodeJs dependencies."
-  bower install --allow-root
+  npm run bower install --allow-root
   valid $? "Unable to install Bower dependencies."
-  grunt
+  npm run grunt
   valid $? "Error executing grunt."
 )
+
+#
+# Create default config files
+#
+(
+  cd @TERRAMA2_DESTINATION@webapp/config
+  cd config
+  if ! [ -d "instances" ]; then
+    cp -r sample_instances instances
+  fi
+)
+(
+  cd @TERRAMA2_DESTINATION@webmonitor/config
+  if ! [ -d "instances" ]; then
+    cp -r sample_instances instances
+  fi
+)
+
+# If not root, end script
+if [[ $SUDO -ne true ]]; then
+  printf "End post-installation script...\n\n"
+  exit 0
+fi
 
 #
 # Install and configure pm2
@@ -60,8 +92,9 @@ if [ $? != 0 ]; then
   printf "Configuring pm2...\n"
   # Install pm2
   npm install pm2 -g
-  pm2 install pm2-logrotate
   valid $? "Error installing pm2."
+  pm2 install pm2-logrotate
+  valid $? "Error installing pm2-logrotate."
   # Allows the service to start with the system
   env PATH=$PATH:/usr/local/bin pm2 startup
   valid $? "Error adding pm2 to startup."
@@ -86,13 +119,6 @@ fi
 (
   cd @TERRAMA2_DESTINATION@webapp
 
-  (
-    cd config
-    if ! [ -d "instances" ]; then
-      cp -r sample_instances instances
-    fi
-  )
-
   pm2 start npm --name webapp -- start
   valid $? "Error executing webapp."
   pm2 save
@@ -102,14 +128,6 @@ fi
 # Add webmonitor to pm2 startup
 (
   cd @TERRAMA2_DESTINATION@webmonitor
-
-  (
-    cd config
-    if ! [ -d "instances" ]; then
-      cp -r sample_instances instances
-    fi
-  )
-
   pm2 start npm --name webmonitor -- start
   valid $? "Error executing webmonitor."
   pm2 save
