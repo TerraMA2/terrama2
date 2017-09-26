@@ -154,6 +154,9 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
 
   terrama2::core::Filter filter;
   filter.discardAfter = executionDate;
+  // If dynamic geometric object filter by the last date, doesn't affect static geometric object
+  if(intersectionDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::GEOMETRIC_OBJECT)
+    filter.lastValues = std::make_shared<size_t>(1);
 
   auto remover = std::make_shared<terrama2::core::FileRemover>();
   // Reads data
