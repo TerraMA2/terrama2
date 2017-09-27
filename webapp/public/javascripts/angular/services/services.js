@@ -11,7 +11,8 @@ define([
       COLLECTOR: 1,
       ANALYSIS: 2,
       VIEW: 3,
-      ALERT: 4
+      ALERT: 4,
+      INTERPOLATION: 5
     });
 
   /**

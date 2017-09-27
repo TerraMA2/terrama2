@@ -2,37 +2,44 @@
   <div class="col-md-12">
     <div class="col-md-4">
       <label>output_format</label>
-      <select class="form-control" id="data_series_semantics_id" name="data_series_semantics_id" ng-model="data_series_semantics_id">
+      <select class="form-control" id="data_series_semantics_id" name="data_series_semantics_id" ng-model="inter.output.data_series_semantics_id">
         <option value="8">GEOTIFF</option>
       </select>
     </div>
     <div class="col-md-4">
       <label>data_store</label>
-      <select class="form-control" id="data_store" name="data_store" ng-model="data_store">
+      <select class="form-control" id="data_store" name="data_store" ng-model="inter.output.data_store">
         <option value="8">provider</option>
       </select>
     </div>
     <div class="col-md-4">
       <label>service_instance</label>
-      <select class="form-control" id="service_instance" name="service_instance" ng-model="service_instance_id">
-        <option value="8">interpolator_service</option>
-      </select>
+      <ui-select name="service" ng-model="ctrl.alert.service_instance_id" required>
+        <ui-select-match>
+          <img ng-src="{[ BASE_URL ]}images/services/alert/alert_service.png" style="height: 20px; margin-top: -7px;"/>
+          <span ng-bind="$select.selected.name"></span>
+        </ui-select-match>
+        <ui-select-choices repeat="instance.id as instance in (filteredServices | filter: {'name': $select.search}) track by instance.id">
+          <img ng-src="{[ BASE_URL ]}images/services/alert/alert_service.png" style="height: 20px;"/>
+          <span ng-bind="instance.name"></span>
+        </ui-select-choices>
+      </ui-select>
     </div>
   </div>
   <div class="col-md-12">
     <label>mask</label>
-    <input class="form-control" id="mask" name="mask" ng-model="output.mask" type="text" required>
+    <input class="form-control" id="mask" name="mask" ng-model="inter.output.mask" type="text">
   </div>
   <div class="col-md-12">
     <label>srid</label>
-    <input class="form-control" id="srid" name="srid" ng-model="output.srid" type="number" required>
+    <input class="form-control" id="srid" name="srid" ng-model="inter.output.srid" type="number">
   </div>
   <div class="col-md-12">
     <label>timestamp_property</label>
-    <input class="form-control" id="timestamp_property" name="timestamp_property" ng-model="output.timestamp_property" type="text" required>
+    <input class="form-control" id="timestamp_property" name="timestamp_property" ng-model="inter.output.timestamp_property" type="text">
   </div>
   <div class="col-md-12">
     <label>timezone</label>
-    <input class="form-control" id="timezone" name="timezone" ng-model="output.timezone" type="number" required>
+    <input class="form-control" id="timezone" name="timezone" ng-model="inter.output.timezone" type="number">
   </div>
 </div>

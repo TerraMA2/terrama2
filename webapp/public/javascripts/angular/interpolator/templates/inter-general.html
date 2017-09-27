@@ -3,14 +3,14 @@
     <div class="col-md-5">
       <div class="form-group" terrama2-show-errors>
         <label for="data_series">data_series_to_interpolate_label</label>
-        <input class="form-control" id="data_series" name="data_series" ng-disabled="true" type="text" ng-model="input_data_series">
+        <input class="form-control" id="data_series" name="data_series" type="text" ng-model="input_data_series">
       </div>
     </div>
     <div class="col-md-5">
       <div class="form-group">
         <div class="checkbox">
           <label style="font-weight: 700; margin-top:19px;">
-            <input name="active" ng-model="active" type="checkbox"> active-label
+            <input name="active" ng-model="inter.active" type="checkbox"> active-label
           </label>
         </div>
       </div>
@@ -20,7 +20,7 @@
     <div class="col-md-12">
       <div class="form-group" terrama2-show-errors>
         <label for="name">name_label</label>
-        <input class="form-control" id="name" name="name" ng-model="name" placeholder="Interpolator Name" type="text" required>
+        <input class="form-control" id="name" name="name" ng-model="inter.name" placeholder="Interpolator Name" type="text">
       </div>
     </div>
   </div>
@@ -29,7 +29,7 @@
     <div class="col-md-12">
       <div class="form-group" terrama2-show-errors>
         <label>description_label</label>
-        <textarea class="form-control" name="description" ng-model="description" rows="3" placeholder="Description"></textarea>
+        <textarea class="form-control" name="description" ng-model="inter.description" rows="3" placeholder="Description"></textarea>
       </div>
     </div>
   </div>

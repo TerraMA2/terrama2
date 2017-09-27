@@ -8,7 +8,8 @@ define([
 
   var deps = [messageBoxApp];
   if (moduleLoader("ui.router", deps) &&
-      moduleLoader("mgo-angular-wizard", deps)){
+      moduleLoader("mgo-angular-wizard", deps) &&
+      moduleLoader("ui.select", deps)){
     deps.push(serviceApp);
 
   }

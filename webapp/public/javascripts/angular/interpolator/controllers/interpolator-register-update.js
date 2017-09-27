@@ -1,14 +1,23 @@
 define([], function(){
   'use strict';
 
-  var InterpolatorRegisterUpdate = function($scope, $http, $log, MessageBoxService, InterpolatorService){
-    var self = this;
+  var InterpolatorRegisterUpdate = function($scope, $q, $http, $log, i18n, MessageBoxService, Service, InterpolatorService){
 
-    self.MessageBoxService = MessageBoxService;
+    $scope.MessageBoxService = MessageBoxService;
+    $scope.ServiceInstance = Service;
+    $scope.InterpolatorService = InterpolatorService;
+    $scope.inter = {};
 
-    self.InterpolatorService = InterpolatorService;
+    $q.all([
+      i18n.ensureLocaleIsLoaded(),
+    ]).then(function(){
+      return $scope.ServiceInstance.init().then(function(){
 
-    self.interpolator = {
+        $scope.filteredServices = $scope.ServiceInstance.list({'service_type_id': $scope.ServiceInstance.types.INTERPOLATION});
+      });
+    });
+
+    /* $scope.interpolator = {
       active: true,
       service_instance_id: 5,
       data_series_input: 1,
@@ -53,24 +62,24 @@ define([], function(){
         number_of_neighbors: 2,
         power_factor: 3
       }
-    };
-
-    self.interpolator.bounding_rect = JSON.stringify(self.interpolator.bounding_rect);
+    }; */
     
-    self.save = function(){
-      var operation = self.InterpolatorService.create({interpolator: self.interpolator, schedule:{schedule_type: 3}});
+    $scope.save = function(){
+      console.log($scope.inter);
+    
+/*       var operation = $scope.InterpolatorService.create({interpolator: $scope.interpolator, schedule:{schedule_type: 3}});
       operation.then(function(response) {
         console.log(response);
         $log.info(response);
       }).catch(function(err) {
         $log.info(err);
-        self.MessageBoxService.danger(i18n.__("Interpolator"), i18n.__(err));
-      });
+        $scope.MessageBoxService.danger(i18n.__("Interpolator"), i18n.__(err));
+      }); */
     }
 
   };
 
-  InterpolatorRegisterUpdate.$inject = ["$scope", "$http", "$log", "MessageBoxService", "InterpolatorService"];
+  InterpolatorRegisterUpdate.$inject = ["$scope", "$q", "$http", "$log", "i18n", "MessageBoxService", "Service","InterpolatorService"];
 
   return InterpolatorRegisterUpdate;
 })
