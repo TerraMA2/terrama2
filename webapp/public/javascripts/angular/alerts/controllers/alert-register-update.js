@@ -356,8 +356,13 @@ define([], function() {
           break;
         case DataSeriesService.DataSeriesType.POSTGIS:
         case DataSeriesService.DataSeriesType.GEOMETRIC_OBJECT:
-          return BASE_URL + "images/static-data-series/vetorial/vetorial.png";
-          break;
+          if(dataSeries.data_series_semantics.temporality == "STATIC") {
+            return BASE_URL + "images/static-data-series/vetorial/vetorial.png";
+            break;
+          } else {
+            return BASE_URL + "images/dynamic-data-series/geometric-object/geometric-object.png";
+            break;
+          }
         default:
           return BASE_URL + "images/dynamic-data-series/occurrence/occurrence.png";
           break;
