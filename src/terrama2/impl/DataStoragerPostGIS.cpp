@@ -52,7 +52,7 @@ terrama2::core::DataStoragerPtr terrama2::core::DataStoragerPostGIS::make(DataSe
   return std::make_shared<DataStoragerPostGIS>(dataSeries, dataProvider);
 }
 
-std::string terrama2::core::DataStoragerPostGIS::getCompleteURI(DataSetPtr outputDataSet) const
+std::string terrama2::core::DataStoragerPostGIS::getCompleteURI(DataSetPtr /*outputDataSet*/) const
 {
   return dataProvider_->uri;
 }

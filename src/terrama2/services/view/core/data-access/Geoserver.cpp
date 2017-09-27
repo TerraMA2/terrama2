@@ -62,6 +62,12 @@
 #include <terralib/fe/And.h>
 #include <terralib/fe/Globals.h>
 
+#include <terralib/se/Rule.h>
+#include <terralib/se/FeatureTypeStyle.h>
+
+#include <terralib/raster/RasterProperty.h>
+#include <terralib/raster/Grid.h>
+
 // Qt
 #include <QTemporaryFile>
 #include <QUrl>

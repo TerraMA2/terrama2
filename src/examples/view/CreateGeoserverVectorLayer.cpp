@@ -41,6 +41,9 @@
 
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
+#include <terralib/dataaccess/utils/Utils.h>
+
+#include <terralib/geometry/GeometryProperty.h>
 
 // Qt
 #include <QTemporaryFile>
