@@ -60,7 +60,7 @@ namespace terrama2
                                         "class": "DataProvider",
                                         "uri": "%1",
                                         "project_id": 0,
-                                        "id": 1,
+                                        "id": 2,
                                         "name": "Provider",
                                         "intent":  "COLLECTOR_INTENT",
                                         "data_provider_type": "FILE",
@@ -86,7 +86,7 @@ namespace terrama2
                                         "name": "Output Grid",
                                         "description": null,
                                         "data_provider_id":  %1,
-                                        "semantics": "GRID-gdal",
+                                        "semantics": "GRID-geotiff",
                                         "active": true,
                                         "datasets":[
                                              {
@@ -151,7 +151,7 @@ namespace terrama2
                                         "name": "geotiff 1",
                                         "description": null,
                                         "data_provider_id":  %1,
-                                        "semantics": "GRID-gdal",
+                                        "semantics": "GRID-geotiff",
                                         "active": true,
                                         "datasets":[
                                              {
@@ -192,7 +192,9 @@ namespace terrama2
                                                 "data_series_id": 2,
                                                 "active": true,
                                                  "format": {
-                                                        "mask": "Spot_Vegetacao_Jul2001_SP.tif"
+                                                        "mask": "Spot_Vegetacao_Jul2001_SP.tif",
+                                                        "timezone": "00:00",
+                                                        "srid": 4291
 
                                                 }
                                              }
