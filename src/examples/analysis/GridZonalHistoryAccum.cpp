@@ -72,8 +72,6 @@ int main(int argc, char* argv[])
     EXPECT_CALL(*logger, clone()).WillRepeatedly(::testing::Return(loggerCopy));
     EXPECT_CALL(*logger, isValid()).WillRepeatedly(::testing::Return(true));
 
-    te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PASSWORD+"@"+TERRAMA2_DATABASE_HOST+":"+TERRAMA2_DATABASE_PORT+"/"+TERRAMA2_DATABASE_DBNAME);
-
     Service service(dataManager);
     serviceManager.setInstanceId(1);
     serviceManager.setLogger(logger);
@@ -95,6 +93,7 @@ int main(int argc, char* argv[])
     analysis->id = 1;
     analysis->name = "Analysis";
     analysis->active = true;
+
     std::string script = "x = grid.zonal.history.accum.max(\"geotiff 1\", \"30d\")\n"
                          "add_value(\"max\", x)\n";
 
@@ -117,15 +116,15 @@ int main(int argc, char* argv[])
 
 
     // DataProvider information
-    auto dataProviderGeoTif = terrama2::examples::analysis::utilsgeotiff::dataProviderFile();
-    dataManager->add(dataProviderGeoTif);
+    auto dataProviderFile = terrama2::examples::analysis::utilsgeotiff::dataProviderFile();
+    dataManager->add(dataProviderFile);
 
-    auto dataSeriesStaticGdal = terrama2::examples::analysis::utilsgeotiff::dataSeriesStaticGdal(dataProviderGeoTif);
-    dataManager->add(dataSeriesStaticGdal);
+    auto dataSeriesStatic = terrama2::examples::analysis::utilsgeotiff::dataSeriesStaticGdal(dataProviderFile);
+    dataManager->add(dataSeriesStatic);
 
     AnalysisDataSeries gridADS1;
     gridADS1.id = 2;
-    gridADS1.dataSeriesId = dataSeriesStaticGdal->id;
+    gridADS1.dataSeriesId = dataSeriesStatic->id;
     gridADS1.type = AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE;
 
 
@@ -139,6 +138,7 @@ int main(int argc, char* argv[])
     analysis->schedule.frequencyUnit = "min";
 
     dataManager->add(analysis);
+
 
     service.addToQueue(analysis->id, terrama2::core::TimeUtils::nowUTC());
 
