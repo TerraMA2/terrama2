@@ -797,9 +797,8 @@ define([], function() {
       };
 
       $scope.dataSeriesGroups = [
-        {name: i18n.__("Static"), children: []}
-        //Remove comment when its possible to do intersection with dynamic data - change to Dynamic
-        //{name: "Grid", children: []}
+        {name: i18n.__("Static"), children: []},
+        {name: i18n.__("Dynamic"), children: []}
       ];
 
       // adding data series in intersection list
@@ -826,7 +825,11 @@ define([], function() {
           } else {
             ds.isGrid = false;
           }
-          _helper(0, ds);
+          if (ds.data_series_semantics.temporality == globals.enums.TemporalityType.STATIC){
+            _helper(0, ds);
+          } else {
+            _helper(1, ds);            
+          }
         };
 
         if(ds) {
@@ -860,8 +863,11 @@ define([], function() {
 
         var dataSeriesType = dataSeries.data_series_semantics.data_series_type_name;
 
-        $scope.dataSeriesGroups[0].children = _helper($scope.dataSeriesGroups[0].children);
-
+        if (dataSeries.data_series_semantics.temporality == globals.enums.TemporalityType.STATIC){
+          $scope.dataSeriesGroups[0].children = _helper($scope.dataSeriesGroups[0].children);
+        } else { 
+          $scope.dataSeriesGroups[1].children = _helper($scope.dataSeriesGroups[1].children);           
+        }
 
         // removing ds attributes
         delete $scope.intersection[dataSeries.id];
@@ -1188,14 +1194,12 @@ define([], function() {
       // fill intersection data series
       $scope.dataSeriesList.forEach(function(dSeries) {
         var temporality = dSeries.data_series_semantics.temporality;
-        switch(temporality) {
-          //Remove comment when its possible to do intersection with dynamic data
-          /*
+        switch(temporality) {          
           case globals.enums.TemporalityType.DYNAMIC:
-            if (dSeries.data_series_semantics.data_series_type_name === globals.enums.DataSeriesType.GRID)
+            if (dSeries.data_series_semantics.data_series_type_name === globals.enums.DataSeriesType.GRID || dSeries.data_series_semantics.data_series_type_name === globals.enums.DataSeriesType.GEOMETRIC_OBJECT)
               $scope.dataSeriesGroups[1].children.push(dSeries);
             break;
-          */
+          
           case globals.enums.TemporalityType.STATIC:
             $scope.dataSeriesGroups[0].children.push(dSeries);
             $scope.staticDataSeriesList.push(dSeries);
