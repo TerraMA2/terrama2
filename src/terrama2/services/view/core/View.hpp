@@ -39,11 +39,12 @@
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/Shared.hpp"
 #include "../../../core/Typedef.hpp"
-#include "MemoryDataSetLayer.hpp"
 #include "Typedef.hpp"
 #include "Shared.hpp"
 #include "ViewLogger.hpp"
 #include "Exception.hpp"
+
+#include <terralib/maptools/Enums.h>
 
 // STL
 #include <string>
