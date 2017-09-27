@@ -63,7 +63,7 @@ namespace examples
     const std::string zonal_analysis_result = "zonal_analysis_result";
     const std::string analysis_dcp_result = "analysis_dcp_result";
     const std::string occurrence_aggregation_analysis_result = "occurrence_aggregation_analysis_result";
-
+    const std::string buffer_analysis_result = "buffer_analysis_result";
 
 
 
@@ -102,15 +102,15 @@ namespace examples
                                     "semantics": "STATIC_DATA-postgis",
                                     "active": true,
                                     "datasets": [
-                                    {
-                                        "class": "DataSet",
-                                        "id": 1,
-                                        "data_series_id": 1,
-                                        "active": true,
-                                        "format": {
-                                            "table_name": "estados_2010"
+                                        {
+                                            "class": "DataSet",
+                                            "id": 1,
+                                            "data_series_id": 1,
+                                            "active": true,
+                                            "format": {
+                                                "table_name": "estados_2010"
+                                            }
                                         }
-                                    }
                                     ]
                                   }
                                )"
