@@ -64,10 +64,11 @@ namespace examples
     const std::string analysis_dcp_result = "analysis_dcp_result";
     const std::string occurrence_aggregation_analysis_result = "occurrence_aggregation_analysis_result";
     const std::string buffer_analysis_result = "buffer_analysis_result";
+    const std::string analysis_result = "analysis_result";
+    const std::string reprocessing_result = "reprocessing_result";
 
 
-
-    terrama2::core::DataProviderPtr dataProviderPostGis()
+    QJsonObject dataProviderPostGisjson()
     {
         QString json = QString(R"(
                                   {
@@ -86,7 +87,12 @@ namespace examples
 
 
         QJsonDocument doc = QJsonDocument::fromJson(json.toUtf8());
-        QJsonObject obj = doc.object();
+        return doc.object();
+    }
+
+    terrama2::core::DataProviderPtr dataProviderPostGis()
+    {
+        auto obj = dataProviderPostGisjson();
         return terrama2::core::fromDataProviderJson(obj);
     }
 
@@ -123,13 +129,52 @@ namespace examples
 
     }
 
+    QJsonObject dataSeriesMunicSerrmarInpeJson(terrama2::core::DataProviderPtr dataProvider)
+    {
+        QString json = QString(R"(
+                                  {
+                                    "class": "DataSeries",
+                                    "id": 2,
+                                    "name": "Monitored Object",
+                                    "description": null,
+                                    "data_provider_id":  %1,
+                                    "semantics": "STATIC_DATA-postgis",
+                                    "active": true,
+                                    "datasets": [
+                                        {
+                                            "class": "DataSet",
+                                            "id": 2,
+                                            "data_series_id": 2,
+                                            "active": true,
+                                            "format": {
+                                                "table_name": "munic_afetados_serrmar_inpe"
+                                            }
+                                        }
+                                    ]
+                                  }
+                               )"
+                             ).arg(dataProvider->id);
+
+
+         QJsonDocument doc = QJsonDocument::fromJson(json.toUtf8());
+         return doc.object();
+
+
+    }
+
+    terrama2::core::DataSeriesPtr dataSeriesMunicSerrmarInpe(terrama2::core::DataProviderPtr dataProvider)
+    {
+         auto obj = dataSeriesMunicSerrmarInpeJson(dataProvider);
+         return terrama2::core::fromDataSeriesJson(obj);
+    }
+
     terrama2::core::DataSeriesPtr occurrenceDataSeriesPostGis(terrama2::core::DataProviderPtr dataProvider)
     {
 
         QString json = QString(R"(
                                         {
                                             "class": "DataSeries",
-                                            "id": 2,
+                                            "id": 3,
                                             "name": "Occurrence",
                                             "description": null,
                                             "data_provider_id":  %1,
@@ -138,8 +183,8 @@ namespace examples
                                             "datasets": [
                                               {
                                                 "class": "DataSet",
-                                                "id": 2,
-                                                "data_series_id": 2,
+                                                "id": 3,
+                                                "data_series_id": 3,
                                                 "active": true,
                                                 "format": {
                                                     "table_name": "queimadas_test_table",
@@ -162,13 +207,13 @@ namespace examples
 
 
 
-    terrama2::core::DataSeriesPtr outputDataSeriesPostGis(terrama2::core::DataProviderPtr outputDataProvider, std::string nameTableResult)
+    QJsonObject  outputDataSeriesPostGisJson(terrama2::core::DataProviderPtr outputDataProvider, std::string nameTableResult)
     {
 
         QString json = QString(R"(
                                         {
                                             "class": "DataSeries",
-                                            "id": 3,
+                                            "id": 4,
                                             "name": "Analysis result",
                                             "description": null,
                                             "data_provider_id":  %1,
@@ -177,8 +222,8 @@ namespace examples
                                             "datasets": [
                                               {
                                                 "class": "DataSet",
-                                                "id": 3,
-                                                "data_series_id": 3,
+                                                "id": 4,
+                                                "data_series_id": 4,
                                                 "active": true,
                                                 "format": {
                                                     "table_name": "%2"
@@ -192,10 +237,14 @@ namespace examples
 
 
         QJsonDocument doc = QJsonDocument::fromJson(json.toUtf8());
-        QJsonObject obj = doc.object();
-        return terrama2::core::fromDataSeriesJson(obj);
+        return doc.object();
     }
 
+    terrama2::core::DataSeriesPtr outputDataSeriesPostGis(terrama2::core::DataProviderPtr outputDataProvider, std::string nameTableResult)
+    {
+        auto obj = outputDataSeriesPostGisJson(outputDataProvider, nameTableResult);
+        return terrama2::core::fromDataSeriesJson(obj);
+    }
 
    } // end namespace utilspostgis
    } // end namespace analysis

@@ -54,7 +54,7 @@ namespace terrama2
   namespace utilsdcpserrmarinpe
   {
 
-    terrama2::core::DataProviderPtr dataProviderFile()
+    QJsonObject dataProviderFileJson()
     {
          QString json = QString(R"(
                                     {
@@ -72,9 +72,15 @@ namespace terrama2
                                ).arg(QString::fromStdString(TERRAMA2_DATA_DIR+"/PCD_serrmar_INPE/"));
 
         QJsonDocument doc = QJsonDocument::fromJson(json.toUtf8());
-        QJsonObject obj = doc.object();
-        return terrama2::core::fromDataProviderJson(obj);
+        return doc.object();
 
+
+    }
+
+    terrama2::core::DataProviderPtr dataProviderFile()
+    {
+         auto obj = dataProviderFileJson();
+         return terrama2::core::fromDataProviderJson(obj);
     }
 
     terrama2::core::DataSeriesPtr dataSeries(terrama2::core::DataProviderPtr dataProvider)
@@ -158,14 +164,16 @@ namespace terrama2
     }
 
      //DCP  PICINGUABA, ITANHAEM
-     terrama2::core::DataSeriesPtr dataSeries2DCP(terrama2::core::DataProviderPtr dataProvider)
+
+
+     QJsonObject dataSeries2DCPJson(terrama2::core::DataProviderPtr dataProvider)
      {
 
                 QString json = QString(R"x(
                                             {
                                                 "class": "DataSeries",
                                                 "id": 27,
-                                                "name": "Monitored Object",
+                                                "name": "Serra do Mar",
                                                 "description": null,
                                                 "data_provider_id":  %1,
                                                 "semantics": "DCP-inpe",
@@ -200,8 +208,13 @@ namespace terrama2
                                              )x"
                                            ).arg(dataProvider->id);
                     QJsonDocument doc = QJsonDocument::fromJson(json.toUtf8());
-                    QJsonObject obj = doc.object();
-                    return terrama2::core::fromDataSeriesJson(obj);
+                    return doc.object();
+      }
+
+      terrama2::core::DataSeriesPtr dataSeries2DCP(terrama2::core::DataProviderPtr dataProvider)
+      {
+          auto obj = dataSeries2DCPJson(dataProvider);
+          return terrama2::core::fromDataSeriesJson(obj);
       }
 
 
