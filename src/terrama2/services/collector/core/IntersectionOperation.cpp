@@ -67,7 +67,10 @@
 #include <terralib/raster/Grid.h>
 #include <terralib/sa/core/Utils.h>
 
-terrama2::core::DataSetSeries terrama2::services::collector::core::processIntersection(DataManagerPtr dataManager, IntersectionPtr intersection, terrama2::core::DataSetSeries collectedDataSetSeries)
+terrama2::core::DataSetSeries terrama2::services::collector::core::processIntersection(DataManagerPtr dataManager,
+                                                                                       IntersectionPtr intersection,
+                                                                                       terrama2::core::DataSetSeries collectedDataSetSeries,
+                                                                                       std::shared_ptr<te::dt::TimeInstantTZ> executionDate)
 {
   if(!intersection)
     return collectedDataSetSeries;
@@ -83,11 +86,11 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processInters
 
     if(intersectionDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::GEOMETRIC_OBJECT)
     {
-      collectedDataSetSeries = processVectorIntersection(dataManager, intersection, collectedDataSetSeries, vecAttributes, intersectionDataSeries);
+      collectedDataSetSeries = processVectorIntersection(dataManager, intersection, collectedDataSetSeries, vecAttributes, intersectionDataSeries, executionDate);
     }
     else if(intersectionDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::GRID)
     {
-      collectedDataSetSeries = processGridIntersection(dataManager, intersection, collectedDataSetSeries, vecAttributes, intersectionDataSeries);
+      collectedDataSetSeries = processGridIntersection(dataManager, intersection, collectedDataSetSeries, vecAttributes, intersectionDataSeries, executionDate);
     }
 
   }
@@ -100,7 +103,8 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
     core::IntersectionPtr intersection,
     terrama2::core::DataSetSeries collectedDataSetSeries,
     std::vector<IntersectionAttribute>& vecAttributes,
-    terrama2::core::DataSeriesPtr intersectionDataSeries)
+    terrama2::core::DataSeriesPtr intersectionDataSeries,
+    std::shared_ptr<te::dt::TimeInstantTZ> executionDate)
 {
 
 
@@ -149,6 +153,10 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
   terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, intersectionDataSeries);
 
   terrama2::core::Filter filter;
+  filter.discardAfter = executionDate;
+  // If dynamic geometric object filter by the last date, doesn't affect static geometric object
+  if(intersectionDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::GEOMETRIC_OBJECT)
+    filter.lastValues = std::make_shared<size_t>(1);
 
   auto remover = std::make_shared<terrama2::core::FileRemover>();
   // Reads data
@@ -349,7 +357,8 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIn
     core::IntersectionPtr intersection,
     terrama2::core::DataSetSeries collectedDataSetSeries,
     std::vector<IntersectionAttribute>& vecAttributes,
-    terrama2::core::DataSeriesPtr intersectionDataSeries)
+    terrama2::core::DataSeriesPtr intersectionDataSeries,
+    std::shared_ptr<te::dt::TimeInstantTZ> executionDate)
 {
   if(intersectionDataSeries->semantics.dataSeriesType != terrama2::core::DataSeriesType::GRID)
   {
@@ -376,6 +385,7 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIn
 
   terrama2::core::Filter filter;
   filter.lastValues = std::make_shared<size_t>(1);
+  filter.discardAfter = executionDate;
 
   auto remover = std::make_shared<terrama2::core::FileRemover>();
   auto gridSeries = accessorGrid->getGridSeries(filter, remover);

@@ -62,6 +62,12 @@
 #include <terralib/fe/And.h>
 #include <terralib/fe/Globals.h>
 
+#include <terralib/se/Rule.h>
+#include <terralib/se/FeatureTypeStyle.h>
+
+#include <terralib/raster/RasterProperty.h>
+#include <terralib/raster/Grid.h>
+
 // Qt
 #include <QTemporaryFile>
 #include <QUrl>
@@ -141,7 +147,8 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
       throw ViewGeoserverException() << ErrorDescription("The band number is required.");
 
     // Predefined styles as XML styles
-    View::Legend::CREATION_TYPE creationType = it->second == "editor" ? View::Legend::CREATION_TYPE::EDITOR : View::Legend::CREATION_TYPE::XML;
+    View::Legend::CREATION_TYPE creationType = it->second == "editor" ? View::Legend::CREATION_TYPE::EDITOR
+                                                                      : View::Legend::CREATION_TYPE::XML;
 
     // For Grid Legends, a Band value is required and then it must be valid. (band_number >= 0)
     if (inputDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::GRID &&
@@ -1156,7 +1163,7 @@ void terrama2::services::view::core::GeoServer::registerStyle(const std::string&
 {
   if(objectType == View::Legend::ObjectType::GEOMETRY)
   {
-    if(legend.metadata.at("creation_type") != "0")
+    if(legend.metadata.at("creation_type") != "editor")
     {
       registerStyle(name, legend.metadata.at("xml_style"));
 
@@ -1169,7 +1176,7 @@ void terrama2::services::view::core::GeoServer::registerStyle(const std::string&
   }
   else if(objectType == View::Legend::ObjectType::RASTER)
   {
-    if(legend.metadata.at("creation_type") != "0")
+    if(legend.metadata.at("creation_type") != "editor")
     {
       registerStyle(name, legend.metadata.at("xml_style"), "1.0.0");
 
