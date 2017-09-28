@@ -1231,56 +1231,56 @@ std::unique_ptr<te::se::Style> terrama2::services::view::core::GeoServer::genera
 
   if(legend.operation == View::Legend::OperationType::VALUE)
   {
-    std::vector<te::se::Rule*> rules;
-    te::se::Rule* ruleDefault;
+    std::vector<std::unique_ptr<te::se::Rule> > rules;
+    std::unique_ptr<te::se::Rule> ruleDefault;
 
     for(std::size_t i = 0; i < legendRules.size(); ++i)
     {
       auto legendRule = legendRules[i];
-      te::se::Symbolizer* symbolizer(getSymbolizer(geomType, legendRule.color, legendRule.opacity));
+      std::unique_ptr<te::se::Symbolizer> symbolizer(getSymbolizer(geomType, legendRule.color, legendRule.opacity));
 
-      te::se::Rule* rule = new te::se::Rule;
-      rule->push_back(symbolizer);
+      std::unique_ptr<te::se::Rule> rule(new te::se::Rule);
+      rule->push_back(symbolizer.release());
       rule->setName(new std::string(legendRule.title));
 
       if(legendRule.isDefault)
       {
-        ruleDefault = rule;
+        ruleDefault = std::move(rule);
         continue;
       }
 
-      te::fe::PropertyName* propertyName = new te::fe::PropertyName(legend.metadata.at("column"));
-      te::fe::Literal* value = new te::fe::Literal(legendRule.value);
+      std::unique_ptr<te::fe::PropertyName> propertyName (new te::fe::PropertyName(legend.metadata.at("column")));
+      std::unique_ptr<te::fe::Literal> value (new te::fe::Literal(legendRule.value));
 
       // Defining OGC Style Filter
       std::unique_ptr<te::fe::Filter> filter(new te::fe::Filter);
 
       if(legend.classify == View::Legend::ClassifyType::VALUES)
-        filter->setOp(new te::fe::BinaryComparisonOp(te::fe::Globals::sm_propertyIsEqualTo, propertyName, value));
+        filter->setOp(new te::fe::BinaryComparisonOp(te::fe::Globals::sm_propertyIsEqualTo, propertyName->clone(), value->clone()));
       else if(legend.classify == View::Legend::ClassifyType::INTERVALS)
       {
         // If second node, use LessThanOrEqualTo operator (<=)
         if (i == 1)
-          filter->setOp(new te::fe::BinaryComparisonOp(te::fe::Globals::sm_propertyIsLessThanOrEqualTo, propertyName,value));
+          filter->setOp(new te::fe::BinaryComparisonOp(te::fe::Globals::sm_propertyIsLessThanOrEqualTo, propertyName->clone(),value->clone()));
         else if (i < legendRules.size())
         {
           // For next nodes, make interval AND with GreaterThan and LessThanOrEqualTo
           // to avoid GeoServer merge colors while re-painting
 
           // Retrieve prior rule value to use as initial value
-          te::fe::Literal* priorValue = new te::fe::Literal(legendRules[i-1].value);
+          std::unique_ptr<te::fe::Literal> priorValue (new te::fe::Literal(legendRules[i-1].value));
 
           // Making a check for values greater than last legend
-          te::fe::BinaryComparisonOp* minOperator = new te::fe::BinaryComparisonOp(te::fe::Globals::sm_propertyIsGreaterThan,
-                                                                                   propertyName,
-                                                                                   priorValue);
+          std::unique_ptr<te::fe::BinaryComparisonOp> minOperator (new te::fe::BinaryComparisonOp(te::fe::Globals::sm_propertyIsGreaterThan,
+                                                                                   propertyName->clone(),
+                                                                                   priorValue->clone()));
 
           // Making a check for values less than or equal to current rule
-          te::fe::BinaryComparisonOp* maxOperator = new te::fe::BinaryComparisonOp(te::fe::Globals::sm_propertyIsLessThanOrEqualTo,
+          std::unique_ptr<te::fe::BinaryComparisonOp> maxOperator (new te::fe::BinaryComparisonOp(te::fe::Globals::sm_propertyIsLessThanOrEqualTo,
                                                                                    propertyName->clone(),
-                                                                                   value);
+                                                                                   value->clone()));
 
-          filter->setOp(new te::fe::And(minOperator, maxOperator));
+          filter->setOp(new te::fe::And(minOperator.release(), maxOperator.release()));
         }
       }
 
@@ -1293,14 +1293,16 @@ std::unique_ptr<te::se::Style> terrama2::services::view::core::GeoServer::genera
 
       rule->setFilter(filter.release());
 
-      rules.push_back(rule);
+      rules.push_back(std::move(rule));
     }
 
-    style->push_back(ruleDefault);
+    if(ruleDefault)
+      style->push_back(ruleDefault.release());
 
     for(auto& rule : rules)
     {
-      style->push_back(rule);
+      if(rule)
+        style->push_back(rule.release());
     }
   }
   else if(legend.operation == View::Legend::OperationType::EQUAL_STEPS)
@@ -1741,14 +1743,14 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
 
       if(it == std::end(vecDates))
       {
-        te::gm::Geometry* geom = te::gm::GetGeomFromEnvelope(rasterInfo.envelope.get(), rasterInfo.srid);
+        std::unique_ptr<te::gm::Geometry> geom (te::gm::GetGeomFromEnvelope(rasterInfo.envelope.get(), rasterInfo.srid));
 
-        te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(ds.get());
-        dsItem->setGeometry("the_geom", geom);
+        std::unique_ptr<te::mem::DataSetItem> dsItem (new te::mem::DataSetItem(ds.get()));
+        dsItem->setGeometry("the_geom", geom.release());
         dsItem->setString("location", baseUrl.toLocalFile().toStdString() + "/" + terrama2::core::getFolderMask(dataset) + "/" + rasterInfo.name);
         dsItem->setDateTime("timestamp", new te::dt::TimeInstant(rasterInfo.timeTz));
 
-        ds->add(dsItem);
+        ds->add(dsItem.release());
       }
     }
 
@@ -2070,8 +2072,8 @@ int terrama2::services::view::core::GeoServer::createGeoserverTempMosaic(terrama
   auto remover = std::make_shared<terrama2::core::FileRemover>();
   std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > dataMap = dataAccessor->getSeries(filter, remover);
 
-  te::mem::DataSet* ds;
-  te::da::DataSetType* dt = new te::da::DataSetType(dataSeries->name);
+  std::unique_ptr<te::mem::DataSet> ds;
+  std::unique_ptr<te::da::DataSetType> dt (new te::da::DataSetType(dataSeries->name));
   int geomSRID = 0;
 
   for(const auto& data : dataMap)
@@ -2096,33 +2098,32 @@ int terrama2::services::view::core::GeoServer::createGeoserverTempMosaic(terrama
       {
         geomSRID = raster->getSRID();
 
-        te::dt::SimpleProperty* filenameProp = new te::dt::SimpleProperty("filename", te::dt::STRING_TYPE, true);
-
-        te::gm::GeometryProperty* geomProp = new te::gm::GeometryProperty("geom", 0, te::gm::PolygonType, true);
+        std::unique_ptr<te::dt::SimpleProperty> filenameProp (new te::dt::SimpleProperty("filename", te::dt::STRING_TYPE, true));
+        std::unique_ptr<te::gm::GeometryProperty> geomProp (new te::gm::GeometryProperty("geom", 0, te::gm::PolygonType, true));
         geomProp->setSRID(geomSRID);
 
-        te::dt::DateTimeProperty* timestampProp = new te::dt::DateTimeProperty("timestamp", te::dt::TIME_INSTANT, true);
+        std::unique_ptr<te::dt::DateTimeProperty> timestampProp(new te::dt::DateTimeProperty("timestamp", te::dt::TIME_INSTANT, true));
 
-        dt->add(filenameProp);
-        dt->add(geomProp);
-        dt->add(timestampProp);
+        dt->add(filenameProp.release());
+        dt->add(geomProp.release());
+        dt->add(timestampProp.release());
 
-        ds = new te::mem::DataSet(dt);
+        ds.reset(new te::mem::DataSet(dt.get()));
       }
 
       auto date = dataSetSeries.syncDataSet->getDateTime(row, datePropertyPos);
       std::shared_ptr<te::dt::TimeInstantTZ> tiTz(dynamic_cast<te::dt::TimeInstantTZ*>(date->clone()));
       auto boostTiTz = tiTz->getTimeInstantTZ();
 
-      auto geom = te::gm::GetGeomFromEnvelope(raster->getExtent(), raster->getSRID());
+      std::unique_ptr<te::gm::Geometry> geom (te::gm::GetGeomFromEnvelope(raster->getExtent(), raster->getSRID()));
 
-      te::mem::DataSetItem* dsItem01 = new te::mem::DataSetItem(ds);
+      std::unique_ptr<te::mem::DataSetItem> dsItem01 (new te::mem::DataSetItem(ds.get()));
       QFileInfo info(QString::fromStdString(dataSetSeries.syncDataSet->getString(row, "filename")));
       dsItem01->setString(0, info.fileName().toStdString());
-      dsItem01->setGeometry(1, geom);
+      dsItem01->setGeometry(1, geom.release());
       dsItem01->setDateTime(2, new te::dt::TimeInstant(boostTiTz.utc_time()));
 
-      ds->add(dsItem01);
+      ds->add(dsItem01.release());
     }
   }
 
@@ -2132,7 +2133,7 @@ int terrama2::services::view::core::GeoServer::createGeoserverTempMosaic(terrama
 
     ds->moveBeforeFirst();
 
-    te::da::Create(dsOGR.get(), dt, ds);
+    te::da::Create(dsOGR.get(), dt.get(), ds.get());
   }
 
   createGeoserverPropertiesFile(outputFolder, exhibitionName, dataSeries->id);
@@ -2149,27 +2150,26 @@ void terrama2::services::view::core::GeoServer::createMosaicTable(std::shared_pt
 
   std::shared_ptr< te::da::DataSetType > dt(new te::da::DataSetType(tableName));
 
-  te::gm::GeometryProperty* geomProp = new te::gm::GeometryProperty("the_geom", 0, te::gm::PolygonType, true);
+  std::unique_ptr<te::gm::GeometryProperty> geomProp(new te::gm::GeometryProperty("the_geom", 0, te::gm::PolygonType, true));
   geomProp->setSRID(srid);
 
   // the newDataSetType takes ownership of the pointer
-  auto spatialIndex = new te::da::Index("spatial_index_" + tableName, te::da::B_TREE_TYPE, {geomProp});
+  std::unique_ptr<te::da::Index> spatialIndex(new te::da::Index("spatial_index_" + tableName, te::da::B_TREE_TYPE, {geomProp.get()}));
 
-  te::dt::StringProperty* filenameProp = new te::dt::StringProperty("location", te::dt::VAR_STRING, 255, true);
+  std::unique_ptr<te::dt::StringProperty> filenameProp(new te::dt::StringProperty("location", te::dt::VAR_STRING, 255, true));
 
-  te::dt::DateTimeProperty* timestampProp = new te::dt::DateTimeProperty("timestamp", te::dt::TIME_INSTANT, true);
+  std::unique_ptr<te::dt::DateTimeProperty> timestampProp(new te::dt::DateTimeProperty("timestamp", te::dt::TIME_INSTANT, true));
 
   std::shared_ptr< te::dt::SimpleProperty > serialPk(new te::dt::SimpleProperty("fid", te::dt::INT32_TYPE, true));
   serialPk->setAutoNumber(true);
 
   dt->add(serialPk->clone());
-  dt->add(geomProp);
-  dt->add(spatialIndex);
-  dt->add(filenameProp);
-  dt->add(timestampProp);
+  dt->add(geomProp.release());
+  dt->add(spatialIndex.release());
+  dt->add(filenameProp.release());
+  dt->add(timestampProp.release());
 
-  std::map<std::string, std::string> options;
-  transactor->createDataSet(dt.get(), options);
+  transactor->createDataSet(dt.get(), {});
 
   std::shared_ptr<te::dt::Property> id_pk1 = transactor->getProperty(dt->getName(),"fid");
   auto pk = new te::da::PrimaryKey(tableName + "_pkey");
