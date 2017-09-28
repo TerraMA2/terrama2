@@ -15,6 +15,10 @@ define([], function(){
 
     var config = $window.configuration;
 
+    var isUpdating = false;
+    if (config.interpolator)
+      isUpdating = true;
+
     if (config.input_ds)
       $scope.input_data_series = config.input_ds;
 
@@ -27,55 +31,54 @@ define([], function(){
         $scope.filteredServices = $scope.ServiceInstance.list({'service_type_id': $scope.ServiceInstance.types.INTERPOLATION});
         $scope.storagerFormats = $scope.DataSeriesSemanticsService.list({code: "GRID-geotiff"});
         $scope.providers = $scope.DataProviderService.list();
+
+        if (isUpdating){
+          prepareObjectToUpdate();
+        }
       });
     });
 
-    /* $scope.interpolator = {
-      active: true,
-      service_instance_id: 5,
-      data_series_input: 1,
-      data_series_output: {
-        name: "Tiff do interpolador",
-        dataSets: [
-          {
-            active: true,
-            format: {
-              mask: "mascara.tif",
-              srid: "2442",
-              timestamp_property: "file_timestamp",
-              timezone: "5"
-            },
-            mask: "mascara.tif",
-            srid: "2442",
-            timestamp_property: "file_timestamp",
-            timezone: "5"
+    var prepareDataSetFormatToForm = function(fmt){
+      var output = {};
+      for(var k in fmt) {
+        if (fmt.hasOwnProperty(k)) {
+          // checking if a number
+          if (isNaN(fmt[k]) || fmt[k] == "" || typeof fmt[k] == "boolean") {
+            if (k === "active") {
+              output[k] = typeof fmt[k] === "string" ? fmt[k] === "true" : fmt[k]; 
+            } else {
+              output[k] = fmt[k];
+            }
+          } else {
+            output[k] = parseFloat(fmt[k]);
           }
-        ],
-        data_provider_id: 1,
-        data_series_semantics_id: 8,
-        description: undefined,
-      },
-      schedule_type: 3,
-      bounding_rect: {
-        "ll_corner": [
-          -46.79,
-          -24.174
-        ],
-        "ur_corner": [
-            -44.85,
-            -23.355
-        ]
-      },
-      interpolation_attribute: "pluvio",
-      interpolator_strategy: 2,
-      resolution_x: 0.11,
-      resolution_y: 0.11,
-      srid: 4326,
-      metadata: {
-        number_of_neighbors: 2,
-        power_factor: 3
+        }
       }
-    }; */
+      return output;
+    };
+
+    var prepareObjectToUpdate = function(){
+      $scope.input_data_series = JSON.parse(config.interpolator.dataSeriesInput);
+      $scope.outputDataSeries = JSON.parse(config.interpolator.dataSeriesOutput);
+      config.interpolator.bounding_rect = JSON.parse(config.interpolator.bounding_rect);
+      var bounding_rect = {
+        ll_corner: {
+          x: config.interpolator.bounding_rect.ll_corner[0],
+          y: config.interpolator.bounding_rect.ll_corner[1]
+        },
+        ur_corner: {
+          x: config.interpolator.bounding_rect.ur_corner[0],
+          y: config.interpolator.bounding_rect.ur_corner[1]
+        }
+      };
+      $scope.inter = config.interpolator;
+      $scope.inter.name = $scope.outputDataSeries.name;
+      $scope.bounding_rect = bounding_rect;
+      $scope.inter.description = $scope.outputDataSeries.description;
+      $scope.outputDataSeries.data_series_semantics = $scope.DataSeriesSemanticsService.get({code: "GRID-geotiff"});
+      $scope.outputDataSeries.data_provider = $scope.DataProviderService.list({id: $scope.outputDataSeries.data_provider_id})[0];
+      $scope.outputDataSeries.format = prepareDataSetFormatToForm($scope.outputDataSeries.datasets[0].format);
+    }
     
     var prepareObjectToSave = function(){
       var outputDataSet = {

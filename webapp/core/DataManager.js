@@ -5503,14 +5503,57 @@ var DataManager = module.exports = {
   },
 
   listInterpolators: function(restriction, options) {
-    return new Promise(function(resolve, reject){
-      return resolve(["list"]);
+    var self = this;
+
+    return new Promise(function(resolve, reject) {
+      return models.db.Interpolator.findAll(Utils.extend({
+        where: restriction || {},
+        include: [
+          {
+            model: models.db.Schedule
+          },
+          {
+            model: models.db.AutomaticSchedule
+          },
+          {
+            model: models.db.InterpolatorMetadata
+          }
+        ]
+      }, options))
+        .then(function(interpolators){
+          return resolve(interpolators.map(function(interpolator) {
+            var interpolatorObject = new DataModel.Interpolator(interpolator);
+            var promises = [];
+            promises.push(self.getDataSeries({id: interpolator.data_series_input}, options));
+            promises.push(self.getDataSeries({id: interpolator.data_series_output}, options));
+            return Promise.all(promises).then(function(ds_results){
+              interpolatorObject.setInputOutputDataSeries(ds_results[0], ds_results[1]);
+              return interpolatorObject;
+            });
+          }));
+        })
+        .catch(function(err){
+          return reject(new Error("Could not list interpolators " + err.toString()));
+        });
     });
   },
 
   getInterpolator: function(restriction, options){
-    return new Promise(function(resolve, reject){
-      return resolve("interpolator");
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      self.listInterpolators(restriction, options)
+        .then(function(interpolators) {
+          if (interpolators.length === 0) {
+            return reject(new Error("No interpolator retrieved"));
+          }
+          if (interpolators.length > 1) {
+            return reject(new Error("Get operation retrieved more than an interpolator"));
+          }
+          return resolve(interpolators[0]);
+        })
+        .catch(function(err) {
+          return reject(err);
+        });
     });
   },
 
