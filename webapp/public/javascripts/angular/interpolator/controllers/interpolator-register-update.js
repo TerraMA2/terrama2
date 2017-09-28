@@ -1,19 +1,32 @@
 define([], function(){
   'use strict';
 
-  var InterpolatorRegisterUpdate = function($scope, $q, $http, $log, i18n, MessageBoxService, Service, InterpolatorService){
+  var InterpolatorRegisterUpdate = function($scope, $q, $window, $http, $log, i18n, MessageBoxService, Service, DataSeriesSemanticsService, DataProviderService, InterpolatorService){
 
     $scope.MessageBoxService = MessageBoxService;
     $scope.ServiceInstance = Service;
     $scope.InterpolatorService = InterpolatorService;
+    $scope.DataSeriesSemanticsService = DataSeriesSemanticsService;
+    $scope.DataProviderService = DataProviderService;
     $scope.inter = {};
+    $scope.outputDataSeries = {};
+    $scope.bounding_rect = {}
+    $scope.BASE_URL = BASE_URL;
+
+    var config = $window.configuration;
+
+    if (config.input_ds)
+      $scope.input_data_series = config.input_ds;
 
     $q.all([
       i18n.ensureLocaleIsLoaded(),
+      $scope.DataSeriesSemanticsService.init(),
+      $scope.DataProviderService.init(),
     ]).then(function(){
       return $scope.ServiceInstance.init().then(function(){
-
         $scope.filteredServices = $scope.ServiceInstance.list({'service_type_id': $scope.ServiceInstance.types.INTERPOLATION});
+        $scope.storagerFormats = $scope.DataSeriesSemanticsService.list({code: "GRID-geotiff"});
+        $scope.providers = $scope.DataProviderService.list();
       });
     });
 
@@ -64,22 +77,45 @@ define([], function(){
       }
     }; */
     
+    var prepareObjectToSave = function(){
+      var outputDataSet = {
+        active: $scope.inter.active,
+        format: $scope.outputDataSeries.format
+      }
+      var outputDataSeries = {
+        name: $scope.inter.name,
+        data_provider_id: $scope.outputDataSeries.data_provider.id,
+        data_series_semantics_id: $scope.outputDataSeries.data_series_semantics.id,
+        description: $scope.inter.description,
+        dataSets: [outputDataSet]
+      }
+      var interpolator = Object.assign({}, $scope.inter);
+      var bounding_rect = {
+        ll_corner: [$scope.bounding_rect.ll_corner.x, $scope.bounding_rect.ll_corner.y],
+        ur_corner: [$scope.bounding_rect.ur_corner.x, $scope.bounding_rect.ur_corner.y]
+      };
+      interpolator.bounding_rect = JSON.stringify(bounding_rect);
+      interpolator.data_series_output = outputDataSeries;
+      interpolator.data_series_input = $scope.input_data_series.id;
+      return interpolator;
+    }
+
     $scope.save = function(){
-      console.log($scope.inter);
+      var objectToSave = prepareObjectToSave();
     
-/*       var operation = $scope.InterpolatorService.create({interpolator: $scope.interpolator, schedule:{schedule_type: 3}});
+      var operation = $scope.InterpolatorService.create({interpolator: objectToSave, schedule:{schedule_type: 3}});
       operation.then(function(response) {
         console.log(response);
         $log.info(response);
       }).catch(function(err) {
         $log.info(err);
         $scope.MessageBoxService.danger(i18n.__("Interpolator"), i18n.__(err));
-      }); */
+      }); 
     }
 
   };
 
-  InterpolatorRegisterUpdate.$inject = ["$scope", "$q", "$http", "$log", "i18n", "MessageBoxService", "Service","InterpolatorService"];
+  InterpolatorRegisterUpdate.$inject = ["$scope", "$q", "$window", "$http", "$log", "i18n", "MessageBoxService", "Service", "DataSeriesSemanticsService", "DataProviderService", "InterpolatorService"];
 
   return InterpolatorRegisterUpdate;
 })

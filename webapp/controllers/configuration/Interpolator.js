@@ -1,11 +1,19 @@
 module.exports = function(app) {
   'use strict';
 
+  var DataManager = require("./../../core/DataManager");
   var ScheduleType = require("./../../core/Enums").ScheduleType;
 
   return {
     new: function(request, response){
-      response.render("configuration/interpolator");
+      var dataSeriesIdToInterpolate = request.params.input_ds;
+      DataManager.getDataSeries({id: parseInt(dataSeriesIdToInterpolate)})
+        .then(function(input_ds){
+          return response.render("configuration/interpolator", {input_ds: input_ds.rawObject()});
+        })
+        .catch(function(err){
+          return response.render("base/404");          
+        });
     },
     edit: function(request, response){
       var hasProjectPermission = app.locals.activeProject.hasProjectPermission;

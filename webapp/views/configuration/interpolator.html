@@ -18,6 +18,12 @@
 <script type="text/javascript" src="{[ BASE_URL ]}bower_components/angular-ui-router/release/angular-ui-router.min.js"></script>
 <script src="{[ BASE_URL ]}bower_components/angular-ui-select/dist/select.min.js"></script>
 
+<script>
+  var configuration = {
+    input_ds: {[ input_ds|json|safe ]}
+  }
+</script>
+
 {% endblock %}
 
 

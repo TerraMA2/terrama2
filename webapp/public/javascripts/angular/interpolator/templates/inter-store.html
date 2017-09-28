@@ -2,25 +2,31 @@
   <div class="col-md-12">
     <div class="col-md-4">
       <label>output_format</label>
-      <select class="form-control" id="data_series_semantics_id" name="data_series_semantics_id" ng-model="inter.output.data_series_semantics_id">
-        <option value="8">GEOTIFF</option>
+      <select class="form-control"
+              id="data_series_semantics"
+              name="data_series_semantics"
+              ng-options="format.name for format in storagerFormats"
+              ng-model="outputDataSeries.data_series_semantics">
       </select>
     </div>
     <div class="col-md-4">
       <label>data_store</label>
-      <select class="form-control" id="data_store" name="data_store" ng-model="inter.output.data_store">
-        <option value="8">provider</option>
+      <select class="form-control" 
+              id="data_store"
+              name="data_store"
+              ng-options="provider.name for provider in providers"
+              ng-model="outputDataSeries.data_provider">
       </select>
     </div>
     <div class="col-md-4">
       <label>service_instance</label>
-      <ui-select name="service" ng-model="ctrl.alert.service_instance_id" required>
+      <ui-select name="service" ng-model="inter.service_instance_id" required>
         <ui-select-match>
-          <img ng-src="{[ BASE_URL ]}images/services/alert/alert_service.png" style="height: 20px; margin-top: -7px;"/>
+          <img ng-src="{{ BASE_URL + 'images/services/alert/alert_service.png'}}" style="height: 20px; margin-top: -7px;"/>
           <span ng-bind="$select.selected.name"></span>
         </ui-select-match>
         <ui-select-choices repeat="instance.id as instance in (filteredServices | filter: {'name': $select.search}) track by instance.id">
-          <img ng-src="{[ BASE_URL ]}images/services/alert/alert_service.png" style="height: 20px;"/>
+          <img ng-src="{{ BASE_URL + 'images/services/alert/alert_service.png'}}" style="height: 20px;"/>
           <span ng-bind="instance.name"></span>
         </ui-select-choices>
       </ui-select>
@@ -28,18 +34,18 @@
   </div>
   <div class="col-md-12">
     <label>mask</label>
-    <input class="form-control" id="mask" name="mask" ng-model="inter.output.mask" type="text">
+    <input class="form-control" id="mask" name="mask" ng-model="outputDataSeries.format.mask" type="text">
   </div>
   <div class="col-md-12">
     <label>srid</label>
-    <input class="form-control" id="srid" name="srid" ng-model="inter.output.srid" type="number">
+    <input class="form-control" id="srid" name="srid" ng-model="outputDataSeries.format.srid" type="number">
   </div>
   <div class="col-md-12">
     <label>timestamp_property</label>
-    <input class="form-control" id="timestamp_property" name="timestamp_property" ng-model="inter.output.timestamp_property" type="text">
+    <input class="form-control" id="timestamp_property" name="timestamp_property" ng-model="outputDataSeries.format.timestamp_property" type="text">
   </div>
   <div class="col-md-12">
     <label>timezone</label>
-    <input class="form-control" id="timezone" name="timezone" ng-model="inter.output.timezone" type="number">
+    <input class="form-control" id="timezone" name="timezone" ng-model="outputDataSeries.format.timezone" type="number">
   </div>
 </div>
