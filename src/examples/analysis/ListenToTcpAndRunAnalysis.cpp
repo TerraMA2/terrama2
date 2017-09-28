@@ -47,6 +47,8 @@
 
 #include <terrama2/services/analysis/mock/MockAnalysisLogger.hpp>
 
+#include "UtilsPostGis.hpp"
+#include "UtilsDCPSerrmarInpe.hpp"
 
 #include <Python.h>
 
@@ -91,152 +93,80 @@ int main(int argc, char* argv[])
     EXPECT_CALL(*logger, clone()).WillRepeatedly(::testing::Return(loggerCopy));
     EXPECT_CALL(*logger, isValid()).WillRepeatedly(::testing::Return(true));
 
-    te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PASSWORD+"@"+TERRAMA2_DATABASE_HOST+":"+TERRAMA2_DATABASE_PORT+"/"+TERRAMA2_DATABASE_DBNAME);
-
     Service service(dataManager);
     serviceManager.setInstanceId(1);
     serviceManager.setLogger(logger);
     serviceManager.setLogConnectionInfo(te::core::URI(""));
-    serviceManager.setInstanceId(1);
 
     service.setLogger(logger);
     service.start();
 
 
     QCoreApplication app(argc, argv);
+
+    using namespace terrama2::examples::analysis::utilspostgis;
+    using namespace terrama2::examples::analysis::utilsdcpserrmarinpe;
+
     // DataProvider information
-    terrama2::core::DataProvider* outputDataProvider = new terrama2::core::DataProvider();
-    terrama2::core::DataProviderPtr outputDataProviderPtr(outputDataProvider);
-    outputDataProvider->id = 3;
-    outputDataProvider->name = "DataProvider postgis";
-    outputDataProvider->uri = uri.uri();
-    outputDataProvider->intent = terrama2::core::DataProviderIntent::PROCESS_INTENT;
-    outputDataProvider->dataProviderType = "POSTGIS";
-    outputDataProvider->active = true;
-
-
-    auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
+    auto dataProvider = dataProviderPostGis();
+    dataManager->add(dataProvider);
 
     // DataSeries information
-    terrama2::core::DataSeries* outputDataSeries = new terrama2::core::DataSeries();
-    terrama2::core::DataSeriesPtr outputDataSeriesPtr(outputDataSeries);
-    outputDataSeries->id = 3;
-    outputDataSeries->name = "Analysis result";
-    outputDataSeries->semantics = semanticsManager.getSemantics("ANALYSIS_MONITORED_OBJECT-postgis");
-    outputDataSeries->dataProviderId = outputDataProviderPtr->id;
+    auto outputDataSeries = outputDataSeriesPostGis(dataProvider, analysis_result);
+    dataManager->add(outputDataSeries);
 
 
-    // DataSet information
-    terrama2::core::DataSet* outputDataSet = new terrama2::core::DataSet();
-    outputDataSet->active = true;
-    outputDataSet->id = 2;
-    outputDataSet->dataSeriesId = outputDataSeries->id;
-    outputDataSet->format.emplace("table_name", "analysis_result");
-
-    outputDataSeries->datasetList.emplace_back(outputDataSet);
+    std::string script = R"z(moBuffer = Buffer(BufferType.Out_union, 2., "km")
+ids = dcp.zonal.influence.by_rule("Serra do Mar", moBuffer)
+x = dcp.zonal.min("Serra do Mar", "pluvio",ids)
+add_value("min", x))z";
 
 
-    std::string script = "x = dcp.min(\"Serra do Mar\", \"pluvio\", 2, Buffer.OBJECT_PLUS_EXTERN)\n"
-            "add_value(\"min\", x)\n";
-
-
-    Analysis* analysis = new Analysis;
-    AnalysisPtr analysisPtr(analysis);
+    std::shared_ptr<terrama2::services::analysis::core::Analysis> analysis = std::make_shared<terrama2::services::analysis::core::Analysis>();
 
     analysis->id = 1;
     analysis->name = "Min DCP";
     analysis->script = script;
+    analysis->outputDataSeriesId = outputDataSeries->id;
+    analysis->outputDataSetId = outputDataSeries->datasetList.front()->id;
     analysis->scriptLanguage = ScriptLanguage::PYTHON;
     analysis->type = AnalysisType::MONITORED_OBJECT_TYPE;
     analysis->active = true;
-    analysis->outputDataSeriesId = 3;
-    analysis->outputDataSetId = outputDataSet->id;
     analysis->serviceInstanceId = 1;
 
-    terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
-    terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
-    dataProvider->name = "Provider";
-    dataProvider->uri = uri.uri();
-    dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
-    dataProvider->dataProviderType = "POSTGIS";
-    dataProvider->active = true;
-    dataProvider->id = 1;
+
+    analysis->metadata["INFLUENCE_TYPE"] = "1";
+    analysis->metadata["INFLUENCE_RADIUS"] = "50";
+    analysis->metadata["INFLUENCE_RADIUS_UNIT"] = "km";
 
 
-    terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
-    terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
-    dataSeries->dataProviderId = dataProvider->id;
-    //outputDataSeries->semantics = semanticsManager.getSemantics("STATIC_DATA-postgis");
-    dataSeries->semantics = semanticsManager.getSemantics("STATIC_DATA-postgis");
-    dataSeries->name = "Monitored Object";
-    dataSeries->id = 1;
-    dataSeries->dataProviderId = 1;
-
-    //DataSet information
-    terrama2::core::DataSet* dataSet = new terrama2::core::DataSet;
-    terrama2::core::DataSetPtr dataSetPtr(dataSet);
-    dataSet->active = true;
-    dataSet->format.emplace("table_name", "municipios_afetados");
-    dataSet->id = 1;
-
-    dataSeries->datasetList.push_back(dataSetPtr);
-
-    terrama2::core::DataProvider* dataProvider2 = new terrama2::core::DataProvider();
-    terrama2::core::DataProviderPtr dataProvider2Ptr(dataProvider2);
-    dataProvider2->name = "Provider";
-    dataProvider2->uri += TERRAMA2_DATA_DIR;
-    dataProvider2->uri += "/PCD_serrmar_INPE";
-    dataProvider2->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
-    dataProvider2->dataProviderType = "FILE";
-    dataProvider2->active = true;
-    dataProvider2->id = 2;
-
+    auto dataSeriesMunicSerrmar = dataSeriesMunicSerrmarInpe(dataProvider);
+    dataManager->add(dataSeriesMunicSerrmar);
 
     AnalysisDataSeries monitoredObjectADS;
     monitoredObjectADS.id = 1;
-    monitoredObjectADS.dataSeriesId = dataSeriesPtr->id;
+    monitoredObjectADS.dataSeriesId = dataSeriesMunicSerrmar->id;
     monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
-    monitoredObjectADS.metadata["identifier"] = "objet_id_5";
+    monitoredObjectADS.metadata["identifier"] = "objet_id_1";
 
 
-    //DataSeries information
-    terrama2::core::DataSeries* dcpSeries = new terrama2::core::DataSeries;
-    terrama2::core::DataSeriesPtr dcpSeriesPtr(dcpSeries);
-    dcpSeries->dataProviderId = dataProvider2->id;
-    dcpSeries->semantics = semanticsManager.getSemantics("DCP-inpe");
-    dcpSeries->semantics.dataSeriesType = terrama2::core::DataSeriesType::DCP;
-    dcpSeries->name = "Serra do Mar";
-    dcpSeries->id = 2;
-    dcpSeries->dataProviderId = 2;
 
-    //DataSet information
-    terrama2::core::DataSetDcp* dcpDataset69034 = new terrama2::core::DataSetDcp;
-    terrama2::core::DataSetDcpPtr dcpDataset69034Ptr(dcpDataset69034);
-    dcpDataset69034->active = true;
-    dcpDataset69034->format.emplace("mask", "69033.txt");
-    dcpDataset69034->format.emplace("timezone", "-02:00");
-    dcpDataset69034->dataSeriesId = 2;
-    dcpDataset69034->id = 2;
-    dcpDataset69034->position = std::shared_ptr<te::gm::Point>(new te::gm::Point(-44.46540, -23.00506, 4618, te::gm::PointType, nullptr));
-    dcpSeries->datasetList.push_back(dcpDataset69034Ptr);
+    //DataProvider PCD_serrmar_INPE type = FILE
+
+    auto dataProviderFileSerrmar = dataProviderFile();
+    dataManager->add(dataProviderFileSerrmar);
 
 
-    terrama2::core::DataSetDcp* dcpDataset30886 = new terrama2::core::DataSetDcp;
-    terrama2::core::DataSetDcpPtr dcpDataset30886Ptr(dcpDataset30886);
-    dcpDataset30886->active = true;
-    dcpDataset30886->format.emplace("mask", "30886.txt");
-    dcpDataset30886->format.emplace("timezone", "-02:00");
-    dcpDataset30886->dataSeriesId = 2;
-    dcpDataset30886->id = 3;
-    dcpDataset30886->position = std::shared_ptr<te::gm::Point>(new te::gm::Point(-46.121, -23.758, 4618, te::gm::PointType, nullptr));
-    dcpSeries->datasetList.push_back(dcpDataset30886Ptr);
+    //DataSeries PCD_serrmar_INPE
+    auto dcpSeriesDCP = dataSeries2DCP(dataProviderFileSerrmar);
+    dataManager->add(dcpSeriesDCP);
+
 
     AnalysisDataSeries dcpADS;
     dcpADS.id = 2;
-    dcpADS.dataSeriesId = dcpSeriesPtr->id;
+    dcpADS.dataSeriesId = dcpSeriesDCP->id;
     dcpADS.type = AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE;
-    dcpADS.metadata["INFLUENCE_TYPE"] = "RADIUS_CENTER";
-    dcpADS.metadata["RADIUS"] = "50";
+
 
     std::vector<AnalysisDataSeries> analysisDataSeriesList;
     analysisDataSeriesList.push_back(dcpADS);
@@ -244,40 +174,34 @@ int main(int argc, char* argv[])
     analysis->analysisDataSeriesList = analysisDataSeriesList;
 
 
+    dataManager->add(analysis);
+
     // Serialize objects
     QJsonObject obj;
 
+
     QJsonArray providersArray;
-    providersArray.push_back(terrama2::core::toJson(outputDataProviderPtr));
-    providersArray.push_back(terrama2::core::toJson(dataProviderPtr));
-    providersArray.push_back(terrama2::core::toJson(dataProvider2Ptr));
+    providersArray.push_back(dataProviderPostGisjson());
+    providersArray.push_back(dataProviderFileJson());
     obj.insert("DataProviders", providersArray);
 
     QJsonArray seriesArray;
-    seriesArray.push_back(terrama2::core::toJson(dataSeriesPtr));
-    seriesArray.push_back(terrama2::core::toJson(dcpSeriesPtr));
-    seriesArray.push_back(terrama2::core::toJson(outputDataSeriesPtr));
+    seriesArray.push_back(outputDataSeriesPostGisJson(dataProvider, analysis_result));
+    seriesArray.push_back(dataSeriesMunicSerrmarInpeJson(dataProvider));
+    seriesArray.push_back(dataSeries2DCPJson(dataProviderFileSerrmar));
     obj.insert("DataSeries", seriesArray);
 
     QJsonArray analysisArray;
-    analysisArray.push_back(terrama2::services::analysis::core::toJson(analysisPtr));
+    analysisArray.push_back(terrama2::services::analysis::core::toJson(analysis));
     obj.insert("Analysis", analysisArray);
 
     // Creates JSON document
     QJsonDocument doc(obj);
 
-    // Starts the service and TCP manager
-   // auto dataManager = std::make_shared<DataManager>();
+    // Start TCP manager
     terrama2::core::TcpManager tcpManager(dataManager, std::weak_ptr<terrama2::core::ProcessLogger>());
-    tcpManager.listen(QHostAddress::Any, 30000);
-   // terrama2::services::analysis::core::Service service(dataManager);
-    terrama2::core::ServiceManager::getInstance().setInstanceId(1);
+    tcpManager.listen(QHostAddress::Any, 30001);
 
-   /* auto logger = std::make_shared<AnalysisLogger>();
-    logger->setConnectionInfo(uri);
-    service.setLogger(logger);
-
-    service.start();*/
 
     // Sends the data via TCP
     QByteArray bytearray;
@@ -285,7 +209,7 @@ int main(int argc, char* argv[])
 
     out << static_cast<uint32_t>(0);
     out << static_cast<uint32_t>(terrama2::core::TcpSignal::ADD_DATA_SIGNAL);
-    out << doc.toJson();
+    out << doc.toJson(QJsonDocument::Compact);
     bytearray.remove(8, 4);//Remove QByteArray header
     out.device()->seek(0);
     out << static_cast<uint32_t>(bytearray.size() - sizeof(uint32_t));
@@ -295,7 +219,10 @@ int main(int argc, char* argv[])
     socket.write(bytearray);
     socket.waitForBytesWritten();
 
-    service.addToQueue(analysisPtr->id, terrama2::core::TimeUtils::nowUTC());
+
+
+    service.addToQueue(analysis->id, terrama2::core::TimeUtils::stringToTimestamp("2008-07-21T09:30:00-03", terrama2::core::TimeUtils::webgui_timefacet));
+
 
     QTimer timer;
     QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
