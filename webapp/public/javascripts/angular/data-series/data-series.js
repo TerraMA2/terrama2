@@ -13,15 +13,18 @@ define([], function() {
 
     var config = $window.configuration;
 
-    var findCollectorOrAnalysis = function(dataSeries){
+    var findCollectorAnalysisOrInterpolator = function(dataSeries){
       if (config.dataSeriesType != 'static'){
         var foundCollector = config.collectors.find(function(collector){
           return collector.output_data_series == dataSeries.id;
         });
         var foundAnalysis = config.analysis.find(function(analysi){
           return analysi.dataSeries.id == dataSeries.id;
-        })
-        return foundCollector || foundAnalysis;
+        });
+        var foundInterpolator = config.interpolators.find(function(interpolator){
+          return interpolator.data_series_output == dataSeries.id;
+        });
+        return foundCollector || foundAnalysis || foundInterpolator;
       } else 
         return false;
     }
@@ -104,7 +107,7 @@ define([], function() {
         MessageBoxService.success(i18n.__(title), data.name + i18n.__(" removed"));
       },
       showRunButton: config.showRunButton,
-      canRun: findCollectorOrAnalysis,
+      canRun: findCollectorAnalysisOrInterpolator,
       run: function(object){
         var service_instance = this.canRun(object);
 
@@ -263,7 +266,7 @@ define([], function() {
           }
 
           instance.model_type = value;
-          var service_instance = findCollectorOrAnalysis(instance);
+          var service_instance = findCollectorAnalysisOrInterpolator(instance);
           instance.service_instance_id = service_instance ? service_instance.service_instance_id : undefined;
         });
       }, 500);

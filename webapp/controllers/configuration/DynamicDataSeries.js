@@ -49,15 +49,21 @@ module.exports = function(app) {
       parameters.hasProjectPermission = hasProjectPermission;
       DataManager.listCollectors().then(function(collectors){
         DataManager.listAnalysis().then(function(analysis){
-          response.render('configuration/dynamicDataSeries', Object.assign({}, parameters, {"Enums": Enums, "collectors": collectors.map(
-            function(element){
-              return element.toObject();
-            }
-          ), "analysis": analysis.map(
-            function(element){
-              return element.rawObject();
-            }
-          )}));
+          DataManager.listInterpolators().then(function(interpolators){
+            response.render('configuration/dynamicDataSeries', Object.assign({}, parameters, {"Enums": Enums, "collectors": collectors.map(
+              function(element){
+                return element.toObject();
+              }
+            ), "analysis": analysis.map(
+              function(element){
+                return element.rawObject();
+              }
+            ), "interpolators": interpolators.map(
+              function(element){
+                return element.rawObject();
+              }
+            )}));
+          })
         });
       });
     },
@@ -97,19 +103,24 @@ module.exports = function(app) {
         DataManager.getAnalysis({dataSet: {data_series_id: parseInt(dataSeriesId)}}).then(function(analysis) {
           response.redirect(app.locals.BASE_URL + "configuration/analysis/"+analysis.id+"/edit");
         }).catch(function(err) {
-          // check if input dataseries (processed)
-          DataManager.getDataSeries({id: dataSeriesId}).then(function(dataSeries) {
-            response.render('configuration/dataset', {
-              state: "dynamic",
-              type: "dynamic",
-              "Enums": Enums,
-              dataSeries: {
-                input: dataSeries.rawObject()
-              },
-              hasProjectPermission: hasProjectPermission
+          // check if interpolator
+          DataManager.getInterpolator({data_series_output: parseInt(dataSeriesId)}).then(function(interpolator){
+            response.redirect(app.locals.BASE_URL + "configuration/interpolator/edit/"+interpolator.id)
+          }).catch(function(err){
+            // check if input dataseries (processed)
+            DataManager.getDataSeries({id: dataSeriesId}).then(function(dataSeries) {
+              response.render('configuration/dataset', {
+                state: "dynamic",
+                type: "dynamic",
+                "Enums": Enums,
+                dataSeries: {
+                  input: dataSeries.rawObject()
+                },
+                hasProjectPermission: hasProjectPermission
+              });
+            }).catch(function(err) {
+              response.render('base/404');
             });
-          }).catch(function(err) {
-            response.render('base/404');
           });
         });
       });

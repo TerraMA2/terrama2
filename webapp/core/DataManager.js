@@ -5522,14 +5522,7 @@ var DataManager = module.exports = {
       }, options))
         .then(function(interpolators){
           return resolve(interpolators.map(function(interpolator) {
-            var interpolatorObject = new DataModel.Interpolator(interpolator);
-            var promises = [];
-            promises.push(self.getDataSeries({id: interpolator.data_series_input}, options));
-            promises.push(self.getDataSeries({id: interpolator.data_series_output}, options));
-            return Promise.all(promises).then(function(ds_results){
-              interpolatorObject.setInputOutputDataSeries(ds_results[0], ds_results[1]);
-              return interpolatorObject;
-            });
+            return new DataModel.Interpolator(interpolator);
           }));
         })
         .catch(function(err){
@@ -5549,7 +5542,14 @@ var DataManager = module.exports = {
           if (interpolators.length > 1) {
             return reject(new Error("Get operation retrieved more than an interpolator"));
           }
-          return resolve(interpolators[0]);
+          var promises = [];
+          promises.push(self.getDataSeries({id: interpolators[0].data_series_input}, options));
+          promises.push(self.getDataSeries({id: interpolators[0].data_series_output}, options));
+          return Promise.all(promises).then(function(ds_results){
+            var interpolatorObject = interpolators[0];
+            interpolatorObject.setInputOutputDataSeries(ds_results[0], ds_results[1]);
+            return resolve(interpolatorObject);
+          });
         })
         .catch(function(err) {
           return reject(err);

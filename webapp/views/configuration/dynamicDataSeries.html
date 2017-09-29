@@ -34,6 +34,7 @@
     dataSeriesType: 'dynamic',
     collectors: {[collectors|json|safe]},
     analysis: {[analysis|json|safe]},
+    interpolators: {[interpolators|json|safe]},
     link: function(object) {
       return "{[ BASE_URL ]}configuration/dynamic/dataseries/"+ object.id +"?type=dynamic#/wizard";
     },
