@@ -177,11 +177,9 @@ namespace terrama2
         /*!
           \brief Constructor
 
-          \param filter If defined creates a cache for the filtered data. //TODO: implement DataAccessor cache
-
           \exception DataAccessorException Raised if any of the parameters is NULL.
         */
-        DataAccessor(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true);
+        DataAccessor(DataProviderPtr dataProvider, DataSeriesPtr dataSeries);
 
         /*!
            \brief Prefix specification for drivers.

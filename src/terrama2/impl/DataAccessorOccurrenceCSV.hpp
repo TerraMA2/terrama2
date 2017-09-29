@@ -46,10 +46,7 @@ namespace terrama2
     class DataAccessorOccurrenceCSV : public DataAccessorCSV
     {
       public:
-        DataAccessorOccurrenceCSV(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool /*checkSemantics*/ = true)
-          : DataAccessor(dataProvider, dataSeries, false),
-            DataAccessorFile(dataProvider, dataSeries, false),
-            DataAccessorCSV(dataProvider, dataSeries, false) { }
+        DataAccessorOccurrenceCSV(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true);
 
         virtual ~DataAccessorOccurrenceCSV() = default;
 

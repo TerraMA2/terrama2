@@ -42,7 +42,8 @@ namespace terrama2
     {
       public:
         //! Default constructor
-        DataAccessorGeometricObject(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool /*checkSemantics*/ = true) : DataAccessor(dataProvider, dataSeries, false) {}
+        DataAccessorGeometricObject(DataProviderPtr dataProvider, DataSeriesPtr dataSeries)
+         : DataAccessor(dataProvider, dataSeries) {}
         //! Default destructor.
         virtual ~DataAccessorGeometricObject() = default;
         //! Default copy constructor

@@ -51,8 +51,8 @@ namespace terrama2
     class DataAccessorPostGIS : public virtual DataAccessor
     {
       public:
-        DataAccessorPostGIS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool /*checkSemantics*/ = true)
-          : DataAccessor(dataProvider, dataSeries, false)
+        DataAccessorPostGIS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries)
+          : DataAccessor(dataProvider, dataSeries)
         {
         }
         virtual ~DataAccessorPostGIS() {}

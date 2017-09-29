@@ -49,7 +49,7 @@
 //STL
 #include <algorithm>
 
-terrama2::core::DataAccessor::DataAccessor(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics)
+terrama2::core::DataAccessor::DataAccessor(DataProviderPtr dataProvider, DataSeriesPtr dataSeries)
   : dataProvider_(dataProvider),
     dataSeries_(dataSeries)
 {
