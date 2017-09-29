@@ -54,7 +54,7 @@ namespace terrama2
     {
       public:
         //! Default constructor
-        DataAccessorDcp(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true) : DataAccessor(dataProvider, dataSeries, false) {}
+        DataAccessorDcp(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool /*checkSemantics*/ = true) : DataAccessor(dataProvider, dataSeries, false) {}
         //! Default destructor.
         virtual ~DataAccessorDcp() = default;
         //! Default copy constructor
