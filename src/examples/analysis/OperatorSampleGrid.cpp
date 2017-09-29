@@ -84,13 +84,13 @@ int main(int argc, char* argv[])
     dataManager->add(dataProvider);
 
 
-    auto outputDataSeries = terrama2::examples::analysis::utilsgeotiff::outputDataSeries(dataProvider);
-    dataManager->add(outputDataSeries);
+    auto outputDataSeriesGrid = outputDataSeries(dataProvider,output_grid);
+    dataManager->add(outputDataSeriesGrid);
 
 
 
 
-    auto dataSeries = dataSeriesGridGeotiff(dataProvider);
+    auto dataSeries = dataSeriesL5219076(dataProvider);
     dataManager->add(dataSeries);
 
 
@@ -109,8 +109,8 @@ int main(int argc, char* argv[])
     analysis->scriptLanguage = ScriptLanguage::PYTHON;
     analysis->type = AnalysisType::GRID_TYPE;
     analysis->active = true;
-    analysis->outputDataSeriesId = outputDataSeries->id;
-    analysis->outputDataSetId = outputDataSeries->datasetList.front()->id;
+    analysis->outputDataSeriesId = outputDataSeriesGrid->id;
+    analysis->outputDataSetId = outputDataSeriesGrid->datasetList.front()->id;
     analysis->serviceInstanceId = 1;
 
 
@@ -119,9 +119,6 @@ int main(int argc, char* argv[])
     analysisDataSeriesList.push_back(gridADS1);
     analysis->analysisDataSeriesList = analysisDataSeriesList;
 
-
-    analysis->schedule.frequency = 1;
-    analysis->schedule.frequencyUnit = "min";
 
 
     std::shared_ptr<AnalysisOutputGrid> outputGrid = std::make_shared<AnalysisOutputGrid>();

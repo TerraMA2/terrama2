@@ -75,7 +75,6 @@ int main(int argc, char* argv[])
   serviceManager.setInstanceId(1);
   serviceManager.setLogger(logger);
   serviceManager.setLogConnectionInfo(te::core::URI(""));
-  serviceManager.setInstanceId(1);
 
   service.setLogger(logger);
   service.start();
@@ -96,9 +95,9 @@ int main(int argc, char* argv[])
   analysis->name = "Analysis";
   analysis->active = true;
 
-  std::string script = "aggregationBuffer = Buffer(BufferType.Out_union, 2., \"km\")\n"
-                       "x = occurrence.zonal.aggregation.count(\"Occurrence\", \"2d\", aggregationBuffer)\n"
-                       "add_value(\"aggregation_count\", x)\n";
+  std::string script = R"z(aggregationBuffer = Buffer(BufferType.Out_union, 2., "km")
+x = occurrence.zonal.aggregation.count("Occurrence", "2d", aggregationBuffer)
+add_value("aggregation_count", x))z";
 
   analysis->script = script;
   analysis->outputDataSeriesId = outputDataSeries->id;
@@ -115,7 +114,7 @@ int main(int argc, char* argv[])
   monitoredObjectADS.id = 1;
   monitoredObjectADS.dataSeriesId = dataSeries->id;
   monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
-  monitoredObjectADS.metadata["identifier"] = "nome";
+  monitoredObjectADS.metadata["identifier"] = "fid";
 
 
   //Data Occurrence
@@ -133,14 +132,10 @@ int main(int argc, char* argv[])
 
   analysis->analysisDataSeriesList = analysisDataSeriesList;
 
-  analysis->schedule.id = 1;
-  analysis->schedule.frequency = 1;
-  analysis->schedule.frequencyUnit = "min";
 
   dataManager->add(analysis);
 
 
-  //service.addProcessToSchedule(analysisPtr);
   service.addToQueue(analysis->id, terrama2::core::TimeUtils::stringToTimestamp("2016-04-30T20:15:00-03", terrama2::core::TimeUtils::webgui_timefacet));
 
 

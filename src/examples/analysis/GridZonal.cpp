@@ -84,13 +84,14 @@ int main(int argc, char* argv[])
     service.start();
 
 
+    using namespace terrama2::examples::analysis::utilspostgis;
     // DataProvider information
-    auto dataProvider = terrama2::examples::analysis::utilspostgis::dataProviderPostGis();
+    auto dataProvider = dataProviderPostGis();
     dataManager->add(dataProvider);
 
 
     // DataSeries information
-    auto outputDataSeries = terrama2::examples::analysis::utilspostgis::outputDataSeriesPostGis(dataProvider, terrama2::examples::analysis::utilspostgis::zonal_analysis_result);
+    auto outputDataSeries = outputDataSeriesPostGis(dataProvider, zonal_analysis_result);
     dataManager->add(outputDataSeries);
 
 
@@ -101,8 +102,8 @@ int main(int argc, char* argv[])
     analysis->outputDataSeriesId = outputDataSeries->id;
     analysis->outputDataSetId = outputDataSeries->datasetList.front()->id;
 
-    std::string script = "x = grid.zonal.count(\"geotiff 1\")\n"
-                         "add_value(\"min\", x)\n";
+    std::string script = R"z(x = grid.zonal.count("geotiff 1")
+add_value("min", x))z";
 
     analysis->script = script;
     analysis->scriptLanguage = ScriptLanguage::PYTHON;
@@ -111,27 +112,28 @@ int main(int argc, char* argv[])
 
 
 
-    auto dataSeries = terrama2::examples::analysis::utilspostgis::dataSeriesPostGis(dataProvider);
+    auto dataSeries = dataSeriesPostGis(dataProvider);
     dataManager->add(dataSeries);
 
     AnalysisDataSeries monitoredObjectADS;
     monitoredObjectADS.id = 1;
     monitoredObjectADS.dataSeriesId = dataSeries->id;
     monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
-    monitoredObjectADS.metadata["identifier"] = "nome";
+    monitoredObjectADS.metadata["identifier"] = "fid";
 
 
+    using namespace terrama2::examples::analysis::utilsgeotiff;
     // DataProvider information
-    auto dataProviderFile = terrama2::examples::analysis::utilsgeotiff::dataProviderFile();
-    dataManager->add(dataProviderFile);
+    auto dataProviderSpot = dataProviderFile();
+    dataManager->add(dataProviderSpot);
 
 
-    auto dataSeriesStatic = terrama2::examples::analysis::utilsgeotiff::dataSeriesStaticGdal(dataProviderFile);
-    dataManager->add(dataSeriesStatic);
+    auto dataSeriesSpot = dataSeriesSpotVegetacao(dataProviderSpot);
+    dataManager->add(dataSeriesSpot);
 
     AnalysisDataSeries gridADS1;
     gridADS1.id = 2;
-    gridADS1.dataSeriesId = dataSeriesStatic->id;
+    gridADS1.dataSeriesId = dataSeriesSpot->id;
     gridADS1.type = AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE;
 
 

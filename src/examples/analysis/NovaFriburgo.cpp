@@ -28,6 +28,9 @@
 
 #include <terrama2/Config.hpp>
 
+#include "UtilsGeotiff.hpp"
+
+
 // QT
 #include <QTimer>
 #include <QString>
@@ -559,78 +562,40 @@ int main(int argc, char* argv[])
     EXPECT_CALL(*logger, clone()).WillRepeatedly(::testing::Return(loggerCopy));
     EXPECT_CALL(*logger, isValid()).WillRepeatedly(::testing::Return(true));
 
-    te::core::URI uri("");
 
     Service service(dataManager);
     serviceManager.setInstanceId(1);
     serviceManager.setLogger(logger);
-    serviceManager.setLogConnectionInfo(uri);
-    serviceManager.setInstanceId(1);
+    serviceManager.setLogConnectionInfo(te::core::URI(""));
 
     service.setLogger(logger);
     service.start();
 
-    auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
 
-    //////////////////////////////////////////////////////
-    //     input
-    // Input Server: Data Collected, Reference File, Terrain Model Files
-    // DataProvider information
-    //////////////////////////////////////////////////////
+    using namespace terrama2::examples::analysis::utilsgeotiff;
 
-    auto dataProvider = std::make_shared<terrama2::core::DataProvider>();
-    dataProvider->id = 1;
-    dataProvider->name = "Input Server";
-    dataProvider->uri = "file://"+TERRAMA2_DATA_DIR+"/";
-    dataProvider->dataProviderType = "FILE";
-    dataProvider->active = true;
-
+    auto dataProvider = dataProviderFile();
     dataManager->add(dataProvider);
 
-    //semantics DataSeries information
-    std::shared_ptr<terrama2::core::DataSeries> dataSeries = std::make_shared<terrama2::core::DataSeries>();
-    dataSeries->id = 1;
-    dataSeries->name = "Hidro";
-    dataSeries->semantics = semanticsManager.getSemantics("GRID-geotiff");
-    dataSeries->dataProviderId = dataProvider->id;
-    dataSeries->active = true;
+
 
     //hidro_2011
-    terrama2::core::DataSetGrid* dataSet = new terrama2::core::DataSetGrid();
-    dataSet->id = 1;
-    dataSet->active = true;
-    dataSet->format.emplace("mask", "hidro_diario_jan2011/S11216377_%YYYY%MM%DD%hh%mm.tif");
-    dataSet->format.emplace("timezone", "UTC+00");
-
-    dataSeries->datasetList.emplace_back(dataSet);
-
-    dataManager->add(dataSeries);
+    auto data_series_hidro = dataSeriesHidro(dataProvider);
+    dataManager->add(data_series_hidro);
 
     //Analysis DATA SERIES = hidro_2011
 
     AnalysisDataSeries hidro;
-    hidro.id = 13;
+    hidro.id = 1;
     hidro.alias = "hidro_2011";
-    hidro.dataSeriesId = dataProvider->id;
+    hidro.dataSeriesId = data_series_hidro->id;
     hidro.type = AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE;
 
-    // semantics DataSeries information  - SRTM_a_latlong_sad69
 
-    std::shared_ptr<terrama2::core::DataSeries> dataSeriesA = std::make_shared<terrama2::core::DataSeries>();
-    dataSeriesA->id = 2;
-    dataSeriesA->name = "SRTM_a_latlong_sad69";
-    dataSeriesA->semantics = semanticsManager.getSemantics("GRID-static_gdal");
-    dataSeriesA->dataProviderId = dataProvider->id;
-    dataSeriesA->active = true;
+    //DataSeries information  - SRTM_a_latlong_sad69
 
-    //SRTM_a_latlong_sad69
-    terrama2::core::DataSetGrid* dataSetA = new terrama2::core::DataSetGrid();
-    dataSetA->id = 2;
-    dataSetA->active = true;
-    dataSetA->format.emplace("mask", "Rio_Friburgo/SRTM_a_latlong_sad69.tif");
-
-    dataSeriesA->datasetList.emplace_back(dataSetA);
-    dataManager->add(dataSeriesA);
+    auto data_series_STRM_A = dataSeriesSTRM_A(dataProvider);
+    dataManager->add(data_series_STRM_A);
 
 
     //Analysis DATA SERIES = SRTM_a_latlong_sad69
@@ -638,39 +603,23 @@ int main(int argc, char* argv[])
     AnalysisDataSeries SRTM_a_latlong_sad69;
     SRTM_a_latlong_sad69.id = 2;
     SRTM_a_latlong_sad69.alias = "SRTM_a_latlong_sad69";
-    SRTM_a_latlong_sad69.dataSeriesId = dataSeriesA->id;
+    SRTM_a_latlong_sad69.dataSeriesId = data_series_STRM_A->id;
     SRTM_a_latlong_sad69.type = AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE;
 
 
 
     ////////////////////////////////////////////////////////////
-    // semantics DataSeries information - SRTM_s_latlong_sad69
+    // DataSeries information - SRTM_s_latlong_sad69
     ////////////////////////////////////////////////////////////
 
-    std::shared_ptr<terrama2::core::DataSeries> dataSeriesS = std::make_shared<terrama2::core::DataSeries>();
-    dataSeriesS->id = 7;
-    dataSeriesS->name = "SRTM_s_latlong_sad69";
-    dataSeriesS->semantics = semanticsManager.getSemantics("GRID-static_gdal");
-    dataSeriesS->dataProviderId = dataProvider->id;
-    dataSeriesS->active = true;
+    auto data_series_STRM_S = dataSeriesSTRM_S(dataProvider);
+    dataManager->add(data_series_STRM_S);
 
-    dataManager->add(dataSeriesS);
-
-    //SRTM_s_latlong_sad69
-
-    terrama2::core::DataSetGrid* dataSetS = new terrama2::core::DataSetGrid();
-    dataSetS->id = 8;
-    dataSetS->active = true;
-    dataSetS->format.emplace("mask", "Rio_Friburgo/SRTM_s_latlong_sad69.tif");
-
-    dataSeriesS->datasetList.emplace_back(dataSetS);
-
-    //Analysis DATA SERIES = SRTM_s_latlong_sad69
 
     AnalysisDataSeries SRTM_s_latlong_sad69;
-    SRTM_s_latlong_sad69.id = 15;
+    SRTM_s_latlong_sad69.id = 3;
     SRTM_s_latlong_sad69.alias = "SRTM_s_latlong_sad69";
-    SRTM_s_latlong_sad69.dataSeriesId = dataSeriesS->id;
+    SRTM_s_latlong_sad69.dataSeriesId = data_series_STRM_S->id;
     SRTM_s_latlong_sad69.type = AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE;
 
 
@@ -679,40 +628,22 @@ int main(int argc, char* argv[])
     //////////////////////////////
 
     // DataSeries information - Output
-    std::shared_ptr<terrama2::core::DataSeries> outputDataSeries = std::make_shared<terrama2::core::DataSeries>();
-    outputDataSeries->id = 31;
-    outputDataSeries->name = "Análise Saida";
-    outputDataSeries->semantics = semanticsManager.getSemantics("GRID-geotiff");
-    outputDataSeries->dataProviderId = dataProvider->id;
-    outputDataSeries->active = true;
-    dataManager->add(outputDataSeries);
+    auto output_data_series = outputDataSeries(dataProvider, output_novaFriburgo);
+    dataManager->add(output_data_series);
 
 
-    // DataSet information
-    terrama2::core::DataSet* outputDataSet = new terrama2::core::DataSet();
-    outputDataSet->active = true;
-    outputDataSet->id = 30;
-    outputDataSet->dataSeriesId = outputDataSeries->id;
-    outputDataSet->format.emplace("timezone", "UTC+00");
-    outputDataSet->format.emplace("srid", "4618");
-    outputDataSet->format.emplace("mask", "AnResultTesteNF/FS_%YYYY%MM%DD%hh%mm.tif");
-
-    outputDataSeries->datasetList.emplace_back(outputDataSet);
 
     std::shared_ptr<terrama2::services::analysis::core::Analysis> analysis = std::make_shared<terrama2::services::analysis::core::Analysis>();
-    analysis->id = 9;
+    analysis->id = 1;
     analysis->name = "An_FS_SINMAP";
     analysis->script = scriptAnalise();
     analysis->scriptLanguage = ScriptLanguage::PYTHON;
     analysis->type = AnalysisType::GRID_TYPE;
     analysis->active = true;
-    analysis->outputDataSeriesId = outputDataSeries->id;
-    analysis->outputDataSetId = outputDataSet->id;
+    analysis->outputDataSeriesId = output_data_series->id;
+    analysis->outputDataSetId = output_data_series->datasetList.front()->id;
     analysis->serviceInstanceId = serviceManager.instanceId();
     dataManager->add(analysis);
-
-    analysis->schedule.frequency = 24;
-    analysis->schedule.frequencyUnit = "hours";
 
 
     //Output tiff
@@ -720,9 +651,9 @@ int main(int argc, char* argv[])
     outputGrid->analysisId = analysis->id;
     outputGrid->interpolationMethod = InterpolationMethod::NEARESTNEIGHBOR;
     outputGrid->interestAreaType = InterestAreaType::SAME_FROM_DATASERIES;
-    outputGrid->interestAreaDataSeriesId =  SRTM_a_latlong_sad69.id;
+    outputGrid->interestAreaDataSeriesId =  data_series_STRM_A->id;
     outputGrid->resolutionType = ResolutionType::SAME_FROM_DATASERIES;
-    outputGrid->resolutionDataSeriesId =  SRTM_a_latlong_sad69.id;
+    outputGrid->resolutionDataSeriesId =  data_series_STRM_A->id;
     outputGrid->interpolationDummy = 0;
 
     analysis->outputGridPtr = outputGrid;
@@ -736,7 +667,7 @@ int main(int argc, char* argv[])
 
     analysis->analysisDataSeriesList = analysisDataSeriesList;
 
-    service.addToQueue(analysis->id, terrama2::core::TimeUtils::nowUTC());
+    service.addToQueue(analysis->id, terrama2::core::TimeUtils::stringToTimestamp("2011-01-14T12:00:00+00", terrama2::core::TimeUtils::webgui_timefacet));
 
     QTimer timer;
     QObject::connect(&timer, &QTimer::timeout, &service, &Service::stopService);
@@ -748,3 +679,4 @@ int main(int argc, char* argv[])
 
   return 0;
 }
+

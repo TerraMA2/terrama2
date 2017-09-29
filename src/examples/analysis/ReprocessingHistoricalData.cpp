@@ -77,7 +77,6 @@ int main(int argc, char* argv[])
   serviceManager.setInstanceId(1);
   serviceManager.setLogger(logger);
   serviceManager.setLogConnectionInfo(te::core::URI(""));
-  serviceManager.setInstanceId(1);
 
   service.setLogger(logger);
   service.start();
@@ -97,9 +96,9 @@ int main(int argc, char* argv[])
   std::shared_ptr<terrama2::services::analysis::core::Analysis> analysis = std::make_shared<terrama2::services::analysis::core::Analysis>();
 
 
-  std::string script = "moBuffer = Buffer()\n"
-      "x = occurrence.zonal.count(\"Occurrence\", \"6h\", moBuffer)\n"
-      "add_value(\"count\", x)\n";
+  std::string script = R"(moBuffer = Buffer()
+x = occurrence.zonal.count("Occurrence", "6h", moBuffer)
+add_value("count", x))";
 
   analysis->id = 1;
   analysis->name = "Analysis";
@@ -140,8 +139,6 @@ int main(int argc, char* argv[])
 
   analysis->analysisDataSeriesList = analysisDataSeriesList;
 
-  analysis->schedule.frequency = 15;
-  analysis->schedule.frequencyUnit = "min";
 
   auto reprocessingHistoricalData = new ReprocessingHistoricalData();
   ReprocessingHistoricalDataPtr reprocessingHistoricalDataPtr(reprocessingHistoricalData);

@@ -53,6 +53,10 @@ namespace terrama2
   namespace utilsgeotiff
   {
 
+    const std::string output_history = "/geotiff/historical/output_history_grid.tif";
+    const std::string output_grid = "/geotiff/output_grid.tif";
+    const std::string output_novaFriburgo = "/AnResultTesteNF/output_novaFriburgo.tif";
+
     terrama2::core::DataProviderPtr dataProviderFile()
     {
          QString json = QString(R"(
@@ -68,7 +72,7 @@ namespace terrama2
                                         "active": true
                                    }
                                  )"
-                               ).arg(QString::fromStdString(TERRAMA2_DATA_DIR+"/geotiff"));
+                               ).arg(QString::fromStdString(TERRAMA2_DATA_DIR));
 
         QJsonDocument doc = QJsonDocument::fromJson(json.toUtf8());
         QJsonObject obj = doc.object();
@@ -76,39 +80,8 @@ namespace terrama2
 
     }
 
-    terrama2::core::DataSeriesPtr outputDataSeriesHistory(terrama2::core::DataProviderPtr dataProvider)
-    {
 
-        QString json = QString(R"x(
-                                    {
-                                        "class": "DataSeries",
-                                        "id": 5,
-                                        "name": "Output Grid",
-                                        "description": null,
-                                        "data_provider_id":  %1,
-                                        "semantics": "GRID-geotiff",
-                                        "active": true,
-                                        "datasets":[
-                                             {
-                                                "class": "DataSet",
-                                                "id": 5,
-                                                "data_series_id": 5,
-                                                "active": true,
-                                                 "format": {
-                                                        "mask": "/historical/output_history_grid.tif",
-                                                        "timezone": "00:00"
-                                                }
-                                             }
-                                        ]
-                                       }
-                                     )x"
-                                   ).arg(dataProvider->id);
-            QJsonDocument doc = QJsonDocument::fromJson(json.toUtf8());
-            QJsonObject obj = doc.object();
-            return terrama2::core::fromDataSeriesJson(obj);
-    }
-
-    terrama2::core::DataSeriesPtr outputDataSeries(terrama2::core::DataProviderPtr dataProvider)
+    terrama2::core::DataSeriesPtr outputDataSeries(terrama2::core::DataProviderPtr dataProvider, std::string mask)
     {
 
         QString json = QString(R"x(
@@ -127,19 +100,20 @@ namespace terrama2
                                                 "data_series_id": 6,
                                                 "active": true,
                                                  "format": {
-                                                        "mask": "output_grid.tif",
-                                                        "timezone": "00:00",
-                                                        "srid": 4326
+                                                        "mask": "%2",
+                                                        "timezone": "00:00"
                                                 }
                                              }
                                         ]
                                        }
                                      )x"
-                                   ).arg(dataProvider->id);
+                                   ).arg(dataProvider->id).arg(QString::fromStdString(mask));
             QJsonDocument doc = QJsonDocument::fromJson(json.toUtf8());
             QJsonObject obj = doc.object();
             return terrama2::core::fromDataSeriesJson(obj);
     }
+
+
 
     terrama2::core::DataSeriesPtr dataSeries(terrama2::core::DataProviderPtr dataProvider)
     {
@@ -160,7 +134,7 @@ namespace terrama2
                                                 "data_series_id": 1,
                                                 "active": true,
                                                  "format": {
-                                                        "mask": "/historical/%YYYY%MM%DD_%hh%mm%ss.tif",
+                                                        "mask": "/geotiff/historical/%YYYY%MM%DD_%hh%mm%ss.tif",
                                                         "timezone": "00:00"
                                                 }
                                              }
@@ -173,7 +147,7 @@ namespace terrama2
             return terrama2::core::fromDataSeriesJson(obj);
     }
 
-    terrama2::core::DataSeriesPtr dataSeriesStaticGdal(terrama2::core::DataProviderPtr dataProvider)
+    terrama2::core::DataSeriesPtr dataSeriesSpotVegetacao(terrama2::core::DataProviderPtr dataProvider)
     {
 
         QString json = QString(R"x(
@@ -192,9 +166,7 @@ namespace terrama2
                                                 "data_series_id": 2,
                                                 "active": true,
                                                  "format": {
-                                                        "mask": "Spot_Vegetacao_Jul2001_SP.tif",
-                                                        "timezone": "00:00",
-                                                        "srid": 4291
+                                                        "mask": "/geotiff/Spot_Vegetacao_Jul2001_SP.tif"
 
                                                 }
                                              }
@@ -207,7 +179,7 @@ namespace terrama2
             return terrama2::core::fromDataSeriesJson(obj);
     }
 
-    terrama2::core::DataSeriesPtr dataSeriesGridGeotiff(terrama2::core::DataProviderPtr dataProvider)
+    terrama2::core::DataSeriesPtr dataSeriesL5219076(terrama2::core::DataProviderPtr dataProvider)
     {
 
         QString json = QString(R"x(
@@ -226,7 +198,7 @@ namespace terrama2
                                                 "data_series_id": 3,
                                                 "active": true,
                                                  "format": {
-                                                        "mask": "L5219076_07620040908_r3g2b1.tif",
+                                                        "mask": "/geotiff/L5219076_07620040908_r3g2b1.tif",
                                                         "timezone": "00:00"
 
                                                 }
@@ -239,6 +211,105 @@ namespace terrama2
             QJsonObject obj = doc.object();
             return terrama2::core::fromDataSeriesJson(obj);
     }
+
+    terrama2::core::DataSeriesPtr dataSeriesHidro(terrama2::core::DataProviderPtr dataProvider)
+    {
+
+        QString json = QString(R"x(
+                                    {
+                                        "class": "DataSeries",
+                                        "id": 4,
+                                        "name": "Hidro",
+                                        "description": null,
+                                        "data_provider_id":  %1,
+                                        "semantics": "GRID-geotiff",
+                                        "active": true,
+                                        "datasets":[
+                                             {
+                                                "class": "DataSet",
+                                                "id": 4,
+                                                "data_series_id": 4,
+                                                "active": true,
+                                                 "format": {
+                                                        "mask": "/hidro_diario_jan2011/S11216377_%YYYY%MM%DD%hh%mm.tif",
+                                                        "timezone": "UTC+00"
+
+                                                }
+                                             }
+                                        ]
+                                       }
+                                     )x"
+                                   ).arg(dataProvider->id);
+            QJsonDocument doc = QJsonDocument::fromJson(json.toUtf8());
+            QJsonObject obj = doc.object();
+            return terrama2::core::fromDataSeriesJson(obj);
+    }
+
+    terrama2::core::DataSeriesPtr dataSeriesSTRM_A(terrama2::core::DataProviderPtr dataProvider)
+    {
+
+        QString json = QString(R"x(
+                                    {
+                                        "class": "DataSeries",
+                                        "id": 5,
+                                        "name": "SRTM_a_latlong_sad69",
+                                        "description": null,
+                                        "data_provider_id":  %1,
+                                        "semantics": "GRID-static_gdal",
+                                        "active": true,
+                                        "datasets":[
+                                             {
+                                                "class": "DataSet",
+                                                "id": 5,
+                                                "data_series_id": 5,
+                                                "active": true,
+                                                 "format": {
+                                                        "mask": "/Rio_Friburgo/SRTM_a_latlong_sad69.tif"
+
+                                                }
+                                             }
+                                        ]
+                                       }
+                                     )x"
+                                   ).arg(dataProvider->id);
+            QJsonDocument doc = QJsonDocument::fromJson(json.toUtf8());
+            QJsonObject obj = doc.object();
+            return terrama2::core::fromDataSeriesJson(obj);
+    }
+
+    terrama2::core::DataSeriesPtr dataSeriesSTRM_S(terrama2::core::DataProviderPtr dataProvider)
+    {
+
+        QString json = QString(R"x(
+                                    {
+                                        "class": "DataSeries",
+                                        "id": 7,
+                                        "name": "SRTM_s_latlong_sad69",
+                                        "description": null,
+                                        "data_provider_id":  %1,
+                                        "semantics": "GRID-static_gdal",
+                                        "active": true,
+                                        "datasets":[
+                                             {
+                                                "class": "DataSet",
+                                                "id": 7,
+                                                "data_series_id": 7,
+                                                "active": true,
+                                                 "format": {
+                                                        "mask": "/Rio_Friburgo/SRTM_s_latlong_sad69.tif"
+
+
+                                                }
+                                             }
+                                        ]
+                                       }
+                                     )x"
+                                   ).arg(dataProvider->id);
+            QJsonDocument doc = QJsonDocument::fromJson(json.toUtf8());
+            QJsonObject obj = doc.object();
+            return terrama2::core::fromDataSeriesJson(obj);
+    }
+
     }  // end namespace utilsdcpserrmarinpe
    }  // end namespace analysis
   }  // end namespace examples

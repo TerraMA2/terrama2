@@ -79,15 +79,15 @@ int main(int argc, char* argv[])
   serviceManager.setInstanceId(1);
   serviceManager.setLogger(logger);
   serviceManager.setLogConnectionInfo(te::core::URI(""));
-  serviceManager.setInstanceId(1);
 
   service.setLogger(logger);
   service.start();
 
-  auto dataProvider = terrama2::examples::analysis::utilspostgis::dataProviderPostGis();
+  using namespace terrama2::examples::analysis::utilspostgis;
+  auto dataProvider = dataProviderPostGis();
   dataManager->add(dataProvider);
 
-  auto outputDataSeries = terrama2::examples::analysis::utilspostgis::outputDataSeriesPostGis(dataProvider, terrama2::examples::analysis::utilspostgis::occurrence_analysis_result);
+  auto outputDataSeries = outputDataSeriesPostGis(dataProvider, occurrence_analysis_result);
   dataManager->add(outputDataSeries);
 
 
@@ -108,18 +108,18 @@ add_value("count", x))z";
   analysis->serviceInstanceId = 1;
 
 
-  auto dataSeries = terrama2::examples::analysis::utilspostgis::dataSeriesPostGis(dataProvider);
+  auto dataSeries = dataSeriesPostGis(dataProvider);
   dataManager->add(dataSeries);
 
   AnalysisDataSeries monitoredObjectADS;
   monitoredObjectADS.id = 1;
   monitoredObjectADS.dataSeriesId = dataSeries->id;
   monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
-  monitoredObjectADS.metadata["identifier"] = "nome";
+  monitoredObjectADS.metadata["identifier"] = "fid";
 
 
   //Data Occurrence
-  auto occurrenceDataSeries = terrama2::examples::analysis::utilspostgis::occurrenceDataSeriesPostGis(dataProvider);
+  auto occurrenceDataSeries = occurrenceDataSeriesPostGis(dataProvider);
   dataManager->add(occurrenceDataSeries);
 
   AnalysisDataSeries occurrenceADS;
@@ -134,9 +134,6 @@ add_value("count", x))z";
 
   analysis->analysisDataSeriesList = analysisDataSeriesList;
 
-  analysis->schedule.id = 1;
-  analysis->schedule.frequency = 30;
-  analysis->schedule.frequencyUnit = "sec";
 
   dataManager->add(analysis);
 

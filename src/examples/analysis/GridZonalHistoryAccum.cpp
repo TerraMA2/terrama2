@@ -76,17 +76,19 @@ int main(int argc, char* argv[])
     serviceManager.setInstanceId(1);
     serviceManager.setLogger(logger);
     serviceManager.setLogConnectionInfo(te::core::URI(""));
-    serviceManager.setInstanceId(1);
 
     service.setLogger(logger);
     service.start();
 
+    using namespace terrama2::examples::analysis::utilspostgis;
+    using namespace terrama2::examples::analysis::utilsgeotiff;
+
     // DataProvider information
-    auto dataProvider = terrama2::examples::analysis::utilspostgis::dataProviderPostGis();
+    auto dataProvider = dataProviderPostGis();
     dataManager->add(dataProvider);
 
     // DataSeries information
-    auto outputDataSeries = terrama2::examples::analysis::utilspostgis::outputDataSeriesPostGis(dataProvider, terrama2::examples::analysis::utilspostgis::zonal_history_ratio_analysis_result);
+    auto outputDataSeries = outputDataSeriesPostGis(dataProvider, zonal_history_ratio_analysis_result);
     dataManager->add(outputDataSeries);
 
     std::shared_ptr<terrama2::services::analysis::core::Analysis> analysis = std::make_shared<terrama2::services::analysis::core::Analysis>();
@@ -94,8 +96,8 @@ int main(int argc, char* argv[])
     analysis->name = "Analysis";
     analysis->active = true;
 
-    std::string script = "x = grid.zonal.history.accum.max(\"geotiff 1\", \"30d\")\n"
-                         "add_value(\"max\", x)\n";
+    std::string script = R"z(x = grid.zonal.history.accum.max("geotiff 1", "30d")
+add_value("max", x))z";
 
     analysis->script = script;
     analysis->outputDataSeriesId = outputDataSeries->id;
@@ -105,26 +107,27 @@ int main(int argc, char* argv[])
     analysis->serviceInstanceId = 1;
 
 
-    auto dataSeries = terrama2::examples::analysis::utilspostgis::dataSeriesPostGis(dataProvider);
+    auto dataSeries = dataSeriesPostGis(dataProvider);
     dataManager->add(dataSeries);
 
     AnalysisDataSeries monitoredObjectADS;
     monitoredObjectADS.id = 1;
     monitoredObjectADS.dataSeriesId = dataSeries->id;
     monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
-    monitoredObjectADS.metadata["identifier"] = "nome";
+    monitoredObjectADS.metadata["identifier"] = "fid";
+
 
 
     // DataProvider information
-    auto dataProviderFile = terrama2::examples::analysis::utilsgeotiff::dataProviderFile();
-    dataManager->add(dataProviderFile);
+    auto dataProviderSpot = dataProviderFile();
+    dataManager->add(dataProviderSpot);
 
-    auto dataSeriesStatic = terrama2::examples::analysis::utilsgeotiff::dataSeriesStaticGdal(dataProviderFile);
-    dataManager->add(dataSeriesStatic);
+    auto dataSeriesSpot = dataSeriesSpotVegetacao(dataProviderSpot);
+    dataManager->add(dataSeriesSpot);
 
     AnalysisDataSeries gridADS1;
     gridADS1.id = 2;
-    gridADS1.dataSeriesId = dataSeriesStatic->id;
+    gridADS1.dataSeriesId = dataSeriesSpot->id;
     gridADS1.type = AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE;
 
 
@@ -133,9 +136,6 @@ int main(int argc, char* argv[])
     analysisDataSeriesList.push_back(gridADS1);
 
     analysis->analysisDataSeriesList = analysisDataSeriesList;
-
-    analysis->schedule.frequency = 1;
-    analysis->schedule.frequencyUnit = "min";
 
     dataManager->add(analysis);
 

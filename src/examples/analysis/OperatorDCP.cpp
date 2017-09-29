@@ -74,50 +74,36 @@ int main(int argc, char* argv[])
     serviceManager.setInstanceId(1);
     serviceManager.setLogger(logger);
     serviceManager.setLogConnectionInfo(te::core::URI(""));
-    serviceManager.setInstanceId(1);
 
     service.setLogger(logger);
     service.start();
 
+    using namespace terrama2::examples::analysis::utilspostgis;
+    using namespace terrama2::examples::analysis::utilsdcpserrmarinpe;
 
-    auto dataProvider = terrama2::examples::analysis::utilspostgis::dataProviderPostGis();
+    auto dataProvider = dataProviderPostGis();
     dataManager->add(dataProvider);
 
 
-    auto outputDataSeries = terrama2::examples::analysis::utilspostgis::outputDataSeriesPostGis(dataProvider, terrama2::examples::analysis::utilspostgis::dcp_result);
+    auto outputDataSeries = outputDataSeriesPostGis(dataProvider, dcp_result);
     dataManager->add(outputDataSeries);
 
-/*    std::string script =
-R"("moBuffer = Buffer(BufferType.Out_union, 2., "km")
-"ids = dcp.zonal.influence.by_rule("Serra do Mar", moBuffer)
-"x = dcp.zonal.count(\Serra do Mar", moBuffer)
-"add_value("count", x)
-"x = dcp.zonal.min("Serra do Mar", "Pluvio", ids)
-"add_value("min", x)
-"x = dcp.zonal.max("Serra do Mar", "Pluvio", ids)
-"add_value("max", x)
-"x = dcp.zonal.mean("Serra do Mar", "Pluvio", ids)
-"add_value("mean", x)
-"x = dcp.zonal.median("Serra do Mar", "Pluvio", ids)
-"add_value("median", x)
-"x = dcp.zonal.standard_deviation("Serra do Mar", "Pluvio", ids)
-"add_value("standard_deviation", x)
-)";
-*/
-          std::string script =  "moBuffer = Buffer(BufferType.Out_union, 2., \"km\")\n"
-                                     "ids = dcp.zonal.influence.by_rule(\"Serra do Mar\", moBuffer)\n"
-                                     "x = dcp.zonal.count(\"Serra do Mar\", moBuffer)\n"
-                                     "add_value(\"count\", x)\n"
-                                     "x = dcp.zonal.min(\"Serra do Mar\", \"Pluvio\", ids)\n"
-                                     "add_value(\"min\", x)\n"
-                                     "x = dcp.zonal.max(\"Serra do Mar\", \"Pluvio\", ids)\n"
-                                     "add_value(\"max\", x)\n"
-                                     "x = dcp.zonal.mean(\"Serra do Mar\", \"Pluvio\", ids)\n"
-                                     "add_value(\"mean\", x)\n"
-                                     "x = dcp.zonal.median(\"Serra do Mar\", \"Pluvio\", ids)\n"
-                                     "add_value(\"median\", x)\n"
-                                     "x = dcp.zonal.standard_deviation(\"Serra do Mar\", \"Pluvio\", ids)\n"
-                                     "add_value(\"standard_deviation\", x)\n";
+   std::string script =
+R"z(moBuffer = Buffer(BufferType.Out_union, 2., "km")
+ids = dcp.zonal.influence.by_rule("Serra do Mar", moBuffer)
+x = dcp.zonal.count("Serra do Mar", moBuffer)
+add_value("count", x)
+x = dcp.zonal.min("Serra do Mar", "Pluvio", ids)
+add_value("min", x)
+x = dcp.zonal.max("Serra do Mar", "Pluvio", ids)
+add_value("max", x)
+x = dcp.zonal.mean("Serra do Mar", "Pluvio", ids)
+add_value("mean", x)
+x = dcp.zonal.median("Serra do Mar", "Pluvio", ids)
+add_value("median", x)
+x = dcp.zonal.standard_deviation("Serra do Mar", "Pluvio", ids)
+add_value("standard_deviation", x))z";
+
 
     std::shared_ptr<terrama2::services::analysis::core::Analysis> analysis = std::make_shared<terrama2::services::analysis::core::Analysis>();
     analysis->id = 1;
@@ -136,30 +122,30 @@ R"("moBuffer = Buffer(BufferType.Out_union, 2., "km")
 
 
 
-    auto dataSeries = terrama2::examples::analysis::utilspostgis::dataSeriesPostGis(dataProvider);
-    dataManager->add(dataSeries);
-
-
-
-    auto dataProviderFile = terrama2::examples::analysis::utilsdcpserrmarinpe::dataProviderFile();
-    dataManager->add(dataProviderFile);
+    auto dataSeriesEstados2010 = dataSeriesPostGis(dataProvider);
+    dataManager->add(dataSeriesEstados2010);
 
     AnalysisDataSeries monitoredObjectADS;
     monitoredObjectADS.id = 1;
-    monitoredObjectADS.dataSeriesId = dataSeries->id;
+    monitoredObjectADS.dataSeriesId = dataSeriesEstados2010->id;
     monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
-    monitoredObjectADS.metadata["identifier"] = "nome";
+    monitoredObjectADS.metadata["identifier"] = "fid";
 
 
-    auto dcpSeries= terrama2::examples::analysis::utilsdcpserrmarinpe::dataSeries(dataProviderFile);
+    auto dataProviderDCPSerrmar = dataProviderFile();
+    dataManager->add(dataProviderDCPSerrmar);
+
+
+
+    auto dcpSeriesSerrMar = dataSeries(dataProviderDCPSerrmar);
 
 
     AnalysisDataSeries dcpADS;
     dcpADS.id = 2;
-    dcpADS.dataSeriesId = dcpSeries->id;
+    dcpADS.dataSeriesId = dcpSeriesSerrMar->id;
     dcpADS.type = AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE;
 
-    dataManager->add(dcpSeries);
+    dataManager->add(dcpSeriesSerrMar);
 
 
     std::vector<AnalysisDataSeries> analysisDataSeriesList;

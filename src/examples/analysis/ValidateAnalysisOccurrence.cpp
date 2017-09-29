@@ -104,9 +104,6 @@ add_value("count", x))z";
 
   analysis->analysisDataSeriesList = analysisDataSeriesList;
 
-  analysis->schedule.id = 1;
-  analysis->schedule.frequency = 30;
-  analysis->schedule.frequencyUnit = "sec";
 
   dataManager->add(analysis);
 

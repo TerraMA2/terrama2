@@ -76,7 +76,6 @@ int main(int argc, char* argv[])
     serviceManager.setInstanceId(1);
     serviceManager.setLogger(logger);
     serviceManager.setLogConnectionInfo(te::core::URI(""));
-    serviceManager.setInstanceId(1);
 
     service.setLogger(logger);
     service.start();
@@ -98,33 +97,33 @@ int main(int argc, char* argv[])
     analysis->name = "Analysis";
     analysis->active = true;
 
-    std::string script = "moBuffer = Buffer()\n"
-                         "x = occurrence.zonal.count(\"Occurrence\", \"2d\", moBuffer)\n"
-                         "add_value(\"no_buffer\", x)\n"
+    std::string script = R"z(moBuffer = Buffer()
+x = occurrence.zonal.count("Occurrence", "2d", moBuffer)
+add_value("no_buffer", x)
 
-                         "moBuffer = Buffer(BufferType.Out_union, 10., \"km\")\n"
-                         "x = occurrence.zonal.count(\"Occurrence\", \"2d\" , moBuffer)\n"
-                         "add_value(\"out_union\", x)\n"
+moBuffer = Buffer(BufferType.Out_union, 10., "km")
+x = occurrence.zonal.count("Occurrence", "2d" , moBuffer)
+add_value("out_union", x)
 
-                         "moBuffer = Buffer(BufferType.In, 10., \"km\")\n"
-                         "x = occurrence.zonal.count(\"Occurrence\",  \"2d\" , moBuffer)\n"
-                         "add_value(\"buffer_in\", x)\n"
+moBuffer = Buffer(BufferType.In, 10., "km")
+x = occurrence.zonal.count("Occurrence",  "2d" , moBuffer)
+add_value("buffer_in", x)
 
-                         "moBuffer = Buffer(BufferType.Out, 10, \"km\")\n"
-                         "x = occurrence.zonal.count(\"Occurrence\",  \"2d\", moBuffer)\n"
-                         "add_value(\"out\", x)\n"
+moBuffer = Buffer(BufferType.Out, 10, "km")
+x = occurrence.zonal.count("Occurrence",  "2d", moBuffer)
+add_value("out", x)
 
-                         "moBuffer = Buffer(BufferType.In_out, 10., \"km\", -10., \"km\")\n"
-                         "x = occurrence.zonal.count(\"Occurrence\", \"2d\", moBuffer)\n"
-                         "add_value(\"in_out\", x)\n"
+moBuffer = Buffer(BufferType.In_out, 10., "km", -10., "km")
+x = occurrence.zonal.count("Occurrence", "2d", moBuffer)
+add_value("in_out", x)
 
-                         "moBuffer = Buffer(BufferType.In_diff, 10., \"km\")\n"
-                         "x = occurrence.zonal.count(\"Occurrence\",  \"2d\", moBuffer)\n"
-                         "add_value(\"in_diff\", x)\n"
+moBuffer = Buffer(BufferType.In_diff, 10., "km")
+x = occurrence.zonal.count("Occurrence",  "2d", moBuffer)
+add_value("in_diff", x)
 
-                         "moBuffer = Buffer(BufferType.Level, 20, \"km\", 5, \"km\")\n"
-                         "x = occurrence.zonal.count(\"Occurrence\",  \"2d\", moBuffer)\n"
-                         "add_value(\"level\", x)\n";
+moBuffer = Buffer(BufferType.Level, 20, "km", 5, "km")
+x = occurrence.zonal.count("Occurrence",  "2d", moBuffer)
+add_value("level", x))z";
 
 
     analysis->script = script;
@@ -144,7 +143,7 @@ int main(int argc, char* argv[])
     monitoredObjectADS.id = 1;
     monitoredObjectADS.dataSeriesId = dataSeries->id;
     monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
-    monitoredObjectADS.metadata["identifier"] = "nome";
+    monitoredObjectADS.metadata["identifier"] = "fid";
 
 
 
@@ -162,10 +161,6 @@ int main(int argc, char* argv[])
     analysisDataSeriesList.push_back(occurrenceADS);
 
     analysis->analysisDataSeriesList = analysisDataSeriesList;
-
-    analysis->schedule.frequency = 1;
-    analysis->schedule.frequencyUnit = "min";
-
 
 
     terrama2::core::ServiceManager::getInstance().setInstanceId(1);

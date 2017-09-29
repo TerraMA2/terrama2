@@ -73,35 +73,35 @@ int main(int argc, char* argv[])
   serviceManager.setInstanceId(1);
   serviceManager.setLogger(logger);
   serviceManager.setLogConnectionInfo(te::core::URI(""));
-  serviceManager.setInstanceId(1);
 
   service.setLogger(logger);
   service.start();
 
 
+  using namespace terrama2::examples::analysis::utilspostgis;
 
-  auto dataProvider = terrama2::examples::analysis::utilspostgis::dataProviderPostGis();
+  auto dataProvider = dataProviderPostGis();
   dataManager->add(dataProvider);
 
 
-  auto outputDataSeries = terrama2::examples::analysis::utilspostgis::outputDataSeriesPostGis(dataProvider, terrama2::examples::analysis::utilspostgis::dcp_history_interval_result);
+  auto outputDataSeries = outputDataSeriesPostGis(dataProvider, dcp_history_interval_result);
   dataManager->add(outputDataSeries);
 
 
-  std::string script = "moBuffer = Buffer(BufferType.Out_union, 2., \"km\")\n"
-          "ids = dcp.zonal.influence.by_rule(\"Serra do Mar\", moBuffer)\n"
-          "x = dcp.zonal.history.interval.sum(\"Serra do Mar\", \"Pluvio\", \"48h\", \"24h\", ids)\n"
-          "add_value(\"history_sum\",x)\n"
-          "x = dcp.zonal.history.interval.max(\"Serra do Mar\", \"Pluvio\", \"48h\", \"24h\", ids)\n"
-          "add_value(\"history_max\",x)\n"
-          "x = dcp.zonal.history.interval.min(\"Serra do Mar\", \"Pluvio\", \"48h\", \"24h\", ids)\n"
-          "add_value(\"history_min\",x)\n"
-          "x = dcp.zonal.history.interval.mean(\"Serra do Mar\", \"Pluvio\", \"48h\", \"24h\", ids)\n"
-          "add_value(\"history_mean\",x)\n"
-          "x = dcp.zonal.history.interval.median(\"Serra do Mar\", \"Pluvio\", \"48h\", \"24h\", ids)\n"
-          "add_value(\"history_median\",x)\n"
-          "x = dcp.zonal.history.interval.standard_deviation(\"Serra do Mar\", \"Pluvio\", \"48h\", \"24h\", ids)\n"
-          "add_value(\"history_standard_deviation\",x)\n";
+  std::string script = R"z(moBuffer = Buffer(BufferType.Out_union, 2., "km")
+ids = dcp.zonal.influence.by_rule("Serra do Mar", moBuffer)
+x = dcp.zonal.history.interval.sum("Serra do Mar", "Pluvio", "48h", "24h", ids)
+add_value("history_sum",x)
+x = dcp.zonal.history.interval.max("Serra do Mar", "Pluvio", "48h", "24h", ids)
+add_value("history_max",x)
+x = dcp.zonal.history.interval.min("Serra do Mar", "Pluvio", "48h", "24h", ids)
+add_value("history_min",x)
+x = dcp.zonal.history.interval.mean("Serra do Mar", "Pluvio", "48h", "24h", ids)
+add_value("history_mean",x)
+x = dcp.zonal.history.interval.median("Serra do Mar", "Pluvio", "48h", "24h", ids)
+add_value("history_median",x)
+x = dcp.zonal.history.interval.standard_deviation("Serra do Mar", "Pluvio", "48h", "24h", ids)
+add_value("history_standard_deviation",x))z";
 
 
   std::shared_ptr<terrama2::services::analysis::core::Analysis> analysis = std::make_shared<terrama2::services::analysis::core::Analysis>();
@@ -122,21 +122,22 @@ int main(int argc, char* argv[])
 
 
   //dataSeries Static Data PostGis estados_2010
-  auto dataSeries = terrama2::examples::analysis::utilspostgis::dataSeriesPostGis(dataProvider);
+  auto dataSeries = dataSeriesPostGis(dataProvider);
   dataManager->add(dataSeries);
 
   AnalysisDataSeries monitoredObjectADS;
   monitoredObjectADS.id = 1;
   monitoredObjectADS.dataSeriesId = dataSeries->id;
   monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
-  monitoredObjectADS.metadata["identifier"] = "nome";
+  monitoredObjectADS.metadata["identifier"] = "fid";
 
 
+  using namespace terrama2::examples::analysis::utilsdcpserrmarinpe;
   //DataProvider File folder PCD_serrmar_INPE
-  auto dataProviderFile = terrama2::examples::analysis::utilsdcpserrmarinpe::dataProviderFile();
-  dataManager->add(dataProviderFile);
+  auto dataProviderDCP = dataProviderFile();
+  dataManager->add(dataProviderDCP);
 
-  auto dcpSeries = terrama2::examples::analysis::utilsdcpserrmarinpe::dataSeriesDCP69031(dataProviderFile);
+  auto dcpSeries = dataSeriesDCP69031(dataProviderDCP);
   dataManager->add(dcpSeries);
 
   AnalysisDataSeries dcpADS;
