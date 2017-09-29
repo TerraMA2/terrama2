@@ -23,11 +23,6 @@
         InterpolatorFacade.update({}).then(function(){
           return response.json(true);
         });
-      },
-      delete: function(request, response){
-        InterpolatorFacade.delete({}).then(function(){
-          return response.json(true);
-        });
       }
     }
   }

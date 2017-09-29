@@ -5614,9 +5614,38 @@ var DataManager = module.exports = {
     });
   },
 
-  removeInterpolator: function(restriction, options){
-    return new Promise(function(resolve, reject){
-      return resolve("removed");
+  removeInterpolator: function(interpolatorParam, options){
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return self.getInterpolator({id: interpolatorParam.id}, options).then(function(interpolatorResult) {
+        return models.db.Interpolator.destroy(Utils.extend({where: {id: interpolatorParam.id}}, options)).then(function() {
+          return self.removeDataSerie({id: interpolatorResult.data_series_output}, options).then(function() {
+            var removeSchedulePromise;
+            if (interpolatorResult.scheduleType == Enums.ScheduleType.SCHEDULE){
+              removeSchedulePromise = self.removeSchedule({id: interpolatorResult.schedule.id}, options);
+            } else if (interpolatorResult.scheduleType == Enums.ScheduleType.AUTOMATIC ){
+              removeSchedulePromise = self.removeAutomaticSchedule({id: interpolatorResult.automaticSchedule.id}, options);
+            } else {
+              removeSchedulePromise = Promise.resolve();
+            }
+            return removeSchedulePromise.then(function() {
+              return resolve();
+            }).catch(function(err) {
+              logger.error("Could not remove interpolator schedule ", err);
+              return reject(err);
+            });
+          }).catch(function(err) {
+            logger.error("Could not remove interpolator output data series ", err);
+            return reject(err);
+          });
+        }).catch(function(err) {
+          logger.error(err);
+          return reject(new exceptions.InterpolatorError("Could not remove Interpolator ", err));
+        });
+      }).catch(function(err) {
+        logger.error(err);
+        return reject(err);
+      });
     });
   }
 };

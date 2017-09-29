@@ -9,5 +9,4 @@ module.exports = function (app) {
   app.get(app.locals.BASE_URL + 'api/Interpolator', passport.isAuthenticated, controller.get);
   app.get(app.locals.BASE_URL + 'api/Interpolator/:id', passport.isAuthenticated, controller.get);
   app.put(app.locals.BASE_URL + 'api/Interpolator/:id', passport.isAuthenticated, controller.put);
-  app.delete(app.locals.BASE_URL + "api/Interpolator/:id/delete", passport.isAuthenticated, controller.delete);
 };

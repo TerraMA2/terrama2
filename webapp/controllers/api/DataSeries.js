@@ -549,17 +549,26 @@ module.exports = function(app) {
                     })
 
                     .catch(function(err) {
-                      // if not find collector, it is processing data series or analysis data series
-                      return DataManager.removeDataSerie({id: id})
-                        .then(function() {
-                          var objectToSend = {
-                            "DataSeries": [id]
-                          };
-
-                          TcpService.remove(objectToSend);
-
-                          return response.json({status: 200, name: dataSeriesResult.name});
-                        });
+                      // if not find collector, check if is from interpolator
+                      return DataManager.getInterpolator({data_series_output: id})
+                        .then(function(interpolatorResult){
+                          return DataManager.removeInterpolator({id: interpolatorResult.id})
+                            .then(function(){
+                              return response.json({status: 200, name: dataSeriesResult.name});
+                            });
+                        }).catch(function(err){
+                          // if not find collector, it is processing data series or analysis data series
+                          return DataManager.removeDataSerie({id: id})
+                            .then(function() {
+                              var objectToSend = {
+                                "DataSeries": [id]
+                              };
+    
+                              TcpService.remove(objectToSend);
+    
+                              return response.json({status: 200, name: dataSeriesResult.name});
+                            });
+                        })
                     })
                 })
                 .catch(function(error) {
