@@ -39,11 +39,12 @@
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/Shared.hpp"
 #include "../../../core/Typedef.hpp"
-#include "MemoryDataSetLayer.hpp"
 #include "Typedef.hpp"
 #include "Shared.hpp"
 #include "ViewLogger.hpp"
 #include "Exception.hpp"
+
+#include <terralib/maptools/Enums.h>
 
 // STL
 #include <string>
@@ -74,8 +75,7 @@ namespace terrama2
                 enum class CREATION_TYPE
                 {
                   EDITOR = 0,
-                  XML = 1,
-                  WIND = 2
+                  XML = 1
                 };
 
                 enum class OperationType

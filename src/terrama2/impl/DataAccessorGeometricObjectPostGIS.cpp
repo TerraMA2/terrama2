@@ -20,44 +20,39 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataStoragerPostGIS.cpp
+  \file terrama2/core/data-access/DataAccessorGeometricObjectPostGIS.cpp
 
   \brief
 
   \author Jano Simas
  */
 
-#include "DataStoragerPostGIS.hpp"
-
-#include "../core/data-model/DataProvider.hpp"
+#include "DataAccessorGeometricObjectPostGIS.hpp"
 #include "../core/utility/Raii.hpp"
-#include "../core/utility/Utils.hpp"
 
-//terralib
-#include <terralib/dataaccess/datasource/DataSourceTransactor.h>
-#include <terralib/dataaccess/datasource/ScopedTransaction.h>
-#include <terralib/dataaccess/datasource/DataSourceFactory.h>
+//TerraLib
 #include <terralib/dataaccess/datasource/DataSource.h>
-#include <terralib/geometry/GeometryProperty.h>
-#include <terralib/dataaccess/utils/Utils.h>
+#include <terralib/dataaccess/datasource/DataSourceFactory.h>
+#include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 
-//Qt
+//QT
 #include <QUrl>
+#include <QObject>
 
-//STL
-#include <algorithm>
-
-terrama2::core::DataStoragerPtr terrama2::core::DataStoragerPostGIS::make(DataSeriesPtr dataSeries, DataProviderPtr dataProvider)
+terrama2::core::DataAccessorGeometricObjectPostGIS::DataAccessorGeometricObjectPostGIS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics)
+ : DataAccessor(dataProvider, dataSeries, false),
+   DataAccessorGeometricObject(dataProvider, dataSeries, false),
+   DataAccessorPostGIS(dataProvider, dataSeries, false)
 {
-  return std::make_shared<DataStoragerPostGIS>(dataSeries, dataProvider);
+  if(checkSemantics && dataSeries->semantics.driver != dataAccessorType())
+  {
+    QString errMsg = QObject::tr("Wrong DataSeries semantics.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw WrongDataSeriesSemanticsException()  << ErrorDescription(errMsg);
+  }
 }
 
-std::string terrama2::core::DataStoragerPostGIS::getCompleteURI(DataSetPtr /*outputDataSet*/) const
+std::string terrama2::core::DataAccessorGeometricObjectPostGIS::dataSourceType() const
 {
-  return dataProvider_->uri;
-}
-
-std::string terrama2::core::DataStoragerPostGIS::getDataSetTableName(DataSetPtr dataSet) const
-{
-  return getProperty(dataSet, dataSeries_, "table_name");
+  return "POSTGIS";
 }

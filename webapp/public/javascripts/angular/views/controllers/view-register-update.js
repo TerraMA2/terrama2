@@ -233,8 +233,13 @@ define([], function() {
           break;
         case DataSeriesService.DataSeriesType.POSTGIS:
         case DataSeriesService.DataSeriesType.GEOMETRIC_OBJECT:
-          return BASE_URL + "images/static-data-series/vetorial/vetorial.png";
-          break;
+          if (dataSeries.data_series_semantics.temporality == "STATIC"){
+            return BASE_URL + "images/static-data-series/vetorial/vetorial.png";
+            break;
+          } else {
+            return BASE_URL + "images/dynamic-data-series/geometric-object/geometric-object.png";
+            break;
+          }
         default:
           return BASE_URL + "images/dynamic-data-series/occurrence/occurrence.png";
           break;
@@ -441,7 +446,7 @@ define([], function() {
             return;
           }
 
-          if (Object.keys(self.legend).length !== 0 && self.legend.metadata.creation_type == "0") {
+          if (Object.keys(self.legend).length !== 0 && self.legend.metadata.creation_type == "editor") {
             if (!self.legend.colors || self.legend.colors.length === 0) {
               return MessageBoxService.danger(i18n.__("View"), i18n.__("You must generate the style colors to classify Data Series"));
             }
@@ -457,7 +462,7 @@ define([], function() {
               }
             }
           }
-          else if (Object.keys(self.legend).length !== 0 && self.legend.metadata.creation_type != "0" && self.legend.metadata.creation_type != "1"){
+          else if (Object.keys(self.legend).length !== 0 && self.legend.metadata.creation_type != "editor" && self.legend.metadata.creation_type != "xml"){
             if (self.legend.fieldsToReplace){
               self.legend.fieldsToReplace.forEach(function(field){
                 //Must increase 1 because geoserver starts the band name from 1

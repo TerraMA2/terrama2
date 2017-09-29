@@ -152,7 +152,7 @@ namespace terrama2
               \param dataManagerPtr Smart pointer to the data manager.
               \return The ContextDataSeries of the monitored object.
             */
-            std::shared_ptr<ContextDataSeries> getMonitoredObjectContextDataSeries(std::shared_ptr<DataManager>& dataManagerPtr);
+            std::shared_ptr<ContextDataSeries> getMonitoredObjectContextDataSeries();
 
             /*!
               \brief Returns the DCP buffer for the given dataset identifier.
@@ -177,6 +177,7 @@ namespace terrama2
 
           protected:
             const int DCP_ANALYSIS_DATASET = 0;
+            std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> monitoredObjectDataSeries_;
             std::set<std::pair<std::string, int> > attributes_; //!< Set of attributes and datatypes
             std::unordered_map<int, std::map<std::string, boost::any> >  analysisResult_;
             std::unordered_map<ObjectKey, std::shared_ptr<ContextDataSeries>, ObjectKeyHash, EqualKeyComparator > datasetMap_; //!< Map containing all loaded datasets.

@@ -137,7 +137,7 @@
         "children": [
           {
             "name": "Value",
-            "code": "dcp.value(<attribute>)"
+            "code": "dcp.value(\"<attribute>\")"
           },
           {
             "name": "Count",

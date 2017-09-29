@@ -526,6 +526,7 @@ configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postrm.in
 
 install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/remove-config.py
         DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT scripts)
+# Copy instalation and removal scripts
 install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postinst
         DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT scripts)
 install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/prerm
