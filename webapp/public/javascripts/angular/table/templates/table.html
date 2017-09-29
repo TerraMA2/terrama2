@@ -237,6 +237,13 @@
             </button>
           </td>
 
+          <td ng-disabled class="pull-cell-left">
+            <a ng-if="extra.canInterpolate(element)" class="btn btn-default btn-sm" ng-href="{{extra.linkToInterpolate(element)}}">
+              <span class="glyphicon glyphicon-play"></span>
+              <span class="hidden-xs">Interpolate</span>
+            </a>
+          </td>
+
           <td ng-if="extra.showRunButton" ng-disabled class="pull-cell-left">
             <button ng-disabled="!extra.canRun(element) || extra.disabledButtons(element) || !extra.canRemove"
                     class="btn btn-default btn-sm"

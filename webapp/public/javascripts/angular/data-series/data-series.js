@@ -93,6 +93,15 @@ define([], function() {
     };
 
     $scope.extra = {
+      canInterpolate: function(object){
+        if (object.data_series_semantics.data_series_type_name == "DCP"){
+          return true;
+        }
+        return false;
+      },
+      linkToInterpolate: function(object){
+        return urlToInterpolate = BASE_URL + "configuration/interpolator/new/" + object.id;
+      },
       canRemove: config.hasProjectPermission,
       removeOperationCallback: function(err, data) {
         if (err) {
