@@ -153,7 +153,7 @@ void terrama2::core::DataAccessorDcpInpe::adapt(DataSetPtr dataSet, std::shared_
 
 }
 
-void terrama2::core::DataAccessorDcpInpe::addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const
+void terrama2::core::DataAccessorDcpInpe::addColumns(std::shared_ptr<te::da::DataSetTypeConverter> /*converter*/, const std::shared_ptr<te::da::DataSetType>& /*datasetType*/) const
 {
   // Don't add any columns here,
   // the converter will add columns
