@@ -24,6 +24,9 @@
 
   \brief This class is responsible for unpacking files with gz, zip, bz2, tar, tar (tar.gz, tar.bz2) extension.
 
+  This code was copied from: https://github.com/libarchive/libarchive/blob/master/contrib/untar.c
+  has to be reviewed and credited correctly
+
   \author Evandro Delatin
 */
 
@@ -79,6 +82,7 @@
 QString terrama2::core::Unpack::decompressGz(QFileInfo fileInfo, QString temporaryFolder, std::shared_ptr<terrama2::core::FileRemover> remover)
 {
   QString saveName = temporaryFolder+"/"+nameFileDecompressed(fileInfo);
+  remover->addTemporaryFile(saveName.toStdString());
 
   std::ifstream inFile(fileInfo.absoluteFilePath().toStdString(), std::ios_base::in);
   std::ofstream outFile(saveName.toStdString(), std::ios_base::out);
@@ -93,6 +97,7 @@ QString terrama2::core::Unpack::decompressGz(QFileInfo fileInfo, QString tempora
 QString terrama2::core::Unpack::decompressBzip(QFileInfo fileInfo, QString temporaryFolder, std::shared_ptr<terrama2::core::FileRemover> remover)
 {
   QString saveName = temporaryFolder+"/"+nameFileDecompressed(fileInfo);
+  remover->addTemporaryFile(saveName.toStdString());
 
   std::ifstream inFile(fileInfo.absoluteFilePath().toStdString(), std::ios_base::in);
   std::ofstream outFile(saveName.toStdString(), std::ios_base::out);
@@ -104,7 +109,7 @@ QString terrama2::core::Unpack::decompressBzip(QFileInfo fileInfo, QString tempo
   return saveName;
 }
 
-void terrama2::core::Unpack::decompressZip(QFileInfo fileInfo, QString temporaryFolder, std::shared_ptr<terrama2::core::FileRemover> remover)
+void terrama2::core::Unpack::decompressZip(QFileInfo fileInfo, QString temporaryFolder, std::shared_ptr<terrama2::core::FileRemover> /*remover*/)
 {
   JlCompress::extractDir(fileInfo.absoluteFilePath(), temporaryFolder);
 }
@@ -255,8 +260,10 @@ int terrama2::core::Unpack::isEndOfArchive(const char* p)
   return 1;
 }
 
-// Create a file, including parent directory as necessary.
-std::FILE* terrama2::core::Unpack::createFile(std::string savePath, int mode)
+//! Create a file, including parent directory as necessary.
+// unused parameter from the original code, commented to silence warning
+// obs: original file link at the beggining of the file
+std::FILE* terrama2::core::Unpack::createFile(std::string savePath, int /*mode*/)
 {
   std::FILE* newFile = std::fopen(savePath.c_str(), "w+");
 
@@ -373,6 +380,7 @@ void terrama2::core::Unpack::untar(QFileInfo fileInfo, QString temporaryFolder, 
         QString errMsg = QObject::tr("Extracting file %1").arg(buff);
         TERRAMA2_LOG_DEBUG() << errMsg;
         std::string filePath = savePath+"/"+buff;
+        remover->addTemporaryFile(filePath);
         fileDecompressed = createFile(filePath, parseOct(buff + 100, 8));
         break;
       }

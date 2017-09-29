@@ -217,7 +217,7 @@ namespace terrama2
         /*!
            \brief Add adapted attributes to the converter
          */
-        virtual void adapt(DataSetPtr dataSet, std::shared_ptr<te::da::DataSetTypeConverter> converter) const { }
+        virtual void adapt(DataSetPtr /*dataSet*/, std::shared_ptr<te::da::DataSetTypeConverter> /*converter*/) const { }
 
         /*!
            \brief Retrieve data from server.
@@ -241,7 +241,7 @@ namespace terrama2
 
           Default behavior is true.
         */
-        virtual bool intersects(DataSetPtr dataset, const Filter& filter) const { return true; }
+        virtual bool intersects(DataSetPtr /*dataset*/, const Filter& /*filter*/) const { return true; }
 
         DataProviderPtr dataProvider_;//!< DataProvider with information of the server where the data is stored.
         DataSeriesPtr dataSeries_;//!< DataSeries with the DataSet list with data information.

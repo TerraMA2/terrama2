@@ -76,7 +76,7 @@ namespace te
       MOCK_METHOD0(EnvelopePtrReturn, te::gm::Envelope*());
 
       // Overridden method that use the mocked proxy
-      virtual std::auto_ptr<te::gm::Envelope> getExtent(std::size_t i) override
+      virtual std::auto_ptr<te::gm::Envelope> getExtent(std::size_t) override
       {
         return std::auto_ptr<te::gm::Envelope>(EnvelopePtrReturn());
       }
@@ -84,72 +84,72 @@ namespace te
       MOCK_CONST_METHOD0(ByteArrayPtrReturn, te::dt::ByteArray*());
 
 
-      virtual std::auto_ptr<te::dt::ByteArray> getByteArray(std::size_t i) const override
+      virtual std::auto_ptr<te::dt::ByteArray> getByteArray(std::size_t) const override
       {
         return std::auto_ptr<te::dt::ByteArray>(ByteArrayPtrReturn());
       }
 
-      virtual std::auto_ptr<te::dt::ByteArray> getByteArray(const std::string& name) const override
+      virtual std::auto_ptr<te::dt::ByteArray> getByteArray(const std::string&) const override
       {
         return std::auto_ptr<te::dt::ByteArray>(ByteArrayPtrReturn());
       }
 
       MOCK_CONST_METHOD0(GeometryPtrReturn, te::gm::Geometry*());
 
-      virtual std::auto_ptr<te::gm::Geometry> getGeometry(std::size_t i) const override
+      virtual std::auto_ptr<te::gm::Geometry> getGeometry(std::size_t) const override
       {
         return std::auto_ptr<te::gm::Geometry>(GeometryPtrReturn());
       }
 
-      virtual std::auto_ptr<te::gm::Geometry> getGeometry(const std::string& name) const override
+      virtual std::auto_ptr<te::gm::Geometry> getGeometry(const std::string&) const override
       {
         return std::auto_ptr<te::gm::Geometry>(GeometryPtrReturn());
       }
 
       MOCK_CONST_METHOD0(RasterPtrReturn, te::rst::Raster*());
 
-      virtual std::auto_ptr<te::rst::Raster> getRaster(std::size_t i) const override
+      virtual std::auto_ptr<te::rst::Raster> getRaster(std::size_t) const override
       {
         return std::auto_ptr<te::rst::Raster>(RasterPtrReturn());
       }
 
-      virtual std::auto_ptr<te::rst::Raster> getRaster(const std::string& name) const override
+      virtual std::auto_ptr<te::rst::Raster> getRaster(const std::string&) const override
       {
         return std::auto_ptr<te::rst::Raster>(RasterPtrReturn());
       }
 
       MOCK_CONST_METHOD0(DateTimePtrReturn, te::dt::DateTime*());
 
-      virtual std::auto_ptr<te::dt::DateTime> getDateTime(std::size_t i) const override
+      virtual std::auto_ptr<te::dt::DateTime> getDateTime(std::size_t) const override
       {
         return std::auto_ptr<te::dt::DateTime>(DateTimePtrReturn());
       }
 
-      virtual std::auto_ptr<te::dt::DateTime> getDateTime(const std::string& name) const override
+      virtual std::auto_ptr<te::dt::DateTime> getDateTime(const std::string&) const override
       {
         return std::auto_ptr<te::dt::DateTime>(DateTimePtrReturn());
       }
 
       MOCK_CONST_METHOD0(ArrayPtrReturn, te::dt::Array*());
 
-      virtual std::auto_ptr<te::dt::Array> getArray(std::size_t i)  const override
+      virtual std::auto_ptr<te::dt::Array> getArray(std::size_t)  const override
       {
         return std::auto_ptr<te::dt::Array>(ArrayPtrReturn());
       }
 
-      virtual std::auto_ptr<te::dt::Array> getArray(const std::string& name) const override
+      virtual std::auto_ptr<te::dt::Array> getArray(const std::string&) const override
       {
         return std::auto_ptr<te::dt::Array>(ArrayPtrReturn());
       }
 
       MOCK_CONST_METHOD0(AbstractDataPtrReturn, te::dt::AbstractData*());
 
-      virtual std::auto_ptr<te::dt::AbstractData> getValue(std::size_t i) const override
+      virtual std::auto_ptr<te::dt::AbstractData> getValue(std::size_t) const override
       {
         return std::auto_ptr<te::dt::AbstractData>(AbstractDataPtrReturn());
       }
 
-      virtual std::auto_ptr<te::dt::AbstractData> getValue(const std::string& name) const override
+      virtual std::auto_ptr<te::dt::AbstractData> getValue(const std::string&) const override
       {
         return std::auto_ptr<te::dt::AbstractData>(AbstractDataPtrReturn());
       }

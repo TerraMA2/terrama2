@@ -2128,11 +2128,17 @@ int terrama2::services::view::core::GeoServer::createGeoserverTempMosaic(terrama
   }
 
   {
+    if(!ds)
+    {
+      QString errMsg = QObject::tr("Error creating te::DataSet for dataset: %1").arg(dataset->id);
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw Exception() << ErrorDescription(errMsg);
+    }
+
     std::shared_ptr<te::da::DataSource> dsOGR = te::da::DataSourceFactory::make("OGR", "file://"+shpFilename);
     terrama2::core::OpenClose<std::shared_ptr<te::da::DataSource>> openClose(dsOGR);
 
     ds->moveBeforeFirst();
-
     te::da::Create(dsOGR.get(), dt.get(), ds.get());
   }
 
