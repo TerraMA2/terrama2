@@ -209,8 +209,8 @@ te::dt::AbstractData* terrama2::core::DataAccessorOccurrenceWfp::stringToTimeDur
     boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(timezone));
     boost::local_time::local_date_time date(boostDate.date(), boostDate.time_of_day(), zone, true);
 
-    boost::posix_time::time_duration td = date.time_of_day();
-    return new te::dt::TimeDuration(td);
+    boost::posix_time::time_duration timeDuration = date.utc_time().time_of_day();
+    return new te::dt::TimeDuration(timeDuration);
   }
   catch(const std::exception& e)
   {
@@ -240,8 +240,11 @@ te::dt::AbstractData* terrama2::core::DataAccessorOccurrenceWfp::stringToDate(te
     if(dateTime.empty())
       return nullptr;
 
+    boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(timezone));
     boost::posix_time::ptime boostDate(boost::posix_time::time_from_string(dateTime));
-    return new te::dt::Date(boostDate.date());
+    boost::local_time::local_date_time date(boostDate.date(), boostDate.time_of_day(), zone, true);
+
+    return new te::dt::Date(date.utc_time().date());
   }
   catch(const std::exception& e)
   {
