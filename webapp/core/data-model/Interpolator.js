@@ -3,6 +3,8 @@
 
   // Dependency
   var AbstractClass = require("./AbstractData");
+  var Schedule = require("./Schedule");
+  var AutomaticSchedule = require("./AutomaticSchedule");
 
   function Interpolator(params) {
     // Calling base abstraction
@@ -21,8 +23,15 @@
     this.resolution_y = params.resolution_y;
     this.srid = params.srid;
     this.schedule_type = params.schedule_type;
-    this.schedule = params.schedule || {};
-    this.automaticSchedule = params.automaticSchedule || {};
+
+    if (params.Schedule || params.schedule){
+      this.schedule = new Schedule(params.Schedule ? params.Schedule.get() : params.schedule);
+    } else {
+      this.schedule = {};
+    }
+
+    this.automaticSchedule = new AutomaticSchedule(params.AutomaticSchedule ? params.AutomaticSchedule.get() : params.automaticSchedule || {});
+
     if (params.InterpolatorMetadata){
       this.setMetadata(params.InterpolatorMetadata);
     } else {
@@ -75,7 +84,9 @@
       resolution_x: Number(this.resolution_x),
       resolution_y: Number(this.resolution_y),
       srid: Number(this.srid),
-      metadata: this.metadata
+      metadata: this.metadata,
+      automatic_schedule: this.automaticSchedule instanceof AbstractClass ? this.automaticSchedule.rawObject() : this.automaticSchedule,
+      schedule: this.schedule instanceof AbstractClass ? this.schedule.rawObject() : this.schedule
     });
   };
   module.exports = Interpolator;

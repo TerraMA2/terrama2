@@ -22,10 +22,10 @@
             .then(function(dataSeriesResult){
               interpolatorObject.data_series_output = dataSeriesResult.id;
               return DataManager.addSchedule(scheduleObject, options).then(function(scheduleResult){
-
+                interpolatorObject.schedule_type = scheduleObject.scheduleType;
                 if (scheduleObject.scheduleType == ScheduleType.AUTOMATIC){
                   interpolatorObject.automatic_schedule_id = scheduleResult.id
-                } else if (scheduleObject.scheduleType == ScheduleType.SCHEDULE || scheduleObject.scheduleType == ScheduleType.REPROCESSING_HISTORICAL){
+                } else if (scheduleObject.scheduleType == ScheduleType.SCHEDULE){
                   interpolatorObject.schedule_id = scheduleResult.id;
                 }
                 return DataManager.addInterpolator(interpolatorObject, options).then(function(interpolatorResult){

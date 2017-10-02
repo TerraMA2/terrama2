@@ -1,7 +1,7 @@
 define([], function(){
   'use strict';
 
-  var InterpolatorRegisterUpdate = function($scope, $q, $window, $http, $log, i18n, MessageBoxService, Service, DataSeriesSemanticsService, DataProviderService, InterpolatorService){
+  var InterpolatorRegisterUpdate = function($scope, $q, $window, $http, $log, $timeout, i18n, MessageBoxService, Service, DataSeriesSemanticsService, DataProviderService, InterpolatorService){
 
     $scope.MessageBoxService = MessageBoxService;
     $scope.ServiceInstance = Service;
@@ -12,6 +12,10 @@ define([], function(){
     $scope.outputDataSeries = {};
     $scope.bounding_rect = {}
     $scope.BASE_URL = BASE_URL;
+    $scope.schedule = {};
+    $scope.scheduleOptions = {
+      showAutomaticOption: true
+    };
 
     var config = $window.configuration;
 
@@ -78,7 +82,15 @@ define([], function(){
       $scope.outputDataSeries.data_series_semantics = $scope.DataSeriesSemanticsService.get({code: "GRID-geotiff"});
       $scope.outputDataSeries.data_provider = $scope.DataProviderService.list({id: $scope.outputDataSeries.data_provider_id})[0];
       $scope.outputDataSeries.format = prepareDataSetFormatToForm($scope.outputDataSeries.datasets[0].format);
-    }
+
+      $timeout(function() {
+
+        $scope.schedule = {};
+        $scope.inter.schedule.scheduleType = $scope.inter.schedule_type.toString();
+        $scope.$broadcast("updateSchedule", $scope.inter.schedule || {});
+
+      });
+    };
     
     var prepareObjectToSave = function(){
       var outputDataSet = {
@@ -105,11 +117,30 @@ define([], function(){
 
     $scope.save = function(){
       var objectToSave = prepareObjectToSave();
+
+      var scheduleValues = Object.assign({}, $scope.schedule);
+      switch(scheduleValues.scheduleHandler) {
+        case "seconds":
+        case "minutes":
+        case "hours":
+          scheduleValues.frequency_unit = scheduleValues.scheduleHandler;
+          scheduleValues.frequency_start_time = scheduleValues.frequency_start_time ? moment(scheduleValues.frequency_start_time).format("HH:mm:ssZ") : "";
+          break;
+        case "weeks":
+        case "monthly":
+        case "yearly":
+          // todo: verify
+          var dt = scheduleValues.schedule_time;
+          scheduleValues.schedule_unit = scheduleValues.scheduleHandler;
+          scheduleValues.schedule_time = moment(dt).format("HH:mm:ss");
+          break;
+        default:
+          break;
+      }
     
-      var operation = $scope.InterpolatorService.create({interpolator: objectToSave, schedule:{schedule_type: 3}});
+      var operation = $scope.InterpolatorService.create({interpolator: objectToSave, schedule: scheduleValues});
       operation.then(function(response) {
-        console.log(response);
-        $log.info(response);
+        $window.location.href = BASE_URL + "configuration/dynamic/dataseries?token=" + response.token;
       }).catch(function(err) {
         $log.info(err);
         $scope.MessageBoxService.danger(i18n.__("Interpolator"), i18n.__(err));
@@ -118,7 +149,7 @@ define([], function(){
 
   };
 
-  InterpolatorRegisterUpdate.$inject = ["$scope", "$q", "$window", "$http", "$log", "i18n", "MessageBoxService", "Service", "DataSeriesSemanticsService", "DataProviderService", "InterpolatorService"];
+  InterpolatorRegisterUpdate.$inject = ["$scope", "$q", "$window", "$http", "$log", "$timeout", "i18n", "MessageBoxService", "Service", "DataSeriesSemanticsService", "DataProviderService", "InterpolatorService"];
 
   return InterpolatorRegisterUpdate;
 })
