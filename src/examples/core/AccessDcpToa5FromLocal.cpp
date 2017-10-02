@@ -50,12 +50,12 @@ int main(int argc, char* argv[])
   std::shared_ptr<te::da::DataSet> teDataSet = (*dcpSeries->dcpSeriesMap().begin()).second.syncDataSet->dataset();
 
 //Print column names and types (DateTime/Int/String/Double)
-  int dateColumnDateTime = -1;
-  int dateColumnRecord = -1;
-  int dateColumnStation = -1;
+  size_t dateColumnDateTime = std::numeric_limits<size_t>::max();
+  size_t dateColumnRecord = std::numeric_limits<size_t>::max();
+  size_t dateColumnStation = std::numeric_limits<size_t>::max();
 
   std::string names, types;
-  for(int i = 0; i < teDataSet->getNumProperties(); ++i)
+  for(size_t i = 0; i < teDataSet->getNumProperties(); ++i)
   {
     std::string name = teDataSet->getPropertyName(i);
     names+= name + "\t";
@@ -91,36 +91,15 @@ int main(int argc, char* argv[])
   teDataSet->moveBeforeFirst();
   while(teDataSet->moveNext())
   {
-    for(int i = 0; i < teDataSet->getNumProperties(); ++i)
+    for(size_t i = 0; i < teDataSet->getNumProperties(); ++i)
     {
       if(teDataSet->isNull(i))
       {
         std::cout << "NULL";
       }
-
-      else if(i == dateColumnRecord)
-      {
-        int value_int = teDataSet->getInt32(i);
-        std::cout << value_int;
-      }
-
-      else if(i == dateColumnStation)
-      {
-        std::string value_str = teDataSet->getString(i);
-        std::cout << value_str;
-      }
-
-      else if(i == dateColumnDateTime)
-      {
-        std::shared_ptr<te::dt::DateTime> dateTime =  teDataSet->getDateTime(i);
-        std::cout << dateTime->toString();
-      }
-
       else
       {
-        double value =  teDataSet->getDouble(i);
-        std::cout.precision(4);
-        std::cout << std::fixed << value;
+        std::cout << teDataSet->getAsString(i);
       }
 
       std::cout << "\t";
@@ -128,7 +107,7 @@ int main(int argc, char* argv[])
     std::cout << std::endl;
   }
 
-  
+
 
   return 0;
 }

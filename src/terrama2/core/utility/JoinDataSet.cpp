@@ -68,13 +68,13 @@ terrama2::core::JoinDataSet::JoinDataSet(std::unique_ptr<te::da::DataSetType> ds
 void terrama2::core::JoinDataSet::fillKeyMap(const std::unique_ptr<te::da::DataSet>& ds1, const std::string& ds1Attribute, const std::unique_ptr<te::da::DataSet>& ds2, const std::string& ds2Attribute)
 {
   auto ds1Size = ds1->size();
-  for(int i = 0; i < ds1Size; ++i)
+  for(size_t i = 0; i < ds1Size; ++i)
   {
     ds1->move(i);
     auto key1 = ds1->getAsString(ds1Attribute);
 
     auto ds2Size = ds2->size();
-    for(int j = 0; j < ds2Size; ++j)
+    for(size_t j = 0; j < ds2Size; ++j)
     {
       ds2->move(j);
       auto key2 = ds2->getAsString(ds2Attribute);
@@ -400,7 +400,7 @@ bool terrama2::core::JoinDataSet::isNull(const std::string& name) const
 
 std::size_t terrama2::core::JoinDataSet::getLocalPropertyPos(const std::string& name) const
 {
-  for(auto i = 0; i < properties_.size(); ++i)
+  for(size_t i = 0; i < properties_.size(); ++i)
   {
     if(properties_.at(i)->getName() == name)
       return i;

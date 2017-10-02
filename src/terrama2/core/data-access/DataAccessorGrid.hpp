@@ -52,7 +52,8 @@ namespace terrama2
     {
       public:
         //! Default constructor
-        DataAccessorGrid(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true) : DataAccessor(dataProvider, dataSeries, false) {}
+        DataAccessorGrid(DataProviderPtr dataProvider, DataSeriesPtr dataSeries)
+          : DataAccessor(dataProvider, dataSeries) {}
         //! Default destructor.
         virtual ~DataAccessorGrid() = default;
         //! Default copy constructor
