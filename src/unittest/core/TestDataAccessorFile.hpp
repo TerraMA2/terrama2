@@ -32,9 +32,9 @@
 class TestDataAccessorFile : public terrama2::core::DataAccessorFile
 {
   public:
-    TestDataAccessorFile(terrama2::core::DataProviderPtr dataProvider, terrama2::core::DataSeriesPtr dataSeries, const bool checkSemantics = true)
-      : terrama2::core::DataAccessor(dataProvider, dataSeries, checkSemantics),
-        terrama2::core::DataAccessorFile(dataProvider, dataSeries, checkSemantics) {}
+    TestDataAccessorFile(terrama2::core::DataProviderPtr dataProvider, terrama2::core::DataSeriesPtr dataSeries)
+      : terrama2::core::DataAccessor(dataProvider, dataSeries),
+        terrama2::core::DataAccessorFile(dataProvider, dataSeries) {}
 
     std::string dataSourceType() const override
     {

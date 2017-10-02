@@ -107,7 +107,7 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
       {
         // if no dcp was given as argument use current
         terrama2::core::SynchronizedDataSetPtr syncDs = moDsContext->series.syncDataSet;
-        auto dataSetId = moDsContext->series.syncDataSet->getInt32(cache.index, "id");
+        DataSetId dataSetId = static_cast<DataSetId>(moDsContext->series.syncDataSet->getInt32(cache.index, "id"));
 
         auto datasets = dataSeriesPtr->datasetList;
         auto dataset = std::find_if(datasets.begin(), datasets.end(), [&dataSetId](const terrama2::core::DataSetPtr& dataset){ return dataSetId == dataset->id; });
@@ -160,7 +160,7 @@ double terrama2::services::analysis::core::dcp::value(const std::string& attribu
   ////////////////////////////////
 
   terrama2::core::SynchronizedDataSetPtr syncDs = moDsContext->series.syncDataSet;
-  auto dataSetId = moDsContext->series.syncDataSet->getInt32(cache.index, "id");
+  DataSetId dataSetId = static_cast<DataSetId>(moDsContext->series.syncDataSet->getInt32(cache.index, "id"));
 
   for(const auto& analysisDataSeries : analysis->analysisDataSeriesList)
   {

@@ -39,6 +39,19 @@
 #include <QJsonArray>
 #include <QJsonObject>
 
+terrama2::core::DataAccessorOccurrenceCSV::DataAccessorOccurrenceCSV(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics)
+  : DataAccessor(dataProvider, dataSeries),
+    DataAccessorFile(dataProvider, dataSeries),
+    DataAccessorCSV(dataProvider, dataSeries)
+{
+  if(checkSemantics && dataSeries->semantics.driver != dataAccessorType())
+  {
+    QString errMsg = QObject::tr("Wrong DataSeries semantics.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw WrongDataSeriesSemanticsException() << ErrorDescription(errMsg);
+  }
+}
+
 terrama2::core::DataAccessorPtr terrama2::core::DataAccessorOccurrenceCSV::make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries)
 {
   return std::make_shared<DataAccessorOccurrenceCSV>(dataProvider, dataSeries);
@@ -78,4 +91,3 @@ void terrama2::core::DataAccessorOccurrenceCSV::checkFields(DataSetPtr dataSet) 
     throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
   }
 }
-

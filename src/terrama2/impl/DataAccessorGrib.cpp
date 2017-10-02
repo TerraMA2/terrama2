@@ -42,8 +42,8 @@
 #include <boost/algorithm/string.hpp>
 
  terrama2::core::DataAccessorGrib::DataAccessorGrib(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics)
-  : DataAccessor(dataProvider, dataSeries, false),
-    DataAccessorGDAL(dataProvider, dataSeries, false)
+  : DataAccessor(dataProvider, dataSeries),
+    DataAccessorGDAL(dataProvider, dataSeries)
  {
    if(checkSemantics && dataSeries->semantics.driver != dataAccessorType())
    {

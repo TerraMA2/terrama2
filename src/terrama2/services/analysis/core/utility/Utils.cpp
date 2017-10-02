@@ -365,7 +365,7 @@ void terrama2::services::analysis::core::erasePreviousResult(DataManagerPtr data
 
 }
 
-std::pair<int, int> terrama2::services::analysis::core::getBandInterval(terrama2::core::DataSetPtr dataset, double secondsPassed, std::string dateDiscardBefore, std::string dateDiscardAfter)
+std::pair<size_t, size_t> terrama2::services::analysis::core::getBandInterval(terrama2::core::DataSetPtr dataset, double secondsPassed, std::string dateDiscardBefore, std::string dateDiscardAfter)
 {
   auto intervalStr = terrama2::core::getTimeInterval(dataset);
   double interval = terrama2::core::TimeUtils::convertTimeString(intervalStr, "SECOND", "h");
@@ -373,17 +373,17 @@ std::pair<int, int> terrama2::services::analysis::core::getBandInterval(terrama2
   double secondsToAfter = terrama2::core::TimeUtils::convertTimeString(dateDiscardAfter, "SECOND", "h");
 
   // - find how much time has passed from the file original timestamp
-  auto temp = static_cast<int>(std::floor((secondsPassed + secondsToBefore)/interval));
-  int bandBegin = static_cast<int>(std::ceil((secondsPassed + secondsToBefore)/interval));
+  size_t temp = static_cast<size_t>(std::floor((secondsPassed + secondsToBefore)/interval));
+  size_t bandBegin = static_cast<size_t>(std::ceil((secondsPassed + secondsToBefore)/interval));
   // If the bandBegin is exactly the "current" time band, we don't want it
   // This data is forecast, if this is the current time, it's "old" data
   if(temp == bandBegin)
     ++bandBegin;
 
   // calculate how many bands have "passed" (time/band_interval)
-  auto bandsOperator = static_cast<int>(std::floor((secondsToAfter-secondsToBefore)/interval));
+  size_t bandsOperator = static_cast<size_t>(std::floor((secondsToAfter-secondsToBefore)/interval));
   // The first band is already included, remove one from last
-  int bandEnd = bandBegin+bandsOperator-1;
+  size_t bandEnd = bandBegin+bandsOperator-1;
 
   return std::make_pair(bandBegin, bandEnd);
 }
