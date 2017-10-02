@@ -168,7 +168,7 @@ double terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl( 
         auto timePassed = currentTimestamp.utc_time() - rasterTimestamp.utc_time();
         double secondsPassed = timePassed.total_seconds();
 
-        int bandBegin, bandEnd;
+        size_t bandBegin, bandEnd;
         std::tie(bandBegin, bandEnd) = terrama2::services::analysis::core::getBandInterval(dataset, secondsPassed, dateDiscardBefore, dateDiscardAfter);
 
         // - the band 0 is always blank
