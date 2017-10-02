@@ -249,3 +249,10 @@ std::shared_ptr<te::dt::AbstractData> terrama2::core::SynchronizedDataSet::getVa
   dataset_->move(row);
   return std::shared_ptr<te::dt::AbstractData>(dataset_->getValue(name));
 }
+
+std::string terrama2::core::SynchronizedDataSet::getAsString(std::size_t row, const std::string& name) const
+{
+  std::lock_guard<std::mutex> lock(mutex_);
+  dataset_->move(row);
+  return dataset_->getAsString(name);
+}
