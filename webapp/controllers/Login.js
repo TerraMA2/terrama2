@@ -3,12 +3,15 @@ var DataManager = require("./../core/DataManager");
 module.exports = function(app) {
   return {
     login: function (request, response) {
-      app.locals.collapsed = false;
       response.render('login');
     },
     logout: function(request, response) {
-      app.locals.activeProject = {};
-      app.locals.collapsed = false;
+      if(request.session && request.session.collapsed)
+        delete request.session.collapsed;
+
+      if(request.session && request.session.activeProject)
+        delete request.session.activeProject;
+
       request.logout();
       response.redirect(app.locals.BASE_URL);
     }
