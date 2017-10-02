@@ -66,10 +66,13 @@
     });
   };
 
-  Interpolator.update = function(interpolatorId, interpolatorObject){
+  Interpolator.update = function(interpolatorId, interpolatorObject, scheduleObject, projectId){
     return new PromiseClass(function(resolve, reject){
       DataManager.orm.transaction(function(t){
         var options = {transaction: t};
+        var removeSchedule = null;
+        var scheduleIdToRemove = null;
+        var scheduleTypeToRemove = null;
         return DataManager.updateInterpolator({id: interpolatorId }, interpolatorObject, options)
           .then(function(interpolator){
             return resolve(interpolator);
