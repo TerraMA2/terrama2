@@ -531,13 +531,19 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
 
         self.service.metadata = copyMetadata;
 
-        if (self.update) {
+        if(self.update) {
+          if(self.log.passwordUpdate) {
+            self.log.password = self.log.passwordUpdate;
+
+            if(self.log.passwordUpdate !== undefined)
+              delete self.log.passwordUpdate;
+          }
+
           request = Service.update(self.service.id, {
             service: self.service,
             log: self.log
           });
-        }
-        else {
+        } else {
           request = Service.create({
             service: self.service,
             log: self.log

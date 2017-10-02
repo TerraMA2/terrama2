@@ -359,8 +359,8 @@
               <div class="col-md-6">
                 <div class="form-group has-feedback" terrama2-show-errors>
                   <label>{{ i18n.__("Password") }}:</label>
-                  <input class="form-control" name="password" ng-model="ctrl.log.password" placeholder="{{ i18n.__('Log password') }}" type="password">
-
+                  <input class="form-control" name="password" ng-model="ctrl.log.password" ng-show="!ctrl.update" placeholder="{{ i18n.__('Log password') }}" type="password">
+                  <input class="form-control" name="passwordUpdate" ng-model="ctrl.log.passwordUpdate" ng-show="ctrl.update" placeholder="{{ i18n.__('Insert a value if you want to update the password') }}" type="password">
                   <span class="form-control-feedback glyphicon"
                         ng-show="logForm.user.$dirty"
                         ng-class="{'glyphicon-ok': logForm.user.$valid, 'glyphicon-remove': logForm.user.$invalid }">
