@@ -50,6 +50,8 @@
 // pragma to silence auto_ptr warnings
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+// pragma to silence missing override warnings, gmock doesnt implement override
+#pragma GCC diagnostic ignored "-Winconsistent-missing-override"
 
 namespace te
 {
@@ -150,80 +152,80 @@ namespace te
 
       MOCK_METHOD0(DataSetTypePtrReturn, DataSetType*());
 
-      virtual std::auto_ptr<te::da::DataSetType> getDataSetType(const std::string& name) override
+      virtual std::auto_ptr<te::da::DataSetType> getDataSetType(const std::string& /*name*/) override
       {
         return std::auto_ptr<te::da::DataSetType>(DataSetTypePtrReturn());
       }
 
       MOCK_METHOD0(CapabilitiesPtrReturn, DataSetTypeCapabilities*());
 
-      virtual std::auto_ptr<te::da::DataSetTypeCapabilities> getCapabilities(const std::string& name) override
+      virtual std::auto_ptr<te::da::DataSetTypeCapabilities> getCapabilities(const std::string& /*name*/) override
       {
         return std::auto_ptr<te::da::DataSetTypeCapabilities>(CapabilitiesPtrReturn());
       }
 
       MOCK_METHOD0(PropertyPtrReturn, te::dt::Property*());
 
-      virtual std::auto_ptr<te::dt::Property> getProperty(const std::string& datasetName, const std::string& name) override
+      virtual std::auto_ptr<te::dt::Property> getProperty(const std::string& /*datasetName*/, const std::string& /*name*/) override
       {
         return std::auto_ptr<te::dt::Property>(PropertyPtrReturn());
       }
 
-      virtual std::auto_ptr<te::dt::Property> getProperty(const std::string& datasetName, std::size_t propertyPos) override
+      virtual std::auto_ptr<te::dt::Property> getProperty(const std::string& /*datasetName*/, std::size_t /*propertyPos*/) override
       {
         return std::auto_ptr<te::dt::Property>(PropertyPtrReturn());
       }
 
       MOCK_METHOD0(PrimaryKeyPtrReturn, PrimaryKey*());
 
-      virtual std::auto_ptr<te::da::PrimaryKey> getPrimaryKey(const std::string& datasetName) override
+      virtual std::auto_ptr<te::da::PrimaryKey> getPrimaryKey(const std::string& /*datasetName*/) override
       {
         return std::auto_ptr<PrimaryKey>(PrimaryKeyPtrReturn());
       }
 
       MOCK_METHOD0(ForeignKeyPtrReturn, ForeignKey*());
 
-      virtual std::auto_ptr<ForeignKey> getForeignKey(const std::string& datasetName, const std::string& name) override
+      virtual std::auto_ptr<ForeignKey> getForeignKey(const std::string& /*datasetName*/, const std::string& /*name*/) override
       {
         return std::auto_ptr<ForeignKey>(ForeignKeyPtrReturn());
       }
 
       MOCK_METHOD0(UniqueKeyPtrReturn, UniqueKey*());
 
-      virtual std::auto_ptr<te::da::UniqueKey> getUniqueKey(const std::string& datasetName, const std::string& name) override
+      virtual std::auto_ptr<te::da::UniqueKey> getUniqueKey(const std::string& /*datasetName*/, const std::string& /*name*/) override
       {
         return std::auto_ptr<UniqueKey>(UniqueKeyPtrReturn());
       }
 
       MOCK_METHOD0(CheckConstraintPtrReturn, CheckConstraint*());
 
-      virtual std::auto_ptr<te::da::CheckConstraint> getCheckConstraint(const std::string& datasetName, const std::string& name) override
+      virtual std::auto_ptr<te::da::CheckConstraint> getCheckConstraint(const std::string& /*datasetName*/, const std::string& /*name*/) override
       {
         return std::auto_ptr<CheckConstraint>(CheckConstraintPtrReturn());
       }
 
       MOCK_METHOD0(IndexPtrReturn, Index*());
 
-      virtual std::auto_ptr<te::da::Index> getIndex(const std::string& datasetName, const std::string& name) override
+      virtual std::auto_ptr<te::da::Index> getIndex(const std::string& /*datasetName*/, const std::string& /*name*/) override
       {
         return std::auto_ptr<Index>(IndexPtrReturn());
       }
 
       MOCK_METHOD0(SequencePtrReturn, Sequence*());
 
-      virtual std::auto_ptr<Sequence> getSequence(const std::string& name) override
+      virtual std::auto_ptr<Sequence> getSequence(const std::string& /*name*/) override
       {
         return std::auto_ptr<Sequence>(SequencePtrReturn());
       }
 
       MOCK_METHOD0(EnvelopePtrReturn, te::gm::Envelope*());
 
-      virtual std::auto_ptr<te::gm::Envelope> getExtent(const std::string& datasetName, const std::string& propertyName) override
+      virtual std::auto_ptr<te::gm::Envelope> getExtent(const std::string& /*datasetName*/, const std::string& /*propertyName*/) override
       {
         return std::auto_ptr<te::gm::Envelope>(EnvelopePtrReturn());
       }
 
-      virtual std::auto_ptr<te::gm::Envelope> getExtent(const std::string& datasetName, std::size_t propertyPos) override
+      virtual std::auto_ptr<te::gm::Envelope> getExtent(const std::string& /*datasetName*/, std::size_t /*propertyPos*/) override
       {
         return std::auto_ptr<te::gm::Envelope>(EnvelopePtrReturn());
       }

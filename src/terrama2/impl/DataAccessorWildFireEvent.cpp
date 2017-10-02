@@ -42,8 +42,8 @@
 #include <boost/algorithm/string/replace.hpp>
 
 terrama2::core::DataAccessorWildFireEvent::DataAccessorWildFireEvent(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics)
-: DataAccessor(dataProvider, dataSeries, false),
-  DataAccessorGeometricObjectOGR(dataProvider, dataSeries, false)
+: DataAccessor(dataProvider, dataSeries),
+  DataAccessorGeometricObjectOGR(dataProvider, dataSeries)
 {
  if(checkSemantics && dataSeries->semantics.driver != dataAccessorType())
  {
