@@ -45,7 +45,7 @@ module.exports = function(app) {
   return {
     get: function(request, response) {
       var parameters = makeTokenParameters(request.query.token, app);
-      var hasProjectPermission = app.locals.activeProject.hasProjectPermission;
+      var hasProjectPermission = request.session.activeProject.hasProjectPermission;
       parameters.hasProjectPermission = hasProjectPermission;
       DataManager.listCollectors().then(function(collectors){
         DataManager.listAnalysis().then(function(analysis){
@@ -74,7 +74,7 @@ module.exports = function(app) {
 
     edit: function(request, response) {
       var dataSeriesId = request.params.id;
-      var hasProjectPermission = app.locals.activeProject.hasProjectPermission;
+      var hasProjectPermission = request.session.activeProject.hasProjectPermission;
 
       DataManager.getCollector({
         output: {

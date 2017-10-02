@@ -8,7 +8,7 @@ module.exports = function(app) {
   var controllers = {
     get: function(request, response){
         var parameters = makeTokenParameters(request.query.token, app);
-        var hasProjectPermission = app.locals.activeProject.hasProjectPermission;
+        var hasProjectPermission = request.session.activeProject.hasProjectPermission;
         parameters.hasProjectPermission = hasProjectPermission;
         response.render("configuration/alerts", parameters);
     },
@@ -21,7 +21,7 @@ module.exports = function(app) {
         response.render("configuration/alert", { disablePDF: config.disablePDF });
     },
     edit: function(request, response) {
-      var hasProjectPermission = app.locals.activeProject.hasProjectPermission;
+      var hasProjectPermission = request.session.activeProject.hasProjectPermission;
       DataManager.getAlert({id: parseInt(request.params.id)})
         .then(function(alert) {
           return response.render("configuration/alert", { disablePDF: config.disablePDF, alert: alert.rawObject(), hasProjectPermission: hasProjectPermission });

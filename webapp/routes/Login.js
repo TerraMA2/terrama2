@@ -20,7 +20,9 @@ module.exports = function(app) {
         if(e)
           return next(e);
 
-        app.locals.collapsed = false;
+        request.session.collapsed = false;
+        request.session.activeProject = {};
+
         return response.redirect(app.locals.BASE_URL + 'firstAccess')
       })
     })(request, response, next);

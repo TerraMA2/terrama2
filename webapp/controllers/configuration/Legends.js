@@ -9,7 +9,7 @@ module.exports = function(app) {
       response.render("configuration/legend");
     },
     edit: function(request, response) {
-      var hasProjectPermission = app.locals.activeProject.hasProjectPermission;
+      var hasProjectPermission = request.session.activeProject.hasProjectPermission;
       DataManager.getLegend({id: parseInt(request.params.id)}).then(function(legend) {
         return response.render("configuration/legend", {legend: legend.rawObject(), hasProjectPermission: hasProjectPermission});
       }).catch(function(err) {
