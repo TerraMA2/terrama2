@@ -325,7 +325,7 @@ void TsDataAccessorDcpToa5::TestFailDataSourceInvalid()
 
     auto makeMock = std::bind(te::da::MockDataSource::makeMockDataSource, mock_.release());
 
-    DataSourceFactoryRaii raiiDataSource("OGR",makeMock);
+    DataSourceFactoryRaii raiiDataSource("OGR", std::move(makeMock));
 
     EXPECT_TRUE(::testing::Mock::VerifyAndClearExpectations(mock_.get()));
 
@@ -405,7 +405,7 @@ void TsDataAccessorDcpToa5::TestFailDataSetInvalid()
 
     auto makeMock = std::bind(te::da::MockDataSource::makeMockDataSource, mock_.release());
 
-    DataSourceFactoryRaii raiiDataSource("OGR",makeMock);
+    DataSourceFactoryRaii raiiDataSource("OGR", std::move(makeMock));
     auto remover = std::make_shared<terrama2::core::FileRemover>();
 
     try

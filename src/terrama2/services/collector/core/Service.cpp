@@ -205,7 +205,7 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
       if(collectorPtr->intersection)
       {
         //FIXME: the datamanager is being used outside the lock
-        item.second = processIntersection(dataManager, collectorPtr->intersection, item.second);
+        item.second = processIntersection(dataManager, collectorPtr->intersection, item.second, executionPackage.executionDate);
       }
     }
 
@@ -370,7 +370,7 @@ void terrama2::services::collector::core::Service::updateCollector(CollectorPtr 
   addProcessToSchedule(collector);
 }
 
-void terrama2::services::collector::core::Service::updateAdditionalInfo(const QJsonObject& obj) noexcept
+void terrama2::services::collector::core::Service::updateAdditionalInfo(const QJsonObject& /*obj*/) noexcept
 {
 
 }

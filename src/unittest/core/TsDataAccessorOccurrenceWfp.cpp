@@ -399,7 +399,7 @@ void TsDataAccessorOccurrenceWfp::TestFailDataSourceInvalid()
 
     auto makeMock = std::bind(te::da::MockDataSource::makeMockDataSource, mock_.release());
 
-    RaiiDataSourceTsDataAccessorOccurrenceWfp raiiDataSource("OGR",makeMock);
+    RaiiDataSourceTsDataAccessorOccurrenceWfp raiiDataSource("OGR", std::move(makeMock));
 
     try
     {
@@ -464,7 +464,7 @@ void TsDataAccessorOccurrenceWfp::TestFailDataSetInvalid()
 
     auto makeMock = std::bind(te::da::MockDataSource::makeMockDataSource, mock_.release());
 
-    RaiiDataSourceTsDataAccessorOccurrenceWfp raiiDataSource("OGR",makeMock);
+    RaiiDataSourceTsDataAccessorOccurrenceWfp raiiDataSource("OGR", std::move(makeMock));
 
     try
     {

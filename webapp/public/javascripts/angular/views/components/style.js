@@ -113,7 +113,7 @@ define([], function () {
      * Setting default parameters when change mode to xml file
      */
     self.changeCreationType = function(){
-      if (self.model.metadata.creation_type == "0"){
+      if (self.model.metadata.creation_type == "editor"){
         delete self.model.metadata.xml_style;
         self.model.colors = [
           {
@@ -123,7 +123,7 @@ define([], function () {
             value: ""
           }
         ];
-      } else if (self.model.metadata.creation_type == "1"){
+      } else if (self.model.metadata.creation_type == "xml"){
         self.model.type = 3;
         self.model.colors = [];
         delete self.model.bands;
@@ -196,7 +196,7 @@ define([], function () {
      * It handles color summarization (begin and end) based in list of colors
      */
     $scope.$on("updateStyleColor", function () {
-      if (self.model.metadata.creation_type == "0"){
+      if (self.model.metadata.creation_type == "editor"){
         handleColor();
       } else if (self.model.metadata.creation_type != undefined){
         self.changeCreationType();

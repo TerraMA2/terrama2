@@ -85,22 +85,18 @@ int main(int argc, char* argv[])
     std::shared_ptr<te::da::DataSet> teDataSet = (*occurrenceSeries->occurrencesMap().begin()).second.syncDataSet->dataset();
 
     //Print column names and types (DateTime/Double)
-    int dateColumn = -1;
-    int geomColumn = -1;
     std::string names, types;
-    for(int i = 0; i < teDataSet->getNumProperties(); ++i)
+    for(size_t i = 0; i < teDataSet->getNumProperties(); ++i)
     {
       std::string name = teDataSet->getPropertyName(i);
       names+= name + "\t";
       if(name == "data_pas")
       {
         types+= "DataTime\t";
-        dateColumn = i;
       }
       else if(name == "position")
       {
         types+= "Geometry\t";
-        geomColumn = i;
       }
       else
         types+= "String\t";
@@ -113,7 +109,7 @@ int main(int argc, char* argv[])
     teDataSet->moveBeforeFirst();
     while(teDataSet->moveNext())
     {
-      for(int i = 0; i < teDataSet->getNumProperties(); ++i)
+      for(size_t i = 0; i < teDataSet->getNumProperties(); ++i)
       {
 
         std::cout << teDataSet->getAsString(i) << "\t";

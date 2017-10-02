@@ -30,7 +30,6 @@
 // TerraMA2
 #include "Service.hpp"
 #include "View.hpp"
-#include "MemoryDataSetLayer.hpp"
 #include "Utils.hpp"
 #include "MapsServerFactory.hpp"
 #include "data-access/Geoserver.hpp"
