@@ -12,7 +12,6 @@ module.exports = function(app) {
       else
         return response.redirect(app.locals.BASE_URL + "configuration/projects");
     } else {
-      app.locals.activeProject = {};
       return response.redirect(app.locals.BASE_URL + "login");
     }
   }

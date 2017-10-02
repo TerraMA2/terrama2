@@ -111,7 +111,8 @@ module.exports = function(app) {
             TcpService.emitEvent("projectDeleted", { id: id });
 
             // un-setting cache project
-            app.locals.activeProject = {};
+            request.session.activeProject = {};
+
             var token = Utils.generateToken(app, TokenCode.DELETE, project.name);
             response.json({status: 200, name: project.name, token: token});
           }).catch(function(err) {
