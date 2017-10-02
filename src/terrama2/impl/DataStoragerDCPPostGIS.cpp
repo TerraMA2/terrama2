@@ -122,9 +122,9 @@ void terrama2::core::DataStoragerDCPPostGIS::storePositions(const std::unordered
     auto dataSetDcp = std::dynamic_pointer_cast<const DataSetDcp>(*outputDataSet);
     auto dataSetItem = std::unique_ptr<te::mem::DataSetItem>(new te::mem::DataSetItem(dataset.get()));
     dataSetItem->setInt32(ID_PROPERTY_NAME, outputDataSetId);
-    auto locale = dataSetDcp->position->clone();
+    std::unique_ptr<te::gm::Geometry>locale (dynamic_cast<te::gm::Geometry*>(dataSetDcp->position->clone()));
     locale->transform(4326);
-    dataSetItem->setGeometry(GEOM_PROPERTY_NAME, locale);
+    dataSetItem->setGeometry(GEOM_PROPERTY_NAME, locale.release());
     dataSetItem->setString(TABLE_NAME_PROPERTY_NAME, destinationDataSetName);
 
     dataset->add(dataSetItem.release());
