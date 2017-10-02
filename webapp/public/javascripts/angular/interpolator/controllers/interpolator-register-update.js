@@ -12,7 +12,6 @@ define([], function(){
     $scope.outputDataSeries = {};
     $scope.bounding_rect = {}
     $scope.BASE_URL = BASE_URL;
-    $scope.schedule = {};
     $scope.scheduleOptions = {
       showAutomaticOption: true
     };
@@ -77,6 +76,7 @@ define([], function(){
       };
       $scope.inter = config.interpolator;
       $scope.inter.name = $scope.outputDataSeries.name;
+      $scope.inter.interpolator_strategy = $scope.inter.interpolator_strategy.toString();
       $scope.bounding_rect = bounding_rect;
       $scope.inter.description = $scope.outputDataSeries.description;
       $scope.outputDataSeries.data_series_semantics = $scope.DataSeriesSemanticsService.get({code: "GRID-geotiff"});
@@ -84,11 +84,8 @@ define([], function(){
       $scope.outputDataSeries.format = prepareDataSetFormatToForm($scope.outputDataSeries.datasets[0].format);
 
       $timeout(function() {
-
-        $scope.schedule = {};
         $scope.inter.schedule.scheduleType = $scope.inter.schedule_type.toString();
         $scope.$broadcast("updateSchedule", $scope.inter.schedule || {});
-
       });
     };
     
@@ -118,7 +115,7 @@ define([], function(){
     $scope.save = function(){
       var objectToSave = prepareObjectToSave();
 
-      var scheduleValues = Object.assign({}, $scope.schedule);
+      var scheduleValues = Object.assign({}, $scope.inter.schedule);
       switch(scheduleValues.scheduleHandler) {
         case "seconds":
         case "minutes":
