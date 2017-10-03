@@ -43,7 +43,7 @@ namespace terrama2
           public:
             PythonInterpreterInit();
 
-            ~PythonInterpreterInit();
+            ~PythonInterpreterInit() = default;
             PythonInterpreterInit(const PythonInterpreterInit& other) = delete;
             PythonInterpreterInit(PythonInterpreterInit&& other) = delete;
             PythonInterpreterInit& operator=(const PythonInterpreterInit& other) = delete;
