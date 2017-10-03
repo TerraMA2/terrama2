@@ -431,6 +431,11 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
             logCredentials.host = self.service.host || logCredentials.host;
           }
 
+          if(logCredentials.passwordUpdate) {
+            logCredentials.password = logCredentials.passwordUpdate;
+            delete logCredentials.passwordUpdate;
+          }
+
           Socket.emit('testDbConnection', logCredentials);
 
           Socket.emit('testPortNumber', { port: self.service.port, checkConnection: true });
@@ -445,7 +450,7 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
                 host: self.metadata.emailServer.host,
                 port: self.metadata.emailServer.port,
                 username: self.metadata.emailServer.user,
-                password: self.metadata.emailServer.password
+                password: (self.metadata.emailServer.passwordUpdate ? self.metadata.emailServer.passwordUpdate : self.metadata.emailServer.password)
               });
             }
           }
@@ -460,7 +465,7 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
                 host: self.mapsServer.address,
                 port: self.mapsServer.port,
                 username: self.mapsServer.user,
-                password: self.mapsServer.password
+                password: (self.mapsServer.passwordUpdate ? self.mapsServer.passwordUpdate : self.mapsServer.password)
               });
             }
           }
@@ -485,7 +490,7 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
               host: self.metadata.emailServer.host,
               port: self.metadata.emailServer.port,
               username: self.metadata.emailServer.user,
-              password: self.metadata.emailServer.password,
+              password: (self.metadata.emailServer.passwordUpdate ? self.metadata.emailServer.passwordUpdate : self.metadata.emailServer.password),
               emailAddress: self.emailAddressTest,
               message: i18n.__("TerraMA² Test Message")
             });
@@ -516,6 +521,11 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
         // Processing Metadata (Email Server)
         switch (parseInt(self.service.service_type_id)) {
           case Service.types.ALERT:
+            if(self.metadata.emailServer.passwordUpdate) {
+              self.metadata.emailServer.password = self.metadata.emailServer.passwordUpdate;
+              delete self.metadata.emailServer.passwordUpdate;
+            }
+
             copyMetadata.email_server = self.processMetadata(self.metadata.emailServer);
             // copyMetadata.emailServer = "smtp" + _uriEmailServer.substring(4, _uriEmailServer.length);
             break;
@@ -524,7 +534,7 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
             var mapsServerURI = URIParser(copyMapsServer.address);
             mapsServerURI.port = copyMapsServer.port;
             mapsServerURI.username = copyMapsServer.user;
-            mapsServerURI.password = copyMapsServer.password;
+            mapsServerURI.password = (copyMapsServer.passwordUpdate ? copyMapsServer.passwordUpdate : copyMapsServer.password);
             copyMetadata.maps_server = mapsServerURI.href;
             break;
         }
@@ -534,9 +544,7 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
         if(self.update) {
           if(self.log.passwordUpdate) {
             self.log.password = self.log.passwordUpdate;
-
-            if(self.log.passwordUpdate !== undefined)
-              delete self.log.passwordUpdate;
+            delete self.log.passwordUpdate;
           }
 
           request = Service.update(self.service.id, {
