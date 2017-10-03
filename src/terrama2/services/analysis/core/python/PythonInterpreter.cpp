@@ -793,9 +793,6 @@ std::string terrama2::services::analysis::core::python::getAttributeValueAsJson(
     context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
     return "";
   }
-
-  return "";
-
 }
 
 std::mutex terrama2::services::analysis::core::python::GILLock::mutex_;

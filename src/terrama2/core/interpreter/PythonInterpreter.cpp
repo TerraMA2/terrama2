@@ -50,6 +50,25 @@ struct StateLock
     PyGILState_STATE gilState_;
 };
 
+terrama2::core::InterpreterRAII terrama2::core::PythonInterpreter::createInitializer()
+{
+  return InterpreterRAII(&initializeInterpreter, &finalizeInterpreter);
+}
+
+void terrama2::core::PythonInterpreter::initializeInterpreter()
+{
+  Py_Initialize();
+  PyEval_InitThreads();
+  PyEval_ReleaseLock();
+}
+
+void terrama2::core::PythonInterpreter::finalizeInterpreter()
+{
+  PyEval_AcquireLock();
+  Py_Finalize();
+  PyEval_ReleaseLock();
+}
+
 struct terrama2::core::PythonInterpreter::Impl
 {
   PyThreadState *interpreterState_;
