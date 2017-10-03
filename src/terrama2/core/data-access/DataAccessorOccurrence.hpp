@@ -53,7 +53,8 @@ namespace terrama2
     {
       public:
         //! Default constructor
-        DataAccessorOccurrence(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true) : DataAccessor(dataProvider, dataSeries, false) {}
+        DataAccessorOccurrence(DataProviderPtr dataProvider, DataSeriesPtr dataSeries)
+         : DataAccessor(dataProvider, dataSeries) {}
         //! Default destructor.
         virtual ~DataAccessorOccurrence() = default;
         //! Default copy constructor

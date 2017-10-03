@@ -40,8 +40,8 @@
 #include <QObject>
 
 terrama2::core::DataAccessorAnalysisPostGIS::DataAccessorAnalysisPostGIS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics)
- : DataAccessor(dataProvider, dataSeries, false),
-   DataAccessorPostGIS(dataProvider, dataSeries, false)
+ : DataAccessor(dataProvider, dataSeries),
+   DataAccessorPostGIS(dataProvider, dataSeries)
 {
   if(checkSemantics && dataSeries->semantics.driver != dataAccessorType())
   {
@@ -51,7 +51,7 @@ terrama2::core::DataAccessorAnalysisPostGIS::DataAccessorAnalysisPostGIS(DataPro
   }
 }
 
-std::string terrama2::core::DataAccessorAnalysisPostGIS::getTimestampPropertyName(DataSetPtr dataSet, const bool logErrors) const
+std::string terrama2::core::DataAccessorAnalysisPostGIS::getTimestampPropertyName(DataSetPtr /*dataSet*/, const bool /*logErrors*/) const
 {
   return "execution_date";
 }

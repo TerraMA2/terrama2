@@ -308,7 +308,7 @@ endif()
 #
 
 if(DOXYGEN_FOUND)
-  option(TERRAMA2_DOXYGEN_ENABLED  "Enable API documentation build?" ON)
+  option(TERRAMA2_DOXYGEN_ENABLED  "Enable API documentation build?" OFF)
 endif()
 
 option(TERRAMA2_CORE_ENABLED "Build TerraMA2 Core module?" ON)

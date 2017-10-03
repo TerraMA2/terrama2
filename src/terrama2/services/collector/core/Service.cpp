@@ -370,7 +370,7 @@ void terrama2::services::collector::core::Service::updateCollector(CollectorPtr 
   addProcessToSchedule(collector);
 }
 
-void terrama2::services::collector::core::Service::updateAdditionalInfo(const QJsonObject& obj) noexcept
+void terrama2::services::collector::core::Service::updateAdditionalInfo(const QJsonObject& /*obj*/) noexcept
 {
 
 }

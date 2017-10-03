@@ -363,7 +363,7 @@ void terrama2::services::analysis::core::GridContext::addInterestAreaToRasterInf
           }
 
           std::shared_ptr<te::gm::Geometry> geomBox(te::gm::GetGeomFromEnvelope(raster->getExtent(), raster->getSRID()));
-          if(raster->getSRID() != srid)
+          if(static_cast<Srid>(raster->getSRID()) != srid)
           {
             geomBox->transform(srid);
           }

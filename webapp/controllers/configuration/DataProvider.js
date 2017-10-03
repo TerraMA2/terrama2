@@ -14,7 +14,7 @@ module.exports = function(app) {
   return {
     get: function(request, response) {
       var parameters = makeTokenParameters(request.query.token, app);
-      var hasProjectPermission = app.locals.activeProject.hasProjectPermission;
+      var hasProjectPermission = request.session.activeProject.hasProjectPermission;
       parameters.hasProjectPermission = hasProjectPermission;
 
       return response.render("configuration/providers", parameters);
@@ -43,7 +43,7 @@ module.exports = function(app) {
 
       // Creating default PostGIS and File providers
       var configFile = Application.getContextConfig();
-      var hasProjectPermission = app.locals.activeProject.hasProjectPermission;
+      var hasProjectPermission = request.session.activeProject.hasProjectPermission;
 
       DataManager.getDataProvider({id: parseInt(dataProviderId || "0")}).then(function(dataProvider) {
         var requester = RequestFactory.buildFromUri(dataProvider.uri);

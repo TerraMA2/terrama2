@@ -46,10 +46,7 @@ namespace terrama2
     class DataAccessorDCPCSV : public DataAccessorCSV
     {
       public:
-        DataAccessorDCPCSV(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true)
-          : DataAccessor(dataProvider, dataSeries, false),
-            DataAccessorFile(dataProvider, dataSeries, false),
-            DataAccessorCSV(dataProvider, dataSeries, false) { }
+        DataAccessorDCPCSV(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true);
 
         virtual ~DataAccessorDCPCSV() = default;
 

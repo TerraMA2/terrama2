@@ -40,9 +40,9 @@
 #include <QObject>
 
 terrama2::core::DataAccessorOccurrencePostGIS::DataAccessorOccurrencePostGIS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics)
- : DataAccessor(dataProvider, dataSeries, false),
-   DataAccessorOccurrence(dataProvider, dataSeries, false),
-   DataAccessorPostGIS(dataProvider, dataSeries, false)
+ : DataAccessor(dataProvider, dataSeries),
+   DataAccessorOccurrence(dataProvider, dataSeries),
+   DataAccessorPostGIS(dataProvider, dataSeries)
 {
   if(checkSemantics && dataSeries->semantics.driver != dataAccessorType())
   {

@@ -45,9 +45,9 @@
 #include <QFileInfo>
 
 terrama2::core::DataAccessorGDAL::DataAccessorGDAL(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics)
- : DataAccessor(dataProvider, dataSeries, false),
-   DataAccessorGrid(dataProvider, dataSeries, false),
-   DataAccessorFile(dataProvider, dataSeries, false)
+ : DataAccessor(dataProvider, dataSeries),
+   DataAccessorGrid(dataProvider, dataSeries),
+   DataAccessorFile(dataProvider, dataSeries)
 {
   if(checkSemantics && dataSeries->semantics.driver != dataAccessorType())
   {

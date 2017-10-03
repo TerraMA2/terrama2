@@ -86,11 +86,11 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processInters
 
     if(intersectionDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::GEOMETRIC_OBJECT)
     {
-      collectedDataSetSeries = processVectorIntersection(dataManager, intersection, collectedDataSetSeries, vecAttributes, intersectionDataSeries, executionDate);
+      collectedDataSetSeries = processVectorIntersection(dataManager, collectedDataSetSeries, vecAttributes, intersectionDataSeries, executionDate);
     }
     else if(intersectionDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::GRID)
     {
-      collectedDataSetSeries = processGridIntersection(dataManager, intersection, collectedDataSetSeries, vecAttributes, intersectionDataSeries, executionDate);
+      collectedDataSetSeries = processGridIntersection(dataManager, collectedDataSetSeries, vecAttributes, intersectionDataSeries, executionDate);
     }
 
   }
@@ -100,7 +100,6 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processInters
 }
 
 terrama2::core::DataSetSeries terrama2::services::collector::core::processVectorIntersection(DataManagerPtr dataManager,
-    core::IntersectionPtr intersection,
     terrama2::core::DataSetSeries collectedDataSetSeries,
     std::vector<IntersectionAttribute>& vecAttributes,
     terrama2::core::DataSeriesPtr intersectionDataSeries,
@@ -221,7 +220,7 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
 
     // Create the DataSetType and DataSet
 
-    outputDt.reset(createDataSetType(collectedDataSetType.get(), interDsType.get(), interProperties));
+    outputDt.reset(createDataSetType(collectedDataSetType.get(), interProperties));
     outputDs.reset(new te::mem::DataSet(outputDt.get()));
 
     // Creates a rtree with all occurrences
@@ -310,7 +309,6 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
 }
 
 te::da::DataSetType* terrama2::services::collector::core::createDataSetType(te::da::DataSetType* collectedDST,
-    te::da::DataSetType* intersectionDST,
     std::vector<te::dt::Property*> intersectionDSProperties)
 {
   te::da::DataSetType* outputDt = new te::da::DataSetType(collectedDST->getName());
@@ -354,7 +352,6 @@ std::vector<int> terrama2::services::collector::core::getBands(std::vector<Inter
 }
 
 terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIntersection(DataManagerPtr dataManager,
-    core::IntersectionPtr intersection,
     terrama2::core::DataSetSeries collectedDataSetSeries,
     std::vector<IntersectionAttribute>& vecAttributes,
     terrama2::core::DataSeriesPtr intersectionDataSeries,
