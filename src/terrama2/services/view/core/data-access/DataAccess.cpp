@@ -118,12 +118,11 @@ std::unique_ptr< te::da::DataSetType > terrama2::services::view::core::DataAcces
 }
 
 
-terrama2::services::view::core::TableInfo terrama2::services::view::core::DataAccess::getPostgisTableInfo(const std::pair<terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr>& dataSeriesProvider,
-                                                                            const terrama2::core::DataSetPtr dataSet)
+terrama2::services::view::core::TableInfo
+terrama2::services::view::core::DataAccess::getPostgisTableInfo(terrama2::core::DataSetPtr dataSet,
+                                                                terrama2::core::DataSeriesPtr inputDataSeries,
+                                                                terrama2::core::DataProviderPtr inputDataProvider)
 {
-  terrama2::core::DataSeriesPtr inputDataSeries = dataSeriesProvider.first;
-  terrama2::core::DataProviderPtr inputDataProvider = dataSeriesProvider.second;
-
   terrama2::core::DataAccessorPtr dataAccessor =
       terrama2::core::DataAccessorFactory::getInstance().make(inputDataProvider, inputDataSeries);
 
@@ -141,6 +140,25 @@ terrama2::services::view::core::TableInfo terrama2::services::view::core::DataAc
   {
 
   }
+
+  tableInfo.dataSetType = getDataSetType(inputDataProvider->uri,
+                                         tableInfo.tableName,
+                                         "POSTGIS");
+
+  return tableInfo;
+}
+
+terrama2::services::view::core::TableInfo
+terrama2::services::view::core::DataAccess::getDCPPostgisTableInfo(terrama2::core::DataSeriesPtr inputDataSeries,
+                                                                   terrama2::core::DataProviderPtr inputDataProvider)
+{
+  terrama2::core::DataAccessorPtr dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(inputDataProvider, inputDataSeries);
+
+  std::shared_ptr< terrama2::core::DataAccessorPostGIS > dataAccessorPostGis =
+      std::dynamic_pointer_cast<terrama2::core::DataAccessorPostGIS>(dataAccessor);
+
+  TableInfo tableInfo;
+  tableInfo.tableName = getDCPPositionsTableName(inputDataSeries);
 
   tableInfo.dataSetType = getDataSetType(inputDataProvider->uri,
                                          tableInfo.tableName,
