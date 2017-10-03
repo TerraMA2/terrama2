@@ -114,11 +114,7 @@ namespace terrama2
             finalizer_();
         }
         InterpreterRAII(const InterpreterRAII& other) = delete;
-        InterpreterRAII(InterpreterRAII&& other)
-        {
-          finalizer_ = std::move(other.finalizer_);
-          other.finalizer_ = nullptr;
-        }
+        InterpreterRAII(InterpreterRAII&& other) = default;
         InterpreterRAII& operator=(const InterpreterRAII& other) = delete;
         InterpreterRAII& operator=(InterpreterRAII&& other) = delete;
 
