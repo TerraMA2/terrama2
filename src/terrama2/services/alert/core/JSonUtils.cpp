@@ -55,8 +55,6 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
        && json.contains("active")
        && json.contains("name")
        && json.contains("description")
-//       && json.contains("schedule")
-//       && json.contains("filter")
        && json.contains("additional_data")
        && json.contains("legend_id")
        && json.contains("notifications")))
@@ -132,6 +130,23 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
       recipient.targets.push_back(target.toString().toStdString());
 
     alert->notifications.push_back(recipient);
+  }
+
+  if(json.contains("view"))
+  {
+    auto obj = json["view"];
+    AlertView view;
+    view.geoserverUri = obj["geoserver_uri"].toString().toStdString();
+    double top = obj["top"].toDouble();
+    double bottom = obj["bottom"].toDouble();
+    double left = obj["left"].toDouble();
+    double right = obj["right"].toDouble();
+    view.topRightCorner = te::gm::Coord2D(right, top);
+    view.topRightCorner = te::gm::Coord2D(left, bottom);
+    view.srid = static_cast<Srid>(obj["srid"].toInt());
+    view.width = static_cast<uint32_t>(obj["width"].toInt());
+    view.height = static_cast<uint32_t>(obj["height"].toInt());
+    alertPtr->view = view;
   }
 
   return alertPtr;

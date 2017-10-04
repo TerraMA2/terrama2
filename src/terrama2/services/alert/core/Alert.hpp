@@ -77,7 +77,7 @@ namespace terrama2
         using ViewID = uint32_t;
         struct AlertView
         {
-          std::string geoserver_uri;
+          std::string geoserverUri;
           std::vector<std::pair<ViewID, std::string> > views;
           te::gm::Coord2D topRightCorner;
           te::gm::Coord2D lowerLeftCorner;
@@ -88,6 +88,57 @@ namespace terrama2
 
         /*!
          \brief Struct with information for an Alert
+
+         ## JSon model
+
+          {
+            "class": "Alert",
+            "id": INT,
+            "project_id": INT,
+            "service_instance_id": INT,
+            "data_series_id": INT,
+            "legend_attribute": STRING,
+            "active": BOOL,
+            "name": STRING,
+            "description": STRING,
+            "additional_data": [
+              "dataseries_id": INT,
+              "dataset_id": INT,
+              "referrer_attribute": STRING,
+              "referred_attribute": STRING,
+              "attributes": [STRING]
+            ],
+            "report_metadata": [
+              "title": STRING,
+              "abstract": STRING,
+              "description": STRING,
+              "author": STRING,
+              "contact": STRING,
+              "copyright": STRING,
+              "logo_path": STRING,
+              "timestamp_format": STRING,
+              "document_uri": STRING,
+              "image_uri": STRING
+            ]
+            "legend_id": INT,
+            "notifications": [
+              "include_report": STRING,
+              "notify_on_change": BOOL,
+              "simplified_report": BOOL,
+              "notify_on_risk_level": INT,
+              "recipients": [ STRING ]
+            ],
+            "view"[OPTIONAL]: {
+                "geoserver_uri": STRING,
+                "top": DOUBLE,
+                "bottom": DOUBLE,
+                "left": DOUBLE,
+                "right": DOUBLE,
+                "srid": INT,
+                "width": INT,
+                "height": INT
+            }
+          }
         */
         struct Alert : public terrama2::core::Process
         {
