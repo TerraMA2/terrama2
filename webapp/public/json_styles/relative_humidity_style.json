@@ -1,0 +1,24 @@
+{
+  "id": "relative_umidity_style",
+  "name": "Umidity",
+  "fields": ["band"],
+  "gui": {
+    "schema": {
+      "type": "object",
+      "properties": {
+        "band": {
+          "type": "number",
+          "title": "Band"
+        }
+      },
+      "required": ["band"]
+    },
+    "form": [
+      {
+        "key": "band",
+        "htmlClass": "col-md-6"
+      }
+    ]
+  },
+  "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?> <StyledLayerDescriptor xmlns=\"http://www.opengis.net/sld\" xmlns:ogc=\"http://www.opengis.net/ogc\" xmlns:se=\"http://www.opengis.net/se\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"1.0.0\" xsi:schemaLocation=\"http://www.opengis.net/sld http://schemas.opengis.net/sld/1.0.0/StyledLayerDescriptor.xsd\"> <NamedLayer> <Name>Umidade Relativa Mínima</Name> <UserStyle> <Name>Style</Name> <Title>Style for a Coverage layer.</Title> <FeatureTypeStyle> <Rule> <RasterSymbolizer> <ChannelSelection> <GrayChannel> <SourceChannelName>1</SourceChannelName> </GrayChannel> </ChannelSelection> <ColorMap type=\"ramp\"> <ColorMapEntry color=\"#ff0000\" quantity=\"0.0\" opacity=\"1.0\" /> <ColorMapEntry color=\"#ff1a1a\" quantity=\"0.10\" opacity=\"1.0\" /> <ColorMapEntry color=\"#ff3333\" quantity=\"0.20\" opacity=\"1.0\" /> <ColorMapEntry color=\"#ff471a\" quantity=\"0.30\" opacity=\"1.0\" /> <ColorMapEntry color=\"#ff5c33\" quantity=\"0.40\" opacity=\"1.0\" /> <ColorMapEntry color=\"#ff704d\" quantity=\"0.50\" opacity=\"1.0\" /> <ColorMapEntry color=\"#ffa64d\" quantity=\"0.60\" opacity=\"1.0\" /> <ColorMapEntry color=\"#ffd11a\" quantity=\"0.70\" opacity=\"1.0\" /> <ColorMapEntry color=\"#73e600\" quantity=\"0.75\" opacity=\"1.0\" /> <ColorMapEntry color=\"#33cc33\" quantity=\"0.80\" opacity=\"1.0\" /> <ColorMapEntry color=\"#ff3300\" quantity=\"0.85\" opacity=\"1.0\" /> <ColorMapEntry color=\"#1affa3\" quantity=\"0.90\" opacity=\"1.0\" /> <ColorMapEntry color=\"#1affff\" quantity=\"0.95\" opacity=\"1.0\" /> <ColorMapEntry color=\"#0066ff\" quantity=\"1.00\" opacity=\"1.0\" /> </ColorMap> </RasterSymbolizer> </Rule> </FeatureTypeStyle> </UserStyle> </NamedLayer> </StyledLayerDescriptor>"
+}
