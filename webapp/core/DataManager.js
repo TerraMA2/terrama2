@@ -2021,7 +2021,7 @@ var DataManager = module.exports = {
               });
             }
 
-            //Removing datasets
+            //Removing dataSets
             dataSetsToRemove.forEach(function(dataSetId){
               var removeProvider = self.removeDataSet(dataSetId).then(function(returned){
                 var index = dataSeries.dataSets.indexOf(returned);
@@ -5609,9 +5609,76 @@ var DataManager = module.exports = {
   },
 
   updateInterpolator: function(restriction, interpolatorObject, options){
-    return new Promise(function(resolve, reject){
-      return resolve("updated");
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      models.db.Interpolator.update(
+        interpolatorObject,
+        Utils.extend({
+          fields: ["active", "bounding_rect", "interpolation_attribute", "resolution_x", "resolution_y", "service_instance_id", "schedule_id", "automatic_schedule_id", "schedule_type", "srid", "interpolator_strategy"],
+          where: restriction
+        }, options))
+
+        .then(function(interpolator) {
+          return self.upsertInterpolatorMetadata(restriction.id, interpolatorObject.metadata, options)
+            .then(function(){
+              return resolve();
+            });
+        })
+
+        .catch(function(err) {
+          return reject(new Error("Could not update interpolator " + err.toString()));
+        });
     });
+  },
+
+  upsertInterpolatorMetadata: function(interpolatorId, interpolatorMetadata, options){
+    var self = this;
+    return new Promise(function(resolve, reject){
+      var promises = [];
+      promises.push(self.removeInterpolatorMetadata({interpolator_id: interpolatorId}, options));
+
+      var interpolatorMetadataObject = [];
+      for(var key in interpolatorMetadata) {
+        if (interpolatorMetadata.hasOwnProperty(key)) {
+          interpolatorMetadataObject.push({
+            interpolator_id: interpolatorId,
+            key: key,
+            value: interpolatorMetadata[key]
+          });
+        }
+      }
+      promises.push(self.addInterpolatorMetadata(interpolatorMetadataObject, options));
+      return Promise.all(promises).then(function(results){
+        return resolve(results[1]);
+      });
+    });
+  },
+
+  updateInterpolatorMetadata: function(interpolatorMetadataId, interpolatorMetadataObject, options){
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      models.db.InterpolatorMetadata.update(
+        interpolatorMetadataObject,
+        Utils.extend({
+          fields: ["value"],
+          where: {id : interpolatorMetadataId}
+        }, options))
+        .then(function() {
+          return resolve();
+        })
+        .catch(function(err) {
+          return reject(new Error("Could not update interpolator metadata" + err.toString()));
+        });
+    });
+  },
+
+  removeInterpolatorMetadata: function(restriction, options){
+    var self = this;
+    return new Promise(function(resolve, reject){
+      return models.db.InterpolatorMetadata.destroy(Utils.extend({where: restriction}, options)).then(function(){
+        return resolve();
+      })
+    })
   },
 
   removeInterpolator: function(interpolatorParam, options){

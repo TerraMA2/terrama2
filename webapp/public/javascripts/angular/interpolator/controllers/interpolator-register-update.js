@@ -81,7 +81,7 @@ define([], function(){
       $scope.inter.description = $scope.outputDataSeries.description;
       $scope.outputDataSeries.data_series_semantics = $scope.DataSeriesSemanticsService.get({code: "GRID-geotiff"});
       $scope.outputDataSeries.data_provider = $scope.DataProviderService.list({id: $scope.outputDataSeries.data_provider_id})[0];
-      $scope.outputDataSeries.format = prepareDataSetFormatToForm($scope.outputDataSeries.datasets[0].format);
+      $scope.outputDataSeries.format = prepareDataSetFormatToForm($scope.outputDataSeries.dataSets[0].format);
 
       $timeout(function() {
         $scope.inter.schedule.scheduleType = $scope.inter.schedule_type.toString();
@@ -90,16 +90,28 @@ define([], function(){
     };
     
     var prepareObjectToSave = function(){
-      var outputDataSet = {
-        active: $scope.inter.active,
-        format: $scope.outputDataSeries.format
-      }
-      var outputDataSeries = {
-        name: $scope.inter.name,
-        data_provider_id: $scope.outputDataSeries.data_provider.id,
-        data_series_semantics_id: $scope.outputDataSeries.data_series_semantics.id,
-        description: $scope.inter.description,
-        dataSets: [outputDataSet]
+      var outputDataSeries = {};
+      var outputDataSet = {};
+      if (isUpdating){
+        outputDataSet = Object.assign({}, $scope.outputDataSeries.dataSets[0]);
+        outputDataSet.format = $scope.outputDataSeries.format;
+        outputDataSeries = Object.assign({}, $scope.outputDataSeries);
+        outputDataSeries.name = $scope.inter.name;
+        outputDataSeries.description = $scope.inter.description;
+        outputDataSeries.data_series_semantics_id = $scope.outputDataSeries.data_series_semantics.id,
+        outputDataSeries.dataSets = [outputDataSet];
+      } else {
+        var outputDataSet = {
+          active: $scope.inter.active,
+          format: $scope.outputDataSeries.format
+        }
+        var outputDataSeries = {
+          name: $scope.inter.name,
+          data_provider_id: $scope.outputDataSeries.data_provider.id,
+          data_series_semantics_id: $scope.outputDataSeries.data_series_semantics.id,
+          description: $scope.inter.description,
+          dataSets: [outputDataSet]
+        }
       }
       var interpolator = Object.assign({}, $scope.inter);
       var bounding_rect = {
@@ -132,10 +144,15 @@ define([], function(){
           scheduleValues.schedule_time = moment(dt).format("HH:mm:ss");
           break;
         default:
+          if (scheduleValues.scheduleType == "4"){
+            scheduleValues.data_ids = [$scope.input_data_series.id];
+          }
           break;
       }
     
-      var operation = $scope.InterpolatorService.create({interpolator: objectToSave, schedule: scheduleValues});
+      var operation = isUpdating ? 
+                      $scope.InterpolatorService.update( $scope.inter.id, {interpolator: objectToSave, schedule: scheduleValues}) : 
+                      $scope.InterpolatorService.create({interpolator: objectToSave, schedule: scheduleValues});
       operation.then(function(response) {
         $window.location.href = BASE_URL + "configuration/dynamic/dataseries?token=" + response.token;
       }).catch(function(err) {

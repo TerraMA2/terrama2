@@ -17,7 +17,7 @@
         var interpolatorObject = request.body.interpolator;
         var scheduleObject = request.body.schedule;
         var shouldRun = request.body.run;
-        InterpolatorFacade.save(interpolatorObject, scheduleObject, app.locals.activeProject.id)
+        InterpolatorFacade.save(interpolatorObject, scheduleObject, request.session.activeProject.id)
           .then(function(interpolator){
             var extra = {};
             if (shouldRun){
@@ -34,7 +34,7 @@
         var interpolatorObject = request.body.interpolator;
         var scheduleObject = request.body.schedule;
         var shouldRun = request.body.run;
-        return InterpolatorFacade.update(interpolatorId, interpolatorObject, scheduleObject, app.locals.activeProject.id)
+        return InterpolatorFacade.update(interpolatorId, interpolatorObject, scheduleObject, request.session.activeProject.id)
           .then(function(interpolator){
             var extra = {};
             if (shouldRun){

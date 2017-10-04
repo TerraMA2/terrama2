@@ -70,20 +70,99 @@
     return new PromiseClass(function(resolve, reject){
       DataManager.orm.transaction(function(t){
         var options = {transaction: t};
+        var interpolator;
         var removeSchedule = null;
         var scheduleIdToRemove = null;
         var scheduleTypeToRemove = null;
-        return DataManager.updateInterpolator({id: interpolatorId }, interpolatorObject, options)
-          .then(function(interpolator){
-            return resolve(interpolator);
-          });
+        interpolatorObject.schedule_type = scheduleObject.scheduleType;
+        return DataManager.getInterpolator({id: interpolatorId}, options)
+          .then(function(interpolatorResult){
+            interpolator = interpolatorResult;
+
+            if (interpolator.schedule_type == scheduleObject.scheduleType){
+              if (interpolator.schedule_type == ScheduleType.SCHEDULE){
+                // update
+                return DataManager.updateSchedule(interpolator.schedule.id, scheduleObject, options)
+                .then(function() {
+                  interpolatorObject.schedule_id = interpolator.schedule_id;
+                  return null;
+                });
+              } else if (interpolator.schedule_type == ScheduleType.AUTOMATIC) {
+                return DataManager.updateAutomaticSchedule(interpolator.automaticSchedule.id, scheduleObject, options)
+                .then(function(){
+                  interpolatorObject.automatic_schedule_id = interpolator.automatic_schedule_id;
+                  return null;
+                });
+              }
+            } else {
+              // when change type of schedule
+              // if old schedule is MANUAL, create the new schedule
+              if (interpolator.schedule_type == ScheduleType.MANUAL){
+                return DataManager.addSchedule(scheduleObject, options)
+                  .then(function(scheduleResult){
+                    if (scheduleObject.scheduleType == ScheduleType.SCHEDULE){
+                      interpolator.schedule = scheduleResult;
+                      interpolatorObject.schedule_id = scheduleResult.id;
+                      return null;
+                    } else {
+                      interpolator.automaticSchedule = scheduleResult;
+                      interpolatorObject.automatic_schedule_id = scheduleResult.id;
+                      return null;
+                    }
+                  });
+              // if old schedule is SCHEDULE, delete schedule
+              } else if (interpolator.schedule_type == ScheduleType.SCHEDULE){
+                removeSchedule = true;
+                scheduleIdToRemove = interpolator.schedule.id;
+                scheduleTypeToRemove = ScheduleType.SCHEDULE;
+                interpolatorObject.schedule_id = null;
+                // if new schedule is AUTOMATIC, create the schedule
+                if (interpolatorObject.schedule_type == ScheduleType.AUTOMATIC){
+                  interpolatorObject.schedule.id = null;
+                  return DataManager.addSchedule(scheduleObject, options)
+                    .then(function(scheduleResult){
+                      interpolator.automaticSchedule = scheduleResult;
+                      interpolatorObject.automatic_schedule_id = scheduleResult.id;    
+                    });
+                }
+              } else {
+                removeSchedule = true;
+                scheduleIdToRemove = interpolator.automaticSchedule.id;
+                scheduleTypeToRemove = ScheduleType.AUTOMATIC;
+                interpolatorObject.automatic_schedule_id = null;
+                if (interpolatorObject.schedule_type == ScheduleType.SCHEDULE){
+                  interpolatorObject.schedule.id = null;
+                  return DataManager.addSchedule(scheduleObject, options)
+                    .then(function(scheduleResult){
+                      interpolator.schedule = scheduleResult;
+                      interpolatorObject.schedule_id = scheduleResult.id;    
+                    });
+                }
+              }
+            }
+          })
+          .then(function(){
+            return DataManager.updateInterpolator({id: interpolatorId}, interpolatorObject, options)
+              .then(function(){
+                if (removeSchedule) {
+                  if (scheduleTypeToRemove == ScheduleType.AUTOMATIC){
+                    return DataManager.removeAutomaticSchedule({id: scheduleIdToRemove}, options);
+                  } else {
+                    return DataManager.removeSchedule({id: scheduleIdToRemove}, options);
+                  }
+                }
+              })
+              .then(function(){
+                return DataManager.updateDataSeries(interpolatorObject.data_series_output.id, interpolatorObject.data_series_output, options);
+              })
+              .then(function(){
+                return DataManager.getInterpolator({id: interpolatorId}, options);
+              });
+          })
       })
       .then(function(interpolator){
         return resolve(interpolator);
-      })
-      .catch(function(err){
-        return reject(err);
-      })
+      });
     });
   };
 

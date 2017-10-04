@@ -16,10 +16,9 @@ module.exports = function(app) {
         });
     },
     edit: function(request, response){
-      var hasProjectPermission = app.locals.activeProject.hasProjectPermission;
       DataManager.getInterpolator({id: parseInt(request.params.id)})
         .then(function(interpolator) {
-          return response.render("configuration/interpolator", {interpolator: interpolator.rawObject(), ScheduleType: ScheduleType, hasProjectPermission: hasProjectPermission });
+          return response.render("configuration/interpolator", {interpolator: interpolator.rawObject(), ScheduleType: ScheduleType });
         }).catch(function(err) {
           return response.render("base/404");
         });
