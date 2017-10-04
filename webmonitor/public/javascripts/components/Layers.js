@@ -39,6 +39,7 @@ define(
     var createLayerObject = function(layerData) {
       var layerObject = {};
       layerObject.name = layerData.name;
+      layerObject.description = layerData.description;
       layerObject.nameId = layerData.layers[0];
       layerObject.workspace = layerData.workspace;
       layerObject.id = layerData.workspace ? layerData.workspace + ":" + layerData.layers[0] : layerData.layers[0];

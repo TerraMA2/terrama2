@@ -43,6 +43,8 @@ app.use(app.locals.BASE_URL, express.static(path.join(__dirname, '../webcomponen
 app.use(app.locals.BASE_URL + 'require.js', express.static(path.join(__dirname, 'node_modules/requirejs/require.js')));
 app.use(app.locals.BASE_URL + 'openlayers/ol.js', express.static(path.join(__dirname, 'node_modules/openlayers/dist/ol.js')));
 app.use(app.locals.BASE_URL + 'openlayers/ol.css', express.static(path.join(__dirname, 'node_modules/openlayers/dist/ol.css')));
+app.use(app.locals.BASE_URL + 'simplebar/simplebar.js', express.static(path.join(__dirname, 'node_modules/simplebar/dist/simplebar.js')));
+app.use(app.locals.BASE_URL + 'simplebar/simplebar.css', express.static(path.join(__dirname, 'node_modules/simplebar/dist/simplebar.css')));
 
 load('controllers').then('routes').into(app);
 

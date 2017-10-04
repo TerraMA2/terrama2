@@ -156,16 +156,28 @@ define(
 
         if(layer !== null) {
           var openLayerToolbox = function() {
-            $("#layer-toolbox > .layer-toolbox-body .layer-name").text(layer.name);
+            $("#layer-toolbox .layer-toolbox-header > .layer-name").text(layer.name);
 
-            $("#layer-toolbox > .layer-toolbox-body > #slider-box").empty().html("<label></label><br/><div id=\"opacity" + layer.id.replace(":","") + "\"></div>");
+            if(layer.description) {
+              $("#layer-toolbox .layer-toolbox-body .layer-description .box-body").text(layer.description);
+
+              if($("#layer-toolbox .layer-toolbox-body .layer-description").hasClass("hidden"))
+                $("#layer-toolbox .layer-toolbox-body .layer-description").removeClass("hidden");
+            } else {
+              $("#layer-toolbox .layer-toolbox-body .layer-description .box-body").text("");
+
+              if(!$("#layer-toolbox .layer-toolbox-body .layer-description").hasClass("hidden"))
+                $("#layer-toolbox .layer-toolbox-body .layer-description").addClass("hidden");
+            }
+
+            $("#layer-toolbox .layer-toolbox-body > #slider-box .box-body").empty().html("<label></label><br/><div id=\"opacity" + layer.id.replace(":","") + "\"></div>");
             var currentOpacity = TerraMA2WebComponents.MapDisplay.getLayerOpacity(layer.id) * 100;
             Slider.setOpacitySlider(layer.id, currentOpacity);
 
             if($("#layer-toolbox").hasClass("hidden"))
               $("#layer-toolbox").removeClass("hidden");
           };
-          var toolbookHeight = 150;
+
           if(layer.exportation !== null && layer.dataSeriesTypeName === "GRID") {
             $.post(BASE_URL + "check-grid-folder", { dpi: layer.exportation.dataProviderId }, function(data) {
               if(data.result) {
@@ -176,9 +188,6 @@ define(
 
                 if($("#exportation-box").hasClass("hidden"))
                   $("#exportation-box").removeClass("hidden");
-
-                toolbookHeight += 70;
-                $("#layer-toolbox").css("height", toolbookHeight + "px");
               } else {
                 if(!$("#exportation-box").hasClass("hidden"))
                   $("#exportation-box").addClass("hidden");
@@ -194,8 +203,6 @@ define(
 
             if($("#exportation-box").hasClass("hidden"))
               $("#exportation-box").removeClass("hidden");
-
-            toolbookHeight += 157;
 
             openLayerToolbox();
           } else {
@@ -215,12 +222,10 @@ define(
             if(!$("#dates-calendar").hasClass("hidden"))
               $("#dates-calendar").addClass("hidden");
 
-            $("#layer-toolbox > .layer-toolbox-body > #animate-layer-box #dates-calendar").empty();
-            $("#layer-toolbox > .layer-toolbox-body > #animate-layer-box #dates-slider").empty().html("<div id=\"dates" + layer.id.replace(":","") + "\"></div><div id=\"rangeDates\"><label>From:&nbsp</label><span id=\"initialDate\"></span></br><label>To:&nbsp </label><span id=\"finalDate\"></span></div>");
+            $("#layer-toolbox .layer-toolbox-body > #animate-layer-box #dates-calendar").empty();
+            $("#layer-toolbox .layer-toolbox-body > #animate-layer-box #dates-slider").empty().html("<div id=\"dates" + layer.id.replace(":","") + "\"></div><div id=\"rangeDates\"><label>From:&nbsp</label><span id=\"initialDate\"></span></br><label>To:&nbsp </label><span id=\"finalDate\"></span></div>");
             AnimatedLayer.setLayerToAnimate(layer);
             AnimatedLayer.setDatesSlider();
-            toolbookHeight += 145;
-            
           } else if (layer.dateInfo && layer.dateInfo.dates && typeof layer.dateInfo.dates === "object"){
 
             if($("#animate-layer-box").hasClass("hidden"))
@@ -247,25 +252,22 @@ define(
                                        "</select>" +
                                      "</div>"
 
-            $("#layer-toolbox > .layer-toolbox-body > #animate-layer-box #dates-calendar").empty().html(calendarFieldsHtml);
-            $("#layer-toolbox > .layer-toolbox-body > #animate-layer-box #dates-slider").empty();
+            $("#layer-toolbox .layer-toolbox-body > #animate-layer-box #dates-calendar").empty().html(calendarFieldsHtml);
+            $("#layer-toolbox .layer-toolbox-body > #animate-layer-box #dates-slider").empty();
             AnimatedLayer.setLayerToAnimate(layer);
             AnimatedLayer.setDatesCalendar();
-            toolbookHeight += 158;
           } else {
             
             if(!$("#animate-layer-box").hasClass("hidden"))
               $("#animate-layer-box").addClass("hidden");
 
-            $("#layer-toolbox > .layer-toolbox-body > #animate-layer-box #dates-calendar").empty();
-            $("#layer-toolbox > .layer-toolbox-body > #animate-layer-box #dates-slider").empty();
+            $("#layer-toolbox .layer-toolbox-body > #animate-layer-box #dates-calendar").empty();
+            $("#layer-toolbox .layer-toolbox-body > #animate-layer-box #dates-slider").empty();
           }
-          $("#layer-toolbox").css("height", toolbookHeight + "px");
-          
         }
       });
 
-      $("#layer-toolbox > .layer-toolbox-header > .btn").on("click", function() {
+      $("#layer-toolbox .layer-toolbox-header > .btn").on("click", function() {
         $("#layer-toolbox").addClass("hidden");
       });
     };
@@ -275,8 +277,9 @@ define(
       loadEvents();
 
       $("#layer-toolbox").draggable({
-        containment: $('#terrama2-map')
-      });
+        containment: $('#terrama2-map'),
+        handle: '.layer-toolbox-header'
+      })
     };
 
     return {

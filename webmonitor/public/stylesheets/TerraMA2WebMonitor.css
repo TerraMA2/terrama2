@@ -6,6 +6,11 @@ html, body, #content, .content, .content-wrapper, #terrama2-map {
   width: 100%;
 }
 
+.ol-viewport {
+  position: absolute !important;
+  top: 0;
+}
+
 .main-header .logo-lg > img {
   max-height: 40px;
   margin-top: -2px;
@@ -544,6 +549,10 @@ html, body, #content, .content, .content-wrapper, #terrama2-map {
 
 #terrama2-map .ol-zoom { top: 60px; }
 
+#terrama2-map .ol-zoom, #terrama2-map .ol-attribution { z-index: 99999; }
+
+#terrama2-map .ol-attribution { bottom: 20px; }
+
 #toggleButton { top: 130px; }
 
 #moveMap { top: 170px; }
@@ -585,11 +594,6 @@ html, body, #content, .content, .content-wrapper, #terrama2-map {
 #rangeDates label {
   width: 43px;
   text-align: right;
-}
-
-#slider-box {
-  width: 180px;
-  margin-left: 10px;
 }
 
 #getAttributes.with-select { width: 190px; }
@@ -676,8 +680,24 @@ html, body, #content, .content, .content-wrapper, #terrama2-map {
   float: left;
 }
 
-#legend-box, #layer-toolbox {
+#layer-toolbox {
+  position: relative;
+  height: auto;
+  float: left;
+  width: 300px;
+  left: 21px;
+  max-height: 90%;
+  overflow-y: auto;
+}
+
+#legend-box {
   position: absolute;
+  width: 320px;
+  height: 480px;
+  right: 65px;
+}
+
+#legend-box, #layer-toolbox {
   background-color: white;
   z-index: 99999;
   border-radius: 5px;
@@ -685,44 +705,35 @@ html, body, #content, .content, .content-wrapper, #terrama2-map {
   top: 21px;
 }
 
-#legend-box {
-  width: 320px;
-  height: 480px;
-}
-
-#layer-toolbox {
-  width: 220px;
-}
-
-#legend-box { right: 65px; }
-
-#layer-toolbox { left: 21px; }
-
-#legend-box > .legend-header, #layer-toolbox > .layer-toolbox-header{
+#legend-box > .legend-header, #layer-toolbox .layer-toolbox-header{
   padding: 10px;
-  font-size: 15px;
-  background-color: #d8d8d8;
   color: #000000;
-  height: 41px;
   overflow: hidden;
   border-radius: 5px 5px 0px 0px;
+  text-align: center;
+  font-size: 18px;
+  border-bottom: 1px solid;
+  height: 45px;
 }
 
-#legend-box > .legend-body, #layer-toolbox > .layer-toolbox-body {
+#legend-box > .legend-body, #layer-toolbox .layer-toolbox-body {
   padding: 10px;
-  margin-top: 41px;
   overflow: auto;
-  position: absolute;
   width: 100%;
-  height: calc(100% - 41px);
   top: 0;
   cursor: default;
 }
 
-#exportation-box {
-  margin-top: 15px;
-  border-top: 1px solid #d8d8d8;
-  padding-top: 15px;
+#legend-box > .legend-body {
+  margin-top: 45px;
+  position: absolute;
+  height: calc(100% - 45px);
+}
+
+#layer-toolbox .layer-toolbox-body {
+  position: relative;
+  height: auto;
+  padding-bottom: 0;
 }
 
 #exportation-status {
@@ -745,10 +756,10 @@ html, body, #content, .content, .content-wrapper, #terrama2-map {
   margin-top: 7px;
 }
 
-#layer-toolbox > .layer-toolbox-body .layer-name {
-  text-align: center;
-  font-size: 15px;
-  font-weight: 900;
+#layer-toolbox .layer-toolbox-body .layer-description .box-body {
+  text-align: justify;
+  max-height: 150px;
+  overflow-y: auto;
 }
 
 #projects {
@@ -759,6 +770,16 @@ html, body, #content, .content, .content-wrapper, #terrama2-map {
   height: 40px;
   font-size: 15px;
   margin: 10px 0 0 0;
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  background-image: url('../images/arrow-down.png');
+  background-size: 17px;
+  background-repeat: no-repeat;
+  background-position: 204px 12px;
+}
+
+#projects::-ms-expand {
+  display: none;
 }
 
 #institutions-logos {
@@ -883,3 +904,15 @@ html, body, #content, .content, .content-wrapper, #terrama2-map {
 #user-div > div > a { padding: 8px; }
 
 #user-div > div > #load-state { margin-left: 2px; }
+
+#layer-toolbox .layer-toolbox-body > .box-default { margin-bottom: 10px !important; }
+
+.mCSB_inside > .mCSB_container { margin-right: 10px !important; }
+
+.mCSB_container.mCS_no_scrollbar_y.mCS_y_hidden { margin-right: 0 !important; }
+
+.sidebar-menu li.header {
+  background: #1a2226;
+  white-space: normal;
+  padding-right: 17px;
+}
