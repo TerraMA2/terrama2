@@ -37,6 +37,10 @@
 #include "../../../core/data-model/Filter.hpp"
 #include "../../../core/data-model/Process.hpp"
 
+#include <terralib/geometry/Coord2D.h>
+
+#include <boost/optional.hpp>
+
 //STL
 #include <unordered_map>
 
@@ -70,6 +74,18 @@ namespace terrama2
           std::vector<std::string> targets; //!< List of targets that should be notified.
         };
 
+        using ViewID = uint32_t;
+        struct AlertView
+        {
+          std::string geoserver_uri;
+          std::vector<std::pair<ViewID, std::string> > views;
+          te::gm::Coord2D topRightCorner;
+          te::gm::Coord2D lowerLeftCorner;
+          Srid srid;
+          uint32_t width=768;
+          uint32_t height=659;
+        };
+
         /*!
          \brief Struct with information for an Alert
         */
@@ -82,6 +98,7 @@ namespace terrama2
           std::string description; //!< Short description of the purpose of the alert.
           DataSeriesId dataSeriesId = 0; //!< The DataSeries that will be used for risk analysis.
           ServiceInstanceId serviceInstanceId; //!< Identifier of the service instance that should run the alert.
+          boost::optional<AlertView> view;
 
           std::string riskAttribute;//!< Attribute of the DataSeries that will be used for risk analysis.
           LegendId riskId;//!< Risk rule of the alert
