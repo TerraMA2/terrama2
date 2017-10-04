@@ -40,6 +40,7 @@
 #include <functional>
 #include <map>
 #include <string>
+#include <vector>
 
 namespace terrama2
 {
@@ -50,8 +51,9 @@ namespace terrama2
       public:
         //! DataStorager constructor function.
         typedef std::function<terrama2::core::InterpreterPtr()> FactoryFnctType;
+        typedef std::function<terrama2::core::InterpreterRAII()> RaiiInterpreterFnctType;
         //! Register a new DataStorager constructor associated with the DataProviderType.
-        void add(const terrama2::core::InterpreterType& interpreterType, FactoryFnctType f);
+        void add(const terrama2::core::InterpreterType& interpreterType, FactoryFnctType f, RaiiInterpreterFnctType raiiFunction = nullptr);
         //! Remove the DataStorager constructor associated with the DataProviderType.
         void remove(const terrama2::core::InterpreterType& interpreterType);
         //! Returns if exists a factory for the given format.
@@ -77,6 +79,9 @@ namespace terrama2
         InterpreterFactory& operator=(InterpreterFactory&& other) = delete;
 
         std::map<terrama2::core::InterpreterType, FactoryFnctType> factoriesMap_;
+
+        //! List of raii structures to finalize the interpreters.
+        std::vector<InterpreterRAII> raiiInterpreterVector_;
     };
 
 

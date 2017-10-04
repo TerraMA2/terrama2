@@ -33,10 +33,9 @@
 #include <QObject>
 #include <QString>
 
-void terrama2::core::InterpreterFactory::add(const terrama2::core::InterpreterType& interpreterType, FactoryFnctType f)
+void terrama2::core::InterpreterFactory::add(const terrama2::core::InterpreterType& interpreterType, FactoryFnctType f, RaiiInterpreterFnctType raiiFunction)
 {
   auto it = factoriesMap_.find(interpreterType);
-
   if(it != factoriesMap_.end())
   {
     QString errMsg = QObject::tr("An interpreter factory for %1 already exists!").arg(QString::fromStdString(interpreterType));
@@ -45,12 +44,16 @@ void terrama2::core::InterpreterFactory::add(const terrama2::core::InterpreterTy
   }
 
   factoriesMap_.emplace(interpreterType, f);
+
+  // if registered a raii interpreter function
+  // add to the raii vector to be released at destruction
+  if(raiiFunction)
+    raiiInterpreterVector_.emplace_back(raiiFunction());
 }
 
 void terrama2::core::InterpreterFactory::remove(const terrama2::core::InterpreterType& interpreterType)
 {
   auto it = factoriesMap_.find(interpreterType);
-
   if(it == factoriesMap_.end())
   {
     QString errMsg = QObject::tr("There is no registered interpreter factory for %1.").arg(QString::fromStdString(interpreterType));
@@ -64,14 +67,12 @@ void terrama2::core::InterpreterFactory::remove(const terrama2::core::Interprete
 bool terrama2::core::InterpreterFactory::find(const terrama2::core::InterpreterType& interpreterType)
 {
   auto it = factoriesMap_.find(interpreterType);
-
   return (it != factoriesMap_.end());
 }
 
 terrama2::core::InterpreterPtr terrama2::core::InterpreterFactory::make(const terrama2::core::InterpreterType& interpreterType) const
 {
   auto it = factoriesMap_.find(interpreterType);
-
   if(it == factoriesMap_.end())
   {
     QString errMsg = QObject::tr("Could not find an interpreter factory for %1.").arg(QString::fromStdString(interpreterType));

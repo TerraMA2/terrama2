@@ -235,7 +235,7 @@ terrama2::core::LegendPtr terrama2::core::DataManager::findLegend(const LegendId
   return it->second;
 }
 
-void terrama2::core::DataManager::update(terrama2::core::DataSeriesPtr dataseries, const bool shallowSave)
+void terrama2::core::DataManager::update(terrama2::core::DataSeriesPtr dataseries, const bool /*shallowSave*/)
 {
   {
     std::lock_guard<std::recursive_mutex> lock(mtx_);
@@ -428,7 +428,7 @@ void terrama2::core::DataManager::removeJSon(const QJsonObject& obj)
   }
 }
 
-void terrama2::core::DataManager::validateJSon(const QJsonObject& obj)
+void terrama2::core::DataManager::validateJSon(const QJsonObject& /*obj*/)
 {
   // should be override by subclass.
 }

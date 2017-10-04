@@ -49,7 +49,7 @@
 //STL
 #include <algorithm>
 
-terrama2::core::DataAccessor::DataAccessor(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics)
+terrama2::core::DataAccessor::DataAccessor(DataProviderPtr dataProvider, DataSeriesPtr dataSeries)
   : dataProvider_(dataProvider),
     dataSeries_(dataSeries)
 {
@@ -291,7 +291,7 @@ void terrama2::core::DataAccessor::addColumns(std::shared_ptr<te::da::DataSetTyp
 
 Srid terrama2::core::DataAccessor::getSrid(DataSetPtr dataSet, bool logErrors) const
 {
-  return std::stoi(getProperty(dataSet, dataSeries_, "srid", logErrors));
+  return static_cast<Srid>(std::stoi(getProperty(dataSet, dataSeries_, "srid", logErrors)));
 }
 
 std::string terrama2::core::DataAccessor::getTimestampPropertyName(DataSetPtr dataSet, const bool logErrors) const

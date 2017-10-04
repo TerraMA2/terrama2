@@ -63,6 +63,9 @@ namespace terrama2
       static InterpreterType interpreterType() { return "PYTHON"; }
       static InterpreterPtr make();
 
+      static InterpreterRAII createInitializer();
+      static void initializeInterpreter();
+      static void finalizeInterpreter();
     private:
       std::string extractException() const;
 

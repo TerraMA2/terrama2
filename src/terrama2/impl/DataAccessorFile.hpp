@@ -52,8 +52,8 @@ namespace terrama2
     class DataAccessorFile : public virtual DataAccessor
     {
       public:
-        DataAccessorFile(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true)
-          : DataAccessor(dataProvider, dataSeries, false)
+        DataAccessorFile(DataProviderPtr dataProvider, DataSeriesPtr dataSeries)
+          : DataAccessor(dataProvider, dataSeries)
         {}
         virtual ~DataAccessorFile() = default;
 

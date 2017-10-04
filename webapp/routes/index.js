@@ -11,12 +11,12 @@ module.exports = function (app) {
   });
 
   app.post(app.locals.BASE_URL + 'userDefaults', function(request, response) {
-    app.locals.collapsed = !(request.body.collapsed == "true");
-    return response.json({status: 200, collapsed: app.locals.collapsed});
+    request.session.collapsed = !(request.body.collapsed == "true");
+    return response.json({status: 200, collapsed: request.session.collapsed});
   });
 
   app.post(app.locals.BASE_URL + 'languages', function(request, response) {
-    app.locals.userLocale = request.body.locale || "us";
+    request.session.userLocale = request.body.locale || "us";
     return response.json({status: 200});
   });
 

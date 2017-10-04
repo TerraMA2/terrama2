@@ -710,13 +710,7 @@ std::string terrama2::services::analysis::core::python::getAttributeValueAsJson(
     }
 
 
-    std::shared_ptr<ContextDataSeries> moDsContext = context->getMonitoredObjectContextDataSeries(dataManagerPtr);
-    if(!moDsContext)
-    {
-      QString errMsg(QObject::tr("Could not recover monitored object data series."));
-      throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
-    }
-
+    std::shared_ptr<ContextDataSeries> moDsContext = context->getMonitoredObjectContextDataSeries();
     if(moDsContext->series.syncDataSet->size() == 0)
     {
       QString errMsg(QObject::tr("Could not recover monitored object data series."));
@@ -774,7 +768,9 @@ std::string terrama2::services::analysis::core::python::getAttributeValueAsJson(
         break;
       }
       default:
-        json.insert(QString::fromStdString(attribute), QString());
+      {
+        json.insert(QString::fromStdString(attribute), QString::fromStdString(moDsContext->series.syncDataSet->getAsString(cache.index, attribute)));
+      }
     }
 
     QJsonDocument doc(json);
@@ -797,9 +793,6 @@ std::string terrama2::services::analysis::core::python::getAttributeValueAsJson(
     context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
     return "";
   }
-
-  return "";
-
 }
 
 std::mutex terrama2::services::analysis::core::python::GILLock::mutex_;

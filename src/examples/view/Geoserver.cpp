@@ -42,7 +42,7 @@
 #include <terrama2/core/utility/TerraMA2Init.hpp>
 
 
-int main(int argc, char** argv)
+int main(int , char** )
 {
   terrama2::core::TerraMA2Init terramaRaii("example", 0);
   terrama2::core::registerFactories();
