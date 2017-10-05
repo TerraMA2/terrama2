@@ -168,7 +168,6 @@
 
     var params = {};
     var dataSeriesTypeName;
-    var description = null;
     var exportation = {
       data: null,
       error: null
@@ -176,7 +175,6 @@
 
     if(this.dataSeries) {
       var semantics = this.dataSeries.data_series_semantics;
-      description = this.dataSeries.description;
 
       if(semantics && semantics.data_series_type_name === DataSeriesType.GRID) {
         var mask = this.dataSeries.dataSets[0].format.mask;
@@ -211,7 +209,6 @@
     return Object.assign(AbstractClass.prototype.toObject.call(this), {
       id: this.id,
       name: this.view.name,
-      description: description,
       private: this.view.private,
       workspace: this.workspace,
       uriGeoserver: uri,
