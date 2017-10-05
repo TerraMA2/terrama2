@@ -768,7 +768,9 @@ std::string terrama2::services::analysis::core::python::getAttributeValueAsJson(
         break;
       }
       default:
-        json.insert(QString::fromStdString(attribute), QString());
+      {
+        json.insert(QString::fromStdString(attribute), QString::fromStdString(moDsContext->series.syncDataSet->getAsString(cache.index, attribute)));
+      }
     }
 
     QJsonDocument doc(json);
@@ -791,9 +793,6 @@ std::string terrama2::services::analysis::core::python::getAttributeValueAsJson(
     context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
     return "";
   }
-
-  return "";
-
 }
 
 std::mutex terrama2::services::analysis::core::python::GILLock::mutex_;

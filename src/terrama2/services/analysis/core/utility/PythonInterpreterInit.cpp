@@ -35,20 +35,9 @@
 
 terrama2::services::analysis::core::PythonInterpreterInit::PythonInterpreterInit()
 {
-  PyEval_InitThreads();
-  Py_Initialize();
-
+  python::GILLock lock;
   python::populateNamespace();
   terrama2::services::analysis::core::python::Grid::registerFunctions();
   terrama2::services::analysis::core::python::MonitoredObject::registerFunctions();
   terrama2::services::analysis::core::python::DCP::registerFunctions();
-  
-  PyEval_ReleaseLock();
-}
-
-terrama2::services::analysis::core::PythonInterpreterInit::~PythonInterpreterInit()
-{
-  // shut down the interpreter
-  python::GILLock lock;
-  Py_Finalize();
 }

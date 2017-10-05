@@ -1124,6 +1124,7 @@ define([], function() {
             case Globals.enums.AnalysisType.DCP:
               analysisTypeId = Globals.enums.AnalysisDataSeriesType.DATASERIES_DCP_TYPE;
               self.metadata[self.targetDataSeries.name]['identifier'] = 'table_name';
+              self.modelStorager.monitored_object_id = self.targetDataSeries.id;
               break;
             case Globals.enums.AnalysisType.GRID:
               analysisTypeId = Globals.enums.AnalysisDataSeriesType.DATASERIES_GRID_TYPE;
