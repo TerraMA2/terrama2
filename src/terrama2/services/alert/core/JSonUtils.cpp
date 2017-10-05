@@ -136,15 +136,44 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
     auto obj = json["view"].toObject();
     AlertView view;
     view.geoserverUri = obj["geoserver_uri"].toString().toStdString();
-    double top = obj["top"].toDouble();
-    double bottom = obj["bottom"].toDouble();
-    double left = obj["left"].toDouble();
-    double right = obj["right"].toDouble();
-    view.topRightCorner = te::gm::Coord2D(right, top);
-    view.topRightCorner = te::gm::Coord2D(left, bottom);
-    view.srid = static_cast<Srid>(obj["srid"].toInt());
-    view.width = static_cast<uint32_t>(obj["width"].toInt());
-    view.height = static_cast<uint32_t>(obj["height"].toInt());
+    if(obj.contains("ẗop")
+       && obj.contains("bottom")
+       && obj.contains("left")
+       && obj.contains("right")
+       && obj.contains("srid"))
+    {
+      double top = obj["top"].toDouble();
+      double bottom = obj["bottom"].toDouble();
+      double left = obj["left"].toDouble();
+      double right = obj["right"].toDouble();
+      view.topRightCorner = te::gm::Coord2D(right, top);
+      view.topRightCorner = te::gm::Coord2D(left, bottom);
+      view.srid = static_cast<Srid>(obj["srid"].toInt());
+    }
+    else
+    {
+      view.srid = 4326;
+    }
+
+    if(obj.contains("width")
+       && obj.contains("height"))
+    {
+       view.width = static_cast<uint32_t>(obj["width"].toInt());
+       view.height = static_cast<uint32_t>(obj["height"].toInt());
+    }
+    else
+    {
+      view.width = 768;
+      view.height = 589;
+    }
+
+    auto jsonArray = obj["layers"].toArray();
+    for(const auto& value : jsonArray)
+    {
+      auto layer = value.toObject();
+      view.views.emplace_back(layer["view_id"].toInt(), layer["workspace"].toString().toStdString());
+    }
+
     alert->view = boost::optional<AlertView>(view);
   }
 

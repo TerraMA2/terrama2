@@ -130,13 +130,17 @@ namespace terrama2
             ],
             "view"[OPTIONAL]: {
                 "geoserver_uri": STRING,
-                "top": DOUBLE,
-                "bottom": DOUBLE,
-                "left": DOUBLE,
-                "right": DOUBLE,
-                "srid": INT,
-                "width": INT,
-                "height": INT
+                "top"[OPTIONAL]: DOUBLE,
+                "bottom"[OPTIONAL]: DOUBLE,
+                "left"[OPTIONAL]: DOUBLE,
+                "right"[OPTIONAL]: DOUBLE,
+                "srid"[OPTIONAL]: INT,
+                "width"[OPTIONAL]: INT,
+                "height"[OPTIONAL]: INT,
+                "layers": [
+                  "view_id": INT,
+                  "workspace": STRING
+                ]
             }
           }
         */
