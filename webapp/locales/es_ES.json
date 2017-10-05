@@ -1036,5 +1036,6 @@
   " Data Series": " Data Series",
   "Dcp Data Series": "Séries de Dados PCD",
   "Object Monitored Data Series": "Objeto Monitorado",
-  "Insert a value if you want to update the password": ""
+  "Insert a value if you want to update the password": "",
+	"Transfer Shapefile": ""
 }

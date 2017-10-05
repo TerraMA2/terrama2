@@ -8,6 +8,7 @@ define([], function() {
     $scope.isDynamic = configuration.dataSeriesType === "dynamic";
     $scope.hasProjectPermission = configuration.hasProjectPermission;
     $scope.semantics = "";
+    $scope.semanticsCode = "";
     var queryParameters = {
       metadata: true,
       type: $scope.isDynamic ? "dynamic" : "static"
@@ -420,6 +421,8 @@ define([], function() {
           $scope.semanticsSelected = true;
 
         $scope.semantics = $scope.dataSeries.semantics.data_series_type_name;
+        $scope.semanticsCode = $scope.dataSeries.semantics.code;
+
         if (!$scope.isUpdating){
           $scope.csvFormatData = { fields: [{type: "DATETIME"}], convert_all: false};
           clearStoreForm();
