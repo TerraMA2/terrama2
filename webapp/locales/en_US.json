@@ -859,6 +859,7 @@
   "To import this file you need to have at least one project": "To import this file you need to have at least one project",
   "To import this file you need to have at least one view service": "To import this file you need to have at least one view service",
   "To upload your shapefile you have to create a .zip compressed file containing all the shapefile files (.shp, .dbf, .shx, etc). The size limit is 300 MB per file, therefore, neither of the shapefile files can be larger than 300 MB.": "To upload your shapefile you have to create a .zip compressed file containing all the shapefile files (.shp, .dbf, .shx, etc). The size limit is 300 MB per file, therefore, neither of the shapefile files can be larger than 300 MB.",
+  "Transfer Shapefile": "Transfer Shapefile",
   "Tuesday": "Tuesday",
   "Type": "Type",
   "Type a projetion": {

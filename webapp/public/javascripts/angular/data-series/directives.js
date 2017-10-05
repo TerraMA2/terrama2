@@ -90,13 +90,13 @@ define([], function() {
       $templateCache.put(
         "importShapefile.html",
         "<div id=\"shapefile-import-loader\" class=\"hidden\"><img src=\"" + BASE_URL + "images/loader.gif\"/></div>" +
-        "<button class=\"btn btn-default\" ng-click=\"openImportShapefileModal()\">{{ i18n.__('Import Shapefile') }}</button>" +
+        "<button class=\"btn btn-default\" ng-click=\"openImportShapefileModal()\">{{ i18n.__('Transfer Shapefile') }}</button>" +
         "<div class=\"modal fade\" id=\"shapefileModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"shapefileModalLabel\">" +
           "<div class=\"modal-dialog modal-md\" role=\"document\">" +
             "<div class=\"modal-content\">" +
               "<div class=\"modal-header\">" +
                 "<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button>" +
-                "<h4 class=\"modal-title\" id=\"shapefileModalLabel\">{{ i18n.__('Import Shapefile') }}</h4>" +
+                "<h4 class=\"modal-title\" id=\"shapefileModalLabel\">{{ i18n.__('Transfer Shapefile') }}</h4>" +
                 "<br/>" +
                 "<p><strong>{{ i18n.__('Important!') }}</strong> {{ i18n.__('To upload your shapefile you have to create a .zip compressed file containing all the shapefile files (.shp, .dbf, .shx, etc). The size limit is 300 MB per file, therefore, neither of the shapefile files can be larger than 300 MB.') }}</p>" +
               "</div>" +
