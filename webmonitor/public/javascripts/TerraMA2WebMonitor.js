@@ -306,7 +306,7 @@ define(
             Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.OFFLINE);
             Layers.changeParentLayerStatus(parent, LayerStatusEnum.OFFLINE);
           } else {
-            listElement[0].removeAttribute("title");
+            listElement[0].setAttribute("title", layerObject.name);
             if(inputElement.hasClass("disabled-content"))
               inputElement.removeClass("disabled-content");
 

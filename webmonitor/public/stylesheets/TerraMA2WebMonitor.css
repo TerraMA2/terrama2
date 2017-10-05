@@ -463,10 +463,10 @@ html, body, #content, .content, .content-wrapper, #terrama2-map {
   .slider-content button[class~="close-slider"]{
     margin-top: -25px !important;
   }
+}
 
-  .terrama2-layer-tools {
-    margin-top: -20px !important;
-  }
+.terrama2-layer-tools {
+  margin-top: -19px !important;
 }
 
 .map-tool-button {
@@ -915,4 +915,12 @@ html, body, #content, .content, .content-wrapper, #terrama2-map {
   background: #1a2226;
   white-space: normal;
   padding-right: 17px;
+}
+
+#terrama2-sortlayers ul li span.layer-name {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  display: block;
+  overflow: hidden;
+  width: 145px;
 }
