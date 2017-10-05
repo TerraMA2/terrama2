@@ -705,7 +705,7 @@ html, body, #content, .content, .content-wrapper, #terrama2-map {
   top: 21px;
 }
 
-#legend-box > .legend-header, #layer-toolbox .layer-toolbox-header{
+#legend-box > .legend-header, #layer-toolbox .layer-toolbox-header {
   padding: 10px;
   color: #000000;
   overflow: hidden;
@@ -714,6 +714,24 @@ html, body, #content, .content, .content-wrapper, #terrama2-map {
   font-size: 18px;
   border-bottom: 1px solid;
   height: 45px;
+}
+
+#layer-toolbox .layer-toolbox-header { padding: 10px 0 10px 0 !important; }
+
+#layer-toolbox .layer-toolbox-header span.layer-name {
+  width: 220px;
+  display: block;
+  margin: 0 40px 0 40px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+#layer-toolbox .layer-toolbox-header span.btn {
+  padding: 0 4px 0 4px;
+  float: right;
+  margin-top: -24px;
+  margin-right: 9px;
 }
 
 #legend-box > .legend-body, #layer-toolbox .layer-toolbox-body {

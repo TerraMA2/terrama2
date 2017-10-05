@@ -157,6 +157,7 @@ define(
         if(layer !== null) {
           var openLayerToolbox = function() {
             $("#layer-toolbox .layer-toolbox-header > .layer-name").text(layer.name);
+            $("#layer-toolbox .layer-toolbox-header > .layer-name").attr("title", layer.name);
 
             if(layer.description) {
               $("#layer-toolbox .layer-toolbox-body .layer-description .box-body").text(layer.description);
