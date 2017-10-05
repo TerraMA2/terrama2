@@ -79,8 +79,8 @@ namespace terrama2
         {
           std::string geoserverUri;
           std::vector<std::pair<ViewID, std::string> > views;
-          te::gm::Coord2D topRightCorner;
-          te::gm::Coord2D lowerLeftCorner;
+          boost::optional<te::gm::Coord2D> topRightCorner;
+          boost::optional<te::gm::Coord2D> lowerLeftCorner;
           Srid srid;
           uint32_t width=768;
           uint32_t height=659;

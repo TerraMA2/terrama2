@@ -35,6 +35,7 @@
 #include "../../../core/utility/DataAccessorFactory.hpp"
 #include "../../../core/utility/TimeUtils.hpp"
 #include "../../../core/utility/TeDataSetFKJoin.hpp"
+#include "../../../core/utility/CurlWrapperHttp.hpp"
 #include "../../../core/data-access/DataAccessor.hpp"
 #include "../../../core/data-model/Risk.hpp"
 #include "utility/NotifierFactory.hpp"
@@ -654,19 +655,33 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
         return;
       }
 
+      te::core::URI imageUri;
+      if(alertPtr->view)
+      {
+        try
+        {
+          imageUri = generateImage(alertPtr, remover);
+        }
+        catch (const ImageGenerationException&)
+        {
+          /* code */
+        }
+      }
+
       ReportPtr reportPtr = std::make_shared<Report>(alertPtr, legend, inputDataSeries, alertDataSet, vecDates);
+      reportPtr->includeImage(imageUri);
       for(const auto& notification : alertPtr->notifications)
       {
-        std::string documentURI = makeDocument(reportPtr, notification, executionPackage, logger);
-
         //check if should emit a notification
         if((notification.notifyOnRiskLevel <= reportPtr->maxRisk())
             || (notification.notifyOnChange && reportPtr->riskChanged()))
         {
           notify = true;
-          sendNotification(serverMap, reportPtr, notification, documentURI, executionPackage, logger);
+          sendNotification(serverMap, reportPtr, notification, executionPackage, logger);
         }
       }
+
+
 
       alertGenerated = true;
     }
@@ -732,7 +747,86 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
   }
 }
 
-std::string terrama2::services::alert::core::AlertExecutor::makeDocument(ReportPtr reportPtr, const Notification& notification, const terrama2::core::ExecutionPackage& executionPackage, std::shared_ptr< AlertLogger > logger) const
+te::core::URI terrama2::services::alert::core::AlertExecutor::generateImage(AlertPtr alertPtr,
+                                                                            std::shared_ptr<terrama2::core::FileRemover> remover)
+{
+  auto view = *alertPtr->view;
+  if(view.views.empty())
+  {
+    QString errMsg("Empty list of layers.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ImageGenerationException() << ErrorDescription(errMsg);
+  }
+
+  //build request
+  auto geoserverUri = view.geoserverUri;
+  geoserverUri+="/wms?service=WMS&version=1.1.0&request=GetMap&format=image%2Fvnd.jpeg-png";
+
+  // Configure image size
+  geoserverUri+= "&width="+std::to_string(view.width)
+                 +"&height="+std::to_string(view.height);
+
+  if(view.lowerLeftCorner && view.topRightCorner)
+  {
+    auto lowerLeftCorner = *view.lowerLeftCorner;
+    auto topRightCorner = *view.topRightCorner;
+  // Configure bounding box
+    geoserverUri+= "&bbox="+std::to_string(lowerLeftCorner.getX())
+                   +","+std::to_string(lowerLeftCorner.getY())
+                   +","+std::to_string(topRightCorner.getX())
+                   +","+std::to_string(topRightCorner.getY());
+  }
+
+  //add layers to request
+  geoserverUri+="&layers=";
+  for(const auto& layer : view.views)
+  {
+    geoserverUri+=layer.second+":view"+std::to_string(layer.first)+",";
+  }
+  // remove last comma
+  geoserverUri.pop_back();
+
+  //add projection system
+  geoserverUri+="&srs=EPSG:"+std::to_string(view.srid);
+
+  //add time restriction
+  geoserverUri+="&TIME="+terrama2::core::TimeUtils::getISOString(alertPtr->filter.discardAfter);
+
+  // generate temporary image name
+  auto imageName = terrama2::core::simplifyString(alertPtr->name)+".jpg";
+
+  // create temporary folder
+  boost::filesystem::path tempDir = boost::filesystem::temp_directory_path();
+  boost::filesystem::path tempTerrama(tempDir.string()+"/terrama2");
+  boost::filesystem::path downloadBaseDir = boost::filesystem::unique_path(tempTerrama.string()+"/%%%%-%%%%-%%%%-%%%%");
+  // Create the directory where you will download the files.
+  QDir dir(QString::fromStdString(downloadBaseDir.string()));
+  if(!dir.exists())
+    dir.mkpath(QString::fromStdString(downloadBaseDir.string()));
+
+  auto imagePath = downloadBaseDir.string()+"/"+imageName;
+  remover->addTemporaryFile(imagePath);
+
+// download image
+  try
+  {
+    terrama2::core::CurlWrapperHttp curl;
+    curl.downloadFile(geoserverUri, imagePath);
+
+    if(curl.responseCode() != 200)
+    {
+      QString errMsg("Error retrieving image.");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw ImageGenerationException() << ErrorDescription(errMsg);
+    }
+  } catch (const te::core::Exception&) {
+    return te::core::URI();
+  }
+
+  return te::core::URI("file://"+imagePath);
+}
+
+te::core::URI terrama2::services::alert::core::AlertExecutor::makeDocument(ReportPtr reportPtr, const Notification& notification, const terrama2::core::ExecutionPackage& executionPackage, std::shared_ptr< AlertLogger > logger) const
 {
   try
   {
@@ -751,16 +845,16 @@ std::string terrama2::services::alert::core::AlertExecutor::makeDocument(ReportP
     TERRAMA2_LOG_ERROR() << errMsg;
   }
 
-  return "";
+  return te::core::URI();
 }
 
 void terrama2::services::alert::core::AlertExecutor::sendNotification(const std::map<std::string, std::string>& serverMap,
                                                                       ReportPtr reportPtr,
                                                                       const Notification& notification,
-                                                                      const std::string& documentURI,
                                                                       terrama2::core::ExecutionPackage executionPackage,
                                                                       std::shared_ptr< AlertLogger > logger) const
 {
+  te::core::URI documentURI = makeDocument(reportPtr, notification, executionPackage, logger);
   try
   {
     if(serverMap.empty())
@@ -772,7 +866,8 @@ void terrama2::services::alert::core::AlertExecutor::sendNotification(const std:
     else
     {
       NotifierPtr notifierPtr = NotifierFactory::getInstance().make("EMAIL", serverMap, reportPtr);
-      notifierPtr->send(notification, documentURI);
+      notifierPtr->send(notification,
+                        documentURI);
     }
   }
   catch(const NotifierException& e)

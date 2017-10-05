@@ -65,8 +65,7 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
   }
 
 
-  terrama2::services::alert::core::Alert* alert = new terrama2::services::alert::core::Alert();
-  terrama2::services::alert::core::AlertPtr alertPtr(alert);
+  auto alert = std::make_shared<terrama2::services::alert::core::Alert>();
 
   alert->id = static_cast<uint32_t>(json["id"].toInt());
   alert->projectId = static_cast<uint32_t>(json["project_id"].toInt());
@@ -134,7 +133,7 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
 
   if(json.contains("view"))
   {
-    auto obj = json["view"];
+    auto obj = json["view"].toObject();
     AlertView view;
     view.geoserverUri = obj["geoserver_uri"].toString().toStdString();
     double top = obj["top"].toDouble();
@@ -146,10 +145,10 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
     view.srid = static_cast<Srid>(obj["srid"].toInt());
     view.width = static_cast<uint32_t>(obj["width"].toInt());
     view.height = static_cast<uint32_t>(obj["height"].toInt());
-    alertPtr->view = view;
+    alert->view = boost::optional<AlertView>(view);
   }
 
-  return alertPtr;
+  return alert;
 }
 
 QJsonObject terrama2::services::alert::core::toJson(AlertPtr alert)
