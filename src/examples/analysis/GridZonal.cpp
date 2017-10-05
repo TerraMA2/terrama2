@@ -26,8 +26,10 @@
 
 
 #include <terrama2/Config.hpp>
-#include "UtilsPostGis.hpp"
-#include "UtilsGeotiff.hpp"
+
+#include <examples/data/StaticPostGis.hpp>
+#include <examples/data/Geotiff.hpp>
+#include <examples/data/ResultAnalysisPostGis.hpp>
 
 
 // QT
@@ -41,6 +43,7 @@ int main(int argc, char* argv[])
 {
 
   terrama2::core::TerraMA2Init terramaRaii("example", 0);
+  Q_UNUSED(terramaRaii);
 
   terrama2::core::registerFactories();
 
@@ -84,14 +87,15 @@ int main(int argc, char* argv[])
     service.start();
 
 
-    using namespace terrama2::examples::analysis::utilspostgis;
-    // DataProvider information
-    auto dataProvider = dataProviderPostGis();
-    dataManager->add(dataProvider);
+    /*
+     *  DataProvider and DataSeries store resultAnalysis
+    */
 
 
-    // DataSeries information
-    auto outputDataSeries = outputDataSeriesPostGis(dataProvider, zonal_analysis_result);
+    auto dataProviderResult = terrama2::resultanalysis::dataProviderResultAnalysis();
+    dataManager->add(dataProviderResult);
+
+    auto outputDataSeries = terrama2::resultanalysis::resultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::zonal_analysis_result);
     dataManager->add(outputDataSeries);
 
 
@@ -111,8 +115,15 @@ add_value("min", x))z";
     analysis->serviceInstanceId = 1;
 
 
+    /*
+     *  DataProvider and DataSeries static-postgis Estados_2010
+    */
 
-    auto dataSeries = dataSeriesPostGis(dataProvider);
+
+    auto dataProviderStatic = terrama2::staticpostgis::dataProviderStaticPostGis();
+    dataManager->add(dataProviderStatic);
+
+    auto dataSeries = terrama2::staticpostgis::dataSeriesEstados2010(dataProviderStatic);
     dataManager->add(dataSeries);
 
     AnalysisDataSeries monitoredObjectADS;
@@ -121,14 +132,15 @@ add_value("min", x))z";
     monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
     monitoredObjectADS.metadata["identifier"] = "fid";
 
+    /*
+     *  DataProvider and DataSeries geotiff SpotVegetacao
+    */
 
-    using namespace terrama2::examples::analysis::utilsgeotiff;
-    // DataProvider information
-    auto dataProviderSpot = dataProviderFile();
-    dataManager->add(dataProviderSpot);
+    auto dataProviderGrid = terrama2::geotiff::dataProviderFileGrid();
+    dataManager->add(dataProviderGrid);
 
 
-    auto dataSeriesSpot = dataSeriesSpotVegetacao(dataProviderSpot);
+    auto dataSeriesSpot = terrama2::geotiff::dataSeriesSpotVegetacao(dataProviderGrid);
     dataManager->add(dataSeriesSpot);
 
     AnalysisDataSeries gridADS1;

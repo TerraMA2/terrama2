@@ -18,7 +18,9 @@
 
 #include <terrama2/services/analysis/mock/MockAnalysisLogger.hpp>
 
-#include "UtilsGeotiff.hpp"
+
+#include <examples/data/Geotiff.hpp>
+
 
 #include <terrama2/impl/Utils.hpp>
 #include <terrama2/Config.hpp>
@@ -36,6 +38,7 @@ using namespace terrama2::services::analysis::core;
 int main(int argc, char* argv[])
 {
   terrama2::core::TerraMA2Init terramaRaii("example", 0);
+  Q_UNUSED(terramaRaii);
 
   terrama2::core::registerFactories();
 
@@ -46,18 +49,20 @@ int main(int argc, char* argv[])
 
     auto dataManager = std::make_shared<terrama2::services::analysis::core::DataManager>();
 
-    using namespace terrama2::examples::analysis::utilsgeotiff;
+    /*
+     * DataProvider and dataSeries
+    */
 
-    auto dataProvider = dataProviderFile();
+    auto dataProvider = terrama2::geotiff::dataProviderFileGrid();
     dataManager->add(dataProvider);
 
 
-    auto outputDataSeries = terrama2::examples::analysis::utilsgeotiff::outputDataSeries(dataProvider,output_grid);
+    auto outputDataSeries = terrama2::geotiff::resultAnalysisGrid(dataProvider,terrama2::geotiff::nameoutputgrid::output_grid);
     dataManager->add(outputDataSeries);
 
 
 
-    auto dataSeries = dataSeriesL5219076(dataProvider);
+    auto dataSeries = terrama2::geotiff::dataSeriesL5219076(dataProvider);
     dataManager->add(dataSeries);
 
 

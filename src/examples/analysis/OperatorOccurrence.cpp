@@ -23,8 +23,11 @@
 
 #include <terrama2/impl/Utils.hpp>
 
-#include "UtilsDCPSerrmarInpe.hpp"
-#include "UtilsPostGis.hpp"
+
+
+#include <examples/data/ResultAnalysisPostGis.hpp>
+#include <examples/data/OccurrenceWFP.hpp>
+#include <examples/data/StaticPostGis.hpp>
 
 
 // STL
@@ -43,6 +46,7 @@ int main(int argc, char* argv[])
 {
 
   terrama2::core::TerraMA2Init terramaRaii("example", 0);
+  Q_UNUSED(terramaRaii);
 
   terrama2::core::registerFactories();
 
@@ -83,11 +87,16 @@ int main(int argc, char* argv[])
   service.setLogger(logger);
   service.start();
 
-  using namespace terrama2::examples::analysis::utilspostgis;
-  auto dataProvider = dataProviderPostGis();
-  dataManager->add(dataProvider);
 
-  auto outputDataSeries = outputDataSeriesPostGis(dataProvider, occurrence_analysis_result);
+
+  /*
+   * DataProvider and dataSeries result
+  */
+  auto dataProviderResult = terrama2::resultanalysis::dataProviderResultAnalysis();
+  dataManager->add(dataProviderResult);
+
+
+  auto outputDataSeries = terrama2::resultanalysis::resultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::occurrence_analysis_result);
   dataManager->add(outputDataSeries);
 
 
@@ -108,8 +117,16 @@ add_value("count", x))z";
   analysis->serviceInstanceId = 1;
 
 
-  auto dataSeries = dataSeriesPostGis(dataProvider);
+  /*
+   * DataProvider and dataSeries Static
+  */
+
+  auto dataProviderStatic = terrama2::staticpostgis::dataProviderStaticPostGis();
+  dataManager->add(dataProviderStatic);
+
+  auto dataSeries = terrama2::staticpostgis::dataSeriesEstados2010(dataProviderStatic);
   dataManager->add(dataSeries);
+
 
   AnalysisDataSeries monitoredObjectADS;
   monitoredObjectADS.id = 1;
@@ -117,9 +134,14 @@ add_value("count", x))z";
   monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
   monitoredObjectADS.metadata["identifier"] = "fid";
 
+  /*
+   * DataProvider and dataSeries Occurrence
+  */
 
-  //Data Occurrence
-  auto occurrenceDataSeries = occurrenceDataSeriesPostGis(dataProvider);
+  auto dataProviderOcc = terrama2::occurrencewfp::dataProviderPostGisOccWFP();
+  dataManager->add(dataProviderOcc);
+
+  auto occurrenceDataSeries = terrama2::occurrencewfp::occurrenceWfpPostgis(dataProviderOcc);
   dataManager->add(occurrenceDataSeries);
 
   AnalysisDataSeries occurrenceADS;

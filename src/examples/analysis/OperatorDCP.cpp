@@ -20,8 +20,9 @@
 #include <terrama2/impl/Utils.hpp>
 #include <terrama2/Config.hpp>
 
-#include "UtilsPostGis.hpp"
-#include "UtilsDCPSerrmarInpe.hpp"
+#include <examples/data/DCPSerramarInpe.hpp>
+#include <examples/data/ResultAnalysisPostGis.hpp>
+#include <examples/data/StaticPostGis.hpp>
 
 
 #include <iostream>
@@ -37,6 +38,7 @@ using namespace terrama2::services::analysis::core;
 int main(int argc, char* argv[])
 {
   terrama2::core::TerraMA2Init terramaRaii("example", 0);
+  Q_UNUSED(terramaRaii);
 
   terrama2::core::registerFactories();
 
@@ -78,14 +80,16 @@ int main(int argc, char* argv[])
     service.setLogger(logger);
     service.start();
 
-    using namespace terrama2::examples::analysis::utilspostgis;
-    using namespace terrama2::examples::analysis::utilsdcpserrmarinpe;
 
-    auto dataProvider = dataProviderPostGis();
-    dataManager->add(dataProvider);
+    /*
+     * DataProvider and DataSeries Result analysis
+    */
+
+    auto dataProviderResult = terrama2::resultanalysis::dataProviderResultAnalysis();
+    dataManager->add(dataProviderResult);
 
 
-    auto outputDataSeries = outputDataSeriesPostGis(dataProvider, dcp_result);
+    auto outputDataSeries = terrama2::resultanalysis::resultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::dcp_result);
     dataManager->add(outputDataSeries);
 
    std::string script =
@@ -121,31 +125,40 @@ add_value("standard_deviation", x))z";
     analysis->metadata["INFLUENCE_RADIUS_UNIT"] = "km";
 
 
+    /*
+     * DataProvider and DataSeries Static
+    */
 
-    auto dataSeriesEstados2010 = dataSeriesPostGis(dataProvider);
-    dataManager->add(dataSeriesEstados2010);
+    auto dataProviderStatic = terrama2::staticpostgis::dataProviderStaticPostGis();
+    dataManager->add(dataProviderStatic);
+
+    auto dataSeriesEstados = terrama2::staticpostgis::dataSeriesEstados2010(dataProviderStatic);
+    dataManager->add(dataSeriesEstados);
 
     AnalysisDataSeries monitoredObjectADS;
     monitoredObjectADS.id = 1;
-    monitoredObjectADS.dataSeriesId = dataSeriesEstados2010->id;
+    monitoredObjectADS.dataSeriesId = dataSeriesEstados->id;
     monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
     monitoredObjectADS.metadata["identifier"] = "fid";
 
 
-    auto dataProviderDCPSerrmar = dataProviderFile();
+    /*
+     * DataProvider and DataSeries Serramar
+    */
+    auto dataProviderDCPSerrmar = terrama2::serramar::dataProviderSerramarInpe();
     dataManager->add(dataProviderDCPSerrmar);
 
 
 
-    auto dcpSeriesSerrMar = dataSeries(dataProviderDCPSerrmar);
-
+    auto dcpSeriesSerrMar = terrama2::serramar::dcpSerramar(dataProviderDCPSerrmar);
+    dataManager->add(dcpSeriesSerrMar);
 
     AnalysisDataSeries dcpADS;
     dcpADS.id = 2;
     dcpADS.dataSeriesId = dcpSeriesSerrMar->id;
     dcpADS.type = AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE;
 
-    dataManager->add(dcpSeriesSerrMar);
+
 
 
     std::vector<AnalysisDataSeries> analysisDataSeriesList;

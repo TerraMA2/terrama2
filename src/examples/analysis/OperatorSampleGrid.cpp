@@ -1,24 +1,18 @@
 #include <terrama2/core/Shared.hpp>
-#include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/core/utility/TimeUtils.hpp>
 #include <terrama2/core/utility/TerraMA2Init.hpp>
 #include <terrama2/core/utility/ServiceManager.hpp>
-#include <terrama2/core/utility/SemanticsManager.hpp>
-#include <terrama2/core/data-model/DataProvider.hpp>
-#include <terrama2/core/data-model/DataSeries.hpp>
-#include <terrama2/core/data-model/DataSet.hpp>
-#include <terrama2/core/data-model/DataSetGrid.hpp>
 
-#include <terrama2/services/analysis/core/python/PythonInterpreter.hpp>
-#include <terrama2/services/analysis/core/utility/PythonInterpreterInit.hpp>
 #include <terrama2/services/analysis/core/Analysis.hpp>
-#include <terrama2/services/analysis/core/Service.hpp>
 #include <terrama2/services/analysis/core/DataManager.hpp>
+#include <terrama2/services/analysis/core/Service.hpp>
+#include <terrama2/services/analysis/core/utility/PythonInterpreterInit.hpp>
+#include <terrama2/services/analysis/core/Shared.hpp>
 
 
 #include <terrama2/services/analysis/mock/MockAnalysisLogger.hpp>
 
-#include "UtilsGeotiff.hpp"
+#include <examples/data/Geotiff.hpp>
 
 #include <terrama2/impl/Utils.hpp>
 #include <terrama2/Config.hpp>
@@ -36,6 +30,8 @@ using namespace terrama2::services::analysis::core;
 int main(int argc, char* argv[])
 {
   terrama2::core::TerraMA2Init terramaRaii("example", 0);
+  Q_UNUSED(terramaRaii);
+
 
   terrama2::core::registerFactories();
 
@@ -78,19 +74,17 @@ int main(int argc, char* argv[])
     service.setLogger(logger);
     service.start();
 
-    using namespace terrama2::examples::analysis::utilsgeotiff;
 
-    auto dataProvider = dataProviderFile();
+    auto dataProvider = terrama2::geotiff::dataProviderFileGrid();
     dataManager->add(dataProvider);
 
 
-    auto outputDataSeriesGrid = outputDataSeries(dataProvider,output_grid);
+    auto outputDataSeriesGrid = terrama2::geotiff::resultAnalysisGrid(dataProvider,terrama2::geotiff::nameoutputgrid::output_grid);
     dataManager->add(outputDataSeriesGrid);
 
 
 
-
-    auto dataSeries = dataSeriesL5219076(dataProvider);
+    auto dataSeries = terrama2::geotiff::dataSeriesL5219076(dataProvider);
     dataManager->add(dataSeries);
 
 

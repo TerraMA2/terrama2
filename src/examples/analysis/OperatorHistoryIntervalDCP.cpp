@@ -23,8 +23,11 @@
 
 #include <iostream>
 
-#include "UtilsDCPSerrmarInpe.hpp"
-#include "UtilsPostGis.hpp"
+
+#include <examples/data/DCPSerramarInpe.hpp>
+#include <examples/data/ResultAnalysisPostGis.hpp>
+#include <examples/data/StaticPostGis.hpp>
+
 
 // QT
 #include <QTimer>
@@ -36,6 +39,7 @@ using namespace terrama2::services::analysis::core;
 int main(int argc, char* argv[])
 {
   terrama2::core::TerraMA2Init terramaRaii("example", 0);
+  Q_UNUSED(terramaRaii);
 
   terrama2::core::registerFactories();
 
@@ -78,13 +82,14 @@ int main(int argc, char* argv[])
   service.start();
 
 
-  using namespace terrama2::examples::analysis::utilspostgis;
+  /*
+   * DataProvider and dataSeries result
+  */
+  auto dataProviderResult = terrama2::resultanalysis::dataProviderResultAnalysis();
+  dataManager->add(dataProviderResult);
 
-  auto dataProvider = dataProviderPostGis();
-  dataManager->add(dataProvider);
 
-
-  auto outputDataSeries = outputDataSeriesPostGis(dataProvider, dcp_history_interval_result);
+  auto outputDataSeries = terrama2::resultanalysis::resultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::dcp_history_interval_result);
   dataManager->add(outputDataSeries);
 
 
@@ -120,9 +125,14 @@ add_value("history_standard_deviation",x))z";
   analysis->metadata["INFLUENCE_RADIUS"] = "50";
   analysis->metadata["INFLUENCE_RADIUS_UNIT"] = "km";
 
+  /*
+   * DataProvider and dataSeries Static
+  */
 
-  //dataSeries Static Data PostGis estados_2010
-  auto dataSeries = dataSeriesPostGis(dataProvider);
+  auto dataProviderStatic = terrama2::staticpostgis::dataProviderStaticPostGis();
+  dataManager->add(dataProviderStatic);
+
+  auto dataSeries = terrama2::staticpostgis::dataSeriesEstados2010(dataProviderStatic);
   dataManager->add(dataSeries);
 
   AnalysisDataSeries monitoredObjectADS;
@@ -132,13 +142,17 @@ add_value("history_standard_deviation",x))z";
   monitoredObjectADS.metadata["identifier"] = "fid";
 
 
-  using namespace terrama2::examples::analysis::utilsdcpserrmarinpe;
-  //DataProvider File folder PCD_serrmar_INPE
-  auto dataProviderDCP = dataProviderFile();
+  /*
+   * DataProvider and dataSeries Serramar
+  */
+
+  auto dataProviderDCP = terrama2::serramar::dataProviderPostGisDCP();
   dataManager->add(dataProviderDCP);
 
-  auto dcpSeries = dataSeriesDCP69031(dataProviderDCP);
+
+  auto dcpSeries = terrama2::serramar::dcpSerramarPostgis(dataProviderDCP);
   dataManager->add(dcpSeries);
+
 
   AnalysisDataSeries dcpADS;
   dcpADS.id = 2;
@@ -153,7 +167,7 @@ add_value("history_standard_deviation",x))z";
 
   dataManager->add(analysis);
 
-  service.addToQueue(analysis->id, terrama2::core::TimeUtils::stringToTimestamp("2008-02-25T03:00:00.00-02:00", terrama2::core::TimeUtils::webgui_timefacet));
+  service.addToQueue(analysis->id, terrama2::core::TimeUtils::stringToTimestamp("2008-07-21T10:00:00-03:00", terrama2::core::TimeUtils::webgui_timefacet));
 
 
 

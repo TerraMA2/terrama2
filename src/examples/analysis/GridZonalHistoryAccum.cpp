@@ -26,8 +26,10 @@
 
 
 #include <terrama2/Config.hpp>
-#include "UtilsPostGis.hpp"
-#include "UtilsGeotiff.hpp"
+
+#include <examples/data/ResultAnalysisPostGis.hpp>
+#include <examples/data/StaticPostGis.hpp>
+#include <examples/data/Geotiff.hpp>
 
 // QT
 #include <QTimer>
@@ -40,6 +42,7 @@ int main(int argc, char* argv[])
 {
 
   terrama2::core::TerraMA2Init terramaRaii("example", 0);
+  Q_UNUSED(terramaRaii);
 
   terrama2::core::registerFactories();
 
@@ -80,15 +83,14 @@ int main(int argc, char* argv[])
     service.setLogger(logger);
     service.start();
 
-    using namespace terrama2::examples::analysis::utilspostgis;
-    using namespace terrama2::examples::analysis::utilsgeotiff;
 
     // DataProvider information
-    auto dataProvider = dataProviderPostGis();
-    dataManager->add(dataProvider);
+
+    auto dataProviderResult = terrama2::resultanalysis::dataProviderResultAnalysis();
+    dataManager->add(dataProviderResult);
 
     // DataSeries information
-    auto outputDataSeries = outputDataSeriesPostGis(dataProvider, zonal_history_ratio_analysis_result);
+    auto outputDataSeries = terrama2::resultanalysis::resultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::zonal_history_ratio_analysis_result);
     dataManager->add(outputDataSeries);
 
     std::shared_ptr<terrama2::services::analysis::core::Analysis> analysis = std::make_shared<terrama2::services::analysis::core::Analysis>();
@@ -107,7 +109,12 @@ add_value("max", x))z";
     analysis->serviceInstanceId = 1;
 
 
-    auto dataSeries = dataSeriesPostGis(dataProvider);
+    //Static-Postgis Estados2010
+
+    auto dataProviderStatic = terrama2::staticpostgis::dataProviderStaticPostGis();
+    dataManager->add(dataProviderStatic);
+
+    auto dataSeries = terrama2::staticpostgis::dataSeriesEstados2010(dataProviderStatic);
     dataManager->add(dataSeries);
 
     AnalysisDataSeries monitoredObjectADS;
@@ -119,10 +126,10 @@ add_value("max", x))z";
 
 
     // DataProvider information
-    auto dataProviderSpot = dataProviderFile();
+    auto dataProviderSpot = terrama2::geotiff::dataProviderFileGrid();
     dataManager->add(dataProviderSpot);
 
-    auto dataSeriesSpot = dataSeriesSpotVegetacao(dataProviderSpot);
+    auto dataSeriesSpot = terrama2::geotiff::dataSeriesSpotVegetacao(dataProviderSpot);
     dataManager->add(dataSeriesSpot);
 
     AnalysisDataSeries gridADS1;

@@ -23,7 +23,7 @@
 
 #include <terrama2/Config.hpp>
 
-#include "UtilsGeotiff.hpp"
+#include <examples/data/Geotiff.hpp>
 
 // QT
 #include <QTimer>
@@ -34,6 +34,7 @@ using namespace terrama2::services::analysis::core;
 int main(int argc, char* argv[])
 {
   terrama2::core::TerraMA2Init terramaRaii("example", 0);
+  Q_UNUSED(terramaRaii);
 
   terrama2::core::registerFactories();
 
@@ -65,31 +66,31 @@ int main(int argc, char* argv[])
     EXPECT_CALL(*logger, clone()).WillRepeatedly(::testing::Return(loggerCopy));
     EXPECT_CALL(*logger, isValid()).WillRepeatedly(::testing::Return(true));
 
-    te::core::URI uri("");
 
     Service service(dataManager);
     serviceManager.setInstanceId(1);
     serviceManager.setLogger(logger);
-    serviceManager.setLogConnectionInfo(uri);
+    serviceManager.setLogConnectionInfo(te::core::URI(""));
 
     service.setLogger(logger);
     service.start();
 
 
-    using namespace terrama2::examples::analysis::utilsgeotiff;
+
+
     // DataProvider information
-    auto dataProvider = dataProviderFile();
+    auto dataProvider = terrama2::geotiff::dataProviderFileGrid();
     dataManager->add(dataProvider);
 
 
     //DataSeries information
-    auto outputDataSeries_History = outputDataSeries(dataProvider, output_history);
+    auto outputDataSeries_History = terrama2::geotiff::resultAnalysisGrid(dataProvider, terrama2::geotiff::nameoutputgrid::output_history);
     dataManager->add(outputDataSeries_History);
 
 
 
     //DATASERIES AND DATASET folder TERRAMA2_DATA_DIR+"/geotiff/historical
-    auto dataSeriesHistory = dataSeries(dataProvider);
+    auto dataSeriesHistory = terrama2::geotiff::dataSeriesHistorical(dataProvider);
     dataManager->add(dataSeriesHistory);
 
 

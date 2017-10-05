@@ -22,7 +22,9 @@
 
 #include <terrama2/Config.hpp>
 
-#include "UtilsPostGis.hpp"
+#include <examples/data/ResultAnalysisPostGis.hpp>
+#include <examples/data/StaticPostGis.hpp>
+#include <examples/data/OccurrenceWFP.hpp>
 
 // STL
 #include <iostream>
@@ -39,6 +41,7 @@ int main(int argc, char* argv[])
 {
 
   terrama2::core::TerraMA2Init terramaRaii("example", 0);
+  Q_UNUSED(terramaRaii);
 
   terrama2::core::registerFactories();
 
@@ -80,16 +83,15 @@ int main(int argc, char* argv[])
     service.setLogger(logger);
     service.start();
 
-    using namespace terrama2::examples::analysis::utilspostgis;
+
 
     // DataProvider information
-    auto dataProvider = dataProviderPostGis();
-    dataManager->add(dataProvider);
+    auto dataProviderResult = terrama2::resultanalysis::dataProviderResultAnalysis();
+    dataManager->add(dataProviderResult);
 
 
-    // DataSeries information
-    auto outputDataSeries = outputDataSeriesPostGis(dataProvider, buffer_analysis_result);
-    dataManager->add(outputDataSeries);
+    auto dataSeriesResult = terrama2::resultanalysis::resultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::buffer_analysis_result);
+    dataManager->add(dataSeriesResult);
 
 
     std::shared_ptr<terrama2::services::analysis::core::Analysis> analysis = std::make_shared<terrama2::services::analysis::core::Analysis>();
@@ -127,8 +129,8 @@ add_value("level", x))z";
 
 
     analysis->script = script;
-    analysis->outputDataSeriesId = outputDataSeries->id;
-    analysis->outputDataSetId = outputDataSeries->datasetList.front()->id;
+    analysis->outputDataSeriesId = dataSeriesResult->id;
+    analysis->outputDataSetId = dataSeriesResult->datasetList.front()->id;
     analysis->scriptLanguage = ScriptLanguage::PYTHON;
     analysis->type = AnalysisType::MONITORED_OBJECT_TYPE;
     analysis->serviceInstanceId = 1;
@@ -136,19 +138,28 @@ add_value("level", x))z";
 
 
 
-    auto dataSeries = dataSeriesPostGis(dataProvider);
-    dataManager->add(dataSeries);
+    //DataProvider and DataSeries static postgis estados_2010
+
+    auto dataProviderStatic = terrama2::staticpostgis::dataProviderStaticPostGis();
+    dataManager->add(dataProviderStatic);
+
+    auto dataSeriesEstados = terrama2::staticpostgis::dataSeriesEstados2010(dataProviderStatic);
+    dataManager->add(dataSeriesEstados);
 
     AnalysisDataSeries monitoredObjectADS;
     monitoredObjectADS.id = 1;
-    monitoredObjectADS.dataSeriesId = dataSeries->id;
+    monitoredObjectADS.dataSeriesId = dataSeriesEstados->id;
     monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
     monitoredObjectADS.metadata["identifier"] = "fid";
 
 
 
-    //DataSeries information Occurrence
-    auto occurrenceDataSeries = occurrenceDataSeriesPostGis(dataProvider);
+    //DataProvider and DataSeries information Occurrence
+
+    auto dataProviderOcc = terrama2::occurrencewfp::dataProviderPostGisOccWFP();
+    dataManager->add(dataProviderOcc);
+
+    auto occurrenceDataSeries = terrama2::occurrencewfp::occurrenceWfpPostgis(dataProviderOcc);
     dataManager->add(occurrenceDataSeries);
 
     AnalysisDataSeries occurrenceADS;

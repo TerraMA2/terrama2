@@ -28,7 +28,7 @@
 
 #include <terrama2/Config.hpp>
 
-#include "UtilsGeotiff.hpp"
+#include <examples/data/Geotiff.hpp>
 
 
 // QT
@@ -529,6 +529,7 @@ std::string scriptAnalise()
 int main(int argc, char* argv[])
 {
   terrama2::core::TerraMA2Init terramaRaii("example", 0);
+  Q_UNUSED(terramaRaii);
 
   terrama2::core::registerFactories();
 
@@ -572,15 +573,14 @@ int main(int argc, char* argv[])
     service.start();
 
 
-    using namespace terrama2::examples::analysis::utilsgeotiff;
 
-    auto dataProvider = dataProviderFile();
+    auto dataProvider = terrama2::geotiff::dataProviderFileGrid();
     dataManager->add(dataProvider);
 
 
 
     //hidro_2011
-    auto data_series_hidro = dataSeriesHidro(dataProvider);
+    auto data_series_hidro = terrama2::geotiff::dataSeriesHidro(dataProvider);
     dataManager->add(data_series_hidro);
 
     //Analysis DATA SERIES = hidro_2011
@@ -594,7 +594,7 @@ int main(int argc, char* argv[])
 
     //DataSeries information  - SRTM_a_latlong_sad69
 
-    auto data_series_STRM_A = dataSeriesSTRM_A(dataProvider);
+    auto data_series_STRM_A = terrama2::geotiff::dataSeriesSTRM_A(dataProvider);
     dataManager->add(data_series_STRM_A);
 
 
@@ -612,7 +612,7 @@ int main(int argc, char* argv[])
     // DataSeries information - SRTM_s_latlong_sad69
     ////////////////////////////////////////////////////////////
 
-    auto data_series_STRM_S = dataSeriesSTRM_S(dataProvider);
+    auto data_series_STRM_S = terrama2::geotiff::dataSeriesSTRM_S(dataProvider);
     dataManager->add(data_series_STRM_S);
 
 
@@ -628,7 +628,7 @@ int main(int argc, char* argv[])
     //////////////////////////////
 
     // DataSeries information - Output
-    auto output_data_series = outputDataSeries(dataProvider, output_novaFriburgo);
+    auto output_data_series = terrama2::geotiff::resultAnalysisGrid(dataProvider, terrama2::geotiff::nameoutputgrid::output_novaFriburgo);
     dataManager->add(output_data_series);
 
 

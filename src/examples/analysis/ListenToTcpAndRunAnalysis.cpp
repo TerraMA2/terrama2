@@ -26,6 +26,17 @@
 #include <terrama2/impl/Utils.hpp>
 #include <terrama2/Config.hpp>
 
+
+#include <terrama2/services/analysis/core/utility/PythonInterpreterInit.hpp>
+
+
+#include <terrama2/services/analysis/mock/MockAnalysisLogger.hpp>
+
+
+#include <examples/data/ResultAnalysisPostGis.hpp>
+#include <examples/data/StaticPostGis.hpp>
+#include <examples/data/DCPSerramarInpe.hpp>
+
 //STL
 #include <iostream>
 
@@ -42,13 +53,6 @@
 #include <QDataStream>
 #include <QtTest/QTest>
 
-#include <terrama2/services/analysis/core/utility/PythonInterpreterInit.hpp>
-
-
-#include <terrama2/services/analysis/mock/MockAnalysisLogger.hpp>
-
-#include "UtilsPostGis.hpp"
-#include "UtilsDCPSerrmarInpe.hpp"
 
 #include <Python.h>
 
@@ -63,6 +67,7 @@ int main(int argc, char* argv[])
   {
 
     terrama2::core::TerraMA2Init terramaRaii("example", 0);
+    Q_UNUSED(terramaRaii);
 
     terrama2::core::registerFactories();
 
@@ -104,15 +109,15 @@ int main(int argc, char* argv[])
 
     QCoreApplication app(argc, argv);
 
-    using namespace terrama2::examples::analysis::utilspostgis;
-    using namespace terrama2::examples::analysis::utilsdcpserrmarinpe;
 
-    // DataProvider information
-    auto dataProvider = dataProviderPostGis();
-    dataManager->add(dataProvider);
+    /*
+     * DataProvider and dataSeries result
+    */
+    auto dataProviderResult = terrama2::resultanalysis::dataProviderResultAnalysis();
+    dataManager->add(dataProviderResult);
 
-    // DataSeries information
-    auto outputDataSeries = outputDataSeriesPostGis(dataProvider, analysis_result);
+
+    auto outputDataSeries = terrama2::resultanalysis::resultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::analysis_result);
     dataManager->add(outputDataSeries);
 
 
@@ -139,8 +144,14 @@ add_value("min", x))z";
     analysis->metadata["INFLUENCE_RADIUS"] = "50";
     analysis->metadata["INFLUENCE_RADIUS_UNIT"] = "km";
 
+    /*
+     * DataProvider and dataSeries Static
+    */
 
-    auto dataSeriesMunicSerrmar = dataSeriesMunicSerrmarInpe(dataProvider);
+    auto dataProviderStatic = terrama2::staticpostgis::dataProviderStaticPostGis();
+    dataManager->add(dataProviderStatic);
+
+    auto dataSeriesMunicSerrmar = terrama2::staticpostgis::dataSeriesMunicSerrmarInpe(dataProviderStatic);
     dataManager->add(dataSeriesMunicSerrmar);
 
     AnalysisDataSeries monitoredObjectADS;
@@ -151,14 +162,12 @@ add_value("min", x))z";
 
 
 
-    //DataProvider PCD_serrmar_INPE type = FILE
 
-    auto dataProviderFileSerrmar = dataProviderFile();
+
+    auto dataProviderFileSerrmar = terrama2::serramar::dataProviderSerramarInpe();
     dataManager->add(dataProviderFileSerrmar);
 
-
-    //DataSeries PCD_serrmar_INPE
-    auto dcpSeriesDCP = dataSeries2DCP(dataProviderFileSerrmar);
+    auto dcpSeriesDCP = terrama2::serramar::dcpSerramar(dataProviderFileSerrmar);
     dataManager->add(dcpSeriesDCP);
 
 
@@ -181,14 +190,15 @@ add_value("min", x))z";
 
 
     QJsonArray providersArray;
-    providersArray.push_back(dataProviderPostGisjson());
-    providersArray.push_back(dataProviderFileJson());
+    providersArray.push_back(terrama2::resultanalysis::dataProviderResultAnalysisJson());
+    providersArray.push_back(terrama2::staticpostgis::dataProviderStaticPostGisJson());
+    providersArray.push_back(terrama2::serramar::dataProviderSerramarJson());
     obj.insert("DataProviders", providersArray);
 
     QJsonArray seriesArray;
-    seriesArray.push_back(outputDataSeriesPostGisJson(dataProvider, analysis_result));
-    seriesArray.push_back(dataSeriesMunicSerrmarInpeJson(dataProvider));
-    seriesArray.push_back(dataSeries2DCPJson(dataProviderFileSerrmar));
+    seriesArray.push_back(terrama2::resultanalysis::resultAnalysisPostGisJson(dataProviderResult, terrama2::resultanalysis::tablename::analysis_result));
+    seriesArray.push_back(terrama2::staticpostgis::dataSeriesMunicSerrmarInpeJson(dataProviderStatic));
+    seriesArray.push_back(terrama2::serramar::dcpSerramarJson(dataProviderFileSerrmar));
     obj.insert("DataSeries", seriesArray);
 
     QJsonArray analysisArray;
