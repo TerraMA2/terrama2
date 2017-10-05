@@ -247,6 +247,14 @@ define([], function() {
               timeOut.resolve();
             }, 1000 * $scope.timeOutSeconds);
 
+            if($scope.configuration.isEditing) {
+              for(key in params) {
+                if($scope.originalPasswords.hasOwnProperty(key) && !params[key]) {
+                  params[key] = $scope.originalPasswords[key];
+                }
+              }
+            }
+
             var request = $http({
               method: "POST",
               url: BASE_URL + "uri/",

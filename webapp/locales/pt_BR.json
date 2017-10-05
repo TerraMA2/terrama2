@@ -425,6 +425,7 @@
   "Influence radius is required": "Raio de Influência é requerido",
   "Information": "Informação",
   "Input Data": "Dado de Entrada",
+  "Insert a value if you want to update the password": "Insira um valor caso queira atualizar a senha",
   "Insert the Color": "Insira a Cor",
   "Instance": "Instância",
   "Institute": "Instituto",
@@ -860,6 +861,7 @@
   "To import this file you need to have at least one project": "Para importar este arquivo você precisa ter pelo menos um projeto",
   "To import this file you need to have at least one view service": "Para importar este arquivo você precisa ter pelo menos um serviço de visualização",
   "To upload your shapefile you have to create a .zip compressed file containing all the shapefile files (.shp, .dbf, .shx, etc). The size limit is 300 MB per file, therefore, neither of the shapefile files can be larger than 300 MB.": "Para realizar o upload do seu shapefile é necessário compactar os arquivos (.shp, .dbf, .shx, etc) em um arquivo .zip. O tamanho limite é de 300 MB por arquivo, portanto nenhum dos arquivos do shapefile podem ser maiores que 300 MB.",
+  "Transfer Shapefile": "Transferir Shapefile",
   "Tuesday": "Terça-feira",
   "Type": "Tipo",
   "Type a projetion": {

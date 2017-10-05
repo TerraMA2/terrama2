@@ -36,6 +36,8 @@ define(function() {
       boxType: "box-solid"
     }
 
+    $scope.originalPasswords = {};
+
     $timeout(function() {
       if(conf.fields) {
         if(conf.fields.display) {
@@ -45,6 +47,16 @@ define(function() {
         } else {
           var propertiesLocale = FormTranslator(conf.fields.properties);
           var fieldsForm = [];
+        }
+
+        if($scope.configuration.isEditing) {
+          fieldsForm.forEach(function(field) {
+            if(field.hasOwnProperty('type') && field.type === "password") {
+              field.placeholder = i18n.__("Insert a value if you want to update the password");
+              $scope.originalPasswords[field.key] = model[field.key];
+              model[field.key] = "";
+            }
+          });
         }
 
         $scope.schema = {
@@ -157,9 +169,17 @@ define(function() {
     var getDatabaseList = function(){
       var result = $q.defer();
 
-      var params = $scope.model;
+      var params = angular.copy($scope.model);
       params.protocol = $scope.dataProvider.protocol;
       params.objectToGet = "database";
+
+      if($scope.configuration.isEditing) {
+        for(key in params) {
+          if($scope.originalPasswords.hasOwnProperty(key) && !params[key]) {
+            params[key] = $scope.originalPasswords[key];
+          }
+        }
+      }
 
       var httpRequest = $http({
         method: "GET",
@@ -204,6 +224,14 @@ define(function() {
 
       var formData = $scope.dataProvider;
       formData.uriObject = Object.assign({protocol: $scope.dataProvider.protocol}, $scope.model);
+
+      if($scope.configuration.isEditing) {
+        for(key in formData.uriObject) {
+          if($scope.originalPasswords.hasOwnProperty(key) && !formData.uriObject[key]) {
+            formData.uriObject[key] = $scope.originalPasswords[key];
+          }
+        }
+      }
 
       $http({
         url: conf.saveConfig.url,
@@ -252,8 +280,17 @@ define(function() {
           timeOut.resolve();
         }, 1000 * $scope.timeOutSeconds);
 
-        var params = $scope.model;
+        var params = angular.copy($scope.model);
         params.protocol = $scope.dataProvider.protocol;
+        params.objectToGet = "database";
+
+        if($scope.configuration.isEditing) {
+          for(key in params) {
+            if($scope.originalPasswords.hasOwnProperty(key) && !params[key]) {
+              params[key] = $scope.originalPasswords[key];
+            }
+          }
+        }
 
         var httpRequest = $http({
           method: "POST",
