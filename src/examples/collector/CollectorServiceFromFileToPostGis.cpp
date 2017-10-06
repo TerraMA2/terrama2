@@ -55,8 +55,7 @@
 
 #include <terrama2/core/data-access/DataRetriever.hpp>
 
-#include "UtilsFile.hpp"
-#include "UtilsPostGis.hpp"
+#include <examples/data/OccurrenceWFP.hpp>
 
 // STL
 #include <memory>
@@ -67,26 +66,28 @@
 #include <QTimer>
 #include <QUrl>
 
+using namespace terrama2::occurrencewfp;
+
 void addInput(std::shared_ptr<terrama2::services::collector::core::DataManager> dataManager)
 {
 
-    auto dataProvider = terrama2::examples::collector::utilsfile::dataProviderFile();
+
+    auto dataProvider = dataProviderFileOccWFP();
     dataManager->add(dataProvider);
 
-    auto dataSeries = terrama2::examples::collector::utilsfile::dataSeriesOccurrence(dataProvider);
+    auto dataSeries = occurrenceWfp(dataProvider);
     dataManager->add(dataSeries);
 }
 
 void addOutput(std::shared_ptr<terrama2::services::collector::core::DataManager> dataManager)
 {
-  ///////////////////////////////////////////////
+
   //     output
 
-
-  auto outputDataProvider = terrama2::examples::collector::utilspostgis::outputDataProviderPostGis();
+  auto outputDataProvider = dataProviderPostGisOccWFP();
   dataManager->add(outputDataProvider);
 
-  auto outputDataSeries = terrama2::examples::collector::utilspostgis::outputDataSeriesOccurrence(outputDataProvider);
+  auto outputDataSeries = occurrenceWfpPostgis(outputDataProvider);
   dataManager->add(outputDataSeries);
 
 }
@@ -96,6 +97,7 @@ int main(int argc, char* argv[])
   try
   {
        terrama2::core::TerraMA2Init terramaRaii("example", 0);
+       Q_UNUSED(terramaRaii);
 
        terrama2::core::registerFactories();
         {
@@ -132,7 +134,6 @@ int main(int argc, char* argv[])
           serviceManager.setInstanceId(1);
           serviceManager.setLogger(logger);
           serviceManager.setLogConnectionInfo(te::core::URI(""));
-          serviceManager.setInstanceId(1);
 
           service.setLogger(logger);
           service.start();
