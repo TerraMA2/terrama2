@@ -455,6 +455,7 @@ endif()
 
 if(TERRAMA2_EXAMPLES_CORE_ENABLED)
   add_subdirectory(terrama2_examples_core)
+  add_subdirectory(terrama2_examples_data)
 endif()
 
 if(TERRAMA2_EXAMPLES_ANALYSIS_ENABLED)
