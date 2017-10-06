@@ -18,5 +18,15 @@
       "schema": "terrama2"
     },
     "logging": false
-  }
+  },
+  "toolsMenu": [
+    {
+      "textEn": "Example",
+      "textEs": "Ejemplo",
+      "textFr": "Exemple",
+      "textPt": "Exemplo",
+      "url": "http://example.com/",
+      "openInNewTab": true
+    }
+  ]
 }
