@@ -66,11 +66,17 @@ if(NOT DEFINED TERRAMA2_DIR_VAR_NAME)
 endif()
 
 if(APPLE AND TERRAMA2_BUILD_AS_BUNDLE AND NOT DEFINED TERRAMA2_BASE_DESTINATION_DIR)
-  set(TERRAMA2_BASE_DESTINATION_DIR "terrama2.app/Contents/")
+  set(CMAKE_MACOSX_BUNDLE ON)
+  set(CMAKE_INSTALL_RPATH "@executable_path/../lib")
+  set(CMAKE_INSTALL_NAME_DIR "@executable_path/../lib")
+  set(TERRAMA2_BASE_DESTINATION_DIR "terrama2_service.app/Contents/")
+  set(TERRALIB_BASE_DESTINATION_DIR ${TERRAMA2_BASE_DESTINATION_DIR}/)
+
 elseif(UNIX AND NOT DEFINED TERRAMA2_BASE_DESTINATION_DIR)
   set(TERRAMA2_BASE_DESTINATION_DIR ${CMAKE_INSTALL_PREFIX}/)
+  
 elseif(NOT DEFINED TERRAMA2_BASE_DESTINATION_DIR)
-  set(TERRAMA2_BASE_DESTINATION_DIR "")
+  set(TERRAMA2_BASE_DESTINATION_DIR .)
 endif()
 
 # variable that defines the path to data directory used in the unittests
@@ -168,6 +174,7 @@ if("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION}" VERSIO
 endif()
 
 if(${CMAKE_MAJOR_VERSION} GREATER 2)
+  cmake_policy(SET CMP0006 OLD)
   cmake_policy(SET CMP0026 OLD)
   cmake_policy(SET CMP0042 NEW)
   cmake_policy(SET CMP0043 NEW)
@@ -191,10 +198,6 @@ endif()
 # Where to find modules (find procedures)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/modules")
 
-if(APPLE AND TERRAMA2_BUILD_AS_BUNDLE)
-  set(CMAKE_INSTALL_NAME_DIR "@executable_path/../lib")
-endif()
-
 # Compiler options: warning and C++ 11
 if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR (CMAKE_CXX_COMPILER MATCHES ".*clang") OR (CMAKE_CXX_COMPILER_ID STREQUAL "Clang"))
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -std=c++11")
@@ -211,7 +214,6 @@ enable_testing()
 
 # Build tree directory will be needed in all projects.
 include_directories(${CMAKE_BINARY_DIR})
-
 
 #
 # including CMake's auxiliary files
@@ -518,42 +520,99 @@ install(DIRECTORY ${TERRAMA2_ABSOLUTE_ROOT_DIR}/third-party
 #
 # Generate a post installation script with the installation folder
 #
-configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postinst.in
-               ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postinst @ONLY)
-configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/prerm.in
-              ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/prerm @ONLY)
-configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postrm.in
-               ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postrm @ONLY)
+if(APPLE)
 
-install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/remove-config.py
-        DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT scripts)
-# Copy instalation and removal scripts
-install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postinst
-        DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT scripts)
-install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/prerm
-        DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT scripts)
-install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postrm
-        DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT scripts)
+ install(DIRECTORY ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/mac/
+         DESTINATION ${TERRAMA2_BASE_DESTINATION_DIR}/scripts COMPONENT scripts USE_SOURCE_PERMISSIONS)
+
+  file(COPY ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/mac/ DESTINATION ${CMAKE_BINARY_DIR}/scripts FILE_PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ)
+  file(COPY ${TERRAMA2_ABSOLUTE_ROOT_DIR}/webapp DESTINATION ${CMAKE_BINARY_DIR})
+  file(COPY ${TERRAMA2_ABSOLUTE_ROOT_DIR}/webmonitor DESTINATION ${CMAKE_BINARY_DIR})
+  file(COPY ${TERRAMA2_ABSOLUTE_ROOT_DIR}/webcomponents DESTINATION ${CMAKE_BINARY_DIR})
+  file(COPY ${TERRAMA2_ABSOLUTE_ROOT_DIR}/third-party DESTINATION ${CMAKE_BINARY_DIR})
+  file(COPY ${TERRAMA2_ABSOLUTE_ROOT_DIR}/share DESTINATION ${CMAKE_BINARY_DIR})
+
+elseif(UNIX)
+  configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postinst.in
+                 ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postinst @ONLY)
+  configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/prerm.in
+                ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/prerm @ONLY)
+  configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postrm.in
+                 ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postrm @ONLY)
+
+  install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/remove-config.py
+          DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT scripts)
+  install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postinst
+          DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT scripts)
+  install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/prerm
+          DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT scripts)
+  install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postrm
+          DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT scripts)  
+endif()
+
 #
 # If generating a deb package the script is executed by the debian post install configuration
 # sa: build/cmake/terrama2-cpack-options.cmake.in
 #
-if(NOT CPACK_BINARY_DEB)
+
+if(NOT CPACK_BINARY_DEB AND NOT APPLE)
   install(CODE "execute_process(COMMAND bash postinst ${TERRAMA2_BASE_DESTINATION_DIR} WORKING_DIRECTORY ${TERRAMA2_DESTINATION_SHARE}/scripts/ )" COMPONENT scripts)
 endif()
 
 #
-# Track dependencies
+# Install TerraLib and QtPlugins
 #
-if(TERRAMA2_TRACK_3RDPARTY_DEPENDENCIES)
-  include(InstallRequiredSystemLibraries)
+if(TERRAMA2_BUILD_AS_BUNDLE)
+  TeInstallQt5Plugins()
+  
+  if(WIN32)
+    set(_subfolder bin)
+  elseif(APPLE)
+    set(_subfolder lib)
+  endif()
 
-  configure_file(${CMAKE_SOURCE_DIR}/terrama2-fix-bundle.cmake.in
-                 ${CMAKE_BINARY_DIR}/FixBundleTerraMA2.cmake @ONLY)
+  TeInstallTerraLibPlugins("${TERRALIB_PLUGINS}" ${TERRAMA2_BASE_DESTINATION_DIR}/${_subfolder})
 
-  install(SCRIPT ${CMAKE_BINARY_DIR}/FixBundleTerraMA2.cmake COMPONENT runtime)
+  if(EXISTS "${terralib_DIR}/CMakeCache.txt")
+    set(_TESRC "${terralib_INCLUDE_DIRS}/..")
+    if(WIN32)
+      set(_TEBIN "${terralib_DIR}/Release")
+    elseif(APPLE)
+      set(_TEBIN "${terralib_DIR}/bin")
+    endif()
+  else()
+    set(_TESRC "${terralib_DIR}/../../..")
+    if(WIN32)
+      set(_TEBIN "${_TESRC}/bin")
+    elseif(APPLE)
+      set(_TEBIN "${_TESRC}/lib")
+    endif()
+  endif()
+
+  install (
+    DIRECTORY ${_TESRC}
+    DESTINATION ${TERRAMA2_DESTINATION_SHARE}
+    COMPONENT runtime
+    PATTERN "*terraview*" EXCLUDE 
+    PATTERN "*.ado.*" EXCLUDE
+    PATTERN "ado-*" EXCLUDE
+    PATTERN "*.terralib4.*" EXCLUDE
+    PATTERN "*.qt.edit.*" EXCLUDE
+    PATTERN "*.qt.mobile.*" EXCLUDE
+    PATTERN "*terraview_plugins" EXCLUDE
+  )
 endif()
 
+#
+# Track dependencies (fixbundle)
+#
+if(TERRAMA2_BUILD_AS_BUNDLE AND TERRAMA2_TRACK_3RDPARTY_DEPENDENCIES)
+
+  include(InstallRequiredSystemLibraries)
+
+  add_subdirectory(fix_bundle)
+  
+endif()
 
 #
 # CPack
