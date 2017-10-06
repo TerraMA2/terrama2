@@ -184,7 +184,7 @@
         </div>
       </form>
     </terrama2-box>
-    
+
     <terrama2-box title="i18n.__('Schedule')" css="ctrl.css">
       <div class="col-md-12">
         <terrama2-schedule model="ctrl.alert.schedule" options="ctrl.scheduleOptions"></terrama2-schedule>
@@ -359,7 +359,7 @@
 
     <terrama2-box title="i18n.__('Notification')" css="ctrl.css">
       <form name="forms.notificationForm">
-        <div class="col-md-4">
+        <div ng-class="{ 'col-md-3': ctrl.alert.hasView, 'col-md-4': !ctrl.alert.hasView }">
           <div class="form-group" terrama2-show-errors>
             <label><span ng-bind="i18n.__('Emails')"></span>:</label>
             <textarea class="form-control"
@@ -375,6 +375,20 @@
                       ng-bind="i18n.__('Notification emails is required')">
             </span>
             <span class="help-block" ng-bind="i18n.__('Obs: enter the addresses separated by semicolons')"></span>
+          </div>
+        </div>
+
+        <div class="col-md-1" ng-if="ctrl.alert.hasView">
+          <div class="form-group">
+            <div class="checkbox">
+              <label style="font-weight: 700;">
+                <input type="checkbox"
+                        name="attachViews"
+                        ng-model="ctrl.alert.notifications[0].attach_views"
+                        ng-true-value="true"
+                        ng-false-value="false"> <span ng-bind="i18n.__('Attach Views')"></span>
+              </label>
+            </div>
           </div>
         </div>
 
@@ -476,6 +490,53 @@
           </div>
         </div>
       </div>
+    </terrama2-box>
+
+    <terrama2-box title="i18n.__('Attach Views')" css="ctrl.css" ng-if="ctrl.alert.hasView">
+      <form name="forms.viewForm">
+        <div class="row">
+          <div class="col-md-12">
+            <table class="table table-striped">
+              <tbody>
+                <tr>
+                  <td></td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td>2.</td>
+                  <td>Clean database</td>
+                  <td>
+                    <div class="progress progress-xs">
+                      <div class="progress-bar progress-bar-yellow" style="width: 70%"></div>
+                    </div>
+                  </td>
+                  <td><span class="badge bg-yellow">70%</span></td>
+                </tr>
+                <tr>
+                  <td>3.</td>
+                  <td>Cron job running</td>
+                  <td>
+                    <div class="progress progress-xs progress-striped active">
+                      <div class="progress-bar progress-bar-primary" style="width: 30%"></div>
+                    </div>
+                  </td>
+                  <td><span class="badge bg-light-blue">30%</span></td>
+                </tr>
+                <tr>
+                  <td>4.</td>
+                  <td>Fix and squish bugs</td>
+                  <td>
+                    <div class="progress progress-xs progress-striped active">
+                      <div class="progress-bar progress-bar-success" style="width: 90%"></div>
+                    </div>
+                  </td>
+                  <td><span class="badge bg-green">90%</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </form>
     </terrama2-box>
 
     <div class="box-footer">
