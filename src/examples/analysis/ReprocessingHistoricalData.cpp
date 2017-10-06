@@ -24,7 +24,10 @@
 
 #include <terrama2/impl/Utils.hpp>
 
-#include "UtilsPostGis.hpp"
+
+#include <examples/data/ResultAnalysisPostGis.hpp>
+#include <examples/data/OccurrenceWFP.hpp>
+#include <examples/data/StaticPostGis.hpp>
 
 // STL
 #include <iostream>
@@ -41,6 +44,7 @@ using namespace terrama2::services::analysis::core;
 int main(int argc, char* argv[])
 {
   terrama2::core::TerraMA2Init terramaRaii("example", 0);
+  Q_UNUSED(terramaRaii);
 
   terrama2::core::registerFactories();
 
@@ -82,19 +86,18 @@ int main(int argc, char* argv[])
   service.start();
 
 
-  using namespace terrama2::examples::analysis::utilspostgis;
 
-  // DataProvider information
-  auto dataProvider = dataProviderPostGis();
-  dataManager->add(dataProvider);
+  /*
+   * DataProvider and dataSeries result
+*/
+  auto dataProviderResult = terrama2::resultanalysis::dataProviderResultAnalysis();
+  dataManager->add(dataProviderResult);
 
-
-  // DataSeries information
-  auto outputDataSeries = outputDataSeriesPostGis(dataProvider,reprocessing_result);
+  auto outputDataSeries =  terrama2::resultanalysis::resultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::reprocessing_result);
   dataManager->add(outputDataSeries);
 
-  std::shared_ptr<terrama2::services::analysis::core::Analysis> analysis = std::make_shared<terrama2::services::analysis::core::Analysis>();
 
+  std::shared_ptr<terrama2::services::analysis::core::Analysis> analysis = std::make_shared<terrama2::services::analysis::core::Analysis>();
 
   std::string script = R"(moBuffer = Buffer()
 x = occurrence.zonal.count("Occurrence", "6h", moBuffer)
@@ -111,8 +114,14 @@ add_value("count", x))";
   analysis->serviceInstanceId = 1;
 
 
+  /*
+   * DataProvider and dataSeries Static
+*/
 
-  auto dataSeries = dataSeriesPostGis(dataProvider);
+  auto dataProviderStatic = terrama2::staticpostgis::dataProviderStaticPostGis();
+  dataManager->add(dataProviderStatic);
+
+  auto dataSeries = terrama2::staticpostgis::dataSeriesEstados2010(dataProviderStatic);
   dataManager->add(dataSeries);
 
   AnalysisDataSeries monitoredObjectADS;
@@ -122,9 +131,13 @@ add_value("count", x))";
   monitoredObjectADS.metadata["identifier"] = "fid";
 
 
+  /*
+   * DataProvider and dataSeries Occurrence
+*/
+  auto dataProviderOcc = terrama2::occurrencewfp::dataProviderPostGisOccWFP();
+  dataManager->add(dataProviderOcc);
 
-  //DataSeries information
-  auto occurrenceDataSeries = occurrenceDataSeriesPostGis(dataProvider);
+  auto occurrenceDataSeries = terrama2::occurrencewfp::occurrenceWfpPostgis(dataProviderOcc);
   dataManager->add(occurrenceDataSeries);
 
   AnalysisDataSeries occurrenceADS;
@@ -161,7 +174,8 @@ add_value("count", x))";
 
   dataManager->add(analysis);
 
-
+  analysis->schedule.frequency = 15;
+  analysis->schedule.frequencyUnit = "min";
 
   service.addToQueue(analysis->id, terrama2::core::TimeUtils::stringToTimestamp("2016-04-30T00:00:00-03", terrama2::core::TimeUtils::webgui_timefacet));
 
