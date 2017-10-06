@@ -51,4 +51,26 @@ const std::string TERRAMA2_INSTALL_PREFIX_PATH("@CMAKE_INSTALL_PREFIX@");
 
 const std::string TERRAMA2_DIR_VAR_NAME("@TERRAMA2_DIR_VAR_NAME@");
 
+// Defines for platform
+#define TM_PLATFORMCODE_MSWINDOWS 1
+
+#define TM_PLATFORMCODE_LINUX 2
+
+#define TM_PLATFORMCODE_APPLE 3
+
+/*!
+  \def TM_PLATFORM
+
+  \brief It keeps the code of the Operational System platform detected by the build system.
+ */
+#if defined(_WIN32) || defined(_WIN64) || defined(__WIN32__) || defined(__TOS_WIN__) || defined(__WINDOWS__) || defined(_WIN32_WCE)
+  #define TM_PLATFORM TM_PLATFORMCODE_MSWINDOWS
+#elif defined(__LINUX__) || defined(linux) || defined(__linux__) || defined(__linux)
+  #define TM_PLATFORM TM_PLATFORMCODE_LINUX
+#elif (defined(__APPLE__) && defined(__MACH__)) || defined(macintosh) || defined(Macintosh)
+  #define TM_PLATFORM TM_PLATFORMCODE_APPLE
+#else
+  #error "ERROR: Unknown platform"
+#endif
+
 #endif // __TERRAMA2_TERRAMA2_CONFIG_HPP__
