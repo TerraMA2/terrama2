@@ -61,7 +61,7 @@ target_link_libraries(terrama2_impl terrama2_core
 set_target_properties(terrama2_impl
                       PROPERTIES VERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}
                                  SOVERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}
-                                 INSTALL_NAME_DIR "@executable_path/../lib")
+                                 )
 
 install(TARGETS terrama2_impl
         EXPORT terrama2-targets
