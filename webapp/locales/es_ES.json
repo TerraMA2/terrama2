@@ -565,6 +565,7 @@
 	"HTTP": "HTTP",
   "HTTPS": "HTTPS",
 	"FTP": "FTP",
+	"Tools": "Herramientas",
 
 
 
@@ -1052,5 +1053,6 @@
   "Y max": "",
   "X resolution": "",
   "Y resolution": "",
-  "Power factor": ""
+  "Power factor": "",
+	"Transfer Shapefile": ""
 }

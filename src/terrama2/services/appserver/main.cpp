@@ -64,6 +64,8 @@
 #include <terrama2/core/ErrorCodes.hpp>
 #include <terrama2/Version.hpp>
 
+#include "mainwidget.h"
+
 #include <boost/exception/diagnostic_information.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
@@ -79,6 +81,7 @@
 #include <QCoreApplication>
 #include <QtGui/QGuiApplication>
 #include <QTimer>
+#include <QApplication>
 
 namespace po = boost::program_options;
 
@@ -329,5 +332,21 @@ int main(int argc, char* argv[])
 //    TERRAMA2_LOG_ERROR() << QObject::tr("\n\nUnknown Exception...\n");
 //  }
 
-  return 0;
+#if (TM_PLATFORM == TM_PLATFORMCODE_APPLE)
+
+    try
+    {
+        QApplication a(argc, argv);
+        MainWidget w;
+        w.show();
+        return a.exec();
+    }
+    catch(const std::exception& e)
+    {
+      TERRAMA2_LOG_ERROR() << e.what();
+    }
+
+#endif  // (TM_PLATFORM == TM_PLATFORMCODE_APPLE)
+
+    return 0;
 }

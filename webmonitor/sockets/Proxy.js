@@ -24,29 +24,33 @@ var Proxy = function(io){
     // Proxy request event
     client.on('proxyRequest', function(json) {
       // Http request to the received url
-      memberHttp.get(json.url, function(resp) {
-        var body = '';
-        // Data receiving event
-        resp.on('data', function(chunk) {
-          body += chunk;
-        });
-        // End of request event
-        resp.on('end', function() {
-          if (json.format === 'xml') {
-            body = memberXmlParser(body);
-          } else if (json.format === 'json') {
-            try {
-              body = JSON.parse(body);
-            } catch(ex) {
-              body = {};
+      try {
+        memberHttp.get(json.url, function(resp) {
+          var body = '';
+          // Data receiving event
+          resp.on('data', function(chunk) {
+            body += chunk;
+          });
+          // End of request event
+          resp.on('end', function() {
+            if (json.format === 'xml') {
+              body = memberXmlParser(body);
+            } else if (json.format === 'json') {
+              try {
+                body = JSON.parse(body);
+              } catch(ex) {
+                body = {};
+              }
             }
-          }
-          // Socket response
-          client.emit('proxyResponse', { msg: body, requestId: json.requestId, params: json.params });
+            // Socket response
+            client.emit('proxyResponse', { msg: body, requestId: json.requestId, params: json.params });
+          });
+        }).on("error", function(e) {
+          console.error(e.message);
         });
-      }).on("error", function(e) {
-        console.error(e.message);
-      });
+      } catch(err) {
+        client.emit('proxyResponse', { msg: null, requestId: json.requestId, params: json.params });
+      }
     });
 
     // Proxy request event
