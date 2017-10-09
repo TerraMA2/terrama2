@@ -73,7 +73,7 @@
 terrama2::core::DataAccessorGrADS::DataAccessorGrADS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries,
                                                      const bool checkSemantics)
   : DataAccessor(dataProvider, dataSeries),
-    DataAccessorGDAL(dataProvider, dataSeries)
+    DataAccessorGDAL(dataProvider, dataSeries, false)
 {
   if(checkSemantics && dataSeries->semantics.driver != dataAccessorType())
   {
