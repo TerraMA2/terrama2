@@ -77,7 +77,7 @@
       data_series_output: this.data_series_output,
       dataSeriesInput: this.dataSeriesInput,
       dataSeriesOutput: this.dataSeriesOutput,
-      schedule_type: this.schedule_type,
+      schedule_type: Number(this.schedule_type),
       bounding_rect: this.bounding_rect,
       interpolation_attribute: this.interpolation_attribute,
       interpolator_strategy: Number(this.interpolator_strategy),
@@ -87,6 +87,25 @@
       metadata: this.metadata,
       automatic_schedule: this.automaticSchedule instanceof AbstractClass ? this.automaticSchedule.rawObject() : this.automaticSchedule,
       schedule: this.schedule instanceof AbstractClass ? this.schedule.rawObject() : this.schedule
+    });
+  };
+
+  Interpolator.prototype.toService = function() {
+    return Object.assign(AbstractClass.prototype.toObject.call(this), {
+      id: this.id,
+      active: this.active,
+      project_id: this.project_id,
+      bounding_rect: this.bounding_rect,
+      input_data_series: this.data_series_input,
+      output_data_series: this.data_series_output,
+      interpolation_attribute: this.interpolation_attribute,
+      interpolator_strategy: this.interpolator_strategy,
+      resolution_x: this.resolution_x,
+      resolution_y: this.resolution_y,
+      service_instance_id: this.service_instance_id,
+      srid: this.srid,
+      number_of_neighbors: this.metadata.number_of_neighbors,
+      power_factor: this.metadata.power_factor
     });
   };
   module.exports = Interpolator;

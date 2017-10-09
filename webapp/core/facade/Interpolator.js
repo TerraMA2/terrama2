@@ -6,6 +6,31 @@
   var DataManager = require("./../DataManager");
   var PromiseClass = require("./../Promise");
   var ScheduleType = require("./../Enums").ScheduleType;
+  var TcpService = require("./../facade/tcp-manager/TcpService");
+
+  /**
+   * Helper to send alerts via TCP
+   * 
+   * @param {Array|Object} args A alert values to send
+   * @param {boolean} shouldRun - A flag to defines if service should run context view
+   */
+  function sendInterpolator(args) {
+    var objToSend = {
+      "Interpolator": [],
+      "DataSeries": []
+    };
+    if (args instanceof Array) {
+      args.forEach(function(arg) {
+        objToSend.Interpolator.push(arg.toService());
+        objToSend.DataSeries.push(arg.dataSeriesOutput.toObject());
+      });
+    } else {
+      objToSend.Interpolator.push(args.toService());
+      objToSend.DataSeries.push(args.dataSeriesOutput.toObject());
+    }
+
+    TcpService.send(objToSend);
+  }
 
   Interpolator.save = function(interpolatorObject, scheduleObject, projectId){
     return new PromiseClass(function(resolve, reject){
