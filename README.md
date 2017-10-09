@@ -47,13 +47,11 @@ In the root directory of TerraMA² codebase (the source code tree) there are som
 
 - **[build/cmake:](https://github.com/TerraMA2/terrama2/tree/master/build/cmake)** Contains the CMake scripts with commands, macros and functions used to build the environment for compiling libraries and executables in different platforms using the CMake tool.
 
-- **[examples:](https://github.com/TerraMA2/terrama2/tree/master/examples)** Some examples on how to use TerraMA² API and GUI.
+- **[examples:](https://github.com/TerraMA2/terrama2/tree/master/src/examples)** Some examples on how to use TerraMA² API and GUI.
 
 - **[install:](https://github.com/TerraMA2/terrama2/tree/master/install)** Bash scripts for helping building and installing TerraMA².
 
-- **licenses:** Copyright notices of third-party libraries used by TerraMA². **Not available yet!**
-
-- **[resources:](https://github.com/TerraMA2/terrama2/tree/master/resources)** Fonts, images, sql, and xml files among other resources of general use.
+- **[licenses](https://github.com/TerraMA2/terrama2/blob/master/LICENSE):** Copyright notices of third-party libraries used by TerraMA².
 
 - **[share:](https://github.com/TerraMA2/terrama2/tree/master/share)** XML Schema (.xsd), JSON files, plugin manifest files, translations files and OGC specifications that is shared and installed with TerraMA².
 
@@ -133,6 +131,7 @@ We have the following branches:
 - **b-4.0.0-beta3:** Improvements to WebMonitor
 - **b-4.0.0-rc1:** Analysis DCP and improvements to WebMonitor
 - **b-4.0.0-rc2:** Analysis DCP and lots of minor improvements
+- **b-4.0.0-rc3:** In development...
 
 For a more complete releases info, check: https://github.com/TerraMA2/terrama2/releases
 
