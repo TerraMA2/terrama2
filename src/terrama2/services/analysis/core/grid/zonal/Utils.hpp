@@ -99,12 +99,12 @@ void terrama2::services::analysis::core::grid::zonal::utils::getRasterValues(std
   uint32_t lowerLeftCol, lowerLeftRow;
   std::tie(lowerLeftCol, lowerLeftRow) = terrama2::core::geoToGrid(intersection.lowerLeft(), grid);
   if(lowerLeftCol == std::numeric_limits<uint32_t>::max()) lowerLeftCol = 0;
-  if(lowerLeftRow == std::numeric_limits<uint32_t>::max()) lowerLeftRow = grid->getNumberOfRows();
+  if(lowerLeftRow == std::numeric_limits<uint32_t>::max()) lowerLeftRow = grid->getNumberOfRows()-1;
 
   uint32_t upperRightCol, upperRightRow;
   std::tie(upperRightCol, upperRightRow) = terrama2::core::geoToGrid(intersection.upperRight(), grid);
   if(upperRightRow == std::numeric_limits<uint32_t>::max()) upperRightRow = 0;
-  if(upperRightCol == std::numeric_limits<uint32_t>::max()) upperRightCol = grid->getNumberOfColumns();
+  if(upperRightCol == std::numeric_limits<uint32_t>::max()) upperRightCol = grid->getNumberOfColumns()-1;
 
   auto rasterBand = raster->getBand(band);
   double noData = rasterBand->getProperty()->m_noDataValue;
