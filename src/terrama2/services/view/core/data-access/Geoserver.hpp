@@ -414,6 +414,12 @@ namespace terrama2
 
 
             std::string workspace_ = "terrama2"; /*!< A workspace to work in GeoServer */
+            QJsonArray generateFileLayer(const std::shared_ptr<DataManager> dataManager, View::Legend::ObjectType objectType, te::gm::GeomType geomType, const ViewPtr viewPtr, terrama2::core::DataSeriesPtr inputDataSeries, const std::pair< terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr >& dataSeriesProvider, terrama2::core::DataProviderPtr inputDataProvider, DataFormat dataFormat, const RegisterId logId, std::shared_ptr<ViewLogger> logger);
+            QJsonArray generatePostgisLayer(View::Legend::ObjectType objectType, const std::shared_ptr<DataManager> dataManager, std::shared_ptr<ViewLogger> logger, terrama2::core::DataSeriesPtr inputDataSeries, te::gm::GeomType geomType, const ViewPtr viewPtr, const RegisterId logId, terrama2::core::DataProviderPtr inputDataProvider);
+            void generateMonitoredObjectAnalysisLayer(const std::shared_ptr<DataManager> dataManager,
+                                                      terrama2::core::DataSeriesPtr inputDataSeries,
+                                                      const RegisterId logId,
+                                                      std::shared_ptr<ViewLogger> logger);
         };
       }
     }
