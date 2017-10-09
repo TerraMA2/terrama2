@@ -2,7 +2,7 @@ define([], function(){
   'use strict';
 
   var InterpolatorRegisterUpdate = function($scope, $q, $window, $http, $log, $timeout, i18n, MessageBoxService, Service, DataSeriesSemanticsService, DataProviderService, InterpolatorService){
-
+    $scope.i18n = i18n;
     $scope.MessageBoxService = MessageBoxService;
     $scope.ServiceInstance = Service;
     $scope.InterpolatorService = InterpolatorService;

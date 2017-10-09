@@ -1037,5 +1037,20 @@
   "Dcp Data Series": "",
   "Object Monitored Data Series": "",
 	"Interpolation": "",
-  "Insert a value if you want to update the password": ""
+  "Insert a value if you want to update the password": "",
+  "Interpolator Registration": "",
+  "Strategy": "",
+  "Data series to interpolate": "",
+  "Interpolator strategy": "",
+  "Nearest neighbor": "",
+  "Average neighbor": "",
+  "Weight average neighbor": "",
+  "Interpolation attribute": "",
+  "Number of neighbors": "",
+  "X max": "",
+  "Y min": "",
+  "Y max": "",
+  "X resolution": "",
+  "Y resolution": "",
+  "Power factor": ""
 }

@@ -2,7 +2,7 @@
   <div class="col-md-12">
     <div class="col-md-4">
       <div class="form-group" terrama2-show-errors>
-        <label>Output Format:</label>
+        <label>{{ i18n.__('Output Format') }}:</label>
         <select class="form-control"
                 id="data_series_semantics"
                 name="data_series_semantics"
@@ -14,7 +14,7 @@
     </div>
     <div class="col-md-4">
       <div class="form-group" terrama2-show-errors>
-        <label>Data Store:</label>
+        <label>{{ i18n.__('Data Store') }}:</label>
         <select class="form-control" 
                 id="data_store"
                 name="data_store"
@@ -25,7 +25,7 @@
     </div>
     <div class="col-md-4">
       <div class="form-group" terrama2-show-errors>
-        <label>Service:</label>
+        <label>{{ i18n.__('Service') }}:</label>
         <ui-select name="service" ng-model="inter.service_instance_id" required>
           <ui-select-match>
             <img ng-src="{{ BASE_URL + 'images/services/alert/alert_service.png'}}" style="height: 20px; margin-top: -7px;"/>
@@ -42,13 +42,13 @@
   <div class="col-md-12">
     <div class="col-md-6">
       <div class="form-group" terrama2-show-errors>
-        <label>Mask:</label>
+        <label>{{ i18n.__('Mask') }}:</label>
         <input class="form-control" id="mask" name="mask" ng-model="outputDataSeries.format.mask" type="text" required>
       </div>            
     </div>
     <div class="col-md-6">
       <div class="form-group" terrama2-show-errors>
-        <label>Timezone:</label>
+        <label>{{ i18n.__('Timezone') }}:</label>
         <select class="form-control" id="timezone" name="timezone" ng-model="outputDataSeries.format.timezone" ng-options="timezone for timezone in timezoneOptions" required></select>
       </div>            
     </div>
@@ -56,7 +56,7 @@
   <div class="col-md-12">
     <div class="col-md-6">
       <div class="form-group" terrama2-show-errors>
-        <label>Projection (SRID):</label>
+        <label>{{ i18n.__('Projection (SRID)') }}:</label>
         <input class="form-control" id="srid" name="srid" ng-model="outputDataSeries.format.srid" type="number" required>
       </div>            
     </div>
@@ -67,7 +67,7 @@
   <div class="col-md-12">
     <div class="box box-default box-solid">
       <div class="box-header with-border">
-        <h3 class="box-title">Schedule</h3>
+        <h3 class="box-title">{{ i18n.__('Schedule') }}</h3>
       </div>
 
       <div style="display: block;" class="box-body">

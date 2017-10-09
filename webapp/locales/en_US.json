@@ -1025,5 +1025,20 @@
   " Data Series": " Data Series",
   "Dcp Data Series": "Dcp Data Series",
   "Object Monitored Data Series": "Object Monitored Data Series",
-  "Interpolation": "Interpolation"
+  "Interpolation": "Interpolation",
+  "Interpolator Registration": "Interpolator Registration",
+  "Strategy": "Strategy",
+  "Data series to interpolate": "Data series to interpolate",
+  "Interpolator strategy": "Interpolator strategy",
+  "Nearest neighbor": "Nearest neighbor",
+  "Average neighbor": "Average neighbor",
+  "Weight average neighbor": "Weight average neighbor",
+  "Interpolation attribute": "Interpolation attribute",
+  "Number of neighbors": "Number of neighbors",
+  "X max": "X max",
+  "Y min": "Y min",
+  "Y max": "Y max",
+  "X resolution": "X resolution",
+  "Y resolution": "Y resolution",
+  "Power factor": "Power factor"
 }

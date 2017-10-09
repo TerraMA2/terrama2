@@ -12,17 +12,17 @@
 
         <div class="col-md-12" style="margin-top: 30px;">
 
-          <a href="" class="btn btn-primary pull-left cancel">Cancel</a>
+          <a href="" class="btn btn-primary pull-left cancel">{{ i18n.__('Cancel') }}</a>
           <div class="pull-right">
-            <button class="btn btn-primary" type="submit" wz-next>Next</button>
+            <button class="btn btn-primary" type="submit" wz-next>{{ i18n.__('Next') }}</button>
             <div class="btn-group pull-right" style="margin-left: 3px;">
-              <button type="button" class="btn btn-primary" data-ng-click="save(true);">Save and Run</button>
+              <button type="button" class="btn btn-primary" ng-bind="i18n.__('Save and Run')" data-ng-click="save(true);"></button>
               <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <span class="caret"></span>
                 <span class="sr-only"></span>
               </button>
               <ul class="dropdown-menu terrama2-button-dropdown">
-                <li><a href="javascript::void();" data-ng-click="save(false);">Save</a></li>
+                <li><a href="javascript::void();" ng-bind="i18n.__('Save')" data-ng-click="save(false);"></a></li>
               </ul>
             </div>
 
@@ -39,18 +39,18 @@
 
         <div class="col-md-12" style="margin-top: 30px;">
 
-          <a href="" class="btn btn-primary pull-left cancel">Cancel</a>
+          <a href="" class="btn btn-primary pull-left cancel">{{ i18n.__('Cancel') }}</a>
           <div class="pull-right">
-            <button class="btn btn-primary" type="submit" wz-previous>Previous</button>
-            <button class="btn btn-primary" type="submit" wz-next>Next</button>
+            <button class="btn btn-primary" type="submit" wz-previous>{{ i18n.__('Previous') }}</button>
+            <button class="btn btn-primary" type="submit" wz-next>{{ i18n.__('Next') }}</button>
             <div class="btn-group pull-right" style="margin-left: 3px;">
-              <button type="button" class="btn btn-primary" data-ng-click="save(true);">Save and Run</button>
+              <button type="button" class="btn btn-primary" data-ng-click="save(true);" ng-bind="i18n.__('Save and Run')"></button>
               <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <span class="caret"></span>
                 <span class="sr-only"></span>
               </button>
               <ul class="dropdown-menu terrama2-button-dropdown">
-                <li><a href="javascript::void();" data-ng-click="save(false);">Save</a></li>
+                <li><a href="javascript::void();" data-ng-click="save(false);" ng-bind="i18n.__('Save')"></a></li>
               </ul>
             </div>
 
@@ -67,17 +67,17 @@
           </div>
 
           <div class="col-md-12" style="margin-top: 30px;">
-            <a href="" class="btn btn-primary pull-left cancel">Cancel</a>
+            <a href="" class="btn btn-primary pull-left cancel">{{ i18n.__('Cancel') }}</a>
             <div class="pull-right">
-              <button class="btn btn-primary" type="submit" wz-previous>Previous</button>
+              <button class="btn btn-primary" type="submit" wz-previous>{{ i18n.__('Previous') }}</button>
               <div class="btn-group pull-right" style="margin-left: 3px;">
-                <button type="button" class="btn btn-primary" data-ng-click="save(true);">Save and Run</button>
+                <button type="button" class="btn btn-primary" data-ng-click="save(true);" ng-bind="i18n.__('Save and Run')"></button>
                 <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   <span class="caret"></span>
                   <span class="sr-only"></span>
                 </button>
                 <ul class="dropdown-menu terrama2-button-dropdown">
-                  <li><a href="javascript::void();" data-ng-click="save(false);">Save</a></li>
+                  <li><a href="javascript::void();" data-ng-click="save(false);" ng-bind="i18n.__('Save')"></a></li>
                 </ul>
               </div>
             </div>
