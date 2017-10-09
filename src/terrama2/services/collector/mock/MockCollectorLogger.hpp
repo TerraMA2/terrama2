@@ -30,7 +30,7 @@
 #ifndef __TERRAMA2_UNITTEST_CORE_MOCK_COLLECTOR_PROCESSLOGGER_HPP__
 #define __TERRAMA2_UNITTEST_CORE_MOCK_COLLECTOR_PROCESSLOGGER_HPP__
 
-#include <terrama2/services/collector/core/CollectorLogger.hpp>
+#include "../core/CollectorLogger.hpp"
 
 #include <gmock/gmock.h>
 

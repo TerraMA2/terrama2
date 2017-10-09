@@ -48,9 +48,8 @@
 #include <terrama2/services/analysis/core/Analysis.hpp>
 #include <terrama2/services/analysis/core/Service.hpp>
 #include <terrama2/services/analysis/core/DataManager.hpp>
+#include <terrama2/services/analysis/mock/MockAnalysisLogger.hpp>
 
-
-#include "MockAnalysisLogger.hpp"
 #include "NovaFriburgoTs.hpp"
 
 #include <terrama2/Config.hpp>
@@ -62,7 +61,6 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
-//#include <QtGui/QImage>
 #include <QImage>
 
 
