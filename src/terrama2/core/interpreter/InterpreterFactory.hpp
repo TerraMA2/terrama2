@@ -51,7 +51,7 @@ namespace terrama2
       public:
         //! DataStorager constructor function.
         typedef std::function<terrama2::core::InterpreterPtr()> FactoryFnctType;
-        typedef std::function<terrama2::core::InterpreterRAII()> RaiiInterpreterFnctType;
+        typedef std::function<std::unique_ptr<InterpreterRAII>()> RaiiInterpreterFnctType;
         //! Register a new DataStorager constructor associated with the DataProviderType.
         void add(const terrama2::core::InterpreterType& interpreterType, FactoryFnctType f, RaiiInterpreterFnctType raiiFunction = nullptr);
         //! Remove the DataStorager constructor associated with the DataProviderType.
@@ -81,7 +81,7 @@ namespace terrama2
         std::map<terrama2::core::InterpreterType, FactoryFnctType> factoriesMap_;
 
         //! List of raii structures to finalize the interpreters.
-        std::vector<InterpreterRAII> raiiInterpreterVector_;
+        std::vector<std::unique_ptr<InterpreterRAII>> raiiInterpreterVector_;
     };
 
 

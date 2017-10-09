@@ -48,7 +48,9 @@ void terrama2::core::InterpreterFactory::add(const terrama2::core::InterpreterTy
   // if registered a raii interpreter function
   // add to the raii vector to be released at destruction
   if(raiiFunction)
+  {
     raiiInterpreterVector_.emplace_back(raiiFunction());
+  }
 }
 
 void terrama2::core::InterpreterFactory::remove(const terrama2::core::InterpreterType& interpreterType)
