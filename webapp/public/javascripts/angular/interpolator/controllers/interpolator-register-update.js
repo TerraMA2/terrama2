@@ -15,7 +15,16 @@ define([], function(){
     $scope.scheduleOptions = {
       showAutomaticOption: true
     };
-
+    $scope.cssBoxSolid = {
+      boxType: "box-solid"
+    };
+    $scope.timezoneOptions = [];
+    var timezoneOption = -12;
+    while (timezoneOption <= 12){
+      $scope.timezoneOptions.push(timezoneOption);
+      timezoneOption++;
+    }
+    $scope.forms = {};
     var config = $window.configuration;
 
     var isUpdating = false;
@@ -25,6 +34,11 @@ define([], function(){
     if (config.input_ds)
       $scope.input_data_series = config.input_ds;
 
+    function closeDialog() {
+      $scope.MessageBoxService.reset();
+    }
+    $scope.close = closeDialog;
+
     $q.all([
       i18n.ensureLocaleIsLoaded(),
       $scope.DataSeriesSemanticsService.init(),
@@ -33,10 +47,22 @@ define([], function(){
       return $scope.ServiceInstance.init().then(function(){
         $scope.filteredServices = $scope.ServiceInstance.list({'service_type_id': $scope.ServiceInstance.types.INTERPOLATION});
         $scope.storagerFormats = $scope.DataSeriesSemanticsService.list({code: "GRID-geotiff"});
-        $scope.providers = $scope.DataProviderService.list();
-
+        $scope.providersList = $scope.DataProviderService.list();
+        $scope.providers = [];
+        $scope.providersList.forEach(function(dataProvider) {
+          $scope.storagerFormats[0].data_providers_semantics.forEach(function(demand) {
+            if(dataProvider.data_provider_type.id == demand.data_provider_type_id) {
+              $scope.providers.push(dataProvider);
+            }
+          })
+        });
+    
         if (isUpdating){
           prepareObjectToUpdate();
+        } else {
+          $scope.outputDataSeries.data_series_semantics = $scope.storagerFormats[0];
+          $scope.outputDataSeries.data_provider = $scope.providers[0];
+          $scope.inter.service_instance_id = $scope.filteredServices[0];
         }
       });
     });
@@ -122,9 +148,20 @@ define([], function(){
       interpolator.data_series_output = outputDataSeries;
       interpolator.data_series_input = $scope.input_data_series.id;
       return interpolator;
-    }
+    };
 
     $scope.save = function(){
+
+      // broadcasting each one terrama2 field directive validation
+      $scope.$broadcast("formFieldValidation");
+
+      if ($scope.forms.generalDataForm.$invalid ||
+        $scope.forms.parameterDataForm.$invalid ||
+        $scope.forms.storeDataForm.$invalid) {
+          $scope.MessageBoxService.danger(i18n.__("Interpolator"), i18n.__("There are invalid fields on form"));
+          return;
+      }
+
       var objectToSave = prepareObjectToSave();
 
       var scheduleValues = Object.assign({}, $scope.inter.schedule);
@@ -158,7 +195,7 @@ define([], function(){
       }).catch(function(err) {
         $log.info(err);
         $scope.MessageBoxService.danger(i18n.__("Interpolator"), i18n.__(err));
-      }); 
+      });
     }
 
   };
