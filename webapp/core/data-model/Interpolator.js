@@ -57,6 +57,10 @@
     this.metadata = meta;
   };
 
+  Interpolator.prototype.setOutputDataSeries = function(output_ds){
+    this.dataSeriesOutput = output_ds;
+  }
+  
   Interpolator.prototype.setInputOutputDataSeries = function(input_ds, output_ds){
     this.dataSeriesInput = input_ds;
     this.dataSeriesOutput = output_ds;

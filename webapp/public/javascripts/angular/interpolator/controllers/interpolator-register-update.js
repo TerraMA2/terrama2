@@ -45,7 +45,7 @@ define([], function(){
       $scope.DataProviderService.init(),
     ]).then(function(){
       return $scope.ServiceInstance.init().then(function(){
-        $scope.filteredServices = $scope.ServiceInstance.list({'service_type_id': $scope.ServiceInstance.types.INTERPOLATION});
+        $scope.filteredServices = $scope.ServiceInstance.list();
         $scope.storagerFormats = $scope.DataSeriesSemanticsService.list({code: "GRID-geotiff"});
         $scope.providersList = $scope.DataProviderService.list();
         $scope.providers = [];

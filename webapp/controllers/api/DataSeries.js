@@ -554,6 +554,11 @@ module.exports = function(app) {
                         .then(function(interpolatorResult){
                           return DataManager.removeInterpolator({id: interpolatorResult.id})
                             .then(function(){
+                              var objectToSend = {
+                                "Interpolators": [interpolatorResult.id],
+                                "DataSeries": [id]
+                              };
+                              TcpService.remove(objectToSend);
                               return response.json({status: 200, name: dataSeriesResult.name});
                             });
                         }).catch(function(err){

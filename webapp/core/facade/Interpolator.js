@@ -11,8 +11,7 @@
   /**
    * Helper to send alerts via TCP
    * 
-   * @param {Array|Object} args A alert values to send
-   * @param {boolean} shouldRun - A flag to defines if service should run context view
+   * @param {Array|Object} args An interpolator values to send
    */
   function sendInterpolator(args) {
     var objToSend = {
@@ -45,6 +44,7 @@
           var options = {transaction: t};
           return DataManager.addDataSeries(interpolatorObject.data_series_output, null, options)
             .then(function(dataSeriesResult){
+              interpolatorObject.dataSeriesOutput = dataSeriesResult;
               interpolatorObject.data_series_output = dataSeriesResult.id;
               return DataManager.addSchedule(scheduleObject, options).then(function(scheduleResult){
                 interpolatorObject.schedule_type = scheduleObject.scheduleType;
@@ -59,6 +59,7 @@
               });
             });
         }).then(function(interpolator){
+          sendInterpolator(interpolator);
           return resolve(interpolator);
         }).catch(function(err){
           return reject(err);
@@ -186,25 +187,8 @@
           })
       })
       .then(function(interpolator){
+        sendInterpolator(interpolator);
         return resolve(interpolator);
-      });
-    });
-  };
-
-  Interpolator.delete = function(interpolatorId){
-    return new PromiseClass(function(resolve, reject){
-      DataManager.orm.transaction(function(t){
-        var options = {transaction: t};
-        return DataManager.removeInterpolator({id: interpolatorId}, options)
-          .then(function(interpolatorId){
-            return interpolatorId;
-          });
-      })
-      .then(function(interpolatorId){
-        return resolve(interpolatorId);
-      })
-      .catch(function(err){
-        return reject(err);
       });
     });
   };

@@ -5577,6 +5577,7 @@ var DataManager = module.exports = {
 
               var interpolatorInstance = new DataModel.Interpolator(interpolatorResult);
               interpolatorInstance.setMetadata(interpolatorMetadataResult);
+              interpolatorInstance.setOutputDataSeries(interpolatorObject.dataSeriesOutput);
 
               return resolve(interpolatorInstance);
             }).catch(function(err) {
