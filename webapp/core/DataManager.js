@@ -192,8 +192,8 @@ var DataManager = module.exports = {
             alertService.metadata = { };
 
             var interpolationService = Object.assign({}, collectorService);
-            interpolationService.name = "Local Interpolation";
-            interpolationService.description = "Local service for Interpolation";
+            interpolationService.name = "Local Interpolator";
+            interpolationService.description = "Local service for Interpolator";
             interpolationService.port = 6547;
             interpolationService.service_type_id = Enums.ServiceType.INTERPOLATION;
 
@@ -5502,6 +5502,14 @@ var DataManager = module.exports = {
     });
   },
 
+  /**
+   * It retrieves a list of interpolators in database
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<DataModel.Interpolator[]>}
+   */
   listInterpolators: function(restriction, options) {
     var self = this;
 
@@ -5531,6 +5539,14 @@ var DataManager = module.exports = {
     });
   },
 
+  /**
+   * It retrieves an interpolator from database
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<DataModel.Interpolator>}
+   */
   getInterpolator: function(restriction, options){
     var self = this;
     return new Promise(function(resolve, reject) {
@@ -5557,6 +5573,14 @@ var DataManager = module.exports = {
     });
   },
 
+  /**
+   * It performs a save interpolator in database
+   *
+   * @param {Object} interpolatorObject - An interpolator object value to save
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<DataModel.Interpolator>}
+   */
   addInterpolator: function(interpolatorObject, options){
     var self = this;
     return new Promise(function(resolve, reject){
@@ -5595,6 +5619,14 @@ var DataManager = module.exports = {
     });
   },
 
+  /**
+   * It performs a save interpolator metadata in database
+   *
+   * @param {Object} interpolatorMetadataObject - An interpolator metadata object value to save
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Object>} - Object of interpolator metadata
+   */
   addInterpolatorMetadata: function(interpolatorMetadataObject, options){
     var self = this;
     return new Promise(function(resolve, reject) {
@@ -5609,6 +5641,15 @@ var DataManager = module.exports = {
 
   },
 
+  /**
+   * It performs update interpolator from given restriction
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} interpolatorObject - An interpolator object values to update
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<DataModel.Interpolator[]>}
+   */
   updateInterpolator: function(restriction, interpolatorObject, options){
     var self = this;
     return new Promise(function(resolve, reject) {
@@ -5632,6 +5673,15 @@ var DataManager = module.exports = {
     });
   },
 
+  /**
+   * It performs upsert interpolator metadata from given restriction
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} interpolatorMetadata - An interpolator metadta object values to update
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<Object>}
+   */
   upsertInterpolatorMetadata: function(interpolatorId, interpolatorMetadata, options){
     var self = this;
     return new Promise(function(resolve, reject){
@@ -5655,24 +5705,14 @@ var DataManager = module.exports = {
     });
   },
 
-  updateInterpolatorMetadata: function(interpolatorMetadataId, interpolatorMetadataObject, options){
-    var self = this;
-    return new Promise(function(resolve, reject) {
-      models.db.InterpolatorMetadata.update(
-        interpolatorMetadataObject,
-        Utils.extend({
-          fields: ["value"],
-          where: {id : interpolatorMetadataId}
-        }, options))
-        .then(function() {
-          return resolve();
-        })
-        .catch(function(err) {
-          return reject(new Error("Could not update interpolator metadata" + err.toString()));
-        });
-    });
-  },
-
+  /**
+   * It removes an interpolator metadata from database
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object?} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise}
+   */
   removeInterpolatorMetadata: function(restriction, options){
     var self = this;
     return new Promise(function(resolve, reject){
@@ -5682,6 +5722,14 @@ var DataManager = module.exports = {
     })
   },
 
+  /**
+   * It removes an interpolator from database
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object?} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise}
+   */
   removeInterpolator: function(interpolatorParam, options){
     var self = this;
     return new Promise(function(resolve, reject) {

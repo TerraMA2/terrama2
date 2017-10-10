@@ -2,7 +2,7 @@
   "use strict";
 
   /**
-   * It represents interpolator metadata for interpolator representaiton
+   * It represents interpolator metadata for interpolator representation
    * 
    * @param {Sequelize} sequelize - Sequelize instance
    * @param {Sequelize.DataTypes} DataTypes - Sequelize Database DataTypes

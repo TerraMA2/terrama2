@@ -23,6 +23,14 @@ module.exports = function(sequelize, DataTypes) {
       classMethods: {
         associate: function(models) {
 
+          Interpolator.belongsTo(models.Project, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: "project_id",
+              allowNull: false
+            }
+          });
+
           Interpolator.belongsTo(models.ServiceInstance, {
             foreignKey: {
               allowNull: true

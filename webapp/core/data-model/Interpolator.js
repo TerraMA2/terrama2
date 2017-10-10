@@ -2,26 +2,92 @@
   'use strict';
 
   // Dependency
+
+  /**
+   * TerraMA² BaseClass of Data Model
+   * @type {AbstractData}
+   */
   var AbstractClass = require("./AbstractData");
   var Schedule = require("./Schedule");
   var AutomaticSchedule = require("./AutomaticSchedule");
 
+/**
+ * TerraMA² Interpolator Data Model representation
+ * 
+ * @class Interpolator
+ */
   function Interpolator(params) {
     // Calling base abstraction
     AbstractClass.call(this, {'class': 'Interpolator'});
+    /**
+     * @name Interpolator#id
+     * @type {number}
+     */
     this.id = params.id;
+    /**
+     * @name Interpolator#active
+     * @type {boolean}
+     */
     this.active = params.active;
+    /**
+     * @name Interpolator#project_id
+     * @type {number}
+     */
     this.project_id = params.project_id;
+    /**
+     * @name Interpolator#service_instance_id
+     * @type {number}
+     */
     this.service_instance_id = params.service_instance_id;
+    /**
+     * @name Interpolator#data_series_input
+     * @type {number}
+     */
     this.data_series_input = params.data_series_input;
+    /**
+     * @name Interpolator#data_series_output
+     * @type {number}
+     */
     this.data_series_output = params.data_series_output;
+    /**
+     * @name Interpolator#schedule_type
+     * @type {number}
+     */
     this.schedule_type = params.schedule_type;
+    /**
+     * @name Interpolator#bounding_rect
+     * @type {string}
+     */
     this.bounding_rect = params.bounding_rect;
+    /**
+     * @name Interpolator#interpolation_attribute
+     * @type {string}
+     */
     this.interpolation_attribute = params.interpolation_attribute;
+    /**
+     * @name Interpolator#interpolator_strategy
+     * @type {number}
+     */
     this.interpolator_strategy = params.interpolator_strategy;
+    /**
+     * @name Interpolator#resolution_x
+     * @type {number}
+     */
     this.resolution_x =  params.resolution_x;
+    /**
+     * @name Interpolator#resolution_y
+     * @type {number}
+     */
     this.resolution_y = params.resolution_y;
+    /**
+     * @name Interpolator#srid
+     * @type {number}
+     */
     this.srid = params.srid;
+    /**
+     * @name Interpolator#schedule_type
+     * @type {number}
+     */
     this.schedule_type = params.schedule_type;
 
     if (params.Schedule || params.schedule){
@@ -39,6 +105,10 @@
     }
   }
 
+  /**
+   * It sets metadata.
+   * @param {Sequelize.Model[]|Object[]}
+   */
   Interpolator.prototype.setMetadata = function(metadata) {
     var meta = {};
     if (metadata instanceof Array) {
@@ -57,10 +127,18 @@
     this.metadata = meta;
   };
 
+  /**
+   * It sets output data series.
+   * @param {Sequelize.Model[]|Object[]}
+   */
   Interpolator.prototype.setOutputDataSeries = function(output_ds){
     this.dataSeriesOutput = output_ds;
   }
   
+  /**
+   * It sets input and output data series.
+   * @param {Sequelize.Model[]|Object[]}
+   */
   Interpolator.prototype.setInputOutputDataSeries = function(input_ds, output_ds){
     this.dataSeriesInput = input_ds;
     this.dataSeriesOutput = output_ds;

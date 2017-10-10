@@ -2,22 +2,25 @@ define([], function(){
   'use strict';
 
   var InterpolatorRegisterUpdate = function($scope, $q, $window, $http, $log, $timeout, i18n, MessageBoxService, Service, DataSeriesSemanticsService, DataProviderService, InterpolatorService){
+
     $scope.i18n = i18n;
     $scope.MessageBoxService = MessageBoxService;
     $scope.ServiceInstance = Service;
     $scope.InterpolatorService = InterpolatorService;
     $scope.DataSeriesSemanticsService = DataSeriesSemanticsService;
     $scope.DataProviderService = DataProviderService;
+    $scope.BASE_URL = BASE_URL;
+
     $scope.inter = {};
     $scope.outputDataSeries = {};
     $scope.bounding_rect = {}
-    $scope.BASE_URL = BASE_URL;
     $scope.scheduleOptions = {
       showAutomaticOption: true
     };
     $scope.cssBoxSolid = {
       boxType: "box-solid"
     };
+
     $scope.timezoneOptions = [];
     var timezoneOption = -12;
     while (timezoneOption <= 12){
@@ -63,6 +66,7 @@ define([], function(){
           $scope.outputDataSeries.data_series_semantics = $scope.storagerFormats[0];
           $scope.outputDataSeries.data_provider = $scope.providers[0];
           $scope.inter.service_instance_id = $scope.filteredServices[0];
+          $scope.inter.active = true;
         }
       });
     });
@@ -139,6 +143,7 @@ define([], function(){
           dataSets: [outputDataSet]
         }
       }
+
       var interpolator = Object.assign({}, $scope.inter);
       var bounding_rect = {
         ll_corner: [$scope.bounding_rect.ll_corner.x, $scope.bounding_rect.ll_corner.y],

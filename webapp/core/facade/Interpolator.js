@@ -1,13 +1,20 @@
 (function(){
   "use strict";
 
-  var Interpolator = module.exports = {};
-
+  
   var DataManager = require("./../DataManager");
   var PromiseClass = require("./../Promise");
   var ScheduleType = require("./../Enums").ScheduleType;
   var TcpService = require("./../facade/tcp-manager/TcpService");
 
+  /**
+   * It represents a mock to handle alert.
+   * It is used in Alert API
+   * 
+   * @class Alert
+   */
+  var Interpolator = module.exports = {};
+  
   /**
    * Helper to send alerts via TCP
    * 
@@ -31,6 +38,14 @@
     TcpService.send(objToSend);
   }
 
+  /**
+   * It applies a save operation and send interpoltor to the service
+   * 
+   * @param {Object} interpolatorObject - An interpolator object to save
+   * @param {Object} scheduleObject - A schedule object to save
+   * @param {number} projectId - A project identifier
+   * @returns {Promise<Interpolator>}
+   */
   Interpolator.save = function(interpolatorObject, scheduleObject, projectId){
     return new PromiseClass(function(resolve, reject){
       try{
@@ -70,6 +85,13 @@
     });
   };
 
+  /**
+   * It retrieves interpolators from database. It applies a filter by ID if there is.
+   * 
+   * @param {number} interpolatorId - Interpolator Identifier
+   * @param {number} projectId - A project identifier
+   * @returns {Promise<Interpolator[]>}
+   */
   Interpolator.retrieve = function(interpolatorId, projectId){
     return new PromiseClass(function(resolve, reject){
       if (interpolatorId){
@@ -92,6 +114,15 @@
     });
   };
 
+  /**
+   * It performs update inteprolator from database from interpolator identifier
+   * 
+   * @param {number} interpolatorId - Interpolator Identifier
+   * @param {Object} interpolatorObject - Interpolator object values
+   * @param {Object} scheduleObject - Schedule object values
+   * @param {number} projectId - A project identifier
+   * @returns {Promise<Interpolator>}
+   */
   Interpolator.update = function(interpolatorId, interpolatorObject, scheduleObject, projectId){
     return new PromiseClass(function(resolve, reject){
       DataManager.orm.transaction(function(t){
@@ -107,7 +138,6 @@
 
             if (interpolator.schedule_type == scheduleObject.scheduleType){
               if (interpolator.schedule_type == ScheduleType.SCHEDULE){
-                // update
                 return DataManager.updateSchedule(interpolator.schedule.id, scheduleObject, options)
                 .then(function() {
                   interpolatorObject.schedule_id = interpolator.schedule_id;
