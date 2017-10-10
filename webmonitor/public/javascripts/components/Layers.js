@@ -24,9 +24,22 @@ define(
         return null;
     }
 
+    var getLayersByProject = function(projectId, includeTemplates, includeCustomLayers) {
+      includeTemplates = (includeTemplates !== undefined ? includeTemplates : false);
+      includeCustomLayers = (includeCustomLayers !== undefined ? includeCustomLayers : false);
+      var layersToReturn = [];
+
+      for(var i = 0, layersLength = memberAllLayers.length; i < layersLength; i++)
+        if(memberAllLayers[i].projectId == projectId || (includeTemplates && memberAllLayers[i].parent === "template") || (includeCustomLayers && memberAllLayers[i].custom))
+          layersToReturn.push($.extend({}, memberAllLayers[i]));
+
+      return layersToReturn;
+    };
+
     var createLayerObject = function(layerData) {
       var layerObject = {};
       layerObject.name = layerData.name;
+      layerObject.description = layerData.description;
       layerObject.nameId = layerData.layers[0];
       layerObject.workspace = layerData.workspace;
       layerObject.id = layerData.workspace ? layerData.workspace + ":" + layerData.layers[0] : layerData.layers[0];
@@ -34,7 +47,7 @@ define(
       layerObject.uriGeoServer = layerData.uriGeoserver;
       layerObject.parent = layerData.type;
       layerObject.serverType = layerData.serverType;
-      layerObject.isParent = layerData.serverType ? false : true;
+      layerObject.isParent = layerData.type ? false : true;
       layerObject.projectId = layerData.projectId;
       layerObject.private = layerData.private;
       layerObject.dataSeriesTypeName = layerData.dataSeriesTypeName;
@@ -42,16 +55,37 @@ define(
       layerObject.status = LayerStatusEnum.ONLINE;
       layerObject.exportation = (layerData.exportation !== undefined && layerData.exportation.error === null && layerData.exportation.data !== null ? layerData.exportation.data : null);
       layerObject.dateInfo = {};
+      layerObject.boundingBox = [];
+
+      if(layerData.type)
+        layerObject.opacity = 1;
 
       return layerObject;
     };
 
-    var updateDateInfo = function(dateInfo, layerId){
+    var setLayerOpacity = function(id, opacity) {
+      var indexLayer = memberAllLayers.map(function(l) { return l.id; }).indexOf(id);
+
+      if(indexLayer != -1)
+        memberAllLayers[indexLayer].opacity = opacity;
+    };
+
+    var updateDateInfo = function(dateInfo, layerId) {
       var indexLayer = memberAllLayers.map(function(l) {
         return l.id
       }).indexOf(layerId);
       if(indexLayer != -1) {
         memberAllLayers[indexLayer].dateInfo = dateInfo;
+      }
+    };
+
+    var updateBoundingBox = function(boundingBox, layerId) {
+      var indexLayer = memberAllLayers.map(function(l) {
+        return l.id
+      }).indexOf(layerId);
+
+      if(indexLayer != -1) {
+        memberAllLayers[indexLayer].boundingBox = boundingBox;
       }
     };
 
@@ -114,9 +148,15 @@ define(
     };
 
     var removePrivateLayers = function() {
+      var layersToRemove = [];
+
       memberAllLayers.forEach(function(layer) {
         if(layer.private)
-          removeLayer(layer);
+          layersToRemove.push($.extend(true, {}, layer));
+      });
+
+      layersToRemove.forEach(function(layer) {
+        removeLayer(layer);
       });
     };
 
@@ -130,9 +170,9 @@ define(
           var layerId = allLayers[i].id;
           var htmlId = allLayers[i].htmlId;
 
-          var spanIcon = "<span class='terrama2-layer-tools terrama2-datepicker-icon' data-toggle='tooltip' title='Layer Tools'> <i class='fa fa-gears'></i></span>";
+          var spanIcon = "<span class='terrama2-layer-tools terrama2-datepicker-icon' data-toggle='tooltip' title='Layer Tools'>" + (allLayers[i].parent != 'custom' && allLayers[i].parent != 'template' ? " <i class='glyphicon glyphicon-resize-full'></i>" : "") + " <i class='fa fa-gear'></i></span>";
 
-          itens += '<li id="' + htmlId + '" data-layerid="' + layerId + '" data-parentid="terrama2-layerexplorer" class="hide">' + allLayers[i].name + spanIcon + '</li>';
+          itens += '<li id="' + htmlId + '" data-layerid="' + layerId + '" data-parentid="terrama2-layerexplorer" class="hide" title="' + allLayers[i].name + '"><span class="layer-name">' + allLayers[i].name + '</span>' + spanIcon + '</li>';
         }
       }
 
@@ -157,7 +197,7 @@ define(
           if(TerraMA2WebComponents.MapDisplay.addImageWMSLayer(layerId, layerName, layerName, uriGeoServer + '/ows', serverType, false, false, "terrama2-layerexplorer", { version: "1.1.0" })) {
             TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, parent, null, "treeview unsortable terrama2-truncate-text", null);
 
-            if(parent == 'dynamic' || parent == 'analysis') {
+            if(parent != 'custom' && parent != 'template') {
               getLayerCapabilities(uriGeoServer, workspace, data[i].nameId, layerId, parent, false);
             }
           }
@@ -165,7 +205,7 @@ define(
           LayerStatus.changeGroupStatusIcon(parent, LayerStatusEnum.ONLINE);
           LayerStatus.addLayerStatusIcon(htmlId);
           LayerStatus.changeLayerStatusIcon(htmlId, LayerStatusEnum.ONLINE);
-          Sortable.addLayerToSort(layerId, layerName);
+          Sortable.addLayerToSort(layerId, layerName, parent);
 
           Utils.getSocket().emit('checkConnection', {
             url: uriGeoServer,
@@ -197,14 +237,17 @@ define(
       removePrivateLayers: removePrivateLayers,
       addLayersToSort: addLayersToSort,
       createLayerObject: createLayerObject,
+      setLayerOpacity: setLayerOpacity,
       addLayer: addLayer,
       getAllLayers: getAllLayers,
       getLayerById: getLayerById,
+      getLayersByProject: getLayersByProject,
       changeLayerVisible: changeLayerVisible,
       getVisibleLayers: getVisibleLayers,
       changeLayerStatus: changeLayerStatus,
       changeParentLayerStatus: changeParentLayerStatus,
       updateDateInfo: updateDateInfo,
+      updateBoundingBox: updateBoundingBox,
       getLayerCapabilities: getLayerCapabilities
     };
   }

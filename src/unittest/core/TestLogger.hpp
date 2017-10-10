@@ -51,6 +51,7 @@ te::da::MockDataSet* createMockDataSet()
   EXPECT_CALL(*mockDataSet, getAsString(::testing::An<std::size_t>(),::testing::_)).WillRepeatedly(::testing::Return(""));
   EXPECT_CALL(*mockDataSet, isNull(std::string())).WillRepeatedly(::testing::Return(false));
   EXPECT_CALL(*mockDataSet, getNumProperties()).WillRepeatedly(::testing::Return(0));
+  EXPECT_CALL(*mockDataSet, moveFirst()).WillRepeatedly(::testing::Return(true));
 
   return mockDataSet;
 }
@@ -72,6 +73,8 @@ te::da::MockDataSourceTransactor* createMockDataSourceTransactor()
   EXPECT_CALL(*mockDataSourceTransactor, addPrimaryKey(::testing::An<const std::string&>(), ::testing::_)).WillRepeatedly(::testing::Return());
   EXPECT_CALL(*mockDataSourceTransactor, addForeignKey(::testing::An<const std::string&>(), ::testing::_)).WillRepeatedly(::testing::Return());
   EXPECT_CALL(*mockDataSourceTransactor, escape(::testing::An<const std::string&>())).WillRepeatedly(::testing::Return(""));
+  EXPECT_CALL(*mockDataSourceTransactor, isInTransaction()).WillRepeatedly(::testing::Return(false));
+  EXPECT_CALL(*mockDataSourceTransactor, begin()).WillRepeatedly(::testing::Return());
 
 
   /* Every time the mockDataSourceTransactor object calls a method that returns a DataSet
@@ -86,47 +89,36 @@ te::da::MockDataSourceTransactor* createMockDataSourceTransactor()
 
 class TestLogger : public terrama2::core::ProcessLogger
 {
-public:
+  public:
 
-  /*!
-   * \brief Class constructor
-   *
-   * It will initialize a mock for DataSource class and set it in ProcessLogger class.
-   */
-  TestLogger()
-    : ProcessLogger()
-  {
-    std::unique_ptr< te::da::MockDataSource > mockDataSource(new ::testing::NiceMock<te::da::MockDataSource>());
-
-    EXPECT_CALL(*mockDataSource.get(), isOpened()).WillRepeatedly(::testing::Return(true));
-    EXPECT_CALL(*mockDataSource.get(), dataSetExists(::testing::_)).WillRepeatedly(::testing::Return(false));
-
-    /* Every time the mockDataSource object calls a method that returns a DataSourceTransactor
-     * the actualy method called will be the createMockDataSourceTransactor() that returns a
-     * new mocked DataSourceTransactor.
-     * A new mocked object is needed in every call because TerraLib takes ownership from the pointer.
+    /*!
+     * \brief Class constructor
+     *
+     * It will initialize a mock for DataSource class and set it in ProcessLogger class.
      */
-    EXPECT_CALL(*mockDataSource.get(), DataSourceTransactoPtrReturn()).WillRepeatedly(::testing::Invoke(&createMockDataSourceTransactor));
+    TestLogger(te::da::MockDataSource* mockDataSource)
+      : ProcessLogger()
+    {
+      setDataSource(mockDataSource);
+      std::string tableName = "unittest"+std::to_string(1);
+      setTableName(tableName);
+    }
 
+    /*!
+     * \brief Class destructor
+     */
+    virtual ~TestLogger() = default;
 
-    setDataSource(mockDataSource.release());
-    std::string tableName = "unittest"+std::to_string(1);
-    setTableName(tableName);
-  }
+    /*!
+     * \brief The method addValue is protected in ProcessLog, so was needed to implement a method
+     * that calls it for unittests.
+     */
+    void logValue(const std::string tag, const std::string value, const RegisterId registerId) const
+    {
+      addValue(tag, value, registerId);
+    }
 
-  /*!
-   * \brief Class destructor
-   */
-  virtual ~TestLogger() = default;
-
-  /*!
-   * \brief The method addValue is protected in ProcessLog, so was needed to implement a method
-   * that calls it for unittests.
-   */
-  void logValue(const std::string tag, const std::string value, const RegisterId registerId) const
-  {
-    addValue(tag, value, registerId);
-  }
+    virtual std::shared_ptr<ProcessLogger> clone() const override {return nullptr; };
 };
 
 

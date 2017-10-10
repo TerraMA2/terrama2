@@ -3,13 +3,13 @@
 'use strict';
 
 /**
- * It defines which context nodejs should initialize. The context names are available in {@link config/config.terrama2}
+ * It defines which context nodejs should initialize. The context names are available in {@link config/instances}
  * @typeof {string}
  */
 var nodeContext = process.argv[2];
 
 /**
- * It defines which port nodejs should use. When this variables is used, it overrides port number from {@link config/config.terrama2}
+ * It defines which port nodejs should use. When this variables is used, it overrides port number from {@link config/instances}
  */
 var nodeContextPort = process.argv[3];
 
@@ -176,7 +176,7 @@ io.attach(server);
 load('sockets').into(io);
 
 // getting db configuration and initializes data manager
-return DataManager.init(function (error) {
+return DataManager.init(null, function (error) {
   if (error) {
     logger.error(error);
     return process.exit(1);

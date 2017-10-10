@@ -47,7 +47,7 @@ module.exports = function(app) {
                   options
               ).then(function(collectorResult) {
                 var collector = collectorResult.collector;
-                collector.project_id = app.locals.activeProject.id;
+                collector.project_id = request.session.activeProject.id;
 
                 var output = {
                   "DataSeries": [collectorResult.input.toObject(), collectorResult.output.toObject()],
@@ -121,7 +121,7 @@ module.exports = function(app) {
       } else {
         var restriction = {
           dataProvider: {
-            project_id: app.locals.activeProject.id
+            project_id: request.session.activeProject.id
           }
         };
       }
@@ -227,7 +227,7 @@ module.exports = function(app) {
         };
 
         if (dataSeriesObject.hasOwnProperty('input') && dataSeriesObject.hasOwnProperty('output')) {
-          dataSeriesObject.input.project_id = app.locals.activeProject.id;
+          dataSeriesObject.input.project_id = request.session.activeProject.id;
           return DataManager.getCollector({data_series_input: dataSeriesId}, options)
             .then(function(collector) {
               collector.service_instance_id = serviceId;
@@ -311,7 +311,7 @@ module.exports = function(app) {
                             });
                         });
                     } else {
-                      if (Utils.isEmpty(filterObject.date)) {
+                      if (Utils.isEmpty(filterObject.date) && filterObject.filterArea == "1") {
                         return null;
                       } else {
                         filterObject.collector_id = collector.id;
@@ -359,7 +359,7 @@ module.exports = function(app) {
                     var dataSeriesOutput = dSeries[0];
                     var dataSeriesInput = dSeries[1];
 
-                    collector.project_id = app.locals.activeProject.id;
+                    collector.project_id = request.session.activeProject.id;
                     var output = {
                       "DataSeries": [dataSeriesInput.toObject(), dataSeriesOutput.toObject()],
                       "Collectors": [collector.toObject()]

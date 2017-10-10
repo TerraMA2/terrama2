@@ -1,6 +1,36 @@
 [
   {
-    "name": "Static geometric object - PostGIS",
+    "name": "Features table (PostgreSQL/PostGIS)",
+    "code": "GEOMETRIC_OBJECT-postgis",
+    "driver": "GEOMETRIC_OBJECT-postgis",
+    "type": "GEOMETRIC_OBJECT",
+    "temporality": "DYNAMIC",
+    "format": "POSTGIS",
+    "allow_storage": true,
+    "providers_type_list": ["POSTGIS"],
+    "gui": {
+      "schema": {
+        "properties": {
+          "table_name": {
+            "type": "string",
+            "title": "Table Name"
+          },
+          "timestamp_property": {
+            "type": "string",
+            "title": "Timestamp property"
+          },
+          "geometry_property": {
+            "type": "string",
+            "title": "Geometry property"
+          }
+        },
+        "required": ["table_name", "timestamp_property", "geometry_property"]
+      },
+      "form": ["*"]
+    }
+  },
+  {
+    "name": "Features table (PostgreSQL/PostGIS)",
     "code": "STATIC_DATA-postgis",
     "driver": "STATIC_DATA-postgis",
     "type": "GEOMETRIC_OBJECT",

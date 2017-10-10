@@ -30,7 +30,7 @@
       var registeredViewObject = registeredView.toObject();
 
       for(var key in memberIoSocket.sockets)
-        memberViewsCache.addViewToViewCache(memberViewsCache.TYPES.NEW_AND_UPDATED, key, registeredViewObject);
+        memberViewsCache.addViewToViewCache(memberViewsCache.TYPES.NEW_AND_UPDATED, memberIoSocket.sockets[key].client.id, registeredViewObject);
 
       memberIoSocket.emit("viewReceived");
     });
@@ -42,7 +42,7 @@
      */
     memberTcpService.on("notifyView", function(viewInfo) {
       for(var key in memberIoSocket.sockets)
-        memberViewsCache.addViewToViewCache(memberViewsCache.TYPES.NOTIFIED, key, viewInfo);
+        memberViewsCache.addViewToViewCache(memberViewsCache.TYPES.NOTIFIED, memberIoSocket.sockets[key].client.id, viewInfo);
 
       memberIoSocket.emit("notifyView");
     });
@@ -54,7 +54,7 @@
      */
     memberTcpService.on("removeView", function(viewInfo) {
       for(var key in memberIoSocket.sockets)
-        memberViewsCache.addViewToViewCache(memberViewsCache.TYPES.REMOVED, key, viewInfo);
+        memberViewsCache.addViewToViewCache(memberViewsCache.TYPES.REMOVED, memberIoSocket.sockets[key].client.id, viewInfo);
 
       memberIoSocket.emit("removeView");
     });

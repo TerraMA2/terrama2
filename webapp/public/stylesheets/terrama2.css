@@ -653,3 +653,19 @@ table.dataTable tbody th, table.dataTable tbody td { padding-left: 12px !importa
   max-width: 100%;
   margin-top: 4px !important;
 }
+
+#shapefile-import-loader {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background: rgba(206, 206, 206, 0.53);
+  z-index: 99999999;
+  text-align: center;
+  top: 0;
+  left: 0;
+}
+
+#shapefile-import-loader > img {
+  width: 60px;
+  margin-top: 25%;
+}

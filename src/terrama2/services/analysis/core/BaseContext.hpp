@@ -46,9 +46,6 @@
 
 #include <boost/functional/hash.hpp>
 
-// Python
-#include <Python.h>
-
 #include <terralib/raster/Raster.h>
 
 namespace te

@@ -63,7 +63,7 @@ namespace terrama2
                 /*
                  \brief Python wrapper for influence by rule operator
                  */
-                boost::python::list byRule(const std::string& dataSeriesName, const terrama2::services::analysis::core::Buffer& buffer = terrama2::services::analysis::core::Buffer());
+                boost::python::list byRule(const std::string& dataSeriesName, const terrama2::services::analysis::core::Buffer& buffer = terrama2::services::analysis::core::Buffer(), bool isActive = false);
 
               } // end namespace python
             }   // end namespace influence

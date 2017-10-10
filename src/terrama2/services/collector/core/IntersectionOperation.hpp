@@ -55,6 +55,7 @@ namespace te
   namespace dt
   {
     class Property;
+    class TimeInstantTZ;
   }
 }
 
@@ -76,7 +77,8 @@ namespace terrama2
          \return The new DataSetSeries with added columns from intersection.
          */
         terrama2::core::DataSetSeries processIntersection(DataManagerPtr dataManager, IntersectionPtr intersection,
-                                                          terrama2::core::DataSetSeries collectedDataSetSeries);
+                                                          terrama2::core::DataSetSeries collectedDataSetSeries,
+                                                          std::shared_ptr<te::dt::TimeInstantTZ> executionDate);
 
         /*!
          \brief Creates a DataSetType with the attributes from the collected dataset plus the attributes configured in the intersection.
@@ -87,7 +89,6 @@ namespace terrama2
          \return A DataSetType with the attributes from the collected dataset plus the attributes configured in the intersection.
          */
         te::da::DataSetType* createDataSetType(te::da::DataSetType* collectedDST,
-                                               te::da::DataSetType* intersectionDST,
                                                std::vector<te::dt::Property*> intersectionDSProperties);
 
         /*!
@@ -101,10 +102,10 @@ namespace terrama2
          \return The new DataSetSeries with added columns from intersection.
          */
         terrama2::core::DataSetSeries processVectorIntersection(DataManagerPtr dataManager,
-                                                                  core::IntersectionPtr intersection,
                                                                   terrama2::core::DataSetSeries collectedDataSetSeries,
                                                                   std::vector<IntersectionAttribute>& vecAttributes,
-                                                                  terrama2::core::DataSeriesPtr intersectionDataSeries);
+                                                                  terrama2::core::DataSeriesPtr intersectionDataSeries,
+                                                                  std::shared_ptr<te::dt::TimeInstantTZ> executionDate);
 
         /*!
          \brief Process the intersection for grid data.
@@ -117,10 +118,10 @@ namespace terrama2
          \return The new DataSetSeries with added columns from intersection.
          */
         terrama2::core::DataSetSeries processGridIntersection(DataManagerPtr dataManager,
-                                                                  core::IntersectionPtr intersection,
                                                                   terrama2::core::DataSetSeries collectedDataSetSeries,
                                                                   std::vector<IntersectionAttribute>& vecAttributes,
-                                                                  terrama2::core::DataSeriesPtr intersectionDataSeries);
+                                                                  terrama2::core::DataSeriesPtr intersectionDataSeries,
+                                                                  std::shared_ptr<te::dt::TimeInstantTZ> executionDate);
 
         /*!
           \brief Get list of bands to be intersected.

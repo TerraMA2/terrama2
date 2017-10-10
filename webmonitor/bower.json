@@ -20,9 +20,9 @@
     "AdminLTE": "admin-lte#^2.3.6",
     "underscore": "^1.8.3",
     "jquery-ui": "^1.12.1",
-    "ol3": "ol3-bower#^3.18.2",
     "moment": "^2.15.1",
     "bootstrap-daterangepicker": "^2.1.24",
-    "almond": "^0.3.3"
+    "almond": "^0.3.3",
+    "malihu-custom-scrollbar-plugin": "^3.1.5"
   }
 }

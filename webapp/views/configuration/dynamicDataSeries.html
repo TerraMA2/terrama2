@@ -28,6 +28,7 @@
   };
 
   var configuration = {
+    hasProjectPermission: {[ hasProjectPermission ]},
     extra: {[extra|json|safe]},
     message: "{[ message ]}",
     dataSeriesType: 'dynamic',
@@ -50,6 +51,9 @@
           break;
         case globals.enums.DataSeriesType.OCCURRENCE:
           return "{[ BASE_URL ]}images/dynamic-data-series/occurrence/occurrence.png";
+          break;
+        case globals.enums.DataSeriesType.GEOMETRIC_OBJECT:
+          return "{[ BASE_URL ]}images/dynamic-data-series/geometric-object/geometric-object.png";
           break;
         default:
           return "{[ BASE_URL ]}images/dynamic-data-series/dcp/dcp.png";

@@ -37,6 +37,24 @@ define(
       Layers.fillLayersData();
     };
 
+    // Function to get initial date of the day
+    var getInitialDateToCalendar = function(dates){
+      var timeFormat = "YYYY-MM-DDTHH:mm:ss";
+      var initialDate = moment(dates.endDate.replace("Z",""));
+      initialDate.set({hour:0,minute:0,second:0,millisecond:0});
+      var initialDateString = initialDate.format(timeFormat) + "Z";
+      if (initialDate < moment(dates.startDate.replace("Z",""))){
+        initialDateString = dates.startDate;
+      }
+      return initialDateString;
+    };
+
+    //Function to update map date on initial request
+    var updateMapDate = function(layerId, dates){
+      var layerTime = dates.startFilterDate + "/" + dates.endFilterDate;
+      TerraMA2WebComponents.MapDisplay.updateLayerTime( /**id */ layerId, /** time */ layerTime);
+    }
+
     var loadEvents = function() {
       $('#projects').on('change', changeProjects);
 
@@ -49,35 +67,18 @@ define(
        */
       $(window).resize(function() {
         memberWindowHeight = $(window).height();
-        memberReducedHeight = memberWindowHeight - $("#institutions-logos").height();
+        memberReducedHeight = memberWindowHeight - $(".footer-monitor").outerHeight();
 
-        if($("body").hasClass('full_screen')) {
-          var interval = window.setInterval(function() {
-            $("#terrama2-map").width("100%");
-          }, 100);
-          window.setTimeout(function() {
-            clearInterval(interval);
-          }, 2000);
+        $("#terrama2-map").height(memberReducedHeight + "px");
+        $("#content").height(memberWindowHeight + "px");
+        $(".content-wrapper").css('min-height', memberWindowHeight + "px");
 
-          $("#terrama2-map").height(memberWindowHeight + "px");
-          $("#content").height(memberWindowHeight + "px");
-          $(".content-wrapper").css('min-height', memberWindowHeight + "px");
-        } else {
-          var interval = window.setInterval(function() {
-            $("#terrama2-map").width($("#content").width() + "px");
-          }, 100);
-          window.setTimeout(function() {
-            clearInterval(interval);
-          }, 2000);
+        window.setTimeout(function() {
+          $("#terrama2-map").width(($("body").hasClass('full_screen') ? "100%" : $("#content").width() + "px"));
+          TerraMA2WebComponents.MapDisplay.updateMapSize();
+        }, 100);
 
-          $("#terrama2-map").height(memberWindowHeight + "px");
-          $("#content").height(memberWindowHeight + "px");
-          $(".content-wrapper").css('min-height', memberWindowHeight + "px");
-        }
-
-        $(".sidebar-menu").height((memberWindowHeight - 195) + "px");
-
-        TerraMA2WebComponents.MapDisplay.updateMapSize();
+        $(".sidebar-menu").height((memberWindowHeight - 195) + "px");        
       });
 
       $('#close-alert').on('click', function() {
@@ -158,7 +159,7 @@ define(
           closeText: "",
           position: { my: 'top', at: 'top+15' },
           open: function() {
-            $('.ui-dialog-titlebar-close').css('background-image', 'url(../images/close.png)');
+            $('.ui-dialog-titlebar-close').css('background-image', 'url(images/close.png)');
             $('.ui-dialog-titlebar-close').css('background-position', 'center');
             $('.ui-dialog-titlebar-close').css('background-size', '20px');
           },
@@ -177,11 +178,23 @@ define(
       });
 
       Utils.getWebAppSocket().on("removeView", function() {
-        Utils.getSocket().emit('retrieveRemovedViews', { clientId: Utils.getWebAppSocket().id });
+        var allLayers = Layers.getAllLayers();
+        var viewsToSend = {};
+
+        for(var i = 0, allLayersLength = allLayers.length; i < allLayersLength; i++)
+          viewsToSend[allLayers[i].id] = allLayers[i].private;
+
+        Utils.getSocket().emit('retrieveRemovedViews', { clientId: Utils.getWebAppSocket().id, views: viewsToSend });
       });
 
       Utils.getWebAppSocket().on('viewReceived', function() {
-        Utils.getSocket().emit('retrieveViews', { clientId: Utils.getWebAppSocket().id });
+        var allLayers = Layers.getAllLayers();
+        var viewsToSend = {};
+
+        for(var i = 0, allLayersLength = allLayers.length; i < allLayersLength; i++)
+          viewsToSend[allLayers[i].id] = allLayers[i].private;
+
+        Utils.getSocket().emit('retrieveViews', { clientId: Utils.getWebAppSocket().id, views: viewsToSend });
       });
 
       Utils.getWebAppSocket().on('projectReceived', function(project) {
@@ -228,7 +241,8 @@ define(
 
       Utils.getSocket().on("retrieveRemovedViewsResponse", function(data) {
         for(var i = 0, viewsLength = data.views.length; i < viewsLength; i++) {
-          var layerId = data.views[i].workspace + ":" + data.views[i].layer.name;
+          var layerIdOrig = (data.views[i].layer && data.views[i].layer.name ? data.views[i].layer.name : data.views[i].layers[0]);
+          var layerId = (data.views[i].workspace ? data.views[i].workspace + ":" + layerIdOrig : layerIdOrig);
           var layerObject = Layers.getLayerById(layerId);
 
           if(layerObject)
@@ -292,7 +306,7 @@ define(
             Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.OFFLINE);
             Layers.changeParentLayerStatus(parent, LayerStatusEnum.OFFLINE);
           } else {
-            listElement[0].removeAttribute("title");
+            listElement[0].setAttribute("title", layerObject.name);
             if(inputElement.hasClass("disabled-content"))
               inputElement.removeClass("disabled-content");
 
@@ -300,6 +314,8 @@ define(
             if(lastStatus == LayerStatusEnum.OFFLINE) {
               Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.ONLINE);
               Layers.changeParentLayerStatus(parent, LayerStatusEnum.ONLINE);
+
+              Layers.getLayerCapabilities(layerObject.uriGeoServer, layerObject.workspace, layerObject.nameId, layerObject.id, layerObject.parent, true);
             }
           }
         }
@@ -312,7 +328,7 @@ define(
             return c.name
           }).indexOf(data.layerName);
 
-          if(layerIndex < 0 || !layerCapabilities[layerIndex].extent)
+          if(layerIndex < 0)
             return;
 
           var listElement = $("li[data-layerid='" + data.parent + "']");
@@ -321,34 +337,36 @@ define(
           if(li.length === 0)
             return;
 
-          var dateObject = {
-            dates: layerCapabilities[layerIndex].extent
-          };
+          if(layerCapabilities[layerIndex].extent !== undefined) {
+            var dateObject = {
+              dates: layerCapabilities[layerIndex].extent
+            };
 
-          if(data.update) {
-            if(layerCapabilities[layerIndex].extent instanceof Array){
-              dateObject.initialDateIndex = 0;
-            } else if(layerCapabilities[layerIndex].extent instanceof Object){
-              dateObject.startFilterDate = layerCapabilities[layerIndex].extent.endDate;
-              dateObject.endFilterDate = layerCapabilities[layerIndex].extent.endDate;
-            }
-          } else {
             var span = "";
+
             if(layerCapabilities[layerIndex].extent instanceof Array) {
-              var sliderDiv = "<div class='slider-content' style='display:none;'><label></label><button type='button' class='close close-slider'>×</button><div id='slider" + $(li).attr("data-layerid").replace(':', '') + "'></div></div>";
-              $(li).append(sliderDiv);
-              span += "<span id='terrama2-slider' class='terrama2-datepicker-icon'> <i class='fa fa-sliders'></i></span>";
-              dateObject.initialDateIndex = 0;
+              if(layerCapabilities[layerIndex].extent.length > 1 && (!data.update || !$(li).has("#terrama2-slider").length)) {
+                var sliderDiv = "<div class='slider-content' style='display:none;'><label></label><button type='button' class='close close-slider'>×</button><div id='slider" + $(li).attr("data-layerid").replace(':', '') + "'></div></div>";
+                $(li).append(sliderDiv);
+                span += "<span id='terrama2-slider' class='terrama2-datepicker-icon'> <i class='fa fa-sliders'></i></span>";
+              }
+              dateObject.initialDateIndex = dateObject.dates.length - 1;
             } else if(layerCapabilities[layerIndex].extent instanceof Object) {
-              span += "<span id='terrama2-calendar' class='terrama2-datepicker-icon'> <i class='fa fa-calendar'></i></span>";
-              dateObject.startFilterDate = layerCapabilities[layerIndex].extent.endDate;
+              if(!data.update || !$(li).has("#terrama2-calendar").length)
+                span += "<span id='terrama2-calendar' class='terrama2-datepicker-icon'> <i class='fa fa-calendar'></i></span>";
+
+              dateObject.startFilterDate = getInitialDateToCalendar(layerCapabilities[layerIndex].extent);
               dateObject.endFilterDate = layerCapabilities[layerIndex].extent.endDate;
+              updateMapDate(data.layerId, dateObject);
             }
+
             $(li).append($(span));
+            Layers.updateDateInfo(dateObject, data.layerId);
           }
 
-          Layers.updateDateInfo(dateObject, data.layerId);
-
+          if(layerCapabilities[layerIndex].boundingBox !== undefined) {
+            Layers.updateBoundingBox(layerCapabilities[layerIndex].boundingBox, data.layerId);
+          }
         } catch(e) {
           console.log(e);
           return;
@@ -391,7 +409,7 @@ define(
                 at: 'top+75'
               },
               open: function() {
-                $('.ui-dialog-titlebar-close').css('background-image', 'url(../images/close.png)');
+                $('.ui-dialog-titlebar-close').css('background-image', 'url(images/close.png)');
                 $('.ui-dialog-titlebar-close').css('background-position', 'center');
                 $('.ui-dialog-titlebar-close').css('background-size', '20px');
               },
@@ -406,8 +424,8 @@ define(
           try {
             var capabilities = Capabilities.getMapCapabilitiesLayers(data.msg);
             AddLayerByUri.fillModal(capabilities);
-            $('#layersModal').modal('show');
           } catch(e) {
+            $('#layersModal').modal('hide');
             $("#terrama2Alert > p > strong").text('Invalid URL!');
             $("#terrama2Alert > p > span").text('Error to find capabilities.');
             $("#terrama2Alert").removeClass('hide');
@@ -418,13 +436,21 @@ define(
 
     var loadLayout = function() {
       memberWindowHeight = $(window).height();
-      memberReducedHeight = memberWindowHeight - $("#institutions-logos").height();
+      memberReducedHeight = memberWindowHeight - $(".footer-monitor").outerHeight();
 
       $.TerraMAMonitor = {};
 
       $.TerraMAMonitor.options = {
         sidebarToggleSelector: "[full_screen='true']",
       };
+
+      $(".custom-scrollbar-light").mCustomScrollbar({
+        theme: "light-thick"
+      });
+
+      $(".custom-scrollbar-dark").mCustomScrollbar({
+        theme: "dark-thick"
+      });
 
       $.TerraMAMonitor.pushMenu = {
         activate: function(toggleBtn) {
@@ -435,7 +461,7 @@ define(
               $("body").removeClass('full_screen');
               $("body").addClass('sidebar-mini');
 
-              $("#terrama2-map").width("auto");
+              $("#terrama2-map").width(($("#terrama2-map").width() - 230) + "px");
 
               $('.logo').css('margin-top', '');
             } else {
@@ -496,7 +522,7 @@ define(
 
       $("#content").height(memberWindowHeight + "px");
       $(".content-wrapper").css('min-height', memberWindowHeight + "px");
-      $("#terrama2-map").height(memberWindowHeight + "px");
+      $("#terrama2-map").height(memberReducedHeight + "px");
       $(".sidebar-menu").height((memberWindowHeight - 195) + "px");
 
       var mapWidthInterval = window.setInterval(function() {
@@ -554,6 +580,7 @@ define(
 
       $("#custom").children("span").each(function() {
         $(this).append(leftArrow);
+        $(this).append("<span class='pull-right-container'> <i class='fa fa-plus pull-right' style='margin-top: 1px;'></i> </span>");
       });
     };
 
@@ -568,7 +595,8 @@ define(
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("custom", "terrama2-layerexplorer", null, "treeview unsortable", null);
         var layerObject = Layers.createLayerObject({
           layers: ["custom"],
-          name: "Custom"
+          name: "Custom",
+          description: null
         });
         Layers.addLayer(layerObject);
       }
@@ -577,7 +605,8 @@ define(
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("template", "terrama2-layerexplorer", null, "treeview unsortable", null);
         var layerObject = Layers.createLayerObject({
           layers: ["template"],
-          name: "Template"
+          name: "Template",
+          description: null
         });
         Layers.addLayer(layerObject);
       }
@@ -586,7 +615,8 @@ define(
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("static", "terrama2-layerexplorer", null, "treeview unsortable", null);
         var layerObject = Layers.createLayerObject({
           layers: ["static"],
-          name: "Static Data"
+          name: "Static Data",
+          description: null
         });
         Layers.addLayer(layerObject);
       }
@@ -595,7 +625,8 @@ define(
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("dynamic", "terrama2-layerexplorer", null, "treeview unsortable", null);
         var layerObject = Layers.createLayerObject({
           layers: ["dynamic"],
-          name: "Dynamic Data"
+          name: "Dynamic Data",
+          description: null
         });
         Layers.addLayer(layerObject);
       }
@@ -604,7 +635,8 @@ define(
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("analysis", "terrama2-layerexplorer", null, "treeview unsortable", null);
         var layerObject = Layers.createLayerObject({
           layers: ["analysis"],
-          name: "Analysis"
+          name: "Analysis",
+          description: null
         });
         Layers.addLayer(layerObject);
       }
@@ -613,18 +645,20 @@ define(
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("alert", "terrama2-layerexplorer", null, "treeview unsortable", null);
         var layerObject = Layers.createLayerObject({
           layers: ["alert"],
-          name: "Alert"
+          name: "Alert",
+          description: null
         });
         Layers.addLayer(layerObject);
       }
 
       //Adding open map street
-      if(TerraMA2WebComponents.MapDisplay.addOSMLayer("osm", "Open street", "Open street", false, "terrama2-layerexplorer", false)) {
+      if(TerraMA2WebComponents.MapDisplay.addOSMLayer("osm", "OpenStreetMap", "OpenStreetMap", false, "terrama2-layerexplorer", false)) {
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("osm", "template", null, "treeview unsortable terrama2-truncate-text", null);
         var layerObject = Layers.createLayerObject({
           layers: ["osm"],
-          name: "Open street",
-          type: "template"
+          name: "OpenStreetMap",
+          type: "template",
+          description: null
         });
         Layers.addLayer(layerObject);
         LayerStatus.addLayerStatusIcon("osm");
@@ -651,9 +685,9 @@ define(
         });
 
         $.post(BASE_URL + "check-authentication", function(data) {
-          if(data.isAuthenticated && !$("#loginButton > button > i").hasClass("fa-user"))
+          if(data.isAuthenticated && $("#loginButton .fa-circle").hasClass("hidden"))
             Login.signin(null, data.username);
-          else if(!data.isAuthenticated && !$("#loginButton > button > i").hasClass("fa-user-times"))
+          else if(!data.isAuthenticated && $("#loginButton .fa-times").hasClass("hidden"))
             Login.signout();
         });
       }, 30000);

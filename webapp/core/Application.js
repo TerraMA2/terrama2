@@ -12,7 +12,7 @@ var _data = {
    */
   "metadata": {},
   /**
-   * It defines a global terrama2 settings (config.terrama2). It contains database config, etc.
+   * It defines a global terrama2 settings (instances files). It contains database config, etc.
    * @type {Object}
    */
   "settings": {},
@@ -32,7 +32,7 @@ var _context = "default";
 /**
  * It defines a TerraMA² Application metadata.
  * 
- * It loads WebApp metadata (package.json), Database configuration (config/config.terrama2)
+ * It loads WebApp metadata (package.json), Database configuration (config/instances/*.json)
  * 
  * @class Application
  */
@@ -53,18 +53,28 @@ Application.prototype.load = function() {
   _data.metadata.version = buffer.version;
   _data.metadata.fullName = buffer.name + " " + buffer.version;
 
-  // reading TerraMA² config.json
-  buffer = JSON.parse(fs.readFileSync(path.join(__dirname, "../config/config.terrama2"), "utf-8"));
-  _data.settings = buffer;
+  // reading TerraMA² instances configuration
+  var configFiles = fs.readdirSync(path.join(__dirname, "../config/instances"));
+  var configObject = {};
+  configFiles.forEach(function(configFile){
+    if (configFile.endsWith(".json")){
+      var configFileContent = JSON.parse(fs.readFileSync(path.join(__dirname, "../config/instances/" + configFile), "utf-8"));
+      var configName = configFile.split(".")[0];
+      configObject[configName] = configFileContent;
+    }
+  });
+  _data.settings = configObject;
 
   // reading TerraMA² .json files in semantics directory
   var semanticsFiles = fs.readdirSync(path.join(__dirname, "../../share/terrama2/semantics"));
   var semanticsArray = [];
   semanticsFiles.forEach(function(semanticFile){
-    var semanticFileContent = JSON.parse(fs.readFileSync(path.join(__dirname, "../../share/terrama2/semantics/" + semanticFile)));
-    semanticFileContent.forEach(function(semanticContent){
-      semanticsArray.push(semanticContent);
-    });
+    if (semanticFile.endsWith(".json")){
+      var semanticFileContent = JSON.parse(fs.readFileSync(path.join(__dirname, "../../share/terrama2/semantics/" + semanticFile)));
+      semanticFileContent.forEach(function(semanticContent){
+        semanticsArray.push(semanticContent);
+      });
+    }
   });
   _data.semantics = semanticsArray;
 };
@@ -72,7 +82,7 @@ Application.prototype.load = function() {
 /**
  * It sets current terrama2 context
  *
- * @throws {Error} When a contexts is not in config.terrama2 
+ * @throws {Error} When a contexts is not in instances/*.json 
  * @param {string} context
  * @returns {void}
  */
@@ -82,7 +92,7 @@ Application.prototype.setCurrentContext = function(context) {
   }
   // checking if there is a context in configuration file
   if (_data.settings && !_data.settings.hasOwnProperty(context)) {
-    var msg = util.format("\"%s\" not found in configuration file. Please check \"webapp/config/config.terrama2\"", context);
+    var msg = util.format("\"%s\" not found in configuration file. Please check \"webapp/config/instances\"", context);
     throw new Error(msg);
   }
 
@@ -97,6 +107,15 @@ Application.prototype.setCurrentContext = function(context) {
 Application.prototype.getContextConfig = function() {
   return _data.settings[_context];
 };
+
+/**
+ * It retrieves all context configs
+ * 
+ * @returns {Object}
+ */
+Application.prototype.getAllConfigs = function() {
+  return _data.settings;
+}
 
 /**
  * It retrieves a TerraMA² running aplication settings. It contains name, version

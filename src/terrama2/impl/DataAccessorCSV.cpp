@@ -237,7 +237,7 @@ QJsonObject terrama2::core::DataAccessorCSV::getFieldObj(const QJsonArray& array
         if(obj.contains(JSON_LONGITUDE_PROPERTY_NAME))
           longitudePropertyName = obj.value(JSON_LONGITUDE_PROPERTY_NAME).toString().toStdString();
 
-        int latitudePropertyPosition = -1, longitudePropertyPosition = -1;
+        size_t latitudePropertyPosition = std::numeric_limits<size_t>::max(), longitudePropertyPosition = std::numeric_limits<size_t>::max();
         if(obj.contains(JSON_LATITUDE_PROPERTY_POSITION))
           latitudePropertyPosition = obj.value(JSON_LATITUDE_PROPERTY_POSITION).toInt();
         if(obj.contains(JSON_LONGITUDE_PROPERTY_POSITION))

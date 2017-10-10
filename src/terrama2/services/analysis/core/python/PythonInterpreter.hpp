@@ -158,6 +158,8 @@ namespace terrama2
           */
           std::string getAttributeValueAsJson(const std::string &attribute);
 
+          std::string getCurrentExecutionDate();
+
         } // end namespace python
       }   // end namespace core
     }     // end namespace analysis

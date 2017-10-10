@@ -1,9 +1,24 @@
 #!/usr/bin/env node
 
 /**
+ * It defines which context nodejs should initialize. The context names are available in {@link config/instances}
+ * @typeof {string}
+ */
+var nodeContext = process.argv[2];
+
+/**
+ * It defines TerraMA² Monitor global configuration (Singleton). Make sure it initializes before everything
+ * 
+ * @type {Application}
+ */
+var Application = require("./../core/Application");
+
+// setting currentContext
+Application.setCurrentContext(nodeContext);
+
+/**
  * Module dependencies.
  */
-
 var app = require('../app');
 var debug = require('debug')('myapp:server');
 var load = require('express-load');
@@ -11,15 +26,10 @@ var http = require('http');
 var io = app.getIo();
 var fs = require("fs");
 var path = require("path");
-/**
- * Get port from environment and store in Express.
- */
 
-// reading TerraMA² config.json
-var config = JSON.parse(fs.readFileSync(path.join(__dirname, "../config/config.terrama2monitor"), "utf-8"));
-var webMonitorConfig = config.webmonitor;
+var settings = Application.getContextConfig();
 
-var port = normalizePort(process.env.PORT || webMonitorConfig.port);
+var port = normalizePort(process.env.PORT || settings.webmonitor.port);
 app.set('port', port);
 
 /**

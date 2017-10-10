@@ -58,7 +58,7 @@ namespace terrama2
       virtual std::string dataSourceType() const override;
 
       //no geometry column to filter
-      virtual void addGeometryFilter(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter, std::vector<std::string>& where) const override{}
+      virtual void addGeometryFilter(terrama2::core::DataSetPtr /*dataSet*/, const terrama2::core::Filter& /*filter*/, std::vector<std::string>& /*where*/) const override{}
     };
   }
 }

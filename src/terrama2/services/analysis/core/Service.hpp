@@ -34,7 +34,6 @@
 #include "Shared.hpp"
 #include "../../../core/utility/Service.hpp"
 #include "../../../core/Shared.hpp"
-#include "python/PythonInterpreter.hpp"
 #include "AnalysisExecutor.hpp"
 
 //STL

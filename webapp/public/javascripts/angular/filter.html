@@ -27,7 +27,7 @@
 
         <div class="col-md-12" ng-if="filter.filterArea == filterTypes.STATIC_DATA.value">
           <form name="staticDataSeriesForm">
-            <div class="form-group" terrama2-show-errors>
+            <div class="terrama2-nopadding-box col-md-6 form-group" terrama2-show-errors>
               <label>{{ i18n.__('Data Series') }}:</label>
               <select class="form-control"
                       id="filterStaticDataSeries"
@@ -39,6 +39,15 @@
               <span class='help-block' ng-show='staticDataSeriesForm.dataSeriesId.$dirty && staticDataSeriesForm.dataSeriesId.$error.required'>
                 {{ i18n.__('Data series is required') }}
               </span>
+            </div>
+            <div class="col-md-6" ng-if="dataSeries.semantics.data_series_type_name =='GRID' ">
+              <div class="form-group">
+                <div class="checkbox" style="margin-left: 20px; margin-top:30px;">
+                  <span style="font-weight: 700;">
+                    <input type="checkbox" id="crop-raster" name="crop_raster" ng-model="filter.area.crop_raster"> {{ i18n.__('Crop raster') }}
+                  </span>
+                </div>
+              </div>
             </div>
           </form>
         </div>

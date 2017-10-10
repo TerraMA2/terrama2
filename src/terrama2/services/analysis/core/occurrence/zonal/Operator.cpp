@@ -102,13 +102,7 @@ double terrama2::services::analysis::core::occurrence::zonal::operatorImpl(terra
 
     AnalysisPtr analysis = context->getAnalysis();
 
-    std::shared_ptr<ContextDataSeries> moDsContext = context->getMonitoredObjectContextDataSeries(dataManagerPtr);
-    if(!moDsContext)
-    {
-      QString errMsg(QObject::tr("Could not recover monitored object data series."));
-      throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
-    }
-
+    std::shared_ptr<ContextDataSeries> moDsContext = context->getMonitoredObjectContextDataSeries();
     if(moDsContext->series.syncDataSet->size() == 0)
     {
       QString errMsg(QObject::tr("Could not recover monitored object data series."));
@@ -192,8 +186,7 @@ double terrama2::services::analysis::core::occurrence::zonal::operatorImpl(terra
               // only operation COUNT can be done without attribute.
               if(!property && statisticOperation != StatisticOperation::COUNT)
               {
-                QString errMsg(QObject::tr("Invalid attribute name"));
-                throw InvalidParameterException() << terrama2::ErrorDescription(errMsg);
+                return std::nan("");
               }
               attributeType = property->getType();
             }
@@ -290,14 +283,14 @@ double terrama2::services::analysis::core::occurrence::zonal::operatorImpl(terra
 
         }
       }
-      catch(const EmptyDataSeriesException& e)
+      catch(const EmptyDataSeriesException&)
       {
         if(statisticOperation == StatisticOperation::COUNT)
           return 0;
         else
           return std::nan("");
       }
-      catch(const terrama2::core::NoDataException& e)
+      catch(const terrama2::core::NoDataException&)
       {
         if(statisticOperation == StatisticOperation::COUNT)
           return 0;

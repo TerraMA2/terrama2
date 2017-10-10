@@ -6,7 +6,7 @@
     "type": "OCCURRENCE",
     "temporality": "DYNAMIC",
     "format": "CSV",
-    "providers_type_list": ["FILE", "FTP", "HTTP"],
+    "providers_type_list": ["FILE", "FTP", "HTTP", "HTTPS"],
     "metadata": {
       "timestamp_property": "data_pas",
       "geometry_property": "position",
@@ -46,7 +46,7 @@
     "type": "OCCURRENCE",
     "temporality": "DYNAMIC",
     "format": "CSV",
-    "providers_type_list": ["FILE", "FTP", "HTTP"],
+    "providers_type_list": ["FILE", "FTP", "HTTP", "HTTPS"],
     "metadata": {
       "timestamp_property": "Horario (GMT)",
       "geometry_property": "position",

@@ -380,6 +380,8 @@ namespace terrama2
         */
         std::shared_ptr<te::gm::Envelope> getExtent(std::size_t i) const;
 
+        std::string getAsString(std::size_t row, const std::string& name) const;
+
       protected:
         std::shared_ptr<te::da::DataSet> dataset_; //!< Smart pointer to the TerraLib dataset.
         mutable std::mutex mutex_; //!< Mutex to synchronize the dataset access.

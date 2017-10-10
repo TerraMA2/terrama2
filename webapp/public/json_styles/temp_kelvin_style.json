@@ -1,0 +1,24 @@
+{
+  "id": "temp_kelvin_style",
+  "name": "Temperature (Kelvin)",
+  "fields": ["band"],
+  "gui": {
+    "schema": {
+      "type": "object",
+      "properties": {
+        "band": {
+          "type": "number",
+          "title": "Band"
+        }
+      },
+      "required": ["band"]
+    },
+    "form": [
+      {
+        "key": "band",
+        "htmlClass": "col-md-6"
+      }
+    ]
+  },
+  "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?> <StyledLayerDescriptor xmlns=\"http://www.opengis.net/sld\" xmlns:ogc=\"http://www.opengis.net/ogc\" xmlns:se=\"http://www.opengis.net/se\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"1.0.0\" xsi:schemaLocation=\"http://www.opengis.net/sld http://schemas.opengis.net/sld/1.0.0/StyledLayerDescriptor.xsd\"> <NamedLayer> <Name>Temperatura Máxima</Name> <UserStyle> <Name>Style</Name> <Title>Style for a Coverage layer.</Title> <FeatureTypeStyle> <Rule> <RasterSymbolizer> <ChannelSelection> <GrayChannel> <SourceChannelName>%band</SourceChannelName> </GrayChannel> </ChannelSelection> <ColorMap type=\"ramp\"> <ColorMapEntry color=\"#40C4FF\" quantity=\"0.0\" opacity=\"0.0\"/> <ColorMapEntry color=\"#40C4FF\" quantity=\"0.0001\" opacity=\"1.0\"/> <ColorMapEntry color=\"#00bfff\" quantity=\"277.15\" opacity=\"1.0\" /> <ColorMapEntry color=\"#00ffff\" quantity=\"281.15\" opacity=\"1.0\" /> <ColorMapEntry color=\"#00ffbf\" quantity=\"285.15\" opacity=\"1.0\" /> <ColorMapEntry color=\"#00ff80\" quantity=\"289.15\" opacity=\"1.0\" /> <ColorMapEntry color=\"#00ff40\" quantity=\"293.15\" opacity=\"1.0\" /> <ColorMapEntry color=\"#80ff00\" quantity=\"297.15\" opacity=\"1.0\" /> <ColorMapEntry color=\"#ffff00\" quantity=\"299.15\" opacity=\"1.0\" /> <ColorMapEntry color=\"#ffbf00\" quantity=\"301.15\" opacity=\"1.0\" /> <ColorMapEntry color=\"#ff8000\" quantity=\"303.15\" opacity=\"1.0\" /> <ColorMapEntry color=\"#ff5c33\" quantity=\"305.15\" opacity=\"1.0\" /> <ColorMapEntry color=\"#ff3300\" quantity=\"307.15\" opacity=\"1.0\" /> <ColorMapEntry color=\"#ff3333\" quantity=\"309.15\" opacity=\"1.0\" /> <ColorMapEntry color=\"#ff1a1a\" quantity=\"311.15\" opacity=\"1.0\" /> <ColorMapEntry color=\"#ff0000\" quantity=\"313.15\" opacity=\"1.0\" /> </ColorMap> </RasterSymbolizer> </Rule> </FeatureTypeStyle> </UserStyle> </NamedLayer> </StyledLayerDescriptor> "
+}

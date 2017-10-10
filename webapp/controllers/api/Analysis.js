@@ -12,7 +12,7 @@ module.exports = function(app) {
       var analysisId = request.params.id;
       var restriction = analysisId ? {id: analysisId} : {};
       var projectId = (request.query.project_id ? request.query.project_id : (request.params.project_id ? request.params.project_id : false));
-      restriction.project_id = (projectId ? projectId : app.locals.activeProject.id);
+      restriction.project_id = (projectId ? projectId : request.session.activeProject.id);
 
       AnalysisFacade.list(restriction).then(function(analysis) {
         return response.json(analysis);
@@ -28,7 +28,7 @@ module.exports = function(app) {
       var scheduleObject = request.body.schedule;
       var shouldRun = request.body.run;
 
-      return AnalysisFacade.save(analysisObject, storager, scheduleObject, app.locals.activeProject.id)
+      return AnalysisFacade.save(analysisObject, storager, scheduleObject, request.session.activeProject.id)
         .then(function(analysisResult) {
           var extra = {};
           if (shouldRun){
@@ -55,7 +55,7 @@ module.exports = function(app) {
         var shouldRun = request.body.run;
 
         return AnalysisFacade
-          .update(parseInt(analysisId), app.locals.activeProject.id, analysisObject, scheduleObject, storager)
+          .update(parseInt(analysisId), request.session.activeProject.id, analysisObject, scheduleObject, storager)
           .then(function(analysisInstance) {
             var extra = {};
             if (shouldRun){
@@ -78,7 +78,7 @@ module.exports = function(app) {
     delete: function(request, response) {
       var id = request.params.id;
       if(id) {
-        AnalysisFacade.delete(parseInt(id), app.locals.activeProject.id).then(function(analysis) {
+        AnalysisFacade.delete(parseInt(id), request.session.activeProject.id).then(function(analysis) {
           return response.json({status: 200, name: analysis.name});
         }).catch(function(err) {
           Utils.handleRequestError(response, err, 400);
@@ -92,7 +92,7 @@ module.exports = function(app) {
       var analysisObject = request.body.analysis;
       var storager = request.body.storager;
       var scheduleObject = request.body.schedule;
-      return AnalysisFacade.validate(analysisObject, storager, scheduleObject, app.locals.activeProject.id)
+      return AnalysisFacade.validate(analysisObject, storager, scheduleObject, request.session.activeProject.id)
         .then(function(builtAnalysis) {
           return response.json({status: 200});
         })

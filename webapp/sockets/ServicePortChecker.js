@@ -8,6 +8,7 @@
  *
  * @property {object} iosocket - Sockets object.
  * @property {object} PortScanner - PortScanner class.
+ * @property {object} memberServicePortNumberChecker - Service port number checker class.
  */
 var ServicePortChecker = function(io) {
 
@@ -15,40 +16,18 @@ var ServicePortChecker = function(io) {
   var iosocket = io.sockets;
   // PortScanner class
   var PortScanner = require("../core/PortScanner");
-
-  var Utils = require('./../core/Utils');
+  // Service Port number checker member
+  var memberServicePortNumberChecker = require("./../core/ServicePortNumberChecker");
 
   // Socket connection event
   iosocket.on('connection', function(client) {
 
     client.on('testPortNumber', function(json) {
-      var returnObject = {
-        checkConnection: (json.checkConnection ? true : false),
-        error: false,
-        message: ""
-      };
-
-      if(json.service)
-        returnObject.service = json.service;
-
-      var host = json.host,
-          port = json.port;
-
-      PortScanner.isPortAvailable(port, host).then(function() {
-        returnObject.status = 200;
-        returnObject.port = port;
-        returnObject.message = "OK";
-      }).catch(function(err) {
-        returnObject.status = 400;
-        returnObject.error = true;
-        returnObject.port = port;
-        returnObject.message = err.toString() + ", port ";
-      }).finally(function() {
-        client.emit('testPortNumberResponse', returnObject);
+      memberServicePortNumberChecker(json, function(response){
+        client.emit('testPortNumberResponse', response);
       })
-
     });
-
+    
     // Postgis connection request event
     client.on('suggestPortNumber', function(json) {
       var returnObject = {

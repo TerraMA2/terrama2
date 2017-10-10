@@ -146,7 +146,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGIS::getSeries(con
   query+= "FROM "+tableName+" AS t";
   query += whereConditions(dataSet, datetimeColumnName, filter);
 
-  TERRAMA2_LOG_DEBUG() << query;
+//  TERRAMA2_LOG_DEBUG() << query;
 
   std::shared_ptr<te::da::DataSet> tempDataSet = transactor->query(query);
 
@@ -213,9 +213,13 @@ void terrama2::core::DataAccessorPostGIS::addGeometryFilter(terrama2::core::Data
     std::vector<std::string>& whereConditions) const
 {
   if(filter.region.get())
+  {
+    std::unique_ptr<te::gm::Geometry> geom(static_cast<te::gm::Geometry*>(filter.region->clone()));
+    geom->transform(4326);
     whereConditions.push_back("ST_INTERSECTS(ST_Transform(t." + getGeometryPropertyName(dataSet)
-                              + ", " + std::to_string(filter.region->getSRID())
-                              + "), ST_GeomFromEWKT('SRID=" + std::to_string(filter.region->getSRID()) + ";" +filter.region->asText()+"'))");
+                              + ", " + std::to_string(geom->getSRID())
+                              + "), ST_GeomFromEWKT('SRID=" + std::to_string(geom->getSRID()) + ";" +geom->asText()+"'))");
+  }
 }
 
 void terrama2::core::DataAccessorPostGIS::updateLastTimestamp(DataSetPtr dataSet, std::shared_ptr<te::da::DataSourceTransactor> transactor) const

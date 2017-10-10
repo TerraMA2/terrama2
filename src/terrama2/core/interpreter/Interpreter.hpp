@@ -38,12 +38,7 @@ namespace terrama2
 {
   namespace core
   {
-    enum class Type
-    {
-      NUMERIC,
-      STRING
-    };
-
+    using InterpreterType = std::string;
     /*!
       \brief Interpreter encapsulating class
 
@@ -94,6 +89,37 @@ namespace terrama2
           - any alteration of the instance is persisted.
       */
       virtual void runScript(const std::string& script) = 0;
+      /*!
+        \brief Execute the script in the interpreter instance and returns the value of a given string variable.
+
+          - any former modification is still valid.
+          - any alteration of the instance is persisted.
+      */
+      virtual std::string runScriptWithStringResult(const std::string& script, const std::string& variableToReturn) = 0;
+    };
+
+    class InterpreterRAII
+    {
+      public:
+        InterpreterRAII(std::function<void()> initializer, std::function<void()> finalizer)
+          : finalizer_(finalizer)
+        {
+          if(initializer)
+            initializer();
+        }
+
+        ~InterpreterRAII()
+        {
+          if(finalizer_)
+            finalizer_();
+        }
+        InterpreterRAII(const InterpreterRAII& other) = delete;
+        InterpreterRAII(InterpreterRAII&& other) = default;
+        InterpreterRAII& operator=(const InterpreterRAII& other) = delete;
+        InterpreterRAII& operator=(InterpreterRAII&& other) = delete;
+
+      private:
+        std::function<void()> finalizer_;
     };
   } /* core */
 } /* terrama2 */

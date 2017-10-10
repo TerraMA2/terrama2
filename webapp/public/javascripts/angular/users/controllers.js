@@ -85,6 +85,7 @@ define([
 
       // callback after remove operation
       $scope.extra = {
+        canRemove: true,
         removeOperationCallback: function(err, data) {
           if(err) {
             return MessageBoxService.danger(i18n.__(title), i18n.__(err.message));
@@ -137,14 +138,24 @@ define([
         // emitting fields validation
         $scope.$broadcast("formFieldValidation");
 
-        if ($scope.form.$invalid) {
+        if($scope.form.$invalid) {
           MessageBoxService.danger(i18n.__(title), i18n.__("There are invalid fields on form"));
           return;
         }
 
         var user = Object.assign({}, $scope.user);
 
-        if (user.password === hash) {
+        if(user.passwordUpdate) {
+          if(user.passwordUpdate !== user.passwordConfirmUpdate) {
+            MessageBoxService.danger(i18n.__(title), i18n.__("The password confirmation must be identical to the password"));
+            return;
+          } else {
+            user.password = user.passwordUpdate;
+            delete user.passwordUpdate;
+          }          
+        }
+
+        if(user.password === hash) {
           delete user.password;
         }
 

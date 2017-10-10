@@ -2,6 +2,7 @@ const KEY = 'terrama2.sid';
 
 var express = require('express'),
     path = require('path'),
+    fs = require('fs'),
     bodyParser = require('body-parser'),
     methodOverride = require('method-override'),
     app = express(),
@@ -16,7 +17,9 @@ var express = require('express'),
     i18nRoutes = require( "i18n-node-angular" );
     server = require('http').Server(app);
 
-app.use(session({ secret: KEY, name: "TerraMA2WebApp", resave: false, saveUninitialized: false }));
+var instance = (process.argv[2] !== undefined ? process.argv[2] : "default");
+
+app.use(session({ secret: KEY, name: "TerraMA2WebApp_" + instance, resave: false, saveUninitialized: false }));
 
 app.use(flash());
 
@@ -45,6 +48,12 @@ app.use(i18n.init);
 app.use(i18nRoutes.getLocale);
 
 i18nRoutes.configure(app, {"extension": ".json", directory : __dirname + "/locales/"});
+
+app.use(function(req, res, next) {
+  var configurations = JSON.parse(fs.readFileSync(path.join(__dirname, './config/instances/' + instance + '.json'), 'utf8'));
+  res.locals.toolsMenu = configurations.toolsMenu;
+  next();
+});
 
 // set up the internacionalization middleware
 app.use(function(req, res, next) {

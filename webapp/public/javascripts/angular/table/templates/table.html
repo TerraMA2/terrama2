@@ -31,6 +31,7 @@
             <p><b>{{ i18n.__('Service version')}}</b>{{": " + serviceVersion}}</p>
             <p><b>{{ i18n.__('Service start time')}}</b>{{": " + serviceStartTime}}</p>
             <p ng-if="showServiceLoggerOffline" style="color: red;"><b>{{ i18n.__('The service can not access the log database!')}}</b></p>
+            <p ng-if="maps_server_connection === false" style="color: red;"><b>{{ i18n.__('The service can not access the map server!')}}</b></p>
 
           </div>
           <div class="modal-footer">
@@ -106,7 +107,8 @@
             </span>
             <i class="fa fa-upload"></i>
           </a>
-          <a ng-href="{{ linkToAdd }}"
+          <a ng-href="{{ extra.canRemove ? linkToAdd : 'javascript:function() { return false; }'}}"
+            ng-disabled="!extra.canRemove"
             class="btn btn-default pull-right"
             data-toggle="tooltip"
             data-placement="top"
@@ -145,7 +147,7 @@
         </tr>
         <tr ng-repeat="element in filteredModel = (model | filter:searchInput | filter:showInTableFilter) | pagingToolLimit: 10 | orderBy: orderElementby track by $index">
           <td ng-show="isFunction(icon())" style="width: 50px;">
-            <img style="margin-left: 5px;" ng-if="iconProperties.type === 'img'" ng-src="{{ icon()(element) }}" alt="" width="{{ width }}" height="{{ height }}"/>
+            <img style="margin-left: 5px;" ng-if="iconProperties.type === 'img'" ng-src="{{ icon()(element) }}" alt="" max-width="{{ width }}" height="{{ height }}"/>
             <span ng-if="iconProperties.type === 'icon'" class="label">
               <i class="terrama2-alert-icon {{ icon()(element) }}"></i>
             </span>
@@ -155,7 +157,9 @@
           </td>
 
           <td ng-if="extra.project" class="pull-cell-left">
-            <a ng-href="{{ extra.project.edit(element) }}" class="btn btn-default btn-sm">
+            <a ng-href="{{ extra.canEdit(element) ? extra.project.edit(element) : 'javascript:function() { return false; }'}}" 
+                class="btn btn-default btn-sm" 
+                ng-disabled="!extra.canEdit(element)">
               <i class="fa fa-pencil"></i> {{ i18n.__("Edit") }}
             </button>
           </td>
@@ -164,8 +168,8 @@
             <button ng-show="element.showErrorButton && element.hasError" ng-click="showErrorInfo(element)" class="btn btn-default btn-sm pull-right" style="color: red; border-color: red; width: 34px; height: 30px;"> 
               <i class="fa fa-warning"></i>
             </button>
-            <button ng-show="element.online" ng-click="showInfo(element)" class="btn btn-default btn-sm pull-right" style="width: 34px; height: 30px;" ng-class="{'service-warning': !element.logger_online}"> 
-              <i ng-class="{ 'fa fa-info': element.logger_online, 'fa fa-warning': !element.logger_online}" ></i>
+            <button ng-show="element.online" ng-click="showInfo(element)" class="btn btn-default btn-sm pull-right" style="width: 34px; height: 30px;" ng-class="{'service-warning': !element.logger_online || element.maps_server_connection === false}"> 
+              <i ng-class="{ 'fa fa-info': element.logger_online && element.maps_server_connection !== false, 'fa fa-warning': !element.logger_online || element.maps_server_connection === false}" ></i>
             </button>
           </td>
 
@@ -234,7 +238,7 @@
           </td>
 
           <td ng-if="extra.showRunButton" ng-disabled class="pull-cell-left">
-            <button ng-disabled="!extra.canRun(element) || extra.disabledButtons(element)"
+            <button ng-disabled="!extra.canRun(element) || extra.disabledButtons(element) || !extra.canRemove"
                     class="btn btn-default btn-sm"
                     ng-class="{ 'loading-button': extra.disabledButtons(element) }"
                     ng-click="extra.run(element)">
@@ -243,12 +247,13 @@
             </button>
           </td>
 
-          <td ng-if="isFunction(remove)" class="pull-cell-left">
+          <td ng-if="isFunction(remove)" class="pull-cell-left"
+              data-toggle="tooltip"
+              data-placement="top"
+              title="{{ extra.canRemove ? i18n.__('Remove data') : i18n.__('User is not allowed') }}">
             <button class="btn btn-sm btn-danger"
                     ng-click="confirmRemoval(element)"
-                    data-toggle="tooltip"
-                    data-placement="top"
-                    title="{{ i18n.__('Remove data') }}">
+                    ng-disabled="isFunction(extra.canRemove) ? !extra.canRemove(element) : !extra.canRemove">
               <span class="glyphicon glyphicon-remove"></span>
               <span class="hidden-xs"></span>
               <span ng-bind="i18n.__('Remove')"></span>

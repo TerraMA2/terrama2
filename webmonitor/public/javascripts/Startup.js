@@ -17,6 +17,8 @@ requirejs(
     'components/AddLayerByUri',
     'components/LayerToolbox',
     'components/Login',
+    'components/AnimatedLayer',
+    'components/State',
     'TerraMA2WebComponents'
   ],
   function(
@@ -31,6 +33,8 @@ requirejs(
     AddLayerByUri,
     LayerToolbox,
     Login,
+    AnimatedLayer,
+    State,
     TerraMA2WebComponents
   ) {
     TerraMA2WebComponents.LayerExplorer.init();
@@ -46,6 +50,8 @@ requirejs(
       MapTools.init();
       AddLayerByUri.init();
       LayerToolbox.init();
+      AnimatedLayer.init();
+      State.init();
       Login.init();
     });
   }

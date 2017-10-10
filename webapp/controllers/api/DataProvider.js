@@ -42,11 +42,13 @@ module.exports = function(app) {
                 active: dataProviderReceived.active || false
               };
 
-              if (uriObject.protocol == 'FTP'){
+              if(uriObject.protocol == 'FTP' || uriObject.protocol == 'HTTP' || uriObject.protocol == 'HTTPS') {
                 dataProviderObject['configuration'] = {
-                  active_mode: uriObject.active_mode,
                   timeout: uriObject.timeout
                 }
+
+                if(uriObject.protocol == 'FTP')
+                  dataProviderObject['configuration']['active_mode'] = uriObject.active_mode;
               }
 
               // try to save
@@ -90,7 +92,7 @@ module.exports = function(app) {
         });
         response.json(output);
       } else if(name) {
-        return DataManager.getDataProvider({name: name, project_id: app.locals.activeProject.id}).then(function(dataProvider) {
+        return DataManager.getDataProvider({name: name, project_id: request.session.activeProject.id}).then(function(dataProvider) {
           response.json(dataProvider.toObject());
         }).catch(function(err) {
           response.status(400);
@@ -98,7 +100,7 @@ module.exports = function(app) {
         });
       } else {
         var output = [];
-        DataManager.listDataProviders({project_id: app.locals.activeProject.id}).forEach(function(element) {
+        DataManager.listDataProviders({project_id: request.session.activeProject.id}).forEach(function(element) {
           output.push(element.rawObject());
         });
         response.json(output);
@@ -119,17 +121,19 @@ module.exports = function(app) {
         uri: requester.uri
       };
 
-      if (uriObject.protocol == 'FTP'){
+      if(uriObject.protocol == 'FTP' || uriObject.protocol == 'HTTP' || uriObject.protocol == 'HTTPS') {
         toUpdate['configuration'] = {
-          active_mode: uriObject.active_mode,
           timeout: uriObject.timeout
         }
+
+        if(uriObject.protocol == 'FTP')
+          toUpdate['configuration']['active_mode'] = uriObject.active_mode;
       }
 
       if (dataProviderId) {
         dataProviderId = parseInt(dataProviderId);
         return DataManager.updateDataProvider(dataProviderId, toUpdate).then(function() {
-          return DataManager.getDataProvider({id: dataProviderId, project_id: app.locals.activeProject.id}).then(function(dProvider) {
+          return DataManager.getDataProvider({id: dataProviderId, project_id: request.session.activeProject.id}).then(function(dProvider) {
             TcpService.send({
               "DataProviders": [dProvider.toService()]
             });

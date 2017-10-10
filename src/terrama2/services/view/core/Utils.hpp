@@ -107,6 +107,15 @@ namespace terrama2
          */
         void recreateFolder(const std::string& folderpath);
 
+        /*! \brief Tries to remove file from disk
+         * \note It only throw exception when the filepath exists but could not remove (Permission management/Lock)
+         *
+         * \throws Exception when could not remove file.
+         *
+         * \param filepath Path to file
+         */
+        void removeFile(const std::string& filepath);
+
       } // end namespace core
     }   // end namespace view
   }     // end namespace services

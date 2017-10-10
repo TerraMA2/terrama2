@@ -124,18 +124,13 @@ std::vector< std::string > terrama2::services::analysis::core::dcp::zonal::influ
       throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
     }
 
-    auto moDsContext = context->getMonitoredObjectContextDataSeries(dataManagerPtr);
-    if(!moDsContext)
+    auto moDsContext = context->getMonitoredObjectContextDataSeries();
+    if(!moDsContext || !moDsContext->series.teDataSetType)
     {
       QString errMsg(QObject::tr("Could not recover monitored object data series."));
       throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
     }
 
-    if(!moDsContext->series.teDataSetType)
-    {
-      QString errMsg(QObject::tr("Invalid dataset type for monitored object data series."));
-      throw terrama2::services::analysis::core::InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
-    }
     // end recover operation data
     ////////////////////////////////
 
@@ -190,7 +185,8 @@ std::vector< std::string > terrama2::services::analysis::core::dcp::zonal::influ
 }
 
 std::vector< std::string > terrama2::services::analysis::core::dcp::zonal::influence::byRule(const std::string& dataSeriesName,
-                                                                                             const terrama2::services::analysis::core::Buffer& buffer)
+                                                                                             const terrama2::services::analysis::core::Buffer& buffer,
+                                                                                             bool isActive)
 {
   ///////////////////////////////////////
   // verify input data
@@ -235,14 +231,7 @@ std::vector< std::string > terrama2::services::analysis::core::dcp::zonal::influ
 
     AnalysisPtr analysis = context->getAnalysis();
 
-    auto moDsContext = context->getMonitoredObjectContextDataSeries(dataManagerPtr);
-    if(!moDsContext)
-    {
-      QString errMsg(QObject::tr("Could not recover monitored object data series."));
-      errMsg = errMsg.arg(analysis->id);
-      throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
-    }
-
+    auto moDsContext = context->getMonitoredObjectContextDataSeries();
     auto moGeom = moDsContext->series.syncDataSet->getGeometry(cache.index, moDsContext->geometryPos);
     if(!moGeom)
     {
@@ -260,10 +249,11 @@ std::vector< std::string > terrama2::services::analysis::core::dcp::zonal::influ
     // end recover operation data
     /////////////////////////////////////////////////////////////
 
+    std::vector< std::string > vecDCP;
+
     // create monitored object buffer
     auto geomResult = createBuffer(buffer, moGeom);
 
-    std::vector< std::string > vecDCP;
     auto influenceType = zonal::getInfluenceType(analysis);
     for(const auto& dataset : dcpDataSeries->datasetList)
     {
@@ -278,17 +268,19 @@ std::vector< std::string > terrama2::services::analysis::core::dcp::zonal::influ
       auto dcpInfluenceBuffer = context->getDCPBuffer(dcpDataset->id);
       if(!dcpInfluenceBuffer)
       {
-        dcpInfluenceBuffer = zonal::createDCPInfluenceBuffer(analysis, dcpDataset->position, geomResult->getSRID(),
-                                                      influenceType);
+        dcpInfluenceBuffer = zonal::createDCPInfluenceBuffer(analysis, dcpDataset->position, geomResult->getSRID(), influenceType);
         context->addDCPBuffer(dcpDataset->id, dcpInfluenceBuffer);
       }
 
       if(zonal::verifyDCPInfluence(influenceType, geomResult, dcpInfluenceBuffer))
       {
-        vecDCP.push_back(dcpDataset->alias());
+        if(isActive && dcpDataset->active)//only add active DCP
+          vecDCP.push_back(dcpDataset->alias());
+        else
+          vecDCP.push_back(dcpDataset->alias());
       }
     }
-
+    
     return vecDCP;
   }
   catch(const terrama2::Exception& e)

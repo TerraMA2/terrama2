@@ -3,65 +3,60 @@
 define(
   [],
   function() {
+
+    var getDateExtentFromLayer = function(layer) {
+      var extent = undefined;
+      var boundingBox = undefined;
+
+      if(layer.hasOwnProperty('Extent')) {
+        var stringextent = layer.Extent[0]._;
+
+        if(stringextent.includes('/')) {
+          var startDate = stringextent.split('/')[0];
+          var endDate = stringextent.split('/')[1];
+
+          if(startDate != endDate) {
+            extent = {
+              startDate: startDate,
+              endDate: endDate
+            };
+          }
+        } else {
+          extent = stringextent.split(',');
+        }
+      }
+
+      if(layer.hasOwnProperty('LatLonBoundingBox')) {
+        boundingBox = [Number(layer.LatLonBoundingBox[0].$.minx), Number(layer.LatLonBoundingBox[0].$.miny), Number(layer.LatLonBoundingBox[0].$.maxx), Number(layer.LatLonBoundingBox[0].$.maxy)];
+      }
+
+      return {
+        name: layer.Name[0],
+        title: layer.Title[0],
+        extent: extent,
+        boundingBox: boundingBox
+      };
+    };
+
     /**
      * Method to get Layers from map capabilities
      */
     var getMapCapabilitiesLayers = function(capabilities) {
       var layers = capabilities.Capability[0].Layer[0];
-
       var capabilitiesList = [];
 
-      var layersLength = layers.Layer.length;
-      for(var i = 0; i < layersLength; i++) {
-        if(layers.Layer[i].hasOwnProperty('Layer')) {
-          var subLayersLength = layers.Layer[i].Layer.length;
-          for(var j = 0; j < subLayersLength; j++) {
-            var extent = undefined;
-            if(layers.Layer[i].Layer[j].hasOwnProperty('Extent')) {
-              var stringextent = layers.Layer[i].Layer[j].Extent[0]._;
-              if(stringextent.includes('/')) {
-                var startDate = stringextent.split('/')[0];
-                var endDate = stringextent.split('/')[1];
-                if(startDate != endDate) {
-                  extent = {
-                    startDate: startDate,
-                    endDate: endDate
-                  }
-                }
-              } else {
-                extent = stringextent.split(',');
-              }
+      if(layers.Layer !== undefined) {
+        for(var i = 0, layersLength = layers.Layer.length; i < layersLength; i++) {
+          if(layers.Layer[i].hasOwnProperty('Layer')) {
+            for(var j = 0, subLayersLength = layers.Layer[i].Layer.length; j < subLayersLength; j++) {
+              capabilitiesList.push(getDateExtentFromLayer(layers.Layer[i].Layer[j]));
             }
-            capabilitiesList.push({
-              name: layers.Layer[i].Layer[j].Name[0],
-              title: layers.Layer[i].Layer[j].Title[0],
-              extent: extent
-            })
+          } else {
+            capabilitiesList.push(getDateExtentFromLayer(layers.Layer[i]));
           }
-        } else {
-          var extent = undefined;
-          if(layers.Layer[i].hasOwnProperty('Extent')) {
-            var stringextent = layers.Layer[i].Extent[0]._;
-            if(stringextent.includes('/')) {
-              var startDate = stringextent.split('/')[0];
-              var endDate = stringextent.split('/')[1];
-              if(startDate != endDate) {
-                extent = {
-                  startDate: startDate,
-                  endDate: endDate
-                }
-              }
-            } else {
-              extent = stringextent.split(',');
-            }
-          }
-          capabilitiesList.push({
-            name: layers.Layer[i].Name[0],
-            title: layers.Layer[i].Title[0],
-            extent: extent
-          })
         }
       }
+
       return capabilitiesList;
     };
 
