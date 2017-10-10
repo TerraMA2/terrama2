@@ -54,6 +54,12 @@
 #include <terrama2/services/alert/impl/Utils.hpp>
 #endif
 
+#ifdef TERRAMA2_INTERPOLATOR_ENABLED
+#include <terrama2/services/interpolator/core/Service.hpp>
+#include <terrama2/services/interpolator/core/DataManager.hpp>
+#include <terrama2/services/interpolator/core/InterpolatorLogger.hpp>
+#endif
+
 #include <terrama2/core/network/TcpManager.hpp>
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/core/utility/TerraMA2Init.hpp>
@@ -89,6 +95,7 @@ const std::string analysisType = "analysis";
 const std::string collectorType = "collector";
 const std::string viewType = "view";
 const std::string alertType = "alert";
+const std::string interpolatorType = "interpolator";
 
 bool checkServiceType(const std::string& serviceType)
 {
@@ -112,8 +119,14 @@ bool checkServiceType(const std::string& serviceType)
     return true;
 #endif
 
+#ifdef TERRAMA2_INTERPOLATOR_ENABLED
+  if(serviceType == interpolatorType)
+    return true;
+#endif
+
   return false;
 }
+
 #ifdef TERRAMA2_COLLECTOR_ENABLED
 std::tuple<std::shared_ptr<terrama2::core::DataManager>, std::shared_ptr<terrama2::core::Service>, std::shared_ptr<terrama2::core::ProcessLogger> >
 createCollector()
@@ -173,6 +186,20 @@ createAlert()
 }
 #endif
 
+#ifdef TERRAMA2_INTERPOLATOR_ENABLED
+std::tuple<std::shared_ptr<terrama2::core::DataManager>, std::shared_ptr<terrama2::core::Service>, std::shared_ptr<terrama2::core::ProcessLogger> >
+createInterpolator()
+{
+  auto dataManager = std::make_shared<terrama2::services::interpolator::core::DataManager>();
+  auto service = std::make_shared<terrama2::services::interpolator::core::Service>(dataManager);
+  auto logger = std::make_shared<terrama2::services::interpolator::core::InterpolatorLogger>();
+
+  service->setLogger(logger);
+
+  return std::make_tuple(dataManager, service, logger);
+}
+#endif
+
 std::tuple<std::shared_ptr<terrama2::core::DataManager>, std::shared_ptr<terrama2::core::Service>, std::shared_ptr<terrama2::core::ProcessLogger> >
 createService(const std::string& serviceType)
 {
@@ -194,6 +221,11 @@ createService(const std::string& serviceType)
 #ifdef TERRAMA2_ALERT_ENABLED
   if(serviceType == alertType)
     return createAlert();
+#endif
+
+#ifdef TERRAMA2_INTERPOLATOR_ENABLED
+  if(serviceType == interpolatorType)
+    return createInterpolator();
 #endif
 
   exit(SERVICE_LOAD_ERROR);
