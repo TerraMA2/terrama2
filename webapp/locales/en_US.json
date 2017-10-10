@@ -1042,5 +1042,6 @@
   "Y max": "Y max",
   "X resolution": "X resolution",
   "Y resolution": "Y resolution",
-  "Power factor": "Power factor"
+  "Power factor": "Power factor",
+  "Interpolate": "Interpolate"
 }

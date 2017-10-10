@@ -1054,5 +1054,6 @@
   "X resolution": "",
   "Y resolution": "",
   "Power factor": "",
-	"Transfer Shapefile": ""
+	"Transfer Shapefile": "",
+	"Interpolate": ""
 }

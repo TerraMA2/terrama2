@@ -48,7 +48,7 @@ define([], function(){
       $scope.DataProviderService.init(),
     ]).then(function(){
       return $scope.ServiceInstance.init().then(function(){
-        $scope.filteredServices = $scope.ServiceInstance.list();
+        $scope.filteredServices = $scope.ServiceInstance.list({'service_type_id': $scope.ServiceInstance.types.INTERPOLATION});
         $scope.storagerFormats = $scope.DataSeriesSemanticsService.list({code: "GRID-geotiff"});
         $scope.providersList = $scope.DataProviderService.list();
         $scope.providers = [];
@@ -65,7 +65,7 @@ define([], function(){
         } else {
           $scope.outputDataSeries.data_series_semantics = $scope.storagerFormats[0];
           $scope.outputDataSeries.data_provider = $scope.providers[0];
-          $scope.inter.service_instance_id = $scope.filteredServices[0];
+          $scope.inter.service_instance_id = $scope.filteredServices[0].id;
           $scope.inter.active = true;
         }
       });
