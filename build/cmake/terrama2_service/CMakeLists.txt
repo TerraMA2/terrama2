@@ -60,7 +60,7 @@ if(APPLE AND TERRAMA2_BUILD_AS_BUNDLE)
   find_library(TERRAMA2_COREFOUNDATION_LIBRARY
                NAMES CoreFoundation
                PATHS "/")
-  
+
   set(MACOSX_BUNDLE_BUNDLE_NAME "terrama2-service")
   set(MACOSX_BUNDLE_SIGNATURE "terrama2-service")
   set(MACOSX_BUNDLE_EXECUTABLE_NAME "terrama2.sh")
@@ -103,6 +103,10 @@ IF(TERRAMA2_ALERT_ENABLED)
                                          terrama2_alert_impl)
 ENDIF()
 
+IF(TERRAMA2_INTERPOLATOR_ENABLED)
+  target_link_libraries(terrama2_service terrama2_interpolator_core)
+ENDIF()
+
 install(TARGETS terrama2_service
         EXPORT terrama2-targets
         RUNTIME DESTINATION ${TERRAMA2_DESTINATION_RUNTIME} COMPONENT runtime
@@ -124,14 +128,14 @@ if(APPLE AND TERRAMA2_BUILD_AS_BUNDLE)
 
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/qt.conf
           DESTINATION ${TERRAMA2_BASE_DESTINATION_DIR}/Resources COMPONENT runtime)
-  
+
 elseif(WIN32)
-    
+
   file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/qt.conf
     "[Paths]\nBinaries = .\nPlugins = ../qtplugins")
-         
+
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/qt.conf
-          DESTINATION bin COMPONENT runtime)          
+          DESTINATION bin COMPONENT runtime)
 endif()
 
 export(TARGETS terrama2_service APPEND FILE ${CMAKE_BINARY_DIR}/terrama2-exports.cmake)
