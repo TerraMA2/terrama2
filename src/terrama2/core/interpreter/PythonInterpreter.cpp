@@ -50,9 +50,9 @@ struct StateLock
     PyGILState_STATE gilState_;
 };
 
-terrama2::core::InterpreterRAII terrama2::core::PythonInterpreter::createInitializer()
+std::unique_ptr<terrama2::core::InterpreterRAII> terrama2::core::PythonInterpreter::createInitializer()
 {
-  return InterpreterRAII(&initializeInterpreter, &finalizeInterpreter);
+  return std::unique_ptr<InterpreterRAII>(new InterpreterRAII(&initializeInterpreter, &finalizeInterpreter));
 }
 
 void terrama2::core::PythonInterpreter::initializeInterpreter()
