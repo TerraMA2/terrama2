@@ -23,8 +23,6 @@
 
 #include <terrama2/impl/Utils.hpp>
 
-
-
 #include <examples/data/ResultAnalysisPostGis.hpp>
 #include <examples/data/OccurrenceWFP.hpp>
 #include <examples/data/StaticPostGis.hpp>
@@ -39,7 +37,7 @@
 #include <QCoreApplication>
 #include <QUrl>
 
-
+//monitoredDataSeries
 using namespace terrama2::services::analysis::core;
 
 int main(int argc, char* argv[])
@@ -54,40 +52,8 @@ int main(int argc, char* argv[])
 
   QCoreApplication app(argc, argv);
 
-  auto& serviceManager = terrama2::core::ServiceManager::getInstance();
 
   auto dataManager = std::make_shared<terrama2::services::analysis::core::DataManager>();
-
-  auto loggerCopy = std::make_shared<terrama2::core::MockAnalysisLogger>();
-
-  EXPECT_CALL(*loggerCopy, setConnectionInfo(::testing::_)).WillRepeatedly(::testing::Return());
-  EXPECT_CALL(*loggerCopy, setTableName(::testing::_)).WillRepeatedly(::testing::Return());
-  EXPECT_CALL(*loggerCopy, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
-  EXPECT_CALL(*loggerCopy, getDataLastTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
-  EXPECT_CALL(*loggerCopy, done(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
-  EXPECT_CALL(*loggerCopy, start(::testing::_)).WillRepeatedly(::testing::Return(0));
-  EXPECT_CALL(*loggerCopy, isValid()).WillRepeatedly(::testing::Return(true));
-
-  auto logger = std::make_shared<terrama2::core::MockAnalysisLogger>();
-
-  EXPECT_CALL(*logger, setConnectionInfo(::testing::_)).WillRepeatedly(::testing::Return());
-  EXPECT_CALL(*logger, setTableName(::testing::_)).WillRepeatedly(::testing::Return());
-  EXPECT_CALL(*logger, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
-  EXPECT_CALL(*logger, getDataLastTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
-  EXPECT_CALL(*logger, done(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
-  EXPECT_CALL(*logger, start(::testing::_)).WillRepeatedly(::testing::Return(0));
-  EXPECT_CALL(*logger, clone()).WillRepeatedly(::testing::Return(loggerCopy));
-  EXPECT_CALL(*logger, isValid()).WillRepeatedly(::testing::Return(true));
-
-  Service service(dataManager);
-  serviceManager.setInstanceId(1);
-  serviceManager.setLogger(logger);
-  serviceManager.setLogConnectionInfo(te::core::URI(""));
-
-  service.setLogger(logger);
-  service.start();
-
-
 
   /*
    * DataProvider and dataSeries result
@@ -116,7 +82,6 @@ add_value("count", x))z";
   analysis->type = AnalysisType::MONITORED_OBJECT_TYPE;
   analysis->serviceInstanceId = 1;
 
-
   /*
    * DataProvider and dataSeries Static
   */
@@ -124,15 +89,15 @@ add_value("count", x))z";
   auto dataProviderStatic = terrama2::staticpostgis::dataProviderStaticPostGis();
   dataManager->add(dataProviderStatic);
 
-  auto dataSeries = terrama2::staticpostgis::dataSeriesEstados2010(dataProviderStatic);
-  dataManager->add(dataSeries);
-
+  auto staticDataSeries = terrama2::staticpostgis::dataSeriesEstados2010(dataProviderStatic);
+  dataManager->add(staticDataSeries);
 
   AnalysisDataSeries monitoredObjectADS;
   monitoredObjectADS.id = 1;
-  monitoredObjectADS.dataSeriesId = dataSeries->id;
+  monitoredObjectADS.dataSeriesId = staticDataSeries->id;
   monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
   monitoredObjectADS.metadata["identifier"] = "fid";
+
 
   /*
    * DataProvider and dataSeries Occurrence
@@ -159,12 +124,15 @@ add_value("count", x))z";
 
   dataManager->add(analysis);
 
-  service.addToQueue(analysis->id, terrama2::core::TimeUtils::stringToTimestamp("2016-04-30T20:15:00-03", terrama2::core::TimeUtils::webgui_timefacet));
+  terrama2::services::analysis::core::AnalysisExecutor executor;
+  auto result = executor.validateAnalysis(dataManager, analysis);
 
+  std::cout << "Validate result for monitored object analysis: " <<  (result.valid ? "OK" : "Not OK") << std::endl;
+  for(const auto& message : result.messages)
+  {
+    std::cout << message << std::endl;
+  }
 
-  QTimer timer;
-  QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-  timer.start(100000);
   app.exec();
 
 
@@ -172,4 +140,3 @@ add_value("count", x))z";
 
   return 0;
 }
-
