@@ -4137,6 +4137,25 @@ var DataManager = module.exports = {
   },
 
   /**
+   * It performs save attached view in database
+   *
+   * @param {Object} attachedViewObject - An attached view values to save
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Alert>}
+   */
+  addAlertAttachedView: function(attachedViewObject, options){
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return models.db.AlertAttachedView.create(attachedViewObject, options).then(function(attachedView) {
+        return resolve(new DataModel.AlertAttachedView(Object.assign(attachedView.get(), {})));
+      }).catch(function(err){
+        return reject(new Error(Utils.format("Could not save attached view due %s", err.toString())));
+      });
+    });
+  },
+
+  /**
    * It performs a save report metadata and retrieve it
    *
    * @param {Object} reportMetadaObject - Report Metadata object to save
@@ -4432,6 +4451,49 @@ var DataManager = module.exports = {
         })
         .catch(function(err){
           return reject(new Error("Could not list alerts " + err.toString()));
+        });
+    });
+  },
+
+  /**
+   * It retrieves a list of attached viewS in database
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<[]>}
+   */
+  listAlertAttachedViews: function(restriction, options){
+    var self = this;
+
+    return new Promise(function(resolve, reject) {
+      models.db.AlertAttachedView.findAll(Utils.extend({
+        where: restriction || {}
+      }, options))
+        .then(function(alertAttachedViews) {
+          var alertAttachedViewsArray = [];
+          var registeredViewsPromises = [];
+
+          self.listRegisteredViews().then(function(registeredViews) {
+            for(var i = 0, alertAttachedViewsLength = alertAttachedViews.length; i < alertAttachedViewsLength; i++) {
+              for(var j = 0, registeredViewsLength = registeredViews.length; j < registeredViewsLength; j++) {
+                if(alertAttachedViews[i].view_id === registeredViews[j].view.id) {
+                  alertAttachedViewsArray.push(
+                    Object.assign(alertAttachedViews[i].get(), {
+                      registered_view: registeredViews[j]
+                    })
+                  );
+
+                  break;
+                }
+              }
+            }
+
+            return resolve(alertAttachedViewsArray);
+          });
+        })
+        .catch(function(err){
+          return reject(new Error("Could not list attached views " + err.toString()));
         });
     });
   },

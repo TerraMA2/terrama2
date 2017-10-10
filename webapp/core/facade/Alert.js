@@ -111,9 +111,23 @@
       })
 
       .then(function(alert) {
-        // sending to the services
-        sendAlert(alert, shouldRun);
-        return resolve(alert);
+        var attachedViewsPromises = [];
+
+        for(var i = 0, attachedViewsLength = alertObject.attachedViews.length; i < attachedViewsLength; i++) {
+          alertObject.attachedViews[i].alert_id = alert.id;
+
+          attachedViewsPromises.push(DataManager.addAlertAttachedView(alertObject.attachedViews[i]));
+        }
+
+        Promise.all(attachedViewsPromises).then(function() {
+          DataManager.listAlertAttachedViews({ alert_id: alert.id }).then(function(alertAttachedViews) {
+            alert.setAttachedViews(alertAttachedViews);
+
+            // sending to the services
+            sendAlert(alert, shouldRun);
+            return resolve(alert);
+          });
+        });
       })
       
       .catch(function(err){

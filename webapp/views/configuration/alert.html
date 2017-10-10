@@ -146,6 +146,7 @@
               <div class="form-group" terrama2-show-errors>
                 <label><span ng-bind="i18n.__('View Service')">:</span></label>
                 <ui-select name="viewService"
+                        ng-change="ctrl.onServiceChanged()"
                         ng-model="ctrl.view_service_instance_id"
                         required>
                   <ui-select-match>
@@ -359,7 +360,7 @@
 
     <terrama2-box title="i18n.__('Notification')" css="ctrl.css">
       <form name="forms.notificationForm">
-        <div ng-class="{ 'col-md-3': ctrl.alert.hasView, 'col-md-4': !ctrl.alert.hasView }">
+        <div class="col-md-4">
           <div class="form-group" terrama2-show-errors>
             <label><span ng-bind="i18n.__('Emails')"></span>:</label>
             <textarea class="form-control"
@@ -378,13 +379,13 @@
           </div>
         </div>
 
-        <div class="col-md-1" ng-if="ctrl.alert.hasView">
+        <div class="col-md-2" ng-if="ctrl.alert.hasView">
           <div class="form-group">
             <div class="checkbox">
               <label style="font-weight: 700;">
                 <input type="checkbox"
                         name="attachViews"
-                        ng-model="ctrl.alert.notifications[0].attach_views"
+                        ng-model="ctrl.attachViews"
                         ng-true-value="true"
                         ng-false-value="false"> <span ng-bind="i18n.__('Attach Views')"></span>
               </label>
@@ -392,7 +393,7 @@
           </div>
         </div>
 
-        <div ng-show="!ctrl.disablePDF" ng-class="{ 'col-md-3': ctrl.dataSeriesType !== undefined && ctrl.dataSeriesType !== null && ctrl.dataSeriesType !== 'GRID', 'col-md-4': ctrl.dataSeriesType === undefined || ctrl.dataSeriesType === null || ctrl.dataSeriesType === 'GRID' }">
+        <div ng-show="!ctrl.disablePDF" ng-class="{ 'col-md-2': ctrl.dataSeriesType !== undefined && ctrl.dataSeriesType !== null && ctrl.dataSeriesType !== 'GRID' && ctrl.alert.hasView, 'col-md-3': (ctrl.dataSeriesType !== undefined && ctrl.dataSeriesType !== null && ctrl.dataSeriesType !== 'GRID' && !ctrl.alert.hasView) || ((ctrl.dataSeriesType === undefined || ctrl.dataSeriesType === null || ctrl.dataSeriesType === 'GRID') && ctrl.alert.hasView), 'col-md-4': (ctrl.dataSeriesType === undefined || ctrl.dataSeriesType === null || ctrl.dataSeriesType === 'GRID') && !ctrl.alert.hasView }">
           <div class="form-group">
             <div class="checkbox">
               <label style="font-weight: 700;">
@@ -413,7 +414,7 @@
           </div>
         </div>
 
-        <div ng-class="{ 'col-md-3': ctrl.dataSeriesType !== undefined && ctrl.dataSeriesType !== null && ctrl.dataSeriesType !== 'GRID' && !ctrl.disablePDF, 'col-md-4': ctrl.dataSeriesType === undefined || ctrl.dataSeriesType === null || ctrl.dataSeriesType === 'GRID' || ctrl.disablePDF }">
+        <div ng-class="{ 'col-md-2': ctrl.dataSeriesType !== undefined && ctrl.dataSeriesType !== null && ctrl.dataSeriesType !== 'GRID' && !ctrl.disablePDF && ctrl.alert.hasView, 'col-md-3': (ctrl.dataSeriesType !== undefined && ctrl.dataSeriesType !== null && ctrl.dataSeriesType !== 'GRID' && !ctrl.disablePDF && !ctrl.alert.hasView) || ((ctrl.dataSeriesType === undefined || ctrl.dataSeriesType === null || ctrl.dataSeriesType === 'GRID' || ctrl.disablePDF) && ctrl.alert.hasView), 'col-md-4': (ctrl.dataSeriesType === undefined || ctrl.dataSeriesType === null || ctrl.dataSeriesType === 'GRID' || ctrl.disablePDF) && !ctrl.alert.hasView }">
           <div class="form-group">
             <div class="checkbox">
               <label style="font-weight: 700;">
@@ -431,7 +432,7 @@
           </div>
         </div>
 
-        <div ng-class="{ 'col-md-2': !ctrl.disablePDF, 'col-md-4': ctrl.disablePDF }" ng-show="ctrl.dataSeriesType !== undefined && ctrl.dataSeriesType !== null && ctrl.dataSeriesType !== 'GRID'">
+        <div ng-class="{ 'col-md-2': !ctrl.disablePDF, 'col-md-3': ctrl.disablePDF && ctrl.alert.hasView, 'col-md-4': ctrl.disablePDF && !ctrl.alert.hasView }" ng-show="ctrl.dataSeriesType !== undefined && ctrl.dataSeriesType !== null && ctrl.dataSeriesType !== 'GRID'">
           <div class="form-group">
             <div class="checkbox">
               <label style="font-weight: 700;">
@@ -492,49 +493,36 @@
       </div>
     </terrama2-box>
 
-    <terrama2-box title="i18n.__('Attach Views')" css="ctrl.css" ng-if="ctrl.alert.hasView">
+    <terrama2-box title="i18n.__('Attach Views')" css="ctrl.css" ng-if="ctrl.alert.hasView && ctrl.attachViews">
       <form name="forms.viewForm">
         <div class="row">
-          <div class="col-md-12">
-            <table class="table table-striped">
-              <tbody>
+          <div class="col-md-4"></div>
+          <div class="col-md-4">
+            <button type="button" class="btn btn-primary pull-right" style="margin: 0 9px 10px 0;" ng-click="ctrl.newAttachedView()"><i class="fa fa-plus"></i></button>
+            <table class="table table-striped" id="attachedViewsTable">
+              <tbody ng-if="ctrl.attachedViews.length === 0">
                 <tr>
-                  <td></td>
-                  <td></td>
+                  <td colspan="3" style="text-align: center; font-weight: 900;">No view attached.</td>
                 </tr>
-                <tr>
-                  <td>2.</td>
-                  <td>Clean database</td>
-                  <td>
-                    <div class="progress progress-xs">
-                      <div class="progress-bar progress-bar-yellow" style="width: 70%"></div>
-                    </div>
+              </tbody>
+              <tbody ng-if="ctrl.attachedViews.length > 0" sv-root sv-part="ctrl.attachedViews" sv-on-start="ctrl.startSort($item, $part, $index, $helper)">
+                <tr ng-repeat="attachedView in ctrl.attachedViews" sv-element>
+                  <td style="width: 34px; font-size: 24px; cursor: move;" sv-handle>
+                    <i class="fa fa-arrows-v" style="margin-left: 5px;"></i>
                   </td>
-                  <td><span class="badge bg-yellow">70%</span></td>
-                </tr>
-                <tr>
-                  <td>3.</td>
-                  <td>Cron job running</td>
                   <td>
-                    <div class="progress progress-xs progress-striped active">
-                      <div class="progress-bar progress-bar-primary" style="width: 30%"></div>
-                    </div>
+                    <select id="{{ attachedView._id }}" class="form-control" ng-model="attachedView.view" ng-change="ctrl.selectAttachedView(this)">
+                      <option ng-repeat="view in ctrl.viewsToAttach" value="{{ view.id }}">{{ view.name }}</option>
+                    </select>
                   </td>
-                  <td><span class="badge bg-light-blue">30%</span></td>
-                </tr>
-                <tr>
-                  <td>4.</td>
-                  <td>Fix and squish bugs</td>
-                  <td>
-                    <div class="progress progress-xs progress-striped active">
-                      <div class="progress-bar progress-bar-success" style="width: 90%"></div>
-                    </div>
+                  <td style="width: 34px;">
+                    <button type="button" class="btn btn-danger" ng-click="ctrl.removeAttachedView(attachedView._id)"><i class="fa fa-trash"></i></button>
                   </td>
-                  <td><span class="badge bg-green">90%</span></td>
                 </tr>
               </tbody>
             </table>
           </div>
+          <div class="col-md-4"></div>
         </div>
       </form>
     </terrama2-box>

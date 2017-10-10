@@ -13,6 +13,9 @@ var Legend = require("./Legend");
 var View = require("./View");
 var ViewStyleLegend = require("./ViewStyleLegend");
 var DataSeries = require("./DataSeries");
+var URIBuilder = require("./../UriBuilder");
+var URISyntax = require("./../Enums").Uri;
+
 /**
  * TerraMA² Global Utility module
  * @type {Utils}
@@ -118,6 +121,12 @@ var Alert = function(params) {
    */
   this.view = new View(params.View ? params.View.get() : params.view || {});
 
+  /**
+   * @name Alert#attachedViews
+   * @type {array}
+   */
+  this.attachedViews = params.attachedViews || [];
+
   if (params.View && params.View.ViewStyleLegend){
     var legendModel = new ViewStyleLegend(Utils.extend(
       params.View.ViewStyleLegend.get(), {colors: params.View.ViewStyleLegend.ViewStyleColors ? params.View.ViewStyleLegend.ViewStyleColors.map(function(elm) { return elm.get(); }) : []}));
@@ -175,6 +184,14 @@ Alert.prototype.setAlertNotifications = function(AlertNotifications) {
 Alert.prototype = Object.create(BaseClass.prototype);
 Alert.prototype.constructor = Alert;
 
+/**
+ * It sets attached views data.
+ * @param {Sequelize.Model[]|Object[]}
+ */
+Alert.prototype.setAttachedViews = function(attachedViews) {
+  this.attachedViews = attachedViews;
+};
+
 Alert.prototype.toObject = function() {
   return Object.assign(BaseClass.prototype.toObject.call(this), {
     id: this.id,
@@ -203,6 +220,38 @@ Alert.prototype.rawObject = function() {
 };
 
 Alert.prototype.toService = function() {
+  var serviceAttachedViews = [];
+
+  if(this.attachedViews.length > 0) {
+    var uriObject = URIBuilder.buildObject(this.attachedViews[0].registered_view.uri, URISyntax);
+
+    if(!isNaN(uriObject[URISyntax.PORT])) {
+      var uri = Utils.format(
+        "%s://%s:%s%s",
+        uriObject[URISyntax.SCHEME].toLowerCase(),
+        uriObject[URISyntax.HOST],
+        uriObject[URISyntax.PORT],
+        uriObject[URISyntax.PATHNAME]
+      );
+    } else {
+      var uri = Utils.format(
+        "%s://%s%s",
+        uriObject[URISyntax.SCHEME].toLowerCase(),
+        uriObject[URISyntax.HOST],
+        uriObject[URISyntax.PATHNAME]
+      );
+    }
+
+    for(var i = 0, attachedViewsLength = this.attachedViews.length; i < attachedViewsLength; i++) {
+      serviceAttachedViews.push(
+        {
+          view_id: this.attachedViews[i].view_id,
+          workspace: this.attachedViews[i].registered_view.workspace
+        }
+      );
+    }
+  }
+
   var additionalDataList = [];
   if (this.additional_data && this.additional_data.length > 0){
     this.additional_data.forEach(function(addData){
@@ -228,7 +277,7 @@ Alert.prototype.toService = function() {
   delete reportMetadataCopy.id;
   delete reportMetadataCopy.alert_id;
 
-  return Object.assign(BaseClass.prototype.toObject.call(this), {
+  var serviceObject = Object.assign(BaseClass.prototype.toObject.call(this), {
     id: this.id,
     project_id: this.project_id,
     service_instance_id: this.service_instance_id,
@@ -243,6 +292,15 @@ Alert.prototype.toService = function() {
     report_metadata: reportMetadataCopy,
     schedule: this.schedule instanceof BaseClass ? this.schedule.toObject() : {}
   });
+
+  if(serviceAttachedViews.length > 0) {
+    serviceObject.view = {
+      geoserver_uri: uri + "/ows",
+      layers: serviceAttachedViews
+    }
+  }
+
+  return serviceObject;
 }
 
 module.exports = Alert;
