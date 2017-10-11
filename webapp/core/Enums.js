@@ -327,6 +327,28 @@ module.exports = {
     }
   },
 
+   /**
+   * All interpolator strategy
+   * @enum {Object}
+  */
+  InterpolatorStrategy: {
+    /** Near neighborhood interpolation method. */
+    NEAREST_NEIGHBOR: {
+      code: "NEAREST-NEIGHBOR",
+      value: 0
+    },
+    /** Bilinear interpolation method. */
+    AVERAGE_NEIGHBOR: {
+      code: "AVERAGE-NEIGHBOR",
+      value: 1
+    },
+    /** Bicubic interpolation method. */
+    W_AVERAGE_NEIGHBOR: {
+      code: "W-AVERAGE-NEIGHBOR",
+      value: 2
+    }
+  },
+
   /**
    * All area of interest type for Analysis Grid
    * @readonly
