@@ -307,6 +307,38 @@ namespace terrama2
              return terrama2::core::fromDataSeriesJson(obj);
      }
 
+     terrama2::core::DataSeriesPtr dataSeriesCBERS2B(terrama2::core::DataProviderPtr dataProvider)
+     {
+
+         QString json = QString(R"x(
+                                     {
+                                         "class": "DataSeries",
+                                         "id": 8,
+                                         "name": "geotiff 1",
+                                         "description": null,
+                                         "data_provider_id":  %1,
+                                         "semantics": "GRID-geotiff",
+                                         "active": true,
+                                         "datasets":[
+                                              {
+                                                 "class": "DataSet",
+                                                 "id": 8,
+                                                 "data_series_id": 8,
+                                                 "active": true,
+                                                  "format": {
+                                                         "mask": "/geotiff/cbers2b_rgb342_crop.tif",
+                                                         "timezone": "00:00"
+
+                                                 }
+                                              }
+                                         ]
+                                        }
+                                      )x"
+                                    ).arg(dataProvider->id);
+             QJsonDocument doc = QJsonDocument::fromJson(json.toUtf8());
+             QJsonObject obj = doc.object();
+             return terrama2::core::fromDataSeriesJson(obj);
+     }
 
 
   }  // end namespace geotiff
