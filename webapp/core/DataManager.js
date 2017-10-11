@@ -4468,33 +4468,30 @@ var DataManager = module.exports = {
 
     return new Promise(function(resolve, reject) {
       models.db.AlertAttachedView.findAll(Utils.extend({
-        where: restriction || {}
-      }, options))
-        .then(function(alertAttachedViews) {
-          var alertAttachedViewsArray = [];
-          var registeredViewsPromises = [];
-
-          self.listRegisteredViews().then(function(registeredViews) {
-            for(var i = 0, alertAttachedViewsLength = alertAttachedViews.length; i < alertAttachedViewsLength; i++) {
-              for(var j = 0, registeredViewsLength = registeredViews.length; j < registeredViewsLength; j++) {
-                if(alertAttachedViews[i].view_id === registeredViews[j].view.id) {
-                  alertAttachedViewsArray.push(
-                    Object.assign(alertAttachedViews[i].get(), {
-                      registered_view: registeredViews[j]
-                    })
-                  );
-
-                  break;
-                }
+        where: restriction || {},
+        include: [
+          {
+            model: models.db.Alert
+          },
+          {
+            model: models.db.View,
+            include: [
+              {
+                model: models.db.ServiceInstance,
+                include: [
+                  {
+                    model: models.db.ServiceMetadata
+                  }
+                ]
               }
-            }
-
-            return resolve(alertAttachedViewsArray);
-          });
-        })
-        .catch(function(err){
-          return reject(new Error("Could not list attached views " + err.toString()));
-        });
+            ]
+          }
+        ]
+      }, options)).then(function(alertAttachedViews) {
+        return resolve(alertAttachedViews);
+      }).catch(function(err){
+        return reject(new Error("Could not list attached views " + err.toString()));
+      });
     });
   },
 

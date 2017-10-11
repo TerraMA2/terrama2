@@ -322,6 +322,16 @@ define([], function() {
 
             if(self.alert.notifications[0].notify_on_legend_level !== null)
               self.notifyOnLegendLevel = true;
+
+            if(config.alertAttachedViews) {
+              if(config.views)
+                self.viewsToAttach = config.views;
+
+              var dbAlertAttachedViews = config.alertAttachedViews;
+
+              for(var i = 0, alertAttachedViewsLength = dbAlertAttachedViews.length; i < alertAttachedViewsLength; i++)
+                self.newAttachedView(dbAlertAttachedViews[i].View.id.toString(), dbAlertAttachedViews[i].View.name);
+            }
           } else {
             self.legendModel = self.legends[0];
 
@@ -690,6 +700,7 @@ define([], function() {
         url: BASE_URL + "api/ViewByService/" + self.view_service_instance_id
       }).then(function(views) {
         self.viewsToAttach = views.data;
+        self.attachedViews = [];
       });
     };
 
@@ -698,11 +709,11 @@ define([], function() {
      * 
      * @returns {void}
      */
-    self.newAttachedView = function() {
+    self.newAttachedView = function(view, viewName) {
       var newItem = {
         _id: UniqueNumber(),
-        view: null,
-        viewName: null
+        view: (view ? view : null),
+        viewName: (viewName ? viewName : null)
       };
 
       self.attachedViews.push(newItem);
@@ -803,7 +814,7 @@ define([], function() {
             } else {
               attachViewsFinal.push({
                 layer_order: i + 1,
-                alert_id: null,
+                alert_id: (self.isUpdating ? self.alert.id : null),
                 view_id: self.attachedViews[i].view
               });
             }

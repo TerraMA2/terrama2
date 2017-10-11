@@ -220,35 +220,59 @@ Alert.prototype.rawObject = function() {
 };
 
 Alert.prototype.toService = function() {
-  var serviceAttachedViews = [];
+  var viewObject = null;
 
   if(this.attachedViews.length > 0) {
-    var uriObject = URIBuilder.buildObject(this.attachedViews[0].registered_view.uri, URISyntax);
+    var originalUri = null;
+    var serviceAttachedViews = [];
 
-    if(!isNaN(uriObject[URISyntax.PORT])) {
-      var uri = Utils.format(
-        "%s://%s:%s%s",
-        uriObject[URISyntax.SCHEME].toLowerCase(),
-        uriObject[URISyntax.HOST],
-        uriObject[URISyntax.PORT],
-        uriObject[URISyntax.PATHNAME]
-      );
-    } else {
-      var uri = Utils.format(
-        "%s://%s%s",
-        uriObject[URISyntax.SCHEME].toLowerCase(),
-        uriObject[URISyntax.HOST],
-        uriObject[URISyntax.PATHNAME]
-      );
+    for(var i = 0, serviceMetadataLength = this.attachedViews[0].View.ServiceInstance.ServiceMetadata.length; i < serviceMetadataLength; i++) {
+      if(this.attachedViews[0].View.ServiceInstance.ServiceMetadata[i].dataValues.key === "maps_server") {
+        originalUri = this.attachedViews[0].View.ServiceInstance.ServiceMetadata[i].dataValues.value;
+        break;
+      }
     }
 
-    for(var i = 0, attachedViewsLength = this.attachedViews.length; i < attachedViewsLength; i++) {
+    if(originalUri) {
+      var uriObject = URIBuilder.buildObject(originalUri, URISyntax);
+
+      if(!isNaN(uriObject[URISyntax.PORT])) {
+        var uri = Utils.format(
+          "%s://%s:%s%s",
+          uriObject[URISyntax.SCHEME].toLowerCase(),
+          uriObject[URISyntax.HOST],
+          uriObject[URISyntax.PORT],
+          uriObject[URISyntax.PATHNAME]
+        );
+      } else {
+        var uri = Utils.format(
+          "%s://%s%s",
+          uriObject[URISyntax.SCHEME].toLowerCase(),
+          uriObject[URISyntax.HOST],
+          uriObject[URISyntax.PATHNAME]
+        );
+      }
+
       serviceAttachedViews.push(
         {
-          view_id: this.attachedViews[i].view_id,
-          workspace: this.attachedViews[i].registered_view.workspace
+          view_id: this.attachedViews[0].Alert.dataValues.view_id,
+          workspace: "terrama2_" + this.attachedViews[0].Alert.dataValues.view_id // It's hardcoded now, but that isn't right, in the future this should come from the database
         }
       );
+
+      for(var i = 0, attachedViewsLength = this.attachedViews.length; i < attachedViewsLength; i++) {
+        serviceAttachedViews.push(
+          {
+            view_id: this.attachedViews[i].View.dataValues.id,
+            workspace: "terrama2_" + this.attachedViews[i].View.dataValues.id // It's hardcoded now, but that isn't right, in the future this should come from the database
+          }
+        );
+      }
+
+      viewObject = {
+        geoserver_uri: uri + "/ows",
+        layers: serviceAttachedViews
+      };
     }
   }
 
@@ -293,12 +317,8 @@ Alert.prototype.toService = function() {
     schedule: this.schedule instanceof BaseClass ? this.schedule.toObject() : {}
   });
 
-  if(serviceAttachedViews.length > 0) {
-    serviceObject.view = {
-      geoserver_uri: uri + "/ows",
-      layers: serviceAttachedViews
-    }
-  }
+  if(viewObject)
+    serviceObject.view = viewObject;
 
   return serviceObject;
 }

@@ -111,23 +111,31 @@
       })
 
       .then(function(alert) {
-        var attachedViewsPromises = [];
+        var sendAlertAndResolve = function() {
+          // sending to the services
+          sendAlert(alert, shouldRun);
+          return resolve(alert);
+        };
 
-        for(var i = 0, attachedViewsLength = alertObject.attachedViews.length; i < attachedViewsLength; i++) {
-          alertObject.attachedViews[i].alert_id = alert.id;
+        if(alertObject.attachedViews) {
+          var attachedViewsPromises = [];
 
-          attachedViewsPromises.push(DataManager.addAlertAttachedView(alertObject.attachedViews[i]));
-        }
+          for(var i = 0, attachedViewsLength = alertObject.attachedViews.length; i < attachedViewsLength; i++) {
+            alertObject.attachedViews[i].alert_id = alert.id;
 
-        Promise.all(attachedViewsPromises).then(function() {
-          DataManager.listAlertAttachedViews({ alert_id: alert.id }).then(function(alertAttachedViews) {
-            alert.setAttachedViews(alertAttachedViews);
+            attachedViewsPromises.push(DataManager.addAlertAttachedView(alertObject.attachedViews[i]));
+          }
 
-            // sending to the services
-            sendAlert(alert, shouldRun);
-            return resolve(alert);
+          Promise.all(attachedViewsPromises).then(function() {
+            DataManager.listAlertAttachedViews({ alert_id: alert.id }).then(function(alertAttachedViews) {
+              alert.setAttachedViews(alertAttachedViews);
+
+              sendAlertAndResolve();
+            });
           });
-        });
+        } else {
+          sendAlertAndResolve();
+        }
       })
       
       .catch(function(err){
@@ -357,10 +365,31 @@
             });
           })
       })
-      .then(function(alert){
-        sendAlert(alert, shouldRun);
+      .then(function(alert) {
+        var sendAlertAndResolve = function() {
+          sendAlert(alert, shouldRun);
+          return resolve(alert);
+        };
 
-        return resolve(alert);
+        if(alertObject.attachedViews) {
+          var attachedViewsPromises = [];
+
+          for(var i = 0, attachedViewsLength = alertObject.attachedViews.length; i < attachedViewsLength; i++) {
+            alertObject.attachedViews[i].alert_id = alert.id;
+
+            attachedViewsPromises.push(DataManager.addAlertAttachedView(alertObject.attachedViews[i]));
+          }
+
+          Promise.all(attachedViewsPromises).then(function() {
+            DataManager.listAlertAttachedViews({ alert_id: alert.id }).then(function(alertAttachedViews) {
+              alert.setAttachedViews(alertAttachedViews);
+
+              sendAlertAndResolve();
+            });
+          });
+        } else {
+          sendAlertAndResolve();
+        }
       })
       .catch(function(err){
         return reject(err);
