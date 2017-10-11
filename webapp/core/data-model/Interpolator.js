@@ -175,19 +175,20 @@
   Interpolator.prototype.toService = function() {
     return Object.assign(AbstractClass.prototype.toObject.call(this), {
       id: this.id,
-      active: this.active,
+      active: String(this.active),
       project_id: this.project_id,
-      bounding_rect: this.bounding_rect,
+      bounding_rect: JSON.parse(this.bounding_rect),
       input_data_series: this.data_series_input,
       output_data_series: this.data_series_output,
       interpolation_attribute: this.interpolation_attribute,
       interpolator_strategy: this.interpolator_strategy,
-      resolution_x: this.resolution_x,
-      resolution_y: this.resolution_y,
+      resolution_x: Number(this.resolution_x),
+      resolution_y: Number(this.resolution_y),
       service_instance_id: this.service_instance_id,
       srid: this.srid,
       number_of_neighbors: this.metadata.number_of_neighbors,
-      power_factor: this.metadata.power_factor
+      power_factor: this.metadata.power_factor,
+      filter: ""
     });
   };
   module.exports = Interpolator;

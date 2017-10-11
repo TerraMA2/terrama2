@@ -472,7 +472,7 @@ var Utils = module.exports = {
         output = "ALERT";
         break;      
       case Enums.ServiceType.INTERPOLATION:
-        output = "INTERPOLATION";
+        output = "INTERPOLATOR";
         break;
     }
 

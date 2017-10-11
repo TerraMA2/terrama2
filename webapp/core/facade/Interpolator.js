@@ -1,6 +1,5 @@
 (function(){
   "use strict";
-
   
   var DataManager = require("./../DataManager");
   var PromiseClass = require("./../Promise");
@@ -8,30 +7,30 @@
   var TcpService = require("./../facade/tcp-manager/TcpService");
 
   /**
-   * It represents a mock to handle alert.
-   * It is used in Alert API
+   * It represents a mock to handle interpolator.
+   * It is used in Interpolator API
    * 
-   * @class Alert
+   * @class Interpolator
    */
   var Interpolator = module.exports = {};
   
   /**
-   * Helper to send alerts via TCP
+   * Helper to send interpolators via TCP
    * 
    * @param {Array|Object} args An interpolator values to send
    */
   function sendInterpolator(args) {
     var objToSend = {
-      "Interpolator": [],
+      "Interpolators": [],
       "DataSeries": []
     };
     if (args instanceof Array) {
       args.forEach(function(arg) {
-        objToSend.Interpolator.push(arg.toService());
+        objToSend.Interpolators.push(arg.toService());
         objToSend.DataSeries.push(arg.dataSeriesOutput.toObject());
       });
     } else {
-      objToSend.Interpolator.push(args.toService());
+      objToSend.Interpolators.push(args.toService());
       objToSend.DataSeries.push(args.dataSeriesOutput.toObject());
     }
 
@@ -39,7 +38,7 @@
   }
 
   /**
-   * It applies a save operation and send interpoltor to the service
+   * It applies a save operation and send interpolator to the service
    * 
    * @param {Object} interpolatorObject - An interpolator object to save
    * @param {Object} scheduleObject - A schedule object to save

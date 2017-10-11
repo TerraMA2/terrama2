@@ -151,7 +151,7 @@
               var isAnalysis = false;
 
               analysisList.map(function(analysis) {
-                alertObject.dataSeries.dataSets.map(function(dataSet) {
+                alertObject.dataSeries.datasets.map(function(dataSet) {
                   if(analysis.dataset_output == dataSet.id) {
                     isAnalysis = true;
                     return;

@@ -16,16 +16,16 @@
       post: function(request, response) {
         var interpolatorObject = request.body.interpolator;
         var scheduleObject = request.body.schedule;
-        var shouldRun = request.body.run;
+        var shouldRun = request.body.interpolator.run;
         InterpolatorFacade.save(interpolatorObject, scheduleObject, request.session.activeProject.id)
           .then(function(interpolator){
             var extra = {};
             if (shouldRun){
               extra = {
-                id: interpolator.id
+                id: interpolator.dataSeriesOutput.id
               }
             }
-            var token = Utils.generateToken(app, TokenCode.SAVE, "Interpolator", extra);
+            var token = Utils.generateToken(app, TokenCode.SAVE, interpolator.dataSeriesOutput.name, extra);
             return response.json({status: 200, result: interpolator, token: token});
           });
       },
@@ -33,17 +33,17 @@
         var interpolatorId = parseInt(request.params.id);
         var interpolatorObject = request.body.interpolator;
         var scheduleObject = request.body.schedule;
-        var shouldRun = request.body.run;
+        var shouldRun = request.body.interpolator.run;
         return InterpolatorFacade.update(interpolatorId, interpolatorObject, scheduleObject, request.session.activeProject.id)
           .then(function(interpolator){
             var extra = {};
             if (shouldRun){
               extra = {
-                id: interpolatorId
+                id: interpolator.dataSeriesOutput.id
               };
             }
             // generating token
-            var token = Utils.generateToken(app, TokenCode.UPDATE, "Interpolator", extra);
+            var token = Utils.generateToken(app, TokenCode.UPDATE, interpolator.dataSeriesOutput.name, extra);
             response.json({status: 200, result: interpolator, token: token});
           }).catch(function(err) {
             logger.error(Utils.format("%s %s", "Error while retrieving updated interpolator", err.toString()));

@@ -111,7 +111,7 @@ define([], function(){
       $scope.inter.description = $scope.outputDataSeries.description;
       $scope.outputDataSeries.data_series_semantics = $scope.DataSeriesSemanticsService.get({code: "GRID-geotiff"});
       $scope.outputDataSeries.data_provider = $scope.DataProviderService.list({id: $scope.outputDataSeries.data_provider_id})[0];
-      $scope.outputDataSeries.format = prepareDataSetFormatToForm($scope.outputDataSeries.dataSets[0].format);
+      $scope.outputDataSeries.format = prepareDataSetFormatToForm($scope.outputDataSeries.datasets[0].format);
 
       $timeout(function() {
         $scope.inter.schedule.scheduleType = $scope.inter.schedule_type.toString();
@@ -123,7 +123,7 @@ define([], function(){
       var outputDataSeries = {};
       var outputDataSet = {};
       if (isUpdating){
-        outputDataSet = Object.assign({}, $scope.outputDataSeries.dataSets[0]);
+        outputDataSet = Object.assign({}, $scope.outputDataSeries.datasets[0]);
         outputDataSet.format = $scope.outputDataSeries.format;
         outputDataSeries = Object.assign({}, $scope.outputDataSeries);
         outputDataSeries.name = $scope.inter.name;
@@ -155,7 +155,7 @@ define([], function(){
       return interpolator;
     };
 
-    $scope.save = function(){
+    $scope.save = function(shouldRun){
 
       // broadcasting each one terrama2 field directive validation
       $scope.$broadcast("formFieldValidation");
@@ -191,6 +191,8 @@ define([], function(){
           }
           break;
       }
+
+      objectToSave.run = shouldRun;
     
       var operation = isUpdating ? 
                       $scope.InterpolatorService.update( $scope.inter.id, {interpolator: objectToSave, schedule: scheduleValues}) : 

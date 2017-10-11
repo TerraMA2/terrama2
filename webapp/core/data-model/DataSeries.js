@@ -99,7 +99,7 @@ DataSeries.prototype.toObject = function() {
     // semantics: this.semantics,
     semantics: this.data_series_semantics.code,
     active: this.active,
-    dataSets: dataSets
+    datasets: dataSets
   });
 };
 
