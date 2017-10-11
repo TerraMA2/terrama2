@@ -282,6 +282,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
     if(inputDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::DCP)
     {
       objectType = View::Legend::ObjectType::GEOMETRY;
+      geomType = te::gm::PointType;
       terrama2::core::DataProviderPtr inputObjectProvider = dataManager->findDataProvider(inputDataSeries->dataProviderId);
 
       auto dcpPositions = DataAccess::getDCPPostgisTableInfo(inputDataSeries, inputObjectProvider);
@@ -300,7 +301,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
                            tableInfo.tableName,
                            layerName,
                            modelDataSetType,
-                           "timestamp",
+                           "",
                            SQL);
 
       QJsonObject layer;
@@ -740,7 +741,7 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::
   std::string xml = "<featureType>";
   xml += "<title>" + layerName + "</title>";
   xml += "<name>" + layerName + "</name>";
-  xml += "<nativeName>" + tableName + "</nativeName>";
+  xml += "<nativeName>" + layerName + "</nativeName>";
   xml += "<enabled>true</enabled>";
 
   std::string metadataTime = "";
