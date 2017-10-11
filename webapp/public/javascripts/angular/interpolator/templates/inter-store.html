@@ -43,7 +43,7 @@
     <div class="col-md-6">
       <div class="form-group" terrama2-show-errors>
         <label>{{ i18n.__('Mask') }}:</label>
-        <input class="form-control" id="mask" name="mask" ng-model="outputDataSeries.format.mask" type="text" required>
+        <input class="form-control" id="mask" name="mask" ng-model="outputDataSeries.format.mask" type="text" ng-blur="addTifExtention()" required>
       </div>            
     </div>
     <div class="col-md-6">

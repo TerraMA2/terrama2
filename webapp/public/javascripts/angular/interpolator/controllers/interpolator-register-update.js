@@ -1,7 +1,7 @@
 define([], function(){
   'use strict';
 
-  var InterpolatorRegisterUpdate = function($scope, $q, $window, $http, $log, $timeout, i18n, MessageBoxService, Service, DataSeriesSemanticsService, DataProviderService, InterpolatorService){
+  var InterpolatorRegisterUpdate = function($scope, $q, $window, $http, $log, $timeout, i18n, MessageBoxService, Service, DataSeriesSemanticsService, DataProviderService, InterpolatorService, Socket){
 
     $scope.i18n = i18n;
     $scope.MessageBoxService = MessageBoxService;
@@ -11,6 +11,7 @@ define([], function(){
     $scope.DataProviderService = DataProviderService;
     $scope.BASE_URL = BASE_URL;
 
+    var config = $window.configuration;
     $scope.inter = {};
     $scope.outputDataSeries = {};
     $scope.bounding_rect = {}
@@ -28,7 +29,6 @@ define([], function(){
       timezoneOption++;
     }
     $scope.forms = {};
-    var config = $window.configuration;
 
     var isUpdating = false;
     if (config.interpolator)
@@ -41,6 +41,15 @@ define([], function(){
       $scope.MessageBoxService.reset();
     }
     $scope.close = closeDialog;
+
+    $scope.addTifExtention = function(){
+      if (!$scope.outputDataSeries.format.mask.endsWith(".tif")){
+        if ($scope.outputDataSeries.format.mask.indexOf(".") > -1){
+          $scope.outputDataSeries.format.mask = $scope.outputDataSeries.format.mask.slice(0, $scope.outputDataSeries.format.mask.indexOf("."));
+        }
+        $scope.outputDataSeries.format.mask += ".tif";
+      }
+    };
 
     $q.all([
       i18n.ensureLocaleIsLoaded(),
@@ -71,6 +80,28 @@ define([], function(){
       });
     });
 
+    // Flag to verify if can not save if the service is not running
+    var canSave = true;
+    var serviceOfflineMessage = "If service is not running you can not save the interpolator. Start the service before create or update an interpolator!";
+    // Watch service select, to check status
+    $scope.$watch("inter.service_instance_id", function(service_id) {
+      if (service_id)
+        Socket.emit('status', {service: service_id});
+    }, true);
+
+    Socket.on('statusResponse', function(response){
+      if(response.service == $scope.inter.service_instance_id){
+        if (response.checking === undefined || (!response.checking && response.status === 400)) {
+          if (!response.online){
+            $scope.MessageBoxService.danger(i18n.__("Interpolator"), i18n.__(serviceOfflineMessage));
+            canSave = false;
+          } else {
+            canSave = true;
+          }
+        }
+      }
+    });
+  
     var prepareDataSetFormatToForm = function(fmt){
       var output = {};
       for(var k in fmt) {
@@ -156,7 +187,6 @@ define([], function(){
     };
 
     $scope.save = function(shouldRun){
-
       // broadcasting each one terrama2 field directive validation
       $scope.$broadcast("formFieldValidation");
 
@@ -165,6 +195,11 @@ define([], function(){
         $scope.forms.storeDataForm.$invalid) {
           $scope.MessageBoxService.danger(i18n.__("Interpolator"), i18n.__("There are invalid fields on form"));
           return;
+      }
+
+      if(!canSave){
+        $scope.MessageBoxService.danger(i18n.__("Interpolator"), i18n.__(serviceOfflineMessage));
+        return;
       }
 
       var objectToSave = prepareObjectToSave();
@@ -207,7 +242,7 @@ define([], function(){
 
   };
 
-  InterpolatorRegisterUpdate.$inject = ["$scope", "$q", "$window", "$http", "$log", "$timeout", "i18n", "MessageBoxService", "Service", "DataSeriesSemanticsService", "DataProviderService", "InterpolatorService"];
+  InterpolatorRegisterUpdate.$inject = ["$scope", "$q", "$window", "$http", "$log", "$timeout", "i18n", "MessageBoxService", "Service", "DataSeriesSemanticsService", "DataProviderService", "InterpolatorService", "Socket"];
 
   return InterpolatorRegisterUpdate;
 })

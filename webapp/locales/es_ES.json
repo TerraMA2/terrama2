@@ -1055,5 +1055,10 @@
   "Y resolution": "",
   "Power factor": "",
 	"Transfer Shapefile": "",
-	"Interpolate": ""
+	"Interpolate": "",
+  "Wild fire event (ESRI Shapefile)": "",
+  "Interpolator": "",
+  "If service is not running you can not save the interpolator": {
+    " Start the service before create or update an interpolator!": ""
+  }
 }

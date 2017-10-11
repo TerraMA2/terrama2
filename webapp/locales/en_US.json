@@ -1043,5 +1043,10 @@
   "X resolution": "X resolution",
   "Y resolution": "Y resolution",
   "Power factor": "Power factor",
-  "Interpolate": "Interpolate"
+  "Interpolate": "Interpolate",
+  "Wild fire event (ESRI Shapefile)": "Wild fire event (ESRI Shapefile)",
+  "Interpolator": "Interpolator",
+  "If service is not running you can not save the interpolator": {
+    " Start the service before create or update an interpolator!": "If service is not running you can not save the interpolator. Start the service before create or update an interpolator!"
+  }
 }

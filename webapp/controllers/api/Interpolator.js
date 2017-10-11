@@ -27,6 +27,8 @@
             }
             var token = Utils.generateToken(app, TokenCode.SAVE, interpolator.dataSeriesOutput.name, extra);
             return response.json({status: 200, result: interpolator, token: token});
+          }).catch(function(err) {
+            Utils.handleRequestError(response, err, 400);
           });
       },
       put: function(request, response) {
@@ -46,7 +48,6 @@
             var token = Utils.generateToken(app, TokenCode.UPDATE, interpolator.dataSeriesOutput.name, extra);
             response.json({status: 200, result: interpolator, token: token});
           }).catch(function(err) {
-            logger.error(Utils.format("%s %s", "Error while retrieving updated interpolator", err.toString()));
             Utils.handleRequestError(response, err, 400);
           });
       }
