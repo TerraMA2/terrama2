@@ -50,9 +50,15 @@
 #include <terrama2/services/collector/core/Collector.hpp>
 #include <terrama2/services/collector/core/JSonUtils.hpp>
 
+#include <terrama2/services/collector/mock/MockCollectorLogger.hpp>
+
 #include <terrama2/impl/Utils.hpp>
 
 #include <terrama2/core/data-access/DataRetriever.hpp>
+
+#include <examples/data/Geotiff.hpp>
+#include <examples/data/OccurrenceWFP.hpp>
+
 
 // STL
 #include <memory>
@@ -63,176 +69,101 @@
 #include <QTimer>
 #include <QUrl>
 
-void addGridSeries(std::shared_ptr<terrama2::services::collector::core::DataManager> dataManager)
-{
-  //DataProvider information
-  terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
-  terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
-  dataProvider->uri = "file://"+TERRAMA2_DATA_DIR;
 
-  dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
-  dataProvider->dataProviderType = "FILE";
-  dataProvider->active = true;
-  dataProvider->id = 3;
-  dataProvider->name = "Local Geotiff";
-
-  dataManager->add(dataProviderPtr);
-
-  auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
-
-  //DataSeries information
-  terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
-  terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
-  dataSeries->semantics = semanticsManager.getSemantics("GRID-static_gdal");
-  dataSeries->name = "geotiff";
-  dataSeries->id = 3;
-  dataSeries->dataProviderId = 3;
-
-  terrama2::core::DataSetGrid* dataSet = new terrama2::core::DataSetGrid();
-  dataSet->id = 3;
-  dataSet->active = true;
-  dataSet->format.emplace("mask", "cbers2b_rgb342_crop.tif");
-  dataSet->format.emplace("folder", "geotiff");
-
-  dataSeries->datasetList.emplace_back(dataSet);
-
-  dataManager->add(dataSeriesPtr);
-
-}
-
-void addInput(std::shared_ptr<terrama2::services::collector::core::DataManager> dataManager)
-{
-  ///////////////////////////////////////////////
-  //     input
-  // DataProvider information
-  terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
-  terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
-  dataProvider->uri = "file://"+TERRAMA2_DATA_DIR+"/fire_system";
-
-  dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
-  dataProvider->active = true;
-  dataProvider->id = 1;
-  dataProvider->name = "DataProvider queimadas local";
-  dataProvider->dataProviderType = "FILE";
-
-  dataManager->add(dataProviderPtr);
-
-  auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
-  // DataSeries information
-  terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
-  terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
-  dataSeries->id = 1;
-  dataSeries->name = "DataProvider queimadas local";
-  dataSeries->semantics = semanticsManager.getSemantics("OCCURRENCE-wfp");
-  dataSeries->dataProviderId = dataProviderPtr->id;
-
-  terrama2::core::DataSetOccurrence* dataSet = new terrama2::core::DataSetOccurrence();
-  dataSet->id = 1;
-  dataSet->active = true;
-  dataSet->format.emplace("mask", "exporta_%YYYY%MM%DD_%hh%mm.csv");
-
-  dataSeries->datasetList.emplace_back(dataSet);
-
-  dataManager->add(dataSeriesPtr);
-}
-
-void addOutput(std::shared_ptr<terrama2::services::collector::core::DataManager> dataManager)
-{
-  ///////////////////////////////////////////////
-  //     output
-
-  QUrl uri;
-  uri.setScheme("postgis");
-  uri.setHost(QString::fromStdString(TERRAMA2_DATABASE_HOST));
-  uri.setPort(std::stoi(TERRAMA2_DATABASE_PORT));
-  uri.setUserName(QString::fromStdString(TERRAMA2_DATABASE_USERNAME));
-  uri.setPassword(QString::fromStdString(TERRAMA2_DATABASE_PASSWORD));
-  uri.setPath(QString::fromStdString("/"+TERRAMA2_DATABASE_DBNAME));
-
-  // DataProvider information
-  terrama2::core::DataProvider* outputDataProvider = new terrama2::core::DataProvider();
-  terrama2::core::DataProviderPtr outputDataProviderPtr(outputDataProvider);
-  outputDataProvider->id = 2;
-  outputDataProvider->name = "DataProvider queimadas postgis";
-  outputDataProvider->uri = uri.url().toStdString();
-  outputDataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
-  outputDataProvider->dataProviderType = "POSTGIS";
-  outputDataProvider->active = true;
-
-  dataManager->add(outputDataProviderPtr);
-
-  // DataSeries information
-  terrama2::core::DataSeries* outputDataSeries = new terrama2::core::DataSeries();
-  terrama2::core::DataSeriesPtr outputDataSeriesPtr(outputDataSeries);
-  outputDataSeries->id = 2;
-  outputDataSeries->name = "DataProvider queimadas postgis";
-  auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
-  outputDataSeries->semantics = semanticsManager.getSemantics("OCCURRENCE-postgis");
-  outputDataSeries->dataProviderId = outputDataProviderPtr->id;
-
-  dataManager->add(outputDataSeriesPtr);
-
-  // DataSet information
-  terrama2::core::DataSetOccurrence* outputDataSet = new terrama2::core::DataSetOccurrence();
-  outputDataSet->active = true;
-  outputDataSet->id = 2;
-  outputDataSet->dataSeriesId = outputDataSeries->id;
-  outputDataSet->format.emplace("table_name", "queimadas_test_table");
-
-  outputDataSeries->datasetList.emplace_back(outputDataSet);
-}
 
 int main(int argc, char* argv[])
 {
   try
   {
     terrama2::core::TerraMA2Init terramaRaii("example", 0);
+    Q_UNUSED(terramaRaii);
+
     terrama2::core::registerFactories();
 
     {
       QCoreApplication app(argc, argv);
+
       auto& serviceManager = terrama2::core::ServiceManager::getInstance();
-    te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PASSWORD+"@"+TERRAMA2_DATABASE_HOST+":"+TERRAMA2_DATABASE_PORT+"/"+TERRAMA2_DATABASE_DBNAME);
-      serviceManager.setLogConnectionInfo(uri);
-      serviceManager.setInstanceId(1);
 
       auto dataManager = std::make_shared<terrama2::services::collector::core::DataManager>();
 
-      addInput(dataManager);
-      addOutput(dataManager);
-      addGridSeries(dataManager);
+      auto loggerCopy = std::make_shared<terrama2::core::MockCollectorLogger>();
+
+      EXPECT_CALL(*loggerCopy, setConnectionInfo(::testing::_)).WillRepeatedly(::testing::Return());
+      EXPECT_CALL(*loggerCopy, setTableName(::testing::_)).WillRepeatedly(::testing::Return());
+      EXPECT_CALL(*loggerCopy, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
+      EXPECT_CALL(*loggerCopy, getDataLastTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
+      EXPECT_CALL(*loggerCopy, done(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
+      EXPECT_CALL(*loggerCopy, start(::testing::_)).WillRepeatedly(::testing::Return(0));
+      EXPECT_CALL(*loggerCopy, isValid()).WillRepeatedly(::testing::Return(true));
+
+      auto logger = std::make_shared<terrama2::core::MockCollectorLogger>();
+
+      EXPECT_CALL(*logger, setConnectionInfo(::testing::_)).WillRepeatedly(::testing::Return());
+      EXPECT_CALL(*logger, setTableName(::testing::_)).WillRepeatedly(::testing::Return());
+      EXPECT_CALL(*logger, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
+      EXPECT_CALL(*logger, getDataLastTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
+      EXPECT_CALL(*logger, done(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
+      EXPECT_CALL(*logger, start(::testing::_)).WillRepeatedly(::testing::Return(0));
+      EXPECT_CALL(*logger, clone()).WillRepeatedly(::testing::Return(loggerCopy));
+      EXPECT_CALL(*logger, isValid()).WillRepeatedly(::testing::Return(true));
 
       terrama2::services::collector::core::Service service(dataManager);
-      auto logger = std::make_shared<terrama2::services::collector::core::CollectorLogger>();
-      logger->setConnectionInfo(uri);
+      serviceManager.setInstanceId(1);
+      serviceManager.setLogger(logger);
+      serviceManager.setLogConnectionInfo(te::core::URI(""));
+
       service.setLogger(logger);
       service.start();
 
-      terrama2::services::collector::core::Collector* collector(new terrama2::services::collector::core::Collector());
-      terrama2::services::collector::core::CollectorPtr collectorPtr(collector);
+      //DataProvider and DataSeries - GRIDS
+      auto dataProviderGrids = terrama2::geotiff::dataProviderFileGrid();
+      dataManager->add(dataProviderGrids);
+
+
+      auto dataSeriesGrids = terrama2::geotiff::dataSeriesCBERS2B(dataProviderGrids);
+      dataManager->add(dataSeriesGrids);
+
+      // Input - DataProvider and DataSeries - OCC
+      auto dataProviderOcc = terrama2::occurrencewfp::dataProviderFileOccWFP();
+      dataManager->add(dataProviderOcc);
+
+      auto inputDataSeries = terrama2::occurrencewfp::occurrenceWfp(dataProviderOcc);
+      dataManager->add(inputDataSeries);
+
+
+      // Output - DataProvider and DataSeries
+      auto outputDataProvider = terrama2::occurrencewfp::dataProviderPostGisOccWFP();
+      dataManager->add(outputDataProvider);
+
+      auto outputDataSeries = terrama2::occurrencewfp::occurrenceWfpPostgis(outputDataProvider);
+      dataManager->add(outputDataSeries);
+
+
+      std::shared_ptr<terrama2::services::collector::core::Collector> collector = std::make_shared<terrama2::services::collector::core::Collector>();
+
       collector->id = 1;
-      collector->projectId = 1;
+      collector->projectId = 0;
       collector->serviceInstanceId = 1;
 
-      collector->inputDataSeries = 1;
-      collector->outputDataSeries = 2;
-      collector->inputOutputMap.emplace(1, 2);
+      collector->inputDataSeries = inputDataSeries->id;
+      collector->outputDataSeries = outputDataSeries->id;
+      collector->inputOutputMap.emplace(inputDataSeries->id, outputDataSeries->id);
 
-      terrama2::services::collector::core::Intersection* intersection(new terrama2::services::collector::core::Intersection());
-      terrama2::services::collector::core::IntersectionPtr intersectionPtr(intersection);
+      std::shared_ptr<terrama2::services::collector::core::Intersection> intersection = std::make_shared<terrama2::services::collector::core::Intersection>();
 
       // Adds the attribute "SIGLA" to the collected occurrences.
       intersection->collectorId = collector->id;
 
       std::vector<terrama2::services::collector::core::IntersectionAttribute> attrVec;
       terrama2::services::collector::core::IntersectionAttribute intersectionAttribute;
-      intersectionAttribute.attribute = "3";
+      intersectionAttribute.attribute = "1";
       attrVec.push_back(intersectionAttribute);
-      intersection->attributeMap[3] = attrVec;
-      collector->intersection = intersectionPtr;
+      intersection->attributeMap[dataSeriesGrids->id] = attrVec;
+      collector->intersection = intersection;
 
-      dataManager->add(collectorPtr);
-      service.addToQueue(collectorPtr->id, terrama2::core::TimeUtils::nowUTC());
+      dataManager->add(collector);
+      service.addToQueue(collector->id, terrama2::core::TimeUtils::nowUTC());
 
       QTimer timer;
       QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
