@@ -116,11 +116,6 @@ int main(int argc, char* argv[])
       auto inputDataSeries = terrama2::occurrencewfp::dataSeriesOccWFP(dataProvider);
       dataManager->add(inputDataSeries);
 
-      /*auto dataProviderPostGis = terrama2::occurrencewfp::dataProviderPostGisOccWFP();
-      dataManager->add(dataProviderPostGis);
-      auto outputDataSeries = terrama2::occurrencewfp::occurrenceWfpPostgis(dataProviderPostGis);
-      dataManager->add(outputDataSeries);*/
-
 
       auto outputDataSeries = terrama2::occurrencewfp::dataSeriesOccWFPFile(dataProvider);
       dataManager->add(outputDataSeries);
