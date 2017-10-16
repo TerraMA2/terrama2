@@ -330,7 +330,7 @@ define([], function() {
               var dbAlertAttachedViews = config.alertAttachedViews;
 
               for(var i = 0, alertAttachedViewsLength = dbAlertAttachedViews.length; i < alertAttachedViewsLength; i++)
-                self.newAttachedView(dbAlertAttachedViews[i].View.id.toString(), dbAlertAttachedViews[i].View.name);
+                self.newAttachedView(dbAlertAttachedViews[i].View.id.toString(), dbAlertAttachedViews[i].View.name, dbAlertAttachedViews[i].id);
             }
           } else {
             self.legendModel = self.legends[0];
@@ -709,12 +709,15 @@ define([], function() {
      * 
      * @returns {void}
      */
-    self.newAttachedView = function(view, viewName) {
+    self.newAttachedView = function(view, viewName, id) {
       var newItem = {
         _id: UniqueNumber(),
         view: (view ? view : null),
         viewName: (viewName ? viewName : null)
       };
+
+      if(id)
+        newItem.id = id;
 
       self.attachedViews.push(newItem);
 
@@ -812,11 +815,16 @@ define([], function() {
               attachViewsError = true;
               break;
             } else {
-              attachViewsFinal.push({
+              var attachedViewFinal = {
                 layer_order: i + 1,
                 alert_id: (self.isUpdating ? self.alert.id : null),
                 view_id: self.attachedViews[i].view
-              });
+              };
+
+              if(self.attachedViews[i].id)
+                attachedViewFinal.id = self.attachedViews[i].id;
+
+              attachViewsFinal.push(attachedViewFinal);
             }
           }
 

@@ -366,30 +366,47 @@
           })
       })
       .then(function(alert) {
-        var sendAlertAndResolve = function() {
-          sendAlert(alert, shouldRun);
-          return resolve(alert);
-        };
+        DataManager.listAlertAttachedViews({ alert_id: alert.id }).then(function(dbAlertAttachedViews) {
+          var sendAlertAndResolve = function() {
+            sendAlert(alert, shouldRun);
+            return resolve(alert);
+          };
 
-        if(alertObject.attachedViews) {
-          var attachedViewsPromises = [];
+          if(alertObject.attachedViews) {
+            var attachedViewsPromises = [];
 
-          for(var i = 0, attachedViewsLength = alertObject.attachedViews.length; i < attachedViewsLength; i++) {
-            alertObject.attachedViews[i].alert_id = alert.id;
+            for(var j = 0, dbAlertAttachedViewsLength = dbAlertAttachedViews.length; j < dbAlertAttachedViewsLength; j++) {
+              var removeItem = true;
 
-            attachedViewsPromises.push(DataManager.addAlertAttachedView(alertObject.attachedViews[i]));
-          }
+              for(var i = 0, attachedViewsLength = alertObject.attachedViews.length; i < attachedViewsLength; i++) {
+                if(alertObject.attachedViews[i].id === dbAlertAttachedViews[j].id) {
+                  removeItem = false;
+                  break;
+                }
+              }
 
-          Promise.all(attachedViewsPromises).then(function() {
-            DataManager.listAlertAttachedViews({ alert_id: alert.id }).then(function(alertAttachedViews) {
-              alert.setAttachedViews(alertAttachedViews);
+              if(removeItem)
+                attachedViewsPromises.push(DataManager.removeAlertAttachedView({ id: dbAlertAttachedViews[j].id }));
+            }
 
-              sendAlertAndResolve();
+            for(var i = 0, attachedViewsLength = alertObject.attachedViews.length; i < attachedViewsLength; i++) {
+              if(alertObject.attachedViews[i].id)
+                attachedViewsPromises.push(DataManager.updateAlertAttachedView({ id: alertObject.attachedViews[i].id }, alertObject.attachedViews[i]));
+              else
+                attachedViewsPromises.push(DataManager.addAlertAttachedView(alertObject.attachedViews[i]));
+            }
+
+            Promise.all(attachedViewsPromises).then(function() {
+              DataManager.listAlertAttachedViews({ alert_id: alert.id }).then(function(alertAttachedViews) {
+                alert.setAttachedViews(alertAttachedViews);
+
+                sendAlertAndResolve();
+              });
             });
-          });
-        } else {
-          sendAlertAndResolve();
-        }
+          } else {
+            sendAlertAndResolve();
+          }
+        })
       })
       .catch(function(err){
         return reject(err);
