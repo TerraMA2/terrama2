@@ -122,8 +122,8 @@ define([], function(){
     };
 
     var prepareObjectToUpdate = function(){
-      $scope.input_data_series = JSON.parse(config.interpolator.dataSeriesInput);
-      $scope.outputDataSeries = JSON.parse(config.interpolator.dataSeriesOutput);
+      $scope.input_data_series = config.interpolator.dataSeriesInput;
+      $scope.outputDataSeries = config.interpolator.dataSeriesOutput;
       config.interpolator.bounding_rect = JSON.parse(config.interpolator.bounding_rect);
       var bounding_rect = {
         ll_corner: {

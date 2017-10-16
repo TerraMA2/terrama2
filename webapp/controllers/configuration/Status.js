@@ -14,10 +14,11 @@ module.exports = function(app) {
         DataManager.listAnalysis(),
         DataManager.listViews(),
         DataManager.listAlerts(),
+        DataManager.listInterpolators(),
         DataManager.listProjects()
       ])
 
-      .spread(function(collectors, analysisList, views, alerts, projects) {
+      .spread(function(collectors, analysisList, views, alerts, interpolators, projects) {
         var outputAnalysis = [];
         analysisList.forEach(function(analysis) {
           outputAnalysis.push(analysis.rawObject());
@@ -34,7 +35,11 @@ module.exports = function(app) {
 
         var outputAlerts = alerts.map(function(alert){
           return alert.rawObject();
-        })
+        });
+
+        var outputInterpolators = interpolators.map(function(interpolator){
+          return interpolator.rawObject();
+        });
 
         var renderParams = {
           "Enums": Enums,
@@ -42,6 +47,7 @@ module.exports = function(app) {
           "collectors": outputCollectors,
           "views": outputViews,
           "alerts": outputAlerts,
+          "interpolators": outputInterpolators,
           "projects": projects,
           "parameters": null
         };

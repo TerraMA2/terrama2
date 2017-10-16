@@ -5525,12 +5525,50 @@ var DataManager = module.exports = {
           },
           {
             model: models.db.InterpolatorMetadata
+          },
+          {
+            model: models.db.DataSeries,
+            as: "dataSeriesInput",
+            include: [
+              {
+                model: models.db.DataProvider,
+                include: [models.db.DataProviderType]
+              },
+              models.db.DataSeriesSemantics,
+              {
+                model: models.db.DataSet,
+                include: [
+                  models.db.DataSetFormat
+                ]
+              }
+            ]
+          },
+          {
+            model: models.db.DataSeries,
+            as: "dataSeriesOutput",
+            include: [
+              {
+                model: models.db.DataProvider,
+                include: [models.db.DataProviderType]
+              },
+              models.db.DataSeriesSemantics,
+              {
+                model: models.db.DataSet,
+                include: [
+                  models.db.DataSetFormat
+                ]
+              }
+            ]
           }
         ]
       }, options))
         .then(function(interpolators){
           return resolve(interpolators.map(function(interpolator) {
-            return new DataModel.Interpolator(interpolator);
+            var interpolatorObject = new DataModel.Interpolator(interpolator);
+            var inputDatSeriesObject = new DataModel.DataSeries(interpolator.dataSeriesInput.get());
+            var outputDatSeriesObject = new DataModel.DataSeries(interpolator.dataSeriesOutput.get());
+            interpolatorObject.setInputOutputDataSeries(inputDatSeriesObject, outputDatSeriesObject);
+            return interpolatorObject;
           }));
         })
         .catch(function(err){
@@ -5558,14 +5596,7 @@ var DataManager = module.exports = {
           if (interpolators.length > 1) {
             return reject(new Error("Get operation retrieved more than an interpolator"));
           }
-          var promises = [];
-          promises.push(self.getDataSeries({id: interpolators[0].data_series_input}, options));
-          promises.push(self.getDataSeries({id: interpolators[0].data_series_output}, options));
-          return Promise.all(promises).then(function(ds_results){
-            var interpolatorObject = interpolators[0];
-            interpolatorObject.setInputOutputDataSeries(ds_results[0], ds_results[1]);
-            return resolve(interpolatorObject);
-          });
+          return resolve(interpolators[0]);
         })
         .catch(function(err) {
           return reject(err);

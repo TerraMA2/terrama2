@@ -147,6 +147,9 @@
 
   Interpolator.prototype.rawObject = function() {
     var toObject = this.toObject();
+
+    toObject.dataSeriesOutput = this.dataSeriesOutput instanceof AbstractClass ? this.dataSeriesOutput.toObject() : this.dataSeriesOutput;
+    toObject.dataSeriesInput = this.dataSeriesInput instanceof AbstractClass ? this.dataSeriesInput.toObject() : this.dataSeriesInput;
     return toObject;
   };
 

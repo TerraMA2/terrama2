@@ -179,6 +179,11 @@ define([
             targetMessage = "Alert";
             targetKey = "";
             break;
+          case Globals.enums.ServiceType.INTERPOLATION:
+            targetArray = config.interpolators;
+            targetMessage = "Interpolator";
+            targetKey = "";
+            break;
         }
 
         var logArray = response.logs;

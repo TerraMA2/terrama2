@@ -39,6 +39,7 @@ module.exports = function(sequelize, DataTypes) {
 
           Interpolator.belongsTo(models.DataSeries, {
             onDelete: "CASCADE",
+            as: "dataSeriesInput",
             foreignKey: {
               name: "data_series_input",
               allowNull: false
@@ -47,6 +48,7 @@ module.exports = function(sequelize, DataTypes) {
 
           Interpolator.belongsTo(models.DataSeries, {
             onDelete: "CASCADE",
+            as: "dataSeriesOutput",
             foreignKey: {
               name: "data_series_output",
               allowNull: false
