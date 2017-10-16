@@ -95,14 +95,14 @@ int main(int argc, char* argv[])
     auto dataProviderFile = terrama2::occurrencewfp::dataProviderFileOccWFP();
     dataManager->add(dataProviderFile);
 
-    auto inputDataSeries = terrama2::occurrencewfp::occurrenceWfp(dataProviderFile);
+    auto inputDataSeries = terrama2::occurrencewfp::dataSeriesOccWFP(dataProviderFile);
     dataManager->add(inputDataSeries);
 
 
     auto dataProviderPostGis = terrama2::occurrencewfp::dataProviderPostGisOccWFP();
     dataManager->add(dataProviderPostGis);
 
-    auto outputDataSeries = terrama2::occurrencewfp::occurrenceWfpPostgis(dataProviderPostGis);
+    auto outputDataSeries = terrama2::occurrencewfp::dataSeriesOccWFPPostGis(dataProviderPostGis);
     dataManager->add(outputDataSeries);
 
 
@@ -126,8 +126,8 @@ int main(int argc, char* argv[])
     obj.insert("DataProviders", providersArray);
 
     QJsonArray seriesArray;
-    seriesArray.push_back(terrama2::occurrencewfp::occurrenceWfpJson(dataProviderFile));
-    seriesArray.push_back(terrama2::occurrencewfp::occurrenceWfpPostgisJson(dataProviderPostGis));
+    seriesArray.push_back(terrama2::occurrencewfp::dataSeriesOccWFPJson(dataProviderFile));
+    seriesArray.push_back(terrama2::occurrencewfp::dataSeriesOccWFPPostGisJson(dataProviderPostGis));
     obj.insert("DataSeries", seriesArray);
 
     QJsonArray collectorsArray;

@@ -90,7 +90,7 @@ int main(int argc, char* argv[])
     dataManager->add(dataProviderResult);
 
     // DataSeries information
-    auto outputDataSeries = terrama2::resultanalysis::resultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::zonal_history_ratio_analysis_result);
+    auto outputDataSeries = terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::zonal_history_ratio_analysis_result);
     dataManager->add(outputDataSeries);
 
     std::shared_ptr<terrama2::services::analysis::core::Analysis> analysis = std::make_shared<terrama2::services::analysis::core::Analysis>();

@@ -75,7 +75,7 @@ namespace terrama2
           return terrama2::core::fromDataProviderJson(obj);
       }
 
-      QJsonObject occurrenceWfpJson(terrama2::core::DataProviderPtr dataProviderFileOccWFP)
+      QJsonObject dataSeriesOccWFPJson(terrama2::core::DataProviderPtr dataProviderFileOccWFP)
       {
 
            QString json = QString(R"(
@@ -113,13 +113,13 @@ namespace terrama2
                return doc.object();
        }
 
-      terrama2::core::DataSeriesPtr occurrenceWfp(terrama2::core::DataProviderPtr dataProviderFileOccWFP)
+      terrama2::core::DataSeriesPtr dataSeriesOccWFP(terrama2::core::DataProviderPtr dataProviderFileOccWFP)
       {
-               auto obj = occurrenceWfpJson(dataProviderFileOccWFP);
+               auto obj = dataSeriesOccWFPJson(dataProviderFileOccWFP);
                return terrama2::core::fromDataSeriesJson(obj);
       }
 
-      terrama2::core::DataSeriesPtr occurrenceWfpFile(terrama2::core::DataProviderPtr dataProvider)
+      terrama2::core::DataSeriesPtr dataSeriesOccWFPFile(terrama2::core::DataProviderPtr dataProvider)
       {
 
           QString json = QString(R"(
@@ -193,7 +193,7 @@ namespace terrama2
 
 
 
-      QJsonObject occurrenceWfpPostgisJson(terrama2::core::DataProviderPtr dataProvider)
+      QJsonObject dataSeriesOccWFPPostGisJson(terrama2::core::DataProviderPtr dataProvider)
       {
 
           QString json = QString(R"(
@@ -231,9 +231,9 @@ namespace terrama2
           return doc.object();
       }
 
-      terrama2::core::DataSeriesPtr occurrenceWfpPostgis(terrama2::core::DataProviderPtr dataProvider)
+      terrama2::core::DataSeriesPtr dataSeriesOccWFPPostGis(terrama2::core::DataProviderPtr dataProvider)
       {
-          QJsonObject obj = occurrenceWfpPostgisJson(dataProvider);
+          QJsonObject obj = dataSeriesOccWFPPostGisJson(dataProvider);
           return terrama2::core::fromDataSeriesJson(obj);
       }
 

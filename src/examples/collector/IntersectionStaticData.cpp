@@ -124,7 +124,7 @@ int main(int argc, char* argv[])
       auto dataProviderOcc = terrama2::occurrencewfp::dataProviderFileOccWFP();
       dataManager->add(dataProviderOcc);
 
-      auto inputDataSeries = terrama2::occurrencewfp::occurrenceWfp(dataProviderOcc);
+      auto inputDataSeries = terrama2::occurrencewfp::dataSeriesOccWFP(dataProviderOcc);
       dataManager->add(inputDataSeries);
 
 
@@ -132,7 +132,7 @@ int main(int argc, char* argv[])
       auto outputDataProvider = terrama2::occurrencewfp::dataProviderPostGisOccWFP();
       dataManager->add(outputDataProvider);
 
-      auto outputDataSeries = terrama2::occurrencewfp::occurrenceWfpPostgis(outputDataProvider);
+      auto outputDataSeries = terrama2::occurrencewfp::dataSeriesOccWFPPostGis(outputDataProvider);
       dataManager->add(outputDataSeries);
 
 

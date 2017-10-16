@@ -117,7 +117,7 @@ int main(int argc, char* argv[])
     dataManager->add(dataProviderResult);
 
 
-    auto outputDataSeries = terrama2::resultanalysis::resultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::analysis_result);
+    auto outputDataSeries = terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::analysis_result);
     dataManager->add(outputDataSeries);
 
 
@@ -167,7 +167,7 @@ add_value("min", x))z";
     auto dataProviderFileSerrmar = terrama2::serramar::dataProviderSerramarInpe();
     dataManager->add(dataProviderFileSerrmar);
 
-    auto dcpSeriesDCP = terrama2::serramar::dcpSerramar(dataProviderFileSerrmar);
+    auto dcpSeriesDCP = terrama2::serramar::dataSeriesDcpSerramar(dataProviderFileSerrmar);
     dataManager->add(dcpSeriesDCP);
 
 
@@ -196,9 +196,9 @@ add_value("min", x))z";
     obj.insert("DataProviders", providersArray);
 
     QJsonArray seriesArray;
-    seriesArray.push_back(terrama2::resultanalysis::resultAnalysisPostGisJson(dataProviderResult, terrama2::resultanalysis::tablename::analysis_result));
+    seriesArray.push_back(terrama2::resultanalysis::dataSeriesResultAnalysisPostGisJson(dataProviderResult, terrama2::resultanalysis::tablename::analysis_result));
     seriesArray.push_back(terrama2::staticpostgis::dataSeriesMunicSerrmarInpeJson(dataProviderStatic));
-    seriesArray.push_back(terrama2::serramar::dcpSerramarJson(dataProviderFileSerrmar));
+    seriesArray.push_back(terrama2::serramar::dataSeriesDcpSerramarJson(dataProviderFileSerrmar));
     obj.insert("DataSeries", seriesArray);
 
     QJsonArray analysisArray;

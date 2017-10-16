@@ -78,7 +78,7 @@ namespace terrama2
      }
 
 
-     terrama2::core::DataSeriesPtr resultAnalysisGrid(terrama2::core::DataProviderPtr dataProvider, std::string nameoutputgrid)
+     terrama2::core::DataSeriesPtr dataSeriesResultAnalysisGrid(terrama2::core::DataProviderPtr dataProvider, std::string nameoutputgrid)
      {
 
          QString json = QString(R"x(
