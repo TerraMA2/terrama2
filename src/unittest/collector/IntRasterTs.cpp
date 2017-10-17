@@ -36,7 +36,8 @@
 #include <terrama2/core/utility/GeoUtils.hpp>
 
 
-#include "MockCollectorLogger.hpp"
+#include <terrama2/services/collector/mock/MockCollectorLogger.hpp>
+
 #include "IntRasterTs.hpp"
 
 #include <terrama2/Config.hpp>

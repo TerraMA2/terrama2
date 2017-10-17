@@ -49,14 +49,14 @@ define(
       var sliderParent = $(slider).parent();
 
       var label = $(sliderParent).find("label");
-      $(label).text("Opacity: " + initialValue + "%");
+      $(label).text(initialValue + "%");
 
       $(slider).slider({
         min: 0,
         max: 100,
         value: initialValue,
         slide: function(event, ui) {
-          $(label).text("Opacity: " + ui.value + "%");
+          $(label).text(ui.value + "%");
         },
         stop: function(event, ui) {
           changeLayerOpacity(layerId, ui.value);

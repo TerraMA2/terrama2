@@ -150,6 +150,28 @@
 
             <li class="header"></li>
 
+            {% if toolsMenu !== undefined && toolsMenu !== null && toolsMenu.length > 0 %}
+            <li class="treeview">
+              <a href="#">
+                <i class="fa fa-wrench"></i> <span ng-bind="i18n.__('Tools')"></span>
+                <i class="fa fa-angle-left pull-right"></i>
+              </a>
+              <ul class="treeview-menu">
+                {% for tab in toolsMenu %}
+                <li class="treeview">
+                  <a href="{[ tab.url ]}"{% if tab.openInNewTab > 0 %} target="_blank"{% endif %}>
+                    <i class="fa fa-link"></i>
+                    <span ng-if="i18n.userLanguage == 'en_US'">{[ tab.textEn ]}</span>
+                    <span ng-if="i18n.userLanguage == 'es_ES'">{[ tab.textEs ]}</span>
+                    <span ng-if="i18n.userLanguage == 'fr_FR'">{[ tab.textFr ]}</span>
+                    <span ng-if="i18n.userLanguage == 'pt_BR'">{[ tab.textPt ]}</span>
+                  </a>
+                </li>
+                {% endfor %}
+              </ul>
+            </li>
+            {% endif %}
+
             {% if currentUser !== null && currentUser.administrator %}
             <li class="treeview">
               <a href="#">
