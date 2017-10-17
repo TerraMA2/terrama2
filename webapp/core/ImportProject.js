@@ -491,7 +491,47 @@ var ImportProject = function(json){
                         }));
                       });
                     }
-                    return Promise.all(promises);
+                    return Promise.all(promises).then(function(){
+                      promises = [];
+
+                      if (json.Interpolators) {
+                        var interpolatorsList = json.Interpolators || [];
+                        interpolatorsList.forEach(function(interpolator) {
+                          interpolator.data_series_input = Utils.find(output.DataSeries, {$id: interpolator.data_series_input}).id;
+                          interpolator.data_series_output = Utils.find(output.DataSeries, {$id: interpolator.data_series_output}).id;
+                          interpolator.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: interpolator.project_id}).id : json.selectedProject;
+                          if(interpolator.service_instance_id === null) interpolator.service_instance_id = json.servicesInterpolator;
+                          
+                          delete interpolator.schedule.id;
+                          delete interpolator.automatic_schedule.id;
+                          var scheduleObject = {};
+                          if (interpolator.schedule_type == Enums.ScheduleType.AUTOMATIC){
+                            scheduleObject = interpolator.automatic_schedule;
+                            scheduleObject.scheduleType = Enums.ScheduleType.AUTOMATIC;
+                          } else if (interpolator.schedule_type == Enums.ScheduleType.SCHEDULE){
+                            scheduleObject = interpolator.schedule;
+                            scheduleObject.scheduleType = Enums.ScheduleType.SCHEDULE;
+                          } else {
+                            scheduleObject.scheduleType = Enums.ScheduleType.MANUAL;
+                          }
+
+                          promises.push(DataManager.addSchedule(scheduleObject, options).then(function(scheduleResult){
+                            if (scheduleResult){
+                              if (interpolator.schedule_type == Enums.ScheduleType.AUTOMATIC)
+                                interpolator.automatic_schedule_id = scheduleResult.id;
+                              else 
+                                interpolator.schedule_id = scheduleResult.id;
+                            }
+
+                            return DataManager.addInterpolator(interpolator, options).then(function(interpolatorResult){
+                              if(tcpOutput.Interpolators === undefined) tcpOutput.Interpolators = [];
+                                tcpOutput.Interpolators.push(interpolatorResult.toObject());
+                            });
+                          }))
+                        });
+                      }
+                      return Promise.all(promises);
+                    });
                   });
                 });
               });

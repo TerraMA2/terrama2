@@ -4,7 +4,7 @@ define(function() {
    *
    * @class ListController
    */
-  function ListController($scope, $http, Socket, FileDialog, SaveAs, $log, i18n, $window, MessageBoxService, AnalysisService, LegendService, $timeout) {
+  function ListController($scope, $http, Socket, FileDialog, SaveAs, $log, i18n, $window, MessageBoxService, AnalysisService, LegendService, InterpolatorService, $timeout) {
     $scope.model = [];
     var config = $window.configuration;
     var socket = Socket;
@@ -30,13 +30,15 @@ define(function() {
       "Analysis": [],
       "Views": [],
       "Legends": [],
-      "Alerts": []
+      "Alerts": [],
+      "Interpolators": []
     };
     $scope.services = {
       COLLECT: [],
       ANALYSIS: [],
       VIEW: [],
-      ALERT: []
+      ALERT: [],
+      INTERPOLATOR: []
     };
     $scope.selectedServices = {};
     $scope.hasCollect = false;
@@ -104,6 +106,13 @@ define(function() {
         for(var property in $scope.projectsCheckboxes[element.id].Alerts) {
           if($scope.projectsCheckboxes[element.id].Alerts.hasOwnProperty(property))
             $scope.projectsCheckboxes[element.id].Alerts[property] = flag;
+        }
+      }
+
+      if($scope.projectsCheckboxes[element.id].Interpolators != undefined) {
+        for(var property in $scope.projectsCheckboxes[element.id].Interpolators) {
+          if($scope.projectsCheckboxes[element.id].Interpolators.hasOwnProperty(property))
+            $scope.projectsCheckboxes[element.id].Interpolators[property] = flag;
         }
       }
     };
@@ -300,6 +309,7 @@ define(function() {
             delete $scope.exportData.Views;
             delete $scope.exportData.Legends;
             delete $scope.exportData.Alerts;
+            delete $scope.exportData.Interpolators;
           } else {
             if($scope.projectsCheckboxes[element.id].DataProviders != undefined) {
               for(var j = 0, dataProvidersLength = $scope.dataProviders[element.id].length; j < dataProvidersLength; j++) {
@@ -366,6 +376,13 @@ define(function() {
               }
             }
 
+            if($scope.projectsCheckboxes[element.id].Interpolators != undefined) {
+              for(var j = 0, interpolatorsLength = $scope.interpolators[element.id].length; j < interpolatorsLength; j++) {
+                if($scope.projectsCheckboxes[element.id].Interpolators[$scope.interpolators[element.id][j].id])
+                  $scope.exportData.Interpolators.push($scope.interpolators[element.id][j]);
+              }
+            }
+
             if($scope.exportData.Projects.length == 0) delete $scope.exportData.Projects;
             if($scope.exportData.DataProviders.length == 0) delete $scope.exportData.DataProviders;
             if($scope.exportData.DataSeries.length == 0) delete $scope.exportData.DataSeries;
@@ -374,6 +391,7 @@ define(function() {
             if($scope.exportData.Views.length == 0) delete $scope.exportData.Views;
             if($scope.exportData.Legends.length == 0) delete $scope.exportData.Legends;
             if($scope.exportData.Alerts.length == 0) delete $scope.exportData.Alerts;
+            if($scope.exportData.Interpolators.length == 0) delete $scope.exportData.Interpolators;
           }
         }
 
@@ -391,7 +409,8 @@ define(function() {
           "Analysis": [],
           "Views": [],
           "Legends": [],
-          "Alerts": []
+          "Alerts": [],
+          "Interpolators": []
         };
 
         $('#exportModal').modal('hide');
@@ -424,7 +443,8 @@ define(function() {
                   !json.hasOwnProperty("Collectors") &&
                   !json.hasOwnProperty("Views") &&
                   !json.hasOwnProperty("Legends") &&
-                  !json.hasOwnProperty("Alerts")) {
+                  !json.hasOwnProperty("Alerts") &&
+                  !json.hasOwnProperty("Interpolators")) {
                 MessageBoxService.danger(i18n.__(importTitle), new Error(i18n.__("Invalid configuration file")));
                 return;
               }
@@ -441,12 +461,14 @@ define(function() {
                 $scope.hasView = false;
                 $scope.hasLegend = false;
                 $scope.hasAlert = false;
+                $scope.hasInterpolator = false;
 
                 if(json.Collectors !== undefined && json.Collectors.length > 0) $scope.hasCollect = true;
                 if(json.Analysis !== undefined && json.Analysis.length > 0) $scope.hasAnalysis = true;
                 if(json.Views !== undefined && json.Views.length > 0) $scope.hasView = true;
                 if(json.Legends !== undefined && json.Legends.length > 0) $scope.hasLegend = true;
                 if(json.Alerts !== undefined && json.Alerts.length > 0) $scope.hasAlert = true;
+                if(json.Interpolators !== undefined && json.Interpolators.length > 0) $scope.hasInterpolator = true;
 
                 if($scope.model === undefined || $scope.model.length === 0) {
                   MessageBoxService.danger(i18n.__(importTitle), new Error(i18n.__("To import this file you need to have at least one project")));
@@ -458,6 +480,8 @@ define(function() {
                   MessageBoxService.danger(i18n.__(importTitle), new Error(i18n.__("To import this file you need to have at least one view service")));
                 } else if(json.Alerts !== undefined && json.Alerts.length > 0 && $scope.services.ALERT.length === 0) {
                   MessageBoxService.danger(i18n.__(importTitle), new Error(i18n.__("To import this file you need to have at least one alert service")));
+                } else if(json.Interpolators !== undefined && json.Interpolators.length > 0 && $scope.services.INTERPOLATOR.length === 0) {
+                  MessageBoxService.danger(i18n.__(importTitle), new Error(i18n.__("To import this file you need to have at least one interpolator service")));
                 } else {
                   $('#importModal').modal('show');
                 }
@@ -487,6 +511,9 @@ define(function() {
           if($scope.hasAlert)
             $scope.extra.importJson['servicesAlert'] = $scope.selectedServices.Alert;
 
+          if($scope.hasInterpolator)
+            $scope.extra.importJson['servicesInterpolator'] = $scope.selectedServices.Interpolator;
+
           socket.emit("import", $scope.extra.importJson);
           $('#importModal').modal('hide');
 
@@ -514,6 +541,9 @@ define(function() {
           case 4:
             $scope.services.ALERT.push(services.data[j]);
             break;
+          case 5:
+            $scope.services.INTERPOLATOR.push(services.data[j]);
+            break;
           default:
             break;
         }
@@ -534,6 +564,7 @@ define(function() {
       $scope.alerts = {};
       $scope.legends = {};
       $scope.collectors = {};
+      $scope.interpolators = {};
 
       response.data.map(function(project, index) {
         if($scope.projectsCheckboxes[project.id] == undefined)
@@ -561,7 +592,8 @@ define(function() {
           params: {
             collector: true,
             type: "dynamic",
-            ignoreAnalysisOutputDataSeries: true
+            ignoreAnalysisOutputDataSeries: true,
+            ignoreInterpolatorOutputDataSeries: true
           }
         }).then(function(dataSeries) {
           $scope.dataSeries[project.id] = dataSeries.data;
@@ -643,6 +675,30 @@ define(function() {
         }).catch(function(err) {
           $log.info("Err in retrieving Analysis " + err);
         }).finally(function() {
+          $scope.loading = false;
+        });
+
+        InterpolatorService.init({ project_id: project.id }).then(function(interpolators){
+          interpolators.map(function(interpolator){
+            interpolator.dataSeriesInput = JSON.parse(interpolator.dataSeriesInput);
+            interpolator.dataSeriesOutput = JSON.parse(interpolator.dataSeriesOutput);
+            return interpolator;
+          });
+          $scope.interpolators[project.id] = interpolators;
+
+          if($scope.projectsCheckboxes[project.id].Interpolators == undefined)
+            $scope.projectsCheckboxes[project.id].Interpolators = {};
+
+          var interpolatorsIds = [];
+
+          for(var j = 0, interpolatorsLength = interpolators.length; j < interpolatorsLength; j++) {
+            $scope.projectsCheckboxes[project.id].Interpolators[interpolators[j].id] = true;
+            interpolatorsIds.push(interpolators[j].id);
+          }
+
+        }).catch(function(err){
+          console.log(err);
+        }).finally(function(){
           $scope.loading = false;
         });
 
@@ -753,7 +809,7 @@ define(function() {
     }
   }
 
-  ListController.$inject = ["$scope", "$http", "Socket", "FileDialog", "SaveAs", "$log", "i18n", "$window", "MessageBoxService", "AnalysisService", "LegendService", "$timeout"];
+  ListController.$inject = ["$scope", "$http", "Socket", "FileDialog", "SaveAs", "$log", "i18n", "$window", "MessageBoxService", "AnalysisService", "LegendService", "InterpolatorService", "$timeout"];
 
   return ListController;
 })

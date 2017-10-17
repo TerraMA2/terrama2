@@ -171,6 +171,19 @@ var ObjectDependencies = function(json){
         })
       );
     }
+  } else if (json.objectType == "Interpolators"){
+    for(var i = 0, idsLength = json.ids.length; i < idsLength; i++) {
+      promises.push(
+        DataManager.getInterpolator({id: json.ids[i]}).then(function(interpolator){
+          if(output["Interpolators_" + interpolator.id] === undefined) output["Interpolators_" + interpolator.id] = {};
+
+          var interpolatorDataseriesListPromises = [getDataSeriesDependencies(interpolator.data_series_input, null, "Interpolators_" + interpolator.id)];
+          interpolatorDataseriesListPromises.push(getDataSeriesDependencies(interpolator.data_series_output, null, "Interpolators_" + interpolator.id));
+
+          return Promise.all(interpolatorDataseriesListPromises).catch(_emitError);
+        })
+      );
+    }
   }
 
   return Promise.all(promises).then(function() {

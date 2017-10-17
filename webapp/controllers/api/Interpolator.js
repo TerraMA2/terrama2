@@ -9,8 +9,11 @@
   module.exports = function(app){
     return {
       get: function(request, response) {
-        InterpolatorFacade.list({}).then(function(interpolator){
+        var project_id = request.query.project_id;
+        InterpolatorFacade.retrieve(null, project_id).then(function(interpolator){
           return response.json(interpolator);
+        }).catch(function(err) {
+          Utils.handleRequestError(response, err, 400);
         });
       },
       post: function(request, response) {

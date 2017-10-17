@@ -159,6 +159,21 @@
                 </ul>
               </div>
             </div>
+            <div class="box collapsed-box" ng-show="interpolators[element.id].length > 0">
+              <div class="box-header with-border">
+                <span class="box-title" style="font-size: 14px;">{{ i18n.__("Interpolator") }}</span>
+                <div class="box-tools pull-right">
+                  <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+                </div>
+              </div>
+              <div class="box-body" style="display: none;">
+                <ul style="list-style-type: none; padding-left: 0 !important;">
+                  <li ng-repeat="interpolator in interpolators[element.id]">
+                    <input type="checkbox" value="{{ interpolator.id }}" ng-model="projectsCheckboxes[element.id].Interpolators[interpolator.id]" ng-disabled="projectsCheckboxes[element.id].project" ng-change="itemCheck(element.id, interpolator.id, 'Interpolators')"/><div style="margin-top: -23px; margin-left: 18px;">{{ interpolator.dataSeriesOutput.name }}</div>
+                  </li>
+                </ul>
+              </div>
+            </div>
             <hr/>
             <button type="button" class="btn btn-default pull-left" data-dismiss="modal">{{ i18n.__("Close") }}</button>
             <button type="button" class="btn btn-primary pull-right" ng-click="extra.export(element)">{{ i18n.__("Export") }}</button>
@@ -213,6 +228,13 @@
             <label>{{ i18n.__("Select the Alert Service to be Used") }}:</label>
             <select class="form-control" name="servicesAlert" ng-model="selectedServices.Alert">
               <option ng-repeat="service in services.ALERT" ng-init="selectedServices.Alert = services.ALERT[0].id.toString()" value="{{ service.id }}">{{ service.name }}</option>
+            </select>
+          </div>
+          <hr ng-show="model.length > 0 && hasInterpolator && services.INTERPOLATOR.length > 0"/>
+          <div class="form-group" ng-show="model.length > 0 && hasInterpolator && services.INTERPOLATOR.length > 0">
+            <label>{{ i18n.__("Select the Interpolator Service to be Used") }}:</label>
+            <select class="form-control" name="servicesInterpolator" ng-model="selectedServices.Interpolator">
+              <option ng-repeat="service in services.INTERPOLATOR" ng-init="selectedServices.Interpolator = services.INTERPOLATOR[0].id.toString()" value="{{ service.id }}">{{ service.name }}</option>
             </select>
           </div>
           <hr/>

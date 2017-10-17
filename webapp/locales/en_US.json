@@ -1048,5 +1048,6 @@
   "Interpolator": "Interpolator",
   "If service is not running you can not save the interpolator": {
     " Start the service before create or update an interpolator!": "If service is not running you can not save the interpolator. Start the service before create or update an interpolator!"
-  }
+  },
+  "Select the Interpolator Service to be Used": "Select the Interpolator Service to be Used"
 }
