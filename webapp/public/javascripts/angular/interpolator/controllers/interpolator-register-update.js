@@ -160,6 +160,7 @@ define([], function(){
         outputDataSeries.name = $scope.inter.name;
         outputDataSeries.description = $scope.inter.description;
         outputDataSeries.data_series_semantics_id = $scope.outputDataSeries.data_series_semantics.id,
+        outputDataSeries.active = $scope.inter.active;
         outputDataSeries.dataSets = [outputDataSet];
       } else {
         var outputDataSet = {
@@ -171,7 +172,8 @@ define([], function(){
           data_provider_id: $scope.outputDataSeries.data_provider.id,
           data_series_semantics_id: $scope.outputDataSeries.data_series_semantics.id,
           description: $scope.inter.description,
-          dataSets: [outputDataSet]
+          dataSets: [outputDataSet],
+          active: $scope.inter.active,
         }
       }
 
