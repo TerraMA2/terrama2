@@ -19,7 +19,7 @@ define([], function() {
 
     /**
      * It retrieves Global variables from main window.
-     * 
+     *
      * @type {Object}
      */
     var Globals = $window.globals;
@@ -271,7 +271,7 @@ define([], function() {
           dataSeries.forEach(function(data){
             if (data.data_provider && data.data_provider.data_provider_type.name){
               if (data.data_provider.data_provider_type.name == "FILE" || data.data_provider.data_provider_type.name == "POSTGIS" )
-                self.dataSeries.push(data);              
+                self.dataSeries.push(data);
             } else {
               self.dataSeries.push(data);
             }
@@ -337,7 +337,7 @@ define([], function() {
       if (service_id)
         Socket.emit('status', {service: service_id});
     }, true);
-  
+
     /**
      * It is used on ng-init active view. It will wait for angular ready condition and set active view checkbox
      *
@@ -363,10 +363,10 @@ define([], function() {
     }
     /**
      * function to get source type of view creation
-     * @param {Object} dataSeries 
+     * @param {Object} dataSeries
      */
     function getSourceType(dataSeries){
-      if (!dataSeries) 
+      if (!dataSeries)
         return;
       else {
         if (dataSeries.data_series_semantics.temporality == "STATIC"){
@@ -396,9 +396,6 @@ define([], function() {
           if (dSeries.data_series_semantics.data_series_format_name === "GDAL") {
             self.isValid = false;
             MessageBoxService.danger(i18n.__("View"), i18n.__("You selected a GRID data series. Only GDAL data series format are supported"));
-          } else if (dSeries.data_series_semantics.data_series_type_name === DataSeriesService.DataSeriesType.DCP) {
-            self.isValid = false;
-            MessageBoxService.danger(i18n.__("View"), i18n.__("DCP data series is not supported yet"));
           } else {
             self.isValid = true;
           }
@@ -467,7 +464,7 @@ define([], function() {
               self.legend.fieldsToReplace.forEach(function(field){
                 //Must increase 1 because geoserver starts the band name from 1
                 var bandNumber = self.legend.metadata[field] + 1;
-                self.legend.metadata.xml_style = self.legend.metadata.xml_style.split("%"+field).join("Band"+bandNumber);            
+                self.legend.metadata.xml_style = self.legend.metadata.xml_style.split("%"+field).join("Band"+bandNumber);
               });
               delete self.legend.fieldsToReplace;
             }
