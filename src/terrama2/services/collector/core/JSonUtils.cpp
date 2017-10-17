@@ -143,7 +143,8 @@ QJsonObject terrama2::services::collector::core::toJson(CollectorPtr collector)
   obj.insert("input_data_series", static_cast<int32_t>(collector->inputDataSeries));
   obj.insert("output_data_series", static_cast<int32_t>(collector->outputDataSeries));
   obj.insert("schedule", terrama2::core::toJson(collector->schedule));
-  obj.insert("intersection", terrama2::services::collector::core::toJson(collector->intersection));
+  if(collector->intersection)
+    obj.insert("intersection", terrama2::services::collector::core::toJson(collector->intersection));
   obj.insert("active", collector->active);
 
   QJsonArray array;

@@ -78,7 +78,7 @@ namespace terrama2
              return terrama2::core::fromDataProviderJson(obj);
         }
 
-        QJsonObject dcpSerramarJson(terrama2::core::DataProviderPtr dataProvider)
+        QJsonObject dataSeriesDcpSerramarJson(terrama2::core::DataProviderPtr dataProvider)
         {
 
                    QString json = QString(R"x(
@@ -164,9 +164,9 @@ namespace terrama2
                        return doc.object();
          }
 
-         terrama2::core::DataSeriesPtr dcpSerramar(terrama2::core::DataProviderPtr dataProvider)
+         terrama2::core::DataSeriesPtr dataSeriesDcpSerramar(terrama2::core::DataProviderPtr dataProvider)
          {
-             auto obj = dcpSerramarJson(dataProvider);
+             auto obj = dataSeriesDcpSerramarJson(dataProvider);
              return terrama2::core::fromDataSeriesJson(obj);
          }
 
@@ -198,7 +198,7 @@ namespace terrama2
             return terrama2::core::fromDataProviderJson(obj);
         }
 
-        terrama2::core::DataSeriesPtr dcpSerramarPostgis(terrama2::core::DataProviderPtr dataProvider)
+        terrama2::core::DataSeriesPtr dataSeriesDcpSerramarPostGis(terrama2::core::DataProviderPtr dataProvider)
         {
 
             QString json = QString(R"x(

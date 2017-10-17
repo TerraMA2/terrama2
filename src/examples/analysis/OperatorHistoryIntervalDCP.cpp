@@ -89,7 +89,7 @@ int main(int argc, char* argv[])
   dataManager->add(dataProviderResult);
 
 
-  auto outputDataSeries = terrama2::resultanalysis::resultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::dcp_history_interval_result);
+  auto outputDataSeries = terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::dcp_history_interval_result);
   dataManager->add(outputDataSeries);
 
 
@@ -150,7 +150,7 @@ add_value("history_standard_deviation",x))z";
   dataManager->add(dataProviderDCP);
 
 
-  auto dcpSeries = terrama2::serramar::dcpSerramarPostgis(dataProviderDCP);
+  auto dcpSeries = terrama2::serramar::dataSeriesDcpSerramarPostGis(dataProviderDCP);
   dataManager->add(dcpSeries);
 
 

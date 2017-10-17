@@ -47,7 +47,6 @@
 #include <QTimer>
 #include <QUrl>
 
-using namespace terrama2::serramar;
 
 void addInput(std::shared_ptr<terrama2::services::collector::core::DataManager> dataManager)
 {
@@ -57,12 +56,12 @@ void addInput(std::shared_ptr<terrama2::services::collector::core::DataManager> 
     //////////////////////////////////////////////
 
 
-    auto dataProvider = dataProviderSerramarInpe();
+    auto dataProvider = terrama2::serramar::dataProviderSerramarInpe();
     dataManager->add(dataProvider);
 
 
     // DataSeries information
-    auto dataSeries = dcpSerramar(dataProvider);
+    auto dataSeries = terrama2::serramar::dataSeriesDcpSerramar(dataProvider);
     dataManager->add(dataSeries);
 }
 
@@ -75,12 +74,12 @@ void addOutput(std::shared_ptr<terrama2::services::collector::core::DataManager>
 
 
     // DataProvider information
-    auto dataProvider = dataProviderPostGisDCP();
+    auto dataProvider = terrama2::serramar::dataProviderPostGisDCP();
     dataManager->add(dataProvider);
 
 
     // DataSeries information
-    auto outputDataSeries = dcpSerramarPostgis(dataProvider);
+    auto outputDataSeries = terrama2::serramar::dataSeriesDcpSerramarPostGis(dataProvider);
     dataManager->add(outputDataSeries);
 
 }
