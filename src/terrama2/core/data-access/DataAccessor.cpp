@@ -216,9 +216,22 @@ terrama2::core::DataAccessor::getSeries(const std::map<DataSetId, std::string> u
       if(!intersects(dataset, filter))
         continue;
 
-      DataSetSeries tempSeries = getSeries(uriMap.at(dataset->id), filter, dataset, remover);
-      series.emplace(dataset, tempSeries);
+      try
+      {
+        DataSetSeries tempSeries = getSeries(uriMap.at(dataset->id), filter, dataset, remover);
+        series.emplace(dataset, tempSeries);
+      }
+      catch (const terrama2::core::NoDataException&)
+      {
+      }
     }//for each dataset
+
+    if(series.empty())
+    {
+      QString errMsg = QObject::tr("No data in dataseries: %1.").arg(QString::fromStdString(dataSeries_->name));
+      TERRAMA2_LOG_WARNING() << errMsg;
+      throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
+    }
   }
   catch(const terrama2::Exception&)
   {
