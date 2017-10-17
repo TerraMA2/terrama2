@@ -35,8 +35,9 @@
 
       listByService: function(request, response) {
         var serviceId = request.params.service_id;
+        var projectId = request.params.project_id;
         
-        ViewFacade.retrieve(null, null, serviceId)
+        ViewFacade.retrieve(null, projectId, serviceId)
           .then(function(views) {
             return response.json(views);
           })

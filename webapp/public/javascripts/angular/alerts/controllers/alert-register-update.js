@@ -173,7 +173,13 @@ define([], function() {
      * 
      * @type {array}
      */
-    self.attachedViews = [];
+    self.attachedViews = self.isUpdating ? [] : [
+      {
+        _id: "alertView",
+        view: null,
+        viewName: null
+      }
+    ];
 
     /**
      * Current width of views selects
@@ -181,6 +187,13 @@ define([], function() {
      * @type {integer}
      */
     self.selectWidth = null;
+
+    /**
+     * Current width of views td
+     * 
+     * @type {integer}
+     */
+    self.tdWidth = null;
 
     if (self.isUpdating && self.alert.view && self.alert.view.legend){
       self.colors = [];
@@ -329,8 +342,11 @@ define([], function() {
 
               var dbAlertAttachedViews = config.alertAttachedViews;
 
-              for(var i = 0, alertAttachedViewsLength = dbAlertAttachedViews.length; i < alertAttachedViewsLength; i++)
-                self.newAttachedView(dbAlertAttachedViews[i].View.id.toString(), dbAlertAttachedViews[i].View.name, dbAlertAttachedViews[i].id);
+              for(var i = 0, alertAttachedViewsLength = dbAlertAttachedViews.length; i < alertAttachedViewsLength; i++) {
+                var interfaceId = (self.alert.view.id === dbAlertAttachedViews[i].View.id ? "alertView" : null);
+
+                self.newAttachedView(dbAlertAttachedViews[i].View.id.toString(), dbAlertAttachedViews[i].View.name, dbAlertAttachedViews[i].id, interfaceId);
+              }
             }
           } else {
             self.legendModel = self.legends[0];
@@ -685,8 +701,18 @@ define([], function() {
      * @returns {void}
      */
     $(window).resize(function() {
-      if(self.attachedViews.length > 0)
-        self.selectWidth = $("#" + self.attachedViews[0]._id).width();
+      if(self.attachedViews.length > 1) {
+        for(var i = 0, attachedViewsLength = self.attachedViews.length; i < attachedViewsLength; i++) {
+          if(self.attachedViews[i]._id !== "alertView") {
+            self.selectWidth = $("#" + self.attachedViews[i]._id).width();
+            break;
+          }
+        }
+      } else {
+        self.selectWidth = null;
+      }
+
+      self.tdWidth = $("#alertView").width();
     });
 
     /**
@@ -697,10 +723,16 @@ define([], function() {
     self.onServiceChanged = function() {
       $http({
         method: "GET",
-        url: BASE_URL + "api/ViewByService/" + self.view_service_instance_id
+        url: BASE_URL + "api/ViewByService/" + self.view_service_instance_id + "/" + config.activeProject.id
       }).then(function(views) {
         self.viewsToAttach = views.data;
-        self.attachedViews = [];
+        self.attachedViews = [
+          {
+            _id: "alertView",
+            view: null,
+            viewName: null
+          }
+        ];
       });
     };
 
@@ -709,11 +741,11 @@ define([], function() {
      * 
      * @returns {void}
      */
-    self.newAttachedView = function(view, viewName, id) {
+    self.newAttachedView = function(view, viewName, id, interfaceId) {
       var newItem = {
-        _id: UniqueNumber(),
+        _id: (interfaceId ? interfaceId : UniqueNumber()),
         view: (view ? view : null),
-        viewName: (viewName ? viewName : null)
+        viewName: (viewName && !interfaceId ? viewName : null)
       };
 
       if(id)
@@ -723,6 +755,7 @@ define([], function() {
 
       $timeout(function() {
         self.selectWidth = $("#" + newItem._id).width();
+        self.tdWidth = $("#alertView").width();
       });
     };
 
@@ -746,8 +779,12 @@ define([], function() {
      * @returns {void}
      */
     self.startSort = function($item, $part, $index, $helper) {
-      $(".sv-helper select > option").text(self.attachedViews[$index].viewName);
-      $(".sv-helper select").width(self.selectWidth);
+      if(self.attachedViews[$index].viewName !== null) {
+        $(".sv-helper select > option").text(self.attachedViews[$index].viewName);
+        $(".sv-helper select").width(self.selectWidth);
+      } else {
+        $(".sv-helper #alertView").width(self.tdWidth);
+      }
     }; 
 
     /**
@@ -806,19 +843,19 @@ define([], function() {
           return;
         }
 
-        if(self.attachViews && self.attachedViews.length > 0) {
+        if(self.alert.hasView && self.attachViews && self.attachedViews.length > 0) {
           var attachViewsError = false;
           var attachViewsFinal = [];
 
           for(var i = 0, attachedViewsLength = self.attachedViews.length; i < attachedViewsLength; i++) {
-            if(self.attachedViews[i].view === null) {
+            if(self.attachedViews[i].view === null && self.attachedViews[i]._id !== "alertView") {
               attachViewsError = true;
               break;
             } else {
               var attachedViewFinal = {
                 layer_order: i + 1,
                 alert_id: (self.isUpdating ? self.alert.id : null),
-                view_id: self.attachedViews[i].view
+                view_id: (self.attachedViews[i].view !== null ? self.attachedViews[i].view : null)
               };
 
               if(self.attachedViews[i].id)

@@ -26,7 +26,7 @@ module.exports = function(app) {
         .then(function(alert) {
           DataManager.listAlertAttachedViews({ alert_id: alert.id })
             .then(function(alertAttachedViews) {
-              DataManager.listViews({service_instance_id: alert.view.serviceInstanceId})
+              DataManager.listViews({service_instance_id: alert.view.serviceInstanceId, project_id: request.session.activeProject.id})
                 .then(function(views) {
                   return response.render("configuration/alert", { disablePDF: config.disablePDF, alert: alert.rawObject(), alertAttachedViews: alertAttachedViews, views: views.map(function(view) { return view.toObject(); }), hasProjectPermission: hasProjectPermission });
                 }).catch(function(err) {

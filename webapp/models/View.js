@@ -117,6 +117,13 @@
             }
           });
 
+          View.hasMany(models.AlertAttachedView, {
+            onDelete: 'CASCADE',
+            foreignKey: {
+              allowNull: false
+            }
+          });
+
           View.belongsTo(models.Project, {
             onDelete: "CASCADE",
             foreignKey: {

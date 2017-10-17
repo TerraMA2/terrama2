@@ -116,8 +116,8 @@
           });
       }
 
-      if (projectId) {
-        return DataManager.listViews({project_id: projectId})
+      if (serviceId) {
+        return DataManager.listViews({service_instance_id: serviceId, project_id: projectId})
           .then(function(views) {
             return resolve(views.map(function(view) {
               return view.toObject();
@@ -129,8 +129,8 @@
           });
       }
 
-      if (serviceId) {
-        return DataManager.listViews({service_instance_id: serviceId})
+      if (projectId) {
+        return DataManager.listViews({project_id: projectId})
           .then(function(views) {
             return resolve(views.map(function(view) {
               return view.toObject();

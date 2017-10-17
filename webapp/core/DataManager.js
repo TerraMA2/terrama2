@@ -4401,6 +4401,9 @@ var DataManager = module.exports = {
             model: models.db.ReportMetadata
           },
           {
+            model: models.db.AlertAttachedView
+          },
+          {
             model: models.db.Legend,
             include: [
               {

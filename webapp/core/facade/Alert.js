@@ -123,6 +123,9 @@
           for(var i = 0, attachedViewsLength = alertObject.attachedViews.length; i < attachedViewsLength; i++) {
             alertObject.attachedViews[i].alert_id = alert.id;
 
+            if(alertObject.attachedViews[i].view_id === null)
+              alertObject.attachedViews[i].view_id = alertObject.view_id;
+
             attachedViewsPromises.push(DataManager.addAlertAttachedView(alertObject.attachedViews[i]));
           }
 
@@ -390,6 +393,9 @@
             }
 
             for(var i = 0, attachedViewsLength = alertObject.attachedViews.length; i < attachedViewsLength; i++) {
+              if(alertObject.attachedViews[i].view_id === null)
+                alertObject.attachedViews[i].view_id = alert.view.id;
+
               if(alertObject.attachedViews[i].id)
                 attachedViewsPromises.push(DataManager.updateAlertAttachedView({ id: alertObject.attachedViews[i].id }, alertObject.attachedViews[i]));
               else
