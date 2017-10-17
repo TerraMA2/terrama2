@@ -514,7 +514,7 @@
                   </td>
                   <td>
                     <select id="{{ attachedView._id }}" class="form-control" ng-model="attachedView.view" ng-change="ctrl.selectAttachedView(this)">
-                      <option ng-repeat="view in ctrl.viewsToAttach" value="{{ view.id }}">{{ view.name }}</option>
+                      <option ng-repeat="view in ctrl.viewsToAttach" value="{{ view.id }}" ng-if="view.id !== ctrl.alert.view.id">{{ view.name }}</option>
                     </select>
                   </td>
                   <td style="width: 34px;">
