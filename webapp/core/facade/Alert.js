@@ -111,9 +111,31 @@
       })
 
       .then(function(alert) {
-        // sending to the services
-        sendAlert(alert, shouldRun);
-        return resolve(alert);
+        var sendAlertAndResolve = function() {
+          // sending to the services
+          sendAlert(alert, shouldRun);
+          return resolve(alert);
+        };
+
+        if(alertObject.attachedViews) {
+          var attachedViewsPromises = [];
+
+          for(var i = 0, attachedViewsLength = alertObject.attachedViews.length; i < attachedViewsLength; i++) {
+            alertObject.attachedViews[i].alert_id = alert.id;
+
+            attachedViewsPromises.push(DataManager.addAlertAttachedView(alertObject.attachedViews[i]));
+          }
+
+          Promise.all(attachedViewsPromises).then(function() {
+            DataManager.listAlertAttachedViews({ alert_id: alert.id }).then(function(alertAttachedViews) {
+              alert.setAttachedViews(alertAttachedViews);
+
+              sendAlertAndResolve();
+            });
+          });
+        } else {
+          sendAlertAndResolve();
+        }
       })
       
       .catch(function(err){
@@ -343,10 +365,48 @@
             });
           })
       })
-      .then(function(alert){
-        sendAlert(alert, shouldRun);
+      .then(function(alert) {
+        DataManager.listAlertAttachedViews({ alert_id: alert.id }).then(function(dbAlertAttachedViews) {
+          var sendAlertAndResolve = function() {
+            sendAlert(alert, shouldRun);
+            return resolve(alert);
+          };
 
-        return resolve(alert);
+          if(alertObject.attachedViews) {
+            var attachedViewsPromises = [];
+
+            for(var j = 0, dbAlertAttachedViewsLength = dbAlertAttachedViews.length; j < dbAlertAttachedViewsLength; j++) {
+              var removeItem = true;
+
+              for(var i = 0, attachedViewsLength = alertObject.attachedViews.length; i < attachedViewsLength; i++) {
+                if(alertObject.attachedViews[i].id === dbAlertAttachedViews[j].id) {
+                  removeItem = false;
+                  break;
+                }
+              }
+
+              if(removeItem)
+                attachedViewsPromises.push(DataManager.removeAlertAttachedView({ id: dbAlertAttachedViews[j].id }));
+            }
+
+            for(var i = 0, attachedViewsLength = alertObject.attachedViews.length; i < attachedViewsLength; i++) {
+              if(alertObject.attachedViews[i].id)
+                attachedViewsPromises.push(DataManager.updateAlertAttachedView({ id: alertObject.attachedViews[i].id }, alertObject.attachedViews[i]));
+              else
+                attachedViewsPromises.push(DataManager.addAlertAttachedView(alertObject.attachedViews[i]));
+            }
+
+            Promise.all(attachedViewsPromises).then(function() {
+              DataManager.listAlertAttachedViews({ alert_id: alert.id }).then(function(alertAttachedViews) {
+                alert.setAttachedViews(alertAttachedViews);
+
+                sendAlertAndResolve();
+              });
+            });
+          } else {
+            sendAlertAndResolve();
+          }
+        })
       })
       .catch(function(err){
         return reject(err);

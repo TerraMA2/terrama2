@@ -24,7 +24,17 @@ module.exports = function(app) {
       var hasProjectPermission = request.session.activeProject.hasProjectPermission;
       DataManager.getAlert({id: parseInt(request.params.id)})
         .then(function(alert) {
-          return response.render("configuration/alert", { disablePDF: config.disablePDF, alert: alert.rawObject(), hasProjectPermission: hasProjectPermission });
+          DataManager.listAlertAttachedViews({ alert_id: alert.id })
+            .then(function(alertAttachedViews) {
+              DataManager.listViews({service_instance_id: alert.view.serviceInstanceId})
+                .then(function(views) {
+                  return response.render("configuration/alert", { disablePDF: config.disablePDF, alert: alert.rawObject(), alertAttachedViews: alertAttachedViews, views: views.map(function(view) { return view.toObject(); }), hasProjectPermission: hasProjectPermission });
+                }).catch(function(err) {
+                  return response.render("base/404");
+                });
+            }).catch(function(err) {
+              return response.render("base/404");
+            });
         }).catch(function(err) {
           return response.render("base/404");
         });

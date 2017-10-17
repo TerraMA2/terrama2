@@ -33,6 +33,19 @@
           });
       },
 
+      listByService: function(request, response) {
+        var serviceId = request.params.service_id;
+        
+        ViewFacade.retrieve(null, null, serviceId)
+          .then(function(views) {
+            return response.json(views);
+          })
+
+          .catch(function(err) {
+            return handleRequestError(response, err, 400);
+          });
+      },
+
       post: function(request, response) {
         var viewObject = request.body;
         var shouldRun = request.body.run;

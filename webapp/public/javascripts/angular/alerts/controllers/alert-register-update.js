@@ -154,6 +154,34 @@ define([], function() {
       }
     ];
 
+    /**
+     * Indicates if there are views attached
+     * 
+     * @type {boolean}
+     */
+    self.attachViews = true;
+
+    /**
+     * Views available to be attached
+     * 
+     * @type {array}
+     */
+    self.viewsToAttach = [];
+
+    /**
+     * Attached views
+     * 
+     * @type {array}
+     */
+    self.attachedViews = [];
+
+    /**
+     * Current width of views selects
+     * 
+     * @type {integer}
+     */
+    self.selectWidth = null;
+
     if (self.isUpdating && self.alert.view && self.alert.view.legend){
       self.colors = [];
       var legendColors = self.alert.view.legend.colors.sort(function(a, b){
@@ -294,6 +322,16 @@ define([], function() {
 
             if(self.alert.notifications[0].notify_on_legend_level !== null)
               self.notifyOnLegendLevel = true;
+
+            if(config.alertAttachedViews) {
+              if(config.views)
+                self.viewsToAttach = config.views;
+
+              var dbAlertAttachedViews = config.alertAttachedViews;
+
+              for(var i = 0, alertAttachedViewsLength = dbAlertAttachedViews.length; i < alertAttachedViewsLength; i++)
+                self.newAttachedView(dbAlertAttachedViews[i].View.id.toString(), dbAlertAttachedViews[i].View.name, dbAlertAttachedViews[i].id);
+            }
           } else {
             self.legendModel = self.legends[0];
 
@@ -642,6 +680,91 @@ define([], function() {
     };
 
     /**
+     * Window resize event.
+     * 
+     * @returns {void}
+     */
+    $(window).resize(function() {
+      if(self.attachedViews.length > 0)
+        self.selectWidth = $("#" + self.attachedViews[0]._id).width();
+    });
+
+    /**
+     * Service change event.
+     * 
+     * @returns {void}
+     */
+    self.onServiceChanged = function() {
+      $http({
+        method: "GET",
+        url: BASE_URL + "api/ViewByService/" + self.view_service_instance_id
+      }).then(function(views) {
+        self.viewsToAttach = views.data;
+        self.attachedViews = [];
+      });
+    };
+
+    /**
+     * Creation of a new attached view.
+     * 
+     * @returns {void}
+     */
+    self.newAttachedView = function(view, viewName, id) {
+      var newItem = {
+        _id: UniqueNumber(),
+        view: (view ? view : null),
+        viewName: (viewName ? viewName : null)
+      };
+
+      if(id)
+        newItem.id = id;
+
+      self.attachedViews.push(newItem);
+
+      $timeout(function() {
+        self.selectWidth = $("#" + newItem._id).width();
+      });
+    };
+
+    /**
+     * Removal of an attached view.
+     * 
+     * @returns {void}
+     */
+    self.removeAttachedView = function(attachedViewId) {
+      for(var i = 0, attachedViewsLength = self.attachedViews.length; i < attachedViewsLength; i++) {
+        if(self.attachedViews[i]._id === attachedViewId) {
+          self.attachedViews.splice(i, 1);
+          break;
+        }
+      }
+    };
+
+    /**
+     * Sort start event.
+     * 
+     * @returns {void}
+     */
+    self.startSort = function($item, $part, $index, $helper) {
+      $(".sv-helper select > option").text(self.attachedViews[$index].viewName);
+      $(".sv-helper select").width(self.selectWidth);
+    }; 
+
+    /**
+     * Attached view selection event.
+     * 
+     * @returns {void}
+     */
+    self.selectAttachedView = function(item) {
+      for(var i = 0, viewsToAttachLength = self.viewsToAttach.length; i < viewsToAttachLength; i++) {
+        if(item.attachedView.view == self.viewsToAttach[i].id) {
+          self.attachedViews[item.$index].viewName = self.viewsToAttach[i].name;
+          break;
+        }
+      }
+    };
+
+    /**
      * Saves the alert.
      * 
      * @returns {void}
@@ -681,6 +804,34 @@ define([], function() {
         if($scope.forms.alertForm.$invalid || $scope.forms.dataSeriesForm.$invalid || $scope.forms.legendLevel.$invalid || $scope.forms.reportForm.$invalid || $scope.forms.notificationForm.$invalid) {
           self.MessageBoxService.danger(i18n.__("Alerts"), errMessageInvalidFields);
           return;
+        }
+
+        if(self.attachViews && self.attachedViews.length > 0) {
+          var attachViewsError = false;
+          var attachViewsFinal = [];
+
+          for(var i = 0, attachedViewsLength = self.attachedViews.length; i < attachedViewsLength; i++) {
+            if(self.attachedViews[i].view === null) {
+              attachViewsError = true;
+              break;
+            } else {
+              var attachedViewFinal = {
+                layer_order: i + 1,
+                alert_id: (self.isUpdating ? self.alert.id : null),
+                view_id: self.attachedViews[i].view
+              };
+
+              if(self.attachedViews[i].id)
+                attachedViewFinal.id = self.attachedViews[i].id;
+
+              attachViewsFinal.push(attachedViewFinal);
+            }
+          }
+
+          if(attachViewsError)
+            return self.MessageBoxService.danger(i18n.__("Alert"), i18n.__("Select a view in all the attached views"));
+          else
+            self.alert.attachedViews = attachViewsFinal;
         }
 
         var legendTemp = $.extend(true, {}, self.legendModel);
