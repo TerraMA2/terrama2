@@ -628,7 +628,7 @@ int main(int argc, char* argv[])
     //////////////////////////////
 
     // DataSeries information - Output
-    auto output_data_series = terrama2::geotiff::resultAnalysisGrid(dataProvider, terrama2::geotiff::nameoutputgrid::output_novaFriburgo);
+    auto output_data_series = terrama2::geotiff::dataSeriesResultAnalysisGrid(dataProvider, terrama2::geotiff::nameoutputgrid::output_novaFriburgo);
     dataManager->add(output_data_series);
 
 

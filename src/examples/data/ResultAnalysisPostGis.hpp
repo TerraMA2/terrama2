@@ -94,7 +94,7 @@ namespace terrama2
       }
 
 
-      QJsonObject  resultAnalysisPostGisJson(terrama2::core::DataProviderPtr dataProvider, std::string nameTableResult)
+      QJsonObject  dataSeriesResultAnalysisPostGisJson(terrama2::core::DataProviderPtr dataProvider, std::string nameTableResult)
       {
 
           QString json = QString(R"(
@@ -127,9 +127,9 @@ namespace terrama2
           return doc.object();
       }
 
-      terrama2::core::DataSeriesPtr resultAnalysisPostGis(terrama2::core::DataProviderPtr dataProvider, std::string nameTableResult)
+      terrama2::core::DataSeriesPtr dataSeriesResultAnalysisPostGis(terrama2::core::DataProviderPtr dataProvider, std::string nameTableResult)
       {
-          auto obj = resultAnalysisPostGisJson(dataProvider, nameTableResult);
+          auto obj = dataSeriesResultAnalysisPostGisJson(dataProvider, nameTableResult);
           return terrama2::core::fromDataSeriesJson(obj);
       }
 

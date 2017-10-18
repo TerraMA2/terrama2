@@ -90,7 +90,7 @@ int main(int argc, char* argv[])
     dataManager->add(dataProviderResult);
 
 
-    auto dataSeriesResult = terrama2::resultanalysis::resultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::buffer_analysis_result);
+    auto dataSeriesResult = terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::buffer_analysis_result);
     dataManager->add(dataSeriesResult);
 
 
@@ -159,7 +159,7 @@ add_value("level", x))z";
     auto dataProviderOcc = terrama2::occurrencewfp::dataProviderPostGisOccWFP();
     dataManager->add(dataProviderOcc);
 
-    auto occurrenceDataSeries = terrama2::occurrencewfp::occurrenceWfpPostgis(dataProviderOcc);
+    auto occurrenceDataSeries = terrama2::occurrencewfp::dataSeriesOccWFPPostGis(dataProviderOcc);
     dataManager->add(occurrenceDataSeries);
 
     AnalysisDataSeries occurrenceADS;
