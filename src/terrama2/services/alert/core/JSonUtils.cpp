@@ -80,7 +80,7 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
   alert->filter.lastValues = std::make_shared<size_t>(6);
 
   auto addDataArray = json["additional_data"].toArray();
-  for(const auto& value : addDataArray)
+  for(auto value : addDataArray)
   {
     auto obj = value.toObject();
     auto id = static_cast<uint32_t>(obj["dataseries_id"].toInt());
@@ -90,7 +90,7 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
 
     std::vector<std::string> attributes;
     auto attributesArray = obj["attributes"].toArray();
-    for(const auto& tempAttribute : attributesArray)
+    for(auto tempAttribute : attributesArray)
       attributes.push_back(tempAttribute.toString().toStdString());
 
     AdditionalData additionalData;
@@ -116,7 +116,7 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
   alert->riskId = static_cast<uint32_t>(json["legend_id"].toInt());
 
   auto recipientsArray = json["notifications"].toArray();
-  for(const auto& tempRecipient : recipientsArray)
+  for(auto tempRecipient : recipientsArray)
   {
     auto obj = tempRecipient.toObject();
     Notification recipient;
@@ -125,7 +125,7 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
     recipient.simplifiedReport = obj["simplified_report"].toBool();
     recipient.notifyOnRiskLevel = static_cast<uint32_t>(obj["notify_on_risk_level"].toInt());
 
-    for(const auto& target : obj["recipients"].toArray())
+    for(auto target : obj["recipients"].toArray())
       recipient.targets.push_back(target.toString().toStdString());
 
     alert->notifications.push_back(recipient);
@@ -136,18 +136,18 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
     auto obj = json["view"].toObject();
     AlertView view;
     view.geoserverUri = obj["geoserver_uri"].toString().toStdString();
-    if(obj.contains("ẗop")
-       && obj.contains("bottom")
-       && obj.contains("left")
-       && obj.contains("right")
+    if(obj.contains("miny")
+       && obj.contains("maxy")
+       && obj.contains("minx")
+       && obj.contains("maxx")
        && obj.contains("srid"))
     {
-      double top = obj["top"].toDouble();
-      double bottom = obj["bottom"].toDouble();
-      double left = obj["left"].toDouble();
-      double right = obj["right"].toDouble();
-      view.topRightCorner = te::gm::Coord2D(right, top);
-      view.topRightCorner = te::gm::Coord2D(left, bottom);
+      double miny = obj["miny"].toDouble();
+      double maxy = obj["maxy"].toDouble();
+      double minx = obj["minx"].toDouble();
+      double maxx = obj["maxx"].toDouble();
+      view.topRightCorner.reset(new te::gm::Coord2D(maxx, miny));
+      view.lowerLeftCorner.reset(new te::gm::Coord2D(minx, maxy));
       view.srid = static_cast<Srid>(obj["srid"].toInt());
     }
     else
@@ -168,13 +168,13 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
     }
 
     auto jsonArray = obj["layers"].toArray();
-    for(const auto& value : jsonArray)
+    for(auto value : jsonArray)
     {
       auto layer = value.toObject();
       view.views.emplace_back(layer["view_id"].toInt(), layer["workspace"].toString().toStdString());
     }
 
-    alert->view = boost::optional<AlertView>(view);
+    alert->view = std::move(view);
   }
 
   return alert;

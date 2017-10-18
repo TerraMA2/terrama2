@@ -750,7 +750,7 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
 te::core::URI terrama2::services::alert::core::AlertExecutor::generateImage(AlertPtr alertPtr,
                                                                             std::shared_ptr<terrama2::core::FileRemover> remover)
 {
-  auto view = *alertPtr->view;
+  const auto& view = *alertPtr->view;
   if(view.views.empty())
   {
     QString errMsg("Empty list of layers.");
@@ -766,16 +766,13 @@ te::core::URI terrama2::services::alert::core::AlertExecutor::generateImage(Aler
   geoserverUri+= "&width="+std::to_string(view.width)
                  +"&height="+std::to_string(view.height);
 
-  if(view.lowerLeftCorner && view.topRightCorner)
-  {
-    auto lowerLeftCorner = *view.lowerLeftCorner;
-    auto topRightCorner = *view.topRightCorner;
+  const auto& lowerLeftCorner = view.lowerLeftCorner;
+  const auto& topRightCorner = view.topRightCorner;
   // Configure bounding box
-    geoserverUri+= "&bbox="+std::to_string(lowerLeftCorner.getX())
-                   +","+std::to_string(lowerLeftCorner.getY())
-                   +","+std::to_string(topRightCorner.getX())
-                   +","+std::to_string(topRightCorner.getY());
-  }
+  geoserverUri+= "&bbox="+std::to_string(lowerLeftCorner->getX())
+                 +","+std::to_string(lowerLeftCorner->getY())
+                 +","+std::to_string(topRightCorner->getX())
+                 +","+std::to_string(topRightCorner->getY());
 
   //add layers to request
   geoserverUri+="&layers=";

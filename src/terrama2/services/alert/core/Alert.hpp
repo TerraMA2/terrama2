@@ -75,12 +75,13 @@ namespace terrama2
         };
 
         using ViewID = uint32_t;
+
         struct AlertView
         {
           std::string geoserverUri;
           std::vector<std::pair<ViewID, std::string> > views;
-          boost::optional<te::gm::Coord2D> topRightCorner;
-          boost::optional<te::gm::Coord2D> lowerLeftCorner;
+          std::unique_ptr<te::gm::Coord2D> topRightCorner;
+          std::unique_ptr<te::gm::Coord2D> lowerLeftCorner;
           Srid srid;
           uint32_t width=768;
           uint32_t height=659;

@@ -196,12 +196,12 @@ terrama2::services::alert::core::AlertPtr newAlert()
   view.height = 659;
   view.width = 768;
   view.srid = 4326;
-  view.lowerLeftCorner = te::gm::Coord2D(-70, -40);
-  view.topRightCorner = te::gm::Coord2D(-30,4);
+  view.lowerLeftCorner.reset(new te::gm::Coord2D(-70, -40));
+  view.topRightCorner.reset(new te::gm::Coord2D(-30,4));
   view.views.emplace_back(9,"terrama2_9");
   view.views.emplace_back(2,"terrama2_2");
 
-  alert->view = view;
+  alert->view = std::move(view);
 
   return alert;
 }
