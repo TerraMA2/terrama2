@@ -216,7 +216,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
 
         for(auto& fileInfo : fileInfoList)
         {
-          std::string layerName = fileInfo.fileName().toStdString();
+          std::string layerName = generateLayerName(viewPtr->id);
 
           if(dataFormat == "OGR")
           {
