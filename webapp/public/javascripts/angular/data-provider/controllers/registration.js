@@ -282,7 +282,7 @@ define(function() {
       $scope.isChecking = true; // for handling loading page
 
       // Timeout in seconds for handling connections
-      $scope.timeOutSeconds = 8;
+      $scope.timeOutSeconds = $scope.model.timeout ? $scope.model.timeout : 8;
 
       // Function for requests success, error and timeout
       var makeRequest = function() {
