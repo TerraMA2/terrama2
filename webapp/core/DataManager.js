@@ -4401,7 +4401,28 @@ var DataManager = module.exports = {
             model: models.db.ReportMetadata
           },
           {
-            model: models.db.AlertAttachedView
+            model: models.db.AlertAttachedView,
+            order: [
+              ['layer_order', 'ASC']
+            ],
+            include: [
+              {
+                model: models.db.Alert
+              },
+              {
+                model: models.db.View,
+                include: [
+                  {
+                    model: models.db.ServiceInstance,
+                    include: [
+                      {
+                        model: models.db.ServiceMetadata
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
           },
           {
             model: models.db.Legend,
@@ -4475,6 +4496,11 @@ var DataManager = module.exports = {
               notifications.push(notification.get());
             });
 
+            var attachedViews = [];
+            alert.AlertAttachedViews.forEach(function(attachedView){
+              attachedViews.push(attachedView.get());
+            });
+
             var legend = new DataModel.Legend(alert.Legend.get());
 
             var view = alert.View ? new DataModel.View(Object.assign(alert.View.get(), {
@@ -4498,7 +4524,8 @@ var DataManager = module.exports = {
               reportMetadata: alert.ReportMetadatum.get(),
               legend: legend,
               view: view,
-              dataSeries: alert.DataSery ? new DataModel.DataSeries(alert.DataSery.get()) : {}
+              dataSeries: alert.DataSery ? new DataModel.DataSeries(alert.DataSery.get()) : {},
+              attachedViews: attachedViews
             }));
             return alertModel;
           }))
