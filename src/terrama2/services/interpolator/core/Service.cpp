@@ -232,13 +232,13 @@ void terrama2::services::interpolator::core::Service::interpolate(terrama2::core
       throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
     }
 
-    std::unique_ptr<Interpolator> interpolatorPtr(InterpolatorFactories::make(interpolatorParamsPtr->interpolationType_, *interpolatorParamsPtr.get()));
+    auto interpolatorPtr(InterpolatorFactories::make(interpolatorParamsPtr->interpolationType_, interpolatorParamsPtr));
 
     auto res = interpolatorPtr->makeInterpolation();
 
     TERRAMA2_LOG_INFO() << tr("Data from process %1 interpolated successfully.").arg(executionPackage.processId);
 
-    StoreInterpolateResult(res, interpolatorParamsPtr.get(), dataManager, executionPackage.executionDate);
+    StoreInterpolateResult(res.get(), interpolatorParamsPtr.get(), dataManager, executionPackage.executionDate);
 
     TERRAMA2_LOG_INFO() << tr("Data from process %1 stored successfully.").arg(executionPackage.processId);
 
@@ -391,9 +391,9 @@ void terrama2::services::interpolator::core::Service::connectDataManager()
           &terrama2::services::interpolator::core::Service::updateInterpolator);
 }
 
-void terrama2::services::interpolator::core::Service::addInterpolator(const terrama2::services::interpolator::core::InterpolatorParamsPtr& params)
+void terrama2::services::interpolator::core::Service::addInterpolator(terrama2::services::interpolator::core::InterpolatorParamsPtr params)
 {
-  InterpolatorPtr i(InterpolatorFactories::make(params->interpolationType_, *params.get()));
+  InterpolatorPtr i(InterpolatorFactories::make(params->interpolationType_, params));
 
   addProcessToSchedule(i);
 }

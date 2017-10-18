@@ -79,25 +79,54 @@ terrama2::services::interpolator::core::InterpolatorParams* GetParameters(const 
   {
     case terrama2::services::interpolator::core::NEARESTNEIGHBOR:
       return new terrama2::services::interpolator::core::NNInterpolatorParams;
-    break;
 
     case terrama2::services::interpolator::core::AVGDIST:
       return new terrama2::services::interpolator::core::AvgDistInterpolatorParams;
-    break;
 
     case terrama2::services::interpolator::core::SQRAVGDIST:
       return new terrama2::services::interpolator::core::SqrAvgDistInterpolatorParams;
-    break;
 
     default:
       return 0;
   }
-
-
 }
 
+terrama2::services::interpolator::core::InterpolatorParams* GetParameters(const QString& type)
+{
+  if(type.compare("NEAREST-NEIGHBOR", Qt::CaseInsensitive))
+    return GetParameters(terrama2::services::interpolator::core::NEARESTNEIGHBOR);
 
-terrama2::services::interpolator::core::InterpolatorParams* terrama2::services::interpolator::core::fromInterpolatorJson(QJsonObject json, terrama2::core::DataManager* dataManager)
+  if(type.compare("AVERAGE-NEIGHBOR", Qt::CaseInsensitive))
+    return GetParameters(terrama2::services::interpolator::core::AVGDIST);
+
+  if(type.compare("W-AVERAGE-NEIGHBOR", Qt::CaseInsensitive))
+    return GetParameters(terrama2::services::interpolator::core::SQRAVGDIST);
+
+  QString errMsg = QObject::tr("Invalid Interpolator type.");
+  TERRAMA2_LOG_ERROR() << errMsg;
+  throw terrama2::core::JSonParserException() << terrama2::ErrorDescription(errMsg);
+}
+
+QString GetInterpolatorAsString(const int& type)
+{
+  switch (type)
+  {
+    case terrama2::services::interpolator::core::NEARESTNEIGHBOR:
+      return "NEAREST-NEIGHBOR";
+
+    case terrama2::services::interpolator::core::AVGDIST:
+      return "AVERAGE-NEIGHBOR";
+
+    case terrama2::services::interpolator::core::SQRAVGDIST:
+      return "W-AVERAGE-NEIGHBOR";
+  }
+
+  QString errMsg = QObject::tr("Invalid Interpolator type.");
+  TERRAMA2_LOG_ERROR() << errMsg;
+  throw terrama2::core::JSonParserException() << terrama2::ErrorDescription(errMsg);
+}
+
+terrama2::services::interpolator::core::InterpolatorParamsPtr terrama2::services::interpolator::core::fromInterpolatorJson(QJsonObject json, terrama2::core::DataManager*)
 {
   InterpolatorParams* res = 0;
 
@@ -128,9 +157,9 @@ terrama2::services::interpolator::core::InterpolatorParams* terrama2::services::
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
 
-  terrama2::services::interpolator::core::InterpolatorType interpolType = static_cast<terrama2::services::interpolator::core::InterpolatorType>(json["interpolator_strategy"].toInt());
+  QString interpolatorType = json["interpolator_strategy"].toString();
 
-  res = GetParameters(interpolType);
+  res = GetParameters(interpolatorType);
 
   res->id_ = static_cast<uint32_t>(json["id"].toInt());
   res->projectId_ = static_cast<uint32_t>(json["project_id"].toInt());
@@ -145,13 +174,13 @@ terrama2::services::interpolator::core::InterpolatorParams* terrama2::services::
                       true :
                       false;
 
-  res->interpolationType_ = interpolType;
+  res->interpolationType_ = res->interpolationType_;
 
   res->attributeName_ = json["interpolation_attribute"].toString().toStdString();
   res->resolutionX_ = json["resolution_x"].toDouble();
   res->resolutionY_ = json["resolution_y"].toDouble();
   res->srid_ = json["srid"].toInt();
-  res->numNeighbors_ = json["number_of_neighbors"].toInt();
+  res->numNeighbors_ = static_cast<size_t>(json["number_of_neighbors"].toInt());
 
   auto bboxObj = json["bounding_rect"].toObject();
 
@@ -169,12 +198,23 @@ terrama2::services::interpolator::core::InterpolatorParams* terrama2::services::
   res->bRect_ = env;
 
   if(res->interpolationType_ == terrama2::services::interpolator::core::SQRAVGDIST)
-    ((terrama2::services::interpolator::core::SqrAvgDistInterpolatorParams*)res)->pow_ = json["power_factor"].toInt();
+  {
+    terrama2::services::interpolator::core::SqrAvgDistInterpolatorParams* auxPar = dynamic_cast<terrama2::services::interpolator::core::SqrAvgDistInterpolatorParams*>(res);
 
-  return res;
+    if(auxPar == 0)
+    {
+      QString errMsg = QObject::tr("Invalid Weighted Interpolator JSON object.");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
+    }
+
+    auxPar->pow_ = json["power_factor"].toInt();
+  }
+
+  return InterpolatorParamsPtr(res);
 }
 
-QJsonObject terrama2::services::interpolator::core::toJson(InterpolatorParams* params)
+QJsonObject terrama2::services::interpolator::core::toJson(InterpolatorParamsPtr params)
 {
   QJsonObject obj;
   obj.insert("class", QString("Interpolator"));
@@ -183,7 +223,7 @@ QJsonObject terrama2::services::interpolator::core::toJson(InterpolatorParams* p
   obj.insert("service_instance_id", static_cast<int32_t>(params->serviceInstanceId_));
   obj.insert("input_data_series", static_cast<int32_t>(params->series_));
   obj.insert("output_data_series", static_cast<int32_t>(params->outSeries_));
-  obj.insert("interpolator_strategy", static_cast<int32_t>(params->interpolationType_));
+  obj.insert("interpolator_strategy", GetInterpolatorAsString(params->interpolationType_));
   obj.insert("number_of_neighbors", static_cast<int32_t>(params->numNeighbors_));
   obj.insert("resolution_x", static_cast<double>(params->resolutionX_));
   obj.insert("resolution_y", static_cast<double>(params->resolutionY_));
@@ -192,7 +232,18 @@ QJsonObject terrama2::services::interpolator::core::toJson(InterpolatorParams* p
   obj.insert("active", params->active_);
 
   if(params->interpolationType_ == terrama2::services::interpolator::core::SQRAVGDIST)
-    obj.insert("power_factor", static_cast<int32_t>(((terrama2::services::interpolator::core::SqrAvgDistInterpolatorParams*)params)->pow_));
+  {
+    terrama2::services::interpolator::core::SqrAvgDistInterpolatorParams* auxPar = dynamic_cast<terrama2::services::interpolator::core::SqrAvgDistInterpolatorParams*>(params.get());
+
+    if(auxPar == 0)
+    {
+      QString errMsg = QObject::tr("Invalid Weighted Interpolator JSON object.");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
+    }
+
+    obj.insert("power_factor", static_cast<int32_t>(auxPar->pow_));
+  }
 
   obj.insert("bounding_rect", GetBoundingRect(params->bRect_));
 

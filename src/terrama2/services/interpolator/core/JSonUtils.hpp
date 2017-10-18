@@ -32,6 +32,8 @@
 
 #include "../../../core/data-model/DataManager.hpp"
 
+#include "Typedef.hpp"
+
 // Qt
 #include <QJsonObject>
 
@@ -43,9 +45,6 @@ namespace terrama2
     {
       namespace core
       {
-        // Foward declarations
-        struct InterpolatorParams;
-
         /*!
          * \brief Returns an InterpolatorParams object based on the \a json object.
          *
@@ -55,7 +54,7 @@ namespace terrama2
          *
          * \return An InterpolatorParams object.
          */
-        InterpolatorParams* fromInterpolatorJson(QJsonObject json, terrama2::core::DataManager* dataManager);
+        InterpolatorParamsPtr fromInterpolatorJson(QJsonObject json, terrama2::core::DataManager* dataManager);
 
         /*!
          * \brief Returns a QJasonObject object based on the \a interpolator object parameters.
@@ -64,7 +63,7 @@ namespace terrama2
          *
          * \return A QJsonObject that represents the paramaters object.
          */
-        QJsonObject toJson(InterpolatorParams* params);
+        QJsonObject toJson(InterpolatorParamsPtr params);
       } // end namespace core
     }   // end namespace interpolator
   }     // end namespace services

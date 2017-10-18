@@ -30,6 +30,10 @@
 #ifndef TERRAMA2_INTERPOLATOR_CORE_INTERPOLATORFACTORIES_H
 #define TERRAMA2_INTERPOLATOR_CORE_INTERPOLATORFACTORIES_H
 
+#include "Interpolator.hpp"
+#include "InterpolatorParams.hpp"
+#include "Typedef.hpp"
+
 // TerraLib
 #include <terralib/common/ParameterizedAbstractFactory.h>
 
@@ -41,10 +45,6 @@ namespace terrama2
     {
       namespace core
       {
-        // Forward declarations
-        struct Interpolator;
-        struct InterpolatorParams;
-
         /*!
          * \class InterpolatorFactories
          *
@@ -58,7 +58,7 @@ namespace terrama2
          *
          * \ingroup interpolator
          */
-        class InterpolatorFactories : public te::common::ParameterizedAbstractFactory<Interpolator, int, const InterpolatorParams&>
+        class InterpolatorFactories : public te::common::ParameterizedAbstractFactory<Interpolator, int, InterpolatorParamsPtr>
         {
         public:
 
@@ -110,7 +110,7 @@ namespace terrama2
            *
            * \return A NNInterpolator object.
            */
-          Interpolator* build(const InterpolatorParams& p);
+          Interpolator* build(InterpolatorParamsPtr p);
         };
 
         /*!
@@ -139,7 +139,7 @@ namespace terrama2
            *
            * \return A AvgDistInterpolator object.
            */
-          Interpolator* build(const InterpolatorParams& p);
+          Interpolator* build(InterpolatorParamsPtr p);
         };
 
         /*!
@@ -168,7 +168,7 @@ namespace terrama2
            *
            * \return A SqrAvgDistInterpolator object.
            */
-          Interpolator* build(const InterpolatorParams& p);
+          Interpolator* build(InterpolatorParamsPtr p);
         };
       } // end namespace core
     }   // end namespace interpolator

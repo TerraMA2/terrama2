@@ -113,7 +113,7 @@ namespace terrama2
            *
            * \param params The parameters to be stored.
            */
-          void addInterpolator(const InterpolatorParamsPtr& params);
+          void addInterpolator(InterpolatorParamsPtr params);
 
           /*!
            * \brief Adds the service to the execution queue.

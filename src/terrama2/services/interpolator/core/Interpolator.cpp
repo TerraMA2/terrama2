@@ -83,10 +83,10 @@ void FillEmptyData(std::vector<terrama2::services::interpolator::core::Interpola
 /// End utilities functions section.
 /*! -------------------------------*/
 
-terrama2::services::interpolator::core::Interpolator::Interpolator(const InterpolatorParams* params) :
-  Process(),
-  interpolationParams_(params)
+terrama2::services::interpolator::core::Interpolator::Interpolator(InterpolatorParamsPtr params) :
+  Process()
 {
+  interpolationParams_ = params;
   te::gm::Envelope env;
   tree_.reset(new InterpolatorTree(env));
   tree_->setBucketSize(1);
@@ -96,7 +96,12 @@ terrama2::services::interpolator::core::Interpolator::Interpolator(const Interpo
   this->active = true;
 }
 
-te::rst::Raster* terrama2::services::interpolator::core::Interpolator::makeRaster()
+terrama2::services::interpolator::core::Interpolator::~Interpolator()
+{
+
+}
+
+te::rst::RasterPtr terrama2::services::interpolator::core::Interpolator::makeRaster()
 {
   te::gm::Envelope* env = new te::gm::Envelope(interpolationParams_->bRect_);
 
@@ -139,7 +144,7 @@ te::rst::Raster* terrama2::services::interpolator::core::Interpolator::makeRaste
   r = te::rst::RasterFactory::make("MEM", grid, vecBandProp, conInfo);
   /////////////////////////////////////////////////////////////////////////
 
-  return r;
+  return te::rst::RasterPtr(r);
 }
 
 void terrama2::services::interpolator::core::Interpolator::fillTree()
@@ -189,6 +194,8 @@ void terrama2::services::interpolator::core::Interpolator::fillTree()
 
     std::vector< std::pair<te::gm::Point, InterpolatorData> > dataSetVec;
 
+    auto imgBBox = interpolationParams_->bRect_;
+
     for (auto it : dataMap)
     {
       auto dataSet = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(it.first);
@@ -198,7 +205,7 @@ void terrama2::services::interpolator::core::Interpolator::fillTree()
       node.pt_ = &pt1;
       node.series_ = dataSeries;
 
-      if(!node.isValid())
+      if(!node.isValid() || (!imgBBox.contains(*node.pt_->getMBR())))
         continue;
 
       auto pair = std::make_pair(pt1, node);
@@ -228,15 +235,15 @@ void terrama2::services::interpolator::core::Interpolator::fillTree()
   }
 }
 
-terrama2::services::interpolator::core::NNInterpolator::NNInterpolator(const InterpolatorParams* params) :
+terrama2::services::interpolator::core::NNInterpolator::NNInterpolator(InterpolatorParamsPtr params) :
   Interpolator(params)
 {
 
 }
 
-te::rst::Raster* terrama2::services::interpolator::core::NNInterpolator::makeInterpolation()
+te::rst::RasterPtr terrama2::services::interpolator::core::NNInterpolator::makeInterpolation()
 {
-  te::rst::Raster* r = makeRaster();
+  te::rst::RasterPtr r = makeRaster();
   /////////////////////////////////////////////////////////////////////////
   //  Making the interpolation using the nearest neighbor.
   te::gm::Point pt1;
@@ -254,7 +261,7 @@ te::rst::Raster* terrama2::services::interpolator::core::NNInterpolator::makeInt
       res.clear();
       dist.clear();
 
-      r->getGrid()->gridToGeo((double) col, (double)row, x, y);
+      r->getGrid()->gridToGeo(static_cast<double>(col), static_cast<double>(row), x, y);
 
       pt1.setX(x);
       pt1.setY(y);
@@ -279,15 +286,15 @@ te::rst::Raster* terrama2::services::interpolator::core::NNInterpolator::makeInt
   return r;
 }
 
-terrama2::services::interpolator::core::AvgDistInterpolator::AvgDistInterpolator(const InterpolatorParams* params) :
+terrama2::services::interpolator::core::AvgDistInterpolator::AvgDistInterpolator(InterpolatorParamsPtr params) :
   Interpolator(params)
 {
 
 }
 
-te::rst::Raster* terrama2::services::interpolator::core::AvgDistInterpolator::makeInterpolation()
+te::rst::RasterPtr terrama2::services::interpolator::core::AvgDistInterpolator::makeInterpolation()
 {
-  te::rst::Raster* r = makeRaster();
+  te::rst::RasterPtr r = makeRaster();
 
   /////////////////////////////////////////////////////////////////////////
   //  Making the interpolation using the nearest neighbor.
@@ -306,7 +313,7 @@ te::rst::Raster* terrama2::services::interpolator::core::AvgDistInterpolator::ma
       res.clear();
       dist.clear();
 
-      r->getGrid()->gridToGeo((double) col, (double)row, x, y);
+      r->getGrid()->gridToGeo(static_cast<double>(col), static_cast<double>(row), x, y);
 
       pt1.setX(x);
       pt1.setY(y);
@@ -340,15 +347,15 @@ te::rst::Raster* terrama2::services::interpolator::core::AvgDistInterpolator::ma
 }
 
 
-terrama2::services::interpolator::core::SqrAvgDistInterpolator::SqrAvgDistInterpolator(const InterpolatorParams* params) :
+terrama2::services::interpolator::core::SqrAvgDistInterpolator::SqrAvgDistInterpolator(InterpolatorParamsPtr params) :
   Interpolator(params)
 {
 
 }
 
-te::rst::Raster* terrama2::services::interpolator::core::SqrAvgDistInterpolator::makeInterpolation()
+te::rst::RasterPtr terrama2::services::interpolator::core::SqrAvgDistInterpolator::makeInterpolation()
 {
-  te::rst::Raster* r = makeRaster();
+  te::rst::RasterPtr r = makeRaster();
 
   /////////////////////////////////////////////////////////////////////////
   //  Making the interpolation using the nearest neighbor.
@@ -358,7 +365,9 @@ te::rst::Raster* terrama2::services::interpolator::core::SqrAvgDistInterpolator:
   unsigned int resolutionY = r->getGrid()->getNumberOfRows(),
       resolutionX = r->getGrid()->getNumberOfColumns();
 
-  unsigned int powF = ((SqrAvgDistInterpolatorParams*)interpolationParams_)->pow_;
+  SqrAvgDistInterpolatorParams* auxPar = dynamic_cast<SqrAvgDistInterpolatorParams*>(interpolationParams_.get());
+
+  unsigned int powF = auxPar->pow_;
 
   for(unsigned int row = 0; row < resolutionY; row++)
     for(unsigned int col = 0; col < resolutionX; col++)
@@ -369,7 +378,7 @@ te::rst::Raster* terrama2::services::interpolator::core::SqrAvgDistInterpolator:
       res.clear();
       dist.clear();
 
-      r->getGrid()->gridToGeo((double) col, (double)row, x, y);
+      r->getGrid()->gridToGeo(static_cast<double>(col), static_cast<double>(row), x, y);
 
       pt1.setX(x);
       pt1.setY(y);
