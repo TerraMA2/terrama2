@@ -93,7 +93,7 @@ int main(int argc, char* argv[])
   auto dataProviderResult = terrama2::resultanalysis::dataProviderResultAnalysis();
   dataManager->add(dataProviderResult);
 
-  auto outputDataSeries =  terrama2::resultanalysis::resultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::reprocessing_result);
+  auto outputDataSeries =  terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::reprocessing_result);
   dataManager->add(outputDataSeries);
 
 
@@ -137,7 +137,7 @@ add_value("count", x))";
   auto dataProviderOcc = terrama2::occurrencewfp::dataProviderPostGisOccWFP();
   dataManager->add(dataProviderOcc);
 
-  auto occurrenceDataSeries = terrama2::occurrencewfp::occurrenceWfpPostgis(dataProviderOcc);
+  auto occurrenceDataSeries = terrama2::occurrencewfp::dataSeriesOccWFPPostGis(dataProviderOcc);
   dataManager->add(occurrenceDataSeries);
 
   AnalysisDataSeries occurrenceADS;
