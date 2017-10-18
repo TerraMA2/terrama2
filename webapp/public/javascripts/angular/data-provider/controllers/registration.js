@@ -125,6 +125,20 @@ define(function() {
           // temp code for port changing
           if(dataProviderType.display) {
             var formTranslatorResult = FormTranslator(dataProviderType.properties, dataProviderType.display, dataProviderType.required);
+            formTranslatorResult.display.some(function(display){
+              if (display.key == "hostname"){
+                display.onChange = function(modelValue,form){
+                  if (modelValue){
+                    if (modelValue.endsWith("/"))
+                      modelValue = modelValue.slice(0, -1);
+                      
+                    $scope.model.hostname = modelValue;
+                  }
+                }
+                return true;
+              }
+              return false;
+            });
             var propertiesLocale = formTranslatorResult.object;
             var fieldsForm = formTranslatorResult.display;
           } else {
