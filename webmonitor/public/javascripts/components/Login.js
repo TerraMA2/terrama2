@@ -1,8 +1,8 @@
 'use strict';
 
 define(
-  ['components/Layers', 'components/Utils'],
-  function(Layers, Utils) {
+  ['components/Layers', 'components/Utils', 'components/State'],
+  function(Layers, Utils, State) {
 
     var signin = function(error, username) {
       if(!$('#authentication-div').hasClass('hidden'))
@@ -16,17 +16,11 @@ define(
         $("#terrama2Alert > p > span").text(error);
         $("#terrama2Alert").removeClass('hide');
       } else {
-        if($("#loginButton > button > i").hasClass("fa-user-times"))
-          $("#loginButton > button > i").removeClass("fa-user-times");
+        if(!$("#loginButton .fa-times").hasClass("hidden"))
+          $("#loginButton .fa-times").addClass("hidden");
 
-        if($("#loginButton > button > i").hasClass("font-red"))
-          $("#loginButton > button > i").removeClass("font-red");
-
-        if(!$("#loginButton > button > i").hasClass("fa-user"))
-          $("#loginButton > button > i").addClass("fa-user");
-
-        if(!$("#loginButton > button > i").hasClass("font-green"))
-          $("#loginButton > button > i").addClass("font-green");
+        if($("#loginButton .fa-circle").hasClass("hidden"))
+          $("#loginButton .fa-circle").removeClass("hidden");
 
         $("#user-div .user-name").text(username);
 
@@ -36,6 +30,7 @@ define(
         if($("#user-div").hasClass("hidden"))
           $("#user-div").removeClass("hidden");
 
+        State.verifyState();
         Utils.getSocket().emit('retrieveViews', { clientId: Utils.getWebAppSocket().id, onlyPrivate: true });
       }
     };
@@ -52,17 +47,11 @@ define(
       if($("#login-div").hasClass("hidden"))
         $("#login-div").removeClass("hidden");
 
-      if($("#loginButton > button > i").hasClass("fa-user"))
-        $("#loginButton > button > i").removeClass("fa-user");
+      if(!$("#loginButton .fa-circle").hasClass("hidden"))
+        $("#loginButton .fa-circle").addClass("hidden");
 
-      if($("#loginButton > button > i").hasClass("font-green"))
-        $("#loginButton > button > i").removeClass("font-green");
-
-      if(!$("#loginButton > button > i").hasClass("fa-user-times"))
-        $("#loginButton > button > i").addClass("fa-user-times");
-
-      if(!$("#loginButton > button > i").hasClass("font-red"))
-        $("#loginButton > button > i").addClass("font-red");
+      if($("#loginButton .fa-times").hasClass("hidden"))
+        $("#loginButton .fa-times").removeClass("hidden");
 
       $("#user-div .user-name").text("");
     };

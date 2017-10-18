@@ -55,8 +55,10 @@ QJsonObject GetBoundingRect(const te::gm::Envelope& env)
   QJsonArray ll,
       ur;
 
-  ll <<env.getLowerLeftX() <<env.getLowerLeftY();
-  ur <<env.getUpperRightX() <<env.getUpperRightY();
+  ll.append(env.getLowerLeftX());
+  ll.append(env.getLowerLeftY());
+  ur.append(env.getUpperRightX());
+  ur.append(env.getUpperRightY());
 
   obj.insert("ll_corner", ll);
   obj.insert("ur_corner", ur);

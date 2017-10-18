@@ -1,9 +1,11 @@
 {
   "name": "TerraMA2-webmonitor",
-  "version": "4.0.0-beta3",
+  "version": "4.0.0-rc3",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./bin/www",
+    "bower": "bower",
+    "grunt": "grunt"
   },
   "dependencies": {
     "body-parser": "~1.15.1",
@@ -14,6 +16,7 @@
     "express-load": "^1.1.15",
     "express-session": "^1.15.3",
     "morgan": "~1.7.0",
+    "openlayers": "^4.2.0",
     "passport": "^0.3.2",
     "passport-local": "^1.0.0",
     "request": "^2.81.0",

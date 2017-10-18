@@ -1,0 +1,24 @@
+{
+  "id": "precipitation_style",
+  "name": "Precipitation",
+  "fields": ["band"],
+  "gui": {
+    "schema": {
+      "type": "object",
+      "properties": {
+        "band": {
+          "type": "number",
+          "title": "Band"
+        }
+      },
+      "required": ["band"]
+    },
+    "form": [
+      {
+        "key": "band",
+        "htmlClass": "col-md-6"
+      }
+    ]
+  },
+  "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?> <StyledLayerDescriptor xmlns=\"http://www.opengis.net/sld\" xmlns:ogc=\"http://www.opengis.net/ogc\" xmlns:se=\"http://www.opengis.net/se\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"1.0.0\" xsi:schemaLocation=\"http://www.opengis.net/sld http://schemas.opengis.net/sld/1.0.0/StyledLayerDescriptor.xsd\"> <NamedLayer> <Name>Precipitação Acumulada</Name> <UserStyle> <Name>Style</Name> <Title>Style for a Coverage layer.</Title> <FeatureTypeStyle> <Rule> <RasterSymbolizer> <ChannelSelection> <GrayChannel> <SourceChannelName>%band</SourceChannelName> </GrayChannel> </ChannelSelection> <ColorMap type=\"ramp\"> <ColorMapEntry color=\"#40C4FF\" quantity=\"0.0\" opacity=\"0.0\" /> <ColorMapEntry color=\"#40C4FF\" quantity=\"0.0001\" opacity=\"1.0\" /> <ColorMapEntry color=\"#e09d38\" quantity=\"5.0\" opacity=\"1.0\" /> <ColorMapEntry color=\"#dfb42f\" quantity=\"10.0\" opacity=\"1.0\" /> <ColorMapEntry color=\"#d5df2f\" quantity=\"20.0\" opacity=\"1.0\" /> <ColorMapEntry color=\"#fffe00\" quantity=\"30.0\" opacity=\"1.0\" /> <ColorMapEntry color=\"#d2ff00\" quantity=\"40.0\" opacity=\"1.0\" /> <ColorMapEntry color=\"#85ff00\" quantity=\"50.0\" opacity=\"1.0\" /> <ColorMapEntry color=\"#00ff0d\" quantity=\"100.0\" opacity=\"1.0\" /> <ColorMapEntry color=\"#00ff90\" quantity=\"150.0\" opacity=\"1.0\" /> <ColorMapEntry color=\"#00ffc5\" quantity=\"200.0\" opacity=\"1.0\" /> <ColorMapEntry color=\"#00fff3\" quantity=\"250.0\" opacity=\"1.0\" /> <ColorMapEntry color=\"#00dcff\" quantity=\"300.0\" opacity=\"1.0\" /> <ColorMapEntry color=\"#009fff\" quantity=\"350.0\" opacity=\"1.0\" /> <ColorMapEntry color=\"#0069ff\" quantity=\"400.0\" opacity=\"1.0\" /> <ColorMapEntry color=\"#003bff\" quantity=\"500.0\" opacity=\"1.0\" /> <ColorMapEntry color=\"#1200ff\" quantity=\"600.0\" opacity=\"1.0\" /> <ColorMapEntry color=\"#4800ff\" quantity=\"700.0\" opacity=\"1.0\" /> <ColorMapEntry color=\"#3a00cc\" quantity=\"800.0\" opacity=\"1.0\" /> <ColorMapEntry color=\"#d666ff\" quantity=\"900.0\" opacity=\"1.0\" /> <ColorMapEntry color=\"#bb00ff\" quantity=\"1000.0\" opacity=\"1.0\" /> </ColorMap> </RasterSymbolizer> </Rule> </FeatureTypeStyle> </UserStyle> </NamedLayer> </StyledLayerDescriptor>"
+}

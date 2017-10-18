@@ -8,23 +8,25 @@ var Promise = require('bluebird');
 var TcpService = require('./../../core/facade/tcp-manager/TcpService');
 var fs = require('fs');
 var path = require("path");
+var Application = require("./../../core/Application");
 
 
 module.exports = function(app) {
   return {
     post: function(request, response) {
       var projectObject = request.body;
+      projectObject.user_id = request.user.id;
 
       DataManager.addProject(projectObject).then(function(project) {
         TcpService.emitEvent("projectReceived", project);
 
         // Creating default PostGIS and File providers
-        var configFile = JSON.parse(fs.readFileSync(path.join(__dirname, "../../config/config.terrama2"), "utf-8"));
+        var configFile = Application.getContextConfig();
 
         // File data provider object
         var DefaultFileProvider = {
           name: "Local Folder",
-          uri: "file://" + configFile.default.defaultFilePath,
+          uri: "file://" + configFile.defaultFilePath,
           description: "Local Folder data server",
           data_provider_intent_id: 1,
           data_provider_type_id: 1,
@@ -33,7 +35,7 @@ module.exports = function(app) {
         };
 
         // PostGIS data provider object
-        var uriPostgis = "postgis://" + configFile.default.db.username + ":" + configFile.default.db.password + "@" + configFile.default.db.host + ":5432/" + configFile.default.db.database;
+        var uriPostgis = "postgis://" + configFile.db.username + ":" + configFile.db.password + "@" + configFile.db.host + ":5432/" + configFile.db.database;
         var DefaultPostgisProvider = {
           name: "Local Database PostGIS",
           uri: uriPostgis,
@@ -72,7 +74,11 @@ module.exports = function(app) {
           Utils.handleRequestError(response, err, 400);
         });
       } else {
-        response.json(DataManager.listProjects());
+        var projects = DataManager.listProjects();
+        projects.forEach(function(project){
+          project.hasPermission = !project.protected || request.user.administrator || request.user.id == project.user_id;
+        });
+        response.json(projects);
       }
     },
 
@@ -82,6 +88,7 @@ module.exports = function(app) {
       if (id) {
         var projectGiven = request.body;
         projectGiven.id = id;
+        projectGiven.user_id = projectGiven.user_id ? projectGiven.user_id : request.user.id;
         DataManager.updateProject(projectGiven).then(function(project) {
           TcpService.emitEvent("projectReceived", project);
 
@@ -100,15 +107,110 @@ module.exports = function(app) {
       var id = request.params.id;
       if (id) {
         DataManager.getProject({id: id}).then(function(project) {
-          DataManager.removeProject({id: id}).then(function() {
-            TcpService.emitEvent("projectDeleted", { id: id });
+          var objectToSend = {
+            "Alerts": [],
+            "Analysis": [],
+            "Collectors": [],
+            "DataProvider": [],
+            "DataSeries": [],
+            "Legends": [],
+            "Views": []
+          };
 
-            // un-setting cache project
-            app.locals.activeProject = {};
-            var token = Utils.generateToken(app, TokenCode.DELETE, project.name);
-            response.json({status: 200, name: project.name, token: token});
+          var dataProviders = DataManager.listDataProviders({ project_id: id });
+
+          dataProviders.forEach(function(dataProvider) {
+            objectToSend.DataProvider.push(dataProvider.id);
+          });
+
+          var collectorPromises = [];
+
+          DataManager.listAlerts({ project_id: id }).then(function(alerts) {
+            alerts.forEach(function(alert) {
+              objectToSend.Alerts.push(alert.id);
+            });
+
+            return DataManager.listAnalysis({ project_id: id });
+          }).then(function(analysisList) {
+            analysisList.forEach(function(analysis) {
+              objectToSend.Analysis.push(analysis.id);
+            });
+
+            return DataManager.listDataSeries({ project_id: id });
+          }).then(function(dataSeriesList) {
+            dataSeriesList.forEach(function(dataSeries) {
+              objectToSend.DataSeries.push(dataSeries.id);
+
+              collectorPromises.push(
+                DataManager.getCollector({ data_series_output: dataSeries.id }).then(function(collector) {
+                  objectToSend.Collectors.push(collector.id);
+                })
+              );
+            });
+
+            return DataManager.listLegends({ project_id: id });
+          }).then(function(legends) {
+            legends.forEach(function(legend) {
+              objectToSend.Legends.push(legend.id);
+            });
+
+            return DataManager.listViews({ project_id: id });
+          }).then(function(views) {
+            views.forEach(function(view) {
+              objectToSend.Views.push(view.id);
+            });
+
+            return Promise.all(collectorPromises).catch(function(err) {
+              if(!err.name || (err.name && err.name != "CollectorErrorNotFound"))
+                Utils.handleRequestError(response, new ProjectError("Failed to load dependents"), 400);
+            });
+          }).then(function() {
+            DataManager.removeProject({id: id}).then(function() {
+              TcpService.emitEvent("projectDeleted", { id: id });
+
+              if(objectToSend.Alerts.length === 0)
+                delete objectToSend.Alerts;
+
+              if(objectToSend.Analysis.length === 0)
+                delete objectToSend.Analysis;
+
+              if(objectToSend.Collectors.length === 0)
+                delete objectToSend.Collectors;
+
+              if(objectToSend.DataProvider.length === 0)
+                delete objectToSend.DataProvider;
+
+              if(objectToSend.DataSeries.length === 0)
+                delete objectToSend.DataSeries;
+
+              if(objectToSend.Legends.length === 0)
+                delete objectToSend.Legends;
+
+              if(objectToSend.Views.length === 0)
+                delete objectToSend.Views;
+
+              if(
+                objectToSend.hasOwnProperty("Alerts") ||
+                objectToSend.hasOwnProperty("Analysis") ||
+                objectToSend.hasOwnProperty("Collectors") ||
+                objectToSend.hasOwnProperty("DataProvider") ||
+                objectToSend.hasOwnProperty("DataSeries") ||
+                objectToSend.hasOwnProperty("Legends") ||
+                objectToSend.hasOwnProperty("Views")
+              ) {
+                TcpService.remove(objectToSend);
+              }
+
+              // un-setting cache project
+              request.session.activeProject = {};
+
+              var token = Utils.generateToken(app, TokenCode.DELETE, project.name);
+              response.json({status: 200, name: project.name, token: token});
+            }).catch(function(err) {
+              Utils.handleRequestError(response, err, 400);
+            });
           }).catch(function(err) {
-            Utils.handleRequestError(response, err, 400);
+            Utils.handleRequestError(response, new ProjectError("Failed to load dependents"), 400);
           });
         }).catch(function(err) {
           Utils.handleRequestError(response, new ProjectError("Project not found"), 400);

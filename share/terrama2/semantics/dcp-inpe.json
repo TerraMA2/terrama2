@@ -6,7 +6,7 @@
     "type": "DCP",
     "temporality": "DYNAMIC",
     "format": "CSV",
-    "providers_type_list": ["FILE", "FTP", "HTTP"],
+    "providers_type_list": ["FILE", "FTP", "HTTP", "HTTPS"],
     "metadata": {
       "timestamp_property": "N/A",
       "output_timestamp_property": "datetime"

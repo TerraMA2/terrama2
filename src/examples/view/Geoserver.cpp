@@ -42,7 +42,7 @@
 #include <terrama2/core/utility/TerraMA2Init.hpp>
 
 
-int main(int argc, char** argv)
+int main(int , char** )
 {
   terrama2::core::TerraMA2Init terramaRaii("example", 0);
   terrama2::core::registerFactories();
@@ -111,8 +111,6 @@ int main(int argc, char** argv)
 
     // Uploading many coverages from a zip file
     geoserver.uploadZipCoverageFile("acoverage", TERRAMA2_DATA_DIR + "/geotiff/geotiff.zip", "geotiff");
-
-    geoserver.registerMosaicCoverage("mosaicStore", TERRAMA2_DATA_DIR + "/umidade/", "Umin", 4326, "");
 
     std::list<std::pair<std::string, std::string>> layersAndStyles;
 

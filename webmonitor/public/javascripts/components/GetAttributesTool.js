@@ -66,8 +66,13 @@ define(
       $('#getAttributes > select').on('change', featureInfo);
 
       $('#getAttributes > button').on('click', function() {
-        MapTools.resetMapMouseTools();
-        activateGetFeatureInfoTool();
+        if($('#getAttributes > select').hasClass('hidden')) {
+          MapTools.resetMapMouseTools();
+          activateGetFeatureInfoTool();
+        } else {
+          MapTools.resetMapMouseTools();
+          MapTools.activateMoveMapTool();
+        }
       });
 
       $("#terrama2-map").on("setGetFeatureInfoToolSelect", function(event) {

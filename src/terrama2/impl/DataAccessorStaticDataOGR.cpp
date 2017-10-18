@@ -37,9 +37,9 @@
 #include <QObject>
 
 terrama2::core::DataAccessorStaticDataOGR::DataAccessorStaticDataOGR(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics)
-: DataAccessor(dataProvider, dataSeries, false),
-  DataAccessorGeometricObject(dataProvider, dataSeries, false),
-  DataAccessorFile(dataProvider, dataSeries, false)
+: DataAccessor(dataProvider, dataSeries),
+  DataAccessorGeometricObject(dataProvider, dataSeries),
+  DataAccessorFile(dataProvider, dataSeries)
 {
  if(checkSemantics && dataSeries->semantics.driver != dataAccessorType())
  {

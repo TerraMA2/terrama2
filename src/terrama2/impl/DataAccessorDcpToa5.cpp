@@ -55,9 +55,9 @@
 
 
 terrama2::core::DataAccessorDcpToa5::DataAccessorDcpToa5(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics)
- : DataAccessor(dataProvider, dataSeries, false),
-   DataAccessorDcp(dataProvider, dataSeries, false),
-   DataAccessorFile(dataProvider, dataSeries, false)
+ : DataAccessor(dataProvider, dataSeries),
+   DataAccessorDcp(dataProvider, dataSeries),
+   DataAccessorFile(dataProvider, dataSeries)
 {
   if(checkSemantics && dataSeries->semantics.driver != dataAccessorType())
   {
@@ -168,7 +168,7 @@ void terrama2::core::DataAccessorDcpToa5::adapt(DataSetPtr dataset, std::shared_
   }
 }
 
-void terrama2::core::DataAccessorDcpToa5::addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const
+void terrama2::core::DataAccessorDcpToa5::addColumns(std::shared_ptr<te::da::DataSetTypeConverter> /*converter*/, const std::shared_ptr<te::da::DataSetType>& /*datasetType*/) const
 {
   // Don't add any columns here,
   // the converter will add columns

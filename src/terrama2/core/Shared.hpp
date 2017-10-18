@@ -102,6 +102,9 @@ namespace terrama2
     struct Risk;
     //! Shared smart pointer for Legend
     typedef std::shared_ptr<const terrama2::core::Risk> LegendPtr;
+
+    class Interpreter;
+    using InterpreterPtr = std::shared_ptr<terrama2::core::Interpreter>;
   }
 }
 

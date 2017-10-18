@@ -59,23 +59,26 @@ namespace terrama2
             std::unique_ptr< te::da::DataSetType > dataSetType;
         };
 
-        class DataAccess
+        namespace DataAccess
         {
-          public:
-            static QFileInfoList getFilesList(const std::pair<terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr>& dataSeriesProvider,
+            QFileInfoList getFilesList(const std::pair<terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr>& dataSeriesProvider,
                                               const terrama2::core::DataSetPtr dataSet,
                                               const terrama2::core::Filter& filter);
 
-            static te::da::DataSetType* getVectorialDataSetType(const QFileInfo& fileInfo);
+            std::unique_ptr< te::da::DataSetType > getVectorialDataSetType(const QFileInfo& fileInfo);
 
-            static te::da::DataSetType* getGeotiffDataSetType(const QFileInfo& fileInfo);
+            std::unique_ptr< te::da::DataSetType > getGeotiffDataSetType(const QFileInfo& fileInfo);
 
-            static te::da::DataSetType* getDataSetType(const std::string& dataSourceURI,
-                                                       const std::string& dataSetName,
-                                                       const std::string& driver);
+            std::unique_ptr< te::da::DataSetType > getDataSetType(const std::string& dataSourceURI,
+                                                                  const std::string& dataSetName,
+                                                                  const std::string& driver);
 
-            static TableInfo getPostgisTableInfo(const std::pair<terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr>& dataSeriesProvider,
-                                                   const terrama2::core::DataSetPtr dataSet);
+            TableInfo getPostgisTableInfo(terrama2::core::DataSetPtr dataSet,
+                                          terrama2::core::DataSeriesPtr inputDataSeries,
+                                          terrama2::core::DataProviderPtr inputDataProvider);
+
+            TableInfo getDCPPostgisTableInfo(terrama2::core::DataSeriesPtr inputDataSeries,
+                                             terrama2::core::DataProviderPtr inputDataProvider);
         };
       }
     }

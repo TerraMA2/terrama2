@@ -28,11 +28,13 @@
   };
 
   var configuration = {
+    hasProjectPermission: {[ hasProjectPermission ]},
     extra: {[extra|json|safe]},
     message: "{[ message ]}",
     dataSeriesType: 'dynamic',
     collectors: {[collectors|json|safe]},
     analysis: {[analysis|json|safe]},
+    interpolators: {[interpolators|json|safe]},
     link: function(object) {
       return "{[ BASE_URL ]}configuration/dynamic/dataseries/"+ object.id +"?type=dynamic#/wizard";
     },
@@ -50,6 +52,9 @@
           break;
         case globals.enums.DataSeriesType.OCCURRENCE:
           return "{[ BASE_URL ]}images/dynamic-data-series/occurrence/occurrence.png";
+          break;
+        case globals.enums.DataSeriesType.GEOMETRIC_OBJECT:
+          return "{[ BASE_URL ]}images/dynamic-data-series/geometric-object/geometric-object.png";
           break;
         default:
           return "{[ BASE_URL ]}images/dynamic-data-series/dcp/dcp.png";

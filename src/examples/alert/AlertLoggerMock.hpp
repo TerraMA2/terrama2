@@ -11,7 +11,7 @@
 
 class AlertLoggerMock : public terrama2::services::alert::core::AlertLogger
 {
-  
+
   public:
 
     MOCK_CONST_METHOD1(start, RegisterId(ProcessId processId));
@@ -25,7 +25,7 @@ class AlertLoggerMock : public terrama2::services::alert::core::AlertLogger
     MOCK_CONST_METHOD0(clone, std::shared_ptr<ProcessLogger>());
     MOCK_METHOD1(setConnectionInfo, void(const te::core::URI& uri));
 
-    void log(MessageType messageType, const std::string &description, RegisterId registerId) const override
+    void log(MessageType messageType, const std::string &description, RegisterId /*registerId*/) const override
     {
       std::cout << "Message Type: " << messageType << " Message: " << description << std::endl;
     }

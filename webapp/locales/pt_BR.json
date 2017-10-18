@@ -176,7 +176,7 @@
   "Could not save data series due:  project_id: project_id must be unique,\nname: name must be unique": "Não foi possível salvar a série de dados, já existe um registro com o nome inserido, e o nome deve ser único.",
   "Could not save project: name must be unique": "Não foi possível salvar o projeto, já existe um registro com o nome inserido, e o nome deve ser único.",
   "Count": "Contagem",
-  "Create View": "Create View",
+  "Create View": "Criar Visualização",
   "Creation Type": "Tipo de criação",
   "Crop raster": "Recortar Matriz",
   "Custom": "Personalizada",
@@ -265,6 +265,7 @@
   "Date Time": "Data Hora",
   "Days": "Dias",
   "Default": "Padrão",
+  "Default Level Name": "Nome do Nível Padrão",
   "Default type": "Tipo padrão",
   "Delimiter character": "Caractere delimitador",
   "Dependency failed - key must exist": "Falha na dependência - a chave deve existir",
@@ -292,11 +293,15 @@
   "Email Server Test": "Teste de Servidor de Email",
   "Email successfully sent": "Email enviado com sucesso",
   "Emails": "Emails",
+  "Encoding": "Codificação",
   "End": "Fim",
   "End Date": "Data Final",
   "Enter default value": "Insira o valor padrão",
+  "Enter the table name!": "Insira o nome da tabela!",
   "Enviroment": "Ambiente",
   "Enviroment Variables": "Variáveis de Ambiente",
+  "Error": "Erro",
+  "Error!": "Erro!",
   "Error: Error occurred during the service startup. Error: Error: exit code 127": "Erro: Ocorreu um erro durante a inicialização do serviço. O executável do serviço não foi encontrado.",
   "Error: Status Timeout exceeded.": "Erro: Tempo limite de resposta atingido.",
   "Error in connection, check the host and the port": "Erro na conexão, verifique o endereço e a porta",
@@ -310,6 +315,7 @@
   "Fields": "Campos",
   "FILE": "ARQUIVO",
   "File": "Arquivo",
+  "File is too large!": "Arquivo muito grande!",
   "File name:": "Nome do arquivo:",
   "File name": "Nome do arquivo",
   "File static data": "Arquivo de Dado Estático",
@@ -380,6 +386,7 @@
   "Host not found": "Endereço não encontrado",
   "Hours": "Horas",
   "HTTP": "HTTP",
+  "HTTPS": "HTTPS",
   "I forgot my password": "Eu esqueci minha senha",
   "ID": "ID",
   "INPE's DCP data format": "PCD - formato INPE",
@@ -396,9 +403,11 @@
   "Ignores previous data to": "Ignorar dados anteriores a",
   "Image Generate": "Geração de Imagem",
   "Import": "Importar",
+  "Import Shapefile": "Importar Shapefile",
   "Import CSV": "Importar CSV",
   "Import process executed with success": "Processo de importação executado com sucesso",
   "Import process executed with success, but there were duplicated Alias, check the values": "Processo de importação executado com sucesso, mas existem Pseudônimos duplicados, verifique os valores",
+  "Important!": "Importante!",
   "Inactive": "Inativo",
   "Include Report": "Incluir Relatório",
   "Include report": "Incluir relatório",
@@ -416,6 +425,8 @@
   "Influence radius is required": "Raio de Influência é requerido",
   "Information": "Informação",
   "Input Data": "Dado de Entrada",
+  "Insert a value if you want to update the password": "Insira um valor caso queira atualizar a senha",
+  "Insert the Color": "Insira a Cor",
   "Instance": "Instância",
   "Institute": "Instituto",
   "Integer": "Inteiro",
@@ -525,6 +536,7 @@
   "Monitored object analysis": "Análise de objeto monitorado",
   "Monitored object analysis result": "Resultado de análise com Objeto Monitorado",
   "Monitored object attributes": "Atributos do objeto monitorado",
+  "More than one shapefile found!": "Mais de um shapefile encontrados!",
   "Multiplier": "Multiplicador",
   "Must have a valid store values to create an intersection": "Configuração de armazenamento deve ser válida para criar interseção",
   "Name": "Nome",
@@ -554,6 +566,7 @@
   "No project found": "Nenhum projeto encontrado",
   "No project found.": "Nenhum projeto encontrado.",
   "No projects found.": "Nenhum projeto encontrado.",
+  "No shapefile found!": "Nenhum shapefile encontrado",
   "No view service found": "Nenhum serviço de visualização encontrado",
   "Nome": "Nome",
   "None": "Nenhum",
@@ -713,6 +726,7 @@
   "Select at least one attribute": "Selecione ao menos um atributo",
   "Select attribute identifier": "Selecionar o atributo identificador",
   "Select attributes": "Selecione atributos",
+  "Select File": "Selecionar Arquivo",
   "Select the Alert Service to be Used": "Selecione o Serviço de Alerta a ser usado",
   "Select the Analysis Service to be Used": "Selecione o serviço de análise para ser usado",
   "Select the Collector Service to be Used": "Selecione o serviço de coleta para ser usado",
@@ -756,6 +770,7 @@
   "Services": "Serviços",
   "Services Handling": "Manipulação de Serviços",
   "SFTP": "SFTP",
+  "Shapefile imported with success!": "Shapefile importado com sucesso!",
   "Show": "Exibir",
   "Showing": "Exibindo de",
   "Showing 0 to 0 of 0 entries": "Exibindo de 0 a 0 de 0 registros",
@@ -793,9 +808,6 @@
   "Static Data Registration": "Registro de Dado Estático",
   "Static GDAL grid": "Grade estática GDAL",
   "Static GeoTIFF grid": "Grade estático GeoTIFF",
-  "Static geometric object - OGR (data file)": "Objeto geométrico estático - OGR (arquivo)",
-  "Static geometric object - PostGIS": "Objeto geométrico estático - PostGIS",
-  "Static grid - GDAL": "Matriz estática - GDAL",
   "Static Themes": "Temas Estáticos",
   "Statistics": "Estatísticas",
   "Status": "Situação Atual",
@@ -805,11 +817,13 @@
   "Storager": "Armazenamento",
   "Store": "Armazenar",
   "Style": "Estilo",
+  "Success!": "Sucesso!",
   "Suffix": "Sufixo",
   "Sum": "Soma",
   "Sunday": "Domingo",
   "Syntax Check": "Verificar Sintaxe",
   "TOA5 DCP format": "PCD - Formato TOA5",
+  "Table already exists!": "Tabela já existe!",
   "Table Name": "Nome da tabela",
   "Table_name": "Nome da tabela",
   "table_name": "Nome da tabela",
@@ -846,6 +860,9 @@
   "To import this file you need to have at least one collector service": "Para importar este arquivo você precisa ter pelo menos um serviço de coleta",
   "To import this file you need to have at least one project": "Para importar este arquivo você precisa ter pelo menos um projeto",
   "To import this file you need to have at least one view service": "Para importar este arquivo você precisa ter pelo menos um serviço de visualização",
+  "To upload your shapefile you have to create a .zip compressed file containing all the shapefile files (.shp, .dbf, .shx, etc). The size limit is 300 MB per file, therefore, neither of the shapefile files can be larger than 300 MB.": "Para realizar o upload do seu shapefile é necessário compactar os arquivos (.shp, .dbf, .shx, etc) em um arquivo .zip. O tamanho limite é de 300 MB por arquivo, portanto nenhum dos arquivos do shapefile podem ser maiores que 300 MB.",
+  "Tools": "Ferramentas",
+  "Transfer Shapefile": "Transferir Shapefile",
   "Tuesday": "Terça-feira",
   "Type": "Tipo",
   "Type a projetion": {
@@ -898,8 +915,8 @@
   "View Description": "Descrição da Visualização",
   "View Name": "Nome da Visualização",
   "View Registration": "Registro de Vizualização",
-  "View Service": "View Service",
-  "View Service is required": "View Service is required",
+  "View Service": "Serviço de Visualização",
+  "View Service is required": "Serviço de Visualização é obrigatório",
   "View Update": "Atualização da visualização",
   "View name is required": "O preenchimento do nome da visualização é obrigatório",
   "Views": "Visualizações",
@@ -956,5 +973,83 @@
   "updated": "atualizado",
   "w": "w",
   "Invalid address": "Endereço inválido",
-  "The service can not access the log database!": "O serviço não pode acessar o banco de logs!"
+  "The service can not access the log database!": "O serviço não pode acessar o banco de logs!",
+  "The service can not access the map server!": "O serviço não pode acessar o servidor de mapas!",
+  "Host service error": "Erro no executável do serviço: ",
+  "Log database error": "Erro no banco de dados de log: ",
+  "Port error": "Erro na porta: ",
+  "Email server error": "Erro no servidor de email: ",
+  "Map server error": "Erro no servidor de mapas: ",
+  "Can not delete the data series if the service is not running": {
+    " ": "Não pode deletar a série de dados se o serviço não estiver rodando. "
+  },
+  "Can not delete the analysis if the service is not running": {
+    " ": "Não pode deletar a análise se o serviço não estiver rodando. "
+  },
+  "Can not delete the view if the service is not running": {
+    " ": "Não pode deletar a visualização se o serviço não estiver rodando. "
+  },
+  "Can not delete the alert if the service is not running": {
+    " ": "Não pode deletar o alerta se o serviço não estiver rodando. "
+  },
+  "If service is not running you can not save the data series": {
+    " Start the service before create or update a data series!": "Se o serviço não estiver rodando não pode salvar a série de dados. Rode o serviço antes de criar ou alterar uma série de dados!"
+  },
+  "If service is not running you can not save the analysis": {
+    " Start the service before create or update an analysis!": "Se o serviço não estiver rodando não pode salvar a análise. Rode o serviço antes de criar ou alterar uma análise!"
+  },
+  "If service is not running you can not save the view": {
+    " Start the service before create or update a view!": "Se o serviço não estiver rodando não pode salvar a visualização. Rode o serviço antes de criar ou alterar uma visualização!"
+  },
+  "If service is not running you can not save the alert": {
+    " Start the service before create or update an alert!": "Se o serviço não estiver rodando não pode salvar o alerta. Rode o serviço antes de criar ou alterar um alerta!"
+  },
+  "Permission": "Permissão",
+  "You can not edit this data server": {
+    " He belongs to a protected project!": "Você não pode editar essa servidor de dados. Ele pertence a um projeto protegido!"
+  },
+  "You can not edit this data series": {
+    " He belongs to a protected project!": "Você não pode editar essa série de dados. Ela pertence a um projeto protegido!"
+  },
+  "You can not edit this analysis": {
+    " He belongs to a protected project!": "Você não pode editar essa análise. Ela pertence a um projeto protegido!"
+  },
+  "You can not edit this view": {
+    " He belongs to a protected project!": "Você não pode editar essa visualização. Ela pertence a um projeto protegido!"
+  },
+  "You can not edit this alert": {
+    " He belongs to a protected project!": "Você não pode editar esse alerta. Ele pertence a um projeto protegido!"
+  },
+  "User is not allowed": "Usuário não tem permissão",
+  "Protected": "Protegido",
+  "Features table (PostgreSQL/PostGIS)": "Tabelas com Feições (PostgreSQL/PostGIS)",
+  "Grid Files (GeoTIFF)": "Arquivos Matriciais (GeoTIFF)",
+  "Vector Files (ESRI Shapefile)": "Arquivos Vetoriais (ESRI Shapefile)",
+  "Dcp": "Pcd",
+  " Data Series": " Data Series",
+  "Dcp Data Series": "Séries de Dados PCD",
+  "Object Monitored Data Series": "Objeto Monitorado",
+  "Interpolation": "Interpolação",
+  "Interpolator Registration": "Registro de Interpolador",
+  "Strategy": "Estratégia",
+  "Data series to interpolate": "Data series para interpolar",
+  "Interpolator strategy": "Estratégia de interpolação",
+  "Nearest neighbor": "Vizinho mais próximo",
+  "Average neighbor": "Vizinho médio",
+  "Weight average neighbor": "Vizinho médio ponderado",
+  "Interpolation attribute": "Atributo da interpolação",
+  "Number of neighbors": "Número de vizinhos",
+  "X max": "X max",
+  "Y min": "Y min",
+  "Y max": "Y max",
+  "X resolution": "Resolução X",
+  "Y resolution": "Resolução Y",
+  "Power factor": "Power factor",
+	"Interpolate": "Interpolar",
+  "Wild fire event (ESRI Shapefile)": "Evento de queimadas (ESRI Shapefile)",
+  "Interpolator": "Interpolador",
+  "If service is not running you can not save the interpolator": {
+    " Start the service before create or update an interpolator!": "Se o serviço não estiver rodando não pode salvar o interpolador. Rode o serviço antes de criar ou alterar um interpolador!"
+  },
+  "Select the Interpolator Service to be Used": "Selecione o Serviço de Interpolação a ser usado"
 }

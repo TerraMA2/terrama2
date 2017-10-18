@@ -282,7 +282,7 @@ void terrama2::services::analysis::core::Service::analysisFinished(AnalysisId an
   }
 }
 
-void terrama2::services::analysis::core::Service::updateAdditionalInfo(const QJsonObject& obj) noexcept
+void terrama2::services::analysis::core::Service::updateAdditionalInfo(const QJsonObject& /*obj*/) noexcept
 {
 
 }

@@ -30,6 +30,8 @@
 //TerraMA2
 #include "Logger.hpp"
 
+#include <terralib/dataaccess/datasource/DataSource.h>
+
 //STd
 #include <exception>
 
@@ -147,23 +149,32 @@ namespace terrama2
 
     class TemporaryFolder
     {
-    public:
-      TemporaryFolder(std::string folder) : folder_(folder){}
+      public:
+        TemporaryFolder(std::string folder) : folder_(folder){}
 
-      ~TemporaryFolder()
-      {
-        QDir tempDir(QString::fromStdString(folder_));
-        tempDir.removeRecursively();
-      }
+        ~TemporaryFolder()
+        {
+          QDir tempDir(QString::fromStdString(folder_));
+          tempDir.removeRecursively();
+        }
 
-      TemporaryFolder(const TemporaryFolder& other) = delete;
-      TemporaryFolder(TemporaryFolder&& other) = default;
-      TemporaryFolder& operator=(const TemporaryFolder& other) = delete;
-      TemporaryFolder& operator=(TemporaryFolder&& other) = default;
+        TemporaryFolder(const TemporaryFolder& other) = delete;
+        TemporaryFolder(TemporaryFolder&& other) = default;
+        TemporaryFolder& operator=(const TemporaryFolder& other) = delete;
+        TemporaryFolder& operator=(TemporaryFolder&& other) = default;
 
-    private:
-      std::string folder_;
+      private:
+        std::string folder_;
     };
+
+    //! Raii type for te::da::DataSource with close connection at destruction.
+    using DataSourcePtr = std::unique_ptr< te::da::DataSource, std::function<void(te::da::DataSource*)> > ;
+    //! Close a te::da::DataSource connection
+    void closeDataSourceConnection(te::da::DataSource* datasource);
+    //! Create a raii te::da::DataSource pointer that closes the connection at destruction.
+    DataSourcePtr makeDataSourcePtr(te::da::DataSource* datasource);
+    //! Create a raii te::da::DataSource pointer that closes the connection at destruction.
+    DataSourcePtr makeDataSourcePtr(std::unique_ptr< te::da::DataSource> datasource);
   }
 }
 

@@ -16,6 +16,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="shortcut icon" href="{[ BASE_URL ]}favicon.ico" type="image/x-icon" />
   <title>{% block title %} {% endblock %}</title>
   <!-- Defines responsive layout to screen -->
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
@@ -149,6 +150,28 @@
 
             <li class="header"></li>
 
+            {% if toolsMenu !== undefined && toolsMenu !== null && toolsMenu.length > 0 %}
+            <li class="treeview">
+              <a href="#">
+                <i class="fa fa-wrench"></i> <span ng-bind="i18n.__('Tools')"></span>
+                <i class="fa fa-angle-left pull-right"></i>
+              </a>
+              <ul class="treeview-menu">
+                {% for tab in toolsMenu %}
+                <li class="treeview">
+                  <a href="{[ tab.url ]}"{% if tab.openInNewTab > 0 %} target="_blank"{% endif %}>
+                    <i class="fa fa-link"></i>
+                    <span ng-if="i18n.userLanguage == 'en_US'">{[ tab.textEn ]}</span>
+                    <span ng-if="i18n.userLanguage == 'es_ES'">{[ tab.textEs ]}</span>
+                    <span ng-if="i18n.userLanguage == 'fr_FR'">{[ tab.textFr ]}</span>
+                    <span ng-if="i18n.userLanguage == 'pt_BR'">{[ tab.textPt ]}</span>
+                  </a>
+                </li>
+                {% endfor %}
+              </ul>
+            </li>
+            {% endif %}
+
             {% if currentUser !== null && currentUser.administrator %}
             <li class="treeview">
               <a href="#">
@@ -246,7 +269,7 @@
             collapsed: collapsed
           }
         }).then(function(response) {
-          collapsed = response.data.collapsed;
+          collapsed = response.collapsed;
         });
       });
 
@@ -273,6 +296,8 @@
   <script src="{[ BASE_URL ]}bower_components/angular/angular.min.js"></script>
   <!-- Internationalization -->
   <script src="{[ BASE_URL ]}bower_components/i18n-node-angular/i18n-node-angular.js"></script>
+  <!-- ng-file-upload -->
+  <script src="{[ BASE_URL ]}bower_components/ng-file-upload/ng-file-upload.min.js"></script>
   <!-- Socket.io -->
   <script type="text/javascript" src="{[ BASE_URL ]}socket.io/socket.io.js"></script>
 

@@ -129,7 +129,12 @@ module.exports = {
      * Defines Alert Service
      * @type {number}
      */
-    ALERT: 4
+    ALERT: 4,
+    /**
+     * Defines Interpolation Service
+     * @type {number}
+     */
+    INTERPOLATION: 5
   },
 
   DataSeriesType: {
@@ -319,6 +324,28 @@ module.exports = {
     BI_CUBIC: {
       name: "Bi cubic",
       value: 3
+    }
+  },
+
+   /**
+   * All interpolator strategy
+   * @enum {Object}
+  */
+  InterpolatorStrategy: {
+    /** Near neighborhood interpolation method. */
+    NEAREST_NEIGHBOR: {
+      code: "NEAREST-NEIGHBOR",
+      value: 0
+    },
+    /** Bilinear interpolation method. */
+    AVERAGE_NEIGHBOR: {
+      code: "AVERAGE-NEIGHBOR",
+      value: 1
+    },
+    /** Bicubic interpolation method. */
+    W_AVERAGE_NEIGHBOR: {
+      code: "W-AVERAGE-NEIGHBOR",
+      value: 2
     }
   },
 

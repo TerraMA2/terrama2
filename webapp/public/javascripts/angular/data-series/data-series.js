@@ -13,6 +13,22 @@ define([], function() {
 
     var config = $window.configuration;
 
+    var findCollectorAnalysisOrInterpolator = function(dataSeries){
+      if (config.dataSeriesType != 'static'){
+        var foundCollector = config.collectors.find(function(collector){
+          return collector.output_data_series == dataSeries.id;
+        });
+        var foundAnalysis = config.analysis.find(function(analysi){
+          return analysi.dataSeries.id == dataSeries.id;
+        });
+        var foundInterpolator = config.interpolators.find(function(interpolator){
+          return interpolator.data_series_output == dataSeries.id;
+        });
+        return foundCollector || foundAnalysis || foundInterpolator;
+      } else 
+        return false;
+    }
+
     Service.init();
 
     Socket.on('errorResponse', function(response) {
@@ -77,22 +93,30 @@ define([], function() {
     };
 
     $scope.extra = {
+      canInterpolate: function(object){
+        if (object.data_series_semantics.data_series_type_name == "DCP"){
+          return true;
+        }
+        return false;
+      },
+      linkToInterpolate: function(object){
+        return urlToInterpolate = BASE_URL + "configuration/interpolator/new/" + object.id;
+      },
+      canRemove: config.hasProjectPermission,
       removeOperationCallback: function(err, data) {
         if (err) {
-          return MessageBoxService.danger(i18n.__(title), err.message);
+          if (err.serviceStoppedError){
+            var errorWhenDeleteMessage = i18n.__("Can not delete the data series if the service is not running. ");
+            if(err.service && err.service.instance_name)
+              errorWhenDeleteMessage += i18n.__("Service") + ": " + err.service.instance_name;
+            return MessageBoxService.danger(i18n.__(title), errorWhenDeleteMessage);            
+          } else 
+            return MessageBoxService.danger(i18n.__(title), err.message);
         }
         MessageBoxService.success(i18n.__(title), data.name + i18n.__(" removed"));
       },
       showRunButton: config.showRunButton,
-      canRun: function(object){
-        var foundCollector = config.collectors.find(function(collector){
-          return collector.output_data_series == object.id;
-        });
-        var foundAnalysis = config.analysis.find(function(analysi){
-          return analysi.dataSeries.id == object.id;
-        })
-        return foundCollector || foundAnalysis;
-      },
+      canRun: findCollectorAnalysisOrInterpolator,
       run: function(object){
         var service_instance = this.canRun(object);
 
@@ -106,7 +130,6 @@ define([], function() {
         };
 
         $scope.disabledButtons[object.id] = true;
-
         Socket.emit('status', {service: service_instance.service_instance_id});
       },
       disabledButtons: function(object){
@@ -252,6 +275,8 @@ define([], function() {
           }
 
           instance.model_type = value;
+          var service_instance = findCollectorAnalysisOrInterpolator(instance);
+          instance.service_instance_id = service_instance ? service_instance.service_instance_id : undefined;
         });
       }, 500);
 
@@ -263,7 +288,7 @@ define([], function() {
           $scope.extra.run(dataSeriesToRun[0]);
         }
       }
-      $scope.fields = [{key: 'name', as: i18n.__("Name")}, {key: "model_type", as: i18n.__("Type")}];
+      $scope.fields = [{key: 'name', as: i18n.__("Name")}, {key: "model_type", as: i18n.__("Type")}, {key: "description", as: i18n.__("Description")}];
     });
 
     $scope.link = config.link || null;

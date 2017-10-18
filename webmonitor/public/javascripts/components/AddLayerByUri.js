@@ -7,6 +7,38 @@ define(
     var memberCapabilities;
     var memberSelectedLayers = [];
 
+    var addCustomLayer = function(layer) {
+      var allLayers = Layers.getAllLayers();
+
+      if(TerraMA2WebComponents.MapDisplay.addImageWMSLayer(layer.id, layer.name, layer.name, layer.url, "geoserver", false, false, "terrama2-layerexplorer", { version: "1.1.0" })) {
+        TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layer.id, "custom", true, "treeview unsortable terrama2-truncate-text", null);
+        allLayers.push(layer);
+
+        Sortable.addLayerToSort(layer.id, layer.name, layer.parent);
+
+        var span = "";
+        var listElement = $("li[data-layerid='custom']");
+        var li = $(listElement).find("li[data-layerid='" + layer.id + "']");
+
+        if(li.length === 0) {
+          li.find('input').click();
+
+          if(!layer.extent) {
+            var sliderDiv = "<div class='slider-content' style='display:none;'><label></label><button type='button' class='close close-slider'>×</button><div id='slider" + $(li).attr("data-layerid").replace(':', '') + "'></div></div>";
+            $(li).append(sliderDiv);
+
+            if(layer.extent instanceof Array) {
+              if(layer.extent.length > 1)
+                span += "<span id='terrama2-slider' class='terrama2-datepicker-icon'> <i class='fa fa-sliders'></i></span>";
+            } else if(layer.extent instanceof Object) {
+              span += "<span id='terrama2-calendar' class='terrama2-datepicker-icon'> <i class='fa fa-calendar'></i></span>";
+            }
+            $(li).append($(span));
+          }
+        }
+      }
+    };
+
     var saveLayers = function() {
       var url = document.getElementById("wmsUri").value;
       var parser = document.createElement('a');
@@ -24,40 +56,18 @@ define(
               }).indexOf(memberCapabilities[i].name) > 0) {
               continue;
             }
-            if(TerraMA2WebComponents.MapDisplay.addImageWMSLayer(memberCapabilities[i].name, memberCapabilities[i].title, memberCapabilities[i].title, geoUrl, "geoserver", false, false, "terrama2-layerexplorer", {
-                version: "1.1.0"
-              })) {
-              TerraMA2WebComponents.LayerExplorer.addLayersFromMap(memberCapabilities[i].name, "custom", true, "treeview unsortable terrama2-truncate-text", null);
-              allLayers.push({
-                id: memberCapabilities[i].name,
-                name: memberCapabilities[i].title,
-                extent: memberCapabilities[i].extent,
-                url: geoUrl
-              });
-              Sortable.addLayerToSort(memberCapabilities[i].name, memberCapabilities[i].title);
 
-              var span = "";
-              var listElement = $("li[data-layerid='custom']");
-              var li = $(listElement).find("li[data-layerid='" + memberCapabilities[i].name + "']");
-
-              if(li.length === 0)
-                continue;
-
-              li.find('input').click();
-
-              if(!memberCapabilities[i].extent)
-                continue;
-
-              var sliderDiv = "<div class='slider-content' style='display:none;'><label></label><button type='button' class='close close-slider'>×</button><div id='slider" + $(li).attr("data-layerid").replace(':', '') + "'></div></div>";
-              $(li).append(sliderDiv);
-
-              if(memberCapabilities[i].extent instanceof Array) {
-                span += "<span id='terrama2-slider' class='terrama2-datepicker-icon'> <i class='fa fa-sliders'></i></span>";
-              } else if(memberCapabilities[i].extent instanceof Object) {
-                span += "<span id='terrama2-calendar' class='terrama2-datepicker-icon'> <i class='fa fa-calendar'></i></span>";
-              }
-              $(li).append($(span));
-            }
+            addCustomLayer({
+              id: memberCapabilities[i].name,
+              name: memberCapabilities[i].title,
+              extent: memberCapabilities[i].extent,
+              url: geoUrl,
+              visible: false,
+              custom: true,
+              parent: "custom",
+              htmlId: memberCapabilities[i].name.replace(":", "").split('.').join('\\.'),
+              opacity: 1
+            });
           }
         }
 
@@ -68,19 +78,30 @@ define(
         groupSpanName.click();
       }
 
-      $("#layersModal").modal('hide');
+      $('#layersModal').modal('hide');
     };
 
     var fillModal = function(capabilities) {
       memberCapabilities = capabilities;
       var lis = "";
       var check = "<input type='checkbox' class='terrama2-layerviews-checkbox'/>";
-      for(var i in memberCapabilities) {
-        lis += '<li data-layerid="' + memberCapabilities[i].name + '">' + check + '<span>' + memberCapabilities[i].title + '</span>' + '</li>';
-      }
 
-      var htmlList = '<ul id="layersList">' + lis + '</ul>';
-      $('#layersModalBody').append(htmlList);
+      for(var i in memberCapabilities)
+        lis += '<li data-layerid="' + memberCapabilities[i].name + '">' + check + '<span>' + memberCapabilities[i].title + '</span>' + '</li>';
+
+      $('#layersModalBody > div').addClass('hidden');
+      $('#layersModalBody > span').append('<ul id="layersList">' + lis + '</ul>');
+      $('#saveLayers').removeClass('hidden');
+      $('#restart').removeClass('hidden');
+    };
+
+    var resetModal = function() {
+      memberSelectedLayers = [];
+      $("#layersList").remove();
+      $("#wmsUri").val("");
+      $('#layersModalBody > div').removeClass('hidden');
+      $('#saveLayers').addClass('hidden');
+      $('#restart').addClass('hidden');
     };
 
     var addLayers = function() {
@@ -106,7 +127,7 @@ define(
 
       document.getElementById("addLayers").addEventListener("click", addLayers);
 
-      $('#layersModalBody').on('click', 'input.terrama2-layerviews-checkbox', function() {
+      $('#layersModalBody > span').on('click', 'input.terrama2-layerviews-checkbox', function() {
         var layerid = $(this).closest('li').data('layerid');
         var index = memberSelectedLayers.indexOf(layerid);
 
@@ -117,8 +138,17 @@ define(
       });
 
       $('#layersModal').on('hidden.bs.modal', function(e) {
-        memberSelectedLayers = [];
-        $("#layersList").remove();
+        resetModal();
+      });
+
+      $('#restart').on('click', function(e) {
+        resetModal();
+      });
+
+      $("#custom .fa-plus").on("click", function(event) {
+        event.stopPropagation();
+
+        $('#layersModal').modal('show');
       });
     };
 
@@ -127,8 +157,9 @@ define(
     };
 
     return {
-      init: init,
-      fillModal: fillModal
+      addCustomLayer: addCustomLayer,
+      fillModal: fillModal,
+      init: init
     };
   }
 );

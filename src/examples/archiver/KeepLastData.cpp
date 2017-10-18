@@ -19,6 +19,7 @@
 #include <terralib/dataaccess/datasource/DataSource.h>
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
+#include <terralib/dataaccess/datasource/ScopedTransaction.h>
 
 int main(int argc, char* argv[])
 {
@@ -79,6 +80,7 @@ te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PA
 
     // get a transactor to interact to the data source
     std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
+    te::da::ScopedTransaction scopedTransaction(*transactor);
 
     auto primaryKey = datasetSeries.teDataSetType->getPrimaryKey();
     assert(primaryKey);
@@ -98,6 +100,7 @@ te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PA
     sql+=")";
 
     transactor->execute(sql);
+    scopedTransaction.commit();
 
 
     std::cout << "dataset size: " << teDataSet->size() << std::endl;

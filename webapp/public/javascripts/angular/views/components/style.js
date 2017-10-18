@@ -22,7 +22,7 @@ define([], function () {
    * @param {ColorFactory} ColorFactory - TerraMA² Color generator
    * @param {any} i18n - TerraMA² Internationalization module
    */
-  function StyleController($scope, ColorFactory, i18n, DataSeriesService, StyleType, $http) {
+  function StyleController($scope, ColorFactory, i18n, DataSeriesService, StyleType, $http, Utility) {
     var self = this;
     // binding component form into parent module in order to expose Form to help during validation
     self.formCtrl = self.form;
@@ -35,12 +35,59 @@ define([], function () {
     self.removeColor = removeColor;
     self.typeFilter = typeFilter;
 
+    /**
+     * It keeps the rgba color values
+     * 
+     * @type {object}
+     */
+    self.rgba = {
+      r: null,
+      g: null,
+      b: null,
+      a: 1,
+      elm: null
+    };
+
+    /**
+     * It opens the rgba modal.
+     * 
+     * @returns {void}
+     */
+    self.rgbaModal = function(elm) {
+      self.rgba.elm = elm;
+      $("#rgbaModal").modal();
+    };
+
+    /**
+     * It fillls the hex color field, converting the rgba to hex8.
+     * 
+     * @returns {void}
+     */
+    self.rgba2hex = function() {
+      self.rgba.elm.color = Utility.rgba2hex(self.rgba.r, self.rgba.g, self.rgba.b, self.rgba.a);
+
+      self.rgba.r = null;
+      self.rgba.g = null;
+      self.rgba.b = null;
+      self.rgba.a = 1;
+      self.rgba.elm = null;
+    };
+
     // digesting StyleType enum into array
     for(var k in StyleType) {
       if (StyleType.hasOwnProperty(k)) {
         self.styleTypes.push({name: k, value: StyleType[k]});
       }
     }
+
+    self.predefinedStyles = [];
+
+    var predefinedStylesUrl = BASE_URL + "predefined-styles/";
+    $http.get(predefinedStylesUrl).then(function(response){
+      if (response.data){
+        self.predefinedStyles = response.data.styles;
+      }
+    });
 
     self.minColorsLength = 1;
     
@@ -66,7 +113,7 @@ define([], function () {
      * Setting default parameters when change mode to xml file
      */
     self.changeCreationType = function(){
-      if (self.model.metadata.creation_type == "0"){
+      if (self.model.metadata.creation_type == "editor"){
         delete self.model.metadata.xml_style;
         self.model.colors = [
           {
@@ -76,25 +123,20 @@ define([], function () {
             value: ""
           }
         ];
-      } else if (self.model.metadata.creation_type == "1"){
+      } else if (self.model.metadata.creation_type == "xml"){
         self.model.type = 3;
         self.model.colors = [];
-        self.model.metadata = {
-          creation_type: "1"
-        };
         delete self.model.bands;
         delete self.model.beginColor;
         delete self.model.endColor;
-      } else if (self.model.metadata.creation_type == "2"){
+      } else {
         self.model.type = 3;
         self.model.colors = [];
-        self.model.metadata = {
-          creation_type: "2"
-        };
-        self.setXmlInfo("wind_style.json");
+        self.setXmlStyleInfo(self.model.metadata.creation_type);
         delete self.model.bands;
         delete self.model.beginColor;
         delete self.model.endColor;
+        $scope.$broadcast("schemaFormRedraw");
       }
     }
 
@@ -132,35 +174,33 @@ define([], function () {
       if (!self.model.type)
         self.model.type = 3;
     }
-    /**
-     * Get xml file
-     */
-    self.onStyleChange = function(){
-      switch (self.styleId){
-        case "1":
-          self.setXmlInfo("wind_style.json");
-          break;
-        case "0":
-        default:
-          self.model.metadata.xml_style = "";
-          break;
-      }
-    }
+
     /**
      * Setting xml data on model
      */
-    self.setXmlInfo = function(styleFile){
-      var xmlUrl = BASE_URL + "json_styles/" + styleFile;
-      $http.get(xmlUrl).then(function(response){
-        self.model.metadata.xml_style = response.data.xml;
-      });
+    self.setXmlStyleInfo = function(styleId){
+
+      var predefinedStyleInfo = self.predefinedStyles.find(function(style){ return style.id == styleId});
+      if (predefinedStyleInfo){
+        self.model.metadata.xml_style = predefinedStyleInfo.xml;
+        self.model.fieldsToReplace = predefinedStyleInfo.fields;
+        self.model.fieldsToReplace.forEach(function(field){
+          if (self.model.metadata[field])
+            self.model.metadata[field] = parseInt(self.model.metadata[field])
+        })
+        self.predefinedStyleSchema = predefinedStyleInfo.gui.schema;
+        self.predefinedStyleForm = predefinedStyleInfo.gui.form;
+      }
     }
     /**
      * It handles color summarization (begin and end) based in list of colors
      */
     $scope.$on("updateStyleColor", function () {
-      if (self.model.metadata.creation_type == "0")
+      if (self.model.metadata.creation_type == "editor"){
         handleColor();
+      } else if (self.model.metadata.creation_type != undefined){
+        self.changeCreationType();
+      }
     });
 
     /**
@@ -204,6 +244,6 @@ define([], function () {
   }
 
   // Dependencies Injection
-  StyleController.$inject = ["$scope", "ColorFactory", "i18n", "DataSeriesService", "StyleType", "$http"];
+  StyleController.$inject = ["$scope", "ColorFactory", "i18n", "DataSeriesService", "StyleType", "$http", "Utility"];
   return terrama2StyleComponent;
 });

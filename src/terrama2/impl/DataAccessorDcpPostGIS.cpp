@@ -40,9 +40,9 @@
 #include <QObject>
 
 terrama2::core::DataAccessorDcpPostGIS::DataAccessorDcpPostGIS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics)
- : DataAccessor(dataProvider, dataSeries, false),
-   DataAccessorDcp(dataProvider, dataSeries, false),
-   DataAccessorPostGIS(dataProvider, dataSeries, false)
+ : DataAccessor(dataProvider, dataSeries),
+   DataAccessorDcp(dataProvider, dataSeries),
+   DataAccessorPostGIS(dataProvider, dataSeries)
 {
   if(checkSemantics && dataSeries->semantics.driver != dataAccessorType())
   {

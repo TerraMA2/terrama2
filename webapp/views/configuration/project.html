@@ -24,13 +24,22 @@
     </div>
     <form name="forms.projectForm">
       <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-10">
           <div class="form-group" terrama2-show-errors>
             <label>{{ i18n.__("Name") }}:</label>
             <input class="form-control" name="name" ng-model="project.name" placeholder="{{ i18n.__('Project Name') }}" type="text" required>
             <span class="help-block has-error" ng-show="form.name.$dirty && form.name.$error.required && form.name.$invalid">{{ i18n.__('Project name is required') }}</span>
 
             <span class="help-block has-error" ng-show="errorFound">{{ errorFound }}</span>
+          </div>
+        </div>
+        <div class="col-md-2">
+          <div class="form-group">
+            <div class="checkbox">
+              <label style="font-weight: 700; margin-top:19px;">
+                <input ng-disabled="!project.protected && !project.canProtect" type="checkbox" name="protected" ng-model="project.protected"> {{ i18n.__("Protected") }}
+              </label>
+            </div>
           </div>
         </div>
         <!-- /.col -->

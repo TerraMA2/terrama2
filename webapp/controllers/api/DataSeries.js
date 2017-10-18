@@ -47,7 +47,7 @@ module.exports = function(app) {
                   options
               ).then(function(collectorResult) {
                 var collector = collectorResult.collector;
-                collector.project_id = app.locals.activeProject.id;
+                collector.project_id = request.session.activeProject.id;
 
                 var output = {
                   "DataSeries": [collectorResult.input.toObject(), collectorResult.output.toObject()],
@@ -95,6 +95,7 @@ module.exports = function(app) {
       var dataProvider = request.params.dataProvider;
       var project = request.params.project;
       var ignoreAnalysisOutputDataSeries = request.query.ignoreAnalysisOutputDataSeries;
+      var ignoreInterpolatorOutputDataSeries = request.query.ignoreInterpolatorOutputDataSeries;
 
       var dataSeriesId = request.params.id;
       var dataSeriesTemporality = request.query.type;
@@ -121,7 +122,7 @@ module.exports = function(app) {
       } else {
         var restriction = {
           dataProvider: {
-            project_id: app.locals.activeProject.id
+            project_id: request.session.activeProject.id
           }
         };
       }
@@ -164,26 +165,38 @@ module.exports = function(app) {
         DataManager.listDataSeries(restriction).then(function(dataSeriesList) {
           var output = [];
 
-          if(ignoreAnalysisOutputDataSeries == true || ignoreAnalysisOutputDataSeries == 'true') {
+          if(ignoreAnalysisOutputDataSeries == true || ignoreAnalysisOutputDataSeries == 'true' || ignoreInterpolatorOutputDataSeries == true || ignoreInterpolatorOutputDataSeries == "true") {
             DataManager.listAnalysis({}).then(function(analysisList) {
-              dataSeriesList.forEach(function(dataSeries) {
-                var addDataSeries = true;
+              DataManager.listInterpolators({}).then(function(interpolatorsList){
+                dataSeriesList.forEach(function(dataSeries) {
+                  var addDataSeries = true;
+                  if(ignoreAnalysisOutputDataSeries == true || ignoreAnalysisOutputDataSeries == 'true'){
+                    analysisList.map(function(analysis) {
+                      dataSeries.dataSets.map(function(dataSet) {
+                        if(analysis.dataset_output == dataSet.id) {
+                          addDataSeries = false;
+                          return;
+                        }
+                      });
+    
+                      if(!addDataSeries) return;
+                    });
+                  }
 
-                analysisList.map(function(analysis) {
-                  dataSeries.dataSets.map(function(dataSet) {
-                    if(analysis.dataset_output == dataSet.id) {
-                      addDataSeries = false;
-                      return;
-                    }
-                  });
-
-                  if(!addDataSeries) return;
+                  if ((ignoreInterpolatorOutputDataSeries == true || ignoreInterpolatorOutputDataSeries == "true") && addDataSeries){
+                    interpolatorsList.map(function(interpolator){
+                      if (dataSeries.id == interpolator.data_series_output){
+                        addDataSeries = false;
+                        return;
+                      }
+                    })
+                  }
+  
+                  if(addDataSeries) output.push(dataSeries.rawObject());
                 });
-
-                if(addDataSeries) output.push(dataSeries.rawObject());
+  
+                response.json(output);
               });
-
-              response.json(output);
             });
           } else {
             DataManager.listAnalysis({}).then(function(analysisList){
@@ -227,7 +240,7 @@ module.exports = function(app) {
         };
 
         if (dataSeriesObject.hasOwnProperty('input') && dataSeriesObject.hasOwnProperty('output')) {
-          dataSeriesObject.input.project_id = app.locals.activeProject.id;
+          dataSeriesObject.input.project_id = request.session.activeProject.id;
           return DataManager.getCollector({data_series_input: dataSeriesId}, options)
             .then(function(collector) {
               collector.service_instance_id = serviceId;
@@ -311,7 +324,7 @@ module.exports = function(app) {
                             });
                         });
                     } else {
-                      if (Utils.isEmpty(filterObject.date)) {
+                      if (Utils.isEmpty(filterObject.date) && filterObject.filterArea == "1") {
                         return null;
                       } else {
                         filterObject.collector_id = collector.id;
@@ -359,7 +372,7 @@ module.exports = function(app) {
                     var dataSeriesOutput = dSeries[0];
                     var dataSeriesInput = dSeries[1];
 
-                    collector.project_id = app.locals.activeProject.id;
+                    collector.project_id = request.session.activeProject.id;
                     var output = {
                       "DataSeries": [dataSeriesInput.toObject(), dataSeriesOutput.toObject()],
                       "Collectors": [collector.toObject()]
@@ -549,17 +562,31 @@ module.exports = function(app) {
                     })
 
                     .catch(function(err) {
-                      // if not find collector, it is processing data series or analysis data series
-                      return DataManager.removeDataSerie({id: id})
-                        .then(function() {
-                          var objectToSend = {
-                            "DataSeries": [id]
-                          };
-
-                          TcpService.remove(objectToSend);
-
-                          return response.json({status: 200, name: dataSeriesResult.name});
-                        });
+                      // if not find collector, check if is from interpolator
+                      return DataManager.getInterpolator({data_series_output: id})
+                        .then(function(interpolatorResult){
+                          return DataManager.removeInterpolator({id: interpolatorResult.id})
+                            .then(function(){
+                              var objectToSend = {
+                                "Interpolators": [interpolatorResult.id],
+                                "DataSeries": [id]
+                              };
+                              TcpService.remove(objectToSend);
+                              return response.json({status: 200, name: dataSeriesResult.name});
+                            });
+                        }).catch(function(err){
+                          // if not find collector, it is processing data series or analysis data series
+                          return DataManager.removeDataSerie({id: id})
+                            .then(function() {
+                              var objectToSend = {
+                                "DataSeries": [id]
+                              };
+    
+                              TcpService.remove(objectToSend);
+    
+                              return response.json({status: 200, name: dataSeriesResult.name});
+                            });
+                        })
                     })
                 })
                 .catch(function(error) {

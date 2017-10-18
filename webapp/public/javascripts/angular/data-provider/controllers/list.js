@@ -40,6 +40,7 @@ define(function() {
 
         $scope.errorFound = false;
         $scope.extra = {
+          canRemove: config.hasProjectPermission,
           advancedFilters: [
             {
               name: "FILE",

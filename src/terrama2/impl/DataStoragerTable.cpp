@@ -95,7 +95,7 @@ void terrama2::core::DataStoragerTable::store(DataSetSeries series, DataSetPtr o
       std::string pkName = "\""+destinationDataSetName+"_pk\"";
       std::unique_ptr<te::da::PrimaryKey> pk(new te::da::PrimaryKey(pkName));
 
-      std::unique_ptr<te::dt::SimpleProperty> serialPk(new te::dt::SimpleProperty ("pid", te::dt::INT32_TYPE, true));
+      std::unique_ptr<te::dt::SimpleProperty> serialPk(new te::dt::SimpleProperty ("pid_"+destinationDataSetName, te::dt::INT32_TYPE, true));
       serialPk->setAutoNumber(true);
       pk->add(serialPk.get());
       newDataSetType->add(pk.release());
@@ -110,12 +110,13 @@ void terrama2::core::DataStoragerTable::store(DataSetSeries series, DataSetPtr o
       auto geomPropertyName = getGeometryPropertyName(outputDataSet);
       te::gm::GeometryProperty* geomProperty = dynamic_cast<te::gm::GeometryProperty*>(newDataSetType->getProperty(geomPropertyName));
       geomProperty->setSRID(geom->getSRID());
-       geomProperty->setGeometryType(geom->getGeometryType());
+      geomProperty->setGeometryType(geom->getGeometryType());
 
-      if(typeCapabilities.supportsBTreeIndex())
+      //there is a limit in the size of the dataset that we can create an index
+      if(typeCapabilities.supportsBTreeIndex() && series.syncDataSet->size() < 2712)
       {
         // the newDataSetType takes ownership of the pointer
-        auto spatialIndex = new te::da::Index("spatial_index", te::da::B_TREE_TYPE, {geomProperty});
+        auto spatialIndex = new te::da::Index("spatial_index_" + destinationDataSetName, te::da::B_TREE_TYPE, {geomProperty});
         newDataSetType->add(spatialIndex);
       }
     }

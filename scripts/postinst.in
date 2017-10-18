@@ -3,53 +3,89 @@
 function valid()
 {
   if [ $1 -ne 0 ]; then
-    echo $2
-    echo ""
+    printf "$2\n"
     exit 1
   fi
 }
 
-echo "Post-installation script..."
-
-#
-# Install web dependencies
-#
-
-npm install bower -g
-npm install grunt -g
+printf "Post-installation script...\n"
 
 (
-  echo "Webapp dependencies..."
+  printf "Webapp dependencies...\n"
   cd @TERRAMA2_DESTINATION@webapp
+
+  #
+  # Install web dependencies
+  #
+  npm install bower
+  valid $? "Unable to install Bower."
+  npm install grunt
+  valid $? "Unable to install Grunt."
+
   npm install
   valid $? "Unable to install NodeJs dependencies."
-  bower install --allow-root
+  npm run bower -- install --allow-root
   valid $? "Unable to install Bower dependencies."
-  grunt
-  valid $? "Error executing grunt."
+  npm run grunt
+  valid $? "Error executing grunt.\n"
 
   chmod +x bin/webapp-stop.js
 )
 
 (
-  echo "Webcomponents dependencies..."
+  printf "Webcomponents dependencies...\n"
   cd @TERRAMA2_DESTINATION@webcomponents
+
+  npm install grunt
+  valid $? "Unable to install Grunt."
+
   npm install
   valid $? "Unable to install NodeJs dependencies."
-  grunt
+  npm run grunt
   valid $? "Error executing grunt."
 )
 
 (
-  echo "Webmonitor dependencies..."
+  printf "Webmonitor dependencies...\n"
   cd @TERRAMA2_DESTINATION@webmonitor
+
+  #
+  # Install web dependencies
+  #
+  npm install bower
+  valid $? "Unable to install Bower."
+  npm install grunt
+  valid $? "Unable to install Grunt."
+
   npm install
   valid $? "Unable to install NodeJs dependencies."
-  bower install --allow-root
+  npm run bower -- install --allow-root
   valid $? "Unable to install Bower dependencies."
-  grunt
+  npm run grunt
   valid $? "Error executing grunt."
 )
+
+#
+# Create default config files
+#
+(
+  cd @TERRAMA2_DESTINATION@webapp/config
+  if ! [ -d "instances" ]; then
+    cp -r sample_instances instances
+  fi
+)
+(
+  cd @TERRAMA2_DESTINATION@webmonitor/config
+  if ! [ -d "instances" ]; then
+    cp -r sample_instances instances
+  fi
+)
+
+# If not root, end script
+if [ "$EUID" -ne 0 ]; then
+  printf "End post-installation script...\n\n"
+  exit 0
+fi
 
 #
 # Install and configure pm2
@@ -58,19 +94,36 @@ npm install grunt -g
 # Check if pm2 is already installed
 npm list pm2 -g
 if [ $? != 0 ]; then
-  echo "Configuring pm2..."
+  printf "Configuring pm2...\n"
   # Install pm2
   npm install pm2 -g
-  pm2 install pm2-logrotate
   valid $? "Error installing pm2."
+  pm2 install pm2-logrotate
+  valid $? "Error installing pm2-logrotate."
   # Allows the service to start with the system
   env PATH=$PATH:/usr/local/bin pm2 startup
   valid $? "Error adding pm2 to startup."
 fi
 
+# Create a terrama2 user
+# and default data folder
+(
+  adduser --system --no-create-home terrama2
+  if [ $? -eq 0 ]; then
+    # new user created
+    # setting new password
+    echo terrama2:terrama4 | chpasswd
+    sudo usermod -a -G sudo terrama2
+  fi
+
+  mkdir -p /var/lib/terrama2/data
+  chown terrama2 /var/lib/terrama2 -R
+)
+
 # Add webapp to pm2 startup
 (
   cd @TERRAMA2_DESTINATION@webapp
+
   pm2 start npm --name webapp -- start
   valid $? "Error executing webapp."
   pm2 save
@@ -86,6 +139,6 @@ fi
   valid $? "Error saving pm2 state."
 )
 
-echo "End post-installation script..."
+printf "End post-installation script...\n\n"
 
 exit 0

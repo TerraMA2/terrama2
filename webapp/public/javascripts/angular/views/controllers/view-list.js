@@ -237,6 +237,7 @@ define([], function() {
          * @type {Object}
          */
         self.extra = {
+          canRemove: config.hasProjectPermission,
           advancedFilters: [
             {
               name: "Analysis",
@@ -258,8 +259,15 @@ define([], function() {
           removeOperationCallback: function(err, data) {
             MessageBoxService.reset();
             if (err) {
-              MessageBoxService.danger(i18n.__("View"), i18n.__(err.message));
-              return;
+              if (err.serviceStoppedError){
+                var errorWhenDeleteMessage = i18n.__("Can not delete the view if the service is not running. ");
+                if(err.service && err.service.instance_name)
+                  errorWhenDeleteMessage += i18n.__("Service") + ": " + err.service.instance_name;
+                return MessageBoxService.danger(i18n.__("View"), errorWhenDeleteMessage);            
+              } else {
+                MessageBoxService.danger(i18n.__("View"), i18n.__(err.message));
+                return;
+              }
             }
             MessageBoxService.success(i18n.__("View"), data.result.name + i18n.__(" removed"));
           },

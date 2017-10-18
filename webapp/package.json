@@ -1,10 +1,12 @@
 {
   "name": "terrama2-webapp",
-  "version": "4.0.0-beta3",
+  "version": "4.0.0-rc3",
   "private": true,
   "scripts": {
     "start": "grunt && node ./bin/www",
-    "test": "mocha --timeout 5000 tests"
+    "test": "mocha --timeout 5000 tests",
+    "bower": "bower",
+    "grunt": "grunt"
   },
   "bin": {
     "webapp-stop": "./bin/webapp-stop"
@@ -18,6 +20,7 @@
     "child_process": "^1.0.2",
     "clone": "^2.1.1",
     "connect-flash": "^0.1.1",
+    "connect-multiparty": "^2.0.0",
     "cookie-parser": "~1.3.5",
     "debug": "~2.2.0",
     "express": "~4.13.1",
@@ -54,6 +57,7 @@
     "socket.io-client": "^1.7.2",
     "ssh2": "^0.5.0",
     "swig": "1.4.2",
+    "unzip": "^0.1.11",
     "winston": "^2.3.0"
   }
 }

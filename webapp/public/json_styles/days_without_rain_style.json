@@ -1,0 +1,24 @@
+{
+  "id": "days_without_rain_style",
+  "name": "Days Without Rain",
+  "fields": ["band"],
+  "gui": {
+    "schema": {
+      "type": "object",
+      "properties": {
+        "band": {
+          "type": "number",
+          "title": "Band"
+        }
+      },
+      "required": ["band"]
+    },
+    "form": [
+      {
+        "key": "band",
+        "htmlClass": "col-md-6"
+      }
+    ]
+  },
+  "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?> <StyledLayerDescriptor xmlns=\"http://www.opengis.net/sld\" xmlns:ogc=\"http://www.opengis.net/ogc\" xmlns:se=\"http://www.opengis.net/se\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"1.0.0\" xsi:schemaLocation=\"http://www.opengis.net/sld http://schemas.opengis.net/sld/1.0.0/StyledLayerDescriptor.xsd\"> <NamedLayer> <Name>Dias Sem Chuva</Name> <UserStyle> <Name>Style</Name> <Title>Style for a Coverage layer.</Title> <FeatureTypeStyle> <Rule> <RasterSymbolizer> <ChannelSelection> <GrayChannel> <SourceChannelName>%band</SourceChannelName> </GrayChannel> </ChannelSelection> <ColorMap type=\"ramp\"> <ColorMapEntry color=\"#b3f0ff\" quantity=\"0.0001\" opacity=\"0.0\" /> <ColorMapEntry color=\"#b3f0ff\" quantity=\"0.0\" opacity=\"1.0\" /> <ColorMapEntry color=\"#e6ff99\" quantity=\"1.0\" opacity=\"1.0\" /> <ColorMapEntry color=\"#80ff80\" quantity=\"2.0\" opacity=\"1.0\" /> <ColorMapEntry color=\"#66ff66\" quantity=\"3.0\" opacity=\"1.0\" /> <ColorMapEntry color=\"#5cd65c\" quantity=\"4.0\" opacity=\"1.0\" /> <ColorMapEntry color=\"#33cc33\" quantity=\"5.0\" opacity=\"1.0\" /> <ColorMapEntry color=\"#006600\" quantity=\"10.0\" opacity=\"1.0\" /> <ColorMapEntry color=\"#ffff99\" quantity=\"15.0\" opacity=\"1.0\" /> <ColorMapEntry color=\"#ff751a\" quantity=\"30.0\" opacity=\"1.0\" /> <ColorMapEntry color=\"#ff1a1a\" quantity=\"40.0\" opacity=\"1.0\" /> <ColorMapEntry color=\"#ddccff\" quantity=\"60.0\" opacity=\"1.0\" /> <ColorMapEntry color=\"#A28DFF\" quantity=\"90.0\" opacity=\"1.0\" /> <ColorMapEntry color=\"#7060DD\" quantity=\"120.0\" opacity=\"1.0\" /> <ColorMapEntry color=\"#3923B6\" quantity=\"121.0\" opacity=\"1.0\" /> </ColorMap> </RasterSymbolizer> </Rule> </FeatureTypeStyle> </UserStyle> </NamedLayer> </StyledLayerDescriptor>"
+}

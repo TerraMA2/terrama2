@@ -27,7 +27,7 @@ ELSE (QUAZIP_INCLUDE_DIRS AND QUAZIP_LIBRARIES)
 #     pkg_check_modules(PC_QCA2 QUIET qca2)
 		pkg_check_modules(PC_QUAZIP quazip)
 
-		FIND_LIBRARY(QUAZIP_LIBRARIES NAMES libquazip.so libquazip5.so 
+		FIND_LIBRARY(QUAZIP_LIBRARIES NAMES libquazip.so libquazip5.so libquazip5.dylib
 	             HINTS /usr/lib/x86_64-linux-gnu ${QUAZIP_LIBRARY_DIR})
 
 		FIND_PATH(QUAZIP_INCLUDE_DIR quazip.h

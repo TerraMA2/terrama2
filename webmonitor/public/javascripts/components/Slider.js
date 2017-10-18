@@ -17,14 +17,14 @@ define(
         $(sliderParent).hide();
 
       var labelDate = $(sliderParent).find("label");
-      $(labelDate).text(moment(dateInfo.dates[initDate]).format("lll"));
+      $(labelDate).text(moment(dateInfo.dates[initDate].replace('Z', '')).format("lll"));
 
       $(slider).slider({
         min: 0,
         max: valMap.length - 1,
         value: initDate,
         slide: function(event, ui) {
-          $(labelDate).text(moment(dateInfo.dates[ui.value]).format("lll"));
+          $(labelDate).text(moment(dateInfo.dates[ui.value].replace('Z', '')).format("lll"));
         },
         stop: function(event, ui) {
           doSlide(layerId, dateInfo.dates[ui.value]);
@@ -35,12 +35,13 @@ define(
     };
 
     var doSlide = function(layerId, layerTime) {
-      var timeFormat = moment(layerTime).format("YYYY-MM-DDThh:mm:ss") + "Z";
+      var timeFormat = moment(layerTime.replace('Z', '')).format("YYYY-MM-DDThh:mm:ss") + "Z";
       TerraMA2WebComponents.MapDisplay.updateLayerTime(layerId, layerTime);
     };
 
     var changeLayerOpacity = function(layerId, opacityValue) {
       TerraMA2WebComponents.MapDisplay.updateLayerOpacity(layerId, opacityValue / 100);
+      Layers.setLayerOpacity(layerId, opacityValue / 100);
     };
 
     var setOpacitySlider = function(layerId, initialValue) {
@@ -48,14 +49,14 @@ define(
       var sliderParent = $(slider).parent();
 
       var label = $(sliderParent).find("label");
-      $(label).text("Opacity: " + initialValue + "%");
+      $(label).text(initialValue + "%");
 
       $(slider).slider({
         min: 0,
         max: 100,
         value: initialValue,
         slide: function(event, ui) {
-          $(label).text("Opacity: " + ui.value + "%");
+          $(label).text(ui.value + "%");
         },
         stop: function(event, ui) {
           changeLayerOpacity(layerId, ui.value);
@@ -94,6 +95,8 @@ define(
     };
 
     return {
+      doSlide: doSlide,
+      changeLayerOpacity: changeLayerOpacity,
       setOpacitySlider: setOpacitySlider,
       init: init
     };

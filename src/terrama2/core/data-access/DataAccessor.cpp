@@ -49,7 +49,7 @@
 //STL
 #include <algorithm>
 
-terrama2::core::DataAccessor::DataAccessor(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics)
+terrama2::core::DataAccessor::DataAccessor(DataProviderPtr dataProvider, DataSeriesPtr dataSeries)
   : dataProvider_(dataProvider),
     dataSeries_(dataSeries)
 {
@@ -216,9 +216,22 @@ terrama2::core::DataAccessor::getSeries(const std::map<DataSetId, std::string> u
       if(!intersects(dataset, filter))
         continue;
 
-      DataSetSeries tempSeries = getSeries(uriMap.at(dataset->id), filter, dataset, remover);
-      series.emplace(dataset, tempSeries);
+      try
+      {
+        DataSetSeries tempSeries = getSeries(uriMap.at(dataset->id), filter, dataset, remover);
+        series.emplace(dataset, tempSeries);
+      }
+      catch (const terrama2::core::NoDataException&)
+      {
+      }
     }//for each dataset
+
+    if(series.empty())
+    {
+      QString errMsg = QObject::tr("No data in dataseries: %1.").arg(QString::fromStdString(dataSeries_->name));
+      TERRAMA2_LOG_WARNING() << errMsg;
+      throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
+    }
   }
   catch(const terrama2::Exception&)
   {
@@ -291,7 +304,7 @@ void terrama2::core::DataAccessor::addColumns(std::shared_ptr<te::da::DataSetTyp
 
 Srid terrama2::core::DataAccessor::getSrid(DataSetPtr dataSet, bool logErrors) const
 {
-  return std::stoi(getProperty(dataSet, dataSeries_, "srid", logErrors));
+  return static_cast<Srid>(std::stoi(getProperty(dataSet, dataSeries_, "srid", logErrors)));
 }
 
 std::string terrama2::core::DataAccessor::getTimestampPropertyName(DataSetPtr dataSet, const bool logErrors) const

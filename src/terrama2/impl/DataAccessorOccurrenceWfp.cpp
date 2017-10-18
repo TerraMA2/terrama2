@@ -53,9 +53,9 @@
 #include <limits>
 
 terrama2::core::DataAccessorOccurrenceWfp::DataAccessorOccurrenceWfp(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics)
-  : DataAccessor(dataProvider, dataSeries, false),
-    DataAccessorOccurrence(dataProvider, dataSeries, false),
-    DataAccessorFile(dataProvider, dataSeries, false)
+  : DataAccessor(dataProvider, dataSeries),
+    DataAccessorOccurrence(dataProvider, dataSeries),
+    DataAccessorFile(dataProvider, dataSeries)
 {
   if(checkSemantics && dataSeries->semantics.driver != dataAccessorType())
   {
@@ -84,7 +84,7 @@ void terrama2::core::DataAccessorOccurrenceWfp::adapt(DataSetPtr dataSet, std::s
 
   te::dt::DateTimeProperty* dateProperty = new te::dt::DateTimeProperty("data", te::dt::DATE);
   te::dt::DateTimeProperty* timeProperty = new te::dt::DateTimeProperty("hora", te::dt::TIME_DURATION);
-  te::dt::DateTimeProperty* timestampProperty = new te::dt::DateTimeProperty(getTimestampPropertyName(dataSet), te::dt::TIME_INSTANT);
+  te::dt::DateTimeProperty* timestampProperty = new te::dt::DateTimeProperty(getTimestampPropertyName(dataSet), te::dt::TIME_INSTANT_TZ);
   te::dt::SimpleProperty* latProperty = new te::dt::SimpleProperty(getLatitudePropertyName(dataSet), te::dt::DOUBLE_TYPE);
   te::dt::SimpleProperty* lonProperty = new te::dt::SimpleProperty(getLongitudePropertyName(dataSet), te::dt::DOUBLE_TYPE);
   te::gm::GeometryProperty* geomProperty = new te::gm::GeometryProperty(getOutputGeometryPropertyName(dataSet), srid, te::gm::PointType);
@@ -209,8 +209,8 @@ te::dt::AbstractData* terrama2::core::DataAccessorOccurrenceWfp::stringToTimeDur
     boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(timezone));
     boost::local_time::local_date_time date(boostDate.date(), boostDate.time_of_day(), zone, true);
 
-    boost::posix_time::time_duration td = date.time_of_day();
-    return new te::dt::TimeDuration(td);
+    boost::posix_time::time_duration timeDuration = date.utc_time().time_of_day();
+    return new te::dt::TimeDuration(timeDuration);
   }
   catch(const std::exception& e)
   {
@@ -240,8 +240,11 @@ te::dt::AbstractData* terrama2::core::DataAccessorOccurrenceWfp::stringToDate(te
     if(dateTime.empty())
       return nullptr;
 
+    boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(timezone));
     boost::posix_time::ptime boostDate(boost::posix_time::time_from_string(dateTime));
-    return new te::dt::Date(boostDate.date());
+    boost::local_time::local_date_time date(boostDate.date(), boostDate.time_of_day(), zone, true);
+
+    return new te::dt::Date(date.utc_time().date());
   }
   catch(const std::exception& e)
   {
