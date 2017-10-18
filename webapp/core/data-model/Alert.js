@@ -253,13 +253,6 @@ Alert.prototype.toService = function() {
         );
       }
 
-      serviceAttachedViews.push(
-        {
-          view_id: this.attachedViews[0].Alert.dataValues.view_id,
-          workspace: "terrama2_" + this.attachedViews[0].Alert.dataValues.view_id // It's hardcoded now, but that isn't right, in the future this should come from the database
-        }
-      );
-
       for(var i = 0, attachedViewsLength = this.attachedViews.length; i < attachedViewsLength; i++) {
         serviceAttachedViews.push(
           {

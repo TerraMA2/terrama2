@@ -669,3 +669,32 @@ table.dataTable tbody th, table.dataTable tbody td { padding-left: 12px !importa
   width: 60px;
   margin-top: 25%;
 }
+
+#newAttachedViewBtn {
+  margin: 0 9px 10px 0;
+}
+
+#noViewsAttached {
+  text-align: center;
+  font-weight: 900;
+}
+
+#attachedViewsTable .buttonTd {
+  width: 34px;
+}
+
+#attachedViewsTable .sortHandle {
+  font-size: 24px;
+  cursor: move;
+}
+
+#attachedViewsTable .sortHandle > i {
+  margin-left: 5px;
+}
+
+#alertView {
+  text-align: center;
+  font-weight: bold;
+  line-height: 34px;
+  height: 50px;
+}
