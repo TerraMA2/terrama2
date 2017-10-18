@@ -44,6 +44,10 @@ define([
     self.BaseService.$request(self.url + "/" + userId, "PUT", {data: userObject})
       .then(function(response) {
         return defer.resolve(response.data);
+      })
+      .catch(function(err) {
+        var errMessage = "Error updating User. \n" + (err.data ? err.data.message : "");
+        return defer.reject(errMessage);
       });
 
     return defer.promise;
@@ -58,6 +62,10 @@ define([
       .then(function(response) {
         self.model.push(response.data);
         return defer.resolve(response.data);
+      })
+      .catch(function(err) {
+        var errMessage = "Error creating User. \n" + (err.data ? err.data.message : "");
+        return defer.reject(errMessage);
       });
 
     return defer.promise;
