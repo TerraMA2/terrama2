@@ -31,16 +31,25 @@
 
 #include <terrama2/services/view/core/Utils.hpp>
 #include <terrama2/services/view/core/data-access/Geoserver.hpp>
+#include <terrama2/services/view/mock/MockViewLogger.hpp>
+
 #include <terrama2/core/Shared.hpp>
+
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/core/utility/TerraMA2Init.hpp>
+
 #include <terrama2/core/data-model/DataManager.hpp>
 #include <terrama2/core/data-model/DataSet.hpp>
 #include <terrama2/core/data-model/DataSetGrid.hpp>
 #include <terrama2/core/data-model/Filter.hpp>
 #include <terrama2/core/data-model/DataProvider.hpp>
+
 #include <terrama2/core/utility/SemanticsManager.hpp>
 #include <terrama2/impl/Utils.hpp>
+
+#include <examples/data/ViewGeoserver.hpp>
+#include <terralib/dataaccess/datasource/DataSourceFactory.h>
+
 
 #include <QCoreApplication>
 #include <QUrl>
@@ -48,19 +57,19 @@
 int main(int argc, char** argv)
 {
   terrama2::core::TerraMA2Init terramaRaii("example", 0);
-  terrama2::core::registerFactories();
+  Q_UNUSED(terramaRaii);
 
+  terrama2::core::registerFactories();
   {
 
     QCoreApplication app(argc, argv);
-
 
     terrama2::core::DataManagerPtr dataManager(new terrama2::core::DataManager());
 
     // DataProvider information
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
-    dataProvider->uri = "file:///" + TERRAMA2_DATA_DIR + "/umidade";
+    dataProvider->uri = "file://" + TERRAMA2_DATA_DIR + "/Coleta_FTP_RF";
 
     dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
     dataProvider->dataProviderType = "FILE";
@@ -88,8 +97,9 @@ int main(int argc, char** argv)
     terrama2::core::DataSetGrid* dataSet1 = new terrama2::core::DataSetGrid();
     terrama2::core::DataSetPtr dataSetPtr(dataSet1);
     dataSet1->active = true;
-    dataSet1->format.emplace("mask", "urmin_obs_ams_1km_%YYYY%MM%DD.tif");
+    dataSet1->format.emplace("mask", "/umid/BAM.umrs.%YYYY%MM%DD%hh%mm.tif");
     dataSet1->format.emplace("srid", "4326");
+    dataSet1->format.emplace("timezone", "0");
     dataSet1->id = 1;
     dataSet1->dataSeriesId = dataSeries1->id;
 
@@ -97,16 +107,21 @@ int main(int argc, char** argv)
 
     dataManager->add(dataSeries1Ptr);
 
-    QUrl url(QString::fromStdString(dataProvider->uri));
-    terrama2::core::Filter filter;
 
-    terrama2::services::view::core::GeoServer geoserver(te::core::URI("http://lochosts:8080/geoserver/"));
+    terrama2::services::view::core::GeoServer geoserver(te::core::URI("http://localhost:8080/geoserver/"));
 
-    geoserver.createGeoserverTempMosaic(dataManager,
-                                       dataSetPtr,
-                                       filter,
-                                       "Umin",
-                                       url.path().toStdString());
+
+    auto dataProviderPostGis = terrama2::geoserver::dataProvider();
+    dataManager->add(dataProviderPostGis);
+
+    std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make("POSTGIS",
+                                                                                   dataProviderPostGis->uri));
+
+    terrama2::core::OpenClose<std::shared_ptr<te::da::DataSource>> openClose(datasource);
+
+    geoserver.createMosaicTable(datasource,
+                                "table_atribute_tif",
+                                4326);
   }
 
   return 0;
