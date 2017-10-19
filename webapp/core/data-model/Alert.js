@@ -127,6 +127,12 @@ var Alert = function(params) {
    */
   this.attachedViews = params.attachedViews || [];
 
+  /**
+   * @name Alert#attachment
+   * @type {object}
+   */
+  this.attachment = params.attachment || [];
+
   if (params.View && params.View.ViewStyleLegend){
     var legendModel = new ViewStyleLegend(Utils.extend(
       params.View.ViewStyleLegend.get(), {colors: params.View.ViewStyleLegend.ViewStyleColors ? params.View.ViewStyleLegend.ViewStyleColors.map(function(elm) { return elm.get(); }) : []}));
@@ -185,8 +191,14 @@ Alert.prototype = Object.create(BaseClass.prototype);
 Alert.prototype.constructor = Alert;
 
 /**
+ * It sets attachment data.
+ */
+Alert.prototype.setAttachment = function(attachment) {
+  this.attachment = attachment;
+};
+
+/**
  * It sets attached views data.
- * @param {Sequelize.Model[]|Object[]}
  */
 Alert.prototype.setAttachedViews = function(attachedViews) {
   this.attachedViews = attachedViews;
@@ -222,7 +234,7 @@ Alert.prototype.rawObject = function() {
 Alert.prototype.toService = function() {
   var viewObject = null;
 
-  if(this.attachedViews.length > 0) {
+  if(this.attachment && this.attachedViews.length > 0) {
     var originalUri = null;
     var serviceAttachedViews = [];
 
@@ -264,6 +276,11 @@ Alert.prototype.toService = function() {
 
       viewObject = {
         geoserver_uri: uri + "/ows",
+        maxy: this.attachment.maxy,
+        miny: this.attachment.miny,
+        maxx: this.attachment.maxx,
+        minx: this.attachment.minx,
+        srid: this.attachment.srid,
         layers: serviceAttachedViews
       };
     }
@@ -310,7 +327,7 @@ Alert.prototype.toService = function() {
     schedule: this.schedule instanceof BaseClass ? this.schedule.toObject() : {}
   });
 
-  if(viewObject)
+  if(viewObject) 
     serviceObject.view = viewObject;
 
   return serviceObject;

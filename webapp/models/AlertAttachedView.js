@@ -18,10 +18,10 @@ module.exports = function(sequelize, DataTypes) {
       timestamps: false,
       classMethods: {
         associate: function(models) {
-          AlertAttachedView.belongsTo(models.Alert, {
+          AlertAttachedView.belongsTo(models.AlertAttachment, {
             onDelete: "CASCADE",
             foreignKey: {
-              name: 'alert_id',
+              name: 'alert_attachment_id',
               allowNull: false
             }
           });
