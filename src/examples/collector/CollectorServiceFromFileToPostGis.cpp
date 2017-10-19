@@ -66,16 +66,15 @@
 #include <QTimer>
 #include <QUrl>
 
-using namespace terrama2::occurrencewfp;
 
 void addInput(std::shared_ptr<terrama2::services::collector::core::DataManager> dataManager)
 {
 
 
-    auto dataProvider = dataProviderFileOccWFP();
+    auto dataProvider = terrama2::occurrencewfp::dataProviderFileOccWFP();
     dataManager->add(dataProvider);
 
-    auto dataSeries = occurrenceWfp(dataProvider);
+    auto dataSeries = terrama2::occurrencewfp::dataSeriesOccWFP(dataProvider);
     dataManager->add(dataSeries);
 }
 
@@ -84,10 +83,10 @@ void addOutput(std::shared_ptr<terrama2::services::collector::core::DataManager>
 
   //     output
 
-  auto outputDataProvider = dataProviderPostGisOccWFP();
+  auto outputDataProvider = terrama2::occurrencewfp::dataProviderPostGisOccWFP();
   dataManager->add(outputDataProvider);
 
-  auto outputDataSeries = occurrenceWfpPostgis(outputDataProvider);
+  auto outputDataSeries = terrama2::occurrencewfp::dataSeriesOccWFPPostGis(outputDataProvider);
   dataManager->add(outputDataSeries);
 
 }
