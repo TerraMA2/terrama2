@@ -55,6 +55,13 @@ define([], function () {
      */
     self.rgbaModal = function(elm) {
       self.rgba.elm = elm;
+      var rgbaColor = Utility.hex2rgba(elm.color);
+      if (rgbaColor){
+        self.rgba.r = rgbaColor.r;
+        self.rgba.g = rgbaColor.g;
+        self.rgba.b = rgbaColor.b;
+        self.rgba.a = rgbaColor.a;
+      }
       $("#rgbaModal").modal();
     };
 
