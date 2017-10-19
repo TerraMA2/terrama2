@@ -67,47 +67,11 @@ app.use(methodOverride('_method'));
 
 app.use(app.locals.BASE_URL, express.static(path.join(__dirname, 'public')));
 
+var externals = JSON.parse(fs.readFileSync(path.join(__dirname, './externals.json'), 'utf8'));
 
-
-
-
-
-
-  app.use(app.locals.BASE_URL + 'externals/jquery', express.static(path.join(__dirname, 'node_modules/jquery')));
-  app.use(app.locals.BASE_URL + 'externals/moment', express.static(path.join(__dirname, 'node_modules/moment')));
-  app.use(app.locals.BASE_URL + 'externals/intl-tel-input', express.static(path.join(__dirname, 'node_modules/intl-tel-input')));
-  app.use(app.locals.BASE_URL + 'externals/angular-material', express.static(path.join(__dirname, 'node_modules/angular-material')));
-  app.use(app.locals.BASE_URL + 'externals/AdminLTE', express.static(path.join(__dirname, 'node_modules/admin-lte')));
-  app.use(app.locals.BASE_URL + 'externals/font-awesome', express.static(path.join(__dirname, 'node_modules/font-awesome')));
-  app.use(app.locals.BASE_URL + 'externals/datatables', express.static(path.join(__dirname, 'node_modules/datatables')));
-  app.use(app.locals.BASE_URL + 'externals/angular', express.static(path.join(__dirname, 'node_modules/angular')));
-  app.use(app.locals.BASE_URL + 'externals/i18n-node-angular', express.static(path.join(__dirname, 'node_modules/i18n-node-angular')));
-  app.use(app.locals.BASE_URL + 'externals/ng-file-upload', express.static(path.join(__dirname, 'node_modules/ng-file-upload/dist')));
-  app.use(app.locals.BASE_URL + 'externals/eonasdan-bootstrap-datetimepicker', express.static(path.join(__dirname, 'node_modules/eonasdan-bootstrap-datetimepicker')));
-  app.use(app.locals.BASE_URL + 'externals/angular-ui-select', express.static(path.join(__dirname, 'node_modules/ui-select')));
-  app.use(app.locals.BASE_URL + 'externals/eonasdan-bootstrap-datetimepicker', express.static(path.join(__dirname, 'node_modules/eonasdan-bootstrap-datetimepicker')));
-  app.use(app.locals.BASE_URL + 'externals/angular-eonasdan-datetimepicker', express.static(path.join(__dirname, 'node_modules/angular-eonasdan-datetimepicker')));
-  app.use(app.locals.BASE_URL + 'externals/tinycolor', express.static(path.join(__dirname, 'node_modules/tinycolor2')));
-  app.use(app.locals.BASE_URL + 'externals/angular-color-picker', express.static(path.join(__dirname, 'node_modules/angularjs-color-picker')));
-  app.use(app.locals.BASE_URL + 'externals/angular-tree-control', express.static(path.join(__dirname, 'node_modules/angular-tree-control')));
-  app.use(app.locals.BASE_URL + 'externals/ace-builds', express.static(path.join(__dirname, 'node_modules/ace-builds')));
-  app.use(app.locals.BASE_URL + 'externals/angular-sanitize', express.static(path.join(__dirname, 'node_modules/angular-sanitize')));
-  app.use(app.locals.BASE_URL + 'externals/tv4', express.static(path.join(__dirname, 'node_modules/tv4')));
-  app.use(app.locals.BASE_URL + 'externals/objectpath', express.static(path.join(__dirname, 'node_modules/objectpath')));
-  app.use(app.locals.BASE_URL + 'externals/angular-schema-form', express.static(path.join(__dirname, 'node_modules/angular-schema-form')));
-  app.use(app.locals.BASE_URL + 'externals/angular-aria', express.static(path.join(__dirname, 'node_modules/angular-aria')));
-  app.use(app.locals.BASE_URL + 'externals/angular-animate', express.static(path.join(__dirname, 'node_modules/angular-animate')));
-  app.use(app.locals.BASE_URL + 'externals/angular-wizard', express.static(path.join(__dirname, 'node_modules/angular-wizard')));
-  app.use(app.locals.BASE_URL + 'externals/angular-xeditable', express.static(path.join(__dirname, 'node_modules/angular-xeditable')));
-  app.use(app.locals.BASE_URL + 'externals/angular-ui-router', express.static(path.join(__dirname, 'node_modules/angular-ui-router')));
-
-
-
-
-
-
-
-
+externals.forEach(function(external) {
+  app.use(app.locals.BASE_URL + external.publicUrl, express.static(path.join(__dirname, external.path)));
+});
 
 passport.setupPassport(app);
 

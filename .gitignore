@@ -6,14 +6,12 @@
 webapp/node_modules
 webapp/npm-debug*
 webapp/public/externals
-webapp/bower_components
 webapp/*_terrama2.log
 webapp/config/webapp.json
 webmonitor/node_modules
 webmonitor/public/external
 webmonitor/public/dist
 webmonitor/public/docs
-webmonitor/bower_components
 webmonitor/config/monitor.json
 webapp/terrama2.log
 .vscode
