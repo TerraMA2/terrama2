@@ -137,7 +137,7 @@ define([], function(){
       };
       $scope.inter = config.interpolator;
       $scope.inter.name = $scope.outputDataSeries.name;
-      $scope.inter.interpolator_strategy = $scope.inter.interpolator_strategy.toString();
+      $scope.inter.interpolator_strategy = $scope.inter.interpolator_strategy;
       $scope.bounding_rect = bounding_rect;
       $scope.inter.description = $scope.outputDataSeries.description;
       $scope.outputDataSeries.data_series_semantics = $scope.DataSeriesSemanticsService.get({code: "GRID-geotiff"});

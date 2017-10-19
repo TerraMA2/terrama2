@@ -6,9 +6,9 @@
           <div class="form-group" terrama2-show-errors>
             <label>{{ i18n.__('Interpolator strategy') }}:</label>
             <select class="form-control" name="interpolator_strategy" ng-model="inter.interpolator_strategy" required>
-              <option value="0">{{ i18n.__('Nearest neighbor') }}</option>
-              <option value="1">{{ i18n.__('Average neighbor') }}</option>
-              <option value="2">{{ i18n.__('Weight average neighbor') }}</option>
+              <option value="NEAREST-NEIGHBOR">{{ i18n.__('Nearest neighbor') }}</option>
+              <option value="AVERAGE-NEIGHBOR">{{ i18n.__('Average neighbor') }}</option>
+              <option value="W-AVERAGE-NEIGHBOR">{{ i18n.__('Weight average neighbor') }}</option>
             </select>
           </div>
         </div>
@@ -33,11 +33,11 @@
       </div>
     
       <div class="col-md-12">
-        <div class="col-md-6" ng-if="inter.interpolator_strategy == 2">
+        <div class="col-md-6" ng-if="inter.interpolator_strategy == 'W-AVERAGE-NEIGHBOR'">
           <div>
             <div class="form-group" terrama2-show-errors>
               <label>{{ i18n.__('Power factor') }}:</label>
-              <input class="form-control" id="power_factor" name="power_factor" ng-model="inter.metadata.power_factor" type="number" ng-required="inter.interpolator_strategy == 3">
+              <input class="form-control" id="power_factor" name="power_factor" ng-model="inter.metadata.power_factor" type="number" ng-required="inter.interpolator_strategy == 'W-AVERAGE-NEIGHBOR'">
             </div>
           </div>
         </div>

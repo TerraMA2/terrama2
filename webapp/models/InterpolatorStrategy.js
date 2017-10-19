@@ -4,7 +4,7 @@ module.exports = function(sequelize, DataTypes) {
   var InterpolatorStrategy = sequelize.define("InterpolatorStrategy",
       {
         id: {
-          type: DataTypes.INTEGER,
+          type: DataTypes.STRING,
           allowNull: false,
           primaryKey: true
         },
@@ -12,10 +12,6 @@ module.exports = function(sequelize, DataTypes) {
           type: DataTypes.STRING,
           allowNull: false,
           unique: true
-        },
-        code: {
-          type: DataTypes.STRING,
-          allowNull: false
         }
       },
       {

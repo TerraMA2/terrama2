@@ -166,7 +166,7 @@
       schedule_type: Number(this.schedule_type),
       bounding_rect: this.bounding_rect,
       interpolation_attribute: this.interpolation_attribute,
-      interpolator_strategy: Number(this.interpolator_strategy),
+      interpolator_strategy: this.interpolator_strategy,
       resolution_x: Number(this.resolution_x),
       resolution_y: Number(this.resolution_y),
       srid: Number(this.srid),
@@ -177,12 +177,6 @@
   };
 
   Interpolator.prototype.toService = function() {
-    var interpolatorStrategyCode;
-    for (var key in InterpolatorStrategy){
-      if (InterpolatorStrategy[key].value == this.interpolator_strategy){
-        interpolatorStrategyCode = InterpolatorStrategy[key].code
-      }
-    }
     return Object.assign(AbstractClass.prototype.toObject.call(this), {
       id: this.id,
       active: String(this.active),
@@ -192,7 +186,6 @@
       output_data_series: this.data_series_output,
       interpolation_attribute: this.interpolation_attribute,
       interpolator_strategy: this.interpolator_strategy,
-      interpolator_strategy_code: interpolatorStrategyCode,
       resolution_x: Number(this.resolution_x),
       resolution_y: Number(this.resolution_y),
       service_instance_id: this.service_instance_id,
