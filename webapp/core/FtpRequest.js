@@ -117,8 +117,7 @@ FtpRequest.fields = function() {
   var fieldProperties = {};
   fieldProperties[UriPattern.HOST] = {
     title: "Address",
-    type: FormField.TEXT,
-    pattern: '^([\\/\\w()*:.-]+[A-Za-z0-9_.])$'
+    type: FormField.TEXT
   }
 
   fieldProperties[UriPattern.PORT] = {
@@ -165,7 +164,8 @@ FtpRequest.fields = function() {
       htmlClass: 'col-md-5 terrama2-schema-form',
       validationMessage: {
         "202": "Invalid address"
-      }
+      },
+      ngModelOptions: { "updateOn": "blur" }
     },
     {
       key: UriPattern.PORT,

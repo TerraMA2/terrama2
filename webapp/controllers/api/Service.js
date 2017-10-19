@@ -118,7 +118,7 @@ module.exports = function(app) {
             if (shouldRestart) {
               TcpManager.emit('stopService', serviceInstance);
             } else {
-              TcpManager.emit('updateService', serviceInstance);
+              TcpManager.emit('updateService', newServiceInstance);
             }
           } catch(e) {
           }

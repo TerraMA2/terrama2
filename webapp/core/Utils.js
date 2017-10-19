@@ -63,7 +63,8 @@ var Utils = module.exports = {
     return [{
       key: UriPattern.HOST,
       type: FormField.TEXT,
-      htmlClass: 'col-md-6 terrama2-schema-form'
+      htmlClass: 'col-md-6 terrama2-schema-form',
+      ngModelOptions: { "updateOn": "blur" }
     },
     {
       key: UriPattern.PORT,
