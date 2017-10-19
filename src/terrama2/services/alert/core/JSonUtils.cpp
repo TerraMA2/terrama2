@@ -152,7 +152,9 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
     }
     else
     {
-      view.srid = 4326;
+      QString errMsg = QObject::tr("Invalid Alert JSON object.\nNo bounding box.");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
     }
 
     if(obj.contains("width")
