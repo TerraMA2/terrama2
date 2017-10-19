@@ -41,6 +41,10 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 
+
+// -------------------------------------------
+// Utility functions section
+// -------------------------------------------
 /*!
  * \brief Transforms the envelope into a JSon object.
  *
@@ -91,6 +95,13 @@ terrama2::services::interpolator::core::InterpolatorParams* GetParameters(const 
   }
 }
 
+/*!
+ * \overload terrama2::services::interpolator::core::InterpolatorParams* GetParameters(const QString& type)
+ *
+ * \param type Type as string, this comes from the JSon file. There are three available values: "NEAREST-NEIGHBOR", "AVERAGE-NEIGHBOR" and "W-AVERAGE-NEIGHBOR".
+ *
+ * \exception If \a type is different of these, previously presented, a terrama2::core::JSonParserException will be raised.
+ */
 terrama2::services::interpolator::core::InterpolatorParams* GetParameters(const QString& type)
 {
   if(type.compare("NEAREST-NEIGHBOR", Qt::CaseInsensitive))
@@ -107,6 +118,15 @@ terrama2::services::interpolator::core::InterpolatorParams* GetParameters(const 
   throw terrama2::core::JSonParserException() << terrama2::ErrorDescription(errMsg);
 }
 
+/*!
+ * \brief Return a string that represents the \a type.
+ *
+ * \param type Type of the interpolator. See terrama2::services::interpolator::core::InterpolatorType documentation for details.
+ *
+ * \return One of the above: "NEAREST-NEIGHBOR", "AVERAGE-NEIGHBOR" or "W-AVERAGE-NEIGHBOR".
+ *
+ * \exception If type is diferent of the specified in terrama2::services::interpolator::core::InterpolatorType enumerator, a terrama2::core::JSonParserException will be raised.
+ */
 QString GetInterpolatorAsString(const int& type)
 {
   switch (type)
@@ -125,6 +145,10 @@ QString GetInterpolatorAsString(const int& type)
   TERRAMA2_LOG_ERROR() << errMsg;
   throw terrama2::core::JSonParserException() << terrama2::ErrorDescription(errMsg);
 }
+
+// -------------------------------------------
+// End Utilities functions section
+// -------------------------------------------
 
 terrama2::services::interpolator::core::InterpolatorParamsPtr terrama2::services::interpolator::core::fromInterpolatorJson(QJsonObject json, terrama2::core::DataManager*)
 {
