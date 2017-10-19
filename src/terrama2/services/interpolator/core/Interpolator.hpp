@@ -37,19 +37,13 @@
 #include "../../../core/Typedef.hpp"
 
 #include "InterpolatorParams.hpp"
-//#include "Typedef.hpp"
+#include "Typedef.hpp"
+
+// TerraLib
+#include <terralib/raster/Raster.h>
 
 // STL
 #include <memory>
-
-namespace te
-{
-  namespace rst
-  {
-    // Forward declaration
-    class Raster;
-  }
-}
 
 namespace terrama2
 {
@@ -83,7 +77,12 @@ namespace terrama2
            *
            * \param params The parameters to be used.
            */
-          Interpolator(const InterpolatorParams* params);
+          Interpolator(InterpolatorParamsPtr params);
+
+          /*!
+           * \brief Virtual destructor.
+           */
+          virtual ~Interpolator();
 
           /*!
            * \brief Method must be implemented by the subclasses to execute the specific algorithm.
@@ -92,7 +91,7 @@ namespace terrama2
            *
            * \exception If the bounding rect, of the parameters used by the interpolator, is invalid a NoDataException will be raised.
            */
-          virtual te::rst::Raster* makeInterpolation() = 0;
+          virtual te::rst::RasterPtr makeInterpolation() = 0;
 
         protected:
 
@@ -103,7 +102,7 @@ namespace terrama2
            *
            * \exception If the bounding rect, of the parameters used by the interpolator, is invalid a NoDataException will be raised.
            */
-          te::rst::Raster* makeRaster();
+          te::rst::RasterPtr makeRaster();
 
           /*!
            * \brief Fills the kd-tree with the data defined by the parameters. This is usefull to quickly find the neighbors used in the
@@ -113,7 +112,7 @@ namespace terrama2
            */
           void fillTree();
 
-          const InterpolatorParams* interpolationParams_; //!< Parameters of interpolation.
+          std::shared_ptr<InterpolatorParams> interpolationParams_; //!< Parameters of interpolation.
 
           std::unique_ptr<InterpolatorTree> tree_;    //!< A kd-tree used to determine neighborhood.
         };
@@ -134,14 +133,14 @@ namespace terrama2
            *
            * \note \a params MUST be an instance of NNInterpolatorParams structure, or it will not work properly.
            */
-          NNInterpolator(const InterpolatorParams* params);
+          NNInterpolator(InterpolatorParamsPtr params);
 
           /*!
            * \brief Executes interpolation based on the nearest-neighbor approach.
            *
            * \return The interpolated raster.
            */
-          te::rst::Raster* makeInterpolation();
+          te::rst::RasterPtr makeInterpolation();
         };
 
         /*!
@@ -160,14 +159,14 @@ namespace terrama2
            *
            * \note \a params MUST be an instance of AvgDistInterpolatorParams structure, or it will not work properly.
            */
-          AvgDistInterpolator(const InterpolatorParams* params);
+          AvgDistInterpolator(InterpolatorParamsPtr params);
 
           /*!
            * \brief Executes interpolation based on the simple average neighbor approach.
            *
            * \return The interpolated raster.
            */
-          te::rst::Raster* makeInterpolation();
+          te::rst::RasterPtr makeInterpolation();
         };
 
         /*!
@@ -186,14 +185,14 @@ namespace terrama2
            *
            * \note \a params MUST be an instance of SqrAvgDistInterpolatorParams structure, or it will not work properly.
            */
-          SqrAvgDistInterpolator(const InterpolatorParams* params);
+          SqrAvgDistInterpolator(InterpolatorParamsPtr params);
 
           /*!
            * \brief Executes interpolation based on the bilinear approach.
            *
            * \return The interpolated raster.
            */
-          te::rst::Raster* makeInterpolation();
+          te::rst::RasterPtr makeInterpolation();
         };
       } // end namespace core
     }   // end namespace interpolator
