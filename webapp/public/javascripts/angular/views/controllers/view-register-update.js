@@ -114,6 +114,16 @@ define([], function() {
     var canSave = true;
     var serviceOfflineMessage = "If service is not running you can not save the view. Start the service before create or update a view!";
 
+    /**
+     * Apply legend predefined style when is dcp data series
+     * When is dcp data series, dont show fields to select creation type neither type, so use default values
+     */
+    var applyStyleDCPBehavior = function(){
+      self.legend.metadata.creation_type = "editor";
+      self.legend.type = 2;
+      $scope.$broadcast('updateCreationType');
+    };
+
     self.styleButtons = {
       circle: {
         show: function () {
@@ -121,6 +131,9 @@ define([], function() {
         },
         click: function() {
           self.hasStyle = true;
+          if (self.targetDataSeriesType == "DCP"){
+            applyStyleDCPBehavior();
+          }
         }
       },
       minus: {
@@ -392,7 +405,7 @@ define([], function() {
           self.targetDataSeriesType = dSeries.data_series_semantics.data_series_type_name;
           // extra comparison just to setting if it is dynamic or static.
           // Here avoids to setting to true in many cases below
-          self.isDynamic = dSeries.data_series_semantics.data_series_type_name !== DataSeriesService.DataSeriesType.GEOMETRIC_OBJECT;
+          self.isDynamic = dSeries.data_series_semantics.temporality !== 'STATIC';
           if (dSeries.data_series_semantics.data_series_format_name === "GDAL") {
             self.isValid = false;
             MessageBoxService.danger(i18n.__("View"), i18n.__("You selected a GRID data series. Only GDAL data series format are supported"));

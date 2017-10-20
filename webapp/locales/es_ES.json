@@ -1038,5 +1038,10 @@
   "Dcp Data Series": "Séries de Dados PCD",
   "Object Monitored Data Series": "Objeto Monitorado",
   "Insert a value if you want to update the password": "",
-	"Transfer Shapefile": ""
+	"Transfer Shapefile": "",
+	"Wild fire event (ESRI Shapefile)": "",
+	"Timestamp property": "",
+	"Geometry property": "",
+	"SLD": "",
+	"Attribute is required": ""
 }

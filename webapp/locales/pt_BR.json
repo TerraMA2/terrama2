@@ -1029,5 +1029,10 @@
   "Dcp": "Pcd",
   " Data Series": " Data Series",
   "Dcp Data Series": "Séries de Dados PCD",
-  "Object Monitored Data Series": "Objeto Monitorado"
+  "Object Monitored Data Series": "Objeto Monitorado",
+	"Wild fire event (ESRI Shapefile)": "Evento de queimada (ESRI Shapefile)",
+	"Timestamp property": "Propriedade de tempo",
+	"Geometry property": "Propriedade geométrica",
+	"SLD": "SLD",
+	"Attribute is required": "Atributo é obrigatório"
 }
