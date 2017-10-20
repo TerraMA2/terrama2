@@ -7,7 +7,6 @@
     "exclude": [
       ".git",
       ".vscode",
-      "bower_components",
       "config",
       "node_modules",
       "public/dist",

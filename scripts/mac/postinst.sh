@@ -35,15 +35,12 @@ echo "Post-installation script..."
   echo "Installing Webapp dependencies..."
   cd ${TERRAMA2_APP_DIR}/webapp
 
-  npm install bower &>/dev/null
-  valid $? "Unable to install Bower."
   npm install grunt &>/dev/null
   valid $? "Unable to install Grunt."
   
   npm install >/dev/null
   valid $? "Unable to install NodeJs dependencies."
-  npm run bower -- install --allow-root >/dev/null
-  valid $? "Unable to install Bower dependencies."
+
   npm run grunt >/dev/null
   valid $? "Error executing grunt."
 
@@ -67,15 +64,12 @@ echo "Post-installation script..."
   echo "Installing Webmonitor dependencies..."
   cd ${TERRAMA2_APP_DIR}/webmonitor
 
-  npm install bower &>/dev/null
-  valid $? "Unable to install Bower."
   npm install grunt &>/dev/null
   valid $? "Unable to install Grunt."
 
   npm install >/dev/null
   valid $? "Unable to install NodeJs dependencies."
-  npm run bower -- install --allow-root >/dev/null
-  valid $? "Unable to install Bower dependencies."
+
   npm run grunt >/dev/null
   valid $? "Error executing grunt."
 )

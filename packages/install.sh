@@ -163,12 +163,6 @@ else
   echo "Node.js already installed!"
 fi
 
-#
-# Npm Bower Globally
-#
-sudo npm install -g bower
-valid $? "Error: could not install bower"
-
 
 #
 # VMime
