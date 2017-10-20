@@ -340,7 +340,8 @@ bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<te::mem::Da
   if(filter.region.get())
   {
     auto envelope = filter.region->getMBR();
-    if(!raster->getExtent(filter.region->getSRID())->intersects(*envelope))
+    std::unique_ptr<te::gm::Envelope> extent(raster->getExtent(filter.region->getSRID()));
+    if(!extent->intersects(*envelope))
       return false;
 
     if(filter.cropRaster)
