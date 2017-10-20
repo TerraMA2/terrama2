@@ -7,19 +7,19 @@ module.exports = function(sequelize, DataTypes) {
         primaryKey: true,
         autoIncrement: true
       },
-      maxy: {
+      y_max: {
         type: DataTypes.DOUBLE,
         allowNull: false
       },
-      miny: {
+      y_min: {
         type: DataTypes.DOUBLE,
         allowNull: false
       },
-      maxx: {
+      x_max: {
         type: DataTypes.DOUBLE,
         allowNull: false
       },
-      minx: {
+      x_min: {
         type: DataTypes.DOUBLE,
         allowNull: false
       },

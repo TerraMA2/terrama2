@@ -182,6 +182,19 @@ define([], function() {
     ];
 
     /**
+     * Attachment
+     * 
+     * @type {object}
+     */
+    self.alertAttachment = config.alertAttachment || {
+      y_max: null,
+      y_min: null,
+      x_max: null,
+      x_min: null,
+      srid: null
+    };
+
+    /**
      * Current width of views selects
      * 
      * @type {integer}
@@ -342,10 +355,16 @@ define([], function() {
 
               var dbAlertAttachedViews = config.alertAttachedViews;
 
-              for(var i = 0, alertAttachedViewsLength = dbAlertAttachedViews.length; i < alertAttachedViewsLength; i++) {
-                var interfaceId = (self.alert.view.id === dbAlertAttachedViews[i].View.id ? "alertView" : null);
+              if(dbAlertAttachedViews.length === 0) {
+                var viewId = (self.alert.view && self.alert.view.id ? self.alert.view.id.toString() : null);
 
-                self.newAttachedView(dbAlertAttachedViews[i].View.id.toString(), dbAlertAttachedViews[i].View.name, dbAlertAttachedViews[i].id, interfaceId);
+                self.newAttachedView(viewId, null, null, "alertView");
+              } else {
+                for(var i = 0, alertAttachedViewsLength = dbAlertAttachedViews.length; i < alertAttachedViewsLength; i++) {
+                  var interfaceId = (self.alert.view.id === dbAlertAttachedViews[i].View.id ? "alertView" : null);
+
+                  self.newAttachedView(dbAlertAttachedViews[i].View.id.toString(), dbAlertAttachedViews[i].View.name, dbAlertAttachedViews[i].id, interfaceId);
+                }
               }
             }
           } else {
@@ -843,7 +862,9 @@ define([], function() {
           return;
         }
 
-        if(self.alert.hasView && self.attachViews && self.attachedViews.length > 0) {
+        if(self.alert.hasView && self.attachViews) {
+          self.alertAttachment.alert_id = (self.isUpdating ? self.alert.id : null);
+
           var attachViewsError = false;
           var attachViewsFinal = [];
 
@@ -854,7 +875,7 @@ define([], function() {
             } else {
               var attachedViewFinal = {
                 layer_order: i + 1,
-                alert_id: (self.isUpdating ? self.alert.id : null),
+                alert_attachment_id: (self.isUpdating ? self.alertAttachment.id : null),
                 view_id: (self.attachedViews[i].view !== null ? self.attachedViews[i].view : null)
               };
 
@@ -867,8 +888,10 @@ define([], function() {
 
           if(attachViewsError)
             return self.MessageBoxService.danger(i18n.__("Alert"), i18n.__("Select a view in all the attached views"));
-          else
+          else {
             self.alert.attachedViews = attachViewsFinal;
+            self.alert.alertAttachment = self.alertAttachment;
+          }
         }
 
         var legendTemp = $.extend(true, {}, self.legendModel);

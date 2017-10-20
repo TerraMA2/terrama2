@@ -122,16 +122,10 @@ var Alert = function(params) {
   this.view = new View(params.View ? params.View.get() : params.view || {});
 
   /**
-   * @name Alert#attachedViews
-   * @type {array}
-   */
-  this.attachedViews = params.attachedViews || [];
-
-  /**
    * @name Alert#attachment
    * @type {object}
    */
-  this.attachment = params.attachment || [];
+  this.attachment = params.attachment || null;
 
   if (params.View && params.View.ViewStyleLegend){
     var legendModel = new ViewStyleLegend(Utils.extend(
@@ -197,13 +191,6 @@ Alert.prototype.setAttachment = function(attachment) {
   this.attachment = attachment;
 };
 
-/**
- * It sets attached views data.
- */
-Alert.prototype.setAttachedViews = function(attachedViews) {
-  this.attachedViews = attachedViews;
-};
-
 Alert.prototype.toObject = function() {
   return Object.assign(BaseClass.prototype.toObject.call(this), {
     id: this.id,
@@ -232,60 +219,6 @@ Alert.prototype.rawObject = function() {
 };
 
 Alert.prototype.toService = function() {
-  var viewObject = null;
-
-  if(this.attachment && this.attachedViews.length > 0) {
-    var originalUri = null;
-    var serviceAttachedViews = [];
-
-    for(var i = 0, serviceMetadataLength = this.attachedViews[0].View.ServiceInstance.ServiceMetadata.length; i < serviceMetadataLength; i++) {
-      if(this.attachedViews[0].View.ServiceInstance.ServiceMetadata[i].dataValues.key === "maps_server") {
-        originalUri = this.attachedViews[0].View.ServiceInstance.ServiceMetadata[i].dataValues.value;
-        break;
-      }
-    }
-
-    if(originalUri) {
-      var uriObject = URIBuilder.buildObject(originalUri, URISyntax);
-
-      if(!isNaN(uriObject[URISyntax.PORT])) {
-        var uri = Utils.format(
-          "%s://%s:%s%s",
-          uriObject[URISyntax.SCHEME].toLowerCase(),
-          uriObject[URISyntax.HOST],
-          uriObject[URISyntax.PORT],
-          uriObject[URISyntax.PATHNAME]
-        );
-      } else {
-        var uri = Utils.format(
-          "%s://%s%s",
-          uriObject[URISyntax.SCHEME].toLowerCase(),
-          uriObject[URISyntax.HOST],
-          uriObject[URISyntax.PATHNAME]
-        );
-      }
-
-      for(var i = 0, attachedViewsLength = this.attachedViews.length; i < attachedViewsLength; i++) {
-        serviceAttachedViews.push(
-          {
-            view_id: this.attachedViews[i].View.dataValues.id,
-            workspace: "terrama2_" + this.attachedViews[i].View.dataValues.id // It's hardcoded now, but that isn't right, in the future this should come from the database
-          }
-        );
-      }
-
-      viewObject = {
-        geoserver_uri: uri + "/ows",
-        maxy: this.attachment.maxy,
-        miny: this.attachment.miny,
-        maxx: this.attachment.maxx,
-        minx: this.attachment.minx,
-        srid: this.attachment.srid,
-        layers: serviceAttachedViews
-      };
-    }
-  }
-
   var additionalDataList = [];
   if (this.additional_data && this.additional_data.length > 0){
     this.additional_data.forEach(function(addData){
@@ -327,8 +260,8 @@ Alert.prototype.toService = function() {
     schedule: this.schedule instanceof BaseClass ? this.schedule.toObject() : {}
   });
 
-  if(viewObject) 
-    serviceObject.view = viewObject;
+  if(this.attachment) 
+    serviceObject.view = this.attachment.toService();
 
   return serviceObject;
 }

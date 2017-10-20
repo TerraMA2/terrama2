@@ -4218,7 +4218,7 @@ var DataManager = module.exports = {
       models.db.AlertAttachment.update(
         alertAttachmentObject,
         Utils.extend({
-          fields: ["maxy", "miny", "maxx", "minx", "srid"],
+          fields: ["y_max", "y_min", "x_max", "x_min", "srid"],
           where: restriction
         }, options))
 
@@ -4472,16 +4472,15 @@ var DataManager = module.exports = {
           },
           {
             model: models.db.AlertAttachment,
+            required: false,
             include: [
               {
                 model: models.db.AlertAttachedView,
+                required: false,
                 order: [
                   ['layer_order', 'ASC']
                 ],
                 include: [
-                  {
-                    model: models.db.Alert
-                  },
                   {
                     model: models.db.View,
                     include: [
@@ -4571,11 +4570,6 @@ var DataManager = module.exports = {
               notifications.push(notification.get());
             });
 
-            var attachedViews = [];
-            alert.AlertAttachment.AlertAttachedViews.forEach(function(attachedView){
-              attachedViews.push(attachedView.get());
-            });
-
             var legend = new DataModel.Legend(alert.Legend.get());
 
             var view = alert.View ? new DataModel.View(Object.assign(alert.View.get(), {
@@ -4600,7 +4594,7 @@ var DataManager = module.exports = {
               legend: legend,
               view: view,
               dataSeries: alert.DataSery ? new DataModel.DataSeries(alert.DataSery.get()) : {},
-              attachedViews: attachedViews
+              alertAttachment: (alert.AlertAttachment ? alert.AlertAttachment.get() : null)
             }));
             return alertModel;
           }))
@@ -4675,14 +4669,14 @@ var DataManager = module.exports = {
         where: restriction || {},
         include: [
           {
+            model: models.db.Alert
+          },
+          {
             model: models.db.AlertAttachedView,
             order: [
               ['layer_order', 'ASC']
             ],
             include: [
-              {
-                model: models.db.Alert
-              },
               {
                 model: models.db.View,
                 include: [

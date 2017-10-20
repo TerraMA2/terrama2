@@ -42,6 +42,7 @@
 <script>
   var configuration = {
     alert: {[ alert|json|safe ]},
+    alertAttachment: {[ alertAttachment|json|safe ]},
     alertAttachedViews: {[ alertAttachedViews|json|safe ]},
     views: {[ views|json|safe ]},
     disablePDF: {[ disablePDF ]},
@@ -499,7 +500,43 @@
     <terrama2-box title="i18n.__('Attach Views')" css="ctrl.css" ng-if="ctrl.alert.hasView && ctrl.attachViews">
       <form name="forms.viewForm">
         <div class="row">
-          <div class="col-md-4"></div>
+          <div class="col-md-8">
+            <div class="col-md-6">
+              <div class="form-group" terrama2-show-errors>
+                <label><span ng-bind="i18n.__('X min')">:</span></label>
+                <input class="form-control" name="x_min" ng-model="ctrl.alertAttachment.x_min" placeholder="{{ i18n.__('X min') }}" type="text" required>
+                <span class="help-block" ng-show="forms.alertAttachment.x_min.$dirty && forms.alertAttachment.x_min.$invalid" ng-class="{'has-error': alertAttachment.x_min.$invalid}" ng-bind="i18n.__('X min is required')"></span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group" terrama2-show-errors>
+                <label><span ng-bind="i18n.__('X max')">:</span></label>
+                <input class="form-control" name="x_max" ng-model="ctrl.alertAttachment.x_max" placeholder="{{ i18n.__('X max') }}" type="text" required>
+                <span class="help-block" ng-show="forms.alertAttachment.x_max.$dirty && forms.alertAttachment.x_max.$invalid" ng-class="{'has-error': alertAttachment.x_max.$invalid}" ng-bind="i18n.__('X max is required')"></span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group" terrama2-show-errors>
+                <label><span ng-bind="i18n.__('Y min')">:</span></label>
+                <input class="form-control" name="y_min" ng-model="ctrl.alertAttachment.y_min" placeholder="{{ i18n.__('Y min') }}" type="text" required>
+                <span class="help-block" ng-show="forms.alertAttachment.y_min.$dirty && forms.alertAttachment.y_min.$invalid" ng-class="{'has-error': alertAttachment.y_min.$invalid}" ng-bind="i18n.__('Y min is required')"></span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group" terrama2-show-errors>
+                <label><span ng-bind="i18n.__('Y max')">:</span></label>
+                <input class="form-control" name="y_max" ng-model="ctrl.alertAttachment.y_max" placeholder="{{ i18n.__('Y max') }}" type="text" required>
+                <span class="help-block" ng-show="forms.alertAttachment.y_max.$dirty && forms.alertAttachment.y_max.$invalid" ng-class="{'has-error': alertAttachment.y_max.$invalid}" ng-bind="i18n.__('Y max is required')"></span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group" terrama2-show-errors>
+                <label><span ng-bind="i18n.__('Projection SRID')">:</span></label>
+                <input class="form-control" name="srid" ng-model="ctrl.alertAttachment.srid" placeholder="{{ i18n.__('Projection SRID') }}" type="text" required>
+                <span class="help-block" ng-show="forms.alertAttachment.srid.$dirty && forms.alertAttachment.srid.$invalid" ng-class="{'has-error': alertAttachment.srid.$invalid}" ng-bind="i18n.__('Projection SRID is required')"></span>
+              </div>
+            </div>
+          </div>
           <div class="col-md-4">
             <button type="button" class="btn btn-primary pull-right" ng-click="ctrl.newAttachedView()" id="newAttachedViewBtn" ng-disabled="ctrl.viewsToAttach.length === 0"><i class="fa fa-plus"></i></button>
             <table class="table table-striped" id="attachedViewsTable">
@@ -531,7 +568,6 @@
               </tbody>
             </table>
           </div>
-          <div class="col-md-4"></div>
         </div>
       </form>
     </terrama2-box>
