@@ -5,7 +5,6 @@
   "scripts": {
     "start": "grunt && node ./bin/www",
     "test": "mocha --timeout 5000 tests",
-    "bower": "bower",
     "grunt": "grunt"
   },
   "bin": {
@@ -16,7 +15,6 @@
     "bcrypt": "^0.8.5",
     "bluebird": "^3.3.4",
     "body-parser": "~1.13.2",
-    "bower": "^1.7.9",
     "child_process": "^1.0.2",
     "clone": "^2.1.1",
     "connect-flash": "^0.1.1",
@@ -36,7 +34,6 @@
     "grunt-contrib-requirejs": "^1.0.0",
     "grunt-contrib-watch": "^1.0.0",
     "i18n": "0.8.1",
-    "i18n-node-angular": "^1.4.0",
     "lodash": "4.6.1",
     "method-override": "^2.3.5",
     "mocha": "^2.4.5",
@@ -58,6 +55,34 @@
     "ssh2": "^0.5.0",
     "swig": "1.4.2",
     "unzip": "^0.1.11",
-    "winston": "^2.3.0"
+    "winston": "^2.3.0",
+
+    "jquery": "=2.2.4",
+    "angular": "=1.6.5",
+    "angular-schema-form": "=0.8.13",
+    "jquery-ui": "=1.12.1",
+    "angular-tree-control": "=0.2.28",
+    "font-awesome": "=4.6.3",
+    "jquery.inputmask": "=3.3.4",
+    "moment": "=2.18.1",
+    "chart.js": "=2.6.0",
+    "datatables": "=1.10.13",
+    "eonasdan-bootstrap-datetimepicker": "=4.17.47",
+    "intl-tel-input": "=9.2.7",
+    "angular-wizard": "=0.9.0",
+    "angular-ui-router": "=0.4.2",
+    "i18n-node-angular": "=1.4.0",
+    "angular-xeditable": "=0.4.0",
+    "fastclick": "=1.0.6",
+    "ace-builds": "=1.2.8",
+    "admin-lte": "=2.3.0",
+    "angularjs-color-picker": "=3.4.8",
+    "angular-eonasdan-datetimepicker": "=0.3.9",
+    "almond": "=0.3.3",
+    "ui-select": "=0.19.8",
+    "angular-animate": "=1.6.6",
+    "angular-aria": "=1.6.6",
+    "angular-material": "=1.1.4",
+    "ng-file-upload": "=12.2.13"
   }
 }
