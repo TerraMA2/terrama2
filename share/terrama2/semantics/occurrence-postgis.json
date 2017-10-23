@@ -18,11 +18,13 @@
           },
           "timestamp_property": {
             "type": "string",
-            "title": "Timestamp property"
+            "title": "Timestamp property",
+            "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
           },
           "geometry_property": {
             "type": "string",
-            "title": "Geometry property"
+            "title": "Geometry property",
+            "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
           }
         },
         "required": ["table_name", "timestamp_property", "geometry_property"]
@@ -37,11 +39,17 @@
         },
         {
           "key": "timestamp_property",
-          "htmlClass": "col-md-12 terrama2-schema-form"
+          "htmlClass": "col-md-12 terrama2-schema-form",
+          "validationMessage": {
+            "202": "Invalid column name"
+          }
         },
         {
           "key": "geometry_property",
-          "htmlClass": "col-md-12 terrama2-schema-form"
+          "htmlClass": "col-md-12 terrama2-schema-form",
+          "validationMessage": {
+            "202": "Invalid column name"
+          }
         }
       ]
     }

@@ -146,7 +146,8 @@ define([], function () {
         $scope.$broadcast("schemaFormRedraw");
       }
     }
-
+    // Regex to valide column name of style
+    self.regexColumn = "^[a-zA-Z_][a-zA-Z0-9_]*$";
     self.changeColorType = function(){
       if (self.model.type == 1){
         self.minColorsLength = 2;

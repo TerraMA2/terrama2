@@ -60,11 +60,16 @@
                 name="column" 
                 ng-model="$ctrl.model.metadata.column" 
                 type="text"
+                ng-pattern="$ctrl.regexColumn"
                 ng-required="$ctrl.type === $ctrl.DataSeriesType.GEOMETRIC_OBJECT || $ctrl.type === $ctrl.DataSeriesType.OCCURRENCE || $ctrl.type === $ctrl.DataSeriesType.ANALYSIS_MONITORED_OBJECT">
 
           <span class="help-block" 
             ng-show="$ctrl.formCtrl.column.$dirty && $ctrl.formCtrl.column.$error.required"
             ng-bind="$ctrl.i18n.__('Column is required')">
+          </span>
+          <span class="help-block" 
+            ng-show="$ctrl.formCtrl.column.$dirty && $ctrl.formCtrl.column.$invalid && !$ctrl.formCtrl.column.$error.required"
+            ng-bind="$ctrl.i18n.__('Column value is invalid')">
           </span>
         </div>
         <!-- ./Column -->
