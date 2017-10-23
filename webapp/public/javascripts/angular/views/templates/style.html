@@ -60,6 +60,7 @@
                 name="column" 
                 ng-model="$ctrl.model.metadata.column" 
                 type="text"
+                list='tableColumnsList'
                 ng-required="$ctrl.type === $ctrl.DataSeriesType.GEOMETRIC_OBJECT || $ctrl.type === $ctrl.DataSeriesType.OCCURRENCE || $ctrl.type === $ctrl.DataSeriesType.ANALYSIS_MONITORED_OBJECT">
 
           <span class="help-block" 
@@ -233,3 +234,7 @@
     </div>
   </div>
 </div>
+
+<datalist id='tableColumnsList'>
+  <option ng-repeat="column in $ctrl.columnsList" value="{{column}}">
+</datalist>
