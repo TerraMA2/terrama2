@@ -4223,7 +4223,9 @@ var DataManager = module.exports = {
         }, options))
 
         .then(function() {
-          return resolve();
+          self.getAlertAttachment(restriction).then(function(alertAttachment) {
+            return resolve(new DataModel.AlertAttachment(Object.assign(alertAttachment.get(), {})));
+          });
         })
 
         .catch(function(err) {
@@ -4594,7 +4596,7 @@ var DataManager = module.exports = {
               legend: legend,
               view: view,
               dataSeries: alert.DataSery ? new DataModel.DataSeries(alert.DataSery.get()) : {},
-              alertAttachment: (alert.AlertAttachment ? alert.AlertAttachment.get() : null)
+              attachment: alert.AlertAttachment ? new DataModel.AlertAttachment(alert.AlertAttachment.get()) : {}
             }));
             return alertModel;
           }))

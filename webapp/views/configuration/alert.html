@@ -383,7 +383,8 @@
                         name="attachViews"
                         ng-model="ctrl.attachViews"
                         ng-true-value="true"
-                        ng-false-value="false"> <span ng-bind="i18n.__('Attach Views')"></span>
+                        ng-false-value="false"
+                        ng-change="ctrl.attachViewsChange()"> <span ng-bind="i18n.__('Attach Views')"></span>
               </label>
             </div>
           </div>
@@ -490,42 +491,42 @@
     </terrama2-box>
 
     <terrama2-box title="i18n.__('Attach Views')" css="ctrl.css" ng-if="ctrl.alert.hasView && ctrl.attachViews">
-      <form name="forms.viewForm">
+      <form name="forms.alertAttachmentForm">
         <div class="row">
           <div class="col-md-8">
             <div class="col-md-6">
               <div class="form-group" terrama2-show-errors>
                 <label><span ng-bind="i18n.__('X min')">:</span></label>
-                <input class="form-control" name="x_min" ng-model="ctrl.alertAttachment.x_min" placeholder="{{ i18n.__('X min') }}" type="text" required>
-                <span class="help-block" ng-show="forms.alertAttachment.x_min.$dirty && forms.alertAttachment.x_min.$invalid" ng-class="{'has-error': alertAttachment.x_min.$invalid}" ng-bind="i18n.__('X min is required')"></span>
+                <input class="form-control" name="x_min" ng-model="ctrl.alertAttachment.x_min" placeholder="{{ i18n.__('X min') }}" type="number" required>
+                <span class="help-block" ng-show="forms.alertAttachmentForm.x_min.$dirty && forms.alertAttachmentForm.x_min.$invalid" ng-class="{'has-error': alertAttachment.x_min.$invalid}" ng-bind="i18n.__('X min is required')"></span>
               </div>
             </div>
             <div class="col-md-6">
               <div class="form-group" terrama2-show-errors>
                 <label><span ng-bind="i18n.__('X max')">:</span></label>
-                <input class="form-control" name="x_max" ng-model="ctrl.alertAttachment.x_max" placeholder="{{ i18n.__('X max') }}" type="text" required>
-                <span class="help-block" ng-show="forms.alertAttachment.x_max.$dirty && forms.alertAttachment.x_max.$invalid" ng-class="{'has-error': alertAttachment.x_max.$invalid}" ng-bind="i18n.__('X max is required')"></span>
+                <input class="form-control" name="x_max" ng-model="ctrl.alertAttachment.x_max" placeholder="{{ i18n.__('X max') }}" type="number" required>
+                <span class="help-block" ng-show="forms.alertAttachmentForm.x_max.$dirty && forms.alertAttachmentForm.x_max.$invalid" ng-class="{'has-error': alertAttachment.x_max.$invalid}" ng-bind="i18n.__('X max is required')"></span>
               </div>
             </div>
             <div class="col-md-6">
               <div class="form-group" terrama2-show-errors>
                 <label><span ng-bind="i18n.__('Y min')">:</span></label>
-                <input class="form-control" name="y_min" ng-model="ctrl.alertAttachment.y_min" placeholder="{{ i18n.__('Y min') }}" type="text" required>
-                <span class="help-block" ng-show="forms.alertAttachment.y_min.$dirty && forms.alertAttachment.y_min.$invalid" ng-class="{'has-error': alertAttachment.y_min.$invalid}" ng-bind="i18n.__('Y min is required')"></span>
+                <input class="form-control" name="y_min" ng-model="ctrl.alertAttachment.y_min" placeholder="{{ i18n.__('Y min') }}" type="number" required>
+                <span class="help-block" ng-show="forms.alertAttachmentForm.y_min.$dirty && forms.alertAttachmentForm.y_min.$invalid" ng-class="{'has-error': alertAttachment.y_min.$invalid}" ng-bind="i18n.__('Y min is required')"></span>
               </div>
             </div>
             <div class="col-md-6">
               <div class="form-group" terrama2-show-errors>
                 <label><span ng-bind="i18n.__('Y max')">:</span></label>
-                <input class="form-control" name="y_max" ng-model="ctrl.alertAttachment.y_max" placeholder="{{ i18n.__('Y max') }}" type="text" required>
-                <span class="help-block" ng-show="forms.alertAttachment.y_max.$dirty && forms.alertAttachment.y_max.$invalid" ng-class="{'has-error': alertAttachment.y_max.$invalid}" ng-bind="i18n.__('Y max is required')"></span>
+                <input class="form-control" name="y_max" ng-model="ctrl.alertAttachment.y_max" placeholder="{{ i18n.__('Y max') }}" type="number" required>
+                <span class="help-block" ng-show="forms.alertAttachmentForm.y_max.$dirty && forms.alertAttachmentForm.y_max.$invalid" ng-class="{'has-error': alertAttachment.y_max.$invalid}" ng-bind="i18n.__('Y max is required')"></span>
               </div>
             </div>
             <div class="col-md-6">
               <div class="form-group" terrama2-show-errors>
                 <label><span ng-bind="i18n.__('Projection SRID')">:</span></label>
-                <input class="form-control" name="srid" ng-model="ctrl.alertAttachment.srid" placeholder="{{ i18n.__('Projection SRID') }}" type="text" required>
-                <span class="help-block" ng-show="forms.alertAttachment.srid.$dirty && forms.alertAttachment.srid.$invalid" ng-class="{'has-error': alertAttachment.srid.$invalid}" ng-bind="i18n.__('Projection SRID is required')"></span>
+                <input class="form-control" name="srid" ng-model="ctrl.alertAttachment.srid" placeholder="{{ i18n.__('Projection SRID') }}" type="number" required>
+                <span class="help-block" ng-show="forms.alertAttachmentForm.srid.$dirty && forms.alertAttachmentForm.srid.$invalid" ng-class="{'has-error': alertAttachment.srid.$invalid}" ng-bind="i18n.__('Projection SRID is required')"></span>
               </div>
             </div>
           </div>
@@ -534,7 +535,7 @@
             <table class="table table-striped" id="attachedViewsTable">
               <tbody ng-if="ctrl.attachedViews.length === 0">
                 <tr>
-                  <td colspan="3" id="noViewsAttached" ng-bind="i18n.__('No view attached.')"></td>
+                  <td colspan="3" id="noViewsAttached" ng-bind="i18n.__('No views attached.')"></td>
                 </tr>
               </tbody>
               <tbody ng-if="ctrl.attachedViews.length > 0" sv-root sv-part="ctrl.attachedViews" sv-on-start="ctrl.startSort($item, $part, $index, $helper)">

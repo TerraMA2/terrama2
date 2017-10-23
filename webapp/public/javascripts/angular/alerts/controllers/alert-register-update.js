@@ -159,7 +159,7 @@ define([], function() {
      * 
      * @type {boolean}
      */
-    self.attachViews = true;
+    self.attachViews = (self.isUpdating ? !!config.alertAttachment : true);
 
     /**
      * Views available to be attached
@@ -186,13 +186,13 @@ define([], function() {
      * 
      * @type {object}
      */
-    self.alertAttachment = config.alertAttachment || {
+    self.alertAttachment = (self.isUpdating ? config.alertAttachment : {
       y_max: null,
       y_min: null,
       x_max: null,
       x_min: null,
       srid: null
-    };
+    });
 
     /**
      * Current width of views selects
@@ -828,6 +828,34 @@ define([], function() {
     };
 
     /**
+     * Attach views change event.
+     * 
+     * @returns {void}
+     */
+    self.attachViewsChange = function() {
+      if(self.attachViews) {
+        self.alertAttachment = {
+          y_max: null,
+          y_min: null,
+          x_max: null,
+          x_min: null,
+          srid: null
+        };
+
+        self.attachedViews = [
+          {
+            _id: "alertView",
+            view: null,
+            viewName: null
+          }
+        ];
+      } else {
+        self.alertAttachment = null;
+        self.attachedViews = [];
+      }
+    };
+
+    /**
      * Saves the alert.
      * 
      * @returns {void}
@@ -864,7 +892,7 @@ define([], function() {
       }
 
       $timeout(function() {
-        if($scope.forms.alertForm.$invalid || $scope.forms.dataSeriesForm.$invalid || $scope.forms.legendLevel.$invalid || $scope.forms.reportForm.$invalid || $scope.forms.notificationForm.$invalid) {
+        if($scope.forms.alertForm.$invalid || $scope.forms.dataSeriesForm.$invalid || $scope.forms.legendLevel.$invalid || $scope.forms.reportForm.$invalid || $scope.forms.notificationForm.$invalid || ($scope.forms.alertAttachmentForm && $scope.forms.alertAttachmentForm.$invalid)) {
           self.MessageBoxService.danger(i18n.__("Alerts"), errMessageInvalidFields);
           return;
         }
@@ -927,7 +955,6 @@ define([], function() {
         if(!self.notifyOnLegendLevel && self.alert.notifications[0].notify_on_legend_level !== undefined)
           self.alert.notifications[0].notify_on_legend_level = null;
 
-        
         if (self.alert.schedule && Object.keys(self.alert.schedule).length !== 0) {
           self.alert.schedule_type = self.alert.schedule.scheduleType;
           /**

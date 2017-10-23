@@ -210,6 +210,7 @@ Alert.prototype.toObject = function() {
     notifications: this.notifications,
     report_metadata: this.report_metadata,
     view: this.view instanceof BaseClass ? this.view.toObject() : this.view,
+    attachment: this.attachment instanceof BaseClass ? this.attachment.toObject() : this.attachment,
   });
 };
 

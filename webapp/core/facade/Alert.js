@@ -411,7 +411,7 @@
               });
             });
           } else if(dbAlertAttachment && alertObject.alertAttachment) {
-            DataManager.updateAlertAttachment({ id: alertObject.alertAttachment.id }, alertObject.alertAttachment).then(function() {
+            DataManager.updateAlertAttachment({ id: alertObject.alertAttachment.id }, alertObject.alertAttachment).then(function(alertAttachment) {
               var attachedViewsPromises = [];
 
               for(var j = 0, dbAlertAttachedViewsLength = dbAlertAttachment.AlertAttachedViews.length; j < dbAlertAttachedViewsLength; j++) {

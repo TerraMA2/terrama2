@@ -58,7 +58,7 @@
      * @name Alert#attachedViews
      * @type {array}
      */
-    this.attachedViews = params.attachedViews || [];
+    this.attachedViews = params.AlertAttachedViews || [];
   };
 
   AlertAttachment.prototype = Object.create(BaseClass.prototype);
@@ -66,6 +66,30 @@
 
   AlertAttachment.prototype.setAttachedViews = function(attachedViews) {
     this.attachedViews = attachedViews;
+  };
+
+  AlertAttachment.prototype.toObject = function() {
+    var attachedViewsArray = [];
+
+    this.attachedViews.forEach(function(attachedView) {
+      attachedViewsArray.push({
+        id: attachedView.dataValues.id,
+        layer_order: attachedView.dataValues.layer_order,
+        alert_attachment_id: attachedView.dataValues.alert_attachment_id,
+        view_id: attachedView.dataValues.view_id
+      });
+    });
+
+    return Object.assign(BaseClass.prototype.toObject.call(this), {
+      id: this.id,
+      y_max: this.y_max,
+      y_min: this.y_min,
+      x_max: this.x_max,
+      x_min: this.x_min,
+      srid: this.srid,
+      alert_id: this.alert_id,
+      attachedViews: attachedViewsArray
+    });
   };
 
   AlertAttachment.prototype.rawObject = function() {
@@ -113,18 +137,21 @@
           );
         }
 
-        for(var i = 0, attachedViewsLength = this.attachedViews.length; i < attachedViewsLength; i++) {
-          serviceAttachedViews.push(
-            {
-              view_id: this.attachedViews[i].View.dataValues.id,
-              workspace: "terrama2_" + this.attachedViews[i].View.dataValues.id // It's hardcoded now, but that isn't right, in the future this should come from the database
-            }
-          );
-        }
-
         viewObject.geoserver_uri = uri + "/ows";
-        viewObject.layers = serviceAttachedViews;
+      } else {
+        viewObject.geoserver_uri = null;
       }
+
+      for(var i = 0, attachedViewsLength = this.attachedViews.length; i < attachedViewsLength; i++) {
+        serviceAttachedViews.push(
+          {
+            view_id: this.attachedViews[i].View.dataValues.id,
+            workspace: "terrama2_" + this.attachedViews[i].View.dataValues.id // It's hardcoded now, but that isn't right, in the future this should come from the database
+          }
+        );
+      }
+
+      viewObject.layers = serviceAttachedViews;
     }
 
     return Object.assign({}, viewObject);
