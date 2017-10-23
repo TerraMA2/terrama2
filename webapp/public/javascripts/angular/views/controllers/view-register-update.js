@@ -120,7 +120,7 @@ define([], function() {
      */
     var applyStyleDCPBehavior = function(){
       self.legend.metadata.creation_type = "editor";
-      self.legend.type = 1; // default is gradient
+      self.legend.type = 2; // default is interval
       $scope.$broadcast('updateCreationType');
     };
 
