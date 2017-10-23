@@ -89,7 +89,7 @@ int main(int argc, char* argv[])
     dataManager->add(dataProviderResult);
 
 
-    auto outputDataSeries = terrama2::resultanalysis::resultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::dcp_result);
+    auto outputDataSeries = terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::dcp_result);
     dataManager->add(outputDataSeries);
 
    std::string script =
@@ -150,7 +150,7 @@ add_value("standard_deviation", x))z";
 
 
 
-    auto dcpSeriesSerrMar = terrama2::serramar::dcpSerramar(dataProviderDCPSerrmar);
+    auto dcpSeriesSerrMar = terrama2::serramar::dataSeriesDcpSerramar(dataProviderDCPSerrmar);
     dataManager->add(dcpSeriesSerrMar);
 
     AnalysisDataSeries dcpADS;

@@ -83,7 +83,7 @@ int main(int argc, char* argv[])
         auto dataProvider = terrama2::resultanalysis::dataProviderResultAnalysis();
         dataManager->add(dataProvider);
 
-        auto dataSeriesResult = terrama2::resultanalysis::resultAnalysisPostGis(dataProvider, terrama2::resultanalysis::tablename::analysis_dcp_result);
+        auto dataSeriesResult = terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProvider, terrama2::resultanalysis::tablename::analysis_dcp_result);
         dataManager->add(dataSeriesResult);
 
 
@@ -112,7 +112,7 @@ add_value("max", x))z";
         auto dataProviderDCP = terrama2::serramar::dataProviderPostGisDCP();
         dataManager->add(dataProviderDCP);
 
-        auto dcpSerramar = terrama2::serramar::dcpSerramarPostgis(dataProviderDCP);
+        auto dcpSerramar = terrama2::serramar::dataSeriesDcpSerramarPostGis(dataProviderDCP);
         dataManager->add(dcpSerramar);
 
         AnalysisDataSeries dcpADS;

@@ -33,14 +33,8 @@ if arg == 'remove':
     path = "@TERRAMA2_DESTINATION@webapp/node_modules"
     if os.path.isdir(path):
         shutil.rmtree(path, ignore_errors=True, onerror=None)
-    path = "@TERRAMA2_DESTINATION@webapp/bower_components"
-    if os.path.isdir(path):
-        shutil.rmtree(path, ignore_errors=True, onerror=None)
 
     path = "@TERRAMA2_DESTINATION@webmonitor/node_modules"
-    if os.path.isdir(path):
-        shutil.rmtree(path, ignore_errors=True, onerror=None)
-    path = "@TERRAMA2_DESTINATION@webmonitor/bower_components"
     if os.path.isdir(path):
         shutil.rmtree(path, ignore_errors=True, onerror=None)
 

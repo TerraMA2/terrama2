@@ -5,7 +5,7 @@ define([], function() {
    * It represents a Controller to handle View form registration.
    * @class ViewRegistration
    */
-  function ViewRegisterUpdate($scope, i18n, ViewService, $log, $http, $timeout, MessageBoxService, $window, DataSeriesService, Service, StringFormat, ColorFactory, StyleType, Socket) {
+  function ViewRegisterUpdate($scope, $q, i18n, ViewService, $log, $http, $timeout, MessageBoxService, $window, DataSeriesService, Service, StringFormat, ColorFactory, StyleType, Socket) {
     /**
      * @type {ViewRegisterUpdate}
      */
@@ -414,6 +414,10 @@ define([], function() {
           }
           self.view.source_type = getSourceType(dSeries);
 
+          if (dSeries.data_series_semantics.format == "POSTGIS"){
+            listColumns(dSeries.data_provider, dSeries.dataSets[0].format.table_name);
+          }
+
           // breaking loop
           return true;
         }
@@ -425,6 +429,70 @@ define([], function() {
     function closeDialog() {
       self.MessageBoxService.reset();
     }
+
+    /**
+     * Lists the columns from a given table.
+     * 
+     * @returns {void}
+     */
+    var listColumns = function(dataProvider, tableName) {
+      var result = $q.defer();
+
+      var params = getPostgisUriInfo(dataProvider.uri);
+      params.objectToGet = "column";
+      params.table_name = tableName;
+
+      var httpRequest = $http({
+        method: "GET",
+        url: BASE_URL + "uri/",
+        params: params
+      });
+
+      httpRequest.then(function(response) {
+        self.columnsList = response.data.data.map(function(item, index) {
+          return item.column_name;
+        });
+
+        result.resolve(response.data.data);
+      });
+
+      httpRequest.catch(function(err) {
+        result.reject(err);
+      });
+
+      return result.promise;
+    };
+
+    /**
+     * Helper function to parse a PostGIS URI.
+     * 
+     * @returns {object}
+     */
+    var getPostgisUriInfo = function(uri) {
+      var params = {};
+      params.protocol = uri.split(':')[0];
+      var hostData = uri.split('@')[1];
+
+      if(hostData) {
+        params.hostname = hostData.split(':')[0];
+        params.port = hostData.split(':')[1].split('/')[0];
+        params.database = hostData.split('/')[1];
+      }
+
+      var auth = uri.split('@')[0];
+
+      if(auth) {
+        var userData = auth.split('://')[1];
+
+        if(userData) {
+          params.user = userData.split(':')[0];
+          params.password = userData.split(':')[1];
+        }
+      }
+
+      return params;
+    };
+
     /**
      * It performs a save operation. It applies a form validation and try to save
      * @param {boolean} shouldRun - Determines if service should auto-run after save process
@@ -543,7 +611,7 @@ define([], function() {
     }
   }
 
-  ViewRegisterUpdate.$inject = ["$scope", "i18n", "ViewService", "$log", "$http", "$timeout", "MessageBoxService", "$window",
+  ViewRegisterUpdate.$inject = ["$scope", "$q", "i18n", "ViewService", "$log", "$http", "$timeout", "MessageBoxService", "$window",
     "DataSeriesService", "Service", "StringFormat", "ColorFactory", "StyleType", "Socket"];
 
   return ViewRegisterUpdate;

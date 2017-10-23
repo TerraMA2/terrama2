@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
 
 
     //DataSeries information
-    auto outputDataSeries_History = terrama2::geotiff::resultAnalysisGrid(dataProvider, terrama2::geotiff::nameoutputgrid::output_history);
+    auto outputDataSeries_History = terrama2::geotiff::dataSeriesResultAnalysisGrid(dataProvider, terrama2::geotiff::nameoutputgrid::output_history);
     dataManager->add(outputDataSeries_History);
 
 
