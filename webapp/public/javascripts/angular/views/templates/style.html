@@ -55,16 +55,16 @@
     <div class="col-md-6 terrama2-nopadding-box">
       <div class="col-md-12" ng-if="$ctrl.type === $ctrl.DataSeriesType.GEOMETRIC_OBJECT || $ctrl.type === $ctrl.DataSeriesType.OCCURRENCE || $ctrl.type === $ctrl.DataSeriesType.ANALYSIS_MONITORED_OBJECT">
         <div class="form-group" terrama2-show-errors>
-          <label><span ng-bind="$ctrl.i18n.__('Column')"></span>:</label>
+          <label><span ng-bind="$ctrl.i18n.__('Attribute')"></span>:</label>
           <input class="form-control" 
-                name="column" 
-                ng-model="$ctrl.model.metadata.column" 
+                name="attribute" 
+                ng-model="$ctrl.model.metadata.attribute" 
                 type="text"
                 ng-required="$ctrl.type === $ctrl.DataSeriesType.GEOMETRIC_OBJECT || $ctrl.type === $ctrl.DataSeriesType.OCCURRENCE || $ctrl.type === $ctrl.DataSeriesType.ANALYSIS_MONITORED_OBJECT">
 
           <span class="help-block" 
-            ng-show="$ctrl.formCtrl.column.$dirty && $ctrl.formCtrl.column.$error.required"
-            ng-bind="$ctrl.i18n.__('Column is required')">
+            ng-show="$ctrl.formCtrl.attribute.$dirty && $ctrl.formCtrl.attribute.$error.required"
+            ng-bind="$ctrl.i18n.__('Attribute is required')">
           </span>
         </div>
         <!-- ./Column -->
@@ -86,7 +86,7 @@
         </div>
       </div>
       <!-- ./col-md-6 Type -->
-      <div class="col-md-6"ng-if="$ctrl.type === $ctrl.DataSeriesType.DCP" >
+      <div class="col-md-6" ng-if="$ctrl.type === $ctrl.DataSeriesType.DCP" >
         <div class="form-group"  terrama2-show-errors>
           <label><span ng-bind="$ctrl.i18n.__('Attribute')"></span>:</label>
           <input class="form-control" 
