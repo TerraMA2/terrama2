@@ -296,9 +296,13 @@
   <!-- Internationalization -->
   <script src="{[ BASE_URL ]}externals/i18n-node-angular/i18n-node-angular.js"></script>
   <!-- ng-file-upload -->
-  <script src="{[ BASE_URL ]}externals/ng-file-upload/ng-file-upload.min.js"></script>
+<<<<<<< HEAD
+  <script src="{[ BASE_URL ]}bower_components/ng-file-upload/ng-file-upload.min.js"></script>
   <!-- angular-sortable-view -->
-  <script src="{[ BASE_URL ]}externals/angular-sortable-view/src/angular-sortable-view.min.js"></script>
+  <script src="{[ BASE_URL ]}bower_components/angular-sortable-view/src/angular-sortable-view.min.js"></script>
+=======
+  <script src="{[ BASE_URL ]}externals/ng-file-upload/ng-file-upload.min.js"></script>
+>>>>>>> upstream/master
   <!-- Socket.io -->
   <script type="text/javascript" src="{[ BASE_URL ]}socket.io/socket.io.js"></script>
 

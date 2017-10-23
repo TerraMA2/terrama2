@@ -65,8 +65,13 @@ app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 app.use(methodOverride('_method'));
 
-app.use(app.locals.BASE_URL + 'bower_components', express.static('bower_components'));
 app.use(app.locals.BASE_URL, express.static(path.join(__dirname, 'public')));
+
+var externals = JSON.parse(fs.readFileSync(path.join(__dirname, './externals.json'), 'utf8'));
+
+externals.forEach(function(external) {
+  app.use(app.locals.BASE_URL + external.publicUrl, express.static(path.join(__dirname, external.path)));
+});
 
 passport.setupPassport(app);
 

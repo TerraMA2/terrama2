@@ -7,37 +7,29 @@
 {% block styles %}
 
 <!-- Bootstrap Eonasdan datatimepicker (used in TerraMA² datetimepicker wrapper) -->
-<link rel="stylesheet" href="{[ BASE_URL ]}bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css">
-<link rel="stylesheet" href="{[ BASE_URL ]}bower_components/angular-ui-select/dist/select.min.css" />
+<link rel="stylesheet" href="{[ BASE_URL ]}externals/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css">
+<link rel="stylesheet" href="{[ BASE_URL ]}externals/angular-ui-select/dist/select.min.css" />
 
 <!-- Angular Color Picker -->
-<link rel="stylesheet" href="{[ BASE_URL ]}bower_components/angular-color-picker/dist/angularjs-color-picker.min.css" />
-<link rel="stylesheet" href="{[ BASE_URL ]}bower_components/angular-ui-select/dist/select.min.css" />
+<link rel="stylesheet" href="{[ BASE_URL ]}externals/angular-color-picker/dist/angularjs-color-picker.min.css" />
 
 {% endblock %}
 
 {% block javascripts %}
 <!-- Moment Datetime JS -->
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/moment.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/moment/moment.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/moment/locale/pt-br.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/moment/locale/es.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/moment/locale/fr.js"></script>
+
 <!-- Bootstrap datetimepicker -->
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
-
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/pt-br.js"></script>
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/es.js"></script>
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/fr.js"></script>
-
-<!-- Moment Datetime JS -->
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/moment.js"></script>
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/pt-br.js"></script>
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/es.js"></script>
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/fr.js"></script>
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/angular-eonasdan-datetimepicker/dist/angular-eonasdan-datetimepicker.min.js"></script>
-<script src="{[ BASE_URL ]}bower_components/angular-ui-select/dist/select.min.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/angular-eonasdan-datetimepicker/dist/angular-eonasdan-datetimepicker.min.js"></script>
+<script src="{[ BASE_URL ]}externals/angular-ui-select/dist/select.min.js"></script>
 
 <!-- Angular Color Picker -->
-<script src="{[ BASE_URL ]}bower_components/tinycolor/dist/tinycolor-min.js"></script>
-<script src="{[ BASE_URL ]}bower_components/angular-color-picker/dist/angularjs-color-picker.min.js"></script>
-<script src="{[ BASE_URL ]}bower_components/angular-ui-select/dist/select.min.js"></script>
+<script src="{[ BASE_URL ]}externals/tinycolor/dist/tinycolor-min.js"></script>
+<script src="{[ BASE_URL ]}externals/angular-color-picker/dist/angularjs-color-picker.min.js"></script>
 
 <script>
   var configuration = {
@@ -289,32 +281,32 @@
           </div>
           <span ng-repeat="level in ctrl.legendModel.levels track by $index">
             <div class="col-md-12 row">
-              <div ng-class="{'col-md-6': !ctrl.alert.hasView, 'col-md-4': ctrl.alert.hasView}">
+              <div ng-class="{'col-md-6 terrama2-min-padding': !ctrl.alert.hasView, 'col-md-4 terrama2-min-padding': ctrl.alert.hasView}">
                 <div class="form-group" ng-class="{'has-error': ctrl.legendLevelNameError[level._id]}">
                   <label><span ng-bind="i18n.__(level.isDefault ? 'Default Level Name' : 'Level Name')"></span>:</label>
                   <input class="form-control" name="levelName{{ level._id }}" ng-model="level.name" type="text" placeholder="{{ i18n.__('Level Name') }}">
                 </div>
               </div>
-              <div ng-class="{'col-md-5': !ctrl.alert.hasView, 'col-md-3': ctrl.alert.hasView}">
+              <div ng-class="{'col-md-5 terrama2-min-padding': !ctrl.alert.hasView, 'col-md-3 terrama2-min-padding': ctrl.alert.hasView}">
                 <div ng-show="!level.isDefault" class="form-group" ng-class="{'has-error': ctrl.legendLevelValueError[level._id] || ctrl.legendLevelOrderError}">
                   <label><span ng-bind="i18n.__('Legend Value')"></span>:</label>
                   <input class="form-control" name="levelValue{{ level._id }}" ng-model="level.value" type="number" placeholder="{{ i18n.__('Legend Value') }}">
                 </div>
               </div>
-              <div ng-if="ctrl.alert.hasView" class="col-md-4">
-                <div class="col-md-10">
+              <div ng-if="ctrl.alert.hasView" class="col-md-4 terrama2-nopadding-box">
+                <div class="col-md-8 terrama2-min-padding">
                   <div class="form-group">
                     <label><span ng-bind="i18n.__('Color')"></span>:</label>
                     <color-picker ng-model="ctrl.colors[$index]" options="ctrl.defaultColorOpts" event-api="ctrl.events"></color-picker>
                   </div>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-2 terrama2-min-padding">
                   <div class="form-group">
                     <button type="button" class="btn btn-primary" ng-click="ctrl.rgbaModal($index)" style="margin-top: 25px;">RGBA</button>
                   </div>
                 </div>
               </div>
-              <div class="col-md-1">
+              <div class="col-md-1 terrama2-min-padding">
                 <div ng-show="!level.isDefault" class="form-group">
                   <button type="button" class="btn btn-primary" ng-click="ctrl.removeLevel(level)" style="margin-top: 25px;" ng-show="ctrl.legendModel.levels.length > 1"><span>&times</span></button>
                 </div>

@@ -567,6 +567,13 @@ define([], function() {
      */
     self.rgbaModal = function(index) {
       self.rgba.index = index;
+      var rgbaColor = Utility.hex2rgba(self.colors[index]);
+      if (rgbaColor){
+        self.rgba.r = rgbaColor.r;
+        self.rgba.g = rgbaColor.g;
+        self.rgba.b = rgbaColor.b;
+        self.rgba.a = rgbaColor.a;
+      }
       $("#rgbaModal").modal();
     };
 

@@ -122,10 +122,16 @@
         <!-- i18n flags -->
         <script type="text/javascript" src="{[ BASE_URL ]}externals/intl-tel-input/build/js/intlTelInput.js"></script>
         <!-- Angular JS -->
+<<<<<<< HEAD
+        <script src="{[ BASE_URL ]}bower_components/angular/angular.min.js"></script>
+        <script src="{[ BASE_URL ]}bower_components/i18n-node-angular/i18n-node-angular.js"></script>
+        <!-- angular-sortable-view -->
+        <script src="{[ BASE_URL ]}bower_components/angular-sortable-view/src/angular-sortable-view.min.js"></script>
+=======
         <script src="{[ BASE_URL ]}externals/angular/angular.min.js"></script>
         <script src="{[ BASE_URL ]}externals/i18n-node-angular/i18n-node-angular.js"></script>
-        <!-- angular-sortable-view -->
-        <script src="{[ BASE_URL ]}externals/angular-sortable-view/src/angular-sortable-view.min.js"></script>
+
+>>>>>>> upstream/master
         <script type="text/javascript">
           BASE_URL = "{[ BASE_URL ]}";
         </script>

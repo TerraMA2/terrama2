@@ -26,10 +26,8 @@ Note: This repository contain the entire TerraMA², if you want just the web API
 
 ```bash
 cd webapp
-sudo npm install -g bower # It install bower in system path
 sudo npm install -g grunt-cli # It install grunt in system path
 npm install # It installs backend web dependencies
-bower install # It installs front end dependencies
 grunt # To compile and prepares TerraMA2 FrontEnd app
 ```
 
