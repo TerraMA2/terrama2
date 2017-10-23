@@ -286,7 +286,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
       terrama2::core::DataProviderPtr inputObjectProvider = dataManager->findDataProvider(inputDataSeries->dataProviderId);
 
       auto dcpPositions = DataAccess::getDCPPostgisTableInfo(inputDataSeries, inputObjectProvider);
-      std::string variable = "pluvio";
+      std::string variable = viewPtr->legend->metadata.at("attribute");
       std::string SQL = "SELECT t.id, t.geom, t.timestamp, t.var as "+variable+" from dcp_last_measures('"+dcpPositions.tableName+"', '"+variable+"')"
             "AS t(id integer, geom geometry, \"timestamp\" timestamp with time zone, var double precision)";
 
@@ -429,7 +429,8 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
     // Register style
     std::string styleName = "";
 
-    styleName = inputDataSeries->name + "_style_" + viewPtr->viewName;
+    std::string layerName = generateLayerName(viewPtr->id);
+    styleName = layerName + "_style";
     registerStyle(styleName, *viewPtr->legend.get(), objectType, geomType);
 
     for(auto layer : layersArray)
@@ -787,7 +788,7 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::
     // Configuring SRID on Root XML configuration
     xml += "<srs>EPSG:" + srid + "</srs>";
 
-    metadataSQL = "<entry key=\"JDBC_VIRTUAL_TABLE\">"
+    metadataSQL = "<entry key='JDBC_VIRTUAL_TABLE'>"
                   "<virtualTable>"
                   "<name>"+layerName+"</name>" +
                   "<sql>"+sql+"</sql>" +
@@ -1291,7 +1292,7 @@ std::unique_ptr<te::se::Style> terrama2::services::view::core::GeoServer::genera
         continue;
       }
 
-      std::unique_ptr<te::fe::PropertyName> propertyName (new te::fe::PropertyName(legend.metadata.at("column")));
+      std::unique_ptr<te::fe::PropertyName> propertyName (new te::fe::PropertyName(getAttributeName(legend)));
       std::unique_ptr<te::fe::Literal> value (new te::fe::Literal(legendRule.value));
 
       // Defining OGC Style Filter
@@ -2236,4 +2237,21 @@ std::string terrama2::services::view::core::GeoServer::generateWorkspaceName(con
 std::string terrama2::services::view::core::GeoServer::generateLayerName(const ViewId& id) const
 {
   return "view" + std::to_string(id);
+}
+
+std::string terrama2::services::view::core::GeoServer::getAttributeName(const terrama2::services::view::core::View::Legend& legend) const
+{
+  const auto& metadata = legend.metadata;
+  auto it = metadata.find("attribute");
+  if(it != metadata.end())
+    return it->second;
+
+// retro-compatibility
+  it = metadata.find("column");
+  if(it != metadata.end())
+    return it->second;
+
+  QString errMsg = QObject::tr("No legend attribute defined.");
+  TERRAMA2_LOG_ERROR() << errMsg;
+  throw Exception() << ErrorDescription(errMsg);
 }

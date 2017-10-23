@@ -412,6 +412,8 @@ namespace terrama2
              */
             std::string generateLayerName(const ViewId& id) const;
 
+            std::string getAttributeName(const View::Legend& legend) const;
+
 
             std::string workspace_ = "terrama2"; /*!< A workspace to work in GeoServer */
         };
