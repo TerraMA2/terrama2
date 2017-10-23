@@ -9,6 +9,7 @@ define([], function () {
     bindings: {
       formCtrl: "<", // controller binding in order to throw up
       type: "=",
+      columnsList: "=",
       model: "=",
       options: "="
     },
