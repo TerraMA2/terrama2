@@ -461,6 +461,11 @@ define([], function() {
                 }
               }
             }
+
+            for(var i = 0; i < self.legend.colors.length; ++i) {
+              if(self.legend.colors[i].color.charAt(0) !== "#")
+                self.legend.colors[i].color = "#" + self.legend.colors[i].color;
+            }
           }
           else if (Object.keys(self.legend).length !== 0 && self.legend.metadata.creation_type != "editor" && self.legend.metadata.creation_type != "xml"){
             if (self.legend.fieldsToReplace){
