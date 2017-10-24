@@ -189,16 +189,20 @@ module.exports = function(app) {
             DataManager.listAnalysis({}).then(function(analysisList){
               dataSeriesList.forEach(function(dataSeries) {
                 var isAnalysis = false;
+                var analysisType = {};
                 analysisList.map(function(analysis){
                   dataSeries.dataSets.map(function(dataSet){
                     if(analysis.dataset_output == dataSet.id) {
                       isAnalysis = true;
+                      analysisType = analysis.type;
                       return;
                     }
                   });
                 });
                 var dataSeriesRaw = dataSeries.rawObject();
                 dataSeriesRaw.isAnalysis = isAnalysis;
+                if (isAnalysis)
+                  dataSeriesRaw.type = analysisType;
                 output.push(dataSeriesRaw);
               });
               response.json(output);

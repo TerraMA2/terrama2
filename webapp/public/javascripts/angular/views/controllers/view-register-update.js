@@ -229,7 +229,10 @@ define([], function() {
             break;
           }
         case DataSeriesService.DataSeriesType.ANALYSIS_MONITORED_OBJECT:
-          return BASE_URL + "images/analysis/monitored-object/monitored-object_analysis.png";
+          if (dataSeries.type.id == 1)
+            return BASE_URL + "images/analysis/dcp/dcp_analysis.png";
+          else
+            return BASE_URL + "images/analysis/monitored-object/monitored-object_analysis.png";
           break;
         case DataSeriesService.DataSeriesType.POSTGIS:
         case DataSeriesService.DataSeriesType.GEOMETRIC_OBJECT:

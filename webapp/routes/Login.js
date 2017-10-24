@@ -22,6 +22,7 @@ module.exports = function(app) {
 
         request.session.collapsed = false;
         request.session.activeProject = {};
+        request.session.cachedProjects = DataManager.listProjects();
 
         return response.redirect(app.locals.BASE_URL + 'firstAccess')
       })
