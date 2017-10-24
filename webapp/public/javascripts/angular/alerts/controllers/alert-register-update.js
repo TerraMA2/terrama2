@@ -88,6 +88,11 @@ define([], function() {
       a: 1,
       index: null
     };
+    
+    /**
+     * Regex to validade data series attribute
+     */
+    self.regexColumn = "^[a-zA-Z_][a-zA-Z0-9_]*$";
 
     /**
      * It handles Alert Service Instance model

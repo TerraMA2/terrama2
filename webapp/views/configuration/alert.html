@@ -239,12 +239,18 @@
                     class="form-control"
                     name="legendAttributeMo"
                     ng-model="ctrl.legend_attribute_mo"
+                    ng-pattern="ctrl.regexColumn"
                     ng-required="ctrl.dataSeriesType === 'ANALYSIS_MONITORED_OBJECT'"
                     list='tableColumnsList'>
               <span class="help-block"
-                  ng-show="forms.dataSeriesForm.legendAttributeMo.$dirty && forms.dataSeriesForm.legendAttributeMo.$invalid"
+                  ng-show="forms.dataSeriesForm.legendAttributeMo.$dirty && forms.dataSeriesForm.legendAttributeMo.$error.required"
                   ng-class="{'has-error': dataSeriesForm.legendAttributeMo.$invalid}"
                   ng-bind="i18n.__('Legend attribute is required')">
+              </span>
+              <span class="help-block" 
+                ng-show="forms.dataSeriesForm.legendAttributeMo.$dirty && forms.dataSeriesForm.legendAttributeMo.$invalid && !forms.dataSeriesForm.legendAttributeMo.$error.required"
+                ng-class="{'has-error': dataSeriesForm.legendAttributeMo.$invalid}"
+                ng-bind="i18n.__('Legend attribute is invalid')">
               </span>
             </div>
           </div>
