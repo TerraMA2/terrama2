@@ -134,13 +134,13 @@ fi
 #
 # TerraLib version 5.2.1
 #
-sudo dpkg -i terralib-5.2.2.deb
-terralib_test=`dpkg -s terralib-5.2.2 | grep Status`
+sudo dpkg -i terralib-5.2.3.deb
+terralib_test=`dpkg -s terralib-5.2.3 | grep Status`
 
 if [ "$terralib_test" != "Status: install ok installed" ]; then
   sudo apt-get install -y -f
-  sudo dpkg -i terralib-5.2.2.deb
-  valid $? "Error: could not install terralib! Please, install readline: sudo dpkg -i terralib-5.2.2.deb"
+  sudo dpkg -i terralib-5.2.3.deb
+  valid $? "Error: could not install terralib! Please, install readline: sudo dpkg -i terralib-5.2.3.deb"
   echo "terralib installed!"
 else
   echo "terralib already installed!"
@@ -162,12 +162,6 @@ if [ "$nodejs_test" != "Status: install ok installed" ]; then
 else
   echo "Node.js already installed!"
 fi
-
-#
-# Npm Bower Globally
-#
-sudo npm install -g bower
-valid $? "Error: could not install bower"
 
 
 #
