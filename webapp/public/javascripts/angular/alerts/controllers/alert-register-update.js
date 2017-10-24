@@ -764,7 +764,7 @@ define([], function() {
           };
           for (var i = 0; i < self.alert.legend.levels.length; i++){
             var colorModel = {
-              color: (self.colors[i].charAt(0) !== "#" ? "#" + self.colors[i] : self.colors[i]),
+              color: self.colors[i],
               isDefault: i == 0,
               title: self.alert.legend.levels[i].name,
               value: self.alert.legend.levels[i].value ? self.alert.legend.levels[i].value : ""
