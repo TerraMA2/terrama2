@@ -117,6 +117,10 @@ html, body, #content, .content, .content-wrapper, #terrama2-map {
   margin-top: 50px
 }
 
+img[src=""] {
+  display: none;
+}
+
 .full_screen .main-header .logo {
   width: 50px;
   position: absolute;

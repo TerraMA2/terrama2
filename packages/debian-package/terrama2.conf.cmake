@@ -3,7 +3,7 @@ set (CMAKE_INSTALL_PREFIX "$ENV{TM_INSTALL}/" CACHE PATH "Where to install packa
 set (CMAKE_INSTALL_RPATH "$ENV{TM_INSTALL}/lib" CACHE PATH "Where to install package libs?" FORCE)
 set (CMAKE_PREFIX_PATH "/usr;$ENV{TL_PATH}/3rdparty;$ENV{TL_PATH}/3rdparty/lib" CACHE PATH "Where to find libraries?" FORCE)
 
-set (terralib_DIR "$ENV{TL_PATH}/lib/cmake/terralib-5.2.2" CACHE PATH "Where to find TerraLib?" FORCE)
+set (terralib_DIR "$ENV{TL_PATH}/lib/cmake/terralib-5.2.3" CACHE PATH "Where to find TerraLib?" FORCE)
 
 # Config RPath variables:
 set (CMAKE_SKIP_BUILD_RPATH OFF CACHE BOOL "Skip build rpath?" FORCE)
