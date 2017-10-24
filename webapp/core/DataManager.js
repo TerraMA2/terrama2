@@ -4224,7 +4224,18 @@ var DataManager = module.exports = {
 
         .then(function() {
           self.getAlertAttachment(restriction).then(function(alertAttachment) {
-            return resolve(new DataModel.AlertAttachment(Object.assign(alertAttachment.get(), {})));
+            var alertAttachmentObject = Object.assign(alertAttachment.get(), {});
+
+            if(alertAttachmentObject.AlertAttachedViews[0].View.ServiceInstance.ServiceMetadata) {
+              for(var i = 0, serviceMetadataLength = alertAttachmentObject.AlertAttachedViews[0].View.ServiceInstance.ServiceMetadata.length; i < serviceMetadataLength; i++) {
+                if(alertAttachmentObject.AlertAttachedViews[0].View.ServiceInstance.ServiceMetadata[i].dataValues.key === "maps_server") {
+                  alertAttachmentObject.geoserverUri = alertAttachmentObject.AlertAttachedViews[0].View.ServiceInstance.ServiceMetadata[i].dataValues.value;
+                  break;
+                }
+              }
+            }
+
+            return resolve(new DataModel.AlertAttachment(alertAttachmentObject));
           });
         })
 
@@ -4479,22 +4490,9 @@ var DataManager = module.exports = {
               {
                 model: models.db.AlertAttachedView,
                 required: false,
-                order: [
-                  ['layer_order', 'ASC']
-                ],
                 include: [
                   {
-                    model: models.db.View,
-                    include: [
-                      {
-                        model: models.db.ServiceInstance,
-                        include: [
-                          {
-                            model: models.db.ServiceMetadata
-                          }
-                        ]
-                      }
-                    ]
+                    model: models.db.View
                   }
                 ]
               }
@@ -4511,6 +4509,15 @@ var DataManager = module.exports = {
           {
             model: models.db.View,
             include: [
+              {
+                model: models.db.ServiceInstance,
+                include: [
+                  {
+                    model: models.db.ServiceMetadata,
+                    required: false
+                  }
+                ]
+              },
               {
                 model: models.db.Schedule,
                 required: false
@@ -4558,6 +4565,9 @@ var DataManager = module.exports = {
               }
             ]
           }
+        ],
+        order: [
+          [models.db.AlertAttachment, models.db.AlertAttachedView, 'layer_order', 'ASC']
         ]
       }, options))
         .then(function(alerts){
@@ -4587,6 +4597,19 @@ var DataManager = module.exports = {
               view.setLegend(legendModel);
             }
 
+            if(alert.AlertAttachment) {
+              var alertAttachment = alert.AlertAttachment.get();
+
+              if(alert.View.ServiceInstance.ServiceMetadata) {
+                for(var i = 0, serviceMetadataLength = alert.View.ServiceInstance.ServiceMetadata.length; i < serviceMetadataLength; i++) {
+                  if(alert.View.ServiceInstance.ServiceMetadata[i].dataValues.key === "maps_server") {
+                    alertAttachment.geoserverUri = alert.View.ServiceInstance.ServiceMetadata[i].dataValues.value;
+                    break;
+                  }
+                }
+              }
+            }
+
             var alertModel = new DataModel.Alert(Object.assign(alert.get(), {
               schedule: alert.Schedule ? new DataModel.Schedule(alert.Schedule.get()) : {},
               automatic_schedule: alert.AutomaticSchedule ? new DataModel.AutomaticSchedule(alert.AutomaticSchedule.get()) : {},
@@ -4596,7 +4619,7 @@ var DataManager = module.exports = {
               legend: legend,
               view: view,
               dataSeries: alert.DataSery ? new DataModel.DataSeries(alert.DataSery.get()) : {},
-              attachment: alert.AlertAttachment ? new DataModel.AlertAttachment(alert.AlertAttachment.get()) : {}
+              attachment: alertAttachment ? new DataModel.AlertAttachment(alertAttachment) : {}
             }));
             return alertModel;
           }))
@@ -4675,9 +4698,6 @@ var DataManager = module.exports = {
           },
           {
             model: models.db.AlertAttachedView,
-            order: [
-              ['layer_order', 'ASC']
-            ],
             include: [
               {
                 model: models.db.View,
@@ -4694,6 +4714,9 @@ var DataManager = module.exports = {
               }
             ]
           }
+        ],
+        order: [
+          [models.db.AlertAttachedView, 'layer_order', 'ASC']
         ]
       }, options)).then(function(alertAttachment) {
         return resolve(alertAttachment);

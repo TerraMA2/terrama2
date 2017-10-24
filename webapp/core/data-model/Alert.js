@@ -261,7 +261,7 @@ Alert.prototype.toService = function() {
     schedule: this.schedule instanceof BaseClass ? this.schedule.toObject() : {}
   });
 
-  if(this.attachment) 
+  if(this.attachment && this.attachment.toService)
     serviceObject.view = this.attachment.toService();
 
   return serviceObject;

@@ -59,6 +59,11 @@
      * @type {array}
      */
     this.attachedViews = params.AlertAttachedViews || [];
+    /**
+     * @name Alert#geoserverUri
+     * @type {string}
+     */
+    this.geoserverUri = params.geoserverUri || null;
   };
 
   AlertAttachment.prototype = Object.create(BaseClass.prototype);
@@ -66,6 +71,10 @@
 
   AlertAttachment.prototype.setAttachedViews = function(attachedViews) {
     this.attachedViews = attachedViews;
+  };
+
+  AlertAttachment.prototype.setGeoserverUri = function(geoserverUri) {
+    this.geoserverUri = geoserverUri;
   };
 
   AlertAttachment.prototype.toObject = function() {
@@ -107,18 +116,10 @@
     };
 
     if(this.attachedViews.length > 0) {
-      var originalUri = null;
       var serviceAttachedViews = [];
 
-      for(var i = 0, serviceMetadataLength = this.attachedViews[0].View.ServiceInstance.ServiceMetadata.length; i < serviceMetadataLength; i++) {
-        if(this.attachedViews[0].View.ServiceInstance.ServiceMetadata[i].dataValues.key === "maps_server") {
-          originalUri = this.attachedViews[0].View.ServiceInstance.ServiceMetadata[i].dataValues.value;
-          break;
-        }
-      }
-
-      if(originalUri) {
-        var uriObject = URIBuilder.buildObject(originalUri, URISyntax);
+      if(this.geoserverUri) {
+        var uriObject = URIBuilder.buildObject(this.geoserverUri, URISyntax);
 
         if(!isNaN(uriObject[URISyntax.PORT])) {
           var uri = Utils.format(

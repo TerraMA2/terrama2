@@ -134,6 +134,15 @@
 
             Promise.all(attachedViewsPromises).then(function() {
               DataManager.listAlertAttachedViews({ alert_attachment_id: alertAttachment.id }).then(function(alertAttachedViews) {
+                if(alertAttachedViews[0].View.ServiceInstance.ServiceMetadata) {
+                  for(var i = 0, serviceMetadataLength = alertAttachedViews[0].View.ServiceInstance.ServiceMetadata.length; i < serviceMetadataLength; i++) {
+                    if(alertAttachedViews[0].View.ServiceInstance.ServiceMetadata[i].dataValues.key === "maps_server") {
+                      alertAttachment.setGeoserverUri(alertAttachedViews[0].View.ServiceInstance.ServiceMetadata[i].dataValues.value);
+                      break;
+                    }
+                  }
+                }
+
                 alertAttachment.setAttachedViews(alertAttachedViews);
                 alert.setAttachment(alertAttachment);
 
@@ -403,6 +412,15 @@
 
               Promise.all(attachedViewsPromises).then(function() {
                 DataManager.listAlertAttachedViews({ alert_attachment_id: alertAttachment.id }).then(function(alertAttachedViews) {
+                  if(alertAttachedViews[0].View.ServiceInstance.ServiceMetadata) {
+                    for(var i = 0, serviceMetadataLength = alertAttachedViews[0].View.ServiceInstance.ServiceMetadata.length; i < serviceMetadataLength; i++) {
+                      if(alertAttachedViews[0].View.ServiceInstance.ServiceMetadata[i].dataValues.key === "maps_server") {
+                        alertAttachment.setGeoserverUri(alertAttachedViews[0].View.ServiceInstance.ServiceMetadata[i].dataValues.value);
+                        break;
+                      }
+                    }
+                  }
+
                   alertAttachment.setAttachedViews(alertAttachedViews);
                   alert.setAttachment(alertAttachment);
 
@@ -440,6 +458,15 @@
 
               Promise.all(attachedViewsPromises).then(function() {
                 DataManager.listAlertAttachedViews({ alert_attachment_id: alertObject.alertAttachment.id }).then(function(alertAttachedViews) {
+                  if(alertAttachedViews[0].View.ServiceInstance.ServiceMetadata) {
+                    for(var i = 0, serviceMetadataLength = alertAttachedViews[0].View.ServiceInstance.ServiceMetadata.length; i < serviceMetadataLength; i++) {
+                      if(alertAttachedViews[0].View.ServiceInstance.ServiceMetadata[i].dataValues.key === "maps_server") {
+                        alertAttachment.setGeoserverUri(alertAttachedViews[0].View.ServiceInstance.ServiceMetadata[i].dataValues.value);
+                        break;
+                      }
+                    }
+                  }
+
                   alertAttachment.setAttachedViews(alertAttachedViews);
                   alert.setAttachment(alertAttachment);
 

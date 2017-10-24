@@ -519,6 +519,15 @@ var ImportProject = function(json){
 
                                   return Promise.all(attachedViewsPromises).then(function() {
                                     return DataManager.listAlertAttachedViews({ alert_attachment_id: alertAttachmentResult.id }, options).then(function(alertAttachedViews) {
+                                      if(alertAttachedViews[0].View.ServiceInstance.ServiceMetadata) {
+                                        for(var i = 0, serviceMetadataLength = alertAttachedViews[0].View.ServiceInstance.ServiceMetadata.length; i < serviceMetadataLength; i++) {
+                                          if(alertAttachedViews[0].View.ServiceInstance.ServiceMetadata[i].dataValues.key === "maps_server") {
+                                            alertAttachmentResult.setGeoserverUri(alertAttachedViews[0].View.ServiceInstance.ServiceMetadata[i].dataValues.value);
+                                            break;
+                                          }
+                                        }
+                                      }
+
                                       alertAttachmentResult.setAttachedViews(alertAttachedViews);
                                       alertResult.setAttachment(alertAttachmentResult);
 
