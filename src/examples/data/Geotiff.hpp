@@ -340,38 +340,7 @@ namespace terrama2
              return terrama2::core::fromDataSeriesJson(obj);
      }
 
-     terrama2::core::DataSeriesPtr dataSeriesHumidity(terrama2::core::DataProviderPtr dataProvider)
-     {
 
-         QString json = QString(R"x(
-                                     {
-                                         "class": "DataSeries",
-                                         "id": 9,
-                                         "name": "geotiff 1",
-                                         "description": null,
-                                         "data_provider_id":  %1,
-                                         "semantics": "GRID-geotiff",
-                                         "active": true,
-                                         "datasets":[
-                                              {
-                                                 "class": "DataSet",
-                                                 "id": 9,
-                                                 "data_series_id": 9,
-                                                 "active": true,
-                                                  "format": {
-                                                         "mask": "Coleta_FTP_RF/umid/BAM.umrs.%YYYY%MM%DD%hh%mm.tif",
-                                                         "timezone": "00:00"
-
-                                                 }
-                                              }
-                                         ]
-                                        }
-                                      )x"
-                                    ).arg(dataProvider->id);
-             QJsonDocument doc = QJsonDocument::fromJson(json.toUtf8());
-             QJsonObject obj = doc.object();
-             return terrama2::core::fromDataSeriesJson(obj);
-     }
 
   }  // end namespace geotiff
 }  // end namespace terrama2
