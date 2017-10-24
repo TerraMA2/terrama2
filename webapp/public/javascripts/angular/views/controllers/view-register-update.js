@@ -5,7 +5,7 @@ define([], function() {
    * It represents a Controller to handle View form registration.
    * @class ViewRegistration
    */
-  function ViewRegisterUpdate($scope, $q, i18n, ViewService, $log, $http, $timeout, MessageBoxService, $window, DataSeriesService, Service, StringFormat, ColorFactory, StyleType, Socket) {
+  function ViewRegisterUpdate($scope, $q, i18n, ViewService, $log, $http, $timeout, MessageBoxService, $window, DataSeriesService, Service, StringFormat, ColorFactory, StyleType, Socket, DataProviderService) {
     /**
      * @type {ViewRegisterUpdate}
      */
@@ -419,7 +419,6 @@ define([], function() {
     function closeDialog() {
       self.MessageBoxService.reset();
     }
-
     /**
      * Lists the columns from a given table.
      * 
@@ -428,59 +427,18 @@ define([], function() {
     var listColumns = function(dataProvider, tableName) {
       var result = $q.defer();
 
-      var params = getPostgisUriInfo(dataProvider.uri);
-      params.objectToGet = "column";
-      params.table_name = tableName;
-
-      var httpRequest = $http({
-        method: "GET",
-        url: BASE_URL + "uri/",
-        params: params
-      });
-
-      httpRequest.then(function(response) {
-        self.columnsList = response.data.data.map(function(item, index) {
-          return item.column_name;
+      DataProviderService.listPostgisObjects({providerId: dataProvider.id, objectToGet: "column", tableName: tableName})
+        .then(function(response){
+          if (response.data.status == 400){
+            return result.reject(response.data);
+          }
+          self.columnsList = response.data.data.map(function(item, index) {
+            return item.column_name;
+          });
+          result.resolve(response.data.data);
         });
 
-        result.resolve(response.data.data);
-      });
-
-      httpRequest.catch(function(err) {
-        result.reject(err);
-      });
-
       return result.promise;
-    };
-
-    /**
-     * Helper function to parse a PostGIS URI.
-     * 
-     * @returns {object}
-     */
-    var getPostgisUriInfo = function(uri) {
-      var params = {};
-      params.protocol = uri.split(':')[0];
-      var hostData = uri.split('@')[1];
-
-      if(hostData) {
-        params.hostname = hostData.split(':')[0];
-        params.port = hostData.split(':')[1].split('/')[0];
-        params.database = hostData.split('/')[1];
-      }
-
-      var auth = uri.split('@')[0];
-
-      if(auth) {
-        var userData = auth.split('://')[1];
-
-        if(userData) {
-          params.user = userData.split(':')[0];
-          params.password = userData.split(':')[1];
-        }
-      }
-
-      return params;
     };
 
     /**
@@ -602,7 +560,7 @@ define([], function() {
   }
 
   ViewRegisterUpdate.$inject = ["$scope", "$q", "i18n", "ViewService", "$log", "$http", "$timeout", "MessageBoxService", "$window",
-    "DataSeriesService", "Service", "StringFormat", "ColorFactory", "StyleType", "Socket"];
+    "DataSeriesService", "Service", "StringFormat", "ColorFactory", "StyleType", "Socket", "DataProviderService"];
 
   return ViewRegisterUpdate;
 });
