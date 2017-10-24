@@ -76,7 +76,7 @@
     "fastclick": "=1.0.6",
     "ace-builds": "=1.2.8",
     "admin-lte": "=2.3.0",
-    "angularjs-color-picker": "=3.4.8",
+    "angularjs-color-picker": "=2.7.2",
     "angular-eonasdan-datetimepicker": "=0.3.9",
     "almond": "=0.3.3",
     "ui-select": "=0.19.8",
