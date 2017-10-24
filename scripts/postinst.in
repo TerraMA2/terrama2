@@ -17,15 +17,12 @@ printf "Post-installation script...\n"
   #
   # Install web dependencies
   #
-  npm install bower
-  valid $? "Unable to install Bower."
   npm install grunt
   valid $? "Unable to install Grunt."
 
   npm install
   valid $? "Unable to install NodeJs dependencies."
-  npm run bower -- install --allow-root
-  valid $? "Unable to install Bower dependencies."
+
   npm run grunt
   valid $? "Error executing grunt.\n"
 
@@ -52,15 +49,12 @@ printf "Post-installation script...\n"
   #
   # Install web dependencies
   #
-  npm install bower
-  valid $? "Unable to install Bower."
   npm install grunt
   valid $? "Unable to install Grunt."
 
   npm install
   valid $? "Unable to install NodeJs dependencies."
-  npm run bower -- install --allow-root
-  valid $? "Unable to install Bower dependencies."
+
   npm run grunt
   valid $? "Error executing grunt."
 )

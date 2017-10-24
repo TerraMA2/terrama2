@@ -9,6 +9,7 @@ define([], function () {
     bindings: {
       formCtrl: "<", // controller binding in order to throw up
       type: "=",
+      columnsList: "=",
       model: "=",
       options: "="
     },
@@ -55,6 +56,13 @@ define([], function () {
      */
     self.rgbaModal = function(elm) {
       self.rgba.elm = elm;
+      var rgbaColor = Utility.hex2rgba(elm.color);
+      if (rgbaColor){
+        self.rgba.r = rgbaColor.r;
+        self.rgba.g = rgbaColor.g;
+        self.rgba.b = rgbaColor.b;
+        self.rgba.a = rgbaColor.a;
+      }
       $("#rgbaModal").modal();
     };
 
@@ -139,7 +147,8 @@ define([], function () {
         $scope.$broadcast("schemaFormRedraw");
       }
     }
-
+    // Regex to valide column name of style
+    self.regexColumn = "^[a-zA-Z_][a-zA-Z0-9_]*$";
     self.changeColorType = function(){
       if (self.model.type == 1){
         self.minColorsLength = 2;

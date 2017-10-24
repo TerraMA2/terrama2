@@ -180,6 +180,11 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
 
       if (self.update) {
         fillGUI();
+      } else if (config.db && config.db.host) {
+        self.log.host = config.db.host;
+        self.log.user = config.db.username;
+        self.log.password = config.db.password;
+        self.log.database = config.db.database;
       }
 
       // Defining default threads number
