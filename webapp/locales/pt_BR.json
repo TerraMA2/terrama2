@@ -442,7 +442,7 @@
   "Invalid configuration for the TerraMA² data directory": "A atual configuração do diretório de dados do TerraMA² é inválida",
   "Invalid folder": "Pasta inválida",
   "Invalid format": "Formato inválido",
-  "Invalid intersection. Static data series must have at least a attribute.": "Interseção inválida. Séries de dados estáticos devem possuir pelo menos um atributo.",
+  "Invalid intersection. Each data series must have at least one attribute selected.": "Interseção inválida. Cada série de dados deve possuir pelo menos um atributo selecionado.",
   "Invalid mask": "Máscara inválida",
   "Invalid path": "Caminho inválido",
   "Invalid port. Important! Make sure the server's REST API is enabled": "Porta inválida. Importante! Certifique-se de que a API REST do servidor está habilitada",
