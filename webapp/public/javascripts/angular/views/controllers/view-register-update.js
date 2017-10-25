@@ -5,7 +5,7 @@ define([], function() {
    * It represents a Controller to handle View form registration.
    * @class ViewRegistration
    */
-  function ViewRegisterUpdate($scope, i18n, ViewService, $log, $http, $timeout, MessageBoxService, $window, DataSeriesService, Service, StringFormat, ColorFactory, StyleType, Socket) {
+  function ViewRegisterUpdate($scope, $q, i18n, ViewService, $log, $http, $timeout, MessageBoxService, $window, DataSeriesService, Service, StringFormat, ColorFactory, StyleType, Socket, DataProviderService) {
     /**
      * @type {ViewRegisterUpdate}
      */
@@ -229,7 +229,10 @@ define([], function() {
             break;
           }
         case DataSeriesService.DataSeriesType.ANALYSIS_MONITORED_OBJECT:
-          return BASE_URL + "images/analysis/monitored-object/monitored-object_analysis.png";
+          if (dataSeries.type.id == 1)
+            return BASE_URL + "images/analysis/dcp/dcp_analysis.png";
+          else
+            return BASE_URL + "images/analysis/monitored-object/monitored-object_analysis.png";
           break;
         case DataSeriesService.DataSeriesType.POSTGIS:
         case DataSeriesService.DataSeriesType.GEOMETRIC_OBJECT:
@@ -404,6 +407,10 @@ define([], function() {
           }
           self.view.source_type = getSourceType(dSeries);
 
+          if (dSeries.data_series_semantics.format == "POSTGIS"){
+            listColumns(dSeries.data_provider, dSeries.dataSets[0].format.table_name);
+          }
+
           // breaking loop
           return true;
         }
@@ -415,6 +422,28 @@ define([], function() {
     function closeDialog() {
       self.MessageBoxService.reset();
     }
+    /**
+     * Lists the columns from a given table.
+     * 
+     * @returns {void}
+     */
+    var listColumns = function(dataProvider, tableName) {
+      var result = $q.defer();
+
+      DataProviderService.listPostgisObjects({providerId: dataProvider.id, objectToGet: "column", tableName: tableName})
+        .then(function(response){
+          if (response.data.status == 400){
+            return result.reject(response.data);
+          }
+          self.columnsList = response.data.data.map(function(item, index) {
+            return item.column_name;
+          });
+          result.resolve(response.data.data);
+        });
+
+      return result.promise;
+    };
+
     /**
      * It performs a save operation. It applies a form validation and try to save
      * @param {boolean} shouldRun - Determines if service should auto-run after save process
@@ -533,8 +562,8 @@ define([], function() {
     }
   }
 
-  ViewRegisterUpdate.$inject = ["$scope", "i18n", "ViewService", "$log", "$http", "$timeout", "MessageBoxService", "$window",
-    "DataSeriesService", "Service", "StringFormat", "ColorFactory", "StyleType", "Socket"];
+  ViewRegisterUpdate.$inject = ["$scope", "$q", "i18n", "ViewService", "$log", "$http", "$timeout", "MessageBoxService", "$window",
+    "DataSeriesService", "Service", "StringFormat", "ColorFactory", "StyleType", "Socket", "DataProviderService"];
 
   return ViewRegisterUpdate;
 });

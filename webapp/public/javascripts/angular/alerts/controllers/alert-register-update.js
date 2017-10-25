@@ -88,6 +88,11 @@ define([], function() {
       a: 1,
       index: null
     };
+    
+    /**
+     * Regex to validade data series attribute
+     */
+    self.regexColumn = "^[a-zA-Z_][a-zA-Z0-9_]*$";
 
     /**
      * It handles Alert Service Instance model
@@ -548,6 +553,13 @@ define([], function() {
      */
     self.rgbaModal = function(index) {
       self.rgba.index = index;
+      var rgbaColor = Utility.hex2rgba(self.colors[index]);
+      if (rgbaColor){
+        self.rgba.r = rgbaColor.r;
+        self.rgba.g = rgbaColor.g;
+        self.rgba.b = rgbaColor.b;
+        self.rgba.a = rgbaColor.a;
+      }
       $("#rgbaModal").modal();
     };
 
@@ -574,27 +586,16 @@ define([], function() {
     var listColumns = function(dataProvider, tableName) {
       var result = $q.defer();
 
-      var params = getPostgisUriInfo(dataProvider.uri);
-      params.objectToGet = "column";
-      params.table_name = tableName;
-
-      var httpRequest = $http({
-        method: "GET",
-        url: BASE_URL + "uri/",
-        params: params
-      });
-
-      httpRequest.then(function(response) {
-        self.columnsList = response.data.data.map(function(item, index) {
-          return item.column_name;
+      DataProviderService.listPostgisObjects({providerId: dataProvider.id, objectToGet: "column", tableName: tableName})
+        .then(function(response){
+          if (response.data.status == 400){
+            return result.reject(response.data);
+          }
+          self.columnsList = response.data.data.map(function(item, index) {
+            return item.column_name;
+          });
+          result.resolve(response.data.data);
         });
-
-        result.resolve(response.data.data);
-      });
-
-      httpRequest.catch(function(err) {
-        result.reject(err);
-      });
 
       return result.promise;
     };

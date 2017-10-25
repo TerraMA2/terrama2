@@ -217,6 +217,10 @@ body, html {
   font-weight: bold;
 }
 
+.terrama2-min-padding {
+  padding-right: 5px !important;
+}
+
 [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
   display: none;
 }
@@ -670,31 +674,19 @@ table.dataTable tbody th, table.dataTable tbody td { padding-left: 12px !importa
   margin-top: 25%;
 }
 
-#newAttachedViewBtn {
-  margin: 0 9px 10px 0;
-}
-
-#noViewsAttached {
-  text-align: center;
-  font-weight: 900;
-}
-
-#attachedViewsTable .buttonTd {
-  width: 34px;
-}
-
-#attachedViewsTable .sortHandle {
-  font-size: 24px;
-  cursor: move;
-}
-
-#attachedViewsTable .sortHandle > i {
-  margin-left: 5px;
-}
-
-#alertView {
-  text-align: center;
+#projects {
+  color: #4b646f;
+  background: #1a2226;
+  border: none;
+  width: 100%;
+  height: 44px;
+  font-size: 18px;
   font-weight: bold;
-  line-height: 34px;
-  height: 50px;
+  padding: 10px 25px 10px 15px;
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  background-image: url(../images/arrow-down.png);
+  background-size: 17px;
+  background-repeat: no-repeat;
+  background-position: 204px 14px;
 }

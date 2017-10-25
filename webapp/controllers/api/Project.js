@@ -20,6 +20,8 @@ module.exports = function(app) {
       DataManager.addProject(projectObject).then(function(project) {
         TcpService.emitEvent("projectReceived", project);
 
+        request.session.cachedProjects = DataManager.listProjects();
+
         // Creating default PostGIS and File providers
         var configFile = Application.getContextConfig();
 
@@ -91,6 +93,8 @@ module.exports = function(app) {
         projectGiven.user_id = projectGiven.user_id ? projectGiven.user_id : request.user.id;
         DataManager.updateProject(projectGiven).then(function(project) {
           TcpService.emitEvent("projectReceived", project);
+
+          request.session.cachedProjects = DataManager.listProjects();
 
           var token = Utils.generateToken(app, TokenCode.UPDATE, project.name);
           response.json({status: 200, result: project, token: token});
@@ -203,6 +207,7 @@ module.exports = function(app) {
 
               // un-setting cache project
               request.session.activeProject = {};
+              request.session.cachedProjects = DataManager.listProjects();
 
               var token = Utils.generateToken(app, TokenCode.DELETE, project.name);
               response.json({status: 200, name: project.name, token: token});

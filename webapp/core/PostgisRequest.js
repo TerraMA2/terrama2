@@ -103,7 +103,7 @@ PostgisRequest.prototype.get = function (){
             query = "SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE' AND table_name NOT LIKE 'spatial_ref_sys';";
             break;
           case PostGISObjects.COLUMN:
-            query = "SELECT column_name FROM information_schema.columns WHERE table_schema='public' AND table_name='" + self.params.table_name + "';";
+            query = "SELECT column_name FROM information_schema.columns WHERE table_schema='public' AND table_name='" + self.params.tableName + "';";
             break;
           default:
             return reject(new GetObjectError("Invalid object to query"));
