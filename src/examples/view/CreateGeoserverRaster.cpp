@@ -76,8 +76,6 @@ int main(int argc, char** argv)
 
     QCoreApplication a(argc, argv);
 
-    std::locale::global(std::locale::classic());
-
     terrama2::core::TerraMA2Init terramaRaii("example", 0);
     Q_UNUSED(terramaRaii);
 
