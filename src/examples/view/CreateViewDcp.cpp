@@ -56,7 +56,7 @@ using ::testing::_;
 
 void addFileDataProviders(terrama2::core::DataManagerPtr dataManager)
 {
-   QString dataProviderJson = R"x({"DataProviders": [{"class": "DataProvider","id": 11,"project_id": 5,"data_provider_type": "FILE","intent": 1,"name": "Local Folder","options": {"timeout": "","active_mode": ""},"description": "Local Folder data server","uri": "file:///home/jsimas/MyDevel/dpi/data","active": true}]})x";
+   QString dataProviderJson = QString(R"x({"DataProviders": [{"class": "DataProvider","id": 11,"project_id": 5,"data_provider_type": "FILE","intent": 1,"name": "Local Folder","options": {"timeout": "","active_mode": ""},"description": "Local Folder data server","uri": "%1","active": true}]})x").arg(QString::fromStdString(TERRAMA2_DATA_DIR));//file:///home/jsimas/MyDevel/dpi/data
 
    QJsonDocument doc = QJsonDocument::fromJson(dataProviderJson.toUtf8());
    QJsonObject obj = doc.object();
@@ -65,7 +65,7 @@ void addFileDataProviders(terrama2::core::DataManagerPtr dataManager)
 
 void addPostgisDataProviders(terrama2::core::DataManagerPtr dataManager)
 {
-   QString dataProviderJson = R"x({"DataProviders": [{"class": "DataProvider","id": 12,"project_id": 5,"data_provider_type": "POSTGIS","intent": 1,"name": "Local Database PostGIS","options": {"timeout": "","active_mode": ""},"description": "Local Database PostGIS data server","uri": "postgis://postgres:postgres@127.0.0.1:5432/terrama2","active": true}]})x";
+   QString dataProviderJson = QString(R"x({"DataProviders": [{"class": "DataProvider","id": 12,"project_id": 5,"data_provider_type": "POSTGIS","intent": 1,"name": "Local Database PostGIS","options": {"timeout": "","active_mode": ""},"description": "Local Database PostGIS data server","uri": "%1","active": true}]})x").arg(QString::fromStdString("pgsql://"+TERRAMA2_DATABASE_USERNAME+ ":"+TERRAMA2_DATABASE_PASSWORD+"@"+TERRAMA2_DATABASE_HOST+":"+TERRAMA2_DATABASE_PORT+"/"+TERRAMA2_DATABASE_DBNAME));//postgis://postgres:postgres@127.0.0.1:5432/terrama2
 
    QJsonDocument doc = QJsonDocument::fromJson(dataProviderJson.toUtf8());
    QJsonObject obj = doc.object();
