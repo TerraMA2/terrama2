@@ -1,5 +1,6 @@
 var fs = require("fs");
 var path = require("path");
+var bcrypt = require('bcrypt');
 
 /**
  * It defines a cache object (private) with TerraMA² settings
@@ -95,8 +96,11 @@ Application.prototype.setCurrentContext = function(context) {
     var msg = util.format("\"%s\" not found in configuration file. Please check \"webapp/config/instances\"", context);
     throw new Error(msg);
   }
-
+  
   _context = context;
+
+  if (_data.settings[context].webAppId === undefined || _data.settings[context].webAppId === "")
+    setWebAppIdToContext();
 };
 
 /**
@@ -128,6 +132,22 @@ Application.prototype.get = function(settingName) {
     return _data[settingName];
   }
   return _data;
+};
+
+/**
+ * Setting web app id in context
+ */
+var setWebAppIdToContext = function(){
+  var configFileName = path.join(__dirname, "../config/instances/" + _context + ".json");
+  var configFile = require(configFileName);
+  var salt = bcrypt.genSaltSync(10);
+  var date = new Date().getTime().toString();
+  var hashId = _context + "|||" + bcrypt.hashSync(date + _context, salt);
+  configFile.webAppId = hashId;
+  fs.writeFile(configFileName, JSON.stringify(configFile, null, 2), function(err){
+    if (err) return console.log(err);
+  });
+  _data.settings[_context].webAppId = hashId;
 };
 
 /**

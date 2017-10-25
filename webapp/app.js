@@ -30,7 +30,7 @@ i18n.configure({
   objectNotation : true
 });
 
-Application.setCurrentContext(process.argv[2]);
+Application.setCurrentContext(instance);
 
 // Get base url from environment and store in Express.
 app.locals.BASE_URL = Application.getContextConfig().basePath;
