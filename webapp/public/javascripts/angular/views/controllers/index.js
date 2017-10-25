@@ -10,11 +10,12 @@ define([
   "TerraMA2WebApp/ace/directive",
   "TerraMA2WebApp/alert-box/app",
   "TerraMA2WebApp/services/services",
+  "TerraMA2WebApp/data-provider/services",
 
   "TerraMA2WebApp/views/controllers/view-list",
   "TerraMA2WebApp/views/controllers/view-register-update"
 ], function(moduleLoader, commonApp, commonViewApp, scheduleApp, dataSeriesServiceApp, viewsService, datetimepicker, 
-            aceApp, messageBoxApp, serviceApp, ListController, RegisterUpdateController) {
+            aceApp, messageBoxApp, serviceApp, dataProviderServiceApp, ListController, RegisterUpdateController) {
   var moduleName = "terrama2.views.controllers";
 
   var deps = [commonViewApp, messageBoxApp, viewsService];
@@ -23,6 +24,7 @@ define([
   if (moduleLoader("schemaForm", deps) && moduleLoader("color.picker", deps)) {
     moduleLoader("xeditable", deps);
     moduleLoader(dataSeriesServiceApp, deps);
+    moduleLoader(dataProviderServiceApp, deps);
     moduleLoader(aceApp, deps);
     moduleLoader(datetimepicker, deps);
     moduleLoader(serviceApp, deps);
