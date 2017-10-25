@@ -333,11 +333,11 @@ namespace terrama2
             void registerVectorDataStore(const std::string& dataStoreName,
                                          const std::string& shpFilePath) const;
 
-            virtual QJsonObject generateLayers(const ViewPtr viewPtr,
-                                               const std::pair<terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr>& dataSeriesProvider,
-                                               const std::shared_ptr<DataManager> dataManager,
-                                               std::shared_ptr<ViewLogger> logger,
-                                               const RegisterId logId) override;
+            virtual QJsonObject generateLayersInternal(const ViewPtr viewPtr,
+                                                       const std::pair<terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr>& dataSeriesProvider,
+                                                       const std::shared_ptr<DataManager> dataManager,
+                                                       std::shared_ptr<ViewLogger> logger,
+                                                       const RegisterId logId) override;
 
             void registerLayerDefaultStyle(const std::string& styleName,
                                            const std::string& layerName) const;

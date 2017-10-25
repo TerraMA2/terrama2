@@ -89,11 +89,11 @@ const te::core::URI& terrama2::services::view::core::GeoServer::uri() const
 }
 
 
-QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const ViewPtr viewPtr,
-                                                                      const std::pair< terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr >& dataSeriesProvider,
-                                                                      const std::shared_ptr<DataManager> dataManager,
-                                                                      std::shared_ptr<ViewLogger> logger,
-                                                                      const RegisterId logId)
+QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(const ViewPtr viewPtr,
+                                                                              const std::pair< terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr >& dataSeriesProvider,
+                                                                              const std::shared_ptr<DataManager> dataManager,
+                                                                              std::shared_ptr<ViewLogger> logger,
+                                                                              const RegisterId logId)
 {
   QJsonObject jsonAnswer;
 
