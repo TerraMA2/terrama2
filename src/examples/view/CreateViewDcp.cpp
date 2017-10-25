@@ -80,12 +80,14 @@ void addDataSeries(terrama2::core::DataManagerPtr dataManager) {
   dataManager->addJSon(obj);
 }
 
-void addView(terrama2::core::DataManagerPtr dataManager) {
-  QString viewJson = R"x({"Views":[{"class":"View","id":14,"name":"view de analise de dcp","description":null,"dataseries_id":23,"schedule":{},"automatic_schedule":{},"active":true,"service_instance_id":1,"project_id":5,"legend":{"class":"ViewStyleLegend","id":12,"column":null,"type":2,"colors":[{"id":87,"title":"Default","color":"#FFFFFFFF","value":"","isDefault":true,"view_style_id":12},{"id":86,"title":"Color 1","color":"#EEABABFF","value":"10","isDefault":false,"view_style_id":12},{"id":85,"title":"Color 2","color":"#E24A4AFF","value":"50","isDefault":false,"view_style_id":12},{"id":84,"title":"Color 3","color":"#FF0000FF","value":"100","isDefault":false,"view_style_id":12}],"metadata":{"creation_type":"editor","column":"pluvio"},"band_number":null},"private":false,"schedule_type":3,"source_type":3}]})x";
+ViewId addView(terrama2::core::DataManagerPtr dataManager) {
+  ViewId viewId = 14;
+  QString viewJson = QString(R"x({"Views":[{"class":"View","id":%1,"name":"view de analise de dcp","description":null,"dataseries_id":23,"schedule":{},"automatic_schedule":{},"active":true,"service_instance_id":1,"project_id":5,"legend":{"class":"ViewStyleLegend","id":12,"column":null,"type":2,"colors":[{"id":87,"title":"Default","color":"#FFFFFFFF","value":"","isDefault":true,"view_style_id":12},{"id":86,"title":"Color 1","color":"#EEABABFF","value":"10","isDefault":false,"view_style_id":12},{"id":85,"title":"Color 2","color":"#E24A4AFF","value":"50","isDefault":false,"view_style_id":12},{"id":84,"title":"Color 3","color":"#FF0000FF","value":"100","isDefault":false,"view_style_id":12}],"metadata":{"creation_type":"editor","column":"pluvio"},"band_number":null},"private":false,"schedule_type":3,"source_type":3}]})x").arg(viewId);
 
   QJsonDocument doc = QJsonDocument::fromJson(viewJson.toUtf8());
   QJsonObject obj = doc.object();
   dataManager->addJSon(obj);
+  return viewId;
 }
 
 int main(int argc, char** argv)
@@ -110,7 +112,7 @@ int main(int argc, char** argv)
     addFileDataProviders(dataManager);
     addPostgisDataProviders(dataManager);
     addDataSeries(dataManager);
-    addView(dataManager);
+    ViewId viewId = addView(dataManager);
 
     terrama2::services::view::core::Service service(dataManager);
 
@@ -137,7 +139,7 @@ int main(int argc, char** argv)
 
     service.start(1);
 
-    service.addToQueue(14, terrama2::core::TimeUtils::nowUTC());
+    service.addToQueue(viewId, terrama2::core::TimeUtils::nowUTC());
 
     QTimer timer;
     QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
