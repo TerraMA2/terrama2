@@ -162,7 +162,37 @@ define([
   };
 
   DataSeriesSemanticsService.prototype.get = function(restriction) {
-    return this.BaseService.get(this.model, restriction);
+    var semantics = this.BaseService.get(this.model, restriction);
+
+    semantics.metadata.form.forEach(function(form) {
+      if(form.htmlClass.indexOf("validate-mask") !== -1) {
+        form.$validators = {
+          validateMask: function(value) {
+            if(value) {
+              for(var i = 0, valueLength = value.length; i < valueLength; i++) {
+                if(value[i] === "%") {
+                  if(
+                    value.substr(i, 5) === "%YYYY" ||
+                    value.substr(i, 3) === "%YY" || value.substr(i, 3) === "%MM" || value.substr(i, 3) === "%DD" ||
+                    value.substr(i, 3) === "%hh" || value.substr(i, 3) === "%mm" || value.substr(i, 3) === "%ss"
+                  )
+                    continue;
+
+                  return false;
+                }
+              }
+
+              return true;
+            } else
+              return false;
+          }
+        };
+
+        form.validationMessage.validateMask = "Invalid mask";
+      }
+    });
+
+    return semantics;
   };
 
   function SemanticsLibs(SemanticsHelpers, SemanticsParserFactory) {
