@@ -103,13 +103,13 @@ define([], function() {
               "<div class=\"modal-body\">" +
                 "<div class=\"row\">" +
                   "<div class=\"col-md-12\">" +
-                    "<div class=\"col-md-4\">" +
+                    "<div class=\"col-md-4\" ng-if=\"semanticsCode === 'STATIC_DATA-postgis'\">" +
                       "<div class=\"form-group\">" +
                         "<label>{{ i18n.__('SRID') }}</label>" +
                         "<input class=\"form-control\" type=\"text\" ng-model=\"shpImport.srid\"/>" +
                       "</div>" +
                     "</div>" +
-                    "<div class=\"col-md-4\">" +
+                    "<div class=\"col-md-4\" ng-if=\"semanticsCode === 'STATIC_DATA-postgis'\">" +
                       "<div class=\"form-group\">" +
                         "<label>{{ i18n.__('Encoding') }}</label>" +
                         "<select class=\"form-control\" ng-model=\"shpImport.encoding\">" +
@@ -118,9 +118,9 @@ define([], function() {
                         "</select>" +
                       "</div>" +
                     "</div>" +
-                    "<div class=\"col-md-4\">" +
+                    "<div ng-class=\"{ 'col-md-4': semanticsCode === 'STATIC_DATA-postgis', 'col-md-12': semanticsCode === 'STATIC_DATA-ogr' }\">" +
                       "<div class=\"form-group\">" +
-                        "<button class=\"btn btn-primary\" style=\"margin-top: 26px;\" type=\"file\" ngf-select=\"uploadFile($file, $invalidFiles)\" accept=\"application/zip\" ngf-max-size=\"500MB\" ng-disabled=\"shpImport.srid === null\">{{ i18n.__('Select File') }}</button>" +
+                        "<button class=\"btn btn-primary\" style=\"margin-top: 26px;\" type=\"file\" ngf-select=\"uploadFile($file, $invalidFiles)\" accept=\"application/zip\" ngf-max-size=\"500MB\" ng-disabled=\"semanticsCode === 'STATIC_DATA-postgis' && shpImport.srid === null\">{{ i18n.__('Select File') }}</button>" +
                       "</div>" +
                     "</div>" +
                   "</div>" +
@@ -442,10 +442,10 @@ define([], function() {
             $scope.clearImportError();
             $scope.closeSuccessMessage();
 
-            if($scope.model['table_name'] !== undefined && $scope.model['table_name'] !== null && $scope.model['table_name'] != "")
+            if(($scope.semanticsCode === 'STATIC_DATA-ogr' && $scope.model['mask'] !== undefined && $scope.model['mask'] !== null && $scope.model['mask'] != "") || ($scope.semanticsCode === 'STATIC_DATA-postgis' && $scope.model['table_name'] !== undefined && $scope.model['table_name'] !== null && $scope.model['table_name'] != ""))
               $("#shapefileModal").modal();
             else
-              MessageBoxService.danger(i18n.__("Error"), i18n.__("Enter the table name!"));
+              MessageBoxService.danger(i18n.__("Error"), i18n.__($scope.semanticsCode === 'STATIC_DATA-ogr' ? "Enter the mask!" : "Enter the table name!"));
           };
 
           $scope.uploadFile = function(file, errFiles) {
@@ -460,9 +460,11 @@ define([], function() {
                 url: BASE_URL + 'import-shapefile',
                 file: file,
                 data: {
+                  semantics: $scope.semanticsCode,
                   srid: $scope.shpImport.srid,
                   encoding: $scope.shpImport.encoding,
                   tableName: $scope.model['table_name'],
+                  mask: $scope.model['mask'],
                   dataProviderId: $scope.dataSeries.data_provider_id
                 }
               });

@@ -23,6 +23,8 @@ var ImportShapefile = function(app) {
   var memberPath = require('path');
   // 'Exportation' model
   var memberExportation = new (require('../../core/Exportation.js'))();
+  // 'DataManager' module
+  var memberDataManager = require('../../core/DataManager.js');
   // 'unzip' module
   var memberUnzip = require('unzip');
   // Exec function
@@ -95,27 +97,67 @@ var ImportShapefile = function(app) {
                     return sendResponse(shpError, folderPath);
                   } else if(shpName !== null) {
                     if(shpCount === 1) {
-                      memberExportation.tableExists(request.body.tableName, request.body.dataProviderId).then(function(resultTable) {
-                        if(resultTable.rowCount > 0 && resultTable.rows[0].table_name == request.body.tableName) {
-                          return sendResponse("Table already exists!", folderPath);
-                        } else {
-                          memberExec(connectionString.exportPassword + memberExportation.shp2pgsql() + " -I -s " + request.body.srid + " -W \"" + request.body.encoding + "\" " + shpName + " " + request.body.tableName + " | " + connectionString.connectionString, function(commandErr, commandOut, commandCode) {
-                            if(commandErr)
-                              return sendResponse(commandErr.toString(), folderPath);
+                      if(request.body.semantics === 'STATIC_DATA-postgis') {
+                        memberExportation.tableExists(request.body.tableName, request.body.dataProviderId).then(function(resultTable) {
+                          if(resultTable.rowCount > 0 && resultTable.rows[0].table_name == request.body.tableName) {
+                            return sendResponse("Table already exists!", folderPath);
+                          } else {
+                            memberExec(connectionString.exportPassword + memberExportation.shp2pgsql() + " -I -s " + request.body.srid + " -W \"" + request.body.encoding + "\" " + shpName + " " + request.body.tableName + " | " + connectionString.connectionString, function(commandErr, commandOut, commandCode) {
+                              if(commandErr)
+                                return sendResponse(commandErr.toString(), folderPath);
 
-                            memberExportation.tableExists(request.body.tableName, request.body.dataProviderId).then(function(resultTable) {
-                              if(resultTable.rowCount > 0 && resultTable.rows[0].table_name == request.body.tableName)
-                                return sendResponse(null, folderPath);
-                              else
-                                return sendResponse(commandCode, folderPath);
-                            }).catch(function(err) {
-                              return sendResponse(err.toString(), folderPath);
+                              memberExportation.tableExists(request.body.tableName, request.body.dataProviderId).then(function(resultTable) {
+                                if(resultTable.rowCount > 0 && resultTable.rows[0].table_name == request.body.tableName)
+                                  return sendResponse(null, folderPath);
+                                else
+                                  return sendResponse(commandCode, folderPath);
+                              }).catch(function(err) {
+                                return sendResponse(err.toString(), folderPath);
+                              });
                             });
+                          }
+                        }).catch(function(err) {
+                          return sendResponse(err.toString(), folderPath);
+                        });
+                      } else {
+                        var mask = request.body.mask.split("\\").join("/");
+
+                        if(mask.substr(mask.length - 4) === ".shp") {
+                          memberDataManager.getDataProvider({ id: request.body.dataProviderId }).then(function(dataProvider) {
+                            var dataProviderPath = dataProvider.uri.replace("file://", "");
+
+                            if(memberFs.existsSync(dataProviderPath)) {
+                              var finalFilePath = (dataProviderPath + "/" + mask).split("//").join("/");
+
+                              if(!memberFs.existsSync(finalFilePath)) {
+                                var maskArray = mask.split("/");
+                                var pathToBeCreated = dataProviderPath;
+
+                                maskArray.forEach(function(maskFolder, index) {
+                                  if(maskFolder !== "" && index < (maskArray.length - 1)) {
+                                    pathToBeCreated = pathToBeCreated + "/" + maskFolder;
+
+                                    if(memberExportation.createFolder(pathToBeCreated))
+                                      return sendResponse("Failed to create destination folder!", folderPath);
+                                  }
+                                });
+
+                                var newFilename = maskArray[maskArray.length - 1].substring(0, maskArray[maskArray.length - 1].length - 4);
+
+                                memberExportation.copyShpFiles(folderPath, pathToBeCreated, newFilename);
+
+                                return sendResponse(null, folderPath);
+                              } else {
+                                return sendResponse("File already exists!", folderPath);
+                              }
+                            } else {
+                              return sendResponse("Invalid data provider path!", folderPath);
+                            }
                           });
+                        } else {
+                          return sendResponse("Invalid mask!", folderPath);
                         }
-                      }).catch(function(err) {
-                        return sendResponse(err.toString(), folderPath);
-                      });
+                      }
                     } else {
                       return sendResponse("More than one shapefile found!", folderPath);
                     }

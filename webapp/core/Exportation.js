@@ -411,6 +411,36 @@ var Exportation = function() {
         memberUtils.deleteFolderRecursively(dir, function() {});
     }
   };
+
+  // new
+
+  this.copyFileSync = function(source, target, name) {
+    var targetFile = target;
+
+    if(memberFs.existsSync(target))
+      if(memberFs.lstatSync(target).isDirectory())
+        targetFile = memberPath.join(target, name + source.substr(source.length - 4));
+
+    memberFs.writeFileSync(targetFile, memberFs.readFileSync(source));
+  };
+
+  this.copyShpFiles = function(source, target, name) {
+    var files = [];
+    var self = this;
+
+    if(memberFs.lstatSync(source).isDirectory()) {
+      files = memberFs.readdirSync(source);
+
+      files.forEach(function(file) {
+        var currentSource = memberPath.join(source, file);
+
+        if(!memberFs.lstatSync(currentSource).isDirectory() && file.substr(file.length - 4) !== ".zip")
+          self.copyFileSync(currentSource, target, name);
+      });
+    }
+  };
+
+  // new
 };
 
 module.exports = Exportation;
