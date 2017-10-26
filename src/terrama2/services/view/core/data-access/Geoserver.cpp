@@ -1760,9 +1760,21 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
       {
         std::unique_ptr<te::gm::Geometry> geom (te::gm::GetGeomFromEnvelope(rasterInfo.envelope.get(), rasterInfo.srid));
 
+        std::string fileURI = baseUrl.toLocalFile().toStdString();
+        QFileInfo file(QString::fromStdString(fileURI + "/" + terrama2::core::getFolderMask(dataset) + "/" + rasterInfo.name));
+        if(!file.exists())
+        {
+
+          QString errMsg = QObject::tr("Unable to locate file: %1").arg(file.absolutePath());
+          TERRAMA2_LOG_ERROR() << errMsg;
+          throw Exception() << ErrorDescription(errMsg);
+
+          continue;
+        }
+
         std::unique_ptr<te::mem::DataSetItem> dsItem (new te::mem::DataSetItem(ds.get()));
         dsItem->setGeometry("the_geom", geom.release());
-        dsItem->setString("location", baseUrl.toLocalFile().toStdString() + "/" + terrama2::core::getFolderMask(dataset) + "/" + rasterInfo.name);
+        dsItem->setString("location", file.absoluteFilePath().toStdString());
         dsItem->setDateTime("timestamp", new te::dt::TimeInstant(rasterInfo.timeTz));
 
         ds->add(dsItem.release());

@@ -103,6 +103,7 @@ namespace terrama2
 
             static MapsServerType mapsServerType(){ return "GEOSERVER"; }
 
+        protected:
             /*!
              * \brief Return the working uri
              * \return Return the working uri
