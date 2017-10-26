@@ -36,98 +36,130 @@
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/core/utility/TerraMA2Init.hpp>
 #include <terrama2/impl/Utils.hpp>
+
 #include <terrama2/services/view/core/data-access/Geoserver.hpp>
 #include <terrama2/services/view/core/data-access/DataAccess.hpp>
+
 #include <terrama2/services/view/core/JSonUtils.hpp>
 #include <terrama2/core/utility/TerraMA2Init.hpp>
 
+#include <terrama2/services/view/mock/MockViewLogger.hpp>
+#include <examples/data/ViewGeoserver.hpp>
 
 int main(int , char** )
 {
-  terrama2::core::TerraMA2Init terramaRaii("example", 0);
-  terrama2::core::registerFactories();
 
   try
   {
+    terrama2::core::TerraMA2Init terramaRaii("example", 0);
+    Q_UNUSED(terramaRaii);
 
-    // Make sure to have a geoServer with the below configuration
-    te::core::URI uri("http://admin:geoserver@localhost:8080/geoserver");
-    terrama2::services::view::core::GeoServer geoserver(uri);
+    terrama2::core::registerFactories();
 
-    geoserver.registerWorkspace("aworkspace");
 
-    geoserver.registerStyle("arealStyle", "<?xml version=\"1.0\" encoding=\"UTF-8\"?><sld:StyledLayerDescriptor xmlns=\"http://www.opengis.net/sld\" xmlns:sld=\"http://www.opengis.net/sld\" xmlns:gml=\"http://www.opengis.net/gml\" xmlns:ogc=\"http://www.opengis.net/ogc\" version=\"1.0.0\"><sld:NamedLayer><sld:Name>Style</sld:Name><sld:UserStyle><sld:Name>Style</sld:Name><sld:FeatureTypeStyle><sld:Name>Style 1</sld:Name><sld:Rule><sld:RasterSymbolizer><sld:Opacity>1.0</sld:Opacity><sld:ColorMap extended=\"true\"><sld:ColorMapEntry color=\"#000000\" quantity=\"0.0\"/><sld:ColorMapEntry color=\"#ffffff\" quantity=\"1.0\"/></sld:ColorMap></sld:RasterSymbolizer></sld:Rule></sld:FeatureTypeStyle></sld:UserStyle></sld:NamedLayer></sld:StyledLayerDescriptor>");
+    auto dataManager = std::make_shared<terrama2::services::view::core::DataManager>();
 
-    // Registering shapes from the same server that GeoServer
-    geoserver.registerVectorFile("ashape", TERRAMA2_DATA_DIR + "/shapefile/Rod_Principais_SP_lin.shp", "layer1");
+    auto loggerCopy = std::make_shared<terrama2::core::MockViewLogger>();
 
-    geoserver.registerVectorFile("ashape", TERRAMA2_DATA_DIR + "/shapefile/35MUE250GC_SIR.shp", "layer2");
 
-    // Removing the shapes
-    geoserver.deleteVectorLayer("ashape", "Rod_Principais_SP_lin", true);
+    EXPECT_CALL(*loggerCopy, setConnectionInfo(::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*loggerCopy, setTableName(::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*loggerCopy, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
+    EXPECT_CALL(*loggerCopy, getDataLastTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
+    EXPECT_CALL(*loggerCopy, done(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*loggerCopy, start(::testing::_)).WillRepeatedly(::testing::Return(0));
+    EXPECT_CALL(*loggerCopy, isValid()).WillRepeatedly(::testing::Return(true));
 
-    geoserver.deleteVectorLayer("ashape", "35MUE250GC_SIR.shp", true);
+    te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+ ":"+TERRAMA2_DATABASE_PASSWORD+"@"+TERRAMA2_DATABASE_HOST+":"+TERRAMA2_DATABASE_PORT+"/"+TERRAMA2_DATABASE_DBNAME);
+    EXPECT_CALL(*loggerCopy, getConnectionInfo()).WillRepeatedly(::testing::Return(uri));
 
-    // Uploading many shapes from a zip file
-    geoserver.uploadZipVectorFiles("ashapes", TERRAMA2_DATA_DIR + "/shapefile/shapefile.zip", "shp");
+    EXPECT_CALL(*loggerCopy, setStartProcessingTime(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*loggerCopy, setEndProcessingTime(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*loggerCopy, result(::testing::_, ::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
 
-    // Removing the shapes
-    geoserver.deleteVectorLayer("ashapes", "Rod_Principais_SP_lin", true);
+    auto logger = std::make_shared<terrama2::core::MockViewLogger>();
 
-    geoserver.deleteVectorLayer("ashapes", "35MUE250GC_SIR.shp", true);
 
-    // Registering a folder with shapes in the GeoServer
-    geoserver.registerVectorsFolder("ashapesfolder", TERRAMA2_DATA_DIR + "/shapefile", "shp");
+    EXPECT_CALL(*logger, setConnectionInfo(::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*logger, setTableName(::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*logger, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
+    EXPECT_CALL(*logger, getDataLastTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
+    EXPECT_CALL(*logger, done(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
+    //EXPECT_CALL(*logger, start(::testing::_)).WillRepeatedly(::testing::Return(0));
+    EXPECT_CALL(*logger, clone()).WillRepeatedly(::testing::Return(loggerCopy));
+    EXPECT_CALL(*logger, isValid()).WillRepeatedly(::testing::Return(true));
+    EXPECT_CALL(*logger, getConnectionInfo()).WillRepeatedly(::testing::Return(uri));
 
-    geoserver.deleteVectorLayer("ashapesfolder", "35MUE250GC_SIR.shp", true);
+    EXPECT_CALL(*logger, setStartProcessingTime(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*logger, setEndProcessingTime(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*logger, result(::testing::_, ::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
 
-    // Publish a table in Postgis with vector data
-    std::map<std::string, std::string> connInfo { {"PG_HOST", TERRAMA2_DATABASE_HOST},
-                                                  {"PG_PORT", TERRAMA2_DATABASE_PORT},
-                                                  {"PG_USER", TERRAMA2_DATABASE_USERNAME},
-                                                  {"PG_PASSWORD", TERRAMA2_DATABASE_PASSWORD},
-                                                  {"PG_DB_NAME", TERRAMA2_DATABASE_DBNAME},
-                                                  {"PG_CONNECT_TIMEOUT", "4"},
-                                                  {"PG_CLIENT_ENCODING", "UTF-8"}
-                                                };
 
-    std::unique_ptr<te::da::DataSetType> dsType(terrama2::services::view::core::DataAccess::getDataSetType("dataSourceURI",
-                                                               "muni", "POSTGIS"));
+    auto geoserver = terrama2::services::view::core::GeoServer::make(te::core::URI("http://admin:geoserver@localhost:8080/geoserver"));
 
-    geoserver.registerPostgisTable("ashapepostgis", terrama2::core::DataSeriesType::GEOMETRIC_OBJECT, connInfo, "muni", "muni", dsType);
+    auto dataProvider = terrama2::geoserver::dataProviderFileGrid();
+    dataManager->add(dataProvider);
 
-    geoserver.registerPostgisTable("aviewpostgis", terrama2::core::DataSeriesType::GEOMETRIC_OBJECT, connInfo, "view_muni", "view_muni", dsType, "", "SELECT * FROM muni WHERE gid = 558");
+    auto dataSeries = terrama2::geoserver::dataSeriesHumidity(dataProvider);
+    dataManager->add(dataSeries);
 
-    // Registering a style
-    geoserver.registerStyle("astyle", "style");
+    std::unique_ptr<terrama2::services::view::core::View::Legend> legend(new terrama2::services::view::core::View::Legend());
 
-    // Registering coverages from the same server that GeoServer
-    geoserver.registerCoverageFile("acoverage", TERRAMA2_DATA_DIR + "/geotiff/Spot_Vegetacao_Jul2001_SP.tif", "Spot_Vegetacao_Jul2001_SP","geotiff");
-    geoserver.registerCoverageFile("acoverage", TERRAMA2_DATA_DIR + "/geotiff/L5219076_07620040908_r3g2b1.tif", "L5219076_07620040908_r3g2b1", "geotiff");
+    legend->operation = terrama2::services::view::core::View::Legend::OperationType::VALUE;
+    legend->classify = terrama2::services::view::core::View::Legend::ClassifyType::RAMP;
 
-    // Removing the coverages
-    geoserver.deleteCoverageLayer("acoverage", "Spot_Vegetacao_Jul2001_SP", true);
-    geoserver.deleteCoverageLayer("acoverage", "L5219076_07620040908_r3g2b1", true);
+    legend->metadata.emplace("creation_type", "editor");
+    legend->metadata.emplace("band_number", "0");
+    legend->metadata.emplace("dummy", "0");
 
-    // Uploading many coverages from a zip file
-    geoserver.uploadZipCoverageFile("acoverage", TERRAMA2_DATA_DIR + "/geotiff/geotiff.zip", "geotiff");
+    {
+      terrama2::services::view::core::View::Legend::Rule rule;
+      rule.title = "title0";
+      rule.value = "0";
+      rule.color = "#FFFFFF";
+      rule.opacity = "1";
+      rule.isDefault = true;
 
-    std::list<std::pair<std::string, std::string>> layersAndStyles;
+      legend->rules.push_back(rule);
+    }
 
-    layersAndStyles.push_back(std::make_pair("aworkspace:Spot_Vegetacao_Jul2001_SP", ""));
-    layersAndStyles.push_back(std::make_pair("aworkspace:muni", "astyle"));
-    layersAndStyles.push_back(std::make_pair("aworkspace:Rod_Principais_SP_lin", ""));
+    {
+      terrama2::services::view::core::View::Legend::Rule rule;
+      rule.title = "title1";
+      rule.value = "0";
+      rule.color = "#8181FF";
+      rule.opacity = "1";
+      rule.isDefault = false;
 
-    te::gm::Envelope env(-53.11664642808698, -25.31237828099399,
-                         -44.16072686935583, -19.772910107715056);
+      legend->rules.push_back(rule);
+    }
+    {
+      terrama2::services::view::core::View::Legend::Rule rule;
+      rule.title = "title2";
+      rule.value = "1";
+      rule.color = "#19FFFF";
+      rule.opacity = "1";
+      rule.isDefault = false;
 
-    geoserver.getMapWMS("/home/vinicius", "imagem.jpg", layersAndStyles, env, 768, 516, 4326, "image/jpeg");
+      legend->rules.push_back(rule);
+    }
 
-    geoserver.deleteCoverageLayer("acoverage", "Spot_Vegetacao_Jul2001_SP", true);
+    std::shared_ptr<terrama2::services::view::core::View> view = std::make_shared<terrama2::services::view::core::View>();
+    view->id = 1;
+    view->active = true;
+    view->projectId = 1;
+    view->serviceInstanceId = 1;
+    view->viewName = "MosaicExample";
+    view->dataSeriesID = dataSeries->id;
+    view->filter = terrama2::core::Filter();
+    view->legend = std::move(legend);
 
-    geoserver.deleteVectorLayer("ashapesfolder", "Rod_Principais_SP_lin", true);
+    dataManager->add(view);
 
-    geoserver.cleanup();
+    //This RegisterId is part of Google Mock function start return 0
+    RegisterId logId = 0;
+
+    geoserver->generateLayers(view, std::make_pair(dataSeries, dataProvider), dataManager, logger, logId);
 
   }
   catch(const std::exception& e)
