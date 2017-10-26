@@ -717,64 +717,31 @@ define([], function() {
           var listColumns = function(dataProvider, table_name){
             var result = $q.defer();
 
-            var params = getPostgisUriInfo(dataProvider.uri);
-            params.objectToGet = "column";
-            params.table_name = table_name;
-
-            var httpRequest = $http({
-              method: "GET",
-              url: BASE_URL + "uri/",
-              params: params
-            });
-
-            httpRequest.then(function(response) {
-              self.columnsList = response.data.data.map(function(item, index){
-                return item.column_name;
-              });
-              self.attributesList = [];
-              response.data.data.forEach(function(attr){
-                var attributeObject = {
-                  "name": attr.column_name,
-                  "code": "get_value(\""+attr.column_name+"\")"
+            DataProviderService.listPostgisObjects({providerId: dataProvider.id, objectToGet: "column", tableName: table_name})
+              .then(function(response){
+                if (response.data.status == 400){
+                  return result.reject(response.data);
                 }
-                self.attributesList.push(attributeObject);
+                self.columnsList = response.data.data.map(function(item, index) {
+                  return item.column_name;
+                });
+                self.attributesList = [];
+                response.data.data.forEach(function(attr){
+                  var attributeObject = {
+                    "name": attr.column_name,
+                    "code": "get_value(\""+attr.column_name+"\")"
+                  }
+                  self.attributesList.push(attributeObject);
+                });
+                if (self.attributesList.length > 0){
+                  self.operators.attributes.data = self.attributesList;
+                } else {
+                  delete self.operators.attributes.data;
+                }
+                result.resolve(response.data.data);
               });
-              if (self.attributesList.length > 0){
-                self.operators.attributes.data = self.attributesList;
-              } else {
-                delete self.operators.attributes.data;
-              }
-              result.resolve(response.data.data);
-            });
-
-            httpRequest.catch(function(err) {
-              result.reject(err);
-            });
 
             return result.promise;
-          };
-          
-          //help function to parse a URI
-          var getPostgisUriInfo = function(uri){
-            var params = {};
-            params.protocol = uri.split(':')[0];
-            var hostData = uri.split('@')[1];
-            if (hostData){
-              params.hostname = hostData.split(':')[0];
-              params.port = hostData.split(':')[1].split('/')[0];
-              params.database = hostData.split('/')[1];  
-            }  
-
-            var auth = uri.split('@')[0];
-            if (auth){
-              var userData = auth.split('://')[1];
-              if (userData){
-                params.user = userData.split(':')[0];
-                params.password = userData.split(':')[1];
-              }
-            }
-            
-            return params;
           };
 
           // filtering formats

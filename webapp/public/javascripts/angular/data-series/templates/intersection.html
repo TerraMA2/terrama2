@@ -64,7 +64,7 @@
                         <label>{{ i18n.__('Attribute')}}</label>
                         <div class="input-group">
                           <!-- Input when data is not grid -->
-                          <input type="text" class="form-control" ng-model="attrText">
+                          <input type="text" class="form-control" ng-model="attrText" list="tableColumnsList">
                           <div class="input-group-addon" ng-click="addAttribute(forms.intersectionForm, selectedIntersection, attrText); attrText='';">
                             <a href="">
                               <i class="fa fa-plus"></i>

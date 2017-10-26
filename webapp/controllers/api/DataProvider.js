@@ -7,8 +7,39 @@ var RequestFactory = require("../../core/RequestFactory");
 var Utils = require('./../../core/Utils');
 var TokenCode = require('./../../core/Enums').TokenCode;
 var TcpService = require("./../../core/facade/tcp-manager/TcpService");
+var PostgisRequest = require("./../../core/PostgisRequest");
 
 module.exports = function(app) {
+  /**
+   * Helper function to parse a PostGIS URI.
+   * 
+   * @returns {object}
+   */
+  var getPostgisUriInfo = function(uri) {
+    var params = {};
+    params.protocol = uri.split(':')[0];
+    var hostData = uri.split('@')[1];
+
+    if(hostData) {
+      params.hostname = hostData.split(':')[0];
+      params.port = hostData.split(':')[1].split('/')[0];
+      params.database = hostData.split('/')[1];
+    }
+
+    var auth = uri.split('@')[0];
+
+    if(auth) {
+      var userData = auth.split('://')[1];
+
+      if(userData) {
+        params.user = userData.split(':')[0];
+        params.password = userData.split(':')[1];
+      }
+    }
+
+    return params;
+  };
+
   return {
     post: function(request, response) {
       var dataProviderReceived = request.body;
@@ -177,6 +208,28 @@ module.exports = function(app) {
       } else {
         Utils.handleRequestError(response, new DataProviderError("Missing data provider id", []), 400);
       }
+    },
+
+    listObjects: function(request, response){
+      var providerId = request.body.providerId;
+      var objectToGet = request.body.objectToGet;
+      var tableName = request.body.tableName;
+      return DataManager.getDataProvider({id: providerId})
+        .then(function(dataProvider) {
+          var providerObject = dataProvider.toObject();
+          var uriInfo = getPostgisUriInfo(providerObject.uri);
+          uriInfo.objectToGet = objectToGet;
+          uriInfo.tableName = tableName;
+          var postgisRequest = new PostgisRequest(uriInfo);
+          return postgisRequest.get()
+            .then(function(data){
+              return response.json({status: 200, data: data});
+            }).catch(function(err){
+              return response.json({status: 400, message: err.message});
+            });
+        }).catch(function(err){
+          return response.json({status: 400, message: err.message});
+        });
     }
   };
 };
