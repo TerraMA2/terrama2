@@ -978,6 +978,7 @@
   "updated": "atualizado",
   "w": "w",
   "Invalid address": "Endereço inválido",
+  "Invalid file extension!": "Extensão inválida!",
   "The service can not access the log database!": "O serviço não pode acessar o banco de logs!",
 	"Error": " read ECONNRESET",
   "The service can not access the map server!": "O serviço não pode acessar o servidor de mapas!",

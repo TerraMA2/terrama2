@@ -1043,5 +1043,6 @@
 	"Failed to create destination folder!": "",
 	"File already exists!": "",
 	"Invalid data provider path!": "Invalid data provider path!",
-  "Invalid mask!": ""
+  "Invalid mask!": "",
+  "Invalid file extension!": ""
 }

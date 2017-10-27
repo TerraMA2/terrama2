@@ -976,6 +976,7 @@
   "updated": "updated",
   "w": "w",
   "Invalid address": "Invalid address",
+  "Invalid file extension!": "Invalid file extension!",
   "The service can not access the log database!": "The service can not access the log database!",
   "The service can not access the map server!": "The service can not access the map server!",
   "Host service error": "Host service error: ",

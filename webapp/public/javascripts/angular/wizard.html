@@ -64,6 +64,11 @@
           <terrama2-shapefile-importer></terrama2-shapefile-importer>
         </div>
       </div>
+      <div class="col-md-12" ng-if="!isDynamic && (semanticsCode === 'GRID-static_gdal' && isDataProviderFolder())">
+        <div class="col-md-12">
+          <terrama2-geotiff-importer></terrama2-geotiff-importer>
+        </div>
+      </div>
 
       <div class="col-md-12" style="margin-top: 30px;">
         <a href="" class="btn btn-primary pull-left cancel-dynamic" ng-show="isDynamic">{{ i18n.__('Cancel') }}</a>

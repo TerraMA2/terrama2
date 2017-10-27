@@ -427,7 +427,7 @@ var Exportation = function() {
 
     if(memberFs.existsSync(target))
       if(memberFs.lstatSync(target).isDirectory())
-        targetFile = memberPath.join(target, name + source.substr(source.length - 4));
+        targetFile = memberPath.join(target, name + memberPath.extname(source));
 
     memberFs.writeFileSync(targetFile, memberFs.readFileSync(source));
   };
@@ -452,10 +452,42 @@ var Exportation = function() {
       files.forEach(function(file) {
         var currentSource = memberPath.join(source, file);
 
-        if(!memberFs.lstatSync(currentSource).isDirectory() && file.substr(file.length - 4) !== ".zip")
+        if(!memberFs.lstatSync(currentSource).isDirectory() && memberPath.extname(file) !== ".zip")
           self.copyFileSync(currentSource, target, name);
       });
     }
+  };
+
+  /**
+   * Creates a folder structure accordingly with a received mask. The last item of the mask array is ignored, because it should be the file name.
+   * @param {string} basePath - Initial path where the new folder(s) should be created
+   * @param {array} maskArray - An array created using a file mask containing the desired destination folder
+   * @returns {object} returnObject - Object with the result of the operation
+   *
+   * @function createPathToFile
+   * @memberof Exportation
+   * @inner
+   */
+  this.createPathToFile = function(basePath, maskArray) {
+    var self = this;
+    var returnObject = { error: null };
+    var pathToBeCreated = basePath;
+
+    maskArray.forEach(function(maskFolder, index) {
+      if(maskFolder !== "" && index < (maskArray.length - 1)) {
+        pathToBeCreated = pathToBeCreated + "/" + maskFolder;
+
+        if(self.createFolder(pathToBeCreated)) {
+          returnObject.error = "Failed to create destination folder!";
+          return;
+        }
+      }
+    });
+
+    if(!returnObject.error)
+      returnObject.createdPath = pathToBeCreated;
+
+    return returnObject;
   };
 };
 
