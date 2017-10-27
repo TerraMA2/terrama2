@@ -99,6 +99,7 @@ module.exports = function(app) {
       var dataSeriesId = request.params.id;
       var dataSeriesTemporality = request.query.type;
       var schema = request.query.schema;
+      var project_id = request.query.project_id;
 
       // collector scope
       var collector = request.query.collector;
@@ -118,6 +119,10 @@ module.exports = function(app) {
             project_id: project
           }
         };
+      } else if (project_id){
+        var restriction = {
+          project_id: project_id
+        }
       } else {
         var restriction = {
           dataProvider: {
@@ -577,6 +582,12 @@ module.exports = function(app) {
       } else {
         Utils.handleRequestError(response, new DataSeriesError("Missing dataseries id"), 400);
       }
+    },
+
+    duplicate: function(request, response) {
+      var dataSeriesObject = request.body.dataSeries;
+      var dataProviderObject = dataSeriesObject.data_provider;
+      delete dataProviderObject.id;
     }
   };
 };

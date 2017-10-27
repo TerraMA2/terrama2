@@ -1,6 +1,6 @@
 define([], function() {
 
-  function ListController($scope, DataSeriesService, Socket, i18n, $window, Service, MessageBoxService, $timeout) {
+  function ListController($scope, $q, BaseService, DataSeriesService, Socket, i18n, $window, Service, MessageBoxService, $timeout) {
     $scope.i18n = i18n;
     $scope.disabledButtons = {};
     $scope.orderBy = "name";
@@ -10,6 +10,24 @@ define([], function() {
     var queryParams = {};
 
     var serviceCache = {};
+
+    var listDataSeries = function(projectId){
+      var defer = $q.defer();
+      BaseService
+        .$request(BASE_URL + "api/DataSeries", "GET", {params: {project_id: projectId, type: 'dynamic', ignoreAnalysisOutputDataSeries: true, collector: true}})
+        .then(function(response) {
+          $scope.extra.dataSeries = response.data;
+          return defer.resolve(response.data);
+        })
+        .catch(function(err) {
+          return defer.reject(err);
+        });
+      return defer.promise;
+    };
+
+    var importDataSeries = function(){
+      console.log($scope.extra.selectedDataSeries);
+    };
 
     var config = $window.configuration;
 
@@ -122,6 +140,19 @@ define([], function() {
       },
       disabledButtons: function(object){
         return $scope.disabledButtons[object.id];
+      },
+      importFromAnotherProject: config.dataSeriesType !== "static",
+      projects: config.projects,
+      listDataSeries: function(project){
+        listDataSeries(project.id);
+      },
+      dataSeriesChange: function(dataSeries){
+        $scope.extra.selectedDataSeries = dataSeries;
+      },
+      importDataSeries: function(){
+        if (!$scope.extra.selectedDataSeries)
+          console.log("Selecione um data series")
+        importDataSeries();
       }
     };
 
@@ -288,7 +319,7 @@ define([], function() {
     $scope.iconProperties = config.iconProperties || {};
   }
 
-  ListController.$inject = ["$scope", "DataSeriesService", "Socket", "i18n", "$window", "Service", "MessageBoxService", "$timeout"];
+  ListController.$inject = ["$scope", "$q", "BaseService", "DataSeriesService", "Socket", "i18n", "$window", "Service", "MessageBoxService", "$timeout"];
 
   return ListController;
 });

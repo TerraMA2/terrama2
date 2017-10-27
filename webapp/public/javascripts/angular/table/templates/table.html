@@ -1,5 +1,31 @@
 <div>
   <div class="col-md-12">
+
+    <!-- Modal to import data series from another project-->
+    <div ng-if="extra.importFromAnotherProject" class="modal fade" id="projectsDataSeries" tabindex="-1" role="dialog" aria-labelledby="infoModalLabel">
+      <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="infoModalLabel">{{ i18n.__('Choose data series') }}</h4>
+          </div>
+          <div class="modal-body">
+            <label>Projects:</label>
+            <select class="form-control" ng-options="project.name for project in extra.projects" ng-model="selectedProject" ng-change="extra.listDataSeries(selectedProject);">
+            </select>
+            <div ng-if="selectedProject" >
+              <label>Data series:</label>
+              <select class="form-control" ng-options="dataS.name for dataS in extra.dataSeries" ng-model="selectedDataSeries" ng-change="extra.dataSeriesChange(selectedDataSeries)"></select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary pull-right" data-dismiss="modal" ng-click="extra.importDataSeries()">{{ i18n.__('Duplicate') }}</button>
+            <button type="button" class="btn btn-primary pull-left" data-dismiss="modal">{{ i18n.__('Cancel') }}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Modal -->
     <div ng-if="isFunction(remove)" id="{{ modalId }}" class="modal fade modal-danger" ng-init="removalModalCreated=true" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
       <div class="modal-dialog modal-sm" role="document">
@@ -108,6 +134,7 @@
             <i class="fa fa-upload"></i>
           </a>
           <a ng-href="{{ extra.canRemove ? linkToAdd : 'javascript:function() { return false; }'}}"
+            ng-show="!extra.importFromAnotherProject"
             ng-disabled="!extra.canRemove"
             class="btn btn-default pull-right"
             data-toggle="tooltip"
@@ -116,6 +143,20 @@
             style="margin-top: 24px;margin-right: 10px;">
             <i class="fa fa-plus"></i>
           </a>
+
+          <div class="btn-group pull-right" style="margin-top: 24px;margin-right: 10px;" ng-show="extra.importFromAnotherProject">
+            <a type="button" class="btn btn-default" ng-href="{{ extra.canRemove ? linkToAdd : 'javascript:function() { return false; }'}}" ng-disabled="!extra.canRemove">
+              <i class="fa fa-plus"></i>
+            </a>
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <span class="caret"></span>
+              <span class="sr-only"></span>
+            </button>
+            <ul class="dropdown-menu terrama2-button-dropdown-import">
+              <li><a href="javascript::void();" data-ng-click="showProjectsModal();" ng-bind="i18n.__('Import data series')"></a></li>
+            </ul>
+          </div>
+
         </div>
       </div>
     </div>

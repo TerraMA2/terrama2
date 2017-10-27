@@ -116,7 +116,26 @@ define([
       });
     return defer.promise;
   };
-
+  /**
+   * It duplicates a Data Series of another project on remote API
+   * 
+   * @param {Object} dataSeriesObject - A data series object values to duplicate
+   * @returns {ng.IPromise}
+   */
+  DataSeriesService.prototype.duplicate = function(dataSeriesObject) {
+    var defer = this.$q.defer();
+    var self = this;
+    this.BaseService.$request(this.url + "/duplicate", "POST", {
+        data: dataSeriesObject
+      })
+      .then(function(response) {
+        self.model.push(response.data);
+        return defer.resolve(response.data);
+      }).catch(function(err) {
+        return defer.reject(err.data);
+      });
+    return defer.promise;
+  };
   /**
    * Data Series Semantics service DAO
    * 

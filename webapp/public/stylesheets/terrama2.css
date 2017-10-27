@@ -342,6 +342,17 @@ bootstrap-decorator span {
   background-color: #367fa9 !important;
 }
 
+.terrama2-button-dropdown-import {
+  padding: 0 !important;
+  background-color: #f4f4f4 !important;
+  border-color: #ddd !important;
+  min-width: 133px !important;
+}
+
+.terrama2-button-dropdown-import li > a {
+  padding: 6px 20px !important;
+}
+
 .terrama2-list-error {
   margin-bottom: 10px;
 }
