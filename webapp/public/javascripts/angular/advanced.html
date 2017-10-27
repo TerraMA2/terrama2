@@ -59,7 +59,7 @@
           </div>
 
         </div>
-        <div class="col-md-12" ng-if="!isDynamic && (semanticsCode === 'STATIC_DATA-postgis' || semanticsCode === 'STATIC_DATA-ogr')">
+        <div class="col-md-12" ng-if="!isDynamic && (semanticsCode === 'STATIC_DATA-postgis' || (semanticsCode === 'STATIC_DATA-ogr' && isDataProviderFolder()))">
           <div class="col-md-12">
             <terrama2-shapefile-importer></terrama2-shapefile-importer>
           </div>

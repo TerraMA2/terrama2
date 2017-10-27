@@ -1039,5 +1039,9 @@
   "Object Monitored Data Series": "Objeto Monitorado",
   "Insert a value if you want to update the password": "",
 	"Transfer Shapefile": "",
-	"Select a Project": ""
+	"Select a Project": "",
+	"Failed to create destination folder!": "",
+	"File already exists!": "",
+	"Invalid data provider path!": "Invalid data provider path!",
+  "Invalid mask!": ""
 }

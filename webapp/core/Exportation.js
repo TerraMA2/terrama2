@@ -412,8 +412,16 @@ var Exportation = function() {
     }
   };
 
-  // new
-
+  /**
+   * Copies a file from the source to the target, saving it with the given name.
+   * @param {string} source - File source
+   * @param {string} target - File target
+   * @param {string} name - File new name
+   *
+   * @function copyFileSync
+   * @memberof Exportation
+   * @inner
+   */
   this.copyFileSync = function(source, target, name) {
     var targetFile = target;
 
@@ -424,6 +432,16 @@ var Exportation = function() {
     memberFs.writeFileSync(targetFile, memberFs.readFileSync(source));
   };
 
+  /**
+   * Copies the files of a Shapefile from a source to a target, naming them with the given name.
+   * @param {string} source - Files source
+   * @param {string} target - Files target
+   * @param {string} name - Files new name
+   *
+   * @function copyShpFiles
+   * @memberof Exportation
+   * @inner
+   */
   this.copyShpFiles = function(source, target, name) {
     var files = [];
     var self = this;
@@ -439,8 +457,6 @@ var Exportation = function() {
       });
     }
   };
-
-  // new
 };
 
 module.exports = Exportation;
