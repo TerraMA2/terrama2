@@ -415,6 +415,19 @@ define([], function() {
         return "<button class=\"btn btn-danger removeDcpBtn\" ng-click=\"removePcd('" + alias + "')\" style=\"height: 21px; padding: 1px 4px 1px 4px; font-size: 13px;\">" + i18n.__("Remove") + "</button>";
       };
 
+      $scope.isDataProviderFolder = function() {
+        var returnVal = false;
+
+        $scope.providersList.forEach(function(dataProvider) {
+          if($scope.dataSeries.data_provider_id === dataProvider.id && dataProvider.data_provider_type.id === 1) {
+            returnVal = true; 
+            return;
+          }
+        });
+
+        return returnVal;
+      };
+
       // it defines when data change combobox has changed and it will adapt the interface
       $scope.onDataSemanticsChange = function() {
         if(!$scope.semanticsSelected)
