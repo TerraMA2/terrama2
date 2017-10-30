@@ -268,7 +268,8 @@ void terrama2::services::view::core::Service::viewJob(const terrama2::core::Exec
     auto processingStartTime = terrama2::core::TimeUtils::nowUTC();
 
     QJsonObject mapsServerAnswer = mapsServer->generateLayers(viewPtr,
-                                                              std::make_pair(inputDataSeries, inputDataProvider),
+                                                              inputDataSeries,
+                                                              inputDataProvider,
                                                               dataManager,
                                                               logger,
                                                               logId);

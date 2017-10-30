@@ -880,7 +880,7 @@
 	"Occurrence operators": "",
 	"Occurrence CSV": "",
 	"Select a level": "",
-	"Invalid intersection. Each data series must have at least one attribute selected.": "",
+	"Invalid intersection. Static data series must have at least a attribute.": "",
 	"timezone": "",
 	"TerraMA² Test Message": "",
 	"Begin": "",
@@ -1049,5 +1049,10 @@
   "The size limit for the file is 300 MB.": "",
   "Transfer GeoTIFF": "",
   "File Name": "",
-  "Invalid file name!": ""
+  "Invalid file name!": "",
+	"Wild fire event (ESRI Shapefile)": "",
+	"Timestamp property": "",
+	"Geometry property": "",
+	"SLD": "",
+	"Attribute is required": ""
 }

@@ -58,6 +58,9 @@
 #include <ctime>
 #include <unordered_map>
 #include <functional>
+#include <string>
+#include <fstream>
+#include <streambuf>
 
 // Boost
 #include <boost/filesystem.hpp>
@@ -509,4 +512,29 @@ std::string terrama2::core::getFolderMask(DataSetPtr dataSet)
   }
 
   return folderMask;
+}
+
+std::string terrama2::core::readFileContents(const std::string& absoluteFilePath)
+{
+  // open file
+  std::ifstream fileStream(absoluteFilePath, std::ios_base::in);
+  if(!fileStream.is_open())
+  {
+    QString errMsg = QObject::tr("Unable to open file: %1.").arg(QString::fromStdString(absoluteFilePath));
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw Exception() << ErrorDescription(errMsg);
+  }
+
+  std::string str;
+
+  // reserve content space at str
+  fileStream.seekg(0, std::ios::end);
+  str.reserve(fileStream.tellg());
+  fileStream.seekg(0, std::ios::beg);
+
+  // read file content
+  str.assign((std::istreambuf_iterator<char>(fileStream)),
+              std::istreambuf_iterator<char>());
+
+  return str;
 }
