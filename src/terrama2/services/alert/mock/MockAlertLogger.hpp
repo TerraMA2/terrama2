@@ -79,20 +79,6 @@ namespace terrama2
 
       MOCK_CONST_METHOD0(getConnectionInfo,te::core::URI());
 
-      MOCK_CONST_METHOD2(setStartProcessingTime,
-                        void(
-                             const std::shared_ptr< te::dt::TimeInstantTZ > processingStartTime,
-                             const RegisterId registerId
-                            )
-                        );
-
-      MOCK_CONST_METHOD2(setEndProcessingTime,
-                        void(
-                             const std::shared_ptr< te::dt::TimeInstantTZ > processingEndTime,
-                             const RegisterId registerId
-                            )
-                        );
-
       MOCK_CONST_METHOD3(result,
                          void(
                               Status status,
