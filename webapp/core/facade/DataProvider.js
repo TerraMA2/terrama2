@@ -102,7 +102,7 @@
               }
 
               // try to save
-              return DataManager.addDataProvider(dataProviderObject).then(function(result) {
+              return DataManager.addDataProvider(dataProviderObject, options).then(function(result) {
                 sendDataProviders(result);
                 return resolve(result);
               }).catch(function(err) {

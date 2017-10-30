@@ -13,6 +13,9 @@ module.exports = function(app) {
   var ScheduleType = require('./../../core/Enums').ScheduleType;
   // data model
   var DataModel = require('./../../core/data-model');
+  // Facade
+  var DataProviderFacade = require("./../../core/facade/DataProvider");
+  var RequestFactory = require("./../../core/RequestFactory");
 
   return {
     post: function(request, response) {
@@ -585,9 +588,39 @@ module.exports = function(app) {
     },
 
     duplicate: function(request, response) {
-      var dataSeriesObject = request.body.dataSeries;
+      var dataSeriesObject = request.body;
       var dataProviderObject = dataSeriesObject.data_provider;
+
+      var requester = RequestFactory.buildFromUri(dataProviderObject.uri);
+      dataProviderObject.uriObject = requester.params;
       delete dataProviderObject.id;
+      delete dataSeriesObject.id;
+      DataManager.orm.transaction(function(t){
+        var options = {
+          transaction: t
+        };
+        return DataProviderFacade.save(dataProviderObject, request.session.activeProject.id, options)
+          .then(function(providerResult){
+            dataSeriesObject.data_provider_id = providerResult.id;
+            delete dataSeriesObject.data_provider;
+            return DataManager.addDataSeries(dataSeriesObject, options).then(function(dataSeriesResult) {
+              var output = {
+                "DataProviders": [providerResult.toObject()],
+                "DataSeries": [dataSeriesResult.toObject()]
+              };
+
+              logger.debug("OUTPUT: ", JSON.stringify(output));
+
+              TcpService.send(output);
+
+              return dataSeriesResult;
+            });
+          })
+      }).then(function(dataSeriesResult){
+        return response.json({status: 200, data: dataSeriesResult});
+      }).catch(function(err){
+        return Utils.handleRequestError(response, err, 400);
+      });
     }
   };
 };

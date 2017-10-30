@@ -26,7 +26,16 @@ define([], function() {
     };
 
     var importDataSeries = function(){
-      console.log($scope.extra.selectedDataSeries);
+      var dataSeriesToDuplicate = $scope.extra.selectedDataSeries;
+      dataSeriesToDuplicate.name = dataSeriesToDuplicate.name + dataSeriesToDuplicate.project_id;
+      dataSeriesToDuplicate.data_provider.name = dataSeriesToDuplicate.data_provider.name + dataSeriesToDuplicate.data_provider.project_id;
+      DataSeriesService.duplicate(dataSeriesToDuplicate)
+        .then(function(response){
+          console.log(response);
+        })
+        .catch(function(err){
+          console.log(err);
+        })
     };
 
     var config = $window.configuration;
@@ -144,6 +153,7 @@ define([], function() {
       importFromAnotherProject: config.dataSeriesType !== "static",
       projects: config.projects,
       listDataSeries: function(project){
+        $scope.extra.selectedProjext = project;
         listDataSeries(project.id);
       },
       dataSeriesChange: function(dataSeries){
