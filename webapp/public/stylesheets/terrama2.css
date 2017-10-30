@@ -658,7 +658,7 @@ table.dataTable tbody th, table.dataTable tbody td { padding-left: 12px !importa
   margin-top: 4px !important;
 }
 
-#shapefile-import-loader {
+#shapefile-import-loader, #geotiff-import-loader {
   position: fixed;
   width: 100%;
   height: 100%;
@@ -669,7 +669,7 @@ table.dataTable tbody th, table.dataTable tbody td { padding-left: 12px !importa
   left: 0;
 }
 
-#shapefile-import-loader > img {
+#shapefile-import-loader > img, #geotiff-import-loader > img {
   width: 60px;
   margin-top: 25%;
 }
