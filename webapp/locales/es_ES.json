@@ -880,7 +880,7 @@
 	"Occurrence operators": "",
 	"Occurrence CSV": "",
 	"Select a level": "",
-	"Invalid intersection. Static data series must have at least a attribute.": "",
+	"Invalid intersection. Each data series must have at least one attribute selected.": "",
 	"timezone": "",
 	"TerraMA² Test Message": "",
 	"Begin": "",
