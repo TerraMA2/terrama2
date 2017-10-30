@@ -116,7 +116,7 @@
         "properties": {
           "mask": {
             "type": "string",
-            "title": "Mask"
+            "title": "File Name"
           }
         },
         "required": ["mask"]

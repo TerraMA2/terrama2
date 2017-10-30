@@ -160,7 +160,7 @@ var ImportStaticFiles = function(app) {
                             }
                           });
                         } else {
-                          return sendResponse("Invalid mask!", folderPath);
+                          return sendResponse("Invalid file name!", folderPath);
                         }
                       }
                     } else {
@@ -216,10 +216,10 @@ var ImportStaticFiles = function(app) {
               return sendResponse(err.toString(), folderPath);
             else {
               try {
-                if(memberPath.extname(path) === ".tiff" || memberPath.extname(path) === ".tif") {
+                if(memberPath.extname(path) === ".tif") {
                   var mask = request.body.mask.split("\\").join("/");
 
-                  if(memberPath.extname(mask) === ".tiff" || memberPath.extname(mask) === ".tif") {
+                  if(memberPath.extname(mask) === ".tif") {
                     memberDataManager.getDataProvider({ id: request.body.dataProviderId }).then(function(dataProvider) {
                       var dataProviderPath = dataProvider.uri.replace("file://", "");
 
@@ -255,7 +255,7 @@ var ImportStaticFiles = function(app) {
                       }
                     });
                   } else {
-                    return sendResponse("Invalid mask!", folderPath);
+                    return sendResponse("Invalid file name!", folderPath);
                   }
                 } else {
                   return sendResponse("Invalid file extension!", folderPath);

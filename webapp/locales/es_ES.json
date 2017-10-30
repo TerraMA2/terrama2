@@ -1044,5 +1044,10 @@
 	"File already exists!": "",
 	"Invalid data provider path!": "Invalid data provider path!",
   "Invalid mask!": "",
-  "Invalid file extension!": ""
+  "Invalid file extension!": "",
+  "GeoTIFF imported with success!": "",
+  "The size limit for the file is 300 MB.": "",
+  "Transfer GeoTIFF": "",
+  "File Name": "",
+  "Invalid file name!": ""
 }
