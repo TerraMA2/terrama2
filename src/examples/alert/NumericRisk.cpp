@@ -64,7 +64,7 @@ terrama2::services::alert::core::AlertPtr newAlert(terrama2::core::DataSeriesPtr
 
   alert->id = 1;
   alert->projectId = 1;
-  alert->riskAttribute = "min";
+  alert->riskAttribute = "count";
   alert->dataSeriesId = dataSeries->id;
   alert->active = true;
   alert->name = "Example alert";
@@ -78,7 +78,7 @@ terrama2::services::alert::core::AlertPtr newAlert(terrama2::core::DataSeriesPtr
   additionalData.dataSetId = dataSeries->datasetList.front()->id;
   additionalData.referrerAttribute = "fid";
   additionalData.referredAttribute = "fid";
-  additionalData.attributes.push_back("min");
+  additionalData.attributes.push_back("count");
 
   alert->additionalDataVector.push_back(additionalData);
 
@@ -169,11 +169,7 @@ int main(int argc, char* argv[])
   dataManager->add(dataProvider);
 
 
-  auto dataProviderStatic = terrama2::staticpostgis::dataProviderStaticPostGis();
-  dataManager->add(dataProviderStatic);
-
-
-  auto dataSeriesStatic = terrama2::staticpostgis::dataSeriesEstados2010(dataProviderStatic);
+  auto dataSeriesStatic = terrama2::staticpostgis::dataSeriesEstados2010(dataProvider);
   dataManager->add(dataSeriesStatic);
 
 
