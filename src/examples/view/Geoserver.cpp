@@ -159,7 +159,7 @@ int main(int , char** )
     //This RegisterId is part of Google Mock function start return 0
     RegisterId logId = 0;
 
-    geoserver->generateLayers(view, std::make_pair(dataSeries, dataProvider), dataManager, logger, logId);
+    geoserver->generateLayers(view, dataSeries, dataProvider, dataManager, logger, logId);
 
   }
   catch(const std::exception& e)
