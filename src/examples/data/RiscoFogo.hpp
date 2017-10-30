@@ -63,7 +63,7 @@ namespace terrama2
                                          "active": true
                                     }
                                   )"
-                                ).arg(QString::fromStdString(TERRAMA2_DATA_DIR));
+                                ).arg(QString::fromStdString("file://"+ TERRAMA2_DATA_DIR));
 
          QJsonDocument doc = QJsonDocument::fromJson(json.toUtf8());
          QJsonObject obj = doc.object();
