@@ -20,7 +20,10 @@ module.exports = function(app) {
         if(e)
           return next(e);
 
-        app.locals.collapsed = false;
+        request.session.collapsed = false;
+        request.session.activeProject = {};
+        request.session.cachedProjects = DataManager.listProjects();
+
         return response.redirect(app.locals.BASE_URL + 'firstAccess')
       })
     })(request, response, next);

@@ -7,8 +7,39 @@ var RequestFactory = require("../../core/RequestFactory");
 var Utils = require('./../../core/Utils');
 var TokenCode = require('./../../core/Enums').TokenCode;
 var TcpService = require("./../../core/facade/tcp-manager/TcpService");
+var PostgisRequest = require("./../../core/PostgisRequest");
 
 module.exports = function(app) {
+  /**
+   * Helper function to parse a PostGIS URI.
+   * 
+   * @returns {object}
+   */
+  var getPostgisUriInfo = function(uri) {
+    var params = {};
+    params.protocol = uri.split(':')[0];
+    var hostData = uri.split('@')[1];
+
+    if(hostData) {
+      params.hostname = hostData.split(':')[0];
+      params.port = hostData.split(':')[1].split('/')[0];
+      params.database = hostData.split('/')[1];
+    }
+
+    var auth = uri.split('@')[0];
+
+    if(auth) {
+      var userData = auth.split('://')[1];
+
+      if(userData) {
+        params.user = userData.split(':')[0];
+        params.password = userData.split(':')[1];
+      }
+    }
+
+    return params;
+  };
+
   return {
     post: function(request, response) {
       var dataProviderReceived = request.body;
@@ -92,7 +123,7 @@ module.exports = function(app) {
         });
         response.json(output);
       } else if(name) {
-        return DataManager.getDataProvider({name: name, project_id: app.locals.activeProject.id}).then(function(dataProvider) {
+        return DataManager.getDataProvider({name: name, project_id: request.session.activeProject.id}).then(function(dataProvider) {
           response.json(dataProvider.toObject());
         }).catch(function(err) {
           response.status(400);
@@ -100,7 +131,7 @@ module.exports = function(app) {
         });
       } else {
         var output = [];
-        DataManager.listDataProviders({project_id: app.locals.activeProject.id}).forEach(function(element) {
+        DataManager.listDataProviders({project_id: request.session.activeProject.id}).forEach(function(element) {
           output.push(element.rawObject());
         });
         response.json(output);
@@ -133,7 +164,7 @@ module.exports = function(app) {
       if (dataProviderId) {
         dataProviderId = parseInt(dataProviderId);
         return DataManager.updateDataProvider(dataProviderId, toUpdate).then(function() {
-          return DataManager.getDataProvider({id: dataProviderId, project_id: app.locals.activeProject.id}).then(function(dProvider) {
+          return DataManager.getDataProvider({id: dataProviderId, project_id: request.session.activeProject.id}).then(function(dProvider) {
             TcpService.send({
               "DataProviders": [dProvider.toService()]
             });
@@ -177,6 +208,28 @@ module.exports = function(app) {
       } else {
         Utils.handleRequestError(response, new DataProviderError("Missing data provider id", []), 400);
       }
+    },
+
+    listObjects: function(request, response){
+      var providerId = request.body.providerId;
+      var objectToGet = request.body.objectToGet;
+      var tableName = request.body.tableName;
+      return DataManager.getDataProvider({id: providerId})
+        .then(function(dataProvider) {
+          var providerObject = dataProvider.toObject();
+          var uriInfo = getPostgisUriInfo(providerObject.uri);
+          uriInfo.objectToGet = objectToGet;
+          uriInfo.tableName = tableName;
+          var postgisRequest = new PostgisRequest(uriInfo);
+          return postgisRequest.get()
+            .then(function(data){
+              return response.json({status: 200, data: data});
+            }).catch(function(err){
+              return response.json({status: 400, message: err.message});
+            });
+        }).catch(function(err){
+          return response.json({status: 400, message: err.message});
+        });
     }
   };
 };

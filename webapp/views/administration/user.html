@@ -12,7 +12,7 @@ TerraMA² {{ i18n.__('User Registration') }}
 {% endblock %}
 
 {% block styles %}
-<link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}bower_components/intl-tel-input/build/css/intlTelInput.css">
+<link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}externals/intl-tel-input/build/css/intlTelInput.css">
 <style type="text/css">
   .intl-tel-input {
     display: block !important;
@@ -22,12 +22,12 @@ TerraMA² {{ i18n.__('User Registration') }}
 {% endblock %}
 
 {% block javascripts %}
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/intl-tel-input/build/js/intlTelInput.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/intl-tel-input/build/js/intlTelInput.js"></script>
 <script type="text/javascript">
   $(document).ready(function(){
     $("#cellphone").intlTelInput({
       preferredCountries: [ "br", "us", "es", "fr"],
-      utilsScript: BASE_URL + "bower_components/intl-tel-input/build/js/utils.js"
+      utilsScript: BASE_URL + "externals/intl-tel-input/build/js/utils.js"
     });
   });
 </script>
@@ -76,7 +76,8 @@ TerraMA² {{ i18n.__('User Registration') }}
                 <div class="col-md-4">
                   <div class="form-group" terrama2-show-errors>
                     <label>{{ i18n.__("Password") }}:</label>
-                    <input class="form-control" name="password" ng-model="user.password" id="password" placeholder="{{ i18n.__('Password') }}" type="password" required>
+                    <input class="form-control" name="password" ng-model="user.password" ng-if="{[ !update ]}" id="password" placeholder="{{ i18n.__('Password') }}" type="password" required>
+                    <input class="form-control" name="passwordUpdate" ng-model="user.passwordUpdate" ng-if="{[ update ]}" id="passwordUpdate" placeholder="{{ i18n.__('Insert a value if you want to update the password') }}" type="password">
 
                     <span class="help-block has-error" ng-show="form.password.$dirty && form.password.$invalid">{{ i18n.__('Password is required') }}</span>
                   </div>
@@ -85,10 +86,11 @@ TerraMA² {{ i18n.__('User Registration') }}
                 <div class="col-md-4">
                   <div class="form-group" terrama2-show-errors>
                     <label>{{ i18n.__("Confirm Password") }}:</label>
-                    <input class="form-control" name="passwordConfirm" ng-model="user.passwordConfirm" id="passwordConfirm" placeholder="{{ i18n.__('Confirm password') }}" type="password" terrama2-compare-to="user.password" required>
+                    <input class="form-control" name="passwordConfirm" ng-model="user.passwordConfirm" ng-if="{[ !update ]}" id="passwordConfirm" placeholder="{{ i18n.__('Confirm password') }}" type="password" terrama2-compare-to="user.password" required>
+                    <input class="form-control" name="passwordConfirmUpdate" ng-model="user.passwordConfirmUpdate" ng-if="{[ update ]}" id="passwordConfirmUpdate" placeholder="{{ i18n.__('Insert a value if you want to update the password') }}" type="password" terrama2-compare-to="user.passwordUpdate">
 
                     <span class="help-block has-error" ng-show="form.passwordConfirm.$dirty && form.passwordConfirm.$error.required">{{ i18n.__('Confirm password is required') }}</span>
-                    <span class="help-block has-error" ng-show="form.passwordConfirm.$dirty && form.passwordConfirm.$error.compareTo">{{ i18n.__('The password confirmation must be identical to the password') }}</span>
+                    <span class="help-block has-error" ng-show="(form.passwordConfirm.$dirty && form.passwordConfirm.$error.compareTo) || form.passwordConfirmUpdate.$error.compareTo">{{ i18n.__('The password confirmation must be identical to the password') }}</span>
                   </div>
                 </div>
 

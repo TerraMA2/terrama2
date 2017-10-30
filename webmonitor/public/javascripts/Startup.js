@@ -1,7 +1,7 @@
 requirejs.config({
   baseUrl: BASE_URL + 'javascripts',
   paths: {
-    TerraMA2WebComponents: BASE_URL + 'TerraMA2WebComponents.min'
+    TerraMA2WebComponents: BASE_URL + 'externals/TerraMA2WebComponents/TerraMA2WebComponents.min'
   }
 });
 

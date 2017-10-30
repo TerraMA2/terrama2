@@ -1,18 +1,18 @@
 #include <terrama2/core/Shared.hpp>
-#include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/utility/TimeUtils.hpp>
 #include <terrama2/core/utility/TerraMA2Init.hpp>
 #include <terrama2/core/utility/ServiceManager.hpp>
-#include <terrama2/core/utility/SemanticsManager.hpp>
-#include <terrama2/core/data-model/DataProvider.hpp>
-#include <terrama2/core/data-model/DataSeries.hpp>
-#include <terrama2/core/data-model/DataSet.hpp>
-#include <terrama2/core/data-model/DataSetGrid.hpp>
 
-#include <terrama2/services/analysis/core/python/PythonInterpreter.hpp>
-#include <terrama2/services/analysis/core/utility/PythonInterpreterInit.hpp>
 #include <terrama2/services/analysis/core/Analysis.hpp>
-#include <terrama2/services/analysis/core/Service.hpp>
 #include <terrama2/services/analysis/core/DataManager.hpp>
+#include <terrama2/services/analysis/core/Service.hpp>
+#include <terrama2/services/analysis/core/utility/PythonInterpreterInit.hpp>
+#include <terrama2/services/analysis/core/Shared.hpp>
+
+
+#include <terrama2/services/analysis/mock/MockAnalysisLogger.hpp>
+
+#include <examples/data/Geotiff.hpp>
 
 #include <terrama2/impl/Utils.hpp>
 #include <terrama2/Config.hpp>
@@ -30,100 +30,81 @@ using namespace terrama2::services::analysis::core;
 int main(int argc, char* argv[])
 {
   terrama2::core::TerraMA2Init terramaRaii("example", 0);
+  Q_UNUSED(terramaRaii);
+
 
   terrama2::core::registerFactories();
-
-
-  auto& serviceManager = terrama2::core::ServiceManager::getInstance();
-te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PASSWORD+"@"+TERRAMA2_DATABASE_HOST+":"+TERRAMA2_DATABASE_PORT+"/"+TERRAMA2_DATABASE_DBNAME);
-  serviceManager.setLogConnectionInfo(uri);
 
   terrama2::services::analysis::core::PythonInterpreterInit pythonInterpreterInit;
 
   {
     QCoreApplication app(argc, argv);
 
+    auto& serviceManager = terrama2::core::ServiceManager::getInstance();
 
-    DataManagerPtr dataManager(new DataManager());
+    auto dataManager = std::make_shared<terrama2::services::analysis::core::DataManager>();
 
-    // DataProvider information
-    terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
-    terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
-    dataProvider->uri = "file://";
-    dataProvider->uri += TERRAMA2_DATA_DIR;
-    dataProvider->uri += "/geotiff";
+    auto loggerCopy = std::make_shared<terrama2::core::MockAnalysisLogger>();
 
-    dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
-    dataProvider->dataProviderType = "FILE";
-    dataProvider->active = true;
-    dataProvider->id = 1;
-    dataProvider->name = "Local Geotiff";
+    EXPECT_CALL(*loggerCopy, setConnectionInfo(::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*loggerCopy, setTableName(::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*loggerCopy, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
+    EXPECT_CALL(*loggerCopy, getDataLastTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
+    EXPECT_CALL(*loggerCopy, done(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*loggerCopy, start(::testing::_)).WillRepeatedly(::testing::Return(0));
+    EXPECT_CALL(*loggerCopy, isValid()).WillRepeatedly(::testing::Return(true));
 
-    dataManager->add(dataProviderPtr);
+    auto logger = std::make_shared<terrama2::core::MockAnalysisLogger>();
 
-    auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
+    EXPECT_CALL(*logger, setConnectionInfo(::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*logger, setTableName(::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*logger, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
+    EXPECT_CALL(*logger, getDataLastTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
+    EXPECT_CALL(*logger, done(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*logger, start(::testing::_)).WillRepeatedly(::testing::Return(0));
+    EXPECT_CALL(*logger, clone()).WillRepeatedly(::testing::Return(loggerCopy));
+    EXPECT_CALL(*logger, isValid()).WillRepeatedly(::testing::Return(true));
 
-    //DataSeries information
-    terrama2::core::DataSeries* outputDataSeries = new terrama2::core::DataSeries();
-    terrama2::core::DataSeriesPtr outputDataSeriesPtr(outputDataSeries);
-    outputDataSeries->semantics = semanticsManager.getSemantics("GRID-gdal");
-    outputDataSeries->name = "Output Grid";
-    outputDataSeries->id = 5;
-    outputDataSeries->dataProviderId = 1;
-
-    terrama2::core::DataSetGrid* outputDataSet = new terrama2::core::DataSetGrid();
-    outputDataSet->active = true;
-    outputDataSet->format.emplace("mask", "output_grid.tif");
-    outputDataSet->dataSeriesId = outputDataSeries->id;
-    outputDataSeries->datasetList.emplace_back(outputDataSet);
-
-    dataManager->add(outputDataSeriesPtr);
-
-    dataManager->add(dataProviderPtr);
+    Service service(dataManager);
+    serviceManager.setInstanceId(1);
+    serviceManager.setLogger(logger);
+    serviceManager.setLogConnectionInfo(te::core::URI(""));
 
 
+    service.setLogger(logger);
+    service.start();
 
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Data Series 1
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    terrama2::core::DataSeries* dataSeries1 = new terrama2::core::DataSeries();
-    terrama2::core::DataSeriesPtr dataSeries1Ptr(dataSeries1);
-    dataSeries1->semantics = semanticsManager.getSemantics("GRID-gdal");
-    dataSeries1->name = "geotiff 1";
-    dataSeries1->id = 1;
-    dataSeries1->dataProviderId = 1;
+    auto dataProvider = terrama2::geotiff::dataProviderFileGrid();
+    dataManager->add(dataProvider);
 
-    terrama2::core::DataSetGrid* dataSet1 = new terrama2::core::DataSetGrid();
-    dataSet1->active = true;
-    dataSet1->format.emplace("mask", "L5219076_07620040908_r3g2b1.tif");
-    dataSet1->id = 1;
 
-    dataSeries1->datasetList.emplace_back(dataSet1);
+    auto outputDataSeriesGrid = terrama2::geotiff::dataSeriesResultAnalysisGrid(dataProvider,terrama2::geotiff::nameoutputgrid::output_grid);
+    dataManager->add(outputDataSeriesGrid);
+
+
+
+    auto dataSeries = terrama2::geotiff::dataSeriesL5219076(dataProvider);
+    dataManager->add(dataSeries);
+
 
     AnalysisDataSeries gridADS1;
     gridADS1.id = 1;
-    gridADS1.dataSeriesId = dataSeries1Ptr->id;
+    gridADS1.dataSeriesId = dataSeries->id;
     gridADS1.type = AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE;
 
 
-    dataManager->add(dataSeries1Ptr);
 
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Analysis
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    Analysis* analysis = new Analysis;
-    AnalysisPtr analysisPtr(analysis);
-
+    std::shared_ptr<terrama2::services::analysis::core::Analysis> analysis = std::make_shared<terrama2::services::analysis::core::Analysis>();
 
     analysis->id = 1;
     analysis->name = "Grid Sample";
-    analysis->script = "return grid.sample(\"geotiff 1\")";
+    analysis->script = R"x(return grid.sample("geotiff 1"))x";
     analysis->scriptLanguage = ScriptLanguage::PYTHON;
     analysis->type = AnalysisType::GRID_TYPE;
     analysis->active = true;
-    analysis->outputDataSeriesId = 5;
+    analysis->outputDataSeriesId = outputDataSeriesGrid->id;
+    analysis->outputDataSetId = outputDataSeriesGrid->datasetList.front()->id;
     analysis->serviceInstanceId = 1;
 
 
@@ -133,35 +114,24 @@ te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PA
     analysis->analysisDataSeriesList = analysisDataSeriesList;
 
 
-    analysis->schedule.frequency = 1;
-    analysis->schedule.frequencyUnit = "min";
 
-
-    AnalysisOutputGrid* outputGrid = new AnalysisOutputGrid();
-    AnalysisOutputGridPtr outputGridPtr(outputGrid);
+    std::shared_ptr<AnalysisOutputGrid> outputGrid = std::make_shared<AnalysisOutputGrid>();
 
     outputGrid->analysisId = 1;
     outputGrid->interpolationMethod = InterpolationMethod::BILINEAR;
     outputGrid->interestAreaType = InterestAreaType::SAME_FROM_DATASERIES;
-    outputGrid->interestAreaDataSeriesId = 1;
+    outputGrid->interestAreaDataSeriesId = dataSeries->id;
     outputGrid->resolutionType = ResolutionType::SAME_FROM_DATASERIES;
-    outputGrid->resolutionDataSeriesId = 1;
+    outputGrid->resolutionDataSeriesId = dataSeries->id;
     outputGrid->interpolationDummy = 266;
 
-    analysis->outputGridPtr = outputGridPtr;
+    analysis->outputGridPtr = outputGrid;
 
-    dataManager->add(analysisPtr);
+    dataManager->add(analysis);
 
-    // Starts the service and adds the analysis
-    Service service(dataManager);
-    terrama2::core::ServiceManager::getInstance().setInstanceId(1);
 
-    auto logger = std::make_shared<AnalysisLogger>();
-    logger->setConnectionInfo(uri);
-    service.setLogger(logger);
+    service.addToQueue(analysis->id, terrama2::core::TimeUtils::nowUTC());
 
-    service.start();
-    service.addProcessToSchedule(analysisPtr);
 
     QTimer timer;
     QObject::connect(&timer, &QTimer::timeout, &service, &Service::stopService);

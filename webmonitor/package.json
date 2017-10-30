@@ -1,27 +1,40 @@
 {
   "name": "TerraMA2-webmonitor",
-  "version": "4.0.0-rc2",
+  "version": "4.0.0-rc3",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./bin/www",
+    "grunt": "grunt"
   },
   "dependencies": {
     "body-parser": "~1.15.1",
-    "bower": "1.7.9",
     "cookie-parser": "~1.4.3",
     "debug": "~2.2.0",
     "express": "~4.13.4",
     "express-load": "^1.1.15",
     "express-session": "^1.15.3",
     "morgan": "~1.7.0",
-    "openlayers": "^4.2.0",
     "passport": "^0.3.2",
     "passport-local": "^1.0.0",
     "request": "^2.81.0",
     "serve-favicon": "~2.3.0",
     "socket.io": "^1.4.8",
     "swig": "1.4.2",
-    "xml2js": "^0.4.17"
+    "xml2js": "^0.4.17",
+
+    "openlayers": "=4.2.0",
+    "datatables": "=1.10.13",
+    "jquery": "=2.1.4",
+    "bootstrap": "=3.3.7",
+    "admin-lte": "=2.3.0",
+    "underscore": "=1.8.3",
+    "jquery-ui-dist": "=1.12.1",
+    "moment": "=2.19.1",
+    "bootstrap-daterangepicker": "=2.1.25",
+    "almond": "=0.3.3",
+    "font-awesome": "=4.6.3",
+    "ionicons": "=2.0.1",
+    "malihu-custom-scrollbar-plugin": "=3.1.5"
   },
   "devDependencies": {
     "grunt": "^1.0.1",

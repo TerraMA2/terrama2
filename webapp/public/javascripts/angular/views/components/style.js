@@ -9,6 +9,7 @@ define([], function () {
     bindings: {
       formCtrl: "<", // controller binding in order to throw up
       type: "=",
+      columnsList: "=",
       model: "=",
       options: "="
     },
@@ -55,6 +56,13 @@ define([], function () {
      */
     self.rgbaModal = function(elm) {
       self.rgba.elm = elm;
+      var rgbaColor = Utility.hex2rgba(elm.color);
+      if (rgbaColor){
+        self.rgba.r = rgbaColor.r;
+        self.rgba.g = rgbaColor.g;
+        self.rgba.b = rgbaColor.b;
+        self.rgba.a = rgbaColor.a;
+      }
       $("#rgbaModal").modal();
     };
 
@@ -110,10 +118,16 @@ define([], function () {
       }
     };
     /**
+     * Listen when change creation type from view register update controller
+     */
+    $scope.$on('updateCreationType', function(event) {
+      self.changeCreationType();
+    });
+    /**
      * Setting default parameters when change mode to xml file
      */
     self.changeCreationType = function(){
-      if (self.model.metadata.creation_type == "0"){
+      if (self.model.metadata.creation_type == "editor"){
         delete self.model.metadata.xml_style;
         self.model.colors = [
           {
@@ -123,7 +137,7 @@ define([], function () {
             value: ""
           }
         ];
-      } else if (self.model.metadata.creation_type == "1"){
+      } else if (self.model.metadata.creation_type == "xml"){
         self.model.type = 3;
         self.model.colors = [];
         delete self.model.bands;
@@ -139,7 +153,8 @@ define([], function () {
         $scope.$broadcast("schemaFormRedraw");
       }
     }
-
+    // Regex to valide column name of style
+    self.regexColumn = "^[a-zA-Z_][a-zA-Z0-9_]*$";
     self.changeColorType = function(){
       if (self.model.type == 1){
         self.minColorsLength = 2;
@@ -196,7 +211,7 @@ define([], function () {
      * It handles color summarization (begin and end) based in list of colors
      */
     $scope.$on("updateStyleColor", function () {
-      if (self.model.metadata.creation_type == "0"){
+      if (self.model.metadata.creation_type == "editor"){
         handleColor();
       } else if (self.model.metadata.creation_type != undefined){
         self.changeCreationType();

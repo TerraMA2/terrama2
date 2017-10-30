@@ -47,7 +47,13 @@ var setupPassport = function(app) {
   app.use(passport.session());
 
   app.use(function(req, res, next) {
+    res.locals.userLocale = req.session.userLocale;
+
     if(req.session.passport !== undefined && req.session.passport.user !== undefined) {
+      res.locals.activeProject = req.session.activeProject;
+      res.locals.cachedProjects = req.session.cachedProjects;
+      res.locals.collapsed = req.session.collapsed;
+
       return DataManager.getUser({ 'id': req.session.passport.user })
         .then(function(userObj) {
           res.locals.currentUser = {
@@ -69,6 +75,9 @@ var setupPassport = function(app) {
         });
     } else {
       res.locals.currentUser = null;
+      res.locals.activeProject = {};
+      res.locals.cachedProjects = [];
+      res.locals.collapsed = false;
       next();
     }
   });

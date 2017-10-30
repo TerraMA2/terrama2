@@ -5,7 +5,7 @@ define([], function() {
    * It represents a Controller to handle View form registration.
    * @class ViewRegistration
    */
-  function ViewRegisterUpdate($scope, i18n, ViewService, $log, $http, $timeout, MessageBoxService, $window, DataSeriesService, Service, StringFormat, ColorFactory, StyleType, Socket) {
+  function ViewRegisterUpdate($scope, $q, i18n, ViewService, $log, $http, $timeout, MessageBoxService, $window, DataSeriesService, Service, StringFormat, ColorFactory, StyleType, Socket, DataProviderService) {
     /**
      * @type {ViewRegisterUpdate}
      */
@@ -19,7 +19,7 @@ define([], function() {
 
     /**
      * It retrieves Global variables from main window.
-     * 
+     *
      * @type {Object}
      */
     var Globals = $window.globals;
@@ -114,6 +114,16 @@ define([], function() {
     var canSave = true;
     var serviceOfflineMessage = "If service is not running you can not save the view. Start the service before create or update a view!";
 
+    /**
+     * Apply legend predefined style when is dcp data series
+     * When is dcp data series, dont show fields to select creation type neither type, so use default values
+     */
+    var applyStyleDCPBehavior = function(){
+      self.legend.metadata.creation_type = "editor";
+      self.legend.type = 2; // default is interval
+      $scope.$broadcast('updateCreationType');
+    };
+
     self.styleButtons = {
       circle: {
         show: function () {
@@ -121,6 +131,9 @@ define([], function() {
         },
         click: function() {
           self.hasStyle = true;
+          if (self.targetDataSeriesType == "DCP"){
+            applyStyleDCPBehavior();
+          }
         }
       },
       minus: {
@@ -229,12 +242,20 @@ define([], function() {
             break;
           }
         case DataSeriesService.DataSeriesType.ANALYSIS_MONITORED_OBJECT:
-          return BASE_URL + "images/analysis/monitored-object/monitored-object_analysis.png";
+          if (dataSeries.type.id == 1)
+            return BASE_URL + "images/analysis/dcp/dcp_analysis.png";
+          else
+            return BASE_URL + "images/analysis/monitored-object/monitored-object_analysis.png";
           break;
         case DataSeriesService.DataSeriesType.POSTGIS:
         case DataSeriesService.DataSeriesType.GEOMETRIC_OBJECT:
-          return BASE_URL + "images/static-data-series/vetorial/vetorial.png";
-          break;
+          if (dataSeries.data_series_semantics.temporality == "STATIC"){
+            return BASE_URL + "images/static-data-series/vetorial/vetorial.png";
+            break;
+          } else {
+            return BASE_URL + "images/dynamic-data-series/geometric-object/geometric-object.png";
+            break;
+          }
         default:
           return BASE_URL + "images/dynamic-data-series/occurrence/occurrence.png";
           break;
@@ -262,8 +283,15 @@ define([], function() {
          * Retrieve all data series
          */
         return DataSeriesService.init({schema: "all"}).then(function(dataSeries) {
-          //Filter data series to not show dcp - remove when back implements dcp creation view
-          self.dataSeries = dataSeries;
+          self.dataSeries = [];
+          dataSeries.forEach(function(data){
+            if (data.data_provider && data.data_provider.data_provider_type.name){
+              if (data.data_provider.data_provider_type.name == "FILE" || data.data_provider.data_provider_type.name == "POSTGIS" )
+                self.dataSeries.push(data);
+            } else {
+              self.dataSeries.push(data);
+            }
+          });
 
           var styleCache = config.view.style;
 
@@ -325,7 +353,7 @@ define([], function() {
       if (service_id)
         Socket.emit('status', {service: service_id});
     }, true);
-  
+
     /**
      * It is used on ng-init active view. It will wait for angular ready condition and set active view checkbox
      *
@@ -351,10 +379,10 @@ define([], function() {
     }
     /**
      * function to get source type of view creation
-     * @param {Object} dataSeries 
+     * @param {Object} dataSeries
      */
     function getSourceType(dataSeries){
-      if (!dataSeries) 
+      if (!dataSeries)
         return;
       else {
         if (dataSeries.data_series_semantics.temporality == "STATIC"){
@@ -380,17 +408,18 @@ define([], function() {
           self.targetDataSeriesType = dSeries.data_series_semantics.data_series_type_name;
           // extra comparison just to setting if it is dynamic or static.
           // Here avoids to setting to true in many cases below
-          self.isDynamic = dSeries.data_series_semantics.data_series_type_name !== DataSeriesService.DataSeriesType.GEOMETRIC_OBJECT;
+          self.isDynamic = dSeries.data_series_semantics.temporality !== 'STATIC';
           if (dSeries.data_series_semantics.data_series_format_name === "GDAL") {
             self.isValid = false;
             MessageBoxService.danger(i18n.__("View"), i18n.__("You selected a GRID data series. Only GDAL data series format are supported"));
-          } else if (dSeries.data_series_semantics.data_series_type_name === DataSeriesService.DataSeriesType.DCP) {
-            self.isValid = false;
-            MessageBoxService.danger(i18n.__("View"), i18n.__("DCP data series is not supported yet"));
           } else {
             self.isValid = true;
           }
           self.view.source_type = getSourceType(dSeries);
+
+          if (dSeries.data_series_semantics.format == "POSTGIS"){
+            listColumns(dSeries.data_provider, dSeries.dataSets[0].format.table_name);
+          }
 
           // breaking loop
           return true;
@@ -403,6 +432,28 @@ define([], function() {
     function closeDialog() {
       self.MessageBoxService.reset();
     }
+    /**
+     * Lists the columns from a given table.
+     * 
+     * @returns {void}
+     */
+    var listColumns = function(dataProvider, tableName) {
+      var result = $q.defer();
+
+      DataProviderService.listPostgisObjects({providerId: dataProvider.id, objectToGet: "column", tableName: tableName})
+        .then(function(response){
+          if (response.data.status == 400){
+            return result.reject(response.data);
+          }
+          self.columnsList = response.data.data.map(function(item, index) {
+            return item.column_name;
+          });
+          result.resolve(response.data.data);
+        });
+
+      return result.promise;
+    };
+
     /**
      * It performs a save operation. It applies a form validation and try to save
      * @param {boolean} shouldRun - Determines if service should auto-run after save process
@@ -434,7 +485,7 @@ define([], function() {
             return;
           }
 
-          if (Object.keys(self.legend).length !== 0 && self.legend.metadata.creation_type == "0") {
+          if (Object.keys(self.legend).length !== 0 && self.legend.metadata.creation_type == "editor") {
             if (!self.legend.colors || self.legend.colors.length === 0) {
               return MessageBoxService.danger(i18n.__("View"), i18n.__("You must generate the style colors to classify Data Series"));
             }
@@ -450,12 +501,12 @@ define([], function() {
               }
             }
           }
-          else if (Object.keys(self.legend).length !== 0 && self.legend.metadata.creation_type != "0" && self.legend.metadata.creation_type != "1"){
+          else if (Object.keys(self.legend).length !== 0 && self.legend.metadata.creation_type != "editor" && self.legend.metadata.creation_type != "xml"){
             if (self.legend.fieldsToReplace){
               self.legend.fieldsToReplace.forEach(function(field){
                 //Must increase 1 because geoserver starts the band name from 1
                 var bandNumber = self.legend.metadata[field] + 1;
-                self.legend.metadata.xml_style = self.legend.metadata.xml_style.split("%"+field).join("Band"+bandNumber);            
+                self.legend.metadata.xml_style = self.legend.metadata.xml_style.split("%"+field).join("Band"+bandNumber);
               });
               delete self.legend.fieldsToReplace;
             }
@@ -521,8 +572,8 @@ define([], function() {
     }
   }
 
-  ViewRegisterUpdate.$inject = ["$scope", "i18n", "ViewService", "$log", "$http", "$timeout", "MessageBoxService", "$window",
-    "DataSeriesService", "Service", "StringFormat", "ColorFactory", "StyleType", "Socket"];
+  ViewRegisterUpdate.$inject = ["$scope", "$q", "i18n", "ViewService", "$log", "$http", "$timeout", "MessageBoxService", "$window",
+    "DataSeriesService", "Service", "StringFormat", "ColorFactory", "StyleType", "Socket", "DataProviderService"];
 
   return ViewRegisterUpdate;
 });

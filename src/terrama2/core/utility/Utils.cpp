@@ -53,10 +53,14 @@
 #include <terralib/raster/Grid.h>
 #include <terralib/raster/Band.h>
 #include <terralib/raster/BandIterator.h>
+#include <terralib/core/filesystem/FileSystem.h>
 
 #include <ctime>
 #include <unordered_map>
 #include <functional>
+#include <string>
+#include <fstream>
+#include <streambuf>
 
 // Boost
 #include <boost/filesystem.hpp>
@@ -83,7 +87,7 @@ namespace te
 std::string terrama2::core::FindInTerraMA2Path(const std::string& fileName)
 {
   // 1st: look in the neighborhood of the executable
-  boost::filesystem::path tma_path = boost::filesystem::current_path();
+  boost::filesystem::path tma_path = te::core::FileSystem::executableDirectory();
 
   boost::filesystem::path eval_path = tma_path / fileName;
 
@@ -508,4 +512,29 @@ std::string terrama2::core::getFolderMask(DataSetPtr dataSet)
   }
 
   return folderMask;
+}
+
+std::string terrama2::core::readFileContents(const std::string& absoluteFilePath)
+{
+  // open file
+  std::ifstream fileStream(absoluteFilePath, std::ios_base::in);
+  if(!fileStream.is_open())
+  {
+    QString errMsg = QObject::tr("Unable to open file: %1.").arg(QString::fromStdString(absoluteFilePath));
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw Exception() << ErrorDescription(errMsg);
+  }
+
+  std::string str;
+
+  // reserve content space at str
+  fileStream.seekg(0, std::ios::end);
+  str.reserve(fileStream.tellg());
+  fileStream.seekg(0, std::ios::beg);
+
+  // read file content
+  str.assign((std::istreambuf_iterator<char>(fileStream)),
+              std::istreambuf_iterator<char>());
+
+  return str;
 }

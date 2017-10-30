@@ -53,9 +53,9 @@
 #include <limits>
 
 terrama2::core::DataAccessorOccurrenceLightning::DataAccessorOccurrenceLightning(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics)
-  : DataAccessor(dataProvider, dataSeries, false),
-    DataAccessorOccurrence(dataProvider, dataSeries, false),
-    DataAccessorFile(dataProvider, dataSeries, false)
+  : DataAccessor(dataProvider, dataSeries),
+    DataAccessorOccurrence(dataProvider, dataSeries),
+    DataAccessorFile(dataProvider, dataSeries)
 {
   if(checkSemantics && dataSeries->semantics.driver != dataAccessorType())
   {
@@ -130,7 +130,7 @@ void terrama2::core::DataAccessorOccurrenceLightning::adapt(DataSetPtr dataSet, 
     {
       auto newName = terrama2::core::simplifyString(converter->getConvertee()->getProperty(i)->getName());
       std::unique_ptr<te::dt::SimpleProperty> property(new te::dt::SimpleProperty(newName, te::dt::DOUBLE_TYPE));
-      
+
       converter->add(i, property.release(), boost::bind(&terrama2::core::DataAccessor::stringToDouble, this, _1, _2, _3));
     }
   }
@@ -232,8 +232,11 @@ te::dt::AbstractData* terrama2::core::DataAccessorOccurrenceLightning::stringToD
     if(dateTime.empty())
       return nullptr;
 
+    boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(timezone));
     boost::posix_time::ptime boostDate(boost::posix_time::time_from_string(dateTime));
-    return new te::dt::Date(boostDate.date());
+    boost::local_time::local_date_time date(boostDate.date(), boostDate.time_of_day(), zone, true);
+
+    return new te::dt::Date(date.utc_time().date());
   }
   catch(const std::exception& e)
   {

@@ -6,17 +6,18 @@
     <link rel="shortcut icon" href="{[ BASE_URL ]}favicon.ico" type="image/x-icon" />
     <title>TerraMA² Monitor</title>
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
-    <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}bootstrap/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
-    <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}AdminLTE/dist/css/AdminLTE.min.css">
-    <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}AdminLTE/dist/css/skins/skin-black.min.css">
-    <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}openlayers/ol.css">
-    <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}TerraMA2WebComponents.min.css">
+    <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}externals/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}externals/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}externals/ionicons/css/ionicons.min.css">
+    <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}externals/admin-lte/dist/css/AdminLTE.min.css">
+    <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}externals/admin-lte/dist/css/skins/skin-black.min.css">
+    <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}externals/openlayers/ol.css">
+    <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}externals/TerraMA2WebComponents/TerraMA2WebComponents.min.css">
     <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}dist/TerraMA2WebMonitor.min.css">
-    <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}jquery-ui/themes/base/jquery-ui.min.css">
-    <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}datatables/media/css/dataTables.bootstrap.css">
-    <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}bootstrap-daterangepicker/daterangepicker.css">
+    <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}externals/jquery-ui/jquery-ui.min.css">
+    <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}externals/datatables/media/css/jquery.dataTables.css">
+    <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}externals/bootstrap-daterangepicker/daterangepicker.css">
+    <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}externals/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.css">
   </head>
   <body class="hold-transition skin-black sidebar-mini">
     <div class="wrapper">
@@ -34,7 +35,7 @@
       <aside class="main-sidebar">
         <section class="sidebar">
           <select class="form-control" id="projects" name="projects"></select>
-          <ul class="sidebar-menu">
+          <ul class="sidebar-menu custom-scrollbar-light">
             <div id="terrama2-layerexplorer"></div>
             <li class="header" style="color: #b8c7ce;">
               VISIBLE LAYERS
@@ -78,45 +79,77 @@
               <div class="legend-header">Legends<span class="btn btn-default" style="padding: 0 4px 0 4px; float: right;"><i class="fa fa-close"></i></span></div>
               <div class="legend-body"><strong>No data to show.</strong></div>
             </div>
-            <div id="layer-toolbox" class="hidden">
-              <div class="layer-toolbox-header">Layer Tools<span class="btn btn-default" style="padding: 0 4px 0 4px; float: right;"><i class="fa fa-close"></i></span></div>
+            <div id="layer-toolbox" class="custom-scrollbar-dark hidden">
+              <div class="layer-toolbox-header"><span class="layer-name"></span><span class="btn btn-default"><i class="fa fa-close"></i></span></div>
               <div class="layer-toolbox-body">
-                <div class="layer-name"></div>
-                <div id="animate-layer-box" class="hidden">
-                  <hr style="margin: 10px 0 10px 0;"/>  
-                  <div style="text-align: center;">
-                    <label>Animation</label>
+
+                <div class="box box-default box-solid collapsed-box layer-description">
+                  <div class="box-header with-border">
+                    <h3 class="box-title">Description</h3>
+                    <div class="box-tools pull-right">
+                      <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+                    </div>
                   </div>
-                  <div role="group" aria-label="Animation controls" style="text-align: center;">
-                    <button id="reload" type="button"><i class="fa fa-repeat"></i></button>
-                    <button id="play" type="button"><i class="fa fa-play"></i></button>
-                    <button id="pause" type="button"><i class="fa fa-pause"></i></button>
-                  </div>
-                  <div id="dates-slider" style="margin-top: 10px;" class="hidden"></div>
-                  <div id="dates-calendar" style="margin-top: 10px;" class="hidden"></div>
+                  <div style="display: none;" class="box-body"></div>
                 </div>
-                <hr style="margin: 10px 0 10px 0;"/>
-                <div id="slider-box"></div>
-                <div id="exportation-box">
-                  <div id="exportation-status" class="hidden">
-                    <div>
-                      <span></span>
-                      <div class="progress progress-sm active hidden">
-                        <div class="progress-bar progress-bar-danger progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
-                          <span class="sr-only">0% Complete</span>
+
+                <div id="animate-layer-box" class="box box-default box-solid hidden">
+                  <div class="box-header with-border">
+                    <h3 class="box-title">Animation</h3>
+                    <div class="box-tools pull-right">
+                      <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                    </div>
+                  </div>
+                  <div style="display: block;" class="box-body">
+                    <div role="group" aria-label="Animation controls" style="text-align: center;">
+                      <button id="reload" type="button"><i class="fa fa-repeat"></i></button>
+                      <button id="play" type="button"><i class="fa fa-play"></i></button>
+                      <button id="pause" type="button"><i class="fa fa-pause"></i></button>
+                    </div>
+                    <div id="dates-slider" style="margin-top: 10px;" class="hidden"></div>
+                    <div id="dates-calendar" style="margin-top: 10px;" class="hidden"></div>
+                  </div>
+                </div>
+
+                <div id="slider-box" class="box box-default box-solid">
+                  <div class="box-header with-border">
+                    <h3 class="box-title">Opacity</h3>
+                    <div class="box-tools pull-right">
+                      <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                    </div>
+                  </div>
+                  <div style="display: block;" class="box-body"></div>
+                </div>
+
+                <div id="exportation-box" class="box box-default box-solid">
+                  <div class="box-header with-border">
+                    <h3 class="box-title">Exportation</h3>
+                    <div class="box-tools pull-right">
+                      <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                    </div>
+                  </div>
+                  <div style="display: block;" class="box-body">
+                    <div id="exportation-status" class="hidden">
+                      <div>
+                        <span></span>
+                        <div class="progress progress-sm active hidden">
+                          <div class="progress-bar progress-bar-danger progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+                            <span class="sr-only">0% Complete</span>
+                          </div>
                         </div>
                       </div>
                     </div>
+                    <select multiple id="exportation-type" class="form-control">
+                      <option value="all">All Formats</option>
+                      <option selected value="csv">CSV</option>
+                      <option value="geojson">GeoJSON</option>
+                      <option value="kml">KML</option>
+                      <option value="shapefile">Shapefile</option>
+                    </select>
+                    <button id="export" type="button" class="btn btn-default" style="margin-top: 10px;">Export Data</button>
                   </div>
-                  <select multiple id="exportation-type" class="form-control">
-                    <option value="all">All Formats</option>
-                    <option selected value="csv">CSV</option>
-                    <option value="geojson">GeoJSON</option>
-                    <option value="kml">KML</option>
-                    <option value="shapefile">Shapefile</option>
-                  </select>
-                  <button id="export" type="button" class="btn btn-default" style="margin-top: 10px;">Export Data</button>
                 </div>
+
               </div>
             </div>
             <div id="map-tools">
@@ -246,17 +279,17 @@
       <div id="realizacao-image"></div>
       <p style="margin-top: 40px;"><span>Plataforma digital para monitoramento e alerta de fogo na vegeta&ccedil;&atilde;o no Cerrado brasileiro (Banco Mundial TF018566)</span></p>
     </div>
-    <script type="text/javascript" src="{[ BASE_URL ]}moment/moment.js"></script>
-    <script type="text/javascript" src="{[ BASE_URL ]}jquery/dist/jquery.min.js"></script>
-    <script type="text/javascript" src="{[ BASE_URL ]}jquery-ui/jquery-ui.min.js"></script>
-    <script type="text/javascript" src="{[ BASE_URL ]}bootstrap-daterangepicker/daterangepicker.js"></script>
-    <script type="text/javascript" src="{[ BASE_URL ]}openlayers/ol.js"></script>
+    <script type="text/javascript" src="{[ BASE_URL ]}externals/moment/moment.js"></script>
+    <script type="text/javascript" src="{[ BASE_URL ]}externals/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="{[ BASE_URL ]}externals/jquery-ui/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="{[ BASE_URL ]}externals/bootstrap-daterangepicker/daterangepicker.js"></script>
+    <script type="text/javascript" src="{[ BASE_URL ]}externals/openlayers/ol.js"></script>
     <script type="text/javascript" src="{[ BASE_URL ]}socket.io/socket.io.js"></script>
-    <script type="text/javascript" src="{[ BASE_URL ]}datatables/media/js/jquery.dataTables.min.js"></script>
-    <script type="text/javascript" src="{[ BASE_URL ]}datatables/media/js/dataTables.bootstrap.min.js"></script>
-    <script type="text/javascript" src="{[ BASE_URL ]}underscore/underscore-min.js"></script>
-    <script type="text/javascript" src="{[ BASE_URL ]}bootstrap/dist/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="{[ BASE_URL ]}AdminLTE/dist/js/app.min.js"></script>
+    <script type="text/javascript" src="{[ BASE_URL ]}externals/datatables/media/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="{[ BASE_URL ]}externals/underscore/underscore-min.js"></script>
+    <script type="text/javascript" src="{[ BASE_URL ]}externals/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="{[ BASE_URL ]}externals/admin-lte/dist/js/app.min.js"></script>
+    <script type="text/javascript" src="{[ BASE_URL ]}externals/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.concat.min.js"></script>
     <script>
       var BASE_URL = "{[ BASE_URL ]}";
       var webadminHostInfo = {[webadminHostInfo|json|safe]};
@@ -264,7 +297,7 @@
       var message = "{[message.content]}";
     </script>
     <script type="text/javascript" src="{[ BASE_URL ]}dist/TerraMA2WebMonitor.min.js"></script>
-    <!--<script type="text/javascript" data-main="{[ BASE_URL ]}javascripts/Startup.js" src="{[ BASE_URL ]}require.js"></script>-->
+    <!--<script type="text/javascript" data-main="{[ BASE_URL ]}javascripts/Startup.js" src="{[ BASE_URL ]}externals/requirejs/require.js"></script>-->
     <iframe id="exportation-iframe" class="hidden"></iframe>
   </body>
 </html>

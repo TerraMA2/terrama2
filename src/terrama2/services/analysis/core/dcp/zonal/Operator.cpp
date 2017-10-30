@@ -383,6 +383,7 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::dcp::zonal
       std::string radiusUnit = itUnit == analysis->metadata.cend() ? "km" : itUnit->second;
 
       std::shared_ptr<te::gm::Geometry> geomPosition(dynamic_cast<te::gm::Geometry*>(position->clone()));
+      geomPosition->transform(monitoredObjectSrid);
 
       double influenceRadius = std::atof(radiusStr.c_str());
       if(influenceRadius <= 0)
@@ -392,6 +393,7 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::dcp::zonal
       auto spatialReferenceSystem = te::srs::SpatialReferenceSystemManager::getInstance().getSpatialReferenceSystem(geomPosition->getSRID());
       std::string unitName = spatialReferenceSystem->getUnitName();
 
+      //TODO: is thi right? shouldn't it be != "degree"?
       if(unitName == "degree")
       {
         int srid = terrama2::core::getUTMSrid(position.get());

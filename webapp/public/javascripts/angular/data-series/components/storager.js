@@ -411,6 +411,7 @@ define([], function(){
               break;
             case "GRID":
             case "OCCURRENCE":
+            case "GEOMETRIC_OBJECT":
               $scope.$emit("storageValuesReceive", {
                 data: self.modelStorager,
                 data_provider: self['storager_data_provider_id'],
@@ -568,7 +569,7 @@ define([], function(){
           var copyFormat = angular.merge({}, self.series.semantics.metadata.metadata);
           angular.merge(copyFormat, self.model);
           // if geotiff - add .tif extension
-          if (self.series.semantics.code == "GRID-geotiff"){
+          if (self.storager.format.code == "GRID-geotiff" && copyFormat.mask){
             if (!copyFormat.mask.endsWith(".tif")){
               if (copyFormat.mask.indexOf(".") > -1){
                 copyFormat.mask = copyFormat.mask.slice(0, copyFormat.mask.indexOf("."));
@@ -678,7 +679,7 @@ define([], function(){
           var formTranslatorResult = FormTranslator(metadata.schema.properties, metadata.form, metadata.schema.required);
 
           // if semantics is geotiff, complete the mask with .tif extension
-          if (self.series.semantics.code == "GRID-geotiff"){
+          if (self.storager.format.code == "GRID-geotiff"){
             formTranslatorResult.display[0].onChange = function(modelValue,form){
               if (modelValue){
                 if (!modelValue.endsWith(".tif")){

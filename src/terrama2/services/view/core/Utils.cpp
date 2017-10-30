@@ -57,6 +57,7 @@
 #include <terralib/se/PointSymbolizer.h>
 #include <terralib/se/Stroke.h>
 #include <terralib/se/Fill.h>
+#include <terralib/se/Utils.h>
 
 // STL
 #include <sstream>

@@ -2,6 +2,7 @@ const KEY = 'terrama2.sid';
 
 var express = require('express'),
     path = require('path'),
+    fs = require('fs'),
     bodyParser = require('body-parser'),
     methodOverride = require('method-override'),
     app = express(),
@@ -16,7 +17,9 @@ var express = require('express'),
     i18nRoutes = require( "i18n-node-angular" );
     server = require('http').Server(app);
 
-app.use(session({ secret: KEY, name: "TerraMA2WebApp_" + (process.argv[2] !== undefined ? process.argv[2] : "default"), resave: false, saveUninitialized: false }));
+var instance = (process.argv[2] !== undefined ? process.argv[2] : "default");
+
+app.use(session({ secret: KEY, name: "TerraMA2WebApp_" + instance, resave: false, saveUninitialized: false }));
 
 app.use(flash());
 
@@ -46,6 +49,12 @@ app.use(i18nRoutes.getLocale);
 
 i18nRoutes.configure(app, {"extension": ".json", directory : __dirname + "/locales/"});
 
+app.use(function(req, res, next) {
+  var configurations = JSON.parse(fs.readFileSync(path.join(__dirname, './config/instances/' + instance + '.json'), 'utf8'));
+  res.locals.toolsMenu = configurations.toolsMenu;
+  next();
+});
+
 // set up the internacionalization middleware
 app.use(function(req, res, next) {
   res.locals.errorMessage = req.flash('error');
@@ -56,8 +65,13 @@ app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 app.use(methodOverride('_method'));
 
-app.use(app.locals.BASE_URL + 'bower_components', express.static('bower_components'));
 app.use(app.locals.BASE_URL, express.static(path.join(__dirname, 'public')));
+
+var externals = JSON.parse(fs.readFileSync(path.join(__dirname, './externals.json'), 'utf8'));
+
+externals.forEach(function(external) {
+  app.use(app.locals.BASE_URL + external.publicUrl, express.static(path.join(__dirname, external.path)));
+});
 
 passport.setupPassport(app);
 

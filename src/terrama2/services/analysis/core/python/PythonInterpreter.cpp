@@ -543,8 +543,6 @@ std::string terrama2::services::analysis::core::python::prepareScript(AnalysisPt
   }
 
 //TODO: The functions get_string_value and get_numeric_value can be improved with a simple python dict populated in the c++
-  // Adds indent to the first line
-  formatedScript = "    "  + formatedScript;
   formatedScript = "from terrama2 import *\n"
                    "import json\n"
                    "import datetime\n"
@@ -561,9 +559,10 @@ std::string terrama2::services::analysis::core::python::prepareScript(AnalysisPt
                    "        return None\n\n"
                    "def get_analysis_date():\n"
                    "    iso_string_date = get_current_execution_date()\n"
-                   "    return datetime.datetime.strptime(iso_string_date.translate(None, ':-'), '%Y%m%dT%H%M%S.%fZ')\n\n"
+                   "    iso_string_date = iso_string_date[0:15]+'Z'\n"
+                   "    return datetime.datetime.strptime(iso_string_date.translate(None, ':-'), '%Y%m%dT%H%M%SZ')\n\n"
                    "def analysis():\n"
-                   + formatedScript;
+                   "    "  + formatedScript;
 
   return formatedScript;
 }
@@ -711,13 +710,7 @@ std::string terrama2::services::analysis::core::python::getAttributeValueAsJson(
     }
 
 
-    std::shared_ptr<ContextDataSeries> moDsContext = context->getMonitoredObjectContextDataSeries(dataManagerPtr);
-    if(!moDsContext)
-    {
-      QString errMsg(QObject::tr("Could not recover monitored object data series."));
-      throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
-    }
-
+    std::shared_ptr<ContextDataSeries> moDsContext = context->getMonitoredObjectContextDataSeries();
     if(moDsContext->series.syncDataSet->size() == 0)
     {
       QString errMsg(QObject::tr("Could not recover monitored object data series."));
@@ -775,7 +768,9 @@ std::string terrama2::services::analysis::core::python::getAttributeValueAsJson(
         break;
       }
       default:
-        json.insert(QString::fromStdString(attribute), QString());
+      {
+        json.insert(QString::fromStdString(attribute), QString::fromStdString(moDsContext->series.syncDataSet->getAsString(cache.index, attribute)));
+      }
     }
 
     QJsonDocument doc(json);
@@ -798,9 +793,6 @@ std::string terrama2::services::analysis::core::python::getAttributeValueAsJson(
     context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
     return "";
   }
-
-  return "";
-
 }
 
 std::mutex terrama2::services::analysis::core::python::GILLock::mutex_;

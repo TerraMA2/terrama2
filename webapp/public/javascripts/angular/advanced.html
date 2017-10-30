@@ -59,9 +59,14 @@
           </div>
 
         </div>
-        <div class="col-md-12" ng-if="!isDynamic">
+        <div class="col-md-12" ng-if="!isDynamic && (semanticsCode === 'STATIC_DATA-postgis' || (semanticsCode === 'STATIC_DATA-ogr' && isDataProviderFolder()))">
           <div class="col-md-12">
             <terrama2-shapefile-importer></terrama2-shapefile-importer>
+          </div>
+        </div>
+        <div class="col-md-12" ng-if="!isDynamic && (semanticsCode === 'GRID-static_gdal' && isDataProviderFolder())">
+          <div class="col-md-12">
+            <terrama2-geotiff-importer></terrama2-geotiff-importer>
           </div>
         </div>
       </div>
@@ -221,3 +226,8 @@
 <datalist id='databaseTableList'>
     <option ng-repeat="table in tableList" value="{{table}}">
 </datalist>
+<!-- List with database table columns-->
+<datalist id='tableParamsColumnsList'>
+    <option ng-repeat="paramsColumn in paramsColumnsList" value="{{paramsColumn}}">
+</datalist>
+<!-- /.row -->

@@ -54,14 +54,10 @@ void vmimeTest()
     std::cout << "------------" << std::endl;
 }
 
-int main(int argc, char* argv[ ]) {
+int main(int , char**) {
 
     vmimeTest();
     return 0;
-    // if(argc != 4) {
-    //   Usage( );
-    //   return 0;
-    // }
 
     cout << "jwSMTP library demo program\n\n";
     string to = "janosimas@gmail.com";

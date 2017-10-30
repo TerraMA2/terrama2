@@ -8,6 +8,7 @@ define([], function() {
     $scope.isDynamic = configuration.dataSeriesType === "dynamic";
     $scope.hasProjectPermission = configuration.hasProjectPermission;
     $scope.semantics = "";
+    $scope.semanticsCode = "";
     var queryParameters = {
       metadata: true,
       type: $scope.isDynamic ? "dynamic" : "static"
@@ -414,12 +415,27 @@ define([], function() {
         return "<button class=\"btn btn-danger removeDcpBtn\" ng-click=\"removePcd('" + alias + "')\" style=\"height: 21px; padding: 1px 4px 1px 4px; font-size: 13px;\">" + i18n.__("Remove") + "</button>";
       };
 
+      $scope.isDataProviderFolder = function() {
+        var returnVal = false;
+
+        $scope.providersList.forEach(function(dataProvider) {
+          if($scope.dataSeries.data_provider_id === dataProvider.id && dataProvider.data_provider_type.id === 1) {
+            returnVal = true; 
+            return;
+          }
+        });
+
+        return returnVal;
+      };
+
       // it defines when data change combobox has changed and it will adapt the interface
       $scope.onDataSemanticsChange = function() {
         if(!$scope.semanticsSelected)
           $scope.semanticsSelected = true;
 
         $scope.semantics = $scope.dataSeries.semantics.data_series_type_name;
+        $scope.semanticsCode = $scope.dataSeries.semantics.code;
+
         if (!$scope.isUpdating){
           $scope.csvFormatData = { fields: [{type: "DATETIME"}], convert_all: false};
           clearStoreForm();
@@ -651,6 +667,9 @@ define([], function() {
           } else {
             var tableInput = angular.element('#table_name');
             tableInput.attr('list', 'databaseTableList');
+
+            var columnsInputs = angular.element('.table-column > input');
+            columnsInputs.attr('list', 'tableParamsColumnsList');
           }
         });
       };
@@ -797,9 +816,8 @@ define([], function() {
       };
 
       $scope.dataSeriesGroups = [
-        {name: i18n.__("Static"), children: []}
-        //Remove comment when its possible to do intersection with dynamic data - change to Dynamic
-        //{name: "Grid", children: []}
+        {name: i18n.__("Static"), children: []},
+        {name: i18n.__("Dynamic"), children: []}
       ];
 
       // adding data series in intersection list
@@ -826,7 +844,11 @@ define([], function() {
           } else {
             ds.isGrid = false;
           }
-          _helper(0, ds);
+          if (ds.data_series_semantics.temporality == globals.enums.TemporalityType.STATIC){
+            _helper(0, ds);
+          } else {
+            _helper(1, ds);            
+          }
         };
 
         if(ds) {
@@ -860,8 +882,11 @@ define([], function() {
 
         var dataSeriesType = dataSeries.data_series_semantics.data_series_type_name;
 
-        $scope.dataSeriesGroups[0].children = _helper($scope.dataSeriesGroups[0].children);
-
+        if (dataSeries.data_series_semantics.temporality == globals.enums.TemporalityType.STATIC){
+          $scope.dataSeriesGroups[0].children = _helper($scope.dataSeriesGroups[0].children);
+        } else { 
+          $scope.dataSeriesGroups[1].children = _helper($scope.dataSeriesGroups[1].children);           
+        }
 
         // removing ds attributes
         delete $scope.intersection[dataSeries.id];
@@ -902,30 +927,46 @@ define([], function() {
       var listColumns = function(dataProvider, table_name){
         var result = $q.defer();
 
-        var params = getPostgisUriInfo(dataProvider.uri);
-        params.objectToGet = "column";
-        params.table_name = table_name;
-
-        var httpRequest = $http({
-          method: "GET",
-          url: BASE_URL + "uri/",
-          params: params
-        });
-
-        httpRequest.then(function(response) {
-          $scope.columnsList = response.data.data.map(function(item, index){
-            return item.column_name;
+        DataProviderService.listPostgisObjects({providerId: dataProvider.id, objectToGet: "column", tableName: table_name})
+          .then(function(response){
+            if (response.data.status == 400){
+              return result.reject(response.data);
+            }
+            $scope.columnsList = response.data.data.map(function(item, index) {
+              return item.column_name;
+            });
+            result.resolve(response.data.data);
           });
-          result.resolve(response.data);
-        });
-
-        httpRequest.catch(function(response) {
-          result.reject(response.data);
-        });
 
         return result.promise;
 
       }
+
+      var listParamsColumns = function(dataProvider, table_name){
+        var result = $q.defer();
+
+        DataProviderService.listPostgisObjects({providerId: dataProvider.id, objectToGet: "column", tableName: table_name})
+          .then(function(response){
+            if (response.data.status == 400){
+              return result.reject(response.data);
+            }
+            $scope.paramsColumnsList = response.data.data.map(function(item, index) {
+              return item.column_name;
+            });
+            result.resolve(response.data.data);
+          });
+
+        return result.promise;
+      }
+
+      $scope.$watch("model.table_name", function(val) {
+        var dataProvider = $scope.providersList.filter(function(element) {
+          return element.id == $scope.dataSeries.data_provider_id;
+        });
+
+        if(dataProvider.length > 0 && dataProvider[0].data_provider_type.id == 4)
+          listParamsColumns(dataProvider[0], val);
+      });
 
       $scope.isIntersectionEmpty = function() {
         return Object.keys($scope.intersection).length === 0;
@@ -1188,14 +1229,12 @@ define([], function() {
       // fill intersection data series
       $scope.dataSeriesList.forEach(function(dSeries) {
         var temporality = dSeries.data_series_semantics.temporality;
-        switch(temporality) {
-          //Remove comment when its possible to do intersection with dynamic data
-          /*
+        switch(temporality) {          
           case globals.enums.TemporalityType.DYNAMIC:
-            if (dSeries.data_series_semantics.data_series_type_name === globals.enums.DataSeriesType.GRID)
+            if (dSeries.data_series_semantics.data_series_type_name === globals.enums.DataSeriesType.GRID || dSeries.data_series_semantics.data_series_type_name === globals.enums.DataSeriesType.GEOMETRIC_OBJECT)
               $scope.dataSeriesGroups[1].children.push(dSeries);
             break;
-          */
+          
           case globals.enums.TemporalityType.STATIC:
             $scope.dataSeriesGroups[0].children.push(dSeries);
             $scope.staticDataSeriesList.push(dSeries);
@@ -1327,51 +1366,19 @@ define([], function() {
 
       var listTables = function(dataProvider){
         var result = $q.defer();
-
-        var params = getPostgisUriInfo(dataProvider.uri);
-        params.objectToGet = "table";
-
-        var httpRequest = $http({
-          method: "GET",
-          url: BASE_URL + "uri/",
-          params: params
-        });
-
-        httpRequest.then(function(response) {
-          $scope.tableList = response.data.data.map(function(item, index){
-            return item.table_name;
+        
+        DataProviderService.listPostgisObjects({providerId: dataProvider.id, objectToGet: "table"})
+          .then(function(response){
+            if (response.data.status == 400){
+              return result.reject(response.data);
+            }
+            $scope.tableList = response.data.data.map(function(item, index) {
+              return item.table_name;
+            });
+            result.resolve(response.data.data);
           });
-          result.resolve(response.data);
-        });
-
-        httpRequest.catch(function(response) {
-          result.reject(response.data);
-        });
 
         return result.promise;
-      }
-
-      //help function to parse a URI
-      var getPostgisUriInfo = function(uri){
-        var params = {};
-        params.protocol = uri.split(':')[0];
-        var hostData = uri.split('@')[1];
-        if (hostData){
-          params.hostname = hostData.split(':')[0];
-          params.port = hostData.split(':')[1].split('/')[0];
-          params.database = hostData.split('/')[1];
-        }
-
-        var auth = uri.split('@')[0];
-        if (auth){
-          var userData = auth.split('://')[1];
-          if (userData){
-            params.user = userData.split(':')[0];
-            params.password = userData.split(':')[1];
-          }
-        }
-
-        return params;
       }
 
       $scope.onDataProviderClick = function(index) {
@@ -1998,12 +2005,9 @@ define([], function() {
 
               var dsIntersection = $scope.intersection[k].data_series;
 
-              // checking GRID. Grid does not need attribute
-              if (dsIntersection.data_series_semantics.data_series_type_name !== globals.enums.DataSeriesType.GRID) {
-                if ($scope.intersection[k].attributes.length === 0) {
-                  MessageBoxService.danger(i18n.__("Data Registration"), i18n.__("Invalid intersection. Static data series must have at least a attribute."));
-                  return;
-                }
+              if ($scope.intersection[k].attributes.length === 0) {
+                MessageBoxService.danger(i18n.__("Data Registration"), i18n.__("Invalid intersection. Each data series must have at least one attribute selected."));
+                return;
               }
             }
           }

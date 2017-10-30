@@ -116,7 +116,7 @@ define([
       $scope.MessageBoxService = MessageBoxService;
 
       $scope.close = function() {
-        MessageBoxService.reset();
+        $scope.MessageBoxService.reset();
       };
 
       $scope.initialization = function(userId, redirectUrl) {
@@ -138,21 +138,31 @@ define([
         // emitting fields validation
         $scope.$broadcast("formFieldValidation");
 
-        if ($scope.form.$invalid) {
-          MessageBoxService.danger(i18n.__(title), i18n.__("There are invalid fields on form"));
+        if($scope.form.$invalid) {
+          $scope.MessageBoxService.danger(i18n.__(title), i18n.__("There are invalid fields on form"));
           return;
         }
 
         var user = Object.assign({}, $scope.user);
 
-        if (user.password === hash) {
+        if(user.passwordUpdate) {
+          if(user.passwordUpdate !== user.passwordConfirmUpdate) {
+            $scope.MessageBoxService.danger(i18n.__(title), i18n.__("The password confirmation must be identical to the password"));
+            return;
+          } else {
+            user.password = user.passwordUpdate;
+            delete user.passwordUpdate;
+          }          
+        }
+
+        if(user.password === hash) {
           delete user.password;
         }
 
         UserService.update($scope.user.id, user).then(function(data) {
           window.location.href = $scope.redirectUrl + "?token=" + data.token + "&context="+data.context;
         }).catch(function(err) {
-          MessageBoxService.danger(i18n.__(title), i18n.__(err.message));
+          $scope.MessageBoxService.danger(i18n.__(title), i18n.__(err));
         });
       };
     }
@@ -160,12 +170,13 @@ define([
     UserUpdate.$inject = ["$scope", "UserService", "i18n", "MessageBoxService"];
 
     function UserRegistration($scope, $http, MessageBoxService, i18n, UserService) {
+      $scope.MessageBoxService = MessageBoxService;
       $scope.isSubmiting = false;
       var title = "User";
       $scope.initialization = function(id, redirectUrl) { $scope.redirectUrl = redirectUrl; };
 
       $scope.close = function() {
-        MessageBoxService.reset();
+        $scope.MessageBoxService.reset();
       };
 
       $scope.user = {};
@@ -173,12 +184,12 @@ define([
       $scope.save = function() {
         $scope.$broadcast("formFieldValidation");
         if ($scope.form.$invalid) {
-          MessageBoxService.danger(i18n.__(title), i18n.__("There are invalid fields on form"));
+          $scope.MessageBoxService.danger(i18n.__(title), i18n.__("There are invalid fields on form"));
           return;
         }
 
         if ($scope.user.password !== $scope.user.passwordConfirm) {
-          MessageBoxService.danger(i18n.__(title), i18n.__("The password confirmation must be identical to the password"));
+          $scope.MessageBoxService.danger(i18n.__(title), i18n.__("The password confirmation must be identical to the password"));
           return;
         }
 
@@ -186,7 +197,7 @@ define([
         UserService.create($scope.user).then(function(response) {
           window.location = $scope.redirectUrl + "?token=" + response.token;
         }).catch(function(err) {
-          MessageBoxService.danger(i18n.__(title), i18n.__(err.message));
+          $scope.MessageBoxService.danger(i18n.__(title), i18n.__(err));
         }).finally(function(){
           $scope.isSubmiting = false;
         });

@@ -90,26 +90,26 @@ define([], function() {
       $templateCache.put(
         "importShapefile.html",
         "<div id=\"shapefile-import-loader\" class=\"hidden\"><img src=\"" + BASE_URL + "images/loader.gif\"/></div>" +
-        "<button class=\"btn btn-default\" ng-click=\"openImportShapefileModal()\">{{ i18n.__('Import Shapefile') }}</button>" +
+        "<button class=\"btn btn-default\" ng-click=\"openImportShapefileModal()\">{{ i18n.__('Transfer Shapefile') }}</button>" +
         "<div class=\"modal fade\" id=\"shapefileModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"shapefileModalLabel\">" +
           "<div class=\"modal-dialog modal-md\" role=\"document\">" +
             "<div class=\"modal-content\">" +
               "<div class=\"modal-header\">" +
                 "<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button>" +
-                "<h4 class=\"modal-title\" id=\"shapefileModalLabel\">{{ i18n.__('Import Shapefile') }}</h4>" +
+                "<h4 class=\"modal-title\" id=\"shapefileModalLabel\">{{ i18n.__('Transfer Shapefile') }}</h4>" +
                 "<br/>" +
                 "<p><strong>{{ i18n.__('Important!') }}</strong> {{ i18n.__('To upload your shapefile you have to create a .zip compressed file containing all the shapefile files (.shp, .dbf, .shx, etc). The size limit is 300 MB per file, therefore, neither of the shapefile files can be larger than 300 MB.') }}</p>" +
               "</div>" +
               "<div class=\"modal-body\">" +
                 "<div class=\"row\">" +
                   "<div class=\"col-md-12\">" +
-                    "<div class=\"col-md-4\">" +
+                    "<div class=\"col-md-4\" ng-if=\"semanticsCode === 'STATIC_DATA-postgis'\">" +
                       "<div class=\"form-group\">" +
                         "<label>{{ i18n.__('SRID') }}</label>" +
                         "<input class=\"form-control\" type=\"text\" ng-model=\"shpImport.srid\"/>" +
                       "</div>" +
                     "</div>" +
-                    "<div class=\"col-md-4\">" +
+                    "<div class=\"col-md-4\" ng-if=\"semanticsCode === 'STATIC_DATA-postgis'\">" +
                       "<div class=\"form-group\">" +
                         "<label>{{ i18n.__('Encoding') }}</label>" +
                         "<select class=\"form-control\" ng-model=\"shpImport.encoding\">" +
@@ -118,9 +118,9 @@ define([], function() {
                         "</select>" +
                       "</div>" +
                     "</div>" +
-                    "<div class=\"col-md-4\">" +
+                    "<div ng-class=\"{ 'col-md-4': semanticsCode === 'STATIC_DATA-postgis', 'col-md-12': semanticsCode === 'STATIC_DATA-ogr' }\">" +
                       "<div class=\"form-group\">" +
-                        "<button class=\"btn btn-primary\" style=\"margin-top: 26px;\" type=\"file\" ngf-select=\"uploadFile($file, $invalidFiles)\" accept=\"application/zip\" ngf-max-size=\"500MB\" ng-disabled=\"shpImport.srid === null\">{{ i18n.__('Select File') }}</button>" +
+                        "<button class=\"btn btn-primary\" style=\"margin-top: 26px;\" type=\"file\" ngf-select=\"uploadShapefile($file, $invalidFiles)\" accept=\"application/zip\" ngf-max-size=\"500MB\" ng-disabled=\"semanticsCode === 'STATIC_DATA-postgis' && shpImport.srid === null\">{{ i18n.__('Select File') }}</button>" +
                       "</div>" +
                     "</div>" +
                   "</div>" +
@@ -129,14 +129,56 @@ define([], function() {
                   "<div class=\"col-md-12\">" +
                     "<hr/>" +
                     "<div class=\"alert alert-danger alert-dismissible\" ng-show=\"shpImport.error\">" +
-                      "<button type=\"button\" class=\"close\" ng-click=\"clearImportError()\" aria-hidden=\"true\">×</button>" +
+                      "<button type=\"button\" class=\"close\" ng-click=\"clearShapefileImportError()\" aria-hidden=\"true\">×</button>" +
                       "<h4><i class=\"icon fa fa-ban\"></i> {{ i18n.__('Error!') }}</h4>" +
                       "{{ shpImport.error }}" +
                     "</div>" +
                     "<div class=\"alert alert-success alert-dismissible\" ng-show=\"shpImport.success\">" +
-                      "<button type=\"button\" class=\"close\" ng-click=\"closeSuccessMessage()\" data-dismiss=\"alert\" aria-hidden=\"true\">×</button>" +
+                      "<button type=\"button\" class=\"close\" ng-click=\"closeShapefileSuccessMessage()\" data-dismiss=\"alert\" aria-hidden=\"true\">×</button>" +
                       "<h4><i class=\"icon fa fa-check\"></i> {{ i18n.__('Success!') }}</h4>" +
                       "{{ i18n.__('Shapefile imported with success!') }}" +
+                    "</div>" +
+                  "</div>" +
+                "</div>" +
+              "</div>" +
+            "</div>" +
+          "</div>" +
+        "</div>"
+      );
+
+      $templateCache.put(
+        "importGeotiff.html",
+        "<div id=\"geotiff-import-loader\" class=\"hidden\"><img src=\"" + BASE_URL + "images/loader.gif\"/></div>" +
+        "<button class=\"btn btn-default\" ng-click=\"openImportGeotiffModal()\">{{ i18n.__('Transfer GeoTIFF') }}</button>" +
+        "<div class=\"modal fade\" id=\"geotiffModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"geotiffModalLabel\">" +
+          "<div class=\"modal-dialog modal-md\" role=\"document\">" +
+            "<div class=\"modal-content\">" +
+              "<div class=\"modal-header\">" +
+                "<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button>" +
+                "<h4 class=\"modal-title\" id=\"geotiffModalLabel\">{{ i18n.__('Transfer GeoTIFF') }}</h4>" +
+                "<br/>" +
+                "<p><strong>{{ i18n.__('Important!') }}</strong> {{ i18n.__('The size limit for the file is 300 MB.') }}</p>" +
+              "</div>" +
+              "<div class=\"modal-body\">" +
+                "<div class=\"row\">" +
+                  "<div class=\"col-md-12\">" +
+                    "<div class=\"form-group\">" +
+                      "<button class=\"btn btn-primary\" style=\"margin-top: 26px;\" type=\"file\" ngf-select=\"uploadGeotiff($file, $invalidFiles)\" accept=\"image/tiff\" ngf-max-size=\"300MB\">{{ i18n.__('Select File') }}</button>" +
+                    "</div>" +
+                  "</div>" +
+                "</div>" +
+                "<div class=\"row\" ng-show=\"geotiffImport.error || geotiffImport.success\">" +
+                  "<div class=\"col-md-12\">" +
+                    "<hr/>" +
+                    "<div class=\"alert alert-danger alert-dismissible\" ng-show=\"geotiffImport.error\">" +
+                      "<button type=\"button\" class=\"close\" ng-click=\"clearGeotiffImportError()\" aria-hidden=\"true\">×</button>" +
+                      "<h4><i class=\"icon fa fa-ban\"></i> {{ i18n.__('Error!') }}</h4>" +
+                      "{{ geotiffImport.error }}" +
+                    "</div>" +
+                    "<div class=\"alert alert-success alert-dismissible\" ng-show=\"geotiffImport.success\">" +
+                      "<button type=\"button\" class=\"close\" ng-click=\"closeGeotiffSuccessMessage()\" data-dismiss=\"alert\" aria-hidden=\"true\">×</button>" +
+                      "<h4><i class=\"icon fa fa-check\"></i> {{ i18n.__('Success!') }}</h4>" +
+                      "{{ i18n.__('GeoTIFF imported with success!') }}" +
                     "</div>" +
                   "</div>" +
                 "</div>" +
@@ -439,18 +481,18 @@ define([], function() {
             $scope.shpImport.srid = null;
             $scope.shpImport.encoding = "latin1";
 
-            $scope.clearImportError();
-            $scope.closeSuccessMessage();
+            $scope.clearShapefileImportError();
+            $scope.closeShapefileSuccessMessage();
 
-            if($scope.model['table_name'] !== undefined && $scope.model['table_name'] !== null && $scope.model['table_name'] != "")
+            if(($scope.semanticsCode === 'STATIC_DATA-ogr' && $scope.model['mask'] !== undefined && $scope.model['mask'] !== null && $scope.model['mask'] != "") || ($scope.semanticsCode === 'STATIC_DATA-postgis' && $scope.model['table_name'] !== undefined && $scope.model['table_name'] !== null && $scope.model['table_name'] != ""))
               $("#shapefileModal").modal();
             else
-              MessageBoxService.danger(i18n.__("Error"), i18n.__("Enter the table name!"));
+              MessageBoxService.danger(i18n.__("Error"), i18n.__($scope.semanticsCode === 'STATIC_DATA-ogr' ? "Enter the mask!" : "Enter the table name!"));
           };
 
-          $scope.uploadFile = function(file, errFiles) {
-            $scope.clearImportError();
-            $scope.closeSuccessMessage();
+          $scope.uploadShapefile = function(file, errFiles) {
+            $scope.clearShapefileImportError();
+            $scope.closeShapefileSuccessMessage();
 
             if(file) {
               if($("#shapefile-import-loader").hasClass("hidden"))
@@ -460,9 +502,11 @@ define([], function() {
                 url: BASE_URL + 'import-shapefile',
                 file: file,
                 data: {
+                  semantics: $scope.semanticsCode,
                   srid: $scope.shpImport.srid,
                   encoding: $scope.shpImport.encoding,
                   tableName: $scope.model['table_name'],
+                  mask: $scope.model['mask'],
                   dataProviderId: $scope.dataSeries.data_provider_id
                 }
               });
@@ -482,12 +526,75 @@ define([], function() {
             }   
           };
 
-          $scope.clearImportError = function() {
+          $scope.clearShapefileImportError = function() {
             $scope.shpImport.error = null;
           };
 
-          $scope.closeSuccessMessage = function() {
+          $scope.closeShapefileSuccessMessage = function() {
             $scope.shpImport.success = false;
+          };
+        }]
+      };
+    })
+    
+    .directive('terrama2GeotiffImporter', function() {
+      return {
+        restrict: 'EA',
+        templateUrl: 'importGeotiff.html',
+        controller: ['$scope', 'MessageBoxService', 'Upload', '$timeout', 'i18n', function($scope, MessageBoxService, Upload, $timeout, i18n) {
+          $scope.geotiffImport = {
+            error: null,
+            success: false
+          };
+
+          $scope.openImportGeotiffModal = function() {
+            $scope.clearGeotiffImportError();
+            $scope.closeGeotiffSuccessMessage();
+
+            if($scope.model['mask'] !== undefined && $scope.model['mask'] !== null && $scope.model['mask'] != "")
+              $("#geotiffModal").modal();
+            else
+              MessageBoxService.danger(i18n.__("Error"), i18n.__("Enter the mask!"));
+          };
+
+          $scope.uploadGeotiff = function(file, errFiles) {
+            $scope.clearGeotiffImportError();
+            $scope.closeGeotiffSuccessMessage();
+
+            if(file) {
+              if($("#geotiff-import-loader").hasClass("hidden"))
+                $("#geotiff-import-loader").removeClass("hidden");
+
+              file.upload = Upload.upload({
+                url: BASE_URL + 'import-geotiff',
+                file: file,
+                data: {
+                  mask: $scope.model['mask'],
+                  dataProviderId: $scope.dataSeries.data_provider_id
+                }
+              });
+
+              file.upload.then(function(response) {
+                $timeout(function () {
+                  if(!$("#geotiff-import-loader").hasClass("hidden"))
+                    $("#geotiff-import-loader").addClass("hidden");
+
+                  if(response.data.error) $scope.geotiffImport.error = i18n.__(response.data.error);
+                  else $scope.geotiffImport.success = true;
+                });
+              }, function(response) {
+                if(response.status > 0)
+                  $scope.geotiffImport.error = response.status + ': ' + response.data;
+              });
+            }   
+          };
+
+          $scope.clearGeotiffImportError = function() {
+            $scope.geotiffImport.error = null;
+          };
+
+          $scope.closeGeotiffSuccessMessage = function() {
+            $scope.geotiffImport.success = false;
           };
         }]
       };

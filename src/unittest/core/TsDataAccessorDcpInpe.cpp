@@ -267,7 +267,7 @@ void TsDataAccessorDcpInpe::TestFailDataSourceInvalid()
     EXPECT_CALL(*mock_, close()).WillOnce(Return());
 
     auto makeMock = std::bind(te::da::MockDataSource::makeMockDataSource, mock_.release());
-    DataSourceFactoryRaii raiiDataSource("OGR",makeMock);
+    DataSourceFactoryRaii raiiDataSource("OGR", std::move(makeMock));
 
     auto remover = std::make_shared<terrama2::core::FileRemover>();
 
@@ -344,7 +344,7 @@ void TsDataAccessorDcpInpe::TestFailDataSetInvalid()
     EXPECT_CALL(*mock_, close()).WillOnce(Return());
 
     auto makeMock = std::bind(te::da::MockDataSource::makeMockDataSource, mock_.release());
-    DataSourceFactoryRaii raiiDataSource("OGR",makeMock);
+    DataSourceFactoryRaii raiiDataSource("OGR", std::move(makeMock));
 
     auto remover = std::make_shared<terrama2::core::FileRemover>();
 

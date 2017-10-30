@@ -21,20 +21,19 @@
   <!-- Defines responsive layout to screen -->
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
 
-  <link rel="stylesheet" href="{[ BASE_URL ]}bower_components/angular-material/angular-material.min.css">
+  <link rel="stylesheet" href="{[ BASE_URL ]}externals/angular-material/angular-material.min.css">
   <!-- Bootstrap -->
-  <link rel="stylesheet" href="{[ BASE_URL ]}bower_components/AdminLTE/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="{[ BASE_URL ]}externals/AdminLTE/bootstrap/css/bootstrap.min.css">
   <!-- Font Awesome -->
-  <link rel="stylesheet" href="{[ BASE_URL ]}bower_components/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="{[ BASE_URL ]}externals/font-awesome/css/font-awesome.min.css">
   <!-- Theme style -->
-  <link rel="stylesheet" href="{[ BASE_URL ]}bower_components/AdminLTE/dist/css/AdminLTE.min.css">
+  <link rel="stylesheet" href="{[ BASE_URL ]}externals/AdminLTE/dist/css/AdminLTE.min.css">
   <!-- Template Skin -->
-  <link rel="stylesheet" href="{[ BASE_URL ]}bower_components/AdminLTE/dist/css/skins/skin-blue.min.css">
+  <link rel="stylesheet" href="{[ BASE_URL ]}externals/AdminLTE/dist/css/skins/skin-blue.min.css">
   <!-- i18n flags -->
-  <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}bower_components/intl-tel-input/build/css/intlTelInput.css">
+  <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}externals/intl-tel-input/build/css/intlTelInput.css">
   <!-- DataTables -->
-  <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}bower_components/datatables/media/css/dataTables.bootstrap.min.css">
-  <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}bower_components/datatables/media/css/jquery.dataTables.css">
+  <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}externals/datatables/media/css/jquery.dataTables.css">
 
   {# Block for including TerraMA2 specific stylesheets #}
   <style>
@@ -127,12 +126,20 @@
         </div>
         <!-- /.search form -->
         {% endif %}
-
+          <select class="form-control" id="projects" onchange="location = '{[ BASE_URL ]}configuration/projects/' + this.value + '/activate';">
+            {% if (!activeProject.id) %}
+              <option ng-bind="i18n.__('Select a Project')"></option>
+            {% endif %}
+            {% for cachedProject in cachedProjects %}
+              {% if (activeProject.id && activeProject.id === cachedProject.id) %}
+                <option value="{[ cachedProject.name ]}" selected>{[ cachedProject.name ]}</option>
+              {% else %}
+                <option value="{[ cachedProject.name ]}">{[ cachedProject.name ]}</option>
+              {% endif %}
+            {% endfor %}
+          </select>
           <!-- sidebar menu: : style can be found in sidebar.less -->
           <ul class="sidebar-menu">
-            {% if (activeProject.name) %}
-              <li class="header" style="font-size:18px;font-weight: bold;">{[ activeProject.name ]}</li>
-            {% endif %}
             <li class="treeview {% if (tabActive === 'projects') %} active {% endif %}">
               <a href="{[ BASE_URL ]}configuration/projects">
                 <i class="fa fa-sitemap"></i><span ng-bind="i18n.__('Projects')"></span>
@@ -149,6 +156,28 @@
             {% endif %}
 
             <li class="header"></li>
+
+            {% if toolsMenu !== undefined && toolsMenu !== null && toolsMenu.length > 0 %}
+            <li class="treeview">
+              <a href="#">
+                <i class="fa fa-wrench"></i> <span ng-bind="i18n.__('Tools')"></span>
+                <i class="fa fa-angle-left pull-right"></i>
+              </a>
+              <ul class="treeview-menu">
+                {% for tab in toolsMenu %}
+                <li class="treeview">
+                  <a href="{[ tab.url ]}"{% if tab.openInNewTab > 0 %} target="_blank"{% endif %}>
+                    <i class="fa fa-link"></i>
+                    <span ng-if="i18n.userLanguage == 'en_US'">{[ tab.textEn ]}</span>
+                    <span ng-if="i18n.userLanguage == 'es_ES'">{[ tab.textEs ]}</span>
+                    <span ng-if="i18n.userLanguage == 'fr_FR'">{[ tab.textFr ]}</span>
+                    <span ng-if="i18n.userLanguage == 'pt_BR'">{[ tab.textPt ]}</span>
+                  </a>
+                </li>
+                {% endfor %}
+              </ul>
+            </li>
+            {% endif %}
 
             {% if currentUser !== null && currentUser.administrator %}
             <li class="treeview">
@@ -219,13 +248,13 @@
   </div>
   <!-- ./wrapper -->
 
-  <script src="{[ BASE_URL ]}bower_components/AdminLTE/plugins/jQuery/jQuery-2.1.4.min.js"></script>
-  <script src="{[ BASE_URL ]}bower_components/AdminLTE/bootstrap/js/bootstrap.min.js"></script>
-  <script src="{[ BASE_URL ]}bower_components/AdminLTE/plugins/fastclick/fastclick.min.js"></script>
-  <script src="{[ BASE_URL ]}bower_components/AdminLTE/dist/js/app.min.js"></script>
+  <script src="{[ BASE_URL ]}externals/AdminLTE/plugins/jQuery/jQuery-2.1.4.min.js"></script>
+  <script src="{[ BASE_URL ]}externals/AdminLTE/bootstrap/js/bootstrap.min.js"></script>
+  <script src="{[ BASE_URL ]}externals/AdminLTE/plugins/fastclick/fastclick.min.js"></script>
+  <script src="{[ BASE_URL ]}externals/AdminLTE/dist/js/app.min.js"></script>
 
   <!-- i18n flags -->
-  <script type="text/javascript" src="{[ BASE_URL ]}bower_components/intl-tel-input/build/js/intlTelInput.js"></script>
+  <script type="text/javascript" src="{[ BASE_URL ]}externals/intl-tel-input/build/js/intlTelInput.js"></script>
 
   <script type="text/javascript">
     $(document).ready(function(){
@@ -247,7 +276,7 @@
             collapsed: collapsed
           }
         }).then(function(response) {
-          collapsed = response.data.collapsed;
+          collapsed = response.collapsed;
         });
       });
 
@@ -269,13 +298,13 @@
     });
   </script>
   <!-- jQuery DataTables -->
-  <script src="{[ BASE_URL ]}bower_components/datatables/media/js/jquery.dataTables.min.js"></script>
+  <script src="{[ BASE_URL ]}externals/datatables/media/js/jquery.dataTables.min.js"></script>
   <!-- Angular JS -->
-  <script src="{[ BASE_URL ]}bower_components/angular/angular.min.js"></script>
+  <script src="{[ BASE_URL ]}externals/angular/angular.min.js"></script>
   <!-- Internationalization -->
-  <script src="{[ BASE_URL ]}bower_components/i18n-node-angular/i18n-node-angular.js"></script>
+  <script src="{[ BASE_URL ]}externals/i18n-node-angular/i18n-node-angular.js"></script>
   <!-- ng-file-upload -->
-  <script src="{[ BASE_URL ]}bower_components/ng-file-upload/ng-file-upload.min.js"></script>
+  <script src="{[ BASE_URL ]}externals/ng-file-upload/ng-file-upload.min.js"></script>
   <!-- Socket.io -->
   <script type="text/javascript" src="{[ BASE_URL ]}socket.io/socket.io.js"></script>
 

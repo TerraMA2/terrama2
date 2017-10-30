@@ -47,7 +47,7 @@ module.exports = function(app) {
                   options
               ).then(function(collectorResult) {
                 var collector = collectorResult.collector;
-                collector.project_id = app.locals.activeProject.id;
+                collector.project_id = request.session.activeProject.id;
 
                 var output = {
                   "DataSeries": [collectorResult.input.toObject(), collectorResult.output.toObject()],
@@ -121,7 +121,7 @@ module.exports = function(app) {
       } else {
         var restriction = {
           dataProvider: {
-            project_id: app.locals.activeProject.id
+            project_id: request.session.activeProject.id
           }
         };
       }
@@ -189,16 +189,20 @@ module.exports = function(app) {
             DataManager.listAnalysis({}).then(function(analysisList){
               dataSeriesList.forEach(function(dataSeries) {
                 var isAnalysis = false;
+                var analysisType = {};
                 analysisList.map(function(analysis){
                   dataSeries.dataSets.map(function(dataSet){
                     if(analysis.dataset_output == dataSet.id) {
                       isAnalysis = true;
+                      analysisType = analysis.type;
                       return;
                     }
                   });
                 });
                 var dataSeriesRaw = dataSeries.rawObject();
                 dataSeriesRaw.isAnalysis = isAnalysis;
+                if (isAnalysis)
+                  dataSeriesRaw.type = analysisType;
                 output.push(dataSeriesRaw);
               });
               response.json(output);
@@ -227,7 +231,7 @@ module.exports = function(app) {
         };
 
         if (dataSeriesObject.hasOwnProperty('input') && dataSeriesObject.hasOwnProperty('output')) {
-          dataSeriesObject.input.project_id = app.locals.activeProject.id;
+          dataSeriesObject.input.project_id = request.session.activeProject.id;
           return DataManager.getCollector({data_series_input: dataSeriesId}, options)
             .then(function(collector) {
               collector.service_instance_id = serviceId;
@@ -359,7 +363,7 @@ module.exports = function(app) {
                     var dataSeriesOutput = dSeries[0];
                     var dataSeriesInput = dSeries[1];
 
-                    collector.project_id = app.locals.activeProject.id;
+                    collector.project_id = request.session.activeProject.id;
                     var output = {
                       "DataSeries": [dataSeriesInput.toObject(), dataSeriesOutput.toObject()],
                       "Collectors": [collector.toObject()]

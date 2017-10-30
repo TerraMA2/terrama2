@@ -249,7 +249,7 @@ void terrama2::services::alert::core::Report::updateReportMonitoredObjectDataset
     {
       if(!dataSet_->isNull(pos))
       {
-        int numericRisk = dataSet_->getInt32(pos);
+        uint32_t numericRisk = static_cast<uint32_t>(dataSet_->getInt32(pos));
         dataSet_->setString(property, legend_->riskName(numericRisk));
 
         //update max and min risk values

@@ -23,7 +23,7 @@
         var viewId = request.params.id;
         var projectId = request.params.project_id;
         
-        ViewFacade.retrieve(viewId, (projectId ? projectId : app.locals.activeProject.id))
+        ViewFacade.retrieve(viewId, (projectId ? projectId : request.session.activeProject.id))
           .then(function(views) {
             return response.json(views);
           })
@@ -37,7 +37,7 @@
         var viewObject = request.body;
         var shouldRun = request.body.run;
 
-        ViewFacade.save(viewObject, app.locals.activeProject.id)
+        ViewFacade.save(viewObject, request.session.activeProject.id)
           .then(function(view) {
             var extra = {};
             if (shouldRun){
@@ -59,7 +59,7 @@
         var viewId = parseInt(request.params.id);
         var shouldRun = request.body.run;
 
-        ViewFacade.update(viewId, request.body, app.locals.activeProject.id)
+        ViewFacade.update(viewId, request.body, request.session.activeProject.id)
           .then(function(view) {
             var extra = {};
             if (shouldRun){

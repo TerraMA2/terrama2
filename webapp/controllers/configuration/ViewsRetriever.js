@@ -27,24 +27,61 @@ var ViewsRetriever = function(app) {
 
       if(params.type === memberViewsCache.TYPES.NEW_AND_UPDATED && (params.initialRequest || params.onlyPrivate)) {
         return memberDataManager.listRegisteredViews().then(function(views) {
-          var viewsObjects = views.map(function(view) {
-            return view.toObject();
+          return memberDataManager.listAnalysis({}).then(function(analysisList) {
+            return memberDataManager.listAlerts().then(function(alerts) {
+              var viewsObjects = views.map(function(view) {
+                var description = null;
+
+                if(view.dataSeries) {
+                  if(view.dataSeriesType === "analysis") {
+                    analysisList.map(function(analysis) {
+                      view.dataSeries.dataSets.map(function(dataSet) {
+                        if(analysis.dataset_output == dataSet.id) {
+                          description = analysis.description;
+                          return;
+                        }
+                      });
+                    });
+                  } else if(view.dataSeriesType === "alert") {
+                    alerts.map(function(alert) {
+                      if(alert.view.id === view.view.id) {
+                        description = alert.description;
+                        return;
+                      }
+                    });
+                  } else {
+                    description = view.dataSeries.description;
+                  }
+                }
+
+                var viewObject = view.toObject();
+                viewObject.description = description;
+
+                return viewObject;
+              });
+
+              for(var i = 0, viewsLength = viewsObjects.length; i < viewsLength; i++) {
+                if((viewsObjects[i].private && sendPrivate) || (!params.onlyPrivate && !viewsObjects[i].private))
+                  objectsToSend.push(viewsObjects[i]);
+              }
+
+              var returnData = {
+                views: objectsToSend,
+                initialRequest: params.initialRequest
+              };
+
+              if(params.initialRequest)
+                returnData.projects = memberDataManager.listProjects();
+
+              response.json(returnData);
+            }).catch(function(err) {
+              console.error(err);
+              response.json({});
+            });
+          }).catch(function(err) {
+            console.error(err);
+            response.json({});
           });
-
-          for(var i = 0, viewsLength = viewsObjects.length; i < viewsLength; i++) {
-            if((viewsObjects[i].private && sendPrivate) || (!params.onlyPrivate && !viewsObjects[i].private))
-              objectsToSend.push(viewsObjects[i]);
-          }
-
-          var returnData = {
-            views: objectsToSend,
-            initialRequest: params.initialRequest
-          };
-
-          if(params.initialRequest)
-            returnData.projects = memberDataManager.listProjects();
-
-          response.json(returnData);
         }).catch(function(err) {
           console.error(err);
           response.json({});

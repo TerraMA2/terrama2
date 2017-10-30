@@ -64,6 +64,12 @@ namespace terrama2
       public:
         static DataStoragerType dataStoragerType() { return "ANALYSIS_MONITORED_OBJECT-postgis"; }
     };
+
+    class DataStoragerWildfireEvent : public DataStoragerPostGIS
+    {
+      public:
+        static DataStoragerType dataStoragerType() { return "GEOMETRIC_OBJECT-postgis"; }
+    };
   }
 }
 
