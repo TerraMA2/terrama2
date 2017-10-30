@@ -139,6 +139,7 @@ int main(int argc, char* argv[])
   EXPECT_CALL(*loggerCopy, done(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
   EXPECT_CALL(*loggerCopy, start(::testing::_)).WillRepeatedly(::testing::Return(0));
   EXPECT_CALL(*loggerCopy, isValid()).WillRepeatedly(::testing::Return(true));
+  EXPECT_CALL(*loggerCopy, result(::testing::_, ::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
 
   auto logger = std::make_shared<AlertLoggerMock>();
 
@@ -150,6 +151,7 @@ int main(int argc, char* argv[])
   EXPECT_CALL(*logger, start(::testing::_)).WillRepeatedly(::testing::Return(0));
   EXPECT_CALL(*logger, isValid()).WillRepeatedly(::testing::Return(true));
   EXPECT_CALL(*logger, clone()).WillRepeatedly(::testing::Return(loggerCopy));
+  EXPECT_CALL(*logger, result(::testing::_, ::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
 
   terrama2::services::alert::core::Service service(dataManager);
   serviceManager.setInstanceId(1);
