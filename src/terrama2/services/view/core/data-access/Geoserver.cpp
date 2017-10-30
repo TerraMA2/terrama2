@@ -362,6 +362,10 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
 
             monitoredObjectTableInfo = DataAccess::getPostgisTableInfo(monitoredObjectDataset, monitoredObjectDataSeries, monitoredObjectProvider);
           }
+          else if (monitoredObjectDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::DCP)
+          {
+            monitoredObjectTableInfo = DataAccess::getDCPPostgisTableInfo(monitoredObjectDataSeries, monitoredObjectProvider);
+          }
           else
           {
             QString errMsg = QObject::tr("Invalid type of dataseries: %1.").arg(QString::fromStdString(monitoredObjectDataSeries->name));
