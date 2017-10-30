@@ -170,6 +170,8 @@ define([
           validateMask: function(value) {
             if(value) {
               for(var i = 0, valueLength = value.length; i < valueLength; i++) {
+                var charCode = value.charCodeAt(i);
+
                 if(value[i] === "%") {
                   if(
                     value.substr(i, 5) === "%YYYY" ||
@@ -180,6 +182,12 @@ define([
 
                   return false;
                 }
+
+                if(value[i] === "*" || value[i] === "%" || value[i] === "." || value[i] === "-" || value[i] === "_" || value[i] === "/")
+                  continue;
+
+                if((charCode < 48) || ((charCode > 57) && (charCode < 65)) || ((charCode > 90) && (charCode < 97)) || (charCode > 122))
+                  return false;
               }
 
               return true;
