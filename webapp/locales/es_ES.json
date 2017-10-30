@@ -1040,5 +1040,10 @@
   "Insert a value if you want to update the password": "",
 	"Transfer Shapefile": "",
 	"Select a Project": "",
-  "Attach Views": ""
+  "Attach Views": "",
+  "Wild fire event (ESRI Shapefile)": "",
+	"Timestamp property": "",
+	"Geometry property": "",
+	"SLD": "",
+	"Attribute is required": ""
 }

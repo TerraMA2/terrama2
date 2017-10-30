@@ -118,6 +118,12 @@ define([], function () {
       }
     };
     /**
+     * Listen when change creation type from view register update controller
+     */
+    $scope.$on('updateCreationType', function(event) {
+      self.changeCreationType();
+    });
+    /**
      * Setting default parameters when change mode to xml file
      */
     self.changeCreationType = function(){

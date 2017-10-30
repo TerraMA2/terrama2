@@ -28,7 +28,14 @@
 */
 
 #include "MapsServer.hpp"
+
+#include "../../../core/data-model/DataProvider.hpp"
+#include "../../../core/utility/Utils.hpp"
+
+// TerraLib
 #include <terralib/ws/core/CurlWrapper.h>
+#include <terralib/dataaccess/datasource/DataSource.h>
+#include <terralib/dataaccess/datasource/DataSourceFactory.h>
 
 bool terrama2::services::view::core::MapsServer::checkConnection() const
 {
@@ -42,4 +49,33 @@ bool terrama2::services::view::core::MapsServer::checkConnection() const
   {
     return false;
   }
+}
+
+QJsonObject terrama2::services::view::core::MapsServer::generateLayers(const ViewPtr viewPtr,
+                                                                       terrama2::core::DataSeriesPtr dataSeries,
+                                                                       terrama2::core::DataProviderPtr dataProvider,
+                                                                       const std::shared_ptr<DataManager> dataManager,
+                                                                       std::shared_ptr<ViewLogger> logger,
+                                                                       const RegisterId logId)
+{
+  if(dataProvider->dataProviderType == "POSTGIS" &&
+      dataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::DCP)
+  {
+    // to create a dcp view we need a sql function that retrieve the last data
+    // from all dcp tables
+    std::shared_ptr< te::da::DataSource > dataSource(te::da::DataSourceFactory::make("POSTGIS", dataProvider->uri));
+    terrama2::core::OpenClose<std::shared_ptr<te::da::DataSource>> openClose(dataSource);
+    if(!dataSource->isOpened())
+    {
+      QString errMsg = QObject::tr("Could not connect to database");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw Exception() << ErrorDescription(errMsg);
+    }
+
+    std::string sqlFunctionFile = terrama2::core::FindInTerraMA2Path("share/terrama2/scripts/dcp_last_measures.sql");
+    std::string sqlFunction = terrama2::core::readFileContents(sqlFunctionFile);
+    dataSource->execute(sqlFunction);
+  }
+
+  return generateLayersInternal(viewPtr, std::make_pair(dataSeries, dataProvider), dataManager, logger, logId);
 }
