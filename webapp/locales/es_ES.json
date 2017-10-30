@@ -1045,5 +1045,13 @@
 	"Timestamp property": "",
 	"Geometry property": "",
 	"SLD": "",
-	"Attribute is required": ""
+	"Attribute is required": "",
+  "Projection SRID is required": "",
+	"X max": "",
+  "X max is required": "",
+  "X min is required": "",
+	"Y min": "",
+  "Y max": "",
+  "Y max is required": "",
+  "No views attached.": ""
 }

@@ -117,23 +117,37 @@
           return resolve(alert);
         };
 
-        if(alertObject.attachedViews) {
-          var attachedViewsPromises = [];
+        if(alertObject.alertAttachment) {
+          alertObject.alertAttachment.alert_id = alert.id;
 
-          for(var i = 0, attachedViewsLength = alertObject.attachedViews.length; i < attachedViewsLength; i++) {
-            alertObject.attachedViews[i].alert_id = alert.id;
+          DataManager.addAlertAttachment(alertObject.alertAttachment).then(function(alertAttachment) {
+            var attachedViewsPromises = [];
 
-            if(alertObject.attachedViews[i].view_id === null)
-              alertObject.attachedViews[i].view_id = alertObject.view_id;
+            for(var i = 0, attachedViewsLength = alertObject.attachedViews.length; i < attachedViewsLength; i++) {
+              alertObject.attachedViews[i].alert_attachment_id = alertAttachment.id;
 
-            attachedViewsPromises.push(DataManager.addAlertAttachedView(alertObject.attachedViews[i]));
-          }
+              if(alertObject.attachedViews[i].view_id === null)
+                alertObject.attachedViews[i].view_id = alertObject.view_id;
 
-          Promise.all(attachedViewsPromises).then(function() {
-            DataManager.listAlertAttachedViews({ alert_id: alert.id }).then(function(alertAttachedViews) {
-              alert.setAttachedViews(alertAttachedViews);
+              attachedViewsPromises.push(DataManager.addAlertAttachedView(alertObject.attachedViews[i]));
+            }
 
-              sendAlertAndResolve();
+            Promise.all(attachedViewsPromises).then(function() {
+              DataManager.listAlertAttachedViews({ alert_attachment_id: alertAttachment.id }).then(function(alertAttachedViews) {
+                if(alertAttachedViews[0].View.ServiceInstance.ServiceMetadata) {
+                  for(var i = 0, serviceMetadataLength = alertAttachedViews[0].View.ServiceInstance.ServiceMetadata.length; i < serviceMetadataLength; i++) {
+                    if(alertAttachedViews[0].View.ServiceInstance.ServiceMetadata[i].dataValues.key === "maps_server") {
+                      alertAttachment.setGeoserverUri(alertAttachedViews[0].View.ServiceInstance.ServiceMetadata[i].dataValues.value);
+                      break;
+                    }
+                  }
+                }
+
+                alertAttachment.setAttachedViews(alertAttachedViews);
+                alert.setAttachment(alertAttachment);
+
+                sendAlertAndResolve();
+              });
             });
           });
         } else {
@@ -369,44 +383,95 @@
           })
       })
       .then(function(alert) {
-        DataManager.listAlertAttachedViews({ alert_id: alert.id }).then(function(dbAlertAttachedViews) {
+        DataManager.getAlertAttachment({ alert_id: alert.id }).then(function(dbAlertAttachment) {
           var sendAlertAndResolve = function() {
             sendAlert(alert, shouldRun);
             return resolve(alert);
           };
 
-          if(alertObject.attachedViews) {
-            var attachedViewsPromises = [];
+          if(dbAlertAttachment && !alertObject.alertAttachment) {
+            DataManager.removeAlertAttachment({ alert_id: alert.id }).then(function() {
+              alert.setAttachment(null);
 
-            for(var j = 0, dbAlertAttachedViewsLength = dbAlertAttachedViews.length; j < dbAlertAttachedViewsLength; j++) {
-              var removeItem = true;
+              sendAlertAndResolve();
+            });
+          } else if(!dbAlertAttachment && alertObject.alertAttachment) {
+            alertObject.alertAttachment.alert_id = alert.id;
+
+            DataManager.addAlertAttachment(alertObject.alertAttachment).then(function(alertAttachment) {
+              var attachedViewsPromises = [];
 
               for(var i = 0, attachedViewsLength = alertObject.attachedViews.length; i < attachedViewsLength; i++) {
-                if(alertObject.attachedViews[i].id === dbAlertAttachedViews[j].id) {
-                  removeItem = false;
-                  break;
-                }
+                alertObject.attachedViews[i].alert_attachment_id = alertAttachment.id;
+
+                if(alertObject.attachedViews[i].view_id === null)
+                  alertObject.attachedViews[i].view_id = alertObject.view_id;
+
+                attachedViewsPromises.push(DataManager.addAlertAttachedView(alertObject.attachedViews[i]));
               }
 
-              if(removeItem)
-                attachedViewsPromises.push(DataManager.removeAlertAttachedView({ id: dbAlertAttachedViews[j].id }));
-            }
+              Promise.all(attachedViewsPromises).then(function() {
+                DataManager.listAlertAttachedViews({ alert_attachment_id: alertAttachment.id }).then(function(alertAttachedViews) {
+                  if(alertAttachedViews[0].View.ServiceInstance.ServiceMetadata) {
+                    for(var i = 0, serviceMetadataLength = alertAttachedViews[0].View.ServiceInstance.ServiceMetadata.length; i < serviceMetadataLength; i++) {
+                      if(alertAttachedViews[0].View.ServiceInstance.ServiceMetadata[i].dataValues.key === "maps_server") {
+                        alertAttachment.setGeoserverUri(alertAttachedViews[0].View.ServiceInstance.ServiceMetadata[i].dataValues.value);
+                        break;
+                      }
+                    }
+                  }
 
-            for(var i = 0, attachedViewsLength = alertObject.attachedViews.length; i < attachedViewsLength; i++) {
-              if(alertObject.attachedViews[i].view_id === null)
-                alertObject.attachedViews[i].view_id = alert.view.id;
+                  alertAttachment.setAttachedViews(alertAttachedViews);
+                  alert.setAttachment(alertAttachment);
 
-              if(alertObject.attachedViews[i].id)
-                attachedViewsPromises.push(DataManager.updateAlertAttachedView({ id: alertObject.attachedViews[i].id }, alertObject.attachedViews[i]));
-              else
-                attachedViewsPromises.push(DataManager.addAlertAttachedView(alertObject.attachedViews[i]));
-            }
+                  sendAlertAndResolve();
+                });
+              });
+            });
+          } else if(dbAlertAttachment && alertObject.alertAttachment) {
+            DataManager.updateAlertAttachment({ id: alertObject.alertAttachment.id }, alertObject.alertAttachment).then(function(alertAttachment) {
+              var attachedViewsPromises = [];
 
-            Promise.all(attachedViewsPromises).then(function() {
-              DataManager.listAlertAttachedViews({ alert_id: alert.id }).then(function(alertAttachedViews) {
-                alert.setAttachedViews(alertAttachedViews);
+              for(var j = 0, dbAlertAttachedViewsLength = dbAlertAttachment.AlertAttachedViews.length; j < dbAlertAttachedViewsLength; j++) {
+                var removeItem = true;
 
-                sendAlertAndResolve();
+                for(var i = 0, attachedViewsLength = alertObject.attachedViews.length; i < attachedViewsLength; i++) {
+                  if(alertObject.attachedViews[i].id === dbAlertAttachment.AlertAttachedViews[j].id) {
+                    removeItem = false;
+                    break;
+                  }
+                }
+
+                if(removeItem)
+                  attachedViewsPromises.push(DataManager.removeAlertAttachedView({ id: dbAlertAttachment.AlertAttachedViews[j].id }));
+              }
+
+              for(var i = 0, attachedViewsLength = alertObject.attachedViews.length; i < attachedViewsLength; i++) {
+                if(alertObject.attachedViews[i].view_id === null)
+                  alertObject.attachedViews[i].view_id = alert.view.id;
+
+                if(alertObject.attachedViews[i].id)
+                  attachedViewsPromises.push(DataManager.updateAlertAttachedView({ id: alertObject.attachedViews[i].id }, alertObject.attachedViews[i]));
+                else
+                  attachedViewsPromises.push(DataManager.addAlertAttachedView(alertObject.attachedViews[i]));
+              }
+
+              Promise.all(attachedViewsPromises).then(function() {
+                DataManager.listAlertAttachedViews({ alert_attachment_id: alertObject.alertAttachment.id }).then(function(alertAttachedViews) {
+                  if(alertAttachedViews[0].View.ServiceInstance.ServiceMetadata) {
+                    for(var i = 0, serviceMetadataLength = alertAttachedViews[0].View.ServiceInstance.ServiceMetadata.length; i < serviceMetadataLength; i++) {
+                      if(alertAttachedViews[0].View.ServiceInstance.ServiceMetadata[i].dataValues.key === "maps_server") {
+                        alertAttachment.setGeoserverUri(alertAttachedViews[0].View.ServiceInstance.ServiceMetadata[i].dataValues.value);
+                        break;
+                      }
+                    }
+                  }
+
+                  alertAttachment.setAttachedViews(alertAttachedViews);
+                  alert.setAttachment(alertAttachment);
+
+                  sendAlertAndResolve();
+                });
               });
             });
           } else {

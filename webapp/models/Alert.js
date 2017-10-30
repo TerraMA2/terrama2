@@ -103,7 +103,7 @@ module.exports = function(sequelize, DataTypes) {
             }
           });
 
-          Alert.hasMany(models.AlertAttachedView, {
+          Alert.hasOne(models.AlertAttachment, {
             onDelete: 'CASCADE',
             foreignKey: {
               allowNull: false

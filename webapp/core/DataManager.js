@@ -4156,6 +4156,25 @@ var DataManager = module.exports = {
   },
 
   /**
+   * It performs save alert attachment in database
+   *
+   * @param {Object} alertAttachmentObject - An alert attachment values to save
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Alert>}
+   */
+  addAlertAttachment: function(alertAttachmentObject, options){
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return models.db.AlertAttachment.create(alertAttachmentObject, options).then(function(alertAttachment) {
+        return resolve(new DataModel.AlertAttachment(Object.assign(alertAttachment.get(), {})));
+      }).catch(function(err){
+        return reject(new Error(Utils.format("Could not save alert attachment due %s", err.toString())));
+      });
+    });
+  },
+
+  /**
    * It performs update attached view from given restriction
    *
    * @param {Object} restriction - A query restriction
@@ -4185,6 +4204,48 @@ var DataManager = module.exports = {
   },
 
   /**
+   * It performs update alert attachment from given restriction
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} alertAttachmentObject - An alert attachment object values to update
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   */
+  updateAlertAttachment: function(restriction, alertAttachmentObject, options){
+    var self = this;
+    return new Promise(function(resolve, reject){
+      var alertId = restriction.id;
+      models.db.AlertAttachment.update(
+        alertAttachmentObject,
+        Utils.extend({
+          fields: ["y_max", "y_min", "x_max", "x_min", "srid"],
+          where: restriction
+        }, options))
+
+        .then(function() {
+          self.getAlertAttachment(restriction).then(function(alertAttachment) {
+            var alertAttachmentObject = Object.assign(alertAttachment.get(), {});
+
+            if(alertAttachmentObject.AlertAttachedViews[0].View.ServiceInstance.ServiceMetadata) {
+              for(var i = 0, serviceMetadataLength = alertAttachmentObject.AlertAttachedViews[0].View.ServiceInstance.ServiceMetadata.length; i < serviceMetadataLength; i++) {
+                if(alertAttachmentObject.AlertAttachedViews[0].View.ServiceInstance.ServiceMetadata[i].dataValues.key === "maps_server") {
+                  alertAttachmentObject.geoserverUri = alertAttachmentObject.AlertAttachedViews[0].View.ServiceInstance.ServiceMetadata[i].dataValues.value;
+                  break;
+                }
+              }
+            }
+
+            return resolve(new DataModel.AlertAttachment(alertAttachmentObject));
+          });
+        })
+
+        .catch(function(err) {
+          return reject(new Error("Could not update alert attachment " + err.toString()));
+        });
+    })
+  },
+
+  /**
    * It removes an attached view from database
    *
    * @param {Object} restriction - A query restriction
@@ -4202,6 +4263,28 @@ var DataManager = module.exports = {
 
         .catch(function(err) {
           return reject(new Error("Could not remove attached view " + err.toString()));
+        });
+    });
+  },
+
+  /**
+   * It removes an alert attachment from database
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object?} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise}
+   */
+  removeAlertAttachment: function(restriction, options){
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return models.db.AlertAttachment.destroy(Utils.extend({where: restriction}, options))
+        .then(function(){
+          return resolve();
+        })
+
+        .catch(function(err) {
+          return reject(new Error("Could not remove alert attachment " + err.toString()));
         });
     });
   },
@@ -4401,24 +4484,15 @@ var DataManager = module.exports = {
             model: models.db.ReportMetadata
           },
           {
-            model: models.db.AlertAttachedView,
-            order: [
-              ['layer_order', 'ASC']
-            ],
+            model: models.db.AlertAttachment,
+            required: false,
             include: [
               {
-                model: models.db.Alert
-              },
-              {
-                model: models.db.View,
+                model: models.db.AlertAttachedView,
+                required: false,
                 include: [
                   {
-                    model: models.db.ServiceInstance,
-                    include: [
-                      {
-                        model: models.db.ServiceMetadata
-                      }
-                    ]
+                    model: models.db.View
                   }
                 ]
               }
@@ -4435,6 +4509,15 @@ var DataManager = module.exports = {
           {
             model: models.db.View,
             include: [
+              {
+                model: models.db.ServiceInstance,
+                include: [
+                  {
+                    model: models.db.ServiceMetadata,
+                    required: false
+                  }
+                ]
+              },
               {
                 model: models.db.Schedule,
                 required: false
@@ -4482,6 +4565,9 @@ var DataManager = module.exports = {
               }
             ]
           }
+        ],
+        order: [
+          [models.db.AlertAttachment, models.db.AlertAttachedView, 'layer_order', 'ASC']
         ]
       }, options))
         .then(function(alerts){
@@ -4494,11 +4580,6 @@ var DataManager = module.exports = {
             var notifications = [];
             alert.AlertNotifications.forEach(function(notification){
               notifications.push(notification.get());
-            });
-
-            var attachedViews = [];
-            alert.AlertAttachedViews.forEach(function(attachedView){
-              attachedViews.push(attachedView.get());
             });
 
             var legend = new DataModel.Legend(alert.Legend.get());
@@ -4516,6 +4597,19 @@ var DataManager = module.exports = {
               view.setLegend(legendModel);
             }
 
+            if(alert.AlertAttachment) {
+              var alertAttachment = alert.AlertAttachment.get();
+
+              if(alert.View.ServiceInstance.ServiceMetadata) {
+                for(var i = 0, serviceMetadataLength = alert.View.ServiceInstance.ServiceMetadata.length; i < serviceMetadataLength; i++) {
+                  if(alert.View.ServiceInstance.ServiceMetadata[i].dataValues.key === "maps_server") {
+                    alertAttachment.geoserverUri = alert.View.ServiceInstance.ServiceMetadata[i].dataValues.value;
+                    break;
+                  }
+                }
+              }
+            }
+
             var alertModel = new DataModel.Alert(Object.assign(alert.get(), {
               schedule: alert.Schedule ? new DataModel.Schedule(alert.Schedule.get()) : {},
               automatic_schedule: alert.AutomaticSchedule ? new DataModel.AutomaticSchedule(alert.AutomaticSchedule.get()) : {},
@@ -4525,7 +4619,7 @@ var DataManager = module.exports = {
               legend: legend,
               view: view,
               dataSeries: alert.DataSery ? new DataModel.DataSeries(alert.DataSery.get()) : {},
-              attachedViews: attachedViews
+              attachment: alertAttachment ? new DataModel.AlertAttachment(alertAttachment) : {}
             }));
             return alertModel;
           }))
@@ -4555,7 +4649,12 @@ var DataManager = module.exports = {
         ],
         include: [
           {
-            model: models.db.Alert
+            model: models.db.AlertAttachment,
+            include: [
+              {
+                model: models.db.Alert
+              }
+            ]
           },
           {
             model: models.db.View,
@@ -4575,6 +4674,54 @@ var DataManager = module.exports = {
         return resolve(alertAttachedViews);
       }).catch(function(err){
         return reject(new Error("Could not list attached views " + err.toString()));
+      });
+    });
+  },
+
+  /**
+   * It retrieves an alert attachment
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<[]>}
+   */
+  getAlertAttachment: function(restriction, options){
+    var self = this;
+
+    return new Promise(function(resolve, reject) {
+      models.db.AlertAttachment.findOne(Utils.extend({
+        where: restriction || {},
+        include: [
+          {
+            model: models.db.Alert
+          },
+          {
+            model: models.db.AlertAttachedView,
+            include: [
+              {
+                model: models.db.View,
+                include: [
+                  {
+                    model: models.db.ServiceInstance,
+                    include: [
+                      {
+                        model: models.db.ServiceMetadata
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        order: [
+          [models.db.AlertAttachedView, 'layer_order', 'ASC']
+        ]
+      }, options)).then(function(alertAttachment) {
+        return resolve(alertAttachment);
+      }).catch(function(err){
+        return reject(new Error("Could not get alert attachment " + err.toString()));
       });
     });
   },
