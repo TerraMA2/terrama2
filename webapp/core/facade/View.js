@@ -109,7 +109,8 @@
       if (viewId) {
         return DataManager.getView({id: viewId})
           .then(function(view) { 
-            return resolve(view.toObject()); })
+            return resolve(view.toObject());
+          })
           .catch(function(err) { 
             return reject(err); 
           });
@@ -121,7 +122,6 @@
             return view.toObject();
           }));
         })
-
         .catch(function(err) {
           return reject(err);
         });
@@ -295,7 +295,6 @@
       });
     });
   };
-
   /**
    * It performs remove view from database from view identifier
    * 

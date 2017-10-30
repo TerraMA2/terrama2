@@ -1,233 +1,72 @@
 "use strict";
 
-var DataManager = require("../../core/DataManager");
-var DataProviderError = require('./../../core/Exceptions').DataProviderError;
-var ValidationError = require('./../../core/Exceptions').ValidationError;
-var RequestFactory = require("../../core/RequestFactory");
 var Utils = require('./../../core/Utils');
 var TokenCode = require('./../../core/Enums').TokenCode;
-var TcpService = require("./../../core/facade/tcp-manager/TcpService");
-var PostgisRequest = require("./../../core/PostgisRequest");
+
+// Facade
+var DataProviderFacade = require("./../../core/facade/DataProvider");
 
 module.exports = function(app) {
-  /**
-   * Helper function to parse a PostGIS URI.
-   * 
-   * @returns {object}
-   */
-  var getPostgisUriInfo = function(uri) {
-    var params = {};
-    params.protocol = uri.split(':')[0];
-    var hostData = uri.split('@')[1];
-
-    if(hostData) {
-      params.hostname = hostData.split(':')[0];
-      params.port = hostData.split(':')[1].split('/')[0];
-      params.database = hostData.split('/')[1];
-    }
-
-    var auth = uri.split('@')[0];
-
-    if(auth) {
-      var userData = auth.split('://')[1];
-
-      if(userData) {
-        params.user = userData.split(':')[0];
-        params.password = userData.split(':')[1];
-      }
-    }
-
-    return params;
-  };
 
   return {
     post: function(request, response) {
       var dataProviderReceived = request.body;
-
-      var uriObject = dataProviderReceived.uriObject;
-
-      var requester = RequestFactory.build(uriObject);
-
-      var handleError = function(response, err, code) {
-        var errors = err instanceof ValidationError ? err.getErrors() : {};
-        response.status(code);
-        response.json({status: code || 400, message: err.message, errors: errors});
-      };
-
-      var _makeProvider = function() {
-        var projectName = dataProviderReceived.project;
-
-        // check project
-        return DataManager.getProject({name: projectName}).then(function(project) {
-          // getting intent id
-          return DataManager.getDataProviderIntent({name: dataProviderReceived.data_provider_intent_name || requester.intent()}).then(function(intentResult) {
-            // getting provider type id
-            return DataManager.getDataProviderType({name: uriObject[requester.syntax().SCHEME]}).then(function(typeResult) {
-              var dataProviderObject = {
-                name: dataProviderReceived.name,
-                uri: requester.uri,
-                description: dataProviderReceived.description,
-                data_provider_intent_id: intentResult.id,
-                data_provider_type_id: typeResult.id,
-                project_id: project.id,
-                active: dataProviderReceived.active || false
-              };
-
-              if(uriObject.protocol == 'FTP' || uriObject.protocol == 'HTTP' || uriObject.protocol == 'HTTPS') {
-                dataProviderObject['configuration'] = {
-                  timeout: uriObject.timeout
-                }
-
-                if(uriObject.protocol == 'FTP')
-                  dataProviderObject['configuration']['active_mode'] = uriObject.active_mode;
-              }
-
-              // try to save
-              return DataManager.addDataProvider(dataProviderObject).then(function(result) {
-                TcpService.send({
-                  "DataProviders": [result.toService()]
-                });
-                // generating token
-                var token = Utils.generateToken(app, TokenCode.SAVE, result.name);
-                response.json({status: 200, result: result.toObject(), token: token});
-              }).catch(function(err) {
-                handleError(response, err, 400);
-              });
-            }).catch(function(err) {
-              handleError(response, err, 400);
-            });
-          }).catch(function(err) {
-            handleError(response, err, 400);
-          });
-
-        }).catch(function(err) {
-          handleError(response, err, 400);
-        });
-      };
-
-      // check connection
-      return requester.request()
-        .finally(function() {
-          _makeProvider();
+      DataProviderFacade.save(dataProviderReceived, request.session.activeProject.id)
+        .then(function(dataProviderResult){
+          var token = Utils.generateToken(app, TokenCode.SAVE, dataProviderResult.name);
+          return response.json({status: 200, result: dataProviderResult.toObject(), token: token});
+        })
+        .catch(function(err){
+          return Utils.handleRequestError(response, err, 400);
         });
     },
 
     get: function(request, response) {
-      var name = request.query.name;
-      var project = request.params.project;
+      var dataProviderId = request.params.id;
+      var project = request.params.project ? request.params.project : request.session.activeProject.id;
 
-      if(project) {
-        var output = [];
-        DataManager.listDataProviders({project_id: project}).forEach(function(element) {
-          output.push(element.rawObject());
+      DataProviderFacade.retrieve(dataProviderId, project)
+        .then(function(providers){
+          return response.json(providers)
+        })
+        .catch(function(error){
+          return Utils.handleRequestError(response, err, 400);
         });
-        response.json(output);
-      } else if(name) {
-        return DataManager.getDataProvider({name: name, project_id: request.session.activeProject.id}).then(function(dataProvider) {
-          response.json(dataProvider.toObject());
-        }).catch(function(err) {
-          response.status(400);
-          response.json({status: 400, message: err.message});
-        });
-      } else {
-        var output = [];
-        DataManager.listDataProviders({project_id: request.session.activeProject.id}).forEach(function(element) {
-          output.push(element.rawObject());
-        });
-        response.json(output);
-      }
     },
 
     put: function(request, response) {
-      var dataProviderId = request.params.id;
-      var uriObject = request.body.uriObject;
+      var dataProviderObject = request.body;
+      var dataProviderId = parseInt(request.params.id);
 
-      var requester = RequestFactory.build(uriObject);
-
-      var toUpdate = {
-        name: request.body.name,
-        active: request.body.active,
-        timeout: request.body.timeout,
-        description: request.body.description,
-        uri: requester.uri
-      };
-
-      if(uriObject.protocol == 'FTP' || uriObject.protocol == 'HTTP' || uriObject.protocol == 'HTTPS') {
-        toUpdate['configuration'] = {
-          timeout: uriObject.timeout
-        }
-
-        if(uriObject.protocol == 'FTP')
-          toUpdate['configuration']['active_mode'] = uriObject.active_mode;
-      }
-
-      if (dataProviderId) {
-        dataProviderId = parseInt(dataProviderId);
-        return DataManager.updateDataProvider(dataProviderId, toUpdate).then(function() {
-          return DataManager.getDataProvider({id: dataProviderId, project_id: request.session.activeProject.id}).then(function(dProvider) {
-            TcpService.send({
-              "DataProviders": [dProvider.toService()]
-            });
-            // generating token
-            var token = Utils.generateToken(app, TokenCode.UPDATE, dProvider.name);
-
-            response.json({status: 200, result: dProvider, token: token});
-          }).catch(function(err) {
-            response.status(400);
-            response.json({status: 400, message: err.message});
-          });
-        }).catch(function(err) {
-          response.status(400);
-          response.json({status: 400, message: err.message});
+      DataProviderFacade.update(dataProviderId, dataProviderObject, request.session.activeProject.id)
+        .then(function(dataProviderResult){
+          var token = Utils.generateToken(app, TokenCode.UPDATE, dataProviderResult.name);
+          return response.json({status: 200, result: dataProviderResult.toObject(), token: token});
+        })
+        .catch(function(err){
+          return Utils.handleRequestError(response, err, 400);
         });
-
-      } else {
-        response.status(400);
-        response.json({status: 400, message: "DataProvider not identified"});
-      }
     },
 
     delete: function(request, response) {
-      var id = request.params.id;
-      if (id) {
-        id = parseInt(id);
-        return DataManager.getDataProvider({id: id}).then(function(dProvider) {
-          return DataManager.removeDataProvider({id: id}).then(function(result) {
-            var dataSeries = result.dataSeries;
-            var dataProvider = result.dataProvider;
-            TcpService.remove({
-              "DataProvider": [dProvider.id],
-              "DataSeries": dataSeries.map(function(dSeries) { return dSeries.id; })
-            });
-            // generating token
-            return response.json({status: 200, name: dProvider.name});
-          });
-        }).catch(function(err) {
-          Utils.handleRequestError(response, err, 400);
+      var id = parseInt(request.params.id);
+
+      DataProviderFacade.remove(id)
+        .then(function(dataProvider){
+          var token = Utils.generateToken(app, TokenCode.DELETE, dataProvider.name);
+          return response.json({status: 200, result: dataProvider.toObject(), token: token});
+        })
+        .catch(function(err){
+          return Utils.handleRequestError(response, err, 400);
         });
-      } else {
-        Utils.handleRequestError(response, new DataProviderError("Missing data provider id", []), 400);
-      }
     },
 
     listObjects: function(request, response){
-      var providerId = request.body.providerId;
-      var objectToGet = request.body.objectToGet;
-      var tableName = request.body.tableName;
-      return DataManager.getDataProvider({id: providerId})
-        .then(function(dataProvider) {
-          var providerObject = dataProvider.toObject();
-          var uriInfo = getPostgisUriInfo(providerObject.uri);
-          uriInfo.objectToGet = objectToGet;
-          uriInfo.tableName = tableName;
-          var postgisRequest = new PostgisRequest(uriInfo);
-          return postgisRequest.get()
-            .then(function(data){
-              return response.json({status: 200, data: data});
-            }).catch(function(err){
-              return response.json({status: 400, message: err.message});
-            });
-        }).catch(function(err){
+      DataProviderFacade.listObjects(request.body)
+        .then(function(data){
+          return response.json({status: 200, data: data});
+        })
+        .catch(function(err){
           return response.json({status: 400, message: err.message});
         });
     }
