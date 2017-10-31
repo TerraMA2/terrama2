@@ -27,14 +27,17 @@ define([], function() {
 
     var importDataSeries = function(){
       var dataSeriesToDuplicate = $scope.extra.selectedDataSeries;
-      dataSeriesToDuplicate.name = dataSeriesToDuplicate.name + dataSeriesToDuplicate.project_id;
-      dataSeriesToDuplicate.data_provider.name = dataSeriesToDuplicate.data_provider.name + dataSeriesToDuplicate.data_provider.project_id;
+      dataSeriesToDuplicate.description = "Imported from " + dataSeriesToDuplicate.name + " of " + $scope.extra.selectedProject.name + " project";
+      dataSeriesToDuplicate.name = dataSeriesToDuplicate.name + $scope.extra.selectedProject.name;
+      dataSeriesToDuplicate.data_provider.description = "Imported from " + dataSeriesToDuplicate.data_provider.name + " of " + $scope.extra.selectedProject.name + " project";
+      dataSeriesToDuplicate.data_provider.name = dataSeriesToDuplicate.data_provider.name + $scope.extra.selectedProject.name;
       DataSeriesService.duplicate(dataSeriesToDuplicate)
         .then(function(response){
-          console.log(response);
+          $window.location.href = BASE_URL + "configuration/" + configuration.dataSeriesType + "/dataseries?token=" + (response.token || response.data.token);
         })
         .catch(function(err){
-          console.log(err);
+          var errMessage = err.message || err.data.message;
+          $scope.MessageBoxService.danger(i18n.__("Data Series import"), i18n.__(errMessage));
         })
     };
 
@@ -153,7 +156,7 @@ define([], function() {
       importFromAnotherProject: config.dataSeriesType !== "static",
       projects: config.projects,
       listDataSeries: function(project){
-        $scope.extra.selectedProjext = project;
+        $scope.extra.selectedProject = project;
         listDataSeries(project.id);
       },
       dataSeriesChange: function(dataSeries){

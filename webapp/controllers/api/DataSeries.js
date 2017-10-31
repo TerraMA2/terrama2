@@ -593,6 +593,7 @@ module.exports = function(app) {
 
       var requester = RequestFactory.buildFromUri(dataProviderObject.uri);
       dataProviderObject.uriObject = requester.params;
+      dataProviderObject.project = request.session.activeProject.name;
       delete dataProviderObject.id;
       delete dataSeriesObject.id;
       DataManager.orm.transaction(function(t){
@@ -603,7 +604,7 @@ module.exports = function(app) {
           .then(function(providerResult){
             dataSeriesObject.data_provider_id = providerResult.id;
             delete dataSeriesObject.data_provider;
-            return DataManager.addDataSeries(dataSeriesObject, options).then(function(dataSeriesResult) {
+            return DataManager.addDataSeries(dataSeriesObject, null, options).then(function(dataSeriesResult) {
               var output = {
                 "DataProviders": [providerResult.toObject()],
                 "DataSeries": [dataSeriesResult.toObject()]
@@ -617,7 +618,8 @@ module.exports = function(app) {
             });
           })
       }).then(function(dataSeriesResult){
-        return response.json({status: 200, data: dataSeriesResult});
+        var token = Utils.generateToken(app, TokenCode.IMPORT, dataSeriesResult.name);
+        return response.json({status: 200, token: token});
       }).catch(function(err){
         return Utils.handleRequestError(response, err, 400);
       });

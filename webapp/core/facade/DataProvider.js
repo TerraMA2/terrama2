@@ -128,16 +128,17 @@
     });
   };
   /**
-   * It retrieves data providers from database. It applies a filter by ID if there is.
+   * It retrieves data providers from database. It applies a filter by restriction if there is.
    * 
-   * @param {number} dataProviderId - Data provider Identifier
+   * @param {number} restriction - Data provider restriction
    * @param {number} projectId - A project identifier
    * @returns {Promise<DataProvider[]>}
    */
-  DataProvider.retrieve = function(dataProviderId, projectId){
+  DataProvider.retrieve = function(restriction, projectId){
     return new PromiseClass(function(resolve, reject){
-      if (dataProviderId) {
-        return DataManager.getDataProvider({id: dataProviderId, project_id: projectId})
+      if (restriction) {
+        restriction.project_id = projectId;
+        return DataManager.getDataProvider(restriction)
           .then(function(dataProvider) {
             return resolve(dataProvider.toObject());
           }).catch(function(err) {

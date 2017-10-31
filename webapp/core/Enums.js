@@ -229,7 +229,8 @@ module.exports = {
   TokenCode: {
     SAVE: 1,
     UPDATE: 2,
-    DELETE: 3
+    DELETE: 3,
+    IMPORT: 4
   },
 
   InfluenceTypes: {

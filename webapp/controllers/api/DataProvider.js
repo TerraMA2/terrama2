@@ -24,8 +24,9 @@ module.exports = function(app) {
     get: function(request, response) {
       var dataProviderId = request.params.id;
       var project = request.params.project ? request.params.project : request.session.activeProject.id;
+      var restriction = request.params.id ? {id: request.params.id} : undefined;
 
-      DataProviderFacade.retrieve(dataProviderId, project)
+      DataProviderFacade.retrieve(restriction, project)
         .then(function(providers){
           return response.json(providers)
         })

@@ -129,7 +129,6 @@ define([
         data: dataSeriesObject
       })
       .then(function(response) {
-        //self.model.push(response.data);
         return defer.resolve(response.data);
       }).catch(function(err) {
         return defer.reject(err.data);
