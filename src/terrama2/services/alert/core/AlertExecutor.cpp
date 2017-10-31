@@ -605,10 +605,19 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
         // Include identifier attribute to alert aditional data
         {
           AdditionalData indentifierData;
-          indentifierData.dataSeriesId = std::stoi(dataset->format.at("monitored_object_id"));
-          auto attribute = dataset->format.at("monitored_object_pk");
-          indentifierData.attributes.push_back(attribute);
-          indentifierData.alias.emplace(attribute, attribute);
+          try
+          {
+            indentifierData.dataSeriesId = static_cast<DataSeriesId>(std::stoi(dataset->format.at("monitored_object_id")));
+            auto attribute = dataset->format.at("monitored_object_pk");
+            indentifierData.attributes.push_back(attribute);
+            indentifierData.alias.emplace(attribute, attribute);
+          }
+          catch(const std::out_of_range&)
+          {
+            QString errMsg("Internal error.\nIncomplete monitored object information.");
+            TERRAMA2_LOG_ERROR() << errMsg;
+            throw AdditionalDataException() << ErrorDescription(errMsg);
+          }
 
           indentifierData.referrerAttribute = idProperty->getName();
           indentifierData.referredAttribute = idProperty->getName();
