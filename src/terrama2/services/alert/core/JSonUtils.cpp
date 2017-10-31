@@ -136,16 +136,16 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
     auto obj = json["view"].toObject();
     AlertView view;
     view.geoserverUri = obj["geoserver_uri"].toString().toStdString();
-    if(obj.contains("miny")
-       && obj.contains("maxy")
-       && obj.contains("minx")
-       && obj.contains("maxx")
+    if(obj.contains("ymin")
+       && obj.contains("ymax")
+       && obj.contains("xmin")
+       && obj.contains("xmax")
        && obj.contains("srid"))
     {
-      double miny = obj["miny"].toDouble();
-      double maxy = obj["maxy"].toDouble();
-      double minx = obj["minx"].toDouble();
-      double maxx = obj["maxx"].toDouble();
+      double miny = obj["ymin"].toDouble();
+      double maxy = obj["ymax"].toDouble();
+      double minx = obj["xmin"].toDouble();
+      double maxx = obj["xmax"].toDouble();
       view.topRightCorner.reset(new te::gm::Coord2D(maxx, miny));
       view.lowerLeftCorner.reset(new te::gm::Coord2D(minx, maxy));
       view.srid = static_cast<Srid>(obj["srid"].toInt());
