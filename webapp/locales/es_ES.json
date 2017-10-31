@@ -1044,5 +1044,9 @@
 	"Timestamp property": "",
 	"Geometry property": "",
 	"SLD": "",
-	"Attribute is required": ""
+	"Attribute is required": "",
+  "Import data series": "Import data series",
+  "Choose data series": "Choose data series",
+  "Data Series import": "Data Series import",
+  "imported": "imported"
 }

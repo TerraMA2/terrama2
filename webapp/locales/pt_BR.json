@@ -1035,5 +1035,9 @@
 	"Timestamp property": "Propriedade de tempo",
 	"Geometry property": "Propriedade geométrica",
 	"SLD": "SLD",
-	"Attribute is required": "Atributo é obrigatório"
+	"Attribute is required": "Atributo é obrigatório",
+  "Import data series": "Importar série de dados",
+  "Choose data series": "Selecione a série de dados",
+  "Data Series import": "Importação de série de dados",
+  "imported": "importado"
 }

@@ -1,6 +1,6 @@
 define([], function() {
 
-  function ListController($scope, $q, BaseService, DataSeriesService, Socket, i18n, $window, Service, MessageBoxService, $timeout) {
+  function ListController($scope, $q, BaseService, DataSeriesService, Socket, i18n, $window, Service, MessageBoxService, $timeout, DataProviderService) {
     $scope.i18n = i18n;
     $scope.disabledButtons = {};
     $scope.orderBy = "name";
@@ -10,6 +10,40 @@ define([], function() {
     var queryParams = {};
 
     var serviceCache = {};
+
+    //create name to duplicate (Data series or data provider)
+    var createName = function(listToCheck, objectName, sufixToInsert){
+      var nameUsed = listToCheck.some(function(obj){
+        return obj.name == objectName;
+      });
+      // If original name is not used, return the original name
+      if (!nameUsed){
+        return objectName;
+      } else {
+        // Adding sufix at the end the original name
+        var newName = objectName + "-" + sufixToInsert;
+        nameUsed = listToCheck.some(function(obj){
+          return obj.name == newName;
+        });
+        // If name with sufix not used, return the new name
+        if (!nameUsed){
+          return newName;
+        // If used, add number sufix _*
+        } else {
+          var numberSufix = 0;
+          listToCheck.forEach(function(obj){
+            if (obj.name.indexOf(sufixToInsert) > -1 && (obj.name.lastIndexOf("_") > obj.name.indexOf(sufixToInsert))){
+              var newNumberSufix = obj.name.slice(obj.name.lastIndexOf("_") + 1);
+              newNumberSufix = Number(newNumberSufix);
+              if (newNumberSufix > numberSufix)
+                numberSufix = newNumberSufix;
+            }
+          });
+          numberSufix++;
+          return newName + "_" + numberSufix;
+        }
+      }
+    };
 
     var listDataSeries = function(projectId){
       var defer = $q.defer();
@@ -28,9 +62,9 @@ define([], function() {
     var importDataSeries = function(){
       var dataSeriesToDuplicate = $scope.extra.selectedDataSeries;
       dataSeriesToDuplicate.description = "Imported from " + dataSeriesToDuplicate.name + " of " + $scope.extra.selectedProject.name + " project";
-      dataSeriesToDuplicate.name = dataSeriesToDuplicate.name + $scope.extra.selectedProject.name;
+      dataSeriesToDuplicate.name = createName($scope.model, dataSeriesToDuplicate.name, $scope.extra.selectedProject.name);
       dataSeriesToDuplicate.data_provider.description = "Imported from " + dataSeriesToDuplicate.data_provider.name + " of " + $scope.extra.selectedProject.name + " project";
-      dataSeriesToDuplicate.data_provider.name = dataSeriesToDuplicate.data_provider.name + $scope.extra.selectedProject.name;
+      dataSeriesToDuplicate.data_provider.name = createName($scope.dataProviders, dataSeriesToDuplicate.data_provider.name, $scope.extra.selectedProject.name);
       DataSeriesService.duplicate(dataSeriesToDuplicate)
         .then(function(response){
           $window.location.href = BASE_URL + "configuration/" + configuration.dataSeriesType + "/dataseries?token=" + (response.token || response.data.token);
@@ -113,6 +147,7 @@ define([], function() {
     queryParams['type'] = $scope.dataSeriesType;
 
     $scope.model = [];
+    $scope.dataProviders = [];
     $scope.fields = [];
 
     $scope.remove = function(object) {
@@ -323,6 +358,10 @@ define([], function() {
       $scope.fields = [{key: 'name', as: i18n.__("Name")}, {key: "model_type", as: i18n.__("Type")}, {key: "description", as: i18n.__("Description")}];
     });
 
+    DataProviderService.init().then(function(data){
+      $scope.dataProviders = data;
+    });
+
     $scope.link = config.link || null;
 
     $scope.linkToAdd = config.linkToAdd || null;
@@ -332,7 +371,7 @@ define([], function() {
     $scope.iconProperties = config.iconProperties || {};
   }
 
-  ListController.$inject = ["$scope", "$q", "BaseService", "DataSeriesService", "Socket", "i18n", "$window", "Service", "MessageBoxService", "$timeout"];
+  ListController.$inject = ["$scope", "$q", "BaseService", "DataSeriesService", "Socket", "i18n", "$window", "Service", "MessageBoxService", "$timeout", "DataProviderService"];
 
   return ListController;
 });

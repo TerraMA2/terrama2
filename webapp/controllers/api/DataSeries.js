@@ -604,6 +604,7 @@ module.exports = function(app) {
           .then(function(providerResult){
             dataSeriesObject.data_provider_id = providerResult.id;
             delete dataSeriesObject.data_provider;
+            dataSeriesObject.project_id = request.session.activeProject.id;
             return DataManager.addDataSeries(dataSeriesObject, null, options).then(function(dataSeriesResult) {
               var output = {
                 "DataProviders": [providerResult.toObject()],
