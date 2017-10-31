@@ -10,11 +10,11 @@
             <h4 class="modal-title" id="infoModalLabel">{{ i18n.__('Choose data series') }}</h4>
           </div>
           <div class="modal-body">
-            <label>Projects:</label>
+            <label>{{ i18n.__('Projects') }}:</label>
             <select class="form-control" ng-options="project.name for project in extra.projects" ng-model="selectedProject" ng-change="extra.listDataSeries(selectedProject);">
             </select>
             <div ng-if="selectedProject" >
-              <label>Data series:</label>
+              <label>{{ i18n.__('Data series') }}:</label>
               <select class="form-control" ng-options="dataS.name for dataS in extra.dataSeries" ng-model="selectedDataSeries" ng-change="extra.dataSeriesChange(selectedDataSeries)"></select>
             </div>
           </div>

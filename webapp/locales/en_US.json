@@ -240,6 +240,7 @@
   "Data provider port is required for": "Data provider port is required for",
   "Data provider protocol is required": "Data provider protocol is required",
   "Data provider scheme is required": "Data provider scheme is required",
+  "Data series": "Data series",
   "Data series is required": "Data series is required",
   "Data series name is required": "Data series name is required",
   "Data server Timeout (sec)": "Data server Timeout (sec)",
