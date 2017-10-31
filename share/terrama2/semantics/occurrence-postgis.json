@@ -39,14 +39,14 @@
         },
         {
           "key": "timestamp_property",
-          "htmlClass": "col-md-12 terrama2-schema-form",
+          "htmlClass": "col-md-12 terrama2-schema-form table-column",
           "validationMessage": {
             "202": "Invalid column name"
           }
         },
         {
           "key": "geometry_property",
-          "htmlClass": "col-md-12 terrama2-schema-form",
+          "htmlClass": "col-md-12 terrama2-schema-form table-column",
           "validationMessage": {
             "202": "Invalid column name"
           }

@@ -415,6 +415,19 @@ define([], function() {
         return "<button class=\"btn btn-danger removeDcpBtn\" ng-click=\"removePcd('" + alias + "')\" style=\"height: 21px; padding: 1px 4px 1px 4px; font-size: 13px;\">" + i18n.__("Remove") + "</button>";
       };
 
+      $scope.isDataProviderFolder = function() {
+        var returnVal = false;
+
+        $scope.providersList.forEach(function(dataProvider) {
+          if($scope.dataSeries.data_provider_id === dataProvider.id && dataProvider.data_provider_type.id === 1) {
+            returnVal = true; 
+            return;
+          }
+        });
+
+        return returnVal;
+      };
+
       // it defines when data change combobox has changed and it will adapt the interface
       $scope.onDataSemanticsChange = function() {
         if(!$scope.semanticsSelected)
@@ -654,6 +667,9 @@ define([], function() {
           } else {
             var tableInput = angular.element('#table_name');
             tableInput.attr('list', 'databaseTableList');
+
+            var columnsInputs = angular.element('.table-column > input');
+            columnsInputs.attr('list', 'tableParamsColumnsList');
           }
         });
       };
@@ -925,6 +941,32 @@ define([], function() {
         return result.promise;
 
       }
+
+      var listParamsColumns = function(dataProvider, table_name){
+        var result = $q.defer();
+
+        DataProviderService.listPostgisObjects({providerId: dataProvider.id, objectToGet: "column", tableName: table_name})
+          .then(function(response){
+            if (response.data.status == 400){
+              return result.reject(response.data);
+            }
+            $scope.paramsColumnsList = response.data.data.map(function(item, index) {
+              return item.column_name;
+            });
+            result.resolve(response.data.data);
+          });
+
+        return result.promise;
+      }
+
+      $scope.$watch("model.table_name", function(val) {
+        var dataProvider = $scope.providersList.filter(function(element) {
+          return element.id == $scope.dataSeries.data_provider_id;
+        });
+
+        if(dataProvider.length > 0 && dataProvider[0].data_provider_type.id == 4)
+          listParamsColumns(dataProvider[0], val);
+      });
 
       $scope.isIntersectionEmpty = function() {
         return Object.keys($scope.intersection).length === 0;
@@ -1963,12 +2005,9 @@ define([], function() {
 
               var dsIntersection = $scope.intersection[k].data_series;
 
-              // checking GRID. Grid does not need attribute
-              if (dsIntersection.data_series_semantics.data_series_type_name !== globals.enums.DataSeriesType.GRID) {
-                if ($scope.intersection[k].attributes.length === 0) {
-                  MessageBoxService.danger(i18n.__("Data Registration"), i18n.__("Invalid intersection. Static data series must have at least a attribute."));
-                  return;
-                }
+              if ($scope.intersection[k].attributes.length === 0) {
+                MessageBoxService.danger(i18n.__("Data Registration"), i18n.__("Invalid intersection. Each data series must have at least one attribute selected."));
+                return;
               }
             }
           }
