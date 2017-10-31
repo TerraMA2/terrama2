@@ -31,12 +31,14 @@
 #include "Utils.hpp"
 #include "DataAccessorFactory.hpp"
 #include "SemanticsManager.hpp"
-
+#include "Raii.hpp"
 #include "Logger.hpp"
 #include "../Exception.hpp"
 #include "../../Config.hpp"
 
 // TerraLib
+#include <terralib/dataaccess/datasource/ScopedTransaction.h>
+#include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 #include <terralib/core/utils/Platform.h>
 #include <terralib/common/PlatformUtils.h>
 #include <terralib/common/UnitsOfMeasureManager.h>
@@ -537,4 +539,18 @@ std::string terrama2::core::readFileContents(const std::string& absoluteFilePath
               std::istreambuf_iterator<char>());
 
   return str;
+}
+
+std::pair<std::shared_ptr<te::da::DataSetType>, std::shared_ptr<te::da::DataSet> >
+terrama2::core::getDCPPositionsTable(std::shared_ptr<te::da::DataSource> datasource, const std::string& dataSetName)
+{
+  terrama2::core::OpenClose< std::shared_ptr<te::da::DataSource> > openClose(datasource); Q_UNUSED(openClose);
+
+  std::shared_ptr<te::da::DataSourceTransactor> transactorDestination(datasource->getTransactor());
+  te::da::ScopedTransaction scopedTransaction(*transactorDestination);
+
+  std::shared_ptr<te::da::DataSet> teDataset = transactorDestination->getDataSet(dataSetName);
+  std::shared_ptr<te::da::DataSetType> teDataSetType = transactorDestination->getDataSetType(dataSetName);
+
+  return {teDataSetType, teDataset};
 }

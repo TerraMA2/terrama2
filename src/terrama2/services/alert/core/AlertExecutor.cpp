@@ -253,25 +253,47 @@ terrama2::services::alert::core::AlertExecutor::monitoredObjectAlert(std::shared
   {
     auto pair = tempAdditionalDataVector.at(additionalData.dataSeriesId);
     auto dataSeries = pair.first;
-    auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(pair.second, dataSeries);
-    auto dataMap = dataAccessor->getSeries(filter, remover);
+    auto dataProvider = pair.second;
 
-    decltype(dataMap.begin()) iter;
-    if(additionalData.dataSetId == terrama2::core::InvalidId())
+    // referred data to join to the alert data
+    terrama2::core::DataSetSeries referredDataSeries;
+    if(dataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::DCP)
     {
-      //if no dataset configured
-      iter = dataMap.begin();
+      // use the dcp positions table
+      // as aditional data
+      te::core::URI uri(dataProvider->uri);
+      std::shared_ptr<te::da::DataSource> datasourceDestination(te::da::DataSourceFactory::make("POSTGIS", uri));
+      std::string destinationDataSetName = getDCPPositionsTableName(dataSeries);
+
+      auto positionsData = terrama2::core::getDCPPositionsTable(datasourceDestination, destinationDataSetName);
+
+      referredDataSeries.dataSet = nullptr;
+      referredDataSeries.syncDataSet = std::make_shared<terrama2::core::SynchronizedDataSet>(positionsData.second);
+      referredDataSeries.teDataSetType = positionsData.first;
     }
     else
     {
-      //find selected dataset
-      iter = std::find_if(dataMap.begin(), dataMap.end(), [&additionalData](std::pair<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries> pair)
-      {
-        return pair.first->id == additionalData.dataSetId;
-      });
-    }
+      auto dataSeries = pair.first;
+      auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(pair.second, dataSeries);
+      auto dataMap = dataAccessor->getSeries(filter, remover);
 
-    auto referredDataSeries = dataMap.at(iter->first);
+      decltype(dataMap.begin()) iter;
+      if(additionalData.dataSetId == terrama2::core::InvalidId())
+      {
+        //if no dataset configured
+        iter = dataMap.begin();
+      }
+      else
+      {
+        //find selected dataset
+        iter = std::find_if(dataMap.begin(), dataMap.end(), [&additionalData](std::pair<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries> pair)
+        {
+          return pair.first->id == additionalData.dataSetId;
+        });
+      }
+
+      referredDataSeries = dataMap.at(iter->first);
+    }
 
     terrama2::core::TeDataSetFKJoin join(dataSetType,
                                          teDataset,
