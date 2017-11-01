@@ -6,14 +6,12 @@ service postgresql start
 # Start GeoServer
 nohup $GEOSERVER_HOME/bin/startup.sh &
 
-ls -lah $TERRAMA2_INSTALL_PATH
-
 if [ ! -f "$TERRAMA2_INSTALL_PATH/terrama2.lock" ]; then
   cd $TERRAMA2_INSTALL_PATH/webapp
-  npm start npm --name webapp -- start
+  pm2 start npm --name webapp -- start
 
   cd $TERRAMA2_INSTALL_PATH/webmonitor
-  npm start npm --name webmonitor -- start
+  pm2 start npm --name webmonitor -- start
 else
   # Start TerraMA² Services
   pm2 start webapp
