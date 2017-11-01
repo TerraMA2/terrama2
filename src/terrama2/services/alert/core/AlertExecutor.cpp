@@ -807,9 +807,9 @@ te::core::URI terrama2::services::alert::core::AlertExecutor::generateImage(Aler
 
   //add layers to request
   geoserverUri+="&layers=";
-  for(const auto& layer : view.views)
+  for(auto layer = view.views.crbegin(); layer < view.views.crend(); ++layer)
   {
-    geoserverUri+=layer.second+":view"+std::to_string(layer.first)+",";
+    geoserverUri+=layer->second+":view"+std::to_string(layer->first)+",";
   }
   // remove last comma
   geoserverUri.pop_back();
