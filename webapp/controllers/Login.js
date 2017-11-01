@@ -12,6 +12,9 @@ module.exports = function(app) {
       if(request.session && request.session.activeProject)
         delete request.session.activeProject;
 
+      if(request.session && request.session.cachedProjects)
+        delete request.session.cachedProjects;
+
       request.logout();
       response.redirect(app.locals.BASE_URL);
     }

@@ -174,11 +174,11 @@
                     ng-change="ctrl.onDataSeriesChanged(ctrl.view.data_series_id, dSeries)"
                     required>
               <ui-select-match>
-                <img ng-src="{{ctrl.getImageUrl($select.selected)}}" style="width: 20px; margin-top: -9px"/>
+                <img ng-src="{{ctrl.getImageUrl($select.selected)}}" style="max-width: 20px; height: 20px; margin-top: -9px"/>
                 <span ng-bind="$select.selected.name"></span>
               </ui-select-match>
               <ui-select-choices repeat="dSeries.id as dSeries in (ctrl.dataSeries | filter:ctrl.filterByType | orderBy: 'name') track by dSeries.id">
-                <img ng-src="{{ctrl.getImageUrl(dSeries)}}" style="width: 20px;"/>
+                <img ng-src="{{ctrl.getImageUrl(dSeries)}}" style="max-width: 20px; height: 20px;"/>
                 <span ng-bind="dSeries.name"></span>
               </ui-select-choices>
             </ui-select>
@@ -199,12 +199,11 @@
     </terrama2-box>
 
     <terrama2-box title="i18n.__('Style')" css="ctrl.css"
-                  ng-show="ctrl.viewDataSeries.data_series_semantics.data_series_type_name && ctrl.viewDataSeries.data_series_semantics.data_series_type_name !== ctrl.DataSeriesType.DCP"
                   handle-buttons="ctrl.styleButtons"
                   extra="{disabled: !ctrl.hasStyle}">
-      <form name="forms.styleForm" novalidate ng-if="ctrl.hasStyle">
+      <form name="forms.styleForm" novalidate ng-show="ctrl.hasStyle">
         <!-- Vectorial -->
-        <terrama2-style-legend form-ctrl="forms.styleForm" type="ctrl.targetDataSeriesType" model="ctrl.legend"></terrama2-style-legend>
+        <terrama2-style-legend form-ctrl="forms.styleForm" type="ctrl.targetDataSeriesType" columns-list="ctrl.columnsList" model="ctrl.legend"></terrama2-style-legend>
       </form>
     </terrama2-box>
 

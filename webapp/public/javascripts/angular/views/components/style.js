@@ -9,6 +9,7 @@ define([], function () {
     bindings: {
       formCtrl: "<", // controller binding in order to throw up
       type: "=",
+      columnsList: "=",
       model: "=",
       options: "="
     },
@@ -117,6 +118,12 @@ define([], function () {
       }
     };
     /**
+     * Listen when change creation type from view register update controller
+     */
+    $scope.$on('updateCreationType', function(event) {
+      self.changeCreationType();
+    });
+    /**
      * Setting default parameters when change mode to xml file
      */
     self.changeCreationType = function(){
@@ -146,7 +153,8 @@ define([], function () {
         $scope.$broadcast("schemaFormRedraw");
       }
     }
-
+    // Regex to valide column name of style
+    self.regexColumn = "^[a-zA-Z_][a-zA-Z0-9_]*$";
     self.changeColorType = function(){
       if (self.model.type == 1){
         self.minColorsLength = 2;

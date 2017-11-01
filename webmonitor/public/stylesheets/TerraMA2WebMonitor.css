@@ -117,6 +117,10 @@ html, body, #content, .content, .content-wrapper, #terrama2-map {
   margin-top: 50px
 }
 
+img[src=""] {
+  display: none;
+}
+
 .full_screen .main-header .logo {
   width: 50px;
   position: absolute;
@@ -946,4 +950,14 @@ html, body, #content, .content, .content-wrapper, #terrama2-map {
   display: block;
   overflow: hidden;
   width: 145px;
+}
+
+#tableCloseButton {
+  position: absolute;
+  top: 20px;
+  color: red;
+  height: 18px;
+  width: 18px;
+  right: 20px;
+  cursor: pointer;
 }

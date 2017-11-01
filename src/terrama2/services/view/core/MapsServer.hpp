@@ -63,10 +63,11 @@ namespace terrama2
             virtual bool checkConnection() const;
 
             virtual QJsonObject generateLayers(const ViewPtr viewPtr,
-                                               const std::pair< terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr >& dataSeriesProviders,
+                                               terrama2::core::DataSeriesPtr dataSeries,
+                                               terrama2::core::DataProviderPtr dataProvider,
                                                const std::shared_ptr<DataManager> dataManager,
                                                std::shared_ptr<ViewLogger> logger,
-                                               const RegisterId logId) = 0;
+                                               const RegisterId logId) final;
 
             /*!
              * \brief This methods performs a Maps Server cleanup operation.
@@ -84,6 +85,11 @@ namespace terrama2
                                  std::shared_ptr<terrama2::core::ProcessLogger> logger = nullptr) = 0;
 
           protected:
+            virtual QJsonObject generateLayersInternal(const ViewPtr viewPtr,
+                                               const std::pair< terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr >& dataSeriesProviders,
+                                               const std::shared_ptr<DataManager> dataManager,
+                                               std::shared_ptr<ViewLogger> logger,
+                                               const RegisterId logId) = 0;
 
             te::core::URI uri_;     /*!< The address and authentication info of the Maps Server */
         };

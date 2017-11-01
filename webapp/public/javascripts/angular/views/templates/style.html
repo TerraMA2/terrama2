@@ -1,4 +1,4 @@
-<div class="col-md-6 form-group">
+<div class="col-md-6 form-group" ng-if="$ctrl.type !== $ctrl.DataSeriesType.DCP">
     <label>{{$ctrl.i18n.__('Creation Type') }}:</label>
     <select class="form-control" name="styles" ng-change="$ctrl.changeCreationType()" ng-model="$ctrl.model.metadata.creation_type">
         <option value="editor">{{$ctrl.i18n.__('Editor')}}</option>
@@ -31,7 +31,7 @@
 <div ng-if="$ctrl.model.metadata.creation_type == 'editor'">
   <div class="col-md-12 terrama2-nopadding-box">
 
-    <div class="col-md-6">
+    <div class="col-md-6" ng-if="$ctrl.type !== $ctrl.DataSeriesType.DCP">
       <div class="form-group" terrama2-show-errors>
         <label><span ng-bind="$ctrl.i18n.__('Type')"></span>:</label>
         <select class="form-control"
@@ -55,16 +55,22 @@
     <div class="col-md-6 terrama2-nopadding-box">
       <div class="col-md-12" ng-if="$ctrl.type === $ctrl.DataSeriesType.GEOMETRIC_OBJECT || $ctrl.type === $ctrl.DataSeriesType.OCCURRENCE || $ctrl.type === $ctrl.DataSeriesType.ANALYSIS_MONITORED_OBJECT">
         <div class="form-group" terrama2-show-errors>
-          <label><span ng-bind="$ctrl.i18n.__('Column')"></span>:</label>
+          <label><span ng-bind="$ctrl.i18n.__('Attribute')"></span>:</label>
           <input class="form-control" 
-                name="column" 
-                ng-model="$ctrl.model.metadata.column" 
+                name="attribute" 
+                ng-model="$ctrl.model.metadata.attribute" 
                 type="text"
+                ng-pattern="$ctrl.regexColumn"
+                list='tableColumnsList'
                 ng-required="$ctrl.type === $ctrl.DataSeriesType.GEOMETRIC_OBJECT || $ctrl.type === $ctrl.DataSeriesType.OCCURRENCE || $ctrl.type === $ctrl.DataSeriesType.ANALYSIS_MONITORED_OBJECT">
 
           <span class="help-block" 
-            ng-show="$ctrl.formCtrl.column.$dirty && $ctrl.formCtrl.column.$error.required"
-            ng-bind="$ctrl.i18n.__('Column is required')">
+            ng-show="$ctrl.formCtrl.attribute.$dirty && $ctrl.formCtrl.attribute.$error.required"
+            ng-bind="$ctrl.i18n.__('Attribute is required')">
+          </span>
+          <span class="help-block" 
+            ng-show="$ctrl.formCtrl.column.$dirty && $ctrl.formCtrl.column.$invalid && !$ctrl.formCtrl.column.$error.required"
+            ng-bind="$ctrl.i18n.__('Column value is invalid')">
           </span>
         </div>
         <!-- ./Column -->
@@ -85,6 +91,22 @@
           </span>
         </div>
       </div>
+      <!-- ./col-md-6 Type -->
+      <div class="col-md-6" ng-if="$ctrl.type === $ctrl.DataSeriesType.DCP" >
+        <div class="form-group"  terrama2-show-errors>
+          <label><span ng-bind="$ctrl.i18n.__('Attribute')"></span>:</label>
+          <input class="form-control" 
+                name="attribute" 
+                ng-model="$ctrl.model.metadata.attribute" 
+                type="text"
+                ng-required="$ctrl.type === $ctrl.DataSeriesType.DCP">
+
+          <span class="help-block" 
+            ng-show="$ctrl.formCtrl.attribute.$dirty && $ctrl.formCtrl.attribute.$error.required"
+            ng-bind="$ctrl.i18n.__('Attribute is required')">
+          </span>
+        </div>
+      </div>
       <div class="col-md-6" ng-if="$ctrl.type === $ctrl.DataSeriesType.GRID && $ctrl.model.type != 1">
         <div class="form-group" terrama2-show-errors>
           <label><span ng-bind="$ctrl.i18n.__('Dummy Value')"></span>:</label>
@@ -99,7 +121,7 @@
     </div>
     <!-- ./col-md-6 -->
   </div>
-  <div class="col-md-12 terrama2-nopadding-box" >
+  <div class="col-md-12 terrama2-nopadding-box" ng-if="$ctrl.type !== $ctrl.DataSeriesType.DCP" >
     <hr>
   </div>
   <div class="form-group">
@@ -233,3 +255,7 @@
     </div>
   </div>
 </div>
+
+<datalist id='tableColumnsList'>
+  <option ng-repeat="column in $ctrl.columnsList" value="{{column}}">
+</datalist>

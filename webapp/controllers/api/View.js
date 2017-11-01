@@ -2,14 +2,12 @@
   'use strict';
 
   // Dependencies
-  var DataManager = require("./../../core/DataManager");
   var handleRequestError = require("./../../core/Utils").handleRequestError;
+  var TokenCode = require('./../../core/Enums').TokenCode;
+  var Utils = require('./../../core/Utils');
 
   // Facade
   var ViewFacade = require("./../../core/facade/View");
-
-  var TokenCode = require('./../../core/Enums').TokenCode;
-  var Utils = require('./../../core/Utils');
 
   /**
    * Injecting NodeJS App configuration as dependency. It retrieves a Views controllers API
@@ -24,6 +22,20 @@
         var projectId = request.params.project_id;
         
         ViewFacade.retrieve(viewId, (projectId ? projectId : request.session.activeProject.id))
+          .then(function(views) {
+            return response.json(views);
+          })
+
+          .catch(function(err) {
+            return handleRequestError(response, err, 400);
+          });
+      },
+
+      listByService: function(request, response) {
+        var serviceId = request.params.service_id;
+        var projectId = request.params.project_id;
+        
+        ViewFacade.retrieve(null, projectId, serviceId)
           .then(function(views) {
             return response.json(views);
           })
@@ -49,7 +61,6 @@
             var token = Utils.generateToken(app, TokenCode.SAVE, view.name, extra);
             return response.json({status: 200, result: view.toObject(), token: token});
           })
-          
           .catch(function(err){
             return handleRequestError(response, err, 400);
           });
@@ -84,7 +95,6 @@
             var token = Utils.generateToken(app, TokenCode.DELETE, view.name);
             return response.json({status: 200, result: view.toObject(), token: token});
           })
-
           .catch(function(err) {
             return handleRequestError(response, err, 400);
           });

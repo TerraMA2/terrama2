@@ -140,7 +140,8 @@ namespace terrama2
              * \param timestampPropertyName The datetime property for temporal data
              * \param sql The SQL statements to create the view
              */
-            void registerPostgisTable(const std::string& dataStoreName,
+            void registerPostgisTable(const ViewPtr viewPtr,
+                                      const std::string& dataStoreName,
                                       terrama2::core::DataSeriesType dataSeriesType,
                                       std::map<std::string, std::string> connInfo,
                                       const std::string& tableName,
@@ -333,11 +334,11 @@ namespace terrama2
             void registerVectorDataStore(const std::string& dataStoreName,
                                          const std::string& shpFilePath) const;
 
-            virtual QJsonObject generateLayers(const ViewPtr viewPtr,
-                                               const std::pair<terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr>& dataSeriesProvider,
-                                               const std::shared_ptr<DataManager> dataManager,
-                                               std::shared_ptr<ViewLogger> logger,
-                                               const RegisterId logId) override;
+            virtual QJsonObject generateLayersInternal(const ViewPtr viewPtr,
+                                                       const std::pair<terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr>& dataSeriesProvider,
+                                                       const std::shared_ptr<DataManager> dataManager,
+                                                       std::shared_ptr<ViewLogger> logger,
+                                                       const RegisterId logId) override;
 
             void registerLayerDefaultStyle(const std::string& styleName,
                                            const std::string& layerName) const;
@@ -411,6 +412,8 @@ namespace terrama2
              * \return Unique Layer Name
              */
             std::string generateLayerName(const ViewId& id) const;
+
+            std::string getAttributeName(const View::Legend& legend) const;
 
 
             std::string workspace_ = "terrama2"; /*!< A workspace to work in GeoServer */

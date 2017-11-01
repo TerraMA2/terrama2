@@ -102,6 +102,13 @@ module.exports = function(sequelize, DataTypes) {
               allowNull: false
             }
           });
+
+          Alert.hasOne(models.AlertAttachment, {
+            onDelete: 'CASCADE',
+            foreignKey: {
+              allowNull: false
+            }
+          });
         }
       }
     }
