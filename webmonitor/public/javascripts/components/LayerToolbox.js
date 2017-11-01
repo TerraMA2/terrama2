@@ -60,8 +60,18 @@ define(
             if(layer.exportation.dateField !== null) {
               var dateInfo = layer.dateInfo;
               exportationParams.dateTimeField = layer.exportation.dateField;
-              exportationParams.dateTimeFrom = dateInfo.startFilterDate;
-              exportationParams.dateTimeTo = dateInfo.endFilterDate;
+
+              if(dateInfo.startFilterDate && dateInfo.endFilterDate) {
+                exportationParams.dateTimeFrom = dateInfo.startFilterDate;
+                exportationParams.dateTimeTo = dateInfo.endFilterDate;
+              } else {
+                exportationParams.date = dateInfo.dates[dateInfo.initialDateIndex];
+              }
+            }
+
+            if(layer.exportation.monitoredObjectId !== null && layer.exportation.monitoredObjectPk !== null) {
+              exportationParams.monitoredObjectId = layer.exportation.monitoredObjectId;
+              exportationParams.monitoredObjectPk = layer.exportation.monitoredObjectPk;
             }
 
             $('#exportation-status > div > span').html('Verifying data for export<span>...</span>');

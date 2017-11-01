@@ -154,6 +154,10 @@ define([
           $scope.showErrorInfo = function(object) {
             $('#serviceErrorModal .modal-body > p').text(object.error);
             $('#serviceErrorModal').modal();
+          };
+
+          $scope.showProjectsModal = function(){
+            $('#projectsDataSeries').modal();
           }
 
           $scope.resetObjectToRemove = function() {

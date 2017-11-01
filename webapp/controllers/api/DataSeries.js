@@ -13,6 +13,9 @@ module.exports = function(app) {
   var ScheduleType = require('./../../core/Enums').ScheduleType;
   // data model
   var DataModel = require('./../../core/data-model');
+  // Facade
+  var DataProviderFacade = require("./../../core/facade/DataProvider");
+  var RequestFactory = require("./../../core/RequestFactory");
 
   return {
     post: function(request, response) {
@@ -99,6 +102,7 @@ module.exports = function(app) {
       var dataSeriesId = request.params.id;
       var dataSeriesTemporality = request.query.type;
       var schema = request.query.schema;
+      var project_id = request.query.project_id;
 
       // collector scope
       var collector = request.query.collector;
@@ -118,6 +122,10 @@ module.exports = function(app) {
             project_id: project
           }
         };
+      } else if (project_id){
+        var restriction = {
+          project_id: project_id
+        }
       } else {
         var restriction = {
           dataProvider: {
@@ -577,6 +585,45 @@ module.exports = function(app) {
       } else {
         Utils.handleRequestError(response, new DataSeriesError("Missing dataseries id"), 400);
       }
+    },
+
+    duplicate: function(request, response) {
+      var dataSeriesObject = request.body;
+      var dataProviderObject = dataSeriesObject.data_provider;
+
+      var requester = RequestFactory.buildFromUri(dataProviderObject.uri);
+      dataProviderObject.uriObject = requester.params;
+      dataProviderObject.project = request.session.activeProject.name;
+      delete dataProviderObject.id;
+      delete dataSeriesObject.id;
+      DataManager.orm.transaction(function(t){
+        var options = {
+          transaction: t
+        };
+        return DataProviderFacade.save(dataProviderObject, request.session.activeProject.id, options)
+          .then(function(providerResult){
+            dataSeriesObject.data_provider_id = providerResult.id;
+            delete dataSeriesObject.data_provider;
+            dataSeriesObject.project_id = request.session.activeProject.id;
+            return DataManager.addDataSeries(dataSeriesObject, null, options).then(function(dataSeriesResult) {
+              var output = {
+                "DataProviders": [providerResult.toObject()],
+                "DataSeries": [dataSeriesResult.toObject()]
+              };
+
+              logger.debug("OUTPUT: ", JSON.stringify(output));
+
+              TcpService.send(output);
+
+              return dataSeriesResult;
+            });
+          })
+      }).then(function(dataSeriesResult){
+        var token = Utils.generateToken(app, TokenCode.IMPORT, dataSeriesResult.name);
+        return response.json({status: 200, token: token});
+      }).catch(function(err){
+        return Utils.handleRequestError(response, err, 400);
+      });
     }
   };
 };

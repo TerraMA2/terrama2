@@ -193,6 +193,15 @@
                 dataProviderId: this.dataSeries.dataProvider.id,
                 mask: this.dataSeries.dataSets[0].format.mask
               };
+            } else if(this.dataSeries.data_series_semantics.code === "ANALYSIS_MONITORED_OBJECT-postgis") {
+              exportation.data = {
+                dataProviderId: this.dataSeries.dataProvider.id,
+                schema: "public",
+                table: this.dataSeries.dataSets[0].format.table_name,
+                dateField: "execution_date",
+                monitoredObjectId: (this.dataSeries.dataSets[0].format.monitored_object_id !== undefined ? this.dataSeries.dataSets[0].format.monitored_object_id : null),
+                monitoredObjectPk: (this.dataSeries.dataSets[0].format.monitored_object_pk !== undefined ? this.dataSeries.dataSets[0].format.monitored_object_pk : null)
+              };
             } else {
               exportation.data = {
                 dataProviderId: this.dataSeries.dataProvider.id,

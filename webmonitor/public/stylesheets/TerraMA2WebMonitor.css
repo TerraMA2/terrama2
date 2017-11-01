@@ -951,3 +951,13 @@ img[src=""] {
   overflow: hidden;
   width: 145px;
 }
+
+#tableCloseButton {
+  position: absolute;
+  top: 20px;
+  color: red;
+  height: 18px;
+  width: 18px;
+  right: 20px;
+  cursor: pointer;
+}
