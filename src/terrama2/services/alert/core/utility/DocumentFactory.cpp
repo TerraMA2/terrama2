@@ -66,12 +66,11 @@ bool terrama2::services::alert::core::DocumentFactory::find(const std::string& d
   return (it != factoriesMap_.end());
 }
 
-std::string terrama2::services::alert::core::DocumentFactory::makeDocument(const std::string& documentCode,
-                                                                           ReportPtr report)
+te::core::URI terrama2::services::alert::core::DocumentFactory::makeDocument(const std::string& documentCode, ReportPtr report)
 {
   if(documentCode.empty())
-    return "";
-    
+    return te::core::URI();
+
   std::map<std::string, FactoryFnctType>::const_iterator it = factoriesMap_.find(documentCode);
   if(it == factoriesMap_.end())
   {

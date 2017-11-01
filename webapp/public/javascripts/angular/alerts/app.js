@@ -7,7 +7,7 @@ define([
 
   var moduleName = "terrama2.alerts";
 
-  angular.module(moduleName, [controllersModule, serviceModule, legendServiceModule]);
+  angular.module(moduleName, [controllersModule, serviceModule, legendServiceModule, 'angular-sortable-view']);
 
   return moduleName;
 });

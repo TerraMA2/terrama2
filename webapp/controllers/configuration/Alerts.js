@@ -24,7 +24,29 @@ module.exports = function(app) {
       var hasProjectPermission = request.session.activeProject.hasProjectPermission;
       DataManager.getAlert({id: parseInt(request.params.id)})
         .then(function(alert) {
-          return response.render("configuration/alert", { disablePDF: config.disablePDF, alert: alert.rawObject(), hasProjectPermission: hasProjectPermission });
+          DataManager.getAlertAttachment({ alert_id: alert.id })
+            .then(function(alertAttachment) {
+              if(alertAttachment) {
+                DataManager.listAlertAttachedViews({ alert_attachment_id: alertAttachment.id })
+                  .then(function(alertAttachedViews) {
+                    DataManager.listViews({service_instance_id: alert.view.serviceInstanceId, project_id: request.session.activeProject.id})
+                      .then(function(views) {
+                        return response.render("configuration/alert", { disablePDF: config.disablePDF, alert: alert.rawObject(), alertAttachment: alertAttachment, alertAttachedViews: alertAttachedViews, views: views.map(function(view) { return view.toObject(); }), hasProjectPermission: hasProjectPermission });
+                      }).catch(function(err) {
+                        return response.render("base/404");
+                      });
+                  }).catch(function(err) {
+                    return response.render("base/404");
+                  });
+              } else {
+                DataManager.listViews({service_instance_id: alert.view.serviceInstanceId, project_id: request.session.activeProject.id})
+                  .then(function(views) {
+                    return response.render("configuration/alert", { disablePDF: config.disablePDF, alert: alert.rawObject(), alertAttachment: null, alertAttachedViews: [], views: views.map(function(view) { return view.toObject(); }), hasProjectPermission: hasProjectPermission });
+                  }).catch(function(err) {
+                    return response.render("base/404");
+                  });
+              }
+            });
         }).catch(function(err) {
           return response.render("base/404");
         });

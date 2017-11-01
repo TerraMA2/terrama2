@@ -215,7 +215,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
 
         for(auto& fileInfo : fileInfoList)
         {
-          std::string layerName = fileInfo.fileName().toStdString();
+          std::string layerName = generateLayerName(viewPtr->id);
 
           if(dataFormat == "OGR")
           {
@@ -361,6 +361,10 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
             const terrama2::core::DataSetPtr monitoredObjectDataset = monitoredObjectDataSeries->datasetList.at(0);
 
             monitoredObjectTableInfo = DataAccess::getPostgisTableInfo(monitoredObjectDataset, monitoredObjectDataSeries, monitoredObjectProvider);
+          }
+          else if (monitoredObjectDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::DCP)
+          {
+            monitoredObjectTableInfo = DataAccess::getDCPPostgisTableInfo(monitoredObjectDataSeries, monitoredObjectProvider);
           }
           else
           {
@@ -742,7 +746,11 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::
   std::string xml = "<featureType>";
   xml += "<title>" + layerName + "</title>";
   xml += "<name>" + layerName + "</name>";
-  xml += "<nativeName>" + layerName + "</nativeName>";
+  if(dataSeriesType == terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT
+     || dataSeriesType == terrama2::core::DataSeriesType::DCP)
+    xml += "<nativeName>" + layerName + "</nativeName>";
+  else
+    xml += "<nativeName>" + tableName + "</nativeName>";
   xml += "<enabled>true</enabled>";
 
   std::string metadataTime = "";
