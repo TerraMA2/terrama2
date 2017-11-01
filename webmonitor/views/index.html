@@ -206,6 +206,7 @@
             </div>
             <div id="table-div" style="display: none; height: 400px;">
               <div class="main-div hidden">
+                <span id="tableCloseButton"><i class="fa fa-close"></i></span>
                 <div id="attributes-table-select">
                   <span>Layers:</span>
                   <select class="form-control"></select>
@@ -296,8 +297,8 @@
       var webmonitorHostInfo = {[webmonitorHostInfo|json|safe]};
       var message = "{[message.content]}";
     </script>
-    <script type="text/javascript" src="{[ BASE_URL ]}dist/TerraMA2WebMonitor.min.js"></script>
-    <!--<script type="text/javascript" data-main="{[ BASE_URL ]}javascripts/Startup.js" src="{[ BASE_URL ]}externals/requirejs/require.js"></script>-->
+    <!--<script type="text/javascript" src="{[ BASE_URL ]}dist/TerraMA2WebMonitor.min.js"></script>-->
+    <script type="text/javascript" data-main="{[ BASE_URL ]}javascripts/Startup.js" src="{[ BASE_URL ]}externals/requirejs/require.js"></script>
     <iframe id="exportation-iframe" class="hidden"></iframe>
   </body>
 </html>

@@ -188,12 +188,29 @@ var Exportation = function() {
    * @inner
    */
   this.getQuery = function(options) {
+    var selectAttributes = (options.innerJoinTable ? options.TableName + ".*, " + options.innerJoinTable + ".*" : "*");
+
     // Creation of the query
-    var query = "select * from " + options.Schema + "." + options.TableName;
-    
+    var query = "set time zone 'UTC'; select " + selectAttributes + " from " + options.Schema + "." + options.TableName;
+
+    if(options.innerJoinTable) {
+      query += " inner join " + options.innerJoinTable + " on ";
+      query += "(" + options.TableName + "." + options.innerJoinAttribute + "=" + options.innerJoinTable + "." + options.innerJoinAttribute + ")";
+    }
+
     if(options.dateTimeField !== undefined && options.dateTimeFrom !== undefined && options.dateTimeTo !== undefined) {
-      query += " where (" + options.dateTimeField + " between %L and %L)";
+      var whereField = (options.innerJoinTable ? options.TableName + "." + options.dateTimeField : options.dateTimeField);
+      query += " where (" + whereField + " between %L and %L)";
       var params = [options.dateTimeFrom, options.dateTimeTo];
+
+      // Adds the query to the params array
+      params.splice(0, 0, query);
+
+      var finalQuery = memberPgFormat.apply(null, params);
+    } else if(options.dateTimeField !== undefined && options.date !== undefined) {
+      var whereField = (options.innerJoinTable ? options.TableName + "." + options.dateTimeField : options.dateTimeField);
+      query += " where (" + whereField + " = %L)";
+      var params = [options.date];
 
       // Adds the query to the params array
       params.splice(0, 0, query);
