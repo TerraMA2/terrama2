@@ -70,8 +70,10 @@ terrama2::core::DataSeriesPtr inputDataSeries()
   //DataSet information
   terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
   dataSet->active = true;
-  dataSet->format.emplace("table_name", "analise_result");
+  dataSet->format.emplace("table_name", "contagem");
   dataSet->format.emplace("timestamp_property", "execution_date");
+  dataSet->format.emplace("monitored_object_id", "2");
+  dataSet->format.emplace("monitored_object_pk", "id");
 
   dataSeries->datasetList.emplace_back(dataSet);
 
@@ -176,7 +178,6 @@ terrama2::services::alert::core::AlertPtr newAlert()
   reportMetadata[terrama2::services::alert::core::ReportTags::CONTACT] = "TerraMA2 developers.";
   reportMetadata[terrama2::services::alert::core::ReportTags::COPYRIGHT] = "copyright information...";
   reportMetadata[terrama2::services::alert::core::ReportTags::DESCRIPTION] = "Example generated report...";
-  reportMetadata[terrama2::services::alert::core::ReportTags::DOCUMENT_URI] = "/" + TERRAMA2_DATA_DIR + "/NumericRisk.pdf";
 
   alert->reportMetadata = reportMetadata;
 
@@ -189,6 +190,18 @@ terrama2::services::alert::core::AlertPtr newAlert()
   notification.targets = {"vmimeteste@gmail.com"};
   notification.includeReport = "PDF";
   alert->notifications = { notification };
+
+  AlertView view;
+  view.geoserverUri = "http://localhost:8080/geoserver";
+  view.height = 659;
+  view.width = 768;
+  view.srid = 4326;
+  view.lowerLeftCorner.reset(new te::gm::Coord2D(-70, -40));
+  view.topRightCorner.reset(new te::gm::Coord2D(-30,4));
+  view.views.emplace_back(9,"terrama2_9");
+  view.views.emplace_back(2,"terrama2_2");
+
+  alert->view = std::move(view);
 
   return alert;
 }
@@ -221,11 +234,12 @@ int main(int argc, char* argv[])
   EXPECT_CALL(*logger.get(), setConnectionInfo(_)).Times(::testing::AtLeast(1));
   EXPECT_CALL(*logger.get(), start(_)).WillRepeatedly(::testing::Return(1));
   EXPECT_CALL(*logger.get(), result(_, _, _));
+  EXPECT_CALL(*logger.get(), isValid()).WillRepeatedly(::testing::Return(true));
 
   logger->setConnectionInfo(te::core::URI());
 
   QJsonObject additionalIfo;
-  additionalIfo.insert("email_server", QString("smtp://vmimeteste@gmail.com:a1a2a3a4@smtp.gmail.com:587"));
+  additionalIfo.insert("email_server", QString("smtp://vmimeteste@gmail.com:a1@2a3a4@smtp.gmail.com:587"));
 
   terrama2::core::ServiceManager::getInstance().setInstanceId(1);
 

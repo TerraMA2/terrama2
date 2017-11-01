@@ -55,8 +55,6 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
        && json.contains("active")
        && json.contains("name")
        && json.contains("description")
-//       && json.contains("schedule")
-//       && json.contains("filter")
        && json.contains("additional_data")
        && json.contains("legend_id")
        && json.contains("notifications")))
@@ -67,8 +65,7 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
   }
 
 
-  terrama2::services::alert::core::Alert* alert = new terrama2::services::alert::core::Alert();
-  terrama2::services::alert::core::AlertPtr alertPtr(alert);
+  auto alert = std::make_shared<terrama2::services::alert::core::Alert>();
 
   alert->id = static_cast<uint32_t>(json["id"].toInt());
   alert->projectId = static_cast<uint32_t>(json["project_id"].toInt());
@@ -83,7 +80,7 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
   alert->filter.lastValues = std::make_shared<size_t>(6);
 
   auto addDataArray = json["additional_data"].toArray();
-  for(const auto& value : addDataArray)
+  for(auto value : addDataArray)
   {
     auto obj = value.toObject();
     auto id = static_cast<uint32_t>(obj["dataseries_id"].toInt());
@@ -93,7 +90,7 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
 
     std::vector<std::string> attributes;
     auto attributesArray = obj["attributes"].toArray();
-    for(const auto& tempAttribute : attributesArray)
+    for(auto tempAttribute : attributesArray)
       attributes.push_back(tempAttribute.toString().toStdString());
 
     AdditionalData additionalData;
@@ -119,7 +116,7 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
   alert->riskId = static_cast<uint32_t>(json["legend_id"].toInt());
 
   auto recipientsArray = json["notifications"].toArray();
-  for(const auto& tempRecipient : recipientsArray)
+  for(auto tempRecipient : recipientsArray)
   {
     auto obj = tempRecipient.toObject();
     Notification recipient;
@@ -128,13 +125,61 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
     recipient.simplifiedReport = obj["simplified_report"].toBool();
     recipient.notifyOnRiskLevel = static_cast<uint32_t>(obj["notify_on_risk_level"].toInt());
 
-    for(const auto& target : obj["recipients"].toArray())
+    for(auto target : obj["recipients"].toArray())
       recipient.targets.push_back(target.toString().toStdString());
 
     alert->notifications.push_back(recipient);
   }
 
-  return alertPtr;
+  if(json.contains("view"))
+  {
+    auto obj = json["view"].toObject();
+    AlertView view;
+    view.geoserverUri = obj["geoserver_uri"].toString().toStdString();
+    if(obj.contains("ymin")
+       && obj.contains("ymax")
+       && obj.contains("xmin")
+       && obj.contains("xmax")
+       && obj.contains("srid"))
+    {
+      double miny = obj["ymin"].toDouble();
+      double maxy = obj["ymax"].toDouble();
+      double minx = obj["xmin"].toDouble();
+      double maxx = obj["xmax"].toDouble();
+      view.topRightCorner.reset(new te::gm::Coord2D(maxx, miny));
+      view.lowerLeftCorner.reset(new te::gm::Coord2D(minx, maxy));
+      view.srid = static_cast<Srid>(obj["srid"].toInt());
+    }
+    else
+    {
+      QString errMsg = QObject::tr("Invalid Alert JSON object.\nNo bounding box.");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
+    }
+
+    if(obj.contains("width")
+       && obj.contains("height"))
+    {
+       view.width = static_cast<uint32_t>(obj["width"].toInt());
+       view.height = static_cast<uint32_t>(obj["height"].toInt());
+    }
+    else
+    {
+      view.width = 768;
+      view.height = 589;
+    }
+
+    auto jsonArray = obj["layers"].toArray();
+    for(auto value : jsonArray)
+    {
+      auto layer = value.toObject();
+      view.views.emplace_back(layer["view_id"].toInt(), layer["workspace"].toString().toStdString());
+    }
+
+    alert->view = std::move(view);
+  }
+
+  return alert;
 }
 
 QJsonObject terrama2::services::alert::core::toJson(AlertPtr alert)
