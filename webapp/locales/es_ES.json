@@ -1039,7 +1039,8 @@
   "Object Monitored Data Series": "Objeto Monitorado",
   "Insert a value if you want to update the password": "",
 	"Transfer Shapefile": "",
-	"Select a Project": "",
+  "Select a Project": "",
+  "Attach Views": "",
 	"Failed to create destination folder!": "",
 	"File already exists!": "",
 	"Invalid data provider path!": "Invalid data provider path!",
@@ -1054,5 +1055,13 @@
 	"Timestamp property": "",
 	"Geometry property": "",
 	"SLD": "",
-	"Attribute is required": ""
+	"Attribute is required": "",
+  "Projection SRID is required": "",
+	"X max": "",
+  "X max is required": "",
+  "X min is required": "",
+	"Y min": "",
+  "Y max": "",
+  "Y max is required": "",
+  "No views attached.": ""
 }

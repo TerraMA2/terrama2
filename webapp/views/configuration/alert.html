@@ -34,8 +34,12 @@
 <script>
   var configuration = {
     alert: {[ alert|json|safe ]},
+    alertAttachment: {[ alertAttachment|json|safe ]},
+    alertAttachedViews: {[ alertAttachedViews|json|safe ]},
+    views: {[ views|json|safe ]},
     disablePDF: {[ disablePDF ]},
-    hasProjectPermission: {[ hasProjectPermission|json|safe ]}
+    hasProjectPermission: {[ hasProjectPermission|json|safe ]},
+    activeProject: {[ activeProject|json|safe ]}
   };
 
   var globals = {};
@@ -138,6 +142,7 @@
               <div class="form-group" terrama2-show-errors>
                 <label><span ng-bind="i18n.__('View Service')">:</span></label>
                 <ui-select name="viewService"
+                        ng-change="ctrl.onServiceChanged()"
                         ng-model="ctrl.view_service_instance_id"
                         required>
                   <ui-select-match>
@@ -176,7 +181,7 @@
         </div>
       </form>
     </terrama2-box>
-    
+
     <terrama2-box title="i18n.__('Schedule')" css="ctrl.css">
       <div class="col-md-12">
         <terrama2-schedule model="ctrl.alert.schedule" options="ctrl.scheduleOptions"></terrama2-schedule>
@@ -376,7 +381,22 @@
           </div>
         </div>
 
-        <div ng-show="!ctrl.disablePDF" ng-class="{ 'col-md-3': ctrl.dataSeriesType !== undefined && ctrl.dataSeriesType !== null && ctrl.dataSeriesType !== 'GRID', 'col-md-4': ctrl.dataSeriesType === undefined || ctrl.dataSeriesType === null || ctrl.dataSeriesType === 'GRID' }">
+        <div class="col-md-2" ng-if="ctrl.alert.hasView">
+          <div class="form-group">
+            <div class="checkbox">
+              <label style="font-weight: 700;">
+                <input type="checkbox"
+                        name="attachViews"
+                        ng-model="ctrl.attachViews"
+                        ng-true-value="true"
+                        ng-false-value="false"
+                        ng-change="ctrl.attachViewsChange()"> <span ng-bind="i18n.__('Attach Views')"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div ng-show="!ctrl.disablePDF" ng-class="{ 'col-md-2': ctrl.dataSeriesType !== undefined && ctrl.dataSeriesType !== null && ctrl.dataSeriesType !== 'GRID' && ctrl.alert.hasView, 'col-md-3': (ctrl.dataSeriesType !== undefined && ctrl.dataSeriesType !== null && ctrl.dataSeriesType !== 'GRID' && !ctrl.alert.hasView) || ((ctrl.dataSeriesType === undefined || ctrl.dataSeriesType === null || ctrl.dataSeriesType === 'GRID') && ctrl.alert.hasView), 'col-md-4': (ctrl.dataSeriesType === undefined || ctrl.dataSeriesType === null || ctrl.dataSeriesType === 'GRID') && !ctrl.alert.hasView }">
           <div class="form-group">
             <div class="checkbox">
               <label style="font-weight: 700;">
@@ -397,7 +417,7 @@
           </div>
         </div>
 
-        <div ng-class="{ 'col-md-3': ctrl.dataSeriesType !== undefined && ctrl.dataSeriesType !== null && ctrl.dataSeriesType !== 'GRID' && !ctrl.disablePDF, 'col-md-4': ctrl.dataSeriesType === undefined || ctrl.dataSeriesType === null || ctrl.dataSeriesType === 'GRID' || ctrl.disablePDF }">
+        <div ng-class="{ 'col-md-2': ctrl.dataSeriesType !== undefined && ctrl.dataSeriesType !== null && ctrl.dataSeriesType !== 'GRID' && !ctrl.disablePDF && ctrl.alert.hasView, 'col-md-3': (ctrl.dataSeriesType !== undefined && ctrl.dataSeriesType !== null && ctrl.dataSeriesType !== 'GRID' && !ctrl.disablePDF && !ctrl.alert.hasView) || ((ctrl.dataSeriesType === undefined || ctrl.dataSeriesType === null || ctrl.dataSeriesType === 'GRID' || ctrl.disablePDF) && ctrl.alert.hasView), 'col-md-4': (ctrl.dataSeriesType === undefined || ctrl.dataSeriesType === null || ctrl.dataSeriesType === 'GRID' || ctrl.disablePDF) && !ctrl.alert.hasView }">
           <div class="form-group">
             <div class="checkbox">
               <label style="font-weight: 700;">
@@ -415,7 +435,7 @@
           </div>
         </div>
 
-        <div ng-class="{ 'col-md-2': !ctrl.disablePDF, 'col-md-4': ctrl.disablePDF }" ng-show="ctrl.dataSeriesType !== undefined && ctrl.dataSeriesType !== null && ctrl.dataSeriesType !== 'GRID'">
+        <div ng-class="{ 'col-md-2': !ctrl.disablePDF, 'col-md-3': ctrl.disablePDF && ctrl.alert.hasView, 'col-md-4': ctrl.disablePDF && !ctrl.alert.hasView }" ng-show="ctrl.dataSeriesType !== undefined && ctrl.dataSeriesType !== null && ctrl.dataSeriesType !== 'GRID'">
           <div class="form-group">
             <div class="checkbox">
               <label style="font-weight: 700;">
@@ -474,6 +494,81 @@
           </div>
         </div>
       </div>
+    </terrama2-box>
+
+    <terrama2-box title="i18n.__('Attach Views')" css="ctrl.css" ng-if="ctrl.alert.hasView && ctrl.attachViews">
+      <form name="forms.alertAttachmentForm">
+        <div class="row">
+          <div class="col-md-8">
+            <div class="col-md-6">
+              <div class="form-group" terrama2-show-errors>
+                <label><span ng-bind="i18n.__('X min')">:</span></label>
+                <input class="form-control" name="x_min" ng-model="ctrl.alertAttachment.x_min" placeholder="{{ i18n.__('X min') }}" type="number" required>
+                <span class="help-block" ng-show="forms.alertAttachmentForm.x_min.$dirty && forms.alertAttachmentForm.x_min.$invalid" ng-class="{'has-error': alertAttachment.x_min.$invalid}" ng-bind="i18n.__('X min is required')"></span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group" terrama2-show-errors>
+                <label><span ng-bind="i18n.__('X max')">:</span></label>
+                <input class="form-control" name="x_max" ng-model="ctrl.alertAttachment.x_max" placeholder="{{ i18n.__('X max') }}" type="number" required>
+                <span class="help-block" ng-show="forms.alertAttachmentForm.x_max.$dirty && forms.alertAttachmentForm.x_max.$invalid" ng-class="{'has-error': alertAttachment.x_max.$invalid}" ng-bind="i18n.__('X max is required')"></span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group" terrama2-show-errors>
+                <label><span ng-bind="i18n.__('Y min')">:</span></label>
+                <input class="form-control" name="y_min" ng-model="ctrl.alertAttachment.y_min" placeholder="{{ i18n.__('Y min') }}" type="number" required>
+                <span class="help-block" ng-show="forms.alertAttachmentForm.y_min.$dirty && forms.alertAttachmentForm.y_min.$invalid" ng-class="{'has-error': alertAttachment.y_min.$invalid}" ng-bind="i18n.__('Y min is required')"></span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group" terrama2-show-errors>
+                <label><span ng-bind="i18n.__('Y max')">:</span></label>
+                <input class="form-control" name="y_max" ng-model="ctrl.alertAttachment.y_max" placeholder="{{ i18n.__('Y max') }}" type="number" required>
+                <span class="help-block" ng-show="forms.alertAttachmentForm.y_max.$dirty && forms.alertAttachmentForm.y_max.$invalid" ng-class="{'has-error': alertAttachment.y_max.$invalid}" ng-bind="i18n.__('Y max is required')"></span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group" terrama2-show-errors>
+                <label><span ng-bind="i18n.__('Projection SRID')">:</span></label>
+                <input class="form-control" name="srid" ng-model="ctrl.alertAttachment.srid" placeholder="{{ i18n.__('Projection SRID') }}" type="number" required>
+                <span class="help-block" ng-show="forms.alertAttachmentForm.srid.$dirty && forms.alertAttachmentForm.srid.$invalid" ng-class="{'has-error': alertAttachment.srid.$invalid}" ng-bind="i18n.__('Projection SRID is required')"></span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <button type="button" class="btn btn-primary pull-right" ng-click="ctrl.newAttachedView()" id="newAttachedViewBtn" ng-disabled="ctrl.viewsToAttach.length === 0"><i class="fa fa-plus"></i></button>
+            <table class="table table-striped" id="attachedViewsTable">
+              <tbody ng-if="ctrl.attachedViews.length === 0">
+                <tr>
+                  <td colspan="3" id="noViewsAttached" ng-bind="i18n.__('No views attached.')"></td>
+                </tr>
+              </tbody>
+              <tbody ng-if="ctrl.attachedViews.length > 0" sv-root sv-part="ctrl.attachedViews" sv-on-start="ctrl.startSort($item, $part, $index, $helper)">
+                <tr ng-repeat="attachedView in ctrl.attachedViews" ng-if="ctrl.attachedViews.length === 1">
+                  <td class="buttonTd"></td>
+                  <td id="alertView" ng-bind="ctrl.alert.name"></td>
+                  <td class="buttonTd"></td>
+                </tr>
+                <tr ng-repeat="attachedView in ctrl.attachedViews" ng-if="ctrl.attachedViews.length > 1" sv-element>
+                  <td class="buttonTd sortHandle" sv-handle>
+                    <i class="fa fa-arrows-v"></i>
+                  </td>
+                  <td ng-if="attachedView._id === 'alertView'" id="alertView" ng-bind="ctrl.alert.name"></td>
+                  <td ng-if="attachedView._id !== 'alertView'">
+                    <select id="{{ attachedView._id }}" class="form-control" ng-model="attachedView.view" ng-change="ctrl.selectAttachedView(this)">
+                      <option ng-repeat="view in ctrl.viewsToAttach" value="{{ view.id }}" ng-if="view.id !== ctrl.alert.view.id">{{ view.name }}</option>
+                    </select>
+                  </td>
+                  <td class="buttonTd">
+                    <button type="button" class="btn btn-danger" ng-click="ctrl.removeAttachedView(attachedView._id)" ng-if="attachedView._id !== 'alertView'"><i class="fa fa-trash"></i></button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </form>
     </terrama2-box>
 
     <div class="box-footer">

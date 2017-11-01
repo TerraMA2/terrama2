@@ -102,9 +102,10 @@
    * 
    * @param {number} viewId - View Identifier
    * @param {number} projectId - A project identifier
+   * @param {number} serviceId - A service identifier
    * @returns {Promise<View[]>}
    */
-  View.retrieve = function(viewId, projectId) {
+  View.retrieve = function(viewId, projectId, serviceId) {
     return new PromiseClass(function(resolve, reject) {
       if (viewId) {
         return DataManager.getView({id: viewId})
@@ -115,7 +116,33 @@
           });
       }
 
-      return DataManager.listViews({project_id: projectId})
+      if (serviceId) {
+        return DataManager.listViews({service_instance_id: serviceId, project_id: projectId})
+          .then(function(views) {
+            return resolve(views.map(function(view) {
+              return view.toObject();
+            }));
+          })
+
+          .catch(function(err) {
+            return reject(err);
+          });
+      }
+
+      if (projectId) {
+        return DataManager.listViews({project_id: projectId})
+          .then(function(views) {
+            return resolve(views.map(function(view) {
+              return view.toObject();
+            }));
+          })
+
+          .catch(function(err) {
+            return reject(err);
+          });
+      }
+
+      return DataManager.listViews()
         .then(function(views) {
           return resolve(views.map(function(view) {
             return view.toObject();
