@@ -16,7 +16,9 @@ ENV TERRAMA2_CODEBASE_PATH=${DEV_DIR}/terrama2/codebase
 ENV TERRAMA2_3RDPARTY_PATH=${DEV_DIR}/terrama2/3rdparty
 ENV GEOSERVER_HOME=/opt/geoserver
 
-RUN apt-get update && \
+RUN echo "deb http://br.archive.ubuntu.com/ubuntu/ trusty-backports main restricted universe multiverse" >> /etc/apt/sources.list && \
+    echo "deb-src http://br.archive.ubuntu.com/ubuntu/ trusty-backports main restricted universe multiverse" >> /etc/apt/sources.list && \
+    apt-get update && \
     apt-get install -y cmake \
                        build-essential \
                        libcurl3-dev \
