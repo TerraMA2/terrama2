@@ -99,18 +99,22 @@ define([
             }
           };
 
-          Socket.on('statusToDeleteResponse', function(response){
-            if (response.online){
-              $("#" + $scope.modalId).modal();
-            } else {
-              var errorObject = {
-                serviceStoppedError: true,
-                service: response.service ? JSON.parse(response.service) : {}
+          if(!Socket.statusToDeleteResponse) {
+            Socket.on('statusToDeleteResponse', function(response){
+              if (response.online){
+                $("#" + $scope.modalId).modal();
+              } else {
+                var errorObject = {
+                  serviceStoppedError: true,
+                  service: response.service ? JSON.parse(response.service) : {}
+                }
+                $scope.extra.removeOperationCallback(errorObject, $scope.objectToRemove);
+                $scope.resetObjectToRemove();
               }
-              $scope.extra.removeOperationCallback(errorObject, $scope.objectToRemove);
-              $scope.resetObjectToRemove();
-            }
-          });
+            });
+          }
+
+          Socket.statusToDeleteResponse = true;
 
           $scope.serviceStartTime = null;
           $scope.serviceVersion = null;
