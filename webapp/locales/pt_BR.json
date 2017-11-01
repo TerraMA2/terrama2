@@ -242,6 +242,7 @@
   "Data provider port is required for": "Porta do servidor de dados é requerido para",
   "Data provider protocol is required": "Protocolo do servidor de dados é requerido",
   "Data provider scheme is required": "Esquema do servidor de dados é requerido",
+  "Data series": "Série de dados",
   "Data series is required": "O preenchimento da série de dados é obrigatório",
   "Data series name is required": "O preenchimento do nome da série de dados é obrigatório",
   "Data server Timeout (sec)": "Tempo Limite do Servidor de Dados (seg)",
@@ -1055,5 +1056,9 @@
 	"Timestamp property": "Propriedade de tempo",
 	"Geometry property": "Propriedade geométrica",
 	"SLD": "SLD",
-	"Attribute is required": "Atributo é obrigatório"
+	"Attribute is required": "Atributo é obrigatório",
+  "Import data series": "Importar série de dados",
+  "Choose data series": "Selecione a série de dados",
+  "Data Series import": "Importação de série de dados",
+  "imported": "importado"
 }
