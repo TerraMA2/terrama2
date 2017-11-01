@@ -93,10 +93,10 @@ int main(int , char** )
 
     std::unique_ptr<te::da::DataSetType> dsType(terrama2::services::view::core::DataAccess::getDataSetType("dataSourceURI",
                                                                "muni", "POSTGIS"));
-
-    geoserver.registerPostgisTable("ashapepostgis", terrama2::core::DataSeriesType::GEOMETRIC_OBJECT, connInfo, "muni", "muni", dsType);
-
-    geoserver.registerPostgisTable("aviewpostgis", terrama2::core::DataSeriesType::GEOMETRIC_OBJECT, connInfo, "view_muni", "view_muni", dsType, "", "SELECT * FROM muni WHERE gid = 558");
+    //
+    // geoserver.registerPostgisTable("ashapepostgis", terrama2::core::DataSeriesType::GEOMETRIC_OBJECT, connInfo, "muni", "muni", dsType);
+    //
+    // geoserver.registerPostgisTable("aviewpostgis", terrama2::core::DataSeriesType::GEOMETRIC_OBJECT, connInfo, "view_muni", "view_muni", dsType, "", "SELECT * FROM muni WHERE gid = 558");
 
     // Registering a style
     geoserver.registerStyle("astyle", "style");
