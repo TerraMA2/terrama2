@@ -746,7 +746,8 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::
   std::string xml = "<featureType>";
   xml += "<title>" + layerName + "</title>";
   xml += "<name>" + layerName + "</name>";
-  if(dataSeriesType == terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT)
+  if(dataSeriesType == terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT
+     || dataSeriesType == terrama2::core::DataSeriesType::DCP)
     xml += "<nativeName>" + layerName + "</nativeName>";
   else
     xml += "<nativeName>" + tableName + "</nativeName>";
