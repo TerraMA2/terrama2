@@ -137,6 +137,10 @@ define(
           hideAttributesTable(false);
       });
 
+      $('#tableCloseButton').on('click', function() {
+        hideAttributesTable(false);
+      });
+
       $("#terrama2-map").on("createAttributesTable", function(event) {
         createAttributesTable();
       });
