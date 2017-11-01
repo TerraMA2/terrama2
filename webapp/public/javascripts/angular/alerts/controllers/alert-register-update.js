@@ -999,7 +999,7 @@ define([], function() {
               color: self.colors[i],
               isDefault: i == 0,
               title: self.alert.legend.levels[i].name,
-              value: self.alert.legend.levels[i].value ? self.alert.legend.levels[i].value : ""
+              value: i == 0 ? "" : self.alert.legend.levels[i].value
             }
             viewLegend.colors.push(colorModel);
           }
