@@ -19,8 +19,7 @@
           "mask": {
             "type": "string",
             "title": "Mask",
-            "format": "terrama2maskform",
-            "pattern": "^([\\/\\w()*.-]+|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
+            "format": "terrama2maskform"
           },
           "timezone": {
             "type": "string",
@@ -50,7 +49,7 @@
             "%mm",
             "%ss"
           ],
-          "htmlClass": "col-md-6",
+          "htmlClass": "col-md-6 validate-mask",
           "validationMessage": {
             "202": "Invalid mask"
           }
@@ -190,8 +189,7 @@
           "mask": {
             "type": "string",
             "title": "Mask",
-            "format": "terrama2maskform",
-            "pattern": "^([\\/\\w()*.-]+|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
+            "format": "terrama2maskform"
           },
           "timezone": {
             "type": "string",
@@ -222,7 +220,7 @@
             "%ss"
           ],
           "ngModelOptions": { "updateOn": "blur" },
-          "htmlClass": "col-md-6",
+          "htmlClass": "col-md-6 validate-mask",
           "validationMessage": {
             "202": "Invalid mask"
           }
@@ -361,8 +359,7 @@
           "mask": {
             "type": "string",
             "title": "Mask",
-            "format": "terrama2maskform",
-            "pattern": "^([\\/\\w()*.-]+|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
+            "format": "terrama2maskform"
           },
           "timezone": {
             "type": "string",
@@ -393,7 +390,7 @@
             "%mm",
             "%ss"
           ],
-          "htmlClass": "col-md-6",
+          "htmlClass": "col-md-6 validate-mask",
           "validationMessage": {
             "202": "Invalid mask"
           }
