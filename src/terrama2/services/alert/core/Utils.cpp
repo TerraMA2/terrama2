@@ -113,7 +113,7 @@ void terrama2::services::alert::core::replaceReportTags(std::string& text, Repor
   {
     complete_data = terrama2::services::alert::core::dataSetHtmlTable(report->retrieveAllData());
   }
-  catch(ReportException /*e*/)
+  catch(const ReportException& /*e*/)
   {
   }
 
@@ -125,7 +125,7 @@ void terrama2::services::alert::core::replaceReportTags(std::string& text, Repor
   {
     max_value = std::to_string(report->retrieveMaxValue());
   }
-  catch(ReportException /*e*/)
+  catch(const ReportException& /*e*/)
   {
   }
 
@@ -137,7 +137,7 @@ void terrama2::services::alert::core::replaceReportTags(std::string& text, Repor
   {
     min_value = std::to_string(report->retrieveMinValue());
   }
-  catch(ReportException /*e*/)
+  catch(const ReportException& /*e*/)
   {
   }
 
@@ -149,7 +149,7 @@ void terrama2::services::alert::core::replaceReportTags(std::string& text, Repor
   {
     mean_value = std::to_string(report->retrieveMeanValue());
   }
-  catch(ReportException /*e*/)
+  catch(const ReportException& /*e*/)
   {
   }
 

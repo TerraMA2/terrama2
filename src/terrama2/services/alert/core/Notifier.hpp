@@ -36,6 +36,8 @@
 #include "Shared.hpp"
 #include "Alert.hpp"
 
+#include <terralib/core/uri/URI.h>
+
 // STL
 #include <map>
 #include <vector>
@@ -64,7 +66,7 @@ namespace terrama2
           Notifier& operator=(Notifier&& other) = default;
 
           virtual void send(const Notification& recipient,
-                            const std::string& documentURI) const = 0;
+                            const te::core::URI& documentURI) const = 0;
 
         protected:
           const std::map<std::string, std::string> serverMap_;

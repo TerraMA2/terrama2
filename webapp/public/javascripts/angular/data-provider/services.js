@@ -52,6 +52,10 @@ define([
     return this.BaseService.$list(this.model, restriction);
   };
 
+  DataProviderService.prototype.listPostgisObjects = function(dataToList){
+    return this.BaseService.$request(this.url + "/listobjects", "POST", {data: dataToList});
+  }
+
   DataProviderService.$inject = ["BaseService"];
 
   var moduleName = "terrama2.providers.services";

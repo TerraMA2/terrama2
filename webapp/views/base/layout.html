@@ -126,12 +126,20 @@
         </div>
         <!-- /.search form -->
         {% endif %}
-
+          <select class="form-control" id="projects" onchange="location = '{[ BASE_URL ]}configuration/projects/' + this.value + '/activate';">
+            {% if (!activeProject.id) %}
+              <option ng-bind="i18n.__('Select a Project')"></option>
+            {% endif %}
+            {% for cachedProject in cachedProjects %}
+              {% if (activeProject.id && activeProject.id === cachedProject.id) %}
+                <option value="{[ cachedProject.name ]}" selected>{[ cachedProject.name ]}</option>
+              {% else %}
+                <option value="{[ cachedProject.name ]}">{[ cachedProject.name ]}</option>
+              {% endif %}
+            {% endfor %}
+          </select>
           <!-- sidebar menu: : style can be found in sidebar.less -->
           <ul class="sidebar-menu">
-            {% if (activeProject.name) %}
-              <li class="header" style="font-size:18px;font-weight: bold;">{[ activeProject.name ]}</li>
-            {% endif %}
             <li class="treeview {% if (tabActive === 'projects') %} active {% endif %}">
               <a href="{[ BASE_URL ]}configuration/projects">
                 <i class="fa fa-sitemap"></i><span ng-bind="i18n.__('Projects')"></span>
@@ -297,6 +305,8 @@
   <script src="{[ BASE_URL ]}externals/i18n-node-angular/i18n-node-angular.js"></script>
   <!-- ng-file-upload -->
   <script src="{[ BASE_URL ]}externals/ng-file-upload/ng-file-upload.min.js"></script>
+  <!-- angular-sortable-view -->
+  <script src="{[ BASE_URL ]}externals/angular-sortable-view/src/angular-sortable-view.min.js"></script>
   <!-- Socket.io -->
   <script type="text/javascript" src="{[ BASE_URL ]}socket.io/socket.io.js"></script>
 

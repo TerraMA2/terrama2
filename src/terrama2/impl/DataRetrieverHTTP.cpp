@@ -110,8 +110,7 @@ std::vector<std::string> terrama2::core::DataRetrieverHTTP::listFiles(const std:
   httpServerHtml.erase(std::remove(httpServerHtml.begin(), httpServerHtml.end(), '\n'), httpServerHtml.end());
 
   std::string scriptPath = FindInTerraMA2Path("share/terrama2/scripts/parse-http-server-html.py");
-  std::ifstream scriptIfs(scriptPath);
-  std::string script((std::istreambuf_iterator<char>(scriptIfs)), (std::istreambuf_iterator<char>()));
+  std::string script = readFileContents(scriptPath);
   boost::replace_all(script, "{HTML_CODE}", httpServerHtml);
 
   std::vector<std::string> vectorFiles;

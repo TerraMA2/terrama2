@@ -60,7 +60,7 @@ terrama2::services::alert::impl::NotifierEmail::NotifierEmail(const std::map<std
 }
 
 void terrama2::services::alert::impl::NotifierEmail::send(const core::Notification& notification,
-                                                          const std::string& documentURI) const
+                                                          const te::core::URI& documentURI) const
 {
   te::core::URI emailServer(serverMap_.at("email_server"));
 
@@ -107,10 +107,10 @@ void terrama2::services::alert::impl::NotifierEmail::send(const core::Notificati
 
   // add attachments
   if(!notification.includeReport.empty()
-     && !documentURI.empty())
+     && documentURI.isValid())
     addAttachment(documentURI, "application/pdf", mb);
 
-  if(!report_->imageURI().empty())
+  if(report_->imageURI().isValid())
     addAttachment(report_->imageURI(), "image/jpeg", mb);
 
   // Construction
@@ -132,12 +132,11 @@ void terrama2::services::alert::impl::NotifierEmail::send(const core::Notificati
 }
 
 
-void terrama2::services::alert::impl::NotifierEmail::addAttachment(const std::string& uri,
-                                                                    const std::string& mediaType,
-                                                                    vmime::messageBuilder& mb) const
+void terrama2::services::alert::impl::NotifierEmail::addAttachment(const te::core::URI& uri,
+                                                                   const std::string& mediaType,
+                                                                   vmime::messageBuilder& mb) const
 {
-  QString documentURI = QString::fromStdString(uri);
-
+  QString documentURI = QString::fromStdString(uri.path());
   if(documentURI.isEmpty())
   {
     QString errMsg = QObject::tr("Couldn't find document: File URI was not informed!");
@@ -145,7 +144,6 @@ void terrama2::services::alert::impl::NotifierEmail::addAttachment(const std::st
   }
 
   QFileInfo fileURI(documentURI);
-
   if(!fileURI.exists())
   {
     QString errMsg = QObject::tr("Couldn't find document: File does not exists!");

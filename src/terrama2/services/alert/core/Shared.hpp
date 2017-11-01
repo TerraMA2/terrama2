@@ -45,7 +45,7 @@ namespace terrama2
 
         class Report;
         //! Shared smart pointer for Report
-        typedef std::shared_ptr<const terrama2::services::alert::core::Report> ReportPtr;
+        typedef std::shared_ptr<terrama2::services::alert::core::Report> ReportPtr;
 
         class Notifier;
         //! Shared smart pointer for Notifier
