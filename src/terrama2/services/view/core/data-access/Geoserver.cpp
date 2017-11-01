@@ -723,7 +723,8 @@ const std::string& terrama2::services::view::core::GeoServer::getFeature(const s
 }
 
 
-void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::string& dataStoreName,
+void terrama2::services::view::core::GeoServer::registerPostgisTable(const ViewPtr viewPtr,
+                                                                     const std::string& dataStoreName,
                                                                      terrama2::core::DataSeriesType dataSeriesType,
                                                                      std::map<std::string, std::string> connInfo,
                                                                      const std::string& tableName,
