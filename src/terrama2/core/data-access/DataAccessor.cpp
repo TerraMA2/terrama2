@@ -292,6 +292,49 @@ std::map<DataSetId, std::string> terrama2::core::DataAccessor::getFiles(const Fi
   return uriMap;
 }
 
+std::map<DataSetId, std::vector<std::string> > terrama2::core::DataAccessor::getFilesVector(const terrama2::core::Filter& filter, std::shared_ptr<terrama2::core::FileRemover> remover) const
+{
+  auto& retrieverFactory = DataRetrieverFactory::getInstance();
+  DataRetrieverPtr dataRetriever = retrieverFactory.make(dataProvider_);
+
+  std::map<DataSetId, std::vector<std::string> > uriMap;
+  for(const auto& dataset : dataSeries_->datasetList)
+  {
+    if(!dataset->active)
+      continue;
+
+    // if this data retriever is a remote server that allows to retrieve data to a file,
+    // download the file to a temporary location
+    // if not, just get the DataProvider uri
+    std::vector<std::string> uriVector;
+    if(dataRetriever->isRetrivable())
+    {
+      std::string mask = getFileMask(dataset);
+      std::string folderPath = getFolderMask(dataset);
+
+      std::string timezone = "";
+      try
+      {
+        timezone = getTimeZone(dataset);
+      }
+      catch(UndefinedTagException& /*e*/)
+      {
+        // Do nothing
+      }
+
+      uriVector = dataRetriever->retrieveDataVector(mask, filter, timezone, remover, "", folderPath);
+    }
+    else
+    {
+      uriVector.push_back(dataProvider_->uri);
+    }
+
+    uriMap.emplace(dataset->id, uriVector);
+  }
+
+  return uriMap;
+}
+
 void terrama2::core::DataAccessor::addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const
 {
   for(std::size_t i = 0, size = datasetType->size(); i < size; ++i)

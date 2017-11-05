@@ -107,6 +107,13 @@ namespace terrama2
                                          const std::string& temporaryFolder = "",
                                          const std::string& folderPath = "");
 
+        virtual std::vector<std::string> retrieveDataVector(const std::string& /*mask*/,
+                                                            const Filter& /*filter*/,
+                                                            const std::string& /*timezone*/,
+                                                            std::shared_ptr<terrama2::core::FileRemover> /*remover*/,
+                                                            const std::string& /*temporaryFolderUri*/,
+                                                            const std::string& /*foldersMask*/) const {return {}; }
+
         //! Returns the last data timestamp found on last access.
         virtual te::dt::TimeInstantTZ lastDateTime() const;
 
@@ -119,6 +126,8 @@ namespace terrama2
         virtual bool isRetrivable() const;
 
       protected:
+        std::string getTemporaryFolder(std::shared_ptr<terrama2::core::FileRemover> remover, const std::string& oldTempTerraMAFolder = "") const;
+
         DataProviderPtr dataProvider_;//!< Information of the remote server.
     };
   }
