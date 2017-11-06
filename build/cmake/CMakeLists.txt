@@ -347,6 +347,12 @@ endif()
 #####################################
 
 #####################################
+#           EXTRA
+CMAKE_DEPENDENT_OPTION(TERRAMA2_EXTRA_ENABLED "Build Extra?" ON "TERRAMA2_CORE_ENABLED; TERRAMA2_BUILD_UNITTEST_ENABLED; TERRAMA2_BUILD_EXAMPLES_ENABLED" OFF)
+
+#####################################
+
+#####################################
 #            SERVICES
 CMAKE_DEPENDENT_OPTION(TERRAMA2_SERVICE_ENABLED "Build Services?" ON "TERRAMA2_CORE_ENABLED" OFF)
 
@@ -362,6 +368,8 @@ CMAKE_DEPENDENT_OPTION(TERRAMA2_UNITTEST_COLLECTOR_ENABLED "Build unittest for c
 CMAKE_DEPENDENT_OPTION(TERRAMA2_UNITTEST_ANALYSIS_ENABLED "Build unittest for analysis module?" OFF "TERRAMA2_ANALYSIS_CORE_ENABLED;TERRAMA2_BUILD_UNITTEST_ENABLED" OFF)
 
 CMAKE_DEPENDENT_OPTION(TERRAMA2_UNITTEST_VIEW_ENABLED "Build unittest for view module?" ON "TERRAMA2_VIEW_ENABLED;TERRAMA2_BUILD_UNITTEST_ENABLED" OFF)
+
+CMAKE_DEPENDENT_OPTION(TERRAMA2_UNITTEST_SERVICES_INTEGRATION_TEST_ENABLED "Build unittest for services integration module?" ON "TERRAMA2_UNITTEST_SERVICES_INTEGRATION_TEST_ENABLED;TERRAMA2_BUILD_UNITTEST_ENABLED" OFF)
 
 ######################################
 
@@ -412,6 +420,10 @@ if(TERRAMA2_CORE_ENABLED)
   add_subdirectory(terrama2_core)
 endif()
 
+if(TERRAMA2_EXTRA_ENABLED)
+  add_subdirectory(terrama2_extra)
+endif()
+
 if(TERRAMA2_IMPLEMENTATION_ENABLED)
   add_subdirectory(terrama2_impl)
 endif()
@@ -455,9 +467,12 @@ if(TERRAMA2_UNITTEST_VIEW_ENABLED)
   add_subdirectory(terrama2_unittest_view)
 endif()
 
+if(TERRAMA2_UNITTEST_SERVICES_INTEGRATION_TEST_ENABLED)
+  add_subdirectory(terrama2_unittest_services_integration_test)
+endif()
+
 if(TERRAMA2_EXAMPLES_CORE_ENABLED)
   add_subdirectory(terrama2_examples_core)
-  add_subdirectory(terrama2_examples_data)
 endif()
 
 if(TERRAMA2_EXAMPLES_ANALYSIS_ENABLED)
