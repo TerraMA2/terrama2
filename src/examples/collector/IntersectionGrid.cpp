@@ -56,8 +56,8 @@
 
 #include <terrama2/core/data-access/DataRetriever.hpp>
 
-#include <examples/data/Geotiff.hpp>
-#include <examples/data/OccurrenceWFP.hpp>
+#include <extra/data/Geotiff.hpp>
+#include <extra/data/OccurrenceWFP.hpp>
 
 
 // STL

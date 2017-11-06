@@ -55,8 +55,8 @@
 
 #include <terrama2/core/data-access/DataRetriever.hpp>
 
-#include <examples/data/StaticPostGis.hpp>
-#include <examples/data/OccurrenceWFP.hpp>
+#include <extra/data/StaticPostGis.hpp>
+#include <extra/data/OccurrenceWFP.hpp>
 
 // STL
 #include <memory>
