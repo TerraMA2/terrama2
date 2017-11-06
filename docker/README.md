@@ -1,6 +1,6 @@
 ## Dockerfile for TerraMA²
 
-Dockerfiles Repository for the TerraMA² Plataform.
+Dockerfiles Repository for the TerraMA² Platform.
 
 ### Build and Run
 To build the Docker image, execute the follow commands:
