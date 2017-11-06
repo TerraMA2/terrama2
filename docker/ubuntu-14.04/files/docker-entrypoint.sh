@@ -21,5 +21,4 @@ fi
 trap "service postgresql stop; pm2 stop webapp; pm2 stop webmonitor" EXIT HUP INT QUIT TERM
 
 # Lock terminal. TODO: Export PM2 Log
-# pm2 log webapp
-bash
+pm2 log webapp
