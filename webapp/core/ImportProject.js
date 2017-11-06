@@ -174,31 +174,33 @@ var ImportProject = function(json){
         return Promise.all(promises).then(function() {
           promises = [];
           // updating data sets
-          output.DataSeries.forEach(function(dSeries){
-            if (dSeries.dataSets){
-              dSeries.dataSets.forEach(function(dataSet){
-                if (dataSet.format){
-                  var format = dataSet.format;
-                  for (var key in format){
-                    if (format.hasOwnProperty(key)){
-                      if (key == "monitored_object_id"){
-                        var monitoredObjectId = Utils.find(output.DataSeries, {$id: format[key]}).id;
-                        format[key] = monitoredObjectId.toString();
-                        var restriction = {
-                          data_set_id: dataSet.id,
-                          key: "monitored_object_id"
+          if (output.DataSeries){
+            output.DataSeries.forEach(function(dSeries){
+              if (dSeries.dataSets){
+                dSeries.dataSets.forEach(function(dataSet){
+                  if (dataSet.format){
+                    var format = dataSet.format;
+                    for (var key in format){
+                      if (format.hasOwnProperty(key)){
+                        if (key == "monitored_object_id"){
+                          var monitoredObjectId = Utils.find(output.DataSeries, {$id: format[key]}).id;
+                          format[key] = monitoredObjectId.toString();
+                          var restriction = {
+                            data_set_id: dataSet.id,
+                            key: "monitored_object_id"
+                          }
+                          var dataSetFormatObject = {
+                            value: monitoredObjectId
+                          }
+                          promises.push(DataManager.upsertDataSetFormats(restriction, dataSetFormatObject, options));
                         }
-                        var dataSetFormatObject = {
-                          value: monitoredObjectId
-                        }
-                        promises.push(DataManager.upsertDataSetFormats(restriction, dataSetFormatObject, options));
                       }
                     }
                   }
-                }
-              });
-            }
-          });
+                });
+              }
+            });
+          }
           return Promise.all(promises).then(function(){
             promises = [];
             if(json.Collectors) {
