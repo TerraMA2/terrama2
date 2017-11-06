@@ -159,6 +159,60 @@ define([], function() {
       }
     ];
 
+    /**
+     * Indicates if there are views attached
+     * 
+     * @type {boolean}
+     */
+    self.attachViews = (self.isUpdating ? !!config.alertAttachment : true);
+
+    /**
+     * Views available to be attached
+     * 
+     * @type {array}
+     */
+    self.viewsToAttach = [];
+
+    /**
+     * Attached views
+     * 
+     * @type {array}
+     */
+    self.attachedViews = self.isUpdating ? [] : [
+      {
+        _id: "alertView",
+        view: null,
+        viewName: null
+      }
+    ];
+
+    /**
+     * Attachment
+     * 
+     * @type {object}
+     */
+    self.alertAttachment = (self.isUpdating ? config.alertAttachment : {
+      y_max: null,
+      y_min: null,
+      x_max: null,
+      x_min: null,
+      srid: null
+    });
+
+    /**
+     * Current width of views selects
+     * 
+     * @type {integer}
+     */
+    self.selectWidth = null;
+
+    /**
+     * Current width of views td
+     * 
+     * @type {integer}
+     */
+    self.tdWidth = null;
+
     if (self.isUpdating && self.alert.view && self.alert.view.legend){
       self.colors = [];
       var legendColors = self.alert.view.legend.colors.sort(function(a, b){
@@ -299,6 +353,25 @@ define([], function() {
 
             if(self.alert.notifications[0].notify_on_legend_level !== null)
               self.notifyOnLegendLevel = true;
+
+            if(config.alertAttachedViews) {
+              if(config.views)
+                self.viewsToAttach = config.views;
+
+              var dbAlertAttachedViews = config.alertAttachedViews;
+
+              if(dbAlertAttachedViews.length === 0) {
+                var viewId = (self.alert.view && self.alert.view.id ? self.alert.view.id.toString() : null);
+
+                self.newAttachedView(viewId, null, null, "alertView");
+              } else {
+                for(var i = 0, alertAttachedViewsLength = dbAlertAttachedViews.length; i < alertAttachedViewsLength; i++) {
+                  var interfaceId = (self.alert.view.id === dbAlertAttachedViews[i].View.id ? "alertView" : null);
+
+                  self.newAttachedView(dbAlertAttachedViews[i].View.id.toString(), dbAlertAttachedViews[i].View.name, dbAlertAttachedViews[i].id, interfaceId);
+                }
+              }
+            }
           } else {
             self.legendModel = self.legends[0];
 
@@ -643,6 +716,140 @@ define([], function() {
     };
 
     /**
+     * Window resize event.
+     * 
+     * @returns {void}
+     */
+    $(window).resize(function() {
+      if(self.attachedViews.length > 1) {
+        for(var i = 0, attachedViewsLength = self.attachedViews.length; i < attachedViewsLength; i++) {
+          if(self.attachedViews[i]._id !== "alertView") {
+            self.selectWidth = $("#" + self.attachedViews[i]._id).width();
+            break;
+          }
+        }
+      } else {
+        self.selectWidth = null;
+      }
+
+      self.tdWidth = $("#alertView").width();
+    });
+
+    /**
+     * Service change event.
+     * 
+     * @returns {void}
+     */
+    self.onServiceChanged = function() {
+      $http({
+        method: "GET",
+        url: BASE_URL + "api/ViewByService/" + self.view_service_instance_id + "/" + config.activeProject.id
+      }).then(function(views) {
+        self.viewsToAttach = views.data;
+        self.attachedViews = [
+          {
+            _id: "alertView",
+            view: null,
+            viewName: null
+          }
+        ];
+      });
+    };
+
+    /**
+     * Creation of a new attached view.
+     * 
+     * @returns {void}
+     */
+    self.newAttachedView = function(view, viewName, id, interfaceId) {
+      var newItem = {
+        _id: (interfaceId ? interfaceId : UniqueNumber()),
+        view: (view ? view : null),
+        viewName: (viewName && !interfaceId ? viewName : null)
+      };
+
+      if(id)
+        newItem.id = id;
+
+      self.attachedViews.push(newItem);
+
+      $timeout(function() {
+        self.selectWidth = $("#" + newItem._id).width();
+        self.tdWidth = $("#alertView").width();
+      });
+    };
+
+    /**
+     * Removal of an attached view.
+     * 
+     * @returns {void}
+     */
+    self.removeAttachedView = function(attachedViewId) {
+      for(var i = 0, attachedViewsLength = self.attachedViews.length; i < attachedViewsLength; i++) {
+        if(self.attachedViews[i]._id === attachedViewId) {
+          self.attachedViews.splice(i, 1);
+          break;
+        }
+      }
+    };
+
+    /**
+     * Sort start event.
+     * 
+     * @returns {void}
+     */
+    self.startSort = function($item, $part, $index, $helper) {
+      if(self.attachedViews[$index].viewName !== null) {
+        $(".sv-helper select > option").text(self.attachedViews[$index].viewName);
+        $(".sv-helper select").width(self.selectWidth);
+      } else {
+        $(".sv-helper #alertView").width(self.tdWidth);
+      }
+    }; 
+
+    /**
+     * Attached view selection event.
+     * 
+     * @returns {void}
+     */
+    self.selectAttachedView = function(item) {
+      for(var i = 0, viewsToAttachLength = self.viewsToAttach.length; i < viewsToAttachLength; i++) {
+        if(item.attachedView.view == self.viewsToAttach[i].id) {
+          self.attachedViews[item.$index].viewName = self.viewsToAttach[i].name;
+          break;
+        }
+      }
+    };
+
+    /**
+     * Attach views change event.
+     * 
+     * @returns {void}
+     */
+    self.attachViewsChange = function() {
+      if(self.attachViews) {
+        self.alertAttachment = {
+          y_max: null,
+          y_min: null,
+          x_max: null,
+          x_min: null,
+          srid: null
+        };
+
+        self.attachedViews = [
+          {
+            _id: "alertView",
+            view: null,
+            viewName: null
+          }
+        ];
+      } else {
+        self.alertAttachment = null;
+        self.attachedViews = [];
+      }
+    };
+
+    /**
      * Saves the alert.
      * 
      * @returns {void}
@@ -679,9 +886,41 @@ define([], function() {
       }
 
       $timeout(function() {
-        if($scope.forms.alertForm.$invalid || $scope.forms.dataSeriesForm.$invalid || $scope.forms.legendLevel.$invalid || $scope.forms.reportForm.$invalid || $scope.forms.notificationForm.$invalid) {
+        if($scope.forms.alertForm.$invalid || $scope.forms.dataSeriesForm.$invalid || $scope.forms.legendLevel.$invalid || $scope.forms.reportForm.$invalid || $scope.forms.notificationForm.$invalid || ($scope.forms.alertAttachmentForm && $scope.forms.alertAttachmentForm.$invalid)) {
           self.MessageBoxService.danger(i18n.__("Alerts"), errMessageInvalidFields);
           return;
+        }
+
+        if(self.alert.hasView && self.attachViews) {
+          self.alertAttachment.alert_id = (self.isUpdating ? self.alert.id : null);
+
+          var attachViewsError = false;
+          var attachViewsFinal = [];
+
+          for(var i = 0, attachedViewsLength = self.attachedViews.length; i < attachedViewsLength; i++) {
+            if(self.attachedViews[i].view === null && self.attachedViews[i]._id !== "alertView") {
+              attachViewsError = true;
+              break;
+            } else {
+              var attachedViewFinal = {
+                layer_order: i + 1,
+                alert_attachment_id: (self.isUpdating ? self.alertAttachment.id : null),
+                view_id: (self.attachedViews[i].view !== null ? self.attachedViews[i].view : null)
+              };
+
+              if(self.attachedViews[i].id)
+                attachedViewFinal.id = self.attachedViews[i].id;
+
+              attachViewsFinal.push(attachedViewFinal);
+            }
+          }
+
+          if(attachViewsError)
+            return self.MessageBoxService.danger(i18n.__("Alert"), i18n.__("Select a view in all the attached views"));
+          else {
+            self.alert.attachedViews = attachViewsFinal;
+            self.alert.alertAttachment = self.alertAttachment;
+          }
         }
 
         var legendTemp = $.extend(true, {}, self.legendModel);
@@ -710,7 +949,6 @@ define([], function() {
         if(!self.notifyOnLegendLevel && self.alert.notifications[0].notify_on_legend_level !== undefined)
           self.alert.notifications[0].notify_on_legend_level = null;
 
-        
         if (self.alert.schedule && Object.keys(self.alert.schedule).length !== 0) {
           self.alert.schedule_type = self.alert.schedule.scheduleType;
           /**
@@ -761,7 +999,7 @@ define([], function() {
               color: self.colors[i],
               isDefault: i == 0,
               title: self.alert.legend.levels[i].name,
-              value: self.alert.legend.levels[i].value ? self.alert.legend.levels[i].value : ""
+              value: i == 0 ? "" : self.alert.legend.levels[i].value
             }
             viewLegend.colors.push(colorModel);
           }

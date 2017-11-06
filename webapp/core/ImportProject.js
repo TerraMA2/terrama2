@@ -174,31 +174,33 @@ var ImportProject = function(json){
         return Promise.all(promises).then(function() {
           promises = [];
           // updating data sets
-          output.DataSeries.forEach(function(dSeries){
-            if (dSeries.dataSets){
-              dSeries.dataSets.forEach(function(dataSet){
-                if (dataSet.format){
-                  var format = dataSet.format;
-                  for (var key in format){
-                    if (format.hasOwnProperty(key)){
-                      if (key == "monitored_object_id"){
-                        var monitoredObjectId = Utils.find(output.DataSeries, {$id: format[key]}).id;
-                        format[key] = monitoredObjectId.toString();
-                        var restriction = {
-                          data_set_id: dataSet.id,
-                          key: "monitored_object_id"
+          if (output.DataSeries){
+            output.DataSeries.forEach(function(dSeries){
+              if (dSeries.dataSets){
+                dSeries.dataSets.forEach(function(dataSet){
+                  if (dataSet.format){
+                    var format = dataSet.format;
+                    for (var key in format){
+                      if (format.hasOwnProperty(key)){
+                        if (key == "monitored_object_id"){
+                          var monitoredObjectId = Utils.find(output.DataSeries, {$id: format[key]}).id;
+                          format[key] = monitoredObjectId.toString();
+                          var restriction = {
+                            data_set_id: dataSet.id,
+                            key: "monitored_object_id"
+                          }
+                          var dataSetFormatObject = {
+                            value: monitoredObjectId
+                          }
+                          promises.push(DataManager.upsertDataSetFormats(restriction, dataSetFormatObject, options));
                         }
-                        var dataSetFormatObject = {
-                          value: monitoredObjectId
-                        }
-                        promises.push(DataManager.upsertDataSetFormats(restriction, dataSetFormatObject, options));
                       }
                     }
                   }
-                }
-              });
-            }
-          });
+                });
+              }
+            });
+          }
           return Promise.all(promises).then(function(){
             promises = [];
             if(json.Collectors) {
@@ -483,9 +485,60 @@ var ImportProject = function(json){
                                 alert.schedule_id = schedule.id;
                             }
 
+                            if(alert.attachment.hasOwnProperty("id"))
+                              var alertAttachment = Object.assign({}, alert.attachment);
+
+                            delete alert.attachment;
+
                             return DataManager.addAlert(alert, options).then(function(alertResult) {
-                              if(tcpOutput.Alerts === undefined) tcpOutput.Alerts = [];
-                              tcpOutput.Alerts.push(alertResult);
+                              var tcpOutputAlert = function() {
+                                if(tcpOutput.Alerts === undefined) tcpOutput.Alerts = [];
+                                tcpOutput.Alerts.push(alertResult);
+                              };
+
+                              if(alertAttachment) {
+                                var attachedViews = Object.assign([], alertAttachment.attachedViews);
+
+                                delete alertAttachment.attachedViews;
+                                delete alertAttachment.class;
+                                delete alertAttachment.id;
+
+                                alertAttachment.alert_id = alertResult.id;
+
+                                return DataManager.addAlertAttachment(alertAttachment, options).then(function(alertAttachmentResult) {
+                                  var attachedViewsPromises = [];
+
+                                  for(var i = 0, attachedViewsLength = attachedViews.length; i < attachedViewsLength; i++) {
+                                    attachedViews[i].alert_attachment_id = alertAttachmentResult.id;
+
+                                    var viewId = Utils.find(tcpOutput.Views, { $id: attachedViews[i].view_id }).id;
+                                    attachedViews[i].view_id = viewId;
+
+                                    delete attachedViews[i].id;
+
+                                    attachedViewsPromises.push(DataManager.addAlertAttachedView(attachedViews[i], options));
+                                  }
+
+                                  return Promise.all(attachedViewsPromises).then(function() {
+                                    return DataManager.listAlertAttachedViews({ alert_attachment_id: alertAttachmentResult.id }, options).then(function(alertAttachedViews) {
+                                      if(alertAttachedViews[0].View.ServiceInstance.ServiceMetadata) {
+                                        for(var i = 0, serviceMetadataLength = alertAttachedViews[0].View.ServiceInstance.ServiceMetadata.length; i < serviceMetadataLength; i++) {
+                                          if(alertAttachedViews[0].View.ServiceInstance.ServiceMetadata[i].dataValues.key === "maps_server") {
+                                            alertAttachmentResult.setGeoserverUri(alertAttachedViews[0].View.ServiceInstance.ServiceMetadata[i].dataValues.value);
+                                            break;
+                                          }
+                                        }
+                                      }
+
+                                      alertAttachmentResult.setAttachedViews(alertAttachedViews);
+                                      alertResult.setAttachment(alertAttachmentResult);
+
+                                      tcpOutputAlert();
+                                    });
+                                  });
+                                });
+                              } else
+                                tcpOutputAlert();
                             });
                           });
                         }));

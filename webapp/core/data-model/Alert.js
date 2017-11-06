@@ -13,6 +13,9 @@ var Legend = require("./Legend");
 var View = require("./View");
 var ViewStyleLegend = require("./ViewStyleLegend");
 var DataSeries = require("./DataSeries");
+var URIBuilder = require("./../UriBuilder");
+var URISyntax = require("./../Enums").Uri;
+
 /**
  * TerraMA² Global Utility module
  * @type {Utils}
@@ -118,6 +121,12 @@ var Alert = function(params) {
    */
   this.view = new View(params.View ? params.View.get() : params.view || {});
 
+  /**
+   * @name Alert#attachment
+   * @type {object}
+   */
+  this.attachment = params.attachment || null;
+
   if (params.View && params.View.ViewStyleLegend){
     var legendModel = new ViewStyleLegend(Utils.extend(
       params.View.ViewStyleLegend.get(), {colors: params.View.ViewStyleLegend.ViewStyleColors ? params.View.ViewStyleLegend.ViewStyleColors.map(function(elm) { return elm.get(); }) : []}));
@@ -175,6 +184,13 @@ Alert.prototype.setAlertNotifications = function(AlertNotifications) {
 Alert.prototype = Object.create(BaseClass.prototype);
 Alert.prototype.constructor = Alert;
 
+/**
+ * It sets attachment data.
+ */
+Alert.prototype.setAttachment = function(attachment) {
+  this.attachment = attachment;
+};
+
 Alert.prototype.toObject = function() {
   return Object.assign(BaseClass.prototype.toObject.call(this), {
     id: this.id,
@@ -194,6 +210,7 @@ Alert.prototype.toObject = function() {
     notifications: this.notifications,
     report_metadata: this.report_metadata,
     view: this.view instanceof BaseClass ? this.view.toObject() : this.view,
+    attachment: this.attachment instanceof BaseClass ? this.attachment.toObject() : this.attachment,
   });
 };
 
@@ -228,7 +245,7 @@ Alert.prototype.toService = function() {
   delete reportMetadataCopy.id;
   delete reportMetadataCopy.alert_id;
 
-  return Object.assign(BaseClass.prototype.toObject.call(this), {
+  var serviceObject = Object.assign(BaseClass.prototype.toObject.call(this), {
     id: this.id,
     project_id: this.project_id,
     service_instance_id: this.service_instance_id,
@@ -243,6 +260,11 @@ Alert.prototype.toService = function() {
     report_metadata: reportMetadataCopy,
     schedule: this.schedule instanceof BaseClass ? this.schedule.toObject() : {}
   });
+
+  if(this.attachment && this.attachment.toService)
+    serviceObject.view = this.attachment.toService();
+
+  return serviceObject;
 }
 
 module.exports = Alert;

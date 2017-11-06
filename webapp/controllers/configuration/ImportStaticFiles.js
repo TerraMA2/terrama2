@@ -26,7 +26,7 @@ var ImportStaticFiles = function(app) {
   // 'DataManager' module
   var memberDataManager = require('../../core/DataManager.js');
   // 'unzip' module
-  var memberUnzip = require('unzip');
+  var memberUnzip = require('unzip2');
   // Exec function
   var memberExec = require('child_process').exec;
   // Exec function sync

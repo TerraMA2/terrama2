@@ -34,6 +34,7 @@
 
 // TerraLib
 #include <terralib/common/Singleton.h>
+#include <terralib/core/uri/URI.h>
 
 // STL
 #include <functional>
@@ -51,7 +52,7 @@ namespace terrama2
         {
           public:
             //! DataAccessor constructor function.
-            typedef std::function<std::string (ReportPtr report)> FactoryFnctType;
+            typedef std::function<te::core::URI (ReportPtr report)> FactoryFnctType;
             //! Register a new DataAccessor constructor associated with the DataSeriesSemantics.
             void add(const std::string& documentCode, FactoryFnctType f);
             //! Remove the DataAccessor constructor associated with the DataSeriesSemantics.
@@ -66,7 +67,7 @@ namespace terrama2
               * \param report
               * \return
               */
-             std::string makeDocument(const std::string& documentCode, ReportPtr report);
+             te::core::URI makeDocument(const std::string& documentCode, ReportPtr report);
 
           protected:
             friend class te::common::Singleton<DocumentFactory>;

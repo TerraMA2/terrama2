@@ -31,6 +31,8 @@ var Exportation = function(io) {
   var memberExecSync = require('child_process').execSync;
   // Spawn function
   var memberSpawn = require('child_process').spawn;
+  // 'DataManager' module
+  var memberDataManager = require('../core/DataManager');
 
   // Socket connection event
   memberSockets.on('connection', function(client) {
@@ -55,6 +57,11 @@ var Exportation = function(io) {
         var dataTimeFrom = json.dateTimeFrom.split(' ');
         var dataTimeTo = json.dateTimeTo.split(' ');
         var fileName = json.fileName + '.' + dataTimeFrom[0] + '.' + dataTimeTo[0];
+      } else if(json.dateTimeField !== undefined && json.date !== undefined) {
+        options.dateTimeField = json.dateTimeField;
+        options.date = json.date;
+
+        var fileName = json.fileName + '.' + json.date;
       } else {
         var fileName = json.fileName;
       }
@@ -69,92 +76,105 @@ var Exportation = function(io) {
 
         return memberExportation.getPgConnectionString(json.dataProviderId);
       }).then(function(connectionString) {
-        var processedFormats = 0;
-        var progress = null;
-        var progressStep = 2.5 / requestFormats.length;
+        var startProcess = function(innerJoinTable, innerJoinAttribute) {
+          var processedFormats = 0;
+          var progress = null;
+          var progressStep = 2.5 / requestFormats.length;
 
-        for(var i = 0, formatsLength = requestFormats.length; i < formatsLength; i++) {
-          if(requestFormats[i] == 'shapefile') {
-            var folderResult = memberExportation.createFolder(folderPath + "/shapefile");
+          options.innerJoinTable = innerJoinTable;
+          options.innerJoinAttribute = innerJoinAttribute;
 
-            if(folderResult)
-              console.error(folderResult);
-          }
+          for(var i = 0, formatsLength = requestFormats.length; i < formatsLength; i++) {
+            if(requestFormats[i] == 'shapefile') {
+              var folderResult = memberExportation.createFolder(folderPath + "/shapefile");
 
-          var format = memberExportation.getFormatStrings(requestFormats[i]);
-          var ogr2ogr = memberExportation.ogr2ogr();
-          var filePath = memberPath.join(__dirname, '../tmp/' + filesFolder + (requestFormats[i] == 'shapefile' ? '/shapefile/' : '/') + fileName + format.fileExtention);
+              if(folderResult)
+                console.error(folderResult);
+            }
 
-          var args = ['-progress', '-F', format.ogr2ogrFormat, filePath, connectionString, '-sql', memberExportation.getQuery(options), '-skipfailures'];
+            var format = memberExportation.getFormatStrings(requestFormats[i]);
+            var ogr2ogr = memberExportation.ogr2ogr();
+            var filePath = memberPath.join(__dirname, '../tmp/' + filesFolder + (requestFormats[i] == 'shapefile' ? '/shapefile/' : '/') + fileName + format.fileExtention);
 
-          if(requestFormats[i] == "csv")
-            args.push('-lco', 'LINEFORMAT=CRLF', '-lco', 'SEPARATOR=' + separator);
+            var args = ['-progress', '-F', format.ogr2ogrFormat, filePath, connectionString, '-sql', memberExportation.getQuery(options), '-skipfailures'];
 
-          var spawnCommand = memberSpawn(ogr2ogr, args);
+            if(requestFormats[i] == "csv")
+              args.push('-lco', 'LINEFORMAT=CRLF', '-lco', 'SEPARATOR=' + separator);
 
-          spawnCommand.stdout.on('data', function(data) {
-            if(progress === null)
-              progress = 0;
-            else
-              progress += progressStep;
+            var spawnCommand = memberSpawn(ogr2ogr, args);
 
-            client.emit('generateFileResponse', { progress: progress });
-          });
+            spawnCommand.stdout.on('data', function(data) {
+              if(progress === null)
+                progress = 0;
+              else
+                progress += progressStep;
 
-          spawnCommand.stderr.on('data', function(data) {
-            console.error(data);
-          });
+              client.emit('generateFileResponse', { progress: progress });
+            });
 
-          spawnCommand.on('error', function(err) {
-            console.error(err);
-          });
+            spawnCommand.stderr.on('data', function(data) {
+              console.error(data);
+            });
 
-          spawnCommand.on('exit', function(code) {
-            processedFormats++;
+            spawnCommand.on('error', function(err) {
+              console.error(err);
+            });
 
-            if(processedFormats == formatsLength) {
-              var finalizeProcess = function() {
-                if(requestFormats.length == 1) {
-                  var format = memberExportation.getFormatStrings(requestFormats[0]);
-                  var finalPath = memberPath.join(__dirname, '../tmp/' + filesFolder) + "/" + fileName + format.fileExtention + (requestFormats[0] == 'shapefile' ? '.zip' : '');
-                  var finalFileName = fileName + format.fileExtention + (requestFormats[0] == 'shapefile' ? '.zip' : '');
+            spawnCommand.on('exit', function(code) {
+              processedFormats++;
 
-                  client.emit('generateFileResponse', { 
-                    folder: filesFolder,
-                    file: finalFileName
-                  });
-                } else {
-                  var finalPath = memberPath.join(__dirname, '../tmp/' + filesFolder) + "/" + fileName + ".zip";
-                  var finalFileName = fileName + ".zip";
-
-                  var zipGenerationCommand = "zip -r -j " + finalPath + " " + folderPath;
-
-                  memberExec(zipGenerationCommand, function(zipGenerationCommandErr, zipGenerationCommandOut, zipGenerationCommandCode) {
-                    if(zipGenerationCommandErr) return console.error(zipGenerationCommandErr);
+              if(processedFormats == formatsLength) {
+                var finalizeProcess = function() {
+                  if(requestFormats.length == 1) {
+                    var format = memberExportation.getFormatStrings(requestFormats[0]);
+                    var finalPath = memberPath.join(__dirname, '../tmp/' + filesFolder) + "/" + fileName + format.fileExtention + (requestFormats[0] == 'shapefile' ? '.zip' : '');
+                    var finalFileName = fileName + format.fileExtention + (requestFormats[0] == 'shapefile' ? '.zip' : '');
 
                     client.emit('generateFileResponse', { 
                       folder: filesFolder,
                       file: finalFileName
                     });
-                  });
-                }
-              };
+                  } else {
+                    var finalPath = memberPath.join(__dirname, '../tmp/' + filesFolder) + "/" + fileName + ".zip";
+                    var finalFileName = fileName + ".zip";
 
-              if(memberUtils.stringInArray(requestFormats, 'shapefile')) {
-                var zipPath = memberPath.join(__dirname, '../tmp/' + filesFolder) + "/" + fileName + ".shp.zip";
-                var zipGenerationCommand = "zip -r -j " + zipPath + " " + folderPath + "/shapefile";
+                    var zipGenerationCommand = "zip -r -j " + finalPath + " " + folderPath;
 
-                try {
-                  var zipGenerationCommandResult = memberExecSync(zipGenerationCommand);
-                  memberUtils.deleteFolderRecursively(folderPath + "/shapefile", finalizeProcess);
-                } catch(e) {
-                  console.error(e);
+                    memberExec(zipGenerationCommand, function(zipGenerationCommandErr, zipGenerationCommandOut, zipGenerationCommandCode) {
+                      if(zipGenerationCommandErr) return console.error(zipGenerationCommandErr);
+
+                      client.emit('generateFileResponse', { 
+                        folder: filesFolder,
+                        file: finalFileName
+                      });
+                    });
+                  }
+                };
+
+                if(memberUtils.stringInArray(requestFormats, 'shapefile')) {
+                  var zipPath = memberPath.join(__dirname, '../tmp/' + filesFolder) + "/" + fileName + ".shp.zip";
+                  var zipGenerationCommand = "zip -r -j " + zipPath + " " + folderPath + "/shapefile";
+
+                  try {
+                    var zipGenerationCommandResult = memberExecSync(zipGenerationCommand);
+                    memberUtils.deleteFolderRecursively(folderPath + "/shapefile", finalizeProcess);
+                  } catch(e) {
+                    console.error(e);
+                  }
+                } else {
+                  finalizeProcess();
                 }
-              } else {
-                finalizeProcess();
               }
-            }
+            });
+          }
+        };
+
+        if(json.monitoredObjectId !== undefined && json.monitoredObjectPk !== undefined) {
+          memberDataManager.getDataSeries({ id: json.monitoredObjectId }).then(function(dataSeries) {
+            startProcess(dataSeries.dataSets[0].format.table_name, json.monitoredObjectPk);
           });
+        } else {
+          startProcess();
         }
       }).catch(function(err) {
         return console.error(err);
