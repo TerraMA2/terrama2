@@ -90,8 +90,16 @@ void terrama2::core::DataStoragerTable::store(DataSetSeries series, DataSetPtr o
     // create and save datasettype in the datasource destination
     newDataSetType = std::shared_ptr<te::da::DataSetType>(static_cast<te::da::DataSetType*>(datasetType->clone()));
 
-    if(typeCapabilities.supportsPrimaryKey() && !newDataSetType->getPrimaryKey())
+    if(typeCapabilities.supportsPrimaryKey())
     {
+      if(newDataSetType->getPrimaryKey())
+      {
+        // if the cloned DataSetType already has a primery key
+        // recreate to avoid conflicts
+        auto pk = newDataSetType->getPrimaryKey();
+        newDataSetType->remove(pk);
+      }
+
       std::string pkName = "\""+destinationDataSetName+"_pk\"";
       std::unique_ptr<te::da::PrimaryKey> pk(new te::da::PrimaryKey(pkName));
 
@@ -111,6 +119,25 @@ void terrama2::core::DataStoragerTable::store(DataSetSeries series, DataSetPtr o
       te::gm::GeometryProperty* geomProperty = dynamic_cast<te::gm::GeometryProperty*>(newDataSetType->getProperty(geomPropertyName));
       geomProperty->setSRID(geom->getSRID());
       geomProperty->setGeometryType(geom->getGeometryType());
+
+      if(newDataSetType->getNumberOfIndexes())
+      {
+        // if the cloned DataSetType already has a index on the geometry column
+        // recreate to avoid conflicts
+        for(size_t i = 0; i < newDataSetType->getNumberOfIndexes(); ++i)
+        {
+          auto index = newDataSetType->getIndex(i);
+          auto properties = index->getProperties();
+          if(properties.size() == 1)
+          {
+            auto property = properties.front();
+            if(property == geomProperty)
+            {
+              newDataSetType->remove(index);
+            }
+          }
+        }
+      }
 
       //there is a limit in the size of the dataset that we can create an index
       if(typeCapabilities.supportsBTreeIndex() && series.syncDataSet->size() < 2712)
