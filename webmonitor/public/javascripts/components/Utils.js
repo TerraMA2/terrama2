@@ -27,6 +27,11 @@ define(
       return array.sort(compare);
     };
 
+    var setTagContent = function(element, content, property) {
+      $(element).attr("data-i18n", (property ? "[" + property + "]" : "") + content);
+      $(element).localize();
+    };
+
     var init = function(webMonitorSocketCallback, webAppSocketCallback) {
       jQuery.fn.insertAt = function(index, element) {
         var lastIndex = this.children().size();
@@ -79,6 +84,7 @@ define(
 
     return {
       init: init,
+      setTagContent: setTagContent,
       getSocket: getSocket,
       getWebAppSocket: getWebAppSocket,
       orderByProperty: orderByProperty

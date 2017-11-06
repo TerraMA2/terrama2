@@ -316,7 +316,8 @@ define(
 
           //if not connected disabled the layer selection
           if(!data.connected) {
-            listElement.prop("title", "Map Server is not responding");
+            Utils.setTagContent(listElement, "Map Server is not responding", "title");
+
             if(inputElement.is(':checked'))
               inputElement.trigger("click");
 
@@ -416,7 +417,7 @@ define(
 
             $('#feature-info-box').dialog({
               dialogClass: "feature-info-box",
-              title: "Attributes of layer: " + data.params.layerName,
+              title: "",
               width: 400,
               height: 380,
               modal: false,
@@ -432,6 +433,9 @@ define(
                 $('.ui-dialog-titlebar-close').css('background-image', 'url(images/close.png)');
                 $('.ui-dialog-titlebar-close').css('background-position', 'center');
                 $('.ui-dialog-titlebar-close').css('background-size', '20px');
+                $('.ui-dialog-title').append('<span class=\'dialog-title-prefix\'></span>' + data.params.layerName);
+
+                Utils.setTagContent('.ui-dialog-title > .dialog-title-prefix', 'Attributes of layer');
               },
               close: function() {
                 $('.ui-dialog-titlebar-close').css('background-image', '');
@@ -446,8 +450,8 @@ define(
             AddLayerByUri.fillModal(capabilities);
           } catch(e) {
             $('#layersModal').modal('hide');
-            $("#terrama2Alert > p > strong").text('Invalid URL!');
-            $("#terrama2Alert > p > span").text('Error to find capabilities.');
+            Utils.setTagContent("#terrama2Alert > p > strong", "Invalid URL!");
+            Utils.setTagContent("#terrama2Alert > p > span", "Error to find capabilities");
             $("#terrama2Alert").removeClass('hide');
           }
         }
@@ -611,27 +615,27 @@ define(
         $("#terrama2Alert").removeClass('hide');
       }
 
-      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("custom", "Custom", "terrama2-layerexplorer")) {
+      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("custom", "", "terrama2-layerexplorer")) {
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("custom", "terrama2-layerexplorer", null, "treeview unsortable", null);
         var layerObject = Layers.createLayerObject({
           layers: ["custom"],
-          name: "Custom",
+          name: "Externals",
           description: null
         });
         Layers.addLayer(layerObject);
       }
 
-      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("template", "Template", "terrama2-layerexplorer")) {
+      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("template", "", "terrama2-layerexplorer")) {
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("template", "terrama2-layerexplorer", null, "treeview unsortable", null);
         var layerObject = Layers.createLayerObject({
           layers: ["template"],
-          name: "Template",
+          name: "Templates",
           description: null
         });
         Layers.addLayer(layerObject);
       }
 
-      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("static", "Static Data", "terrama2-layerexplorer")) {
+      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("static", "", "terrama2-layerexplorer")) {
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("static", "terrama2-layerexplorer", null, "treeview unsortable", null);
         var layerObject = Layers.createLayerObject({
           layers: ["static"],
@@ -641,7 +645,7 @@ define(
         Layers.addLayer(layerObject);
       }
 
-      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("dynamic", "Dynamic Data", "terrama2-layerexplorer")) {
+      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("dynamic", "", "terrama2-layerexplorer")) {
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("dynamic", "terrama2-layerexplorer", null, "treeview unsortable", null);
         var layerObject = Layers.createLayerObject({
           layers: ["dynamic"],
@@ -651,7 +655,7 @@ define(
         Layers.addLayer(layerObject);
       }
 
-      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("analysis", "Analysis", "terrama2-layerexplorer")) {
+      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("analysis", "", "terrama2-layerexplorer")) {
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("analysis", "terrama2-layerexplorer", null, "treeview unsortable", null);
         var layerObject = Layers.createLayerObject({
           layers: ["analysis"],
@@ -661,11 +665,11 @@ define(
         Layers.addLayer(layerObject);
       }
 
-      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("alert", "Alert", "terrama2-layerexplorer")) {
+      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("alert", "", "terrama2-layerexplorer")) {
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("alert", "terrama2-layerexplorer", null, "treeview unsortable", null);
         var layerObject = Layers.createLayerObject({
           layers: ["alert"],
-          name: "Alert",
+          name: "Alerts",
           description: null
         });
         Layers.addLayer(layerObject);
@@ -690,6 +694,14 @@ define(
       Layers.addLayersToSort();
       Sortable.setSortable();
       Layers.changeParentLayerStatus("template", LayerStatusEnum.ONLINE);
+
+      // Setting the names of the layers groups
+      Utils.setTagContent("#custom > span > span:nth-child(3n)", "Externals");
+      Utils.setTagContent("#template > span > span:nth-child(3n)", "Templates");
+      Utils.setTagContent("#static > span > span:nth-child(3n)", "Static Data");
+      Utils.setTagContent("#dynamic > span > span:nth-child(3n)", "Dynamic Data");
+      Utils.setTagContent("#analysis > span > span:nth-child(3n)", "Analysis");
+      Utils.setTagContent("#alert > span > span:nth-child(3n)", "Alerts");
 
       // Check connections every 30 seconds
       var intervalID = setInterval(function() {
@@ -716,17 +728,6 @@ define(
       loadEvents();
       loadLayout();
       $("#osm input").trigger("click");
-
-      // Loading language change tool
-      i18next.use(i18nextXHRBackend).init({
-        lng: 'en',
-        backend: {
-          loadPath: '/locales/{{ lng }}.json'
-        }
-      }, function(err, t) {
-        jqueryI18next.init(i18next, $);
-        $("body").localize();
-      });
 
       Utils.getSocket().emit('retrieveViews', { clientId: Utils.getWebAppSocket().id, initialRequest: true });
     };
