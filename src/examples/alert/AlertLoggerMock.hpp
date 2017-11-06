@@ -32,7 +32,6 @@ class AlertLoggerMock : public terrama2::services::alert::core::AlertLogger
     MOCK_CONST_METHOD2(done,
                        void(const std::shared_ptr< te::dt::TimeInstantTZ >& dataTimestamp, const RegisterId registerId));
 
-    MOCK_CONST_METHOD0(isValid, bool());
     void log(MessageType messageType, const std::string &description, RegisterId /*registerId*/) const override
     {
       std::cout << "Message Type: " << messageType << " Message: " << description << std::endl;

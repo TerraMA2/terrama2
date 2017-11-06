@@ -1,4 +1,3 @@
-#include "AlertLoggerMock.hpp"
 #include <terrama2/core/Shared.hpp>
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/core/utility/TerraMA2Init.hpp>
@@ -31,7 +30,6 @@
 #include <QCoreApplication>
 #include <QTimer>
 #include <QtGui>
-#include <QTimer>
 
 
 
@@ -92,7 +90,6 @@ terrama2::services::alert::core::AlertPtr newAlert(terrama2::core::DataSeriesPtr
   reportMetadata[terrama2::services::alert::core::ReportTags::CONTACT] = "TerraMA2 developers.";
   reportMetadata[terrama2::services::alert::core::ReportTags::COPYRIGHT] = "copyright information...";
   reportMetadata[terrama2::services::alert::core::ReportTags::DESCRIPTION] = "Example generated report...";
-  reportMetadata[terrama2::services::alert::core::ReportTags::DOCUMENT_URI] = "/" + TERRAMA2_DATA_DIR + "/GridRisk.pdf";
   reportMetadata[terrama2::services::alert::core::ReportTags::TIMESTAMP_FORMAT] = "null";
   reportMetadata[terrama2::services::alert::core::ReportTags::LOGO_PATH] = "null";
 
@@ -142,7 +139,7 @@ int main(int argc, char* argv[])
   EXPECT_CALL(*loggerCopy, isValid()).WillRepeatedly(::testing::Return(true));
   EXPECT_CALL(*loggerCopy, result(::testing::_, ::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
 
-  auto logger = std::make_shared<AlertLoggerMock>();
+  auto logger = std::make_shared<terrama2::core::MockAlertLogger>();
 
   EXPECT_CALL(*logger, setConnectionInfo(::testing::_)).WillRepeatedly(::testing::Return());
   EXPECT_CALL(*logger, setTableName(::testing::_)).WillRepeatedly(::testing::Return());

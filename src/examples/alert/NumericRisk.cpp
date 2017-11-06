@@ -90,7 +90,6 @@ terrama2::services::alert::core::AlertPtr newAlert(terrama2::core::DataSeriesPtr
   reportMetadata[terrama2::services::alert::core::ReportTags::CONTACT] = "TerraMA2 developers.";
   reportMetadata[terrama2::services::alert::core::ReportTags::COPYRIGHT] = "copyright information...";
   reportMetadata[terrama2::services::alert::core::ReportTags::DESCRIPTION] = "Example generated report...";
-  reportMetadata[terrama2::services::alert::core::ReportTags::DOCUMENT_URI] = "/" + TERRAMA2_DATA_DIR + "/NumericRisk.pdf";
   reportMetadata[terrama2::services::alert::core::ReportTags::TIMESTAMP_FORMAT] = "null";
   reportMetadata[terrama2::services::alert::core::ReportTags::LOGO_PATH] = "null";
 
@@ -189,7 +188,7 @@ int main(int argc, char* argv[])
   additionalIfo.insert("email_server", QString("smtp://terrama2.testesalerta@gmail.com:terr@m@2v4@smtp.gmail.com:587"));
 
   service.updateAdditionalInfo(additionalIfo);
-  service.start();
+
   service.addToQueue(alert->id, terrama2::core::TimeUtils::nowUTC());
 
   QTimer timer;
