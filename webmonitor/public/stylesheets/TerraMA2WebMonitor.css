@@ -963,3 +963,13 @@ img[src=""] {
   background: #3c8dbc;
   border-radius: 4px;
 }
+
+#tableCloseButton {
+  position: absolute;
+  top: 20px;
+  color: red;
+  height: 18px;
+  width: 18px;
+  right: 20px;
+  cursor: pointer;
+}

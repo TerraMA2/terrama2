@@ -104,7 +104,7 @@
   "Area of interest for notification": "Area of interest for notification",
   "Area of interest is required": "Area of interest is required",
   "Array items are not unique": "Array items are not unique",
-	"Attach Views": "Attach Views",
+  "Attach Views": "Attach Views",
   "Attribute": "Attribute",
   "Attribute    ": "Attribute    ",
   "Attribute Identifier": "Attribute Identifier",
@@ -241,6 +241,7 @@
   "Data provider port is required for": "Data provider port is required for",
   "Data provider protocol is required": "Data provider protocol is required",
   "Data provider scheme is required": "Data provider scheme is required",
+  "Data series": "Data series",
   "Data series is required": "Data series is required",
   "Data series name is required": "Data series name is required",
   "Data server Timeout (sec)": "Data server Timeout (sec)",
@@ -722,7 +723,7 @@
   "Search": "Search",
   "Seconds": "Seconds",
   "Select": "Select",
-	"Select a Project": "Select a Project",
+  "Select a Project": "Select a Project",
   "Select Area of Interest": "Select Area of Interest",
   "Select Attibutes": "Select Attibutes",
   "Select Attributes": "Select Attributes",
@@ -1047,5 +1048,10 @@
   "Dcp": "Dcp",
   " Data Series": " Data Series",
   "Dcp Data Series": "Dcp Data Series",
-  "Object Monitored Data Series": "Object Monitored Data Series"
+  "Object Monitored Data Series": "Object Monitored Data Series",
+  "Import data series": "Import data series",
+  "Choose data series": "Choose data series",
+  "Data Series import": "Data Series import",
+  "imported": "imported",
+  "Import data": "Import data"
 }

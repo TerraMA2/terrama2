@@ -2,14 +2,12 @@
   'use strict';
 
   // Dependencies
-  var DataManager = require("./../../core/DataManager");
   var handleRequestError = require("./../../core/Utils").handleRequestError;
+  var TokenCode = require('./../../core/Enums').TokenCode;
+  var Utils = require('./../../core/Utils');
 
   // Facade
   var ViewFacade = require("./../../core/facade/View");
-
-  var TokenCode = require('./../../core/Enums').TokenCode;
-  var Utils = require('./../../core/Utils');
 
   /**
    * Injecting NodeJS App configuration as dependency. It retrieves a Views controllers API
@@ -63,7 +61,6 @@
             var token = Utils.generateToken(app, TokenCode.SAVE, view.name, extra);
             return response.json({status: 200, result: view.toObject(), token: token});
           })
-          
           .catch(function(err){
             return handleRequestError(response, err, 400);
           });
@@ -98,7 +95,6 @@
             var token = Utils.generateToken(app, TokenCode.DELETE, view.name);
             return response.json({status: 200, result: view.toObject(), token: token});
           })
-
           .catch(function(err) {
             return handleRequestError(response, err, 400);
           });
