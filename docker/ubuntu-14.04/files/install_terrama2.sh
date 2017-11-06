@@ -10,19 +10,10 @@ function valid()
   fi
 }
 
-if [ "$1" == "compile" ]; then
-  cd ${TERRAMA2_CODEBASE_PATH}/packages/debian-package
-
-  export BUILD_DIR=`pwd`/../../../build-package
-  ./deb-terrama2.sh
-
-  mv $BUILD_DIR/*.deb .
-  rm -rf $BUILD_DIR
-else
-  echo -ne "Downloading TerraMA² ... "
-  curl -O http://www.dpi.inpe.br/jenkins-data/terrama2/installers/linux/TerraMA2-4.0.0-rc3-linux-x64-Ubuntu-14.04.deb --silent
-  valid $? "Error: Could not fetch TerraMA²"
-fi
+# TODO: Change URL to http://www.dpi.inpe.br/terrama2/doku.php?id=download and change curl parameter to -o deb_package_name
+echo -ne "Downloading TerraMA² ... "
+curl -O http://www.dpi.inpe.br/jenkins-data/terrama2/installers/linux/TerraMA2-4.0.0-rc3-linux-x64-Ubuntu-14.04.deb --silent
+valid $? "Error: Could not fetch TerraMA²"
 
 echo "Installing TerraMA² ... "
 dpkg -i TerraMA2-4.0.0-rc3-linux-x64-Ubuntu-14.04.deb 2> /dev/null

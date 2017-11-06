@@ -30,6 +30,7 @@ RUN echo "deb http://br.archive.ubuntu.com/ubuntu/ trusty-backports main restric
     apt-get update && \
     apt-get install -y cmake \
                        build-essential \
+                       software-properties-common \
                        libcurl3-dev \
                        libpython2.7-dev \
                        libquazip0-dev \
@@ -57,9 +58,9 @@ RUN groupadd $TERRAMA2_USER && \
     useradd $TERRAMA2_USER -s /bin/bash -m -g $TERRAMA2_USER && \
     # Defining User credential to connect
     echo $TERRAMA2_USER:$TERRAMA2_USER | chpasswd && \
-    mkdir -p $TERRAMA2_3RDPARTY_PATH $TERRAMA2_CODEBASE_PATH \
-    && chown -R $TERRAMA2_USER:$TERRAMA2_USER /home/$TERRAMA2_USER \
-    && chmod g-w /home/$TERRAMA2_USER
+    mkdir -p $TERRAMA2_3RDPARTY_PATH $TERRAMA2_CODEBASE_PATH && \
+    chown -R $TERRAMA2_USER:$TERRAMA2_USER /home/$TERRAMA2_USER && \
+    chmod g-w /home/$TERRAMA2_USER
 
 ############################################################################
 # Dependencies
@@ -94,8 +95,8 @@ RUN cd ${TERRAMA2_CODEBASE_PATH} && \
     curl -LO https://github.com/kisli/vmime/archive/v0.9.2.tar.gz && \
     ./deb-vmime.sh && \
     dpkg -i terrama2-vmime_0.9.2-ubuntu14.04_amd64.deb && \
-    apt-get install -f -y
-    # rm -rf terrama2-vmime_0.9.2-ubuntu14.04_amd64* v*
+    apt-get install -f -y && \
+    rm -rf terrama2-vmime_0.9.2-ubuntu14.04_amd64* v* ${TERRAMA2_CODEBASE_PATH}
 
 ############################################################################
 # TerraMA2
