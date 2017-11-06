@@ -10,6 +10,7 @@ define([], function () {
       formCtrl: "<", // controller binding in order to throw up
       type: "=",
       columnsList: "=",
+      postgisData: "=",
       model: "=",
       options: "="
     },
@@ -23,7 +24,7 @@ define([], function () {
    * @param {ColorFactory} ColorFactory - TerraMA² Color generator
    * @param {any} i18n - TerraMA² Internationalization module
    */
-  function StyleController($scope, ColorFactory, i18n, DataSeriesService, StyleType, $http, Utility) {
+  function StyleController($scope, ColorFactory, i18n, DataSeriesService, StyleType, $http, Utility, DataProviderService) {
     var self = this;
     // binding component form into parent module in order to expose Form to help during validation
     self.formCtrl = self.form;
@@ -35,6 +36,9 @@ define([], function () {
     self.addColor = addColor;
     self.removeColor = removeColor;
     self.typeFilter = typeFilter;
+
+    // Array with possible values of a column
+    self.columnValues = [];
 
     /**
      * It keeps the rgba color values
@@ -218,6 +222,27 @@ define([], function () {
       }
     });
 
+
+    /**
+     * Lists the values of a column from a given table.
+     * 
+     * @returns {void}
+     */
+    self.getColumnValues = function(){
+      if (self.model.type == 3 && self.model.metadata.attribute !== undefined && self.model.metadata.attribute !== ""){
+        DataProviderService.listPostgisObjects({providerId: self.postgisData.dataProvider.id, objectToGet: "values", tableName: self.postgisData.tableName, columnName: self.model.metadata.attribute})
+          .then(function(response){
+            if (response.data.status == 400){
+              self.columnValues = [];
+            } else {
+              self.columnValues = response.data.data;
+            }
+          });
+      } else {
+        self.columnValues = [];
+      }
+    };
+
     /**
      * It tries to sets begin and end color based in table row selection
      */
@@ -259,6 +284,6 @@ define([], function () {
   }
 
   // Dependencies Injection
-  StyleController.$inject = ["$scope", "ColorFactory", "i18n", "DataSeriesService", "StyleType", "$http", "Utility"];
+  StyleController.$inject = ["$scope", "ColorFactory", "i18n", "DataSeriesService", "StyleType", "$http", "Utility", "DataProviderService"];
   return terrama2StyleComponent;
 });

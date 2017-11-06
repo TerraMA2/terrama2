@@ -232,12 +232,14 @@
       var providerId = objectToList.providerId;
       var objectToGet = objectToList.objectToGet;
       var tableName = objectToList.tableName;
+      var columnName = objectToList.columnName;
       return DataManager.getDataProvider({id: providerId})
         .then(function(dataProvider) {
           var providerObject = dataProvider.toObject();
           var uriInfo = getPostgisUriInfo(providerObject.uri);
           uriInfo.objectToGet = objectToGet;
           uriInfo.tableName = tableName;
+          uriInfo.columnName = columnName;
           var postgisRequest = new PostgisRequest(uriInfo);
           return postgisRequest.get()
             .then(function(data){
