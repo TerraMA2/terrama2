@@ -21,9 +21,9 @@
 
 #include <terrama2/impl/Utils.hpp>
 
-#include <examples/data/ResultAnalysisPostGis.hpp>
-#include <examples/data/OccurrenceWFP.hpp>
-#include <examples/data/StaticPostGis.hpp>
+#include <extra/data/ResultAnalysisPostGis.hpp>
+#include <extra/data/OccurrenceWFP.hpp>
+#include <extra/data/StaticPostGis.hpp>
 
 // STL
 #include <iostream>
@@ -82,13 +82,29 @@ int main(int argc, char* argv[])
   service.start();
 
   /*
+   * DataProvider and dataSeries Static
+  */
+
+  auto dataProviderStatic = terrama2::staticpostgis::dataProviderStaticPostGis();
+  dataManager->add(dataProviderStatic);
+
+  auto dataSeries = terrama2::staticpostgis::dataSeriesEstados2010(dataProviderStatic);
+  dataManager->add(dataSeries);
+
+
+  AnalysisDataSeries monitoredObjectADS;
+  monitoredObjectADS.id = 1;
+  monitoredObjectADS.dataSeriesId = dataSeries->id;
+  monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
+  monitoredObjectADS.metadata["identifier"] = "fid";
+  /*
    * DataProvider and dataSeries result
   */
   auto dataProviderResult = terrama2::resultanalysis::dataProviderResultAnalysis();
   dataManager->add(dataProviderResult);
 
 
-  auto outputDataSeries = terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::occurrence_aggregation_analysis_result);
+  auto outputDataSeries = terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::occurrence_aggregation_analysis_result, dataSeries);
   dataManager->add(outputDataSeries);
 
 
@@ -109,22 +125,7 @@ add_value("aggregation_count", x))z";
   analysis->type = AnalysisType::MONITORED_OBJECT_TYPE;
   analysis->serviceInstanceId = 1;
 
-  /*
-   * DataProvider and dataSeries Static
-  */
 
-  auto dataProviderStatic = terrama2::staticpostgis::dataProviderStaticPostGis();
-  dataManager->add(dataProviderStatic);
-
-  auto dataSeries = terrama2::staticpostgis::dataSeriesEstados2010(dataProviderStatic);
-  dataManager->add(dataSeries);
-
-
-  AnalysisDataSeries monitoredObjectADS;
-  monitoredObjectADS.id = 1;
-  monitoredObjectADS.dataSeriesId = dataSeries->id;
-  monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
-  monitoredObjectADS.metadata["identifier"] = "fid";
 
 
   /*

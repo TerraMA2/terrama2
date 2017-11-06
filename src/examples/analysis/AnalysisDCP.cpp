@@ -21,8 +21,8 @@
 #include <terrama2/Config.hpp>
 
 
-#include <examples/data/DCPSerramarInpe.hpp>
-#include <examples/data/ResultAnalysisPostGis.hpp>
+#include <extra/data/DCPSerramarInpe.hpp>
+#include <extra/data/ResultAnalysisPostGis.hpp>
 
 
 #include <iostream>
@@ -79,11 +79,23 @@ int main(int argc, char* argv[])
         service.setLogger(logger);
         service.start();
 
+        auto dataProviderDCP = terrama2::serramar::dataProviderPostGisDCP();
+        dataManager->add(dataProviderDCP);
+
+        auto dcpSerramar = terrama2::serramar::dataSeriesDcpSerramarPostGis(dataProviderDCP);
+        dataManager->add(dcpSerramar);
+
+        AnalysisDataSeries dcpADS;
+        dcpADS.id = 1;
+        dcpADS.dataSeriesId = dcpSerramar->id;
+        dcpADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
+        dcpADS.metadata["identifier"] = "table_name";
+
 
         auto dataProvider = terrama2::resultanalysis::dataProviderResultAnalysis();
         dataManager->add(dataProvider);
 
-        auto dataSeriesResult = terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProvider, terrama2::resultanalysis::tablename::analysis_dcp_result);
+        auto dataSeriesResult = terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProvider, terrama2::resultanalysis::tablename::analysis_dcp_result, dcpSerramar);
         dataManager->add(dataSeriesResult);
 
 
@@ -108,18 +120,6 @@ add_value("max", x))z";
         analysis->metadata["INFLUENCE_RADIUS"] = "50";
         analysis->metadata["INFLUENCE_RADIUS_UNIT"] = "km";
 
-
-        auto dataProviderDCP = terrama2::serramar::dataProviderPostGisDCP();
-        dataManager->add(dataProviderDCP);
-
-        auto dcpSerramar = terrama2::serramar::dataSeriesDcpSerramarPostGis(dataProviderDCP);
-        dataManager->add(dcpSerramar);
-
-        AnalysisDataSeries dcpADS;
-        dcpADS.id = 1;
-        dcpADS.dataSeriesId = dcpSerramar->id;
-        dcpADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
-        dcpADS.metadata["identifier"] = "table_name";
 
         std::vector<AnalysisDataSeries> analysisDataSeriesList;
         analysisDataSeriesList.push_back(dcpADS);

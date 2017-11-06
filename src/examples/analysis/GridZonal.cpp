@@ -27,9 +27,9 @@
 
 #include <terrama2/Config.hpp>
 
-#include <examples/data/StaticPostGis.hpp>
-#include <examples/data/Geotiff.hpp>
-#include <examples/data/ResultAnalysisPostGis.hpp>
+#include <extra/data/StaticPostGis.hpp>
+#include <extra/data/Geotiff.hpp>
+#include <extra/data/ResultAnalysisPostGis.hpp>
 
 
 // QT
@@ -86,6 +86,22 @@ int main(int argc, char* argv[])
     service.setLogger(logger);
     service.start();
 
+    /*
+     *  DataProvider and DataSeries static-postgis Estados_2010
+    */
+
+
+    auto dataProviderStatic = terrama2::staticpostgis::dataProviderStaticPostGis();
+    dataManager->add(dataProviderStatic);
+
+    auto dataSeries = terrama2::staticpostgis::dataSeriesEstados2010(dataProviderStatic);
+    dataManager->add(dataSeries);
+
+    AnalysisDataSeries monitoredObjectADS;
+    monitoredObjectADS.id = 1;
+    monitoredObjectADS.dataSeriesId = dataSeries->id;
+    monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
+    monitoredObjectADS.metadata["identifier"] = "fid";
 
     /*
      *  DataProvider and DataSeries store resultAnalysis
@@ -95,7 +111,7 @@ int main(int argc, char* argv[])
     auto dataProviderResult = terrama2::resultanalysis::dataProviderResultAnalysis();
     dataManager->add(dataProviderResult);
 
-    auto outputDataSeries = terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::zonal_analysis_result);
+    auto outputDataSeries = terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::zonal_analysis_result, dataSeries);
     dataManager->add(outputDataSeries);
 
 
@@ -115,22 +131,6 @@ add_value("min", x))z";
     analysis->serviceInstanceId = 1;
 
 
-    /*
-     *  DataProvider and DataSeries static-postgis Estados_2010
-    */
-
-
-    auto dataProviderStatic = terrama2::staticpostgis::dataProviderStaticPostGis();
-    dataManager->add(dataProviderStatic);
-
-    auto dataSeries = terrama2::staticpostgis::dataSeriesEstados2010(dataProviderStatic);
-    dataManager->add(dataSeries);
-
-    AnalysisDataSeries monitoredObjectADS;
-    monitoredObjectADS.id = 1;
-    monitoredObjectADS.dataSeriesId = dataSeries->id;
-    monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
-    monitoredObjectADS.metadata["identifier"] = "fid";
 
     /*
      *  DataProvider and DataSeries geotiff SpotVegetacao

@@ -24,9 +24,9 @@
 #include <iostream>
 
 
-#include <examples/data/DCPSerramarInpe.hpp>
-#include <examples/data/ResultAnalysisPostGis.hpp>
-#include <examples/data/StaticPostGis.hpp>
+#include <extra/data/DCPSerramarInpe.hpp>
+#include <extra/data/ResultAnalysisPostGis.hpp>
+#include <extra/data/StaticPostGis.hpp>
 
 
 // QT
@@ -34,7 +34,6 @@
 #include <QCoreApplication>
 #include <QUrl>
 
-using namespace terrama2::services::analysis::core;
 
 int main(int argc, char* argv[])
 {
@@ -73,7 +72,7 @@ int main(int argc, char* argv[])
   EXPECT_CALL(*logger, isValid()).WillRepeatedly(::testing::Return(true));
 
 
-  Service service(dataManager);
+  terrama2::services::analysis::core::Service service(dataManager);
   serviceManager.setInstanceId(1);
   serviceManager.setLogger(logger);
   serviceManager.setLogConnectionInfo(te::core::URI(""));
@@ -81,7 +80,21 @@ int main(int argc, char* argv[])
   service.setLogger(logger);
   service.start();
 
+  /*
+   * DataProvider and dataSeries Static
+  */
 
+  auto dataProviderStatic = terrama2::staticpostgis::dataProviderStaticPostGis();
+  dataManager->add(dataProviderStatic);
+
+  auto dataSeries = terrama2::staticpostgis::dataSeriesEstados2010(dataProviderStatic);
+  dataManager->add(dataSeries);
+
+  terrama2::services::analysis::core::AnalysisDataSeries monitoredObjectADS;
+  monitoredObjectADS.id = 1;
+  monitoredObjectADS.dataSeriesId = dataSeries->id;
+  monitoredObjectADS.type = terrama2::services::analysis::core::AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
+  monitoredObjectADS.metadata["identifier"] = "fid";
   /*
    * DataProvider and dataSeries result
   */
@@ -89,7 +102,9 @@ int main(int argc, char* argv[])
   dataManager->add(dataProviderResult);
 
 
-  auto outputDataSeries = terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::dcp_history_interval_result);
+  auto outputDataSeries = terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProviderResult,
+                                                                                    terrama2::resultanalysis::tablename::dcp_history_interval_result,
+                                                                                    dataSeries);
   dataManager->add(outputDataSeries);
 
 
@@ -113,8 +128,8 @@ add_value("history_standard_deviation",x))z";
   analysis->id = 1;
   analysis->name = "History DCP";
   analysis->script = script;
-  analysis->scriptLanguage = ScriptLanguage::PYTHON;
-  analysis->type = AnalysisType::MONITORED_OBJECT_TYPE;
+  analysis->scriptLanguage = terrama2::services::analysis::core::ScriptLanguage::PYTHON;
+  analysis->type = terrama2::services::analysis::core::AnalysisType::MONITORED_OBJECT_TYPE;
   analysis->outputDataSeriesId = outputDataSeries->id;
   analysis->outputDataSetId = outputDataSeries->datasetList.front()->id;
   analysis->active = true;
@@ -125,21 +140,6 @@ add_value("history_standard_deviation",x))z";
   analysis->metadata["INFLUENCE_RADIUS"] = "50";
   analysis->metadata["INFLUENCE_RADIUS_UNIT"] = "km";
 
-  /*
-   * DataProvider and dataSeries Static
-  */
-
-  auto dataProviderStatic = terrama2::staticpostgis::dataProviderStaticPostGis();
-  dataManager->add(dataProviderStatic);
-
-  auto dataSeries = terrama2::staticpostgis::dataSeriesEstados2010(dataProviderStatic);
-  dataManager->add(dataSeries);
-
-  AnalysisDataSeries monitoredObjectADS;
-  monitoredObjectADS.id = 1;
-  monitoredObjectADS.dataSeriesId = dataSeries->id;
-  monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
-  monitoredObjectADS.metadata["identifier"] = "fid";
 
 
   /*
@@ -154,13 +154,13 @@ add_value("history_standard_deviation",x))z";
   dataManager->add(dcpSeries);
 
 
-  AnalysisDataSeries dcpADS;
+  terrama2::services::analysis::core::AnalysisDataSeries dcpADS;
   dcpADS.id = 2;
   dcpADS.dataSeriesId = dcpSeries->id;
-  dcpADS.type = AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE;
+  dcpADS.type =terrama2::services::analysis::core:: AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE;
 
 
-  std::vector<AnalysisDataSeries> analysisDataSeriesList;
+  std::vector<terrama2::services::analysis::core::AnalysisDataSeries> analysisDataSeriesList;
   analysisDataSeriesList.push_back(dcpADS);
   analysisDataSeriesList.push_back(monitoredObjectADS);
   analysis->analysisDataSeriesList = analysisDataSeriesList;

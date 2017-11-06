@@ -33,9 +33,9 @@
 #include <terrama2/services/analysis/mock/MockAnalysisLogger.hpp>
 
 
-#include <examples/data/ResultAnalysisPostGis.hpp>
-#include <examples/data/StaticPostGis.hpp>
-#include <examples/data/DCPSerramarInpe.hpp>
+#include <extra/data/ResultAnalysisPostGis.hpp>
+#include <extra/data/StaticPostGis.hpp>
+#include <extra/data/DCPSerramarInpe.hpp>
 
 //STL
 #include <iostream>
@@ -109,6 +109,22 @@ int main(int argc, char* argv[])
 
     QCoreApplication app(argc, argv);
 
+    /*
+     * DataProvider and dataSeries Static
+    */
+
+    auto dataProviderStatic = terrama2::staticpostgis::dataProviderStaticPostGis();
+    dataManager->add(dataProviderStatic);
+
+    auto dataSeriesMunicSerrmar = terrama2::staticpostgis::dataSeriesMunicSerrmarInpe(dataProviderStatic);
+    dataManager->add(dataSeriesMunicSerrmar);
+
+    AnalysisDataSeries monitoredObjectADS;
+    monitoredObjectADS.id = 1;
+    monitoredObjectADS.dataSeriesId = dataSeriesMunicSerrmar->id;
+    monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
+    monitoredObjectADS.metadata["identifier"] = "objet_id_1";
+
 
     /*
      * DataProvider and dataSeries result
@@ -117,7 +133,7 @@ int main(int argc, char* argv[])
     dataManager->add(dataProviderResult);
 
 
-    auto outputDataSeries = terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::analysis_result);
+    auto outputDataSeries = terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::analysis_result, dataSeriesMunicSerrmar);
     dataManager->add(outputDataSeries);
 
 
@@ -143,22 +159,6 @@ add_value("min", x))z";
     analysis->metadata["INFLUENCE_TYPE"] = "1";
     analysis->metadata["INFLUENCE_RADIUS"] = "50";
     analysis->metadata["INFLUENCE_RADIUS_UNIT"] = "km";
-
-    /*
-     * DataProvider and dataSeries Static
-    */
-
-    auto dataProviderStatic = terrama2::staticpostgis::dataProviderStaticPostGis();
-    dataManager->add(dataProviderStatic);
-
-    auto dataSeriesMunicSerrmar = terrama2::staticpostgis::dataSeriesMunicSerrmarInpe(dataProviderStatic);
-    dataManager->add(dataSeriesMunicSerrmar);
-
-    AnalysisDataSeries monitoredObjectADS;
-    monitoredObjectADS.id = 1;
-    monitoredObjectADS.dataSeriesId = dataSeriesMunicSerrmar->id;
-    monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
-    monitoredObjectADS.metadata["identifier"] = "objet_id_1";
 
 
 
@@ -196,7 +196,7 @@ add_value("min", x))z";
     obj.insert("DataProviders", providersArray);
 
     QJsonArray seriesArray;
-    seriesArray.push_back(terrama2::resultanalysis::dataSeriesResultAnalysisPostGisJson(dataProviderResult, terrama2::resultanalysis::tablename::analysis_result));
+    seriesArray.push_back(terrama2::resultanalysis::dataSeriesResultAnalysisPostGisJson(dataProviderResult, terrama2::resultanalysis::tablename::analysis_result, dataSeriesMunicSerrmar));
     seriesArray.push_back(terrama2::staticpostgis::dataSeriesMunicSerrmarInpeJson(dataProviderStatic));
     seriesArray.push_back(terrama2::serramar::dataSeriesDcpSerramarJson(dataProviderFileSerrmar));
     obj.insert("DataSeries", seriesArray);
