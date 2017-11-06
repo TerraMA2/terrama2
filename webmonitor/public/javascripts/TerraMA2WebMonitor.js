@@ -62,6 +62,26 @@ define(
         TerraMA2WebComponents.MapDisplay.updateMapSize();
       });
 
+      // Language change events
+
+      $("#language-pt").on("click", function() {
+        i18next.changeLanguage("pt", function() {
+          $("body").localize();
+        });
+      });
+
+      $("#language-es").on("click", function() {
+        i18next.changeLanguage("es", function() {
+          $("body").localize();
+        });
+      });
+
+      $("#language-en").on("click", function() {
+        i18next.changeLanguage("en", function() {
+          $("body").localize();
+        });
+      });
+
       /**
        * When window resize the map must follow the width
        */
@@ -696,6 +716,17 @@ define(
       loadEvents();
       loadLayout();
       $("#osm input").trigger("click");
+
+      // Loading language change tool
+      i18next.use(i18nextXHRBackend).init({
+        lng: 'en',
+        backend: {
+          loadPath: '/locales/{{ lng }}.json'
+        }
+      }, function(err, t) {
+        jqueryI18next.init(i18next, $);
+        $("body").localize();
+      });
 
       Utils.getSocket().emit('retrieveViews', { clientId: Utils.getWebAppSocket().id, initialRequest: true });
     };
