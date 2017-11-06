@@ -292,12 +292,11 @@ std::map<DataSetId, std::string> terrama2::core::DataAccessor::getFiles(const Fi
   return uriMap;
 }
 
-std::map<DataSetId, std::vector<std::string> > terrama2::core::DataAccessor::getFilesVector(const terrama2::core::Filter& filter, std::shared_ptr<terrama2::core::FileRemover> remover) const
+void terrama2::core::DataAccessor::getFilesVector(const terrama2::core::Filter& filter, std::shared_ptr<terrama2::core::FileRemover> remover, std::function<void(const DataSetId&, const std::string& /*uri*/)> processFile) const
 {
   auto& retrieverFactory = DataRetrieverFactory::getInstance();
   DataRetrieverPtr dataRetriever = retrieverFactory.make(dataProvider_);
 
-  std::map<DataSetId, std::vector<std::string> > uriMap;
   for(const auto& dataset : dataSeries_->datasetList)
   {
     if(!dataset->active)
@@ -322,17 +321,14 @@ std::map<DataSetId, std::vector<std::string> > terrama2::core::DataAccessor::get
         // Do nothing
       }
 
-      uriVector = dataRetriever->retrieveDataVector(mask, filter, timezone, remover, "", folderPath);
+      auto dataSetId = dataset->id;
+      dataRetriever->retrieveDataVector(mask, filter, timezone, remover, "", folderPath, [&dataSetId, processFile](const std::string& uri){processFile(dataSetId, uri); });
     }
     else
     {
-      uriVector.push_back(dataProvider_->uri);
+      processFile(dataset->id, dataProvider_->uri);
     }
-
-    uriMap.emplace(dataset->id, uriVector);
   }
-
-  return uriMap;
 }
 
 void terrama2::core::DataAccessor::addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const

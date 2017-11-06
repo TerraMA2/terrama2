@@ -97,12 +97,13 @@ namespace terrama2
                                          const std::string& temporaryFolder = "",
                                          const std::string& foldersMask = "") override;
 
-        virtual std::vector<std::string> retrieveDataVector(const std::string& mask,
-                                                            const Filter& filter,
-                                                            const std::string& timezone,
-                                                            std::shared_ptr<terrama2::core::FileRemover> remover,
-                                                            const std::string& temporaryFolderUri,
-                                                            const std::string& foldersMask) const override;
+        virtual void retrieveDataVector(const std::string& mask,
+                                        const Filter& filter,
+                                        const std::string& timezone,
+                                        std::shared_ptr<terrama2::core::FileRemover> remover,
+                                        const std::string& temporaryFolderUri,
+                                        const std::string& foldersMask,
+                                        std::function<void(const std::string&)> processFile) const override;
 
         /*!
          * \brief Check if the URIs and their subfolders matches the folders mask.

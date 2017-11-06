@@ -300,15 +300,14 @@ terrama2::core::DataRetrieverPtr terrama2::core::DataRetrieverFTP::make(DataProv
   return std::make_shared<DataRetrieverFTP>(dataProvider, std::move(curlwrapper));
 }
 
-std::vector<std::string> terrama2::core::DataRetrieverFTP::retrieveDataVector(const std::string& mask,
-                                                                              const Filter& filter,
-                                                                              const std::string& timezone,
-                                                                              std::shared_ptr<terrama2::core::FileRemover> remover,
-                                                                              const std::string& temporaryFolderUri,
-                                                                              const std::string& foldersMask) const
+void terrama2::core::DataRetrieverFTP::retrieveDataVector(const std::string& mask,
+                                                          const Filter& filter,
+                                                          const std::string& timezone,
+                                                          std::shared_ptr<terrama2::core::FileRemover> remover,
+                                                          const std::string& temporaryFolderUri,
+                                                          const std::string& foldersMask,
+                                                          std::function<void(const std::string& /*uri*/)> processFile) const
 {
-  std::vector<std::string> filesVector;
-
   try
   {
     // find valid directories
@@ -374,7 +373,7 @@ std::vector<std::string> terrama2::core::DataRetrieverFTP::retrieveDataVector(co
         try
         {
           curlwrapper_->downloadFile(uriOrigin, filePath);
-          filesVector.push_back(temporaryDataDir);
+          processFile(temporaryDataDir);
         }
         catch(const te::Exception& e)
         {
@@ -419,7 +418,4 @@ std::vector<std::string> terrama2::core::DataRetrieverFTP::retrieveDataVector(co
   {
     throw DataRetrieverException() << ErrorDescription(QObject::tr("Unknown Error."));
   }
-
-  // returns the absolute path of the folder that contains the files that have been made the download.
-  return filesVector;
 }

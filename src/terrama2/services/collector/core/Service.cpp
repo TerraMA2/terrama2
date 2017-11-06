@@ -183,50 +183,45 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
 
     std::shared_ptr<te::dt::TimeInstantTZ> lastDateTime;
 
-    auto uriMap = dataAccessor->getFilesVector(filter, remover);
-    for(const auto& uriPair : uriMap)
-    {
-      for(const auto& uri: uriPair.second)
+    dataAccessor->getFilesVector(filter, remover, [&](const DataSetId& datasetId, const std::string& uri) {
+      auto dataMap = dataAccessor->getSeries({{datasetId, uri}}, filter, remover);
+      if(dataMap.empty())
       {
-        auto dataMap = dataAccessor->getSeries({{uriPair.first, uri}}, filter, remover);
-        if(dataMap.empty())
-        {
-          QString errMsg = tr("No data to collect.");
-          logger->result(CollectorLogger::DONE, nullptr, executionPackage.registerId);
-          logger->log(CollectorLogger::WARNING_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
-          TERRAMA2_LOG_WARNING() << errMsg;
+        QString errMsg = tr("No data to collect.");
+        logger->result(CollectorLogger::DONE, nullptr, executionPackage.registerId);
+        logger->log(CollectorLogger::WARNING_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+        TERRAMA2_LOG_WARNING() << errMsg;
 
-          notifyWaitQueue(executionPackage.processId);
-          sendProcessFinishedSignal(executionPackage.processId, executionPackage.executionDate, false);
-          return;
-        }
-        auto tempLastDateTime = dataAccessor->lastDateTime();
-        if(tempLastDateTime && (!lastDateTime || (*tempLastDateTime > *lastDateTime)))
-          lastDateTime = tempLastDateTime;
-
-        /////////////////////////////////////////////////////////////////////////
-        // data intersection
-
-        for(auto& item : dataMap)
-        {
-          // intersection
-          if(collectorPtr->intersection)
-          {
-            //FIXME: the datamanager is being used outside the lock
-            item.second = processIntersection(dataManager, collectorPtr->intersection, item.second, executionPackage.executionDate);
-          }
-        }
-
-        /////////////////////////////////////////////////////////////////////////
-        // storing data
-
-        auto inputOutputMap = collectorPtr->inputOutputMap;
-        auto dataSetLst = outputDataSeries->datasetList;
-        auto dataStorager = terrama2::core::DataStoragerFactory::getInstance().make(outputDataSeries, outputDataProvider);
-
-        dataStorager->store(dataMap, dataSetLst, inputOutputMap);
+        notifyWaitQueue(executionPackage.processId);
+        sendProcessFinishedSignal(executionPackage.processId, executionPackage.executionDate, false);
+        return;
       }
-    }
+      auto tempLastDateTime = dataAccessor->lastDateTime();
+      if(tempLastDateTime && (!lastDateTime || (*tempLastDateTime > *lastDateTime)))
+        lastDateTime = tempLastDateTime;
+
+      /////////////////////////////////////////////////////////////////////////
+      // data intersection
+
+      for(auto& item : dataMap)
+      {
+        // intersection
+        if(collectorPtr->intersection)
+        {
+          //FIXME: the datamanager is being used outside the lock
+          item.second = processIntersection(dataManager, collectorPtr->intersection, item.second, executionPackage.executionDate);
+        }
+      }
+
+      /////////////////////////////////////////////////////////////////////////
+      // storing data
+
+      auto inputOutputMap = collectorPtr->inputOutputMap;
+      auto dataSetLst = outputDataSeries->datasetList;
+      auto dataStorager = terrama2::core::DataStoragerFactory::getInstance().make(outputDataSeries, outputDataProvider);
+
+      dataStorager->store(dataMap, dataSetLst, inputOutputMap);
+    });
 
     TERRAMA2_LOG_INFO() << tr("Data from collector %1 collected successfully.").arg(executionPackage.processId);
 

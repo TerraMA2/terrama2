@@ -36,6 +36,8 @@
 #include "../data-model/Filter.hpp"
 #include "../utility/FileRemover.hpp"
 
+#include <functional>
+
 //terralib
 #include <terralib/datatype/TimeInstantTZ.h>
 
@@ -107,12 +109,13 @@ namespace terrama2
                                          const std::string& temporaryFolder = "",
                                          const std::string& folderPath = "");
 
-        virtual std::vector<std::string> retrieveDataVector(const std::string& /*mask*/,
-                                                            const Filter& /*filter*/,
-                                                            const std::string& /*timezone*/,
-                                                            std::shared_ptr<terrama2::core::FileRemover> /*remover*/,
-                                                            const std::string& /*temporaryFolderUri*/,
-                                                            const std::string& /*foldersMask*/) const {return {}; }
+        virtual void retrieveDataVector(const std::string& /*mask*/,
+                                        const Filter& /*filter*/,
+                                        const std::string& /*timezone*/,
+                                        std::shared_ptr<terrama2::core::FileRemover> /*remover*/,
+                                        const std::string& /*temporaryFolderUri*/,
+                                        const std::string& /*foldersMask*/,
+                                        std::function<void(const std::string& /*uri*/)> /*processFile*/) const {}
 
         //! Returns the last data timestamp found on last access.
         virtual te::dt::TimeInstantTZ lastDateTime() const;

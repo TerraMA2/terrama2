@@ -49,6 +49,8 @@
 #include <terralib/datatype/TimeInstantTZ.h>
 #include <terralib/memory/DataSet.h>
 
+#include <functional>
+
 namespace te
 {
   namespace da
@@ -123,7 +125,7 @@ namespace terrama2
         virtual std::unordered_map<DataSetPtr,DataSetSeries > getSeries(const std::map<DataSetId, std::string> uriMap, const Filter& filter, std::shared_ptr<FileRemover> remover) const;
 
         std::map<DataSetId, std::string> getFiles(const Filter& filter, std::shared_ptr<FileRemover> remover) const;
-        std::map<DataSetId, std::vector<std::string>> getFilesVector(const Filter& filter, std::shared_ptr<FileRemover> remover) const;
+        void getFilesVector(const Filter& filter, std::shared_ptr<FileRemover> remover, std::function<void(const DataSetId&, const std::string& /*uri*/)> processFile) const;
 
         //! Utility function for converting string to double in the te::da::DataSet construction.
         te::dt::AbstractData* stringToDouble(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const;
