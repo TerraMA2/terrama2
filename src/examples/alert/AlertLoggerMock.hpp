@@ -27,6 +27,7 @@ class AlertLoggerMock : public terrama2::services::alert::core::AlertLogger
     MOCK_CONST_METHOD2(updateStatus, void(std::vector<ProcessLogger::Status> oldStatus, ProcessLogger::Status newStatus));
     MOCK_CONST_METHOD1(internalClone, void(std::shared_ptr<terrama2::core::ProcessLogger> loggerCopy));
     MOCK_CONST_METHOD0(clone, std::shared_ptr<ProcessLogger>());
+    MOCK_CONST_METHOD0(isValid, bool());
     MOCK_METHOD1(setConnectionInfo, void(const te::core::URI& uri));
     MOCK_CONST_METHOD2(done,
                        void(const std::shared_ptr< te::dt::TimeInstantTZ >& dataTimestamp, const RegisterId registerId));

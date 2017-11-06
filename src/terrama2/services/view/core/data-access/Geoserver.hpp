@@ -141,7 +141,8 @@ namespace terrama2
              * \param timestampPropertyName The datetime property for temporal data
              * \param sql The SQL statements to create the view
              */
-            void registerPostgisTable(const std::string& dataStoreName,
+            void registerPostgisTable(const ViewPtr viewPtr,
+                                      const std::string& dataStoreName,
                                       terrama2::core::DataSeriesType dataSeriesType,
                                       std::map<std::string, std::string> connInfo,
                                       const std::string& tableName,

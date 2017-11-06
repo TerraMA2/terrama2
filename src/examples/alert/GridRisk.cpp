@@ -31,6 +31,7 @@
 #include <QCoreApplication>
 #include <QTimer>
 #include <QtGui>
+#include <QTimer>
 
 
 

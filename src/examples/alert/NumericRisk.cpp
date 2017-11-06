@@ -36,7 +36,6 @@ terrama2::core::LegendPtr newLegend()
   legend->name = "Temperature levels";
   legend->id = 1;
 
-
   terrama2::core::RiskLevel level1;
   level1.level = 0;
   level1.value = 0;
@@ -71,7 +70,6 @@ terrama2::services::alert::core::AlertPtr newAlert(terrama2::core::DataSeriesPtr
   alert->serviceInstanceId = 1;
   alert->description = "Example alert";
   alert->riskId = 1;
-
 
   terrama2::services::alert::core::AdditionalData additionalData;
   additionalData.dataSeriesId = dataSeries->id;
@@ -191,14 +189,12 @@ int main(int argc, char* argv[])
   additionalIfo.insert("email_server", QString("smtp://terrama2.testesalerta@gmail.com:terr@m@2v4@smtp.gmail.com:587"));
 
   service.updateAdditionalInfo(additionalIfo);
-
-
+  service.start();
   service.addToQueue(alert->id, terrama2::core::TimeUtils::nowUTC());
 
   QTimer timer;
   QObject::connect(&timer, SIGNAL(timeout()), QGuiApplication::instance(), SLOT(quit()));
-  timer.start(150000);
+  timer.start(10000);
   a.exec();
-
   return 0;
 }

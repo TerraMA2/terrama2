@@ -60,7 +60,7 @@ namespace terrama2
             NotifierEmail& operator=(const NotifierEmail& other) = default;
             NotifierEmail& operator=(NotifierEmail&& other) = default;
 
-            virtual void send(const core::Notification& notification, const std::string& documentURI) const;
+            virtual void send(const core::Notification& notification, const te::core::URI& documentURI) const;
 
             static std::string notifierCode() { return "EMAIL"; };
 
@@ -71,7 +71,7 @@ namespace terrama2
 
           protected:
 
-            void addAttachment(const std::string& uri,
+            void addAttachment(const te::core::URI& uri,
                                 const std::string& mediaType,
                                 vmime::messageBuilder& mb) const;
 
