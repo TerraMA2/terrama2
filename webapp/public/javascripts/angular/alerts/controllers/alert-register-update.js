@@ -335,6 +335,7 @@ define([], function() {
 
                 $timeout(function() {
                   self.onLegendsChange();
+                  self.getColumnValues();
                 });
 
                 break;
@@ -493,6 +494,37 @@ define([], function() {
       }
     };
 
+    self.columnValues = [];
+    /**
+     * Lists the values of a column from a given table.
+     * 
+     * @returns {void}
+     */
+    self.getColumnValues = function(){
+      if (!self.legend_attribute_mo){
+        self.columnValues = [];
+        return;
+      }
+      var dataSeries = self.dataSeries.filter(function(dataSeriesToFilter) {
+        return dataSeriesToFilter.id == self.alert.data_series_id;
+      });
+      if (!dataSeries[0]){
+        self.columnValues = [];
+        return;
+      }
+
+      var tableName = dataSeries[0].dataSets[0].format.table_name;
+      var dataProviderId = dataSeries[0].data_provider_id;
+      
+        DataProviderService.listPostgisObjects({providerId: dataProviderId, objectToGet: "values", tableName: tableName, columnName: self.legend_attribute_mo})
+          .then(function(response){
+            if (response.data.status == 400){
+              self.columnValues = [];
+            } else {
+              self.columnValues = response.data.data;
+            }
+          });
+    };
     /**
      * Sets DataSeries data when a DataSeries is selected.
      *

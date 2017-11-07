@@ -61,7 +61,8 @@
                 ng-model="$ctrl.model.metadata.attribute" 
                 type="text"
                 ng-pattern="$ctrl.regexColumn"
-                list='tableColumnsList'
+                list="tableColumnsList"
+                ng-blur="$ctrl.getColumnValues()"
                 ng-required="$ctrl.type === $ctrl.DataSeriesType.GEOMETRIC_OBJECT || $ctrl.type === $ctrl.DataSeriesType.OCCURRENCE || $ctrl.type === $ctrl.DataSeriesType.ANALYSIS_MONITORED_OBJECT">
 
           <span class="help-block" 
@@ -167,7 +168,8 @@
                     class="form-control"
                     name="field_value_{{$index}}"
                     ng-model="elm.value"
-                    ng-if="$ctrl.model.type === $ctrl.StyleType.VALUE">
+                    ng-if="$ctrl.model.type === $ctrl.StyleType.VALUE"
+                    list="tableColumnValues">
               <!-- Interval and Gradient Types -->
               <input type="number" 
                     class="form-control" 
@@ -258,4 +260,8 @@
 
 <datalist id='tableColumnsList'>
   <option ng-repeat="column in $ctrl.columnsList" value="{{column}}">
+</datalist>
+
+<datalist id='tableColumnValues'>
+  <option ng-repeat="value in $ctrl.columnValues" value="{{value}}">
 </datalist>

@@ -167,6 +167,12 @@ define([], function() {
      */
     self.viewDataSeries = {};
 
+    /**
+     * Postgis data with provider and data series table name
+     * Used to get value of columns in style components
+     */
+    self.postgisData = {};
+
     // function initializer
     self.onDataSeriesChanged = onDataSeriesChanged;
     self.initActive = initActive;
@@ -418,6 +424,8 @@ define([], function() {
           self.view.source_type = getSourceType(dSeries);
 
           if (dSeries.data_series_semantics.format == "POSTGIS"){
+            self.postgisData["dataProvider"] = dSeries.data_provider;
+            self.postgisData["tableName"] = dSeries.dataSets[0].format.table_name;
             listColumns(dSeries.data_provider, dSeries.dataSets[0].format.table_name);
           }
 
