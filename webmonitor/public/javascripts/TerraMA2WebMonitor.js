@@ -55,6 +55,16 @@ define(
       TerraMA2WebComponents.MapDisplay.updateLayerTime( /**id */ layerId, /** time */ layerTime);
     }
 
+    var changeLanguage = function(language) {
+      i18next.changeLanguage(language, function() {
+        $.post(BASE_URL + "languages", { locale: language }, function() {
+          $("#languages-div > img").removeClass("selected");
+          $("#language-" + language).addClass("selected");
+          $("body").localize();
+        });
+      });
+    };
+
     var loadEvents = function() {
       $('#projects').on('change', changeProjects);
 
@@ -65,21 +75,15 @@ define(
       // Language change events
 
       $("#language-pt").on("click", function() {
-        i18next.changeLanguage("pt", function() {
-          $("body").localize();
-        });
+        changeLanguage("pt");
       });
 
       $("#language-es").on("click", function() {
-        i18next.changeLanguage("es", function() {
-          $("body").localize();
-        });
+        changeLanguage("es");
       });
 
       $("#language-en").on("click", function() {
-        i18next.changeLanguage("en", function() {
-          $("body").localize();
-        });
+        changeLanguage("en");
       });
 
       /**
@@ -175,18 +179,21 @@ define(
         $('#about-dialog').dialog({
           width: 800,
           height: $(window).outerHeight() - 30,
+          title: "",
           closeOnEscape: true,
           closeText: "",
           position: { my: 'top', at: 'top+15' },
           open: function() {
-            $('.ui-dialog-titlebar-close').css('background-image', 'url(images/close.png)');
-            $('.ui-dialog-titlebar-close').css('background-position', 'center');
-            $('.ui-dialog-titlebar-close').css('background-size', '20px');
+            $(this).parent().find('.ui-dialog-titlebar-close').css('background-image', 'url(images/close.png)');
+            $(this).parent().find('.ui-dialog-titlebar-close').css('background-position', 'center');
+            $(this).parent().find('.ui-dialog-titlebar-close').css('background-size', '20px');
+            $(this).parent().find('.ui-dialog-title').append('<span id=\'about-dialog-title-prefix\'></span>');
+            Utils.setTagContent('.ui-dialog-title > #about-dialog-title-prefix', 'About');
           },
           close: function() {
-            $('.ui-dialog-titlebar-close').css('background-image', '');
-            $('.ui-dialog-titlebar-close').css('background-position', '');
-            $('.ui-dialog-titlebar-close').css('background-size', '');
+            $(this).parent().find('.ui-dialog-titlebar-close').css('background-image', '');
+            $(this).parent().find('.ui-dialog-titlebar-close').css('background-position', '');
+            $(this).parent().find('.ui-dialog-titlebar-close').css('background-size', '');
           }
         });
       });
@@ -430,17 +437,17 @@ define(
                 at: 'top+75'
               },
               open: function() {
-                $('.ui-dialog-titlebar-close').css('background-image', 'url(images/close.png)');
-                $('.ui-dialog-titlebar-close').css('background-position', 'center');
-                $('.ui-dialog-titlebar-close').css('background-size', '20px');
-                $('.ui-dialog-title').append('<span class=\'dialog-title-prefix\'></span>' + data.params.layerName);
+                $(this).parent().find('.ui-dialog-titlebar-close').css('background-image', 'url(images/close.png)');
+                $(this).parent().find('.ui-dialog-titlebar-close').css('background-position', 'center');
+                $(this).parent().find('.ui-dialog-titlebar-close').css('background-size', '20px');
+                $(this).parent().find('.ui-dialog-title').append('<span id=\'feature-info-dialog-title-prefix\'></span>' + data.params.layerName);
 
-                Utils.setTagContent('.ui-dialog-title > .dialog-title-prefix', 'Attributes of layer');
+                Utils.setTagContent('.ui-dialog-title > #feature-info-dialog-title-prefix', 'ATTRIBUTES-OF-LAYER-COLON');
               },
               close: function() {
-                $('.ui-dialog-titlebar-close').css('background-image', '');
-                $('.ui-dialog-titlebar-close').css('background-position', '');
-                $('.ui-dialog-titlebar-close').css('background-size', '');
+                $(this).parent().find('.ui-dialog-titlebar-close').css('background-image', '');
+                $(this).parent().find('.ui-dialog-titlebar-close').css('background-position', '');
+                $(this).parent().find('.ui-dialog-titlebar-close').css('background-size', '');
               }
             });
           }
@@ -451,7 +458,7 @@ define(
           } catch(e) {
             $('#layersModal').modal('hide');
             Utils.setTagContent("#terrama2Alert > p > strong", "Invalid URL!");
-            Utils.setTagContent("#terrama2Alert > p > span", "Error to find capabilities");
+            Utils.setTagContent("#terrama2Alert > p > span", "CAPABILITIES-ERROR");
             $("#terrama2Alert").removeClass('hide');
           }
         }

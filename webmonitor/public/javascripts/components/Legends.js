@@ -35,7 +35,8 @@ define(
         }
       }
 
-      $('#legend-box > .legend-body').html((html !== "" ? html : "<strong>No data to show.</strong>"));
+      $('#legend-box > .legend-body').html((html !== "" ? html : "<strong data-i18n=\"NO-DATA\"></strong>"));
+      $('#legend-box > .legend-body').localize();
     };
 
     var loadEvents = function() {

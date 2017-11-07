@@ -32,6 +32,13 @@ define(
       $(element).localize();
     };
 
+    var getTranslatedString = function(string) {
+      $("#translation-div").text(string);
+      $("#translation-div").localize();
+
+      return $("#translation-div").text();
+    };
+
     var init = function(webMonitorSocketCallback, webAppSocketCallback) {
       jQuery.fn.insertAt = function(index, element) {
         var lastIndex = this.children().size();
@@ -85,6 +92,7 @@ define(
     return {
       init: init,
       setTagContent: setTagContent,
+      getTranslatedString: getTranslatedString,
       getSocket: getSocket,
       getWebAppSocket: getWebAppSocket,
       orderByProperty: orderByProperty

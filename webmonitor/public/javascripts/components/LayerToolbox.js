@@ -12,19 +12,19 @@ define(
     var loadSocketsListeners = function() {
       Utils.getWebAppSocket().on('generateFileResponse', function(result) {
         if(result.progress !== undefined && result.progress >= 100) {
-          $('#exportation-status > div > span').html('Almost there! The file is being prepared for download<span>...</span>');
+          Utils.setTagContent("#exportation-status > div > span", "Almost there! The file is being prepared for download<span>...</span>", "html");
           $('#exportation-status > div > div').addClass('hidden');
 
-          $('#exportation-status > div > div > div > span').text('0% Complete');
+          Utils.setTagContent("#exportation-status > div > div > div > span", "0% Complete");
           $('#exportation-status > div > div > div').css('width', '0%');
           $('#exportation-status > div > div > div').attr('aria-valuenow', 0);
         } else if(result.progress !== undefined) {
           if($('#exportation-status > div > div').hasClass('hidden')) {
-            $('#exportation-status > div > span').html('Please wait, the requested data is being exported<span>...</span>');
+            Utils.setTagContent("#exportation-status > div > span", "Please wait, the requested data is being exported<span>...</span>", "html");
             $('#exportation-status > div > div').removeClass('hidden');
           }
 
-          $('#exportation-status > div > div > div > span').text(result.progress + '% Complete');
+          $('#exportation-status > div > div > div > span').text(result.progress + '% ' + Utils.getTranslatedString('Complete'));
           $('#exportation-status > div > div > div').css('width', result.progress + '%');
           $('#exportation-status > div > div > div').attr('aria-valuenow', result.progress);
         } else {
@@ -34,7 +34,7 @@ define(
           memberExportationTextTimeout = null;
           $('#exportation-status > div > span').html('');
           $('#exportation-status > div > div').addClass('hidden');
-          $('#exportation-status > div > div > div > span').text('0% Complete');
+          Utils.setTagContent("#exportation-status > div > div > div > span", "0% Complete");
           $('#exportation-status > div > div > div').css('width', '0%');
 
           var exportLink = webadminHostInfo.protocol + webadminHostInfo.host + ":" + webadminHostInfo.port + webadminHostInfo.basePath + "export?folder=" + result.folder + "&file=" + result.file;
@@ -74,7 +74,7 @@ define(
               exportationParams.monitoredObjectPk = layer.exportation.monitoredObjectPk;
             }
 
-            $('#exportation-status > div > span').html('Verifying data for export<span>...</span>');
+            Utils.setTagContent("#exportation-status > div > span", "Verifying data for export<span>...</span>", "html");
 
             memberExportationTextTimeout = setInterval(function() {
               var text = $('#exportation-status > div > span > span').html();
@@ -114,7 +114,7 @@ define(
                 $('#exportation-iframe').attr('src', webadminHostInfo.protocol + webadminHostInfo.host + ":" + webadminHostInfo.port + webadminHostInfo.basePath + "export-grid" + urlParams);
               else {
                 $("#terrama2Alert > p > strong").text('');
-                $("#terrama2Alert > p > span").text('O arquivo não foi encontrado.');
+                Utils.setTagContent("#terrama2Alert > p > span", "FILE-NOT-FOUND");
                 $("#terrama2Alert").removeClass('hide');
               }
             });
@@ -234,7 +234,8 @@ define(
               $("#dates-calendar").addClass("hidden");
 
             $("#layer-toolbox .layer-toolbox-body > #animate-layer-box #dates-calendar").empty();
-            $("#layer-toolbox .layer-toolbox-body > #animate-layer-box #dates-slider").empty().html("<div id=\"dates" + layer.id.replace(":","") + "\"></div><div id=\"rangeDates\"><label>From:&nbsp</label><span id=\"initialDate\"></span></br><label>To:&nbsp </label><span id=\"finalDate\"></span></div>");
+            $("#layer-toolbox .layer-toolbox-body > #animate-layer-box #dates-slider").empty().html("<div id=\"dates" + layer.id.replace(":","") + "\"></div><div id=\"rangeDates\"><label data-i18n=\"FROM-COLON\"></label>&nbsp<span id=\"initialDate\"></span></br><label data-i18n=\"TO-COLON\"></label>&nbsp <span id=\"finalDate\"></span></div>");
+            $("#layer-toolbox .layer-toolbox-body > #animate-layer-box #dates-slider").localize();
             AnimatedLayer.setLayerToAnimate(layer);
             AnimatedLayer.setDatesSlider();
           } else if (layer.dateInfo && layer.dateInfo.dates && typeof layer.dateInfo.dates === "object"){
@@ -254,16 +255,17 @@ define(
                                        "</span>" +
                                      "</div>" +
                                      "<div style=\"margin-top:8px\">" +
-                                       "<label>Period:&nbsp</label>" +
+                                       "<label data-i18n=\"PERIOD-COLON\"></label>&nbsp" +
                                        "<input type=\"number\" id=\"frequency\" value=1 min=1>&nbsp" +
                                        "<select id=\"unitTime\" class=\"form-control\">" +
-                                         "<option value=\"minutes\">Minutes</option>" + 
-                                         "<option value=\"hours\" selected=\"selected\">Hours</option>" + 
-                                         "<option value=\"days\">Days</option>" + 
+                                         "<option value=\"minutes\" data-i18n=\"Minutes\"></option>" + 
+                                         "<option value=\"hours\" selected=\"selected\" data-i18n=\"Hours\"></option>" + 
+                                         "<option value=\"days\" data-i18n=\"Days\"></option>" + 
                                        "</select>" +
                                      "</div>"
 
             $("#layer-toolbox .layer-toolbox-body > #animate-layer-box #dates-calendar").empty().html(calendarFieldsHtml);
+            $("#layer-toolbox .layer-toolbox-body > #animate-layer-box #dates-calendar").localize();
             $("#layer-toolbox .layer-toolbox-body > #animate-layer-box #dates-slider").empty();
             AnimatedLayer.setLayerToAnimate(layer);
             AnimatedLayer.setDatesCalendar();

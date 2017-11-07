@@ -40,15 +40,19 @@ requirejs(
     TerraMA2WebComponents.LayerExplorer.init();
     TerraMA2WebComponents.MapDisplay.init();
 
+    defaultLanguage = (!defaultLanguage || defaultLanguage === "" ? "en" : defaultLanguage);
+
     // Loading language change tool
     i18next.use(i18nextXHRBackend).init({
-      lng: 'en',
+      lng: defaultLanguage,
+      fallbackLng: 'en',
       backend: {
         loadPath: '/locales/{{ lng }}.json'
       }
     }, function(err, t) {
       jqueryI18next.init(i18next, $);
       $("body").localize();
+      $("#language-" + defaultLanguage).addClass("selected");
 
       Utils.init(null, function() {
         TerraMA2WebMonitor.init();
