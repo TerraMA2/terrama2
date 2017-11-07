@@ -79,6 +79,21 @@ int main(int argc, char* argv[])
   service.setLogger(logger);
   service.start();
 
+  /*
+   * DataProvider and dataSeries Static
+  */
+
+  auto dataProviderStatic = terrama2::staticpostgis::dataProviderStaticPostGis();
+  dataManager->add(dataProviderStatic);
+
+  auto dataSeriesStatic = terrama2::staticpostgis::dataSeriesEstados2010(dataProviderStatic);
+  dataManager->add(dataSeriesStatic);
+
+  AnalysisDataSeries monitoredObjectADS;
+  monitoredObjectADS.id = 1;
+  monitoredObjectADS.dataSeriesId = dataSeriesStatic->id;
+  monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
+  monitoredObjectADS.metadata["identifier"] = "nome";
 
   /*
    * DataProvider and dataSeries result
@@ -87,7 +102,7 @@ int main(int argc, char* argv[])
   dataManager->add(dataProviderResult);
 
 
-  auto outputDataSeries = terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::history_dcp_result);
+  auto outputDataSeries = terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::history_dcp_result, dataSeriesStatic);
   dataManager->add(outputDataSeries);
 
 
@@ -126,21 +141,6 @@ add_value("history_standard_deviation",x))z";
   analysis->metadata["INFLUENCE_RADIUS_UNIT"] = "km";
 
 
-  /*
-   * DataProvider and dataSeries Static
-  */
-
-  auto dataProviderStatic = terrama2::staticpostgis::dataProviderStaticPostGis();
-  dataManager->add(dataProviderStatic);
-
-  auto dataSeriesStatic = terrama2::staticpostgis::dataSeriesEstados2010(dataProviderStatic);
-  dataManager->add(dataSeriesStatic);
-
-  AnalysisDataSeries monitoredObjectADS;
-  monitoredObjectADS.id = 1;
-  monitoredObjectADS.dataSeriesId = dataSeriesStatic->id;
-  monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
-  monitoredObjectADS.metadata["identifier"] = "nome";
 
 
   /*

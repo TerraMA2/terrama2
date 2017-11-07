@@ -81,6 +81,22 @@ int main(int argc, char* argv[])
   service.setLogger(logger);
   service.start();
 
+  /*
+   * DataProvider and dataSeries Static
+  */
+
+  auto dataProviderStatic = terrama2::staticpostgis::dataProviderStaticPostGis();
+  dataManager->add(dataProviderStatic);
+
+  auto dataSeries = terrama2::staticpostgis::dataSeriesEstados2010(dataProviderStatic);
+  dataManager->add(dataSeries);
+
+  AnalysisDataSeries monitoredObjectADS;
+  monitoredObjectADS.id = 1;
+  monitoredObjectADS.dataSeriesId = dataSeries->id;
+  monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
+  monitoredObjectADS.metadata["identifier"] = "fid";
+
 
   /*
    * DataProvider and dataSeries result
@@ -89,7 +105,9 @@ int main(int argc, char* argv[])
   dataManager->add(dataProviderResult);
 
 
-  auto outputDataSeries = terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::dcp_history_interval_result);
+  auto outputDataSeries = terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProviderResult,
+                                                                                    terrama2::resultanalysis::tablename::dcp_history_interval_result,
+                                                                                    dataSeries);
   dataManager->add(outputDataSeries);
 
 
@@ -125,21 +143,6 @@ add_value("history_standard_deviation",x))z";
   analysis->metadata["INFLUENCE_RADIUS"] = "50";
   analysis->metadata["INFLUENCE_RADIUS_UNIT"] = "km";
 
-  /*
-   * DataProvider and dataSeries Static
-  */
-
-  auto dataProviderStatic = terrama2::staticpostgis::dataProviderStaticPostGis();
-  dataManager->add(dataProviderStatic);
-
-  auto dataSeries = terrama2::staticpostgis::dataSeriesEstados2010(dataProviderStatic);
-  dataManager->add(dataSeries);
-
-  AnalysisDataSeries monitoredObjectADS;
-  monitoredObjectADS.id = 1;
-  monitoredObjectADS.dataSeriesId = dataSeries->id;
-  monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
-  monitoredObjectADS.metadata["identifier"] = "fid";
 
 
   /*
