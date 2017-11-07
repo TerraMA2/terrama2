@@ -217,11 +217,11 @@ define([], function () {
     $scope.$on("updateStyleColor", function () {
       if (self.model.metadata.creation_type == "editor"){
         handleColor();
+        self.getColumnValues();
       } else if (self.model.metadata.creation_type != undefined){
         self.changeCreationType();
       }
     });
-
 
     /**
      * Lists the values of a column from a given table.
