@@ -246,13 +246,14 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
       TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(executionPackage.processId);
     }
   }
-  catch(const terrama2::core::NoDataException&)
+  catch(const terrama2::core::NoDataException& e)
   {
     TERRAMA2_LOG_INFO() << tr("Collection finished but there was no data available for collector %1.").arg(executionPackage.processId);
 
+    std::string errMsg = boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
     if(executionPackage.registerId != 0)
     {
-      logger->log(CollectorLogger::WARNING_MESSAGE, tr("No data available").toStdString(), executionPackage.registerId);
+      logger->log(CollectorLogger::WARNING_MESSAGE, errMsg, executionPackage.registerId);
       logger->result(CollectorLogger::DONE, nullptr, executionPackage.registerId);
     }
 

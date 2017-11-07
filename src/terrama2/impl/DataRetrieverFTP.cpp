@@ -328,6 +328,8 @@ void terrama2::core::DataRetrieverFTP::retrieveDataCallback(const std::string& m
       baseUriList = uriList;
     }
 
+    // flag if there is any files for the dataset
+    bool hasData = false;
     // Get a file listing from server
     for(const auto& uri : baseUriList)
     {
@@ -347,6 +349,8 @@ void terrama2::core::DataRetrieverFTP::retrieveDataCallback(const std::string& m
       {
         continue;
       }
+
+      hasData = true;
 
 
       // Performs the download of files in the vectorNames
@@ -385,6 +389,13 @@ void terrama2::core::DataRetrieverFTP::retrieveDataCallback(const std::string& m
           throw DataRetrieverException() << ErrorDescription(errMsg);
         }
       }
+    }
+
+    if(!hasData)
+    {
+      QString errMsg = QObject::tr("No data in the remote server.");
+      TERRAMA2_LOG_WARNING() << errMsg;
+      throw NoDataException() << ErrorDescription(errMsg);
     }
   }
   catch(const NoDataException&)
