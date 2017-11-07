@@ -433,10 +433,12 @@ endif()
 if(TERRAMA2_ALERT_ENABLED)
   add_subdirectory(terrama2_alert_core)
   add_subdirectory(terrama2_alert_impl)
+  add_subdirectory(terrama2_alert_mock)
 endif()
 
 if(TERRAMA2_VIEW_ENABLED)
   add_subdirectory(terrama2_view_core)
+  add_subdirectory(terrama2_view_mock)
 endif()
 
 if(TERRAMA2_UNITTEST_CORE_ENABLED)

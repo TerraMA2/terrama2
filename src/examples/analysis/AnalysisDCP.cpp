@@ -79,11 +79,17 @@ int main(int argc, char* argv[])
         service.setLogger(logger);
         service.start();
 
+        auto dataProviderDCP = terrama2::serramar::dataProviderPostGisDCP();
+        dataManager->add(dataProviderDCP);
+
+        auto dcpSerramar = terrama2::serramar::dataSeriesDcpSerramarPostGis(dataProviderDCP);
+        dataManager->add(dcpSerramar);
+
 
         auto dataProvider = terrama2::resultanalysis::dataProviderResultAnalysis();
         dataManager->add(dataProvider);
 
-        auto dataSeriesResult = terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProvider, terrama2::resultanalysis::tablename::analysis_dcp_result);
+        auto dataSeriesResult = terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProvider, terrama2::resultanalysis::tablename::analysis_dcp_result, dcpSerramar);
         dataManager->add(dataSeriesResult);
 
 
@@ -109,11 +115,7 @@ add_value("max", x))z";
         analysis->metadata["INFLUENCE_RADIUS_UNIT"] = "km";
 
 
-        auto dataProviderDCP = terrama2::serramar::dataProviderPostGisDCP();
-        dataManager->add(dataProviderDCP);
 
-        auto dcpSerramar = terrama2::serramar::dataSeriesDcpSerramarPostGis(dataProviderDCP);
-        dataManager->add(dcpSerramar);
 
         AnalysisDataSeries dcpADS;
         dcpADS.id = 1;
