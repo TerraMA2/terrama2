@@ -177,7 +177,7 @@ define(
       }
 
       $('#terrama2-sortlayers').append('<ul>' + itens + '</ul>');
-      $('#terrama2-sortlayers').localize();
+      Utils.translate('#terrama2-sortlayers');
     };
 
     // Add layers in layers explorer menu

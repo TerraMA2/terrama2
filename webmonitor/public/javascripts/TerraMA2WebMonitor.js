@@ -60,7 +60,8 @@ define(
         $.post(BASE_URL + "languages", { locale: language }, function() {
           $("#languages-div > img").removeClass("selected");
           $("#language-" + language).addClass("selected");
-          $("body").localize();
+          Utils.changeLanguage(language);
+          Utils.translate("body");
         });
       });
     };

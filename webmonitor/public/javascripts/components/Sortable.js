@@ -1,8 +1,8 @@
 'use strict';
 
 define(
-  ['TerraMA2WebComponents'],
-  function(TerraMA2WebComponents) {
+  ['components/Utils', 'TerraMA2WebComponents'],
+  function(Utils, TerraMA2WebComponents) {
     var setSortable = function() {
       $('#terrama2-sortlayers').sortable({
         items: "li",
@@ -22,7 +22,7 @@ define(
 
       var liHtml = '<li id="' + _layerId + '" data-layerid="' + layerId + '" data-parentid="terrama2-layerexplorer" class="hide" title="' + layerName + '"><span class="layer-name">' + layerName + '</span>' + spanIcon + '</li>';
       $('#terrama2-sortlayers').children('ul').prepend(liHtml);
-      $('#terrama2-sortlayers').localize();
+      Utils.translate('#terrama2-sortlayers');
     };
 
     return {

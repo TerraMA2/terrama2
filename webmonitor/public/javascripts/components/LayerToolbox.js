@@ -235,7 +235,7 @@ define(
 
             $("#layer-toolbox .layer-toolbox-body > #animate-layer-box #dates-calendar").empty();
             $("#layer-toolbox .layer-toolbox-body > #animate-layer-box #dates-slider").empty().html("<div id=\"dates" + layer.id.replace(":","") + "\"></div><div id=\"rangeDates\"><label data-i18n=\"FROM-COLON\"></label>&nbsp<span id=\"initialDate\"></span></br><label data-i18n=\"TO-COLON\"></label>&nbsp <span id=\"finalDate\"></span></div>");
-            $("#layer-toolbox .layer-toolbox-body > #animate-layer-box #dates-slider").localize();
+            Utils.translate("#layer-toolbox .layer-toolbox-body > #animate-layer-box #dates-slider");
             AnimatedLayer.setLayerToAnimate(layer);
             AnimatedLayer.setDatesSlider();
           } else if (layer.dateInfo && layer.dateInfo.dates && typeof layer.dateInfo.dates === "object"){
@@ -265,7 +265,7 @@ define(
                                      "</div>"
 
             $("#layer-toolbox .layer-toolbox-body > #animate-layer-box #dates-calendar").empty().html(calendarFieldsHtml);
-            $("#layer-toolbox .layer-toolbox-body > #animate-layer-box #dates-calendar").localize();
+            Utils.translate("#layer-toolbox .layer-toolbox-body > #animate-layer-box #dates-calendar");
             $("#layer-toolbox .layer-toolbox-body > #animate-layer-box #dates-slider").empty();
             AnimatedLayer.setLayerToAnimate(layer);
             AnimatedLayer.setDatesCalendar();
