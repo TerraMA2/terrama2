@@ -44,7 +44,7 @@
 
 terrama2::core::DataAccessorWildFireEvent::DataAccessorWildFireEvent(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics)
 : DataAccessor(dataProvider, dataSeries),
-  DataAccessorGeometricObjectOGR(dataProvider, dataSeries)
+  DataAccessorGeometricObjectOGR(dataProvider, dataSeries, false)
 {
  if(checkSemantics && dataSeries->semantics.driver != dataAccessorType())
  {
