@@ -59,7 +59,24 @@ std::string terrama2::core::DataRetriever::retrieveData(const std::string& /*que
   throw NotRetrivableException() << ErrorDescription(errMsg);
 }
 
-void terrama2::core::DataRetriever::retrieveDataCallback(const std::string&, const terrama2::core::Filter&, const std::string&, std::shared_ptr<terrama2::core::FileRemover>, const std::string&, const std::string&, std::function<void (const std::string&)>) const
+void terrama2::core::DataRetriever::retrieveDataCallback(const std::string& mask,
+                                                         const terrama2::core::Filter& filter,
+                                                         const std::string& timezone,
+                                                         std::shared_ptr<terrama2::core::FileRemover> remover,
+                                                         const std::string& temporaryFolderUri,
+                                                         const std::string& foldersMask,
+                                                         std::function<void (const std::string&)> processFile) const
+{
+  retrieveDataCallback(mask, filter, timezone, remover, temporaryFolderUri, foldersMask, [processFile](const std::string& uri, const std::string&){processFile(uri);});
+}
+
+void terrama2::core::DataRetriever::retrieveDataCallback(const std::string&,
+                                                         const terrama2::core::Filter&,
+                                                         const std::string&,
+                                                         std::shared_ptr<terrama2::core::FileRemover>,
+                                                         const std::string&,
+                                                         const std::string&,
+                                                         std::function<void (const std::string&, const std::string&)>) const
 {
   QString errMsg = QObject::tr("Non retrievable DataRetriever.");
   throw NotRetrivableException() << ErrorDescription(errMsg);

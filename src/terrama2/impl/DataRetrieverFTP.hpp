@@ -103,7 +103,7 @@ namespace terrama2
                                         std::shared_ptr<terrama2::core::FileRemover> remover,
                                         const std::string& temporaryFolderUri,
                                         const std::string& foldersMask,
-                                        std::function<void(const std::string&)> processFile) const override;
+                                        std::function<void(const std::string& /*uri*/, const std::string& /*filename*/)> processFile) const override;
 
         /*!
          * \brief Check if the URIs and their subfolders matches the folders mask.

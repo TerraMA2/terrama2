@@ -301,12 +301,12 @@ terrama2::core::DataRetrieverPtr terrama2::core::DataRetrieverFTP::make(DataProv
 }
 
 void terrama2::core::DataRetrieverFTP::retrieveDataCallback(const std::string& mask,
-                                                          const Filter& filter,
-                                                          const std::string& timezone,
-                                                          std::shared_ptr<terrama2::core::FileRemover> remover,
-                                                          const std::string& temporaryFolderUri,
-                                                          const std::string& foldersMask,
-                                                          std::function<void(const std::string& /*uri*/)> processFile) const
+                                                            const Filter& filter,
+                                                            const std::string& timezone,
+                                                            std::shared_ptr<terrama2::core::FileRemover> remover,
+                                                            const std::string& temporaryFolderUri,
+                                                            const std::string& foldersMask,
+                                                            std::function<void(const std::string&, const std::string&)> processFile) const
 {
   try
   {
@@ -375,7 +375,7 @@ void terrama2::core::DataRetrieverFTP::retrieveDataCallback(const std::string& m
         try
         {
           curlwrapper_->downloadFile(uriOrigin, filePath);
-          processFile(temporaryDataDir);
+          processFile(temporaryDataDir, file);
         }
         catch(const te::Exception& e)
         {

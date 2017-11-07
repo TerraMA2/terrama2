@@ -116,13 +116,13 @@ void terrama2::core::DataAccessorWildFireEvent::retrieveDataCallback (const Data
     // Do nothing
   }
 
-  //download auxiliary files
-  std::string dbfFile = std::string{mask.cbegin(), mask.cend()-3}+"dbf";
-  std::string prjFile = std::string{mask.cbegin(), mask.cend()-3}+"prj";
-  std::string shxFile = std::string{mask.cbegin(), mask.cend()-3}+"shx";
-
   //download shp files
-  dataRetriever->retrieveDataCallback(mask, filter, timezone, remover, "", folderPath, [&](const std::string& tempFolder) {
+  dataRetriever->retrieveDataCallback(mask, filter, timezone, remover, "", folderPath, [&](const std::string& tempFolder, const std::string& filename) {
+    //download auxiliary files
+    std::string dbfFile = std::string{filename.cbegin(), filename.cend()-3}+"dbf";
+    std::string prjFile = std::string{filename.cbegin(), filename.cend()-3}+"prj";
+    std::string shxFile = std::string{filename.cbegin(), filename.cend()-3}+"shx";
+
     dataRetriever->retrieveDataCallback(dbfFile, filter, timezone, remover, tempFolder, folderPath, [](const std::string&){});
     dataRetriever->retrieveDataCallback(prjFile, filter, timezone, remover, tempFolder, folderPath, [](const std::string&){});
     dataRetriever->retrieveDataCallback(shxFile, filter, timezone, remover, tempFolder, folderPath, processFile);
