@@ -20,12 +20,12 @@
 */
 
 /*!
-  \file examples/view/CreateGeoserverVectorLayer.cpp
-
-  \brief
+  \file examples/view/CreateGeoServerRaster.cpp
 
   \author Vinicius Campanha
  */
+
+// TerraMA2
 
 #include <terrama2/services/view/core/View.hpp>
 #include <terrama2/services/view/core/DataManager.hpp>
@@ -53,7 +53,7 @@
 
 #include <terrama2/impl/Utils.hpp>
 
-#include <examples/data/Geotiff.hpp>
+#include <examples/data/ViewGeoserver.hpp>
 
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 
@@ -67,22 +67,20 @@
 // STL
 #include <memory>
 
-#include <terrama2/services/view/mock/MockViewLogger.hpp>
-
-#include <examples/data/StaticPostGis.hpp>
 
 
 int main(int argc, char** argv)
 {
-  QCoreApplication a(argc, argv);
-
-
-  terrama2::core::TerraMA2Init terramaRaii("example", 0);
-  Q_UNUSED(terramaRaii);
-  terrama2::core::registerFactories();
-
   try
   {
+
+    QCoreApplication a(argc, argv);
+
+    terrama2::core::TerraMA2Init terramaRaii("example", 0);
+    Q_UNUSED(terramaRaii);
+
+    terrama2::core::registerFactories();
+
     auto& serviceManager = terrama2::core::ServiceManager::getInstance();
 
     auto dataManager = std::make_shared<terrama2::services::view::core::DataManager>();
@@ -131,59 +129,48 @@ int main(int argc, char** argv)
     service.setLogger(logger);
     service.start(1);
 
+    auto dataProvider = terrama2::geoserver::dataProviderFileGrid();
+    dataManager->add(dataProvider);
 
-    //DataProvider information
-    auto dataProviderPostGIS = terrama2::staticpostgis::dataProviderStaticPostGis();
-    dataManager->add(dataProviderPostGIS);
-
-
-    //DataSeries information
-    auto dataSeriesGeometry = terrama2::staticpostgis::dataSeriesEstados2010(dataProviderPostGIS);
-    dataManager->add(dataSeriesGeometry);
-
-
-    std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make("POSTGIS",
-                                                                                   dataProviderPostGIS->uri));
-
-    terrama2::core::OpenClose<std::shared_ptr<te::da::DataSource>> openClose(datasource);
-
-    std::unique_ptr< te::da::DataSetType > dataSetType = datasource->getDataSetType("estados_2010");
-
+    auto dataSeries = terrama2::geoserver::dataSeriesHumidity(dataProvider);
+    dataManager->add(dataSeries);
 
     std::unique_ptr<terrama2::services::view::core::View::Legend> legend(new terrama2::services::view::core::View::Legend());
 
     legend->operation = terrama2::services::view::core::View::Legend::OperationType::VALUE;
-    legend->classify = terrama2::services::view::core::View::Legend::ClassifyType::VALUES;
+    legend->classify = terrama2::services::view::core::View::Legend::ClassifyType::RAMP;
 
     legend->metadata.emplace("creation_type", "editor");
     legend->metadata.emplace("band_number", "0");
-    legend->metadata.emplace("column", "uf");
+    legend->metadata.emplace("dummy", "0");
 
     {
       terrama2::services::view::core::View::Legend::Rule rule;
       rule.title = "title0";
       rule.value = "0";
-      rule.color = "#5959FF";
+      rule.color = "#FFFFFF";
       rule.opacity = "1";
       rule.isDefault = true;
 
       legend->rules.push_back(rule);
     }
+
     {
       terrama2::services::view::core::View::Legend::Rule rule;
       rule.title = "title1";
-      rule.value = "1";
-      rule.color = "#F10D0D";
+      rule.value = "0";
+      rule.color = "#8181FF";
+      rule.opacity = "1";
       rule.isDefault = false;
 
       legend->rules.push_back(rule);
     }
-
     {
       terrama2::services::view::core::View::Legend::Rule rule;
       rule.title = "title2";
-      rule.value = "2";
-      rule.color = "#2E37CE";
+      rule.value = "1";
+      rule.color = "#19FFFF";
+      rule.opacity = "1";
       rule.isDefault = false;
 
       legend->rules.push_back(rule);
@@ -194,8 +181,8 @@ int main(int argc, char** argv)
     view->active = true;
     view->projectId = 1;
     view->serviceInstanceId = 1;
-    view->viewName = "StaticPostGisExample";
-    view->dataSeriesID = dataSeriesGeometry->id;
+    view->viewName = "MosaicExample";
+    view->dataSeriesID = dataSeries->id;
     view->filter = terrama2::core::Filter();
     view->legend = std::move(legend);
 
@@ -209,23 +196,20 @@ int main(int argc, char** argv)
 
     service.addToQueue(view->id, terrama2::core::TimeUtils::nowUTC());
 
+
+
     QTimer timer;
     QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
     timer.start(10000);
     a.exec();
 
     service.stopService();
-  }
-  catch(const std::exception& e)
-  {
-    std::cout << std::endl << "An exception has occurred in GeoServer example: " << e.what() << std::endl;
-    return EXIT_FAILURE;
+
   }
   catch(...)
   {
-    std::cout << std::endl << "An unexpected exception has occurred in GeoServer example!" << std::endl;
-    return EXIT_FAILURE;
+    std::cout << "\n\nException...\n" << std::endl;
   }
 
-  return EXIT_SUCCESS;
+  return 0;
 }
