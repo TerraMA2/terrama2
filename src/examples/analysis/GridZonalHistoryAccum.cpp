@@ -83,6 +83,20 @@ int main(int argc, char* argv[])
     service.setLogger(logger);
     service.start();
 
+    //Static-Postgis Estados2010
+
+    auto dataProviderStatic = terrama2::staticpostgis::dataProviderStaticPostGis();
+    dataManager->add(dataProviderStatic);
+
+    auto dataSeries = terrama2::staticpostgis::dataSeriesEstados2010(dataProviderStatic);
+    dataManager->add(dataSeries);
+
+    AnalysisDataSeries monitoredObjectADS;
+    monitoredObjectADS.id = 1;
+    monitoredObjectADS.dataSeriesId = dataSeries->id;
+    monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
+    monitoredObjectADS.metadata["identifier"] = "fid";
+
 
     // DataProvider information
 
@@ -90,7 +104,7 @@ int main(int argc, char* argv[])
     dataManager->add(dataProviderResult);
 
     // DataSeries information
-    auto outputDataSeries = terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::zonal_history_ratio_analysis_result);
+    auto outputDataSeries = terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::zonal_history_ratio_analysis_result, dataSeries);
     dataManager->add(outputDataSeries);
 
     std::shared_ptr<terrama2::services::analysis::core::Analysis> analysis = std::make_shared<terrama2::services::analysis::core::Analysis>();
@@ -108,20 +122,6 @@ add_value("max", x))z";
     analysis->type = AnalysisType::MONITORED_OBJECT_TYPE;
     analysis->serviceInstanceId = 1;
 
-
-    //Static-Postgis Estados2010
-
-    auto dataProviderStatic = terrama2::staticpostgis::dataProviderStaticPostGis();
-    dataManager->add(dataProviderStatic);
-
-    auto dataSeries = terrama2::staticpostgis::dataSeriesEstados2010(dataProviderStatic);
-    dataManager->add(dataSeries);
-
-    AnalysisDataSeries monitoredObjectADS;
-    monitoredObjectADS.id = 1;
-    monitoredObjectADS.dataSeriesId = dataSeries->id;
-    monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
-    monitoredObjectADS.metadata["identifier"] = "fid";
 
 
 

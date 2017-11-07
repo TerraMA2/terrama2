@@ -83,14 +83,26 @@ int main(int argc, char* argv[])
     service.setLogger(logger);
     service.start();
 
+    //DataProvider and DataSeries static postgis estados_2010
 
+    auto dataProviderStatic = terrama2::staticpostgis::dataProviderStaticPostGis();
+    dataManager->add(dataProviderStatic);
+
+    auto dataSeriesEstados = terrama2::staticpostgis::dataSeriesEstados2010(dataProviderStatic);
+    dataManager->add(dataSeriesEstados);
+
+    AnalysisDataSeries monitoredObjectADS;
+    monitoredObjectADS.id = 1;
+    monitoredObjectADS.dataSeriesId = dataSeriesEstados->id;
+    monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
+    monitoredObjectADS.metadata["identifier"] = "fid";
 
     // DataProvider information
     auto dataProviderResult = terrama2::resultanalysis::dataProviderResultAnalysis();
     dataManager->add(dataProviderResult);
 
 
-    auto dataSeriesResult = terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::buffer_analysis_result);
+    auto dataSeriesResult = terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::buffer_analysis_result,dataSeriesEstados);
     dataManager->add(dataSeriesResult);
 
 
@@ -138,19 +150,7 @@ add_value("level", x))z";
 
 
 
-    //DataProvider and DataSeries static postgis estados_2010
 
-    auto dataProviderStatic = terrama2::staticpostgis::dataProviderStaticPostGis();
-    dataManager->add(dataProviderStatic);
-
-    auto dataSeriesEstados = terrama2::staticpostgis::dataSeriesEstados2010(dataProviderStatic);
-    dataManager->add(dataSeriesEstados);
-
-    AnalysisDataSeries monitoredObjectADS;
-    monitoredObjectADS.id = 1;
-    monitoredObjectADS.dataSeriesId = dataSeriesEstados->id;
-    monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
-    monitoredObjectADS.metadata["identifier"] = "fid";
 
 
 
