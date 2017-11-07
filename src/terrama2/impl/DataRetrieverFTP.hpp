@@ -95,9 +95,9 @@ namespace terrama2
                                          const std::string& timezone,
                                          std::shared_ptr<terrama2::core::FileRemover> remover,
                                          const std::string& temporaryFolder = "",
-                                         const std::string& foldersMask = "") override;
+                                         const std::string& foldersMask = "") const override;
 
-        virtual void retrieveDataVector(const std::string& mask,
+        virtual void retrieveDataCallback(const std::string& mask,
                                         const Filter& filter,
                                         const std::string& timezone,
                                         std::shared_ptr<terrama2::core::FileRemover> remover,

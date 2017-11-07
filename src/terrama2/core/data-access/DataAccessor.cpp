@@ -292,7 +292,9 @@ std::map<DataSetId, std::string> terrama2::core::DataAccessor::getFiles(const Fi
   return uriMap;
 }
 
-void terrama2::core::DataAccessor::getFilesVector(const terrama2::core::Filter& filter, std::shared_ptr<terrama2::core::FileRemover> remover, std::function<void(const DataSetId&, const std::string& /*uri*/)> processFile) const
+void terrama2::core::DataAccessor::getSeriesCallback(const terrama2::core::Filter& filter,
+                                                     std::shared_ptr<terrama2::core::FileRemover> remover,
+                                                     std::function<void(const DataSetId&, const std::string& /*uri*/)> processFile) const
 {
   auto& retrieverFactory = DataRetrieverFactory::getInstance();
   DataRetrieverPtr dataRetriever = retrieverFactory.make(dataProvider_);
@@ -305,24 +307,10 @@ void terrama2::core::DataAccessor::getFilesVector(const terrama2::core::Filter& 
     // if this data retriever is a remote server that allows to retrieve data to a file,
     // download the file to a temporary location
     // if not, just get the DataProvider uri
-    std::vector<std::string> uriVector;
     if(dataRetriever->isRetrivable())
     {
-      std::string mask = getFileMask(dataset);
-      std::string folderPath = getFolderMask(dataset);
-
-      std::string timezone = "";
-      try
-      {
-        timezone = getTimeZone(dataset);
-      }
-      catch(UndefinedTagException& /*e*/)
-      {
-        // Do nothing
-      }
-
       auto dataSetId = dataset->id;
-      dataRetriever->retrieveDataVector(mask, filter, timezone, remover, "", folderPath, [&dataSetId, processFile](const std::string& uri){processFile(dataSetId, uri); });
+      retrieveDataCallback(dataRetriever, dataset, filter, remover, [&dataSetId, processFile](const std::string& uri){processFile(dataSetId, uri); });
     }
     else
     {
@@ -339,6 +327,28 @@ void terrama2::core::DataAccessor::addColumns(std::shared_ptr<te::da::DataSetTyp
 
     converter->add(i,p->clone());
   }
+}
+
+void terrama2::core::DataAccessor::retrieveDataCallback(const terrama2::core::DataRetrieverPtr dataRetriever,
+                                                               terrama2::core::DataSetPtr dataset,
+                                                               const terrama2::core::Filter& filter,
+                                                               std::shared_ptr<terrama2::core::FileRemover> remover,
+                                                               std::function<void (const std::string&)> processFile) const
+{
+  std::string mask = getFileMask(dataset);
+  std::string folderPath = getFolderMask(dataset);
+
+  std::string timezone = "";
+  try
+  {
+    timezone = getTimeZone(dataset);
+  }
+  catch(UndefinedTagException& /*e*/)
+  {
+    // Do nothing
+  }
+
+  dataRetriever->retrieveDataCallback(mask, filter, timezone, remover, "", folderPath, processFile);
 }
 
 Srid terrama2::core::DataAccessor::getSrid(DataSetPtr dataSet, bool logErrors) const

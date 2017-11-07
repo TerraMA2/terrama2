@@ -204,6 +204,71 @@ std::string terrama2::core::DataAccessorGrADS::retrieveData(const DataRetrieverP
   return uri;
 }
 
+void terrama2::core::DataAccessorGrADS::retrieveDataCallback(const terrama2::core::DataRetrieverPtr dataRetriever,
+                                                             terrama2::core::DataSetPtr dataSet,
+                                                             const terrama2::core::Filter& filter,
+                                                             std::shared_ptr<terrama2::core::FileRemover> remover,
+                                                             std::function<void (const std::string&)> processFile) const
+{
+  std::string controlFileFolderMask = "";
+  try
+  {
+    controlFileFolderMask = getControlFileFolderMask(dataSet);
+  }
+  catch(UndefinedTagException& /*e*/)
+  {
+    // Do nothing
+  }
+
+  std::string timezone = "";
+  try
+  {
+    timezone = getTimeZone(dataSet);
+  }
+  catch(UndefinedTagException& /*e*/)
+  {
+    // Do nothing
+  }
+
+  std::string controlFileMask = getControlFileMask(dataSet);
+  dataRetriever->retrieveDataCallback(controlFileMask, filter, timezone, remover, "", controlFileFolderMask,[&](const std::string& uri){
+    QUrl url(QString::fromStdString(uri+"/"+controlFileFolderMask));
+    QDir dir(url.path());
+    auto fileList = dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot);
+    for(const auto& ctlFile : fileList)
+    {
+      gradsDescriptor_ = readDataDescriptor(url.path().toStdString()+"/"+ctlFile.fileName().toStdString());
+      if(gradsDescriptor_.datasetFilename_[0] == '^')
+      {
+        gradsDescriptor_.datasetFilename_.erase(0, 1);
+      }
+
+      std::string binaryFileMask = getBinaryFileMask(dataSet);
+      std::string binaryFolderMask = getBinaryFolderMask(dataSet);
+
+      // In case the user did not specified a binary file mask, use the one in the CTL file.
+      if(binaryFileMask.empty())
+        binaryFileMask = extractBinaryFileMaskFromControlFile(dataSet, ctlFile.absoluteFilePath().toStdString());
+
+      std::string completePath = controlFileFolderMask +
+                                 "/" + extractBinaryFolderPathFromControlFile(dataSet, ctlFile.absoluteFilePath().toStdString()) +
+                                 "/" + binaryFolderMask + "/";
+
+      std::string timezone = "";
+      try
+      {
+        timezone = getTimeZone(dataSet);
+      }
+      catch(UndefinedTagException& /*e*/)
+      {
+        // Do nothing
+      }
+
+      dataRetriever->retrieveDataCallback(binaryFileMask, filter, timezone, remover, uri, completePath, processFile);
+    }
+  });
+}
+
 std::string terrama2::core::DataAccessorGrADS::dataSourceType() const
 {
   return "GDAL";

@@ -165,7 +165,7 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
                                                            const std::string& timezone,
                                                            std::shared_ptr<terrama2::core::FileRemover> remover,
                                                            const std::string& temporaryFolderUri,
-                                                           const std::string& foldersMask)
+                                                           const std::string& foldersMask) const
 {
   std::string downloadBaseFolderUri = temporaryFolderUri + "/";
 
@@ -300,7 +300,7 @@ terrama2::core::DataRetrieverPtr terrama2::core::DataRetrieverFTP::make(DataProv
   return std::make_shared<DataRetrieverFTP>(dataProvider, std::move(curlwrapper));
 }
 
-void terrama2::core::DataRetrieverFTP::retrieveDataVector(const std::string& mask,
+void terrama2::core::DataRetrieverFTP::retrieveDataCallback(const std::string& mask,
                                                           const Filter& filter,
                                                           const std::string& timezone,
                                                           std::shared_ptr<terrama2::core::FileRemover> remover,
@@ -356,10 +356,8 @@ void terrama2::core::DataRetrieverFTP::retrieveDataVector(const std::string& mas
         auto temporaryDataDir = getTemporaryFolder(remover, temporaryFolderUri);
 
         // Create directory struct
-        QString saveDir(QString::fromStdString(uri));
-        saveDir.replace(QString::fromStdString(dataProvider_->uri), QString::fromStdString(temporaryDataDir));
-
-        QString savePath = QUrl(saveDir).toString(QUrl::RemoveScheme);
+        QString saveDir(QString::fromStdString(temporaryDataDir+ "/" + foldersMask));
+        QString savePath = QUrl(saveDir).toLocalFile();
         QDir dir(savePath);
         if(!dir.exists())
           dir.mkpath(savePath);

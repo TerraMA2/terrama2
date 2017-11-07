@@ -183,7 +183,7 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
 
     std::shared_ptr<te::dt::TimeInstantTZ> lastDateTime;
 
-    dataAccessor->getFilesVector(filter, remover, [&](const DataSetId& datasetId, const std::string& uri) {
+    dataAccessor->getSeriesCallback(filter, remover, [&](const DataSetId& datasetId, const std::string& uri) {
       auto dataMap = dataAccessor->getSeries({{datasetId, uri}}, filter, remover);
       if(dataMap.empty())
       {

@@ -187,6 +187,17 @@ std::string terrama2::core::DataAccessorPostGIS::retrieveData(const DataRetrieve
   throw NoDataException() << ErrorDescription(errMsg);
 }
 
+void terrama2::core::DataAccessorPostGIS::retrieveDataCallback(const terrama2::core::DataRetrieverPtr /*dataRetriever*/,
+                                                               terrama2::core::DataSetPtr /*dataset*/,
+                                                               const terrama2::core::Filter& /*filter*/,
+                                                               std::shared_ptr<terrama2::core::FileRemover> /*remover*/,
+                                                               std::function<void (const std::string&)> /*processFile*/) const
+{
+  QString errMsg = QObject::tr("Non retrievable DataProvider.");
+  TERRAMA2_LOG_ERROR() << errMsg;
+  throw NoDataException() << ErrorDescription(errMsg);
+}
+
 void terrama2::core::DataAccessorPostGIS::addDateTimeFilter(const std::string datetimeColumnName,
     const terrama2::core::Filter& filter,
     std::vector<std::string>& whereConditions) const

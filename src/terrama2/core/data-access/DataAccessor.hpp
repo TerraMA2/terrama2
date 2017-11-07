@@ -125,7 +125,7 @@ namespace terrama2
         virtual std::unordered_map<DataSetPtr,DataSetSeries > getSeries(const std::map<DataSetId, std::string> uriMap, const Filter& filter, std::shared_ptr<FileRemover> remover) const;
 
         std::map<DataSetId, std::string> getFiles(const Filter& filter, std::shared_ptr<FileRemover> remover) const;
-        void getFilesVector(const Filter& filter, std::shared_ptr<FileRemover> remover, std::function<void(const DataSetId&, const std::string& /*uri*/)> processFile) const;
+        void getSeriesCallback(const Filter& filter, std::shared_ptr<FileRemover> remover, std::function<void(const DataSetId&, const std::string& /*uri*/)> processFile) const;
 
         //! Utility function for converting string to double in the te::da::DataSet construction.
         te::dt::AbstractData* stringToDouble(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const;
@@ -227,6 +227,11 @@ namespace terrama2
 
          */
         virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataSet, const Filter& filter, std::shared_ptr<FileRemover> remover) const = 0;
+        virtual void retrieveDataCallback(const DataRetrieverPtr dataRetriever,
+                                          DataSetPtr dataset,
+                                          const Filter& filter,
+                                          std::shared_ptr<FileRemover> remover,
+                                          std::function<void(const std::string& /*uri*/)> processFile) const = 0;
 
         /*!
            \brief Get a memory dataset do core::DataSet.

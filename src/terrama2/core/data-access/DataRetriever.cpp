@@ -53,7 +53,13 @@ std::string terrama2::core::DataRetriever::retrieveData(const std::string& /*que
                                                         const std::string& /*timezone*/,
                                                         std::shared_ptr<terrama2::core::FileRemover> /*remover*/,
                                                         const std::string& /*temporaryFolder*/,
-                                                        const std::string& /*folderPath*/)
+                                                        const std::string& /*folderPath*/) const
+{
+  QString errMsg = QObject::tr("Non retrievable DataRetriever.");
+  throw NotRetrivableException() << ErrorDescription(errMsg);
+}
+
+void terrama2::core::DataRetriever::retrieveDataCallback(const std::string&, const terrama2::core::Filter&, const std::string&, std::shared_ptr<terrama2::core::FileRemover>, const std::string&, const std::string&, std::function<void (const std::string&)>) const
 {
   QString errMsg = QObject::tr("Non retrievable DataRetriever.");
   throw NotRetrivableException() << ErrorDescription(errMsg);
