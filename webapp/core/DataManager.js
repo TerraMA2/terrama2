@@ -2095,22 +2095,16 @@ var DataManager = module.exports = {
   removeDataSerie: function(dataSeriesParam, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      var dataSeries = Utils.remove(self.data.dataSeries, dataSeriesParam);
-
-      if (dataSeries) {
-        models.db.DataSeries.destroy(Utils.extend({where: {
-          id: dataSeries.id
-        }}, options)).then(function (status) {
+      models.db.DataSeries.destroy(Utils.extend({where: dataSeriesParam}, options))
+        .then(function (status) {
           // Removing data set from memory. Its not necessary to remove in database, since on remove cascade is enabled.
-          Utils.removeAll(self.data.dataSets, {data_series_id: dataSeries.id});
+          Utils.remove(self.data.dataSeries, dataSeriesParam);
+          Utils.removeAll(self.data.dataSets, {data_series_id: dataSeriesParam.id});
           return resolve(status);
         }).catch(function (err) {
           logger.error(err);
           return reject(new exceptions.DataSeriesError("Could not remove DataSeries " + err.message));
         });
-      } else {
-        return reject(new exceptions.DataSeriesError("Data series not found"));
-      }
     });
   },
 
