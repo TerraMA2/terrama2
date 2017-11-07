@@ -223,7 +223,7 @@ define(
             openLayerToolbox();
           }
 
-          if (layer.dateInfo && layer.dateInfo.dates && Array.isArray(layer.dateInfo.dates)){
+          if(layer.dateInfo && layer.dateInfo.dates && Array.isArray(layer.dateInfo.dates)) {
             if($("#animate-layer-box").hasClass("hidden"))
               $("#animate-layer-box").removeClass("hidden");
 
@@ -239,7 +239,6 @@ define(
             AnimatedLayer.setLayerToAnimate(layer);
             AnimatedLayer.setDatesSlider();
           } else if (layer.dateInfo && layer.dateInfo.dates && typeof layer.dateInfo.dates === "object"){
-
             if($("#animate-layer-box").hasClass("hidden"))
               $("#animate-layer-box").removeClass("hidden");
 
@@ -270,7 +269,6 @@ define(
             AnimatedLayer.setLayerToAnimate(layer);
             AnimatedLayer.setDatesCalendar();
           } else {
-            
             if(!$("#animate-layer-box").hasClass("hidden"))
               $("#animate-layer-box").addClass("hidden");
 

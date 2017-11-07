@@ -1,8 +1,8 @@
 'use strict';
 
 define(
-  ['components/Layers', 'TerraMA2WebComponents'],
-  function(Layers, TerraMA2WebComponents) {
+  ['components/Layers', 'components/Utils', 'TerraMA2WebComponents'],
+  function(Layers, Utils, TerraMA2WebComponents) {
 
     var init = function() {
       $("#terrama2-layerexplorer").on("click", "#terrama2-calendar", function(event) {
@@ -38,7 +38,41 @@ define(
             "endDate": mEndDate,
             "maxDate": mMaxDate,
             "timePicker24Hour": true,
-            "opens": "center"
+            "opens": "center",
+            "locale": {
+              "format": Utils.getTranslatedString("DATE-FORMAT"),
+              "separator": " - ",
+              "applyLabel": Utils.getTranslatedString("Apply"),
+              "cancelLabel": Utils.getTranslatedString("Cancel"),
+              "fromLabel": Utils.getTranslatedString("From"),
+              "toLabel": Utils.getTranslatedString("To"),
+              "customRangeLabel": Utils.getTranslatedString("Custom"),
+              "weekLabel": Utils.getTranslatedString("WEEK-LABEL"),
+              "daysOfWeek": [
+                Utils.getTranslatedString("DAY-SU"),
+                Utils.getTranslatedString("DAY-MO"),
+                Utils.getTranslatedString("DAY-TU"),
+                Utils.getTranslatedString("DAY-WE"),
+                Utils.getTranslatedString("DAY-TH"),
+                Utils.getTranslatedString("DAY-FR"),
+                Utils.getTranslatedString("DAY-SA"),
+              ],
+              "monthNames": [
+                Utils.getTranslatedString("January"),
+                Utils.getTranslatedString("February"),
+                Utils.getTranslatedString("March"),
+                Utils.getTranslatedString("April"),
+                Utils.getTranslatedString("May"),
+                Utils.getTranslatedString("June"),
+                Utils.getTranslatedString("July"),
+                Utils.getTranslatedString("August"),
+                Utils.getTranslatedString("September"),
+                Utils.getTranslatedString("October"),
+                Utils.getTranslatedString("November"),
+                Utils.getTranslatedString("December")
+              ],
+              "firstDay": 1
+            }
           });
 
           $(this).append(calendar);
@@ -71,7 +105,41 @@ define(
             "endDate": mEndDate,
             "maxDate": mMaxDate,
             "timePicker24Hour": true,
-            "opens": "center"
+            "opens": "center",
+            "locale": {
+              "format": Utils.getTranslatedString("DATE-FORMAT"),
+              "separator": " - ",
+              "applyLabel": Utils.getTranslatedString("Apply"),
+              "cancelLabel": Utils.getTranslatedString("Cancel"),
+              "fromLabel": Utils.getTranslatedString("From"),
+              "toLabel": Utils.getTranslatedString("To"),
+              "customRangeLabel": Utils.getTranslatedString("Custom"),
+              "weekLabel": Utils.getTranslatedString("WEEK-LABEL"),
+              "daysOfWeek": [
+                Utils.getTranslatedString("DAY-SU"),
+                Utils.getTranslatedString("DAY-MO"),
+                Utils.getTranslatedString("DAY-TU"),
+                Utils.getTranslatedString("DAY-WE"),
+                Utils.getTranslatedString("DAY-TH"),
+                Utils.getTranslatedString("DAY-FR"),
+                Utils.getTranslatedString("DAY-SA"),
+              ],
+              "monthNames": [
+                Utils.getTranslatedString("January"),
+                Utils.getTranslatedString("February"),
+                Utils.getTranslatedString("March"),
+                Utils.getTranslatedString("April"),
+                Utils.getTranslatedString("May"),
+                Utils.getTranslatedString("June"),
+                Utils.getTranslatedString("July"),
+                Utils.getTranslatedString("August"),
+                Utils.getTranslatedString("September"),
+                Utils.getTranslatedString("October"),
+                Utils.getTranslatedString("November"),
+                Utils.getTranslatedString("December")
+              ],
+              "firstDay": 1
+            }
           });
 
           $(calendar).on("apply.daterangepicker", function(ev, picker) {

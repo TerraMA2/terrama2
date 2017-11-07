@@ -10,6 +10,7 @@ define(
     var memberWebAppSocketCallbackExecuted = false;
     var memberCurrentLanguage = null;
     var memberTableLanguage = null;
+    var memberAnimatedLayerLanguage = null;
 
     var getSocket = function() {
       return memberSocket;
@@ -33,8 +34,13 @@ define(
       $(element).localize();
 
       if($('#table-div').css('display') !== 'none' && memberCurrentLanguage !== memberTableLanguage) {
-        $("#attributes-table-select").trigger("setAttributesTable");
         memberTableLanguage = memberCurrentLanguage;
+        $("#attributes-table-select").trigger("setAttributesTable");
+      }
+
+      if(!$("#layer-toolbox").hasClass("hidden") && memberCurrentLanguage !== memberAnimatedLayerLanguage) {
+        memberAnimatedLayerLanguage = memberCurrentLanguage;
+        $.event.trigger({type: "setDatesCalendar"});
       }
     };
 
