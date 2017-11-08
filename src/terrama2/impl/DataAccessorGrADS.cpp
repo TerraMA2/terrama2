@@ -264,7 +264,21 @@ void terrama2::core::DataAccessorGrADS::retrieveDataCallback(const terrama2::cor
         // Do nothing
       }
 
-      dataRetriever->retrieveDataCallback(binaryFileMask, filter, timezone, remover, uri, completePath, processFile);
+      dataRetriever->retrieveDataCallback(binaryFileMask,
+                                          filter,
+                                          timezone,
+                                          remover,
+                                          uri,
+                                          completePath,
+                                          [processFile, &completePath](const std::string& uri, const std::string& filename){
+                                            processFile(uri);
+                                            QUrl url(QString::fromStdString(uri));
+                                            // remove file on finish processing
+                                            QString filePath = url.path()+QString::fromStdString("/"+completePath+"/"+filename);
+                                            QFile oldFile(filePath);
+                                            if(oldFile.exists())
+                                              oldFile.remove();
+                                          });
     }
   });
 }
