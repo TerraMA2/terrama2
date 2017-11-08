@@ -8,4 +8,5 @@ module.exports = function (app) {
   app.get(app.locals.BASE_URL + 'configuration/projects/:name/activate', passport.isAuthenticated, controller.activate);
   app.get(app.locals.BASE_URL + 'configuration/projects/:name/activate/:token', passport.isAuthenticated, controller.activate);
   app.get(app.locals.BASE_URL + 'configuration/projects/edit/:name', passport.isAuthenticated, controller.edit);
+  app.get(app.locals.BASE_URL + 'configuration/projects/updateCache', passport.isAuthenticated, controller.updateCache);
 };
