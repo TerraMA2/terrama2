@@ -113,10 +113,10 @@ void terrama2::core::DataStoragerTable::store(DataSetSeries series, DataSetPtr o
       geomProperty->setGeometryType(geom->getGeometryType());
 
       //there is a limit in the size of the dataset that we can create an index
-      if(typeCapabilities.supportsBTreeIndex() && series.syncDataSet->size() < 2712)
+      if(typeCapabilities.supportsRTreeIndex())
       {
         // the newDataSetType takes ownership of the pointer
-        auto spatialIndex = new te::da::Index("spatial_index_" + destinationDataSetName, te::da::B_TREE_TYPE, {geomProperty});
+        auto spatialIndex = new te::da::Index("spatial_index_" + destinationDataSetName, te::da::R_TREE_TYPE, {geomProperty});
         newDataSetType->add(spatialIndex);
       }
     }

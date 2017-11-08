@@ -79,6 +79,28 @@ std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPt
   return dataRetriever->retrieveData(mask, filter, timezone, remover, "", folderPath);
 }
 
+void terrama2::core::DataAccessorFile::retrieveDataCallback(const terrama2::core::DataRetrieverPtr dataRetriever,
+                                                            terrama2::core::DataSetPtr dataset,
+                                                            const terrama2::core::Filter& filter,
+                                                            std::shared_ptr<terrama2::core::FileRemover> remover,
+                                                            std::function<void (const std::string&)> processFile) const
+{
+  std::string mask = getFileMask(dataset);
+  std::string folderPath = getFolderMask(dataset);
+
+  std::string timezone = "";
+  try
+  {
+    timezone = getTimeZone(dataset);
+  }
+  catch(UndefinedTagException& /*e*/)
+  {
+    // Do nothing
+  }
+
+  dataRetriever->retrieveDataCallback(mask, filter, timezone, remover, "", folderPath, processFile);
+}
+
 std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorFile::createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const
 {
   return internalCreateCompleteDataSet(dataSetType, false, false);

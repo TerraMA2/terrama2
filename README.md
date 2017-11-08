@@ -131,7 +131,8 @@ We have the following branches:
 - **b-4.0.0-beta3:** Improvements to WebMonitor
 - **b-4.0.0-rc1:** Analysis DCP and improvements to WebMonitor
 - **b-4.0.0-rc2:** Analysis DCP and lots of minor improvements
-- **b-4.0.0-rc3:** In development...
+- **b-4.0.0-rc3:** Stabilization, DCP analysis view, general improvments
+- **b-4.0.0-rc4:** In development...
 
 For a more complete releases info, check: https://github.com/TerraMA2/terrama2/releases
 
