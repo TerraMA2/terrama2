@@ -124,7 +124,7 @@ module.exports = function(sequelize, DataTypes) {
           });
 
           DataSeries.hasOne(models.Filter, {
-            onDelete: "NO ACTION",
+            onDelete: "CASCADE",
             foreignKey: {
               name: "data_series_id",
               allowNull: true

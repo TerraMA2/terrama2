@@ -562,16 +562,22 @@ module.exports = function(app) {
 
                     .catch(function(err) {
                       // if not find collector, it is processing data series or analysis data series
-                      return DataManager.removeDataSerie({id: id})
-                        .then(function() {
-                          var objectToSend = {
-                            "DataSeries": [id]
-                          };
-
-                          TcpService.remove(objectToSend);
-
-                          return response.json({status: 200, name: dataSeriesResult.name});
-                        });
+                      return DataManager.listFilters({data_series_id: Number(id)})
+                        .then(function(filtersResult){
+                          if (filtersResult.length > 0){
+                            throw new Error("Cannot remove this data series, it is used in a filter");
+                          }
+                          return DataManager.removeDataSerie({id: id})
+                            .then(function() {
+                              var objectToSend = {
+                                "DataSeries": [id]
+                              };
+    
+                              TcpService.remove(objectToSend);
+    
+                              return response.json({status: 200, name: dataSeriesResult.name});
+                            });
+                        })
                     })
                 })
                 .catch(function(error) {
