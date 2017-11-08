@@ -60,6 +60,9 @@ define(
         $.post(BASE_URL + "languages", { locale: language }, function() {
           $("#languages-div > img").removeClass("selected");
           $("#language-" + language).addClass("selected");
+
+          $(".close-slider").click();
+
           Utils.changeLanguage(language);
           Utils.translate("body");
         });

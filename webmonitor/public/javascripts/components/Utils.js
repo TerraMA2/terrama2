@@ -38,7 +38,7 @@ define(
         $("#attributes-table-select").trigger("setAttributesTable");
       }
 
-      if(!$("#layer-toolbox").hasClass("hidden") && memberCurrentLanguage !== memberAnimatedLayerLanguage) {
+      if((!$("#layer-toolbox").hasClass("hidden") || (!$("#animate-tools").hasClass("hidden") && $("#pauseAnimation").hasClass("hidden"))) && memberCurrentLanguage !== memberAnimatedLayerLanguage) {
         memberAnimatedLayerLanguage = memberCurrentLanguage;
         $.event.trigger({type: "setDatesCalendar"});
       }

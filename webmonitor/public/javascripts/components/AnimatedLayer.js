@@ -18,6 +18,8 @@ define(
     var memberDateType;
     // Current date of animation - index of type if list, date string if continuous
     var memberCurrentDate;
+    // Current date of animation - index of type if list, date string if continuous (used for translation)
+    var memberTranslationDate;
     // Period date to animation
     var memberPeriodDate = 1;
     // Id used to get id of setInterval() and use to stop the animation in clearInterval()
@@ -38,7 +40,11 @@ define(
       memberDatesObject = memberLayer.dateInfo.dates;
       memberInitialDate = memberDatesObject.startDate;
       memberFinalDate = memberDatesObject.endDate;
-      memberCurrentDate = memberInitialDate;
+      memberCurrentDate = memberTranslationDate = memberInitialDate;
+      setDateRangePicker();
+    };
+
+    var setDateRangePicker = function() {
       var calendar = $('#animation-calendar');
       calendar.daterangepicker({
         "timePicker": true,
@@ -88,7 +94,7 @@ define(
         var timeFormat = "YYYY-MM-DDTHH:mm:ss.SSS";
         memberInitialDate = picker.startDate.format(timeFormat) + 'Z';
         memberFinalDate = picker.endDate.format(timeFormat) + 'Z';
-        memberCurrentDate = picker.startDate.format(timeFormat) + 'Z';
+        memberCurrentDate = memberTranslationDate = picker.startDate.format(timeFormat) + 'Z';
       });
     };
 
@@ -97,7 +103,11 @@ define(
       memberDatesList = memberLayer.dateInfo.dates;
       memberInitialDate = 0;
       memberFinalDate = memberDatesList.length - 1;
-      memberCurrentDate = 0;
+      memberCurrentDate = memberTranslationDate = 0;
+      setSlider();
+    };
+
+    var setSlider = function() {
       var slider = $("#dates" + memberLayer.id.replace(':', ''));
       var sliderParent = $(slider).parent();
 
@@ -118,7 +128,7 @@ define(
         },
         stop: function(event, ui) {
           memberInitialDate = ui.values[0];
-          memberCurrentDate = ui.values[0];
+          memberCurrentDate = memberTranslationDate = ui.values[0];
           memberFinalDate = ui.values[1];
         }
       });
@@ -164,6 +174,9 @@ define(
       Layers.updateDateInfo(memberLayer.id, memberLayer.dateInfo);
       TerraMA2WebComponents.MapDisplay.updateLayerTime(memberLayer.id, memberDatesList[memberCurrentDate]);
       updateInfo();
+
+      memberTranslationDate = memberCurrentDate;
+
       memberCurrentDate++;
     };
 
@@ -177,6 +190,9 @@ define(
       var rangeDate = memberCurrentDate + "/" + endDate + 'Z';
       TerraMA2WebComponents.MapDisplay.updateLayerTime(memberLayer.id, rangeDate);
       updateInfo();
+
+      memberTranslationDate = memberCurrentDate;
+
       memberCurrentDate = endDate + 'Z';
     };
 
@@ -196,12 +212,11 @@ define(
 
     // Start animation
     var play = function() {
-
       pause();
 
-      if (!memberCurrentDate){
-        memberCurrentDate = memberInitialDate;
-      }
+      if(!memberCurrentDate || memberCurrentDate > memberFinalDate)
+        memberCurrentDate = memberTranslationDate = memberInitialDate;
+
       updateInfo();
 
       showAnimationTools();
@@ -211,7 +226,7 @@ define(
 
     // Reset the animation
     var reload = function() {
-      memberCurrentDate = memberInitialDate;
+      memberCurrentDate = memberTranslationDate = memberInitialDate;
     };
 
     // Close animation tools
@@ -266,8 +281,27 @@ define(
       $("#stopAnimation").on("click", closeAnimateTools);
 
       $(document).on("setDatesCalendar", function() {
-        if(memberLayer && memberLayer.dateInfo && memberLayer.dateInfo.dates && !Array.isArray(memberLayer.dateInfo.dates))
-          setDatesCalendar();
+        if(memberLayer && memberLayer.dateInfo && memberLayer.dateInfo.dates) {
+          if(!$("#animate-tools").hasClass("hidden") && $("#pauseAnimation").hasClass("hidden")) {
+            if(memberDateType == 'list')
+              var currentDateValue = moment(memberDatesList[memberTranslationDate].replace('Z', '')).format(Utils.getTranslatedString("DATE-FORMAT") + " HH:mm");
+            else {
+              var frequencyValue = $('#frequency').val();
+              var unitValue = $('#unitTime').val();
+              var endDate = moment(memberTranslationDate.replace('Z', '')).add(parseInt(frequencyValue), unitValue);
+              var currentDateValue = moment(memberTranslationDate.replace('Z', '')).format(Utils.getTranslatedString("DATE-FORMAT") + " HH:mm") + " - " + endDate.format(Utils.getTranslatedString("DATE-FORMAT") + " HH:mm");
+            }
+
+            $("#currentDate").find('label').text(currentDateValue);
+          }
+
+          if(!$("#layer-toolbox").hasClass("hidden")) {
+            if(Array.isArray(memberLayer.dateInfo.dates))
+              setSlider();
+            else if(typeof memberLayer.dateInfo.dates === "object")
+              setDateRangePicker();
+          }
+        }
       });
     };
 
