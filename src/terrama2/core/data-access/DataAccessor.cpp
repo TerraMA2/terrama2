@@ -329,28 +329,6 @@ void terrama2::core::DataAccessor::addColumns(std::shared_ptr<te::da::DataSetTyp
   }
 }
 
-void terrama2::core::DataAccessor::retrieveDataCallback(const terrama2::core::DataRetrieverPtr dataRetriever,
-                                                               terrama2::core::DataSetPtr dataset,
-                                                               const terrama2::core::Filter& filter,
-                                                               std::shared_ptr<terrama2::core::FileRemover> remover,
-                                                               std::function<void (const std::string&)> processFile) const
-{
-  std::string mask = getFileMask(dataset);
-  std::string folderPath = getFolderMask(dataset);
-
-  std::string timezone = "";
-  try
-  {
-    timezone = getTimeZone(dataset);
-  }
-  catch(UndefinedTagException& /*e*/)
-  {
-    // Do nothing
-  }
-
-  dataRetriever->retrieveDataCallback(mask, filter, timezone, remover, "", folderPath, processFile);
-}
-
 Srid terrama2::core::DataAccessor::getSrid(DataSetPtr dataSet, bool logErrors) const
 {
   return static_cast<Srid>(std::stoi(getProperty(dataSet, dataSeries_, "srid", logErrors)));
