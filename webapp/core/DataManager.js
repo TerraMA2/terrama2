@@ -3021,6 +3021,29 @@ var DataManager = module.exports = {
   },
 
   /**
+   * It retrieves a list of filter in database
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise}
+   */
+  listFilters: function(restriction, options){
+    return new Promise(function(resolve, reject) {
+      models.db.Filter.findAll({where: restriction}).then(function(filtersResult) {
+        var output = [];
+        filtersResult.forEach(function(element) {
+          output.push(element.get());
+        });
+        resolve(output);
+      }).catch(function(err) {
+        reject(new Error("Could not retrieve filter " + err.toString()));
+      });
+    });
+
+  },
+
+  /**
    * It performs a save intersection in database. It accepts multiple insertions
    *
    * @param {Array<Object>} intersectionArray - An javascript array with intersection values
