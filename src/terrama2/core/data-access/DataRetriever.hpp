@@ -109,6 +109,18 @@ namespace terrama2
                                          const std::string& temporaryFolder = "",
                                          const std::string& folderPath = "") const;
 
+         /*!
+           \brief Downloads the remote file to a temporary location.
+
+           This method is overloaded by derived classes, the default behavior is to raise an exception.
+
+           \warning This method depends the data to be downloadable. see DataRetriever::isRetrivable()
+
+           \exception NotRetrivableException Raised when this DataRetriever doesn't allow the download of the data.
+           This will happen based on the DataProviderType.
+
+           The processFile callback takes the uri of the temporary folder as a parameter
+         */
         void retrieveDataCallback(const std::string& mask,
                                   const Filter& filter,
                                   const std::string& timezone,
@@ -117,6 +129,18 @@ namespace terrama2
                                   const std::string& foldersMask,
                                   std::function<void(const std::string& /*uri*/)> processFile) const;
 
+      /*!
+        \brief Downloads the remote file to a temporary location.
+
+        This method is overloaded by derived classes, the default behavior is to raise an exception.
+
+        \warning This method depends the data to be downloadable. see DataRetriever::isRetrivable()
+
+        \exception NotRetrivableException Raised when this DataRetriever doesn't allow the download of the data.
+        This will happen based on the DataProviderType.
+
+        The processFile callback takes the uri of the temporary folder and the downloaded filename as a parameter
+      */
         virtual void retrieveDataCallback(const std::string& /*mask*/,
                                           const Filter& /*filter*/,
                                           const std::string& /*timezone*/,

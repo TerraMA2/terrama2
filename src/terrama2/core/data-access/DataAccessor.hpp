@@ -226,7 +226,15 @@ namespace terrama2
            Retrieved data is subject to filter.
 
          */
-        virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataSet, const Filter& filter, std::shared_ptr<FileRemover> remover) const = 0;
+        virtual std::string retrieveData(const DataRetrieverPtr dataRetriever,
+                                         DataSetPtr dataSet, const Filter& filter, std::shared_ptr<FileRemover> remover) const = 0;
+
+     /*!
+        \brief Retrieve data from server.
+
+        Retrieved data is subject to filter.
+        The processFile callback takes the uri of the temporary folder as a parameter
+      */
         virtual void retrieveDataCallback(const DataRetrieverPtr dataRetriever,
                                           DataSetPtr dataset,
                                           const Filter& filter,
