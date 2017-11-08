@@ -169,3 +169,36 @@ te::dt::AbstractData* terrama2::core::DataAccessorWildFireEvent::numberToTimesta
 
   return nullptr;
 }
+
+std::string terrama2::core::DataAccessorWildFireEvent::retrieveData(const DataRetrieverPtr dataRetriever,
+                                                                    DataSetPtr dataSet,
+                                                                    const Filter& filter,
+                                                                    std::shared_ptr<FileRemover> remover) const
+{
+  std::string mask = getFileMask(dataSet);
+  std::string folderPath = getFolderMask(dataSet);
+
+  std::string timezone = "";
+  try
+  {
+    timezone = DataAccessorFile::getTimeZone(dataSet);
+  }
+  catch(UndefinedTagException& /*e*/)
+  {
+    // Do nothing
+  }
+
+//download shp files
+  auto tempFolder =  dataRetriever->retrieveData(mask, filter, timezone, remover, "", folderPath);
+
+//download auxiliary files
+  std::string dbfFile = std::string{mask.cbegin(), mask.cend()-3}+"dbf";
+  std::string prjFile = std::string{mask.cbegin(), mask.cend()-3}+"prj";
+  std::string shxFile = std::string{mask.cbegin(), mask.cend()-3}+"shx";
+
+  dataRetriever->retrieveData(dbfFile, filter, timezone, remover, tempFolder, folderPath);
+  dataRetriever->retrieveData(prjFile, filter, timezone, remover, tempFolder, folderPath);
+  dataRetriever->retrieveData(shxFile, filter, timezone, remover, tempFolder, folderPath);
+
+  return tempFolder;
+}
