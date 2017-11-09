@@ -261,6 +261,7 @@ define([], function() {
                 MessageBoxService.danger(i18n.__("Analysis"), i18n.__(serviceOfflineMessage));
               } else {
                 canSave = true;
+                MessageBoxService.reset();
               }
             }
           }

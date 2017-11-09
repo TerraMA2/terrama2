@@ -733,6 +733,7 @@ define([], function() {
             canSave = false;
           } else {
             canSave = true;
+            self.MessageBoxService.reset();
           }
         }
       }
