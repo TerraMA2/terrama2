@@ -109,6 +109,8 @@ COPY files/install_terrama2.sh /usr/local/bin
 RUN service postgresql start && \
     install_terrama2.sh
 
+RUN apt-get install dbus -y
+
 # ############################################################################
 # # Volumes
 # VOLUME /data    

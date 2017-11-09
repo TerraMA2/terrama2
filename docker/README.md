@@ -14,6 +14,7 @@ docker build --tag terrama2-4.0.0:14.04 .
 Execute the generated TerraMA² image with following commands:
 
 ```bash
+xhost +
 docker run --name terrama2 \
            -v /path/to/volume/on/host:/data \
            # Mount X11 dir for XServer forwarding (Read-Only)

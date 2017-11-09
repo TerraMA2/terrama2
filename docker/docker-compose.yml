@@ -4,10 +4,12 @@ services:
   terrama2:
     build: "terrama2"
   
-  # postgis:
-  #   build: "postgis"
-  #   volumes:
-  #     - "dbdata:/var/lib/postgresql/data"
+  postgis:
+    image: mdillon/postgis
+    volumes:
+      - dbdata:/var/lib/postgres/data
+    ports:
+      - 9998:5432
 
   webapp:
     build: webapp
@@ -27,34 +29,46 @@ services:
   collector:
     image: docker_terrama2
     command: ["terrama2_service", "COLLECTOR", "6543"]
+    environment:
+      - DISPLAY=$DISPLAY
     depends_on:
       - "terrama2"
     volumes:
       - "data:/data"
+      - "/tmp/.X11-unix:/tmp/.X11-unix:ro"
   
   analysis:
     image: docker_terrama2
     command: ["terrama2_service", "ANALYSIS", "6544"]
+    environment:
+      - DISPLAY=$DISPLAY
     depends_on:
       - "terrama2"
     volumes:
       - "data:/data"
+      - "/tmp/.X11-unix:/tmp/.X11-unix:ro"
 
   view:
     image: docker_terrama2
     command: ["terrama2_service", "VIEW", "6545"]
+    environment:
+      - DISPLAY=$DISPLAY
     depends_on:
       - "terrama2"
     volumes:
       - "data:/data"
+      - "/tmp/.X11-unix:/tmp/.X11-unix:ro"
 
   alert:
     image: docker_terrama2
     command: ["terrama2_service", "ALERT", "6546"]
+    environment:
+      - DISPLAY=$DISPLAY
     depends_on:
       - "terrama2"
     volumes:
       - "data:/data"
+      - "/tmp/.X11-unix:/tmp/.X11-unix:ro"
 
 volumes:
   data:
