@@ -1,0 +1,61 @@
+version: "3"
+
+services:
+  terrama2:
+    build: "terrama2"
+  
+  # postgis:
+  #   build: "postgis"
+  #   volumes:
+  #     - "dbdata:/var/lib/postgresql/data"
+
+  webapp:
+    build: webapp
+    depends_on:
+      - "terrama2"
+  
+  webmonitor:
+    image: docker_terrama2
+    depends_on:
+      - "terrama2"
+  
+  geoserver:
+    build: "geoserver"
+    volumes:
+      - "data:/data"
+  
+  collector:
+    image: docker_terrama2
+    command: ["terrama2_service", "COLLECTOR", "6543"]
+    depends_on:
+      - "terrama2"
+    volumes:
+      - "data:/data"
+  
+  analysis:
+    image: docker_terrama2
+    command: ["terrama2_service", "ANALYSIS", "6544"]
+    depends_on:
+      - "terrama2"
+    volumes:
+      - "data:/data"
+
+  view:
+    image: docker_terrama2
+    command: ["terrama2_service", "VIEW", "6545"]
+    depends_on:
+      - "terrama2"
+    volumes:
+      - "data:/data"
+
+  alert:
+    image: docker_terrama2
+    command: ["terrama2_service", "ALERT", "6546"]
+    depends_on:
+      - "terrama2"
+    volumes:
+      - "data:/data"
+
+volumes:
+  data:
+  dbdata:
