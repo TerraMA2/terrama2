@@ -56,6 +56,7 @@ define(
       layerObject.exportation = (layerData.exportation !== undefined && layerData.exportation.error === null && layerData.exportation.data !== null ? layerData.exportation.data : null);
       layerObject.dateInfo = {};
       layerObject.boundingBox = [];
+      layerObject.properties = layerData.properties ? layerData.properties : null;
 
       if(layerData.type)
         layerObject.opacity = 1;
@@ -86,6 +87,16 @@ define(
 
       if(indexLayer != -1) {
         memberAllLayers[indexLayer].boundingBox = boundingBox;
+      }
+    };
+
+    var addProperty = function(property, layerId) {
+      var indexLayer = memberAllLayers.map(function(l) {
+        return l.id
+      }).indexOf(layerId);
+
+      if(indexLayer != -1) {
+        memberAllLayers[indexLayer].properties.push(property);
       }
     };
 
@@ -249,6 +260,7 @@ define(
       changeParentLayerStatus: changeParentLayerStatus,
       updateDateInfo: updateDateInfo,
       updateBoundingBox: updateBoundingBox,
+      addProperty: addProperty,
       getLayerCapabilities: getLayerCapabilities
     };
   }

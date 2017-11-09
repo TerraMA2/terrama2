@@ -54,6 +54,7 @@
   "July": "Julho",
   "KML": "KML",
   "Last": "Última",
+  "Layer Name": "Nome da Camada",
   "Layer Tools": "Ferramentas da Camada",
   "LAYERS-COLON": "Camadas:",
   "Legends": "Legendas",
@@ -78,6 +79,7 @@
   "Previous": "Anterior",
   "PROCESSING": "Processando...",
   "Project <em>Platform of Monitoring and Warning of Forest Fires in the Cerrado</em> (ProCerrado INPE)": "Projeto <em>Platform of Monitoring and Warning of Forest Fires in the Cerrado</em> (ProCerrado INPE)",
+  "Properties": "Propriedades",
   "REALIZATION": "REALIZAÇÃO",
   "Restart": "Reiniciar",
   "Save changes": "Salvar alterações",
@@ -100,5 +102,7 @@
   "Verifying data for export<span>...</span>": "Verificando dados para exportação<span>...</span>",
   "VISIBLE LAYERS": "CAMADAS VISÍVEIS",
   "WEEK-LABEL": "S",
+  "WFS": "WFS",
+  "WMS": "WMS",
   "WMS URI": "WMS URI"
 }

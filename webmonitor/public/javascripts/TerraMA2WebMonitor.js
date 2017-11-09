@@ -292,6 +292,15 @@ define(
         var currentProject = $("#projects").val();
 
         for(var i = 0, viewsLength = viewsData.views.length; i < viewsLength; i++) {
+          var layerName = (viewsData.views[i].workspace ? viewsData.views[i].workspace + ":" + viewsData.views[i].layers[0] : viewsData.views[i].layers[0]);
+
+          viewsData.views[i].properties = [
+            {
+              key: "Layer Name",
+              value: layerName
+            }
+          ];
+
           var layerObject = Layers.createLayerObject(viewsData.views[i]);
           var newLayer = Layers.getLayerById(layerObject.id) == null ? true : false;
 
@@ -398,6 +407,30 @@ define(
 
           if(layerCapabilities[layerIndex].boundingBox !== undefined) {
             Layers.updateBoundingBox(layerCapabilities[layerIndex].boundingBox, data.layerId);
+
+            var layer = Layers.getLayerById(data.layerId);
+
+            var bbox = layerCapabilities[layerIndex].boundingBox[0] + "," + layerCapabilities[layerIndex].boundingBox[1] + "," + layerCapabilities[layerIndex].boundingBox[2] + "," + layerCapabilities[layerIndex].boundingBox[3];
+            var getMapUrl = layer.uriGeoServer + "/wms?request=GetMap&service=WMS&version=1.1.1&layers=" + data.layerId + "&width=500&height=500&format=image/png&bbox=" + bbox;
+            var getFeatureUrl = layer.uriGeoServer + "/wfs?service=wfs&version=1.1.0&request=GetFeature&typeName=" + data.layerId + "&outputFormat=application/json&maxFeatures=1";
+
+            Layers.addProperty({
+              key: "WMS",
+              value: "<a href=\"" + getMapUrl + "\" target=\"_blank\">GetMap</a>"
+            }, data.layerId);
+
+            var jsonData = {
+              url: getFeatureUrl,
+              format: "json",
+              requestId: "GetFeature",
+              params: {
+                key: "WFS",
+                value: "<a href=\"" + getFeatureUrl + "\" target=\"_blank\">GetFeature</a>",
+                layerId: data.layerId
+              }
+            };
+
+            Utils.getSocket().emit('proxyRequest', jsonData);
           }
         } catch(e) {
           console.log(e);
@@ -454,6 +487,13 @@ define(
                 $(this).parent().find('.ui-dialog-titlebar-close').css('background-size', '');
               }
             });
+          }
+        } else if(data.requestId == "GetFeature") {
+          if(data.msg.hasOwnProperty("totalFeatures") && data.msg.totalFeatures > 0) {
+            Layers.addProperty({
+              key: data.params.key,
+              value: data.params.value
+            }, data.params.layerId);
           }
         } else {
           try {

@@ -54,6 +54,7 @@
   "July": "July",
   "KML": "KML",
   "Last": "Last",
+  "Layer Name": "Layer Name",
   "Layer Tools": "Layer Tools",
   "LAYERS-COLON": "Layers:",
   "Legends": "Legends",
@@ -78,6 +79,7 @@
   "Previous": "Previous",
   "PROCESSING": "Processing...",
   "Project <em>Platform of Monitoring and Warning of Forest Fires in the Cerrado</em> (ProCerrado INPE)": "Project <em>Platform of Monitoring and Warning of Forest Fires in the Cerrado</em> (ProCerrado INPE)",
+  "Properties": "Properties",
   "REALIZATION": "REALIZATION",
   "Restart": "Restart",
   "Save changes": "Save changes",
@@ -100,5 +102,7 @@
   "Verifying data for export<span>...</span>": "Verifying data for export<span>...</span>",
   "VISIBLE LAYERS": "VISIBLE LAYERS",
   "WEEK-LABEL": "W",
+  "WFS": "WFS",
+  "WMS": "WMS",
   "WMS URI": "WMS URI"
 }

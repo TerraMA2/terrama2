@@ -43,6 +43,20 @@ define(
       });
     };
 
+    var minimizeBox = function(selector) {
+      $("#layer-toolbox " + selector + " .box-tools > button > i").removeClass("fa-minus");
+      $("#layer-toolbox " + selector + " .box-tools > button > i").addClass("fa-plus");
+      $("#layer-toolbox " + selector + " .box-body").css("display", "none");
+      $("#layer-toolbox " + selector).addClass("collapsed-box");
+    };
+
+    var maximizeBox = function(selector) {
+      $("#layer-toolbox " + selector + " .box-tools > button > i").removeClass("fa-plus");
+      $("#layer-toolbox " + selector + " .box-tools > button > i").addClass("fa-minus");
+      $("#layer-toolbox " + selector + " .box-body").css("display", "block");
+      $("#layer-toolbox " + selector).removeClass("collapsed-box");
+    };
+
     var loadEvents = function() {
       $('#export').on('click', function() {
         var layer = Layers.getLayerById($(this).data("layerid"));
@@ -165,6 +179,21 @@ define(
         $("#animate").data("layerid", layer.id);
 
         if(layer !== null) {
+          if($("#layer-toolbox .layer-description .box-tools > button > i").hasClass("fa-minus"))
+            minimizeBox(".layer-description");
+
+          if($("#layer-toolbox .layer-properties .box-tools > button > i").hasClass("fa-minus"))
+            minimizeBox(".layer-properties");
+
+          if($("#layer-toolbox #animate-layer-box .box-tools > button > i").hasClass("fa-plus"))
+            maximizeBox("#animate-layer-box");
+
+          if($("#layer-toolbox #slider-box .box-tools > button > i").hasClass("fa-minus"))
+            minimizeBox("#slider-box");
+
+          if($("#layer-toolbox #exportation-box .box-tools > button > i").hasClass("fa-minus"))
+            minimizeBox("#exportation-box");
+
           var openLayerToolbox = function() {
             $("#layer-toolbox .layer-toolbox-header > .layer-name").text(layer.name);
             $("#layer-toolbox .layer-toolbox-header > .layer-name").attr("title", layer.name);
@@ -179,6 +208,26 @@ define(
 
               if(!$("#layer-toolbox .layer-toolbox-body .layer-description").hasClass("hidden"))
                 $("#layer-toolbox .layer-toolbox-body .layer-description").addClass("hidden");
+            }
+
+            if(layer.properties) {
+              var properties = "";
+
+              layer.properties.forEach(function(property) {
+                properties += "<strong><span data-i18n=\"" + property.key + "\"></span>:</strong> " + property.value + "<br/>";
+              });
+
+              $("#layer-toolbox .layer-toolbox-body .layer-properties .box-body").html(properties);
+
+              Utils.translate("#layer-toolbox .layer-toolbox-body .layer-properties .box-body");
+
+              if($("#layer-toolbox .layer-toolbox-body .layer-properties").hasClass("hidden"))
+                $("#layer-toolbox .layer-toolbox-body .layer-properties").removeClass("hidden");
+            } else {
+              $("#layer-toolbox .layer-toolbox-body .layer-properties .box-body").html("");
+
+              if(!$("#layer-toolbox .layer-toolbox-body .layer-properties").hasClass("hidden"))
+                $("#layer-toolbox .layer-toolbox-body .layer-properties").addClass("hidden");
             }
 
             $("#layer-toolbox .layer-toolbox-body > #slider-box .box-body").empty().html("<label></label><br/><div id=\"opacity" + layer.id.replace(":","") + "\"></div>");
