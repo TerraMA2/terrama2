@@ -164,15 +164,22 @@ namespace terrama2
                                                                         terrama2::core::DataSetPtr dataset);
 
             //! Create an alert document and return the uri
-            std::string makeDocument(ReportPtr reportPtr, const Notification& notification, const terrama2::core::ExecutionPackage& executionPackage, std::shared_ptr< AlertLogger > logger) const;
+            te::core::URI makeDocument(ReportPtr reportPtr, const Notification& notification, const terrama2::core::ExecutionPackage& executionPackage, std::shared_ptr< AlertLogger > logger) const;
 
             //! Send alert notification
             void sendNotification(const std::map<std::string, std::string>& serverMap,
                                   ReportPtr reportPtr,
                                   const Notification& notification,
-                                  const std::string& documentURI,
                                   terrama2::core::ExecutionPackage executionPackage,
                                   std::shared_ptr< AlertLogger > logger) const ;
+
+            /*!
+              \brief Generate a temporary image to attach to the report
+
+              \note Only static view can be added to the alert view.
+            */
+            te::core::URI generateImage(AlertPtr alertPtr,
+                                        std::shared_ptr<terrama2::core::FileRemover> remover);
 
           signals:
             //! Signal to notify that a analysis execution has finished.

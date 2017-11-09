@@ -89,7 +89,7 @@ const te::core::URI& terrama2::services::view::core::GeoServer::uri() const
 }
 
 
-QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const ViewPtr viewPtr,
+QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(const ViewPtr viewPtr,
                                                                       const std::pair< terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr >& dataSeriesProvider,
                                                                       const std::shared_ptr<DataManager> dataManager,
                                                                       std::shared_ptr<ViewLogger> logger,
@@ -111,7 +111,6 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
 
   // Check if the view can be done by the maps server
   DataProviderType dataProviderType = inputDataProvider->dataProviderType;
-
   if(dataProviderType != "POSTGIS" && dataProviderType != "FILE")
   {
     QString errorMsg = QString("Data provider not supported: %1.").arg(dataProviderType.c_str());
@@ -121,7 +120,6 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
   }
 
   DataFormat dataFormat = inputDataSeries->semantics.dataFormat;
-
   if(dataFormat != "OGR" && dataFormat != "POSTGIS" && dataFormat != "GDAL")
   {
     QString errorMsg = QString("Data format not supported in the maps server: %1.").arg(dataFormat.c_str());
@@ -156,7 +154,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
     {
       auto it = legend->metadata.find("band_number");
       if (it == legend->metadata.end())
-        throw ViewGeoserverException() << ErrorDescription("No band number provided");
+        throw ViewGeoserverException() << ErrorDescription(QObject::tr("No band number provided"));
 
       try
       {
@@ -167,7 +165,8 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
       catch(const std::exception&)
       {
         throw ViewGeoserverException() <<
-              ErrorDescription(("The band number provided is invalid. " + it->second).c_str());
+              ErrorDescription(QObject::tr("The band number provided %1 is invalid.")
+                                          .arg(QString::fromStdString(it->second)));
       }
     }
   }
@@ -216,7 +215,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
 
         for(auto& fileInfo : fileInfoList)
         {
-          std::string layerName = fileInfo.fileName().toStdString();
+          std::string layerName = generateLayerName(viewPtr->id);
 
           if(dataFormat == "OGR")
           {
@@ -280,6 +279,38 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
       {"PG_CLIENT_ENCODING", "UTF-8"}
     };
 
+    if(inputDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::DCP)
+    {
+      objectType = View::Legend::ObjectType::GEOMETRY;
+      geomType = te::gm::PointType;
+      terrama2::core::DataProviderPtr inputObjectProvider = dataManager->findDataProvider(inputDataSeries->dataProviderId);
+
+      auto dcpPositions = DataAccess::getDCPPostgisTableInfo(inputDataSeries, inputObjectProvider);
+      std::string variable = getAttributeName(*viewPtr->legend);
+      std::string SQL = "SELECT t.id, t.geom, t.timestamp, t.var as "+variable+" from dcp_last_measures('"+dcpPositions.tableName+"', '"+variable+"')"
+            "AS t(id integer, geom geometry, \"timestamp\" timestamp with time zone, var double precision)";
+
+      std::unique_ptr<te::da::DataSetType> modelDataSetType(dcpPositions.dataSetType.release());
+
+      TableInfo tableInfo = DataAccess::getDCPPostgisTableInfo(inputDataSeries, inputObjectProvider);
+      std::string layerName = generateLayerName(viewPtr->id);
+
+      registerPostgisTable(viewPtr,
+                           std::to_string(viewPtr->id) + "_" + std::to_string(inputDataSeries->id) + "_datastore",
+                           inputDataSeries->semantics.dataSeriesType,
+                           connInfo,
+                           tableInfo.tableName,
+                           layerName,
+                           modelDataSetType,
+                           "",
+                           SQL);
+
+      QJsonObject layer;
+      layer.insert("layer", QString::fromStdString(layerName));
+      layersArray.push_back(layer);
+    }
+    else
+    {
     for(auto& dataset : inputDataSeries->datasetList)
     {
       TableInfo tableInfo = DataAccess::getPostgisTableInfo(dataset, inputDataSeries, inputDataProvider);
@@ -365,7 +396,8 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
         tableName = layerName;
       }
 
-      registerPostgisTable(std::to_string(viewPtr->id) + "_" + std::to_string(inputDataSeries->id) + "_datastore",
+        registerPostgisTable(viewPtr,
+                             std::to_string(viewPtr->id) + "_" + std::to_string(inputDataSeries->id) + "_datastore",
                            inputDataSeries->semantics.dataSeriesType,
                            connInfo,
                            tableName,
@@ -394,6 +426,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
       QJsonObject layer;
       layer.insert("layer", QString::fromStdString(layerName));
       layersArray.push_back(layer);
+      }
     }
   }
 
@@ -402,10 +435,11 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
     // Register style
     std::string styleName = "";
 
-    styleName = inputDataSeries->name + "_style_" + viewPtr->viewName;
+    std::string layerName = generateLayerName(viewPtr->id);
+    styleName = layerName + "_style";
     registerStyle(styleName, *viewPtr->legend.get(), objectType, geomType);
 
-    for(const auto& layer : layersArray)
+    for(auto layer : layersArray)
       registerLayerDefaultStyle(styleName, layer.toObject().value("layer").toString().toStdString());
   }
 
@@ -689,7 +723,8 @@ const std::string& terrama2::services::view::core::GeoServer::getFeature(const s
 }
 
 
-void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::string& dataStoreName,
+void terrama2::services::view::core::GeoServer::registerPostgisTable(const ViewPtr viewPtr,
+                                                                     const std::string& dataStoreName,
                                                                      terrama2::core::DataSeriesType dataSeriesType,
                                                                      std::map<std::string, std::string> connInfo,
                                                                      const std::string& tableName,
@@ -712,8 +747,12 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::
   te::ws::core::CurlWrapper cURLwrapper;
 
   std::string xml = "<featureType>";
-  xml += "<title>" + layerName + "</title>";
+  xml += "<title>" + viewPtr->viewName + "</title>";
   xml += "<name>" + layerName + "</name>";
+  if(dataSeriesType == terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT
+     || dataSeriesType == terrama2::core::DataSeriesType::DCP)
+    xml += "<nativeName>" + layerName + "</nativeName>";
+  else
   xml += "<nativeName>" + tableName + "</nativeName>";
   xml += "<enabled>true</enabled>";
 
@@ -760,7 +799,7 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::
     // Configuring SRID on Root XML configuration
     xml += "<srs>EPSG:" + srid + "</srs>";
 
-    metadataSQL = "<entry key=\"JDBC_VIRTUAL_TABLE\">"
+    metadataSQL = "<entry key='JDBC_VIRTUAL_TABLE'>"
                   "<virtualTable>"
                   "<name>"+layerName+"</name>" +
                   "<sql>"+sql+"</sql>" +
@@ -1264,7 +1303,7 @@ std::unique_ptr<te::se::Style> terrama2::services::view::core::GeoServer::genera
         continue;
       }
 
-      std::unique_ptr<te::fe::PropertyName> propertyName (new te::fe::PropertyName(legend.metadata.at("column")));
+      std::unique_ptr<te::fe::PropertyName> propertyName (new te::fe::PropertyName(getAttributeName(legend)));
       std::unique_ptr<te::fe::Literal> value (new te::fe::Literal(legendRule.value));
 
       // Defining OGC Style Filter
@@ -1760,9 +1799,21 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
       {
         std::unique_ptr<te::gm::Geometry> geom (te::gm::GetGeomFromEnvelope(rasterInfo.envelope.get(), rasterInfo.srid));
 
+        std::string fileURI = baseUrl.toLocalFile().toStdString();
+        QFileInfo file(QString::fromStdString(fileURI + "/" + terrama2::core::getFolderMask(dataset) + "/" + rasterInfo.name));
+        if(!file.exists())
+        {
+
+          QString errMsg = QObject::tr("Unable to locate file: %1").arg(file.absolutePath());
+          TERRAMA2_LOG_ERROR() << errMsg;
+          throw Exception() << ErrorDescription(errMsg);
+
+          continue;
+        }
+
         std::unique_ptr<te::mem::DataSetItem> dsItem (new te::mem::DataSetItem(ds.get()));
         dsItem->setGeometry("the_geom", geom.release());
-        dsItem->setString("location", baseUrl.toLocalFile().toStdString() + "/" + terrama2::core::getFolderMask(dataset) + "/" + rasterInfo.name);
+        dsItem->setString("location", file.absoluteFilePath().toStdString());
         dsItem->setDateTime("timestamp", new te::dt::TimeInstant(rasterInfo.timeTz));
 
         ds->add(dsItem.release());
@@ -2209,4 +2260,21 @@ std::string terrama2::services::view::core::GeoServer::generateWorkspaceName(con
 std::string terrama2::services::view::core::GeoServer::generateLayerName(const ViewId& id) const
 {
   return "view" + std::to_string(id);
+}
+
+std::string terrama2::services::view::core::GeoServer::getAttributeName(const terrama2::services::view::core::View::Legend& legend) const
+{
+  const auto& metadata = legend.metadata;
+  auto it = metadata.find("attribute");
+  if(it != metadata.end())
+    return it->second;
+
+// retro-compatibility
+  it = metadata.find("column");
+  if(it != metadata.end())
+    return it->second;
+
+  QString errMsg = QObject::tr("No legend attribute defined.");
+  TERRAMA2_LOG_ERROR() << errMsg;
+  throw Exception() << ErrorDescription(errMsg);
 }

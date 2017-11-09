@@ -7,43 +7,39 @@
 {% block styles %}
 
 <!-- Bootstrap Eonasdan datatimepicker (used in TerraMA² datetimepicker wrapper) -->
-<link rel="stylesheet" href="{[ BASE_URL ]}bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css">
-<link rel="stylesheet" href="{[ BASE_URL ]}bower_components/angular-ui-select/dist/select.min.css" />
+<link rel="stylesheet" href="{[ BASE_URL ]}externals/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css">
+<link rel="stylesheet" href="{[ BASE_URL ]}externals/angular-ui-select/dist/select.min.css" />
 
 <!-- Angular Color Picker -->
-<link rel="stylesheet" href="{[ BASE_URL ]}bower_components/angular-color-picker/dist/angularjs-color-picker.min.css" />
-<link rel="stylesheet" href="{[ BASE_URL ]}bower_components/angular-ui-select/dist/select.min.css" />
+<link rel="stylesheet" href="{[ BASE_URL ]}externals/angular-color-picker/dist/angularjs-color-picker.min.css" />
 
 {% endblock %}
 
 {% block javascripts %}
 <!-- Moment Datetime JS -->
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/moment.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/moment/moment.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/moment/locale/pt-br.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/moment/locale/es.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/moment/locale/fr.js"></script>
+
 <!-- Bootstrap datetimepicker -->
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
-
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/pt-br.js"></script>
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/es.js"></script>
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/fr.js"></script>
-
-<!-- Moment Datetime JS -->
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/moment.js"></script>
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/pt-br.js"></script>
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/es.js"></script>
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/fr.js"></script>
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/angular-eonasdan-datetimepicker/dist/angular-eonasdan-datetimepicker.min.js"></script>
-<script src="{[ BASE_URL ]}bower_components/angular-ui-select/dist/select.min.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/angular-eonasdan-datetimepicker/dist/angular-eonasdan-datetimepicker.min.js"></script>
+<script src="{[ BASE_URL ]}externals/angular-ui-select/dist/select.min.js"></script>
 
 <!-- Angular Color Picker -->
-<script src="{[ BASE_URL ]}bower_components/tinycolor/dist/tinycolor-min.js"></script>
-<script src="{[ BASE_URL ]}bower_components/angular-color-picker/dist/angularjs-color-picker.min.js"></script>
-<script src="{[ BASE_URL ]}bower_components/angular-ui-select/dist/select.min.js"></script>
+<script src="{[ BASE_URL ]}externals/tinycolor/dist/tinycolor-min.js"></script>
+<script src="{[ BASE_URL ]}externals/angular-color-picker/dist/angularjs-color-picker.min.js"></script>
 
 <script>
   var configuration = {
     alert: {[ alert|json|safe ]},
+    alertAttachment: {[ alertAttachment|json|safe ]},
+    alertAttachedViews: {[ alertAttachedViews|json|safe ]},
+    views: {[ views|json|safe ]},
     disablePDF: {[ disablePDF ]},
-    hasProjectPermission: {[ hasProjectPermission|json|safe ]}
+    hasProjectPermission: {[ hasProjectPermission|json|safe ]},
+    activeProject: {[ activeProject|json|safe ]}
   };
 
   var globals = {};
@@ -146,6 +142,7 @@
               <div class="form-group" terrama2-show-errors>
                 <label><span ng-bind="i18n.__('View Service')">:</span></label>
                 <ui-select name="viewService"
+                        ng-change="ctrl.onServiceChanged()"
                         ng-model="ctrl.view_service_instance_id"
                         required>
                   <ui-select-match>
@@ -184,7 +181,7 @@
         </div>
       </form>
     </terrama2-box>
-    
+
     <terrama2-box title="i18n.__('Schedule')" css="ctrl.css">
       <div class="col-md-12">
         <terrama2-schedule model="ctrl.alert.schedule" options="ctrl.scheduleOptions"></terrama2-schedule>
@@ -242,12 +239,19 @@
                     class="form-control"
                     name="legendAttributeMo"
                     ng-model="ctrl.legend_attribute_mo"
+                    ng-pattern="ctrl.regexColumn"
+                    ng-blur="ctrl.getColumnValues()"
                     ng-required="ctrl.dataSeriesType === 'ANALYSIS_MONITORED_OBJECT'"
                     list='tableColumnsList'>
               <span class="help-block"
-                  ng-show="forms.dataSeriesForm.legendAttributeMo.$dirty && forms.dataSeriesForm.legendAttributeMo.$invalid"
+                  ng-show="forms.dataSeriesForm.legendAttributeMo.$dirty && forms.dataSeriesForm.legendAttributeMo.$error.required"
                   ng-class="{'has-error': dataSeriesForm.legendAttributeMo.$invalid}"
                   ng-bind="i18n.__('Legend attribute is required')">
+              </span>
+              <span class="help-block" 
+                ng-show="forms.dataSeriesForm.legendAttributeMo.$dirty && forms.dataSeriesForm.legendAttributeMo.$invalid && !forms.dataSeriesForm.legendAttributeMo.$error.required"
+                ng-class="{'has-error': dataSeriesForm.legendAttributeMo.$invalid}"
+                ng-bind="i18n.__('Legend attribute is invalid')">
               </span>
             </div>
           </div>
@@ -284,32 +288,32 @@
           </div>
           <span ng-repeat="level in ctrl.legendModel.levels track by $index">
             <div class="col-md-12 row">
-              <div ng-class="{'col-md-6': !ctrl.alert.hasView, 'col-md-4': ctrl.alert.hasView}">
+              <div ng-class="{'col-md-6 terrama2-min-padding': !ctrl.alert.hasView, 'col-md-4 terrama2-min-padding': ctrl.alert.hasView}">
                 <div class="form-group" ng-class="{'has-error': ctrl.legendLevelNameError[level._id]}">
                   <label><span ng-bind="i18n.__(level.isDefault ? 'Default Level Name' : 'Level Name')"></span>:</label>
                   <input class="form-control" name="levelName{{ level._id }}" ng-model="level.name" type="text" placeholder="{{ i18n.__('Level Name') }}">
                 </div>
               </div>
-              <div ng-class="{'col-md-5': !ctrl.alert.hasView, 'col-md-3': ctrl.alert.hasView}">
+              <div ng-class="{'col-md-5 terrama2-min-padding': !ctrl.alert.hasView, 'col-md-3 terrama2-min-padding': ctrl.alert.hasView}">
                 <div ng-show="!level.isDefault" class="form-group" ng-class="{'has-error': ctrl.legendLevelValueError[level._id] || ctrl.legendLevelOrderError}">
                   <label><span ng-bind="i18n.__('Legend Value')"></span>:</label>
-                  <input class="form-control" name="levelValue{{ level._id }}" ng-model="level.value" type="number" placeholder="{{ i18n.__('Legend Value') }}">
+                  <input class="form-control" name="levelValue{{ level._id }}" ng-model="level.value" type="number" list="tableColumnValues" placeholder="{{ i18n.__('Legend Value') }}">
                 </div>
               </div>
-              <div ng-if="ctrl.alert.hasView" class="col-md-4">
-                <div class="col-md-10">
+              <div ng-if="ctrl.alert.hasView" class="col-md-4 terrama2-nopadding-box">
+                <div class="col-md-8 terrama2-min-padding">
                   <div class="form-group">
                     <label><span ng-bind="i18n.__('Color')"></span>:</label>
                     <color-picker ng-model="ctrl.colors[$index]" options="ctrl.defaultColorOpts" event-api="ctrl.events"></color-picker>
                   </div>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-2 terrama2-min-padding">
                   <div class="form-group">
                     <button type="button" class="btn btn-primary" ng-click="ctrl.rgbaModal($index)" style="margin-top: 25px;">RGBA</button>
                   </div>
                 </div>
               </div>
-              <div class="col-md-1">
+              <div class="col-md-1 terrama2-min-padding">
                 <div ng-show="!level.isDefault" class="form-group">
                   <button type="button" class="btn btn-primary" ng-click="ctrl.removeLevel(level)" style="margin-top: 25px;" ng-show="ctrl.legendModel.levels.length > 1"><span>&times</span></button>
                 </div>
@@ -378,7 +382,22 @@
           </div>
         </div>
 
-        <div ng-show="!ctrl.disablePDF" ng-class="{ 'col-md-3': ctrl.dataSeriesType !== undefined && ctrl.dataSeriesType !== null && ctrl.dataSeriesType !== 'GRID', 'col-md-4': ctrl.dataSeriesType === undefined || ctrl.dataSeriesType === null || ctrl.dataSeriesType === 'GRID' }">
+        <div class="col-md-2" ng-if="ctrl.alert.hasView">
+          <div class="form-group">
+            <div class="checkbox">
+              <label style="font-weight: 700;">
+                <input type="checkbox"
+                        name="attachViews"
+                        ng-model="ctrl.attachViews"
+                        ng-true-value="true"
+                        ng-false-value="false"
+                        ng-change="ctrl.attachViewsChange()"> <span ng-bind="i18n.__('Attach Views')"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div ng-show="!ctrl.disablePDF" ng-class="{ 'col-md-2': ctrl.dataSeriesType !== undefined && ctrl.dataSeriesType !== null && ctrl.dataSeriesType !== 'GRID' && ctrl.alert.hasView, 'col-md-3': (ctrl.dataSeriesType !== undefined && ctrl.dataSeriesType !== null && ctrl.dataSeriesType !== 'GRID' && !ctrl.alert.hasView) || ((ctrl.dataSeriesType === undefined || ctrl.dataSeriesType === null || ctrl.dataSeriesType === 'GRID') && ctrl.alert.hasView), 'col-md-4': (ctrl.dataSeriesType === undefined || ctrl.dataSeriesType === null || ctrl.dataSeriesType === 'GRID') && !ctrl.alert.hasView }">
           <div class="form-group">
             <div class="checkbox">
               <label style="font-weight: 700;">
@@ -399,7 +418,7 @@
           </div>
         </div>
 
-        <div ng-class="{ 'col-md-3': ctrl.dataSeriesType !== undefined && ctrl.dataSeriesType !== null && ctrl.dataSeriesType !== 'GRID' && !ctrl.disablePDF, 'col-md-4': ctrl.dataSeriesType === undefined || ctrl.dataSeriesType === null || ctrl.dataSeriesType === 'GRID' || ctrl.disablePDF }">
+        <div ng-class="{ 'col-md-2': ctrl.dataSeriesType !== undefined && ctrl.dataSeriesType !== null && ctrl.dataSeriesType !== 'GRID' && !ctrl.disablePDF && ctrl.alert.hasView, 'col-md-3': (ctrl.dataSeriesType !== undefined && ctrl.dataSeriesType !== null && ctrl.dataSeriesType !== 'GRID' && !ctrl.disablePDF && !ctrl.alert.hasView) || ((ctrl.dataSeriesType === undefined || ctrl.dataSeriesType === null || ctrl.dataSeriesType === 'GRID' || ctrl.disablePDF) && ctrl.alert.hasView), 'col-md-4': (ctrl.dataSeriesType === undefined || ctrl.dataSeriesType === null || ctrl.dataSeriesType === 'GRID' || ctrl.disablePDF) && !ctrl.alert.hasView }">
           <div class="form-group">
             <div class="checkbox">
               <label style="font-weight: 700;">
@@ -417,7 +436,7 @@
           </div>
         </div>
 
-        <div ng-class="{ 'col-md-2': !ctrl.disablePDF, 'col-md-4': ctrl.disablePDF }" ng-show="ctrl.dataSeriesType !== undefined && ctrl.dataSeriesType !== null && ctrl.dataSeriesType !== 'GRID'">
+        <div ng-class="{ 'col-md-2': !ctrl.disablePDF, 'col-md-3': ctrl.disablePDF && ctrl.alert.hasView, 'col-md-4': ctrl.disablePDF && !ctrl.alert.hasView }" ng-show="ctrl.dataSeriesType !== undefined && ctrl.dataSeriesType !== null && ctrl.dataSeriesType !== 'GRID'">
           <div class="form-group">
             <div class="checkbox">
               <label style="font-weight: 700;">
@@ -478,6 +497,81 @@
       </div>
     </terrama2-box>
 
+    <terrama2-box title="i18n.__('Attach Views')" css="ctrl.css" ng-if="ctrl.alert.hasView && ctrl.attachViews">
+      <form name="forms.alertAttachmentForm">
+        <div class="row">
+          <div class="col-md-8">
+            <div class="col-md-6">
+              <div class="form-group" terrama2-show-errors>
+                <label><span ng-bind="i18n.__('X min')">:</span></label>
+                <input class="form-control" name="x_min" ng-model="ctrl.alertAttachment.x_min" placeholder="{{ i18n.__('X min') }}" type="number" required>
+                <span class="help-block" ng-show="forms.alertAttachmentForm.x_min.$dirty && forms.alertAttachmentForm.x_min.$invalid" ng-class="{'has-error': alertAttachment.x_min.$invalid}" ng-bind="i18n.__('X min is required')"></span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group" terrama2-show-errors>
+                <label><span ng-bind="i18n.__('X max')">:</span></label>
+                <input class="form-control" name="x_max" ng-model="ctrl.alertAttachment.x_max" placeholder="{{ i18n.__('X max') }}" type="number" required>
+                <span class="help-block" ng-show="forms.alertAttachmentForm.x_max.$dirty && forms.alertAttachmentForm.x_max.$invalid" ng-class="{'has-error': alertAttachment.x_max.$invalid}" ng-bind="i18n.__('X max is required')"></span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group" terrama2-show-errors>
+                <label><span ng-bind="i18n.__('Y min')">:</span></label>
+                <input class="form-control" name="y_min" ng-model="ctrl.alertAttachment.y_min" placeholder="{{ i18n.__('Y min') }}" type="number" required>
+                <span class="help-block" ng-show="forms.alertAttachmentForm.y_min.$dirty && forms.alertAttachmentForm.y_min.$invalid" ng-class="{'has-error': alertAttachment.y_min.$invalid}" ng-bind="i18n.__('Y min is required')"></span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group" terrama2-show-errors>
+                <label><span ng-bind="i18n.__('Y max')">:</span></label>
+                <input class="form-control" name="y_max" ng-model="ctrl.alertAttachment.y_max" placeholder="{{ i18n.__('Y max') }}" type="number" required>
+                <span class="help-block" ng-show="forms.alertAttachmentForm.y_max.$dirty && forms.alertAttachmentForm.y_max.$invalid" ng-class="{'has-error': alertAttachment.y_max.$invalid}" ng-bind="i18n.__('Y max is required')"></span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group" terrama2-show-errors>
+                <label><span ng-bind="i18n.__('Projection SRID')">:</span></label>
+                <input class="form-control" name="srid" ng-model="ctrl.alertAttachment.srid" placeholder="{{ i18n.__('Projection SRID') }}" type="number" required>
+                <span class="help-block" ng-show="forms.alertAttachmentForm.srid.$dirty && forms.alertAttachmentForm.srid.$invalid" ng-class="{'has-error': alertAttachment.srid.$invalid}" ng-bind="i18n.__('Projection SRID is required')"></span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <button type="button" class="btn btn-primary pull-right" ng-click="ctrl.newAttachedView()" id="newAttachedViewBtn" ng-disabled="ctrl.viewsToAttach.length === 0"><i class="fa fa-plus"></i></button>
+            <table class="table table-striped" id="attachedViewsTable">
+              <tbody ng-if="ctrl.attachedViews.length === 0">
+                <tr>
+                  <td colspan="3" id="noViewsAttached" ng-bind="i18n.__('No views attached.')"></td>
+                </tr>
+              </tbody>
+              <tbody ng-if="ctrl.attachedViews.length > 0" sv-root sv-part="ctrl.attachedViews" sv-on-start="ctrl.startSort($item, $part, $index, $helper)">
+                <tr ng-repeat="attachedView in ctrl.attachedViews" ng-if="ctrl.attachedViews.length === 1">
+                  <td class="buttonTd"></td>
+                  <td id="alertView" ng-bind="ctrl.alert.name"></td>
+                  <td class="buttonTd"></td>
+                </tr>
+                <tr ng-repeat="attachedView in ctrl.attachedViews" ng-if="ctrl.attachedViews.length > 1" sv-element>
+                  <td class="buttonTd sortHandle" sv-handle>
+                    <i class="fa fa-arrows-v"></i>
+                  </td>
+                  <td ng-if="attachedView._id === 'alertView'" id="alertView" ng-bind="ctrl.alert.name"></td>
+                  <td ng-if="attachedView._id !== 'alertView'">
+                    <select id="{{ attachedView._id }}" class="form-control" ng-model="attachedView.view" ng-change="ctrl.selectAttachedView(this)">
+                      <option ng-repeat="view in ctrl.viewsToAttach" value="{{ view.id }}" ng-if="view.id !== ctrl.alert.view.id">{{ view.name }}</option>
+                    </select>
+                  </td>
+                  <td class="buttonTd">
+                    <button type="button" class="btn btn-danger" ng-click="ctrl.removeAttachedView(attachedView._id)" ng-if="attachedView._id !== 'alertView'"><i class="fa fa-trash"></i></button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </form>
+    </terrama2-box>
+
     <div class="box-footer">
       <div class="btn-group pull-right" style="margin-left: 10px;">
         <button ng-disabled="ctrl.isNotValid" type="button" class="btn btn-primary" ng-bind="i18n.__('Save and Run')" data-ng-click="!ctrl.isNotValid && ctrl.save(true);"></button>
@@ -496,6 +590,10 @@
 
   <datalist id='tableColumnsList'>
     <option ng-repeat="column in ctrl.columnsList" value="{{column}}">
+  </datalist>
+
+  <datalist id='tableColumnValues'>
+    <option ng-repeat="value in ctrl.columnValues" value="{{value}}">
   </datalist>
 </div>
 {% endblock %}

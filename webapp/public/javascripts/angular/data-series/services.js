@@ -116,7 +116,25 @@ define([
       });
     return defer.promise;
   };
-
+  /**
+   * It duplicates a Data Series of another project on remote API
+   * 
+   * @param {Object} dataSeriesObject - A data series object values to duplicate
+   * @returns {ng.IPromise}
+   */
+  DataSeriesService.prototype.duplicate = function(dataSeriesObject) {
+    var defer = this.$q.defer();
+    var self = this;
+    this.BaseService.$request(this.url + "/duplicate", "POST", {
+        data: dataSeriesObject
+      })
+      .then(function(response) {
+        return defer.resolve(response.data);
+      }).catch(function(err) {
+        return defer.reject(err.data);
+      });
+    return defer.promise;
+  };
   /**
    * Data Series Semantics service DAO
    * 
@@ -162,7 +180,45 @@ define([
   };
 
   DataSeriesSemanticsService.prototype.get = function(restriction) {
-    return this.BaseService.get(this.model, restriction);
+    var semantics = this.BaseService.get(this.model, restriction);
+
+    semantics.metadata.form.forEach(function(form) {
+      if(form.htmlClass.indexOf("validate-mask") !== -1) {
+        form.$validators = {
+          validateMask: function(value) {
+            if(value) {
+              for(var i = 0, valueLength = value.length; i < valueLength; i++) {
+                var charCode = value.charCodeAt(i);
+
+                if(value[i] === "%") {
+                  if(
+                    value.substr(i, 5) === "%YYYY" ||
+                    value.substr(i, 3) === "%YY" || value.substr(i, 3) === "%MM" || value.substr(i, 3) === "%DD" ||
+                    value.substr(i, 3) === "%hh" || value.substr(i, 3) === "%mm" || value.substr(i, 3) === "%ss"
+                  )
+                    continue;
+
+                  return false;
+                }
+
+                if(value[i] === "*" || value[i] === "%" || value[i] === "." || value[i] === "-" || value[i] === "_" || value[i] === "/")
+                  continue;
+
+                if((charCode < 48) || ((charCode > 57) && (charCode < 65)) || ((charCode > 90) && (charCode < 97)) || (charCode > 122))
+                  return false;
+              }
+
+              return true;
+            } else
+              return false;
+          }
+        };
+
+        form.validationMessage.validateMask = "Invalid mask";
+      }
+    });
+
+    return semantics;
   };
 
   function SemanticsLibs(SemanticsHelpers, SemanticsParserFactory) {

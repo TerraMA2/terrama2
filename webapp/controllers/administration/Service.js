@@ -1,5 +1,6 @@
 var DataManager = require("./../../core/DataManager");
 var makeTokenParameters = require('../../core/Utils').makeTokenParameters;
+var Application = require("./../../core/Application");
 
 module.exports = function(app) {
   return {
@@ -13,7 +14,8 @@ module.exports = function(app) {
     },
 
     new: function (request, response) {
-      return response.render('administration/service');
+      var configFile = Application.getContextConfig();
+      return response.render('administration/service', {db: configFile.db});
     },
     
     edit: function(request, response) {

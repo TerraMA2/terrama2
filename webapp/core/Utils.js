@@ -40,6 +40,9 @@ function getTokenCodeMessage(code) {
     case Enums.TokenCode.DELETE:
       msg = "deleted";
       break;
+    case Enums.TokenCode.IMPORT:
+      msg = "imported";
+      break;
     default:
       msg = "";
       break;
@@ -63,7 +66,8 @@ var Utils = module.exports = {
     return [{
       key: UriPattern.HOST,
       type: FormField.TEXT,
-      htmlClass: 'col-md-6 terrama2-schema-form'
+      htmlClass: 'col-md-6 terrama2-schema-form',
+      ngModelOptions: { "updateOn": "blur" }
     },
     {
       key: UriPattern.PORT,

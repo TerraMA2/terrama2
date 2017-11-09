@@ -9,7 +9,8 @@
 {% block javascripts %}
 <script type="text/javascript">
   var configuration = {
-    service: {[ service|json|safe ]} || {}
+    service: {[ service|json|safe ]} || {},
+    db: {[ db|json|safe ]} || {}
   }
 </script>
 

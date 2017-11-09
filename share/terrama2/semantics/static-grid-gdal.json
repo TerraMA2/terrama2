@@ -6,16 +6,16 @@
     "type": "GRID",
     "temporality": "STATIC",
     "format": "GDAL",
-    "providers_type_list": ["FILE", "FTP"],
+    "providers_type_list": ["FILE"],
     "metadata": {
       "timestamp_property": "file_timestamp"
     },
     "gui": {
       "schema": {
-        "properties": {          
+        "properties": {
           "mask": {
             "type": "string",
-            "title": "Mask"
+            "title": "File Name"
           }
         },
         "required": ["mask"]

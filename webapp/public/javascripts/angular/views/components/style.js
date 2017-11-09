@@ -9,6 +9,8 @@ define([], function () {
     bindings: {
       formCtrl: "<", // controller binding in order to throw up
       type: "=",
+      columnsList: "=",
+      postgisData: "=",
       model: "=",
       options: "="
     },
@@ -22,7 +24,7 @@ define([], function () {
    * @param {ColorFactory} ColorFactory - TerraMA² Color generator
    * @param {any} i18n - TerraMA² Internationalization module
    */
-  function StyleController($scope, ColorFactory, i18n, DataSeriesService, StyleType, $http, Utility) {
+  function StyleController($scope, ColorFactory, i18n, DataSeriesService, StyleType, $http, Utility, DataProviderService) {
     var self = this;
     // binding component form into parent module in order to expose Form to help during validation
     self.formCtrl = self.form;
@@ -34,6 +36,9 @@ define([], function () {
     self.addColor = addColor;
     self.removeColor = removeColor;
     self.typeFilter = typeFilter;
+
+    // Array with possible values of a column
+    self.columnValues = [];
 
     /**
      * It keeps the rgba color values
@@ -55,6 +60,13 @@ define([], function () {
      */
     self.rgbaModal = function(elm) {
       self.rgba.elm = elm;
+      var rgbaColor = Utility.hex2rgba(elm.color);
+      if (rgbaColor){
+        self.rgba.r = rgbaColor.r;
+        self.rgba.g = rgbaColor.g;
+        self.rgba.b = rgbaColor.b;
+        self.rgba.a = rgbaColor.a;
+      }
       $("#rgbaModal").modal();
     };
 
@@ -110,6 +122,12 @@ define([], function () {
       }
     };
     /**
+     * Listen when change creation type from view register update controller
+     */
+    $scope.$on('updateCreationType', function(event) {
+      self.changeCreationType();
+    });
+    /**
      * Setting default parameters when change mode to xml file
      */
     self.changeCreationType = function(){
@@ -139,7 +157,8 @@ define([], function () {
         $scope.$broadcast("schemaFormRedraw");
       }
     }
-
+    // Regex to valide column name of style
+    self.regexColumn = "^[a-zA-Z_][a-zA-Z0-9_]*$";
     self.changeColorType = function(){
       if (self.model.type == 1){
         self.minColorsLength = 2;
@@ -198,10 +217,31 @@ define([], function () {
     $scope.$on("updateStyleColor", function () {
       if (self.model.metadata.creation_type == "editor"){
         handleColor();
+        self.getColumnValues();
       } else if (self.model.metadata.creation_type != undefined){
         self.changeCreationType();
       }
     });
+
+    /**
+     * Lists the values of a column from a given table.
+     * 
+     * @returns {void}
+     */
+    self.getColumnValues = function(){
+      if (self.model.type == 3 && self.model.metadata.attribute !== undefined && self.model.metadata.attribute !== ""){
+        DataProviderService.listPostgisObjects({providerId: self.postgisData.dataProvider.id, objectToGet: "values", tableName: self.postgisData.tableName, columnName: self.model.metadata.attribute})
+          .then(function(response){
+            if (response.data.status == 400){
+              self.columnValues = [];
+            } else {
+              self.columnValues = response.data.data;
+            }
+          });
+      } else {
+        self.columnValues = [];
+      }
+    };
 
     /**
      * It tries to sets begin and end color based in table row selection
@@ -244,6 +284,6 @@ define([], function () {
   }
 
   // Dependencies Injection
-  StyleController.$inject = ["$scope", "ColorFactory", "i18n", "DataSeriesService", "StyleType", "$http", "Utility"];
+  StyleController.$inject = ["$scope", "ColorFactory", "i18n", "DataSeriesService", "StyleType", "$http", "Utility", "DataProviderService"];
   return terrama2StyleComponent;
 });

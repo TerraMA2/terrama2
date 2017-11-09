@@ -18,7 +18,7 @@ module.exports = function(grunt) {
             TerraMA2WebAppTemplates: "../dist"
           },
           include: [
-            "../../bower_components/almond/almond",
+            "../../node_modules/almond/almond",
             "TerraMA2WebApp/application",
           ],
           wrap: {
@@ -38,7 +38,7 @@ module.exports = function(grunt) {
             TerraMA2WebAppTemplates: "../dist"
           },
           include: [
-            "../../bower_components/almond/almond",
+            "../../node_modules/almond/almond",
             "TerraMA2WebApp/application"
           ],
           wrap: {

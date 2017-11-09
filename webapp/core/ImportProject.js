@@ -174,31 +174,33 @@ var ImportProject = function(json){
         return Promise.all(promises).then(function() {
           promises = [];
           // updating data sets
-          output.DataSeries.forEach(function(dSeries){
-            if (dSeries.dataSets){
-              dSeries.dataSets.forEach(function(dataSet){
-                if (dataSet.format){
-                  var format = dataSet.format;
-                  for (var key in format){
-                    if (format.hasOwnProperty(key)){
-                      if (key == "monitored_object_id"){
-                        var monitoredObjectId = Utils.find(output.DataSeries, {$id: format[key]}).id;
-                        format[key] = monitoredObjectId.toString();
-                        var restriction = {
-                          data_set_id: dataSet.id,
-                          key: "monitored_object_id"
+          if (output.DataSeries){
+            output.DataSeries.forEach(function(dSeries){
+              if (dSeries.dataSets){
+                dSeries.dataSets.forEach(function(dataSet){
+                  if (dataSet.format){
+                    var format = dataSet.format;
+                    for (var key in format){
+                      if (format.hasOwnProperty(key)){
+                        if (key == "monitored_object_id"){
+                          var monitoredObjectId = Utils.find(output.DataSeries, {$id: format[key]}).id;
+                          format[key] = monitoredObjectId.toString();
+                          var restriction = {
+                            data_set_id: dataSet.id,
+                            key: "monitored_object_id"
+                          }
+                          var dataSetFormatObject = {
+                            value: monitoredObjectId
+                          }
+                          promises.push(DataManager.upsertDataSetFormats(restriction, dataSetFormatObject, options));
                         }
-                        var dataSetFormatObject = {
-                          value: monitoredObjectId
-                        }
-                        promises.push(DataManager.upsertDataSetFormats(restriction, dataSetFormatObject, options));
                       }
                     }
                   }
-                }
-              });
-            }
-          });
+                });
+              }
+            });
+          }
           return Promise.all(promises).then(function(){
             promises = [];
             if(json.Collectors) {
@@ -223,7 +225,7 @@ var ImportProject = function(json){
 
                 collector.filter.date = date;
 
-                if(collector.service_instance_id === null) collector.service_instance_id = json.servicesCollect;
+                collector.service_instance_id = json.servicesCollect;
 
                 if(countObjectProperties(collector.schedule) > 0) {
                   delete collector.schedule.id;
@@ -299,8 +301,8 @@ var ImportProject = function(json){
                       analysis.dataset_output = dataSeriesOutput.dataSets[0].id;
                     }
   
-                    if(analysis.service_instance_id === null) analysis.service_instance_id = json.servicesAnalysis;
-                    if(analysis.instance_id === null) analysis.instance_id = json.servicesAnalysis;
+                    analysis.service_instance_id = json.servicesAnalysis;
+                    analysis.instance_id = json.servicesAnalysis;
   
                     if(countObjectProperties(analysis.schedule) || analysis.automatic_schedule.id) {
                       delete analysis.schedule.id;
@@ -360,7 +362,7 @@ var ImportProject = function(json){
 
                       view.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: view.project_id}).id : json.selectedProject;
                       view.data_series_id = Utils.find(output.DataSeries, {$id: view.data_series_id}).id;
-                      if(view.service_instance_id === null) view.service_instance_id = json.servicesView;
+                      view.service_instance_id = json.servicesView;
                       if (view.legend){
                         delete view.legend.id;
                         if (view.legend.colors){
@@ -448,7 +450,7 @@ var ImportProject = function(json){
                           alert.data_series_id = Utils.find(output.DataSeries, {$id: alert.data_series_id}).id;
                           alert.legend_id = Utils.find(output.Legends, {$id: alert.legend_id}).id;
   
-                          if(alert.service_instance_id === null) alert.service_instance_id = json.servicesAlert;
+                          alert.service_instance_id = json.servicesAlert;
                           if (alert.view && alert.view.$id){
                             var viewId = Utils.find(tcpOutput.Views, {$id: alert.view.$id}).id;
                             alert.view_id = viewId;
@@ -483,9 +485,60 @@ var ImportProject = function(json){
                                 alert.schedule_id = schedule.id;
                             }
 
+                            if(alert.attachment.hasOwnProperty("id"))
+                              var alertAttachment = Object.assign({}, alert.attachment);
+
+                            delete alert.attachment;
+
                             return DataManager.addAlert(alert, options).then(function(alertResult) {
-                              if(tcpOutput.Alerts === undefined) tcpOutput.Alerts = [];
-                              tcpOutput.Alerts.push(alertResult);
+                              var tcpOutputAlert = function() {
+                                if(tcpOutput.Alerts === undefined) tcpOutput.Alerts = [];
+                                tcpOutput.Alerts.push(alertResult);
+                              };
+
+                              if(alertAttachment) {
+                                var attachedViews = Object.assign([], alertAttachment.attachedViews);
+
+                                delete alertAttachment.attachedViews;
+                                delete alertAttachment.class;
+                                delete alertAttachment.id;
+
+                                alertAttachment.alert_id = alertResult.id;
+
+                                return DataManager.addAlertAttachment(alertAttachment, options).then(function(alertAttachmentResult) {
+                                  var attachedViewsPromises = [];
+
+                                  for(var i = 0, attachedViewsLength = attachedViews.length; i < attachedViewsLength; i++) {
+                                    attachedViews[i].alert_attachment_id = alertAttachmentResult.id;
+
+                                    var viewId = Utils.find(tcpOutput.Views, { $id: attachedViews[i].view_id }).id;
+                                    attachedViews[i].view_id = viewId;
+
+                                    delete attachedViews[i].id;
+
+                                    attachedViewsPromises.push(DataManager.addAlertAttachedView(attachedViews[i], options));
+                                  }
+
+                                  return Promise.all(attachedViewsPromises).then(function() {
+                                    return DataManager.listAlertAttachedViews({ alert_attachment_id: alertAttachmentResult.id }, options).then(function(alertAttachedViews) {
+                                      if(alertAttachedViews[0].View.ServiceInstance.ServiceMetadata) {
+                                        for(var i = 0, serviceMetadataLength = alertAttachedViews[0].View.ServiceInstance.ServiceMetadata.length; i < serviceMetadataLength; i++) {
+                                          if(alertAttachedViews[0].View.ServiceInstance.ServiceMetadata[i].dataValues.key === "maps_server") {
+                                            alertAttachmentResult.setGeoserverUri(alertAttachedViews[0].View.ServiceInstance.ServiceMetadata[i].dataValues.value);
+                                            break;
+                                          }
+                                        }
+                                      }
+
+                                      alertAttachmentResult.setAttachedViews(alertAttachedViews);
+                                      alertResult.setAttachment(alertAttachmentResult);
+
+                                      tcpOutputAlert();
+                                    });
+                                  });
+                                });
+                              } else
+                                tcpOutputAlert();
                             });
                           });
                         }));

@@ -8,13 +8,13 @@
 
 {% block styles %}
   <!-- Bootstrap Eonasdan datatimepicker (used in TerraMA² datetimepicker wrapper) -->
-  <link rel="stylesheet" href="{[ BASE_URL ]}bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css">
+  <link rel="stylesheet" href="{[ BASE_URL ]}externals/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css">
 
   <!-- Angular Color Picker -->
-  <link rel="stylesheet" href="{[ BASE_URL ]}bower_components/angular-color-picker/dist/angularjs-color-picker.min.css" />
-  <link rel="stylesheet" href="{[ BASE_URL ]}bower_components/angular-ui-select/dist/select.min.css" />
+  <link rel="stylesheet" href="{[ BASE_URL ]}externals/angular-color-picker/dist/angularjs-color-picker.min.css" />
+  <link rel="stylesheet" href="{[ BASE_URL ]}externals/angular-ui-select/dist/select.min.css" />
   <!-- only include if you use bootstrap -->
-  <link rel="stylesheet" href="{[ BASE_URL ]}bower_components/angular-color-picker/dist/themes/angularjs-color-picker-bootstrap.min.css" />
+  <link rel="stylesheet" href="{[ BASE_URL ]}externals/angular-color-picker/dist/themes/angularjs-color-picker-bootstrap.min.css" />
 
   <style>
     .has-feedback label~.form-control-feedback {
@@ -40,29 +40,29 @@
 </script>
 
 <!-- Moment Datetime JS -->
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/moment.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/moment/moment.js"></script>
 <!-- Ace editor -->
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/ace-builds/src/ace.js"></script>
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/ace-builds/src/ext-language_tools.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/ace-builds/src/ace.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/ace-builds/src/ext-language_tools.js"></script>
 
 <!-- Angular Schema Form dependencies -->
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/angular-sanitize/angular-sanitize.js"></script>
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/tv4/tv4.js"></script>
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/objectpath/lib/ObjectPath.js"></script>
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/angular-schema-form/dist/schema-form.js"></script>
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/angular-schema-form/dist/bootstrap-decorator.min.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/angular-sanitize/angular-sanitize.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/tv4/tv4.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/objectpath/lib/ObjectPath.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/angular-schema-form/dist/schema-form.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/angular-schema-form/dist/bootstrap-decorator.min.js"></script>
 <!-- Bootstrap datetimepicker -->
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
 
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/pt-br.js"></script>
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/es.js"></script>
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/fr.js"></script>
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/angular-eonasdan-datetimepicker/dist/angular-eonasdan-datetimepicker.min.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/moment/locale/pt-br.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/moment/locale/es.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/moment/locale/fr.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/angular-eonasdan-datetimepicker/dist/angular-eonasdan-datetimepicker.min.js"></script>
 
 <!-- Angular Color Picker -->
-<script src="{[ BASE_URL ]}bower_components/tinycolor/dist/tinycolor-min.js"></script>
-<script src="{[ BASE_URL ]}bower_components/angular-color-picker/dist/angularjs-color-picker.min.js"></script>
-<script src="{[ BASE_URL ]}bower_components/angular-ui-select/dist/select.min.js"></script>
+<script src="{[ BASE_URL ]}externals/tinycolor/dist/tinycolor-min.js"></script>
+<script src="{[ BASE_URL ]}externals/angular-color-picker/dist/angularjs-color-picker.min.js"></script>
+<script src="{[ BASE_URL ]}externals/angular-ui-select/dist/select.min.js"></script>
 
 
 {% endblock %}
@@ -174,11 +174,11 @@
                     ng-change="ctrl.onDataSeriesChanged(ctrl.view.data_series_id, dSeries)"
                     required>
               <ui-select-match>
-                <img ng-src="{{ctrl.getImageUrl($select.selected)}}" style="width: 20px; margin-top: -9px"/>
+                <img ng-src="{{ctrl.getImageUrl($select.selected)}}" style="max-width: 20px; height: 20px; margin-top: -9px"/>
                 <span ng-bind="$select.selected.name"></span>
               </ui-select-match>
               <ui-select-choices repeat="dSeries.id as dSeries in (ctrl.dataSeries | filter:ctrl.filterByType | orderBy: 'name') track by dSeries.id">
-                <img ng-src="{{ctrl.getImageUrl(dSeries)}}" style="width: 20px;"/>
+                <img ng-src="{{ctrl.getImageUrl(dSeries)}}" style="max-width: 20px; height: 20px;"/>
                 <span ng-bind="dSeries.name"></span>
               </ui-select-choices>
             </ui-select>
@@ -199,12 +199,11 @@
     </terrama2-box>
 
     <terrama2-box title="i18n.__('Style')" css="ctrl.css"
-                  ng-show="ctrl.viewDataSeries.data_series_semantics.data_series_type_name && ctrl.viewDataSeries.data_series_semantics.data_series_type_name !== ctrl.DataSeriesType.DCP"
                   handle-buttons="ctrl.styleButtons"
                   extra="{disabled: !ctrl.hasStyle}">
-      <form name="forms.styleForm" novalidate ng-if="ctrl.hasStyle">
+      <form name="forms.styleForm" novalidate ng-show="ctrl.hasStyle">
         <!-- Vectorial -->
-        <terrama2-style-legend form-ctrl="forms.styleForm" type="ctrl.targetDataSeriesType" model="ctrl.legend"></terrama2-style-legend>
+        <terrama2-style-legend form-ctrl="forms.styleForm" type="ctrl.targetDataSeriesType" columns-list="ctrl.columnsList" postgis-data="ctrl.postgisData" model="ctrl.legend"></terrama2-style-legend>
       </form>
     </terrama2-box>
 

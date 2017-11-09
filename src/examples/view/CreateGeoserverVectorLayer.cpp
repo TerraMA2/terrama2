@@ -27,99 +27,148 @@
   \author Vinicius Campanha
  */
 
-// TerraMA2
-#include "Utils.hpp"
+#include <terrama2/services/view/core/View.hpp>
+#include <terrama2/services/view/core/DataManager.hpp>
+#include <terrama2/services/view/core/Shared.hpp>
+#include <terrama2/services/view/core/Utils.hpp>
+#include <terrama2/services/view/core/Service.hpp>
 
-#include <terrama2/core/utility/Raii.hpp>
+#include <terrama2/services/view/core/data-access/Geoserver.hpp>
+
+#include <terrama2/services/view/mock/MockViewLogger.hpp>
+
+#include <terrama2/core/Shared.hpp>
+
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/core/utility/TerraMA2Init.hpp>
-#include <terrama2/impl/Utils.hpp>
-#include <terrama2/services/view/core/View.hpp>
-#include <terrama2/services/view/core/data-access/Geoserver.hpp>
-#include <terrama2/services/view/core/JSonUtils.hpp>
-#include <terrama2/core/utility/TerraMA2Init.hpp>
+#include <terrama2/core/utility/SemanticsManager.hpp>
+#include <terrama2/core/utility/ServiceManager.hpp>
+#include <terrama2/core/utility/TimeUtils.hpp>
 
-// TerraLib
+#include <terrama2/core/data-model/DataManager.hpp>
+#include <terrama2/core/data-model/DataSet.hpp>
+#include <terrama2/core/data-model/DataSetGrid.hpp>
+#include <terrama2/core/data-model/Filter.hpp>
+#include <terrama2/core/data-model/DataProvider.hpp>
+
+#include <terrama2/impl/Utils.hpp>
+
+#include <examples/data/Geotiff.hpp>
+
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
-#include <terralib/dataaccess/utils/Utils.h>
 
 #include <terralib/geometry/GeometryProperty.h>
 
 // Qt
-#include <QTemporaryFile>
+#include <QCoreApplication>
 #include <QUrl>
+#include <QTimer>
+
+// STL
+#include <memory>
+
+#include <terrama2/services/view/mock/MockViewLogger.hpp>
+
+#include <examples/data/StaticPostGis.hpp>
 
 
 int main(int argc, char** argv)
 {
+  QCoreApplication a(argc, argv);
+
+
   terrama2::core::TerraMA2Init terramaRaii("example", 0);
+  Q_UNUSED(terramaRaii);
   terrama2::core::registerFactories();
 
   try
   {
+    auto& serviceManager = terrama2::core::ServiceManager::getInstance();
+
     auto dataManager = std::make_shared<terrama2::services::view::core::DataManager>();
 
-    //DataProvider information
-    QUrl uri;
-    uri.setScheme("postgis");
-    uri.setHost("localhost");
-    uri.setPort(5432);
-    uri.setUserName("postgres");
-    uri.setPassword("postgres");
-    uri.setPath("/terrama2");
+    auto loggerCopy = std::make_shared<terrama2::core::MockViewLogger>();
+
+    EXPECT_CALL(*loggerCopy, setConnectionInfo(::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*loggerCopy, setTableName(::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*loggerCopy, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
+    EXPECT_CALL(*loggerCopy, getDataLastTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
+    EXPECT_CALL(*loggerCopy, done(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*loggerCopy, start(::testing::_)).WillRepeatedly(::testing::Return(0));
+    EXPECT_CALL(*loggerCopy, isValid()).WillRepeatedly(::testing::Return(true));
+
+    te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+ ":"+TERRAMA2_DATABASE_PASSWORD+"@"+TERRAMA2_DATABASE_HOST+":"+TERRAMA2_DATABASE_PORT+"/"+TERRAMA2_DATABASE_DBNAME);
+    EXPECT_CALL(*loggerCopy, getConnectionInfo()).WillRepeatedly(::testing::Return(uri));
+
+    EXPECT_CALL(*loggerCopy, setStartProcessingTime(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*loggerCopy, setEndProcessingTime(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*loggerCopy, result(::testing::_, ::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
+
+    auto logger = std::make_shared<terrama2::core::MockViewLogger>();
+
+
+    EXPECT_CALL(*logger, setConnectionInfo(::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*logger, setTableName(::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*logger, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
+    EXPECT_CALL(*logger, getDataLastTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
+    EXPECT_CALL(*logger, done(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*logger, start(::testing::_)).WillRepeatedly(::testing::Return(0));
+    EXPECT_CALL(*logger, clone()).WillRepeatedly(::testing::Return(loggerCopy));
+    EXPECT_CALL(*logger, isValid()).WillRepeatedly(::testing::Return(true));
+    EXPECT_CALL(*logger, getConnectionInfo()).WillRepeatedly(::testing::Return(uri));
+
+    EXPECT_CALL(*logger, setStartProcessingTime(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*logger, setEndProcessingTime(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
+    EXPECT_CALL(*logger, result(::testing::_, ::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
+
+
+
+    terrama2::services::view::core::Service service(dataManager);
+    serviceManager.setInstanceId(1);
+    serviceManager.setLogger(logger);
+    serviceManager.setLogConnectionInfo(te::core::URI(""));
+
+    service.setLogger(logger);
+    service.start(1);
+
 
     //DataProvider information
-    terrama2::core::DataProvider* dataProviderPostGIS = new terrama2::core::DataProvider();
-    terrama2::core::DataProviderPtr dataProviderPostGISPtr(dataProviderPostGIS);
-    dataProviderPostGIS->uri = uri.url().toStdString();
-    dataProviderPostGIS->name = "postgis";
-    dataProviderPostGIS->id = 1;
+    auto dataProviderPostGIS = terrama2::staticpostgis::dataProviderStaticPostGis();
+    dataManager->add(dataProviderPostGIS);
 
-    dataProviderPostGIS->intent = terrama2::core::DataProviderIntent::PROCESS_INTENT;
-    dataProviderPostGIS->dataProviderType = "POSTGIS";
-    dataProviderPostGIS->active = true;
-
-    dataManager->add(dataProviderPostGISPtr);
-
-    auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
 
     //DataSeries information
-    terrama2::core::DataSeries* dataSeriesGeometry = new terrama2::core::DataSeries();
-    terrama2::core::DataSeriesPtr dataSeriesGeometryPtr(dataSeriesGeometry);
-    dataSeriesGeometry->id = 2;
-    dataSeriesGeometry->name = "dataSeriesGeometry";
-    dataSeriesGeometry->dataProviderId = 1;
-    dataSeriesGeometry->semantics = semanticsManager.getSemantics("STATIC_DATA-postgis");
+    auto dataSeriesGeometry = terrama2::staticpostgis::dataSeriesEstados2010(dataProviderPostGIS);
+    dataManager->add(dataSeriesGeometry);
 
-    terrama2::core::DataSetGrid* dataSetGeometry = new terrama2::core::DataSetGrid();
-    dataSetGeometry->active = true;
-    dataSetGeometry->format.emplace("table_name", "estados_2010");
-
-    dataSeriesGeometry->datasetList.emplace_back(dataSetGeometry);
-
-    dataManager->add(dataSeriesGeometryPtr);
 
     std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make("POSTGIS",
                                                                                    dataProviderPostGIS->uri));
 
     terrama2::core::OpenClose<std::shared_ptr<te::da::DataSource>> openClose(datasource);
 
-    if(!datasource->isOpened())
-    {
-      QString errMsg = QObject::tr("DataProvider could not be opened.");
-      std::cout << std::endl << "An exception has occurred in GeoServer example: " << errMsg.toStdString() << std::endl;
-      return EXIT_FAILURE;
-    }
-
     std::unique_ptr< te::da::DataSetType > dataSetType = datasource->getDataSetType("estados_2010");
 
-    terrama2::services::view::core::View::Legend legend;
 
-    legend.operation = terrama2::services::view::core::View::Legend::OperationType::VALUE;
+    std::unique_ptr<terrama2::services::view::core::View::Legend> legend(new terrama2::services::view::core::View::Legend());
 
-    legend.metadata.emplace("band_number", "0");
-    legend.metadata.emplace("column", "id");
+    legend->operation = terrama2::services::view::core::View::Legend::OperationType::VALUE;
+    legend->classify = terrama2::services::view::core::View::Legend::ClassifyType::VALUES;
 
+    legend->metadata.emplace("creation_type", "editor");
+    legend->metadata.emplace("band_number", "0");
+    legend->metadata.emplace("column", "uf");
+
+    {
+      terrama2::services::view::core::View::Legend::Rule rule;
+      rule.title = "title0";
+      rule.value = "0";
+      rule.color = "#5959FF";
+      rule.opacity = "1";
+      rule.isDefault = true;
+
+      legend->rules.push_back(rule);
+    }
     {
       terrama2::services::view::core::View::Legend::Rule rule;
       rule.title = "title1";
@@ -127,7 +176,7 @@ int main(int argc, char** argv)
       rule.color = "#F10D0D";
       rule.isDefault = false;
 
-      legend.rules.push_back(rule);
+      legend->rules.push_back(rule);
     }
 
     {
@@ -137,23 +186,35 @@ int main(int argc, char** argv)
       rule.color = "#2E37CE";
       rule.isDefault = false;
 
-      legend.rules.push_back(rule);
+      legend->rules.push_back(rule);
     }
 
-    te::core::URI geoserverURI("http://admin:geoserver@localhost:8080/geoserver");
+    std::shared_ptr<terrama2::services::view::core::View> view = std::make_shared<terrama2::services::view::core::View>();
+    view->id = 1;
+    view->active = true;
+    view->projectId = 1;
+    view->serviceInstanceId = 1;
+    view->viewName = "StaticPostGisExample";
+    view->dataSeriesID = dataSeriesGeometry->id;
+    view->filter = terrama2::core::Filter();
+    view->legend = std::move(legend);
 
-    terrama2::services::view::core::GeoServer geoserver(geoserverURI);
+    dataManager->add(view);
 
-    te::gm::GeomType geomType = te::gm::UnknownGeometryType;
 
-    auto geomProperty = te::da::GetFirstGeomProperty(dataSetType.get());
+    QJsonObject additionalIfo;
+    additionalIfo.insert("maps_server", QString("http://admin:geoserver@localhost:8080/geoserver"));
 
-    if(geomProperty != nullptr)
-      geomType = geomProperty->getGeometryType();
+    service.updateAdditionalInfo(additionalIfo);
 
-    terrama2::services::view::core::View::Legend::ObjectType objectType = terrama2::services::view::core::View::Legend::ObjectType::GEOMETRY;
+    service.addToQueue(view->id, terrama2::core::TimeUtils::nowUTC());
 
-    geoserver.registerStyle("name3", legend, objectType, geomType);
+    QTimer timer;
+    QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
+    timer.start(10000);
+    a.exec();
+
+    service.stopService();
   }
   catch(const std::exception& e)
   {

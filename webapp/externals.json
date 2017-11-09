@@ -1,0 +1,110 @@
+[
+  {
+    "publicUrl": "externals/jquery",
+    "path": "node_modules/jquery"
+  },
+  {
+    "publicUrl": "externals/moment",
+    "path": "node_modules/moment"
+  },
+  {
+    "publicUrl": "externals/intl-tel-input",
+    "path": "node_modules/intl-tel-input"
+  },
+  {
+    "publicUrl": "externals/angular-material",
+    "path": "node_modules/angular-material"
+  },
+  {
+    "publicUrl": "externals/AdminLTE",
+    "path": "node_modules/admin-lte"
+  },
+  {
+    "publicUrl": "externals/font-awesome",
+    "path": "node_modules/font-awesome"
+  },
+  {
+    "publicUrl": "externals/datatables",
+    "path": "node_modules/datatables"
+  },
+  {
+    "publicUrl": "externals/angular",
+    "path": "node_modules/angular"
+  },
+  {
+    "publicUrl": "externals/i18n-node-angular",
+    "path": "node_modules/i18n-node-angular"
+  },
+  {
+    "publicUrl": "externals/ng-file-upload",
+    "path": "node_modules/ng-file-upload/dist"
+  },
+  {
+    "publicUrl": "externals/eonasdan-bootstrap-datetimepicker",
+    "path": "node_modules/eonasdan-bootstrap-datetimepicker"
+  },
+  {
+    "publicUrl": "externals/angular-ui-select",
+    "path": "node_modules/ui-select"
+  },
+  {
+    "publicUrl": "externals/angular-eonasdan-datetimepicker",
+    "path": "node_modules/angular-eonasdan-datetimepicker"
+  },
+  {
+    "publicUrl": "externals/tinycolor",
+    "path": "node_modules/tinycolor2"
+  },
+  {
+    "publicUrl": "externals/angular-color-picker",
+    "path": "node_modules/angularjs-color-picker"
+  },
+  {
+    "publicUrl": "externals/angular-tree-control",
+    "path": "node_modules/angular-tree-control"
+  },
+  {
+    "publicUrl": "externals/ace-builds",
+    "path": "node_modules/ace-builds"
+  },
+  {
+    "publicUrl": "externals/angular-sanitize",
+    "path": "node_modules/angular-sanitize"
+  },
+  {
+    "publicUrl": "externals/tv4",
+    "path": "node_modules/tv4"
+  },
+  {
+    "publicUrl": "externals/objectpath",
+    "path": "node_modules/objectpath"
+  },
+  {
+    "publicUrl": "externals/angular-schema-form",
+    "path": "node_modules/angular-schema-form"
+  },
+  {
+    "publicUrl": "externals/angular-aria",
+    "path": "node_modules/angular-aria"
+  },
+  {
+    "publicUrl": "externals/angular-animate",
+    "path": "node_modules/angular-animate"
+  },
+  {
+    "publicUrl": "externals/angular-wizard",
+    "path": "node_modules/angular-wizard"
+  },
+  {
+    "publicUrl": "externals/angular-xeditable",
+    "path": "node_modules/angular-xeditable"
+  },
+  {
+    "publicUrl": "externals/angular-ui-router",
+    "path": "node_modules/angular-ui-router"
+  },
+  {
+    "publicUrl": "externals/angular-sortable-view",
+    "path": "node_modules/angular-sortable-view"
+  }
+]

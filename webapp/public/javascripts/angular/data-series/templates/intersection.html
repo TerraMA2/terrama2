@@ -41,46 +41,37 @@
               </div>
 
               <div style="display: block;" class="box-body">
-                <div class="col-md-10">
-                  <div class="form-group">
-                    <label>{{ !selectedIntersection.isGrid ? i18n.__('Attribute') : i18n.__('Band') }}:</label>
-
-                    <!-- Input when data is grid -->
-                    <input type="number"
-                          class="form-control"
-                          min="0"
-                          ng-show="selectedIntersection.isGrid"
-                          ng-model="attr">
-
-                    <!-- Input when data is not grid -->
-                    <input type="text"
-                          class="form-control"
-                          ng-show="!selectedIntersection.isGrid"
-                          ng-model="attrText"
-                          list="tableColumnsList">
-
+                <div class="col-md-12">
+                  <div class="row" ng-if="selectedIntersection.isGrid">
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label>{{ i18n.__('Band')}}</label>
+                        <div class="input-group">
+                          <!-- Input when data is grid -->
+                          <input type="number" class="form-control" min="0" ng-model="attr">
+                          <div class="input-group-addon" ng-click="addAttribute(forms.intersectionForm, selectedIntersection, attr.toString()); attr='';">
+                            <a href="">
+                              <i class="fa fa-plus"></i>
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-
-                <div class="col-md-2">
-                  <div class="col-md-2 terrama2-nopadding-box">
-                    <div class="form-group">
-
-                      <!-- Button when data is not grid -->
-                      <button class="btn btn-default pull-right"
-                              style="margin-top: 24px;"
-                              ng-show="!selectedIntersection.isGrid"
-                              ng-click="addAttribute(forms.intersectionForm, selectedIntersection, attrText); attrText='';">
-                        <i class="fa fa-plus"></i>
-                      </button>
-
-                      <!-- Button when data is grid -->
-                      <button class="btn btn-default pull-right"
-                              style="margin-top: 24px;"
-                              ng-show="selectedIntersection.isGrid"
-                              ng-click="addAttribute(forms.intersectionForm, selectedIntersection, attr.toString()); attr='';">
-                        <i class="fa fa-plus"></i>
-                      </button>
+                  <div class="row" ng-if="!selectedIntersection.isGrid">
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label>{{ i18n.__('Attribute')}}</label>
+                        <div class="input-group">
+                          <!-- Input when data is not grid -->
+                          <input type="text" class="form-control" ng-model="attrText" list="tableColumnsList">
+                          <div class="input-group-addon" ng-click="addAttribute(forms.intersectionForm, selectedIntersection, attrText); attrText='';">
+                            <a href="">
+                              <i class="fa fa-plus"></i>
+                            </a>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>

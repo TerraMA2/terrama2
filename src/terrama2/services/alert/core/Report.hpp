@@ -42,6 +42,7 @@
 #include <terralib/dataaccess/dataset/DataSetType.h>
 #include <terralib/dataaccess/dataset/FilteredDataSet.h>
 #include <terralib/memory/DataSet.h>
+#include <terralib/core/uri/URI.h>
 
 // STL
 #include <string>
@@ -79,8 +80,6 @@ namespace terrama2
           const std::string COPYRIGHT = "copyright";
           const std::string LOGO_PATH = "logo_path";
           const std::string TIMESTAMP_FORMAT = "timestamp_format";
-          const std::string DOCUMENT_URI = "document_uri";
-          const std::string IMAGE_URI = "image_uri";
         } /* ReportTags */
 
         class Report
@@ -123,10 +122,12 @@ namespace terrama2
             std::string timeStampFormat() const { return alert_->reportMetadata.at(ReportTags::TIMESTAMP_FORMAT); }
 
             //! Gets the save path to save a document report
-            std::string documentURI() const;
+            te::core::URI documentURI() const;
 
             //! Gets the path of aa image to be used in report
-            std::string imageURI() const;
+            const te::core::URI& imageURI() const;
+
+            void includeImage(const te::core::URI& imageUri);
 
             /*!
              * \brief Returns a dataSet with all data
@@ -216,6 +217,7 @@ namespace terrama2
             std::shared_ptr<te::mem::DataSet> dataSet_; //!< The dataSet with alert data
             std::vector<std::shared_ptr<te::dt::DateTime>> riskDates_; //!< A list with the datetime of each risk calculation
             mutable terrama2::core::FileRemover fileRemover_;
+            te::core::URI imageUri_; //!< Image uri
 
             bool riskChanged_ = false; //!< Flags if the alert dataset has changed the value from last time.
             uint32_t maxRisk_ = std::numeric_limits<uint32_t>::min();

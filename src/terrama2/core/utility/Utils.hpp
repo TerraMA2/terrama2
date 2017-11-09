@@ -40,6 +40,8 @@
 #include <terralib/geometry/Coord2D.h>
 #include <terralib/raster/Raster.h>
 #include <terralib/dataaccess/dataset/DataSet.h>
+#include <terralib/dataaccess/dataset/DataSetType.h>
+#include <terralib/dataaccess/datasource/DataSource.h>
 
 // STL
 #include <string>
@@ -125,6 +127,8 @@ namespace terrama2
     */
     std::string simplifyString(std::string text);
 
+    std::string readFileContents(const std::string& absoluteFilePath);
+
     /*!
       \brief Returns the value for the "is_temporal" property of the given dataset.
     */
@@ -175,6 +179,10 @@ namespace terrama2
 
     //! Returns the folder mask .
     std::string getFolderMask(DataSetPtr dataSet);
+
+    //! Return the te::da::DataSetType and te::da::DataSet of the DCP positions table
+    std::pair<std::shared_ptr<te::da::DataSetType>, std::shared_ptr<te::da::DataSet> >
+    getDCPPositionsTable(std::shared_ptr<te::da::DataSource> datasource, const std::string& dataSetName);
   } // end namespace core
 }   // end namespace terrama2
 
