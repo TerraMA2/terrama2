@@ -292,6 +292,33 @@ std::map<DataSetId, std::string> terrama2::core::DataAccessor::getFiles(const Fi
   return uriMap;
 }
 
+void terrama2::core::DataAccessor::getSeriesCallback(const terrama2::core::Filter& filter,
+                                                     std::shared_ptr<terrama2::core::FileRemover> remover,
+                                                     std::function<void(const DataSetId&, const std::string& /*uri*/)> processFile) const
+{
+  auto& retrieverFactory = DataRetrieverFactory::getInstance();
+  DataRetrieverPtr dataRetriever = retrieverFactory.make(dataProvider_);
+
+  for(const auto& dataset : dataSeries_->datasetList)
+  {
+    if(!dataset->active)
+      continue;
+
+    // if this data retriever is a remote server that allows to retrieve data to a file,
+    // download the file to a temporary location
+    // if not, just get the DataProvider uri
+    if(dataRetriever->isRetrivable())
+    {
+      auto dataSetId = dataset->id;
+      retrieveDataCallback(dataRetriever, dataset, filter, remover, [&dataSetId, processFile](const std::string& uri){processFile(dataSetId, uri); });
+    }
+    else
+    {
+      processFile(dataset->id, dataProvider_->uri);
+    }
+  }
+}
+
 void terrama2::core::DataAccessor::addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const
 {
   for(std::size_t i = 0, size = datasetType->size(); i < size; ++i)

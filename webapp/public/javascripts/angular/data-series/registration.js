@@ -35,6 +35,7 @@ define([], function() {
             canSave = false;
           } else {
             canSave = true;
+            $scope.MessageBoxService.reset();
           }
         }
       }

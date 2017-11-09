@@ -49,6 +49,12 @@ module.exports = function(app) {
       }).catch(function(err) {
         response.render('base/404');
       });
+    },
+
+    updateCache: function(request, response){
+
+      request.session.cachedProjects = DataManager.listProjects();
+      response.redirect(app.locals.BASE_URL + "configuration/projects");
     }
   };
 };
