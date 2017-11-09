@@ -24,3 +24,4 @@ scripts/postrm
 webapp/config/instances
 webmonitor/config/instances
 websql/node_modules
+websql/npm-debug*
