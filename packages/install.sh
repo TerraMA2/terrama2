@@ -164,13 +164,6 @@ else
 fi
 
 #
-# Npm Bower Globally
-#
-sudo npm install -g bower
-valid $? "Error: could not install bower"
-
-
-#
 # VMime
 #
 sudo dpkg -i terrama2-vmime_1.0.0_amd64.deb
