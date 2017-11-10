@@ -40,6 +40,8 @@ define([], function () {
     // Array with possible values of a column
     self.columnValues = [];
 
+    self.showAutoCreateLegendButton = false;
+    
     /**
      * It keeps the rgba color values
      * 
@@ -159,6 +161,7 @@ define([], function () {
     }
     // Regex to valide column name of style
     self.regexColumn = "^[a-zA-Z_][a-zA-Z0-9_]*$";
+
     self.changeColorType = function(){
       if (self.model.type == 1){
         self.minColorsLength = 2;
@@ -186,6 +189,11 @@ define([], function () {
             value: ""
           }
         ];
+      }
+      if (self.model.type != 3){
+        self.showAutoCreateLegendButton = false;
+      } else {
+        self.getColumnValues();
       }
     }
 
@@ -234,14 +242,53 @@ define([], function () {
           .then(function(response){
             if (response.data.status == 400){
               self.columnValues = [];
+              self.showAutoCreateLegendButton = false;
             } else {
-              self.columnValues = response.data.data;
+              if (response.data.data)
+                self.columnValues = response.data.data;
+              else
+                self.columnValues = [];
+
+              if (self.model.type == 3 && self.columnValues.length > 0){
+                self.showAutoCreateLegendButton = true;
+              }
+              else {
+                self.showAutoCreateLegendButton = false;
+              }
+              
             }
           });
       } else {
         self.columnValues = [];
+        self.showAutoCreateLegendButton = false;
       }
     };
+
+    /**
+     * Auto create legends with possible values of attribute
+     * 
+     * @returns {void}
+     */
+    self.autoCreateLegend = function(){
+      self.model.colors = [
+        {
+          color: "#FFFFFFFF",
+          isDefault: true,
+          title: "Default",
+          value: ""
+        }
+      ];
+      var defaultColors = ColorFactory.getDefaultColors();
+      for (var i = 0; i < self.columnValues.length; i++){
+        var newColor = {
+          color: defaultColors[i],
+          isDefault: false,
+          title: self.columnValues[i],
+          value: self.columnValues[i]
+        }
+        self.model.colors.push(newColor);
+      }
+    }
 
     /**
      * It tries to sets begin and end color based in table row selection

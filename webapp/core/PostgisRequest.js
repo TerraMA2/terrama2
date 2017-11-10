@@ -106,7 +106,7 @@ PostgisRequest.prototype.get = function (){
             query = "SELECT column_name FROM information_schema.columns WHERE table_schema='public' AND table_name='" + self.params.tableName + "';";
             break;
           case PostGISObjects.VALUES:
-            query = "SELECT DISTINCT " + self.params.columnName + " FROM public." + self.params.tableName + " LIMIT 31;";
+            query = "SELECT DISTINCT " + self.params.columnName + " FROM public." + self.params.tableName + " order by " + self.params.columnName + " LIMIT 31;";
             break;
           default:
             return reject(new GetObjectError("Invalid object to query"));
