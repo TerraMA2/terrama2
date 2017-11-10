@@ -1069,5 +1069,6 @@
 	"Import data": "",
 	"Invalid table name": "",
 	"Invalid column name": "",
-	"Could not remove project with data provider associated": ""
+	"Could not remove project with data provider associated": "",
+  "Auto Legend": ""
 }
