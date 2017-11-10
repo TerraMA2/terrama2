@@ -54,5 +54,17 @@
   {
     "publicUrl": "externals/requirejs",
     "path": "node_modules/requirejs"
+  },
+  {
+    "publicUrl": "externals/i18next",
+    "path": "node_modules/i18next"
+  },
+  {
+    "publicUrl": "externals/jquery-i18next",
+    "path": "node_modules/jquery-i18next"
+  },
+  {
+    "publicUrl": "externals/i18next-xhr-backend",
+    "path": "node_modules/i18next-xhr-backend"
   }
 ]
