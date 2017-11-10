@@ -1070,5 +1070,8 @@
 	"Invalid table name": "",
 	"Invalid column name": "",
 	"Could not remove project with data provider associated": "",
-  "Auto Legend": ""
+  "Auto Legend": "",
+  "East band": "",
+  "North band": "",
+  "Has one band": ""
 }
