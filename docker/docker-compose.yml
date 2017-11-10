@@ -9,12 +9,14 @@ services:
     volumes:
       - dbdata:/var/lib/postgres/data
     ports:
-      - 9998:5432
+      - "5432:5432"
 
   webapp:
     build: webapp
     depends_on:
       - "terrama2"
+    links:
+      - "postgis"
   
   webmonitor:
     image: docker_terrama2
