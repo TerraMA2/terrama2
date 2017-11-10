@@ -201,6 +201,7 @@ define([], function() {
             canSave = false;
           } else {
             canSave = true;
+            MessageBoxService.reset();
           }
         }
       }
