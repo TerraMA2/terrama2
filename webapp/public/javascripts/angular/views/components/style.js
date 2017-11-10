@@ -24,7 +24,7 @@ define([], function () {
    * @param {ColorFactory} ColorFactory - TerraMA² Color generator
    * @param {any} i18n - TerraMA² Internationalization module
    */
-  function StyleController($scope, ColorFactory, i18n, DataSeriesService, StyleType, $http, Utility, DataProviderService) {
+  function StyleController($scope, ColorFactory, i18n, DataSeriesService, StyleType, $http, Utility, DataProviderService, FormTranslator) {
     var self = this;
     // binding component form into parent module in order to expose Form to help during validation
     self.formCtrl = self.form;
@@ -206,9 +206,17 @@ define([], function () {
         self.model.fieldsToReplace.forEach(function(field){
           if (self.model.metadata[field])
             self.model.metadata[field] = parseInt(self.model.metadata[field])
-        })
-        self.predefinedStyleSchema = predefinedStyleInfo.gui.schema;
-        self.predefinedStyleForm = predefinedStyleInfo.gui.form;
+        });
+
+        var formTranslatorResult = FormTranslator(predefinedStyleInfo.gui.schema.properties, predefinedStyleInfo.gui.form, predefinedStyleInfo.gui.schema.required);
+        
+        self.predefinedStyleSchema = {
+          type: 'object',
+          properties: formTranslatorResult.object,
+          required: predefinedStyleInfo.gui.schema.required
+        };
+
+        self.predefinedStyleForm = formTranslatorResult.display;
       }
     }
     /**
@@ -284,6 +292,6 @@ define([], function () {
   }
 
   // Dependencies Injection
-  StyleController.$inject = ["$scope", "ColorFactory", "i18n", "DataSeriesService", "StyleType", "$http", "Utility", "DataProviderService"];
+  StyleController.$inject = ["$scope", "ColorFactory", "i18n", "DataSeriesService", "StyleType", "$http", "Utility", "DataProviderService", "FormTranslator"];
   return terrama2StyleComponent;
 });
