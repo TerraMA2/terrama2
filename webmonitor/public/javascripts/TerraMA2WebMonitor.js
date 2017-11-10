@@ -55,11 +55,39 @@ define(
       TerraMA2WebComponents.MapDisplay.updateLayerTime( /**id */ layerId, /** time */ layerTime);
     }
 
+    var changeLanguage = function(language) {
+      i18next.changeLanguage(language, function() {
+        $.post(BASE_URL + "languages", { locale: language }, function() {
+          $("#languages-div > img").removeClass("selected");
+          $("#language-" + language).addClass("selected");
+
+          $(".close-slider").click();
+
+          Utils.changeLanguage(language);
+          Utils.translate("body");
+        });
+      });
+    };
+
     var loadEvents = function() {
       $('#projects').on('change', changeProjects);
 
       $('#mini-toggle').click(function() {
         TerraMA2WebComponents.MapDisplay.updateMapSize();
+      });
+
+      // Language change events
+
+      $("#language-pt").on("click", function() {
+        changeLanguage("pt");
+      });
+
+      $("#language-es").on("click", function() {
+        changeLanguage("es");
+      });
+
+      $("#language-en").on("click", function() {
+        changeLanguage("en");
       });
 
       /**
@@ -155,18 +183,21 @@ define(
         $('#about-dialog').dialog({
           width: 800,
           height: $(window).outerHeight() - 30,
+          title: "",
           closeOnEscape: true,
           closeText: "",
           position: { my: 'top', at: 'top+15' },
           open: function() {
-            $('.ui-dialog-titlebar-close').css('background-image', 'url(images/close.png)');
-            $('.ui-dialog-titlebar-close').css('background-position', 'center');
-            $('.ui-dialog-titlebar-close').css('background-size', '20px');
+            $(this).parent().find('.ui-dialog-titlebar-close').css('background-image', 'url(images/close.png)');
+            $(this).parent().find('.ui-dialog-titlebar-close').css('background-position', 'center');
+            $(this).parent().find('.ui-dialog-titlebar-close').css('background-size', '20px');
+            $(this).parent().find('.ui-dialog-title').append('<span id=\'about-dialog-title-prefix\'></span>');
+            Utils.setTagContent('.ui-dialog-title > #about-dialog-title-prefix', 'About');
           },
           close: function() {
-            $('.ui-dialog-titlebar-close').css('background-image', '');
-            $('.ui-dialog-titlebar-close').css('background-position', '');
-            $('.ui-dialog-titlebar-close').css('background-size', '');
+            $(this).parent().find('.ui-dialog-titlebar-close').css('background-image', '');
+            $(this).parent().find('.ui-dialog-titlebar-close').css('background-position', '');
+            $(this).parent().find('.ui-dialog-titlebar-close').css('background-size', '');
           }
         });
       });
@@ -261,6 +292,15 @@ define(
         var currentProject = $("#projects").val();
 
         for(var i = 0, viewsLength = viewsData.views.length; i < viewsLength; i++) {
+          var layerName = (viewsData.views[i].workspace ? viewsData.views[i].workspace + ":" + viewsData.views[i].layers[0] : viewsData.views[i].layers[0]);
+
+          viewsData.views[i].properties = [
+            {
+              key: "Layer Name",
+              value: layerName
+            }
+          ];
+
           var layerObject = Layers.createLayerObject(viewsData.views[i]);
           var newLayer = Layers.getLayerById(layerObject.id) == null ? true : false;
 
@@ -296,7 +336,8 @@ define(
 
           //if not connected disabled the layer selection
           if(!data.connected) {
-            listElement.prop("title", "Map Server is not responding");
+            Utils.setTagContent(listElement, "Map Server is not responding", "title");
+
             if(inputElement.is(':checked'))
               inputElement.trigger("click");
 
@@ -366,6 +407,30 @@ define(
 
           if(layerCapabilities[layerIndex].boundingBox !== undefined) {
             Layers.updateBoundingBox(layerCapabilities[layerIndex].boundingBox, data.layerId);
+
+            var layer = Layers.getLayerById(data.layerId);
+
+            var bbox = layerCapabilities[layerIndex].boundingBox[0] + "," + layerCapabilities[layerIndex].boundingBox[1] + "," + layerCapabilities[layerIndex].boundingBox[2] + "," + layerCapabilities[layerIndex].boundingBox[3];
+            var getMapUrl = layer.uriGeoServer + "/wms?request=GetMap&service=WMS&version=1.1.1&layers=" + data.layerId + "&width=500&height=500&format=image/png&bbox=" + bbox;
+            var getFeatureUrl = layer.uriGeoServer + "/wfs?service=wfs&version=1.1.0&request=GetFeature&typeName=" + data.layerId + "&outputFormat=application/json&maxFeatures=1";
+
+            Layers.addProperty({
+              key: "WMS",
+              value: "<a href=\"" + getMapUrl + "\" target=\"_blank\">GetMap</a>"
+            }, data.layerId);
+
+            var jsonData = {
+              url: getFeatureUrl,
+              format: "json",
+              requestId: "GetFeature",
+              params: {
+                key: "WFS",
+                value: "<a href=\"" + getFeatureUrl + "\" target=\"_blank\">GetFeature</a>",
+                layerId: data.layerId
+              }
+            };
+
+            Utils.getSocket().emit('proxyRequest', jsonData);
           }
         } catch(e) {
           console.log(e);
@@ -396,7 +461,7 @@ define(
 
             $('#feature-info-box').dialog({
               dialogClass: "feature-info-box",
-              title: "Attributes of layer: " + data.params.layerName,
+              title: "",
               width: 400,
               height: 380,
               modal: false,
@@ -409,16 +474,26 @@ define(
                 at: 'top+75'
               },
               open: function() {
-                $('.ui-dialog-titlebar-close').css('background-image', 'url(images/close.png)');
-                $('.ui-dialog-titlebar-close').css('background-position', 'center');
-                $('.ui-dialog-titlebar-close').css('background-size', '20px');
+                $(this).parent().find('.ui-dialog-titlebar-close').css('background-image', 'url(images/close.png)');
+                $(this).parent().find('.ui-dialog-titlebar-close').css('background-position', 'center');
+                $(this).parent().find('.ui-dialog-titlebar-close').css('background-size', '20px');
+                $(this).parent().find('.ui-dialog-title').append('<span id=\'feature-info-dialog-title-prefix\'></span>' + data.params.layerName);
+
+                Utils.setTagContent('.ui-dialog-title > #feature-info-dialog-title-prefix', 'ATTRIBUTES-OF-LAYER-COLON');
               },
               close: function() {
-                $('.ui-dialog-titlebar-close').css('background-image', '');
-                $('.ui-dialog-titlebar-close').css('background-position', '');
-                $('.ui-dialog-titlebar-close').css('background-size', '');
+                $(this).parent().find('.ui-dialog-titlebar-close').css('background-image', '');
+                $(this).parent().find('.ui-dialog-titlebar-close').css('background-position', '');
+                $(this).parent().find('.ui-dialog-titlebar-close').css('background-size', '');
               }
             });
+          }
+        } else if(data.requestId == "GetFeature") {
+          if(data.msg.hasOwnProperty("totalFeatures") && data.msg.totalFeatures > 0) {
+            Layers.addProperty({
+              key: data.params.key,
+              value: data.params.value
+            }, data.params.layerId);
           }
         } else {
           try {
@@ -426,8 +501,8 @@ define(
             AddLayerByUri.fillModal(capabilities);
           } catch(e) {
             $('#layersModal').modal('hide');
-            $("#terrama2Alert > p > strong").text('Invalid URL!');
-            $("#terrama2Alert > p > span").text('Error to find capabilities.');
+            Utils.setTagContent("#terrama2Alert > p > strong", "Invalid URL!");
+            Utils.setTagContent("#terrama2Alert > p > span", "CAPABILITIES-ERROR");
             $("#terrama2Alert").removeClass('hide');
           }
         }
@@ -591,27 +666,27 @@ define(
         $("#terrama2Alert").removeClass('hide');
       }
 
-      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("custom", "Custom", "terrama2-layerexplorer")) {
+      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("custom", "", "terrama2-layerexplorer")) {
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("custom", "terrama2-layerexplorer", null, "treeview unsortable", null);
         var layerObject = Layers.createLayerObject({
           layers: ["custom"],
-          name: "Custom",
+          name: "Externals",
           description: null
         });
         Layers.addLayer(layerObject);
       }
 
-      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("template", "Template", "terrama2-layerexplorer")) {
+      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("template", "", "terrama2-layerexplorer")) {
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("template", "terrama2-layerexplorer", null, "treeview unsortable", null);
         var layerObject = Layers.createLayerObject({
           layers: ["template"],
-          name: "Template",
+          name: "Templates",
           description: null
         });
         Layers.addLayer(layerObject);
       }
 
-      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("static", "Static Data", "terrama2-layerexplorer")) {
+      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("static", "", "terrama2-layerexplorer")) {
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("static", "terrama2-layerexplorer", null, "treeview unsortable", null);
         var layerObject = Layers.createLayerObject({
           layers: ["static"],
@@ -621,7 +696,7 @@ define(
         Layers.addLayer(layerObject);
       }
 
-      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("dynamic", "Dynamic Data", "terrama2-layerexplorer")) {
+      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("dynamic", "", "terrama2-layerexplorer")) {
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("dynamic", "terrama2-layerexplorer", null, "treeview unsortable", null);
         var layerObject = Layers.createLayerObject({
           layers: ["dynamic"],
@@ -631,7 +706,7 @@ define(
         Layers.addLayer(layerObject);
       }
 
-      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("analysis", "Analysis", "terrama2-layerexplorer")) {
+      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("analysis", "", "terrama2-layerexplorer")) {
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("analysis", "terrama2-layerexplorer", null, "treeview unsortable", null);
         var layerObject = Layers.createLayerObject({
           layers: ["analysis"],
@@ -641,11 +716,11 @@ define(
         Layers.addLayer(layerObject);
       }
 
-      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("alert", "Alert", "terrama2-layerexplorer")) {
+      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("alert", "", "terrama2-layerexplorer")) {
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("alert", "terrama2-layerexplorer", null, "treeview unsortable", null);
         var layerObject = Layers.createLayerObject({
           layers: ["alert"],
-          name: "Alert",
+          name: "Alerts",
           description: null
         });
         Layers.addLayer(layerObject);
@@ -670,6 +745,14 @@ define(
       Layers.addLayersToSort();
       Sortable.setSortable();
       Layers.changeParentLayerStatus("template", LayerStatusEnum.ONLINE);
+
+      // Setting the names of the layers groups
+      Utils.setTagContent("#custom > span > span:nth-child(3n)", "Externals");
+      Utils.setTagContent("#template > span > span:nth-child(3n)", "Templates");
+      Utils.setTagContent("#static > span > span:nth-child(3n)", "Static Data");
+      Utils.setTagContent("#dynamic > span > span:nth-child(3n)", "Dynamic Data");
+      Utils.setTagContent("#analysis > span > span:nth-child(3n)", "Analysis");
+      Utils.setTagContent("#alert > span > span:nth-child(3n)", "Alerts");
 
       // Check connections every 30 seconds
       var intervalID = setInterval(function() {
