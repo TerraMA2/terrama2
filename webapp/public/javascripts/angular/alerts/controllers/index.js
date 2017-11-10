@@ -6,9 +6,10 @@ define([
   "TerraMA2WebApp/data-series/services",
   "TerraMA2WebApp/datetimepicker/directive",
   "TerraMA2WebApp/services/services",
+  "TerraMA2WebApp/views/services/index",
   "TerraMA2WebApp/alerts/controllers/alert-list",
   "TerraMA2WebApp/alerts/controllers/alert-register-update"
-], function(moduleLoader, commonApp, messageBoxApp, scheduleApp, dataSeriesServiceApp, datetimepicker, serviceApp, ListController, RegisterUpdateController){
+], function(moduleLoader, commonApp, messageBoxApp, scheduleApp, dataSeriesServiceApp, datetimepicker, serviceApp, viewServiceApp, ListController, RegisterUpdateController){
   var moduleName = "terrama2.alerts.controllers";
 
   var deps = [messageBoxApp];
@@ -18,6 +19,7 @@ define([
   moduleLoader(datetimepicker, deps);
   moduleLoader(scheduleApp, deps);
   moduleLoader(serviceApp, deps);
+  moduleLoader(viewServiceApp, deps);
 
   angular.module(moduleName, deps)
     .controller("AlertListController", ListController)

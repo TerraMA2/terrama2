@@ -127,6 +127,11 @@
   </div>
   <div class="form-group">
     <div class="col-md-12 row" ng-show="$ctrl.model.colors.length > 0">
+      <div class="col-md-12 row" style="margin-bottom:20px;" ng-if="$ctrl.showAutoCreateLegendButton && $ctrl.type !== $ctrl.DataSeriesType.GRID">
+        <div class="col-md-2">
+          <button type="button" class="btn btn-primary" ng-click="$ctrl.autoCreateLegend()">{{$ctrl.i18n.__('Auto Legend')}}</button>
+        </div>
+      </div>
       <div class="col-md-12 row">
         <div class="col-md-2">
           <label><span ng-bind="$ctrl.i18n.__('Color')"></span>:</label>
