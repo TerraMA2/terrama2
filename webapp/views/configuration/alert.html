@@ -287,7 +287,7 @@
             </div>
           </div>
           <div class="col-md-12" ng-if="ctrl.showAutoCreateLegendButton">
-            <button style="margin-bottom:15px;" type="button" class="btn btn-primary" ng-click="ctrl.autoCreateLegend()">Auto Legend</button>
+            <button style="margin-bottom:15px;" type="button" class="btn btn-primary" ng-click="ctrl.autoCreateLegend()"><span ng-bind="i18n.__('Auto Legend')"></span></button>
           </div>
           <span ng-repeat="level in ctrl.legendModel.levels track by $index">
             <div class="col-md-12 row">
