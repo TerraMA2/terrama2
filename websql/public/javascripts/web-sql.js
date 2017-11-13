@@ -20,4 +20,14 @@ $(document).ready(function() {
         id: "osm",
         name: "OpenStreetMap"
     }));
+
+    //event responsible for take the query
+    $("#submit").click(function(){
+        var data = {query: $("#querybox").val()};
+        $.ajax({
+            type: "POST",
+            url: "/",
+            data: data
+          });
+    });
 });
