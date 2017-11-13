@@ -112,7 +112,16 @@ var ImportProject = function(json){
               dataProvider.name += json.selectedProject;
             dataProvider.data_provider_type_id = dataProvider.data_provider_type.id;
             dataProvider.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: dataProvider.project_id}).id : json.selectedProject;
-  
+
+            if(dataProvider.data_provider_type.name == "FTP" || dataProvider.data_provider_type.name == "HTTP" || dataProvider.data_provider_type.name == "HTTPS") {
+              dataProvider['configuration'] = {
+                timeout: dataProvider.timeout
+              }
+
+              if(dataProvider.data_provider_type.name == "FTP")
+              dataProvider['configuration']['active_mode'] = dataProvider.active_mode ? dataProvider.active_mode : false;
+            }
+
             return DataManager.addDataProvider(dataProvider, options).then(function(dProvider) {
               if(tcpOutput.DataProviders === undefined) tcpOutput.DataProviders = [];
               tcpOutput.DataProviders.push(dProvider.toObject());
