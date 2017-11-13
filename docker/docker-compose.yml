@@ -15,16 +15,22 @@ services:
     build: webapp
     depends_on:
       - "terrama2"
+    ports:
+      - "36000:36000"
     links:
       - "postgis"
   
   webmonitor:
     image: docker_terrama2
+    ports:
+      - "36001:36001"
     depends_on:
       - "terrama2"
   
   geoserver:
     build: "geoserver"
+    ports:
+      - "8080:8080"
     volumes:
       - "data:/data"
   
