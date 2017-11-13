@@ -862,7 +862,7 @@ img[src=""] {
   margin-top: 70px;
 }
 
-#about-dialog > p > span {
+#about-dialog > p > span.about-title {
   font-size: 15px;
   font-weight: bold;
 }
@@ -950,6 +950,18 @@ img[src=""] {
   display: block;
   overflow: hidden;
   width: 145px;
+}
+
+#languages-div { text-align: center; }
+
+#languages-div > img {
+  width: 30px;
+  cursor: pointer;
+}
+
+#languages-div > img.selected {
+  background: #3c8dbc;
+  border-radius: 4px;
 }
 
 #tableCloseButton {

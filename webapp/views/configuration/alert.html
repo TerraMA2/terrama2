@@ -286,6 +286,9 @@
               <textarea class="form-control" name="legendDescription" ng-model="ctrl.legendModel.description" rows="3" placeholder="{{ i18n.__('Legend Description') }}"></textarea>
             </div>
           </div>
+          <div class="col-md-12" ng-if="ctrl.showAutoCreateLegendButton">
+            <button style="margin-bottom:15px;" type="button" class="btn btn-primary" ng-click="ctrl.autoCreateLegend()"><span ng-bind="i18n.__('Auto Legend')"></span></button>
+          </div>
           <span ng-repeat="level in ctrl.legendModel.levels track by $index">
             <div class="col-md-12 row">
               <div ng-class="{'col-md-6 terrama2-min-padding': !ctrl.alert.hasView, 'col-md-4 terrama2-min-padding': ctrl.alert.hasView}">

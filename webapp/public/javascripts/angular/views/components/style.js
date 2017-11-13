@@ -24,7 +24,7 @@ define([], function () {
    * @param {ColorFactory} ColorFactory - TerraMA² Color generator
    * @param {any} i18n - TerraMA² Internationalization module
    */
-  function StyleController($scope, ColorFactory, i18n, DataSeriesService, StyleType, $http, Utility, DataProviderService) {
+  function StyleController($scope, ColorFactory, i18n, DataSeriesService, StyleType, $http, Utility, DataProviderService, FormTranslator) {
     var self = this;
     // binding component form into parent module in order to expose Form to help during validation
     self.formCtrl = self.form;
@@ -40,6 +40,8 @@ define([], function () {
     // Array with possible values of a column
     self.columnValues = [];
 
+    self.showAutoCreateLegendButton = false;
+    
     /**
      * It keeps the rgba color values
      * 
@@ -159,6 +161,7 @@ define([], function () {
     }
     // Regex to valide column name of style
     self.regexColumn = "^[a-zA-Z_][a-zA-Z0-9_]*$";
+
     self.changeColorType = function(){
       if (self.model.type == 1){
         self.minColorsLength = 2;
@@ -187,6 +190,11 @@ define([], function () {
           }
         ];
       }
+      if (self.model.type != 3){
+        self.showAutoCreateLegendButton = false;
+      } else {
+        self.getColumnValues();
+      }
     }
 
     self.initColorType = function(){
@@ -206,9 +214,17 @@ define([], function () {
         self.model.fieldsToReplace.forEach(function(field){
           if (self.model.metadata[field])
             self.model.metadata[field] = parseInt(self.model.metadata[field])
-        })
-        self.predefinedStyleSchema = predefinedStyleInfo.gui.schema;
-        self.predefinedStyleForm = predefinedStyleInfo.gui.form;
+        });
+
+        var formTranslatorResult = FormTranslator(predefinedStyleInfo.gui.schema.properties, predefinedStyleInfo.gui.form, predefinedStyleInfo.gui.schema.required);
+        
+        self.predefinedStyleSchema = {
+          type: 'object',
+          properties: formTranslatorResult.object,
+          required: predefinedStyleInfo.gui.schema.required
+        };
+
+        self.predefinedStyleForm = formTranslatorResult.display;
       }
     }
     /**
@@ -234,14 +250,53 @@ define([], function () {
           .then(function(response){
             if (response.data.status == 400){
               self.columnValues = [];
+              self.showAutoCreateLegendButton = false;
             } else {
-              self.columnValues = response.data.data;
+              if (response.data.data)
+                self.columnValues = response.data.data;
+              else
+                self.columnValues = [];
+
+              if (self.model.type == 3 && self.columnValues.length > 0){
+                self.showAutoCreateLegendButton = true;
+              }
+              else {
+                self.showAutoCreateLegendButton = false;
+              }
+              
             }
           });
       } else {
         self.columnValues = [];
+        self.showAutoCreateLegendButton = false;
       }
     };
+
+    /**
+     * Auto create legends with possible values of attribute
+     * 
+     * @returns {void}
+     */
+    self.autoCreateLegend = function(){
+      self.model.colors = [
+        {
+          color: "#FFFFFFFF",
+          isDefault: true,
+          title: "Default",
+          value: ""
+        }
+      ];
+      var defaultColors = ColorFactory.getDefaultColors();
+      for (var i = 0; i < self.columnValues.length; i++){
+        var newColor = {
+          color: defaultColors[i],
+          isDefault: false,
+          title: self.columnValues[i],
+          value: self.columnValues[i]
+        }
+        self.model.colors.push(newColor);
+      }
+    }
 
     /**
      * It tries to sets begin and end color based in table row selection
@@ -284,6 +339,6 @@ define([], function () {
   }
 
   // Dependencies Injection
-  StyleController.$inject = ["$scope", "ColorFactory", "i18n", "DataSeriesService", "StyleType", "$http", "Utility", "DataProviderService"];
+  StyleController.$inject = ["$scope", "ColorFactory", "i18n", "DataSeriesService", "StyleType", "$http", "Utility", "DataProviderService", "FormTranslator"];
   return terrama2StyleComponent;
 });
