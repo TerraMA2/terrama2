@@ -121,7 +121,7 @@ void terrama2::services::collector::core::Service::addToQueue(CollectorId collec
   catch(...)
   {
     // exception guard, slots should never emit exceptions.
-    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception durring collector edd to queue...");
+    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception during collector add to queue...");
   }
 }
 
@@ -198,9 +198,7 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
           sendProcessFinishedSignal(executionPackage.processId, executionPackage.executionDate, false);
           return;
         }
-        auto tempLastDateTime = dataAccessor->lastDateTime();
-        if(tempLastDateTime && (!lastDateTime || (*tempLastDateTime > *lastDateTime)))
-          lastDateTime = tempLastDateTime;
+        auto thisFileLastDateTime = dataAccessor->lastDateTime();
 
         /////////////////////////////////////////////////////////////////////////
         // data intersection
@@ -223,6 +221,10 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
         auto dataStorager = terrama2::core::DataStoragerFactory::getInstance().make(outputDataSeries, outputDataProvider);
 
         dataStorager->store(dataMap, dataSetLst, inputOutputMap);
+
+        // if any exception happens, don't update the data timestamp
+        if(thisFileLastDateTime && (!lastDateTime || (*thisFileLastDateTime > *lastDateTime)))
+          lastDateTime = thisFileLastDateTime;
       }
       catch(const terrama2::core::LogException& e)
       {
