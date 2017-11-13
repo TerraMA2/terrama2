@@ -5,4 +5,4 @@ pm2 start npm --name webapp -- start
 
 trap "pm2 stop webapp" EXIT HUP INT QUIT TERM
 
-bash
+pm2 log webapp

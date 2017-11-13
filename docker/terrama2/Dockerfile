@@ -8,15 +8,6 @@ LABEL maintainer="TerraMA² Team <terrama2-team@dpi.inpe.br>" \
 ############################################################################
 # Port Binding
 
-# PostgreSQL
-EXPOSE 5432
-# GeoServer
-EXPOSE 8080
-# TerraMA² WebApp
-EXPOSE 36000
-# TerraMA² WebMonitor
-EXPOSE 36001
-
 ############################################################################
 # Customizable Variables
 
@@ -57,7 +48,8 @@ RUN echo "deb http://br.archive.ubuntu.com/ubuntu/ trusty-backports main restric
                        libgnutls-dev \
                        libssl-dev \
                        debhelper \
-                       devscripts
+                       devscripts \
+                       dbus
 
 # Creating USER
 RUN groupadd $TERRAMA2_USER && \
@@ -78,18 +70,6 @@ RUN cd ${TERRAMA2_3RDPARTY_PATH} && \
     ./install.sh && \
     rm -rf *
 
-# GeoServer
-# RUN cd ${TERRAMA2_3RDPARTY_PATH} && \
-#     # Dependencies
-#     add-apt-repository ppa:openjdk-r/ppa -y && \
-#     apt-get update && \
-#     apt-get install -y openjdk-8-jdk && \
-#     # Install GeoServer
-#     curl -LO https://ufpr.dl.sourceforge.net/project/geoserver/GeoServer/2.12.0/geoserver-2.12.0-bin.zip && \
-#     unzip -q geoserver-2.12.0-bin.zip && \
-#     mv geoserver-2.12.0 ${GEOSERVER_HOME} && \
-#     rm -rf geoserver-2.12.0-bin.zip
-
 # NodeJS
 RUN curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash - && \
     apt-get install -y nodejs
@@ -104,15 +84,6 @@ RUN cd ${TERRAMA2_CODEBASE_PATH} && \
 # ############################################################################
 # # TerraMA2
 COPY files/install_terrama2.sh /usr/local/bin
-# COPY files/docker-entrypoint.sh /
 
 RUN service postgresql start && \
     install_terrama2.sh
-
-RUN apt-get install dbus -y
-
-# ############################################################################
-# # Volumes
-# VOLUME /data    
-
-# ENTRYPOINT /docker-entrypoint.sh
