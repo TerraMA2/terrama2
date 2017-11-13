@@ -19,6 +19,8 @@ services:
       - "36000:36000"
     links:
       - "postgis"
+    volumes:
+      - "data:/data"
   
   webmonitor:
     image: docker_terrama2
@@ -26,6 +28,8 @@ services:
       - "36001:36001"
     depends_on:
       - "terrama2"
+    volumes:
+      - "data:/data"
   
   geoserver:
     build: "geoserver"
