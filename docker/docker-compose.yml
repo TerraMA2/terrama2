@@ -3,14 +3,14 @@ version: "3"
 services:
   terrama2:
     build: "terrama2"
-  
+  # Base image for PostgreSQL/PostGIS
   postgis:
     image: mdillon/postgis
     volumes:
       - dbdata:/var/lib/postgres/data
     ports:
       - "5432:5432"
-
+  # TerraMA2 Web Application
   webapp:
     build: webapp
     depends_on:
@@ -21,7 +21,7 @@ services:
       - "postgis"
     volumes:
       - "data:/data"
-  
+  # TerraMA2 Web Monitor
   webmonitor:
     image: docker_terrama2
     ports:
@@ -30,17 +30,17 @@ services:
       - "terrama2"
     volumes:
       - "data:/data"
-  
+  # GeoServer - Universal (without Tomcat)
   geoserver:
     build: "geoserver"
     ports:
       - "8080:8080"
     volumes:
       - "data:/data"
-  
+  # TerraMA2 Collector Service using TerraMA2 Base
   collector:
     image: docker_terrama2
-    command: ["terrama2_service", "COLLECTOR", "6543"]
+    command: ["start_terrama2_service.sh", "COLLECTOR", "6543"]
     environment:
       - DISPLAY=$DISPLAY
     depends_on:
@@ -48,10 +48,10 @@ services:
     volumes:
       - "data:/data"
       - "/tmp/.X11-unix:/tmp/.X11-unix:ro"
-  
+  # TerraMA2 Analysis Service using TerraMA2 Base
   analysis:
     image: docker_terrama2
-    command: ["terrama2_service", "ANALYSIS", "6544"]
+    command: ["start_terrama2_service.sh", "ANALYSIS", "6544"]
     environment:
       - DISPLAY=$DISPLAY
     depends_on:
@@ -59,10 +59,10 @@ services:
     volumes:
       - "data:/data"
       - "/tmp/.X11-unix:/tmp/.X11-unix:ro"
-
+  # TerraMA2 View Service using TerraMA2 Base
   view:
     image: docker_terrama2
-    command: ["terrama2_service", "VIEW", "6545"]
+    command: ["start_terrama2_service.sh", "VIEW", "6545"]
     environment:
       - DISPLAY=$DISPLAY
     depends_on:
@@ -70,10 +70,10 @@ services:
     volumes:
       - "data:/data"
       - "/tmp/.X11-unix:/tmp/.X11-unix:ro"
-
+  # TerraMA2 Alert Service using TerraMA2 Base
   alert:
     image: docker_terrama2
-    command: ["terrama2_service", "ALERT", "6546"]
+    command: ["start_terrama2_service.sh", "ALERT", "6546"]
     environment:
       - DISPLAY=$DISPLAY
     depends_on:
@@ -83,5 +83,7 @@ services:
       - "/tmp/.X11-unix:/tmp/.X11-unix:ro"
 
 volumes:
+  # Shared Volume to mount along TerraMA2 images
   data:
+  # PostgreSQL Volume
   dbdata:

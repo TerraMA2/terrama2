@@ -84,6 +84,7 @@ RUN cd ${TERRAMA2_CODEBASE_PATH} && \
 # ############################################################################
 # # TerraMA2
 COPY files/install_terrama2.sh /usr/local/bin
+COPY files/start_terrama2_service.sh /usr/local/bin
 
 RUN service postgresql start && \
     install_terrama2.sh
