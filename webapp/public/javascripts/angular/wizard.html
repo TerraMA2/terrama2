@@ -4,7 +4,7 @@
 
 <div class="row">
   <div class="col-md-12">
-    <div style="padding-bottom: 50px;">
+    <div style="padding-bottom: 50px;padding-right: 15px;">
       <a ui-sref="advanced" class="btn btn-default pull-right" ng-show="isWizard" ng-click="onFormView()"><i class="fa fa-gear" style="margin-right: 3px;"></i>{{ i18n.__('Expert mode') }}</a>
       <a ui-sref="wizard" class="btn btn-default pull-right" ng-show="!isWizard" ng-click="onFormView()"><i class="fa fa-magic" style="margin-right: 3px;"></i>{{ i18n.__('Wizard mode') }}</a>
     </div>
@@ -20,7 +20,7 @@
         </form>
       </div>
 
-      <div class="col-md-12" style="margin-top: 30px;">
+      <div class="col-md-12" style="margin-top: 30px; padding-left: 25px; padding-right: 25px;">
         <a href="" class="btn btn-primary pull-left cancel-dynamic" ng-show="isDynamic">{{ i18n.__('Cancel') }}</a>
         <a href="" class="btn btn-primary pull-left cancel-static" ng-show="!isDynamic">{{ i18n.__('Cancel') }}</a>
         <div class="pull-right">
@@ -44,18 +44,16 @@
     <wz-step wz-title="{{ i18n.__('Parameters') }}" canexit="isSecondStepValid" wz-data="wizard.parameters">
       <div class="col-md-12">
 
-        <div class="col-md-12">
-          <!-- schema form -->
-          <form name="forms.parametersForm" sf-schema="schema" sf-form="form" sf-model="model" sf-options="options"></form>
+        <!-- schema form -->
+        <form name="forms.parametersForm" sf-schema="schema" sf-form="form" sf-model="model" sf-options="options"></form>
 
-          <div class="col-md-3 terrama2-top-field">
-            <button class="btn btn-default" ng-show="semantics === 'DCP'" ng-click="addDcp(parametersForm)">{{ i18n.__('Add') }}</button>
-            <button class="btn btn-default" ng-show="semantics === 'DCP'" ng-click="openImportParametersModal()">{{ i18n.__('Import CSV') }}</button>
-          </div>
-
-	        <terrama2-dcp-importer></terrama2-dcp-importer>
-          <div id="includeDcpTable" ng-include=""></div>
+        <div class="col-md-3 terrama2-top-field">
+          <button class="btn btn-default" ng-show="semantics === 'DCP'" ng-click="addDcp(parametersForm)">{{ i18n.__('Add') }}</button>
+          <button class="btn btn-default" ng-show="semantics === 'DCP'" ng-click="openImportParametersModal()">{{ i18n.__('Import CSV') }}</button>
         </div>
+
+        <terrama2-dcp-importer></terrama2-dcp-importer>
+        <div id="includeDcpTable" ng-include=""></div>
 
       </div>
 
@@ -70,7 +68,7 @@
         </div>
       </div>
 
-      <div class="col-md-12" style="margin-top: 30px;">
+      <div class="col-md-12" style="margin-top: 30px; padding-left: 25px; padding-right: 25px;">
         <a href="" class="btn btn-primary pull-left cancel-dynamic" ng-show="isDynamic">{{ i18n.__('Cancel') }}</a>
         <a href="" class="btn btn-primary pull-left cancel-static" ng-show="!isDynamic">{{ i18n.__('Cancel') }}</a>
         <div class="pull-right">
@@ -99,7 +97,7 @@
         </form>
       </div>
 
-      <div class="col-md-12" style="margin-top: 30px;">
+      <div class="col-md-12" style="margin-top: 30px; padding-left: 25px; padding-right: 25px;">
         <a href="" class="btn btn-primary pull-left cancel-dynamic" ng-show="isDynamic">{{ i18n.__('Cancel') }}</a>
         <a href="" class="btn btn-primary pull-left cancel-static" ng-show="!isDynamic">{{ i18n.__('Cancel') }}</a>
         <div class="pull-right">
@@ -126,7 +124,7 @@
         <terrama2-storager-form ng-if="!wizard.store.disabled" providers-list="providersList" storager="storager" series="dataSeries" filter="filter" prepare-format-to-form="prepareFormatToForm" field-has-error="fieldHasError" save-storager-data="saveStoragerData" forms="forms" on-storager-format-change= "onStoragerFormatChange" model="model" options="storeOptions" schedule="schedule"></terrama2-storager-form>
 
       </div>
-      <div class="col-md-12" style="margin-top: 30px;">
+      <div class="col-md-12" style="margin-top: 30px; padding-left: 25px; padding-right: 25px;">
         <a href="" class="btn btn-primary pull-left cancel-dynamic" ng-show="isDynamic">{{ i18n.__('Cancel') }}</a>
         <a href="" class="btn btn-primary pull-left cancel-static" ng-show="!isDynamic">{{ i18n.__('Cancel') }}</a>
         <div class="pull-right">
@@ -151,7 +149,7 @@
       <div class="col-md-12">
         <div id="includeFilter" ng-include=""></div>
       </div>
-      <div class="col-md-12" style="margin-top: 30px;">
+      <div class="col-md-12" style="margin-top: 30px; padding-left: 25px; padding-right: 25px;">
         <a href="" class="btn btn-primary pull-left cancel-dynamic" ng-show="isDynamic">{{ i18n.__('Cancel') }}</a>
         <a href="" class="btn btn-primary pull-left cancel-static" ng-show="!isDynamic">{{ i18n.__('Cancel') }}</a>
         <div class="pull-right">
@@ -178,7 +176,7 @@
         </div>
       </div>
 
-      <div class="col-md-12" style="margin-top: 30px;">
+      <div class="col-md-12" style="margin-top: 30px; padding-left: 25px; padding-right: 25px;">
         <a href="" class="btn btn-primary pull-left cancel-dynamic" ng-show="isDynamic">{{ i18n.__('Cancel') }}</a>
         <a href="" class="btn btn-primary pull-left cancel-static" ng-show="!isDynamic">{{ i18n.__('Cancel') }}</a>
         <div class="pull-right">

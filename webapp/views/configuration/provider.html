@@ -42,64 +42,66 @@
 <div ng-controller="DataProviderRegisterController">
   <terrama2-box title="i18n.__('Data Server Registration')" handler="serviceX">
     <terrama2-alert-box2 handler="MessageBoxService.alertBox" close="close()"></terrama2-alert-box2>
-    <div class="row">
-      <form name="forms.dataProviderForm">
-        <div class="col-md-7">
-          <div class="form-group has-feedback" terrama2-show-errors>
-            <label>{{ i18n.__("Name") }}:</label>
-            <input class="form-control"
-                   name="name"
-                   ng-model="dataProvider.name"
-                   placeholder="{{ i18n.__('Data Server Name') }}"
-                   type="text" terrama2-server-errors="serverErrors" required>
-
-            <span class="form-control-feedback glyphicon" ng-show="forms.dataProviderForm.name.$dirty" ng-class="{'glyphicon-ok': forms.dataProviderForm.name.$valid, 'glyphicon-remove': forms.dataProviderForm.name.$invalid }"></span>
-
-            <span class="help-block" ng-show="forms.dataProviderForm.name.$dirty && forms.dataProviderForm.name.$error.required">{{ i18n.__('Data Server name is required') }}</span>
-            <span class="help-block" ng-show="forms.dataProviderForm.name.$error.terrama2Error">
-              {{ i18n.__("Data Server") + " " + serverErrors.name.message }}
-            </span>
-          </div>
-        </div>
-        <!-- /.col -->
-        <div class="col-md-3">
-          <div class="form-group has-feedback" terrama2-show-errors>
-            <label>{{ i18n.__("Type") }}:</label>
-            <select ng-init="console.log(this)" class="form-control" name="protocol" ng-model="dataProvider.protocol" ng-change="onSchemeChanged(this)" ng-disabled="isEditing" required>
-              <option ng-repeat="item in typeList" value="{{ item.name }}" title="{{ item.description }}">{{ i18n.__(item.name) }}</option>
-            </select>
-
-            <span class="help-block" ng-show="forms.dataProviderForm.protocol.$dirty && forms.dataProviderForm.protocol.$invalid" ng-class="{'has-error': forms.dataProviderForm.protocol.$invalid}">{{ i18n.__('Data Server protocol is required') }}</span>
-          </div>
-          <!-- /.form-group -->
-        </div>
-
-        <div class="col-md-2">
-          <div class="form-group">
-            <div class="checkbox">
-              <label style="font-weight: 700; margin-top:19px;">
-                <input type="checkbox" name="active" ng-model="dataProvider.active"
-                  ng-init="initActive(configuration.dataProvider.active)"> {{ i18n.__("Active") }}
-              </label>
+    <terrama2-box title="i18n.__('General Data')" css="css">
+      <div class="row">
+        <form name="forms.dataProviderForm">
+          <div class="col-md-7">
+            <div class="form-group has-feedback" terrama2-show-errors>
+              <label>{{ i18n.__("Name") }}:</label>
+              <input class="form-control"
+                     name="name"
+                     ng-model="dataProvider.name"
+                     placeholder="{{ i18n.__('Data Server Name') }}"
+                     type="text" terrama2-server-errors="serverErrors" required>
+  
+              <span class="form-control-feedback glyphicon" ng-show="forms.dataProviderForm.name.$dirty" ng-class="{'glyphicon-ok': forms.dataProviderForm.name.$valid, 'glyphicon-remove': forms.dataProviderForm.name.$invalid }"></span>
+  
+              <span class="help-block" ng-show="forms.dataProviderForm.name.$dirty && forms.dataProviderForm.name.$error.required">{{ i18n.__('Data Server name is required') }}</span>
+              <span class="help-block" ng-show="forms.dataProviderForm.name.$error.terrama2Error">
+                {{ i18n.__("Data Server") + " " + serverErrors.name.message }}
+              </span>
             </div>
           </div>
-        </div>
-
-        <div class="col-md-12">
-          <div class="form-group">
-            <label>{{ i18n.__("Description") }}:</label>
-            <textarea class="form-control" ng-model="dataProvider.description" rows="3" placeholder="{{ i18n.__('Data Server Description') }}"></textarea>
+          <!-- /.col -->
+          <div class="col-md-3">
+            <div class="form-group has-feedback" terrama2-show-errors>
+              <label>{{ i18n.__("Type") }}:</label>
+              <select ng-init="console.log(this)" class="form-control" name="protocol" ng-model="dataProvider.protocol" ng-change="onSchemeChanged(this)" ng-disabled="isEditing" required>
+                <option ng-repeat="item in typeList" value="{{ item.name }}" title="{{ item.description }}">{{ i18n.__(item.name) }}</option>
+              </select>
+  
+              <span class="help-block" ng-show="forms.dataProviderForm.protocol.$dirty && forms.dataProviderForm.protocol.$invalid" ng-class="{'has-error': forms.dataProviderForm.protocol.$invalid}">{{ i18n.__('Data Server protocol is required') }}</span>
+            </div>
+            <!-- /.form-group -->
           </div>
-          <!-- /.form-group -->
-        </div>
-      </form>
+  
+          <div class="col-md-2">
+            <div class="form-group">
+              <div class="checkbox">
+                <label style="font-weight: 700; margin-top:19px;">
+                  <input type="checkbox" name="active" ng-model="dataProvider.active"
+                    ng-init="initActive(configuration.dataProvider.active)"> {{ i18n.__("Active") }}
+                </label>
+              </div>
+            </div>
+          </div>
+  
+          <div class="col-md-12">
+            <div class="form-group">
+              <label>{{ i18n.__("Description") }}:</label>
+              <textarea class="form-control" ng-model="dataProvider.description" rows="3" placeholder="{{ i18n.__('Data Server Description') }}"></textarea>
+            </div>
+            <!-- /.form-group -->
+          </div>
+        </form>
+      </div>
+    </terrama2-box>
 
-      <terrama2-box title="i18n.__('Host')" css="css" ng-show="dataProvider.protocol && dataProvider.protocol !== ''">
-        <div class="row">
-          <form name="forms.connectionForm" sf-schema="schema" sf-form="form" sf-model="model" sf-options="options"></form>
-        </div>
-      </terrama2-box>
-    </div>
+    <terrama2-box title="i18n.__('Host')" css="css" ng-show="dataProvider.protocol && dataProvider.protocol !== ''">
+      <div class="row">
+        <form name="forms.connectionForm" sf-schema="schema" sf-form="form" sf-model="model" sf-options="options"></form>
+      </div>
+    </terrama2-box>
     <!-- /.row -->
 
     <terrama2-directory-explorer></terrama2-directory-explorer>
