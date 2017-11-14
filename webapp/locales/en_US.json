@@ -801,6 +801,7 @@
   "Select the filter area type": "Select the filter area type",
   "Select the inputs to analysis": "Select the inputs to analysis",
   "Select the project to which you want to import the data": "Select the project to which you want to import the data",
+  "Select the Style Creation Type": "Select the Style Creation Type",
   "Select theme with influence area": "Select theme with influence area",
   "Selected": "Selected",
   "Selected Analysis": "Selected Analysis",
@@ -1032,6 +1033,7 @@
   "You can not edit this view": {
     " He belongs to a protected project!": "You can not edit this view. He belongs to a protected project!"
   },
+  "You must fill the SLD field": "You must fill the SLD field",
   "active": "active",
   "alias": "alias",
   "but the TerraMA² service version is": "but the TerraMA² service version is",
