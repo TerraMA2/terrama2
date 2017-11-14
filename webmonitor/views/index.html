@@ -46,8 +46,29 @@
             <div id="terrama2-sortlayers"></div>
           </ul>
         </section>
-        <span style="position: fixed; bottom: 60px; font-size: 15px; margin-left: 10px;">
-          <a href="#" id="about-btn" style="color: #b8c7ce;"><div class="fa fa-info"></div><span style="margin-left: 10px;" data-i18n="About"></span></a>
+        <span id="sidebar-bottom">
+          <a href="#" id="about-btn">
+            <div class="fa fa-info"></div>
+            <span style="margin-left: 10px;" data-i18n="About"></span>
+          </a>
+          <span class="dropdown messages-menu" id="languages-dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+              <img src="{[ BASE_URL ]}images/pt.png" class="dropdown-btn pt-img" style="display: none;"/>
+              <img src="{[ BASE_URL ]}images/es.png" class="dropdown-btn es-img" style="display: none;"/>
+              <img src="{[ BASE_URL ]}images/en.png" class="dropdown-btn en-img" style="display: none;"/>
+            </a>
+            <ul class="dropdown-menu up" id="languages-div">
+              <li>
+                <img id="language-pt" src="{[ BASE_URL ]}images/pt.png" title="Português"/> Português
+              </li>
+              <li>
+                <img id="language-es" src="{[ BASE_URL ]}images/es.png" title="Español"/> Español
+              </li>
+              <li>
+                <img id="language-en" src="{[ BASE_URL ]}images/en.png" title="English"/> English
+              </li>
+            </ul>
+          </span>
         </span>
         <div id="institutions-logos">
           <span class="imgs">
@@ -185,16 +206,6 @@
                       <button type="submit" name="btnLogin" class="btn btn-primary btn-block btn-flat" id="signin">
                         <span data-i18n="Sign In"></span>
                       </button>
-                    </div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-md-12">
-                    <hr style="margin: 17px 0 10px 0;"/>
-                    <div id="languages-div">
-                      <img id="language-pt" src="{[ BASE_URL ]}images/pt.png" title="Português"/>
-                      <img id="language-es" src="{[ BASE_URL ]}images/es.png" title="Español"/>
-                      <img id="language-en" src="{[ BASE_URL ]}images/en.png" title="English"/>
                     </div>
                   </div>
                 </div>

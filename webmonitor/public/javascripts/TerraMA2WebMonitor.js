@@ -58,8 +58,8 @@ define(
     var changeLanguage = function(language) {
       i18next.changeLanguage(language, function() {
         $.post(BASE_URL + "languages", { locale: language }, function() {
-          $("#languages-div > img").removeClass("selected");
-          $("#language-" + language).addClass("selected");
+          $(".dropdown-btn").css("display", "none");
+          $(".dropdown-btn." + language + "-img").css("display", "");
 
           $(".close-slider").click();
 
