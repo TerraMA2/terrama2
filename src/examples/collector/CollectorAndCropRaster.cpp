@@ -136,7 +136,7 @@ int main(int argc, char* argv[])
       collector->filter.region = terrama2::core::ewktToGeom("SRID=4326;POLYGON((-73.8036991603083 -9.81412714740936,-73.8036991603083 2.24662115728613,-56.097053202293 2.24662115728613,-56.097053202293 -9.81412714740936,-73.8036991603083 -9.81412714740936))");
       collector->filter.cropRaster = true;
       collector->filter.discardBefore = terrama2::core::TimeUtils::stringToTimestamp("2017-10-10T12:00:00.000-02:00", terrama2::core::TimeUtils::webgui_timefacet);
-      collector->filter.discardAfter = terrama2::core::TimeUtils::stringToTimestamp("2017-10-12T10:30:00.000-02:00", terrama2::core::TimeUtils::webgui_timefacet);
+      collector->filter.discardAfter = terrama2::core::TimeUtils::stringToTimestamp("2017-10-10T13:00:00.000-02:00", terrama2::core::TimeUtils::webgui_timefacet);
 
       collector->inputDataSeries = inputDataSeriesFTP->id;
       collector->outputDataSeries = outputDataSeriesFILE->id;

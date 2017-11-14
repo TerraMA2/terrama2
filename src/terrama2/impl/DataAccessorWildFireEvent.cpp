@@ -33,6 +33,7 @@
 #include "../core/Exception.hpp"
 #include "../core/utility/Logger.hpp"
 #include "../core/utility/Utils.hpp"
+#include "../core/utility/DataRetrieverFactory.hpp"
 
 #include <terralib/datatype/DateTimeProperty.h>
 
@@ -43,7 +44,7 @@
 
 terrama2::core::DataAccessorWildFireEvent::DataAccessorWildFireEvent(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics)
 : DataAccessor(dataProvider, dataSeries),
-  DataAccessorGeometricObjectOGR(dataProvider, dataSeries)
+  DataAccessorGeometricObjectOGR(dataProvider, dataSeries, false)
 {
  if(checkSemantics && dataSeries->semantics.driver != dataAccessorType())
  {
@@ -94,6 +95,38 @@ void terrama2::core::DataAccessorWildFireEvent::adapt(DataSetPtr dataSet, std::s
 void terrama2::core::DataAccessorWildFireEvent::addColumns(std::shared_ptr<te::da::DataSetTypeConverter> /*converter*/, const std::shared_ptr<te::da::DataSetType>& /*datasetType*/) const
 {
   //columns add by the adapt method
+}
+
+void terrama2::core::DataAccessorWildFireEvent::retrieveDataCallback (const DataRetrieverPtr dataRetriever,
+                                                                      DataSetPtr dataset,
+                                                                      const Filter& filter,
+                                                                      std::shared_ptr<FileRemover> remover,
+                                                                      std::function<void(const std::string& /*uri*/)> processFile) const
+{
+  std::string mask = getFileMask(dataset);
+  std::string folderPath = getFolderMask(dataset);
+
+  std::string timezone = "";
+  try
+  {
+    timezone = DataAccessorFile::getTimeZone(dataset);
+  }
+  catch(UndefinedTagException& /*e*/)
+  {
+    // Do nothing
+  }
+
+  //download shp files
+  dataRetriever->retrieveDataCallback(mask, filter, timezone, remover, "", folderPath, [&](const std::string& tempFolder, const std::string& filename) {
+    //download auxiliary files
+    std::string dbfFile = std::string{filename.cbegin(), filename.cend()-3}+"dbf";
+    std::string prjFile = std::string{filename.cbegin(), filename.cend()-3}+"prj";
+    std::string shxFile = std::string{filename.cbegin(), filename.cend()-3}+"shx";
+
+    dataRetriever->retrieveDataCallback(dbfFile, filter, timezone, remover, tempFolder, folderPath, [](const std::string&){});
+    dataRetriever->retrieveDataCallback(prjFile, filter, timezone, remover, tempFolder, folderPath, [](const std::string&){});
+    dataRetriever->retrieveDataCallback(shxFile, filter, timezone, remover, tempFolder, folderPath, processFile);
+  });
 }
 
 te::dt::AbstractData* terrama2::core::DataAccessorWildFireEvent::numberToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/, const std::string& timezone) const

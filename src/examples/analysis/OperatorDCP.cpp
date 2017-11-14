@@ -141,6 +141,7 @@ add_value("standard_deviation", x))z";
     analysis->metadata["INFLUENCE_RADIUS_UNIT"] = "km";
 
 
+  
 
     /*
      * DataProvider and DataSeries Serramar

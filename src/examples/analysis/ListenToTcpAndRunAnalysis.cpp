@@ -163,7 +163,6 @@ add_value("min", x))z";
 
 
 
-
     auto dataProviderFileSerrmar = terrama2::serramar::dataProviderSerramarInpe();
     dataManager->add(dataProviderFileSerrmar);
 

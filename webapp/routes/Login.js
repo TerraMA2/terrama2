@@ -34,7 +34,7 @@ module.exports = function(app) {
       if(userObj === null)
         return response.json({
           error: true,
-          message: 'Incorrect user.',
+          message: 'INCORRECT-USER',
           user: null
         });
 
@@ -60,13 +60,13 @@ module.exports = function(app) {
 
       return response.json({
         error: true,
-        message: 'Incorrect password.',
+        message: 'INCORRECT-PASSWORD',
         user: null
       });
     }).catch(function(err) {
       return response.json({
         error: true,
-        message: 'Incorrect user.',
+        message: 'INCORRECT-USER',
         user: null
       });
     });

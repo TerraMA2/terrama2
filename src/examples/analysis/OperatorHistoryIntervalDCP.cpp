@@ -35,6 +35,8 @@
 #include <QUrl>
 
 
+
+
 int main(int argc, char* argv[])
 {
   terrama2::core::TerraMA2Init terramaRaii("example", 0);
@@ -139,7 +141,6 @@ add_value("history_standard_deviation",x))z";
   analysis->metadata["INFLUENCE_TYPE"] = "1";
   analysis->metadata["INFLUENCE_RADIUS"] = "50";
   analysis->metadata["INFLUENCE_RADIUS_UNIT"] = "km";
-
 
 
   /*

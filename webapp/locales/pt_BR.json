@@ -24,6 +24,7 @@
   "10": "10",
   "11": "11",
   "12": "12",
+  " Data Series": " Data Series",
   " deleted": " removido",
   " projects has been imported": {
     " ": " projetos foram importados. "
@@ -104,18 +105,20 @@
   "Area of interest for notification": "Área de interesse para notificação",
   "Area of interest is required": "Área de interesse é requerida",
   "Array items are not unique": "Os itens do array não são únicos",
-	"Attach Views": "Anexar Visualizações",
+  "Attach Views": "Anexar Visualizações",
   "Attribute": "Atributo",
   "Attribute    ": "Atributo    ",
   "Attribute Identifier": "Atributo Identificador",
   "Attribute Identifier is required": "Atributo Identificador é obrigatório",
   "Attribute Name": "Nome do Atributo",
   "Attribute PCD": "Atributo da PCD",
+  "Attribute is required": "Atributo é obrigatório",
   "Attribute name cannot be same": "Nome do atributo não pode ser igual",
   "Attribute name is required": "Nome do atributo é requerido",
   "Attributes": "Atributos",
   "Attributes to be Converted": "Atributos a Serem Convertidos",
   "Author": "Autor",
+  "Auto Legend": "Legenda automática",
   "Automatic": "Automático",
   "Average": "Média",
   "Band": "Banda",
@@ -134,6 +137,18 @@
   "Bytes Before": "Bytes anteriores",
   "CSV Format": "Format CSV",
   "CTL File": "Arquivo CTL",
+  "Can not delete the alert if the service is not running": {
+    " ": "Não pode deletar o alerta se o serviço não estiver rodando. "
+  },
+  "Can not delete the analysis if the service is not running": {
+    " ": "Não pode deletar a análise se o serviço não estiver rodando. "
+  },
+  "Can not delete the data series if the service is not running": {
+    " ": "Não pode deletar a série de dados se o serviço não estiver rodando. "
+  },
+  "Can not delete the view if the service is not running": {
+    " ": "Não pode deletar a visualização se o serviço não estiver rodando. "
+  },
   "Cancel": "Cancelar",
   "Cell phone": "Celular",
   "Cellphone": "Telefone",
@@ -145,6 +160,7 @@
       }
     }
   },
+  "Choose data series": "Selecione a série de dados",
   "Close": "Fechar",
   "Code": "Código",
   "Collect": "Coleta",
@@ -171,6 +187,7 @@
   "Connection with service refused, check if the service is running!": "Conexão com o serviço recusada, verifique se o mesmo está em execução!",
   "Convert all": "Converter todos",
   "Could not remove legend SequelizeForeignKeyConstraintError: update or delete on table \"legends\" violates foreign key constraint \"alerts_legend_id_fkey\" on table \"alerts\"": "Não foi possível remover a legenda: a legenda está sendo usada por um alerta.",
+  "Could not remove project with data provider associated": "Could not remove project with data provider associated",
   "Could not save data provider due: name must be unique;  name: name must be unique": "Não foi possível salvar o servidor de dados, já existe um registro com o nome inserido, e o nome deve ser único.",
   "Could not save data provider due: project_id must be unique; name must be unique;  project_id: project_id must be unique,\nname: name must be unique": "Não foi possível salvar o servidor de dados, já existe um registro com o nome inserido, e o nome deve ser único.",
   "Could not save data series due:  name: name must be unique": "Não foi possível salvar a série de dados, já existe um registro com o nome inserido, e o nome deve ser único.",
@@ -211,6 +228,7 @@
   "Data Series": "Séries de Dados",
   "Data Series Name": "Nome da Séries de Dados",
   "Data Series Registration": "Registro de Série de Dados",
+  "Data Series import": "Importação de série de dados",
   "Data Series is required": "O preenchimento da série de dados é obrigatório",
   "Data Server": "Servidor de Dados",
   "Data Server Description": "Descrição do Servidor de Dados",
@@ -266,6 +284,8 @@
   "Date (local time)": "Data (horário local)",
   "Date Time": "Data Hora",
   "Days": "Dias",
+  "Dcp": "Pcd",
+  "Dcp Data Series": "Séries de Dados PCD",
   "Default": "Padrão",
   "Default Level Name": "Nome do Nível Padrão",
   "Default type": "Tipo padrão",
@@ -283,6 +303,7 @@
   "Dynamic Data Registration": "Registro de Dado Dinâmico",
   "Dynamic Data Series": "Séries de Dados Dinâmicos",
   "E-mail": "E-mail",
+  "East band": "Banda leste",
   "Edit": "Editar",
   "Editor": "Editor",
   "Email": "Email",
@@ -293,6 +314,7 @@
   "Email Server": "Servidor de Email",
   "Email Server Connection": "Conexão com o Servidor de Email",
   "Email Server Test": "Teste de Servidor de Email",
+  "Email server error": "Erro no servidor de email: ",
   "Email successfully sent": "Email enviado com sucesso",
   "Emails": "Emails",
   "Encoding": "Codificação",
@@ -315,6 +337,7 @@
   "Failed to connect, verify the connection parameters": "Falha ao conectar, verifique os parâmetros de conexão",
   "Failed to connect, verify the connection parameters. Important! Make sure the server's REST API is enabled": "Falha ao conectar, verifique os parâmetros de conexão. Importante! Certifique-se de que a API REST do servidor está habilitada",
   "Failed to create destination folder!": "Falha ao criar a pasta de destino!",
+  "Features table (PostgreSQL/PostGIS)": "Tabelas com Feições (PostgreSQL/PostGIS)",
   "Fields": "Campos",
   "FILE": "ARQUIVO",
   "File": "Arquivo",
@@ -368,9 +391,11 @@
   "GeoTIFF grid": "Grade GeoTIFF",
   "GeoTIFF imported with success!": "GeoTIFF importado com sucesso!",
   "Geometric Object": "Objeto Geométrico",
+  "Geometry property": "Propriedade geométrica",
   "GrADS": "Formato GrADS",
   "Grid": "Grade",
   "Grid Data Series": "Série de Dados Matricial",
+  "Grid Files (GeoTIFF)": "Arquivos Matriciais (GeoTIFF)",
   "Grid analysis script must end with 'return' statement": "Os modelos de análises do tipo Grade devem terminar com um 'return'",
   "Grid configuration": "Configuração da Grade",
   "Grid operators": "Operadores Grade",
@@ -382,6 +407,7 @@
   "Grid - GrADS": "Matriz - GrADS",
   "Grid - Grib2": "Matriz - Grib2",
   "Grid - HDF5": "Matriz - HDF5",
+  "Has one band": "Única banda",
   "Header size": "Tamanho do cabeçalho",
   "Helpers": "Auxiliares",
   "Historical operators": "Operadores históricos",
@@ -390,6 +416,7 @@
   "Host Address is required": "O preenchimento do endereço do servidor é obrigatório",
   "Host connection": "Conexão do host",
   "Host not found": "Endereço não encontrado",
+  "Host service error": "Erro no executável do serviço: ",
   "Hours": "Horas",
   "HTTP": "HTTP",
   "HTTPS": "HTTPS",
@@ -398,6 +425,18 @@
   "INPE's DCP data format": "PCD - formato INPE",
   "INPE's Wildland Fire Program": "Programa de Queimadas - INPE",
   "INTERVAL": "INTERVALO",
+  "If service is not running you can not save the alert": {
+    " Start the service before create or update an alert!": "Se o serviço não estiver rodando não pode salvar o alerta. Rode o serviço antes de criar ou alterar um alerta!"
+  },
+  "If service is not running you can not save the analysis": {
+    " Start the service before create or update an analysis!": "Se o serviço não estiver rodando não pode salvar a análise. Rode o serviço antes de criar ou alterar uma análise!"
+  },
+  "If service is not running you can not save the data series": {
+    " Start the service before create or update a data series!": "Se o serviço não estiver rodando não pode salvar a série de dados. Rode o serviço antes de criar ou alterar uma série de dados!"
+  },
+  "If service is not running you can not save the view": {
+    " Start the service before create or update a view!": "Se o serviço não estiver rodando não pode salvar a visualização. Rode o serviço antes de criar ou alterar uma visualização!"
+  },
   "Ignores all data GREATER than": "Ignorar todos os dados MAIORES que",
   "Ignores all data LESS than": "Ignorar todos os dados MENORES que",
   "Ignores data after": "Ignorar dados após",
@@ -409,6 +448,8 @@
   "Ignores previous data to": "Ignorar dados anteriores a",
   "Image Generate": "Geração de Imagem",
   "Import": "Importar",
+  "Import data": "Dados de importação",
+  "Import data series": "Importar série de dados",
   "Import Shapefile": "Importar Shapefile",
   "Import CSV": "Importar CSV",
   "Import process executed with success": "Processo de importação executado com sucesso",
@@ -444,9 +485,12 @@
   "Interpolation dummy value": "Valor de interpolação nulo",
   "Interpolation method is required": "Método de interpolação é requerido",
   "Intersection": "Interseção",
+  "Invalid address": "Endereço inválido",
   "Invalid alias": "Pseudônimo inválido",
+  "Invalid column name": "Nome da coluna inválido",
   "Invalid configuration for the TerraMA² data directory": "A atual configuração do diretório de dados do TerraMA² é inválida",
   "Invalid data provider path!": "O caminho do Servidor de Dados é inválido!",
+  "Invalid file extension!": "Extensão inválida!",
   "Invalid file name!": "Nome de arquivo inválido!",
   "Invalid folder": "Pasta inválida",
   "Invalid format": "Formato inválido",
@@ -458,6 +502,7 @@
   "Invalid range of ports": {
     " A valid port is from 1 to 65535": "Intervalo inválido de portas. Uma porta válida é de 1 a 65535"
   },
+  "Invalid table name": "Nome da tabela inválido",
   "Invalid value": "Valor inválido",
   "Invalid value for the field": "Valor inválido para o campo",
   "It performs Analysis Validation in order to check if it will able to generate a valid data series": "Executa Validação de Análise para verificar se pode gerar uma série de dados válido",
@@ -486,7 +531,18 @@
   "Latitude / Y (m)": "Latitude / Y (m)",
   "Latitude is invalid": "Latitude é inválida",
   "Leave it empty": "Deixar vazio",
+  "Legend Description": "Descrição da Legenda",
+  "Legend Level": "Nível da Legenda",
+  "Legend Level Description": "Descrição do Nível de Legenda",
+  "Legend Level Name": "Nome do Nível de Legenda",
+  "Legend Name": "Nome da Legenda",
   "Legend Registration": "Registro de Legenda",
+  "Legend Value": "Valor da Legenda",
+  "Legend attribute": "Atributo da Legenda",
+  "Legend attribute is required": "O preenchimento do atributo da legenda é obrigatório",
+  "Legend band": "Banda da legenda",
+  "Legend band is required": "O preenchimento da banda de legenda é obrigatório",
+  "Legends": "Legendas",
   "Level Name": "Nome do Nível",
   "Lightning occurrence": "Ocorrência de raios",
   "Line Stroke Width": "Largura da linha",
@@ -499,6 +555,7 @@
   "Local Service": "Serviço local",
   "Log": "Log",
   "Log Configuration": "Configuração do Log",
+  "Log database error": "Erro no banco de dados de log: ",
   "Log database name": "Nome da Base de Dados",
   "Log host is required": "O preenchimento do endereço é obrigatório",
   "Log hostname": "Endereço",
@@ -513,6 +570,7 @@
   "Main Navigation": "Navegação Principal",
   "Manual": "Manual",
   "Map Display": "Tela do Mapa",
+  "Map server error": "Erro no servidor de mapas: ",
   "Maps Server Connection": "Conexão com o Servidor de Mapas",
   "Maps Server Parameters": "Parâmetros do servidor de mapas",
   "Maps Server URI": "URI do servidor de mapas",
@@ -595,9 +653,11 @@
   "Number of Threads": "Número de Threads",
   "Number of threads is invalid": "Número de threads inválido",
   "Number of threads is required": "O preenchimento do número de threads é obrigatório",
+  "North band": "Banda norte",
   "OGR static data file": "Arquivo estático OGR",
   "OK": "OK",
   "Object Monitored": "Objeto Monitorado",
+  "Object Monitored Data Series": "Objeto Monitorado",
   "Obs": " insira os endereços separados por ponto e vírgula",
   "Obs: enter the addresses separated by semicolons": "Obs: insira os endereços separados por ponto e vírgula",
   "Occurrence": "Ocorrência",
@@ -624,6 +684,7 @@
   "Path": "Caminho",
   "Path is required": "Caminho é requerido",
   "Path to script": "Caminho para o script",
+  "Permission": "Permissão",
   "Permission denied": "Acesso negado",
   "Please fill at least a add_value() in script field": {
     "": "Insira pelo menos um 'add_value()' no modelo de análise."
@@ -634,6 +695,7 @@
   "Polygon Stroke Width": "Largura do polígono",
   "Polygon Stroke Width is required for View data series": "Largura do polígono é obrigatório para visualição da série de dados",
   "Port": "Porta",
+  "Port error": "Erro na porta: ",
   "Port is invalid": "Porta inválida",
   "Port is required": "O preenchimento da porta é obrigatório",
   "Port is required for": "Porta é requerida para",
@@ -669,6 +731,7 @@
   "Properties name line": "Linha dos nomes",
   "Properties name lines": "Linhas dos nomes",
   "Property name": "Nome da propriedade",
+  "Protected": "Protegido",
   "Provider": "Provedor",
   "Provider Output": "Servidor de saída",
   "Python": "Python",
@@ -693,18 +756,8 @@
   "Resolution X": "Resolução X",
   "Resolution Y": "Resolução Y",
   "Resolution is required": "Resolução é requerida",
-  "Legend Description": "Descrição da Legenda",
-  "Legend Level": "Nível da Legenda",
-  "Legend Level Description": "Descrição do Nível de Legenda",
-  "Legend Level Name": "Nome do Nível de Legenda",
-  "Legend Name": "Nome da Legenda",
-  "Legend Value": "Valor da Legenda",
-  "Legend attribute": "Atributo da Legenda",
-  "Legend attribute is required": "O preenchimento do atributo da legenda é obrigatório",
-  "Legend band": "Banda da legenda",
-  "Legend band is required": "O preenchimento da banda de legenda é obrigatório",
-  "Legends": "Legendas",
   "Run": "Executar",
+  "SLD": "SLD",
   "SRID": "SRID",
   "SRID is invalid": "SRID é inválido",
   "SRID is required": "SRID é requerido",
@@ -725,7 +778,7 @@
   "Search": "Pesquisa",
   "Seconds": "Segundos",
   "Select": "Selecionar",
-	"Select a Project": "Selecione um Projeto",
+  "Select a Project": "Selecione um Projeto",
   "Select Area of Interest": "Selecione Área de Interesse",
   "Select Attibutes": "Selecione atributos",
   "Select Attributes": "Selecione atributos",
@@ -847,6 +900,8 @@
   "The connection was refused by the server, verify the connection parameters. Important! Make sure the server's REST API is enabled": "A conexão foi recusada pelo servidor, verifique os parâmetros de conexão. Importante! Certifique-se de que a API REST do servidor está habilitada",
   "The first line is a header?": "A primeira linha é um cabeçalho?",
   "The process was started successfully": "O processo foi iniciado com sucesso",
+  "The service can not access the log database!": "O serviço não pode acessar o banco de logs!",
+  "The service can not access the map server!": "O serviço não pode acessar o servidor de mapas!",
   "The size limit for the file is 300 MB.": "O tamanho limite do arquivo é de 300 MB.",
   "The values of the levels must be numeric and be in a growing order%2C and the names of the levels must be filled": "Os valores dos níveis devem ser numéricos e estar em uma ordem crescente%2C e os nomes dos níveis devem ser preenchidos",
   "The values of the levels must be numeric and be in a growing order, and the names of the levels must be filled": "Os valores dos níveis devem ser numéricos e estar em uma ordem crescente, e os nomes dos níveis devem ser preenchidos",
@@ -863,6 +918,7 @@
   "Time unit is required": "Unidade de tempo é requerido",
   "Timeout": " A requisição demorou mais que ",
   "Timeout: Request took longer than ": "Tempo Limite do Servidor de Dados: A requisição demorou mais que ",
+  "Timestamp property": "Propriedade de tempo",
   "Timezone": "Fuso horário",
   "Timezone is required": "Fuso horário é requerido",
   "Tipo": "Tipo",
@@ -902,6 +958,7 @@
   "User Update": "Atualização de Usuário",
   "User cell phone number": "Número de celular do usuário",
   "User e-mail": "E-mail do Usuário",
+  "User is not allowed": "Usuário não tem permissão",
   "User is required": "O preenchimento do usuário é obrigatório",
   "User name credential": "Nome do Usuário",
   "User password": "Senha do Usuário",
@@ -923,6 +980,7 @@
   "Value must be unique": "Valor deve ser único",
   "Variance": "Variância",
   "Vector": "Vetor",
+  "Vector Files (ESRI Shapefile)": "Arquivos Vetoriais (ESRI Shapefile)",
   "Version": "Versão",
   "View": "Visualização",
   "View Data Series": "Séries de Dados de Visualizações",
@@ -944,6 +1002,7 @@
   "Weekly": "Semanalmente",
   "When the value is 0, it will use thread number supported by the server": "Quando o valor for 0, será utilizado o número de threads suportado pelo servidor",
   "When value is 0, the default will be supported threads by server": "Quando o valor é 0, o padrão de threads será definido pelo servidor",
+  "Wild fire event (ESRI Shapefile)": "Evento de queimada (ESRI Shapefile)",
   "Wizard mode": "Modo assistente",
   "X": "X",
   "X is invalid number": "X é um número inválido",
@@ -962,6 +1021,21 @@
   "Y is invalid number": "Y é um número inválido",
   "Y is required": "Y é requerido",
   "Yes": "Sim",
+  "You can not edit this alert": {
+    " He belongs to a protected project!": "Você não pode editar esse alerta. Ele pertence a um projeto protegido!"
+  },
+  "You can not edit this analysis": {
+    " He belongs to a protected project!": "Você não pode editar essa análise. Ela pertence a um projeto protegido!"
+  },
+  "You can not edit this data series": {
+    " He belongs to a protected project!": "Você não pode editar essa série de dados. Ela pertence a um projeto protegido!"
+  },
+  "You can not edit this data server": {
+    " He belongs to a protected project!": "Você não pode editar essa servidor de dados. Ele pertence a um projeto protegido!"
+  },
+  "You can not edit this view": {
+    " He belongs to a protected project!": "Você não pode editar essa visualização. Ela pertence a um projeto protegido!"
+  },
   "active": "ativo",
   "alias": "pseudônimo",
   "but the TerraMA² service version is": "mas a versão do serviço TerraMA² é",
@@ -973,6 +1047,7 @@
   "filtered from": "filtrados de",
   "folder": "pasta",
   "h": "h",
+  "imported": "importado",
   "in the line": "na linha",
   "is not active": "não está ativo",
   "km": "km",
@@ -992,73 +1067,5 @@
   "to": "a",
   "total entries": "total de registros",
   "updated": "atualizado",
-  "w": "w",
-  "Invalid address": "Endereço inválido",
-  "Invalid file extension!": "Extensão inválida!",
-  "The service can not access the log database!": "O serviço não pode acessar o banco de logs!",
-	"Error": " read ECONNRESET",
-  "The service can not access the map server!": "O serviço não pode acessar o servidor de mapas!",
-  "Host service error": "Erro no executável do serviço: ",
-	"Log database error": "Erro no banco de dados de log: ",
-	"Port error": "Erro na porta: ",
-	"Email server error": "Erro no servidor de email: ",
-	"Map server error": "Erro no servidor de mapas: ",
-  "Can not delete the data series if the service is not running": {
-    " ": "Não pode deletar a série de dados se o serviço não estiver rodando. "
-  },
-  "Can not delete the analysis if the service is not running": {
-    " ": "Não pode deletar a análise se o serviço não estiver rodando. "
-  },
-  "Can not delete the view if the service is not running": {
-    " ": "Não pode deletar a visualização se o serviço não estiver rodando. "
-  },
-  "Can not delete the alert if the service is not running": {
-    " ": "Não pode deletar o alerta se o serviço não estiver rodando. "
-  },
-  "If service is not running you can not save the data series": {
-    " Start the service before create or update a data series!": "Se o serviço não estiver rodando não pode salvar a série de dados. Rode o serviço antes de criar ou alterar uma série de dados!"
-  },
-  "If service is not running you can not save the analysis": {
-    " Start the service before create or update an analysis!": "Se o serviço não estiver rodando não pode salvar a análise. Rode o serviço antes de criar ou alterar uma análise!"
-  },
-  "If service is not running you can not save the view": {
-    " Start the service before create or update a view!": "Se o serviço não estiver rodando não pode salvar a visualização. Rode o serviço antes de criar ou alterar uma visualização!"
-  },
-  "If service is not running you can not save the alert": {
-    " Start the service before create or update an alert!": "Se o serviço não estiver rodando não pode salvar o alerta. Rode o serviço antes de criar ou alterar um alerta!"
-  },
-  "Permission": "Permissão",
-  "You can not edit this data server": {
-    " He belongs to a protected project!": "Você não pode editar essa servidor de dados. Ele pertence a um projeto protegido!"
-  },
-  "You can not edit this data series": {
-    " He belongs to a protected project!": "Você não pode editar essa série de dados. Ela pertence a um projeto protegido!"
-  },
-  "You can not edit this analysis": {
-    " He belongs to a protected project!": "Você não pode editar essa análise. Ela pertence a um projeto protegido!"
-  },
-  "You can not edit this view": {
-    " He belongs to a protected project!": "Você não pode editar essa visualização. Ela pertence a um projeto protegido!"
-  },
-  "You can not edit this alert": {
-    " He belongs to a protected project!": "Você não pode editar esse alerta. Ele pertence a um projeto protegido!"
-  },
-  "User is not allowed": "Usuário não tem permissão",
-  "Protected": "Protegido",
-  "Features table (PostgreSQL/PostGIS)": "Tabelas com Feições (PostgreSQL/PostGIS)",
-  "Grid Files (GeoTIFF)": "Arquivos Matriciais (GeoTIFF)",
-  "Vector Files (ESRI Shapefile)": "Arquivos Vetoriais (ESRI Shapefile)",
-  "Dcp": "Pcd",
-  " Data Series": " Data Series",
-  "Dcp Data Series": "Séries de Dados PCD",
-  "Object Monitored Data Series": "Objeto Monitorado",
-	"Wild fire event (ESRI Shapefile)": "Evento de queimada (ESRI Shapefile)",
-	"Timestamp property": "Propriedade de tempo",
-	"Geometry property": "Propriedade geométrica",
-	"SLD": "SLD",
-	"Attribute is required": "Atributo é obrigatório",
-  "Import data series": "Importar série de dados",
-  "Choose data series": "Selecione a série de dados",
-  "Data Series import": "Importação de série de dados",
-  "imported": "importado"
+  "w": "w"
 }

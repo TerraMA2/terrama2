@@ -167,6 +167,12 @@ define([], function() {
      */
     self.viewDataSeries = {};
 
+    /**
+     * Postgis data with provider and data series table name
+     * Used to get value of columns in style components
+     */
+    self.postgisData = {};
+
     // function initializer
     self.onDataSeriesChanged = onDataSeriesChanged;
     self.initActive = initActive;
@@ -195,6 +201,7 @@ define([], function() {
             canSave = false;
           } else {
             canSave = true;
+            MessageBoxService.reset();
           }
         }
       }
@@ -315,6 +322,12 @@ define([], function() {
               if (legend.metadata && legend.metadata.band_number) {
                 legend.metadata.band_number = parseInt(legend.metadata.band_number);
               }
+              if (legend.metadata && legend.metadata.band) {
+                legend.metadata.band = parseInt(legend.metadata.band);
+              }
+              if (legend.metadata && legend.metadata.hasOwnProperty("hasOneBand")) {
+                legend.metadata.hasOneBand = legend.metadata.hasOneBand == "true" || legend.metadata.hasOneBand == true;
+              }
               self.legend.metadata = legend.metadata;
 
               // notify component to refil begin/end
@@ -418,6 +431,8 @@ define([], function() {
           self.view.source_type = getSourceType(dSeries);
 
           if (dSeries.data_series_semantics.format == "POSTGIS"){
+            self.postgisData["dataProvider"] = dSeries.data_provider;
+            self.postgisData["tableName"] = dSeries.dataSets[0].format.table_name;
             listColumns(dSeries.data_provider, dSeries.dataSets[0].format.table_name);
           }
 
@@ -503,10 +518,15 @@ define([], function() {
           }
           else if (Object.keys(self.legend).length !== 0 && self.legend.metadata.creation_type != "editor" && self.legend.metadata.creation_type != "xml"){
             if (self.legend.fieldsToReplace){
+              var prefixValueToReplace = "Band";
+              if (self.legend.metadata.hasOwnProperty("hasOneBand") && self.legend.metadata.hasOneBand){
+                prefixValueToReplace = "";
+                self.legend.metadata.band = 0;
+              }
               self.legend.fieldsToReplace.forEach(function(field){
                 //Must increase 1 because geoserver starts the band name from 1
                 var bandNumber = self.legend.metadata[field] + 1;
-                self.legend.metadata.xml_style = self.legend.metadata.xml_style.split("%"+field).join("Band"+bandNumber);
+                self.legend.metadata.xml_style = self.legend.metadata.xml_style.split("%"+field).join(prefixValueToReplace+bandNumber);
               });
               delete self.legend.fieldsToReplace;
             }

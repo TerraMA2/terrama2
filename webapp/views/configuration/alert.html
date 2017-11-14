@@ -240,6 +240,7 @@
                     name="legendAttributeMo"
                     ng-model="ctrl.legend_attribute_mo"
                     ng-pattern="ctrl.regexColumn"
+                    ng-blur="ctrl.getColumnValues()"
                     ng-required="ctrl.dataSeriesType === 'ANALYSIS_MONITORED_OBJECT'"
                     list='tableColumnsList'>
               <span class="help-block"
@@ -285,6 +286,9 @@
               <textarea class="form-control" name="legendDescription" ng-model="ctrl.legendModel.description" rows="3" placeholder="{{ i18n.__('Legend Description') }}"></textarea>
             </div>
           </div>
+          <div class="col-md-12" ng-if="ctrl.showAutoCreateLegendButton">
+            <button style="margin-bottom:15px;" type="button" class="btn btn-primary" ng-click="ctrl.autoCreateLegend()"><span ng-bind="i18n.__('Auto Legend')"></span></button>
+          </div>
           <span ng-repeat="level in ctrl.legendModel.levels track by $index">
             <div class="col-md-12 row">
               <div ng-class="{'col-md-6 terrama2-min-padding': !ctrl.alert.hasView, 'col-md-4 terrama2-min-padding': ctrl.alert.hasView}">
@@ -296,7 +300,7 @@
               <div ng-class="{'col-md-5 terrama2-min-padding': !ctrl.alert.hasView, 'col-md-3 terrama2-min-padding': ctrl.alert.hasView}">
                 <div ng-show="!level.isDefault" class="form-group" ng-class="{'has-error': ctrl.legendLevelValueError[level._id] || ctrl.legendLevelOrderError}">
                   <label><span ng-bind="i18n.__('Legend Value')"></span>:</label>
-                  <input class="form-control" name="levelValue{{ level._id }}" ng-model="level.value" type="number" placeholder="{{ i18n.__('Legend Value') }}">
+                  <input class="form-control" name="levelValue{{ level._id }}" ng-model="level.value" type="number" list="tableColumnValues" placeholder="{{ i18n.__('Legend Value') }}">
                 </div>
               </div>
               <div ng-if="ctrl.alert.hasView" class="col-md-4 terrama2-nopadding-box">
@@ -589,6 +593,10 @@
 
   <datalist id='tableColumnsList'>
     <option ng-repeat="column in ctrl.columnsList" value="{{column}}">
+  </datalist>
+
+  <datalist id='tableColumnValues'>
+    <option ng-repeat="value in ctrl.columnValues" value="{{value}}">
   </datalist>
 </div>
 {% endblock %}

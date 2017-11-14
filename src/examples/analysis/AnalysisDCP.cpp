@@ -121,6 +121,8 @@ add_value("max", x))z";
         analysis->metadata["INFLUENCE_RADIUS_UNIT"] = "km";
 
 
+    
+
         std::vector<AnalysisDataSeries> analysisDataSeriesList;
         analysisDataSeriesList.push_back(dcpADS);
         analysis->analysisDataSeriesList = analysisDataSeriesList;

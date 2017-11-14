@@ -123,7 +123,6 @@ add_value("max", x))z";
 
 
 
-
     // DataProvider information
     auto dataProviderSpot = terrama2::geotiff::dataProviderFileGrid();
     dataManager->add(dataProviderSpot);

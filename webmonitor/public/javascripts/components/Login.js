@@ -13,7 +13,7 @@ define(
 
       if(error !== null) {
         $("#terrama2Alert > p > strong").text('');
-        $("#terrama2Alert > p > span").text(error);
+        Utils.setTagContent("#terrama2Alert > p > span", error);
         $("#terrama2Alert").removeClass('hide');
       } else {
         if(!$("#loginButton .fa-times").hasClass("hidden"))
