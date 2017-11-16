@@ -1073,5 +1073,8 @@
   "Auto Legend": "",
   "East band": "",
   "North band": "",
-  "Has one band": ""
+  "Has one band": "",
+	"Precision": "Precisão",
+	"Initial Value": "Valor inicial",
+	"Final Value": "Valor final"
 }
