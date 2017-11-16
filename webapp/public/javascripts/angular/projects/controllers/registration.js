@@ -19,7 +19,7 @@ define(function() {
     $scope.MessageBoxService = MessageBoxService;
     var title = "Project Registration";
 
-    $scope.project = configuration.project || {};
+    $scope.project = configuration.project || {canProtect: true};
     $scope.project.version = 4;
 
     $scope.css = {

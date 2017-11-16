@@ -102,8 +102,6 @@ define([], function() {
       boxType: "box-solid"
     };
 
-    self.hasStyle = false;
-
     var hasProjectPermission = config.hasProjectPermission;
 
     if (self.isUpdating && !hasProjectPermission){
@@ -122,31 +120,6 @@ define([], function() {
       self.legend.metadata.creation_type = "editor";
       self.legend.type = 2; // default is interval
       $scope.$broadcast('updateCreationType');
-    };
-
-    self.styleButtons = {
-      circle: {
-        show: function () {
-          return !self.hasStyle;
-        },
-        click: function() {
-          self.hasStyle = true;
-          if (self.targetDataSeriesType == "DCP"){
-            applyStyleDCPBehavior();
-          }
-        }
-      },
-      minus: {
-        show: function () {
-          return self.hasStyle;
-        },
-        click: function() {
-          self.hasStyle = false;
-          self.legend = {
-            metadata: {}
-          };
-        }
-      }
     };
 
     /**
@@ -275,10 +248,6 @@ define([], function() {
      */
     $http.get(BASE_URL + "api/DataProviderType", {}).then(function(response) {
       var data = response.data;
-
-      if (config.view.legend) {
-        self.hasStyle = true;
-      }
 
       /**
        * Retrieve all service instances
@@ -419,6 +388,11 @@ define([], function() {
           self.viewDataSeries = dSeries;
           // setting target data series type name in order to display style view
           self.targetDataSeriesType = dSeries.data_series_semantics.data_series_type_name;
+
+          if(self.targetDataSeriesType == "DCP") {
+            applyStyleDCPBehavior();
+          }
+
           // extra comparison just to setting if it is dynamic or static.
           // Here avoids to setting to true in many cases below
           self.isDynamic = dSeries.data_series_semantics.temporality !== 'STATIC';
@@ -500,6 +474,9 @@ define([], function() {
             return;
           }
 
+          if(!self.legend.metadata.creation_type)
+            return MessageBoxService.danger(i18n.__("View"), i18n.__("Select the Style Creation Type"));
+
           if (Object.keys(self.legend).length !== 0 && self.legend.metadata.creation_type == "editor") {
             if (!self.legend.colors || self.legend.colors.length === 0) {
               return MessageBoxService.danger(i18n.__("View"), i18n.__("You must generate the style colors to classify Data Series"));
@@ -515,6 +492,9 @@ define([], function() {
                 }
               }
             }
+          }
+          else if (Object.keys(self.legend).length !== 0 && self.legend.metadata.creation_type == "xml" && self.legend.metadata.xml_style != "") {
+            return MessageBoxService.danger(i18n.__("View"), i18n.__("You must fill the SLD field"));
           }
           else if (Object.keys(self.legend).length !== 0 && self.legend.metadata.creation_type != "editor" && self.legend.metadata.creation_type != "xml"){
             if (self.legend.fieldsToReplace){
