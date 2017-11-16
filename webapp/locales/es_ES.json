@@ -483,7 +483,7 @@
 	"End Date": "Fecha final",
 	"Run": "Ejecutar",
 	"Remove data": "Eliminar los datos",
-	"Unconfigured GraDs Data Series storage": "GrADS no configurados de almacenamiento serie de datos",
+	"Unconfigured Data Series storage": "Almacenamiento de la serie de datos sin configurar",
 	"Local Collector updated": "Colector local actualizado",
 	"Data Server protocol is required": "Se requiere protocolo de servidor de datos",
 	"Data Server": "Servidor de datos",
