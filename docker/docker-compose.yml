@@ -10,6 +10,9 @@ services:
       - pg_terrama2_vol:/var/lib/postgres/data
     ports:
       - "5432:5432"
+    networks:
+      terrama2_network:
+        ipv4_address: 172.28.1.2
   # TerraMA2 Web Application
   webapp:
     build: webapp
@@ -21,22 +24,31 @@ services:
       - "postgis"
     volumes:
       - "terrama2_data_vol:/data"
+    networks:
+      terrama2_network:
+        ipv4_address: 172.28.1.3
   # TerraMA2 Web Monitor
   webmonitor:
-    build: webapp
+    build: webmonitor
     ports:
       - "36001:36001"
     depends_on:
       - "terrama2"
     volumes:
-      - "terrama2_data_vol/data"
+      - "terrama2_data_vol:/data"
+    networks:
+      terrama2_network:
+        ipv4_address: 172.28.1.4
   # GeoServer - Universal (without Tomcat)
   geoserver:
     build: "geoserver"
     ports:
       - "8080:8080"
     volumes:
-      - "terrama2_data_vol/data"
+      - "terrama2_data_vol:/data"
+    networks:
+      terrama2_network:
+        ipv4_address: 172.28.1.5
   # TerraMA2 Collector Service using TerraMA2 Base
   collector:
     image: docker_terrama2
@@ -50,9 +62,12 @@ services:
     depends_on:
       - "terrama2"
     volumes:
-      - "terrama2_data_vol/data"
+      - "terrama2_data_vol:/data"
       # Exporting Unix XServer to expose gui environment
       - "/tmp/.X11-unix:/tmp/.X11-unix:ro"
+    networks:
+      terrama2_network:
+        ipv4_address: 172.28.1.6
   # TerraMA2 Analysis Service using TerraMA2 Base
   analysis:
     image: docker_terrama2
@@ -65,8 +80,11 @@ services:
     depends_on:
       - "terrama2"
     volumes:
-      - "terrama2_data_vol/data"
+      - "terrama2_data_vol:/data"
       - "/tmp/.X11-unix:/tmp/.X11-unix:ro"
+    networks:
+      terrama2_network:
+        ipv4_address: 172.28.1.7
   # TerraMA2 View Service using TerraMA2 Base
   view:
     image: docker_terrama2
@@ -79,8 +97,11 @@ services:
     depends_on:
       - "terrama2"
     volumes:
-      - "terrama2_data_vol/data"
+      - "terrama2_data_vol:/data"
       - "/tmp/.X11-unix:/tmp/.X11-unix:ro"
+    networks:
+      terrama2_network:
+        ipv4_address: 172.28.1.8
   # TerraMA2 Alert Service using TerraMA2 Base
   alert:
     image: docker_terrama2
@@ -93,11 +114,21 @@ services:
     depends_on:
       - "terrama2"
     volumes:
-      - "terrama2_data_vol/data"
+      - "terrama2_data_vol:/data"
       - "/tmp/.X11-unix:/tmp/.X11-unix:ro"
+    networks:
+      terrama2_network:
+        ipv4_address: 172.28.1.9
 
 volumes:
   # Shared Volume to mount along TerraMA2 images
   terrama2_data_vol:
   # PostgreSQL Volume
   pg_terrama2_vol:
+
+networks: 
+  terrama2_network:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.28.0.0/16
