@@ -7,7 +7,7 @@ services:
   postgis:
     image: mdillon/postgis
     volumes:
-      - dbdata:/var/lib/postgres/data
+      - pg_terrama2_vol:/var/lib/postgres/data
     ports:
       - "5432:5432"
   # TerraMA2 Web Application
@@ -20,7 +20,7 @@ services:
     links:
       - "postgis"
     volumes:
-      - "data:/data"
+      - "terrama2_data_vol:/data"
   # TerraMA2 Web Monitor
   webmonitor:
     build: webapp
@@ -29,14 +29,14 @@ services:
     depends_on:
       - "terrama2"
     volumes:
-      - "data:/data"
+      - "terrama2_data_vol/data"
   # GeoServer - Universal (without Tomcat)
   geoserver:
     build: "geoserver"
     ports:
       - "8080:8080"
     volumes:
-      - "data:/data"
+      - "terrama2_data_vol/data"
   # TerraMA2 Collector Service using TerraMA2 Base
   collector:
     image: docker_terrama2
@@ -44,12 +44,14 @@ services:
       - terrama2_service
       - COLLECTOR
       - "6543"
+    # Exporting Display Number in order to expose gui environment
     environment:
       - DISPLAY=$DISPLAY
     depends_on:
       - "terrama2"
     volumes:
-      - "data:/data"
+      - "terrama2_data_vol/data"
+      # Exporting Unix XServer to expose gui environment
       - "/tmp/.X11-unix:/tmp/.X11-unix:ro"
   # TerraMA2 Analysis Service using TerraMA2 Base
   analysis:
@@ -63,7 +65,7 @@ services:
     depends_on:
       - "terrama2"
     volumes:
-      - "data:/data"
+      - "terrama2_data_vol/data"
       - "/tmp/.X11-unix:/tmp/.X11-unix:ro"
   # TerraMA2 View Service using TerraMA2 Base
   view:
@@ -77,7 +79,7 @@ services:
     depends_on:
       - "terrama2"
     volumes:
-      - "data:/data"
+      - "terrama2_data_vol/data"
       - "/tmp/.X11-unix:/tmp/.X11-unix:ro"
   # TerraMA2 Alert Service using TerraMA2 Base
   alert:
@@ -91,11 +93,11 @@ services:
     depends_on:
       - "terrama2"
     volumes:
-      - "data:/data"
+      - "terrama2_data_vol/data"
       - "/tmp/.X11-unix:/tmp/.X11-unix:ro"
 
 volumes:
   # Shared Volume to mount along TerraMA2 images
-  data:
+  terrama2_data_vol:
   # PostgreSQL Volume
-  dbdata:
+  pg_terrama2_vol:
