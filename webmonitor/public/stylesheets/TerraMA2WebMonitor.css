@@ -952,16 +952,14 @@ img[src=""] {
   width: 145px;
 }
 
-#languages-div { text-align: center; }
-
-#languages-div > img {
-  width: 30px;
-  cursor: pointer;
+#languages-div {
+  padding: 10px;
+  min-width: 120px;
 }
 
-#languages-div > img.selected {
-  background: #3c8dbc;
-  border-radius: 4px;
+#languages-div > li > img {
+  width: 30px;
+  cursor: pointer;
 }
 
 #tableCloseButton {
@@ -972,4 +970,27 @@ img[src=""] {
   width: 18px;
   right: 20px;
   cursor: pointer;
+}
+
+.up {
+  bottom: 100% !important;
+  top: auto !important;
+}
+
+.dropdown-btn { width: 25px; }
+
+#sidebar-bottom {
+  position: fixed;
+  bottom: 60px;
+  font-size: 15px;
+  margin-left: 10px;
+  width: 230px;
+}
+
+#about-btn { color: #b8c7ce; }
+
+#languages-dropdown {
+  float: right;
+  right: 24px;
+  top: -2px;
 }
