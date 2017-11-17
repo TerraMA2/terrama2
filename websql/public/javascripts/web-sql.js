@@ -23,7 +23,9 @@ $(document).ready(function() {
 
     //event responsible for take the query
     $("#submit").click(function(){
-        var data = {query: $("#querybox").val()};
+        var data = {
+            query: $("#querybox").val()
+        };
         $.ajax({
             type: "POST",
             url: "/",

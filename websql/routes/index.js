@@ -3,6 +3,7 @@ var router = express.Router();
 const pg = require('pg');
 const path = require('path');
 const connectionString = process.env.DATABASE_URL || 'postgres://localhost:5432/todo';
+var dbConnect = require("../Core/dbConnection");
 
 
 /* GET home page. */
@@ -11,7 +12,10 @@ router.get('/', function(req, res, next) {
 });
 
 router.post('/', function(req, res){
-  console.log(req.body); // {query: "select * from tablw"}
+  var queryToDb = req.body.query;
+  console.log(doQuery);
+  dbConnect.doQuery(queryToDb);
+
 })
 
 module.exports = router;
