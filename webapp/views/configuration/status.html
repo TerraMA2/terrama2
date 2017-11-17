@@ -45,9 +45,9 @@
           <terrama2-alert-box2 handler="MessageBoxService.alertBox" close="close()"></terrama2-alert-box2>
         </div>
 
-        <terrama2-table-header link="linkToAdd"></terrama2-table-header>
+        <terrama2-table-header extra="extra" link="linkToAdd"></terrama2-table-header>
 
-        <terrama2-table-view expression="element in filteredModel = (model | filter:searchInput) | orderBy: '-date' | pagingToolLimit: statusPerPage track by $index">
+        <terrama2-table-view expression="element in filteredModel = (model | filter:searchInput | filter:showInTableFilter) | orderBy: '-date' | pagingToolLimit: statusPerPage track by $index">
           <terrama2-td title="{{ i18n.__('Status') }}">
             <img ng-src="{{ iconFn(element) }}" alt="" width="24" height="24">
           </terrama2-td>
