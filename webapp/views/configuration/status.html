@@ -51,17 +51,17 @@
           <terrama2-td title="{{ i18n.__('Status') }}">
             <img ng-src="{{ iconFn(element) }}" alt="" width="24" height="24">
           </terrama2-td>
-          <terrama2-td title="{{ i18n.__('Service') }}">
-            <span ng-bind="element.service"></span>
-          </terrama2-td>
-          <terrama2-td title="{{ i18n.__('Type') }}">
-            <span ng-bind="element.type"></span>
-          </terrama2-td>
           <terrama2-td title="{{ i18n.__('Name') }}">
             <span ng-bind="element.name"></span>
           </terrama2-td>
           <terrama2-td title="{{ i18n.__('Project') }}">
             <span ng-bind="element.project"></span>
+          </terrama2-td>
+          <terrama2-td title="{{ i18n.__('Service') }}">
+            <span ng-bind="element.service"></span>
+          </terrama2-td>
+          <terrama2-td title="{{ i18n.__('Type') }}">
+            <span ng-bind="element.type"></span>
           </terrama2-td>
           <terrama2-td title="{{ i18n.__('Message') }}" showMoreInfo="true" fillModal="setSelectedLog(element)">
             <span ng-bind="(element.message.length > 15) ? ((element.message | limitTo:15) + '...') : element.message"></span>
