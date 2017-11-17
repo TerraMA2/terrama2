@@ -1,11 +1,15 @@
 {
-  "id": "relative_umidity_style",
-  "name": "Umidity",
+  "id": "relative_humidity_style",
+  "name": "Humidity",
   "fields": ["band"],
   "gui": {
     "schema": {
       "type": "object",
       "properties": {
+        "hasOneBand": {
+          "type": "boolean",
+          "title": "Has one band"
+        },
         "band": {
           "type": "number",
           "title": "Band"
@@ -15,8 +19,13 @@
     },
     "form": [
       {
+        "key": "hasOneBand",
+        "htmlClass": "col-md-2 terrama2-schema-checkbox"
+      },
+      {
         "key": "band",
-        "htmlClass": "col-md-6"
+        "htmlClass": "col-md-4",
+        "condition": "!model.hasOneBand"
       }
     ]
   },

@@ -25,7 +25,7 @@ module.exports = function(sequelize, DataTypes) {
           });
 
           Filter.belongsTo(models.DataSeries, {
-            onDelete: "NO ACTION",
+            onDelete: "CASCADE",
             foreignKey: {
               name: "data_series_id",
               allowNull: true

@@ -8,6 +8,9 @@ define(
     var memberWebAppSocket;
     var memberWebMonitorSocketCallbackExecuted = false;
     var memberWebAppSocketCallbackExecuted = false;
+    var memberCurrentLanguage = null;
+    var memberTableLanguage = null;
+    var memberAnimatedLayerLanguage = null;
 
     var getSocket = function() {
       return memberSocket;
@@ -25,6 +28,36 @@ define(
       };
 
       return array.sort(compare);
+    };
+
+    var translate = function(element) {
+      $(element).localize();
+
+      if($('#table-div').css('display') !== 'none' && memberCurrentLanguage !== memberTableLanguage) {
+        memberTableLanguage = memberCurrentLanguage;
+        $("#attributes-table-select").trigger("setAttributesTable");
+      }
+
+      if((!$("#layer-toolbox").hasClass("hidden") || (!$("#animate-tools").hasClass("hidden") && $("#pauseAnimation").hasClass("hidden"))) && memberCurrentLanguage !== memberAnimatedLayerLanguage) {
+        memberAnimatedLayerLanguage = memberCurrentLanguage;
+        $.event.trigger({type: "setDatesCalendar"});
+      }
+    };
+
+    var setTagContent = function(element, content, property) {
+      $(element).attr("data-i18n", (property ? "[" + property + "]" : "") + content);
+      translate(element);
+    };
+
+    var getTranslatedString = function(string) {
+      $("#translation-div").attr("data-i18n", string);
+      translate("#translation-div");
+
+      return $("#translation-div").text();
+    };
+
+    var changeLanguage = function(newLanguage) {
+      memberCurrentLanguage = newLanguage;
     };
 
     var init = function(webMonitorSocketCallback, webAppSocketCallback) {
@@ -79,6 +112,10 @@ define(
 
     return {
       init: init,
+      translate: translate,
+      setTagContent: setTagContent,
+      getTranslatedString: getTranslatedString,
+      changeLanguage: changeLanguage,
       getSocket: getSocket,
       getWebAppSocket: getWebAppSocket,
       orderByProperty: orderByProperty

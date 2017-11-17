@@ -244,10 +244,16 @@ define(function() {
           }
           if(cont === $scope.model.length) {
             // push
+            p.hasPermission = true;
             $scope.model.push(p);
           }
           cont = 0;
         }
+        //updating project list cache
+        $http({
+          method: "GET",
+          url: BASE_URL + "configuration/projects/updateCache"
+        });
       } else {
         var msg = i18n.__(" The data has been imported. ");
       }

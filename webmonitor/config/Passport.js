@@ -7,6 +7,8 @@ var setupPassport = function(app) {
   app.use(passport.session());
 
   app.use(function(req, res, next) {
+    res.locals.userLocale = req.session.userLocale;
+
     if(req.session.passport !== undefined && req.session.passport.user !== undefined) {
       res.locals.currentUser = req.session.passport.user;
       next();

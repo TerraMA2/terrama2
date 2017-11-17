@@ -1,8 +1,8 @@
 'use strict';
 
 define(
-  ['components/Layers', 'TerraMA2WebComponents'],
-  function(Layers, TerraMA2WebComponents) {
+  ['components/Layers', 'components/Utils', 'TerraMA2WebComponents'],
+  function(Layers, Utils, TerraMA2WebComponents) {
 
     var setSlider = function(dateInfo, layerId) {
       var valMap = dateInfo.dates;
@@ -17,14 +17,14 @@ define(
         $(sliderParent).hide();
 
       var labelDate = $(sliderParent).find("label");
-      $(labelDate).text(moment(dateInfo.dates[initDate].replace('Z', '')).format("lll"));
+      $(labelDate).text(moment(dateInfo.dates[initDate].replace('Z', '')).format(Utils.getTranslatedString("DATE-FORMAT") + " HH:mm"));
 
       $(slider).slider({
         min: 0,
         max: valMap.length - 1,
         value: initDate,
         slide: function(event, ui) {
-          $(labelDate).text(moment(dateInfo.dates[ui.value].replace('Z', '')).format("lll"));
+          $(labelDate).text(moment(dateInfo.dates[ui.value].replace('Z', '')).format(Utils.getTranslatedString("DATE-FORMAT") + " HH:mm"));
         },
         stop: function(event, ui) {
           doSlide(layerId, dateInfo.dates[ui.value]);
@@ -77,14 +77,8 @@ define(
         var layerObject = Layers.getLayerById(parentId);
         var dateInfo = layerObject.dateInfo;
 
-        if(!dateInfo) {
-          console.log("Date info not found...");
-          return;
-        }
-        if(!dateInfo.dates instanceof Array) {
-          console.log("Date info has not dates array.");
-          return;
-        }
+        if(!dateInfo) return;
+        if(!dateInfo.dates instanceof Array) return;
 
         setSlider(dateInfo, parentId);
       });

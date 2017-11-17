@@ -21,7 +21,7 @@ int terrama2::core::getUTMSrid(te::gm::Geometry* geom)
   te::gm::Coord2D coord = geom->getCentroid();
 
   // Calculates the UTM zone for the given coordinate
-  int zoneNumber = floor((coord.getX() + 180)/6) + 1;
+  int zoneNumber = static_cast<int>(std::floor((coord.getX() + 180.)/6.) + 1.);
 
   if(coord.getY() >= 56.0 && coord.getY() < 64.0 && coord.getX() >= 3.0 && coord.getX() < 12.0)
     zoneNumber = 32;
@@ -45,11 +45,12 @@ int terrama2::core::getUTMSrid(te::gm::Geometry* geom)
   try
   {
     auto srsPair = te::srs::SpatialReferenceSystemManager::getInstance().getIdFromP4Txt(p4txt);
-    return srsPair.second;
+    return static_cast<int>(srsPair.second);
   }
-  catch(const std::exception& e)
+  catch(const std::exception&)
   {
     QString msg(QObject::tr("Could not determine the SRID for a UTM projection"));
+    TERRAMA2_LOG_ERROR() << msg;
     throw InvalidSRIDException() << terrama2::ErrorDescription(msg);
   }
 }
@@ -75,12 +76,17 @@ std::shared_ptr<te::gm::Geometry> terrama2::core::ewktToGeom(const std::string& 
   auto wkt = ewkt.substr(pos);
   auto sridStr = ewkt.substr(0, pos-1);
   pos = sridStr.find("=")+1;
-  int srid = std::stoi(sridStr.substr(pos));
+  try {
+    int srid = std::stoi(sridStr.substr(pos));
+    auto geom = std::shared_ptr<te::gm::Geometry>(te::gm::WKTReader::read(wkt.c_str()));
+    geom->setSRID(srid);
 
-  auto geom = std::shared_ptr<te::gm::Geometry>(te::gm::WKTReader::read(wkt.c_str()));
-  geom->setSRID(srid);
-
-  return geom;
+    return geom;
+  } catch (const std::invalid_argument&) {
+    QString msg(QObject::tr("Could not determine the SRID of the EWKT: %1").arg(QString::fromStdString(ewkt)));
+    TERRAMA2_LOG_ERROR() << msg;
+    throw InvalidSRIDException() << terrama2::ErrorDescription(msg);
+  }
 }
 
 std::unique_ptr<te::rst::Raster> terrama2::core::cloneRaster(const te::rst::Raster& raster)
@@ -133,8 +139,8 @@ std::unique_ptr<te::rst::Raster> terrama2::core::multiplyRaster(const te::rst::R
   std::unique_ptr<te::rst::Grid> grid(new te::rst::Grid(raster.getNumberOfColumns(), raster.getNumberOfRows(), envelope.release(), raster.getSRID()));
   std::unique_ptr<te::rst::Raster> expansible(te::rst::RasterFactory::make("EXPANSIBLE", grid.release(), bands, {}));
 
-  int columns = raster.getNumberOfColumns();
-  int rows = raster.getNumberOfRows();
+  uint32_t columns = raster.getNumberOfColumns();
+  uint32_t rows = raster.getNumberOfRows();
 
   for(uint bandIdx = 0; bandIdx < raster.getNumberOfBands(); ++bandIdx)
   {
@@ -143,9 +149,9 @@ std::unique_ptr<te::rst::Raster> terrama2::core::multiplyRaster(const te::rst::R
     auto noData = bandProperty->m_noDataValue;
     te::rst::Band* expansibleBand = expansible->getBand(bandIdx);
 
-    for(int col = 0 ; col < columns ; col++)
+    for(uint32_t col = 0 ; col < columns ; col++)
     {
-      for(int row = 0 ; row < rows ; row++)
+      for(uint32_t row = 0 ; row < rows ; row++)
       {
         double value = 0.0;
         rasterBand->getValue(col, row, value);
@@ -164,15 +170,18 @@ std::pair<uint32_t, uint32_t> terrama2::core::geoToGrid(const te::gm::Coord2D& c
 {
   double colD=-1, rowD=-1;
   grid->geoToGrid(coord.getX(), coord.getY(), colD, rowD);
-  int col = std::round(colD);
-  int row = std::round(rowD);
+  int intCol = static_cast<int>(std::round(colD));
+  int intRow = static_cast<int>(std::round(rowD));
 
-  if(col < 0)
+  uint32_t col = static_cast<uint32_t>(intCol);
+  uint32_t row = static_cast<uint32_t>(intRow);
+
+  if(intCol < 0)
     col = std::numeric_limits<uint32_t>::max();
   if(static_cast<size_t>(col) >= grid->getNumberOfColumns())
     col = std::numeric_limits<uint32_t>::max();
 
-  if(row < 0)
+  if(intRow < 0)
     row = std::numeric_limits<uint32_t>::max();
   if(static_cast<size_t>(row) >= grid->getNumberOfRows())
     row = std::numeric_limits<uint32_t>::max();

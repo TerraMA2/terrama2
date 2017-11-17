@@ -153,7 +153,7 @@ TcpManager.prototype.$send = function(serviceInstance, data, signal) {
     var config = Application.getContextConfig();
     data.webAppId = config.webAppId;
     var buffer = this.makebuffer(signal, data);
-    logger.debug(buffer);
+    //logger.debug(buffer);
     logger.debug("BufferToString: ", buffer.toString());
     logger.debug("BufferToString size: ", buffer.length);
 
@@ -313,7 +313,7 @@ TcpManager.prototype.statusService = function(serviceInstance) {
   try {
     var config = Application.getContextConfig();
     var buffer = self.makebuffer(Signals.STATUS_SIGNAL, {webAppId: config.webAppId});
-    logger.debug(buffer);
+    //logger.debug(buffer);
 
     var client = _getClient(serviceInstance);
 
