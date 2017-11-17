@@ -41,7 +41,8 @@ define([], function () {
     self.columnValues = [];
 
     self.showAutoCreateLegendButton = false;
-    
+    self.showGridAutoCreateLegendButton = false;
+    self.legendPrecision = 2;
     /**
      * It keeps the rgba color values
      * 
@@ -195,6 +196,11 @@ define([], function () {
       } else {
         self.getColumnValues();
       }
+      if (self.model.type == 2 && self.type == "GRID"){
+        self.showGridAutoCreateLegendButton = true;
+      } else {
+        self.showGridAutoCreateLegendButton = false;
+      }
     }
 
     self.initColorType = function(){
@@ -269,6 +275,9 @@ define([], function () {
       } else {
         self.columnValues = [];
         self.showAutoCreateLegendButton = false;
+        if (self.type == "GRID" && self.model.type == 2){
+          self.showGridAutoCreateLegendButton = true;
+        }
       }
     };
 
@@ -293,6 +302,34 @@ define([], function () {
           isDefault: false,
           title: self.columnValues[i],
           value: self.columnValues[i]
+        }
+        self.model.colors.push(newColor);
+      }
+    };
+
+    /**
+     * Auto create legends from initial and final values
+     * 
+     * @returns {void}
+     */
+    self.gridAutoCreateLegend = function(){
+      self.model.colors = [
+        {
+          color: "#FFFFFFFF",
+          isDefault: true,
+          title: "Default",
+          value: ""
+        }
+      ];
+      var portionValue = (self.legendFinalValue - self.legendInitialValue)/self.legendQuantity;
+      var defaultColors = ColorFactory.getDefaultColors();
+      for (var i = 0; i <= self.legendQuantity; i++){
+        var legendValue = Number((self.legendInitialValue + portionValue*i).toFixed(self.legendPrecision));
+        var newColor = {
+          color: defaultColors[i],
+          isDefault: false,
+          title: i == 0 ? "< " + legendValue : (Number((legendValue - portionValue).toFixed(self.legendPrecision)) +  " - " + legendValue),
+          value: legendValue
         }
         self.model.colors.push(newColor);
       }
