@@ -15,7 +15,8 @@ define(function() {
     $scope.linkToAdd = BASE_URL + "configuration/projects/new";
     $scope.fields = [
       {key: "name", as: i18n.__("Name")},
-      {key: "description", as: i18n.__("Description")}
+      {key: "description", as: i18n.__("Description")},
+      {key: "user_name", as: i18n.__("User")}
     ];
 
     $scope.projectsCheckboxes = {};
