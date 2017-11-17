@@ -132,6 +132,31 @@
           <button type="button" class="btn btn-primary" ng-click="$ctrl.autoCreateLegend()">{{$ctrl.i18n.__('Auto Legend')}}</button>
         </div>
       </div>
+      <div class="col-md-12 row" style="margin-bottom:20px;" ng-if="$ctrl.showGridAutoCreateLegendButton && $ctrl.type == $ctrl.DataSeriesType.GRID">
+        <div class="col-md-2">
+          <label><span>{{$ctrl.i18n.__('Initial Value')}}:</span></label>
+          <input class="form-control" name="initialValue" type="number" ng-model="$ctrl.legendInitialValue" ng-max="$ctrl.legendFinalValue">
+        </div>
+        <div class="col-md-2">
+          <label><span>{{$ctrl.i18n.__('Final Value')}}:</span></label>
+          <input class="form-control" name="finalValue" type="number" ng-model="$ctrl.legendFinalValue" ng-min="$ctrl.legendInitialValue">
+        </div>
+        <div class="col-md-2">
+          <label><span>{{$ctrl.i18n.__('Number')}}:</span></label>
+          <input class="form-control" name="quantity" type="number" ng-model="$ctrl.legendQuantity" ng-min="2">
+        </div>
+        <div class="col-md-2">
+          <label><span>{{$ctrl.i18n.__('Precision')}}:</span></label>
+          <input class="form-control" name="precision" type="number" ng-model="$ctrl.legendPrecision" ng-min="0">
+        </div>
+        <div class="col-md-2">
+          <button type="button"
+                  style="margin-top:25px;"
+                  class="btn btn-primary"
+                  ng-click="$ctrl.gridAutoCreateLegend()"
+                  ng-disabled="!(($ctrl.legendInitialValue || $ctrl.legendInitialValue == 0) && $ctrl.legendFinalValue && $ctrl.legendQuantity && ($ctrl.legendPrecision || $ctrl.legendPrecision == 0))">{{$ctrl.i18n.__('Auto Legend')}}</button>
+        </div>
+      </div>
       <div class="col-md-12 row">
         <div class="col-md-2">
           <label><span ng-bind="$ctrl.i18n.__('Color')"></span>:</label>

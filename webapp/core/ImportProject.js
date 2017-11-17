@@ -243,6 +243,13 @@ var ImportProject = function(json){
                     collector.schedule_id = scheduleResult.id;
 
                     return DataManager.addCollector(collector, collector.filter, options).then(function(collectorResult) {
+                      if (collector.intersection){
+                        collector.intersection.forEach(function(intersection){
+                          intersection.collector_id = collectorResult.id;
+                          intersection.dataseries_id = Utils.find(output.DataSeries, {$id: intersection.dataseries_id}).id;
+                        });
+                        DataManager.addIntersection(collector.intersection, options);
+                      }
                       collectorResult.project_id = Utils.find(output.DataSeries, {id: collectorResult.data_series_input}).dataProvider.project_id;
 
                       if(tcpOutput.Collectors === undefined) tcpOutput.Collectors = [];
@@ -251,6 +258,13 @@ var ImportProject = function(json){
                   }));
                 } else {
                   promises.push(DataManager.addCollector(collector, collector.filter, options).then(function(collectorResult) {
+                    if (collector.intersection){
+                      collector.intersection.forEach(function(intersection){
+                        intersection.collector_id = collectorResult.id;
+                        intersection.dataseries_id = Utils.find(output.DataSeries, {$id: intersection.dataseries_id}).id;
+                      });
+                      DataManager.addIntersection(collector.intersection, options);
+                    }
                     collectorResult.project_id = Utils.find(output.DataSeries, {id: collectorResult.data_series_input}).dataProvider.project_id;
 
                     if(tcpOutput.Collectors === undefined) tcpOutput.Collectors = [];

@@ -149,6 +149,9 @@
   "Can not delete the view if the service is not running": {
     " ": "Não pode deletar a visualização se o serviço não estiver rodando. "
   },
+  "Can not remove this data provider": {
+    " It is used in the following data series": "Não pode deletar esse servidor. É usado pelos seguintes dados"
+  },
   "Cancel": "Cancelar",
   "Cell phone": "Celular",
   "Cellphone": "Telefone",
@@ -356,6 +359,7 @@
   "Filter by limits": "Filtrar por limites",
   "Filter by static data": "Filtro por dado estático",
   "Filters": "Filtros",
+  "Final Value": "Valor final",
   "Finalizing": {
     "": {
       "": {
@@ -471,6 +475,7 @@
   "Influence is required": "Influência é requerida",
   "Influence radius is required": "Raio de Influência é requerido",
   "Information": "Informação",
+  "Initial Value": "Valor inicial",
   "Input Data": "Dado de Entrada",
   "Insert a value if you want to update the password": "Insira um valor caso queira atualizar a senha",
   "Insert the Color": "Insira a Cor",
@@ -708,6 +713,7 @@
   "PostGis occurrence": "Ocorrência PostGIS",
   "Pre-Analysis": "Pré-Análises",
   "Pre-processing": "Pre-processamento",
+  "Precision": "Precisão",
   "Prefix": "Prefixo",
   "Previous": "Anterior",
   "Private": "Privado",
@@ -805,6 +811,7 @@
   "Select the filter area type": "Selecione o tipo de filtro por área",
   "Select the inputs to analysis": "Selecione as entradas para a análise",
   "Select the project to which you want to import the data": "Selecione o projeto para o qual você deseja importar os dados",
+  "Select the Style Creation Type": "Selecione o Tipo de criação do Estilo",
   "Select theme with influence area": "Selecionar o Tema com área de influência",
   "Selected": "Selecionado",
   "Selected Analysis": "Análises Selecionadas",
@@ -943,7 +950,7 @@
   "Type here your analysis model": "Digite aqui seu modelo de análise",
   "Type is required": "O preenchimento do tipo é obrigatório",
   "Type to search": "Digite para pesquisar",
-  "Unconfigured GraDs Data Series storage": "Não configurado armazenamento de série de dados GraDs",
+  "Unconfigured Data Series storage": "Não configurado armazenamento de série de dados",
   "Union": "União",
   "Unknown property (not in schema)": "Propriedade desconhecida (não está no esquema)",
   "User": "Usuário",
@@ -1036,6 +1043,7 @@
   "You can not edit this view": {
     " He belongs to a protected project!": "Você não pode editar essa visualização. Ela pertence a um projeto protegido!"
   },
+  "You must fill the SLD field": "Você deve preencher o campo SLD",
   "active": "ativo",
   "alias": "pseudônimo",
   "but the TerraMA² service version is": "mas a versão do serviço TerraMA² é",

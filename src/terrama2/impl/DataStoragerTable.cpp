@@ -109,6 +109,12 @@ void terrama2::core::DataStoragerTable::store(DataSetSeries series, DataSetPtr o
     {
       auto geomPropertyName = getGeometryPropertyName(outputDataSet);
       te::gm::GeometryProperty* geomProperty = dynamic_cast<te::gm::GeometryProperty*>(newDataSetType->getProperty(geomPropertyName));
+      if(!geomProperty)
+      {
+        QString errMsg = QObject::tr("Unable to find geometric property %1").arg(QString::fromStdString(geomPropertyName));
+        TERRAMA2_LOG_ERROR() << errMsg;
+        throw DataStoragerException() << ErrorDescription(errMsg);
+      }
       geomProperty->setSRID(geom->getSRID());
       geomProperty->setGeometryType(geom->getGeometryType());
 

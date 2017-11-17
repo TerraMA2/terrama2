@@ -20,7 +20,7 @@
 
 <div class="col-md-12" ng-controller="ServiceRegisterUpdate as ctrl">
   <terrama2-service-form></terrama2-service-form>
-  <terrama2-box title="i18n.__('Service Registration')">
+  <terrama2-box title="i18n.__('Service Registration')" helper="'{[ BASE_URL ]}helper/add_services.html'">
     <div class="row">
       <div class="col-md-12">
         <terrama2-alert-box2 handler="ctrl.MessageBoxService.alertBox" close="ctrl.close()">
