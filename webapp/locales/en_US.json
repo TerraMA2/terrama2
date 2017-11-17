@@ -148,6 +148,9 @@
   "Can not delete the view if the service is not running": {
     " ": "Can not delete the view if the service is not running. "
   },
+  "Can not remove this data provider": {
+    " It is used in the following data series": "Cannot remove this data provider. It is used in the following data series"
+  },
   "Cancel": "Cancel",
   "Cell phone": "Cell phone",
   "Cellphone": "Cellphone",

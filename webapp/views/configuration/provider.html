@@ -40,7 +40,7 @@
 {% block content %}
 
 <div ng-controller="DataProviderRegisterController">
-  <terrama2-box title="i18n.__('Data Server Registration')" handler="serviceX">
+  <terrama2-box title="i18n.__('Data Server Registration')" handler="serviceX" helper="'{[ BASE_URL ]}helper/add_data_servers.html'">
     <terrama2-alert-box2 handler="MessageBoxService.alertBox" close="close()"></terrama2-alert-box2>
     <terrama2-box title="i18n.__('General Data')" css="css">
       <div class="row">

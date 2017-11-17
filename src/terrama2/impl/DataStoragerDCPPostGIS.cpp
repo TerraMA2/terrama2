@@ -51,6 +51,8 @@
 //Boost
 #include <boost/algorithm/string.hpp>
 
+#include <set>
+
 terrama2::core::DataStoragerPtr terrama2::core::DataStoragerDCPPostGIS::make(DataSeriesPtr dataSeries, DataProviderPtr dataProvider)
 {
   return std::make_shared<DataStoragerDCPPostGIS>(dataSeries, dataProvider);
@@ -75,53 +77,76 @@ void terrama2::core::DataStoragerDCPPostGIS::storePositions(const std::unordered
   std::shared_ptr<te::da::DataSourceTransactor> transactorDestination(datasourceDestination->getTransactor());
   te::da::ScopedTransaction scopedTransaction(*transactorDestination);
 
-  std::shared_ptr<te::mem::DataSet> dataset;
-  // DCP positions table name
-  std::string destinationDataSetName = getDCPPositionsTableName(dataSeries_);
-  auto newDataSetType = std::make_shared<te::da::DataSetType>(destinationDataSetName);
-
-  //drop old table
-  if (transactorDestination->dataSetExists(destinationDataSetName))
-    transactorDestination->dropDataSet(destinationDataSetName);
-
-// Check datasource capabilities
+  // Check datasource capabilities
   auto capabilities = datasourceDestination->getCapabilities();
   auto typeCapabilities = capabilities.getDataSetTypeCapabilities();
 
-  te::dt::SimpleProperty* serialPk = new te::dt::SimpleProperty(ID_PROPERTY_NAME, te::dt::INT32_TYPE, true);
-  newDataSetType->add(serialPk);
+  std::shared_ptr<te::mem::DataSet> dataset;
+  // DCP positions table name
+  std::string destinationDataSetName = getDCPPositionsTableName(dataSeries_);
+  std::shared_ptr<te::da::DataSetType> newDataSetType;
 
-  //add primary key if allowed
-  if(typeCapabilities.supportsPrimaryKey() && !newDataSetType->getPrimaryKey())
+  std::set<DataSetId> idSet;
+  if (transactorDestination->dataSetExists(destinationDataSetName))
   {
-    std::string pkName = "\""+destinationDataSetName+"_pk\"";
-    auto pk = new te::da::PrimaryKey(pkName, newDataSetType.get());
-    pk->add(serialPk);
+    newDataSetType = transactorDestination->getDataSetType(destinationDataSetName);
+    dataset = std::make_shared<te::mem::DataSet>(newDataSetType.get());
+
+    std::unique_ptr<te::da::DataSet> inDataBaseDataset(transactorDestination->getDataSet(destinationDataSetName));
+
+    auto pos = newDataSetType->getPropertyPosition(ID_PROPERTY_NAME);
+
+    inDataBaseDataset->moveBeforeFirst();
+    while(inDataBaseDataset->moveNext())
+    {
+      idSet.insert(static_cast<DataSetId>(inDataBaseDataset->getInt32(pos)));
+    }
   }
+  else
+  {
+    newDataSetType =  std::make_shared<te::da::DataSetType>(destinationDataSetName);
 
-// create properties
-  auto geomProperty = new te::gm::GeometryProperty(GEOM_PROPERTY_NAME, true);
-  geomProperty->setGeometryType(te::gm::PointType);
-  geomProperty->setSRID(4326);
-  newDataSetType->add(geomProperty);
-  auto teableNameProperty = new te::dt::StringProperty(TABLE_NAME_PROPERTY_NAME);
-  newDataSetType->add(teableNameProperty);
+    te::dt::SimpleProperty* serialPk = new te::dt::SimpleProperty(ID_PROPERTY_NAME, te::dt::INT32_TYPE, true);
+    newDataSetType->add(serialPk);
 
-  //create dataset
-  newDataSetType->setName(destinationDataSetName);
-  transactorDestination->createDataSet(newDataSetType.get(), {});
-  dataset = std::make_shared<te::mem::DataSet>(newDataSetType.get());
+    //add primary key if allowed
+    if(typeCapabilities.supportsPrimaryKey() && !newDataSetType->getPrimaryKey())
+    {
+      std::string pkName = "\""+destinationDataSetName+"_pk\"";
+      auto pk = new te::da::PrimaryKey(pkName, newDataSetType.get());
+      pk->add(serialPk);
+    }
+
+  // create properties
+    auto geomProperty = new te::gm::GeometryProperty(GEOM_PROPERTY_NAME, true);
+    geomProperty->setGeometryType(te::gm::PointType);
+    geomProperty->setSRID(4326);
+    newDataSetType->add(geomProperty);
+    auto teableNameProperty = new te::dt::StringProperty(TABLE_NAME_PROPERTY_NAME);
+    newDataSetType->add(teableNameProperty);
+
+    //create dataset
+    newDataSetType->setName(destinationDataSetName);
+    transactorDestination->createDataSet(newDataSetType.get(), {});
+    dataset = std::make_shared<te::mem::DataSet>(newDataSetType.get());
+  }
 
   for(const auto& item : dataMap)
   {
+    DataSetId inputDataSetId = item.first->id;
     // read each item
-    DataSetId outputDataSetId = inputOutputMap.at(item.first->id);
+    DataSetId outputDataSetId = inputOutputMap.at(inputDataSetId);
+
+    // if already in the table, continue
+    if(idSet.find(outputDataSetId) != std::end(idSet))
+      continue;
+
     auto outputDataSet = std::find_if(dataSetLst.cbegin(), dataSetLst.cend(), [outputDataSetId](terrama2::core::DataSetPtr dataSet) { return dataSet->id == outputDataSetId; });
     std::string destinationDataSetName = boost::to_lower_copy(getDataSetName(*outputDataSet));
 
     auto dataSetDcp = std::dynamic_pointer_cast<const DataSetDcp>(*outputDataSet);
     auto dataSetItem = std::unique_ptr<te::mem::DataSetItem>(new te::mem::DataSetItem(dataset.get()));
-    dataSetItem->setInt32(ID_PROPERTY_NAME, outputDataSetId);
+    dataSetItem->setInt32(ID_PROPERTY_NAME, static_cast<int32_t>(outputDataSetId));
     std::unique_ptr<te::gm::Geometry>locale (dynamic_cast<te::gm::Geometry*>(dataSetDcp->position->clone()));
     locale->transform(4326);
     dataSetItem->setGeometry(GEOM_PROPERTY_NAME, locale.release());
@@ -130,6 +155,7 @@ void terrama2::core::DataStoragerDCPPostGIS::storePositions(const std::unordered
     dataset->add(dataSetItem.release());
   }
 
+  dataset->moveBeforeFirst();
   transactorDestination->add(newDataSetType->getName(), dataset.get(), {});
   scopedTransaction.commit();
 }

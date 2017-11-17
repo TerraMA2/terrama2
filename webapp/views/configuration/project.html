@@ -18,7 +18,7 @@
 {% block content %}
 
 <div ng-controller="ProjectRegisterController">
-  <terrama2-box title="i18n.__('Project Registration')">
+  <terrama2-box title="i18n.__('Project Registration')" helper="'{[ BASE_URL ]}helper/add_projects.html'">
     <div class="col-md-12">
       <terrama2-alert-box2 handler="MessageBoxService.alertBox" close="close()"></terrama2-alert-box2>
     </div>
