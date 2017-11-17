@@ -3,6 +3,9 @@ version: "3"
 services:
   terrama2:
     build: "terrama2"
+    image: "terrama2-base:4.0.0-rc4"
+    container_name: terrama2_core
+
   # Base image for PostgreSQL/PostGIS
   postgis:
     image: mdillon/postgis
@@ -10,12 +13,11 @@ services:
       - pg_terrama2_vol:/var/lib/postgres/data
     ports:
       - "5432:5432"
-    networks:
-      terrama2_network:
-        ipv4_address: 172.28.1.2
+
   # TerraMA2 Web Application
   webapp:
     build: webapp
+    image: "terrama2-webapp:4.0.0-rc4"
     depends_on:
       - "terrama2"
     ports:
@@ -24,34 +26,33 @@ services:
       - "postgis"
     volumes:
       - "terrama2_data_vol:/data"
-    networks:
-      terrama2_network:
-        ipv4_address: 172.28.1.3
+    container_name: terrama2_webapp
+
   # TerraMA2 Web Monitor
   webmonitor:
     build: webmonitor
+    image: "terrama2-monitor:4.0.0-rc4"
     ports:
       - "36001:36001"
     depends_on:
       - "terrama2"
     volumes:
       - "terrama2_data_vol:/data"
-    networks:
-      terrama2_network:
-        ipv4_address: 172.28.1.4
-  # GeoServer - Universal (without Tomcat)
+    container_name: terrama2_webmonitor
+
+  # GeoServer behind Tomcat8
   geoserver:
     build: "geoserver"
+    image: "terrama2-geoserver:2.11.0"
     ports:
       - "8080:8080"
     volumes:
       - "terrama2_data_vol:/data"
-    networks:
-      terrama2_network:
-        ipv4_address: 172.28.1.5
+    container_name: terrama2_geoserver
+
   # TerraMA2 Collector Service using TerraMA2 Base
   collector:
-    image: docker_terrama2
+    image: "terrama2-base:4.0.0-rc4"
     entrypoint: 
       - /usr/local/bin/start_terrama2_service.sh
       - COLLECTOR
@@ -66,12 +67,11 @@ services:
       # Exporting Unix XServer to expose gui environment
       - "/tmp/.X11-unix:/tmp/.X11-unix:ro"
     tty: true
-    networks:
-      terrama2_network:
-        ipv4_address: 172.28.1.6
+    container_name: terrama2_collector
+
   # TerraMA2 Analysis Service using TerraMA2 Base
   analysis:
-    image: docker_terrama2
+    image: "terrama2-base:4.0.0-rc4"
     entrypoint: 
       - /usr/local/bin/start_terrama2_service.sh
       - ANALYSIS
@@ -84,12 +84,11 @@ services:
       - "terrama2_data_vol:/data"
       - "/tmp/.X11-unix:/tmp/.X11-unix:ro"
     tty: true
-    networks:
-      terrama2_network:
-        ipv4_address: 172.28.1.7
+    container_name: terrama2_analysis
+
   # TerraMA2 View Service using TerraMA2 Base
   view:
-    image: docker_terrama2
+    image: "terrama2-base:4.0.0-rc4"
     entrypoint: 
       - /usr/local/bin/start_terrama2_service.sh
       - VIEW
@@ -102,12 +101,11 @@ services:
       - "terrama2_data_vol:/data"
       - "/tmp/.X11-unix:/tmp/.X11-unix:ro"
     tty: true
-    networks:
-      terrama2_network:
-        ipv4_address: 172.28.1.8
+    container_name: terrama2_view
+
   # TerraMA2 Alert Service using TerraMA2 Base
   alert:
-    image: docker_terrama2
+    image: "terrama2-base:4.0.0-rc4"
     entrypoint: 
       - /usr/local/bin/start_terrama2_service.sh
       - ALERT
@@ -120,9 +118,7 @@ services:
       - "terrama2_data_vol:/data"
       - "/tmp/.X11-unix:/tmp/.X11-unix:ro"
     tty: true
-    networks:
-      terrama2_network:
-        ipv4_address: 172.28.1.9
+    container_name: terrama2_alert
 
 volumes:
   # Shared Volume to mount along TerraMA2 images

@@ -28,5 +28,5 @@ The Docker container will automatically expose the following ports for each Terr
 
 **Note** that you must configure manually:
 
-- PostgreSQL port in TerraMA² Web App (/webapp/config/instances/default.json)
-- TerraMA² Web App in TerraMA² Web Monitor (/webmonitor/config/instances/default.json)
+- PostgreSQL port (Use host as `terrama2_postgis`) in TerraMA² Web App (/webapp/config/instances/default.json)
+- TerraMA² Web App in TerraMA² Web Monitor (Use host as `terrama2_webapp`) (/webmonitor/config/instances/default.json)
