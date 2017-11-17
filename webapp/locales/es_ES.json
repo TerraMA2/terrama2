@@ -1074,9 +1074,9 @@
   "East band": "",
   "North band": "",
   "Has one band": "",
-	"Precision": "Precisão",
-	"Initial Value": "Valor inicial",
-	"Final Value": "Valor final",
+	"Precision": "",
+	"Initial Value": "",
+	"Final Value": "",
 	"Select the Style Creation Type": "",
   "You must fill the SLD field": ""
 }
