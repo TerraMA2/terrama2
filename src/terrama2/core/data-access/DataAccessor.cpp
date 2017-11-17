@@ -221,8 +221,13 @@ terrama2::core::DataAccessor::getSeries(const std::map<DataSetId, std::string> u
         DataSetSeries tempSeries = getSeries(uriMap.at(dataset->id), filter, dataset, remover);
         series.emplace(dataset, tempSeries);
       }
+      catch(const std::out_of_range&)
+      {
+        // no data in the dataset
+      }
       catch (const terrama2::core::NoDataException&)
       {
+        // no data in the dataset
       }
     }//for each dataset
 
