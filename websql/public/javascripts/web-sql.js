@@ -29,7 +29,11 @@ $(document).ready(function() {
         $.ajax({
             type: "POST",
             url: "/",
-            data: data
+            data: data,
+            success: function (msg, status, jqXHR) {
+                var jsonUpdatedData = msg;
+                console.log(msg);
+            }
           });
     });
 });

@@ -13,9 +13,7 @@ router.get('/', function(req, res, next) {
 
 router.post('/', function(req, res){
   var queryToDb = req.body.query;
-  console.log(doQuery);
-  dbConnect.doQuery(queryToDb);
-
+  querybox  dbConnect.doQuery(queryToDb);
 })
 
 module.exports = router;
