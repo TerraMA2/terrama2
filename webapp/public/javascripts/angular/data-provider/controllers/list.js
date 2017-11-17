@@ -69,7 +69,7 @@ define(function() {
               MessageBoxService.danger(i18n.__(title), err.message);
               return;
             }
-            MessageBoxService.danger(i18n.__(title), data.name + i18n.__(" removed"));
+            MessageBoxService.success(i18n.__(title), data.result.name + i18n.__(" removed"));
           }
         };
 
