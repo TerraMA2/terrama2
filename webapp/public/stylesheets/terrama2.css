@@ -701,3 +701,8 @@ table.dataTable tbody th, table.dataTable tbody td { padding-left: 12px !importa
   background-repeat: no-repeat;
   background-position: 204px 14px;
 }
+
+.sidebar-mini.sidebar-collapse #projects {
+  color: #1a222600;
+  background-position: 17px 14px;
+}

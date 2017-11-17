@@ -135,7 +135,7 @@
   "Buffer": "Buffer",
   "Bytes After": "Bytes posteriores",
   "Bytes Before": "Bytes anteriores",
-  "CSV Format": "Format CSV",
+  "CSV Format": "Formato do CSV",
   "CTL File": "Arquivo CTL",
   "Can not delete the alert if the service is not running": {
     " ": "Não pode deletar o alerta se o serviço não estiver rodando. "
@@ -324,6 +324,7 @@
   "End": "Fim",
   "End Date": "Data Final",
   "Enter default value": "Insira o valor padrão",
+  "Enter the file name!": "Insira o nome do arquivo!",
   "Enter the table name!": "Insira o nome da tabela!",
   "Enviroment": "Ambiente",
   "Enviroment Variables": "Variáveis de Ambiente",
