@@ -355,6 +355,7 @@
   "Filter by limits": "Filter by limits",
   "Filter by static data": "Filter by static data",
   "Filters": "Filters",
+  "Final Value": "Final Value",
   "Finalizing": {
     "": {
       "": {
@@ -469,6 +470,7 @@
   "Influence is required": "Influence is required",
   "Influence radius is required": "Influence radius is required",
   "Information": "Information",
+  "Initial Value": "Initial Value",
   "Input Data": "Input Data",
   "Insert a value if you want to update the password": "Insert a value if you want to update the password",
   "Insert the Color": "Insert the Color",
@@ -695,6 +697,7 @@
   "PostGis occurrence": "PostGIS occurrence",
   "Pre-Analysis": "Pre-Analysis",
   "Pre-processing": "Pre-processing",
+  "Precision": "Precision",
   "Prefix": "Prefix",
   "Previous": "Previous",
   "Private": "Private",
@@ -940,7 +943,7 @@
   "Type here your analysis model": "Type here your analysis model",
   "Type is required": "Type is required",
   "Type to search": "Type to search",
-  "Unconfigured GraDs Data Series storage": "Unconfigured GraDs Data Series storage",
+  "Unconfigured Data Series storage": "Unconfigured Data Series storage",
   "Union": "Union",
   "Unknown property (not in schema)": "Unknown property (not in schema)",
   "User": "User",

@@ -18,6 +18,7 @@ define([], function(){
             onStoragerFormatChange: "<",
             model: "<",
             options: "=",
+            isChecking: "=",
             schedule: "<"
         },
         templateUrl: BASE_URL + "dist/templates/data-series/templates/storager.html",
@@ -396,6 +397,8 @@ define([], function(){
         $scope.$broadcast('schemaFormValidate');
 
         if (self.forms.storagerForm.$valid && self.forms.storagerDataForm.$valid) {
+          self.isChecking.value = true;
+
           // checking if it is a dcp
           switch (self.formatSelected.data_series_type_name) {
             case "DCP":
