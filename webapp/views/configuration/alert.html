@@ -49,7 +49,7 @@
 
 {% block content %}
 <div ng-controller="AlertRegisterUpdateController as ctrl">
-  <terrama2-box title="i18n.__('Alert Registration')">
+  <terrama2-box title="i18n.__('Alert Registration')" helper="'{[ BASE_URL ]}helper/add_alerts.html'">
     <div class="col-md-12">
       <terrama2-alert-box2 handler="ctrl.MessageBoxService.alertBox" close="ctrl.close()"></terrama2-alert-box2>
     </div>

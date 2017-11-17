@@ -149,6 +149,9 @@
   "Can not delete the view if the service is not running": {
     " ": "Não pode deletar a visualização se o serviço não estiver rodando. "
   },
+  "Can not remove this data provider": {
+    " It is used in the following data series": "Não pode deletar esse servidor. É usado pelos seguintes dados"
+  },
   "Cancel": "Cancelar",
   "Cell phone": "Celular",
   "Cellphone": "Telefone",
@@ -356,6 +359,7 @@
   "Filter by limits": "Filtrar por limites",
   "Filter by static data": "Filtro por dado estático",
   "Filters": "Filtros",
+  "Final Value": "Valor final",
   "Finalizing": {
     "": {
       "": {
@@ -471,6 +475,7 @@
   "Influence is required": "Influência é requerida",
   "Influence radius is required": "Raio de Influência é requerido",
   "Information": "Informação",
+  "Initial Value": "Valor inicial",
   "Input Data": "Dado de Entrada",
   "Insert a value if you want to update the password": "Insira um valor caso queira atualizar a senha",
   "Insert the Color": "Insira a Cor",
@@ -708,6 +713,7 @@
   "PostGis occurrence": "Ocorrência PostGIS",
   "Pre-Analysis": "Pré-Análises",
   "Pre-processing": "Pre-processamento",
+  "Precision": "Precisão",
   "Prefix": "Prefixo",
   "Previous": "Anterior",
   "Private": "Privado",

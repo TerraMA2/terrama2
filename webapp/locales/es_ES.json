@@ -1074,6 +1074,12 @@
   "East band": "",
   "North band": "",
   "Has one band": "",
+	"Precision": "",
+	"Initial Value": "",
+	"Final Value": "",
 	"Select the Style Creation Type": "",
-  "You must fill the SLD field": ""
+  "You must fill the SLD field": "",
+  "Can not remove this data provider": {
+    " It is used in the following data series": ""
+  }
 }
