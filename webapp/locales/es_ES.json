@@ -1081,5 +1081,6 @@
   "You must fill the SLD field": "",
   "Can not remove this data provider": {
     " It is used in the following data series": ""
-  }
+  },
+	"Enter the file name!": ""
 }
