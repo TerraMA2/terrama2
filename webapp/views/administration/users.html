@@ -16,7 +16,7 @@
 {% block content %}
 
 <div ng-controller="UserListController">
-  <terrama2-box title="i18n.__('Users')">
+  <terrama2-box title="i18n.__('Users')" helper="'{[ BASE_URL ]}helper/users.html'">
     <div class="col-md-12">
       <div class="col-md-12">
         <terrama2-alert-box2 handler="MessageBoxService.alertBox" close="close()"></terrama2-alert-box2>

@@ -110,14 +110,6 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
   auto collectedData = collectedDataSetSeries.syncDataSet;
   auto collectedDataSetType = collectedDataSetSeries.teDataSetType;
 
-  if(intersectionDataSeries->semantics.dataSeriesType != terrama2::core::DataSeriesType::GEOMETRIC_OBJECT)
-  {
-    QString errMsg(QObject::tr("Invalid DataSeries type for intersection"));
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
-  }
-
-
   if(!collectedData)
   {
     QString errMsg(QObject::tr("Invalid TerraLib dataset"));

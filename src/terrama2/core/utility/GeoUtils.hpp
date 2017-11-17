@@ -6,6 +6,8 @@
 #include <terralib/raster/Raster.h>
 #include <terralib/raster/Grid.h>
 
+#include "../data-access/DataSetSeries.hpp"
+
 namespace terrama2 {
   namespace core {
     /*!
@@ -51,5 +53,11 @@ namespace terrama2 {
     */
     std::pair<uint32_t, uint32_t> geoToGrid(const te::gm::Coord2D& coord, te::rst::Grid* grid);
 
+    /*
+        \brief creates an RTree from the geometrict property of the DataSetSeries
+
+        \warning The RTree return is in EPSG:4326
+    */
+    std::unique_ptr<te::sam::rtree::Index<size_t, 8> > createRTreeFromSeries(const terrama2::core::DataSetSeries& dataSetSeries);
   } /* core */
 } /* terrama2 */

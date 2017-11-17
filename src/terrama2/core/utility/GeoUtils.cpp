@@ -8,7 +8,10 @@
 #include <terralib/srs/SpatialReferenceSystem.h>
 #include <terralib/geometry/WKTReader.h>
 #include <terralib/geometry/MultiPolygon.h>
+#include <terralib/geometry/GeometryProperty.h>
 #include <terralib/raster/RasterFactory.h>
+#include <terralib/dataaccess/dataset/DataSetType.h>
+#include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/raster/Grid.h>
 #include <terralib/raster/Band.h>
 #include <terralib/raster/BandIterator.h>
@@ -187,4 +190,29 @@ std::pair<uint32_t, uint32_t> terrama2::core::geoToGrid(const te::gm::Coord2D& c
     row = std::numeric_limits<uint32_t>::max();
 
   return std::make_pair(col, row);
+}
+
+std::unique_ptr<te::sam::rtree::Index<size_t, 8> > terrama2::core::createRTreeFromSeries(const terrama2::core::DataSetSeries& dataSetSeries)
+{
+    auto dataSet = dataSetSeries.syncDataSet;
+    auto dataSetType = dataSetSeries.teDataSetType;
+
+    std::unique_ptr<te::sam::rtree::Index<size_t, 8> > rtree(new te::sam::rtree::Index<size_t, 8>);
+    std::size_t geomPropertyPos = te::da::GetFirstPropertyPos(dataSet->dataset().get(), te::dt::GEOMETRY_TYPE);
+    if(geomPropertyPos == std::numeric_limits<std::size_t>::max())
+    {
+      QString errMsg(QObject::tr("Could not find a geometry property in the indexed dataset"));
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
+    }
+
+    // Creates a rtree with all geometries
+    for(unsigned int i = 0; i < dataSet->size(); ++i)
+    {
+      auto geometry = dataSet->getGeometry(i, geomPropertyPos);
+      geometry->transform(4326);
+      rtree->insert(*geometry->getMBR(), i);
+    }
+
+    return rtree;
 }
