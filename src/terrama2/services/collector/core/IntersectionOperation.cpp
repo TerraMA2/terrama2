@@ -37,6 +37,7 @@
 #include "../../../core/utility/DataAccessorFactory.hpp"
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/utility/Utils.hpp"
+#include "../../../core/utility/GeoUtils.hpp"
 #include "../../../core/utility/Verify.hpp"
 #include "../../../core/data-access/DataAccessor.hpp"
 #include "../../../core/data-access/DataAccessorGrid.hpp"
@@ -151,11 +152,11 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
 
   auto remover = std::make_shared<terrama2::core::FileRemover>();
   // Reads data
-  auto seriesMap = accessor->getSeries(filter, remover);
+  auto intersectionSeriesMap = accessor->getSeries(filter, remover);
 
   std::map<std::string, std::string> mapAlias;
 
-  for(auto it = seriesMap.begin(); it != seriesMap.end(); ++it)
+  for(auto it = intersectionSeriesMap.begin(); it != intersectionSeriesMap.end(); ++it)
   {
     auto interDsType = it->second.teDataSetType;
     auto interDs = it->second.syncDataSet;
@@ -187,8 +188,8 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
 
     }
 
-    te::sam::rtree::Index<size_t, 8>* rtree(new te::sam::rtree::Index<size_t, 8>);
-
+    // Creates a rtree with all occurrences
+    auto rtree = terrama2::core::createRTreeFromSeries(collectedDataSetSeries);
 
     auto collectedGeomProperty = te::da::GetFirstGeomProperty(collectedDataSetType.get());
     if(!collectedGeomProperty)
@@ -198,10 +199,8 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
       throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
     }
     size_t collectedGeomPropertyPos = collectedDataSetType->getPropertyPosition(collectedGeomProperty);
-    int occurrenceSRID = collectedGeomProperty->getSRID();
 
     auto intersectionGeomProperty = te::da::GetFirstGeomProperty(interDsType.get());
-
     if(!intersectionGeomProperty)
     {
       QString errMsg(QObject::tr("Could not find a geometry property in the intersection dataset"));
@@ -212,19 +211,18 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
 
     // Create the DataSetType and DataSet
 
-    outputDt.reset(createDataSetType(collectedDataSetType.get(), interProperties));
+    outputDt.reset(createDataSetType(collectedDataSetType.get(), interProperties).release());
     outputDs.reset(new te::mem::DataSet(outputDt.get()));
 
     // Creates a rtree with all occurrences
     for(unsigned int i = 0; i < collectedData->size(); ++i)
     {
       auto geometry = collectedData->getGeometry(i, collectedGeomPropertyPos);
-      rtree->insert(*geometry->getMBR(), i);
 
-      te::mem::DataSetItem* item = new te::mem::DataSetItem(outputDs.get());
+      std::unique_ptr<te::mem::DataSetItem> item(new te::mem::DataSetItem(outputDs.get()));
 
-      te::gm::Geometry* occurrenceGeom(dynamic_cast<te::gm::Geometry*>(geometry->clone()));
-      item->setGeometry(collectedGeomProperty->getName(), occurrenceGeom);
+      std::unique_ptr<te::gm::Geometry> occurrenceGeom(dynamic_cast<te::gm::Geometry*>(geometry->clone()));
+      item->setGeometry(collectedGeomProperty->getName(), occurrenceGeom.release());
 
       // copies all attributes from the collected dataset
       for(size_t j = 0; j < collectedProperties.size(); ++j)
@@ -242,11 +240,8 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
         }
       }
 
-      outputDs->add(item);
-
+      outputDs->add(item.release());
     }
-
-
 
     for(unsigned int i = 0; i < interDs->size(); ++i)
     {
@@ -255,10 +250,8 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
         continue;
 
       terrama2::core::verify::srid(currGeom->getSRID());
-      terrama2::core::verify::srid(occurrenceSRID);
-
-      if(currGeom->getSRID() != occurrenceSRID)
-        currGeom->transform(occurrenceSRID);
+      if(currGeom->getSRID() != 4326)
+        currGeom->transform(4326);
 
       // Recovers all occurrences that intersects the current geometry envelope
       std::vector<size_t> report;
@@ -290,7 +283,6 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
     }
   }
 
-
   terrama2::core::SynchronizedDataSetPtr syncDs(new terrama2::core::SynchronizedDataSet(outputDs));
   terrama2::core::DataSetSeries outputDataSeries;
   outputDataSeries.syncDataSet = syncDs;
@@ -300,12 +292,10 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
   return outputDataSeries;
 }
 
-te::da::DataSetType* terrama2::services::collector::core::createDataSetType(te::da::DataSetType* collectedDST,
+std::unique_ptr<te::da::DataSetType> terrama2::services::collector::core::createDataSetType(te::da::DataSetType* collectedDST,
     std::vector<te::dt::Property*> intersectionDSProperties)
 {
-  te::da::DataSetType* outputDt = new te::da::DataSetType(collectedDST->getName());
-
-
+  std::unique_ptr<te::da::DataSetType> outputDt(new te::da::DataSetType(collectedDST->getName()));
   std::vector<te::dt::Property*> collectedDSProperties = collectedDST->getProperties();
 
   for(size_t i = 0; i < collectedDSProperties.size(); ++i)
