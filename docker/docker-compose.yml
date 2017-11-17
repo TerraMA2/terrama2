@@ -53,7 +53,7 @@ services:
   collector:
     image: docker_terrama2
     entrypoint: 
-      - terrama2_service
+      - /usr/local/bin/start_terrama2_service.sh
       - COLLECTOR
       - "6543"
     # Exporting Display Number in order to expose gui environment
@@ -65,6 +65,7 @@ services:
       - "terrama2_data_vol:/data"
       # Exporting Unix XServer to expose gui environment
       - "/tmp/.X11-unix:/tmp/.X11-unix:ro"
+    tty: true
     networks:
       terrama2_network:
         ipv4_address: 172.28.1.6
@@ -72,7 +73,7 @@ services:
   analysis:
     image: docker_terrama2
     entrypoint: 
-      - terrama2_service
+      - /usr/local/bin/start_terrama2_service.sh
       - ANALYSIS
       - "6544"
     environment:
@@ -82,6 +83,7 @@ services:
     volumes:
       - "terrama2_data_vol:/data"
       - "/tmp/.X11-unix:/tmp/.X11-unix:ro"
+    tty: true
     networks:
       terrama2_network:
         ipv4_address: 172.28.1.7
@@ -89,7 +91,7 @@ services:
   view:
     image: docker_terrama2
     entrypoint: 
-      - terrama2_service
+      - /usr/local/bin/start_terrama2_service.sh
       - VIEW
       - "6545"
     environment:
@@ -99,6 +101,7 @@ services:
     volumes:
       - "terrama2_data_vol:/data"
       - "/tmp/.X11-unix:/tmp/.X11-unix:ro"
+    tty: true
     networks:
       terrama2_network:
         ipv4_address: 172.28.1.8
@@ -106,7 +109,7 @@ services:
   alert:
     image: docker_terrama2
     entrypoint: 
-      - terrama2_service
+      - /usr/local/bin/start_terrama2_service.sh
       - ALERT
       - "6546"
     environment:
@@ -116,6 +119,7 @@ services:
     volumes:
       - "terrama2_data_vol:/data"
       - "/tmp/.X11-unix:/tmp/.X11-unix:ro"
+    tty: true
     networks:
       terrama2_network:
         ipv4_address: 172.28.1.9

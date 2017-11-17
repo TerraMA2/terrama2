@@ -17,6 +17,7 @@ valid $? "Error: Could not fetch TerraMA²"
 
 echo "Installing TerraMA² ... "
 dpkg -i TerraMA2-4.0.0-rc4-linux-x64-Ubuntu-14.04.deb 2> /dev/null
+rm TerraMA2-4.0.0-rc4-linux-x64-Ubuntu-14.04.deb
 
 apt-get install -f -y
 valid $? "Error: Could not install TerraMA²"

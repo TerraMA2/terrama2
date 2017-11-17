@@ -39,6 +39,7 @@ RUN echo "deb http://br.archive.ubuntu.com/ubuntu/ trusty-backports main restric
                        unzip \
                        sudo \
                        screen \
+                       openssh-server \
                        # VMime Dependencies
                        doxygen \
                        graphviz \
