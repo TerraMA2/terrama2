@@ -318,11 +318,14 @@ bool terrama2::core::DataAccessorFile::isValidGeometry(std::shared_ptr<te::mem::
 
 
   std::shared_ptr< te::gm::Geometry > region(dataSet->getGeometry(geomColumn));
+  // the RTree is create with EPSG:4326
+  region->transform(4326);
+
   // Apply filter by area
   if(filter.region)
   {
     std::shared_ptr< te::gm::Geometry > filterRegion(static_cast<te::gm::Geometry*>(filter.region->clone()));
-    filterRegion->transform(region->getSRID());
+    filterRegion->transform(4326);
     if(!region->intersects(filterRegion.get()))
       return false;
   }
@@ -330,8 +333,6 @@ bool terrama2::core::DataAccessorFile::isValidGeometry(std::shared_ptr<te::mem::
 
   if(rtree)
   {
-    // the RTree is create with EPSG:4326
-    region->transform(4326);
     auto box = region->getMBR();
     std::vector<std::size_t> report;
     rtree->search(*box, report);
@@ -347,6 +348,7 @@ bool terrama2::core::DataAccessorFile::isValidGeometry(std::shared_ptr<te::mem::
 
     for(size_t i = 0; i < report.size(); ++i) {
       auto geom = syncDs->getGeometry(i, geomPropertyPos);
+      geom->transform(4326);
       if (region->intersects(geom.get()))
       {
         return true;
