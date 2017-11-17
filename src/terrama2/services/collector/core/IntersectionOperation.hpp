@@ -88,8 +88,8 @@ namespace terrama2
          \param intersectionDSProperties Vector of properties to be added to the collected DataSet.
          \return A DataSetType with the attributes from the collected dataset plus the attributes configured in the intersection.
          */
-        te::da::DataSetType* createDataSetType(te::da::DataSetType* collectedDST,
-                                               std::vector<te::dt::Property*> intersectionDSProperties);
+        std::unique_ptr<te::da::DataSetType> createDataSetType(te::da::DataSetType* collectedDST,
+                                                               std::vector<te::dt::Property*> intersectionDSProperties);
 
         /*!
          \brief Process the intersection for vector data.
