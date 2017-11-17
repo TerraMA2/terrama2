@@ -214,8 +214,7 @@
             dataSeriesOfProvider.forEach(function(dataSeries){
               dataSeriesNames.push(dataSeries.name);
             });
-            var errorMessage = "Cannot remove this data provider. It is used in the following data series: " + dataSeriesNames.join(", ");
-            throw new Error(errorMessage);
+            throw new Error(dataSeriesNames.join(", "));
           }
 
           return DataManager.removeDataProvider({id: dataProviderId}).then(function(result) {

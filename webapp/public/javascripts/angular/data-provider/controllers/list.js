@@ -66,7 +66,8 @@ define(function() {
           advancedFilterField: "data_provider_type.name",
           removeOperationCallback: function(err, data) {
             if(err) {
-              MessageBoxService.danger(i18n.__(title), err.message);
+              var errMessage = i18n.__("Can not remove this data provider. It is used in the following data series");
+              MessageBoxService.danger(i18n.__(title), errMessage + ": " + err.message);
               return;
             }
             MessageBoxService.success(i18n.__(title), data.result.name + i18n.__(" removed"));
