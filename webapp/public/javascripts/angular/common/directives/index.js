@@ -45,7 +45,7 @@ define([
               '{{ titleHeader }}' +
             '</h3>' +
             '<div class="box-tools pull-right">' +
-              '<a ng-if="helper" href="{{ helper }}" target="_blank" style="color: #97a0b3;"><button type="button" class="btn btn-box-tool terrama2-circle-button" style="margin-right: 15px;" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-question"></i></button></a>' +
+              '<a ng-if="existHelper && helper" href="{{ helper }}" target="_blank" style="color: #97a0b3;"><button type="button" class="btn btn-box-tool terrama2-circle-button" style="margin-right: 15px;" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-question"></i></button></a>' +
               '<button type="button" ng-if="extra.disabled === undefined" class="btn btn-box-tool collapserBtn" data-widget="collapse"><i ng-if="!collapsed" class="fa fa-minus"></i></button> ' +
             '</div>' +
           '</div>' +
