@@ -201,6 +201,15 @@ define(
           }
         });
       });
+
+      $('.template input').mousedown(function() {
+        if(!$(this).is(':checked')) {
+          var checked = $(".template input:checked");
+
+          for(var i = 0, checkedLength = checked.length; i < checkedLength; i++)
+            checked[i].click();
+        }
+      });
     };
 
     var loadSocketsListeners = function() {
@@ -728,7 +737,7 @@ define(
 
       //Adding open map street
       if(TerraMA2WebComponents.MapDisplay.addOSMLayer("osm", "OpenStreetMap", "OpenStreetMap", false, "terrama2-layerexplorer", false)) {
-        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("osm", "template", null, "treeview unsortable terrama2-truncate-text", null);
+        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("osm", "template", null, "treeview unsortable terrama2-truncate-text template", null);
         var layerObject = Layers.createLayerObject({
           layers: ["osm"],
           name: "OpenStreetMap",
@@ -738,6 +747,20 @@ define(
         Layers.addLayer(layerObject);
         LayerStatus.addLayerStatusIcon("osm");
         Layers.changeLayerStatus("osm", LayerStatusEnum.ONLINE);
+      }
+
+      var gebcoUrl = "http://www.gebco.net/data_and_products/gebco_web_services/web_map_service/mapserv?request=getmap&service=wms";
+      if(TerraMA2WebComponents.MapDisplay.addTileWMSLayer("gebco_08_grid", "GEBCO", "GEBCO", gebcoUrl, "mapserver", false, false, "terrama2-layerexplorer", { version: "1.3.0", format: "image/jpeg" })){
+        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("gebco_08_grid", "template", null, "treeview unsortable terrama2-truncate-text template", null);
+        var layerObject = Layers.createLayerObject({
+          layers: ["gebco_08_grid"],
+          name: "GEBCO",
+          type: "template",
+          description: null
+        });
+        Layers.addLayer(layerObject);
+        LayerStatus.addLayerStatusIcon("gebco_08_grid");
+        Layers.changeLayerStatus("gebco_08_grid", LayerStatusEnum.ONLINE);
       }
 
       addTreeviewMenuClass();
