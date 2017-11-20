@@ -18,7 +18,7 @@ ls -lah .
 
 # Start TerraMA2 Service Daemon
 echo "Starting $TERRAMA2_INSTALL_PATH/bin/terrama2_service ... "
-nohup $TERRAMA2_INSTALL_PATH/bin/terrama2_service $TERRAMA2_SERVICE_TYPE $TERRAMA2_SERVICE_VERSION &
+nohup $TERRAMA2_INSTALL_PATH/bin/terrama2_service $TERRAMA2_SERVICE_TYPE $TERRAMA2_SERVICE_VERSION -platform offscreen &
 
 # Lock Session
 bash
