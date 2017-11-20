@@ -1092,21 +1092,22 @@ define([], function() {
       $scope.isSchedule = false;
 
       $scope.$watch("dataSeries", function(dSValue) {
-        if (dSValue.name && dSValue.semantics && dSValue.data_provider_id){
+        if(dSValue.semantics && $scope.dataSeries && $scope.dataSeries.semantics.allow_direct_access === false) {
+          $scope.advanced.store.optional = false;
+        } else {
+          $scope.advanced.store.optional = true;
+        }
+
+        if(dSValue.name && dSValue.semantics && dSValue.data_provider_id) {
+          $scope.wizard.store.disabled = false;
+          $scope.advanced.store.disabled = false;
           $scope.wizard.parameters.disabled = false;
           $scope.wizard.csvFormat.disabled = false;
-          if ($scope.dataSeries.semantics.allow_direct_access === false){
-            $scope.wizard.store.disabled = false;
-            $scope.advanced.store.disabled = false;
-            $scope.advanced.store.optional = false;
-          }
-        }
-        else {
-          $scope.wizard.parameters.disabled = true;
-          $scope.wizard.csvFormat.disabled = true;
+        } else {
           $scope.wizard.store.disabled = true;
           $scope.advanced.store.disabled = true;
-          $scope.advanced.store.optional = true;
+          $scope.wizard.parameters.disabled = true;
+          $scope.wizard.csvFormat.disabled = true;
         }
       }, true);
 
@@ -2015,13 +2016,11 @@ define([], function() {
         }
 
         if ($scope.dataSeries.access == 'COLLECT') {
-          $scope.isChecking.value = true;
-
           // getting values from another controller
           $scope.$broadcast("requestStorageValues");
         } else {
-          if ($scope.dataSeries.semantics.data_format_name === globals.enums.DataSeriesFormat.GRADS) {
-            MessageBoxService.danger(i18n.__("Data Series Registration"), i18n.__("Unconfigured GraDs Data Series storage"));
+          if($scope.isDynamic && $scope.dataSeries.semantics.allow_direct_access === false) {
+            MessageBoxService.danger(i18n.__("Data Series Registration"), i18n.__("Unconfigured Data Series storage"));
             return;
           }
 

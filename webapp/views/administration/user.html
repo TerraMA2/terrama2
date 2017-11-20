@@ -36,7 +36,7 @@ TerraMA² {{ i18n.__('User Registration') }}
 {% block content %}
 
 <div ng-controller="{% if (update) %}UserUpdateController{% else %}UserRegistrationController{% endif %}">
-  <terrama2-box title="{% if (update) %}i18n.__('User Update'){% else %}i18n.__('User Registration'){% endif %}">
+  <terrama2-box title="{% if (update) %}i18n.__('User Update'){% else %}i18n.__('User Registration'){% endif %}" helper="'{[ BASE_URL ]}helper/add_users.html'">
     <div class="col-md-12">
       <terrama2-alert-box2 handler="MessageBoxService.alertBox" close="close()"></terrama2-alert-box2>
     </div>

@@ -186,7 +186,11 @@ namespace terrama2
 
         */
 
-        virtual bool isValidGeometry(std::shared_ptr<te::mem::DataSet> dataSet, const Filter& filter, size_t geomColumn, std::unordered_map<DataSetPtr, DataSetSeries>& seriesStaticData) const;
+        virtual bool isValidGeometry(std::shared_ptr<te::mem::DataSet> dataSet,
+                                     const Filter& filter,
+                                     size_t geomColumn,
+                                     terrama2::core::DataSetSeries filterDataSetSeries,
+                                     const std::unique_ptr<te::sam::rtree::Index<size_t, 8> >& rtree) const;
 
         /*!
           \brief Filter dataset by raster envelope
@@ -200,7 +204,10 @@ namespace terrama2
            - Raster attribute is null (will be logged)
 
         */
-        virtual bool isValidRaster(std::shared_ptr<te::mem::DataSet> dataSet, const Filter&  filter, size_t rasterColumn, std::unordered_map<DataSetPtr, DataSetSeries>& seriesStaticData) const;
+        virtual bool isValidRaster(std::shared_ptr<te::mem::DataSet> dataSet,
+                                   const Filter&  filter, size_t rasterColumn,
+                                   terrama2::core::DataSetSeries filterDataSetSeries,
+                                   const std::unique_ptr<te::sam::rtree::Index<size_t, 8> >& rtree) const;
 
         std::shared_ptr< te::dt::TimeInstantTZ > getDataLastTimestamp(DataSetPtr dataSet, std::shared_ptr<te::da::DataSet> teDataSet) const;
 
