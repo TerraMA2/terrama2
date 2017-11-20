@@ -121,7 +121,7 @@ void terrama2::services::collector::core::Service::addToQueue(CollectorId collec
   catch(...)
   {
     // exception guard, slots should never emit exceptions.
-    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception durring collector edd to queue...");
+    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception during collector add to queue...");
   }
 }
 
@@ -181,42 +181,125 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
     auto remover = std::make_shared<terrama2::core::FileRemover>();
     auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(inputDataProvider, inputDataSeries);
 
-    auto uriMap = dataAccessor->getFiles(filter, remover);
-    auto dataMap = dataAccessor->getSeries(uriMap, filter, remover);
-    if(dataMap.empty())
-    {
-      QString errMsg = tr("No data to collect.");
-      logger->result(CollectorLogger::DONE, nullptr, executionPackage.registerId);
-      logger->log(CollectorLogger::WARNING_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
-      TERRAMA2_LOG_WARNING() << errMsg;
+    std::shared_ptr<te::dt::TimeInstantTZ> lastDateTime;
 
-      notifyWaitQueue(executionPackage.processId);
-      sendProcessFinishedSignal(executionPackage.processId, executionPackage.executionDate, false);
-      return;
-    }
-    auto lastDateTime = dataAccessor->lastDateTime();
-
-    /////////////////////////////////////////////////////////////////////////
-    // data intersection
-
-    for(auto& item : dataMap)
-    {
-      // intersection
-      if(collectorPtr->intersection)
+    dataAccessor->getSeriesCallback(filter, remover, [&](const DataSetId& datasetId, const std::string& uri) {
+      try
       {
-        //FIXME: the datamanager is being used outside the lock
-        item.second = processIntersection(dataManager, collectorPtr->intersection, item.second, executionPackage.executionDate);
+        auto dataMap = dataAccessor->getSeries({{datasetId, uri}}, filter, remover);
+        if(dataMap.empty())
+        {
+          QString errMsg = tr("No data to collect.");
+          logger->result(CollectorLogger::DONE, nullptr, executionPackage.registerId);
+          logger->log(CollectorLogger::WARNING_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+          TERRAMA2_LOG_WARNING() << errMsg;
+
+          notifyWaitQueue(executionPackage.processId);
+          sendProcessFinishedSignal(executionPackage.processId, executionPackage.executionDate, false);
+          return;
+        }
+        auto thisFileLastDateTime = dataAccessor->lastDateTime();
+
+        /////////////////////////////////////////////////////////////////////////
+        // data intersection
+
+        for(auto& item : dataMap)
+        {
+          // intersection
+          if(collectorPtr->intersection)
+          {
+            //FIXME: the datamanager is being used outside the lock
+            item.second = processIntersection(dataManager, collectorPtr->intersection, item.second, executionPackage.executionDate);
+          }
+        }
+
+        /////////////////////////////////////////////////////////////////////////
+        // storing data
+
+        auto inputOutputMap = collectorPtr->inputOutputMap;
+        auto dataSetLst = outputDataSeries->datasetList;
+        auto dataStorager = terrama2::core::DataStoragerFactory::getInstance().make(outputDataSeries, outputDataProvider);
+
+        dataStorager->store(dataMap, dataSetLst, inputOutputMap);
+
+        // if any exception happens, don't update the data timestamp
+        if(thisFileLastDateTime && (!lastDateTime || (*thisFileLastDateTime > *lastDateTime)))
+          lastDateTime = thisFileLastDateTime;
       }
-    }
+      catch(const terrama2::core::LogException& e)
+      {
+        std::string errMsg = boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
+        if(executionPackage.registerId != 0 )
+        {
+          TERRAMA2_LOG_ERROR() << errMsg << std::endl;
+          TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(executionPackage.processId);
+        }
+      }
+      catch(const terrama2::core::NoDataException& e)
+      {
+        TERRAMA2_LOG_INFO() << tr("Collection finished but there was no data available for collector %1.").arg(executionPackage.processId);
 
-    /////////////////////////////////////////////////////////////////////////
-    // storing data
+        std::string errMsg = boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
+        if(executionPackage.registerId != 0)
+        {
+          logger->log(CollectorLogger::WARNING_MESSAGE, errMsg, executionPackage.registerId);
+          logger->result(CollectorLogger::DONE, nullptr, executionPackage.registerId);
+        }
 
-    auto inputOutputMap = collectorPtr->inputOutputMap;
-    auto dataSetLst = outputDataSeries->datasetList;
-    auto dataStorager = terrama2::core::DataStoragerFactory::getInstance().make(outputDataSeries, outputDataProvider);
+        QJsonObject jsonAnswer;
+        jsonAnswer.insert(terrama2::core::ReturnTags::AUTOMATIC, false);
+        sendProcessFinishedSignal(executionPackage.processId, executionPackage.executionDate, true, jsonAnswer);
+        notifyWaitQueue(executionPackage.processId);
+        return;
+      }
+      catch(const terrama2::Exception& e)
+      {
+        QString errMsg = *boost::get_error_info<terrama2::ErrorDescription>(e);
+        TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(executionPackage.processId);
 
-    dataStorager->store(dataMap, dataSetLst, inputOutputMap);
+        if(executionPackage.registerId != 0)
+        {
+          logger->log(CollectorLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+          logger->result(CollectorLogger::ERROR, nullptr, executionPackage.registerId);
+        }
+      }
+      catch(const boost::exception& e)
+      {
+        std::string errMsg = boost::diagnostic_information(e);
+        TERRAMA2_LOG_ERROR() << errMsg;
+        TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(executionPackage.processId);
+
+        if(executionPackage.registerId != 0)
+        {
+          logger->log(CollectorLogger::ERROR_MESSAGE, errMsg, executionPackage.registerId);
+          logger->result(CollectorLogger::ERROR, nullptr, executionPackage.registerId);
+        }
+      }
+      catch(const std::exception& e)
+      {
+        TERRAMA2_LOG_ERROR() << e.what();
+        TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(executionPackage.processId);
+
+        if(executionPackage.registerId != 0)
+        {
+          logger->log(CollectorLogger::ERROR_MESSAGE, e.what(), executionPackage.registerId);
+          logger->result(CollectorLogger::ERROR, nullptr, executionPackage.registerId);
+        }
+      }
+      catch(...)
+      {
+        QString errMsg = tr("Unknown error.");
+        TERRAMA2_LOG_ERROR() << errMsg;
+        TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(executionPackage.processId);
+
+        if(executionPackage.registerId != 0)
+        {
+          logger->log(CollectorLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+          logger->result(CollectorLogger::ERROR, nullptr, executionPackage.registerId);
+        }
+
+      }
+    });
 
     TERRAMA2_LOG_INFO() << tr("Data from collector %1 collected successfully.").arg(executionPackage.processId);
 
@@ -230,7 +313,6 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
     sendProcessFinishedSignal(executionPackage.processId, executionPackage.executionDate, true);
     notifyWaitQueue(executionPackage.processId);
     return;
-
   }
   catch(const terrama2::core::LogException& e)
   {
@@ -241,13 +323,14 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
       TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(executionPackage.processId);
     }
   }
-  catch(const terrama2::core::NoDataException&)
+  catch(const terrama2::core::NoDataException& e)
   {
     TERRAMA2_LOG_INFO() << tr("Collection finished but there was no data available for collector %1.").arg(executionPackage.processId);
 
+    std::string errMsg = boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
     if(executionPackage.registerId != 0)
     {
-      logger->log(CollectorLogger::WARNING_MESSAGE, tr("No data available").toStdString(), executionPackage.registerId);
+      logger->log(CollectorLogger::WARNING_MESSAGE, errMsg, executionPackage.registerId);
       logger->result(CollectorLogger::DONE, nullptr, executionPackage.registerId);
     }
 

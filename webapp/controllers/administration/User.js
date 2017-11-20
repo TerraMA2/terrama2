@@ -4,6 +4,8 @@ module.exports = function(app) {
   var Utils = require("../../core/Utils");
   var TokenCode = require('../../core/Enums').TokenCode;
   var UserError = require("../../core/Exceptions").UserError;
+  var ProjectFacade = require("./../../core/facade/Project");
+
   return {
     get: function (request, response) {
       return DataManager.listUsers()
@@ -116,16 +118,33 @@ module.exports = function(app) {
           Utils.handleRequestError(response, new UserError("You cannot remove yourself"), 400);
           return;
         }
-        return DataManager.getUser({id: userId}).then(function(userResult) {
-          var name = userResult.name;
-          return DataManager.removeUser({id: userId}).then(function() {
-            response.json({status:200, name: name});
+
+        var projectsDeletionPromises = [];
+
+        var projects = DataManager.listProjects();
+
+        projects.forEach(function(project) {
+          if(project.user_id == userId) {
+            projectsDeletionPromises.push(ProjectFacade.remove(project.id));
+          }
+        });
+
+        return Promise.all(projectsDeletionPromises).then(function() {
+          // un-setting cache project
+          request.session.activeProject = {};
+          request.session.cachedProjects = DataManager.listProjects();
+
+          return DataManager.getUser({id: userId}).then(function(userResult) {
+            var name = userResult.name;
+            return DataManager.removeUser({id: userId}).then(function() {
+              response.json({status:200, name: name});
+            }).catch(function(err) {
+              logger.debug("Remove user: ", err);
+              Utils.handleRequestError(response, new UserError("Could not remove user ", err), 400);
+            });
           }).catch(function(err) {
-            logger.debug("Remove user: ", err);
-            Utils.handleRequestError(response, new UserError("Could not remove user ", err), 400);
+            Utils.handleRequestError(response, new UserError("User not found", err), 400);
           });
-        }).catch(function(err) {
-          Utils.handleRequestError(response, new UserError("User not found", err), 400);
         });
       } else {
         Utils.handleRequestError(response, new UserError("Missing user id"), 400);

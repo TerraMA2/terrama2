@@ -12,19 +12,19 @@ define(
     var loadSocketsListeners = function() {
       Utils.getWebAppSocket().on('generateFileResponse', function(result) {
         if(result.progress !== undefined && result.progress >= 100) {
-          $('#exportation-status > div > span').html('Almost there! The file is being prepared for download<span>...</span>');
+          Utils.setTagContent("#exportation-status > div > span", "Almost there! The file is being prepared for download<span>...</span>", "html");
           $('#exportation-status > div > div').addClass('hidden');
 
-          $('#exportation-status > div > div > div > span').text('0% Complete');
+          Utils.setTagContent("#exportation-status > div > div > div > span", "0% Complete");
           $('#exportation-status > div > div > div').css('width', '0%');
           $('#exportation-status > div > div > div').attr('aria-valuenow', 0);
         } else if(result.progress !== undefined) {
           if($('#exportation-status > div > div').hasClass('hidden')) {
-            $('#exportation-status > div > span').html('Please wait, the requested data is being exported<span>...</span>');
+            Utils.setTagContent("#exportation-status > div > span", "Please wait, the requested data is being exported<span>...</span>", "html");
             $('#exportation-status > div > div').removeClass('hidden');
           }
 
-          $('#exportation-status > div > div > div > span').text(result.progress + '% Complete');
+          $('#exportation-status > div > div > div > span').text(result.progress + '% ' + Utils.getTranslatedString('Complete'));
           $('#exportation-status > div > div > div').css('width', result.progress + '%');
           $('#exportation-status > div > div > div').attr('aria-valuenow', result.progress);
         } else {
@@ -34,13 +34,27 @@ define(
           memberExportationTextTimeout = null;
           $('#exportation-status > div > span').html('');
           $('#exportation-status > div > div').addClass('hidden');
-          $('#exportation-status > div > div > div > span').text('0% Complete');
+          Utils.setTagContent("#exportation-status > div > div > div > span", "0% Complete");
           $('#exportation-status > div > div > div').css('width', '0%');
 
           var exportLink = webadminHostInfo.protocol + webadminHostInfo.host + ":" + webadminHostInfo.port + webadminHostInfo.basePath + "export?folder=" + result.folder + "&file=" + result.file;
           $('#exportation-iframe').attr('src', exportLink);
         }
       });
+    };
+
+    var minimizeBox = function(selector) {
+      $("#layer-toolbox " + selector + " .box-tools > button > i").removeClass("fa-minus");
+      $("#layer-toolbox " + selector + " .box-tools > button > i").addClass("fa-plus");
+      $("#layer-toolbox " + selector + " .box-body").css("display", "none");
+      $("#layer-toolbox " + selector).addClass("collapsed-box");
+    };
+
+    var maximizeBox = function(selector) {
+      $("#layer-toolbox " + selector + " .box-tools > button > i").removeClass("fa-plus");
+      $("#layer-toolbox " + selector + " .box-tools > button > i").addClass("fa-minus");
+      $("#layer-toolbox " + selector + " .box-body").css("display", "block");
+      $("#layer-toolbox " + selector).removeClass("collapsed-box");
     };
 
     var loadEvents = function() {
@@ -74,7 +88,7 @@ define(
               exportationParams.monitoredObjectPk = layer.exportation.monitoredObjectPk;
             }
 
-            $('#exportation-status > div > span').html('Verifying data for export<span>...</span>');
+            Utils.setTagContent("#exportation-status > div > span", "Verifying data for export<span>...</span>", "html");
 
             memberExportationTextTimeout = setInterval(function() {
               var text = $('#exportation-status > div > span > span').html();
@@ -114,7 +128,7 @@ define(
                 $('#exportation-iframe').attr('src', webadminHostInfo.protocol + webadminHostInfo.host + ":" + webadminHostInfo.port + webadminHostInfo.basePath + "export-grid" + urlParams);
               else {
                 $("#terrama2Alert > p > strong").text('');
-                $("#terrama2Alert > p > span").text('O arquivo não foi encontrado.');
+                Utils.setTagContent("#terrama2Alert > p > span", "FILE-NOT-FOUND");
                 $("#terrama2Alert").removeClass('hide');
               }
             });
@@ -165,6 +179,21 @@ define(
         $("#animate").data("layerid", layer.id);
 
         if(layer !== null) {
+          if($("#layer-toolbox .layer-description .box-tools > button > i").hasClass("fa-minus"))
+            minimizeBox(".layer-description");
+
+          if($("#layer-toolbox .layer-properties .box-tools > button > i").hasClass("fa-minus"))
+            minimizeBox(".layer-properties");
+
+          if($("#layer-toolbox #animate-layer-box .box-tools > button > i").hasClass("fa-plus"))
+            maximizeBox("#animate-layer-box");
+
+          if($("#layer-toolbox #slider-box .box-tools > button > i").hasClass("fa-minus"))
+            minimizeBox("#slider-box");
+
+          if($("#layer-toolbox #exportation-box .box-tools > button > i").hasClass("fa-minus"))
+            minimizeBox("#exportation-box");
+
           var openLayerToolbox = function() {
             $("#layer-toolbox .layer-toolbox-header > .layer-name").text(layer.name);
             $("#layer-toolbox .layer-toolbox-header > .layer-name").attr("title", layer.name);
@@ -179,6 +208,26 @@ define(
 
               if(!$("#layer-toolbox .layer-toolbox-body .layer-description").hasClass("hidden"))
                 $("#layer-toolbox .layer-toolbox-body .layer-description").addClass("hidden");
+            }
+
+            if(layer.properties) {
+              var properties = "";
+
+              layer.properties.forEach(function(property) {
+                properties += "<strong><span data-i18n=\"" + property.key + "\"></span>:</strong> " + property.value + "<br/>";
+              });
+
+              $("#layer-toolbox .layer-toolbox-body .layer-properties .box-body").html(properties);
+
+              Utils.translate("#layer-toolbox .layer-toolbox-body .layer-properties .box-body");
+
+              if($("#layer-toolbox .layer-toolbox-body .layer-properties").hasClass("hidden"))
+                $("#layer-toolbox .layer-toolbox-body .layer-properties").removeClass("hidden");
+            } else {
+              $("#layer-toolbox .layer-toolbox-body .layer-properties .box-body").html("");
+
+              if(!$("#layer-toolbox .layer-toolbox-body .layer-properties").hasClass("hidden"))
+                $("#layer-toolbox .layer-toolbox-body .layer-properties").addClass("hidden");
             }
 
             $("#layer-toolbox .layer-toolbox-body > #slider-box .box-body").empty().html("<label></label><br/><div id=\"opacity" + layer.id.replace(":","") + "\"></div>");
@@ -223,7 +272,7 @@ define(
             openLayerToolbox();
           }
 
-          if (layer.dateInfo && layer.dateInfo.dates && Array.isArray(layer.dateInfo.dates)){
+          if(layer.dateInfo && layer.dateInfo.dates && Array.isArray(layer.dateInfo.dates)) {
             if($("#animate-layer-box").hasClass("hidden"))
               $("#animate-layer-box").removeClass("hidden");
 
@@ -234,11 +283,11 @@ define(
               $("#dates-calendar").addClass("hidden");
 
             $("#layer-toolbox .layer-toolbox-body > #animate-layer-box #dates-calendar").empty();
-            $("#layer-toolbox .layer-toolbox-body > #animate-layer-box #dates-slider").empty().html("<div id=\"dates" + layer.id.replace(":","") + "\"></div><div id=\"rangeDates\"><label>From:&nbsp</label><span id=\"initialDate\"></span></br><label>To:&nbsp </label><span id=\"finalDate\"></span></div>");
+            $("#layer-toolbox .layer-toolbox-body > #animate-layer-box #dates-slider").empty().html("<div id=\"dates" + layer.id.replace(":","") + "\"></div><div id=\"rangeDates\"><label data-i18n=\"FROM-COLON\"></label>&nbsp<span id=\"initialDate\"></span></br><label data-i18n=\"TO-COLON\"></label>&nbsp <span id=\"finalDate\"></span></div>");
+            Utils.translate("#layer-toolbox .layer-toolbox-body > #animate-layer-box #dates-slider");
             AnimatedLayer.setLayerToAnimate(layer);
             AnimatedLayer.setDatesSlider();
           } else if (layer.dateInfo && layer.dateInfo.dates && typeof layer.dateInfo.dates === "object"){
-
             if($("#animate-layer-box").hasClass("hidden"))
               $("#animate-layer-box").removeClass("hidden");
 
@@ -254,21 +303,21 @@ define(
                                        "</span>" +
                                      "</div>" +
                                      "<div style=\"margin-top:8px\">" +
-                                       "<label>Period:&nbsp</label>" +
+                                       "<label data-i18n=\"PERIOD-COLON\"></label>&nbsp" +
                                        "<input type=\"number\" id=\"frequency\" value=1 min=1>&nbsp" +
                                        "<select id=\"unitTime\" class=\"form-control\">" +
-                                         "<option value=\"minutes\">Minutes</option>" + 
-                                         "<option value=\"hours\" selected=\"selected\">Hours</option>" + 
-                                         "<option value=\"days\">Days</option>" + 
+                                         "<option value=\"minutes\" data-i18n=\"Minutes\"></option>" + 
+                                         "<option value=\"hours\" selected=\"selected\" data-i18n=\"Hours\"></option>" + 
+                                         "<option value=\"days\" data-i18n=\"Days\"></option>" + 
                                        "</select>" +
                                      "</div>"
 
             $("#layer-toolbox .layer-toolbox-body > #animate-layer-box #dates-calendar").empty().html(calendarFieldsHtml);
+            Utils.translate("#layer-toolbox .layer-toolbox-body > #animate-layer-box #dates-calendar");
             $("#layer-toolbox .layer-toolbox-body > #animate-layer-box #dates-slider").empty();
             AnimatedLayer.setLayerToAnimate(layer);
             AnimatedLayer.setDatesCalendar();
           } else {
-            
             if(!$("#animate-layer-box").hasClass("hidden"))
               $("#animate-layer-box").addClass("hidden");
 

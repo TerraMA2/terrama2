@@ -59,10 +59,16 @@ namespace terrama2
         virtual void adapt(DataSetPtr dataset, std::shared_ptr<te::da::DataSetTypeConverter> converter) const override;
         virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const override;
 
-        std::string retrieveData(const DataRetrieverPtr dataRetriever,
-                                 DataSetPtr dataSet,
-                                 const Filter& filter,
-                                 std::shared_ptr<FileRemover> remover) const override;
+        virtual std::string retrieveData(const DataRetrieverPtr dataRetriever,
+                                         DataSetPtr dataSet,
+                                         const Filter& filter,
+                                         std::shared_ptr<FileRemover> remover) const override;
+
+        virtual void retrieveDataCallback (const DataRetrieverPtr dataRetriever,
+                                           DataSetPtr dataset,
+                                           const Filter& filter,
+                                           std::shared_ptr<FileRemover> remover,
+                                           std::function<void(const std::string& /*uri*/)> processFile) const override;
       private:
         /*!
           \brief Convert number to TimeInstantTZ.

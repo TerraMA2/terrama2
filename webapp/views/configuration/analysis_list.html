@@ -29,7 +29,7 @@
 {% block content %}
 
 <div ng-controller="AnalysisListController">
-  <terrama2-box title="i18n.__('Analysis')">
+  <terrama2-box title="i18n.__('Analysis')" helper="'{[ BASE_URL ]}helper/analysis.html'">
     <div class="col-md-12">
       <terrama2-alert-box2 handler="MessageBoxService.alertBox" close="close()"></terrama2-alert-box2>
     </div>

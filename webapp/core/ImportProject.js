@@ -112,7 +112,16 @@ var ImportProject = function(json){
               dataProvider.name += json.selectedProject;
             dataProvider.data_provider_type_id = dataProvider.data_provider_type.id;
             dataProvider.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: dataProvider.project_id}).id : json.selectedProject;
-  
+
+            if(dataProvider.data_provider_type.name == "FTP" || dataProvider.data_provider_type.name == "HTTP" || dataProvider.data_provider_type.name == "HTTPS") {
+              dataProvider['configuration'] = {
+                timeout: dataProvider.timeout
+              }
+
+              if(dataProvider.data_provider_type.name == "FTP")
+              dataProvider['configuration']['active_mode'] = dataProvider.active_mode ? dataProvider.active_mode : false;
+            }
+
             return DataManager.addDataProvider(dataProvider, options).then(function(dProvider) {
               if(tcpOutput.DataProviders === undefined) tcpOutput.DataProviders = [];
               tcpOutput.DataProviders.push(dProvider.toObject());
@@ -225,7 +234,7 @@ var ImportProject = function(json){
 
                 collector.filter.date = date;
 
-                if(collector.service_instance_id === null) collector.service_instance_id = json.servicesCollect;
+                collector.service_instance_id = json.servicesCollect;
 
                 if(countObjectProperties(collector.schedule) > 0) {
                   delete collector.schedule.id;
@@ -234,6 +243,13 @@ var ImportProject = function(json){
                     collector.schedule_id = scheduleResult.id;
 
                     return DataManager.addCollector(collector, collector.filter, options).then(function(collectorResult) {
+                      if (collector.intersection){
+                        collector.intersection.forEach(function(intersection){
+                          intersection.collector_id = collectorResult.id;
+                          intersection.dataseries_id = Utils.find(output.DataSeries, {$id: intersection.dataseries_id}).id;
+                        });
+                        DataManager.addIntersection(collector.intersection, options);
+                      }
                       collectorResult.project_id = Utils.find(output.DataSeries, {id: collectorResult.data_series_input}).dataProvider.project_id;
 
                       if(tcpOutput.Collectors === undefined) tcpOutput.Collectors = [];
@@ -242,6 +258,13 @@ var ImportProject = function(json){
                   }));
                 } else {
                   promises.push(DataManager.addCollector(collector, collector.filter, options).then(function(collectorResult) {
+                    if (collector.intersection){
+                      collector.intersection.forEach(function(intersection){
+                        intersection.collector_id = collectorResult.id;
+                        intersection.dataseries_id = Utils.find(output.DataSeries, {$id: intersection.dataseries_id}).id;
+                      });
+                      DataManager.addIntersection(collector.intersection, options);
+                    }
                     collectorResult.project_id = Utils.find(output.DataSeries, {id: collectorResult.data_series_input}).dataProvider.project_id;
 
                     if(tcpOutput.Collectors === undefined) tcpOutput.Collectors = [];
@@ -301,8 +324,8 @@ var ImportProject = function(json){
                       analysis.dataset_output = dataSeriesOutput.dataSets[0].id;
                     }
   
-                    if(analysis.service_instance_id === null) analysis.service_instance_id = json.servicesAnalysis;
-                    if(analysis.instance_id === null) analysis.instance_id = json.servicesAnalysis;
+                    analysis.service_instance_id = json.servicesAnalysis;
+                    analysis.instance_id = json.servicesAnalysis;
   
                     if(countObjectProperties(analysis.schedule) || analysis.automatic_schedule.id) {
                       delete analysis.schedule.id;
@@ -362,7 +385,7 @@ var ImportProject = function(json){
 
                       view.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: view.project_id}).id : json.selectedProject;
                       view.data_series_id = Utils.find(output.DataSeries, {$id: view.data_series_id}).id;
-                      if(view.service_instance_id === null) view.service_instance_id = json.servicesView;
+                      view.service_instance_id = json.servicesView;
                       if (view.legend){
                         delete view.legend.id;
                         if (view.legend.colors){
@@ -450,7 +473,7 @@ var ImportProject = function(json){
                           alert.data_series_id = Utils.find(output.DataSeries, {$id: alert.data_series_id}).id;
                           alert.legend_id = Utils.find(output.Legends, {$id: alert.legend_id}).id;
   
-                          if(alert.service_instance_id === null) alert.service_instance_id = json.servicesAlert;
+                          alert.service_instance_id = json.servicesAlert;
                           if (alert.view && alert.view.$id){
                             var viewId = Utils.find(tcpOutput.Views, {$id: alert.view.$id}).id;
                             alert.view_id = viewId;

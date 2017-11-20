@@ -282,7 +282,8 @@ void terrama2::core::ProcessLogger::result(Status status, const std::shared_ptr<
   QString timestamp = "NULL";
 
 
-  if(dataTimestamp != nullptr)
+  if((dataTimestamp != nullptr)
+     && (!dataTimestamp->getTimeInstantTZ().is_special()))
   {
     verify::date(dataTimestamp);
 

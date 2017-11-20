@@ -70,7 +70,7 @@
 {% block content %}
 
 <div ng-controller="ViewRegisterUpdateController as ctrl">
-  <terrama2-box title="i18n.__(ctrl.isUpdating ? 'View Update' : 'View Registration')">
+  <terrama2-box title="i18n.__(ctrl.isUpdating ? 'View Update' : 'View Registration')" helper="'{[ BASE_URL ]}helper/add_views.html'">
     <div class="col-md-12">
       <terrama2-alert-box2 handler="ctrl.MessageBoxService.alertBox" close="ctrl.close()"></terrama2-alert-box2>
     </div>
@@ -177,7 +177,7 @@
                 <img ng-src="{{ctrl.getImageUrl($select.selected)}}" style="max-width: 20px; height: 20px; margin-top: -9px"/>
                 <span ng-bind="$select.selected.name"></span>
               </ui-select-match>
-              <ui-select-choices repeat="dSeries.id as dSeries in (ctrl.dataSeries | filter:ctrl.filterByType | orderBy: 'name') track by dSeries.id">
+              <ui-select-choices repeat="dSeries.id as dSeries in (ctrl.dataSeries | filter:ctrl.filterByType | filter: {'name': $select.search} | orderBy: 'name') track by dSeries.id">
                 <img ng-src="{{ctrl.getImageUrl(dSeries)}}" style="max-width: 20px; height: 20px;"/>
                 <span ng-bind="dSeries.name"></span>
               </ui-select-choices>
@@ -198,12 +198,10 @@
       </div>
     </terrama2-box>
 
-    <terrama2-box title="i18n.__('Style')" css="ctrl.css"
-                  handle-buttons="ctrl.styleButtons"
-                  extra="{disabled: !ctrl.hasStyle}">
-      <form name="forms.styleForm" novalidate ng-show="ctrl.hasStyle">
+    <terrama2-box title="i18n.__('Style')" css="ctrl.css">
+      <form name="forms.styleForm" novalidate>
         <!-- Vectorial -->
-        <terrama2-style-legend form-ctrl="forms.styleForm" type="ctrl.targetDataSeriesType" columns-list="ctrl.columnsList" model="ctrl.legend"></terrama2-style-legend>
+        <terrama2-style-legend form-ctrl="forms.styleForm" type="ctrl.targetDataSeriesType" columns-list="ctrl.columnsList" postgis-data="ctrl.postgisData" model="ctrl.legend"></terrama2-style-legend>
       </form>
     </terrama2-box>
 

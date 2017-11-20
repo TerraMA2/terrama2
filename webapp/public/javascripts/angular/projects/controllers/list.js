@@ -15,7 +15,8 @@ define(function() {
     $scope.linkToAdd = BASE_URL + "configuration/projects/new";
     $scope.fields = [
       {key: "name", as: i18n.__("Name")},
-      {key: "description", as: i18n.__("Description")}
+      {key: "description", as: i18n.__("Description")},
+      {key: "user_name", as: i18n.__("User")}
     ];
 
     $scope.projectsCheckboxes = {};
@@ -244,10 +245,16 @@ define(function() {
           }
           if(cont === $scope.model.length) {
             // push
+            p.hasPermission = true;
             $scope.model.push(p);
           }
           cont = 0;
         }
+        //updating project list cache
+        $http({
+          method: "GET",
+          url: BASE_URL + "configuration/projects/updateCache"
+        });
       } else {
         var msg = i18n.__(" The data has been imported. ");
       }

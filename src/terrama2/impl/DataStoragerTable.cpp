@@ -109,14 +109,20 @@ void terrama2::core::DataStoragerTable::store(DataSetSeries series, DataSetPtr o
     {
       auto geomPropertyName = getGeometryPropertyName(outputDataSet);
       te::gm::GeometryProperty* geomProperty = dynamic_cast<te::gm::GeometryProperty*>(newDataSetType->getProperty(geomPropertyName));
+      if(!geomProperty)
+      {
+        QString errMsg = QObject::tr("Unable to find geometric property %1").arg(QString::fromStdString(geomPropertyName));
+        TERRAMA2_LOG_ERROR() << errMsg;
+        throw DataStoragerException() << ErrorDescription(errMsg);
+      }
       geomProperty->setSRID(geom->getSRID());
       geomProperty->setGeometryType(geom->getGeometryType());
 
       //there is a limit in the size of the dataset that we can create an index
-      if(typeCapabilities.supportsBTreeIndex() && series.syncDataSet->size() < 2712)
+      if(typeCapabilities.supportsRTreeIndex())
       {
         // the newDataSetType takes ownership of the pointer
-        auto spatialIndex = new te::da::Index("spatial_index_" + destinationDataSetName, te::da::B_TREE_TYPE, {geomProperty});
+        auto spatialIndex = new te::da::Index("spatial_index_" + destinationDataSetName, te::da::R_TREE_TYPE, {geomProperty});
         newDataSetType->add(spatialIndex);
       }
     }

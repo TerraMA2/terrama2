@@ -5,7 +5,7 @@ define([], function() {
    * It represents a Controller to handle Alert form registration.
    * @class AlertRegistration
    */
-  var AlertRegisterUpdate = function($scope, $q, $window, $log, $http, $timeout, i18n, MessageBoxService, AlertService, DataSeriesService, DataProviderService, AnalysisService, Service, UniqueNumber, Utility, Socket) {
+  var AlertRegisterUpdate = function($scope, $q, $window, $log, $http, $timeout, i18n, MessageBoxService, AlertService, DataSeriesService, DataProviderService, AnalysisService, Service, UniqueNumber, Utility, Socket, ColorFactory) {
     /**
      * @type {AlertRegisterUpdate}
      */
@@ -158,6 +158,8 @@ define([], function() {
         ]
       }
     ];
+
+    self.showAutoCreateLegendButton = false;
 
     /**
      * Indicates if there are views attached
@@ -335,6 +337,7 @@ define([], function() {
 
                 $timeout(function() {
                   self.onLegendsChange();
+                  self.getColumnValues();
                 });
 
                 break;
@@ -493,6 +496,55 @@ define([], function() {
       }
     };
 
+    self.columnValues = [];
+    /**
+     * Lists the values of a column from a given table.
+     * 
+     * @returns {void}
+     */
+    self.getColumnValues = function(){
+      if (!self.legend_attribute_mo){
+        self.columnValues = [];
+        self.showAutoCreateLegendButton = false;
+        return;
+      }
+      var dataSeries = self.dataSeries.filter(function(dataSeriesToFilter) {
+        return dataSeriesToFilter.id == self.alert.data_series_id;
+      });
+      if (!dataSeries[0]){
+        self.columnValues = [];
+        self.showAutoCreateLegendButton = false;
+        return;
+      }
+
+      var tableName = dataSeries[0].dataSets[0].format.table_name;
+      var dataProviderId = dataSeries[0].data_provider_id;
+      
+        DataProviderService.listPostgisObjects({providerId: dataProviderId, objectToGet: "values", tableName: tableName, columnName: self.legend_attribute_mo})
+          .then(function(response){
+            if (response.data.status == 400){
+              self.columnValues = [];
+              self.showAutoCreateLegendButton = false;
+            } else {
+              if (response.data.data)
+                self.columnValues = response.data.data;
+              else
+                self.columnValues = [];
+
+              if (self.columnValues.length > 0){
+                var thereAreNaNInValues = self.columnValues.some(function(columnValue){
+                  return isNaN(Number(columnValue));
+                });
+                if (thereAreNaNInValues)
+                  self.showAutoCreateLegendButton = false;
+                else
+                  self.showAutoCreateLegendButton = true;
+              } else {
+                self.showAutoCreateLegendButton = false;
+              }
+            }
+          });
+    };
     /**
      * Sets DataSeries data when a DataSeries is selected.
      *
@@ -519,6 +571,7 @@ define([], function() {
           self.legend_attribute_mo = self.alert.legend_attribute;
       } else {
         self.columnsList = [];
+        self.showAutoCreateLegendButton = false;
 
         if(self.isUpdating)
           self.legend_attribute_grid = parseInt(self.alert.legend_attribute);
@@ -532,6 +585,30 @@ define([], function() {
       self.dataSeriesType = dataSeries.data_series_semantics.data_series_type_name;
 
     };
+
+    /**
+     * Auto create legends with possible values of attribute
+     * 
+     * @returns {void}
+     */
+    self.autoCreateLegend = function(){
+      var defaultColors = ColorFactory.getDefaultColors();
+      self.legendModel.levels = [
+        {
+          _id: UniqueNumber(),
+          name: "Default",
+          isDefault: true
+        }
+      ];
+      for (var i = 0; i < self.columnValues.length; i++){
+        self.legendModel.levels.push({
+          _id: UniqueNumber(),
+          name: "",
+          value: Number(self.columnValues[i])
+        });
+      }
+      self.colors = defaultColors.slice(0, self.legendModel.levels.length);
+    }
 
     /**
      * It creates a new level in the current legend.
@@ -701,6 +778,7 @@ define([], function() {
             canSave = false;
           } else {
             canSave = true;
+            self.MessageBoxService.reset();
           }
         }
       }
@@ -1036,7 +1114,7 @@ define([], function() {
     };
   };
 
-  AlertRegisterUpdate.$inject = ["$scope", "$q", "$window", "$log", "$http", "$timeout", "i18n", "MessageBoxService", "AlertService", "DataSeriesService", "DataProviderService", "AnalysisService", "Service", "UniqueNumber", "Utility", "Socket"];
+  AlertRegisterUpdate.$inject = ["$scope", "$q", "$window", "$log", "$http", "$timeout", "i18n", "MessageBoxService", "AlertService", "DataSeriesService", "DataProviderService", "AnalysisService", "Service", "UniqueNumber", "Utility", "Socket", "ColorFactory"];
 
   return AlertRegisterUpdate;
 });

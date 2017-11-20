@@ -207,15 +207,26 @@
   DataProvider.remove = function(dataProviderId){
     return new PromiseClass(function(resolve, reject){
       return DataManager.getDataProvider({id: dataProviderId}).then(function(dProvider) {
-        return DataManager.removeDataProvider({id: dataProviderId}).then(function(result) {
-          var dataSeries = result.dataSeries;
-          var dataProvider = result.dataProvider;
-          TcpService.remove({
-            "DataProvider": [dProvider.id],
-            "DataSeries": dataSeries.map(function(dSeries) { return dSeries.id; })
+        return DataManager.listDataSeries({data_provider_id: dataProviderId}).then(function(dataSeriesOfProvider){
+
+          if(dataSeriesOfProvider.length > 0){
+            var dataSeriesNames = [];
+            dataSeriesOfProvider.forEach(function(dataSeries){
+              dataSeriesNames.push(dataSeries.name);
+            });
+            throw new Error(dataSeriesNames.join(", "));
+          }
+
+          return DataManager.removeDataProvider({id: dataProviderId}).then(function(result) {
+            var dataSeries = result.dataSeries;
+            var dataProvider = result.dataProvider;
+            TcpService.remove({
+              "DataProvider": [dProvider.id],
+              "DataSeries": dataSeries.map(function(dSeries) { return dSeries.id; })
+            });
+            return resolve(dProvider);
           });
-          return resolve(dProvider);
-        });
+        })
       }).catch(function(err) {
         return reject(err);
       });
@@ -232,12 +243,14 @@
       var providerId = objectToList.providerId;
       var objectToGet = objectToList.objectToGet;
       var tableName = objectToList.tableName;
+      var columnName = objectToList.columnName;
       return DataManager.getDataProvider({id: providerId})
         .then(function(dataProvider) {
           var providerObject = dataProvider.toObject();
           var uriInfo = getPostgisUriInfo(providerObject.uri);
           uriInfo.objectToGet = objectToGet;
           uriInfo.tableName = tableName;
+          uriInfo.columnName = columnName;
           var postgisRequest = new PostgisRequest(uriInfo);
           return postgisRequest.get()
             .then(function(data){

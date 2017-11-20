@@ -30,6 +30,7 @@
 #include "DataAccessorFile.hpp"
 #include "../core/utility/FilterUtils.hpp"
 #include "../core/utility/TimeUtils.hpp"
+#include "../core/utility/GeoUtils.hpp"
 #include "../core/utility/Logger.hpp"
 #include "../core/utility/Raii.hpp"
 #include "../core/utility/Utils.hpp"
@@ -79,6 +80,28 @@ std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPt
   return dataRetriever->retrieveData(mask, filter, timezone, remover, "", folderPath);
 }
 
+void terrama2::core::DataAccessorFile::retrieveDataCallback(const terrama2::core::DataRetrieverPtr dataRetriever,
+                                                            terrama2::core::DataSetPtr dataset,
+                                                            const terrama2::core::Filter& filter,
+                                                            std::shared_ptr<terrama2::core::FileRemover> remover,
+                                                            std::function<void (const std::string&)> processFile) const
+{
+  std::string mask = getFileMask(dataset);
+  std::string folderPath = getFolderMask(dataset);
+
+  std::string timezone = "";
+  try
+  {
+    timezone = getTimeZone(dataset);
+  }
+  catch(UndefinedTagException& /*e*/)
+  {
+    // Do nothing
+  }
+
+  dataRetriever->retrieveDataCallback(mask, filter, timezone, remover, "", folderPath, processFile);
+}
+
 std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorFile::createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const
 {
   return internalCreateCompleteDataSet(dataSetType, false, false);
@@ -107,18 +130,31 @@ void terrama2::core::DataAccessorFile::filterDataSet(std::shared_ptr<te::mem::Da
   size_t geomColumn = te::da::GetFirstPropertyPos(completeDataSet.get(), te::dt::GEOMETRY_TYPE);
   size_t rasterColumn = te::da::GetFirstPropertyPos(completeDataSet.get(), te::dt::RASTER_TYPE);
 
-  std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > seriesStaticData;
+  terrama2::core::DataSetSeries filterDataSetSeries;
+  std::unique_ptr<te::sam::rtree::Index<size_t, 8> > rtree;
   // Apply filter by static data
   if(filter.dataProvider && filter.dataSeries)
   {
     auto dataAccesor = DataAccessorFactory::getInstance().make(filter.dataProvider, filter.dataSeries);
 
     terrama2::core::Filter emptyFilter;
-    seriesStaticData = dataAccesor->getSeries(emptyFilter, nullptr);
+    std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > seriesStaticData = dataAccesor->getSeries(emptyFilter, nullptr);
 
     if(seriesStaticData.empty())
     {
       QString errMsg = QObject::tr("No data available for data series '%1'.").arg(filter.dataSeries->name.c_str());
+      TERRAMA2_LOG_WARNING() << errMsg;
+      throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
+    }
+
+    if(seriesStaticData.size() == 1)
+    {
+      filterDataSetSeries = seriesStaticData.begin()->second;
+      rtree = terrama2::core::createRTreeFromSeries(filterDataSetSeries);
+    }
+    else
+    {
+      QString errMsg = QObject::tr("Error loading data series '%1'.").arg(filter.dataSeries->name.c_str());
       TERRAMA2_LOG_WARNING() << errMsg;
       throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
     }
@@ -131,8 +167,8 @@ void terrama2::core::DataAccessorFile::filterDataSet(std::shared_ptr<te::mem::Da
   {
     completeDataSet->move(i);
     if(!isValidTimestamp(completeDataSet, filter, dateColumn)
-        || !isValidGeometry(completeDataSet, filter, geomColumn, seriesStaticData)
-        || !isValidRaster(completeDataSet, filter, rasterColumn, seriesStaticData))
+        || !isValidGeometry(completeDataSet, filter, geomColumn, filterDataSetSeries, rtree)
+        || !isValidRaster(completeDataSet, filter, rasterColumn, filterDataSetSeries, rtree))
     {
       completeDataSet->remove();
       --size;
@@ -265,7 +301,10 @@ bool terrama2::core::DataAccessorFile::isValidTimestamp(std::shared_ptr<te::mem:
   return true;
 }
 
-bool terrama2::core::DataAccessorFile::isValidGeometry(std::shared_ptr<te::mem::DataSet> dataSet, const Filter& filter, size_t geomColumn, std::unordered_map<DataSetPtr, DataSetSeries>& seriesStaticData) const
+bool terrama2::core::DataAccessorFile::isValidGeometry(std::shared_ptr<te::mem::DataSet> dataSet,
+                                                       const Filter& filter, size_t geomColumn,
+                                                       terrama2::core::DataSetSeries filterDataSetSeries,
+                                                       const std::unique_ptr<te::sam::rtree::Index<size_t, 8> >& rtree) const
 {
   if(!isValidColumn(geomColumn))
     return true;
@@ -289,40 +328,42 @@ bool terrama2::core::DataAccessorFile::isValidGeometry(std::shared_ptr<te::mem::
   }
 
 
-  if(!seriesStaticData.empty())
+  if(rtree)
   {
-    for(auto& it : seriesStaticData)
-    {
-      auto syncDs = it.second.syncDataSet;
-      std::size_t geomPropertyPosition = te::da::GetFirstPropertyPos(syncDs->dataset().get(), te::dt::GEOMETRY_TYPE);
-      te::gm::GeometryProperty* property = dynamic_cast<te::gm::GeometryProperty*>(it.second.teDataSetType->getProperty(geomPropertyPosition));
+    // the RTree is create with EPSG:4326
+    region->transform(4326);
+    auto box = region->getMBR();
+    std::vector<std::size_t> report;
+    rtree->search(*box, report);
 
-      auto extentDs = syncDs->getExtent(geomPropertyPosition);
-      std::shared_ptr<te::gm::Geometry> envelopeGeom(te::gm::GetGeomFromEnvelope(extentDs.get(), property->getSRID()));
-      region->transform(property->getSRID());
-      if(region->intersects(envelopeGeom.get()))
+    auto syncDs = filterDataSetSeries.syncDataSet;
+    std::size_t geomPropertyPos = te::da::GetFirstPropertyPos(syncDs->dataset().get(), te::dt::GEOMETRY_TYPE);
+    if(geomPropertyPos == std::numeric_limits<std::size_t>::max())
+    {
+      QString errMsg(QObject::tr("Could not find a geometry property in the indexed dataset"));
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
+    }
+
+    for(size_t i = 0; i < report.size(); ++i) {
+      auto geom = syncDs->getGeometry(i, geomPropertyPos);
+      if (region->intersects(geom.get()))
       {
-        for(unsigned int j = 0; j < syncDs->size(); ++j)
-        {
-          auto geom = syncDs->getGeometry(j, geomPropertyPosition);
-          if(region->intersects(geom->getEnvelope()))
-          {
-            if (region->intersects(geom.get()))
-            {
-              return true;
-            }
-          }
-        }
+        return true;
       }
     }
 
     return false;
   }
-  return true;
 
+  return true;
 }
 
-bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<te::mem::DataSet> dataSet, const Filter&  filter, size_t rasterColumn, std::unordered_map<DataSetPtr, DataSetSeries>& seriesStaticData) const
+bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<te::mem::DataSet> dataSet,
+                                                     const Filter&  filter,
+                                                     size_t rasterColumn,
+                                                     terrama2::core::DataSetSeries filterDataSetSeries,
+                                                     const std::unique_ptr<te::sam::rtree::Index<size_t, 8> >& rtree) const
 {
   if(!isValidColumn(rasterColumn))
     return true;
@@ -340,7 +381,8 @@ bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<te::mem::Da
   if(filter.region.get())
   {
     auto envelope = filter.region->getMBR();
-    if(!raster->getExtent(filter.region->getSRID())->intersects(*envelope))
+    std::unique_ptr<te::gm::Envelope> extent(raster->getExtent(filter.region->getSRID()));
+    if(!extent->intersects(*envelope))
       return false;
 
     if(filter.cropRaster)
@@ -354,61 +396,58 @@ bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<te::mem::Da
     }
   }
 
-  //if filter by dataseries
-  if(!seriesStaticData.empty())
+  if(rtree)
   {
-    for(auto& it : seriesStaticData)
+    std::shared_ptr<te::gm::Geometry> region(te::gm::GetGeomFromEnvelope(raster->getExtent(raster->getSRID()), raster->getSRID()));
+    // the RTree is create with EPSG:4326
+    region->transform(4326);
+    auto box = region->getMBR();
+    std::vector<std::size_t> report;
+    rtree->search(*box, report);
+
+    auto syncDs = filterDataSetSeries.syncDataSet;
+    std::size_t geomPropertyPos = te::da::GetFirstPropertyPos(syncDs->dataset().get(), te::dt::GEOMETRY_TYPE);
+    if(geomPropertyPos == std::numeric_limits<std::size_t>::max())
     {
-      std::shared_ptr<te::gm::Geometry> rasterBox(te::gm::GetGeomFromEnvelope(raster->getExtent(raster->getSRID()), raster->getSRID()));
-
-      auto syncDs = it.second.syncDataSet;
-      std::size_t geomPropertyPosition = te::da::GetFirstPropertyPos(syncDs->dataset().get(), te::dt::GEOMETRY_TYPE);
-
-      auto teDataset = syncDs->dataset();
-      if(teDataset->moveBeforeFirst())
-      {
-        //create a union of all geometries of the dataset
-        std::shared_ptr<te::gm::Geometry> unitedGeom;
-        bool first = true;
-        while (teDataset->moveNext())
-        {
-          if(teDataset->isNull(geomPropertyPosition))
-            continue;
-
-          if(first)
-          {
-            unitedGeom = std::shared_ptr<te::gm::Geometry>(teDataset->getGeometry(geomPropertyPosition));
-            first = false;
-            continue;
-          }
-
-          auto geom(teDataset->getGeometry(geomPropertyPosition));
-          unitedGeom = std::shared_ptr<te::gm::Geometry>(unitedGeom->Union(geom.release()));
-        }
-
-        unitedGeom->transform(rasterBox->getSRID());
-        //check if the raster intersects the data
-        if(!rasterBox->intersects(unitedGeom.get()))
-          return false;
-
-        //crop the raster using the dataset
-        if(filter.cropRaster)
-        {
-          //clip raster by union
-          auto clipedRaster = raster->clip({unitedGeom.get()}, {}, "EXPANSIBLE");
-          //update raster in the dataset
-          dataSet->setRaster(rasterColumn, clipedRaster);
-          //update raster for consistency in the function
-          raster = std::shared_ptr< te::rst::Raster >(dataSet->getRaster(rasterColumn));
-        }
-      }
-      else
-      {
-        QString errMsg = QObject::tr("Invalid filter dataseries.");
-        TERRAMA2_LOG_WARNING() << errMsg;
-        throw terrama2::core::DataAccessException() << ErrorDescription(errMsg);
-      }
+      QString errMsg(QObject::tr("Could not find a geometry property in the indexed dataset"));
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
     }
+
+    // create a union of all geometries of the dataset
+    // this is needed for the crop operation
+    std::shared_ptr<te::gm::Geometry> unitedGeom;
+    bool first = true;
+    for(size_t i = 0; i < report.size(); ++i) {
+      auto sharedGeom = syncDs->getGeometry(i, geomPropertyPos);
+      auto geom = static_cast<te::gm::Geometry*>(sharedGeom->clone());
+      if(first)
+      {
+        unitedGeom.reset(geom);
+        first = false;
+        continue;
+      }
+
+      unitedGeom = std::shared_ptr<te::gm::Geometry>(unitedGeom->Union(geom));
+    }
+
+    if (region->intersects(unitedGeom.get()))
+    {
+      //crop the raster using the dataset
+      if(filter.cropRaster)
+      {
+        //clip raster by union
+        auto clipedRaster = raster->clip({unitedGeom.get()}, {}, "EXPANSIBLE");
+        //update raster in the dataset
+        dataSet->setRaster(rasterColumn, clipedRaster);
+        //update raster for consistency in the function
+        raster = std::shared_ptr< te::rst::Raster >(dataSet->getRaster(rasterColumn));
+      }
+
+      return true;
+    }
+
+    return false;
   }
 
   return true;

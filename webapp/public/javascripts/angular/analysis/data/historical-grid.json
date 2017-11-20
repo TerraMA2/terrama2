@@ -4,31 +4,31 @@
     "children": [
       {
         "name": "Min",
-        "code": "grid.history.min(\"<dynamic_data_grid>\", \"<time>\", <band>)"
+        "code": "grid.history.min(\"<dynamic_data_grid>\", \"<time>\", [<band>])"
       },
       {
         "name": "Max",
-        "code": "grid.history.max(\"<dynamic_data_grid>\", \"<time>\", <band>)"
+        "code": "grid.history.max(\"<dynamic_data_grid>\", \"<time>\", [<band>])"
       },
       {
         "name": "Mean",
-        "code": "grid.history.mean(\"<dynamic_data_grid>\", \"<time>\", <band>)"
+        "code": "grid.history.mean(\"<dynamic_data_grid>\", \"<time>\", [<band>])"
       },
       {
         "name": "Median",
-        "code": "grid.history.median(\"<dynamic_data_grid>\", \"<time>\", <band>)"
+        "code": "grid.history.median(\"<dynamic_data_grid>\", \"<time>\", [<band>])"
       },
       {
         "name": "Sum",
-        "code": "grid.history.sum(\"<dynamic_data_grid>\", \"<time>\", <band>)"
+        "code": "grid.history.sum(\"<dynamic_data_grid>\", \"<time>\", [<band>])"
       },
       {
         "name": "Standard deviation",
-        "code": "grid.history.standard_deviation(\"<dynamic_data_grid>\", \"<time>\", <band>)"
+        "code": "grid.history.standard_deviation(\"<dynamic_data_grid>\", \"<time>\", [<band>])"
       },
       {
         "name": "Variance",
-        "code": "grid.history.variance(\"<dynamic_data_grid>\", \"<time>\", <band>)"
+        "code": "grid.history.variance(\"<dynamic_data_grid>\", \"<time>\", [<band>])"
       }
     ]
   },
@@ -38,31 +38,31 @@
       {
         "name": "Min",
         "description": "",
-        "code": "grid.history.interval.min(\"<dynamic_data_grid>\", \"<time_begin>\", \"<time_end>\", <band>)"
+        "code": "grid.history.interval.min(\"<dynamic_data_grid>\", \"<time_begin>\", \"<time_end>\", [<band>])"
       },
       {
         "name": "Max",
-        "code": "grid.history.interval.max(\"<dynamic_data_grid>\", \"<time_begin>\", \"<time_end>\", <band>)"
+        "code": "grid.history.interval.max(\"<dynamic_data_grid>\", \"<time_begin>\", \"<time_end>\", [<band>])"
       },
       {
         "name": "Mean",
-        "code": "grid.history.interval.mean(\"<dynamic_data_grid>\", \"<time_begin>\", \"<time_end>\", <band>)"
+        "code": "grid.history.interval.mean(\"<dynamic_data_grid>\", \"<time_begin>\", \"<time_end>\", [<band>])"
       },
       {
         "name": "Median",
-        "code": "grid.history.interval.median(\"<dynamic_data_grid>\", \"<time_begin>\", \"<time_end>\", <band>)"
+        "code": "grid.history.interval.median(\"<dynamic_data_grid>\", \"<time_begin>\", \"<time_end>\", [<band>])"
       },
       {
         "name": "Sum",
-        "code": "grid.history.interval.sum(\"<dynamic_data_grid>\", \"<time_begin>\", \"<time_end>\", <band>)"
+        "code": "grid.history.interval.sum(\"<dynamic_data_grid>\", \"<time_begin>\", \"<time_end>\", [<band>])"
       },
       {
         "name": "Standard deviation",
-        "code": "grid.history.interval.standard_deviation(\"<dynamic_data_grid>\", \"<time_begin>\", \"<time_end>\", <band>)"
+        "code": "grid.history.interval.standard_deviation(\"<dynamic_data_grid>\", \"<time_begin>\", \"<time_end>\", [<band>])"
       },
       {
         "name": "Variance",
-        "code": "grid.history.interval.variance(\"<dynamic_data_grid>\", \"<time_begin>\", \"<time_end>\", <band>)"
+        "code": "grid.history.interval.variance(\"<dynamic_data_grid>\", \"<time_begin>\", \"<time_end>\", [<band>])"
       }
     ]
   }

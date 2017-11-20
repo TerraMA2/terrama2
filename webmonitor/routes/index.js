@@ -13,4 +13,9 @@ module.exports = function(app) {
     };
     res.render('index', { title: 'Express', webmonitorHostInfo: webmonitorHostInfo, webadminHostInfo: webadminHostInfo, message: message});
   });
+
+  app.post(app.locals.BASE_URL + 'languages', function(request, response) {
+    request.session.userLocale = request.body.locale || "us";
+    return response.json({status: 200});
+  });
 };

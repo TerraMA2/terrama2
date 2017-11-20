@@ -102,8 +102,6 @@ define([], function() {
       boxType: "box-solid"
     };
 
-    self.hasStyle = false;
-
     var hasProjectPermission = config.hasProjectPermission;
 
     if (self.isUpdating && !hasProjectPermission){
@@ -124,31 +122,6 @@ define([], function() {
       $scope.$broadcast('updateCreationType');
     };
 
-    self.styleButtons = {
-      circle: {
-        show: function () {
-          return !self.hasStyle;
-        },
-        click: function() {
-          self.hasStyle = true;
-          if (self.targetDataSeriesType == "DCP"){
-            applyStyleDCPBehavior();
-          }
-        }
-      },
-      minus: {
-        show: function () {
-          return self.hasStyle;
-        },
-        click: function() {
-          self.hasStyle = false;
-          self.legend = {
-            metadata: {}
-          };
-        }
-      }
-    };
-
     /**
      * It contains view instance values
      * @type {Object}
@@ -166,6 +139,12 @@ define([], function() {
      * @type {DataSeries}
      */
     self.viewDataSeries = {};
+
+    /**
+     * Postgis data with provider and data series table name
+     * Used to get value of columns in style components
+     */
+    self.postgisData = {};
 
     // function initializer
     self.onDataSeriesChanged = onDataSeriesChanged;
@@ -195,6 +174,7 @@ define([], function() {
             canSave = false;
           } else {
             canSave = true;
+            MessageBoxService.reset();
           }
         }
       }
@@ -269,10 +249,6 @@ define([], function() {
     $http.get(BASE_URL + "api/DataProviderType", {}).then(function(response) {
       var data = response.data;
 
-      if (config.view.legend) {
-        self.hasStyle = true;
-      }
-
       /**
        * Retrieve all service instances
        */
@@ -314,6 +290,12 @@ define([], function() {
               self.legend.bands = legend.colors.length - 1;
               if (legend.metadata && legend.metadata.band_number) {
                 legend.metadata.band_number = parseInt(legend.metadata.band_number);
+              }
+              if (legend.metadata && legend.metadata.band) {
+                legend.metadata.band = parseInt(legend.metadata.band);
+              }
+              if (legend.metadata && legend.metadata.hasOwnProperty("hasOneBand")) {
+                legend.metadata.hasOneBand = legend.metadata.hasOneBand == "true" || legend.metadata.hasOneBand == true;
               }
               self.legend.metadata = legend.metadata;
 
@@ -406,6 +388,11 @@ define([], function() {
           self.viewDataSeries = dSeries;
           // setting target data series type name in order to display style view
           self.targetDataSeriesType = dSeries.data_series_semantics.data_series_type_name;
+
+          if(self.targetDataSeriesType == "DCP") {
+            applyStyleDCPBehavior();
+          }
+
           // extra comparison just to setting if it is dynamic or static.
           // Here avoids to setting to true in many cases below
           self.isDynamic = dSeries.data_series_semantics.temporality !== 'STATIC';
@@ -418,6 +405,8 @@ define([], function() {
           self.view.source_type = getSourceType(dSeries);
 
           if (dSeries.data_series_semantics.format == "POSTGIS"){
+            self.postgisData["dataProvider"] = dSeries.data_provider;
+            self.postgisData["tableName"] = dSeries.dataSets[0].format.table_name;
             listColumns(dSeries.data_provider, dSeries.dataSets[0].format.table_name);
           }
 
@@ -485,6 +474,9 @@ define([], function() {
             return;
           }
 
+          if(!self.legend.metadata.creation_type)
+            return MessageBoxService.danger(i18n.__("View"), i18n.__("Select the Style Creation Type"));
+
           if (Object.keys(self.legend).length !== 0 && self.legend.metadata.creation_type == "editor") {
             if (!self.legend.colors || self.legend.colors.length === 0) {
               return MessageBoxService.danger(i18n.__("View"), i18n.__("You must generate the style colors to classify Data Series"));
@@ -501,12 +493,20 @@ define([], function() {
               }
             }
           }
+          else if (Object.keys(self.legend).length !== 0 && self.legend.metadata.creation_type == "xml" && self.legend.metadata.xml_style != "") {
+            return MessageBoxService.danger(i18n.__("View"), i18n.__("You must fill the SLD field"));
+          }
           else if (Object.keys(self.legend).length !== 0 && self.legend.metadata.creation_type != "editor" && self.legend.metadata.creation_type != "xml"){
             if (self.legend.fieldsToReplace){
+              var prefixValueToReplace = "Band";
+              if (self.legend.metadata.hasOwnProperty("hasOneBand") && self.legend.metadata.hasOneBand){
+                prefixValueToReplace = "";
+                self.legend.metadata.band = 0;
+              }
               self.legend.fieldsToReplace.forEach(function(field){
                 //Must increase 1 because geoserver starts the band name from 1
                 var bandNumber = self.legend.metadata[field] + 1;
-                self.legend.metadata.xml_style = self.legend.metadata.xml_style.split("%"+field).join("Band"+bandNumber);
+                self.legend.metadata.xml_style = self.legend.metadata.xml_style.split("%"+field).join(prefixValueToReplace+bandNumber);
               });
               delete self.legend.fieldsToReplace;
             }
