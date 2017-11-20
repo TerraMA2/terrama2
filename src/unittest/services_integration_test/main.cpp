@@ -34,8 +34,18 @@ int main(int argc, char *argv[])
     terrama2::core::TerraMA2Init terramaRaii("unittest", 0);
     Q_UNUSED(terramaRaii);
 
-    terrama2::core::disableLogger();
+   // terrama2::core::disableLogger();
     terrama2::core::registerFactories();
+
+    try
+    {
+      DCPInpeTs dcpInpeTS1;
+      dcpInpeTS1.createDBaseForTest();
+    }
+    catch(...)
+    {
+      std::cout<<"Não deu certo o py";
+    }
 
     try
     {
@@ -48,6 +58,21 @@ int main(int argc, char *argv[])
 
       std::cout<<returnVal;
     }
+
+    //If not error in collect and analysis restore ref database for compare tables
+   /* if(returnVal == 0)
+    {
+      try
+      {
+        DCPInpeTs dcpInpeTS1;
+        dcpInpeTS1.restoreCompare();
+      }
+      catch(...)
+      {
+        std::cout<<"Não deu certo o restore";
+      }
+    }*/
+
   }
   catch (const terrama2::Exception& e)
   {

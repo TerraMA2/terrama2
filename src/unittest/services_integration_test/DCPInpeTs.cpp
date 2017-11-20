@@ -21,9 +21,13 @@
   \author Bianca Maciel
 */
 
+// STL
+#include <iostream>
+
 #include <terrama2/core/utility/TimeUtils.hpp>
 #include <terrama2/core/utility/ServiceManager.hpp>
 #include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/utility/Raii.hpp>
 
 
 //Collector
@@ -42,7 +46,10 @@
 #include <terrama2/services/analysis/core/Analysis.hpp>
 #include <terrama2/services/analysis/mock/MockAnalysisLogger.hpp>
 
-//extra
+//Interpreter
+#include <terrama2/core/interpreter/InterpreterFactory.hpp>
+
+//Extra
 #include <extra/data/DCPSerramarInpe.hpp>
 #include <extra/data/ResultAnalysisPostGis.hpp>
 
@@ -58,6 +65,24 @@
 #include <QFileInfo>
 #include <QImage>
 
+void scriptPython(std::string path)
+{
+  std::string scriptPath = terrama2::core::FindInTerraMA2Path(path);
+  std::string script = terrama2::core::readFileContents(scriptPath);
+
+  auto interpreter = terrama2::core::InterpreterFactory::getInstance().make("PYTHON");
+  interpreter->runScript(script);
+}
+
+void DCPInpeTs::createDBaseForTest()
+{
+  scriptPython("share/terrama2/scripts/delete-and-create-db.py");
+}
+
+void DCPInpeTs::restoreCompare()
+{
+  scriptPython("share/terrama2/scripts/restore-and-compare-db.py");
+}
 
 void timerCollectorAndAnalysis()
 {
@@ -128,7 +153,7 @@ terrama2::services::collector::core::CollectorPtr addCollector(std::shared_ptr<t
   return collector;
 }
 
-void DCPInpeTs::Collect()
+void DCPInpeTs::collect()
 {
 
   auto dataManagerCollector = std::make_shared<terrama2::services::collector::core::DataManager>();
@@ -252,7 +277,7 @@ add_value("max", x))z";
     return analysis;
 }
 
-void DCPInpeTs::Analysis()
+void DCPInpeTs::analysis()
 {
     terrama2::services::analysis::core::PythonInterpreterInit pythonInterpreterInit;
 
