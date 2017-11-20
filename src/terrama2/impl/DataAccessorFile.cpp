@@ -337,8 +337,8 @@ bool terrama2::core::DataAccessorFile::isValidGeometry(std::shared_ptr<te::mem::
     std::vector<std::size_t> report;
     rtree->search(*box, report);
 
-    auto syncDs = filterDataSetSeries.syncDataSet;
-    std::size_t geomPropertyPos = te::da::GetFirstPropertyPos(syncDs->dataset().get(), te::dt::GEOMETRY_TYPE);
+    auto filterSyncDs = filterDataSetSeries.syncDataSet;
+    std::size_t geomPropertyPos = te::da::GetFirstPropertyPos(filterSyncDs->dataset().get(), te::dt::GEOMETRY_TYPE);
     if(geomPropertyPos == std::numeric_limits<std::size_t>::max())
     {
       QString errMsg(QObject::tr("Could not find a geometry property in the indexed dataset"));
@@ -347,7 +347,7 @@ bool terrama2::core::DataAccessorFile::isValidGeometry(std::shared_ptr<te::mem::
     }
 
     for(size_t i = 0; i < report.size(); ++i) {
-      auto geom = syncDs->getGeometry(i, geomPropertyPos);
+      auto geom = filterSyncDs->getGeometry(report.at(i), geomPropertyPos);
       geom->transform(4326);
       if (region->intersects(geom.get()))
       {
@@ -421,7 +421,7 @@ bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<te::mem::Da
     std::shared_ptr<te::gm::Geometry> unitedGeom;
     bool first = true;
     for(size_t i = 0; i < report.size(); ++i) {
-      auto sharedGeom = syncDs->getGeometry(i, geomPropertyPos);
+      auto sharedGeom = syncDs->getGeometry(report.at(i), geomPropertyPos);
       auto geom = static_cast<te::gm::Geometry*>(sharedGeom->clone());
       if(first)
       {
