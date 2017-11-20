@@ -13,6 +13,7 @@ services:
       - pg_terrama2_vol:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    container_name: terrama2_postgis
 
   # TerraMA2 Web Application
   webapp:

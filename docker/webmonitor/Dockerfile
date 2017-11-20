@@ -1,4 +1,4 @@
-FROM docker_terrama2
+FROM terrama2-base:4.0.0-rc4
 
 EXPOSE 36001
 
