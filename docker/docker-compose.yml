@@ -10,7 +10,7 @@ services:
   postgis:
     image: mdillon/postgis
     volumes:
-      - pg_terrama2_vol:/var/lib/postgres/data
+      - pg_terrama2_vol:/var/lib/postgresql/data
     ports:
       - "5432:5432"
 
