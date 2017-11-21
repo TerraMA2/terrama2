@@ -37,21 +37,6 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
   self.mapsServer = {};
 
   /**
-   * It forces active (on/off) in Active service
-   *
-   * @param {boolean} state - Initial state
-   */
-  self.initService = function(state) {
-    self.service = self.service || {};
-
-    if (self.update && self.service.host && self.service.host !== "") {
-      self.service.isLocal = false;
-    } else {
-      self.service.isLocal = state;
-    }
-  };
-
-  /**
    * It defines a connection validation of Database
    *
    * @type {Object}
@@ -105,6 +90,8 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
        * @type {boolean}
        */
       self.update = config.service.name ? true : false;
+
+      self.service.isLocal = self.update ? !(config.service.host && config.service.host !== "") : true;
 
       /**
        * It handles when user type maps server URI (for View Services). It parses the content and tries to re-fill other fields
