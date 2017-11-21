@@ -43,7 +43,7 @@
   <terrama2-box title="i18n.__('Data Server Registration')" handler="serviceX" helper="'{[ BASE_URL ]}helper/add_data_servers.html'">
     <terrama2-alert-box2 handler="MessageBoxService.alertBox" close="close()"></terrama2-alert-box2>
     <terrama2-box title="i18n.__('General Data')" css="css">
-      <div class="row">
+      <div class="col-md-12 terrama2-nopadding-box ng-scope">
         <form name="forms.dataProviderForm">
           <div class="col-md-7">
             <div class="form-group has-feedback" terrama2-show-errors>
@@ -98,7 +98,7 @@
     </terrama2-box>
 
     <terrama2-box title="i18n.__('Host')" css="css" ng-show="dataProvider.protocol && dataProvider.protocol !== ''">
-      <div class="row">
+      <div class="col-md-12 terrama2-nopadding-box">
         <form name="forms.connectionForm" sf-schema="schema" sf-form="form" sf-model="model" sf-options="options"></form>
       </div>
     </terrama2-box>
