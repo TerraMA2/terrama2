@@ -16,7 +16,7 @@ docker-compose build
 docker-compose up
 ```
 
-The Docker container will automatically expose the following ports for each TerraMA² Service:
+The Docker container will automatically create a network between containers and it will expose the following ports for each TerraMA² Service:
 
 |   Application    | Port  |
 |------------------|-------|
@@ -25,8 +25,34 @@ The Docker container will automatically expose the following ports for each Terr
 | PostgreSQL       | 5432  |
 | GeoServer        | 8080  |
 
+Once everything is running, we must configure manually services addresses and ssh public keys.
 
-**Note** that you must configure manually:
+Connect in `terrama2_webapp` container
 
-- PostgreSQL port (Use host as `terrama2_postgis`) in TerraMA² Web App (/webapp/config/instances/default.json)
-- TerraMA² Web App in TerraMA² Web Monitor (Use host as `terrama2_webapp`) (/webmonitor/config/instances/default.json)
+```bash
+docker exec -it terrama2_webapp bash
+vi $TERRAMA2_INSTALL_PATH/webapp/config/instances/default.json
+# Change host "127.0.0.1" to "terrama2_postgis" (Container name since Docker Compose creates a bridge network between containers and it will not be exposed)
+
+# Generate SSH Public Key
+ssh-keygen
+
+# Copy own public key to TerraMA² Services Containers. Check TerraMA² Dockerfile.
+ssh-copy-id -i ~/.ssh/id_rsa.pub terrama2@terrama2_alert
+ssh-copy-id -i ~/.ssh/id_rsa.pub terrama2@terrama2_analysis
+ssh-copy-id -i ~/.ssh/id_rsa.pub terrama2@terrama2_collector
+ssh-copy-id -i ~/.ssh/id_rsa.pub terrama2@terrama2_view
+
+exit
+```
+
+Connect in `terrama2_webmonitor` container
+
+```bash
+docker exec -it terrama2_webmonitor bash
+vi $TERRAMA2_INSTALL_PATH/webmonitor/config/instances/default.json
+# Change host "127.0.0.1" to an accessible host from web browser
+exit
+```
+
+You also must configure TerraMA² Service through Web Application in `/adminstration/services`.
