@@ -4,7 +4,7 @@ Dockerfiles Repository for the TerraMA² Platform.
 
 ## Build and Run
 
-To build the Docker image, install [Docker Compose](https://docs.docker.com/compose/install/#prerequisites). After that, execute following commands:
+To build the Docker image, install [Docker](https://docs.docker.com/engine/installation/) and [Docker Compose](https://docs.docker.com/compose/install/#prerequisites). After that, execute following commands:
 
 ```bash
 cd /path/to/terrama2_codebase/docker
@@ -21,7 +21,7 @@ The Docker container will automatically create a network between containers and 
 |   Application    | Port  |
 |------------------|-------|
 | TerraMA² WebApp  | 36000 |
-| TerraMA² Monitor | 36000 |
+| TerraMA² Monitor | 36001 |
 | PostgreSQL       | 5432  |
 | GeoServer        | 8080  |
 
@@ -56,3 +56,47 @@ exit
 ```
 
 You also must configure TerraMA² Service through Web Application in `/adminstration/services`.
+
+Open TerraMA² in browser and go to Services Page `/adminstration/services` and edit the following services:
+
+- Select `Local Alert`:
+  - Unmark `Local Service` and fill:
+    - **Address** - **terrama2_alert**
+    - **Port** - **22**
+    - **User** - **terrama2**
+  - In `Log`, change:
+    - **Log hostname** - **terrama2_postgis**
+  - Save
+
+- Select `Local Analysis`:
+  - Unmark `Local Service` and fill:
+    - **Address** - **terrama2_analysis**
+    - **Port** - **22**
+    - **User** - **terrama2**
+  - In `Log`, change:
+    - **Log hostname** - **terrama2_postgis**
+  - Save
+
+- Select `Local Collector`:
+  - Unmark `Local Service` and fill:
+    - **Address** - **terrama2_collector**
+    - **Port** - **22**
+    - **User** - **terrama2**
+  - In `Log`, change:
+    - **Log hostname** - **terrama2_postgis**
+  - Save
+
+- Select `Local View`:
+  - Unmark `Local Service` and fill:
+    - **Address** - **terrama2_view**
+    - **Port** - **22**
+    - **User** - **terrama2**
+  - In `Log`, change:
+    - **Log hostname** - **terrama2_postgis**
+  - In `Maps Server Parameters`, change:
+    - **Address** - *An accesible host to GeoServer Container*
+  - Save
+
+## Notes
+
+- The TerraMA² Service requires `-platform offscreen` argument to execute due issue with GUI display module.

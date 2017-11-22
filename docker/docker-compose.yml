@@ -126,10 +126,3 @@ volumes:
   terrama2_data_vol:
   # PostgreSQL Volume
   pg_terrama2_vol:
-
-networks: 
-  terrama2_network:
-    ipam:
-      driver: default
-      config:
-        - subnet: 172.28.0.0/16
