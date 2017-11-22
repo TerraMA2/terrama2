@@ -368,9 +368,9 @@ void terrama2::services::analysis::core::erasePreviousResult(DataManagerPtr data
 std::pair<size_t, size_t> terrama2::services::analysis::core::getBandInterval(terrama2::core::DataSetPtr dataset, double secondsPassed, std::string dateDiscardBefore, std::string dateDiscardAfter)
 {
   auto intervalStr = terrama2::core::getTimeInterval(dataset);
-  double interval = terrama2::core::TimeUtils::convertTimeString(intervalStr, "SECOND", "h");
-  double secondsToBefore = terrama2::core::TimeUtils::convertTimeString(dateDiscardBefore, "SECOND", "h");
-  double secondsToAfter = terrama2::core::TimeUtils::convertTimeString(dateDiscardAfter, "SECOND", "h");
+  double interval = terrama2::core::TimeUtils::convertTimeString(intervalStr, "SECOND", "H");
+  double secondsToBefore = terrama2::core::TimeUtils::convertTimeString(dateDiscardBefore, "SECOND", "H");
+  double secondsToAfter = terrama2::core::TimeUtils::convertTimeString(dateDiscardAfter, "SECOND", "H");
 
   // - find how much time has passed from the file original timestamp
   size_t temp = static_cast<size_t>(std::floor((secondsPassed + secondsToBefore)/interval));
