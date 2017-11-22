@@ -400,7 +400,8 @@ define([], function() {
       };
 
       $scope.addDcpsStorager = function(dcps) {
-        $scope.$broadcast("dcpOperation", { action: "addMany", dcps: dcps, storageData: true, reloadDataStore: false });
+        if($scope.storager.format)
+          $scope.$broadcast("dcpOperation", { action: "addMany", dcps: dcps, storageData: true, reloadDataStore: false });
       };
 
       $scope.setHtmlItems = function(dcp, key, alias, _id, type) {
