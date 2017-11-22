@@ -99,18 +99,22 @@ define([
             }
           };
 
-          Socket.on('statusToDeleteResponse', function(response){
-            if (response.online){
-              $("#" + $scope.modalId).modal();
-            } else {
-              var errorObject = {
-                serviceStoppedError: true,
-                service: response.service ? JSON.parse(response.service) : {}
+          if(!Socket.statusToDeleteResponse) {
+            Socket.on('statusToDeleteResponse', function(response){
+              if (response.online){
+                $("#" + $scope.modalId).modal();
+              } else {
+                var errorObject = {
+                  serviceStoppedError: true,
+                  service: response.service ? JSON.parse(response.service) : {}
+                }
+                $scope.extra.removeOperationCallback(errorObject, $scope.objectToRemove);
+                $scope.resetObjectToRemove();
               }
-              $scope.extra.removeOperationCallback(errorObject, $scope.objectToRemove);
-              $scope.resetObjectToRemove();
-            }
-          });
+            });
+          }
+
+          Socket.statusToDeleteResponse = true;
 
           $scope.serviceStartTime = null;
           $scope.serviceVersion = null;
@@ -150,6 +154,10 @@ define([
           $scope.showErrorInfo = function(object) {
             $('#serviceErrorModal .modal-body > p').text(object.error);
             $('#serviceErrorModal').modal();
+          };
+
+          $scope.showProjectsModal = function(){
+            $('#projectsDataSeries').modal();
           }
 
           $scope.resetObjectToRemove = function() {
@@ -343,7 +351,7 @@ define([
       };
     }])
 
-    .directive('terrama2TableHeader', ["i18n", function(i18n) {
+    .directive('terrama2TableHeader', ["i18n", "$timeout", function(i18n, $timeout) {
       return {
         restrict: 'E',
         transclude: {
@@ -353,6 +361,47 @@ define([
         templateUrl: BASE_URL + "javascripts/angular/table/templates/tableFilter.html",
         link: function(scope, element, attrs, transclude) {
           scope.linkToAdd = attrs.linkToAdd;
+          scope.showAdvancedFilter = false;
+          
+          var getJsonValue = function(json, curIdx, indexes) {
+            if(curIdx === (indexes.length - 1))
+              return json[indexes[curIdx]];
+            else
+              return getJsonValue(json[indexes[curIdx]], curIdx + 1, indexes);
+          }
+
+          scope.showHideAdvancedFilter = function() {
+            if(scope.showAdvancedFilter)
+              scope.showAdvancedFilter = false;
+            else
+              scope.showAdvancedFilter = true;
+          }
+          
+          $timeout(function() {
+            for(var j = 0, modelLength = scope.model.length; j < modelLength; j++) {
+              scope.model[j].showInTable = true;
+            }
+
+            if(scope.extra.executeAdvancedFilter !== undefined)
+              scope.executeAdvancedFilter = scope.extra.executeAdvancedFilter;
+            else
+              scope.executeAdvancedFilter = function() {
+                var indexes = scope.extra.advancedFilterField.split('.');
+
+                for(var i = 0, advancedFiltersLength = scope.extra.advancedFilters.length; i < advancedFiltersLength; i++) {
+                  for(var j = 0, modelLength = scope.model.length; j < modelLength; j++) {
+                    var jsonValue = getJsonValue(scope.model[j], 0, indexes);
+
+                    if((isNaN(scope.extra.advancedFilters[i].value) ? scope.extra.advancedFilters[i].value : scope.extra.advancedFilters[i].value) === jsonValue) {
+                      if(scope.extra.advancedFilters[i].checked)
+                        scope.model[j].showInTable = true;
+                      else
+                        scope.model[j].showInTable = false;
+                    }
+                  }
+                }
+              };
+          }, 500);
         }
       };
     }])

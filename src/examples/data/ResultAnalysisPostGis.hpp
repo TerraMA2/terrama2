@@ -94,7 +94,9 @@ namespace terrama2
       }
 
 
-      QJsonObject  dataSeriesResultAnalysisPostGisJson(terrama2::core::DataProviderPtr dataProvider, std::string nameTableResult)
+      QJsonObject  dataSeriesResultAnalysisPostGisJson(terrama2::core::DataProviderPtr dataProvider,
+                                                       std::string nameTableResult,
+                                                       terrama2::core::DataSeriesPtr dataSeries)
       {
 
           QString json = QString(R"(
@@ -113,13 +115,15 @@ namespace terrama2
                                                   "data_series_id": 4,
                                                   "active": true,
                                                   "format": {
-                                                      "table_name": "%2"
+                                                      "table_name": "%2",
+                                                      "monitored_object_id": "%3",
+                                                      "monitored_object_pk": "uf"
                                                   }
                                                 }
                                               ]
                                           }
                                           )"
-                                      ).arg(dataProvider->id).arg(QString::fromStdString(nameTableResult));
+                                      ).arg(dataProvider->id).arg(QString::fromStdString(nameTableResult)).arg(dataSeries->id);
 
 
 
@@ -127,13 +131,13 @@ namespace terrama2
           return doc.object();
       }
 
-      terrama2::core::DataSeriesPtr dataSeriesResultAnalysisPostGis(terrama2::core::DataProviderPtr dataProvider, std::string nameTableResult)
+      terrama2::core::DataSeriesPtr dataSeriesResultAnalysisPostGis(terrama2::core::DataProviderPtr dataProvider,
+                                                                    std::string nameTableResult,
+                                                                    terrama2::core::DataSeriesPtr dataSeries)
       {
-          auto obj = dataSeriesResultAnalysisPostGisJson(dataProvider, nameTableResult);
+          auto obj = dataSeriesResultAnalysisPostGisJson(dataProvider, nameTableResult, dataSeries);
           return terrama2::core::fromDataSeriesJson(obj);
       }
-
-
 
 
    } // end namespace resultanalysis

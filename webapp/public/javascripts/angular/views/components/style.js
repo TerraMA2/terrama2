@@ -9,6 +9,8 @@ define([], function () {
     bindings: {
       formCtrl: "<", // controller binding in order to throw up
       type: "=",
+      columnsList: "=",
+      postgisData: "=",
       model: "=",
       options: "="
     },
@@ -22,7 +24,7 @@ define([], function () {
    * @param {ColorFactory} ColorFactory - TerraMA² Color generator
    * @param {any} i18n - TerraMA² Internationalization module
    */
-  function StyleController($scope, ColorFactory, i18n, DataSeriesService, StyleType, $http, Utility) {
+  function StyleController($scope, ColorFactory, i18n, DataSeriesService, StyleType, $http, Utility, DataProviderService, FormTranslator) {
     var self = this;
     // binding component form into parent module in order to expose Form to help during validation
     self.formCtrl = self.form;
@@ -35,6 +37,12 @@ define([], function () {
     self.removeColor = removeColor;
     self.typeFilter = typeFilter;
 
+    // Array with possible values of a column
+    self.columnValues = [];
+
+    self.showAutoCreateLegendButton = false;
+    self.showGridAutoCreateLegendButton = false;
+    self.legendPrecision = 2;
     /**
      * It keeps the rgba color values
      * 
@@ -55,6 +63,13 @@ define([], function () {
      */
     self.rgbaModal = function(elm) {
       self.rgba.elm = elm;
+      var rgbaColor = Utility.hex2rgba(elm.color);
+      if (rgbaColor){
+        self.rgba.r = rgbaColor.r;
+        self.rgba.g = rgbaColor.g;
+        self.rgba.b = rgbaColor.b;
+        self.rgba.a = rgbaColor.a;
+      }
       $("#rgbaModal").modal();
     };
 
@@ -110,6 +125,12 @@ define([], function () {
       }
     };
     /**
+     * Listen when change creation type from view register update controller
+     */
+    $scope.$on('updateCreationType', function(event) {
+      self.changeCreationType();
+    });
+    /**
      * Setting default parameters when change mode to xml file
      */
     self.changeCreationType = function(){
@@ -139,6 +160,8 @@ define([], function () {
         $scope.$broadcast("schemaFormRedraw");
       }
     }
+    // Regex to valide column name of style
+    self.regexColumn = "^[a-zA-Z_][a-zA-Z0-9_]*$";
 
     self.changeColorType = function(){
       if (self.model.type == 1){
@@ -168,6 +191,16 @@ define([], function () {
           }
         ];
       }
+      if (self.model.type != 3){
+        self.showAutoCreateLegendButton = false;
+      } else {
+        self.getColumnValues();
+      }
+      if (self.model.type == 2 && self.type == "GRID"){
+        self.showGridAutoCreateLegendButton = true;
+      } else {
+        self.showGridAutoCreateLegendButton = false;
+      }
     }
 
     self.initColorType = function(){
@@ -187,9 +220,17 @@ define([], function () {
         self.model.fieldsToReplace.forEach(function(field){
           if (self.model.metadata[field])
             self.model.metadata[field] = parseInt(self.model.metadata[field])
-        })
-        self.predefinedStyleSchema = predefinedStyleInfo.gui.schema;
-        self.predefinedStyleForm = predefinedStyleInfo.gui.form;
+        });
+
+        var formTranslatorResult = FormTranslator(predefinedStyleInfo.gui.schema.properties, predefinedStyleInfo.gui.form, predefinedStyleInfo.gui.schema.required);
+        
+        self.predefinedStyleSchema = {
+          type: 'object',
+          properties: formTranslatorResult.object,
+          required: predefinedStyleInfo.gui.schema.required
+        };
+
+        self.predefinedStyleForm = formTranslatorResult.display;
       }
     }
     /**
@@ -198,10 +239,101 @@ define([], function () {
     $scope.$on("updateStyleColor", function () {
       if (self.model.metadata.creation_type == "editor"){
         handleColor();
+        self.getColumnValues();
       } else if (self.model.metadata.creation_type != undefined){
         self.changeCreationType();
       }
     });
+
+    /**
+     * Lists the values of a column from a given table.
+     * 
+     * @returns {void}
+     */
+    self.getColumnValues = function(){
+      if (self.model.type == 3 && self.model.metadata.attribute !== undefined && self.model.metadata.attribute !== ""){
+        DataProviderService.listPostgisObjects({providerId: self.postgisData.dataProvider.id, objectToGet: "values", tableName: self.postgisData.tableName, columnName: self.model.metadata.attribute})
+          .then(function(response){
+            if (response.data.status == 400){
+              self.columnValues = [];
+              self.showAutoCreateLegendButton = false;
+            } else {
+              if (response.data.data)
+                self.columnValues = response.data.data;
+              else
+                self.columnValues = [];
+
+              if (self.model.type == 3 && self.columnValues.length > 0){
+                self.showAutoCreateLegendButton = true;
+              }
+              else {
+                self.showAutoCreateLegendButton = false;
+              }
+              
+            }
+          });
+      } else {
+        self.columnValues = [];
+        self.showAutoCreateLegendButton = false;
+        if (self.type == "GRID" && self.model.type == 2){
+          self.showGridAutoCreateLegendButton = true;
+        }
+      }
+    };
+
+    /**
+     * Auto create legends with possible values of attribute
+     * 
+     * @returns {void}
+     */
+    self.autoCreateLegend = function(){
+      self.model.colors = [
+        {
+          color: "#FFFFFFFF",
+          isDefault: true,
+          title: "Default",
+          value: ""
+        }
+      ];
+      var defaultColors = ColorFactory.getDefaultColors();
+      for (var i = 0; i < self.columnValues.length; i++){
+        var newColor = {
+          color: defaultColors[i],
+          isDefault: false,
+          title: self.columnValues[i],
+          value: self.columnValues[i]
+        }
+        self.model.colors.push(newColor);
+      }
+    };
+
+    /**
+     * Auto create legends from initial and final values
+     * 
+     * @returns {void}
+     */
+    self.gridAutoCreateLegend = function(){
+      self.model.colors = [
+        {
+          color: "#FFFFFFFF",
+          isDefault: true,
+          title: "Default",
+          value: ""
+        }
+      ];
+      var portionValue = (self.legendFinalValue - self.legendInitialValue)/self.legendQuantity;
+      var defaultColors = ColorFactory.getDefaultColors();
+      for (var i = 0; i <= self.legendQuantity; i++){
+        var legendValue = Number((self.legendInitialValue + portionValue*i).toFixed(self.legendPrecision));
+        var newColor = {
+          color: defaultColors[i],
+          isDefault: false,
+          title: i == 0 ? "< " + legendValue : (Number((legendValue - portionValue).toFixed(self.legendPrecision)) +  " - " + legendValue),
+          value: legendValue
+        }
+        self.model.colors.push(newColor);
+      }
+    }
 
     /**
      * It tries to sets begin and end color based in table row selection
@@ -244,6 +376,6 @@ define([], function () {
   }
 
   // Dependencies Injection
-  StyleController.$inject = ["$scope", "ColorFactory", "i18n", "DataSeriesService", "StyleType", "$http", "Utility"];
+  StyleController.$inject = ["$scope", "ColorFactory", "i18n", "DataSeriesService", "StyleType", "$http", "Utility", "DataProviderService", "FormTranslator"];
   return terrama2StyleComponent;
 });

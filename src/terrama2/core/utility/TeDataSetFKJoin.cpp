@@ -28,12 +28,16 @@
  */
 
 #include "TeDataSetFKJoin.hpp"
+#include "Logger.hpp"
+#include "../Exception.hpp"
 
 #include <terralib/dataaccess/dataset/ForeignKey.h>
 #include <terralib/dataaccess/dataset/DataSet.h>
 #include <terralib/dataaccess/dataset/DataSetType.h>
 #include <terralib/dataaccess/dataset/PrimaryKey.h>
 
+#include <QString>
+#include <QObject>
 
 terrama2::core::TeDataSetFKJoin::TeDataSetFKJoin( std::shared_ptr<te::da::DataSetType> referrerDataSetType,
                                                   std::shared_ptr<te::da::DataSet> referrerDataSet,
@@ -55,7 +59,15 @@ void terrama2::core::TeDataSetFKJoin::fillPKMap(std::string referredPropertyName
   for (size_t i = 0; i < referredDataSet->size(); i++) {
     referredDataSet->move(i);
 
-    _referredPKMap.emplace(referredDataSet->getValue(referredPropertyName)->toString(), i);
+    std::unique_ptr<te::dt::AbstractData> val(referredDataSet->getValue(referredPropertyName));
+    if(val)
+      _referredPKMap.emplace(val->toString(), i);
+    else
+    {
+      QString errMsg = QObject::tr("Invalid property: %1.").arg(QString::fromStdString(referredPropertyName));
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw Exception() << ErrorDescription(errMsg);
+    }
   }
 }
 

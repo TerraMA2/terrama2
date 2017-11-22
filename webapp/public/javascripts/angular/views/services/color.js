@@ -75,12 +75,51 @@ define([], function() {
     return output; 
   }
 
+  /**
+   * It returns 30 distinct colors to auto create legends
+   */
+  function getDefaultColors(){
+    return [
+      "#ff7a8eff",
+      "#e47affff",
+      "#7a7fffff",
+      "#53ad98ff",
+      "#e4ff7aff",
+      "#ad5e2aff",
+      "#ff0037ff",
+      "#ae00ffff",
+      "#5367adff",
+      "#3dffcfff",
+      "#5c5c2cff",
+      "#ff5e00ff",
+      "#5c002bff",
+      "#4a2c5cff",
+      "#0079adff",
+      "#00ff33ff",
+      "#ad9300ff",
+      "#ff997aff",
+      "#ad537fff",
+      "#3100adff",
+      "#7ae0ffff",
+      "#2c5c32ff",
+      "#5c3a00ff",
+      "#ad1700ff",
+      "#ff00aeff",
+      "#09005cff",
+      "#16565cff",
+      "#65ad53ff",
+      "#ff9b3dff",
+      "#5c1816ff"
+    ]
+  }
+
   return function() {
     return {
       generateColor: generateColor,
       convertToRGB: convertToRGB,
       convertToHex: convertToHex,
-      hex: hex
+      hex: hex,
+      getDefaultColors: getDefaultColors
     };
   };
 });

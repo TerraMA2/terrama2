@@ -147,6 +147,7 @@ var ExportProject = function(json){
     promises.push(DataManager.listCollectors({DataProvider: {project_id: target.id}}).then(function(collectors) {
       collectors.forEach(function(collector) {
         var collectorToAdd = addID(collector);
+        collectorToAdd.service_instance_id = null;
 
         if(countObjectProperties(collectorToAdd.schedule) > 0)
           collectorToAdd.schedule.scheduleType = collectorToAdd.schedule_type;
@@ -160,6 +161,7 @@ var ExportProject = function(json){
         var rawAnalysis = analysis.rawObject();
         rawAnalysis.$id = rawAnalysis.id;
         delete rawAnalysis.id;
+        rawAnalysis.service_instance_id = null;
 
         rawAnalysis.analysis_dataseries_list.forEach(function(analysisDS) {
           analysisDS.$id = analysisDS.id;
@@ -176,6 +178,7 @@ var ExportProject = function(json){
     promises.push(DataManager.listViews({project_id: target.id, source_type: {$ne: 4}}).then(function(viewsList) {
       viewsList.forEach(function(view) {
         var viewToAdd = addID(view);
+        viewToAdd.service_instance_id = null;
 
         if(countObjectProperties(viewToAdd.schedule) > 0)
           viewToAdd.schedule.scheduleType = viewToAdd.schedule_type;
@@ -188,6 +191,7 @@ var ExportProject = function(json){
       alertsList.forEach(function(alert) {
         var alertToAdd = addID(alert);
         var legend = alertToAdd.legend;
+        alertToAdd.service_instance_id = null;
 
         if(countObjectProperties(alertToAdd.schedule) > 0)
           alertToAdd.schedule.scheduleType = alertToAdd.schedule_type;

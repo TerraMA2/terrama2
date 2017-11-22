@@ -14,7 +14,7 @@ module.exports = function(grunt) {
             TerraMA2WebComponents: "../../../webcomponents/dist/TerraMA2WebComponents.min"
           },
           include: [
-            '../../bower_components/almond/almond',
+            '../../node_modules/almond/almond',
             'Startup',
             'TerraMA2WebMonitor'
           ]

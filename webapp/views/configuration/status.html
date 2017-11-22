@@ -27,7 +27,7 @@
 </script>
 
 <!-- Moment JS -->
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/moment.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/moment/moment.js"></script>
 
 {% endblock %}
 
@@ -46,23 +46,23 @@
           <terrama2-alert-box2 handler="MessageBoxService.alertBox" close="close()"></terrama2-alert-box2>
         </div>
 
-        <terrama2-table-header link="linkToAdd"></terrama2-table-header>
+        <terrama2-table-header extra="extra" link="linkToAdd"></terrama2-table-header>
 
-        <terrama2-table-view expression="element in filteredModel = (model | filter:searchInput) | orderBy: '-date' | pagingToolLimit: statusPerPage track by $index">
+        <terrama2-table-view expression="element in filteredModel = (model | filter:searchInput | filter:showInTableFilter) | orderBy: '-date' | pagingToolLimit: statusPerPage track by $index">
           <terrama2-td title="{{ i18n.__('Status') }}">
             <img ng-src="{{ iconFn(element) }}" alt="" width="24" height="24">
-          </terrama2-td>
-          <terrama2-td title="{{ i18n.__('Service') }}">
-            <span ng-bind="element.service"></span>
-          </terrama2-td>
-          <terrama2-td title="{{ i18n.__('Type') }}">
-            <span ng-bind="element.type"></span>
           </terrama2-td>
           <terrama2-td title="{{ i18n.__('Name') }}">
             <span ng-bind="element.name"></span>
           </terrama2-td>
           <terrama2-td title="{{ i18n.__('Project') }}">
             <span ng-bind="element.project"></span>
+          </terrama2-td>
+          <terrama2-td title="{{ i18n.__('Service') }}">
+            <span ng-bind="element.service"></span>
+          </terrama2-td>
+          <terrama2-td title="{{ i18n.__('Type') }}">
+            <span ng-bind="element.type"></span>
           </terrama2-td>
           <terrama2-td title="{{ i18n.__('Message') }}" showMoreInfo="true" fillModal="setSelectedLog(element)">
             <span ng-bind="(element.message.length > 15) ? ((element.message | limitTo:15) + '...') : element.message"></span>

@@ -1,0 +1,70 @@
+[
+  {
+    "publicUrl": "externals/admin-lte",
+    "path": "node_modules/admin-lte"
+  },
+  {
+    "publicUrl": "externals/bootstrap",
+    "path": "node_modules/bootstrap"
+  },
+  {
+    "publicUrl": "externals/bootstrap-daterangepicker",
+    "path": "node_modules/bootstrap-daterangepicker"
+  },
+  {
+    "publicUrl": "externals/datatables",
+    "path": "node_modules/datatables"
+  },
+  {
+    "publicUrl": "externals/font-awesome",
+    "path": "node_modules/font-awesome"
+  },
+  {
+    "publicUrl": "externals/ionicons",
+    "path": "node_modules/ionicons"
+  },
+  {
+    "publicUrl": "externals/jquery",
+    "path": "node_modules/jquery"
+  },
+  {
+    "publicUrl": "externals/jquery-ui",
+    "path": "node_modules/jquery-ui-dist"
+  },
+  {
+    "publicUrl": "externals/malihu-custom-scrollbar-plugin",
+    "path": "node_modules/malihu-custom-scrollbar-plugin"
+  },
+  {
+    "publicUrl": "externals/moment",
+    "path": "node_modules/moment"
+  },
+  {
+    "publicUrl": "externals/underscore",
+    "path": "node_modules/underscore"
+  },
+  {
+    "publicUrl": "externals/openlayers",
+    "path": "node_modules/openlayers/dist"
+  },
+  {
+    "publicUrl": "externals/TerraMA2WebComponents",
+    "path": "../webcomponents/dist"
+  },
+  {
+    "publicUrl": "externals/requirejs",
+    "path": "node_modules/requirejs"
+  },
+  {
+    "publicUrl": "externals/i18next",
+    "path": "node_modules/i18next"
+  },
+  {
+    "publicUrl": "externals/jquery-i18next",
+    "path": "node_modules/jquery-i18next"
+  },
+  {
+    "publicUrl": "externals/i18next-xhr-backend",
+    "path": "node_modules/i18next-xhr-backend"
+  }
+]

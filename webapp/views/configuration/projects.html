@@ -3,7 +3,7 @@
 {% set tabActive = "projects" %}
 
 {% block styles %}
-<link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css">
+<link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}externals/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css">
 {% endblock %}
 
 {% block title %} TerraMA² {{ i18n.__('Projects') }} {% endblock %}
@@ -22,7 +22,7 @@
 
 {% block content %}
 <div ng-controller="ProjectListController">
-  <terrama2-box title="i18n.__('Projects')">
+  <terrama2-box title="i18n.__('Projects')" helper="'{[ BASE_URL ]}helper/projects.html'">
     <div class="row">
       <div class="col-md-12">
         <div class="col-md-12">
@@ -191,40 +191,41 @@
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">×</span>
           </button>
-          <h4 class="modal-title">{{ i18n.__("Select the project to which you want to import the data") }}</h4>
+          <h4 class="modal-title">{{ i18n.__("Import data") }}</h4>
         </div>
         <div class="modal-body">
-          <div class="form-group" ng-show="model.length > 0">
+          <div class="form-group" ng-show="model.length > 0 && !hasProject">
+            <label class="modal-title">{{ i18n.__("Select the project to which you want to import the data") }}</label>
             <div class="radio" ng-repeat="element in model">
               <label>
                 <input type="radio" name="projectRadio" ng-value="{{ element.id }}" ng-model="$parent.projectRadio" checked>{{ element.name }}
               </label>
             </div>
           </div>
-          <h4 style="text-align: center;" ng-show="model.length == 0">{{ i18n.__("No projects found.") }}</h4>
-          <hr ng-show="model.length > 0 && hasCollect && services.COLLECT.length > 0"/>
-          <div class="form-group" ng-show="model.length > 0 && hasCollect && services.COLLECT.length > 0">
+          <h4 style="text-align: center;" ng-show="model.length == 0 && !hasProject">{{ i18n.__("No projects found.") }}</h4>
+          <hr ng-show="model.length > 0 && !hasProject && hasCollect && services.COLLECT.length > 0"/>
+          <div class="form-group" ng-show="(model.length > 0 || hasProject) && hasCollect && services.COLLECT.length > 0">
             <label>{{ i18n.__("Select the Collector Service to be Used") }}:</label>
             <select class="form-control" name="servicesCollect" ng-model="selectedServices.Collect" ng-change="extra.lala()">
               <option ng-repeat="service in services.COLLECT" ng-init="selectedServices.Collect = services.COLLECT[0].id.toString()" value="{{ service.id }}">{{ service.name }}</option>
             </select>
           </div>
-          <hr ng-show="model.length > 0 && hasAnalysis && services.ANALYSIS.length > 0"/>
-          <div class="form-group" ng-show="model.length > 0 && hasAnalysis && services.ANALYSIS.length > 0">
+          <hr ng-show="(model.length > 0 || hasProject) && hasAnalysis && services.ANALYSIS.length > 0"/>
+          <div class="form-group" ng-show="(model.length > 0 || hasProject) && hasAnalysis && services.ANALYSIS.length > 0">
             <label>{{ i18n.__("Select the Analysis Service to be Used") }}:</label>
             <select class="form-control" name="servicesAnalysis" ng-model="selectedServices.Analysis">
               <option ng-repeat="service in services.ANALYSIS" ng-init="selectedServices.Analysis = services.ANALYSIS[0].id.toString()" value="{{ service.id }}">{{ service.name }}</option>
             </select>
           </div>
-          <hr ng-show="model.length > 0 && hasView && services.VIEW.length > 0"/>
-          <div class="form-group" ng-show="model.length > 0 && hasView && services.VIEW.length > 0">
+          <hr ng-show="(model.length > 0 || hasProject) && hasView && services.VIEW.length > 0"/>
+          <div class="form-group" ng-show="(model.length > 0 || hasProject) && hasView && services.VIEW.length > 0">
             <label>{{ i18n.__("Select the View Service to be Used") }}:</label>
             <select class="form-control" name="servicesView" ng-model="selectedServices.View">
               <option ng-repeat="service in services.VIEW" ng-init="selectedServices.View = services.VIEW[0].id.toString()" value="{{ service.id }}">{{ service.name }}</option>
             </select>
           </div>
-          <hr ng-show="model.length > 0 && hasAlert && services.ALERT.length > 0"/>
-          <div class="form-group" ng-show="model.length > 0 && hasAlert && services.ALERT.length > 0">
+          <hr ng-show="(model.length > 0 || hasProject) && hasAlert && services.ALERT.length > 0"/>
+          <div class="form-group" ng-show="(model.length > 0 || hasProject) && hasAlert && services.ALERT.length > 0">
             <label>{{ i18n.__("Select the Alert Service to be Used") }}:</label>
             <select class="form-control" name="servicesAlert" ng-model="selectedServices.Alert">
               <option ng-repeat="service in services.ALERT" ng-init="selectedServices.Alert = services.ALERT[0].id.toString()" value="{{ service.id }}">{{ service.name }}</option>
@@ -239,7 +240,7 @@
           </div>
           <hr/>
           <button type="button" class="btn btn-default pull-left" data-dismiss="modal">{{ i18n.__("Close") }}</button>
-          <button type="button" class="btn btn-primary pull-right" ng-click="extra.finalizeImportation()" ng-show="model.length > 0">{{ i18n.__("Import") }}</button>
+          <button type="button" class="btn btn-primary pull-right" ng-click="extra.finalizeImportation()" ng-show="(model.length > 0 || hasProject)">{{ i18n.__("Import") }}</button>
           <div style="clear: both;"></div>
         </div>
       </div>

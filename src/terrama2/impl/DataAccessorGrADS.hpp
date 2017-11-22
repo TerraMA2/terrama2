@@ -168,10 +168,15 @@ namespace terrama2
          \param filter The filter to be applied.
          \return The URI to retrieved data.
         */
-        std::string
+        virtual std::string
         retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataSet, const Filter& filter,
                      std::shared_ptr<FileRemover> remover) const override;
 
+        virtual void retrieveDataCallback(const DataRetrieverPtr dataRetriever,
+                                          DataSetPtr dataSet,
+                                          const Filter& filter,
+                                          std::shared_ptr<FileRemover> remover,
+                                          std::function<void(const std::string& /*uri*/)> processFile) const override;
         /*
          \brief Returns a smart pointer to a DataAccessorGrADS.
          \param dataProvider The data provider to be accessed.

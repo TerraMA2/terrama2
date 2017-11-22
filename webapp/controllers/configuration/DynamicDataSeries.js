@@ -46,6 +46,9 @@ module.exports = function(app) {
     get: function(request, response) {
       var parameters = makeTokenParameters(request.query.token, app);
       var hasProjectPermission = request.session.activeProject.hasProjectPermission;
+      var projects = request.session.cachedProjects.filter(function(project){
+        return project.id != request.session.activeProject.id;
+      });
       parameters.hasProjectPermission = hasProjectPermission;
       DataManager.listCollectors().then(function(collectors){
         DataManager.listAnalysis().then(function(analysis){
@@ -62,7 +65,8 @@ module.exports = function(app) {
               function(element){
                 return element.rawObject();
               }
-            )}));
+            ), "projects": projects
+            }));
           })
         });
       });

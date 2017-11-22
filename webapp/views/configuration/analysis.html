@@ -7,15 +7,15 @@
 {% block title %} TerraMA² {% endblock %}
 
 {% block styles %}
-  <link rel="stylesheet" href="{[ BASE_URL ]}bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css">
+  <link rel="stylesheet" href="{[ BASE_URL ]}externals/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css">
 
   <!-- Angular tree control -->
   <!-- link for CSS when using the tree as a Dom element -->
-  <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}bower_components/angular-tree-control/css/tree-control.css">
+  <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}externals/angular-tree-control/css/tree-control.css">
   <!-- link for CSS when using the tree as an attribute -->
-  <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}bower_components/angular-tree-control/css/tree-control-attribute.css">
+  <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}externals/angular-tree-control/css/tree-control-attribute.css">
 
-  <link rel="stylesheet" href="{[ BASE_URL ]}bower_components/angular-ui-select/dist/select.min.css" />
+  <link rel="stylesheet" href="{[ BASE_URL ]}externals/angular-ui-select/dist/select.min.css" />
   <style>
     table > tbody {
       overflow-y: auto !important;
@@ -66,31 +66,31 @@
 </script>
 
 <!-- Moment Datetime JS -->
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/moment.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/moment/moment.js"></script>
 <!-- Angular tree control -->
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/angular-tree-control/angular-tree-control.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/angular-tree-control/angular-tree-control.js"></script>
 <!-- Ace editor -->
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/ace-builds/src/ace.js"></script>
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/ace-builds/src/ext-language_tools.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/ace-builds/src/ace.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/ace-builds/src/ext-language_tools.js"></script>
 
 <!-- Angular Schema Form dependencies -->
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/angular-sanitize/angular-sanitize.js"></script>
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/tv4/tv4.js"></script>
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/objectpath/lib/ObjectPath.js"></script>
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/angular-schema-form/dist/schema-form.js"></script>
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/angular-schema-form/dist/bootstrap-decorator.min.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/angular-sanitize/angular-sanitize.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/tv4/tv4.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/objectpath/lib/ObjectPath.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/angular-schema-form/dist/schema-form.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/angular-schema-form/dist/bootstrap-decorator.min.js"></script>
 <!-- Bootstrap datetimepicker -->
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/pt-br.js"></script>
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/es.js"></script>
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/fr.js"></script>
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/angular-eonasdan-datetimepicker/dist/angular-eonasdan-datetimepicker.min.js"></script>
-<script src="{[ BASE_URL ]}bower_components/angular-ui-select/dist/select.min.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/moment/locale/pt-br.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/moment/locale/es.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/moment/locale/fr.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/angular-eonasdan-datetimepicker/dist/angular-eonasdan-datetimepicker.min.js"></script>
+<script src="{[ BASE_URL ]}externals/angular-ui-select/dist/select.min.js"></script>
 
 
-<script src="{[ BASE_URL ]}bower_components/angular-aria/angular-aria.min.js"></script>
-<script src="{[ BASE_URL ]}bower_components/angular-animate/angular-animate.min.js"></script>
-<script src="{[ BASE_URL ]}bower_components/angular-material/angular-material.min.js"></script>
+<script src="{[ BASE_URL ]}externals/angular-aria/angular-aria.min.js"></script>
+<script src="{[ BASE_URL ]}externals/angular-animate/angular-animate.min.js"></script>
+<script src="{[ BASE_URL ]}externals/angular-material/angular-material.min.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -125,7 +125,7 @@
     </div>
   </div>
 
-  <terrama2-box title="i18n.__('Analysis Registration')">
+  <terrama2-box title="i18n.__('Analysis Registration')" helper="'{[ BASE_URL ]}helper/add_analysis.html'">
     <div class="col-md-12">
       <terrama2-alert-box2 handler="ctrl.MessageBoxService.alertBox"
                            close="ctrl.close()">

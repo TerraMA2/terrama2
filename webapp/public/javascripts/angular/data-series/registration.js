@@ -35,6 +35,7 @@ define([], function() {
             canSave = false;
           } else {
             canSave = true;
+            $scope.MessageBoxService.reset();
           }
         }
       }
@@ -399,7 +400,8 @@ define([], function() {
       };
 
       $scope.addDcpsStorager = function(dcps) {
-        $scope.$broadcast("dcpOperation", { action: "addMany", dcps: dcps, storageData: true, reloadDataStore: false });
+        if($scope.storager.format)
+          $scope.$broadcast("dcpOperation", { action: "addMany", dcps: dcps, storageData: true, reloadDataStore: false });
       };
 
       $scope.setHtmlItems = function(dcp, key, alias, _id, type) {
@@ -413,6 +415,19 @@ define([], function() {
 
       $scope.getRemoveButton = function(alias) {
         return "<button class=\"btn btn-danger removeDcpBtn\" ng-click=\"removePcd('" + alias + "')\" style=\"height: 21px; padding: 1px 4px 1px 4px; font-size: 13px;\">" + i18n.__("Remove") + "</button>";
+      };
+
+      $scope.isDataProviderFolder = function() {
+        var returnVal = false;
+
+        $scope.providersList.forEach(function(dataProvider) {
+          if($scope.dataSeries.data_provider_id === dataProvider.id && dataProvider.data_provider_type.id === 1) {
+            returnVal = true; 
+            return;
+          }
+        });
+
+        return returnVal;
       };
 
       // it defines when data change combobox has changed and it will adapt the interface
@@ -654,6 +669,9 @@ define([], function() {
           } else {
             var tableInput = angular.element('#table_name');
             tableInput.attr('list', 'databaseTableList');
+
+            var columnsInputs = angular.element('.table-column > input');
+            columnsInputs.attr('list', 'tableParamsColumnsList');
           }
         });
       };
@@ -911,30 +929,46 @@ define([], function() {
       var listColumns = function(dataProvider, table_name){
         var result = $q.defer();
 
-        var params = getPostgisUriInfo(dataProvider.uri);
-        params.objectToGet = "column";
-        params.table_name = table_name;
-
-        var httpRequest = $http({
-          method: "GET",
-          url: BASE_URL + "uri/",
-          params: params
-        });
-
-        httpRequest.then(function(response) {
-          $scope.columnsList = response.data.data.map(function(item, index){
-            return item.column_name;
+        DataProviderService.listPostgisObjects({providerId: dataProvider.id, objectToGet: "column", tableName: table_name})
+          .then(function(response){
+            if (response.data.status == 400){
+              return result.reject(response.data);
+            }
+            $scope.columnsList = response.data.data.map(function(item, index) {
+              return item.column_name;
+            });
+            result.resolve(response.data.data);
           });
-          result.resolve(response.data);
-        });
-
-        httpRequest.catch(function(response) {
-          result.reject(response.data);
-        });
 
         return result.promise;
 
       }
+
+      var listParamsColumns = function(dataProvider, table_name){
+        var result = $q.defer();
+
+        DataProviderService.listPostgisObjects({providerId: dataProvider.id, objectToGet: "column", tableName: table_name})
+          .then(function(response){
+            if (response.data.status == 400){
+              return result.reject(response.data);
+            }
+            $scope.paramsColumnsList = response.data.data.map(function(item, index) {
+              return item.column_name;
+            });
+            result.resolve(response.data.data);
+          });
+
+        return result.promise;
+      }
+
+      $scope.$watch("model.table_name", function(val) {
+        var dataProvider = $scope.providersList.filter(function(element) {
+          return element.id == $scope.dataSeries.data_provider_id;
+        });
+
+        if(dataProvider.length > 0 && dataProvider[0].data_provider_type.id == 4)
+          listParamsColumns(dataProvider[0], val);
+      });
 
       $scope.isIntersectionEmpty = function() {
         return Object.keys($scope.intersection).length === 0;
@@ -1059,21 +1093,22 @@ define([], function() {
       $scope.isSchedule = false;
 
       $scope.$watch("dataSeries", function(dSValue) {
-        if (dSValue.name && dSValue.semantics && dSValue.data_provider_id){
+        if(dSValue.semantics && $scope.dataSeries && $scope.dataSeries.semantics.allow_direct_access === false) {
+          $scope.advanced.store.optional = false;
+        } else {
+          $scope.advanced.store.optional = true;
+        }
+
+        if(dSValue.name && dSValue.semantics && dSValue.data_provider_id) {
+          $scope.wizard.store.disabled = false;
+          $scope.advanced.store.disabled = false;
           $scope.wizard.parameters.disabled = false;
           $scope.wizard.csvFormat.disabled = false;
-          if ($scope.dataSeries.semantics.allow_direct_access === false){
-            $scope.wizard.store.disabled = false;
-            $scope.advanced.store.disabled = false;
-            $scope.advanced.store.optional = false;
-          }
-        }
-        else {
-          $scope.wizard.parameters.disabled = true;
-          $scope.wizard.csvFormat.disabled = true;
+        } else {
           $scope.wizard.store.disabled = true;
           $scope.advanced.store.disabled = true;
-          $scope.advanced.store.optional = true;
+          $scope.wizard.parameters.disabled = true;
+          $scope.wizard.csvFormat.disabled = true;
         }
       }, true);
 
@@ -1334,51 +1369,19 @@ define([], function() {
 
       var listTables = function(dataProvider){
         var result = $q.defer();
-
-        var params = getPostgisUriInfo(dataProvider.uri);
-        params.objectToGet = "table";
-
-        var httpRequest = $http({
-          method: "GET",
-          url: BASE_URL + "uri/",
-          params: params
-        });
-
-        httpRequest.then(function(response) {
-          $scope.tableList = response.data.data.map(function(item, index){
-            return item.table_name;
+        
+        DataProviderService.listPostgisObjects({providerId: dataProvider.id, objectToGet: "table"})
+          .then(function(response){
+            if (response.data.status == 400){
+              return result.reject(response.data);
+            }
+            $scope.tableList = response.data.data.map(function(item, index) {
+              return item.table_name;
+            });
+            result.resolve(response.data.data);
           });
-          result.resolve(response.data);
-        });
-
-        httpRequest.catch(function(response) {
-          result.reject(response.data);
-        });
 
         return result.promise;
-      }
-
-      //help function to parse a URI
-      var getPostgisUriInfo = function(uri){
-        var params = {};
-        params.protocol = uri.split(':')[0];
-        var hostData = uri.split('@')[1];
-        if (hostData){
-          params.hostname = hostData.split(':')[0];
-          params.port = hostData.split(':')[1].split('/')[0];
-          params.database = hostData.split('/')[1];
-        }
-
-        var auth = uri.split('@')[0];
-        if (auth){
-          var userData = auth.split('://')[1];
-          if (userData){
-            params.user = userData.split(':')[0];
-            params.password = userData.split(':')[1];
-          }
-        }
-
-        return params;
       }
 
       $scope.onDataProviderClick = function(index) {
@@ -1503,7 +1506,10 @@ define([], function() {
             }
 
             $scope.dcpsObject[alias] = Object.assign({}, data);
-            $scope.$broadcast("dcpOperation", { action: "add", dcp: data, storageData: true, reloadDataStore: false });
+            
+            if($scope.storager.format)
+              $scope.$broadcast("dcpOperation", { action: "add", dcp: data, storageData: true, reloadDataStore: false });
+
             $scope.model = {active: true};
 
             var dcpCopy = Object.assign({}, data);
@@ -2005,25 +2011,20 @@ define([], function() {
 
               var dsIntersection = $scope.intersection[k].data_series;
 
-              // checking GRID. Grid does not need attribute
-              if (dsIntersection.data_series_semantics.data_series_type_name !== globals.enums.DataSeriesType.GRID) {
-                if ($scope.intersection[k].attributes.length === 0) {
-                  MessageBoxService.danger(i18n.__("Data Registration"), i18n.__("Invalid intersection. Static data series must have at least a attribute."));
-                  return;
-                }
+              if ($scope.intersection[k].attributes.length === 0) {
+                MessageBoxService.danger(i18n.__("Data Registration"), i18n.__("Invalid intersection. Each data series must have at least one attribute selected."));
+                return;
               }
             }
           }
         }
 
         if ($scope.dataSeries.access == 'COLLECT') {
-          $scope.isChecking.value = true;
-
           // getting values from another controller
           $scope.$broadcast("requestStorageValues");
         } else {
-          if ($scope.dataSeries.semantics.data_format_name === globals.enums.DataSeriesFormat.GRADS) {
-            MessageBoxService.danger(i18n.__("Data Series Registration"), i18n.__("Unconfigured GraDs Data Series storage"));
+          if($scope.isDynamic && $scope.dataSeries.semantics.allow_direct_access === false) {
+            MessageBoxService.danger(i18n.__("Data Series Registration"), i18n.__("Unconfigured Data Series storage"));
             return;
           }
 

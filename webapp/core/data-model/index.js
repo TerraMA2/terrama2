@@ -29,3 +29,5 @@ exports.AutomaticSchedule = require("./AutomaticSchedule");
 exports.Alert = require("./Alert");
 exports.Legend = require("./Legend");
 exports.Interpolator = require("./Interpolator");
+exports.AlertAttachedView = require("./AlertAttachedView");
+exports.AlertAttachment = require("./AlertAttachment");

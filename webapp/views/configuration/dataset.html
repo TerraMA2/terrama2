@@ -7,16 +7,16 @@
 {% block ngApp %}ng-app="terrama2.dataseries.registration"{% endblock %}
 
 {% block styles %}
-  <link rel="stylesheet" href="{[ BASE_URL ]}bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css">
-  <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}bower_components/angular-wizard/dist/angular-wizard.min.css">
-  <link href="{[ BASE_URL ]}bower_components/angular-xeditable/dist/css/xeditable.css" rel="stylesheet">
-  <link rel="stylesheet" href="{[ BASE_URL ]}bower_components/angular-ui-select/dist/select.min.css" />
+  <link rel="stylesheet" href="{[ BASE_URL ]}externals/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css">
+  <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}externals/angular-wizard/dist/angular-wizard.min.css">
+  <link href="{[ BASE_URL ]}externals/angular-xeditable/dist/css/xeditable.css" rel="stylesheet">
+  <link rel="stylesheet" href="{[ BASE_URL ]}externals/angular-ui-select/dist/select.min.css" />
 
   <!-- Angular tree control -->
   <!-- link for CSS when using the tree as a Dom element -->
-  <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}bower_components/angular-tree-control/css/tree-control.css">
+  <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}externals/angular-tree-control/css/tree-control.css">
   <!-- link for CSS when using the tree as an attribute -->
-  <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}bower_components/angular-tree-control/css/tree-control-attribute.css">
+  <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}externals/angular-tree-control/css/tree-control-attribute.css">
 
   <style>
     .terrama2-tr {
@@ -77,31 +77,31 @@
 
 {% block javascripts %}
   <!-- Angular -->
-  <script type="text/javascript" src="{[ BASE_URL ]}bower_components/angular-wizard/dist/angular-wizard.js"></script>
+  <script type="text/javascript" src="{[ BASE_URL ]}externals/angular-wizard/dist/angular-wizard.js"></script>
 
   <!-- Angular tree control -->
-  <script type="text/javascript" src="{[ BASE_URL ]}bower_components/angular-tree-control/angular-tree-control.js"></script>
+  <script type="text/javascript" src="{[ BASE_URL ]}externals/angular-tree-control/angular-tree-control.js"></script>
 
   <!-- Angular Schema Form dependencies -->
-  <script type="text/javascript" src="{[ BASE_URL ]}bower_components/angular-sanitize/angular-sanitize.js"></script>
-  <script type="text/javascript" src="{[ BASE_URL ]}bower_components/tv4/tv4.js"></script>
-  <script type="text/javascript" src="{[ BASE_URL ]}bower_components/objectpath/lib/ObjectPath.js"></script>
-  <script type="text/javascript" src="{[ BASE_URL ]}bower_components/angular-schema-form/dist/schema-form.js"></script>
-  <script type="text/javascript" src="{[ BASE_URL ]}bower_components/angular-schema-form/dist/bootstrap-decorator.min.js"></script>
+  <script type="text/javascript" src="{[ BASE_URL ]}externals/angular-sanitize/angular-sanitize.js"></script>
+  <script type="text/javascript" src="{[ BASE_URL ]}externals/tv4/tv4.js"></script>
+  <script type="text/javascript" src="{[ BASE_URL ]}externals/objectpath/lib/ObjectPath.js"></script>
+  <script type="text/javascript" src="{[ BASE_URL ]}externals/angular-schema-form/dist/schema-form.js"></script>
+  <script type="text/javascript" src="{[ BASE_URL ]}externals/angular-schema-form/dist/bootstrap-decorator.min.js"></script>
 
-  <script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/moment.js"></script>
-  <script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/pt-br.js"></script>
-  <script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/es.js"></script>
-  <script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/fr.js"></script>
-  <script type="text/javascript" src="{[ BASE_URL ]}bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
-  <script type="text/javascript" src="{[ BASE_URL ]}bower_components/angular-eonasdan-datetimepicker/dist/angular-eonasdan-datetimepicker.min.js"></script>
+  <script type="text/javascript" src="{[ BASE_URL ]}externals/moment/moment.js"></script>
+  <script type="text/javascript" src="{[ BASE_URL ]}externals/moment/locale/pt-br.js"></script>
+  <script type="text/javascript" src="{[ BASE_URL ]}externals/moment/locale/es.js"></script>
+  <script type="text/javascript" src="{[ BASE_URL ]}externals/moment/locale/fr.js"></script>
+  <script type="text/javascript" src="{[ BASE_URL ]}externals/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
+  <script type="text/javascript" src="{[ BASE_URL ]}externals/angular-eonasdan-datetimepicker/dist/angular-eonasdan-datetimepicker.min.js"></script>
   <!-- XEditable  -->
-  <script src="{[ BASE_URL ]}bower_components/angular-xeditable/dist/js/xeditable.js"></script>
+  <script src="{[ BASE_URL ]}externals/angular-xeditable/dist/js/xeditable.js"></script>
 
   <!-- Angular ui router -->
-  <script type="text/javascript" src="{[ BASE_URL ]}bower_components/angular-ui-router/release/angular-ui-router.min.js"></script>
+  <script type="text/javascript" src="{[ BASE_URL ]}externals/angular-ui-router/release/angular-ui-router.min.js"></script>
   
-  <script src="{[ BASE_URL ]}bower_components/angular-ui-select/dist/select.min.js"></script>
+  <script src="{[ BASE_URL ]}externals/angular-ui-select/dist/select.min.js"></script>
 
   <script type="text/javascript">
     var params = {
@@ -136,6 +136,15 @@
     <div class="box box-default">
       <div class="box-header with-border">
         <h3 class="box-title">{{ i18n.__('{[ type|capitalize ]} Data Registration') }}</h3>
+        {% if type == "dynamic" %}
+        <a href="{[ BASE_URL ]}helper/add_dynamic_data.html" target="_blank" style="color: #97a0b3; float: right;">
+          <button type="button" class="btn btn-box-tool terrama2-circle-button" style="margin-right: 15px;" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-question"></i></button>
+        </a>
+        {% else %}
+        <a href="{[ BASE_URL ]}helper/add_static_data.html" target="_blank" style="color: #97a0b3; float: right;">
+          <button type="button" class="btn btn-box-tool terrama2-circle-button" style="margin-right: 15px;" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-question"></i></button>
+        </a>
+        {% endif %}
       </div>
 
       <!-- /.box-header -->

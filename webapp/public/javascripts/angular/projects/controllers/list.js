@@ -15,7 +15,8 @@ define(function() {
     $scope.linkToAdd = BASE_URL + "configuration/projects/new";
     $scope.fields = [
       {key: "name", as: i18n.__("Name")},
-      {key: "description", as: i18n.__("Description")}
+      {key: "description", as: i18n.__("Description")},
+      {key: "user_name", as: i18n.__("User")}
     ];
 
     $scope.projectsCheckboxes = {};
@@ -253,10 +254,16 @@ define(function() {
           }
           if(cont === $scope.model.length) {
             // push
+            p.hasPermission = true;
             $scope.model.push(p);
           }
           cont = 0;
         }
+        //updating project list cache
+        $http({
+          method: "GET",
+          url: BASE_URL + "configuration/projects/updateCache"
+        });
       } else {
         var msg = i18n.__(" The data has been imported. ");
       }
@@ -449,42 +456,40 @@ define(function() {
                 return;
               }
 
-              if(json.Projects !== undefined && json.Projects.length > 0) {
-                json.userId = config.user_id
-                socket.emit("import", json);
+              json.userId = config.user_id
+              $scope.extra.isImporting = false;
+              $scope.extra.importJson = json;
+
+              $scope.hasProject = false;
+              $scope.hasCollect = false;
+              $scope.hasAnalysis = false;
+              $scope.hasView = false;
+              $scope.hasLegend = false;
+              $scope.hasAlert = false;
+              $scope.hasInterpolator = false;
+
+              if(json.Projects !== undefined && json.Projects.length > 0) $scope.hasProject = true;
+              if(json.Collectors !== undefined && json.Collectors.length > 0) $scope.hasCollect = true;
+              if(json.Analysis !== undefined && json.Analysis.length > 0) $scope.hasAnalysis = true;
+              if(json.Views !== undefined && json.Views.length > 0) $scope.hasView = true;
+              if(json.Legends !== undefined && json.Legends.length > 0) $scope.hasLegend = true;
+              if(json.Alerts !== undefined && json.Alerts.length > 0) $scope.hasAlert = true;
+              if(json.Interpolators !== undefined && json.Interpolators.length > 0) $scope.hasInterpolator = true;
+
+              if(($scope.model === undefined || $scope.model.length === 0) && !$scope.hasProject) {
+                MessageBoxService.danger(i18n.__(importTitle), new Error(i18n.__("To import this file you need to have at least one project")));
+              } else if(json.Collectors !== undefined && json.Collectors.length > 0 && $scope.services.COLLECT.length === 0) {
+                MessageBoxService.danger(i18n.__(importTitle), new Error(i18n.__("To import this file you need to have at least one collector service")));
+              } else if(json.Analysis !== undefined && json.Analysis.length > 0 && $scope.services.ANALYSIS.length === 0) {
+                MessageBoxService.danger(i18n.__(importTitle), new Error(i18n.__("To import this file you need to have at least one analysis service")));
+              } else if(json.Views !== undefined && json.Views.length > 0 && $scope.services.VIEW.length === 0) {
+                MessageBoxService.danger(i18n.__(importTitle), new Error(i18n.__("To import this file you need to have at least one view service")));
+              } else if(json.Alerts !== undefined && json.Alerts.length > 0 && $scope.services.ALERT.length === 0) {
+                MessageBoxService.danger(i18n.__(importTitle), new Error(i18n.__("To import this file you need to have at least one alert service")));
+              } else if(json.Interpolators !== undefined && json.Interpolators.length > 0 && $scope.services.INTERPOLATOR.length === 0) {
+                MessageBoxService.danger(i18n.__(importTitle), new Error(i18n.__("To import this file you need to have at least one interpolator service")));
               } else {
-                $scope.extra.isImporting = false;
-                $scope.extra.importJson = json;
-
-                $scope.hasCollect = false;
-                $scope.hasAnalysis = false;
-                $scope.hasView = false;
-                $scope.hasLegend = false;
-                $scope.hasAlert = false;
-                $scope.hasInterpolator = false;
-
-                if(json.Collectors !== undefined && json.Collectors.length > 0) $scope.hasCollect = true;
-                if(json.Analysis !== undefined && json.Analysis.length > 0) $scope.hasAnalysis = true;
-                if(json.Views !== undefined && json.Views.length > 0) $scope.hasView = true;
-                if(json.Legends !== undefined && json.Legends.length > 0) $scope.hasLegend = true;
-                if(json.Alerts !== undefined && json.Alerts.length > 0) $scope.hasAlert = true;
-                if(json.Interpolators !== undefined && json.Interpolators.length > 0) $scope.hasInterpolator = true;
-
-                if($scope.model === undefined || $scope.model.length === 0) {
-                  MessageBoxService.danger(i18n.__(importTitle), new Error(i18n.__("To import this file you need to have at least one project")));
-                } else if(json.Collectors !== undefined && json.Collectors.length > 0 && $scope.services.COLLECT.length === 0) {
-                  MessageBoxService.danger(i18n.__(importTitle), new Error(i18n.__("To import this file you need to have at least one collector service")));
-                } else if(json.Analysis !== undefined && json.Analysis.length > 0 && $scope.services.ANALYSIS.length === 0) {
-                  MessageBoxService.danger(i18n.__(importTitle), new Error(i18n.__("To import this file you need to have at least one analysis service")));
-                } else if(json.Views !== undefined && json.Views.length > 0 && $scope.services.VIEW.length === 0) {
-                  MessageBoxService.danger(i18n.__(importTitle), new Error(i18n.__("To import this file you need to have at least one view service")));
-                } else if(json.Alerts !== undefined && json.Alerts.length > 0 && $scope.services.ALERT.length === 0) {
-                  MessageBoxService.danger(i18n.__(importTitle), new Error(i18n.__("To import this file you need to have at least one alert service")));
-                } else if(json.Interpolators !== undefined && json.Interpolators.length > 0 && $scope.services.INTERPOLATOR.length === 0) {
-                  MessageBoxService.danger(i18n.__(importTitle), new Error(i18n.__("To import this file you need to have at least one interpolator service")));
-                } else {
-                  $('#importModal').modal('show');
-                }
+                $('#importModal').modal('show');
               }
             });
           });
@@ -492,12 +497,13 @@ define(function() {
       },
 
       finalizeImportation: function() {
-        if($scope.projectRadio === null) {
+        if($scope.projectRadio === null && !$scope.hasProject) {
           MessageBoxService.danger(i18n.__(importTitle), new Error(i18n.__("Select a project")));
           $('#importModal').modal('hide');
         } else {
           $scope.extra.isImporting = true;
-          $scope.extra.importJson['selectedProject'] = $scope.projectRadio;
+          if(!$scope.hasProject)
+            $scope.extra.importJson['selectedProject'] = $scope.projectRadio;
 
           if($scope.hasCollect)
             $scope.extra.importJson['servicesCollect'] = $scope.selectedServices.Collect;

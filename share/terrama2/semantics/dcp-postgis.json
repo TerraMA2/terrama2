@@ -7,6 +7,7 @@
     "temporality": "DYNAMIC",
     "format": "POSTGIS",
     "providers_type_list": ["POSTGIS"],
+    "allow_direct_access": false,
     "allow_storage": true,
     "gui": {
       "schema": {
@@ -15,7 +16,8 @@
             "type": "string",
             "title": "Table Name",
             "hasPrefixFieldForImport": true,
-            "hasSuffixFieldForImport": true
+            "hasSuffixFieldForImport": true,
+            "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
           },
           "latitude": {
             "type": "number",
@@ -32,7 +34,7 @@
             "maximum": 998999,
             "hasDefaultFieldForImport": true
           },
-	  "alias": {
+	        "alias": {
             "type": "string",
             "title": "DCP Name",
             "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
@@ -50,7 +52,10 @@
       "form": [
         {
           "key": "table_name",
-          "htmlClass": "col-md-6 terrama2-schema-form"
+          "htmlClass": "col-md-6 terrama2-schema-form",
+          "validationMessage": {
+            "202": "Invalid table name"
+          }
         },
         {
           "key": "alias",

@@ -188,12 +188,29 @@ var Exportation = function() {
    * @inner
    */
   this.getQuery = function(options) {
+    var selectAttributes = (options.innerJoinTable ? options.TableName + ".*, " + options.innerJoinTable + ".*" : "*");
+
     // Creation of the query
-    var query = "select * from " + options.Schema + "." + options.TableName;
-    
+    var query = "set time zone 'UTC'; select " + selectAttributes + " from " + options.Schema + "." + options.TableName;
+
+    if(options.innerJoinTable) {
+      query += " inner join " + options.innerJoinTable + " on ";
+      query += "(" + options.TableName + "." + options.innerJoinAttribute + "=" + options.innerJoinTable + "." + options.innerJoinAttribute + ")";
+    }
+
     if(options.dateTimeField !== undefined && options.dateTimeFrom !== undefined && options.dateTimeTo !== undefined) {
-      query += " where (" + options.dateTimeField + " between %L and %L)";
+      var whereField = (options.innerJoinTable ? options.TableName + "." + options.dateTimeField : options.dateTimeField);
+      query += " where (" + whereField + " between %L and %L)";
       var params = [options.dateTimeFrom, options.dateTimeTo];
+
+      // Adds the query to the params array
+      params.splice(0, 0, query);
+
+      var finalQuery = memberPgFormat.apply(null, params);
+    } else if(options.dateTimeField !== undefined && options.date !== undefined) {
+      var whereField = (options.innerJoinTable ? options.TableName + "." + options.dateTimeField : options.dateTimeField);
+      query += " where (" + whereField + " = %L)";
+      var params = [options.date];
 
       // Adds the query to the params array
       params.splice(0, 0, query);
@@ -410,6 +427,84 @@ var Exportation = function() {
       if(this.getDateDifferenceInDays(date[1]) > 1)
         memberUtils.deleteFolderRecursively(dir, function() {});
     }
+  };
+
+  /**
+   * Copies a file from the source to the target, saving it with the given name.
+   * @param {string} source - File source
+   * @param {string} target - File target
+   * @param {string} name - File new name
+   *
+   * @function copyFileSync
+   * @memberof Exportation
+   * @inner
+   */
+  this.copyFileSync = function(source, target, name) {
+    var targetFile = target;
+
+    if(memberFs.existsSync(target))
+      if(memberFs.lstatSync(target).isDirectory())
+        targetFile = memberPath.join(target, name + memberPath.extname(source));
+
+    memberFs.writeFileSync(targetFile, memberFs.readFileSync(source));
+  };
+
+  /**
+   * Copies the files of a Shapefile from a source to a target, naming them with the given name.
+   * @param {string} source - Files source
+   * @param {string} target - Files target
+   * @param {string} name - Files new name
+   *
+   * @function copyShpFiles
+   * @memberof Exportation
+   * @inner
+   */
+  this.copyShpFiles = function(source, target, name) {
+    var files = [];
+    var self = this;
+
+    if(memberFs.lstatSync(source).isDirectory()) {
+      files = memberFs.readdirSync(source);
+
+      files.forEach(function(file) {
+        var currentSource = memberPath.join(source, file);
+
+        if(!memberFs.lstatSync(currentSource).isDirectory() && memberPath.extname(file) !== ".zip")
+          self.copyFileSync(currentSource, target, name);
+      });
+    }
+  };
+
+  /**
+   * Creates a folder structure accordingly with a received mask. The last item of the mask array is ignored, because it should be the file name.
+   * @param {string} basePath - Initial path where the new folder(s) should be created
+   * @param {array} maskArray - An array created using a file mask containing the desired destination folder
+   * @returns {object} returnObject - Object with the result of the operation
+   *
+   * @function createPathToFile
+   * @memberof Exportation
+   * @inner
+   */
+  this.createPathToFile = function(basePath, maskArray) {
+    var self = this;
+    var returnObject = { error: null };
+    var pathToBeCreated = basePath;
+
+    maskArray.forEach(function(maskFolder, index) {
+      if(maskFolder !== "" && index < (maskArray.length - 1)) {
+        pathToBeCreated = pathToBeCreated + "/" + maskFolder;
+
+        if(self.createFolder(pathToBeCreated)) {
+          returnObject.error = "Failed to create destination folder!";
+          return;
+        }
+      }
+    });
+
+    if(!returnObject.error)
+      returnObject.createdPath = pathToBeCreated;
+
+    return returnObject;
   };
 };
 

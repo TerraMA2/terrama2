@@ -46,6 +46,36 @@ define([
       $scope.model = [];
       $scope.groupedModel = {};
 
+      $scope.showInTableFilter = function(item) {
+        return item.showInTable || item.showInTable === undefined;
+      };
+
+      $scope.extra = {
+        advancedFilters: [
+          {
+            name: "Analysis",
+            value: "Analysis",
+            checked: true
+          },
+          {
+            name: "Collector",
+            value: "Collector",
+            checked: true
+          },
+          {
+            name: "View",
+            value: "View",
+            checked: true
+          },
+          {
+            name: "Alert",
+            value: "Alert",
+            checked: true
+          }
+        ],
+        advancedFilterField: "type",
+      }
+
       $scope.fields = [
         {
           key: 'type',

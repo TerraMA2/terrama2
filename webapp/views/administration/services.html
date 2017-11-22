@@ -26,17 +26,17 @@
 </script>
 <!-- Socket.io -->
 <script type="text/javascript" src="{[ BASE_URL ]}socket.io/socket.io.js"></script>
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/moment.js"></script>
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/pt-br.js"></script>
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/es.js"></script>
-<script type="text/javascript" src="{[ BASE_URL ]}bower_components/moment/locale/fr.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/moment/moment.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/moment/locale/pt-br.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/moment/locale/es.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/moment/locale/fr.js"></script>
 
 {% endblock %}
 
 {% block content %}
 
 <div ng-controller="ServiceListController">
-  <terrama2-box title="i18n.__(title)" helper="helperMessage" css="boxCss">
+  <terrama2-box title="i18n.__(title)" css="boxCss" helper="'{[ BASE_URL ]}helper/services.html'">
     <div class="col-md-12">
       <div class="col-md-12">
         <terrama2-alert-box2 handler="MessageBoxService.alertBox" close="MessageBoxService.reset()">

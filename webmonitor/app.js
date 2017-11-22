@@ -37,12 +37,15 @@ passport.setupPassport(app);
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(app.locals.BASE_URL, express.static(path.join(__dirname, 'bower_components')));
+
 app.use(app.locals.BASE_URL, express.static(path.join(__dirname, 'public')));
-app.use(app.locals.BASE_URL, express.static(path.join(__dirname, '../webcomponents/dist')));
-app.use(app.locals.BASE_URL + 'require.js', express.static(path.join(__dirname, 'node_modules/requirejs/require.js')));
-app.use(app.locals.BASE_URL + 'openlayers/ol.js', express.static(path.join(__dirname, 'node_modules/openlayers/dist/ol.js')));
-app.use(app.locals.BASE_URL + 'openlayers/ol.css', express.static(path.join(__dirname, 'node_modules/openlayers/dist/ol.css')));
+app.use(app.locals.BASE_URL + 'locales', express.static(path.join(__dirname, 'locales')));
+
+var externals = JSON.parse(fs.readFileSync(path.join(__dirname, './externals.json'), 'utf8'));
+
+externals.forEach(function(external) {
+  app.use(app.locals.BASE_URL + external.publicUrl, express.static(path.join(__dirname, external.path)));
+});
 
 load('controllers').then('routes').into(app);
 

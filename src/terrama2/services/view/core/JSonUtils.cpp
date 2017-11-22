@@ -161,7 +161,7 @@ terrama2::services::view::core::View::Legend* terrama2::services::view::core::fr
     legend->metadata.emplace(it.key().toStdString(), it.value().toString().toStdString());
   }
 
-  for(const auto& color : json["colors"].toArray())
+  for(auto color : json["colors"].toArray())
   {
     auto obj = color.toObject();
 

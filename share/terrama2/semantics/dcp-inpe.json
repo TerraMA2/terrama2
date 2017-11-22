@@ -7,6 +7,7 @@
     "temporality": "DYNAMIC",
     "format": "CSV",
     "providers_type_list": ["FILE", "FTP", "HTTP", "HTTPS"],
+    "allow_direct_access": false,
     "metadata": {
       "timestamp_property": "N/A",
       "output_timestamp_property": "datetime"
@@ -18,7 +19,6 @@
           "mask": {
             "type": "string",
             "title": "Mask",
-            "pattern": "^([\\/\\w()*.-]+|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$",
             "hasSuffixFieldForImport": true,
             "hasPrefixFieldForImport": true
           },
@@ -60,7 +60,7 @@
       "form": [
         {
           "key": "mask",
-          "htmlClass": "col-md-6",
+          "htmlClass": "col-md-6 validate-mask",
           "copyValueTo": ["alias"],
           "validationMessage": {
             "202": "Invalid mask"

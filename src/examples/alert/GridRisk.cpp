@@ -1,4 +1,3 @@
-#include "AlertLoggerMock.hpp"
 #include <terrama2/core/Shared.hpp>
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/core/utility/TerraMA2Init.hpp>
@@ -16,67 +15,35 @@
 #include <terrama2/services/alert/core/AlertLogger.hpp>
 #include <terrama2/services/alert/core/Report.hpp>
 #include <terrama2/services/alert/core/AlertExecutor.hpp>
-#include <terrama2/services/alert/impl/Utils.hpp>
 #include <terrama2/services/alert/core/Service.hpp>
 
+#include <terrama2/services/alert/impl/Utils.hpp>
+
+#include <terrama2/services/alert/mock/MockAlertLogger.hpp>
+
+#include <examples/data/RiscoFogo.hpp>
 
 #include <iostream>
 
 //QT
 #include <QUrl>
-#include <QtGui>
+#include <QCoreApplication>
 #include <QTimer>
-
-using ::testing::_;
-
-using namespace terrama2::services::alert::core;
+#include <QtGui>
 
 
-terrama2::core::DataProviderPtr inputDataProvider()
-{
-  //DataProvider information
-  terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
-  terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
-  dataProvider->name = "Local folder";
-  dataProvider->uri = "file://"+ TERRAMA2_DATA_DIR+"/";
-  dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
-  dataProvider->dataProviderType = "POSTGIS";
-  dataProvider->active = true;
-  dataProvider->id = 1;
-
-  return dataProviderPtr;
-}
-
-terrama2::core::DataSeriesPtr inputDataSeries()
-{
-
-  auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
-
-  //DataSeries information
-  terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
-  terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
-  dataSeries->name = "Max Temperature";
-  dataSeries->semantics = semanticsManager.getSemantics("GRID-gdal");
-  dataSeries->id = 1;
-  dataSeries->dataProviderId = 1;
-
-  //DataSet information
-  terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
-  dataSet->active = true;
-  dataSet->format.emplace("mask", "tmmax_obs_ams_1km_%YYYY%MM%DD.tif");
-  dataSet->format.emplace("folder", "temperatura");
-
-
-  dataSeries->datasetList.emplace_back(dataSet);
-
-  return dataSeriesPtr;
-}
 
 terrama2::core::LegendPtr newLegend()
 {
   auto legend = std::make_shared<terrama2::core::Risk>();
   legend->name = "Temperature levels";
   legend->id = 1;
+
+  terrama2::core::RiskLevel level0;
+  level0.level = 0;
+  level0.value = 0;
+  level0.name = "Default";
+  legend->riskLevels.push_back(level0);
 
   terrama2::core::RiskLevel level1;
   level1.level = 0;
@@ -99,19 +66,21 @@ terrama2::core::LegendPtr newLegend()
   return legend;
 }
 
-terrama2::services::alert::core::AlertPtr newAlert()
+terrama2::services::alert::core::AlertPtr newAlert(terrama2::core::DataSeriesPtr dataSeries)
 {
   auto alert = std::make_shared<terrama2::services::alert::core::Alert>();
 
   alert->id = 1;
   alert->projectId = 1;
   alert->riskAttribute = "0";
-  alert->dataSeriesId = 1;
+  alert->dataSeriesId = dataSeries->id;
   alert->active = true;
   alert->name = "Example alert";
   alert->serviceInstanceId = 1;
-
+  alert->description = "Example alert";
   alert->riskId = 1;
+
+
 
   std::unordered_map<std::string, std::string> reportMetadata;
 
@@ -121,7 +90,8 @@ terrama2::services::alert::core::AlertPtr newAlert()
   reportMetadata[terrama2::services::alert::core::ReportTags::CONTACT] = "TerraMA2 developers.";
   reportMetadata[terrama2::services::alert::core::ReportTags::COPYRIGHT] = "copyright information...";
   reportMetadata[terrama2::services::alert::core::ReportTags::DESCRIPTION] = "Example generated report...";
-  reportMetadata[terrama2::services::alert::core::ReportTags::DOCUMENT_URI] = "/" + TERRAMA2_DATA_DIR + "/GridRisk.pdf";
+  reportMetadata[terrama2::services::alert::core::ReportTags::TIMESTAMP_FORMAT] = "null";
+  reportMetadata[terrama2::services::alert::core::ReportTags::LOGO_PATH] = "null";
 
   alert->reportMetadata = reportMetadata;
 
@@ -130,9 +100,12 @@ terrama2::services::alert::core::AlertPtr newAlert()
 
   alert->filter = filter;
 
-  Notification notification;
-  notification.targets = {"vmimeteste@gmail.com"};
+  terrama2::services::alert::core::Notification notification;
+  notification.targets = {"bianca.maciel.c@gmail.com"};
   notification.includeReport = "PDF";
+  notification.notifyOnChange = "false";
+  notification.simplifiedReport = "false";
+
   alert->notifications = { notification };
 
   return alert;
@@ -143,40 +116,69 @@ int main(int argc, char* argv[])
 {
   QGuiApplication a(argc, argv);
 
-  ::testing::GTEST_FLAG(throw_on_failure) = true;
-  ::testing::InitGoogleMock(&argc, argv);
 
   terrama2::core::TerraMA2Init terramaRaii("example", 0);
+  Q_UNUSED(terramaRaii);
+
   terrama2::core::registerFactories();
   terrama2::services::alert::core::registerFactories();
 
+
+  auto& serviceManager = terrama2::core::ServiceManager::getInstance();
+
   auto dataManager = std::make_shared<terrama2::services::alert::core::DataManager>();
 
-  dataManager->add(inputDataProvider());
-  dataManager->add(inputDataSeries());
-  auto alert = newAlert();
+  auto loggerCopy = std::make_shared<terrama2::core::MockAlertLogger>();
+
+  EXPECT_CALL(*loggerCopy, setConnectionInfo(::testing::_)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*loggerCopy, setTableName(::testing::_)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*loggerCopy, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
+  EXPECT_CALL(*loggerCopy, getDataLastTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
+  EXPECT_CALL(*loggerCopy, done(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*loggerCopy, start(::testing::_)).WillRepeatedly(::testing::Return(0));
+  EXPECT_CALL(*loggerCopy, isValid()).WillRepeatedly(::testing::Return(true));
+  EXPECT_CALL(*loggerCopy, result(::testing::_, ::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
+
+  auto logger = std::make_shared<terrama2::core::MockAlertLogger>();
+
+  EXPECT_CALL(*logger, setConnectionInfo(::testing::_)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*logger, setTableName(::testing::_)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*logger, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
+  EXPECT_CALL(*logger, getDataLastTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
+  EXPECT_CALL(*logger, done(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*logger, start(::testing::_)).WillRepeatedly(::testing::Return(0));
+  EXPECT_CALL(*logger, isValid()).WillRepeatedly(::testing::Return(true));
+  EXPECT_CALL(*logger, clone()).WillRepeatedly(::testing::Return(loggerCopy));
+  EXPECT_CALL(*logger, result(::testing::_, ::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
+
+  terrama2::services::alert::core::Service service(dataManager);
+  serviceManager.setInstanceId(1);
+  serviceManager.setLogger(logger);
+  serviceManager.setLogConnectionInfo(te::core::URI(""));
+
+  service.setLogger(logger);
+  service.start();
+
+
+  auto dataProvider = terrama2::riscofogo::dataProviderFileGrid();
+  dataManager->add(dataProvider);
+
+
+  auto dataSeries = terrama2::riscofogo::dataSeriesTemperature(dataProvider);
+  dataManager->add(dataSeries);
+
+  auto alert = newAlert(dataSeries);
   auto legend = newLegend();
   dataManager->add(alert);
   dataManager->add(legend);
 
-  auto logger = std::make_shared<AlertLoggerMock>();
-  ::testing::DefaultValue<RegisterId>::Set(1);
-  EXPECT_CALL(*logger.get(), setConnectionInfo(_)).Times(::testing::AtLeast(1));
-  EXPECT_CALL(*logger.get(), start(_)).WillRepeatedly(::testing::Return(1));
-  EXPECT_CALL(*logger.get(), result(_, _, _));
-
-  logger->setConnectionInfo(te::core::URI());
 
   QJsonObject additionalIfo;
-  additionalIfo.insert("email_server", QString("smtp://vmimeteste@gmail.com:a1a2a3a4@smtp.gmail.com:587"));
+  additionalIfo.insert("email_server", QString("smtp://terrama2.testesalerta@gmail.com:terr@m@2v4@smtp.gmail.com:587"));
 
-  terrama2::core::ServiceManager::getInstance().setInstanceId(1);
-
-  terrama2::services::alert::core::Service service(dataManager);
-
-  service.setLogger(logger);
   service.updateAdditionalInfo(additionalIfo);
-  service.start();
+
+
   service.addToQueue(alert->id, terrama2::core::TimeUtils::nowUTC());
 
   QTimer timer;

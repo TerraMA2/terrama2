@@ -306,8 +306,6 @@ void terrama2::services::alert::core::Report::updateReportMonitoredObjectDataset
 
 double terrama2::services::alert::core::Report::retrieveMaxValue() const
 {
-  dataSet_->moveBeforeFirst();
-
   if(alertDataSeries_->semantics.dataSeriesType != terrama2::core::DataSeriesType::GRID)
   {
     QString errMsg = QObject::tr("Not implemented for this data series type!");
@@ -315,15 +313,15 @@ double terrama2::services::alert::core::Report::retrieveMaxValue() const
     throw ReportException() << ErrorDescription(errMsg);
   }
 
-  if(!dataSet_->moveNext())
+  if(dataSet_->isEmpty())
   {
     QString errMsg = QObject::tr("No data in data set!");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw ReportException() << ErrorDescription(errMsg);
   }
 
+  dataSet_->moveFirst();
   std::size_t pos = te::da::GetFirstPropertyPos(dataSet_.get(), te::dt::RASTER_TYPE);
-
   if(!terrama2::core::isValidColumn(pos) || dataSet_->isNull(pos))
   {
     QString errMsg = QObject::tr("No raster data in data set!");
@@ -333,8 +331,7 @@ double terrama2::services::alert::core::Report::retrieveMaxValue() const
 
   try
   {
-    int band = std::stoi(alert_->riskAttribute);
-
+    size_t band = static_cast<size_t>(std::stoi(alert_->riskAttribute));
     return dataSet_->getRaster(pos)->getBand(band)->getMaxValue(true).real();
   }
   catch(const std::invalid_argument& /*e*/)
@@ -348,8 +345,6 @@ double terrama2::services::alert::core::Report::retrieveMaxValue() const
 
 double terrama2::services::alert::core::Report::retrieveMinValue() const
 {
-  dataSet_->moveBeforeFirst();
-
   if(alertDataSeries_->semantics.dataSeriesType != terrama2::core::DataSeriesType::GRID)
   {
     QString errMsg = QObject::tr("Not implemented for this data series type!");
@@ -357,13 +352,14 @@ double terrama2::services::alert::core::Report::retrieveMinValue() const
     throw ReportException() << ErrorDescription(errMsg);
   }
 
-  if(!dataSet_->moveNext())
+  if(dataSet_->isEmpty())
   {
     QString errMsg = QObject::tr("No data in data set!");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw ReportException() << ErrorDescription(errMsg);
   }
 
+  dataSet_->moveFirst();
   std::size_t pos = te::da::GetFirstPropertyPos(dataSet_.get(), te::dt::RASTER_TYPE);
 
   if(pos == std::string::npos)
@@ -375,8 +371,7 @@ double terrama2::services::alert::core::Report::retrieveMinValue() const
 
   try
   {
-    int band = std::stoi(alert_->riskAttribute);
-
+    size_t band = static_cast<size_t>(std::stoi(alert_->riskAttribute));
     return dataSet_->getRaster(pos)->getBand(band)->getMinValue(true).real();
   }
   catch(const std::invalid_argument& /*e*/)
@@ -390,8 +385,6 @@ double terrama2::services::alert::core::Report::retrieveMinValue() const
 
 double terrama2::services::alert::core::Report::retrieveMeanValue() const
 {
-  dataSet_->moveBeforeFirst();
-
   if(alertDataSeries_->semantics.dataSeriesType != terrama2::core::DataSeriesType::GRID)
   {
     QString errMsg = QObject::tr("Not implemented for this data series type!");
@@ -399,13 +392,14 @@ double terrama2::services::alert::core::Report::retrieveMeanValue() const
     throw ReportException() << ErrorDescription(errMsg);
   }
 
-  if(!dataSet_->moveNext())
+  if(dataSet_->isEmpty())
   {
     QString errMsg = QObject::tr("No data in data set!");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw ReportException() << ErrorDescription(errMsg);
   }
 
+  dataSet_->moveFirst();
   std::size_t pos = te::da::GetFirstPropertyPos(dataSet_.get(), te::dt::RASTER_TYPE);
 
   if(pos == std::string::npos)
@@ -417,8 +411,7 @@ double terrama2::services::alert::core::Report::retrieveMeanValue() const
 
   try
   {
-    int band = std::stoi(alert_->riskAttribute);
-
+    size_t band = static_cast<size_t>(std::stoi(alert_->riskAttribute));
     return dataSet_->getRaster(pos)->getBand(band)->getMeanValue().real();
   }
   catch(const std::invalid_argument& /*e*/)
@@ -434,49 +427,29 @@ terrama2::core::DataSeriesType terrama2::services::alert::core::Report::dataSeri
   return alertDataSeries_->semantics.dataSeriesType;
 }
 
-std::string terrama2::services::alert::core::Report::documentURI() const
+te::core::URI terrama2::services::alert::core::Report::documentURI() const
 {
-  std::string documentURI;
-
-  try
+  QTemporaryDir dir;
+  if(!dir.isValid())
   {
-    documentURI = alert_->reportMetadata.at(ReportTags::DOCUMENT_URI);
-  }
-  catch(const std::out_of_range& /*e*/)
-  {
-
+    QString errMsg = QObject::tr("Temporary directory to store could not be created! ");
+    throw NotifierException() << ErrorDescription(errMsg);
   }
 
-  if(documentURI.empty())
-  {
-    QTemporaryDir dir;
+  dir.setAutoRemove(false);
 
-    if(!dir.isValid())
-    {
-      QString errMsg = QObject::tr("Temporary directory to store could not be created! ");
-      throw NotifierException() << ErrorDescription(errMsg);
-    }
+  std::string documentURI = dir.path().toStdString() + "/" + terrama2::core::simplifyString(title());
+  fileRemover_.addTemporaryFolder(dir.path().toStdString());
 
-    dir.setAutoRemove(false);
-
-    documentURI = dir.path().toStdString() + "/" + terrama2::core::simplifyString(title());
-
-    fileRemover_.addTemporaryFolder(dir.path().toStdString());
-  }
-
-  return documentURI;
+  return te::core::URI( "file://"+ documentURI);
 }
 
-std::string terrama2::services::alert::core::Report::imageURI() const
+void terrama2::services::alert::core::Report::includeImage(const te::core::URI& imageUri)
 {
-  try
-  {
-    return alert_->reportMetadata.at(ReportTags::IMAGE_URI);
-  }
-  catch(const std::out_of_range& /*e*/)
-  {
+  imageUri_ = imageUri;
+}
 
-  }
-
-  return "";
+const te::core::URI& terrama2::services::alert::core::Report::imageURI() const
+{
+  return imageUri_;
 }

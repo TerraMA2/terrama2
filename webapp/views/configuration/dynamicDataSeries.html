@@ -35,6 +35,7 @@
     collectors: {[collectors|json|safe]},
     analysis: {[analysis|json|safe]},
     interpolators: {[interpolators|json|safe]},
+    projects: {[projects|json|safe]},
     link: function(object) {
       return "{[ BASE_URL ]}configuration/dynamic/dataseries/"+ object.id +"?type=dynamic#/wizard";
     },
@@ -74,7 +75,7 @@
 
 {% block content %}
 <div ng-controller="DataSeriesListController">
-  <terrama2-box title="i18n.__('Dynamic Data Series')">
+  <terrama2-box title="i18n.__('Dynamic Data Series')" helper="'{[ BASE_URL ]}helper/dynamic_data.html'">
     <div class="row">
       <div class="col-md-12">
         <div class="col-md-12">

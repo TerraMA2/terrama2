@@ -167,7 +167,33 @@ var ObjectDependencies = function(json){
             return Promise.all(analysisDataseriesListPromises);
           });
 
-          return Promise.join(getDataSeriesDependenciesPromise, listAnalysisPromise);
+          var getAlertAttachmentPromise = DataManager.getAlertAttachment({ alert_id: alert.id }).then(function(alertAttachment) {
+            if(alertAttachment) {
+              DataManager.listAlertAttachedViews({ alert_attachment_id: alertAttachment.id }).then(function(alertAttachedViews) {
+                if(alertAttachedViews.length > 1) {
+                  var viewsDataSeriesPromises = [];
+
+                  if(output["Alerts_" + alert.id].Views === undefined) output["Alerts_" + alert.id].Views = [];
+
+                  alertAttachedViews.forEach(function(alertAttachedView) {
+                    if(alertAttachedView.View.dataValues.id !== alert.view.id) {
+                      output["Alerts_" + alert.id].Views.push(alertAttachedView.View.dataValues.id);
+
+                      viewsDataSeriesPromises.push(getDataSeriesDependencies(alertAttachedView.View.dataValues.data_series_id, null, "Views_" + alertAttachedView.View.dataValues.id));
+                    }
+                  });
+
+                  return Promise.all(viewsDataSeriesPromises);
+                } else {
+                  return Promise.resolve();
+                }
+              });
+            } else {
+              return Promise.resolve();
+            }
+          });
+
+          return Promise.join(getDataSeriesDependenciesPromise, listAnalysisPromise, getAlertAttachmentPromise);
         })
       );
     }

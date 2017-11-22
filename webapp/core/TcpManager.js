@@ -151,6 +151,7 @@ TcpManager.prototype.$send = function(serviceInstance, data, signal) {
   try {
     var client = _getClient(serviceInstance);
     var buffer = this.makebuffer(signal, data);
+    //logger.debug(buffer);
     logger.debug("BufferToString: ", buffer.toString());
     logger.debug("BufferToString size: ", buffer.length);
 
@@ -307,6 +308,7 @@ TcpManager.prototype.statusService = function(serviceInstance) {
   var self = this;
   try {
     var buffer = self.makebuffer(Signals.STATUS_SIGNAL, {});
+    //logger.debug(buffer);
 
     var client = _getClient(serviceInstance);
 

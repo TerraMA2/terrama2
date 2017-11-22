@@ -40,6 +40,9 @@ function getTokenCodeMessage(code) {
     case Enums.TokenCode.DELETE:
       msg = "deleted";
       break;
+    case Enums.TokenCode.IMPORT:
+      msg = "imported";
+      break;
     default:
       msg = "";
       break;

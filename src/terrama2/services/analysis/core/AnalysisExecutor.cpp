@@ -102,7 +102,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
     {
       for(const std::string& message : messages)
       {
-        logger->log(AnalysisLogger::WARNING_MESSAGE, message, analysis->id);
+        logger->log(AnalysisLogger::WARNING_MESSAGE, message, logId);
       }
     }
 

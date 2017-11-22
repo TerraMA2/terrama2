@@ -1,8 +1,8 @@
 'use strict';
 
 define(
-  ['components/Layers', 'TerraMA2WebComponents'],
-  function(Layers, TerraMA2WebComponents) {
+  ['components/Layers', 'components/Utils', 'TerraMA2WebComponents'],
+  function(Layers, Utils, TerraMA2WebComponents) {
 
     var setLegends = function() {
       var allLayers = Layers.getAllLayers();
@@ -35,7 +35,8 @@ define(
         }
       }
 
-      $('#legend-box > .legend-body').html((html !== "" ? html : "<strong>No data to show.</strong>"));
+      $('#legend-box > .legend-body').html((html !== "" ? html : "<strong data-i18n=\"NO-DATA\"></strong>"));
+      Utils.translate('#legend-box > .legend-body');
     };
 
     var loadEvents = function() {
