@@ -1505,7 +1505,10 @@ define([], function() {
             }
 
             $scope.dcpsObject[alias] = Object.assign({}, data);
-            $scope.$broadcast("dcpOperation", { action: "add", dcp: data, storageData: true, reloadDataStore: false });
+            
+            if($scope.storager.format)
+              $scope.$broadcast("dcpOperation", { action: "add", dcp: data, storageData: true, reloadDataStore: false });
+
             $scope.model = {active: true};
 
             var dcpCopy = Object.assign({}, data);
