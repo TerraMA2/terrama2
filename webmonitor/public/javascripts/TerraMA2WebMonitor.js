@@ -746,7 +746,6 @@ define(
         });
         Layers.addLayer(layerObject);
         LayerStatus.addLayerStatusIcon("osm");
-        Layers.changeLayerStatus("osm", LayerStatusEnum.ONLINE);
       }
 
       var gebcoUrl = "http://www.gebco.net/data_and_products/gebco_web_services/web_map_service/mapserv?request=getmap&service=wms";
@@ -760,14 +759,12 @@ define(
         });
         Layers.addLayer(layerObject);
         LayerStatus.addLayerStatusIcon("gebco_08_grid");
-        Layers.changeLayerStatus("gebco_08_grid", LayerStatusEnum.ONLINE);
       }
 
       addTreeviewMenuClass();
       LayerStatus.addGroupSpanIcon();
       Layers.addLayersToSort();
       Sortable.setSortable();
-      Layers.changeParentLayerStatus("template", LayerStatusEnum.ONLINE);
 
       // Setting the names of the layers groups
       Utils.setTagContent("#custom > span > span:nth-child(3n)", "Externals");
