@@ -53,7 +53,7 @@ define([], function(){
 
     $q.all([
       i18n.ensureLocaleIsLoaded(),
-      $scope.DataSeriesSemanticsService.init(),
+      $scope.DataSeriesSemanticsService.init({metadata: true}),
       $scope.DataProviderService.init(),
     ]).then(function(){
       return $scope.ServiceInstance.init().then(function(){
@@ -156,6 +156,7 @@ define([], function(){
       if (isUpdating){
         outputDataSet = Object.assign({}, $scope.outputDataSeries.datasets[0]);
         outputDataSet.format = $scope.outputDataSeries.format;
+        outputDataSet.format.timestamp_property = "file_timestamp";
         outputDataSeries = Object.assign({}, $scope.outputDataSeries);
         outputDataSeries.name = $scope.inter.name;
         outputDataSeries.description = $scope.inter.description;
