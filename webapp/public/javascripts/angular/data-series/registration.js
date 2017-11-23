@@ -1738,7 +1738,6 @@ define([], function() {
           out = dSetsLocal;
         } else {
           var fmt = angular.merge({}, dSets);
-          angular.merge(fmt, dSemantics.metadata.metadata);
           if ($scope.custom_format){
             var output_timestamp_property_field = dataObject.dataSeries.dataSets[0].format.output_timestamp_property;
             if (output_timestamp_property_field){
