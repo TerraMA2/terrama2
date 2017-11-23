@@ -139,6 +139,16 @@ define(
         }
 
       });
+      
+      $('#terrama2-layerexplorer').on('click', 'li.layer', function() {
+        var layerId = this.getAttribute('data-layerid');
+        var layerObject = Layers.getLayerById(layerId);
+        if(!layerObject)
+          return;
+        
+        if(layerObject.status == LayerStatusEnum.NEW || layerObject.status == LayerStatusEnum.ALERT)
+          Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.ONLINE);
+      });
 
       //change status icon when close the group layer
       $('.parent_li').on('click', function() {
@@ -210,6 +220,17 @@ define(
             checked[i].click();
         }
       });
+    };
+
+    var checkIfAutoUpdate = function(layer){
+      var isAutoUpdate = $('#auto-update').is(":checked");
+      var isVisible = $("#" + layer.htmlId + " input").is(":checked");
+      if (isAutoUpdate && isVisible){
+        $("#" + layer.htmlId + " input").trigger("click");
+        $("#" + layer.htmlId + " input").trigger("click");
+        Layers.changeLayerStatus(layer.id, LayerStatusEnum.NEW);
+        Layers.changeParentLayerStatus(layer.parent, LayerStatusEnum.NEW);
+      }
     };
 
     var loadSocketsListeners = function() {
@@ -325,6 +346,7 @@ define(
             Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.NEW);
             Layers.changeParentLayerStatus(layerObject.parent, LayerStatusEnum.NEW);
             Layers.getLayerCapabilities(layerObject.uriGeoServer, layerObject.workspace, layerObject.nameId, layerObject.id, layerObject.parent, true);
+            checkIfAutoUpdate(layerObject);
           }
         }
 
