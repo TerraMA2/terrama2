@@ -32,18 +32,17 @@ class DCPInpeTs: public QObject
 {
     Q_OBJECT
 
-  /*!
-  \brief
-  */
   public:
 
-    void createDBaseForTest();
-    void restoreCompare();
+    void deleteCreateDB();
+    void deleteDB();
+
 
   private:
 
     void collect();
     void analysis();
+    void compareCollectAndAnalysis();
 
   private slots:
 
@@ -55,7 +54,8 @@ class DCPInpeTs: public QObject
 
     //******Test functions********
 
-    void collectAndAnalysis() { collect(); analysis(); }
+    void collectAndAnalysis() { collect(); analysis(); compareCollectAndAnalysis();}
+
 
 };
 

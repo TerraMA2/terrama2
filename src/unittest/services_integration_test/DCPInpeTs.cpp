@@ -58,12 +58,8 @@
 #include <terrama2/Config.hpp>
 
 #include <QString>
-#include <QJsonDocument>
 #include <QCoreApplication>
-#include <QDir>
-#include <QFile>
-#include <QFileInfo>
-#include <QImage>
+
 
 void scriptPython(std::string path)
 {
@@ -74,15 +70,59 @@ void scriptPython(std::string path)
   interpreter->runScript(script);
 }
 
-void DCPInpeTs::createDBaseForTest()
+void DCPInpeTs::deleteCreateDB()
 {
-  scriptPython("share/terrama2/scripts/delete-and-create-db.py");
+
+  scriptPython("share/terrama2/scripts/delete-create-db.py");
 }
 
-void DCPInpeTs::restoreCompare()
+void restoreDB()
 {
-  scriptPython("share/terrama2/scripts/restore-and-compare-db.py");
+
+  scriptPython("share/terrama2/scripts/restore-db.py");
 }
+
+
+QString compareCollector()
+{
+   std::string scriptPath = terrama2::core::FindInTerraMA2Path("share/terrama2/scripts/compare-collector.py");
+   std::string script = terrama2::core::readFileContents(scriptPath);
+
+   auto interpreter = terrama2::core::InterpreterFactory::getInstance().make("PYTHON");
+   interpreter->runScript(script);
+
+   boost::optional<std::string> status = interpreter->getString("status");
+   std::string st = *status;
+
+   QString statusCollector =  QString::fromStdString(st);
+
+   return statusCollector;
+
+}
+
+QString compareAnalysis()
+{
+
+  std::string scriptPath = terrama2::core::FindInTerraMA2Path("share/terrama2/scripts/compare-analysis.py");
+
+  std::string script = terrama2::core::readFileContents(scriptPath);
+
+  auto interpreter = terrama2::core::InterpreterFactory::getInstance().make("PYTHON");
+  interpreter->runScript(script);
+
+  boost::optional<std::string> str = interpreter->getString("status");
+  std::string s = *str;
+
+  QString st =  QString::fromStdString(s);
+
+  return st;
+}
+void DCPInpeTs::deleteDB()
+{
+  scriptPython("share/terrama2/scripts/delete-db.py");
+}
+
+
 
 void timerCollectorAndAnalysis()
 {
@@ -318,5 +358,27 @@ void DCPInpeTs::analysis()
     serviceAnalysis.addToQueue(analysis->id, terrama2::core::TimeUtils::nowUTC());
 
     timerCollectorAndAnalysis();
+
 }
 
+void DCPInpeTs::compareCollectAndAnalysis()
+{
+
+  restoreDB();
+
+  QString statusCollector = compareCollector();
+
+  QString errMsg = QString("Failed Test Collector!");
+
+  QVERIFY2(statusCollector == "Passed", errMsg.toUtf8());
+
+  if(statusCollector == "Passed")
+  {
+
+    QString msg = QString("Failed Test Analysis!");
+    QString statusAnalysis =  compareAnalysis();
+    QVERIFY2(statusAnalysis == "Passed", msg.toUtf8());
+
+  }
+
+}

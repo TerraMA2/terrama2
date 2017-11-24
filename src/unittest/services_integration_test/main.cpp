@@ -34,17 +34,17 @@ int main(int argc, char *argv[])
     terrama2::core::TerraMA2Init terramaRaii("unittest", 0);
     Q_UNUSED(terramaRaii);
 
-   // terrama2::core::disableLogger();
+    terrama2::core::disableLogger();
     terrama2::core::registerFactories();
 
     try
     {
-      DCPInpeTs dcpInpeTS1;
-      dcpInpeTS1.createDBaseForTest();
+      DCPInpeTs dcpInpeTS;
+      dcpInpeTS.deleteCreateDB();
     }
     catch(...)
     {
-      std::cout<<"Não deu certo o py";
+      std::cout << "Failed to delete and created database for test";
     }
 
     try
@@ -56,22 +56,19 @@ int main(int argc, char *argv[])
     {
       returnVal += 1;
 
-      std::cout<<returnVal;
+      std::cout << returnVal;
     }
 
-    //If not error in collect and analysis restore ref database for compare tables
-   /* if(returnVal == 0)
+
+    try
     {
-      try
-      {
-        DCPInpeTs dcpInpeTS1;
-        dcpInpeTS1.restoreCompare();
-      }
-      catch(...)
-      {
-        std::cout<<"Não deu certo o restore";
-      }
-    }*/
+      DCPInpeTs dcpInpeTS;
+      dcpInpeTS.deleteDB();
+    }
+    catch(...)
+    {
+      std::cout << "Failed to delete database";
+    }
 
   }
   catch (const terrama2::Exception& e)
