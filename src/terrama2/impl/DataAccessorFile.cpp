@@ -563,6 +563,13 @@ QFileInfoList terrama2::core::DataAccessorFile::getDataFileInfoList(const std::s
     {
       //unpack files
       tempFolderPath = terrama2::core::Unpack::decompress(folderPath+ "/" + name, remover, tempFolderPath);
+      if(tempFolderPath.empty())
+      {
+          QString errMsg(QObject::tr("Error error unpacking file: %1").arg(QString::fromStdString(name)));
+          TERRAMA2_LOG_ERROR() << errMsg;
+          throw terrama2::Exception() << terrama2::ErrorDescription(errMsg);
+      }
+
       QDir tempDir(QString::fromStdString(tempFolderPath));
       QFileInfoList fileList = tempDir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
 
