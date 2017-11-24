@@ -90,32 +90,29 @@ namespace terrama2
            *
            * \param other The parameters to e copied.
            */
-          InterpolatorParams(const InterpolatorParams& other)
-          {
-            resolutionX_ = other.resolutionX_;
-            resolutionY_ = other.resolutionY_;
-            interpolationType_ = other.interpolationType_;
-            bRect_ = other.bRect_;
-            filter_ = other.filter_;
-            series_ = other.series_;
-            outSeries_ = other.outSeries_;
-            srid_ = other.srid_;
-            attributeName_ = other.attributeName_;
-            id_ = other.id_;
-            serviceInstanceId_ = other.serviceInstanceId_;
-            dataManager_ = other.dataManager_;
-            numNeighbors_ = other.numNeighbors_;
-            projectId_ = other.projectId_;
-            active_ = other.active_;
-          }
+//          InterpolatorParams(const InterpolatorParams& other)
+//          {
+//            resolutionX_ = other.resolutionX_;
+//            resolutionY_ = other.resolutionY_;
+//            interpolationType_ = other.interpolationType_;
+//            bRect_ = other.bRect_;
+//            filter_ = other.filter_;
+//            series_ = other.series_;
+//            outSeries_ = other.outSeries_;
+//            srid_ = other.srid_;
+//            attributeName_ = other.attributeName_;
+//            id_ = other.id_;
+//            serviceInstanceId_ = other.serviceInstanceId_;
+//            dataManager_ = other.dataManager_;
+//            numNeighbors_ = other.numNeighbors_;
+//            projectId_ = other.projectId_;
+//            active_ = other.active_;
+//          }
 
           /*!
            * \brief Destructor.
            */
-          virtual ~InterpolatorParams()
-          {
-
-          }
+          virtual ~InterpolatorParams() = default;
 
           /*!
            * \brief Copy operator.
@@ -124,26 +121,26 @@ namespace terrama2
            *
            * \return A pointer to the object itself.
            */
-          virtual InterpolatorParams& operator=(const InterpolatorParams& other)
-          {
-            resolutionX_ = other.resolutionX_;
-            resolutionY_ = other.resolutionY_;
-            interpolationType_ = other.interpolationType_;
-            bRect_ = other.bRect_;
-            filter_ = other.filter_;
-            series_ = other.series_;
-            outSeries_ = other.outSeries_;
-            srid_ = other.srid_;
-            attributeName_ = other.attributeName_;
-            id_ = other.id_;
-            serviceInstanceId_ = other.serviceInstanceId_;
-            dataManager_ = other.dataManager_;
-            numNeighbors_ = other.numNeighbors_;
-            projectId_ = other.projectId_;
-            active_ = other.active_;
+//          virtual InterpolatorParams& operator=(const InterpolatorParams& other)
+//          {
+//            resolutionX_ = other.resolutionX_;
+//            resolutionY_ = other.resolutionY_;
+//            interpolationType_ = other.interpolationType_;
+//            bRect_ = other.bRect_;
+//            filter_ = other.filter_;
+//            series_ = other.series_;
+//            outSeries_ = other.outSeries_;
+//            srid_ = other.srid_;
+//            attributeName_ = other.attributeName_;
+//            id_ = other.id_;
+//            serviceInstanceId_ = other.serviceInstanceId_;
+//            dataManager_ = other.dataManager_;
+//            numNeighbors_ = other.numNeighbors_;
+//            projectId_ = other.projectId_;
+//            active_ = other.active_;
 
-            return *this;
-          }
+//            return *this;
+//          }
 
           double resolutionX_;                                  //!< Resolution in x-asis of the output (unit of the output srid).
           double resolutionY_;                                  //!< Resolution in y-asis of the output (unit of the output srid).
@@ -186,26 +183,23 @@ namespace terrama2
            *
            * \param other The object to be copied.
            */
-          NNInterpolatorParams(const InterpolatorParams& other) :
-            InterpolatorParams(other)
-          {
-            const InterpolatorParams* otherP = &other;
+//          NNInterpolatorParams(const InterpolatorParams& other) :
+//            InterpolatorParams(other)
+//          {
+//            const InterpolatorParams* otherP = &other;
 
-            const NNInterpolatorParams* nnPar = dynamic_cast<const NNInterpolatorParams*>(otherP);
+//            const NNInterpolatorParams* nnPar = dynamic_cast<const NNInterpolatorParams*>(otherP);
 
-            if(nnPar != 0)
-              *this = NNInterpolatorParams::operator=(*nnPar);
-            else
-              *this = InterpolatorParams::operator=(other);
-          }
+//            if(nnPar != 0)
+//              *this = NNInterpolatorParams::operator=(*nnPar);
+//            else
+//              *this = InterpolatorParams::operator=(other);
+//          }
 
           /*!
            * \brief Destructor.
            */
-          ~NNInterpolatorParams()
-          {
-
-          }
+          virtual ~NNInterpolatorParams() = default;
 
           /*!
            * \brief Copy constructor.
@@ -225,17 +219,17 @@ namespace terrama2
            *
            * \return A pointer to the object itself.
            */
-          InterpolatorParams& operator=(const InterpolatorParams& other)
-          {
-            const InterpolatorParams* otherP = &other;
+//          InterpolatorParams& operator=(const InterpolatorParams& other)
+//          {
+//            const InterpolatorParams* otherP = &other;
 
-            const NNInterpolatorParams* nnPar = dynamic_cast<const NNInterpolatorParams*>(otherP);
+//            const NNInterpolatorParams* nnPar = dynamic_cast<const NNInterpolatorParams*>(otherP);
 
-            if(nnPar != 0)
-              return NNInterpolatorParams::operator=(*nnPar);
-            else
-              return InterpolatorParams::operator=(other);
-          }
+//            if(nnPar != 0)
+//              return NNInterpolatorParams::operator=(*nnPar);
+//            else
+//              return InterpolatorParams::operator=(other);
+//          }
 
           /*!
            * \brief Copy operator.
@@ -244,12 +238,12 @@ namespace terrama2
            *
            * \return A pointer to the object itself.
            */
-          NNInterpolatorParams& operator=(const NNInterpolatorParams& other)
-          {
-            InterpolatorParams::operator =(other);
+//          NNInterpolatorParams& operator=(const NNInterpolatorParams& other)
+//          {
+//            InterpolatorParams::operator =(other);
 
-            return *this;
-          }
+//            return *this;
+//          }
         };
 
         /*!
@@ -276,18 +270,15 @@ namespace terrama2
            *
            * \param other The parameters to e copied.
            */
-          AvgDistInterpolatorParams(const AvgDistInterpolatorParams& other) :
-            InterpolatorParams(other)
-          {
-          }
+//          AvgDistInterpolatorParams(const AvgDistInterpolatorParams& other) :
+//            InterpolatorParams(other)
+//          {
+//          }
 
           /*!
            * \brief Destructor.
            */
-          ~AvgDistInterpolatorParams()
-          {
-
-          }
+          virtual ~AvgDistInterpolatorParams() = default;
 
           /*!
            * \brief Copy operator.
@@ -296,12 +287,12 @@ namespace terrama2
            *
            * \return A pointer to the object itself.
            */
-          AvgDistInterpolatorParams& operator=(const AvgDistInterpolatorParams& other)
-          {
-            InterpolatorParams::operator =(other);
+//          AvgDistInterpolatorParams& operator=(const AvgDistInterpolatorParams& other)
+//          {
+//            InterpolatorParams::operator =(other);
 
-            return *this;
-          }
+//            return *this;
+//          }
         };
 
         /*!
@@ -329,19 +320,16 @@ namespace terrama2
            *
            * \param other The parameters to e copied.
            */
-          SqrAvgDistInterpolatorParams(const SqrAvgDistInterpolatorParams& other) :
-            InterpolatorParams(other)
-          {
-            pow_ = other.pow_;
-          }
+//          SqrAvgDistInterpolatorParams(const SqrAvgDistInterpolatorParams& other) :
+//            InterpolatorParams(other)
+//          {
+//            pow_ = other.pow_;
+//          }
 
           /*!
            * \brief Destructor.
            */
-          ~SqrAvgDistInterpolatorParams()
-          {
-
-          }
+          virtual ~SqrAvgDistInterpolatorParams() = default;
 
           /*!
            * \brief Copy operator.
@@ -350,13 +338,13 @@ namespace terrama2
            *
            * \return A pointer to the object itself.
            */
-          SqrAvgDistInterpolatorParams& operator=(const SqrAvgDistInterpolatorParams& other)
-          {
-            InterpolatorParams::operator =(other);
-            pow_ = other.pow_;
+//          SqrAvgDistInterpolatorParams& operator=(const SqrAvgDistInterpolatorParams& other)
+//          {
+//            InterpolatorParams::operator =(other);
+//            pow_ = other.pow_;
 
-            return *this;
-          }
+//            return *this;
+//          }
 
           int pow_;                            //!< The expoent of to use with distance.
         };

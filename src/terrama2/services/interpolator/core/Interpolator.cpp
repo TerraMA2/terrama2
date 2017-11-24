@@ -196,7 +196,7 @@ void terrama2::services::interpolator::core::Interpolator::fillTree()
 
     auto imgBBox = interpolationParams_->bRect_;
 
-    for (auto it : dataMap)
+    for (const auto& it : dataMap)
     {
       auto dataSet = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(it.first);
       auto dataSeries = it.second;

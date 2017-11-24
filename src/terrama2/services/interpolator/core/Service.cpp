@@ -192,7 +192,6 @@ void terrama2::services::interpolator::core::Service::prepareTask(const terrama2
 void terrama2::services::interpolator::core::Service::interpolate(terrama2::core::ExecutionPackage executionPackage, std::shared_ptr<InterpolatorLogger> logger, std::weak_ptr<terrama2::services::interpolator::core::DataManager> weakDataManager)
 {
   auto dataManager = weakDataManager.lock();
-
   if(!dataManager.get())
   {
     TERRAMA2_LOG_ERROR() << tr("Unable to access DataManager");
@@ -220,11 +219,11 @@ void terrama2::services::interpolator::core::Service::interpolate(terrama2::core
 
     terrama2::core::Filter filter = interpolatorParamsPtr->filter_;
 
-    if(filter.lastValues.get() == 0 || *filter.lastValues.get() != 1)
+    if((!filter.lastValues) || (*filter.lastValues != 1))
       filter.lastValues = std::make_shared<long unsigned int>(1);
 
-    if(filter.discardAfter.get() && filter.discardBefore.get()
-       && (*filter.discardAfter) < (*filter.discardBefore))
+    if(filter.discardAfter && filter.discardBefore
+       && (*filter.discardAfter < *filter.discardBefore))
     {
       QString errMsg = QObject::tr("Empty filter time range.");
 

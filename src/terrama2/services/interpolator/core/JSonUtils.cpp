@@ -152,8 +152,6 @@ QString GetInterpolatorAsString(const int& type)
 
 terrama2::services::interpolator::core::InterpolatorParamsPtr terrama2::services::interpolator::core::fromInterpolatorJson(QJsonObject json, terrama2::core::DataManager*)
 {
-  InterpolatorParams* res = 0;
-
   if(json["class"].toString() != "Interpolator")
   {
     QString errMsg = QObject::tr("Invalid Interpolator JSON object.");
@@ -183,7 +181,7 @@ terrama2::services::interpolator::core::InterpolatorParamsPtr terrama2::services
 
   QString interpolatorType = json["interpolator_strategy"].toString();
 
-  res = GetParameters(interpolatorType);
+  InterpolatorParams* res = GetParameters(interpolatorType);
 
   res->id_ = static_cast<uint32_t>(json["id"].toInt());
   res->projectId_ = static_cast<uint32_t>(json["project_id"].toInt());
@@ -192,7 +190,6 @@ terrama2::services::interpolator::core::InterpolatorParamsPtr terrama2::services
   res->series_ = static_cast<uint32_t>(json["input_data_series"].toInt());
   res->outSeries_ = static_cast<uint32_t>(json["output_data_series"].toInt());
 
-  res->filter_ = terrama2::core::Filter();
 //  res->filter_ = terrama2::core::fromFilterJson(json["filter"].toObject(), dataManager);
   res->active_ = json["active"].toString().toLower() == "true" ?
                       true :
