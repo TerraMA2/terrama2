@@ -20,8 +20,8 @@
 
 #include <terrama2/services/alert/mock/MockAlertLogger.hpp>
 
-#include <examples/data/ResultAnalysisPostGis.hpp>
-#include <examples/data/StaticPostGis.hpp>
+#include <extra/data/ResultAnalysisPostGis.hpp>
+#include <extra/data/StaticPostGis.hpp>
 #include <iostream>
 
 //QT

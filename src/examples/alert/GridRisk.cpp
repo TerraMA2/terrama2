@@ -21,7 +21,7 @@
 
 #include <terrama2/services/alert/mock/MockAlertLogger.hpp>
 
-#include <examples/data/RiscoFogo.hpp>
+#include <extra/data/RiscoFogo.hpp>
 
 #include <iostream>
 

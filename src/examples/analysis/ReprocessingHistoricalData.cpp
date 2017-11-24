@@ -109,7 +109,7 @@ int main(int argc, char* argv[])
   auto dataProviderResult = terrama2::resultanalysis::dataProviderResultAnalysis();
   dataManager->add(dataProviderResult);
 
-  auto outputDataSeries =  terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::reprocessing_result);
+  auto outputDataSeries =  terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::reprocessing_result, dataSeries);
   dataManager->add(outputDataSeries);
 
 
