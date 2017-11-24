@@ -66,6 +66,7 @@ app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 app.use(methodOverride('_method'));
 
 app.use(app.locals.BASE_URL, express.static(path.join(__dirname, 'public')));
+app.use(app.locals.BASE_URL + "helper", express.static(path.join(__dirname, './../helper')));
 
 var externals = JSON.parse(fs.readFileSync(path.join(__dirname, './externals.json'), 'utf8'));
 
