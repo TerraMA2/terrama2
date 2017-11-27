@@ -75,12 +75,6 @@ printf "Post-installation script...\n"
   fi
 )
 
-# If not root, end script
-if [ "$EUID" -ne 0 ]; then
-  printf "End post-installation script...\n\n"
-  exit 0
-fi
-
 printf "End post-installation script...\n\n"
 
 exit 0
