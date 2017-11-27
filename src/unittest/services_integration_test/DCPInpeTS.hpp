@@ -34,8 +34,8 @@ class DCPInpeTs: public QObject
 
   public:
 
-    void deleteCreateDB();
     void deleteDB();
+    void createDB();
 
 
   private:

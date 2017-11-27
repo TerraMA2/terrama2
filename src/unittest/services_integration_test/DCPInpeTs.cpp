@@ -61,43 +61,37 @@
 #include <QCoreApplication>
 
 
-void scriptPython(std::string path)
+void interpreterScriptPy(std::string path)
 {
   std::string scriptPath = terrama2::core::FindInTerraMA2Path(path);
   std::string script = terrama2::core::readFileContents(scriptPath);
 
   auto interpreter = terrama2::core::InterpreterFactory::getInstance().make("PYTHON");
+  interpreter->setString("dbname","test");
   interpreter->runScript(script);
-}
-
-void DCPInpeTs::deleteCreateDB()
-{
-
-  scriptPython("share/terrama2/scripts/delete-create-db.py");
 }
 
 void restoreDB()
 {
 
-  scriptPython("share/terrama2/scripts/restore-db.py");
+  interpreterScriptPy("share/terrama2/scripts/restore-db.py");
 }
 
 
-QString compareCollector()
+int compareCollector()
 {
    std::string scriptPath = terrama2::core::FindInTerraMA2Path("share/terrama2/scripts/compare-collector.py");
    std::string script = terrama2::core::readFileContents(scriptPath);
 
    auto interpreter = terrama2::core::InterpreterFactory::getInstance().make("PYTHON");
+   interpreter->setString("dbname","test");
    interpreter->runScript(script);
 
-   boost::optional<std::string> status = interpreter->getString("status");
-   std::string st = *status;
+   boost::optional<double> contCollector = interpreter->getNumeric("cont");
 
-   QString statusCollector =  QString::fromStdString(st);
+  int qntdTables = int (*contCollector);
 
-   return statusCollector;
-
+  return qntdTables;
 }
 
 QString compareAnalysis()
@@ -108,6 +102,8 @@ QString compareAnalysis()
   std::string script = terrama2::core::readFileContents(scriptPath);
 
   auto interpreter = terrama2::core::InterpreterFactory::getInstance().make("PYTHON");
+  interpreter->setString("dbname","test");
+
   interpreter->runScript(script);
 
   boost::optional<std::string> str = interpreter->getString("status");
@@ -117,11 +113,18 @@ QString compareAnalysis()
 
   return st;
 }
+
+
 void DCPInpeTs::deleteDB()
 {
-  scriptPython("share/terrama2/scripts/delete-db.py");
+  interpreterScriptPy("share/terrama2/scripts/delete-db.py");
 }
 
+void DCPInpeTs::createDB()
+{
+  deleteDB();
+  interpreterScriptPy("share/terrama2/scripts/create-db.py");
+}
 
 
 void timerCollectorAndAnalysis()
@@ -366,19 +369,14 @@ void DCPInpeTs::compareCollectAndAnalysis()
 
   restoreDB();
 
-  QString statusCollector = compareCollector();
+  int qntTablesCollector = compareCollector();
 
-  QString errMsg = QString("Failed Test Collector!");
+  QString errMsg1 = QString("Failed Test Collector!");
 
-  QVERIFY2(statusCollector == "Passed", errMsg.toUtf8());
+  QVERIFY2(qntTablesCollector == 5, errMsg1.toUtf8());
 
-  if(statusCollector == "Passed")
-  {
-
-    QString msg = QString("Failed Test Analysis!");
-    QString statusAnalysis =  compareAnalysis();
-    QVERIFY2(statusAnalysis == "Passed", msg.toUtf8());
-
-  }
+  QString errMsg2 = QString("Failed Test Analysis!");
+  QString statusAnalysis =  compareAnalysis();
+  QVERIFY2(statusAnalysis == "Passed", errMsg2.toUtf8());
 
 }

@@ -34,17 +34,16 @@ int main(int argc, char *argv[])
     terrama2::core::TerraMA2Init terramaRaii("unittest", 0);
     Q_UNUSED(terramaRaii);
 
-    terrama2::core::disableLogger();
+//    terrama2::core::disableLogger();
     terrama2::core::registerFactories();
 
     try
     {
       DCPInpeTs dcpInpeTS;
-      dcpInpeTS.deleteCreateDB();
+      dcpInpeTS.createDB();
     }
     catch(...)
     {
-      std::cout << "Failed to delete and created database for test";
     }
 
     try
@@ -56,7 +55,6 @@ int main(int argc, char *argv[])
     {
       returnVal += 1;
 
-      std::cout << returnVal;
     }
 
 
@@ -67,7 +65,6 @@ int main(int argc, char *argv[])
     }
     catch(...)
     {
-      std::cout << "Failed to delete database";
     }
 
   }
