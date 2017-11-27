@@ -34,7 +34,7 @@ export DEBNAME=terrama2-doc
 export DEBFILENAME=terrama2-doc
 export DEBARC=amd64
 export HELPER_FOLDER=`pwd`/../../helper
-export TM_FOLDER=opt/terrama2/${TMVERSION}/webapp
+export TM_FOLDER=opt/terrama2/${TMVERSION}
 
 #
 # Create folders
