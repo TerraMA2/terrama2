@@ -400,7 +400,8 @@ define([], function() {
       };
 
       $scope.addDcpsStorager = function(dcps) {
-        $scope.$broadcast("dcpOperation", { action: "addMany", dcps: dcps, storageData: true, reloadDataStore: false });
+        if($scope.storager.format)
+          $scope.$broadcast("dcpOperation", { action: "addMany", dcps: dcps, storageData: true, reloadDataStore: false });
       };
 
       $scope.setHtmlItems = function(dcp, key, alias, _id, type) {
@@ -1737,7 +1738,6 @@ define([], function() {
           out = dSetsLocal;
         } else {
           var fmt = angular.merge({}, dSets);
-          angular.merge(fmt, dSemantics.metadata.metadata);
           if ($scope.custom_format){
             var output_timestamp_property_field = dataObject.dataSeries.dataSets[0].format.output_timestamp_property;
             if (output_timestamp_property_field){

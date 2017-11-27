@@ -144,6 +144,13 @@ define(
         }
       });
 
+      $("#uncheck-layers").on("click", function() {
+        var checked = $(".parent_li:not(#template) input:checked");
+        
+        for(var i = 0, checkedLength = checked.length; i < checkedLength; i++)
+          checked[i].click();
+      });
+
       $("#visible-layers-extent").on("click", function() {
         var allVisibleLayers = Layers.getVisibleLayers();
         var visibleLayers = [];

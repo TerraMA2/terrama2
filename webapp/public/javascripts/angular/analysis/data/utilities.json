@@ -88,7 +88,7 @@
       {
         "name": "Minute",
         "description": "Retrieves a string representation of minutes",
-        "code": "\"m\""
+        "code": "\"min\""
       },
       {
         "name": "Hour",

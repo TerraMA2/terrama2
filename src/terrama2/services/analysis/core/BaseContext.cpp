@@ -195,9 +195,9 @@ std::unique_ptr<te::dt::TimeInstantTZ> terrama2::services::analysis::core::BaseC
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
   boost::local_time::local_date_time ldt = startTime_->getTimeInstantTZ();
-  double seconds = terrama2::core::TimeUtils::convertTimeString(timeString, "SECOND", "h");
+  double seconds = terrama2::core::TimeUtils::convertTimeString(timeString, "SECOND", "H");
   //TODO: PAULO: review losing precision
-  ldt -= boost::posix_time::seconds(seconds);
+  ldt -= boost::posix_time::seconds(static_cast<long>(seconds));
 
   return std::unique_ptr<te::dt::TimeInstantTZ>(new te::dt::TimeInstantTZ(ldt));
 }
