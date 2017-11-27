@@ -167,7 +167,7 @@ void terrama2::core::initializeTerralib()
 
   // minute
   te::common::UnitOfMeasurePtr uomMinute(new te::common::UnitOfMeasure(1, "MINUTE", "min", te::common::MeasureType::Time, te::common::UOM_second, 60.0, 0.0, 0.0, 1.0));
-  std::vector<std::string> minuteAlternativeNames {"min", "minutes", "minutes"};
+  std::vector<std::string> minuteAlternativeNames {"min", "minute", "minutes"};
 
   // hour
   te::common::UnitOfMeasurePtr uomHour(new te::common::UnitOfMeasure(2, "HOUR", "h", te::common::MeasureType::Time, te::common::UOM_second, 3600.0, 0.0, 0.0, 1.0));
