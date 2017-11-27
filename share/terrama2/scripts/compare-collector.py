@@ -1,28 +1,37 @@
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
-conn = psycopg2.connect("dbname='test' user='postgres' password='postgres' host = '127.0.0.1' port= '5432' ")
-conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-cur = conn.cursor()
+tablesName = ["pcd_picinguaba", "pcd_cunha", "pcd_guaratingueta", "pcd_itanhaem", "pcd_ubatuba"]
+
+def compareQuery(tableName):
+    return "SELECT * FROM "+tableName+"_ref WHERE not EXISTS (SELECT * FROM "+tableName+" WHERE "+tableName+".* = "+tableName+"_ref.* )"
+
+def checkTable(tableName):
+    conn = psycopg2.connect("dbname='test' user='postgres' password='postgres' host = '127.0.0.1' port= '5432' ")
+    conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+    cur = conn.cursor()
+    cur.execute(compareQuery(tableName))
+    rows = cur.fetchall()
+    st = status_compare(tableName, rows)
+    return st
 
 
+def status_compare(tableName, rows):
+    if rows:
+        print("Failed Test Collector " + tableName)
+        status = "Failed"
+        for row in rows:
+            print(row);
+    else:
+        print("Passed Test Collector " + tableName)
+        status = "Passed"
+    return status
 
-cur.execute("""SELECT *
-FROM pcd_picinguaba_ref
-WHERE not EXISTS
-(SELECT *
-FROM pcd_picinguaba
-WHERE pcd_picinguaba.* = pcd_picinguaba_ref.* )""")
-rowsPicinguaba = cur.fetchall();
-if rowsPicinguaba:
-    #print("Failed Test Collector Picinguaba!")
-    status = "Failed"
-    for rowsPicinguaba in rowsPicinguaba:
-        print(rowsPicinguaba);
-if  not rowsPicinguaba:
-    #print("Passed Test Collector Picinguaba!")
-    status = "Passed"
+cont = 0
+for tableName in tablesName:
+    st = checkTable(tableName)
+    if st == "Passed":
+        cont = cont + 1
 
 
-cur.close()
 
