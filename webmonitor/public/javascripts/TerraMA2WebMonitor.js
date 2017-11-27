@@ -55,6 +55,12 @@ define(
       TerraMA2WebComponents.MapDisplay.updateLayerTime( /**id */ layerId, /** time */ layerTime);
     }
 
+    //Function to update slider date on initial request
+    var updateMapSliderDate = function(layerId, date){
+      var timeFormat = moment(date.replace('Z', '')).format("YYYY-MM-DDThh:mm:ss") + "Z";
+      TerraMA2WebComponents.MapDisplay.updateLayerTime(layerId, date);
+    }
+
     var changeLanguage = function(language) {
       i18next.changeLanguage(language, function() {
         $.post(BASE_URL + "languages", { locale: language }, function() {
@@ -220,14 +226,24 @@ define(
             checked[i].click();
         }
       });
+
+      $('#auto-update-on').click(function(){
+        $('#auto-update-on').addClass("hidden");
+        $('#auto-update-off').removeClass("hidden");
+      });
+
+      $('#auto-update-off').click(function(){
+        $('#auto-update-off').addClass("hidden");
+        $('#auto-update-on').removeClass("hidden");
+      });
     };
 
     var checkIfAutoUpdate = function(layer){
-      var isAutoUpdate = $('#auto-update').is(":checked");
+      var isAutoUpdate = $('#auto-update-off').hasClass("hidden");
       var isVisible = $("#" + layer.htmlId + " input").is(":checked");
       if (isAutoUpdate && isVisible){
-        $("#" + layer.htmlId + " input").trigger("click");
-        $("#" + layer.htmlId + " input").trigger("click");
+        $("#" + layer.htmlId + " input.terrama2-layerexplorer-checkbox").trigger("click");
+        $("#" + layer.htmlId + " input.terrama2-layerexplorer-checkbox").trigger("click");
         Layers.changeLayerStatus(layer.id, LayerStatusEnum.NEW);
         Layers.changeParentLayerStatus(layer.parent, LayerStatusEnum.NEW);
       }
@@ -423,13 +439,40 @@ define(
                 span += "<span id='terrama2-slider' class='terrama2-datepicker-icon'> <i class='fa fa-sliders'></i></span>";
               }
               dateObject.initialDateIndex = dateObject.dates.length - 1;
+
+              var layerObject = Layers.getLayerById(data.layerId);
+              if (data.update){
+                if ($('#auto-update-off').hasClass("hidden")){
+                  dateObject.initialDateIndex = dateObject.dates.length - 1;
+                  updateMapSliderDate(data.layerId, dateObject.dates[dateObject.initialDateIndex]);
+                } else {
+                  dateObject.initialDateIndex = layerObject.dateInfo.initialDateIndex;
+                }
+              } else {
+                dateObject.initialDateIndex = dateObject.dates.length - 1;
+                updateMapSliderDate(data.layerId, dateObject.dates[dateObject.initialDateIndex]);
+              }
+
             } else if(layerCapabilities[layerIndex].extent instanceof Object) {
               if(!data.update || !$(li).has("#terrama2-calendar").length)
                 span += "<span id='terrama2-calendar' class='terrama2-datepicker-icon'> <i class='fa fa-calendar'></i></span>";
 
-              dateObject.startFilterDate = getInitialDateToCalendar(layerCapabilities[layerIndex].extent);
-              dateObject.endFilterDate = layerCapabilities[layerIndex].extent.endDate;
-              updateMapDate(data.layerId, dateObject);
+              if (data.update){
+                if ($('#auto-update-off').hasClass("hidden")){
+                  dateObject.startFilterDate = getInitialDateToCalendar(layerCapabilities[layerIndex].extent);
+                  dateObject.endFilterDate = layerCapabilities[layerIndex].extent.endDate;
+                  updateMapDate(data.layerId, dateObject);
+                } else {
+                  var layerObject = Layers.getLayerById(data.layerId);
+                  dateObject.startFilterDate = layerObject.dateInfo.startFilterDate;
+                  dateObject.endFilterDate = layerObject.dateInfo.endFilterDate;
+                }
+              } else {
+                dateObject.startFilterDate = getInitialDateToCalendar(layerCapabilities[layerIndex].extent);
+                dateObject.endFilterDate = layerCapabilities[layerIndex].extent.endDate;
+                updateMapDate(data.layerId, dateObject);
+              }
+
             }
 
             $(li).append($(span));
