@@ -39,9 +39,6 @@ const uint32_t TERRAMA2_VERSION_MINOR = @TERRAMA2_VERSION_MINOR@;
 //! Patched version of TerraMA2 (or patch).
 #define TERRAMA2_VERSION_PATCH @TERRAMA2_VERSION_PATCH@
 
-//! Release status: alpha, beta, rc (release candidate), stable.
-const std::string TERRAMA2_VERSION_STATUS = "@TERRAMA2_VERSION_STATUS@";
-
 //! A string description of TerraMA2 version.
 const std::string TERRAMA2_VERSION_STRING = "@TERRAMA2_VERSION_STRING@";
 
