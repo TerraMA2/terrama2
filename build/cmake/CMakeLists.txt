@@ -537,6 +537,8 @@ if(APPLE)
 elseif(UNIX)
   configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postinst.in
                  ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postinst @ONLY)
+  configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/config_pm2.sh.in
+                 ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/config_pm2.sh @ONLY)
   configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/prerm.in
                 ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/prerm @ONLY)
   configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postrm.in
@@ -545,6 +547,8 @@ elseif(UNIX)
   install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/remove-config.py
           DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT scripts)
   install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postinst
+          DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT scripts)
+  install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/config_pm2.sh
           DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT scripts)
   install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/prerm
           DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT scripts)
