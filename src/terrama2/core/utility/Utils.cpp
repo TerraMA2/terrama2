@@ -161,7 +161,7 @@ void terrama2::core::initializeTerralib()
 
   // Base of Time measure: second
   te::common::UnitOfMeasurePtr uomSecond(new te::common::UnitOfMeasure(te::common::UOM_second,"SECOND", "s", te::common::MeasureType::Time));
-  std::vector<std::string> secondAlternativeNames {"s", "sec", "ss", "seconds"};
+  std::vector<std::string> secondAlternativeNames {"s", "sec", "seconds"};
 
   te::common::UnitsOfMeasureManager::getInstance().insert(uomSecond, secondAlternativeNames);
 
@@ -171,11 +171,11 @@ void terrama2::core::initializeTerralib()
 
   // hour
   te::common::UnitOfMeasurePtr uomHour(new te::common::UnitOfMeasure(2, "HOUR", "h", te::common::MeasureType::Time, te::common::UOM_second, 3600.0, 0.0, 0.0, 1.0));
-  std::vector<std::string> hourAlternativeNames {"hh", "h", "hours"};
+  std::vector<std::string> hourAlternativeNames {"h", "hours"};
 
   // day
   te::common::UnitOfMeasurePtr uomDay(new te::common::UnitOfMeasure(3, "DAY", "d", te::common::MeasureType::Time, te::common::UOM_second, 86400.0, 0.0, 0.0, 1.0));
-  std::vector<std::string> dayAlternativeNames {"d", "dd", "days"};
+  std::vector<std::string> dayAlternativeNames {"d", "days"};
 
   // week
   te::common::UnitOfMeasurePtr uomWeek(new te::common::UnitOfMeasure(4, "WEEK", "w", te::common::MeasureType::Time, te::common::UOM_second, 604800.0, 0.0, 0.0, 1.0));
