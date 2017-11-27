@@ -161,25 +161,25 @@ void terrama2::core::initializeTerralib()
 
   // Base of Time measure: second
   te::common::UnitOfMeasurePtr uomSecond(new te::common::UnitOfMeasure(te::common::UOM_second,"SECOND", "s", te::common::MeasureType::Time));
-  std::vector<std::string> secondAlternativeNames {"s", "sec", "ss", "seconds"};
+  std::vector<std::string> secondAlternativeNames {"s", "sec", "second", "seconds"};
 
   te::common::UnitsOfMeasureManager::getInstance().insert(uomSecond, secondAlternativeNames);
 
   // minute
   te::common::UnitOfMeasurePtr uomMinute(new te::common::UnitOfMeasure(1, "MINUTE", "min", te::common::MeasureType::Time, te::common::UOM_second, 60.0, 0.0, 0.0, 1.0));
-  std::vector<std::string> minuteAlternativeNames {"min", "minutes"};
+  std::vector<std::string> minuteAlternativeNames {"min", "minute", "minutes"};
 
   // hour
   te::common::UnitOfMeasurePtr uomHour(new te::common::UnitOfMeasure(2, "HOUR", "h", te::common::MeasureType::Time, te::common::UOM_second, 3600.0, 0.0, 0.0, 1.0));
-  std::vector<std::string> hourAlternativeNames {"hh", "h", "hours"};
+  std::vector<std::string> hourAlternativeNames {"h", "hour", "hours"};
 
   // day
   te::common::UnitOfMeasurePtr uomDay(new te::common::UnitOfMeasure(3, "DAY", "d", te::common::MeasureType::Time, te::common::UOM_second, 86400.0, 0.0, 0.0, 1.0));
-  std::vector<std::string> dayAlternativeNames {"d", "dd", "days"};
+  std::vector<std::string> dayAlternativeNames {"d", "day", "days"};
 
   // week
   te::common::UnitOfMeasurePtr uomWeek(new te::common::UnitOfMeasure(4, "WEEK", "w", te::common::MeasureType::Time, te::common::UOM_second, 604800.0, 0.0, 0.0, 1.0));
-  std::vector<std::string> weekAlternativeNames {"w", "wk", "weeks"};
+  std::vector<std::string> weekAlternativeNames {"w", "wk", "week", "weeks"};
 
   te::common::UnitsOfMeasureManager::getInstance().insert(uomMinute, minuteAlternativeNames);
   te::common::UnitsOfMeasureManager::getInstance().insert(uomHour, hourAlternativeNames);
@@ -195,10 +195,10 @@ void terrama2::core::initializeTerralib()
 
   // kilometer
   te::common::UnitOfMeasurePtr uomKm(new te::common::UnitOfMeasure(5, "KILOMETER", "km", te::common::MeasureType::Length, te::common::UOM_Metre, 1000.0, 0.0, 0.0, 1.0));
-  std::vector<std::string> kmAlternativeNames {"km", "kilometers"};
+  std::vector<std::string> kmAlternativeNames {"km", "kilometer", "kilometers"};
   // centimeter
   te::common::UnitOfMeasurePtr uomCm(new te::common::UnitOfMeasure(6, "CENTIMETER", "cm", te::common::MeasureType::Length, te::common::UOM_Metre, 0.01, 0.0, 0.0, 1.0));
-  std::vector<std::string> cmAlternativeNames {"cm", "centimeters"};
+  std::vector<std::string> cmAlternativeNames {"cm", "centimeter", "centimeters"};
 
 
   te::common::UnitsOfMeasureManager::getInstance().insert(uomKm, kmAlternativeNames);

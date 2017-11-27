@@ -37,9 +37,7 @@ project(terrama2)
 set(TERRAMA2_VERSION_MAJOR 4)
 set(TERRAMA2_VERSION_MINOR 0)
 set(TERRAMA2_VERSION_PATCH 0)
-set(TERRAMA2_VERSION_STATUS "rc")
-set(TERRAMA2_VERSION_STATUS_FULL "-rc4")
-set(TERRAMA2_VERSION_STRING "${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}.${TERRAMA2_VERSION_PATCH}${TERRAMA2_VERSION_STATUS_FULL}")
+set(TERRAMA2_VERSION_STRING "${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}.${TERRAMA2_VERSION_PATCH}")
 set(TERRAMA2_VERSION "0x040000")
 
 # tells that 3rd-party libraries should be tracked and installed with TerraMA2
@@ -552,6 +550,8 @@ if(APPLE)
 elseif(UNIX)
   configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postinst.in
                  ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postinst @ONLY)
+  configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/config_pm2.sh.in
+                 ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/config_pm2.sh @ONLY)
   configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/prerm.in
                 ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/prerm @ONLY)
   configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postrm.in
@@ -560,6 +560,8 @@ elseif(UNIX)
   install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/remove-config.py
           DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT scripts)
   install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postinst
+          DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT scripts)
+  install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/config_pm2.sh
           DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT scripts)
   install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/prerm
           DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT scripts)
