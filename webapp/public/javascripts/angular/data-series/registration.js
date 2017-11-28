@@ -35,6 +35,7 @@ define([], function() {
             canSave = false;
           } else {
             canSave = true;
+            $scope.MessageBoxService.reset();
           }
         }
       }
@@ -399,7 +400,8 @@ define([], function() {
       };
 
       $scope.addDcpsStorager = function(dcps) {
-        $scope.$broadcast("dcpOperation", { action: "addMany", dcps: dcps, storageData: true, reloadDataStore: false });
+        if($scope.storager.format)
+          $scope.$broadcast("dcpOperation", { action: "addMany", dcps: dcps, storageData: true, reloadDataStore: false });
       };
 
       $scope.setHtmlItems = function(dcp, key, alias, _id, type) {
@@ -1091,21 +1093,22 @@ define([], function() {
       $scope.isSchedule = false;
 
       $scope.$watch("dataSeries", function(dSValue) {
-        if (dSValue.name && dSValue.semantics && dSValue.data_provider_id){
+        if(dSValue.semantics && $scope.dataSeries && $scope.dataSeries.semantics.allow_direct_access === false) {
+          $scope.advanced.store.optional = false;
+        } else {
+          $scope.advanced.store.optional = true;
+        }
+
+        if(dSValue.name && dSValue.semantics && dSValue.data_provider_id) {
+          $scope.wizard.store.disabled = false;
+          $scope.advanced.store.disabled = false;
           $scope.wizard.parameters.disabled = false;
           $scope.wizard.csvFormat.disabled = false;
-          if ($scope.dataSeries.semantics.allow_direct_access === false){
-            $scope.wizard.store.disabled = false;
-            $scope.advanced.store.disabled = false;
-            $scope.advanced.store.optional = false;
-          }
-        }
-        else {
-          $scope.wizard.parameters.disabled = true;
-          $scope.wizard.csvFormat.disabled = true;
+        } else {
           $scope.wizard.store.disabled = true;
           $scope.advanced.store.disabled = true;
-          $scope.advanced.store.optional = true;
+          $scope.wizard.parameters.disabled = true;
+          $scope.wizard.csvFormat.disabled = true;
         }
       }, true);
 
@@ -1503,7 +1506,10 @@ define([], function() {
             }
 
             $scope.dcpsObject[alias] = Object.assign({}, data);
-            $scope.$broadcast("dcpOperation", { action: "add", dcp: data, storageData: true, reloadDataStore: false });
+            
+            if($scope.storager.format)
+              $scope.$broadcast("dcpOperation", { action: "add", dcp: data, storageData: true, reloadDataStore: false });
+
             $scope.model = {active: true};
 
             var dcpCopy = Object.assign({}, data);
@@ -1732,7 +1738,6 @@ define([], function() {
           out = dSetsLocal;
         } else {
           var fmt = angular.merge({}, dSets);
-          angular.merge(fmt, dSemantics.metadata.metadata);
           if ($scope.custom_format){
             var output_timestamp_property_field = dataObject.dataSeries.dataSets[0].format.output_timestamp_property;
             if (output_timestamp_property_field){
@@ -2014,13 +2019,11 @@ define([], function() {
         }
 
         if ($scope.dataSeries.access == 'COLLECT') {
-          $scope.isChecking.value = true;
-
           // getting values from another controller
           $scope.$broadcast("requestStorageValues");
         } else {
-          if ($scope.dataSeries.semantics.data_format_name === globals.enums.DataSeriesFormat.GRADS) {
-            MessageBoxService.danger(i18n.__("Data Series Registration"), i18n.__("Unconfigured GraDs Data Series storage"));
+          if($scope.isDynamic && $scope.dataSeries.semantics.allow_direct_access === false) {
+            MessageBoxService.danger(i18n.__("Data Series Registration"), i18n.__("Unconfigured Data Series storage"));
             return;
           }
 

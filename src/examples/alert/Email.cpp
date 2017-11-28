@@ -21,9 +21,9 @@ void vmimeTest()
 {
     vmime::messageBuilder mb;
     // Fill in the basic fields
-    mb.setExpeditor(vmime::mailbox("vmimeteste@gmail.com"));
+    mb.setExpeditor(vmime::mailbox("terrama2.testesalerta@gmail.com"));
     vmime::addressList to;
-    to.appendAddress(vmime::make_shared <vmime::mailbox>("vmimeteste@gmail.com"));
+    to.appendAddress(vmime::make_shared <vmime::mailbox>("terrama2.testesalerta@gmail.com"));
     mb.setRecipients(to);
     mb.setSubject(vmime::text("My first message generated with vmime::messageBuilder"));
     // Message body
@@ -44,8 +44,8 @@ void vmimeTest()
     vmime::utility::url url("smtp://smtp.gmail.com:587");
     vmime::shared_ptr<vmime::net::transport> tr = session->getTransport(url);
     tr->setProperty("connection.tls", true);
-    tr->setProperty("auth.username", "vmimeteste@gmail.com");
-    tr->setProperty("auth.password", "a1a2a3a4");
+    tr->setProperty("auth.username", "terrama2.testesalerta@gmail.com");
+    tr->setProperty("auth.password", "terr@m@2v4");
     tr->setProperty("options.need-authentication", true);
     tr->setCertificateVerifier(vmime::make_shared<SimpleCertificateVerifier>());
     tr->connect();
@@ -60,8 +60,8 @@ int main(int , char**) {
     return 0;
 
     cout << "jwSMTP library demo program\n\n";
-    string to = "janosimas@gmail.com";
-    string from = "janosimas@gmail.com";
+    string to = "bianca.maciel.c@gmail.com";
+    string from = "bianca.maciel.c@gmail.com";
     string smtpserver = "smtp.gmail.com";
 
     std::string subject = "Test";

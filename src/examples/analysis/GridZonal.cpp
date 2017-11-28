@@ -86,35 +86,6 @@ int main(int argc, char* argv[])
     service.setLogger(logger);
     service.start();
 
-
-    /*
-     *  DataProvider and DataSeries store resultAnalysis
-    */
-
-
-    auto dataProviderResult = terrama2::resultanalysis::dataProviderResultAnalysis();
-    dataManager->add(dataProviderResult);
-
-    auto outputDataSeries = terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::zonal_analysis_result);
-    dataManager->add(outputDataSeries);
-
-
-    std::shared_ptr<terrama2::services::analysis::core::Analysis> analysis = std::make_shared<terrama2::services::analysis::core::Analysis>();
-    analysis->id = 1;
-    analysis->name = "Analysis";
-    analysis->active = true;
-    analysis->outputDataSeriesId = outputDataSeries->id;
-    analysis->outputDataSetId = outputDataSeries->datasetList.front()->id;
-
-    std::string script = R"z(x = grid.zonal.count("geotiff 1")
-add_value("min", x))z";
-
-    analysis->script = script;
-    analysis->scriptLanguage = ScriptLanguage::PYTHON;
-    analysis->type = AnalysisType::MONITORED_OBJECT_TYPE;
-    analysis->serviceInstanceId = 1;
-
-
     /*
      *  DataProvider and DataSeries static-postgis Estados_2010
     */
@@ -131,6 +102,38 @@ add_value("min", x))z";
     monitoredObjectADS.dataSeriesId = dataSeries->id;
     monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
     monitoredObjectADS.metadata["identifier"] = "fid";
+
+    /*
+     *  DataProvider and DataSeries store resultAnalysis
+    */
+
+
+    auto dataProviderResult = terrama2::resultanalysis::dataProviderResultAnalysis();
+    dataManager->add(dataProviderResult);
+
+    auto outputDataSeries = terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProviderResult,
+                                                                                      terrama2::resultanalysis::tablename::zonal_analysis_result,
+                                                                                      dataSeries);
+    dataManager->add(outputDataSeries);
+
+
+    std::shared_ptr<terrama2::services::analysis::core::Analysis> analysis = std::make_shared<terrama2::services::analysis::core::Analysis>();
+    analysis->id = 1;
+    analysis->name = "Analysis";
+    analysis->active = true;
+    analysis->outputDataSeriesId = outputDataSeries->id;
+    analysis->outputDataSetId = outputDataSeries->datasetList.front()->id;
+
+    std::string script = R"z(x = grid.zonal.count("geotiff 1")
+add_value("count", x))z";
+
+    analysis->script = script;
+    analysis->scriptLanguage = ScriptLanguage::PYTHON;
+    analysis->type = AnalysisType::MONITORED_OBJECT_TYPE;
+    analysis->serviceInstanceId = 1;
+
+
+
 
     /*
      *  DataProvider and DataSeries geotiff SpotVegetacao

@@ -6,7 +6,6 @@ define([], function() {
     $scope.i18n = i18n;
     $scope.title = 'Services';
     $scope.MessageBoxService = MessageBoxService;
-    $scope.helperMessage = "This page shows available services in TerraMA2 application";
 
     // terrama2 box
     $scope.boxCss = {};

@@ -396,7 +396,8 @@ module.exports = {
   PostGISObjects: {
     DATABASE: "database",
     TABLE: "table",
-    COLUMN: "column"
+    COLUMN: "column",
+    VALUES: "values"
   },
 
   /**

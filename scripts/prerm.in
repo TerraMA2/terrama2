@@ -9,14 +9,4 @@
   ./webapp-stop.js
 )
 
-#
-# Stop webapp and webmonitor
-#
-
-(
-  sudo pm2 stop webapp webmonitor
-  sudo pm2 delete webapp webmonitor
-  sudo pm2 save
-)
-
 exit 0

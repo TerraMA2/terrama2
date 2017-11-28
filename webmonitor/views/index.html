@@ -27,9 +27,9 @@
         <!-- Logo -->
         <a href="#" class="logo">
           <!-- mini logo for sidebar mini 50x50 pixels -->
-          <div class="logo-lg"><img src="{[ BASE_URL ]}images/terrama2_logo2.png" class="img-square" alt="User Image"><b>  TerraMA²</b></div>
+          <div class="logo-lg"><img src="{[ BASE_URL ]}images/terrama2_logo2.png" class="img-square"><b>  TerraMA²</b></div>
           <!-- logo for regular state and mobile devices -->
-          <div class="logo-mini"><img src="{[ BASE_URL ]}images/terrama2_logo2.png" class="img-square" alt="User Image"></div>
+          <div class="logo-mini"><img src="{[ BASE_URL ]}images/terrama2_logo2.png" class="img-square"></div>
         </a>
       </header>
       <aside class="main-sidebar">
@@ -37,17 +37,50 @@
           <select class="form-control" id="projects" name="projects"></select>
           <ul class="sidebar-menu custom-scrollbar-light">
             <div id="terrama2-layerexplorer"></div>
-            <li class="header" style="color: #b8c7ce;">
-              VISIBLE LAYERS
+            <li class="header" style="color: #b8c7ce; padding-bottom:0">
+              <span data-i18n="VISIBLE LAYERS"></span>
+            </li>
+            <li class="header" style="color: #b8c7ce; padding-top:0">
+              <span>&nbsp</span>
               <span id="visible-layers-extent" class="pull-right" style="font-size: 15px; cursor: pointer;">
                 <i class="glyphicon glyphicon-resize-full"></i>
+              </span>
+              <span id="uncheck-layers" class="pull-right" style="font-size: 15px; cursor: pointer; padding-right: 10px" data-i18n="[title]Uncheck all layers">
+                <i class="fa fa-window-close-o"></i>
+              </span>
+              <span id="auto-update-on" class="pull-right hidden" style="font-size: 15px; cursor: pointer; padding-right: 10px" data-i18n="[title]Auto update on">
+                <i class="fa fa-refresh"></i>
+              </span>
+              <span id="auto-update-off" class="pull-right" style="font-size: 15px; cursor: pointer; padding-right: 10px" data-i18n="[title]Auto update off">
+                <i class="fa fa-check-square-o"></i>
               </span>
             </li>
             <div id="terrama2-sortlayers"></div>
           </ul>
         </section>
-        <span style="position: fixed; bottom: 60px; font-size: 15px; margin-left: 10px;">
-          <a href="#" id="about-btn" style="color: #b8c7ce;"><div class="fa fa-info"></div><span style="margin-left: 10px;">About</span></a>
+        <span id="sidebar-bottom">
+          <a href="#" id="about-btn">
+            <div class="fa fa-info"></div>
+            <span style="margin-left: 10px;" data-i18n="About"></span>
+          </a>
+          <span class="dropdown messages-menu" id="languages-dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+              <img src="{[ BASE_URL ]}images/pt.png" class="dropdown-btn pt-img" style="display: none;"/>
+              <img src="{[ BASE_URL ]}images/es.png" class="dropdown-btn es-img" style="display: none;"/>
+              <img src="{[ BASE_URL ]}images/en.png" class="dropdown-btn en-img" style="display: none;"/>
+            </a>
+            <ul class="dropdown-menu up" id="languages-div">
+              <li>
+                <img id="language-pt" src="{[ BASE_URL ]}images/pt.png" title="Português"/> Português
+              </li>
+              <li>
+                <img id="language-es" src="{[ BASE_URL ]}images/es.png" title="Español"/> Español
+              </li>
+              <li>
+                <img id="language-en" src="{[ BASE_URL ]}images/en.png" title="English"/> English
+              </li>
+            </ul>
+          </span>
         </span>
         <div id="institutions-logos">
           <span class="imgs">
@@ -76,8 +109,8 @@
 
           <div id="terrama2-map" class="terrama2-map cursor-move">
             <div id="legend-box" class="hidden">
-              <div class="legend-header">Legends<span class="btn btn-default" style="padding: 0 4px 0 4px; float: right;"><i class="fa fa-close"></i></span></div>
-              <div class="legend-body"><strong>No data to show.</strong></div>
+              <div class="legend-header"><span data-i18n="Legends"></span><span class="btn btn-default" style="padding: 0 4px 0 4px; float: right;"><i class="fa fa-close"></i></span></div>
+              <div class="legend-body"><strong data-i18n="NO-DATA"></strong></div>
             </div>
             <div id="layer-toolbox" class="custom-scrollbar-dark hidden">
               <div class="layer-toolbox-header"><span class="layer-name"></span><span class="btn btn-default"><i class="fa fa-close"></i></span></div>
@@ -85,7 +118,17 @@
 
                 <div class="box box-default box-solid collapsed-box layer-description">
                   <div class="box-header with-border">
-                    <h3 class="box-title">Description</h3>
+                    <h3 class="box-title" data-i18n="Description"></h3>
+                    <div class="box-tools pull-right">
+                      <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+                    </div>
+                  </div>
+                  <div style="display: none;" class="box-body"></div>
+                </div>
+
+                <div class="box box-default box-solid collapsed-box layer-properties">
+                  <div class="box-header with-border">
+                    <h3 class="box-title" data-i18n="Properties"></h3>
                     <div class="box-tools pull-right">
                       <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
                     </div>
@@ -95,13 +138,13 @@
 
                 <div id="animate-layer-box" class="box box-default box-solid hidden">
                   <div class="box-header with-border">
-                    <h3 class="box-title">Animation</h3>
+                    <h3 class="box-title" data-i18n="Animation"></h3>
                     <div class="box-tools pull-right">
                       <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
                     </div>
                   </div>
                   <div style="display: block;" class="box-body">
-                    <div role="group" aria-label="Animation controls" style="text-align: center;">
+                    <div role="group" data-i18n="[aria-label]Animation controls" style="text-align: center;">
                       <button id="reload" type="button"><i class="fa fa-repeat"></i></button>
                       <button id="play" type="button"><i class="fa fa-play"></i></button>
                       <button id="pause" type="button"><i class="fa fa-pause"></i></button>
@@ -111,42 +154,42 @@
                   </div>
                 </div>
 
-                <div id="slider-box" class="box box-default box-solid">
+                <div id="slider-box" class="box box-default box-solid collapsed-box">
                   <div class="box-header with-border">
-                    <h3 class="box-title">Opacity</h3>
+                    <h3 class="box-title" data-i18n="Opacity"></h3>
                     <div class="box-tools pull-right">
-                      <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                      <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
                     </div>
                   </div>
-                  <div style="display: block;" class="box-body"></div>
+                  <div style="display: none;" class="box-body"></div>
                 </div>
 
-                <div id="exportation-box" class="box box-default box-solid">
+                <div id="exportation-box" class="box box-default box-solid collapsed-box">
                   <div class="box-header with-border">
-                    <h3 class="box-title">Exportation</h3>
+                    <h3 class="box-title" data-i18n="Exportation"></h3>
                     <div class="box-tools pull-right">
-                      <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                      <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
                     </div>
                   </div>
-                  <div style="display: block;" class="box-body">
+                  <div style="display: none;" class="box-body">
                     <div id="exportation-status" class="hidden">
                       <div>
                         <span></span>
                         <div class="progress progress-sm active hidden">
                           <div class="progress-bar progress-bar-danger progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
-                            <span class="sr-only">0% Complete</span>
+                            <span class="sr-only" data-i18n="0% Complete"></span>
                           </div>
                         </div>
                       </div>
                     </div>
                     <select multiple id="exportation-type" class="form-control">
-                      <option value="all">All Formats</option>
-                      <option selected value="csv">CSV</option>
-                      <option value="geojson">GeoJSON</option>
-                      <option value="kml">KML</option>
-                      <option value="shapefile">Shapefile</option>
+                      <option value="all" data-i18n="All Formats"></option>
+                      <option selected value="csv" data-i18n="CSV"></option>
+                      <option value="geojson" data-i18n="GeoJSON"></option>
+                      <option value="kml" data-i18n="KML"></option>
+                      <option value="shapefile" data-i18n="Shapefile"></option>
                     </select>
-                    <button id="export" type="button" class="btn btn-default" style="margin-top: 10px;">Export Data</button>
+                    <button id="export" type="button" class="btn btn-default" style="margin-top: 10px;" data-i18n="Export Data"></button>
                   </div>
                 </div>
 
@@ -157,23 +200,23 @@
                 <div id="user-div" class="{% if (currentUser === null) %}hidden{% endif %}">
                   <p class="user-name">{% if currentUser !== null %}{[ currentUser.name ]}{% endif %}</p>
                   <hr/>
-                  <div class="pull-left"><a href="#" class="btn btn-default btn-flat" id="save-state">Save State</a></div>
-                  <div class="pull-left"><a href="#" class="btn btn-default btn-flat hidden" id="load-state">Load State</a></div>
-                  <div class="pull-right"><a href="#" class="btn btn-default btn-flat" id="signout">Sign out</a></div>
+                  <div class="pull-left"><a href="#" class="btn btn-default btn-flat" id="save-state" data-i18n="Save State"></a></div>
+                  <div class="pull-left"><a href="#" class="btn btn-default btn-flat hidden" id="load-state" data-i18n="Load State"></a></div>
+                  <div class="pull-right"><a href="#" class="btn btn-default btn-flat" id="signout" data-i18n="Sign out"></a></div>
                 </div>
                 <div id="login-div" class="{% if (currentUser !== null) %}hidden{% endif %}">
                   <div class="form-group has-feedback">
-                    <input type="text" class="form-control" placeholder="Username" name="username" id="username">
+                    <input type="text" class="form-control" data-i18n="[placeholder]Username" name="username" id="username">
                     <span class="fa fa-user form-control-feedback"></span>
                   </div>
                   <div class="form-group has-feedback">
-                    <input type="password" class="form-control" placeholder="Password" name="password" id="password">
+                    <input type="password" class="form-control" data-i18n="[placeholder]Password" name="password" id="password">
                     <span class="fa fa-key form-control-feedback"></span>
                   </div>
                   <div class="row">
                     <div class="col-md-12">
                       <button type="submit" name="btnLogin" class="btn btn-primary btn-block btn-flat" id="signin">
-                        <span ng-bind="i18n.__('Sign In')" class="ng-binding">Sign In</span>
+                        <span data-i18n="Sign In"></span>
                       </button>
                     </div>
                   </div>
@@ -208,7 +251,7 @@
               <div class="main-div hidden">
                 <span id="tableCloseButton"><i class="fa fa-close"></i></span>
                 <div id="attributes-table-select">
-                  <span>Layers:</span>
+                  <span data-i18n="LAYERS-COLON"></span>
                   <select class="form-control"></select>
                 </div>
                 <div style="clear: both; height: 5px;"></div>
@@ -223,7 +266,7 @@
 
           <!-- Alert message -->
           <div id="terrama2Alert" class="alert alert-danger hide">
-            <a href="#" id="close-alert" class="close" aria-label="close">&times;</a>
+            <a href="#" id="close-alert" class="close" data-i18n="[aria-label]Close">&times;</a>
             <p><strong></strong> <span></span></p>
           </div>
 
@@ -232,20 +275,20 @@
             <div class="modal-dialog" role="document">
               <div class="modal-content">
                 <div class="modal-header">
-                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                  <h4 class="modal-title" id="layersModalLabel">Add Layers</h4>
+                  <button type="button" class="close" data-dismiss="modal" data-i18n="[aria-label]Close"><span aria-hidden="true">&times;</span></button>
+                  <h4 class="modal-title" id="layersModalLabel" data-i18n="Add Layers"></h4>
                 </div>
                 <div id="layersModalBody" class="modal-body">
                   <div style="height: 35px;">
-                    <input id="wmsUri" class="form-control" type="search" placeholder="WMS URI">
-                    <button id="addLayers" type="submit" class="btn btn-default" style="margin-left: 10px;">Add</button>
+                    <input id="wmsUri" class="form-control" type="search" data-i18n="[placeholder]WMS URI">
+                    <button id="addLayers" type="submit" class="btn btn-default" style="margin-left: 10px;" data-i18n="Add"></button>
                   </div>
                   <span></span>
                 </div>
                 <div class="modal-footer">
-                  <button id="restart" type="button" class="btn btn-default pull-left hidden">Restart</button>
-                  <button id="closeLayers" type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                  <button id="saveLayers" type="button" class="btn btn-primary hidden">Save changes</button>
+                  <button id="restart" type="button" class="btn btn-default pull-left hidden" data-i18n="Restart"></button>
+                  <button id="closeLayers" type="button" class="btn btn-default" data-dismiss="modal" data-i18n="Close"></button>
+                  <button id="saveLayers" type="button" class="btn btn-primary hidden" data-i18n="Save changes"></button>
                 </div>
               </div>
             </div>
@@ -261,24 +304,18 @@
       <footer class="main-footer"></footer>
       <footer class="footer-monitor"></footer>
     </div>
-    <div id="about-dialog" title="About">
+    <div id="about-dialog">
       <div id="programa-cerrado-image"></div>
       <p>
-        <span>
-          Projeto <em>Platform of Monitoring and Warning of Forest Fires in the Cerrado</em> (ProCerrado INPE)
-        </span>
+        <span class="about-title" data-i18n="[html]Project <em>Platform of Monitoring and Warning of Forest Fires in the Cerrado</em> (ProCerrado INPE)"></span>
         <br/><br/>
-        Este projeto &eacute; parte integrante do Programa Cerrado, uma iniciativa de
-        coopera&ccedil;&atilde;o entre os governos do Brasil e do Reino Unido, com apoio do Banco Mundial. O Ministério do Meio Ambiente (MMA), por
-        meio de sua Secretaria de Mudan&ccedil;as Clim&aacute;ticas e Qualidade Ambiental (SMCQ), &eacute; o respons&aacute;vel pela coordena&ccedil;&atilde;o geral do programa.
-        O objetivo da iniciativa &eacute; contribuir para a mitiga&ccedil;&atilde;o da mudan&ccedil;a do clima e para melhoria da gest&atilde;o de recursos naturais no bioma
-        Cerrado por meio do aprimoramento de pol&iacute;ticas p&uacute;blicas e de pr&aacute;ticas de produtores rurais.
+        <span data-i18n="ABOUT-TEXT"></span>
       </p>
-      <p><span>PROJETO INPE</span></p>
+      <p><span class="about-title" data-i18n="INPE PROJECT"></span></p>
       <div id="projeto-inpe-image"></div>
-      <p><span>REALIZAÇÃO</span></p>
+      <p><span class="about-title" data-i18n="REALIZATION"></span></p>
       <div id="realizacao-image"></div>
-      <p style="margin-top: 40px;"><span>Plataforma digital para monitoramento e alerta de fogo na vegeta&ccedil;&atilde;o no Cerrado brasileiro (Banco Mundial TF018566)</span></p>
+      <p style="margin-top: 40px;"><span class="about-title" data-i18n="Digital platform of monitoring and warning of forest fires in the Brazilian Cerrado (World Bank TF018566)"></span></p>
     </div>
     <script type="text/javascript" src="{[ BASE_URL ]}externals/moment/moment.js"></script>
     <script type="text/javascript" src="{[ BASE_URL ]}externals/jquery/dist/jquery.min.js"></script>
@@ -291,14 +328,19 @@
     <script type="text/javascript" src="{[ BASE_URL ]}externals/bootstrap/dist/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="{[ BASE_URL ]}externals/admin-lte/dist/js/app.min.js"></script>
     <script type="text/javascript" src="{[ BASE_URL ]}externals/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.concat.min.js"></script>
+    <script type="text/javascript" src="{[ BASE_URL ]}externals/i18next/i18next.min.js"></script>
+    <script type="text/javascript" src="{[ BASE_URL ]}externals/jquery-i18next/jquery-i18next.min.js"></script>
+    <script type="text/javascript" src="{[ BASE_URL ]}externals/i18next-xhr-backend/i18nextXHRBackend.min.js"></script>
     <script>
       var BASE_URL = "{[ BASE_URL ]}";
       var webadminHostInfo = {[webadminHostInfo|json|safe]};
       var webmonitorHostInfo = {[webmonitorHostInfo|json|safe]};
       var message = "{[message.content]}";
+      var defaultLanguage = "{[ userLocale | 'en' ]}";
     </script>
     <script type="text/javascript" src="{[ BASE_URL ]}dist/TerraMA2WebMonitor.min.js"></script>
     <!--<script type="text/javascript" data-main="{[ BASE_URL ]}javascripts/Startup.js" src="{[ BASE_URL ]}externals/requirejs/require.js"></script>-->
     <iframe id="exportation-iframe" class="hidden"></iframe>
+    <div id="translation-div" class="hidden"></div>
   </body>
 </html>

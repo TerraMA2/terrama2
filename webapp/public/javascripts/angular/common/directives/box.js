@@ -24,13 +24,23 @@ define(
           handleButtons: '=',
           css: '=?'
         },
-        controller: ["$scope", function($scope) {
-          $scope.css = $scope.css || {};
+        controller: ["$scope", "$http", function($scope, $http) {
+          $http({
+            url: BASE_URL + "exist-helper",
+            method: "POST",
+            data: {
+              file: $scope.helper
+            }
+          }).then(function(response) {
+            $scope.existHelper = response.data.result;
 
-          $scope.boxType = "";
-          if ($scope.css.boxType) {
-            $scope.boxType = $scope.css.boxType;
-          }
+            $scope.css = $scope.css || {};
+
+            $scope.boxType = "";
+
+            if($scope.css.boxType)
+              $scope.boxType = $scope.css.boxType;
+          });
         }],
         link: function(scope, element, attrs, ctrl, transclude) {
           var elm = element.find('#targetTransclude');

@@ -122,6 +122,14 @@ module.exports = function(sequelize, DataTypes) {
               allowNull: false
             }
           });
+
+          DataSeries.hasOne(models.Filter, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: "data_series_id",
+              allowNull: true
+            }
+          });
         }
       }
     }

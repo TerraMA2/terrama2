@@ -24,6 +24,14 @@ module.exports = function(sequelize, DataTypes) {
             }
           });
 
+          Filter.belongsTo(models.DataSeries, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: "data_series_id",
+              allowNull: true
+            }
+          });
+
           Filter.hasMany(models.ValueComparisonOperation, {
             onDelete: "CASCADE",
             foreignKey: {

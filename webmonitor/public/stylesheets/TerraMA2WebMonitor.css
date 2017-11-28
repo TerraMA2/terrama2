@@ -862,7 +862,7 @@ img[src=""] {
   margin-top: 70px;
 }
 
-#about-dialog > p > span {
+#about-dialog > p > span.about-title {
   font-size: 15px;
   font-weight: bold;
 }
@@ -952,6 +952,16 @@ img[src=""] {
   width: 145px;
 }
 
+#languages-div {
+  padding: 10px;
+  min-width: 120px;
+}
+
+#languages-div > li > img {
+  width: 30px;
+  cursor: pointer;
+}
+
 #tableCloseButton {
   position: absolute;
   top: 20px;
@@ -960,4 +970,27 @@ img[src=""] {
   width: 18px;
   right: 20px;
   cursor: pointer;
+}
+
+.up {
+  bottom: 100% !important;
+  top: auto !important;
+}
+
+.dropdown-btn { width: 25px; }
+
+#sidebar-bottom {
+  position: fixed;
+  bottom: 60px;
+  font-size: 15px;
+  margin-left: 10px;
+  width: 230px;
+}
+
+#about-btn { color: #b8c7ce; }
+
+#languages-dropdown {
+  float: right;
+  right: 24px;
+  top: -2px;
 }

@@ -487,7 +487,7 @@ define([], function() {
             if(($scope.semanticsCode === 'STATIC_DATA-ogr' && $scope.model['mask'] !== undefined && $scope.model['mask'] !== null && $scope.model['mask'] != "") || ($scope.semanticsCode === 'STATIC_DATA-postgis' && $scope.model['table_name'] !== undefined && $scope.model['table_name'] !== null && $scope.model['table_name'] != ""))
               $("#shapefileModal").modal();
             else
-              MessageBoxService.danger(i18n.__("Error"), i18n.__($scope.semanticsCode === 'STATIC_DATA-ogr' ? "Enter the mask!" : "Enter the table name!"));
+              MessageBoxService.danger(i18n.__("Error"), i18n.__($scope.semanticsCode === 'STATIC_DATA-ogr' ? "Enter the file name!" : "Enter the table name!"));
           };
 
           $scope.uploadShapefile = function(file, errFiles) {
@@ -554,7 +554,7 @@ define([], function() {
             if($scope.model['mask'] !== undefined && $scope.model['mask'] !== null && $scope.model['mask'] != "")
               $("#geotiffModal").modal();
             else
-              MessageBoxService.danger(i18n.__("Error"), i18n.__("Enter the mask!"));
+              MessageBoxService.danger(i18n.__("Error"), i18n.__("Enter the file name!"));
           };
 
           $scope.uploadGeotiff = function(file, errFiles) {

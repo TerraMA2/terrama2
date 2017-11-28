@@ -1,8 +1,8 @@
 'use strict';
 
 define(
-  ['components/Layers', 'TerraMA2WebComponents'],
-  function(Layers, TerraMA2WebComponents) {
+  ['components/Layers', 'components/Utils', 'TerraMA2WebComponents'],
+  function(Layers, Utils, TerraMA2WebComponents) {
     var memberTable = null;
     var memberDefaultTableOptions = {
       "bAutoWidth": false,
@@ -14,23 +14,6 @@ define(
       "ajax": {
         "url": BASE_URL + "get-attributes-table",
         "type": "POST"
-      },
-      "language": {
-        "emptyTable": "<p class='text-center'>Nenhum registro a ser exibido</p>",
-        "info": "Exibindo _START_ at&eacute; _END_ de _TOTAL_ registros",
-        "infoEmpty": "Exibindo 0 at&eacute; 0 de 0 registros",
-        "infoFiltered": "(filtrado de _MAX_ registros)",
-        "lengthMenu": "Exibir _MENU_ registros",
-        "loadingRecords": "Carregando...",
-        "processing": "Processando...",
-        "search": "Pesquisa:",
-        "zeroRecords": "<p class='text-center'>Nenhum registro encontrado</p>",
-        "paginate": {
-          "first": "Primeira",
-          "last": "&Uacute;ltima",
-          "next": "Pr&oacute;xima",
-          "previous": "Anterior"
-        }
       }
     };
 
@@ -93,6 +76,24 @@ define(
                 $("#attributes-table-div").empty().html("<table class=\"table table-bordered table-hover\" id=\"attributes-table\"><thead>" + titles + "</thead><tfoot>" + titles + "</tfoot></table>");
 
                 var tableOptions = $.extend(true, {}, memberDefaultTableOptions);
+
+                tableOptions.language = {
+                  "emptyTable": "<p class='text-center'>" + Utils.getTranslatedString("No data available in table") + "</p>",
+                  "info": Utils.getTranslatedString("Showing") + " _START_ " + Utils.getTranslatedString("to") + " _END_ " + Utils.getTranslatedString("of") + " _TOTAL_ " + Utils.getTranslatedString("entries"),
+                  "infoEmpty": Utils.getTranslatedString("Showing 0 to 0 of 0 entries"),
+                  "infoFiltered": Utils.getTranslatedString("(filtered from") + " _MAX_ " + Utils.getTranslatedString("total entries)"),
+                  "lengthMenu": Utils.getTranslatedString("Show") + " _MENU_ " + Utils.getTranslatedString("entries"),
+                  "loadingRecords": Utils.getTranslatedString("LOADING"),
+                  "processing": Utils.getTranslatedString("PROCESSING"),
+                  "search": Utils.getTranslatedString("SEARCH-COLON"),
+                  "zeroRecords": "<p class='text-center'>" + Utils.getTranslatedString("No matching records found") + "</p>",
+                  "paginate": {
+                    "first": Utils.getTranslatedString("First"),
+                    "last": Utils.getTranslatedString("Last"),
+                    "next": Utils.getTranslatedString("Next"),
+                    "previous": Utils.getTranslatedString("Previous")
+                  }
+                };
 
                 tableOptions.ajax.data = function(data) {
                   data.layer = $('#attributes-table-select > select').val();

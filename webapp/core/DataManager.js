@@ -434,77 +434,91 @@ var DataManager = module.exports = {
       };
 
       return models.db.Project.findAll({}).then(function(projects) {
-        projects.forEach(function(project) {
-          self.data.projects.push(project.get());
-        });
+        return models.db.User.findAll({}).then(function(users) {
+          projects.forEach(function(project) {
+            var projectObj = project.get();
+            var userObj = null;
 
-        return models.db.DataProvider.findAll({ include: [ models.db.DataProviderType, models.db.DataProviderOptions ] }).then(function(dataProviders) {
-          dataProviders.forEach(function(dataProvider) {
-            self.data.dataProviders.push(new DataModel.DataProvider(dataProvider));
-          });
-          // find all data series, providers
-          return models.db.DataSeries.findAll({
-            include: [
-              {
-                model: models.db.DataProvider,
-                include: [models.db.DataProviderType]
-              },
-              models.db.DataSeriesSemantics,
-              {
-                model: models.db.DataSet,
-                include: [
-                  {
-                    model: models.db.DataSetDcp,
-                    attributes: [
-                      // retrieving GeoJSON. Its is important because Sequelize
-                      // orm does not retrieve SRID even geometry has. The "2"
-                      // in arguments is to retrieve entire representation.
-                      // It retrieves as string. Once GeoJSON retrieved,
-                      // you must parse it. "JSON.parse(geoJsonStr)"
-                      [orm.fn('ST_AsGeoJSON', orm.col('position'), 15, 2), 'position'],
-                      // EWKT representation
-                      [orm.fn('ST_AsEwkt', orm.col('position')), 'positionWkt']
-                    ],
-                    required: false
-                  },
-                  {
-                    model: models.db.DataSetOccurrence,
-                    required: false
-                  },
-                  {
-                    model: models.db.DataSetMonitored,
-                    required: false
-                  },
-                  {
-                    model: models.db.DataSetGrid,
-                    required: false
-                  },
-                  models.db.DataSetFormat
-                ]
+            users.forEach(function(user) {
+              if(user.dataValues.id === projectObj.user_id) {
+                userObj = user.get();
+                return;
               }
-            ]
-          }).then(function(dataSeries) {
-            var semanticsList = Application.get("semantics");
-            dataSeries.forEach(function(dSeries) {
-              var provider = new DataModel.DataProvider(dSeries.DataProvider.get());
-
-              var builtDataSeries = new DataModel.DataSeries(dSeries.get());
-              builtDataSeries.setDataProvider(provider);
-
-              builtDataSeries.dataSets.forEach(function(dSet) {
-                self.data.dataSets.push(dSet);
-              });
-              var semantic = semanticsList.find(function(dSeriesSemantic){
-                return dSeries.DataSeriesSemantic.code == dSeriesSemantic.code;
-              });
-              Object.assign(builtDataSeries.data_series_semantics, semantic);
-              builtDataSeries.semantics = builtDataSeries.data_series_semantics;
-              self.data.dataSeries.push(builtDataSeries);
             });
 
-            self.isLoaded = true;
-            return resolve();
+            projectObj.user_name = userObj.name;
 
+            self.data.projects.push(projectObj);
+          });
+
+          return models.db.DataProvider.findAll({ include: [ models.db.DataProviderType, models.db.DataProviderOptions ] }).then(function(dataProviders) {
+            dataProviders.forEach(function(dataProvider) {
+              self.data.dataProviders.push(new DataModel.DataProvider(dataProvider));
+            });
+            // find all data series, providers
+            return models.db.DataSeries.findAll({
+              include: [
+                {
+                  model: models.db.DataProvider,
+                  include: [models.db.DataProviderType]
+                },
+                models.db.DataSeriesSemantics,
+                {
+                  model: models.db.DataSet,
+                  include: [
+                    {
+                      model: models.db.DataSetDcp,
+                      attributes: [
+                        // retrieving GeoJSON. Its is important because Sequelize
+                        // orm does not retrieve SRID even geometry has. The "2"
+                        // in arguments is to retrieve entire representation.
+                        // It retrieves as string. Once GeoJSON retrieved,
+                        // you must parse it. "JSON.parse(geoJsonStr)"
+                        [orm.fn('ST_AsGeoJSON', orm.col('position'), 15, 2), 'position'],
+                        // EWKT representation
+                        [orm.fn('ST_AsEwkt', orm.col('position')), 'positionWkt']
+                      ],
+                      required: false
+                    },
+                    {
+                      model: models.db.DataSetOccurrence,
+                      required: false
+                    },
+                    {
+                      model: models.db.DataSetMonitored,
+                      required: false
+                    },
+                    {
+                      model: models.db.DataSetGrid,
+                      required: false
+                    },
+                    models.db.DataSetFormat
+                  ]
+                }
+              ]
+            }).then(function(dataSeries) {
+              var semanticsList = Application.get("semantics");
+              dataSeries.forEach(function(dSeries) {
+                var provider = new DataModel.DataProvider(dSeries.DataProvider.get());
+
+                var builtDataSeries = new DataModel.DataSeries(dSeries.get());
+                builtDataSeries.setDataProvider(provider);
+
+                builtDataSeries.dataSets.forEach(function(dSet) {
+                  self.data.dataSets.push(dSet);
+                });
+                var semantic = semanticsList.find(function(dSeriesSemantic){
+                  return dSeries.DataSeriesSemantic.code == dSeriesSemantic.code;
+                });
+                Object.assign(builtDataSeries.data_series_semantics, semantic);
+                builtDataSeries.semantics = builtDataSeries.data_series_semantics;
+                self.data.dataSeries.push(builtDataSeries);
+              });
+
+              self.isLoaded = true;
+              return resolve();
+
+            }).catch(_rejectClean);
           }).catch(_rejectClean);
         }).catch(_rejectClean);
       }).catch(_rejectClean);
@@ -542,8 +556,22 @@ var DataManager = module.exports = {
     var self = this;
     return new Promise(function(resolve, reject){
       models.db.Project.create(projectObject, Utils.extend({}, options)).then(function(project){
-        self.data.projects.push(project.get());
-        return resolve(Utils.clone(project.get()));
+        models.db.User.findAll({}).then(function(users) {
+          var projectObj = project.get();
+          var userObj = null;
+
+          users.forEach(function(user) {
+            if(user.dataValues.id === projectObj.user_id) {
+              userObj = user.get();
+              return;
+            }
+          });
+
+          projectObj.user_name = userObj.name;
+
+          self.data.projects.push(projectObj);
+          return resolve(Utils.clone(projectObj));
+        });
       }).catch(function(e) {
         var message = "Could not save project: ";
         if (e.errors) { message += e.errors[0].message; }
@@ -2095,22 +2123,16 @@ var DataManager = module.exports = {
   removeDataSerie: function(dataSeriesParam, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      var dataSeries = Utils.remove(self.data.dataSeries, dataSeriesParam);
-
-      if (dataSeries) {
-        models.db.DataSeries.destroy(Utils.extend({where: {
-          id: dataSeries.id
-        }}, options)).then(function (status) {
+      models.db.DataSeries.destroy(Utils.extend({where: dataSeriesParam}, options))
+        .then(function (status) {
           // Removing data set from memory. Its not necessary to remove in database, since on remove cascade is enabled.
-          Utils.removeAll(self.data.dataSets, {data_series_id: dataSeries.id});
+          Utils.remove(self.data.dataSeries, dataSeriesParam);
+          Utils.removeAll(self.data.dataSets, {data_series_id: dataSeriesParam.id});
           return resolve(status);
         }).catch(function (err) {
           logger.error(err);
           return reject(new exceptions.DataSeriesError("Could not remove DataSeries " + err.message));
         });
-      } else {
-        return reject(new exceptions.DataSeriesError("Data series not found"));
-      }
     });
   },
 
@@ -3024,6 +3046,29 @@ var DataManager = module.exports = {
         return reject(new exceptions.CollectorError("Could not find collector. " + err.toString()));
       });
     });
+  },
+
+  /**
+   * It retrieves a list of filter in database
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise}
+   */
+  listFilters: function(restriction, options){
+    return new Promise(function(resolve, reject) {
+      models.db.Filter.findAll({where: restriction}).then(function(filtersResult) {
+        var output = [];
+        filtersResult.forEach(function(element) {
+          output.push(element.get());
+        });
+        resolve(output);
+      }).catch(function(err) {
+        reject(new Error("Could not retrieve filter " + err.toString()));
+      });
+    });
+
   },
 
   /**
