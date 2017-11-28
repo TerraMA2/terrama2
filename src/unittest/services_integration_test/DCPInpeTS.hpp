@@ -32,29 +32,25 @@ class DCPInpeTs: public QObject
 {
     Q_OBJECT
 
-  public:
+  private:
 
     void deleteDB();
     void createDB();
-
-
-  private:
-
     void collect();
     void analysis();
     void compareCollectAndAnalysis();
 
   private slots:
 
-    void initTestCase(){} // Run before all tests
-    void cleanupTestCase(){} // Run after all tests
+    void initTestCase(){ createDB(); } // Run before all tests
+    void cleanupTestCase(){ /*deleteDB();*/ } // Run after all tests
 
     void init(){ } //run before each test
     void cleanup(){ } //run before each test
 
     //******Test functions********
 
-    void collectAndAnalysis() { collect(); analysis(); compareCollectAndAnalysis();}
+    void collectAndAnalysis() { collect(); analysis(); /*compareCollectAndAnalysis();*/}
 
 
 };

@@ -40,33 +40,12 @@ int main(int argc, char *argv[])
     try
     {
       DCPInpeTs dcpInpeTS;
-      dcpInpeTS.createDB();
-    }
-    catch(...)
-    {
-    }
-
-    try
-    {
-      DCPInpeTs dcpInpeTS;
       returnVal += QTest::qExec(&dcpInpeTS, argc, argv);
     }
     catch(...)
     {
       returnVal += 1;
-
     }
-
-
-    try
-    {
-      DCPInpeTs dcpInpeTS;
-      dcpInpeTS.deleteDB();
-    }
-    catch(...)
-    {
-    }
-
   }
   catch (const terrama2::Exception& e)
   {

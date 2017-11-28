@@ -87,14 +87,18 @@ int compareCollector()
    interpreter->setString("dbname","test");
    interpreter->runScript(script);
 
-   boost::optional<double> contCollector = interpreter->getNumeric("cont");
+   boost::optional<double> countCollector = interpreter->getNumeric("count");
 
-  int qntdTables = int (*contCollector);
+   if(countCollector)
+   {
+     int qntdTables = int (*countCollector);
+     return qntdTables;
+   }
 
-  return qntdTables;
+   return 0;
 }
 
-QString compareAnalysis()
+int compareAnalysis()
 {
 
   std::string scriptPath = terrama2::core::FindInTerraMA2Path("share/terrama2/scripts/compare-analysis.py");
@@ -106,12 +110,15 @@ QString compareAnalysis()
 
   interpreter->runScript(script);
 
-  boost::optional<std::string> str = interpreter->getString("status");
-  std::string s = *str;
+  boost::optional<double> statusAnalysis = interpreter->getNumeric("status");
 
-  QString st =  QString::fromStdString(s);
+  if(statusAnalysis)
+  {
+    int qntdTables = int (*statusAnalysis);
+    return qntdTables;
+  }
 
-  return st;
+  return 0;
 }
 
 
@@ -286,10 +293,26 @@ terrama2::services::analysis::core::AnalysisPtr addAnalysis(std::shared_ptr<terr
 
     std::shared_ptr<terrama2::services::analysis::core::Analysis> analysis = std::make_shared<terrama2::services::analysis::core::Analysis>();
 
-    std::string script = R"z(moBuffer = Buffer(BufferType.Out_union, 2., "km")
+    std::string script = R"z(moBuffer = Buffer()
 ids = dcp.influence.by_rule(moBuffer)
-x = dcp.max("pluvio", ids)
-add_value("max", x))z";
+maximum = dcp.history.max("pluvio", "6000d")
+minimum = dcp.history.min("pluvio", "6000d")
+me = dcp.history.mean("pluvio", "6000d")
+su = dcp.history.sum("pluvio", "6000d")
+med = dcp.history.median("pluvio", "6000d")
+standard = dcp.history.standard_deviation("pluvio", "6000d")
+var = dcp.history.variance("pluvio", "6000d")
+count  = dcp.count(moBuffer)
+va = dcp.value("pluvio")
+add_value("max", maximum)
+add_value("min", minimum)
+add_value("mean", me)
+add_value("sum", su)
+add_value("median", med)
+add_value("standard_deviation", standard)
+add_value("variance", var)
+add_value("count", count)
+add_value("value", va))z";
 
     analysis->id = 1;
     analysis->name = "Min DCP";
@@ -358,6 +381,7 @@ void DCPInpeTs::analysis()
 
     auto analysis = addAnalysis(dataManagerAnalysis);
 
+    //serviceAnalysis.addToQueue(analysis->id, terrama2::core::TimeUtils::stringToTimestamp("2017-11-01T18:29:29.785+00", terrama2::core::TimeUtils::webgui_timefacet));
     serviceAnalysis.addToQueue(analysis->id, terrama2::core::TimeUtils::nowUTC());
 
     timerCollectorAndAnalysis();
@@ -366,17 +390,25 @@ void DCPInpeTs::analysis()
 
 void DCPInpeTs::compareCollectAndAnalysis()
 {
-
   restoreDB();
 
-  int qntTablesCollector = compareCollector();
+  try
+  {
+    int qntTablesCollector = compareCollector();
+    QCOMPARE(qntTablesCollector, 5);
+  }
+  catch(const terrama2::core::InterpreterException& e)
+  {
+    QFAIL(boost::get_error_info<terrama2::ErrorDescription>(e)->toUtf8().data());
+  }
 
-  QString errMsg1 = QString("Failed Test Collector!");
-
-  QVERIFY2(qntTablesCollector == 5, errMsg1.toUtf8());
-
-  QString errMsg2 = QString("Failed Test Analysis!");
-  QString statusAnalysis =  compareAnalysis();
-  QVERIFY2(statusAnalysis == "Passed", errMsg2.toUtf8());
-
+  try
+  {
+    int qntTablesAnalysis =  compareAnalysis();
+    QCOMPARE(qntTablesAnalysis, 1);
+  }
+  catch(const terrama2::core::InterpreterException& e)
+  {
+    QFAIL(boost::get_error_info<terrama2::ErrorDescription>(e)->toUtf8().data());
+  }
 }
