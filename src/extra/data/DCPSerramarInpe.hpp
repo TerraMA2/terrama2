@@ -139,7 +139,7 @@ namespace terrama2
                                                            "active": true,
                                                            "format": {
                                                                    "mask": "/PCD_serrmar_INPE/32524.txt",
-                                                                   "alias": "pcd_ guaratingueta",
+                                                                   "alias": "pcd_guaratingueta",
                                                                    "timezone": "-02:00",
                                                                    "projection": 4618
                                                            },
