@@ -147,21 +147,14 @@ double terrama2::core::TimeUtils::convertTimeString(const std::string& time, std
     throw terrama2::InitializationException() << terrama2::ErrorDescription(msg);
   }
 
-  bool isNegative = false;
-  if(timeStr.front() == '-')
-  {
-    isNegative = true;
-    timeStr.erase(0, 1);
-  }
-
   // split the input time string in numeric value and unit
   std::string numberStr;
   std::string unitStr;
   std::partition_copy(std::begin(timeStr),
                       std::end(timeStr),
-                      std::back_inserter(numberStr),
                       std::back_inserter(unitStr),
-                      [](const char& ch) {return std::isdigit(ch);} );
+                      std::back_inserter(numberStr),
+                      [](const char& ch) {return std::isalpha(ch);} );
 
   // if no unit was given, use defaultUnit
   if(unitStr.empty()) unitStr = defaultUnit;
@@ -203,7 +196,7 @@ double terrama2::core::TimeUtils::convertTimeString(const std::string& time, std
   }
   else
   {
-    QString msg(QObject::tr("Could not find any known unit of measure in the given string: %1.").arg(QString::fromStdString(time)));
+    QString msg(QObject::tr("Could not find any known unit of measure in the given string: %1.").arg(QString::fromStdString(timeStr)));
     TERRAMA2_LOG_ERROR() << msg;
     throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(msg);
   }
@@ -211,10 +204,7 @@ double terrama2::core::TimeUtils::convertTimeString(const std::string& time, std
   if(unitName != "SECOND")
     result = unitsManager.getConversion("SECOND", unitName) * result;
 
-  if(isNegative)
-    return -result;
-  else
-    return result;
+  return result;
 }
 
 
