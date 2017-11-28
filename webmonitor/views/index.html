@@ -37,10 +37,22 @@
           <select class="form-control" id="projects" name="projects"></select>
           <ul class="sidebar-menu custom-scrollbar-light">
             <div id="terrama2-layerexplorer"></div>
-            <li class="header" style="color: #b8c7ce;">
+            <li class="header" style="color: #b8c7ce; padding-bottom:0">
               <span data-i18n="VISIBLE LAYERS"></span>
+            </li>
+            <li class="header" style="color: #b8c7ce; padding-top:0">
+              <span>&nbsp</span>
               <span id="visible-layers-extent" class="pull-right" style="font-size: 15px; cursor: pointer;">
                 <i class="glyphicon glyphicon-resize-full"></i>
+              </span>
+              <span id="uncheck-layers" class="pull-right" style="font-size: 15px; cursor: pointer; padding-right: 10px" data-i18n="[title]Uncheck all layers">
+                <i class="fa fa-window-close-o"></i>
+              </span>
+              <span id="auto-update-on" class="pull-right hidden" style="font-size: 15px; cursor: pointer; padding-right: 10px" data-i18n="[title]Auto update on">
+                <i class="fa fa-refresh"></i>
+              </span>
+              <span id="auto-update-off" class="pull-right" style="font-size: 15px; cursor: pointer; padding-right: 10px" data-i18n="[title]Auto update off">
+                <i class="fa fa-check-square-o"></i>
               </span>
             </li>
             <div id="terrama2-sortlayers"></div>
