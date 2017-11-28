@@ -130,114 +130,80 @@ void terrama2::core::TimeUtils::addYear(std::shared_ptr< te::dt::TimeInstantTZ >
   (*timeInstant) = temp;
 }
 
-double terrama2::core::TimeUtils::convertTimeString(const std::string& time, std::string unitName, const std::string& defaultUnit)
+double terrama2::core::TimeUtils::convertTimeString(const std::string& timeStr, std::string unitName, const std::string& defaultUnit)
 {
-  if(time.empty())
+  if(timeStr.empty())
     return 0;
 
-  std::string timeStr = boost::to_upper_copy(time);
   double result = 0;
-  auto it = te::common::UnitsOfMeasureManager::getInstance().begin();
 
-  if(it == te::common::UnitsOfMeasureManager::getInstance().end())
+  auto& unitsManager = te::common::UnitsOfMeasureManager::getInstance();
+  auto it = unitsManager.begin();
+  if(it == unitsManager.end())
   {
     QString msg(QObject::tr("There is no UnitOfMeasure registered."));
     TERRAMA2_LOG_ERROR() << msg;
     throw terrama2::InitializationException() << terrama2::ErrorDescription(msg);
   }
 
+  // split the input time string in numeric value and unit
+  std::string numberStr;
+  std::string unitStr;
+  std::partition_copy(std::begin(timeStr),
+                      std::end(timeStr),
+                      std::back_inserter(unitStr),
+                      std::back_inserter(numberStr),
+                      [](const char& ch) {return std::isalpha(ch);} );
+
+  // if no unit was given, use defaultUnit
+  if(unitStr.empty()) unitStr = defaultUnit;
+  boost::shared_ptr<te::common::UnitOfMeasure> uom;
   bool found = false;
-  while(it != te::common::UnitsOfMeasureManager::getInstance().end())
+
+  // search for the input unit
+  for(;it != unitsManager.end(); ++it)
   {
-    auto uom = it->second;
+    uom = it->second;
+    // we only want time units
     if(uom->getType() != te::common::MeasureType::Time)
-    {
-      ++it;
       continue;
-    }
 
     std::vector<std::string> vecNames;
-    te::common::UnitsOfMeasureManager::getInstance().getNames(it->second, vecNames);
-
-
-    for(std::string& name : vecNames)
+    unitsManager.getNames(uom, vecNames);
+    auto itName = std::find(std::begin(vecNames), std::end(vecNames), unitStr);
+    //did we found our unit?
+    if(itName != std::end(vecNames))
     {
-      size_t foundPos = timeStr.find(name);
-      if (foundPos != std::string::npos)
-      {
-        size_t lastNumericPos = timeStr.find_last_not_of("0123456789", foundPos - 1);
-
-        // For units with one character like M(minutes), S(seconds), H(hours) we need to check if the unit has only character
-        if(name.size() == 1)
-        {
-          // Check previous character for spaces or a number, otherwise ignore this unit
-          size_t prevPos = timeStr.find_last_of("0123456789 ", foundPos - 1);
-          if(prevPos != foundPos - 1)
-          {
-            continue;
-          }
-
-          if(foundPos + 1 < timeStr.size())
-          {
-            // Check next character for spaces or a number, otherwise ignore this unit
-            size_t nextPos = timeStr.find_last_of("0123456789 ", foundPos + 1);
-            if(nextPos != foundPos + 1)
-            {
-              continue;
-            }
-          }
-
-        }
-        found = true;
-        std::string value;
-
-        if(lastNumericPos != std::string::npos)
-          value = timeStr.substr(lastNumericPos + 1, foundPos - lastNumericPos - 1 );
-        else
-          value = timeStr.substr(0, foundPos);
-
-        int ivalue = std::stoi(value);
-        std::string uomName = uom->getName();
-        if(uomName == "SECOND")
-          result += ivalue;
-        else
-        {
-          result += te::common::UnitsOfMeasureManager::getInstance().getConversion(name, "SECOND") * ivalue;
-        }
-        break;
-      }
+      // update unit name to standard name
+      unitStr = *itName;
+      found = true;
+      break;
     }
-    it++;
   }
 
-  if(!found && defaultUnit.empty())
+  if(found)
   {
-    QString msg(QObject::tr("Could not find any known unit of measure in the given string: %1.").arg(QString::fromStdString(time)));
+    // if we found our unit, convert the value to seconds
+    int ivalue = std::stoi(numberStr);
+    std::string uomName = uom->getName();
+    if(uomName == "SECOND")
+      result = ivalue;
+    else
+    {
+      result = unitsManager.getConversion(unitStr, "SECOND") * ivalue;
+    }
+  }
+  else
+  {
+    QString msg(QObject::tr("Could not find any known unit of measure in the given string: %1.").arg(QString::fromStdString(timeStr)));
     TERRAMA2_LOG_ERROR() << msg;
     throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(msg);
   }
-  else if(!found)
-  {
-    try
-    {
-      int value = std::stoi(time);
-      result = te::common::UnitsOfMeasureManager::getInstance().getConversion(defaultUnit, "SECOND") * value;
-    }
-    catch(...)
-    {
-      QString msg(QObject::tr("Could not find any known unit of measure in the given string: %1.").arg(QString::fromStdString(time)));
-      TERRAMA2_LOG_ERROR() << msg;
-      throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(msg);
-    }
-  }
 
   if(unitName != "SECOND")
-    result = te::common::UnitsOfMeasureManager::getInstance().getConversion("SECOND", unitName) * result;
+    result = unitsManager.getConversion("SECOND", unitName) * result;
 
-  if(timeStr.front() == '-')
-    return -result;
-  else
-    return result;
+  return result;
 }
 
 

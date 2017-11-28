@@ -49,11 +49,6 @@ int terrama2::core::Version::patchNumber()
   return TERRAMA2_VERSION_PATCH;
 }
 
-std::string terrama2::core::Version::releaseStatus()
-{
-  return TERRAMA2_VERSION_STATUS;
-}
-
 std::string terrama2::core::Version::buildDate()
 {
   assert(__DATE__ " " __TIME__);
