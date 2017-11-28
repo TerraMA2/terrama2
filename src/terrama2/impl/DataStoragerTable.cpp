@@ -97,7 +97,9 @@ void terrama2::core::DataStoragerTable::store(DataSetSeries series, DataSetPtr o
         // if the cloned DataSetType already has a primery key
         // recreate to avoid conflicts
         auto pk = newDataSetType->getPrimaryKey();
-        newDataSetType->remove(pk);
+        // remove pk property
+        for(auto p : pk->getProperties())
+          newDataSetType->remove(p);
       }
 
       std::string pkName = "\""+destinationDataSetName+"_pk\"";
