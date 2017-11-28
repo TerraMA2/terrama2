@@ -801,9 +801,9 @@ te::core::URI terrama2::services::alert::core::AlertExecutor::generateImage(Aler
   const auto& topRightCorner = view.topRightCorner;
   // Configure bounding box
   geoserverUri+= "&bbox="+std::to_string(lowerLeftCorner->getX())
-                 +","+std::to_string(lowerLeftCorner->getY())
+                 +","+std::to_string(topRightCorner->getY())
                  +","+std::to_string(topRightCorner->getX())
-                 +","+std::to_string(topRightCorner->getY());
+                 +","+std::to_string(lowerLeftCorner->getY());
 
   //add layers to request
   geoserverUri+="&layers=";
