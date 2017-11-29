@@ -265,6 +265,29 @@ double terrama2::services::analysis::core::getValue(terrama2::core::Synchronized
   return value;
 }
 
+/*!
+ Calculates the variance of the elements of a container
+
+ source: http://roth.cs.kuleuven.be/w-ess/index.php/Accurate_variance_and_mean_calculations_in_C%2B%2B11
+
+ */
+template <typename T, typename Container>
+T internal_variance(const Container& xs)
+{
+    // begin(xs) will point to the first element in xs
+    // end(xs) will point to the last element in xs
+    // the distance between them gives the number of elements
+    size_t N = end(xs) - begin(xs);
+    // first pass through all data (hidden in accumulate):
+    T m = std::accumulate(begin(xs), end(xs), T(0)) / N;
+    T s2 = 0;
+    // second pass through all data:
+    for(auto x : xs) {
+        s2 += (x - m) * (x - m);
+    }
+    return s2 / (N-1);
+}
+
 void terrama2::services::analysis::core::calculateStatistics(std::vector<double>& values, OperatorCache& cache)
 {
   if(values.empty())
@@ -279,10 +302,16 @@ void terrama2::services::analysis::core::calculateStatistics(std::vector<double>
   cache.min = min(acc);
   cache.max = max(acc);
   cache.median = median(acc);
-  cache.variance = variance(acc);
-  cache.standardDeviation = std::sqrt(variance(acc));
+  //============================================
+  // WARNING
+  //
+  // The boost function returned a different then expected value
+  // check internal_variance
+  //
+  //  cache.variance = variance(acc);
+  cache.variance = internal_variance<double>(values);
+  cache.standardDeviation = std::sqrt(cache.variance);
 }
-
 
 double terrama2::services::analysis::core::getOperationResult(OperatorCache& cache, StatisticOperation statisticOperation)
 {
