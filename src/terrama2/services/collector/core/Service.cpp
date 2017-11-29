@@ -243,7 +243,7 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
         if(executionPackage.registerId != 0)
         {
           logger->log(CollectorLogger::WARNING_MESSAGE, errMsg, executionPackage.registerId);
-          logger->result(CollectorLogger::DONE, nullptr, executionPackage.registerId);
+          logger->result(CollectorLogger::WARNING, nullptr, executionPackage.registerId);
         }
 
         QJsonObject jsonAnswer;
