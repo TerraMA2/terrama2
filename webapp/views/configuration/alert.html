@@ -240,7 +240,7 @@
                     name="legendAttributeMo"
                     ng-model="ctrl.legend_attribute_mo"
                     ng-pattern="ctrl.regexColumn"
-                    ng-blur="ctrl.getColumnValues()"
+                    ng-change="ctrl.getColumnValues()"
                     ng-required="ctrl.dataSeriesType === 'ANALYSIS_MONITORED_OBJECT'"
                     list='tableColumnsList'>
               <span class="help-block"

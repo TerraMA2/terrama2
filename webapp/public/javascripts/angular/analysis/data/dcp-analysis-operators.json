@@ -207,7 +207,7 @@
         ]
       },
       {
-        "name": "history interval",
+        "name": "History interval",
         "children": [
           {
             "name": "Min",
