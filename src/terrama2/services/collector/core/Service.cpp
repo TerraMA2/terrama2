@@ -190,7 +190,7 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
         if(dataMap.empty())
         {
           QString errMsg = tr("No data to collect.");
-          logger->result(CollectorLogger::DONE, nullptr, executionPackage.registerId);
+          logger->result(CollectorLogger::WARNING, nullptr, executionPackage.registerId);
           logger->log(CollectorLogger::WARNING_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
           TERRAMA2_LOG_WARNING() << errMsg;
 
