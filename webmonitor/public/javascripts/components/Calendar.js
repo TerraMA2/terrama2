@@ -90,9 +90,11 @@ define(
             dateInfo.startFilterDate = pickerStartDate;
             dateInfo.endFilterDate = pickerEndDate;
             Layers.updateDateInfo(dateInfo, layerId);
-
+            
             $("#attributes-table-select").trigger("setAttributesTable");
 
+            //Change seconds to 59
+            pickerEndDate = pickerEndDate.slice(0, -2) + "59";
             var layerTime = pickerStartDate + "Z/" + pickerEndDate + "Z";
             TerraMA2WebComponents.MapDisplay.updateLayerTime( /**id */ layerId, /** time */ layerTime);
           });
@@ -154,6 +156,8 @@ define(
 
             $("#attributes-table-select").trigger("setAttributesTable", []);
 
+            //Change seconds to 59
+            pickerEndDate = pickerEndDate.slice(0, -2) + "59";
             var layerTime = pickerStartDate + "Z/" + pickerEndDate + "Z";
             TerraMA2WebComponents.MapDisplay.updateLayerTime( /**id */ layerId, /** time */ layerTime);
           });

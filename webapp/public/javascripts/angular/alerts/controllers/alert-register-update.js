@@ -503,6 +503,20 @@ define([], function() {
      * @returns {void}
      */
     self.getColumnValues = function(){
+      if(self.columnsList.length == 0){
+        self.columnValues = [];
+        self.showAutoCreateLegendButton = false;
+        return;
+      } else {
+        var hasInList = self.columnsList.some(function(column){
+          return column == self.legend_attribute_mo;
+        });
+        if (!hasInList){
+          self.columnValues = [];
+          self.showAutoCreateLegendButton = false;
+          return;
+        }
+      }
       if (!self.legend_attribute_mo){
         self.columnValues = [];
         self.showAutoCreateLegendButton = false;
