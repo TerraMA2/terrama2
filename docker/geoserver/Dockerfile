@@ -6,9 +6,11 @@ EXPOSE 8080
 # Customizable Variables
 
 ENV GEOSERVER_URL "/geoserver"
+ENV GEOSERVER_DATA_DIR /opt/geoserver/data_dir
 
 # Environment Variables
 
+RUN mkdir -p $GEOSERVER_DATA_DIR
 
 # Configure TomCat. TODO: Export Catalina opts with Docker Arg to customize
 RUN cd /usr/local/tomcat/bin && \
