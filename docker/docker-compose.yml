@@ -1,0 +1,128 @@
+version: "3"
+
+services:
+  terrama2:
+    build: "terrama2"
+    image: "terrama2-base:4.0.0-rc4"
+    container_name: terrama2_core
+
+  # Base image for PostgreSQL/PostGIS
+  postgis:
+    image: mdillon/postgis
+    volumes:
+      - pg_terrama2_vol:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    container_name: terrama2_postgis
+
+  # TerraMA2 Web Application
+  webapp:
+    build: webapp
+    image: "terrama2-webapp:4.0.0-rc4"
+    depends_on:
+      - "terrama2"
+    ports:
+      - "36000:36000"
+    links:
+      - "postgis"
+    volumes:
+      - "terrama2_data_vol:/data"
+    container_name: terrama2_webapp
+
+  # TerraMA2 Web Monitor
+  webmonitor:
+    build: webmonitor
+    image: "terrama2-monitor:4.0.0-rc4"
+    ports:
+      - "36001:36001"
+    depends_on:
+      - "terrama2"
+    volumes:
+      - "terrama2_data_vol:/data"
+    container_name: terrama2_webmonitor
+
+  # GeoServer behind Tomcat8
+  geoserver:
+    build: "geoserver"
+    image: "terrama2-geoserver:2.11.0"
+    ports:
+      - "8080:8080"
+    volumes:
+      - "terrama2_data_vol:/data"
+    container_name: terrama2_geoserver
+
+  # TerraMA2 Collector Service using TerraMA2 Base
+  collector:
+    image: "terrama2-base:4.0.0-rc4"
+    entrypoint: 
+      - /usr/local/bin/start_terrama2_service.sh
+      - COLLECTOR
+      - "6543"
+    # Exporting Display Number in order to expose gui environment
+    environment:
+      - DISPLAY=$DISPLAY
+    depends_on:
+      - "terrama2"
+    volumes:
+      - "terrama2_data_vol:/data"
+      # Exporting Unix XServer to expose gui environment
+      - "/tmp/.X11-unix:/tmp/.X11-unix:ro"
+    tty: true
+    container_name: terrama2_collector
+
+  # TerraMA2 Analysis Service using TerraMA2 Base
+  analysis:
+    image: "terrama2-base:4.0.0-rc4"
+    entrypoint: 
+      - /usr/local/bin/start_terrama2_service.sh
+      - ANALYSIS
+      - "6544"
+    environment:
+      - DISPLAY=$DISPLAY
+    depends_on:
+      - "terrama2"
+    volumes:
+      - "terrama2_data_vol:/data"
+      - "/tmp/.X11-unix:/tmp/.X11-unix:ro"
+    tty: true
+    container_name: terrama2_analysis
+
+  # TerraMA2 View Service using TerraMA2 Base
+  view:
+    image: "terrama2-base:4.0.0-rc4"
+    entrypoint: 
+      - /usr/local/bin/start_terrama2_service.sh
+      - VIEW
+      - "6545"
+    environment:
+      - DISPLAY=$DISPLAY
+    depends_on:
+      - "terrama2"
+    volumes:
+      - "terrama2_data_vol:/data"
+      - "/tmp/.X11-unix:/tmp/.X11-unix:ro"
+    tty: true
+    container_name: terrama2_view
+
+  # TerraMA2 Alert Service using TerraMA2 Base
+  alert:
+    image: "terrama2-base:4.0.0-rc4"
+    entrypoint: 
+      - /usr/local/bin/start_terrama2_service.sh
+      - ALERT
+      - "6546"
+    environment:
+      - DISPLAY=$DISPLAY
+    depends_on:
+      - "terrama2"
+    volumes:
+      - "terrama2_data_vol:/data"
+      - "/tmp/.X11-unix:/tmp/.X11-unix:ro"
+    tty: true
+    container_name: terrama2_alert
+
+volumes:
+  # Shared Volume to mount along TerraMA2 images
+  terrama2_data_vol:
+  # PostgreSQL Volume
+  pg_terrama2_vol:
