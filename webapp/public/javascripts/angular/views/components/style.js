@@ -252,6 +252,7 @@ define([], function () {
      */
     self.getColumnValues = function(){
       if(self.columnsList.length == 0){
+        self.columnValues = [];
         self.showAutoCreateLegendButton = false;
         return;
       } else {
@@ -259,6 +260,7 @@ define([], function () {
           return column == self.model.metadata.attribute;
         });
         if (!hasInList){
+          self.columnValues = [];
           self.showAutoCreateLegendButton = false;
           return;
         }
