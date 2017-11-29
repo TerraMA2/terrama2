@@ -22,48 +22,50 @@
     <div class="col-md-12">
       <terrama2-alert-box2 handler="MessageBoxService.alertBox" close="close()"></terrama2-alert-box2>
     </div>
-    <form name="forms.projectForm">
-      <div class="row">
-        <div class="col-md-10">
-          <div class="form-group" terrama2-show-errors>
-            <label>{{ i18n.__("Name") }}:</label>
-            <input class="form-control" name="name" ng-model="project.name" placeholder="{{ i18n.__('Project Name') }}" type="text" required>
-            <span class="help-block has-error" ng-show="form.name.$dirty && form.name.$error.required && form.name.$invalid">{{ i18n.__('Project name is required') }}</span>
-
-            <span class="help-block has-error" ng-show="errorFound">{{ errorFound }}</span>
-          </div>
-        </div>
-        <div class="col-md-2">
-          <div class="form-group">
-            <div class="checkbox">
-              <label style="font-weight: 700; margin-top:19px;">
-                <input ng-disabled="!project.protected && !project.canProtect" type="checkbox" name="protected" ng-model="project.protected"> {{ i18n.__("Protected") }}
-              </label>
+    <terrama2-box title="i18n.__('General Data')" css="css">
+      <div class="col-md-12 terrama2-nopadding-box">
+        <form name="forms.projectForm">
+          <div class="col-md-10">
+            <div class="form-group" terrama2-show-errors>
+              <label>{{ i18n.__("Name") }}:</label>
+              <input class="form-control" name="name" ng-model="project.name" placeholder="{{ i18n.__('Project Name') }}" type="text" required>
+              <span class="help-block has-error" ng-show="form.name.$dirty && form.name.$error.required && form.name.$invalid">{{ i18n.__('Project name is required') }}</span>
+  
+              <span class="help-block has-error" ng-show="errorFound">{{ errorFound }}</span>
             </div>
           </div>
-        </div>
-        <!-- /.col -->
-
-        <div class="col-md-12">
-          <div class="form-group">
-            <label>{{ i18n.__('Description') }}:</label>
-            <textarea class="form-control" rows="3" name="description" ng-model="project.description"  placeholder="{{ i18n.__('Project Description') }}"></textarea>
+          <div class="col-md-2">
+            <div class="form-group">
+              <div class="checkbox">
+                <label style="font-weight: 700; margin-top:19px;">
+                  <input ng-disabled="!project.protected && !project.canProtect" type="checkbox" name="protected" ng-model="project.protected"> {{ i18n.__("Protected") }}
+                </label>
+              </div>
+            </div>
           </div>
-          <!-- /.form-group -->
-        </div>
-        <!-- /.col -->
+          <!-- /.col -->
+  
+          <div class="col-md-12">
+            <div class="form-group">
+              <label>{{ i18n.__('Description') }}:</label>
+              <textarea class="form-control" rows="3" name="description" ng-model="project.description"  placeholder="{{ i18n.__('Project Description') }}"></textarea>
+            </div>
+            <!-- /.form-group -->
+          </div>
+          <!-- /.col -->
+          
+          <!-- /.row -->
+        </form>
       </div>
+    </terrama2-box>
+    <div class="box-footer">
+      <button type="submit" class="btn btn-primary pull-right" ng-click="save(this);">{{ i18n.__("Save") }}</button>
+      <a href="{[ BASE_URL ]}configuration/projects" class="btn btn-primary pull-left">{{ i18n.__('Cancel') }}</a>
+    </div>
 
-      <div class="box-footer">
-        <button type="submit" class="btn btn-primary pull-right" ng-click="save(this);">{{ i18n.__("Save") }}</button>
-        <a href="{[ BASE_URL ]}configuration/projects" class="btn btn-primary pull-left">{{ i18n.__('Cancel') }}</a>
-      </div>
-
-      <div class="overlay" ng-show="isSubmiting">
-        <i class="fa fa-refresh fa-spin"></i>
-      </div>
-      <!-- /.row -->
-    </form>
+    <div class="overlay" ng-show="isSubmiting">
+      <i class="fa fa-refresh fa-spin"></i>
+    </div>
   </terrama2-box>
 </div> <!-- ./div -->
 

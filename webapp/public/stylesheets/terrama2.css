@@ -706,3 +706,9 @@ table.dataTable tbody th, table.dataTable tbody td { padding-left: 12px !importa
   color: #1a222600;
   background-position: 17px 14px;
 }
+
+@media screen and (max-width: 991px){
+  #includeDcpTable {
+    margin-top: 45px;
+  }
+}
