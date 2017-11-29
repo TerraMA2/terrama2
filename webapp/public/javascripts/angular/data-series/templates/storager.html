@@ -1,111 +1,106 @@
-<div class="col-md-12">
-  <form name="$ctrl.forms.storagerDataForm">
+<form name="$ctrl.forms.storagerDataForm">
 
-    <div class="col-md-4">
-      <div class="form-group" terrama2-show-errors>
-        <label ng-bind="$ctrl.i18n.__('Output Format')">:</label>
-          <select id="storageFormat"
-                  class="form-control"
-                  name="format"
-                  ng-model="$ctrl.storager.format"
-                  ng-disabled="$ctrl.isUpdating && $ctrl.hasCollector"
-                  ng-change="$ctrl.onStoragerFormatChange()"
-                  ng-options="$ctrl.i18n.__(format.name) for format in $ctrl.storagerFormats | filter: { allow_storage: true }"
-                  required>
-        </select>
-        <label class="help-block text-danger"
-                ng-show="$ctrl.forms.storagerDataForm.format.$dirty && $ctrl.forms.storagerDataForm.format.$error.required"
-                ng-bind="$ctrl.i18n.__('Output format is required')">
-        </label>
-      </div>
-    </div>
-
-    <div class="col-md-4">
-      <div class="form-group" terrama2-show-errors>
-        <label ng-bind="$ctrl.i18n.__('Data Store')">:</label>
-        <ui-select name="storager_data_provider_id" ng-model="$ctrl.storager_data_provider_id" required>
-          <ui-select-match>
-            <img ng-src="{{$ctrl.getImageUrl($select.selected)}}" style="width: 20px; margin-top: -13px"/>
-            <span ng-bind="$select.selected.name"></span>
-          </ui-select-match>
-          <ui-select-choices repeat="provider.id as provider in ($ctrl.dataProvidersStorager | filter: {'name': $select.search}) track by $index">
-            <img ng-src="{{$ctrl.getImageUrl(provider)}}" style="width: 20px;"/>
-            <span ng-bind="provider.name"></span>
-          </ui-select-choices>
-        </ui-select>
-
-        <label class="help-block text-danger"
-                ng-show="$ctrl.forms.storagerDataForm.storager_data_provider_id.$dirty && $ctrl.forms.storagerDataForm.storager_data_provider_id.$error.required"
-                ng-bind="$ctrl.i18n.__('Data Store is required')">
-        </label>
-      </div>
-    </div>
-
-    <div class="col-md-4">
-      <div class="form-group" terrama2-show-errors>
-        <label ng-bind="$ctrl.i18n.__('Service')">:</label>
-        <ui-select id="storageService"
-                name="service"
-                ng-model="$ctrl.storager_service"
+  <div class="col-md-4">
+    <div class="form-group" terrama2-show-errors>
+      <label ng-bind="$ctrl.i18n.__('Output Format')">:</label>
+        <select id="storageFormat"
+                class="form-control"
+                name="format"
+                ng-model="$ctrl.storager.format"
+                ng-disabled="$ctrl.isUpdating && $ctrl.hasCollector"
+                ng-change="$ctrl.onStoragerFormatChange()"
+                ng-options="$ctrl.i18n.__(format.name) for format in $ctrl.storagerFormats | filter: { allow_storage: true }"
                 required>
-          <ui-select-match>
-            <img ng-src="{{ BASE_URL + 'images/services/collector/collector_service.png' }}" style="width: 20px; margin-top: -13px"/>
-            <span ng-bind="$select.selected.name"></span>
-          </ui-select-match>
-          <ui-select-choices repeat="service.id as service in ($ctrl.services | filter: {'name': $select.search}) track by $index">
-            <img ng-src="{{ BASE_URL + 'images/services/collector/collector_service.png' }}" style="width: 20px;"/>
-            <span ng-bind="service.name"></span>
-          </ui-select-choices>
-
-        </ui-select>
-
-        <label class="help-block text-danger"
-                ng-show="$ctrl.forms.storagerDataForm.service.$dirty && $ctrl.forms.storagerDataForm.service.$error.required"
-                ng-bind="$ctrl.i18n.__('Service is required')">
-        </label>
-      </div>
+      </select>
+      <label class="help-block text-danger"
+              ng-show="$ctrl.forms.storagerDataForm.format.$dirty && $ctrl.forms.storagerDataForm.format.$error.required"
+              ng-bind="$ctrl.i18n.__('Output format is required')">
+      </label>
     </div>
-  </form>
+  </div>
+
+  <div class="col-md-4">
+    <div class="form-group" terrama2-show-errors>
+      <label ng-bind="$ctrl.i18n.__('Data Store')">:</label>
+      <ui-select name="storager_data_provider_id" ng-model="$ctrl.storager_data_provider_id" required>
+        <ui-select-match>
+          <img ng-src="{{$ctrl.getImageUrl($select.selected)}}" style="width: 20px; margin-top: -13px"/>
+          <span ng-bind="$select.selected.name"></span>
+        </ui-select-match>
+        <ui-select-choices repeat="provider.id as provider in ($ctrl.dataProvidersStorager | filter: {'name': $select.search}) track by $index">
+          <img ng-src="{{$ctrl.getImageUrl(provider)}}" style="width: 20px;"/>
+          <span ng-bind="provider.name"></span>
+        </ui-select-choices>
+      </ui-select>
+
+      <label class="help-block text-danger"
+              ng-show="$ctrl.forms.storagerDataForm.storager_data_provider_id.$dirty && $ctrl.forms.storagerDataForm.storager_data_provider_id.$error.required"
+              ng-bind="$ctrl.i18n.__('Data Store is required')">
+      </label>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="form-group" terrama2-show-errors>
+      <label ng-bind="$ctrl.i18n.__('Service')">:</label>
+      <ui-select id="storageService"
+              name="service"
+              ng-model="$ctrl.storager_service"
+              required>
+        <ui-select-match>
+          <img ng-src="{{ BASE_URL + 'images/services/collector/collector_service.png' }}" style="width: 20px; margin-top: -13px"/>
+          <span ng-bind="$select.selected.name"></span>
+        </ui-select-match>
+        <ui-select-choices repeat="service.id as service in ($ctrl.services | filter: {'name': $select.search}) track by $index">
+          <img ng-src="{{ BASE_URL + 'images/services/collector/collector_service.png' }}" style="width: 20px;"/>
+          <span ng-bind="service.name"></span>
+        </ui-select-choices>
+
+      </ui-select>
+
+      <label class="help-block text-danger"
+              ng-show="$ctrl.forms.storagerDataForm.service.$dirty && $ctrl.forms.storagerDataForm.service.$error.required"
+              ng-bind="$ctrl.i18n.__('Service is required')">
+      </label>
+    </div>
+  </div>
+</form>
+</div>
+
+<!-- schema form -->
+<div class="col-md-12 terrama2-nopadding-box" ng-show="$ctrl.options.showStoragerForm">
+  <form name="$ctrl.forms.storagerForm" sf-schema="$ctrl.schemaStorager" sf-form="$ctrl.formStorager" sf-model="$ctrl.modelStorager" sf-options="$ctrl.options"></form>
 </div>
 
 <div class="col-md-12">
-  <!-- schema form -->
-  <div class="col-md-12" ng-show="$ctrl.options.showStoragerForm">
-    <form name="$ctrl.forms.storagerForm" sf-schema="$ctrl.schemaStorager" sf-form="$ctrl.formStorager" sf-model="$ctrl.modelStorager" sf-options="$ctrl.options"></form>
-  </div>
+  <!--dcp table -->
+  <div class="col-md-12 terrama2-nopadding-box" ng-if="$ctrl.semantics === 'DCP' && $ctrl.storager.format && $ctrl.storager.format.code && $ctrl.options.isDynamic">
+    <div class="col-md-12">
+      <div class="row">
+        <div class="box-body table-responsive no-padding">
 
-  <div class="col-md-12">
-    <!--dcp table -->
-    <div class="col-md-12 terrama2-nopadding-box" ng-if="$ctrl.semantics === 'DCP' && $ctrl.storager.format && $ctrl.storager.format.code && $ctrl.options.isDynamic">
-      <div class="col-md-12">
-        <div class="row">
-          <div class="box-body table-responsive no-padding">
-
-            <table class="dcpTableStore table table-striped" style="width: 100%;">
-              <thead>
-                <tr>
-                  <th ng-repeat="field in $ctrl.tableFieldsStoragerDataTable">{{ $ctrl.i18n.__($ctrl.options.capitalizeIt(field)) }}</th>
-                </tr>
-              </thead>
-            </table>
-          </div><!-- /.box-body -->
-        </div>
+          <table class="dcpTableStore table table-striped" style="width: 100%;">
+            <thead>
+              <tr>
+                <th ng-repeat="field in $ctrl.tableFieldsStoragerDataTable">{{ $ctrl.i18n.__($ctrl.options.capitalizeIt(field)) }}</th>
+              </tr>
+            </thead>
+          </table>
+        </div><!-- /.box-body -->
       </div>
     </div>
   </div>
-
 </div>
+
 
 <div class="col-md-12" style="margin-top: 30px;">
-  <div class="col-md-12">
-    <div class="box box-default box-solid">
-      <div class="box-header with-border">
-        <h3 class="box-title">{{ $ctrl.i18n.__('Schedule') }}</h3>
-      </div>
+  <div class="box box-default box-solid">
+    <div class="box-header with-border">
+      <h3 class="box-title">{{ $ctrl.i18n.__('Schedule') }}</h3>
+    </div>
 
-      <div style="display: block;" class="box-body">
-        <terrama2-schedule model="$ctrl.schedule" options="$ctrl.scheduleOptions"></terrama2-schedule>
-      </div>
+    <div style="display: block;" class="box-body">
+      <terrama2-schedule model="$ctrl.schedule" options="$ctrl.scheduleOptions"></terrama2-schedule>
     </div>
   </div>
 </div>
