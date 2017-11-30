@@ -759,7 +759,21 @@ std::string terrama2::services::analysis::core::python::getAttributeValueAsJson(
       }
       case te::dt::NUMERIC_TYPE:
       {
-        json.insert(QString::fromStdString(attribute), QString::fromStdString(moDsContext->series.syncDataSet->getNumeric(cache.index, attribute).c_str()));
+        try
+        {
+          json.insert(QString::fromStdString(attribute), std::stod(moDsContext->series.syncDataSet->getNumeric(cache.index, attribute)));
+        }
+        catch (const std::invalid_argument&)
+        {
+          // returned value can't be converted to a number
+          json.insert(QString::fromStdString(attribute), std::nan(""));
+        }
+        catch (const std::out_of_range&)
+        {
+          // returned value can't be allocated as a double
+          json.insert(QString::fromStdString(attribute), std::nan(""));
+        }
+
         break;
       }
       case te::dt::STRING_TYPE:
