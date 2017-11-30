@@ -165,20 +165,6 @@ var Exportation = function() {
   };
 
   /**
-  * Returns the shp2pgsql application string.
-  * @returns {string} shp2pgsql - shp2pgsql application
-  *
-  * @function shp2pgsql
-  * @memberof Exportation
-  * @inner
-  */
-  this.shp2pgsql = function() {
-    var shp2pgsql = memberConfig.SHP2PGSQL;
-
-    return shp2pgsql;
-  };
-
-  /**
    * Returns the query accordingly with the received parameters.
    * @param {json} options - Filtering options
    * @returns {string} finalQuery - Query
