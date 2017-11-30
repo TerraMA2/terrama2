@@ -42,6 +42,7 @@
 #include <terralib/geometry/GeometryProperty.h>
 #include <terralib/datatype/StringProperty.h>
 #include <terralib/datatype/DateTimeProperty.h>
+#include <terralib/datatype/NumericProperty.h>
 #include <terralib/dataaccess/utils/Utils.h>
 
 //Qt
@@ -70,17 +71,47 @@ std::unique_ptr<te::dt::Property> terrama2::core::DataStoragerTable::copyPropert
     case te::dt::DOUBLE_TYPE:
       return std::unique_ptr<te::dt::Property>(new te::dt::SimpleProperty(name, type, true));
     case te::dt::STRING_TYPE:
-      return std::unique_ptr<te::dt::Property>(new te::dt::StringProperty(name));
-    case te::dt::DATETIME_TYPE:
-      auto dateTime = dynamic_cast<te::dt::DateTimeProperty*>(property);
-      if(!dateTime)
       {
-        QString errMsg = QObject::tr("Invalid property %1 with type %2").arg(QString::fromStdString(name), int(type));
-        TERRAMA2_LOG_ERROR() << errMsg;
-        throw DataStoragerException() << ErrorDescription(errMsg);
-      }
+        auto stringProperty = dynamic_cast<te::dt::StringProperty*>(property);
+        if(!stringProperty)
+        {
+          QString errMsg = QObject::tr("Invalid property %1 with type %2").arg(QString::fromStdString(name), int(type));
+          TERRAMA2_LOG_ERROR() << errMsg;
+          throw DataStoragerException() << ErrorDescription(errMsg);
+        }
 
-      return std::unique_ptr<te::dt::Property>(new te::dt::DateTimeProperty(name));
+        return std::unique_ptr<te::dt::Property>(new te::dt::StringProperty(name,
+                                                                            stringProperty->getSubType(),
+                                                                            stringProperty->size()));
+      }
+    case te::dt::DATETIME_TYPE:
+      {
+        auto dateTime = dynamic_cast<te::dt::DateTimeProperty*>(property);
+        if(!dateTime)
+        {
+          QString errMsg = QObject::tr("Invalid property %1 with type %2").arg(QString::fromStdString(name), int(type));
+          TERRAMA2_LOG_ERROR() << errMsg;
+          throw DataStoragerException() << ErrorDescription(errMsg);
+        }
+
+        return std::unique_ptr<te::dt::Property>(new te::dt::DateTimeProperty(name,
+                                                                              dateTime->getSubType(),
+                                                                              dateTime->getPrecision()));
+      }
+    case te::dt::NUMERIC_TYPE:
+      {
+        auto numericProperty = dynamic_cast<te::dt::NumericProperty*>(property);
+        if(!numericProperty)
+        {
+          QString errMsg = QObject::tr("Invalid property %1 with type %2").arg(QString::fromStdString(name), int(type));
+          TERRAMA2_LOG_ERROR() << errMsg;
+          throw DataStoragerException() << ErrorDescription(errMsg);
+        }
+
+        return std::unique_ptr<te::dt::Property>(new te::dt::NumericProperty(name,
+                                                                             numericProperty->getPrecision(),
+                                                                             numericProperty->getScale()));
+      }
     default:
       /* code */
       break;
