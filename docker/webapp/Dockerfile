@@ -1,4 +1,4 @@
-FROM terrama2-base:4.0.0-rc4
+FROM terrama2.dpi.inpe.br:443/terrama2:4.0.0-rc4
 
 EXPOSE 36000
 

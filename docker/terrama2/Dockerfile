@@ -19,7 +19,6 @@ ENV DEV_DIR=/home/${TERRAMA2_USER}/mydevel
 ENV TERRAMA2_INSTALL_PATH=/opt/terrama2/4.0.0
 ENV TERRAMA2_CODEBASE_PATH=${DEV_DIR}/terrama2/codebase
 ENV TERRAMA2_3RDPARTY_PATH=${DEV_DIR}/terrama2/3rdparty
-ENV GEOSERVER_HOME=/opt/geoserver
 ENV PATH="$PATH:${TERRAMA2_INSTALL_PATH}/bin"
 
 RUN echo "deb http://br.archive.ubuntu.com/ubuntu/ trusty-backports main restricted universe multiverse" >> /etc/apt/sources.list && \
@@ -85,7 +84,7 @@ RUN cd ${TERRAMA2_CODEBASE_PATH} && \
 # ############################################################################
 # # TerraMA2
 COPY files/install_terrama2.sh /usr/local/bin
-COPY files/start_terrama2_service.sh /usr/local/bin
 
-RUN service postgresql start && \
-    install_terrama2.sh
+RUN install_terrama2.sh
+
+COPY files/start_terrama2_service.sh /usr/local/bin
