@@ -40,6 +40,8 @@
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 #include <terralib/dataaccess/datasource/DataSource.h>
 #include <terralib/geometry/GeometryProperty.h>
+#include <terralib/datatype/StringProperty.h>
+#include <terralib/datatype/DateTimeProperty.h>
 #include <terralib/dataaccess/utils/Utils.h>
 
 //Qt
@@ -51,13 +53,60 @@
 //Boost
 #include <boost/algorithm/string.hpp>
 
+std::unique_ptr<te::dt::Property> terrama2::core::DataStoragerTable::copyProperty(te::dt::Property* property) const
+{
+  auto name = property->getName();
+  auto type = property->getType();
+  switch (type)
+  {
+    case te::dt::INT16_TYPE:
+    case te::dt::UINT16_TYPE:
+    case te::dt::INT32_TYPE:
+    case te::dt::UINT32_TYPE:
+    case te::dt::INT64_TYPE:
+    case te::dt::UINT64_TYPE:
+    case te::dt::BOOLEAN_TYPE:
+    case te::dt::FLOAT_TYPE:
+    case te::dt::DOUBLE_TYPE:
+      return std::unique_ptr<te::dt::Property>(new te::dt::SimpleProperty(name, type, true));
+    case te::dt::STRING_TYPE:
+      return std::unique_ptr<te::dt::Property>(new te::dt::StringProperty(name));
+    case te::dt::DATETIME_TYPE:
+      auto dateTime = dynamic_cast<te::dt::DateTimeProperty*>(property);
+      if(!dateTime)
+      {
+        QString errMsg = QObject::tr("Invalid property %1 with type %2").arg(QString::fromStdString(name), int(type));
+        TERRAMA2_LOG_ERROR() << errMsg;
+        throw DataStoragerException() << ErrorDescription(errMsg);
+      }
+
+      return std::unique_ptr<te::dt::Property>(new te::dt::DateTimeProperty(name));
+    default:
+      /* code */
+      break;
+  }
+  return nullptr;
+}
+
+std::shared_ptr<te::da::DataSetType> terrama2::core::DataStoragerTable::copyDataSetType(std::shared_ptr<te::da::DataSetType> dataSetType) const
+{
+  std::shared_ptr< te::da::DataSetType > newDatasetType = std::make_shared<te::da::DataSetType>(dataSetType->getName()));
+
+  for(const auto& property : dataSetType->getProperties())
+  {
+    auto newProperty = copyProperty(property);
+  }
+
+  return newDatasetType;
+}
+
 void terrama2::core::DataStoragerTable::store(DataSetSeries series, DataSetPtr outputDataSet) const
 {
   if(!dataProvider_)
   {
     QString errMsg = QObject::tr("Invalid data provider");
     TERRAMA2_LOG_ERROR() << errMsg;
-    throw DataProviderException() << ErrorDescription(errMsg);
+    throw DataStoragerException() << ErrorDescription(errMsg);
   }
 
   te::core::URI uri(getCompleteURI(outputDataSet));
