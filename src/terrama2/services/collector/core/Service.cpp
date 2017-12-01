@@ -190,7 +190,7 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
         if(dataMap.empty())
         {
           QString errMsg = tr("No data to collect.");
-          logger->result(CollectorLogger::DONE, nullptr, executionPackage.registerId);
+          logger->result(CollectorLogger::WARNING, nullptr, executionPackage.registerId);
           logger->log(CollectorLogger::WARNING_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
           TERRAMA2_LOG_WARNING() << errMsg;
 
@@ -243,7 +243,7 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
         if(executionPackage.registerId != 0)
         {
           logger->log(CollectorLogger::WARNING_MESSAGE, errMsg, executionPackage.registerId);
-          logger->result(CollectorLogger::DONE, nullptr, executionPackage.registerId);
+          logger->result(CollectorLogger::WARNING, nullptr, executionPackage.registerId);
         }
 
         QJsonObject jsonAnswer;
@@ -308,7 +308,10 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
     logger->setStartProcessingTime(processingStartTime, executionPackage.registerId);
     logger->setEndProcessingTime(processingEndTime, executionPackage.registerId);
 
-    logger->result(CollectorLogger::DONE, lastDateTime, executionPackage.registerId);
+    if(lastDateTime)
+      logger->result(CollectorLogger::DONE, lastDateTime, executionPackage.registerId);
+    else
+      logger->result(CollectorLogger::WARNING, lastDateTime, executionPackage.registerId);
 
     sendProcessFinishedSignal(executionPackage.processId, executionPackage.executionDate, true);
     notifyWaitQueue(executionPackage.processId);
