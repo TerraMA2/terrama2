@@ -57,6 +57,8 @@ namespace terrama2
         bool isPropertyEqual(te::dt::Property* newProperty, te::dt::Property* oldMember) const;
 
       protected:
+        std::unique_ptr<te::dt::Property> copyProperty(te::dt::Property* property) const;
+        std::shared_ptr<te::da::DataSetType> copyDataSetType(std::shared_ptr<te::da::DataSetType> dataSetType, const std::string& newDataSetName) const;
         virtual std::string driver() const = 0;
     };
   }
