@@ -308,7 +308,7 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
     logger->setStartProcessingTime(processingStartTime, executionPackage.registerId);
     logger->setEndProcessingTime(processingEndTime, executionPackage.registerId);
 
-    if(!lastDateTime)
+    if(lastDateTime)
       logger->result(CollectorLogger::DONE, lastDateTime, executionPackage.registerId);
     else
       logger->result(CollectorLogger::WARNING, lastDateTime, executionPackage.registerId);
