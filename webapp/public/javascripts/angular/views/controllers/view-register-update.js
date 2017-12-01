@@ -487,7 +487,7 @@ define([], function() {
                 continue;
               }
               for(var j = i + 1; j < self.legend.colors.length; ++j) {
-                if (self.legend.colors[j].value == colorIt.value) {
+                if (self.legend.colors[j].value === colorIt.value) {
                   return MessageBoxService.danger(i18n.__("View"), i18n.__("The colors must have unique values"));
                 }
               }
