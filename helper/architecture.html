@@ -1,0 +1,260 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="generator" content="HelpNDoc Personal Edition 5.0.0.182">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="favicon.ico"/>
+
+  <title>Arquitetura da Plataforma</title>
+  <meta name="description" content="" /> 
+  <meta name="keywords" content="">
+
+
+
+  <!-- Twitter Card data -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Arquitetura da Plataforma">
+  <meta name="twitter:description" content="">
+
+  <!-- Open Graph data -->
+  <meta property="og:title" content="Arquitetura da Plataforma" />
+  <meta property="og:type" content="article" />
+  <meta property="og:description" content="" />
+  <meta property="og:site_name" content="Plataforma de Monitoramento Ambiental TerraMA&sup2;" /> 
+
+  <!-- Bootstrap core CSS -->
+  <link href="vendors/bootstrap-3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+  <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+  <link href="vendors/bootstrap-3.3.6/css/ie10-viewport-bug-workaround.css" rel="stylesheet"/>
+
+  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+  <!--[if lt IE 9]>
+      <script src="vendors/html5shiv-3.7.2/html5shiv.min.js"></script>
+      <script src="vendors/respond-1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+  <!-- JsTree styles -->
+  <link href="vendors/jstree-3.3.2/themes/default/style.min.css" rel="stylesheet"/>
+
+  <!-- Hnd styles -->
+  <link href="css/layout.min.css" rel="stylesheet" />
+  <link href="css/effects.min.css" rel="stylesheet" />
+  <link href="css/theme-light-blue.min.css" rel="stylesheet" />
+  <link href="css/print.min.css" rel="stylesheet" media="print" />
+  <style type="text/css">nav { width: 350px} @media screen and (min-width:769px) { body.md-nav-expanded #main { margin-left: 350px} body.md-nav-expanded header { padding-left: 364px} }</style>
+
+  <!-- Content style -->
+  <link href="css/hnd.content.css" rel="stylesheet" />
+
+  
+
+
+
+</head>
+
+<body class="md-nav-expanded">
+
+
+
+  <div id="skip-link">
+    <a href="#main-content" class="element-invisible">Skip to main content</a>
+  </div>
+
+  <header class="headroom">
+    <button class="hnd-toggle btn btn-default">
+      <span class="sr-only">Toggle navigation</span>
+      <span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>        
+    </button>
+    <h1>Plataforma de Monitoramento Ambiental TerraMA&sup2;</h1>
+    
+  </header>
+
+  <nav class="md-nav-expanded">
+    <!-- Nav tabs -->
+    <ul class="tab-tabs nav nav-tabs" role="tablist">
+      <li id="nav-close"> 
+        <button class="hnd-toggle btn btn-default">
+          <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+        </button>
+      </li>
+      
+	  
+        <li role="presentation" class="tab active">
+            <a href="#contents" aria-controls="contents" role="tab" data-toggle="tab">
+                <i class="glyphicon glyphicon-list"></i>
+                Contents
+            </a>
+        </li>
+      
+        <li role="presentation" class="tab">
+            <a href="#index" aria-controls="index" role="tab" data-toggle="tab">
+                <i class="glyphicon glyphicon-asterisk"></i>
+                Index
+            </a>
+        </li>
+      
+        <li role="presentation" class="tab">
+            <a href="#search" aria-controls="search" role="tab" data-toggle="tab">
+                <i class="glyphicon glyphicon-search"></i>
+                Search
+            </a>
+        </li>
+      
+    </ul>  <!-- /Nav tabs -->
+
+    <!-- Tab panes -->
+    <div class="tab-content">
+	  
+      <div role="tabpanel" class="tab-pane active" id="contents">
+        <div id="toc" class="tree-container unselectable"
+            data-url="_toc.json"
+            data-openlvl="1"
+        >
+            
+        </div>
+      </div>  <!-- /contents-->
+      
+      <div role="tabpanel" class="tab-pane" id="index">
+        <div id="keywords" class="tree-container unselectable"
+            data-url="_keywords.json"
+            data-openlvl="1"
+        >
+            
+        </div>
+      </div>  <!-- /index-->
+      
+      <div role="tabpanel" class="tab-pane" id="search">
+        <div class="search-content">
+          <div class="search-input">
+            <form id="search-form">
+              <div class="form-group">
+                <div class="input-group">
+                  <input type="text" class="form-control" id="input-search" name="input-search" placeholder="Search..." />
+                  <span class="input-group-btn">
+                    <button class="btn btn-default" type="submit">
+                      <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                    </button>
+                  </span>
+                </div>
+              </div>
+            </form>
+          </div>  <!-- /search-input -->
+          <div class="search-result">
+            <div id="search-info"></div>
+            <div class="tree-container unselectable" id="search-tree"></div>
+          </div>  <!-- /search-result -->
+        </div>  <!-- /search-content -->
+      </div>  <!-- /search-->
+      
+    </div>  <!-- /Tab panes -->
+
+  </nav>
+
+  <div id="main">
+
+    <article>
+        <div id="topic-content" class="container-fluid" 
+		  data-hnd-id="architecture"
+		  data-hnd-context="7"
+		  data-hnd-title="Arquitetura da Plataforma"
+		>
+            
+                <div class="navigation">
+                    <ol class="breadcrumb">
+                        <li><a href="introduction.html">Introdu&ccedil;&atilde;o</a></li>
+                    </ol>
+                    <div class="nav-arrows">
+                        <div class="btn-group btn-group-xs" role="group"><a class="btn btn-default" href="introduction.html" title="Introdu&ccedil;&atilde;o" role="button"><span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span></a><a class="btn btn-default" href="whats_new.html" title="O que h&aacute; de novo ? " role="button"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a><a class="btn btn-default" href="data_formats.html" title="Dados e Formatos" role="button"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></div>
+                    </div>
+                </div> 
+            
+
+            <a id="main-content"></a>
+
+            <h2>Arquitetura da Plataforma</h2>
+
+            <div class="main-content">
+                
+<p></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps6"><a name="docs-internal-guid-29a5dce0-2f91-ff9e-df49-8cd26a7dedbd"></a>
+<span class="rvts16">A plataforma está baseada no conceito de serviços (SOA – Service Oriented Architecture), onde um serviço é uma funcionalidade independente, sem estado, que aceita uma ou mais requisições e retorna um ou mais resultados. Uma interface web é utilizada para administrar os serviços e para transferir tarefas para tais serviços que estão definidas em projetos. Esta interface web é identificada como “</span><a class="rvts22" href="administration_module.html">Módulo de Administração</a><span class="rvts16">”.</span></p>
+<p class="rvps6"><a name="docs-internal-guid-95fd17a3-c65e-4c0a-51f8-1c48de99918e"></a>
+<span class="rvts16">Projetos são administrados por usuários com diferentes perfis onde são &nbsp;definidos de onde serão acessados os dados dinâmicos e estáticos através de servidores de dados. Análises são definidas fazendo uso de dados estáticos e dinâmicos que são processados com operadores espaciais da plataforma e uma linguagem de programação de fácil utilização. Tais análises produzem novos dados dinâmicos para serem reutilizados. A visualização dos dados é definida para dados estáticos, dinâmicos e análises. O alerta é definido a partir de dados dinâmicos que foram coletados ou resultados de análises que produzem notificações para serem enviadas a usuários.</span></p>
+<p class="rvps6"><span class="rvts16">Uma segunda interface web é utilizada pelo usuário final que terá acesso aos dados por uma interface gráfica. Esta interface web é identificada como “</span><a class="rvts22" href="monitoring_module.html">Módulo de Monitoramento</a><span class="rvts16">” e será responsável por apresentar todos dados estáticos, dinâmicos, resultados de análises, alertas e dados tabulares associados.</span></p>
+<p class="rvps6"><span class="rvts16"><br/></span></p>
+<p class="rvps11"><img alt="" style="padding : 1px;" src="lib/Fig1_2Web.png"></p>
+<p class="rvps12"><a name="docs-internal-guid-f543ba00-48d9-aeff-38f6-4f69d7837c87"></a>
+<span class="rvts19">Figura 1.2 </span><span class="rvts20">– Arquitetura da Plataforma.</span></p>
+<p class="rvps6"><a name="docs-internal-guid-95fd17a3-c660-f1d6-0905-10cd1e4942af"></a>
+<span class="rvts16">Cada serviço realiza um conjunto de tarefas de forma independente, local ou distribuída em diferentes computadores, mas que se comunicam para dar sequência a novos processamentos. Os serviços disponíveis são:</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps8"><span class="rvts17">Serviço de Coleta : </span><span class="rvts16">Responsável pela coleta dos dados ambientais disponibilizados por servidores de dados, buscando periodicamente tais dados. Caso sejam encontrados, tais dados são baixados e incluídos na base de dados do projeto. Os tipos de servidores de dados e sua localização são definidos através da interface web do módulo de administração. Um serviço de coleta pode ser executado localmente ou remotamente em diferentes máquinas. Veja como utilizar um serviço de </span><a class="rvts23" href="add_dynamic_data.html">coleta para obter dados dinâmicos</a><span class="rvts16">.</span></li>
+<li class="rvps8"><span class="rvts17">Serviço de Interpolação:</span><span class="rvts16"> Responsável pela criação de dados dinâmicos matriciais como resultado de interpolação dos dados de PCD ou ocorrências coletados, produzindo novos dados matriciais dinâmicos. Um serviço de interpolação pode ser executado localmente ou remotamente em diferentes máquinas. Veja como utilizar um serviço de interpolação para criar novos dados dinâmicos matriciais.</span></li>
+<li class="rvps8"><span class="rvts17">Serviço de Análise</span><span class="rvts16"> : Responsável pelo cruzamento entre dos dados ambientais (hidrometeorológicos) e dados estáticos. Uma análise configurada produzirá novos dados dinâmicos, seja geográficos ou tabulares. Os modelos de análises são desenvolvidas com a linguagem de programação Python. Um serviço de análise pode ser executado localmente ou remotamente em diferentes máquinas. Veja como </span><a class="rvts23" href="analysis.html">utilizar um serviço de análise para criar novos dados dinâmicos pela interseção espacial entre dados dinâmicos e estáticos</a><span class="rvts16">.</span></li>
+<li class="rvps8"><span class="rvts17">Serviço de Visualização</span><span class="rvts16"> : Responsável por publicar dados estáticos, dinâmicos ou resultados &nbsp;de análises no módulo de monitoramento. O serviço utiliza o Geoserver para criar as camadas a serem publicadas, juntamente com o estilo a ser apresentado. Um serviço de visualização pode ser executado localmente ou remotamente em diferentes máquinas. Veja como utilizar um </span><a class="rvts23" href="views.html">serviço de visualização para publicar todos os dados no módulo de monitoramento.</a></li>
+<li class="rvps8"><span class="rvts17">Serviço de Alerta</span><span class="rvts16"> : Responsável pelo envio de mensagens e relatórios contendo informações a respeito das alterações nos níveis de risco detectados pelo serviço de análise. Os usuários devem se cadastrar como observadores das análises para receberem os relatórios de alteração, enviados através de correio eletrônico. Um serviço de alerta pode ser executado localmente ou remotamente em diferentes máquinas. Veja como utilizar um </span><a class="rvts23" href="alerts.html">serviço de alerta para enviar notificações aos usuários</a><span class="rvts16">.</span></li>
+</ul>
+<p class="rvps6"><a name="docs-internal-guid-95fd17a3-c666-af24-2332-486c554cfd72"></a>
+<span class="rvts16">A Figura 1.2 mostra ainda como diferentes dados podem estar disponíveis em uma base de dados de um projeto. Note que há dados dinâmicos que são adquiridos pelo serviço de coleta, dados dinâmicos que são gerados pela plataforma como resultado de análises ou interpolações e dados dinâmicos disponíveis por outras tecnologias como radares, satélites ou outros bancos de dados que estão localmente na mesma rede de computadores onde está a plataforma TerraMA². Parte dos dados dinâmicos coletados, como dados de PCD´s e ocorrências, devem ser armazenados em um banco espacial PostgreSQL+PostGIS. Um banco de dados de nome “terrama2” é definido para armazenar todas as tabelas de metadados além de poder armazenar parte dos dados que serão utilizados.</span></p>
+<p></p>
+<p class="rvps5" style="clear: both;"><span class="rvts14">Created with the Personal Edition of HelpNDoc: </span><a class="rvts15" href="https://www.helpndoc.com">Free EBook and documentation generator</a></p>
+
+            </div>
+            
+            <div id="topic_footer"><div id="topic_footer_content">Copyright &copy; 2017 by INPE. All Rights Reserved.</div></div>
+        </div>  <!-- /#topic-content -->
+    </article>
+
+    <footer>
+        
+    </footer>
+
+  </div>  <!-- /#main -->
+
+  <div class="mask" data-toggle="sm-nav-expanded"></div>
+
+  <!-- Scripts -->
+  <script src="vendors/jquery-1.11.3/jquery.min.js"></script>
+  <script src="vendors/bootstrap-3.3.6/js/bootstrap.min.js"></script>
+  <script src="vendors/fastclick-1.0.6/fastclick.min.js"></script>
+  <script src="vendors/markjs-8.8.3/jquery.mark.min.js"></script>
+  <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+  <script src="vendors/bootstrap-3.3.6/js/ie10-viewport-bug-workaround.js"></script>
+  
+  <!-- Headroom -->
+  <script src="vendors/headroom-0.9.3/headroom.min.js"></script>
+  <script src="vendors/headroom-0.9.3/jquery.headroom.min.js"></script>
+
+  <!-- JsTree -->
+  <script src="vendors/jstree-3.3.2/jstree.min.js"></script>
+
+  <!-- HelpNDoc scripts -->
+  <script src="_translations.js"></script>
+  <script src="js/hndsd.min.js"></script>
+  <script src="js/hndse.min.js"></script>
+  <script src="js/app.min.js"></script>
+
+  <!-- Scripts -->
+  <script>
+    $(function() {
+      // Instanciate FastClick
+      Origami.fastclick(document.body);
+      // Create the app
+      var app = new Hnd.App();
+      // Update translations
+      hnd_ut(app);
+      // Boot the app
+      app.Boot();
+    });
+  </script>
+
+  
+

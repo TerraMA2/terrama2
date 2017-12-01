@@ -128,14 +128,22 @@ void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)
       ss << "T";
       ss << dataSchedule.frequencyStartTime;
 
-      auto startDate = terrama2::core::TimeUtils::stringToTimestamp(ss.str(), terrama2::core::TimeUtils::webgui_timefacet);
-
-      if(*startDate < *nowTZ)
+      try
       {
-        // If the time to start has already passed, set the start time to tomorrow
-        terrama2::core::TimeUtils::addDay(startDate, 1);
-      }
+        auto startDate = terrama2::core::TimeUtils::stringToTimestamp(ss.str(), terrama2::core::TimeUtils::webgui_timefacet);
+        if(*startDate < *nowTZ)
+        {
+          // If the time to start has already passed, set the start time to tomorrow
+          terrama2::core::TimeUtils::addDay(startDate, 1);
+        }
         secondsToStart = *startDate - *nowTZ;
+      }
+      catch(...)
+      {
+        QString errMsg = QObject::tr("Invalid frequency or schedule informed.");
+        TERRAMA2_LOG_WARNING() << errMsg;
+        throw InvalidFrequencyException() << terrama2::ErrorDescription(errMsg);
+      }
     }
   }
   else if(dataSchedule.schedule > 0)

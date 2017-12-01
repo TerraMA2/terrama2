@@ -143,7 +143,13 @@ std::string terrama2::core::Unpack::decompress(std::string uri,
     // Create the directory where you will unpack the files.
     QDir dir(unpackFolder);
     if(!dir.exists())
-      dir.mkpath(unpackFolder);
+    {
+      if(!dir.mkpath(unpackFolder))
+      {
+          TERRAMA2_LOG_ERROR() << QObject::tr("Error creating temporary folder.");
+          return "";
+      }
+    }
   }
 
   try

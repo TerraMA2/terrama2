@@ -92,7 +92,7 @@ void terrama2::services::analysis::core::python::DCP::registerDCPFunctions()
   def("sum", terrama2::services::analysis::core::dcp::sum,
     dcpSum_overloads(args("attribute", "ids"),
                           "Sum operator for dcp"));
-  def("Standard_deviation", terrama2::services::analysis::core::dcp::standardDeviation,
+  def("standard_deviation", terrama2::services::analysis::core::dcp::standardDeviation,
     dcpStandardDeviation_overloads(args("attribute", "ids"),
                           "Standard deviation operator for dcp"));
   def("variance", terrama2::services::analysis::core::dcp::variance,

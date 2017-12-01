@@ -1,6 +1,6 @@
 {
   "name": "terrama2-webapp",
-  "version": "4.0.0-rc4",
+  "version": "4.0.0",
   "private": true,
   "scripts": {
     "start": "grunt && node ./bin/www",

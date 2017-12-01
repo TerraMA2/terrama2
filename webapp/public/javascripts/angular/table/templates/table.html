@@ -133,7 +133,7 @@
             </span>
             <i class="fa fa-upload"></i>
           </a>
-          <a ng-href="{{ extra.canRemove ? linkToAdd : 'javascript:function() { return false; }'}}"
+          <a ng-href="{{ extra.canRemove ? linkToAdd : ''}}"
             ng-show="!extra.importFromAnotherProject"
             ng-disabled="!extra.canRemove"
             class="btn btn-default pull-right"
@@ -145,10 +145,10 @@
           </a>
 
           <div class="btn-group pull-right" style="margin-top: 24px;margin-right: 10px;" ng-show="extra.importFromAnotherProject">
-            <a type="button" class="btn btn-default" ng-href="{{ extra.canRemove ? linkToAdd : 'javascript:function() { return false; }'}}" ng-disabled="!extra.canRemove">
+            <a type="button" class="btn btn-default" ng-href="{{ extra.canRemove ? linkToAdd : ''}}" ng-disabled="!extra.canRemove">
               <i class="fa fa-plus"></i>
             </a>
-            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ng-disabled="!extra.canRemove">
               <span class="caret"></span>
               <span class="sr-only"></span>
             </button>
@@ -198,7 +198,7 @@
           </td>
 
           <td ng-if="extra.project" class="pull-cell-left">
-            <a ng-href="{{ extra.canEdit(element) ? extra.project.edit(element) : 'javascript:function() { return false; }'}}" 
+            <a ng-href="{{ extra.canEdit(element) ? extra.project.edit(element) : ''}}" 
                 class="btn btn-default btn-sm" 
                 ng-disabled="!extra.canEdit(element)">
               <i class="fa fa-pencil"></i> {{ i18n.__("Edit") }}

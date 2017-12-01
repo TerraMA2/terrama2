@@ -146,8 +146,8 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
       double maxy = obj["ymax"].toDouble();
       double minx = obj["xmin"].toDouble();
       double maxx = obj["xmax"].toDouble();
-      view.topRightCorner.reset(new te::gm::Coord2D(maxx, miny));
-      view.lowerLeftCorner.reset(new te::gm::Coord2D(minx, maxy));
+      view.topRightCorner.reset(new te::gm::Coord2D(maxx, maxy));
+      view.lowerLeftCorner.reset(new te::gm::Coord2D(minx, miny));
       view.srid = static_cast<Srid>(obj["srid"].toInt());
     }
     else

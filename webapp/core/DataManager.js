@@ -434,77 +434,91 @@ var DataManager = module.exports = {
       };
 
       return models.db.Project.findAll({}).then(function(projects) {
-        projects.forEach(function(project) {
-          self.data.projects.push(project.get());
-        });
+        return models.db.User.findAll({}).then(function(users) {
+          projects.forEach(function(project) {
+            var projectObj = project.get();
+            var userObj = null;
 
-        return models.db.DataProvider.findAll({ include: [ models.db.DataProviderType, models.db.DataProviderOptions ] }).then(function(dataProviders) {
-          dataProviders.forEach(function(dataProvider) {
-            self.data.dataProviders.push(new DataModel.DataProvider(dataProvider));
-          });
-          // find all data series, providers
-          return models.db.DataSeries.findAll({
-            include: [
-              {
-                model: models.db.DataProvider,
-                include: [models.db.DataProviderType]
-              },
-              models.db.DataSeriesSemantics,
-              {
-                model: models.db.DataSet,
-                include: [
-                  {
-                    model: models.db.DataSetDcp,
-                    attributes: [
-                      // retrieving GeoJSON. Its is important because Sequelize
-                      // orm does not retrieve SRID even geometry has. The "2"
-                      // in arguments is to retrieve entire representation.
-                      // It retrieves as string. Once GeoJSON retrieved,
-                      // you must parse it. "JSON.parse(geoJsonStr)"
-                      [orm.fn('ST_AsGeoJSON', orm.col('position'), 15, 2), 'position'],
-                      // EWKT representation
-                      [orm.fn('ST_AsEwkt', orm.col('position')), 'positionWkt']
-                    ],
-                    required: false
-                  },
-                  {
-                    model: models.db.DataSetOccurrence,
-                    required: false
-                  },
-                  {
-                    model: models.db.DataSetMonitored,
-                    required: false
-                  },
-                  {
-                    model: models.db.DataSetGrid,
-                    required: false
-                  },
-                  models.db.DataSetFormat
-                ]
+            users.forEach(function(user) {
+              if(user.dataValues.id === projectObj.user_id) {
+                userObj = user.get();
+                return;
               }
-            ]
-          }).then(function(dataSeries) {
-            var semanticsList = Application.get("semantics");
-            dataSeries.forEach(function(dSeries) {
-              var provider = new DataModel.DataProvider(dSeries.DataProvider.get());
-
-              var builtDataSeries = new DataModel.DataSeries(dSeries.get());
-              builtDataSeries.setDataProvider(provider);
-
-              builtDataSeries.dataSets.forEach(function(dSet) {
-                self.data.dataSets.push(dSet);
-              });
-              var semantic = semanticsList.find(function(dSeriesSemantic){
-                return dSeries.DataSeriesSemantic.code == dSeriesSemantic.code;
-              });
-              Object.assign(builtDataSeries.data_series_semantics, semantic);
-              builtDataSeries.semantics = builtDataSeries.data_series_semantics;
-              self.data.dataSeries.push(builtDataSeries);
             });
 
-            self.isLoaded = true;
-            return resolve();
+            projectObj.user_name = userObj.name;
 
+            self.data.projects.push(projectObj);
+          });
+
+          return models.db.DataProvider.findAll({ include: [ models.db.DataProviderType, models.db.DataProviderOptions ] }).then(function(dataProviders) {
+            dataProviders.forEach(function(dataProvider) {
+              self.data.dataProviders.push(new DataModel.DataProvider(dataProvider));
+            });
+            // find all data series, providers
+            return models.db.DataSeries.findAll({
+              include: [
+                {
+                  model: models.db.DataProvider,
+                  include: [models.db.DataProviderType]
+                },
+                models.db.DataSeriesSemantics,
+                {
+                  model: models.db.DataSet,
+                  include: [
+                    {
+                      model: models.db.DataSetDcp,
+                      attributes: [
+                        // retrieving GeoJSON. Its is important because Sequelize
+                        // orm does not retrieve SRID even geometry has. The "2"
+                        // in arguments is to retrieve entire representation.
+                        // It retrieves as string. Once GeoJSON retrieved,
+                        // you must parse it. "JSON.parse(geoJsonStr)"
+                        [orm.fn('ST_AsGeoJSON', orm.col('position'), 15, 2), 'position'],
+                        // EWKT representation
+                        [orm.fn('ST_AsEwkt', orm.col('position')), 'positionWkt']
+                      ],
+                      required: false
+                    },
+                    {
+                      model: models.db.DataSetOccurrence,
+                      required: false
+                    },
+                    {
+                      model: models.db.DataSetMonitored,
+                      required: false
+                    },
+                    {
+                      model: models.db.DataSetGrid,
+                      required: false
+                    },
+                    models.db.DataSetFormat
+                  ]
+                }
+              ]
+            }).then(function(dataSeries) {
+              var semanticsList = Application.get("semantics");
+              dataSeries.forEach(function(dSeries) {
+                var provider = new DataModel.DataProvider(dSeries.DataProvider.get());
+
+                var builtDataSeries = new DataModel.DataSeries(dSeries.get());
+                builtDataSeries.setDataProvider(provider);
+
+                builtDataSeries.dataSets.forEach(function(dSet) {
+                  self.data.dataSets.push(dSet);
+                });
+                var semantic = semanticsList.find(function(dSeriesSemantic){
+                  return dSeries.DataSeriesSemantic.code == dSeriesSemantic.code;
+                });
+                Object.assign(builtDataSeries.data_series_semantics, semantic);
+                builtDataSeries.semantics = builtDataSeries.data_series_semantics;
+                self.data.dataSeries.push(builtDataSeries);
+              });
+
+              self.isLoaded = true;
+              return resolve();
+
+            }).catch(_rejectClean);
           }).catch(_rejectClean);
         }).catch(_rejectClean);
       }).catch(_rejectClean);
@@ -542,8 +556,22 @@ var DataManager = module.exports = {
     var self = this;
     return new Promise(function(resolve, reject){
       models.db.Project.create(projectObject, Utils.extend({}, options)).then(function(project){
-        self.data.projects.push(project.get());
-        return resolve(Utils.clone(project.get()));
+        models.db.User.findAll({}).then(function(users) {
+          var projectObj = project.get();
+          var userObj = null;
+
+          users.forEach(function(user) {
+            if(user.dataValues.id === projectObj.user_id) {
+              userObj = user.get();
+              return;
+            }
+          });
+
+          projectObj.user_name = userObj.name;
+
+          self.data.projects.push(projectObj);
+          return resolve(Utils.clone(projectObj));
+        });
       }).catch(function(e) {
         var message = "Could not save project: ";
         if (e.errors) { message += e.errors[0].message; }

@@ -66,7 +66,8 @@ namespace terrama2
           DONE          = 4,  /*!< Process finished */
           ON_QUEUE      = 5,  /*!< When the process is added to the waiting queue */
           INTERRUPTED   = 6,  /*!< When the process was interrupted and could not be finished */
-          NOT_EXECUTED  = 7   /*!< When the process  */
+          NOT_EXECUTED  = 7,   /*!< When the process was in queue but hasn't been executed */
+          WARNING       = 8   /*!< The process was executed but the user should be notified */
         };
 
         /*!

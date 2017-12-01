@@ -62,7 +62,7 @@
                 type="text"
                 ng-pattern="$ctrl.regexColumn"
                 list="tableColumnsList"
-                ng-blur="$ctrl.getColumnValues()"
+                ng-change="$ctrl.getColumnValues()"
                 ng-required="$ctrl.type === $ctrl.DataSeriesType.GEOMETRIC_OBJECT || $ctrl.type === $ctrl.DataSeriesType.OCCURRENCE || $ctrl.type === $ctrl.DataSeriesType.ANALYSIS_MONITORED_OBJECT">
 
           <span class="help-block" 

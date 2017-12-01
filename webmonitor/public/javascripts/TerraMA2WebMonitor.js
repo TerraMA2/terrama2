@@ -55,6 +55,12 @@ define(
       TerraMA2WebComponents.MapDisplay.updateLayerTime( /**id */ layerId, /** time */ layerTime);
     }
 
+    //Function to update slider date on initial request
+    var updateMapSliderDate = function(layerId, date){
+      var timeFormat = moment(date.replace('Z', '')).format("YYYY-MM-DDThh:mm:ss") + "Z";
+      TerraMA2WebComponents.MapDisplay.updateLayerTime(layerId, date);
+    }
+
     var changeLanguage = function(language) {
       i18next.changeLanguage(language, function() {
         $.post(BASE_URL + "languages", { locale: language }, function() {
@@ -139,6 +145,16 @@ define(
         }
 
       });
+      
+      $('#terrama2-layerexplorer').on('click', 'li.layer', function() {
+        var layerId = this.getAttribute('data-layerid');
+        var layerObject = Layers.getLayerById(layerId);
+        if(!layerObject)
+          return;
+        
+        if(layerObject.status == LayerStatusEnum.NEW || layerObject.status == LayerStatusEnum.ALERT)
+          Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.ONLINE);
+      });
 
       //change status icon when close the group layer
       $('.parent_li').on('click', function() {
@@ -201,6 +217,36 @@ define(
           }
         });
       });
+
+      $('.template input').mousedown(function() {
+        if(!$(this).is(':checked')) {
+          var checked = $(".template input:checked");
+
+          for(var i = 0, checkedLength = checked.length; i < checkedLength; i++)
+            checked[i].click();
+        }
+      });
+
+      $('#auto-update-on').click(function(){
+        $('#auto-update-on').addClass("hidden");
+        $('#auto-update-off').removeClass("hidden");
+      });
+
+      $('#auto-update-off').click(function(){
+        $('#auto-update-off').addClass("hidden");
+        $('#auto-update-on').removeClass("hidden");
+      });
+    };
+
+    var checkIfAutoUpdate = function(layer){
+      var isAutoUpdate = $('#auto-update-off').hasClass("hidden");
+      var isVisible = $("#" + layer.htmlId + " input").is(":checked");
+      if (isAutoUpdate && isVisible){
+        $("#" + layer.htmlId + " input.terrama2-layerexplorer-checkbox").trigger("click");
+        $("#" + layer.htmlId + " input.terrama2-layerexplorer-checkbox").trigger("click");
+        Layers.changeLayerStatus(layer.id, LayerStatusEnum.NEW);
+        Layers.changeParentLayerStatus(layer.parent, LayerStatusEnum.NEW);
+      }
     };
 
     var loadSocketsListeners = function() {
@@ -316,6 +362,7 @@ define(
             Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.NEW);
             Layers.changeParentLayerStatus(layerObject.parent, LayerStatusEnum.NEW);
             Layers.getLayerCapabilities(layerObject.uriGeoServer, layerObject.workspace, layerObject.nameId, layerObject.id, layerObject.parent, true);
+            checkIfAutoUpdate(layerObject);
           }
         }
 
@@ -392,13 +439,40 @@ define(
                 span += "<span id='terrama2-slider' class='terrama2-datepicker-icon'> <i class='fa fa-sliders'></i></span>";
               }
               dateObject.initialDateIndex = dateObject.dates.length - 1;
+
+              var layerObject = Layers.getLayerById(data.layerId);
+              if (data.update){
+                if ($('#auto-update-off').hasClass("hidden")){
+                  dateObject.initialDateIndex = dateObject.dates.length - 1;
+                  updateMapSliderDate(data.layerId, dateObject.dates[dateObject.initialDateIndex]);
+                } else {
+                  dateObject.initialDateIndex = layerObject.dateInfo.initialDateIndex;
+                }
+              } else {
+                dateObject.initialDateIndex = dateObject.dates.length - 1;
+                updateMapSliderDate(data.layerId, dateObject.dates[dateObject.initialDateIndex]);
+              }
+
             } else if(layerCapabilities[layerIndex].extent instanceof Object) {
               if(!data.update || !$(li).has("#terrama2-calendar").length)
                 span += "<span id='terrama2-calendar' class='terrama2-datepicker-icon'> <i class='fa fa-calendar'></i></span>";
 
-              dateObject.startFilterDate = getInitialDateToCalendar(layerCapabilities[layerIndex].extent);
-              dateObject.endFilterDate = layerCapabilities[layerIndex].extent.endDate;
-              updateMapDate(data.layerId, dateObject);
+              if (data.update){
+                if ($('#auto-update-off').hasClass("hidden")){
+                  dateObject.startFilterDate = getInitialDateToCalendar(layerCapabilities[layerIndex].extent);
+                  dateObject.endFilterDate = layerCapabilities[layerIndex].extent.endDate;
+                  updateMapDate(data.layerId, dateObject);
+                } else {
+                  var layerObject = Layers.getLayerById(data.layerId);
+                  dateObject.startFilterDate = layerObject.dateInfo.startFilterDate;
+                  dateObject.endFilterDate = layerObject.dateInfo.endFilterDate;
+                }
+              } else {
+                dateObject.startFilterDate = getInitialDateToCalendar(layerCapabilities[layerIndex].extent);
+                dateObject.endFilterDate = layerCapabilities[layerIndex].extent.endDate;
+                updateMapDate(data.layerId, dateObject);
+              }
+
             }
 
             $(li).append($(span));
@@ -728,7 +802,7 @@ define(
 
       //Adding open map street
       if(TerraMA2WebComponents.MapDisplay.addOSMLayer("osm", "OpenStreetMap", "OpenStreetMap", false, "terrama2-layerexplorer", false)) {
-        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("osm", "template", null, "treeview unsortable terrama2-truncate-text", null);
+        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("osm", "template", null, "treeview unsortable terrama2-truncate-text template", null);
         var layerObject = Layers.createLayerObject({
           layers: ["osm"],
           name: "OpenStreetMap",
@@ -737,14 +811,25 @@ define(
         });
         Layers.addLayer(layerObject);
         LayerStatus.addLayerStatusIcon("osm");
-        Layers.changeLayerStatus("osm", LayerStatusEnum.ONLINE);
+      }
+
+      var gebcoUrl = "http://www.gebco.net/data_and_products/gebco_web_services/web_map_service/mapserv?request=getmap&service=wms";
+      if(TerraMA2WebComponents.MapDisplay.addTileWMSLayer("gebco_08_grid", "GEBCO", "GEBCO", gebcoUrl, "mapserver", false, false, "terrama2-layerexplorer", { version: "1.3.0", format: "image/jpeg" })){
+        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("gebco_08_grid", "template", null, "treeview unsortable terrama2-truncate-text template", null);
+        var layerObject = Layers.createLayerObject({
+          layers: ["gebco_08_grid"],
+          name: "GEBCO",
+          type: "template",
+          description: null
+        });
+        Layers.addLayer(layerObject);
+        LayerStatus.addLayerStatusIcon("gebco_08_grid");
       }
 
       addTreeviewMenuClass();
       LayerStatus.addGroupSpanIcon();
       Layers.addLayersToSort();
       Sortable.setSortable();
-      Layers.changeParentLayerStatus("template", LayerStatusEnum.ONLINE);
 
       // Setting the names of the layers groups
       Utils.setTagContent("#custom > span > span:nth-child(3n)", "Externals");
