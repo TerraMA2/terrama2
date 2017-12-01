@@ -83,8 +83,6 @@ void terrama2::core::DataAccessorOccurrenceWfp::adapt(DataSetPtr dataSet, std::s
   Srid srid = getSrid(dataSet);
 
   te::dt::DateTimeProperty* timestampProperty = new te::dt::DateTimeProperty(getTimestampPropertyName(dataSet), te::dt::TIME_INSTANT_TZ);
-  te::dt::SimpleProperty* latProperty = new te::dt::SimpleProperty(getLatitudePropertyName(dataSet), te::dt::DOUBLE_TYPE);
-  te::dt::SimpleProperty* lonProperty = new te::dt::SimpleProperty(getLongitudePropertyName(dataSet), te::dt::DOUBLE_TYPE);
   te::gm::GeometryProperty* geomProperty = new te::gm::GeometryProperty(getOutputGeometryPropertyName(dataSet), srid, te::gm::PointType);
 
   // Find the right column to adapt
@@ -102,17 +100,11 @@ void terrama2::core::DataAccessorOccurrenceWfp::adapt(DataSetPtr dataSet, std::s
     {
       // update latitude column index
       if(property->getName() == getLatitudePropertyName(dataSet))
-      {
         latPos = i;
-        converter->add(i, latProperty, boost::bind(&terrama2::core::DataAccessor::stringToDouble, this, _1, _2, _3));
-      }
 
       // update longitude column index
       if(property->getName() == getLongitudePropertyName(dataSet))
-      {
         lonPos = i;
-        converter->add(i, lonProperty, boost::bind(&terrama2::core::DataAccessor::stringToDouble, this, _1, _2, _3));
-      }
 
       if(!isValidColumn(latPos) || !isValidColumn(lonPos))
         continue;
