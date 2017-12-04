@@ -493,7 +493,7 @@ define([], function() {
               }
             }
           }
-          else if (Object.keys(self.legend).length !== 0 && self.legend.metadata.creation_type == "xml" && self.legend.metadata.xml_style != "") {
+          else if (Object.keys(self.legend).length !== 0 && self.legend.metadata.creation_type == "xml" && (self.legend.metadata.xml_style == "" || self.legend.metadata.xml_style == undefined) ) {
             return MessageBoxService.danger(i18n.__("View"), i18n.__("You must fill the SLD field"));
           }
           else if (Object.keys(self.legend).length !== 0 && self.legend.metadata.creation_type != "editor" && self.legend.metadata.creation_type != "xml"){
