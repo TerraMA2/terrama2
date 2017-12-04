@@ -6,8 +6,7 @@ from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 tableName = "analysis_dcp_result"
 
 def compareQuery(tableName):
-    #return "SELECT * FROM "+tableName+"_ref WHERE not EXISTS (SELECT * FROM "+tableName+" WHERE "+tableName+".* = "+tableName+"_ref.* )"
-     return "SELECT result.*, reference.* FROM "+tableName+" result INNER JOIN "+tableName+"_ref reference ON (result.id = reference.id) WHERE not EXISTS (SELECT * FROM "+tableName+"_ref WHERE result.execution_date = reference.execution_date and result.max = reference.max)"
+     return "SELECT result.*, reference.* FROM "+tableName+" result INNER JOIN "+tableName+"_ref reference ON (result.id = reference.id) WHERE not EXISTS (SELECT * FROM "+tableName+"_ref WHERE result.execution_date = reference.execution_date and result.max = reference.max and result.count = reference.count and result.mean = reference.mean and result.median = reference.median and result.min = reference.min and result.standard_deviation = reference.standard_deviation and result.sum = reference.sum and result.value = reference.value and result.variance = reference.variance)"
 
 
 

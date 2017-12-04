@@ -6,7 +6,7 @@ conn = psycopg2.connect("dbname='"+dbname+"' user='postgres' password='postgres'
 conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
 cur = conn.cursor()
 
-command = "/usr/bin/pg_restore -h 'localhost' -p '5432' -U 'postgres' -d 'test' -v '/home/bianca/dcp_history_ref.backup'"
+command = "/usr/bin/pg_restore -h 'localhost' -p '5432' -U 'postgres' -d 'test' -v '"+namefile+"' "
 os.system(command)
 cur.close()
 
