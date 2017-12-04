@@ -37,20 +37,24 @@ class DCPInpeTs: public QObject
     void deleteDB();
     void createDB();
     void collect();
-    void analysis();
-    void compareCollectAndAnalysis();
+    void analysisHistory();
+    void analysisDCP();
+    void analysisHistoryInterval();
+
 
   private slots:
 
-    void initTestCase(){ createDB(); } // Run before all tests
-    void cleanupTestCase(){ /*deleteDB();*/ } // Run after all tests
+    void initTestCase(){ } // Run before all tests
+    void cleanupTestCase(){  } // Run after all tests
 
-    void init(){ } //run before each test
-    void cleanup(){ } //run before each test
+    void init(){ createDB(); } //run before each test
+    void cleanup(){ deleteDB(); } //run before each test
 
     //******Test functions********
 
-    void collectAndAnalysis() { collect(); analysis(); /*compareCollectAndAnalysis();*/}
+    void collectAndAnalysisHistory() { collect(); analysisHistory(); }
+    void collectAndAnalysisDCP() { collect(); analysisDCP(); }
+    void collectAndAnalysisHistoryInterval() { collect(); analysisHistoryInterval(); }
 
 
 };

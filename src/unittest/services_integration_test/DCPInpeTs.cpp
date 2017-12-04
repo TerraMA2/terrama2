@@ -71,10 +71,25 @@ void interpreterScriptPy(std::string path)
   interpreter->runScript(script);
 }
 
-void restoreDB()
+void restoreDB(int codAnalysis)
 {
 
-  interpreterScriptPy("share/terrama2/scripts/restore-db.py");
+  std::string scriptPath = terrama2::core::FindInTerraMA2Path("share/terrama2/scripts/restore-db.py");
+
+  std::string script = terrama2::core::readFileContents(scriptPath);
+
+  auto interpreter = terrama2::core::InterpreterFactory::getInstance().make("PYTHON");
+  interpreter->setString("dbname","test");
+
+
+  if(codAnalysis == 0)
+    interpreter->setString("namefile", TERRAMA2_DATA_DIR + "/dcp_history_ref.backup");
+  else if(codAnalysis == 1)
+    interpreter->setString("namefile", TERRAMA2_DATA_DIR + "/operator_dcp_ref.backup");
+  else if(codAnalysis == 2)
+    interpreter->setString("namefile", TERRAMA2_DATA_DIR + "/operator_history_interval_ref.backup");
+
+  interpreter->runScript(script);
 }
 
 
@@ -142,6 +157,30 @@ void timerCollectorAndAnalysis()
   QCoreApplication::exec();
 }
 
+void compareCollectAndAnalysis(int codAnalysis)
+{
+  restoreDB(codAnalysis);
+
+  try
+  {
+    int qntTablesCollector = compareCollector();
+    QCOMPARE(qntTablesCollector, 5);
+  }
+  catch(const terrama2::core::InterpreterException& e)
+  {
+    QFAIL(boost::get_error_info<terrama2::ErrorDescription>(e)->toUtf8().data());
+  }
+
+  try
+  {
+    int qntTablesAnalysis =  compareAnalysis();
+    QCOMPARE(qntTablesAnalysis, 1);
+  }
+  catch(const terrama2::core::InterpreterException& e)
+  {
+    QFAIL(boost::get_error_info<terrama2::ErrorDescription>(e)->toUtf8().data());
+  }
+}
 void addInputCollect(std::shared_ptr<terrama2::services::collector::core::DataManager> dataManagerCollector)
 {
     //////////////////////////////////////////////
@@ -259,6 +298,7 @@ void DCPInpeTs::collect()
   timerCollectorAndAnalysis();
 }
 
+
 terrama2::core::DataSeriesPtr addInputAnalysis(std::shared_ptr<terrama2::services::analysis::core::DataManager> dataManagerAnalysis)
 {
 
@@ -284,7 +324,8 @@ terrama2::core::DataSeriesPtr addResultAnalysis(std::shared_ptr<terrama2::servic
     return dataSeriesResult;
 }
 
-terrama2::services::analysis::core::AnalysisPtr addAnalysis(std::shared_ptr<terrama2::services::analysis::core::DataManager> dataManagerAnalysis)
+
+std::shared_ptr<terrama2::services::analysis::core::Analysis> addAnalysis(std::shared_ptr<terrama2::services::analysis::core::DataManager> dataManagerAnalysis, std::string scriptAnalysis)
 {
 
     auto dataSeriesDcp = addInputAnalysis(dataManagerAnalysis);
@@ -293,7 +334,82 @@ terrama2::services::analysis::core::AnalysisPtr addAnalysis(std::shared_ptr<terr
 
     std::shared_ptr<terrama2::services::analysis::core::Analysis> analysis = std::make_shared<terrama2::services::analysis::core::Analysis>();
 
-    std::string script = R"z(moBuffer = Buffer()
+    std::string script = scriptAnalysis;
+    analysis->id = 1;
+    analysis->name = "Min DCP";
+    analysis->script = script;
+    analysis->scriptLanguage = terrama2::services::analysis::core::ScriptLanguage::PYTHON;
+    analysis->type = terrama2::services::analysis::core::AnalysisType::DCP_TYPE;
+    analysis->active = true;
+    analysis->outputDataSeriesId = dataSeriesResult->id;
+    analysis->outputDataSetId = dataSeriesResult->datasetList.front()->id;
+    analysis->serviceInstanceId = 1;
+
+    terrama2::services::analysis::core::AnalysisDataSeries dcpADS;
+    dcpADS.id = 1;
+    dcpADS.dataSeriesId = dataSeriesDcp->id;
+    dcpADS.type = terrama2::services::analysis::core::AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
+    dcpADS.metadata["identifier"] = "table_name";
+
+    std::vector<terrama2::services::analysis::core::AnalysisDataSeries> analysisDataSeriesList;
+    analysisDataSeriesList.push_back(dcpADS);
+    analysis->analysisDataSeriesList = analysisDataSeriesList;
+
+    dataManagerAnalysis->add(analysis);
+
+    return analysis;
+}
+
+std::unique_ptr<terrama2::services::analysis::core::Service> gmockAndServicesAnalysis(std::shared_ptr<terrama2::services::analysis::core::DataManager> dataManagerAnalysis)
+{
+  terrama2::services::analysis::core::PythonInterpreterInit pythonInterpreterInit;
+
+  auto loggerCopy = std::make_shared<terrama2::core::MockAnalysisLogger>();
+
+  EXPECT_CALL(*loggerCopy, setConnectionInfo(::testing::_)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*loggerCopy, setTableName(::testing::_)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*loggerCopy, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
+  EXPECT_CALL(*loggerCopy, getDataLastTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
+  EXPECT_CALL(*loggerCopy, done(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*loggerCopy, start(::testing::_)).WillRepeatedly(::testing::Return(0));
+  EXPECT_CALL(*loggerCopy, isValid()).WillRepeatedly(::testing::Return(true));
+
+  auto logger = std::make_shared<terrama2::core::MockAnalysisLogger>();
+
+  EXPECT_CALL(*logger, setConnectionInfo(::testing::_)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*logger, setTableName(::testing::_)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*logger, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
+  EXPECT_CALL(*logger, getDataLastTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
+  EXPECT_CALL(*logger, done(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*logger, start(::testing::_)).WillRepeatedly(::testing::Return(0));
+  EXPECT_CALL(*logger, clone()).WillRepeatedly(::testing::Return(loggerCopy));
+  EXPECT_CALL(*logger, isValid()).WillRepeatedly(::testing::Return(true));
+
+  std::unique_ptr<terrama2::services::analysis::core::Service> serviceAnalysis(new terrama2::services::analysis::core::Service(dataManagerAnalysis));
+  serviceAnalysis->setLogger(logger);
+  serviceAnalysis->start();
+
+  auto& serviceManager = terrama2::core::ServiceManager::getInstance();
+  serviceManager.setInstanceId(1);
+  serviceManager.setLogger(logger);
+  serviceManager.setLogConnectionInfo(te::core::URI(""));
+
+  return serviceAnalysis;
+}
+
+void DCPInpeTs::analysisHistory()
+{
+
+    //init gmock and services.
+
+    auto dataManagerAnalysis = std::make_shared<terrama2::services::analysis::core::DataManager>();
+
+
+    auto serviceAnalysis = gmockAndServicesAnalysis(dataManagerAnalysis);
+
+    //call the script analysis history
+
+    std::string scriptAnHistory = R"z(moBuffer = Buffer(BufferType.Out_union, 2., "km")
 ids = dcp.influence.by_rule(moBuffer)
 maximum = dcp.history.max("pluvio", "6000d")
 minimum = dcp.history.min("pluvio", "6000d")
@@ -314,101 +430,126 @@ add_value("variance", var)
 add_value("count", count)
 add_value("value", va))z";
 
-    analysis->id = 1;
-    analysis->name = "Min DCP";
-    analysis->script = script;
-    analysis->scriptLanguage = terrama2::services::analysis::core::ScriptLanguage::PYTHON;
-    analysis->type = terrama2::services::analysis::core::AnalysisType::DCP_TYPE;
-    analysis->active = true;
-    analysis->outputDataSeriesId = dataSeriesResult->id;
-    analysis->outputDataSetId = dataSeriesResult->datasetList.front()->id;
-    analysis->serviceInstanceId = 1;
+    auto analysis = addAnalysis(dataManagerAnalysis, scriptAnHistory);
 
-    analysis->metadata["INFLUENCE_TYPE"] = "1";
-    analysis->metadata["INFLUENCE_RADIUS"] = "50";
-    analysis->metadata["INFLUENCE_RADIUS_UNIT"] = "km";
-
-    terrama2::services::analysis::core::AnalysisDataSeries dcpADS;
-    dcpADS.id = 1;
-    dcpADS.dataSeriesId = dataSeriesDcp->id;
-    dcpADS.type = terrama2::services::analysis::core::AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
-    dcpADS.metadata["identifier"] = "table_name";
-
-    std::vector<terrama2::services::analysis::core::AnalysisDataSeries> analysisDataSeriesList;
-    analysisDataSeriesList.push_back(dcpADS);
-    analysis->analysisDataSeriesList = analysisDataSeriesList;
-
-    dataManagerAnalysis->add(analysis);
-
-    return analysis;
-}
-
-void DCPInpeTs::analysis()
-{
-    terrama2::services::analysis::core::PythonInterpreterInit pythonInterpreterInit;
-
-    auto dataManagerAnalysis = std::make_shared<terrama2::services::analysis::core::DataManager>();
-
-    auto loggerCopy = std::make_shared<terrama2::core::MockAnalysisLogger>();
-
-    EXPECT_CALL(*loggerCopy, setConnectionInfo(::testing::_)).WillRepeatedly(::testing::Return());
-    EXPECT_CALL(*loggerCopy, setTableName(::testing::_)).WillRepeatedly(::testing::Return());
-    EXPECT_CALL(*loggerCopy, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
-    EXPECT_CALL(*loggerCopy, getDataLastTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
-    EXPECT_CALL(*loggerCopy, done(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
-    EXPECT_CALL(*loggerCopy, start(::testing::_)).WillRepeatedly(::testing::Return(0));
-    EXPECT_CALL(*loggerCopy, isValid()).WillRepeatedly(::testing::Return(true));
-
-    auto logger = std::make_shared<terrama2::core::MockAnalysisLogger>();
-
-    EXPECT_CALL(*logger, setConnectionInfo(::testing::_)).WillRepeatedly(::testing::Return());
-    EXPECT_CALL(*logger, setTableName(::testing::_)).WillRepeatedly(::testing::Return());
-    EXPECT_CALL(*logger, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
-    EXPECT_CALL(*logger, getDataLastTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
-    EXPECT_CALL(*logger, done(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
-    EXPECT_CALL(*logger, start(::testing::_)).WillRepeatedly(::testing::Return(0));
-    EXPECT_CALL(*logger, clone()).WillRepeatedly(::testing::Return(loggerCopy));
-    EXPECT_CALL(*logger, isValid()).WillRepeatedly(::testing::Return(true));
-
-    terrama2::services::analysis::core::Service serviceAnalysis(dataManagerAnalysis);
-    serviceAnalysis.setLogger(logger);
-    serviceAnalysis.start();
-
-    auto& serviceManager = terrama2::core::ServiceManager::getInstance();
-    serviceManager.setInstanceId(1);
-    serviceManager.setLogger(logger);
-    serviceManager.setLogConnectionInfo(te::core::URI(""));
-
-    auto analysis = addAnalysis(dataManagerAnalysis);
-
-    //serviceAnalysis.addToQueue(analysis->id, terrama2::core::TimeUtils::stringToTimestamp("2017-11-01T18:29:29.785+00", terrama2::core::TimeUtils::webgui_timefacet));
-    serviceAnalysis.addToQueue(analysis->id, terrama2::core::TimeUtils::nowUTC());
+    serviceAnalysis->addToQueue(analysis->id, terrama2::core::TimeUtils::stringToTimestamp("2017-11-28T19:48:15.792+00", terrama2::core::TimeUtils::webgui_timefacet));
 
     timerCollectorAndAnalysis();
 
+    int codeAnalysis = 0;
+    compareCollectAndAnalysis(codeAnalysis);
+
 }
 
-void DCPInpeTs::compareCollectAndAnalysis()
+
+/*
+ * Analysis Operator DCP
+*/
+
+void DCPInpeTs::analysisDCP()
 {
-  restoreDB();
+  //init gmock and services.
 
-  try
-  {
-    int qntTablesCollector = compareCollector();
-    QCOMPARE(qntTablesCollector, 5);
-  }
-  catch(const terrama2::core::InterpreterException& e)
-  {
-    QFAIL(boost::get_error_info<terrama2::ErrorDescription>(e)->toUtf8().data());
-  }
+  auto dataManagerAnalysis = std::make_shared<terrama2::services::analysis::core::DataManager>();
 
-  try
-  {
-    int qntTablesAnalysis =  compareAnalysis();
-    QCOMPARE(qntTablesAnalysis, 1);
-  }
-  catch(const terrama2::core::InterpreterException& e)
-  {
-    QFAIL(boost::get_error_info<terrama2::ErrorDescription>(e)->toUtf8().data());
-  }
+  auto serviceAnalysis = gmockAndServicesAnalysis(dataManagerAnalysis);
+
+    std::string scriptDCP = R"z(moBuffer = Buffer(BufferType.Out_union, 2., "km")
+ids = dcp.influence.by_rule(moBuffer)
+maximum = dcp.max("pluvio", ids)
+minimum = dcp.min("pluvio", ids)
+me = dcp.mean("pluvio", ids)
+su = dcp.sum("pluvio", ids)
+med = dcp.median("pluvio", ids)
+standard = dcp.standard_deviation("pluvio", ids)
+var = dcp.variance("pluvio", ids)
+count  = dcp.count(moBuffer)
+va = dcp.value("pluvio")
+add_value("max", maximum)
+add_value("min", minimum)
+add_value("mean", me)
+add_value("sum", su)
+add_value("median", med)
+add_value("standard_deviation", standard)
+add_value("variance", var)
+add_value("count", count)
+add_value("value", va))z";
+
+    auto analysis = addAnalysis(dataManagerAnalysis, scriptDCP);
+    serviceAnalysis->addToQueue(analysis->id, terrama2::core::TimeUtils::stringToTimestamp("2017-11-28T19:48:15.792+00" , terrama2::core::TimeUtils::webgui_timefacet));
+
+    timerCollectorAndAnalysis();
+
+    int codeAnalysis = 1;
+    compareCollectAndAnalysis(codeAnalysis);
+}
+
+
+void DCPInpeTs::analysisHistoryInterval()
+{
+
+    //init gmock and services.
+
+    auto dataManagerAnalysis = std::make_shared<terrama2::services::analysis::core::DataManager>();
+
+
+    auto serviceAnalysis = gmockAndServicesAnalysis(dataManagerAnalysis);
+
+    //call the script analysis history
+
+    std::string scriptAnHistory = R"z(moBuffer = Buffer(BufferType.Out_union, 2., "km")
+ids = dcp.influence.by_rule(moBuffer)
+maximum = dcp.history.interval.max("pluvio", "16h", "10h", ids)
+minimum = dcp.history.interval.min("pluvio", "16h", "10h", ids)
+me = dcp.history.interval.mean("pluvio", "16h", "10h", ids)
+su = dcp.history.interval.sum("pluvio", "16h", "10h", ids)
+med = dcp.history.interval.median("pluvio", "16h", "10h", ids)
+standard = dcp.history.interval.standard_deviation("pluvio", "16h", "10h", ids)
+var = dcp.history.interval.variance("pluvio", "16h", "10h", ids)
+add_value("max", maximum)
+add_value("min", minimum)
+add_value("mean", me)
+add_value("sum", su)
+add_value("median", med)
+add_value("standard_deviation", standard)
+add_value("variance", var))z";
+
+
+    auto analysis = addAnalysis(dataManagerAnalysis, scriptAnHistory);
+
+
+    auto reprocessingHistoricalDataPtr = std::make_shared<terrama2::services::analysis::core::ReprocessingHistoricalData>();
+
+
+    boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone("+00"));
+
+
+    std::string startDate = "2008-02-20 00:00:00";
+    boost::posix_time::ptime startBoostDate(boost::posix_time::time_from_string(startDate));
+    boost::local_time::local_date_time lstartDate(startBoostDate.date(), startBoostDate.time_of_day(), zone, true);
+    reprocessingHistoricalDataPtr->startDate = std::make_shared<te::dt::TimeInstantTZ>(lstartDate);
+
+    std::string endDate = "2008-03-07 00:00:00";
+    boost::posix_time::ptime endBoostDate(boost::posix_time::time_from_string(endDate));
+    boost::local_time::local_date_time lendDate(endBoostDate.date(), endBoostDate.time_of_day(), zone, true);
+    reprocessingHistoricalDataPtr->endDate = std::make_shared<te::dt::TimeInstantTZ>(lendDate);
+
+
+    analysis->reprocessingHistoricalData = reprocessingHistoricalDataPtr;
+
+    analysis->schedule.frequency = 10;
+    analysis->schedule.frequencyUnit = "h";
+
+    dataManagerAnalysis->add(analysis);
+
+
+
+
+    serviceAnalysis->addToQueue(analysis->id, terrama2::core::TimeUtils::stringToTimestamp("2008-02-20T00:00:00.000+00", terrama2::core::TimeUtils::webgui_timefacet));
+
+    timerCollectorAndAnalysis();
+
+    int codeAnalysis = 2;
+    compareCollectAndAnalysis(codeAnalysis);
+
 }
