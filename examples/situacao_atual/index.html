@@ -1,0 +1,129 @@
+<html> 
+  <head> 
+   <title>Situação atual</title> 
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="externals/bootstrap/css/bootstrap.min.css">
+  </head> 
+ 
+  <body> 
+    <!-- Bootstrap -->
+    <script src="externals/jquery/jquery-3.2.1.min.js"></script>
+    <script src="externals/bootstrap/js/bootstrap.min.js"></script>
+    <script src="externals/chart/Chart.min.js"></script>
+    <script src="index.js"></script>
+
+    <div class="container">
+
+      <div id="header" class="row">
+        <div class="col-12" id="top-logo">
+          <img src="imagens/logo.png">
+        </div>
+      </div>
+
+      <div id="page" class="row justify-content-center">
+        <div class="col-10">
+          <br>
+          <h1>Monitoramento da situação atual</h1>
+          <p>
+            Esta homepage é um exemplo/modelo que fornece as Instituições que utilizam o TerraMA2Q uma ferramenta de acompanhamento da dinâmica das queimadas
+            localmente, porém da mesma maneira que pode ser encontrada no portal do <a href="http://www.inpe.br/queimadas">Programa Queimadas do INPE</a>.<br/>
+            O objetivo é demonstrar como personalizar os principais resultados das Análises desenvolvidas utilizando a Plataforma TerraMA2, onde todos 
+            os dados apresentados são atualizados dinâmicamente depois dos processos de Coleta, Análise e Publicação e assim conhecer uma possibilidade de 
+           rápido desenvolvimento e customização.
+          </p>
+          <hr>
+
+          <h2>Mapa de Visão Geral dos Focos.</h2>
+          <div class="row content-center">
+            <img id="mainImage" src="http://localhost:8080/geoserver/terrama2_10/wms?service=WMS&version=1.1.0&request=GetMap&layers=terrama2_10:view10&styles=&bbox=-73.9902384050571,-33.7513575740624,-32.390875226298,5.27097195688001&width=768&height=720&srs=EPSG:4326&format=image%2Fpng">
+          </div>
+          <br>
+          <p><b>Figura 1: </b>
+          Distribuição espacial dos focos identificados por diferêntes satélies, representados por cores distintas.
+          </p>
+          <hr>
+
+          <!-- Template to create a table 
+            <table> id="tableId" class="table table-sm table-striped">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Column1</th>
+                  <th>Column2</th>
+                </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+          -->
+          <!-- Template to create a chart
+            <canvas id="chartId" width="400" height="300"></canvas>
+          -->
+          <div class="row">
+            <div class="col-12">
+              <h3>Estados</h3>
+              <p>Número de focos acumulados por Estados</p>
+            </div>
+            <div class="offset-2 col-8 table-situacao">
+              <h5>Contagem de focos acumulados em 48h</h5>
+              <table id="tableEstados1d" class="table table-sm table-striped">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Estado</th>
+                    <th>Focos</th>
+                  </tr>
+                </thead>
+                <tbody>
+                </tbody>
+              </table>
+            </div>
+            <div class="offset-2 col-8 chart-situacao">
+              <canvas id="chartEstados1d" width="400" height="300"></canvas>
+            </div>
+
+            <div class="offset-2 col-8 table-situacao">
+              <hr>
+              <h5>Contagem de focos acumulados em um mês</h5>
+              <table id="tableEstados2d" class="table table-sm  table-striped">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Estado</th>
+                    <th>Focos</th>
+                  </tr>
+                </thead>
+                <tbody>
+                </tbody>
+              </table>
+            </div>
+            <div class="offset-2 col-8 chart-situacao">
+              <canvas id="chartEstados2d" width="400" height="300"></canvas>
+            </div>
+
+            <div class="offset-2 col-8 table-situacao">
+              <hr>
+              <h5>Contagem de focos acumulados em um ano</h5>
+              <table id="tableEstados3d" class="table table-sm table-striped">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Estado</th>
+                    <th>Focos</th>
+                  </tr>
+                </thead>
+                <tbody>
+                </tbody>
+              </table>
+            </div>
+            <div class="offset-2 col-8 chart-situacao">
+              <canvas id="chartEstados3d" width="400" height="300"></canvas>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </body> 
+</html>

@@ -1,0 +1,45 @@
+body {
+  background: rgb(204,204,204) !important;
+  margin-top: 18px !important;
+}
+
+#header {
+  background: #f8c60b;
+  margin: 0 auto;
+}
+
+#page {
+  background: white;
+  margin: 0 auto;
+  margin-bottom: 0.5cm;
+  border-left: 2px solid #f8c60b;
+  border-right: 2px solid #f8c60b;
+  border-bottom: 2px solid #f8c60b;
+}
+
+#top-logo{
+  text-align: center;
+  padding-top: 18px;
+  height: 120px;
+}
+
+.content-center{
+  text-align: center;
+}
+
+.content-center img {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.table-situacao{
+  margin-bottom: 10px;
+}
+
+.table-situacao > h5{
+  margin-bottom: 20px;
+}
+
+.chart-situacao {
+  margin-bottom: 20px;
+}
