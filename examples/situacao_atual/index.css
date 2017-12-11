@@ -4,15 +4,25 @@ body {
 }
 
 #header {
-  background: #f8c60b;
+  background: white;
   margin: 0 auto;
+  height: 180px;
+  border-top: 2px solid #f8c60b;
+  border-left: 2px solid #f8c60b;
+  border-right: 2px solid #f8c60b;
+}
+
+#logo {
+  border: 0;
+  height: 4px;
+  background-image: linear-gradient(to right, rgba(0, 0, 0, 0), #f8c50bff, rgba(0, 0, 0, 0));
 }
 
 #page {
   background: white;
   margin: 0 auto;
   margin-bottom: 0.5cm;
-  border-left: 2px solid #f8c60b;
+  border-left: 2px solid #f8c50b;
   border-right: 2px solid #f8c60b;
   border-bottom: 2px solid #f8c60b;
 }
