@@ -1,6 +1,7 @@
 {
   "id": "relative_humidity_style",
   "name": "Humidity",
+  "type": "raster",
   "fields": ["band"],
   "gui": {
     "schema": {
