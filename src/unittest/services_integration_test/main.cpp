@@ -1,5 +1,3 @@
-
-
 // TerraMA2
 
 #include <terrama2/core/utility/Utils.hpp>
@@ -15,7 +13,8 @@
 #include <QCoreApplication>
 #include <QTimer>
 
-#include "DCPInpeTS.hpp"
+#include "DCPInpeTs.hpp"
+#include "OccTs.hpp"
 
 
 #include <iostream>
@@ -34,7 +33,7 @@ int main(int argc, char *argv[])
     terrama2::core::TerraMA2Init terramaRaii("unittest", 0);
     Q_UNUSED(terramaRaii);
 
-//    terrama2::core::disableLogger();
+    terrama2::core::disableLogger();
     terrama2::core::registerFactories();
 
     try
@@ -46,6 +45,17 @@ int main(int argc, char *argv[])
     {
       returnVal += 1;
     }
+
+    try
+    {
+      OccTs occTS;
+      returnVal += QTest::qExec(&occTS, argc, argv);
+    }
+    catch(...)
+    {
+      returnVal += 1;
+    }
+
   }
   catch (const terrama2::Exception& e)
   {

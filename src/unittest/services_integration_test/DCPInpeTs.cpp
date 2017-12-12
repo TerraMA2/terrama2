@@ -15,9 +15,10 @@
   TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
 */
 
+
 /*!
-  \file src/unittest/collector/DCPInpeTs.cpp
-  \brief test collector DCPInpe
+  \file src/unittest/services_integration_test/DCPInpeTs.cpp
+  \brief test services_integration DCPInpeTs
   \author Bianca Maciel
 */
 
@@ -49,167 +50,13 @@
 //Interpreter
 #include <terrama2/core/interpreter/InterpreterFactory.hpp>
 
-//Extra
-#include <extra/data/DCPSerramarInpe.hpp>
-#include <extra/data/ResultAnalysisPostGis.hpp>
-
-#include "DCPInpeTS.hpp"
-
 #include <terrama2/Config.hpp>
 
+#include "DCPInpeTs.hpp"
+
+//QT
 #include <QString>
 #include <QCoreApplication>
-
-
-void interpreterScriptPy(std::string path)
-{
-  std::string scriptPath = terrama2::core::FindInTerraMA2Path(path);
-  std::string script = terrama2::core::readFileContents(scriptPath);
-
-  auto interpreter = terrama2::core::InterpreterFactory::getInstance().make("PYTHON");
-  interpreter->setString("dbname","test");
-  interpreter->runScript(script);
-}
-
-void restoreDB(int codAnalysis)
-{
-
-  std::string scriptPath = terrama2::core::FindInTerraMA2Path("share/terrama2/scripts/restore-db.py");
-
-  std::string script = terrama2::core::readFileContents(scriptPath);
-
-  auto interpreter = terrama2::core::InterpreterFactory::getInstance().make("PYTHON");
-  interpreter->setString("dbname","test");
-
-
-  if(codAnalysis == 0)
-    interpreter->setString("namefile", TERRAMA2_DATA_DIR + "/dcp_history_ref.backup");
-  else if(codAnalysis == 1)
-    interpreter->setString("namefile", TERRAMA2_DATA_DIR + "/operator_dcp_ref.backup");
-  else if(codAnalysis == 2)
-    interpreter->setString("namefile", TERRAMA2_DATA_DIR + "/operator_history_interval_ref.backup");
-
-  interpreter->runScript(script);
-}
-
-
-int compareCollector()
-{
-   std::string scriptPath = terrama2::core::FindInTerraMA2Path("share/terrama2/scripts/compare-collector.py");
-   std::string script = terrama2::core::readFileContents(scriptPath);
-
-   auto interpreter = terrama2::core::InterpreterFactory::getInstance().make("PYTHON");
-   interpreter->setString("dbname","test");
-   interpreter->runScript(script);
-
-   boost::optional<double> countCollector = interpreter->getNumeric("count");
-
-   if(countCollector)
-   {
-     int qntdTables = int (*countCollector);
-     return qntdTables;
-   }
-
-   return 0;
-}
-
-int compareAnalysis()
-{
-
-  std::string scriptPath = terrama2::core::FindInTerraMA2Path("share/terrama2/scripts/compare-analysis.py");
-
-  std::string script = terrama2::core::readFileContents(scriptPath);
-
-  auto interpreter = terrama2::core::InterpreterFactory::getInstance().make("PYTHON");
-  interpreter->setString("dbname","test");
-
-  interpreter->runScript(script);
-
-  boost::optional<double> statusAnalysis = interpreter->getNumeric("status");
-
-  if(statusAnalysis)
-  {
-    int qntdTables = int (*statusAnalysis);
-    return qntdTables;
-  }
-
-  return 0;
-}
-
-
-void DCPInpeTs::deleteDB()
-{
-  interpreterScriptPy("share/terrama2/scripts/delete-db.py");
-}
-
-void DCPInpeTs::createDB()
-{
-  deleteDB();
-  interpreterScriptPy("share/terrama2/scripts/create-db.py");
-}
-
-
-void timerCollectorAndAnalysis()
-{
-  QTimer timer;
-  QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-  timer.start(10000);
-  QCoreApplication::exec();
-}
-
-void compareCollectAndAnalysis(int codAnalysis)
-{
-  restoreDB(codAnalysis);
-
-  try
-  {
-    int qntTablesCollector = compareCollector();
-    QCOMPARE(qntTablesCollector, 5);
-  }
-  catch(const terrama2::core::InterpreterException& e)
-  {
-    QFAIL(boost::get_error_info<terrama2::ErrorDescription>(e)->toUtf8().data());
-  }
-
-  try
-  {
-    int qntTablesAnalysis =  compareAnalysis();
-    QCOMPARE(qntTablesAnalysis, 1);
-  }
-  catch(const terrama2::core::InterpreterException& e)
-  {
-    QFAIL(boost::get_error_info<terrama2::ErrorDescription>(e)->toUtf8().data());
-  }
-}
-void addInputCollect(std::shared_ptr<terrama2::services::collector::core::DataManager> dataManagerCollector)
-{
-    //////////////////////////////////////////////
-    //     input
-    // DataProvider information
-    //////////////////////////////////////////////
-    auto dataProvider = terrama2::serramar::dataProviderSerramarInpe();
-    dataManagerCollector->add(dataProvider);
-
-    // DataSeries information
-    auto dataSeries = terrama2::serramar::dataSeriesDcpSerramar(dataProvider);
-    dataManagerCollector->add(dataSeries);
-}
-
-
-void addResultCollector(std::shared_ptr<terrama2::services::collector::core::DataManager> dataManagerCollector)
-{
-    ///////////////////////////////////////////////
-    //     output
-    ///////////////////////////////////////////////
-
-    // DataProvider information
-    auto dataProvider = terrama2::serramar::dataProviderPostGisDCP();
-    dataManagerCollector->add(dataProvider);
-
-    // DataSeries information
-    auto outputDataSeries = terrama2::serramar::dataSeriesDcpSerramarPostGis(dataProvider);
-    dataManagerCollector->add(outputDataSeries);
-}
 
 
 terrama2::services::collector::core::CollectorPtr addCollector(std::shared_ptr<terrama2::services::collector::core::DataManager> dataManagerCollector)
@@ -247,90 +94,26 @@ void DCPInpeTs::collect()
 
   auto dataManagerCollector = std::make_shared<terrama2::services::collector::core::DataManager>();
 
-  auto loggerCopy = std::make_shared<terrama2::core::MockCollectorLogger>();
+  auto serviceCollector = utilsTS::collector::gmockAndServicesCollector(dataManagerCollector);
 
-  EXPECT_CALL(*loggerCopy, setConnectionInfo(::testing::_)).WillRepeatedly(::testing::Return());
-  EXPECT_CALL(*loggerCopy, setTableName(::testing::_)).WillRepeatedly(::testing::Return());
-  EXPECT_CALL(*loggerCopy, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
-  EXPECT_CALL(*loggerCopy, getDataLastTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
-  EXPECT_CALL(*loggerCopy, done(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
-  EXPECT_CALL(*loggerCopy, start(::testing::_)).WillRepeatedly(::testing::Return(0));
-  EXPECT_CALL(*loggerCopy, isValid()).WillRepeatedly(::testing::Return(true));
+  utilsTS::collector::addInputCollect(dataManagerCollector, utilsTS::typecollectoranalysis::dcp);
 
-  EXPECT_CALL(*loggerCopy, addInput(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
-  EXPECT_CALL(*loggerCopy, addOutput(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
-
-
-  auto logger = std::make_shared<terrama2::core::MockCollectorLogger>();
-
-  EXPECT_CALL(*logger, setConnectionInfo(::testing::_)).WillRepeatedly(::testing::Return());
-  EXPECT_CALL(*logger, setTableName(::testing::_)).WillRepeatedly(::testing::Return());
-  EXPECT_CALL(*logger, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
-  EXPECT_CALL(*logger, getDataLastTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
-  EXPECT_CALL(*logger, done(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
-  EXPECT_CALL(*logger, start(::testing::_)).WillRepeatedly(::testing::Return(0));
-  EXPECT_CALL(*logger, clone()).WillRepeatedly(::testing::Return(loggerCopy));
-  EXPECT_CALL(*logger, isValid()).WillRepeatedly(::testing::Return(true));
-
-  EXPECT_CALL(*logger, addInput(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
-  EXPECT_CALL(*logger, addOutput(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
-
-
-  terrama2::services::collector::core::Service serviceCollector(dataManagerCollector);
-  serviceCollector.setLogger(logger);
-  serviceCollector.start();
-
-  auto& serviceManager = terrama2::core::ServiceManager::getInstance();
-  serviceManager.setInstanceId(1);
-  serviceManager.setLogger(logger);
-  serviceManager.setLogConnectionInfo(te::core::URI(""));
-
-
-  addInputCollect(dataManagerCollector);
-
-  addResultCollector(dataManagerCollector);
+  utilsTS::collector::addResultCollector(dataManagerCollector, utilsTS::typecollectoranalysis::dcp);
 
   auto collector = addCollector(dataManagerCollector);
 
-  serviceCollector.addToQueue(collector->id, terrama2::core::TimeUtils::nowUTC());
+  serviceCollector->addToQueue(collector->id, terrama2::core::TimeUtils::nowUTC());
 
-
-  timerCollectorAndAnalysis();
-}
-
-
-terrama2::core::DataSeriesPtr addInputAnalysis(std::shared_ptr<terrama2::services::analysis::core::DataManager> dataManagerAnalysis)
-{
-
-    auto dataProviderDCP = terrama2::serramar::dataProviderPostGisDCP();
-    dataManagerAnalysis->add(dataProviderDCP);
-
-    auto dcpSerramar = terrama2::serramar::dataSeriesDcpSerramarPostGis(dataProviderDCP);
-    dataManagerAnalysis->add(dcpSerramar);
-
-    return dcpSerramar;
-}
-
-terrama2::core::DataSeriesPtr addResultAnalysis(std::shared_ptr<terrama2::services::analysis::core::DataManager> dataManagerAnalysis,terrama2::core::DataSeriesPtr dataSeries)
-{
-    auto dataProvider = terrama2::resultanalysis::dataProviderResultAnalysis();
-    dataManagerAnalysis->add(dataProvider);
-
-    auto dataSeriesResult = terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProvider,
-                                                                                      terrama2::resultanalysis::tablename::analysis_dcp_result,
-                                                                                      dataSeries);
-    dataManagerAnalysis->add(dataSeriesResult);
-
-    return dataSeriesResult;
+  utilsTS::timerCollectorAndAnalysis();
 }
 
 
 std::shared_ptr<terrama2::services::analysis::core::Analysis> addAnalysis(std::shared_ptr<terrama2::services::analysis::core::DataManager> dataManagerAnalysis, std::string scriptAnalysis)
 {
 
-    auto dataSeriesDcp = addInputAnalysis(dataManagerAnalysis);
+    auto dataSeriesDcp = utilsTS::analysis::addInputDataSeriesAnalysis(dataManagerAnalysis, utilsTS::typecollectoranalysis::dcp);
 
-    auto dataSeriesResult = addResultAnalysis(dataManagerAnalysis, dataSeriesDcp);
+    auto dataSeriesResult = utilsTS::analysis::addResultAnalysis(dataManagerAnalysis, dataSeriesDcp, utilsTS::typecollectoranalysis::dcp);
 
     std::shared_ptr<terrama2::services::analysis::core::Analysis> analysis = std::make_shared<terrama2::services::analysis::core::Analysis>();
 
@@ -359,44 +142,6 @@ std::shared_ptr<terrama2::services::analysis::core::Analysis> addAnalysis(std::s
 
     return analysis;
 }
-
-std::unique_ptr<terrama2::services::analysis::core::Service> gmockAndServicesAnalysis(std::shared_ptr<terrama2::services::analysis::core::DataManager> dataManagerAnalysis)
-{
-  terrama2::services::analysis::core::PythonInterpreterInit pythonInterpreterInit;
-
-  auto loggerCopy = std::make_shared<terrama2::core::MockAnalysisLogger>();
-
-  EXPECT_CALL(*loggerCopy, setConnectionInfo(::testing::_)).WillRepeatedly(::testing::Return());
-  EXPECT_CALL(*loggerCopy, setTableName(::testing::_)).WillRepeatedly(::testing::Return());
-  EXPECT_CALL(*loggerCopy, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
-  EXPECT_CALL(*loggerCopy, getDataLastTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
-  EXPECT_CALL(*loggerCopy, done(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
-  EXPECT_CALL(*loggerCopy, start(::testing::_)).WillRepeatedly(::testing::Return(0));
-  EXPECT_CALL(*loggerCopy, isValid()).WillRepeatedly(::testing::Return(true));
-
-  auto logger = std::make_shared<terrama2::core::MockAnalysisLogger>();
-
-  EXPECT_CALL(*logger, setConnectionInfo(::testing::_)).WillRepeatedly(::testing::Return());
-  EXPECT_CALL(*logger, setTableName(::testing::_)).WillRepeatedly(::testing::Return());
-  EXPECT_CALL(*logger, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
-  EXPECT_CALL(*logger, getDataLastTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
-  EXPECT_CALL(*logger, done(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
-  EXPECT_CALL(*logger, start(::testing::_)).WillRepeatedly(::testing::Return(0));
-  EXPECT_CALL(*logger, clone()).WillRepeatedly(::testing::Return(loggerCopy));
-  EXPECT_CALL(*logger, isValid()).WillRepeatedly(::testing::Return(true));
-
-  std::unique_ptr<terrama2::services::analysis::core::Service> serviceAnalysis(new terrama2::services::analysis::core::Service(dataManagerAnalysis));
-  serviceAnalysis->setLogger(logger);
-  serviceAnalysis->start();
-
-  auto& serviceManager = terrama2::core::ServiceManager::getInstance();
-  serviceManager.setInstanceId(1);
-  serviceManager.setLogger(logger);
-  serviceManager.setLogConnectionInfo(te::core::URI(""));
-
-  return serviceAnalysis;
-}
-
 void DCPInpeTs::analysisHistory()
 {
 
@@ -405,7 +150,7 @@ void DCPInpeTs::analysisHistory()
     auto dataManagerAnalysis = std::make_shared<terrama2::services::analysis::core::DataManager>();
 
 
-    auto serviceAnalysis = gmockAndServicesAnalysis(dataManagerAnalysis);
+    auto serviceAnalysis = utilsTS::analysis::gmockAndServicesAnalysis(dataManagerAnalysis);
 
     //call the script analysis history
 
@@ -434,15 +179,15 @@ add_value("value", va))z";
 
     serviceAnalysis->addToQueue(analysis->id, terrama2::core::TimeUtils::stringToTimestamp("2017-11-28T19:48:15.792+00", terrama2::core::TimeUtils::webgui_timefacet));
 
-    timerCollectorAndAnalysis();
+    utilsTS::timerCollectorAndAnalysis();
 
-    int codeAnalysis = 0;
-    compareCollectAndAnalysis(codeAnalysis);
+
+    utilsTS::database::compareCollectAndAnalysis(utilsTS::typecollectoranalysis::dcp_history);
 
 }
 
 
-/*
+/*!
  * Analysis Operator DCP
 */
 
@@ -452,7 +197,7 @@ void DCPInpeTs::analysisDCP()
 
   auto dataManagerAnalysis = std::make_shared<terrama2::services::analysis::core::DataManager>();
 
-  auto serviceAnalysis = gmockAndServicesAnalysis(dataManagerAnalysis);
+  auto serviceAnalysis = utilsTS::analysis::gmockAndServicesAnalysis(dataManagerAnalysis);
 
     std::string scriptDCP = R"z(moBuffer = Buffer(BufferType.Out_union, 2., "km")
 ids = dcp.influence.by_rule(moBuffer)
@@ -475,15 +220,18 @@ add_value("variance", var)
 add_value("count", count)
 add_value("value", va))z";
 
-    auto analysis = addAnalysis(dataManagerAnalysis, scriptDCP);
-    serviceAnalysis->addToQueue(analysis->id, terrama2::core::TimeUtils::stringToTimestamp("2017-11-28T19:48:15.792+00" , terrama2::core::TimeUtils::webgui_timefacet));
+    auto analysis = addAnalysis(dataManagerAnalysis, scriptDCP);//"2017-11-29 16:28:44.966-02"
+    serviceAnalysis->addToQueue(analysis->id, terrama2::core::TimeUtils::stringToTimestamp("2017-11-29T18:28:44.966+00" , terrama2::core::TimeUtils::webgui_timefacet));
 
-    timerCollectorAndAnalysis();
+    utilsTS::timerCollectorAndAnalysis();
 
-    int codeAnalysis = 1;
-    compareCollectAndAnalysis(codeAnalysis);
+    utilsTS::database::compareCollectAndAnalysis(utilsTS::typecollectoranalysis::operator_dcp);
 }
 
+
+/*!
+ * Analysis Operator History Interval
+*/
 
 void DCPInpeTs::analysisHistoryInterval()
 {
@@ -493,7 +241,7 @@ void DCPInpeTs::analysisHistoryInterval()
     auto dataManagerAnalysis = std::make_shared<terrama2::services::analysis::core::DataManager>();
 
 
-    auto serviceAnalysis = gmockAndServicesAnalysis(dataManagerAnalysis);
+    auto serviceAnalysis = utilsTS::analysis::gmockAndServicesAnalysis(dataManagerAnalysis);
 
     //call the script analysis history
 
@@ -544,12 +292,11 @@ add_value("variance", var))z";
 
 
 
-
     serviceAnalysis->addToQueue(analysis->id, terrama2::core::TimeUtils::stringToTimestamp("2008-02-20T00:00:00.000+00", terrama2::core::TimeUtils::webgui_timefacet));
 
-    timerCollectorAndAnalysis();
+    utilsTS::timerCollectorAndAnalysis();
 
-    int codeAnalysis = 2;
-    compareCollectAndAnalysis(codeAnalysis);
+    utilsTS::database::compareCollectAndAnalysis(utilsTS::typecollectoranalysis::operator_history_interval);
 
 }
+
