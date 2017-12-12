@@ -1,6 +1,7 @@
 {
   "id": "temp_kelvin_style",
   "name": "Temperature (Kelvin)",
+  "type": "raster",
   "fields": ["band"],
   "gui": {
     "schema": {
