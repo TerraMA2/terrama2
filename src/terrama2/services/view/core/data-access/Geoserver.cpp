@@ -171,7 +171,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
     }
   }
 
-  setWorkspace(generateWorkspaceName(viewPtr->id));
+  setWorkspace(generateWorkspaceName(viewPtr));
 
   registerWorkspace();
 
@@ -215,7 +215,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
 
         for(auto& fileInfo : fileInfoList)
         {
-          std::string layerName = generateLayerName(viewPtr->id);
+          std::string layerName = generateLayerName(viewPtr);
 
           if(dataFormat == "OGR")
           {
@@ -293,7 +293,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
       std::unique_ptr<te::da::DataSetType> modelDataSetType(dcpPositions.dataSetType.release());
 
       TableInfo tableInfo = DataAccess::getDCPPostgisTableInfo(inputDataSeries, inputObjectProvider);
-      std::string layerName = generateLayerName(viewPtr->id);
+      std::string layerName = generateLayerName(viewPtr);
 
       registerPostgisTable(viewPtr,
                            std::to_string(viewPtr->id) + "_" + std::to_string(inputDataSeries->id) + "_datastore",
@@ -316,7 +316,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
       TableInfo tableInfo = DataAccess::getPostgisTableInfo(dataset, inputDataSeries, inputDataProvider);
 
       std::string tableName = tableInfo.tableName;
-      std::string layerName = generateLayerName(viewPtr->id);
+      std::string layerName = generateLayerName(viewPtr);
       std::string timestampPropertyName = tableInfo.timestampPropertyName;
 
       std::unique_ptr<te::da::DataSetType> modelDataSetType = std::move(tableInfo.dataSetType);
@@ -435,7 +435,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
     // Register style
     std::string styleName = "";
 
-    std::string layerName = generateLayerName(viewPtr->id);
+    std::string layerName = generateLayerName(viewPtr);
     styleName = layerName + "_style";
     registerStyle(styleName, *viewPtr->legend.get(), objectType, geomType);
 
@@ -1383,17 +1383,18 @@ std::unique_ptr<te::se::Style> terrama2::services::view::core::GeoServer::genera
   return style;
 }
 
-void terrama2::services::view::core::GeoServer::cleanup(const ViewId& id,
+void terrama2::services::view::core::GeoServer::cleanup(const ViewPtr& viewPtr,
                                                         terrama2::core::DataProviderPtr dataProvider,
                                                         std::shared_ptr<terrama2::core::ProcessLogger> logger)
 {
   std::string workspace_to_remove = workspace_;
-  if (id != 0 && logger != nullptr)
+  if (viewPtr != nullptr && logger != nullptr)
   {
-    workspace_to_remove = generateWorkspaceName(id);
+    ViewId id = viewPtr->id;
+    workspace_to_remove = generateWorkspaceName(viewPtr);
 
     // Try to remove cached view table
-    const std::string& tableName = generateLayerName(id);
+    const std::string& tableName = generateLayerName(viewPtr);
     // Removing view table
     try
     {
@@ -1742,7 +1743,7 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
 
   for(auto& dataset : inputDataSeries->datasetList)
   {
-    std::string layerName = generateLayerName(viewPtr->id);
+    std::string layerName = generateLayerName(viewPtr);
     std::transform(layerName.begin(), layerName.end(),layerName.begin(), ::tolower);
 
     QUrl url(baseUrl.toString() + QString::fromStdString("/" + terrama2::core::getFolderMask(dataset) + "/" + layerName));
@@ -2252,14 +2253,14 @@ void terrama2::services::view::core::GeoServer::createMosaicTable(std::shared_pt
   transactor->commit();
 }
 
-std::string terrama2::services::view::core::GeoServer::generateWorkspaceName(const ViewId& id)
+std::string terrama2::services::view::core::GeoServer::generateWorkspaceName(const ViewPtr& viewPtr)
 {
-  return "terrama2_" + std::to_string(id);
+  return "terrama2_" + std::to_string(viewPtr->id);
 }
 
-std::string terrama2::services::view::core::GeoServer::generateLayerName(const ViewId& id) const
+std::string terrama2::services::view::core::GeoServer::generateLayerName(const ViewPtr& viewPtr) const
 {
-  return "view" + std::to_string(id);
+  return "view" + std::to_string(viewPtr->id);
 }
 
 std::string terrama2::services::view::core::GeoServer::getAttributeName(const terrama2::services::view::core::View::Legend& legend) const

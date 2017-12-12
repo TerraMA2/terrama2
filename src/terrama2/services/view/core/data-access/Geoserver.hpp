@@ -227,7 +227,7 @@ namespace terrama2
              *
              * \param v - Current view id object to remove. Default is selected workspace
              */
-            void cleanup(const ViewId& id = 0,
+            void cleanup(const ViewPtr& viewPtr = nullptr,
                          terrama2::core::DataProviderPtr dataProvider = nullptr,
                          std::shared_ptr<terrama2::core::ProcessLogger> logger = nullptr) override;
 
@@ -405,14 +405,14 @@ namespace terrama2
              * \param id - View identifier
              * \return Workspace name: "terrama2_ViewId"
              */
-            std::string generateWorkspaceName(const ViewId& id);
+            std::string generateWorkspaceName(const ViewPtr& viewPtr);
 
             /*!
              * \brief Helper to retrieve common view name with view id.
              * \param id View identifier
              * \return Unique Layer Name
              */
-            std::string generateLayerName(const ViewId& id) const;
+            std::string generateLayerName(const ViewPtr& viewPtr) const;
 
             std::string getAttributeName(const View::Legend& legend) const;
 

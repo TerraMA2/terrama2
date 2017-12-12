@@ -76,11 +76,11 @@ namespace terrama2
              *
              * \note It may throw Exception
              *
-             * \param id Current View Id to remove
+             * \param viewPtr Current View to remove
              * \param dataProvider Pointer to view data provider (optional)
              * \param logger Logger to perform database cleanup. Useful to retrieve database connection arguments.
              */
-            virtual void cleanup(const ViewId& id = 0,
+            virtual void cleanup(const ViewPtr& viewPtr = nullptr,
                                  terrama2::core::DataProviderPtr dataProvider = nullptr,
                                  std::shared_ptr<terrama2::core::ProcessLogger> logger = nullptr) = 0;
 
