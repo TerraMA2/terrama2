@@ -1,6 +1,7 @@
 {
   "id": "precipitation_style",
   "name": "Precipitation",
+  "type": "raster",
   "fields": ["band"],
   "gui": {
     "schema": {
