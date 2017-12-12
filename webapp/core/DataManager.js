@@ -5136,6 +5136,10 @@ var DataManager = module.exports = {
                 model: models.db.ViewStyleLegendMetadata
               }
             ]
+          },
+          {
+            model: models.db.ViewProperties,
+            require: false
           }
         ],
         where: restriction
@@ -5153,6 +5157,9 @@ var DataManager = module.exports = {
                 view.ViewStyleLegend.get(), {colors: view.ViewStyleLegend.ViewStyleColors ? view.ViewStyleLegend.ViewStyleColors.map(function(elm) { return elm.get(); }) : []}));
               legendModel.setMetadata(Utils.formatMetadataFromDB(view.ViewStyleLegend.ViewStyleLegendMetadata));
               viewModel.setLegend(legendModel);
+            }
+            if (view.ViewProperties){
+              viewModel.setProperties(view.ViewProperties);
             }
             return viewModel;
           }));
@@ -5440,7 +5447,35 @@ var DataManager = module.exports = {
             objectToAssign.schedule = {};
             objectToAssign.automatic_schedule = schedule || {};
           }
-          return resolve(new DataModel.View(Object.assign(view.get(), objectToAssign)));
+          return new DataModel.View(Object.assign(view.get(), objectToAssign));
+        })
+        .then(function(viewModel){
+          if (viewObject.properties){
+            var properties = viewObject.properties;
+            var propertiesList = [];
+
+            if (properties instanceof Array) {
+              propertiesList = properties;
+            } else if (properties instanceof Object) {
+              for(var key in properties) {
+                if (properties.hasOwnProperty(key)) {
+                  propertiesList.push({
+                    view_id: view.id,
+                    key: key,
+                    value: properties[key]
+                  });
+                }
+              }
+            }
+            return models.db.ViewProperties.bulkCreate(propertiesList, Utils.extend({view_id: view.id}, options)).then(function () {
+              return models.db.ViewProperties.findAll(Utils.extend({where: {view_id: view.id}}, options)).then(function(viewProperties) {
+                viewModel.setProperties(viewProperties);
+                return resolve(viewModel);
+              });
+            });
+          } else {
+            return resolve(viewModel)
+          }
         })
 
         .catch(function(err) {
