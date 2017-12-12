@@ -23,6 +23,8 @@ scripts/prerm
 scripts/postrm
 webapp/config/instances
 webmonitor/config/instances
+websql/node_modules
+websql/npm-debug*
 packages/debian-package/terrama2-doc
 packages/debian-package/terrama2-doc.deb
 scripts/config_pm2.sh
