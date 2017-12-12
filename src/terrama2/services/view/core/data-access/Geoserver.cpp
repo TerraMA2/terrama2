@@ -138,7 +138,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
   // If it has a legend, performs extra validations
   if (viewPtr->legend != nullptr)
   {
-    View::Legend* legend = viewPtr->legend.get();
+    auto& legend = viewPtr->legend;
 
     auto it = legend->metadata.find("creation_type");
     if (it == legend->metadata.end())
@@ -238,7 +238,8 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
               objectType = View::Legend::ObjectType::GEOMETRY;
             }
 
-            registerVectorFile(layerName + "_datastore_" + std::to_string(viewPtr->id),
+            registerVectorFile(viewPtr,
+                               layerName + "_datastore_" + std::to_string(viewPtr->id),
                                fileInfo.absoluteFilePath().toStdString(),
                                layerName);
           }
@@ -746,8 +747,8 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const ViewP
   te::ws::core::CurlWrapper cURLwrapper;
 
   std::string xml = "<featureType>";
-  xml += "<title>" + viewPtr->viewName + "</title>";
-  xml += "<name>" + layerName + "</name>";
+  xml += "<title>" + viewLayerTitle(viewPtr) + "</title>";
+  xml += "<name>" + viewLayerName(viewPtr) + "</name>";
   if(dataSeriesType == terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT
      || dataSeriesType == terrama2::core::DataSeriesType::DCP)
     xml += "<nativeName>" + layerName + "</nativeName>";
@@ -861,7 +862,8 @@ void terrama2::services::view::core::GeoServer::uploadZipVectorFiles(const std::
 }
 
 
-void terrama2::services::view::core::GeoServer::registerVectorFile(const std::string& dataStoreName,
+void terrama2::services::view::core::GeoServer::registerVectorFile(const ViewPtr& viewPtr,
+                                                                   const std::string& dataStoreName,
                                                                    const std::string& shpFilePath,
                                                                    const std::string& layerName) const
 {
@@ -891,8 +893,8 @@ void terrama2::services::view::core::GeoServer::registerVectorFile(const std::st
   }
 
   std::string xmlFeature = "<featureType>";
-  xmlFeature += "<title>" + layerName + "</title>";
-  xmlFeature += "<name>" + layerName + "</name>";
+  xmlFeature += "<title>" + viewLayerTitle(viewPtr) + "</title>";
+  xmlFeature += "<name>" + viewLayerName(viewPtr) + "</name>";
 
   QFileInfo file(QString::fromStdString(shpFilePath));
   xmlFeature += "<nativeName>" + file.baseName().toStdString() + "</nativeName>";
@@ -2272,7 +2274,7 @@ std::string terrama2::services::view::core::GeoServer::viewLayerName(const ViewP
   }
   catch (const std::out_of_range&)
   {
-    return "view" + std::to_string(viewPtr->id);
+    return "view_" + std::to_string(viewPtr->id);
   }
 }
 

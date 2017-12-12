@@ -169,7 +169,8 @@ namespace terrama2
              * \param shpFilePath The full path to the vector file
              * \param extension Specifies the type of data being registered. Supported: shp, properties, h2, spatialite, appschema
              */
-            void registerVectorFile(const std::string& dataStoreName,
+            void registerVectorFile(const ViewPtr& viewPtr,
+                                    const std::string& dataStoreName,
                                     const std::string& shpFilePath,
                                     const std::string& layerName) const;
 
