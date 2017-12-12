@@ -1031,7 +1031,8 @@ void terrama2::services::view::core::GeoServer::registerMosaicCoverage(const std
                                        + "/coverages/" + coverageName);
 
     std::string xml = "<coverage>";
-    xml += "<title>"+viewPtr->viewName+"</title>";
+    xml += "<title>" + viewLayerTitle(viewPtr) + "</title>";
+    xml += "<name>" + viewLayerName(viewPtr) + "</name>";
 
     // Using TerraMA² toString to keep precision
     const std::string llx = toString(rasterInfo.envelope->getLowerLeftX(), 14);
