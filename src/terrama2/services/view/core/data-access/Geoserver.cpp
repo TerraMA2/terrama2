@@ -525,7 +525,6 @@ void terrama2::services::view::core::GeoServer::registerWorkspace(const std::str
   }
 }
 
-
 const std::string& terrama2::services::view::core::GeoServer::workspace() const
 {
   return workspace_;
