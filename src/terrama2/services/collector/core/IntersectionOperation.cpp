@@ -50,6 +50,9 @@
 
 //STL
 #include <algorithm>
+#include <future>
+
+#include <boost/range/irange.hpp>
 
 // TerraLib
 #include <terralib/dataaccess/dataset/DataSet.h>
@@ -243,44 +246,77 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
       outputDs->add(item.release());
     }
 
-    for(unsigned int i = 0; i < interDs->size(); ++i)
+    size_t packNumber = 4;
+    size_t packSize = interDs->size()/packNumber + 1;
+
+    std::mutex mutex;
+
+    auto intersect = [interDs, collectedData,
+                      collectedGeomPropertyPos, intersectionGeomPos,
+                      interProperties, mapAlias,
+                      &rtree,
+                      &mutex,
+                      outputDs](size_t begin, size_t end)
     {
-      auto currGeom = interDs->getGeometry(i, intersectionGeomPos);
-      if(!currGeom.get())
-        continue;
-
-      terrama2::core::verify::srid(currGeom->getSRID());
-      if(currGeom->getSRID() != 4326)
-        currGeom->transform(4326);
-
-      // Recovers all occurrences that intersects the current geometry envelope
-      std::vector<size_t> report;
-      rtree->search(*currGeom->getMBR(), report);
-
-      for(size_t k = 0; k < report.size(); ++k)
+      for(auto i : boost::irange(begin, end))
       {
-        std::shared_ptr<te::gm::Geometry> occurrence = collectedData->getGeometry(report[k], collectedGeomPropertyPos);
+        auto currGeom = interDs->getGeometry(i, intersectionGeomPos);
+        if(!currGeom.get())
+          continue;
 
-        // for those geometries that has intersection, copies the selected attributes of the intersection dataset
-        if(occurrence->intersects(currGeom.get()))
+        terrama2::core::verify::srid(currGeom->getSRID());
+        if(currGeom->getSRID() != 4326)
+          currGeom->transform(4326);
+
+        // Recovers all occurrences that intersects the current geometry envelope
+        std::vector<size_t> report;
+        rtree->search(*currGeom->getMBR(), report);
+
+        for(size_t k = 0; k < report.size(); ++k)
         {
-          for(size_t j = 0; j < interProperties.size(); ++j)
-          {
-            std::string name = interProperties[j]->getName();
+          std::shared_ptr<te::gm::Geometry> occurrence = collectedData->getGeometry(report[k], collectedGeomPropertyPos);
 
-            std::string propName = mapAlias[name];
-            if(!interDs->isNull(i, propName))
+          // for those geometries that has intersection, copies the selected attributes of the intersection dataset
+          if(occurrence->intersects(currGeom.get()))
+          {
+            for(size_t j = 0; j < interProperties.size(); ++j)
             {
-              auto ad = interDs->getValue(i, propName);
-              if(!ad)
-                continue;
-              outputDs->move(report[k]);
-              outputDs->setValue(name, dynamic_cast<te::dt::AbstractData*>(ad.get()->clone()));
+              std::string name = interProperties.at(j)->getName();
+
+              std::string propName = mapAlias.at(name);
+              if(!interDs->isNull(i, propName))
+              {
+                auto ad = interDs->getValue(i, propName);
+                if(!ad)
+                  continue;
+
+                std::unique_lock<std::mutex> lock(mutex);
+                outputDs->move(report[k]);
+                outputDs->setValue(name, dynamic_cast<te::dt::AbstractData*>(ad.get()->clone()));
+              }
             }
           }
         }
       }
+    };
+
+    size_t begin = 0;
+    size_t temp = begin+packSize;
+    size_t end = temp <= interDs->size() ? temp : interDs->size();
+
+    std::vector< std::future<void> > promises;
+    for(;end < interDs->size();)
+    {
+      TERRAMA2_LOG_DEBUG() << "new thread!";
+      auto future = std::async(std::launch::async, intersect, begin, end);
+      promises.push_back(std::move(future));
+      begin = end+1;
+      temp = begin+packSize;
+      end = temp <= interDs->size() ? temp : interDs->size();
     }
+
+    // wait for all threads
+    for(auto& future : promises) future.get();
   }
 
   terrama2::core::SynchronizedDataSetPtr syncDs(new terrama2::core::SynchronizedDataSet(outputDs));
