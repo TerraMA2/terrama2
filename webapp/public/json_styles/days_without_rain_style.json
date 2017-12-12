@@ -1,6 +1,7 @@
 {
   "id": "days_without_rain_style",
   "name": "Days Without Rain",
+  "type": "raster",
   "fields": ["band"],
   "gui": {
     "schema": {
