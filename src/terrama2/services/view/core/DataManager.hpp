@@ -149,7 +149,8 @@ namespace terrama2
           //! Signal to notify that a View has been updated.
           void viewUpdated(ViewPtr);
           //! Signal to notify that a View has been removed.
-          void viewRemoved(ViewId, DataSeriesId);
+          // note: view has a different behaviour and remove, we need the complete object
+          void viewRemoved(ViewPtr, DataSeriesId);
 
         protected:
           std::map<ViewId, ViewPtr> view_;//!< A view from ViewId to View.
