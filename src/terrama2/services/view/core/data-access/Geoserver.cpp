@@ -986,7 +986,8 @@ void terrama2::services::view::core::GeoServer::registerCoverageFile(const std::
 }
 
 
-void terrama2::services::view::core::GeoServer::registerMosaicCoverage(const std::string& coverageStoreName,
+void terrama2::services::view::core::GeoServer::registerMosaicCoverage(const ViewPtr viewPtr,
+                                                                       const std::string& coverageStoreName,
                                                                        const std::string& mosaicPath,
                                                                        const std::string& coverageName,
                                                                        const RasterInfo& rasterInfo,
@@ -1721,7 +1722,6 @@ std::string terrama2::services::view::core::GeoServer::getGeomTypeString(const t
       QString errMsg = QObject::tr("Unknown geometry type. ");
       TERRAMA2_LOG_ERROR() << errMsg;
       throw ViewGeoserverException() << ErrorDescription(errMsg);
-      break;
   }
 }
 
@@ -1811,8 +1811,6 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
           QString errMsg = QObject::tr("Unable to locate file: %1").arg(file.absolutePath());
           TERRAMA2_LOG_ERROR() << errMsg;
           throw Exception() << ErrorDescription(errMsg);
-
-          continue;
         }
 
         std::unique_ptr<te::mem::DataSetItem> dsItem (new te::mem::DataSetItem(ds.get()));
@@ -1823,7 +1821,6 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
         ds->add(dsItem.release());
       }
     }
-
 
     /*
      * Resetting properties files tree.
@@ -1843,11 +1840,10 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
       dataSource->add(layerName, ds.get(), options);
 
       // register datastore and layer if they don't exists
-      registerMosaicCoverage(layerName, url.path().toStdString(), layerName, vecRasterInfo[0], "", "all");
+      registerMosaicCoverage(viewPtr, layerName, url.path().toStdString(), layerName, vecRasterInfo[0], "", "all");
     }
 
     layersNames.push_back(layerName);
-
   }
 
   return layersNames;

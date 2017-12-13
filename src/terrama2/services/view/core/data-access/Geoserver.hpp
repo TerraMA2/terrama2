@@ -209,7 +209,8 @@ namespace terrama2
                                       const std::string& coverageName,
                                       const std::string& extension) const;
 
-            void registerMosaicCoverage(const std::string& coverageStoreName,
+            void registerMosaicCoverage(const ViewPtr viewPtr,
+                                        const std::string& coverageStoreName,
                                         const std::string& mosaicPath,
                                         const std::string& coverageName,
                                         const RasterInfo& rasterInfo,
@@ -375,8 +376,8 @@ namespace terrama2
                                                       const te::core::URI& connInfo) const;
 
             std::string createPostgisMosaicLayerPropertiesFile(const std::string& outputFolder,
-                                                        const std::string& exhibitionName,
-                                                        const RasterInfo& rasterInfo) const;
+                                                               const std::string& exhibitionName,
+                                                               const RasterInfo& rasterInfo) const;
 
             void createPostgisIndexerPropertiesFile(const std::string& outputFolder,
                                                     const std::string& exhibitionName) const;
