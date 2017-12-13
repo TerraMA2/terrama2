@@ -20,11 +20,11 @@
   },
   "toolsMenu": [
     {
-      "textEn": "Example",
-      "textEs": "Ejemplo",
-      "textFr": "Exemple",
-      "textPt": "Exemplo",
-      "url": "http://example.com/",
+      "textEn": "TerraMA² Homepage",
+      "textEs": "TerraMA² Homepage",
+      "textFr": "TerraMA² Homepage",
+      "textPt": "TerraMA² Homepage",
+      "url": "http://www.terrama2.dpi.inpe.br/",
       "openInNewTab": true
     }
   ]
