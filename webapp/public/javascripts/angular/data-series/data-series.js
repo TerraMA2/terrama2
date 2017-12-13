@@ -50,7 +50,9 @@ define([], function() {
       BaseService
         .$request(BASE_URL + "api/DataSeries", "GET", {params: {project_id: projectId, type: 'dynamic', ignoreAnalysisOutputDataSeries: true, collector: true}})
         .then(function(response) {
-          $scope.extra.dataSeries = response.data;
+          $scope.extra.dataSeries = response.data.filter(function(dSeries){
+            return dSeries.data_series_semantics.type !== "DCP";
+          });
           return defer.resolve(response.data);
         })
         .catch(function(err) {
