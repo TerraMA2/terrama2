@@ -2272,7 +2272,7 @@ std::string terrama2::services::view::core::GeoServer::viewLayerName(const ViewP
   }
   catch (const std::out_of_range&)
   {
-    return "view_" + std::to_string(viewPtr->id);
+    return "view" + std::to_string(viewPtr->id);
   }
 }
 
