@@ -105,7 +105,29 @@
     createChart(normalizedData, chartType, chartElement, fieldsToFill[0], fieldsToFill[1]);
   }
 
+  /**
+   * Function to create a range date from yesterday to today
+   * @returns {String}
+   */
+  function getTimeInfoSinceYesterday(){
+    var today = new Date();
+    var yesterday = new Date(today);
+    yesterday.setDate(today.getDate() -1);
+    yesterday.setHours(0);
+    yesterday.setMinutes(0);
+    yesterday.setSeconds(0);
+    yesterday.setMilliseconds(0);
+    return today.toISOString() + "/" + yesterday.toISOString();
+  }
+
   $(document).ready(function() {
+
+    var mapImage = document.getElementById("mainImage");
+    var timeInfo = getTimeInfoSinceYesterday();
+    var imageHref = "http://localhost:8080/geoserver/wms?service=WMS&version=1.1.0&request=GetMap&layers=terrama2_9:marble_pyramid,terrama2q:focos&time=" + timeInfo + "&styles=&bbox=-86,-56,-29,12&width=600&height=720&srs=EPSG:4326&format=image%2Fpng";
+    //var imageHref = "http://localhost:8080/geoserver/wms?service=WMS&version=1.1.0&request=GetMap&layers=terrama2_9:marble_pyramid,terrama2q:focos&time=2017-12-05T00:59:11.000Z/2017-12-05T08:59:11.000Z&styles=&bbox=-86,-56,-29,12&width=600&height=720&srs=EPSG:4326&format=image%2Fpng";
+    mapImage.setAttribute("src", imageHref);
+
     var fields = ["monitored_nome", "ocorrencia"];
 
     var ajaxUrl = "http://localhost:8080/geoserver/wfs?service=wfs&version=2.0.0&request=GetFeature&outputFormat=application/json&typeNames=terrama2_11:view11&propertyName=ocorrencia,monitored_nome&sortBy=ocorrencia+D&startIndex=0&count=30";
