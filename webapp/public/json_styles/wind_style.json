@@ -1,7 +1,7 @@
 {
   "id": "wind_style",
   "name": "Wind",
-  "type": "raster",
+  "type": "GRID",
   "fields": ["north", "east"],
   "gui": {
     "schema": {

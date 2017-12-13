@@ -1,7 +1,7 @@
 {
   "id": "temp_celsius_style",
   "name": "Temperature (Celsius)",
-  "type": "raster",
+  "type": "GRID",
   "fields": ["band"],
   "gui": {
     "schema": {
