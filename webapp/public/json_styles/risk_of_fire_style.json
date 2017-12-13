@@ -1,7 +1,7 @@
 {
   "id": "risk_fire_style",
   "name": "Risk of Fire",
-  "type": "raster",
+  "type": "GRID",
   "fields": ["band"],
   "gui": {
     "schema": {
