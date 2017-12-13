@@ -238,7 +238,8 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
               objectType = View::Legend::ObjectType::GEOMETRY;
             }
 
-            registerVectorFile(layerName + "_datastore_" + std::to_string(viewPtr->id),
+            registerVectorFile(viewPtr,
+                               layerName + "_datastore_" + std::to_string(viewPtr->id),
                                fileInfo.absoluteFilePath().toStdString(),
                                layerName);
           }
@@ -862,7 +863,8 @@ void terrama2::services::view::core::GeoServer::uploadZipVectorFiles(const std::
 }
 
 
-void terrama2::services::view::core::GeoServer::registerVectorFile(const std::string& dataStoreName,
+void terrama2::services::view::core::GeoServer::registerVectorFile(const ViewPtr viewPtr,
+                                                                   const std::string& dataStoreName,
                                                                    const std::string& shpFilePath,
                                                                    const std::string& layerName) const
 {
@@ -892,7 +894,7 @@ void terrama2::services::view::core::GeoServer::registerVectorFile(const std::st
   }
 
   std::string xmlFeature = "<featureType>";
-  xmlFeature += "<title>" + layerName + "</title>";
+  xmlFeature += "<title>" + viewPtr->viewName + "</title>";
   xmlFeature += "<name>" + layerName + "</name>";
 
   QFileInfo file(QString::fromStdString(shpFilePath));
@@ -985,7 +987,8 @@ void terrama2::services::view::core::GeoServer::registerCoverageFile(const std::
 }
 
 
-void terrama2::services::view::core::GeoServer::registerMosaicCoverage(const std::string& coverageStoreName,
+void terrama2::services::view::core::GeoServer::registerMosaicCoverage(const ViewPtr viewPtr,
+                                                                       const std::string& coverageStoreName,
                                                                        const std::string& mosaicPath,
                                                                        const std::string& coverageName,
                                                                        const RasterInfo& rasterInfo,
@@ -1030,6 +1033,7 @@ void terrama2::services::view::core::GeoServer::registerMosaicCoverage(const std
                                        + "/coverages/" + coverageName);
 
     std::string xml = "<coverage>";
+    xml += "<title>"+viewPtr->viewName+"</title>";
 
     // Using TerraMA² toString to keep precision
     const std::string llx = toString(rasterInfo.envelope->getLowerLeftX(), 14);
@@ -1839,7 +1843,7 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
       dataSource->add(layerName, ds.get(), options);
 
       // register datastore and layer if they don't exists
-      registerMosaicCoverage(layerName, url.path().toStdString(), layerName, vecRasterInfo[0], "", "all");
+      registerMosaicCoverage(viewPtr, layerName, url.path().toStdString(), layerName, vecRasterInfo[0], "", "all");
     }
 
     layersNames.push_back(layerName);
@@ -1943,7 +1947,7 @@ std::string terrama2::services::view::core::GeoServer::createPostgisDatastorePro
 
     std::string content = "SPI=org.geotools.data.postgis.PostgisNGDataStoreFactory\n"
                           "host=" + connInfo.host() + "\n"
-                                                      "port=" + connInfo.port() + "\n" +
+                          "port=" + connInfo.port() + "\n" +
                           "database=" + database + "\n" +
                           "schema=public\n"
                           "user=" + connInfo.user() + "\n" +
