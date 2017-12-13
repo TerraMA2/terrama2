@@ -88,6 +88,8 @@
      * @type {number}
      */
     this.source_type = params.source_type;
+
+    this.properties = params.properties || {};
   }
 
   View.prototype = Object.create(AbstractClass.prototype);
@@ -96,6 +98,19 @@
   View.prototype.setLegend = function(legend) {
     this.legend = legend;
   };
+
+  View.prototype.setProperties = function(properties){
+    var propertiesOutput = {};
+    if (properties instanceof Array) {
+      properties.forEach(function(property) {
+        propertiesOutput[property.key] = property.value;
+      });
+    } else {
+      propertiesOutput = properties;
+    }
+    
+    this.properties = propertiesOutput;
+  }
 
   /**
    * It builds a database representation of View
@@ -128,7 +143,8 @@
       legend: this.legend instanceof AbstractClass ? this.legend.toObject() : this.legend,
       private: this.private,
       schedule_type: this.scheduleType,
-      source_type: this.source_type
+      source_type: this.source_type,
+      properties: this.properties
     });
   };
 
