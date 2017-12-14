@@ -160,40 +160,57 @@ void terrama2::core::DataAccessorFile::filterDataSet(std::shared_ptr<te::mem::Da
       throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
     }
   }
-  auto syncDataSet = std::make_shared<SynchronizedDataSet>(completeDataSet);
 
+
+  ///////////////////////////////////////////////////////////////
+  ///
+  /// ASYNCHRONOUS CODE
+  ///
+  /// USE CAUTION
+  ///
+  ///
+  std::mutex mutex;
+  size_t size = completeDataSet->size();
   // reverse ordered list of indexes to remove
   std::set<size_t, std::greater<size_t>> removeIndexes;
-  auto removeIndexesFunc = [&] (size_t begin, size_t end)
   {
-    for(size_t i = begin; i < end; ++i)
+    auto syncDataSet = std::make_shared<SynchronizedDataSet>(completeDataSet);
+    auto removeIndexesFunc = [&] (size_t begin, size_t end)
     {
-      if(!isValidTimestamp(syncDataSet, i, filter, dateColumn)
-      || !isValidGeometry(syncDataSet, i, filter, geomColumn, filterDataSetSeries, rtree)
-      || !isValidRaster(syncDataSet, i, filter, rasterColumn, filterDataSetSeries, rtree))
+      for(size_t i = begin; i < end; ++i)
       {
-        removeIndexes.insert(i);
+        if(!isValidTimestamp(syncDataSet, i, filter, dateColumn)
+           || !isValidGeometry(syncDataSet, i, filter, geomColumn, filterDataSetSeries, rtree)
+           || !isValidRaster(syncDataSet, i, filter, rasterColumn, filterDataSetSeries, rtree))
+        {
+          std::unique_lock<std::mutex> lock(mutex);
+          removeIndexes.insert(i);
+        }
       }
+    };
+
+    std::vector< std::future<void> > promises;
+    auto step = size/4.;
+    size_t begin = 0;
+    size_t end = 0;
+    while(end < syncDataSet->size())
+    {
+      begin = end;
+      end = static_cast<size_t>(begin+step);
+      if(end > syncDataSet->size())
+        end = syncDataSet->size();
+
+      auto future = std::async(std::launch::async, removeIndexesFunc, begin, end);
+      promises.push_back(std::move(future));
     }
-  };
 
-  std::vector< std::future<void> > promises;
-  auto step = syncDataSet->size()/4.;
-  size_t begin = 0;
-  size_t end = 0;
-  for(size_t i = 0; i < 4; ++i)
-  {
-    begin = step*i;
-    end = begin+step;
-    if(end > syncDataSet->size())
-      end = syncDataSet->size();
-
-    auto future = std::async(std::launch::async, removeIndexesFunc, begin, end);
-    promises.push_back(std::move(future));
+    // wait for all threads
+    for(auto& future : promises) future.get();
   }
-
-  // wait for all threads
-  for(auto& future : promises) future.get();
+  ///
+  /// END OF ASYNCHROUNOUS CODE
+  ///
+  ///////////////////////////////////////////////////////////////
 
 // inverse order remove
   for(auto i : removeIndexes)
