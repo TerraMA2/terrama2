@@ -185,8 +185,70 @@
 <p></p>
 <p class="rvps3"><img alt="" style="padding : 1px;" src="lib/An_PCD_14x22.png"></p>
 <p class="rvps2"><span class="rvts6"><br/></span></p>
-<p class="rvps2"><span class="rvts6"><br/></span></p>
-<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps6"><span class="rvts16">A Figura 3.32 mostra a área de trabalho utilizada para se definir uma análise baseada em PCD. Nesta interface deve-se definir um nome único para este tipo de análise, quais planos de entrada serão utilizados (NAO OBRIGATORIO), a programação para execução de análises, e do modelo de análise escrito em Python. Descrevemos a seguir cada um dos campos dessa interface.</span></p>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+<p class="rvps23"><img alt="" style="padding : 1px;" src="lib/Fig3_32_web.png"></p>
+<p class="rvps19"><span class="rvts19">Figura 3.32– </span><span class="rvts20">Análise com base em dados de PCD.</span></p>
+<p class="rvps30"><span class="rvts36">Registro de Análise – Dado Geral:</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps31"><span class="rvts17">Nome</span><span class="rvts16">: Defina o nome da análise (campo obrigatório). O tamanho máximo do nome é de 100 caracteres. Não é permitido nomes duplicados.</span></li>
+<li class="rvps31"><span class="rvts17">Tipo</span><span class="rvts16">: Escolha o tipo “</span><span class="rvts17">PCD”</span><span class="rvts16">. A opção “</span><a class="rvts22" href="Grade.html">Grade</a><span class="rvts16">” está descrita no item correspondente. e “</span><a class="rvts22" href="ObjetoMonitorado.html">Objeto Monitorado</a><span class="rvts16">” no item correspondente. IMPORTANTE: Após salvar a análise o tipo não poderá ser alterado.</span></li>
+<li class="rvps31"><span class="rvts17">Descrição</span><span class="rvts16">: Campo não obrigatório para descrição da análise. O tamanho máximo do texto é de 250 caracteres.</span></li>
+<li class="rvps31"><span class="rvts17">Serviço</span><span class="rvts16">: Escolha o serviço de análise que estará associado a cada análise. Se necessário adicionar novos serviços de análise (local ou remoto) consulte item </span><a class="rvts23" href="services.html">Serviços</a><span class="rvts16">.</span></li>
+<li class="rvps31"><span class="rvts17">Ativo</span><span class="rvts16">: Botão ativo executará a análise de acordo com a programação (ver abaixo) definida para a análise. Se o botão estiver desmarcado a análise não será executada. Uma análise que não esteja ativa poderá ser executada apenas manualmente pelo botão &nbsp;“</span><img width="14" height="11" alt="" src="lib/NewItem25.png"><span class="rvts16">Executar” disponível na lista de análises da área de trabalho.</span></li>
+</ul>
+<p class="rvps30"><span class="rvts36">Registro de Análise – Armazenar</span></p>
+<p class="rvps6"><span class="rvts16">Utilize os parâmetros desta seção para definir o local de armazenamento dos dados. No caso de uma análise baseada em PCD, será solicitado o nome de uma tabela de banco de dados.</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps31"><span class="rvts17">Formato de saída</span><span class="rvts16">: Para este tipo de análise apenas a opção “Análise de Objeto Monitorado” encontra-se disponível.</span></li>
+<li class="rvps31"><span class="rvts17">Nome da tabela</span><span class="rvts16">: Digite o nome da tabela a ser criada para armazenar os resultados. Esta tabela tem um relacionamento de “n” para “1” com a tabela de localização das PCDs. Em outras palavras, toda vez que a análise for executada será armazenado data/hora e resultados dos cálculos para cada PCD.</span></li>
+</ul>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+<p class="rvps31"><span class="rvts36">Registro de Análise – Armazenar - Agendamento</span></p>
+<p class="rvps6"><span class="rvts16">Nesta seção o usuário deve definir quando será executada a análise.</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps42"><span class="rvts17">Tipo</span><span class="rvts16">: Escolha tipo “Manual”, “Agendamento”, “Reprocessamento de dados históricos”, ou “Automático”. Se Manual a execução da análise só será realizada se o usuário utilizar o botão </span><img width="14" height="11" alt="" src="lib/NewItem24.png"><span class="rvts16">Executar no item da lista de análises que desejar, ou ainda em “Salvar e executar” da análise aberta. Se “Agendamento” ou “Reprocessamento de dados históricos” preencha os campos abaixo. Se “Automático” dependerá da chegada de qualquer dos dados dinâmicos que uma análise utilizar. </span></li>
+<li class="rvps42"><span class="rvts17">Data Inicial </span><img alt="" style="padding : 1px;" src="lib/calendario28x28.png"><span class="rvts17"> </span><span class="rvts47">(somente se Tipo for “Reprocessamento de dados históricos”)</span><span class="rvts16">: Clique no campo para escolher a data e hora que será utilizada para início do reprocessamento.</span></li>
+<li class="rvps42"><span class="rvts17">Data Final </span><img alt="" style="padding : 1px;" src="lib/calendario28x28.png"><span class="rvts17"> </span><span class="rvts47">(somente se Tipo for “Reprocessamento de dados históricos”)</span><span class="rvts16">: Clique no campo para escolher a data e hora que será utilizada para fim do reprocessamento.</span></li>
+<li class="rvps42"><span class="rvts17">Unidade de tempo</span><span class="rvts16">: Escolha um item entre “Segundos, Minutos, Horas e Semanalmente”.</span></li>
+<li class="rvps42"><span class="rvts17">Frequência </span><span class="rvts47">(somente se Unidade de tempo for Segundos, Minutos, Horas)</span><span class="rvts16">: Digite um valor de um número inteiro.</span></li>
+<li class="rvps42"><span class="rvts17">Tempo Inicial </span><img alt="" style="padding : 1px;" src="lib/calendario28x28.png"><span class="rvts17"> </span><span class="rvts47">(somente se Unidade de tempo for Segundos, Minutos, Horas)</span><span class="rvts16">: Clique no campo para escolher o valor de hora, minuto e segundo que será utilizado como referência para executar a análise.</span></li>
+<li class="rvps42"><span class="rvts17">Agendamento </span><span class="rvts47">(somente se Unidade de tempo for Semanalmente)</span><span class="rvts16">: escolha uma das opções entre “Domingo, Segunda-feira, Terça-feira, Quarta-feira, Quinta-Feira, Sexta-feira e Sábado”</span></li>
+<li class="rvps42"><span class="rvts17">Hora </span><span class="rvts47">(somente se Unidade de tempo for Semanalmente)</span><span class="rvts16">: clique no campo para escolher o valor de hora, minuto e segundo que será executada para iniciar a análise.</span></li>
+</ul>
+<p class="rvps31"><span class="rvts36">Registro de Análise – Série de Dados PCD</span></p>
+<p class="rvps6"><span class="rvts16">Nesta seção o usuário deve escolher qual será a série de dados dinâmicos de PCD previamente cadastrada (</span><a class="rvts23" href="DadodePCD.html">veja como cadastrar um dado de PCD</a><span class="rvts16">).</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps42"><span class="rvts17">Série de Dados</span><span class="rvts16">: Escolha um dado dinâmico de PCD previamente cadastrado como dado dinâmico.</span></li>
+</ul>
+<p class="rvps31"><span class="rvts36">Registro de Análise – Dado Adicional</span></p>
+<p class="rvps6"><span class="rvts16">Além dos dados dinâmicos da própria PCD, nesta seção o usuário pode escolher qual ou quais dados estáticos (matriciais), dinâmicos (matriciais), ou resultado de análises (Grades e Objetos monitorados) &nbsp;serão cruzados (ou sobrepostos espacialmente) com as geometrias das PCD´s.</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps42"><span class="rvts17">+ : </span><span class="rvts16">Clique no botão para selecionar um dado estático ou dinâmico na janela que será apresentada.</span></li>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps42"><span class="rvts58">„</span><span class="rvts17"> Dado Estático &nbsp;</span><span class="rvts16">: Clique para abrir a lista de dados estáticos a escolher. Note que uma vez escolhido o mesmo será retirado dessa lista. A lista de dados escolhidos fica disponível na área de trabalho.</span></li>
+<li class="rvps42"><span class="rvts58">„</span><span class="rvts17"> Dado Dinâmico &nbsp;</span><span class="rvts16">: Clique para abrir a lista de dados dinâmicos a escolher. Note que uma vez escolhido o mesmo será retirado dessa lista. A lista de dados escolhidos fica disponível na área de trabalho.</span></li>
+<li class="rvps42"><span class="rvts17">“Adicionar ”</span><span class="rvts16">: Inclui o dado na lista.</span></li>
+</ul></ul>
+<p class="rvps6"><span class="rvts16">Após a inclusão de um dado na lista, o campo de pseudônimo pode ser alterado. Use o botão “Remover” para excluir um dado da lista (Figura 3.33).</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps42"><span class="rvts17">Pseudônimo: </span><span class="rvts16">Ao escolher um dado a lista automaticamente mostra o nome e o pseudônimo com mesmo conteúdo. Clique no campo correspondente que deseja alterar. Nas regras de análise serão estes pseudônimos que deverão ser utilizados pelo operadores. </span></li>
+</ul>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+<p class="rvps23"><img alt="" style="padding : 1px;" src="lib/Fig3_33_web.png"></p>
+<p class="rvps26"><span class="rvts19">Figura 3.33 – </span><span class="rvts20">Módulo de Administração: Análise – Lista de Dados Adicionais</span></p>
+<p class="rvps31"><span class="rvts36">Registro de Análise – Programa</span></p>
+<p class="rvps6"><span class="rvts16">Nesta seção o usuário deve editar o programa de análise. A edição do programa utiliza a linguagem Python e portanto, siga rigorosamente a sintaxe do comando definidos para esta linguagem. Além dos comandos e funções de Python você pode utilizar os utilitários e os operadores zonais criados especialmente para a plataforma TerraMA</span><span class="rvts26">2</span><span class="rvts16">.</span></p>
+<p class="rvps6"><span class="rvts16">Para facilitar a edição do programa, botões na parte inferior da janela possibilitam escolher atalhos de alguns itens específicos. Ao escolher um item entre os botões disponíveis, o conteúdo será incluído na posição em que estiver o cursor. Os atalhos disponíveis são:</span></p>
+<p class="rvps46"><a href="OperadoressobreGrades.html#op_grid_util"><img alt="" style="padding : 1px;" src="lib/An_OB_util_24x24.png"></a><span class="rvts16"> - Atalho para os utilitários da plataforma, tais como “buffer” a ser aplicado em geometrias do objeto monitorado, unidades de distância, tempo, “add_value”, “get_value” e “get_date”.</span></p>
+<p class="rvps46"><a href="OperadoressobreObjetosMonitorado.html#op_zonal_pcd"><img alt="" style="padding : 1px;" src="lib/An_OB_pcd_24x24.png"></a><span class="rvts16"> - Atalho para os operadores que trabalham com dados dinâmicos de PCD. &nbsp;Além do grupo de operadores que atuam com a série de dados para este tipo de análises, o grupo de operadores que consideram esta série de dados como objeto monitorado sobre outros conjuntos de dados dinâmicos também do tipo PCD.</span></p>
+<p class="rvps46"><a href="OperadoressobreObjetosMonitorado.html#op_zonal_grid"><img alt="" style="padding : 1px;" src="lib/An_OB_grade_24x24.png"></a><span class="rvts16"> - Atalho para os operadores que trabalham com dados dinâmicos de matrizes.</span></p>
+<p class="rvps46"><a href="OperadoressobreObjetosMonitorado.html#op_zonais_ocorrencia"><img alt="" style="padding : 1px;" src="lib/An_OB_ocorre_24x24.png"></a><span class="rvts16"> - Atalho para os operadores que trabalham com dados dinâmicos de ocorrências.</span></p>
+<p class="rvps46"><img alt="" style="padding : 1px;" src="lib/An_OB_python_24x24.png"><span class="rvts16"> - Atalho para algumas funções, operadores e comandos de Python.</span></p>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+<p class="rvps6"><span class="rvts16">Após editar o programa, poderá utilizar o botão “Validar” para identificar se há erros de sintaxe nos comando, funções e operadores utilizados. O botão “Salvar e executar” grava as últimas alterações e executa a análise mesmo que esta esteja inativa. Se desejar apenas gravar as alterações clique na seta do botão e escolha “Salvar”.</span></p>
+<p class="rvps24"><span class="rvts17">Importante: </span><span class="rvts16">O programa de análise definido pelo usuário é executado individualmente para cada PCD da série de dados. É obrigatório que o programa faça uso pelo menos uma vez do utilitário “add_value”.</span></p>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
 <p></p>
 <p class="rvps5" style="clear: both;"><span class="rvts14">Created with the Personal Edition of HelpNDoc: </span><a class="rvts15" href="https://www.helpndoc.com/feature-tour">Easily create CHM Help documents</a></p>
 

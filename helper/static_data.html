@@ -168,10 +168,10 @@
             
                 <div class="navigation">
                     <ol class="breadcrumb">
-                        <li><a href="module_administration.html">M&oacute;dulo de Administra&ccedil;&atilde;o</a></li><li><a href="projects.html">Projetos</a></li>
+                        <li><a href="administration_module.html">M&oacute;dulo de Administra&ccedil;&atilde;o</a></li><li><a href="projects.html">Projetos</a></li>
                     </ol>
                     <div class="nav-arrows">
-                        <div class="btn-group btn-group-xs" role="group"><a class="btn btn-default" href="projects.html" title="Projetos" role="button"><span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span></a><a class="btn btn-default" href="add_data_occurrence.html" title="Dado de Ocorr&ecirc;ncia" role="button"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a><a class="btn btn-default" href="add_static_data.html" title="Adicionar Dado Est&aacute;tico" role="button"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></div>
+                        <div class="btn-group btn-group-xs" role="group"><a class="btn btn-default" href="projects.html" title="Projetos" role="button"><span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span></a><a class="btn btn-default" href="DadodeOcorrencia.html" title="Dado de Ocorr&ecirc;ncia" role="button"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a><a class="btn btn-default" href="add_static_data.html" title="Adicionar Dado Est&aacute;tico" role="button"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></div>
                     </div>
                 </div> 
             
@@ -183,8 +183,62 @@
             <div class="main-content">
                 
 <p></p>
+<p class="rvps3"><img alt="" style="padding : 1px;" src="lib/Dado_estatico_26x26.png"></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps6"><a name="docs-internal-guid-48148ef9-6f6b-8e68-7a3c-74b3b5b6838a"></a>
+<span class="rvts16">Um </span><span class="rvts17">dado estático</span><span class="rvts16"> deve estar associado a um servidor de dados. Este servidor pode fornecer um ou mais conjuntos de dados estáticos. Os dados estáticos podem ser </span><a class="rvts23" href="DadoseFormatos.html">Vetoriais (geometrias de pontos, linhas ou polígonos com atributos associados) e Matriciais (grades retangulares)</a><span class="rvts16">. Dessa maneira, as principais características de um dado estático são:</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps8"><span class="rvts16">Um dado estático é identificado por um nome único;</span></li>
+<li class="rvps8"><span class="rvts16">Um usuário pode definir vários dados estáticos em um projeto;</span></li>
+<li class="rvps8"><span class="rvts16">Dados estáticos são utilizados por um ou mais modelos de análise;</span></li>
+<li class="rvps8"><span class="rvts16">Um dado estático será identificado por um ícone. Para Vetoriais ( </span><img alt="" style="padding : 1px;" src="lib/DE_Vetor_18x18.png"><span class="rvts16"> ) &nbsp;e para Matriciais ( </span><img alt="" style="padding : 1px;" src="lib/DE_Matriz_18x18.png"><span class="rvts16"> ).</span></li>
+<li class="rvps8"><span class="rvts16">O dado estático vetorial para uso em um projeto deve estar disponível na forma de arquivos tradicionais como shapefile (ou outros formatos da OGR - </span><a class="rvts55" href="http://www.gdal.org/ogr_formats.html">http://www.gdal.org/ogr_formats.html</a><span class="rvts16"> ) ou na forma de tabelas em um banco de dados PostgreSQL + PostGIS.</span></li>
+<li class="rvps8"><span class="rvts16">O dado estático matricial para uso em um projeto deve estar disponível na forma de arquivos tradicionais como GeoTiff (ou outros formatos da GDAL - </span><a class="rvts55" href="http://www.gdal.org/formats_list.html">http://www.gdal.org/formats_list.html</a><span class="rvts16"> ).</span></li>
+</ul>
+<p class="rvps6"><span class="rvts16"><br/></span></p>
+<p class="rvps17"><a class="rvts30" href="add_static_data.html">Adição de Dados Estático</a><span class="rvts29"> &nbsp;</span><img alt="" style="padding : 1px;" src="lib/working.jpg"></p>
+<p class="rvps17"><span class="rvts16"><br/></span></p>
+<p class="rvps6"><span class="rvts16">A Figura 2.19 mostra a área de trabalho do menu </span><span class="rvts17">“Dados Estáticos” </span><span class="rvts16">com a lista de alguns dados disponíveis. Nesta área é possível selecionar um dado estático para fazer alguma edição, criar um novo dado ou ainda remover um dado existente. Veja a seguir detalhes de cada tipo de dado estático e as opções de manipulação correspondentes.</span></p>
+<p class="rvps16"><img alt="" style="padding : 1px;" src="lib/Fig2_19_web.PNG"></p>
+<p class="rvps26"><span class="rvts19">Figura 2.19 – </span><span class="rvts20">Módulo de Administração: Lista de dados estáticos disponíveis na área de trabalho.</span></p>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+<h3 class="rvps13"><span class="rvts0"><span class="rvts24">DADOS ESTÁTICOS VETORIAIS &nbsp;</span></span><img alt="" style="padding : 1px;" src="lib/DE_Vetor_18x18.png"></h3>
+<p class="rvps6"><span class="rvts16">Os dados estáticos do tipo vetorial podem ser oriundos de diversas fontes como apresentado no Capítulo 1. Para facilitar o seu uso foi incluído a leitura desses dados nos seguintes formatos:</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps8"><span class="rvts17">Arquivos shapefile</span><span class="rvts16">: devem estar associados a um servidor de dados do tipo “Arquivo”. &nbsp;Lembre-se que um mapa vetorial neste formato é constituído de um conjunto de arquivos com mesmo prefixo, isto é, devem estar disponíveis no mínimo os arquivos &lt;mapa&gt;.shp, &lt;mapa&gt;.dbf, &lt;mapa&gt;.shx &nbsp;e &lt;mapa&gt;.prj.</span></li>
+<li class="rvps8"><span class="rvts17">Tabelas do banco de dados PostgreSQL + PostGIS</span><span class="rvts16">: utilize o aplicativo SIG de sua preferência para carregar ou criar os mapas vetoriais que serão utilizados pelo projeto do usuário. No aplicativo TerraView versão 5.2.x &nbsp;(</span><a class="rvts55" href="http://www.dpi.inpe.br/terralib5">www.dpi.inpe.br/terralib5</a><span class="rvts16"> ) ou superior utilize a opção “Intercâmbio de Camadas”.</span></li>
+</ul>
+<p class="rvps24"><span class="rvts17">IMPORTANTE</span><span class="rvts16">: Dados estáticos na forma de arquivos como shapefile somente poderão ser utilizados como camadas a serem publicadas no “</span><span class="rvts17">Módulo de Monitoramento</span><span class="rvts16">” para visualização dos mesmos. Já os dados estáticos na forma de tabelas no </span><span class="rvts17">PostGIS </span><span class="rvts16">poderão ser publicados no “</span><span class="rvts17">Módulo de Monitoramento</span><span class="rvts16">” e também serem utilizados nas análises como objetos monitorados.</span></p>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+<p class="rvps6"><span class="rvts16">Arquivos shapefile que não estão disponíveis no servidor de dados, seja do tipo “Arquivo” ou banco de dados “PostGIS”, definidos no projeto do usuário, poderão ser carregados ou transferidos a partir de qualquer computador conectado a internet que tenha acesso ao “</span><span class="rvts17">Módulo de Administração</span><span class="rvts16">”. Veja opção de transferir (fazer “upload”) arquivos em “</span><a class="rvts23" href="add_static_data.html">ADICIONANDO DADO ESTÁTICO</a><span class="rvts16">”.</span></p>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+<h3 class="rvps13"><span class="rvts0"><span class="rvts24">DADOS ESTÁTICOS MATRICIAIS </span></span><img alt="" style="padding : 1px;" src="lib/DE_Matriz_18x18.png"></h3>
+<p class="rvps6"><span class="rvts16">Os dados estáticos do tipo matriciais podem ser oriundos de diversas fontes como apresentado no item </span><a class="rvts23" href="DadoseFormatos.html">Dados e Formatos</a><span class="rvts16">. Para facilitar o seu uso foi incluído a leitura desses dados nos seguintes formatos:</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps8"><span class="rvts17">Arquivos GeoTiff</span><span class="rvts16">: mapas matriciais estáticos que serão publicados na aplicativo web “</span><span class="rvts17">Módulo de Monitoramento</span><span class="rvts16">” ou como camadas em análises para cruzar com objetos monitorados ou com outros dados matriciais, devem estar associados a um servidor de dados do tipo “Arquivo”.</span></li>
+</ul>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+<h5 class="rvps27"><a name="docs-internal-guid-29a5dce0-6f8f-20c2-d248-a8b7143b59b3"></a>
+<span class="rvts0"><span class="rvts25">ADICIONANDO DADO ESTÁTICO:</span></span></h5>
+<p class="rvps6"><span class="rvts16">Para adicionar um novo dado estático é necessário ter um projeto ativo. No menu de opções selecione “</span><span class="rvts17">Dados Estáticos</span><span class="rvts16">” para que a lista de dados disponíveis seja apresentada na área de trabalho. Clique no botão “ </span><span class="rvts33">+</span><span class="rvts17"> </span><span class="rvts16">” para adicionar novo dado. Utilize o botão </span><span class="rvts17">“Salvar”</span><span class="rvts16"> para salvar o dado estático. Não é permitido nomes de dados em duplicidade. Botão </span><span class="rvts17">“Cancelar”</span><span class="rvts16"> volta à tela anterior sem salvar o dado. Detalhes da adição de um novo dado estático &nbsp;</span><a class="rvts23" href="add_static_data.html">veja aqui</a><span class="rvts16">.</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;">
+<li class="rvps27"><a name="docs-internal-guid-29a5dce0-cc9b-4d3b-a747-c5c7f9edd739"></a>
+<span class="rvts0"><span class="rvts25">CONSULTANDO E ALTERANDO UM DADO ESTÁTICO:</span></span></li>
+</ul></ul></ul></ul>
+<p class="rvps6"><span class="rvts16">Para consultar e alterar as configurações de um dado estático clique em “</span><span class="rvts17">Dados Estáticos”</span><span class="rvts16"> no menu de opções e na área de trabalho clique sobre o nome ou tipo de um item disponível. Após editar os campos desejados utilize o botão </span><span class="rvts17">“Salvar”</span><span class="rvts16"> para salvar as alterações. Botão </span><span class="rvts17">“Cancelar”</span><span class="rvts16"> volta à tela anterior sem salvar alterações.</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;">
+<li class="rvps27"><span class="rvts0"><span class="rvts25">FILTRANDO ITENS NA LISTA DE DADOS ESTÁTICOS:</span></span></li>
+</ul></ul></ul></ul>
+<p class="rvps6"><span class="rvts16">Para filtrar itens na lista de dados estáticos clique em “</span><span class="rvts17">Dados Estáticos</span><span class="rvts16">” no menu de opções. Na área de trabalho no campo texto “Digite para pesquisar” digite o texto desejado. Note que todas as colunas disponíveis são utilizadas no filtro. Utilize o botão “</span><img width="12" height="13" alt="lupa.png" src="lib/NewItem8.png"><span class="rvts16">Avançado” para apresentar os botões referentes aos tipos de dados estáticos e escolher os que deverão fazer parte da lista. Por padrão todos os tipos estarão selecionados. O filtro digitado e o(os) botões de escolha do tipo de dados estáticos são combinados para apresentar os itens da lista.</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;">
+<li class="rvps27"><span class="rvts0"><span class="rvts25">REMOVENDO UM UM DADO ESTÁTICO:</span></span></li>
+</ul></ul></ul></ul>
+<p class="rvps6"><span class="rvts16">Para remover um dado estático de um projeto ativo clique no menu “</span><span class="rvts17">Dados Estáticos</span><span class="rvts16">” para apresentar a lista de dados na área de trabalho. Na frente do nome do dado clique em “</span><span class="rvts17">Remover</span><span class="rvts16">”. Confirme a remoção na mensagem com “OK”.</span></p>
+<p class="rvps24"><span class="rvts17">Importante: </span><span class="rvts16">Um dado estático somente poderá ser removido se não houver nenhuma análise ou visualização associada.</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
 <p></p>
-<p class="rvps4" style="clear: both;"><span class="rvts11">Created with the Personal Edition of HelpNDoc: </span><a class="rvts12" href="https://www.helpndoc.com">Free PDF documentation generator</a></p>
+<p class="rvps5" style="clear: both;"><span class="rvts14">Created with the Personal Edition of HelpNDoc: </span><a class="rvts15" href="https://www.helpndoc.com">Free PDF documentation generator</a></p>
 
             </div>
             
