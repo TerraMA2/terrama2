@@ -172,7 +172,10 @@ namespace terrama2
            - DateTime attribute is null (will be logged)
 
         */
-        virtual bool isValidTimestamp(std::shared_ptr<te::mem::DataSet> dataSet, const Filter& filter, size_t dateColumn) const;
+        virtual bool isValidTimestamp(std::shared_ptr<SynchronizedDataSet> dataSet,
+                                      size_t index,
+                                      const Filter& filter,
+                                      size_t dateColumn) const;
         /*!
           \brief Filter dataset by geometry
 
@@ -186,7 +189,8 @@ namespace terrama2
 
         */
 
-        virtual bool isValidGeometry(std::shared_ptr<te::mem::DataSet> dataSet,
+        virtual bool isValidGeometry(std::shared_ptr<SynchronizedDataSet> dataSet,
+                                     size_t index,
                                      const Filter& filter,
                                      size_t geomColumn,
                                      terrama2::core::DataSetSeries filterDataSetSeries,
@@ -204,7 +208,8 @@ namespace terrama2
            - Raster attribute is null (will be logged)
 
         */
-        virtual bool isValidRaster(std::shared_ptr<te::mem::DataSet> dataSet,
+        virtual bool isValidRaster(std::shared_ptr<SynchronizedDataSet> dataSet,
+                                   size_t index,
                                    const Filter&  filter, size_t rasterColumn,
                                    terrama2::core::DataSetSeries filterDataSetSeries,
                                    const std::unique_ptr<te::sam::rtree::Index<size_t, 8> >& rtree) const;
