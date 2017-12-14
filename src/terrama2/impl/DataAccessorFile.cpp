@@ -37,6 +37,7 @@
 #include "../core/utility/Unpack.hpp"
 #include "../core/utility/Verify.hpp"
 #include "../core/utility/DataAccessorFactory.hpp"
+#include "../core/utility/ServiceManager.hpp"
 
 //STL
 #include <algorithm>
@@ -161,6 +162,8 @@ void terrama2::core::DataAccessorFile::filterDataSet(std::shared_ptr<te::mem::Da
     }
   }
 
+  auto& serviceManager = terrama2::core::ServiceManager::getInstance();
+  auto numberOfThreads = serviceManager.numberOfThreads();
 
   ///////////////////////////////////////////////////////////////
   ///
@@ -190,7 +193,7 @@ void terrama2::core::DataAccessorFile::filterDataSet(std::shared_ptr<te::mem::Da
     };
 
     std::vector< std::future<void> > promises;
-    auto step = size/4.;
+    auto step = size/numberOfThreads;
     size_t begin = 0;
     size_t end = 0;
     while(end < syncDataSet->size())
