@@ -1,6 +1,7 @@
 {
   "id": "precipitation_style",
   "name": "Precipitation",
+  "type": "GRID",
   "fields": ["band"],
   "gui": {
     "schema": {

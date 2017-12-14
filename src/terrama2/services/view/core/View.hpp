@@ -49,6 +49,7 @@
 // STL
 #include <string>
 #include <vector>
+#include <map>
 
 namespace terrama2
 {
@@ -58,107 +59,114 @@ namespace terrama2
     {
       namespace core
       {
+        namespace ViewTags
+        {
+          const std::string WORKSPACE = "workspace";
+          const std::string LAYER_NAME = "layer_name";
+          const std::string LAYER_TITLE = "layer_title";
+        } /* ViewTags */
+
         /*!
           \brief The View groups the information to draw view.
         */
         struct View : public terrama2::core::Process
         {
-            struct Legend
-            {
-                enum class ObjectType
-                {
-                  UNKNOWN = 1,
-                  RASTER = 2,
-                  GEOMETRY = 3
-                };
+          struct Legend
+          {
+              enum class ObjectType
+              {
+                UNKNOWN = 1,
+                RASTER = 2,
+                GEOMETRY = 3
+              };
 
-                enum class CREATION_TYPE
-                {
-                  EDITOR = 0,
-                  XML = 1
-                };
+              enum class CREATION_TYPE
+              {
+                EDITOR = 0,
+                XML = 1
+              };
 
-                enum class OperationType
-                {
-                  EQUAL_STEPS = 1,
-                  QUANTIL = 2,
-                  VALUE = 3
-                };
+              enum class OperationType
+              {
+                EQUAL_STEPS = 1,
+                QUANTIL = 2,
+                VALUE = 3
+              };
 
-                enum class ClassifyType
-                {
-                  RAMP = 1,
-                  INTERVALS = 2,
-                  VALUES = 3
-                };
+              enum class ClassifyType
+              {
+                RAMP = 1,
+                INTERVALS = 2,
+                VALUES = 3
+              };
 
-                struct Rule
-                {
-                    std::string title = "";
-                    std::string value = "";
-                    std::string color = "";
-                    std::string opacity = "1";
-                    bool isDefault = false;
+              struct Rule
+              {
+                  std::string title = "";
+                  std::string value = "";
+                  std::string color = "";
+                  std::string opacity = "1";
+                  bool isDefault = false;
 
-                    bool operator ==(const Rule& other) const
-                    {
-                      return (title == other.title &&
-                              value == other.value &&
-                              color == other.color &&
-                              opacity == other.opacity &&
-                              isDefault == other.isDefault);
-                    }
-
-                    static bool compareByNumericValue(const Rule& a,
-                                                      const Rule& b)
-                    {
-                      if(a.isDefault)
-                        return true;
-
-                      if(b.isDefault)
-                        return false;
-
-                      try
-                      {
-                        auto x = std::stold(a.value);
-                        auto y = std::stold(b.value);
-
-                        return x < y;
-                      }
-                      catch(const std::invalid_argument& e)
-                      {
-                        TERRAMA2_LOG_ERROR() << "Invalid value for legend: " << e.what();
-                        return false;
-                      }
-                    }
-                };
-
-                /*!
-                 * \brief Retrieves string representation of classify type supported by GeoServer
-                 *
-                 * \param classify - Type of ColorMap handling
-                 * \return String representation of GeoServer ColorMap Classify Type
-                 */
-                static std::string to_string(ClassifyType classify)
-                {
-                  switch(classify)
+                  bool operator ==(const Rule& other) const
                   {
-                    case ClassifyType::INTERVALS:
-                      return "intervals";
-                    case ClassifyType::RAMP:
-                      return "ramp";
-                    case ClassifyType::VALUES:
-                      return "values";
-                    default:
-                      throw Exception() << ErrorDescription("Invalid View Classification type");
+                    return (title == other.title &&
+                            value == other.value &&
+                            color == other.color &&
+                            opacity == other.opacity &&
+                            isDefault == other.isDefault);
                   }
-                }
 
-                OperationType operation = OperationType::VALUE;
-                ClassifyType classify;
-                std::unordered_map<std::string, std::string> metadata;
-                std::vector< Rule > rules;
-            };
+                  static bool compareByNumericValue(const Rule& a,
+                                                    const Rule& b)
+                  {
+                    if(a.isDefault)
+                      return true;
+
+                    if(b.isDefault)
+                      return false;
+
+                    try
+                    {
+                      auto x = std::stold(a.value);
+                      auto y = std::stold(b.value);
+
+                      return x < y;
+                    }
+                    catch(const std::invalid_argument& e)
+                    {
+                      TERRAMA2_LOG_ERROR() << "Invalid value for legend: " << e.what();
+                      return false;
+                    }
+                  }
+              };
+
+              /*!
+               * \brief Retrieves string representation of classify type supported by GeoServer
+               *
+               * \param classify - Type of ColorMap handling
+               * \return String representation of GeoServer ColorMap Classify Type
+               */
+              static std::string to_string(ClassifyType classify)
+              {
+                switch(classify)
+                {
+                  case ClassifyType::INTERVALS:
+                    return "intervals";
+                  case ClassifyType::RAMP:
+                    return "ramp";
+                  case ClassifyType::VALUES:
+                    return "values";
+                  default:
+                    throw Exception() << ErrorDescription("Invalid View Classification type");
+                }
+              }
+
+              OperationType operation = OperationType::VALUE;
+              ClassifyType classify;
+              std::unordered_map<std::string, std::string> metadata;
+              std::vector< Rule > rules;
+          };
 
           std::string viewName = "";
 
@@ -173,6 +181,8 @@ namespace terrama2
           uint32_t imageResolutionHeight = 0; //!< Height resolution of view in pixels
 
           uint32_t srid = 0; //!< SRID to aplly in view
+
+          std::map<std::string, std::string> properties;//! Completementary information of the view.
         };
 
       } // end namespace core

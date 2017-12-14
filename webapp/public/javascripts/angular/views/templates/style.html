@@ -3,7 +3,7 @@
     <select class="form-control" name="styles" ng-change="$ctrl.changeCreationType()" ng-model="$ctrl.model.metadata.creation_type">
         <option value="editor">{{$ctrl.i18n.__('Editor')}}</option>
         <option value="xml">{{$ctrl.i18n.__('SLD')}}</option>
-        <option ng-if="$ctrl.type === $ctrl.DataSeriesType.GRID" ng-repeat="option in $ctrl.predefinedStyles" value="{{option.id}}">{{option.name}}</option>
+        <option ng-repeat="option in $ctrl.predefinedStyles | filter: $ctrl.filterPredefinedStyles" value="{{option.id}}">{{$ctrl.i18n.__(option.name)}}</option>
     </select>
 </div>
 

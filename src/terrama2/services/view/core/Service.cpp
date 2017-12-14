@@ -137,13 +137,14 @@ void terrama2::services::view::core::Service::connectDataManager()
           &terrama2::services::view::core::Service::updateView);
 }
 
-void terrama2::services::view::core::Service::removeView(ViewId id, DataSeriesId dataSeriesId) noexcept
+void terrama2::services::view::core::Service::removeView(const ViewPtr& viewPtr, DataSeriesId dataSeriesId) noexcept
 {
-  removeCompleteView(id, dataSeriesId);
+  removeCompleteView(viewPtr, dataSeriesId);
 }
 
-void terrama2::services::view::core::Service::removeCompleteView(ViewId id, DataSeriesId dataSeriesId, bool removeAll) noexcept
+void terrama2::services::view::core::Service::removeCompleteView(const ViewPtr& viewPtr, DataSeriesId dataSeriesId, bool removeAll) noexcept
 {
+  ViewId id = viewPtr->id;
   try
   {
     std::lock_guard<std::mutex> lock(mutex_);
@@ -182,7 +183,7 @@ void terrama2::services::view::core::Service::removeCompleteView(ViewId id, Data
         // Retrieving Maps server handler
         MapsServerPtr mapsServer = MapsServerFactory::getInstance().make(mapsServerUri_, "GEOSERVER");
         // removing from geoserver
-        mapsServer->cleanup(id, inputDataProvider, logger_);
+        mapsServer->cleanup(viewPtr, inputDataProvider, logger_);
       }
       catch(const terrama2::services::view::core::NotFoundGeoserverException& e)
       {
@@ -219,7 +220,7 @@ void terrama2::services::view::core::Service::removeCompleteView(ViewId id, Data
 
 void terrama2::services::view::core::Service::updateView(ViewPtr view) noexcept
 {
-  removeCompleteView(view->id, view->dataSeriesID, false);
+  removeCompleteView(view, view->dataSeriesID, false);
   addProcessToSchedule(view);
 }
 

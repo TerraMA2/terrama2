@@ -41,6 +41,7 @@
 #include <terralib/dataaccess/dataset/DataSetAdapter.h>
 #include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/datatype/DateTimeProperty.h>
+#include <terralib/datatype/SimpleProperty.h>
 #include <terralib/datatype/TimeDuration.h>
 #include <terralib/datatype/Date.h>
 #include <terralib/geometry/GeometryProperty.h>
@@ -84,6 +85,10 @@ void terrama2::core::DataAccessorOccurrenceWfp::adapt(DataSetPtr dataSet, std::s
 
   te::dt::DateTimeProperty* timestampProperty = new te::dt::DateTimeProperty(getTimestampPropertyName(dataSet), te::dt::TIME_INSTANT_TZ);
   te::gm::GeometryProperty* geomProperty = new te::gm::GeometryProperty(getOutputGeometryPropertyName(dataSet), srid, te::gm::PointType);
+  std::string paisPropertyName("pais_id");
+  std::string biomaPropertyName("bioma_id");
+  te::dt::SimpleProperty* paisIdProperty = new te::dt::SimpleProperty(paisPropertyName, te::dt::INT32_TYPE);
+  te::dt::SimpleProperty* biomaIdProperty = new te::dt::SimpleProperty(biomaPropertyName, te::dt::INT32_TYPE);
 
   // Find the right column to adapt
   std::vector<te::dt::Property*> properties = converter->getConvertee()->getProperties();
@@ -122,6 +127,16 @@ void terrama2::core::DataAccessorOccurrenceWfp::adapt(DataSetPtr dataSet, std::s
       te::dt::Property* p = converter->getConvertee()->getProperty(i)->clone();
       p->setName("satelite");
       converter->add(i, p);
+    }
+    else if(property->getName() == paisPropertyName)
+    {
+      converter->add(i, paisIdProperty,
+                     boost::bind(&terrama2::core::DataAccessor::stringToInt, this, _1, _2, _3));
+    }
+    else if(property->getName() == biomaPropertyName)
+    {
+      converter->add(i, biomaIdProperty,
+                     boost::bind(&terrama2::core::DataAccessor::stringToInt, this, _1, _2, _3));
     }
     else
     {
