@@ -580,6 +580,13 @@
 
 
 
+  "ABOUT-TEXT-1": "La plataforma TerraMA² es un producto de software, un sistema computacional, basado en la arquitectura de servicios, de código abierto, que proporciona la infraestructura tecnológica necesaria para desarrollar sistemas operativos para monitorear alertas de riesgos ambientales.",
+  "ABOUT-TEXT-2": "TerraMA² es un software de fuente abierta y gratuito, disponible para distribución y modificación bajo los términos de la Licencia Pública General Reducida GNU versión 4, publicada por la Free Software Foundation.",
+  "ABOUT-TEXT-3": "Los comentarios, sugerencias o problemas pueden enviarse al equipo de TerraMA² (terrama2@dpi.inpe.br) en la División de Procesamiento de Imágenes (DPI) del Instituto Nacional de Investigaciones Espaciales de Brasil (INPE).",
+  "ABOUT-TEXT-4": "TerraMA² Versión: 4.0.0",
+  "ABOUT-TEXT-5": "TerraLib Versión: 5.2.4",
+  "ABOUT-TEXT-6": "Fecha de lanzamiento de la versión: 15/Dic/2017",
+  "ABOUT-TEXT-7": "Esta versión fue financiada por el Banco Mundial TF018566 como parte del Programa Cerrado, una iniciativa de cooperación entre los gobiernos británico y brasileño, con el apoyo del Banco Mundial. El Ministerio del Medio Ambiente de Brasil (MMA), a través de su Secretaría de Cambio Climático y Calidad Ambiental (SMCQ), es responsable de la coordinación general del programa. El objetivo de la iniciativa es contribuir a la mitigación del cambio climático y la mejora de la gestión de los recursos naturales en el cerrado brasileño, mediante la mejora de las políticas públicas y las prácticas de los agricultores.",
 	"Report title is required": "",
 	"Number of Layers": "",
 	"Grid - Geotiff": "",
@@ -1082,5 +1089,18 @@
   "Can not remove this data provider": {
     " It is used in the following data series": ""
   },
-	"Enter the file name!": ""
+	"Enter the file name!": "",
+	"States": "States",
+	"Biomes": "Biomes",
+	"Conservation Units": "Conservation Units",
+	"Counties": "Counties",
+	"Countries": "Countries",
+	"Days Without Rain": "Days Without Rain",
+	"Precipitation": "Precipitation",
+	"Humidity": "Humidity",
+	"Risk of Fire": "Risk of Fire",
+	"Temperature (Kelvin)": "Temperature (Kelvin)",
+	"Temperature (Celsius)": "Temperature (Celsius)",
+	"Wind": "Wind",
+	"Vegetation Fire": "Vegetation Fire"
 }

@@ -1,6 +1,7 @@
 {
   "id": "wind_style",
   "name": "Wind",
+  "type": "GRID",
   "fields": ["north", "east"],
   "gui": {
     "schema": {

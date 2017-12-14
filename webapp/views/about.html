@@ -14,24 +14,27 @@ TerraMA² {{ i18n.__('About') }}
   <div class="row">
     <div class="col-md-12">
       <div style="display: block;" class="box-body">
-        <div id="about-dialog" title="Sobre">
+        <div id="about-dialog">
+          <div id="terrama2-about-image"></div>
+          <p style="float: right;">Copyright © 2006-2017 INPE</p>
+          <div style="clear: both;"></div>
+          <p ng-bind="i18n.__('ABOUT-TEXT-1')"></p>
+          <p ng-bind="i18n.__('ABOUT-TEXT-2')"></p>
+          <p ng-bind="i18n.__('ABOUT-TEXT-3')"></p>
+          <hr style="margin-top: 40px;"/>
+          <div style="clear: both;"></div>
+          <div id="dpi-about-image"></div>
+          <div id="inpe-about-image"></div>
+          <span style="float: right;">
+            <span ng-bind="i18n.__('ABOUT-TEXT-4')"></span><br/>
+            <span ng-bind="i18n.__('ABOUT-TEXT-5')"></span><br/>
+            <span ng-bind="i18n.__('ABOUT-TEXT-6')"></span>
+          </span>
+          <div style="clear: both;"></div>
+          <hr style="margin-bottom: 40px;"/>
           <div id="programa-cerrado-image"></div>
-          <p>
-            <span>
-              Projeto <em>Platform of Monitoring and Warning of Forest Fires in the Cerrado</em> (ProCerrado INPE)
-            </span>
-            <br/><br/>
-            Este projeto &eacute; parte integrante do Programa Cerrado, uma iniciativa de
-            coopera&ccedil;&atilde;o entre os governos do Brasil e do Reino Unido, com apoio do Banco Mundial. O Ministério do Meio Ambiente (MMA), por
-            meio de sua Secretaria de Mudan&ccedil;as Clim&aacute;ticas e Qualidade Ambiental (SMCQ), &eacute; o respons&aacute;vel pela coordena&ccedil;&atilde;o geral do programa.
-            O objetivo da iniciativa &eacute; contribuir para a mitiga&ccedil;&atilde;o da mudan&ccedil;a do clima e para melhoria da gest&atilde;o de recursos naturais no bioma
-            Cerrado por meio do aprimoramento de pol&iacute;ticas p&uacute;blicas e de pr&aacute;ticas de produtores rurais.
-          </p>
-          <p><span>PROJETO INPE</span></p>
-          <div id="projeto-inpe-image"></div>
-          <p><span>REALIZAÇÃO</span></p>
-          <div id="realizacao-image"></div>
-          <p style="margin-top: 40px;"><span>Plataforma digital para monitoramento e alerta de fogo na vegeta&ccedil;&atilde;o no Cerrado brasileiro (Banco Mundial TF018566)</span></p>
+          <p ng-bind="i18n.__('ABOUT-TEXT-7')"></p>
+          <div id="credits-image"></div>
         </div>
       </div>
     </div>

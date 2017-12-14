@@ -839,50 +839,64 @@ img[src=""] {
 }
 
 #about-dialog {
-  display: none;
   padding: 0 !important;
+  margin: 0 auto;
+  text-align: justify;
+  font-size: 18px;
+}
+
+#terrama2-about-image, #programa-cerrado-image  {
+  background-size: 300px;
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 100%;
+  padding: 0 !important;
+  margin: 0 !important;
+  max-width: 100%;
+  margin-top: 4px !important;
+}
+
+#terrama2-about-image {
+  background-image: url('../images/about/TerraMA2.png');
+  height: 265px;
 }
 
 #programa-cerrado-image {
-  background-image: url('../images/about/header.png');
-  background-size: 800px;
+  background-image: url('../images/about/programa_cerrado.png');
+  height: 310px;
+}
+
+#dpi-about-image, #inpe-about-image {
+  height: 75px;
   background-repeat: no-repeat;
   background-position: initial;
-  height: 830px;
-  width: 100%;
-  padding: 0 !important;
-  margin: 0 !important;
-  max-width: 100%;
-  margin-top: 4px !important;
+  float: left;
 }
 
-#about-dialog > p {
-  margin: 10px;
-  text-align: center;
-  margin-top: 70px;
+#dpi-about-image {
+  background-image: url('../images/about/dpi.png');
+  background-size: 150px;
+  width: 180px;
 }
 
-#about-dialog > p > span.about-title {
-  font-size: 15px;
-  font-weight: bold;
-}
-
-#projeto-inpe-image {
+#inpe-about-image {
   background-image: url('../images/about/inpe.png');
-  background-size: 700px;
-  background-repeat: no-repeat;
-  background-position: center;
-  height: 130px;
-  width: 100%;
-  padding: 0 !important;
-  margin: 0 !important;
-  max-width: 100%;
-  margin-top: 4px !important;
+  background-size: 90px;
+  width: 90px;
 }
 
-#realizacao-image {
-  background-image: url('../images/about/realizacao.png');
-  background-size: 700px;
+#about-dialog > div {
+  margin: 30px 50px 0px 50px;
+}
+
+#about-dialog > div > p {
+  margin-top: 30px;
+  margin-bottom: 0px !important;
+}
+
+#credits-image {
+  background-image: url('../images/about/credits.png');
+  background-size: 680px;
   background-repeat: no-repeat;
   background-position: center;
   height: 130px;
