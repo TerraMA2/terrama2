@@ -178,7 +178,6 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
         name = it->second.teDataSetType->getDatasetName() + "_" + name;
       }
 
-
       auto property = it->second.teDataSetType->getProperty(name);
       if(!property)
       {
