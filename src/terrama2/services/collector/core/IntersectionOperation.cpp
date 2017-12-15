@@ -39,6 +39,7 @@
 #include "../../../core/utility/Utils.hpp"
 #include "../../../core/utility/GeoUtils.hpp"
 #include "../../../core/utility/Verify.hpp"
+#include "../../../core/utility/ServiceManager.hpp"
 #include "../../../core/data-access/DataAccessor.hpp"
 #include "../../../core/data-access/DataAccessorGrid.hpp"
 #include "../../../core/data-access/GridSeries.hpp"
@@ -188,7 +189,6 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
 
       property->setName(intersectionAttribute.alias);
       interProperties.push_back(property);
-
     }
 
     // Creates a rtree with all occurrences
@@ -246,11 +246,7 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
       outputDs->add(item.release());
     }
 
-    size_t packNumber = 4;
-    size_t packSize = interDs->size()/packNumber + 1;
-
     std::mutex mutex;
-
     auto intersect = [interDs, collectedData,
                       collectedGeomPropertyPos, intersectionGeomPos,
                       interProperties, mapAlias,
@@ -300,19 +296,25 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
       }
     };
 
+    auto& serviceManager = terrama2::core::ServiceManager::getInstance();
+    auto numberOfThreads = serviceManager.numberOfThreads();
+
+    size_t step = interDs->size()/numberOfThreads;
+
     size_t begin = 0;
-    size_t temp = begin+packSize;
-    size_t end = temp <= interDs->size() ? temp : interDs->size();
+    size_t end = 0;
 
     std::vector< std::future<void> > promises;
-    for(;end < interDs->size();)
+    while(end < interDs->size())
     {
       TERRAMA2_LOG_DEBUG() << "new thread!";
+      begin = end;
+      end = static_cast<size_t>(begin+step);
+      if(end > interDs->size())
+        end = interDs->size();
+
       auto future = std::async(std::launch::async, intersect, begin, end);
       promises.push_back(std::move(future));
-      begin = end+1;
-      temp = begin+packSize;
-      end = temp <= interDs->size() ? temp : interDs->size();
     }
 
     // wait for all threads
