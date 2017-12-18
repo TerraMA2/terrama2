@@ -171,7 +171,7 @@
                         <li><a href="introduction.html">Introdu&ccedil;&atilde;o</a></li>
                     </ol>
                     <div class="nav-arrows">
-                        <div class="btn-group btn-group-xs" role="group"><a class="btn btn-default" href="introduction.html" title="Introdu&ccedil;&atilde;o" role="button"><span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span></a><a class="btn btn-default" href="data_formats.html" title="Dados e Formatos" role="button"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a><a class="btn btn-default" href="computational_requirements.html" title="Requisitos computacionais" role="button"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></div>
+                        <div class="btn-group btn-group-xs" role="group"><a class="btn btn-default" href="introduction.html" title="Introdu&ccedil;&atilde;o" role="button"><span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span></a><a class="btn btn-default" href="DadoseFormatos.html" title="Dados e Formatos" role="button"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a><a class="btn btn-default" href="computational_requirements.html" title="Requisitos computacionais" role="button"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></div>
                     </div>
                 </div> 
             
@@ -186,33 +186,34 @@
 <p class="rvps2"><span class="rvts6"><br/></span></p>
 <p class="rvps6"><a name="docs-internal-guid-2d487466-6fa6-056a-4b82-d2e5b6301a26"></a>
 <span class="rvts16">Na TerraMA</span><span class="rvts26">2</span><span class="rvts16"> são três tipos de análises suportadas. A seguir uma breve descrição do tipos:</span></p>
+<p class="rvps17"><a class="rvts30" href="analysis.html">Manipulação de Análises</a><span class="rvts29"> - </span><a class="rvts30" href="add_analysis.html">Adição de Análise</a><span class="rvts29"> &nbsp;</span><img alt="" style="padding : 1px;" src="lib/working.jpg"></p>
 <ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
-<li class="rvps17"><a name="an_obj_monitor"></a>
+<li class="rvps18"><a name="an_obj_monitor"></a>
 <span class="rvts17">Análises baseadas em Objetos Monitorados &nbsp;</span><img alt="" style="padding : 1px;" src="lib/An_ObjMon_22x21.png"><span class="rvts16">: É o principal tipo de análise utilizada. Neste tipo de análise, um dado estático vetorial (identificado como </span><span class="rvts17">objeto monitorado</span><span class="rvts16">), com representação geométrica de pontos, linhas ou polígonos, são sobrepostos a dados dinâmicos (grades, PCD ou ocorrências) para produzirem novos dados dinâmicos na forma de uma tabela temporal associada ao mapa de objetos. Essa nova tabela armazena a data/hora de execução da análise e os atributos resultantes dos cálculos da análise. Note que o relacionamentos entre a tabela do objeto a a resultante da análise é de 1 para muitos (1-n). O esquema apresentado na Figura 3.2 mostra que a análise requer como entrada: um mapa vetorial previamente disponível como dado estático, dados dinâmicos cadastrados e um modelo de análise escrito em Python.</span></li>
 </ul>
-<p class="rvps22"><img alt="" style="padding : 1px;" src="lib/Fig3_2_web.png"></p>
-<p class="rvps18"><span class="rvts19">Figura 3.2 – </span><span class="rvts20">Esquema de uma análise com base em objeto monitorado.</span></p>
-<p class="rvps19"><span class="rvts17">Nota: </span><span class="rvts16">Além dos </span><a class="rvts23" href="OperadoressobreObjetosMonitorado.html">operadores zonais</a><span class="rvts16"> utilizados sobre os dados dinâmicos que serão realizados nos modelos do usuário, os atributos do dado estático também podem ser utilizados nos cálculos.</span></p>
-<p class="rvps23"><a class="rvts30" href="ExemplodeanalisebaseadoemObjetos.html">Exemplo típico</a><span class="rvts29">, &nbsp;</span><a class="rvts30" href="OperadoressobreObjetosMonitorado.html">Operadores sobre obj monitorado</a><span class="rvts29"> &nbsp;</span><img alt="" style="padding : 1px;" src="lib/working.jpg"></p>
+<p class="rvps23"><img alt="" style="padding : 1px;" src="lib/Fig3_2_web.png"></p>
+<p class="rvps19"><span class="rvts19">Figura 3.2 – </span><span class="rvts20">Esquema de uma análise com base em objeto monitorado.</span></p>
+<p class="rvps20"><span class="rvts17">Nota: </span><span class="rvts16">Além dos </span><a class="rvts23" href="OperadoressobreObjetosMonitorado.html">operadores zonais</a><span class="rvts16"> utilizados sobre os dados dinâmicos que serão realizados nos modelos do usuário, os atributos do dado estático também podem ser utilizados nos cálculos.</span></p>
+<p class="rvps17"><a class="rvts30" href="ExemplodeanalisebaseadoemObjetos.html">Exemplo típico</a><span class="rvts29">, &nbsp;</span><a class="rvts30" href="OperadoressobreObjetosMonitorado.html">Operadores sobre obj monitorado</a><span class="rvts29"> &nbsp;</span><img alt="" style="padding : 1px;" src="lib/working.jpg"></p>
 <hr style="height: 1px; color : #000000;  background-color : #000000; border-width : 0px;">
 <ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
-<li class="rvps17"><a name="an_grades"></a>
+<li class="rvps18"><a name="an_grades"></a>
 <span class="rvts17">Análises baseadas em grades </span><img alt="" style="padding : 1px;" src="lib/An_Grades_22x22.png"><span class="rvts16">: São análises que tem por objetivo a criação de novas matrizes dinâmicas com base na aplicação de um modelo matemático sobre dados estáticos e dinâmicos, ambos matriciais. O esquema apresentado na Figura 3.3 mostra que a análise requer como entrada; dados estáticos matriciais (não obrigatório), dados dinâmicos matriciais cadastrados (pelo menos um) e um modelo de análise escrito em Python. Como saída gera-se um novo dado dinâmico matricial. Nota-se que o dado matricial resultante pode servir como entrada para a análise com objetos monitorados.</span></li>
 </ul>
 <p class="rvps2"><span class="rvts18"><br/></span></p>
-<p class="rvps20"><img alt="" style="padding : 1px;" src="lib/Fig3_3_web.png"></p>
-<p class="rvps20"><span class="rvts19">Figura 3.3 </span><span class="rvts20">– Esquema de uma análise com base em grades.</span></p>
-<p class="rvps19"><span class="rvts17">Nota:</span><span class="rvts16"> Pelo menos um dos dados deve ser dinâmico de modo que a saída será criada na frequência desse dado ou a intervalos fixos definido pelo usuário. Ajustes deverão ser definidos para grades com diferentes resoluções espaciais e diferentes tamanhos. Um conjunto de </span><a class="rvts23" href="OperadoressobreGrades.html">operadores sobre grades de observação e previsão</a><span class="rvts16"> estão disponíveis.</span></p>
-<p class="rvps23"><a class="rvts30" href="ExemplodeanalisebaseadoemGrades.html">Exemplo típico</a><span class="rvts29">, &nbsp;</span><a class="rvts30" href="OperadoressobreGrades.html">Operadores sobre Grades</a><span class="rvts29"> &nbsp;</span><img alt="" style="padding : 1px;" src="lib/working.jpg"></p>
+<p class="rvps21"><img alt="" style="padding : 1px;" src="lib/Fig3_3_web.png"></p>
+<p class="rvps21"><span class="rvts19">Figura 3.3 </span><span class="rvts20">– Esquema de uma análise com base em grades.</span></p>
+<p class="rvps20"><span class="rvts17">Nota:</span><span class="rvts16"> Pelo menos um dos dados deve ser dinâmico de modo que a saída será criada na frequência desse dado ou a intervalos fixos definido pelo usuário. Ajustes deverão ser definidos para grades com diferentes resoluções espaciais e diferentes tamanhos. Um conjunto de </span><a class="rvts23" href="OperadoressobreGrades.html">operadores sobre grades de observação e previsão</a><span class="rvts16"> estão disponíveis.</span></p>
+<p class="rvps17"><a class="rvts30" href="ExemplodeanalisebaseadoemGrades.html">Exemplo típico</a><span class="rvts29">, &nbsp;</span><a class="rvts30" href="OperadoressobreGrades.html">Operadores sobre Grades</a><span class="rvts29"> &nbsp;</span><img alt="" style="padding : 1px;" src="lib/working.jpg"></p>
 <hr style="height: 1px; color : #000000;  background-color : #000000; border-width : 0px;">
 <ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
-<li class="rvps17"><a name="an_pcd"></a>
+<li class="rvps18"><a name="an_pcd"></a>
 <span class="rvts17">Análises baseadas em PCD &nbsp;</span><img alt="" style="padding : 1px;" src="lib/An_PCD_14x22.png"><span class="rvts17"> </span><span class="rvts16">: Neste tipo de análise, uma fonte de dados do tipo PCD fornece um conjunto de pontos a serem analisados. Para cada um destes pontos será aplicada individualmente uma regra de análise fornecida pelo usuário para definir um novo valor de atributo. O esquema apresentado na Figura 3.4 mostra que a análise requer como entrada; uma série de dados dinâmicos do tipo PCD e um modelo de análise escrito em Python. Como saída gera-se uma tabela com os resultados da análise.</span></li>
 </ul>
-<p class="rvps21"><img alt="" style="padding : 1px;" src="lib/Fig3_4_web.png"></p>
-<p class="rvps21"><span class="rvts19">Figura 3.4 </span><span class="rvts20">– Esquema de uma análise com base em PCD.</span></p>
-<p class="rvps19"><span class="rvts17">Nota</span><span class="rvts16">: Além dos cálculos realizados sobre os atributos da PCD (ver </span><a class="rvts23" href="OperadoressobrePCD.html">operadores de PCD</a><span class="rvts16">), novos atributos podem ser incluídos como resultado do cruzamento com outros dados dinâmicos, sejam matriciais, PCDs ou ocorrências. Neste caso, as PCD´s podem ser consideradas como objetos monitorados para fazer uso dos operadores zonais disponíveis nesse tipo de análise.</span></p>
-<p class="rvps23"><a class="rvts30" href="ExemplodeanalisebaseadoemPCD.html">Exemplo típico</a><span class="rvts29">,&nbsp;</span><a class="rvts30" href="OperadoressobrePCD.html"> Operadores sobre PCDs</a><span class="rvts29"> &nbsp;</span><img alt="" style="padding : 1px;" src="lib/working.jpg"></p>
+<p class="rvps22"><img alt="" style="padding : 1px;" src="lib/Fig3_4_web.png"></p>
+<p class="rvps22"><span class="rvts19">Figura 3.4 </span><span class="rvts20">– Esquema de uma análise com base em PCD.</span></p>
+<p class="rvps20"><span class="rvts17">Nota</span><span class="rvts16">: Além dos cálculos realizados sobre os atributos da PCD (ver </span><a class="rvts23" href="OperadoressobrePCD.html">operadores de PCD</a><span class="rvts16">), novos atributos podem ser incluídos como resultado do cruzamento com outros dados dinâmicos, sejam matriciais, PCDs ou ocorrências. Neste caso, as PCD´s podem ser consideradas como objetos monitorados para fazer uso dos operadores zonais disponíveis nesse tipo de análise.</span></p>
+<p class="rvps17"><a class="rvts30" href="ExemplodeanalisebaseadoemPCD.html">Exemplo típico</a><span class="rvts29">,&nbsp;</span><a class="rvts30" href="OperadoressobrePCD.html"> Operadores sobre PCDs</a><span class="rvts29"> &nbsp;</span><img alt="" style="padding : 1px;" src="lib/working.jpg"></p>
 <p class="rvps2"><span class="rvts6"><br/></span></p>
 <p class="rvps2"><span class="rvts6"><br/></span></p>
 <p></p>

@@ -171,7 +171,7 @@
                         <li><a href="administration_module.html">M&oacute;dulo de Administra&ccedil;&atilde;o</a></li><li><a href="projects.html">Projetos</a></li>
                     </ol>
                     <div class="nav-arrows">
-                        <div class="btn-group btn-group-xs" role="group"><a class="btn btn-default" href="projects.html" title="Projetos" role="button"><span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span></a><a class="btn btn-default" href="add_views.html" title="Adicionar Visualiza&ccedil;&atilde;o" role="button"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a><a class="btn btn-default" href="add_alerts.html" title="Adicionar Alerta" role="button"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></div>
+                        <div class="btn-group btn-group-xs" role="group"><a class="btn btn-default" href="projects.html" title="Projetos" role="button"><span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span></a><a class="btn btn-default" href="add_views.html" title="Adicionar Visualiza&ccedil;&atilde;o" role="button"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a><a class="btn btn-default" href="add_legends.html" title="Adicionar Legenda" role="button"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></div>
                     </div>
                 </div> 
             
@@ -185,6 +185,46 @@
 <p></p>
 <p class="rvps3"><img alt="" style="padding : 1px;" src="lib/Alerta_26x26.png"></p>
 <p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps6"><a name="docs-internal-guid-a88ad011-5239-91f6-4e9d-b599f04f90a9"></a>
+<span class="rvts16">Os alertas são utilizados para publicar dados dinâmicos matriciais e dados dinâmicos resultado de análises, isto é, análises baseadas em objeto monitorado, PCD e Grades. Resumidamente, temos que:</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps8"><span class="rvts16">Nome de alerta é único para cada projeto do TerraMA</span><span class="rvts26">2</span><span class="rvts16"> e estará disponível no ítem correspondente a alertas no “</span><span class="rvts17">Módulo de Monitoramento</span><span class="rvts16">”.</span></li>
+<li class="rvps8"><span class="rvts16">Um alerta utiliza dois serviços. Um serviço de alerta para envio de notificações e geração de boletins em PDF e um serviço de visualização para publicar um alerta com legenda associada. Neste serviço de visualização é o utilizado o aplicativo Geoserver.</span></li>
+<li class="rvps8"><span class="rvts16">Uma alerta deve ter obrigatoriamente uma legenda previamente definida e associada.</span></li>
+<li class="rvps8"><span class="rvts16">Várias legendas podem ser definidas em um projeto.</span></li>
+<li class="rvps8"><span class="rvts16">Uma legenda pode ser utilizada por vários alertas.</span></li>
+<li class="rvps8"><span class="rvts16">Os níveis de alerta de uma legenda dem ser numéricos e definidos em ordem crescente de criticidade.</span></li>
+</ul>
+<p class="rvps6"><span class="rvts16">A Figura 4.6 mostra a área de trabalho do menu </span><span class="rvts17">“Alertas” </span><span class="rvts16">com a lista de alertas e legendas disponíveis. Nesta área é possível selecionar um alerta ou legenda para fazer alguma edição, criar um novo alerta ou legenda ou ainda remover uma existente. Veja a seguir as opções de manipulação.</span></p>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+<p class="rvps105"><img alt="" style="padding : 1px;" src="lib/Fig4_6_web.PNG"></p>
+<p class="rvps26"><span class="rvts19">Figura 4.6 – </span><span class="rvts20">Módulo de Administração: lista de alertas e legendas.</span></p>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+<p class="rvps6"><span class="rvts16">Como há uma dependência entre o alerta e a legenda, descrevemos inicialmente a manipulação de legendas.</span></p>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+<h5 class="rvps27"><span class="rvts0"><span class="rvts25">ADICIONAR UMA LEGENDA:</span></span></h5>
+<p class="rvps6"><span class="rvts16">Para adicionar uma nova legenda é necessário ter um projeto ativo. No menu de opções selecione “</span><span class="rvts17">Alertas</span><span class="rvts16">” para que a lista de alertas e legendas sejam apresentadas na área de trabalho. Clique na aba “</span><span class="rvts17">Legendas</span><span class="rvts16">” e em seguida no botão “ </span><span class="rvts33">+</span><span class="rvts17"> </span><span class="rvts16">“ para adicionar nova legenda. Após preencher todos os campos utilize o botão </span><span class="rvts17">“Salvar”</span><span class="rvts16">. Não é permitido nomes de legendas em duplicidade, assim como os níveis da legenda e os valores devem ser definidos em ordem crescente de criticidade. Botão </span><span class="rvts17">“Cancelar”</span><span class="rvts16"> volta à tela anterior sem salvar a legenda. Veja como </span><a class="rvts23" href="add_legends.html">adicionar uma legenda aqui</a><span class="rvts16">.</span></p>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+<h5 class="rvps27"><span class="rvts0"><span class="rvts25">REMOVENDO UM LEGENDA:</span></span></h5>
+<p class="rvps6"><span class="rvts16">Para remover uma legenda de um projeto ativo clique no menu “</span><span class="rvts17">Alertas</span><span class="rvts16">” para apresentar a lista de legendas na área de trabalho. Clique na aba “</span><span class="rvts17">Legendas</span><span class="rvts16">” e na linha correspondente a legenda desejada clique em “</span><span class="rvts31">X</span><span class="rvts16"> </span><span class="rvts17">Remover</span><span class="rvts16">”. Clique o botão </span><span class="rvts17">“OK”</span><span class="rvts16"> para confirmar remoção. </span></p>
+<p class="rvps6"><span class="rvts16">Passamos a descrever os procedimento de manipulação de alertas.</span></p>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+<h5 class="rvps27"><span class="rvts0"><span class="rvts25">ADICIONAR UM ALERTA:</span></span></h5>
+<p class="rvps6"><span class="rvts16">Para adicionar uma novo alerta é necessário ter um projeto ativo. No menu de opções selecione “</span><span class="rvts17">Alertas</span><span class="rvts16">” para que a lista de alertas e legendas sejam apresentadas na área de trabalho. Clique na aba “</span><span class="rvts17">Alertas</span><span class="rvts16">” e em seguida no botão “ </span><span class="rvts33">+</span><span class="rvts17"> </span><span class="rvts16">“ para adicionar novo alerta. Após preencher todos os campos utilize o botão </span><span class="rvts17">“Salvar”. </span><span class="rvts16">Não é permitido nomes de alertas em duplicidade. Botão </span><span class="rvts17">“Cancelar”</span><span class="rvts16"> volta à tela anterior sem salvar o alerta. Veja como </span><a class="rvts23" href="AdicionarAlerta.html">adicionar um alerta aqui</a><span class="rvts16">.</span></p>
+<p class="rvps26"><span class="rvts18"><br/></span></p>
+<h5 class="rvps27"><span class="rvts0"><span class="rvts25">REMOVENDO UM ALERTA:</span></span></h5>
+<p class="rvps6"><span class="rvts16">Para remover um alerta de um projeto ativo clique no menu “</span><span class="rvts17">Alertas</span><span class="rvts16">” para apresentar a lista de alertas e legendas na área de trabalho. Clique na aba “</span><span class="rvts17">Alertas</span><span class="rvts16">” e na linha correspondente ao alerta desejado clique em “</span><span class="rvts31">X</span><span class="rvts16"> </span><span class="rvts17">Remover</span><span class="rvts16">”. Clique o botão </span><span class="rvts17">“OK”</span><span class="rvts16"> para confirmar remoção.</span></p>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+<h5 class="rvps27"><span class="rvts0"><span class="rvts25">EXPORTAR UM ALERTA</span></span><span class="rvts0"><span class="rvts34">:</span></span></h5>
+<p class="rvps6"><span class="rvts16">Para exportar um alerta de um projeto no menu “</span><span class="rvts17">Administração</span><span class="rvts16">” clique “</span><span class="rvts17">Projetos</span><span class="rvts16">” para apresentar a lista de projetos disponíveis na área de trabalho. Na frente do nome do projeto clique em “Exportar”. Uma janela será apresentada para selecionar que itens do projeto devem ser exportados. O padrão é exportar todo conteúdo, mas se desejar abra os itens do projeto com o botão “ </span><span class="rvts33">+</span><span class="rvts17"> </span><span class="rvts16">“ e marque ou desmarque o item desejado. Clique o botão </span><span class="rvts17">“Exportar”</span><span class="rvts16"> para confirmar exportação dos itens marcados.</span></p>
+<h5 class="rvps27"><span class="rvts0"><span class="rvts25">IMPORTAR UM ALERTA</span></span><span class="rvts0"><span class="rvts34">: </span></span></h5>
+<p class="rvps6"><span class="rvts16">Para importar um alerta de um projeto no menu “</span><span class="rvts17">Administração</span><span class="rvts16">” clique “</span><span class="rvts17">Projetos</span><span class="rvts16">” para apresentar a lista de projetos disponíveis na área de trabalho. Na parte superior da área de trabalho clique em “Importar” e selecione o arquivo (arquivo *.terrama2) a ser importado. Dependendo se a exportação foi realizada com todo um projeto ou parte do mesmo, teremos as duas situações na importação:</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps8"><span class="rvts17">Importar parte do conteúdo de um projeto</span><span class="rvts16">: Se parte de um projeto foi salvo em um arquivo JSON, esta parte poderá ser adicionada em qualquer projeto existente. Neste caso, uma janela será apresentada para escolher o projeto destino (Figura 2.9), mesmo que não seja o projeto ativo. Clique o botão </span><span class="rvts17">“Importar”</span><span class="rvts16"> para confirmar importação. Caso um item do projeto destino tenha o mesmo nome de um item a ser importado, nada será importado ou atualizado.</span></li>
+</ul>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps17"><a class="rvts30" href="AdicionarAlerta.html">Adição de Alerta</a><span class="rvts29"> &nbsp;</span><img alt="" style="padding : 1px;" src="lib/working.jpg"></p>
 <p class="rvps2"><span class="rvts6"><br/></span></p>
 <p></p>
 <p class="rvps5" style="clear: both;"><span class="rvts14">Created with the Personal Edition of HelpNDoc: </span><a class="rvts15" href="https://www.helpndoc.com/feature-tour/create-help-files-for-the-qt-help-framework">Create help files for the Qt Help Framework</a></p>

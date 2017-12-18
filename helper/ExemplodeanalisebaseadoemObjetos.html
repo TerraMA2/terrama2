@@ -183,12 +183,14 @@
             <div class="main-content">
                 
 <p></p>
+<p class="rvps17"><a class="rvts30" href="Operadores.html#lista_op_obj_monitor">Lista de Operadores sobre obj monitorado</a><span class="rvts29"> &nbsp;</span><img alt="" style="vertical-align: middle; padding : 1px;" src="lib/lista.jpg"></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
 <p class="rvps6"><span class="rvts16">Em geral, análises baseadas em objeto monitorado são realizadas pela sobreposição de dados estáticos vetoriais com um dos três tipo de dados dinâmicos, isto é, grades retangulares, PCD ou ocorrências, que foram coletados, gerados ou apenas disponíveis na base de dados.</span></p>
 <p class="rvps6"><span class="rvts16">A sobreposição dos objetos monitorados com os dados dinâmicos é realizada com uso dos </span><a class="rvts23" href="OperadoressobreObjetosMonitorado.html">operadores geográficos</a><span class="rvts16"> criados exclusivamente para uso na plataforma, juntamente com os recursos que a linguagem de programação python proporciona.</span></p>
 <p class="rvps6"><span class="rvts16">O resultado desses operadores são armazenados em variáveis locais do python, que podem ser armazenadas em uma nova tabela de atributos que estará associada a tabela do objeto monitorado. Nessa nova tabela são armazenados ainda a data/hora toda vez que é realizada a análise.</span></p>
 <p class="rvps6"><span class="rvts16">A seguir apresentamos um exemplo típico da utilização de análise baseada em objeto monitorado que compara um atributo do objeto com o valor máximo de um dado matricial de chuva (Figura 3.6). Assim, no exemplo abaixo considere o seguinte cenário:</span></p>
 <ol style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: decimal;">
-<li value="1" class="rvps48"><span class="rvts16">O objeto monitorado selecionado contém um atributo denominado “</span><span class="rvts17">limiar_critico</span><span class="rvts16">” que contém para cada área um limite de chuva acumulada nas últimas 24 horas a partir do qual deve ser emitido um alerta para a área.</span></li>
+<li value="1" class="rvps53"><span class="rvts16">O objeto monitorado selecionado contém um atributo denominado “</span><span class="rvts17">limiar_critico</span><span class="rvts16">” que contém para cada área um limite de chuva acumulada nas últimas 24 horas a partir do qual deve ser emitido um alerta para a área.</span></li>
 <li value="2" class="rvps7"><span class="rvts16">A série de dados “</span><span class="rvts17">hidro_diario</span><span class="rvts16">” contém uma grade com o total de chuva acumulada nas últimas 24 horas.</span></li>
 <li value="3" class="rvps7"><span class="rvts16">Se a chuva acumulada estiver abaixo do limiar definido para cada objeto, o nível de alerta &nbsp;será 0. Se estiver até 20% acima do limiar, o nível será 1. Chuvas acima de 20% do limiar, o nível será 2.</span></li>
 <li value="4" class="rvps7"><span class="rvts16">O resultado da análise será armazenado em uma nova tabela de nome “</span><span class="rvts17">tab_an_max</span><span class="rvts16">” que estará associada a tabela do objeto “</span><span class="rvts17">tab_obj</span><span class="rvts16">”.</span></li>
@@ -200,29 +202,29 @@
 <span class="rvts19">Figura 3.6 – </span><span class="rvts20">Exemplo de análise com objeto monitorado.</span></p>
 <p class="rvps6"><span class="rvts16"><br/></span></p>
 <p class="rvps6"><span class="rvts16">Para uma melhor compreensão do programa de análise do exemplo, vamos analisá-la por partes.</span></p>
-<p class="rvps49"><span class="rvts59">nivel = 0</span></p>
+<p class="rvps54"><span class="rvts60">nivel = 0</span></p>
 <p class="rvps6"><span class="rvts16">Essa linha define uma nova variável denominada de “</span><span class="rvts17">nivel</span><span class="rvts16">” que será inicializada com o valor 0 (zero). No exemplo, um único objeto (representado por um polígono) está sendo analisado. Caso outros objetos existissem no mapa estático, a variável “nível” seria inicializada em 0 para cada objeto. Em outras palavras, o programa todo é executado para cada objeto.</span></p>
-<p class="rvps50"><span class="rvts60"># Cálculo do valor zonal máximo</span></p>
-<p class="rvps51"><span class="rvts59">var1 = </span><span class="rvts61">grid.zonal.max</span><span class="rvts59">(</span><span class="rvts62">“hidro_diario”, 0</span><span class="rvts59">)</span></p>
+<p class="rvps55"><span class="rvts61"># Cálculo do valor zonal máximo</span></p>
+<p class="rvps56"><span class="rvts60">var1 = </span><span class="rvts62">grid.zonal.max</span><span class="rvts60">(</span><span class="rvts63">“hidro_diario”, 0</span><span class="rvts60">)</span></p>
 <p class="rvps6"><span class="rvts16">Essa linha define uma nova variável denominada de “</span><span class="rvts17">var1</span><span class="rvts16">” que será inicializada com o valor do operador zonal “</span><span class="rvts17">maximo</span><span class="rvts16">” aplicado à grade “</span><span class="rvts17">hidro_diario</span><span class="rvts16">”. Na prática, estamos buscando qual o valor de chuva acumulada na área em análise a partir da grade. Mais adiante será feita uma discussão maior sobre operadores zonais. Observe que “</span><span class="rvts17">hidro_diario</span><span class="rvts16">” é o nome do dado dinâmico que contém as informações de chuva e deve estar cadastrado no projeto.</span></p>
-<p class="rvps50"><span class="rvts60"># Recupera valor do atributo do objeto</span></p>
-<p class="rvps51"><span class="rvts59">var2 = </span><span class="rvts61">get_value</span><span class="rvts59">(</span><span class="rvts62">“limiar_critico”</span><span class="rvts59">)</span></p>
+<p class="rvps55"><span class="rvts61"># Recupera valor do atributo do objeto</span></p>
+<p class="rvps56"><span class="rvts60">var2 = </span><span class="rvts62">get_value</span><span class="rvts60">(</span><span class="rvts63">“limiar_critico”</span><span class="rvts60">)</span></p>
 <p class="rvps6"><span class="rvts16">Essa linha define uma nova variável denominada de “</span><span class="rvts17">var2</span><span class="rvts16">” que será inicializada com o valor do atributo “</span><span class="rvts17">limiar_critico</span><span class="rvts16">” de cada objeto monitorado.</span></p>
-<p class="rvps50"><span class="rvts60"># Compara valor máximo com atributo</span></p>
-<p class="rvps51"><span class="rvts63">if</span><span class="rvts59"> &nbsp;var1 &nbsp;&lt; &nbsp;var2 :</span></p>
+<p class="rvps55"><span class="rvts61"># Compara valor máximo com atributo</span></p>
+<p class="rvps56"><span class="rvts64">if</span><span class="rvts60"> &nbsp;var1 &nbsp;&lt; &nbsp;var2 :</span></p>
 <p class="rvps6"><span class="rvts16">Na linha acima estamos comparando o valor da chuva acumulada obtida da grade com o limiar definido em um objeto em particular, que tem valor 80. Lembrando que a fonte de objeto monitorado pode ter vários objetos (polígonos) com limiares diferentes.</span></p>
-<p class="rvps52"><span class="rvts59">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nivel =0</span></p>
-<p class="rvps53"><span class="rvts63">elif</span><span class="rvts59"> &nbsp;var1 &lt; var2 &nbsp;* 1.2:</span></p>
-<p class="rvps53"><span class="rvts59">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nível = 1</span></p>
-<p class="rvps53"><span class="rvts63">else :</span></p>
-<p class="rvps54"><span class="rvts59">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nivel = 2</span></p>
+<p class="rvps57"><span class="rvts60">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nivel =0</span></p>
+<p class="rvps58"><span class="rvts64">elif</span><span class="rvts60"> &nbsp;var1 &lt; var2 &nbsp;* 1.2:</span></p>
+<p class="rvps58"><span class="rvts60">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nível = 1</span></p>
+<p class="rvps58"><span class="rvts64">else :</span></p>
+<p class="rvps59"><span class="rvts60">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nivel = 2</span></p>
 <p class="rvps6"><span class="rvts16">Nas linhas a seguir estamos estabelecendo &nbsp;os níveis de alerta determinados &nbsp;pela comparação como um limiar pré-definido. Se o valor de chuva acumulada for menor do que o valor do limiar de chuva para esta área, vamos retornar o nível = 0. Seguindo as definições do exemplo, a seguir retornamos nível = 1 se a chuva acumulada superar o limite em menos de 20%, isto é o valor de 96 (= 80 x 1.2). Caso contrário o valor de nível = 2.</span></p>
-<p class="rvps52"><span class="rvts60"># Adiciona valor a tabela</span></p>
-<p class="rvps54"><span class="rvts64">add_value</span><span class="rvts59">(“nivel_risco”, nivel)</span></p>
+<p class="rvps57"><span class="rvts61"># Adiciona valor a tabela</span></p>
+<p class="rvps59"><span class="rvts65">add_value</span><span class="rvts60">(“nivel_risco”, nivel)</span></p>
 <p class="rvps6"><span class="rvts16">Outro ponto importante a ser observado no exemplo, é a presença de comentários que não tem qualquer significado na execução do programa, apenas para fins de documentação. Use o sinal &nbsp;# &nbsp;para adicionar uma linha de comentário.</span></p>
 <p class="rvps6"><span class="rvts16">A última linha do programa utiliza o comando “</span><span class="rvts17">add_value</span><span class="rvts16">” da plataforma para adicionar uma nova coluna na tabela “</span><span class="rvts17">tab_an_max</span><span class="rvts16">” e para armazenar o valor do nível. É obrigatório o uso desse operador pelo menos uma vez.</span></p>
 <p class="rvps6"><span class="rvts16"><br/></span></p>
-<p class="rvps55"><span class="rvts16">Para uma maior compreensão da sintaxe da linguagem ou uso de opções avançadas, recomenda-se a leitura da documentação disponível em &nbsp;</span><a class="rvts23" href="https://www.python.org/">https://www.python.org/</a><span class="rvts16"> .</span></p>
+<p class="rvps60"><span class="rvts16">Para uma maior compreensão da sintaxe da linguagem ou uso de opções avançadas, recomenda-se a leitura da documentação disponível em &nbsp;</span><a class="rvts23" href="https://www.python.org/">https://www.python.org/</a><span class="rvts16"> .</span></p>
 <p class="rvps2"><span class="rvts18"><br/></span></p>
 <p></p>
 <p class="rvps5" style="clear: both;"><span class="rvts14">Created with the Personal Edition of HelpNDoc: </span><a class="rvts15" href="https://www.helpndoc.com/feature-tour/iphone-website-generation">iPhone web sites made easy</a></p>
