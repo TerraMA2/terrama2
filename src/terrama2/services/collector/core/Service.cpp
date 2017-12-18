@@ -100,9 +100,6 @@ void terrama2::services::collector::core::Service::addToQueue(CollectorId collec
     {
       processQueue_.push_back(executionPackage);
       processingQueue_.push_back(collectorId);
-
-      //wake loop thread
-      mainLoopCondition_.notify_one();
     }
     else
     {
@@ -110,7 +107,6 @@ void terrama2::services::collector::core::Service::addToQueue(CollectorId collec
       logger_->result(CollectorLogger::ON_QUEUE, nullptr, executionPackage.registerId);
       TERRAMA2_LOG_INFO() << tr("Collector %1 added to wait queue.").arg(collectorId);
     }
-
 
     mainLoopCondition_.notify_one();
   }
@@ -150,7 +146,6 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
     auto inputDataSeries = dataManager->findDataSeries(collectorPtr->inputDataSeries);
     auto inputDataProvider = dataManager->findDataProvider(inputDataSeries->dataProviderId);
 
-
     TERRAMA2_LOG_DEBUG() << tr("Starting collection for data series '%1'").arg(inputDataSeries->name.c_str());
 
     // output data
@@ -184,6 +179,10 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
     std::shared_ptr<te::dt::TimeInstantTZ> lastDateTime;
     auto status = CollectorLogger::ProcessLogger::Status::START;
 
+    /////////////////////////////////
+    //
+    // begin processing
+    //
     dataAccessor->getSeriesCallback(filter, remover, [&](const DataSetId& datasetId, const std::string& uri) {
       try
       {
@@ -197,9 +196,9 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
 
           // yellow status to the user
           status = CollectorLogger::ProcessLogger::Status::WARNING;
-
           return;
         }
+
         auto thisFileLastDateTime = dataAccessor->lastDateTime();
 
         /////////////////////////////////////////////////////////////////////////
@@ -234,18 +233,15 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
       {
         status = CollectorLogger::ProcessLogger::Status::ERROR;
         std::string errMsg = boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
-        if(executionPackage.registerId != 0 )
-        {
-          TERRAMA2_LOG_ERROR() << errMsg << std::endl;
-          TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(executionPackage.processId);
-        }
+        TERRAMA2_LOG_INFO() << tr("Collector %1 finished with a log exception.").arg(QString::fromStdString(outputDataSeries->name));
+        TERRAMA2_LOG_ERROR() << errMsg;
       }
       catch(const terrama2::core::NoDataException& e)
       {
-        TERRAMA2_LOG_INFO() << tr("Collection finished but there was no data available for collector %1.").arg(executionPackage.processId);
-
         status = CollectorLogger::ProcessLogger::Status::WARNING;
         std::string errMsg = boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
+        TERRAMA2_LOG_INFO() << tr("No data available for collector %1.").arg(QString::fromStdString(outputDataSeries->name));
+
         if(executionPackage.registerId != 0)
         {
           logger->log(CollectorLogger::WARNING_MESSAGE, errMsg, executionPackage.registerId);
@@ -254,10 +250,10 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
       }
       catch(const terrama2::Exception& e)
       {
-        QString errMsg = *boost::get_error_info<terrama2::ErrorDescription>(e);
-        TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(executionPackage.processId);
-
         status = CollectorLogger::ProcessLogger::Status::ERROR;
+        QString errMsg = *boost::get_error_info<terrama2::ErrorDescription>(e);
+        TERRAMA2_LOG_INFO() << tr("Collector %1 finished with error(s).").arg(QString::fromStdString(outputDataSeries->name));
+
         if(executionPackage.registerId != 0)
         {
           logger->log(CollectorLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
@@ -266,11 +262,11 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
       }
       catch(const boost::exception& e)
       {
+        status = CollectorLogger::ProcessLogger::Status::ERROR;
         std::string errMsg = boost::diagnostic_information(e);
         TERRAMA2_LOG_ERROR() << errMsg;
-        TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(executionPackage.processId);
+        TERRAMA2_LOG_INFO() << tr("Collector %1 finished with error(s).").arg(QString::fromStdString(outputDataSeries->name));
 
-        status = CollectorLogger::ProcessLogger::Status::ERROR;
         if(executionPackage.registerId != 0)
         {
           logger->log(CollectorLogger::ERROR_MESSAGE, errMsg, executionPackage.registerId);
@@ -279,10 +275,10 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
       }
       catch(const std::exception& e)
       {
-        TERRAMA2_LOG_ERROR() << e.what();
-        TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(executionPackage.processId);
-
         status = CollectorLogger::ProcessLogger::Status::ERROR;
+        TERRAMA2_LOG_ERROR() << e.what();
+        TERRAMA2_LOG_INFO() << tr("Collector %1 finished with error(s).").arg(QString::fromStdString(outputDataSeries->name));
+
         if(executionPackage.registerId != 0)
         {
           logger->log(CollectorLogger::ERROR_MESSAGE, e.what(), executionPackage.registerId);
@@ -293,7 +289,7 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
       {
         QString errMsg = tr("Unknown error.");
         TERRAMA2_LOG_ERROR() << errMsg;
-        TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(executionPackage.processId);
+        TERRAMA2_LOG_INFO() << tr("Collector %1 finished with error(s).").arg(QString::fromStdString(outputDataSeries->name));
 
         status = CollectorLogger::ProcessLogger::Status::ERROR;
         if(executionPackage.registerId != 0)
@@ -303,20 +299,27 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
         }
       }
     });
+    //
+    // end processing
+    //
+    /////////////////////////////////
 
-    TERRAMA2_LOG_INFO() << tr("Data from collector %1 collected successfully.").arg(executionPackage.processId);
+    TERRAMA2_LOG_INFO() << tr("Collector %1 finished successfully.").arg(QString::fromStdString(outputDataSeries->name));
 
     auto processingEndTime = terrama2::core::TimeUtils::nowUTC();
 
+    // log processing time
     logger->setStartProcessingTime(processingStartTime, executionPackage.registerId);
     logger->setEndProcessingTime(processingEndTime, executionPackage.registerId);
 
     logger->result(status, lastDateTime, executionPackage.registerId);
 
     QJsonObject jsonAnswer;
+    // only execute linked automatic process if finished successfully
     jsonAnswer.insert(terrama2::core::ReturnTags::AUTOMATIC, status == CollectorLogger::ProcessLogger::Status::DONE);
 
     auto success = (status == CollectorLogger::ProcessLogger::Status::DONE || status == CollectorLogger::ProcessLogger::Status::WARNING);
+    // notify process finished
     sendProcessFinishedSignal(executionPackage.processId, executionPackage.executionDate, success, jsonAnswer);
     notifyWaitQueue(executionPackage.processId);
     return;
@@ -327,12 +330,12 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
     if(executionPackage.registerId != 0 )
     {
       TERRAMA2_LOG_ERROR() << errMsg << std::endl;
-      TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(executionPackage.processId);
+      TERRAMA2_LOG_INFO() << tr("Collector %1 finished with error(s).").arg(executionPackage.processId);
     }
   }
   catch(const terrama2::core::NoDataException& e)
   {
-    TERRAMA2_LOG_INFO() << tr("Collection finished but there was no data available for collector %1.").arg(executionPackage.processId);
+    TERRAMA2_LOG_INFO() << tr("Collector %1 finished but there was no data available.").arg(executionPackage.processId);
 
     std::string errMsg = boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
     if(executionPackage.registerId != 0)
@@ -344,7 +347,7 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
   catch(const terrama2::Exception& e)
   {
     QString errMsg = *boost::get_error_info<terrama2::ErrorDescription>(e);
-    TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(executionPackage.processId);
+    TERRAMA2_LOG_INFO() << tr("Collector %1 finished with error(s).").arg(executionPackage.processId);
 
     if(executionPackage.registerId != 0)
     {
@@ -356,7 +359,7 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
   {
     std::string errMsg = boost::diagnostic_information(e);
     TERRAMA2_LOG_ERROR() << errMsg;
-    TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(executionPackage.processId);
+    TERRAMA2_LOG_INFO() << tr("Collector %1 finished with error(s).").arg(executionPackage.processId);
 
     if(executionPackage.registerId != 0)
     {
@@ -367,7 +370,7 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
   catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
-    TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(executionPackage.processId);
+    TERRAMA2_LOG_INFO() << tr("Collector %1 finished with error(s).").arg(executionPackage.processId);
 
     if(executionPackage.registerId != 0)
     {
@@ -379,7 +382,7 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
   {
     QString errMsg = tr("Unknown error.");
     TERRAMA2_LOG_ERROR() << errMsg;
-    TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(executionPackage.processId);
+    TERRAMA2_LOG_INFO() << tr("Collector %1 finished with error(s).").arg(executionPackage.processId);
 
     if(executionPackage.registerId != 0)
     {
@@ -389,6 +392,7 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
 
   }
 
+  // if arrived here, always error
   sendProcessFinishedSignal(executionPackage.processId, executionPackage.executionDate, false);
   notifyWaitQueue(executionPackage.processId);
 }
