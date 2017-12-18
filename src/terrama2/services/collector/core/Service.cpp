@@ -104,7 +104,7 @@ void terrama2::services::collector::core::Service::addToQueue(CollectorId collec
     else
     {
       waitQueue_[collectorId].push(executionPackage);
-      logger_->result(CollectorLogger::ON_QUEUE, nullptr, executionPackage.registerId);
+      logger_->result(CollectorLogger::Status::ON_QUEUE, nullptr, executionPackage.registerId);
       TERRAMA2_LOG_INFO() << tr("Collector %1 added to wait queue.").arg(collectorId);
     }
 
@@ -190,8 +190,8 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
         if(dataMap.empty())
         {
           QString errMsg = tr("No data to collect.");
-          logger->log(CollectorLogger::WARNING_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
-          logger->result(CollectorLogger::WARNING, nullptr, executionPackage.registerId);
+          logger->log(CollectorLogger::MessageType::WARNING_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+          logger->result(CollectorLogger::Status::WARNING, nullptr, executionPackage.registerId);
           TERRAMA2_LOG_WARNING() << errMsg;
 
           // yellow status to the user
@@ -244,8 +244,8 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
 
         if(executionPackage.registerId != 0)
         {
-          logger->log(CollectorLogger::WARNING_MESSAGE, errMsg, executionPackage.registerId);
-          logger->result(CollectorLogger::WARNING, nullptr, executionPackage.registerId);
+          logger->log(CollectorLogger::MessageType::WARNING_MESSAGE, errMsg, executionPackage.registerId);
+          logger->result(CollectorLogger::Status::WARNING, nullptr, executionPackage.registerId);
         }
       }
       catch(const terrama2::Exception& e)
@@ -256,8 +256,8 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
 
         if(executionPackage.registerId != 0)
         {
-          logger->log(CollectorLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
-          logger->result(CollectorLogger::ERROR, nullptr, executionPackage.registerId);
+          logger->log(CollectorLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+          logger->result(CollectorLogger::Status::ERROR, nullptr, executionPackage.registerId);
         }
       }
       catch(const boost::exception& e)
@@ -269,8 +269,8 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
 
         if(executionPackage.registerId != 0)
         {
-          logger->log(CollectorLogger::ERROR_MESSAGE, errMsg, executionPackage.registerId);
-          logger->result(CollectorLogger::ERROR, nullptr, executionPackage.registerId);
+          logger->log(CollectorLogger::MessageType::ERROR_MESSAGE, errMsg, executionPackage.registerId);
+          logger->result(CollectorLogger::Status::ERROR, nullptr, executionPackage.registerId);
         }
       }
       catch(const std::exception& e)
@@ -281,8 +281,8 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
 
         if(executionPackage.registerId != 0)
         {
-          logger->log(CollectorLogger::ERROR_MESSAGE, e.what(), executionPackage.registerId);
-          logger->result(CollectorLogger::ERROR, nullptr, executionPackage.registerId);
+          logger->log(CollectorLogger::MessageType::ERROR_MESSAGE, e.what(), executionPackage.registerId);
+          logger->result(CollectorLogger::Status::ERROR, nullptr, executionPackage.registerId);
         }
       }
       catch(...)
@@ -294,8 +294,8 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
         status = CollectorLogger::ProcessLogger::Status::ERROR;
         if(executionPackage.registerId != 0)
         {
-          logger->log(CollectorLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
-          logger->result(CollectorLogger::ERROR, nullptr, executionPackage.registerId);
+          logger->log(CollectorLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+          logger->result(CollectorLogger::Status::ERROR, nullptr, executionPackage.registerId);
         }
       }
     });
@@ -340,8 +340,8 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
     std::string errMsg = boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
     if(executionPackage.registerId != 0)
     {
-      logger->log(CollectorLogger::WARNING_MESSAGE, errMsg, executionPackage.registerId);
-      logger->result(CollectorLogger::DONE, nullptr, executionPackage.registerId);
+      logger->log(CollectorLogger::MessageType::WARNING_MESSAGE, errMsg, executionPackage.registerId);
+      logger->result(CollectorLogger::Status::DONE, nullptr, executionPackage.registerId);
     }
   }
   catch(const terrama2::Exception& e)
@@ -351,8 +351,8 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
 
     if(executionPackage.registerId != 0)
     {
-      logger->log(CollectorLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
-      logger->result(CollectorLogger::ERROR, nullptr, executionPackage.registerId);
+      logger->log(CollectorLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+      logger->result(CollectorLogger::Status::ERROR, nullptr, executionPackage.registerId);
     }
   }
   catch(const boost::exception& e)
@@ -363,8 +363,8 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
 
     if(executionPackage.registerId != 0)
     {
-      logger->log(CollectorLogger::ERROR_MESSAGE, errMsg, executionPackage.registerId);
-      logger->result(CollectorLogger::ERROR, nullptr, executionPackage.registerId);
+      logger->log(CollectorLogger::MessageType::ERROR_MESSAGE, errMsg, executionPackage.registerId);
+      logger->result(CollectorLogger::Status::ERROR, nullptr, executionPackage.registerId);
     }
   }
   catch(const std::exception& e)
@@ -374,8 +374,8 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
 
     if(executionPackage.registerId != 0)
     {
-      logger->log(CollectorLogger::ERROR_MESSAGE, e.what(), executionPackage.registerId);
-      logger->result(CollectorLogger::ERROR, nullptr, executionPackage.registerId);
+      logger->log(CollectorLogger::MessageType::ERROR_MESSAGE, e.what(), executionPackage.registerId);
+      logger->result(CollectorLogger::Status::ERROR, nullptr, executionPackage.registerId);
     }
   }
   catch(...)
@@ -386,8 +386,8 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
 
     if(executionPackage.registerId != 0)
     {
-      logger->log(CollectorLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
-      logger->result(CollectorLogger::ERROR, nullptr, executionPackage.registerId);
+      logger->log(CollectorLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+      logger->result(CollectorLogger::Status::ERROR, nullptr, executionPackage.registerId);
     }
 
   }
