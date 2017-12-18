@@ -114,6 +114,15 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
       view->legend.release();
   }
 
+  if(json.contains("properties"))
+  {
+    auto properties = json["properties"].toObject();
+    for(auto it = properties.begin(); it != properties.end(); ++it)
+    {
+      view->properties.emplace(it.key().toStdString(), it.value().toString().toStdString());
+    }
+  }
+
   view->schedule = terrama2::core::fromScheduleJson(json["schedule"].toObject());
 
   view->imageName = json["imageName"].toString().toStdString();

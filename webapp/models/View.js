@@ -124,6 +124,14 @@
             }
           });
 
+          View.hasMany(models.ViewProperties, {
+            onDelete: 'CASCADE',
+            foreignKey: {
+              name: "view_id",
+              allowNull: false
+            }
+          });
+
           View.belongsTo(models.Project, {
             onDelete: "CASCADE",
             foreignKey: {

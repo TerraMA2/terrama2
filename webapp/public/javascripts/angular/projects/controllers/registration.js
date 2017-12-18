@@ -22,6 +22,10 @@ define(function() {
     $scope.project = configuration.project || {canProtect: true};
     $scope.project.version = 4;
 
+    $scope.css = {
+      boxType: "box-solid"
+    }
+    
     $scope.close = function() {
       MessageBoxService.reset();
     };

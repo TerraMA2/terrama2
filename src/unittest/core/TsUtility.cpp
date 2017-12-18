@@ -102,9 +102,6 @@ void TsUtility::testFrequencyTimer()
     auto lastTime = logger.getLastProcessTimestamp(1);
     terrama2::core::Timer timerSecond1(schedule, 1, lastTime);
 
-    schedule.frequencyUnit = "ss";
-    terrama2::core::Timer timerSecond2(schedule, 1, lastTime);
-
     schedule.frequencyUnit = "s";
     terrama2::core::Timer timerSecond3(schedule, 1, lastTime);
 
@@ -129,10 +126,6 @@ void TsUtility::testFrequencyTimer()
 
     terrama2::core::Timer timerHour1(schedule, 1, lastTime);
 
-    schedule.frequencyUnit = "hh";
-
-    terrama2::core::Timer timerHour2(schedule, 1, lastTime);
-
     schedule.frequencyUnit = "h";
 
     terrama2::core::Timer timerHour3(schedule, 1, lastTime);
@@ -145,10 +138,6 @@ void TsUtility::testFrequencyTimer()
 
     schedule.frequencyUnit = "d";
     terrama2::core::Timer timerDay2(schedule, 1, lastTime);
-
-    schedule.frequencyUnit = "dd";
-    terrama2::core::Timer timerDay3(schedule, 1, lastTime);
-
   }
   catch(...)
   {
