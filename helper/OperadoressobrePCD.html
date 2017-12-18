@@ -183,8 +183,261 @@
             <div class="main-content">
                 
 <p></p>
-<p class="rvps23"><a class="rvts30" href="Operadores.html#lista_op_pcd">Lista de Operadores sobre PCD</a><span class="rvts29"> &nbsp;</span><img alt="" style="vertical-align: middle; padding : 1px;" src="lib/lista.jpg"></p>
+<p class="rvps17"><a class="rvts30" href="Operadores.html#lista_op_pcd">Lista de Operadores sobre PCD</a><span class="rvts29"> &nbsp;</span><img alt="" style="vertical-align: middle; padding : 1px;" src="lib/lista.jpg"></p>
 <p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps6"><span class="rvts16">Os operadores espaciais disponíveis para serem utilizados com os dados dinâmicos de PCD´s são utilizados sobre os atributos de cada PCD isoladamente ou em grupos seguindo a regra de influência. Cada PCD pode ainda ser utilizada como um objeto monitorado para ser cruzada com qualquer dos três tipo de dados dinâmicos. </span></p>
+<p class="rvps6"><span class="rvts16"><br/></span></p>
+<h4 class="rvps14"><a name="op_pcd_util"></a>
+<span class="rvts0"><span class="rvts87">Utilitários para operadores sobre PCD &nbsp;</span></span><img alt="" style="padding : 1px;" src="lib/An_OB_util_24x24.png"></h4>
+<p class="rvps6"><span class="rvts16">Estes utilitários são os mesmos apresentados na análise baseada em objeto monitorado, portanto, maiores detalhes veja </span><a class="rvts23" href="OperadoressobreObjetosMonitorado.html#util_obj_monitor">aqui</a><span class="rvts16">.</span></p>
+<h6 class="rvps71"><span class="rvts0"><span class="rvts34">I.1- Unidade de distância</span></span></h6>
+<p class="rvps6"><span class="rvts16">Para operadores que utilizam unidades de distância devem usar as letras entre aspas duplas ( “&lt;unidade&gt;” ). As seguintes opções estão disponíveis:</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps8"><span class="rvts16">“cm”: centímetros </span></li>
+<li class="rvps8"><span class="rvts16">“m” : metros </span></li>
+<li class="rvps8"><span class="rvts16">“km”: quilômetros </span></li>
+</ul>
+<h6 class="rvps71"><span class="rvts0"><span class="rvts34">I.2- Unidade de tempo</span></span></h6>
+<p class="rvps6"><span class="rvts16">Para operadores que utilizam unidades de tempo devem usar as letras imediatamente após o valor numérico (sem espaço entre o número e a letra), ambos entre aspas dupla ( “&lt;num&gt;&lt;unidade&gt;” ). As seguintes opções estão disponíveis:</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps8"><span class="rvts16">sec: segundo </span></li>
+<li class="rvps8"><span class="rvts16">min: minuto </span></li>
+<li class="rvps8"><span class="rvts16">h: hora </span></li>
+<li class="rvps8"><span class="rvts16">d: dia </span></li>
+<li class="rvps8"><span class="rvts16">w: semana </span></li>
+</ul>
+<h6 class="rvps71"><span class="rvts0"><span class="rvts34">I.3- Utilitário de “buffer” (Equidistâncias de um objeto)</span></span></h6>
+<p class="rvps6"><span class="rvts16">Nesse tipo de análise é considerada apenas a geometrias de pontos das PCD´s, portanto, só faz sentido utilizar o utilitário “buffer” com as seguintes opções:</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps8"><span class="rvts17">Buffer( ) </span><span class="rvts16">: Sem buffer. Será considerado a própria geometria do ponto.</span></li>
+<li class="rvps8"><span class="rvts17">BufferType.Out</span><span class="rvts16"> : Será considerada a área do “buffer” externa à geometria do ponto.</span></li>
+<li class="rvps8"><span class="rvts17">Buffer.Type.Level</span><span class="rvts16"> : Área diferença entre dois buffer externos. Será considerada a diferença entre um buffer maior menos o menor, definindo uma área não adjacente a geometria do ponto.</span></li>
+</ul>
+<p class="rvps24"><span class="rvts17">Nota: </span><span class="rvts16">Detalhes com exemplos do utilitário “buffer” consulte item &nbsp;3.3.3.1.</span></p>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+<h6 class="rvps71"><span class="rvts0"><span class="rvts34">I.4- Utilitários “Get Value”, &nbsp;“Add Value” e &nbsp;“ Get analysis date”</span></span></h6>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps8"><span class="rvts17">get_value</span><span class="rvts16">(“&lt;attribute_name&gt;”) &nbsp;: &nbsp;recupera o atributo de um objeto monitorado. Válido para atributos numéricos ou alfa-numéricos</span></li>
+<li class="rvps8"><span class="rvts17">add_value</span><span class="rvts16">(“&lt;attribute_name&gt;”, &lt;value&gt;) &nbsp;: &nbsp;adiciona o valor de uma variável a um atributo na tabela resultante de uma análise baseada em objeto monitorado. Válido para atributos numéricos ou alfa-numéricos.</span></li>
+<li class="rvps8"><span class="rvts17">get_analysis_date()</span><span class="rvts16"> &nbsp;: &nbsp;retorna a data/hora de execução da análise, podendo ser um reprocessamento de dado histórico ou valor atual. </span></li>
+</ul>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+<h4 class="rvps14"><a name="op_pcd"></a>
+<span class="rvts0"><span class="rvts87">Operadores sobre PCD &nbsp;</span></span><img alt="" style="padding : 1px;" src="lib/An_OB_pcd_24x24.png"></h4>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+<h6 class="rvps71"><a name="op_pcd_influencia"></a>
+<span class="rvts0"><span class="rvts34">II.1- Regra de Influência</span></span></h6>
+<p class="rvps6"><span class="rvts16">A regra de influência é utilizada para as PCD´s pode ser utilizado para definir se serão consideradas outras PCD´s próximas da PCD que estiver sendo analisada.</span></p>
+<p class="rvps67"><span class="rvts48">SINTAXE GERAL:</span></p>
+<p class="rvps23"><span class="rvts16">dcp.influence.by_rule(&lt;buffer&gt;) &nbsp;&nbsp;</span></p>
+<p class="rvps9"><span class="rvts16">onde:</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps8"><span class="rvts17">buffer</span><span class="rvts16"> : [Opcional] “Buffer” para ser aplicado a cada PCD, considerada como objeto monitorado. Ver utilitário “buffer” em item 3.3.3.1.</span></li>
+</ul>
+<p class="rvps101"><span class="rvts34"><br/></span></p>
+<h6 class="rvps71"><a name="op_pcd_pcd"></a>
+<span class="rvts0"><span class="rvts34">II.2- PCD</span></span></h6>
+<p class="rvps6"><span class="rvts16">Grupo de operadores que consideram as últimas medidas de cada PCD´s.</span></p>
+<p class="rvps67"><span class="rvts48">SINTAXE GERAL:</span></p>
+<p class="rvps82"><span class="rvts16">dcp.&lt;operator&gt;(&lt;buffer&gt;, "&lt;attribute&gt;", [&lt;list_dcp&gt;], [&lt;isActive&gt;])</span></p>
+<p class="rvps82"><span class="rvts80"><br/></span></p>
+<p class="rvps85"><span class="rvts16">onde: </span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps8"><span class="rvts17">operator</span><span class="rvts16"> : Value, Count, Min, Max, Mean, Median, Sum, Standard_deviation, Variance; </span></li>
+<li class="rvps8"><span class="rvts17">buffer</span><span class="rvts16"> : Buffer para ser aplicado ao ponto da PCD. Parâmetro obrigatório somente para operador &nbsp;“count”. Ver utilitário Buffer;</span></li>
+<li class="rvps8"><span class="rvts17">attribute </span><span class="rvts16">: String com o nome do atributo da PCD que deve ser utilizado para recuperar valores estatísticos. O atributo deve ser do tipo numérico (Ex. Integer, Float, Double, Long). Não usar para operador “count”;</span></li>
+<li class="rvps8"><span class="rvts17">list_dcp </span><span class="rvts16">: </span><span class="rvts60">[Opcional] </span><span class="rvts16">Lista contendo a identificação das PCD´s. Ver utilitário &nbsp;“Regra de Influência”. Não usar &nbsp;se operador zonal for “count”. Se não utilizado nos demais operadores, </span><span class="rvts17">todas </span><span class="rvts16">as PCD´s ativas da série serão consideradas.</span></li>
+<li class="rvps8"><span class="rvts17">isActive </span><span class="rvts16">: </span><span class="rvts60">[Opcional] utiliza-se uma expressão do tipo booleana, True ou False, que considera como parâmetro o botão Ativo, disponível em Registro de Dado Dinâmico. [True] botão Ativo desmarcado não são considerados os valores da pcd na análise. [False] considera os valores da pcd na análise, mesmo que o botão Ativo esteja desmarcado.</span></li>
+</ul>
+<p class="rvps6"><span class="rvts16">Segue a descrição de cada operador.</span></p>
+<p class="rvps80"><span class="rvts66">PCD: </span><span class="rvts36">Valor</span></p>
+<p class="rvps6"><span class="rvts16">Retorna o valor da última leitura de cada PCD.</span></p>
+<p class="rvps67"><span class="rvts48">Sintaxe:</span></p>
+<p class="rvps81"><span class="rvts60">dcp.value("&lt;attribute&gt;")</span></p>
+<p class="rvps69"><span class="rvts77">Exemplo</span><span class="rvts78">:&nbsp;&nbsp;&nbsp; </span><span class="rvts79">x = dcp.value(“pluvio”)</span></p>
+<p class="rvps80"><span class="rvts66">PCD: </span><span class="rvts36">Contagem</span></p>
+<p class="rvps6"><span class="rvts16">Retorna o número de PCD´s que influenciam cada PCD (como objeto monitorado).</span></p>
+<p class="rvps67"><span class="rvts48">Sintaxe:</span></p>
+<p class="rvps81"><span class="rvts60">dcp.count(&lt;buffer&gt;, [isActive])</span></p>
+<p class="rvps69"><span class="rvts77">Exemplo</span><span class="rvts78">:&nbsp;&nbsp;&nbsp; </span><span class="rvts79">buf1 = Buffer() </span></p>
+<p class="rvps70"><span class="rvts79">x = dcp.count(buf1, True)</span></p>
+<p class="rvps99"><span class="rvts66"><br/></span></p>
+<p class="rvps80"><span class="rvts66">PCD: </span><span class="rvts36">Mínimo</span></p>
+<p class="rvps6"><span class="rvts16">Retorna o menor valor de um atributo de todas as PCD´s disponíveis na lista.</span></p>
+<p class="rvps67"><span class="rvts48">Sintaxe:</span></p>
+<p class="rvps81"><span class="rvts60">dcp.min("&lt;attribute&gt;", [&lt;list_dcp&gt;])</span></p>
+<p class="rvps69"><span class="rvts77">Exemplo</span><span class="rvts78">:&nbsp;&nbsp;&nbsp; </span><span class="rvts79">b1 = Buffer(BufferType.Out_union, 2, "km") </span></p>
+<p class="rvps70"><span class="rvts79">ids = dcp.influence.by_rule("Serra do Mar", b1)</span></p>
+<p class="rvps70"><span class="rvts79">x = dcp.min("Pluvio", ids) </span></p>
+<p class="rvps80"><span class="rvts66">PCD: </span><span class="rvts36">Máximo</span></p>
+<p class="rvps6"><span class="rvts16">Retorna o maior valor de um atributo de todas as PCD´s disponíveis na lista.</span></p>
+<p class="rvps67"><span class="rvts48">Sintaxe:</span></p>
+<p class="rvps81"><span class="rvts60">dcp.max("&lt;attribute&gt;", [&lt;list_dcp&gt;])</span></p>
+<p class="rvps69"><span class="rvts77">Exemplo</span><span class="rvts78">:&nbsp;&nbsp;&nbsp; </span><span class="rvts79">b1 = Buffer(BufferType.Out, 400, "m") </span></p>
+<p class="rvps70"><span class="rvts79">ids = dcp.influence.by_rule("Serra do Mar", b1)</span></p>
+<p class="rvps70"><span class="rvts79">x = dcp.max("Pluvio", ids) </span></p>
+<p class="rvps80"><span class="rvts66">PCD: </span><span class="rvts36">Média</span></p>
+<p class="rvps6"><span class="rvts16">Retorna a média dos valores de um atributo de todas as PCD´s disponíveis na lista.</span></p>
+<p class="rvps67"><span class="rvts48">Sintaxe:</span></p>
+<p class="rvps93"><span class="rvts60">dcp.mean("&lt;attribute&gt;", [&lt;list_dcp&gt;])</span></p>
+<p class="rvps69"><span class="rvts77">Exemplo</span><span class="rvts78">:&nbsp;&nbsp;&nbsp; </span><span class="rvts79">b1 = Buffer(BufferType.Level, &nbsp;10, "km", 5, "km")</span></p>
+<p class="rvps70"><span class="rvts79">ids = dcp.influence.by_rule("Serra do Mar", b1)</span></p>
+<p class="rvps70"><span class="rvts79">x = dcp.mean("Chuva", ids) </span></p>
+<p class="rvps80"><span class="rvts66">PCD: </span><span class="rvts36">Mediana</span></p>
+<p class="rvps6"><span class="rvts16">Retorna a mediana dos valores de um atributo de todas as PCD´s disponíveis na lista.</span></p>
+<p class="rvps67"><span class="rvts48">Sintaxe:</span></p>
+<p class="rvps93"><span class="rvts60">dcp.median("&lt;attribute&gt;", [&lt;list_dcp&gt;])</span></p>
+<p class="rvps69"><span class="rvts77">Exemplo</span><span class="rvts78">:&nbsp;&nbsp;&nbsp; </span><span class="rvts79">b1 = Buffer(BufferType.Out, 800, "m") </span></p>
+<p class="rvps70"><span class="rvts79">ids = dcp.influence.by_rule("Serra do Mar", b1)</span></p>
+<p class="rvps70"><span class="rvts79">x = dcp.median("temperatura", ids)</span></p>
+<p class="rvps80"><span class="rvts66">PCD: </span><span class="rvts36">Soma</span></p>
+<p class="rvps6"><span class="rvts16">Retorna a soma dos valores de um atributo de todas as PCD´s disponíveis na lista.</span></p>
+<p class="rvps67"><span class="rvts48">Sintaxe:</span></p>
+<p class="rvps93"><span class="rvts60">dcp.sum("&lt;attribute&gt;", [&lt;list_dcp&gt;]) </span></p>
+<p class="rvps69"><span class="rvts77">Exemplo</span><span class="rvts78">:&nbsp;&nbsp;&nbsp; </span><span class="rvts79">ids = dcp.influence.by_attribute("Serra do Mar", [att1, att2, att2, att4])</span></p>
+<p class="rvps70"><span class="rvts79">x = dcp.sum("temperatura", ids) </span></p>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+<p class="rvps80"><span class="rvts66">PCD: </span><span class="rvts36">Desvio Padrão</span></p>
+<p class="rvps6"><span class="rvts16">Retorna o desvio padrão dos valores de um atributo de todas as PCD´s disponíveis na lista.</span></p>
+<p class="rvps67"><span class="rvts48">Sintaxe:</span></p>
+<p class="rvps93"><span class="rvts60">dcp.standard_deviation("&lt;attribute&gt;", [&lt;list_dcp&gt;])</span></p>
+<p class="rvps69"><span class="rvts77">Exemplo</span><span class="rvts78">:&nbsp;&nbsp;&nbsp; </span><span class="rvts79">b1 = Buffer(BufferType.Out, 800, "m") </span></p>
+<p class="rvps70"><span class="rvts79">ids = dcp.influence.by_rule("Serra do Mar", b1)</span></p>
+<p class="rvps70"><span class="rvts79">x = dcp.standard_deviation("temperatura", ids) </span></p>
+<p class="rvps80"><span class="rvts66">PCD: </span><span class="rvts36">Variância</span></p>
+<p class="rvps6"><span class="rvts16">Retorna a variância dos valores de um atributo de todas as PCD´s disponíveis na lista.</span></p>
+<p class="rvps67"><span class="rvts48">Sintaxe:</span></p>
+<p class="rvps93"><span class="rvts60">dcp.variance("&lt;attribute&gt;", [&lt;list_dcp&gt;])</span></p>
+<p class="rvps69"><span class="rvts77">Exemplo</span><span class="rvts78">:&nbsp;&nbsp;&nbsp; </span><span class="rvts79">b1 = Buffer(BufferType.In, 800, "m") </span></p>
+<p class="rvps70"><span class="rvts79">ids = dcp.influence.by_rule("Serra do Mar", b1)</span></p>
+<p class="rvps70"><span class="rvts79">x = dcp.variance("temperatura", ids) </span></p>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+<h6 class="rvps71"><a name="op_pcd_pcd_historico"></a>
+<span class="rvts0"><span class="rvts34">II.3- PCD histórico</span></span></h6>
+<p class="rvps6"><span class="rvts16">Grupo de operadores que consideram as PCD´s individualmente &nbsp;e utilizam as últimas medidas obtidas por cada uma, no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado. </span></p>
+<p class="rvps67"><span class="rvts48">SINTAXE GERAL:</span></p>
+<p class="rvps82"><span class="rvts16">dcp.history.&lt;operator&gt;("&lt;attribute&gt;", "&lt;time&gt;", </span><span class="rvts60">[&lt;list_dcp&gt;]</span><span class="rvts16">)</span></p>
+<p class="rvps94"><span class="rvts16">onde: </span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps8"><span class="rvts17">operator</span><span class="rvts16"> :</span><span class="rvts17"> </span><span class="rvts16">Min, Max, Mean, Sum, Median, Standard_deviation, Variance;</span><span class="rvts17"> </span></li>
+<li class="rvps8"><span class="rvts17">attribute</span><span class="rvts16"> : String com o nome do atributo da PCD que deve ser utilizado para recuperar valores estatísticos. O atributo deve ser do tipo numérico (Ex. Integer, Float, Double, Long);</span></li>
+<li class="rvps8"><span class="rvts17">time </span><span class="rvts16">: String com o intervalo de tempo para filtrar os valores de cada PCD no intervalo de tempo desejado. Ver utilitário &nbsp;Unidades de tempo;</span></li>
+<li class="rvps8"><span class="rvts17">list_dcp</span><span class="rvts16"> : [Opcional] Lista contendo a identificação das PCD´s que influenciam a PCD em análise no momento, como se fosse um objeto monitorado. Ver utilitário “Regra de Influência”. Se não utilizado </span><span class="rvts17">somente a PCD</span><span class="rvts16"> corrente será considerada.</span></li>
+</ul>
+<p class="rvps6"><span class="rvts16">Segue a descrição de cada operador.</span></p>
+<p class="rvps80"><span class="rvts66">PCD histórico: </span><span class="rvts36">Mínimo</span></p>
+<p class="rvps6"><span class="rvts16">Retorna o menor valor de um atributo de cada PCD individualmente no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps67"><span class="rvts48">Sintaxe:</span></p>
+<p class="rvps89"><span class="rvts60">dcp.history.min("&lt;attribute&gt;", "&lt;time&gt;", [&lt;list_dcp&gt;]) </span></p>
+<p class="rvps69"><span class="rvts77">Exemplo</span><span class="rvts78">:&nbsp;&nbsp;&nbsp; </span><span class="rvts79">b1 = Buffer(BufferType.Out_union, 2, "km") </span></p>
+<p class="rvps70"><span class="rvts79">ids = dcp.influence.by_rule("Serra do Mar", b1)</span></p>
+<p class="rvps70"><span class="rvts79">x = dcp.history.min("Pluvio“, “1d”, ids) </span></p>
+<p class="rvps80"><span class="rvts66">PCD histórico: </span><span class="rvts36">Máximo</span></p>
+<p class="rvps6"><span class="rvts16">Retorna o maior valor de um atributo de cada PCD individualmente no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps67"><span class="rvts48">Sintaxe:</span></p>
+<p class="rvps82"><span class="rvts60">dcp.history.max("&lt;attribute&gt;", "&lt;time&gt;", [&lt;list_dcp&gt;])</span></p>
+<p class="rvps69"><span class="rvts77">Exemplo</span><span class="rvts78">:&nbsp;&nbsp;&nbsp; </span><span class="rvts79">b1 = Buffer(BufferType.Out, 400, "m") </span></p>
+<p class="rvps70"><span class="rvts79">ids = dcp.influence.by_rule("Serra do Mar", b1)</span></p>
+<p class="rvps70"><span class="rvts79">x = dcp.history.max("Pluvio", "30h", ids) </span></p>
+<p class="rvps80"><span class="rvts66">PCD histórico: </span><span class="rvts36">Média</span></p>
+<p class="rvps6"><span class="rvts16">Retorna a média dos valores de um atributo de cada PCD individualmente no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps67"><span class="rvts48">Sintaxe:</span></p>
+<p class="rvps82"><span class="rvts60">dcp.history.mean("&lt;attribute&gt;", "&lt;time&gt;", [&lt;list_dcp&gt;]) </span></p>
+<p class="rvps69"><span class="rvts77">Exemplo</span><span class="rvts78">:&nbsp;&nbsp;&nbsp; </span><span class="rvts79">b1 = Buffer(BufferType.Level, &nbsp;10, "km", 5, "km")</span></p>
+<p class="rvps70"><span class="rvts79">ids = dcp.influence.by_rule("Serra do Mar", b1)</span></p>
+<p class="rvps70"><span class="rvts79">x = dcp.history.mean("Chuva", "3d", ids) </span></p>
+<p class="rvps80"><span class="rvts66">PCD histórico: </span><span class="rvts36">Mediana</span></p>
+<p class="rvps6"><span class="rvts16">Retorna a mediana dos valores de um atributo de cada PCD individualmente no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps67"><span class="rvts48">Sintaxe:</span></p>
+<p class="rvps82"><span class="rvts60">dcp.history.median("&lt;attribute&gt;", "&lt;time&gt;", [&lt;list_dcp&gt;])</span></p>
+<p class="rvps69"><span class="rvts77">Exemplo</span><span class="rvts78">:&nbsp;&nbsp;&nbsp; </span><span class="rvts79">b1 = Buffer(BufferType.Out, 800, "m") </span></p>
+<p class="rvps70"><span class="rvts79">ids = dcp.influence.by_rule("Serra do Mar", b1)</span></p>
+<p class="rvps70"><span class="rvts79">x = dcp.history.median("temperatura", "360min", ids)</span></p>
+<p class="rvps80"><span class="rvts66">PCD histórico: </span><span class="rvts36">Soma</span></p>
+<p class="rvps6"><span class="rvts16">Retorna a soma dos valores de um atributo de cada PCD individualmente no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps67"><span class="rvts48">Sintaxe:</span></p>
+<p class="rvps82"><span class="rvts60">dcp.history.sum("&lt;attribute&gt;", "&lt;time&gt;", [&lt;list_dcp&gt;])</span></p>
+<p class="rvps69"><span class="rvts77">Exemplo</span><span class="rvts78">:&nbsp;&nbsp;&nbsp; </span><span class="rvts79">ids = dcp.influence.by_attribute("Serra do Mar", [att1, att2, att2, att4])</span></p>
+<p class="rvps70"><span class="rvts79">x = dcp.history.sum("temperatura", "5h", ids) </span></p>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+<p class="rvps80"><span class="rvts66">PCD histórico: </span><span class="rvts36">Desvio Padrão</span></p>
+<p class="rvps6"><span class="rvts16">Retorna o desvio padrão dos valores de um atributo de cada PCD individualmente no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps67"><span class="rvts48">Sintaxe:</span></p>
+<p class="rvps82"><span class="rvts60">dcp.history.standard_deviation("&lt;attribute&gt;", "&lt;time&gt;", [&lt;list_dcp&gt;])</span></p>
+<p class="rvps69"><span class="rvts77">Exemplo</span><span class="rvts78">:&nbsp;&nbsp;&nbsp; </span><span class="rvts79">b1 = Buffer(BufferType.Out, 800, "m") </span></p>
+<p class="rvps70"><span class="rvts79">ids = dcp.influence.by_rule("Serra do Mar", b1)</span></p>
+<p class="rvps70"><span class="rvts79">x = dcp.history.standard_deviation("temperatura", "1w", ids)</span></p>
+<p class="rvps80"><span class="rvts66">PCD histórico: </span><span class="rvts36">Variância</span></p>
+<p class="rvps6"><span class="rvts16">Retorna a variância dos valores de um atributo de cada PCD individualmente no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps67"><span class="rvts48">Sintaxe:</span></p>
+<p class="rvps93"><span class="rvts60">dcp.history.variance("&lt;attribute&gt;", "&lt;time&gt;", [&lt;list_dcp&gt;]) </span></p>
+<p class="rvps69"><span class="rvts77">Exemplo</span><span class="rvts78">:&nbsp;&nbsp;&nbsp; </span><span class="rvts79">b1 = Buffer(BufferType.In, 800, "m") </span></p>
+<p class="rvps70"><span class="rvts79">ids = dcp.influence.by_rule("Serra do Mar", b1)</span></p>
+<p class="rvps70"><span class="rvts79">x = dcp.history.variance("temperatura", "24h", ids) </span></p>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+<h6 class="rvps71"><a name="op_pcd_pcd_historico_interval"></a>
+<span class="rvts0"><span class="rvts34">II.4- PCD histórico por intervalo</span></span></h6>
+<p class="rvps6"><span class="rvts16">Grupo de </span><span class="rvts79">operadores</span><span class="rvts16"> que consideram as PCD´s individualmente &nbsp;e utilizam as últimas medidas obtidas por cada uma, no intervalo de tempo definido entre dois valores de tempo informado no passado.</span></p>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+<p class="rvps67"><span class="rvts48">SINTAXE GERAL:</span></p>
+<p class="rvps82"><span class="rvts16">dcp.history.interval.&lt;operator&gt;("&lt;attribute&gt;", "&lt;time_begin&gt;", "&lt;time_end&gt;", </span><span class="rvts60">[&lt;list_dcp&gt;]</span><span class="rvts16">)</span><span class="rvts60"> </span><span class="rvts16">&nbsp;&nbsp;</span></p>
+<p class="rvps85"><span class="rvts16">onde: </span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps8"><span class="rvts17">operator</span><span class="rvts16"> :</span><span class="rvts17"> </span><span class="rvts16">min, max, mean, sum, median, standard_deviation, variance;</span><span class="rvts17"> </span></li>
+<li class="rvps8"><span class="rvts17">attribute</span><span class="rvts16"> : String com o nome do atributo da PCD que deve ser utilizado para recuperar valores estatísticos. O atributo deve ser do tipo numérico (Ex. Integer, Float, Double, Long). Não usar para operador “count”;</span></li>
+<li class="rvps8"><span class="rvts17">time_begin </span><span class="rvts16">: String inicial (mais antigo) do intervalo de tempo para filtrar as ocorrências;</span></li>
+<li class="rvps8"><span class="rvts17">time_end</span><span class="rvts16"> : String final (mais recente) do intervalo de tempo para filtrar as ocorrências;</span></li>
+<li class="rvps8"><span class="rvts17">list_dcp</span><span class="rvts16"> : [Opcional] Lista contendo a identificação das PCD´s que influenciam a PCD em análise no momento, como se fosse um objeto monitorado. Ver utilitário &nbsp;“Regra de Influência”. Não usar &nbsp;se operador for “count”. Se não utilizado nos demais operadores, </span><span class="rvts17">somente a PCD</span><span class="rvts16"> corrente será considerada.</span></li>
+</ul>
+<p class="rvps6"><span class="rvts16">Segue a descrição de cada operador.</span></p>
+<p class="rvps80"><span class="rvts66">PCD histórico por intervalo: </span><span class="rvts36">Mínimo</span></p>
+<p class="rvps6"><span class="rvts16">Retorna o menor valor de um atributo de cada PCD individualmente no intervalo de tempo inicial e final informado no passado em função da data/hora atual.</span></p>
+<p class="rvps67"><span class="rvts48">Sintaxe:</span></p>
+<p class="rvps95"><span class="rvts60">dcp.history.interval.min(“&lt;attribute&gt;”, “&lt;time_begin&gt;”, “&lt;time_end&gt;”, &nbsp;[&lt;list_dcp&gt;]) </span></p>
+<p class="rvps69"><span class="rvts77">Exemplo</span><span class="rvts78">:&nbsp;&nbsp;&nbsp; </span><span class="rvts79">b1 = Buffer(BufferType.Out_union, 2, "km") </span></p>
+<p class="rvps70"><span class="rvts79">ids = dcp.influence.by_rule("Serra do Mar", b1)</span></p>
+<p class="rvps70"><span class="rvts79">x = dcp.history.interval.min("Pluvio", "2d", '1d', ids)</span></p>
+<p class="rvps80"><span class="rvts66">PCD histórico por intervalo: </span><span class="rvts36">Máximo</span></p>
+<p class="rvps6"><span class="rvts16">Retorna o maior valor de um atributo de cada PCD individualmente no intervalo de tempo inicial e final informado no passado em função da data/hora atual.</span></p>
+<p class="rvps67"><span class="rvts48">Sintaxe:</span></p>
+<p class="rvps82"><span class="rvts60">dcp.history.interval.max(“&lt;attribute&gt;”, “&lt;time_begin&gt;”, “&lt;time_end&gt;”, [&lt;list_dcp&gt;]) </span></p>
+<p class="rvps69"><span class="rvts77">Exemplo</span><span class="rvts78">:&nbsp;&nbsp;&nbsp; </span><span class="rvts79">b1 = Buffer(BufferType.Out, 400, "m") </span></p>
+<p class="rvps70"><span class="rvts79">ids = dcp.influence.by_rule("Serra do Mar", b1)</span></p>
+<p class="rvps70"><span class="rvts79">x = dcp.history.interval.max("Pluvio", "24h", "12h", ids)</span></p>
+<p class="rvps80"><span class="rvts66">PCD histórico por intervalo: </span><span class="rvts36">Média</span></p>
+<p class="rvps6"><span class="rvts16">Retorna a média dos valores de um atributo de cada PCD individualmente no intervalo de tempo inicial e final informado no passado em função da data/hora atual.</span></p>
+<p class="rvps67"><span class="rvts48">Sintaxe:</span></p>
+<p class="rvps82"><span class="rvts60">dcp.history.interval.mean("&lt;attribute&gt;", "&lt;time_begin&gt;", "&lt;time_end&gt;", [&lt;list_dcp&gt;])</span></p>
+<p class="rvps69"><span class="rvts77">Exemplo</span><span class="rvts78">:&nbsp;&nbsp;&nbsp; </span><span class="rvts79">b1 = Buffer(BufferType.Level, &nbsp;10, "km", 5, "km") </span></p>
+<p class="rvps70"><span class="rvts79">ids = dcp.influence.by_rule("Serra do Mar", b1)</span></p>
+<p class="rvps70"><span class="rvts79">x = dcp.history.interval.mean("Chuva", "24d", "12d", ids) </span></p>
+<p class="rvps80"><span class="rvts66">PCD histórico por intervalo: </span><span class="rvts36">Mediana</span></p>
+<p class="rvps6"><span class="rvts16">Retorna a mediana dos valores de um atributo de cada PCD individualmente no intervalo de tempo inicial e final informado no passado em função da data/hora atual.</span></p>
+<p class="rvps67"><span class="rvts48">Sintaxe:</span></p>
+<p class="rvps82"><span class="rvts60">dcp.history.interval.median("&lt;attribute&gt;", "&lt;time_begin&gt;", "&lt;time_end&gt;", [&lt;list_dcp&gt;])</span></p>
+<p class="rvps69"><span class="rvts77">Exemplo</span><span class="rvts78">:&nbsp;&nbsp;&nbsp; </span><span class="rvts79">b1 = Buffer(BufferType.Out, 800, "m") </span></p>
+<p class="rvps70"><span class="rvts79">ids = dcp.influence.by_rule("Serra do Mar", b1)</span></p>
+<p class="rvps70"><span class="rvts79">x = dcp.history.interval.median("temperatura", "2d", "1d", ids)</span></p>
+<p class="rvps80"><span class="rvts66">PCD histórico por intervalo: </span><span class="rvts36">Soma</span></p>
+<p class="rvps6"><span class="rvts16">Retorna a soma dos valores de um atributo de cada PCD individualmente no intervalo de tempo inicial e final informado no passado em função da data/hora atual.</span></p>
+<p class="rvps67"><span class="rvts48">Sintaxe:</span></p>
+<p class="rvps82"><span class="rvts60">dcp.history.interval.sum("&lt;attribute&gt;", "&lt;time_begin&gt;", "&lt;time_end&gt;", [&lt;list_dcp&gt;])</span></p>
+<p class="rvps69"><span class="rvts77">Exemplo</span><span class="rvts78">:&nbsp;&nbsp;&nbsp; </span><span class="rvts79">ids = dcp.influence.by_attribute("Serra do Mar", [att1, att2, att2, att4])</span></p>
+<p class="rvps70"><span class="rvts79">x = dcp.history.interval.sum("temperatura", "2d", "1d", ids)</span></p>
+<p class="rvps80"><span class="rvts66">PCD histórico por intervalo: </span><span class="rvts36">Desvio Padrão</span></p>
+<p class="rvps6"><span class="rvts16">Retorna o desvio padrão dos valores de um atributo de cada PCD individualmente no intervalo de tempo inicial e final informado no passado em função da data/hora atual.</span></p>
+<p class="rvps67"><span class="rvts48">Sintaxe:</span></p>
+<p class="rvps82"><span class="rvts60">dcp.history.interval.standard_deviation("&lt;attribute&gt;", "&lt;time_begin&gt;", "&lt;time_end&gt;", [&lt;list_dcp&gt;])</span></p>
+<p class="rvps69"><span class="rvts77">Exemplo</span><span class="rvts78">:&nbsp;&nbsp;&nbsp; </span><span class="rvts79">b1 = Buffer(BufferType.Out, 800, "m") </span></p>
+<p class="rvps70"><span class="rvts79">ids = dcp.influence.by_rule("Serra do Mar", b1)</span></p>
+<p class="rvps91"><span class="rvts79">x = dcp.history.interval.standard_deviation("temperatura", "2d", "1d", ids) </span></p>
+<p class="rvps80"><span class="rvts66">PCD histórico por intervalo: </span><span class="rvts36">Variância</span></p>
+<p class="rvps6"><span class="rvts16">Retorna a variância dos valores de um atributo de cada PCD individualmente no intervalo de tempo inicial e final informado no passado em função da data/hora atual.</span></p>
+<p class="rvps67"><span class="rvts48">Sintaxe:</span></p>
+<p class="rvps82"><span class="rvts60">dcp.history.interval.variance("&lt;attribute&gt;", "&lt;time_begin&gt;", "&lt;time_end&gt;", [&lt;list_dcp&gt;])</span></p>
+<p class="rvps69"><span class="rvts77">Exemplo</span><span class="rvts78">:&nbsp;&nbsp;&nbsp; </span><span class="rvts79">b1 = Buffer(BufferType.In, 800, "m") </span></p>
+<p class="rvps70"><span class="rvts79">ids = dcp.influence.by_rule("Serra do Mar", b1)</span></p>
+<p class="rvps70"><span class="rvts79">x = dcp.history.interval.variance("temperatura", "2d", "1d", ids) </span></p>
 <p class="rvps2"><span class="rvts6"><br/></span></p>
 <p></p>
 <p class="rvps5" style="clear: both;"><span class="rvts14">Created with the Personal Edition of HelpNDoc: </span><a class="rvts15" href="https://www.helpauthoringsoftware.com">Benefits of a Help Authoring Tool</a></p>
