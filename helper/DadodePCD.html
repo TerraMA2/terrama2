@@ -168,7 +168,7 @@
             
                 <div class="navigation">
                     <ol class="breadcrumb">
-                        <li><a href="administration_module.html">M&oacute;dulo de Administra&ccedil;&atilde;o</a></li><li><a href="projects.html">Projetos</a></li><li><a href="DadosDinamicos.html">Dados Din&acirc;micos</a></li><li><a href="add_dynamic_data.html">Adicionar Dado Din&acirc;mico</a></li>
+                        <li><a href="administration_module.html">M&oacute;dulo de Administra&ccedil;&atilde;o</a></li><li><a href="projects.html">Projetos</a></li><li><a href="dynamic_data.html">Dados Din&acirc;micos</a></li><li><a href="add_dynamic_data.html">Adicionar Dado Din&acirc;mico</a></li>
                     </ol>
                     <div class="nav-arrows">
                         <div class="btn-group btn-group-xs" role="group"><a class="btn btn-default" href="add_dynamic_data.html" title="Adicionar Dado Din&acirc;mico" role="button"><span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span></a><a class="btn btn-default" href="DadoMatricial.html" title="Dado Matricial" role="button"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a><a class="btn btn-default" href="DadodeOcorrencia.html" title="Dado de Ocorr&ecirc;ncia" role="button"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></div>
@@ -185,7 +185,7 @@
 <p></p>
 <h3 class="rvps13"><a name="docs-internal-guid-69dd9a73-4bb9-fdd8-c9f3-b3650e6da767"></a>
 <span class="rvts0"><span class="rvts24">SÉRIE DE DADOS DO TIPO PCD &nbsp;</span></span><img alt="" style="padding : 1px;" src="lib/DD_PCD_18x24.png"></h3>
-<p class="rvps6"><span class="rvts16">Os dados dinâmicos do tipo PCD (Plataforma de Coleta de Dados) podem ser oriundos de diversas fontes como apresentado no item </span><a class="rvts23" href="data_formats.html">Dados e Formatos</a><span class="rvts16">. Para facilitar o seu uso foi incluído a leitura desses dados nos seguintes formatos:</span></p>
+<p class="rvps6"><span class="rvts16">Os dados dinâmicos do tipo PCD (Plataforma de Coleta de Dados) podem ser oriundos de diversas fontes como apresentado no item </span><a class="rvts23" href="DadoseFormatos.html">Dados e Formatos</a><span class="rvts16">. Para facilitar o seu uso foi incluído a leitura desses dados nos seguintes formatos:</span></p>
 <ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
 <li class="rvps8"><span class="rvts17">PCD – INPE</span><span class="rvts16"> : arquivos ASCII com uma sintaxe específica serão lidos de um servidor remoto e somente última leitura do equipamento será transferida para um sistema gerenciador de banco de dados PostgreSQL + PostGIS. Os dados das PCD´s do INPE são armazenados sempre no mesmo arquivo.</span></li>
 <li class="rvps8"><span class="rvts17">PCD – TOA5</span><span class="rvts16"> : arquivos ASCII com uma sintaxe específica serão transferidos de um servidor remoto para um sistema gerenciador de banco de dados PostgreSQL + PostGIS.</span></li>
@@ -229,7 +229,7 @@
 <p class="rvps26"><span class="rvts19">Figura 2.16 – </span><span class="rvts20">Módulo de Administração: Adição de dado dinâmico – Lista de PCD</span></p>
 <p class="rvps30"><span class="rvts51">Importar arquivo CSV de PCD's</span></p>
 <p class="rvps6"><span class="rvts16">Para incluir uma lista de PCD's a partir de um arquivo CSV (</span><span class="rvts40">Comma-Separated Values</span><span class="rvts16">). Importante que o arquivo tenha no mínimo as informações de identificação das PCD´s, latitude (ou coordenada Y em metros) e longitude (ou coordenada X em metros). Outras informações que não estiverem no arquivo CSV poderão ser fornecidas no momento de importar o arquivo, porém serão consideradas constantes para todas as PCD do arquivo. Note que o arquivo CSV pode ter ou não a primeira linha que identifica o nome das colunas. Caso não tenho a primeira linha de cabeçalho, as colunas receberão números para sua identificação. A Figura 2.17 mostra parte de um arquivo CSV com a primeira linha de cabeçalho.</span></p>
-<p class="rvps22"><img alt="" style="padding : 1px;" src="lib/Fig2_17_web.PNG"></p>
+<p class="rvps23"><img alt="" style="padding : 1px;" src="lib/Fig2_17_web.PNG"></p>
 <p class="rvps26"><span class="rvts19">Figura 2.17 – </span><span class="rvts20">Módulo de Administração: Adição de dado dinâmico – Arquivo CSV de PCD´s</span></p>
 <p class="rvps6"><span class="rvts16">Na aba Parâmetros clique em “Importar CSV” e responda aos campos apresentados na janela aberta “Selecione o caractere delimitador do arquivo CSV e se o arquivo tem um cabeçalho”.</span></p>
 <ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">

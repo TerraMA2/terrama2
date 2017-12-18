@@ -183,7 +183,38 @@
             <div class="main-content">
                 
 <p></p>
-<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps17"><a class="rvts30" href="Operadores.html#lista_op_pcd">Lista de Operadores sobre PCD</a><span class="rvts29"> &nbsp;</span><img alt="" style="vertical-align: middle; padding : 1px;" src="lib/lista.jpg"></p>
+<p class="rvps2"><span class="rvts16"><br/></span></p>
+<p class="rvps6"><a name="docs-internal-guid-a6196111-4f4b-b12b-0cb5-adf2d9dbb40d"></a>
+<span class="rvts16">Análises baseadas em PCD utilizam os valores dos atributos (atuais e históricos) para tomada de decisões através de um conjunto de operadores próprios para este tipo de análise. Porém, as PCD´s podem ser utilizadas como um mapa de pontos estáticos que são cruzados com outros dados dinâmicos da mesma forma que uma análise baseada em objetos monitorados. Neste caso, a sobreposição das PCD´s com os dados dinâmicos é realizadas com uso dos operadores geográficos apresentados no item "</span><a class="rvts23" href="OperadoressobreObjetosMonitorado.html">Operadores sobre Objetos Monitorados</a><span class="rvts16">". Todos os operadores foram criados exclusivamente para uso na plataforma, juntamente com os recursos que a linguagem de programação python proporciona.</span></p>
+<p class="rvps6"><span class="rvts16">O resultado desses operadores são armazenados em variáveis locais do python, que são armazenadas em uma nova tabela de atributos que estará associada a tabela de localização das PCD´s. Nessa nova tabela são armazenados ainda a data/hora toda vez que é realizada a análise.</span></p>
+<p class="rvps6"><span class="rvts16">A seguir apresentamos um exemplo típico da utilização de análise baseada em PCD . Assim, no exemplo abaixo considere o seguinte cenário: </span></p>
+<ol style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: decimal;">
+<li value="1" class="rvps53"><span class="rvts16">A série de dados dinâmicos do tipo PCD recebe as medidas de precipitação com frequência de 1 hora que serão utilizadas para calcular o valor acumulado no período de 24 horas.</span></li>
+<li value="2" class="rvps7"><span class="rvts16">Os dados dinâmicos matriciais com valores de precipitação estimada por satélite serão adquiridos com frequência de 30 minutos, porém os valores destes estão em mm/h (dados “hidro”).</span></li>
+<li value="3" class="rvps7"><span class="rvts16"> O valor acumulado em 24 horas de precipitação por satélite será calculado para uma área de influência de 3 km em torno de cada PCD.</span></li>
+<li value="4" class="rvps7"><span class="rvts16">Ambos valores de precipitação acumulada em 24 horas, medido pela PCD e calculado a partir das imagens de satélite, serão armazenado como resultado para posterior uso.</span></li>
+</ol>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+<p class="rvps3"><img alt="" style="padding : 1px;" src="lib/Fig3_31_web.png"></p>
+<p class="rvps61"><span class="rvts41"> </span><span class="rvts19">Figura 3.31 – </span><span class="rvts20">Exemplo de análise com PCD.</span></p>
+<p class="rvps6"><span class="rvts16">Para uma melhor compreensão do programa de análise do exemplo, vamos analisar as partes no programa da figura.</span></p>
+<p class="rvps55"><span class="rvts61"># Cálculo chuva acum. em 24h de PCD</span></p>
+<p class="rvps56"><span class="rvts60">var1 = </span><span class="rvts70">dcp.history.sum</span><span class="rvts60">(</span><span class="rvts71">“pluvio”</span><span class="rvts63">, “</span><span class="rvts60">24h</span><span class="rvts63">”</span><span class="rvts60">)</span></p>
+<p class="rvps6"><span class="rvts16">Essa linha define uma nova variável denominada de “</span><span class="rvts17">var1</span><span class="rvts16">” que será inicializada com o valor do operador “</span><span class="rvts17">soma</span><span class="rvts16">” aplicado à cada uma das PCD´s. Observe que “</span><span class="rvts17">pluvio</span><span class="rvts16">” é o nome do atributo que contém as informações de chuva horária e deve estar cadastrado em cada PCD.</span></p>
+<p class="rvps55"><span class="rvts61"># Cálculo chuva acum. em 24h satelite</span></p>
+<p class="rvps62"><span class="rvts60">bf1 = </span><span class="rvts62">&nbsp;</span><span class="rvts70">Buffer(BufferType.Out,</span><span class="rvts62"> </span><span class="rvts60">3, “km”)</span></p>
+<p class="rvps56"><span class="rvts60">var2 = </span><span class="rvts70">grid.zonal.history.sum</span><span class="rvts60">(</span><span class="rvts71">“hidro”</span><span class="rvts63">, “</span><span class="rvts60">24h</span><span class="rvts63">”</span><span class="rvts60">, 0, bf1)</span></p>
+<p class="rvps6"><span class="rvts16">Essas duas linhas definem o tipo de buffer a ser aplicado a cada PCD. A variável “</span><span class="rvts17">bf1</span><span class="rvts16">” define um buffer de 3 km externo a geometria em questão, no caso em torno dos pontos de cada PCD. A variável “</span><span class="rvts17">var2</span><span class="rvts16">” utiliza a área do buffer de cada PCD para sobrepor a um conjunto de dados matriciais dinâmicos de nome “</span><span class="rvts17">hidro</span><span class="rvts16">” num período de 24 horas passadas a partir da hora atual.</span></p>
+<p class="rvps55"><span class="rvts61"># Adiciona valor a tabela</span></p>
+<p class="rvps62"><span class="rvts70">add_value</span><span class="rvts60">(</span><span class="rvts71">“pcd_24h”</span><span class="rvts63">, </span><span class="rvts60">var1)</span></p>
+<p class="rvps56"><span class="rvts70">add_value</span><span class="rvts60">(</span><span class="rvts71">“sat_24h”</span><span class="rvts63">, </span><span class="rvts60">var2)</span></p>
+<p class="rvps6"><span class="rvts16">Nas duas linha acima são definidos os nomes dos atributos que serão utilizados para armazenar os resultados das variáveis “</span><span class="rvts17">var1</span><span class="rvts16">” e “</span><span class="rvts17">var2</span><span class="rvts16">” nos atributos “</span><span class="rvts17">pcd_24h</span><span class="rvts16">” e “</span><span class="rvts17">sat_24h</span><span class="rvts16">” respectivamente. O nome da tabela que deverá receber os dois atributos é um dos parâmetros definidos para este tipo de análise.</span></p>
+<p class="rvps6"><span class="rvts16">Outro ponto importante a ser observado no exemplo, é a presença de comentários que não tem qualquer significado na execução do programa, apenas para fins de documentação. Use o sinal &nbsp;# &nbsp;para adicionar uma linha de comentário.</span></p>
+<p class="rvps6"><span class="rvts16">Ainda na Figura 3.31 mostra a tabelas envolvidas nesse tipo de análise. A tabela “</span><span class="rvts17">tab_obj</span><span class="rvts16">” mantém a localização de cada PCD da série de dados dinâmico definida. As tabelas “</span><span class="rvts17">pcd_1</span><span class="rvts16">”, “</span><span class="rvts17">pcd_2</span><span class="rvts16">” entre outras armazenam em cada uma os dados coletados de cada PCD. A tabela “</span><span class="rvts17">tab_an_pcds</span><span class="rvts16">” é criada pela análise e armazena os resultados de todas as PCDs.</span></p>
+<p class="rvps6"><span class="rvts16"><br/></span></p>
+<p class="rvps60"><span class="rvts16">Para uma maior compreensão da sintaxe da linguagem ou uso de opções avançadas, recomenda-se a leitura da documentação disponível em &nbsp;</span><a class="rvts23" href="https://www.python.org/">https://www.python.org/</a><span class="rvts16"> .</span></p>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
 <p></p>
 <p class="rvps5" style="clear: both;"><span class="rvts14">Created with the Personal Edition of HelpNDoc: </span><a class="rvts15" href="https://www.helpndoc.com/feature-tour">Easily create EBooks</a></p>
 

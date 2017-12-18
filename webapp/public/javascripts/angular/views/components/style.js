@@ -104,6 +104,19 @@ define([], function () {
       }
     });
 
+    /**
+     * Function to filter predefined style by data series type
+     */
+    self.filterPredefinedStyles = function(predefinedStyle){
+      if (self.type == null){
+        return false;
+      }
+      var dataSeriesType = self.type;
+      if (predefinedStyle.type == dataSeriesType)
+        return true;
+      return false;
+    }
+
     self.minColorsLength = 1;
     
     var defaultColorOpts = {
@@ -217,20 +230,22 @@ define([], function () {
       if (predefinedStyleInfo){
         self.model.metadata.xml_style = predefinedStyleInfo.xml;
         self.model.fieldsToReplace = predefinedStyleInfo.fields;
-        self.model.fieldsToReplace.forEach(function(field){
-          if (self.model.metadata[field])
-            self.model.metadata[field] = parseInt(self.model.metadata[field])
-        });
-
-        var formTranslatorResult = FormTranslator(predefinedStyleInfo.gui.schema.properties, predefinedStyleInfo.gui.form, predefinedStyleInfo.gui.schema.required);
-        
-        self.predefinedStyleSchema = {
-          type: 'object',
-          properties: formTranslatorResult.object,
-          required: predefinedStyleInfo.gui.schema.required
-        };
-
-        self.predefinedStyleForm = formTranslatorResult.display;
+        if (self.model.fieldsToReplace){
+          self.model.fieldsToReplace.forEach(function(field){
+            if (self.model.metadata[field])
+              self.model.metadata[field] = parseInt(self.model.metadata[field])
+          });
+  
+          var formTranslatorResult = FormTranslator(predefinedStyleInfo.gui.schema.properties, predefinedStyleInfo.gui.form, predefinedStyleInfo.gui.schema.required);
+          
+          self.predefinedStyleSchema = {
+            type: 'object',
+            properties: formTranslatorResult.object,
+            required: predefinedStyleInfo.gui.schema.required
+          };
+  
+          self.predefinedStyleForm = formTranslatorResult.display;
+        }
       }
     }
     /**

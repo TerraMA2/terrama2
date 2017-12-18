@@ -617,48 +617,60 @@ table.dataTable tbody th, table.dataTable tbody td { padding-left: 12px !importa
 
 #about-dialog {
   padding: 0 !important;
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: justify;
+  font-size: 18px;
+}
+
+#terrama2-about-image, #programa-cerrado-image  {
+  background-size: 300px;
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 100%;
+  padding: 0 !important;
+  margin: 0 !important;
+  max-width: 100%;
+  margin-top: 4px !important;
+}
+
+#terrama2-about-image {
+  background-image: url('../images/about/TerraMA2.png');
+  height: 265px;
 }
 
 #programa-cerrado-image {
-  background-image: url('../images/about/header.png');
-  background-size: 800px;
+  background-image: url('../images/about/programa_cerrado.png');
+  height: 310px;
+}
+
+#dpi-about-image, #inpe-about-image {
+  height: 75px;
   background-repeat: no-repeat;
-  background-position: center;
-  height: 830px;
-  width: 100%;
-  padding: 0 !important;
-  margin: 0 !important;
-  max-width: 100%;
-  margin-top: 4px !important;
+  background-position: initial;
+  float: left;
+}
+
+#dpi-about-image {
+  background-image: url('../images/about/dpi.png');
+  background-size: 150px;
+  width: 180px;
+}
+
+#inpe-about-image {
+  background-image: url('../images/about/inpe.png');
+  background-size: 90px;
+  width: 90px;
 }
 
 #about-dialog > p {
-  margin: 10px;
-  text-align: center;
-  margin-top: 70px;
+  margin-top: 30px;
+  margin-bottom: 0px !important;
 }
 
-#about-dialog > p > span {
-  font-size: 15px;
-  font-weight: bold;
-}
-
-#projeto-inpe-image {
-  background-image: url('../images/about/inpe.png');
-  background-size: 700px;
-  background-repeat: no-repeat;
-  background-position: center;
-  height: 130px;
-  width: 100%;
-  padding: 0 !important;
-  margin: 0 !important;
-  max-width: 100%;
-  margin-top: 4px !important;
-}
-
-#realizacao-image {
-  background-image: url('../images/about/realizacao.png');
-  background-size: 700px;
+#credits-image {
+  background-image: url('../images/about/credits.png');
+  background-size: 800px;
   background-repeat: no-repeat;
   background-position: center;
   height: 130px;
