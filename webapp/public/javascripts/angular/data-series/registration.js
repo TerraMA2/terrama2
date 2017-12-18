@@ -1102,7 +1102,7 @@ define([], function() {
         }
 
         if(dSValue.name && dSValue.semantics && dSValue.data_provider_id) {
-          if($scope.dataSeries.semantics.allow_direct_access === false) {
+          if($scope.dataSeries && $scope.dataSeries.semantics.allow_direct_access === false) {
             $scope.wizard.store.disabled = false;
             $scope.advanced.store.disabled = false;
           }
