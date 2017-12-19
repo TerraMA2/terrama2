@@ -13,7 +13,7 @@
         },
         "band": {
           "type": "number",
-          "title": "Band"
+          "title": "Band Number"
         }
       },
       "required": ["band"]
