@@ -216,7 +216,7 @@ namespace terrama2
 
                                                   {
                                                     "class": "DataSet",
-                                                    "id": 6,
+                                                    "id": 325,
                                                     "data_series_id": 2,
                                                     "active": true,
                                                     "format": {
@@ -229,7 +229,7 @@ namespace terrama2
                                                   },
                                                   {
                                                     "class": "DataSet",
-                                                    "id": 7,
+                                                    "id": 326,
                                                     "data_series_id": 2,
                                                     "active": true,
                                                     "format": {
@@ -242,7 +242,7 @@ namespace terrama2
                                                   },
                                                   {
                                                      "class": "DataSet",
-                                                     "id": 8,
+                                                     "id": 327,
                                                      "data_series_id": 2,
                                                      "active": true,
                                                      "format": {
@@ -256,7 +256,7 @@ namespace terrama2
                                                   },
                                                   {
                                                      "class": "DataSet",
-                                                     "id": 9,
+                                                     "id": 328,
                                                      "data_series_id": 2,
                                                      "active": true,
                                                      "format": {
@@ -269,7 +269,7 @@ namespace terrama2
                                                   },
                                                   {
                                                      "class": "DataSet",
-                                                     "id": 10,
+                                                     "id": 329,
                                                      "data_series_id": 2,
                                                      "active": true,
                                                      "format": {

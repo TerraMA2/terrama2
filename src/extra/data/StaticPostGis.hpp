@@ -147,6 +147,38 @@ namespace terrama2
            return terrama2::core::fromDataSeriesJson(obj);
       }
 
+      terrama2::core::DataSeriesPtr dataSeriesCounties(terrama2::core::DataProviderPtr dataProvider)
+      {
+          QString json = QString(R"(
+                                    {
+                                      "class": "DataSeries",
+                                      "id": 13,
+                                      "name": "Monitored Object",
+                                      "description": null,
+                                      "data_provider_id":  %1,
+                                      "semantics": "STATIC_DATA-postgis",
+                                      "active": true,
+                                      "datasets": [
+                                          {
+                                              "class": "DataSet",
+                                              "id": 13,
+                                              "data_series_id": 13,
+                                              "active": true,
+                                              "format": {
+                                                  "table_name": "mun_to"
+                                              }
+                                          }
+                                      ]
+                                    }
+                                 )"
+                               ).arg(dataProvider->id);
+
+
+           QJsonDocument doc = QJsonDocument::fromJson(json.toUtf8());
+           QJsonObject obj = doc.object();
+           return terrama2::core::fromDataSeriesJson(obj);
+
+      }
 
    } // end namespace staticpostgis
 }  // end namespace terrama2
