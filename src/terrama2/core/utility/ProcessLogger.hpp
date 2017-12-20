@@ -58,7 +58,7 @@ namespace terrama2
 
           \brief Possible status of manipulate data.
         */
-        enum Status
+        enum class Status
         {
           ERROR         = 1,  /*!< Error during process */
           START         = 2,  /*!< The process started */
@@ -75,7 +75,7 @@ namespace terrama2
 
           \brief Possible status of logged messages.
         */
-        enum MessageType
+        enum class MessageType
         {
           ERROR_MESSAGE     = 1,
           INFO_MESSAGE      = 2,

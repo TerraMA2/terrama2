@@ -1094,19 +1094,25 @@ define([], function() {
 
       $scope.$watch("dataSeries", function(dSValue) {
         if(dSValue.semantics && $scope.dataSeries && $scope.dataSeries.semantics.allow_direct_access === false) {
+          $scope.wizard.store.optional = false;
           $scope.advanced.store.optional = false;
         } else {
+          $scope.wizard.store.optional = true;
           $scope.advanced.store.optional = true;
         }
 
         if(dSValue.name && dSValue.semantics && dSValue.data_provider_id) {
-          $scope.wizard.store.disabled = false;
-          $scope.advanced.store.disabled = false;
+          if($scope.dataSeries && $scope.dataSeries.semantics.allow_direct_access === false) {
+            $scope.wizard.store.disabled = false;
+            $scope.advanced.store.disabled = false;
+          }
+
           $scope.wizard.parameters.disabled = false;
           $scope.wizard.csvFormat.disabled = false;
         } else {
           $scope.wizard.store.disabled = true;
           $scope.advanced.store.disabled = true;
+
           $scope.wizard.parameters.disabled = true;
           $scope.wizard.csvFormat.disabled = true;
         }

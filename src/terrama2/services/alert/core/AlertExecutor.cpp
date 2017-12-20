@@ -547,8 +547,8 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
     auto dataMap = dataAccessor->getSeries(filter, remover);
     if(dataMap.empty())
     {
-      logger->result(AlertLogger::DONE, nullptr, executionPackage.registerId);
-      logger->log(AlertLogger::WARNING_MESSAGE, QObject::tr("No data to available.").toStdString(), executionPackage.registerId);
+      logger->result(AlertLogger::Status::DONE, nullptr, executionPackage.registerId);
+      logger->log(AlertLogger::MessageType::WARNING_MESSAGE, QObject::tr("No data to available.").toStdString(), executionPackage.registerId);
       TERRAMA2_LOG_WARNING() << QObject::tr("No data to available.");
       emit alertFinished(alertId, executionPackage.executionDate, false);
       return;
@@ -592,7 +592,7 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
       if(datetimeColumnName.empty())
       {
         QString errMsg = QObject::tr("Unable to identify timestamp column.");
-        logger->log(AlertLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+        logger->log(AlertLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
         TERRAMA2_LOG_ERROR() << errMsg;
         return;
       }
@@ -607,7 +607,7 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
         if(dataSetType->getNumberOfForeignKeys() != 1)
         {
           QString errMsg = QObject::tr("Invalid number of identifier attribute.");
-          logger->log(AlertLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+          logger->log(AlertLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
           TERRAMA2_LOG_ERROR() << errMsg;
           return;
         }
@@ -617,8 +617,8 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
         if(!idProperty)
         {
           QString errMsg = QObject::tr("Invalid identifier attribute.");
-          logger->result(AlertLogger::ERROR, nullptr, executionPackage.registerId);
-          logger->log(AlertLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+          logger->result(AlertLogger::Status::ERROR, nullptr, executionPackage.registerId);
+          logger->log(AlertLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
           TERRAMA2_LOG_ERROR() << errMsg;
           return;
         }
@@ -681,7 +681,7 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
       if(alertDataSet->isEmpty())
       {
         QString errMsg = QObject::tr("No alert data for %1 data series.").arg(dataset->dataSeriesId);
-        logger->log(AlertLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+        logger->log(AlertLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
         TERRAMA2_LOG_ERROR() << errMsg;
         return;
       }
@@ -721,8 +721,8 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
     if(!alertGenerated)
     {
       QString errMsg = QObject::tr("No alert was generated.");
-      logger->log(AlertLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
-      logger->result(AlertLogger::ERROR, nullptr, executionPackage.registerId);
+      logger->log(AlertLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+      logger->result(AlertLogger::Status::ERROR, nullptr, executionPackage.registerId);
       TERRAMA2_LOG_WARNING() << errMsg.toStdString();
       emit alertFinished(alertId, executionPackage.executionDate, false);
       return;
@@ -733,7 +733,7 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
     logger->setStartProcessingTime(processingStartTime, executionPackage.registerId);
     logger->setEndProcessingTime(processingEndTime, executionPackage.registerId);
 
-    logger->result(AlertLogger::DONE, executionPackage.executionDate, executionPackage.registerId);
+    logger->result(AlertLogger::Status::DONE, executionPackage.executionDate, executionPackage.registerId);
 
     TERRAMA2_LOG_INFO() << QObject::tr("Alert '%1' generated successfully").arg(alertPtr->name.c_str());
 
@@ -744,16 +744,16 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
   }
   catch(const terrama2::Exception& e)
   {
-    logger->result(AlertLogger::ERROR, nullptr, executionPackage.registerId);
-    logger->log(AlertLogger::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString(), executionPackage.registerId);
+    logger->result(AlertLogger::Status::ERROR, nullptr, executionPackage.registerId);
+    logger->log(AlertLogger::MessageType::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString(), executionPackage.registerId);
     TERRAMA2_LOG_DEBUG() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
 
     emit alertFinished(alertId, executionPackage.executionDate, false);
   }
   catch(const boost::exception& e)
   {
-    logger->result(AlertLogger::ERROR, nullptr, executionPackage.registerId);
-    logger->log(AlertLogger::ERROR_MESSAGE, boost::diagnostic_information(e), executionPackage.registerId);
+    logger->result(AlertLogger::Status::ERROR, nullptr, executionPackage.registerId);
+    logger->log(AlertLogger::MessageType::ERROR_MESSAGE, boost::diagnostic_information(e), executionPackage.registerId);
     TERRAMA2_LOG_ERROR() << boost::diagnostic_information(e);
 
     emit alertFinished(alertId, executionPackage.executionDate, false);
@@ -761,8 +761,8 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
   catch(const std::exception& e)
   {
     QString errMsg(e.what());
-    logger->result(AlertLogger::ERROR, nullptr, executionPackage.registerId);
-    logger->log(AlertLogger::ERROR_MESSAGE, e.what(), executionPackage.registerId);
+    logger->result(AlertLogger::Status::ERROR, nullptr, executionPackage.registerId);
+    logger->log(AlertLogger::MessageType::ERROR_MESSAGE, e.what(), executionPackage.registerId);
     TERRAMA2_LOG_ERROR() << errMsg;
 
     emit alertFinished(alertId, executionPackage.executionDate, false);
@@ -770,8 +770,8 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
   catch(...)
   {
     QString errMsg = QObject::tr("Unknown exception");
-    logger->result(AlertLogger::ERROR, nullptr, executionPackage.registerId);
-    logger->log(AlertLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+    logger->result(AlertLogger::Status::ERROR, nullptr, executionPackage.registerId);
+    logger->log(AlertLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
     TERRAMA2_LOG_ERROR() << errMsg;
 
     emit alertFinished(alertId, executionPackage.executionDate, false);
@@ -869,7 +869,7 @@ te::core::URI terrama2::services::alert::core::AlertExecutor::makeDocument(Repor
       errMsg.append(msg);
     }
 
-    logger->log(AlertLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+    logger->log(AlertLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
     TERRAMA2_LOG_ERROR() << errMsg;
   }
 
@@ -888,7 +888,7 @@ void terrama2::services::alert::core::AlertExecutor::sendNotification(const std:
     if(serverMap.empty())
     {
       QString errMsg("No message server configured");
-      logger->log(AlertLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+      logger->log(AlertLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
       TERRAMA2_LOG_ERROR() << errMsg;
     }
     else
@@ -907,7 +907,7 @@ void terrama2::services::alert::core::AlertExecutor::sendNotification(const std:
       errMsg.append(msg);
     }
 
-    logger->log(AlertLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+    logger->log(AlertLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
     TERRAMA2_LOG_ERROR() << errMsg;
   }
 }

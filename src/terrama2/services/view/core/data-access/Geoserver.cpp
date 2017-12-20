@@ -104,7 +104,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
   if(inputDataSeries->id != viewPtr->dataSeriesID)
   {
     QString errorMsg = QString("This View is not from this Data Series.");
-    logger->log(ViewLogger::ERROR_MESSAGE, errorMsg.toStdString(), logId);
+    logger->log(ViewLogger::MessageType::ERROR_MESSAGE, errorMsg.toStdString(), logId);
     TERRAMA2_LOG_ERROR() << QObject::tr(errorMsg.toStdString().c_str());
     throw ViewGeoserverException() << ErrorDescription(errorMsg);
   }
@@ -114,7 +114,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
   if(dataProviderType != "POSTGIS" && dataProviderType != "FILE")
   {
     QString errorMsg = QString("Data provider not supported: %1.").arg(dataProviderType.c_str());
-    logger->log(ViewLogger::ERROR_MESSAGE, errorMsg.toStdString(), logId);
+    logger->log(ViewLogger::MessageType::ERROR_MESSAGE, errorMsg.toStdString(), logId);
     TERRAMA2_LOG_ERROR() << QObject::tr(errorMsg.toStdString().c_str());
     throw ViewGeoserverException() << ErrorDescription(errorMsg);
   }
@@ -123,14 +123,14 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
   if(dataFormat != "OGR" && dataFormat != "POSTGIS" && dataFormat != "GDAL")
   {
     QString errorMsg = QString("Data format not supported in the maps server: %1.").arg(dataFormat.c_str());
-    logger->log(ViewLogger::ERROR_MESSAGE, errorMsg.toStdString(), logId);
+    logger->log(ViewLogger::MessageType::ERROR_MESSAGE, errorMsg.toStdString(), logId);
     TERRAMA2_LOG_ERROR() << QObject::tr(errorMsg.toStdString().c_str());
     throw ViewGeoserverException() << ErrorDescription(errorMsg);
   }
 
   if(inputDataSeries->datasetList.empty())
   {
-    logger->log(ViewLogger::WARNING_MESSAGE, "No data to register.", logId);
+    logger->log(ViewLogger::MessageType::WARNING_MESSAGE, "No data to register.", logId);
     TERRAMA2_LOG_WARNING() << QObject::tr("No data to register in maps server.");
     return jsonAnswer;
   }
@@ -208,7 +208,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
         if(fileInfoList.empty())
         {
           QString errorMsg = QString("No data in data series %1.").arg(inputDataSeries->id);
-          logger->log(ViewLogger::WARNING_MESSAGE, errorMsg.toStdString(), logId);
+          logger->log(ViewLogger::MessageType::WARNING_MESSAGE, errorMsg.toStdString(), logId);
           TERRAMA2_LOG_WARNING() << QObject::tr(errorMsg.toStdString().c_str());
           continue;
         }
@@ -225,7 +225,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
               if(!dataSetType)
               {
                 QString errorMsg = QString("Unable to access data series %1.").arg(inputDataSeries->id);
-                logger->log(ViewLogger::ERROR_MESSAGE, errorMsg.toStdString(), logId);
+                logger->log(ViewLogger::MessageType::ERROR_MESSAGE, errorMsg.toStdString(), logId);
                 TERRAMA2_LOG_ERROR() << QObject::tr(errorMsg.toStdString().c_str());
                 break;
               }
@@ -329,7 +329,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
         const auto& id = dataset->format.find("monitored_object_id");
         if(id == dataset->format.end())
         {
-          logger->log(ViewLogger::ERROR_MESSAGE, "Data to join not informed.", logId);
+          logger->log(ViewLogger::MessageType::ERROR_MESSAGE, "Data to join not informed.", logId);
           TERRAMA2_LOG_ERROR() << QObject::tr("Cannot join data from a different DB source!");
           continue;
         }
@@ -344,7 +344,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
            || monitoredObjectUrl.path().section("/", 1, 1) != url.path().section("/", 1, 1))
         {
           QString errMsg = QObject::tr("Cannot join data from a different DB source.");
-          logger->log(ViewLogger::ERROR_MESSAGE, errMsg.toStdString(), logId);
+          logger->log(ViewLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), logId);
           TERRAMA2_LOG_ERROR() << errMsg;
           continue;
         }
@@ -352,7 +352,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
         if(monitoredObjectDataSeries->datasetList.empty())
         {
           QString errMsg = QObject::tr("No dataset found in dataseries: %1.").arg(QString::fromStdString(monitoredObjectDataSeries->name));
-          logger->log(ViewLogger::ERROR_MESSAGE, errMsg.toStdString(), logId);
+          logger->log(ViewLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), logId);
           TERRAMA2_LOG_ERROR() << errMsg;
           continue;
         }
@@ -371,7 +371,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
         else
         {
           QString errMsg = QObject::tr("Invalid type of dataseries: %1.").arg(QString::fromStdString(monitoredObjectDataSeries->name));
-          logger->log(ViewLogger::ERROR_MESSAGE, errMsg.toStdString(), logId);
+          logger->log(ViewLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), logId);
           TERRAMA2_LOG_ERROR() << errMsg;
           continue;
         }
@@ -1453,7 +1453,7 @@ void terrama2::services::view::core::GeoServer::cleanup(const ViewPtr& viewPtr,
               warningMessage += "\n  -" + fileURI;
             }
 
-            logger->log(terrama2::core::ProcessLogger::WARNING_MESSAGE, warningMessage, id);
+            logger->log(terrama2::core::ProcessLogger::MessageType::WARNING_MESSAGE, warningMessage, id);
           }
         }
       } // endif !directory.currentPath().toStdString().empty()

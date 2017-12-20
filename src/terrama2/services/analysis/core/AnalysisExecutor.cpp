@@ -102,7 +102,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
     {
       for(const std::string& message : messages)
       {
-        logger->log(AnalysisLogger::WARNING_MESSAGE, message, logId);
+        logger->log(AnalysisLogger::MessageType::WARNING_MESSAGE, message, logId);
       }
     }
 
@@ -155,7 +155,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
     {
       for (const auto& warning: warnings)
       {
-        logger->log(AnalysisLogger::WARNING_MESSAGE, warning, logId);
+        logger->log(AnalysisLogger::MessageType::WARNING_MESSAGE, warning, logId);
       }
     }
 
@@ -168,13 +168,13 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
       for(const auto& error : errors)
       {
         errorStr += error + "\n";
-        logger->log(AnalysisLogger::ERROR_MESSAGE, error, logId);
+        logger->log(AnalysisLogger::MessageType::ERROR_MESSAGE, error, logId);
       }
 
       QString errMsg = QObject::tr("Analysis %1 (%2) finished with the following error(s):\n%3").arg(analysis->id).arg(QString::fromStdString(startTime->toString()), QString::fromStdString(errorStr));
       TERRAMA2_LOG_INFO() << errMsg;
 
-      logger->result(AnalysisLogger::ERROR, startTime, logId);
+      logger->result(AnalysisLogger::Status::ERROR, startTime, logId);
 
       emit analysisFinished(analysis->id, startTime, false);
     }
@@ -188,7 +188,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
       logger->setStartProcessingTime(processingStartTime, executionPackage.registerId);
       logger->setEndProcessingTime(processingEndTime, executionPackage.registerId);
 
-      logger->result(AnalysisLogger::DONE, startTime, logId);
+      logger->result(AnalysisLogger::Status::DONE, startTime, logId);
 
       QString errMsg = QObject::tr("Analysis %1 finished successfully: %2").arg(analysis->id).arg(startTime->toString().c_str());
       TERRAMA2_LOG_INFO() << errMsg;
