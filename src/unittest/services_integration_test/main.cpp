@@ -14,7 +14,7 @@
 #include <QTimer>
 
 #include "DCPInpeTs.hpp"
-#include "OccTs.hpp"
+#include "OccurenceTs.hpp"
 
 
 #include <iostream>
@@ -48,13 +48,15 @@ int main(int argc, char *argv[])
 
     try
     {
-      OccTs occTS;
+      OccurenceTs occTS;
       returnVal += QTest::qExec(&occTS, argc, argv);
     }
     catch(...)
     {
       returnVal += 1;
     }
+
+
 
   }
   catch (const terrama2::Exception& e)

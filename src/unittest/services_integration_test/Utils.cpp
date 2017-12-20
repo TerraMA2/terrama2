@@ -37,7 +37,6 @@
 
 
 //Analysis
-#include <terrama2/services/analysis/core/python/PythonInterpreter.hpp>
 #include <terrama2/services/analysis/core/utility/PythonInterpreterInit.hpp>
 #include <terrama2/services/analysis/core/DataManager.hpp>
 #include <terrama2/services/analysis/core/Service.hpp>
@@ -108,16 +107,18 @@ void utilsTS::database::restoreDB(std::string typeAnalysis)
   if(typeAnalysis == utilsTS::typecollectoranalysis::dcp_history || typeAnalysis == utilsTS::typecollectoranalysis::operator_dcp || typeAnalysis == utilsTS::typecollectoranalysis::operator_history_interval)
   {
     if(typeAnalysis == utilsTS::typecollectoranalysis::dcp_history)
-      interpreter->setString("namefile", TERRAMA2_DATA_DIR + "/dcp_history_ref.backup");
+      interpreter->setString("namefile", TERRAMA2_DATA_DIR + "/operator_dcp_history_ref.backup");
     else if(typeAnalysis == utilsTS::typecollectoranalysis::operator_dcp)
       interpreter->setString("namefile", TERRAMA2_DATA_DIR + "/operator_dcp_ref.backup");
     else if(typeAnalysis ==  utilsTS::typecollectoranalysis::operator_history_interval)
       interpreter->setString("namefile", TERRAMA2_DATA_DIR + "/operator_history_interval_ref.backup");
   }
-  else if(typeAnalysis == utilsTS::typecollectoranalysis::estados)
+  else if(typeAnalysis == utilsTS::typecollectoranalysis::states)
     interpreter->setString("namefile", TERRAMA2_DATA_DIR + "/estados.backup");
-  else if (typeAnalysis == utilsTS::typecollectoranalysis::occ)
+  else if (typeAnalysis == utilsTS::typecollectoranalysis::occurence)
     interpreter->setString("namefile", TERRAMA2_DATA_DIR + "/test_occ.backup");
+  else if(typeAnalysis == utilsTS::typecollectoranalysis::counties_tocantins)
+    interpreter->setString("namefile", TERRAMA2_DATA_DIR + "/counties_tocantins.backup");
 
   interpreter->runScript(script);
 }
@@ -162,7 +163,8 @@ void utilsTS::database::createDB()
 }
 
 
-void utilsTS::database::tryCatchCollector(std::string typeAnalysis, int numTablesExpected)
+void utilsTS::database::tryCatchCollector(std::string typeAnalysis,
+                                          int numTablesExpected)
 {
   try
   {
@@ -178,7 +180,8 @@ void utilsTS::database::tryCatchCollector(std::string typeAnalysis, int numTable
 
 }
 
-void utilsTS::database::tryCatchAnalysis(std::string  typeAnalysis, int numTablesExpected)
+void utilsTS::database::tryCatchAnalysis(std::string  typeAnalysis,
+                                         int numTablesExpected)
 {
   try
   {
@@ -210,7 +213,7 @@ void utilsTS::database::compareCollectAndAnalysis(std::string typeAnalysis)
 
 
   }
-  if(typeAnalysis == utilsTS::typecollectoranalysis::occ /*|| typeAnalysis == utilsTS::typecollectoranalysis::operator_dcp || typeAnalysis == utilsTS::typecollectoranalysis::operator_history_interval*/)
+  if(typeAnalysis == utilsTS::typecollectoranalysis::occurence)
   {
     numTablesExpected = 1;
     tryCatchCollector(typeAnalysis, numTablesExpected);
@@ -270,9 +273,10 @@ std::unique_ptr<terrama2::services::collector::core::Service> utilsTS::collector
 }
 
 
-void utilsTS::collector::addInputCollect(std::shared_ptr<terrama2::services::collector::core::DataManager> dataManagerCollector, std::string typeCollector)
+void utilsTS::collector::addInputCollect(std::shared_ptr<terrama2::services::collector::core::DataManager> dataManagerCollector,
+                                         std::string typeCollector)
 {
-  if(typeCollector == utilsTS::typecollectoranalysis::occ)
+  if(typeCollector == utilsTS::typecollectoranalysis::occurence)
   {
     auto dataProvider = terrama2::occurrencewfp::dataProviderFileOccWFP();
     dataManagerCollector->add(dataProvider);
@@ -288,13 +292,31 @@ void utilsTS::collector::addInputCollect(std::shared_ptr<terrama2::services::col
     auto dataSeries = terrama2::serramar::dataSeriesDcpSerramar(dataProvider);
     dataManagerCollector->add(dataSeries);
   }
+  else if(typeCollector == utilsTS::typecollectoranalysis::focus_tocantins)
+  {
+
+    auto dataProvider = terrama2::occurrencewfp::ftp::dataProviderFocusFTP();
+    dataManagerCollector->add(dataProvider);
+
+    auto dataSeries = terrama2::occurrencewfp::ftp::dataSeriesFocusFTP(dataProvider);
+    dataManagerCollector->add(dataSeries);
+  }
+  else if(typeCollector == utilsTS::typecollectoranalysis::counties_tocantins)
+  {
+    auto dataProviderStatic = terrama2::staticpostgis::dataProviderStaticPostGis();
+    dataManagerCollector->add(dataProviderStatic);
+
+    auto dataSeriesCounties = terrama2::staticpostgis::dataSeriesCounties(dataProviderStatic);
+    dataManagerCollector->add(dataSeriesCounties);
+  }
 
 }
 
 
-void utilsTS::collector::addResultCollector(std::shared_ptr<terrama2::services::collector::core::DataManager> dataManagerCollector, std::string typeCollector)
+void utilsTS::collector::addResultCollector(std::shared_ptr<terrama2::services::collector::core::DataManager> dataManagerCollector,
+                                            std::string typeCollector)
 {
-  if(typeCollector == utilsTS::typecollectoranalysis::occ)
+  if (typeCollector == utilsTS::typecollectoranalysis::occurence)
   {
     auto outputDataProvider = terrama2::occurrencewfp::dataProviderPostGisOccWFP();
     dataManagerCollector->add(outputDataProvider);
@@ -310,6 +332,15 @@ void utilsTS::collector::addResultCollector(std::shared_ptr<terrama2::services::
     auto outputDataSeries = terrama2::serramar::dataSeriesDcpSerramarPostGis(dataProvider);
     dataManagerCollector->add(outputDataSeries);
   }
+  else if (typeCollector == utilsTS::typecollectoranalysis::focus_tocantins)
+  {
+
+    auto dataProvider = terrama2::occurrencewfp::ftp::dataProviderFocusPostGis();
+    dataManagerCollector->add(dataProvider);
+
+    auto dataSeries = terrama2::occurrencewfp::ftp::dataSeriesFocusPostGis(dataProvider);
+    dataManagerCollector->add(dataSeries);
+  }
 
 }
 
@@ -324,6 +355,7 @@ void utilsTS::timerCollectorAndAnalysis()
 
 
 
+
 terrama2::core::DataSeriesPtr utilsTS::analysis::addInputDataSeriesStatic(std::shared_ptr<terrama2::services::analysis::core::DataManager> dataManagerAnalysis)
 {
   auto dataProviderStatic = terrama2::staticpostgis::dataProviderStaticPostGis();
@@ -335,10 +367,11 @@ terrama2::core::DataSeriesPtr utilsTS::analysis::addInputDataSeriesStatic(std::s
   return dataSeriesStatic;
 }
 
-terrama2::core::DataSeriesPtr utilsTS::analysis::addInputDataSeriesAnalysis(std::shared_ptr<terrama2::services::analysis::core::DataManager> dataManagerAnalysis,std::string typeAnalysis)
+terrama2::core::DataSeriesPtr utilsTS::analysis::addInputDataSeriesAnalysis(std::shared_ptr<terrama2::services::analysis::core::DataManager> dataManagerAnalysis,
+                                                                            std::string typeAnalysis)
 {
 
-  if (typeAnalysis == utilsTS::typecollectoranalysis::occ)
+  if (typeAnalysis == utilsTS::typecollectoranalysis::occurence)
   {
     auto dataProvider = terrama2::occurrencewfp::dataProviderPostGisOccWFP();
     dataManagerAnalysis->add(dataProvider);
@@ -360,13 +393,15 @@ terrama2::core::DataSeriesPtr utilsTS::analysis::addInputDataSeriesAnalysis(std:
   }
 }
 
-terrama2::core::DataSeriesPtr utilsTS::analysis::addResultAnalysis(std::shared_ptr<terrama2::services::analysis::core::DataManager> dataManagerAnalysis, terrama2::core::DataSeriesPtr dataSeries, std::string typeAnalysis)
+terrama2::core::DataSeriesPtr utilsTS::analysis::addResultAnalysis(std::shared_ptr<terrama2::services::analysis::core::DataManager> dataManagerAnalysis,
+                                                                   std::string typeAnalysis,
+                                                                   terrama2::core::DataSeriesPtr dataSeries)
 {
   auto dataProvider = terrama2::resultanalysis::dataProviderResultAnalysis();
   dataManagerAnalysis->add(dataProvider);
 
 
-  if(typeAnalysis == utilsTS::typecollectoranalysis::occ)
+  if(typeAnalysis == utilsTS::typecollectoranalysis::occurence)
   {
     auto dataSeriesResult = terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProvider,terrama2::resultanalysis::tablename::occurrence_analysis_result, dataSeries);
     dataManagerAnalysis->add(dataSeriesResult);
@@ -384,6 +419,7 @@ terrama2::core::DataSeriesPtr utilsTS::analysis::addResultAnalysis(std::shared_p
 std::unique_ptr<terrama2::services::analysis::core::Service> utilsTS::analysis::gmockAndServicesAnalysis(std::shared_ptr<terrama2::services::analysis::core::DataManager> dataManagerAnalysis)
 {
   terrama2::services::analysis::core::PythonInterpreterInit pythonInterpreterInit;
+  Q_UNUSED(pythonInterpreterInit);
 
   auto loggerCopy = std::make_shared<terrama2::core::MockAnalysisLogger>();
 

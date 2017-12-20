@@ -59,11 +59,13 @@ namespace utilsTS {
   namespace typecollectoranalysis
   {
      const std::string dcp = "dcp";
-     const std::string occ = "occ";
+     const std::string occurence = "occ";
+     const std::string focus_tocantins = "focus_tocantins";
      const std::string dcp_history = "dcp_history";
      const std::string operator_dcp = "operator_dcp";
      const std::string operator_history_interval = "operator_history_interval";
-     const std::string estados = "estados";
+     const std::string states = "states";
+     const std::string counties_tocantins = "counties_tocatins";
 
   }
 
@@ -85,37 +87,40 @@ namespace utilsTS {
 
         void compareCollectAndAnalysis(std::string typeAnalysis);
 
-        void tryCatchCollector(std::string  typeAnalysis, int numTablesExpected);
+        void tryCatchCollector(std::string  typeAnalysis,
+                               int numTablesExpected);
 
-        void tryCatchAnalysis(std::string  typeAnalysis, int numTablesExpected);
+        void tryCatchAnalysis(std::string  typeAnalysis,
+                              int numTablesExpected);
   }
-
-
 
     namespace collector
     {
         std::unique_ptr<terrama2::services::collector::core::Service> gmockAndServicesCollector(std::shared_ptr<terrama2::services::collector::core::DataManager> dataManagerCollector);
 
-        void addInputCollect(std::shared_ptr<terrama2::services::collector::core::DataManager> dataManagerCollector, std::string typeCollector);
+        void addInputCollect(std::shared_ptr<terrama2::services::collector::core::DataManager> dataManagerCollector,
+                             std::string typeCollector);
 
-        void addResultCollector(std::shared_ptr<terrama2::services::collector::core::DataManager> dataManagerCollector, std::string typeCollector);
+        void addResultCollector(std::shared_ptr<terrama2::services::collector::core::DataManager> dataManagerCollector,
+                                std::string typeCollector);
+
     }
 
     namespace analysis
     {
-        terrama2::core::DataSeriesPtr addInputDataSeriesAnalysis(std::shared_ptr<terrama2::services::analysis::core::DataManager> dataManagerAnalysis, std::string typeAnalysis);
+        terrama2::core::DataSeriesPtr addInputDataSeriesAnalysis(std::shared_ptr<terrama2::services::analysis::core::DataManager> dataManagerAnalysis,
+                                                                 std::string typeAnalysis);
 
         terrama2::core::DataSeriesPtr addInputDataSeriesStatic(std::shared_ptr<terrama2::services::analysis::core::DataManager> dataManagerAnalysis);
 
-        terrama2::core::DataSeriesPtr addResultAnalysis(std::shared_ptr<terrama2::services::analysis::core::DataManager> dataManagerAnalysis, terrama2::core::DataSeriesPtr dataSeries, std::string typeAnalysis);
+        terrama2::core::DataSeriesPtr addResultAnalysis(std::shared_ptr<terrama2::services::analysis::core::DataManager> dataManagerAnalysis,
+                                                        std::string typeAnalysis,
+                                                        terrama2::core::DataSeriesPtr dataSeries);
 
         std::unique_ptr<terrama2::services::analysis::core::Service> gmockAndServicesAnalysis(std::shared_ptr<terrama2::services::analysis::core::DataManager> dataManagerAnalysis);
     }
 
     void timerCollectorAndAnalysis();
-
-
-
 
 }
 #endif //__TERRAMA2_UNITTEST_UTILS_HPP__

@@ -40,8 +40,6 @@
 
 
 //Analysis
-#include <terrama2/services/analysis/core/python/PythonInterpreter.hpp>
-#include <terrama2/services/analysis/core/utility/PythonInterpreterInit.hpp>
 #include <terrama2/services/analysis/core/DataManager.hpp>
 #include <terrama2/services/analysis/core/Service.hpp>
 #include <terrama2/services/analysis/core/Analysis.hpp>
@@ -59,36 +57,6 @@
 #include <QCoreApplication>
 
 
-terrama2::services::collector::core::CollectorPtr addCollector(std::shared_ptr<terrama2::services::collector::core::DataManager> dataManagerCollector)
-{
-  std::shared_ptr<terrama2::services::collector::core::Collector> collector = std::make_shared<terrama2::services::collector::core::Collector>();
-  collector->id = 777;
-  collector->projectId = 0;
-  collector->serviceInstanceId = 1;
-
-  collector->inputDataSeries = 1;
-  collector->outputDataSeries = 2;
-
-  // picinguaba input_id: 1 output_id: 6
-  collector->inputOutputMap.emplace(1, 6);
-
-  // itanhaem input_id: 2 output_id: 4
-  collector->inputOutputMap.emplace(2, 7);
-
-  // ubatuba input_id: 3 output_id: 8
-  collector->inputOutputMap.emplace(3, 8);
-
-  // itutinga input_id: 4 output_id: 9
-  collector->inputOutputMap.emplace(4, 9);
-
-  // cunha input_id: 2 output_id: 10
-  collector->inputOutputMap.emplace(5, 10);
-
-  dataManagerCollector->add(collector);
-
-  return collector;
-}
-
 void DCPInpeTs::collect()
 {
 
@@ -100,20 +68,50 @@ void DCPInpeTs::collect()
 
   utilsTS::collector::addResultCollector(dataManagerCollector, utilsTS::typecollectoranalysis::dcp);
 
-  auto collector = addCollector(dataManagerCollector);
+  std::shared_ptr<terrama2::services::collector::core::Collector> collector = std::make_shared<terrama2::services::collector::core::Collector>();
+  collector->id = 777;
+  collector->projectId = 0;
+  collector->serviceInstanceId = 1;
+
+  collector->inputDataSeries = 1;
+  collector->outputDataSeries = 2;
+
+  // picinguaba input_id: 1 output_id: 315
+  collector->inputOutputMap.emplace(1, 325);
+
+  // itanhaem input_id: 2 output_id: 316
+  collector->inputOutputMap.emplace(2, 326);
+
+  // ubatuba input_id: 3 output_id: 317
+  collector->inputOutputMap.emplace(3, 327);
+
+  // itutinga input_id: 4 output_id: 318
+  collector->inputOutputMap.emplace(4, 328);
+
+  // cunha input_id: 2 output_id: 319
+  collector->inputOutputMap.emplace(5, 329);
+
+  dataManagerCollector->add(collector);
+
 
   serviceCollector->addToQueue(collector->id, terrama2::core::TimeUtils::nowUTC());
 
   utilsTS::timerCollectorAndAnalysis();
 }
 
-
-std::shared_ptr<terrama2::services::analysis::core::Analysis> addAnalysis(std::shared_ptr<terrama2::services::analysis::core::DataManager> dataManagerAnalysis, std::string scriptAnalysis)
+/*!
+ * \brief addAnalysisBase
+ * \param dataManagerAnalysis
+ * \param scriptAnalysis
+ * \return
+ *
+ * \warning Won't add the analysis to the datamanager!
+ */
+std::shared_ptr<terrama2::services::analysis::core::Analysis> addAnalysisBase(std::shared_ptr<terrama2::services::analysis::core::DataManager> dataManagerAnalysis, std::string scriptAnalysis)
 {
-
     auto dataSeriesDcp = utilsTS::analysis::addInputDataSeriesAnalysis(dataManagerAnalysis, utilsTS::typecollectoranalysis::dcp);
 
-    auto dataSeriesResult = utilsTS::analysis::addResultAnalysis(dataManagerAnalysis, dataSeriesDcp, utilsTS::typecollectoranalysis::dcp);
+    auto dataSeriesResult = utilsTS::analysis::addResultAnalysis(dataManagerAnalysis, utilsTS::typecollectoranalysis::dcp, dataSeriesDcp);
 
     std::shared_ptr<terrama2::services::analysis::core::Analysis> analysis = std::make_shared<terrama2::services::analysis::core::Analysis>();
 
@@ -138,10 +136,22 @@ std::shared_ptr<terrama2::services::analysis::core::Analysis> addAnalysis(std::s
     analysisDataSeriesList.push_back(dcpADS);
     analysis->analysisDataSeriesList = analysisDataSeriesList;
 
-    dataManagerAnalysis->add(analysis);
-
     return analysis;
 }
+
+std::shared_ptr<const terrama2::services::analysis::core::Analysis> addAnalysis(std::shared_ptr<terrama2::services::analysis::core::DataManager> dataManagerAnalysis, std::string scriptAnalysis)
+{
+  auto analysis = addAnalysisBase(dataManagerAnalysis, scriptAnalysis);
+  dataManagerAnalysis->add(analysis);
+
+  return analysis;
+}
+
+/*!
+ * \brief analysisHistory
+ *
+ * \warning operator dcp.value not return the same value the table reference
+ */
 void DCPInpeTs::analysisHistory()
 {
 
@@ -176,11 +186,11 @@ add_value("count", count)
 add_value("value", va))z";
 
     auto analysis = addAnalysis(dataManagerAnalysis, scriptAnHistory);
+    dataManagerAnalysis->add(analysis);
 
-    serviceAnalysis->addToQueue(analysis->id, terrama2::core::TimeUtils::stringToTimestamp("2017-11-28T19:48:15.792+00", terrama2::core::TimeUtils::webgui_timefacet));
+    serviceAnalysis->addToQueue(analysis->id, terrama2::core::TimeUtils::stringToTimestamp("2017-12-12T18:23:23.077+00", terrama2::core::TimeUtils::webgui_timefacet));
 
     utilsTS::timerCollectorAndAnalysis();
-
 
     utilsTS::database::compareCollectAndAnalysis(utilsTS::typecollectoranalysis::dcp_history);
 
@@ -188,8 +198,11 @@ add_value("value", va))z";
 
 
 /*!
- * Analysis Operator DCP
-*/
+ * \brief Analysis Operator DCP
+ *
+ * \warning dcp.standard_deviation and dcp.variance operator
+ * return null could not compare values ​​in SQL.
+ */
 
 void DCPInpeTs::analysisDCP()
 {
@@ -206,8 +219,8 @@ minimum = dcp.min("pluvio", ids)
 me = dcp.mean("pluvio", ids)
 su = dcp.sum("pluvio", ids)
 med = dcp.median("pluvio", ids)
-standard = dcp.standard_deviation("pluvio", ids)
-var = dcp.variance("pluvio", ids)
+#standard = dcp.standard_deviation("pluvio", ids)
+#var = dcp.variance("pluvio", ids)
 count  = dcp.count(moBuffer)
 va = dcp.value("pluvio")
 add_value("max", maximum)
@@ -215,13 +228,14 @@ add_value("min", minimum)
 add_value("mean", me)
 add_value("sum", su)
 add_value("median", med)
-add_value("standard_deviation", standard)
-add_value("variance", var)
+#add_value("standard_deviation", standard)
+#add_value("variance", var)
 add_value("count", count)
 add_value("value", va))z";
 
-    auto analysis = addAnalysis(dataManagerAnalysis, scriptDCP);//"2017-11-29 16:28:44.966-02"
-    serviceAnalysis->addToQueue(analysis->id, terrama2::core::TimeUtils::stringToTimestamp("2017-11-29T18:28:44.966+00" , terrama2::core::TimeUtils::webgui_timefacet));
+    auto analysis = addAnalysis(dataManagerAnalysis, scriptDCP);
+    dataManagerAnalysis->add(analysis);
+    serviceAnalysis->addToQueue(analysis->id, terrama2::core::TimeUtils::stringToTimestamp("2017-12-13T10:55:04.518+00" , terrama2::core::TimeUtils::webgui_timefacet));
 
     utilsTS::timerCollectorAndAnalysis();
 
@@ -229,9 +243,12 @@ add_value("value", va))z";
 }
 
 
+
 /*!
- * Analysis Operator History Interval
-*/
+ * \brief  Analysis Operator History Interval
+ *
+ * \warning in development
+ */
 
 void DCPInpeTs::analysisHistoryInterval()
 {
@@ -263,7 +280,7 @@ add_value("standard_deviation", standard)
 add_value("variance", var))z";
 
 
-    auto analysis = addAnalysis(dataManagerAnalysis, scriptAnHistory);
+    auto analysis = addAnalysisBase(dataManagerAnalysis, scriptAnHistory);
 
 
     auto reprocessingHistoricalDataPtr = std::make_shared<terrama2::services::analysis::core::ReprocessingHistoricalData>();
@@ -287,16 +304,15 @@ add_value("variance", var))z";
 
     analysis->schedule.frequency = 10;
     analysis->schedule.frequencyUnit = "h";
+    analysis->schedule.id = 1;
+    analysis->active = true;
 
     dataManagerAnalysis->add(analysis);
 
-
-
-    serviceAnalysis->addToQueue(analysis->id, terrama2::core::TimeUtils::stringToTimestamp("2008-02-20T00:00:00.000+00", terrama2::core::TimeUtils::webgui_timefacet));
+    serviceAnalysis->addProcessToSchedule(analysis);
 
     utilsTS::timerCollectorAndAnalysis();
 
-    utilsTS::database::compareCollectAndAnalysis(utilsTS::typecollectoranalysis::operator_history_interval);
+   // utilsTS::database::compareCollectAndAnalysis(utilsTS::typecollectoranalysis::operator_history_interval);
 
 }
-

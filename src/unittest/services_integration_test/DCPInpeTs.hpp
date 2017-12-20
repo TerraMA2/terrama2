@@ -16,29 +16,29 @@
 */
 
 /*!
-  \file src/unittest/services_integration_test/OccTs.hpp
-  \brief test services_integration OccTs
+  \file src/unittest/services_integration_test/DCPInpeTs.hpp
+  \brief test services_integration DCPInpeTs
   \author Bianca Maciel
 */
 
+#ifndef __TERRAMA2_UNITTEST_COLLECTOR_DCPINPE_HPP__
+#define __TERRAMA2_UNITTEST_COLLECTOR_DCPINPE_HPP__
 
-#ifndef __TERRAMA2_UNITTEST_COLLECTOR_OCC_HPP__
-#define __TERRAMA2_UNITTEST_COLLECTOR_OCC_HPP__
 
 #include <QtTest>
+
 #include "Utils.hpp"
 
-
-class OccTs: public QObject
+class DCPInpeTs: public QObject
 {
     Q_OBJECT
 
   private:
 
     void collect();
-    void analysisZonal();
-    //void analysisDCP();
-    //void analysisHistoryInterval();
+    void analysisHistory();
+    void analysisDCP();
+    void analysisHistoryInterval();
 
 
   private slots:
@@ -46,20 +46,16 @@ class OccTs: public QObject
     void initTestCase(){ } // Run before all tests
     void cleanupTestCase(){  } // Run after all tests
 
-    void init()
-    {
-      utilsTS::database::createDB();
-    } //run before each test
+    void init(){ utilsTS::database::createDB(); } //run before each test
     void cleanup(){ utilsTS::database::deleteDB(); } //run before each test
 
     //******Test functions********
 
-    void collectAndAnalysisZonal() { collect(); analysisZonal(); }
-   // void collectAndAnalysisDCP() { collect(); analysisDCP(); }
-   // void collectAndAnalysisHistoryInterval() { collect(); analysisHistoryInterval(); }
+   void collectAndAnalysisHistory() { collect(); analysisHistory(); }
+   void collectAndAnalysisDCP() { collect(); analysisDCP(); }
+     // void collectAndAnalysisHistoryInterval() { collect(); analysisHistoryInterval(); }
 
 
 };
 
-#endif //__TERRAMA2_UNITTEST_COLLECTOR_OCC_HPP__
-
+#endif //__TERRAMA2_UNITTEST_COLLECTOR_DCPINPE_HPP__
