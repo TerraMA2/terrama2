@@ -34,7 +34,7 @@ class AlertLoggerMock : public terrama2::services::alert::core::AlertLogger
 
     void log(MessageType messageType, const std::string &description, RegisterId /*registerId*/) const override
     {
-      std::cout << "Message Type: " << messageType << " Message: " << description << std::endl;
+      std::cout << "Message Type: " << static_cast<int>(messageType) << " Message: " << description << std::endl;
     }
 
 };
