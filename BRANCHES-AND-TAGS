@@ -34,15 +34,15 @@ In order to switch to branch 4.0.0-alpha you can use the following command:
 List of Tags
 ------------
 
-Also there are tags which usually are originated from a release branch. For instance, tag t-4.0.0-alpha1 will be originated from branch b-4.0.0-alpha.
+Also there are tags which usually are originated from a release branch. For instance, tag v4.0.0-alpha1 will be originated from branch b-4.0.0-alpha.
 
 To check all tags available, use:
   $ git tag -l           (list all tag names)
-  t-4.0.0-alpha1
-  t-4.0.0-alpha2
-  t-4.0.0-beta1
-  t-4.0.0-rc1
-  t-4.0.0
+  v4.0.0-alpha1
+  v4.0.0-alpha2
+  v4.0.0-beta1
+  v4.0.0-rc1
+  v4.0.0
   ...
 
 If you want to checkout a specific version given by a tag and create a local branch to work on you can use the following git command:
