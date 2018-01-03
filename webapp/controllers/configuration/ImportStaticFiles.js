@@ -101,7 +101,7 @@ var ImportStaticFiles = function(app) {
                             if(resultTable.rowCount > 0 && resultTable.rows[0].table_name == request.body.tableName) {
                               return sendResponse("Table already exists!", folderPath);
                             } else {
-                              memberExec(memberExportation.ogr2ogr() + " -f \"PostgreSQL\" -a_srs \"EPSG:" + request.body.srid + "\" \"" + connectionString + "\" \"" + shpName + "\" -nln " + request.body.tableName + " -nlt GEOMETRY -lco ENCODING=" + request.body.encoding, function(commandErr, commandOut, commandCode) {
+                              memberExec(memberExportation.ogr2ogr() + " -f \"PostgreSQL\" -a_srs \"EPSG:" + request.body.srid + "\" \"" + connectionString + "\" \"" + shpName + "\" -nln " + request.body.tableName + " -nlt GEOMETRY --config SHAPE_ENCODING " + request.body.encoding, function(commandErr, commandOut, commandCode) {
                                 if(commandErr)
                                   return sendResponse(commandErr.toString(), folderPath);
 
