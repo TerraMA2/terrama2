@@ -168,6 +168,7 @@ namespace terrama2
         */
         virtual void updateNumberOfThreads(size_t numberOfThreads = 0) noexcept final;
 
+        void addReprocessingToQueue(ProcessPtr process) noexcept;
         virtual void addProcessToSchedule(ProcessPtr process) noexcept;
         void setLogger(std::shared_ptr<ProcessLogger> logger) noexcept;
 

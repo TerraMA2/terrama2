@@ -141,62 +141,6 @@ void terrama2::services::analysis::core::Service::addToQueue(AnalysisId analysis
 
     RegisterId registerId = logger_->start(analysis->id);
 
-    if(analysis->reprocessingHistoricalData)
-    {
-      auto reprocessingHistoricalData = analysis->reprocessingHistoricalData;
-
-      auto executionDate = reprocessingHistoricalData->startDate;
-      boost::local_time::local_date_time endDate = terrama2::core::TimeUtils::nowBoostLocal();
-
-      if(analysis->reprocessingHistoricalData->endDate)
-        endDate = analysis->reprocessingHistoricalData->endDate->getTimeInstantTZ();
-
-      boost::local_time::local_date_time titz = executionDate->getTimeInstantTZ();
-
-      double frequencySeconds = terrama2::core::TimeUtils::frequencySeconds(analysis->schedule);
-      double scheduleSeconds = terrama2::core::TimeUtils::scheduleSeconds(analysis->schedule, executionDate);
-      if(frequencySeconds < 0 || scheduleSeconds < 0)
-      {
-        TERRAMA2_LOG_ERROR() << QObject::tr("Invalid schedule");
-        return;
-      }
-
-      while(titz <= endDate)
-      {
-
-        terrama2::core::ExecutionPackage executionPackage;
-        executionPackage.processId = analysisId;
-        executionPackage.executionDate = executionDate;
-        executionPackage.registerId = registerId;
-
-        erasePreviousResult(dataManager_, analysis->outputDataSeriesId, executionDate);
-        auto pqIt = std::find(processingQueue_.begin(), processingQueue_.end(), analysisId);
-        if(pqIt == processingQueue_.end())
-        {
-          processQueue_.push_back(executionPackage);
-          processingQueue_.push_back(analysisId);
-
-          //wake loop thread
-          mainLoopCondition_.notify_one();
-        }
-        else
-        {
-          waitQueue_[analysisId].push(executionPackage);
-        }
-
-
-        if(frequencySeconds > 0.)
-        {
-          titz += boost::posix_time::seconds(frequencySeconds);
-        }
-        else if(scheduleSeconds > 0.)
-        {
-          titz += boost::posix_time::seconds(scheduleSeconds);
-        }
-        executionDate.reset(new te::dt::TimeInstantTZ(titz));
-      }
-    }
-    else
     {
 
       terrama2::core::ExecutionPackage executionPackage;

@@ -153,8 +153,8 @@ add_value("count", x))";
   analysis->analysisDataSeriesList = analysisDataSeriesList;
 
 
-  auto reprocessingHistoricalData = new ReprocessingHistoricalData();
-  ReprocessingHistoricalDataPtr reprocessingHistoricalDataPtr(reprocessingHistoricalData);
+  auto reprocessingHistoricalData = new terrama2::core::ReprocessingHistoricalData();
+  terrama2::core::ReprocessingHistoricalDataPtr reprocessingHistoricalDataPtr(reprocessingHistoricalData);
 
 
   boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone("-03"));
@@ -170,7 +170,7 @@ add_value("count", x))";
   boost::local_time::local_date_time lendDate(endBoostDate.date(), endBoostDate.time_of_day(), zone, true);
   reprocessingHistoricalData->endDate = std::make_shared<te::dt::TimeInstantTZ>(lendDate);
 
-  analysis->reprocessingHistoricalData = reprocessingHistoricalDataPtr;
+  analysis->schedule.reprocessingHistoricalData = reprocessingHistoricalDataPtr;
 
   dataManager->add(analysis);
 
