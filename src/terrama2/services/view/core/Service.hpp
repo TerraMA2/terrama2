@@ -65,6 +65,9 @@ namespace terrama2
           virtual void getStatus(QJsonObject& obj) const override;
 
         public slots:
+
+          virtual void addToQueueById(ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept override;
+          
           /*!
             \brief Updates the View.
 

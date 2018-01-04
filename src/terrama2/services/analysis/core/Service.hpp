@@ -85,6 +85,7 @@ namespace terrama2
             */
             void analysisFinished(AnalysisId analysisId, std::shared_ptr< te::dt::TimeInstantTZ > executionDate, bool success, QJsonObject jsonAnswer = QJsonObject());
 
+            virtual void addToQueueById(ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept override;
             /*!
                \brief Starts the server.
                \param threadNumber Number of threads to process tasks.

@@ -72,6 +72,9 @@ namespace terrama2
             Service& operator=(Service&& other) = default;
 
             public slots:
+
+            virtual void addToQueueById(ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept override;
+
             /*!
               \brief Updates the Collector.
 

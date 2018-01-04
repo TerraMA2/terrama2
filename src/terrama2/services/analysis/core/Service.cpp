@@ -197,3 +197,9 @@ void terrama2::services::analysis::core::Service::validateAnalysis(AnalysisPtr a
   }
 
 }
+
+void terrama2::services::analysis::core::Service::addToQueueById(ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept
+{
+  auto process = dataManager_->findAnalysis(processId);
+  addToQueue(process, startTime);
+}
