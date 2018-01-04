@@ -130,7 +130,7 @@ int main(int argc, char* argv[])
     dataManager->add(analysis);
 
 
-    service.addToQueue(analysis->id, terrama2::core::TimeUtils::nowUTC());
+    service.addToQueue(analysis, terrama2::core::TimeUtils::nowUTC());
 
 
     QTimer timer;

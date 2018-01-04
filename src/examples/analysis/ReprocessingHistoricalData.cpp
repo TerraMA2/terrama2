@@ -177,7 +177,7 @@ add_value("count", x))";
   analysis->schedule.frequency = 15;
   analysis->schedule.frequencyUnit = "min";
 
-  service.addToQueue(analysis->id, terrama2::core::TimeUtils::stringToTimestamp("2016-04-30T00:00:00-03", terrama2::core::TimeUtils::webgui_timefacet));
+  service.addToQueue(analysis, terrama2::core::TimeUtils::stringToTimestamp("2016-04-30T00:00:00-03", terrama2::core::TimeUtils::webgui_timefacet));
 
 
 

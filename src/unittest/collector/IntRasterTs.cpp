@@ -247,7 +247,10 @@ void IntRasterTs::CollectAndCropRaster()
   service.setLogger(logger);
   service.start();
 
-  service.addToQueue(1, terrama2::core::TimeUtils::nowUTC());
+  auto process = std::make_shared<terrama2::core::Process>();
+  process->id = 1;
+
+  service.addToQueue(process, terrama2::core::TimeUtils::nowUTC());
 
   QTimer timer;
   QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));

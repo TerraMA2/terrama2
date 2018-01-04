@@ -177,7 +177,7 @@ add_value("level", x))z";
     terrama2::core::ServiceManager::getInstance().setInstanceId(1);
 
 
-    service.addToQueue(analysis->id, terrama2::core::TimeUtils::stringToTimestamp("2016-04-30T22:30:00-03", terrama2::core::TimeUtils::webgui_timefacet));
+    service.addToQueue(analysis, terrama2::core::TimeUtils::stringToTimestamp("2016-04-30T22:30:00-03", terrama2::core::TimeUtils::webgui_timefacet));
 
 
 

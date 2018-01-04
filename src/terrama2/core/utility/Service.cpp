@@ -276,9 +276,9 @@ void terrama2::core::Service::updateNumberOfThreads(size_t numberOfThreads) noex
   TERRAMA2_LOG_DEBUG() << tr("Actual number of threads: %1").arg(processingThreadPool_.size());
 }
 
-terrama2::core::TimerPtr terrama2::core::Service::createTimer(const Schedule& schedule, ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> lastProcess) const
+terrama2::core::TimerPtr terrama2::core::Service::createTimer(ProcessPtr process, std::shared_ptr<te::dt::TimeInstantTZ> lastProcess) const
 {
-  terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(schedule, processId, lastProcess);
+  terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(process, lastProcess);
   connect(timer.get(), &terrama2::core::Timer::timeoutSignal, this, &terrama2::core::Service::addToQueue, Qt::UniqueConnection);
 
   return timer;
@@ -360,7 +360,7 @@ void terrama2::core::Service::addProcessToSchedule(ProcessPtr process) noexcept
         else
         {
           std::shared_ptr<te::dt::TimeInstantTZ> lastProcess = logger_->getLastProcessTimestamp(process->id);
-          terrama2::core::TimerPtr timer = createTimer(process->schedule, process->id, lastProcess);
+          terrama2::core::TimerPtr timer = createTimer(process, lastProcess);
           timers_.emplace(process->id, timer);
         }
       }
@@ -446,4 +446,52 @@ void terrama2::core::Service::updateFilterDiscardDates(terrama2::core::Filter& f
   }
   else if(lastCollectedDataTimestamp.get())
   filter.discardBefore = lastCollectedDataTimestamp;
+}
+
+void terrama2::core::Service::addToQueue(ProcessPtr process, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept
+{
+  try
+  {
+    //Lock Thread and add to the queue
+    std::lock_guard<std::mutex> lock(mutex_);
+    if(process->serviceInstanceId != terrama2::core::ServiceManager::getInstance().instanceId())
+      return;
+
+    auto processId = process->id;
+    RegisterId registerId = logger_->start(processId);
+
+    terrama2::core::ExecutionPackage executionPackage;
+    executionPackage.processId = processId;
+    executionPackage.executionDate = startTime;
+    executionPackage.registerId = registerId;
+
+    auto pqIt = std::find(processingQueue_.begin(), processingQueue_.end(), processId);
+    if(pqIt == processingQueue_.end())
+    {
+      processQueue_.push_back(executionPackage);
+      processingQueue_.push_back(processId);
+
+      //wake loop thread
+      mainLoopCondition_.notify_one();
+    }
+    else
+    {
+      waitQueue_[processId].push(executionPackage);
+      logger_->result(ProcessLogger::Status::ON_QUEUE, nullptr, executionPackage.registerId);
+      TERRAMA2_LOG_INFO() << tr("Process %1 added to wait queue.").arg(processId);
+    }
+  }
+  catch(const terrama2::Exception& e)
+  {
+    //logged on throw
+  }
+  catch(const std::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << e.what();
+  }
+  catch(...)
+  {
+    // exception guard, slots should never emit exceptions.
+    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception...");
+  }
 }

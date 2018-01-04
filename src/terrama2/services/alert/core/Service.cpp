@@ -69,54 +69,6 @@ void terrama2::services::alert::core::Service::prepareTask(const terrama2::core:
   }
 }
 
-void terrama2::services::alert::core::Service::addToQueue(AlertId alertId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept
-{
-  try
-  {
-    std::lock_guard<std::mutex> lock(mutex_);
-    TERRAMA2_LOG_DEBUG() << tr("Alert added to queue.");
-
-    auto datamanager = dataManager_.lock();
-    auto alert = datamanager->findAlert(alertId);
-
-    const auto& serviceManager = terrama2::core::ServiceManager::getInstance();
-    auto serviceInstanceId = serviceManager.instanceId();
-
-    // Check if this alert should be executed in this instance
-    if(alert->serviceInstanceId != serviceInstanceId)
-      return;
-
-    RegisterId registerId = logger_->start(alertId);
-
-    terrama2::core::ExecutionPackage executionPackage;
-    executionPackage.processId = alertId;
-    executionPackage.executionDate = startTime;
-    executionPackage.registerId = registerId;
-
-    // if this alert id is already being processed put it on the wait queue.
-    auto pqIt = std::find(processingQueue_.begin(), processingQueue_.end(), alertId);
-    if(pqIt == processingQueue_.end())
-    {
-      processQueue_.push_back(executionPackage);
-      processingQueue_.push_back(alertId);
-
-      //wake loop thread
-      mainLoopCondition_.notify_one();
-    }
-    else
-    {
-      waitQueue_[alertId].push(executionPackage);
-      logger_->result(AlertLogger::Status::ON_QUEUE, nullptr, executionPackage.registerId);
-      TERRAMA2_LOG_INFO() << tr("Alert %1 added to wait queue.").arg(alertId);
-    }
-  }
-  catch(...)
-  {
-    // exception guard, slots should never emit exceptions.
-    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception...");
-  }
-}
-
 void terrama2::services::alert::core::Service::connectDataManager()
 {
   auto dataManager = dataManager_.lock();
@@ -127,7 +79,6 @@ void terrama2::services::alert::core::Service::connectDataManager()
   connect(dataManager.get(), &terrama2::services::alert::core::DataManager::alertUpdated, this,
           &terrama2::services::alert::core::Service::updateAlert);
 }
-
 
 void terrama2::services::alert::core::Service::removeAlert(AlertId alertId) noexcept
 {

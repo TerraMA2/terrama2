@@ -72,9 +72,6 @@ namespace terrama2
             Service& operator=(Service&& other) = default;
 
             public slots:
-            //! Slot to be called when a DataSetTimer times out.
-            virtual void addToQueue(CollectorId collectorId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept override;
-
             /*!
               \brief Updates the Collector.
 

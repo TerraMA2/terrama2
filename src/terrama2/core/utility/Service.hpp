@@ -148,7 +148,7 @@ namespace terrama2
 
       public slots:
 
-        virtual void addToQueue(ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept = 0;
+        virtual void addToQueue(ProcessPtr process, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept final;
 
         /*!
            \brief  Stops the service.
@@ -177,7 +177,7 @@ namespace terrama2
       protected:
         void updateFilterDiscardDates(terrama2::core::Filter& filter, std::shared_ptr<ProcessLogger> logger, ProcessId processId) const;
 
-        TimerPtr createTimer(const terrama2::core::Schedule& schedule, ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> lastProcess) const;
+        TimerPtr createTimer(ProcessPtr process, std::shared_ptr<te::dt::TimeInstantTZ> lastProcess) const;
         /*!
            \brief Returns true if the main loop should continue.
            \return True if there is data to be tasked.

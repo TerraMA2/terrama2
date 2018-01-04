@@ -123,64 +123,6 @@ void terrama2::services::analysis::core::Service::prepareTask(const terrama2::co
   }
 }
 
-
-void terrama2::services::analysis::core::Service::addToQueue(AnalysisId analysisId, std::shared_ptr<te::dt::TimeInstantTZ> executionDate) noexcept
-{
-  try
-  {
-    //Lock Thread and add to the queue
-    std::lock_guard<std::mutex> lock(mutex_);
-
-    auto analysis = dataManager_->findAnalysis(analysisId);
-
-    if(analysis->serviceInstanceId != terrama2::core::ServiceManager::getInstance().instanceId())
-    {
-      return;
-    }
-
-
-    RegisterId registerId = logger_->start(analysis->id);
-
-    {
-
-      terrama2::core::ExecutionPackage executionPackage;
-      executionPackage.processId = analysisId;
-      executionPackage.executionDate = executionDate;
-      executionPackage.registerId = registerId;
-
-      auto pqIt = std::find(processingQueue_.begin(), processingQueue_.end(), analysisId);
-      if(pqIt == processingQueue_.end())
-      {
-        processQueue_.push_back(executionPackage);
-        processingQueue_.push_back(analysisId);
-
-        //wake loop thread
-        mainLoopCondition_.notify_one();
-      }
-      else
-      {
-        waitQueue_[analysisId].push(executionPackage);
-        logger_->result(AnalysisLogger::Status::ON_QUEUE, nullptr, executionPackage.registerId);
-        TERRAMA2_LOG_INFO() << tr("Analysis %1 added to wait queue.").arg(analysisId);
-      }
-    }
-
-  }
-  catch(const terrama2::Exception& e)
-  {
-    //logged on throw
-  }
-  catch(const std::exception& e)
-  {
-    TERRAMA2_LOG_ERROR() << e.what();
-  }
-  catch(...)
-  {
-    // exception guard, slots should never emit exceptions.
-    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception...");
-  }
-}
-
 void terrama2::services::analysis::core::Service::connectDataManager()
 {
   connect(dataManager_.get(), &DataManager::analysisAdded, this, &Service::addProcessToSchedule);

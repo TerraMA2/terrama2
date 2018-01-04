@@ -36,33 +36,33 @@
 
 // TerraMA2
 #include "Timer.hpp"
+#include "Logger.hpp"
+#include "TimeUtils.hpp"
+#include "../data-model/Process.hpp"
 #include "../Exception.hpp"
-#include "../utility/Logger.hpp"
-#include "../utility/TimeUtils.hpp"
 
 
 struct terrama2::core::Timer::Impl
 {
   Impl()
     : schedule_{0,0,0},
-      processId_{0} {}
+      process_{nullptr} {}
 
   Schedule             dataSchedule_;
   QTimer               timer_;//<! Timer to next collection.
   te::dt::TimeDuration schedule_;//<! Schedule to next collection.
-  ProcessId             processId_;
+  ProcessPtr           process_;
   std::shared_ptr< te::dt::TimeInstantTZ > lastEmit_;
 };
 
-terrama2::core::Timer::Timer(const Schedule& dataSchedule, ProcessId processId, std::shared_ptr< te::dt::TimeInstantTZ > lastEmit)
+terrama2::core::Timer::Timer(ProcessPtr process, std::shared_ptr< te::dt::TimeInstantTZ > lastEmit)
 {
-
   impl_ = std::unique_ptr<Impl>{new Impl{} };
-  impl_->dataSchedule_ = dataSchedule;
-  impl_->processId_ = processId;
+  impl_->dataSchedule_ = process->schedule;
+  impl_->process_ = process;
   impl_->lastEmit_ = lastEmit;
 
-  prepareTimer(dataSchedule);
+  prepareTimer(impl_->dataSchedule_);
 }
 
 terrama2::core::Timer::~Timer()
@@ -74,7 +74,7 @@ void terrama2::core::Timer::timeoutSlot() noexcept
   try
   {
     auto now = terrama2::core::TimeUtils::nowUTC();
-    emit timeoutSignal(impl_->processId_, now);
+    emit timeoutSignal(impl_->process_, now);
 
     impl_->lastEmit_ = now;
     prepareTimer(impl_->dataSchedule_);
@@ -162,7 +162,7 @@ void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)
   impl_->timer_.start(secondsToStart > 0 ? secondsToStart*1000 : 1000);
 }
 
-ProcessId terrama2::core::Timer::processId() const
+terrama2::core::ProcessPtr terrama2::core::Timer::process() const
 {
-  return impl_->processId_;
+  return impl_->process_;
 }

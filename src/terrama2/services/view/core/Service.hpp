@@ -65,10 +65,6 @@ namespace terrama2
           virtual void getStatus(QJsonObject& obj) const override;
 
         public slots:
-
-          //! Slot to be called when a DataSetTimer times out.
-          virtual void addToQueue(ViewId viewId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept override;
-
           /*!
             \brief Updates the View.
 

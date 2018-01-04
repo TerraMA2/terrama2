@@ -81,51 +81,6 @@ void terrama2::services::view::core::Service::prepareTask(const terrama2::core::
   }
 }
 
-void terrama2::services::view::core::Service::addToQueue(ViewId viewId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept
-{
-  try
-  {
-    std::lock_guard<std::mutex> lock(mutex_);
-    TERRAMA2_LOG_DEBUG() << tr("View %1 added to queue.").arg(viewId);
-
-    auto datamanager = dataManager_.lock();
-    auto view = datamanager->findView(viewId);
-
-    const auto& serviceManager = terrama2::core::ServiceManager::getInstance();
-    auto serviceInstanceId = serviceManager.instanceId();
-
-    // Check if this view should be executed in this instance
-    if(view->serviceInstanceId != serviceInstanceId)
-      return;
-
-    RegisterId registerId = logger_->start(viewId);
-
-    terrama2::core::ExecutionPackage executionPackage;
-    executionPackage.processId = viewId;
-    executionPackage.executionDate = startTime;
-    executionPackage.registerId = registerId;
-
-    if(std::find(processingQueue_.begin(), processingQueue_.end(), viewId) == processingQueue_.end())
-    {
-      processingQueue_.push_back(viewId);
-      processQueue_.push_back(executionPackage);
-      mainLoopCondition_.notify_one();
-    }
-    else
-    {
-      waitQueue_[viewId].push(executionPackage);
-      logger_->result(ViewLogger::Status::ON_QUEUE, nullptr, executionPackage.registerId);
-      TERRAMA2_LOG_INFO() << tr("View %1 added to wait queue.").arg(viewId);
-    }
-
-  }
-  catch(...)
-  {
-    // exception guard, slots should never emit exceptions.
-    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception...");
-  }
-}
-
 void terrama2::services::view::core::Service::connectDataManager()
 {
   auto dataManager = dataManager_.lock();
