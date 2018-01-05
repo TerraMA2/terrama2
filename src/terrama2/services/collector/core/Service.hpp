@@ -73,7 +73,7 @@ namespace terrama2
 
             public slots:
 
-            virtual void addToQueueById(ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept override;
+            virtual void startProcess(ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept override;
 
             /*!
               \brief Updates the Collector.

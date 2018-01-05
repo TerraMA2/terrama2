@@ -413,7 +413,7 @@ void terrama2::services::collector::core::Service::updateAdditionalInfo(const QJ
 
 }
 
-void terrama2::services::collector::core::Service::addToQueueById(ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept
+void terrama2::services::collector::core::Service::startProcess(ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept
 {
   auto dataManager = dataManager_.lock();
   auto process = dataManager->findCollector(processId);
