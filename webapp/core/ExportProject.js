@@ -170,6 +170,13 @@ var ExportProject = function(json){
         if(countObjectProperties(rawAnalysis.schedule) > 0)
           rawAnalysis.schedule.scheduleType = rawAnalysis.schedule_type;
 
+        if (rawAnalysis.schedule.reprocessing_historical_data && (rawAnalysis.schedule.reprocessing_historical_data.start_date || rawAnalysis.schedule.reprocessing_historical_data.end_date) ){
+          rawAnalysis.schedule.historical = {};
+          rawAnalysis.schedule.historical.startDate = rawAnalysis.schedule.reprocessing_historical_data.start_date;
+          rawAnalysis.schedule.historical.endDate = rawAnalysis.schedule.reprocessing_historical_data.end_date;
+          delete rawAnalysis.schedule.reprocessing_historical_data;
+        }
+
         output.Analysis.push(rawAnalysis);
       });
     }));
