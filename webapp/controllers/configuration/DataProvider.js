@@ -2,7 +2,6 @@
 
 var logger = require("./../../core/Logger");
 var DataManager = require("../../core/DataManager");
-var Utils = require('../../helpers/Utils');
 var makeTokenParameters = require('../../core/Utils').makeTokenParameters;
 var UriBuilder = require('../../core/UriBuilder');
 var RequestFactory = require("../../core/RequestFactory");
