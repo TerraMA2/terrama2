@@ -48,11 +48,10 @@
 #include "../../../core/utility/DataStoragerFactory.hpp"
 #include "../../../core/utility/ServiceManager.hpp"
 
-terrama2::services::alert::core::Service::Service(std::weak_ptr<terrama2::services::alert::core::DataManager> dataManager)
-  : dataManager_(dataManager)
+terrama2::services::alert::core::Service::Service(std::weak_ptr<terrama2::core::DataManager> dataManager)
+ : terrama2::core::Service(dataManager)
 {
   connectDataManager();
-
   connect(&alertExecutor_, &AlertExecutor::alertFinished, this, &Service::alertFinished);
 }
 
@@ -61,7 +60,8 @@ void terrama2::services::alert::core::Service::prepareTask(const terrama2::core:
 {
   try
   {
-    taskQueue_.emplace(std::bind(&core::AlertExecutor::runAlert, std::ref(alertExecutor_), executionPackage, std::dynamic_pointer_cast<terrama2::services::alert::core::AlertLogger>(logger_), dataManager_, serverMap_));
+    auto dataManager = std::dynamic_pointer_cast<terrama2::services::alert::core::DataManager>(dataManager_.lock());
+    taskQueue_.emplace(std::bind(&core::AlertExecutor::runAlert, std::ref(alertExecutor_), executionPackage, std::dynamic_pointer_cast<terrama2::services::alert::core::AlertLogger>(logger_), dataManager, serverMap_));
   }
   catch(const std::exception& e)
   {
@@ -71,7 +71,7 @@ void terrama2::services::alert::core::Service::prepareTask(const terrama2::core:
 
 void terrama2::services::alert::core::Service::connectDataManager()
 {
-  auto dataManager = dataManager_.lock();
+  auto dataManager = std::dynamic_pointer_cast<terrama2::services::alert::core::DataManager>(dataManager_.lock());
   connect(dataManager.get(), &terrama2::services::alert::core::DataManager::alertAdded, this,
           &terrama2::services::alert::core::Service::addProcessToSchedule);
   connect(dataManager.get(), &terrama2::services::alert::core::DataManager::alertRemoved, this,
@@ -155,7 +155,7 @@ void terrama2::services::alert::core::Service::alertFinished(AlertId alertId,
 
 void terrama2::services::alert::core::Service::startProcess(ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept
 {
-  auto dataManager = dataManager_.lock();
+  auto dataManager = std::dynamic_pointer_cast<terrama2::services::alert::core::DataManager>(dataManager_.lock());
   auto process = dataManager->findAlert(processId);
   addToQueue(process, startTime);
 }

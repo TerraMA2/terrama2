@@ -63,7 +63,7 @@ namespace terrama2
             Q_OBJECT
 
           public:
-            Service(std::weak_ptr<DataManager> dataManager);
+            Service(std::weak_ptr<terrama2::core::DataManager> dataManager);
 
             ~Service() = default;
             Service(const Service& other) = delete;
@@ -106,8 +106,6 @@ namespace terrama2
 
             //! Connects signals from DataManager
             void connectDataManager();
-
-            std::weak_ptr<DataManager> dataManager_; //!< Weak pointer to the DataManager
         };
 
       } // end namespace core

@@ -59,7 +59,7 @@ namespace terrama2
 
           public:
             //! Constructor
-            Service(DataManagerPtr dataManager);
+            Service(std::weak_ptr<terrama2::core::DataManager> dataManager);
 
             //! Destructor
             virtual ~Service();
@@ -135,7 +135,6 @@ namespace terrama2
             void connectDataManager();
 
             PyThreadState* mainThreadState_; //!< Main thread state from Python interpreter.
-            DataManagerPtr dataManager_; //!< Data manager.
             ThreadPoolPtr threadPool_; //!< Pool of thread to run the analysis.
             terrama2::core::StoragerManagerPtr storagerManager_; //!< Manager to control the storage of analysis results.
             AnalysisExecutor analysisExecutor_; //! Analysis executor object.

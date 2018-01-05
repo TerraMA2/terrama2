@@ -39,8 +39,9 @@
 #include <QJsonObject>
 #include <QCoreApplication>
 
-terrama2::core::Service::Service()
-  : stop_(false)
+terrama2::core::Service::Service(std::weak_ptr<DataManager> dataManager)
+  : dataManager_(dataManager),
+    stop_(false)
 {
   auto& serviceManager = terrama2::core::ServiceManager::getInstance();
 

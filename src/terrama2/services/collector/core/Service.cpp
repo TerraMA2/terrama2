@@ -51,8 +51,8 @@
 
 #include "../../../core/Exception.hpp"
 
-terrama2::services::collector::core::Service::Service(std::weak_ptr<terrama2::services::collector::core::DataManager> dataManager)
-  : dataManager_(dataManager)
+terrama2::services::collector::core::Service::Service(std::weak_ptr<terrama2::core::DataManager> dataManager)
+  : terrama2::core::Service(dataManager)
 {
   connectDataManager();
 }
@@ -61,9 +61,10 @@ void terrama2::services::collector::core::Service::prepareTask(const terrama2::c
 {
   try
   {
+    auto dataManager = std::dynamic_pointer_cast<terrama2::services::collector::core::DataManager>(dataManager_.lock());
     auto collectorLogger = std::dynamic_pointer_cast<CollectorLogger>(logger_->clone());
     assert(collectorLogger);
-    taskQueue_.emplace(std::bind(&terrama2::services::collector::core::Service::collect, this, executionPackage, collectorLogger, dataManager_));
+    taskQueue_.emplace(std::bind(&terrama2::services::collector::core::Service::collect, this, executionPackage, collectorLogger, dataManager));
   }
   catch(const std::exception& e)
   {
@@ -349,7 +350,7 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
 
 void terrama2::services::collector::core::Service::connectDataManager()
 {
-  auto dataManager = dataManager_.lock();
+  auto dataManager = std::dynamic_pointer_cast<terrama2::services::collector::core::DataManager>(dataManager_.lock());
   connect(dataManager.get(), &terrama2::services::collector::core::DataManager::collectorAdded, this,
           &terrama2::services::collector::core::Service::addProcessToSchedule);
   connect(dataManager.get(), &terrama2::services::collector::core::DataManager::collectorRemoved, this,
@@ -415,7 +416,7 @@ void terrama2::services::collector::core::Service::updateAdditionalInfo(const QJ
 
 void terrama2::services::collector::core::Service::startProcess(ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept
 {
-  auto dataManager = dataManager_.lock();
+  auto dataManager = std::dynamic_pointer_cast<terrama2::services::collector::core::DataManager>(dataManager_.lock());
   auto process = dataManager->findCollector(processId);
   addToQueue(process, startTime);
 }

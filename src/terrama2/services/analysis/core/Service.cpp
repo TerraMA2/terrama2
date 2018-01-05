@@ -44,14 +44,14 @@
 
 #include <ThreadPool.h>
 
-terrama2::services::analysis::core::Service::Service(DataManagerPtr dataManager)
-: terrama2::core::Service(),
-  dataManager_(dataManager)
+terrama2::services::analysis::core::Service::Service(std::weak_ptr<terrama2::core::DataManager> dataManager)
+: terrama2::core::Service(dataManager)
 {
   connectDataManager();
   mainThreadState_ = PyThreadState_Get();
 
-  storagerManager_ = std::make_shared<terrama2::core::StoragerManager>(dataManager_);
+  auto analysisDataManager = std::dynamic_pointer_cast<terrama2::services::analysis::core::DataManager>(dataManager_.lock());
+  storagerManager_ = std::make_shared<terrama2::core::StoragerManager>(analysisDataManager);
 
   connect(&analysisExecutor_, &AnalysisExecutor::analysisFinished, this, &Service::analysisFinished);
 }
@@ -114,8 +114,9 @@ void terrama2::services::analysis::core::Service::prepareTask(const terrama2::co
 {
   try
   {
-    auto analysisPtr = dataManager_->findAnalysis(executionPackage.processId);
-    taskQueue_.emplace(std::bind(&terrama2::services::analysis::core::AnalysisExecutor::runAnalysis, std::ref(analysisExecutor_), dataManager_, storagerManager_, std::dynamic_pointer_cast<AnalysisLogger>(logger_->clone()), executionPackage, analysisPtr, threadPool_, mainThreadState_));
+    auto dataManager = std::dynamic_pointer_cast<terrama2::services::analysis::core::DataManager>(dataManager_.lock());
+    auto analysisPtr = dataManager->findAnalysis(executionPackage.processId);
+    taskQueue_.emplace(std::bind(&terrama2::services::analysis::core::AnalysisExecutor::runAnalysis, std::ref(analysisExecutor_), dataManager, storagerManager_, std::dynamic_pointer_cast<AnalysisLogger>(logger_->clone()), executionPackage, analysisPtr, threadPool_, mainThreadState_));
   }
   catch(const std::exception& e)
   {
@@ -125,10 +126,11 @@ void terrama2::services::analysis::core::Service::prepareTask(const terrama2::co
 
 void terrama2::services::analysis::core::Service::connectDataManager()
 {
-  connect(dataManager_.get(), &DataManager::analysisAdded, this, &Service::addProcessToSchedule);
-  connect(dataManager_.get(), &DataManager::analysisRemoved, this, &Service::removeAnalysis);
-  connect(dataManager_.get(), &DataManager::analysisUpdated, this, &Service::updateAnalysis);
-  connect(dataManager_.get(), &DataManager::validateAnalysis, this, &Service::validateAnalysis);
+  auto dataManager = std::dynamic_pointer_cast<terrama2::services::analysis::core::DataManager>(dataManager_.lock());
+  connect(dataManager.get(), &DataManager::analysisAdded, this, &Service::addProcessToSchedule);
+  connect(dataManager.get(), &DataManager::analysisRemoved, this, &Service::removeAnalysis);
+  connect(dataManager.get(), &DataManager::analysisUpdated, this, &Service::updateAnalysis);
+  connect(dataManager.get(), &DataManager::validateAnalysis, this, &Service::validateAnalysis);
 }
 
 void terrama2::services::analysis::core::Service::start(size_t threadNumber)
@@ -139,7 +141,8 @@ void terrama2::services::analysis::core::Service::start(size_t threadNumber)
 
 void terrama2::services::analysis::core::Service::analysisFinished(AnalysisId analysisId, std::shared_ptr< te::dt::TimeInstantTZ > executionDate, bool success,  QJsonObject jsonAnswer)
 {
-  auto analysis = dataManager_->findAnalysis(analysisId);
+  auto dataManager = std::dynamic_pointer_cast<terrama2::services::analysis::core::DataManager>(dataManager_.lock());
+  auto analysis = dataManager->findAnalysis(analysisId);
 
   // Remove from processing queue
   auto pqIt = std::find(processingQueue_.begin(), processingQueue_.end(), analysisId);
@@ -161,7 +164,7 @@ void terrama2::services::analysis::core::Service::analysisFinished(AnalysisId an
     if(packageQueue.empty())
       waitQueue_.erase(analysisId);
     //erase previous result from the analysis NEXT date
-    erasePreviousResult(dataManager_, analysis->outputDataSeriesId, executionPackage.executionDate);
+    erasePreviousResult(dataManager, analysis->outputDataSeriesId, executionPackage.executionDate);
 
     //wake loop thread
     mainLoopCondition_.notify_one();
@@ -177,7 +180,8 @@ void terrama2::services::analysis::core::Service::validateAnalysis(AnalysisPtr a
 {
   try
   {
-    ValidateResult result = analysisExecutor_.validateAnalysis(dataManager_, analysis);
+    auto dataManager = std::dynamic_pointer_cast<terrama2::services::analysis::core::DataManager>(dataManager_.lock());
+    ValidateResult result = analysisExecutor_.validateAnalysis(dataManager, analysis);
     QJsonObject obj = toJson(result);
 
     emit validateProcessSignal(obj);
@@ -200,7 +204,8 @@ void terrama2::services::analysis::core::Service::validateAnalysis(AnalysisPtr a
 
 void terrama2::services::analysis::core::Service::startProcess(ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept
 {
-  auto process = dataManager_->findAnalysis(processId);
+  auto dataManager = std::dynamic_pointer_cast<terrama2::services::analysis::core::DataManager>(dataManager_.lock());
+  auto process = dataManager->findAnalysis(processId);
 
   if(process->schedule.reprocessingHistoricalData)
     addReprocessingToQueue(process);

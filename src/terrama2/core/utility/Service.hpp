@@ -109,8 +109,8 @@ namespace terrama2
         Q_OBJECT
 
       public:
-        //! Default constructor
-        Service();
+        //! Constructor
+        Service(std::weak_ptr<DataManager> dataManager);
         /*!
           \brief Destructor
 
@@ -210,6 +210,8 @@ namespace terrama2
           \brief Verifies if there is job to be done in the waiting queue and add it to the processing queue.
         */
         void notifyWaitQueue(ProcessId processId);
+
+        std::weak_ptr<DataManager> dataManager_; //!< Data manager.
 
         bool stop_;
         std::mutex  mutex_; //!< Mutex for thread safety

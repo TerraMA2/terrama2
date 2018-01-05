@@ -55,7 +55,7 @@ namespace terrama2
             Q_OBJECT
 
           public:
-            Service(std::weak_ptr<DataManager> dataManager);
+            Service(std::weak_ptr<terrama2::core::DataManager> dataManager);
 
             ~Service() = default;
             Service(const Service& other) = delete;
@@ -67,7 +67,7 @@ namespace terrama2
           public slots:
 
             virtual void startProcess(ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept override;
-            
+
             /*!
               \brief Updates the Alert.
 
@@ -105,7 +105,6 @@ namespace terrama2
             //! Connects signals from DataManager
             void connectDataManager();
 
-            std::weak_ptr<DataManager> dataManager_; //!< Weak pointer to the DataManager
             std::map<std::string, std::string> serverMap_;
             AlertExecutor alertExecutor_;
         };

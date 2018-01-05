@@ -58,8 +58,8 @@
 #include <QUrl>
 #include <QJsonArray>
 
-terrama2::services::view::core::Service::Service(std::weak_ptr<terrama2::services::view::core::DataManager> dataManager)
-  : dataManager_(dataManager)
+terrama2::services::view::core::Service::Service(std::weak_ptr<terrama2::core::DataManager> dataManager)
+  : terrama2::core::Service(dataManager)
 {
   connectDataManager();
 
@@ -71,9 +71,10 @@ void terrama2::services::view::core::Service::prepareTask(const terrama2::core::
 {
   try
   {
+    auto dataManager = std::dynamic_pointer_cast<terrama2::services::view::core::DataManager>(dataManager_.lock());
     auto viewLogger = std::dynamic_pointer_cast<ViewLogger>(logger_->clone());
     assert(viewLogger);
-    taskQueue_.emplace(std::bind(&Service::viewJob, this, executionPackage, viewLogger, dataManager_));
+    taskQueue_.emplace(std::bind(&Service::viewJob, this, executionPackage, viewLogger, dataManager));
   }
   catch(const std::exception& e)
   {
@@ -83,7 +84,7 @@ void terrama2::services::view::core::Service::prepareTask(const terrama2::core::
 
 void terrama2::services::view::core::Service::connectDataManager()
 {
-  auto dataManager = dataManager_.lock();
+  auto dataManager = std::dynamic_pointer_cast<terrama2::services::view::core::DataManager>(dataManager_.lock());
   connect(dataManager.get(), &terrama2::services::view::core::DataManager::viewAdded, this,
           &terrama2::services::view::core::Service::addProcessToSchedule);
   connect(dataManager.get(), &terrama2::services::view::core::DataManager::viewRemoved, this,
@@ -347,7 +348,7 @@ void terrama2::services::view::core::Service::getStatus(QJsonObject& obj) const
 
 void terrama2::services::view::core::Service::startProcess(ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept
 {
-  auto dataManager = dataManager_.lock();
+  auto dataManager = std::dynamic_pointer_cast<terrama2::services::view::core::DataManager>(dataManager_.lock());
   auto process = dataManager->findView(processId);
   addToQueue(process, startTime);
 }

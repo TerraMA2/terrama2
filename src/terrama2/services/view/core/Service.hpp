@@ -54,7 +54,7 @@ namespace terrama2
 
         public:
 
-          explicit Service(std::weak_ptr<DataManager> dataManager);
+          explicit Service(std::weak_ptr<terrama2::core::DataManager> dataManager);
 
           ~Service() = default;
           Service(const Service& other) = delete;
@@ -67,7 +67,7 @@ namespace terrama2
         public slots:
 
           virtual void startProcess(ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept override;
-          
+
           /*!
             \brief Updates the View.
 
@@ -114,7 +114,6 @@ namespace terrama2
                        std::shared_ptr<ViewLogger> logger,
                        std::weak_ptr<DataManager> weakDataManager);
 
-          std::weak_ptr<DataManager> dataManager_; //!< Weak pointer to the DataManager
           te::core::URI mapsServerUri_;
           bool mapsServerConnectionStatus_ = false;
         };
