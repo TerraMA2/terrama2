@@ -60,8 +60,8 @@ void terrama2::services::alert::core::Service::prepareTask(const terrama2::core:
 {
   try
   {
-    auto dataManager = std::dynamic_pointer_cast<terrama2::services::alert::core::DataManager>(dataManager_.lock());
-    taskQueue_.emplace(std::bind(&core::AlertExecutor::runAlert, std::ref(alertExecutor_), executionPackage, std::dynamic_pointer_cast<terrama2::services::alert::core::AlertLogger>(logger_), dataManager, serverMap_));
+    auto dataManager = std::static_pointer_cast<terrama2::services::alert::core::DataManager>(dataManager_.lock());
+    taskQueue_.emplace(std::bind(&core::AlertExecutor::runAlert, std::ref(alertExecutor_), executionPackage, std::static_pointer_cast<terrama2::services::alert::core::AlertLogger>(logger_), dataManager, serverMap_));
   }
   catch(const std::exception& e)
   {
@@ -71,7 +71,7 @@ void terrama2::services::alert::core::Service::prepareTask(const terrama2::core:
 
 void terrama2::services::alert::core::Service::connectDataManager()
 {
-  auto dataManager = std::dynamic_pointer_cast<terrama2::services::alert::core::DataManager>(dataManager_.lock());
+  auto dataManager = std::static_pointer_cast<terrama2::services::alert::core::DataManager>(dataManager_.lock());
   connect(dataManager.get(), &terrama2::services::alert::core::DataManager::alertAdded, this,
           &terrama2::services::alert::core::Service::addProcessToSchedule);
   connect(dataManager.get(), &terrama2::services::alert::core::DataManager::alertRemoved, this,
@@ -155,7 +155,7 @@ void terrama2::services::alert::core::Service::alertFinished(AlertId alertId,
 
 void terrama2::services::alert::core::Service::startProcess(ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept
 {
-  auto dataManager = std::dynamic_pointer_cast<terrama2::services::alert::core::DataManager>(dataManager_.lock());
+  auto dataManager = std::static_pointer_cast<terrama2::services::alert::core::DataManager>(dataManager_.lock());
   auto process = dataManager->findAlert(processId);
   addToQueue(process, startTime);
 }

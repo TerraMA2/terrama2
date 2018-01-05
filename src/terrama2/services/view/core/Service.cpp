@@ -71,8 +71,8 @@ void terrama2::services::view::core::Service::prepareTask(const terrama2::core::
 {
   try
   {
-    auto dataManager = std::dynamic_pointer_cast<terrama2::services::view::core::DataManager>(dataManager_.lock());
-    auto viewLogger = std::dynamic_pointer_cast<ViewLogger>(logger_->clone());
+    auto dataManager = std::static_pointer_cast<terrama2::services::view::core::DataManager>(dataManager_.lock());
+    auto viewLogger = std::static_pointer_cast<ViewLogger>(logger_->clone());
     assert(viewLogger);
     taskQueue_.emplace(std::bind(&Service::viewJob, this, executionPackage, viewLogger, dataManager));
   }
@@ -84,7 +84,7 @@ void terrama2::services::view::core::Service::prepareTask(const terrama2::core::
 
 void terrama2::services::view::core::Service::connectDataManager()
 {
-  auto dataManager = std::dynamic_pointer_cast<terrama2::services::view::core::DataManager>(dataManager_.lock());
+  auto dataManager = std::static_pointer_cast<terrama2::services::view::core::DataManager>(dataManager_.lock());
   connect(dataManager.get(), &terrama2::services::view::core::DataManager::viewAdded, this,
           &terrama2::services::view::core::Service::addProcessToSchedule);
   connect(dataManager.get(), &terrama2::services::view::core::DataManager::viewRemoved, this,
@@ -348,7 +348,7 @@ void terrama2::services::view::core::Service::getStatus(QJsonObject& obj) const
 
 void terrama2::services::view::core::Service::startProcess(ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept
 {
-  auto dataManager = std::dynamic_pointer_cast<terrama2::services::view::core::DataManager>(dataManager_.lock());
+  auto dataManager = std::static_pointer_cast<terrama2::services::view::core::DataManager>(dataManager_.lock());
   auto process = dataManager->findView(processId);
   addToQueue(process, startTime);
 }
