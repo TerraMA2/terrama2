@@ -323,8 +323,8 @@ void terrama2::core::Service::addReprocessingToQueue(ProcessPtr process) noexcep
 
     waitQueue_[processId].push(executionPackage);
 
-    titz += boost::posix_time::seconds(frequencySeconds);
-    titz += boost::posix_time::seconds(scheduleSeconds);
+    titz += boost::posix_time::seconds(static_cast<long>(frequencySeconds));
+    titz += boost::posix_time::seconds(static_cast<long>(scheduleSeconds));
 
     executionDate.reset(new te::dt::TimeInstantTZ(titz));
   }
@@ -353,11 +353,9 @@ void terrama2::core::Service::addProcessToSchedule(ProcessPtr process) noexcept
       {
         std::lock_guard<std::mutex> lock(mutex_);
 
-        if(process->schedule.reprocessingHistoricalData)
-        {
-          addReprocessingToQueue(process);
-        }
-        else
+        // reprocessing hitorical data can only be started manually
+        // referer to startProcess()
+        if(!process->schedule.reprocessingHistoricalData)
         {
           std::shared_ptr<te::dt::TimeInstantTZ> lastProcess = logger_->getLastProcessTimestamp(process->id);
           terrama2::core::TimerPtr timer = createTimer(process, lastProcess);
@@ -481,7 +479,7 @@ void terrama2::core::Service::addToQueue(ProcessPtr process, std::shared_ptr<te:
       TERRAMA2_LOG_INFO() << tr("Process %1 added to wait queue.").arg(processId);
     }
   }
-  catch(const terrama2::Exception& e)
+  catch(const terrama2::Exception&)
   {
     //logged on throw
   }
