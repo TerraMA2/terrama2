@@ -110,7 +110,7 @@ void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)
       }
       else
       {
-        secondsToStart = timerSeconds - secondsSinceLastProcess;
+        secondsToStart = static_cast<int64_t>(timerSeconds - secondsSinceLastProcess);
       }
     }
     else
