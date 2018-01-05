@@ -177,6 +177,7 @@ namespace terrama2
 
       protected:
         void updateFilterDiscardDates(terrama2::core::Filter& filter, std::shared_ptr<ProcessLogger> logger, ProcessId processId) const;
+        virtual void erasePreviousResult(ProcessPtr process, std::shared_ptr<te::dt::TimeInstantTZ> timestamp) const;
 
         TimerPtr createTimer(ProcessPtr process, std::shared_ptr<te::dt::TimeInstantTZ> lastProcess) const;
         /*!

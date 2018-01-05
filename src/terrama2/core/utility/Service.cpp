@@ -296,45 +296,65 @@ void terrama2::core::Service::sendProcessFinishedSignal(const ProcessId processI
 
 void terrama2::core::Service::addReprocessingToQueue(ProcessPtr process) noexcept
 {
-  auto processId = process->id;
-  auto schedule = process->schedule;
-  auto reprocessingHistoricalData = schedule.reprocessingHistoricalData;
-
-  auto executionDate = reprocessingHistoricalData->startDate;
-  auto endDate = reprocessingHistoricalData->endDate->getTimeInstantTZ();
-  boost::local_time::local_date_time titz = executionDate->getTimeInstantTZ();
-
-  RegisterId registerId = logger_->start(processId);
-
-  double frequencySeconds = terrama2::core::TimeUtils::frequencySeconds(schedule);
-  double scheduleSeconds = terrama2::core::TimeUtils::scheduleSeconds(schedule, executionDate);
-  if((frequencySeconds < 0 || scheduleSeconds < 0)
-      || (frequencySeconds > 0 && scheduleSeconds > 0) )
+  try
   {
-    TERRAMA2_LOG_ERROR() << QObject::tr("Invalid schedule");
-    return;
-  }
+    auto processId = process->id;
+    auto schedule = process->schedule;
+    auto reprocessingHistoricalData = schedule.reprocessingHistoricalData;
 
-  while(titz <= endDate)
+    auto executionDate = reprocessingHistoricalData->startDate;
+    auto endDate = reprocessingHistoricalData->endDate->getTimeInstantTZ();
+    boost::local_time::local_date_time titz = executionDate->getTimeInstantTZ();
+
+    RegisterId registerId = logger_->start(processId);
+
+    double frequencySeconds = terrama2::core::TimeUtils::frequencySeconds(schedule);
+    double scheduleSeconds = terrama2::core::TimeUtils::scheduleSeconds(schedule, executionDate);
+    if((frequencySeconds < 0 || scheduleSeconds < 0)
+        || (frequencySeconds > 0 && scheduleSeconds > 0) )
+    {
+      TERRAMA2_LOG_ERROR() << QObject::tr("Invalid schedule");
+      return;
+    }
+
+    while(titz <= endDate)
+    {
+      terrama2::core::ExecutionPackage executionPackage;
+      executionPackage.processId = processId;
+      executionPackage.executionDate = executionDate;
+      executionPackage.registerId = registerId;
+
+      erasePreviousResult(process, executionDate);
+
+      waitQueue_[processId].push(executionPackage);
+
+      titz += boost::posix_time::seconds(static_cast<long>(frequencySeconds));
+      titz += boost::posix_time::seconds(static_cast<long>(scheduleSeconds));
+
+      executionDate.reset(new te::dt::TimeInstantTZ(titz));
+    }
+
+    auto pqIt = std::find(processingQueue_.begin(), processingQueue_.end(), processId);
+    if(pqIt == processingQueue_.end())
+    {
+      notifyWaitQueue(processId);
+    }
+  }
+  catch(const terrama2::core::FunctionNotImplementedException&)
   {
-    terrama2::core::ExecutionPackage executionPackage;
-    executionPackage.processId = processId;
-    executionPackage.executionDate = executionDate;
-    executionPackage.registerId = registerId;
-
-    waitQueue_[processId].push(executionPackage);
-
-    titz += boost::posix_time::seconds(static_cast<long>(frequencySeconds));
-    titz += boost::posix_time::seconds(static_cast<long>(scheduleSeconds));
-
-    executionDate.reset(new te::dt::TimeInstantTZ(titz));
+    //error already logged
   }
-
-  auto pqIt = std::find(processingQueue_.begin(), processingQueue_.end(), processId);
-  if(pqIt == processingQueue_.end())
+  catch(...)
   {
-    notifyWaitQueue(processId);
+    TERRAMA2_LOG_ERROR() << "Unknown error in reprocessing historical data enqueue";
   }
+}
+
+void terrama2::core::Service::erasePreviousResult(ProcessPtr /*process*/, std::shared_ptr<te::dt::TimeInstantTZ> /*timestamp*/) const
+{
+  QString errMsg = QObject::tr("Erase previous results not implemente for this service.");
+  TERRAMA2_LOG_ERROR() << errMsg;
+  throw terrama2::core::FunctionNotImplementedException() << ErrorDescription(errMsg);
 }
 
 void terrama2::core::Service::addProcessToSchedule(ProcessPtr process) noexcept

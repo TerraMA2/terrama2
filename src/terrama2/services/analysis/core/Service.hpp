@@ -122,6 +122,8 @@ namespace terrama2
 
           protected:
 
+            virtual void erasePreviousResult(terrama2::core::ProcessPtr process, std::shared_ptr<te::dt::TimeInstantTZ> timestamp) const override;
+
             /*!
               \brief Binds the method of execution to the task queue.
               \param analysisId Analysis identifier.
