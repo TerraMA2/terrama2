@@ -85,7 +85,6 @@ namespace terrama2
             */
             void analysisFinished(AnalysisId analysisId, std::shared_ptr< te::dt::TimeInstantTZ > executionDate, bool success, QJsonObject jsonAnswer = QJsonObject());
 
-            virtual void startProcess(ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept override;
             /*!
                \brief Starts the server.
                \param threadNumber Number of threads to process tasks.
@@ -121,7 +120,7 @@ namespace terrama2
             void validateAnalysis(AnalysisPtr analysis) noexcept;
 
           protected:
-
+            virtual terrama2::core::ProcessPtr getProcess(ProcessId processId) override;
             virtual void erasePreviousResult(terrama2::core::ProcessPtr process, std::shared_ptr<te::dt::TimeInstantTZ> timestamp) const override;
 
             /*!

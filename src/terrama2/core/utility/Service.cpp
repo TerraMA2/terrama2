@@ -514,3 +514,13 @@ void terrama2::core::Service::addToQueue(ProcessPtr process, std::shared_ptr<te:
     TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception...");
   }
 }
+
+void terrama2::core::Service::startProcess(ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept
+{
+  auto process = getProcess(processId);
+
+  if(process->schedule.reprocessingHistoricalData)
+    addReprocessingToQueue(process);
+  else
+    addToQueue(process, startTime);
+}

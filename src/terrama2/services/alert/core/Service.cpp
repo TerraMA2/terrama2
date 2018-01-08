@@ -153,9 +153,8 @@ void terrama2::services::alert::core::Service::alertFinished(AlertId alertId,
   sendProcessFinishedSignal(alertId, executionDate, success, jsonAnswer);
 }
 
-void terrama2::services::alert::core::Service::startProcess(ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept
+terrama2::core::ProcessPtr terrama2::services::alert::core::Service::getProcess(ProcessId processId)
 {
   auto dataManager = std::static_pointer_cast<terrama2::services::alert::core::DataManager>(dataManager_.lock());
-  auto process = dataManager->findAlert(processId);
-  addToQueue(process, startTime);
+  return dataManager->findAlert(processId);
 }

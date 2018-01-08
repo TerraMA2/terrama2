@@ -174,6 +174,12 @@ void terrama2::services::view::core::Service::removeCompleteView(const ViewPtr& 
   }
 }
 
+terrama2::core::ProcessPtr terrama2::services::view::core::Service::getProcess(ProcessId processId)
+{
+  auto dataManager = std::static_pointer_cast<terrama2::services::view::core::DataManager>(dataManager_.lock());
+  return dataManager->findView(processId);
+}
+
 void terrama2::services::view::core::Service::updateView(ViewPtr view) noexcept
 {
   removeCompleteView(view, view->dataSeriesID, false);
@@ -344,11 +350,4 @@ void terrama2::services::view::core::Service::updateAdditionalInfo(const QJsonOb
 void terrama2::services::view::core::Service::getStatus(QJsonObject& obj) const
 {
   obj.insert("maps_server_connection", mapsServerConnectionStatus_);
-}
-
-void terrama2::services::view::core::Service::startProcess(ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept
-{
-  auto dataManager = std::static_pointer_cast<terrama2::services::view::core::DataManager>(dataManager_.lock());
-  auto process = dataManager->findView(processId);
-  addToQueue(process, startTime);
 }

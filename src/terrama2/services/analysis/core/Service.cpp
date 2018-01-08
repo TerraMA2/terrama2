@@ -192,13 +192,8 @@ void terrama2::services::analysis::core::Service::validateAnalysis(AnalysisPtr a
 
 }
 
-void terrama2::services::analysis::core::Service::startProcess(ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept
+terrama2::core::ProcessPtr terrama2::services::analysis::core::Service::getProcess(ProcessId processId)
 {
   auto dataManager = std::static_pointer_cast<terrama2::services::analysis::core::DataManager>(dataManager_.lock());
-  auto process = dataManager->findAnalysis(processId);
-
-  if(process->schedule.reprocessingHistoricalData)
-    addReprocessingToQueue(process);
-  else
-    addToQueue(process, startTime);
+  return dataManager->findAnalysis(processId);
 }

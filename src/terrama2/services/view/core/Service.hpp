@@ -66,8 +66,6 @@ namespace terrama2
 
         public slots:
 
-          virtual void startProcess(ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept override;
-
           /*!
             \brief Updates the View.
 
@@ -97,6 +95,7 @@ namespace terrama2
           void removeCompleteView(const ViewPtr& viewPtr, DataSeriesId dataSeriesId, bool removeAll = true) noexcept;
 
         protected:
+          virtual terrama2::core::ProcessPtr getProcess(ProcessId processId) override;
 
           //*! Create a process task and add to taskQueue_
           virtual void prepareTask(const terrama2::core::ExecutionPackage& executionPackage) override;
