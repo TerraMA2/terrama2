@@ -24,6 +24,10 @@
 #  Author: Gilberto Ribeiro de Queiroz
 #
 
+if (WIN32)
+  add_definitions(-DTMCOREDLL -DBOOST_IOSTREAMS_DYN_LINK)
+endif()
+
 file(GLOB_RECURSE TERRAMA2_SRC_FILES
          ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/core/*.cpp)
 file(GLOB_RECURSE TERRAMA2_HDR_FILES
