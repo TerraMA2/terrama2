@@ -30,6 +30,7 @@
 terrama2::core::ServiceManager::ServiceManager()
   : startTime_(terrama2::core::TimeUtils::nowUTC())
 {
+  setNumberOfThreads(0);
 }
 
 bool terrama2::core::ServiceManager::serviceLoaded() const

@@ -296,9 +296,10 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
     };
 
     auto& serviceManager = terrama2::core::ServiceManager::getInstance();
-    auto numberOfThreads = serviceManager.numberOfThreads();
+    size_t numberOfThreads = static_cast<size_t>(serviceManager.numberOfThreads());
 
     size_t step = interDs->size()/numberOfThreads;
+    if(step < 1) step = 1;
 
     size_t begin = 0;
     size_t end = 0;

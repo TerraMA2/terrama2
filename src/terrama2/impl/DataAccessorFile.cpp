@@ -163,7 +163,7 @@ void terrama2::core::DataAccessorFile::filterDataSet(std::shared_ptr<te::mem::Da
   }
 
   auto& serviceManager = terrama2::core::ServiceManager::getInstance();
-  auto numberOfThreads = serviceManager.numberOfThreads();
+  size_t numberOfThreads = static_cast<size_t>(serviceManager.numberOfThreads());
 
   ///////////////////////////////////////////////////////////////
   ///
@@ -193,7 +193,8 @@ void terrama2::core::DataAccessorFile::filterDataSet(std::shared_ptr<te::mem::Da
     };
 
     std::vector< std::future<void> > promises;
-    auto step = size/numberOfThreads;
+    size_t step = size/numberOfThreads;
+    if(step < 1) step = 1;
     size_t begin = 0;
     size_t end = 0;
     while(end < syncDataSet->size())
