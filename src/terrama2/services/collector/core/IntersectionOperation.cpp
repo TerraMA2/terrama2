@@ -129,7 +129,6 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
     throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
   }
 
-
   if(!collectedDataSetSeries.dataSet)
   {
     QString errMsg(QObject::tr("Invalid TerraLib dataset for the collected data"));
@@ -227,19 +226,18 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
       item->setGeometry(collectedGeomProperty->getName(), occurrenceGeom.release());
 
       // copies all attributes from the collected dataset
-      for(size_t j = 0; j < collectedProperties.size(); ++j)
+      for(const auto& property : collectedProperties)
       {
-        std::string name = collectedProperties[j]->getName();
+        std::string name = property->getName();
 
-        if(!collectedData->isNull(i, collectedProperties[j]->getName()))
-        {
-          auto ad = collectedData->getValue(i, collectedProperties[j]->getName());
+        if(collectedData->isNull(i, name))
+          continue;
 
-          if(!ad)
-            continue;
+        auto ad = collectedData->getValue(i, name);
+        if(!ad)
+          continue;
 
-          item->setValue(name, dynamic_cast<te::dt::AbstractData*>(ad->clone()));
-        }
+        item->setValue(name, dynamic_cast<te::dt::AbstractData*>(ad->clone()));
       }
 
       outputDs->add(item.release());
@@ -270,26 +268,28 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
         for(size_t k = 0; k < report.size(); ++k)
         {
           std::shared_ptr<te::gm::Geometry> occurrence = collectedData->getGeometry(report[k], collectedGeomPropertyPos);
+          if(occurrence->getSRID() != 4326)
+            occurrence->transform(4326);
 
-          // for those geometries that has intersection, copies the selected attributes of the intersection dataset
-          if(occurrence->intersects(currGeom.get()))
+          if(!occurrence->intersects(currGeom.get()))
+            continue;
+
+            // for those geometries that has intersection, copies the selected attributes of the intersection dataset
+          for(const auto& property : interProperties)
           {
-            for(size_t j = 0; j < interProperties.size(); ++j)
-            {
-              std::string name = interProperties.at(j)->getName();
+            std::string name = property->getName();
+            std::string propName = mapAlias.at(name);
 
-              std::string propName = mapAlias.at(name);
-              if(!interDs->isNull(i, propName))
-              {
-                auto ad = interDs->getValue(i, propName);
-                if(!ad)
-                  continue;
+            if(interDs->isNull(i, propName))
+              continue;
 
-                std::unique_lock<std::mutex> lock(mutex);
-                outputDs->move(report[k]);
-                outputDs->setValue(name, dynamic_cast<te::dt::AbstractData*>(ad.get()->clone()));
-              }
-            }
+            auto ad = interDs->getValue(i, propName);
+            if(!ad)
+              continue;
+
+            std::unique_lock<std::mutex> lock(mutex);
+            outputDs->move(report[k]);
+            outputDs->setValue(name, dynamic_cast<te::dt::AbstractData*>(ad.get()->clone()));
           }
         }
       }
@@ -306,9 +306,9 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
     std::vector< std::future<void> > promises;
     while(end < interDs->size())
     {
-      TERRAMA2_LOG_DEBUG() << "new thread!";
+      TERRAMA2_LOG_DEBUG() << "intersection: new thread!";
       begin = end;
-      end = static_cast<size_t>(begin+step);
+      end = begin+step;
       if(end > interDs->size())
         end = interDs->size();
 
