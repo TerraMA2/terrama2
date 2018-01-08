@@ -30,6 +30,7 @@
 terrama2::core::ServiceManager::ServiceManager()
   : startTime_(terrama2::core::TimeUtils::nowUTC())
 {
+  setNumberOfThreads(0);
 }
 
 bool terrama2::core::ServiceManager::serviceLoaded() const
@@ -99,6 +100,11 @@ int terrama2::core::ServiceManager::listeningPort() const
 
 void terrama2::core::ServiceManager::setNumberOfThreads(int numberOfThreads)
 {
+  if(numberOfThreads == 0)
+    numberOfThreads = std::thread::hardware_concurrency(); //looks for how many threads the hardware support
+  if(numberOfThreads == 0)
+    numberOfThreads = 1; //if not able to find out set to 1
+
   numberOfThreads_ = numberOfThreads;
   auto service = service_.lock();
   //update number of threads
