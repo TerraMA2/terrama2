@@ -4,7 +4,6 @@
   "private": true,
   "scripts": {
     "start": "grunt && node ./bin/www",
-    "test": "mocha --timeout 5000 tests",
     "grunt": "grunt"
   },
   "bin": {

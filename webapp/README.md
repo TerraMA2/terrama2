@@ -42,7 +42,6 @@ Example:
 
 ```bash
 npm start # it will use default credentials
-npm start tests # it will use credentials of tests context
 ```
 
 Remember that context name is optional. By default, TerraMA² will use ```default``` credentials;
