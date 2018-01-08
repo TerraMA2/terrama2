@@ -330,7 +330,6 @@ bool terrama2::core::DataAccessorFile::isValidGeometry(std::shared_ptr<te::mem::
       return false;
   }
 
-
   if(rtree)
   {
     auto box = region->getMBR();
