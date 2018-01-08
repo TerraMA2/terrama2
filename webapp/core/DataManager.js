@@ -3740,11 +3740,11 @@ var DataManager = module.exports = {
       // Update historical data if there is
       .then(function() {
         // reprocessing historical data
-        if (!_.isEmpty(analysisObject.historical)) {
+        if (!_.isEmpty(scheduleObject.historical)) {
           // update
-          if (analysisInstance.historicalData.id) {
+          if (analysisInstance.schedule.historicalData.id) {
             // setting to null when
-            var historicalData = analysisObject.historical;
+            var historicalData = scheduleObject.historical;
             if (historicalData.startDate === "") {
               historicalData.startDate = null;
             }
@@ -3754,14 +3754,14 @@ var DataManager = module.exports = {
 
             if (!historicalData.endDate && !historicalData.startDate) {
               // delete
-              return self.removeHistoricalData({id: analysisInstance.historicalData.id}, options);
+              return self.removeHistoricalData({id: analysisInstance.schedule.historicalData.id}, options);
             }
 
-            return self.updateHistoricalData({id: analysisInstance.historicalData.id}, historicalData, options);
+            return self.updateHistoricalData({id: analysisInstance.schedule.historicalData.id}, historicalData, options);
           } else {
-            if (analysisObject.historical.startDate || analysisObject.historical.endDate) {
+            if (scheduleObject.historical.startDate || scheduleObject.historical.endDate) {
               // save
-              return self.addHistoricalData(analysisInstance.id, analysisObject.historical, options);
+              return self.addHistoricalData(analysisInstance.schedule.id, scheduleObject.historical, options);
             }
           }
         }
@@ -3927,10 +3927,18 @@ var DataManager = module.exports = {
             ],
             required: false
           },
+          { 
+            model: models.db.Schedule,
+            include: [
+              {
+                model: models.db.ReprocessingHistoricalData,
+                required: false
+              }
+            ]
+          },
           models.db.AnalysisMetadata,
           models.db.ScriptLanguage,
           models.db.AnalysisType,
-          models.db.Schedule,
           models.db.AutomaticSchedule
         ],
         where: restriction || {}
