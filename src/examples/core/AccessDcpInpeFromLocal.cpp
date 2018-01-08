@@ -57,9 +57,9 @@ terrama2::core::TerraMA2Init terramaRaii("example", 0);
   std::shared_ptr<te::da::DataSet> teDataSet = (*dcpSeries->dcpSeriesMap().begin()).second.syncDataSet->dataset();
 
 //Print column names and types (DateTime/Double)
-  int dateColumn = -1;
+  size_t dateColumn = -1;
   std::string names, types;
-  for(int i = 0; i < teDataSet->getNumProperties(); ++i)
+  for(size_t i = 0; i < teDataSet->getNumProperties(); ++i)
   {
     std::string name = teDataSet->getPropertyName(i);
     names+= name + "\t";
@@ -79,7 +79,7 @@ terrama2::core::TerraMA2Init terramaRaii("example", 0);
   teDataSet->moveBeforeFirst();
   while(teDataSet->moveNext())
   {
-    for(int i = 0; i < teDataSet->getNumProperties(); ++i)
+    for(size_t i = 0; i < teDataSet->getNumProperties(); ++i)
     {
       if(teDataSet->isNull(i))
       {
