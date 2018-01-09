@@ -108,6 +108,7 @@ namespace terrama2
     struct JSonParserException: virtual UtilityException { };
     //! Base Exception for Service
     struct ServiceException: virtual UtilityException { };
+    struct FunctionNotImplementedException: virtual UtilityException { };
     //! Base Exception for Semantics
     struct SemanticsException: virtual UtilityException { };
 
@@ -116,7 +117,7 @@ namespace terrama2
 
     //#################################
     //     Utility Module Exceptions
-    
+
     struct InterpreterException: virtual UtilityException { };
 
   }  // end namespace core

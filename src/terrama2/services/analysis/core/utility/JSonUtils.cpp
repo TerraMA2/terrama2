@@ -31,6 +31,7 @@
 
 #include "Utils.hpp"
 #include "../../../../core/Exception.hpp"
+#include "../../../../core/Shared.hpp"
 #include "../../../../core/utility/JSonUtils.hpp"
 #include "../../../../core/utility/Utils.hpp"
 #include "../../../../core/utility/GeoUtils.hpp"
@@ -143,9 +144,6 @@ terrama2::services::analysis::core::AnalysisPtr terrama2::services::analysis::co
   if(json.contains("schedule") && !json["schedule"].isNull())
     analysis->schedule = terrama2::core::fromScheduleJson(json["schedule"].toObject());
 
-  if(json.contains("reprocessing_historical_data") && !json["reprocessing_historical_data"].isNull())
-    analysis->reprocessingHistoricalData = fromAnalysisReprocessingHistoricalData(json["reprocessing_historical_data"].toObject());
-
   return analysisPtr;
 }
 
@@ -203,8 +201,6 @@ QJsonObject terrama2::services::analysis::core::toJson(AnalysisPtr analysis)
   obj.insert("schedule", analysis->schedule.valid() ? terrama2::core::toJson(analysis->schedule) : QJsonObject());
   obj.insert("active", analysis->active);
   obj.insert("output_grid", toJson(analysis->outputGridPtr));
-  obj.insert("reprocessing_historical_data", toJson(analysis->reprocessingHistoricalData));
-
 
   return obj;
 }
@@ -298,70 +294,6 @@ terrama2::services::analysis::core::AnalysisOutputGridPtr terrama2::services::an
   }
 
   return outputGridPtr;
-}
-
-terrama2::services::analysis::core::ReprocessingHistoricalDataPtr terrama2::services::analysis::core::fromAnalysisReprocessingHistoricalData(
-    const QJsonObject& json)
-{
-  if(json.isEmpty())
-  {
-    return terrama2::services::analysis::core::ReprocessingHistoricalDataPtr();
-  }
-
-  if(json["class"].toString() != "ReprocessingHistoricalData")
-  {
-    QString errMsg(QObject::tr("Invalid ReprocessingHistoricalData JSON object."));
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
-  }
-
-  if(!(json.contains("start_date")
-       && json.contains("end_date")))
-  {
-    QString errMsg(QObject::tr("Invalid ReprocessingHistoricalData JSON object."));
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
-  }
-
-  ReprocessingHistoricalData* reprocessingHistoricalData = new ReprocessingHistoricalData;
-  ReprocessingHistoricalDataPtr reprocessingHistoricalDataPtr(reprocessingHistoricalData);
-
-  if(!json.value("start_date").isNull())
-  {
-    std::string startDate = json["start_date"].toString().toStdString();
-    reprocessingHistoricalData->startDate = terrama2::core::TimeUtils::stringToTimestamp(startDate, terrama2::core::TimeUtils::webgui_timefacet);
-  }
-
-  if(!json.value("end_date").isNull())
-  {
-    std::string endDate = json["end_date"].toString().toStdString();
-    reprocessingHistoricalData->endDate = terrama2::core::TimeUtils::stringToTimestamp(endDate, terrama2::core::TimeUtils::webgui_timefacet);
-  }
-
-  return reprocessingHistoricalDataPtr;
-}
-
-QJsonObject terrama2::services::analysis::core::toJson(terrama2::services::analysis::core::ReprocessingHistoricalDataPtr
-                                                       reprocessingHistoricalDataPtr)
-{
-  QJsonObject obj;
-
-  if(!reprocessingHistoricalDataPtr)
-    return obj;
-
-  obj.insert("class", QString("ReprocessingHistoricalData"));
-  if(reprocessingHistoricalDataPtr->startDate.get())
-  {
-    std::string startDate = terrama2::core::TimeUtils::boostLocalTimeToString(reprocessingHistoricalDataPtr->startDate->getTimeInstantTZ(), terrama2::core::TimeUtils::webgui_timefacet);
-    obj.insert("start_date", QString::fromStdString(startDate));
-  }
-  if(reprocessingHistoricalDataPtr->endDate.get())
-  {
-    std::string endDate = terrama2::core::TimeUtils::boostLocalTimeToString(reprocessingHistoricalDataPtr->endDate->getTimeInstantTZ(), terrama2::core::TimeUtils::webgui_timefacet);
-    obj.insert("end_date", QString::fromStdString(endDate));
-  }
-
-  return obj;
 }
 
 QJsonObject terrama2::services::analysis::core::toJson(terrama2::services::analysis::core::ValidateResult result)

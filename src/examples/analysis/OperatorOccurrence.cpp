@@ -159,7 +159,7 @@ add_value("count", x))z";
 
   dataManager->add(analysis);
 
-  service.addToQueue(analysis->id, terrama2::core::TimeUtils::stringToTimestamp("2016-04-30T20:15:00-03", terrama2::core::TimeUtils::webgui_timefacet));
+  service.addToQueue(analysis, terrama2::core::TimeUtils::stringToTimestamp("2016-04-30T20:15:00-03", terrama2::core::TimeUtils::webgui_timefacet));
 
 
   QTimer timer;
@@ -172,4 +172,3 @@ add_value("count", x))z";
 
   return 0;
 }
-

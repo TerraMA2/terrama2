@@ -51,8 +51,8 @@
 
 #include "../../../core/Exception.hpp"
 
-terrama2::services::collector::core::Service::Service(std::weak_ptr<terrama2::services::collector::core::DataManager> dataManager)
-  : dataManager_(dataManager)
+terrama2::services::collector::core::Service::Service(std::weak_ptr<terrama2::core::DataManager> dataManager)
+  : terrama2::core::Service(dataManager)
 {
   connectDataManager();
 }
@@ -61,63 +61,14 @@ void terrama2::services::collector::core::Service::prepareTask(const terrama2::c
 {
   try
   {
-    auto collectorLogger = std::dynamic_pointer_cast<CollectorLogger>(logger_->clone());
+    auto dataManager = std::static_pointer_cast<terrama2::services::collector::core::DataManager>(dataManager_.lock());
+    auto collectorLogger = std::static_pointer_cast<CollectorLogger>(logger_->clone());
     assert(collectorLogger);
-    taskQueue_.emplace(std::bind(&terrama2::services::collector::core::Service::collect, this, executionPackage, collectorLogger, dataManager_));
+    taskQueue_.emplace(std::bind(&terrama2::services::collector::core::Service::collect, this, executionPackage, collectorLogger, dataManager));
   }
   catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
-  }
-}
-
-void terrama2::services::collector::core::Service::addToQueue(CollectorId collectorId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept
-{
-  try
-  {
-    std::lock_guard<std::mutex> lock(mutex_);
-
-    auto datamanager = dataManager_.lock();
-    auto collector = datamanager->findCollector(collectorId);
-
-    const auto& serviceManager = terrama2::core::ServiceManager::getInstance();
-    auto serviceInstanceId = serviceManager.instanceId();
-
-    // Check if this collector should be executed in this instance
-    if(collector->serviceInstanceId != serviceInstanceId)
-      return;
-
-    RegisterId registerId = logger_->start(collectorId);
-
-    terrama2::core::ExecutionPackage executionPackage;
-    executionPackage.processId = collectorId;
-    executionPackage.executionDate = startTime;
-    executionPackage.registerId = registerId;
-
-    // if this collector id is already being processed put it on the wait queue
-    auto pqIt = std::find(processingQueue_.begin(), processingQueue_.end(), collectorId);
-    if(pqIt == processingQueue_.end())
-    {
-      processQueue_.push_back(executionPackage);
-      processingQueue_.push_back(collectorId);
-    }
-    else
-    {
-      waitQueue_[collectorId].push(executionPackage);
-      logger_->result(CollectorLogger::Status::ON_QUEUE, nullptr, executionPackage.registerId);
-      TERRAMA2_LOG_INFO() << tr("Collector %1 added to wait queue.").arg(collectorId);
-    }
-
-    mainLoopCondition_.notify_one();
-  }
-  catch(const terrama2::core::LogException&)
-  {
-    TERRAMA2_LOG_ERROR() << QObject::tr("Unable to access log database.");
-  }
-  catch(...)
-  {
-    // exception guard, slots should never emit exceptions.
-    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception during collector add to queue...");
   }
 }
 
@@ -363,7 +314,7 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
 
 void terrama2::services::collector::core::Service::connectDataManager()
 {
-  auto dataManager = dataManager_.lock();
+  auto dataManager = std::static_pointer_cast<terrama2::services::collector::core::DataManager>(dataManager_.lock());
   connect(dataManager.get(), &terrama2::services::collector::core::DataManager::collectorAdded, this,
           &terrama2::services::collector::core::Service::addProcessToSchedule);
   connect(dataManager.get(), &terrama2::services::collector::core::DataManager::collectorRemoved, this,
@@ -426,3 +377,10 @@ void terrama2::services::collector::core::Service::updateAdditionalInfo(const QJ
 {
 
 }
+
+terrama2::core::ProcessPtr terrama2::services::collector::core::Service::getProcess(ProcessId processId)
+{
+  auto dataManager = std::static_pointer_cast<terrama2::services::collector::core::DataManager>(dataManager_.lock());
+  return dataManager->findCollector(processId);
+}
+
