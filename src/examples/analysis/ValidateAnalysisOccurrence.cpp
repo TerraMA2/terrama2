@@ -23,9 +23,9 @@
 
 #include <terrama2/impl/Utils.hpp>
 
-#include <examples/data/ResultAnalysisPostGis.hpp>
-#include <examples/data/OccurrenceWFP.hpp>
-#include <examples/data/StaticPostGis.hpp>
+#include <extra/data/ResultAnalysisPostGis.hpp>
+#include <extra/data/OccurrenceWFP.hpp>
+#include <extra/data/StaticPostGis.hpp>
 
 
 // STL
@@ -97,6 +97,7 @@ add_value("count", x))z";
   analysis->scriptLanguage = ScriptLanguage::PYTHON;
   analysis->type = AnalysisType::MONITORED_OBJECT_TYPE;
   analysis->serviceInstanceId = 1;
+
 
 
   /*

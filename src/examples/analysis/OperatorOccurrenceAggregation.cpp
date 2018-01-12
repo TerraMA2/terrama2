@@ -21,9 +21,9 @@
 
 #include <terrama2/impl/Utils.hpp>
 
-#include <examples/data/ResultAnalysisPostGis.hpp>
-#include <examples/data/OccurrenceWFP.hpp>
-#include <examples/data/StaticPostGis.hpp>
+#include <extra/data/ResultAnalysisPostGis.hpp>
+#include <extra/data/OccurrenceWFP.hpp>
+#include <extra/data/StaticPostGis.hpp>
 
 // STL
 #include <iostream>
@@ -80,6 +80,7 @@ int main(int argc, char* argv[])
 
   service.setLogger(logger);
   service.start();
+
   /*
    * DataProvider and dataSeries Static
   */
@@ -96,7 +97,6 @@ int main(int argc, char* argv[])
   monitoredObjectADS.dataSeriesId = dataSeries->id;
   monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
   monitoredObjectADS.metadata["identifier"] = "fid";
-
   /*
    * DataProvider and dataSeries result
   */
@@ -124,6 +124,7 @@ add_value("aggregation_count", x))z";
   analysis->scriptLanguage = ScriptLanguage::PYTHON;
   analysis->type = AnalysisType::MONITORED_OBJECT_TYPE;
   analysis->serviceInstanceId = 1;
+
 
 
 

@@ -41,7 +41,7 @@
 #include <QTcpSocket>
 #include <QDataStream>
 
-#include <examples/data/OccurrenceWFP.hpp>
+#include <extra/data/OccurrenceWFP.hpp>
 
 // Boost
 #include <boost/exception/get_error_info.hpp>

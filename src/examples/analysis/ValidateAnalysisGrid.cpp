@@ -19,7 +19,7 @@
 #include <terrama2/services/analysis/mock/MockAnalysisLogger.hpp>
 
 
-#include <examples/data/Geotiff.hpp>
+#include <extra/data/Geotiff.hpp>
 
 
 #include <terrama2/impl/Utils.hpp>

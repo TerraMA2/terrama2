@@ -32,6 +32,9 @@
 #include <terrama2/core/data-model/DataSet.hpp>
 #include <terrama2/core/data-model/DataSetDcp.hpp>
 
+#include <terrama2/core/utility/CurlWrapperFtp.hpp>
+#include <terrama2/core/utility/JSonUtils.hpp>
+
 #include <terrama2/core/utility/JSonUtils.hpp>
 
 
@@ -235,6 +238,135 @@ namespace terrama2
       {
           QJsonObject obj = dataSeriesOccWFPPostGisJson(dataProvider);
           return terrama2::core::fromDataSeriesJson(obj);
+      }
+
+      namespace ftp
+      {
+          terrama2::core::DataProviderPtr dataProviderFocusFTP()
+          {
+               QString json = QString(R"(
+                                          {
+                                              "class": "DataProvider",
+                                              "uri": "ftp://queimadas:inpe_2012@ftp.dgi.inpe.br:21/",
+                                              "project_id": 0,
+                                              "id": 5,
+                                              "name": "Provider",
+                                              "intent":  "COLLECTOR_INTENT",
+                                              "data_provider_type": "FTP",
+                                              "description": null,
+                                              "active": true
+                                         }
+                                       )"
+                                     );
+
+              QJsonDocument doc = QJsonDocument::fromJson(json.toUtf8());
+              QJsonObject obj = doc.object();
+              return terrama2::core::fromDataProviderJson(obj);
+          }
+
+
+          terrama2::core::DataSeriesPtr dataSeriesFocusFTP(terrama2::core::DataProviderPtr dataProvider)
+          {
+
+               QString json = QString(R"(
+                                           {
+                                               "class": "DataSeries",
+                                               "id": 5,
+                                               "name": "Focus",
+                                               "description": null,
+                                               "data_provider_id":  %1,
+                                               "semantics": "OCCURRENCE-wfp",
+                                               "active": true,
+                                               "datasets":[
+                                                    {
+                                                       "class": "DataSet",
+                                                       "id": 5,
+                                                       "data_series_id": 5,
+                                                       "active": true,
+                                                       "format": {
+                                                                   "mask": "focos_operacao/exporta_%YYYY%MM%DD_%hh%mm.csv",
+                                                                   "timestamp_property": "data_pas",
+                                                                   "geometry_property": "position",
+                                                                   "output_geometry_property": "geom",
+                                                                   "latitude_property": "lat",
+                                                                   "longitude_property": "lon",
+                                                                   "timezone": "UTM+00",
+                                                                   "srid": "4326"
+                                                                 }
+                                                    }
+                                               ]
+                                              }
+                                            )"
+                                          ).arg(dataProvider->id);
+
+                   QJsonDocument doc = QJsonDocument::fromJson(json.toUtf8());
+                   QJsonObject obj = doc.object();
+                   return terrama2::core::fromDataSeriesJson(obj);
+           }
+          terrama2::core::DataProviderPtr dataProviderFocusPostGis()
+          {
+              QString json = QString(R"(
+                                        {
+                                          "class": "DataProvider",
+                                          "uri": "%1",
+                                          "id": 6,
+                                          "project_id": 0,
+                                          "name": "PostGis",
+                                          "intent": "COLLECTOR_INTENT",
+                                          "data_provider_type": "FILE",
+                                          "description": null,
+                                          "active": true
+                                        }
+                                       )"
+                                     ).arg(QString::fromStdString("pgsql://"+TERRAMA2_DATABASE_USERNAME+ ":"+TERRAMA2_DATABASE_PASSWORD+"@"+TERRAMA2_DATABASE_HOST+":"+TERRAMA2_DATABASE_PORT+"/"+TERRAMA2_DATABASE_DBNAME));
+
+              QJsonDocument doc = QJsonDocument::fromJson(json.toUtf8());
+              QJsonObject obj = doc.object();
+              return terrama2::core::fromDataProviderJson(obj);
+          }
+
+
+
+          terrama2::core::DataSeriesPtr dataSeriesFocusPostGis(terrama2::core::DataProviderPtr dataProvider)
+          {
+
+              QString json = QString(R"(
+                                              {
+                                                  "class": "DataSeries",
+                                                  "id": 6,
+                                                  "name": "Hidro",
+                                                  "description": null,
+                                                  "data_provider_id":  %1,
+                                                  "semantics": "OCCURRENCE-postgis",
+                                                  "active": true,
+                                                  "datasets": [
+
+                                                    {
+                                                      "class": "DataSet",
+                                                      "id": 6,
+                                                      "data_series_id": 6,
+                                                      "active": true,
+                                                      "format": {
+                                                                  "timestamp_property": "data_pas",
+                                                                  "geometry_property": "geom",
+                                                                  "latitude_property": "lat",
+                                                                  "longitude_property": "lon",
+                                                                  "timezone": "UTM+00",
+                                                                  "srid": "4326",
+                                                                  "mask": "focos_operacao/exporta_%YYYY%MM%DD_%hh%mm.csv",
+                                                                  "table_name": "focus"
+                                                                }
+                                                    }
+
+                                                  ]
+                                              }
+                                              )"
+                                          ).arg(dataProvider->id);
+
+              QJsonDocument doc = QJsonDocument::fromJson(json.toUtf8());
+              QJsonObject obj = doc.object();
+              return terrama2::core::fromDataSeriesJson(obj);
+          }
       }
 
 

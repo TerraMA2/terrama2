@@ -13,7 +13,7 @@
 
 #include <terrama2/services/analysis/mock/MockAnalysisLogger.hpp>
 
-#include <examples/data/RiscoFogo.hpp>
+#include <extra/data/RiscoFogo.hpp>
 
 #include <terrama2/impl/Utils.hpp>
 #include <terrama2/Config.hpp>

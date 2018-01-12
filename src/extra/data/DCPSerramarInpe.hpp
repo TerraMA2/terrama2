@@ -139,8 +139,9 @@ namespace terrama2
                                                            "active": true,
                                                            "format": {
                                                                    "mask": "/PCD_serrmar_INPE/32524.txt",
-                                                                   "alias": "pcd_ guaratingueta",
-                                                                   "timezone": "-02:00"
+                                                                   "alias": "pcd_guaratingueta",
+                                                                   "timezone": "-02:00",
+                                                                   "projection": 4618
                                                            },
                                                            "position": "SRID=4618;POINT(-45.189 -22.801)"
                                                         },
@@ -152,7 +153,8 @@ namespace terrama2
                                                            "format": {
                                                                "mask": "/PCD_serrmar_INPE/30885.txt",
                                                                "alias": "pcd_cunha",
-                                                               "timezone": "-02:00"
+                                                               "timezone": "-02:00",
+                                                               "projection": 4618
                                                            },
                                                            "position": "SRID=4618;POINT(-44.941 -23.074)"
                                                         }
@@ -214,7 +216,7 @@ namespace terrama2
 
                                                   {
                                                     "class": "DataSet",
-                                                    "id": 6,
+                                                    "id": 325,
                                                     "data_series_id": 2,
                                                     "active": true,
                                                     "format": {
@@ -227,7 +229,7 @@ namespace terrama2
                                                   },
                                                   {
                                                     "class": "DataSet",
-                                                    "id": 7,
+                                                    "id": 326,
                                                     "data_series_id": 2,
                                                     "active": true,
                                                     "format": {
@@ -240,7 +242,7 @@ namespace terrama2
                                                   },
                                                   {
                                                      "class": "DataSet",
-                                                     "id": 8,
+                                                     "id": 327,
                                                      "data_series_id": 2,
                                                      "active": true,
                                                      "format": {
@@ -254,7 +256,7 @@ namespace terrama2
                                                   },
                                                   {
                                                      "class": "DataSet",
-                                                     "id": 9,
+                                                     "id": 328,
                                                      "data_series_id": 2,
                                                      "active": true,
                                                      "format": {
@@ -267,7 +269,7 @@ namespace terrama2
                                                   },
                                                   {
                                                      "class": "DataSet",
-                                                     "id": 10,
+                                                     "id": 329,
                                                      "data_series_id": 2,
                                                      "active": true,
                                                      "format": {

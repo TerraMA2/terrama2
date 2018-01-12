@@ -25,9 +25,9 @@
 
 
 
-#include <examples/data/ResultAnalysisPostGis.hpp>
-#include <examples/data/OccurrenceWFP.hpp>
-#include <examples/data/StaticPostGis.hpp>
+#include <extra/data/ResultAnalysisPostGis.hpp>
+#include <extra/data/OccurrenceWFP.hpp>
+#include <extra/data/StaticPostGis.hpp>
 
 
 // STL
@@ -104,6 +104,7 @@ int main(int argc, char* argv[])
   monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
   monitoredObjectADS.metadata["identifier"] = "fid";
 
+
   /*
    * DataProvider and dataSeries result
   */
@@ -132,8 +133,7 @@ add_value("count", x))z";
   analysis->serviceInstanceId = 1;
 
 
-
-
+  
   /*
    * DataProvider and dataSeries Occurrence
   */

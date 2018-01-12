@@ -89,6 +89,7 @@ int main(int argc, char* argv[])
 
     auto dataSeriesEstados = terrama2::staticpostgis::dataSeriesEstados2010(dataProviderStatic);
     dataManager->add(dataSeriesEstados);
+<<<<<<< HEAD
 
     AnalysisDataSeries monitoredObjectADS;
     monitoredObjectADS.id = 1;
@@ -96,7 +97,14 @@ int main(int argc, char* argv[])
     monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
     monitoredObjectADS.metadata["identifier"] = "fid";
 
+=======
+>>>>>>> upstream/master
 
+    AnalysisDataSeries monitoredObjectADS;
+    monitoredObjectADS.id = 1;
+    monitoredObjectADS.dataSeriesId = dataSeriesEstados->id;
+    monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
+    monitoredObjectADS.metadata["identifier"] = "fid";
     /*
      * DataProvider and DataSeries Result analysis
     */
@@ -141,7 +149,11 @@ add_value("standard_deviation", x))z";
     analysis->metadata["INFLUENCE_RADIUS_UNIT"] = "km";
 
 
-  
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> upstream/master
 
     /*
      * DataProvider and DataSeries Serramar
