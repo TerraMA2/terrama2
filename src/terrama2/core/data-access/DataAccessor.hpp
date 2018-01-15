@@ -155,7 +155,7 @@ namespace terrama2
         */
         virtual std::string getTimestampPropertyName(DataSetPtr dataSet, const bool logErrors = true) const;
 
-        virtual std::string getOutputTimestampPropertyName(DataSetPtr dataSet) const;
+        virtual std::string getOutputTimestampPropertyName(DataSetPtr dataSet, const bool logErrors = true) const;
 
         /*!
           \brief Get name of the geometry property
@@ -163,17 +163,20 @@ namespace terrama2
           The name of the property may come from the semantics metadata or the dataset format,
           the semantics has priority.
         */
-        virtual std::string getGeometryPropertyName(DataSetPtr dataSet) const;
+        virtual std::string getGeometryPropertyName(DataSetPtr dataSet, const bool logErrors = true) const;
 
         /*!
           \brief Get name of the output geometry property
 
           The name of the output property come from the semantics metadata or the dataset format.
         */
-        virtual std::string getOutputGeometryPropertyName(DataSetPtr dataSet) const;
+        virtual std::string getOutputGeometryPropertyName(DataSetPtr dataSet, const bool logErrors = true) const;
 
         //! Recover timezone information from dataset
         virtual std::string getTimeZone(DataSetPtr dataSet, bool logErrors = true) const;
+
+        virtual bool hasFilterCapabilities() const { return false; }
+        virtual void filterDataSeries(terrama2::core::DataSetSeries&, const Filter&) const { assert(0); }
 
       protected:
 

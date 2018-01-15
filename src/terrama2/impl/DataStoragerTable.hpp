@@ -50,15 +50,8 @@ namespace terrama2
         //! Return the dataset name
         virtual std::string getDataSetName(DataSetPtr dataSet) const = 0;
         virtual std::string getGeometryPropertyName(DataSetPtr dataSet) const;
-        /*!
-           \brief Check if the two properties have same name and type.
-           \exception DataStoragerException Raise if have the same name and different types
-        */
-        bool isPropertyEqual(te::dt::Property* newProperty, te::dt::Property* oldMember) const;
 
       protected:
-        std::unique_ptr<te::dt::Property> copyProperty(te::dt::Property* property) const;
-        std::shared_ptr<te::da::DataSetType> copyDataSetType(std::shared_ptr<te::da::DataSetType> dataSetType, const std::string& newDataSetName) const;
         virtual std::string driver() const = 0;
     };
   }

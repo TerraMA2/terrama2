@@ -348,19 +348,19 @@ std::string terrama2::core::DataAccessor::getTimestampPropertyName(DataSetPtr da
   return getProperty(dataSet, dataSeries_, "timestamp_property", logErrors);
 }
 
-std::string terrama2::core::DataAccessor::getOutputTimestampPropertyName(DataSetPtr dataSet) const
+std::string terrama2::core::DataAccessor::getOutputTimestampPropertyName(DataSetPtr dataSet, bool logErrors) const
 {
-  return getProperty(dataSet, dataSeries_, "output_timestamp_property");
+  return getProperty(dataSet, dataSeries_, "output_timestamp_property", logErrors);
 }
 
-std::string terrama2::core::DataAccessor::getGeometryPropertyName(DataSetPtr dataSet) const
+std::string terrama2::core::DataAccessor::getGeometryPropertyName(DataSetPtr dataSet, bool logErrors) const
 {
-  return getProperty(dataSet, dataSeries_, "geometry_property");
+  return getProperty(dataSet, dataSeries_, "geometry_property", logErrors);
 }
 
-std::string terrama2::core::DataAccessor::getOutputGeometryPropertyName(DataSetPtr dataSet) const
+std::string terrama2::core::DataAccessor::getOutputGeometryPropertyName(DataSetPtr dataSet, bool logErrors) const
 {
-  return getProperty(dataSet, dataSeries_, "output_geometry_property");
+  return getProperty(dataSet, dataSeries_, "output_geometry_property", logErrors);
 }
 
 std::string terrama2::core::DataAccessor::getTimeZone(DataSetPtr dataSet, bool logErrors) const

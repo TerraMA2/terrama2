@@ -30,13 +30,19 @@
 #include "DataAccessorPostGIS.hpp"
 #include "../core/utility/Raii.hpp"
 #include "../core/utility/TimeUtils.hpp"
+#include "../core/utility/DataSetUtils.hpp"
 #include "../core/data-access/SynchronizedDataSet.hpp"
 
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSource.h>
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
-
+#include <terralib/dataaccess/datasource/ScopedTransaction.h>
+#include <terralib/geometry/GeometryProperty.h>
+#include <terralib/raster/RasterProperty.h>
+#include <terralib/datatype/StringProperty.h>
+#include <terralib/datatype/DateTimeProperty.h>
+#include <terralib/datatype/NumericProperty.h>
 #include <terralib/geometry/MultiPolygon.h>
 
 // QT
@@ -46,13 +52,14 @@
 //boost
 #include <boost/algorithm/string/replace.hpp>
 
-std::string terrama2::core::DataAccessorPostGIS::whereConditions(terrama2::core::DataSetPtr dataSet,
-                                                                 const std::string datetimeColumnName,
+std::string terrama2::core::DataAccessorPostGIS::whereConditions(const std::string& tableName,
+                                                                 const std::string& geomPropertyName,
+                                                                 const std::string& datetimePropertyName,
                                                                  const terrama2::core::Filter& filter) const
 {
   std::vector<std::string> whereConditions;
-  addDateTimeFilter(datetimeColumnName, filter, whereConditions);
-  addGeometryFilter(dataSet, filter, whereConditions);
+  addDateTimeFilter(datetimePropertyName, filter, whereConditions);
+  addGeometryFilter(geomPropertyName, filter, whereConditions);
 
   std::string conditions;
   if(!whereConditions.empty())
@@ -62,7 +69,7 @@ std::string terrama2::core::DataAccessorPostGIS::whereConditions(terrama2::core:
       conditions += " AND " + whereConditions.at(i);
   }
 
-  std::string lastDatesJoin = addLastDatesFilter(dataSet, datetimeColumnName, filter, conditions);
+  std::string lastDatesJoin = addLastDatesFilter(tableName, datetimePropertyName, filter, conditions);
   addValueFilter(filter, conditions);
 
   std::string where;
@@ -118,38 +125,44 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGIS::getSeries(con
   }
 
   // Get the datetime column name in teDataSet for filters
-  std::string datetimeColumnName = "";
-
+  std::string datetimePropertyName = "";
   try
   {
-     datetimeColumnName = getTimestampPropertyName(dataSet, false);
+     datetimePropertyName = getTimestampPropertyName(dataSet, false);
   }
   catch(const UndefinedTagException& /*e*/)
   {
     // do nothing
   }
 
-  if(datetimeColumnName.empty())
+  std::string geomPropertyName = "";
+  try
+  {
+     geomPropertyName = getGeometryPropertyName(dataSet, false);
+  }
+  catch(const UndefinedTagException& /*e*/)
+  {
+    // do nothing
+  }
+
+  if(datetimePropertyName.empty())
   {
     std::unique_ptr< te::da::DataSetType > dataSetType = datasource->getDataSetType(tableName);
-
     auto property = dataSetType->findFirstPropertyOfType(te::dt::DATETIME_TYPE);
-
     if(property)
     {
-      datetimeColumnName = property->getName();
+      datetimePropertyName = property->getName();
     }
   }
 
   std::string query = "SELECT ";
   query+="* ";
   query+= "FROM "+tableName+" AS t";
-  query += whereConditions(dataSet, datetimeColumnName, filter);
+  query += whereConditions(tableName, geomPropertyName, datetimePropertyName, filter);
 
 //  TERRAMA2_LOG_DEBUG() << query;
 
   std::shared_ptr<te::da::DataSet> tempDataSet = transactor->query(query);
-
   if(tempDataSet->isEmpty())
   {
     QString errMsg = QObject::tr("No data in dataset: %1.").arg(dataSet->id);
@@ -198,14 +211,14 @@ void terrama2::core::DataAccessorPostGIS::retrieveDataCallback(const terrama2::c
   throw NoDataException() << ErrorDescription(errMsg);
 }
 
-void terrama2::core::DataAccessorPostGIS::addDateTimeFilter(const std::string datetimeColumnName,
+void terrama2::core::DataAccessorPostGIS::addDateTimeFilter(const std::string& datetimePropertyName,
     const terrama2::core::Filter& filter,
     std::vector<std::string>& whereConditions) const
 {
   if(!(filter.discardBefore.get() || filter.discardAfter.get()))
     return;
 
-  if(datetimeColumnName.empty())
+  if(datetimePropertyName.empty())
   {
     QString errMsg = QObject::tr("Undefined column name to filter in PostGIS.");
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -213,21 +226,21 @@ void terrama2::core::DataAccessorPostGIS::addDateTimeFilter(const std::string da
   }
 
   if(filter.discardBefore.get())
-    whereConditions.push_back("t."+datetimeColumnName+" > '"+filter.discardBefore->toString() + "'");
+    whereConditions.push_back("t."+datetimePropertyName+" > '"+filter.discardBefore->toString() + "'");
 
   if(filter.discardAfter.get())
-    whereConditions.push_back("t."+datetimeColumnName+" <= '"+filter.discardAfter->toString() + "'");
+    whereConditions.push_back("t."+datetimePropertyName+" <= '"+filter.discardAfter->toString() + "'");
 }
 
-void terrama2::core::DataAccessorPostGIS::addGeometryFilter(terrama2::core::DataSetPtr dataSet,
-    const terrama2::core::Filter& filter,
-    std::vector<std::string>& whereConditions) const
+void terrama2::core::DataAccessorPostGIS::addGeometryFilter(const std::string& geomPropertyName,
+                                                            const terrama2::core::Filter& filter,
+                                                            std::vector<std::string>& whereConditions) const
 {
   if(filter.region.get())
   {
     std::unique_ptr<te::gm::Geometry> geom(static_cast<te::gm::Geometry*>(filter.region->clone()));
     geom->transform(4326);
-    whereConditions.push_back("ST_INTERSECTS(ST_Transform(t." + getGeometryPropertyName(dataSet)
+    whereConditions.push_back("ST_INTERSECTS(ST_Transform(t." + geomPropertyName
                               + ", " + std::to_string(geom->getSRID())
                               + "), ST_GeomFromEWKT('SRID=" + std::to_string(geom->getSRID()) + ";" +geom->asText()+"'))");
   }
@@ -276,15 +289,14 @@ void terrama2::core::DataAccessorPostGIS::updateLastTimestamp(DataSetPtr dataSet
   *lastDateTime_ = *lastDateTimeTz;
 }
 
-
-std::string terrama2::core::DataAccessorPostGIS::addLastDatesFilter(terrama2::core::DataSetPtr dataSet,
-                                                                    const std::string datetimeColumnName,
+std::string terrama2::core::DataAccessorPostGIS::addLastDatesFilter(const std::string& tableName,
+                                                                    const std::string& datetimePropertyName,
                                                                     const terrama2::core::Filter& filter,
                                                                     std::string whereCondition) const
 {
   if(filter.lastValues)
   {
-    if(datetimeColumnName.empty())
+    if(datetimePropertyName.empty())
     {
       QString errMsg = QObject::tr("Undefined column name to filter in PostGIS.");
       TERRAMA2_LOG_ERROR() << errMsg;
@@ -292,16 +304,157 @@ std::string terrama2::core::DataAccessorPostGIS::addLastDatesFilter(terrama2::co
     }
 
     std::string join = " RIGHT JOIN (SELECT ";
-    join += "DISTINCT(t." + datetimeColumnName + ") ";
-    join += "FROM " + getDataSetTableName(dataSet)+" t";
+    join += "DISTINCT(t." + datetimePropertyName + ") ";
+    join += "FROM " + tableName+" t";
     if(!whereCondition.empty())
       join += " WHERE " + whereCondition;
 
-    join += " ORDER BY t." + datetimeColumnName + " DESC limit + " + std::to_string(*filter.lastValues.get()) + ") as last_dates ON ";
-    join += "t." + datetimeColumnName + " = last_dates." + datetimeColumnName + " ";
+    join += " ORDER BY t." + datetimePropertyName + " DESC limit + " + std::to_string(*filter.lastValues.get()) + ") as last_dates ON ";
+    join += "t." + datetimePropertyName + " = last_dates." + datetimePropertyName + " ";
 
     return join;
   }
 
   return "";
+}
+
+class CreateTempTable
+{
+public:
+  CreateTempTable(std::shared_ptr<te::da::DataSourceTransactor> transactor, std::shared_ptr<te::da::DataSetType> dataSetType)
+    : transactor_(transactor),
+      dataSetType_(dataSetType)
+  {
+    transactor_->createDataSet(dataSetType_.get(), {});
+  }
+
+  ~CreateTempTable()
+  {
+    transactor_->dropDataSet(dataSetType_->getName());
+  }
+
+private:
+  std::shared_ptr<te::da::DataSourceTransactor> transactor_;
+  std::shared_ptr<te::da::DataSetType> dataSetType_;
+};
+
+void terrama2::core::DataAccessorPostGIS::filterDataSeries(terrama2::core::DataSetSeries& serie, const Filter& filter) const
+{
+  if(dataSeries_->datasetList.size() != 1)
+  {
+    //for now we only allow filters with one dataset
+    throw;
+  }
+
+  auto filterDataSet = dataSeries_->datasetList.front();
+
+  // creates a DataSource to the data and filters the dataset,
+  // also joins if the DCP comes from separated files
+  std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make(dataSourceType(), dataProvider_->uri));
+
+  // RAII for open/closing the datasource
+  OpenClose<std::shared_ptr<te::da::DataSource>> openClose(datasource);
+
+  if(!datasource->isOpened())
+  {
+    QString errMsg = QObject::tr("DataProvider could not be opened.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw NoDataException() << ErrorDescription(errMsg);
+  }
+
+  // get a transactor to interact to the data source
+  std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
+  auto tempCopyDataSetType = copyDataSetType(serie.teDataSetType, "temp");
+  te::da::ScopedTransaction scopedTransaction(*transactor);
+
+  CreateTempTable tempTable(transactor, tempCopyDataSetType);
+
+  serie.syncDataSet->dataset()->moveBeforeFirst();
+  transactor->add(tempCopyDataSetType->getName(), serie.syncDataSet->dataset().get(), {});
+
+  std::string tempTableName = "temp";
+  std::string filterTableName = getDataSetTableName(filterDataSet);
+  std::string query = "SELECT ";
+  query+="t.* ";
+  query+= "FROM "+tempTableName+" AS t";
+  query+= ", "+filterTableName+" AS e";
+
+  // Get the datetime column name in teDataSet for filters
+  std::string datetimePropertyName = "";
+  try
+  {
+     datetimePropertyName = getTimestampPropertyName(serie.dataSet, false);
+  }
+  catch(const UndefinedTagException& /*e*/)
+  {
+    // do nothing
+  }
+
+  std::string geomPropertyName = "";
+  try
+  {
+     geomPropertyName = getGeometryPropertyName(serie.dataSet, false);
+  }
+  catch(const UndefinedTagException& /*e*/)
+  {
+    // do nothing
+  }
+
+  std::vector<std::string> whereConditions;
+  if(!datetimePropertyName.empty())
+  {
+    addDateTimeFilter(datetimePropertyName, filter, whereConditions);
+  }
+
+  if(!geomPropertyName.empty())
+  {
+    Srid srid = std::numeric_limits<Srid>::max();
+    try
+    {
+       srid = getSrid(serie.dataSet, false);
+    }
+    catch(const UndefinedTagException& /*e*/)
+    {
+      // do nothing
+    }
+
+    std::shared_ptr<te::da::DataSetType> filterDataSetType(transactor->getDataSetType(filterTableName));
+    auto property = filterDataSetType->findFirstPropertyOfType(te::dt::GEOMETRY_TYPE);
+
+    std::string filterGeomPropertyName = property->getName();
+
+    auto geomProperty = dynamic_cast<te::gm::GeometryProperty*>(property);
+    Srid filterSrid = geomProperty ? static_cast<Srid>(geomProperty->getSRID()) : std::numeric_limits<Srid>::max();
+
+    // TODO: we should check if the data srid isn't a local projetion
+    // it may cause problems if we try to geooperate over datas outside the local projection area
+
+    if(srid != std::numeric_limits<Srid>::max() && srid != filterSrid)
+    {
+      // if the input data srid is defined
+      // and if they don't have the same projection : reproject the filter
+      whereConditions.push_back("st_intersects(t."+geomPropertyName+", st_transform(e."+filterGeomPropertyName+","+std::to_string(srid)+"))");
+    }
+    else
+    {
+      // not many assumptions can be made
+      // just try to filter
+      whereConditions.push_back("st_intersects(t."+geomPropertyName+", e."+filterGeomPropertyName+")");
+    }
+  }
+
+  std::string conditions;
+  if(!whereConditions.empty())
+  {
+    conditions = whereConditions.front();
+    for(size_t i = 1; i < whereConditions.size(); ++i)
+      conditions += " AND " + whereConditions.at(i);
+  }
+
+  if(!conditions.empty())
+    query += " WHERE "+ conditions;
+
+  std::shared_ptr<te::da::DataSet> filteredDataSet = transactor->query(query);
+  serie.syncDataSet = std::make_shared<terrama2::core::SynchronizedDataSet>(filteredDataSet);
+  scopedTransaction.commit();
 }

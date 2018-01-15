@@ -96,8 +96,9 @@ namespace terrama2
                                            const std::string& timezone,
                                            std::shared_ptr<terrama2::core::FileRemover> remover) const;
 
-        void applyFilters(const terrama2::core::Filter &filter, const terrama2::core::DataSetPtr &dataSet,
-                          const std::shared_ptr<te::mem::DataSet> &completeDataset,
+        void applyFilters(const terrama2::core::Filter &filter,
+                          const terrama2::core::DataSetPtr &dataSet,
+                          terrama2::core::DataSetSeries& serie,
                           std::shared_ptr<te::dt::TimeInstantTZ> &lastFileTimestamp) const;
 
         virtual bool hasControlFile() const;
@@ -144,7 +145,7 @@ namespace terrama2
         /*!
           \brief Filter dataset based on Filter
         */
-        virtual void filterDataSet(std::shared_ptr<te::mem::DataSet> completeDataSet, const Filter& filter) const;
+        virtual void filterDataSet(terrama2::core::DataSetSeries& serie, const Filter& filter) const;
 
         /*!
           \brief Crop raster with the geometry filter.
