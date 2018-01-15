@@ -39,5 +39,3 @@ $BODY$
   LANGUAGE plpgsql VOLATILE
   COST 100
   ROWS 1000;
-ALTER FUNCTION dcp_last_measures(text, text)
-  OWNER TO postgres;
