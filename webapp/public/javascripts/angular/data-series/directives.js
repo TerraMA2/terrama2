@@ -375,7 +375,7 @@ define([], function() {
                 $scope.isChecking.value = false;
                 return;
               } else
-                alias = aliasValidateImportResult.value;
+                alias = (typeof aliasValidateImportResult.value === "string" ? aliasValidateImportResult.value.trim() : aliasValidateImportResult.value);
 
               if(!$scope.isAliasValid(alias, $scope.dcpsObject) || !$scope.isAliasValid(alias, dcpsObjectTemp)) {
                 if($scope.duplicatedAliasCounter[alias] === undefined)
@@ -419,7 +419,7 @@ define([], function() {
 
                 dcp = $scope.setHtmlItems(dcp, key, alias, uniqueId, type);
 
-                dcp[key] = value;
+                dcp[key] = (typeof value === "string" ? value.trim() : value);
               }
 
               dcp._id = uniqueId;

@@ -1505,6 +1505,9 @@ define([], function() {
               data[key + '_pattern'] = $scope.dataSeries.semantics.metadata.form[j].schema.pattern;
               data[key + '_titleMap'] = $scope.dataSeries.semantics.metadata.form[j].titleMap;
 
+              if(typeof data[key] === "string")
+                data[key] = data[key].trim();
+
               if(data[key + '_titleMap'] !== undefined)
                 type = $scope.dataSeries.semantics.metadata.form[j].type;
 
