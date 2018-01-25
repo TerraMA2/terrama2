@@ -191,6 +191,11 @@ namespace terrama2
       It is used for reprocessing historical data.
     */
     void erasePreviousResult(DataManagerPtr dataManager, DataSeriesId dataSeriesId, std::shared_ptr<te::dt::TimeInstantTZ> startTime);
+
+    /*
+      \brief Create a unique name appending random numbers to the end of the baseName
+    */
+    std::string generateUniqueName(std::string baseName);
   } // end namespace core
 }   // end namespace terrama2
 

@@ -29,6 +29,7 @@
 
 #include "DataAccessorPostGIS.hpp"
 #include "../core/utility/Raii.hpp"
+#include "../core/utility/Utils.hpp"
 #include "../core/utility/TimeUtils.hpp"
 #include "../core/utility/DataSetUtils.hpp"
 #include "../core/data-access/SynchronizedDataSet.hpp"
@@ -38,6 +39,7 @@
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 #include <terralib/dataaccess/datasource/ScopedTransaction.h>
+#include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/geometry/GeometryProperty.h>
 #include <terralib/raster/RasterProperty.h>
 #include <terralib/datatype/StringProperty.h>
@@ -354,7 +356,6 @@ void terrama2::core::DataAccessorPostGIS::filterDataSeries(terrama2::core::DataS
 
   // RAII for open/closing the datasource
   OpenClose<std::shared_ptr<te::da::DataSource>> openClose(datasource);
-
   if(!datasource->isOpened())
   {
     QString errMsg = QObject::tr("DataProvider could not be opened.");
@@ -364,15 +365,24 @@ void terrama2::core::DataAccessorPostGIS::filterDataSeries(terrama2::core::DataS
 
   // get a transactor to interact to the data source
   std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
-  auto tempCopyDataSetType = copyDataSetType(serie.teDataSetType, "temp");
   te::da::ScopedTransaction scopedTransaction(*transactor);
 
+  // create a copy of the DataSetType
+  // to use as model for the temporary table
+  std::string tempTableName = terrama2::core::generateUniqueName("tma_");
+  auto tempCopyDataSetType = copyDataSetType(serie.teDataSetType, tempTableName);
+  auto spatialProperty = te::da::GetFirstSpatialProperty(tempCopyDataSetType.get());
+  auto spatialIndex = new te::da::Index("spatial_index_" + tempCopyDataSetType->getName(), te::da::R_TREE_TYPE, {spatialProperty});
+  tempCopyDataSetType->add(spatialIndex);
+
+  // crete a temporary table with the tempCopyDataSetType
   CreateTempTable tempTable(transactor, tempCopyDataSetType);
 
+  // copy all data to the temporary table
   serie.syncDataSet->dataset()->moveBeforeFirst();
   transactor->add(tempCopyDataSetType->getName(), serie.syncDataSet->dataset().get(), {});
 
-  std::string tempTableName = "temp";
+  // create a query to read the data from the temporary table
   std::string filterTableName = getDataSetTableName(filterDataSet);
   std::string query = "SELECT ";
   query+="t.* ";
@@ -443,6 +453,7 @@ void terrama2::core::DataAccessorPostGIS::filterDataSeries(terrama2::core::DataS
     }
   }
 
+  // join the base quary with the restrictions ( WHERE )
   std::string conditions;
   if(!whereConditions.empty())
   {
@@ -450,10 +461,10 @@ void terrama2::core::DataAccessorPostGIS::filterDataSeries(terrama2::core::DataS
     for(size_t i = 1; i < whereConditions.size(); ++i)
       conditions += " AND " + whereConditions.at(i);
   }
-
   if(!conditions.empty())
     query += " WHERE "+ conditions;
 
+    // execute the query and retrieve the filtered data
   std::shared_ptr<te::da::DataSet> filteredDataSet = transactor->query(query);
   serie.syncDataSet = std::make_shared<terrama2::core::SynchronizedDataSet>(filteredDataSet);
   scopedTransaction.commit();
