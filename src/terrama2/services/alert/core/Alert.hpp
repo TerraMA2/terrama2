@@ -147,13 +147,9 @@ namespace terrama2
         */
         struct Alert : public terrama2::core::Process
         {
-          AlertId id = 0; //!< Alert identifier
-          ProjectId projectId = 0; //!< Project identifier.
-          bool active = true;//!< Flag if the alert is active.
           std::string name; //!< Name of the alert.
           std::string description; //!< Short description of the purpose of the alert.
           DataSeriesId dataSeriesId = 0; //!< The DataSeries that will be used for risk analysis.
-          ServiceInstanceId serviceInstanceId; //!< Identifier of the service instance that should run the alert.
           boost::optional<AlertView> view;
 
           std::string riskAttribute;//!< Attribute of the DataSeries that will be used for risk analysis.

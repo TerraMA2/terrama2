@@ -83,7 +83,7 @@ std::map<std::shared_ptr<te::dt::AbstractData>, std::map<std::string, std::pair<
 terrama2::services::alert::core::AlertExecutor::getResultMap(terrama2::core::LegendPtr risk,
                                                              size_t pos,
                                                              te::dt::Property* idProperty,
-                                                             std::string datetimeColumnName,
+                                                             const std::string& datetimeColumnName,
                                                              std::shared_ptr<te::da::DataSet> teDataset,
                                                              std::vector<std::shared_ptr<te::dt::DateTime> > vecDates)
 {
@@ -295,15 +295,15 @@ terrama2::services::alert::core::AlertExecutor::monitoredObjectAlert(std::shared
       referredDataSeries = dataMap.at(iter->first);
     }
 
-    terrama2::core::TeDataSetFKJoin join(dataSetType,
-                                         teDataset,
-                                         additionalData.referrerAttribute,
-                                         referredDataSeries.teDataSetType,
-                                         referredDataSeries.syncDataSet->dataset(),
-                                         additionalData.referredAttribute);
+      terrama2::core::TeDataSetFKJoin join(dataSetType,
+                                           teDataset,
+                                           additionalData.referrerAttribute,
+                                           referredDataSeries.teDataSetType,
+                                           referredDataSeries.syncDataSet->dataset(),
+                                           additionalData.referredAttribute);
 
-    std::string key = std::to_string(additionalData.dataSeriesId)+"_"+std::to_string(additionalData.dataSetId);
-    additionalDataMap.emplace(key, join);
+      std::string key = std::to_string(additionalData.dataSeriesId)+"_"+std::to_string(additionalData.dataSetId);
+      additionalDataMap.emplace(key, join);
   }
 
   auto alertDataSetType = createAlertDataSetType(alertPtr, dataset);
@@ -396,7 +396,7 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::AlertExecutor
   std::size_t pos = te::da::GetFirstPropertyPos(teDataset.get(), te::dt::RASTER_TYPE);
   if(pos == std::numeric_limits<std::size_t>::max())
   {
-    throw;//TODO: throw here
+    throw Exception() << ErrorDescription(QObject::tr("No raster property available."));
   }
 
   // Create an alert te::dataset
@@ -531,6 +531,8 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
   // dataManager no longer in use
   lock.unlock();
 
+  // error msg
+  std::string errMsg;
   try
   {
     TERRAMA2_LOG_DEBUG() << QObject::tr("Starting alert generation");
@@ -547,11 +549,7 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
     auto dataMap = dataAccessor->getSeries(filter, remover);
     if(dataMap.empty())
     {
-      logger->result(AlertLogger::Status::DONE, nullptr, executionPackage.registerId);
-      logger->log(AlertLogger::MessageType::WARNING_MESSAGE, QObject::tr("No data to available.").toStdString(), executionPackage.registerId);
-      TERRAMA2_LOG_WARNING() << QObject::tr("No data to available.");
-      emit alertFinished(alertId, executionPackage.executionDate, false);
-      return;
+      throw Exception() << ErrorDescription("No data to available.");
     }
 
     // Flag to check if at least one alert was generated
@@ -591,10 +589,7 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
 
       if(datetimeColumnName.empty())
       {
-        QString errMsg = QObject::tr("Unable to identify timestamp column.");
-        logger->log(AlertLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
-        TERRAMA2_LOG_ERROR() << errMsg;
-        return;
+        throw Exception() << ErrorDescription(QObject::tr("Unable to identify timestamp column."));
       }
 
       // Store execution dates of dataset, ASC order
@@ -604,41 +599,40 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
       std::shared_ptr<te::mem::DataSet> alertDataSet;
       if(inputDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT)
       {
-        if(dataSetType->getNumberOfForeignKeys() != 1)
-        {
-          QString errMsg = QObject::tr("Invalid number of identifier attribute.");
-          logger->log(AlertLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
-          TERRAMA2_LOG_ERROR() << errMsg;
-          return;
-        }
-
-        auto tempProperties = dataSetType->getForeignKey(0)->getProperties();
-        auto idProperty = tempProperties.front();
-        if(!idProperty)
-        {
-          QString errMsg = QObject::tr("Invalid identifier attribute.");
-          logger->result(AlertLogger::Status::ERROR, nullptr, executionPackage.registerId);
-          logger->log(AlertLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
-          TERRAMA2_LOG_ERROR() << errMsg;
-          return;
-        }
 
         ////////////////////////////////////
         // Include identifier attribute to alert aditional data
+
+        AdditionalData indentifierData;
+        try
         {
-          AdditionalData indentifierData;
-          try
+          indentifierData.dataSeriesId = static_cast<DataSeriesId>(std::stoi(dataset->format.at("monitored_object_id")));
+          auto attribute = dataset->format.at("monitored_object_pk");
+          indentifierData.attributes.push_back(attribute);
+          indentifierData.alias.emplace(attribute, attribute);
+
+          auto dataSeries = dataManager->findDataSeries(indentifierData.dataSeriesId);
+          auto dataProvider = dataManager->findDataProvider(dataSeries->dataProviderId);
+
+          auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeries);
+          terrama2::core::Filter moFilter;
+          moFilter.lastValues = std::make_shared<size_t>(1);
+          auto dataMap = dataAccessor->getSeries(moFilter, remover);
+          if(dataMap.size() != 1)
           {
-            indentifierData.dataSeriesId = static_cast<DataSeriesId>(std::stoi(dataset->format.at("monitored_object_id")));
-            auto attribute = dataset->format.at("monitored_object_pk");
-            indentifierData.attributes.push_back(attribute);
-            indentifierData.alias.emplace(attribute, attribute);
+            throw Exception() << ErrorDescription(QObject::tr("Invalid monitored object dataseries."));
           }
-          catch(const std::out_of_range&)
+
+          auto moPk = (*dataMap.begin()).second.teDataSetType->getPrimaryKey();
+          auto properties = moPk->getProperties();
+          if(properties.size() != 1)
           {
-            QString errMsg("Internal error.\nIncomplete monitored object information.");
-            TERRAMA2_LOG_ERROR() << errMsg;
-            throw AdditionalDataException() << ErrorDescription(errMsg);
+            throw Exception() << ErrorDescription(QObject::tr("Invalid monitored object identifier attribute."));
+          }
+          auto idProperty = properties.front();
+          if(!idProperty)
+          {
+            throw Exception() << ErrorDescription(QObject::tr("Invalid monitored object identifier attribute."));
           }
 
           indentifierData.referrerAttribute = idProperty->getName();
@@ -646,25 +640,27 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
 
           additionalDataVector.push_back(indentifierData);
 
-          auto dataSeries = dataManager->findDataSeries(indentifierData.dataSeriesId);
-          auto dataProvider = dataManager->findDataProvider(dataSeries->dataProviderId);
-
           tempAdditionalDataVector.emplace(indentifierData.dataSeriesId, std::make_pair(dataSeries, dataProvider));
+
+          alertDataSet = monitoredObjectAlert(dataSetType,
+                                              datetimeColumnName,
+                                              vecDates,
+                                              alertPtr,
+                                              legend,
+                                              filter,
+                                              dataset,
+                                              teDataset,
+                                              idProperty,
+                                              additionalDataVector,
+                                              tempAdditionalDataVector,
+                                              remover);
+
+        }
+        catch(const std::out_of_range&)
+        {
+          throw Exception() << ErrorDescription(QObject::tr("Internal error.\nIncomplete monitored object information."));
         }
         ////////////////////////////////////
-
-        alertDataSet = monitoredObjectAlert(dataSetType,
-                                            datetimeColumnName,
-                                            vecDates,
-                                            alertPtr,
-                                            legend,
-                                            filter,
-                                            dataset,
-                                            teDataset,
-                                            idProperty,
-                                            additionalDataVector,
-                                            tempAdditionalDataVector,
-                                            remover);
       }
       else if (inputDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::GRID)
       {
@@ -680,10 +676,7 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
 
       if(alertDataSet->isEmpty())
       {
-        QString errMsg = QObject::tr("No alert data for %1 data series.").arg(dataset->dataSeriesId);
-        logger->log(AlertLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
-        TERRAMA2_LOG_ERROR() << errMsg;
-        return;
+        throw Exception() << ErrorDescription(QObject::tr("No alert data for %1 data series.").arg(dataset->dataSeriesId));
       }
 
       te::core::URI imageUri;
@@ -720,12 +713,7 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
     // check if at least one alert was generated
     if(!alertGenerated)
     {
-      QString errMsg = QObject::tr("No alert was generated.");
-      logger->log(AlertLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
-      logger->result(AlertLogger::Status::ERROR, nullptr, executionPackage.registerId);
-      TERRAMA2_LOG_WARNING() << errMsg.toStdString();
-      emit alertFinished(alertId, executionPackage.executionDate, false);
-      return;
+      throw Exception() << ErrorDescription(QObject::tr("No alert was generated."));
     }
 
     auto processingEndTime = terrama2::core::TimeUtils::nowUTC();
@@ -741,41 +729,32 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
     obj.insert("notify", notify);
 
     emit alertFinished(alertId, executionPackage.executionDate, true, obj);
+    return;
   }
   catch(const terrama2::Exception& e)
   {
-    logger->result(AlertLogger::Status::ERROR, nullptr, executionPackage.registerId);
-    logger->log(AlertLogger::MessageType::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString(), executionPackage.registerId);
-    TERRAMA2_LOG_DEBUG() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
-
-    emit alertFinished(alertId, executionPackage.executionDate, false);
+    errMsg = boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
   }
   catch(const boost::exception& e)
   {
-    logger->result(AlertLogger::Status::ERROR, nullptr, executionPackage.registerId);
-    logger->log(AlertLogger::MessageType::ERROR_MESSAGE, boost::diagnostic_information(e), executionPackage.registerId);
-    TERRAMA2_LOG_ERROR() << boost::diagnostic_information(e);
-
-    emit alertFinished(alertId, executionPackage.executionDate, false);
+    errMsg = boost::diagnostic_information(e);
   }
   catch(const std::exception& e)
   {
-    QString errMsg(e.what());
-    logger->result(AlertLogger::Status::ERROR, nullptr, executionPackage.registerId);
-    logger->log(AlertLogger::MessageType::ERROR_MESSAGE, e.what(), executionPackage.registerId);
-    TERRAMA2_LOG_ERROR() << errMsg;
-
-    emit alertFinished(alertId, executionPackage.executionDate, false);
+    errMsg = e.what();
   }
   catch(...)
   {
-    QString errMsg = QObject::tr("Unknown exception");
-    logger->result(AlertLogger::Status::ERROR, nullptr, executionPackage.registerId);
-    logger->log(AlertLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
-    TERRAMA2_LOG_ERROR() << errMsg;
-
-    emit alertFinished(alertId, executionPackage.executionDate, false);
+    errMsg = "Unknown exception";
   }
+
+  // if arrived here an error happened
+  // errMsg should have the error message
+  logger->result(AlertLogger::Status::ERROR, nullptr, executionPackage.registerId);
+  logger->log(AlertLogger::MessageType::ERROR_MESSAGE, errMsg, executionPackage.registerId);
+  TERRAMA2_LOG_ERROR() << errMsg;
+
+  emit alertFinished(alertId, executionPackage.executionDate, false);
 }
 
 te::core::URI terrama2::services::alert::core::AlertExecutor::generateImage(AlertPtr alertPtr,
