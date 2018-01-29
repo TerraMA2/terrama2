@@ -44,6 +44,67 @@
 #include <QString>
 #include <QObject>
 
+#include <chrono>
+
+//////////////////////////////////////////////////////////
+//
+// For the current versions of GCC and clang the put_time function is not implemented
+// and only partially implemented in MSVC
+//
+// this code implements the necessary functions to find the current system timezone
+// it is originaly from: https://kjellkod.wordpress.com/2013/01/22/exploring-c11-part-2-localtime-and-time-again/
+//
+// Can be remove when the STL time functions are implemented.
+//
+// note: This functions are thread safe
+//
+namespace g2
+{
+  typedef std::chrono::time_point<std::chrono::system_clock>  system_time_point;
+
+  tm localtime(const std::time_t& time)
+  {
+    std::tm tm_snapshot;
+  #if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
+    localtime_s(&tm_snapshot, &time);
+  #else
+    localtime_r(&time, &tm_snapshot); // POSIX
+  #endif
+    return tm_snapshot;
+  }
+
+  // To simplify things the return value is just a string. I.e. by design!
+  std::string put_time(const std::tm* date_time, const char* c_time_format)
+  {
+  #if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
+    std::ostringstream oss;
+
+    // BOGUS hack done for VS2012: C++11 non-conformant since it SHOULD take a "const struct tm*  "
+    // ref. C++11 standard: ISO/IEC 14882:2011, § 27.7.1,
+    oss << std::put_time(const_cast<std::tm*>(date_time), c_time_format);
+    return oss.str();
+
+  #else    // LINUX
+    const size_t size = 1024;
+    char buffer[size];
+    auto success = std::strftime(buffer, size, c_time_format, date_time);
+
+    if (0 == success)
+      return c_time_format;
+
+    return buffer;
+  #endif
+  }
+
+  // extracting std::time_t from std:chrono for "now"
+  std::time_t systemtime_now()
+  {
+    system_time_point system_now = std::chrono::system_clock::now();
+    return std::chrono::system_clock::to_time_t(system_now);
+  }
+
+} // g2-namespace
+
 std::shared_ptr<te::dt::TimeInstantTZ> terrama2::core::TimeUtils::stringToTimestamp(const std::string& dateTime, const std::string& mask)
 {
   boost::local_time::local_date_time ldt = stringToBoostLocalTime(dateTime, mask);
@@ -90,13 +151,10 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::TimeUtils::nowUTC()
 
 boost::local_time::local_date_time terrama2::core::TimeUtils::nowBoostLocal()
 {
-  time_t ts = 0;
-  struct tm t;
-  char buf[16];
-  ::localtime_r(&ts, &t);
-  ::strftime(buf, sizeof(buf), "%Z", &t);
+  auto t = g2::localtime(g2::systemtime_now());
+  auto tz = g2::put_time(&t, "%Z");
 
-  boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(buf));
+  boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(tz));
   return boost::local_time::local_microsec_clock::local_time(zone);
 }
 
