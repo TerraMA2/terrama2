@@ -1,6 +1,6 @@
------------------------------------
+-----------------------------------------------------------------------------------------------------------------------
 -- 1. Creating the version table
------------------------------------
+-----------------------------------------------------------------------------------------------------------------------
 
 -- Sequence: terrama2.version_id_seq
 
@@ -41,6 +41,16 @@ CREATE UNIQUE INDEX full_version
 
 INSERT INTO terrama2.version (major, minor, patch, tag, database) VALUES (4, 0, 1, "RELEASE", 1);
 
------------------------------------
--- 2. Creating the version table
------------------------------------
+-----------------------------------------------------------------------------------------------------------------------
+-- 2. Replacing the column analysis_id with the column schedule_id in the table terrama2.reprocessing_historical_data
+-----------------------------------------------------------------------------------------------------------------------
+
+ALTER TABLE terrama2.reprocessing_historical_data ADD COLUMN schedule_id integer;
+
+UPDATE terrama2.reprocessing_historical_data SET schedule_id=analysis.schedule_id FROM (select id, schedule_id from terrama2.analysis) AS analysis WHERE analysis_id=analysis.id;
+
+ALTER TABLE terrama2.reprocessing_historical_data DROP COLUMN analysis_id;
+
+ALTER TABLE terrama2.reprocessing_historical_data ALTER COLUMN schedule_id SET NOT NULL;
+
+ALTER TABLE terrama2.reprocessing_historical_data ADD CONSTRAINT reprocessing_historical_data_schedule_id_fkey FOREIGN KEY (schedule_id) REFERENCES terrama2.schedules (id) MATCH SIMPLE ON UPDATE CASCADE ON DELETE CASCADE;
