@@ -1102,5 +1102,7 @@
 	"Temperature (Kelvin)": "Temperature (Kelvin)",
 	"Temperature (Celsius)": "Temperature (Celsius)",
 	"Wind": "Wind",
-	"Vegetation Fire": "Vegetation Fire"
+	"Vegetation Fire": "Vegetation Fire",
+	"Select a level in the 'Notify on legend level' option!": "",
+	"Legend attribute is invalid": ""
 }

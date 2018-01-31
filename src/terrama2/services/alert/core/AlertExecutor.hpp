@@ -116,7 +116,7 @@ namespace terrama2
             getResultMap(terrama2::core::LegendPtr risk,
                          size_t pos,
                          te::dt::Property* idProperty,
-                         std::string datetimeColumnName,
+                         const std::string& datetimeColumnName,
                          std::shared_ptr<te::da::DataSet> teDataset,
                          std::vector<std::shared_ptr<te::dt::DateTime> > vecDates);
 
