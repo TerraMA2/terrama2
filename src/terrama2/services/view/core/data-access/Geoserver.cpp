@@ -376,7 +376,24 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
           continue;
         }
 
-        std::string pk = monitoredObjectTableInfo.dataSetType->getPrimaryKey()->getProperties().at(0)->getName();
+        auto primaryKey = monitoredObjectTableInfo.dataSetType->getPrimaryKey();
+        if(!primaryKey)
+        {
+          QString errMsg = QObject::tr("Invalid primary key in dataseries: %1.").arg(QString::fromStdString(monitoredObjectDataSeries->name));
+          logger->log(ViewLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), logId);
+          TERRAMA2_LOG_ERROR() << errMsg;
+          continue;
+        }
+        auto properties = primaryKey->getProperties();
+        if(properties.size() != 1)
+        {
+          QString errMsg = QObject::tr("Invalid number of primary keys in dataseries: %1.").arg(QString::fromStdString(monitoredObjectDataSeries->name));
+          logger->log(ViewLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), logId);
+          TERRAMA2_LOG_ERROR() << errMsg;
+          continue;
+        }
+
+        std::string pk = properties.at(0)->getName();
 
         auto& propertiesVector = monitoredObjectTableInfo.dataSetType->getProperties();
 

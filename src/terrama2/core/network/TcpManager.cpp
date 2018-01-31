@@ -403,6 +403,10 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
   {
     TERRAMA2_LOG_ERROR() << QObject::tr("Erro in logger, check your log database connection information.");
   }
+  catch(const std::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << e.what();
+  }
   catch(...)
   {
     // exception guard, slots should never emit exceptions.
