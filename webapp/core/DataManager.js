@@ -149,12 +149,14 @@ var DataManager = module.exports = {
 
         var listVersionsPromise = self.listVersions({}).then(function(versions) {
           if(versions.length == 0 ) {
+            var versionFile = require('../../share/terrama2/version.json');
+
             self.addVersion({
-              major: 9,
-              minor: 9,
-              patch: 9,
-              tag: "RELEASE",
-              database: 333
+              major: versionFile.major,
+              minor: versionFile.minor,
+              patch: versionFile.patch,
+              tag: versionFile.tag,
+              database: versionFile.database
             });
           }
         });

@@ -1,3 +1,7 @@
+-----------------------------------
+-- 1. Creating the version table
+-----------------------------------
+
 -- Sequence: terrama2.version_id_seq
 
 CREATE SEQUENCE terrama2.version_id_seq
@@ -17,7 +21,7 @@ CREATE TABLE terrama2.version
     patch integer NOT NULL,
     tag text NOT NULL,
     database integer NOT NULL,
-    insert_time timestamp with time zone NOT NULL,
+    insert_time timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT version_pkey PRIMARY KEY (id)
 );
 
@@ -33,4 +37,10 @@ CREATE UNIQUE INDEX full_version
     ON terrama2.version USING btree
     (major, minor, patch);
 
-INSERT INTO terrama2.version (major, minor, patch, tag, database, insert_time) VALUES (4, 0, 1, "RELEASE", 1, NOW());
+-- Inserting the current version in the database
+
+INSERT INTO terrama2.version (major, minor, patch, tag, database) VALUES (4, 0, 1, "RELEASE", 1);
+
+-----------------------------------
+-- 2. Creating the version table
+-----------------------------------
