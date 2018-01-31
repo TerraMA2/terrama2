@@ -161,6 +161,8 @@ var DataManager = module.exports = {
           }
         });
 
+        inserts.push(listVersionsPromise);
+
         var listServicesPromise = self.listServiceInstances({}).then(function(services){
           var servicesInsert = [];
           if (services.length == 0 ){
