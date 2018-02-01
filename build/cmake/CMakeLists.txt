@@ -518,7 +518,8 @@ install(DIRECTORY ${TERRAMA2_ABSOLUTE_ROOT_DIR}/webcomponents
         DESTINATION ${TERRAMA2_DESTINATION} COMPONENT runtime)
 install(DIRECTORY ${TERRAMA2_ABSOLUTE_ROOT_DIR}/third-party
         DESTINATION ${TERRAMA2_DESTINATION} COMPONENT runtime)
-
+install(DIRECTORY ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/bd_terrama2q
+        DESTINATION ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts COMPONENT scripts)
 #
 # Generate a post installation script with the installation folder
 #
