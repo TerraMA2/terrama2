@@ -490,7 +490,7 @@ endif()
 # Generate version file
 configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/share/terrama2/version.json.in
                ${TERRAMA2_ABSOLUTE_ROOT_DIR}/share/terrama2/version.json @ONLY)
-               
+
 #
 # install and targets export
 #
@@ -557,6 +557,8 @@ elseif(UNIX)
   install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/prerm
           DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT scripts)
   install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postrm
+          DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT scripts)
+  install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/update_database.py
           DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT scripts)
 endif()
 

@@ -11,6 +11,12 @@ function valid()
 printf "Post-installation script...\n"
 
 (
+  printf "Checking database version and updating...\n"
+  cd @TERRAMA2_DESTINATION@scripts
+  python update_database.py
+)
+
+(
   printf "Webapp dependencies...\n"
   cd @TERRAMA2_DESTINATION@webapp
 
