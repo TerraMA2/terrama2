@@ -1313,6 +1313,12 @@ std::unique_ptr<te::se::Style> terrama2::services::view::core::GeoServer::genera
     {
       auto legendRule = legendRules[i];
       std::unique_ptr<te::se::Symbolizer> symbolizer(getSymbolizer(geomType, legendRule.color, legendRule.opacity));
+      if(!symbolizer)
+      {
+        QString errMsg = QObject::tr("Invalid symbolizer.");
+        TERRAMA2_LOG_ERROR() << errMsg;
+        throw ViewGeoserverException() << ErrorDescription(errMsg);
+      }
 
       std::unique_ptr<te::se::Rule> rule(new te::se::Rule);
       rule->push_back(symbolizer.release());
