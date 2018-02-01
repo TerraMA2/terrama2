@@ -1,6 +1,6 @@
 {
   "name": "TerraMA2-webmonitor",
-  "version": "4.0.1-alpha1",
+  "version": "4.0.1-release",
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
