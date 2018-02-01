@@ -39,7 +39,7 @@ CREATE UNIQUE INDEX full_version
 
 -- Inserting the current version in the database
 
-INSERT INTO terrama2.version (major, minor, patch, tag, database) VALUES (4, 0, 1, "RELEASE", 1);
+INSERT INTO terrama2.version (major, minor, patch, tag, database) VALUES (4, 0, 1, 'RELEASE', 1);
 
 -----------------------------------------------------------------------------------------------------------------------
 -- 2. Replacing the column analysis_id with the column schedule_id in the table terrama2.reprocessing_historical_data
