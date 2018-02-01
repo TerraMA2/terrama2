@@ -487,7 +487,10 @@ if(TERRAMA2_DOXYGEN_ENABLED)
   add_subdirectory(terrama2_doxygen)
 endif()
 
-
+# Generate version file
+configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/share/terrama2/version.json.in
+               ${TERRAMA2_ABSOLUTE_ROOT_DIR}/share/terrama2/version.json @ONLY)
+               
 #
 # install and targets export
 #
