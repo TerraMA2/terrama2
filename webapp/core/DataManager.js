@@ -147,6 +147,22 @@ var DataManager = module.exports = {
         //inserts.push(self.addDataProviderType({id: 5, name: "SFTP", description: "Desc SFTP"}));
         inserts.push(self.addDataProviderType({id: 6, name: "HTTPS", description: "Desc Https"}));
 
+        var listVersionsPromise = self.listVersions({}).then(function(versions) {
+          if(versions.length == 0 ) {
+            var versionFile = require('../../share/terrama2/version.json');
+
+            self.addVersion({
+              major: versionFile.major,
+              minor: versionFile.minor,
+              patch: versionFile.patch,
+              tag: versionFile.tag,
+              database: versionFile.database
+            });
+          }
+        });
+
+        inserts.push(listVersionsPromise);
+
         var listServicesPromise = self.listServiceInstances({}).then(function(services){
           var servicesInsert = [];
           if (services.length == 0 ){
@@ -197,8 +213,8 @@ var DataManager = module.exports = {
           }
           return Promise.all(servicesInsert);
         });
-        inserts.push(listServicesPromise);
 
+        inserts.push(listServicesPromise);
 
         // data provider intent defaults
         inserts.push(models.db.DataProviderIntent.create({
@@ -5871,6 +5887,45 @@ var DataManager = module.exports = {
         .catch(function(err) {
           return reject(err);
         });
+    });
+  },
+
+  /**
+   * It retrieves all versions from given restriction
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object?} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<any[]>}
+   */
+  listVersions: function(restriction, options) {
+    return new Promise(function(resolve, reject) {
+      return models.db.Version.findAll(Utils.extend({ where: restriction }, options))
+        .then(function(versions) {
+          return resolve(versions.map(function(version) {
+            return version.get();
+          }));
+        })
+        .catch(function(err) {
+          return reject(new Error(Utils.format("Could not list versions %s", err.toString())));
+        });
+    });
+  },
+
+  /**
+   * Adds a version.
+   * @param {Object} version - A javascript object with version values
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise} a bluebird promise
+   */
+  addVersion: function(version, options) {
+    return new Promise(function(resolve, reject) {
+      return models.db.Version.create(version, options).then(function(newVersion) {
+        return resolve(newVersion.get());
+      }).catch(function(err) {
+        return reject(new Error(Utils.format("Could not save version due %s", err.toString())));
+      });
     });
   }
 };

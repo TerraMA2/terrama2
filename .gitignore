@@ -10,6 +10,7 @@ webapp/bower_components
 webapp/*_terrama2.log
 webapp/config/webapp.json
 webmonitor/node_modules
+webmonitor/npm-debug*
 webmonitor/public/external
 webmonitor/public/dist
 webmonitor/public/docs
