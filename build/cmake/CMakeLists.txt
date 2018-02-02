@@ -522,8 +522,8 @@ install(DIRECTORY ${TERRAMA2_ABSOLUTE_ROOT_DIR}/webcomponents
         DESTINATION ${TERRAMA2_DESTINATION} COMPONENT runtime)
 install(DIRECTORY ${TERRAMA2_ABSOLUTE_ROOT_DIR}/third-party
         DESTINATION ${TERRAMA2_DESTINATION} COMPONENT runtime)
-install(DIRECTORY ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/bd_terrama2q
-        DESTINATION ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts COMPONENT scripts)
+install(DIRECTORY ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/bd_update
+        DESTINATION ${TERRAMA2_DESTINATION_SHARE}/terrama2/scripts COMPONENT scripts)
 #
 # Generate a post installation script with the installation folder
 #
@@ -550,17 +550,17 @@ elseif(UNIX)
                  ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postrm @ONLY)
 
   install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/remove-config.py
-          DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT scripts)
+          DESTINATION ${TERRAMA2_DESTINATION_SHARE}/terrama2/scripts COMPONENT scripts)
   install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postinst
-          DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT scripts)
+          DESTINATION ${TERRAMA2_DESTINATION_SHARE}/terrama2/scripts COMPONENT scripts)
   install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/config_pm2.sh
-          DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT scripts)
+          DESTINATION ${TERRAMA2_DESTINATION_SHARE}/terrama2/scripts COMPONENT scripts)
   install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/prerm
-          DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT scripts)
+          DESTINATION ${TERRAMA2_DESTINATION_SHARE}/terrama2/scripts COMPONENT scripts)
   install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postrm
-          DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT scripts)
+          DESTINATION ${TERRAMA2_DESTINATION_SHARE}/terrama2/scripts COMPONENT scripts)
   install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/update_database.py
-          DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT scripts)
+          DESTINATION ${TERRAMA2_DESTINATION_SHARE}/terrama2/scripts COMPONENT scripts)
 endif()
 
 #
@@ -569,7 +569,7 @@ endif()
 #
 
 if(NOT CPACK_BINARY_DEB AND NOT APPLE)
-  install(CODE "execute_process(COMMAND bash postinst ${TERRAMA2_BASE_DESTINATION_DIR} WORKING_DIRECTORY ${TERRAMA2_DESTINATION_SHARE}/scripts/ )" COMPONENT scripts)
+  install(CODE "execute_process(COMMAND bash postinst ${TERRAMA2_BASE_DESTINATION_DIR} WORKING_DIRECTORY ${TERRAMA2_DESTINATION_SHARE}/terrama2/scripts/ )" COMPONENT scripts)
 endif()
 
 #
