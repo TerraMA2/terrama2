@@ -6,7 +6,7 @@ import sys
 import re
 
 # open version file
-with open("../share/terrama2/version.json") as version_file:
+with open("../version.json") as version_file:
     version = json.load(version_file)
     major = version["major"]
     minor = version["minor"]
