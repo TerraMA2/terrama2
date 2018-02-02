@@ -540,10 +540,12 @@ if(APPLE)
   file(COPY ${TERRAMA2_ABSOLUTE_ROOT_DIR}/share DESTINATION ${CMAKE_BINARY_DIR})
 
 elseif(UNIX)
-  configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postinst.in
-                 ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postinst @ONLY)
   configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/config_pm2.sh.in
                  ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/config_pm2.sh @ONLY)
+  configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/update_database.py.in
+                 ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/update_database.py @ONLY)
+  configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postinst.in
+                 ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postinst @ONLY)
   configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/prerm.in
                 ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/prerm @ONLY)
   configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postrm.in
