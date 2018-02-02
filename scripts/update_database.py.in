@@ -6,7 +6,7 @@ import sys
 import re
 
 # open version file
-with open("../version.json") as version_file:
+with open("@TERRAMA2_DESTINATION@share/terrama2/version.json") as version_file:
     version = json.load(version_file)
     major = version["major"]
     minor = version["minor"]
@@ -21,7 +21,7 @@ with open("../version.json") as version_file:
 if major is None:
     sys.exit(1)
 
-config = '../../../webapp/config/webapp.json'
+config = '@TERRAMA2_DESTINATION@webapp/config/webapp.json'
 if os.path.isfile(config):
     # read all configured instances and update all databases
     with open(config) as data_file:
@@ -69,7 +69,7 @@ if os.path.isfile(config):
 
             while current_major != major or current_minor != minor or current_database != database:
                 # grab convertion scripts for current database version
-                converters = glob.glob("../scripts/bd_update/"+str(current_major)+"."+str(current_minor)+"-"+str(current_database)+"_*.sql")
+                converters = glob.glob("@TERRAMA2_DESTINATION@share/terrama2/scripts/bd_update/"+str(current_major)+"."+str(current_minor)+"-"+str(current_database)+"_*.sql")
                 if converters is None:
                     sys.exit(1)
 
