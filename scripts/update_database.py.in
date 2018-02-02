@@ -21,9 +21,10 @@ with open("@TERRAMA2_DESTINATION@share/terrama2/version.json") as version_file:
 if major is None:
     sys.exit(1)
 
-config_path = '@TERRAMA2_DESTINATION@webapp/config/instances'
-instances = glob.glob("*.json")
+config_path = '@TERRAMA2_DESTINATION@webapp/config/instances/'
+instances = glob.glob(config_path+"*.json")
 for config in instances:
+  print("Current config file: "+config)
   if os.path.isfile(config):
       # read all configured instances and update all databases
       with open(config) as data_file:
