@@ -14,6 +14,9 @@ with open("../version.json") as version_file:
     tag = version["tag"]
     database = version["database"]
 
+    print("Installing version: "+str(major)+"."+str(minor)+"."+str(patch)+"-"+tag)
+    print("Database version: "+str(database))
+
 # error reading version file
 if major is None:
     sys.exit(1)
@@ -31,6 +34,8 @@ if os.path.isfile(config):
             password = data[key]["db"]["password"]
             host = data[key]["db"]["host"]
 
+            print("Current database: "+database_uri)
+
             try:
                 conn = psycopg2.connect(host=host, database=database_uri, user=username, password=password)
             except psycopg2.OperationalError:
@@ -40,16 +45,23 @@ if os.path.isfile(config):
             conn.autocommit = True
             try:
                 # get current version from database
-                cursor.execute("SELECT major, minor, database FROM terrama2.version ORDER BY insert_time DESC LIMIT 1")
+                cursor.execute("SELECT major, minor, patch, tag, database FROM terrama2.version ORDER BY insert_time DESC LIMIT 1")
                 record = cursor.fetchone()
                 current_major = record[0]
                 current_minor = record[1]
-                current_database = record[2]
+                current_patch = record[2]
+                current_tag = record[3]
+                current_database = record[4]
             except psycopg2.ProgrammingError:
                 # no database found, assume 4.0-0
                 current_major = 4
                 current_minor = 0
+                current_patch = 0
+                current_tag = 'release'
                 current_database = 0
+
+            print("Current version: "+str(current_major)+"."+str(current_minor)+"."+str(current_patch)+"-"+current_tag)
+            print("Database version: "+str(current_database))
 
             if not current_major:
                 # should never be here
