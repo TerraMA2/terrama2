@@ -21,7 +21,7 @@ with open("../version.json") as version_file:
 if major is None:
     sys.exit(1)
 
-config = '../webapp/config/webapp.json'
+config = '../../../webapp/config/webapp.json'
 if os.path.isfile(config):
     # read all configured instances and update all databases
     with open(config) as data_file:
