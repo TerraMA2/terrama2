@@ -1,17 +1,17 @@
 
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt">
 
 <head>
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="generator" content="HelpNDoc Personal Edition 5.0.0.182">
+  <meta name="generator" content="HelpNDoc Standard Edition 5.4.2.416">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" href="favicon.ico"/>
 
-  <title>Projeto T&iacute;pico</title>
+  <title>Exemplos T&iacute;picos</title>
   <meta name="description" content="" /> 
   <meta name="keywords" content="">
 
@@ -19,11 +19,11 @@
 
   <!-- Twitter Card data -->
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Projeto T&iacute;pico">
+  <meta name="twitter:title" content="Exemplos T&iacute;picos">
   <meta name="twitter:description" content="">
 
   <!-- Open Graph data -->
-  <meta property="og:title" content="Projeto T&iacute;pico" />
+  <meta property="og:title" content="Exemplos T&iacute;picos" />
   <meta property="og:type" content="article" />
   <meta property="og:description" content="" />
   <meta property="og:site_name" content="Plataforma de Monitoramento Ambiental TerraMA&sup2;" /> 
@@ -48,7 +48,7 @@
   <link href="css/effects.min.css" rel="stylesheet" />
   <link href="css/theme-light-blue.min.css" rel="stylesheet" />
   <link href="css/print.min.css" rel="stylesheet" media="print" />
-  <style type="text/css">nav { width: 350px} @media screen and (min-width:769px) { body.md-nav-expanded #main { margin-left: 350px} body.md-nav-expanded header { padding-left: 364px} }</style>
+  <style type="text/css">nav { width: 350px} @media screen and (min-width:769px) { body.md-nav-expanded div#main { margin-left: 350px} body.md-nav-expanded header { padding-left: 364px} }</style>
 
   <!-- Content style -->
   <link href="css/hnd.content.css" rel="stylesheet" />
@@ -87,21 +87,21 @@
       
 	  
         <li role="presentation" class="tab active">
-            <a href="#contents" aria-controls="contents" role="tab" data-toggle="tab">
+            <a href="#contents" id="tab-contents" aria-controls="contents" role="tab" data-toggle="tab">
                 <i class="glyphicon glyphicon-list"></i>
                 Contents
             </a>
         </li>
       
         <li role="presentation" class="tab">
-            <a href="#index" aria-controls="index" role="tab" data-toggle="tab">
+            <a href="#index" id="tab-index" aria-controls="index" role="tab" data-toggle="tab">
                 <i class="glyphicon glyphicon-asterisk"></i>
                 Index
             </a>
         </li>
       
         <li role="presentation" class="tab">
-            <a href="#search" aria-controls="search" role="tab" data-toggle="tab">
+            <a href="#search" id="tab-search" aria-controls="search" role="tab" data-toggle="tab">
                 <i class="glyphicon glyphicon-search"></i>
                 Search
             </a>
@@ -161,43 +161,42 @@
 
     <article>
         <div id="topic-content" class="container-fluid" 
-		  data-hnd-id="typical_project"
-		  data-hnd-context="5"
-		  data-hnd-title="Projeto Típico"
+		  data-hnd-id="typical_examples"
+		  data-hnd-context="42"
+		  data-hnd-title="Exemplos Típicos"
 		>
             
                 <div class="navigation">
                     <ol class="breadcrumb">
-                        <li><a href="starting.html">Iniciando</a></li>
+                        <li><a href="administration_module.html">M&oacute;dulo de Administra&ccedil;&atilde;o</a></li><li><a href="projects.html">Projetos</a></li><li><a href="analysis.html">An&aacute;lises</a></li>
                     </ol>
                     <div class="nav-arrows">
-                        <div class="btn-group btn-group-xs" role="group"><a class="btn btn-default" href="starting.html" title="Iniciando" role="button"><span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span></a><a class="btn btn-default" href="starting.html" title="Iniciando" role="button"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a><a class="btn btn-default" href="administration_module.html" title="M&oacute;dulo de Administra&ccedil;&atilde;o" role="button"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></div>
+                        <div class="btn-group btn-group-xs" role="group"><a class="btn btn-default" href="analysis.html" title="An&aacute;lises" role="button"><span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span></a><a class="btn btn-default" href="add_analysis_dcp.html" title="PCD" role="button"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a><a class="btn btn-default" href="typical_examples_monitored_obj.html" title="Exemplo de an&aacute;lise baseado em Objetos Monitorados" role="button"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></div>
                     </div>
                 </div> 
             
 
             <a id="main-content"></a>
 
-            <h2>Projeto T&iacute;pico</h2>
+            <h2>Exemplos T&iacute;picos</h2>
 
             <div class="main-content">
                 
 <p></p>
 <p class="rvps2"><span class="rvts6"><br/></span></p>
-<p class="rvps6"><span class="rvts16">O conteúdo típico de um projeto envolve os seguintes passos:</span></p>
-<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
-<li class="rvps8"><a name="docs-internal-guid-f543ba00-49f1-4c60-2163-177081e0ffb3"></a>
-<a class="rvts22" href="data_servers.html">Configuração do servidor de dados</a><span class="rvts16">: O usuário deve definir quais servidores de dados serão utilizados para acesso aos dados dinâmicos e estáticos. Para dados dinâmicos ambientais deve-se informar qual servidor será utilizado como fonte e/ou destino, neste caso servidores remotos ou locais podem ser definidos. Para dados estáticos servidores locais devem ser definidos;</span></li>
-<li class="rvps8"><a class="rvts22" href="dynamic_data.html">Configuração de uma série de dados dinâmicos</a><span class="rvts16">: O usuário deve definir que dados ambientais dos tipos PCD´s, ocorrências ou matriciais serão coletados ou acessados localmente se disponível. Cada dado dinâmico deve estar associado a um servidor de dados de origem ou ainda a um servidor de destino para armazenamento dos dados;</span></li>
-<li class="rvps8"><a class="rvts22" href="static_data.html">Definição de dados estáticos</a><span class="rvts16">: O usuário deve definir que mapas (vetoriais ou matriciais) serão utilizados nas análises ou apenas apresentados na aplicação web. Necessário que estes dados estejam associados a servidores;</span></li>
-<li class="rvps8"><a class="rvts22" href="analysis.html">Definição das análises</a><span class="rvts16">: O usuário deve definir quais são as regras de análise a serem aplicadas sobre os dados dinâmicos e estáticos. Análise baseada em objetos monitorados envolve cruzamento de estáticos vetoriais com dinâmicos (PCD, ocorrências ou matriciais). Análise baseada em grades envolve o cruzamento de dados estáticos matriciais e dinâmicos também matriciais. Análise baseada em PCD´s envolve dado dinâmico de PCD que pode ainda ser cruzado com dados dinâmicos (PCD, ocorrências ou matriciais). Note que toda análise devolve um novo dado dinâmico;</span></li>
-<li class="rvps8"><a class="rvts22" href="views.html">Definir visualizações</a><span class="rvts16">: Permite a definição dos visuais de apresentação de todos os dados (estáticos ou dinâmicos), principalmente o resultado das análises e alertas. Um estilo (legenda) pode ser aplicado aos dados a serem publicados no </span><span class="rvts17">Módulo de Monitoramento</span><span class="rvts16">;</span></li>
-<li class="rvps8"><a class="rvts22" href="alerts.html">Definir os alertas</a><span class="rvts16">: Permite o usuário definir alertas a partir dos dados dinâmicos e quais os meios de notificação aos demais usuários do sistema. O envio de notificações por email pode ser definido e a publicação do alerta no </span><span class="rvts17">Módulo de Monitoramento.</span></li>
-</ul>
-<p class="rvps6"><span class="rvts16">Cada um destes passos representam um item no menu de opções do módulo de administração, conforme mostrado abaixo. </span></p>
-<p class="rvps11"><img alt="" style="padding : 1px;" src="lib/Fig1_2so_proj.png"></p>
+<p class="rvps9"><span class="rvts16">Para cada tipo de análise na plataforma um conjunto de dados é necessário. Os três exemplos a seguir apresentam os principais componentes de cada análise:</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 24px; list-style-position: outside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside; list-style-type: circle;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside; list-style-type: square;">
+<li style="margin-left: 0px; text-indent: 0px" class="rvps52"><a class="rvts60" href="typical_examples_monitored_obj.html">Exemplo de análise baseado em Objetos Monitorados</a></li>
+<li style="margin-left: 0px; text-indent: 0px" class="rvps52"><a class="rvts60" href="typical_examples_grid.html">Exemplo de análise baseado em Grades</a></li>
+<li style="margin-left: 0px; text-indent: 0px" class="rvps52"><a class="rvts60" href="typical_examples_dcp.html">Exemplo de análise baseado em PCD</a></li>
+</ul></ul></ul>
+<p class="rvps9"><span class="rvts16"><br/></span></p>
+<p class="rvps56"><span class="rvts16">Veja ainda:</span></p>
+<p class="rvps55"><a class="rvts33" href="analysis_type.html#an_obj_monitor">Tipos de análise</a><span class="rvts32"> &nbsp;</span><img width="24" height="24" alt="" style="vertical-align: middle; padding : 1px;" src="lib/reading.jpg"></p>
+<p class="rvps54"><a class="rvts33" href="operators.html#lista_op_obj_monitor">Lista de Operadores sobre obj monitorado</a><span class="rvts32"> &nbsp;</span><img alt="" style="vertical-align: middle; padding : 1px;" src="lib/lista.jpg"></p>
+<p class="rvps53"><a class="rvts33" href="operators.html#lista_op_grades">Lista de Operadores sobre Grades</a><span class="rvts32"> &nbsp;</span><img alt="" style="vertical-align: middle; padding : 1px;" src="lib/lista.jpg"></p>
+<p class="rvps21"><a class="rvts33" href="operators.html#lista_op_pcd">Lista de Operadores sobre PCD</a><span class="rvts32"> &nbsp;</span><img alt="" style="vertical-align: middle; padding : 1px;" src="lib/lista.jpg"></p>
 <p></p>
-<p class="rvps5" style="clear: both;"><span class="rvts14">Created with the Personal Edition of HelpNDoc: </span><a class="rvts15" href="https://www.helpndoc.com">Free HTML Help documentation generator</a></p>
 
             </div>
             
@@ -205,19 +204,35 @@
         </div>  <!-- /#topic-content -->
     </article>
 
-    <footer>
-        
-    </footer>
+    <footer></footer>
 
   </div>  <!-- /#main -->
 
   <div class="mask" data-toggle="sm-nav-expanded"></div>
+  
+  <!-- Modal -->
+  <div class="modal fade" id="hndModal" tabindex="-1" role="dialog" aria-labelledby="hndModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="hndModalLabel"></h4>
+        </div>
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary modal-btn-close" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Scripts -->
   <script src="vendors/jquery-1.11.3/jquery.min.js"></script>
   <script src="vendors/bootstrap-3.3.6/js/bootstrap.min.js"></script>
   <script src="vendors/fastclick-1.0.6/fastclick.min.js"></script>
   <script src="vendors/markjs-8.8.3/jquery.mark.min.js"></script>
+  <script src="vendors/uri-1.18.9/uri.min.js"></script>
   <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
   <script src="vendors/bootstrap-3.3.6/js/ie10-viewport-bug-workaround.js"></script>
   
@@ -243,10 +258,16 @@
       var app = new Hnd.App();
       // Update translations
       hnd_ut(app);
+	  // Custom JS
+	  
       // Boot the app
       app.Boot();
     });
   </script>
 
-  
+
+
+</body>
+
+</html>
 

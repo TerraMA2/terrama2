@@ -1,13 +1,13 @@
 
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt">
 
 <head>
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="generator" content="HelpNDoc Personal Edition 5.0.0.182">
+  <meta name="generator" content="HelpNDoc Standard Edition 5.4.2.416">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" href="favicon.ico"/>
 
@@ -48,7 +48,7 @@
   <link href="css/effects.min.css" rel="stylesheet" />
   <link href="css/theme-light-blue.min.css" rel="stylesheet" />
   <link href="css/print.min.css" rel="stylesheet" media="print" />
-  <style type="text/css">nav { width: 350px} @media screen and (min-width:769px) { body.md-nav-expanded #main { margin-left: 350px} body.md-nav-expanded header { padding-left: 364px} }</style>
+  <style type="text/css">nav { width: 350px} @media screen and (min-width:769px) { body.md-nav-expanded div#main { margin-left: 350px} body.md-nav-expanded header { padding-left: 364px} }</style>
 
   <!-- Content style -->
   <link href="css/hnd.content.css" rel="stylesheet" />
@@ -87,21 +87,21 @@
       
 	  
         <li role="presentation" class="tab active">
-            <a href="#contents" aria-controls="contents" role="tab" data-toggle="tab">
+            <a href="#contents" id="tab-contents" aria-controls="contents" role="tab" data-toggle="tab">
                 <i class="glyphicon glyphicon-list"></i>
                 Contents
             </a>
         </li>
       
         <li role="presentation" class="tab">
-            <a href="#index" aria-controls="index" role="tab" data-toggle="tab">
+            <a href="#index" id="tab-index" aria-controls="index" role="tab" data-toggle="tab">
                 <i class="glyphicon glyphicon-asterisk"></i>
                 Index
             </a>
         </li>
       
         <li role="presentation" class="tab">
-            <a href="#search" aria-controls="search" role="tab" data-toggle="tab">
+            <a href="#search" id="tab-search" aria-controls="search" role="tab" data-toggle="tab">
                 <i class="glyphicon glyphicon-search"></i>
                 Search
             </a>
@@ -171,7 +171,7 @@
                         <li><a href="administration_module.html">M&oacute;dulo de Administra&ccedil;&atilde;o</a></li><li><a href="projects.html">Projetos</a></li>
                     </ol>
                     <div class="nav-arrows">
-                        <div class="btn-group btn-group-xs" role="group"><a class="btn btn-default" href="projects.html" title="Projetos" role="button"><span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span></a><a class="btn btn-default" href="AdicionarAlerta.html" title="Adicionar Alerta" role="button"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a><a class="btn btn-default" href="Administracao.html" title="Administra&ccedil;&atilde;o" role="button"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></div>
+                        <div class="btn-group btn-group-xs" role="group"><a class="btn btn-default" href="projects.html" title="Projetos" role="button"><span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span></a><a class="btn btn-default" href="add_alerts.html" title="Adicionar Alerta" role="button"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a><a class="btn btn-default" href="administration.html" title="Administra&ccedil;&atilde;o" role="button"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></div>
                     </div>
                 </div> 
             
@@ -185,27 +185,26 @@
 <p></p>
 <p class="rvps3"><img alt="" style="padding : 1px;" src="lib/SituacaoAtual_26x26.png"></p>
 <p class="rvps2"><span class="rvts16"><br/></span></p>
-<p class="rvps6"><span class="rvts16">No “</span><span class="rvts17">Módulo de Administração</span><span class="rvts16">” é possível acompanhar todos os processos que estão em execução de cada um dos serviços que cada projeto está utilizando. Mensagens de erro ou advertência também são apresentados no menu “</span><span class="rvts17">Situação Atual</span><span class="rvts16">”.</span></p>
-<p class="rvps6"><span class="rvts16">A Figura 5.1 ilustrada a tela de situação atual deste módulo. O sistema mostra as últimas 5 atividades realizadas por cada tipo de coleta, análise, visualização e alerta.</span></p>
-<p class="rvps2"><span class="rvts18"><br/></span></p>
-<p class="rvps15"><img alt="" style="padding : 1px;" src="lib/Fig5_1_web.png"></p>
-<p class="rvps19"><span class="rvts19">Figura 5.1 – </span><span class="rvts20">Módulo de Administração - Situação Atual.</span></p>
-<p class="rvps2"><span class="rvts18"><br/></span></p>
-<p class="rvps6"><span class="rvts16">Cada linha da janela “Situação Atual” apresenta um símbolo na primeira coluna que indica se algo está sendo processado (bola piscante) e se este processamento terminou com sucesso (bola verde) ou não (bola vermelha). A legenda das bolas são:</span></p>
-<p class="rvps2"><span class="rvts18"><br/></span></p>
+<p class="rvps9"><span class="rvts16">No “</span><span class="rvts17">Módulo de Administração</span><span class="rvts16">” é possível acompanhar todos os processos que estão em execução de cada um dos serviços que cada projeto está utilizando. Mensagens de erro ou advertência também são apresentados no menu “</span><span class="rvts17">Situação Atual</span><span class="rvts16">”.</span></p>
+<p class="rvps9"><span class="rvts16">A Figura 5.1 ilustrada a tela de situação atual deste módulo. O sistema mostra as últimas 5 atividades realizadas por cada tipo de coleta, análise, visualização e alerta.</span></p>
+<p class="rvps2"><span class="rvts13"><br/></span></p>
+<p class="rvps19"><img alt="" style="padding : 1px;" src="lib/Fig5_1_web.png"></p>
+<p class="rvps23"><span class="rvts18">Figura 5.1 – </span><span class="rvts19">Módulo de Administração - Situação Atual.</span></p>
+<p class="rvps2"><span class="rvts13"><br/></span></p>
+<p class="rvps9"><span class="rvts16">Cada linha da janela “Situação Atual” apresenta um símbolo na primeira coluna que indica se algo está sendo processado (bola piscante) e se este processamento terminou com sucesso (bola verde) ou não (bola vermelha). A legenda das bolas são:</span></p>
+<p class="rvps2"><span class="rvts13"><br/></span></p>
 <ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
-<li class="rvps7"><span class="rvts16">(cinza piscante) &nbsp;: em execução pela primeira vez</span></li>
-<li class="rvps7"><span class="rvts16">(vermelho) &nbsp;: acusou erro na execução</span></li>
-<li class="rvps7"><span class="rvts16">(vermelho piscante) &nbsp;: em execução, com erro na rodada anterior</span></li>
-<li class="rvps7"><span class="rvts16">(verde) &nbsp;: acusou sucesso na execução</span></li>
-<li class="rvps7"><span class="rvts16">(verde piscante) &nbsp;: em execução, com sucesso na rodada anterior</span></li>
-<li class="rvps7"><span class="rvts16">(amarelo) &nbsp;: acusou alerta na execução</span></li>
-<li class="rvps7"><span class="rvts16">(amarelo piscante) &nbsp;: em execução, com alerta na rodada anterior</span></li>
-<li class="rvps8"><span class="rvts16">(relógio) : execução na fila de espera</span></li>
+<li class="rvps10"><span class="rvts16">(cinza piscante) &nbsp;: em execução pela primeira vez</span></li>
+<li class="rvps10"><span class="rvts16">(vermelho) &nbsp;: acusou erro na execução</span></li>
+<li class="rvps10"><span class="rvts16">(vermelho piscante) &nbsp;: em execução, com erro na rodada anterior</span></li>
+<li class="rvps10"><span class="rvts16">(verde) &nbsp;: acusou sucesso na execução</span></li>
+<li class="rvps10"><span class="rvts16">(verde piscante) &nbsp;: em execução, com sucesso na rodada anterior</span></li>
+<li class="rvps10"><span class="rvts16">(amarelo) &nbsp;: acusou alerta na execução</span></li>
+<li class="rvps10"><span class="rvts16">(amarelo piscante) &nbsp;: em execução, com alerta na rodada anterior</span></li>
+<li class="rvps11"><span class="rvts16">(relógio) : execução na fila de espera</span></li>
 </ul>
 <p class="rvps2"><span class="rvts6"><br/></span></p>
 <p></p>
-<p class="rvps5" style="clear: both;"><span class="rvts14">Created with the Personal Edition of HelpNDoc: </span><a class="rvts15" href="https://www.helpndoc.com/feature-tour/iphone-website-generation">Easily create iPhone documentation</a></p>
 
             </div>
             
@@ -213,19 +212,35 @@
         </div>  <!-- /#topic-content -->
     </article>
 
-    <footer>
-        
-    </footer>
+    <footer></footer>
 
   </div>  <!-- /#main -->
 
   <div class="mask" data-toggle="sm-nav-expanded"></div>
+  
+  <!-- Modal -->
+  <div class="modal fade" id="hndModal" tabindex="-1" role="dialog" aria-labelledby="hndModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="hndModalLabel"></h4>
+        </div>
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary modal-btn-close" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Scripts -->
   <script src="vendors/jquery-1.11.3/jquery.min.js"></script>
   <script src="vendors/bootstrap-3.3.6/js/bootstrap.min.js"></script>
   <script src="vendors/fastclick-1.0.6/fastclick.min.js"></script>
   <script src="vendors/markjs-8.8.3/jquery.mark.min.js"></script>
+  <script src="vendors/uri-1.18.9/uri.min.js"></script>
   <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
   <script src="vendors/bootstrap-3.3.6/js/ie10-viewport-bug-workaround.js"></script>
   
@@ -251,10 +266,16 @@
       var app = new Hnd.App();
       // Update translations
       hnd_ut(app);
+	  // Custom JS
+	  
       // Boot the app
       app.Boot();
     });
   </script>
 
-  
+
+
+</body>
+
+</html>
 
