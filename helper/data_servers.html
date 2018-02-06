@@ -1,19 +1,19 @@
 
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt">
 
 <head>
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="generator" content="HelpNDoc Personal Edition 5.0.0.182">
+  <meta name="generator" content="HelpNDoc Standard Edition 5.4.2.416">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" href="favicon.ico"/>
 
   <title>Servidores de Dados</title>
   <meta name="description" content="" /> 
-  <meta name="keywords" content="">
+  <meta name="keywords" content="Servidor de Dados">
 
 
 
@@ -48,7 +48,7 @@
   <link href="css/effects.min.css" rel="stylesheet" />
   <link href="css/theme-light-blue.min.css" rel="stylesheet" />
   <link href="css/print.min.css" rel="stylesheet" media="print" />
-  <style type="text/css">nav { width: 350px} @media screen and (min-width:769px) { body.md-nav-expanded #main { margin-left: 350px} body.md-nav-expanded header { padding-left: 364px} }</style>
+  <style type="text/css">nav { width: 350px} @media screen and (min-width:769px) { body.md-nav-expanded div#main { margin-left: 350px} body.md-nav-expanded header { padding-left: 364px} }</style>
 
   <!-- Content style -->
   <link href="css/hnd.content.css" rel="stylesheet" />
@@ -87,21 +87,21 @@
       
 	  
         <li role="presentation" class="tab active">
-            <a href="#contents" aria-controls="contents" role="tab" data-toggle="tab">
+            <a href="#contents" id="tab-contents" aria-controls="contents" role="tab" data-toggle="tab">
                 <i class="glyphicon glyphicon-list"></i>
                 Contents
             </a>
         </li>
       
         <li role="presentation" class="tab">
-            <a href="#index" aria-controls="index" role="tab" data-toggle="tab">
+            <a href="#index" id="tab-index" aria-controls="index" role="tab" data-toggle="tab">
                 <i class="glyphicon glyphicon-asterisk"></i>
                 Index
             </a>
         </li>
       
         <li role="presentation" class="tab">
-            <a href="#search" aria-controls="search" role="tab" data-toggle="tab">
+            <a href="#search" id="tab-search" aria-controls="search" role="tab" data-toggle="tab">
                 <i class="glyphicon glyphicon-search"></i>
                 Search
             </a>
@@ -184,60 +184,59 @@
                 
 <p></p>
 <p class="rvps3"><img alt="" style="padding : 1px;" src="lib/Servidores_26x26.png"></p>
-<p class="rvps6"><a name="docs-internal-guid-09f0f883-4a02-b5be-c260-67dc0325b6cc"></a>
+<p class="rvps9"><a name="docs-internal-guid-09f0f883-4a02-b5be-c260-67dc0325b6cc"></a>
 <span class="rvts16">Um </span><span class="rvts17">Servidor de Dados</span><span class="rvts16"> é uma máquina local ou remota de onde os dados serão periodicamente obtidos pelo serviço de coleta, assim como onde serão armazenados. Este servidor pode fornecer um ou mais conjuntos de dados dinâmicos. Um servidor de dados é utilizado ainda para definir o local de saída dos resultados das análises que podem ser reutilizados como qualquer outro dado dinâmico. Um servidor Dessa maneira, as principais características de um servidor de dados são:</span></p>
 <ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
-<li class="rvps8"><span class="rvts16">Um usuário pode definir vários servidores de dados em um projeto;</span></li>
-<li class="rvps8"><span class="rvts16">Um servidor pode ser utilizado para prover ou receber dados para a plataforma TerraMA</span><span class="rvts26">2</span><span class="rvts16">;</span></li>
-<li class="rvps8"><span class="rvts16">Um servidor de dados pode prover acesso a um conjunto de arquivos em um formato específico, acesso a tabelas de um banco de dados ou acesso a dados na forma de serviços web;</span></li>
-<li class="rvps8"><span class="rvts16">Um servidor de dados pode armazenar dados na forma de arquivos ou tabelas de bancos de dados;</span></li>
-<li class="rvps8"><span class="rvts16">Um servidor de dados pode ser de um dos tipos (com o seguinte ícone associado); FTP ( </span><img alt="" style="padding : 1px;" src="lib/SD_Ftp_26x26.png"><span class="rvts16"> ), HTTP ou HTTPS ( </span><img alt="" style="padding : 1px;" src="lib/SD_Http_26x26.png"><span class="rvts16"> ), ARQUIVO ( </span><img alt="" style="padding : 1px;" src="lib/SD_File_26x21.png"><span class="rvts16"> ) ou POSTGIS ( </span><img alt="" style="padding : 1px;" src="lib/SD_Postgis_26x27.png"><span class="rvts16"> ).</span></li>
+<li class="rvps11"><span class="rvts16">Um usuário pode definir vários servidores de dados em um projeto;</span></li>
+<li class="rvps11"><span class="rvts16">Um servidor pode ser utilizado para prover ou receber dados para a plataforma TerraMA</span><span class="rvts29">2</span><span class="rvts16">;</span></li>
+<li class="rvps11"><span class="rvts16">Um servidor de dados pode prover acesso a um conjunto de arquivos em um formato específico, acesso a tabelas de um banco de dados ou acesso a dados na forma de serviços web;</span></li>
+<li class="rvps11"><span class="rvts16">Um servidor de dados pode armazenar dados na forma de arquivos ou tabelas de bancos de dados;</span></li>
+<li class="rvps11"><span class="rvts16">Um servidor de dados pode ser de um dos tipos (com o seguinte ícone associado); FTP ( </span><img alt="" style="padding : 1px;" src="lib/SD_Ftp_26x26.png"><span class="rvts16"> ), HTTP ou HTTPS ( </span><img alt="" style="padding : 1px;" src="lib/SD_Http_26x26.png"><span class="rvts16"> ), ARQUIVO ( </span><img alt="" style="padding : 1px;" src="lib/SD_File_26x21.png"><span class="rvts16"> ) ou POSTGIS ( </span><img alt="" style="padding : 1px;" src="lib/SD_Postgis_26x27.png"><span class="rvts16"> ).</span></li>
 </ul>
-<p class="rvps2"><span class="rvts18"><br/></span></p>
-<p class="rvps17"><a class="rvts30" href="add_data_servers.html">Adição de Servidor de Dados</a><span class="rvts29"> &nbsp;</span><img alt="" style="padding : 1px;" src="lib/working.jpg"></p>
-<p class="rvps17"><span class="rvts16"><br/></span></p>
-<p class="rvps6"><span class="rvts16">A Figura 2.10 mostra a área de trabalho do menu </span><span class="rvts17">“Servidores de Dados” </span><span class="rvts16">com a lista de servidores disponíveis. Nesta área é possível selecionar um servidor para fazer alguma edição, criar um novo servidor &nbsp;ou ainda remover um servidor existente. Veja a seguir as opções de manipulação.</span></p>
-<p class="rvps23"><img alt="" style="padding : 1px;" src="lib/Fig2_10_web.png"></p>
-<p class="rvps26"><span class="rvts19">Figura 2.10 – </span><span class="rvts20">Módulo de Administração: Lista de servidores disponíveis na área de trabalho.</span></p>
-<p class="rvps26"><span class="rvts20"><br/></span></p>
+<p class="rvps2"><span class="rvts13"><br/></span></p>
+<p class="rvps21"><a class="rvts33" href="add_data_servers.html">Adição de Servidor de Dados</a><span class="rvts32"> &nbsp;</span><img alt="" style="padding : 1px;" src="lib/working.jpg"></p>
+<p class="rvps21"><span class="rvts16"><br/></span></p>
+<p class="rvps9"><span class="rvts16">A Figura 2.10 mostra a área de trabalho do menu </span><span class="rvts17">“Servidores de Dados” </span><span class="rvts16">com a lista de servidores disponíveis. Nesta área é possível selecionar um servidor para fazer alguma edição, criar um novo servidor &nbsp;ou ainda remover um servidor existente. Veja a seguir as opções de manipulação.</span></p>
+<p class="rvps27"><img alt="" style="padding : 1px;" src="lib/Fig2_10_web.png"></p>
+<p class="rvps30"><span class="rvts18">Figura 2.10 – </span><span class="rvts19">Módulo de Administração: Lista de servidores disponíveis na área de trabalho.</span></p>
+<p class="rvps30"><span class="rvts19"><br/></span></p>
 <p class="rvps2"><span class="rvts16">As opções de manipulação de usuário são:</span></p>
-<p class="rvps2"><span class="rvts20"> </span></p>
+<p class="rvps2"><span class="rvts19"> </span></p>
 <ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;">
-<li class="rvps27"><span class="rvts0"><span class="rvts25">ADICIONANDO UM SERVIDOR DE DADOS:</span></span></li>
+<li class="rvps31"><span class="rvts0"><span class="rvts28">ADICIONANDO UM SERVIDOR DE DADOS:</span></span></li>
 </ul></ul></ul></ul>
-<p class="rvps6"><span class="rvts16">Para adicionar um novo servidor de dados é necessário ter um projeto ativo. No menu de opções selecione “</span><span class="rvts17">Servidores de Dados</span><span class="rvts16">” para que a lista de servidores disponíveis seja apresentada na área de trabalho. Clique no botão “ </span><span class="rvts33">+</span><span class="rvts16"> ” para adicionar novo servidor. Utilize o botão </span><span class="rvts17">“Salvar”</span><span class="rvts16"> para salvar o servidor. Botão </span><span class="rvts17">“Verificar Conexão”</span><span class="rvts16"> verifica se os parâmetros preenchidos estão corretos. Não é permitido nomes de servidores em duplicidade. Botão </span><span class="rvts17">“Cancelar”</span><span class="rvts16"> volta à tela anterior sem salvar o servidor. &nbsp;Detalhes da adição de um novo servidor de dados &nbsp;</span><a class="rvts23" href="add_data_servers.html">veja aqui</a><span class="rvts16">.</span></p>
-<p class="rvps2"><span class="rvts18"><br/></span></p>
+<p class="rvps9"><span class="rvts16">Para adicionar um novo servidor de dados é necessário ter um projeto ativo. No menu de opções selecione “</span><span class="rvts17">Servidores de Dados</span><span class="rvts16">” para que a lista de servidores disponíveis seja apresentada na área de trabalho. Clique no botão “ </span><span class="rvts36">+</span><span class="rvts16"> ” para adicionar novo servidor. Utilize o botão </span><span class="rvts17">“Salvar”</span><span class="rvts16"> para salvar o servidor. Botão </span><span class="rvts17">“Verificar Conexão”</span><span class="rvts16"> verifica se os parâmetros preenchidos estão corretos. Não é permitido nomes de servidores em duplicidade. Botão </span><span class="rvts17">“Cancelar”</span><span class="rvts16"> volta à tela anterior sem salvar o servidor. &nbsp;Detalhes da adição de um novo servidor de dados &nbsp;</span><a class="rvts26" href="add_data_servers.html">veja aqui</a><span class="rvts16">.</span></p>
+<p class="rvps2"><span class="rvts13"><br/></span></p>
 <ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;">
-<li class="rvps27"><span class="rvts0"><span class="rvts25">CONSULTANDO E ALTERANDO AS CONFIGURAÇÕES DE UM SERVIDOR:</span></span></li>
+<li class="rvps31"><span class="rvts0"><span class="rvts28">CONSULTANDO E ALTERANDO AS CONFIGURAÇÕES DE UM SERVIDOR:</span></span></li>
 </ul></ul></ul></ul>
-<p class="rvps6"><span class="rvts16">Para consultar e alterar as configurações de um servidor clique em “</span><span class="rvts17">Servidores de Dados</span><span class="rvts16">” no menu de opções e na área de trabalho clique sobre o nome, tipo ou descrição de um item disponível. Após editar os campos desejados utilize o botão </span><span class="rvts17">“Salvar”</span><span class="rvts16"> para salvar as alterações. Botão </span><span class="rvts17">“Cancelar”</span><span class="rvts16"> volta à tela anterior sem salvar alterações.</span></p>
-<p class="rvps2"><span class="rvts18"><br/></span></p>
+<p class="rvps9"><span class="rvts16">Para consultar e alterar as configurações de um servidor clique em “</span><span class="rvts17">Servidores de Dados</span><span class="rvts16">” no menu de opções e na área de trabalho clique sobre o nome, tipo ou descrição de um item disponível. Após editar os campos desejados utilize o botão </span><span class="rvts17">“Salvar”</span><span class="rvts16"> para salvar as alterações. Botão </span><span class="rvts17">“Cancelar”</span><span class="rvts16"> volta à tela anterior sem salvar alterações.</span></p>
+<p class="rvps2"><span class="rvts13"><br/></span></p>
 <ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;">
-<li class="rvps27"><span class="rvts0"><span class="rvts25">FILTRANDO ITENS NA LISTA DE SERVIDORES:</span></span></li>
+<li class="rvps31"><span class="rvts0"><span class="rvts28">FILTRANDO ITENS NA LISTA DE SERVIDORES:</span></span></li>
 </ul></ul></ul></ul>
-<p class="rvps6"><span class="rvts16">Para filtrar itens na lista de servidores clique em “</span><span class="rvts17">Servidores de Dados</span><span class="rvts16">” no menu de opções. Na área de trabalho no campo texto “Digite para pesquisar” digite o texto desejado. Note que todas as colunas disponíveis são utilizadas no filtro. Utilize o botão “</span><img width="12" height="13" alt="lupa.png" src="lib/NewItem5.png"><span class="rvts16">Avançado” para apresentar os botões referentes aos tipos de servidores e escolher os que deverão fazer parte da lista. Por padrão todos os tipos estarão selecionados. O filtro digitado e o(os) botões de escolha do tipo de servidores são combinados para apresentar os itens da lista.</span></p>
-<p class="rvps2"><span class="rvts18"><br/></span></p>
+<p class="rvps9"><span class="rvts16">Para filtrar itens na lista de servidores clique em “</span><span class="rvts17">Servidores de Dados</span><span class="rvts16">” no menu de opções. Na área de trabalho no campo texto “Digite para pesquisar” digite o texto desejado. Note que todas as colunas disponíveis são utilizadas no filtro. Utilize o botão “</span><img width="12" height="13" alt="lupa.png" src="lib/NewItem5.png"><span class="rvts16">Avançado” para apresentar os botões referentes aos tipos de servidores e escolher os que deverão fazer parte da lista. Por padrão todos os tipos estarão selecionados. O filtro digitado e o(os) botões de escolha do tipo de servidores são combinados para apresentar os itens da lista.</span></p>
+<p class="rvps2"><span class="rvts13"><br/></span></p>
 <ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;">
-<li class="rvps27"><span class="rvts0"><span class="rvts25">IMPORTANDO UM NOVO SERVIDOR:</span></span></li>
+<li class="rvps31"><span class="rvts0"><span class="rvts28">IMPORTANDO UM NOVO SERVIDOR:</span></span></li>
 </ul></ul></ul></ul>
-<p class="rvps6"><span class="rvts16">Para importar a configuração de um novo servidor de dados, selecione o botão Importar. (</span><span class="rvts37">EM DESENVOLVIMENTO)</span><span class="rvts16">.</span></p>
-<p class="rvps2"><span class="rvts18"><br/></span></p>
-<p class="rvps24"><span class="rvts17">NOTA</span><span class="rvts16">: Arquivos de configuração de servidores de dados no formato JSON podem ser obtidos do site do TerraMA</span><span class="rvts26">2</span><span class="rvts16"> (</span><a class="rvts38" href="http://www.dpi.inpe.br/terrama2/documentos.php">http://www.dpi.inpe.br/terrama2/documentos.php</a><span class="rvts16">) ou serem criados a partir de um projeto qualquer do usuário (veja exportação de projetos acima).</span></p>
-<p class="rvps2"><span class="rvts18"><br/></span></p>
+<p class="rvps9"><span class="rvts16">Para importar a configuração de um novo servidor de dados, selecione o botão Importar. (</span><span class="rvts40">EM DESENVOLVIMENTO)</span><span class="rvts16">.</span></p>
+<p class="rvps2"><span class="rvts13"><br/></span></p>
+<p class="rvps28"><span class="rvts17">NOTA</span><span class="rvts16">: Arquivos de configuração de servidores de dados no formato JSON podem ser obtidos do site do TerraMA</span><span class="rvts29">2</span><span class="rvts16"> (</span><a class="rvts41" href="http://www.dpi.inpe.br/terrama2/documentos.php">http://www.dpi.inpe.br/terrama2/documentos.php</a><span class="rvts16">) ou serem criados a partir de um projeto qualquer do usuário (veja exportação de projetos acima).</span></p>
+<p class="rvps2"><span class="rvts13"><br/></span></p>
 <ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;">
-<li class="rvps27"><span class="rvts0"><span class="rvts25">EXPORTANDO UM SERVIDOR DE DADOS:</span></span></li>
+<li class="rvps31"><span class="rvts0"><span class="rvts28">EXPORTANDO UM SERVIDOR DE DADOS:</span></span></li>
 </ul></ul></ul></ul>
-<p class="rvps6"><span class="rvts16">Para exportar a configuração de um servidor de dados utilize a opção de menu “Projetos”. Na frente do nome do projeto clique em “”. Uma janela será apresentada para selecionar que itens do projeto devem ser exportados. Desmarque o botão a frente do nome do projeto e abra os itens em “Servidores de Dados” o botão “ </span><span class="rvts33">+</span><span class="rvts17"> </span><span class="rvts16">”. Marque ou desmarque o item desejado. Clique o botão </span><span class="rvts17">“Exportar”</span><span class="rvts16"> para confirmar exportação dos itens marcados.</span></p>
-<p class="rvps2"><span class="rvts18"><br/></span></p>
+<p class="rvps9"><span class="rvts16">Para exportar a configuração de um servidor de dados utilize a opção de menu “Projetos”. Na frente do nome do projeto clique em “”. Uma janela será apresentada para selecionar que itens do projeto devem ser exportados. Desmarque o botão a frente do nome do projeto e abra os itens em “Servidores de Dados” o botão “ </span><span class="rvts36">+</span><span class="rvts17"> </span><span class="rvts16">”. Marque ou desmarque o item desejado. Clique o botão </span><span class="rvts17">“Exportar”</span><span class="rvts16"> para confirmar exportação dos itens marcados.</span></p>
+<p class="rvps2"><span class="rvts13"><br/></span></p>
 <ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;">
-<li class="rvps27"><span class="rvts0"><span class="rvts25">REMOVENDO UM SERVIDOR DE DADOS:</span></span></li>
+<li class="rvps31"><span class="rvts0"><span class="rvts28">REMOVENDO UM SERVIDOR DE DADOS:</span></span></li>
 </ul></ul></ul></ul>
-<p class="rvps6"><span class="rvts16">Para remover um servidor de um projeto ativo clique no menu “</span><span class="rvts17">Servidores de Dados</span><span class="rvts16">” para apresentar a lista de servidores na área de trabalho. Na frente do nome do servidor clique em “</span><span class="rvts17">Remover</span><span class="rvts16">”. Confirme a remoção na mensagem com “OK”.</span></p>
-<p class="rvps2"><span class="rvts18"><br/></span></p>
-<p class="rvps24"><span class="rvts17">Importante: </span><span class="rvts16">Um servidor somente poderá ser removido se não houver nenhum dado estático ou dinâmico associado. (</span><span class="rvts37">EM DESENVOLVIMENTO)</span><span class="rvts16">.</span></p>
-<p class="rvps2"><span class="rvts18"><br/></span></p>
+<p class="rvps9"><span class="rvts16">Para remover um servidor de um projeto ativo clique no menu “</span><span class="rvts17">Servidores de Dados</span><span class="rvts16">” para apresentar a lista de servidores na área de trabalho. Na frente do nome do servidor clique em “</span><span class="rvts17">Remover</span><span class="rvts16">”. Confirme a remoção na mensagem com “OK”.</span></p>
+<p class="rvps2"><span class="rvts13"><br/></span></p>
+<p class="rvps28"><span class="rvts17">Importante: </span><span class="rvts16">Um servidor somente poderá ser removido se não houver nenhum dado estático ou dinâmico associado. (</span><span class="rvts40">EM DESENVOLVIMENTO)</span><span class="rvts16">.</span></p>
+<p class="rvps2"><span class="rvts13"><br/></span></p>
 <p></p>
-<p class="rvps5" style="clear: both;"><span class="rvts14">Created with the Personal Edition of HelpNDoc: </span><a class="rvts15" href="https://www.helpndoc.com">Free HTML Help documentation generator</a></p>
 
             </div>
             
@@ -245,19 +244,35 @@
         </div>  <!-- /#topic-content -->
     </article>
 
-    <footer>
-        
-    </footer>
+    <footer></footer>
 
   </div>  <!-- /#main -->
 
   <div class="mask" data-toggle="sm-nav-expanded"></div>
+  
+  <!-- Modal -->
+  <div class="modal fade" id="hndModal" tabindex="-1" role="dialog" aria-labelledby="hndModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="hndModalLabel"></h4>
+        </div>
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary modal-btn-close" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Scripts -->
   <script src="vendors/jquery-1.11.3/jquery.min.js"></script>
   <script src="vendors/bootstrap-3.3.6/js/bootstrap.min.js"></script>
   <script src="vendors/fastclick-1.0.6/fastclick.min.js"></script>
   <script src="vendors/markjs-8.8.3/jquery.mark.min.js"></script>
+  <script src="vendors/uri-1.18.9/uri.min.js"></script>
   <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
   <script src="vendors/bootstrap-3.3.6/js/ie10-viewport-bug-workaround.js"></script>
   
@@ -283,10 +298,16 @@
       var app = new Hnd.App();
       // Update translations
       hnd_ut(app);
+	  // Custom JS
+	  
       // Boot the app
       app.Boot();
     });
   </script>
 
-  
+
+
+</body>
+
+</html>
 
