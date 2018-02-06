@@ -86,7 +86,7 @@ std::string terrama2::services::alert::core::dataSetHtmlTable(const std::shared_
 
     for(std::size_t i = 0; i < numProperties; i++)
     {
-      line += "<td>" + dataSet->getAsString(i) +"</td>";
+      line += "<td>" + dataSet->getAsString(i, 2) +"</td>";
     }
 
     htmlTable += "<tr>" + line + "</tr>";

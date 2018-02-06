@@ -37,6 +37,7 @@ project(terrama2)
 set(TERRAMA2_VERSION_MAJOR 4)
 set(TERRAMA2_VERSION_MINOR 0)
 set(TERRAMA2_VERSION_PATCH 2)
+set(TERRAMA2_VERSION_DATABASE 1)
 set(TERRAMA2_VERSION_STATUS "release")
 set(TERRAMA2_VERSION_STATUS_FULL "-release")
 set(TERRAMA2_VERSION_STRING "${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}.${TERRAMA2_VERSION_PATCH}${TERRAMA2_VERSION_STATUS_FULL}")
@@ -486,6 +487,9 @@ if(TERRAMA2_DOXYGEN_ENABLED)
   add_subdirectory(terrama2_doxygen)
 endif()
 
+# Generate version file
+configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/share/terrama2/version.json.in
+               ${TERRAMA2_ABSOLUTE_ROOT_DIR}/share/terrama2/version.json @ONLY)
 
 #
 # install and targets export
