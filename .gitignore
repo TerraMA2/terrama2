@@ -9,6 +9,9 @@ webapp/public/externals
 webapp/bower_components
 webapp/*_terrama2.log
 webapp/config/webapp.json
+webapp/terrama2.log
+webapp/config/instances
+webapp/public/dist
 webmonitor/node_modules
 webmonitor/npm-debug*
 webmonitor/public/external
@@ -16,14 +19,12 @@ webmonitor/public/dist
 webmonitor/public/docs
 webmonitor/bower_components
 webmonitor/config/monitor.json
-webapp/terrama2.log
+webmonitor/config/instances
 .vscode
-webapp/public/dist
 scripts/postinst
 scripts/prerm
 scripts/postrm
-webapp/config/instances
-webmonitor/config/instances
+scripts/config_pm2.sh
+share/terrama2/version.json
 packages/debian-package/terrama2-doc
 packages/debian-package/terrama2-doc.deb
-scripts/config_pm2.sh

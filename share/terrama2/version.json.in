@@ -1,0 +1,7 @@
+{
+  "major": @TERRAMA2_VERSION_MAJOR@,
+  "minor": @TERRAMA2_VERSION_MINOR@,
+  "patch": @TERRAMA2_VERSION_PATCH@,
+  "tag": "@TERRAMA2_VERSION_STATUS@",
+  "database": @TERRAMA2_VERSION_DATABASE@
+}
