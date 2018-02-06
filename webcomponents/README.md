@@ -1,9 +1,6 @@
 # TerraMA² Webcomponents
 
-**NOTE:**
-* **Until we reach version 4.0.0 this codebase will be instable and not fully operational.**
-* **TerraMA² Webapp is under active development. We are preparing this site to host it!**
-* **If you want to try the old version, please, look at http://www.dpi.inpe.br/terrama2.**
+**NOTE:*** **Check the website for the most recent stable version: http://www.terrama2.dpi.inpe.br/**
 * **If you have any question, please, send us an e-mail at: terrama2-team@dpi.inpe.br.**
 
 TerraMA² Webcomponents is a free and open source component based web API for use in web geographic information systems (WebGIS).
