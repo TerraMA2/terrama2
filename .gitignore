@@ -25,6 +25,7 @@ scripts/postinst
 scripts/prerm
 scripts/postrm
 scripts/config_pm2.sh
+scripts/update_database.py
 share/terrama2/version.json
 packages/debian-package/terrama2-doc
 packages/debian-package/terrama2-doc.deb
