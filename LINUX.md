@@ -85,7 +85,7 @@ $ sudo apt install doxygen graphviz gnutls-bin gsasl libghc-gsasl-dev libgnutls-
 
 1.2. Download the VMime source used by the development team, from the link below:
   - [vv0.9.2.tar.gz](https://github.com/kisli/vmime/archive/v0.9.2.tar.gz).
-  
+
 1.3. Open the shell command line and change the current directory to that folder:
 ```
 $ cd /home/USER/mydevel/terrama2/codebase/packages/deb-package
@@ -156,7 +156,7 @@ $ make install
 $ make uninstall
 ```
 
-**Notes:** 
+**Notes:**
 
 - Some Linux flavours with different versions of GNU gcc and Boost will need more parameters such as:
 ```
@@ -204,7 +204,7 @@ $ ./deb-terrama2.sh
 
 1.4. To install TerraMA² debian package in the shell command line change the current directory to the `build-package` folder and run the following command:
 ```
-$ sudo dpkg -i TerraMA2-4.0.0-rc1-linux-x64-Ubuntu-16.04.deb
+$ sudo dpkg -i TerraMA2-4.0.2-release-linux-x64-Ubuntu-16.04.deb
 ```
 
 ### Quick Notes for Developers

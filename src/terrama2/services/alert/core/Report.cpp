@@ -37,7 +37,6 @@
 // TerraLib
 #include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/raster/Band.h>
-#include <terralib/memory/DataSetItem.h>
 
 // Qt
 #include <QObject>
