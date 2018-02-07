@@ -1,9 +1,7 @@
 # TerraMA² Webapp
 
 **NOTE:**
-* **Until we reach version 4.0.0 this codebase will be instable and not fully operational.**
-* **TerraMA² Webapp is under active development. We are preparing this site to host it!**
-* **If you want to try the old version, please, look at http://www.dpi.inpe.br/terrama2.**
+**NOTE:*** **Check the website for the most recent stable version: http://www.terrama2.dpi.inpe.br/**
 * **If you have any question, please, send us an e-mail at: terrama2-team@dpi.inpe.br.**
 
 TerraMA² Webapp is a free and open source component based web API for use in web geographic information systems (WebGIS).
@@ -37,7 +35,7 @@ TerraMA2 web application uses NodeJS Sequelize ORM for handling database manipul
 
 In order to execute, check available contexts names in [config/config.json](https://raw.githubusercontent.com/TerraMA2/terrama2/master/webapp/config/webapp.json) (Feel free to add a new one following section [Configuration File](#configuration-file)).
 
-After that, run ```npm start ContextName``` where **ContextName** is a key pointing to context credentials. 
+After that, run ```npm start ContextName``` where **ContextName** is a key pointing to context credentials.
 Example:
 
 ```bash
@@ -51,15 +49,15 @@ The TerraMA² Web settings can be found in [config/config.json](https://raw.gith
 
 Key               | Description
 ----------------- | -----------------------------------------------------------------
- port             | A TerraMA² Application Port Number 
- db               | Database credentials 
+ port             | A TerraMA² Application Port Number
+ db               | Database credentials
  db.username      | username
- db.password      | password 
- db.host          | host of database 
- db.port          | database port number 
- db.dialect       | dialect database (postgres/mysql). **Only postgres supported.** 
- db.define        | It represents a extra properties along database 
- db.define.schema | A database schema 
+ db.password      | password
+ db.host          | host of database
+ db.port          | database port number
+ db.dialect       | dialect database (postgres/mysql). **Only postgres supported.**
+ db.define        | It represents a extra properties along database
+ db.define.schema | A database schema
 
 
 ## Web Application components dependencies

@@ -153,7 +153,7 @@ void MainWidget::on_pushButtonStart_clicked()
 
     if(check)
     {
-        QString postinstPath = terrama2::core::FindInTerraMA2Path("scripts/postinst.sh").c_str();
+        QString postinstPath = QString::fromStdString(terrama2::core::FindInTerraMA2Path("terrama2/scripts/postinst"));
         terraMA_proc->start(postinstPath);
         if (!terraMA_proc->waitForStarted())
                 ui->textOutput->insertPlainText("Cannot connect to service.");

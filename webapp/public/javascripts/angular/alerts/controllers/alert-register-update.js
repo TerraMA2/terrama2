@@ -329,7 +329,7 @@ define([], function() {
                   }
                 }
                 for(var j = 0, levelsLength = self.legendModel.levels.length; j < levelsLength; j++) {
-                  if(self.legendModel.levels[j].level === self.alert.notifications[0].notify_on_legend_level) {
+                  if(self.legendModel.levels[j].level && self.legendModel.levels[j].level === self.alert.notifications[0].notify_on_legend_level) {
                     self.notify_on_legend_level = self.legendModel.levels[j]._id;
                     break;
                   }
@@ -977,6 +977,10 @@ define([], function() {
         return;
       }
 
+      if(self.notifyOnLegendLevel && !self.notify_on_legend_level) {
+        return MessageBoxService.danger(i18n.__("Alerts"), i18n.__("Select a level in the 'Notify on legend level' option!"));
+      }
+
       $timeout(function() {
         if($scope.forms.alertForm.$invalid || $scope.forms.dataSeriesForm.$invalid || $scope.forms.legendLevel.$invalid || $scope.forms.reportForm.$invalid || $scope.forms.notificationForm.$invalid || ($scope.forms.alertAttachmentForm && $scope.forms.alertAttachmentForm.$invalid)) {
           self.MessageBoxService.danger(i18n.__("Alerts"), errMessageInvalidFields);
@@ -1015,6 +1019,14 @@ define([], function() {
           }
         }
 
+        if(!self.includeReport && self.alert.notifications[0].include_report !== undefined)
+          self.alert.notifications[0].include_report = null;
+
+        if(!self.notifyOnLegendLevel && (self.alert.notifications[0].notify_on_legend_level !== undefined || self.notify_on_legend_level !== undefined)) {
+          self.alert.notifications[0].notify_on_legend_level = null;
+          self.notify_on_legend_level = null;
+        }
+
         var legendTemp = $.extend(true, {}, self.legendModel);
         var level = 1;
 
@@ -1034,12 +1046,6 @@ define([], function() {
           delete legendTemp.id;
 
         self.alert.legend = legendTemp;
-
-        if(!self.includeReport && self.alert.notifications[0].include_report !== undefined)
-          self.alert.notifications[0].include_report = null;
-
-        if(!self.notifyOnLegendLevel && self.alert.notifications[0].notify_on_legend_level !== undefined)
-          self.alert.notifications[0].notify_on_legend_level = null;
 
         if (self.alert.schedule && Object.keys(self.alert.schedule).length !== 0) {
           self.alert.schedule_type = self.alert.schedule.scheduleType;
