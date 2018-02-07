@@ -383,4 +383,3 @@ terrama2::core::ProcessPtr terrama2::services::collector::core::Service::getProc
   auto dataManager = std::static_pointer_cast<terrama2::services::collector::core::DataManager>(dataManager_.lock());
   return dataManager->findCollector(processId);
 }
-
