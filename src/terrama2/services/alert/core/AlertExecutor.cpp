@@ -51,6 +51,7 @@
 // Terralib
 #include <terralib/memory/DataSetItem.h>
 #include <terralib/datatype/SimpleProperty.h>
+#include <terralib/datatype/StringProperty.h>
 #include <terralib/datatype/DateTimeProperty.h>
 #include <terralib/datatype/TimeInstantTZ.h>
 #include <terralib/dataaccess/dataset/ForeignKey.h>
@@ -79,7 +80,7 @@ terrama2::services::alert::core::AlertExecutor::AlertExecutor()
   qRegisterMetaType<std::shared_ptr<te::dt::TimeInstantTZ>>("std::shared_ptr<te::dt::TimeInstantTZ>");
 }
 
-std::map<std::shared_ptr<te::dt::AbstractData>, std::map<std::string, std::pair<std::shared_ptr<te::dt::AbstractData>, uint32_t> >, terrama2::services::alert::core::comparatorAbstractData>
+std::map<std::shared_ptr<te::dt::AbstractData>, std::map<std::string, std::pair<std::string, uint32_t> >>
 terrama2::services::alert::core::AlertExecutor::getResultMap(terrama2::core::LegendPtr risk,
                                                              size_t pos,
                                                              te::dt::Property* idProperty,
@@ -87,7 +88,7 @@ terrama2::services::alert::core::AlertExecutor::getResultMap(terrama2::core::Leg
                                                              std::shared_ptr<te::da::DataSet> teDataset,
                                                              std::vector<std::shared_ptr<te::dt::DateTime> > vecDates)
 {
-  std::map<std::shared_ptr<te::dt::AbstractData>, std::map<std::string, std::pair<std::shared_ptr<te::dt::AbstractData>, uint32_t> >, comparatorAbstractData> riskResultMap;
+  std::map<std::shared_ptr<te::dt::AbstractData>, std::map<std::string, std::pair<std::string, uint32_t> >> riskResultMap;
   teDataset->moveBeforeFirst();
   // Get the risk for data
   while(teDataset->moveNext())
@@ -112,21 +113,18 @@ terrama2::services::alert::core::AlertExecutor::getResultMap(terrama2::core::Leg
     std::string attributeValue;
 
     // create a getRisk function
-    auto getRisk = createGetRiskFunction(risk, teDataset);
-    std::tie(riskLevel, riskName, attributeValue) = getRisk(pos);
+    std::tie(riskLevel, riskName, attributeValue) = getRisk(risk, teDataset, pos);
 
     auto& resultMap = riskResultMap[identifierValue];
-    std::shared_ptr<te::dt::AbstractData> attrValue = teDataset->getValue(pos);
-    auto pair = std::make_pair(attrValue, riskLevel);
-    assert(attrValue.get());
+    auto pair = std::make_pair(attributeValue, riskLevel);
     resultMap[executionDate->toString()] = pair;
   }
 
   return riskResultMap;
 }
 
-std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::AlertExecutor::populateMonitoredObjectAlertDataset( std::vector<std::shared_ptr<te::dt::DateTime> > vecDates,
-                                                                                                                       std::map<std::shared_ptr<te::dt::AbstractData>, std::map<std::string, std::pair<std::shared_ptr<te::dt::AbstractData>, uint32_t> >, comparatorAbstractData> riskResultMap,
+std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::AlertExecutor::populateMonitoredObjectAlertDataset(std::vector<std::shared_ptr<te::dt::DateTime> > vecDates,
+                                                                                                                       std::map<std::shared_ptr<te::dt::AbstractData>, std::map<std::string, std::pair<std::string, uint32_t> > > riskResultMap,
                                                                                                                        AlertPtr alertPtr,
                                                                                                                        te::dt::Property* fkProperty,
                                                                                                                        std::shared_ptr<te::da::DataSetType> alertDataSetType)
@@ -147,7 +145,7 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::AlertExecutor
     dsItem->setValue(fkProperty->getName(), value->clone());
 
     auto attrValue = resultMap.at(currentDate->toString()).first;
-    dsItem->setValue(alertPtr->riskAttribute, attrValue->clone());
+    dsItem->setString(alertPtr->riskAttribute, attrValue);
 
     auto currentRisk = resultMap.at(currentDate->toString()).second;
     dsItem->setInt32(currentRiskProperty, static_cast<int>(currentRisk));
@@ -186,7 +184,9 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::AlertExecutor
   return alertDataSet;
 }
 
-void terrama2::services::alert::core::AlertExecutor::addAdditionalData(std::shared_ptr<te::mem::DataSet> alertDataSet, const std::vector<AdditionalData>& additionalDataVector, std::unordered_map<std::string, terrama2::core::TeDataSetFKJoin> additionalDataMap)
+void terrama2::services::alert::core::AlertExecutor::addAdditionalData(std::shared_ptr<te::mem::DataSet> alertDataSet,
+                                                                       const std::vector<AdditionalData>& additionalDataVector,
+                                                                       std::unordered_map<std::string, terrama2::core::TeDataSetFKJoin> additionalDataMap)
 {
   // list of additional properties
   std::set<std::string> propertyNames;
@@ -247,6 +247,46 @@ terrama2::services::alert::core::AlertExecutor::monitoredObjectAlert(std::shared
                                                                      std::unordered_map<DataSeriesId, std::pair<terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr> > tempAdditionalDataVector,
                                                                      std::shared_ptr<terrama2::core::FileRemover> remover)
 {
+  auto alertDataSetType = createAlertDataSetType(alertPtr, dataset);
+
+  auto fkProperty = idProperty->clone();
+  alertDataSetType->add(fkProperty);
+
+  auto oldRiskAttributeProp = dataSetType->getProperty(alertPtr->riskAttribute);
+  auto riskAttributeProp = new te::dt::StringProperty(oldRiskAttributeProp->getName());
+  alertDataSetType->add(riskAttributeProp);
+
+  auto pos = dataSetType->getPropertyPosition(alertPtr->riskAttribute);
+  if(pos == std::numeric_limits<decltype(pos)>::max())
+  {
+    TERRAMA2_LOG_ERROR() << QObject::tr("Risk attribute %1 doesn't exist in dataset %2").arg(QString::fromStdString(alertPtr->riskAttribute)).arg(dataset->id);
+    return nullptr;
+  }
+
+  // Remove uneccessary oldest dates
+  auto lastValues = *filter.lastValues;
+
+  if(vecDates.size() > lastValues)
+    vecDates = {vecDates.rbegin(), vecDates.rbegin()+lastValues};
+
+  // Insert the risk properties
+  for(size_t i = 0; i < vecDates.size(); i++)
+  {
+    const std::string riskLevelProperty = dateTimeToString(vecDates.at(i));
+
+    te::dt::SimpleProperty* riskLevelProp = new te::dt::SimpleProperty(riskLevelProperty, te::dt::INT32_TYPE);
+    alertDataSetType->add(riskLevelProp);
+  }
+
+  if(vecDates.size() > 1)
+  {
+    te::dt::SimpleProperty* comparisonPreviousProp = new te::dt::SimpleProperty(COMPARISON_PROPERTY_NAME, te::dt::INT32_TYPE);
+    alertDataSetType->add(comparisonPreviousProp);
+  }
+
+  auto riskResultMap = getResultMap(legend, pos, idProperty, datetimeColumnName, teDataset, vecDates);
+  std::shared_ptr<te::mem::DataSet> alertDataSet = populateMonitoredObjectAlertDataset(vecDates, riskResultMap, alertPtr, fkProperty, alertDataSetType);
+
   //Creat a Join class based on the ForeignKey of the dataset
   std::unordered_map<std::string, terrama2::core::TeDataSetFKJoin> additionalDataMap;
   for(const auto& additionalData : additionalDataVector)
@@ -295,8 +335,8 @@ terrama2::services::alert::core::AlertExecutor::monitoredObjectAlert(std::shared
       referredDataSeries = dataMap.at(iter->first);
     }
 
-      terrama2::core::TeDataSetFKJoin join(dataSetType,
-                                           teDataset,
+      terrama2::core::TeDataSetFKJoin join(alertDataSetType,
+                                           alertDataSet,
                                            additionalData.referrerAttribute,
                                            referredDataSeries.teDataSetType,
                                            referredDataSeries.syncDataSet->dataset(),
@@ -306,45 +346,6 @@ terrama2::services::alert::core::AlertExecutor::monitoredObjectAlert(std::shared
       additionalDataMap.emplace(key, join);
   }
 
-  auto alertDataSetType = createAlertDataSetType(alertPtr, dataset);
-
-  auto fkProperty = idProperty->clone();
-  fkProperty->setName(idProperty->getName()+"_fk");
-  alertDataSetType->add(fkProperty);
-
-  auto riskAttributeProp = dataSetType->getProperty(alertPtr->riskAttribute)->clone();
-  alertDataSetType->add(riskAttributeProp);
-
-  auto pos = dataSetType->getPropertyPosition(alertPtr->riskAttribute);
-  if(pos == std::numeric_limits<decltype(pos)>::max())
-  {
-    TERRAMA2_LOG_ERROR() << QObject::tr("Risk attribute %1 doesn't exist in dataset %2").arg(QString::fromStdString(alertPtr->riskAttribute)).arg(dataset->id);
-    return nullptr;
-  }
-
-  // Remove uneccessary oldest dates
-  auto lastValues = *filter.lastValues;
-
-  if(vecDates.size() > lastValues)
-    vecDates = {vecDates.rbegin(), vecDates.rbegin()+lastValues};
-
-  // Insert the risk properties
-  for(size_t i = 0; i < vecDates.size(); i++)
-  {
-    const std::string riskLevelProperty = dateTimeToString(vecDates.at(i));
-
-    te::dt::SimpleProperty* riskLevelProp = new te::dt::SimpleProperty(riskLevelProperty, te::dt::INT32_TYPE);
-    alertDataSetType->add(riskLevelProp);
-  }
-
-  if(vecDates.size() > 1)
-  {
-    te::dt::SimpleProperty* comparisonPreviousProp = new te::dt::SimpleProperty(COMPARISON_PROPERTY_NAME, te::dt::INT32_TYPE);
-    alertDataSetType->add(comparisonPreviousProp);
-  }
-
-  auto riskResultMap = getResultMap(legend, pos, idProperty, datetimeColumnName, teDataset, vecDates);
-  std::shared_ptr<te::mem::DataSet> alertDataSet = populateMonitoredObjectAlertDataset(vecDates, riskResultMap, alertPtr, fkProperty, alertDataSetType);
   addAdditionalData(alertDataSet, additionalDataVector, additionalDataMap);
 
   // remove fk column
@@ -705,8 +706,6 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
         }
       }
 
-
-
       alertGenerated = true;
     }
 
@@ -891,15 +890,24 @@ void terrama2::services::alert::core::AlertExecutor::sendNotification(const std:
   }
 }
 
-std::function<std::tuple<int, std::string, std::string>(size_t pos)>
-terrama2::services::alert::core::AlertExecutor::createGetRiskFunction(terrama2::core::LegendPtr legend, std::shared_ptr<te::da::DataSet> teDataSet)
+std::tuple<int, std::string, std::string>
+terrama2::services::alert::core::AlertExecutor::getRisk(terrama2::core::LegendPtr legend, std::shared_ptr<te::da::DataSet> teDataSet, size_t pos)
 {
-  return [legend, teDataSet](size_t pos)
+  double value;
+  std::string strValue;
+  if(teDataSet->isNull(pos))
   {
-    const auto& value = teDataSet->getDouble(pos);
-    auto level = legend->riskLevel(value);
-    return std::make_tuple(std::get<0>(level), std::get<1>(level), teDataSet->getValue(pos)->toString());
-  };
+   value = std::numeric_limits<double>::max();
+   strValue = "NULL";
+  }
+  else
+  {
+    value = teDataSet->getDouble(pos);
+    strValue = std::to_string(value);
+  }
+
+  auto level = legend->riskLevel(value);
+  return std::make_tuple(std::get<0>(level), std::get<1>(level), strValue);
 }
 
 std::string terrama2::services::alert::core::AlertExecutor::getIdentifierPropertyName(terrama2::core::DataSetPtr dataSet, terrama2::core::DataSeriesPtr dataSeries)
