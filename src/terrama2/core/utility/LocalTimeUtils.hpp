@@ -32,7 +32,18 @@
 
 #include <chrono>
 #include <string>
-
+//////////////////////////////////////////////////////////
+//
+// For the current versions of GCC and clang the put_time function is not implemented
+// and only partially implemented in MSVC
+//
+// this code implements the necessary functions to find the current system timezone
+// it is originaly from: https://kjellkod.wordpress.com/2013/01/22/exploring-c11-part-2-localtime-and-time-again/
+//
+// Can be remove when the STL time functions are implemented.
+//
+// note: This functions are thread safe
+//
 namespace g2
 {
   tm localtime(const std::time_t& time);
