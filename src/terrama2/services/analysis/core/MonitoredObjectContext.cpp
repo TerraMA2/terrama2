@@ -176,14 +176,6 @@ void terrama2::services::analysis::core::MonitoredObjectContext::addDCPDataSerie
   if(!needToAdd)
     return;
 
-  time_t ts = 0;
-  struct tm t;
-  char buf[16];
-  ::localtime_r(&ts, &t);
-  ::strftime(buf, sizeof(buf), "%Z", &t);
-
-
-
   auto dataManagerPtr = dataManager_.lock();
   if(!dataManagerPtr)
   {
