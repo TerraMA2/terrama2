@@ -542,8 +542,6 @@ if(APPLE)
 elseif(UNIX)
   configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/config_pm2.sh.in
                  ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/config_pm2.sh @ONLY)
-  configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/update_database.py.in
-                 ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/update_database.py @ONLY)
   configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postinst.in
                  ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postinst @ONLY)
   configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/prerm.in
@@ -560,8 +558,6 @@ elseif(UNIX)
   install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/prerm
           DESTINATION ${TERRAMA2_DESTINATION_SHARE}/terrama2/scripts COMPONENT scripts)
   install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postrm
-          DESTINATION ${TERRAMA2_DESTINATION_SHARE}/terrama2/scripts COMPONENT scripts)
-  install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/update_database.py
           DESTINATION ${TERRAMA2_DESTINATION_SHARE}/terrama2/scripts COMPONENT scripts)
 endif()
 

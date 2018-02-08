@@ -12,6 +12,7 @@ webapp/config/webapp.json
 webapp/terrama2.log
 webapp/config/instances
 webapp/public/dist
+webapp/package-lock.json
 webmonitor/node_modules
 webmonitor/npm-debug*
 webmonitor/public/external
@@ -20,12 +21,12 @@ webmonitor/public/docs
 webmonitor/bower_components
 webmonitor/config/monitor.json
 webmonitor/config/instances
+webmonitor/package-lock.json
 .vscode
 scripts/postinst
 scripts/prerm
 scripts/postrm
 scripts/config_pm2.sh
-scripts/update_database.py
 share/terrama2/version.json
 packages/debian-package/terrama2-doc
 packages/debian-package/terrama2-doc.deb
