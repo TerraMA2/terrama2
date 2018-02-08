@@ -71,7 +71,7 @@ define([], function() {
 
     $scope.socket.on("serviceVersion", function(response) {
       if (!response.match) {
-        MessageBoxService.warn(i18n.__($scope.title), i18n.__("It seems you are using a different versions of TerraMA². Current version of TerraMA² Web is " + response.current + " " +i18n.__("but the TerraMA² service version is") + " " + response.response + ". " +i18n.__("Some operations may not work properly")));
+        MessageBoxService.warning(i18n.__($scope.title), i18n.__("It seems you are using a different versions of TerraMA². Current version of TerraMA² Web is " + response.current + " " +i18n.__("but the TerraMA² service version is") + " " + response.response + ". " +i18n.__("Some operations may not work properly")));
       }
     });
 

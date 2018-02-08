@@ -46,6 +46,7 @@ var Application = require("./../../Application");
  * @type {Object}
  */
 var webapp = Application.get("metadata");
+var versionData = require("../../../../share/terrama2/version.json");
 
 /**
  * It handles TCP service manipulation. Use  it to be pipe between front-end and back-end application
@@ -755,12 +756,12 @@ function onProcessValidated(service, response) {
  * @param {string} response - Response version
  */
 function onServiceVersionReceived(service, response) {
-  var version = webapp.version;
+  var version = versionData.major + "." + versionData.minor + "." + versionData.patch + "-" + versionData.tag;//webapp.version;
   tcpService.emit("serviceVersion", {
     service: service.id,
-    response: response.replace("TerraMA2", ""),
-    current: version,
-    match: response.endsWith(version)
+    response: response.replace("TerraMA2", "").toLowerCase(),
+    current: version.toLowerCase(),
+    match: response.toLowerCase().endsWith(version.toLowerCase())
   });
 }
 

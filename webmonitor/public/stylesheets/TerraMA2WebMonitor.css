@@ -694,6 +694,13 @@ img[src=""] {
   overflow-y: auto;
 }
 
+#filter-box {
+  position: absolute;
+  width: 600px;
+  height: 480px;
+  right: 65px;
+}
+
 #legend-box {
   position: absolute;
   width: 320px;
@@ -701,7 +708,7 @@ img[src=""] {
   right: 65px;
 }
 
-#legend-box, #layer-toolbox {
+#legend-box, #layer-toolbox, #filter-box {
   background-color: white;
   z-index: 99999;
   border-radius: 5px;
@@ -709,7 +716,7 @@ img[src=""] {
   top: 21px;
 }
 
-#legend-box > .legend-header, #layer-toolbox .layer-toolbox-header {
+#legend-box > .legend-header, #layer-toolbox .layer-toolbox-header, #filter-box > .filter-header {
   padding: 10px;
   color: #000000;
   overflow: hidden;
@@ -738,7 +745,7 @@ img[src=""] {
   margin-right: 9px;
 }
 
-#legend-box > .legend-body, #layer-toolbox .layer-toolbox-body {
+#legend-box > .legend-body, #layer-toolbox .layer-toolbox-body, #filter-box > .filter-body {
   padding: 10px;
   overflow: auto;
   width: 100%;
@@ -746,7 +753,9 @@ img[src=""] {
   cursor: default;
 }
 
-#legend-box > .legend-body {
+#filter-box > .filter-body > .row, #filter-items > .row { margin: 0; }
+
+#legend-box > .legend-body, #filter-box > .filter-body {
   margin-top: 45px;
   position: absolute;
   height: calc(100% - 45px);

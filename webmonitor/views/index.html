@@ -108,6 +108,90 @@
           {% set message = message || {} %}
 
           <div id="terrama2-map" class="terrama2-map cursor-move">
+            <div id="filter-box" class="">
+              <div class="filter-header">
+                <span data-i18n="Filter"></span><span class="btn btn-default" style="padding: 0 4px 0 4px; float: right;"><i class="fa fa-close"></i></span>
+              </div>
+              <div class="filter-body">
+                <div class="row">
+                  <div class="col-lg-12">
+                    <div class="form-group">
+                      <label>Camada</label>
+                      <select class="form-control" id="filter-layers"></select>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-lg-2">
+                    <button type="button" class="btn btn-block btn-primary btn-sm" id="add-filter-item-button"><i class="fa fa-plus"></i></button>
+                  </div>
+                </div>
+                <hr/>
+                <div id="filter-items">
+                  <div class="row">
+                    <div class="col-lg-12">
+                      <p style="font-weight: 900; text-align: center;">Nenhum filtro para essa camada.</p>
+                    </div>
+                    <div class="col-lg-3">
+                      <div class="form-group">
+                        <label>Coluna</label>
+                        <select class="form-control">
+                          <option>option 1</option>
+                          <option>option 2</option>
+                          <option>option 3</option>
+                          <option>option 4</option>
+                          <option>option 5</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-lg-3" style="padding-left: 0;">
+                      <div class="form-group">
+                        <label>Operador</label>
+                        <select class="form-control">
+                          <option>+</option>
+                          <option>-</option>
+                          <option>*</option>
+                          <option>/</option>
+                          <option>%</option>
+                          <option>^</option>
+                          <option>=</option>
+                          <option>></option>
+                          <option><</option>
+                          <option><></option>
+                          <option><=</option>
+                          <option>>=</option>
+                          <option>IN</option>
+                          <option>LIKE</option>
+                          <option>ILIKE</option>
+                          <option>IS</option>
+                          <option>NOT</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-lg-3" style="padding-left: 0;">
+                      <div class="form-group">
+                        <label>Valor</label>
+                        <input type="text" class="form-control"/>
+                      </div>
+                    </div>
+                    <div class="col-lg-2" style="padding-left: 0;">
+                      <div class="form-group">
+                        <label>Coluna</label>
+                        <select class="form-control">
+                          <option>AND</option>
+                          <option>OR</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-lg-1" style="padding-left: 0;">
+                      <div class="form-group">
+                        <button type="button" class="btn btn-block btn-primary btn-sm remove-filter-item-button" style="margin-top: 27px;"><i class="fa fa-trash"></i></button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
             <div id="legend-box" class="hidden">
               <div class="legend-header"><span data-i18n="Legends"></span><span class="btn btn-default" style="padding: 0 4px 0 4px; float: right;"><i class="fa fa-close"></i></span></div>
               <div class="legend-body"><strong data-i18n="NO-DATA"></strong></div>
@@ -349,8 +433,8 @@
       var message = "{[message.content]}";
       var defaultLanguage = "{[ userLocale | 'en' ]}";
     </script>
-    <script type="text/javascript" src="{[ BASE_URL ]}dist/TerraMA2WebMonitor.min.js"></script>
-    <!--<script type="text/javascript" data-main="{[ BASE_URL ]}javascripts/Startup.js" src="{[ BASE_URL ]}externals/requirejs/require.js"></script>-->
+    <!--<script type="text/javascript" src="{[ BASE_URL ]}dist/TerraMA2WebMonitor.min.js"></script>-->
+    <script type="text/javascript" data-main="{[ BASE_URL ]}javascripts/Startup.js" src="{[ BASE_URL ]}externals/requirejs/require.js"></script>
     <iframe id="exportation-iframe" class="hidden"></iframe>
     <div id="translation-div" class="hidden"></div>
   </body>
