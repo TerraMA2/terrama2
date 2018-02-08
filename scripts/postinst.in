@@ -11,13 +11,6 @@ function valid()
 printf "Post-installation script...\n"
 
 (
-  printf "Checking database version and updating...\n"
-  cd @TERRAMA2_DESTINATION@share/terrama2/scripts
-  python update_database.py
-  valid $? "Unable to update database."
-)
-
-(
   printf "Webapp dependencies...\n"
   cd @TERRAMA2_DESTINATION@webapp
 
