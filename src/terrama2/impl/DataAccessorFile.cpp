@@ -428,18 +428,22 @@ bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<Synchronize
 
   std::shared_ptr< te::rst::Raster > raster(dataSet->getRaster(index, rasterColumn));
 
-  //if filter by regio/box
-  if(filter.region.get())
+  //if filter by region/box
+  if(filter.region)
   {
-    auto envelope = filter.region->getMBR();
-    std::unique_ptr<te::gm::Envelope> extent(raster->getExtent(filter.region->getSRID()));
+    // transform filter area to EPSG:4326
+    std::shared_ptr<te::gm::Geometry> filterArea(static_cast<te::gm::Geometry*>(filter.region->clone()));
+    filterArea->transform(4326);
+    // check for intersection
+    auto envelope = filterArea->getMBR();
+    std::unique_ptr<te::gm::Envelope> extent(raster->getExtent(filterArea->getSRID()));
     if(!extent->intersects(*envelope))
       return false;
 
     if(filter.cropRaster)
     {
       //clip raster by box
-      auto clipedRaster = raster->clip({filter.region.get()}, {}, "EXPANSIBLE");
+      auto clipedRaster = raster->clip({filterArea.get()}, {}, "EXPANSIBLE");
       //update raster in the dataset
       auto memDataSet = std::dynamic_pointer_cast<te::mem::DataSet>(dataSet->dataset());
       memDataSet->setRaster(rasterColumn, clipedRaster);
@@ -456,6 +460,8 @@ bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<Synchronize
     auto box = region->getMBR();
     std::vector<std::size_t> report;
     rtree->search(*box, report);
+    if(report.empty())
+      return false;
 
     auto syncDs = filterDataSetSeries.syncDataSet;
     std::size_t geomPropertyPos = te::da::GetFirstPropertyPos(syncDs->dataset().get(), te::dt::GEOMETRY_TYPE);
@@ -482,6 +488,11 @@ bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<Synchronize
 
       unitedGeom = std::shared_ptr<te::gm::Geometry>(unitedGeom->Union(geom));
     }
+    // sanity check, should never arrive here
+    if(!unitedGeom)
+      return false;
+
+    unitedGeom->transform(4326);
 
     if (region->intersects(unitedGeom.get()))
     {
