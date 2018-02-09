@@ -123,7 +123,7 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
     recipient.includeReport = obj["include_report"].toString().toStdString();
     recipient.notifyOnChange = obj["notify_on_change"].toBool();
     recipient.simplifiedReport = obj["simplified_report"].toBool();
-    recipient.notifyOnRiskLevel = static_cast<uint32_t>(obj["notify_on_risk_level"].toInt());
+    recipient.notifyOnRiskLevel = static_cast<uint32_t>(obj["notify_on_legend_level"].toInt());
 
     for(auto target : obj["recipients"].toArray())
       recipient.targets.push_back(target.toString().toStdString());
