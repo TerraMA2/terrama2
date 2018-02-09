@@ -698,7 +698,7 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
       for(const auto& notification : alertPtr->notifications)
       {
         //check if should emit a notification
-        if((notification.notifyOnRiskLevel <= reportPtr->maxRisk())
+        if((reportPtr->maxRisk() != terrama2::core::DefaultRiskLevel && notification.notifyOnRiskLevel <= reportPtr->maxRisk())
             || (notification.notifyOnChange && reportPtr->riskChanged()))
         {
           notify = true;
