@@ -73,7 +73,7 @@ namespace terrama2
 
         \return Value of the porperty at the referred DataSet
       */
-      std::auto_ptr<te::dt::AbstractData> getValue(std::string propertyName) const;
+      std::unique_ptr<te::dt::AbstractData> getValue(std::string propertyName) const;
       te::dt::Property* getProperty(std::string propertyName) const;
 
       inline const std::shared_ptr<te::da::DataSetType>& referrerDataSetType() const { return _referrerDataSetType; }

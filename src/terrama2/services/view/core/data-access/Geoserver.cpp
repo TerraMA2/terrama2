@@ -376,7 +376,24 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
           continue;
         }
 
-        std::string pk = monitoredObjectTableInfo.dataSetType->getPrimaryKey()->getProperties().at(0)->getName();
+        auto primaryKey = monitoredObjectTableInfo.dataSetType->getPrimaryKey();
+        if(!primaryKey)
+        {
+          QString errMsg = QObject::tr("Invalid primary key in dataseries: %1.").arg(QString::fromStdString(monitoredObjectDataSeries->name));
+          logger->log(ViewLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), logId);
+          TERRAMA2_LOG_ERROR() << errMsg;
+          continue;
+        }
+        auto properties = primaryKey->getProperties();
+        if(properties.size() != 1)
+        {
+          QString errMsg = QObject::tr("Invalid number of primary keys in dataseries: %1.").arg(QString::fromStdString(monitoredObjectDataSeries->name));
+          logger->log(ViewLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), logId);
+          TERRAMA2_LOG_ERROR() << errMsg;
+          continue;
+        }
+
+        std::string pk = properties.at(0)->getName();
 
         auto& propertiesVector = monitoredObjectTableInfo.dataSetType->getProperties();
 
@@ -1296,6 +1313,12 @@ std::unique_ptr<te::se::Style> terrama2::services::view::core::GeoServer::genera
     {
       auto legendRule = legendRules[i];
       std::unique_ptr<te::se::Symbolizer> symbolizer(getSymbolizer(geomType, legendRule.color, legendRule.opacity));
+      if(!symbolizer)
+      {
+        QString errMsg = QObject::tr("Invalid symbolizer.");
+        TERRAMA2_LOG_ERROR() << errMsg;
+        throw ViewGeoserverException() << ErrorDescription(errMsg);
+      }
 
       std::unique_ptr<te::se::Rule> rule(new te::se::Rule);
       rule->push_back(symbolizer.release());

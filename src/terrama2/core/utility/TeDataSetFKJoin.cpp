@@ -71,7 +71,7 @@ void terrama2::core::TeDataSetFKJoin::fillPKMap(std::string referredPropertyName
   }
 }
 
-std::auto_ptr<te::dt::AbstractData> terrama2::core::TeDataSetFKJoin::getValue(std::string propertyName) const
+std::unique_ptr<te::dt::AbstractData> terrama2::core::TeDataSetFKJoin::getValue(std::string propertyName) const
 {
   auto fk = _referrerDataSet->getValue(_referrerPropertyName);
   auto pos = _referredPKMap.at(fk->toString());

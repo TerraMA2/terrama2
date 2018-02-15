@@ -137,8 +137,14 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
     // begin processing
     //
     dataAccessor->getSeriesCallback(filter, remover, [&](const DataSetId& datasetId, const std::string& uri) {
+      std::shared_ptr<te::dt::TimeInstantTZ> thisFileLastDateTime;
       try
       {
+        // if some error happened
+        // don't continue
+        if(status == CollectorLogger::ProcessLogger::Status::ERROR)
+          return;
+
         auto dataMap = dataAccessor->getSeries({{datasetId, uri}}, filter, remover);
         if(dataMap.empty())
         {
@@ -152,7 +158,7 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
           return;
         }
 
-        auto thisFileLastDateTime = dataAccessor->lastDateTime();
+        thisFileLastDateTime = dataAccessor->lastDateTime();
 
         /////////////////////////////////////////////////////////////////////////
         // data intersection
@@ -236,6 +242,8 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
         if(executionPackage.registerId != 0)
           logger->log(CollectorLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
       }
+
+      logger->result(CollectorLogger::ProcessLogger::Status::START, thisFileLastDateTime, executionPackage.registerId);
     });
     //
     // end processing

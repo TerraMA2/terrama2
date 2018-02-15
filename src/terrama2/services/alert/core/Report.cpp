@@ -37,7 +37,6 @@
 // TerraLib
 #include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/raster/Band.h>
-#include <terralib/memory/DataSetItem.h>
 
 // Qt
 #include <QObject>
@@ -251,6 +250,10 @@ void terrama2::services::alert::core::Report::updateReportMonitoredObjectDataset
       {
         uint32_t numericRisk = static_cast<uint32_t>(dataSet_->getInt32(pos));
         dataSet_->setString(property, legend_->riskName(numericRisk));
+
+        // if it's the default risk, don't update min and max
+        if(numericRisk == terrama2::core::DefaultRiskLevel)
+          continue;
 
         //update max and min risk values
         if(it == riskDates_.begin())

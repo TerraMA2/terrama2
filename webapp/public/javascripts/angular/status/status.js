@@ -234,20 +234,6 @@ define([
           return -1;
         }
 
-        // Removing logs to be replaced
-        logArray.forEach(function(logProcess){
-          var currentProcess = _findOne(targetArray, logProcess.process_id);
-          if (currentProcess){
-            var obj = currentProcess[targetKey] || {name: currentProcess.name};
-            var index = arrayObjectIndexOf($scope.model, obj);
-
-            while(index !== -1){
-              $scope.model.splice(index, 1);
-              index = arrayObjectIndexOf($scope.model, obj);
-            }
-          }
-        });
-
         logArray.forEach(function(logProcess) {
           $scope.logSize += logProcess.log.length;
           logProcess.log.forEach(function(logMessage) {

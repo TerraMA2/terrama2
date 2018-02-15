@@ -134,6 +134,8 @@ We have the following branches:
 - **b4.0.0-release-candidate-3:** Stabilization, DCP analysis view, general improvments
 - **b4.0.0-release-candidate-4:** Improvements for final release
 - **b4.0.0:** Final release for TerraMA² 4.0.0
+  - **t4.0.1:** Bug fixes
+  - **t4.0.2:** Auto update database, terralib 5.3 and bugfixes
 
 For a more complete releases info, check: https://github.com/TerraMA2/terrama2/releases
 
