@@ -126,7 +126,7 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
     recipient.notifyOnRiskLevel = static_cast<uint32_t>(obj["notify_on_legend_level"].toInt());
 
     for(auto target : obj["recipients"].toArray())
-      recipient.targets.push_back(target.toString().toStdString());
+      recipient.targets.push_back(target.toString().trimmed().toStdString());
 
     alert->notifications.push_back(recipient);
   }
