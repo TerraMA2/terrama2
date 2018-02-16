@@ -24,6 +24,7 @@
   "10": "10",
   "11": "11",
   "12": "12",
+  " but the TerraMA² service version is ": ", porém o serviço TerraMA² está na versão ",
   " Data Series": " Data Series",
   " deleted": " removido",
   " projects has been imported": {
@@ -42,6 +43,7 @@
   "%d Dia": "%d Dia",
   "%m Month": "%m Mês",
   "%y - Two digits year": "%y - Ano com dois digitos",
+  ". Some operations may not work properly": ". Algumas operações podem não funcionar corretamente",
   ". The process was started successfully": ". O processo foi iniciado com sucesso",
   "404 not found": "404 não encontrado",
   "About": "Sobre",
@@ -521,10 +523,12 @@
   "Invalid range of ports": {
     " A valid port is from 1 to 65535": "Intervalo inválido de portas. Uma porta válida é de 1 a 65535"
   },
+  "Invalid SRID!": "SRID inválido!",
   "Invalid table name": "Nome da tabela inválido",
   "Invalid value": "Valor inválido",
   "Invalid value for the field": "Valor inválido para o campo",
   "It performs Analysis Validation in order to check if it will able to generate a valid data series": "Executa Validação de Análise para verificar se pode gerar uma série de dados válido",
+  "It seems you are using different versions of TerraMA². Current version of TerraMA² Web is ": "Parece que você está usando diferentes versões do TerraMA². A versão atual do TerraMA² Web é ",
   "It should have at least one dcp": "Adicione pelo menos uma PCD",
   "It will activate ": "Será ativado ",
   "Kind": "Tipo",
@@ -1082,5 +1086,5 @@
   "to": "a",
   "total entries": "total de registros",
   "updated": "atualizado",
-  "w": "w"
+  "w": "w"	
 }

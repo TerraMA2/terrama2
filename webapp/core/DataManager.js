@@ -5927,5 +5927,23 @@ var DataManager = module.exports = {
         return reject(new Error(Utils.format("Could not save version due %s", err.toString())));
       });
     });
+  },
+
+  isSRIDValid: function(srid) {
+    return new Promise(function(resolve, reject) {
+      if(!isNaN(srid) && parseInt(Number(srid)) == srid && !isNaN(parseInt(srid, 10))) {
+        models.db.sequelize.query("select count(*) as number_of_items from public.spatial_ref_sys where srid=" + srid).then(function(sridResult) {
+          if(sridResult[0][0].number_of_items > 0) {
+            resolve();
+          } else {
+            reject("Invalid SRID!");
+          }
+        }).catch(function(err) {
+          reject(err);
+        });
+      } else {
+        reject("Invalid SRID!");
+      }
+    });
   }
 };

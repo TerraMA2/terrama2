@@ -727,6 +727,7 @@ function onStatusReceived(service, response) {
       online: Object.keys(response).length > 0,
       start_time: response.start_time,
       terrama2_version: response.terrama2_version,
+      web_version: versionData.major + "." + versionData.minor + "." + versionData.patch + "-" + versionData.tag,
       logger_online: response.logger_online,
       maps_server_connection: response.maps_server_connection
     });

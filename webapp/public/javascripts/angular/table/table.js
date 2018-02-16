@@ -143,6 +143,11 @@ define([
             $scope.serviceStartTime = object.start_time;
             $scope.serviceVersion = object.version;
             $scope.maps_server_connection = object.maps_server_connection;
+
+            if(object.different_versions) {
+              $scope.serviceVersionMessage = i18n.__("It seems you are using different versions of TerraMA². Current version of TerraMA² Web is ") + object.web_version + i18n.__(" but the TerraMA² service version is ") + object.version + i18n.__(". Some operations may not work properly");
+            }
+
             if(!object.logger_online)
               $scope.showServiceLoggerOffline = true;
             else 
