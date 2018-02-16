@@ -325,7 +325,9 @@ void terrama2::core::DataAccessorPostGIS::filterDataSeries(terrama2::core::DataS
   if(dataSeries_->datasetList.size() != 1)
   {
     //for now we only allow filters with one dataset
-    throw;
+    QString errMsg = QObject::tr("Invalid filter DataSeries.\nInvalid number of DataSets.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw DataAccessorException() << ErrorDescription(errMsg);
   }
 
   auto filterDataSet = dataSeries_->datasetList.front();
