@@ -42,6 +42,7 @@
 #include <terralib/dataaccess/dataset/DataSet.h>
 #include <terralib/dataaccess/dataset/DataSetType.h>
 #include <terralib/dataaccess/datasource/DataSource.h>
+#include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 
 // STL
 #include <string>
@@ -196,6 +197,27 @@ namespace terrama2
       \brief Create a unique name appending random numbers to the end of the baseName
     */
     std::string generateUniqueName(std::string baseName);
+
+
+    class CreateTempTable
+    {
+    public:
+      CreateTempTable(std::shared_ptr<te::da::DataSourceTransactor> transactor, std::shared_ptr<te::da::DataSetType> dataSetType)
+        : transactor_(transactor),
+          dataSetType_(dataSetType)
+      {
+        transactor_->createDataSet(dataSetType_.get(), {});
+      }
+
+      ~CreateTempTable()
+      {
+        transactor_->dropDataSet(dataSetType_->getName());
+      }
+
+    private:
+      std::shared_ptr<te::da::DataSourceTransactor> transactor_;
+      std::shared_ptr<te::da::DataSetType> dataSetType_;
+    };
   } // end namespace core
 }   // end namespace terrama2
 

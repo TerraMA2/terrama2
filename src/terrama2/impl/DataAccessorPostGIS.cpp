@@ -162,7 +162,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGIS::getSeries(con
   query+= "FROM "+tableName+" AS t";
   query += whereConditions(tableName, geomPropertyName, datetimePropertyName, filter);
 
-//  TERRAMA2_LOG_DEBUG() << query;
+  //  TERRAMA2_LOG_DEBUG() << query;
 
   std::shared_ptr<te::da::DataSet> tempDataSet = transactor->query(query);
   if(tempDataSet->isEmpty())
@@ -320,26 +320,6 @@ std::string terrama2::core::DataAccessorPostGIS::addLastDatesFilter(const std::s
   return "";
 }
 
-class CreateTempTable
-{
-public:
-  CreateTempTable(std::shared_ptr<te::da::DataSourceTransactor> transactor, std::shared_ptr<te::da::DataSetType> dataSetType)
-    : transactor_(transactor),
-      dataSetType_(dataSetType)
-  {
-    transactor_->createDataSet(dataSetType_.get(), {});
-  }
-
-  ~CreateTempTable()
-  {
-    transactor_->dropDataSet(dataSetType_->getName());
-  }
-
-private:
-  std::shared_ptr<te::da::DataSourceTransactor> transactor_;
-  std::shared_ptr<te::da::DataSetType> dataSetType_;
-};
-
 void terrama2::core::DataAccessorPostGIS::filterDataSeries(terrama2::core::DataSetSeries& serie, const Filter& filter) const
 {
   if(dataSeries_->datasetList.size() != 1)
@@ -375,97 +355,98 @@ void terrama2::core::DataAccessorPostGIS::filterDataSeries(terrama2::core::DataS
   auto spatialIndex = new te::da::Index("spatial_index_" + tempCopyDataSetType->getName(), te::da::R_TREE_TYPE, {spatialProperty});
   tempCopyDataSetType->add(spatialIndex);
 
-  // crete a temporary table with the tempCopyDataSetType
-  CreateTempTable tempTable(transactor, tempCopyDataSetType);
-
-  // copy all data to the temporary table
-  serie.syncDataSet->dataset()->moveBeforeFirst();
-  transactor->add(tempCopyDataSetType->getName(), serie.syncDataSet->dataset().get(), {});
-
-  // create a query to read the data from the temporary table
-  std::string filterTableName = getDataSetTableName(filterDataSet);
-  std::string query = "SELECT ";
-  query+="t.* ";
-  query+= "FROM "+tempTableName+" AS t";
-  query+= ", "+filterTableName+" AS e";
-
-  // Get the datetime column name in teDataSet for filters
-  std::string datetimePropertyName = "";
-  try
+  // temp table scope
   {
-     datetimePropertyName = getTimestampPropertyName(serie.dataSet, false);
-  }
-  catch(const UndefinedTagException& /*e*/)
-  {
-    // do nothing
-  }
+    // crete a temporary table with the tempCopyDataSetType
+    terrama2::core::CreateTempTable tempTable(transactor, tempCopyDataSetType);
 
-  std::string geomPropertyName = "";
-  try
-  {
-     geomPropertyName = getGeometryPropertyName(serie.dataSet, false);
-  }
-  catch(const UndefinedTagException& /*e*/)
-  {
-    // do nothing
-  }
+    // copy all data to the temporary table
+    serie.syncDataSet->dataset()->moveBeforeFirst();
+    transactor->add(tempCopyDataSetType->getName(), serie.syncDataSet->dataset().get(), {});
 
-  std::vector<std::string> whereConditions;
-  if(!datetimePropertyName.empty())
-  {
-    addDateTimeFilter(datetimePropertyName, filter, whereConditions);
-  }
+    // create a query to read the data from the temporary table
+    std::string filterTableName = getDataSetTableName(filterDataSet);
+    std::string query = "SELECT ";
+    query+="t.* ";
+    query+= "FROM "+tempTableName+" AS t";
+    query+= ", "+filterTableName+" AS e";
 
-  if(!geomPropertyName.empty())
-  {
-    Srid srid = std::numeric_limits<Srid>::max();
+    // Get the datetime column name in teDataSet for filters
+    std::string datetimePropertyName = "";
     try
     {
-       srid = getSrid(serie.dataSet, false);
+      datetimePropertyName = getTimestampPropertyName(serie.dataSet, false);
     }
     catch(const UndefinedTagException& /*e*/)
     {
       // do nothing
     }
 
-    std::shared_ptr<te::da::DataSetType> filterDataSetType(transactor->getDataSetType(filterTableName));
-    auto property = filterDataSetType->findFirstPropertyOfType(te::dt::GEOMETRY_TYPE);
-
-    std::string filterGeomPropertyName = property->getName();
-
-    auto geomProperty = dynamic_cast<te::gm::GeometryProperty*>(property);
-    Srid filterSrid = geomProperty ? static_cast<Srid>(geomProperty->getSRID()) : std::numeric_limits<Srid>::max();
-
-    // TODO: we should check if the data srid isn't a local projetion
-    // it may cause problems if we try to geooperate over datas outside the local projection area
-
-    if(srid != std::numeric_limits<Srid>::max() && srid != filterSrid)
+    std::string geomPropertyName = "";
+    try
     {
-      // if the input data srid is defined
-      // and if they don't have the same projection : reproject the filter
-      whereConditions.push_back("st_intersects(t."+geomPropertyName+", st_transform(e."+filterGeomPropertyName+","+std::to_string(srid)+"))");
+      geomPropertyName = getGeometryPropertyName(serie.dataSet, false);
     }
-    else
+    catch(const UndefinedTagException& /*e*/)
     {
-      // not many assumptions can be made
-      // just try to filter
-      whereConditions.push_back("st_intersects(t."+geomPropertyName+", e."+filterGeomPropertyName+")");
+      // do nothing
     }
-  }
 
-  // join the base quary with the restrictions ( WHERE )
-  std::string conditions;
-  if(!whereConditions.empty())
-  {
-    conditions = whereConditions.front();
-    for(size_t i = 1; i < whereConditions.size(); ++i)
-      conditions += " AND " + whereConditions.at(i);
-  }
-  if(!conditions.empty())
-    query += " WHERE "+ conditions;
+    std::vector<std::string> whereConditions;
+    if(!datetimePropertyName.empty())
+    {
+      addDateTimeFilter(datetimePropertyName, filter, whereConditions);
+    }
+
+    // filter by geometry intersection
+    if(!geomPropertyName.empty())
+    {
+      Srid srid = std::numeric_limits<Srid>::max();
+      try
+      {
+        srid = getSrid(serie.dataSet, false);
+      }
+      catch(const UndefinedTagException& /*e*/)
+      {
+        // do nothing
+      }
+
+      std::shared_ptr<te::da::DataSetType> filterDataSetType(transactor->getDataSetType(filterTableName));
+      auto property = filterDataSetType->findFirstPropertyOfType(te::dt::GEOMETRY_TYPE);
+
+      std::string filterGeomPropertyName = property->getName();
+
+      auto geomProperty = dynamic_cast<te::gm::GeometryProperty*>(property);
+      Srid filterSrid = geomProperty ? static_cast<Srid>(geomProperty->getSRID()) : std::numeric_limits<Srid>::max();
+
+      // TODO: we should check if the data srid isn't a local projetion
+      // it may cause problems if we try to geooperate over datas outside the local projection area
+
+      if(srid != std::numeric_limits<Srid>::max() && srid != filterSrid)
+      {
+        // if the input data srid is defined
+        // and if they don't have the same projection : reproject the filter
+        whereConditions.push_back("st_intersects(t."+geomPropertyName+", st_transform(e."+filterGeomPropertyName+","+std::to_string(srid)+"))");
+      }
+      else
+      {
+        // not many assumptions can be made
+        // just try to filter
+        whereConditions.push_back("st_intersects(t."+geomPropertyName+", e."+filterGeomPropertyName+")");
+      }
+    }
+
+    // join the base quary with the restrictions ( WHERE )
+    if(!whereConditions.empty())
+    {
+      query += " WHERE "+ whereConditions.front();
+      for(size_t i = 1; i < whereConditions.size(); ++i)
+        query += " AND " + whereConditions.at(i);
+    }
 
     // execute the query and retrieve the filtered data
-  std::shared_ptr<te::da::DataSet> filteredDataSet = transactor->query(query);
-  serie.syncDataSet = std::make_shared<terrama2::core::SynchronizedDataSet>(filteredDataSet);
+    std::shared_ptr<te::da::DataSet> filteredDataSet = transactor->query(query);
+    serie.syncDataSet = std::make_shared<terrama2::core::SynchronizedDataSet>(filteredDataSet);
+  }
   scopedTransaction.commit();
 }
