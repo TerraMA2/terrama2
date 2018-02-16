@@ -151,7 +151,7 @@ var Exportation = function() {
   };
 
   /**
-   * Returns the of the primary key column of a given table.
+   * Returns the name of the primary key column of a given table.
    * @param {integer} tableName - Table name
    * @param {integer} dataProviderId - Id to get the connection parameters in the DataProvider
    * @returns {Promise} Promise - Promise to be resolved
