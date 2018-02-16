@@ -11,9 +11,6 @@ define(
     }
 
     var addLayer = function(layerObject) {
-      if(layerObject.uriGeoServer)
-        $("#filter-layers").append("<option value=\"" + layerObject.id + "\">" + layerObject.name + "</option>");
-
       memberAllLayers.push(layerObject);
     }
 
