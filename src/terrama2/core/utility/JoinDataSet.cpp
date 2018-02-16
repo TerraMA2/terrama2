@@ -118,7 +118,7 @@ void terrama2::core::JoinDataSet::fillProperties(const std::unique_ptr<te::da::D
   properties_.assign(boost::begin(newProperties), boost::end(newProperties));
 }
 
-std::auto_ptr<te::gm::Envelope> terrama2::core::JoinDataSet::getExtent(std::size_t i)
+std::unique_ptr<te::gm::Envelope> terrama2::core::JoinDataSet::getExtent(std::size_t i)
 {
   auto& dataset = getDataSet(i);
   auto pos = getPropertyPos(i);
@@ -206,7 +206,7 @@ std::string terrama2::core::JoinDataSet::getString(std::size_t i) const
   return dataset->getString(pos);
 }
 
-std::auto_ptr<te::dt::ByteArray> terrama2::core::JoinDataSet::getByteArray(std::size_t i) const
+std::unique_ptr<te::dt::ByteArray> terrama2::core::JoinDataSet::getByteArray(std::size_t i) const
 {
   auto& dataset = getDataSet(i);
   auto pos = getPropertyPos(i);
@@ -214,7 +214,7 @@ std::auto_ptr<te::dt::ByteArray> terrama2::core::JoinDataSet::getByteArray(std::
   return dataset->getByteArray(pos);
 }
 
-std::auto_ptr<te::gm::Geometry> terrama2::core::JoinDataSet::getGeometry(std::size_t i) const
+std::unique_ptr<te::gm::Geometry> terrama2::core::JoinDataSet::getGeometry(std::size_t i) const
 {
   auto& dataset = getDataSet(i);
   auto pos = getPropertyPos(i);
@@ -222,7 +222,7 @@ std::auto_ptr<te::gm::Geometry> terrama2::core::JoinDataSet::getGeometry(std::si
   return dataset->getGeometry(pos);
 }
 
-std::auto_ptr<te::rst::Raster> terrama2::core::JoinDataSet::getRaster(std::size_t i) const
+std::unique_ptr<te::rst::Raster> terrama2::core::JoinDataSet::getRaster(std::size_t i) const
 {
   auto& dataset = getDataSet(i);
   auto pos = getPropertyPos(i);
@@ -230,7 +230,7 @@ std::auto_ptr<te::rst::Raster> terrama2::core::JoinDataSet::getRaster(std::size_
   return dataset->getRaster(pos);
 }
 
-std::auto_ptr<te::dt::DateTime> terrama2::core::JoinDataSet::getDateTime(std::size_t i) const
+std::unique_ptr<te::dt::DateTime> terrama2::core::JoinDataSet::getDateTime(std::size_t i) const
 {
   auto& dataset = getDataSet(i);
   auto pos = getPropertyPos(i);
@@ -238,7 +238,7 @@ std::auto_ptr<te::dt::DateTime> terrama2::core::JoinDataSet::getDateTime(std::si
   return dataset->getDateTime(pos);
 }
 
-std::auto_ptr<te::dt::Array> terrama2::core::JoinDataSet::getArray(std::size_t i) const
+std::unique_ptr<te::dt::Array> terrama2::core::JoinDataSet::getArray(std::size_t i) const
 {
   auto& dataset = getDataSet(i);
   auto pos = getPropertyPos(i);
@@ -344,7 +344,7 @@ std::string terrama2::core::JoinDataSet::getString(const std::string& name) cons
   return dataset->getString(pos);
 }
 
-std::auto_ptr<te::dt::ByteArray> terrama2::core::JoinDataSet::getByteArray(const std::string& name) const
+std::unique_ptr<te::dt::ByteArray> terrama2::core::JoinDataSet::getByteArray(const std::string& name) const
 {
   auto i = getLocalPropertyPos(name);
   auto& dataset = getDataSet(i);
@@ -353,7 +353,7 @@ std::auto_ptr<te::dt::ByteArray> terrama2::core::JoinDataSet::getByteArray(const
   return dataset->getByteArray(pos);
 }
 
-std::auto_ptr<te::gm::Geometry> terrama2::core::JoinDataSet::getGeometry(const std::string& name) const
+std::unique_ptr<te::gm::Geometry> terrama2::core::JoinDataSet::getGeometry(const std::string& name) const
 {
   auto i = getLocalPropertyPos(name);
   auto& dataset = getDataSet(i);
@@ -362,7 +362,7 @@ std::auto_ptr<te::gm::Geometry> terrama2::core::JoinDataSet::getGeometry(const s
   return dataset->getGeometry(pos);
 }
 
-std::auto_ptr<te::rst::Raster> terrama2::core::JoinDataSet::getRaster(const std::string& name) const
+std::unique_ptr<te::rst::Raster> terrama2::core::JoinDataSet::getRaster(const std::string& name) const
 {
   auto i = getLocalPropertyPos(name);
   auto& dataset = getDataSet(i);
@@ -371,7 +371,7 @@ std::auto_ptr<te::rst::Raster> terrama2::core::JoinDataSet::getRaster(const std:
   return dataset->getRaster(pos);
 }
 
-std::auto_ptr<te::dt::DateTime> terrama2::core::JoinDataSet::getDateTime(const std::string& name) const
+std::unique_ptr<te::dt::DateTime> terrama2::core::JoinDataSet::getDateTime(const std::string& name) const
 {
   auto i = getLocalPropertyPos(name);
   auto& dataset = getDataSet(i);
@@ -380,7 +380,7 @@ std::auto_ptr<te::dt::DateTime> terrama2::core::JoinDataSet::getDateTime(const s
   return dataset->getDateTime(pos);
 }
 
-std::auto_ptr<te::dt::Array> terrama2::core::JoinDataSet::getArray(const std::string& name) const
+std::unique_ptr<te::dt::Array> terrama2::core::JoinDataSet::getArray(const std::string& name) const
 {
   auto i = getLocalPropertyPos(name);
   auto& dataset = getDataSet(i);

@@ -2,7 +2,7 @@
   "basePath": "/",
   "port": 36000,
   "defaultFilePath": "/home/<USER>/terrama2",
-  "defaultExecutablePath": "/opt/terrama2/4.0.0/bin",
+  "defaultExecutablePath": "/opt/terrama2/4.0.2/bin",
   "defaultExecutableName": "terrama2_service",
   "disablePDF": true,
   "debug": true,

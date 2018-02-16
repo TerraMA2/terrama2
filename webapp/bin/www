@@ -40,6 +40,8 @@ var PortScanner = require("./../core/PortScanner");
 var io = require('../io');
 var debug = require('debug')('webapp:server');
 var load = require('express-load');
+var path = require('path');
+var exec = require('child_process').exec;
 var TcpService = require("./../core/facade/tcp-manager/TcpService");
 
 var app = require('../app');
@@ -183,15 +185,20 @@ return DataManager.init(null, function (error) {
   }
 
   // loading terrama2 data
-  return DataManager.load()
-    .then(function() {
+  return DataManager.load().then(function() {
+    var applicationPath = path.join(__dirname, './../..');
+
+    exec("python " + applicationPath + "/scripts/update_database.py " + applicationPath, function(err, stdout, stderr) {
+      if(err)
+        throw new Error("Failed to update database.");
+
       // initialize service listeners
-      return TcpService.init()
-        .finally(function() {
-          return PluginLoader.initialize(__dirname + "/../plugins/");
-        });
-    }).catch(function(err) {
-      logger.error("Could not load datamanager: " + err.message);
-      process.exit(1);
+      return TcpService.init().finally(function() {
+        return PluginLoader.initialize(__dirname + "/../plugins/");
+      });
     });
+  }).catch(function(err) {
+    logger.error("Could not load datamanager: " + err.message);
+    process.exit(1);
+  });
 });

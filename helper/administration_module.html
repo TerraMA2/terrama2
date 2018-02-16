@@ -1,19 +1,19 @@
 
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt">
 
 <head>
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="generator" content="HelpNDoc Personal Edition 5.0.0.182">
+  <meta name="generator" content="HelpNDoc Standard Edition 5.4.2.416">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" href="favicon.ico"/>
 
   <title>M&oacute;dulo de Administra&ccedil;&atilde;o</title>
   <meta name="description" content="" /> 
-  <meta name="keywords" content="">
+  <meta name="keywords" content=",M&oacute;dulo de Administra&ccedil;&atilde;o">
 
 
 
@@ -48,7 +48,7 @@
   <link href="css/effects.min.css" rel="stylesheet" />
   <link href="css/theme-light-blue.min.css" rel="stylesheet" />
   <link href="css/print.min.css" rel="stylesheet" media="print" />
-  <style type="text/css">nav { width: 350px} @media screen and (min-width:769px) { body.md-nav-expanded #main { margin-left: 350px} body.md-nav-expanded header { padding-left: 364px} }</style>
+  <style type="text/css">nav { width: 350px} @media screen and (min-width:769px) { body.md-nav-expanded div#main { margin-left: 350px} body.md-nav-expanded header { padding-left: 364px} }</style>
 
   <!-- Content style -->
   <link href="css/hnd.content.css" rel="stylesheet" />
@@ -87,21 +87,21 @@
       
 	  
         <li role="presentation" class="tab active">
-            <a href="#contents" aria-controls="contents" role="tab" data-toggle="tab">
+            <a href="#contents" id="tab-contents" aria-controls="contents" role="tab" data-toggle="tab">
                 <i class="glyphicon glyphicon-list"></i>
                 Contents
             </a>
         </li>
       
         <li role="presentation" class="tab">
-            <a href="#index" aria-controls="index" role="tab" data-toggle="tab">
+            <a href="#index" id="tab-index" aria-controls="index" role="tab" data-toggle="tab">
                 <i class="glyphicon glyphicon-asterisk"></i>
                 Index
             </a>
         </li>
       
         <li role="presentation" class="tab">
-            <a href="#search" aria-controls="search" role="tab" data-toggle="tab">
+            <a href="#search" id="tab-search" aria-controls="search" role="tab" data-toggle="tab">
                 <i class="glyphicon glyphicon-search"></i>
                 Search
             </a>
@@ -171,7 +171,7 @@
                         
                     </ol>
                     <div class="nav-arrows">
-                        <div class="btn-group btn-group-xs" role="group"><a class="btn btn-default" href="typical_project.html" title="Projeto T&iacute;pico" role="button"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a><a class="btn btn-default" href="projects.html" title="Projetos" role="button"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></div>
+                        <div class="btn-group btn-group-xs" role="group"><a class="btn btn-default" href="ProjetoTipico.html" title="Projeto T&iacute;pico" role="button"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a><a class="btn btn-default" href="projects.html" title="Projetos" role="button"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></div>
                     </div>
                 </div> 
             
@@ -183,38 +183,37 @@
             <div class="main-content">
                 
 <p></p>
-<p class="rvps6"><a name="docs-internal-guid-95fd17a3-c6df-8f32-e64d-874611d7d888"></a>
-<span class="rvts16">O </span><span class="rvts17">Módulo de Administração</span><span class="rvts16"> da plataforma TerraMA</span><span class="rvts26">2</span><span class="rvts16"> utiliza uma interface web que pode ser acessada a partir de qualquer navegador. O acesso ao módulo é somente por um usuário cadastrado que terá acesso a interface apresentada na Figura 2.1, com destaque aos principais componentes. Neste módulo o usuário administra as contas de usuário, serviços e os projetos, incluindo as definições dos servidores de dados, dados dinâmicos, dados estáticos, análises, visualizações e alertas, entre outras opções.</span></p>
+<p class="rvps9"><a name="docs-internal-guid-95fd17a3-c6df-8f32-e64d-874611d7d888"></a>
+<span class="rvts16">O </span><span class="rvts17">Módulo de Administração</span><span class="rvts16"> da plataforma TerraMA</span><span class="rvts29">2</span><span class="rvts16"> utiliza uma interface web que pode ser acessada a partir de qualquer navegador. O acesso ao módulo é somente por um usuário cadastrado que terá acesso a interface apresentada na Figura 2.1, com destaque aos principais componentes. Neste módulo o usuário administra as contas de usuário, serviços e os projetos, incluindo as definições dos servidores de dados, dados dinâmicos, dados estáticos, análises, visualizações e alertas, entre outras opções.</span></p>
 <p class="rvps2"><span class="rvts16"><br/></span></p>
 <p class="rvps3"><img alt="" style="padding : 1px;" src="lib/Fig2_1_web.png"></p>
-<p class="rvps12"><a name="docs-internal-guid-f543ba00-4632-f6a4-3d9e-9bc6cd3f41d4"></a>
-<span class="rvts19">Figura 2.1 </span><span class="rvts20">– Módulo de Administração.</span></p>
-<p class="rvps6"><a name="docs-internal-guid-e48a13fc-c6e0-8a49-c7e4-2d4d4bc6dee3"></a>
+<p class="rvps16"><a name="docs-internal-guid-f543ba00-4632-f6a4-3d9e-9bc6cd3f41d4"></a>
+<span class="rvts18">Figura 2.1 </span><span class="rvts19">– Módulo de Administração.</span></p>
+<p class="rvps9"><a name="docs-internal-guid-e48a13fc-c6e0-8a49-c7e4-2d4d4bc6dee3"></a>
 <span class="rvts16">Os principais itens da interface deste módulo são:</span></p>
 <ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
-<li class="rvps8"><span class="rvts17">Nome do usuário</span><span class="rvts16"> : nome do usuário atualmente conectado a plataforma.</span></li>
-<li class="rvps8"><span class="rvts17">Projeto ativo</span><span class="rvts16"> : nome do projeto ativo no momento. Clique para trocar de projeto. Todos os projetos de qualquer usuário estará disponível.</span></li>
-<li class="rvps8"><span class="rvts16">Menu – </span><a class="rvts22" href="projects.html">Projetos</a><span class="rvts16"> : acesso a lista de projetos para edição e adição de novos.</span></li>
-<li class="rvps8"><span class="rvts16">Menu – </span><a class="rvts22" href="data_servers.html">Servidores de Dados</a><span class="rvts16"> : acesso a servidores de dados locais ou remotos do projeto ativo.</span></li>
-<li class="rvps8"><span class="rvts16">Menu – </span><a class="rvts22" href="dynamic_data.html">Dados Dinâmicos</a><span class="rvts16"> : dados ambientais dinâmicos locais ou remotos disponíveis em servidores do projeto ativo.</span></li>
-<li class="rvps8"><span class="rvts16">Menu – </span><a class="rvts22" href="static_data.html">Dados Estáticos</a><span class="rvts16"> : mapas geográficos (vetoriais ou matriciais) disponíveis em servidores do projeto ativo.</span></li>
-<li class="rvps8"><span class="rvts16">Menu – </span><a class="rvts22" href="analysis.html">Análises</a><span class="rvts16"> : análises com dados estáticos e dinâmicos a serem executadas no projeto ativo.</span></li>
-<li class="rvps8"><span class="rvts16">Menu – </span><a class="rvts22" href="views.html">Visualizações</a><span class="rvts16"> : definição de visual e estilo dos dados estáticos, dinâmicos e análises do projeto ativo.</span></li>
-<li class="rvps8"><span class="rvts16">Menu – </span><a class="rvts22" href="alerts.html">Alertas</a><span class="rvts16">: configuração dos alertas a serem enviados aos usuários do projeto ativo.</span></li>
-<li class="rvps8"><span class="rvts16">Menu – </span><a class="rvts22" href="status.html">Situação Atual</a><span class="rvts16">: apresenta as últimas tarefas executadas por cada serviço de todos os projetos em atividade.</span></li>
-<li class="rvps8"><span class="rvts17">Ferramentas externas</span><span class="rvts16">: link para ferramentas externas e sites de interesse geral. Lista pode ser editada na configuração da plataforma.</span></li>
-<li class="rvps8"><span class="rvts16">Menu – </span><a class="rvts22" href="Administracao.html">Administração</a><span class="rvts16"> : somente para usuário com permissão de administrador.</span></li>
+<li class="rvps11"><span class="rvts17">Nome do usuário</span><span class="rvts16"> : nome do usuário atualmente conectado a plataforma.</span></li>
+<li class="rvps11"><span class="rvts17">Projeto ativo</span><span class="rvts16"> : nome do projeto ativo no momento. Clique para trocar de projeto. Todos os projetos de qualquer usuário estará disponível.</span></li>
+<li class="rvps11"><span class="rvts16">Menu – </span><a class="rvts25" href="projects.html">Projetos</a><span class="rvts16"> : acesso a lista de projetos para edição e adição de novos.</span></li>
+<li class="rvps11"><span class="rvts16">Menu – </span><a class="rvts25" href="data_servers.html">Servidores de Dados</a><span class="rvts16"> : acesso a servidores de dados locais ou remotos do projeto ativo.</span></li>
+<li class="rvps11"><span class="rvts16">Menu – </span><a class="rvts25" href="dynamic_data.html">Dados Dinâmicos</a><span class="rvts16"> : dados ambientais dinâmicos locais ou remotos disponíveis em servidores do projeto ativo.</span></li>
+<li class="rvps11"><span class="rvts16">Menu – </span><a class="rvts25" href="static_data.html">Dados Estáticos</a><span class="rvts16"> : mapas geográficos (vetoriais ou matriciais) disponíveis em servidores do projeto ativo.</span></li>
+<li class="rvps11"><span class="rvts16">Menu – </span><a class="rvts25" href="analysis.html">Análises</a><span class="rvts16"> : análises com dados estáticos e dinâmicos a serem executadas no projeto ativo.</span></li>
+<li class="rvps11"><span class="rvts16">Menu – </span><a class="rvts25" href="Visualizacoes.html">Visualizações</a><span class="rvts16"> : definição de visual e estilo dos dados estáticos, dinâmicos e análises do projeto ativo.</span></li>
+<li class="rvps11"><span class="rvts16">Menu – </span><a class="rvts25" href="alerts.html">Alertas</a><span class="rvts16">: configuração dos alertas a serem enviados aos usuários do projeto ativo.</span></li>
+<li class="rvps11"><span class="rvts16">Menu – </span><a class="rvts25" href="status.html">Situação Atual</a><span class="rvts16">: apresenta as últimas tarefas executadas por cada serviço de todos os projetos em atividade.</span></li>
+<li class="rvps11"><span class="rvts17">Ferramentas externas</span><span class="rvts16">: link para ferramentas externas e sites de interesse geral. Lista pode ser editada na configuração da plataforma.</span></li>
+<li class="rvps11"><span class="rvts16">Menu – </span><a class="rvts25" href="administration.html">Administração</a><span class="rvts16"> : somente para usuário com permissão de administrador.</span></li>
 <ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
-<li class="rvps8"><a class="rvts22" href="services.html">Serviços</a><span class="rvts16"> : define, configura e administra os serviços que serão utilizados pelos usuários em seus projetos</span></li>
-<li class="rvps8"><a class="rvts22" href="users.html">Usuários</a><span class="rvts16"> : lista de usuários, administradores ou não.</span></li>
+<li class="rvps11"><a class="rvts25" href="services.html">Serviços</a><span class="rvts16"> : define, configura e administra os serviços que serão utilizados pelos usuários em seus projetos</span></li>
+<li class="rvps11"><a class="rvts25" href="users.html">Usuários</a><span class="rvts16"> : lista de usuários, administradores ou não.</span></li>
 </ul>
-<li class="rvps8"><a class="rvts22" href="profile.html">Perfil</a><a class="rvts23" href="profile.html"> </a><a class="rvts22" href="profile.html">do usuário</a><span class="rvts17"> corrente</span><span class="rvts16"> : lista dos atributos do usuário ativo.</span></li>
-<li class="rvps8"><span class="rvts17">Menu de Trabalho</span><span class="rvts16"> : acesso a todos itens acima. Pode ser oculto para aumentar a área de trabalho através do botão </span><span class="rvts32">≡</span><span class="rvts16"> na barra superior da interface.</span></li>
-<li class="rvps8"><span class="rvts17">Área de Trabalho</span><span class="rvts16"> : área destinada a apresentar as propriedades de cada item do menu.</span></li>
+<li class="rvps11"><a class="rvts25" href="profile.html">Perfil</a><a class="rvts26" href="profile.html"> </a><a class="rvts25" href="profile.html">do usuário</a><span class="rvts17"> corrente</span><span class="rvts16"> : lista dos atributos do usuário ativo.</span></li>
+<li class="rvps11"><span class="rvts17">Menu de Trabalho</span><span class="rvts16"> : acesso a todos itens acima. Pode ser oculto para aumentar a área de trabalho através do botão </span><span class="rvts35">≡</span><span class="rvts16"> na barra superior da interface.</span></li>
+<li class="rvps11"><span class="rvts17">Área de Trabalho</span><span class="rvts16"> : área destinada a apresentar as propriedades de cada item do menu.</span></li>
 </ul>
-<p class="rvps2"><span class="rvts18"><br/></span></p>
+<p class="rvps2"><span class="rvts13"><br/></span></p>
 <p></p>
-<p class="rvps5" style="clear: both;"><span class="rvts14">Created with the Personal Edition of HelpNDoc: </span><a class="rvts15" href="https://www.helpndoc.com/feature-tour">Full-featured Help generator</a></p>
 
             </div>
             
@@ -222,19 +221,35 @@
         </div>  <!-- /#topic-content -->
     </article>
 
-    <footer>
-        
-    </footer>
+    <footer></footer>
 
   </div>  <!-- /#main -->
 
   <div class="mask" data-toggle="sm-nav-expanded"></div>
+  
+  <!-- Modal -->
+  <div class="modal fade" id="hndModal" tabindex="-1" role="dialog" aria-labelledby="hndModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="hndModalLabel"></h4>
+        </div>
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary modal-btn-close" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Scripts -->
   <script src="vendors/jquery-1.11.3/jquery.min.js"></script>
   <script src="vendors/bootstrap-3.3.6/js/bootstrap.min.js"></script>
   <script src="vendors/fastclick-1.0.6/fastclick.min.js"></script>
   <script src="vendors/markjs-8.8.3/jquery.mark.min.js"></script>
+  <script src="vendors/uri-1.18.9/uri.min.js"></script>
   <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
   <script src="vendors/bootstrap-3.3.6/js/ie10-viewport-bug-workaround.js"></script>
   
@@ -260,10 +275,16 @@
       var app = new Hnd.App();
       // Update translations
       hnd_ut(app);
+	  // Custom JS
+	  
       // Boot the app
       app.Boot();
     });
   </script>
 
-  
+
+
+</body>
+
+</html>
 
