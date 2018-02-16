@@ -171,7 +171,12 @@ var Exportation = function(io) {
 
         if(json.monitoredObjectId !== undefined && json.monitoredObjectPk !== undefined) {
           memberDataManager.getDataSeries({ id: json.monitoredObjectId }).then(function(dataSeries) {
-            startProcess(dataSeries.dataSets[0].format.table_name, json.monitoredObjectPk);
+            memberExportation.getPrimaryKeyColumn(dataSeries.dataSets[0].format.table_name, json.dataProviderId).then(function(primaryKeyColumnResult) {
+              var primaryKeyColumn = (primaryKeyColumnResult.rows.length > 0 && primaryKeyColumnResult.rows[0].column_name ? primaryKeyColumnResult.rows[0].column_name : json.monitoredObjectPk);
+              startProcess(dataSeries.dataSets[0].format.table_name, primaryKeyColumn);
+            }).catch(function(err) {
+              return console.error(err);
+            });
           });
         } else {
           startProcess();
