@@ -19,7 +19,6 @@ requirejs(
     'components/Login',
     'components/AnimatedLayer',
     'components/State',
-    'components/Filter',
     'TerraMA2WebComponents'
   ],
   function(
@@ -36,7 +35,6 @@ requirejs(
     Login,
     AnimatedLayer,
     State,
-    Filter,
     TerraMA2WebComponents
   ) {
     TerraMA2WebComponents.LayerExplorer.init();
@@ -68,7 +66,6 @@ requirejs(
         LayerToolbox.init();
         AnimatedLayer.init();
         State.init();
-        Filter.init();
         Login.init();
       });
     });
