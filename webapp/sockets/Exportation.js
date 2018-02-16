@@ -96,7 +96,7 @@ var Exportation = function(io) {
             var ogr2ogr = memberExportation.ogr2ogr();
             var filePath = memberPath.join(__dirname, '../tmp/' + filesFolder + (requestFormats[i] == 'shapefile' ? '/shapefile/' : '/') + fileName + format.fileExtention);
 
-            var args = ['-progress', '-F', format.ogr2ogrFormat, filePath, connectionString, '-sql', memberExportation.getQuery(options), '-skipfailures'];
+            var args = ['-progress', '-F', format.ogr2ogrFormat, filePath, connectionString, '-fieldTypeToString', 'Date,Time,DateTime', '-sql', memberExportation.getQuery(options), '-skipfailures'];
 
             if(requestFormats[i] == "csv")
               args.push('-lco', 'LINEFORMAT=CRLF', '-lco', 'SEPARATOR=' + separator);
