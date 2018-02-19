@@ -351,6 +351,20 @@ define([], function() {
                 value: value
               };
 
+            if(key[0] === "projection" || key[0] === "srid") {
+              var sridValidationResult = $scope.validateSrid(value);
+
+              if(sridValidationResult) {
+                return {
+                  error: {
+                    title: i18n.__("DCP Import Error"),
+                    message: i18n.__("Invalid value for the field") + " '" + title + "' " + i18n.__("in the line") + " " + lineNumber
+                  },
+                  value: value
+                };
+              }
+            }
+
             return {
               error: null,
               value: value
@@ -495,43 +509,51 @@ define([], function() {
             $scope.closeShapefileSuccessMessage();
 
             if(file) {
+              var performUpload = function() {
+                file.upload = Upload.upload({
+                  url: BASE_URL + 'import-shapefile',
+                  file: file,
+                  data: {
+                    semantics: $scope.semanticsCode,
+                    srid: $scope.shpImport.srid,
+                    encoding: $scope.shpImport.encoding,
+                    tableName: $scope.model['table_name'],
+                    mask: $scope.model['mask'],
+                    dataProviderId: $scope.dataSeries.data_provider_id
+                  }
+                });
+  
+                file.upload.then(function(response) {
+                  $timeout(function () {
+                    if(!$("#shapefile-import-loader").hasClass("hidden"))
+                      $("#shapefile-import-loader").addClass("hidden");
+  
+                    if(response.data.error) $scope.shpImport.error = i18n.__(response.data.error);
+                    else $scope.shpImport.success = true;
+                  });
+                }, function(response) {
+                  if(response.status > 0)
+                    $scope.shpImport.error = response.status + ': ' + response.data;
+                });
+              };
+
               if($("#shapefile-import-loader").hasClass("hidden"))
                 $("#shapefile-import-loader").removeClass("hidden");
 
-              $http.get(BASE_URL + "configuration/validate-srid/" + $scope.shpImport.srid).then(function(sridValidator) {
-                if(sridValidator.data.error) {
-                  $scope.shpImport.error = i18n.__(sridValidator.data.error);
+              if($scope.semanticsCode === 'STATIC_DATA-postgis') {
+                $http.get(BASE_URL + "configuration/validate-srid/" + $scope.shpImport.srid).then(function(sridValidator) {
+                  if(sridValidator.data.error) {
+                    $scope.shpImport.error = i18n.__(sridValidator.data.error);
 
-                  if(!$("#shapefile-import-loader").hasClass("hidden"))
-                    $("#shapefile-import-loader").addClass("hidden");
-                } else {
-                  file.upload = Upload.upload({
-                    url: BASE_URL + 'import-shapefile',
-                    file: file,
-                    data: {
-                      semantics: $scope.semanticsCode,
-                      srid: $scope.shpImport.srid,
-                      encoding: $scope.shpImport.encoding,
-                      tableName: $scope.model['table_name'],
-                      mask: $scope.model['mask'],
-                      dataProviderId: $scope.dataSeries.data_provider_id
-                    }
-                  });
-    
-                  file.upload.then(function(response) {
-                    $timeout(function () {
-                      if(!$("#shapefile-import-loader").hasClass("hidden"))
-                        $("#shapefile-import-loader").addClass("hidden");
-    
-                      if(response.data.error) $scope.shpImport.error = i18n.__(response.data.error);
-                      else $scope.shpImport.success = true;
-                    });
-                  }, function(response) {
-                    if(response.status > 0)
-                      $scope.shpImport.error = response.status + ': ' + response.data;
-                  });
-                }
-              });
+                    if(!$("#shapefile-import-loader").hasClass("hidden"))
+                      $("#shapefile-import-loader").addClass("hidden");
+                  } else {
+                    performUpload();
+                  }
+                });
+              } else {
+                performUpload();
+              }
             }   
           };
 

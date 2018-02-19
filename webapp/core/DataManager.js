@@ -5945,5 +5945,21 @@ var DataManager = module.exports = {
         reject("Invalid SRID!");
       }
     });
+  },
+
+  getSRIDs: function() {
+    return new Promise(function(resolve, reject) {
+      models.db.sequelize.query("select srid from public.spatial_ref_sys").then(function(srids) {
+        var sridsArray = [];
+
+        srids[0].forEach(function(srid) {
+          sridsArray.push(srid.srid);
+        });
+
+        resolve(sridsArray);
+      }).catch(function(err) {
+        reject(err);
+      });
+    });
   }
 };

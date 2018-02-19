@@ -511,6 +511,7 @@
   "Invalid data provider path!": "Invalid data provider path!",
   "Invalid file extension!": "Invalid file extension!",
   "Invalid file name!": "Invalid file name!",
+  "Invalid filter SRID.": "Invalid filter SRID.",
   "Invalid folder": "Invalid folder",
   "Invalid format": "Invalid format",
   "Invalid intersection. Each data series must have at least one attribute selected.": "Invalid intersection. Each data series must have at least one attribute selected.",

@@ -513,6 +513,7 @@
   "Invalid data provider path!": "O caminho do Servidor de Dados é inválido!",
   "Invalid file extension!": "Extensão inválida!",
   "Invalid file name!": "Nome de arquivo inválido!",
+  "Invalid filter SRID.": "O SRID do filtro é inválido.",
   "Invalid folder": "Pasta inválida",
   "Invalid format": "Formato inválido",
   "Invalid intersection. Each data series must have at least one attribute selected.": "Interseção inválida. Cada série de dados deve possuir pelo menos um atributo selecionado.",
