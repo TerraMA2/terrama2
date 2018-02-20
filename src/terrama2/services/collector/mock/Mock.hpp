@@ -31,7 +31,7 @@
 
 #include <gmock/gmock.h>
 
-class MockLog : public terrama2::collector::Log {
+class TMCOLLECTOREXPORT MockLog : public terrama2::collector::Log {
 public:
   MOCK_CONST_METHOD1(getDataSetItemLastDateTime, std::shared_ptr<te::dt::TimeInstantTZ>(uint64_t));
 };

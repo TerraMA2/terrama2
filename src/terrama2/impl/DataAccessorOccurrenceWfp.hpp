@@ -45,7 +45,7 @@ namespace terrama2
       \brief DataAccessor for the INPE's Wildiland Fire Program - www.inpe.br/queimadas
 
     */
-    class DataAccessorOccurrenceWfp : public DataAccessorOccurrence, public DataAccessorFile
+    class TMIMPLEXPORT DataAccessorOccurrenceWfp : public DataAccessorOccurrence, public DataAccessorFile
     {
       public:
         DataAccessorOccurrenceWfp(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true);

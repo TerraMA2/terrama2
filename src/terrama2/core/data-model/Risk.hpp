@@ -30,6 +30,7 @@
 #ifndef __TERRAMA2_CORE_DATA_MODEL_RISK_HPP__
 #define __TERRAMA2_CORE_DATA_MODEL_RISK_HPP__
 
+#include "../Config.hpp"
 #include "DataSet.hpp"
 #include "../Shared.hpp"
 #include "../Typedef.hpp"
@@ -43,7 +44,7 @@ namespace terrama2
   namespace core
   {
     constexpr uint32_t DefaultRiskLevel = std::numeric_limits<uint32_t>::max();
-    struct RiskLevel
+    struct TMCOREEXPORT RiskLevel
     {
       std::string name;
       uint32_t level = DefaultRiskLevel; //!< Level of the risk, should be unique in a Risk.
@@ -57,7 +58,7 @@ namespace terrama2
     /*!
       \brief Risk information of an alert
     */
-    struct Risk
+    struct TMCOREEXPORT Risk
     {
       std::string name; //!< Name of the Risk.
       std::string description; //!< Short description of the purpose of the Risk.

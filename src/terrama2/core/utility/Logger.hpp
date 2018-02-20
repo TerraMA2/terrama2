@@ -2,6 +2,7 @@
 #define __TERRAMA2_CORE_LOGGER_HPP__
 
 // TerraMA2
+#include "../Config.hpp"
 #include "../Exception.hpp"
 
 // Terralib
@@ -32,7 +33,7 @@ namespace terrama2
 
 
     */
-    class Logger : public te::common::Singleton<Logger>
+    class TMCOREEXPORT Logger : public te::common::Singleton<Logger>
     {
 
       friend class te::common::Singleton<Logger>;

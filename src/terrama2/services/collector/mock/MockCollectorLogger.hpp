@@ -42,7 +42,7 @@ namespace terrama2
     /*!
      * \brief The MockCollectorLogger class for ProcessLog unittests
      */
-    class MockCollectorLogger : public terrama2::services::collector::core::CollectorLogger
+    class TMCOLLECTOREXPORT MockCollectorLogger : public terrama2::services::collector::core::CollectorLogger
     {
     public:
 

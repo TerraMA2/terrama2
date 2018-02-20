@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/services/analysis/core/Utils.hpp
+  \file terrama2/services/analysis/core/utility/Utils.hpp
 
   \brief Utility functions for TerraMA2 Analysis module.
 
@@ -32,6 +32,7 @@
 
 // TerraMA2
 
+#include "../Config.hpp"
 #include "../Analysis.hpp"
 #include "../OperatorCache.hpp"
 #include "../../../../core/Shared.hpp"
@@ -71,7 +72,7 @@ namespace terrama2
 
           \return Enum with the type of the Analysis.
          */
-        AnalysisType ToAnalysisType(uint32_t type);
+        TMANALYSISEXPORT AnalysisType ToAnalysisType(uint32_t type);
 
         /*!
           \brief Returns a enum with the type of use of the DataSeries in the analysis based on the given parameter.
@@ -80,7 +81,7 @@ namespace terrama2
 
           \return Enum with the type of use of the DataSeries in the Analysis.
          */
-        AnalysisDataSeriesType ToAnalysisDataSeriesType(uint32_t type);
+        TMANALYSISEXPORT AnalysisDataSeriesType ToAnalysisDataSeriesType(uint32_t type);
 
 
         /*!
@@ -90,7 +91,7 @@ namespace terrama2
 
           \return Enum with the script language of the Analysis.
          */
-        ScriptLanguage ToScriptLanguage(uint32_t scriptLanguage);
+        TMANALYSISEXPORT ScriptLanguage ToScriptLanguage(uint32_t scriptLanguage);
 
         /*!
           \brief Returns a enum with the interpolation method used for the output grid.
@@ -99,7 +100,7 @@ namespace terrama2
 
           \return The interpolation method used for the output grid.
          */
-        InterpolationMethod ToInterpolationMethod(uint32_t interpolationMethod);
+        TMANALYSISEXPORT InterpolationMethod ToInterpolationMethod(uint32_t interpolationMethod);
 
         /*!
           \brief Returns a enum with the strategy used to determine the resolution of the output grid.
@@ -108,7 +109,7 @@ namespace terrama2
 
           \return The strategy used to determine the resolution of the output grid.
          */
-        ResolutionType ToResolutionType(uint32_t resolutionType);
+        TMANALYSISEXPORT ResolutionType ToResolutionType(uint32_t resolutionType);
 
         /*!
           \brief Returns a enum with the interest area strategy for the box of the output grid.
@@ -117,7 +118,7 @@ namespace terrama2
 
           \return The interest area strategy for the box of the output grid.
          */
-        InterestAreaType ToInterestAreaType(uint32_t interestAreaType);
+        TMANALYSISEXPORT InterestAreaType ToInterestAreaType(uint32_t interestAreaType);
 
 
 
@@ -129,7 +130,7 @@ namespace terrama2
 
           \return The interest area strategy for the box of the output grid.
          */
-        std::unordered_multimap<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> > getGridMap(DataManagerPtr dataManager, DataSeriesId dataSeriesId, std::shared_ptr<terrama2::core::FileRemover> remover);
+        TMANALYSISEXPORT std::unordered_multimap<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> > getGridMap(DataManagerPtr dataManager, DataSeriesId dataSeriesId, std::shared_ptr<terrama2::core::FileRemover> remover);
 
 
         /*
@@ -137,7 +138,7 @@ namespace terrama2
 
           \return The map with the parameters to create the output raster.
          */
-        std::tuple<te::rst::Grid*, const std::vector<te::rst::BandProperty*> > getOutputRasterInfo(std::map<std::string, std::string> rinfo);
+        TMANALYSISEXPORT std::tuple<te::rst::Grid*, const std::vector<te::rst::BandProperty*> > getOutputRasterInfo(std::map<std::string, std::string> rinfo);
 
         /*!
           \brief Returns the attribute value for the given position, it tries a lexical cast to double in case the attribute has a different type.
@@ -147,14 +148,14 @@ namespace terrama2
           \param attributeType The attribute type.
           \return The attribute value for the given position
         */
-        double getValue(terrama2::core::SynchronizedDataSetPtr syncDs, const std::string& attribute, uint32_t i, int attributeType);
+        TMANALYSISEXPORT double getValue(terrama2::core::SynchronizedDataSetPtr syncDs, const std::string& attribute, uint32_t i, int attributeType);
 
         /*!
          \brief Calculates the statistics based on the given values.
          \param values The list of values.
          \param cache The OperatorCache to store the results.
         */
-        void calculateStatistics(std::vector<double>& values, OperatorCache& cache);
+        TMANALYSISEXPORT void calculateStatistics(std::vector<double>& values, OperatorCache& cache);
 
 
         /*!
@@ -162,9 +163,9 @@ namespace terrama2
           \param cache Cache with the calculated statistics.
           \param statisticOperation The statistic operation called by the script.
         */
-        double getOperationResult(OperatorCache& cache, StatisticOperation statisticOperation);
+        TMANALYSISEXPORT double getOperationResult(OperatorCache& cache, StatisticOperation statisticOperation);
 
-        std::pair<size_t, size_t> getBandInterval(terrama2::core::DataSetPtr dataset, double secondsPassed, std::string dateDiscardBefore, std::string dateDiscardAfter);
+        TMANALYSISEXPORT std::pair<size_t, size_t> getBandInterval(terrama2::core::DataSetPtr dataset, double secondsPassed, std::string dateDiscardBefore, std::string dateDiscardAfter);
 
       } // end namespace core
     }   // end namespace analysis

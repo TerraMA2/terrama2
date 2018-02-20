@@ -31,7 +31,7 @@
 #define __TERRAMA2_CORE_DATA_ACCESS_SERIES_AGGREGATION_HPP__
 
 //TerraMA2
-#include "../../Config.hpp"
+#include "../Config.hpp"
 #include "../Shared.hpp"
 #include "DataSetSeries.hpp"
 
@@ -45,7 +45,7 @@ namespace terrama2
       \class SeriesAggregation
       \brief Base class for grouping DataSet data in a Series
     */
-    class SeriesAggregation
+    class TMCOREEXPORT SeriesAggregation
     {
       public:
         //! Returns a map of DataSet data.

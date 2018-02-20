@@ -30,6 +30,8 @@
 #ifndef __TERRAMA2_SERVICES_ALERT_CORE_SERVICE_HPP__
 #define __TERRAMA2_SERVICES_ALERT_CORE_SERVICE_HPP__
 
+// TerraMa2
+#include "../../Config.hpp"
 #include "../../../core/utility/Service.hpp"
 #include "../../../core/Typedef.hpp"
 #include "../../../core/Shared.hpp"
@@ -50,7 +52,7 @@ namespace terrama2
     {
       namespace core
       {
-        class Service : public terrama2::core::Service
+        class TMALERTCOREEXPORT Service : public terrama2::core::Service
         {
             Q_OBJECT
 

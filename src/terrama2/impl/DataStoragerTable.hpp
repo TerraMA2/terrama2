@@ -31,13 +31,14 @@
 #define __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_TABLE_HPP__
 
 //TerraMA2
+#include "Config.hpp"
 #include "../core/data-access/DataStorager.hpp"
 
 namespace terrama2
 {
   namespace core
   {
-    class DataStoragerTable : public DataStorager
+    class TMIMPLEXPORT DataStoragerTable : public DataStorager
     {
       public:
         DataStoragerTable(DataSeriesPtr dataSeries, DataProviderPtr outputDataProvider)

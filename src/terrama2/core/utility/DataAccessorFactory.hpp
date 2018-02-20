@@ -31,6 +31,7 @@
 #define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_FACTORY_HPP__
 
 //TerraMA2
+#include "../Config.hpp"
 #include "../Shared.hpp"
 #include "../data-model/Filter.hpp"
 #include "../data-model/DataSeriesSemantics.hpp"
@@ -54,7 +55,7 @@ namespace terrama2
       \brief DataAccessorFactory allows the creation of a DataAcessor.
 
     */
-    class DataAccessorFactory : public te::common::Singleton<DataAccessorFactory>
+    class TMCOREEXPORT DataAccessorFactory : public te::common::Singleton<DataAccessorFactory>
     {
       public:
         //! DataAccessor constructor function.

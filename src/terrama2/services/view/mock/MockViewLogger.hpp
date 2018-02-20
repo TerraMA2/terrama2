@@ -42,7 +42,7 @@ namespace terrama2
     /*!
      * \brief The MockViewLogger class for ProcessLog unittests
      */
-    class MockViewLogger : public terrama2::services::view::core::ViewLogger
+    class TMVIEWMOCKEXPORT MockViewLogger : public terrama2::services::view::core::ViewLogger
     {
     public:
 

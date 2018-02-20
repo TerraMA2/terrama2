@@ -46,7 +46,7 @@ namespace terrama2
 {
   namespace core
   {
-    class InterpreterFactory : public te::common::Singleton<InterpreterFactory>
+    class TMCOREEXPORT InterpreterFactory : public te::common::Singleton<InterpreterFactory>
     {
       public:
         //! DataStorager constructor function.

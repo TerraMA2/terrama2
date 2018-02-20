@@ -53,7 +53,7 @@ namespace terrama2
     /*!
       \brief DataStorager provides an interface to store a DataSetSeries.
     */
-    class DataStorager
+    class TMCOREEXPORT DataStorager
     {
       public:
         /*!

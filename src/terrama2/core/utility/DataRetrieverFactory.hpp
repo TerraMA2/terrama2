@@ -30,6 +30,8 @@
 #ifndef __TERRAMA2_CORE_UTILITY_DATA_RETRIEVER_FACTORY_HPP__
 #define __TERRAMA2_CORE_UTILITY_DATA_RETRIEVER_FACTORY_HPP__
 
+// TerraMa2
+#include "../Config.hpp"
 #include "../Shared.hpp"
 #include "../data-model/DataProvider.hpp"
 
@@ -44,7 +46,7 @@ namespace terrama2
 {
   namespace core
   {
-    class DataRetrieverFactory : public te::common::Singleton<DataRetrieverFactory>
+    class TMCOREEXPORT DataRetrieverFactory : public te::common::Singleton<DataRetrieverFactory>
     {
       public:
         //! DataRetriever constructor function.

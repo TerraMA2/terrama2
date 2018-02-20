@@ -32,10 +32,8 @@
 #define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_HPP__
 
 //TerraMA2
-#include "../../Config.hpp"
-
+#include "../Config.hpp"
 #include "../Shared.hpp"
-
 #include "DataRetriever.hpp"
 #include "DataSetSeries.hpp"
 #include "../data-model/DataSeriesSemantics.hpp"
@@ -93,7 +91,7 @@ namespace terrama2
     \warning Derived classes must have virtual inheritance.
 
     */
-    class DataAccessor
+    class TMCOREEXPORT DataAccessor
     {
       public:
         /*!

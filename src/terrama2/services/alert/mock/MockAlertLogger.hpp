@@ -42,7 +42,7 @@ namespace terrama2
     /*!
      * \brief The MockAlertLogger class for ProcessLog unittests
      */
-    class MockAlertLogger : public terrama2::services::alert::core::AlertLogger
+    class TMALERTMOCKEXPORT MockAlertLogger : public terrama2::services::alert::core::AlertLogger
     {
     public:
 

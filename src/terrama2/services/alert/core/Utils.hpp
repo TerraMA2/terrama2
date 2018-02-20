@@ -47,16 +47,16 @@ namespace terrama2
       namespace core
       {
 
-        std::string dateTimeToString(const std::shared_ptr<te::dt::DateTime> dt);
+        TMALERTCOREEXPORT std::string dateTimeToString(const std::shared_ptr<te::dt::DateTime> dt);
 
         /*!
          * \brief Receives a TerraLib dataSet and returns all his data as a HTML table
          * \param dataSet The data set with data to put in table
          * \return A string with the dataSet data formated as a HTML table
          */
-        std::string dataSetHtmlTable(const std::shared_ptr<te::da::DataSet>& dataSet);
+        TMALERTCOREEXPORT std::string dataSetHtmlTable(const std::shared_ptr<te::da::DataSet>& dataSet);
 
-        void replaceReportTags(std::string& text, ReportPtr report);
+        TMALERTCOREEXPORT void replaceReportTags(std::string& text, ReportPtr report);
 
       } /* core */
     } /* alert */

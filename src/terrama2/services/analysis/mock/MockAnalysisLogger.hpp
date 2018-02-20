@@ -43,7 +43,7 @@ namespace terrama2
     /*!
      * \brief The MockAnalysisLogger class for ProcessLog unittests
      */
-    class MockAnalysisLogger : public terrama2::services::analysis::core::AnalysisLogger
+    class TMANALYSISMOCKEXPORT MockAnalysisLogger : public terrama2::services::analysis::core::AnalysisLogger
     {
     public:
 

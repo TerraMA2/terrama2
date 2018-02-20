@@ -32,6 +32,7 @@
 #define __TERRAMA2_SERVICES_ALERT_CORE_REPORT_HPP__
 
 // TerraMA2
+#include "Config.hpp"
 #include "Shared.hpp"
 #include "../../../core/Shared.hpp"
 #include "../../../core/data-model/DataSeriesSemantics.hpp"
@@ -82,7 +83,7 @@ namespace terrama2
           const std::string TIMESTAMP_FORMAT = "timestamp_format";
         } /* ReportTags */
 
-        class Report
+        class TMALERTCOREEXPORT Report
         {
           public:
             Report(AlertPtr alert,

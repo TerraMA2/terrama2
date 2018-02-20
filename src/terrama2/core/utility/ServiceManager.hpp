@@ -25,6 +25,7 @@
 #ifndef __TERRAMA2_CORE_SERVICE_MANAGER_HPP__
 #define __TERRAMA2_CORE_SERVICE_MANAGER_HPP__
 
+// TerraMa2
 #include "../Typedef.hpp"
 #include "ProcessLogger.hpp"
 
@@ -50,7 +51,7 @@ namespace terrama2
       When the listening port is altered, the ServiceManager will send a signal to notify the TcpManager.
 
     */
-    class ServiceManager : public QObject, public te::common::Singleton<ServiceManager>
+    class TMCOREEXPORT ServiceManager : public QObject, public te::common::Singleton<ServiceManager>
     {
         Q_OBJECT
 

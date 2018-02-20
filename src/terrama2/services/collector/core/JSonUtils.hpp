@@ -31,6 +31,8 @@
 #ifndef __TERRAMA2_SERVICES_COLLECTOR_CORE_JSONUTILS_HPP__
 #define __TERRAMA2_SERVICES_COLLECTOR_CORE_JSONUTILS_HPP__
 
+// TerraMa2
+#include "Config.hpp"
 #include "Collector.hpp"
 #include "../core/Shared.hpp"
 #include "../../../core/data-model/DataManager.hpp"
@@ -51,26 +53,26 @@ namespace terrama2
           \see Collector for json structure
           \see [Collector at Trac](https://trac.dpi.inpe.br/terrqama2/wiki/programmersguide/architecture/services/collector/Collector) for more information.
           */
-        CollectorPtr fromCollectorJson(QJsonObject json, terrama2::core::DataManager* dataManager);
+        TMCOLLECTOREXPORT CollectorPtr fromCollectorJson(QJsonObject json, terrama2::core::DataManager* dataManager);
 
         /*!
           \brief Creates a Intersection from a QJsonObject.
           \see Intersection for json structure
           \see [Intersection at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/services/collector/Intersection) for more information.
           */
-        IntersectionPtr fromIntersectionJson(QJsonObject json);
+        TMCOLLECTOREXPORT IntersectionPtr fromIntersectionJson(QJsonObject json);
 
         /*!
           \brief Creates a Json object from a Collector
           \attention This is a function created for debug and tests
         */
-        QJsonObject toJson(CollectorPtr collector);
+        TMCOLLECTOREXPORT QJsonObject toJson(CollectorPtr collector);
 
         /*!
           \brief Creates a Json object from an Intersection
           \attention This is a function created for debug and tests
         */
-        QJsonObject toJson(IntersectionPtr intersection);
+        TMCOLLECTOREXPORT QJsonObject toJson(IntersectionPtr intersection);
 
       } // end namespace core
     }   // end namespace collector

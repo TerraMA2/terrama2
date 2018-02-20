@@ -30,10 +30,14 @@
 #ifndef __TERRAMA2_CORE_UTILITY_JOIN_DATASET_HPP__
 #define __TERRAMA2_CORE_UTILITY_JOIN_DATASET_HPP__
 
+// TerraMa2
+#include "../Config.hpp"
+
 // Terralib
 #include <terralib/dataaccess/dataset/DataSet.h>
 #include <terralib/dataaccess/dataset/DataSetType.h>
 
+// STL
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -50,7 +54,7 @@ namespace terrama2
       \warning If ds2Attribute isn't unique one value will be used to join, the other occurrences will be inaccessible.
 
     */
-    class JoinDataSet : public te::da::DataSet
+    class TMCOREEXPORT JoinDataSet : public te::da::DataSet
     {
     public:
       JoinDataSet(std::unique_ptr<te::da::DataSetType> ds1Type,
