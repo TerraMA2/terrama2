@@ -2,7 +2,15 @@
 #include <terrama2/core/interpreter/PythonInterpreter.hpp>
 #include <iostream>
 
-#include <Python.h>
+// Hide the definition of _DEBUG during the inclusion of Python.h 
+// to make sure that links with python release version.
+#ifdef _DEBUG
+  #undef _DEBUG
+  #include <Python.h>
+  #define _DEBUG
+#else
+  #include <Python.h>
+#endif
 
 int main(int, char**)
 {

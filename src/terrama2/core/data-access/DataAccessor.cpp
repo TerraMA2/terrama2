@@ -128,8 +128,6 @@ te::dt::AbstractData* terrama2::core::DataAccessor::stringToInt(te::da::DataSet*
     try
     {
       boost::int32_t value = std::stoi(strValue);
-      if(!std::isnormal(value) && (value != 0))
-        return nullptr;
 
       te::dt::SimpleData<boost::int32_t>* data = new te::dt::SimpleData<boost::int32_t>(value);
       return data;
