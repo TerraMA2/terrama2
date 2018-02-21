@@ -77,7 +77,7 @@ else
 fi
 
 #
-# TerraLib version 5.2.1
+# TerraLib
 #
 terralib_test=`dpkg -s terralib-5.3.1 | grep Status`
 

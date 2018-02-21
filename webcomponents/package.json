@@ -1,6 +1,6 @@
 {
   "name": "TerraMA2WebComponents",
-  "version": "4.0.2-release",
+  "version": "4.0.3-release",
   "private": true,
   "scripts": {
     "grunt": "grunt"

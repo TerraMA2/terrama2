@@ -132,7 +132,7 @@ else
 fi
 
 #
-# TerraLib version 5.2.1
+# TerraLib
 #
 sudo dpkg -i terralib-5.3.1.deb
 terralib_test=`dpkg -s terralib-5.3.1 | grep Status`
