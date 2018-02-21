@@ -29,7 +29,7 @@
 #  $ ./deb-helper.sh
 #
 
-export TMVERSION=4.0.2
+export TMVERSION=4.0.3
 export DEBNAME=terrama2-doc
 export DEBFILENAME=terrama2-doc
 export DEBARC=amd64
