@@ -74,7 +74,7 @@ namespace terrama2
           int srid; //!< Raster SRID
           double resolutionX; //!< Represents Raster Resolution X Pixel
           double resolutionY; //!< Represents Raster Resolution Y Pixel
-          te::dt::TimeInstant timeTz; //!< Raster Time Instant TZ
+          std::unique_ptr<te::dt::TimeInstantTZ> timeTz; //!< Raster Time Instant TZ
           std::unique_ptr<te::gm::Envelope> envelope; //!< Raster envelope limits
         };
 
