@@ -247,6 +247,7 @@ void terrama2::core::TcpManager::sendLog(const QByteArray& bytearray, QTcpSocket
 
       QJsonObject obj;
       obj.insert("process_id",  static_cast<int>(processId));
+      obj.insert("instance_id",  static_cast<int>(serviceManager_->instanceId());
       obj.insert("log", processLogList);
 
       logList.push_back(obj);
