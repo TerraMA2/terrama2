@@ -308,8 +308,9 @@ define(
         for(var i = 0, viewsLength = data.views.length; i < viewsLength; i++) {
           var layerId = data.views[i].workspace + ":" + data.views[i].layer.name;
           var layerObject = Layers.getLayerById(layerId);
+          var currentProject = $("#projects").val();
 
-          if(layerObject) {
+          if(layerObject && layerObject.projectId == currentProject) {
             Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.ALERT);
             Layers.changeParentLayerStatus("alert", LayerStatusEnum.ALERT);
           }
@@ -358,7 +359,7 @@ define(
               Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.NEW);
               Layers.changeParentLayerStatus(layerObject.parent, LayerStatusEnum.NEW);
             }
-          } else {
+          } else if(layerObject.projectId == currentProject) {
             Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.NEW);
             Layers.changeParentLayerStatus(layerObject.parent, LayerStatusEnum.NEW);
             Layers.getLayerCapabilities(layerObject.uriGeoServer, layerObject.workspace, layerObject.nameId, layerObject.id, layerObject.parent, true);
