@@ -24,6 +24,7 @@
   "10": "10",
   "11": "11",
   "12": "12",
+  " but the TerraMA² service version is ": " but the TerraMA² service version is ",
   " Data Series": " Data Series",
   " deleted": " deleted",
   " projects has been imported": {
@@ -42,6 +43,7 @@
   "%d Dia": "%d Dia",
   "%m Month": "%m Month",
   "%y - Two digits year": "%y - Two digits year",
+  ". Some operations may not work properly": ". Some operations may not work properly",
   ". The process was started successfully": ". The process was started successfully",
   "404 not found": "404 not found",
   "About": "About",
@@ -509,6 +511,7 @@
   "Invalid data provider path!": "Invalid data provider path!",
   "Invalid file extension!": "Invalid file extension!",
   "Invalid file name!": "Invalid file name!",
+  "Invalid filter SRID.": "Invalid filter SRID.",
   "Invalid folder": "Invalid folder",
   "Invalid format": "Invalid format",
   "Invalid intersection. Each data series must have at least one attribute selected.": "Invalid intersection. Each data series must have at least one attribute selected.",
@@ -519,10 +522,12 @@
   "Invalid range of ports": {
     " A valid port is from 1 to 65535": "Invalid range of ports. A valid port is from 1 to 65535"
   },
+  "Invalid SRID!": "Invalid SRID!",
   "Invalid table name": "Invalid table name",
   "Invalid value": "Invalid value",
   "Invalid value for the field": "Invalid value for the field",
   "It performs Analysis Validation in order to check if it will able to generate a valid data series": "It performs Analysis Validation in order to check if it will able to generate a valid data series",
+  "It seems you are using different versions of TerraMA². Current version of TerraMA² Web is ": "It seems you are using different versions of TerraMA². Current version of TerraMA² Web is ",
   "It should have at least one dcp": "It should have at least one dcp",
   "It will activate ": "It will activate ",
   "Kind": "Kind",
