@@ -30,8 +30,7 @@
 #
 
 export TMVERSION=4.0.3
-export DEBNAME=terrama2-doc
-export DEBFILENAME=terrama2-doc
+export DEBNAME=terrama2-doc-${TMVERSION}
 export DEBARC=amd64
 export HELPER_FOLDER=`pwd`/../../helper
 export TM_FOLDER=opt/terrama2/${TMVERSION}
@@ -77,7 +76,7 @@ Section: misc
 Priority: optional
 Version: ${TMVERSION}
 Architecture: ${DEBARC}
-Description: TerraMA2 Helper, version ${TMVERSION}
+Description: TerraMA2 Help files, version ${TMVERSION}
 EOF
 #
 # Copy folder to be installed
@@ -86,4 +85,4 @@ cp -r ${HELPER_FOLDER} `pwd`/${DEBNAME}/${TM_FOLDER}
 #
 # Build the package
 #
-dpkg-deb --build ${DEBFILENAME}
+dpkg-deb --build ${DEBNAME}
