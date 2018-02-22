@@ -303,12 +303,12 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
         return;
       }
 
+      // read data from buffer
+      QByteArray bytearray = tcpSocket->read(blockSize_);
       switch(signal)
       {
         case TcpSignal::UPDATE_SERVICE_SIGNAL:
         {
-          QByteArray bytearray = tcpSocket->read(blockSize_);
-
           updateService(bytearray);
           break;
         }
@@ -329,8 +329,6 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
         case TcpSignal::ADD_DATA_SIGNAL:
         {
           TERRAMA2_LOG_DEBUG() << "ADD_DATA_SIGNAL";
-          QByteArray bytearray = tcpSocket->read(blockSize_);
-
           try
           {
             addData(bytearray);
@@ -354,23 +352,18 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
         case TcpSignal::VALIDATE_PROCESS_SIGNAL:
         {
           TERRAMA2_LOG_DEBUG() << "VALIDATE_PROCESS_SIGNAL";
-          QByteArray bytearray = tcpSocket->read(blockSize_);
-
           validateData(bytearray);
           break;
         }
         case TcpSignal::REMOVE_DATA_SIGNAL:
         {
           TERRAMA2_LOG_DEBUG() << "REMOVE_DATA_SIGNAL";
-          QByteArray bytearray = tcpSocket->read(blockSize_);
-
           removeData(bytearray);
           break;
         }
         case TcpSignal::START_PROCESS_SIGNAL:
         {
           TERRAMA2_LOG_DEBUG() << "START_PROCESS_SIGNAL";
-          QByteArray bytearray = tcpSocket->read(blockSize_);
           sendStartProcess(bytearray);
 
           break;
@@ -386,8 +379,6 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
         case TcpSignal::LOG_SIGNAL:
         {
           TERRAMA2_LOG_DEBUG() << "LOG_SIGNAL";
-          QByteArray bytearray = tcpSocket->read(blockSize_);
-
           sendLog(bytearray, tcpSocket);
           break;
         }
