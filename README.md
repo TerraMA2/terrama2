@@ -72,7 +72,7 @@ If you want to build yourself TerraMA² then you need to install some third-part
 
 - **Qt (Mandatory):** Make sure you have an installed Qt version 5.2.1 or later. Linux users may use any package manager to perform an easy installation. Mac OS X can use package managers such as Homebrew (http://brew.sh) or MacPorts (http://www.macports.org) in order to have an easy installation. If you prefer to install from source, download it from: http://qt-project.org/downloads.
 
-- **TerraLib (Mandatory):** TerraMA² is built on top of TerraLib, a free and open source library for building GIS enabled applications. Make sure to have at least TerraLib version 5.1.0. You can download it from: http://www.dpi.inpe.br/terralib5.
+- **TerraLib (Mandatory):** TerraMA² is built on top of TerraLib, a free and open source library for building GIS enabled applications. Make sure to have at least TerraLib version 5.3.1. You can download it from: http://www.dpi.inpe.br/terralib5.
 
 - **libCURL (Mandatory):** libcurl is a multiprotocol file transfer library. Make sure you have at least version 7.42.1 in your system. You can download it from: http://curl.haxx.se/libcurl.
 
@@ -119,21 +119,23 @@ In the above output the "* master" means that the current branch is master.
 We have the following branches:
 - **master:** This is the branch where the development team is working to add new features to future versions of TerraMA². It may be unstable although the codebase is subject to automatic tests (regression and unittests). We don't recommend to generate production versions of TerraMA² from this branch. Use it for testing new features and get involved with TerraMA² development.
 
-- **b-4.0.0-alpha:** This will be the first branch in TerraMA²'s codebase for the generation 4.
-- **b-4.0.0-alpha2:** Minimal working version with web user interface. Services: Collector and Analysis.
-- **b-4.0.0-alpha3:** Analysis of monitored objects and grid.
-- **b-4.0.0-alpha4:** Views service and web-monitoring module
-- **b-4.0.0-alpha5:** General review of the interface and analysis
-- **b-4.0.0-alpha6:** Review of grid operators and Monitored Object forecast operators
-- **b-4.0.0-alpha7:** Analysis validation and filter by static data (Preparing to Beta release)
-- **b-4.0.0-beta1:** GDAL driver for raster and Generic CSV driver for occurrences and DCP
-- **b-4.0.0-beta2:** Alert service
-- **b-4.0.0-beta3:** Improvements to WebMonitor
-- **b-4.0.0-rc1:** Analysis DCP and improvements to WebMonitor
-- **b-4.0.0-rc2:** Analysis DCP and lots of minor improvements
-- **b-4.0.0-rc3:** Stabilization, DCP analysis view, general improvments
-- **b-4.0.0-rc4:** Improvements for final release
-- **b-4.0.0:** Final release for TerraMA² 4.0.0
+- **b4.0.0-alpha:** This will be the first branch in TerraMA²'s codebase for the generation 4.
+- **b4.0.0-alpha2:** Minimal working version with web user interface. Services: Collector and Analysis.
+- **b4.0.0-alpha3:** Analysis of monitored objects and grid.
+- **b4.0.0-alpha4:** Views service and web-monitoring module
+- **b4.0.0-alpha5:** General review of the interface and analysis
+- **b4.0.0-alpha6:** Review of grid operators and Monitored Object forecast operators
+- **b4.0.0-alpha7:** Analysis validation and filter by static data (Preparing to Beta release)
+- **b4.0.0-beta1:** GDAL driver for raster and Generic CSV driver for occurrences and DCP
+- **b4.0.0-beta2:** Alert service
+- **b4.0.0-beta3:** Improvements to WebMonitor
+- **b4.0.0-release-candidate-1:** Analysis DCP and improvements to WebMonitor
+- **b4.0.0-release-candidate-2:** Analysis DCP and lots of minor improvements
+- **b4.0.0-release-candidate-3:** Stabilization, DCP analysis view, general improvments
+- **b4.0.0-release-candidate-4:** Improvements for final release
+- **b4.0.0:** Final release for TerraMA² 4.0.0
+  - **t4.0.1:** Bug fixes
+  - **t4.0.2:** Auto update database, terralib 5.3 and bugfixes
 
 For a more complete releases info, check: https://github.com/TerraMA2/terrama2/releases
 
@@ -157,11 +159,11 @@ To check all tags available, use:
 $ git tag -l           (list all tag names)
 ```
 ```
-  t-4.0.0-alpha1
-  t-4.0.0-alpha2
-  t-4.0.0-beta1
-  t-4.0.0-rc1
-  t-4.0.0
+  v4.0.0-alpha1
+  v4.0.0-alpha2
+  v4.0.0-beta1
+  v4.0.0-rc1
+  v4.0.0
   ...
 ```
 

@@ -1,13 +1,13 @@
 
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt">
 
 <head>
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="generator" content="HelpNDoc Personal Edition 5.0.0.182">
+  <meta name="generator" content="HelpNDoc Standard Edition 5.4.2.416">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" href="favicon.ico"/>
 
@@ -48,7 +48,7 @@
   <link href="css/effects.min.css" rel="stylesheet" />
   <link href="css/theme-light-blue.min.css" rel="stylesheet" />
   <link href="css/print.min.css" rel="stylesheet" media="print" />
-  <style type="text/css">nav { width: 350px} @media screen and (min-width:769px) { body.md-nav-expanded #main { margin-left: 350px} body.md-nav-expanded header { padding-left: 364px} }</style>
+  <style type="text/css">nav { width: 350px} @media screen and (min-width:769px) { body.md-nav-expanded div#main { margin-left: 350px} body.md-nav-expanded header { padding-left: 364px} }</style>
 
   <!-- Content style -->
   <link href="css/hnd.content.css" rel="stylesheet" />
@@ -87,21 +87,21 @@
       
 	  
         <li role="presentation" class="tab active">
-            <a href="#contents" aria-controls="contents" role="tab" data-toggle="tab">
+            <a href="#contents" id="tab-contents" aria-controls="contents" role="tab" data-toggle="tab">
                 <i class="glyphicon glyphicon-list"></i>
                 Contents
             </a>
         </li>
       
         <li role="presentation" class="tab">
-            <a href="#index" aria-controls="index" role="tab" data-toggle="tab">
+            <a href="#index" id="tab-index" aria-controls="index" role="tab" data-toggle="tab">
                 <i class="glyphicon glyphicon-asterisk"></i>
                 Index
             </a>
         </li>
       
         <li role="presentation" class="tab">
-            <a href="#search" aria-controls="search" role="tab" data-toggle="tab">
+            <a href="#search" id="tab-search" aria-controls="search" role="tab" data-toggle="tab">
                 <i class="glyphicon glyphicon-search"></i>
                 Search
             </a>
@@ -184,45 +184,44 @@
                 
 <p></p>
 <p class="rvps2"><span class="rvts6"><br/></span></p>
-<p class="rvps6"><span class="rvts16">Para adicionar um novo dado estático é necessário ter um projeto ativo. No menu de opções selecione “</span><span class="rvts17">Dados Estáticos</span><span class="rvts16">” para que a lista de dados disponíveis seja apresentada na área de trabalho. Clique no botão “ </span><span class="rvts33">+</span><span class="rvts17"> </span><span class="rvts16">” para adicionar novo dado. Utilize o botão </span><span class="rvts17">“Salvar”</span><span class="rvts16"> para salvar o dado estático. Não é permitido nomes de dados em duplicidade. Botão </span><span class="rvts17">“Cancelar”</span><span class="rvts16"> volta à tela anterior sem salvar o dado. A Figura 2.20 mostra a área de trabalho para adicionar novo dado estático. Detalhes de cada campo a seguir.</span></p>
-<p class="rvps16"><img alt="" style="padding : 1px;" src="lib/Fig2_20_web.PNG"></p>
-<p class="rvps26"><span class="rvts19">Figura 2.20 – </span><span class="rvts20">Módulo de Administração: Adição de dado estático</span></p>
-<p class="rvps2"><span class="rvts18"><br/></span></p>
-<p class="rvps30"><span class="rvts36">Registro de Dado Estático - Geral:</span></p>
+<p class="rvps9"><span class="rvts16">Para adicionar um novo dado estático é necessário ter um projeto ativo. No menu de opções selecione “</span><span class="rvts17">Dados Estáticos</span><span class="rvts16">” para que a lista de dados disponíveis seja apresentada na área de trabalho. Clique no botão “ </span><span class="rvts36">+</span><span class="rvts17"> </span><span class="rvts16">” para adicionar novo dado. Utilize o botão </span><span class="rvts17">“Salvar”</span><span class="rvts16"> para salvar o dado estático. Não é permitido nomes de dados em duplicidade. Botão </span><span class="rvts17">“Cancelar”</span><span class="rvts16"> volta à tela anterior sem salvar o dado. A Figura 2.20 mostra a área de trabalho para adicionar novo dado estático. Detalhes de cada campo a seguir.</span></p>
+<p class="rvps20"><img alt="" style="padding : 1px;" src="lib/Fig2_20_web.PNG"></p>
+<p class="rvps30"><span class="rvts18">Figura 2.20 – </span><span class="rvts19">Módulo de Administração: Adição de dado estático</span></p>
+<p class="rvps2"><span class="rvts13"><br/></span></p>
+<p class="rvps34"><span class="rvts39">Registro de Dado Estático - Geral:</span></p>
 <ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
-<li class="rvps31"><span class="rvts17">Formato</span><span class="rvts16">: Escolha o tipo entre </span><span class="rvts17">Tabelas com Feições (PostgreSQL/PostGIS), Arquivos Matriciais (GeoTIFF) </span><span class="rvts16">ou</span><span class="rvts17"> Arquivos Vetoriais (ESRI Shapefile)</span><span class="rvts16">. Dependendo do tipo escolhido alguns parâmetros específicos serão apresentados para preenchimento. IMPORTANTE: Uma vez escolhido não pode ser alterado, a menos que saia da edição e retorne.</span></li>
-<li class="rvps31"><span class="rvts17">Nome</span><span class="rvts16">: Defina o nome do dado estático (campo obrigatório para passar para os demais itens). O tamanho máximo do nome é de 100 caracteres. Não é permitido nomes duplicados.</span></li>
-<li class="rvps31"><span class="rvts17">Descrição</span><span class="rvts16">: Campo não obrigatório para descrição do dado estático. O tamanho máximo da senha é de 250 caracteres.</span></li>
-<li class="rvps31"><span class="rvts17">Servidor de Dados</span><span class="rvts16">: Escolha o servidor de onde está armazenado o dado. Se o dado estático estiver em formato de arquivo selecione um servidor do tipo ARQUIVO. Se o dado estático estiver em formato de tabelas de bancos de dados selecione um servidor do tipo PostGIS.</span></li>
-<li class="rvps31"><span class="rvts17">Ativo</span><span class="rvts16">: Botão ativo permite utilizar o dado dinâmico. Botão desmarcado dado não poderá ser utilizado.</span></li>
+<li class="rvps35"><span class="rvts17">Formato</span><span class="rvts16">: Escolha o tipo entre </span><span class="rvts17">Tabelas com Feições (PostgreSQL/PostGIS), Arquivos Matriciais (GeoTIFF) </span><span class="rvts16">ou</span><span class="rvts17"> Arquivos Vetoriais (ESRI Shapefile)</span><span class="rvts16">. Dependendo do tipo escolhido alguns parâmetros específicos serão apresentados para preenchimento. IMPORTANTE: Uma vez escolhido não pode ser alterado, a menos que saia da edição e retorne.</span></li>
+<li class="rvps35"><span class="rvts17">Nome</span><span class="rvts16">: Defina o nome do dado estático (campo obrigatório para passar para os demais itens). O tamanho máximo do nome é de 100 caracteres. Não é permitido nomes duplicados.</span></li>
+<li class="rvps35"><span class="rvts17">Descrição</span><span class="rvts16">: Campo não obrigatório para descrição do dado estático. O tamanho máximo da senha é de 250 caracteres.</span></li>
+<li class="rvps35"><span class="rvts17">Servidor de Dados</span><span class="rvts16">: Escolha o servidor de onde está armazenado o dado. Se o dado estático estiver em formato de arquivo selecione um servidor do tipo ARQUIVO. Se o dado estático estiver em formato de tabelas de bancos de dados selecione um servidor do tipo PostGIS.</span></li>
+<li class="rvps35"><span class="rvts17">Ativo</span><span class="rvts16">: Botão ativo permite utilizar o dado dinâmico. Botão desmarcado dado não poderá ser utilizado.</span></li>
 </ul>
-<p class="rvps30"><span class="rvts36">Registro de Dado Estático - Parâmetros:</span></p>
+<p class="rvps34"><span class="rvts39">Registro de Dado Estático - Parâmetros:</span></p>
 <ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
-<li class="rvps42"><a name="docs-internal-guid-29a5dce0-cc97-ba07-6c0e-1b86cc6d7ed2"></a>
-<span class="rvts17">Nome do Arquivo </span><span class="rvts47">(</span><span class="rvts56">se formato “Arquivos Matriciais (GeoTIFF)” ou “Arquivos Vetoriais (ESRI Shapefile)”</span><span class="rvts47">)</span><span class="rvts16">: Nome do arquivo estático. Se o arquivo estiver em sub-diretórios definido a partir do caminho informado na definição do servidor, acrescente estes subdiretórios na frente do nome do arquivo (por exemplo: &nbsp;</span><span class="rvts40">maps/geo/vunerabilidade_geo.tif &nbsp;ou &nbsp;maps/shape/rodovias.shp</span><span class="rvts16"> ).</span></li>
-<li class="rvps42"><span class="rvts17">Nome da Tabela </span><span class="rvts47">(</span><span class="rvts56">somente para Formato “Tabelas com Feições (PostgreSQL/PostGIS)”</span><span class="rvts47">): </span><span class="rvts16">Nome da tabela do servidor de banco de dados PostgreSQL + PostGIS.</span></li>
+<li class="rvps46"><a name="docs-internal-guid-29a5dce0-cc97-ba07-6c0e-1b86cc6d7ed2"></a>
+<span class="rvts17">Nome do Arquivo </span><span class="rvts48">(</span><span class="rvts57">se formato “Arquivos Matriciais (GeoTIFF)” ou “Arquivos Vetoriais (ESRI Shapefile)”</span><span class="rvts48">)</span><span class="rvts16">: Nome do arquivo estático. Se o arquivo estiver em sub-diretórios definido a partir do caminho informado na definição do servidor, acrescente estes subdiretórios na frente do nome do arquivo (por exemplo: &nbsp;</span><span class="rvts43">maps/geo/vunerabilidade_geo.tif &nbsp;ou &nbsp;maps/shape/rodovias.shp</span><span class="rvts16"> ).</span></li>
+<li class="rvps46"><span class="rvts17">Nome da Tabela </span><span class="rvts48">(</span><span class="rvts57">somente para Formato “Tabelas com Feições (PostgreSQL/PostGIS)”</span><span class="rvts48">): </span><span class="rvts16">Nome da tabela do servidor de banco de dados PostgreSQL + PostGIS.</span></li>
 </ul>
-<p class="rvps6"><span class="rvts16">Após informar o nome da tabela ou arquivo a ser associado ao dado estático, o mesmo deve estar disponível no servidor de dados escolhido (seja do tipo “Arquivo” ou “PostGIS”. Caso o dado ainda não esteja disponível poderá efetuar a transferência (ou “upload”) a partir de qualquer computador onde o dado de origem se encontra.</span></p>
+<p class="rvps9"><span class="rvts16">Após informar o nome da tabela ou arquivo a ser associado ao dado estático, o mesmo deve estar disponível no servidor de dados escolhido (seja do tipo “Arquivo” ou “PostGIS”. Caso o dado ainda não esteja disponível poderá efetuar a transferência (ou “upload”) a partir de qualquer computador onde o dado de origem se encontra.</span></p>
 <ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
-<li class="rvps42"><span class="rvts17">Transferir Shapefile </span><span class="rvts47">(</span><span class="rvts56">se formato Arquivos Vetoriais (ESRI Shapefile) ou “Tabelas com Feições (PostgreSQL/PostGIS)”</span><span class="rvts47">)</span><span class="rvts17">:</span><span class="rvts16"> Utilize este botão para efetuar a transferência de arquivos shapefile (mapas vetoriais) para servidores de banco de dados do tipo PostgreSQL/PostGIS definidos no projeto do usuário ou para servidores do tipo arquivo. &nbsp;Este botão dará acesso a janela da Figura 2.21 para proceder com a carga do arquivo.</span></li>
+<li class="rvps46"><span class="rvts17">Transferir Shapefile </span><span class="rvts48">(</span><span class="rvts57">se formato Arquivos Vetoriais (ESRI Shapefile) ou “Tabelas com Feições (PostgreSQL/PostGIS)”</span><span class="rvts48">)</span><span class="rvts17">:</span><span class="rvts16"> Utilize este botão para efetuar a transferência de arquivos shapefile (mapas vetoriais) para servidores de banco de dados do tipo PostgreSQL/PostGIS definidos no projeto do usuário ou para servidores do tipo arquivo. &nbsp;Este botão dará acesso a janela da Figura 2.21 para proceder com a carga do arquivo.</span></li>
 </ul>
-<p class="rvps44"><img alt="" style="padding : 1px;" src="lib/Fig2_21_web.PNG"></p>
-<p class="rvps26"><span class="rvts19">Figura 2.21 – </span><span class="rvts20">Módulo de Administração: Transferência de arquivo shapefile para servidor.</span></p>
+<p class="rvps48"><img alt="" style="padding : 1px;" src="lib/Fig2_21_web.PNG"></p>
+<p class="rvps30"><span class="rvts18">Figura 2.21 – </span><span class="rvts19">Módulo de Administração: Transferência de arquivo shapefile para servidor.</span></p>
 <ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
-<li class="rvps42"><span class="rvts17">SRID:</span><span class="rvts16"> Digite o valor numérico dos parâmetros de projeção e datum correspondente ao arquivo Shapefile.</span></li>
-<li class="rvps42"><span class="rvts17">Codificação:</span><span class="rvts16"> Escolha a codificação de caracteres do arquivo Shapefile correspondente.</span></li>
-<li class="rvps42"><span class="rvts17">Selecionar Arquivo:</span><span class="rvts16"> Utilize este botão para selecionar o arquivo Shapefile a ser transferido para o banco de dados ou servidor de arquivos. Aguarde pela mensagem </span><span class="rvts40">“Shapefile importado com sucesso!”</span><span class="rvts16">.</span></li>
+<li class="rvps46"><span class="rvts17">SRID:</span><span class="rvts16"> Digite o valor numérico dos parâmetros de projeção e datum correspondente ao arquivo Shapefile.</span></li>
+<li class="rvps46"><span class="rvts17">Codificação:</span><span class="rvts16"> Escolha a codificação de caracteres do arquivo Shapefile correspondente.</span></li>
+<li class="rvps46"><span class="rvts17">Selecionar Arquivo:</span><span class="rvts16"> Utilize este botão para selecionar o arquivo Shapefile a ser transferido para o banco de dados ou servidor de arquivos. Aguarde pela mensagem </span><span class="rvts43">“Shapefile importado com sucesso!”</span><span class="rvts16">.</span></li>
 </ul>
-<li class="rvps42"><span class="rvts17">Transferir GeoTIFF </span><span class="rvts47">(</span><span class="rvts56">somente para formato “Arquivos Matriciais (GeoTIFF)”</span><span class="rvts47">)</span><span class="rvts17">:</span><span class="rvts16"> Utilize este botão para efetuar a transferência de arquivos geotiff para servidores do tipo arquivo. &nbsp;Este botão dará acesso a janela da Figura 2.22 para proceder com a carga do arquivo.</span></li>
+<li class="rvps46"><span class="rvts17">Transferir GeoTIFF </span><span class="rvts48">(</span><span class="rvts57">somente para formato “Arquivos Matriciais (GeoTIFF)”</span><span class="rvts48">)</span><span class="rvts17">:</span><span class="rvts16"> Utilize este botão para efetuar a transferência de arquivos geotiff para servidores do tipo arquivo. &nbsp;Este botão dará acesso a janela da Figura 2.22 para proceder com a carga do arquivo.</span></li>
 </ul>
-<p class="rvps44"><img alt="" style="padding : 1px;" src="lib/Fig2_22_web.PNG"></p>
-<p class="rvps26"><span class="rvts19">Figura 2.22 – </span><span class="rvts20">Módulo de Administração: Transferência de arquivo geotiff para servidor.</span></p>
+<p class="rvps48"><img alt="" style="padding : 1px;" src="lib/Fig2_22_web.PNG"></p>
+<p class="rvps30"><span class="rvts18">Figura 2.22 – </span><span class="rvts19">Módulo de Administração: Transferência de arquivo geotiff para servidor.</span></p>
 <ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 80px; list-style-position: outside; list-style-type: disc;">
-<li class="rvps42"><span class="rvts17">Selecionar Arquivo:</span><span class="rvts16"> Utilize este botão para selecionar o arquivo Geotiff a ser transferido para o servidor de arquivos. Aguarde pela mensagem </span><span class="rvts40">“Geotiff importado com sucesso!”</span><span class="rvts16">.</span></li>
+<li class="rvps46"><span class="rvts17">Selecionar Arquivo:</span><span class="rvts16"> Utilize este botão para selecionar o arquivo Geotiff a ser transferido para o servidor de arquivos. Aguarde pela mensagem </span><span class="rvts43">“Geotiff importado com sucesso!”</span><span class="rvts16">.</span></li>
 </ul></ul>
 <p class="rvps2"><span class="rvts6"><br/></span></p>
 <p></p>
-<p class="rvps5" style="clear: both;"><span class="rvts14">Created with the Personal Edition of HelpNDoc: </span><a class="rvts15" href="https://www.helpndoc.com/create-epub-ebooks">Free EPub producer</a></p>
 
             </div>
             
@@ -230,19 +229,35 @@
         </div>  <!-- /#topic-content -->
     </article>
 
-    <footer>
-        
-    </footer>
+    <footer></footer>
 
   </div>  <!-- /#main -->
 
   <div class="mask" data-toggle="sm-nav-expanded"></div>
+  
+  <!-- Modal -->
+  <div class="modal fade" id="hndModal" tabindex="-1" role="dialog" aria-labelledby="hndModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="hndModalLabel"></h4>
+        </div>
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary modal-btn-close" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Scripts -->
   <script src="vendors/jquery-1.11.3/jquery.min.js"></script>
   <script src="vendors/bootstrap-3.3.6/js/bootstrap.min.js"></script>
   <script src="vendors/fastclick-1.0.6/fastclick.min.js"></script>
   <script src="vendors/markjs-8.8.3/jquery.mark.min.js"></script>
+  <script src="vendors/uri-1.18.9/uri.min.js"></script>
   <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
   <script src="vendors/bootstrap-3.3.6/js/ie10-viewport-bug-workaround.js"></script>
   
@@ -268,10 +283,16 @@
       var app = new Hnd.App();
       // Update translations
       hnd_ut(app);
+	  // Custom JS
+	  
       // Boot the app
       app.Boot();
     });
   </script>
 
-  
+
+
+</body>
+
+</html>
 

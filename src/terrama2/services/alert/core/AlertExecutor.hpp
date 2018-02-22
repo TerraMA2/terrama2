@@ -65,14 +65,6 @@ namespace terrama2
     {
       namespace core
       {
-        struct comparatorAbstractData
-        {
-          bool operator()(const std::shared_ptr<te::dt::AbstractData>& a, const std::shared_ptr<te::dt::AbstractData>& b) const
-          {
-            return a->toString() < b->toString();
-          }
-        };
-
         class AlertExecutor : public QObject
         {
             Q_OBJECT
@@ -110,18 +102,17 @@ namespace terrama2
             //! Get the name of the property used as unique key of the DataSet
             std::string getIdentifierPropertyName(terrama2::core::DataSetPtr dataSet, terrama2::core::DataSeriesPtr dataSeries);
             //! Get the propper function to evaluate the risk level of a value.
-            std::function<std::tuple<int, std::string, std::string>(size_t pos)> createGetRiskFunction(terrama2::core::LegendPtr legend, std::shared_ptr<te::da::DataSet> teDataSet);
+            std::tuple<int, std::string, std::string> getRisk(terrama2::core::LegendPtr legend, std::shared_ptr<te::da::DataSet> teDataSet, size_t pos);
 
-            std::map<std::shared_ptr<te::dt::AbstractData>, std::map<std::string, std::pair<std::shared_ptr<te::dt::AbstractData>, uint32_t> >, terrama2::services::alert::core::comparatorAbstractData>
-            getResultMap(terrama2::core::LegendPtr risk,
+            std::map<std::shared_ptr<te::dt::AbstractData>, std::map<std::string, std::pair<std::string, uint32_t> > > getResultMap(terrama2::core::LegendPtr risk,
                          size_t pos,
                          te::dt::Property* idProperty,
-                         std::string datetimeColumnName,
+                         const std::string& datetimeColumnName,
                          std::shared_ptr<te::da::DataSet> teDataset,
                          std::vector<std::shared_ptr<te::dt::DateTime> > vecDates);
 
             std::shared_ptr<te::mem::DataSet> populateMonitoredObjectAlertDataset(std::vector<std::shared_ptr<te::dt::DateTime> > vecDates,
-                                                                                  std::map<std::shared_ptr<te::dt::AbstractData>, std::map<std::string, std::pair<std::shared_ptr<te::dt::AbstractData>, uint32_t> >, comparatorAbstractData> riskResultMap,
+                                                                                  std::map<std::shared_ptr<te::dt::AbstractData>, std::map<std::string, std::pair<std::string, uint32_t> >> riskResultMap,
                                                                                   AlertPtr alertPtr,
                                                                                   te::dt::Property* fkProperty,
                                                                                   std::shared_ptr<te::da::DataSetType> alertDataSetType);

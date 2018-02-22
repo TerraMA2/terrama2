@@ -4,6 +4,25 @@ define([], function() {
                               Service, $timeout, WizardHandler, UniqueNumber, 
                               FilterForm, MessageBoxService, $q, GeoLibs, $compile, DateParser, FormTranslator, Socket) {
 
+    var srids = [];
+
+    $http.get(BASE_URL + "configuration/get-srids").then(function(sridsResult) {
+      srids = sridsResult.data.srids;
+    });
+
+    $scope.validateSrid = function(srid) {
+      var error = "Invalid SRID!";
+
+      srids.forEach(function(validSrid) {
+        if(parseInt(srid) === parseInt(validSrid)) {
+          error = null;
+          return;
+        }
+      });
+
+      return error;
+    };
+
     $scope.forms = {};
     $scope.isDynamic = configuration.dataSeriesType === "dynamic";
     $scope.hasProjectPermission = configuration.hasProjectPermission;
@@ -1094,19 +1113,25 @@ define([], function() {
 
       $scope.$watch("dataSeries", function(dSValue) {
         if(dSValue.semantics && $scope.dataSeries && $scope.dataSeries.semantics.allow_direct_access === false) {
+          $scope.wizard.store.optional = false;
           $scope.advanced.store.optional = false;
         } else {
+          $scope.wizard.store.optional = true;
           $scope.advanced.store.optional = true;
         }
 
         if(dSValue.name && dSValue.semantics && dSValue.data_provider_id) {
-          $scope.wizard.store.disabled = false;
-          $scope.advanced.store.disabled = false;
+          if($scope.dataSeries && $scope.dataSeries.semantics.allow_direct_access === false) {
+            $scope.wizard.store.disabled = false;
+            $scope.advanced.store.disabled = false;
+          }
+
           $scope.wizard.parameters.disabled = false;
           $scope.wizard.csvFormat.disabled = false;
         } else {
           $scope.wizard.store.disabled = true;
           $scope.advanced.store.disabled = true;
+
           $scope.wizard.parameters.disabled = true;
           $scope.wizard.csvFormat.disabled = true;
         }
@@ -1469,8 +1494,15 @@ define([], function() {
       $scope.validateFieldEdition = function(value, type, alias, key) {
         if($scope.fieldHasError(value, type, $scope.dcpsObject[alias][key + '_pattern'], $scope.dcpsObject[alias][key + '_titleMap'], $scope.dataSeries.semantics.metadata.schema.properties[key].allowEmptyValue))
           return i18n.__("Invalid value");
-        else
+        else {
+          if(key === "projection" || key === "srid") {
+            var sridValidationResult = $scope.validateSrid(value);
+
+            if(sridValidationResult) return i18n.__("Invalid value");
+          }
+
           return null;
+        }
       };
 
       $scope.insertEditedDcp = function(id) {
@@ -1489,43 +1521,62 @@ define([], function() {
       $scope.addDcp = function() {
         if(isValidParametersForm($scope.forms.parametersForm)) {
           var data = Object.assign({}, $scope.model);
-          if($scope.isAliasValid(data.alias, $scope.dcpsObject)) {
-            data._id = UniqueNumber();
-            var alias = data.alias;
 
-            for(var j = 0, fieldsLength = $scope.dataSeries.semantics.metadata.form.length; j < fieldsLength; j++) {
-              var key = $scope.dataSeries.semantics.metadata.form[j].key;
-              var type = $scope.dataSeries.semantics.metadata.form[j].schema.type;
-              data[key + '_pattern'] = $scope.dataSeries.semantics.metadata.form[j].schema.pattern;
-              data[key + '_titleMap'] = $scope.dataSeries.semantics.metadata.form[j].titleMap;
+          var performAddDcp = function() {
+            if($scope.isAliasValid(data.alias, $scope.dcpsObject)) {
+              data._id = UniqueNumber();
+              var alias = data.alias;
 
-              if(data[key + '_titleMap'] !== undefined)
-                type = $scope.dataSeries.semantics.metadata.form[j].type;
+              for(var j = 0, fieldsLength = $scope.dataSeries.semantics.metadata.form.length; j < fieldsLength; j++) {
+                var key = $scope.dataSeries.semantics.metadata.form[j].key;
+                var type = $scope.dataSeries.semantics.metadata.form[j].schema.type;
+                data[key + '_pattern'] = $scope.dataSeries.semantics.metadata.form[j].schema.pattern;
+                data[key + '_titleMap'] = $scope.dataSeries.semantics.metadata.form[j].titleMap;
 
-              data = $scope.setHtmlItems(data, key, alias, data._id, type);
+                if(typeof data[key] === "string")
+                  data[key] = data[key].trim();
+
+                if(data[key + '_titleMap'] !== undefined)
+                  type = $scope.dataSeries.semantics.metadata.form[j].type;
+
+                data = $scope.setHtmlItems(data, key, alias, data._id, type);
+              }
+
+              $scope.dcpsObject[alias] = Object.assign({}, data);
+              
+              if($scope.storager.format)
+                $scope.$broadcast("dcpOperation", { action: "add", dcp: data, storageData: true, reloadDataStore: false });
+
+              $scope.model = {active: true};
+
+              var dcpCopy = Object.assign({}, data);
+              dcpCopy.removeButton = $scope.getRemoveButton(dcpCopy.alias);
+
+              $scope.storageDcps([dcpCopy]);
+
+              if($scope.isUpdating)
+                $scope.insertEditedDcp(dcpCopy._id);
+
+              // reset form to do not display feedback class
+              $scope.forms.parametersForm.$setPristine();
+
+              reloadData();
+            } else {
+              MessageBoxService.danger(i18n.__("Field error"), i18n.__("The Alias has to be unique"));
             }
+          };
 
-            $scope.dcpsObject[alias] = Object.assign({}, data);
-            
-            if($scope.storager.format)
-              $scope.$broadcast("dcpOperation", { action: "add", dcp: data, storageData: true, reloadDataStore: false });
+          if(data.projection || data.srid) {
+            var srid = (data.projection ? data.projection : data.srid);
+            var sridValidationResult = $scope.validateSrid(srid);
 
-            $scope.model = {active: true};
-
-            var dcpCopy = Object.assign({}, data);
-            dcpCopy.removeButton = $scope.getRemoveButton(dcpCopy.alias);
-
-            $scope.storageDcps([dcpCopy]);
-
-            if($scope.isUpdating)
-              $scope.insertEditedDcp(dcpCopy._id);
-
-            // reset form to do not display feedback class
-            $scope.forms.parametersForm.$setPristine();
-
-            reloadData();
+            if(sridValidationResult) {
+              MessageBoxService.danger(i18n.__("Data Registration"), i18n.__(sridValidationResult));
+            } else {
+              performAddDcp();
+            }
           } else {
-            MessageBoxService.danger(i18n.__("Field error"), i18n.__("The Alias has to be unique"));
+            performAddDcp();
           }
         }
       };
@@ -1673,135 +1724,139 @@ define([], function() {
       };
 
       $scope.$on("storageValuesReceive", function(event, values) {
-        //  todo: improve
-        var dSemantics = Object.assign({}, $scope.dataSeries.semantics);
-        var dataObject = _save();
-        var dSeriesName = dataObject.dataSeries.name;
-        // setting _input in data series
-        dataObject.dataSeries.name += "_input";
-
-        var dSets = values.data;
-
-        // it makes data set format
-        var _makeFormat = function(dSetObject) {
-          var format_ = {};
-          for(var key in dSetObject) {
-            if(dSetObject.hasOwnProperty(key) && key.toLowerCase() !== "id" && key.substr(key.length - 5) != "_html" && key.substr(key.length - 8) != "_pattern" && key.substr(key.length - 9) != "_titleMap" && key != "removeButton" && key != "oldAlias" && key != "newAlias")
-              format_[key] = dSetObject[key].toString();
-              if(key.startsWith("output_")) {
-                format_[key.replace("output_", "")] = dSetObject[key];
-              }
-          }
-
-          return format_;
-        };
-
-        var out;
-        if (dSets instanceof Array) {
-          // setting to active
-          var dSetsLocal = [];
-          var tempEditedDcps = [];
-
-          for(var i = 0, dSetsLength = dSets.length; i < dSetsLength; i++) {
-            var output_timestamp_property_field = dataObject.dataSeries.dataSets[0].format.output_timestamp_property;
-            if (output_timestamp_property_field){
-              dSets[i].timestamp_property = output_timestamp_property_field
-            }
-
-            var output_geometry_property_field = dataObject.dataSeries.dataSets[0].format.output_geometry_property;
-            if (output_geometry_property_field){
-              dSets[i].geometry_property = output_geometry_property_field;
-            }
-            
-
-            var outputDcp = {
-              active: dSets[i].active,
-              format: _makeFormat(dSets[i])
-            };
-            delete dSets[i].active;
-
-            if ($scope.dataSeries.semantics.data_format_name !== "POSTGIS") {
-              outputDcp.position = GeoLibs.point.build({x: parseFloat(dSets[i].longitude), y: parseFloat(dSets[i].latitude), srid: dSets[i].projection});
-            }
-            dSetsLocal.push(outputDcp);
-
-            for(var j = 0, editedDcpsLength = values.editedDcps.length; j < editedDcpsLength; j++) {
-              if(values.editedDcps[j] == outputDcp.format._id) {
-                tempEditedDcps.push(outputDcp);
-                break;
-              }
-            }
-          }
-
-          values.editedDcps = tempEditedDcps;
-
-          out = dSetsLocal;
+        if(values.error) {
+          MessageBoxService.danger(i18n.__("Data Registration"), i18n.__(values.error));
         } else {
-          var fmt = angular.merge({}, dSets);
-          if ($scope.custom_format){
-            var output_timestamp_property_field = dataObject.dataSeries.dataSets[0].format.output_timestamp_property;
-            if (output_timestamp_property_field){
-              fmt.timestamp_property = output_timestamp_property_field
+          //  todo: improve
+          var dSemantics = Object.assign({}, $scope.dataSeries.semantics);
+          var dataObject = _save();
+          var dSeriesName = dataObject.dataSeries.name;
+          // setting _input in data series
+          dataObject.dataSeries.name += "_input";
+
+          var dSets = values.data;
+
+          // it makes data set format
+          var _makeFormat = function(dSetObject) {
+            var format_ = {};
+            for(var key in dSetObject) {
+              if(dSetObject.hasOwnProperty(key) && key.toLowerCase() !== "id" && key.substr(key.length - 5) != "_html" && key.substr(key.length - 8) != "_pattern" && key.substr(key.length - 9) != "_titleMap" && key != "removeButton" && key != "oldAlias" && key != "newAlias")
+                format_[key] = dSetObject[key].toString();
+                if(key.startsWith("output_")) {
+                  format_[key.replace("output_", "")] = dSetObject[key];
+                }
             }
 
-            var output_geometry_property_field = dataObject.dataSeries.dataSets[0].format.output_geometry_property;
-            if (output_geometry_property_field){
-              fmt.geometry_property = output_geometry_property_field;
+            return format_;
+          };
+
+          var out;
+          if (dSets instanceof Array) {
+            // setting to active
+            var dSetsLocal = [];
+            var tempEditedDcps = [];
+
+            for(var i = 0, dSetsLength = dSets.length; i < dSetsLength; i++) {
+              var output_timestamp_property_field = dataObject.dataSeries.dataSets[0].format.output_timestamp_property;
+              if (output_timestamp_property_field){
+                dSets[i].timestamp_property = output_timestamp_property_field
+              }
+
+              var output_geometry_property_field = dataObject.dataSeries.dataSets[0].format.output_geometry_property;
+              if (output_geometry_property_field){
+                dSets[i].geometry_property = output_geometry_property_field;
+              }
+              
+
+              var outputDcp = {
+                active: dSets[i].active,
+                format: _makeFormat(dSets[i])
+              };
+              delete dSets[i].active;
+
+              if ($scope.dataSeries.semantics.data_format_name !== "POSTGIS") {
+                outputDcp.position = GeoLibs.point.build({x: parseFloat(dSets[i].longitude), y: parseFloat(dSets[i].latitude), srid: dSets[i].projection});
+              }
+              dSetsLocal.push(outputDcp);
+
+              for(var j = 0, editedDcpsLength = values.editedDcps.length; j < editedDcpsLength; j++) {
+                if(values.editedDcps[j] == outputDcp.format._id) {
+                  tempEditedDcps.push(outputDcp);
+                  break;
+                }
+              }
+            }
+
+            values.editedDcps = tempEditedDcps;
+
+            out = dSetsLocal;
+          } else {
+            var fmt = angular.merge({}, dSets);
+            if ($scope.custom_format){
+              var output_timestamp_property_field = dataObject.dataSeries.dataSets[0].format.output_timestamp_property;
+              if (output_timestamp_property_field){
+                fmt.timestamp_property = output_timestamp_property_field
+              }
+
+              var output_geometry_property_field = dataObject.dataSeries.dataSets[0].format.output_geometry_property;
+              if (output_geometry_property_field){
+                fmt.geometry_property = output_geometry_property_field;
+              }
+            }
+
+            dSets.format = _makeFormat(fmt);
+            dSets.active = true,
+            out = [dSets];
+          }
+
+          // preparing intersection
+          var intersectionValues = [];
+          for(var k in $scope.intersection) {
+            if ($scope.intersection.hasOwnProperty(k)) {
+              if (!$scope.intersection[k].selected) {
+                continue;
+              }
+              var attributes = $scope.intersection[k].attributes;
+              var dataseries_id = $scope.intersection[k].data_series.id;
+
+              // grid
+              if (attributes.length === 0) {
+                intersectionValues.push({
+                  dataseries_id: dataseries_id
+                });
+              }
+
+              for(var i = 0; i < attributes.length; ++i) {
+                var attribute = attributes[i];
+                intersectionValues.push({
+                  attribute: attribute.value,
+                  alias: attribute.alias,
+                  dataseries_id: dataseries_id
+                });
+              }
             }
           }
 
-          dSets.format = _makeFormat(fmt);
-          dSets.active = true,
-          out = [dSets];
+          var outputDataSeries = {
+            name: dSeriesName,
+            description: dataObject.dataSeries.description,
+            active: dataObject.dataSeries.active,
+            data_series_semantics_id: values.semantics.id,
+            data_provider_id: values.data_provider,
+            editedDcps: values.editedDcps,
+            removedDcps: values.removedDcps,
+            dataSets: out
+          };
+
+          _sendRequest({
+            dataToSend: {input: dataObject.dataSeries, output: outputDataSeries},
+            scheduleValues: dataObject.schedule,
+            filterValues: dataObject.filter,
+            serviceOutput: values.service,
+            intersection: intersectionValues,
+            active: dataObject.dataSeries.active
+          });
         }
-
-        // preparing intersection
-        var intersectionValues = [];
-        for(var k in $scope.intersection) {
-          if ($scope.intersection.hasOwnProperty(k)) {
-            if (!$scope.intersection[k].selected) {
-              continue;
-            }
-            var attributes = $scope.intersection[k].attributes;
-            var dataseries_id = $scope.intersection[k].data_series.id;
-
-            // grid
-            if (attributes.length === 0) {
-              intersectionValues.push({
-                dataseries_id: dataseries_id
-              });
-            }
-
-            for(var i = 0; i < attributes.length; ++i) {
-              var attribute = attributes[i];
-              intersectionValues.push({
-                attribute: attribute.value,
-                alias: attribute.alias,
-                dataseries_id: dataseries_id
-              });
-            }
-          }
-        }
-
-        var outputDataSeries = {
-          name: dSeriesName,
-          description: dataObject.dataSeries.description,
-          active: dataObject.dataSeries.active,
-          data_series_semantics_id: values.semantics.id,
-          data_provider_id: values.data_provider,
-          editedDcps: values.editedDcps,
-          removedDcps: values.removedDcps,
-          dataSets: out
-        };
-
-        _sendRequest({
-          dataToSend: {input: dataObject.dataSeries, output: outputDataSeries},
-          scheduleValues: dataObject.schedule,
-          filterValues: dataObject.filter,
-          serviceOutput: values.service,
-          intersection: intersectionValues,
-          active: dataObject.dataSeries.active
-        });
       });
 
       // it prepares dataseries object, schedule and filter object
@@ -1985,6 +2040,13 @@ define([], function() {
             MessageBoxService.danger(i18n.__("Data Registration"), i18n.__("Invalid filter area"));
             return;
           }
+
+          var sridValidationResult = $scope.validateSrid($scope.filter.area.srid);
+
+          if(sridValidationResult) {
+            MessageBoxService.danger(i18n.__("Data Registration"), i18n.__("Invalid filter SRID."));
+            return;
+          }
         }
 
         if ($scope.filter.filterArea == $scope.filterTypes.STATIC_DATA.value) {
@@ -1996,6 +2058,15 @@ define([], function() {
           }
           if (staticDataSeriesForm.$invalid){
             MessageBoxService.danger(i18n.__("Data Registration"), i18n.__("Invalid filter data series"));
+            return;
+          }
+        }
+
+        if($scope.model.srid) {
+          var sridValidationResult = $scope.validateSrid($scope.model.srid);
+
+          if(sridValidationResult) {
+            MessageBoxService.danger(i18n.__("Data Registration"), i18n.__(sridValidationResult));
             return;
           }
         }

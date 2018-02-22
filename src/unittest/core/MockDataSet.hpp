@@ -50,7 +50,7 @@ namespace te
      * \brief The MockDataSet class has the mocked methods for unittests,
      * using GMock.
      *
-     * Some methods in in this class returns a std::auto_ptr, what isn't acceptable
+     * Some methods in in this class returns a std::unique_ptr, what isn't acceptable
      * by GMock to use in mockeds methods. To solve this, was created some mocked proxies
      * that returns a pointer, used to create the auto_ptr required in method.
      *
@@ -70,88 +70,88 @@ namespace te
       virtual ~MockDataSet() = default;
 
 
-      // Methods that use std::auto_ptr and need proxies:
+      // Methods that use std::unique_ptr and need proxies:
 
       // Mocked proxy
       MOCK_METHOD0(EnvelopePtrReturn, te::gm::Envelope*());
 
       // Overridden method that use the mocked proxy
-      virtual std::auto_ptr<te::gm::Envelope> getExtent(std::size_t) override
+      virtual std::unique_ptr<te::gm::Envelope> getExtent(std::size_t) override
       {
-        return std::auto_ptr<te::gm::Envelope>(EnvelopePtrReturn());
+        return std::unique_ptr<te::gm::Envelope>(EnvelopePtrReturn());
       }
 
       MOCK_CONST_METHOD0(ByteArrayPtrReturn, te::dt::ByteArray*());
 
 
-      virtual std::auto_ptr<te::dt::ByteArray> getByteArray(std::size_t) const override
+      virtual std::unique_ptr<te::dt::ByteArray> getByteArray(std::size_t) const override
       {
-        return std::auto_ptr<te::dt::ByteArray>(ByteArrayPtrReturn());
+        return std::unique_ptr<te::dt::ByteArray>(ByteArrayPtrReturn());
       }
 
-      virtual std::auto_ptr<te::dt::ByteArray> getByteArray(const std::string&) const override
+      virtual std::unique_ptr<te::dt::ByteArray> getByteArray(const std::string&) const override
       {
-        return std::auto_ptr<te::dt::ByteArray>(ByteArrayPtrReturn());
+        return std::unique_ptr<te::dt::ByteArray>(ByteArrayPtrReturn());
       }
 
       MOCK_CONST_METHOD0(GeometryPtrReturn, te::gm::Geometry*());
 
-      virtual std::auto_ptr<te::gm::Geometry> getGeometry(std::size_t) const override
+      virtual std::unique_ptr<te::gm::Geometry> getGeometry(std::size_t) const override
       {
-        return std::auto_ptr<te::gm::Geometry>(GeometryPtrReturn());
+        return std::unique_ptr<te::gm::Geometry>(GeometryPtrReturn());
       }
 
-      virtual std::auto_ptr<te::gm::Geometry> getGeometry(const std::string&) const override
+      virtual std::unique_ptr<te::gm::Geometry> getGeometry(const std::string&) const override
       {
-        return std::auto_ptr<te::gm::Geometry>(GeometryPtrReturn());
+        return std::unique_ptr<te::gm::Geometry>(GeometryPtrReturn());
       }
 
       MOCK_CONST_METHOD0(RasterPtrReturn, te::rst::Raster*());
 
-      virtual std::auto_ptr<te::rst::Raster> getRaster(std::size_t) const override
+      virtual std::unique_ptr<te::rst::Raster> getRaster(std::size_t) const override
       {
-        return std::auto_ptr<te::rst::Raster>(RasterPtrReturn());
+        return std::unique_ptr<te::rst::Raster>(RasterPtrReturn());
       }
 
-      virtual std::auto_ptr<te::rst::Raster> getRaster(const std::string&) const override
+      virtual std::unique_ptr<te::rst::Raster> getRaster(const std::string&) const override
       {
-        return std::auto_ptr<te::rst::Raster>(RasterPtrReturn());
+        return std::unique_ptr<te::rst::Raster>(RasterPtrReturn());
       }
 
       MOCK_CONST_METHOD0(DateTimePtrReturn, te::dt::DateTime*());
 
-      virtual std::auto_ptr<te::dt::DateTime> getDateTime(std::size_t) const override
+      virtual std::unique_ptr<te::dt::DateTime> getDateTime(std::size_t) const override
       {
-        return std::auto_ptr<te::dt::DateTime>(DateTimePtrReturn());
+        return std::unique_ptr<te::dt::DateTime>(DateTimePtrReturn());
       }
 
-      virtual std::auto_ptr<te::dt::DateTime> getDateTime(const std::string&) const override
+      virtual std::unique_ptr<te::dt::DateTime> getDateTime(const std::string&) const override
       {
-        return std::auto_ptr<te::dt::DateTime>(DateTimePtrReturn());
+        return std::unique_ptr<te::dt::DateTime>(DateTimePtrReturn());
       }
 
       MOCK_CONST_METHOD0(ArrayPtrReturn, te::dt::Array*());
 
-      virtual std::auto_ptr<te::dt::Array> getArray(std::size_t)  const override
+      virtual std::unique_ptr<te::dt::Array> getArray(std::size_t)  const override
       {
-        return std::auto_ptr<te::dt::Array>(ArrayPtrReturn());
+        return std::unique_ptr<te::dt::Array>(ArrayPtrReturn());
       }
 
-      virtual std::auto_ptr<te::dt::Array> getArray(const std::string&) const override
+      virtual std::unique_ptr<te::dt::Array> getArray(const std::string&) const override
       {
-        return std::auto_ptr<te::dt::Array>(ArrayPtrReturn());
+        return std::unique_ptr<te::dt::Array>(ArrayPtrReturn());
       }
 
       MOCK_CONST_METHOD0(AbstractDataPtrReturn, te::dt::AbstractData*());
 
-      virtual std::auto_ptr<te::dt::AbstractData> getValue(std::size_t) const override
+      virtual std::unique_ptr<te::dt::AbstractData> getValue(std::size_t) const override
       {
-        return std::auto_ptr<te::dt::AbstractData>(AbstractDataPtrReturn());
+        return std::unique_ptr<te::dt::AbstractData>(AbstractDataPtrReturn());
       }
 
-      virtual std::auto_ptr<te::dt::AbstractData> getValue(const std::string&) const override
+      virtual std::unique_ptr<te::dt::AbstractData> getValue(const std::string&) const override
       {
-        return std::auto_ptr<te::dt::AbstractData>(AbstractDataPtrReturn());
+        return std::unique_ptr<te::dt::AbstractData>(AbstractDataPtrReturn());
       }
 
 
@@ -197,6 +197,8 @@ namespace te
       MOCK_CONST_METHOD0(isAtEnd,
                          bool());
       MOCK_CONST_METHOD0(isAfterEnd,
+                         bool());
+      MOCK_CONST_METHOD0(isPositionValid,
                          bool());
       MOCK_CONST_METHOD1(getChar,
                          char(std::size_t i));

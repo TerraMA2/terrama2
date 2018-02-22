@@ -31,14 +31,17 @@
 #include "ServiceManager.hpp"
 #include "Logger.hpp"
 #include "Timer.hpp"
+#include "TimeUtils.hpp"
 #include "../data-model/Process.hpp"
+#include "../data-model/Schedule.hpp"
 
 // QT
 #include <QJsonObject>
 #include <QCoreApplication>
 
-terrama2::core::Service::Service()
-  : stop_(false)
+terrama2::core::Service::Service(std::weak_ptr<DataManager> dataManager)
+  : dataManager_(dataManager),
+    stop_(false)
 {
   auto& serviceManager = terrama2::core::ServiceManager::getInstance();
 
@@ -274,9 +277,9 @@ void terrama2::core::Service::updateNumberOfThreads(size_t numberOfThreads) noex
   TERRAMA2_LOG_DEBUG() << tr("Actual number of threads: %1").arg(processingThreadPool_.size());
 }
 
-terrama2::core::TimerPtr terrama2::core::Service::createTimer(const Schedule& schedule, ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> lastProcess) const
+terrama2::core::TimerPtr terrama2::core::Service::createTimer(ProcessPtr process, std::shared_ptr<te::dt::TimeInstantTZ> lastProcess) const
 {
-  terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(schedule, processId, lastProcess);
+  terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(process, lastProcess);
   connect(timer.get(), &terrama2::core::Timer::timeoutSignal, this, &terrama2::core::Service::addToQueue, Qt::UniqueConnection);
 
   return timer;
@@ -289,6 +292,69 @@ void terrama2::core::Service::sendProcessFinishedSignal(const ProcessId processI
   jsonAnswer.insert(ReturnTags::EXECUTION_DATE, QString::fromStdString(executionDate->toString()));
 
   emit processFinishedSignal(jsonAnswer);
+}
+
+void terrama2::core::Service::addReprocessingToQueue(ProcessPtr process) noexcept
+{
+  try
+  {
+    auto processId = process->id;
+    auto schedule = process->schedule;
+    auto reprocessingHistoricalData = schedule.reprocessingHistoricalData;
+
+    auto executionDate = reprocessingHistoricalData->startDate;
+    auto endDate = reprocessingHistoricalData->endDate->getTimeInstantTZ();
+    boost::local_time::local_date_time titz = executionDate->getTimeInstantTZ();
+
+    RegisterId registerId = logger_->start(processId);
+
+    double frequencySeconds = terrama2::core::TimeUtils::frequencySeconds(schedule);
+    double scheduleSeconds = terrama2::core::TimeUtils::scheduleSeconds(schedule, executionDate);
+    if((frequencySeconds < 0 || scheduleSeconds < 0)
+        || (frequencySeconds > 0 && scheduleSeconds > 0) )
+    {
+      TERRAMA2_LOG_ERROR() << QObject::tr("Invalid schedule");
+      return;
+    }
+
+    while(titz <= endDate)
+    {
+      terrama2::core::ExecutionPackage executionPackage;
+      executionPackage.processId = processId;
+      executionPackage.executionDate = executionDate;
+      executionPackage.registerId = registerId;
+
+      erasePreviousResult(process, executionDate);
+
+      waitQueue_[processId].push(executionPackage);
+
+      titz += boost::posix_time::seconds(static_cast<long>(frequencySeconds));
+      titz += boost::posix_time::seconds(static_cast<long>(scheduleSeconds));
+
+      executionDate.reset(new te::dt::TimeInstantTZ(titz));
+    }
+
+    auto pqIt = std::find(processingQueue_.begin(), processingQueue_.end(), processId);
+    if(pqIt == processingQueue_.end())
+    {
+      notifyWaitQueue(processId);
+    }
+  }
+  catch(const terrama2::core::FunctionNotImplementedException&)
+  {
+    //error already logged
+  }
+  catch(...)
+  {
+    TERRAMA2_LOG_ERROR() << "Unknown error in reprocessing historical data enqueue";
+  }
+}
+
+void terrama2::core::Service::erasePreviousResult(ProcessPtr /*process*/, std::shared_ptr<te::dt::TimeInstantTZ> /*timestamp*/) const
+{
+  QString errMsg = QObject::tr("Erase previous results not implemente for this service.");
+  TERRAMA2_LOG_ERROR() << errMsg;
+  throw terrama2::core::FunctionNotImplementedException() << ErrorDescription(errMsg);
 }
 
 void terrama2::core::Service::addProcessToSchedule(ProcessPtr process) noexcept
@@ -308,9 +374,14 @@ void terrama2::core::Service::addProcessToSchedule(ProcessPtr process) noexcept
       {
         std::lock_guard<std::mutex> lock(mutex_);
 
-        std::shared_ptr<te::dt::TimeInstantTZ> lastProcess = logger_->getLastProcessTimestamp(process->id);
-        terrama2::core::TimerPtr timer = createTimer(process->schedule, process->id, lastProcess);
-        timers_.emplace(process->id, timer);
+        // reprocessing hitorical data can only be started manually
+        // referer to startProcess()
+        if(!process->schedule.reprocessingHistoricalData)
+        {
+          std::shared_ptr<te::dt::TimeInstantTZ> lastProcess = logger_->getLastProcessTimestamp(process->id);
+          terrama2::core::TimerPtr timer = createTimer(process, lastProcess);
+          timers_.emplace(process->id, timer);
+        }
       }
     }
     catch(const terrama2::core::LogException& e)
@@ -362,7 +433,6 @@ bool terrama2::core::Service::processNextData()
   return !processQueue_.empty();
 }
 
-
 void terrama2::core::Service::notifyWaitQueue(ProcessId processId)
 {
   // Remove from processing queue
@@ -395,4 +465,62 @@ void terrama2::core::Service::updateFilterDiscardDates(terrama2::core::Filter& f
   }
   else if(lastCollectedDataTimestamp.get())
   filter.discardBefore = lastCollectedDataTimestamp;
+}
+
+void terrama2::core::Service::addToQueue(ProcessPtr process, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept
+{
+  try
+  {
+    //Lock Thread and add to the queue
+    std::lock_guard<std::mutex> lock(mutex_);
+    if(process->serviceInstanceId != terrama2::core::ServiceManager::getInstance().instanceId())
+      return;
+
+    auto processId = process->id;
+    RegisterId registerId = logger_->start(processId);
+
+    terrama2::core::ExecutionPackage executionPackage;
+    executionPackage.processId = processId;
+    executionPackage.executionDate = startTime;
+    executionPackage.registerId = registerId;
+
+    auto pqIt = std::find(processingQueue_.begin(), processingQueue_.end(), processId);
+    if(pqIt == processingQueue_.end())
+    {
+      processQueue_.push_back(executionPackage);
+      processingQueue_.push_back(processId);
+
+      //wake loop thread
+      mainLoopCondition_.notify_one();
+    }
+    else
+    {
+      waitQueue_[processId].push(executionPackage);
+      logger_->result(ProcessLogger::Status::ON_QUEUE, nullptr, executionPackage.registerId);
+      TERRAMA2_LOG_INFO() << tr("Process %1 added to wait queue.").arg(processId);
+    }
+  }
+  catch(const terrama2::Exception&)
+  {
+    //logged on throw
+  }
+  catch(const std::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << e.what();
+  }
+  catch(...)
+  {
+    // exception guard, slots should never emit exceptions.
+    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception...");
+  }
+}
+
+void terrama2::core::Service::startProcess(ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept
+{
+  auto process = getProcess(processId);
+
+  if(process->schedule.reprocessingHistoricalData)
+    addReprocessingToQueue(process);
+  else
+    addToQueue(process, startTime);
 }

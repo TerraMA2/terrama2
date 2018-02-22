@@ -147,6 +147,22 @@ var DataManager = module.exports = {
         //inserts.push(self.addDataProviderType({id: 5, name: "SFTP", description: "Desc SFTP"}));
         inserts.push(self.addDataProviderType({id: 6, name: "HTTPS", description: "Desc Https"}));
 
+        var listVersionsPromise = self.listVersions({}).then(function(versions) {
+          if(versions.length == 0 ) {
+            var versionFile = require('../../share/terrama2/version.json');
+
+            self.addVersion({
+              major: versionFile.major,
+              minor: versionFile.minor,
+              patch: versionFile.patch,
+              tag: versionFile.tag,
+              database: versionFile.database
+            });
+          }
+        });
+
+        inserts.push(listVersionsPromise);
+
         var listServicesPromise = self.listServiceInstances({}).then(function(services){
           var servicesInsert = [];
           if (services.length == 0 ){
@@ -197,8 +213,8 @@ var DataManager = module.exports = {
           }
           return Promise.all(servicesInsert);
         });
-        inserts.push(listServicesPromise);
 
+        inserts.push(listServicesPromise);
 
         // data provider intent defaults
         inserts.push(models.db.DataProviderIntent.create({
@@ -2543,7 +2559,9 @@ var DataManager = module.exports = {
    * @return {Promise<Schedule>}
    */
   addSchedule: function(scheduleObject, options) {
+    var self = this;
     return new Promise(function(resolve, reject) {
+      var schedule;
       if (scheduleObject.scheduleType == Enums.ScheduleType.AUTOMATIC){
         models.db.AutomaticSchedule.create(scheduleObject, options).then(function(schedule) {
           return resolve(new DataModel.AutomaticSchedule(schedule.get()));
@@ -2552,8 +2570,20 @@ var DataManager = module.exports = {
           return reject(new exceptions.ScheduleError("Could not save schedule. " + err.toString()));
         });
       } else if (scheduleObject.scheduleType == Enums.ScheduleType.SCHEDULE || scheduleObject.scheduleType == Enums.ScheduleType.REPROCESSING_HISTORICAL){
-        models.db.Schedule.create(scheduleObject, options).then(function(schedule) {
-          return resolve(new DataModel.Schedule(schedule.get()));
+        models.db.Schedule.create(scheduleObject, options).then(function(scheduleResult) {
+          schedule = scheduleResult;
+          // checking if there is historical data to save
+          if (_.isEmpty(scheduleObject.historical) || (!scheduleObject.historical.startDate || !scheduleObject.historical.endDate)) {
+            return null;
+          }
+          return self.addHistoricalData(schedule.id, scheduleObject.historical, options);
+
+        }).then(function(historicalResult){
+          var scheduleModel = new DataModel.Schedule(schedule.get());
+          scheduleModel.setHistoricalData(historicalResult);
+
+          return resolve(scheduleModel);
+
         }).catch(function(err) {
           // todo: improve error message
           return reject(new exceptions.ScheduleError("Could not save schedule. " + err.toString()));
@@ -2664,7 +2694,12 @@ var DataManager = module.exports = {
     var self = this;
     return new Promise(function(resolve, reject) {
       models.db.Schedule.findOne(Utils.extend({
-        where: restriction || {}
+
+        where: restriction || {},
+        include: [{
+          model: models.db.ReprocessingHistoricalData,
+          required: false
+        }]
       }, options)).then(function(schedule) {
         if (schedule) {
           return resolve(new DataModel.Schedule(schedule.get()));
@@ -3328,16 +3363,16 @@ var DataManager = module.exports = {
   /**
    * It performs save reprocessing historical data from analysis identifier
    *
-   * @param {number} analysisId - An analysis identifier
+   * @param {number} scheduleId - An schedule identifier
    * @param {Object} historicalObject - A historical object value
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
    * @returns {Promise<Analysis>}
    */
-  addHistoricalData: function(analysisId, historicalObject, options) {
+  addHistoricalData: function(scheduleId, historicalObject, options) {
     return new Promise(function(resolve, reject) {
       // setting analysis_id in historical Data
-      historicalObject.analysis_id = analysisId;
+      historicalObject.schedule_id = scheduleId;
 
       models.db.ReprocessingHistoricalData.create(historicalObject, options)
         .then(function(historicalResult) {
@@ -3463,16 +3498,6 @@ var DataManager = module.exports = {
         // successfully retrieving analysis script language
         .then(function(scriptLanguage) {
           scriptLanguageResult = scriptLanguage;
-          // checking if there is historical data to save
-          if (_.isEmpty(analysisObject.historical) || (!analysisObject.historical.startDate || !analysisObject.historical.endDate)) {
-            return null;
-          }
-          return self.addHistoricalData(analysisResult.id, analysisObject.historical, options);
-        })
-        // successfully saving reprocessing historical result or just skipping it. Remember it may be null.
-        .then(function(historicalResult) {
-          historicalData = historicalResult;
-
           // creating a variable to make visible in closure
           var analysisDataSeriesArray = Utils.clone(analysisObject.analysisDataSeries);
           // making analysis metadata
@@ -3731,11 +3756,11 @@ var DataManager = module.exports = {
       // Update historical data if there is
       .then(function() {
         // reprocessing historical data
-        if (!_.isEmpty(analysisObject.historical)) {
+        if (!_.isEmpty(scheduleObject.historical)) {
           // update
-          if (analysisInstance.historicalData.id) {
+          if (analysisInstance.schedule.historicalData.id) {
             // setting to null when
-            var historicalData = analysisObject.historical;
+            var historicalData = scheduleObject.historical;
             if (historicalData.startDate === "") {
               historicalData.startDate = null;
             }
@@ -3745,14 +3770,14 @@ var DataManager = module.exports = {
 
             if (!historicalData.endDate && !historicalData.startDate) {
               // delete
-              return self.removeHistoricalData({id: analysisInstance.historicalData.id}, options);
+              return self.removeHistoricalData({id: analysisInstance.schedule.historicalData.id}, options);
             }
 
-            return self.updateHistoricalData({id: analysisInstance.historicalData.id}, historicalData, options);
+            return self.updateHistoricalData({id: analysisInstance.schedule.historicalData.id}, historicalData, options);
           } else {
-            if (analysisObject.historical.startDate || analysisObject.historical.endDate) {
+            if (scheduleObject.historical.startDate || scheduleObject.historical.endDate) {
               // save
-              return self.addHistoricalData(analysisInstance.id, analysisObject.historical, options);
+              return self.addHistoricalData(analysisInstance.schedule.id, scheduleObject.historical, options);
             }
           }
         }
@@ -3918,14 +3943,18 @@ var DataManager = module.exports = {
             ],
             required: false
           },
-          {
-            model: models.db.ReprocessingHistoricalData,
-            required: false
+          { 
+            model: models.db.Schedule,
+            include: [
+              {
+                model: models.db.ReprocessingHistoricalData,
+                required: false
+              }
+            ]
           },
           models.db.AnalysisMetadata,
           models.db.ScriptLanguage,
           models.db.AnalysisType,
-          models.db.Schedule,
           models.db.AutomaticSchedule
         ],
         where: restriction || {}
@@ -4006,16 +4035,18 @@ var DataManager = module.exports = {
             attributes: {include: [[orm.fn('ST_AsEwkt', orm.col('area_of_interest_box')), 'interest_box']]},
             required: false
           },
-          {
-            model: models.db.ReprocessingHistoricalData,
-            required: false
-          },
           models.db.AnalysisMetadata,
           models.db.ScriptLanguage,
           models.db.AnalysisType,
           {
             model: models.db.Schedule,
-            required: false
+            required: false,
+            include: [
+              {
+                model: models.db.ReprocessingHistoricalData,
+                required: false
+              }
+            ]
           },
           {
             model: models.db.AutomaticSchedule,
@@ -5856,6 +5887,79 @@ var DataManager = module.exports = {
         .catch(function(err) {
           return reject(err);
         });
+    });
+  },
+
+  /**
+   * It retrieves all versions from given restriction
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object?} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<any[]>}
+   */
+  listVersions: function(restriction, options) {
+    return new Promise(function(resolve, reject) {
+      return models.db.Version.findAll(Utils.extend({ where: restriction }, options))
+        .then(function(versions) {
+          return resolve(versions.map(function(version) {
+            return version.get();
+          }));
+        })
+        .catch(function(err) {
+          return reject(new Error(Utils.format("Could not list versions %s", err.toString())));
+        });
+    });
+  },
+
+  /**
+   * Adds a version.
+   * @param {Object} version - A javascript object with version values
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise} a bluebird promise
+   */
+  addVersion: function(version, options) {
+    return new Promise(function(resolve, reject) {
+      return models.db.Version.create(version, options).then(function(newVersion) {
+        return resolve(newVersion.get());
+      }).catch(function(err) {
+        return reject(new Error(Utils.format("Could not save version due %s", err.toString())));
+      });
+    });
+  },
+
+  isSRIDValid: function(srid) {
+    return new Promise(function(resolve, reject) {
+      if(!isNaN(srid) && parseInt(Number(srid)) == srid && !isNaN(parseInt(srid, 10))) {
+        models.db.sequelize.query("select count(*) as number_of_items from public.spatial_ref_sys where srid=" + srid).then(function(sridResult) {
+          if(sridResult[0][0].number_of_items > 0) {
+            resolve();
+          } else {
+            reject("Invalid SRID!");
+          }
+        }).catch(function(err) {
+          reject(err);
+        });
+      } else {
+        reject("Invalid SRID!");
+      }
+    });
+  },
+
+  getSRIDs: function() {
+    return new Promise(function(resolve, reject) {
+      models.db.sequelize.query("select srid from public.spatial_ref_sys").then(function(srids) {
+        var sridsArray = [];
+
+        srids[0].forEach(function(srid) {
+          sridsArray.push(srid.srid);
+        });
+
+        resolve(sridsArray);
+      }).catch(function(err) {
+        reject(err);
+      });
     });
   }
 };

@@ -57,7 +57,7 @@ namespace terrama2
       Q_OBJECT
 
     public:
-      Timer(const Schedule& dataSchedule, ProcessId processId, std::shared_ptr< te::dt::TimeInstantTZ > lastEmit);
+      Timer(ProcessPtr process, std::shared_ptr< te::dt::TimeInstantTZ > lastEmit);
 
       virtual ~Timer();
       Timer(const Timer& other) = delete;
@@ -65,11 +65,11 @@ namespace terrama2
       Timer& operator=(const Timer& other) = delete;
       Timer& operator=(Timer&& other) = delete;
 
-      ProcessId processId() const;
+      ProcessPtr process() const;
 
     signals:
 
-        void timeoutSignal(ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) const;
+        void timeoutSignal(ProcessPtr process, std::shared_ptr<te::dt::TimeInstantTZ> startTime) const;
 
     private slots:
 

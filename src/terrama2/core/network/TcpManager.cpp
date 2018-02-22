@@ -247,6 +247,7 @@ void terrama2::core::TcpManager::sendLog(const QByteArray& bytearray, QTcpSocket
 
       QJsonObject obj;
       obj.insert("process_id",  static_cast<int>(processId));
+      obj.insert("instance_id",  static_cast<int>(serviceManager_->instanceId()));
       obj.insert("log", processLogList);
 
       logList.push_back(obj);
@@ -402,6 +403,10 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
   catch(const LogException&)
   {
     TERRAMA2_LOG_ERROR() << QObject::tr("Erro in logger, check your log database connection information.");
+  }
+  catch(const std::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << e.what();
   }
   catch(...)
   {

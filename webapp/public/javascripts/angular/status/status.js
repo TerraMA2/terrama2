@@ -215,10 +215,10 @@ define([
 
         var logArray = response.logs;
 
-        var _findOne = function(array, identifier) {
+        var _findOne = function(array, identifier, serviceInstance) {
           var output = {};
           array.some(function(element) {
-            if (element.id === identifier) {
+            if (element.id === identifier && element.service_instance_id === serviceInstance) {
               output = element;
               return true;
             }
@@ -236,7 +236,7 @@ define([
 
         // Removing logs to be replaced
         logArray.forEach(function(logProcess){
-          var currentProcess = _findOne(targetArray, logProcess.process_id);
+          var currentProcess = _findOne(targetArray, logProcess.process_id, logProcess.instance_id);
           if (currentProcess){
             var obj = currentProcess[targetKey] || {name: currentProcess.name};
             var index = arrayObjectIndexOf($scope.model, obj);
@@ -258,7 +258,7 @@ define([
               service: service
             };
 
-            var currentProcess = _findOne(targetArray, logProcess.process_id);
+            var currentProcess = _findOne(targetArray, logProcess.process_id, logProcess.instance_id);
 
             var obj = currentProcess[targetKey] || {name: currentProcess.name};
 
