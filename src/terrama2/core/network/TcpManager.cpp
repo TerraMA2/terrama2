@@ -297,7 +297,9 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
       //update left blockSize
       blockSize_-=sizeof(TcpSignal);
 
-      if(signal != TcpSignal::UPDATE_SERVICE_SIGNAL && signal != TcpSignal::STATUS_SIGNAL && !serviceManager_->serviceLoaded())
+      if(signal != TcpSignal::UPDATE_SERVICE_SIGNAL
+         && signal != TcpSignal::STATUS_SIGNAL
+         && !serviceManager_->serviceLoaded())
       {
         // wait for TcpSignals::UPDATE_SERVICE_SIGNAL
         return;
@@ -305,6 +307,29 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
 
       // read data from buffer
       QByteArray bytearray = tcpSocket->read(blockSize_);
+      QJsonParseError error;
+      QJsonDocument jsonDoc = QJsonDocument::fromJson(bytearray, &error);
+
+      if(error.error != QJsonParseError::NoError)
+      {
+        TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson parse error: %1\n").arg(error.errorString());
+        return;
+      }
+      auto jsonObject = jsonDoc.object();
+      if(!jsonObject.contains("webAppId"))
+      {
+        TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nNo webAppId available.");
+        return;
+      }
+
+      auto remoteWebAppId = jsonObject["webAppId"].toString().toStdString();
+      auto localWebAppId = serviceManager_->webAppId();
+      if(serviceManager_->serviceLoaded() && localWebAppId != remoteWebAppId)
+      {
+        // not the service they are looking for
+        return;
+      }
+
       switch(signal)
       {
         case TcpSignal::UPDATE_SERVICE_SIGNAL:
