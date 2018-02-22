@@ -9,6 +9,8 @@ define([], function () {
     bindings: {
       formCtrl: "<", // controller binding in order to throw up
       type: "=",
+      isDynamic: "=",
+      isUpdating: "=",
       columnsList: "=",
       postgisData: "=",
       model: "=",
@@ -24,7 +26,7 @@ define([], function () {
    * @param {ColorFactory} ColorFactory - TerraMA² Color generator
    * @param {any} i18n - TerraMA² Internationalization module
    */
-  function StyleController($scope, ColorFactory, i18n, DataSeriesService, StyleType, $http, Utility, DataProviderService, FormTranslator) {
+  function StyleController($scope, ColorFactory, i18n, $timeout, DataSeriesService, StyleType, $http, Utility, DataProviderService, FormTranslator) {
     var self = this;
     // binding component form into parent module in order to expose Form to help during validation
     self.formCtrl = self.form;
@@ -173,6 +175,27 @@ define([], function () {
         $scope.$broadcast("schemaFormRedraw");
       }
     }
+
+    $timeout(function() {
+      if(self.isUpdating && (!self.model || !self.model.metadata || !self.model.metadata.creation_type)) {
+        if(!self.model) {
+          self.model = {
+            metadata: {
+              creation_type: "default"
+            }
+          };
+        } else if(!self.model.metadata) {
+          self.model.metadata = {
+            creation_type: "default"
+          };
+        } else {
+          self.model.metadata.creation_type = "default";
+        }
+
+        self.changeCreationType();
+      }
+    });
+
     // Regex to valide column name of style
     self.regexColumn = "^[a-zA-Z_][a-zA-Z0-9_]*$";
 
@@ -406,6 +429,6 @@ define([], function () {
   }
 
   // Dependencies Injection
-  StyleController.$inject = ["$scope", "ColorFactory", "i18n", "DataSeriesService", "StyleType", "$http", "Utility", "DataProviderService", "FormTranslator"];
+  StyleController.$inject = ["$scope", "ColorFactory", "i18n", "$timeout", "DataSeriesService", "StyleType", "$http", "Utility", "DataProviderService", "FormTranslator"];
   return terrama2StyleComponent;
 });
