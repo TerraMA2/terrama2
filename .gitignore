@@ -26,5 +26,7 @@ scripts/prerm
 scripts/postrm
 scripts/config_pm2.sh
 share/terrama2/version.json
-packages/debian-package/terrama2-doc
-packages/debian-package/terrama2-doc.deb
+packages/debian-package/terrama2-doc*
+packages/debian-package/vmime-0.9.2*
+packages/debian-package/terrama2-vmime-*
+packages/debian-package/v0.9.2.tar.gz
