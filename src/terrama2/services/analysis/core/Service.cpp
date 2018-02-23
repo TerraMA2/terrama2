@@ -150,7 +150,6 @@ void terrama2::services::analysis::core::Service::erasePreviousResult(terrama2::
 void terrama2::services::analysis::core::Service::analysisFinished(AnalysisId analysisId, std::shared_ptr< te::dt::TimeInstantTZ > executionDate, bool success,  QJsonObject jsonAnswer)
 {
   auto dataManager = std::static_pointer_cast<terrama2::services::analysis::core::DataManager>(dataManager_.lock());
-  auto analysis = dataManager->findAnalysis(analysisId);
 
   // Remove from processing queue
   auto pqIt = std::find(processingQueue_.begin(), processingQueue_.end(), analysisId);

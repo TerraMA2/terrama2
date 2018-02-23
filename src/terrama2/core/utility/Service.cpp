@@ -289,7 +289,7 @@ void terrama2::core::Service::sendProcessFinishedSignal(const ProcessId processI
 {
   jsonAnswer.insert(ReturnTags::PROCESS_ID, static_cast<int>(processId));
   jsonAnswer.insert(ReturnTags::RESULT, success);
-  jsonAnswer.insert(ReturnTags::EXECUTION_DATE, QString::fromStdString(executionDate->toString()));
+  jsonAnswer.insert(ReturnTags::EXECUTION_DATE, QString::fromStdString(TimeUtils::getISOString(executionDate)));
 
   emit processFinishedSignal(jsonAnswer);
 }
