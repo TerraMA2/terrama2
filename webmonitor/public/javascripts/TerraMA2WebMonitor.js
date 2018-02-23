@@ -522,13 +522,25 @@ define(
             var firesAttributes = "";
 
             for(var i = 0; i < featuresLength; i++) {
+              var imageUrl = null;
+
               firesAttributes += "<table class=\"table table-striped\"><tbody>";
 
+              var firesAttributesRows = "";
+
               for(var key in featureInfo.features[i].properties) {
-                firesAttributes += "<tr><td><strong>" + key + "</strong></td><td>" + featureInfo.features[i].properties[key] + "</td></tr>";
+                if(key === "picture") {
+                  imageUrl = featureInfo.features[i].properties[key];
+                } else {
+                  firesAttributesRows += "<tr><td><strong>" + key + "</strong></td><td>" + featureInfo.features[i].properties[key] + "</td></tr>";
+                }
               }
 
-              firesAttributes += "</tbody></table>";
+              if(imageUrl) {
+                firesAttributes += "<tr><td colspan=\"2\"><a target=\"_blank\" href=\"" + imageUrl + "\"><img style=\"width: 100%;\" src=\"" + imageUrl + "\"/></a></td></tr>";
+              }
+
+              firesAttributes += firesAttributesRows + "</tbody></table>";
               if(featuresLength > (i + 1)) firesAttributes += "<hr/>";
             }
 
