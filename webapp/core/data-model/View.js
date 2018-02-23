@@ -128,7 +128,7 @@
    * @returns {Object}
    */
   View.prototype.toObject = function() {
-    if(this.legend.metadata && this.legend.metadata.creation_type && this.legend.metadata.creation_type === "default") {
+    if (this.legend && this.legend.metadata && this.legend.metadata.creation_type && this.legend.metadata.creation_type === "default") {
       var legendData = null;
     } else {
       var legendData = (this.legend instanceof AbstractClass ? this.legend.toObject() : this.legend);
