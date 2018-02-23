@@ -112,10 +112,19 @@ void terrama2::core::TcpManager::sendStartProcess(const QByteArray& bytearray)
     if(jsonDoc.isObject())
     {
       auto obj = jsonDoc.object();
+      std::shared_ptr< te::dt::TimeInstantTZ > executionDate;
+      if(obj.contains("execution_date"))
+      {
+        auto dateStr = obj["execution_date"].toString().toStdString();
+        executionDate = TimeUtils::stringToTimestamp(dateStr, TimeUtils::webgui_timefacet);
+      }
+      else
+        executionDate = terrama2::core::TimeUtils::nowUTC();
+
       auto array = obj["ids"].toArray();
       for(auto value : array)
       {
-        emit startProcess(value.toInt(), terrama2::core::TimeUtils::nowUTC());
+        emit startProcess(value.toInt(), executionDate);
       }
     }
     else
