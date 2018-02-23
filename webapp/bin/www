@@ -15,7 +15,7 @@ var nodeContextPort = process.argv[3];
 
 /**
  * It defines TerraMA² global configuration (Singleton). Make sure it initializes before everything
- * 
+ *
  * @type {Application}
  */
 var Application = require("./../core/Application");
@@ -188,7 +188,7 @@ return DataManager.init(null, function (error) {
   return DataManager.load().then(function() {
     var applicationPath = path.join(__dirname, './../..');
 
-    exec("python " + applicationPath + "/scripts/update_database.py " + applicationPath, function(err, stdout, stderr) {
+    exec("python " + applicationPath + "/share/terrama2/scripts/update_database.py " + applicationPath, function(err, stdout, stderr) {
       if(err)
         throw new Error("Failed to update database.");
 
