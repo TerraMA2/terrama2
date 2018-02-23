@@ -869,7 +869,7 @@ function onLogReceived(service, response) {
                 resp.log.forEach(function(logMessage){
                   if (logMessage.status === StatusLog.DONE){
                     var link = createGeoserverLink(regView);
-                    var description = "Layer link: " + regView.layers[0].name;
+                    var description = "Layer link: " + (regView.layers.length > 0 ? regView.layers[0].name : "");
                     logMessage.messages.push({link: link, type: MessageType.LINK_MESSAGE, description: description});
                   }
                 });
@@ -951,7 +951,7 @@ function onError(service, err) {
  * @returns link - link to server layer
  */
 function createGeoserverLink(registeredView){
-  var layerName = registeredView.layers[0].name;
+  var layerName = (registeredView.layers.length > 0 ? registeredView.layers[0].name : "");
   var workspace = registeredView.workspace;
   var protocol = registeredView.uri.split('//')[0];
   var baseLink = registeredView.uri.split("@")[1];
