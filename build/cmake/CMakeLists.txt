@@ -550,8 +550,6 @@ elseif(UNIX)
 
   install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/remove-config.py
           DESTINATION ${TERRAMA2_DESTINATION_SHARE}/terrama2/scripts COMPONENT scripts)
-  install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/update_database.py
-          DESTINATION ${TERRAMA2_DESTINATION_SHARE}/terrama2/scripts COMPONENT scripts)
   install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postinst
           DESTINATION ${TERRAMA2_DESTINATION_SHARE}/terrama2/scripts COMPONENT scripts)
   install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/config_pm2.sh
