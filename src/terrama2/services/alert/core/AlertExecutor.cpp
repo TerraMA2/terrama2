@@ -145,35 +145,70 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::AlertExecutor
 
     std::string currentRiskProperty = dateTimeToString(currentDate);
 
-    auto attrValue = resultMap.at(currentRiskProperty).second;
-    dsItem->setString(alertPtr->riskAttribute, attrValue);
+    uint32_t currentRisk = std::numeric_limits<uint32_t>::max();
+    try
+    {
+      auto attrValue = resultMap.at(currentRiskProperty).second;
+      dsItem->setString(alertPtr->riskAttribute, attrValue);
 
-    auto currentRisk = resultMap.at(currentRiskProperty).first;
-    dsItem->setInt32(currentRiskProperty, static_cast<int>(currentRisk));
+      currentRisk = resultMap.at(currentRiskProperty).first;
+      dsItem->setInt32(currentRiskProperty, static_cast<int>(currentRisk));
+    }
+    catch (const std::out_of_range&)
+    {
+      // current date has no result data
+      dsItem->setValue(alertPtr->riskAttribute, nullptr);
+      dsItem->setValue(currentRiskProperty, nullptr);
+    }
 
     if(vecDates.size() > 1)
     {
       auto previousDate = *(vecDates.rbegin()+1);
       auto previousDateStr = dateTimeToString(previousDate);
 
-      auto pastRisk = resultMap.at(previousDateStr).first;
+      try
+      {
+        auto pastRisk = resultMap.at(previousDateStr).first;
+        dsItem->setInt32(previousDateStr, static_cast<int>(pastRisk));
 
-      int comparisonResult = 0;
-      if(currentRisk < pastRisk)
-        comparisonResult = -1;
-      else if(currentRisk > pastRisk)
-        comparisonResult = 1;
+        if(currentRisk != std::numeric_limits<uint32_t>::max())
+        {
+          // current date has no data
+          int comparisonResult = 0;
+          if(currentRisk < pastRisk)
+            comparisonResult = -1;
+          else if(currentRisk > pastRisk)
+            comparisonResult = 1;
 
-      dsItem->setInt32(previousDateStr, static_cast<int>(pastRisk));
-      dsItem->setInt32(COMPARISON_PROPERTY_NAME, comparisonResult);
+          dsItem->setInt32(COMPARISON_PROPERTY_NAME, comparisonResult);
+        }
+        else
+        {
+          dsItem->setValue(COMPARISON_PROPERTY_NAME, nullptr);
+        }
+      }
+      catch (const std::out_of_range&)
+      {
+        // previousDate has no data available
+        dsItem->setValue(previousDateStr, nullptr);
+        dsItem->setValue(COMPARISON_PROPERTY_NAME, nullptr);
+      }
 
       if(vecDates.size() > 2)
       {
         for(auto itDate = vecDates.rbegin()+2; itDate != vecDates.rend(); ++itDate)
         {
           std::string dateTimeStr = dateTimeToString(*itDate);
-          auto risk = resultMap.at(dateTimeStr).first;
-          dsItem->setInt32(dateTimeStr, static_cast<int>(risk));
+          try
+          {
+            auto risk = resultMap.at(dateTimeStr).first;
+            dsItem->setInt32(dateTimeStr, static_cast<int>(risk));
+          }
+          catch (const std::out_of_range&)
+          {
+            // itDate has no data available
+            dsItem->setValue(dateTimeStr, nullptr);
+          }
         }
       }
     }
@@ -218,12 +253,6 @@ void terrama2::services::alert::core::AlertExecutor::addAdditionalData(std::shar
         {
           //no alias for the property
         }
-
-        // if there is a property with this name
-        // we need to add something to diferenctiate them
-        std::size_t pos = te::da::GetPropertyPos(alertDataSet.get(), newPropertyName);
-        if(terrama2::core::isValidColumn(pos))
-          newPropertyName+=" (PK)";
 
         if(propertyNames.find(newPropertyName) == propertyNames.end() )
         {
