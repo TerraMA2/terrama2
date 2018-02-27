@@ -126,8 +126,11 @@ std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorFile::internalCrea
   return std::make_shared<te::mem::DataSet>(dataSetType.get());
 }
 
-void terrama2::core::DataAccessorFile::filterDataSet(std::shared_ptr<te::mem::DataSet> completeDataSet, const Filter& filter) const
+void terrama2::core::DataAccessorFile::filterDataSet(terrama2::core::DataSetSeries& serie, const Filter& filter) const
 {
+  auto completeDataSet = std::dynamic_pointer_cast<te::mem::DataSet>(serie.syncDataSet->dataset());
+  assert(completeDataSet);
+
   size_t dateColumn = te::da::GetFirstPropertyPos(completeDataSet.get(), te::dt::DATETIME_TYPE);
   size_t geomColumn = te::da::GetFirstPropertyPos(completeDataSet.get(), te::dt::GEOMETRY_TYPE);
   size_t rasterColumn = te::da::GetFirstPropertyPos(completeDataSet.get(), te::dt::RASTER_TYPE);
@@ -137,10 +140,19 @@ void terrama2::core::DataAccessorFile::filterDataSet(std::shared_ptr<te::mem::Da
   // Apply filter by static data
   if(filter.dataProvider && filter.dataSeries)
   {
-    auto dataAccesor = DataAccessorFactory::getInstance().make(filter.dataProvider, filter.dataSeries);
+    auto dataAccessor = DataAccessorFactory::getInstance().make(filter.dataProvider, filter.dataSeries);
+
+    // use the filter dataseries driver to filter the data
+    // ex. use postgis operations to filter spatial info
+    if(dataAccessor->hasFilterCapabilities() && !terrama2::core::isValidColumn(rasterColumn))
+    {
+      // raster filter is a little more complex se we won't allow here
+      dataAccessor->filterDataSeries(serie, filter);
+      return;
+    }
 
     terrama2::core::Filter emptyFilter;
-    std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > seriesStaticData = dataAccesor->getSeries(emptyFilter, nullptr);
+    std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > seriesStaticData = dataAccessor->getSeries(emptyFilter, nullptr);
 
     if(seriesStaticData.empty())
     {
@@ -698,17 +710,15 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
     throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
   }
 
-  applyFilters(filter, dataSet, completeDataset, lastFileTimestamp);
-  if(!completeDataset.get() || completeDataset->isEmpty())
+  series.syncDataSet = std::make_shared<SynchronizedDataSet>(completeDataset);
+  applyFilters(filter, dataSet, series, lastFileTimestamp);
+  if(!series.syncDataSet.get() || series.syncDataSet->dataset()->isEmpty())
   {
     QString errMsg = QObject::tr("No data in dataset: %1.").arg(dataSet->id);
     TERRAMA2_LOG_WARNING() << errMsg;
     throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
   }
 
-
-  std::shared_ptr<SynchronizedDataSet> syncDataset(new SynchronizedDataSet(completeDataset));
-  series.syncDataSet = syncDataset;
   return series;
 }
 
@@ -863,16 +873,17 @@ std::shared_ptr<te::dt::TimeInstantTZ> terrama2::core::DataAccessorFile::readFil
   return lastFileTimestamp;
 }
 
-void terrama2::core::DataAccessorFile::applyFilters(const terrama2::core::Filter &filter, const terrama2::core::DataSetPtr &dataSet,
-                                    const std::shared_ptr<te::mem::DataSet> &completeDataset,
-                                    std::shared_ptr<te::dt::TimeInstantTZ> &lastFileTimestamp) const
+void terrama2::core::DataAccessorFile::applyFilters(const terrama2::core::Filter &filter,
+                                                    const terrama2::core::DataSetPtr &dataSet,
+                                                    terrama2::core::DataSetSeries& serie,
+                                                    std::shared_ptr<te::dt::TimeInstantTZ> &lastFileTimestamp) const
 {
-  filterDataSet(completeDataset, filter);
+  filterDataSet(serie, filter);
 
   //Get last data timestamp and compare with file name timestamp
-  std::shared_ptr<te::dt::TimeInstantTZ> dataTimeStamp = getDataLastTimestamp(dataSet, completeDataset);
+  std::shared_ptr<te::dt::TimeInstantTZ> dataTimeStamp = getDataLastTimestamp(dataSet, serie.syncDataSet->dataset());
 
-  filterDataSetByLastValues(completeDataset, filter);
+  filterDataSetByLastValues(std::dynamic_pointer_cast<te::mem::DataSet>(serie.syncDataSet->dataset()) , filter);
 
   //if both dates are valid
   if((lastFileTimestamp.get() && !lastFileTimestamp->getTimeInstantTZ().is_special())

@@ -83,7 +83,7 @@ namespace terrama2
         struct OccurrenceAggregation
         {
           std::shared_ptr<te::gm::Geometry> buffer; //!< The geometry of created by the aggregation of the occurrences buffers.
-          std::vector<unsigned int> indexes; //!< The indexes that were aggregated.
+          std::vector<size_t> indexes; //!< The indexes that were aggregated.
         };
 
         struct Buffer
@@ -141,8 +141,7 @@ namespace terrama2
           \param buffer Aggregation buffer configuration.
           \return A smart pointer to a memory dataset with the buffers created from the given geometries.
         */
-        std::shared_ptr<te::mem::DataSet> createAggregationBuffer(std::vector<uint32_t>& indexes,
-                                                                  std::shared_ptr<ContextDataSeries> contextDataSeries,
+        std::shared_ptr<te::mem::DataSet> createAggregationBuffer(std::shared_ptr<ContextDataSeries> contextDataSeries,
                                                                   Buffer buffer, StatisticOperation aggregationStatisticOperation,
                                                                   const std::string& attribute);
 

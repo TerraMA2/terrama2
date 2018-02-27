@@ -26,6 +26,10 @@
 
   \author Jano Simas
 */
+
+#ifndef __TERRAMA2_CORE_UTILS_JSON_UTILS_HPP__
+#define __TERRAMA2_CORE_UTILS_JSON_UTILS_HPP__
+
 #include "../Shared.hpp"
 #include "../data-model/Risk.hpp"
 #include "../data-model/Schedule.hpp"
@@ -149,3 +153,5 @@ namespace terrama2
 
   } /* core */
 } /* terrama2 */
+
+#endif // __TERRAMA2_CORE_UTILS_JSON_UTILS_HPP__

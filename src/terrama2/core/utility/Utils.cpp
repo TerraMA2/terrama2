@@ -67,6 +67,7 @@
 #include <string>
 #include <fstream>
 #include <streambuf>
+#include <random>
 
 // Boost
 #include <boost/filesystem.hpp>
@@ -616,4 +617,13 @@ void terrama2::core::erasePreviousResult(DataManagerPtr dataManager, DataSeriesI
     QString errMsg = QObject::tr("Removing old results not implement for this dataseries format.");
     TERRAMA2_LOG_ERROR() << errMsg;
   }
+}
+
+std::string terrama2::core::generateUniqueName(std::string baseName)
+{
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  size_t randNumber = static_cast<size_t>(10000*std::generate_canonical<double, 10>(gen));
+
+  return baseName+std::to_string(randNumber);
 }

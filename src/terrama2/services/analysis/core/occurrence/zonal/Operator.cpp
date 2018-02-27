@@ -69,9 +69,7 @@ double terrama2::services::analysis::core::occurrence::zonal::operatorImpl(terra
   }
 
   // After the operator lock is released it's not allowed to return any value because it doesn' have the interpreter lock.
-  // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return NAN.
-  bool exceptionOccurred = false;
-
+  // all exceptions must be threated inside the operatorLock scope
   terrama2::services::analysis::core::MonitoredObjectContextPtr context;
   try
   {
@@ -132,206 +130,114 @@ double terrama2::services::analysis::core::occurrence::zonal::operatorImpl(terra
         auto geomResult = createBuffer(buffer, moGeom);
         assert(geomResult->getSRID() == moGeom->getSRID());
 
-        auto moEnvelope = std::make_shared<te::gm::Envelope>(*geomResult->getMBR());
-        std::shared_ptr<te::gm::Geometry> monitoredObjectBox(te::gm::GetGeomFromEnvelope(moEnvelope.get(), geomResult->getSRID()));
-
         terrama2::core::Filter filter;
         filter.discardBefore = context->getTimeFromString(dateFilterBegin);
         filter.discardAfter = context->getTimeFromString(dateFilterEnd);
         filter.byValue = restriction;
-        filter.region = monitoredObjectBox;
+        filter.region = geomResult;
 
         auto dataSeries = dataManagerPtr->findDataSeries(analysis->id, dataSeriesName);
         context->addDataSeries(dataSeries, filter, true);
 
         auto datasets = dataSeries->datasetList;
-
         for(const auto& dataset : datasets)
         {
-
           contextDataSeries = context->getContextDataset(dataset->id, filter);
           if(!contextDataSeries)
-          {
             continue;
-          }
-
-
-          std::vector<uint32_t> indexes;
-          uint32_t countValues = 0;
-          std::vector<double> values;
 
           terrama2::core::SynchronizedDataSetPtr syncDs = contextDataSeries->series.syncDataSet;
+          if(aggregationStatisticOperation != StatisticOperation::INVALID)
+          {
+            // if it's an agregation operation
+            // update the dataset with agregated dataset
+            auto bufferDataset = createAggregationBuffer(contextDataSeries,aggregationBuffer, aggregationStatisticOperation, attribute);
+            syncDs = std::make_shared<terrama2::core::SynchronizedDataSet>(bufferDataset);
+          }
 
           if(syncDs->size() == 0)
-          {
             continue;
-          }
           else
           {
             // Converts the monitored object to the same srid of the occurrences
             auto firstOccurrence = syncDs->getGeometry(0, contextDataSeries->geometryPos);
-            moEnvelope->transform(geomResult->getSRID(), firstOccurrence->getSRID());
-            geomResult->transform(firstOccurrence->getSRID());
-
-            // Searchs in the spatial index for the occurrences that intersects the monitored object box
-            contextDataSeries->rtree.search(*geomResult->getMBR(), indexes);
-
-
 
             int attributeType = 0;
             if(!attribute.empty())
             {
               auto property = contextDataSeries->series.teDataSetType->getProperty(attribute);
-
               // only operation COUNT can be done without attribute.
               if(!property && statisticOperation != StatisticOperation::COUNT)
-              {
                 return std::nan("");
-              }
+
               attributeType = property->getType();
             }
 
-            if(aggregationStatisticOperation != StatisticOperation::INVALID)
+            std::vector<double> values;
+            size_t size = syncDs->size();
+            values.reserve(size);
+            for(size_t i = 0; i < size; ++i)
             {
-              if(indexes.empty())
-                continue;
-
-              auto bufferDs = createAggregationBuffer(indexes, contextDataSeries, aggregationBuffer,
-                                                      aggregationStatisticOperation, attribute);
-
-              if(!bufferDs)
+              try
               {
-                continue;
-              }
-
-              // Allocate memory for dataset size
-              values.reserve(bufferDs->size());
-              for(unsigned int i = 0; i < bufferDs->size(); ++i)
-              {
-                bufferDs->move(i);
-                auto occurrenceGeom = bufferDs->getGeometry(0);
-
-                if(occurrenceGeom->intersects(geomResult.get()))
+                if(!syncDs->isNull(i, attribute) && !attribute.empty())
                 {
-                  ++countValues;
+                  hasData = true;
+                  double value = terrama2::services::analysis::core::getValue(syncDs, attribute, i, attributeType);
 
-                  try
-                  {
-                    if(!attribute.empty())
-                    {
-                      hasData = true;
-                      // second column contains the value
-                      double value = bufferDs->getDouble(1);
-
-                      if(std::isnan(value))
-                        continue;
-
-                      values.push_back(value);
-                    }
-                  }
-                  catch(...)
-                  {
-                    // In case the dataset doesn't have the specified attribute
+                  if(std::isnan(value))
                     continue;
-                  }
+
+                  values.push_back(value);
                 }
               }
-            }
-            else
-            {
-
-              // Allocate memory for indexes size
-              values.reserve(indexes.size());
-              for(uint32_t i : indexes)
+              catch(...)
               {
-                // Verifies if the occurrence intersects the monitored object
-                auto occurrenceGeom = syncDs->getGeometry(i, contextDataSeries->geometryPos);
-
-                if(occurrenceGeom->intersects(geomResult.get()))
-                {
-                  ++countValues;
-
-                  try
-                  {
-                    if(!attribute.empty() && !syncDs->isNull(i, attribute))
-                    {
-                      hasData = true;
-                      double value = terrama2::services::analysis::core::getValue(syncDs, attribute, i, attributeType);
-
-                      if(std::isnan(value))
-                        continue;
-
-                      values.push_back(value);
-                    }
-                  }
-                  catch(...)
-                  {
-                    // In case the dataset doesn't have the specified attribute
-                    continue;
-                  }
-                }
+                // In case the dataset doesn't have the specified attribute
+                continue;
               }
             }
-
-
 
             terrama2::services::analysis::core::calculateStatistics(values, cache);
-
             if(statisticOperation == StatisticOperation::COUNT)
-              cache.count = countValues;
+              cache.count = syncDs->size();
           }
+        } // loop over datasets
 
-        }
+        if(!hasData && statisticOperation != StatisticOperation::COUNT)
+          return std::nan("");
+
+        return terrama2::services::analysis::core::getOperationResult(cache, statisticOperation);
       }
       catch(const EmptyDataSeriesException&)
       {
-        if(statisticOperation == StatisticOperation::COUNT)
-          return 0;
-        else
-          return std::nan("");
+        // default behaviour
       }
       catch(const terrama2::core::NoDataException&)
       {
-        if(statisticOperation == StatisticOperation::COUNT)
-          return 0;
-        else
-          return std::nan("");
+        // default behaviour
       }
       catch(const terrama2::Exception& e)
       {
         context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
-        exceptionOccurred = true;
       }
       catch(const std::exception& e)
       {
         context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, e.what());
-        exceptionOccurred = true;
       }
       catch(...)
       {
         QString errMsg = QObject::tr("An unknown exception occurred.");
         context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
-        exceptionOccurred = true;
       }
-
     // Destroy the OperatorLock object and acquires the lock
     }
 
-    if(exceptionOccurred)
-    {
-      if(statisticOperation == StatisticOperation::COUNT)
-        return 0;
-      else
-        return std::nan("");
-    }
-
-
-    if(!hasData && statisticOperation != StatisticOperation::COUNT)
-    {
+// exception occurred
+    if(statisticOperation == StatisticOperation::COUNT)
+      return 0;
+    else
       return std::nan("");
-    }
-
-    return terrama2::services::analysis::core::getOperationResult(cache, statisticOperation);
   }
   catch(const terrama2::Exception& e)
   {

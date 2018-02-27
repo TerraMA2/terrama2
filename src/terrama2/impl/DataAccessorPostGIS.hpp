@@ -64,6 +64,9 @@ namespace terrama2
         //! Recover table name where data is stored
         virtual std::string getDataSetTableName(DataSetPtr dataSet) const;
 
+        virtual bool hasFilterCapabilities() const override { return true; }
+        virtual void filterDataSeries(terrama2::core::DataSetSeries& serie, const Filter& filter) const override;
+
       protected:
         // Doc in base class
         virtual std::string retrieveData(const DataRetrieverPtr dataRetriever,
@@ -76,25 +79,26 @@ namespace terrama2
                                           const Filter& filter,
                                           std::shared_ptr<FileRemover> remover, std::function<void(const std::string& /*uri*/)>) const override;
 
-        virtual std::string whereConditions(terrama2::core::DataSetPtr dataSet,
-                                            const std::string datetimeColumnName,
+        virtual std::string whereConditions(const std::string& tableName,
+                                            const std::string& geomPropertyName,
+                                            const std::string& datetimePropertyName,
                                             const terrama2::core::Filter& filter) const;
 
-        virtual void addDateTimeFilter(const std::string datetimeColumnName,
+        virtual void addDateTimeFilter(const std::string& datetimePropertyName,
                                        const terrama2::core::Filter& filter,
                                        std::vector<std::string>& whereConditions) const;
 
-        virtual void addGeometryFilter(terrama2::core::DataSetPtr dataSet,
+        virtual void addGeometryFilter(const std::string& geomPropertyName,
                                        const terrama2::core::Filter& filter,
                                        std::vector<std::string>& whereConditions) const;
 
         virtual void addValueFilter(const terrama2::core::Filter& filter,
                                     std::string& conditions) const;
 
-        virtual std::string addLastDatesFilter(terrama2::core::DataSetPtr dataSet,
-                                        const std::string datetimeColumnName,
-                                        const terrama2::core::Filter& filter,
-                                        std::string whereCondition) const;
+        virtual std::string addLastDatesFilter(const std::string& tableName,
+                                               const std::string& datetimePropertyName,
+                                               const terrama2::core::Filter& filter,
+                                               std::string whereCondition) const;
 
 
         virtual void updateLastTimestamp(DataSetPtr dataSet, std::shared_ptr<te::da::DataSourceTransactor> transactor) const;

@@ -148,20 +148,18 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::createBuff
 
 
 std::shared_ptr<te::mem::DataSet> terrama2::services::analysis::core::createAggregationBuffer(
-        std::vector<uint32_t>& indexes, std::shared_ptr<ContextDataSeries> contextDataSeries, Buffer buffer,
+        std::shared_ptr<ContextDataSeries> contextDataSeries, Buffer buffer,
         StatisticOperation aggregationStatisticOperation,
         const std::string& attribute)
 {
-  std::shared_ptr<te::mem::DataSet> dsOut;
-  if(indexes.empty())
-    return dsOut;
+  auto syncDs = contextDataSeries->series.syncDataSet;
+  if(syncDs->size() == 0)
+    return nullptr;
 
-
-
+  ////////////////////////////////
   // Creates memory dataset for buffer
   te::da::DataSetType* dt = new te::da::DataSetType("buffer");
 
-  auto syncDs = contextDataSeries->series.syncDataSet;
   auto sampleGeom = syncDs->getGeometry(0, contextDataSeries->geometryPos);
   int geomSampleSrid = sampleGeom->getSRID();
 
@@ -169,27 +167,22 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::analysis::core::createAggr
   prop->setSRID(geomSampleSrid);
   dt->add(prop);
 
-
   te::dt::SimpleProperty* prop02 = new te::dt::SimpleProperty("attribute", te::dt::DOUBLE_TYPE, true);
   dt->add(prop02);
-
-  dsOut.reset(new te::mem::DataSet(dt));
-
+  std::shared_ptr<te::mem::DataSet> dsOut= std::make_shared<te::mem::DataSet>(dt);
+  ////////////////////////////////
 
   std::shared_ptr<te::gm::Envelope> box(syncDs->getExtent(contextDataSeries->geometryPos));
-
 
   if(buffer.unit.empty())
     buffer.unit = "m";
 
   // Inserts each geometry in the rtree, if there is a conflict, it makes the union of the two geometries
-  te::sam::rtree::Index<OccurrenceAggregation*, 4> rtree;
-
-  for(size_t i = 0; i < indexes.size(); ++i)
+  std::vector<std::shared_ptr<OccurrenceAggregation>> occurrenceAggregationVec;
+  te::sam::rtree::Index<size_t, 4> rtree;
+  for(size_t i = 0; i < syncDs->size(); ++i)
   {
-    auto geom = syncDs->getGeometry(indexes[i], contextDataSeries->geometryPos);
-
-
+    auto geom = syncDs->getGeometry(i, contextDataSeries->geometryPos);
     double distance = terrama2::core::convertDistanceUnit(buffer.distance, buffer.unit, "METER");
 
     std::unique_ptr<te::gm::Geometry> tempGeom(dynamic_cast<te::gm::Geometry*>(geom.get()->clone()));
@@ -202,95 +195,88 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::analysis::core::createAggr
 
     // Converts to UTM in order to create buffer in meters
     if(tempGeom->getSRID() != utmSrid)
-    {
       tempGeom->transform(utmSrid);
-    }
+
     std::unique_ptr<te::gm::Geometry> aggBuffer(tempGeom->buffer(distance, 16, te::gm::CapButtType));
     aggBuffer->setSRID(utmSrid);
 
     // Converts buffer to DataSet SRID in order to compare with the occurrences in the rtree
     aggBuffer->transform(geomSampleSrid);
 
-
-    std::vector<OccurrenceAggregation*> vec;
+    std::vector<size_t> vec;
     bool aggregated = false;
 
     // Search for occurrences in the same area
     rtree.search(*(aggBuffer->getMBR()), vec);
     for(std::size_t t = 0; t < vec.size(); ++t)
     {
-      OccurrenceAggregation* occurrenceAggregation = vec[t];
+      auto occurrenceIndex = vec.at(t);
+      auto occurrenceAggregation = occurrenceAggregationVec.at(occurrenceIndex);
 
       // If the an intersection is found, makes the union of the two geometries and mark the index.
       if(aggBuffer->intersects(occurrenceAggregation->buffer.get()))
       {
-        rtree.remove(*(occurrenceAggregation->buffer->getMBR()), occurrenceAggregation);
+        rtree.remove(*(occurrenceAggregation->buffer->getMBR()), occurrenceIndex);
         occurrenceAggregation->buffer.reset(aggBuffer->Union(occurrenceAggregation->buffer.get()));
         occurrenceAggregation->indexes.push_back(i);
-        rtree.insert(*(occurrenceAggregation->buffer->getMBR()), occurrenceAggregation);
+        rtree.insert(*(occurrenceAggregation->buffer->getMBR()), occurrenceIndex);
         aggregated = true;
       }
     }
 
     if(!aggregated)
     {
-      OccurrenceAggregation* occurrenceAggregation = new OccurrenceAggregation();
+      auto occurrenceAggregation = std::make_shared<OccurrenceAggregation>();
       occurrenceAggregation->buffer.reset(aggBuffer.release());
       occurrenceAggregation->indexes.push_back(i);
-      rtree.insert(*(occurrenceAggregation->buffer->getMBR()), occurrenceAggregation);
+      occurrenceAggregationVec.push_back(occurrenceAggregation);
+      rtree.insert(*(occurrenceAggregation->buffer->getMBR()), occurrenceAggregationVec.size()-1);
     }
   }
 
-  // Fills the memory dataset with the geometries
-  std::vector<OccurrenceAggregation*> occurrenceAggVec;
-
-  rtree.search(*(box.get()), occurrenceAggVec);
+  std::vector<size_t> vec;
+  rtree.search(*(box.get()), vec);
 
   int attributeType = -1;
-
   if(aggregationStatisticOperation != StatisticOperation::COUNT)
   {
     auto property = contextDataSeries->series.teDataSetType->getProperty(attribute);
-
     if(!property)
     {
       QString errMsg(QObject::tr("Invalid attribute: %1").arg(QString::fromStdString(attribute)));
       throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
+
     attributeType = property->getType();
   }
 
-
-  for(size_t i = 0; i < occurrenceAggVec.size(); i++)
+  for(size_t i = 0; i < vec.size(); i++)
   {
-    OccurrenceAggregation* occurrenceAggregation = occurrenceAggVec[i];
+    auto occurrenceIndex = vec.at(i);
+    auto occurrenceAggregation = occurrenceAggregationVec.at(occurrenceIndex);
 
     OperatorCache cache;
     std::vector<double> values;
-    values.reserve(occurrenceAggregation->indexes.size());
-    for(unsigned int j = 0; j < occurrenceAggregation->indexes.size(); ++j)
+    size_t size = occurrenceAggregation->indexes.size();
+    values.reserve(size);
+
+    if(aggregationStatisticOperation != StatisticOperation::COUNT)
     {
-      cache.count++;
-
-      if(aggregationStatisticOperation != StatisticOperation::COUNT)
+      if(attribute.empty())
       {
-        if(attribute.empty())
-        {
-          QString errMsg(QObject::tr("Invalid attribute"));
-          throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
-        }
+        QString errMsg(QObject::tr("Invalid attribute"));
+        throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+      }
 
-        double value = getValue(syncDs, attribute, occurrenceAggregation->indexes[j], attributeType);
+      for(size_t j : occurrenceAggregation->indexes)
+      {
+        double value = getValue(syncDs, attribute, j, attributeType);
         values.push_back(value);
-        cache.sum += value;
-        if(value > cache.max)
-          cache.max = value;
-        if(value < cache.min)
-          cache.min = value;
       }
     }
 
     calculateStatistics(values, cache);
+    cache.count = size;
 
     auto item = new te::mem::DataSetItem(dsOut.get());
     item->setGeometry(0, dynamic_cast<te::gm::Geometry*>(occurrenceAggregation->buffer->clone()));
@@ -298,7 +284,5 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::analysis::core::createAggr
     dsOut->add(item);
   }
 
-
   return dsOut;
-
 }
