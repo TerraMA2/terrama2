@@ -193,7 +193,7 @@ namespace terrama2
                                      size_t index,
                                      const Filter& filter,
                                      size_t geomColumn,
-                                     terrama2::core::DataSetSeries filterDataSetSeries,
+                                     const DataSetSeries& filterDataSetSeries,
                                      const std::unique_ptr<te::sam::rtree::Index<size_t, 8> >& rtree) const;
 
         /*!
@@ -211,8 +211,9 @@ namespace terrama2
         virtual bool isValidRaster(std::shared_ptr<SynchronizedDataSet> dataSet,
                                    size_t index,
                                    const Filter&  filter, size_t rasterColumn,
-                                   terrama2::core::DataSetSeries filterDataSetSeries,
-                                   const std::unique_ptr<te::sam::rtree::Index<size_t, 8> >& rtree) const;
+                                   const DataSetSeries& filterDataSetSeries,
+                                   const std::unique_ptr<te::sam::rtree::Index<size_t, 8> >& rtree,
+                                   std::mutex& mutex) const;
 
         std::shared_ptr< te::dt::TimeInstantTZ > getDataLastTimestamp(DataSetPtr dataSet, std::shared_ptr<te::da::DataSet> teDataSet) const;
 
