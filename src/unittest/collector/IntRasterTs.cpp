@@ -259,7 +259,7 @@ void IntRasterTs::CollectAndCropRaster()
   QDir testOutput(QString::fromStdString(TERRAMA2_DATA_DIR+"/hidroestimador_crop/"));
   auto fileList = testOutput.entryInfoList(QDir::Files | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
 
-  QDir testReference(QString::fromStdString(TERRAMA2_DATA_DIR+"/reference_data/"));
+  QDir testReference(QString::fromStdString(TERRAMA2_DATA_DIR+"/hidroestimador_crop_reference/"));
 
   QVERIFY2(5 == fileList.size(), "Wrong number of collected files.");
   for(const auto& fileInfo : fileList )
