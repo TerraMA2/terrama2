@@ -62,8 +62,6 @@
 #include <terralib/geometry/Envelope.h>
 #include <terralib/raster/BandProperty.h>
 #include <terralib/raster/Band.h>
-#include <terralib/rp/Functions.h>
-
 
 std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataset, const Filter& filter, std::shared_ptr<terrama2::core::FileRemover> remover) const
 {
