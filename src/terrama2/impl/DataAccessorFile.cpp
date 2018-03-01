@@ -62,6 +62,7 @@
 #include <terralib/geometry/Envelope.h>
 #include <terralib/raster/BandProperty.h>
 #include <terralib/raster/Band.h>
+#include <terralib/rp/Functions.h>
 
 
 std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataset, const Filter& filter, std::shared_ptr<terrama2::core::FileRemover> remover) const
@@ -184,7 +185,7 @@ void terrama2::core::DataAccessorFile::filterDataSet(std::shared_ptr<te::mem::Da
       {
         if(!isValidTimestamp(syncDataSet, i, filter, dateColumn)
            || !isValidGeometry(syncDataSet, i, filter, geomColumn, filterDataSetSeries, rtree)
-           || !isValidRaster(syncDataSet, i, filter, rasterColumn, filterDataSetSeries, rtree))
+           || !isValidRaster(syncDataSet, i, filter, rasterColumn, filterDataSetSeries, rtree, mutex))
         {
           std::unique_lock<std::mutex> lock(mutex);
           removeIndexes.insert(i);
@@ -352,7 +353,7 @@ bool terrama2::core::DataAccessorFile::isValidTimestamp(std::shared_ptr<Synchron
 bool terrama2::core::DataAccessorFile::isValidGeometry(std::shared_ptr<SynchronizedDataSet> dataSet,
                                                        size_t index,
                                                        const Filter& filter, size_t geomColumn,
-                                                       terrama2::core::DataSetSeries filterDataSetSeries,
+                                                       const terrama2::core::DataSetSeries& filterDataSetSeries,
                                                        const std::unique_ptr<te::sam::rtree::Index<size_t, 8> >& rtree) const
 {
   if(!isValidColumn(geomColumn))
@@ -413,8 +414,9 @@ bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<Synchronize
                                                      size_t index,
                                                      const Filter&  filter,
                                                      size_t rasterColumn,
-                                                     terrama2::core::DataSetSeries filterDataSetSeries,
-                                                     const std::unique_ptr<te::sam::rtree::Index<size_t, 8> >& rtree) const
+                                                     const terrama2::core::DataSetSeries& filterDataSetSeries,
+                                                     const std::unique_ptr<te::sam::rtree::Index<size_t, 8> >& rtree,
+                                                     std::mutex& mutex) const
 {
   if(!isValidColumn(rasterColumn))
     return true;
@@ -445,7 +447,9 @@ bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<Synchronize
       //clip raster by box
       auto clipedRaster = raster->clip({filterArea.get()}, {}, "EXPANSIBLE");
       //update raster in the dataset
+      std::unique_lock<std::mutex> lock(mutex);
       auto memDataSet = std::dynamic_pointer_cast<te::mem::DataSet>(dataSet->dataset());
+      memDataSet->move(index);
       memDataSet->setRaster(rasterColumn, clipedRaster);
       //update raster for consistency in the function
       raster = std::shared_ptr< te::rst::Raster >(dataSet->getRaster(index, rasterColumn));
@@ -502,7 +506,9 @@ bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<Synchronize
         //clip raster by union
         auto clipedRaster = raster->clip({unitedGeom.get()}, {}, "EXPANSIBLE");
         //update raster in the dataset
+        std::unique_lock<std::mutex> lock(mutex);
         auto memDataSet = std::dynamic_pointer_cast<te::mem::DataSet>(dataSet->dataset());
+        memDataSet->move(index);
         memDataSet->setRaster(rasterColumn, clipedRaster);
         //update raster for consistency in the function
         raster = std::shared_ptr< te::rst::Raster >(dataSet->getRaster(index, rasterColumn));
