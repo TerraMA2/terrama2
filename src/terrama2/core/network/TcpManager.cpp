@@ -77,124 +77,21 @@ terrama2::core::TcpManager::TcpManager(std::weak_ptr<terrama2::core::DataManager
   serviceManager_ = &terrama2::core::ServiceManager::getInstance();
 }
 
-void terrama2::core::TcpManager::updateService(const QByteArray& bytearray)
+void terrama2::core::TcpManager::sendStartProcess(const QJsonObject& obj)
 {
-  TERRAMA2_LOG_DEBUG() << "JSon size: " << bytearray.size();
-  TERRAMA2_LOG_DEBUG() << QString(bytearray);
-  QJsonParseError error;
-  QJsonDocument jsonDoc = QJsonDocument::fromJson(bytearray, &error);
-
-  if(error.error != QJsonParseError::NoError)
-    TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson parse error: %1\n").arg(error.errorString());
-  else
+  std::shared_ptr< te::dt::TimeInstantTZ > executionDate;
+  if(obj.contains("execution_date"))
   {
-    if(jsonDoc.isObject())
-    {
-      auto obj = jsonDoc.object();
-      serviceManager_->updateService(obj);
-    }
-    else
-      TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson is not an object.\n");
+    auto dateStr = obj["execution_date"].toString().toStdString();
+    executionDate = TimeUtils::stringToTimestamp(dateStr, TimeUtils::webgui_timefacet);
   }
-}
-
-void terrama2::core::TcpManager::sendStartProcess(const QByteArray& bytearray)
-{
-  TERRAMA2_LOG_DEBUG() << "JSon size: " << bytearray.size();
-  TERRAMA2_LOG_DEBUG() << QString(bytearray);
-  QJsonParseError error;
-  QJsonDocument jsonDoc = QJsonDocument::fromJson(bytearray, &error);
-
-  if(error.error != QJsonParseError::NoError)
-    TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson parse error: %1\n").arg(error.errorString());
   else
+    executionDate = terrama2::core::TimeUtils::nowUTC();
+
+  auto array = obj["ids"].toArray();
+  for(auto value : array)
   {
-    if(jsonDoc.isObject())
-    {
-      auto obj = jsonDoc.object();
-      std::shared_ptr< te::dt::TimeInstantTZ > executionDate;
-      if(obj.contains("execution_date"))
-      {
-        auto dateStr = obj["execution_date"].toString().toStdString();
-        executionDate = TimeUtils::stringToTimestamp(dateStr, TimeUtils::webgui_timefacet);
-      }
-      else
-        executionDate = terrama2::core::TimeUtils::nowUTC();
-
-      auto array = obj["ids"].toArray();
-      for(auto value : array)
-      {
-        emit startProcess(value.toInt(), executionDate);
-      }
-    }
-    else
-      TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson is not an object.\n");
-  }
-}
-
-void terrama2::core::TcpManager::addData(const QByteArray& bytearray)
-{
-  TERRAMA2_LOG_DEBUG() << "JSon size: " << bytearray.size();
-  TERRAMA2_LOG_DEBUG() << QString(bytearray);
-  QJsonParseError error;
-  QJsonDocument jsonDoc = QJsonDocument::fromJson(bytearray, &error);
-
-  if(error.error != QJsonParseError::NoError)
-    TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson parse error: %1\n").arg(error.errorString());
-  else
-  {
-    std::shared_ptr<terrama2::core::DataManager> dataManager = dataManager_.lock();
-    if(jsonDoc.isObject())
-    {
-      auto obj = jsonDoc.object();
-      dataManager->addJSon(obj);
-    }
-    else
-      TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson is not an object.\n");
-  }
-}
-
-void terrama2::core::TcpManager::validateData(const QByteArray& bytearray)
-{
-  TERRAMA2_LOG_DEBUG() << "JSon size: " << bytearray.size();
-  TERRAMA2_LOG_DEBUG() << QString(bytearray);
-  QJsonParseError error;
-  QJsonDocument jsonDoc = QJsonDocument::fromJson(bytearray, &error);
-
-  if(error.error != QJsonParseError::NoError)
-    TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson parse error: %1\n").arg(error.errorString());
-  else
-  {
-    std::shared_ptr<terrama2::core::DataManager> dataManager = dataManager_.lock();
-    if(jsonDoc.isObject())
-    {
-      auto obj = jsonDoc.object();
-      dataManager->validateJSon(obj);
-    }
-    else
-      TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson is not an object.\n");
-  }
-}
-
-void terrama2::core::TcpManager::removeData(const QByteArray& bytearray)
-{
-  TERRAMA2_LOG_DEBUG() << "JSon size: " << bytearray.size();
-  TERRAMA2_LOG_DEBUG() << QString(bytearray);
-  QJsonParseError error;
-  QJsonDocument jsonDoc = QJsonDocument::fromJson(bytearray, &error);
-
-  if(error.error != QJsonParseError::NoError)
-    TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson parse error: %1\n").arg(error.errorString());
-  else
-  {
-    std::shared_ptr<terrama2::core::DataManager> dataManager = dataManager_.lock();
-    if(jsonDoc.isObject())
-    {
-      auto obj = jsonDoc.object();
-      dataManager->removeJSon(obj);
-    }
-    else
-      TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson is not an object.\n");
+    emit startProcess(value.toInt(), executionDate);
   }
 }
 
@@ -223,48 +120,36 @@ QJsonObject terrama2::core::TcpManager::logToJson(const terrama2::core::ProcessL
   return obj;
 }
 
-void terrama2::core::TcpManager::sendLog(const QByteArray& bytearray, QTcpSocket* tcpSocket)
+void terrama2::core::TcpManager::sendLog(const QJsonObject& jsonObject, QTcpSocket* tcpSocket)
 {
-  QJsonParseError error;
-  QJsonDocument jsonDoc = QJsonDocument::fromJson(bytearray, &error);
+  auto idsArray = jsonObject.value("process_ids").toArray();
 
-  if(error.error != QJsonParseError::NoError)
+  uint32_t begin = static_cast<uint32_t>(jsonObject.value("begin").toInt());
+  uint32_t end = static_cast<uint32_t>(jsonObject.value("end").toInt());
+
+  QJsonArray logList;
+  for(auto value : idsArray)
   {
-    TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson parse error: %1\n").arg(error.errorString());
-    return;
-  }
-  else
-  {
-    auto jsonObject = jsonDoc.object();
-    auto idsArray = jsonObject.value("process_ids").toArray();
+    auto processId = static_cast<ProcessId>(value.toInt());
 
-    uint32_t begin = static_cast<uint32_t>(jsonObject.value("begin").toInt());
-    uint32_t end = static_cast<uint32_t>(jsonObject.value("end").toInt());
-
-    QJsonArray logList;
-    for(auto value : idsArray)
+    QJsonArray processLogList;
+    auto logger = logger_.lock();
+    auto logs = logger->getLogs(processId, begin, end);
+    for(const auto& log : logs)
     {
-      auto processId = static_cast<ProcessId>(value.toInt());
-
-      QJsonArray processLogList;
-      auto logger = logger_.lock();
-      auto logs = logger->getLogs(processId, begin, end);
-      for(const auto& log : logs)
-      {
-        processLogList.append(logToJson(log));
-      }
-
-      QJsonObject obj;
-      obj.insert("process_id",  static_cast<int>(processId));
-      obj.insert("instance_id",  static_cast<int>(serviceManager_->instanceId()));
-      obj.insert("log", processLogList);
-
-      logList.push_back(obj);
+      processLogList.append(logToJson(log));
     }
 
-    QJsonDocument doc(logList);
-    sendSignalSlot(tcpSocket, TcpSignal::LOG_SIGNAL, doc);
+    QJsonObject obj;
+    obj.insert("process_id",  static_cast<int>(processId));
+    obj.insert("instance_id",  static_cast<int>(serviceManager_->instanceId()));
+    obj.insert("log", processLogList);
+
+    logList.push_back(obj);
   }
+
+  QJsonDocument doc(logList);
+  sendSignalSlot(tcpSocket, TcpSignal::LOG_SIGNAL, doc);
 }
 
 
@@ -316,6 +201,9 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
 
       // read data from buffer
       QByteArray bytearray = tcpSocket->read(blockSize_);
+      TERRAMA2_LOG_DEBUG() << "JSon size: " << bytearray.size();
+      TERRAMA2_LOG_DEBUG() << QString(bytearray);
+
       QJsonParseError error;
       QJsonDocument jsonDoc = QJsonDocument::fromJson(bytearray, &error);
 
@@ -343,7 +231,7 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
       {
         case TcpSignal::UPDATE_SERVICE_SIGNAL:
         {
-          updateService(bytearray);
+          serviceManager_->updateService(jsonObject);
           break;
         }
         case TcpSignal::TERMINATE_SERVICE_SIGNAL:
@@ -365,7 +253,8 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
           TERRAMA2_LOG_DEBUG() << "ADD_DATA_SIGNAL";
           try
           {
-            addData(bytearray);
+            std::shared_ptr<terrama2::core::DataManager> dataManager = dataManager_.lock();
+            dataManager->addJSon(jsonObject);
           }
           catch(const terrama2::Exception& exception)
           {
@@ -386,19 +275,21 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
         case TcpSignal::VALIDATE_PROCESS_SIGNAL:
         {
           TERRAMA2_LOG_DEBUG() << "VALIDATE_PROCESS_SIGNAL";
-          validateData(bytearray);
+          std::shared_ptr<terrama2::core::DataManager> dataManager = dataManager_.lock();
+          dataManager->validateJSon(jsonObject);
           break;
         }
         case TcpSignal::REMOVE_DATA_SIGNAL:
         {
           TERRAMA2_LOG_DEBUG() << "REMOVE_DATA_SIGNAL";
-          removeData(bytearray);
+          std::shared_ptr<terrama2::core::DataManager> dataManager = dataManager_.lock();
+          dataManager->removeJSon(jsonObject);
           break;
         }
         case TcpSignal::START_PROCESS_SIGNAL:
         {
           TERRAMA2_LOG_DEBUG() << "START_PROCESS_SIGNAL";
-          sendStartProcess(bytearray);
+          sendStartProcess(jsonObject);
 
           break;
         }
@@ -413,7 +304,7 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
         case TcpSignal::LOG_SIGNAL:
         {
           TERRAMA2_LOG_DEBUG() << "LOG_SIGNAL";
-          sendLog(bytearray, tcpSocket);
+          sendLog(jsonObject, tcpSocket);
           break;
         }
         default:
