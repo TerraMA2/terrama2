@@ -289,7 +289,7 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
 
             std::unique_lock<std::mutex> lock(mutex);
             outputDs->move(report[k]);
-            outputDs->setValue(name, dynamic_cast<te::dt::AbstractData*>(ad.get()->clone()));
+            outputDs->setValue(name, ad.get()->clone());
           }
         }
       }
@@ -307,7 +307,6 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
     std::vector< std::future<void> > promises;
     while(end < interDs->size())
     {
-      TERRAMA2_LOG_DEBUG() << "intersection: new thread!";
       begin = end;
       end = begin+step;
       if(end > interDs->size())
