@@ -34,8 +34,11 @@
 #include "../core/utility/Logger.hpp"
 #include "../core/utility/Utils.hpp"
 
+#include <terralib/datatype/DateTimeProperty.h>
 // QT
 #include <QObject>
+
+#include <boost/algorithm/string/replace.hpp>
 
 terrama2::core::DataAccessorGeometricObjectOGR::DataAccessorGeometricObjectOGR(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics)
 : DataAccessor(dataProvider, dataSeries),
@@ -160,10 +163,10 @@ std::string terrama2::core::DataAccessorGeometricObjectOGR::retrieveData(const D
     // Do nothing
   }
 
-//download shp files
+  //download shp files
   auto tempFolder =  dataRetriever->retrieveData(mask, filter, timezone, remover, "", folderPath);
 
-//download auxiliary files
+  //download auxiliary files
   std::string dbfFile = std::string{mask.cbegin(), mask.cend()-3}+"dbf";
   std::string prjFile = std::string{mask.cbegin(), mask.cend()-3}+"prj";
   std::string shxFile = std::string{mask.cbegin(), mask.cend()-3}+"shx";
@@ -173,4 +176,52 @@ std::string terrama2::core::DataAccessorGeometricObjectOGR::retrieveData(const D
   dataRetriever->retrieveData(shxFile, filter, timezone, remover, tempFolder, folderPath);
 
   return tempFolder;
+}
+
+
+void terrama2::core::DataAccessorGeometricObjectOGR::adapt(DataSetPtr dataSet, std::shared_ptr<te::da::DataSetTypeConverter> converter) const
+{
+  //only one timestamp column
+  std::string timestampPropertyName = getTimestampPropertyName(dataSet);
+  std::string outputTimestampPropertyName = getOutputTimestampPropertyName(dataSet);
+
+  std::string geometryPropertyName = getGeometryPropertyName(dataSet);
+  std::string outputGeometryPropertyName = getOutputGeometryPropertyName(dataSet);
+
+  te::dt::DateTimeProperty* dtProperty = new te::dt::DateTimeProperty(outputTimestampPropertyName, te::dt::TIME_INSTANT_TZ);
+  auto timezone = DataAccessorFile::getTimeZone(dataSet);
+  auto timestampMask = getTimestampMask(dataSet);
+
+  //Find the rigth column to adapt
+  std::vector<te::dt::Property*> properties = converter->getConvertee()->getProperties();
+  for(size_t i = 0, size = properties.size(); i < size; ++i)
+  {
+    te::dt::Property* property = properties.at(i);
+    if(property->getName() == timestampPropertyName)
+    {
+      // datetime column found
+      converter->add(i, dtProperty, [timezone, timestampMask](te::da::DataSet* teDataset, const std::vector<std::size_t>& indexes, int dstType)
+      {
+        return terrama2::core::DataAccessorGeometricObjectOGR::numberToTimestamp(teDataset, indexes, dstType, timezone, timestampMask);
+      });
+    }
+    else if(property->getName() == geometryPropertyName)
+    {
+      auto geomProperty = property->clone();
+      geomProperty->setName(outputGeometryPropertyName);
+      converter->add(i, geomProperty);
+    }
+    else
+    {
+      if(!isValidColumn(property->getName()))
+        continue;
+
+      converter->add(i,property->clone());
+    }
+  }
+}
+
+void terrama2::core::DataAccessorGeometricObjectOGR::addColumns(std::shared_ptr<te::da::DataSetTypeConverter> /*converter*/, const std::shared_ptr<te::da::DataSetType>& /*datasetType*/) const
+{
+  //columns add by the adapt method
 }

@@ -32,15 +32,6 @@
 
 #include "../core/Exception.hpp"
 #include "../core/utility/Logger.hpp"
-#include "../core/utility/Utils.hpp"
-#include "../core/utility/DataRetrieverFactory.hpp"
-
-#include <terralib/datatype/DateTimeProperty.h>
-
-// QT
-#include <QObject>
-
-#include <boost/algorithm/string/replace.hpp>
 
 terrama2::core::DataAccessorWildFireEvent::DataAccessorWildFireEvent(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics)
 : DataAccessor(dataProvider, dataSeries),
@@ -54,50 +45,8 @@ terrama2::core::DataAccessorWildFireEvent::DataAccessorWildFireEvent(DataProvide
  }
 }
 
-void terrama2::core::DataAccessorWildFireEvent::adapt(DataSetPtr dataSet, std::shared_ptr<te::da::DataSetTypeConverter> converter) const
+bool terrama2::core::DataAccessorWildFireEvent::isValidColumn(const std::string columnName) const
 {
-  //only one timestamp column
-  std::string timestampPropertyName = getTimestampPropertyName(dataSet);
-  std::string outputTimestampPropertyName = getOutputTimestampPropertyName(dataSet);
-
-  std::string geometryPropertyName = getGeometryPropertyName(dataSet);
-  std::string outputGeometryPropertyName = getOutputGeometryPropertyName(dataSet);
-
-  te::dt::DateTimeProperty* dtProperty = new te::dt::DateTimeProperty(outputTimestampPropertyName, te::dt::TIME_INSTANT_TZ);
-  auto timezone = DataAccessorFile::getTimeZone(dataSet);
-  auto timestampMask = getTimestampMask(dataSet);
-
-  //Find the rigth column to adapt
-  std::vector<te::dt::Property*> properties = converter->getConvertee()->getProperties();
-  for(size_t i = 0, size = properties.size(); i < size; ++i)
-  {
-    te::dt::Property* property = properties.at(i);
-    if(property->getName() == timestampPropertyName)
-    {
-      // datetime column found
-      converter->add(i, dtProperty, [timezone, timestampMask](te::da::DataSet* teDataset, const std::vector<std::size_t>& indexes, int dstType)
-      {
-        return terrama2::core::DataAccessorGeometricObjectOGR::numberToTimestamp(teDataset, indexes, dstType, timezone, timestampMask);
-      });
-    }
-    else if(property->getName() == geometryPropertyName)
-    {
-      auto geomProperty = property->clone();
-      geomProperty->setName(outputGeometryPropertyName);
-      converter->add(i, geomProperty);
-    }
-    else
-    {
-      // future date field, not currently used
-      if(property->getName() == "dt")
-        continue;
-
-      converter->add(i,property->clone());
-    }
-  }
-}
-
-void terrama2::core::DataAccessorWildFireEvent::addColumns(std::shared_ptr<te::da::DataSetTypeConverter> /*converter*/, const std::shared_ptr<te::da::DataSetType>& /*datasetType*/) const
-{
-  //columns add by the adapt method
+  // future date field, not currently used
+  return columnName != "dt";
 }

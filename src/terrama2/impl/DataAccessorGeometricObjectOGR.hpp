@@ -75,6 +75,11 @@ namespace terrama2
 
         virtual std::string getTimestampMask(DataSetPtr dataSet, bool logErrors = false) const;
 
+        virtual void adapt(DataSetPtr dataset, std::shared_ptr<te::da::DataSetTypeConverter> converter) const override;
+        virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const override;
+
+        virtual bool isValidColumn(const std::string /*columnName*/) const { return true; }
+
         virtual std::string retrieveData(const DataRetrieverPtr dataRetriever,
                                          DataSetPtr dataSet,
                                          const Filter& filter,

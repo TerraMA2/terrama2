@@ -56,8 +56,7 @@ namespace terrama2
         }
         static DataAccessorType dataAccessorType(){ return "GEOMETRIC_OBJECT-wfe"; }
 
-        virtual void adapt(DataSetPtr dataset, std::shared_ptr<te::da::DataSetTypeConverter> converter) const override;
-        virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const override;
+        virtual bool isValidColumn(const std::string columnName) const override;
     };
   }
 }
