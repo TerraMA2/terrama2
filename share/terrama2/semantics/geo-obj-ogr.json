@@ -7,6 +7,9 @@
     "temporality": "DYNAMIC",
     "format": "OGR",
     "providers_type_list": ["FILE", "FTP" ],
+    "metadata": {
+      "geometry_property": "OGR_GEOMETRY"
+    },
     "gui": {
       "schema": {
         "properties": {
@@ -17,9 +20,17 @@
           "timezone": {
             "type": "string",
             "title": "Timezone"
+          },
+          "timestamp_property": {
+            "type": "string",
+            "title": "Date/Time property"
+          },
+          "timestamp_mask": {
+            "type": "string",
+            "title": "Date/Time mask"
           }
         },
-        "required": ["mask", "timezone"]
+        "required": ["mask", "timezone", "timestamp_property", "timestamp_mask"]
       },
       "form": [
         {
@@ -61,6 +72,14 @@
             {"name": "11", "value": "11"},
             {"name": "12", "value": "12"}
           ]
+        },
+        {
+          "key": "timestamp_property",
+          "htmlClass": "col-md-6"
+        },
+        {
+          "key": "timestamp_mask",
+          "htmlClass": "col-md-6"
         }
       ]
     }
@@ -79,8 +98,7 @@
       "output_timestamp_property": "timestamp",
       "output_geometry_property": "geom",
       "timestamp_mask": "%Y%m%d",
-      "timezone": "UTM+00",
-      "srid": "4326"
+      "timezone": "UTM+00"
     },
     "gui": {
       "schema": {
