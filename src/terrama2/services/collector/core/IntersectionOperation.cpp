@@ -253,8 +253,10 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
     {
       for(auto i : boost::irange(begin, end))
       {
+        if(interDs->isNull(i, intersectionGeomPos))
+          continue;
         auto currGeom = interDs->getGeometry(i, intersectionGeomPos);
-        if(!currGeom.get())
+        if(!currGeom)
           continue;
 
         terrama2::core::verify::srid(currGeom->getSRID());
@@ -267,7 +269,11 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
 
         for(size_t k = 0; k < report.size(); ++k)
         {
+          if(collectedData->isNull(i, collectedGeomPropertyPos))
+            continue;
+
           std::shared_ptr<te::gm::Geometry> occurrence = collectedData->getGeometry(report[k], collectedGeomPropertyPos);
+          terrama2::core::verify::srid(occurrence->getSRID());
           if(occurrence->getSRID() != 4326)
             occurrence->transform(4326);
 
@@ -289,7 +295,7 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
 
             std::unique_lock<std::mutex> lock(mutex);
             outputDs->move(report[k]);
-            outputDs->setValue(name, ad.get()->clone());
+            outputDs->setValue(name, ad->clone());
           }
         }
       }
