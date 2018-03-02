@@ -234,7 +234,7 @@ add_value("min", x))z";
 
 
 
-    service.addToQueue(analysis->id, terrama2::core::TimeUtils::stringToTimestamp("2008-07-21T09:30:00-03", terrama2::core::TimeUtils::webgui_timefacet));
+    service.addToQueue(analysis, terrama2::core::TimeUtils::stringToTimestamp("2008-07-21T09:30:00-03", terrama2::core::TimeUtils::webgui_timefacet));
 
 
     QTimer timer;

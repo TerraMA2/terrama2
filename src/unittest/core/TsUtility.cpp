@@ -30,6 +30,7 @@
 //TerraMA2
 #include <terrama2/core/Typedef.hpp>
 #include <terrama2/core/data-model/Filter.hpp>
+#include <terrama2/core/data-model/Process.hpp>
 #include <terrama2/core/utility/Timer.hpp>
 #include <terrama2/core/utility/TimeUtils.hpp>
 #include <terrama2/core/utility/FilterUtils.hpp>
@@ -51,10 +52,14 @@ void TsUtility::testTimerNoFrequencyException()
     schedule.frequency = 0;
     schedule.frequencyUnit = "second";
 
+    auto process = std::make_shared<terrama2::core::Process>();
+    process->id = 1;
+    process->schedule = schedule;
+
     terrama2::core::MockProcessLogger logger;
     EXPECT_CALL(logger, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(terrama2::core::TimeUtils::nowUTC()));
     auto lastTime = logger.getLastProcessTimestamp(1);
-    terrama2::core::Timer timer(schedule, 1, lastTime);
+    terrama2::core::Timer timer(process, lastTime);
 
     QFAIL("Should not be here!");
   }
@@ -73,10 +78,14 @@ void TsUtility::testTimerInvalidUnitException()
     schedule.frequency = 30;
     schedule.frequencyUnit = "invalid";
 
+    auto process = std::make_shared<terrama2::core::Process>();
+    process->id = 1;
+    process->schedule = schedule;
+
     terrama2::core::MockProcessLogger logger;
     EXPECT_CALL(logger, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(terrama2::core::TimeUtils::nowUTC()));
     auto lastTime = logger.getLastProcessTimestamp(1);
-    terrama2::core::Timer timer(schedule, 1, lastTime);
+    terrama2::core::Timer timer(process, lastTime);
 
     QFAIL("Should not be here!");
   }
@@ -97,47 +106,48 @@ void TsUtility::testFrequencyTimer()
     schedule.frequency = 800;
     schedule.frequencyUnit = "second";
 
+    auto process = std::make_shared<terrama2::core::Process>();
+    process->id = 1;
+    process->schedule = schedule;
+
     terrama2::core::MockProcessLogger logger;
     EXPECT_CALL(logger, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(terrama2::core::TimeUtils::nowUTC()));
     auto lastTime = logger.getLastProcessTimestamp(1);
-    terrama2::core::Timer timerSecond1(schedule, 1, lastTime);
+    terrama2::core::Timer timerSecond1(process, lastTime);
 
-    schedule.frequencyUnit = "s";
-    terrama2::core::Timer timerSecond3(schedule, 1, lastTime);
+    process->schedule.frequencyUnit = "s";
+    terrama2::core::Timer timerSecond3(process, lastTime);
 
-    schedule.frequencyUnit = "sec";
-    terrama2::core::Timer timerSecond4(schedule, 1, lastTime);
+    process->schedule.frequencyUnit = "sec";
+    terrama2::core::Timer timerSecond4(process, lastTime);
 
     // Schedule a timer in minutes
-    schedule.frequency = 35;
-    schedule.frequencyUnit = "minute";
+    process->schedule.frequency = 35;
+    process->schedule.frequencyUnit = "minute";
 
-    terrama2::core::Timer timerMinute1(schedule, 1, lastTime);
+    terrama2::core::Timer timerMinute1(process, lastTime);
 
-    schedule.frequencyUnit = "min";
-    terrama2::core::Timer timerMinute2(schedule, 1, lastTime);
+    process->schedule.frequencyUnit = "min";
+    terrama2::core::Timer timerMinute2(process, lastTime);
 
-    schedule.frequencyUnit = "minutes";
-    terrama2::core::Timer timerMinute3(schedule, 1, lastTime);
+    process->schedule.frequencyUnit = "minutes";
+    terrama2::core::Timer timerMinute3(process, lastTime);
 
     // Schedule a timer in hours
-    schedule.frequency = 2;
-    schedule.frequencyUnit = "hour";
+    process->schedule.frequency = 2;
+    process->schedule.frequencyUnit = "hour";
+    terrama2::core::Timer timerHour1(process, lastTime);
 
-    terrama2::core::Timer timerHour1(schedule, 1, lastTime);
-
-    schedule.frequencyUnit = "h";
-
-    terrama2::core::Timer timerHour3(schedule, 1, lastTime);
+    process->schedule.frequencyUnit = "h";
+    terrama2::core::Timer timerHour3(process, lastTime);
 
     // Schedule a timer in days
-    schedule.frequency = 3;
-    schedule.frequencyUnit = "day";
+    process->schedule.frequency = 3;
+    process->schedule.frequencyUnit = "day";
+    terrama2::core::Timer timerDay1(process, lastTime);
 
-    terrama2::core::Timer timerDay1(schedule, 1, lastTime);
-
-    schedule.frequencyUnit = "d";
-    terrama2::core::Timer timerDay2(schedule, 1, lastTime);
+    process->schedule.frequencyUnit = "d";
+    terrama2::core::Timer timerDay2(process, lastTime);
   }
   catch(...)
   {
@@ -156,6 +166,10 @@ void TsUtility::testFrequencyTimerBase()
     schedule.frequencyUnit = "minute";
     schedule.frequencyStartTime = "00:01:00.123-03:00";
 
+    auto process = std::make_shared<terrama2::core::Process>();
+    process->id = 1;
+    process->schedule = schedule;
+
     terrama2::core::MockProcessLogger logger;
 
     auto lastExecution = terrama2::core::TimeUtils::nowUTC();
@@ -164,7 +178,7 @@ void TsUtility::testFrequencyTimerBase()
     EXPECT_CALL(logger, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(lastExecution));
 
     auto lastTime = logger.getLastProcessTimestamp(1);
-    terrama2::core::Timer timer(schedule, 1, lastTime);
+    terrama2::core::Timer timer(process, lastTime);
 
   }
   catch (const terrama2::Exception& e)
@@ -196,10 +210,14 @@ void TsUtility::testFrequencyTimerFirstExecutionEarly()
     schedule.frequencyUnit = "minute";
     schedule.frequencyStartTime = "00:01:00.123-03:00";
 
+    auto process = std::make_shared<terrama2::core::Process>();
+    process->id = 1;
+    process->schedule = schedule;
+
     terrama2::core::MockProcessLogger logger;
     EXPECT_CALL(logger, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
     auto lastTime = logger.getLastProcessTimestamp(1);
-    terrama2::core::Timer timer(schedule, 1, lastTime);
+    terrama2::core::Timer timer(process, lastTime);
 
   }
   catch (const terrama2::Exception& e)
@@ -231,10 +249,14 @@ void TsUtility::testFrequencyTimerFirstExecutionLater()
     schedule.frequencyUnit = "minute";
     schedule.frequencyStartTime = "23:59:00.000-03:00";
 
+    auto process = std::make_shared<terrama2::core::Process>();
+    process->id = 1;
+    process->schedule = schedule;
+
     terrama2::core::MockProcessLogger logger;
     EXPECT_CALL(logger, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
     auto lastTime = logger.getLastProcessTimestamp(1);
-    terrama2::core::Timer timer(schedule, 1, lastTime);
+    terrama2::core::Timer timer(process, lastTime);
 
   }
   catch (const terrama2::Exception& e)
@@ -267,10 +289,14 @@ void TsUtility::testScheduleTimer()
     schedule.scheduleTime = "09:00:00.000";
     schedule.scheduleUnit = "week";
 
+    auto process = std::make_shared<terrama2::core::Process>();
+    process->id = 1;
+    process->schedule = schedule;
+
     terrama2::core::MockProcessLogger logger;
     EXPECT_CALL(logger, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(terrama2::core::TimeUtils::nowUTC()));
     auto lastTime = logger.getLastProcessTimestamp(1);
-    terrama2::core::Timer timerWeek1(schedule, 1, lastTime);
+    terrama2::core::Timer timerWeek1(process, lastTime);
   }
   catch(...)
   {
@@ -505,4 +531,3 @@ void TsUtility::testSpecialCharacters()
   if(!terrama2::core::isValidDataSetName(mask, filter, timezone, name, fileTimestamp))
     QFAIL("Should not be here!");
 }
-

@@ -1,19 +1,19 @@
 
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt">
 
 <head>
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="generator" content="HelpNDoc Personal Edition 5.0.0.182">
+  <meta name="generator" content="HelpNDoc Standard Edition 5.4.2.416">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" href="favicon.ico"/>
 
   <title>O que &eacute; a TerraMA&sup2; ?</title>
   <meta name="description" content="" /> 
-  <meta name="keywords" content="TerraMA2">
+  <meta name="keywords" content="">
 
 
 
@@ -48,7 +48,7 @@
   <link href="css/effects.min.css" rel="stylesheet" />
   <link href="css/theme-light-blue.min.css" rel="stylesheet" />
   <link href="css/print.min.css" rel="stylesheet" media="print" />
-  <style type="text/css">nav { width: 350px} @media screen and (min-width:769px) { body.md-nav-expanded #main { margin-left: 350px} body.md-nav-expanded header { padding-left: 364px} }</style>
+  <style type="text/css">nav { width: 350px} @media screen and (min-width:769px) { body.md-nav-expanded div#main { margin-left: 350px} body.md-nav-expanded header { padding-left: 364px} }</style>
 
   <!-- Content style -->
   <link href="css/hnd.content.css" rel="stylesheet" />
@@ -87,21 +87,21 @@
       
 	  
         <li role="presentation" class="tab active">
-            <a href="#contents" aria-controls="contents" role="tab" data-toggle="tab">
+            <a href="#contents" id="tab-contents" aria-controls="contents" role="tab" data-toggle="tab">
                 <i class="glyphicon glyphicon-list"></i>
                 Contents
             </a>
         </li>
       
         <li role="presentation" class="tab">
-            <a href="#index" aria-controls="index" role="tab" data-toggle="tab">
+            <a href="#index" id="tab-index" aria-controls="index" role="tab" data-toggle="tab">
                 <i class="glyphicon glyphicon-asterisk"></i>
                 Index
             </a>
         </li>
       
         <li role="presentation" class="tab">
-            <a href="#search" aria-controls="search" role="tab" data-toggle="tab">
+            <a href="#search" id="tab-search" aria-controls="search" role="tab" data-toggle="tab">
                 <i class="glyphicon glyphicon-search"></i>
                 Search
             </a>
@@ -161,7 +161,7 @@
 
     <article>
         <div id="topic-content" class="container-fluid" 
-		  data-hnd-id="what_terrama2"
+		  data-hnd-id="whats_terrama2"
 		  data-hnd-context="1"
 		  data-hnd-title="O que é a TerraMA² ?"
 		>
@@ -188,25 +188,24 @@
 <p class="rvps2"><span class="rvts16"><br/></span></p>
 <p class="rvps3"><img alt="" style="padding : 1px;" src="lib/Fig1_1web.png"></p>
 <p class="rvps2"><span class="rvts16"><br/></span></p>
-<p class="rvps3"><span class="rvts19">Figura 1.1</span><span class="rvts20"> - Diagrama dos Principais Módulos do Sistema de Monitoramento, Análise e Alerta.</span></p>
-<p class="rvps2"><span class="rvts20"><br/></span></p>
-<p class="rvps6"><a name="docs-internal-guid-29a5dce0-2f8f-37b4-0aae-f6f99a61f4bd"></a>
+<p class="rvps3"><span class="rvts18">Figura 1.1</span><span class="rvts19"> - Diagrama dos Principais Módulos do Sistema de Monitoramento, Análise e Alerta.</span></p>
+<p class="rvps2"><span class="rvts19"><br/></span></p>
+<p class="rvps9"><a name="docs-internal-guid-29a5dce0-2f8f-37b4-0aae-f6f99a61f4bd"></a>
 <span class="rvts16">Os dados necessários para a operação da plataforma incluem:</span></p>
 <ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
-<li class="rvps7"><span class="rvts17">Dados dinâmicos</span><span class="rvts16">: são dados ambientais coletados automaticamente e que informam sobre a condição das variáveis obtidas a intervalos de tempo pré-determinados. Incluem dados oriundos de diversos tipos de instrumentos de medição das condições ambientais tais como satélites, radares meteorológicos, estações hidrometeorológicas, entre outros. Tais dados deverão estar disponíveis em servidores de dados em computadores locais ou remotos.</span></li>
-<li class="rvps7"><span class="rvts17">Dados estáticos</span><span class="rvts16"> – são mapas vetoriais ou matriciais que não tem uma dinâmica de atualização como os dados dinâmicos. Tais mapas são utilizados nos modelos de análise para serem cruzados com dados dinâmicos ou outros dados estáticos. Estes dados também devem estar disponíveis em servidores de dados na forma de arquivos convencionais ou como tabelas em bancos de dados geográficos.</span></li>
+<li class="rvps10"><span class="rvts17">Dados dinâmicos</span><span class="rvts16">: </span><span class="rvts20">são dados ambientais coletados automaticamente que informam condições do meio ambiente através de variáveis obtidas a intervalos de tempo pré-determinados. Incluem dados oriundos de diversos tipos de instrumentos de medição das condições ambientais tais como satélites, radares meteorológicos, estações hidrometeorológicas, entre outros. Tais dados devem estar disponíveis em servidores de dados em computadores locais ou remotos. Se em servidores remotos, tais dados deverão ser coletados para a rede local vista pela plataforma. Podem ser armazenados localmente na forma de arquivos convencionais ou como tabelas em bancos de dados geográficos.</span></li>
+<li class="rvps10"><span class="rvts17">Dados estáticos</span><span class="rvts16"> – </span><span class="rvts20">são mapas vetoriais ou matriciais que não tem uma dinâmica de atualização como os dados dinâmicos. Tais mapas são utilizados nos modelos de análise para serem cruzados com dados dinâmicos ou outros dados estáticos. Estes dados também devem estar disponíveis em servidores de dados na forma de arquivos convencionais ou como tabelas em bancos de dados geográficos.</span></li>
 </ul>
-<p class="rvps2"><span class="rvts18"><br/></span></p>
-<p class="rvps6"><span class="rvts16">A operação da plataforma em salas de monitoramento ambiental (prefeituras, defesa civil, institutos de pesquisa ou empresas) requer três níveis de usuários, divididos em:</span></p>
+<p class="rvps2"><span class="rvts13"><br/></span></p>
+<p class="rvps9"><span class="rvts16">A operação da plataforma em salas de monitoramento ambiental (prefeituras, defesa civil, institutos de pesquisa ou empresas) requer três níveis de usuários, divididos em:</span></p>
 <ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
-<li class="rvps8"><span class="rvts17">Administradores da Plataforma</span><span class="rvts16">: São usuários que fazem a instalação, configuração e administração da plataforma. São responsáveis por definir onde serão criados os bancos de dados e a gerência dos serviços que ficarão automaticamente realizando as tarefas definidas pelos operadores do sistema construído. Usuário com este privilégio utiliza o módulo de administração web para gerenciar outros usuários, com ou sem privilégio de administrador, ou ainda projetos definidos pelo usuários</span></li>
-<li class="rvps8"><span class="rvts17">Operadores da Plataforma</span><span class="rvts16">: Os operadores são usuários sem privilégio de administrador que também fazem no módulo de administração web, porém, apenas para gerenciar os projetos criados por estes usuários. Estes usuários farão uso dos serviços de coleta, análise e notificação previamente inicializados por um administrador para desenvolver seus projetos e dessa maneira criar um sistema de monitoramento, análise e alerta.</span></li>
-<li class="rvps8"><span class="rvts17">Clientes dos Alertas</span><span class="rvts16">: São os usuários ou agentes que têm a competência para executar as ações preventivas para a diminuição de perdas no caso da ocorrência de um evento extremo. Estes terão acesso apenas ao módulo de monitoramento web para visualização dos dados e alertas em tempo real. Recebe ainda notificações por meio de email ou mensagens eletrônicas.</span></li>
+<li class="rvps11"><span class="rvts17">Administradores da Plataforma</span><span class="rvts16">: </span><span class="rvts20">São usuários que fazem a instalação, configuração e administração da plataforma. São responsáveis por definir onde serão criados os bancos de dados e a gerência dos serviços que ficarão automaticamente realizando as tarefas definidas pelos operadores do sistema construído. Usuário com este privilégio utiliza o módulo de administração web para gerenciar outros usuários, com ou sem privilégio de administrador, ou ainda projetos definidos pelos usuários.</span></li>
+<li class="rvps11"><span class="rvts17">Operadores da Plataforma</span><span class="rvts16">: </span><span class="rvts20">Os operadores são usuários sem privilégio de administrador que também fazem uso do módulo de administração web, porém, apenas para gerenciar os projetos criados por estes usuários. Estes farão uso dos serviços de coleta, análise e notificação previamente inicializados por um administrador para desenvolver seus projetos e dessa maneira criar um sistema de monitoramento, análise e alerta.</span></li>
+<li class="rvps11"><span class="rvts17">Clientes dos Alertas</span><span class="rvts16">: </span><span class="rvts20">São os usuários ou agentes que têm a competência para executar as ações preventivas para a diminuição de perdas no caso da ocorrência de um evento extremo. Estes terão acesso apenas ao módulo de monitoramento web para visualização dos dados e alertas em tempo real. Recebe ainda notificações por meio de email ou mensagens eletrônicas.</span></li>
 </ul>
-<p class="rvps9"><span class="rvts17">NOTA</span><span class="rvts16">: Esta divisão é apenas para fins de gestão em instituições que têm esta necessidade de fazer monitoramento. Em outras situações uma única pessoa pode exercer os três níveis como por exemplo, um pesquisador que deseja testar seus modelos de análise em um computador pessoal.</span></p>
+<p class="rvps12"><span class="rvts17">NOTA</span><span class="rvts16">: Esta divisão é apenas para fins de gestão em instituições que têm esta necessidade de fazer monitoramento. Em outras situações uma única pessoa pode exercer os três níveis como por exemplo, um pesquisador que deseja testar seus modelos de análise em um computador pessoal.</span></p>
 <p class="rvps2"><span class="rvts16"><br/></span></p>
 <p></p>
-<p class="rvps5" style="clear: both;"><span class="rvts14">Created with the Personal Edition of HelpNDoc: </span><a class="rvts15" href="https://www.helpndoc.com/create-epub-ebooks">Generate EPub eBooks with ease</a></p>
 
             </div>
             
@@ -214,19 +213,35 @@
         </div>  <!-- /#topic-content -->
     </article>
 
-    <footer>
-        
-    </footer>
+    <footer></footer>
 
   </div>  <!-- /#main -->
 
   <div class="mask" data-toggle="sm-nav-expanded"></div>
+  
+  <!-- Modal -->
+  <div class="modal fade" id="hndModal" tabindex="-1" role="dialog" aria-labelledby="hndModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="hndModalLabel"></h4>
+        </div>
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary modal-btn-close" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Scripts -->
   <script src="vendors/jquery-1.11.3/jquery.min.js"></script>
   <script src="vendors/bootstrap-3.3.6/js/bootstrap.min.js"></script>
   <script src="vendors/fastclick-1.0.6/fastclick.min.js"></script>
   <script src="vendors/markjs-8.8.3/jquery.mark.min.js"></script>
+  <script src="vendors/uri-1.18.9/uri.min.js"></script>
   <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
   <script src="vendors/bootstrap-3.3.6/js/ie10-viewport-bug-workaround.js"></script>
   
@@ -252,10 +267,16 @@
       var app = new Hnd.App();
       // Update translations
       hnd_ut(app);
+	  // Custom JS
+	  
       // Boot the app
       app.Boot();
     });
   </script>
 
-  
+
+
+</body>
+
+</html>
 

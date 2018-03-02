@@ -430,7 +430,11 @@
             </div>
           </div>
           <div class="form-group" terrama2-show-errors>
-            <select class="form-control" name="legendLevels" ng-model="ctrl.notify_on_legend_level" ng-show="ctrl.notifyOnLegendLevel" ng-options="legend._id as legend.name disable when legend.isDefault for legend in ctrl.legendModel.levels" ng-required="ctrl.notifyOnLegendLevel"></select>
+            <select class="form-control" name="legendLevels" ng-model="ctrl.notify_on_legend_level" ng-show="ctrl.notifyOnLegendLevel" ng-required="ctrl.notifyOnLegendLevel">
+              <option ng-repeat="legend in ctrl.legendModel.levels" value="{{ legend._id }}" ng-if="!legend.isDefault">
+                {{ legend.name }}
+              </option>
+            </select>
             <span class="help-block"
                   ng-show="forms.notificationForm.legendLevels.$dirty && forms.notificationForm.legendLevels.$invalid"
                   ng-class="{'has-error': notificationForm.legendLevels.$invalid}"

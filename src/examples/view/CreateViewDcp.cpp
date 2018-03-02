@@ -113,6 +113,7 @@ int main(int argc, char** argv)
     addPostgisDataProviders(dataManager);
     addDataSeries(dataManager);
     ViewId viewId = addView(dataManager);
+    auto view = dataManager->findView(viewId);
 
     terrama2::services::view::core::Service service(dataManager);
 
@@ -139,7 +140,7 @@ int main(int argc, char** argv)
 
     service.start(1);
 
-    service.addToQueue(viewId, terrama2::core::TimeUtils::nowUTC());
+    service.addToQueue(view, terrama2::core::TimeUtils::nowUTC());
 
     QTimer timer;
     QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));

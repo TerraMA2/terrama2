@@ -25,10 +25,10 @@ module.exports = function(sequelize, DataTypes)
 
       classMethods: {
         associate: function(models) {
-          ReprocessingHistoricalData.belongsTo(models.Analysis, {
+          ReprocessingHistoricalData.belongsTo(models.Schedule, {
             onDelete: "CASCADE",
             foreignKey: {
-              name: "analysis_id",
+              name: "schedule_id",
               allowNull: false
             }
           });

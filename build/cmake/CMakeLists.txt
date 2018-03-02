@@ -36,9 +36,10 @@ project(terrama2)
 # variables that control the system versioning
 set(TERRAMA2_VERSION_MAJOR 4)
 set(TERRAMA2_VERSION_MINOR 0)
-set(TERRAMA2_VERSION_PATCH 1)
-set(TERRAMA2_VERSION_STATUS "alpha")
-set(TERRAMA2_VERSION_STATUS_FULL "-alpha1")
+set(TERRAMA2_VERSION_PATCH 3)
+set(TERRAMA2_VERSION_DATABASE 1)
+set(TERRAMA2_VERSION_STATUS "release")
+set(TERRAMA2_VERSION_STATUS_FULL "-release")
 set(TERRAMA2_VERSION_STRING "${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}.${TERRAMA2_VERSION_PATCH}${TERRAMA2_VERSION_STATUS_FULL}")
 set(TERRAMA2_VERSION "0x040000")
 
@@ -486,6 +487,9 @@ if(TERRAMA2_DOXYGEN_ENABLED)
   add_subdirectory(terrama2_doxygen)
 endif()
 
+# Generate version file
+configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/share/terrama2/version.json.in
+               ${TERRAMA2_ABSOLUTE_ROOT_DIR}/share/terrama2/version.json @ONLY)
 
 #
 # install and targets export
@@ -535,25 +539,25 @@ if(APPLE)
   file(COPY ${TERRAMA2_ABSOLUTE_ROOT_DIR}/share DESTINATION ${CMAKE_BINARY_DIR})
 
 elseif(UNIX)
-  configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postinst.in
-                 ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postinst @ONLY)
   configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/config_pm2.sh.in
                  ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/config_pm2.sh @ONLY)
+  configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postinst.in
+                 ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postinst @ONLY)
   configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/prerm.in
                 ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/prerm @ONLY)
   configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postrm.in
                  ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postrm @ONLY)
 
   install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/remove-config.py
-          DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT scripts)
+          DESTINATION ${TERRAMA2_DESTINATION_SHARE}/terrama2/scripts COMPONENT scripts)
   install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postinst
-          DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT scripts)
+          DESTINATION ${TERRAMA2_DESTINATION_SHARE}/terrama2/scripts COMPONENT scripts)
   install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/config_pm2.sh
-          DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT scripts)
+          DESTINATION ${TERRAMA2_DESTINATION_SHARE}/terrama2/scripts COMPONENT scripts)
   install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/prerm
-          DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT scripts)
+          DESTINATION ${TERRAMA2_DESTINATION_SHARE}/terrama2/scripts COMPONENT scripts)
   install(FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/postrm
-          DESTINATION ${TERRAMA2_DESTINATION_SHARE}/scripts COMPONENT scripts)
+          DESTINATION ${TERRAMA2_DESTINATION_SHARE}/terrama2/scripts COMPONENT scripts)
 endif()
 
 #
@@ -562,7 +566,7 @@ endif()
 #
 
 if(NOT CPACK_BINARY_DEB AND NOT APPLE)
-  install(CODE "execute_process(COMMAND bash postinst ${TERRAMA2_BASE_DESTINATION_DIR} WORKING_DIRECTORY ${TERRAMA2_DESTINATION_SHARE}/scripts/ )" COMPONENT scripts)
+  install(CODE "execute_process(COMMAND bash postinst ${TERRAMA2_BASE_DESTINATION_DIR} WORKING_DIRECTORY ${TERRAMA2_DESTINATION_SHARE}/terrama2/scripts/ )" COMPONENT scripts)
 endif()
 
 #

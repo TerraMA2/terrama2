@@ -109,7 +109,6 @@ TcpManager.prototype.makebuffer = function(signal, object) {
  */
 var clients = {};
 
-
 function _getClient(connection) {
   var client;
   // checking if exists
@@ -150,6 +149,9 @@ var logs = {
 TcpManager.prototype.$send = function(serviceInstance, data, signal) {
   try {
     var client = _getClient(serviceInstance);
+
+    var config = Application.getContextConfig();
+    data.webAppId = config.webAppId;
     var buffer = this.makebuffer(signal, data);
     //logger.debug(buffer);
     logger.debug("BufferToString: ", buffer.toString());
@@ -215,6 +217,8 @@ TcpManager.prototype.logData = function(serviceInstance, data) {
       return;
     }
 
+    var config = Application.getContextConfig();
+    data.webAppId = config.webAppId;
     var buffer = self.makebuffer(Signals.LOG_SIGNAL, data);
     // requesting for log
     client.log(buffer);
@@ -307,7 +311,8 @@ TcpManager.prototype.startService = function(serviceInstance) {
 TcpManager.prototype.statusService = function(serviceInstance) {
   var self = this;
   try {
-    var buffer = self.makebuffer(Signals.STATUS_SIGNAL, {});
+    var config = Application.getContextConfig();
+    var buffer = self.makebuffer(Signals.STATUS_SIGNAL, {webAppId: config.webAppId});
     //logger.debug(buffer);
 
     var client = _getClient(serviceInstance);
@@ -444,7 +449,7 @@ TcpManager.prototype.initialize = function(client) {
             // if the finished process is from collector or analysis run conditioned process
             if (targetProcess.serviceType == ServiceType.COLLECTOR || targetProcess.serviceType == ServiceType.ANALYSIS){
               targetProcess.processToRun.forEach(function(processToRun){
-                if (processToRun && response.automatic !== false){
+                if (processToRun && response.automatic !== false && processToRun.object && processToRun.object.active){
                   self.startProcess(processToRun.instance, {ids: processToRun.ids, execution_date: response.execution_date});
                   self.logData(processToRun.instance, {begin: 0, end: 2, process_ids: [processToRun.ids]});
                 }

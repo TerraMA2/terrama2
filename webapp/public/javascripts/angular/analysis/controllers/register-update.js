@@ -96,7 +96,6 @@ define([], function() {
      * @type {Object}
      */
     self.analysis = {
-      historical: {},
       metadata: {}
     };
 
@@ -1218,22 +1217,48 @@ define([], function() {
               return MessageBoxService.danger(i18n.__("Analysis"), i18n.__(serviceOfflineMessage));
             }
 
-            /**
-             * Target object request (update/insert)
-             * @type {angular.IPromise<any>}
-             */
-            var request;
+            var performOperation = function() {
+              /**
+               * Target object request (update/insert)
+               * @type {angular.IPromise<any>}
+               */
+              var request;
 
-            if (self.isUpdating) { request = AnalysisService.update(config.analysis.id, objectToSend); }
-            else { request = AnalysisService.create(objectToSend); }
+              if (self.isUpdating) { request = AnalysisService.update(config.analysis.id, objectToSend); }
+              else { request = AnalysisService.create(objectToSend); }
 
-            return request
-              .then(function(data) {
+              return request.then(function(data) {
                 window.location = BASE_URL + "configuration/analysis?token=" + (data.token || (data.data || {}).token);
-              })
-              .catch(function(err) {
+              }).catch(function(err) {
                 MessageBoxService.danger(i18n.__("Analysis"), i18n.__(err.message));
               });
+            };
+
+            var promises = [];
+
+            if(self.modelStorager.srid) {
+              promises.push($http.get(BASE_URL + "configuration/validate-srid/" + self.modelStorager.srid));
+            }
+
+            if(self.analysis.grid && self.analysis.grid.area_of_interest_bounded && self.analysis.grid.area_of_interest_bounded.srid) {
+              promises.push($http.get(BASE_URL + "configuration/validate-srid/" + self.analysis.grid.area_of_interest_bounded.srid));
+            }
+
+            if(promises.length > 0) {
+              Promise.all(promises).then(function(results) {
+                if(results[0].data.error) {
+                  MessageBoxService.danger(i18n.__("Analysis"), i18n.__(results[0].data.error));
+                } else if(results[1] && results[1].data.error) {
+                  MessageBoxService.danger(i18n.__("Analysis"), i18n.__(results[1].data.error));
+                } else {
+                  performOperation();
+                }
+              }).catch(function(err) {
+                MessageBoxService.danger(i18n.__("Analysis"), i18n.__(err.message));
+              });
+            } else {
+              performOperation();
+            }
           } catch (e) {
             MessageBoxService.danger(i18n.__("Analysis"), i18n.__((e || {}).message));
             return;

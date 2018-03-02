@@ -172,23 +172,6 @@ namespace terrama2
         };
 
         /*!
-          \brief Defines the date filter for reprocessing of historical data
-
-          ## JSon ##
-
-          {
-            "class" : "ReprocessingHistoricalData",
-            "start_date" : STRING,
-            "end_date" : STRING
-          }
-        */
-        struct ReprocessingHistoricalData
-        {
-          std::shared_ptr<te::dt::TimeInstantTZ> startDate = nullptr; //!< Initial date of interest.
-          std::shared_ptr<te::dt::TimeInstantTZ> endDate = nullptr; //!< Final date of interest.
-        };
-
-        /*!
           \brief Defines the parameters used to construct the output grid of an analysis.
 
           ## JSon ##
@@ -251,8 +234,7 @@ namespace terrama2
               "analysis_dataseries_list" : [ AnalysisDataSeries, ...],
               "schedule": Schedule,
               "service_instance_id": INT,
-              "output_grid" : OutputGrid,
-              "reprocessing_historical_data", : ReprocessingHistoricalData
+              "output_grid" : OutputGrid
             }
           \endcode
 
@@ -270,7 +252,6 @@ namespace terrama2
           std::map<std::string, std::string> metadata; //!< Metadata of the analysis.
           std::vector<AnalysisDataSeries> analysisDataSeriesList; //!< DataSeries that are used in this analysis.
           AnalysisOutputGridPtr outputGridPtr; //!< Output grid configuration.
-          ReprocessingHistoricalDataPtr reprocessingHistoricalData; //!< Date filter for reprocessing of historical data.
 
           /*!
            \brief Hash code is formed from the hash of the string AnalysisId + startDate.

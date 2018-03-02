@@ -47,7 +47,7 @@ void terrama2::services::view::core::Serialization::writeVectorialStyleGeoserver
                                                                                     const std::string path)
 {
 
-  std::auto_ptr<te::xml::AbstractWriter> writer(te::xml::AbstractWriterFactory::make());
+  std::unique_ptr<te::xml::AbstractWriter> writer(te::xml::AbstractWriterFactory::make());
 
   writer->setURI(path);
   writer->writeStartDocument("UTF-8", "no");
@@ -83,7 +83,7 @@ terrama2::services::view::core::Serialization::readVectorialStyleXML(const std::
 {
   std::unique_ptr<te::se::Style> style;
 
-  std::auto_ptr<te::xml::Reader> reader(te::xml::ReaderFactory::make());
+  std::unique_ptr<te::xml::Reader> reader(te::xml::ReaderFactory::make());
   reader->setValidationScheme(false);
 
   reader->read(path);

@@ -109,8 +109,8 @@ namespace terrama2
         Q_OBJECT
 
       public:
-        //! Default constructor
-        Service();
+        //! Constructor
+        Service(std::weak_ptr<DataManager> dataManager);
         /*!
           \brief Destructor
 
@@ -148,7 +148,9 @@ namespace terrama2
 
       public slots:
 
-        virtual void addToQueue(ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept = 0;
+        virtual void addToQueue(ProcessPtr process, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept final;
+        virtual void startProcess(ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept final;
+        virtual ProcessPtr getProcess(ProcessId processId) = 0;
 
         /*!
            \brief  Stops the service.
@@ -168,6 +170,7 @@ namespace terrama2
         */
         virtual void updateNumberOfThreads(size_t numberOfThreads = 0) noexcept final;
 
+        void addReprocessingToQueue(ProcessPtr process) noexcept;
         virtual void addProcessToSchedule(ProcessPtr process) noexcept;
         void setLogger(std::shared_ptr<ProcessLogger> logger) noexcept;
 
@@ -175,8 +178,9 @@ namespace terrama2
 
       protected:
         void updateFilterDiscardDates(terrama2::core::Filter& filter, std::shared_ptr<ProcessLogger> logger, ProcessId processId) const;
+        virtual void erasePreviousResult(ProcessPtr process, std::shared_ptr<te::dt::TimeInstantTZ> timestamp) const;
 
-        TimerPtr createTimer(const terrama2::core::Schedule& schedule, ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> lastProcess) const;
+        TimerPtr createTimer(ProcessPtr process, std::shared_ptr<te::dt::TimeInstantTZ> lastProcess) const;
         /*!
            \brief Returns true if the main loop should continue.
            \return True if there is data to be tasked.
@@ -208,6 +212,8 @@ namespace terrama2
           \brief Verifies if there is job to be done in the waiting queue and add it to the processing queue.
         */
         void notifyWaitQueue(ProcessId processId);
+
+        std::weak_ptr<DataManager> dataManager_; //!< Data manager.
 
         bool stop_;
         std::mutex  mutex_; //!< Mutex for thread safety

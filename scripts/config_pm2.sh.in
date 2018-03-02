@@ -20,6 +20,7 @@ fi
 # Add webapp to pm2 startup
 (
   cd @TERRAMA2_DESTINATION@webapp
+  pm2 delete webapp
 
   pm2 start npm --name webapp -- start
   valid $? "Error executing webapp."
@@ -30,6 +31,8 @@ fi
 # Add webmonitor to pm2 startup
 (
   cd @TERRAMA2_DESTINATION@webmonitor
+  pm2 delete webmonitor
+
   pm2 start npm --name webmonitor -- start
   valid $? "Error executing webmonitor."
   pm2 save

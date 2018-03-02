@@ -60,7 +60,7 @@ namespace te
      * \brief The MockDataSource class has the mocked methods for unittests,
      * using GMock.
      *
-     * Some methods in in this class returns a std::auto_ptr, what isn't acceptable
+     * Some methods in in this class returns a std::unique_ptr, what isn't acceptable
      * by GMock to use in mockeds methods. To solve this, was created some mocked proxies
      * that returns a pointer, used to create the auto_ptr required in method.
      *
@@ -84,132 +84,132 @@ namespace te
           return mock;
         }
 
-        // Methods that use std::auto_ptr and need proxies:
+        // Methods that use std::unique_ptr and need proxies:
 
 
         // Mocked proxy
         MOCK_METHOD0(DataSourceTransactoPtrReturn, DataSourceTransactor* ());
 
         // Overridden method that use the mocked proxy
-        virtual std::auto_ptr<DataSourceTransactor> getTransactor() override
+        virtual std::unique_ptr<DataSourceTransactor> getTransactor() override
         {
-          return std::auto_ptr<DataSourceTransactor>(DataSourceTransactoPtrReturn());
+          return std::unique_ptr<DataSourceTransactor>(DataSourceTransactoPtrReturn());
         }
 
         MOCK_METHOD0(DataSetPtrReturn, DataSet*());
 
-        virtual std::auto_ptr<DataSet> getDataSet(const std::string& /*name*/,
+        virtual std::unique_ptr<DataSet> getDataSet(const std::string& /*name*/,
                                                   te::common::TraverseType /*travType*/ = te::common::FORWARDONLY,
                                                   const te::common::AccessPolicy /*accessPolicy*/ = te::common::RAccess) override
         {
-          return std::auto_ptr< DataSet >(DataSetPtrReturn());
+          return std::unique_ptr< DataSet >(DataSetPtrReturn());
         }
 
-        std::auto_ptr<DataSet> getDataSet(const std::string& /*name*/,
+        std::unique_ptr<DataSet> getDataSet(const std::string& /*name*/,
                                           const std::string& /*propertyName*/,
                                           const te::gm::Envelope* /*e*/,
                                           te::gm::SpatialRelation /*r*/,
                                           te::common::TraverseType /*travType*/ = te::common::FORWARDONLY,
                                           const te::common::AccessPolicy /*accessPolicy*/ = te::common::RAccess) override
         {
-          return std::auto_ptr< DataSet >(DataSetPtrReturn());
+          return std::unique_ptr< DataSet >(DataSetPtrReturn());
         }
 
-        virtual std::auto_ptr<DataSet> getDataSet(const std::string& /*name*/,
+        virtual std::unique_ptr<DataSet> getDataSet(const std::string& /*name*/,
                                                   const std::string& /*propertyName*/,
                                                   const te::gm::Geometry* /*g*/,
                                                   te::gm::SpatialRelation /*r*/,
                                                   te::common::TraverseType /*travType*/ = te::common::FORWARDONLY,
                                                   const te::common::AccessPolicy /*accessPolicy*/ = te::common::RAccess) override
         {
-          return std::auto_ptr< DataSet >(DataSetPtrReturn());
+          return std::unique_ptr< DataSet >(DataSetPtrReturn());
         }
 
-        virtual std::auto_ptr<DataSet> query(const Select& /*q*/,
+        virtual std::unique_ptr<DataSet> query(const Select& /*q*/,
                                              te::common::TraverseType /*travType*/ = te::common::FORWARDONLY,
                                              const te::common::AccessPolicy /*accessPolicy*/ = te::common::RAccess) override
         {
-          return std::auto_ptr< DataSet >(DataSetPtrReturn());
+          return std::unique_ptr< DataSet >(DataSetPtrReturn());
         }
 
-        virtual std::auto_ptr<DataSet> query(const std::string& /*query*/,
+        virtual std::unique_ptr<DataSet> query(const std::string& /*query*/,
                                              te::common::TraverseType /*travType*/ = te::common::FORWARDONLY,
                                              const te::common::AccessPolicy /*accessPolicy*/ = te::common::RAccess) override
         {
-          return std::auto_ptr< DataSet >(DataSetPtrReturn());
+          return std::unique_ptr< DataSet >(DataSetPtrReturn());
         }
 
         MOCK_METHOD0(DataSetTypePtrReturn, DataSetType*());
 
-        virtual std::auto_ptr<te::da::DataSetType> getDataSetType(const std::string& /*name*/) override
+        virtual std::unique_ptr<te::da::DataSetType> getDataSetType(const std::string& /*name*/) override
         {
-          return std::auto_ptr<DataSetType>(DataSetTypePtrReturn());
+          return std::unique_ptr<DataSetType>(DataSetTypePtrReturn());
         }
 
         MOCK_METHOD0(PropertyPtrReturn, te::dt::Property*());
 
-        virtual std::auto_ptr<te::dt::Property> getProperty(const std::string& /*datasetName*/, const std::string& /*name*/) override
+        virtual std::unique_ptr<te::dt::Property> getProperty(const std::string& /*datasetName*/, const std::string& /*name*/) override
         {
-          return std::auto_ptr<te::dt::Property>(PropertyPtrReturn());
+          return std::unique_ptr<te::dt::Property>(PropertyPtrReturn());
         }
 
-        virtual std::auto_ptr<te::dt::Property> getProperty(const std::string& /*datasetName*/, std::size_t /*propertyPos*/) override
+        virtual std::unique_ptr<te::dt::Property> getProperty(const std::string& /*datasetName*/, std::size_t /*propertyPos*/) override
         {
-          return std::auto_ptr<te::dt::Property>(PropertyPtrReturn());
+          return std::unique_ptr<te::dt::Property>(PropertyPtrReturn());
         }
 
         MOCK_METHOD0(PrimaryKeyPtrReturn, PrimaryKey*());
 
-        virtual std::auto_ptr<te::da::PrimaryKey> getPrimaryKey(const std::string& /*datasetName*/) override
+        virtual std::unique_ptr<te::da::PrimaryKey> getPrimaryKey(const std::string& /*datasetName*/) override
         {
-          return std::auto_ptr<te::da::PrimaryKey>(PrimaryKeyPtrReturn());
+          return std::unique_ptr<te::da::PrimaryKey>(PrimaryKeyPtrReturn());
         }
 
         MOCK_METHOD0(ForeignKeyPtrReturn, ForeignKey*());
 
-        virtual std::auto_ptr<ForeignKey> getForeignKey(const std::string& /*datasetName*/, const std::string& /*name*/) override
+        virtual std::unique_ptr<ForeignKey> getForeignKey(const std::string& /*datasetName*/, const std::string& /*name*/) override
         {
-          return std::auto_ptr<ForeignKey>(ForeignKeyPtrReturn());
+          return std::unique_ptr<ForeignKey>(ForeignKeyPtrReturn());
         }
 
         MOCK_METHOD0(UniqueKeyPtrReturn, te::da::UniqueKey*());
 
-        virtual std::auto_ptr<te::da::UniqueKey> getUniqueKey(const std::string& /*datasetName*/, const std::string& /*name*/) override
+        virtual std::unique_ptr<te::da::UniqueKey> getUniqueKey(const std::string& /*datasetName*/, const std::string& /*name*/) override
         {
-          return std::auto_ptr<UniqueKey>(UniqueKeyPtrReturn());
+          return std::unique_ptr<UniqueKey>(UniqueKeyPtrReturn());
         }
 
         MOCK_METHOD0(CheckConstraintPtrReturn, CheckConstraint*());
 
-        virtual std::auto_ptr<te::da::CheckConstraint> getCheckConstraint(const std::string& /*datasetName*/, const std::string& /*name*/) override
+        virtual std::unique_ptr<te::da::CheckConstraint> getCheckConstraint(const std::string& /*datasetName*/, const std::string& /*name*/) override
         {
-          return std::auto_ptr<CheckConstraint>(CheckConstraintPtrReturn());
+          return std::unique_ptr<CheckConstraint>(CheckConstraintPtrReturn());
         }
 
         MOCK_METHOD0(IndexPtrReturn, Index*());
 
-        virtual std::auto_ptr<te::da::Index> getIndex(const std::string& /*datasetName*/, const std::string& /*name*/) override
+        virtual std::unique_ptr<te::da::Index> getIndex(const std::string& /*datasetName*/, const std::string& /*name*/) override
         {
-          return std::auto_ptr<Index>(IndexPtrReturn());
+          return std::unique_ptr<Index>(IndexPtrReturn());
         }
 
         MOCK_METHOD0(SequencePtrReturn, Sequence*());
 
-        virtual std::auto_ptr<Sequence> getSequence(const std::string& /*name*/) override
+        virtual std::unique_ptr<Sequence> getSequence(const std::string& /*name*/) override
         {
-          return std::auto_ptr<Sequence>(SequencePtrReturn());
+          return std::unique_ptr<Sequence>(SequencePtrReturn());
         }
 
         MOCK_METHOD0(EnvelopePtrReturn, te::gm::Envelope*());
 
-        virtual std::auto_ptr<te::gm::Envelope> getExtent(const std::string& /*datasetName*/, const std::string& /*propertyName*/) override
+        virtual std::unique_ptr<te::gm::Envelope> getExtent(const std::string& /*datasetName*/, const std::string& /*propertyName*/) override
         {
-          return std::auto_ptr<te::gm::Envelope>(EnvelopePtrReturn());
+          return std::unique_ptr<te::gm::Envelope>(EnvelopePtrReturn());
         }
 
-        virtual std::auto_ptr<te::gm::Envelope> getExtent(const std::string& /*datasetName*/, std::size_t /*propertyPos*/) override
+        virtual std::unique_ptr<te::gm::Envelope> getExtent(const std::string& /*datasetName*/, std::size_t /*propertyPos*/) override
         {
-          return std::auto_ptr<te::gm::Envelope>(EnvelopePtrReturn());
+          return std::unique_ptr<te::gm::Envelope>(EnvelopePtrReturn());
         }
 
 

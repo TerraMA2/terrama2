@@ -112,10 +112,19 @@ void terrama2::core::TcpManager::sendStartProcess(const QByteArray& bytearray)
     if(jsonDoc.isObject())
     {
       auto obj = jsonDoc.object();
+      std::shared_ptr< te::dt::TimeInstantTZ > executionDate;
+      if(obj.contains("execution_date"))
+      {
+        auto dateStr = obj["execution_date"].toString().toStdString();
+        executionDate = TimeUtils::stringToTimestamp(dateStr, TimeUtils::webgui_timefacet);
+      }
+      else
+        executionDate = terrama2::core::TimeUtils::nowUTC();
+
       auto array = obj["ids"].toArray();
       for(auto value : array)
       {
-        emit startProcess(value.toInt(), terrama2::core::TimeUtils::nowUTC());
+        emit startProcess(value.toInt(), executionDate);
       }
     }
     else
@@ -247,6 +256,7 @@ void terrama2::core::TcpManager::sendLog(const QByteArray& bytearray, QTcpSocket
 
       QJsonObject obj;
       obj.insert("process_id",  static_cast<int>(processId));
+      obj.insert("instance_id",  static_cast<int>(serviceManager_->instanceId()));
       obj.insert("log", processLogList);
 
       logList.push_back(obj);
@@ -296,9 +306,36 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
       //update left blockSize
       blockSize_-=sizeof(TcpSignal);
 
-      if(signal != TcpSignal::UPDATE_SERVICE_SIGNAL && signal != TcpSignal::STATUS_SIGNAL && !serviceManager_->serviceLoaded())
+      if(signal != TcpSignal::UPDATE_SERVICE_SIGNAL
+         && signal != TcpSignal::STATUS_SIGNAL
+         && !serviceManager_->serviceLoaded())
       {
         // wait for TcpSignals::UPDATE_SERVICE_SIGNAL
+        return;
+      }
+
+      // read data from buffer
+      QByteArray bytearray = tcpSocket->read(blockSize_);
+      QJsonParseError error;
+      QJsonDocument jsonDoc = QJsonDocument::fromJson(bytearray, &error);
+
+      if(error.error != QJsonParseError::NoError)
+      {
+        TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson parse error: %1\n").arg(error.errorString());
+        return;
+      }
+      auto jsonObject = jsonDoc.object();
+      if(!jsonObject.contains("webAppId"))
+      {
+        TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nNo webAppId available.");
+        return;
+      }
+
+      auto remoteWebAppId = jsonObject["webAppId"].toString().toStdString();
+      auto localWebAppId = serviceManager_->webAppId();
+      if(serviceManager_->serviceLoaded() && localWebAppId != remoteWebAppId)
+      {
+        // not the service they are looking for
         return;
       }
 
@@ -306,8 +343,6 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
       {
         case TcpSignal::UPDATE_SERVICE_SIGNAL:
         {
-          QByteArray bytearray = tcpSocket->read(blockSize_);
-
           updateService(bytearray);
           break;
         }
@@ -328,8 +363,6 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
         case TcpSignal::ADD_DATA_SIGNAL:
         {
           TERRAMA2_LOG_DEBUG() << "ADD_DATA_SIGNAL";
-          QByteArray bytearray = tcpSocket->read(blockSize_);
-
           try
           {
             addData(bytearray);
@@ -353,23 +386,18 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
         case TcpSignal::VALIDATE_PROCESS_SIGNAL:
         {
           TERRAMA2_LOG_DEBUG() << "VALIDATE_PROCESS_SIGNAL";
-          QByteArray bytearray = tcpSocket->read(blockSize_);
-
           validateData(bytearray);
           break;
         }
         case TcpSignal::REMOVE_DATA_SIGNAL:
         {
           TERRAMA2_LOG_DEBUG() << "REMOVE_DATA_SIGNAL";
-          QByteArray bytearray = tcpSocket->read(blockSize_);
-
           removeData(bytearray);
           break;
         }
         case TcpSignal::START_PROCESS_SIGNAL:
         {
           TERRAMA2_LOG_DEBUG() << "START_PROCESS_SIGNAL";
-          QByteArray bytearray = tcpSocket->read(blockSize_);
           sendStartProcess(bytearray);
 
           break;
@@ -385,8 +413,6 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
         case TcpSignal::LOG_SIGNAL:
         {
           TERRAMA2_LOG_DEBUG() << "LOG_SIGNAL";
-          QByteArray bytearray = tcpSocket->read(blockSize_);
-
           sendLog(bytearray, tcpSocket);
           break;
         }
@@ -402,6 +428,10 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
   catch(const LogException&)
   {
     TERRAMA2_LOG_ERROR() << QObject::tr("Erro in logger, check your log database connection information.");
+  }
+  catch(const std::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << e.what();
   }
   catch(...)
   {
