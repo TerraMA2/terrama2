@@ -47,7 +47,8 @@ namespace terrama2
       namespace core
       {
 
-        std::string dateTimeToString(const std::shared_ptr<te::dt::DateTime> dt);
+        //! Conver a TimeInstantTZ to a default formated string in GMT.
+        std::string dateTimeToString(const std::shared_ptr<te::dt::TimeInstantTZ> dateTimeTZ);
 
         /*!
          * \brief Receives a TerraLib dataSet and returns all his data as a HTML table
