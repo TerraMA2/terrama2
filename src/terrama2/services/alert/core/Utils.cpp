@@ -42,15 +42,20 @@
 #include <QObject>
 
 
-std::string terrama2::services::alert::core::dateTimeToString(const std::shared_ptr<te::dt::DateTime> dt)
+std::string terrama2::services::alert::core::dateTimeToString(const std::shared_ptr<te::dt::TimeInstantTZ> dateTimeTZ)
 {
-  std::stringstream ss;
-  boost::local_time::local_time_facet* oFacet(new boost::local_time::local_time_facet("%d/%m/%Y %H:%M"));
-  ss.imbue(std::locale(ss.getloc(), oFacet));
-  auto dateTimeTZ = std::dynamic_pointer_cast<te::dt::TimeInstantTZ>(dt);
-  ss << dateTimeTZ->getTimeInstantTZ();
 
-  return ss.str();
+  boost::local_time::time_zone_ptr utc(new boost::local_time::posix_time_zone("GMT+00"));
+  auto boostLocalTime = dateTimeTZ->getTimeInstantTZ();
+  auto utcTime = boostLocalTime.local_time_in(utc);
+
+  std::stringstream ss;
+  boost::local_time::local_time_facet* oFacet(new boost::local_time::local_time_facet("%d/%m/%Y %H:%M:%S"));
+  ss.imbue(std::locale(ss.getloc(), oFacet));
+  ss << utcTime;
+
+  auto dateStr = ss.str();
+  return dateStr;
 }
 
 std::string terrama2::services::alert::core::dataSetHtmlTable(const std::shared_ptr<te::da::DataSet>& dataSet)
