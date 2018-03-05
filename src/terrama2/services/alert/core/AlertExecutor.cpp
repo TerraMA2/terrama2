@@ -145,7 +145,7 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::AlertExecutor
 
     std::string currentRiskProperty = dateTimeToString(currentDate);
 
-    uint32_t currentRisk = std::numeric_limits<uint32_t>::max();
+    uint32_t currentRisk = terrama2::core::DefaultRiskLevel;
     try
     {
       auto attrValue = resultMap.at(currentRiskProperty).second;
@@ -185,12 +185,7 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::AlertExecutor
         }
         else
         {
-          // if current risk is not default
-          // mark as incresed risk
-          if(!terrama2::core::Risk::isDefault(currentRisk))
-            dsItem->setInt32(COMPARISON_PROPERTY_NAME, 1);
-          else
-            dsItem->setValue(COMPARISON_PROPERTY_NAME, nullptr);
+          dsItem->setValue(COMPARISON_PROPERTY_NAME, nullptr);
         }
       }
       catch (const std::out_of_range&)
