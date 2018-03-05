@@ -171,7 +171,8 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::AlertExecutor
         auto pastRisk = resultMap.at(previousDateStr).first;
         dsItem->setInt32(previousDateStr, static_cast<int>(pastRisk));
 
-        if(currentRisk != std::numeric_limits<uint32_t>::max())
+        if(!terrama2::core::Risk::isDefault(currentRisk)
+          && !terrama2::core::Risk::isDefault(pastRisk))
         {
           // current date has no data
           int comparisonResult = 0;
@@ -184,7 +185,12 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::AlertExecutor
         }
         else
         {
-          dsItem->setValue(COMPARISON_PROPERTY_NAME, nullptr);
+          // if current risk is not default
+          // mark as incresed risk
+          if(!terrama2::core::Risk::isDefault(currentRisk))
+            dsItem->setInt32(COMPARISON_PROPERTY_NAME, 1);
+          else
+            dsItem->setValue(COMPARISON_PROPERTY_NAME, nullptr);
         }
       }
       catch (const std::out_of_range&)
