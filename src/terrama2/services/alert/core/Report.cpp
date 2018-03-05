@@ -49,7 +49,7 @@ terrama2::services::alert::core::Report::Report(AlertPtr alert,
                                                 terrama2::core::LegendPtr legend,
                                                 terrama2::core::DataSeriesPtr alertDataSeries,
                                                 std::shared_ptr<te::da::DataSet> alertDataSet,
-                                                std::vector<std::shared_ptr<te::dt::DateTime>> riskDates)
+                                                std::vector<std::shared_ptr<te::dt::TimeInstantTZ>> riskDates)
   : alert_(alert),
     legend_(legend),
     alertDataSeries_(alertDataSeries),
