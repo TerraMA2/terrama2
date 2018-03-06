@@ -55,6 +55,10 @@
 //Boost
 #include <boost/algorithm/string.hpp>
 
+#include <QJsonParseError>
+#include <QJsonDocument>
+#include <QJsonObject>
+
 std::unique_ptr<te::dt::Property> terrama2::core::DataStoragerTable::copyProperty(te::dt::Property* property) const
 {
   auto name = property->getName();
@@ -166,6 +170,39 @@ std::shared_ptr<te::da::DataSetType> terrama2::core::DataStoragerTable::copyData
   return newDatasetType;
 }
 
+void terrama2::core::DataStoragerTable::updateAttributeNames(std::shared_ptr<te::da::DataSetType> dataSetType, terrama2::core::DataSetPtr dataset) const
+{
+  try
+  {
+    auto attributeMapJson = dataset->format.at("inout_attribute_map");
+
+    QJsonParseError error;
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(attributeMapJson.c_str(), &error);
+
+    if(error.error != QJsonParseError::NoError)
+    {
+      TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson parse error: %1\n").arg(error.errorString());
+      return;
+    }
+    auto jsonObject = jsonDoc.object();
+
+    for(auto& property : dataSetType->getProperties())
+    {
+      auto oldName = QString::fromStdString(property->getName());
+      if(jsonObject.contains(oldName))
+      {
+        auto newName = jsonObject[oldName].toString().toStdString();
+        property->setName(newName);
+      }
+    }
+  }
+  catch (std::out_of_range)
+  {
+    // no inout_attribute_map
+    // no need to update names
+  }
+}
+
 void terrama2::core::DataStoragerTable::store(DataSetSeries series, DataSetPtr outputDataSet) const
 {
   if(!dataProvider_)
@@ -198,6 +235,7 @@ void terrama2::core::DataStoragerTable::store(DataSetSeries series, DataSetPtr o
   te::da::ScopedTransaction scopedTransaction(*transactorDestination);
 
   std::shared_ptr<te::da::DataSetType> datasetType = series.teDataSetType;
+  updateAttributeNames(datasetType, outputDataSet);
 
   std::shared_ptr<te::da::DataSetType> newDataSetType;
   if (!transactorDestination->dataSetExists(destinationDataSetName))

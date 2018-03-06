@@ -9,8 +9,8 @@
     "providers_type_list": ["FILE", "FTP", "HTTP", "HTTPS"],
     "metadata": {
       "timestamp_property": "data_pas",
-      "geometry_property": "position",
-      "output_geometry_property": "geom",
+      "input_geometry_property": "position",
+      "geometry_property": "geom",
       "latitude_property": "lat",
       "longitude_property": "lon",
       "timezone": "UTM+00",
@@ -19,7 +19,7 @@
     "collector": true,
     "gui": {
       "schema": {
-        "properties": {          
+        "properties": {
           "mask": {
             "type": "string",
             "title": "Mask"
@@ -47,14 +47,14 @@
     "format": "CSV",
     "providers_type_list": ["FILE", "FTP", "HTTP", "HTTPS"],
     "metadata": {
-      "timestamp_property": "Horario (GMT)",
-      "geometry_property": "position",
+      "input_timestamp_property": "Horario (GMT)",
+      "input_geometry_property": "position",
       "latitude_property": "Latitude",
       "longitude_property": "Longitude",
       "timezone": "UTM+00",
       "srid": "4326",
-      "output_timestamp_property": "horario_gmt",
-      "output_geometry_property": "geom"
+      "timestamp_property": "horario_gmt",
+      "geometry_property": "geom"
     },
     "collector": true,
     "gui": {
