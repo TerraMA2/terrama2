@@ -170,7 +170,7 @@ std::shared_ptr<te::da::DataSetType> terrama2::core::DataStoragerTable::copyData
   return newDatasetType;
 }
 
-void terrama2::core::DataStoragerTable::updateAttributeNames(std::shared_ptr<te::da::DataSetType> dataSetType, terrama2::core::DataSetPtr dataset) const
+void terrama2::core::DataStoragerTable::updateAttributeNames(std::shared_ptr<te::mem::DataSet> teDataSet, std::shared_ptr<te::da::DataSetType> dataSetType, terrama2::core::DataSetPtr dataset) const
 {
   try
   {
@@ -193,6 +193,17 @@ void terrama2::core::DataStoragerTable::updateAttributeNames(std::shared_ptr<te:
       {
         auto newName = jsonObject[oldName].toString().toStdString();
         property->setName(newName);
+      }
+    }
+
+    const std::size_t np = teDataSet->getNumProperties();
+    for(std::size_t i = 0; i != np; ++i)
+    {
+      auto oldName = QString::fromStdString(teDataSet->getPropertyName(i));
+      if(jsonObject.contains(oldName))
+      {
+        auto newName = jsonObject[oldName].toString().toStdString();
+        teDataSet->setPropertyName(newName, i);
       }
     }
   }
@@ -235,7 +246,7 @@ void terrama2::core::DataStoragerTable::store(DataSetSeries series, DataSetPtr o
   te::da::ScopedTransaction scopedTransaction(*transactorDestination);
 
   std::shared_ptr<te::da::DataSetType> datasetType = series.teDataSetType;
-  updateAttributeNames(datasetType, outputDataSet);
+  updateAttributeNames(std::static_pointer_cast<te::mem::DataSet>(series.syncDataSet->dataset()), datasetType, outputDataSet);
 
   std::shared_ptr<te::da::DataSetType> newDataSetType;
   if (!transactorDestination->dataSetExists(destinationDataSetName))
