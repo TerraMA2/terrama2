@@ -35,6 +35,7 @@ var fs = require('fs');
 var path = require('path');
 var logger = require("./Logger");
 var Filters = require("./filters");
+var TcpService = require("./facade/tcp-manager/TcpService");
 
 // data model
 var DataModel = require('./data-model');
@@ -1702,6 +1703,36 @@ var DataManager = module.exports = {
   },
 
   /**
+   * It changes the status of a given data provider
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   */
+  changeDataProviderStatus: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      var dataProvider = Utils.find(self.data.dataProviders, restriction);
+      dataProvider.active = !dataProvider.active;
+
+      return models.db.DataProvider.update(dataProvider, Utils.extend({
+        fields: ["active"],
+        where: restriction
+      }, options)).then(function() {
+        TcpService.send({
+          "DataProviders": [dataProvider.toService()]
+        }).then(function() {
+          return resolve();
+        }).catch(function(err) {
+          return reject(new Error("Could not change data provider status " + err.toString()));
+        });
+      }).catch(function(err) {
+        return reject(new Error("Could not change data provider status " + err.toString()));
+      });
+    })
+  },
+
+  /**
    * It removes DataProvider from param. It should be an object containing either id identifier or
    * name identifier.
    *
@@ -2124,6 +2155,50 @@ var DataManager = module.exports = {
         }).catch(function(err) {
           return reject(new exceptions.DataSeriesError(Utils.format("Could not update data series %s", err.toString()), err.errors));
         });
+    });
+  },
+
+  /**
+   * It changes the status of a given data series
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   */
+  changeDataSeriesStatus: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+
+
+      return DataManager.getCollector({data_series_output: restriction.id}, options).then(function(collector) {
+
+
+        console.log(collector);
+
+
+
+        var dataSeries = Utils.find(self.data.dataSeries, restriction);
+
+        dataSeries.active = !dataSeries.active;
+
+        return models.db.DataSeries.update(dataSeries, Utils.extend({
+          fields: ["active"],
+          where: restriction
+        }, options)).then(function() {
+          TcpService.send({
+            "DataSeries": [collectorResult.input.toObject(), collectorResult.output.toObject()],
+            "Collectors": [collector.toObject()]
+          });
+
+          return resolve();
+        }).catch(function(err) {
+          return reject(new Error("Could not change data series status " + err.toString()));
+        });
+
+
+
+
+      });
     });
   },
 
@@ -3878,6 +3953,34 @@ var DataManager = module.exports = {
   },
 
   /**
+   * It changes the status of a given analysis
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   */
+  changeAnalysisStatus: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return self.getAnalysis(restriction, options).then(function(analysisResult) {
+        analysisResult.active = !analysisResult.active;
+
+        return models.db.Analysis.update(analysisResult, Utils.extend({
+          fields: ["active"],
+          where: restriction
+        }, options)).then(function() {
+          console.log(analysisResult);
+          return resolve();
+        }).catch(function(err) {
+          return reject(new Error("Could not change analysis status " + err.toString()));
+        });
+      }).catch(function(err) {
+        return reject(new Error("Could not change analysis status " + err.toString()));
+      });
+    })
+  },
+
+  /**
    * It retrieves all analysis data series in database from given restriction
    *
    * @param {Object} restriction - An analysis data series restriction
@@ -4906,6 +5009,39 @@ var DataManager = module.exports = {
   },
 
   /**
+   * It changes the status of a given alert
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   */
+  changeAlertStatus: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject){
+      return self.getAlert(restriction, options).then(function(alertResult) {
+        alertResult.active = !alertResult.active;
+
+        return models.db.Alert.update(alertResult, Utils.extend({
+          fields: ["active"],
+          where: restriction
+        }, options)).then(function() {
+          TcpService.send({
+            "Alerts": [alertResult.toService()]
+          }).then(function() {
+            return resolve();
+          }).catch(function(err) {
+            return reject(new Error("Could not change alert status " + err.toString()));
+          });
+        }).catch(function(err) {
+          return reject(new Error("Could not change alert status " + err.toString()));
+        });
+      }).catch(function(err) {
+        return reject(new Error("Could not change alert status " + err.toString()));
+      });
+    })
+  },
+
+  /**
    * It performs update report metadata from given restriction
    *
    * @param {Object} restriction - A query restriction
@@ -5543,6 +5679,39 @@ var DataManager = module.exports = {
           return reject(new Error("Could not update view " + err.toString()));
         });
     });
+  },
+
+  /**
+   * It changes the status of a given view
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   */
+  changeViewStatus: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return self.getView(restriction, options).then(function(viewResult) {
+        viewResult.active = !viewResult.active;
+
+        return models.db.View.update(viewResult, Utils.extend({
+          fields: ["active"],
+          where: restriction
+        }, options)).then(function() {
+          TcpService.send({
+            "Views": [viewResult.toObject()]
+          }).then(function() {
+            return resolve();
+          }).catch(function(err) {
+            return reject(new Error("Could not change view status " + err.toString()));
+          });
+        }).catch(function(err) {
+          return reject(new Error("Could not change view status " + err.toString()));
+        });
+      }).catch(function(err) {
+        return reject(new Error("Could not change view status " + err.toString()));
+      });
+    })
   },
 
   /**

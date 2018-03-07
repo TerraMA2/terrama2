@@ -7,6 +7,7 @@ module.exports = function(app) {
   app.get(app.locals.BASE_URL + "configuration/dynamic/dataseries/", passport.isAuthenticated, controllerDynamic.get);
   app.get(app.locals.BASE_URL + "configuration/dynamic/dataseries/new", passport.isAuthenticated, controllerDynamic.new);
   app.get(app.locals.BASE_URL + "configuration/dynamic/dataseries/:id", passport.isAuthenticated, controllerDynamic.edit);
+  app.get(app.locals.BASE_URL + "configuration/dynamic/dataseries/changeStatus/:id", passport.isAuthenticated, controllerDynamic.changeStatus);
   app.post(app.locals.BASE_URL + "configuration/dynamic/dataseries/storeDcps", passport.isAuthenticated, controllerDynamic.storeDcps);
   app.post(app.locals.BASE_URL + "configuration/dynamic/dataseries/storeDcpsStore", passport.isAuthenticated, controllerDynamic.storeDcpsStore);
   app.post(app.locals.BASE_URL + "configuration/dynamic/dataseries/paginateDcps", passport.isAuthenticated, controllerDynamic.paginateDcps);
@@ -21,5 +22,6 @@ module.exports = function(app) {
   app.get(app.locals.BASE_URL + "configuration/static/dataseries/", passport.isAuthenticated, controllerStatic.get);
   app.get(app.locals.BASE_URL + "configuration/static/dataseries/new", passport.isAuthenticated, controllerStatic.new);
   app.get(app.locals.BASE_URL + "configuration/static/dataseries/:id", passport.isAuthenticated, controllerStatic.edit);
+  app.get(app.locals.BASE_URL + "configuration/static/dataseries/changeStatus/:id", passport.isAuthenticated, controllerStatic.changeStatus);
 
 };

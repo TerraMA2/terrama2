@@ -30,6 +30,14 @@ module.exports = function(app) {
       }).catch(function(err) {
         response.render("base/404");
       });
+    },
+    changeStatus: function(request, response) {
+      DataManager.changeAnalysisStatus({ id: parseInt(request.params.id) }).then(function() {
+        return response.json({});
+      }).catch(function(err) {
+        response.status(500);
+        return response.json({ err: err });
+      });
     }
   };
 };

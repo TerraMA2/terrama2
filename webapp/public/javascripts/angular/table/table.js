@@ -28,6 +28,8 @@ define([
           fields: '=fields',
           model: '=model',
           link: '&',
+          statusChangeLink: '&',
+          servicesInstances: '=servicesInstances',
           icon: '&',
           orderElementby: '=?orderBy',
           iconProperties: '=?iconProperties',
@@ -81,6 +83,7 @@ define([
           $scope.identityFields = [];
 
           var cacheLinks = {};
+          var cacheLinksStatusChange = {};
 
           $scope.extra = $scope.extra ? $scope.extra : {};
 
@@ -211,6 +214,15 @@ define([
             return link;
           }
 
+          $scope.makeLinkStatusChange = function(element) {
+            var link = cacheLinksStatusChange[element.id];
+            if (!link) {
+              link = $scope.statusChangeLink()(element);
+              cacheLinksStatusChange[element.id] = link;
+            }
+            return link;
+          }
+
           $scope.processField = function(key, obj) {
             if (key.indexOf('.') > 0) {
               var arr = key.split(".");
@@ -223,6 +235,22 @@ define([
             } else {
               return obj[key];
             }
+          }
+
+          $scope.changeStatus = function(event, elementStatusChangeLink) {
+            var element = angular.element(event.target);
+
+            $http({
+              method: 'GET',
+              url: elementStatusChangeLink
+            }).then(function(response) {
+              if(element.hasClass('fa-toggle-on'))
+                element.removeClass('fa-toggle-on').addClass("fa-toggle-off");
+              else
+                element.removeClass('fa-toggle-off').addClass("fa-toggle-on");
+            }).catch(function(response) {
+              console.log(response.err);
+            });
           }
 
           $scope.$watch('fields', function(fields) {
