@@ -5974,8 +5974,7 @@ var DataManager = module.exports = {
         reject(err);
       });
     });
-  }
-};
+  },
 
 /**
    * It retrieves a list of interpolators in database
