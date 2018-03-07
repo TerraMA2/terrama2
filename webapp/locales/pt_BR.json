@@ -24,6 +24,7 @@
   "10": "10",
   "11": "11",
   "12": "12",
+  " but the TerraMA² service version is ": ", porém o serviço TerraMA² está na versão ",
   " Data Series": " Data Series",
   " deleted": " removido",
   " projects has been imported": {
@@ -42,9 +43,17 @@
   "%d Dia": "%d Dia",
   "%m Month": "%m Mês",
   "%y - Two digits year": "%y - Ano com dois digitos",
+  ". Some operations may not work properly": ". Algumas operações podem não funcionar corretamente",
   ". The process was started successfully": ". O processo foi iniciado com sucesso",
   "404 not found": "404 não encontrado",
   "About": "Sobre",
+  "ABOUT-TEXT-1": "A plataforma TerraMA² é um produto de software, um sistema computacional, baseado em arquitetura de serviços, aberta, que provê a infraestrutura tecnológica necessária ao desenvolvimento de sistemas operacionais para monitoramento de alertas de riscos ambientais.",
+  "ABOUT-TEXT-2": "A TerraMA² é um software livre, podendo ser redistribuída e/ou modificada sob os termos da GNU Lesser General Public Licence versão 4 como publicado pela Free Software Foundation.",
+  "ABOUT-TEXT-3": "Comentários, sugestões ou relato de problemas podem ser enviados para a equipe da TerraMA² (terrama2@dpi.inpe.br) da Divisão de Processamento de Imagens (DPI) do Instituto Nacional de Pesquisas Espaciais (INPE).",
+  "ABOUT-TEXT-4": "Versão da TerraMA²: 4.0.3",
+  "ABOUT-TEXT-5": "Versão da TerraLib: 5.3.1",
+  "ABOUT-TEXT-6": "Data da versão: 02/Fev/2018",
+  "ABOUT-TEXT-7": "Esta versão foi financiada pelo Banco Mundial TF018566 como parte integrante do Programa Cerrado, uma iniciativa de cooperação entre os governos do Brasil e do Reino Unido, com apoio do Banco Mundial. O Ministério do Meio Ambiente (MMA), por meio de sua Secretaria de Mudanças Climáticas e Qualidade Ambiental (SMCQ), é o responsável pela coordenação geral do programa. O objetivo da iniciativa é contribuir para a mitigação da mudança do clima e para melhoria da gestão de recursos naturais no bioma Cerrado por meio do aprimoramento de políticas públicas e de práticas de produtores rurais.",
   "Access": "Acesso",
   "Activate": "Ativar",
   "Active": "Ativo",
@@ -133,6 +142,7 @@
   "Bi linear": "Bi linear",
   "Biggest grid": "Grade maior",
   "Binary File Mask": "Máscara do arquivo binário",
+  "Biomes": "Biomas",
   "Buffer": "Buffer",
   "Bytes After": "Bytes posteriores",
   "Bytes Before": "Bytes anteriores",
@@ -189,6 +199,7 @@
   "Connection timeout, verify the port": "Tempo limite de conexão excedido, verifique a porta",
   "Connection timeout, verify the port. Important! Make sure the server's REST API is enabled": "Tempo limite de conexão excedido, verifique a porta. Importante! Certifique-se de que a API REST do servidor está habilitada",
   "Connection with service refused, check if the service is running!": "Conexão com o serviço recusada, verifique se o mesmo está em execução!",
+  "Conservation Units": "Unidades de conservação",
   "Convert all": "Converter todos",
   "Could not remove legend SequelizeForeignKeyConstraintError: update or delete on table \"legends\" violates foreign key constraint \"alerts_legend_id_fkey\" on table \"alerts\"": "Não foi possível remover a legenda: a legenda está sendo usada por um alerta.",
   "Could not remove project with data provider associated": "Could not remove project with data provider associated",
@@ -198,6 +209,8 @@
   "Could not save data series due:  project_id: project_id must be unique,\nname: name must be unique": "Não foi possível salvar a série de dados, já existe um registro com o nome inserido, e o nome deve ser único.",
   "Could not save project: name must be unique": "Não foi possível salvar o projeto, já existe um registro com o nome inserido, e o nome deve ser único.",
   "Count": "Contagem",
+  "Counties": "Municípios",
+  "Countries": "Países",
   "Create View": "Criar Visualização",
   "Creation Type": "Tipo de criação",
   "Crop raster": "Recortar Matriz",
@@ -289,6 +302,7 @@
   "Date (local time)": "Data (horário local)",
   "Date Time": "Data Hora",
   "Days": "Dias",
+  "Days Without Rain": "Dias sem chuva",
   "Dcp": "Pcd",
   "Dcp Data Series": "Séries de Dados PCD",
   "Default": "Padrão",
@@ -425,6 +439,7 @@
   "Host not found": "Endereço não encontrado",
   "Host service error": "Erro no executável do serviço: ",
   "Hours": "Horas",
+  "Humidity": "Umidade",
   "HTTP": "HTTP",
   "HTTPS": "HTTPS",
   "I forgot my password": "Eu esqueci minha senha",
@@ -509,6 +524,7 @@
   "Invalid data provider path!": "O caminho do Servidor de Dados é inválido!",
   "Invalid file extension!": "Extensão inválida!",
   "Invalid file name!": "Nome de arquivo inválido!",
+  "Invalid filter SRID.": "O SRID do filtro é inválido.",
   "Invalid folder": "Pasta inválida",
   "Invalid format": "Formato inválido",
   "Invalid intersection. Each data series must have at least one attribute selected.": "Interseção inválida. Cada série de dados deve possuir pelo menos um atributo selecionado.",
@@ -519,26 +535,12 @@
   "Invalid range of ports": {
     " A valid port is from 1 to 65535": "Intervalo inválido de portas. Uma porta válida é de 1 a 65535"
   },
+  "Invalid SRID!": "SRID inválido!",
   "Invalid table name": "Nome da tabela inválido",
   "Invalid value": "Valor inválido",
   "Invalid value for the field": "Valor inválido para o campo",
   "It performs Analysis Validation in order to check if it will able to generate a valid data series": "Executa Validação de Análise para verificar se pode gerar uma série de dados válido",
-  "It seems you are using a different versions of TerraMA²": {
-    " Current version of TerraMA² Web is 4": {
-      "0": {
-        "0-alpha5 but the TerraMA² service version is  4": {
-          "0": {
-            "0-alpha5\n": {
-              " Some operations may not work properly": "Parece que você está usando uma versão diferente do TerraMA². A versão atual do TerraMA² Web é 4.0.0-alpha5, mas a versão do serviço TerraMA² é 4.0.0-alpha5\n. Algumas operações podem não funcionar corretamente"
-            }
-          }
-        },
-        "0-alpha5 but the TerraMA² service version is nada": {
-          " Some operations may not work properly": "Parece que você está usando uma versão diferente do TerraMA². A versão atual do TerraMA² Web é 4.0.0-alpha5, mas a versão do serviço TerraMA² é 4.0.0-alpha5\n. Algumas operações podem não funcionar corretamente"
-        }
-      }
-    }
-  },
+  "It seems you are using different versions of TerraMA². Current version of TerraMA² Web is ": "Parece que você está usando diferentes versões do TerraMA². A versão atual do TerraMA² Web é ",
   "It should have at least one dcp": "Adicione pelo menos uma PCD",
   "It will activate ": "Será ativado ",
   "Kind": "Tipo",
@@ -556,6 +558,7 @@
   "Legend Registration": "Registro de Legenda",
   "Legend Value": "Valor da Legenda",
   "Legend attribute": "Atributo da Legenda",
+  "Legend attribute is invalid": "O atributo da legenda é inválido",
   "Legend attribute is required": "O preenchimento do atributo da legenda é obrigatório",
   "Legend band": "Banda da legenda",
   "Legend band is required": "O preenchimento da banda de legenda é obrigatório",
@@ -728,6 +731,7 @@
   "PostGis occurrence": "Ocorrência PostGIS",
   "Pre-Analysis": "Pré-Análises",
   "Pre-processing": "Pre-processamento",
+  "Precipitation": "Precipitação",
   "Precision": "Precisão",
   "Prefix": "Prefixo",
   "Previous": "Anterior",
@@ -777,6 +781,7 @@
   "Resolution X": "Resolução X",
   "Resolution Y": "Resolução Y",
   "Resolution is required": "Resolução é requerida",
+  "Risk of Fire": "Risco de fogo",
   "Run": "Executar",
   "SLD": "SLD",
   "SRID": "SRID",
@@ -799,6 +804,7 @@
   "Search": "Pesquisa",
   "Seconds": "Segundos",
   "Select": "Selecionar",
+  "Select a level in the 'Notify on legend level' option!": "Selecione um nível na opção 'Notificar a partir do nível'!",
   "Select a Project": "Selecione um Projeto",
   "Select Area of Interest": "Selecione Área de Interesse",
   "Select Attibutes": "Selecione atributos",
@@ -891,6 +897,7 @@
       }
     }
   },
+  "States": "Estados",
   "Static": "Estático",
   "Static Data": "Dados Estáticos",
   "Static Data Registration": "Registro de Dado Estático",
@@ -916,6 +923,8 @@
   "Table Name": "Nome da tabela",
   "Table_name": "Nome da tabela",
   "table_name": "Nome da tabela",
+  "Temperature (Kelvin)": "Temperatura (Kelvin)",
+  "Temperature (Celsius)": "Temperatura (Celsius)",
   "Temporal": "Temporal",
   "Test connection": "Testar Conexão",
   "TerraMA² data directory": "Diretório de dados do TerraMA²",
@@ -1005,6 +1014,7 @@
   "Variance": "Variância",
   "Vector": "Vetor",
   "Vector Files (ESRI Shapefile)": "Arquivos Vetoriais (ESRI Shapefile)",
+  "Vegetation Fire": "Focos",
   "Version": "Versão",
   "View": "Visualização",
   "View Data Series": "Séries de Dados de Visualizações",
@@ -1028,6 +1038,7 @@
   "When the value is 0, it will use thread number supported by the server": "Quando o valor for 0, será utilizado o número de threads suportado pelo servidor",
   "When value is 0, the default will be supported threads by server": "Quando o valor é 0, o padrão de threads será definido pelo servidor",
   "Wild fire event (ESRI Shapefile)": "Evento de queimada (ESRI Shapefile)",
+  "Wind": "Vento",
   "Wizard mode": "Modo assistente",
   "X": "X",
   "X is invalid number": "X é um número inválido",
@@ -1095,5 +1106,5 @@
   "to": "a",
   "total entries": "total de registros",
   "updated": "atualizado",
-  "w": "w"
+  "w": "w"	
 }

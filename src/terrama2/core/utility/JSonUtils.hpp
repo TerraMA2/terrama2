@@ -135,5 +135,17 @@ namespace terrama2
       \attention This is a function created for debug and tests
       */
     QJsonObject toJson(Schedule schedule);
+
+    /*!
+      \brief Creates a QJsonObject from an ReprocessingHistoricalData.
+    */
+    QJsonObject toJson(ReprocessingHistoricalDataPtr reprocessingHistoricalDataPtr);
+
+    /*!
+      \brief Creates an ReprocessingHistoricalData object from a QJsonObject.
+      \see [ReprocessingHistoricalData at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/services/analysis/ReprocessingHistoricalData) for more information.
+    */
+    ReprocessingHistoricalDataPtr fromReprocessingHistoricalData(const QJsonObject& json);
+
   } /* core */
 } /* terrama2 */

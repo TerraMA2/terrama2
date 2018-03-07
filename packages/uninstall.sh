@@ -77,12 +77,12 @@ else
 fi
 
 #
-# TerraLib version 5.2.1
+# TerraLib
 #
-terralib_test=`dpkg -s terralib-5.2.4 | grep Status`
+terralib_test=`dpkg -s terralib-5.3.1 | grep Status`
 
 if [ "$terralib_test" == "Status: install ok installed" ]; then
-  sudo dpkg -r terralib-5.2.4
+  sudo dpkg -r terralib-5.3.1
   valid $? "Error: could not uninstall terralib!"
   echo "terralib uninstalled!"
 else

@@ -3,7 +3,7 @@
 </div>
 
 <div class="col-md-12">
-  <div style="padding-bottom: 50px;">
+  <div style="padding-bottom: 50px;padding-right: 15px;">
 
     <a ui-sref="advanced" class="btn btn-default pull-right" ng-show="isWizard" ng-click="onFormView()"><i class="fa fa-gear" style="margin-right: 5px;"></i>{{ i18n.__('Expert mode') }}</a>
     <a ui-sref="wizard" class="btn btn-default pull-right" ng-show="!isWizard" ng-click="onFormView()"><i class="fa fa-magic" style="margin-right: 5px;"></i>{{ i18n.__('Wizard mode') }}</a>
@@ -43,7 +43,6 @@
     <!-- /.box-header -->
     <div style="display: block;" class="box-body">
       <div class="row">
-        <div class="col-md-12">
 
           <div class="col-md-12">
             <!-- schema form -->
@@ -58,7 +57,6 @@
             <div id="includeDcpTable" ng-include=""></div>
           </div>
 
-        </div>
         <div class="col-md-12" ng-if="!isDynamic && (semanticsCode === 'STATIC_DATA-postgis' || (semanticsCode === 'STATIC_DATA-ogr' && isDataProviderFolder()))">
           <div class="col-md-12">
             <terrama2-shapefile-importer></terrama2-shapefile-importer>
@@ -116,11 +114,7 @@
     </div>
     <!-- /.box-header -->
     <div class="box-body">
-      <div class="col-md-12">
-
-        <terrama2-storager-form ng-if="!advanced.store.disabled" providers-list="providersList" storager="storager" series="dataSeries" filter="filter" prepare-format-to-form="prepareFormatToForm" field-has-error="fieldHasError" save-storager-data="saveStoragerData" forms="forms" on-storager-format-change= "onStoragerFormatChange" model="model" options="storeOptions" is-checking="isChecking" schedule="schedule"></terrama2-storager-form>
-        
-      </div>
+      <terrama2-storager-form ng-if="!advanced.store.disabled" providers-list="providersList" storager="storager" series="dataSeries" filter="filter" prepare-format-to-form="prepareFormatToForm" field-has-error="fieldHasError" validate-srid="validateSrid" save-storager-data="saveStoragerData" forms="forms" on-storager-format-change= "onStoragerFormatChange" model="model" options="storeOptions" is-checking="isChecking" schedule="schedule"></terrama2-storager-form>
     </div>
   </div>
 </div>

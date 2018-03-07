@@ -329,7 +329,7 @@ define([], function() {
                   }
                 }
                 for(var j = 0, levelsLength = self.legendModel.levels.length; j < levelsLength; j++) {
-                  if(self.legendModel.levels[j].level === self.alert.notifications[0].notify_on_legend_level) {
+                  if(self.legendModel.levels[j].level && self.legendModel.levels[j].level === self.alert.notifications[0].notify_on_legend_level) {
                     self.notify_on_legend_level = self.legendModel.levels[j]._id;
                     break;
                   }
@@ -503,6 +503,20 @@ define([], function() {
      * @returns {void}
      */
     self.getColumnValues = function(){
+      if(self.columnsList.length == 0){
+        self.columnValues = [];
+        self.showAutoCreateLegendButton = false;
+        return;
+      } else {
+        var hasInList = self.columnsList.some(function(column){
+          return column == self.legend_attribute_mo;
+        });
+        if (!hasInList){
+          self.columnValues = [];
+          self.showAutoCreateLegendButton = false;
+          return;
+        }
+      }
       if (!self.legend_attribute_mo){
         self.columnValues = [];
         self.showAutoCreateLegendButton = false;
@@ -963,154 +977,174 @@ define([], function() {
         return;
       }
 
-      $timeout(function() {
-        if($scope.forms.alertForm.$invalid || $scope.forms.dataSeriesForm.$invalid || $scope.forms.legendLevel.$invalid || $scope.forms.reportForm.$invalid || $scope.forms.notificationForm.$invalid || ($scope.forms.alertAttachmentForm && $scope.forms.alertAttachmentForm.$invalid)) {
-          self.MessageBoxService.danger(i18n.__("Alerts"), errMessageInvalidFields);
-          return;
-        }
+      if(self.notifyOnLegendLevel && !self.notify_on_legend_level) {
+        return MessageBoxService.danger(i18n.__("Alerts"), i18n.__("Select a level in the 'Notify on legend level' option!"));
+      }
 
-        if(self.alert.hasView && self.attachViews) {
-          self.alertAttachment.alert_id = (self.isUpdating ? self.alert.id : null);
-
-          var attachViewsError = false;
-          var attachViewsFinal = [];
-
-          for(var i = 0, attachedViewsLength = self.attachedViews.length; i < attachedViewsLength; i++) {
-            if(self.attachedViews[i].view === null && self.attachedViews[i]._id !== "alertView") {
-              attachViewsError = true;
-              break;
-            } else {
-              var attachedViewFinal = {
-                layer_order: i + 1,
-                alert_attachment_id: (self.isUpdating ? self.alertAttachment.id : null),
-                view_id: (self.attachedViews[i].view !== null ? self.attachedViews[i].view : null)
-              };
-
-              if(self.attachedViews[i].id)
-                attachedViewFinal.id = self.attachedViews[i].id;
-
-              attachViewsFinal.push(attachedViewFinal);
-            }
-          }
-
-          if(attachViewsError)
-            return self.MessageBoxService.danger(i18n.__("Alert"), i18n.__("Select a view in all the attached views"));
-          else {
-            self.alert.attachedViews = attachViewsFinal;
-            self.alert.alertAttachment = self.alertAttachment;
-          }
-        }
-
-        var legendTemp = $.extend(true, {}, self.legendModel);
-        var level = 1;
-
-        for(var i = 0, levelsLength = legendTemp.levels.length; i < levelsLength; i++) {
-          if (legendTemp.levels[i].isDefault){
-            continue;
-          }
-          if(self.notify_on_legend_level === legendTemp.levels[i]._id)
-            self.alert.notifications[0].notify_on_legend_level = level;
-
-          delete legendTemp.levels[i]._id;
-          legendTemp.levels[i].level = level;
-          level++;
-        }
-
-        if(legendTemp.id === 0)
-          delete legendTemp.id;
-
-        self.alert.legend = legendTemp;
-
-        if(!self.includeReport && self.alert.notifications[0].include_report !== undefined)
-          self.alert.notifications[0].include_report = null;
-
-        if(!self.notifyOnLegendLevel && self.alert.notifications[0].notify_on_legend_level !== undefined)
-          self.alert.notifications[0].notify_on_legend_level = null;
-
-        if (self.alert.schedule && Object.keys(self.alert.schedule).length !== 0) {
-          self.alert.schedule_type = self.alert.schedule.scheduleType;
-          /**
-           * @todo Implement Angular ScheduleService to handle it, since is common on dynamic data series and analysis registration.
-           */
-          var scheduleForm = angular.element('form[name="scheduleForm"]').scope()['scheduleForm'];
-          // form validation
-          if (scheduleForm.$invalid) {
+      var performOperation = function() {
+        $timeout(function() {
+          if($scope.forms.alertForm.$invalid || $scope.forms.dataSeriesForm.$invalid || $scope.forms.legendLevel.$invalid || $scope.forms.reportForm.$invalid || $scope.forms.notificationForm.$invalid || ($scope.forms.alertAttachmentForm && $scope.forms.alertAttachmentForm.$invalid)) {
+            self.MessageBoxService.danger(i18n.__("Alerts"), errMessageInvalidFields);
             return;
           }
 
-          // preparing schedule.
-          var scheduleValues = self.alert.schedule;
-          switch(scheduleValues.scheduleHandler) {
-            case "seconds":
-            case "minutes":
-            case "hours":
-              scheduleValues.frequency_unit = scheduleValues.scheduleHandler;
-              scheduleValues.frequency_start_time = scheduleValues.frequency_start_time ? moment(scheduleValues.frequency_start_time).format("HH:mm:ssZ") : "";
-              break;
-            case "weeks":
-            case "monthly":
-            case "yearly":
-              // todo: verify
-              var dt = scheduleValues.schedule_time;
-              scheduleValues.schedule_unit = scheduleValues.scheduleHandler;
-              scheduleValues.schedule_time = moment(dt).format("HH:mm:ss");
-              break;
+          if(self.alert.hasView && self.attachViews) {
+            self.alertAttachment.alert_id = (self.isUpdating ? self.alert.id : null);
 
-            default:
-              if (scheduleValues.scheduleType == "4"){
-                scheduleValues.data_ids = [self.alert.data_series_id];
+            var attachViewsError = false;
+            var attachViewsFinal = [];
+
+            for(var i = 0, attachedViewsLength = self.attachedViews.length; i < attachedViewsLength; i++) {
+              if(self.attachedViews[i].view === null && self.attachedViews[i]._id !== "alertView") {
+                attachViewsError = true;
+                break;
+              } else {
+                var attachedViewFinal = {
+                  layer_order: i + 1,
+                  alert_attachment_id: (self.isUpdating ? self.alertAttachment.id : null),
+                  view_id: (self.attachedViews[i].view !== null ? self.attachedViews[i].view : null)
+                };
+
+                if(self.attachedViews[i].id)
+                  attachedViewFinal.id = self.attachedViews[i].id;
+
+                attachViewsFinal.push(attachedViewFinal);
               }
-              break;
-          }
-        }
-        if (self.alert.hasView){
-          var viewLegend = {
-            colors: [],
-            metadata: {
-              column: self.alert.legend_attribute,
-              creation_type: "editor"
-            },
-            type: 2
-          };
-          for (var i = 0; i < self.alert.legend.levels.length; i++){
-            var colorModel = {
-              color: self.colors[i],
-              isDefault: i == 0,
-              title: self.alert.legend.levels[i].name,
-              value: i == 0 ? "" : self.alert.legend.levels[i].value
             }
-            viewLegend.colors.push(colorModel);
+
+            if(attachViewsError)
+              return self.MessageBoxService.danger(i18n.__("Alert"), i18n.__("Select a view in all the attached views"));
+            else {
+              self.alert.attachedViews = attachViewsFinal;
+              self.alert.alertAttachment = self.alertAttachment;
+            }
           }
-          var viewModel = {
-            name: self.alert.name,
-            description: "Generated by alert: " + self.alert.name,
-            schedule_type: self.alert.schedule_type,
-            schedule: Object.assign({}, self.alert.schedule),
-            automatic_schedule: self.alert.automatic_schedule,
-            active: true,
-            data_series_id: self.alert.data_series_id,
-            service_instance_id: self.view_service_instance_id,
-            private: self.view_private ? true : false,
-            legend: viewLegend,
-            source_type: 4
+
+          if(!self.includeReport && self.alert.notifications[0].include_report !== undefined)
+            self.alert.notifications[0].include_report = null;
+
+          if(!self.notifyOnLegendLevel && (self.alert.notifications[0].notify_on_legend_level !== undefined || self.notify_on_legend_level !== undefined)) {
+            self.alert.notifications[0].notify_on_legend_level = null;
+            self.notify_on_legend_level = null;
           }
-          self.alert.view = viewModel;
-          self.alert.schedule_type = "3";
-          self.alert.schedule = {scheduleType: "3"};
-        } else {
-          delete self.alert.view;
-          delete self.alert.view_id;
-        }
-        self.alert.run = shouldRun;
-        var operation = self.isUpdating ? self.AlertService.update(self.alert.id, self.alert) : self.AlertService.create(self.alert);
-        operation.then(function(response) {
-          $log.info(response);
-          $window.location.href = BASE_URL + "configuration/alerts?token=" + response.token;
-        }).catch(function(err) {
-          $log.info(err);
-          self.MessageBoxService.danger(i18n.__("Alert"), i18n.__(err));
+
+          var legendTemp = $.extend(true, {}, self.legendModel);
+          var level = 1;
+
+          for(var i = 0, levelsLength = legendTemp.levels.length; i < levelsLength; i++) {
+            if (legendTemp.levels[i].isDefault){
+              continue;
+            }
+            if(self.notify_on_legend_level === legendTemp.levels[i]._id)
+              self.alert.notifications[0].notify_on_legend_level = level;
+
+            delete legendTemp.levels[i]._id;
+            legendTemp.levels[i].level = level;
+            level++;
+          }
+
+          if(legendTemp.id === 0)
+            delete legendTemp.id;
+
+          self.alert.legend = legendTemp;
+
+          if (self.alert.schedule && Object.keys(self.alert.schedule).length !== 0) {
+            self.alert.schedule_type = self.alert.schedule.scheduleType;
+            /**
+             * @todo Implement Angular ScheduleService to handle it, since is common on dynamic data series and analysis registration.
+             */
+            var scheduleForm = angular.element('form[name="scheduleForm"]').scope()['scheduleForm'];
+            // form validation
+            if (scheduleForm.$invalid) {
+              return;
+            }
+
+            // preparing schedule.
+            var scheduleValues = self.alert.schedule;
+            switch(scheduleValues.scheduleHandler) {
+              case "seconds":
+              case "minutes":
+              case "hours":
+                scheduleValues.frequency_unit = scheduleValues.scheduleHandler;
+                scheduleValues.frequency_start_time = scheduleValues.frequency_start_time ? moment(scheduleValues.frequency_start_time).format("HH:mm:ssZ") : "";
+                break;
+              case "weeks":
+              case "monthly":
+              case "yearly":
+                // todo: verify
+                var dt = scheduleValues.schedule_time;
+                scheduleValues.schedule_unit = scheduleValues.scheduleHandler;
+                scheduleValues.schedule_time = moment(dt).format("HH:mm:ss");
+                break;
+
+              default:
+                if (scheduleValues.scheduleType == "4"){
+                  scheduleValues.data_ids = [self.alert.data_series_id];
+                }
+                break;
+            }
+          }
+          if (self.alert.hasView){
+            var viewLegend = {
+              colors: [],
+              metadata: {
+                column: self.alert.legend_attribute,
+                creation_type: "editor"
+              },
+              type: 2
+            };
+            for (var i = 0; i < self.alert.legend.levels.length; i++){
+              var colorModel = {
+                color: self.colors[i],
+                isDefault: i == 0,
+                title: self.alert.legend.levels[i].name,
+                value: i == 0 ? "" : self.alert.legend.levels[i].value
+              }
+              viewLegend.colors.push(colorModel);
+            }
+            var viewModel = {
+              name: self.alert.name,
+              description: "Generated by alert: " + self.alert.name,
+              schedule_type: self.alert.schedule_type,
+              schedule: Object.assign({}, self.alert.schedule),
+              automatic_schedule: self.alert.automatic_schedule,
+              active: true,
+              data_series_id: self.alert.data_series_id,
+              service_instance_id: self.view_service_instance_id,
+              private: self.view_private ? true : false,
+              legend: viewLegend,
+              source_type: 4
+            }
+            self.alert.view = viewModel;
+            self.alert.schedule_type = "3";
+            self.alert.schedule = {scheduleType: "3"};
+          } else {
+            delete self.alert.view;
+            delete self.alert.view_id;
+          }
+          self.alert.run = shouldRun;
+          var operation = self.isUpdating ? self.AlertService.update(self.alert.id, self.alert) : self.AlertService.create(self.alert);
+          operation.then(function(response) {
+            $log.info(response);
+            $window.location.href = BASE_URL + "configuration/alerts?token=" + response.token;
+          }).catch(function(err) {
+            $log.info(err);
+            self.MessageBoxService.danger(i18n.__("Alert"), i18n.__(err));
+          });
         });
-      });
+      };
+
+      if(self.alert.hasView && self.attachViews && self.alertAttachment.srid) {
+        $http.get(BASE_URL + "configuration/validate-srid/" + self.alertAttachment.srid).then(function(sridValidator) {
+          if(sridValidator.data.error) {
+            self.MessageBoxService.danger(i18n.__("Alert"), i18n.__(sridValidator.data.error));
+          } else {
+            performOperation();
+          }
+        });
+      } else {
+        performOperation();
+      }
     };
   };
 

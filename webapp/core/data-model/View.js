@@ -88,6 +88,8 @@
      * @type {number}
      */
     this.source_type = params.source_type;
+
+    this.properties = params.properties || {};
   }
 
   View.prototype = Object.create(AbstractClass.prototype);
@@ -96,6 +98,19 @@
   View.prototype.setLegend = function(legend) {
     this.legend = legend;
   };
+
+  View.prototype.setProperties = function(properties){
+    var propertiesOutput = {};
+    if (properties instanceof Array) {
+      properties.forEach(function(property) {
+        propertiesOutput[property.key] = property.value;
+      });
+    } else {
+      propertiesOutput = properties;
+    }
+    
+    this.properties = propertiesOutput;
+  }
 
   /**
    * It builds a database representation of View
@@ -113,6 +128,12 @@
    * @returns {Object}
    */
   View.prototype.toObject = function() {
+    if (this.legend && this.legend.metadata && this.legend.metadata.creation_type && this.legend.metadata.creation_type === "default") {
+      var legendData = null;
+    } else {
+      var legendData = (this.legend instanceof AbstractClass ? this.legend.toObject() : this.legend);
+    }
+
     return Object.assign(AbstractClass.prototype.toObject.call(this), {
       id: this.id,
       name: this.name,
@@ -125,10 +146,11 @@
       active: this.active,
       service_instance_id: this.serviceInstanceId,
       project_id: this.projectId,
-      legend: this.legend instanceof AbstractClass ? this.legend.toObject() : this.legend,
+      legend: legendData,
       private: this.private,
       schedule_type: this.scheduleType,
-      source_type: this.source_type
+      source_type: this.source_type,
+      properties: this.properties
     });
   };
 

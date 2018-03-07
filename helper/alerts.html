@@ -1,13 +1,13 @@
 
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt">
 
 <head>
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="generator" content="HelpNDoc Personal Edition 5.0.0.182">
+  <meta name="generator" content="HelpNDoc Standard Edition 5.4.2.416">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" href="favicon.ico"/>
 
@@ -48,7 +48,7 @@
   <link href="css/effects.min.css" rel="stylesheet" />
   <link href="css/theme-light-blue.min.css" rel="stylesheet" />
   <link href="css/print.min.css" rel="stylesheet" media="print" />
-  <style type="text/css">nav { width: 350px} @media screen and (min-width:769px) { body.md-nav-expanded #main { margin-left: 350px} body.md-nav-expanded header { padding-left: 364px} }</style>
+  <style type="text/css">nav { width: 350px} @media screen and (min-width:769px) { body.md-nav-expanded div#main { margin-left: 350px} body.md-nav-expanded header { padding-left: 364px} }</style>
 
   <!-- Content style -->
   <link href="css/hnd.content.css" rel="stylesheet" />
@@ -87,21 +87,21 @@
       
 	  
         <li role="presentation" class="tab active">
-            <a href="#contents" aria-controls="contents" role="tab" data-toggle="tab">
+            <a href="#contents" id="tab-contents" aria-controls="contents" role="tab" data-toggle="tab">
                 <i class="glyphicon glyphicon-list"></i>
                 Contents
             </a>
         </li>
       
         <li role="presentation" class="tab">
-            <a href="#index" aria-controls="index" role="tab" data-toggle="tab">
+            <a href="#index" id="tab-index" aria-controls="index" role="tab" data-toggle="tab">
                 <i class="glyphicon glyphicon-asterisk"></i>
                 Index
             </a>
         </li>
       
         <li role="presentation" class="tab">
-            <a href="#search" aria-controls="search" role="tab" data-toggle="tab">
+            <a href="#search" id="tab-search" aria-controls="search" role="tab" data-toggle="tab">
                 <i class="glyphicon glyphicon-search"></i>
                 Search
             </a>
@@ -171,7 +171,7 @@
                         <li><a href="administration_module.html">M&oacute;dulo de Administra&ccedil;&atilde;o</a></li><li><a href="projects.html">Projetos</a></li>
                     </ol>
                     <div class="nav-arrows">
-                        <div class="btn-group btn-group-xs" role="group"><a class="btn btn-default" href="projects.html" title="Projetos" role="button"><span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span></a><a class="btn btn-default" href="add_views.html" title="Adicionar Visualiza&ccedil;&atilde;o" role="button"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a><a class="btn btn-default" href="add_alerts.html" title="Adicionar Alerta" role="button"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></div>
+                        <div class="btn-group btn-group-xs" role="group"><a class="btn btn-default" href="projects.html" title="Projetos" role="button"><span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span></a><a class="btn btn-default" href="add_views.html" title="Adicionar Visualiza&ccedil;&atilde;o" role="button"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a><a class="btn btn-default" href="add_legends.html" title="Adicionar Legenda" role="button"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></div>
                     </div>
                 </div> 
             
@@ -185,9 +185,49 @@
 <p></p>
 <p class="rvps3"><img alt="" style="padding : 1px;" src="lib/Alerta_26x26.png"></p>
 <p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps9"><a name="docs-internal-guid-a88ad011-5239-91f6-4e9d-b599f04f90a9"></a>
+<span class="rvts16">Os alertas são utilizados para publicar dados dinâmicos matriciais e dados dinâmicos resultado de análises, isto é, análises baseadas em objeto monitorado, PCD e Grades. Resumidamente, temos que:</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps11"><span class="rvts16">Nome de alerta é único para cada projeto do TerraMA</span><span class="rvts29">2</span><span class="rvts16"> e estará disponível no ítem correspondente a alertas no “</span><span class="rvts17">Módulo de Monitoramento</span><span class="rvts16">”.</span></li>
+<li class="rvps11"><span class="rvts16">Um alerta utiliza dois serviços. Um serviço de alerta para envio de notificações e geração de boletins em PDF e um serviço de visualização para publicar um alerta com legenda associada. Neste serviço de visualização é o utilizado o aplicativo Geoserver.</span></li>
+<li class="rvps11"><span class="rvts16">Uma alerta deve ter obrigatoriamente uma legenda previamente definida e associada.</span></li>
+<li class="rvps11"><span class="rvts16">Várias legendas podem ser definidas em um projeto.</span></li>
+<li class="rvps11"><span class="rvts16">Uma legenda pode ser utilizada por vários alertas.</span></li>
+<li class="rvps11"><span class="rvts16">Os níveis de alerta de uma legenda dem ser numéricos e definidos em ordem crescente de criticidade.</span></li>
+</ul>
+<p class="rvps9"><span class="rvts16">A Figura 4.6 mostra a área de trabalho do menu </span><span class="rvts17">“Alertas” </span><span class="rvts16">com a lista de alertas e legendas disponíveis. Nesta área é possível selecionar um alerta ou legenda para fazer alguma edição, criar um novo alerta ou legenda ou ainda remover uma existente. Veja a seguir as opções de manipulação.</span></p>
+<p class="rvps2"><span class="rvts13"><br/></span></p>
+<p class="rvps111"><img alt="" style="padding : 1px;" src="lib/Fig4_6_web.PNG"></p>
+<p class="rvps30"><span class="rvts18">Figura 4.6 – </span><span class="rvts19">Módulo de Administração: lista de alertas e legendas.</span></p>
+<p class="rvps2"><span class="rvts13"><br/></span></p>
+<p class="rvps9"><span class="rvts16">Como há uma dependência entre o alerta e a legenda, descrevemos inicialmente a manipulação de legendas.</span></p>
+<p class="rvps2"><span class="rvts13"><br/></span></p>
+<p class="rvps21"><a class="rvts33" href="add_legends.html">Adição de Legenda</a><span class="rvts32"> &nbsp;</span><img alt="" style="padding : 1px;" src="lib/working.jpg"></p>
+<h5 class="rvps31"><span class="rvts0"><span class="rvts28">ADICIONAR UMA LEGENDA:</span></span></h5>
+<p class="rvps9"><span class="rvts16">Para adicionar uma nova legenda é necessário ter um projeto ativo. No menu de opções selecione “</span><span class="rvts17">Alertas</span><span class="rvts16">” para que a lista de alertas e legendas sejam apresentadas na área de trabalho. Clique na aba “</span><span class="rvts17">Legendas</span><span class="rvts16">” e em seguida no botão “ </span><span class="rvts36">+</span><span class="rvts17"> </span><span class="rvts16">“ para adicionar nova legenda. Após preencher todos os campos utilize o botão </span><span class="rvts17">“Salvar”</span><span class="rvts16">. Não é permitido nomes de legendas em duplicidade, assim como os níveis da legenda e os valores devem ser definidos em ordem crescente de criticidade. Botão </span><span class="rvts17">“Cancelar”</span><span class="rvts16"> volta à tela anterior sem salvar a legenda. Veja como </span><a class="rvts26" href="add_legends.html">adicionar uma legenda aqui</a><span class="rvts16">.</span></p>
+<p class="rvps2"><span class="rvts13"><br/></span></p>
+<h5 class="rvps31"><span class="rvts0"><span class="rvts28">REMOVENDO UM LEGENDA:</span></span></h5>
+<p class="rvps9"><span class="rvts16">Para remover uma legenda de um projeto ativo clique no menu “</span><span class="rvts17">Alertas</span><span class="rvts16">” para apresentar a lista de legendas na área de trabalho. Clique na aba “</span><span class="rvts17">Legendas</span><span class="rvts16">” e na linha correspondente a legenda desejada clique em “</span><span class="rvts34">X</span><span class="rvts16"> </span><span class="rvts17">Remover</span><span class="rvts16">”. Clique o botão </span><span class="rvts17">“OK”</span><span class="rvts16"> para confirmar remoção. </span></p>
+<p class="rvps9"><span class="rvts16">Passamos a descrever os procedimento de manipulação de alertas.</span></p>
+<p class="rvps2"><span class="rvts13"><br/></span></p>
+<p class="rvps21"><a class="rvts33" href="add_alerts.html">Adição de Alerta</a><span class="rvts32"> &nbsp;</span><img alt="" style="padding : 1px;" src="lib/working.jpg"></p>
+<h5 class="rvps31"><span class="rvts0"><span class="rvts28">ADICIONAR UM ALERTA:</span></span></h5>
+<p class="rvps9"><span class="rvts16">Para adicionar uma novo alerta é necessário ter um projeto ativo. No menu de opções selecione “</span><span class="rvts17">Alertas</span><span class="rvts16">” para que a lista de alertas e legendas sejam apresentadas na área de trabalho. Clique na aba “</span><span class="rvts17">Alertas</span><span class="rvts16">” e em seguida no botão “ </span><span class="rvts36">+</span><span class="rvts17"> </span><span class="rvts16">“ para adicionar novo alerta. Após preencher todos os campos utilize o botão </span><span class="rvts17">“Salvar”. </span><span class="rvts16">Não é permitido nomes de alertas em duplicidade. Botão </span><span class="rvts17">“Cancelar”</span><span class="rvts16"> volta à tela anterior sem salvar o alerta. Veja como </span><a class="rvts26" href="add_alerts.html">adicionar um alerta aqui</a><span class="rvts16">.</span></p>
+<p class="rvps30"><span class="rvts13"><br/></span></p>
+<h5 class="rvps31"><span class="rvts0"><span class="rvts28">REMOVENDO UM ALERTA:</span></span></h5>
+<p class="rvps9"><span class="rvts16">Para remover um alerta de um projeto ativo clique no menu “</span><span class="rvts17">Alertas</span><span class="rvts16">” para apresentar a lista de alertas e legendas na área de trabalho. Clique na aba “</span><span class="rvts17">Alertas</span><span class="rvts16">” e na linha correspondente ao alerta desejado clique em “</span><span class="rvts34">X</span><span class="rvts16"> </span><span class="rvts17">Remover</span><span class="rvts16">”. Clique o botão </span><span class="rvts17">“OK”</span><span class="rvts16"> para confirmar remoção.</span></p>
+<p class="rvps2"><span class="rvts13"><br/></span></p>
+<h5 class="rvps31"><span class="rvts0"><span class="rvts28">EXPORTAR UM ALERTA</span></span><span class="rvts0"><span class="rvts37">:</span></span></h5>
+<p class="rvps9"><span class="rvts16">Para exportar um alerta de um projeto no menu “</span><span class="rvts17">Administração</span><span class="rvts16">” clique “</span><span class="rvts17">Projetos</span><span class="rvts16">” para apresentar a lista de projetos disponíveis na área de trabalho. Na frente do nome do projeto clique em “Exportar”. Uma janela será apresentada para selecionar que itens do projeto devem ser exportados. O padrão é exportar todo conteúdo, mas se desejar abra os itens do projeto com o botão “ </span><span class="rvts36">+</span><span class="rvts17"> </span><span class="rvts16">“ e marque ou desmarque o item desejado. Clique o botão </span><span class="rvts17">“Exportar”</span><span class="rvts16"> para confirmar exportação dos itens marcados.</span></p>
+<h5 class="rvps31"><span class="rvts0"><span class="rvts28">IMPORTAR UM ALERTA</span></span><span class="rvts0"><span class="rvts37">: </span></span></h5>
+<p class="rvps9"><span class="rvts16">Para importar um alerta de um projeto no menu “</span><span class="rvts17">Administração</span><span class="rvts16">” clique “</span><span class="rvts17">Projetos</span><span class="rvts16">” para apresentar a lista de projetos disponíveis na área de trabalho. Na parte superior da área de trabalho clique em “Importar” e selecione o arquivo (arquivo *.terrama2) a ser importado. Dependendo se a exportação foi realizada com todo um projeto ou parte do mesmo, teremos as duas situações na importação:</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps11"><span class="rvts17">Importar parte do conteúdo de um projeto</span><span class="rvts16">: Se parte de um projeto foi salvo em um arquivo JSON, esta parte poderá ser adicionada em qualquer projeto existente. Neste caso, uma janela será apresentada para escolher o projeto destino (Figura 2.9), mesmo que não seja o projeto ativo. Clique o botão </span><span class="rvts17">“Importar”</span><span class="rvts16"> para confirmar importação. Caso um item do projeto destino tenha o mesmo nome de um item a ser importado, nada será importado ou atualizado.</span></li>
+</ul>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps21"><a class="rvts33" href="add_alerts.html">Adição de Alerta</a><span class="rvts32"> &nbsp;</span><img alt="" style="padding : 1px;" src="lib/working.jpg"></p>
 <p class="rvps2"><span class="rvts6"><br/></span></p>
 <p></p>
-<p class="rvps5" style="clear: both;"><span class="rvts14">Created with the Personal Edition of HelpNDoc: </span><a class="rvts15" href="https://www.helpndoc.com/feature-tour/create-help-files-for-the-qt-help-framework">Create help files for the Qt Help Framework</a></p>
 
             </div>
             
@@ -195,19 +235,35 @@
         </div>  <!-- /#topic-content -->
     </article>
 
-    <footer>
-        
-    </footer>
+    <footer></footer>
 
   </div>  <!-- /#main -->
 
   <div class="mask" data-toggle="sm-nav-expanded"></div>
+  
+  <!-- Modal -->
+  <div class="modal fade" id="hndModal" tabindex="-1" role="dialog" aria-labelledby="hndModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="hndModalLabel"></h4>
+        </div>
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary modal-btn-close" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Scripts -->
   <script src="vendors/jquery-1.11.3/jquery.min.js"></script>
   <script src="vendors/bootstrap-3.3.6/js/bootstrap.min.js"></script>
   <script src="vendors/fastclick-1.0.6/fastclick.min.js"></script>
   <script src="vendors/markjs-8.8.3/jquery.mark.min.js"></script>
+  <script src="vendors/uri-1.18.9/uri.min.js"></script>
   <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
   <script src="vendors/bootstrap-3.3.6/js/ie10-viewport-bug-workaround.js"></script>
   
@@ -233,10 +289,16 @@
       var app = new Hnd.App();
       // Update translations
       hnd_ut(app);
+	  // Custom JS
+	  
       // Boot the app
       app.Boot();
     });
   </script>
 
-  
+
+
+</body>
+
+</html>
 

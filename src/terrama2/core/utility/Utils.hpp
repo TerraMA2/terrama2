@@ -165,7 +165,7 @@ namespace terrama2
      * \param datetimeColumnName
      * \return A vector with dates, with no duplicated dates
      */
-    std::vector<std::shared_ptr<te::dt::DateTime> > getAllDates(te::da::DataSet* teDataset,
+    std::vector<std::shared_ptr<te::dt::TimeInstantTZ> > getAllDates(te::da::DataSet* teDataset,
                                                                 const std::string& datetimeColumnName);
 
     //! Recover complete mask, folder plus file mask
@@ -183,6 +183,14 @@ namespace terrama2
     //! Return the te::da::DataSetType and te::da::DataSet of the DCP positions table
     std::pair<std::shared_ptr<te::da::DataSetType>, std::shared_ptr<te::da::DataSet> >
     getDCPPositionsTable(std::shared_ptr<te::da::DataSource> datasource, const std::string& dataSetName);
+
+    /*!
+      \brief Erase content from previous execution
+
+      This method will erase from a postgres table the results with date: startTime
+      It is used for reprocessing historical data.
+    */
+    void erasePreviousResult(DataManagerPtr dataManager, DataSeriesId dataSeriesId, std::shared_ptr<te::dt::TimeInstantTZ> startTime);
   } // end namespace core
 }   // end namespace terrama2
 

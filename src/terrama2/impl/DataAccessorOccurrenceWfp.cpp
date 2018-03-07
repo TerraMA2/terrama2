@@ -41,6 +41,7 @@
 #include <terralib/dataaccess/dataset/DataSetAdapter.h>
 #include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/datatype/DateTimeProperty.h>
+#include <terralib/datatype/SimpleProperty.h>
 #include <terralib/datatype/TimeDuration.h>
 #include <terralib/datatype/Date.h>
 #include <terralib/geometry/GeometryProperty.h>
@@ -82,12 +83,12 @@ void terrama2::core::DataAccessorOccurrenceWfp::adapt(DataSetPtr dataSet, std::s
 
   Srid srid = getSrid(dataSet);
 
-  te::dt::DateTimeProperty* dateProperty = new te::dt::DateTimeProperty("data", te::dt::DATE);
-  te::dt::DateTimeProperty* timeProperty = new te::dt::DateTimeProperty("hora", te::dt::TIME_DURATION);
   te::dt::DateTimeProperty* timestampProperty = new te::dt::DateTimeProperty(getTimestampPropertyName(dataSet), te::dt::TIME_INSTANT_TZ);
-  te::dt::SimpleProperty* latProperty = new te::dt::SimpleProperty(getLatitudePropertyName(dataSet), te::dt::DOUBLE_TYPE);
-  te::dt::SimpleProperty* lonProperty = new te::dt::SimpleProperty(getLongitudePropertyName(dataSet), te::dt::DOUBLE_TYPE);
-  te::gm::GeometryProperty* geomProperty = new te::gm::GeometryProperty(getOutputGeometryPropertyName(dataSet), srid, te::gm::PointType);
+  te::gm::GeometryProperty* geomProperty = new te::gm::GeometryProperty(getGeometryPropertyName(dataSet), srid, te::gm::PointType);
+  std::string paisPropertyName("pais_id");
+  std::string biomaPropertyName("bioma_id");
+  te::dt::SimpleProperty* paisIdProperty = new te::dt::SimpleProperty(paisPropertyName, te::dt::INT32_TYPE);
+  te::dt::SimpleProperty* biomaIdProperty = new te::dt::SimpleProperty(biomaPropertyName, te::dt::INT32_TYPE);
 
   // Find the right column to adapt
   std::vector<te::dt::Property*> properties = converter->getConvertee()->getProperties();
@@ -99,26 +100,16 @@ void terrama2::core::DataAccessorOccurrenceWfp::adapt(DataSetPtr dataSet, std::s
       // datetime column found
       converter->add(i, timestampProperty,
                      boost::bind(&terrama2::core::DataAccessorOccurrenceWfp::stringToTimestamp, this, _1, _2, _3, getTimeZone(dataSet)));
-      converter->add(i, dateProperty,
-                     boost::bind(&terrama2::core::DataAccessorOccurrenceWfp::stringToDate, this, _1, _2, _3, getTimeZone(dataSet)));
-      converter->add(i, timeProperty,
-                     boost::bind(&terrama2::core::DataAccessorOccurrenceWfp::stringToTimeDuration, this, _1, _2, _3, getTimeZone(dataSet)));
     }
     else if(property->getName() == getLatitudePropertyName(dataSet) || property->getName() == getLongitudePropertyName(dataSet))
     {
       // update latitude column index
       if(property->getName() == getLatitudePropertyName(dataSet))
-      {
         latPos = i;
-        converter->add(i, latProperty, boost::bind(&terrama2::core::DataAccessor::stringToDouble, this, _1, _2, _3));
-      }
 
       // update longitude column index
       if(property->getName() == getLongitudePropertyName(dataSet))
-      {
         lonPos = i;
-        converter->add(i, lonProperty, boost::bind(&terrama2::core::DataAccessor::stringToDouble, this, _1, _2, _3));
-      }
 
       if(!isValidColumn(latPos) || !isValidColumn(lonPos))
         continue;
@@ -136,6 +127,16 @@ void terrama2::core::DataAccessorOccurrenceWfp::adapt(DataSetPtr dataSet, std::s
       te::dt::Property* p = converter->getConvertee()->getProperty(i)->clone();
       p->setName("satelite");
       converter->add(i, p);
+    }
+    else if(property->getName() == paisPropertyName)
+    {
+      converter->add(i, paisIdProperty,
+                     boost::bind(&terrama2::core::DataAccessor::stringToInt, this, _1, _2, _3));
+    }
+    else if(property->getName() == biomaPropertyName)
+    {
+      converter->add(i, biomaIdProperty,
+                     boost::bind(&terrama2::core::DataAccessor::stringToInt, this, _1, _2, _3));
     }
     else
     {
@@ -176,75 +177,6 @@ te::dt::AbstractData* terrama2::core::DataAccessorOccurrenceWfp::stringToTimesta
     boost::local_time::local_date_time date(boostDate.date(), boostDate.time_of_day(), zone, true);
 
     return new te::dt::TimeInstant(date.utc_time());
-  }
-  catch(const std::exception& e)
-  {
-    TERRAMA2_LOG_ERROR() << e.what();
-  }
-  catch(const boost::exception& e)
-  {
-    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
-  }
-  catch(...)
-  {
-    TERRAMA2_LOG_ERROR() << "Unknown error";
-  }
-
-  return nullptr;
-}
-
-te::dt::AbstractData* terrama2::core::DataAccessorOccurrenceWfp::stringToTimeDuration(te::da::DataSet *dataset,
-                                                                                      const std::vector<std::size_t> &indexes,
-                                                                                      int /*dstType*/,
-                                                                                      const std::string &timezone) const
-{
-  assert(indexes.size() == 1);
-
-  try
-  {
-    std::string dateTime = dataset->getString(indexes[0]);
-
-    boost::posix_time::ptime boostDate(boost::posix_time::time_from_string(dateTime));
-
-    boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(timezone));
-    boost::local_time::local_date_time date(boostDate.date(), boostDate.time_of_day(), zone, true);
-
-    boost::posix_time::time_duration timeDuration = date.utc_time().time_of_day();
-    return new te::dt::TimeDuration(timeDuration);
-  }
-  catch(const std::exception& e)
-  {
-    TERRAMA2_LOG_ERROR() << e.what();
-  }
-  catch(const boost::exception& e)
-  {
-    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
-  }
-  catch(...)
-  {
-    TERRAMA2_LOG_ERROR() << "Unknown error";
-  }
-
-  return nullptr;
-}
-
-te::dt::AbstractData* terrama2::core::DataAccessorOccurrenceWfp::stringToDate(te::da::DataSet* dataset,
-                                                                const std::vector<std::size_t>& indexes, int /*dstType*/,
-                                                                const std::string& timezone) const
-{
-  assert(indexes.size() == 1);
-
-  try
-  {
-    std::string dateTime = dataset->getString(indexes[0]);
-    if(dateTime.empty())
-      return nullptr;
-
-    boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(timezone));
-    boost::posix_time::ptime boostDate(boost::posix_time::time_from_string(dateTime));
-    boost::local_time::local_date_time date(boostDate.date(), boostDate.time_of_day(), zone, true);
-
-    return new te::dt::Date(date.utc_time().date());
   }
   catch(const std::exception& e)
   {

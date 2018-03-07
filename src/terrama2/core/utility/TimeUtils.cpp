@@ -30,6 +30,7 @@
 
 // TerraMA2
 #include "TimeUtils.hpp"
+#include "LocalTimeUtils.hpp"
 #include "Logger.hpp"
 #include "Verify.hpp"
 #include "../../Exception.hpp"
@@ -90,13 +91,10 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::TimeUtils::nowUTC()
 
 boost::local_time::local_date_time terrama2::core::TimeUtils::nowBoostLocal()
 {
-  time_t ts = 0;
-  struct tm t;
-  char buf[16];
-  ::localtime_r(&ts, &t);
-  ::strftime(buf, sizeof(buf), "%Z", &t);
+  auto t = g2::localtime(g2::systemtime_now());
+  auto tz = g2::put_time(&t, "%Z");
 
-  boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(buf));
+  boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(tz));
   return boost::local_time::local_microsec_clock::local_time(zone);
 }
 
@@ -130,10 +128,12 @@ void terrama2::core::TimeUtils::addYear(std::shared_ptr< te::dt::TimeInstantTZ >
   (*timeInstant) = temp;
 }
 
-double terrama2::core::TimeUtils::convertTimeString(const std::string& timeStr, std::string unitName, const std::string& defaultUnit)
+double terrama2::core::TimeUtils::convertTimeString(const std::string& time, std::string unitName, const std::string& defaultUnit)
 {
-  if(timeStr.empty())
+  if(time.empty())
     return 0;
+
+  std::string timeStr = boost::to_upper_copy(time);
 
   double result = 0;
 

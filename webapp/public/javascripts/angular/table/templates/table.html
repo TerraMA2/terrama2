@@ -56,6 +56,7 @@
           <div class="modal-body">
             <p><b>{{ i18n.__('Service version')}}</b>{{": " + serviceVersion}}</p>
             <p><b>{{ i18n.__('Service start time')}}</b>{{": " + serviceStartTime}}</p>
+            <p ng-if="serviceVersionMessage" style="color: red;"><b>{{ serviceVersionMessage }}</b></p>
             <p ng-if="showServiceLoggerOffline" style="color: red;"><b>{{ i18n.__('The service can not access the log database!')}}</b></p>
             <p ng-if="maps_server_connection === false" style="color: red;"><b>{{ i18n.__('The service can not access the map server!')}}</b></p>
 
@@ -133,7 +134,7 @@
             </span>
             <i class="fa fa-upload"></i>
           </a>
-          <a ng-href="{{ extra.canRemove ? linkToAdd : 'javascript:function() { return false; }'}}"
+          <a ng-href="{{ extra.canRemove ? linkToAdd : ''}}"
             ng-show="!extra.importFromAnotherProject"
             ng-disabled="!extra.canRemove"
             class="btn btn-default pull-right"
@@ -145,10 +146,10 @@
           </a>
 
           <div class="btn-group pull-right" style="margin-top: 24px;margin-right: 10px;" ng-show="extra.importFromAnotherProject">
-            <a type="button" class="btn btn-default" ng-href="{{ extra.canRemove ? linkToAdd : 'javascript:function() { return false; }'}}" ng-disabled="!extra.canRemove">
+            <a type="button" class="btn btn-default" ng-href="{{ extra.canRemove ? linkToAdd : ''}}" ng-disabled="!extra.canRemove">
               <i class="fa fa-plus"></i>
             </a>
-            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ng-disabled="!extra.canRemove">
               <span class="caret"></span>
               <span class="sr-only"></span>
             </button>
@@ -198,7 +199,7 @@
           </td>
 
           <td ng-if="extra.project" class="pull-cell-left">
-            <a ng-href="{{ extra.canEdit(element) ? extra.project.edit(element) : 'javascript:function() { return false; }'}}" 
+            <a ng-href="{{ extra.canEdit(element) ? extra.project.edit(element) : ''}}" 
                 class="btn btn-default btn-sm" 
                 ng-disabled="!extra.canEdit(element)">
               <i class="fa fa-pencil"></i> {{ i18n.__("Edit") }}
@@ -210,7 +211,7 @@
               <i class="fa fa-warning"></i>
             </button>
             <button ng-show="element.online" ng-click="showInfo(element)" class="btn btn-default btn-sm pull-right" style="width: 34px; height: 30px;" ng-class="{'service-warning': !element.logger_online || element.maps_server_connection === false}"> 
-              <i ng-class="{ 'fa fa-info': element.logger_online && element.maps_server_connection !== false, 'fa fa-warning': !element.logger_online || element.maps_server_connection === false}" ></i>
+              <i ng-class="{ 'fa fa-info': element.logger_online && element.maps_server_connection !== false && element.different_versions !== true, 'fa fa-warning': !element.logger_online || element.maps_server_connection === false || element.different_versions === true }" ></i>
             </button>
           </td>
 

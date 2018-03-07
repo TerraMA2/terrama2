@@ -37,7 +37,6 @@
 // TerraLib
 #include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/raster/Band.h>
-#include <terralib/memory/DataSetItem.h>
 
 // Qt
 #include <QObject>
@@ -50,7 +49,7 @@ terrama2::services::alert::core::Report::Report(AlertPtr alert,
                                                 terrama2::core::LegendPtr legend,
                                                 terrama2::core::DataSeriesPtr alertDataSeries,
                                                 std::shared_ptr<te::da::DataSet> alertDataSet,
-                                                std::vector<std::shared_ptr<te::dt::DateTime>> riskDates)
+                                                std::vector<std::shared_ptr<te::dt::TimeInstantTZ>> riskDates)
   : alert_(alert),
     legend_(legend),
     alertDataSeries_(alertDataSeries),
@@ -251,6 +250,10 @@ void terrama2::services::alert::core::Report::updateReportMonitoredObjectDataset
       {
         uint32_t numericRisk = static_cast<uint32_t>(dataSet_->getInt32(pos));
         dataSet_->setString(property, legend_->riskName(numericRisk));
+
+        // if it's the default risk, don't update min and max
+        if(numericRisk == terrama2::core::DefaultRiskLevel)
+          continue;
 
         //update max and min risk values
         if(it == riskDates_.begin())

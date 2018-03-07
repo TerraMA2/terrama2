@@ -105,6 +105,9 @@ namespace terrama2
 
     class Interpreter;
     using InterpreterPtr = std::shared_ptr<terrama2::core::Interpreter>;
+
+    struct ReprocessingHistoricalData;
+    typedef std::shared_ptr<terrama2::core::ReprocessingHistoricalData> ReprocessingHistoricalDataPtr;
   }
 }
 

@@ -532,16 +532,17 @@ void TsDataAccessorOccurrenceWfp::TestOK()
     QFile file(url.path());
     file.open(QIODevice::QIODevice::ReadOnly);
 
-    int numberLinesOriginalFile = -1;
+    std::size_t numberLinesOriginalFile = 0;
     // Get Number Lines Original File.
     while (!file.atEnd())
     {
       file.readLine();
       ++numberLinesOriginalFile;
     }
+    // first line is header
+    --numberLinesOriginalFile;
 
     QStringList numberPropertiesOriginalFile;
-
     if(file.seek(0))
     {
       // Get number Properties Original File.
@@ -549,20 +550,17 @@ void TsDataAccessorOccurrenceWfp::TestOK()
       QString line = in.readLine();
       numberPropertiesOriginalFile = line.split(",");
     }
-
-    numberPropertiesOriginalFile.removeFirst();
-
     file.close();
 
     // Get Number Properties New File.
-    int numberPropertiesNewFile = teDataSet->getNumProperties();
+    auto numberPropertiesNewFile = teDataSet->getNumProperties();
 
     // Get Number Lines New File.
-    int numberLinesNewFile = teDataSet->size();
+    auto numberLinesNewFile = teDataSet->size();
 
     QCOMPARE(numberLinesOriginalFile,numberLinesNewFile);
-    QCOMPARE(numberPropertiesOriginalFile.size(), 3);
-    QCOMPARE(numberPropertiesNewFile, 7);
+    QCOMPARE(numberPropertiesOriginalFile.size(), 4);
+    QCOMPARE(numberPropertiesNewFile, 3ul);
   }
   catch(...)
   {

@@ -1,4 +1,4 @@
-<div class="row">
+<div class="col-md-12 terrama2-nopadding-box">
   <form name="scheduleForm">
     <div class="col-md-7">
       <div class="form-group" style="top:30px;" terrama2-show-errors>
@@ -22,13 +22,13 @@
       </div>
     </div>
 
-    <div class="row">
+    <div class="col-md-12 terrama2-nopadding-box">
       <div class="col-md-7" ng-if="model.scheduleType == 2">
         <div class="row">
           <terrama2-filter-datetime-picker before-label="'Start Date'" 
                                             after-label="'End Date'"
-                                            before-datetime="historical.startDate"
-                                            after-datetime="historical.endDate">
+                                            before-datetime="model.historical.startDate"
+                                            after-datetime="model.historical.endDate">
           </terrama2-filter-datetime-picker>
         </div>
       </div>
@@ -56,7 +56,7 @@
       </div>
     </div>
 
-    <div class="col-md-8" ng-if="isFrequency">
+    <div class="col-md-8 terrama2-nopadding-box" ng-if="isFrequency">
       <div class="col-md-6">
         <div class="form-group" terrama2-show-errors>
           <label>{{ i18n.__('Frequency') }}:</label>

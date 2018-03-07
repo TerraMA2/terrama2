@@ -58,8 +58,8 @@
 #include <QUrl>
 #include <QJsonArray>
 
-terrama2::services::view::core::Service::Service(std::weak_ptr<terrama2::services::view::core::DataManager> dataManager)
-  : dataManager_(dataManager)
+terrama2::services::view::core::Service::Service(std::weak_ptr<terrama2::core::DataManager> dataManager)
+  : terrama2::core::Service(dataManager)
 {
   connectDataManager();
 
@@ -71,9 +71,10 @@ void terrama2::services::view::core::Service::prepareTask(const terrama2::core::
 {
   try
   {
-    auto viewLogger = std::dynamic_pointer_cast<ViewLogger>(logger_->clone());
+    auto dataManager = std::static_pointer_cast<terrama2::services::view::core::DataManager>(dataManager_.lock());
+    auto viewLogger = std::static_pointer_cast<ViewLogger>(logger_->clone());
     assert(viewLogger);
-    taskQueue_.emplace(std::bind(&Service::viewJob, this, executionPackage, viewLogger, dataManager_));
+    taskQueue_.emplace(std::bind(&Service::viewJob, this, executionPackage, viewLogger, dataManager));
   }
   catch(const std::exception& e)
   {
@@ -81,54 +82,9 @@ void terrama2::services::view::core::Service::prepareTask(const terrama2::core::
   }
 }
 
-void terrama2::services::view::core::Service::addToQueue(ViewId viewId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept
-{
-  try
-  {
-    std::lock_guard<std::mutex> lock(mutex_);
-    TERRAMA2_LOG_DEBUG() << tr("View %1 added to queue.").arg(viewId);
-
-    auto datamanager = dataManager_.lock();
-    auto view = datamanager->findView(viewId);
-
-    const auto& serviceManager = terrama2::core::ServiceManager::getInstance();
-    auto serviceInstanceId = serviceManager.instanceId();
-
-    // Check if this view should be executed in this instance
-    if(view->serviceInstanceId != serviceInstanceId)
-      return;
-
-    RegisterId registerId = logger_->start(viewId);
-
-    terrama2::core::ExecutionPackage executionPackage;
-    executionPackage.processId = viewId;
-    executionPackage.executionDate = startTime;
-    executionPackage.registerId = registerId;
-
-    if(std::find(processingQueue_.begin(), processingQueue_.end(), viewId) == processingQueue_.end())
-    {
-      processingQueue_.push_back(viewId);
-      processQueue_.push_back(executionPackage);
-      mainLoopCondition_.notify_one();
-    }
-    else
-    {
-      waitQueue_[viewId].push(executionPackage);
-      logger_->result(ViewLogger::ON_QUEUE, nullptr, executionPackage.registerId);
-      TERRAMA2_LOG_INFO() << tr("View %1 added to wait queue.").arg(viewId);
-    }
-
-  }
-  catch(...)
-  {
-    // exception guard, slots should never emit exceptions.
-    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception...");
-  }
-}
-
 void terrama2::services::view::core::Service::connectDataManager()
 {
-  auto dataManager = dataManager_.lock();
+  auto dataManager = std::static_pointer_cast<terrama2::services::view::core::DataManager>(dataManager_.lock());
   connect(dataManager.get(), &terrama2::services::view::core::DataManager::viewAdded, this,
           &terrama2::services::view::core::Service::addProcessToSchedule);
   connect(dataManager.get(), &terrama2::services::view::core::DataManager::viewRemoved, this,
@@ -137,13 +93,14 @@ void terrama2::services::view::core::Service::connectDataManager()
           &terrama2::services::view::core::Service::updateView);
 }
 
-void terrama2::services::view::core::Service::removeView(ViewId id, DataSeriesId dataSeriesId) noexcept
+void terrama2::services::view::core::Service::removeView(const ViewPtr& viewPtr, DataSeriesId dataSeriesId) noexcept
 {
-  removeCompleteView(id, dataSeriesId);
+  removeCompleteView(viewPtr, dataSeriesId);
 }
 
-void terrama2::services::view::core::Service::removeCompleteView(ViewId id, DataSeriesId dataSeriesId, bool removeAll) noexcept
+void terrama2::services::view::core::Service::removeCompleteView(const ViewPtr& viewPtr, DataSeriesId dataSeriesId, bool removeAll) noexcept
 {
+  ViewId id = viewPtr->id;
   try
   {
     std::lock_guard<std::mutex> lock(mutex_);
@@ -182,7 +139,7 @@ void terrama2::services::view::core::Service::removeCompleteView(ViewId id, Data
         // Retrieving Maps server handler
         MapsServerPtr mapsServer = MapsServerFactory::getInstance().make(mapsServerUri_, "GEOSERVER");
         // removing from geoserver
-        mapsServer->cleanup(id, inputDataProvider, logger_);
+        mapsServer->cleanup(viewPtr, inputDataProvider, logger_);
       }
       catch(const terrama2::services::view::core::NotFoundGeoserverException& e)
       {
@@ -217,9 +174,15 @@ void terrama2::services::view::core::Service::removeCompleteView(ViewId id, Data
   }
 }
 
+terrama2::core::ProcessPtr terrama2::services::view::core::Service::getProcess(ProcessId processId)
+{
+  auto dataManager = std::static_pointer_cast<terrama2::services::view::core::DataManager>(dataManager_.lock());
+  return dataManager->findView(processId);
+}
+
 void terrama2::services::view::core::Service::updateView(ViewPtr view) noexcept
 {
-  removeCompleteView(view->id, view->dataSeriesID, false);
+  removeCompleteView(view, view->dataSeriesID, false);
   addProcessToSchedule(view);
 }
 
@@ -281,7 +244,7 @@ void terrama2::services::view::core::Service::viewJob(const terrama2::core::Exec
     logger->setStartProcessingTime(processingStartTime, executionPackage.registerId);
     logger->setEndProcessingTime(processingEndTime, executionPackage.registerId);
 
-    logger->result(ViewLogger::DONE, terrama2::core::TimeUtils::nowUTC(), logId);
+    logger->result(ViewLogger::Status::DONE, terrama2::core::TimeUtils::nowUTC(), logId);
 
     jsonAnswer = mapsServerAnswer;
     jsonAnswer.insert("class", QString("RegisteredViews"));
@@ -324,7 +287,7 @@ void terrama2::services::view::core::Service::viewJob(const terrama2::core::Exec
     TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1(%2) finished with error(s).").arg(QString::fromStdString(viewName)).arg(viewId);
 
     if(logId != 0)
-      logger->log(ViewLogger::ERROR_MESSAGE, errMsg, logId);
+      logger->log(ViewLogger::MessageType::ERROR_MESSAGE, errMsg, logId);
   }
   catch(const boost::exception& e)
   {
@@ -342,7 +305,7 @@ void terrama2::services::view::core::Service::viewJob(const terrama2::core::Exec
     TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1(%2) finished with error(s).").arg(QString::fromStdString(viewName)).arg(viewId);
 
     if(logId != 0)
-      logger->log(ViewLogger::ERROR_MESSAGE, errMsg, logId);
+      logger->log(ViewLogger::MessageType::ERROR_MESSAGE, errMsg, logId);
   }
   catch(const std::exception& e)
   {
@@ -351,7 +314,7 @@ void terrama2::services::view::core::Service::viewJob(const terrama2::core::Exec
     TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1(%2) finished with error(s).").arg(QString::fromStdString(viewName)).arg(viewId);
 
     if(logId != 0)
-      logger->log(ViewLogger::ERROR_MESSAGE, errMsg, logId);
+      logger->log(ViewLogger::MessageType::ERROR_MESSAGE, errMsg, logId);
   }
   catch(...)
   {
@@ -360,11 +323,11 @@ void terrama2::services::view::core::Service::viewJob(const terrama2::core::Exec
     TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1(%2) finished with error(s).").arg(QString::fromStdString(viewName)).arg(viewId);
 
     if(logId != 0)
-      logger->log(ViewLogger::ERROR_MESSAGE, errMsg, logId);
+      logger->log(ViewLogger::MessageType::ERROR_MESSAGE, errMsg, logId);
   }
 
   if(logId != 0)
-    logger->result(ViewLogger::ERROR, terrama2::core::TimeUtils::nowUTC(), logId);
+    logger->result(ViewLogger::Status::ERROR, terrama2::core::TimeUtils::nowUTC(), logId);
 
   sendProcessFinishedSignal(viewId, executionPackage.executionDate, false);
   notifyWaitQueue(viewId);

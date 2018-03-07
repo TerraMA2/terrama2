@@ -47,7 +47,7 @@ requirejs(
       lng: defaultLanguage,
       fallbackLng: 'en',
       backend: {
-        loadPath: '/locales/{{ lng }}.json'
+        loadPath: BASE_URL + 'locales/{{ lng }}.json'
       }
     }, function(err, t) {
       jqueryI18next.init(i18next, $);

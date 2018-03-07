@@ -179,7 +179,7 @@ int main(int argc, char* argv[])
   service.updateAdditionalInfo(additionalIfo);
 
 
-  service.addToQueue(alert->id, terrama2::core::TimeUtils::nowUTC());
+  service.addToQueue(alert, terrama2::core::TimeUtils::nowUTC());
 
   QTimer timer;
   QObject::connect(&timer, SIGNAL(timeout()), QGuiApplication::instance(), SLOT(quit()));

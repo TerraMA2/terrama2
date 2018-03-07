@@ -268,7 +268,8 @@ module.exports = {
     DONE: 4,
     ON_QUEUE: 5,
     INTERRUPTED: 6,
-    NOT_EXECUTED: 7
+    NOT_EXECUTED: 7,
+    WARNING: 8
   },
 
   /**

@@ -69,9 +69,12 @@
     var formatOutput = {};
     if (formats instanceof Array) {
       formats.forEach(function(format) {
-        formatOutput[format.key] = format.value;
+        formatOutput[format.key] = String(format.value);
       });
     } else {
+      for (var key in formats){
+        formats[key] = String(formats[key]);
+      }
       formatOutput = formats;
     }  
     this.metadata = formatOutput;

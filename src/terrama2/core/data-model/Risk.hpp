@@ -42,10 +42,11 @@ namespace terrama2
 {
   namespace core
   {
+    constexpr uint32_t DefaultRiskLevel = std::numeric_limits<uint32_t>::max();
     struct RiskLevel
     {
       std::string name;
-      uint32_t level = std::numeric_limits<uint32_t>::max(); //!< Level of the risk, should be unique in a Risk.
+      uint32_t level = DefaultRiskLevel; //!< Level of the risk, should be unique in a Risk.
       double value = 0; //!< Numeric value for the risk level..
 
       //! Minor operator for sorting.
@@ -58,6 +59,8 @@ namespace terrama2
     */
     struct Risk
     {
+      static bool isDefault(uint32_t level) { return level == std::numeric_limits<uint32_t>::max(); }
+      
       std::string name; //!< Name of the Risk.
       std::string description; //!< Short description of the purpose of the Risk.
 

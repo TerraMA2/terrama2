@@ -40,6 +40,10 @@
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 #include <terralib/dataaccess/datasource/DataSource.h>
 #include <terralib/geometry/GeometryProperty.h>
+#include <terralib/raster/RasterProperty.h>
+#include <terralib/datatype/StringProperty.h>
+#include <terralib/datatype/DateTimeProperty.h>
+#include <terralib/datatype/NumericProperty.h>
 #include <terralib/dataaccess/utils/Utils.h>
 
 //Qt
@@ -51,13 +55,172 @@
 //Boost
 #include <boost/algorithm/string.hpp>
 
+#include <QJsonParseError>
+#include <QJsonDocument>
+#include <QJsonObject>
+
+std::unique_ptr<te::dt::Property> terrama2::core::DataStoragerTable::copyProperty(te::dt::Property* property) const
+{
+  auto name = property->getName();
+  auto type = property->getType();
+  switch (type)
+  {
+    case te::dt::INT16_TYPE:
+    case te::dt::UINT16_TYPE:
+    case te::dt::INT32_TYPE:
+    case te::dt::UINT32_TYPE:
+    case te::dt::INT64_TYPE:
+    case te::dt::UINT64_TYPE:
+    case te::dt::BOOLEAN_TYPE:
+    case te::dt::FLOAT_TYPE:
+    case te::dt::DOUBLE_TYPE:
+      return std::unique_ptr<te::dt::Property>(new te::dt::SimpleProperty(name, type));
+    case te::dt::STRING_TYPE:
+      {
+        auto stringProperty = dynamic_cast<te::dt::StringProperty*>(property);
+        if(!stringProperty)
+        {
+          QString errMsg = QObject::tr("Invalid property %1 with type %2").arg(QString::fromStdString(name), int(type));
+          TERRAMA2_LOG_ERROR() << errMsg;
+          throw DataStoragerException() << ErrorDescription(errMsg);
+        }
+
+        return std::unique_ptr<te::dt::Property>(new te::dt::StringProperty(name,
+                                                                            stringProperty->getSubType(),
+                                                                            stringProperty->size()));
+      }
+    case te::dt::DATETIME_TYPE:
+      {
+        auto dateTime = dynamic_cast<te::dt::DateTimeProperty*>(property);
+        if(!dateTime)
+        {
+          QString errMsg = QObject::tr("Invalid property %1 with type %2").arg(QString::fromStdString(name), int(type));
+          TERRAMA2_LOG_ERROR() << errMsg;
+          throw DataStoragerException() << ErrorDescription(errMsg);
+        }
+
+        return std::unique_ptr<te::dt::Property>(new te::dt::DateTimeProperty(name,
+                                                                              dateTime->getSubType(),
+                                                                              dateTime->getPrecision()));
+      }
+    case te::dt::NUMERIC_TYPE:
+      {
+        auto numericProperty = dynamic_cast<te::dt::NumericProperty*>(property);
+        if(!numericProperty)
+        {
+          QString errMsg = QObject::tr("Invalid property %1 with type %2").arg(QString::fromStdString(name), int(type));
+          TERRAMA2_LOG_ERROR() << errMsg;
+          throw DataStoragerException() << ErrorDescription(errMsg);
+        }
+
+        return std::unique_ptr<te::dt::Property>(new te::dt::NumericProperty(name,
+                                                                             numericProperty->getPrecision(),
+                                                                             numericProperty->getScale()));
+      }
+    case te::dt::GEOMETRY_TYPE:
+      {
+        auto geomProperty = dynamic_cast<te::gm::GeometryProperty*>(property);
+        if(!geomProperty)
+        {
+          QString errMsg = QObject::tr("Invalid property %1 with type %2").arg(QString::fromStdString(name), int(type));
+          TERRAMA2_LOG_ERROR() << errMsg;
+          throw DataStoragerException() << ErrorDescription(errMsg);
+        }
+
+        return std::unique_ptr<te::dt::Property>(new te::gm::GeometryProperty(name,
+                                                                              geomProperty->getSRID(),
+                                                                              geomProperty->getGeometryType()));
+      }
+    case te::dt::RASTER_TYPE:
+      {
+        auto rasterProperty = dynamic_cast<te::rst::RasterProperty*>(property);
+        if(!rasterProperty)
+        {
+          QString errMsg = QObject::tr("Invalid property %1 with type %2").arg(QString::fromStdString(name), int(type));
+          TERRAMA2_LOG_ERROR() << errMsg;
+          throw DataStoragerException() << ErrorDescription(errMsg);
+        }
+
+        auto newProperty =  std::unique_ptr<te::dt::Property>(new te::rst::RasterProperty(rasterProperty->getGrid(),
+                                                                                          rasterProperty->getBandProperties(),
+                                                                                          rasterProperty->getInfo()));
+        newProperty->setName(name);
+        return newProperty;
+      }
+    default:
+      {
+        QString errMsg = QObject::tr("Invalid property %1 with type %2").arg(QString::fromStdString(name), int(type));
+        TERRAMA2_LOG_ERROR() << errMsg;
+        throw DataStoragerException() << ErrorDescription(errMsg);
+      }
+
+  }
+}
+
+std::shared_ptr<te::da::DataSetType> terrama2::core::DataStoragerTable::copyDataSetType(std::shared_ptr<te::da::DataSetType> dataSetType, const std::string& newDataSetName) const
+{
+  std::shared_ptr< te::da::DataSetType > newDatasetType = std::make_shared<te::da::DataSetType>(newDataSetName);
+
+  for(const auto& property : dataSetType->getProperties())
+  {
+    auto newProperty = copyProperty(property);
+    newDatasetType->add(newProperty.release());
+  }
+
+  return newDatasetType;
+}
+
+void terrama2::core::DataStoragerTable::updateAttributeNames(std::shared_ptr<te::mem::DataSet> teDataSet, std::shared_ptr<te::da::DataSetType> dataSetType, terrama2::core::DataSetPtr dataset) const
+{
+  try
+  {
+    auto attributeMapJson = dataset->format.at("inout_attribute_map");
+
+    QJsonParseError error;
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(attributeMapJson.c_str(), &error);
+
+    if(error.error != QJsonParseError::NoError)
+    {
+      TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson parse error: %1\n").arg(error.errorString());
+      return;
+    }
+    auto jsonObject = jsonDoc.object();
+
+    for(auto& property : dataSetType->getProperties())
+    {
+      auto oldName = QString::fromStdString(property->getName());
+      if(jsonObject.contains(oldName))
+      {
+        auto newName = jsonObject[oldName].toString().toStdString();
+        property->setName(newName);
+      }
+    }
+
+    const std::size_t np = teDataSet->getNumProperties();
+    for(std::size_t i = 0; i != np; ++i)
+    {
+      auto oldName = QString::fromStdString(teDataSet->getPropertyName(i));
+      if(jsonObject.contains(oldName))
+      {
+        auto newName = jsonObject[oldName].toString().toStdString();
+        teDataSet->setPropertyName(newName, i);
+      }
+    }
+  }
+  catch (std::out_of_range)
+  {
+    // no inout_attribute_map
+    // no need to update names
+  }
+}
+
 void terrama2::core::DataStoragerTable::store(DataSetSeries series, DataSetPtr outputDataSet) const
 {
   if(!dataProvider_)
   {
     QString errMsg = QObject::tr("Invalid data provider");
     TERRAMA2_LOG_ERROR() << errMsg;
-    throw DataProviderException() << ErrorDescription(errMsg);
+    throw DataStoragerException() << ErrorDescription(errMsg);
   }
 
   te::core::URI uri(getCompleteURI(outputDataSet));
@@ -83,14 +246,16 @@ void terrama2::core::DataStoragerTable::store(DataSetSeries series, DataSetPtr o
   te::da::ScopedTransaction scopedTransaction(*transactorDestination);
 
   std::shared_ptr<te::da::DataSetType> datasetType = series.teDataSetType;
+  updateAttributeNames(std::static_pointer_cast<te::mem::DataSet>(series.syncDataSet->dataset()), datasetType, outputDataSet);
 
   std::shared_ptr<te::da::DataSetType> newDataSetType;
   if (!transactorDestination->dataSetExists(destinationDataSetName))
   {
     // create and save datasettype in the datasource destination
-    newDataSetType = std::shared_ptr<te::da::DataSetType>(static_cast<te::da::DataSetType*>(datasetType->clone()));
+    // newDataSetType = std::shared_ptr<te::da::DataSetType>(static_cast<te::da::DataSetType*>(datasetType->clone()));
+    newDataSetType = copyDataSetType(datasetType, destinationDataSetName);
 
-    if(typeCapabilities.supportsPrimaryKey() && !newDataSetType->getPrimaryKey())
+    if(typeCapabilities.supportsPrimaryKey())
     {
       std::string pkName = "\""+destinationDataSetName+"_pk\"";
       std::unique_ptr<te::da::PrimaryKey> pk(new te::da::PrimaryKey(pkName));
@@ -118,7 +283,6 @@ void terrama2::core::DataStoragerTable::store(DataSetSeries series, DataSetPtr o
       geomProperty->setSRID(geom->getSRID());
       geomProperty->setGeometryType(geom->getGeometryType());
 
-      //there is a limit in the size of the dataset that we can create an index
       if(typeCapabilities.supportsRTreeIndex())
       {
         // the newDataSetType takes ownership of the pointer
@@ -127,7 +291,6 @@ void terrama2::core::DataStoragerTable::store(DataSetSeries series, DataSetPtr o
       }
     }
 
-    newDataSetType->setName(destinationDataSetName);
     transactorDestination->createDataSet(newDataSetType.get(), {});
   }
   else
@@ -140,7 +303,7 @@ void terrama2::core::DataStoragerTable::store(DataSetSeries series, DataSetPtr o
   {
     auto it = std::find_if(oldPropertiesList.cbegin(), oldPropertiesList.cend(), std::bind(&terrama2::core::DataStoragerTable::isPropertyEqual, this, property, std::placeholders::_1));
     if(it == oldPropertiesList.cend())
-      transactorDestination->addProperty(newDataSetType->getName(), property);
+      transactorDestination->addProperty(newDataSetType->getName(), copyProperty(property).get());
   }
 
   series.syncDataSet->dataset()->moveBeforeFirst();

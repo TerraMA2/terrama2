@@ -60,6 +60,8 @@ define([], function() {
       service.online = response.online;
       if (service.online){
         service.version = response.terrama2_version;
+        service.web_version = response.web_version;
+        service.different_versions = (response.terrama2_version.toLowerCase() !== response.web_version.toLowerCase());
         var date = new Date(response.start_time);
         moment.locale($scope.i18n.userLanguage);
         service.start_time = moment(date).format("lll");
@@ -71,7 +73,7 @@ define([], function() {
 
     $scope.socket.on("serviceVersion", function(response) {
       if (!response.match) {
-        MessageBoxService.warn(i18n.__($scope.title), i18n.__("It seems you are using a different versions of TerraMA². Current version of TerraMA² Web is " + response.current + " " +i18n.__("but the TerraMA² service version is") + " " + response.response + ". " +i18n.__("Some operations may not work properly")));
+        MessageBoxService.warning(i18n.__($scope.title), i18n.__("It seems you are using different versions of TerraMA². Current version of TerraMA² Web is ") + response.current + i18n.__(" but the TerraMA² service version is ") + response.response + i18n.__(". Some operations may not work properly"));
       }
     });
 

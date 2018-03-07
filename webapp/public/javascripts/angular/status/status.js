@@ -33,7 +33,9 @@ define([
       cachedIcons["start_" + Globals.enums.StatusLog.INTERRUPTED] = BASE_URL + "images/status/red_anime.gif";
       cachedIcons[Globals.enums.StatusLog.NOT_EXECUTED] = BASE_URL + "images/status/grey.gif";
       cachedIcons["start_" + Globals.enums.StatusLog.NOT_EXECUTED] = BASE_URL + "images/status/grey_anime.gif";
-
+      cachedIcons["start_" + Globals.enums.StatusLog.WARNING] = BASE_URL + "images/status/yellow_anime.gif";
+      cachedIcons[Globals.enums.StatusLog.WARNING] = BASE_URL + "images/status/yellow.gif";
+      
       $scope.onPageChanged = function(currentPage, previousPage) {
         // TODO: Paginate dinamically
         // var begin = $scope.statusPerPage * currentPage;
@@ -218,10 +220,10 @@ define([
 
         var logArray = response.logs;
 
-        var _findOne = function(array, identifier) {
+        var _findOne = function(array, identifier, serviceInstance) {
           var output = {};
           array.some(function(element) {
-            if (element.id === identifier) {
+            if (element.id === identifier && element.service_instance_id === serviceInstance) {
               output = element;
               return true;
             }
@@ -239,7 +241,7 @@ define([
 
         // Removing logs to be replaced
         logArray.forEach(function(logProcess){
-          var currentProcess = _findOne(targetArray, logProcess.process_id);
+          var currentProcess = _findOne(targetArray, logProcess.process_id, logProcess.instance_id);
           if (currentProcess){
             var obj = currentProcess[targetKey] || {name: currentProcess.name};
             var index = arrayObjectIndexOf($scope.model, obj);
@@ -261,7 +263,7 @@ define([
               service: service
             };
 
-            var currentProcess = _findOne(targetArray, logProcess.process_id);
+            var currentProcess = _findOne(targetArray, logProcess.process_id, logProcess.instance_id);
 
             var obj = currentProcess[targetKey] || {name: currentProcess.name};
 
@@ -284,13 +286,6 @@ define([
               switch(logMessage.status) {
                 case Globals.enums.StatusLog.DONE:
                   out.message = "Done...";
-                  var targetType = Globals.enums.MessageType.INFO_MESSAGE;
-                  for(var i = 0; i < logMessage.messages.length; ++i) {
-                    if (logMessage.messages[i].type === Globals.enums.MessageType.WARNING_MESSAGE) {
-                      targetType = Globals.enums.MessageType.WARNING_MESSAGE;
-                      break;
-                    }
-                  }
                   if (logMessage.data){
                     var dateProcessInfo = getDateProcessInfo(logMessage.data);
                     if (dateProcessInfo){
@@ -301,7 +296,7 @@ define([
                       out.messages.push(dateProcessObject);
                     }
                   }
-                  out.messageType = targetType;
+                  out.messageType = Globals.enums.MessageType.INFO_MESSAGE;;
                   break;
                 case Globals.enums.StatusLog.START:
                   out.message = "Started...";
@@ -312,6 +307,11 @@ define([
                   out.messageType = Globals.enums.MessageType.INFO_MESSAGE;
                   break;
                 case Globals.enums.StatusLog.ERROR:
+                  var firstMessage = logMessage.messages[0];
+                  out.message = firstMessage.description;
+                  out.messageType = firstMessage.type;
+                  break;
+                case Globals.enums.StatusLog.WARNING:
                   var firstMessage = logMessage.messages[0];
                   out.message = firstMessage.description;
                   out.messageType = firstMessage.type;
@@ -359,6 +359,10 @@ define([
                 case Globals.enums.StatusLog.ON_QUEUE:
                   dummyMessage.description = "On queue";
                   dummyMessage.messageType = Globals.enums.MessageType.INFO_MESSAGE;
+                  break;
+                case Globals.enums.StatusLog.WARNING:
+                  dummyMessage.description = "Warning";
+                  dummyMessage.messageType = Globals.enums.MessageType.WARNING_MESSAGE;
                   break;
               }
               out.message = dummyMessage.description;

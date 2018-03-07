@@ -125,21 +125,26 @@ te::dt::AbstractData* terrama2::core::DataAccessor::stringToInt(te::da::DataSet*
     if(strValue.empty())
       return nullptr;
 
-    boost::int32_t value = std::stoi(strValue);
+    try
+    {
+      boost::int32_t value = std::stoi(strValue);
+      if(!std::isnormal(value) && (value != 0))
+        return nullptr;
 
-    if(!std::isnormal(value) && (value != 0))
+      te::dt::SimpleData<boost::int32_t>* data = new te::dt::SimpleData<boost::int32_t>(value);
+      return data;
+    }
+    catch (const std::invalid_argument&)
+    {
+      TERRAMA2_LOG_WARNING() << "Unable to convert value to integer: " << strValue;
       return nullptr;
-
-    te::dt::SimpleData<boost::int32_t>* data = new te::dt::SimpleData<boost::int32_t>(value);
-
-    return data;
+    }
+    catch (const std::out_of_range&)
+    {
+      TERRAMA2_LOG_ERROR() << "Value cannot be converted to integer type: " << strValue;
+      return nullptr;
+    }
   }
-
-  catch(const std::invalid_argument& e)
-  {
-    TERRAMA2_LOG_ERROR() << e.what();
-  }
-
   catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
@@ -151,7 +156,6 @@ te::dt::AbstractData* terrama2::core::DataAccessor::stringToInt(te::da::DataSet*
 
   return nullptr;
 }
-
 
 std::shared_ptr<te::da::DataSetTypeConverter> terrama2::core::DataAccessor::getConverter(DataSetPtr dataset, const std::shared_ptr<te::da::DataSetType>& datasetType) const
 {
@@ -344,9 +348,9 @@ std::string terrama2::core::DataAccessor::getTimestampPropertyName(DataSetPtr da
   return getProperty(dataSet, dataSeries_, "timestamp_property", logErrors);
 }
 
-std::string terrama2::core::DataAccessor::getOutputTimestampPropertyName(DataSetPtr dataSet) const
+std::string terrama2::core::DataAccessor::getInputTimestampPropertyName(DataSetPtr dataSet) const
 {
-  return getProperty(dataSet, dataSeries_, "output_timestamp_property");
+  return getProperty(dataSet, dataSeries_, "input_timestamp_property");
 }
 
 std::string terrama2::core::DataAccessor::getGeometryPropertyName(DataSetPtr dataSet) const
@@ -354,9 +358,9 @@ std::string terrama2::core::DataAccessor::getGeometryPropertyName(DataSetPtr dat
   return getProperty(dataSet, dataSeries_, "geometry_property");
 }
 
-std::string terrama2::core::DataAccessor::getOutputGeometryPropertyName(DataSetPtr dataSet) const
+std::string terrama2::core::DataAccessor::getInputGeometryPropertyName(DataSetPtr dataSet) const
 {
-  return getProperty(dataSet, dataSeries_, "output_geometry_property");
+  return getProperty(dataSet, dataSeries_, "input_geometry_property");
 }
 
 std::string terrama2::core::DataAccessor::getTimeZone(DataSetPtr dataSet, bool logErrors) const

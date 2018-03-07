@@ -265,6 +265,29 @@ double terrama2::services::analysis::core::getValue(terrama2::core::Synchronized
   return value;
 }
 
+/*!
+ Calculates the variance of the elements of a container
+
+ source: http://roth.cs.kuleuven.be/w-ess/index.php/Accurate_variance_and_mean_calculations_in_C%2B%2B11
+
+ */
+template <typename T, typename Container>
+T internal_variance(const Container& xs)
+{
+    // begin(xs) will point to the first element in xs
+    // end(xs) will point to the last element in xs
+    // the distance between them gives the number of elements
+    size_t N = end(xs) - begin(xs);
+    // first pass through all data (hidden in accumulate):
+    T m = std::accumulate(begin(xs), end(xs), T(0)) / N;
+    T s2 = 0;
+    // second pass through all data:
+    for(auto x : xs) {
+        s2 += (x - m) * (x - m);
+    }
+    return s2 / (N-1);
+}
+
 void terrama2::services::analysis::core::calculateStatistics(std::vector<double>& values, OperatorCache& cache)
 {
   if(values.empty())
@@ -279,10 +302,16 @@ void terrama2::services::analysis::core::calculateStatistics(std::vector<double>
   cache.min = min(acc);
   cache.max = max(acc);
   cache.median = median(acc);
-  cache.variance = variance(acc);
-  cache.standardDeviation = std::sqrt(variance(acc));
+  //============================================
+  // WARNING
+  //
+  // The boost function returned a different then expected value
+  // check internal_variance
+  //
+  //  cache.variance = variance(acc);
+  cache.variance = internal_variance<double>(values);
+  cache.standardDeviation = std::sqrt(cache.variance);
 }
-
 
 double terrama2::services::analysis::core::getOperationResult(OperatorCache& cache, StatisticOperation statisticOperation)
 {
@@ -307,62 +336,6 @@ double terrama2::services::analysis::core::getOperationResult(OperatorCache& cac
     default:
       return std::nan("");
   }
-}
-
-
-void terrama2::services::analysis::core::erasePreviousResult(DataManagerPtr dataManager, DataSeriesId dataSeriesId, std::shared_ptr<te::dt::TimeInstantTZ> startTime)
-{
-  auto outputDataSeries = dataManager->findDataSeries(dataSeriesId);
-  if(!outputDataSeries)
-  {
-    TERRAMA2_LOG_ERROR() << QObject::tr("Invalid output data series for analysis.");
-    return;
-  }
-  auto outputDataProvider = dataManager->findDataProvider(outputDataSeries->dataProviderId);
-  if(!outputDataProvider)
-  {
-    TERRAMA2_LOG_ERROR() << QObject::tr("Invalid output data provider for analysis.");
-    return;
-  }
-
-  if(outputDataProvider->dataProviderType == "POSTGIS")
-  {
-    auto dataset = outputDataSeries->datasetList[0];
-    std::string tableName;
-
-    try
-    {
-      tableName = dataset->format.at("table_name");
-    }
-    catch(...)
-    {
-      QString errMsg = QObject::tr("Undefined table name in dataset: %1.").arg(dataset->id);
-      TERRAMA2_LOG_ERROR() << errMsg;
-      throw terrama2::core::UndefinedTagException() << ErrorDescription(errMsg);
-    }
-
-    std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make("POSTGIS", outputDataProvider->uri));
-
-    // RAII for open/closing the datasource
-    terrama2::core::OpenClose<std::shared_ptr<te::da::DataSource> > openClose(datasource);
-
-    if(!datasource->isOpened())
-    {
-      QString errMsg = QObject::tr("DataProvider could not be opened.");
-      TERRAMA2_LOG_ERROR() << errMsg;
-      throw Exception() << ErrorDescription(errMsg);
-    }
-
-    // get a transactor to interact to the data source
-    std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
-
-    auto dataSetNames = transactor->getDataSetNames();
-
-    if(std::find(dataSetNames.cbegin(), dataSetNames.cend(), tableName) != dataSetNames.cend() ||
-       std::find(dataSetNames.cbegin(), dataSetNames.cend(), "public."+tableName) != dataSetNames.cend())
-      transactor->execute("delete from " + tableName + " where execution_date = '" + startTime->toString() + "'");
-  }
-
 }
 
 std::pair<size_t, size_t> terrama2::services::analysis::core::getBandInterval(terrama2::core::DataSetPtr dataset, double secondsPassed, std::string dateDiscardBefore, std::string dateDiscardAfter)

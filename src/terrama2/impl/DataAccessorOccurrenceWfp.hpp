@@ -66,7 +66,10 @@ namespace terrama2
         virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter>, const std::shared_ptr<te::da::DataSetType>&) const override;
 
         // WFP file may have delayed data that should not be filtered
-        virtual bool isValidTimestamp(std::shared_ptr<te::mem::DataSet> /*dataSet*/, const Filter& /*filter*/, size_t /*dateColumn*/) const override { return true; }
+        virtual bool isValidTimestamp(std::shared_ptr<SynchronizedDataSet> dataSet,
+                                      size_t index,
+                                      const Filter& filter,
+                                      size_t dateColumn) const override {return true;}
 
       private:
         //! Name of column with latitude information
@@ -80,14 +83,6 @@ namespace terrama2
 
         */
         te::dt::AbstractData* stringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/,
-                                                const std::string& timezone) const;
-
-        //! Convert a string to a time duration value
-        te::dt::AbstractData* stringToTimeDuration(te::da::DataSet *dataset, const std::vector<std::size_t> &indexes,
-                                                   int /*dstType*/, const std::string &timezone) const;
-
-        //! Convert a string to a date value
-        te::dt::AbstractData* stringToDate(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/,
                                                 const std::string& timezone) const;
 
         //! Convert string to Geometry

@@ -123,10 +123,10 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
     recipient.includeReport = obj["include_report"].toString().toStdString();
     recipient.notifyOnChange = obj["notify_on_change"].toBool();
     recipient.simplifiedReport = obj["simplified_report"].toBool();
-    recipient.notifyOnRiskLevel = static_cast<uint32_t>(obj["notify_on_risk_level"].toInt());
+    recipient.notifyOnRiskLevel = static_cast<uint32_t>(obj["notify_on_legend_level"].toInt());
 
     for(auto target : obj["recipients"].toArray())
-      recipient.targets.push_back(target.toString().toStdString());
+      recipient.targets.push_back(target.toString().trimmed().toStdString());
 
     alert->notifications.push_back(recipient);
   }
@@ -146,8 +146,8 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
       double maxy = obj["ymax"].toDouble();
       double minx = obj["xmin"].toDouble();
       double maxx = obj["xmax"].toDouble();
-      view.topRightCorner.reset(new te::gm::Coord2D(maxx, miny));
-      view.lowerLeftCorner.reset(new te::gm::Coord2D(minx, maxy));
+      view.topRightCorner.reset(new te::gm::Coord2D(maxx, maxy));
+      view.lowerLeftCorner.reset(new te::gm::Coord2D(minx, miny));
       view.srid = static_cast<Srid>(obj["srid"].toInt());
     }
     else

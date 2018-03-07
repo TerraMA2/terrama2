@@ -89,7 +89,7 @@ namespace terrama2
                    terrama2::core::LegendPtr legend,
                    terrama2::core::DataSeriesPtr alertDataSeries,
                    std::shared_ptr<te::da::DataSet> alertDataSet,
-                   std::vector<std::shared_ptr<te::dt::DateTime>> riskDates);
+                   std::vector<std::shared_ptr<te::dt::TimeInstantTZ> > riskDates);
 
             ~Report() = default;
             Report(const Report& other) = default;
@@ -215,7 +215,7 @@ namespace terrama2
             terrama2::core::LegendPtr legend_; //!< Alert legend data.
             terrama2::core::DataSeriesPtr alertDataSeries_;
             std::shared_ptr<te::mem::DataSet> dataSet_; //!< The dataSet with alert data
-            std::vector<std::shared_ptr<te::dt::DateTime>> riskDates_; //!< A list with the datetime of each risk calculation
+            std::vector<std::shared_ptr<te::dt::TimeInstantTZ>> riskDates_; //!< A list with the datetime of each risk calculation
             mutable terrama2::core::FileRemover fileRemover_;
             te::core::URI imageUri_; //!< Image uri
 

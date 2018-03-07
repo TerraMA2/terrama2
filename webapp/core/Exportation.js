@@ -151,6 +151,54 @@ var Exportation = function() {
   };
 
   /**
+   * Returns the name of the primary key column of a given table.
+   * @param {integer} tableName - Table name
+   * @param {integer} dataProviderId - Id to get the connection parameters in the DataProvider
+   * @returns {Promise} Promise - Promise to be resolved
+   *
+   * @function getPrimaryKeyColumn
+   * @memberof Exportation
+   * @inner
+   */
+  this.getPrimaryKeyColumn = function(tableName, dataProviderId) {
+    var self = this;
+    return new memberPromise(function(resolve, reject) {
+      return memberDataManager.getDataProvider({ id: dataProviderId }).then(function(dataProvider) {
+        var uriObject = memberUriBuilder.buildObject(dataProvider.uri, {
+          HOST: 'host',
+          PORT: 'port',
+          USER: 'user',
+          PASSWORD: 'password',
+          PATHNAME: 'database'
+        });
+
+        uriObject.database = (uriObject.database.charAt(0) === '/' ? uriObject.database.substr(1) : uriObject.database);
+
+        var client = new memberPg.Client(uriObject);
+
+        client.on('error', function(err) {
+          return reject(err.toString());
+        });
+
+        client.connect(function(err) {
+          if(err)
+            return reject(err.toString());
+
+          client.query("SELECT a.attname as column_name FROM pg_index i JOIN pg_attribute a ON a.attrelid = i.indrelid AND a.attnum = ANY(i.indkey) " +
+            "WHERE i.indrelid = $1::regclass AND i.indisprimary;", ['public.' + tableName], function(err, result) {
+            client.end();
+
+            if(err) return reject(err.toString());
+            else return resolve(result);
+          });
+        });
+      }).catch(function(err) {
+        return reject(err.toString());
+      });
+    });
+  };
+
+  /**
    * Returns the ogr2ogr application string.
    * @returns {string} ogr2ogr - ogr2ogr application
    *
@@ -164,7 +212,7 @@ var Exportation = function() {
     return ogr2ogr;
   };
 
-  /**
+ /**
   * Returns the shp2pgsql application string.
   * @returns {string} shp2pgsql - shp2pgsql application
   *
