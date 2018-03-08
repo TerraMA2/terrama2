@@ -30,13 +30,9 @@
 #ifndef __TERRAMA2_SERVICES_INTERPOLATOR_TYPEDEF_HPP__
 #define __TERRAMA2_SERVICES_INTERPOLATOR_TYPEDEF_HPP__
 
-#include "../../../core/data-access/DataSetSeries.hpp"
 #include "../../../core/data-model/Process.hpp"
 
-// TerraLib
-#include <terralib/geometry/Point.h>
-#include <terralib/sam/kdtree.h>
-
+#include "InterpolatorData.hpp"
 
 //! Unique identifier of a Interpolator
 typedef ProcessId InterpolatorId;
@@ -62,87 +58,6 @@ namespace terrama2
         class DataManager;
         struct Interpolator;
         struct InterpolatorParams;
-
-        /*!
-         * \struct InterpolatorData
-         *
-         * \brief Defines an object containing data, to be used by the KD-tree.
-         *
-         * \ingroup interpolator
-         */
-        struct InterpolatorData
-        {
-          /*!
-           * \brief Default constructor.
-           */
-          InterpolatorData()
-          {
-            pt_ = new te::gm::Point(std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
-          }
-
-          /*!
-           * \brief Copy constructor.
-           *
-           * \param other The data to e copied.
-           */
-          InterpolatorData(const InterpolatorData& other)
-          {
-            pt_ = new te::gm::Point(*other.pt_);
-            series_ = other.series_;
-          }
-
-          /*!
-           * \brief Copy operator.
-           *
-           * \param other The data to be copied.
-           *
-           * \return A pointer to the object itself.
-           */
-          InterpolatorData& operator=(const InterpolatorData& other)
-          {
-            pt_ = new te::gm::Point(*other.pt_);
-            series_ = other.series_;
-
-            return *this;
-          }
-
-
-          /*!
-           * \brief Returns the x-asis component of the coordinate.
-           *
-           * \return The x-asis component of the coordinate.
-           */
-          double getX() const
-          {
-            return pt_->getX();
-          }
-
-          /*!
-           * \brief Returns the y-asis component of the coordinate.
-           *
-           * \return The y-asis component of the coordinate.
-           */
-          double getY() const
-          {
-            return pt_->getY();
-          }
-
-          /*!
-           * \brief Returns \a true if both \a x and \a y are different of max double value, and \a false otherwise.
-           *
-           * \return \a True if coordinate is valid and \a false oherwise.
-           */
-          bool isValid() const
-          {
-            double max = std::numeric_limits<double>::max();
-
-            return ((getX() != max) && (getY() != max));
-          }
-
-          te::gm::Point* pt_;                     //!< Coordinate of the sample.
-          terrama2::core::DataSetSeries series_;  //!< Data of the sample.
-        };
-
 
         /*!
          * \typedef DataSeriesVector

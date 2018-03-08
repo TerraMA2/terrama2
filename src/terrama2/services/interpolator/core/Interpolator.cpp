@@ -40,6 +40,7 @@
 
 #include "DataManager.hpp"
 #include "Typedef.hpp"
+#include "InterpolatorData.hpp"
 
 // TerraLib
 #include <terralib/geometry/Point.h>
@@ -70,11 +71,8 @@ void FillEmptyData(std::vector<terrama2::services::interpolator::core::Interpola
   dists.clear();
 
   terrama2::services::interpolator::core::InterpolatorData d;
-  te::gm::Point pt(std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
-  terrama2::core::DataSetSeries dset;
-
-  d.pt_ = &pt;
-  d.series_ = dset;
+  d.pt_ = std::unique_ptr<te::gm::Point>(new te::gm::Point(std::numeric_limits<double>::max(), std::numeric_limits<double>::max()));
+  d.series_ = terrama2::core::DataSetSeries();
 
   data.resize(nneighbors, d);
   dists.resize(nneighbors, std::numeric_limits<double>::max());
@@ -189,9 +187,9 @@ void terrama2::services::interpolator::core::Interpolator::fillTree()
     {
       auto dataSet = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(it.first);
       auto dataSeries = it.second;
-      auto pt1 = *(dataSet->position.get());
+      auto pt1 = *dataSet->position;
       InterpolatorData node;
-      node.pt_ = &pt1;
+      node.pt_ = std::unique_ptr<te::gm::Point>(new te::gm::Point(pt1));
       node.series_ = dataSeries;
 
       if(!node.isValid() || (!imgBBox.contains(*node.pt_->getMBR())))
