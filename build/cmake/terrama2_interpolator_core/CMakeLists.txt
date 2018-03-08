@@ -39,7 +39,6 @@ include_directories ( SYSTEM
   ${Boost_INCLUDE_DIR}
   ${terralib_INCLUDE_DIRS}
   ${terralib_DIR}
-#  ${CURL_INCLUDE_DIRS}
   ${Qt5Core_INCLUDE_DIRS}
 )
 
@@ -54,12 +53,8 @@ qt5_use_modules(terrama2_interpolator_core Core)
 target_link_libraries(terrama2_interpolator_core terrama2_core
                                               terralib_mod_dataaccess
                                               terralib_mod_memory
-#                                              terralib_mod_vp_core
-#                                              terralib_mod_rp
                                               ${Boost_FILESYSTEM_LIBRARY}
                                               ${Boost_SYSTEM_LIBRARY}
-#                                              ${Boost_REGEX_LIBRARY}
-#                                              ${CURL_LIBRARIES}
 )
 
 set_target_properties(terrama2_interpolator_core
