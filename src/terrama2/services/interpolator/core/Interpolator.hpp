@@ -113,7 +113,7 @@ namespace terrama2
            */
           void fillTree();
 
-          std::shared_ptr<InterpolatorParams> interpolationParams_; //!< Parameters of interpolation.
+          InterpolatorParamsPtr interpolationParams_; //!< Parameters of interpolation.
           std::unique_ptr<InterpolatorTree> tree_;    //!< A kd-tree used to determine neighborhood.
           std::weak_ptr<terrama2::services::interpolator::core::DataManager> weakDataManager_;
         };

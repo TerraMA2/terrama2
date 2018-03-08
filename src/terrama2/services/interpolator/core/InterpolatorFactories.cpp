@@ -34,7 +34,7 @@ terrama2::services::interpolator::core::NNInterpolatorFactory::NNInterpolatorFac
 
 terrama2::services::interpolator::core::Interpolator* terrama2::services::interpolator::core::NNInterpolatorFactory::build(InterpolatorParamsPtr p)
 {
-  InterpolatorParamsPtr pp(dynamic_cast<NNInterpolatorParams*>(p.get()));
+  InterpolatorParamsPtr pp(std::dynamic_pointer_cast<const NNInterpolatorParams>(p));
 
   NNInterpolator* i = new NNInterpolator(pp);
 
@@ -48,7 +48,7 @@ terrama2::services::interpolator::core::AvgDistInterpolatorFactory::AvgDistInter
 
 terrama2::services::interpolator::core::Interpolator* terrama2::services::interpolator::core::AvgDistInterpolatorFactory::build(InterpolatorParamsPtr p)
 {
-  InterpolatorParamsPtr pp(dynamic_cast<AvgDistInterpolatorParams*>(p.get()));
+  InterpolatorParamsPtr pp(std::dynamic_pointer_cast<const AvgDistInterpolatorParams>(p));
 
   Interpolator* i = new AvgDistInterpolator(pp);
 
@@ -63,7 +63,7 @@ terrama2::services::interpolator::core::SqrAvgDistInterpolatorFactory::SqrAvgDis
 
 terrama2::services::interpolator::core::Interpolator* terrama2::services::interpolator::core::SqrAvgDistInterpolatorFactory::build(InterpolatorParamsPtr p)
 {
-  InterpolatorParamsPtr pp(dynamic_cast<SqrAvgDistInterpolatorParams*>(p.get()));
+  InterpolatorParamsPtr pp(std::dynamic_pointer_cast<const SqrAvgDistInterpolatorParams>(p));
 
   Interpolator* i = new SqrAvgDistInterpolator(pp);
 

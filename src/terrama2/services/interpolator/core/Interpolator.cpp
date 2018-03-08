@@ -71,9 +71,6 @@ void FillEmptyData(std::vector<terrama2::services::interpolator::core::Interpola
   dists.clear();
 
   terrama2::services::interpolator::core::InterpolatorData d;
-  d.pt_ = std::unique_ptr<te::gm::Point>(new te::gm::Point(std::numeric_limits<double>::max(), std::numeric_limits<double>::max()));
-  d.series_ = terrama2::core::DataSetSeries();
-
   data.resize(nneighbors, d);
   dists.resize(nneighbors, std::numeric_limits<double>::max());
 }
@@ -195,6 +192,11 @@ void terrama2::services::interpolator::core::Interpolator::fillTree()
       if(!node.isValid() || (!imgBBox.contains(*node.pt_->getMBR())))
         continue;
 
+      // Checking if there is data in the dataset
+      terrama2::core::SynchronizedDataSetPtr dSet = dataSeries.syncDataSet;
+      if(dSet->isNull(0, interpolationParams_->attributeName_))
+        continue;
+
       auto pair = std::make_pair(pt1, node);
       dataSetVec.push_back(pair);
 
@@ -242,12 +244,10 @@ std::unique_ptr<te::rst::Raster> terrama2::services::interpolator::core::NNInter
   for(unsigned int row = 0; row < resolutionY; row++)
     for(unsigned int col = 0; col < resolutionX; col++)
     {
-      double x,
-          y;
-
       res.clear();
       dist.clear();
 
+      double x, y;
       r->getGrid()->gridToGeo(static_cast<double>(col), static_cast<double>(row), x, y);
 
       pt1.setX(x);
@@ -352,7 +352,7 @@ std::unique_ptr<te::rst::Raster> terrama2::services::interpolator::core::SqrAvgD
   unsigned int resolutionY = r->getGrid()->getNumberOfRows(),
       resolutionX = r->getGrid()->getNumberOfColumns();
 
-  SqrAvgDistInterpolatorParams* auxPar = dynamic_cast<SqrAvgDistInterpolatorParams*>(interpolationParams_.get());
+  auto auxPar = std::dynamic_pointer_cast<const SqrAvgDistInterpolatorParams>(interpolationParams_);
 
   unsigned int powF = auxPar->pow_;
 

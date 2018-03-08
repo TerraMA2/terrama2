@@ -93,7 +93,7 @@ namespace terrama2
          *
          * \ingroup interpolator
          */
-        typedef std::shared_ptr<terrama2::services::interpolator::core::InterpolatorParams> InterpolatorParamsPtr;
+        typedef std::shared_ptr<const terrama2::services::interpolator::core::InterpolatorParams> InterpolatorParamsPtr;
 
         /*!
          * \typedef InterpolatorPtr

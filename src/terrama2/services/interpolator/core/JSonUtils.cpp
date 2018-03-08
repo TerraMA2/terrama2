@@ -182,7 +182,7 @@ terrama2::services::interpolator::core::InterpolatorParamsPtr terrama2::services
 
   QString interpolatorType = json["interpolator_strategy"].toString();
 
-  InterpolatorParams* res = GetParameters(interpolatorType);
+  std::shared_ptr<terrama2::services::interpolator::core::InterpolatorParams> res(GetParameters(interpolatorType));
 
   res->id = static_cast<uint32_t>(json["id"].toInt());
   res->projectId = static_cast<uint32_t>(json["project_id"].toInt());
@@ -195,8 +195,6 @@ terrama2::services::interpolator::core::InterpolatorParamsPtr terrama2::services
   res->active = json["active"].toString().toLower() == "true" ?
                       true :
                       false;
-
-  res->interpolationType_ = res->interpolationType_;
 
   res->attributeName_ = json["interpolation_attribute"].toString().toStdString();
   res->resolutionX_ = json["resolution_x"].toDouble();
@@ -221,9 +219,9 @@ terrama2::services::interpolator::core::InterpolatorParamsPtr terrama2::services
 
   if(res->interpolationType_ == terrama2::services::interpolator::core::SQRAVGDIST)
   {
-    terrama2::services::interpolator::core::SqrAvgDistInterpolatorParams* auxPar = dynamic_cast<terrama2::services::interpolator::core::SqrAvgDistInterpolatorParams*>(res);
+    auto auxPar = std::dynamic_pointer_cast<terrama2::services::interpolator::core::SqrAvgDistInterpolatorParams>(res);
 
-    if(auxPar == 0)
+    if(!auxPar)
     {
       QString errMsg = QObject::tr("Invalid Weighted Interpolator JSON object.");
       TERRAMA2_LOG_ERROR() << errMsg;
@@ -233,7 +231,7 @@ terrama2::services::interpolator::core::InterpolatorParamsPtr terrama2::services
     auxPar->pow_ = json["power_factor"].toInt();
   }
 
-  return InterpolatorParamsPtr(res);
+  return res;
 }
 
 QJsonObject terrama2::services::interpolator::core::toJson(InterpolatorParamsPtr params)
@@ -255,9 +253,8 @@ QJsonObject terrama2::services::interpolator::core::toJson(InterpolatorParamsPtr
 
   if(params->interpolationType_ == terrama2::services::interpolator::core::SQRAVGDIST)
   {
-    terrama2::services::interpolator::core::SqrAvgDistInterpolatorParams* auxPar = dynamic_cast<terrama2::services::interpolator::core::SqrAvgDistInterpolatorParams*>(params.get());
-
-    if(auxPar == 0)
+    auto auxPar = std::dynamic_pointer_cast<const terrama2::services::interpolator::core::SqrAvgDistInterpolatorParams>(params);
+    if(!auxPar)
     {
       QString errMsg = QObject::tr("Invalid Weighted Interpolator JSON object.");
       TERRAMA2_LOG_ERROR() << errMsg;

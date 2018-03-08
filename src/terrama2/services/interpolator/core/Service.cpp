@@ -120,7 +120,7 @@ te::mem::DataSet* GetDataSet(te::rst::Raster* raster, std::shared_ptr<te::dt::Ti
  *
  * \exception A terrama2::core::NoDataException can be raised.
  */
-void StoreInterpolateResult(te::rst::Raster* raster, terrama2::services::interpolator::core::InterpolatorParams* par, std::weak_ptr<terrama2::services::interpolator::core::DataManager> weakDataManager,
+void StoreInterpolateResult(te::rst::Raster* raster, terrama2::services::interpolator::core::InterpolatorParamsPtr par, std::weak_ptr<terrama2::services::interpolator::core::DataManager> weakDataManager,
                             std::shared_ptr<te::dt::TimeInstantTZ> time)
 {
   auto dataManager = weakDataManager.lock();
@@ -240,7 +240,7 @@ void terrama2::services::interpolator::core::Service::interpolate(terrama2::core
 
     TERRAMA2_LOG_INFO() << tr("Data from process %1 interpolated successfully.").arg(executionPackage.processId);
 
-    StoreInterpolateResult(res.release(), interpolatorParamsPtr.get(), dataManager, executionPackage.executionDate);
+    StoreInterpolateResult(res.release(), interpolatorParamsPtr, dataManager, executionPackage.executionDate);
 
     TERRAMA2_LOG_INFO() << tr("Data from process %1 stored successfully.").arg(executionPackage.processId);
 
