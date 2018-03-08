@@ -191,7 +191,7 @@ define([], function(){
         };
 
         self.statusChangeLink = function(object) {
-          return BASE_URL + "configuration/alerts/changeStatus/" + object.id;
+          return BASE_URL + "api/Alert/changeStatus/" + object.id;
         };
 
         /**

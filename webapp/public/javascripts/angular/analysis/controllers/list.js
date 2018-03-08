@@ -82,7 +82,7 @@ define([], function() {
     };
 
     $scope.statusChangeLink = function(object) {
-      return BASE_URL + "configuration/analysis/changeStatus/" + object.id;
+      return BASE_URL + "api/Analysis/changeStatus/" + object.id;
     };
 
     if(config.message !== "") {

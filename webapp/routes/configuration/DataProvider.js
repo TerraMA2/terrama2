@@ -6,5 +6,4 @@ module.exports = function (app) {
   app.get(app.locals.BASE_URL + 'configuration/providers', passport.isAuthenticated, controller.get);
   app.get(app.locals.BASE_URL + 'configuration/providers/new', passport.isAuthenticated, controller.new);
   app.get(app.locals.BASE_URL + 'configuration/providers/edit/:id', passport.isAuthenticated, controller.edit);
-  app.get(app.locals.BASE_URL + 'configuration/providers/changeStatus/:id', passport.isAuthenticated, controller.changeStatus);
 };

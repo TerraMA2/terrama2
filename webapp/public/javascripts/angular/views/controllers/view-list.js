@@ -192,7 +192,7 @@ define([], function() {
         };
 
         self.statusChangeLink = function(object) {
-          return BASE_URL + "configuration/views/changeStatus/" + object.id;
+          return BASE_URL + "api/View/changeStatus/" + object.id;
         };
 
         /**

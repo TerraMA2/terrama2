@@ -21,7 +21,7 @@
      return baseUrl + object.id + "?type=static#/wizard";
    },
    statusChangeLink: function(object) {
-     return baseUrl + "changeStatus/" + object.id;
+     return "{[ BASE_URL ]}api/DataSeries/static/changeStatus/" + object.id;
    },
    iconFn: function(object) {
      if (object.data_series_semantics.data_series_type_name === globals.enums.DataSeriesType.GRID) {

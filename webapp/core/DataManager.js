@@ -35,7 +35,6 @@ var fs = require('fs');
 var path = require('path');
 var logger = require("./Logger");
 var Filters = require("./filters");
-var TcpService = require("./facade/tcp-manager/TcpService");
 
 // data model
 var DataModel = require('./data-model');
@@ -1719,13 +1718,7 @@ var DataManager = module.exports = {
         fields: ["active"],
         where: restriction
       }, options)).then(function() {
-        TcpService.send({
-          "DataProviders": [dataProvider.toService()]
-        }).then(function() {
-          return resolve();
-        }).catch(function(err) {
-          return reject(new Error("Could not change data provider status " + err.toString()));
-        });
+        return resolve(dataProvider);
       }).catch(function(err) {
         return reject(new Error("Could not change data provider status " + err.toString()));
       });
@@ -2159,45 +2152,113 @@ var DataManager = module.exports = {
   },
 
   /**
-   * It changes the status of a given data series
+   * It changes the status of a given dynamic data series
    *
    * @param {Object} restriction - A query restriction
    * @param {Object} options - An ORM query options
    * @param {Transaction} options.transaction - An ORM transaction
    */
-  changeDataSeriesStatus: function(restriction, options) {
+  changeDynamicDataSeriesStatus: function(restriction, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
+      var dataSeries = Utils.find(self.data.dataSeries, restriction);
+      dataSeries.active = !dataSeries.active;
 
+      var dataSets = Utils.filter(self.data.dataSets, { data_series_id: restriction.id });
 
-      return DataManager.getCollector({data_series_output: restriction.id}, options).then(function(collector) {
+      var objectToSend = {
+        "DataSeries": [dataSeries.toObject()]
+      };
 
+      var analysisPromises = [];
 
-        console.log(collector);
-
-
-
-        var dataSeries = Utils.find(self.data.dataSeries, restriction);
-
-        dataSeries.active = !dataSeries.active;
-
-        return models.db.DataSeries.update(dataSeries, Utils.extend({
-          fields: ["active"],
-          where: restriction
-        }, options)).then(function() {
-          TcpService.send({
-            "DataSeries": [collectorResult.input.toObject(), collectorResult.output.toObject()],
-            "Collectors": [collector.toObject()]
-          });
-
-          return resolve();
-        }).catch(function(err) {
-          return reject(new Error("Could not change data series status " + err.toString()));
+      return models.db.DataSeries.update(dataSeries, Utils.extend({
+        fields: ["active"],
+        where: restriction
+      }, options)).then(function() {
+        dataSets.forEach(function(dataSet) {
+          analysisPromises.push(self.getAnalysisAcceptNull({ dataset_output: dataSet.id }));
         });
 
+        return Promise.all(analysisPromises);
+      }).then(function(results) {
+        analysisPromises = [];
 
+        results.forEach(function(analysis) {
+          if(analysis) {
+            if(!objectToSend.Analysis) objectToSend.Analysis = [];
 
+            analysis.active = dataSeries.active;
 
+            objectToSend.Analysis.push(analysis.toObject());
+
+            analysisPromises.push(
+              models.db.Analysis.update(analysis, Utils.extend({
+                fields: ["active"],
+                where: { id: analysis.id }
+              }, options))
+            );
+          }
+        });
+
+        return Promise.all(analysisPromises);
+      }).then(function() {
+        return self.getCollectorAcceptNull({ data_series_output: restriction.id }, options);
+      }).then(function(collector) {
+        if(collector) {
+          collector.active = dataSeries.active;
+
+          return models.db.Collector.update(collector, Utils.extend({
+            fields: ["active"],
+            where: { id: collector.id }
+          }, options)).then(function() {
+            var dataSeriesInput = Utils.find(self.data.dataSeries, { id: collector.data_series_input });
+
+            dataSeriesInput.active = dataSeries.active;
+
+            objectToSend.DataSeries.push(dataSeriesInput.toObject());
+
+            return models.db.DataSeries.update(dataSeriesInput, Utils.extend({
+              fields: ["active"],
+              where: { id: dataSeriesInput.id }
+            }, options));
+          }).then(function() {
+            objectToSend.Collectors = [collector.toObject()];
+
+            return resolve(objectToSend);
+          }).catch(function(err) {
+            return reject(new Error("Could not change data series status " + err.toString()));
+          });
+        } else {
+          return resolve(objectToSend);
+        }
+      }).catch(function(err) {
+        return reject(new Error("Could not change data series status " + err.toString()));
+      });
+    });
+  },
+
+  /**
+   * It changes the status of a given static data series
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   */
+  changeStaticDataSeriesStatus: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      var dataSeries = Utils.find(self.data.dataSeries, restriction);
+
+      dataSeries.active = !dataSeries.active;
+
+      return models.db.DataSeries.update(dataSeries, Utils.extend({
+        fields: ["active"],
+        where: restriction
+      }, options)).then(function() {
+        return resolve(dataSeries);
+      }).catch(function(err) {
+        return reject(new Error("Could not change data series status " + err.toString()));
       });
     });
   },
@@ -3159,6 +3220,68 @@ var DataManager = module.exports = {
   },
 
   /**
+   * It retrieves a collector of database from given restriction. If no collector is found, a null value is returned.
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Collector>}
+   */
+  getCollectorAcceptNull: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      var restrictionOutput = {};
+      if (restriction.output) {
+        Object.assign(restrictionOutput, restriction.output);
+        delete restriction.output;
+      }
+
+      models.db.Collector.findOne(Utils.extend({
+        where: restriction,
+        include: [
+          {
+            model: models.db.Schedule
+          },
+          {
+            model: models.db.DataSeries,
+            where: restrictionOutput
+          },
+          {
+            model: models.db.CollectorInputOutput
+          },
+          {
+            model: models.db.Filter,
+            required: false,
+            attributes: { include: [[orm.fn('ST_AsEwkt', orm.col('region')), 'region_wkt'], [orm.fn('ST_srid', orm.col('region')), 'srid']] }
+          },
+          {
+            model: models.db.Intersection,
+            required: false
+          }
+        ]
+      }, options)).then(function(collectorResult) {
+        if (collectorResult) {
+          var collectorInstance = new DataModel.Collector(collectorResult.get());
+
+          return self.getDataSeries({id: collectorResult.data_series_output})
+            .then(function(dataSeries) {
+              collectorInstance.dataSeriesOutput = dataSeries;
+              return resolve(collectorInstance);
+            }).catch(function(err) {
+              logger.error("Retrieved null while getting collector", err);
+              return reject(new exceptions.CollectorError("Could not find collector. " + err.toString()));
+            });
+        } else {
+          return resolve(null);
+        }
+      }).catch(function(err) {
+        logger.error(err);
+        return reject(new exceptions.CollectorError("Could not find collector. " + err.toString()));
+      });
+    });
+  },
+
+  /**
    * It retrieves a list of filter in database
    *
    * @param {Object} restriction - A query restriction
@@ -3963,14 +4086,21 @@ var DataManager = module.exports = {
     var self = this;
     return new Promise(function(resolve, reject) {
       return self.getAnalysis(restriction, options).then(function(analysisResult) {
-        analysisResult.active = !analysisResult.active;
+        var dataSet = Utils.find(self.data.dataSets, { id: analysisResult.dataset_output });
+        var dataSeries = Utils.find(self.data.dataSeries, { id: dataSet.data_series_id });
+
+        analysisResult.active = dataSeries.active = !analysisResult.active;
 
         return models.db.Analysis.update(analysisResult, Utils.extend({
           fields: ["active"],
           where: restriction
         }, options)).then(function() {
-          console.log(analysisResult);
-          return resolve();
+          return models.db.DataSeries.update(dataSeries, Utils.extend({
+            fields: ["active"],
+            where: restriction
+          }, options));
+        }).then(function() {
+          return resolve({ analysis: analysisResult, dataSeries: dataSeries });
         }).catch(function(err) {
           return reject(new Error("Could not change analysis status " + err.toString()));
         });
@@ -4182,6 +4312,96 @@ var DataManager = module.exports = {
         }).catch(function(err) {
           return reject(err);
         });
+      }).catch(function(err) {
+        logger.error(err);
+        return reject(new exceptions.AnalysisError("Could not retrieve Analysis " + err.message));
+      });
+    });
+  },
+  /**
+   * It retrieve a TerraMA² Analysis instance. If no analysis is found, null is returned.
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} restriction.dataSet - TerraMA² Output data set restriction
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @param {boolean} ignoreAnalysisDsMetaDataSeries - Flag that indicates if the AnalysisDsMetaDataSeries should be ignored
+   * @return {Promise<DataModel.Analysis>}
+   */
+  getAnalysisAcceptNull: function(restriction, options, ignoreAnalysisDsMetaDataSeries) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      var restrict = Object.assign({}, restriction || {});
+      var dataSetRestriction = {};
+      if (restrict && restrict.dataSet) {
+        dataSetRestriction = restrict.dataSet;
+        delete restrict.dataSet;
+      }
+      var opts = Utils.extend({
+        where: restrict,
+        include: [
+          {
+            model: models.db.AnalysisDataSeries,
+            include: [
+              {
+                model: models.db.AnalysisDataSeriesMetadata,
+                required: false
+              }
+            ]
+          },
+          {
+            model: models.db.AnalysisOutputGrid,
+            attributes: {include: [[orm.fn('ST_AsEwkt', orm.col('area_of_interest_box')), 'interest_box']]},
+            required: false
+          },
+          models.db.AnalysisMetadata,
+          models.db.ScriptLanguage,
+          models.db.AnalysisType,
+          {
+            model: models.db.Schedule,
+            required: false,
+            include: [
+              {
+                model: models.db.ReprocessingHistoricalData,
+                required: false
+              }
+            ]
+          },
+          {
+            model: models.db.AutomaticSchedule,
+            required: false
+          },
+          {
+            model: models.db.DataSet,
+            where: dataSetRestriction
+          }
+        ]
+      }, options);
+
+      return models.db.Analysis.findOne(opts).then(function(analysisResult) {
+        if(analysisResult) {
+          var analysisInstance = new DataModel.Analysis(analysisResult.get());
+
+          return self.getDataSet({id: analysisResult.dataset_output}).then(function(analysisOutputDataSet) {
+            return self.getDataSeries({id: analysisOutputDataSet.data_series_id}).then(function(analysisOutputDataSeries) {
+              analysisInstance.setDataSeries(analysisOutputDataSeries);
+              analysisResult.AnalysisDataSeries.forEach(function(analysisDataSeries) {
+                var ds = Utils.find(self.data.dataSeries, {id: analysisDataSeries.data_series_id});
+                var analysisDsMeta = new DataModel.AnalysisDataSeries(analysisDataSeries.get());
+                if(ignoreAnalysisDsMetaDataSeries == undefined || ignoreAnalysisDsMetaDataSeries == null || !ignoreAnalysisDsMetaDataSeries) analysisDsMeta.setDataSeries(ds);
+                analysisInstance.addAnalysisDataSeries(analysisDsMeta);
+              });
+
+              return resolve(analysisInstance);
+            }).catch(function(err) {
+              return reject(err);
+            });
+          }).catch(function(err) {
+            return reject(err);
+          });
+        } else {
+          return resolve(null);
+        }
       }).catch(function(err) {
         logger.error(err);
         return reject(new exceptions.AnalysisError("Could not retrieve Analysis " + err.message));
@@ -5025,13 +5245,7 @@ var DataManager = module.exports = {
           fields: ["active"],
           where: restriction
         }, options)).then(function() {
-          TcpService.send({
-            "Alerts": [alertResult.toService()]
-          }).then(function() {
-            return resolve();
-          }).catch(function(err) {
-            return reject(new Error("Could not change alert status " + err.toString()));
-          });
+          return resolve(alertResult);
         }).catch(function(err) {
           return reject(new Error("Could not change alert status " + err.toString()));
         });
@@ -5698,13 +5912,7 @@ var DataManager = module.exports = {
           fields: ["active"],
           where: restriction
         }, options)).then(function() {
-          TcpService.send({
-            "Views": [viewResult.toObject()]
-          }).then(function() {
-            return resolve();
-          }).catch(function(err) {
-            return reject(new Error("Could not change view status " + err.toString()));
-          });
+          return resolve(viewResult);
         }).catch(function(err) {
           return reject(new Error("Could not change view status " + err.toString()));
         });

@@ -34,7 +34,7 @@ define(function() {
           return BASE_URL + "configuration/providers/edit/" + object.id;
         };
         $scope.statusChangeLink = function(object) {
-          return BASE_URL + "configuration/providers/changeStatus/" + object.id;
+          return BASE_URL + "api/DataProvider/changeStatus/" + object.id;
         };
         $scope.close = function() {
           MessageBoxService.reset();

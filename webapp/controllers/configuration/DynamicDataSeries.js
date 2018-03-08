@@ -282,14 +282,6 @@ module.exports = function(app) {
         delete storedDcpsStoreKeysTime[key];
 
       response.json(storedDcpsStore);
-    },
-    changeStatus: function(request, response) {
-      DataManager.changeDataSeriesStatus({ id: parseInt(request.params.id) }).then(function() {
-        return response.json({});
-      }).catch(function(err) {
-        response.status(500);
-        return response.json({ err: err });
-      });
     }
   };
 
