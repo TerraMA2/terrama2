@@ -83,17 +83,12 @@ void FillEmptyData(std::vector<terrama2::services::interpolator::core::Interpola
 /// End utilities functions section.
 /*! -------------------------------*/
 
-terrama2::services::interpolator::core::Interpolator::Interpolator(InterpolatorParamsPtr params) :
-  Process()
+terrama2::services::interpolator::core::Interpolator::Interpolator(InterpolatorParamsPtr params)
 {
   interpolationParams_ = params;
   te::gm::Envelope env;
   tree_.reset(new InterpolatorTree(env));
   tree_->setBucketSize(1);
-
-  this->id = interpolationParams_->id_;
-  this->serviceInstanceId = interpolationParams_->serviceInstanceId_;
-  this->active = true;
 }
 
 terrama2::services::interpolator::core::Interpolator::~Interpolator()
@@ -101,7 +96,7 @@ terrama2::services::interpolator::core::Interpolator::~Interpolator()
 
 }
 
-te::rst::RasterPtr terrama2::services::interpolator::core::Interpolator::makeRaster()
+std::unique_ptr<te::rst::Raster> terrama2::services::interpolator::core::Interpolator::makeRaster()
 {
   te::gm::Envelope* env = new te::gm::Envelope(interpolationParams_->bRect_);
 
@@ -112,9 +107,6 @@ te::rst::RasterPtr terrama2::services::interpolator::core::Interpolator::makeRas
     TERRAMA2_LOG_WARNING() << errMsg.toStdString();
     throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
   }
-
-
-  te::rst::Raster* r;
 
   // Reseting the kd-tree
   /////////////////////////////////////////////////////////////////////////
@@ -139,12 +131,9 @@ te::rst::RasterPtr terrama2::services::interpolator::core::Interpolator::makeRas
 
   // Creating raster info
   std::map<std::string, std::string> conInfo;
-
-  // create raster
-  r = te::rst::RasterFactory::make("MEM", grid, vecBandProp, conInfo);
   /////////////////////////////////////////////////////////////////////////
 
-  return te::rst::RasterPtr(r);
+  return std::unique_ptr<te::rst::Raster>(te::rst::RasterFactory::make("MEM", grid, vecBandProp, conInfo));
 }
 
 void terrama2::services::interpolator::core::Interpolator::fillTree()
@@ -155,11 +144,12 @@ void terrama2::services::interpolator::core::Interpolator::fillTree()
   {
     //////////////////////////////////////////////////////////
     //  aquiring metadata
-    auto dataManager = interpolationParams_->dataManager_;
+    auto dataManager = weakDataManager_.lock();
     auto lock = dataManager->getLock();
 
     // input data
     auto inputDataSeries = dataManager->findDataSeries(dId);
+    auto provider = dataManager->findDataProvider(inputDataSeries->dataProviderId);
 
     TERRAMA2_LOG_DEBUG() << QObject::tr("Starting creating kd-tree for '%1'").arg(inputDataSeries->name.c_str());
 
@@ -168,7 +158,6 @@ void terrama2::services::interpolator::core::Interpolator::fillTree()
 
     /////////////////////////////////////////////////////////////////////////
     //  recovering data
-    auto provider = dataManager->findDataProvider(inputDataSeries->dataProviderId);
 
     auto remover = std::make_shared<terrama2::core::FileRemover>();
 
@@ -241,9 +230,9 @@ terrama2::services::interpolator::core::NNInterpolator::NNInterpolator(Interpola
 
 }
 
-te::rst::RasterPtr terrama2::services::interpolator::core::NNInterpolator::makeInterpolation()
+std::unique_ptr<te::rst::Raster> terrama2::services::interpolator::core::NNInterpolator::makeInterpolation()
 {
-  te::rst::RasterPtr r = makeRaster();
+  std::unique_ptr<te::rst::Raster> r = makeRaster();
   /////////////////////////////////////////////////////////////////////////
   //  Making the interpolation using the nearest neighbor.
   te::gm::Point pt1;
@@ -292,9 +281,9 @@ terrama2::services::interpolator::core::AvgDistInterpolator::AvgDistInterpolator
 
 }
 
-te::rst::RasterPtr terrama2::services::interpolator::core::AvgDistInterpolator::makeInterpolation()
+std::unique_ptr<te::rst::Raster> terrama2::services::interpolator::core::AvgDistInterpolator::makeInterpolation()
 {
-  te::rst::RasterPtr r = makeRaster();
+  std::unique_ptr<te::rst::Raster> r = makeRaster();
 
   /////////////////////////////////////////////////////////////////////////
   //  Making the interpolation using the nearest neighbor.
@@ -353,9 +342,9 @@ terrama2::services::interpolator::core::SqrAvgDistInterpolator::SqrAvgDistInterp
 
 }
 
-te::rst::RasterPtr terrama2::services::interpolator::core::SqrAvgDistInterpolator::makeInterpolation()
+std::unique_ptr<te::rst::Raster> terrama2::services::interpolator::core::SqrAvgDistInterpolator::makeInterpolation()
 {
-  te::rst::RasterPtr r = makeRaster();
+  std::unique_ptr<te::rst::Raster> r = makeRaster();
 
   /////////////////////////////////////////////////////////////////////////
   //  Making the interpolation using the nearest neighbor.

@@ -60,7 +60,7 @@ namespace terrama2
           /*!
            * \brief Destructor.
            */
-          ~InterpolatorLogger() {}
+          ~InterpolatorLogger() = default;
 
           /*!
            * \brief This method will log a file input for a determinated process log.

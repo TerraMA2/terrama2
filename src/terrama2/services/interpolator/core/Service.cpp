@@ -162,8 +162,8 @@ void StoreInterpolateResult(te::rst::Raster* raster, terrama2::services::interpo
 /// End utilities functions section.
 /*! -------------------------------*/
 
-terrama2::services::interpolator::core::Service::Service(std::weak_ptr<DataManager> dataManager):
-  dataManager_(dataManager)
+terrama2::services::interpolator::core::Service::Service(std::weak_ptr<DataManager> dataManager)
+  : terrama2::core::Service(dataManager)
 {
   connectDataManager();
 
@@ -189,9 +189,11 @@ void terrama2::services::interpolator::core::Service::prepareTask(const terrama2
   }
 }
 
-void terrama2::services::interpolator::core::Service::interpolate(terrama2::core::ExecutionPackage executionPackage, std::shared_ptr<InterpolatorLogger> logger, std::weak_ptr<terrama2::services::interpolator::core::DataManager> weakDataManager)
+void terrama2::services::interpolator::core::Service::interpolate(terrama2::core::ExecutionPackage executionPackage,
+                                                                  std::shared_ptr<InterpolatorLogger> logger,
+                                                                  std::weak_ptr<terrama2::core::DataManager> weakDataManager)
 {
-  auto dataManager = weakDataManager.lock();
+  auto dataManager = std::dynamic_pointer_cast<terrama2::services::interpolator::core::DataManager>(weakDataManager.lock());
   if(!dataManager.get())
   {
     TERRAMA2_LOG_ERROR() << tr("Unable to access DataManager");
@@ -232,12 +234,13 @@ void terrama2::services::interpolator::core::Service::interpolate(terrama2::core
     }
 
     auto interpolatorPtr(InterpolatorFactories::make(interpolatorParamsPtr->interpolationType_, interpolatorParamsPtr));
+    interpolatorPtr->setDataManager(dataManager);
 
     auto res = interpolatorPtr->makeInterpolation();
 
     TERRAMA2_LOG_INFO() << tr("Data from process %1 interpolated successfully.").arg(executionPackage.processId);
 
-    StoreInterpolateResult(res.get(), interpolatorParamsPtr.get(), dataManager, executionPackage.executionDate);
+    StoreInterpolateResult(res.release(), interpolatorParamsPtr.get(), dataManager, executionPackage.executionDate);
 
     TERRAMA2_LOG_INFO() << tr("Data from process %1 stored successfully.").arg(executionPackage.processId);
 
@@ -247,7 +250,7 @@ void terrama2::services::interpolator::core::Service::interpolate(terrama2::core
 
     logger->setEndProcessingTime(processingEndTime, executionPackage.registerId);
 
-    logger->result(InterpolatorLogger::DONE, processingEndTime, executionPackage.registerId);
+    logger->result(InterpolatorLogger::Status::DONE, processingEndTime, executionPackage.registerId);
 
     sendProcessFinishedSignal(executionPackage.processId, executionPackage.executionDate, true);
 
@@ -268,8 +271,8 @@ void terrama2::services::interpolator::core::Service::interpolate(terrama2::core
 
     if(executionPackage.registerId != 0)
     {
-      logger->log(InterpolatorLogger::WARNING_MESSAGE, tr("No data available").toStdString(), executionPackage.registerId);
-      logger->result(InterpolatorLogger::DONE, nullptr, executionPackage.registerId);
+      logger->log(InterpolatorLogger::MessageType::WARNING_MESSAGE, tr("No data available").toStdString(), executionPackage.registerId);
+      logger->result(InterpolatorLogger::Status::DONE, nullptr, executionPackage.registerId);
     }
 
     QJsonObject jsonAnswer;
@@ -284,8 +287,8 @@ void terrama2::services::interpolator::core::Service::interpolate(terrama2::core
 
     if(executionPackage.registerId != 0)
     {
-      logger->log(InterpolatorLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
-      logger->result(InterpolatorLogger::ERROR, nullptr, executionPackage.registerId);
+      logger->log(InterpolatorLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+      logger->result(InterpolatorLogger::Status::ERROR, nullptr, executionPackage.registerId);
     }
   }
   catch(const boost::exception& e)
@@ -296,8 +299,8 @@ void terrama2::services::interpolator::core::Service::interpolate(terrama2::core
 
     if(executionPackage.registerId != 0)
     {
-      logger->log(InterpolatorLogger::ERROR_MESSAGE, errMsg, executionPackage.registerId);
-      logger->result(InterpolatorLogger::ERROR, nullptr, executionPackage.registerId);
+      logger->log(InterpolatorLogger::MessageType::ERROR_MESSAGE, errMsg, executionPackage.registerId);
+      logger->result(InterpolatorLogger::Status::ERROR, nullptr, executionPackage.registerId);
     }
   }
   catch(const std::exception& e)
@@ -307,8 +310,8 @@ void terrama2::services::interpolator::core::Service::interpolate(terrama2::core
 
     if(executionPackage.registerId != 0)
     {
-      logger->log(InterpolatorLogger::ERROR_MESSAGE, e.what(), executionPackage.registerId);
-      logger->result(InterpolatorLogger::ERROR, nullptr, executionPackage.registerId);
+      logger->log(InterpolatorLogger::MessageType::ERROR_MESSAGE, e.what(), executionPackage.registerId);
+      logger->result(InterpolatorLogger::Status::ERROR, nullptr, executionPackage.registerId);
     }
   }
   catch(...)
@@ -319,82 +322,23 @@ void terrama2::services::interpolator::core::Service::interpolate(terrama2::core
 
     if(executionPackage.registerId != 0)
     {
-      logger->log(InterpolatorLogger::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
-      logger->result(InterpolatorLogger::ERROR, nullptr, executionPackage.registerId);
+      logger->log(InterpolatorLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+      logger->result(InterpolatorLogger::Status::ERROR, nullptr, executionPackage.registerId);
     }
-  }
-}
-
-void terrama2::services::interpolator::core::Service::addToQueue(InterpolatorId interpolatorId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept
-{
-  try
-  {
-    std::lock_guard<std::mutex> lock(mutex_);
-
-    auto datamanager1 = dataManager_.lock();
-    auto interpolator = datamanager1->findInterpolatorParams(interpolatorId);
-
-    const auto& serviceManager = terrama2::core::ServiceManager::getInstance();
-    auto serviceInstanceId = serviceManager.instanceId();
-
-    // Check if this interpolator should be executed in this instance
-    if(interpolator->serviceInstanceId_ != serviceInstanceId)
-      return;
-
-    RegisterId registerId = logger_->start(interpolatorId);
-
-    terrama2::core::ExecutionPackage executionPackage;
-    executionPackage.processId = interpolatorId;
-    executionPackage.executionDate = startTime;
-    executionPackage.registerId = registerId;
-
-    // if this interpolator id is already being processed put it on the wait queue
-    auto pqIt = std::find(processingQueue_.begin(), processingQueue_.end(), interpolatorId);
-    if(pqIt == processingQueue_.end())
-    {
-      processQueue_.push_back(executionPackage);
-      processingQueue_.push_back(interpolatorId);
-
-      //wake loop thread
-      mainLoopCondition_.notify_one();
-    }
-    else
-    {
-      waitQueue_[interpolatorId].push(executionPackage);
-      logger_->result(InterpolatorLogger::ON_QUEUE, nullptr, executionPackage.registerId);
-      TERRAMA2_LOG_INFO() << tr("Interpolator %1 added to wait queue.").arg(interpolatorId);
-    }
-
-    mainLoopCondition_.notify_one();
-  }
-  catch(const terrama2::core::LogException&)
-  {
-    TERRAMA2_LOG_ERROR() << QObject::tr("Unable to access log database.");
-  }
-  catch(...)
-  {
-    // exception guard, slots should never emit exceptions.
-    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception durring interpolator edd to queue...");
   }
 }
 
 void terrama2::services::interpolator::core::Service::connectDataManager()
 {
-  auto dataManager1 = dataManager_.lock();
+  auto dataManager = std::static_pointer_cast<terrama2::services::interpolator::core::DataManager>(dataManager_.lock());
+  assert(dataManager);
 
-  connect(dataManager1.get(), &terrama2::services::interpolator::core::DataManager::interpolatorAdded, this,
-          &terrama2::services::interpolator::core::Service::addInterpolator);
-  connect(dataManager1.get(), &terrama2::services::interpolator::core::DataManager::interpolatorRemoved, this,
+  connect(dataManager.get(), &terrama2::services::interpolator::core::DataManager::interpolatorAdded, this,
+          &terrama2::services::interpolator::core::Service::addProcessToSchedule);
+  connect(dataManager.get(), &terrama2::services::interpolator::core::DataManager::interpolatorRemoved, this,
           &terrama2::services::interpolator::core::Service::removeInterpolator);
-  connect(dataManager1.get(), &terrama2::services::interpolator::core::DataManager::interpolatorUpdated, this,
+  connect(dataManager.get(), &terrama2::services::interpolator::core::DataManager::interpolatorUpdated, this,
           &terrama2::services::interpolator::core::Service::updateInterpolator);
-}
-
-void terrama2::services::interpolator::core::Service::addInterpolator(terrama2::services::interpolator::core::InterpolatorParamsPtr params)
-{
-  InterpolatorPtr i(InterpolatorFactories::make(params->interpolationType_, params));
-
-  addProcessToSchedule(i);
 }
 
 void terrama2::services::interpolator::core::Service::removeInterpolator(InterpolatorId interpolatorId) noexcept
@@ -441,11 +385,17 @@ void terrama2::services::interpolator::core::Service::removeInterpolator(Interpo
 
 void terrama2::services::interpolator::core::Service::updateInterpolator(InterpolatorParamsPtr params) noexcept
 {
-  removeInterpolator(params->id_);
-  addInterpolator(params);
+  removeInterpolator(params->id);
+  addProcessToSchedule(params);
 }
 
-void terrama2::services::interpolator::core::Service::updateAdditionalInfo(const QJsonObject& obj) noexcept
+void terrama2::services::interpolator::core::Service::updateAdditionalInfo(const QJsonObject&) noexcept
 {
 
+}
+
+terrama2::core::ProcessPtr terrama2::services::interpolator::core::Service::getProcess(ProcessId processId)
+{
+  auto dataManager = std::static_pointer_cast<terrama2::services::interpolator::core::DataManager>(dataManager_.lock());
+  return dataManager->findInterpolatorParams(processId);
 }

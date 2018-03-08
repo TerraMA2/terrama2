@@ -30,6 +30,7 @@
 #ifndef __TERRAMA2_SERVICES_INTERPOLATOR_INTERPOLATORPARAMS_HPP__
 #define __TERRAMA2_SERVICES_INTERPOLATOR_INTERPOLATORPARAMS_HPP__
 
+#include "../../../core/data-model/Process.hpp"
 #include "../../../core/data-model/Filter.hpp"
 #include "../../../core/Typedef.hpp"
 
@@ -70,7 +71,7 @@ namespace terrama2
          *
          * \ingroup interpolator
          */
-        struct InterpolatorParams
+        struct InterpolatorParams : public terrama2::core::Process
         {
           /*!
            * \brief Default constructor.
@@ -79,8 +80,7 @@ namespace terrama2
             resolutionX_(0),
             resolutionY_(0),
             interpolationType_(NEARESTNEIGHBOR),
-            srid_(0),
-            active_(false)
+            srid_(0)
           {
             filter_.lastValues = std::make_shared<long unsigned int>(1);
           }
@@ -101,12 +101,7 @@ namespace terrama2
 //            outSeries_ = other.outSeries_;
 //            srid_ = other.srid_;
 //            attributeName_ = other.attributeName_;
-//            id_ = other.id_;
-//            serviceInstanceId_ = other.serviceInstanceId_;
-//            dataManager_ = other.dataManager_;
 //            numNeighbors_ = other.numNeighbors_;
-//            projectId_ = other.projectId_;
-//            active_ = other.active_;
 //          }
 
           /*!
@@ -132,12 +127,7 @@ namespace terrama2
 //            outSeries_ = other.outSeries_;
 //            srid_ = other.srid_;
 //            attributeName_ = other.attributeName_;
-//            id_ = other.id_;
-//            serviceInstanceId_ = other.serviceInstanceId_;
-//            dataManager_ = other.dataManager_;
 //            numNeighbors_ = other.numNeighbors_;
-//            projectId_ = other.projectId_;
-//            active_ = other.active_;
 
 //            return *this;
 //          }
@@ -151,12 +141,7 @@ namespace terrama2
           DataSeriesId outSeries_;                              //!< The indentifier of the output data.
           int srid_;                                            //!< SRID for the output.
           std::string attributeName_;                           //!< Name of the attribute to be used by the interpolator.
-          InterpolatorId id_;                                   //!< Identifier of the interpolator being used.
-          ServiceInstanceId serviceInstanceId_;                 //!< Identifier of the service.
-          DataManager* dataManager_;                            //!< Pointer to the data manager.
           size_t numNeighbors_;                                 //!< Number of neighbors to be used in computations.
-          ProjectId projectId_;                                 //!< Identifier of the project.
-          bool active_;                                         //!< True if the service is active, false otherwise.
         };
 
         /*!

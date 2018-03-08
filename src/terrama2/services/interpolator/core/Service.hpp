@@ -109,22 +109,6 @@ namespace terrama2
         public slots:
 
           /*!
-           * \brief Adds the params to set of params.
-           *
-           * \param params The parameters to be stored.
-           */
-          void addInterpolator(InterpolatorParamsPtr params);
-
-          /*!
-           * \brief Adds the service to the execution queue.
-           *
-           * \param interpolatorId Identifier of the interpolation service.
-           *
-           * \param startTime Process start timing.
-           */
-          void addToQueue(InterpolatorId interpolatorId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept override;
-
-          /*!
            * \brief Receive a jSon and update service information with it.
            *
            * \param obj jSon with additional information for service.
@@ -146,6 +130,7 @@ namespace terrama2
           void updateInterpolator(InterpolatorParamsPtr interpolator) noexcept;
 
         protected:
+          virtual terrama2::core::ProcessPtr getProcess(ProcessId processId) override;
 
           /*!
            * \brief Prespares the task to be executed.
@@ -164,14 +149,12 @@ namespace terrama2
            * \param weakDataManager The DataManager object being used.
            */
           void interpolate(terrama2::core::ExecutionPackage executionPackage, std::shared_ptr<InterpolatorLogger> logger,
-                           std::weak_ptr<DataManager> weakDataManager);
+                           std::weak_ptr<terrama2::core::DataManager> weakDataManager);
 
           /*!
            * \brief Make the connections between the DataManager and the object itself.
            */
           void connectDataManager();
-
-          std::weak_ptr<DataManager> dataManager_; //!< Weak pointer to the DataManager
         };
       } // end namespace core
     }   // end namespace interpolator

@@ -362,9 +362,9 @@ int main(int argc, char* argv[])
   dataManager->add(pPtr3);
 
   service.start();
-  service.addToQueue(pPtr1->id_, terrama2::core::TimeUtils::nowUTC());
-  service.addToQueue(pPtr2->id_, terrama2::core::TimeUtils::nowUTC());
-  service.addToQueue(pPtr3->id_, terrama2::core::TimeUtils::nowUTC());
+  service.addToQueue(pPtr1, terrama2::core::TimeUtils::nowUTC());
+  service.addToQueue(pPtr2, terrama2::core::TimeUtils::nowUTC());
+  service.addToQueue(pPtr3, terrama2::core::TimeUtils::nowUTC());
   //////////////////////////////////////////////////////
 
   QTimer timer;

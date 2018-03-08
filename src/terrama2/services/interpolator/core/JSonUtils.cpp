@@ -39,6 +39,7 @@
 
 // Qt
 #include <QJsonDocument>
+#include <QJsonObject>
 #include <QJsonArray>
 
 
@@ -183,15 +184,15 @@ terrama2::services::interpolator::core::InterpolatorParamsPtr terrama2::services
 
   InterpolatorParams* res = GetParameters(interpolatorType);
 
-  res->id_ = static_cast<uint32_t>(json["id"].toInt());
-  res->projectId_ = static_cast<uint32_t>(json["project_id"].toInt());
-  res->serviceInstanceId_ = static_cast<uint32_t>(json["service_instance_id"].toInt());
+  res->id = static_cast<uint32_t>(json["id"].toInt());
+  res->projectId = static_cast<uint32_t>(json["project_id"].toInt());
+  res->serviceInstanceId = static_cast<uint32_t>(json["service_instance_id"].toInt());
 
   res->series_ = static_cast<uint32_t>(json["input_data_series"].toInt());
   res->outSeries_ = static_cast<uint32_t>(json["output_data_series"].toInt());
 
 //  res->filter_ = terrama2::core::fromFilterJson(json["filter"].toObject(), dataManager);
-  res->active_ = json["active"].toString().toLower() == "true" ?
+  res->active = json["active"].toString().toLower() == "true" ?
                       true :
                       false;
 
@@ -239,9 +240,9 @@ QJsonObject terrama2::services::interpolator::core::toJson(InterpolatorParamsPtr
 {
   QJsonObject obj;
   obj.insert("class", QString("Interpolator"));
-  obj.insert("id", static_cast<int32_t>(params->id_));
-  obj.insert("project_id", static_cast<int32_t>(params->projectId_));
-  obj.insert("service_instance_id", static_cast<int32_t>(params->serviceInstanceId_));
+  obj.insert("id", static_cast<int32_t>(params->id));
+  obj.insert("project_id", static_cast<int32_t>(params->projectId));
+  obj.insert("service_instance_id", static_cast<int32_t>(params->serviceInstanceId));
   obj.insert("input_data_series", static_cast<int32_t>(params->series_));
   obj.insert("output_data_series", static_cast<int32_t>(params->outSeries_));
   obj.insert("interpolator_strategy", GetInterpolatorAsString(params->interpolationType_));
@@ -250,7 +251,7 @@ QJsonObject terrama2::services::interpolator::core::toJson(InterpolatorParamsPtr
   obj.insert("resolution_y", static_cast<double>(params->resolutionY_));
   obj.insert("interpolation_attribute", QString::fromStdString(params->attributeName_));
   obj.insert("srid", static_cast<int32_t>(params->srid_));
-  obj.insert("active", params->active_);
+  obj.insert("active", params->active);
 
   if(params->interpolationType_ == terrama2::services::interpolator::core::SQRAVGDIST)
   {

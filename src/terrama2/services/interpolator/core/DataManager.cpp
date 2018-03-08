@@ -70,17 +70,15 @@ void terrama2::services::interpolator::core::DataManager::add(terrama2::services
   {
     std::lock_guard<std::recursive_mutex> lock(mtx_);
 
-    if(params->id_ == terrama2::core::InvalidId())
+    if(params->id == terrama2::core::InvalidId())
     {
       QString errMsg = QObject::tr("Can not add a data provider with an invalid id.");
       TERRAMA2_LOG_ERROR() << errMsg;
       throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
 
-    params->dataManager_ = this;
-
     TERRAMA2_LOG_DEBUG() << tr("Interpolator parameters added");
-    interpolatorsParams_[params->id_] = params;
+    interpolatorsParams_[params->id] = params;
   }
 
   emit interpolatorAdded(params);
@@ -91,7 +89,7 @@ void terrama2::services::interpolator::core::DataManager::update(terrama2::servi
   {
     std::lock_guard<std::recursive_mutex> lock(mtx_);
     blockSignals(true);
-    removeInterpolator(params->id_);
+    removeInterpolator(params->id);
     add(params);
     blockSignals(false);
   }
@@ -138,7 +136,7 @@ void terrama2::services::interpolator::core::DataManager::addJSon(const QJsonObj
     {
       InterpolatorParamsPtr dataPtr(terrama2::services::interpolator::core::fromInterpolatorJson(json.toObject(), this));
 
-      if(hasInterpolator(dataPtr->id_))
+      if(hasInterpolator(dataPtr->id))
         update(dataPtr);
       else
         add(dataPtr);

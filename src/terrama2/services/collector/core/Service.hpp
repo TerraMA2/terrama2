@@ -71,7 +71,7 @@ namespace terrama2
             Service& operator=(const Service& other) = delete;
             Service& operator=(Service&& other) = default;
 
-            public slots:
+          public slots:
 
             /*!
               \brief Updates the Collector.
