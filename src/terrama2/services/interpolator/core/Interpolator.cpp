@@ -96,7 +96,7 @@ terrama2::services::interpolator::core::Interpolator::~Interpolator()
 
 std::unique_ptr<te::rst::Raster> terrama2::services::interpolator::core::Interpolator::makeRaster()
 {
-  te::gm::Envelope* env = new te::gm::Envelope(interpolationParams_->bRect_);
+  auto env = std::unique_ptr<te::gm::Envelope>(new te::gm::Envelope(interpolationParams_->bRect_));
 
   if(!env->isValid())
   {
@@ -121,7 +121,7 @@ std::unique_ptr<te::rst::Raster> terrama2::services::interpolator::core::Interpo
   double resolutionY = interpolationParams_->resolutionY_;
   int srid = interpolationParams_->srid_;
 
-  te::rst::Grid* grid = new te::rst::Grid(resolutionX, resolutionY, env, srid);
+  auto grid = std::unique_ptr<te::rst::Grid>(new te::rst::Grid(resolutionX, resolutionY, env.release(), srid));
 
   // Creating bands
   te::rst::BandProperty* bProp = new te::rst::BandProperty(0, te::dt::DOUBLE_TYPE, "");
@@ -131,7 +131,7 @@ std::unique_ptr<te::rst::Raster> terrama2::services::interpolator::core::Interpo
   std::map<std::string, std::string> conInfo;
   /////////////////////////////////////////////////////////////////////////
 
-  return std::unique_ptr<te::rst::Raster>(te::rst::RasterFactory::make("MEM", grid, vecBandProp, conInfo));
+  return std::unique_ptr<te::rst::Raster>(te::rst::RasterFactory::make("MEM", grid.release(), vecBandProp, conInfo));
 }
 
 void terrama2::services::interpolator::core::Interpolator::fillTree()
