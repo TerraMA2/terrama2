@@ -105,13 +105,13 @@ terrama2::services::interpolator::core::InterpolatorParams* GetParameters(const 
  */
 terrama2::services::interpolator::core::InterpolatorParams* GetParameters(const QString& type)
 {
-  if(type.compare("NEAREST-NEIGHBOR", Qt::CaseInsensitive))
+  if(type.compare("NEAREST-NEIGHBOR", Qt::CaseInsensitive) == 0)
     return GetParameters(terrama2::services::interpolator::core::NEARESTNEIGHBOR);
 
-  if(type.compare("AVERAGE-NEIGHBOR", Qt::CaseInsensitive))
+  if(type.compare("AVERAGE-NEIGHBOR", Qt::CaseInsensitive) == 0)
     return GetParameters(terrama2::services::interpolator::core::AVGDIST);
 
-  if(type.compare("W-AVERAGE-NEIGHBOR", Qt::CaseInsensitive))
+  if(type.compare("W-AVERAGE-NEIGHBOR", Qt::CaseInsensitive) == 0)
     return GetParameters(terrama2::services::interpolator::core::SQRAVGDIST);
 
   QString errMsg = QObject::tr("Invalid Interpolator type.");
