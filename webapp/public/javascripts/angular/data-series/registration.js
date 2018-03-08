@@ -1848,20 +1848,20 @@ define([], function() {
             dataSets: out
           };
 
-          dataObject.dataSeries.dataSets.forEach(function(inputDataSet) {
-            outputDataSeries.dataSets.forEach(function(outputDataSet) {
-              for(var inputKey in inputDataSet.format) {
-                if(inputKey.substr(inputKey.length - 9) === "_property" && outputDataSet.format[inputKey]) {
-                  if(!outputDataSet.format.inout_attribute_map)
-                    outputDataSet.format.inout_attribute_map = {};
+          var inputDataSetsLength = dataObject.dataSeries.dataSets.length;
 
-                  outputDataSet.format.inout_attribute_map[inputDataSet.format[inputKey]] = outputDataSet.format[inputKey];
-                }
+          for(var i = 0; i < inputDataSetsLength; i++) {
+            for(var inputKey in dataObject.dataSeries.dataSets[i].format) {
+              if(inputKey.substr(inputKey.length - 9) === "_property" && outputDataSeries.dataSets[i].format[inputKey]) {
+                if(!outputDataSeries.dataSets[i].format.inout_attribute_map)
+                  outputDataSeries.dataSets[i].format.inout_attribute_map = {};
+
+                outputDataSeries.dataSets[i].format.inout_attribute_map[dataObject.dataSeries.dataSets[i].format[inputKey]] = outputDataSeries.dataSets[i].format[inputKey];
               }
+            }
 
-              outputDataSet.format.inout_attribute_map = JSON.stringify(outputDataSet.format.inout_attribute_map);
-            });
-          });
+            outputDataSeries.dataSets[i].format.inout_attribute_map = JSON.stringify(outputDataSeries.dataSets[i].format.inout_attribute_map);
+          }
 
           _sendRequest({
             dataToSend: {input: dataObject.dataSeries, output: outputDataSeries},
