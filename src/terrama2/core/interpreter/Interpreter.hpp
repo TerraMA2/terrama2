@@ -30,6 +30,9 @@
 #ifndef __TERRAMA2_CORE_INTERPRETER_HPP__
 #define __TERRAMA2_CORE_INTERPRETER_HPP__
 
+// TerraMa2
+#include "../Config.hpp"
+
 #include <string>
 
 #include <boost/optional.hpp>
@@ -44,7 +47,7 @@ namespace terrama2
 
       Creates an interpreter instance and ensure isolation.
     */
-    class Interpreter
+    class TMCOREEXPORT Interpreter
     {
     public:
       //! Creates a python interpreter instance
@@ -98,7 +101,7 @@ namespace terrama2
       virtual std::string runScriptWithStringResult(const std::string& script, const std::string& variableToReturn) = 0;
     };
 
-    class InterpreterRAII
+    class TMCOREEXPORT InterpreterRAII
     {
       public:
         InterpreterRAII(std::function<void()> initializer, std::function<void()> finalizer)

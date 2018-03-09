@@ -31,6 +31,7 @@
  #define __TERRAMA2_SERVICES_APPSERVER_MAINWIDGET_H__
 
 // TerraMA2
+#include "../Config.hpp"
 #include "ui_settingswidget.h"
 
 // Qt
@@ -54,7 +55,7 @@ class QProcess;
  * \brief The MainWidget class is responsible for create the main view
  * that initialize all that the service needs to start or finish.
  */
-class MainWidget : public QWidget
+class TMSERVICEEXPORT MainWidget : public QWidget
 {
     Q_OBJECT
 

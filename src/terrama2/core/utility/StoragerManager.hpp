@@ -25,6 +25,7 @@
 #ifndef __TERRAMA2_CORE_STORAGER_MANAGER_HPP__
 #define __TERRAMA2_CORE_STORAGER_MANAGER_HPP__
 
+// TerraMa2
 #include "../Typedef.hpp"
 #include "../Shared.hpp"
 #include "../data-access/DataSetSeries.hpp"
@@ -39,7 +40,7 @@ namespace terrama2
 {
   namespace core
   {
-    class StoragerManager
+    class TMCOREEXPORT StoragerManager
     {
       public:
         StoragerManager(terrama2::core::DataManagerPtr dataManager);

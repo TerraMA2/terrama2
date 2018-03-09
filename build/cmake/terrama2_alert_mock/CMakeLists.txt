@@ -24,9 +24,9 @@
 #  Author: Bianca Maciel, Jano Simas
 #
 
-#if(WIN32)
-#  add_definitions(-DTMA_CORE_DLL)
-#endif()
+if (WIN32)
+add_definitions(-DTMALERTMOCKDLL)
+endif()
 
 file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/alert/mock/*.hpp)
 

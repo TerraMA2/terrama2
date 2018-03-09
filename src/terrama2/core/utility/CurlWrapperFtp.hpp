@@ -25,13 +25,17 @@
 #ifndef __TERRAMA2_CORE_UTILITY_CURL_WRAPPER_FTP_HPP__
 #define __TERRAMA2_CORE_UTILITY_CURL_WRAPPER_FTP_HPP__
 
+// TerraMa2
+#include "../Config.hpp"
+
+// TerraLib
 #include <terralib/ws/core/CurlWrapper.h>
 
 namespace terrama2
 {
   namespace core
   {
-    class CurlWrapperFtp : public te::ws::core::CurlWrapper
+    class TMCOREEXPORT CurlWrapperFtp : public te::ws::core::CurlWrapper
     {
       public:
         using te::ws::core::CurlWrapper::downloadFile;

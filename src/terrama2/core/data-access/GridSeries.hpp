@@ -48,7 +48,7 @@ namespace terrama2
 
       The GridSeries aggregates the te::rst::Raster of each grid.
     */
-    class GridSeries : public SeriesAggregation
+    class TMCOREEXPORT GridSeries : public SeriesAggregation
     {
       public:
         //! Add a group of DataSet data to the GridSeries.

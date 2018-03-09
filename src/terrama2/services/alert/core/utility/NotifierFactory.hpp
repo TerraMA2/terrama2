@@ -30,6 +30,8 @@
 #ifndef __TERRAMA2_SERVICES_ALERT_CORE_NOTIFIER_FACTORY_HPP__
 #define __TERRAMA2_SERVICES_ALERT_CORE_NOTIFIER_FACTORY_HPP__
 
+// TerraMa2
+#include "../Config.hpp"
 #include "../Shared.hpp"
 
 // TerraLib
@@ -47,7 +49,7 @@ namespace terrama2
     {
       namespace core
       {
-        class NotifierFactory : public te::common::Singleton<NotifierFactory>
+        class TMALERTCOREEXPORT NotifierFactory : public te::common::Singleton<NotifierFactory>
         {
           public:
             //! DataAccessor constructor function.

@@ -32,6 +32,7 @@
 #define __TERRAMA2_ANALYSIS_CORE_ANALYSIS_EXECUTOR_HPP__
 
 // TerraMA2
+#include "Config.hpp"
 #include "Shared.hpp"
 #include "AnalysisLogger.hpp"
 #include "GridContext.hpp"
@@ -41,13 +42,20 @@
 // STL
 #include <vector>
 
+// Boost
 #include <boost/any.hpp>
 
 // QT
 #include <QObject>
 
 // Python
-#include <Python.h>
+#ifdef _DEBUG
+  #undef _DEBUG
+  #include <Python.h>
+  #define _DEBUG
+#else
+  #include <Python.h>
+#endif
 
 namespace terrama2
 {
@@ -66,7 +74,7 @@ namespace terrama2
 
           The AnalysisExecutor identify and execute the appropriate analysis type.
         */
-        class AnalysisExecutor : public QObject
+        class TMANALYSISEXPORT AnalysisExecutor : public QObject
         {
           Q_OBJECT
 

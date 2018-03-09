@@ -30,6 +30,8 @@
 #ifndef __TERRAMA2_CORE_DATA_MODEL_SEMANTICS_MANAGER_HPP__
 #define __TERRAMA2_CORE_DATA_MODEL_SEMANTICS_MANAGER_HPP__
 
+// TerraMa2
+#include "../Config.hpp"
 #include "../data-model/DataSeriesSemantics.hpp"
 #include "../data-model/DataProvider.hpp"
 
@@ -44,7 +46,7 @@ namespace terrama2
 {
   namespace core
   {
-    class SemanticsManager : public te::common::Singleton<SemanticsManager>
+    class TMCOREEXPORT SemanticsManager : public te::common::Singleton<SemanticsManager>
     {
       public:
         /*!

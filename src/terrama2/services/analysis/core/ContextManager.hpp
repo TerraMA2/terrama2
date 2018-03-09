@@ -30,6 +30,8 @@
 #ifndef __TERRAMA2_ANALYSIS_CORE_CONTEXT_MANAGER_HPP__
 #define __TERRAMA2_ANALYSIS_CORE_CONTEXT_MANAGER_HPP__
 
+// TerraMa2
+#include "../../Config.hpp"
 #include "Shared.hpp"
 #include "Analysis.hpp"
 #include "BaseContext.hpp"
@@ -53,7 +55,7 @@ namespace terrama2
         class MonitoredObjectContext;
         class GridContext;
 
-        class ContextManager : public te::common::Singleton<ContextManager>
+        class TMANALYSISEXPORT ContextManager : public te::common::Singleton<ContextManager>
         {
           public:
             void addMonitoredObjectContext(const AnalysisHashCode analysisHashCode, MonitoredObjectContextPtr context);

@@ -27,10 +27,11 @@
   \author Paulo R. M. Oliveira
  */
 
-
-
  #ifndef __TERRAMA2_CORE_IMPL_UTILS_HPP__
  #define __TERRAMA2_CORE_IMPL_UTILS_HPP__
+
+// TerraMa2
+#include "Config.hpp"
 
  namespace terrama2
  {
@@ -39,7 +40,7 @@
      //! Temporary funcion to register all data accessor implementations
      // TODO: This shall be removed after each data accessor implementation is in separated modules.
 
-     void registerFactories();
+     TMIMPLEXPORT void registerFactories();
    }
  }
 

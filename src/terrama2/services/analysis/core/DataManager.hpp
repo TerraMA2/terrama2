@@ -31,6 +31,8 @@
 #ifndef __TERRAMA2_ANALYSIS_CORE_DATAMANAGER_HPP__
 #define __TERRAMA2_ANALYSIS_CORE_DATAMANAGER_HPP__
 
+// TerraMa2
+#include "Config.hpp"
 #include "Shared.hpp"
 #include "Typedef.hpp"
 #include "../../../core/data-model/DataManager.hpp"
@@ -54,9 +56,9 @@ namespace terrama2
 
           Take care to keep it synchronized.
         */
-        class DataManager : public terrama2::core::DataManager
+        class TMANALYSISEXPORT DataManager : public terrama2::core::DataManager
         {
-          Q_OBJECT
+		  Q_OBJECT
 
           public:
 

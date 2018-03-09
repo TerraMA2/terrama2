@@ -24,9 +24,9 @@
 #  Author: Jano Simas
 #
 
-#if(WIN32)
-#  add_definitions(-DTMA_CORE_DLL)
-#endif()
+if (WIN32)
+  add_definitions(-DTMSERVICEDLL -DBOOST_PROGRAM_OPTIONS_DYN_LINK)
+endif()
 
 file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/appserver/*.cpp)
 file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/appserver/*.hpp)
@@ -60,7 +60,7 @@ if(APPLE AND TERRAMA2_BUILD_AS_BUNDLE)
   find_library(TERRAMA2_COREFOUNDATION_LIBRARY
                NAMES CoreFoundation
                PATHS "/")
-
+  
   set(MACOSX_BUNDLE_BUNDLE_NAME "terrama2-service")
   set(MACOSX_BUNDLE_SIGNATURE "terrama2-service")
   set(MACOSX_BUNDLE_EXECUTABLE_NAME "terrama2.sh")
@@ -107,6 +107,13 @@ IF(TERRAMA2_INTERPOLATOR_ENABLED)
   target_link_libraries(terrama2_service terrama2_interpolator_core)
 ENDIF()
 
+if(WIN32 AND MSVC)
+  set_target_properties(terraview PROPERTIES LINK_FLAGS_DEBUG "/SUBSYSTEM:CONSOLE")
+  set_target_properties(terraview PROPERTIES RELWITHDEBINFO "/SUBSYSTEM:CONSOLE")
+  set_target_properties(terraview PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
+  set_target_properties(terraview PROPERTIES MINSIZEREL "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
+endif()
+
 install(TARGETS terrama2_service
         EXPORT terrama2-targets
         RUNTIME DESTINATION ${TERRAMA2_DESTINATION_RUNTIME} COMPONENT runtime
@@ -128,14 +135,14 @@ if(APPLE AND TERRAMA2_BUILD_AS_BUNDLE)
 
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/qt.conf
           DESTINATION ${TERRAMA2_BASE_DESTINATION_DIR}/Resources COMPONENT runtime)
-
+  
 elseif(WIN32)
-
+    
   file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/qt.conf
     "[Paths]\nBinaries = .\nPlugins = ../qtplugins")
-
+         
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/qt.conf
-          DESTINATION bin COMPONENT runtime)
+          DESTINATION bin COMPONENT runtime)          
 endif()
 
 export(TARGETS terrama2_service APPEND FILE ${CMAKE_BINARY_DIR}/terrama2-exports.cmake)

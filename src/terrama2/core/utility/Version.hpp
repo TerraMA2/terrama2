@@ -30,6 +30,9 @@
 #ifndef __TERRAMA2_CORE_VERSION_HPP__
 #define __TERRAMA2_CORE_VERSION_HPP__
 
+// TerraMa2
+#include "../Config.hpp"
+
 // STL
 #include <string>
 
@@ -38,7 +41,7 @@ namespace terrama2
   namespace core
   {
     //! Utility class for system versioning.
-    class Version
+    class TMCOREEXPORT Version
     {
       public:
 

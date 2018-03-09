@@ -30,6 +30,8 @@
 #ifndef __TERRAMA2_SERVICES_COLLECTOR_CORE_SERVICE_HPP__
 #define __TERRAMA2_SERVICES_COLLECTOR_CORE_SERVICE_HPP__
 
+// TerraMa2
+#include "Config.hpp"
 #include "../../../core/utility/Service.hpp"
 #include "../../../core/Typedef.hpp"
 #include "../../../core/Shared.hpp"
@@ -58,7 +60,7 @@ namespace terrama2
           The %Collector Service has a main thread that will check for new data to collect
           and a threadpool that will be allocated to actively collect and store the data.
         */
-        class Service : public terrama2::core::Service
+        class TMCOLLECTOREXPORT Service : public terrama2::core::Service
         {
             Q_OBJECT
 

@@ -77,7 +77,7 @@ elseif(UNIX AND NOT DEFINED TERRAMA2_BASE_DESTINATION_DIR)
   set(TERRAMA2_BASE_DESTINATION_DIR ${CMAKE_INSTALL_PREFIX}/)
 
 elseif(NOT DEFINED TERRAMA2_BASE_DESTINATION_DIR)
-  set(TERRAMA2_BASE_DESTINATION_DIR .)
+  set(TERRAMA2_BASE_DESTINATION_DIR ./)
 endif()
 
 # variable that defines the path to data directory used in the unittests
@@ -158,12 +158,7 @@ add_definitions(-DBOOST_ALL_NO_LIB -DBOOST_FILESYSTEM_VERSION=3 -DBOOST_UBLAS_TY
 
 # Specific definitions per platform
 if(WIN32)
-  #add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-
-  #if(MINGW)
-  #  add_definitions(-DTE_MINGW -D_WIN32_WINNT=0x601 -fpermissive)
-  #endif()
-
+  add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 elseif(APPLE)
   add_definitions(-ftemplate-depth-1024)
 endif()
@@ -580,7 +575,7 @@ endif()
 # sa: build/cmake/terrama2-cpack-options.cmake.in
 #
 
-if(NOT CPACK_BINARY_DEB AND NOT APPLE)
+if(NOT CPACK_BINARY_DEB AND NOT APPLE AND NOT WIN32)
   install(CODE "execute_process(COMMAND bash postinst ${TERRAMA2_BASE_DESTINATION_DIR} WORKING_DIRECTORY ${TERRAMA2_DESTINATION_SHARE}/terrama2/scripts/ )" COMPONENT scripts)
 endif()
 

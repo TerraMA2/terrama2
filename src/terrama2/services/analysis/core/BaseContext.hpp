@@ -31,9 +31,13 @@
 #ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_BASE_CONTEXT_HPP__
 #define __TERRAMA2_SERVICES_ANALYSIS_CORE_BASE_CONTEXT_HPP__
 
+// STL
 #include <set>
 #include <memory>
+#include <functional>
 
+// TerraMa2
+#include "Config.hpp"
 #include "../../../core/data-model/Filter.hpp"
 #include "../../../core/utility/FileRemover.hpp"
 #include "../../../core/utility/Utils.hpp"
@@ -44,8 +48,10 @@
 #include "Analysis.hpp"
 #include "Typedef.hpp"
 
+// Boost
 #include <boost/functional/hash.hpp>
 
+// TerraLib
 #include <terralib/raster/Raster.h>
 
 namespace te
@@ -68,7 +74,7 @@ namespace terrama2
         /*!
           \brief Composed key for accessing a ContextDataSeries.
         */
-       struct ObjectKey
+       struct TMANALYSISEXPORT ObjectKey
        {
          public:
            inline ObjectKey(uint32_t objectId, const terrama2::core::Filter& filter = terrama2::core::Filter())
@@ -112,7 +118,7 @@ namespace terrama2
           }
         };
 
-        class BaseContext
+        class TMANALYSISEXPORT BaseContext
         {
           public:
 

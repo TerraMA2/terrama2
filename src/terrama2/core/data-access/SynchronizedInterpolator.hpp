@@ -31,6 +31,9 @@
 #ifndef __TERRAMA2_CORE_SYNCHRONIZED_INTERPOLATOR_HPP__
 #define __TERRAMA2_CORE_SYNCHRONIZED_INTERPOLATOR_HPP__
 
+// TerraMa2
+#include "../Config.hpp"
+
 // TerraLib
 #include <terralib/raster/Interpolator.h>
 
@@ -43,7 +46,7 @@ namespace terrama2
   namespace core
   {
 
-    class SynchronizedInterpolator : protected te::rst::Interpolator
+    class TMCOREEXPORT SynchronizedInterpolator : protected te::rst::Interpolator
     {
       public:
         SynchronizedInterpolator(te::rst::Raster const* r, int m);
