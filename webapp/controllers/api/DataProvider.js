@@ -70,6 +70,16 @@ module.exports = function(app) {
         .catch(function(err){
           return response.json({status: 400, message: err.message});
         });
+    },
+
+    changeStatus: function(request, response) {
+      DataProviderFacade.changeStatus(parseInt(request.params.id))
+        .then(function() {
+          return response.json({});
+        })
+        .catch(function(err) {
+          return response.json({status: 400, message: err.message});
+        });
     }
   };
 };
