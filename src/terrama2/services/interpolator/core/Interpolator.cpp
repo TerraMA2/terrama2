@@ -46,6 +46,7 @@
 #include <terralib/geometry/Point.h>
 #include <terralib/geometry/MultiPoint.h>
 #include <terralib/raster/Raster.h>
+#include <terralib/raster/Band.h>
 #include <terralib/raster/BandProperty.h>
 #include <terralib/raster/Grid.h>
 #include <terralib/raster/RasterFactory.h>
@@ -122,13 +123,14 @@ std::unique_ptr<te::rst::Raster> terrama2::services::interpolator::core::Interpo
 
   // Creating bands
   te::rst::BandProperty* bProp = new te::rst::BandProperty(0, te::dt::DOUBLE_TYPE, "");
+  bProp->m_noDataValue = std::numeric_limits<double>::max();
   std::vector<te::rst::BandProperty*> vecBandProp(1, bProp);
 
   // Creating raster info
   std::map<std::string, std::string> conInfo;
   /////////////////////////////////////////////////////////////////////////
-
-  return std::unique_ptr<te::rst::Raster>(te::rst::RasterFactory::make("MEM", grid.release(), vecBandProp, conInfo));
+  std::unique_ptr<te::rst::Raster> raster(te::rst::RasterFactory::make("MEM", grid.release(), vecBandProp, conInfo));
+  return raster;
 }
 
 void terrama2::services::interpolator::core::Interpolator::fillTree()
@@ -238,10 +240,14 @@ std::unique_ptr<te::rst::Raster> terrama2::services::interpolator::core::NNInter
   te::gm::Point pt1;
   std::vector<InterpolatorData> res;
   std::vector<double> dist;
-  unsigned int resolutionY = r->getGrid()->getNumberOfRows(),
-      resolutionX = r->getGrid()->getNumberOfColumns();
+  auto resolutionY = r->getGrid()->getNumberOfRows();
+  auto resolutionX = r->getGrid()->getNumberOfColumns();
 
+  // sanity check for DCP with NULL values, should never happen
+  bool nullValue = false;
+  auto noDataValue = r->getBand(0)->getProperty()->m_noDataValue;
   for(unsigned int row = 0; row < resolutionY; row++)
+  {
     for(unsigned int col = 0; col < resolutionX; col++)
     {
       res.clear();
@@ -261,14 +267,20 @@ std::unique_ptr<te::rst::Raster> terrama2::services::interpolator::core::NNInter
       terrama2::core::DataSetSeries ds = (res.begin())->series_;
       terrama2::core::SynchronizedDataSetPtr dSet = ds.syncDataSet;
 
-      if(dSet->isNull(0, interpolationParams_->attributeName_))
-        continue;
-
-      double value = dSet->getDouble(0, interpolationParams_->attributeName_);
-
-      r->setValue(col, row, value, 0);
+      if(!dSet->isNull(0, interpolationParams_->attributeName_)) {
+        double value = dSet->getDouble(0, interpolationParams_->attributeName_);
+        r->setValue(col, row, value, 0);
+      } else {
+        nullValue = true;
+        r->setValue(col, row, noDataValue, 0);
+      }
     }
+  }
   /////////////////////////////////////////////////////////////////////////
+
+  if(nullValue) {
+    TERRAMA2_LOG_WARNING() << QObject::tr("Null value in DCP interpolation, should not happen.");
+  }
 
   return r;
 }
@@ -285,26 +297,25 @@ std::unique_ptr<te::rst::Raster> terrama2::services::interpolator::core::AvgDist
 
   /////////////////////////////////////////////////////////////////////////
   //  Making the interpolation using the nearest neighbor.
-  te::gm::Point pt1;
-  std::vector<InterpolatorData> res;
-  std::vector<double> dist;
-  unsigned int resolutionY = r->getGrid()->getNumberOfRows(),
-      resolutionX = r->getGrid()->getNumberOfColumns();
+  auto resolutionY = r->getGrid()->getNumberOfRows();
+  auto resolutionX = r->getGrid()->getNumberOfColumns();
 
+  // sanity check for DCP with NULL values, should never happen
+  bool nullValue = false;
+  auto noDataValue = r->getBand(0)->getProperty()->m_noDataValue;
   for(unsigned int row = 0; row < resolutionY; row++)
+  {
     for(unsigned int col = 0; col < resolutionX; col++)
     {
-      double x,
-          y;
-
-      res.clear();
-      dist.clear();
-
+      double x,y;
       r->getGrid()->gridToGeo(static_cast<double>(col), static_cast<double>(row), x, y);
 
+      te::gm::Point pt1;
       pt1.setX(x);
       pt1.setY(y);
 
+      std::vector<double> dist;
+      std::vector<InterpolatorData> res;
       // Finding the nearest neighbor.
       FillEmptyData(res, dist, interpolationParams_->numNeighbors_);
       tree_->nearestNeighborSearch(pt1, res, dist, interpolationParams_->numNeighbors_);
@@ -321,14 +332,24 @@ std::unique_ptr<te::rst::Raster> terrama2::services::interpolator::core::AvgDist
         if(!res[i].isValid())
           continue;
 
-        numNeighs++;
+        if(!dSet->isNull(0, interpolationParams_->attributeName_)) {
+          value += dSet->getDouble(0, interpolationParams_->attributeName_);
+          numNeighs++;
+        } else {
+          // ignore this value
+          nullValue = true;
+        }
 
-        value += dSet->getDouble(0, interpolationParams_->attributeName_);
       }
 
       r->setValue(col, row, value / numNeighs, 0);
     }
+  }
   /////////////////////////////////////////////////////////////////////////
+
+  if(nullValue) {
+    TERRAMA2_LOG_WARNING() << QObject::tr("Null value in DCP interpolation, should not happen.");
+  }
 
   return r;
 }
@@ -346,30 +367,27 @@ std::unique_ptr<te::rst::Raster> terrama2::services::interpolator::core::SqrAvgD
 
   /////////////////////////////////////////////////////////////////////////
   //  Making the interpolation using the nearest neighbor.
-  te::gm::Point pt1;
-  std::vector<InterpolatorData> res;
-  std::vector<double> dist;
   unsigned int resolutionY = r->getGrid()->getNumberOfRows(),
       resolutionX = r->getGrid()->getNumberOfColumns();
 
   auto auxPar = std::dynamic_pointer_cast<const SqrAvgDistInterpolatorParams>(interpolationParams_);
-
   unsigned int powF = auxPar->pow_;
 
+  // sanity check for DCP with NULL values, should never happen
+  bool nullValue = false;
+  auto noDataValue = r->getBand(0)->getProperty()->m_noDataValue;
   for(unsigned int row = 0; row < resolutionY; row++)
     for(unsigned int col = 0; col < resolutionX; col++)
     {
-      double x,
-          y;
-
-      res.clear();
-      dist.clear();
-
+      double x, y;
       r->getGrid()->gridToGeo(static_cast<double>(col), static_cast<double>(row), x, y);
 
+      te::gm::Point pt1;
       pt1.setX(x);
       pt1.setY(y);
 
+      std::vector<InterpolatorData> res;
+      std::vector<double> dist;
       // Finding the nearest neighbor.
       FillEmptyData(res, dist, interpolationParams_->numNeighbors_);
       tree_->nearestNeighborSearch(pt1, res, dist, interpolationParams_->numNeighbors_);
@@ -386,15 +404,22 @@ std::unique_ptr<te::rst::Raster> terrama2::services::interpolator::core::SqrAvgD
         if(!res[i].isValid())
           continue;
 
-        double wi = 1 / std::pow(std::sqrt(dist[i]), powF);
-
-        value += wi * dSet->getDouble(0, interpolationParams_->attributeName_);
-        den += wi;
+        if(!dSet->isNull(0, interpolationParams_->attributeName_)) {
+          double wi = 1 / std::pow(std::sqrt(dist[i]), powF);
+          value += wi * dSet->getDouble(0, interpolationParams_->attributeName_);
+          den += wi;
+        } else {
+          // ignore this value
+          nullValue = true;
+        }
       }
 
       r->setValue(col, row, value / den, 0);
     }
   /////////////////////////////////////////////////////////////////////////
+  if(nullValue) {
+    TERRAMA2_LOG_WARNING() << QObject::tr("Null value in DCP interpolation, should not happen.");
+  }
 
   return r;
 }
