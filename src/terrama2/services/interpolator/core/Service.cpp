@@ -202,6 +202,7 @@ void terrama2::services::interpolator::core::Service::interpolate(terrama2::core
     return;
   }
 
+  QString errMsg;
   try
   {
     //////////////////////////////////////////////////////////
@@ -247,31 +248,21 @@ void terrama2::services::interpolator::core::Service::interpolate(terrama2::core
     auto processingEndTime = terrama2::core::TimeUtils::nowUTC();
 
     logger->setStartProcessingTime(processingStartTime, executionPackage.registerId);
-
     logger->setEndProcessingTime(processingEndTime, executionPackage.registerId);
-
     logger->result(InterpolatorLogger::Status::DONE, processingEndTime, executionPackage.registerId);
 
     sendProcessFinishedSignal(executionPackage.processId, executionPackage.executionDate, true);
-
     notifyWaitQueue(executionPackage.processId);
+    return;
   }
-  catch(const terrama2::core::LogException& e)
-  {
-    std::string errMsg = boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
-    if(executionPackage.registerId != 0 )
-    {
-      TERRAMA2_LOG_ERROR() << errMsg << std::endl;
-      TERRAMA2_LOG_INFO() << tr("Collection for interpolator %1 finished with error(s).").arg(executionPackage.processId);
-    }
-  }
-  catch(const terrama2::core::NoDataException&)
+  catch(const terrama2::core::NoDataException& e)
   {
     TERRAMA2_LOG_INFO() << tr("Collection finished but there was no data available for interpolator %1.").arg(executionPackage.processId);
 
+    std::string errMsg = boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
     if(executionPackage.registerId != 0)
     {
-      logger->log(InterpolatorLogger::MessageType::WARNING_MESSAGE, tr("No data available").toStdString(), executionPackage.registerId);
+      logger->log(InterpolatorLogger::MessageType::WARNING_MESSAGE, errMsg, executionPackage.registerId);
       logger->result(InterpolatorLogger::Status::DONE, nullptr, executionPackage.registerId);
     }
 
@@ -280,51 +271,33 @@ void terrama2::services::interpolator::core::Service::interpolate(terrama2::core
     sendProcessFinishedSignal(executionPackage.processId, executionPackage.executionDate, true, jsonAnswer);
     notifyWaitQueue(executionPackage.processId);
   }
+  catch(const terrama2::core::LogException& e)
+  {
+    errMsg = QString::fromStdString(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+  }
   catch(const terrama2::Exception& e)
   {
-    QString errMsg = *boost::get_error_info<terrama2::ErrorDescription>(e);
-    TERRAMA2_LOG_INFO() << tr("Collection for interpolator %1 finished with error(s).").arg(executionPackage.processId);
-
-    if(executionPackage.registerId != 0)
-    {
-      logger->log(InterpolatorLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
-      logger->result(InterpolatorLogger::Status::ERROR, nullptr, executionPackage.registerId);
-    }
+    errMsg = *boost::get_error_info<terrama2::ErrorDescription>(e);
   }
   catch(const boost::exception& e)
   {
-    std::string errMsg = boost::diagnostic_information(e);
-    TERRAMA2_LOG_ERROR() << errMsg;
-    TERRAMA2_LOG_INFO() << tr("Collection for interpolator %1 finished with error(s).").arg(executionPackage.processId);
-
-    if(executionPackage.registerId != 0)
-    {
-      logger->log(InterpolatorLogger::MessageType::ERROR_MESSAGE, errMsg, executionPackage.registerId);
-      logger->result(InterpolatorLogger::Status::ERROR, nullptr, executionPackage.registerId);
-    }
+    errMsg = QString::fromStdString(boost::diagnostic_information(e));
   }
   catch(const std::exception& e)
   {
-    TERRAMA2_LOG_ERROR() << e.what();
-    TERRAMA2_LOG_INFO() << tr("Collection for interpolator %1 finished with error(s).").arg(executionPackage.processId);
-
-    if(executionPackage.registerId != 0)
-    {
-      logger->log(InterpolatorLogger::MessageType::ERROR_MESSAGE, e.what(), executionPackage.registerId);
-      logger->result(InterpolatorLogger::Status::ERROR, nullptr, executionPackage.registerId);
-    }
+    errMsg = tr(e.what());
   }
   catch(...)
   {
-    QString errMsg = tr("Unknown error.");
-    TERRAMA2_LOG_ERROR() << errMsg;
-    TERRAMA2_LOG_INFO() << tr("Collection for interpolator %1 finished with error(s).").arg(executionPackage.processId);
+    errMsg = tr("Unknown error.");
+  }
 
-    if(executionPackage.registerId != 0)
-    {
-      logger->log(InterpolatorLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
-      logger->result(InterpolatorLogger::Status::ERROR, nullptr, executionPackage.registerId);
-    }
+  TERRAMA2_LOG_ERROR() << errMsg;
+  if(executionPackage.registerId != 0)
+  {
+    TERRAMA2_LOG_INFO() << tr("Collection for interpolator %1 finished with error(s).").arg(executionPackage.processId);
+    logger->log(InterpolatorLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+    logger->result(InterpolatorLogger::Status::ERROR, nullptr, executionPackage.registerId);
   }
 }
 
