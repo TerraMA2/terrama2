@@ -2052,7 +2052,7 @@ var DataManager = module.exports = {
           if(dataSeriesObject.removedDcps !== undefined) {
             dataSeriesObject.removedDcps.forEach(function(dataSetIdToRemove) {
               dataSeries.dataSets.forEach(function(completeDataSet) {
-                if(completeDataSet.format._id == dataSetIdToRemove) {
+                if(parseInt(completeDataSet.format._id) == parseInt(dataSetIdToRemove)) {
                   var removeProvider = self.removeDataSet(completeDataSet).then(function(returned) {
                     var index = dataSeries.dataSets.indexOf(returned);
                     if(index > -1)
@@ -2068,7 +2068,7 @@ var DataManager = module.exports = {
             if (dataSeriesObject.dataSets.length < dataSeries.dataSets.length){
               dataSeries.dataSets.forEach(function(dataSetToRemove){
                 var dontRemove = dataSeriesObject.dataSets.some(function(dataSetToCompare){
-                  return dataSetToCompare.format._id == dataSetToRemove.format._id;
+                  return parseInt(dataSetToCompare.format._id) == parseInt(dataSetToRemove.format._id);
                 });
                 if (!dontRemove){
                   dataSetsToRemove.push(dataSetToRemove);
@@ -2090,7 +2090,7 @@ var DataManager = module.exports = {
 
           (dataSeriesObject.editedDcps !== undefined ? dataSeriesObject.editedDcps : dataSeriesObject.dataSets).forEach(function(newDataSet) {
             var dataSetToUpdate = dataSeries.dataSets.find(function(dSet){
-              return dSet.format._id == newDataSet.format._id;
+              return parseInt(dSet.format._id) == parseInt(newDataSet.format._id);
             });
             // Update data set
             if(dataSetToUpdate) {
