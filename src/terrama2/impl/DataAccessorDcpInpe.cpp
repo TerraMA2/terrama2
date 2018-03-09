@@ -118,8 +118,8 @@ te::dt::AbstractData* terrama2::core::DataAccessorDcpInpe::stringToTimestamp(te:
 void terrama2::core::DataAccessorDcpInpe::adapt(DataSetPtr dataSet, std::shared_ptr<te::da::DataSetTypeConverter> converter) const
 {
   //only one timestamp column
-  std::string timestampPropertyName = getTimestampPropertyName(dataSet);
-  std::string outputTimestampPropertyName = getOutputTimestampPropertyName(dataSet);
+  std::string timestampPropertyName = getInputTimestampPropertyName(dataSet);
+  std::string outputTimestampPropertyName = getTimestampPropertyName(dataSet);
 
   te::dt::DateTimeProperty* dtProperty = new te::dt::DateTimeProperty(outputTimestampPropertyName, te::dt::TIME_INSTANT_TZ);
 

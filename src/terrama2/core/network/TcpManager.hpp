@@ -88,7 +88,7 @@ namespace terrama2
         TcpManager& operator=(TcpManager&& other) = delete;
 
         //! Send log information to the TerraMA² application.
-        void sendLog(const QByteArray& bytearray, QTcpSocket* tcpSocket);
+        void sendLog(const QJsonObject& jsonObject, QTcpSocket* tcpSocket);
 
         /*!
           \brief Listens to TCP socket connections.
@@ -125,16 +125,9 @@ namespace terrama2
       private:
         QTcpSocket* tcpSocket_;
         uint32_t blockSize_; //!< Size of the message received.
-        //! Parse bytearray as a json and add contents to the DataManager.
-        void addData(const QByteArray& bytearray);
-        //! Parse bytearray as a json and call data manager method to validate the contents.
-        void validateData(const QByteArray& bytearray);
-        //! Parse bytearray as a json and remove contents from the DataManager.
-        void removeData(const QByteArray& bytearray);
-        void updateService(const QByteArray& bytearray);
         QJsonObject logToJson(const terrama2::core::ProcessLogger::Log& log);
 
-        void sendStartProcess(const QByteArray& bytearray);
+        void sendStartProcess(const QJsonObject& obj);
 
         std::weak_ptr<terrama2::core::DataManager> dataManager_;//!< Weak pointer to the service DataManager.
         std::weak_ptr<terrama2::core::ProcessLogger> logger_;

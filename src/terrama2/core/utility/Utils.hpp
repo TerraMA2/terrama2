@@ -165,7 +165,8 @@ namespace terrama2
      * \param datetimeColumnName
      * \return A vector with dates, with no duplicated dates
      */
-    TECOREEXPORT std::vector<std::shared_ptr<te::dt::DateTime> > getAllDates(te::da::DataSet* teDataset,
+
+    TECOREEXPORT std::vector<std::shared_ptr<te::dt::TimeInstantTZ> > getAllDates(te::da::DataSet* teDataset,
                                                                 const std::string& datetimeColumnName);
 
     //! Recover complete mask, folder plus file mask

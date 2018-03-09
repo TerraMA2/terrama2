@@ -69,6 +69,9 @@ namespace terrama2
         //! Return the unique identification of the instance.
         virtual ServiceInstanceId instanceId() const;
 
+        void setWebAppId(const std::string& webAppId);
+        virtual const std::string& webAppId() const;
+
         //! Set the type of the service running in this instance.
         void setServiceType(const std::string& serviceType);
         //! Return the type of the service running in this instance.
@@ -145,6 +148,7 @@ namespace terrama2
         std::weak_ptr<terrama2::core::Service> service_;
 
         std::string instanceName_;
+        std::string webAppId_;
         ServiceInstanceId instanceId_ = 0;
         std::string serviceType_;
         int listeningPort_ = 0;

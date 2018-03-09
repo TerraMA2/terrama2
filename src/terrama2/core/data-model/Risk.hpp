@@ -60,6 +60,8 @@ namespace terrama2
     */
     struct TMCOREEXPORT Risk
     {
+      static bool isDefault(uint32_t level) { return level == std::numeric_limits<uint32_t>::max(); }
+      
       std::string name; //!< Name of the Risk.
       std::string description; //!< Short description of the purpose of the Risk.
 
