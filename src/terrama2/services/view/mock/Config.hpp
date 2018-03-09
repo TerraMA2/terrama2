@@ -28,7 +28,7 @@
 #ifndef __TERRAMA2_VIEW_MOCK_CONFIG_HPP__
 #define __TERRAMA2_VIEW_MOCK_CONFIG_HPP__
 
-#include "../Config.hpp"
+#include "../../../Config.hpp"
 
 #ifdef WIN32
   #ifdef TMVIEWMOCKDLL

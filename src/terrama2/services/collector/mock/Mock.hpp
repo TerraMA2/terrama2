@@ -27,6 +27,7 @@
   \author Jano Simas
 */
 
+#include "Config.hpp"
 #include <terrama2/collector/Log.hpp>
 
 #include <gmock/gmock.h>

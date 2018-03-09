@@ -31,6 +31,7 @@
 #ifndef __TERRAMA2_UNITTEST_CORE_MOCK_ANALYSIS_PROCESSLOGGER_HPP__
 #define __TERRAMA2_UNITTEST_CORE_MOCK_ANALYSIS_PROCESSLOGGER_HPP__
 
+#include "Config.hpp"
 #include "../core/AnalysisLogger.hpp"
 
 #include <gmock/gmock.h>
