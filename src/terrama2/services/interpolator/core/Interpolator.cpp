@@ -191,6 +191,10 @@ void terrama2::services::interpolator::core::Interpolator::fillTree()
       node.pt_ = std::unique_ptr<te::gm::Point>(new te::gm::Point(pt1));
       node.series_ = dataSeries;
 
+      //check if the dataSet is active
+      if(!dataSeries.dataSet->active)
+        continue;
+
       if(!node.isValid() || (!imgBBox.contains(*node.pt_->getMBR())))
         continue;
 
