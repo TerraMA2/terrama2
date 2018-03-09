@@ -188,6 +188,8 @@ define([], function() {
             case 4:
               service.type = i18n.__("Alert");
               break;
+            case 5:
+              service.type = i18n.__("Interpolation");
             default:
               break;
           }

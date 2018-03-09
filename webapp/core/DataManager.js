@@ -138,6 +138,7 @@ var DataManager = module.exports = {
         inserts.push(models.db.ServiceType.create({id: Enums.ServiceType.ANALYSIS, name: "ANALYSIS"}));
         inserts.push(models.db.ServiceType.create({id: Enums.ServiceType.VIEW, name: "VIEW"}));
         inserts.push(models.db.ServiceType.create({id: Enums.ServiceType.ALERT, name: "ALERT"}));
+        inserts.push(models.db.ServiceType.create({id: Enums.ServiceType.INTERPOLATION, name: "INTERPOLATION"}));
 
         // data provider type defaults
         inserts.push(self.addDataProviderType({id: 1, name: "FILE", description: "Desc File"}));
@@ -206,10 +207,17 @@ var DataManager = module.exports = {
             alertService.service_type_id = Enums.ServiceType.ALERT;
             alertService.metadata = { };
 
+            var interpolationService = Object.assign({}, collectorService);
+            interpolationService.name = "Local Interpolator";
+            interpolationService.description = "Local service for Interpolator";
+            interpolationService.port = 6547;
+            interpolationService.service_type_id = Enums.ServiceType.INTERPOLATION;
+
             servicesInsert.push(self.addServiceInstance(collectorService));
             servicesInsert.push(self.addServiceInstance(analysisService));
             servicesInsert.push(self.addServiceInstance(viewService));
             servicesInsert.push(self.addServiceInstance(alertService));
+            servicesInsert.push(self.addServiceInstance(interpolationService));
           }
           return Promise.all(servicesInsert);
         });
@@ -333,6 +341,11 @@ var DataManager = module.exports = {
         // script language supported
         inserts.push(models.db.ScriptLanguage.create({id: Enums.ScriptLanguage.PYTHON, name: "PYTHON"}));
         inserts.push(models.db.ScriptLanguage.create({id: Enums.ScriptLanguage.LUA, name: "LUA"}));
+
+        // it will match each of semantics with providers
+        inserts.push(models.db.InterpolatorStrategy.create({name: "Nearest neighbor", id: "NEAREST-NEIGHBOR"}));
+        inserts.push(models.db.InterpolatorStrategy.create({name: "Average neighbor", id: "AVERAGE-NEIGHBOR"}));
+        inserts.push(models.db.InterpolatorStrategy.create({name: "Weight average neighbor", id: "W-AVERAGE-NEIGHBOR"}));
 
         // it will match each of semantics with providers
         return Promise.all(inserts)
@@ -6336,6 +6349,300 @@ var DataManager = module.exports = {
         resolve(sridsArray);
       }).catch(function(err) {
         reject(err);
+      });
+    });
+  },
+
+/**
+   * It retrieves a list of interpolators in database
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<DataModel.Interpolator[]>}
+   */
+  listInterpolators: function(restriction, options) {
+    var self = this;
+
+    return new Promise(function(resolve, reject) {
+      return models.db.Interpolator.findAll(Utils.extend({
+        where: restriction || {},
+        include: [
+          {
+            model: models.db.Schedule
+          },
+          {
+            model: models.db.AutomaticSchedule
+          },
+          {
+            model: models.db.InterpolatorMetadata
+          },
+          {
+            model: models.db.DataSeries,
+            as: "dataSeriesInput",
+            include: [
+              {
+                model: models.db.DataProvider,
+                include: [models.db.DataProviderType]
+              },
+              models.db.DataSeriesSemantics,
+              {
+                model: models.db.DataSet,
+                include: [
+                  models.db.DataSetFormat
+                ]
+              }
+            ]
+          },
+          {
+            model: models.db.DataSeries,
+            as: "dataSeriesOutput",
+            include: [
+              {
+                model: models.db.DataProvider,
+                include: [models.db.DataProviderType]
+              },
+              models.db.DataSeriesSemantics,
+              {
+                model: models.db.DataSet,
+                include: [
+                  models.db.DataSetFormat
+                ]
+              }
+            ]
+          }
+        ]
+      }, options))
+        .then(function(interpolators){
+          return resolve(interpolators.map(function(interpolator) {
+            var interpolatorObject = new DataModel.Interpolator(interpolator);
+            var inputDatSeriesObject = new DataModel.DataSeries(interpolator.dataSeriesInput.get());
+            var outputDatSeriesObject = new DataModel.DataSeries(interpolator.dataSeriesOutput.get());
+            interpolatorObject.setInputOutputDataSeries(inputDatSeriesObject, outputDatSeriesObject);
+            return interpolatorObject;
+          }));
+        })
+        .catch(function(err){
+          return reject(new Error("Could not list interpolators " + err.toString()));
+        });
+    });
+  },
+
+  /**
+   * It retrieves an interpolator from database
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<DataModel.Interpolator>}
+   */
+  getInterpolator: function(restriction, options){
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      self.listInterpolators(restriction, options)
+        .then(function(interpolators) {
+          if (interpolators.length === 0) {
+            return reject(new Error("No interpolator retrieved"));
+          }
+          if (interpolators.length > 1) {
+            return reject(new Error("Get operation retrieved more than an interpolator"));
+          }
+          return resolve(interpolators[0]);
+        })
+        .catch(function(err) {
+          return reject(err);
+        });
+    });
+  },
+
+  /**
+   * It performs a save interpolator in database
+   *
+   * @param {Object} interpolatorObject - An interpolator object value to save
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<DataModel.Interpolator>}
+   */
+  addInterpolator: function(interpolatorObject, options){
+    var self = this;
+    return new Promise(function(resolve, reject){
+      models.db.Interpolator.create(interpolatorObject, options)
+        .then(function(interpolatorResult){
+          var interpolatorMetadata = [];
+          for(var key in interpolatorObject.metadata) {
+            if (interpolatorObject.metadata.hasOwnProperty(key)) {
+              interpolatorMetadata.push({
+                interpolator_id: interpolatorResult.id,
+                key: key,
+                value: interpolatorObject.metadata[key]
+              });
+            }
+          }
+          return self.addInterpolatorMetadata(interpolatorMetadata, options)
+            .then(function(interpolatorMetadataResult){
+
+              var interpolatorInstance = new DataModel.Interpolator(interpolatorResult);
+              interpolatorInstance.setMetadata(interpolatorMetadataResult);
+              interpolatorInstance.setOutputDataSeries(interpolatorObject.dataSeriesOutput);
+
+              return resolve(interpolatorInstance);
+            }).catch(function(err) {
+              // rollback interpolator metadata
+              Utils.rollbackPromises([
+                self.removeInterpolator({id: interpolatorResult.id}, options)
+              ], new exceptions.InterpolatorError("Could not save interpolator metadata " + err.toString()), reject);
+            });
+
+        })
+        .catch(function(err) {
+          logger.error(err);
+          return reject(new exceptions.InterpolatorError("Could not save interpolator " + err.toString()));
+        });
+    });
+  },
+
+  /**
+   * It performs a save interpolator metadata in database
+   *
+   * @param {Object} interpolatorMetadataObject - An interpolator metadata object value to save
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Object>} - Object of interpolator metadata
+   */
+  addInterpolatorMetadata: function(interpolatorMetadataObject, options){
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return models.db.InterpolatorMetadata.bulkCreate(interpolatorMetadataObject, options)
+        .then(function(bulkInterpolatorMetadata) {
+          return resolve(Utils.formatMetadataFromDB(bulkInterpolatorMetadata));
+        })
+        .catch(function(err) {
+          return reject(new Error(Utils.format("Could not save interpolator metadata due ", err.toString())));
+        });
+    });
+
+  },
+
+  /**
+   * It performs update interpolator from given restriction
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} interpolatorObject - An interpolator object values to update
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<DataModel.Interpolator[]>}
+   */
+  updateInterpolator: function(restriction, interpolatorObject, options){
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      models.db.Interpolator.update(
+        interpolatorObject,
+        Utils.extend({
+          fields: ["active", "bounding_rect", "interpolation_attribute", "resolution_x", "resolution_y", "service_instance_id", "schedule_id", "automatic_schedule_id", "schedule_type", "srid", "interpolator_strategy"],
+          where: restriction
+        }, options))
+
+        .then(function(interpolator) {
+          return self.upsertInterpolatorMetadata(restriction.id, interpolatorObject.metadata, options)
+            .then(function(){
+              return resolve();
+            });
+        })
+
+        .catch(function(err) {
+          return reject(new Error("Could not update interpolator " + err.toString()));
+        });
+    });
+  },
+
+  /**
+   * It performs upsert interpolator metadata from given restriction
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} interpolatorMetadata - An interpolator metadta object values to update
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<Object>}
+   */
+  upsertInterpolatorMetadata: function(interpolatorId, interpolatorMetadata, options){
+    var self = this;
+    return new Promise(function(resolve, reject){
+      var promises = [];
+      promises.push(self.removeInterpolatorMetadata({interpolator_id: interpolatorId}, options));
+
+      var interpolatorMetadataObject = [];
+      for(var key in interpolatorMetadata) {
+        if (interpolatorMetadata.hasOwnProperty(key)) {
+          interpolatorMetadataObject.push({
+            interpolator_id: interpolatorId,
+            key: key,
+            value: interpolatorMetadata[key]
+          });
+        }
+      }
+      promises.push(self.addInterpolatorMetadata(interpolatorMetadataObject, options));
+      return Promise.all(promises).then(function(results){
+        return resolve(results[1]);
+      });
+    });
+  },
+
+  /**
+   * It removes an interpolator metadata from database
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object?} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise}
+   */
+  removeInterpolatorMetadata: function(restriction, options){
+    var self = this;
+    return new Promise(function(resolve, reject){
+      return models.db.InterpolatorMetadata.destroy(Utils.extend({where: restriction}, options)).then(function(){
+        return resolve();
+      })
+    })
+  },
+
+  /**
+   * It removes an interpolator from database
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object?} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise}
+   */
+  removeInterpolator: function(interpolatorParam, options){
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return self.getInterpolator({id: interpolatorParam.id}, options).then(function(interpolatorResult) {
+        return models.db.Interpolator.destroy(Utils.extend({where: {id: interpolatorParam.id}}, options)).then(function() {
+          return self.removeDataSerie({id: interpolatorResult.data_series_output}, options).then(function() {
+            var removeSchedulePromise;
+            if (interpolatorResult.scheduleType == Enums.ScheduleType.SCHEDULE){
+              removeSchedulePromise = self.removeSchedule({id: interpolatorResult.schedule.id}, options);
+            } else if (interpolatorResult.scheduleType == Enums.ScheduleType.AUTOMATIC ){
+              removeSchedulePromise = self.removeAutomaticSchedule({id: interpolatorResult.automaticSchedule.id}, options);
+            } else {
+              removeSchedulePromise = Promise.resolve();
+            }
+            return removeSchedulePromise.then(function() {
+              return resolve();
+            }).catch(function(err) {
+              logger.error("Could not remove interpolator schedule ", err);
+              return reject(err);
+            });
+          }).catch(function(err) {
+            logger.error("Could not remove interpolator output data series ", err);
+            return reject(err);
+          });
+        }).catch(function(err) {
+          logger.error(err);
+          return reject(new exceptions.InterpolatorError("Could not remove Interpolator ", err));
+        });
+      }).catch(function(err) {
+        logger.error(err);
+        return reject(err);
       });
     });
   }

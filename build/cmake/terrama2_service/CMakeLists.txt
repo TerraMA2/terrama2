@@ -103,11 +103,15 @@ IF(TERRAMA2_ALERT_ENABLED)
                                          terrama2_alert_impl)
 ENDIF()
 
+IF(TERRAMA2_INTERPOLATOR_ENABLED)
+  target_link_libraries(terrama2_service terrama2_interpolator_core)
+ENDIF()
+
 if(WIN32 AND MSVC)
-set_target_properties(terraview PROPERTIES LINK_FLAGS_DEBUG "/SUBSYSTEM:CONSOLE")
-set_target_properties(terraview PROPERTIES RELWITHDEBINFO "/SUBSYSTEM:CONSOLE")
-set_target_properties(terraview PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
-set_target_properties(terraview PROPERTIES MINSIZEREL "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
+  set_target_properties(terraview PROPERTIES LINK_FLAGS_DEBUG "/SUBSYSTEM:CONSOLE")
+  set_target_properties(terraview PROPERTIES RELWITHDEBINFO "/SUBSYSTEM:CONSOLE")
+  set_target_properties(terraview PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
+  set_target_properties(terraview PROPERTIES MINSIZEREL "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
 endif()
 
 install(TARGETS terrama2_service
