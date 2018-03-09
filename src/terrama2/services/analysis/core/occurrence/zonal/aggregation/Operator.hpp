@@ -52,7 +52,7 @@ namespace terrama2
           {
             namespace aggregation
             {
-              int count(const std::string& dataSeriesName,
+              TMANALYSISEXPORT int count(const std::string& dataSeriesName,
                         const std::string& dateFilter,
                         terrama2::services::analysis::core::Buffer aggregationBuffer,
                         terrama2::services::analysis::core::Buffer buffer = Buffer(),
@@ -70,7 +70,7 @@ namespace terrama2
                 \param restriction SQL restriction.
                 \return The minimum value of the attribute of occurrences in the monitored object area.
               */
-              double min(const std::string& dataSeriesName,
+              TMANALYSISEXPORT double min(const std::string& dataSeriesName,
                          const std::string& attribute,
                          const std::string& dateFilter,
                          terrama2::services::analysis::core::StatisticOperation aggregationStatisticOperation,
@@ -90,7 +90,7 @@ namespace terrama2
                 \param restriction SQL restriction.
                 \return The maximum value of the attribute of occurrences in the monitored object area.
               */
-              double max(const std::string& dataSeriesName,
+              TMANALYSISEXPORT double max(const std::string& dataSeriesName,
                          const std::string& attribute,
                          const std::string& dateFilter,
                          terrama2::services::analysis::core::StatisticOperation aggregationStatisticOperation,
@@ -110,7 +110,7 @@ namespace terrama2
                 \param restriction SQL restriction.
                 \return The mean value of the attribute of occurrences in the monitored object area.
               */
-              double mean(const std::string& dataSeriesName,
+              TMANALYSISEXPORT double mean(const std::string& dataSeriesName,
                           const std::string& attribute,
                           const std::string& dateFilter,
                           terrama2::services::analysis::core::StatisticOperation aggregationStatisticOperation,
@@ -130,7 +130,7 @@ namespace terrama2
                 \param restriction SQL restriction.
                 \return The median value of the attribute of occurrences in the monitored object area.
               */
-              double median(const std::string& dataSeriesName,
+              TMANALYSISEXPORT double median(const std::string& dataSeriesName,
                             const std::string& attribute,
                             const std::string& dateFilter,
                             terrama2::services::analysis::core::StatisticOperation aggregationStatisticOperation,
@@ -150,7 +150,7 @@ namespace terrama2
                 \param restriction SQL restriction.
                 \return The sum of values of the attribute of occurrences in the monitored object area.
               */
-              double sum(const std::string& dataSeriesName,
+              TMANALYSISEXPORT double sum(const std::string& dataSeriesName,
                          const std::string& attribute,
                          const std::string& dateFilter,
                          terrama2::services::analysis::core::StatisticOperation aggregationStatisticOperation,
@@ -170,7 +170,7 @@ namespace terrama2
                 \param restriction SQL restriction.
                 \return The median value of the attribute of occurrences in the monitored object area.
               */
-              double standardDeviation(const std::string& dataSeriesName,
+              TMANALYSISEXPORT double standardDeviation(const std::string& dataSeriesName,
                                        const std::string& attribute,
                                        const std::string& dateFilter,
                                        terrama2::services::analysis::core::StatisticOperation aggregationStatisticOperation,
@@ -178,7 +178,7 @@ namespace terrama2
                                        terrama2::services::analysis::core::Buffer buffer = Buffer(),
                                        const std::string& restriction = "");
 
-              double variance(const std::string& dataSeriesName,
+              TMANALYSISEXPORT double variance(const std::string& dataSeriesName,
                               const std::string& attribute,
                               const std::string& dateFilter,
                               terrama2::services::analysis::core::StatisticOperation aggregationStatisticOperation,

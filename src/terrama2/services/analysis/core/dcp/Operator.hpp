@@ -69,12 +69,12 @@ namespace terrama2
 
             \return A double value with the result.
           */
-          double operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
+          TMANALYSISEXPORT double operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
                               const std::string& attribute,
                               boost::python::list pcds, const std::string& dateFilterBegin = "",
                               const std::string& dateFilterEnd = "");
 
-          double value(const std::string& attribute);
+          TMANALYSISEXPORT double value(const std::string& attribute);
 
           /*!
             \brief It returns the number of DCPs that have influence over the current monitored object.
@@ -86,7 +86,7 @@ namespace terrama2
 
             \return The number of DCP that have influence over the current monitored object.
           */
-          int count(terrama2::services::analysis::core::Buffer buffer = terrama2::services::analysis::core::Buffer());
+          TMANALYSISEXPORT int count(terrama2::services::analysis::core::Buffer buffer = terrama2::services::analysis::core::Buffer());
 
           /*!
             \brief Calculates the minimum value of the latest DCP series data.
@@ -103,7 +103,7 @@ namespace terrama2
 
             \return A double with the minimum value.
           */
-          double min(const std::string& attribute,
+          TMANALYSISEXPORT double min(const std::string& attribute,
                      boost::python::list ids = boost::python::list());
 
           /*!
@@ -120,7 +120,7 @@ namespace terrama2
 
             \return A double with the maximum value.
           */
-          double max(const std::string& attribute,
+          TMANALYSISEXPORT double max(const std::string& attribute,
                      boost::python::list ids = boost::python::list());
 
           /*!
@@ -137,7 +137,7 @@ namespace terrama2
 
             \return A double with the mean.
           */
-          double mean(const std::string& attribute,
+          TMANALYSISEXPORT double mean(const std::string& attribute,
                       boost::python::list ids = boost::python::list());
 
           /*!
@@ -154,7 +154,7 @@ namespace terrama2
 
             \return A double with the median.
           */
-          double median(const std::string& attribute,
+          TMANALYSISEXPORT double median(const std::string& attribute,
                         boost::python::list ids = boost::python::list());
 
           /*!
@@ -171,7 +171,7 @@ namespace terrama2
 
             \return A double with the sum.
            */
-          double sum(const std::string& attribute,
+          TMANALYSISEXPORT double sum(const std::string& attribute,
                      boost::python::list ids = boost::python::list());
 
           /*!
@@ -188,7 +188,7 @@ namespace terrama2
 
             \return A double with the standard deviation.
           */
-          double standardDeviation(const std::string& attribute,
+          TMANALYSISEXPORT double standardDeviation(const std::string& attribute,
                                    boost::python::list ids = boost::python::list());
 
           /*!
@@ -205,17 +205,17 @@ namespace terrama2
 
               \return A double with the variance between DCP values.
             */
-            double variance(const std::string& attribute,
+            TMANALYSISEXPORT double variance(const std::string& attribute,
                             boost::python::list ids = boost::python::list());
 
             namespace influence
             {
-              std::vector< std::string > byRule(const terrama2::services::analysis::core::Buffer& buffer);
-              std::vector< std::string > all(bool isActive);
+              TMANALYSISEXPORT std::vector< std::string > byRule(const terrama2::services::analysis::core::Buffer& buffer);
+              TMANALYSISEXPORT std::vector< std::string > all(bool isActive);
 
               namespace python
               {
-                boost::python::list byRule(const terrama2::services::analysis::core::Buffer& buffer);
+                TMANALYSISEXPORT boost::python::list byRule(const terrama2::services::analysis::core::Buffer& buffer);
               }
             }
 

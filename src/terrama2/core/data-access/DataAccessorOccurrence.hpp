@@ -49,7 +49,7 @@ namespace terrama2
       Data of lightining occurrence is an example.
 
     */
-    class DataAccessorOccurrence : public virtual DataAccessor
+    class TMCOREEXPORT DataAccessorOccurrence : public virtual DataAccessor
     {
       public:
         //! Default constructor

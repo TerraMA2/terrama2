@@ -31,7 +31,7 @@
 #define __TERRAMA2_CORE_DATA_ACCESS_DATA_RETRIEVER_HPP__
 
 //TerraMA2
-#include "../../Config.hpp"
+#include "../Config.hpp"
 #include "../data-model/DataProvider.hpp"
 #include "../data-model/Filter.hpp"
 #include "../utility/FileRemover.hpp"
@@ -68,7 +68,7 @@ namespace terrama2
     and return a uri to this file.
 
     */
-    class DataRetriever
+    class TMCOREEXPORT DataRetriever
     {
       public:
         /*!

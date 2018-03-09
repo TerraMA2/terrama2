@@ -30,6 +30,8 @@
 #ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_SERVICE_HPP__
 #define __TERRAMA2_SERVICES_ANALYSIS_CORE_SERVICE_HPP__
 
+// TerraMa2
+#include "Config.hpp"
 #include "AnalysisLogger.hpp"
 #include "Shared.hpp"
 #include "../../../core/utility/Service.hpp"
@@ -53,7 +55,7 @@ namespace terrama2
         /*!
            \brief Service class to the analysis module.
          */
-        class Service : public terrama2::core::Service
+        class TMANALYSISEXPORT Service : public terrama2::core::Service
         {
             Q_OBJECT
 

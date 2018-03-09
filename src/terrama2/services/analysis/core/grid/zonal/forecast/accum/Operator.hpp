@@ -54,7 +54,7 @@ namespace terrama2
               namespace accum
               {
                 //! Get absolute time from the timeStr string.
-                double getAbsTimeFromString(const std::string& timeStr);
+                TMANALYSISEXPORT double getAbsTimeFromString(const std::string& timeStr);
 
                 /*!
                   \brief Implementation of grid zonal operator.
@@ -67,7 +67,7 @@ namespace terrama2
 
                   \return A double value with the result.
                 */
-                double operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
+                TMANALYSISEXPORT double operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
                                     const std::string& dataSeriesName,
                                     const std::string& dateDiscardAfter,
                                     terrama2::services::analysis::core::Buffer buffer = Buffer());
@@ -81,7 +81,7 @@ namespace terrama2
 
                   \return A double value with the result.
                 */
-                double count(const std::string& dataSeriesName, const std::string& dateFilter, terrama2::services::analysis::core::Buffer buffer = Buffer());
+                TMANALYSISEXPORT double count(const std::string& dataSeriesName, const std::string& dateFilter, terrama2::services::analysis::core::Buffer buffer = Buffer());
 
                 /*!
                   \brief Calculates the sum of zonal grid data.
@@ -92,7 +92,7 @@ namespace terrama2
 
                   \return A double value with the result.
                 */
-                double sum(const std::string& dataSeriesName, const std::string& dateFilter, terrama2::services::analysis::core::Buffer buffer = Buffer());
+                TMANALYSISEXPORT double sum(const std::string& dataSeriesName, const std::string& dateFilter, terrama2::services::analysis::core::Buffer buffer = Buffer());
 
                 /*!
                   \brief Calculates the mean of zonal grid data.
@@ -104,7 +104,7 @@ namespace terrama2
 
                   \return A double value with the result.
                 */
-                double mean(const std::string& dataSeriesName, const std::string& dateFilter, terrama2::services::analysis::core::Buffer buffer = Buffer());
+                TMANALYSISEXPORT double mean(const std::string& dataSeriesName, const std::string& dateFilter, terrama2::services::analysis::core::Buffer buffer = Buffer());
 
                 /*!
                   \brief Calculates the min of zonal grid data.
@@ -116,7 +116,7 @@ namespace terrama2
 
                   \return A double value with the result.
                 */
-                double min(const std::string& dataSeriesName, const std::string& dateFilter, terrama2::services::analysis::core::Buffer buffer = Buffer());
+                TMANALYSISEXPORT double min(const std::string& dataSeriesName, const std::string& dateFilter, terrama2::services::analysis::core::Buffer buffer = Buffer());
 
                 /*!
                   \brief Calculates the max of zonal grid data.
@@ -131,7 +131,7 @@ namespace terrama2
 
                   \return A double value with the result.
                 */
-                double max(const std::string& dataSeriesName, const std::string& dateFilter, terrama2::services::analysis::core::Buffer buffer = Buffer());
+                TMANALYSISEXPORT double max(const std::string& dataSeriesName, const std::string& dateFilter, terrama2::services::analysis::core::Buffer buffer = Buffer());
 
                 /*!
                   \brief Calculates the median of zonal grid data.
@@ -143,7 +143,7 @@ namespace terrama2
 
                   \return A double value with the result.
                 */
-                double median(const std::string& dataSeriesName, const std::string& dateFilter, terrama2::services::analysis::core::Buffer buffer = Buffer());
+                TMANALYSISEXPORT double median(const std::string& dataSeriesName, const std::string& dateFilter, terrama2::services::analysis::core::Buffer buffer = Buffer());
 
                 /*!
                   \brief Calculates the standard deviation of zonal grid data.
@@ -154,7 +154,7 @@ namespace terrama2
 
                   \return A double value with the result.
                 */
-                double standardDeviation(const std::string& dataSeriesName, const std::string& dateFilter, terrama2::services::analysis::core::Buffer buffer = Buffer());
+                TMANALYSISEXPORT double standardDeviation(const std::string& dataSeriesName, const std::string& dateFilter, terrama2::services::analysis::core::Buffer buffer = Buffer());
 
                 /*!
                   \brief Calculates the variance of zonal grid data.
@@ -165,7 +165,7 @@ namespace terrama2
 
                   \return A double value with the result.
                 */
-                double variance(const std::string& dataSeriesName, const std::string& dateFilter, terrama2::services::analysis::core::Buffer buffer = Buffer());
+                TMANALYSISEXPORT double variance(const std::string& dataSeriesName, const std::string& dateFilter, terrama2::services::analysis::core::Buffer buffer = Buffer());
               } /* ratio */
             }
           } /* zonal */

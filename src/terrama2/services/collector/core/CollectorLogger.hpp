@@ -30,6 +30,8 @@
 #ifndef __TERRAMA2_SERVICES_COLLECTOR_CORE_COLLECTORLOG_HPP__
 #define __TERRAMA2_SERVICES_COLLECTOR_CORE_COLLECTORLOG_HPP__
 
+// TerraMa2
+#include "Config.hpp"
 #include "../core/Typedef.hpp"
 #include "../../../core/utility/ProcessLogger.hpp"
 
@@ -45,7 +47,7 @@ namespace terrama2
          * \brief The CollectorLogger class is responsible for uses the Process Logger to
          * log the processes in the Collector Service.
          */
-        class CollectorLogger : public terrama2::core::ProcessLogger
+        class TMCOLLECTOREXPORT CollectorLogger : public terrama2::core::ProcessLogger
         {
           Q_OBJECT
         public:

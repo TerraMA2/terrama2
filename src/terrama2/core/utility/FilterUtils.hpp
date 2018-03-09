@@ -32,6 +32,7 @@
 #define __TERRAMA2_CORE_UTILITY_FILTER_UTILS_HPP__
 
 // TerraMA2
+#include "../Config.hpp"
 #include "../../Config.hpp"
 #include "../data-model/Filter.hpp"
 
@@ -60,7 +61,7 @@ namespace terrama2
       \exception terrama2::Exception If it is not possible to form a date with mask.
       \exception terrama2::Exception If it was not possible to find a valid date in name.
     */
-    bool isValidDataSetName(const std::string& mask, const Filter& filter, const std::string& timezone, const std::string& name, std::shared_ptr< te::dt::TimeInstantTZ >& fileTimestamp);
+    TMCOREEXPORT bool isValidDataSetName(const std::string& mask, const Filter& filter, const std::string& timezone, const std::string& name, std::shared_ptr< te::dt::TimeInstantTZ >& fileTimestamp);
 
 
     /*!
@@ -72,9 +73,9 @@ namespace terrama2
 
       \return Returns the file timestamp.
     */
-    std::shared_ptr<te::dt::TimeInstantTZ> getFileTimestamp(const std::string& mask, const std::string& timezone, const std::string& name);
+    TMCOREEXPORT std::shared_ptr<te::dt::TimeInstantTZ> getFileTimestamp(const std::string& mask, const std::string& timezone, const std::string& name);
 
-    bool terramaMaskMatch(const std::string& mask, const std::string& string);
+    TMCOREEXPORT bool terramaMaskMatch(const std::string& mask, const std::string& string);
 
     /*!
       \brief Check timestamp is between a valid period.
@@ -84,7 +85,7 @@ namespace terrama2
 
       \return Returns if the Timestamp is valid or not.
     */
-    bool isValidTimestamp(const Filter& filter, const std::shared_ptr< te::dt::TimeInstantTZ >& fileTimestamp);
+    TMCOREEXPORT bool isValidTimestamp(const Filter& filter, const std::shared_ptr< te::dt::TimeInstantTZ >& fileTimestamp);
 
     /*!
       \brief Check mask has the minimal needed to form a date.
@@ -93,10 +94,10 @@ namespace terrama2
 
       \return Returns if the mask is valid or not.
     */
-    bool isValidDatedMask(const std::string& mask);
+    TMCOREEXPORT bool isValidDatedMask(const std::string& mask);
 
     //! Convert a TerraMA2 mask to a regular expression
-    std::string terramaMask2Regex(const std::string& mask);
+    TMCOREEXPORT std::string terramaMask2Regex(const std::string& mask);
   } // end namespace core
 }   // end namespace terrama2
 

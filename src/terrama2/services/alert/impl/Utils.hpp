@@ -32,6 +32,10 @@
 #ifndef __TERRAMA2_SERVICES_ALERT_IMPL_UTILS_HPP__
 #define __TERRAMA2_SERVICES_ALERT_IMPL_UTILS_HPP__
 
+// TerraMa2
+#include "Config.hpp"
+
+// TerraLib
 #include <terralib/dataaccess/dataset/DataSet.h>
 
 namespace terrama2
@@ -46,11 +50,11 @@ namespace terrama2
         /*!
          * \brief Register the implemented notifiers in the factory
          */
-        void registerFactories();
+        TMALERTIMPLEXPORT void registerFactories();
 
-        std::string gridReportText();
+        TMALERTIMPLEXPORT std::string gridReportText();
 
-        std::string monitoredObjectReportText();
+        TMALERTIMPLEXPORT std::string monitoredObjectReportText();
 
       } /* core */
     } /* alert */

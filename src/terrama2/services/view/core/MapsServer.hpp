@@ -31,6 +31,7 @@
 #define __TERRAMA2_SERVICES_VIEW_CORE_MAPS_SERVER_HPP__
 
 // TerraMA2
+#include "Config.hpp"
 #include "Shared.hpp"
 #include "ViewLogger.hpp"
 #include "Typedef.hpp"
@@ -52,7 +53,7 @@ namespace terrama2
     {
       namespace core
       {
-        class MapsServer
+        class TMVIEWEXPORT MapsServer
         {
           public:
 

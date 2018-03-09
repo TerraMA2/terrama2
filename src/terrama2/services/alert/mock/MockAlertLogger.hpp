@@ -30,6 +30,7 @@
 #ifndef __TERRAMA2_UNITTEST_CORE_MOCK_ALERT_PROCESSLOGGER_HPP__
 #define __TERRAMA2_UNITTEST_CORE_MOCK_ALERT_PROCESSLOGGER_HPP__
 
+#include "Config.hpp"
 #include "../core/AlertLogger.hpp"
 
 #include <gmock/gmock.h>
@@ -42,7 +43,7 @@ namespace terrama2
     /*!
      * \brief The MockAlertLogger class for ProcessLog unittests
      */
-    class MockAlertLogger : public terrama2::services::alert::core::AlertLogger
+    class TMALERTMOCKEXPORT MockAlertLogger : public terrama2::services::alert::core::AlertLogger
     {
     public:
 

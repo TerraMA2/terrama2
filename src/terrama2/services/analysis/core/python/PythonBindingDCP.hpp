@@ -31,6 +31,9 @@
 #ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_PYTHON_DCP_HPP__
 #define __TERRAMA2_SERVICES_ANALYSIS_CORE_PYTHON_DCP_HPP__
 
+// TerraMa2
+#include "../Config.hpp"
+
 namespace terrama2
 {
   namespace services
@@ -46,24 +49,24 @@ namespace terrama2
             /*!
               \brief Registers all functions for monitored object analysis.
             */
-            void registerFunctions();
+            TMANALYSISEXPORT void registerFunctions();
 
-            void registerDCPFunctions();
+            TMANALYSISEXPORT void registerDCPFunctions();
 
             /*!
               \brief Registers DCP history functions in the Python interpreter.
             */
-            void registerDCPHistoryFunctions();
+            TMANALYSISEXPORT void registerDCPHistoryFunctions();
 
             /*!
               \brief Registers DCP history interval functions in the Python interpreter.
             */
-            void registerDCPHistoryIntervalFunctions();
+            TMANALYSISEXPORT void registerDCPHistoryIntervalFunctions();
 
             /*!
               \brief Registers DCP influence functions in the Python interpreter.
             */
-            void registerDCPInfluenceFunctions();
+            TMANALYSISEXPORT void registerDCPInfluenceFunctions();
 
           } /* MonitoredObject */
         } /* python */

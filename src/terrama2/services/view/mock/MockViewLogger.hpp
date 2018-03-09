@@ -30,6 +30,7 @@
 #ifndef __TERRAMA2_UNITTEST_CORE_MOCK_VIEW_PROCESSLOGGER_HPP__
 #define __TERRAMA2_UNITTEST_CORE_MOCK_VIEW_PROCESSLOGGER_HPP__
 
+#include "Config.hpp"
 #include "../core/ViewLogger.hpp"
 
 #include <gmock/gmock.h>
@@ -42,7 +43,7 @@ namespace terrama2
     /*!
      * \brief The MockViewLogger class for ProcessLog unittests
      */
-    class MockViewLogger : public terrama2::services::view::core::ViewLogger
+    class TMVIEWMOCKEXPORT MockViewLogger : public terrama2::services::view::core::ViewLogger
     {
     public:
 

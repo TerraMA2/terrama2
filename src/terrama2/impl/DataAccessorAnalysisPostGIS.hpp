@@ -31,8 +31,8 @@
 #define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_ANALYSIS_POSTGIS_HPP__
 
 //TerraMA2
+#include "Config.hpp"
 #include "DataAccessorPostGIS.hpp"
-
 #include "../core/Shared.hpp"
 #include "../core/data-access/DataAccessorOccurrence.hpp"
 
@@ -40,7 +40,7 @@ namespace terrama2
 {
   namespace core
   {
-    class DataAccessorAnalysisPostGIS : public DataAccessorPostGIS
+    class TMIMPLEXPORT DataAccessorAnalysisPostGIS : public DataAccessorPostGIS
     {
     public:
       DataAccessorAnalysisPostGIS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true);

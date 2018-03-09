@@ -45,7 +45,7 @@ namespace terrama2
      * \brief The DataAccessorDcpToa5 class is responsible for making the parser file in the format TOA5.
      *
     */
-    class DataAccessorDcpToa5 : public DataAccessorDcp, public DataAccessorFile
+    class TMIMPLEXPORT DataAccessorDcpToa5 : public DataAccessorDcp, public DataAccessorFile
     {
       public:
         /*!

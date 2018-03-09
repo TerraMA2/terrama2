@@ -31,6 +31,7 @@
 #define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_POSTGIS_HPP__
 
 // TerraMA2
+#include "Config.hpp"
 #include "../core/Shared.hpp"
 #include "../core/data-access/DataAccessor.hpp"
 #include "../core/data-model/DataSet.hpp"
@@ -48,7 +49,7 @@ namespace terrama2
       \brief Base class for DataAccessor classes that access a PostgreSQL/PostGIS SGDB.
 
     */
-    class DataAccessorPostGIS : public virtual DataAccessor
+    class TMIMPLEXPORT DataAccessorPostGIS : public virtual DataAccessor
     {
       public:
         DataAccessorPostGIS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries)

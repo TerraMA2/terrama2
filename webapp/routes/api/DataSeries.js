@@ -11,4 +11,6 @@ module.exports = function (app) {
   app.put(app.locals.BASE_URL + 'api/DataSeries/:id', passport.isAuthenticated, controller.put);
   app.delete(app.locals.BASE_URL + 'api/DataSeries/:id/delete', passport.isAuthenticated, controller.delete);
   app.post(app.locals.BASE_URL + 'api/DataSeries/duplicate', passport.isAuthenticated, controller.duplicate);
+  app.get(app.locals.BASE_URL + "api/DataSeries/static/changeStatus/:id", passport.isAuthenticated, controller.changeStatusStatic);
+  app.get(app.locals.BASE_URL + "api/DataSeries/dynamic/changeStatus/:id", passport.isAuthenticated, controller.changeStatusDynamic);
 };

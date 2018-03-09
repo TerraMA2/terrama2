@@ -13,4 +13,5 @@ module.exports = function (app) {
   app.get(app.locals.BASE_URL + 'api/ViewByService/:service_id/:project_id', passport.isAuthenticated, controller.listByService);
   app.put(app.locals.BASE_URL + 'api/View/:id', passport.isAuthenticated, controller.put);
   app.delete(app.locals.BASE_URL + "api/View/:id/delete", passport.isAuthenticated, controller.delete);
+  app.get(app.locals.BASE_URL + 'api/View/changeStatus/:id', passport.isAuthenticated, controller.changeStatus);
 };

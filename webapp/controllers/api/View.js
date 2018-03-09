@@ -98,6 +98,16 @@
           .catch(function(err) {
             return handleRequestError(response, err, 400);
           });
+      },
+
+      changeStatus: function(request, response) {
+        ViewFacade.changeStatus(parseInt(request.params.id))
+          .then(function() {
+            return response.json({});
+          })
+          .catch(function(err) {
+            return handleRequestError(response, err, 400);
+          });
       }
     }
   };

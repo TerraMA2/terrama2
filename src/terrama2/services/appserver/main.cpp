@@ -332,8 +332,7 @@ int main(int argc, char* argv[])
 //    TERRAMA2_LOG_ERROR() << QObject::tr("\n\nUnknown Exception...\n");
 //  }
 
-#if (TM_PLATFORM == TM_PLATFORMCODE_APPLE)
-
+#if defined(__APPLE__)
     try
     {
         QApplication a(argc, argv);
@@ -345,8 +344,7 @@ int main(int argc, char* argv[])
     {
       TERRAMA2_LOG_ERROR() << e.what();
     }
-
-#endif  // (TM_PLATFORM == TM_PLATFORMCODE_APPLE)
+#endif
 
     return 0;
 }

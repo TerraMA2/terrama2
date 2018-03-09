@@ -31,9 +31,14 @@
 #ifndef __TERRAMA2_CORE_UTILITY_VERIFY_HPP__
 #define __TERRAMA2_CORE_UTILITY_VERIFY_HPP__
 
+// TerraMa2
+#include "../Config.hpp"
+
+// Boost
 #include <boost/date_time/local_time/local_date_time.hpp>
 #include <boost/date_time/time.hpp>
 
+// TerraLib
 #include <terralib/datatype/TimeInstantTZ.h>
 #include <terralib/datatype/TimeInstant.h>
 
@@ -59,27 +64,27 @@ namespace terrama2
 
         \note Doesn't check if the SRID actualy exists.
       */
-      void srid(int srid_, bool log = true);
+      TMCOREEXPORT void srid(int srid_, bool log = true);
 
       /*!
         \brief Verifies if the date and the timezone are valid.
       */
-      void date(const std::shared_ptr<te::dt::TimeInstantTZ>& date);
+      TMCOREEXPORT void date(const std::shared_ptr<te::dt::TimeInstantTZ>& date);
 
       /*!
         \brief Verifies if the date is valid.
       */
-      void date(const std::shared_ptr<te::dt::TimeInstant>& date);
+      TMCOREEXPORT void date(const std::shared_ptr<te::dt::TimeInstant>& date);
 
       /*!
         \brief Verifies if the date and the timezone are valid.
       */
 
-      void date(const boost::local_time::local_date_time& date);
+      TMCOREEXPORT void date(const boost::local_time::local_date_time& date);
       /*!
         \brief Verifies if the date is valid.
       */
-      void date(const boost::posix_time::ptime::base_time& date);
+      TMCOREEXPORT void date(const boost::posix_time::ptime::base_time& date);
     } /* verify */
   } /* core */
 } /* terrama2 */

@@ -197,6 +197,25 @@
     });
   };
   /**
+   * It changes the status of a given Data Provider
+   * 
+   * @param {number} dataProviderId - Data Provider Identifier
+   * @returns {Promise<DataProvider>}
+   */
+  DataProvider.changeStatus = function(dataProviderId) {
+    return new PromiseClass(function(resolve, reject) {
+      return DataManager.changeDataProviderStatus({ id: parseInt(dataProviderId) }).then(function(dataProvider) {
+        return TcpService.send({
+          "DataProviders": [dataProvider.toService()]
+        });
+      }).then(function() {
+        resolve();
+      }).catch(function(err) {
+        reject(err);
+      });
+    });
+  };
+  /**
    * It performs remove data provider from database from data provider identifier
    * 
    * @param {number} dataProviderId - Data provider Identifier

@@ -40,7 +40,7 @@ namespace terrama2
 {
   namespace core
   {
-    class DataAccessorOccurrencePostGIS : public DataAccessorOccurrence, public DataAccessorPostGIS
+    class TMIMPLEXPORT DataAccessorOccurrencePostGIS : public DataAccessorOccurrence, public DataAccessorPostGIS
     {
     public:
       DataAccessorOccurrencePostGIS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true);

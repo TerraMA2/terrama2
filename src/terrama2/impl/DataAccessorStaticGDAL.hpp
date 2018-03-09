@@ -42,7 +42,7 @@ namespace terrama2
       \brief DataAccessor for GRID DataSeries in GeoTiff format.
 
     */
-    class DataAccessorStaticGDAL : public DataAccessorGDAL
+    class TMIMPLEXPORT DataAccessorStaticGDAL : public DataAccessorGDAL
     {
     public:
 

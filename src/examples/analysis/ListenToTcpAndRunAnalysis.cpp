@@ -54,7 +54,15 @@
 #include <QtTest/QTest>
 
 
-#include <Python.h>
+// Hide the definition of _DEBUG during the inclusion of Python.h 
+// to make sure that links with python release version.
+#ifdef _DEBUG
+  #undef _DEBUG
+  #include <Python.h>
+  #define _DEBUG
+#else
+  #include <Python.h>
+#endif
 
 // Boost
 #include <boost/exception/diagnostic_information.hpp>
