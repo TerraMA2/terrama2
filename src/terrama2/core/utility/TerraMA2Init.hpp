@@ -25,13 +25,17 @@
 #ifndef __TERRAMA2_CORE_TERRAMA2_INIT_HPP__
 #define __TERRAMA2_CORE_TERRAMA2_INIT_HPP__
 
+// TerraMa2
+#include "../Config.hpp"
+
+// STL
 #include <string>
 
 namespace terrama2
 {
   namespace core
   {
-    class TerraMA2Init
+    class TMCOREEXPORT TerraMA2Init
     {
       public:
         TerraMA2Init(const std::string& serviceType, const int listeningPort);

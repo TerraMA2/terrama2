@@ -45,7 +45,7 @@ namespace terrama2
       \brief DataAccessor for the lightning occurrences
 
     */
-    class DataAccessorOccurrenceLightning : public DataAccessorOccurrence, public DataAccessorFile
+    class TMIMPLEXPORT DataAccessorOccurrenceLightning : public DataAccessorOccurrence, public DataAccessorFile
     {
       public:
         DataAccessorOccurrenceLightning(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true);

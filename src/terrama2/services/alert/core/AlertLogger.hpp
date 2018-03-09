@@ -30,6 +30,8 @@
 #ifndef __TERRAMA2_SERVICES_ALERT_CORE_ALERTLOG_HPP__
 #define __TERRAMA2_SERVICES_ALERT_CORE_ALERTLOG_HPP__
 
+// TerraMa2
+#include "Config.hpp"
 #include "Typedef.hpp"
 #include "../../../core/utility/ProcessLogger.hpp"
 
@@ -44,7 +46,7 @@ namespace terrama2
         /*!
          * \brief The AlertLogger class is an utility class to log information during alert analysis.
          */
-        class AlertLogger : public terrama2::core::ProcessLogger
+        class TMALERTCOREEXPORT AlertLogger : public terrama2::core::ProcessLogger
         {
           Q_OBJECT
         public:

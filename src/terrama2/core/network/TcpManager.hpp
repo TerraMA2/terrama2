@@ -68,7 +68,7 @@ namespace terrama2
        \sa Detailed information of data message: https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/tcp
 
      */
-    class TcpManager : public QTcpServer
+    class TMCOREEXPORT TcpManager : public QTcpServer
     {
         Q_OBJECT
 

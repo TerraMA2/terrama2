@@ -37,8 +37,7 @@ set(CPACK_RESOURCE_FILE_LICENSE @CMAKE_BINARY_DIR@/COPYING.txt)
 #
 # getting some variables from CMake
 #
-set(MSVC10 @MSVC10@)
-set(MSVC12 @MSVC12@)
+set(MSVC @MSVC@)
 set(CMAKE_CL_64 @CMAKE_CL_64@)
 set(APPLE @APPLE@)
 set(UNIX @UNIX@)
@@ -61,7 +60,7 @@ endif()
 # determining the binary package name depending on toolset used in the build
 #
 if(NOT DEFINED CPACK_SOURCE_PACKAGE_FILE_NAME)
-  if(MSVC10 OR MSVC12)
+  if(MSVC)
     if(CMAKE_CL_64)
       set(CPACK_PACKAGE_FILE_NAME "TerraMA2-@TERRAMA2_VERSION_STRING@-win64")
     else()
@@ -78,14 +77,21 @@ else()
   set(CPACK_PACKAGE_FILE_NAME "TerraMA2-@TERRAMA2_VERSION_STRING@-src")
 endif()
 
-
 #
 # specific configuration for NSIS package generator
 #
 if(CPACK_GENERATOR MATCHES "NSIS")
 
+  set(CPACK_NSIS_MUI_ICON @TERRAMA2_ABSOLUTE_ROOT_DIR@/webapp/public/images\\\\terrama2_logo.ico)
+  set(CPACK_NSIS_MUI_UNIICON @TERRAMA2_ABSOLUTE_ROOT_DIR@/webapp/public/images\\\\terrama2_logo.ico)
+  set(CPACK_NSIS_INSTALLED_ICON_NAME @TERRAMA2_ABSOLUTE_ROOT_DIR@/webapp/public\\\\images/terrama2_logo.ico)
+  
+  set(CPACK_PACKAGE_ICON @TERRAMA2_ABSOLUTE_ROOT_DIR@/webapp/public/images\\\\terrama2_logo.ico)
+  
+  set(CPACK_RESOURCE_FILE_README @TERRAMA2_ABSOLUTE_ROOT_DIR@/build/cmake/GENERAL-README)
+  
   set(CPACK_PACKAGE_INSTALL_DIRECTORY "terrama2@TERRAMA2_VERSION_STRING@")
-
+  
   set(CPACK_NSIS_MENU_LINKS
       "doc/api/html/index.html" "API Reference")
 
@@ -110,46 +116,18 @@ if(CPACK_GENERATOR MATCHES "NSIS")
   # To overwrite a previous installed version
   set(CPACK_PACKAGE_INSTALL_REGISTRY_KEY ${CPACK_PACKAGE_NAME})
 
-  set(shortCutName "TerraView @TERRAMA2_VERSION_STRING@ ${bitName}")
+  set(shortCutName "TerraMa2 @TERRAMA2_VERSION_STRING@ ${bitName}")
 
   set(CPACK_PACKAGE_EXECUTABLES "terrama2;${shortCutName}")
 
   set(CPACK_NSIS_CREATE_ICONS_EXTRA "
   SetOutPath \"$INSTDIR\\bin\";
-  CreateShortCut \"$SMPROGRAMS\\$STARTMENU_FOLDER\\${shortCutName}.lnk\" \"$INSTDIR\\bin\\terrama2_admin.exe\" \"\" \"$INSTDIR\\share\\terrama2\\icons\\terrama2\\48x48\\admin\\admin.ico\";
-  CreateShortCut \"$DESKTOP\\${shortCutName}.lnk\" \"$INSTDIR\\bin\\terrama2_admin.exe\" \"\" \"$INSTDIR\\share\\terrama2\\icons\\terrama2\\48x48\\admin\\admin.ico\"")
+  CreateShortCut \"$SMPROGRAMS\\$STARTMENU_FOLDER\\${shortCutName}.lnk\" \"$INSTDIR\\bin\\terrama2_service.exe\" \"\" \"$INSTDIR\\webapp\\public\\images\\terrama2_logo.ico\";
+  CreateShortCut \"$DESKTOP\\${shortCutName}.lnk\" \"$INSTDIR\\bin\\terrama2_service.exe\" \"\" \"$INSTDIR\\webapp\\public\\images\\terrama2_logo.ico\"")
 
   list (APPEND CPACK_NSIS_DELETE_ICONS_EXTRA "
   Delete \"$SMPROGRAMS\\$MUI_TEMP\\${shortCutName}.lnk\";
   Delete \"$DESKTOP\\${shortCutName}.lnk\"")
-
-#  list (APPEND CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
-#  # Creating GDAL_DIR enviroment variable.
-#  # WriteRegExpandStr HKLM \"SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment\" \"GDAL_DATA\" \"$INSTDIR\\share\\gdal-data\";
-#  WriteRegExpandStr HKLM \"SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment\" \"TERRAMA2_HOME\" \"$INSTDIR\";
-#  SendMessage \${HWND_BROADCAST} \${WM_WININICHANGE} 0 \"STR:Environment\" /TIMEOUT=5000"
-#  )
-
-#  set (CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
-#  # Removing GDAL_DIR from enviroment variables.
-#  # DeleteRegValue HKLM \"SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment\" \"GDAL_DATA\";
-#  DeleteRegValue HKLM \"SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment\" \"TERRAMA2_HOME\";
-#  SendMessage \${HWND_BROADCAST} \${WM_WININICHANGE} 0 \"STR:Environment\" /TIMEOUT=5000"
-#  )
-
- # File types association:
- list (APPEND CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
-   WriteRegStr HKCR \".terrama2\" \"\" \"TerraMA2.Project\"; #registering file extension
-   WriteRegStr HKCR \"TerraMA2.Project\" \"\" \"TerraMA2 Project File\"; #registering extension desc
-   WriteRegStr HKCR \"TerraMA2.Project\\DefaultIcon\" \"\" \"$INSTDIR\\share\\terraview\\images\\ico\\terraview-projectfile-icon.ico\"; #registering extension icon
-   WriteRegStr HKCR \"TerraMA2.Project\\shell\\open\\command\" \"\" '\"$INSTDIR\\bin\\terrama2_admin.exe\" \"%1\"'; #extension open command
-   SetRebootFlag true
- ")
-
- list (APPEND CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
-   DeleteRegKey HKCR \".terrama2\"; #removing extension register
-   DeleteRegKey HKCR \"TerraMA2.Project\"; #removing file association register
- ")
 
 endif()
 

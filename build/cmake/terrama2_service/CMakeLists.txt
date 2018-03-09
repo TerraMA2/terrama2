@@ -24,9 +24,9 @@
 #  Author: Jano Simas
 #
 
-#if(WIN32)
-#  add_definitions(-DTMA_CORE_DLL)
-#endif()
+if (WIN32)
+  add_definitions(-DTMSERVICEDLL -DBOOST_PROGRAM_OPTIONS_DYN_LINK)
+endif()
 
 file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/appserver/*.cpp)
 file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/appserver/*.hpp)
@@ -102,6 +102,13 @@ IF(TERRAMA2_ALERT_ENABLED)
   target_link_libraries(terrama2_service terrama2_alert_core
                                          terrama2_alert_impl)
 ENDIF()
+
+if(WIN32 AND MSVC)
+set_target_properties(terraview PROPERTIES LINK_FLAGS_DEBUG "/SUBSYSTEM:CONSOLE")
+set_target_properties(terraview PROPERTIES RELWITHDEBINFO "/SUBSYSTEM:CONSOLE")
+set_target_properties(terraview PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
+set_target_properties(terraview PROPERTIES MINSIZEREL "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
+endif()
 
 install(TARGETS terrama2_service
         EXPORT terrama2-targets

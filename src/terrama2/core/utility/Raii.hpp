@@ -27,14 +27,17 @@
 #ifndef __TERRAMA2_CORE_UTILITY_RAII_HPP__
 #define __TERRAMA2_CORE_UTILITY_RAII_HPP__
 
-//TerraMA2
+// TerraMA2
+#include "../Config.hpp"
 #include "Logger.hpp"
 
+// TerraLib
 #include <terralib/dataaccess/datasource/DataSource.h>
 
-//STd
+// STD
 #include <exception>
 
+// QT
 #include <QDir>
 
 namespace terrama2
@@ -91,7 +94,7 @@ namespace terrama2
     };
 
     //! Class for Resource Acquisition Is Initialization (RAII) of std::FILE*.
-    class FilePtr
+    class TMCOREEXPORT FilePtr
     {
       public:
 
@@ -147,7 +150,7 @@ namespace terrama2
         std::FILE* file_;
     };
 
-    class TemporaryFolder
+    class TMCOREEXPORT TemporaryFolder
     {
       public:
         TemporaryFolder(std::string folder) : folder_(folder){}
@@ -170,11 +173,11 @@ namespace terrama2
     //! Raii type for te::da::DataSource with close connection at destruction.
     using DataSourcePtr = std::unique_ptr< te::da::DataSource, std::function<void(te::da::DataSource*)> > ;
     //! Close a te::da::DataSource connection
-    void closeDataSourceConnection(te::da::DataSource* datasource);
+    TMCOREEXPORT void closeDataSourceConnection(te::da::DataSource* datasource);
     //! Create a raii te::da::DataSource pointer that closes the connection at destruction.
-    DataSourcePtr makeDataSourcePtr(te::da::DataSource* datasource);
+    TMCOREEXPORT DataSourcePtr makeDataSourcePtr(te::da::DataSource* datasource);
     //! Create a raii te::da::DataSource pointer that closes the connection at destruction.
-    DataSourcePtr makeDataSourcePtr(std::unique_ptr< te::da::DataSource> datasource);
+    TMCOREEXPORT DataSourcePtr makeDataSourcePtr(std::unique_ptr< te::da::DataSource> datasource);
   }
 }
 

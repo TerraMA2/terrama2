@@ -42,7 +42,7 @@ namespace terrama2
 {
   namespace core
   {
-    class PythonInterpreter : public Interpreter
+    class TMCOREEXPORT PythonInterpreter : public Interpreter
     {
     public:
       PythonInterpreter();

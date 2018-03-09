@@ -30,8 +30,13 @@
 #ifndef __TERRAMA2_CORE_LOCAL_TIME_UTILS_HPP__
 #define __TERRAMA2_CORE_LOCAL_TIME_UTILS_HPP__
 
+#include "../Config.hpp"
+
 #include <chrono>
+#include <ctime>
 #include <string>
+#include <iomanip>
+#include <sstream>
 //////////////////////////////////////////////////////////
 //
 // For the current versions of GCC and clang the put_time function is not implemented
@@ -46,9 +51,9 @@
 //
 namespace g2
 {
-  tm localtime(const std::time_t& time);
-  std::string put_time(const std::tm* date_time, const char* c_time_format);
-  std::time_t systemtime_now();
+  TMCOREEXPORT tm localtime(const std::time_t& time);
+  TMCOREEXPORT std::string put_time(const std::tm* date_time, const char* c_time_format);
+  TMCOREEXPORT std::time_t systemtime_now();
 }
 
 #endif //__TERRAMA2_CORE_LOCAL_TIME_UTILS_HPP__

@@ -43,7 +43,7 @@ namespace terrama2
       \brief DataAccessor class for static data accessed via OGR driver.
 
     */
-    class DataAccessorWildFireEvent : public DataAccessorGeometricObjectOGR
+    class TMIMPLEXPORT DataAccessorWildFireEvent : public DataAccessorGeometricObjectOGR
     {
       public:
 

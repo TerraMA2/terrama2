@@ -55,7 +55,7 @@ namespace terrama2
          * \param Absolute file path to the compressed file.
          * \param Returns the path of the temporary folder whith the content of the compressed file.
          */
-      std::string decompress(std::string uri,
+      TMCOREEXPORT std::string decompress(std::string uri,
                              std::shared_ptr<terrama2::core::FileRemover> remover,
                              const std::string& temporaryFolder = "");
 
@@ -64,38 +64,38 @@ namespace terrama2
          * \param uri - It contains absolute file path.
          * \return Returns true if the file compressed, or false if the file decompressed.
          */
-      bool isCompressed(std::string uri);
+      TMCOREEXPORT bool isCompressed(std::string uri);
 
       /*!
          * \brief isGzipCompress - Verify is a file with extension gz.
          * \param fileinfo - Compressed file.
          * \return Returns true if the file has the gz extension, or false if it is not with gz extension.
          */
-      bool isGzipCompress(const QFileInfo fileinfo);
+      TMCOREEXPORT bool isGzipCompress(const QFileInfo fileinfo);
       /*!
          * \brief isTarCompress - Verify is a file with extension tar.
          * \param fileinfo - Compressed file.
          * \return Returns true if the file has the tar extesion, or false if it is not with tar extension.
          */
-      bool isTarCompress(const QFileInfo fileinfo);
+      TMCOREEXPORT bool isTarCompress(const QFileInfo fileinfo);
       /*!
          * \brief isBzipCompress - Verify is file with extension bz2.
          * \param fileinfo - Compressed file.
          * \return Returns true if the file has the bz2 extension, or false if it is not with bz2 extension.
          */
-      bool isBzipCompress(const QFileInfo fileinfo);
+      TMCOREEXPORT bool isBzipCompress(const QFileInfo fileinfo);
       /*!
          * \brief isZipCompress - Verify is file with extension zip.
          * \param fileinfo - Compressed file.
          * \return Returns true if the file has the zip extension, or false if it is not with zip extension.
          */
-      bool isZipCompress(const QFileInfo fileinfo);
+      TMCOREEXPORT bool isZipCompress(const QFileInfo fileinfo);
       /*!
          * \brief nameFileDecompressed - Name file decompressed.
          * \param fileinfo - Compressed file.
          * \return Returns the name of the decompressed file.
          */
-      QString nameFileDecompressed(const QFileInfo fileinfo);
+      TMCOREEXPORT QString nameFileDecompressed(const QFileInfo fileinfo);
 
       /*!
          * \brief parseOct - Parse an octal number, ignoring leading and trailing nonsense.
@@ -103,13 +103,13 @@ namespace terrama2
          * \param n - base Octal.
          * \return Returns decimal number.
         */
-      int parseOct(const char* p, size_t n);
+      TMCOREEXPORT int parseOct(const char* p, size_t n);
       /*!
          * \brief isEndOfArchive - Verify it is the end of a tar file.
          * \param p - Number of bytes.
          * \return Returns true if this is 512 zero bytes.
          */
-      int isEndOfArchive(const char* p);
+      TMCOREEXPORT int isEndOfArchive(const char* p);
 
       /*!
          * \brief createFile - Create a file, including parent directory as necessary.
@@ -119,41 +119,41 @@ namespace terrama2
          * \param vFiles - vector with the name of the unpack files.
          * \return Returns Create file.
          */
-      FILE* createFile(std::string savePath, int mode);
+      TMCOREEXPORT FILE* createFile(std::string savePath, int mode);
       /*!
          * \brief verifyChecksum - Verify the tar checksum.
          * \param p - Number of bytes.
          * \return Returns The default signing a tar file.
          */
-      int verifyChecksum(const char* p);
+      TMCOREEXPORT int verifyChecksum(const char* p);
 
       /*!
          * \brief untar - Extract a tar file.
          * \param path - It contains the path of the compressed file.
          *
         */
-      void untar(QFileInfo fileInfo, QString temporaryFolder, std::shared_ptr<terrama2::core::FileRemover> remover);
+      TMCOREEXPORT void untar(QFileInfo fileInfo, QString temporaryFolder, std::shared_ptr<terrama2::core::FileRemover> remover);
       /*!
          * \brief decompressGz - Decompress a GZ file.
          * \param saveName - It contains the absolute path where the file decompressed is saved.
          * \param fileName - It contains the absolute path of file compressed.
          * \return Returns - The name of the unpack files.
         */
-      QString decompressGz(QFileInfo fileInfo, QString temporaryFolder, std::shared_ptr<terrama2::core::FileRemover> remover);
+      TMCOREEXPORT QString decompressGz(QFileInfo fileInfo, QString temporaryFolder, std::shared_ptr<terrama2::core::FileRemover> remover);
       /*!
          * \brief decompressBzip - Decompress a Bzip2 file.
          * \param saveName - It contains the absolute path where the file decompressed is saved.
          * \param fileName - It contains the absolute path of file compressed.
          * \return Returns - The name of the unpack files.
         */
-      QString decompressBzip(QFileInfo fileInfo, QString temporaryFolder, std::shared_ptr<terrama2::core::FileRemover> remover);
+      TMCOREEXPORT QString decompressBzip(QFileInfo fileInfo, QString temporaryFolder, std::shared_ptr<terrama2::core::FileRemover> remover);
       /*!
          * \brief decompressZip - Decompress a Zip file.
          * \param saveName - It contains the absolute path where the file decompressed is saved.
          * \param fileName - It contains the absolute path of file compressed.
          *
          */
-      void decompressZip(QFileInfo fileInfo, QString temporaryFolder, std::shared_ptr<terrama2::core::FileRemover> remover);
+      TMCOREEXPORT void decompressZip(QFileInfo fileInfo, QString temporaryFolder, std::shared_ptr<terrama2::core::FileRemover> remover);
     }
   } // end namespace core
 }   // end namespace terrama2

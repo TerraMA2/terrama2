@@ -30,8 +30,13 @@
 #ifndef __TERRAMA2_CORE_DATASET_MAPPER_HPP__
 #define __TERRAMA2_CORE_DATASET_MAPPER_HPP__
 
+// TerraMa2
+#include "../Config.hpp"
+
+// Terralib
 #include <terralib/dataaccess/dataset/DataSet.h>
 
+// STL
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -45,7 +50,7 @@ namespace terrama2
 
       The DataSetMapper is a helper classe to access data indexed by a key attribute.
     */
-    class DataSetMapper
+    class TMCOREEXPORT DataSetMapper
     {
       public:
         //! Constructor, generates a key-line map

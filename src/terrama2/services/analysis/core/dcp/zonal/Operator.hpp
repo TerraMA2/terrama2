@@ -70,7 +70,7 @@ namespace terrama2
 
               \return A double value with the result.
             */
-            double operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
+            TMANALYSISEXPORT double operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
                                 const std::string& dataSeriesName, const std::string& attribute,
                                 boost::python::list pcds, const std::string& dateFilterBegin = "",
                                 const std::string& dateFilterEnd = "");
@@ -85,7 +85,7 @@ namespace terrama2
 
               \return The number of DCP that have influence over the current monitored object.
             */
-            int count(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer);
+            TMANALYSISEXPORT int count(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer);
 
             /*!
               \brief Calculates the minimum value of the latest DCP series data.
@@ -102,7 +102,7 @@ namespace terrama2
 
               \return A double with the minimum value.
             */
-            double min(const std::string& dataSeriesName, const std::string& attribute,
+            TMANALYSISEXPORT double min(const std::string& dataSeriesName, const std::string& attribute,
                        boost::python::list ids);
 
             /*!
@@ -119,7 +119,7 @@ namespace terrama2
 
               \return A double with the maximum value.
             */
-            double max(const std::string& dataSeriesName, const std::string& attribute,
+            TMANALYSISEXPORT double max(const std::string& dataSeriesName, const std::string& attribute,
                        boost::python::list ids);
 
             /*!
@@ -136,7 +136,7 @@ namespace terrama2
 
               \return A double with the mean.
             */
-            double mean(const std::string& dataSeriesName, const std::string& attribute,
+            TMANALYSISEXPORT double mean(const std::string& dataSeriesName, const std::string& attribute,
                         boost::python::list ids);
 
             /*!
@@ -153,7 +153,7 @@ namespace terrama2
 
               \return A double with the median.
             */
-            double median(const std::string& dataSeriesName, const std::string& attribute,
+            TMANALYSISEXPORT double median(const std::string& dataSeriesName, const std::string& attribute,
                           boost::python::list ids);
 
             /*!
@@ -170,7 +170,7 @@ namespace terrama2
 
               \return A double with the sum.
              */
-            double sum(const std::string& dataSeriesName, const std::string& attribute,
+            TMANALYSISEXPORT double sum(const std::string& dataSeriesName, const std::string& attribute,
                        boost::python::list ids);
 
             /*!
@@ -187,7 +187,7 @@ namespace terrama2
 
               \return A double with the standard deviation.
             */
-            double standardDeviation(const std::string& dataSeriesName, const std::string& attribute,
+            TMANALYSISEXPORT double standardDeviation(const std::string& dataSeriesName, const std::string& attribute,
                                      boost::python::list ids);
 
             /*!
@@ -204,7 +204,7 @@ namespace terrama2
 
               \return A double with the variance between DCP values.
             */
-            double variance(const std::string& dataSeriesName, const std::string& attribute,
+            TMANALYSISEXPORT double variance(const std::string& dataSeriesName, const std::string& attribute,
                             boost::python::list ids);
 
 
@@ -213,7 +213,7 @@ namespace terrama2
              \param analysis Analysis configuration.
              \return The influence type.
             */
-            terrama2::services::analysis::core::InfluenceType getInfluenceType(const terrama2::services::analysis::core::AnalysisPtr analysis);
+            TMANALYSISEXPORT terrama2::services::analysis::core::InfluenceType getInfluenceType(const terrama2::services::analysis::core::AnalysisPtr analysis);
 
             /*!
              \brief Creates the influence buffer.
@@ -223,7 +223,7 @@ namespace terrama2
              \param influenceType Influence type of the analysis.
              \return The buffer geometry.
             */
-            std::shared_ptr<te::gm::Geometry> createDCPInfluenceBuffer(const terrama2::services::analysis::core::AnalysisPtr analysis, std::shared_ptr<te::gm::Geometry> position, int monitoredObjectSrid, InfluenceType influenceType);
+            TMANALYSISEXPORT std::shared_ptr<te::gm::Geometry> createDCPInfluenceBuffer(const terrama2::services::analysis::core::AnalysisPtr analysis, std::shared_ptr<te::gm::Geometry> position, int monitoredObjectSrid, InfluenceType influenceType);
 
             /*!
              \brief Verify if the DCP influences the monitored object.
@@ -232,7 +232,7 @@ namespace terrama2
              \param dcpInfluenceBuffer  DCP influence buffer.
              \return True if the DCP influences the monitored object
             */
-            bool verifyDCPInfluence(terrama2::services::analysis::core::InfluenceType influenceType, std::shared_ptr<te::gm::Geometry> moGeom, std::shared_ptr<te::gm::Geometry> dcpInfluenceBuffer);
+            TMANALYSISEXPORT bool verifyDCPInfluence(terrama2::services::analysis::core::InfluenceType influenceType, std::shared_ptr<te::gm::Geometry> moGeom, std::shared_ptr<te::gm::Geometry> dcpInfluenceBuffer);
 
           } // end namespace zonal
         } // end namespace dcp
