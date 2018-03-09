@@ -55,7 +55,6 @@
     "swig": "1.4.2",
     "unzip2": "^0.2.5",
     "winston": "^2.3.0",
-
     "jquery": "=2.2.4",
     "angular": "=1.6.5",
     "angular-schema-form": "=0.8.13",
