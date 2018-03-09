@@ -377,4 +377,23 @@
       });
     });
   };
+  /**
+   * It changes the status of a given view
+   * 
+   * @param {number} viewId - View Identifier
+   * @returns {Promise<DataProvider>}
+   */
+  View.changeStatus = function(viewId) {
+    return new PromiseClass(function(resolve, reject) {
+      return DataManager.changeViewStatus({ id: parseInt(viewId) }).then(function(view) {
+        return TcpService.send({
+          "Views": [view.toObject()]
+        });
+      }).then(function() {
+        resolve();
+      }).catch(function(err) {
+        reject(err);
+      });
+    });
+  };
 } ());

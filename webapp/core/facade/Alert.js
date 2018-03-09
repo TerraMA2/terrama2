@@ -519,4 +519,24 @@
       });
     });
   };
+
+  /**
+   * It changes the status of a given alert
+   * 
+   * @param {number} alertId - Alert Identifier
+   * @returns {Promise<DataProvider>}
+   */
+  Alert.changeStatus = function(alertId) {
+    return new PromiseClass(function(resolve, reject) {
+      return DataManager.changeAlertStatus({ id: parseInt(alertId) }).then(function(alert) {
+        return TcpService.send({
+          "Alerts": [alert.toService()]
+        });
+      }).then(function() {
+        resolve();
+      }).catch(function(err) {
+        reject(err);
+      });
+    });
+  };
 }());

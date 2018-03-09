@@ -182,6 +182,7 @@
         <tr style="font-weight: bold;">
           <td ng-show="isFunction(icon()) && model.length > 0"></td>
           <td ng-repeat="field in displayFields">{{ i18n.__(field) }}</td>
+          <td ng-if="changeStatus"></td>
           <td ng-if="extra.service"></td>
           <td ng-if="extra.service">Status</td>
           <td ng-if="extra.export"></td>
@@ -196,6 +197,11 @@
           </td>
           <td ng-repeat="field in identityFields ">
             <a ng-href="{{ makeLink(element) }}" ng-if="link" ng-bind="processField(field, element)"></a>
+          </td>
+
+          <td ng-if="element.active.toString() === 'true' || element.active.toString() === 'false'" class="pull-cell-left status-change-button">
+            <span ng-if="!servicesInstances || servicesInstances[element.service_instance_id].toString() === 'true'" class="fa" ng-class="{ 'fa-toggle-on': element.active.toString() === 'true', 'fa-toggle-off': element.active.toString() === 'false' }" ng-click="changeStatus($event, makeLinkStatusChange(element))"></span>
+            <span ng-if="servicesInstances && servicesInstances[element.service_instance_id].toString() !== 'true'" class="status-change-disabled fa" ng-class="{ 'fa-toggle-on': element.active.toString() === 'true', 'fa-toggle-off': element.active.toString() === 'false' }"></span>
           </td>
 
           <td ng-if="extra.project" class="pull-cell-left">

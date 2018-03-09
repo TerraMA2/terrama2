@@ -688,6 +688,34 @@ module.exports = function(app) {
       }).catch(function(err){
         return Utils.handleRequestError(response, err, 400);
       });
+    },
+
+    changeStatusStatic: function(request, response) {
+      DataManager.changeStaticDataSeriesStatus({ id: parseInt(request.params.id) })
+        .then(function(dataSeries) {
+          return TcpService.send({
+            "DataSeries": [dataSeries.toObject()]
+          });
+        })
+        .then(function() {
+          return response.json({});
+        })
+        .catch(function(err) {
+          return Utils.handleRequestError(response, err, 400);
+        });
+    },
+
+    changeStatusDynamic: function(request, response) {
+      DataManager.changeDynamicDataSeriesStatus({ id: parseInt(request.params.id) })
+        .then(function(objectToSend) {
+          return TcpService.send(objectToSend);
+        })
+        .then(function() {
+          return response.json({});
+        })
+        .catch(function(err) {
+          return Utils.handleRequestError(response, err, 400);
+        });
     }
   };
 };

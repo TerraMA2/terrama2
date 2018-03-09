@@ -101,6 +101,16 @@ module.exports = function(app) {
           logger.error(Utils.format("Error while validating analysis %s", err.toString()));
           return Utils.handleRequestError(response, err, 400);
         });
+    },
+
+    changeStatus: function(request, response) {
+      AnalysisFacade.changeStatus(parseInt(request.params.id))
+        .then(function() {
+          return response.json({});
+        })
+        .catch(function(err) {
+          return Utils.handleRequestError(response, err, 400);
+        });
     }
   };
 };
