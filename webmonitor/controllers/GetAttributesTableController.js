@@ -28,7 +28,8 @@ var GetAttributesTableController = function(app) {
     numberOfFeatures: 0,
     search: "",
     timeStart: null,
-    timeEnd: null
+    timeEnd: null,
+    analysisTime: null
   };
 
   /**
@@ -118,13 +119,15 @@ var GetAttributesTableController = function(app) {
       if(search !== "") {
         search = search.substring(0, search.length - 4) + ")";
 
-        if(request.body.timeStart !== undefined && request.body.timeEnd !== undefined && request.body.timeStart !== null && request.body.timeEnd !== null && request.body.timeStart !== "" && request.body.timeEnd !== "" && (dateTimeField !== null || dateField !== null)) {
+        if(request.body.timeStart && request.body.timeEnd && (dateTimeField || dateField)) {
           search += " and (" + (dateTimeField !== null ? dateTimeField : dateField) + " between '" + request.body.timeStart + "' and '" + request.body.timeEnd + "')";
         }
 
         url += search;
-      } else if(request.body.timeStart !== undefined && request.body.timeEnd !== undefined && request.body.timeStart !== null && request.body.timeEnd !== null && request.body.timeStart !== "" && request.body.timeEnd !== "" && (dateTimeField !== null || dateField !== null)) {
+      } else if(request.body.timeStart && request.body.timeEnd && (dateTimeField || dateField)) {
         url += "&cql_filter=(" + (dateTimeField !== null ? dateTimeField : dateField) + " between '" + request.body.timeStart + "' and '" + request.body.timeEnd + "')";
+      } else if(request.body.analysisTime) {
+        url += "&cql_filter=(execution_date='" + request.body.analysisTime + "')";
       }
 
       memberHttp.get(url, function(resp) {
@@ -152,12 +155,20 @@ var GetAttributesTableController = function(app) {
             body = {};
           }
 
-          if(memberCurrentLayer.id !== request.body.layer || memberCurrentLayer.search !== request.body['search[value]'] || parseInt(memberCurrentLayer.numberOfFeatures) < parseInt(body.totalFeatures) || memberCurrentLayer.timeStart !== request.body.timeStart || memberCurrentLayer.timeEnd !== request.body.timeEnd) {
+          if(
+            memberCurrentLayer.id !== request.body.layer || 
+            memberCurrentLayer.search !== request.body['search[value]'] || 
+            parseInt(memberCurrentLayer.numberOfFeatures) < parseInt(body.totalFeatures) || 
+            memberCurrentLayer.timeStart !== request.body.timeStart || 
+            memberCurrentLayer.timeEnd !== request.body.timeEnd || 
+            memberCurrentLayer.analysisTime !== request.body.analysisTime
+          ) {
             memberCurrentLayer.id = request.body.layer;
             memberCurrentLayer.numberOfFeatures = body.totalFeatures;
             memberCurrentLayer.search = request.body['search[value]'];
             memberCurrentLayer.timeStart = request.body.timeStart;
             memberCurrentLayer.timeEnd = request.body.timeEnd;
+            memberCurrentLayer.analysisTime = request.body.analysisTime;
           }
 
           // JSON response
