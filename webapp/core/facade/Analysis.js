@@ -242,3 +242,24 @@ Analysis.validate = function(analysisObject, storagerObject, scheduleObject, pro
       });
   });
 };
+
+/**
+ * It changes the status of a given analysis
+ * 
+ * @param {number} analysisId - Analysis Identifier
+ * @returns {Promise<DataProvider>}
+ */
+Analysis.changeStatus = function(analysisId) {
+  return new PromiseClass(function(resolve, reject) {
+    return DataManager.changeAnalysisStatus({ id: parseInt(analysisId) }).then(function(result) {
+      return TcpService.send({
+        "Analysis": [result.analysis.toObject()],
+        "DataSeries": [result.dataSeries.toObject()]
+      });
+    }).then(function() {
+      resolve();
+    }).catch(function(err) {
+      reject(err);
+    });
+  });
+};

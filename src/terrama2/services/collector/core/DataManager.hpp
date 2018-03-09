@@ -30,6 +30,8 @@
 #ifndef __TERRAMA2_SERVICES_COLLECTOR_CORE_DATAMANAGER_HPP__
 #define __TERRAMA2_SERVICES_COLLECTOR_CORE_DATAMANAGER_HPP__
 
+// TerraMa2
+#include "Config.hpp"
 #include "../../../core/data-model/DataManager.hpp"
 #include "../core/Typedef.hpp"
 #include "../core/Shared.hpp"
@@ -49,7 +51,7 @@ namespace terrama2
 
           \sa terrama2::core::DataManager
         */
-        class DataManager : public terrama2::core::DataManager
+        class TMCOLLECTOREXPORT DataManager : public terrama2::core::DataManager
         {
             Q_OBJECT
 

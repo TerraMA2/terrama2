@@ -55,7 +55,7 @@ namespace terrama2
       \brief DataAccessor class for static data accessed via OGR driver.
 
     */
-    class DataAccessorGeometricObjectOGR : public DataAccessorGeometricObject, public DataAccessorFile
+    class TMIMPLEXPORT DataAccessorGeometricObjectOGR : public DataAccessorGeometricObject, public DataAccessorFile
     {
       public:
 

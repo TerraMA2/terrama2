@@ -31,6 +31,8 @@
 #ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_VERIFY_HPP__
 #define __TERRAMA2_SERVICES_ANALYSIS_CORE_VERIFY_HPP__
 
+// TerraMa2
+#include "../Config.hpp"
 #include "../Shared.hpp"
 #include "../Analysis.hpp"
 
@@ -47,10 +49,10 @@ namespace terrama2
       {
         namespace verify
         {
-          void analysisType(const terrama2::services::analysis::core::AnalysisPtr analysis, int analysisType);
-          void analysisGrid(const terrama2::services::analysis::core::AnalysisPtr analysis);
-          void analysisMonitoredObject(const terrama2::services::analysis::core::AnalysisPtr analysis);
-          void analysisDCP(const terrama2::services::analysis::core::AnalysisPtr analysis);
+          TMANALYSISEXPORT void analysisType(const terrama2::services::analysis::core::AnalysisPtr analysis, int analysisType);
+          TMANALYSISEXPORT void analysisGrid(const terrama2::services::analysis::core::AnalysisPtr analysis);
+          TMANALYSISEXPORT void analysisMonitoredObject(const terrama2::services::analysis::core::AnalysisPtr analysis);
+          TMANALYSISEXPORT void analysisDCP(const terrama2::services::analysis::core::AnalysisPtr analysis);
 
 
           /*!
@@ -60,7 +62,7 @@ namespace terrama2
             \param analysis The analysis to be executed.
             \return A list with error messages.
           */
-          std::set<std::string> inactiveDataSeries(DataManagerPtr dataManager, AnalysisPtr analysis);
+          TMANALYSISEXPORT std::set<std::string> inactiveDataSeries(DataManagerPtr dataManager, AnalysisPtr analysis);
 
 
           /*!
@@ -69,7 +71,7 @@ namespace terrama2
             \param analysis The analysis to be executed.
             \param validateResult The validate result object.
           */
-          void validateAnalysis(DataManagerPtr dataManager, AnalysisPtr analysis, ValidateResult& validateResult);
+          TMANALYSISEXPORT void validateAnalysis(DataManagerPtr dataManager, AnalysisPtr analysis, ValidateResult& validateResult);
 
           /*!
             \brief Verifies if all data series used in the analysis have data available.
@@ -77,7 +79,7 @@ namespace terrama2
             \param analysis The analysis to be executed.
             \return A list with error messages.
           */
-          std::set<std::string> dataAvailable(DataManagerPtr dataManager, AnalysisPtr analysis);
+          TMANALYSISEXPORT std::set<std::string> dataAvailable(DataManagerPtr dataManager, AnalysisPtr analysis);
 
           /*!
             \brief Verifies if the monitored object data series contains the identifier attribute
@@ -85,7 +87,7 @@ namespace terrama2
             \param analysis The analysis to be executed.
             \return A list with error messages.
           */
-          std::set<std::string> attributeIdentifier(DataManagerPtr dataManager, AnalysisPtr analysis);
+          TMANALYSISEXPORT std::set<std::string> attributeIdentifier(DataManagerPtr dataManager, AnalysisPtr analysis);
 
 
         } /* verify */

@@ -30,6 +30,7 @@
 #define __TERRAMA2_SERVICES_ALERT_IMPL_DOCUMENT_PDF_HPP__
 
 // TerraMA2
+#include "Config.hpp"
 #include "../core/Report.hpp"
 #include "../core/Shared.hpp"
 
@@ -43,8 +44,8 @@ namespace terrama2
       {
         namespace documentPDF
         {
-            std::string documentCode();
-            te::core::URI makeDocument(core::ReportPtr report);
+            TMALERTIMPLEXPORT std::string documentCode();
+            TMALERTIMPLEXPORT te::core::URI makeDocument(core::ReportPtr report);
         } /* documentPDF */
       } /* impl */
     } /* alert */

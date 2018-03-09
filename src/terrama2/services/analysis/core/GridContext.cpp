@@ -315,6 +315,12 @@ void terrama2::services::analysis::core::GridContext::addResolutionToRasterInfo(
     }
   }
 
+  if(resX <= 0 || resY <= 0)
+  {
+    QString errMsg = QObject::tr("Invalid resolution for output raster.");
+    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+  }
+
   outputRasterInfo["MEM_RASTER_RES_X"] = std::to_string(resX);
   outputRasterInfo["MEM_RASTER_RES_Y"] = std::to_string(resY);
 }
@@ -412,6 +418,12 @@ void terrama2::services::analysis::core::GridContext::addInterestAreaToRasterInf
       srid = analysis_->outputGridPtr->interestAreaBox->getSRID();
       break;
     }
+  }
+
+  if(box->getArea() <= 0)
+  {
+    QString errMsg = QObject::tr("Invalid area for output raster.");
+    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
 
   terrama2::core::verify::srid(srid);

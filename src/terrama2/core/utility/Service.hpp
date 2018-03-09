@@ -30,6 +30,7 @@
 #ifndef __TERRAMA2_CORE_SERVICE_HPP__
 #define __TERRAMA2_CORE_SERVICE_HPP__
 
+// TerraMa2
 #include "../Typedef.hpp"
 #include "../Shared.hpp"
 #include "../data-model/Schedule.hpp"
@@ -104,7 +105,7 @@ namespace terrama2
       Queued processes will be executed automatically by the threadpool.
 
     */
-    class Service : public QObject
+    class TMCOREEXPORT Service : public QObject
     {
         Q_OBJECT
 

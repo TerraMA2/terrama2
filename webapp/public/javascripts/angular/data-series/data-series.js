@@ -79,15 +79,20 @@ define([], function() {
 
     var config = $window.configuration;
 
-    var findCollectorOrAnalysis = function(dataSeries){
+    $scope.servicesInstances = config.servicesInstances || null;
+
+    var findCollectorAnalysisOrInterpolator = function(dataSeries){
       if (config.dataSeriesType != 'static'){
         var foundCollector = config.collectors.find(function(collector){
           return collector.output_data_series == dataSeries.id;
         });
         var foundAnalysis = config.analysis.find(function(analysi){
           return analysi.dataSeries.id == dataSeries.id;
-        })
-        return foundCollector || foundAnalysis;
+        });
+        var foundInterpolator = config.interpolators.find(function(interpolator){
+          return interpolator.data_series_output == dataSeries.id;
+        });
+        return foundCollector || foundAnalysis || foundInterpolator;
       } else 
         return false;
     }
@@ -113,7 +118,10 @@ define([], function() {
           targetMethod = MessageBoxService.danger;
         }
       }
+
+      if(targetMethod && targetMethod.call)
       targetMethod.call(MessageBoxService, i18n.__(title), errorMessage);
+
       delete serviceCache[response.service];
     });
 
@@ -130,11 +138,20 @@ define([], function() {
     Socket.on('statusResponse', function(response) {
       if(response.checking === undefined || (!response.checking && response.status == 400)) {
         if(response.online) {
-          Socket.emit('run', serviceCache[response.service].process_ids);
-          delete $scope.disabledButtons[serviceCache[response.service].service_id];
-          delete serviceCache[response.service];
+          if(serviceCache[response.service]) {
+            Socket.emit('run', serviceCache[response.service].process_ids);
+            delete $scope.disabledButtons[serviceCache[response.service].service_id];
+            delete serviceCache[response.service];
+          }
+
+          if($scope.servicesInstances)
+            $scope.servicesInstances[response.service] = true;
         } else {
-          delete $scope.disabledButtons[serviceCache[response.service].service_id];
+          if(serviceCache[response.service])
+            delete $scope.disabledButtons[serviceCache[response.service].service_id];
+
+          if($scope.servicesInstances)
+            $scope.servicesInstances[response.service] = false;
         }
       }
     });
@@ -157,6 +174,15 @@ define([], function() {
     };
 
     $scope.extra = {
+      canInterpolate: function(object){
+        if (object.data_series_semantics.data_series_type_name == "DCP"){
+          return true;
+        }
+        return false;
+      },
+      linkToInterpolate: function(object){
+        return urlToInterpolate = BASE_URL + "configuration/interpolator/new/" + object.id;
+      },
       canRemove: config.hasProjectPermission,
       removeOperationCallback: function(err, data) {
         if (err) {
@@ -171,7 +197,7 @@ define([], function() {
         MessageBoxService.success(i18n.__(title), data.name + i18n.__(" removed"));
       },
       showRunButton: config.showRunButton,
-      canRun: findCollectorOrAnalysis,
+      canRun: findCollectorAnalysisOrInterpolator,
       run: function(object){
         var service_instance = this.canRun(object);
 
@@ -344,8 +370,13 @@ define([], function() {
           }
 
           instance.model_type = value;
-          var service_instance = findCollectorOrAnalysis(instance);
+          var service_instance = findCollectorAnalysisOrInterpolator(instance);
           instance.service_instance_id = service_instance ? service_instance.service_instance_id : undefined;
+
+          if($scope.servicesInstances) {
+            Socket.emit("status", { service: instance.service_instance_id });
+            $scope.servicesInstances[instance.service_instance_id] = false;
+          }
         });
       }, 500);
 
@@ -365,6 +396,8 @@ define([], function() {
     });
 
     $scope.link = config.link || null;
+
+    $scope.statusChangeLink = config.statusChangeLink || null;
 
     $scope.linkToAdd = config.linkToAdd || null;
 

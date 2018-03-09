@@ -32,10 +32,8 @@
 #define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_HPP__
 
 //TerraMA2
-#include "../../Config.hpp"
-
+#include "../Config.hpp"
 #include "../Shared.hpp"
-
 #include "DataRetriever.hpp"
 #include "DataSetSeries.hpp"
 #include "../data-model/DataSeriesSemantics.hpp"
@@ -93,7 +91,7 @@ namespace terrama2
     \warning Derived classes must have virtual inheritance.
 
     */
-    class DataAccessor
+    class TMCOREEXPORT DataAccessor
     {
       public:
         /*!
@@ -155,7 +153,7 @@ namespace terrama2
         */
         virtual std::string getTimestampPropertyName(DataSetPtr dataSet, const bool logErrors = true) const;
 
-        virtual std::string getOutputTimestampPropertyName(DataSetPtr dataSet) const;
+        virtual std::string getInputTimestampPropertyName(DataSetPtr dataSet) const;
 
         /*!
           \brief Get name of the geometry property
@@ -170,7 +168,7 @@ namespace terrama2
 
           The name of the output property come from the semantics metadata or the dataset format.
         */
-        virtual std::string getOutputGeometryPropertyName(DataSetPtr dataSet) const;
+        virtual std::string getInputGeometryPropertyName(DataSetPtr dataSet) const;
 
         //! Recover timezone information from dataset
         virtual std::string getTimeZone(DataSetPtr dataSet, bool logErrors = true) const;

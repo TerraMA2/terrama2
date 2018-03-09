@@ -36,7 +36,7 @@ project(terrama2)
 # variables that control the system versioning
 set(TERRAMA2_VERSION_MAJOR 4)
 set(TERRAMA2_VERSION_MINOR 0)
-set(TERRAMA2_VERSION_PATCH 3)
+set(TERRAMA2_VERSION_PATCH 4)
 set(TERRAMA2_VERSION_DATABASE 1)
 set(TERRAMA2_VERSION_STATUS "release")
 set(TERRAMA2_VERSION_STATUS_FULL "-release")
@@ -77,7 +77,7 @@ elseif(UNIX AND NOT DEFINED TERRAMA2_BASE_DESTINATION_DIR)
   set(TERRAMA2_BASE_DESTINATION_DIR ${CMAKE_INSTALL_PREFIX}/)
 
 elseif(NOT DEFINED TERRAMA2_BASE_DESTINATION_DIR)
-  set(TERRAMA2_BASE_DESTINATION_DIR .)
+  set(TERRAMA2_BASE_DESTINATION_DIR ./)
 endif()
 
 # variable that defines the path to data directory used in the unittests
@@ -158,12 +158,7 @@ add_definitions(-DBOOST_ALL_NO_LIB -DBOOST_FILESYSTEM_VERSION=3 -DBOOST_UBLAS_TY
 
 # Specific definitions per platform
 if(WIN32)
-  #add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-
-  #if(MINGW)
-  #  add_definitions(-DTE_MINGW -D_WIN32_WINNT=0x601 -fpermissive)
-  #endif()
-
+  add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 elseif(APPLE)
   add_definitions(-ftemplate-depth-1024)
 endif()
@@ -345,6 +340,11 @@ if(TERRAMA2_ARCHIVER_ENABLED)
   add_definitions(-DTERRAMA2_ARCHIVER_ENABLED)
 endif()
 
+CMAKE_DEPENDENT_OPTION(TERRAMA2_INTERPOLATOR_ENABLED "Build Interpolator module?" ON "TERRAMA2_CORE_ENABLED" OFF)
+if(TERRAMA2_INTERPOLATOR_ENABLED)
+  add_definitions(-DTERRAMA2_INTERPOLATOR_ENABLED)
+endif()
+
 #####################################
 
 #####################################
@@ -380,6 +380,8 @@ CMAKE_DEPENDENT_OPTION(TERRAMA2_EXAMPLES_ALERT_ENABLED "Build examples for alert
 CMAKE_DEPENDENT_OPTION(TERRAMA2_EXAMPLES_VIEW_ENABLED "Build examples for view module?" ON "TERRAMA2_VIEW_ENABLED;TERRAMA2_IMPLEMENTATION_ENABLED;TERRAMA2_BUILD_EXAMPLES_ENABLED" OFF)
 
 CMAKE_DEPENDENT_OPTION(TERRAMA2_EXAMPLES_ARCHIVER_ENABLED "Build examples for archiver module?" ON "TERRAMA2_ARCHIVER_ENABLED;TERRAMA2_IMPLEMENTATION_ENABLED;TERRAMA2_BUILD_EXAMPLES_ENABLED" OFF)
+
+CMAKE_DEPENDENT_OPTION(TERRAMA2_EXAMPLES_INTERPOLATOR_ENABLED "Build examples for interpolator module?" ON "TERRAMA2_INTERPOLATOR_ENABLED;TERRAMA2_IMPLEMENTATION_ENABLED;TERRAMA2_BUILD_EXAMPLES_ENABLED" OFF)
 
 ######################################
 
@@ -437,6 +439,10 @@ if(TERRAMA2_ALERT_ENABLED)
   add_subdirectory(terrama2_alert_mock)
 endif()
 
+if(TERRAMA2_INTERPOLATOR_ENABLED)
+  add_subdirectory(terrama2_interpolator_core)
+endif()
+
 if(TERRAMA2_VIEW_ENABLED)
   add_subdirectory(terrama2_view_core)
   add_subdirectory(terrama2_view_mock)
@@ -481,6 +487,10 @@ endif()
 
 if(TERRAMA2_EXAMPLES_ARCHIVER_ENABLED)
   add_subdirectory(terrama2_examples_archiver)
+endif()
+
+if(TERRAMA2_EXAMPLES_INTERPOLATOR_ENABLED)
+  add_subdirectory(terrama2_examples_interpolator)
 endif()
 
 if(TERRAMA2_DOXYGEN_ENABLED)
@@ -565,7 +575,7 @@ endif()
 # sa: build/cmake/terrama2-cpack-options.cmake.in
 #
 
-if(NOT CPACK_BINARY_DEB AND NOT APPLE)
+if(NOT CPACK_BINARY_DEB AND NOT APPLE AND NOT WIN32)
   install(CODE "execute_process(COMMAND bash postinst ${TERRAMA2_BASE_DESTINATION_DIR} WORKING_DIRECTORY ${TERRAMA2_DESTINATION_SHARE}/terrama2/scripts/ )" COMPONENT scripts)
 endif()
 

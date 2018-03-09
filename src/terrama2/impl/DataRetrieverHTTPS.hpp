@@ -45,7 +45,7 @@ namespace terrama2
        * \warning The DataRetrieverHTTPS class only performs the download of files, but does not
        * perform the removal of the files after downloading.
     */
-    class DataRetrieverHTTPS: public DataRetrieverHTTP
+    class TMIMPLEXPORT DataRetrieverHTTPS: public DataRetrieverHTTP
     {
       public:
         /*!

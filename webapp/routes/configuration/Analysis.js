@@ -5,5 +5,5 @@ module.exports = function (app) {
 
   app.get(app.locals.BASE_URL + 'configuration/analysis', passport.isAuthenticated, controller.get);
   app.get(app.locals.BASE_URL + 'configuration/analysis/new', passport.isAuthenticated, controller.new);
-  app.get(app.locals.BASE_URL + "configuration/analysis/:id/edit", passport.isAuthenticated, controller.edit);
+  app.get(app.locals.BASE_URL + 'configuration/analysis/:id/edit', passport.isAuthenticated, controller.edit);
 }

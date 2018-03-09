@@ -1790,7 +1790,7 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
     }
 
     // get all dates stored in the dataset
-    std::vector<std::shared_ptr<te::dt::DateTime> > vecDates;
+    std::vector<std::shared_ptr<te::dt::TimeInstantTZ> > vecDates;
 
     {
       if(!dataSource->dataSetExists(layerName))
@@ -1822,7 +1822,7 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
     for(const auto& rasterInfo : vecRasterInfo)
     {
       auto it = std::find_if(vecDates.begin(), vecDates.end(),
-                             [&rasterInfo](std::shared_ptr<te::dt::DateTime> const& first)
+                             [&rasterInfo](std::shared_ptr<te::dt::TimeInstantTZ> const& first)
       {
                 return *first == *rasterInfo.timeTz;
     });

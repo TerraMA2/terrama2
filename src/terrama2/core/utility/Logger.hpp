@@ -2,6 +2,7 @@
 #define __TERRAMA2_CORE_LOGGER_HPP__
 
 // TerraMA2
+#include "../Config.hpp"
 #include "../Exception.hpp"
 
 // Terralib
@@ -32,24 +33,27 @@ namespace terrama2
 
 
     */
-    class Logger : public te::common::Singleton<Logger>
+    class TMCOREEXPORT Logger : public te::common::Singleton<Logger>
     {
 
       friend class te::common::Singleton<Logger>;
 
       public:
+        /*!
+            \brief Defines level of severity message in \c terrama2 log.
 
-        //! Defines level of severity message in \c terrama2 log.
+            \warning Won't work on windows with the name ERROR.
+          */
         enum SeverityLevel
         {
           TRACE,   ///< Define a trace system alert in file. It will be useful to trace where it has gone
           DEBUG,   ///< Define a debug severity message in file. It will be useful in development side.
           INFO,    ///< Define a info message for notify a common action.
           WARNING, ///< Define a warning alert in log file, representing that something may go wrong.
-          ERROR,   ///< Define a error system alert. Useful when something unexpected occurs.
+          T_ERROR, ///< Define a error system alert. Useful when something unexpected occurs.
           FATAL    ///< Define a fatal application alert. A runtime error or uncaught exception that shutdown application.
         };
-
+        
         /*!
           \brief An abreviation of a boost text log stream
         */
@@ -108,7 +112,7 @@ BOOST_LOG_INLINE_GLOBAL_LOGGER_DEFAULT(terrama2_logger, boost::log::sources::sev
 #define TERRAMA2_LOG_DEBUG() TERRAMA2_LOG(terrama2::core::Logger::DEBUG)
 #define TERRAMA2_LOG_INFO() TERRAMA2_LOG(terrama2::core::Logger::INFO)
 #define TERRAMA2_LOG_WARNING() TERRAMA2_LOG(terrama2::core::Logger::WARNING)
-#define TERRAMA2_LOG_ERROR() TERRAMA2_LOG(terrama2::core::Logger::ERROR)
+#define TERRAMA2_LOG_ERROR() TERRAMA2_LOG(terrama2::core::Logger::T_ERROR)
 #define TERRAMA2_LOG_FATAL() TERRAMA2_LOG(terrama2::core::Logger::FATAL)
 
 //! Override operator<< to enable sets QString in log.

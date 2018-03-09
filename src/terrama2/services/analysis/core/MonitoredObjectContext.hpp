@@ -31,15 +31,19 @@
 #ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_MONITORED_OBJECT_CONTEXT_HPP__
 #define __TERRAMA2_SERVICES_ANALYSIS_CORE_MONITORED_OBJECT_CONTEXT_HPP__
 
+// TerraMa2
+#include "../../Config.hpp"
 #include "Analysis.hpp"
 #include "BaseContext.hpp"
 #include "../../../core/utility/Utils.hpp"
 #include "../../../core/data-access/DataSetSeries.hpp"
 #include "../../../core/data-model/Filter.hpp"
 
+// TerraLib
 #include <terralib/geometry/Coord2D.h>
 #include <terralib/sam/kdtree.h>
 
+// Boost
 #include <boost/any.hpp>
 
 // Forward declaration
@@ -71,7 +75,7 @@ namespace terrama2
 
         };
 
-        class MonitoredObjectContext : public BaseContext
+        class TMANALYSISEXPORT MonitoredObjectContext : public BaseContext
         {
           public:
             MonitoredObjectContext(DataManagerPtr dataManager,  AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime);

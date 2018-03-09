@@ -39,6 +39,7 @@
 #include <terralib/core/uri/URI.h>
 
 // TerraMA2
+#include "Config.hpp"
 #include "../core/utility/Raii.hpp"
 #include "../core/data-access/DataRetriever.hpp"
 #include "../core/Shared.hpp"
@@ -61,7 +62,7 @@ namespace terrama2
        * \warning The DataRetrieverHTTP class only performs the download of files, but does not
        * perform the removal of the files after downloading.
     */
-    class DataRetrieverHTTP: public DataRetriever
+    class TMIMPLEXPORT DataRetrieverHTTP: public DataRetriever
     {
       public:
         /*!
