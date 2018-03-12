@@ -458,12 +458,12 @@ void terrama2::core::Service::notifyWaitQueue(ProcessId processId)
 void terrama2::core::Service::updateFilterDiscardDates(terrama2::core::Filter& filter, std::shared_ptr<ProcessLogger> logger, ProcessId processId) const
 {
   std::shared_ptr<te::dt::TimeInstantTZ> lastCollectedDataTimestamp = logger->getDataLastTimestamp(processId);
-  if(lastCollectedDataTimestamp.get() && filter.discardBefore.get())
+  if(lastCollectedDataTimestamp && filter.discardBefore)
   {
     if(*filter.discardBefore < *lastCollectedDataTimestamp)
       filter.discardBefore = lastCollectedDataTimestamp;
   }
-  else if(lastCollectedDataTimestamp.get())
+  else if(lastCollectedDataTimestamp)
     filter.discardBefore = lastCollectedDataTimestamp;
 }
 
