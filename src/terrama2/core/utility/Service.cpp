@@ -461,7 +461,7 @@ void terrama2::core::Service::updateFilterDiscardDates(terrama2::core::Filter& f
   if(lastCollectedDataTimestamp.get() && filter.discardBefore.get())
   {
     if(*filter.discardBefore < *lastCollectedDataTimestamp)
-    filter.discardBefore = lastCollectedDataTimestamp;
+      filter.discardBefore = lastCollectedDataTimestamp;
   }
   else if(lastCollectedDataTimestamp.get())
     filter.discardBefore = lastCollectedDataTimestamp;
