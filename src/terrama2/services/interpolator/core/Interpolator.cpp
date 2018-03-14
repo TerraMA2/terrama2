@@ -92,7 +92,7 @@ terrama2::services::interpolator::core::Interpolator::~Interpolator()
 
 }
 
-std::unique_ptr<te::rst::Raster> terrama2::services::interpolator::core::Interpolator::makeRaster()
+std::unique_ptr<te::rst::Raster> terrama2::services::interpolator::core::Interpolator::makeRaster(std::shared_ptr<te::dt::TimeInstantTZ> startDate)
 {
   auto env = std::unique_ptr<te::gm::Envelope>(new te::gm::Envelope(interpolationParams_->bRect_));
 
@@ -109,7 +109,7 @@ std::unique_ptr<te::rst::Raster> terrama2::services::interpolator::core::Interpo
   if(!tree_->isEmpty())
     tree_->clear();
 
-  fillTree();
+  fillTree(startDate);
   /////////////////////////////////////////////////////////////////////////
 
 
@@ -133,7 +133,7 @@ std::unique_ptr<te::rst::Raster> terrama2::services::interpolator::core::Interpo
   return raster;
 }
 
-void terrama2::services::interpolator::core::Interpolator::fillTree()
+void terrama2::services::interpolator::core::Interpolator::fillTree(std::shared_ptr<te::dt::TimeInstantTZ> startDate)
 {
   DataSeriesId dId = interpolationParams_->series_;
 
@@ -161,6 +161,10 @@ void terrama2::services::interpolator::core::Interpolator::fillTree()
     auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(provider, inputDataSeries);
 
     terrama2::core::Filter filter = interpolationParams_->filter_;
+    // FIXME: This should probably be in the JsonUtils, receive and configure the filter when building the InterpolationParams
+    if(!filter.lastValues || *filter.lastValues != 1)
+      filter.lastValues = std::make_shared<size_t>(1);
+    filter.discardAfter = startDate;
 
     auto uriMap = dataAccessor->getFiles(filter, remover);
 
@@ -236,9 +240,9 @@ terrama2::services::interpolator::core::NNInterpolator::NNInterpolator(Interpola
 
 }
 
-std::unique_ptr<te::rst::Raster> terrama2::services::interpolator::core::NNInterpolator::makeInterpolation()
+std::unique_ptr<te::rst::Raster> terrama2::services::interpolator::core::NNInterpolator::makeInterpolation(std::shared_ptr<te::dt::TimeInstantTZ> startDate)
 {
-  std::unique_ptr<te::rst::Raster> r = makeRaster();
+  std::unique_ptr<te::rst::Raster> r = makeRaster(startDate);
   /////////////////////////////////////////////////////////////////////////
   //  Making the interpolation using the nearest neighbor.
   te::gm::Point pt1;
@@ -295,9 +299,9 @@ terrama2::services::interpolator::core::AvgDistInterpolator::AvgDistInterpolator
 
 }
 
-std::unique_ptr<te::rst::Raster> terrama2::services::interpolator::core::AvgDistInterpolator::makeInterpolation()
+std::unique_ptr<te::rst::Raster> terrama2::services::interpolator::core::AvgDistInterpolator::makeInterpolation(std::shared_ptr<te::dt::TimeInstantTZ> startDate)
 {
-  std::unique_ptr<te::rst::Raster> r = makeRaster();
+  std::unique_ptr<te::rst::Raster> r = makeRaster(startDate);
 
   /////////////////////////////////////////////////////////////////////////
   //  Making the interpolation using the nearest neighbor.
@@ -306,7 +310,6 @@ std::unique_ptr<te::rst::Raster> terrama2::services::interpolator::core::AvgDist
 
   // sanity check for DCP with NULL values, should never happen
   bool nullValue = false;
-  auto noDataValue = r->getBand(0)->getProperty()->m_noDataValue;
   for(unsigned int row = 0; row < resolutionY; row++)
   {
     for(unsigned int col = 0; col < resolutionX; col++)
@@ -365,9 +368,9 @@ terrama2::services::interpolator::core::SqrAvgDistInterpolator::SqrAvgDistInterp
 
 }
 
-std::unique_ptr<te::rst::Raster> terrama2::services::interpolator::core::SqrAvgDistInterpolator::makeInterpolation()
+std::unique_ptr<te::rst::Raster> terrama2::services::interpolator::core::SqrAvgDistInterpolator::makeInterpolation(std::shared_ptr<te::dt::TimeInstantTZ> startDate)
 {
-  std::unique_ptr<te::rst::Raster> r = makeRaster();
+  std::unique_ptr<te::rst::Raster> r = makeRaster(startDate);
 
   /////////////////////////////////////////////////////////////////////////
   //  Making the interpolation using the nearest neighbor.
@@ -379,7 +382,6 @@ std::unique_ptr<te::rst::Raster> terrama2::services::interpolator::core::SqrAvgD
 
   // sanity check for DCP with NULL values, should never happen
   bool nullValue = false;
-  auto noDataValue = r->getBand(0)->getProperty()->m_noDataValue;
   for(unsigned int row = 0; row < resolutionY; row++)
     for(unsigned int col = 0; col < resolutionX; col++)
     {
