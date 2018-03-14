@@ -91,7 +91,7 @@ namespace terrama2
            *
            * \exception If the bounding rect, of the parameters used by the interpolator, is invalid a NoDataException will be raised.
            */
-          virtual std::unique_ptr<te::rst::Raster> makeInterpolation(std::shared_ptr<te::dt::TimeInstantTZ> startDate) = 0;
+          virtual std::unique_ptr<te::rst::Raster> makeInterpolation(const terrama2::core::Filter& filter) = 0;
           void setDataManager(std::weak_ptr<DataManager> weakDataManager) { weakDataManager_ = weakDataManager; }
 
         protected:
@@ -103,7 +103,7 @@ namespace terrama2
            *
            * \exception If the bounding rect, of the parameters used by the interpolator, is invalid a NoDataException will be raised.
            */
-          std::unique_ptr<te::rst::Raster> makeRaster(std::shared_ptr<te::dt::TimeInstantTZ> startDate);
+          std::unique_ptr<te::rst::Raster> makeRaster(const terrama2::core::Filter& filter);
 
           /*!
            * \brief Fills the kd-tree with the data defined by the parameters. This is usefull to quickly find the neighbors used in the
@@ -111,7 +111,7 @@ namespace terrama2
            *
            * \exception If the bounding rect, of the parameters used by the interpolator, is invalid a NoDataException will be raised.
            */
-          void fillTree(std::shared_ptr<te::dt::TimeInstantTZ> startDate);
+          void fillTree(const terrama2::core::Filter& filter);
 
           InterpolatorParamsPtr interpolationParams_; //!< Parameters of interpolation.
           std::unique_ptr<InterpolatorTree> tree_;    //!< A kd-tree used to determine neighborhood.
@@ -141,7 +141,7 @@ namespace terrama2
            *
            * \return The interpolated raster.
            */
-          std::unique_ptr<te::rst::Raster> makeInterpolation(std::shared_ptr<te::dt::TimeInstantTZ> startDate);
+          std::unique_ptr<te::rst::Raster> makeInterpolation(const terrama2::core::Filter& filter);
         };
 
         /*!
@@ -167,7 +167,7 @@ namespace terrama2
            *
            * \return The interpolated raster.
            */
-          std::unique_ptr<te::rst::Raster> makeInterpolation(std::shared_ptr<te::dt::TimeInstantTZ> startDate);
+          std::unique_ptr<te::rst::Raster> makeInterpolation(const terrama2::core::Filter& filter);
         };
 
         /*!
@@ -193,7 +193,7 @@ namespace terrama2
            *
            * \return The interpolated raster.
            */
-          std::unique_ptr<te::rst::Raster> makeInterpolation(std::shared_ptr<te::dt::TimeInstantTZ> startDate);
+          std::unique_ptr<te::rst::Raster> makeInterpolation(const terrama2::core::Filter& filter);
         };
       } // end namespace core
     }   // end namespace interpolator

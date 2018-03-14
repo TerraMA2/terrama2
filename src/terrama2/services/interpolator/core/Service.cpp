@@ -223,7 +223,12 @@ void terrama2::services::interpolator::core::Service::interpolate(terrama2::core
     auto interpolatorPtr(InterpolatorFactories::make(interpolatorParamsPtr->interpolationType_, interpolatorParamsPtr));
     interpolatorPtr->setDataManager(dataManager);
 
-    auto res = interpolatorPtr->makeInterpolation(executionPackage.executionDate);
+    terrama2::core::Filter filter = interpolatorParamsPtr->filter_;
+    if(!filter.lastValues || *filter.lastValues != 1)
+      filter.lastValues = std::make_shared<size_t>(1);
+    filter.discardAfter = executionPackage.executionDate;
+
+    auto res = interpolatorPtr->makeInterpolation(filter);
 
     TERRAMA2_LOG_INFO() << tr("Data from process %1 interpolated successfully.").arg(executionPackage.processId);
 
