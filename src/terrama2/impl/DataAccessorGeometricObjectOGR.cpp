@@ -182,11 +182,11 @@ std::string terrama2::core::DataAccessorGeometricObjectOGR::retrieveData(const D
 void terrama2::core::DataAccessorGeometricObjectOGR::adapt(DataSetPtr dataSet, std::shared_ptr<te::da::DataSetTypeConverter> converter) const
 {
   //only one timestamp column
-  std::string timestampPropertyName = getTimestampPropertyName(dataSet);
-  std::string outputTimestampPropertyName = getOutputTimestampPropertyName(dataSet);
+  std::string timestampPropertyName = getInputTimestampPropertyName(dataSet);
+  std::string outputTimestampPropertyName = getTimestampPropertyName(dataSet);
 
-  std::string geometryPropertyName = getGeometryPropertyName(dataSet);
-  std::string outputGeometryPropertyName = getOutputGeometryPropertyName(dataSet);
+  std::string geometryPropertyName = getInputGeometryPropertyName(dataSet);
+  std::string outputGeometryPropertyName = getGeometryPropertyName(dataSet);
 
   te::dt::DateTimeProperty* dtProperty = new te::dt::DateTimeProperty(outputTimestampPropertyName, te::dt::TIME_INSTANT_TZ);
   auto timezone = DataAccessorFile::getTimeZone(dataSet);
