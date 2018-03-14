@@ -88,7 +88,7 @@ void terrama2::core::verify::date(const boost::local_time::local_date_time& date
 void terrama2::core::verify::date(const boost::posix_time::ptime::base_time& date)
 {
   QString errMsg = QObject::tr("Invalid Date/Time.");
-  if(date.is_special())
+  if(date.is_special() || date.is_not_a_date_time())
   {
     TERRAMA2_LOG_ERROR() << errMsg;
     throw VerifyException() << terrama2::ErrorDescription(errMsg);

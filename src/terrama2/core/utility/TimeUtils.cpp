@@ -294,12 +294,26 @@ std::string terrama2::core::TimeUtils::terramaDateMask2BoostFormat(const std::st
 
 std::string terrama2::core::TimeUtils::getISOString(std::shared_ptr<te::dt::TimeInstantTZ> timeinstant)
 {
-  if(!timeinstant)
+  if(!TimeUtils::isValid(timeinstant))
     return "";
 
   auto localTime = timeinstant->getTimeInstantTZ();
-  if(localTime.is_special())
-    return "";
-
   return boost::posix_time::to_iso_extended_string(localTime.utc_time())+"Z";
+}
+
+bool terrama2::core::TimeUtils::isValid(std::shared_ptr<te::dt::TimeInstantTZ> timeinstant) {
+  if(!timeinstant) {
+    return false;
+  }
+
+  const auto& boostTime = timeinstant->getTimeInstantTZ();
+  if(boostTime.is_special()) {
+    return false;
+  }
+
+  if(boostTime.is_not_a_date_time()) {
+    return false;
+  }
+
+  return true;
 }
