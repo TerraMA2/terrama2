@@ -114,7 +114,7 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
     auto processingStartTime = terrama2::core::TimeUtils::nowUTC();
 
     terrama2::core::Filter filter = collectorPtr->filter;
-    if(filter.discardAfter.get() && filter.discardBefore.get()
+    if(filter.discardAfter && filter.discardBefore
         && (*filter.discardAfter) < (*filter.discardBefore))
     {
       QString errMsg = QObject::tr("Empty filter time range.");
@@ -183,8 +183,10 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
         dataStorager->store(dataMap, dataSetLst, inputOutputMap);
 
         // if any exception happens, don't update the data timestamp
-        if(thisFileLastDateTime && (!lastDateTime || (*thisFileLastDateTime > *lastDateTime)))
+        if( terrama2::core::TimeUtils::isValid(thisFileLastDateTime)
+            && (!terrama2::core::TimeUtils::isValid(lastDateTime) || (*thisFileLastDateTime > *lastDateTime))) {
           lastDateTime = thisFileLastDateTime;
+        }
 
         status = CollectorLogger::ProcessLogger::Status::DONE;
       }

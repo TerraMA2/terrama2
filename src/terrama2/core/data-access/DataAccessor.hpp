@@ -258,7 +258,7 @@ namespace terrama2
         DataProviderPtr dataProvider_;//!< DataProvider with information of the server where the data is stored.
         DataSeriesPtr dataSeries_;//!< DataSeries with the DataSet list with data information.
 
-        std::shared_ptr< te::dt::TimeInstantTZ > lastDateTime_;//!< Last data Date/Time
+        mutable std::shared_ptr< te::dt::TimeInstantTZ > lastDateTime_;//!< Last data Date/Time
     };
   }
 }

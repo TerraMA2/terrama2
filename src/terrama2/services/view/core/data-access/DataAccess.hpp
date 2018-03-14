@@ -80,7 +80,7 @@ namespace terrama2
 
             TMVIEWEXPORT TableInfo getDCPPostgisTableInfo(terrama2::core::DataSeriesPtr inputDataSeries,
                                              terrama2::core::DataProviderPtr inputDataProvider);
-        };
+        }
       }
     }
   }

@@ -220,24 +220,15 @@ void terrama2::services::interpolator::core::Service::interpolate(terrama2::core
 
     auto processingStartTime = terrama2::core::TimeUtils::nowUTC();
 
-    terrama2::core::Filter filter = interpolatorParamsPtr->filter_;
-
-    if((!filter.lastValues) || (*filter.lastValues != 1))
-      filter.lastValues = std::make_shared<long unsigned int>(1);
-
-    if(filter.discardAfter && filter.discardBefore
-       && (*filter.discardAfter < *filter.discardBefore))
-    {
-      QString errMsg = QObject::tr("Empty filter time range.");
-
-      TERRAMA2_LOG_WARNING() << errMsg.toStdString();
-      throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
-    }
-
     auto interpolatorPtr(InterpolatorFactories::make(interpolatorParamsPtr->interpolationType_, interpolatorParamsPtr));
     interpolatorPtr->setDataManager(dataManager);
 
-    auto res = interpolatorPtr->makeInterpolation();
+    terrama2::core::Filter filter = interpolatorParamsPtr->filter_;
+    if(!filter.lastValues || *filter.lastValues != 1)
+      filter.lastValues = std::make_shared<size_t>(1);
+    filter.discardAfter = executionPackage.executionDate;
+
+    auto res = interpolatorPtr->makeInterpolation(filter);
 
     TERRAMA2_LOG_INFO() << tr("Data from process %1 interpolated successfully.").arg(executionPackage.processId);
 
