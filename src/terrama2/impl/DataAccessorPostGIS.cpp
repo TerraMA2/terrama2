@@ -273,7 +273,7 @@ void terrama2::core::DataAccessorPostGIS::updateLastTimestamp(DataSetPtr dataSet
     throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
   }
 
-  *lastDateTime_ = *lastDateTimeTz;
+  lastDateTime_ = lastDateTimeTz;
 }
 
 
