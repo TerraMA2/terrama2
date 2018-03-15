@@ -8,7 +8,9 @@
     "format": "OGR",
     "providers_type_list": ["FILE", "FTP" ],
     "metadata": {
-      "geometry_property": "OGR_GEOMETRY"
+      "input_geometry_property": "OGR_GEOMETRY",
+      "geometry_property": "geom",
+      "timestamp_property": "timestamp"
     },
     "gui": {
       "schema": {
@@ -21,7 +23,7 @@
             "type": "string",
             "title": "Timezone"
           },
-          "timestamp_property": {
+          "input_timestamp_property": {
             "type": "string",
             "title": "Date/Time property"
           },
@@ -30,7 +32,7 @@
             "title": "Date/Time mask"
           }
         },
-        "required": ["mask", "timezone", "timestamp_property", "timestamp_mask"]
+        "required": ["mask", "timezone", "input_timestamp_property", "timestamp_mask"]
       },
       "form": [
         {
@@ -74,7 +76,7 @@
           ]
         },
         {
-          "key": "timestamp_property",
+          "key": "input_timestamp_property",
           "htmlClass": "col-md-6"
         },
         {
