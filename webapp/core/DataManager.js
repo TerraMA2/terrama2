@@ -138,6 +138,7 @@ var DataManager = module.exports = {
         inserts.push(models.db.ServiceType.create({id: Enums.ServiceType.ANALYSIS, name: "ANALYSIS"}));
         inserts.push(models.db.ServiceType.create({id: Enums.ServiceType.VIEW, name: "VIEW"}));
         inserts.push(models.db.ServiceType.create({id: Enums.ServiceType.ALERT, name: "ALERT"}));
+        inserts.push(models.db.ServiceType.create({id: Enums.ServiceType.INTERPOLATION, name: "INTERPOLATION"}));
 
         // data provider type defaults
         inserts.push(self.addDataProviderType({id: 1, name: "FILE", description: "Desc File"}));
@@ -206,10 +207,17 @@ var DataManager = module.exports = {
             alertService.service_type_id = Enums.ServiceType.ALERT;
             alertService.metadata = { };
 
+            var interpolationService = Object.assign({}, collectorService);
+            interpolationService.name = "Local Interpolator";
+            interpolationService.description = "Local service for Interpolator";
+            interpolationService.port = 6547;
+            interpolationService.service_type_id = Enums.ServiceType.INTERPOLATION;
+
             servicesInsert.push(self.addServiceInstance(collectorService));
             servicesInsert.push(self.addServiceInstance(analysisService));
             servicesInsert.push(self.addServiceInstance(viewService));
             servicesInsert.push(self.addServiceInstance(alertService));
+            servicesInsert.push(self.addServiceInstance(interpolationService));
           }
           return Promise.all(servicesInsert);
         });
@@ -333,6 +341,11 @@ var DataManager = module.exports = {
         // script language supported
         inserts.push(models.db.ScriptLanguage.create({id: Enums.ScriptLanguage.PYTHON, name: "PYTHON"}));
         inserts.push(models.db.ScriptLanguage.create({id: Enums.ScriptLanguage.LUA, name: "LUA"}));
+
+        // it will match each of semantics with providers
+        inserts.push(models.db.InterpolatorStrategy.create({name: "Nearest neighbor", id: "NEAREST-NEIGHBOR"}));
+        inserts.push(models.db.InterpolatorStrategy.create({name: "Average neighbor", id: "AVERAGE-NEIGHBOR"}));
+        inserts.push(models.db.InterpolatorStrategy.create({name: "Weight average neighbor", id: "W-AVERAGE-NEIGHBOR"}));
 
         // it will match each of semantics with providers
         return Promise.all(inserts)
@@ -1702,6 +1715,30 @@ var DataManager = module.exports = {
   },
 
   /**
+   * It changes the status of a given data provider
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   */
+  changeDataProviderStatus: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      var dataProvider = Utils.find(self.data.dataProviders, restriction);
+      dataProvider.active = !dataProvider.active;
+
+      return models.db.DataProvider.update(dataProvider, Utils.extend({
+        fields: ["active"],
+        where: restriction
+      }, options)).then(function() {
+        return resolve(dataProvider);
+      }).catch(function(err) {
+        return reject(new Error("Could not change data provider status " + err.toString()));
+      });
+    })
+  },
+
+  /**
    * It removes DataProvider from param. It should be an object containing either id identifier or
    * name identifier.
    *
@@ -2028,7 +2065,7 @@ var DataManager = module.exports = {
           if(dataSeriesObject.removedDcps !== undefined) {
             dataSeriesObject.removedDcps.forEach(function(dataSetIdToRemove) {
               dataSeries.dataSets.forEach(function(completeDataSet) {
-                if(completeDataSet.format._id == dataSetIdToRemove) {
+                if(parseInt(completeDataSet.format._id) == parseInt(dataSetIdToRemove)) {
                   var removeProvider = self.removeDataSet(completeDataSet).then(function(returned) {
                     var index = dataSeries.dataSets.indexOf(returned);
                     if(index > -1)
@@ -2044,7 +2081,7 @@ var DataManager = module.exports = {
             if (dataSeriesObject.dataSets.length < dataSeries.dataSets.length){
               dataSeries.dataSets.forEach(function(dataSetToRemove){
                 var dontRemove = dataSeriesObject.dataSets.some(function(dataSetToCompare){
-                  return dataSetToCompare.format._id == dataSetToRemove.format._id;
+                  return parseInt(dataSetToCompare.format._id) == parseInt(dataSetToRemove.format._id);
                 });
                 if (!dontRemove){
                   dataSetsToRemove.push(dataSetToRemove);
@@ -2066,7 +2103,7 @@ var DataManager = module.exports = {
 
           (dataSeriesObject.editedDcps !== undefined ? dataSeriesObject.editedDcps : dataSeriesObject.dataSets).forEach(function(newDataSet) {
             var dataSetToUpdate = dataSeries.dataSets.find(function(dSet){
-              return dSet.format._id == newDataSet.format._id;
+              return parseInt(dSet.format._id) == parseInt(newDataSet.format._id);
             });
             // Update data set
             if(dataSetToUpdate) {
@@ -2124,6 +2161,118 @@ var DataManager = module.exports = {
         }).catch(function(err) {
           return reject(new exceptions.DataSeriesError(Utils.format("Could not update data series %s", err.toString()), err.errors));
         });
+    });
+  },
+
+  /**
+   * It changes the status of a given dynamic data series
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   */
+  changeDynamicDataSeriesStatus: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      var dataSeries = Utils.find(self.data.dataSeries, restriction);
+      dataSeries.active = !dataSeries.active;
+
+      var dataSets = Utils.filter(self.data.dataSets, { data_series_id: restriction.id });
+
+      var objectToSend = {
+        "DataSeries": [dataSeries.toObject()]
+      };
+
+      var analysisPromises = [];
+
+      return models.db.DataSeries.update(dataSeries, Utils.extend({
+        fields: ["active"],
+        where: restriction
+      }, options)).then(function() {
+        dataSets.forEach(function(dataSet) {
+          analysisPromises.push(self.getAnalysisAcceptNull({ dataset_output: dataSet.id }));
+        });
+
+        return Promise.all(analysisPromises);
+      }).then(function(results) {
+        analysisPromises = [];
+
+        results.forEach(function(analysis) {
+          if(analysis) {
+            if(!objectToSend.Analysis) objectToSend.Analysis = [];
+
+            analysis.active = dataSeries.active;
+
+            objectToSend.Analysis.push(analysis.toObject());
+
+            analysisPromises.push(
+              models.db.Analysis.update(analysis, Utils.extend({
+                fields: ["active"],
+                where: { id: analysis.id }
+              }, options))
+            );
+          }
+        });
+
+        return Promise.all(analysisPromises);
+      }).then(function() {
+        return self.getCollectorAcceptNull({ data_series_output: restriction.id }, options);
+      }).then(function(collector) {
+        if(collector) {
+          collector.active = dataSeries.active;
+
+          return models.db.Collector.update(collector, Utils.extend({
+            fields: ["active"],
+            where: { id: collector.id }
+          }, options)).then(function() {
+            var dataSeriesInput = Utils.find(self.data.dataSeries, { id: collector.data_series_input });
+
+            dataSeriesInput.active = dataSeries.active;
+
+            objectToSend.DataSeries.push(dataSeriesInput.toObject());
+
+            return models.db.DataSeries.update(dataSeriesInput, Utils.extend({
+              fields: ["active"],
+              where: { id: dataSeriesInput.id }
+            }, options));
+          }).then(function() {
+            objectToSend.Collectors = [collector.toObject()];
+
+            return resolve(objectToSend);
+          }).catch(function(err) {
+            return reject(new Error("Could not change data series status " + err.toString()));
+          });
+        } else {
+          return resolve(objectToSend);
+        }
+      }).catch(function(err) {
+        return reject(new Error("Could not change data series status " + err.toString()));
+      });
+    });
+  },
+
+  /**
+   * It changes the status of a given static data series
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   */
+  changeStaticDataSeriesStatus: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      var dataSeries = Utils.find(self.data.dataSeries, restriction);
+
+      dataSeries.active = !dataSeries.active;
+
+      return models.db.DataSeries.update(dataSeries, Utils.extend({
+        fields: ["active"],
+        where: restriction
+      }, options)).then(function() {
+        return resolve(dataSeries);
+      }).catch(function(err) {
+        return reject(new Error("Could not change data series status " + err.toString()));
+      });
     });
   },
 
@@ -3084,6 +3233,68 @@ var DataManager = module.exports = {
   },
 
   /**
+   * It retrieves a collector of database from given restriction. If no collector is found, a null value is returned.
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Collector>}
+   */
+  getCollectorAcceptNull: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      var restrictionOutput = {};
+      if (restriction.output) {
+        Object.assign(restrictionOutput, restriction.output);
+        delete restriction.output;
+      }
+
+      models.db.Collector.findOne(Utils.extend({
+        where: restriction,
+        include: [
+          {
+            model: models.db.Schedule
+          },
+          {
+            model: models.db.DataSeries,
+            where: restrictionOutput
+          },
+          {
+            model: models.db.CollectorInputOutput
+          },
+          {
+            model: models.db.Filter,
+            required: false,
+            attributes: { include: [[orm.fn('ST_AsEwkt', orm.col('region')), 'region_wkt'], [orm.fn('ST_srid', orm.col('region')), 'srid']] }
+          },
+          {
+            model: models.db.Intersection,
+            required: false
+          }
+        ]
+      }, options)).then(function(collectorResult) {
+        if (collectorResult) {
+          var collectorInstance = new DataModel.Collector(collectorResult.get());
+
+          return self.getDataSeries({id: collectorResult.data_series_output})
+            .then(function(dataSeries) {
+              collectorInstance.dataSeriesOutput = dataSeries;
+              return resolve(collectorInstance);
+            }).catch(function(err) {
+              logger.error("Retrieved null while getting collector", err);
+              return reject(new exceptions.CollectorError("Could not find collector. " + err.toString()));
+            });
+        } else {
+          return resolve(null);
+        }
+      }).catch(function(err) {
+        logger.error(err);
+        return reject(new exceptions.CollectorError("Could not find collector. " + err.toString()));
+      });
+    });
+  },
+
+  /**
    * It retrieves a list of filter in database
    *
    * @param {Object} restriction - A query restriction
@@ -3878,6 +4089,41 @@ var DataManager = module.exports = {
   },
 
   /**
+   * It changes the status of a given analysis
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   */
+  changeAnalysisStatus: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return self.getAnalysis(restriction, options).then(function(analysisResult) {
+        var dataSet = Utils.find(self.data.dataSets, { id: analysisResult.dataset_output });
+        var dataSeries = Utils.find(self.data.dataSeries, { id: dataSet.data_series_id });
+
+        analysisResult.active = dataSeries.active = !analysisResult.active;
+
+        return models.db.Analysis.update(analysisResult, Utils.extend({
+          fields: ["active"],
+          where: restriction
+        }, options)).then(function() {
+          return models.db.DataSeries.update(dataSeries, Utils.extend({
+            fields: ["active"],
+            where: restriction
+          }, options));
+        }).then(function() {
+          return resolve({ analysis: analysisResult, dataSeries: dataSeries });
+        }).catch(function(err) {
+          return reject(new Error("Could not change analysis status " + err.toString()));
+        });
+      }).catch(function(err) {
+        return reject(new Error("Could not change analysis status " + err.toString()));
+      });
+    })
+  },
+
+  /**
    * It retrieves all analysis data series in database from given restriction
    *
    * @param {Object} restriction - An analysis data series restriction
@@ -4079,6 +4325,96 @@ var DataManager = module.exports = {
         }).catch(function(err) {
           return reject(err);
         });
+      }).catch(function(err) {
+        logger.error(err);
+        return reject(new exceptions.AnalysisError("Could not retrieve Analysis " + err.message));
+      });
+    });
+  },
+  /**
+   * It retrieve a TerraMA² Analysis instance. If no analysis is found, null is returned.
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} restriction.dataSet - TerraMA² Output data set restriction
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @param {boolean} ignoreAnalysisDsMetaDataSeries - Flag that indicates if the AnalysisDsMetaDataSeries should be ignored
+   * @return {Promise<DataModel.Analysis>}
+   */
+  getAnalysisAcceptNull: function(restriction, options, ignoreAnalysisDsMetaDataSeries) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      var restrict = Object.assign({}, restriction || {});
+      var dataSetRestriction = {};
+      if (restrict && restrict.dataSet) {
+        dataSetRestriction = restrict.dataSet;
+        delete restrict.dataSet;
+      }
+      var opts = Utils.extend({
+        where: restrict,
+        include: [
+          {
+            model: models.db.AnalysisDataSeries,
+            include: [
+              {
+                model: models.db.AnalysisDataSeriesMetadata,
+                required: false
+              }
+            ]
+          },
+          {
+            model: models.db.AnalysisOutputGrid,
+            attributes: {include: [[orm.fn('ST_AsEwkt', orm.col('area_of_interest_box')), 'interest_box']]},
+            required: false
+          },
+          models.db.AnalysisMetadata,
+          models.db.ScriptLanguage,
+          models.db.AnalysisType,
+          {
+            model: models.db.Schedule,
+            required: false,
+            include: [
+              {
+                model: models.db.ReprocessingHistoricalData,
+                required: false
+              }
+            ]
+          },
+          {
+            model: models.db.AutomaticSchedule,
+            required: false
+          },
+          {
+            model: models.db.DataSet,
+            where: dataSetRestriction
+          }
+        ]
+      }, options);
+
+      return models.db.Analysis.findOne(opts).then(function(analysisResult) {
+        if(analysisResult) {
+          var analysisInstance = new DataModel.Analysis(analysisResult.get());
+
+          return self.getDataSet({id: analysisResult.dataset_output}).then(function(analysisOutputDataSet) {
+            return self.getDataSeries({id: analysisOutputDataSet.data_series_id}).then(function(analysisOutputDataSeries) {
+              analysisInstance.setDataSeries(analysisOutputDataSeries);
+              analysisResult.AnalysisDataSeries.forEach(function(analysisDataSeries) {
+                var ds = Utils.find(self.data.dataSeries, {id: analysisDataSeries.data_series_id});
+                var analysisDsMeta = new DataModel.AnalysisDataSeries(analysisDataSeries.get());
+                if(ignoreAnalysisDsMetaDataSeries == undefined || ignoreAnalysisDsMetaDataSeries == null || !ignoreAnalysisDsMetaDataSeries) analysisDsMeta.setDataSeries(ds);
+                analysisInstance.addAnalysisDataSeries(analysisDsMeta);
+              });
+
+              return resolve(analysisInstance);
+            }).catch(function(err) {
+              return reject(err);
+            });
+          }).catch(function(err) {
+            return reject(err);
+          });
+        } else {
+          return resolve(null);
+        }
       }).catch(function(err) {
         logger.error(err);
         return reject(new exceptions.AnalysisError("Could not retrieve Analysis " + err.message));
@@ -4906,6 +5242,33 @@ var DataManager = module.exports = {
   },
 
   /**
+   * It changes the status of a given alert
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   */
+  changeAlertStatus: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject){
+      return self.getAlert(restriction, options).then(function(alertResult) {
+        alertResult.active = !alertResult.active;
+
+        return models.db.Alert.update(alertResult, Utils.extend({
+          fields: ["active"],
+          where: restriction
+        }, options)).then(function() {
+          return resolve(alertResult);
+        }).catch(function(err) {
+          return reject(new Error("Could not change alert status " + err.toString()));
+        });
+      }).catch(function(err) {
+        return reject(new Error("Could not change alert status " + err.toString()));
+      });
+    })
+  },
+
+  /**
    * It performs update report metadata from given restriction
    *
    * @param {Object} restriction - A query restriction
@@ -5546,6 +5909,33 @@ var DataManager = module.exports = {
   },
 
   /**
+   * It changes the status of a given view
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   */
+  changeViewStatus: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return self.getView(restriction, options).then(function(viewResult) {
+        viewResult.active = !viewResult.active;
+
+        return models.db.View.update(viewResult, Utils.extend({
+          fields: ["active"],
+          where: restriction
+        }, options)).then(function() {
+          return resolve(viewResult);
+        }).catch(function(err) {
+          return reject(new Error("Could not change view status " + err.toString()));
+        });
+      }).catch(function(err) {
+        return reject(new Error("Could not change view status " + err.toString()));
+      });
+    })
+  },
+
+  /**
    * It retrieves a view from database
    *
    * @param {Object} restriction - A query restriction
@@ -5959,6 +6349,300 @@ var DataManager = module.exports = {
         resolve(sridsArray);
       }).catch(function(err) {
         reject(err);
+      });
+    });
+  },
+
+/**
+   * It retrieves a list of interpolators in database
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<DataModel.Interpolator[]>}
+   */
+  listInterpolators: function(restriction, options) {
+    var self = this;
+
+    return new Promise(function(resolve, reject) {
+      return models.db.Interpolator.findAll(Utils.extend({
+        where: restriction || {},
+        include: [
+          {
+            model: models.db.Schedule
+          },
+          {
+            model: models.db.AutomaticSchedule
+          },
+          {
+            model: models.db.InterpolatorMetadata
+          },
+          {
+            model: models.db.DataSeries,
+            as: "dataSeriesInput",
+            include: [
+              {
+                model: models.db.DataProvider,
+                include: [models.db.DataProviderType]
+              },
+              models.db.DataSeriesSemantics,
+              {
+                model: models.db.DataSet,
+                include: [
+                  models.db.DataSetFormat
+                ]
+              }
+            ]
+          },
+          {
+            model: models.db.DataSeries,
+            as: "dataSeriesOutput",
+            include: [
+              {
+                model: models.db.DataProvider,
+                include: [models.db.DataProviderType]
+              },
+              models.db.DataSeriesSemantics,
+              {
+                model: models.db.DataSet,
+                include: [
+                  models.db.DataSetFormat
+                ]
+              }
+            ]
+          }
+        ]
+      }, options))
+        .then(function(interpolators){
+          return resolve(interpolators.map(function(interpolator) {
+            var interpolatorObject = new DataModel.Interpolator(interpolator);
+            var inputDatSeriesObject = new DataModel.DataSeries(interpolator.dataSeriesInput.get());
+            var outputDatSeriesObject = new DataModel.DataSeries(interpolator.dataSeriesOutput.get());
+            interpolatorObject.setInputOutputDataSeries(inputDatSeriesObject, outputDatSeriesObject);
+            return interpolatorObject;
+          }));
+        })
+        .catch(function(err){
+          return reject(new Error("Could not list interpolators " + err.toString()));
+        });
+    });
+  },
+
+  /**
+   * It retrieves an interpolator from database
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<DataModel.Interpolator>}
+   */
+  getInterpolator: function(restriction, options){
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      self.listInterpolators(restriction, options)
+        .then(function(interpolators) {
+          if (interpolators.length === 0) {
+            return reject(new Error("No interpolator retrieved"));
+          }
+          if (interpolators.length > 1) {
+            return reject(new Error("Get operation retrieved more than an interpolator"));
+          }
+          return resolve(interpolators[0]);
+        })
+        .catch(function(err) {
+          return reject(err);
+        });
+    });
+  },
+
+  /**
+   * It performs a save interpolator in database
+   *
+   * @param {Object} interpolatorObject - An interpolator object value to save
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<DataModel.Interpolator>}
+   */
+  addInterpolator: function(interpolatorObject, options){
+    var self = this;
+    return new Promise(function(resolve, reject){
+      models.db.Interpolator.create(interpolatorObject, options)
+        .then(function(interpolatorResult){
+          var interpolatorMetadata = [];
+          for(var key in interpolatorObject.metadata) {
+            if (interpolatorObject.metadata.hasOwnProperty(key)) {
+              interpolatorMetadata.push({
+                interpolator_id: interpolatorResult.id,
+                key: key,
+                value: interpolatorObject.metadata[key]
+              });
+            }
+          }
+          return self.addInterpolatorMetadata(interpolatorMetadata, options)
+            .then(function(interpolatorMetadataResult){
+
+              var interpolatorInstance = new DataModel.Interpolator(interpolatorResult);
+              interpolatorInstance.setMetadata(interpolatorMetadataResult);
+              interpolatorInstance.setOutputDataSeries(interpolatorObject.dataSeriesOutput);
+
+              return resolve(interpolatorInstance);
+            }).catch(function(err) {
+              // rollback interpolator metadata
+              Utils.rollbackPromises([
+                self.removeInterpolator({id: interpolatorResult.id}, options)
+              ], new exceptions.InterpolatorError("Could not save interpolator metadata " + err.toString()), reject);
+            });
+
+        })
+        .catch(function(err) {
+          logger.error(err);
+          return reject(new exceptions.InterpolatorError("Could not save interpolator " + err.toString()));
+        });
+    });
+  },
+
+  /**
+   * It performs a save interpolator metadata in database
+   *
+   * @param {Object} interpolatorMetadataObject - An interpolator metadata object value to save
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Object>} - Object of interpolator metadata
+   */
+  addInterpolatorMetadata: function(interpolatorMetadataObject, options){
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return models.db.InterpolatorMetadata.bulkCreate(interpolatorMetadataObject, options)
+        .then(function(bulkInterpolatorMetadata) {
+          return resolve(Utils.formatMetadataFromDB(bulkInterpolatorMetadata));
+        })
+        .catch(function(err) {
+          return reject(new Error(Utils.format("Could not save interpolator metadata due ", err.toString())));
+        });
+    });
+
+  },
+
+  /**
+   * It performs update interpolator from given restriction
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} interpolatorObject - An interpolator object values to update
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<DataModel.Interpolator[]>}
+   */
+  updateInterpolator: function(restriction, interpolatorObject, options){
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      models.db.Interpolator.update(
+        interpolatorObject,
+        Utils.extend({
+          fields: ["active", "bounding_rect", "interpolation_attribute", "resolution_x", "resolution_y", "service_instance_id", "schedule_id", "automatic_schedule_id", "schedule_type", "srid", "interpolator_strategy"],
+          where: restriction
+        }, options))
+
+        .then(function(interpolator) {
+          return self.upsertInterpolatorMetadata(restriction.id, interpolatorObject.metadata, options)
+            .then(function(){
+              return resolve();
+            });
+        })
+
+        .catch(function(err) {
+          return reject(new Error("Could not update interpolator " + err.toString()));
+        });
+    });
+  },
+
+  /**
+   * It performs upsert interpolator metadata from given restriction
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} interpolatorMetadata - An interpolator metadta object values to update
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<Object>}
+   */
+  upsertInterpolatorMetadata: function(interpolatorId, interpolatorMetadata, options){
+    var self = this;
+    return new Promise(function(resolve, reject){
+      var promises = [];
+      promises.push(self.removeInterpolatorMetadata({interpolator_id: interpolatorId}, options));
+
+      var interpolatorMetadataObject = [];
+      for(var key in interpolatorMetadata) {
+        if (interpolatorMetadata.hasOwnProperty(key)) {
+          interpolatorMetadataObject.push({
+            interpolator_id: interpolatorId,
+            key: key,
+            value: interpolatorMetadata[key]
+          });
+        }
+      }
+      promises.push(self.addInterpolatorMetadata(interpolatorMetadataObject, options));
+      return Promise.all(promises).then(function(results){
+        return resolve(results[1]);
+      });
+    });
+  },
+
+  /**
+   * It removes an interpolator metadata from database
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object?} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise}
+   */
+  removeInterpolatorMetadata: function(restriction, options){
+    var self = this;
+    return new Promise(function(resolve, reject){
+      return models.db.InterpolatorMetadata.destroy(Utils.extend({where: restriction}, options)).then(function(){
+        return resolve();
+      })
+    })
+  },
+
+  /**
+   * It removes an interpolator from database
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object?} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise}
+   */
+  removeInterpolator: function(interpolatorParam, options){
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return self.getInterpolator({id: interpolatorParam.id}, options).then(function(interpolatorResult) {
+        return models.db.Interpolator.destroy(Utils.extend({where: {id: interpolatorParam.id}}, options)).then(function() {
+          return self.removeDataSerie({id: interpolatorResult.data_series_output}, options).then(function() {
+            var removeSchedulePromise;
+            if (interpolatorResult.scheduleType == Enums.ScheduleType.SCHEDULE){
+              removeSchedulePromise = self.removeSchedule({id: interpolatorResult.schedule.id}, options);
+            } else if (interpolatorResult.scheduleType == Enums.ScheduleType.AUTOMATIC ){
+              removeSchedulePromise = self.removeAutomaticSchedule({id: interpolatorResult.automaticSchedule.id}, options);
+            } else {
+              removeSchedulePromise = Promise.resolve();
+            }
+            return removeSchedulePromise.then(function() {
+              return resolve();
+            }).catch(function(err) {
+              logger.error("Could not remove interpolator schedule ", err);
+              return reject(err);
+            });
+          }).catch(function(err) {
+            logger.error("Could not remove interpolator output data series ", err);
+            return reject(err);
+          });
+        }).catch(function(err) {
+          logger.error(err);
+          return reject(new exceptions.InterpolatorError("Could not remove Interpolator ", err));
+        });
+      }).catch(function(err) {
+        logger.error(err);
+        return reject(err);
       });
     });
   }

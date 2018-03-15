@@ -47,7 +47,7 @@ namespace terrama2
 {
   namespace core
   {
-    class ProcessLogger : public QObject
+    class TMCOREEXPORT ProcessLogger : public QObject
     {
         Q_OBJECT
 

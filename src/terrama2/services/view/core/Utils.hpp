@@ -31,6 +31,7 @@
 #define __TERRAMA2_SERVICES_VIEW_CORE_UTILS_HPP__
 
 // TerraMA2
+#include "Config.hpp"
 #include "../../../core/Shared.hpp"
 #include "../../../core/data-model/Filter.hpp"
 #include "../../../core/utility/FileRemover.hpp"
@@ -52,21 +53,21 @@ namespace terrama2
       namespace core
       {
 
-        void registerFactories();
+        TMVIEWEXPORT void registerFactories();
 
 
-        te::se::Symbolizer* getSymbolizer(const te::gm::GeomType& geomType,
+        TMVIEWEXPORT te::se::Symbolizer* getSymbolizer(const te::gm::GeomType& geomType,
                                           const std::string& color,
                                           const std::string& opacity) noexcept;
 
-        te::se::Stroke* CreateStroke(const std::string& color,
+        TMVIEWEXPORT te::se::Stroke* CreateStroke(const std::string& color,
                                      const std::string& width,
                                      const std::string& opacity,
                                      const std::string& dasharray,
                                      const std::string& linecap,
                                      const std::string& linejoin);
 
-        te::se::Fill* CreateFill(const std::string& color,
+        TMVIEWEXPORT te::se::Fill* CreateFill(const std::string& color,
                                  const std::string& opacity);
 
         /*!
@@ -75,14 +76,14 @@ namespace terrama2
          * \param precision - Decimal precision
          * \return String value
          */
-        std::string toString(const double value, const int& precision = 8);
+        TMVIEWEXPORT std::string toString(const double value, const int& precision = 8);
 
         /*!
          * \brief Removes table from provided URI.
          * \param name Table name
          * \param uri Connection URI
          */
-        void removeTable(const std::string& name, const te::core::URI& uri);
+        TMVIEWEXPORT void removeTable(const std::string& name, const te::core::URI& uri);
 
         /*!
          * \brief Tries to remove folder
@@ -91,13 +92,13 @@ namespace terrama2
          *
          * \param folderpath Path to create
          */
-        void removeFolder(const std::string& folderpath);
+        TMVIEWEXPORT void removeFolder(const std::string& folderpath);
 
         /*!
          * \brief Tries to create folder
          * \param folderpath Path to create
          */
-        void createFolder(const std::string& folderpath);
+        TMVIEWEXPORT void createFolder(const std::string& folderpath);
 
         /*!
          * \brief Tries to remove and then create new folder
@@ -105,7 +106,7 @@ namespace terrama2
          *
          * \param folderpath Path to re-criate
          */
-        void recreateFolder(const std::string& folderpath);
+        TMVIEWEXPORT void recreateFolder(const std::string& folderpath);
 
         /*! \brief Tries to remove file from disk
          * \note It only throw exception when the filepath exists but could not remove (Permission management/Lock)
@@ -114,7 +115,7 @@ namespace terrama2
          *
          * \param filepath Path to file
          */
-        void removeFile(const std::string& filepath);
+        TMVIEWEXPORT void removeFile(const std::string& filepath);
 
       } // end namespace core
     }   // end namespace view

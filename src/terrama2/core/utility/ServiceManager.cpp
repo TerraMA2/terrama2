@@ -79,6 +79,16 @@ ServiceInstanceId terrama2::core::ServiceManager::instanceId() const
   return instanceId_;
 }
 
+void terrama2::core::ServiceManager::setWebAppId(const std::string& webAppId)
+{
+  webAppId_ = webAppId;
+}
+
+const std::string&terrama2::core::ServiceManager::webAppId() const
+{
+  return webAppId_;
+}
+
 void terrama2::core::ServiceManager::setServiceType(const std::string& serviceType)
 {
   serviceType_ = serviceType;
@@ -147,6 +157,7 @@ QJsonObject terrama2::core::ServiceManager::status() const
 void terrama2::core::ServiceManager::updateService(const QJsonObject& obj)
 {
   setInstanceId(static_cast<ServiceInstanceId>(obj["instance_id"].toInt()));
+  setWebAppId(obj["webAppId"].toString().toStdString());
   setInstanceName(obj["instance_name"].toString().toStdString());
   setListeningPort(obj["listening_port"].toInt());
   setNumberOfThreads(obj["number_of_threads"].toInt());

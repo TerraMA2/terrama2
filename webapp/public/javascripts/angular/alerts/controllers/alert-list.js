@@ -77,7 +77,10 @@ define([], function(){
           targetMethod = MessageBoxService.danger;
         }
       }
-      targetMethod.call(MessageBoxService, i18n.__("Alerts"), errorMessage);
+
+      if(targetMethod && targetMethod.call)
+        targetMethod.call(MessageBoxService, i18n.__("Alerts"), errorMessage);
+
       delete serviceCache[response.service];
     });
 
@@ -99,17 +102,23 @@ define([], function(){
     Socket.on('statusResponse', function(response) {
       if(response.checking === undefined || (!response.checking && response.status == 400)) {
         if(response.online) {
-          if (serviceCache[response.service].view && serviceCache[response.service].view.id){
-            self.extra.run(serviceCache[response.service].view);
-          } else {
-            Socket.emit('run', serviceCache[response.service].process_ids);
-          }
-          delete $scope.disabledButtons[serviceCache[response.service].service_id];
-          delete serviceCache[response.service];
-        } else {
-          delete $scope.disabledButtons[serviceCache[response.service].service_id];
-        }
+          if(serviceCache[response.service]) {
+            if(serviceCache[response.service].view && serviceCache[response.service].view.id)
+              self.extra.run(serviceCache[response.service].view);
+            else
+              Socket.emit('run', serviceCache[response.service].process_ids);
 
+            delete $scope.disabledButtons[serviceCache[response.service].service_id];
+            delete serviceCache[response.service];
+          }
+
+          self.servicesInstances[response.service] = true;
+        } else {
+          if(serviceCache[response.service])
+            delete $scope.disabledButtons[serviceCache[response.service].service_id];
+
+          self.servicesInstances[response.service] = false;
+        }
       }
     });
 
@@ -137,6 +146,8 @@ define([], function(){
       as: i18n.__("Description")
     }];
 
+    self.servicesInstances = {};
+
     $q.all(
       [
         AlertService.init(),
@@ -146,6 +157,11 @@ define([], function(){
       .then(function(){
         self.model = AlertService.list();
         self.legendModel = LegendService.list();
+
+        self.model.forEach(function(instance) {
+          Socket.emit("status", { service: instance.service_instance_id });
+          self.servicesInstances[instance.service_instance_id] = false;
+        });
 
         self.linkToAdd = BASE_URL + "configuration/alerts/new";
         self.legendLinkToAdd = BASE_URL + "configuration/legends/new";
@@ -172,6 +188,10 @@ define([], function(){
         self.link = function(object) {
           return BASE_URL + "configuration/alerts/edit/" + object.id;
           //return "";
+        };
+
+        self.statusChangeLink = function(object) {
+          return BASE_URL + "api/Alert/changeStatus/" + object.id;
         };
 
         /**

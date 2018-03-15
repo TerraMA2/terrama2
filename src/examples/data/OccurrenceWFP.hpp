@@ -96,8 +96,8 @@ namespace terrama2
                                                    "format": {
                                                        "mask": "/fire_system/exporta_%YYYY%MM%DD_%hh%mm.csv",
                                                        "timestamp_property": "data_pas",
-                                                       "geometry_property": "position",
-                                                       "output_geometry_property": "geom",
+                                                       "input_geometry_property": "geom",
+                                                       "geometry_property": "geom",
                                                        "latitude_property": "lat",
                                                        "longitude_property": "lon",
                                                        "timezone": "UTM+00",
@@ -140,8 +140,8 @@ namespace terrama2
                                                   "format": {
                                                       "mask": "/csv/queimadas_%YYYY%MM%DD_%hh%mm.csv",
                                                       "timestamp_property": "data_pas",
-                                                      "geometry_property": "position",
-                                                      "output_geometry_property": "geom",
+                                                      "input_geometry_property": "geom",
+                                                      "geometry_property": "geom",
                                                       "latitude_property": "lat",
                                                       "longitude_property": "lon",
                                                       "timezone": "UTM+00",

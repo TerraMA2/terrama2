@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/services/analysis/core/PythonBindindGrid.hpp
+  \file terrama2/services/analysis/core/python/PythonBindindGrid.hpp
 
   \brief
 
@@ -30,6 +30,9 @@
 
 #ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_PYTHON_BINDING_GRID_HPP__
 #define __TERRAMA2_SERVICES_ANALYSIS_CORE_PYTHON_BINDING_GRID_HPP__
+
+// TerraMa2
+#include "../Config.hpp"
 
 namespace terrama2
 {
@@ -43,21 +46,21 @@ namespace terrama2
         {
           namespace Grid
           {
-            void registerFunctions();
+            TMANALYSISEXPORT void registerFunctions();
 
-            void registerGridFunctions();
-            void registerGridHistoryFunctions();
-            void registerGridHistoryIntervalFunctions();
-            void registerGridForecastFunctions();
-            void registerGridForecastIntervalFunctions();
-            void registerGridZonalFunctions();
-            void registerGridZonalForecastFunctions();
-            void registerGridZonalForecastAccumFunctions();
-            void registerGridZonalForecastIntervalFunctions();
-            void registerGridZonalHistoryFunctions();
-            void registerGridZonalHistoryAccumFunctions();
-            void registerGridZonalHistoryPrecFunctions();
-            void registerGridZonalHistoryIntervalFunctions();
+            TMANALYSISEXPORT void registerGridFunctions();
+            TMANALYSISEXPORT void registerGridHistoryFunctions();
+            TMANALYSISEXPORT void registerGridHistoryIntervalFunctions();
+            TMANALYSISEXPORT void registerGridForecastFunctions();
+            TMANALYSISEXPORT void registerGridForecastIntervalFunctions();
+            TMANALYSISEXPORT void registerGridZonalFunctions();
+            TMANALYSISEXPORT void registerGridZonalForecastFunctions();
+            TMANALYSISEXPORT void registerGridZonalForecastAccumFunctions();
+            TMANALYSISEXPORT void registerGridZonalForecastIntervalFunctions();
+            TMANALYSISEXPORT void registerGridZonalHistoryFunctions();
+            TMANALYSISEXPORT void registerGridZonalHistoryAccumFunctions();
+            TMANALYSISEXPORT void registerGridZonalHistoryPrecFunctions();
+            TMANALYSISEXPORT void registerGridZonalHistoryIntervalFunctions();
 
           } /* MonitoredObject */
         } /* python */

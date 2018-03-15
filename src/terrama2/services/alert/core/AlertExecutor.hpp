@@ -30,6 +30,7 @@
 #ifndef __TERRAMA2_SERVICES_ALERT_CORE_RUN_ALERT_HPP__
 #define __TERRAMA2_SERVICES_ALERT_CORE_RUN_ALERT_HPP__
 
+#include "Config.hpp"
 #include "../../../core/Shared.hpp"
 #include "../../../core/utility/Service.hpp"
 #include "../../../core/utility/FileRemover.hpp"
@@ -66,7 +67,7 @@ namespace terrama2
     {
       namespace core
       {
-        class AlertExecutor : public QObject
+        class TMALERTCOREEXPORT AlertExecutor : public QObject
         {
             Q_OBJECT
 

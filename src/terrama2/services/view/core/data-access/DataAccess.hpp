@@ -31,6 +31,7 @@
 #define __TERRAMA2_SERVICES_VIEW_CORE_DATAACCESS_HPP__
 
 // TerraMA2
+#include "../Config.hpp"
 #include "../../../../core/Shared.hpp"
 #include "../../../../core/data-model/Filter.hpp"
 
@@ -61,25 +62,25 @@ namespace terrama2
 
         namespace DataAccess
         {
-            QFileInfoList getFilesList(const std::pair<terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr>& dataSeriesProvider,
+            TMVIEWEXPORT QFileInfoList getFilesList(const std::pair<terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr>& dataSeriesProvider,
                                               const terrama2::core::DataSetPtr dataSet,
                                               const terrama2::core::Filter& filter);
 
-            std::unique_ptr< te::da::DataSetType > getVectorialDataSetType(const QFileInfo& fileInfo);
+            TMVIEWEXPORT std::unique_ptr< te::da::DataSetType > getVectorialDataSetType(const QFileInfo& fileInfo);
 
-            std::unique_ptr< te::da::DataSetType > getGeotiffDataSetType(const QFileInfo& fileInfo);
+            TMVIEWEXPORT std::unique_ptr< te::da::DataSetType > getGeotiffDataSetType(const QFileInfo& fileInfo);
 
-            std::unique_ptr< te::da::DataSetType > getDataSetType(const std::string& dataSourceURI,
+            TMVIEWEXPORT std::unique_ptr< te::da::DataSetType > getDataSetType(const std::string& dataSourceURI,
                                                                   const std::string& dataSetName,
                                                                   const std::string& driver);
 
-            TableInfo getPostgisTableInfo(terrama2::core::DataSetPtr dataSet,
+            TMVIEWEXPORT TableInfo getPostgisTableInfo(terrama2::core::DataSetPtr dataSet,
                                           terrama2::core::DataSeriesPtr inputDataSeries,
                                           terrama2::core::DataProviderPtr inputDataProvider);
 
-            TableInfo getDCPPostgisTableInfo(terrama2::core::DataSeriesPtr inputDataSeries,
+            TMVIEWEXPORT TableInfo getDCPPostgisTableInfo(terrama2::core::DataSeriesPtr inputDataSeries,
                                              terrama2::core::DataProviderPtr inputDataProvider);
-        };
+        }
       }
     }
   }

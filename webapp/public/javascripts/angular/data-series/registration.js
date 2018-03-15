@@ -1848,6 +1848,21 @@ define([], function() {
             dataSets: out
           };
 
+          var inputDataSetsLength = dataObject.dataSeries.dataSets.length;
+
+          for(var i = 0; i < inputDataSetsLength; i++) {
+            for(var inputKey in dataObject.dataSeries.dataSets[i].format) {
+              if(inputKey.substr(inputKey.length - 9) === "_property" && outputDataSeries.dataSets[i].format[inputKey]) {
+                if(!outputDataSeries.dataSets[i].format.inout_attribute_map)
+                  outputDataSeries.dataSets[i].format.inout_attribute_map = {};
+
+                outputDataSeries.dataSets[i].format.inout_attribute_map[dataObject.dataSeries.dataSets[i].format[inputKey]] = outputDataSeries.dataSets[i].format[inputKey];
+              }
+            }
+
+            outputDataSeries.dataSets[i].format.inout_attribute_map = JSON.stringify(outputDataSeries.dataSets[i].format.inout_attribute_map);
+          }
+
           _sendRequest({
             dataToSend: {input: dataObject.dataSeries, output: outputDataSeries},
             scheduleValues: dataObject.schedule,

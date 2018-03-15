@@ -9,8 +9,8 @@
     "providers_type_list": ["FILE", "FTP", "HTTP", "HTTPS"],
     "allow_direct_access": false,
     "metadata": {
-      "timestamp_property": "N/A",
-      "output_timestamp_property": "datetime"
+      "input_timestamp_property": "N/A",
+      "timestamp_property": "datetime"
     },
     "collector": true,
     "gui": {

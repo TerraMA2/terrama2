@@ -31,10 +31,13 @@
 #ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_GRID_CONTEXT_HPP__
 #define __TERRAMA2_SERVICES_ANALYSIS_CORE_GRID_CONTEXT_HPP__
 
+// TerraMa2
+#include "Config.hpp"
 #include "Analysis.hpp"
 #include "BaseContext.hpp"
 #include "../../../core/utility/Utils.hpp"
 
+// TerraLib
 #include <terralib/geometry/Coord2D.h>
 
 // Forward declaration
@@ -54,7 +57,7 @@ namespace terrama2
     {
       namespace core
       {
-        class GridContext : public BaseContext
+        class TMANALYSISEXPORT GridContext : public BaseContext
         {
           public:
             GridContext(DataManagerPtr dataManager,  AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime);

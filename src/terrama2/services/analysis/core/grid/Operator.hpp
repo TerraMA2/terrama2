@@ -56,9 +56,9 @@ namespace terrama2
             \param dataSeriesName DataSeries name.
             \return The current pixel value for the selected data series.
           */
-          double sample(const std::string& dataSeriesName, size_t bandIdx = 0);
+          TMANALYSISEXPORT double sample(const std::string& dataSeriesName, size_t bandIdx = 0);
 
-          double getValue(std::shared_ptr<te::rst::Raster> raster, std::shared_ptr<terrama2::core::SynchronizedInterpolator> interpolator, double column, double row, size_t bandIdx);
+          TMANALYSISEXPORT double getValue(std::shared_ptr<te::rst::Raster> raster, std::shared_ptr<terrama2::core::SynchronizedInterpolator> interpolator, double column, double row, size_t bandIdx);
 
 
         }   // end namespace grid

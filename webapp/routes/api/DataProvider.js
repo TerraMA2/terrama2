@@ -9,4 +9,5 @@ module.exports = function (app) {
   app.post(app.locals.BASE_URL + 'api/DataProvider/listobjects', passport.isAuthenticated, controller.listObjects);
   app.put(app.locals.BASE_URL + 'api/DataProvider/:id', passport.isAuthenticated, controller.put);
   app.delete(app.locals.BASE_URL + 'api/DataProvider/:id/delete', passport.isAuthenticated, controller.delete);
+  app.get(app.locals.BASE_URL + 'api/DataProvider/changeStatus/:id', passport.isAuthenticated, controller.changeStatus);
 };

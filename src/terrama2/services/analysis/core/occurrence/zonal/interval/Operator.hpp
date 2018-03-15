@@ -65,7 +65,7 @@ namespace terrama2
 
                 \return The number of occurrences in the monitored object.
               */
-              int count(const std::string &dataSeriesName, const std::string &dateFilterBegin, const std::string &dateFilterEnd,
+              TMANALYSISEXPORT int count(const std::string &dataSeriesName, const std::string &dateFilterBegin, const std::string &dateFilterEnd,
                         terrama2::services::analysis::core::Buffer buffer = Buffer(),
                         const std::string &restriction = "");
 
@@ -80,7 +80,7 @@ namespace terrama2
                 \param restriction SQL restriction.
                 \return The minimum value of the attribute of occurrences in the monitored object area.
               */
-              double min(const std::string &dataSeriesName, const std::string &attribute, const std::string &dateFilterBegin,
+              TMANALYSISEXPORT double min(const std::string &dataSeriesName, const std::string &attribute, const std::string &dateFilterBegin,
                          const std::string &dateFilterEnd, terrama2::services::analysis::core::Buffer buffer = Buffer(),
                          const std::string &restriction = "");
 
@@ -95,7 +95,7 @@ namespace terrama2
                 \param restriction SQL restriction.
                 \return The maximum value of the attribute of occurrences in the monitored object area.
               */
-              double max(const std::string &dataSeriesName, const std::string &attribute, const std::string &dateFilterBegin,
+              TMANALYSISEXPORT double max(const std::string &dataSeriesName, const std::string &attribute, const std::string &dateFilterBegin,
                          const std::string &dateFilterEnd, terrama2::services::analysis::core::Buffer buffer = Buffer(),
                          const std::string &restriction = "");
 
@@ -110,7 +110,7 @@ namespace terrama2
                 \param restriction SQL restriction.
                 \return The mean value of the attribute of occurrences in the monitored object area.
               */
-              double
+              TMANALYSISEXPORT double
               mean(const std::string &dataSeriesName, const std::string &attribute, const std::string &dateFilterBegin,
                    const std::string &dateFilterEnd, terrama2::services::analysis::core::Buffer buffer = Buffer(),
                    const std::string &restriction = "");
@@ -126,7 +126,7 @@ namespace terrama2
                 \param restriction SQL restriction.
                 \return The median value of the attribute of occurrences in the monitored object area.
               */
-              double
+              TMANALYSISEXPORT double
               median(const std::string &dataSeriesName, const std::string &attribute, const std::string &dateFilterBegin, 
                      const std::string &dateFilterEnd, terrama2::services::analysis::core::Buffer buffer = Buffer(),
                      const std::string &restriction = "");
@@ -142,7 +142,7 @@ namespace terrama2
                 \param restriction SQL restriction.
                 \return The sum of values of the attribute of occurrences in the monitored object area.
               */
-              double sum(const std::string &dataSeriesName, const std::string &attribute, const std::string &dateFilterBegin,
+              TMANALYSISEXPORT double sum(const std::string &dataSeriesName, const std::string &attribute, const std::string &dateFilterBegin,
                          const std::string &dateFilterEnd, terrama2::services::analysis::core::Buffer buffer = Buffer(),
                          const std::string &restriction = "");
 
@@ -156,7 +156,7 @@ namespace terrama2
                 \param attribute Name of the attribute to be used in statistic operator.
                 \param restriction SQL restriction.
               */
-              double standardDeviation(const std::string &dataSeriesName, const std::string &attribute,
+              TMANALYSISEXPORT double standardDeviation(const std::string &dataSeriesName, const std::string &attribute,
                                        const std::string &dateFilterBegin, const std::string &dateFilterEnd,
                                        terrama2::services::analysis::core::Buffer buffer = Buffer(),
                                        const std::string &restriction = "");
@@ -171,7 +171,7 @@ namespace terrama2
                 \param attribute Name of the attribute to be used in statistic operator.
                 \param restriction SQL restriction.
               */
-              double
+              TMANALYSISEXPORT double
               variance(const std::string &dataSeriesName, const std::string &attribute, const std::string &dateFilterBegin,
                        const std::string &dateFilterEnd, terrama2::services::analysis::core::Buffer buffer = Buffer(),
                        const std::string &restriction = "");

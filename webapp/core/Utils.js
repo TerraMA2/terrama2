@@ -285,15 +285,22 @@ var Utils = module.exports = {
                     legendsArr.push(legend.toService());
                   });
 
-                  return resolve({
-                    "Analysis": analysisArr,
-                    "DataSeries": series,
-                    "DataProviders": providers,
-                    "Collectors": collectors,
-                    "Views": viewsArr,
-                    "Alerts": alertsArr,
-                    "Legends": legendsArr
-                  });
+                  DataManager.listInterpolators().then(function(interpolators){
+                    var interpolatorsArr = [];
+                    interpolators.forEach(function(interpolator){
+                      interpolatorsArr.push(interpolator.toService());
+                    });
+                    return resolve({
+                      "Analysis": analysisArr,
+                      "DataSeries": series,
+                      "DataProviders": providers,
+                      "Collectors": collectors,
+                      "Views": viewsArr,
+                      "Alerts": alertsArr,
+                      "Legends": legendsArr,
+                      "Interpolators": interpolatorsArr
+                    });
+                  }).catch(_handleError); //end listInterpolators
                 }).catch(_handleError); // end listLegends
               }).catch(_handleError); // end listAlerts
             }).catch(_handleError); // end views
@@ -467,6 +474,9 @@ var Utils = module.exports = {
         break;
       case Enums.ServiceType.ALERT:
         output = "ALERT";
+        break;      
+      case Enums.ServiceType.INTERPOLATION:
+        output = "INTERPOLATOR";
         break;
     }
 

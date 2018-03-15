@@ -32,6 +32,7 @@
 #define __TERRAMA2_SERVICES_ALERT_IMPL_EMAIL_NOTIFIER_HPP__
 
 // TerraMA2
+#include "Config.hpp"
 #include "../core/Notifier.hpp"
 #include "../core/Shared.hpp"
 
@@ -49,7 +50,7 @@ namespace terrama2
     {
       namespace impl
       {
-        class NotifierEmail : public core::Notifier
+        class TMALERTIMPLEXPORT NotifierEmail : public core::Notifier
         {
           public:
             NotifierEmail(const std::map<std::string, std::string>& serverMap, core::ReportPtr report);

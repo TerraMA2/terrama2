@@ -98,6 +98,7 @@ module.exports = function(app) {
       var dataProvider = request.params.dataProvider;
       var project = request.params.project;
       var ignoreAnalysisOutputDataSeries = request.query.ignoreAnalysisOutputDataSeries;
+      var ignoreInterpolatorOutputDataSeries = request.query.ignoreInterpolatorOutputDataSeries;
 
       var dataSeriesId = request.params.id;
       var dataSeriesTemporality = request.query.type;
@@ -172,26 +173,38 @@ module.exports = function(app) {
         DataManager.listDataSeries(restriction).then(function(dataSeriesList) {
           var output = [];
 
-          if(ignoreAnalysisOutputDataSeries == true || ignoreAnalysisOutputDataSeries == 'true') {
+          if(ignoreAnalysisOutputDataSeries == true || ignoreAnalysisOutputDataSeries == 'true' || ignoreInterpolatorOutputDataSeries == true || ignoreInterpolatorOutputDataSeries == "true") {
             DataManager.listAnalysis({}).then(function(analysisList) {
-              dataSeriesList.forEach(function(dataSeries) {
-                var addDataSeries = true;
+              DataManager.listInterpolators({}).then(function(interpolatorsList){
+                dataSeriesList.forEach(function(dataSeries) {
+                  var addDataSeries = true;
+                  if(ignoreAnalysisOutputDataSeries == true || ignoreAnalysisOutputDataSeries == 'true'){
+                    analysisList.map(function(analysis) {
+                      dataSeries.dataSets.map(function(dataSet) {
+                        if(analysis.dataset_output == dataSet.id) {
+                          addDataSeries = false;
+                          return;
+                        }
+                      });
+    
+                      if(!addDataSeries) return;
+                    });
+                  }
 
-                analysisList.map(function(analysis) {
-                  dataSeries.dataSets.map(function(dataSet) {
-                    if(analysis.dataset_output == dataSet.id) {
-                      addDataSeries = false;
-                      return;
-                    }
-                  });
-
-                  if(!addDataSeries) return;
+                  if ((ignoreInterpolatorOutputDataSeries == true || ignoreInterpolatorOutputDataSeries == "true") && addDataSeries){
+                    interpolatorsList.map(function(interpolator){
+                      if (dataSeries.id == interpolator.data_series_output){
+                        addDataSeries = false;
+                        return;
+                      }
+                    })
+                  }
+  
+                  if(addDataSeries) output.push(dataSeries.rawObject());
                 });
-
-                if(addDataSeries) output.push(dataSeries.rawObject());
+  
+                response.json(output);
               });
-
-              response.json(output);
             });
           } else {
             DataManager.listAnalysis({}).then(function(analysisList){
@@ -592,24 +605,38 @@ module.exports = function(app) {
                     })
 
                     .catch(function(err) {
-                      // if not find collector, it is processing data series or analysis data series
-                      return DataManager.listFilters({data_series_id: Number(id)})
-                        .then(function(filtersResult){
-                          if (filtersResult.length > 0){
-                            throw new Error("Cannot remove this data series, it is used in a filter");
-                          }
-                          return DataManager.removeDataSerie({id: id})
-                            .then(function() {
+                      // if not find collector, check if is from interpolator
+                      return DataManager.getInterpolator({data_series_output: id})
+                        .then(function(interpolatorResult){
+                          return DataManager.removeInterpolator({id: interpolatorResult.id})
+                            .then(function(){
                               var objectToSend = {
+                                "Interpolators": [interpolatorResult.id],
                                 "DataSeries": [id]
                               };
-    
                               TcpService.remove(objectToSend);
-    
                               return response.json({status: 200, name: dataSeriesResult.name});
                             });
-                        })
-                    })
+                        }).catch(function(err){
+                          // if not find collector neither interpolator, it is processing data series or analysis data series
+                          return DataManager.listFilters({data_series_id: Number(id)})
+                            .then(function(filtersResult){
+                              if (filtersResult.length > 0){
+                                throw new Error("Cannot remove this data series, it is used in a filter");
+                              }
+                              return DataManager.removeDataSerie({id: id})
+                                .then(function() {
+                                  var objectToSend = {
+                                    "DataSeries": [id]
+                                  };
+        
+                                  TcpService.remove(objectToSend);
+        
+                                  return response.json({status: 200, name: dataSeriesResult.name});
+                                });
+                            });
+                        });
+                    });
                 })
                 .catch(function(error) {
                   Utils.handleRequestError(response, error, 400);
@@ -661,6 +688,34 @@ module.exports = function(app) {
       }).catch(function(err){
         return Utils.handleRequestError(response, err, 400);
       });
+    },
+
+    changeStatusStatic: function(request, response) {
+      DataManager.changeStaticDataSeriesStatus({ id: parseInt(request.params.id) })
+        .then(function(dataSeries) {
+          return TcpService.send({
+            "DataSeries": [dataSeries.toObject()]
+          });
+        })
+        .then(function() {
+          return response.json({});
+        })
+        .catch(function(err) {
+          return Utils.handleRequestError(response, err, 400);
+        });
+    },
+
+    changeStatusDynamic: function(request, response) {
+      DataManager.changeDynamicDataSeriesStatus({ id: parseInt(request.params.id) })
+        .then(function(objectToSend) {
+          return TcpService.send(objectToSend);
+        })
+        .then(function() {
+          return response.json({});
+        })
+        .catch(function(err) {
+          return Utils.handleRequestError(response, err, 400);
+        });
     }
   };
 };

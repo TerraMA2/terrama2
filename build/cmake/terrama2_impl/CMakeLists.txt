@@ -24,9 +24,9 @@
 #  Author: Jano Simas
 #
 
-#if(WIN32)
-#  add_definitions(-DTMA_CORE_DLL)
-#endif()
+if (WIN32)
+  add_definitions(-DTMIMPLDLL)
+endif()
 
 file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/impl/*.cpp)
 file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/impl/*.hpp)
@@ -56,6 +56,7 @@ target_link_libraries(terrama2_impl terrama2_core
                                     ${Boost_FILESYSTEM_LIBRARY}
                                     ${Boost_SYSTEM_LIBRARY}
                                     ${Boost_REGEX_LIBRARY}
+									${Boost_LOCALE_LIBRARY}
                                     ${CURL_LIBRARIES})
 
 set_target_properties(terrama2_impl

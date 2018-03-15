@@ -31,6 +31,7 @@
 #define __TERRAMA2_SERVICES_VIEW_SERVICE_HPP__
 
 // TerraMA2
+#include "Config.hpp"
 #include "Typedef.hpp"
 #include "Shared.hpp"
 #include "DataManager.hpp"
@@ -48,7 +49,7 @@ namespace terrama2
     {
       namespace core
       {
-        class Service : public terrama2::core::Service
+        class TMVIEWEXPORT Service : public terrama2::core::Service
         {
           Q_OBJECT
 
