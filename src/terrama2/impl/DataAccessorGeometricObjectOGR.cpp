@@ -33,6 +33,7 @@
 #include "../core/Exception.hpp"
 #include "../core/utility/Logger.hpp"
 #include "../core/utility/Utils.hpp"
+#include "../core/utility/TimeUtils.hpp"
 
 #include <terralib/datatype/DateTimeProperty.h>
 // QT
@@ -76,8 +77,9 @@ te::dt::AbstractData* terrama2::core::DataAccessorGeometricObjectOGR::numberToTi
     std::string dateTime = dataset->getAsString(indexes[0]);
     boost::posix_time::ptime boostDate;
 
+    auto boostTimeFacet = TimeUtils::terramaDateMask2BoostFormat(timestampMask);
     //mask to convert DateTime string to Boost::ptime
-    std::locale format(std::locale(), new boost::posix_time::time_input_facet(timestampMask));
+    std::locale format(std::locale(), new boost::posix_time::time_input_facet(boostTimeFacet));
 
     std::istringstream stream(dateTime);//create stream
     stream.imbue(format);//set format
