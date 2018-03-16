@@ -1804,6 +1804,9 @@ define([], function() {
               }
             }
 
+            if ($scope.isUpdating)
+              dSets.id = configuration.dataSeries.output.dataSets[0].id;
+
             dSets.format = _makeFormat(fmt);
             dSets.active = true,
             out = [dSets];
@@ -1954,6 +1957,10 @@ define([], function() {
               active: true,//$scope.dataSeries.active,
               format: format
             };
+
+            if ($scope.isUpdating)
+              dataSet.id = configuration.dataSeries.input.dataSets[0].id;
+
             dataToSend.dataSets.push(dataSet);
             break;
 
