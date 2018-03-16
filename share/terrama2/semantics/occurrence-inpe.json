@@ -19,7 +19,7 @@
     "collector": true,
     "gui": {
       "schema": {
-        "properties": {
+        "properties": {          
           "mask": {
             "type": "string",
             "title": "Mask"

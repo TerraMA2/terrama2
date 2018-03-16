@@ -71,7 +71,33 @@ namespace terrama2
         // Doc in base class
         virtual std::string dataSourceType() const override;
         // Doc in base class
-        virtual std::string getTimeZone(DataSetPtr dataSet, bool /*logErrors = false*/) const override;
+        virtual std::string getTimeZone(DataSetPtr dataSet, bool logErrors = false) const override;
+
+        virtual std::string getTimestampMask(DataSetPtr dataSet, bool logErrors = false) const;
+
+        virtual void adapt(DataSetPtr dataset, std::shared_ptr<te::da::DataSetTypeConverter> converter) const override;
+        virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const override;
+
+        virtual bool isValidColumn(const std::string /*columnName*/) const { return true; }
+
+        virtual std::string retrieveData(const DataRetrieverPtr dataRetriever,
+                                         DataSetPtr dataSet,
+                                         const Filter& filter,
+                                         std::shared_ptr<FileRemover> remover) const override;
+
+        virtual void retrieveDataCallback (const DataRetrieverPtr dataRetriever,
+                                           DataSetPtr dataset,
+                                           const Filter& filter,
+                                           std::shared_ptr<FileRemover> remover,
+                                           std::function<void(const std::string& /*uri*/)> processFile) const override;
+        /*!
+          \brief Convert number to TimeInstantTZ.
+        */
+        static te::dt::AbstractData* numberToTimestamp(te::da::DataSet* dataset,
+                                                       const std::vector<std::size_t>& indexes,
+                                                       int /*dstType*/,
+                                                       const std::string& timezone,
+                                                       const std::string& timestampMask);
     };
   }
 }
