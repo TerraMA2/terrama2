@@ -2099,11 +2099,15 @@ var DataManager = module.exports = {
               });
               promises.push(removeProvider);
             });
-          }
+          } 
 
           (dataSeriesObject.editedDcps !== undefined ? dataSeriesObject.editedDcps : dataSeriesObject.dataSets).forEach(function(newDataSet) {
             var dataSetToUpdate = dataSeries.dataSets.find(function(dSet){
-              return parseInt(dSet.format._id) == parseInt(newDataSet.format._id);
+              if (dataSeriesObject.editedDcps) {
+                return parseInt(dSet.format._id) === parseInt(newDataSet.format._id);
+              } else {
+                return dSet.id === newDataSet.id;
+              }
             });
             // Update data set
             if(dataSetToUpdate) {
