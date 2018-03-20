@@ -1,6 +1,6 @@
 [
   {
-    "name": "DCP - PostGIS",
+    "name": "DCP - PostGIS (N-Table)",
     "code": "DCP-postgis",
     "driver": "DCP-postgis",
     "type": "DCP",
@@ -86,7 +86,7 @@
     }
   },
   {
-    "name": "DCP - Single Table",
+    "name": "DCP - PostGIS (Single Table)",
     "code": "DCP-single_table",
     "driver": "DCP-single_table",
     "type": "DCP",
