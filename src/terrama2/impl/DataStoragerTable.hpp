@@ -56,6 +56,7 @@ namespace terrama2
            \exception DataStoragerException Raise if have the same name and different types
         */
         bool isPropertyEqual(te::dt::Property* newProperty, te::dt::Property* oldMember) const;
+        virtual void adapt(terrama2::core::DataSetSeries& /*dataSetSeries*/) const {}
 
       protected:
         std::unique_ptr<te::dt::Property> copyProperty(te::dt::Property* property) const;

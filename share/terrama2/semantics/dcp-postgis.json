@@ -86,7 +86,7 @@
     }
   },
   {
-    "name": "DCP (single table)",
+    "name": "DCP - Single Table",
     "code": "DCP-single_table",
     "driver": "DCP-single_table",
     "type": "DCP",
