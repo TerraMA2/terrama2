@@ -53,7 +53,7 @@ namespace terrama2
 
       virtual std::string getDataSetName(terrama2::core::DataSetPtr /*dataSet*/) const override;
     protected:
-      virtual void adapt(terrama2::core::DataSetSeries& dataSetSeries) const override;
+      virtual void adapt(terrama2::core::DataSetSeries& dataSetSeries, DataSetPtr outputDataSet) const override;
     };
   }
 }

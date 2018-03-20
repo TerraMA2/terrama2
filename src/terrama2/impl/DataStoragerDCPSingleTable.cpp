@@ -41,11 +41,11 @@ std::string terrama2::core::DataStoragerDCPSingleTable::getDataSetName(terrama2:
   return "dcp_data_"+std::to_string(dataSeries_->id);
 }
 
-void terrama2::core::DataStoragerDCPSingleTable::adapt(terrama2::core::DataSetSeries& dataSetSeries) const
+void terrama2::core::DataStoragerDCPSingleTable::adapt(terrama2::core::DataSetSeries& dataSetSeries, DataSetPtr outputDataSet) const
 {
   auto memDataSet = std::static_pointer_cast<te::mem::DataSet>(dataSetSeries.syncDataSet->dataset());
 
-  auto id = new std::string(std::to_string(dataSetSeries.dataSet->id));
+  auto id = new std::string(std::to_string(outputDataSet->id));
   auto idProperty = new te::dt::StringProperty("dcp_id", te::dt::STRING);
   dataSetSeries.teDataSetType->add(idProperty);
   auto abstractId = new te::dt::SimpleData<std::string>(*id);
