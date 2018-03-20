@@ -70,5 +70,5 @@ void terrama2::core::DataAccessorDcpSingleTable::addExtraConditions(terrama2::co
   std::string id = getDCPId(dataSet);
   std::string idProperty = getDCPIdPorperty(dataSet);
 
-  whereConditions.push_back(idProperty+" = "+id);
+  whereConditions.push_back(idProperty+" = '"+id+"'");
 }
