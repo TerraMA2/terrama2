@@ -51,6 +51,27 @@ module.exports = function(app) {
       });
     },
 
+    activateById: function(request, response) {
+      var projectId = request.params.id;
+
+      DataManager.getProject({id: projectId}).then(function(project) {
+        var hasProjectPermission = false;
+        if (project.user_id == null || request.user.id == project.user_id || !project.protected){
+          hasProjectPermission = true;
+        } 
+
+        request.session.activeProject = {id: project.id, name: project.name, protected: project.protected, userId: project.user_id, hasProjectPermission: hasProjectPermission};
+
+        // Redirect for start application
+        if(request.params.token !== undefined)
+          response.redirect(app.locals.BASE_URL + "configuration/status?token=" + request.params.token);
+        else
+          response.redirect(app.locals.BASE_URL + "configuration/status");
+      }).catch(function(err) {
+        response.render('base/404');
+      });
+    },
+
     updateCache: function(request, response){
 
       request.session.cachedProjects = DataManager.listProjects();
