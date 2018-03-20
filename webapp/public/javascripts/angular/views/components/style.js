@@ -150,28 +150,21 @@ define([], function () {
      */
     self.changeCreationType = function(){
       if (self.model.metadata.creation_type == "editor"){
-        delete self.model.metadata.xml_style;
-        self.model.colors = [
-          {
-            color: "#FFFFFFFF",
-            isDefault: true,
-            title: "Default",
-            value: ""
-          }
-        ];
+        if(!self.model.colors || self.model.colors.length === 0) {
+          self.model.colors = [
+            {
+              color: "#FFFFFFFF",
+              isDefault: true,
+              title: "Default",
+              value: ""
+            }
+          ];
+        }
       } else if (self.model.metadata.creation_type == "xml"){
         self.model.type = 3;
-        self.model.colors = [];
-        delete self.model.bands;
-        delete self.model.beginColor;
-        delete self.model.endColor;
       } else {
         self.model.type = 3;
-        self.model.colors = [];
         self.setXmlStyleInfo(self.model.metadata.creation_type);
-        delete self.model.bands;
-        delete self.model.beginColor;
-        delete self.model.endColor;
         $scope.$broadcast("schemaFormRedraw");
       }
     }
