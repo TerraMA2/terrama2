@@ -55,6 +55,7 @@
 #include "DataStoragerTiff.hpp"
 #include "DataStoragerCSV.hpp"
 #include "DataStoragerDCPPostGIS.hpp"
+#include "DataStoragerDCPSingleTable.hpp"
 
 #include "DataRetrieverFTP.hpp"
 #include "DataRetrieverHTTP.hpp"

@@ -64,24 +64,6 @@ namespace terrama2
         const std::string GEOM_PROPERTY_NAME = "geom";
         const std::string TABLE_NAME_PROPERTY_NAME = "table_name";
     };
-
-    class TMIMPLEXPORT DataStoragerDCPSingleTable : public DataStoragerDCPPostGIS
-    {
-    public:
-      DataStoragerDCPSingleTable(DataSeriesPtr dataSeries, DataProviderPtr outputDataProvider)
-        : DataStoragerDCPPostGIS(dataSeries, outputDataProvider) {}
-
-      static DataStoragerType dataStoragerType() { return "DCP-single_table"; }
-
-      static DataStoragerPtr make(DataSeriesPtr dataSeries, DataProviderPtr dataProvider)
-      {
-        return std::make_shared<DataStoragerDCPSingleTable>(dataSeries, dataProvider);
-      }
-
-      virtual std::string getDataSetName(terrama2::core::DataSetPtr /*dataSet*/) const override;
-    protected:
-      virtual void adapt(terrama2::core::DataSetSeries& dataSetSeries) const override;
-    };
   }
 }
 
