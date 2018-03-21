@@ -1854,6 +1854,9 @@ define([], function() {
           var inputDataSetsLength = dataObject.dataSeries.dataSets.length;
 
           for(var i = 0; i < inputDataSetsLength; i++) {
+            if(outputDataSeries.dataSets[i].format.inout_attribute_map && typeof outputDataSeries.dataSets[i].format.inout_attribute_map == "string")
+              outputDataSeries.dataSets[i].format.inout_attribute_map = JSON.parse(outputDataSeries.dataSets[i].format.inout_attribute_map);
+
             for(var inputKey in dataObject.dataSeries.dataSets[i].format) {
               if(inputKey.substr(inputKey.length - 9) === "_property" && outputDataSeries.dataSets[i].format[inputKey]) {
                 if(!outputDataSeries.dataSets[i].format.inout_attribute_map)
