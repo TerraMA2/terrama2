@@ -32,6 +32,7 @@
 #include "DataAccessorDcpInpe.hpp"
 #include "DataAccessorDcpToa5.hpp"
 #include "DataAccessorDcpPostGIS.hpp"
+#include "DataAccessorDCPSingleTable.hpp"
 #include "DataAccessorGDAL.hpp"
 #include "DataAccessorGrib.hpp"
 #include "DataAccessorGrADS.hpp"
@@ -39,7 +40,6 @@
 #include "DataAccessorOccurrenceLightning.hpp"
 #include "DataAccessorOccurrencePostGIS.hpp"
 #include "DataAccessorDCPCSV.hpp"
-#include "DataStoragerDCPPostGIS.hpp"
 #include "DataAccessorOccurrenceCSV.hpp"
 #include "DataAccessorGeometricObjectPostGIS.hpp"
 #include "DataAccessorGeometricObjectOGR.hpp"
@@ -54,6 +54,8 @@
 #include "DataStoragerPostGIS.hpp"
 #include "DataStoragerTiff.hpp"
 #include "DataStoragerCSV.hpp"
+#include "DataStoragerDCPPostGIS.hpp"
+#include "DataStoragerDCPSingleTable.hpp"
 
 #include "DataRetrieverFTP.hpp"
 #include "DataRetrieverHTTP.hpp"
@@ -83,6 +85,7 @@ void terrama2::core::registerFactories()
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorGeometricObjectPostGIS::dataAccessorType(), terrama2::core::DataAccessorGeometricObjectPostGIS::make);
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorGeometricObjectOGR::dataAccessorType(), terrama2::core::DataAccessorGeometricObjectOGR::make);
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorWildFireEvent::dataAccessorType(), terrama2::core::DataAccessorWildFireEvent::make);
+  terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorDcpSingleTable::dataAccessorType(), terrama2::core::DataAccessorDcpSingleTable::make);
 
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorStaticDataOGR::dataAccessorType(), terrama2::core::DataAccessorStaticDataOGR::make);
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorStaticDataPostGIS::dataAccessorType(), terrama2::core::DataAccessorStaticDataPostGIS::make);
@@ -93,6 +96,7 @@ void terrama2::core::registerFactories()
   terrama2::core::DataStoragerFactory::getInstance().add(terrama2::core::DataStoragerOccurrencePostGIS::dataStoragerType(), terrama2::core::DataStoragerOccurrencePostGIS::make);
   terrama2::core::DataStoragerFactory::getInstance().add(terrama2::core::DataStoragerAnalysisMonitoredObject::dataStoragerType(), terrama2::core::DataStoragerAnalysisMonitoredObject::make);
   terrama2::core::DataStoragerFactory::getInstance().add(terrama2::core::DataStoragerDCPPostGIS::dataStoragerType(), terrama2::core::DataStoragerDCPPostGIS::make);
+  terrama2::core::DataStoragerFactory::getInstance().add(terrama2::core::DataStoragerDCPSingleTable::dataStoragerType(), terrama2::core::DataStoragerDCPSingleTable::make);
   terrama2::core::DataStoragerFactory::getInstance().add(terrama2::core::DataStoragerTiff::dataStoragerType(), terrama2::core::DataStoragerTiff::make);
   terrama2::core::DataStoragerFactory::getInstance().add(terrama2::core::DataStoragerInpeWfpCSV::dataStoragerType(), terrama2::core::DataStoragerInpeWfpCSV::make);
   terrama2::core::DataStoragerFactory::getInstance().add(terrama2::core::DataStoragerOccurrenceCSV::dataStoragerType(), terrama2::core::DataStoragerOccurrenceCSV::make);

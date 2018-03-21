@@ -56,7 +56,7 @@ namespace terrama2
           : DataAccessor(dataProvider, dataSeries)
         {
         }
-        virtual ~DataAccessorPostGIS() {}
+        virtual ~DataAccessorPostGIS() = default;
 
         using terrama2::core::DataAccessor::getSeries;
         // Doc in base class
@@ -80,6 +80,14 @@ namespace terrama2
         virtual std::string whereConditions(terrama2::core::DataSetPtr dataSet,
                                             const std::string datetimeColumnName,
                                             const terrama2::core::Filter& filter) const;
+
+        /*!
+        * \brief include extra coditions when filtering datasets
+        *
+        * This conditions a independent of other filters and
+        * can be used for filtering a set of data by a common id.
+        */
+        virtual void addExtraConditions(terrama2::core::DataSetPtr /*dataSet*/, std::vector<std::string>& /*whereConditions*/) const {}
 
         virtual void addDateTimeFilter(const std::string datetimeColumnName,
                                        const terrama2::core::Filter& filter,

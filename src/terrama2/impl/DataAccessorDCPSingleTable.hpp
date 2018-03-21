@@ -27,40 +27,37 @@
   \author Jano Simas
  */
 
-#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_POSTGIS_HPP__
-#define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_POSTGIS_HPP__
-
-//TerraMA2
-#include "DataAccessorPostGIS.hpp"
+#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_SINGLE_TABLE_HPP__
+#define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_SINGLE_TABLE_HPP__
 
 #include "../core/Shared.hpp"
-#include "../core/data-access/DataAccessorDcp.hpp"
+#include "DataAccessorDcpPostGIS.hpp"
 
 namespace terrama2
 {
   namespace core
   {
     /*!
-      \class DataAccessorDcpPostGIS
-      \brief DataAccessor for DCP DataSeries in a PostGIS database.
+      \class DataAccessorDcpSingleTable
+      \brief DataAccessor for DCP DataSeries in a single table of a PostGIS database.
 
     */
-    class TMIMPLEXPORT DataAccessorDcpPostGIS : public DataAccessorDcp, public DataAccessorPostGIS
+    class TMIMPLEXPORT DataAccessorDcpSingleTable : public DataAccessorDcpPostGIS
     {
     public:
-      DataAccessorDcpPostGIS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true);
-      virtual ~DataAccessorDcpPostGIS() = default;
+      DataAccessorDcpSingleTable(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true);
+      virtual ~DataAccessorDcpSingleTable() = default;
 
       static DataAccessorPtr make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries);
-      static DataAccessorType dataAccessorType(){ return "DCP-postgis"; }
+      static DataAccessorType dataAccessorType(){ return "DCP-single_table"; }
 
     protected:
-      virtual std::string dataSourceType() const override;
-
-      //no geometry column to filter
-      virtual void addGeometryFilter(terrama2::core::DataSetPtr /*dataSet*/, const terrama2::core::Filter& /*filter*/, std::vector<std::string>& /*where*/) const override{}
+      virtual void addExtraConditions(terrama2::core::DataSetPtr /*dataSet*/, std::vector<std::string>& /*whereConditions*/) const override;
+      virtual std::string getDataSetTableName(DataSetPtr dataSet) const override;
+      std::string getDCPIdPorperty(terrama2::core::DataSetPtr dataSet) const;
+      std::string getDCPId(terrama2::core::DataSetPtr dataSet) const;
     };
   }
 }
 
-#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_POSTGIS_HPP__
+#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_SINGLE_TABLE_HPP__

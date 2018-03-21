@@ -298,6 +298,8 @@ void terrama2::core::DataStoragerTable::store(DataSetSeries series, DataSetPtr o
     newDataSetType = transactorDestination->getDataSetType(destinationDataSetName);
   }
 
+  adapt(series, outputDataSet);
+
   const auto& oldPropertiesList = newDataSetType->getProperties();
   for(const auto & property : datasetType->getProperties())
   {
