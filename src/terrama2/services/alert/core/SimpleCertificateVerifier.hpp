@@ -30,6 +30,9 @@
 #ifndef __TERRAMA2_SERVICES_ALERT_CORE_SIMPLE_CERTIFICATE_VERIFIER_HPP__
 #define __TERRAMA2_SERVICES_ALERT_CORE_SIMPLE_CERTIFICATE_VERIFIER_HPP__
 
+// TerraMa2
+#include "Config.hpp"
+
 #include <vmime/vmime.hpp>
 
 #include <iostream>
@@ -37,7 +40,7 @@
 /*
   \brief This simple certificate verifier only checks if it's a "X.509"
 */
-class SimpleCertificateVerifier : public vmime::security::cert::defaultCertificateVerifier
+class TMALERTCOREEXPORT SimpleCertificateVerifier : public vmime::security::cert::defaultCertificateVerifier
 {
 public:
 	void verify(vmime::shared_ptr <vmime::security::cert::certificateChain> chain, const vmime::string& hostname);

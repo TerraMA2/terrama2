@@ -9,7 +9,7 @@ echo ""
 #
 # Set global session variables:
 #
-export TM_INSTALL=/opt/terrama2/4.0.3
+export TM_INSTALL=/opt/terrama2/4.0.4
 export TL_PATH=/opt/terralib/5.3.1
 export TM_OUT_DIR=`pwd`/../../../build-package
 export CODEBASE=`pwd`/../..

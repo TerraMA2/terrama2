@@ -512,6 +512,20 @@ define([], function() {
             }
           }
 
+          if(self.legend.metadata.creation_type == "editor") {
+            delete self.legend.metadata.xml_style;
+          } else if(self.legend.metadata.creation_type == "xml") {
+            self.legend.colors = [];
+            delete self.legend.bands;
+            delete self.legend.beginColor;
+            delete self.legend.endColor;
+          } else {
+            self.legend.colors = [];
+            delete self.legend.bands;
+            delete self.legend.beginColor;
+            delete self.legend.endColor;
+          }
+
           // If dynamic, schedule validation is required
           if (self.isDynamic) {
             if (self.view.schedule && Object.keys(self.view.schedule).length !== 0) {

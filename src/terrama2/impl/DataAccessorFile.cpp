@@ -858,7 +858,7 @@ std::shared_ptr<te::dt::TimeInstantTZ> terrama2::core::DataAccessorFile::readFil
     }
 
     //update lastest file timestamp
-    if(!lastFileTimestamp.get() || lastFileTimestamp->getTimeInstantTZ().is_special() || *lastFileTimestamp < *thisFileTimestamp)
+    if(!TimeUtils::isValid(lastFileTimestamp) || *lastFileTimestamp < *thisFileTimestamp)
       lastFileTimestamp = thisFileTimestamp;
 
 
@@ -879,25 +879,25 @@ void terrama2::core::DataAccessorFile::applyFilters(const terrama2::core::Filter
   filterDataSetByLastValues(completeDataset, filter);
 
   //if both dates are valid
-  if((lastFileTimestamp.get() && !lastFileTimestamp->getTimeInstantTZ().is_special())
-     && (dataTimeStamp.get() && !dataTimeStamp->getTimeInstantTZ().is_special()))
+  if(TimeUtils::isValid(lastFileTimestamp)
+     && TimeUtils::isValid(dataTimeStamp))
   {
-    (*lastDateTime_) = *dataTimeStamp > *lastFileTimestamp ? *dataTimeStamp : *lastFileTimestamp;
+    lastDateTime_ = *dataTimeStamp > *lastFileTimestamp ? dataTimeStamp : lastFileTimestamp;
   }
-  else if(lastFileTimestamp.get() && !lastFileTimestamp->getTimeInstantTZ().is_special())
+  else if(TimeUtils::isValid(lastFileTimestamp))
   {
     //if only fileTimestamp is valid
-    (*lastDateTime_) = *lastFileTimestamp;
+    lastDateTime_ = lastFileTimestamp;
   }
-  else if(dataTimeStamp.get() && !dataTimeStamp->getTimeInstantTZ().is_special())
+  else if(TimeUtils::isValid(dataTimeStamp))
   {
     //if only dataTimeStamp is valid
-    (*lastDateTime_) = *dataTimeStamp;
+    lastDateTime_ = dataTimeStamp;
   }
   else
   {
     boost::local_time::local_date_time noTime(boost::local_time::not_a_date_time);
-    (*lastDateTime_) = te::dt::TimeInstantTZ(noTime);
+    lastDateTime_ = std::make_shared<te::dt::TimeInstantTZ>(noTime);
   }
 }
 

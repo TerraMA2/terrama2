@@ -62,7 +62,7 @@ namespace terrama2
 
             \return A double value with the result.
           */
-            double sum(const std::string& attribute,
+            TMANALYSISEXPORT double sum(const std::string& attribute,
                        const std::string& dateFilter, boost::python::list ids = boost::python::list());
 
             /*!
@@ -77,7 +77,7 @@ namespace terrama2
 
             \return A double value with the result.
           */
-            double mean(const std::string& attribute,
+            TMANALYSISEXPORT double mean(const std::string& attribute,
                         const std::string& dateFilter, boost::python::list ids = boost::python::list());
 
             /*!
@@ -92,7 +92,7 @@ namespace terrama2
 
             \return A double value with the result.
           */
-            double min(const std::string& attribute,
+            TMANALYSISEXPORT double min(const std::string& attribute,
                        const std::string& dateFilter, boost::python::list ids = boost::python::list());
 
             /*!
@@ -107,7 +107,7 @@ namespace terrama2
 
             \return A double value with the result.
           */
-            double max(const std::string& attribute,
+            TMANALYSISEXPORT double max(const std::string& attribute,
                        const std::string& dateFilter, boost::python::list ids = boost::python::list());
 
             /*!
@@ -122,7 +122,7 @@ namespace terrama2
 
             \return A double value with the result.
           */
-            double median(const std::string& attribute,
+            TMANALYSISEXPORT double median(const std::string& attribute,
                           const std::string& dateFilter, boost::python::list ids = boost::python::list());
 
             /*!
@@ -137,7 +137,7 @@ namespace terrama2
 
             \return A double value with the result.
           */
-            double standardDeviation(const std::string& attribute,
+            TMANALYSISEXPORT double standardDeviation(const std::string& attribute,
                                      const std::string& dateFilter, boost::python::list ids = boost::python::list());
 
             /*!
@@ -152,7 +152,7 @@ namespace terrama2
 
             \return A double value with the result.
           */
-            double variance(const std::string& attribute,
+            TMANALYSISEXPORT double variance(const std::string& attribute,
                             const std::string& dateFilter, boost::python::list ids = boost::python::list());
 
           } // end namespace history

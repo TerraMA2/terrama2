@@ -31,6 +31,7 @@
 #define __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_TIF_HPP__
 
 //TerraMA2
+#include "Config.hpp"
 #include "../core/data-access/DataStorager.hpp"
 #include "../core/utility/Logger.hpp"
 
@@ -48,7 +49,7 @@ namespace terrama2
     /*!
       \brief DataStoragerTiff Class to create raster tif files.
     */
-    class DataStoragerTiff : public DataStorager
+    class TMIMPLEXPORT DataStoragerTiff : public DataStorager
     {
       public:
         DataStoragerTiff(DataSeriesPtr dataSeries, DataProviderPtr outputDataProvider)

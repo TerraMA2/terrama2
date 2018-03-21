@@ -31,13 +31,14 @@
 #define __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_TABLE_HPP__
 
 //TerraMA2
+#include "Config.hpp"
 #include "../core/data-access/DataStorager.hpp"
 
 namespace terrama2
 {
   namespace core
   {
-    class DataStoragerTable : public DataStorager
+    class TMIMPLEXPORT DataStoragerTable : public DataStorager
     {
       public:
         DataStoragerTable(DataSeriesPtr dataSeries, DataProviderPtr outputDataProvider)
@@ -55,10 +56,12 @@ namespace terrama2
            \exception DataStoragerException Raise if have the same name and different types
         */
         bool isPropertyEqual(te::dt::Property* newProperty, te::dt::Property* oldMember) const;
+        virtual void adapt(terrama2::core::DataSetSeries& /*dataSetSeries*/, DataSetPtr /*outputDataSet*/) const {}
 
       protected:
         std::unique_ptr<te::dt::Property> copyProperty(te::dt::Property* property) const;
         std::shared_ptr<te::da::DataSetType> copyDataSetType(std::shared_ptr<te::da::DataSetType> dataSetType, const std::string& newDataSetName) const;
+        void updateAttributeNames(std::shared_ptr<te::mem::DataSet> dataSet, std::shared_ptr<te::da::DataSetType> dataSetType, DataSetPtr dataset) const;
         virtual std::string driver() const = 0;
     };
   }

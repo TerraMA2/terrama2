@@ -31,6 +31,9 @@
 #ifndef __TERRAMA2_CORE_SYNCHRONIZED_DATASET_HPP__
 #define __TERRAMA2_CORE_SYNCHRONIZED_DATASET_HPP__
 
+// TerraMa2
+#include "../Config.hpp"
+
 // TerraLib
 #include <terralib/dataaccess/dataset/DataSet.h>
 
@@ -57,7 +60,7 @@ namespace terrama2
       \brief Provide synchronized access to a terralib dataset.
 
      */
-    class SynchronizedDataSet
+    class TMCOREEXPORT SynchronizedDataSet
     {
       public:
         /*!

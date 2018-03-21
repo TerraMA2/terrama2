@@ -43,7 +43,7 @@ namespace terrama2
       \brief Base class for DataAccessor classes that access a DCP text file.
 
     */
-    class DataAccessorDCPCSV : public DataAccessorCSV
+    class TMIMPLEXPORT DataAccessorDCPCSV : public DataAccessorCSV
     {
       public:
         DataAccessorDCPCSV(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true);

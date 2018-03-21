@@ -30,6 +30,9 @@
 #ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_PYTHON_INTERPRETER_INIT_HPP__
 #define __TERRAMA2_SERVICES_ANALYSIS_CORE_PYTHON_INTERPRETER_INIT_HPP__
 
+// TerraMa2
+#include "../Config.hpp"
+
 namespace terrama2
 {
   namespace services
@@ -38,7 +41,7 @@ namespace terrama2
     {
       namespace core
       {
-        class PythonInterpreterInit
+        class TMANALYSISEXPORT PythonInterpreterInit
         {
           public:
             PythonInterpreterInit();

@@ -7,6 +7,6 @@ module.exports = function (app) {
   app.post(app.locals.BASE_URL + 'api/Analysis/', passport.isAuthenticated, controller.post);
   app.put(app.locals.BASE_URL + 'api/Analysis/:id', passport.isAuthenticated, controller.put);
   app.delete(app.locals.BASE_URL + 'api/Analysis/:id/delete', passport.isAuthenticated, controller.delete);
-
   app.post(app.locals.BASE_URL + "api/Analysis/validate", passport.isAuthenticated, controller.validate);
+  app.get(app.locals.BASE_URL + 'api/Analysis/changeStatus/:id', passport.isAuthenticated, controller.changeStatus);
 };

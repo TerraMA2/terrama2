@@ -30,6 +30,8 @@
 #ifndef __TERRAMA2_SERVICES_ALERT_CORE_JSONUTILS_HPP__
 #define __TERRAMA2_SERVICES_ALERT_CORE_JSONUTILS_HPP__
 
+// TerraMa2
+#include "Config.hpp"
 #include "Alert.hpp"
 #include "Shared.hpp"
 #include "../../../core/data-model/DataManager.hpp"
@@ -50,13 +52,13 @@ namespace terrama2
           \see Alert for json structure
           \see [Alert at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/services/alert/Alert) for more information.
           */
-        AlertPtr fromAlertJson(QJsonObject json, terrama2::core::DataManager* dataManager);
+        TMALERTCOREEXPORT AlertPtr fromAlertJson(QJsonObject json, terrama2::core::DataManager* dataManager);
 
         /*!
           \brief Creates a Json object from a Alert
           \attention This is a function created for debug and tests
         */
-        QJsonObject toJson(AlertPtr collector);
+        TMALERTCOREEXPORT QJsonObject toJson(AlertPtr collector);
 
       } // end namespace core
     }   // end namespace collector

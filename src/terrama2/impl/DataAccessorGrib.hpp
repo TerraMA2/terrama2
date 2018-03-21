@@ -43,7 +43,7 @@ namespace terrama2
       \brief DataAccessor for GRID DataSeries in Grib format.
 
     */
-    class DataAccessorGrib : public DataAccessorGDAL
+    class TMIMPLEXPORT DataAccessorGrib : public DataAccessorGDAL
     {
     public:
 

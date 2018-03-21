@@ -1,0 +1,37 @@
+<div>
+  <div class="col-md-12">
+    <div class="col-md-5">
+      <div class="form-group" terrama2-show-errors>
+        <label for="data_series">{{ i18n.__('Data series to interpolate')}}:</label>
+        <input class="form-control" id="data_series" name="data_series" type="text" disabled ng-model="input_data_series.name" required>    
+      </div>
+    </div>
+    <div class="col-md-5">
+      <div class="form-group">
+        <div class="checkbox">
+          <label style="font-weight: 700; margin-top:19px;">
+            <input name="active" ng-model="inter.active" type="checkbox"> {{ i18n.__('Active') }}
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-12">
+    <div class="col-md-12">
+      <div class="form-group" terrama2-show-errors>
+        <label for="name">{{ i18n.__('Name') }}:</label>
+        <input class="form-control" id="name" name="name" ng-model="inter.name" placeholder="Interpolator Name" type="text" required>
+        <label class="help-block text-danger" ng-show="forms.generalDataForm.name.$dirty && forms.generalDataForm.name.$error.required">{{ i18n.__('Name is required') }}</label>                
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-12">
+    <div class="col-md-12">
+      <div class="form-group" terrama2-show-errors>
+        <label>{{ i18n.__('Description') }}:</label>
+        <textarea class="form-control" name="description" ng-model="inter.description" rows="3" placeholder="Description"></textarea>
+      </div>
+    </div>
+  </div>
+</div>

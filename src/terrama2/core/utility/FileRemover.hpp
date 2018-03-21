@@ -30,10 +30,13 @@
 #ifndef __TERRAMA2_CORE_UTILITY_FILE_REMOVER_HPP__
 #define __TERRAMA2_CORE_UTILITY_FILE_REMOVER_HPP__
 
-//STL
+// TerraMa2
+#include "../Config.hpp"
+
+// STL
 #include <set>
 
-//QT
+// QT
 #include <QFile>
 #include <QDir>
 #include <QUrl>
@@ -42,7 +45,7 @@ namespace terrama2
 {
   namespace core
   {
-    class FileRemover
+    class TMCOREEXPORT FileRemover
     {
       public:
         FileRemover() {}

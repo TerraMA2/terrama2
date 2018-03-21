@@ -31,7 +31,10 @@ define([], function() {
           targetMethod = MessageBoxService.danger;
         }
       }
-      targetMethod.call(MessageBoxService, i18n.__(title), errorMessage);
+
+      if(targetMethod && targetMethod.call)
+        targetMethod.call(MessageBoxService, i18n.__(title), errorMessage);
+
       delete serviceCache[response.service];
     });
 
@@ -42,11 +45,18 @@ define([], function() {
     Socket.on('statusResponse', function(response) {
       if(response.checking === undefined || (!response.checking && response.status == 400)) {
         if(response.online) {
-          Socket.emit('run', serviceCache[response.service].process_ids);
-          delete $scope.disabledButtons[serviceCache[response.service].service_id];          
-          delete serviceCache[response.service];
+          if(serviceCache[response.service]) {
+            Socket.emit('run', serviceCache[response.service].process_ids);
+            delete $scope.disabledButtons[serviceCache[response.service].service_id];          
+            delete serviceCache[response.service];
+          }
+
+          $scope.servicesInstances[response.service] = true;
         } else {
-          delete $scope.disabledButtons[serviceCache[response.service].service_id];
+          if(serviceCache[response.service])
+            delete $scope.disabledButtons[serviceCache[response.service].service_id];
+
+          $scope.servicesInstances[response.service] = false;
         }
       }
     });
@@ -69,6 +79,10 @@ define([], function() {
 
     $scope.link = function(object) {
       return BASE_URL + "configuration/analysis/" + object.id + "/edit";
+    };
+
+    $scope.statusChangeLink = function(object) {
+      return BASE_URL + "api/Analysis/changeStatus/" + object.id;
     };
 
     if(config.message !== "") {
@@ -158,8 +172,15 @@ define([], function() {
       }
     };
 
+    $scope.servicesInstances = {};
+
     AnalysisService.init(restriction)
       .then(function(analysis) {
+        analysis.forEach(function(instance) {
+          Socket.emit("status", { service: instance.service_instance_id });
+          $scope.servicesInstances[instance.service_instance_id] = false;
+        });
+
         $scope.model = analysis;
 
         $timeout(function() {

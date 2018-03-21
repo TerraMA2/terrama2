@@ -438,19 +438,19 @@ std::vector<std::string> terrama2::core::splitString(const std::string& text, ch
   return splittedString;
 }
 
-std::vector<std::shared_ptr<te::dt::DateTime> > terrama2::core::getAllDates(te::da::DataSet* teDataset,
-                                                                            const std::string& datetimeColumnName)
+std::vector<std::shared_ptr<te::dt::TimeInstantTZ> > terrama2::core::getAllDates(te::da::DataSet* teDataset,
+                                                                                 const std::string& datetimeColumnName)
 {
-  std::vector<std::shared_ptr<te::dt::DateTime> > vecDates;
+  std::vector<std::shared_ptr<te::dt::TimeInstantTZ> > vecDates;
 
   teDataset->moveBeforeFirst();
   while(teDataset->moveNext())
   {
     // Retrieve all execution dates of dataset
-    std::shared_ptr<te::dt::DateTime> executionDate = teDataset->getDateTime(datetimeColumnName);
+    std::shared_ptr<te::dt::TimeInstantTZ> executionDate(static_cast<te::dt::TimeInstantTZ*>(teDataset->getDateTime(datetimeColumnName).release()));
 
     auto it = std::lower_bound(vecDates.begin(), vecDates.end(), executionDate,
-                               [&](std::shared_ptr<te::dt::DateTime> const& first, std::shared_ptr<te::dt::DateTime> const& second)
+                               [&](std::shared_ptr<te::dt::TimeInstantTZ> const& first, std::shared_ptr<te::dt::TimeInstantTZ> const& second)
     {
               return *first < *second;
   });

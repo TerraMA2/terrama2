@@ -30,6 +30,8 @@
 #ifndef __TERRAMA2_SERVICES_ALERT_CORE_DOCUMENT_FACTORY_HPP__
 #define __TERRAMA2_SERVICES_ALERT_CORE_DOCUMENT_FACTORY_HPP__
 
+// TerraMa2
+#include "../Config.hpp"
 #include "../Shared.hpp"
 
 // TerraLib
@@ -48,7 +50,7 @@ namespace terrama2
     {
       namespace core
       {
-        class DocumentFactory : public te::common::Singleton<DocumentFactory>
+        class TMALERTCOREEXPORT DocumentFactory : public te::common::Singleton<DocumentFactory>
         {
           public:
             //! DataAccessor constructor function.

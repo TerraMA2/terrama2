@@ -47,7 +47,7 @@ namespace terrama2
     struct Filter;
 
 
-    class GrADSDataDescriptor
+    class TMIMPLEXPORT GrADSDataDescriptor
     {
       public:
         enum DimensionType
@@ -139,7 +139,7 @@ namespace terrama2
     /*!
       \brief DataAccessor for GRID DataSeries in GrADS format.
     */
-    class DataAccessorGrADS : public DataAccessorGDAL
+    class TMIMPLEXPORT DataAccessorGrADS : public DataAccessorGDAL
     {
       public:
 

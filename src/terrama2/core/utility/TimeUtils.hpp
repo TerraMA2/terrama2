@@ -32,6 +32,9 @@
 
 // TerraLib
 #include <terralib/datatype/TimeInstantTZ.h>
+
+// TerraMa2
+#include "../Config.hpp"
 #include "../data-model/Schedule.hpp"
 
 namespace terrama2
@@ -50,8 +53,8 @@ namespace terrama2
 
         \return A TimeInstantTZ  with the current time in UTC.
       */
-      std::shared_ptr< te::dt::TimeInstantTZ > nowUTC();
-      boost::local_time::local_date_time nowBoostLocal();
+      TMCOREEXPORT std::shared_ptr< te::dt::TimeInstantTZ > nowUTC();
+      TMCOREEXPORT boost::local_time::local_date_time nowBoostLocal();
 
       /*!
         \brief Add or subtrac a number of months from a TimeInstantTZ
@@ -59,7 +62,7 @@ namespace terrama2
         \param timeInstant A TimeInstantTZ to be added or subtracted
         \param month A number of months to add or subtract in the TimeInstantTZ
        */
-      void addMonth(std::shared_ptr<te::dt::TimeInstantTZ> timeInstant, int32_t months);
+      TMCOREEXPORT void addMonth(std::shared_ptr<te::dt::TimeInstantTZ> timeInstant, int32_t months);
 
       /*!
         \brief Add or subtrac a number of days from a TimeInstantTZ
@@ -67,7 +70,7 @@ namespace terrama2
         \param timeInstant A TimeInstantTZ to be added or subtracted
         \param days A number of days to add or subtract in the TimeInstantTZ
        */
-      void addDay(std::shared_ptr< te::dt::TimeInstantTZ > timeInstant, int32_t days);
+      TMCOREEXPORT void addDay(std::shared_ptr< te::dt::TimeInstantTZ > timeInstant, int32_t days);
 
       /*!
         \brief Add or subtrac a number of years from a TimeInstantTZ
@@ -75,7 +78,7 @@ namespace terrama2
         \param timeInstant A TimeInstantTZ to be added or subtracted
         \param years A number of years to add or subtract in the TimeInstantTZ
        */
-      void addYear(std::shared_ptr< te::dt::TimeInstantTZ > timeInstant, int32_t years);
+      TMCOREEXPORT void addYear(std::shared_ptr< te::dt::TimeInstantTZ > timeInstant, int32_t years);
 
       /*!
         \brief Read units of time from string and convert it to the given unit.
@@ -84,7 +87,7 @@ namespace terrama2
         \param unitName The name of the output unit, it must be registered in UnitsOfMeasureManager.
         \param defaultUnit The default unit to be used in case there is no unit in the given string.
        */
-      double convertTimeString(const std::string& time, std::string unitName, const std::string& defaultUnit = "");
+      TMCOREEXPORT double convertTimeString(const std::string& time, std::string unitName, const std::string& defaultUnit = "");
 
       /*!
         \brief Converts a date string to TimeInstantTZ object.
@@ -93,7 +96,7 @@ namespace terrama2
         \param mask Date mask.
         \return The TimeInstantTZ object created.
        */
-      std::shared_ptr<te::dt::TimeInstantTZ> stringToTimestamp(const std::string& dateTime, const std::string& mask);
+      TMCOREEXPORT std::shared_ptr<te::dt::TimeInstantTZ> stringToTimestamp(const std::string& dateTime, const std::string& mask);
 
       /*!
         \brief Converts a date string to a boost local date object.
@@ -102,9 +105,9 @@ namespace terrama2
         \param mask Date mask.
         \return The boost local date object created.
        */
-      boost::local_time::local_date_time stringToBoostLocalTime(const std::string& dateTime, const std::string& mask);
+      TMCOREEXPORT boost::local_time::local_date_time stringToBoostLocalTime(const std::string& dateTime, const std::string& mask);
 
-      std::string boostLocalTimeToString(const boost::local_time::local_date_time& dateTime, const std::string& mask);
+      TMCOREEXPORT std::string boostLocalTimeToString(const boost::local_time::local_date_time& dateTime, const std::string& mask);
 
 
       /*!
@@ -112,7 +115,7 @@ namespace terrama2
        \param dataSchedule The schedule struct with the information for when a process should be executed
        \return A double containing the frequency in seconds
        */
-      double frequencySeconds(const Schedule& dataSchedule);
+      TMCOREEXPORT double frequencySeconds(const Schedule& dataSchedule);
 
       /*!
        \brief A method to calculate the seconds until the scheduled date and time in stored in the Schedule
@@ -120,13 +123,15 @@ namespace terrama2
        \param baseTime The time to be used to calculate how many seconds until the scheduled time, if null it will use the current time.
        \return A double containing the seconds until the scheduled timestamp
        */
-      double scheduleSeconds(const Schedule& dataSchedule, std::shared_ptr < te::dt::TimeInstantTZ > baseTime = std::shared_ptr < te::dt::TimeInstantTZ >());
+      TMCOREEXPORT double scheduleSeconds(const Schedule& dataSchedule, std::shared_ptr < te::dt::TimeInstantTZ > baseTime = std::shared_ptr < te::dt::TimeInstantTZ >());
 
 
-      std::string terramaDateMask2BoostFormat(const std::string& mask);
+      TMCOREEXPORT std::string terramaDateMask2BoostFormat(const std::string& mask);
 
       //! Return iso string from TimeInstantTZ
-      std::string getISOString(std::shared_ptr<te::dt::TimeInstantTZ> timeinstant);
+      TMCOREEXPORT std::string getISOString(std::shared_ptr<te::dt::TimeInstantTZ> timeinstant);
+
+      TMCOREEXPORT bool isValid(std::shared_ptr<te::dt::TimeInstantTZ> timeinstant);
     }
   }
 }

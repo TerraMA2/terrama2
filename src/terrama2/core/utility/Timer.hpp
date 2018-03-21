@@ -32,15 +32,17 @@
 #define __TERRAMA2_CORE_TIMER_HPP__
 
 // TerraMA2
+#include "../Config.hpp"
 #include "../Typedef.hpp"
 #include "../data-model/Schedule.hpp"
 
-//Qt
+// Qt
 #include <QTimer>
 
-//terralib
+// Terralib
 #include <terralib/datatype/TimeInstantTZ.h>
 
+// STL
 #include <memory>
 
 namespace terrama2
@@ -52,7 +54,7 @@ namespace terrama2
 
       This class when created starts a timer based on the Schedule that will emit a timeoutSignal.
     */
-    class Timer : public QTimer
+    class TMCOREEXPORT Timer : public QTimer
     {
       Q_OBJECT
 

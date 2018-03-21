@@ -31,6 +31,7 @@
 #define __TERRAMA2_SERVICES_VIEW_CORE_MAPS_SERVER_FACTORY_HPP__
 
 // TerraMA2
+#include "Config.hpp"
 #include "Typedef.hpp"
 #include "Shared.hpp"
 
@@ -50,7 +51,7 @@ namespace terrama2
     {
       namespace core
       {
-        class MapsServerFactory : public te::common::Singleton<MapsServerFactory>
+        class TMVIEWEXPORT MapsServerFactory : public te::common::Singleton<MapsServerFactory>
         {
           public:
             //! MapsServer constructor function.

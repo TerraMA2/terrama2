@@ -244,6 +244,7 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
     }
 
     std::mutex mutex;
+    // thread operation, use caution!!!
     auto intersect = [interDs, collectedData,
                       collectedGeomPropertyPos, intersectionGeomPos,
                       interProperties, mapAlias,
@@ -251,10 +252,16 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
                       &mutex,
                       outputDs](size_t begin, size_t end)
     {
+      // interate over the indexes assigned for this thread
+      // open-ended [begin-end)
       for(auto i : boost::irange(begin, end))
       {
+        // sanity check, does the geometry exist?
+        if(interDs->isNull(i, intersectionGeomPos))
+          continue;
+
         auto currGeom = interDs->getGeometry(i, intersectionGeomPos);
-        if(!currGeom.get())
+        if(!currGeom)
           continue;
 
         terrama2::core::verify::srid(currGeom->getSRID());
@@ -267,7 +274,12 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
 
         for(size_t k = 0; k < report.size(); ++k)
         {
+          // sanity check, does the geometry exist?
+          if(collectedData->isNull(i, collectedGeomPropertyPos))
+            continue;
+
           std::shared_ptr<te::gm::Geometry> occurrence = collectedData->getGeometry(report[k], collectedGeomPropertyPos);
+          terrama2::core::verify::srid(occurrence->getSRID());
           if(occurrence->getSRID() != 4326)
             occurrence->transform(4326);
 
@@ -280,6 +292,7 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
             std::string name = property->getName();
             std::string propName = mapAlias.at(name);
 
+            // check if the attribute has a value
             if(interDs->isNull(i, propName))
               continue;
 
@@ -289,7 +302,7 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
 
             std::unique_lock<std::mutex> lock(mutex);
             outputDs->move(report[k]);
-            outputDs->setValue(name, dynamic_cast<te::dt::AbstractData*>(ad.get()->clone()));
+            outputDs->setValue(name, ad->clone());
           }
         }
       }
@@ -307,12 +320,12 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
     std::vector< std::future<void> > promises;
     while(end < interDs->size())
     {
-      TERRAMA2_LOG_DEBUG() << "intersection: new thread!";
       begin = end;
       end = begin+step;
       if(end > interDs->size())
         end = interDs->size();
 
+      // instantiate a thread for each group of indexes
       auto future = std::async(std::launch::async, intersect, begin, end);
       promises.push_back(std::move(future));
     }

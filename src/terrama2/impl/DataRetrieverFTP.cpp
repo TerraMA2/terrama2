@@ -375,6 +375,7 @@ void terrama2::core::DataRetrieverFTP::retrieveDataCallback(const std::string& m
         try
         {
           curlwrapper_->downloadFile(uriOrigin, filePath);
+          TERRAMA2_LOG_WARNING() << QObject::tr("Finished downloading file: %1").arg(QString::fromStdString(file));
           processFile(temporaryDataDir, file);
         }
         catch(const te::Exception& e)

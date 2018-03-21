@@ -83,7 +83,7 @@ namespace terrama2
 
             This class stores a address to a GeoServer and the workspace in the server.
           */
-        class GeoServer : public MapsServer
+        class TMVIEWEXPORT GeoServer : public MapsServer
         {
           public:
 

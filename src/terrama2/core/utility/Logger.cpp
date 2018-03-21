@@ -41,7 +41,7 @@ void logFormatter(const boost::log::record_view& rec, boost::log::formatting_ost
   case terrama2::core::Logger::WARNING:
     stream << "<WARNING>";
     break;
-  case terrama2::core::Logger::ERROR:
+  case terrama2::core::Logger::T_ERROR:
   {
     stream << "<ERROR>";
     stream << " {" << boost::log::extract<std::string>("SrcFile", rec) << ", " << boost::log::extract<int>("RecordLine", rec) << "}";

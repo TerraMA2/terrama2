@@ -30,6 +30,7 @@
 #ifndef __TERRAMA2_SERVICES_ALERT_CORE_RUN_ALERT_HPP__
 #define __TERRAMA2_SERVICES_ALERT_CORE_RUN_ALERT_HPP__
 
+#include "Config.hpp"
 #include "../../../core/Shared.hpp"
 #include "../../../core/utility/Service.hpp"
 #include "../../../core/utility/FileRemover.hpp"
@@ -41,6 +42,7 @@
 #include "DataManager.hpp"
 
 #include <terralib/memory/DataSet.h>
+#include <terralib/datatype/SimpleProperty.h>
 
 #include <unordered_map>
 
@@ -65,7 +67,7 @@ namespace terrama2
     {
       namespace core
       {
-        class AlertExecutor : public QObject
+        class TMALERTCOREEXPORT AlertExecutor : public QObject
         {
             Q_OBJECT
 
@@ -104,23 +106,23 @@ namespace terrama2
             //! Get the propper function to evaluate the risk level of a value.
             std::tuple<int, std::string, std::string> getRisk(terrama2::core::LegendPtr legend, std::shared_ptr<te::da::DataSet> teDataSet, size_t pos);
 
-            std::map<std::shared_ptr<te::dt::AbstractData>, std::map<std::string, std::pair<std::string, uint32_t> > > getResultMap(terrama2::core::LegendPtr risk,
-                         size_t pos,
-                         te::dt::Property* idProperty,
-                         const std::string& datetimeColumnName,
-                         std::shared_ptr<te::da::DataSet> teDataset,
-                         std::vector<std::shared_ptr<te::dt::DateTime> > vecDates);
+            std::map<std::string /*id*/, std::map<std::string /*date*/, std::pair<uint32_t /*level*/, std::string /*value*/> > > getResultMap(terrama2::core::LegendPtr risk,
+                                                                                                                                              size_t pos,
+                                                                                                                                              te::dt::Property* idProperty,
+                                                                                                                                              const std::string& datetimeColumnName,
+                                                                                                                                              std::shared_ptr<te::da::DataSet> teDataset,
+                                                                                                                                              std::vector<std::shared_ptr<te::dt::TimeInstantTZ> > vecDates);
 
-            std::shared_ptr<te::mem::DataSet> populateMonitoredObjectAlertDataset(std::vector<std::shared_ptr<te::dt::DateTime> > vecDates,
-                                                                                  std::map<std::shared_ptr<te::dt::AbstractData>, std::map<std::string, std::pair<std::string, uint32_t> >> riskResultMap,
+            std::shared_ptr<te::mem::DataSet> populateMonitoredObjectAlertDataset(std::vector<std::shared_ptr<te::dt::TimeInstantTZ> > vecDates,
+                                                                                  std::map<std::string /*id*/, std::map<std::string /*date*/, std::pair<uint32_t /*level*/, std::string /*value*/> > > riskResultMap,
                                                                                   AlertPtr alertPtr,
-                                                                                  te::dt::Property* fkProperty,
+                                                                                  std::shared_ptr<te::dt::Property> fkProperty,
                                                                                   std::shared_ptr<te::da::DataSetType> alertDataSetType);
 
-            std::shared_ptr<te::mem::DataSet> populateGridAlertDataset( terrama2::core::DataSetPtr dataset,
+            std::shared_ptr<te::mem::DataSet> populateGridAlertDataset(terrama2::core::DataSetPtr dataset,
                                                                         AlertPtr alertPtr,
                                                                         terrama2::core::LegendPtr legend,
-                                                                        std::vector<std::shared_ptr<te::dt::DateTime> > vecDates,
+                                                                        std::vector<std::shared_ptr<te::dt::TimeInstantTZ> > vecDates,
                                                                         std::shared_ptr<te::da::DataSet> teDataset,
                                                                         std::shared_ptr<te::da::DataSetType> dataSetType,
                                                                         std::string datetimeColumnName);
@@ -131,7 +133,7 @@ namespace terrama2
 
             std::shared_ptr<te::mem::DataSet> monitoredObjectAlert(std::shared_ptr<te::da::DataSetType> dataSetType,
                                                                    std::string datetimeColumnName,
-                                                                   std::vector<std::shared_ptr<te::dt::DateTime> > vecDates,
+                                                                   std::vector<std::shared_ptr<te::dt::TimeInstantTZ> > vecDates,
                                                                    AlertPtr alertPtr,
                                                                    terrama2::core::LegendPtr legend,
                                                                    terrama2::core::Filter filter,
@@ -144,7 +146,7 @@ namespace terrama2
 
             std::shared_ptr<te::mem::DataSet> gridAlert(std::shared_ptr<te::da::DataSetType> dataSetType,
                                                         std::string datetimeColumnName,
-                                                        std::vector<std::shared_ptr<te::dt::DateTime> > vecDates,
+                                                        std::vector<std::shared_ptr<te::dt::TimeInstantTZ> > vecDates,
                                                         AlertPtr alertPtr,
                                                         terrama2::core::LegendPtr legend,
                                                         terrama2::core::Filter filter,

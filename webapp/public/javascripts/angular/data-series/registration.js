@@ -1804,6 +1804,9 @@ define([], function() {
               }
             }
 
+            if ($scope.isUpdating)
+              dSets.id = configuration.dataSeries.output.dataSets[0].id;
+
             dSets.format = _makeFormat(fmt);
             dSets.active = true,
             out = [dSets];
@@ -1847,6 +1850,24 @@ define([], function() {
             removedDcps: values.removedDcps,
             dataSets: out
           };
+
+          var inputDataSetsLength = dataObject.dataSeries.dataSets.length;
+
+          for(var i = 0; i < inputDataSetsLength; i++) {
+            if(outputDataSeries.dataSets[i].format.inout_attribute_map && typeof outputDataSeries.dataSets[i].format.inout_attribute_map == "string")
+              outputDataSeries.dataSets[i].format.inout_attribute_map = JSON.parse(outputDataSeries.dataSets[i].format.inout_attribute_map);
+
+            for(var inputKey in dataObject.dataSeries.dataSets[i].format) {
+              if(inputKey.substr(inputKey.length - 9) === "_property" && outputDataSeries.dataSets[i].format[inputKey]) {
+                if(!outputDataSeries.dataSets[i].format.inout_attribute_map)
+                  outputDataSeries.dataSets[i].format.inout_attribute_map = {};
+
+                outputDataSeries.dataSets[i].format.inout_attribute_map[dataObject.dataSeries.dataSets[i].format[inputKey]] = outputDataSeries.dataSets[i].format[inputKey];
+              }
+            }
+
+            outputDataSeries.dataSets[i].format.inout_attribute_map = JSON.stringify(outputDataSeries.dataSets[i].format.inout_attribute_map);
+          }
 
           _sendRequest({
             dataToSend: {input: dataObject.dataSeries, output: outputDataSeries},
@@ -1939,6 +1960,10 @@ define([], function() {
               active: true,//$scope.dataSeries.active,
               format: format
             };
+
+            if ($scope.isUpdating)
+              dataSet.id = configuration.dataSeries.input.dataSets[0].id;
+
             dataToSend.dataSets.push(dataSet);
             break;
 
