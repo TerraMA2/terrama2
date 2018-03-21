@@ -8,7 +8,7 @@ module.exports = function(app) {
       var projects = DataManager.listProjects();
 
       if(request.originalUrl == app.locals.BASE_URL + "firstAccess" && projects.length == 1)
-        return response.redirect(app.locals.BASE_URL + "configuration/projects/" + projects[0].name + "/activate");
+        return response.redirect(app.locals.BASE_URL + "configuration/projects/" + projects[0].id + "/id/activate");
       else
         return response.redirect(app.locals.BASE_URL + "configuration/projects");
     } else {
