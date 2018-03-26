@@ -44,6 +44,7 @@
 #include "DataAccessorGeometricObjectPostGIS.hpp"
 #include "DataAccessorGeometricObjectOGR.hpp"
 #include "DataAccessorWildFireEvent.hpp"
+#include "DataAccessorJsonCemaden.hpp"
 
 #include "DataAccessorStaticDataOGR.hpp"
 #include "DataAccessorStaticDataPostGIS.hpp"
@@ -86,6 +87,7 @@ void terrama2::core::registerFactories()
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorGeometricObjectOGR::dataAccessorType(), terrama2::core::DataAccessorGeometricObjectOGR::make);
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorWildFireEvent::dataAccessorType(), terrama2::core::DataAccessorWildFireEvent::make);
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorDcpSingleTable::dataAccessorType(), terrama2::core::DataAccessorDcpSingleTable::make);
+  terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorJsonCemaden::dataAccessorType(), terrama2::core::DataAccessorJsonCemaden::make);
 
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorStaticDataOGR::dataAccessorType(), terrama2::core::DataAccessorStaticDataOGR::make);
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorStaticDataPostGIS::dataAccessorType(), terrama2::core::DataAccessorStaticDataPostGIS::make);
