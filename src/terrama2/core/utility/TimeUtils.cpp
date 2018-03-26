@@ -63,6 +63,12 @@ boost::local_time::local_date_time terrama2::core::TimeUtils::stringToBoostLocal
   boost::local_time::local_date_time ldt(boost::local_time::not_a_date_time);
   ss >> ldt; // do the parse
 
+  if(!ldt.zone())
+  {
+    boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone("UTC+00"));
+    ldt = boost::local_time::local_date_time(ldt.local_time(), zone);
+  }
+
   verify::date(ldt);
 
   return ldt;
