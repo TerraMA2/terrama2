@@ -535,6 +535,7 @@ define([], function(){
       };
 
       $scope.$on('storagerFormatChange', function(event, args) {
+        self.disableStorageFormatSelection = true;
         self.formatSelected = args.format;
         // todo: fix it. It is hard code
         self.tableFieldsStorager = [];
