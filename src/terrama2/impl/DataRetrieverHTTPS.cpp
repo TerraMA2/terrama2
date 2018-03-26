@@ -35,10 +35,6 @@ terrama2::core::DataRetrieverHTTPS::DataRetrieverHTTPS(DataProviderPtr dataprovi
 {
 }
 
-terrama2::core::DataRetrieverHTTPS::~DataRetrieverHTTPS()
-{
-}
-
 terrama2::core::DataRetrieverPtr terrama2::core::DataRetrieverHTTPS::make(DataProviderPtr dataProvider)
 {
   std::unique_ptr<CurlWrapperHttp> curlwrapper(new CurlWrapperHttp());

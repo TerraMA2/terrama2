@@ -103,11 +103,6 @@ bool terrama2::core::DataRetrieverFTP::isRetrivable() const noexcept
   return true;
 }
 
-terrama2::core::DataRetrieverFTP::~DataRetrieverFTP()
-{
-
-}
-
 std::vector<std::string> terrama2::core::DataRetrieverFTP::getFoldersList(const std::vector<std::string>& uris,
                                                                           const std::string& foldersMask) const
 {

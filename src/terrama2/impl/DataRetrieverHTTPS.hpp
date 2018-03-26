@@ -61,15 +61,13 @@ namespace terrama2
          * \brief DataRetrieverHTTPS Default Destructor.
          *
          */
-        virtual ~DataRetrieverHTTPS();
+        virtual ~DataRetrieverHTTPS() = default;
 
         static DataRetrieverPtr make(DataProviderPtr dataProvider);
         static DataRetrieverType dataRetrieverType() { return "HTTPS"; }
       private:
         std::unique_ptr<CurlWrapperHttp> curlwrapper_; //!< Curl handler.
     };
-
-    typedef std::shared_ptr<DataRetriever> DataRetrieverPtr;//!< Shared pointer to a DataRetriever.
   }
 }
 

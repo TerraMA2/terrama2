@@ -92,11 +92,6 @@ bool terrama2::core::DataRetrieverHTTP::isRetrivable() const noexcept
   return true;
 }
 
-terrama2::core::DataRetrieverHTTP::~DataRetrieverHTTP()
-{
-
-}
-
 std::vector<std::string> terrama2::core::DataRetrieverHTTP::listFiles(const std::string& uri) const
 {
   std::vector<std::string> dirList = curlwrapper_->listFiles(te::core::URI(uri));
@@ -140,23 +135,7 @@ std::string terrama2::core::DataRetrieverHTTP::retrieveData(const std::string& m
                                                            const std::string& temporaryFolderUri,
                                                            const std::string& foldersMask) const
 {
-  std::string downloadBaseFolderUri = temporaryFolderUri + "/";
-
-  if(temporaryFolderUri.empty())
-  {
-    boost::filesystem::path tempDir = boost::filesystem::temp_directory_path();
-    boost::filesystem::path tempTerrama(tempDir.string()+"/terrama2");
-    boost::filesystem::path downloadBaseDir = boost::filesystem::unique_path(tempTerrama.string()+"/%%%%-%%%%-%%%%-%%%%");
-
-    // Create the directory where you will download the files.
-    QDir dir(QString::fromStdString(downloadBaseDir.string()));
-    if(!dir.exists())
-      dir.mkpath(QString::fromStdString(downloadBaseDir.string()));
-
-    std::string scheme = "file://";
-    downloadBaseFolderUri = scheme + downloadBaseDir.string();
-    remover->addTemporaryFolder(downloadBaseFolderUri);
-  }
+  std::string downloadBaseFolderUri = getTemporaryFolder(remover, temporaryFolderUri);
 
   try
   {

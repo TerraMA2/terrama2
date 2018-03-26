@@ -81,7 +81,7 @@ namespace terrama2
          * \brief DataRetrieverHTTP Default Destructor.
          *
          */
-        virtual ~DataRetrieverHTTP();
+        virtual ~DataRetrieverHTTP() = default;
 
         //comments on parent
         virtual bool isRetrivable() const noexcept override;
@@ -94,7 +94,7 @@ namespace terrama2
          * \exception DataRetrieverException when could not perform the download files.
          * \exception DataRetrieverException when Unknown error, Could not perform the download files.
         */
-        virtual std::string retrieveData(const std::string& mask, 
+        virtual std::string retrieveData(const std::string& mask,
                                          const Filter& filter,
                                          const std::string& timezone,
                                          std::shared_ptr<terrama2::core::FileRemover> remover,
@@ -114,11 +114,9 @@ namespace terrama2
 
         std::vector<std::string> listFiles(const std::string& uri) const;
 
-      private:
+      protected:
         std::unique_ptr<CurlWrapperHttp> curlwrapper_; //!< Curl handler.
     };
-
-    typedef std::shared_ptr<DataRetriever> DataRetrieverPtr;//!< Shared pointer to a DataRetriever.
   }
 }
 
