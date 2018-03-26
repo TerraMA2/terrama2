@@ -92,12 +92,12 @@
                 active: dataProviderReceived.active || false
               };
 
-              if(uriObject.protocol == 'FTP' || uriObject.protocol == 'HTTP' || uriObject.protocol == 'HTTPS') {
+              if (uriObject.hasOwnProperty("timeout")) {
                 dataProviderObject['configuration'] = {
                   timeout: uriObject.timeout
                 }
-
-                if(uriObject.protocol == 'FTP')
+                
+                if (uriObject.hasOwnProperty("active_mode"))
                   dataProviderObject['configuration']['active_mode'] = uriObject.active_mode;
               }
 
@@ -174,13 +174,13 @@
         uri: requester.uri
       };
 
-      if(uriObject.protocol == 'FTP' || uriObject.protocol == 'HTTP' || uriObject.protocol == 'HTTPS') {
-        toUpdate['configuration'] = {
+      if (uriObject.hasOwnProperty("timeout")) {
+        dataProviderObject['configuration'] = {
           timeout: uriObject.timeout
         }
 
-        if(uriObject.protocol == 'FTP')
-          toUpdate['configuration']['active_mode'] = uriObject.active_mode;
+        if (uriObject.hasOwnProperty("active_mode"))
+          dataProviderObject['configuration']['active_mode'] = uriObject.active_mode;
       }
 
       return DataManager.updateDataProvider(dataProviderId, toUpdate)
