@@ -147,6 +147,7 @@ var DataManager = module.exports = {
         inserts.push(self.addDataProviderType({id: 4, name: "POSTGIS", description: "Desc Postgis"}));
         //inserts.push(self.addDataProviderType({id: 5, name: "SFTP", description: "Desc SFTP"}));
         inserts.push(self.addDataProviderType({id: 6, name: "HTTPS", description: "Desc Https"}));
+        inserts.push(self.addDataProviderType({ id: 7, name: "STATIC-HTTP", description: "Desc Static Http" }));
 
         var listVersionsPromise = self.listVersions({}).then(function(versions) {
           if(versions.length == 0 ) {

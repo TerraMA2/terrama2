@@ -6,6 +6,7 @@ var FtpRequest = require("./FtpRequest");
 var SftpRequest = require("./SftpRequest");
 var HttpRequest = require("./HttpRequest");
 var HttpsRequest = require("./HttpsRequest");
+var StaticHttpRequest = require("./StaticHttpRequest");
 var FileRequest = require("./FileRequest");
 var PostgisRequest = require("./PostgisRequest");
 var WcsRequest = require("./WcsRequest");
@@ -30,6 +31,8 @@ function requestHelper(protocol, requestParameters) {
       return new HttpRequest(requestParameters);
     case "https":
       return new HttpsRequest(requestParameters);
+    case "static-http":
+      return new StaticHttpRequest(requestParameters);
     case "file":
       return new FileRequest(requestParameters);
     case "postgis":
@@ -110,6 +113,8 @@ var RequestFactory = {
 
     // httpsFields
     array.push(HttpsRequest.fields());
+
+    array.push(StaticHttpRequest.fields());
 
     // fileFields
     array.push(FileRequest.fields());

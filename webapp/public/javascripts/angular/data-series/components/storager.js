@@ -66,6 +66,7 @@ define([], function(){
             break;
           case 'HTTP':
           case "HTTPS":
+          case "STATIC-HTTP":
             return BASE_URL + "images/data-server/http/http.png";
             break;
           case 'FTP':
