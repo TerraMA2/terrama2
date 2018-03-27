@@ -45,9 +45,8 @@ void terrama2::core::DataStoragerDCPSingleTable::adapt(terrama2::core::DataSetSe
 {
   auto memDataSet = std::static_pointer_cast<te::mem::DataSet>(dataSetSeries.syncDataSet->dataset());
 
-  auto id = new std::string(std::to_string(outputDataSet->id));
   auto idProperty = new te::dt::StringProperty("dcp_id", te::dt::STRING);
   dataSetSeries.teDataSetType->add(idProperty);
-  auto abstractId = new te::dt::SimpleData<std::string>(*id);
-  memDataSet->add(idProperty->getName(), te::dt::STRING_TYPE, abstractId);
+  std::unique_ptr<te::dt::SimpleData<std::string> > abstractId(new te::dt::SimpleData<std::string>(std::to_string(outputDataSet->id)));
+  memDataSet->add(idProperty->getName(), te::dt::STRING_TYPE, abstractId.get());
 }
