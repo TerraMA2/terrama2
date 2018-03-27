@@ -495,12 +495,14 @@ bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<Synchronize
       return false;
 
     unitedGeom->transform(4326);
-
     if (region->intersects(unitedGeom.get()))
     {
       //crop the raster using the dataset
       if(filter.cropRaster)
       {
+        // transform the crop geometry to the same projection
+        // of the raster image
+        unitedGeom->transform(raster->getSRID());
         //clip raster by union
         auto clipedRaster = raster->clip({unitedGeom.get()}, {}, "EXPANSIBLE");
         //update raster in the dataset
