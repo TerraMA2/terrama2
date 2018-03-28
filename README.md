@@ -190,9 +190,11 @@ Until now its build has been tested on:
 
 After choosing the right branch or tag to work on, if you want to build TerraMA² and generate packages, first take a look at the sections below and read the right tips for automatically building in your platform:
 
-- **[LINUX:](https://github.com/TerraMA2/terrama2/blob/master/LINUX.md)** Contains instructions about how to build and generate TerraMA² package on Linux.
+- **[LINUX:](LINUX.md)** Contains instructions about how to build and generate TerraMA² package on Linux.
 
-- **[MAC:](https://github.com/TerraMA2/terrama2/blob/master/MAC.md)** Contains instructions about how to build and generate TerraMA² package on Mac OS.
+- **[MAC:](MAC.md)** Contains instructions about how to build and generate TerraMA² package on Mac OS.
+
+- **[WINDOWS:](WINDOWS.md)** Contains instructions about how to build and generate TerraMA² package on Windows.
 
 
 ## Reporting Bugs

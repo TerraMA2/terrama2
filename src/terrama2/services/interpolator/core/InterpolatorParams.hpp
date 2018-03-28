@@ -82,7 +82,7 @@ namespace terrama2
             interpolationType_(NEARESTNEIGHBOR),
             srid_(0)
           {
-            filter_.lastValues = std::make_shared<long unsigned int>(1);
+            filter_.lastValues = std::make_shared<size_t>(1);
           }
 
           /*!
