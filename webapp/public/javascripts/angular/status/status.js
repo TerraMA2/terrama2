@@ -214,7 +214,7 @@ define([
           case Globals.enums.ServiceType.INTERPOLATION:
             targetArray = config.interpolators;
             targetMessage = "Interpolator";
-            targetKey = "";
+            targetKey = "dataSeriesOutput";
             break;
         }
 
