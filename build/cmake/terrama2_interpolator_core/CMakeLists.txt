@@ -24,9 +24,9 @@
 #  Author: Frederico Augusto BedÊ
 #
 
-#if(WIN32)
-#  add_definitions(-DTMA_CORE_DLL)
-#endif()
+if(WIN32)
+  add_definitions(-DTMINTERPOLATORDLL)
+endif()
 
 file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/interpolator/core/*.cpp)
 file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/interpolator/core/*.hpp)

@@ -34,6 +34,7 @@
 #include "../../../core/Typedef.hpp"
 #include "../../../core/Shared.hpp"
 
+#include "Config.hpp"
 #include "Interpolator.hpp"
 #include "Typedef.hpp"
 
@@ -59,7 +60,7 @@ namespace terrama2
          *
          * \ingroup interpolator
          */
-        class Service : public terrama2::core::Service
+        class TMINTERPOLATOREXPORT Service : public terrama2::core::Service
         {
           Q_OBJECT
 

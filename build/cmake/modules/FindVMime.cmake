@@ -47,7 +47,7 @@ if(UNIX)
 elseif(WIN32)
 
   find_path(VMIME_INCLUDE_DIR
-            NAMES vmime.h
+            NAMES vmime.h vmime.hpp
             PATH_SUFFIXES include
                           vmime
                           include/vmime)
