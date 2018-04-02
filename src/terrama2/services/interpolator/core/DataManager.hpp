@@ -32,6 +32,7 @@
 
 #include "../../../core/data-model/DataManager.hpp"
 
+#include "Config.hpp"
 #include "Typedef.hpp"
 
 namespace terrama2
@@ -49,7 +50,7 @@ namespace terrama2
          *
          * \ingroup interpolator
          */
-        class DataManager : public terrama2::core::DataManager
+        class TMINTERPOLATOREXPORT DataManager : public terrama2::core::DataManager
         {
             Q_OBJECT
 
