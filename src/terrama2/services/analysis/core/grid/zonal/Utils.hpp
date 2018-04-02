@@ -35,13 +35,14 @@
 #include <string>
 #include <vector>
 #include <memory>
-#include <map>
+#include <unordered_map>
 
 #include <QObject>
 
 #include <terralib/raster/PositionIterator.h>
 
 #include "../../Exception.hpp"
+#include "../../BufferMemory.hpp"
 #include "../../../../../core/utility/BitsetIntersection.hpp"
 #include "../../../../../core/utility/GeoUtils.hpp"
 
