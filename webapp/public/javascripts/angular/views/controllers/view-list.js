@@ -14,7 +14,7 @@ define([], function() {
    * @param {Object} Socket - TerraMA² Socket io module
    * @param {Service} Service - TerraMA² Service object
    */
-  function ViewList($scope, i18n, ViewService, $log, MessageBoxService, $window, $q, Socket, Service, $timeout) {
+  function ViewList($scope, i18n, ViewService, $log, MessageBoxService, $window, $q, Socket, Service, $timeout, DataSeriesSemanticsService) {
     /**
      * View List controller
      * @type {ViewList}
@@ -160,7 +160,7 @@ define([], function() {
     self.servicesInstances = {};
 
     // Initializing async modules
-    $q.all([ViewService.init()])
+    $q.all([ViewService.init(), DataSeriesSemanticsService.init()])
       .then(function() {
         //Dont show views created by alerts
         var viewRestriction = {
@@ -212,32 +212,22 @@ define([], function() {
          * @returns {string}
          */
         self.icon = function(object) {
-          switch(object.dataSeries.semantics){
-            case "OCCURRENCE-postgis":
-            case "OCCURRENCE-wfp":
-            case "OCCURRENCE-lightning":
-            case "Occurrence-generic":
+          const semantics = DataSeriesSemanticsService.get(object.dataSeries.semantics);
+          switch (semantics.data_series_type_name){
+            case "OCCURRENCE":
               return BASE_URL + "images/view/dynamic_data_series/occurrence/large_occurrence_view.png";
               break;
-            case "STATIC_DATA-postgis":
-            case "STATIC_DATA-ogr":
+            case "STATIC_DATA":
               return BASE_URL + "images/view/static_data_series/vetor/large_vector_view.png";
               break;
-            case "GRID-static_gdal":
+            case "GRID":
               return BASE_URL + "images/view/static_data_series/grid/large_grid_view.png";
               break;
-            case "DCP-inpe":
-            case "DCP-toa5":
-            case "DCP-postgis":
-            case "DCP-generic":
+            case "DCP":
               return BASE_URL + "images/view/dynamic_data_series/dcp/large_dcp_view.png";
               break;
-            case "ANALYSIS_MONITORED_OBJECT-postgis":
+            case "ANALYSIS_MONITORED_OBJECT":
               return BASE_URL + "images/view/analysis/large_analysis_view.png";
-              break;
-            case "GRID-gdal":
-            case "GRID-grads":
-              return BASE_URL + "images/view/dynamic_data_series/grid/large_grid_view.png";
               break;
             default:
               return BASE_URL + "images/view/dynamic_data_series/grid/large_grid_view.png";
@@ -335,7 +325,7 @@ define([], function() {
       });
   }
 
-  ViewList.$inject = ["$scope", "i18n", "ViewService", "$log", "MessageBoxService", "$window", "$q", "Socket", "Service", "$timeout"];
+  ViewList.$inject = ["$scope", "i18n", "ViewService", "$log", "MessageBoxService", "$window", "$q", "Socket", "Service", "$timeout", "DataSeriesSemanticsService"];
 
   return ViewList;
 });
