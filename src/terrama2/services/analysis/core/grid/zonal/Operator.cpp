@@ -55,7 +55,8 @@
 double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
                                                                      const std::string& dataSeriesName,
                                                                      const size_t band,
-                                                                     terrama2::services::analysis::core::Buffer buffer)
+                                                                     terrama2::services::analysis::core::Buffer buffer,
+                                                                     std::function<bool(double)> removeCondition)
 {
   OperatorCache cache;
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
@@ -88,7 +89,7 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
   filter.discardAfter = context->getStartTime();
   filter.lastValues = std::make_shared<size_t>(1);
 
-  return operatorImpl(statisticOperation, dataSeriesName, filter, band, buffer, context, cache);
+  return operatorImpl(statisticOperation, dataSeriesName, filter, band, buffer, context, cache, removeCondition);
 }
 
 double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
@@ -173,10 +174,10 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
 
 
         transform(tempValuesMap.cbegin(), tempValuesMap.cend(), back_inserter(values), [](const std::pair<std::pair<int, int>, double>& val){ return val.second;} );
-        // remove every values that are in removeCondition
-        if(removeCondition)
-          boost::range::remove_erase_if(values, removeCondition);
       }
+      // remove every values that are in removeCondition
+      if(removeCondition)
+        boost::range::remove_erase_if(values, removeCondition);
 
       if(!values.empty())
       {
@@ -219,6 +220,17 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
 double terrama2::services::analysis::core::grid::zonal::count(const std::string& dataSeriesName, const size_t band, terrama2::services::analysis::core::Buffer buffer)
 {
   return operatorImpl(StatisticOperation::COUNT, dataSeriesName, band, buffer);
+}
+
+double terrama2::services::analysis::core::grid::zonal::countByValue(const std::string& dataSeriesName, const double value, const size_t band, terrama2::services::analysis::core::Buffer buffer)
+{
+  // count values equal to 'value'
+  return operatorImpl(StatisticOperation::COUNT, dataSeriesName, band, buffer, [value](const double& pixel) { return pixel != value; });
+}
+double terrama2::services::analysis::core::grid::zonal::countByRange(const std::string& dataSeriesName, const double begin, const double end, const size_t band, terrama2::services::analysis::core::Buffer buffer)
+{
+  // count values inside the interval [begin, end)]
+  return operatorImpl(StatisticOperation::COUNT, dataSeriesName, band, buffer, [begin, end](const double& pixel) { return pixel < begin || pixel >= end; });
 }
 
 double terrama2::services::analysis::core::grid::zonal::min(const std::string& dataSeriesName, const size_t band, terrama2::services::analysis::core::Buffer buffer)
