@@ -75,7 +75,8 @@ namespace terrama2
                                 const size_t band,
                                 terrama2::services::analysis::core::Buffer buffer,
                                 terrama2::services::analysis::core::MonitoredObjectContextPtr context,
-                                OperatorCache cache);
+                                OperatorCache cache,
+                                std::function<bool(double)> removeCondition = nullptr);
 
             /*!
               \brief Calculates the number of pixels inside the monitored object.

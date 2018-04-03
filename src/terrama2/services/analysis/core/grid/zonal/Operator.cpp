@@ -39,6 +39,9 @@
 
 #include <QTextStream>
 
+#include <boost/range/algorithm.hpp>
+#include <boost/range/algorithm_ext.hpp>
+
 #include "../../../../../core/data-model/Filter.hpp"
 #include "../../../../../core/utility/Logger.hpp"
 
@@ -94,7 +97,8 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
                                                                     const size_t band,
                                                                     terrama2::services::analysis::core::Buffer buffer,
                                                                     terrama2::services::analysis::core::MonitoredObjectContextPtr context,
-                                                                    OperatorCache cache)
+                                                                    OperatorCache cache,
+                                                                    std::function<bool(double)> removeCondition)
 {
 
   // After the operator lock is released it's not allowed to return any value because it doesn' have the interpreter lock.
@@ -167,17 +171,11 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
         std::map<std::pair<int, int>, double> tempValuesMap;
         utils::getRasterValues<double>(geomResult, raster, band, tempValuesMap);
 
-        // remove from the map every value that is not in condition
-        if(condition)
-        {
-          for( auto it = tempValuesMap.begin(); it != tempValuesMap.end(); )
-          {
-            if( !condition(it->second) ) it = tempValuesMap.erase(it);
-            else ++it;
-          }
-        }
 
         transform(tempValuesMap.cbegin(), tempValuesMap.cend(), back_inserter(values), [](const std::pair<std::pair<int, int>, double>& val){ return val.second;} );
+        // remove every values that are in removeCondition
+        if(removeCondition)
+          boost::range::remove_erase_if(values, removeCondition);
       }
 
       if(!values.empty())
