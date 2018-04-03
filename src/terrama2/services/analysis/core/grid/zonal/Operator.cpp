@@ -167,6 +167,16 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
         std::map<std::pair<int, int>, double> tempValuesMap;
         utils::getRasterValues<double>(geomResult, raster, band, tempValuesMap);
 
+        // remove from the map every value that is not in condition
+        if(condition)
+        {
+          for( auto it = tempValuesMap.begin(); it != tempValuesMap.end(); )
+          {
+            if( !condition(it->second) ) it = tempValuesMap.erase(it);
+            else ++it;
+          }
+        }
+
         transform(tempValuesMap.cbegin(), tempValuesMap.cend(), back_inserter(values), [](const std::pair<std::pair<int, int>, double>& val){ return val.second;} );
       }
 
