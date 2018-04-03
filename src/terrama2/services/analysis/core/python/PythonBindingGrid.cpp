@@ -201,7 +201,9 @@ void terrama2::services::analysis::core::python::Grid::registerGridForecastInter
 #pragma GCC diagnostic ignored "-Wunused-local-typedef"
 
 // // Declaration needed for default parameter restriction
-BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalCount_overloads, terrama2::services::analysis::core::grid::zonal::count, 1, 2)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalCount_overloads, terrama2::services::analysis::core::grid::zonal::count, 1, 3)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalCountByValue_overloads, terrama2::services::analysis::core::grid::zonal::countByValue, 2, 4)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalCountByRange_overloads, terrama2::services::analysis::core::grid::zonal::countByRange, 3, 5)
 BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalMin_overloads, terrama2::services::analysis::core::grid::zonal::min, 1, 3)
 BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalMax_overloads, terrama2::services::analysis::core::grid::zonal::max, 1, 3)
 BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalMean_overloads, terrama2::services::analysis::core::grid::zonal::mean, 1, 3)
@@ -225,8 +227,14 @@ void terrama2::services::analysis::core::python::Grid::registerGridZonalFunction
   scope gridZonalScope = gridZonalModule;
 
   def("count", terrama2::services::analysis::core::grid::zonal::count,
-      gridZonalCount_overloads(args("dataSeriesName", "buffer"),
-                               "Count operator for grid zonal"));
+      gridZonalCount_overloads(args("dataSeriesName", "band", "buffer"),
+                                "Count operator for grid zonal"));
+  def("countByValue", terrama2::services::analysis::core::grid::zonal::countByValue,
+      gridZonalCountByValue_overloads(args("dataSeriesName", "value", "band", "buffer"),
+                                "countByValue operator for grid zonal"));
+  def("countByRange", terrama2::services::analysis::core::grid::zonal::countByRange,
+      gridZonalCountByRange_overloads(args("dataSeriesName", "begin", "end",  "band", "buffer"),
+                                "countByRange operator for grid zonal"));
   def("min", terrama2::services::analysis::core::grid::zonal::min,
       gridZonalMin_overloads(args("dataSeriesName", "band",  "buffer"),
                              "Min operator for grid zonal"));
