@@ -51,6 +51,8 @@
         case globals.enums.DataSeriesType.GRID:
           if (object.isAnalysis){
             return "{[ BASE_URL ]}images/analysis/grid/grid_analysis.png";
+          } else if (object.isInterpolator) {
+            return "{[ BASE_URL ]}images/interpolation/grid/grid.png";
           } else {
             return "{[ BASE_URL ]}images/dynamic-data-series/grid/grid.png";
           }
