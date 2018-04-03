@@ -137,7 +137,7 @@ We have the following branches:
   - **t4.0.1:** Bug fixes
   - **t4.0.2:** Auto update database, terralib 5.3 and bugfixes
   - **t4.0.3:** Major stability fixes
-  - **t4.0.4:** Interpolation service
+  - **t4.0.5:** Interpolation service
 
 For a more complete releases info, check: https://github.com/TerraMA2/terrama2/releases
 
