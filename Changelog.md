@@ -1,3 +1,10 @@
+# 4.0.5
+
+# New Features:
+- Monitored object analysis operators for counting pixels by value or range of values
+- Use geometry as filter in MO analysis (instead of a combination of bounding box and RTree)
+
+
 # 4.0.4
 
 # New Features:
