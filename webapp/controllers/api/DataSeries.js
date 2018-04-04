@@ -207,27 +207,44 @@ module.exports = function(app) {
               });
             });
           } else {
-            DataManager.listAnalysis({}).then(function(analysisList){
-              dataSeriesList.forEach(function(dataSeries) {
-                var isAnalysis = false;
-                var analysisType = {};
-                analysisList.map(function(analysis){
-                  dataSeries.dataSets.map(function(dataSet){
-                    if(analysis.dataset_output == dataSet.id) {
-                      isAnalysis = true;
-                      analysisType = analysis.type;
+
+            DataManager.listAnalysis({})
+              .then((analysisList) => {
+                return Promise.all([DataManager.listInterpolators({}), analysisList]);
+              })
+              .spread((interpolatorList, analysisList) => {
+                dataSeriesList.forEach(function (dataSeries) {
+                  var dataSeriesRaw = dataSeries.rawObject();
+
+                  var isAnalysis = false;
+                  var analysisType = {};
+                  analysisList.map(function (analysis) {
+                    dataSeries.dataSets.map(function (dataSet) {
+                      if (analysis.dataset_output == dataSet.id) {
+                        isAnalysis = true;
+                        analysisType = analysis.type;
+                        return;
+                      }
+                    });
+                  });
+
+                  var isInterpolator = false;
+                  interpolatorList.map(function (interpolator) {
+                    if (interpolator.data_series_output == dataSeries.id) {
+                      isInterpolator = true;
                       return;
                     }
                   });
+
+                  dataSeriesRaw.isInterpolator = isInterpolator;
+                  dataSeriesRaw.isAnalysis = isAnalysis;
+                  if (isAnalysis)
+                    dataSeriesRaw.type = analysisType;
+
+                  output.push(dataSeriesRaw);
                 });
-                var dataSeriesRaw = dataSeries.rawObject();
-                dataSeriesRaw.isAnalysis = isAnalysis;
-                if (isAnalysis)
-                  dataSeriesRaw.type = analysisType;
-                output.push(dataSeriesRaw);
-              });
-              response.json(output);
-            });
+              })
+              .then(() => response.json(output));
           }
         }).catch(function(err) {
           logger.error(err);
