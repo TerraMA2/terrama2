@@ -186,7 +186,7 @@ module.exports = function(app) {
                           return;
                         }
                       });
-    
+
                       if(!addDataSeries) return;
                     });
                   }
@@ -199,10 +199,10 @@ module.exports = function(app) {
                       }
                     })
                   }
-  
+
                   if(addDataSeries) output.push(dataSeries.rawObject());
                 });
-  
+
                 response.json(output);
               });
             });
@@ -267,297 +267,299 @@ module.exports = function(app) {
         var options = {
           transaction: t
         };
-        //Checking if data series is used by analysis, to change the provider
-        return DataManager.listAnalysisDataSeries({data_series_id: Number(dataSeriesId), type_id: 1}, options)
-          .then(function(analysisDataSeriesList){
-            var updateAnalysisDataSeriesProviderPromises = [];
-            analysisDataSeriesList.forEach(function(analysisDataSeries){
-              updateAnalysisDataSeriesProviderPromises.push(DataManager.getAnalysis({id: analysisDataSeries.analysis_id}, options)
-                .then(function(analysis){
-                  DataManager.getDataSet({id: analysis.dataset_output})
-                    .then(function(dataSet){
-                      DataManager.getDataSeries({id: dataSet.data_series_id})
-                      .then(function(dataSeries){
-                          dataSeries.data_provider_id = dataSeriesObject.data_provider_id;
-                          DataManager.updateDataSeries(dataSet.data_series_id, dataSeries, options)
-                            .then(function(){
+
+        var promiseHandler = null;
+
+        if (dataSeriesObject.hasOwnProperty('input') && dataSeriesObject.hasOwnProperty('output')) {
+          dataSeriesObject.input.project_id = request.session.activeProject.id;
+          promiseHandler = DataManager.getCollector({data_series_input: dataSeriesId}, options)
+            .then(function(collector) {
+              collector.service_instance_id = serviceId;
+              collector.active = dataSeriesObject.input.active;
+              collector.schedule_type = scheduleObject.scheduleType;
+
+              var updateSchedulePromise
+
+              var oldScheduleType = collector.scheduleType;
+              var newScheduleType = scheduleObject.scheduleType;
+              var removeSchedule = false;
+              var scheduleIdToRemove;
+
+              if (oldScheduleType == newScheduleType){
+                if (newScheduleType == ScheduleType.MANUAL){
+                  updateSchedulePromise = Promise.resolve();
+                } else {
+                  updateSchedulePromise = DataManager.updateSchedule(collector.schedule.id, scheduleObject, options);
+                }
+              } else {
+                if (newScheduleType == ScheduleType.MANUAL) {
+                  scheduleIdToRemove = collector.schedule.id;
+                  collector.schedule_id = null;
+                  removeSchedule = true;
+                  updateSchedulePromise = Promise.resolve();
+                } else {
+                  updateSchedulePromise = DataManager.addSchedule(scheduleObject, options).then(function(newSchedule){
+                    collector.schedule_id = newSchedule.id;
+                    collector.schedule = newSchedule;
+                  });
+                }
+              }
+              return updateSchedulePromise.then(function(){
+
+                return DataManager.updateCollector(collector.id, collector, options)
+                  .then(function() {
+                    // input
+                    return DataManager.updateDataSeries(parseInt(dataSeriesId), dataSeriesObject.input, options);
+                  })
+                  // try update data series output
+                  .then(function() {
+                    return DataManager.updateDataSeries(parseInt(collector.data_series_output), dataSeriesObject.output, options);
+                  })
+                  // verify if must remove a schedule
+                  .then(function() {
+                    if (removeSchedule){
+                      return DataManager.removeSchedule({id: scheduleIdToRemove}, options);
+                    } else {
+                      return Promise.resolve();
+                    }
+                  })
+                  // try update filter
+                  .then(function() {
+                    // if there is a filter registered, tries to update/delete
+                    if (collector.filter.id) {
+                      var filterUpdate = Object.assign(collector.filter.rawObject(), filterObject);
+                      if (!filterObject.region) {
+                        filterUpdate.region = null;
+                      }
+
+                      if (!filterObject.data_series_id) {
+                        filterUpdate.data_series_id = null;
+                      }
+
+                      if (!Utils.isEmpty(filterObject.date)) {
+                        if (!filterObject.date.beforeDate) {
+                          filterUpdate.discard_before = null;
+                          delete filterUpdate.date.beforeDate;
+                        }
+                        if (!filterObject.date.afterDate) {
+                          filterUpdate.discard_after = null;
+                          delete filterUpdate.date.afterDate;
+                        }
+                      }
+
+                      return DataManager.updateFilter(collector.filter.id, filterUpdate, options)
+                        .then(function() {
+                          return DataManager.getFilter({id: collector.filter.id}, options)
+                            .then(function(filter) {
+                              collector.filter = filter;
+                            });
+                        });
+                    } else {
+                      if (Utils.isEmpty(filterObject.date) && filterObject.filterArea == "1") {
+                        return null;
+                      } else {
+                        filterObject.collector_id = collector.id;
+
+                        return DataManager.addFilter(filterObject, options)
+                          .then(function(filter) {
+                            collector.filter = filter;
+                          });
+                      }
+                    }
+                  })
+                  // try to update intersection
+                  .then(function() {
+                    // temp: remove all and insert. TODO: sequelize upsert / delete
+                    if (Utils.isEmpty(intersection)) {
+                      return DataManager.removeIntersection({collector_id: collector.id}, options)
+                        .then(function() {
+                          collector.setIntersection([]);
+                          return collector;
+                        });
+                    } else {
+                      return DataManager.removeIntersection({collector_id: collector.id}, options)
+                        .finally(function() {
+                          intersection.forEach(function(intersect) {
+                            intersect.collector_id = collector.id;
+                          });
+
+                          return DataManager.addIntersection(intersection, options)
+                            .then(function(intersectionResult) {
+                              collector.setIntersection(intersectionResult);
+                              return collector;
+                            });
+                        });
+                    }
+                  })
+                  // retrieve updated data series input and output
+                  .then(function() {
+                    return PromiseClass.all([
+                        DataManager.getDataSeries({id: collector.data_series_output}),
+                        DataManager.getDataSeries({id: collector.data_series_input})
+                      ]);
+                  })
+                  // send via TCP
+                  .then(function(dSeries) {
+                    var dataSeriesOutput = dSeries[0];
+                    var dataSeriesInput = dSeries[1];
+
+                    collector.project_id = request.session.activeProject.id;
+                    var output = {
+                      "DataSeries": [dataSeriesInput.toObject(), dataSeriesOutput.toObject()],
+                      "Collectors": [collector.toObject()]
+                    };
+
+                    // tcp sending
+                    TcpService.send(output);
+
+                    return dataSeriesOutput;
+                  });
+
+              });
+          })
+          .catch(function(err){
+            if (err instanceof CollectorErrorNotFound){
+              return DataManager.getServiceInstance({id: serviceId}, options).then(function(serviceResult){
+                return DataManager.updateDataSeries(dataSeriesId, dataSeriesObject.output, options).then(function(){
+                  return DataManager.getDataSeries({id: dataSeriesId}).then(function(outputDataSeries){
+                    return DataManager.addDataSeries(dataSeriesObject.input, null, options).then(function(inputDataSeries){
+                      var addSchedulePromise;
+                      if (scheduleObject.scheduleType == ScheduleType.MANUAL){
+                        addSchedulePromise = Promise.resolve();
+                      } else {
+                        addSchedulePromise = DataManager.addSchedule(scheduleObject, options);
+                      }
+                      return addSchedulePromise.then(function(scheduleResult){
+                        var collectorObject = {};
+
+                        collectorObject.data_series_input = inputDataSeries.id;
+                        collectorObject.data_series_output = dataSeriesId;
+                        collectorObject.service_instance_id = serviceResult.id;
+                        collectorObject.active = active;
+                        collectorObject.collector_type = 1;
+                        collectorObject.schedule_type = scheduleObject.scheduleType;
+                        if (scheduleObject.scheduleType == ScheduleType.SCHEDULE){
+                          collectorObject.schedule_id = scheduleResult.id;
+                        }
+
+                        return DataManager.addCollector(collectorObject, filterObject, options).then(function(collectorResult){
+                          if (!intersection){
+                            var collector = {
+                              collector: collectorResult,
+                              input: inputDataSeries,
+                              output: outputDataSeries,
+                              schedule: scheduleResult
+                            };
+
+                            var output = {
+                              "DataSeries": [collector.input.toObject(), collector.output.toObject()],
+                              "Collectors": [collectorResult.toObject()]
+                            };
+                            TcpService.send(output);
+
+                            return collector.output;
+                          } else {
+                            intersection.forEach(function(intersect) {
+                              intersect.collector_id = collectorResult.id;
+                            });
+                            return DataManager.addIntersection(intersection, options).then(function(bulkIntersectionResult){
+                              collectorResult.setIntersection(bulkIntersectionResult);
+                              var collector = {
+                                collector: collectorResult,
+                                input: inputDataSeries,
+                                output: outputDataSeries,
+                                schedule: scheduleResult,
+                                intersection: bulkIntersectionResult
+                              };
+
+                              var output = {
+                                "DataSeries": [collector.input.toObject(), collector.output.toObject()],
+                                "Collectors": [collectorResult.toObject()]
+                              };
+                              TcpService.send(output);
+
+                              return collector.output;
+                            });
+                          }
+                        });
+                      });
+                    });
+                  });
+                });
+              });
+            }
+          });
+        } else {
+          promiseHandler = DataManager.getCollector({data_series_input: dataSeriesId}, options)
+            .then(function(collector){
+              var inputDataSeriesId = collector.data_series_input;
+              var outputDataSeriesId = collector.data_series_output;
+              return DataManager.removeDataSerie({id: inputDataSeriesId})
+                .then(function(){
+                  return DataManager.removeSchedule({id: collector.schedule.id})
+                    .then(function(){
+                      return DataManager.updateDataSeries(outputDataSeriesId, dataSeriesObject, options)
+                        .then(function() {
+                          return DataManager.getDataSeries({id: outputDataSeriesId})
+                            .then(function(dataSeries) {
                               // tcp sending
                               TcpService.send({
                                 "DataSeries": [dataSeries.toObject()]
                               });
-                            });
-                        })
-                    });
-                }));
-            });
-
-            if (dataSeriesObject.hasOwnProperty('input') && dataSeriesObject.hasOwnProperty('output')) {
-              dataSeriesObject.input.project_id = request.session.activeProject.id;
-              return DataManager.getCollector({data_series_input: dataSeriesId}, options)
-                .then(function(collector) {
-                  collector.service_instance_id = serviceId;
-                  collector.active = dataSeriesObject.input.active;
-                  collector.schedule_type = scheduleObject.scheduleType;
-    
-                  var updateSchedulePromise
-    
-                  var oldScheduleType = collector.scheduleType;
-                  var newScheduleType = scheduleObject.scheduleType;
-                  var removeSchedule = false;
-                  var scheduleIdToRemove;
-    
-                  if (oldScheduleType == newScheduleType){
-                    if (newScheduleType == ScheduleType.MANUAL){
-                      updateSchedulePromise = Promise.resolve();
-                    } else {
-                      updateSchedulePromise = DataManager.updateSchedule(collector.schedule.id, scheduleObject, options);
-                    }
-                  } else {
-                    if (newScheduleType == ScheduleType.MANUAL) {
-                      scheduleIdToRemove = collector.schedule.id;
-                      collector.schedule_id = null;
-                      removeSchedule = true;
-                      updateSchedulePromise = Promise.resolve();
-                    } else {
-                      updateSchedulePromise = DataManager.addSchedule(scheduleObject, options).then(function(newSchedule){
-                        collector.schedule_id = newSchedule.id;
-                        collector.schedule = newSchedule;
-                      });
-                    }
-                  }
-                  return updateSchedulePromise.then(function(){
-    
-                    return DataManager.updateCollector(collector.id, collector, options)
-                      .then(function() {
-                        // input
-                        return DataManager.updateDataSeries(parseInt(dataSeriesId), dataSeriesObject.input, options);
-                      })
-                      // try update data series output
-                      .then(function() {
-                        return DataManager.updateDataSeries(parseInt(collector.data_series_output), dataSeriesObject.output, options);
-                      })
-                      // verify if must remove a schedule
-                      .then(function() {
-                        if (removeSchedule){
-                          return DataManager.removeSchedule({id: scheduleIdToRemove}, options);
-                        } else {
-                          return Promise.resolve();
-                        }
-                      })
-                      // try update filter
-                      .then(function() {
-                        // if there is a filter registered, tries to update/delete
-                        if (collector.filter.id) {
-                          var filterUpdate = Object.assign(collector.filter.rawObject(), filterObject);
-                          if (!filterObject.region) {
-                            filterUpdate.region = null;
-                          }
-    
-                          if (!filterObject.data_series_id) {
-                            filterUpdate.data_series_id = null;
-                          }
-    
-                          if (!Utils.isEmpty(filterObject.date)) {
-                            if (!filterObject.date.beforeDate) {
-                              filterUpdate.discard_before = null;
-                              delete filterUpdate.date.beforeDate;
-                            }
-                            if (!filterObject.date.afterDate) {
-                              filterUpdate.discard_after = null;
-                              delete filterUpdate.date.afterDate;
-                            }
-                          }
-    
-                          return DataManager.updateFilter(collector.filter.id, filterUpdate, options)
-                            .then(function() {
-                              return DataManager.getFilter({id: collector.filter.id}, options)
-                                .then(function(filter) {
-                                  collector.filter = filter;
-                                });
-                            });
-                        } else {
-                          if (Utils.isEmpty(filterObject.date) && filterObject.filterArea == "1") {
-                            return null;
-                          } else {
-                            filterObject.collector_id = collector.id;
-    
-                            return DataManager.addFilter(filterObject, options)
-                              .then(function(filter) {
-                                collector.filter = filter;
-                              });
-                          }
-                        }
-                      })
-                      // try to update intersection
-                      .then(function() {
-                        // temp: remove all and insert. TODO: sequelize upsert / delete
-                        if (Utils.isEmpty(intersection)) {
-                          return DataManager.removeIntersection({collector_id: collector.id}, options)
-                            .then(function() {
-                              collector.setIntersection([]);
-                              return collector;
-                            });
-                        } else {
-                          return DataManager.removeIntersection({collector_id: collector.id}, options)
-                            .finally(function() {
-                              intersection.forEach(function(intersect) {
-                                intersect.collector_id = collector.id;
-                              });
-    
-                              return DataManager.addIntersection(intersection, options)
-                                .then(function(intersectionResult) {
-                                  collector.setIntersection(intersectionResult);
-                                  return collector;
-                                });
-                            });
-                        }
-                      })
-                      // retrieve updated data series input and output
-                      .then(function() {
-                        return PromiseClass.all([
-                            DataManager.getDataSeries({id: collector.data_series_output}),
-                            DataManager.getDataSeries({id: collector.data_series_input})
-                          ]);
-                      })
-                      // send via TCP
-                      .then(function(dSeries) {
-                        var dataSeriesOutput = dSeries[0];
-                        var dataSeriesInput = dSeries[1];
-    
-                        collector.project_id = request.session.activeProject.id;
-                        var output = {
-                          "DataSeries": [dataSeriesInput.toObject(), dataSeriesOutput.toObject()],
-                          "Collectors": [collector.toObject()]
-                        };
-    
-                        // tcp sending
-                        TcpService.send(output);
-    
-                        return dataSeriesOutput;
-                      });
-    
-                  });
-              })
-              .catch(function(err){
-                if (err instanceof CollectorErrorNotFound){
-                  return DataManager.getServiceInstance({id: serviceId}, options).then(function(serviceResult){
-                    return DataManager.updateDataSeries(dataSeriesId, dataSeriesObject.output, options).then(function(){
-                      return DataManager.getDataSeries({id: dataSeriesId}).then(function(outputDataSeries){
-                        return DataManager.addDataSeries(dataSeriesObject.input, null, options).then(function(inputDataSeries){
-                          var addSchedulePromise;
-                          if (scheduleObject.scheduleType == ScheduleType.MANUAL){
-                            addSchedulePromise = Promise.resolve();
-                          } else {
-                            addSchedulePromise = DataManager.addSchedule(scheduleObject, options);
-                          }
-                          return addSchedulePromise.then(function(scheduleResult){
-                            var collectorObject = {};
-    
-                            collectorObject.data_series_input = inputDataSeries.id;
-                            collectorObject.data_series_output = dataSeriesId;
-                            collectorObject.service_instance_id = serviceResult.id;
-                            collectorObject.active = active;
-                            collectorObject.collector_type = 1;
-                            collectorObject.schedule_type = scheduleObject.scheduleType;
-                            if (scheduleObject.scheduleType == ScheduleType.SCHEDULE){
-                              collectorObject.schedule_id = scheduleResult.id;
-                            }
-    
-                            return DataManager.addCollector(collectorObject, filterObject, options).then(function(collectorResult){
-                              if (!intersection){
-                                var collector = {
-                                  collector: collectorResult,
-                                  input: inputDataSeries,
-                                  output: outputDataSeries,
-                                  schedule: scheduleResult
-                                };
-    
-                                var output = {
-                                  "DataSeries": [collector.input.toObject(), collector.output.toObject()],
-                                  "Collectors": [collectorResult.toObject()]
-                                };
-                                TcpService.send(output);
-                                
-                                return collector.output;
-                              } else {
-                                intersection.forEach(function(intersect) {
-                                  intersect.collector_id = collectorResult.id;
-                                });
-                                return DataManager.addIntersection(intersection, options).then(function(bulkIntersectionResult){
-                                  collectorResult.setIntersection(bulkIntersectionResult);
-                                  var collector = {
-                                    collector: collectorResult,
-                                    input: inputDataSeries,
-                                    output: outputDataSeries,
-                                    schedule: scheduleResult,
-                                    intersection: bulkIntersectionResult
-                                  };
-    
-                                  var output = {
-                                    "DataSeries": [collector.input.toObject(), collector.output.toObject()],
-                                    "Collectors": [collectorResult.toObject()]
-                                  };
-                                  TcpService.send(output);
-    
-                                  return collector.output;
-                                });
-                              }
-                            });
-                          });
-                        });
-                      });
-                    });
-                  });
-                }
-              });
-            } else {
-              return DataManager.getCollector({data_series_input: dataSeriesId}, options)
-                .then(function(collector){
-                  var inputDataSeriesId = collector.data_series_input;
-                  var outputDataSeriesId = collector.data_series_output;
-                  return DataManager.removeDataSerie({id: inputDataSeriesId})
-                    .then(function(){
-                      return DataManager.removeSchedule({id: collector.schedule.id})
-                        .then(function(){
-                          return DataManager.updateDataSeries(outputDataSeriesId, dataSeriesObject, options)
-                            .then(function() {
-                              return DataManager.getDataSeries({id: outputDataSeriesId})
-                                .then(function(dataSeries) {
-                                  // tcp sending
-                                  TcpService.send({
-                                    "DataSeries": [dataSeries.toObject()]
-                                  });
-                                  return dataSeries;
-                                });
+                              return dataSeries;
                             });
                         });
                     });
-                }).catch(function(err){
-                  if (err instanceof CollectorErrorNotFound){
-                    return DataManager.updateDataSeries(dataSeriesId, dataSeriesObject, options)
-                      .then(function() {
-                        return DataManager.getDataSeries({id: dataSeriesId})
-                          .then(function(dataSeries) {
-                            // tcp sending
-                            TcpService.send({
-                              "DataSeries": [dataSeries.toObject()]
-                            });
-                            return dataSeries;
-                          });
-                      });
-                  } else {
-                    return Utils.handleRequestError(response, err, 400);
-                  }
                 });
-            }
+            }).catch(function(err){
+              if (err instanceof CollectorErrorNotFound){
+                return DataManager.updateDataSeries(dataSeriesId, dataSeriesObject, options)
+                  .then(function() {
+                    return DataManager.getDataSeries({id: dataSeriesId})
+                      .then(function(dataSeries) {
+                        // tcp sending
+                        TcpService.send({
+                          "DataSeries": [dataSeries.toObject()]
+                        });
+                        return dataSeries;
+                      });
+                  });
+              } else {
+                return Utils.handleRequestError(response, err, 400);
+              }
+            });
+        }
 
-            PromiseClass.all(updateAnalysisDataSeriesProviderPromises);
+        return promiseHandler
+          .then((updatedDataSeries) => {
+            //Checking if data series is used by analysis, to change the provider
+            return DataManager.listAnalysisDataSeries({data_series_id: Number(dataSeriesId), type_id: 1}, options)
+              .then((analysisDataSeriesList) =>{
+                var updateAnalysisDataSeriesProviderPromises = [];
+                analysisDataSeriesList.forEach((analysisDataSeries) => {
+                  updateAnalysisDataSeriesProviderPromises.push(
+                    DataManager.getAnalysis({id: analysisDataSeries.analysis_id}, options)
+                      .then((analysis) => PromiseClass.all([analysis, DataManager.getDataSet({id: analysis.dataset_output})]))
+                      .then(([analysis, dataSet]) => {
+                        return PromiseClass.all([analysis, dataSet, DataManager.getDataSeries({id: dataSet.data_series_id})]);
+                      })
+                      .then(([analysis, dataSet, dataSeries]) => {
+                        dataSeries.data_provider_id = dataSeriesObject.data_provider_id;
+                        return Promise.all([dataSeries, DataManager.updateDataSeries(dataSet.data_series_id, dataSeries, options)]);
+                      })
+                      .then(([dataSeries]) => {
+                        // tcp sending
+                        TcpService.send({
+                          "DataSeries": [dataSeries.toObject()]
+                        });
+                      }));
+                });
 
-          })
-          .catch(function(err){
-            return Utils.handleRequestError(response, err, 400);
+                return PromiseClass.all(updateAnalysisDataSeriesProviderPromises);
+              })
+              // Always execute..
+              .then(() =>  Promise.resolve(updatedDataSeries));
           });
-
       })
       // on success (transaction commit)
       .then(function(dataSeries) {
@@ -593,7 +595,7 @@ module.exports = function(app) {
                   analysisName.push(analysis.name);
                 });
                 Utils.handleRequestError(response, { message: "Could not remove data series, using in " + analysisName.join(", ")}, 400);
-                
+
               }).catch(function(error){
                 Utils.handleRequestError(response, error, 400);
               });
@@ -646,9 +648,9 @@ module.exports = function(app) {
                                   var objectToSend = {
                                     "DataSeries": [id]
                                   };
-        
+
                                   TcpService.remove(objectToSend);
-        
+
                                   return response.json({status: 200, name: dataSeriesResult.name});
                                 });
                             });
