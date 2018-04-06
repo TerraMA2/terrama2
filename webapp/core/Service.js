@@ -40,10 +40,10 @@ function parseByteArray(byteArray) {
 
 /**
  * It handles a tcp service connection via TCP
- * 
+ *
  * @class Service
  * @param {Service} serviceInstance - A TerraMA² service instance
- * 
+ *
  * @fires Service#processFinished
  */
 var Service = module.exports = function(serviceInstance) {
@@ -74,7 +74,7 @@ var Service = module.exports = function(serviceInstance) {
 
   /**
    * It checks if there is already a listener registered
-   * 
+   *
    * @returns {boolean}
    */
   self.isRegistered = function() {
@@ -87,6 +87,35 @@ var Service = module.exports = function(serviceInstance) {
            self.listenerCount('error') > 0;
   };
 
+
+  /**
+   * Creates a new Buffer based on any number of Buffer
+   *
+   * @private
+   * @param {Buffer} arguments Any number of Buffer as arguments, may have undefined itens.
+   * @return {Buffer} The new Buffer created out of the list.
+   */
+  function _createBufferFrom() {
+    let size = 0;
+    for (var i = 0; i < arguments.length; i++) {
+      if(arguments[i]) {
+        size += arguments[i].buffer.byteLength;
+      }
+    }
+
+    let tmp = new Buffer(size);
+    let offset = 0;
+    for (var i = 0; i < arguments.length; i++) {
+      if(arguments[i]) {
+        tmp.set(new Buffer.from(arguments[i].buffer), offset);
+        offset+=arguments[i].buffer.byteLength;
+      }
+    }
+
+    return tmp;
+  }
+
+  let tempBuffer = undefined;
   self.socket.on('data', function(byteArray) {
     self.answered = true;
     var formatMessage = "Socket %s received %s";
@@ -94,7 +123,27 @@ var Service = module.exports = function(serviceInstance) {
     logger.debug(Utils.format(formatMessage, self.service.name, byteArray.toString()));
 
     try  {
-      var parsed = parseByteArray(byteArray);
+      // append and check if the complete message has arrived
+      tempBuffer = _createBufferFrom(tempBuffer, byteArray);
+      const messageSizeReceived = tempBuffer.readUInt32BE(0);
+      if(tempBuffer.length !== (messageSizeReceived + 4)) {
+        // if we don't have the complete message
+        // wait for the rest
+        return;
+      }
+
+      let extraData = undefined;
+      if(tempBuffer.length > (messageSizeReceived + 4)) {
+        // hold extra data for next message
+        extraData = new Buffer.from(tempBuffer.buffer.slice(messageSizeReceived + 5));
+        // free any extra byte from the message
+        tempBuffer = new Buffer.from(tempBuffer.buffer, 0, (messageSizeReceived + 4));
+      }
+
+      const parsed = parseByteArray(tempBuffer);
+
+      // we got the message, empty buffer.
+      tempBuffer = extraData;
 
       switch(parsed.signal) {
         case Signals.LOG_SIGNAL:
@@ -110,7 +159,7 @@ var Service = module.exports = function(serviceInstance) {
           /**
            * Used to notify when a process has been finished. C++ service emits a processed data to save
            * and delivery to user
-           * 
+           *
            * @event Service#processFinished
            * @type {Object}
            */
@@ -125,6 +174,8 @@ var Service = module.exports = function(serviceInstance) {
         callbackSuccess(parsed);
       }
     } catch (e) {
+      // we got an error, empty buffer.
+      tempBuffer = undefined;
       logger.debug(Utils.format("Error parsing bytearray received from %s. %s", self.service.name, e.toString()));
       self.emit("serviceError", e);
       if (callbackError) {
