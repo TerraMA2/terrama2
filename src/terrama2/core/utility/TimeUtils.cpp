@@ -184,7 +184,7 @@ double terrama2::core::TimeUtils::convertTimeString(const std::string& time, std
   if(found)
   {
     // if we found our unit, convert the value to seconds
-    int ivalue = std::stoi(numberStr);
+    double ivalue = std::stod(numberStr);
     std::string uomName = uom->getName();
     if(uomName == "SECOND")
       result = ivalue;
