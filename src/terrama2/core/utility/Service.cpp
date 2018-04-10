@@ -352,9 +352,7 @@ void terrama2::core::Service::addReprocessingToQueue(ProcessPtr process) noexcep
 
 void terrama2::core::Service::erasePreviousResult(ProcessPtr /*process*/, std::shared_ptr<te::dt::TimeInstantTZ> /*timestamp*/) const
 {
-  QString errMsg = QObject::tr("Erase previous results not implemente for this service.");
-  TERRAMA2_LOG_ERROR() << errMsg;
-  throw terrama2::core::FunctionNotImplementedException() << ErrorDescription(errMsg);
+  // reimplement as needed in other services
 }
 
 void terrama2::core::Service::addProcessToSchedule(ProcessPtr process) noexcept
