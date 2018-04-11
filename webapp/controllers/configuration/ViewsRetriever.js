@@ -33,29 +33,20 @@ var ViewsRetriever = function(app) {
                 var description = null;
 
                 if(view.dataSeries) {
-                  if(view.dataSeriesType === "analysis") {
-                    analysisList.map(function(analysis) {
-                      view.dataSeries.dataSets.map(function(dataSet) {
-                        if(analysis.dataset_output == dataSet.id) {
-                          description = analysis.description;
-                          return;
-                        }
-                      });
-                    });
-                  } else if(view.dataSeriesType === "alert") {
+                  if(view.dataSeriesType === "alert") {
                     alerts.map(function(alert) {
                       if(alert.view.id === view.view.id) {
                         description = alert.description;
                         return;
                       }
                     });
-                  } else {
-                    description = view.dataSeries.description;
                   }
                 }
 
                 var viewObject = view.toObject();
-                viewObject.description = description;
+                if(description) {
+                  viewObject.description = description;
+                }
 
                 return viewObject;
               });
