@@ -265,11 +265,14 @@ std::unique_ptr<te::rst::Raster> terrama2::services::interpolator::core::NNInter
       FillEmptyData(res, dist, 1);
       tree_->nearestNeighborSearch(pt1, res, dist, 1);
 
+      if(res.empty())
+        continue;
+
       // Getting the attribute and setting the interpolation value
       terrama2::core::DataSetSeries ds = (res.begin())->series_;
       terrama2::core::SynchronizedDataSetPtr dSet = ds.syncDataSet;
 
-      if(!dSet->isNull(0, interpolationParams_->attributeName_)) {
+      if(dSet && !dSet->isNull(0, interpolationParams_->attributeName_)) {
         double value = dSet->getDouble(0, interpolationParams_->attributeName_);
         r->setValue(col, row, value, 0);
       } else {
