@@ -68,8 +68,7 @@
                           || scheduleObject.scheduleType == ScheduleType.REPROCESSING_HISTORICAL){
                   interpolatorObject.schedule_id = scheduleResult.id;
                 } else {
-                  let error = 'Invalid schedule type';
-                  throw error;
+                  throw new Error('Invalid schedule type');
                 }
                 return DataManager.addInterpolator(interpolatorObject, options).then(function(interpolatorResult){
                   return interpolatorResult;
@@ -154,8 +153,7 @@
                   return null;
                 });
               } else {
-                let error = 'Invalid schedule type';
-                throw error;
+                throw new Error('Invalid schedule type');
               }
             } else {
               // when change type of schedule
@@ -173,8 +171,7 @@
                       interpolatorObject.automatic_schedule_id = scheduleResult.id;
                       return null;
                     } else {
-                      let error = 'Invalid schedule type';
-                      throw error;
+                      throw new Error('Invalid schedule type');
                     }
                   });
               // if old schedule is SCHEDULE, delete schedule
@@ -207,8 +204,7 @@
                       interpolatorObject.schedule_id = scheduleResult.id;
                     });
                 } else {
-                  let error = 'Invalid schedule type';
-                  throw error;
+                  throw new Error('Invalid schedule type');
                 }
               }
             }
@@ -223,8 +219,7 @@
                             || scheduleObject.scheduleType == ScheduleType.REPROCESSING_HISTORICAL){
                     return DataManager.removeSchedule({id: scheduleIdToRemove}, options);
                   } else {
-                    let error = 'Invalid schedule type';
-                    throw error;
+                    throw new Error('Invalid schedule type');
                   }
                 }
               })
