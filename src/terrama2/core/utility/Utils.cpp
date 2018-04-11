@@ -292,6 +292,9 @@ std::string terrama2::core::getProperty(DataSetPtr dataSet, DataSeriesPtr dataSe
     {
       auto semantics = dataSeries->semantics;
       property = semantics.metadata.at(tag);
+      // protection for invalid javascript data
+     if(property=="null")
+       property.clear();
     }
     catch(...)  //exceptions will be treated later
     {
@@ -303,6 +306,9 @@ std::string terrama2::core::getProperty(DataSetPtr dataSet, DataSeriesPtr dataSe
     try
     {
       property = dataSet->format.at(tag);
+      // protection for invalid javascript data
+      if(property=="null")
+        property.clear();
     }
     catch(...)  //exceptions will be treated later
     {
