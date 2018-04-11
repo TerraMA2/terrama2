@@ -132,14 +132,11 @@ double terrama2::services::analysis::core::occurrence::zonal::operatorImpl(terra
         auto geomResult = createBuffer(buffer, moGeom);
         assert(geomResult->getSRID() == moGeom->getSRID());
 
-        auto moEnvelope = std::make_shared<te::gm::Envelope>(*geomResult->getMBR());
-        std::shared_ptr<te::gm::Geometry> monitoredObjectBox(te::gm::GetGeomFromEnvelope(moEnvelope.get(), geomResult->getSRID()));
-
         terrama2::core::Filter filter;
         filter.discardBefore = context->getTimeFromString(dateFilterBegin);
         filter.discardAfter = context->getTimeFromString(dateFilterEnd);
         filter.byValue = restriction;
-        filter.region = monitoredObjectBox;
+        filter.region = geomResult;
 
         auto dataSeries = dataManagerPtr->findDataSeries(analysis->id, dataSeriesName);
         context->addDataSeries(dataSeries, filter, true);
@@ -156,7 +153,6 @@ double terrama2::services::analysis::core::occurrence::zonal::operatorImpl(terra
           }
 
 
-          std::vector<uint32_t> indexes;
           uint32_t countValues = 0;
           std::vector<double> values;
 
@@ -170,13 +166,7 @@ double terrama2::services::analysis::core::occurrence::zonal::operatorImpl(terra
           {
             // Converts the monitored object to the same srid of the occurrences
             auto firstOccurrence = syncDs->getGeometry(0, contextDataSeries->geometryPos);
-            moEnvelope->transform(geomResult->getSRID(), firstOccurrence->getSRID());
             geomResult->transform(firstOccurrence->getSRID());
-
-            // Searchs in the spatial index for the occurrences that intersects the monitored object box
-            contextDataSeries->rtree.search(*geomResult->getMBR(), indexes);
-
-
 
             int attributeType = 0;
             if(!attribute.empty())
@@ -193,10 +183,7 @@ double terrama2::services::analysis::core::occurrence::zonal::operatorImpl(terra
 
             if(aggregationStatisticOperation != StatisticOperation::INVALID)
             {
-              if(indexes.empty())
-                continue;
-
-              auto bufferDs = createAggregationBuffer(indexes, contextDataSeries, aggregationBuffer,
+              auto bufferDs = createAggregationBuffer(contextDataSeries, aggregationBuffer,
                                                       aggregationStatisticOperation, attribute);
 
               if(!bufferDs)
@@ -241,8 +228,8 @@ double terrama2::services::analysis::core::occurrence::zonal::operatorImpl(terra
             {
 
               // Allocate memory for indexes size
-              values.reserve(indexes.size());
-              for(uint32_t i : indexes)
+              values.reserve(syncDs->size());
+              for(uint32_t i = 0; i < syncDs->size(); ++i)
               {
                 // Verifies if the occurrence intersects the monitored object
                 auto occurrenceGeom = syncDs->getGeometry(i, contextDataSeries->geometryPos);
