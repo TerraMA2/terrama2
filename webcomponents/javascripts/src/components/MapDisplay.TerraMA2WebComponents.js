@@ -109,6 +109,13 @@ define(
         updateLayerSourceParams(layerId, { TIME: newTime }, true);
       }
     };
+      /** update the size of arrows in a wind animation
+       * @param {string} layerId - Layer id
+       * @param {object} currentLength - size to multiply the arrows
+       */
+    var updateLayerLength = function(layerId, currentLength){
+      updateLayerSourceParams(layerId, { env: 'size:'+ arrowCurrentLength } , true);
+    };
 
     /**
      * Updates the opacity of the layer, allowed values range from 0 to 1.

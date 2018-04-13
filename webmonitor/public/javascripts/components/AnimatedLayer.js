@@ -24,7 +24,17 @@ define(
     var memberPeriodDate = 1;
     // Id used to get id of setInterval() and use to stop the animation in clearInterval()
     var memberAnimationId = null;
-
+    
+    // Wind layer identified to animate
+    var windLayer;
+    // Initial size of the animated arrows (wind data)
+    var arrowInitialLength;
+    // Final size of the animated arrows (wind data)
+    var arrowFinalLength;
+    // Current size of the animated arrows (wind data)
+    var arrowCurrentLength;
+    // Array with values to animate wind data 
+    var arrowLengthList = [0.2, 0.4, 0.6, 0.75, 1];    
     // Set layer info to animate
     var setLayerToAnimate = function(layer) {
       pause();
@@ -178,6 +188,17 @@ define(
       memberTranslationDate = memberCurrentDate;
 
       memberCurrentDate++;
+    };
+
+    //Set new layer time when maximum length is reached (wind data)
+    var setListLengthWind = function() {
+      if(arrowCurrentLength > arrowFinalLength)
+        arrowCurrentLength = arrowInitialLength;
+
+      TerraMA2WebComponents.MapDisplay.updateLayerLength(windLayer.id, arrowLengthList[arrowCurrentLength]);
+      updateInfo();
+
+      arrowCurrentLength++;
     };
 
     // Set new layer time when date type is continuous

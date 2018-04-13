@@ -6088,6 +6088,21 @@ var DataManager = module.exports = {
             include: [
               {
                 model: models.db.DataSeries
+              },
+              /** It adds the parameters ViewStyleLegend, ViewStyleColor
+               * and ViewStyleLegendMetadata to the list of model registered views
+               */ 
+              {
+                model: models.db.ViewStyleLegend,
+                required: false,
+                include: [
+                  {
+                    model: models.db.ViewStyleColor
+                  },
+                  {
+                    model: models.db.ViewStyleLegendMetadata
+                  }
+                ]
               }
             ]
           }
@@ -6133,6 +6148,7 @@ var DataManager = module.exports = {
                   var dModel = new DataModel.RegisteredView(registeredView.get());
                   dModel.setDataSeriesType(registeredView.View.source_type);
                   dModel.setDataSeries(dataSeries);
+                  // dModel.setView(registeredView);
                   output.push(dModel);
                   return true;
                 }
