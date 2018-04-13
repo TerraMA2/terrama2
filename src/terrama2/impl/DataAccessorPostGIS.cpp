@@ -155,6 +155,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGIS::getSeries(con
   {
     QString errMsg = QObject::tr("No data in dataset: %1.").arg(dataSet->id);
     TERRAMA2_LOG_WARNING() << errMsg;
+    throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
   }
 
   updateLastTimestamp(dataSet, transactor);
