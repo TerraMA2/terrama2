@@ -477,6 +477,9 @@ terrama2::core::Schedule terrama2::core::fromScheduleJson(QJsonObject json)
   schedule.scheduleTimeout = json["schedule_timeout"].toInt();
   schedule.scheduleTimeoutUnit = json["schedule_timeout_unit"].toString().toStdString();
 
+  if(json.contains("reprocessing_historical_data") && !json["reprocessing_historical_data"].isNull())
+    schedule.reprocessingHistoricalData = fromReprocessingHistoricalData(json["reprocessing_historical_data"].toObject());
+
   return schedule;
 }
 
@@ -588,5 +591,73 @@ QJsonObject terrama2::core::toJson(Schedule schedule)
   obj.insert("schedule_timeout",static_cast<int32_t>(schedule.scheduleTimeout));
   obj.insert("schedule_timeout_unit", QString::fromStdString(schedule.scheduleTimeoutUnit));
 
+  obj.insert("reprocessing_historical_data", toJson(schedule.reprocessingHistoricalData));
+
   return obj;
+}
+
+
+QJsonObject terrama2::core::toJson(terrama2::core::ReprocessingHistoricalDataPtr
+                                                       reprocessingHistoricalDataPtr)
+{
+  QJsonObject obj;
+
+  if(!reprocessingHistoricalDataPtr)
+    return obj;
+
+  obj.insert("class", QString("ReprocessingHistoricalData"));
+  if(reprocessingHistoricalDataPtr->startDate.get())
+  {
+    std::string startDate = terrama2::core::TimeUtils::boostLocalTimeToString(reprocessingHistoricalDataPtr->startDate->getTimeInstantTZ(), terrama2::core::TimeUtils::webgui_timefacet);
+    obj.insert("start_date", QString::fromStdString(startDate));
+  }
+  if(reprocessingHistoricalDataPtr->endDate.get())
+  {
+    std::string endDate = terrama2::core::TimeUtils::boostLocalTimeToString(reprocessingHistoricalDataPtr->endDate->getTimeInstantTZ(), terrama2::core::TimeUtils::webgui_timefacet);
+    obj.insert("end_date", QString::fromStdString(endDate));
+  }
+
+  return obj;
+}
+
+
+terrama2::core::ReprocessingHistoricalDataPtr terrama2::core::fromReprocessingHistoricalData(
+    const QJsonObject& json)
+{
+  if(json.isEmpty())
+  {
+    return terrama2::core::ReprocessingHistoricalDataPtr();
+  }
+
+  if(json["class"].toString() != "ReprocessingHistoricalData")
+  {
+    QString errMsg(QObject::tr("Invalid ReprocessingHistoricalData JSON object."));
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
+  }
+
+  if(!(json.contains("start_date")
+       && json.contains("end_date")))
+  {
+    QString errMsg(QObject::tr("Invalid ReprocessingHistoricalData JSON object."));
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
+  }
+
+  ReprocessingHistoricalData* reprocessingHistoricalData = new ReprocessingHistoricalData;
+  ReprocessingHistoricalDataPtr reprocessingHistoricalDataPtr(reprocessingHistoricalData);
+
+  if(!json.value("start_date").isNull())
+  {
+    std::string startDate = json["start_date"].toString().toStdString();
+    reprocessingHistoricalData->startDate = terrama2::core::TimeUtils::stringToTimestamp(startDate, terrama2::core::TimeUtils::webgui_timefacet);
+  }
+
+  if(!json.value("end_date").isNull())
+  {
+    std::string endDate = json["end_date"].toString().toStdString();
+    reprocessingHistoricalData->endDate = terrama2::core::TimeUtils::stringToTimestamp(endDate, terrama2::core::TimeUtils::webgui_timefacet);
+  }
+
+  return reprocessingHistoricalDataPtr;
 }

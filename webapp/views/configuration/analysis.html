@@ -296,7 +296,7 @@
               </div>
 
               <div style="display: block;" class="box-body">
-                <terrama2-schedule model="ctrl.schedule" options="ctrl.scheduleOptions" historical="ctrl.analysis.historical"></terrama2-schedule>
+                <terrama2-schedule model="ctrl.schedule" options="ctrl.scheduleOptions"></terrama2-schedule>
               </div>
             </div>
           </div>
@@ -350,7 +350,8 @@
       </div>
     </terrama2-box>
 
-    <terrama2-box title="ctrl.dataSeriesBoxName" css="ctrl.css" ng-show="forms.generalDataForm.type.$valid">
+    <terrama2-box title="i18n.__(ctrl.analysis.type_id !== '{[ Enums.AnalysisType.GRID ]}' ? 'Additional Data' : 'Grid Data Series')"
+                  css="ctrl.css" ng-show="forms.generalDataForm.type.$valid">
       <div class="col-md-12 terrama2-nopadding-box">
         <div class="col-md-12">
           <button type="button" class="btn btn-default pull-right" data-toggle="modal" data-target="#dataSeriesModal" style="margin-bottom: 15px">

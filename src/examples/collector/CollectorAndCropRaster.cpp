@@ -144,7 +144,7 @@ int main(int argc, char* argv[])
 
       dataManager->add(collector);
 
-      service.addToQueue(collector->id, terrama2::core::TimeUtils::nowUTC());
+      service.addToQueue(collector, terrama2::core::TimeUtils::nowUTC());
 
       QTimer timer;
       QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));

@@ -31,6 +31,7 @@
 #define __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_POSTGIS_HPP__
 
 //TerraMA2
+#include "Config.hpp"
 #include "DataStoragerTable.hpp"
 
 namespace terrama2

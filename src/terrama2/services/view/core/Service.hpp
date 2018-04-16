@@ -31,6 +31,7 @@
 #define __TERRAMA2_SERVICES_VIEW_SERVICE_HPP__
 
 // TerraMA2
+#include "Config.hpp"
 #include "Typedef.hpp"
 #include "Shared.hpp"
 #include "DataManager.hpp"
@@ -48,13 +49,13 @@ namespace terrama2
     {
       namespace core
       {
-        class Service : public terrama2::core::Service
+        class TMVIEWEXPORT Service : public terrama2::core::Service
         {
           Q_OBJECT
 
         public:
 
-          explicit Service(std::weak_ptr<DataManager> dataManager);
+          explicit Service(std::weak_ptr<terrama2::core::DataManager> dataManager);
 
           ~Service() = default;
           Service(const Service& other) = delete;
@@ -65,9 +66,6 @@ namespace terrama2
           virtual void getStatus(QJsonObject& obj) const override;
 
         public slots:
-
-          //! Slot to be called when a DataSetTimer times out.
-          virtual void addToQueue(ViewId viewId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept override;
 
           /*!
             \brief Updates the View.
@@ -98,6 +96,7 @@ namespace terrama2
           void removeCompleteView(const ViewPtr& viewPtr, DataSeriesId dataSeriesId, bool removeAll = true) noexcept;
 
         protected:
+          virtual terrama2::core::ProcessPtr getProcess(ProcessId processId) override;
 
           //*! Create a process task and add to taskQueue_
           virtual void prepareTask(const terrama2::core::ExecutionPackage& executionPackage) override;
@@ -115,7 +114,6 @@ namespace terrama2
                        std::shared_ptr<ViewLogger> logger,
                        std::weak_ptr<DataManager> weakDataManager);
 
-          std::weak_ptr<DataManager> dataManager_; //!< Weak pointer to the DataManager
           te::core::URI mapsServerUri_;
           bool mapsServerConnectionStatus_ = false;
         };

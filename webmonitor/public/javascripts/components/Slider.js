@@ -30,6 +30,8 @@ define(
           doSlide(layerId, dateInfo.dates[ui.value]);
           dateInfo.initialDateIndex = ui.value;
           Layers.updateDateInfo(dateInfo, layerId);
+
+          $("#attributes-table-select").trigger("setAttributesTable");
         }
       });
     };

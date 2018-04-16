@@ -30,6 +30,7 @@
 terrama2::core::ServiceManager::ServiceManager()
   : startTime_(terrama2::core::TimeUtils::nowUTC())
 {
+  setNumberOfThreads(0);
 }
 
 bool terrama2::core::ServiceManager::serviceLoaded() const
@@ -78,6 +79,16 @@ ServiceInstanceId terrama2::core::ServiceManager::instanceId() const
   return instanceId_;
 }
 
+void terrama2::core::ServiceManager::setWebAppId(const std::string& webAppId)
+{
+  webAppId_ = webAppId;
+}
+
+const std::string&terrama2::core::ServiceManager::webAppId() const
+{
+  return webAppId_;
+}
+
 void terrama2::core::ServiceManager::setServiceType(const std::string& serviceType)
 {
   serviceType_ = serviceType;
@@ -99,6 +110,11 @@ int terrama2::core::ServiceManager::listeningPort() const
 
 void terrama2::core::ServiceManager::setNumberOfThreads(int numberOfThreads)
 {
+  if(numberOfThreads == 0)
+    numberOfThreads = std::thread::hardware_concurrency(); //looks for how many threads the hardware support
+  if(numberOfThreads == 0)
+    numberOfThreads = 1; //if not able to find out set to 1
+
   numberOfThreads_ = numberOfThreads;
   auto service = service_.lock();
   //update number of threads
@@ -141,6 +157,7 @@ QJsonObject terrama2::core::ServiceManager::status() const
 void terrama2::core::ServiceManager::updateService(const QJsonObject& obj)
 {
   setInstanceId(static_cast<ServiceInstanceId>(obj["instance_id"].toInt()));
+  setWebAppId(obj["webAppId"].toString().toStdString());
   setInstanceName(obj["instance_name"].toString().toStdString());
   setListeningPort(obj["listening_port"].toInt());
   setNumberOfThreads(obj["number_of_threads"].toInt());

@@ -46,19 +46,19 @@ namespace terrama2
           \brief Creates a View from a QJsonObject.
           \see View for json structure
           */
-        ViewPtr fromViewJson(QJsonObject json);
+        TMVIEWEXPORT ViewPtr fromViewJson(QJsonObject json);
 
         /*!
           \brief Creates a Json object from a View
         */
-        QJsonObject toJson(ViewPtr view);
+        TMVIEWEXPORT QJsonObject toJson(ViewPtr view);
 
 
-        View::Legend* fromLegendJson(QJsonObject json);
+        TMVIEWEXPORT View::Legend* fromLegendJson(QJsonObject json);
 
-        QJsonObject toJson(View::Legend legend);
+        TMVIEWEXPORT QJsonObject toJson(View::Legend legend);
 
-        QJsonObject toJson(View::Legend::Rule rule);
+        TMVIEWEXPORT QJsonObject toJson(View::Legend::Rule rule);
 
       } // end namespace core
     }   // end namespace view

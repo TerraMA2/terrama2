@@ -30,6 +30,10 @@
 #ifndef __TERRAMA2_CORE_TE_DATASET_FK_JOIN_HPP__
 #define __TERRAMA2_CORE_TE_DATASET_FK_JOIN_HPP__
 
+// TerraMa2
+#include "../Config.hpp"
+
+// STL
 #include <memory>
 #include <unordered_map>
 #include <string>
@@ -49,7 +53,7 @@ namespace terrama2
 {
   namespace core
   {
-    class TeDataSetFKJoin
+    class TMCOREEXPORT TeDataSetFKJoin
     {
     public:
       explicit TeDataSetFKJoin( std::shared_ptr<te::da::DataSetType> referrerDataSetType,
@@ -73,7 +77,7 @@ namespace terrama2
 
         \return Value of the porperty at the referred DataSet
       */
-      std::auto_ptr<te::dt::AbstractData> getValue(std::string propertyName) const;
+      std::unique_ptr<te::dt::AbstractData> getValue(std::string propertyName) const;
       te::dt::Property* getProperty(std::string propertyName) const;
 
       inline const std::shared_ptr<te::da::DataSetType>& referrerDataSetType() const { return _referrerDataSetType; }

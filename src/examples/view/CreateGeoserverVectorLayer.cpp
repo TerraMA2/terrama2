@@ -207,7 +207,7 @@ int main(int argc, char** argv)
 
     service.updateAdditionalInfo(additionalIfo);
 
-    service.addToQueue(view->id, terrama2::core::TimeUtils::nowUTC());
+    service.addToQueue(view, terrama2::core::TimeUtils::nowUTC());
 
     QTimer timer;
     QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));

@@ -30,6 +30,8 @@
 #ifndef __TERRAMA2_SERVICES_VIEW_CORE_VIEWLOGGER_HPP__
 #define __TERRAMA2_SERVICES_VIEW_CORE_VIEWLOGGER_HPP__
 
+// TerraMa2
+#include "Config.hpp"
 #include "../../../core/utility/ProcessLogger.hpp"
 
 namespace terrama2
@@ -40,7 +42,7 @@ namespace terrama2
     {
       namespace core
       {
-        class ViewLogger : public terrama2::core::ProcessLogger
+        class TMVIEWEXPORT ViewLogger : public terrama2::core::ProcessLogger
         {
           Q_OBJECT
           public:

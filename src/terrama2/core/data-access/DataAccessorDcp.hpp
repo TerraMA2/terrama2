@@ -50,7 +50,7 @@ namespace terrama2
       A weather station is an example of DCP.
 
     */
-    class DataAccessorDcp : public virtual DataAccessor
+    class TMCOREEXPORT DataAccessorDcp : public virtual DataAccessor
     {
       public:
         //! Default constructor

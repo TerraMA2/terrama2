@@ -30,6 +30,8 @@
 #ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_SERVICE_HPP__
 #define __TERRAMA2_SERVICES_ANALYSIS_CORE_SERVICE_HPP__
 
+// TerraMa2
+#include "Config.hpp"
 #include "AnalysisLogger.hpp"
 #include "Shared.hpp"
 #include "../../../core/utility/Service.hpp"
@@ -53,13 +55,13 @@ namespace terrama2
         /*!
            \brief Service class to the analysis module.
          */
-        class Service : public terrama2::core::Service
+        class TMANALYSISEXPORT Service : public terrama2::core::Service
         {
             Q_OBJECT
 
           public:
             //! Constructor
-            Service(DataManagerPtr dataManager);
+            Service(std::weak_ptr<terrama2::core::DataManager> dataManager);
 
             //! Destructor
             virtual ~Service();
@@ -84,12 +86,6 @@ namespace terrama2
               \param success Analysis finsished with success.
             */
             void analysisFinished(AnalysisId analysisId, std::shared_ptr< te::dt::TimeInstantTZ > executionDate, bool success, QJsonObject jsonAnswer = QJsonObject());
-
-            /*!
-              \brief Adds the analysis to the queue of execution.
-             */
-            virtual void addToQueue(AnalysisId analysisId, std::shared_ptr<te::dt::TimeInstantTZ> executionDate) noexcept override;
-
 
             /*!
                \brief Starts the server.
@@ -126,6 +122,8 @@ namespace terrama2
             void validateAnalysis(AnalysisPtr analysis) noexcept;
 
           protected:
+            virtual terrama2::core::ProcessPtr getProcess(ProcessId processId) override;
+            virtual void erasePreviousResult(terrama2::core::ProcessPtr process, std::shared_ptr<te::dt::TimeInstantTZ> timestamp) const override;
 
             /*!
               \brief Binds the method of execution to the task queue.
@@ -140,7 +138,6 @@ namespace terrama2
             void connectDataManager();
 
             PyThreadState* mainThreadState_; //!< Main thread state from Python interpreter.
-            DataManagerPtr dataManager_; //!< Data manager.
             ThreadPoolPtr threadPool_; //!< Pool of thread to run the analysis.
             terrama2::core::StoragerManagerPtr storagerManager_; //!< Manager to control the storage of analysis results.
             AnalysisExecutor analysisExecutor_; //! Analysis executor object.

@@ -30,6 +30,7 @@
 #ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_JSON_UTILS_HPP__
 #define __TERRAMA2_SERVICES_ANALYSIS_CORE_JSON_UTILS_HPP__
 
+#include "../Config.hpp"
 #include "../Shared.hpp"
 #include "../Analysis.hpp"
 
@@ -48,40 +49,28 @@ namespace terrama2
           \brief Creates an Analysis object from a QJsonObject.
           \see [Analysis at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/services/analysis/Analysis) for more information.
         */
-        AnalysisPtr fromAnalysisJson(const QJsonObject& json);
+        TMANALYSISEXPORT AnalysisPtr fromAnalysisJson(const QJsonObject& json);
 
         /*!
           \brief Creates a QJsonObject from an Analysis.
         */
-        QJsonObject toJson(AnalysisPtr analysis);
+        TMANALYSISEXPORT QJsonObject toJson(AnalysisPtr analysis);
 
         /*!
           \brief Creates an OutputGrid object from a QJsonObject.
           \see [OutputGrid at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/services/analysis/OutputGrid) for more information.
         */
-        AnalysisOutputGridPtr fromAnalysisOutputGrid(const QJsonObject& json);
+        TMANALYSISEXPORT AnalysisOutputGridPtr fromAnalysisOutputGrid(const QJsonObject& json);
 
         /*!
           \brief Creates a QJsonObject from an OutputGrid.
         */
-        QJsonObject toJson(AnalysisOutputGridPtr outputGrid);
-
-        /*!
-          \brief Creates an ReprocessingHistoricalData object from a QJsonObject.
-          \see [ReprocessingHistoricalData at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/services/analysis/ReprocessingHistoricalData) for more information.
-        */
-        ReprocessingHistoricalDataPtr fromAnalysisReprocessingHistoricalData(const QJsonObject& json);
-
-
-        /*!
-          \brief Creates a QJsonObject from an ReprocessingHistoricalData.
-        */
-        QJsonObject toJson(ReprocessingHistoricalDataPtr reprocessingHistoricalDataPtr);
+        TMANALYSISEXPORT QJsonObject toJson(AnalysisOutputGridPtr outputGrid);
 
         /*!
           \brief Creates a QJsonObject from ValidateResult struct.
         */
-        QJsonObject toJson(terrama2::services::analysis::core::ValidateResult result);
+        TMANALYSISEXPORT QJsonObject toJson(terrama2::services::analysis::core::ValidateResult result);
 
 
       } // end namespace core

@@ -169,7 +169,7 @@ add_value("standard_deviation", x))z";
 
     dataManager->add(analysis);
 
-    service.addToQueue(analysis->id, terrama2::core::TimeUtils::nowUTC());
+    service.addToQueue(analysis, terrama2::core::TimeUtils::nowUTC());
 
     QTimer timer;
     QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));

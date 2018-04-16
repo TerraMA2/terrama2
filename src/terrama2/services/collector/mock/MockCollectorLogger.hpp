@@ -30,6 +30,7 @@
 #ifndef __TERRAMA2_UNITTEST_CORE_MOCK_COLLECTOR_PROCESSLOGGER_HPP__
 #define __TERRAMA2_UNITTEST_CORE_MOCK_COLLECTOR_PROCESSLOGGER_HPP__
 
+#include "Config.hpp"
 #include "../core/CollectorLogger.hpp"
 
 #include <gmock/gmock.h>
@@ -42,7 +43,7 @@ namespace terrama2
     /*!
      * \brief The MockCollectorLogger class for ProcessLog unittests
      */
-    class MockCollectorLogger : public terrama2::services::collector::core::CollectorLogger
+    class TMCOLLECTOREXPORT MockCollectorLogger : public terrama2::services::collector::core::CollectorLogger
     {
     public:
 

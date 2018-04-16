@@ -33,12 +33,16 @@
 #include "SemanticsManager.hpp"
 #include "Raii.hpp"
 #include "Logger.hpp"
+#include "../data-model/DataManager.hpp"
+#include "../data-model/DataSeries.hpp"
+#include "../data-model/DataProvider.hpp"
 #include "../Exception.hpp"
 #include "../../Config.hpp"
 
 // TerraLib
 #include <terralib/dataaccess/datasource/ScopedTransaction.h>
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
+#include <terralib/dataaccess/datasource/DataSourceFactory.h>
 #include <terralib/core/utils/Platform.h>
 #include <terralib/common/PlatformUtils.h>
 #include <terralib/common/UnitsOfMeasureManager.h>
@@ -434,19 +438,19 @@ std::vector<std::string> terrama2::core::splitString(const std::string& text, ch
   return splittedString;
 }
 
-std::vector<std::shared_ptr<te::dt::DateTime> > terrama2::core::getAllDates(te::da::DataSet* teDataset,
-                                                                            const std::string& datetimeColumnName)
+std::vector<std::shared_ptr<te::dt::TimeInstantTZ> > terrama2::core::getAllDates(te::da::DataSet* teDataset,
+                                                                                 const std::string& datetimeColumnName)
 {
-  std::vector<std::shared_ptr<te::dt::DateTime> > vecDates;
+  std::vector<std::shared_ptr<te::dt::TimeInstantTZ> > vecDates;
 
   teDataset->moveBeforeFirst();
   while(teDataset->moveNext())
   {
     // Retrieve all execution dates of dataset
-    std::shared_ptr<te::dt::DateTime> executionDate = teDataset->getDateTime(datetimeColumnName);
+    std::shared_ptr<te::dt::TimeInstantTZ> executionDate(static_cast<te::dt::TimeInstantTZ*>(teDataset->getDateTime(datetimeColumnName).release()));
 
     auto it = std::lower_bound(vecDates.begin(), vecDates.end(), executionDate,
-                               [&](std::shared_ptr<te::dt::DateTime> const& first, std::shared_ptr<te::dt::DateTime> const& second)
+                               [&](std::shared_ptr<te::dt::TimeInstantTZ> const& first, std::shared_ptr<te::dt::TimeInstantTZ> const& second)
     {
               return *first < *second;
   });
@@ -553,4 +557,63 @@ terrama2::core::getDCPPositionsTable(std::shared_ptr<te::da::DataSource> datasou
   std::shared_ptr<te::da::DataSetType> teDataSetType = transactorDestination->getDataSetType(dataSetName);
 
   return {teDataSetType, teDataset};
+}
+
+void terrama2::core::erasePreviousResult(DataManagerPtr dataManager, DataSeriesId dataSeriesId, std::shared_ptr<te::dt::TimeInstantTZ> startTime)
+{
+  auto outputDataSeries = dataManager->findDataSeries(dataSeriesId);
+  if(!outputDataSeries)
+  {
+    TERRAMA2_LOG_ERROR() << QObject::tr("Invalid output data series for analysis.");
+    return;
+  }
+  auto outputDataProvider = dataManager->findDataProvider(outputDataSeries->dataProviderId);
+  if(!outputDataProvider)
+  {
+    TERRAMA2_LOG_ERROR() << QObject::tr("Invalid output data provider for analysis.");
+    return;
+  }
+
+  if(outputDataProvider->dataProviderType == "POSTGIS")
+  {
+    auto dataset = outputDataSeries->datasetList[0];
+    std::string tableName;
+
+    try
+    {
+      tableName = dataset->format.at("table_name");
+    }
+    catch(...)
+    {
+      QString errMsg = QObject::tr("Undefined table name in dataset: %1.").arg(dataset->id);
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::core::UndefinedTagException() << ErrorDescription(errMsg);
+    }
+
+    std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make("POSTGIS", outputDataProvider->uri));
+
+    // RAII for open/closing the datasource
+    terrama2::core::OpenClose<std::shared_ptr<te::da::DataSource> > openClose(datasource);
+
+    if(!datasource->isOpened())
+    {
+      QString errMsg = QObject::tr("DataProvider could not be opened.");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw Exception() << ErrorDescription(errMsg);
+    }
+
+    // get a transactor to interact to the data source
+    std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
+
+    auto dataSetNames = transactor->getDataSetNames();
+
+    if(std::find(dataSetNames.cbegin(), dataSetNames.cend(), tableName) != dataSetNames.cend() ||
+       std::find(dataSetNames.cbegin(), dataSetNames.cend(), "public."+tableName) != dataSetNames.cend())
+      transactor->execute("delete from " + tableName + " where execution_date = '" + startTime->toString() + "'");
+  }
+  else
+  {
+    QString errMsg = QObject::tr("Removing old results not implement for this dataseries format.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+  }
 }

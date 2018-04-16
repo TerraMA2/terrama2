@@ -128,6 +128,12 @@
    * @returns {Object}
    */
   View.prototype.toObject = function() {
+    if (this.legend && this.legend.metadata && this.legend.metadata.creation_type && this.legend.metadata.creation_type === "default") {
+      var legendData = null;
+    } else {
+      var legendData = (this.legend instanceof AbstractClass ? this.legend.toObject() : this.legend);
+    }
+
     return Object.assign(AbstractClass.prototype.toObject.call(this), {
       id: this.id,
       name: this.name,
@@ -140,7 +146,7 @@
       active: this.active,
       service_instance_id: this.serviceInstanceId,
       project_id: this.projectId,
-      legend: this.legend instanceof AbstractClass ? this.legend.toObject() : this.legend,
+      legend: legendData,
       private: this.private,
       schedule_type: this.scheduleType,
       source_type: this.source_type,

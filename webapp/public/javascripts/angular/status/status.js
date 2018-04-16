@@ -211,11 +211,16 @@ define([
             targetMessage = "Alert";
             targetKey = "";
             break;
+          case Globals.enums.ServiceType.INTERPOLATION:
+            targetArray = config.interpolators;
+            targetMessage = "Interpolator";
+            targetKey = "dataSeriesOutput";
+            break;
         }
 
         var logArray = response.logs;
 
-        var _findOne = function(array, identifier) {
+        var _findOne = function(array, identifier, serviceInstance) {
           var output = {};
           array.some(function(element) {
             if (element.id === identifier) {
@@ -229,14 +234,14 @@ define([
         //Function to get index of object in array
         var arrayObjectIndexOf = function(myArray, searchObject) {
           for(var i = 0, len = myArray.length; i < len; i++) {
-              if (myArray[i]['name'] === searchObject.name && myArray[i]['type'] === targetMessage) return i;
+            if (myArray[i]['name'] === searchObject.name && myArray[i]['service'] === service) return i;
           }
           return -1;
         }
 
         // Removing logs to be replaced
         logArray.forEach(function(logProcess){
-          var currentProcess = _findOne(targetArray, logProcess.process_id);
+          var currentProcess = _findOne(targetArray, logProcess.process_id, logProcess.instance_id);
           if (currentProcess){
             var obj = currentProcess[targetKey] || {name: currentProcess.name};
             var index = arrayObjectIndexOf($scope.model, obj);
@@ -258,7 +263,7 @@ define([
               service: service
             };
 
-            var currentProcess = _findOne(targetArray, logProcess.process_id);
+            var currentProcess = _findOne(targetArray, logProcess.process_id, logProcess.instance_id);
 
             var obj = currentProcess[targetKey] || {name: currentProcess.name};
 
@@ -365,18 +370,8 @@ define([
             }
 
             $scope.model.push(out);
-            var nameTypeKey = out.name + out.type;
-            if ($scope.groupedModel.hasOwnProperty(nameTypeKey)){
-              $scope.groupedModel[nameTypeKey].push(out);
-            }
-            else {
-              $scope.groupedModel[nameTypeKey] = [out];
-            }
           });
         });
-        for (var key in $scope.groupedModel){
-          $scope.groupedModel[key] =  $scope.groupedModel[key].sort(function(a,b) {return (a.date > b.date) ? -1 : ((b.date > a.date) ? 1 : 0);} );
-        }
       });
 
       // Function to get processing time message

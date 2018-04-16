@@ -57,6 +57,14 @@ module.exports = function(sequelize, DataTypes) {
               constraints: true
             }
           });
+
+          Schedule.hasOne(models.ReprocessingHistoricalData, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: "schedule_id",
+              allowNull: false
+            }
+          });
         }
       }
     }

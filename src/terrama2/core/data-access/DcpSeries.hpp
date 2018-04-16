@@ -45,7 +45,7 @@ namespace terrama2
       The DcpSeries aggregates the te::da::DataSet of each DCP
 
     */
-    class DcpSeries : public SeriesAggregation
+    class TMCOREEXPORT DcpSeries : public SeriesAggregation
     {
       public:
         //! Add a group of DataSet data to the DcpSeries.

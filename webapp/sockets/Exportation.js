@@ -96,7 +96,7 @@ var Exportation = function(io) {
             var ogr2ogr = memberExportation.ogr2ogr();
             var filePath = memberPath.join(__dirname, '../tmp/' + filesFolder + (requestFormats[i] == 'shapefile' ? '/shapefile/' : '/') + fileName + format.fileExtention);
 
-            var args = ['-progress', '-F', format.ogr2ogrFormat, filePath, connectionString, '-sql', memberExportation.getQuery(options), '-skipfailures'];
+            var args = ['-progress', '-F', format.ogr2ogrFormat, filePath, connectionString, '-fieldTypeToString', 'Date,Time,DateTime', '-sql', memberExportation.getQuery(options), '-skipfailures'];
 
             if(requestFormats[i] == "csv")
               args.push('-lco', 'LINEFORMAT=CRLF', '-lco', 'SEPARATOR=' + separator);
@@ -171,7 +171,12 @@ var Exportation = function(io) {
 
         if(json.monitoredObjectId !== undefined && json.monitoredObjectPk !== undefined) {
           memberDataManager.getDataSeries({ id: json.monitoredObjectId }).then(function(dataSeries) {
-            startProcess(dataSeries.dataSets[0].format.table_name, json.monitoredObjectPk);
+            memberExportation.getPrimaryKeyColumn(dataSeries.dataSets[0].format.table_name, json.dataProviderId).then(function(primaryKeyColumnResult) {
+              var primaryKeyColumn = (primaryKeyColumnResult.rows.length > 0 && primaryKeyColumnResult.rows[0].column_name ? primaryKeyColumnResult.rows[0].column_name : json.monitoredObjectPk);
+              startProcess(dataSeries.dataSets[0].format.table_name, primaryKeyColumn);
+            }).catch(function(err) {
+              return console.error(err);
+            });
           });
         } else {
           startProcess();

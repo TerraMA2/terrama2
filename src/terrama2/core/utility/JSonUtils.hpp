@@ -46,94 +46,106 @@ namespace terrama2
       \see DataProvider for json structure
       \see [DataProvider at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/core/DataProvider) for more information.
       */
-    DataProviderPtr fromDataProviderJson(QJsonObject json);
+    TMCOREEXPORT DataProviderPtr fromDataProviderJson(QJsonObject json);
 
     /*!
       \brief Creates a DataSeries from a QJsonObject.
       \see DataSeries for json structure
       \see [DataSeries at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/core/DataSeries) for more information.
       */
-    DataSeriesPtr fromDataSeriesJson(QJsonObject json);
+    TMCOREEXPORT DataSeriesPtr fromDataSeriesJson(QJsonObject json);
 
     /*!
       \brief Add base DataSet information to derived classes when constructing from QJsonObject.
       */
-    void addBaseDataSetData(QJsonObject json, std::shared_ptr<terrama2::core::DataSet> dataset);
+    TMCOREEXPORT void addBaseDataSetData(QJsonObject json, std::shared_ptr<terrama2::core::DataSet> dataset);
 
     /*!
       \brief Creates a DataSet from a QJsonObject.
       \see DataSet for json structure
       \see [DataSetDcp at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/core/DataSet) for more information.
     */
-    DataSetPtr fromDataSetJson(QJsonObject json);
+    TMCOREEXPORT DataSetPtr fromDataSetJson(QJsonObject json);
 
     /*!
       \brief Creates a DataSetDcp from a QJsonObject.
       \see DataSetDcp for json structure
       \see [DataSetDcp at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/core/DataSetDcp) for more information.
       */
-    DataSetPtr fromDataSetDcpJson(QJsonObject json);
+    TMCOREEXPORT DataSetPtr fromDataSetDcpJson(QJsonObject json);
 
     /*!
     \brief Creates a DataSetOccurrence from a QJsonObject.
     \see DataSetOccurrence for json structure
     \see [DataSetOccurrence at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/core/DataSetOccurrence) for more information.
       */
-    DataSetPtr fromDataSetOccurrenceJson(QJsonObject json);
+    TMCOREEXPORT DataSetPtr fromDataSetOccurrenceJson(QJsonObject json);
 
     /*!
       \brief Creates a DataSetGrid from a QJsonObject.
       \see DataSetGrid for json structure
       \see [DataSetGrid at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/core/DataSetGrid) for more information.
       */
-    DataSetPtr fromDataSetGridJson(QJsonObject json);
+    TMCOREEXPORT DataSetPtr fromDataSetGridJson(QJsonObject json);
 
     /*!
       \brief Creates a Schedule from a QJsonObject.
       \see Schedule for json structure
       \see [Schedule at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/core/Schedule) for more information.
       */
-    Schedule fromScheduleJson(QJsonObject json);
+    TMCOREEXPORT Schedule fromScheduleJson(QJsonObject json);
 
     /*!
       \brief Creates a Filter from a QJsonObject.
       \see Filter for json structure
       \see [Filter at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/core/Filter) for more information.
       */
-    Filter fromFilterJson(QJsonObject json, DataManager* dataManager);
-    QJsonObject toJson(const Filter& filter);
+    TMCOREEXPORT Filter fromFilterJson(QJsonObject json, DataManager* dataManager);
+    TMCOREEXPORT QJsonObject toJson(const Filter& filter);
 
-    LegendPtr fromRiskJson(QJsonObject json);
-    QJsonObject toJson(const terrama2::core::Risk& risk);
+    TMCOREEXPORT LegendPtr fromRiskJson(QJsonObject json);
+    TMCOREEXPORT QJsonObject toJson(const terrama2::core::Risk& risk);
 
     /*!
       \brief Creates a QJsonObject from a DataProvider.
       \attention This is a function created for debug and tests
       */
-    QJsonObject toJson(DataProviderPtr dataProviderPtr);
+    TMCOREEXPORT QJsonObject toJson(DataProviderPtr dataProviderPtr);
 
     /*!
       \brief Creates a QJsonObject from a DataSeries.
       \attention This is a function created for debug and tests
       */
-    QJsonObject toJson(DataSeriesPtr dataSeriesPtr);
+    TMCOREEXPORT QJsonObject toJson(DataSeriesPtr dataSeriesPtr);
 
     /*!
       \brief Creates a QJsonObject from a DataSet.
       \attention This is a function created for debug and tests
       */
-    QJsonObject toJson(DataSetPtr dataSetPtr, DataSeriesSemantics semantics);
+    TMCOREEXPORT QJsonObject toJson(DataSetPtr dataSetPtr, DataSeriesSemantics semantics);
     //! Add DataSetDcp information to base DataSet QJsonObject.
-    void addToJson(QJsonObject& obj, DataSetDcpPtr dataSetPtr);
+    TMCOREEXPORT void addToJson(QJsonObject& obj, DataSetDcpPtr dataSetPtr);
     //! Add DataSetOccurrence information to base DataSet QJsonObject.
-    void addToJson(QJsonObject& obj, DataSetOccurrencePtr dataSetPtr);
+    TMCOREEXPORT void addToJson(QJsonObject& obj, DataSetOccurrencePtr dataSetPtr);
     //! Add DataSetGrid information to base DataSet QJsonObject.
-    void addToJson(QJsonObject& obj, DataSetGridPtr dataSetPtr);
+    TMCOREEXPORT void addToJson(QJsonObject& obj, DataSetGridPtr dataSetPtr);
 
     /*!
       \brief Creates a QJsonObject from a Schedule.
       \attention This is a function created for debug and tests
       */
-    QJsonObject toJson(Schedule schedule);
+    TMCOREEXPORT QJsonObject toJson(Schedule schedule);
+
+    /*!
+      \brief Creates a QJsonObject from an ReprocessingHistoricalData.
+    */
+    TMCOREEXPORT QJsonObject toJson(ReprocessingHistoricalDataPtr reprocessingHistoricalDataPtr);
+
+    /*!
+      \brief Creates an ReprocessingHistoricalData object from a QJsonObject.
+      \see [ReprocessingHistoricalData at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/services/analysis/ReprocessingHistoricalData) for more information.
+    */
+    TMCOREEXPORT ReprocessingHistoricalDataPtr fromReprocessingHistoricalData(const QJsonObject& json);
+
   } /* core */
 } /* terrama2 */

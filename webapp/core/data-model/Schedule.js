@@ -13,6 +13,11 @@
    * @type {Utils}
    */
   var Utils = require("./../Utils");
+  /**
+   * TerraMA² Reprocessing Historial Data
+   * @type {ReprocessingHistoricalData}
+   */
+  var ReprocessingHistoricalData = require("./ReprocessingHistoricalData");
 
   /**
    * TerraMA² Schedule Data Model representation
@@ -60,12 +65,40 @@
     this.schedule_retry_unit = params.schedule_retry_unit || "";
     this.schedule_timeout = params.schedule_timeout || 0;
     this.schedule_timeout_unit = params.schedule_timeout_unit || "";
+    /**
+     * @type {ReprocessingHistoricalData}
+     */
+    this.historicalData = null;
+  
+    if (params.ReprocessingHistoricalDatum) {
+      this.setHistoricalData(params.ReprocessingHistoricalDatum);
+    } else {
+      this.setHistoricalData(params.historicalData || params.historical);
+    }
   };
 
   Schedule.prototype = Object.create(BaseClass.prototype);
   Schedule.prototype.constructor = Schedule;
 
+  /**
+   * It creates and sets a ReprocessingHistoricalData to historicalData
+   *
+   * @param {Object | ReprocessingHistoricalData}
+   */
+  Schedule.prototype.setHistoricalData = function(historicalData) {
+    if (historicalData instanceof BaseClass) {
+      this.historicalData = historicalData;
+    } else {
+      if (historicalData && !Utils.isEmpty(historicalData)) {
+        this.historicalData = new ReprocessingHistoricalData(historicalData);
+      } else {
+        this.historicalData = {};
+      }
+    }
+  };
+
   Schedule.prototype.toObject = function() {
+    var historicalData = this.historicalData instanceof BaseClass ? this.historicalData.toObject() : this.historicalData;
     return Object.assign(BaseClass.prototype.toObject.call(this), {
       id: this.id,
       frequency: this.frequency,
@@ -77,7 +110,8 @@
       schedule_retry: this.schedule_retry,
       schedule_retry_unit: this.schedule_retry_unit,
       schedule_timeout: this.schedule_timeout,
-      schedule_timeout_unit: this.schedule_timeout_unit
+      schedule_timeout_unit: this.schedule_timeout_unit,
+      reprocessing_historical_data: Utils.isEmpty(historicalData) ? null : historicalData
     });
   };
 

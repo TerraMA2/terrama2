@@ -51,6 +51,7 @@ std::string terrama2::core::DataAccessorPostGIS::whereConditions(terrama2::core:
                                                                  const terrama2::core::Filter& filter) const
 {
   std::vector<std::string> whereConditions;
+  addExtraConditions(dataSet, whereConditions);
   addDateTimeFilter(datetimeColumnName, filter, whereConditions);
   addGeometryFilter(dataSet, filter, whereConditions);
 
@@ -146,7 +147,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGIS::getSeries(con
   query+= "FROM "+tableName+" AS t";
   query += whereConditions(dataSet, datetimeColumnName, filter);
 
-//  TERRAMA2_LOG_DEBUG() << query;
+  //  TERRAMA2_LOG_DEBUG() << query;
 
   std::shared_ptr<te::da::DataSet> tempDataSet = transactor->query(query);
 
@@ -154,6 +155,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGIS::getSeries(con
   {
     QString errMsg = QObject::tr("No data in dataset: %1.").arg(dataSet->id);
     TERRAMA2_LOG_WARNING() << errMsg;
+    throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
   }
 
   updateLastTimestamp(dataSet, transactor);
@@ -273,7 +275,7 @@ void terrama2::core::DataAccessorPostGIS::updateLastTimestamp(DataSetPtr dataSet
     throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
   }
 
-  *lastDateTime_ = *lastDateTimeTz;
+  lastDateTime_ = lastDateTimeTz;
 }
 
 

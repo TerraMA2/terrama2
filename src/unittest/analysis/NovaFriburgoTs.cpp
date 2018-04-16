@@ -762,7 +762,7 @@ void NovaFriburgoTs::AnalysisTS()
 
       analysis->analysisDataSeriesList = analysisDataSeriesList;
 
-      service.addToQueue(analysis->id, terrama2::core::TimeUtils::stringToTimestamp("2011-01-11T12:00:00.000-02:00", terrama2::core::TimeUtils::webgui_timefacet));
+      service.addToQueue(analysis, terrama2::core::TimeUtils::stringToTimestamp("2011-01-11T12:00:00.000-02:00", terrama2::core::TimeUtils::webgui_timefacet));
 
 
       QTimer timer;

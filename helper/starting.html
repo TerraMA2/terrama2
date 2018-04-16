@@ -1,13 +1,13 @@
 
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt">
 
 <head>
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="generator" content="HelpNDoc Personal Edition 5.0.0.182">
+  <meta name="generator" content="HelpNDoc Standard Edition 5.4.2.416">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" href="favicon.ico"/>
 
@@ -48,7 +48,7 @@
   <link href="css/effects.min.css" rel="stylesheet" />
   <link href="css/theme-light-blue.min.css" rel="stylesheet" />
   <link href="css/print.min.css" rel="stylesheet" media="print" />
-  <style type="text/css">nav { width: 350px} @media screen and (min-width:769px) { body.md-nav-expanded #main { margin-left: 350px} body.md-nav-expanded header { padding-left: 364px} }</style>
+  <style type="text/css">nav { width: 350px} @media screen and (min-width:769px) { body.md-nav-expanded div#main { margin-left: 350px} body.md-nav-expanded header { padding-left: 364px} }</style>
 
   <!-- Content style -->
   <link href="css/hnd.content.css" rel="stylesheet" />
@@ -87,21 +87,21 @@
       
 	  
         <li role="presentation" class="tab active">
-            <a href="#contents" aria-controls="contents" role="tab" data-toggle="tab">
+            <a href="#contents" id="tab-contents" aria-controls="contents" role="tab" data-toggle="tab">
                 <i class="glyphicon glyphicon-list"></i>
                 Contents
             </a>
         </li>
       
         <li role="presentation" class="tab">
-            <a href="#index" aria-controls="index" role="tab" data-toggle="tab">
+            <a href="#index" id="tab-index" aria-controls="index" role="tab" data-toggle="tab">
                 <i class="glyphicon glyphicon-asterisk"></i>
                 Index
             </a>
         </li>
       
         <li role="presentation" class="tab">
-            <a href="#search" aria-controls="search" role="tab" data-toggle="tab">
+            <a href="#search" id="tab-search" aria-controls="search" role="tab" data-toggle="tab">
                 <i class="glyphicon glyphicon-search"></i>
                 Search
             </a>
@@ -171,7 +171,7 @@
                         
                     </ol>
                     <div class="nav-arrows">
-                        <div class="btn-group btn-group-xs" role="group"><a class="btn btn-default" href="computational_requirements.html" title="Requisitos computacionais" role="button"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a><a class="btn btn-default" href="typical_project.html" title="Projeto T&iacute;pico" role="button"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></div>
+                        <div class="btn-group btn-group-xs" role="group"><a class="btn btn-default" href="computational_requirements.html" title="Requisitos computacionais" role="button"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a><a class="btn btn-default" href="ProjetoTipico.html" title="Projeto T&iacute;pico" role="button"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></div>
                     </div>
                 </div> 
             
@@ -184,19 +184,18 @@
                 
 <p></p>
 <p class="rvps2"><span class="rvts6"><br/></span></p>
-<p class="rvps6"><a name="docs-internal-guid-831ae713-c712-4821-61df-0713f5409fab"></a>
-<span class="rvts16">Após instalação da plataforma os Módulos de </span><a class="rvts23" href="administration_module.html">Administração</a><span class="rvts16"> e </span><a class="rvts23" href="monitoring_module.html">Monitoramento</a><span class="rvts16"> estarão disponíveis para iniciar seu uso. As principais etapas são:</span></p>
-<p class="rvps6"><span class="rvts16"><br/></span></p>
-<p class="rvps6"><span class="rvts16">1- Inicie pelo </span><span class="rvts17">Módulo de Administração</span><span class="rvts16"> no navegador de sua preferência. Utilize </span><span class="rvts31">http://localhost:36000 &nbsp;</span><span class="rvts16">se o acesso se fizer na própria máquina onde foi instalado. Para acesso remoto de outras máquinas verifique com o administrador de seu rede;</span></p>
-<p class="rvps6"><span class="rvts16">2- O primeiro acesso deve ser feito pelo usuário administrador com login: </span><span class="rvts17">admin</span><span class="rvts16"> e senha: </span><span class="rvts17">admin</span><span class="rvts16">. Altere posteriormente esta senha e crie outras contas de usuário, com ou sem privilégio de administrador;</span></p>
-<p class="rvps6"><span class="rvts16">3- Somente como usuário administrador os serviços (coleta, análise, interpolação, visualização, análise e alerta) devem ser configurados e iniciados. Os serviços são comuns a todos os projetos a serem criados;</span></p>
-<p class="rvps6"><span class="rvts16">4- Usuário com ou sem privilégio de administração podem criar e administrar seus projetos. Defina os dados dinâmicos e estáticos que serão utilizados a partir de servidores de dados. Defina análises com seus dados e configure a visualização e alertas a serem enviados. O conteúdo de um </span><a class="rvts23" href="typical_project.html">projeto típico está descrito aqui</a><span class="rvts16">;</span></p>
-<p class="rvps6"><span class="rvts16">5- Faça acesso ao </span><span class="rvts17">Módulo de Monitoramento</span><span class="rvts16"> no navegador de sua preferência. Utilize </span><span class="rvts31">http://localhost:36001 &nbsp;</span><span class="rvts16">se o acesso se fizer na própria máquina onde foi instalado. Para acesso remoto de outras máquinas verifique com o administrador de seu rede;</span></p>
-<p class="rvps6"><span class="rvts16"><br/></span></p>
-<p class="rvps6"><span class="rvts16"><br/></span></p>
-<p class="rvps6"><span class="rvts16"><br/></span></p>
+<p class="rvps9"><a name="docs-internal-guid-831ae713-c712-4821-61df-0713f5409fab"></a>
+<span class="rvts16">Após instalação da plataforma os Módulos de </span><a class="rvts26" href="administration_module.html">Administração</a><span class="rvts16"> e </span><a class="rvts26" href="monitoring_module.html">Monitoramento</a><span class="rvts16"> estarão disponíveis para iniciar seu uso. As principais etapas são:</span></p>
+<p class="rvps9"><span class="rvts16"><br/></span></p>
+<p class="rvps9"><span class="rvts16">1- Inicie pelo </span><span class="rvts17">Módulo de Administração</span><span class="rvts16"> no navegador de sua preferência. Utilize </span><span class="rvts34">http://localhost:36000 &nbsp;</span><span class="rvts16">se o acesso se fizer na própria máquina onde foi instalado. Para acesso remoto de outras máquinas verifique com o administrador de seu rede;</span></p>
+<p class="rvps9"><span class="rvts16">2- O primeiro acesso deve ser feito pelo usuário administrador com login: </span><span class="rvts17">admin</span><span class="rvts16"> e senha: </span><span class="rvts17">admin</span><span class="rvts16">. Altere posteriormente esta senha e crie outras contas de usuário, com ou sem privilégio de administrador;</span></p>
+<p class="rvps9"><span class="rvts16">3- Somente como usuário administrador os serviços (coleta, análise, interpolação, visualização, análise e alerta) devem ser configurados e iniciados. Os serviços são comuns a todos os projetos a serem criados;</span></p>
+<p class="rvps9"><span class="rvts16">4- Usuário com ou sem privilégio de administração podem criar e administrar seus projetos. Defina os dados dinâmicos e estáticos que serão utilizados a partir de servidores de dados. Defina análises com seus dados e configure a visualização e alertas a serem enviados. O conteúdo de um </span><a class="rvts26" href="ProjetoTipico.html">projeto típico está descrito aqui</a><span class="rvts16">;</span></p>
+<p class="rvps9"><span class="rvts16">5- Faça acesso ao </span><span class="rvts17">Módulo de Monitoramento</span><span class="rvts16"> no navegador de sua preferência. Utilize </span><span class="rvts34">http://localhost:36001 &nbsp;</span><span class="rvts16">se o acesso se fizer na própria máquina onde foi instalado. Para acesso remoto de outras máquinas verifique com o administrador de seu rede;</span></p>
+<p class="rvps9"><span class="rvts16"><br/></span></p>
+<p class="rvps9"><span class="rvts16"><br/></span></p>
+<p class="rvps9"><span class="rvts16"><br/></span></p>
 <p></p>
-<p class="rvps5" style="clear: both;"><span class="rvts14">Created with the Personal Edition of HelpNDoc: </span><a class="rvts15" href="https://www.helpndoc.com/help-authoring-tool">Easy to use tool to create HTML Help files and Help web sites</a></p>
 
             </div>
             
@@ -204,19 +203,35 @@
         </div>  <!-- /#topic-content -->
     </article>
 
-    <footer>
-        
-    </footer>
+    <footer></footer>
 
   </div>  <!-- /#main -->
 
   <div class="mask" data-toggle="sm-nav-expanded"></div>
+  
+  <!-- Modal -->
+  <div class="modal fade" id="hndModal" tabindex="-1" role="dialog" aria-labelledby="hndModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="hndModalLabel"></h4>
+        </div>
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary modal-btn-close" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Scripts -->
   <script src="vendors/jquery-1.11.3/jquery.min.js"></script>
   <script src="vendors/bootstrap-3.3.6/js/bootstrap.min.js"></script>
   <script src="vendors/fastclick-1.0.6/fastclick.min.js"></script>
   <script src="vendors/markjs-8.8.3/jquery.mark.min.js"></script>
+  <script src="vendors/uri-1.18.9/uri.min.js"></script>
   <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
   <script src="vendors/bootstrap-3.3.6/js/ie10-viewport-bug-workaround.js"></script>
   
@@ -242,10 +257,16 @@
       var app = new Hnd.App();
       // Update translations
       hnd_ut(app);
+	  // Custom JS
+	  
       // Boot the app
       app.Boot();
     });
   </script>
 
-  
+
+
+</body>
+
+</html>
 

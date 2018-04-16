@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/core/DataManager.hpp
+  \file terrama2/core/data-model/DataManager.hpp
 
   \brief Manages metadata about data providers and its dataseries.
 
@@ -33,6 +33,8 @@
 #ifndef __TERRAMA2_CORE_DATAMANAGER_HPP__
 #define __TERRAMA2_CORE_DATAMANAGER_HPP__
 
+// TerraMa2
+#include "../Config.hpp"
 #include "../Shared.hpp"
 #include "../Typedef.hpp"
 
@@ -81,9 +83,9 @@ namespace terrama2
       This is also true for the services DataManager, when implementing addJSon()
       and removeJSon() keep this in mind.
      */
-    class DataManager : public QObject
+    class TMCOREEXPORT DataManager : public QObject
     {
-        Q_OBJECT
+		Q_OBJECT
 
       public:
         //! Constructor

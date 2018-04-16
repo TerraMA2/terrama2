@@ -31,6 +31,7 @@
 #define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_FILE_HPP__
 
 //TerraMA2
+#include "Config.hpp"
 #include "../core/Shared.hpp"
 #include "../core/data-access/DataAccessor.hpp"
 #include "../core/data-model/DataSet.hpp"
@@ -49,7 +50,7 @@ namespace terrama2
       \brief Base class for DataAccessor classes that access a file.
 
     */
-    class DataAccessorFile : public virtual DataAccessor
+    class TMIMPLEXPORT DataAccessorFile : public virtual DataAccessor
     {
       public:
         DataAccessorFile(DataProviderPtr dataProvider, DataSeriesPtr dataSeries)
@@ -172,7 +173,10 @@ namespace terrama2
            - DateTime attribute is null (will be logged)
 
         */
-        virtual bool isValidTimestamp(std::shared_ptr<te::mem::DataSet> dataSet, const Filter& filter, size_t dateColumn) const;
+        virtual bool isValidTimestamp(std::shared_ptr<SynchronizedDataSet> dataSet,
+                                      size_t index,
+                                      const Filter& filter,
+                                      size_t dateColumn) const;
         /*!
           \brief Filter dataset by geometry
 
@@ -186,10 +190,11 @@ namespace terrama2
 
         */
 
-        virtual bool isValidGeometry(std::shared_ptr<te::mem::DataSet> dataSet,
+        virtual bool isValidGeometry(std::shared_ptr<SynchronizedDataSet> dataSet,
+                                     size_t index,
                                      const Filter& filter,
                                      size_t geomColumn,
-                                     terrama2::core::DataSetSeries filterDataSetSeries,
+                                     const DataSetSeries& filterDataSetSeries,
                                      const std::unique_ptr<te::sam::rtree::Index<size_t, 8> >& rtree) const;
 
         /*!
@@ -204,10 +209,12 @@ namespace terrama2
            - Raster attribute is null (will be logged)
 
         */
-        virtual bool isValidRaster(std::shared_ptr<te::mem::DataSet> dataSet,
+        virtual bool isValidRaster(std::shared_ptr<SynchronizedDataSet> dataSet,
+                                   size_t index,
                                    const Filter&  filter, size_t rasterColumn,
-                                   terrama2::core::DataSetSeries filterDataSetSeries,
-                                   const std::unique_ptr<te::sam::rtree::Index<size_t, 8> >& rtree) const;
+                                   const DataSetSeries& filterDataSetSeries,
+                                   const std::unique_ptr<te::sam::rtree::Index<size_t, 8> >& rtree,
+                                   std::mutex& mutex) const;
 
         std::shared_ptr< te::dt::TimeInstantTZ > getDataLastTimestamp(DataSetPtr dataSet, std::shared_ptr<te::da::DataSet> teDataSet) const;
 

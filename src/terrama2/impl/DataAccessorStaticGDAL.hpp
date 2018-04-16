@@ -42,7 +42,7 @@ namespace terrama2
       \brief DataAccessor for GRID DataSeries in GeoTiff format.
 
     */
-    class DataAccessorStaticGDAL : public DataAccessorGDAL
+    class TMIMPLEXPORT DataAccessorStaticGDAL : public DataAccessorGDAL
     {
     public:
 
@@ -69,7 +69,10 @@ namespace terrama2
 
       // Override function to avoid missing timezone warning, this is not used for static data
       virtual std::string getTimeZone(DataSetPtr /*dataSet*/, bool /*logErrors*/) const override { return "UTC+00"; };
-      virtual bool isValidTimestamp(std::shared_ptr<te::mem::DataSet> /*dataSet*/, const Filter& /*filter*/, size_t /*dateColumn*/) const override {return true;}
+      virtual bool isValidTimestamp(std::shared_ptr<SynchronizedDataSet> dataSet,
+                                    size_t index,
+                                    const Filter& filter,
+                                    size_t dateColumn) const override {return true;}
     };
   }
 }

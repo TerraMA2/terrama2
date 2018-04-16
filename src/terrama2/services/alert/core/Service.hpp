@@ -30,6 +30,8 @@
 #ifndef __TERRAMA2_SERVICES_ALERT_CORE_SERVICE_HPP__
 #define __TERRAMA2_SERVICES_ALERT_CORE_SERVICE_HPP__
 
+// TerraMa2
+#include "../../Config.hpp"
 #include "../../../core/utility/Service.hpp"
 #include "../../../core/Typedef.hpp"
 #include "../../../core/Shared.hpp"
@@ -50,12 +52,12 @@ namespace terrama2
     {
       namespace core
       {
-        class Service : public terrama2::core::Service
+        class TMALERTCOREEXPORT Service : public terrama2::core::Service
         {
             Q_OBJECT
 
           public:
-            Service(std::weak_ptr<DataManager> dataManager);
+            Service(std::weak_ptr<terrama2::core::DataManager> dataManager);
 
             ~Service() = default;
             Service(const Service& other) = delete;
@@ -65,8 +67,6 @@ namespace terrama2
 
 
           public slots:
-            //! Slot to be called when a DataSetTimer times out.
-            virtual void addToQueue(AlertId alertId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept override;
 
             /*!
               \brief Updates the Alert.
@@ -98,14 +98,13 @@ namespace terrama2
                                QJsonObject jsonAnswer = QJsonObject());
 
           protected:
-
+            virtual terrama2::core::ProcessPtr getProcess(ProcessId processId) override;
             //*! Create a process task and add to taskQueue_
             virtual void prepareTask(const terrama2::core::ExecutionPackage& executionPackage) override;
 
             //! Connects signals from DataManager
             void connectDataManager();
 
-            std::weak_ptr<DataManager> dataManager_; //!< Weak pointer to the DataManager
             std::map<std::string, std::string> serverMap_;
             AlertExecutor alertExecutor_;
         };

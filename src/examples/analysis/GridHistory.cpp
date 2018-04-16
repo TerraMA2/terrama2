@@ -132,7 +132,7 @@ int main(int argc, char* argv[])
 
     dataManager->add(analysis);
 
-    service.addToQueue(analysis->id, terrama2::core::TimeUtils::stringToTimestamp("2016-08-07T00:00:00-00", terrama2::core::TimeUtils::webgui_timefacet));
+    service.addToQueue(analysis, terrama2::core::TimeUtils::stringToTimestamp("2016-08-07T00:00:00-00", terrama2::core::TimeUtils::webgui_timefacet));
 
     QTimer timer;
     QObject::connect(&timer, &QTimer::timeout, &service, &Service::stopService);

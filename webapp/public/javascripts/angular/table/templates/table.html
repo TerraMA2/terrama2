@@ -56,6 +56,7 @@
           <div class="modal-body">
             <p><b>{{ i18n.__('Service version')}}</b>{{": " + serviceVersion}}</p>
             <p><b>{{ i18n.__('Service start time')}}</b>{{": " + serviceStartTime}}</p>
+            <p ng-if="serviceVersionMessage" style="color: red;"><b>{{ serviceVersionMessage }}</b></p>
             <p ng-if="showServiceLoggerOffline" style="color: red;"><b>{{ i18n.__('The service can not access the log database!')}}</b></p>
             <p ng-if="maps_server_connection === false" style="color: red;"><b>{{ i18n.__('The service can not access the map server!')}}</b></p>
 
@@ -181,6 +182,7 @@
         <tr style="font-weight: bold;">
           <td ng-show="isFunction(icon()) && model.length > 0"></td>
           <td ng-repeat="field in displayFields">{{ i18n.__(field) }}</td>
+          <td ng-if="changeStatus"></td>
           <td ng-if="extra.service"></td>
           <td ng-if="extra.service">Status</td>
           <td ng-if="extra.export"></td>
@@ -197,6 +199,11 @@
             <a ng-href="{{ makeLink(element) }}" ng-if="link" ng-bind="processField(field, element)"></a>
           </td>
 
+          <td ng-if="element.active.toString() === 'true' || element.active.toString() === 'false'" class="pull-cell-left status-change-button">
+            <span ng-if="!servicesInstances || servicesInstances[element.service_instance_id].toString() === 'true'" class="fa" ng-class="{ 'fa-toggle-on': element.active.toString() === 'true', 'fa-toggle-off': element.active.toString() === 'false' }" ng-click="changeStatus($event, makeLinkStatusChange(element))"></span>
+            <span ng-if="servicesInstances && servicesInstances[element.service_instance_id].toString() !== 'true'" class="status-change-disabled fa" ng-class="{ 'fa-toggle-on': element.active.toString() === 'true', 'fa-toggle-off': element.active.toString() === 'false' }"></span>
+          </td>
+
           <td ng-if="extra.project" class="pull-cell-left">
             <a ng-href="{{ extra.canEdit(element) ? extra.project.edit(element) : ''}}" 
                 class="btn btn-default btn-sm" 
@@ -210,7 +217,7 @@
               <i class="fa fa-warning"></i>
             </button>
             <button ng-show="element.online" ng-click="showInfo(element)" class="btn btn-default btn-sm pull-right" style="width: 34px; height: 30px;" ng-class="{'service-warning': !element.logger_online || element.maps_server_connection === false}"> 
-              <i ng-class="{ 'fa fa-info': element.logger_online && element.maps_server_connection !== false, 'fa fa-warning': !element.logger_online || element.maps_server_connection === false}" ></i>
+              <i ng-class="{ 'fa fa-info': element.logger_online && element.maps_server_connection !== false && element.different_versions !== true, 'fa fa-warning': !element.logger_online || element.maps_server_connection === false || element.different_versions === true }" ></i>
             </button>
           </td>
 
@@ -276,6 +283,13 @@
               </span>
               <i class="fa fa-download" ng-show="!extra.isExporting"></i>
             </button>
+          </td>
+
+          <td ng-disabled class="pull-cell-left">
+            <a ng-if="extra.canInterpolate(element)" class="btn btn-default btn-sm" ng-href="{{extra.linkToInterpolate(element)}}">
+              <span></span>
+              <span class="hidden-xs">{{ i18n.__("Interpolate") }}</span>
+            </a>
           </td>
 
           <td ng-if="extra.showRunButton" ng-disabled class="pull-cell-left">

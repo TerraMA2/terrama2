@@ -51,8 +51,8 @@
 
 #include "../../../core/Exception.hpp"
 
-terrama2::services::collector::core::Service::Service(std::weak_ptr<terrama2::services::collector::core::DataManager> dataManager)
-  : dataManager_(dataManager)
+terrama2::services::collector::core::Service::Service(std::weak_ptr<terrama2::core::DataManager> dataManager)
+  : terrama2::core::Service(dataManager)
 {
   connectDataManager();
 }
@@ -61,63 +61,14 @@ void terrama2::services::collector::core::Service::prepareTask(const terrama2::c
 {
   try
   {
-    auto collectorLogger = std::dynamic_pointer_cast<CollectorLogger>(logger_->clone());
+    auto dataManager = std::static_pointer_cast<terrama2::services::collector::core::DataManager>(dataManager_.lock());
+    auto collectorLogger = std::static_pointer_cast<CollectorLogger>(logger_->clone());
     assert(collectorLogger);
-    taskQueue_.emplace(std::bind(&terrama2::services::collector::core::Service::collect, this, executionPackage, collectorLogger, dataManager_));
+    taskQueue_.emplace(std::bind(&terrama2::services::collector::core::Service::collect, this, executionPackage, collectorLogger, dataManager));
   }
   catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
-  }
-}
-
-void terrama2::services::collector::core::Service::addToQueue(CollectorId collectorId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept
-{
-  try
-  {
-    std::lock_guard<std::mutex> lock(mutex_);
-
-    auto datamanager = dataManager_.lock();
-    auto collector = datamanager->findCollector(collectorId);
-
-    const auto& serviceManager = terrama2::core::ServiceManager::getInstance();
-    auto serviceInstanceId = serviceManager.instanceId();
-
-    // Check if this collector should be executed in this instance
-    if(collector->serviceInstanceId != serviceInstanceId)
-      return;
-
-    RegisterId registerId = logger_->start(collectorId);
-
-    terrama2::core::ExecutionPackage executionPackage;
-    executionPackage.processId = collectorId;
-    executionPackage.executionDate = startTime;
-    executionPackage.registerId = registerId;
-
-    // if this collector id is already being processed put it on the wait queue
-    auto pqIt = std::find(processingQueue_.begin(), processingQueue_.end(), collectorId);
-    if(pqIt == processingQueue_.end())
-    {
-      processQueue_.push_back(executionPackage);
-      processingQueue_.push_back(collectorId);
-    }
-    else
-    {
-      waitQueue_[collectorId].push(executionPackage);
-      logger_->result(CollectorLogger::Status::ON_QUEUE, nullptr, executionPackage.registerId);
-      TERRAMA2_LOG_INFO() << tr("Collector %1 added to wait queue.").arg(collectorId);
-    }
-
-    mainLoopCondition_.notify_one();
-  }
-  catch(const terrama2::core::LogException&)
-  {
-    TERRAMA2_LOG_ERROR() << QObject::tr("Unable to access log database.");
-  }
-  catch(...)
-  {
-    // exception guard, slots should never emit exceptions.
-    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception during collector add to queue...");
   }
 }
 
@@ -134,6 +85,8 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
     return;
   }
 
+  // error message to be logged
+  QString errMsg;
   try
   {
     //////////////////////////////////////////////////////////
@@ -161,7 +114,7 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
     auto processingStartTime = terrama2::core::TimeUtils::nowUTC();
 
     terrama2::core::Filter filter = collectorPtr->filter;
-    if(filter.discardAfter.get() && filter.discardBefore.get()
+    if(filter.discardAfter && filter.discardBefore
         && (*filter.discardAfter) < (*filter.discardBefore))
     {
       QString errMsg = QObject::tr("Empty filter time range.");
@@ -184,8 +137,14 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
     // begin processing
     //
     dataAccessor->getSeriesCallback(filter, remover, [&](const DataSetId& datasetId, const std::string& uri) {
+      std::shared_ptr<te::dt::TimeInstantTZ> thisFileLastDateTime;
       try
       {
+        // if some error happened
+        // don't continue
+        if(status == CollectorLogger::ProcessLogger::Status::ERROR)
+          return;
+
         auto dataMap = dataAccessor->getSeries({{datasetId, uri}}, filter, remover);
         if(dataMap.empty())
         {
@@ -199,7 +158,7 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
           return;
         }
 
-        auto thisFileLastDateTime = dataAccessor->lastDateTime();
+        thisFileLastDateTime = dataAccessor->lastDateTime();
 
         /////////////////////////////////////////////////////////////////////////
         // data intersection
@@ -224,8 +183,10 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
         dataStorager->store(dataMap, dataSetLst, inputOutputMap);
 
         // if any exception happens, don't update the data timestamp
-        if(thisFileLastDateTime && (!lastDateTime || (*thisFileLastDateTime > *lastDateTime)))
+        if( terrama2::core::TimeUtils::isValid(thisFileLastDateTime)
+            && (!terrama2::core::TimeUtils::isValid(lastDateTime) || (*thisFileLastDateTime > *lastDateTime))) {
           lastDateTime = thisFileLastDateTime;
+        }
 
         status = CollectorLogger::ProcessLogger::Status::DONE;
       }
@@ -243,10 +204,7 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
         TERRAMA2_LOG_INFO() << tr("No data available for collector %1.").arg(QString::fromStdString(outputDataSeries->name));
 
         if(executionPackage.registerId != 0)
-        {
           logger->log(CollectorLogger::MessageType::WARNING_MESSAGE, errMsg, executionPackage.registerId);
-          logger->result(CollectorLogger::Status::WARNING, nullptr, executionPackage.registerId);
-        }
       }
       catch(const terrama2::Exception& e)
       {
@@ -255,10 +213,7 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
         TERRAMA2_LOG_INFO() << tr("Collector %1 finished with error(s).").arg(QString::fromStdString(outputDataSeries->name));
 
         if(executionPackage.registerId != 0)
-        {
           logger->log(CollectorLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
-          logger->result(CollectorLogger::Status::ERROR, nullptr, executionPackage.registerId);
-        }
       }
       catch(const boost::exception& e)
       {
@@ -268,10 +223,7 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
         TERRAMA2_LOG_INFO() << tr("Collector %1 finished with error(s).").arg(QString::fromStdString(outputDataSeries->name));
 
         if(executionPackage.registerId != 0)
-        {
           logger->log(CollectorLogger::MessageType::ERROR_MESSAGE, errMsg, executionPackage.registerId);
-          logger->result(CollectorLogger::Status::ERROR, nullptr, executionPackage.registerId);
-        }
       }
       catch(const std::exception& e)
       {
@@ -280,10 +232,7 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
         TERRAMA2_LOG_INFO() << tr("Collector %1 finished with error(s).").arg(QString::fromStdString(outputDataSeries->name));
 
         if(executionPackage.registerId != 0)
-        {
           logger->log(CollectorLogger::MessageType::ERROR_MESSAGE, e.what(), executionPackage.registerId);
-          logger->result(CollectorLogger::Status::ERROR, nullptr, executionPackage.registerId);
-        }
       }
       catch(...)
       {
@@ -293,11 +242,10 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
 
         status = CollectorLogger::ProcessLogger::Status::ERROR;
         if(executionPackage.registerId != 0)
-        {
           logger->log(CollectorLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
-          logger->result(CollectorLogger::Status::ERROR, nullptr, executionPackage.registerId);
-        }
       }
+
+      logger->result(CollectorLogger::ProcessLogger::Status::START, thisFileLastDateTime, executionPackage.registerId);
     });
     //
     // end processing
@@ -324,15 +272,6 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
     notifyWaitQueue(executionPackage.processId);
     return;
   }
-  catch(const terrama2::core::LogException& e)
-  {
-    std::string errMsg = boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
-    if(executionPackage.registerId != 0 )
-    {
-      TERRAMA2_LOG_ERROR() << errMsg << std::endl;
-      TERRAMA2_LOG_INFO() << tr("Collector %1 finished with error(s).").arg(executionPackage.processId);
-    }
-  }
   catch(const terrama2::core::NoDataException& e)
   {
     TERRAMA2_LOG_INFO() << tr("Collector %1 finished but there was no data available.").arg(executionPackage.processId);
@@ -341,56 +280,44 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
     if(executionPackage.registerId != 0)
     {
       logger->log(CollectorLogger::MessageType::WARNING_MESSAGE, errMsg, executionPackage.registerId);
-      logger->result(CollectorLogger::Status::DONE, nullptr, executionPackage.registerId);
+      logger->result(CollectorLogger::Status::WARNING, nullptr, executionPackage.registerId);
     }
+
+    QJsonObject jsonAnswer;
+    jsonAnswer.insert(terrama2::core::ReturnTags::AUTOMATIC, false);
+    sendProcessFinishedSignal(executionPackage.processId, executionPackage.executionDate, true, jsonAnswer);
+    notifyWaitQueue(executionPackage.processId);
+    return;
+  }
+  catch(const terrama2::core::LogException& e)
+  {
+    errMsg = *boost::get_error_info<terrama2::ErrorDescription>(e);
   }
   catch(const terrama2::Exception& e)
   {
-    QString errMsg = *boost::get_error_info<terrama2::ErrorDescription>(e);
-    TERRAMA2_LOG_INFO() << tr("Collector %1 finished with error(s).").arg(executionPackage.processId);
-
-    if(executionPackage.registerId != 0)
-    {
-      logger->log(CollectorLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
-      logger->result(CollectorLogger::Status::ERROR, nullptr, executionPackage.registerId);
-    }
+    errMsg = *boost::get_error_info<terrama2::ErrorDescription>(e);
   }
   catch(const boost::exception& e)
   {
-    std::string errMsg = boost::diagnostic_information(e);
-    TERRAMA2_LOG_ERROR() << errMsg;
-    TERRAMA2_LOG_INFO() << tr("Collector %1 finished with error(s).").arg(executionPackage.processId);
-
-    if(executionPackage.registerId != 0)
-    {
-      logger->log(CollectorLogger::MessageType::ERROR_MESSAGE, errMsg, executionPackage.registerId);
-      logger->result(CollectorLogger::Status::ERROR, nullptr, executionPackage.registerId);
-    }
+    errMsg = QString::fromStdString(boost::diagnostic_information(e));
   }
   catch(const std::exception& e)
   {
-    TERRAMA2_LOG_ERROR() << e.what();
-    TERRAMA2_LOG_INFO() << tr("Collector %1 finished with error(s).").arg(executionPackage.processId);
-
-    if(executionPackage.registerId != 0)
-    {
-      logger->log(CollectorLogger::MessageType::ERROR_MESSAGE, e.what(), executionPackage.registerId);
-      logger->result(CollectorLogger::Status::ERROR, nullptr, executionPackage.registerId);
-    }
+    errMsg = e.what();
   }
   catch(...)
   {
-    QString errMsg = tr("Unknown error.");
-    TERRAMA2_LOG_ERROR() << errMsg;
-    TERRAMA2_LOG_INFO() << tr("Collector %1 finished with error(s).").arg(executionPackage.processId);
-
-    if(executionPackage.registerId != 0)
-    {
-      logger->log(CollectorLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
-      logger->result(CollectorLogger::Status::ERROR, nullptr, executionPackage.registerId);
-    }
-
+    errMsg = tr("Unknown error.");
   }
+
+  if(executionPackage.registerId != 0)
+  {
+    logger->log(CollectorLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+    logger->result(CollectorLogger::Status::ERROR, nullptr, executionPackage.registerId);
+  }
+
+  TERRAMA2_LOG_ERROR() << errMsg;
+  TERRAMA2_LOG_INFO() << tr("Collector %1 finished with error(s).").arg(executionPackage.processId);
 
   // if arrived here, always error
   sendProcessFinishedSignal(executionPackage.processId, executionPackage.executionDate, false);
@@ -399,7 +326,7 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
 
 void terrama2::services::collector::core::Service::connectDataManager()
 {
-  auto dataManager = dataManager_.lock();
+  auto dataManager = std::static_pointer_cast<terrama2::services::collector::core::DataManager>(dataManager_.lock());
   connect(dataManager.get(), &terrama2::services::collector::core::DataManager::collectorAdded, this,
           &terrama2::services::collector::core::Service::addProcessToSchedule);
   connect(dataManager.get(), &terrama2::services::collector::core::DataManager::collectorRemoved, this,
@@ -461,4 +388,10 @@ void terrama2::services::collector::core::Service::updateCollector(CollectorPtr 
 void terrama2::services::collector::core::Service::updateAdditionalInfo(const QJsonObject& /*obj*/) noexcept
 {
 
+}
+
+terrama2::core::ProcessPtr terrama2::services::collector::core::Service::getProcess(ProcessId processId)
+{
+  auto dataManager = std::static_pointer_cast<terrama2::services::collector::core::DataManager>(dataManager_.lock());
+  return dataManager->findCollector(processId);
 }

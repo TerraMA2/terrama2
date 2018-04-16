@@ -31,6 +31,7 @@
 #define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_INPE_HPP__
 
 //TerraMA2
+#include "Config.hpp"
 #include "DataAccessorFile.hpp"
 #include "../core/Shared.hpp"
 #include "../core/data-access/DataAccessorDcp.hpp"
@@ -46,7 +47,7 @@ namespace terrama2
       \brief DataAccessor for DCP DataSeries from INPE.
 
     */
-    class DataAccessorDcpInpe : public DataAccessorDcp, public DataAccessorFile
+    class TMIMPLEXPORT DataAccessorDcpInpe : public DataAccessorDcp, public DataAccessorFile
     {
     public:
       DataAccessorDcpInpe(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true);

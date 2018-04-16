@@ -31,6 +31,9 @@
 #ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_PYTHON_MONITORED_OBJECT_HPP__
 #define __TERRAMA2_SERVICES_ANALYSIS_CORE_PYTHON_MONITORED_OBJECT_HPP__
 
+// TerraMa2
+#include "../Config.hpp"
+
 namespace terrama2
 {
   namespace services
@@ -46,47 +49,47 @@ namespace terrama2
             /*!
               \brief Registers all functions for monitored object analysis.
             */
-            void registerFunctions();
+            TMANALYSISEXPORT void registerFunctions();
 
             /*!
               \brief Registers occurrence functions in the Python interpreter.
             */
-            void registerOccurrenceFunctions();
+            TMANALYSISEXPORT void registerOccurrenceFunctions();
 
             /*!
               \brief Registers occurrence functions using a time interval in the Python interpreter.
             */
-            void registerOccurrenceIntervalFunctions();
+            TMANALYSISEXPORT void registerOccurrenceIntervalFunctions();
 
             /*!
               \brief Registers occurrence aggregation functions in the Python interpreter.
             */
-            void registerOccurrenceAggregationFunctions();
+            TMANALYSISEXPORT void registerOccurrenceAggregationFunctions();
 
             /*!
               \brief Registers DCP functions in the Python interpreter.
             */
-            void registerDCPFunctions();
+            TMANALYSISEXPORT void registerDCPFunctions();
 
             /*!
               \brief Registers DCP zonal functions in the Python interpreter.
             */
-            void registerDCPZonalFunctions();
+            TMANALYSISEXPORT void registerDCPZonalFunctions();
 
             /*!
               \brief Registers DCP history functions in the Python interpreter.
             */
-            void registerDCPZonalHistoryFunctions();
+            TMANALYSISEXPORT void registerDCPZonalHistoryFunctions();
 
             /*!
               \brief Registers DCP history interval functions in the Python interpreter.
             */
-            void registerDCPZonalHistoryIntervalFunctions();
+            TMANALYSISEXPORT void registerDCPZonalHistoryIntervalFunctions();
 
             /*!
               \brief Registers DCP influence functions in the Python interpreter.
             */
-            void registerDCPZonalInfluenceFunctions();
+            TMANALYSISEXPORT void registerDCPZonalInfluenceFunctions();
 
           } /* MonitoredObject */
         } /* python */

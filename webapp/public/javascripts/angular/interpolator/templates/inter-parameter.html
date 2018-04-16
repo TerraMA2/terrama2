@@ -1,0 +1,102 @@
+<div class="row">
+  <div class="col-md-12" style="padding-top: 20px">
+    <terrama2-box title="i18n.__('Strategy')" css="cssBoxSolid">
+      <div class="col-md-12">
+        <div class="col-md-6">
+          <div class="form-group" terrama2-show-errors>
+            <label>{{ i18n.__('Interpolator strategy') }}:</label>
+            <select class="form-control" name="interpolator_strategy" ng-model="inter.interpolator_strategy" required>
+              <option value="NEAREST-NEIGHBOR">{{ i18n.__('Nearest neighbor') }}</option>
+              <option value="AVERAGE-NEIGHBOR">{{ i18n.__('Average neighbor') }}</option>
+              <option value="W-AVERAGE-NEIGHBOR">{{ i18n.__('Weight average neighbor') }}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    
+      <div class="col-md-12">
+      </div>
+    
+      <div class="col-md-12">
+        <div class="col-md-6">
+          <div class="form-group" terrama2-show-errors>
+            <label>{{ i18n.__('Interpolation attribute') }}:</label>
+            <input class="form-control" id="interpolation_attribute" name="interpolation_attribute" ng-model="inter.interpolation_attribute" type="text" required>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group" terrama2-show-errors>
+            <label>{{ i18n.__('Number of neighbors') }}:</label>
+            <input class="form-control" id="number_of_neighbors" name="number_of_neighbors" ng-model="inter.metadata.number_of_neighbors" type="number" required>
+          </div>
+        </div>
+      </div>
+    
+      <div class="col-md-12">
+        <div class="col-md-6" ng-if="inter.interpolator_strategy == 'W-AVERAGE-NEIGHBOR'">
+          <div>
+            <div class="form-group" terrama2-show-errors>
+              <label>{{ i18n.__('Power factor') }}:</label>
+              <input class="form-control" id="power_factor" name="power_factor" ng-model="inter.metadata.power_factor" type="number" ng-required="inter.interpolator_strategy == 'W-AVERAGE-NEIGHBOR'">
+            </div>
+          </div>
+        </div>
+      </div>
+    </terrama2-box>    
+
+    <terrama2-box title="i18n.__('Area')" css="cssBoxSolid">
+      <div class="col-md-12 no-padding">
+        <div class="col-md-12">
+          <div class="col-md-6">
+            <div class="form-group" terrama2-show-errors>
+              <label>{{ i18n.__('X min') }}:</label>
+              <input class="form-control" id="llx" name="llx" ng-model="bounding_rect.ll_corner.x" type="number" required>
+            </div>          
+          </div>
+          <div class="col-md-6">
+            <div class="form-group" terrama2-show-errors>
+              <label>{{ i18n.__('X max') }}:</label>
+              <input class="form-control" id="urx" name="urx" ng-model="bounding_rect.ur_corner.x" type="number" required>
+            </div>              
+          </div>
+        </div>
+        <div class="col-md-12">
+          <div class="col-md-6">
+            <div class="form-group" terrama2-show-errors>
+              <label>{{ i18n.__('Y min') }}:</label>
+              <input class="form-control" id="lly" name="lly" ng-model="bounding_rect.ll_corner.y" type="number" required>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group" terrama2-show-errors>
+              <label>{{ i18n.__('Y max') }}:</label>
+              <input class="form-control" id="ury" name="ury" ng-model="bounding_rect.ur_corner.y" type="number" required>
+            </div>              
+          </div>
+        </div>
+        <div class="col-md-12">
+          <div class="col-md-6">
+            <div class="form-group" terrama2-show-errors>            
+              <label>{{ i18n.__('X resolution') }}:</label>
+              <input class="form-control" id="resolution_x" name="resolution_x" ng-model="inter.resolution_x" type="number" required>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group" terrama2-show-errors>
+              <label>{{ i18n.__('Y resolution') }}:</label>
+              <input class="form-control" id="resolution_y" name="resolution_y" ng-model="inter.resolution_y" type="number" required>
+            </div>            
+          </div>
+        </div>
+        <div class="col-md-12">
+          <div class="col-md-6">
+            <div class="form-group" terrama2-show-errors>
+              <label>{{ i18n.__('Projection (SRID)') }}:</label>
+              <input class="form-control" id="srid" name="srid" ng-model="inter.srid" type="number" required>
+            </div>
+          </div>
+        </div>
+      </div>
+    </terrama2-box>
+  </div>
+</div>

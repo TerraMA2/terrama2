@@ -74,7 +74,7 @@ namespace terrama2
           int srid; //!< Raster SRID
           double resolutionX; //!< Represents Raster Resolution X Pixel
           double resolutionY; //!< Represents Raster Resolution Y Pixel
-          te::dt::TimeInstant timeTz; //!< Raster Time Instant TZ
+          std::unique_ptr<te::dt::TimeInstantTZ> timeTz; //!< Raster Time Instant TZ
           std::unique_ptr<te::gm::Envelope> envelope; //!< Raster envelope limits
         };
 
@@ -83,7 +83,7 @@ namespace terrama2
 
             This class stores a address to a GeoServer and the workspace in the server.
           */
-        class GeoServer : public MapsServer
+        class TMVIEWEXPORT GeoServer : public MapsServer
         {
           public:
 

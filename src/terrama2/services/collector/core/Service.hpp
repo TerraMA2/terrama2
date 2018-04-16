@@ -30,6 +30,8 @@
 #ifndef __TERRAMA2_SERVICES_COLLECTOR_CORE_SERVICE_HPP__
 #define __TERRAMA2_SERVICES_COLLECTOR_CORE_SERVICE_HPP__
 
+// TerraMa2
+#include "Config.hpp"
 #include "../../../core/utility/Service.hpp"
 #include "../../../core/Typedef.hpp"
 #include "../../../core/Shared.hpp"
@@ -58,12 +60,12 @@ namespace terrama2
           The %Collector Service has a main thread that will check for new data to collect
           and a threadpool that will be allocated to actively collect and store the data.
         */
-        class Service : public terrama2::core::Service
+        class TMCOLLECTOREXPORT Service : public terrama2::core::Service
         {
             Q_OBJECT
 
           public:
-            Service(std::weak_ptr<DataManager> dataManager);
+            Service(std::weak_ptr<terrama2::core::DataManager> dataManager);
 
             ~Service() = default;
             Service(const Service& other) = delete;
@@ -71,9 +73,7 @@ namespace terrama2
             Service& operator=(const Service& other) = delete;
             Service& operator=(Service&& other) = default;
 
-            public slots:
-            //! Slot to be called when a DataSetTimer times out.
-            virtual void addToQueue(CollectorId collectorId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept override;
+          public slots:
 
             /*!
               \brief Updates the Collector.
@@ -95,7 +95,7 @@ namespace terrama2
             virtual void updateAdditionalInfo(const QJsonObject& obj) noexcept override;
 
           protected:
-
+            virtual terrama2::core::ProcessPtr getProcess(ProcessId processId) override;
             //*! Create a process task and add to taskQueue_
             virtual void prepareTask(const terrama2::core::ExecutionPackage& executionPackage) override;
             /*!
@@ -106,8 +106,6 @@ namespace terrama2
 
             //! Connects signals from DataManager
             void connectDataManager();
-
-            std::weak_ptr<DataManager> dataManager_; //!< Weak pointer to the DataManager
         };
 
       } // end namespace core

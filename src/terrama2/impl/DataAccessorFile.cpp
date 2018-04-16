@@ -37,10 +37,12 @@
 #include "../core/utility/Unpack.hpp"
 #include "../core/utility/Verify.hpp"
 #include "../core/utility/DataAccessorFactory.hpp"
+#include "../core/utility/ServiceManager.hpp"
 
 //STL
 #include <algorithm>
 #include <limits>
+#include <future>
 
 //QT
 #include <QUrl>
@@ -60,7 +62,6 @@
 #include <terralib/geometry/Envelope.h>
 #include <terralib/raster/BandProperty.h>
 #include <terralib/raster/Band.h>
-
 
 std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataset, const Filter& filter, std::shared_ptr<terrama2::core::FileRemover> remover) const
 {
@@ -160,22 +161,65 @@ void terrama2::core::DataAccessorFile::filterDataSet(std::shared_ptr<te::mem::Da
     }
   }
 
-  size_t size = completeDataSet->size();
-  size_t i = 0;
+  auto& serviceManager = terrama2::core::ServiceManager::getInstance();
+  size_t numberOfThreads = static_cast<size_t>(serviceManager.numberOfThreads());
 
-  while(i < size)
+  ///////////////////////////////////////////////////////////////
+  ///
+  /// ASYNCHRONOUS CODE
+  ///
+  /// USE CAUTION
+  ///
+  ///
+  std::mutex mutex;
+  size_t size = completeDataSet->size();
+  // reverse ordered list of indexes to remove
+  std::set<size_t, std::greater<size_t>> removeIndexes;
   {
-    completeDataSet->move(i);
-    if(!isValidTimestamp(completeDataSet, filter, dateColumn)
-        || !isValidGeometry(completeDataSet, filter, geomColumn, filterDataSetSeries, rtree)
-        || !isValidRaster(completeDataSet, filter, rasterColumn, filterDataSetSeries, rtree))
+    auto syncDataSet = std::make_shared<SynchronizedDataSet>(completeDataSet);
+    auto removeIndexesFunc = [&] (size_t begin, size_t end)
     {
-      completeDataSet->remove();
-      --size;
-      continue;
+      for(size_t i = begin; i < end; ++i)
+      {
+        if(!isValidTimestamp(syncDataSet, i, filter, dateColumn)
+           || !isValidGeometry(syncDataSet, i, filter, geomColumn, filterDataSetSeries, rtree)
+           || !isValidRaster(syncDataSet, i, filter, rasterColumn, filterDataSetSeries, rtree, mutex))
+        {
+          std::unique_lock<std::mutex> lock(mutex);
+          removeIndexes.insert(i);
+        }
+      }
+    };
+
+    std::vector< std::future<void> > promises;
+    size_t step = size/numberOfThreads;
+    if(step < 1) step = 1;
+    size_t begin = 0;
+    size_t end = 0;
+    while(end < syncDataSet->size())
+    {
+      begin = end;
+      end = static_cast<size_t>(begin+step);
+      if(end > syncDataSet->size())
+        end = syncDataSet->size();
+
+      auto future = std::async(std::launch::async, removeIndexesFunc, begin, end);
+      promises.push_back(std::move(future));
     }
 
-    ++i;
+    // wait for all threads
+    for(auto& future : promises) future.get();
+  }
+  ///
+  /// END OF ASYNCHROUNOUS CODE
+  ///
+  ///////////////////////////////////////////////////////////////
+
+// inverse order remove
+  for(auto i : removeIndexes)
+  {
+    completeDataSet->move(i);
+    completeDataSet->remove();
   }
 }
 
@@ -277,19 +321,22 @@ void terrama2::core::DataAccessorFile::filterDataSetByLastValues(std::shared_ptr
   }
 }
 
-bool terrama2::core::DataAccessorFile::isValidTimestamp(std::shared_ptr<te::mem::DataSet> dataSet, const Filter& filter, size_t dateColumn) const
+bool terrama2::core::DataAccessorFile::isValidTimestamp(std::shared_ptr<SynchronizedDataSet> dataSet,
+                                                        size_t index,
+                                                        const Filter& filter,
+                                                        size_t dateColumn) const
 {
   if(!isValidColumn(dateColumn) || (!filter.discardBefore.get() && !filter.discardAfter.get()))
     return true;
 
-  if(dataSet->isNull(dateColumn))
+  if(dataSet->isNull(index, dateColumn))
   {
     QString errMsg = QObject::tr("Null date/time attribute.");
     TERRAMA2_LOG_WARNING() << errMsg;
     return true;
   }
 
-  std::shared_ptr< te::dt::DateTime > dateTime(dataSet->getDateTime(dateColumn));
+  std::shared_ptr< te::dt::DateTime > dateTime(dataSet->getDateTime(index, dateColumn));
   auto timesIntant = std::dynamic_pointer_cast<te::dt::TimeInstantTZ>(dateTime);
 
   if(filter.discardBefore.get() && !((*timesIntant) > (*filter.discardBefore)))
@@ -301,15 +348,16 @@ bool terrama2::core::DataAccessorFile::isValidTimestamp(std::shared_ptr<te::mem:
   return true;
 }
 
-bool terrama2::core::DataAccessorFile::isValidGeometry(std::shared_ptr<te::mem::DataSet> dataSet,
+bool terrama2::core::DataAccessorFile::isValidGeometry(std::shared_ptr<SynchronizedDataSet> dataSet,
+                                                       size_t index,
                                                        const Filter& filter, size_t geomColumn,
-                                                       terrama2::core::DataSetSeries filterDataSetSeries,
+                                                       const terrama2::core::DataSetSeries& filterDataSetSeries,
                                                        const std::unique_ptr<te::sam::rtree::Index<size_t, 8> >& rtree) const
 {
   if(!isValidColumn(geomColumn))
     return true;
 
-  if(dataSet->isNull(geomColumn))
+  if(dataSet->isNull(index, geomColumn))
   {
     QString errMsg = QObject::tr("Null geometry attribute.");
     TERRAMA2_LOG_WARNING() << errMsg;
@@ -317,7 +365,7 @@ bool terrama2::core::DataAccessorFile::isValidGeometry(std::shared_ptr<te::mem::
   }
 
 
-  std::shared_ptr< te::gm::Geometry > region(dataSet->getGeometry(geomColumn));
+  std::shared_ptr< te::gm::Geometry > region(dataSet->getGeometry(index, geomColumn));
   // the RTree is create with EPSG:4326
   region->transform(4326);
 
@@ -329,7 +377,6 @@ bool terrama2::core::DataAccessorFile::isValidGeometry(std::shared_ptr<te::mem::
     if(!region->intersects(filterRegion.get()))
       return false;
   }
-
 
   if(rtree)
   {
@@ -361,40 +408,49 @@ bool terrama2::core::DataAccessorFile::isValidGeometry(std::shared_ptr<te::mem::
   return true;
 }
 
-bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<te::mem::DataSet> dataSet,
+bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<SynchronizedDataSet> dataSet,
+                                                     size_t index,
                                                      const Filter&  filter,
                                                      size_t rasterColumn,
-                                                     terrama2::core::DataSetSeries filterDataSetSeries,
-                                                     const std::unique_ptr<te::sam::rtree::Index<size_t, 8> >& rtree) const
+                                                     const terrama2::core::DataSetSeries& filterDataSetSeries,
+                                                     const std::unique_ptr<te::sam::rtree::Index<size_t, 8> >& rtree,
+                                                     std::mutex& mutex) const
 {
   if(!isValidColumn(rasterColumn))
     return true;
 
-  if(dataSet->isNull(rasterColumn))
+  if(dataSet->isNull(index, rasterColumn))
   {
     QString errMsg = QObject::tr("Null raster attribute.");
     TERRAMA2_LOG_WARNING() << errMsg;
     return true;
   }
 
-  std::shared_ptr< te::rst::Raster > raster(dataSet->getRaster(rasterColumn));
+  std::shared_ptr< te::rst::Raster > raster(dataSet->getRaster(index, rasterColumn));
 
-  //if filter by regio/box
-  if(filter.region.get())
+  //if filter by region/box
+  if(filter.region)
   {
-    auto envelope = filter.region->getMBR();
-    std::unique_ptr<te::gm::Envelope> extent(raster->getExtent(filter.region->getSRID()));
+    // transform filter area to EPSG:4326
+    std::shared_ptr<te::gm::Geometry> filterArea(static_cast<te::gm::Geometry*>(filter.region->clone()));
+    filterArea->transform(4326);
+    // check for intersection
+    auto envelope = filterArea->getMBR();
+    std::unique_ptr<te::gm::Envelope> extent(raster->getExtent(filterArea->getSRID()));
     if(!extent->intersects(*envelope))
       return false;
 
     if(filter.cropRaster)
     {
       //clip raster by box
-      auto clipedRaster = raster->clip({filter.region.get()}, {}, "EXPANSIBLE");
+      auto clipedRaster = raster->clip({filterArea.get()}, {}, "EXPANSIBLE");
       //update raster in the dataset
-      dataSet->setRaster(rasterColumn, clipedRaster);
+      std::unique_lock<std::mutex> lock(mutex);
+      auto memDataSet = std::dynamic_pointer_cast<te::mem::DataSet>(dataSet->dataset());
+      memDataSet->move(index);
+      memDataSet->setRaster(rasterColumn, clipedRaster);
       //update raster for consistency in the function
-      raster = std::shared_ptr< te::rst::Raster >(dataSet->getRaster(rasterColumn));
+      raster = std::shared_ptr< te::rst::Raster >(dataSet->getRaster(index, rasterColumn));
     }
   }
 
@@ -406,6 +462,8 @@ bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<te::mem::Da
     auto box = region->getMBR();
     std::vector<std::size_t> report;
     rtree->search(*box, report);
+    if(report.empty())
+      return false;
 
     auto syncDs = filterDataSetSeries.syncDataSet;
     std::size_t geomPropertyPos = te::da::GetFirstPropertyPos(syncDs->dataset().get(), te::dt::GEOMETRY_TYPE);
@@ -432,18 +490,28 @@ bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<te::mem::Da
 
       unitedGeom = std::shared_ptr<te::gm::Geometry>(unitedGeom->Union(geom));
     }
+    // sanity check, should never arrive here
+    if(!unitedGeom)
+      return false;
 
+    unitedGeom->transform(4326);
     if (region->intersects(unitedGeom.get()))
     {
       //crop the raster using the dataset
       if(filter.cropRaster)
       {
+        // transform the crop geometry to the same projection
+        // of the raster image
+        unitedGeom->transform(raster->getSRID());
         //clip raster by union
         auto clipedRaster = raster->clip({unitedGeom.get()}, {}, "EXPANSIBLE");
         //update raster in the dataset
-        dataSet->setRaster(rasterColumn, clipedRaster);
+        std::unique_lock<std::mutex> lock(mutex);
+        auto memDataSet = std::dynamic_pointer_cast<te::mem::DataSet>(dataSet->dataset());
+        memDataSet->move(index);
+        memDataSet->setRaster(rasterColumn, clipedRaster);
         //update raster for consistency in the function
-        raster = std::shared_ptr< te::rst::Raster >(dataSet->getRaster(rasterColumn));
+        raster = std::shared_ptr< te::rst::Raster >(dataSet->getRaster(index, rasterColumn));
       }
 
       return true;
@@ -792,7 +860,7 @@ std::shared_ptr<te::dt::TimeInstantTZ> terrama2::core::DataAccessorFile::readFil
     }
 
     //update lastest file timestamp
-    if(!lastFileTimestamp.get() || lastFileTimestamp->getTimeInstantTZ().is_special() || *lastFileTimestamp < *thisFileTimestamp)
+    if(!TimeUtils::isValid(lastFileTimestamp) || *lastFileTimestamp < *thisFileTimestamp)
       lastFileTimestamp = thisFileTimestamp;
 
 
@@ -813,25 +881,25 @@ void terrama2::core::DataAccessorFile::applyFilters(const terrama2::core::Filter
   filterDataSetByLastValues(completeDataset, filter);
 
   //if both dates are valid
-  if((lastFileTimestamp.get() && !lastFileTimestamp->getTimeInstantTZ().is_special())
-     && (dataTimeStamp.get() && !dataTimeStamp->getTimeInstantTZ().is_special()))
+  if(TimeUtils::isValid(lastFileTimestamp)
+     && TimeUtils::isValid(dataTimeStamp))
   {
-    (*lastDateTime_) = *dataTimeStamp > *lastFileTimestamp ? *dataTimeStamp : *lastFileTimestamp;
+    lastDateTime_ = *dataTimeStamp > *lastFileTimestamp ? dataTimeStamp : lastFileTimestamp;
   }
-  else if(lastFileTimestamp.get() && !lastFileTimestamp->getTimeInstantTZ().is_special())
+  else if(TimeUtils::isValid(lastFileTimestamp))
   {
     //if only fileTimestamp is valid
-    (*lastDateTime_) = *lastFileTimestamp;
+    lastDateTime_ = lastFileTimestamp;
   }
-  else if(dataTimeStamp.get() && !dataTimeStamp->getTimeInstantTZ().is_special())
+  else if(TimeUtils::isValid(dataTimeStamp))
   {
     //if only dataTimeStamp is valid
-    (*lastDateTime_) = *dataTimeStamp;
+    lastDateTime_ = dataTimeStamp;
   }
   else
   {
     boost::local_time::local_date_time noTime(boost::local_time::not_a_date_time);
-    (*lastDateTime_) = te::dt::TimeInstantTZ(noTime);
+    lastDateTime_ = std::make_shared<te::dt::TimeInstantTZ>(noTime);
   }
 }
 

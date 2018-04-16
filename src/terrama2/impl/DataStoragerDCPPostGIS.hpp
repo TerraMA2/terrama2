@@ -31,6 +31,7 @@
 #define __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_DCP_POSTGIS_HPP__
 
 //TerraMA2
+#include "Config.hpp"
 #include "DataStoragerPostGIS.hpp"
 
 namespace terrama2
@@ -38,7 +39,7 @@ namespace terrama2
   namespace core
   {
 
-    class DataStoragerDCPPostGIS : public DataStoragerPostGIS
+    class TMIMPLEXPORT DataStoragerDCPPostGIS : public DataStoragerPostGIS
     {
       public:
         DataStoragerDCPPostGIS(DataSeriesPtr dataSeries, DataProviderPtr outputDataProvider)

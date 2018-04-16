@@ -28,15 +28,8 @@
  */
 
 #include "DataAccessorDcpPostGIS.hpp"
-#include "../core/utility/Raii.hpp"
+#include "../core/utility/Logger.hpp"
 
-//TerraLib
-#include <terralib/dataaccess/datasource/DataSource.h>
-#include <terralib/dataaccess/datasource/DataSourceFactory.h>
-#include <terralib/dataaccess/datasource/DataSourceTransactor.h>
-
-//QT
-#include <QUrl>
 #include <QObject>
 
 terrama2::core::DataAccessorDcpPostGIS::DataAccessorDcpPostGIS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics)

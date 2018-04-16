@@ -84,7 +84,7 @@ void terrama2::core::DataAccessorOccurrenceWfp::adapt(DataSetPtr dataSet, std::s
   Srid srid = getSrid(dataSet);
 
   te::dt::DateTimeProperty* timestampProperty = new te::dt::DateTimeProperty(getTimestampPropertyName(dataSet), te::dt::TIME_INSTANT_TZ);
-  te::gm::GeometryProperty* geomProperty = new te::gm::GeometryProperty(getOutputGeometryPropertyName(dataSet), srid, te::gm::PointType);
+  te::gm::GeometryProperty* geomProperty = new te::gm::GeometryProperty(getGeometryPropertyName(dataSet), srid, te::gm::PointType);
   std::string paisPropertyName("pais_id");
   std::string biomaPropertyName("bioma_id");
   te::dt::SimpleProperty* paisIdProperty = new te::dt::SimpleProperty(paisPropertyName, te::dt::INT32_TYPE);
