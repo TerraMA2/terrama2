@@ -94,7 +94,7 @@ void DCPInpeTs::collect()
   dataManagerCollector->add(collector);
 
 
-  serviceCollector->addToQueue(collector->id, terrama2::core::TimeUtils::nowUTC());
+  serviceCollector->addToQueue(collector, terrama2::core::TimeUtils::nowUTC());
 
   utilsTS::timerCollectorAndAnalysis();
 }
@@ -107,7 +107,7 @@ void DCPInpeTs::collect()
  *
  * \warning Won't add the analysis to the datamanager!
  */
-std::shared_ptr<terrama2::services::analysis::core::Analysis> addAnalysisBase(std::shared_ptr<terrama2::services::analysis::core::DataManager> dataManagerAnalysis, std::string scriptAnalysis)
+std::shared_ptr<terrama2::services::analysis::core::Analysis> DCPInpeTs::addAnalysisBase(std::shared_ptr<terrama2::services::analysis::core::DataManager> dataManagerAnalysis, std::string scriptAnalysis)
 {
     auto dataSeriesDcp = utilsTS::analysis::addInputDataSeriesAnalysis(dataManagerAnalysis, utilsTS::typecollectoranalysis::dcp);
 
@@ -139,7 +139,7 @@ std::shared_ptr<terrama2::services::analysis::core::Analysis> addAnalysisBase(st
     return analysis;
 }
 
-std::shared_ptr<const terrama2::services::analysis::core::Analysis> addAnalysis(std::shared_ptr<terrama2::services::analysis::core::DataManager> dataManagerAnalysis, std::string scriptAnalysis)
+std::shared_ptr<const terrama2::services::analysis::core::Analysis> DCPInpeTs::addAnalysis(std::shared_ptr<terrama2::services::analysis::core::DataManager> dataManagerAnalysis, std::string scriptAnalysis)
 {
   auto analysis = addAnalysisBase(dataManagerAnalysis, scriptAnalysis);
   dataManagerAnalysis->add(analysis);
@@ -188,7 +188,7 @@ add_value("value", va))z";
     auto analysis = addAnalysis(dataManagerAnalysis, scriptAnHistory);
     dataManagerAnalysis->add(analysis);
 
-    serviceAnalysis->addToQueue(analysis->id, terrama2::core::TimeUtils::stringToTimestamp("2017-12-12T18:23:23.077+00", terrama2::core::TimeUtils::webgui_timefacet));
+    serviceAnalysis->addToQueue(analysis, terrama2::core::TimeUtils::stringToTimestamp("2017-12-12T18:23:23.077+00", terrama2::core::TimeUtils::webgui_timefacet));
 
     utilsTS::timerCollectorAndAnalysis();
 
@@ -231,7 +231,7 @@ add_value("value", va))z";
 
     auto analysis = addAnalysis(dataManagerAnalysis, scriptDCP);
     dataManagerAnalysis->add(analysis);
-    serviceAnalysis->addToQueue(analysis->id, terrama2::core::TimeUtils::stringToTimestamp("2017-12-13T10:55:04.518+00" , terrama2::core::TimeUtils::webgui_timefacet));
+    serviceAnalysis->addToQueue(analysis, terrama2::core::TimeUtils::stringToTimestamp("2017-12-13T10:55:04.518+00" , terrama2::core::TimeUtils::webgui_timefacet));
 
     utilsTS::timerCollectorAndAnalysis();
 
@@ -279,7 +279,7 @@ add_value("variance", var))z";
     auto analysis = addAnalysisBase(dataManagerAnalysis, scriptAnHistory);
 
 
-    auto reprocessingHistoricalDataPtr = std::make_shared<terrama2::services::analysis::core::ReprocessingHistoricalData>();
+    auto reprocessingHistoricalDataPtr = std::make_shared<terrama2::core::ReprocessingHistoricalData>();
 
 
     boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone("+00"));
@@ -296,7 +296,7 @@ add_value("variance", var))z";
     reprocessingHistoricalDataPtr->endDate = std::make_shared<te::dt::TimeInstantTZ>(lendDate);
 
 
-    analysis->reprocessingHistoricalData = reprocessingHistoricalDataPtr;
+    analysis->schedule.reprocessingHistoricalData = reprocessingHistoricalDataPtr;
 
     analysis->schedule.frequency = 10;
     analysis->schedule.frequencyUnit = "h";

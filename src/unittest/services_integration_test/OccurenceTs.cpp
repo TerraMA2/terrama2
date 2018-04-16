@@ -106,7 +106,7 @@ void OccurenceTs::collectIntersectionFile()
 
   dataManagerCollector->add(collector);
 
-  serviceCollector->addToQueue(collector->id, terrama2::core::TimeUtils::stringToTimestamp("2016-05-01T00:00:00.000-03:00", terrama2::core::TimeUtils::webgui_timefacet));
+  serviceCollector->addToQueue(collector, terrama2::core::TimeUtils::stringToTimestamp("2016-05-01T00:00:00.000-03:00", terrama2::core::TimeUtils::webgui_timefacet));
 
   utilsTS::timerCollectorAndAnalysis();
 }
@@ -140,7 +140,7 @@ void OccurenceTs::collectFTP()
   dataManagerCollector->add(collector);
 
 
-  serviceCollector->addToQueue(collector->id, terrama2::core::TimeUtils::nowUTC());
+  serviceCollector->addToQueue(collector, terrama2::core::TimeUtils::nowUTC());
 
   utilsTS::timerCollectorAndAnalysis();
 }
@@ -171,12 +171,12 @@ void OccurenceTs::collectFile()
   dataManagerCollector->add(collector);
 
 
-  serviceCollector->addToQueue(collector->id, terrama2::core::TimeUtils::nowUTC());
+  serviceCollector->addToQueue(collector, terrama2::core::TimeUtils::nowUTC());
 
   utilsTS::timerCollectorAndAnalysis();
 }
 
-std::shared_ptr<terrama2::services::analysis::core::Analysis> addAnalysisBase(std::shared_ptr<terrama2::services::analysis::core::DataManager> dataManagerAnalysis, std::string scriptAnalysis)
+std::shared_ptr<terrama2::services::analysis::core::Analysis> OccurenceTs::addAnalysisBase(std::shared_ptr<terrama2::services::analysis::core::DataManager> dataManagerAnalysis, std::string scriptAnalysis)
 {
     auto dataSeriesStatic = utilsTS::analysis::addInputDataSeriesStatic(dataManagerAnalysis);
 
@@ -223,14 +223,6 @@ std::shared_ptr<terrama2::services::analysis::core::Analysis> addAnalysisBase(st
     return analysis;
 }
 
-std::shared_ptr<const terrama2::services::analysis::core::Analysis> addAnalysis(std::shared_ptr<terrama2::services::analysis::core::DataManager> dataManagerAnalysis, std::string scriptAnalysis)
-{
-  auto analysis = addAnalysisBase(dataManagerAnalysis, scriptAnalysis);
-  dataManagerAnalysis->add(analysis);
-
-  return analysis;
-}
-
 /*!
  * \brief  Analysis Zonal
  *
@@ -255,7 +247,7 @@ add_value("count", x))z";
 
     auto analysis = addAnalysisBase(dataManagerAnalysis, scriptZonal);
 
-    auto reprocessingHistoricalDataPtr = std::make_shared<terrama2::services::analysis::core::ReprocessingHistoricalData>();
+    auto reprocessingHistoricalDataPtr = std::make_shared<terrama2::core::ReprocessingHistoricalData>();
 
 
     boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone("+00"));
@@ -271,7 +263,7 @@ add_value("count", x))z";
     reprocessingHistoricalDataPtr->endDate = std::make_shared<te::dt::TimeInstantTZ>(lendDate);
 
 
-    analysis->reprocessingHistoricalData = reprocessingHistoricalDataPtr;
+    analysis->schedule.reprocessingHistoricalData = reprocessingHistoricalDataPtr;
 
     analysis->schedule.frequency = 3;
     analysis->schedule.frequencyUnit = "h";
@@ -281,7 +273,7 @@ add_value("count", x))z";
     dataManagerAnalysis->add(analysis);
 
 
-    serviceAnalysis->addToQueue(analysis->id, terrama2::core::TimeUtils::stringToTimestamp("2016-05-31T00:00:00+00", terrama2::core::TimeUtils::webgui_timefacet));
+    serviceAnalysis->addToQueue(analysis, terrama2::core::TimeUtils::stringToTimestamp("2016-05-31T00:00:00+00", terrama2::core::TimeUtils::webgui_timefacet));
 
     utilsTS::timerCollectorAndAnalysis();
 

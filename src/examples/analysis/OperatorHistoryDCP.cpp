@@ -86,8 +86,10 @@ int main(int argc, char* argv[])
   auto dataProviderResult = terrama2::resultanalysis::dataProviderResultAnalysis();
   dataManager->add(dataProviderResult);
 
+  auto monitoredObject = terrama2::staticpostgis::dataSeriesEstados2010(dataProviderResult);
 
-  auto outputDataSeries = terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::history_dcp_result);
+
+  auto outputDataSeries = terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::history_dcp_result, monitoredObject);
   dataManager->add(outputDataSeries);
 
 
@@ -145,7 +147,11 @@ add_value("history_standard_deviation",x))z";
   dcpADS.type = AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE;
 
 
-
+  AnalysisDataSeries monitoredObjectADS;
+  monitoredObjectADS.id = 1;
+  monitoredObjectADS.dataSeriesId = monitoredObject->id;
+  monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
+  monitoredObjectADS.metadata["identifier"] = "fid";
 
   std::vector<AnalysisDataSeries> analysisDataSeriesList;
   analysisDataSeriesList.push_back(dcpADS);

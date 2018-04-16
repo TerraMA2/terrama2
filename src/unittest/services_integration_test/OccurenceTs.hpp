@@ -39,8 +39,7 @@ class OccurenceTs: public QObject
     void analysisZonal();
     void collectFTP();
     void collectIntersectionFile();
-
-
+    std::shared_ptr<terrama2::services::analysis::core::Analysis> addAnalysisBase(std::shared_ptr<terrama2::services::analysis::core::DataManager> dataManagerAnalysis, std::string scriptAnalysis);
 
   private slots:
 

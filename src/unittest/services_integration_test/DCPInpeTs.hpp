@@ -39,7 +39,8 @@ class DCPInpeTs: public QObject
     void analysisHistory();
     void analysisDCP();
     void analysisHistoryInterval();
-
+    std::shared_ptr<terrama2::services::analysis::core::Analysis> addAnalysisBase(std::shared_ptr<terrama2::services::analysis::core::DataManager> dataManagerAnalysis, std::string scriptAnalysis);
+    std::shared_ptr<const terrama2::services::analysis::core::Analysis> addAnalysis(std::shared_ptr<terrama2::services::analysis::core::DataManager> dataManagerAnalysis, std::string scriptAnalysis);
 
   private slots:
 
