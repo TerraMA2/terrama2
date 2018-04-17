@@ -12,7 +12,7 @@ function valid()
 
 printf "Post-installation script...\n"
 
-npm install ${INSTALL_COMMAND} -g
+npm install yarn -g
 valid $? "Unable to install Grunt."
 
 (
@@ -22,7 +22,7 @@ valid $? "Unable to install Grunt."
   #
   # Install web dependencies
   #
-  ${INSTALL_COMMAND} install grunt
+  ${INSTALL_COMMAND} add grunt
   valid $? "Unable to install Grunt."
 
   ${INSTALL_COMMAND} install
@@ -38,7 +38,7 @@ valid $? "Unable to install Grunt."
   printf "Webcomponents dependencies...\n"
   cd @TERRAMA2_DESTINATION@webcomponents
 
-  ${INSTALL_COMMAND} install grunt
+  ${INSTALL_COMMAND} add grunt
   valid $? "Unable to install Grunt."
 
   ${INSTALL_COMMAND} install
@@ -54,7 +54,7 @@ valid $? "Unable to install Grunt."
   #
   # Install web dependencies
   #
-  ${INSTALL_COMMAND} install grunt
+  ${INSTALL_COMMAND} add grunt
   valid $? "Unable to install Grunt."
 
   ${INSTALL_COMMAND} install
