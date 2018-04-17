@@ -448,9 +448,12 @@ TcpManager.prototype.initialize = function(client) {
         .then(function(targetProcess) {
           if (targetProcess){
             // if the finished process is from collector or analysis run conditioned process
-            if (targetProcess.serviceType == ServiceType.COLLECTOR || targetProcess.serviceType == ServiceType.ANALYSIS){
+            if (response.automatic
+                && (targetProcess.serviceType == ServiceType.COLLECTOR
+                    || targetProcess.serviceType == ServiceType.ANALYSIS
+                    || targetProcess.serviceType == ServiceType.INTERPOLATION)){
               targetProcess.processToRun.forEach(function(processToRun){
-                if (processToRun && response.automatic !== false && processToRun.object && processToRun.object.active){
+                if (processToRun && processToRun.object && processToRun.object.active){
                   self.startProcess(processToRun.instance, {ids: processToRun.ids, execution_date: response.execution_date});
                   self.logData(processToRun.instance, {begin: 0, end: 2, process_ids: [processToRun.ids]});
                 }
