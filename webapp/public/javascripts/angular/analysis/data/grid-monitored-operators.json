@@ -7,6 +7,14 @@
         "code": "grid.zonal.count(\"<dynamic_data_grid>\", [<band>], [<buffer>])"
       },
       {
+        "name": "Count by value",
+        "code": "grid.zonal.count_by_value(\"<dynamic_data_grid>\", <value>, [<band>], [<buffer>])"
+      },
+      {
+        "name": "Count by range",
+        "code": "grid.zonal.count_by_range(\"<dynamic_data_grid>\", <begin>, <end>, [<band>], [<buffer>])"
+      },
+      {
         "name": "Sum",
         "code": "grid.zonal.sum(\"<dynamic_data_grid>\", [<band>], [<buffer>])"
       },

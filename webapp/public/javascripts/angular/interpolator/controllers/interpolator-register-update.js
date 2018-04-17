@@ -16,6 +16,7 @@ define([], function(){
     $scope.outputDataSeries = {};
     $scope.bounding_rect = {}
     $scope.scheduleOptions = {
+      showHistoricalOption: true,
       showAutomaticOption: true
     };
     $scope.cssBoxSolid = {
@@ -136,6 +137,12 @@ define([], function(){
         }
       };
       $scope.inter = config.interpolator;
+      if ($scope.inter.metadata.number_of_neighbors) {
+        $scope.inter.metadata.number_of_neighbors = Number($scope.inter.metadata.number_of_neighbors);
+      }
+      if ($scope.inter.metadata.power_factor) {
+        $scope.inter.metadata.power_factor = Number($scope.inter.metadata.power_factor);
+      }
       $scope.inter.name = $scope.outputDataSeries.name;
       $scope.inter.interpolator_strategy = $scope.inter.interpolator_strategy;
       $scope.bounding_rect = bounding_rect;

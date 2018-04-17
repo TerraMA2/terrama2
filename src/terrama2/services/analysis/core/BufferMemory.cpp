@@ -148,16 +148,11 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::createBuff
 
 
 std::shared_ptr<te::mem::DataSet> terrama2::services::analysis::core::createAggregationBuffer(
-        std::vector<uint32_t>& indexes, std::shared_ptr<ContextDataSeries> contextDataSeries, Buffer buffer,
+        std::shared_ptr<ContextDataSeries> contextDataSeries, Buffer buffer,
         StatisticOperation aggregationStatisticOperation,
         const std::string& attribute)
 {
   std::shared_ptr<te::mem::DataSet> dsOut;
-  if(indexes.empty())
-    return dsOut;
-
-
-
   // Creates memory dataset for buffer
   te::da::DataSetType* dt = new te::da::DataSetType("buffer");
 
@@ -185,10 +180,9 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::analysis::core::createAggr
   // Inserts each geometry in the rtree, if there is a conflict, it makes the union of the two geometries
   te::sam::rtree::Index<OccurrenceAggregation*, 4> rtree;
 
-  for(size_t i = 0; i < indexes.size(); ++i)
+  for(size_t i = 0; i < syncDs->size(); ++i)
   {
-    auto geom = syncDs->getGeometry(indexes[i], contextDataSeries->geometryPos);
-
+    auto geom = syncDs->getGeometry(i, contextDataSeries->geometryPos);
 
     double distance = terrama2::core::convertDistanceUnit(buffer.distance, buffer.unit, "METER");
 
