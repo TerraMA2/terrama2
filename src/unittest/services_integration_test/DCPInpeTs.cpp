@@ -147,6 +147,18 @@ std::shared_ptr<const terrama2::services::analysis::core::Analysis> DCPInpeTs::a
   return analysis;
 }
 
+void DCPInpeTs::collectAndAnalysisHistory()
+{
+  collect();
+  analysisHistory();
+}
+
+void DCPInpeTs::collectAndAnalysisDCP() \
+{
+  collect();
+  analysisDCP();
+}
+
 /*!
  * \brief analysisHistory
  *

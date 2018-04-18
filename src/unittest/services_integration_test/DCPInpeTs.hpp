@@ -21,8 +21,8 @@
   \author Bianca Maciel
 */
 
-#ifndef __TERRAMA2_UNITTEST_COLLECTOR_DCPINPE_HPP__
-#define __TERRAMA2_UNITTEST_COLLECTOR_DCPINPE_HPP__
+#ifndef __TERRAMA2_UNITTEST_INTEGRATION_DCPINPE_HPP__
+#define __TERRAMA2_UNITTEST_INTEGRATION_DCPINPE_HPP__
 
 
 #include <QtTest>
@@ -52,11 +52,11 @@ class DCPInpeTs: public QObject
 
     //******Test functions********
 
-   void collectAndAnalysisHistory() { collect(); analysisHistory(); }
-   void collectAndAnalysisDCP() { collect(); analysisDCP(); }
+   void collectAndAnalysisHistory();
+   void collectAndAnalysisDCP();
      // void collectAndAnalysisHistoryInterval() { collect(); analysisHistoryInterval(); }
 
 
 };
 
-#endif //__TERRAMA2_UNITTEST_COLLECTOR_DCPINPE_HPP__
+#endif //__TERRAMA2_UNITTEST_INTEGRATION_DCPINPE_HPP__
