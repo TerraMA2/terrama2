@@ -29,6 +29,7 @@
 - Update analysis output when changing monitored object DataProvider
 - Fix status when alter Service of a process
 - Crop raster of any projection
+- Improve webapp-service comunication
 
 
 # 4.0.3
