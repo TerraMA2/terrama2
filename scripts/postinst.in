@@ -1,5 +1,7 @@
 #!/bin/bash
 
+INSTALL_COMMAND="yarn"
+
 function valid()
 {
   if [ $1 -ne 0 ]; then
@@ -10,6 +12,9 @@ function valid()
 
 printf "Post-installation script...\n"
 
+npm install yarn -g
+valid $? "Unable to install Grunt."
+
 (
   printf "Webapp dependencies...\n"
   cd @TERRAMA2_DESTINATION@webapp
@@ -17,10 +22,10 @@ printf "Post-installation script...\n"
   #
   # Install web dependencies
   #
-  npm install grunt
+  ${INSTALL_COMMAND} add grunt
   valid $? "Unable to install Grunt."
 
-  npm install
+  ${INSTALL_COMMAND} install
   valid $? "Unable to install NodeJs dependencies."
 
   npm run grunt
@@ -33,10 +38,10 @@ printf "Post-installation script...\n"
   printf "Webcomponents dependencies...\n"
   cd @TERRAMA2_DESTINATION@webcomponents
 
-  npm install grunt
+  ${INSTALL_COMMAND} add grunt
   valid $? "Unable to install Grunt."
 
-  npm install
+  ${INSTALL_COMMAND} install
   valid $? "Unable to install NodeJs dependencies."
   npm run grunt
   valid $? "Error executing grunt."
@@ -49,10 +54,10 @@ printf "Post-installation script...\n"
   #
   # Install web dependencies
   #
-  npm install grunt
+  ${INSTALL_COMMAND} add grunt
   valid $? "Unable to install Grunt."
 
-  npm install
+  ${INSTALL_COMMAND} install
   valid $? "Unable to install NodeJs dependencies."
 
   npm run grunt
