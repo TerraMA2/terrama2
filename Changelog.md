@@ -3,7 +3,11 @@
 # New Features:
 - Monitored object analysis operators for counting pixels by value or range of values
 - Use geometry as filter in MO analysis (instead of a combination of bounding box and RTree)
+- Time parameters in analysis can have a '+' modifier, this will make the data range be expanded to 00:00h of the start date
+- Interpolate historical data
 
+# Enhancements:
+- Use Yarn instead of npm for web dependencies
 
 # 4.0.4
 
