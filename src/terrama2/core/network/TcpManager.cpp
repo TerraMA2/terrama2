@@ -179,9 +179,11 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
         return;
       }
 
-      //Raii block
-      RaiiBlock block(blockSize_);
-      Q_UNUSED(block)
+      // clear socket after message processing
+      RaiiSocket raiiSocket(tcpSocket); Q_UNUSED(raiiSocket);
+
+      // clear block after message processing
+      RaiiBlock block(blockSize_);  Q_UNUSED(block)
 
       int sigInt = -1;
       in >> sigInt;
@@ -395,4 +397,14 @@ void terrama2::core::TcpManager::sendSignalSlot(QTcpSocket* tcpSocket, TcpSignal
   qint64 written = tcpSocket->write(bytearray);
   if(written == -1 || !tcpSocket->waitForBytesWritten(30000))
     TERRAMA2_LOG_WARNING() << QObject::tr("Unable to write to server.");
+}
+
+terrama2::core::RaiiSocket::~RaiiSocket()
+{
+  auto bytes = tcpSocket_->readAll();
+  if(bytes.size())
+  {
+    QString errMsg(bytes);
+    TERRAMA2_LOG_ERROR() << QObject::tr("Garbage in socket message:\n%1.").arg(errMsg);
+  }
 }
