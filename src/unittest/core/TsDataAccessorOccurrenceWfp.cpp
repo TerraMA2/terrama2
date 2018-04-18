@@ -233,6 +233,12 @@ void TsDataAccessorOccurrenceWfp::TestFailDataSeriesSemanticsInvalid()
 
 void TsDataAccessorOccurrenceWfp::TestOKDataRetrieverValid()
 {
+  QFile file(QString::fromStdString(TERRAMA2_DATA_DIR+"/fire_system/exporta_20160501_0230.csv"));
+  if(!file.exists())
+  {
+    QFAIL("Test data not found.");
+  }
+
   try
   {
     //DataProvider information
@@ -488,6 +494,13 @@ void TsDataAccessorOccurrenceWfp::TestFailDataSetInvalid()
 
 void TsDataAccessorOccurrenceWfp::TestOK()
 {
+  QFile file(QString::fromStdString(TERRAMA2_DATA_DIR+"/fire_system/exporta_20160501_0230.csv"));
+  if(!file.exists())
+  {
+    QFAIL("Test data not found.");
+  }
+
+
   try
   {
     te::da::DataSourceFactory::add(OGR_DRIVER_IDENTIFIER, te::ogr::Build);
