@@ -402,7 +402,7 @@ void terrama2::core::TcpManager::sendSignalSlot(QTcpSocket* tcpSocket, TcpSignal
 terrama2::core::RaiiSocket::~RaiiSocket()
 {
   auto bytes = tcpSocket_->readAll();
-  if(bytes.size)
+  if(bytes.size())
   {
     QString errMsg(bytes);
     TERRAMA2_LOG_ERROR() << QObject::tr("Garbage in socket message:\n%1.").arg(errMsg);
