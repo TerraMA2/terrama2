@@ -126,7 +126,7 @@ var Service = module.exports = function(serviceInstance) {
       // append and check if the complete message has arrived
       tempBuffer = _createBufferFrom(tempBuffer, byteArray);
       const messageSizeReceived = tempBuffer.readUInt32BE(0);
-      if(tempBuffer.length !== (messageSizeReceived + 4)) {
+      if(tempBuffer.length < (messageSizeReceived + 4)) {
         // if we don't have the complete message
         // wait for the rest
         return;
