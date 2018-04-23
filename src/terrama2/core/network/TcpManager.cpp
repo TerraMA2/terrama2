@@ -417,9 +417,9 @@ void terrama2::core::TcpManager::sendSignalSlot(QTcpSocket* tcpSocket, TcpSignal
   buffer.remove(0,4);
   ///////////////////////////////////////////
 
-  // for(auto it = buffer.cbegin(); it != buffer.cend(); ++it)
-  //   std::cout << *it;
-  // std::cout << std::endl;
+   for(auto it = buffer.cbegin(); it != buffer.cend(); ++it)
+     std::cout << *it;
+   std::cout << std::endl;
 
   // wait while sending message
   qint64 written = tcpSocket->write(buffer);

@@ -101,7 +101,7 @@ var Service = module.exports = function(serviceInstance) {
     let size = 0;
     for (var i = 0; i < arguments.length; i++) {
       if(arguments[i]) {
-        size += arguments[i].buffer.byteLength;
+        size += arguments[i].length;
       }
     }
 
@@ -109,8 +109,8 @@ var Service = module.exports = function(serviceInstance) {
     let offset = 0;
     for (var i = 0; i < arguments.length; i++) {
       if(arguments[i]) {
-        tmp.set(new Buffer.from(arguments[i].buffer), offset);
-        offset+=arguments[i].buffer.byteLength;
+        tmp.set(new Buffer.from(arguments[i]), offset);
+        offset+=arguments[i].length;
       }
     }
 
@@ -129,9 +129,9 @@ var Service = module.exports = function(serviceInstance) {
       tempBuffer = _createBufferFrom(tempBuffer, byteArray);
 
       let bom = tempBuffer.toString('utf-8', 0, beginOfMessage.length);
-      while(bom !== beginOfMessage) {
-        // while(tempBuffer.length > beginOfMessage.length && bom !== beginOfMessage) {
-        tempBuffer = new Buffer.from(tempBuffer, 1);
+      // while(bom !== beginOfMessage) {
+      while(tempBuffer.length > beginOfMessage.length && bom !== beginOfMessage) {
+        tempBuffer = new Buffer.from(tempBuffer.slice(1));
         bom = tempBuffer.toString('utf-8', 0, beginOfMessage.length);
       }
 
@@ -151,9 +151,12 @@ var Service = module.exports = function(serviceInstance) {
       }
 
       // hold extra data for next message
-      extraData = new Buffer.from(tempBuffer.buffer.slice(expectedLength + headerSize));
+      if(tempBuffer.length > expectedLength+headerSize) {
+        extraData = new Buffer.from(tempBuffer.slice(expectedLength + headerSize));
+      }
+      
       // free any extra byte from the message
-      tempBuffer = new Buffer.from(tempBuffer.buffer, beginOfMessage.length, expectedLength);
+      tempBuffer = new Buffer.from(tempBuffer.slice(beginOfMessage.length, expectedLength+beginOfMessage.length));
       
       const parsed = parseByteArray(tempBuffer);
 
