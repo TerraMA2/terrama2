@@ -8,6 +8,8 @@ var EventEmitter = require('events').EventEmitter;
 var NodeUtils = require('util');
 var Signals = require('./Signals');
 
+let beginOfMessage = "(BOM)\0";
+let endOfMessage = "(EOM)\0";
 
 /**
  This method parses the bytearray received.
@@ -116,30 +118,43 @@ var Service = module.exports = function(serviceInstance) {
   }
 
   let tempBuffer = undefined;
+  let extraData = undefined;
   self.socket.on('data', function(byteArray) {
     self.answered = true;
     var formatMessage = "Socket %s received %s";
     logger.debug(Utils.format(formatMessage, self.service.name, byteArray));
-    logger.debug(Utils.format(formatMessage, self.service.name, byteArray.toString()));
 
     try  {
       // append and check if the complete message has arrived
       tempBuffer = _createBufferFrom(tempBuffer, byteArray);
-      const messageSizeReceived = tempBuffer.readUInt32BE(0);
-      if(tempBuffer.length < (messageSizeReceived + 4)) {
+
+      let bom = tempBuffer.toString('utf-8', 0, beginOfMessage.length);
+      while(bom !== beginOfMessage) {
+        // while(tempBuffer.length > beginOfMessage.length && bom !== beginOfMessage) {
+        tempBuffer = new Buffer.from(tempBuffer, 1);
+        bom = tempBuffer.toString('utf-8', 0, beginOfMessage.length);
+      }
+
+      const messageSizeReceived = tempBuffer.readUInt32BE(beginOfMessage.length);
+      const headerSize = beginOfMessage.length + endOfMessage.length;
+      const expectedLength = messageSizeReceived + 4;
+      if(tempBuffer.length < expectedLength+headerSize) {
         // if we don't have the complete message
         // wait for the rest
         return;
       }
 
-      let extraData = undefined;
-      if(tempBuffer.length > (messageSizeReceived + 4)) {
-        // hold extra data for next message
-        extraData = new Buffer.from(tempBuffer.buffer.slice(messageSizeReceived + 5));
-        // free any extra byte from the message
-        tempBuffer = new Buffer.from(tempBuffer.buffer, 0, (messageSizeReceived + 4));
+      const eom = tempBuffer.toString('ascii', expectedLength + beginOfMessage.length, expectedLength+headerSize);
+      if(eom !== endOfMessage) {
+        tempBuffer = undefined;
+        throw new Error("Invalid message (EOM)");
       }
 
+      // hold extra data for next message
+      extraData = new Buffer.from(tempBuffer.buffer.slice(expectedLength + headerSize));
+      // free any extra byte from the message
+      tempBuffer = new Buffer.from(tempBuffer.buffer, beginOfMessage.length, expectedLength);
+      
       const parsed = parseByteArray(tempBuffer);
 
       // we got the message, empty buffer.
@@ -253,6 +268,11 @@ var Service = module.exports = function(serviceInstance) {
       self.emit("serviceError", new Error("Could not send data from closed connection"));
       return;
     }
+
+    // let tmp = new Buffer(buffer.length+beginOfMessage.length+endOfMessage.length);
+    // tmp.set(new Buffer.from(beginOfMessage), 0);
+    // tmp.set(new Buffer.from(buffer), beginOfMessage.length);
+    // tmp.set(new Buffer.from(endOfMessage), buffer.length+beginOfMessage.length);
 
     self.writeData(buffer, null, null, function() {
       logger.debug("Sent all");
