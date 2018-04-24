@@ -8,7 +8,6 @@
 
 # Enhancements:
 - Use Yarn instead of npm for web dependencies
-- Improved tcp message system
 
 # 4.0.4
 
@@ -23,6 +22,7 @@
 # Enhancements:
 - Improved error messages on errors of the raster analysis output
 - Improved status timeout
+- Improved tcp message system
 
 # Bugfix:
 - Fix DCP behavior - many bugs including activate and deactivate
