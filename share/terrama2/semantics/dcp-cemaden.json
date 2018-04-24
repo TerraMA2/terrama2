@@ -9,8 +9,12 @@
     "providers_type_list": ["STATIC-HTTP"],
     "allow_direct_access": false,
     "metadata": {
-      "input_timestamp_property": "N/A",
-      "timestamp_property": "datetime"
+      "input_timestamp_property": "dataHora",
+      "timestamp_property": "datetime",
+      "dcp_code_property": "codestacao",
+      "static_data": "codestacao,latitude,longitude,cidade,nome,tipo,uf",
+      "dcp_list_uri": "/resources/dados/311_1.json",
+      "dcp_data_mask": "/resources/dados/%UF_%ID.json"
     },
     "collector": true,
     "gui": {

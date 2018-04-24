@@ -77,16 +77,26 @@
    }
  }
 
+std::string terrama2::core::DataAccessorJsonCemaden::getDCPCode(DataSetPtr dataset) const
+{
+  return getProperty(dataset, dataSeries_, "dcp_code");
+}
+
+std::string terrama2::core::DataAccessorJsonCemaden::getCodePropertyName(DataSetPtr dataset) const
+{
+  return getProperty(dataset, dataSeries_, "dcp_code_property");
+}
+
 terrama2::core::DataSetSeries terrama2::core::DataAccessorJsonCemaden::getSeries( const std::string& uri,
                                                                                   const Filter& filter,
                                                                                   DataSetPtr dataSet,
                                                                                   std::shared_ptr<terrama2::core::FileRemover> /*remover*/) const
 {
-  QString codestacao = "codestacao";
-  QString timestampProperty = "dataHora";
-  QList<QString> staticData = {"cidade", "nome", "tipo", "uf", "latitude", "longitude"};
+  QString codestacao = QString::fromStdString(getCodePropertyName(dataSet));
+  QString timestampProperty = QString::fromStdString(getInputTimestampPropertyName(dataSet));
+  QStringList staticData = QString::fromStdString(getStaticDataProperties(dataSet)).split(',');
 
-  QString code = "352400601A";// = QString::fromStdString(getDCPCode(dataSet));
+  QString code = QString::fromStdString(getDCPCode(dataSet));
 
   auto dataSetType =  std::make_shared<te::da::DataSetType>(code.toStdString());
   dataSetType->add(new te::dt::DateTimeProperty(timestampProperty.toStdString(), te::dt::TIME_INSTANT_TZ, true));
@@ -106,7 +116,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorJsonCemaden::getSeries
     if(obj[codestacao].toString() != code)
       continue;
 
-    auto timestampStr = obj[timestampProperty].toString().toStdString();//"2017-09-20T13:00:00-03", 2018-03-26 16:10:00.0 terrama2::core::TimeUtils::webgui_timefacet
+    auto timestampStr = obj[timestampProperty].toString().toStdString();
     auto timestamp = terrama2::core::TimeUtils::stringToTimestamp(timestampStr, "%Y-%m-%d %H:%M:%S%F");
     // filter by timestamp
     if((filter.discardBefore && (*filter.discardBefore > *timestamp))
@@ -118,6 +128,8 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorJsonCemaden::getSeries
     // add item to the end of the dataset
     teDataSet->moveLast();
     teDataSet->add(item.get());
+    // check if the item has data
+    bool hasData = false;
 
     // add timestamp to dataset
     item->setDateTime(timestampProperty.toStdString(), static_cast<te::dt::TimeInstantTZ*>(timestamp->clone()));
@@ -147,6 +159,12 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorJsonCemaden::getSeries
 
       // add property value
       item->setDouble(keyStr, val.value().toDouble());
+      hasData = true;
+    }
+    if(!hasData)
+    {
+      // remove the item if no data was inserted
+      teDataSet->remove(item.get());
     }
     item.release();
   }

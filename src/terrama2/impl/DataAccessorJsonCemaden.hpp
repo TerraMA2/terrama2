@@ -92,6 +92,10 @@ namespace terrama2
 
 
       private:
+        std::string getDCPCode(DataSetPtr dataset) const;
+        std::string getCodePropertyName(DataSetPtr dataset) const;
+        std::string getStaticDataProperties(DataSetPtr dataset) const;
+
         virtual std::string dataSourceType() const override;
         virtual void retrieveDataCallback(const DataRetrieverPtr dataRetriever,
                                           DataSetPtr dataset,
