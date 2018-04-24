@@ -1103,5 +1103,7 @@
   "to": "to",
   "total entries": "total entries",
   "updated": "updated",
-  "w": "w"
+  "w": "w",
+  "DCP - PostGIS (Single Table)": "DCP - PostGIS (Single Table)",
+  "DCP - PostGIS (N-Table)": "DCP - PostGIS (N-Table)"
 }

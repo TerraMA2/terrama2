@@ -377,9 +377,13 @@ void terrama2::core::TcpManager::sendSignalSlot(QTcpSocket* tcpSocket, TcpSignal
 {
   TERRAMA2_LOG_DEBUG() << QObject::tr("Sending signal information...");
 
+  const std::string bom = "(BOM)";
+  const std::string eom = "(EOM)";
 
-  QByteArray bytearray;
-  QDataStream out(&bytearray, QIODevice::WriteOnly);
+  ///////////////////////////////////////////
+  // Prepare message
+  QByteArray message;
+  QDataStream out(&message, QIODevice::WriteOnly);
 
   out << static_cast<uint32_t>(0);
   out << static_cast<uint32_t>(signal);
@@ -389,12 +393,36 @@ void terrama2::core::TcpManager::sendSignalSlot(QTcpSocket* tcpSocket, TcpSignal
     out << answer.toJson(QJsonDocument::Compact);
   }
 
-  bytearray.remove(8, 4);//Remove QByteArray header
+  message.remove(8, 4);
   out.device()->seek(0);
-  out << static_cast<uint32_t>(bytearray.size() - sizeof(uint32_t));
+  out << static_cast<uint32_t>(message.size() - sizeof(uint32_t));
+  ///////////////////////////////////////////
+
+  // for(auto it = message.cbegin(); it != message.cend(); ++it)
+  //   std::cout << *it;
+  // std::cout << std::endl;
+
+  ///////////////////////////////////////////
+  // add header
+  QByteArray buffer;
+  QDataStream bufferStream(&buffer, QIODevice::WriteOnly);
+  bufferStream << bom.c_str() << message << eom.c_str();
+
+  // for(auto it = buffer.cbegin(); it != buffer.cend(); ++it)
+  //   std::cout << *it;
+  // std::cout << std::endl;
+
+  buffer.remove(buffer.size() - eom.size() - 5, 4);
+  buffer.remove(bom.size()+5, 4);
+  buffer.remove(0,4);
+  ///////////////////////////////////////////
+
+   for(auto it = buffer.cbegin(); it != buffer.cend(); ++it)
+     std::cout << *it;
+   std::cout << std::endl;
 
   // wait while sending message
-  qint64 written = tcpSocket->write(bytearray);
+  qint64 written = tcpSocket->write(buffer);
   if(written == -1 || !tcpSocket->waitForBytesWritten(30000))
     TERRAMA2_LOG_WARNING() << QObject::tr("Unable to write to server.");
 }
