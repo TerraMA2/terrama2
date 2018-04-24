@@ -18,7 +18,7 @@
 //TerraLib
 #include <terralib/geometry/WKTReader.h>
 
-int main(int argc, char* argv[])
+int main(int, char**)
 {
 terrama2::core::TerraMA2Init terramaRaii("example", 0);
 
@@ -86,10 +86,10 @@ terrama2::core::TerraMA2Init terramaRaii("example", 0);
 
 
     //Print column names and types (DateTime/Double)
-    int dateColumn = -1;
-    int geomColumn = -1;
+    size_t dateColumn = std::numeric_limits<size_t>::max();
+    size_t geomColumn = std::numeric_limits<size_t>::max();
     std::string names, types;
-    for(int i = 0; i < teDataSet->getNumProperties(); ++i)
+    for(size_t i = 0; i < teDataSet->getNumProperties(); ++i)
     {
       std::string name = teDataSet->getPropertyName(i);
       names+= name + "\t";
@@ -114,7 +114,7 @@ terrama2::core::TerraMA2Init terramaRaii("example", 0);
     teDataSet->moveBeforeFirst();
     while(teDataSet->moveNext())
     {
-      for(int i = 0; i < teDataSet->getNumProperties(); ++i)
+      for(size_t i = 0; i < teDataSet->getNumProperties(); ++i)
       {
         if(teDataSet->isNull(i))
         {

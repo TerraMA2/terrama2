@@ -71,7 +71,7 @@ namespace terrama2
 
     signals:
 
-        void timeoutSignal(ProcessPtr process, std::shared_ptr<te::dt::TimeInstantTZ> startTime) const;
+        void timeoutSignal(ProcessPtr process, std::shared_ptr<te::dt::TimeInstantTZ> startTime);
 
     private slots:
 
