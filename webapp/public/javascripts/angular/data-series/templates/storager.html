@@ -7,7 +7,7 @@
                 class="form-control"
                 name="format"
                 ng-model="$ctrl.storager.format"
-                ng-disabled="$ctrl.isUpdating && $ctrl.hasCollector"
+                ng-disabled="($ctrl.isUpdating && $ctrl.hasCollector) || $ctrl.disableStorageFormatSelection"
                 ng-change="$ctrl.onStoragerFormatChange()"
                 ng-options="$ctrl.i18n.__(format.name) for format in $ctrl.storagerFormats | filter: { allow_storage: true }"
                 required>
@@ -74,7 +74,7 @@
 
 <div class="col-md-12">
   <!--dcp table -->
-  <div class="col-md-12 terrama2-nopadding-box" ng-if="$ctrl.semantics === 'DCP' && $ctrl.storager.format && $ctrl.storager.format.code && $ctrl.options.isDynamic">
+  <div class="col-md-12 terrama2-nopadding-box" ng-if="$ctrl.semantics === 'DCP' && $ctrl.storager.format && $ctrl.storager.format.code && $ctrl.options.isDynamic && $ctrl.storager.format.code !== 'DCP-single_table'">
     <div class="col-md-12">
       <div class="row">
         <div class="box-body table-responsive no-padding">

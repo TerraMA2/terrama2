@@ -214,7 +214,7 @@ define([
           case Globals.enums.ServiceType.INTERPOLATION:
             targetArray = config.interpolators;
             targetMessage = "Interpolator";
-            targetKey = "";
+            targetKey = "dataSeriesOutput";
             break;
         }
 
@@ -223,7 +223,7 @@ define([
         var _findOne = function(array, identifier, serviceInstance) {
           var output = {};
           array.some(function(element) {
-            if (element.id === identifier && element.service_instance_id === serviceInstance) {
+            if (element.id === identifier) {
               output = element;
               return true;
             }
@@ -234,7 +234,7 @@ define([
         //Function to get index of object in array
         var arrayObjectIndexOf = function(myArray, searchObject) {
           for(var i = 0, len = myArray.length; i < len; i++) {
-              if (myArray[i]['name'] === searchObject.name && myArray[i]['type'] === targetMessage) return i;
+            if (myArray[i]['name'] === searchObject.name && myArray[i]['service'] === service) return i;
           }
           return -1;
         }

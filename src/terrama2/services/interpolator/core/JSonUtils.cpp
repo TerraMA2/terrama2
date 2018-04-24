@@ -202,6 +202,17 @@ terrama2::services::interpolator::core::InterpolatorParamsPtr terrama2::services
   res->srid_ = json["srid"].toInt();
   res->numNeighbors_ = static_cast<size_t>(json["number_of_neighbors"].toInt());
 
+  auto metadataObj= json["metadata"].toObject();
+  for(auto it = metadataObj.begin(); it != metadataObj.end(); ++it)
+  {
+    res->metadata.emplace(it.key().toStdString(), it.value().toString().toStdString());
+  }
+
+  if(json.contains("schedule") && !json["schedule"].isNull())
+  {
+    res->schedule = terrama2::core::fromScheduleJson(json["schedule"].toObject());
+  }
+
   auto bboxObj = json["bounding_rect"].toObject();
 
   auto llArray = bboxObj["ll_corner"].toArray();

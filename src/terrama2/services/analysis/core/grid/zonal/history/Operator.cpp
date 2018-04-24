@@ -120,6 +120,7 @@ int terrama2::services::analysis::core::grid::zonal::history::numImpl(const std:
       for (auto raster : rasterList)
       {
         auto extent = raster->getExtent();
+        extent->transform(raster->getSRID(), geomResult->getSRID());
         if(!extent->intersects(*geomResult->getMBR()))
           continue;
 
@@ -250,6 +251,7 @@ boost::python::list terrama2::services::analysis::core::grid::zonal::history::li
 
           auto raster = teDataset->getRaster(rasterColumn);
           auto extent = raster->getExtent();
+          extent->transform(raster->getSRID(), geomResult->getSRID());
           if(!extent->intersects(*geomResult->getMBR()))
             continue;
 

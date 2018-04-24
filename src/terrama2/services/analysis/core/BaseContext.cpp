@@ -187,19 +187,13 @@ terrama2::services::analysis::core::BaseContext::getGridMap(terrama2::services::
   }
 }
 
-std::unique_ptr<te::dt::TimeInstantTZ> terrama2::services::analysis::core::BaseContext::getTimeFromString(const std::string& timeString) const
+std::unique_ptr<te::dt::TimeInstantTZ> terrama2::services::analysis::core::BaseContext::getTimeFromString(std::string timeString) const
 {
   if(timeString.empty())
     return nullptr;
 
   std::lock_guard<std::recursive_mutex> lock(mutex_);
-
-  boost::local_time::local_date_time ldt = startTime_->getTimeInstantTZ();
-  double seconds = terrama2::core::TimeUtils::convertTimeString(timeString, "SECOND", "H");
-  //TODO: PAULO: review losing precision
-  ldt -= boost::posix_time::seconds(static_cast<long>(seconds));
-
-  return std::unique_ptr<te::dt::TimeInstantTZ>(new te::dt::TimeInstantTZ(ldt));
+  return terrama2::core::TimeUtils::timeFromStringInterval(startTime_, timeString);
 }
 
 std::unordered_map<terrama2::core::DataSetPtr,terrama2::core::DataSetSeries >

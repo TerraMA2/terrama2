@@ -134,10 +134,11 @@ We have the following branches:
 - **b4.0.0-release-candidate-3:** Stabilization, DCP analysis view, general improvments
 - **b4.0.0-release-candidate-4:** Improvements for final release
 - **b4.0.0:** Final release for TerraMA² 4.0.0
-  - **t4.0.1:** Bug fixes
-  - **t4.0.2:** Auto update database, terralib 5.3 and bugfixes
-  - **t4.0.3:** Major stability fixes
-  - **t4.0.4:** Interpolation service
+  - **b4.0.1:** Bug fixes
+  - **b4.0.2:** Auto update database, terralib 5.3 and bugfixes
+  - **b4.0.3:** Major stability fixes
+  - **b4.0.4:** Interpolation service
+  - **b4.0.5:** Analysis improvements
 
 For a more complete releases info, check: https://github.com/TerraMA2/terrama2/releases
 
@@ -146,27 +147,19 @@ To switch to one of the branches listed above, use the checkout command and crea
 $ git checkout -b <local_branch_name> <remote_branch_name without this part "remotes/">
 ```
 
-In order to switch to branch *b-4.0.0-alpha* you can use the following command:
+In order to switch to branch *b-4.0.3* you can use the following command:
 ```
-$ git checkout -b b-4.0.0-alpha* origin/b-4.0.0-alpha*
+$ git checkout -b b-4.0.3 origin/b-4.0.3*
 ```
 
 
 ## Tags
 
-Also there are tags which usually are originated from a release branch. For instance, tag *t-4.0.0-alpha1* will be originated from branch *b-4.0.0-alpha*.
+Also there are tags which usually are originated from a release branch. For instance, tag *v4.0.3* will be originated from branch *b-4.0.3*.
 
 To check all tags available, use:
 ```
 $ git tag -l           (list all tag names)
-```
-```
-  v4.0.0-alpha1
-  v4.0.0-alpha2
-  v4.0.0-beta1
-  v4.0.0-rc1
-  v4.0.0
-  ...
 ```
 
 If you want to checkout a specific version given by a tag and create a local branch to work on you can use the following git command:
@@ -174,11 +167,10 @@ If you want to checkout a specific version given by a tag and create a local bra
 $ git checkout -b <local_branch_tag_name> <one_of_tag_name_listed>
 ```
 
-For instance, to checkout *t-4.0.0-alpha1* you can enter the following command:
+For instance, to checkout *v4.0.3* you can enter the following command:
 ```
-$ git checkout -b t-4.0.0-alpha1  t-4.0.0-alpha1
+$ git checkout -b v4.0.3  v4.0.3
 ```
-
 
 ## Build Instructions
 
@@ -190,9 +182,11 @@ Until now its build has been tested on:
 
 After choosing the right branch or tag to work on, if you want to build TerraMA² and generate packages, first take a look at the sections below and read the right tips for automatically building in your platform:
 
-- **[LINUX:](https://github.com/TerraMA2/terrama2/blob/master/LINUX.md)** Contains instructions about how to build and generate TerraMA² package on Linux.
+- **[LINUX:](LINUX.md)** Contains instructions about how to build and generate TerraMA² package on Linux.
 
-- **[MAC:](https://github.com/TerraMA2/terrama2/blob/master/MAC.md)** Contains instructions about how to build and generate TerraMA² package on Mac OS.
+- **[MAC:](MAC.md)** Contains instructions about how to build and generate TerraMA² package on Mac OS.
+
+- **[WINDOWS:](WINDOWS.md)** Contains instructions about how to build and generate TerraMA² package on Windows.
 
 
 ## Reporting Bugs

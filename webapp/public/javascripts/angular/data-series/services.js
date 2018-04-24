@@ -182,41 +182,43 @@ define([
   DataSeriesSemanticsService.prototype.get = function(restriction) {
     var semantics = this.BaseService.get(this.model, restriction);
 
-    semantics.metadata.form.forEach(function(form) {
-      if(form.htmlClass.indexOf("validate-mask") !== -1) {
-        form.$validators = {
-          validateMask: function(value) {
-            if(value) {
-              for(var i = 0, valueLength = value.length; i < valueLength; i++) {
-                var charCode = value.charCodeAt(i);
-
-                if(value[i] === "%") {
-                  if(
-                    value.substr(i, 5) === "%YYYY" ||
-                    value.substr(i, 3) === "%YY" || value.substr(i, 3) === "%MM" || value.substr(i, 3) === "%DD" ||
-                    value.substr(i, 3) === "%hh" || value.substr(i, 3) === "%mm" || value.substr(i, 3) === "%ss"
-                  )
+    if (semantics.metadata) {
+      semantics.metadata.form.forEach(function(form) {
+        if(form.htmlClass.indexOf("validate-mask") !== -1) {
+          form.$validators = {
+            validateMask: function(value) {
+              if(value) {
+                for(var i = 0, valueLength = value.length; i < valueLength; i++) {
+                  var charCode = value.charCodeAt(i);
+  
+                  if(value[i] === "%") {
+                    if(
+                      value.substr(i, 5) === "%YYYY" ||
+                      value.substr(i, 3) === "%YY" || value.substr(i, 3) === "%MM" || value.substr(i, 3) === "%DD" ||
+                      value.substr(i, 3) === "%hh" || value.substr(i, 3) === "%mm" || value.substr(i, 3) === "%ss"
+                    )
+                      continue;
+  
+                    return false;
+                  }
+  
+                  if(value[i] === "*" || value[i] === "%" || value[i] === "." || value[i] === "-" || value[i] === "_" || value[i] === "/")
                     continue;
-
-                  return false;
+  
+                  if((charCode < 48) || ((charCode > 57) && (charCode < 65)) || ((charCode > 90) && (charCode < 97)) || (charCode > 122))
+                    return false;
                 }
-
-                if(value[i] === "*" || value[i] === "%" || value[i] === "." || value[i] === "-" || value[i] === "_" || value[i] === "/")
-                  continue;
-
-                if((charCode < 48) || ((charCode > 57) && (charCode < 65)) || ((charCode > 90) && (charCode < 97)) || (charCode > 122))
-                  return false;
-              }
-
-              return true;
-            } else
-              return false;
-          }
-        };
-
-        form.validationMessage.validateMask = "Invalid mask";
-      }
-    });
+  
+                return true;
+              } else
+                return false;
+            }
+          };
+  
+          form.validationMessage.validateMask = "Invalid mask";
+        }
+      });
+    }
 
     return semantics;
   };

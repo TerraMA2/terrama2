@@ -143,9 +143,6 @@ void StoreInterpolateResult(te::rst::Raster* raster, terrama2::services::interpo
 
   //////////////////////////////////////////////////////////
   // storing data
-  auto accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeriesPtr);
-  auto remover = std::make_shared<terrama2::core::FileRemover>();
-
   std::shared_ptr<te::da::DataSet> dsetRasterPtr(GetDataSet(raster, time));
 
   auto teDset = new terrama2::core::SynchronizedDataSet(dsetRasterPtr);
@@ -203,6 +200,7 @@ void terrama2::services::interpolator::core::Service::interpolate(terrama2::core
   }
 
   QString errMsg;
+  QJsonObject jsonAnswer;
   try
   {
     //////////////////////////////////////////////////////////
@@ -224,8 +222,7 @@ void terrama2::services::interpolator::core::Service::interpolate(terrama2::core
     interpolatorPtr->setDataManager(dataManager);
 
     terrama2::core::Filter filter = interpolatorParamsPtr->filter_;
-    if(!filter.lastValues || *filter.lastValues != 1)
-      filter.lastValues = std::make_shared<size_t>(1);
+    filter.discardBefore = terrama2::core::TimeUtils::timeFromStringInterval(executionPackage.executionDate, interpolatorParamsPtr->metadata.at("time_interval"));
     filter.discardAfter = executionPackage.executionDate;
 
     auto res = interpolatorPtr->makeInterpolation(filter);
@@ -257,10 +254,10 @@ void terrama2::services::interpolator::core::Service::interpolate(terrama2::core
       logger->result(InterpolatorLogger::Status::DONE, nullptr, executionPackage.registerId);
     }
 
-    QJsonObject jsonAnswer;
     jsonAnswer.insert(terrama2::core::ReturnTags::AUTOMATIC, false);
     sendProcessFinishedSignal(executionPackage.processId, executionPackage.executionDate, true, jsonAnswer);
     notifyWaitQueue(executionPackage.processId);
+    return;
   }
   catch(const terrama2::core::LogException& e)
   {
@@ -284,12 +281,16 @@ void terrama2::services::interpolator::core::Service::interpolate(terrama2::core
   }
 
   TERRAMA2_LOG_ERROR() << errMsg;
+  TERRAMA2_LOG_INFO() << tr("Interpolator %1 finished with error(s).").arg(executionPackage.processId);
   if(executionPackage.registerId != 0)
   {
-    TERRAMA2_LOG_INFO() << tr("Collection for interpolator %1 finished with error(s).").arg(executionPackage.processId);
     logger->log(InterpolatorLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
     logger->result(InterpolatorLogger::Status::ERROR, nullptr, executionPackage.registerId);
   }
+
+  // if arrived here, always error
+  sendProcessFinishedSignal(executionPackage.processId, executionPackage.executionDate, false);
+  notifyWaitQueue(executionPackage.processId);
 }
 
 void terrama2::services::interpolator::core::Service::connectDataManager()

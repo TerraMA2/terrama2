@@ -6374,7 +6374,13 @@ var DataManager = module.exports = {
         where: restriction || {},
         include: [
           {
-            model: models.db.Schedule
+            model: models.db.Schedule,
+            include: [
+              {
+                model: models.db.ReprocessingHistoricalData,
+                required: false
+              }
+            ]
           },
           {
             model: models.db.AutomaticSchedule

@@ -32,6 +32,7 @@
 
 #include "../../../core/data-model/DataManager.hpp"
 
+#include "Config.hpp"
 #include "Typedef.hpp"
 
 // Qt
@@ -54,7 +55,7 @@ namespace terrama2
          *
          * \return An InterpolatorParams object.
          */
-        InterpolatorParamsPtr fromInterpolatorJson(QJsonObject json, terrama2::core::DataManager* dataManager);
+        TMINTERPOLATOREXPORT InterpolatorParamsPtr fromInterpolatorJson(QJsonObject json, terrama2::core::DataManager* dataManager);
 
         /*!
          * \brief Returns a QJasonObject object based on the \a interpolator object parameters.
@@ -63,7 +64,7 @@ namespace terrama2
          *
          * \return A QJsonObject that represents the paramaters object.
          */
-        QJsonObject toJson(InterpolatorParamsPtr params);
+        TMINTERPOLATOREXPORT QJsonObject toJson(InterpolatorParamsPtr params);
       } // end namespace core
     }   // end namespace interpolator
   }     // end namespace services
