@@ -92,6 +92,21 @@ std::string terrama2::core::DataAccessorJsonCemaden::getStaticDataProperties(Dat
   return getProperty(dataset, dataSeries_, "static_properties");
 }
 
+std::string terrama2::core::DataAccessorJsonCemaden::getDataMask(DataSetPtr dataset) const
+{
+return getProperty(dataset, dataSeries_, "dcp_data_mask");
+}
+
+std::string terrama2::core::DataAccessorJsonCemaden::getUf(DataSetPtr dataset) const
+{
+return getProperty(dataset, dataSeries_, "uf");
+}
+
+std::string terrama2::core::DataAccessorJsonCemaden::getStationId(DataSetPtr dataset) const
+{
+return getProperty(dataset, dataSeries_, "station_id");
+}
+
 terrama2::core::DataSetSeries terrama2::core::DataAccessorJsonCemaden::getSeries( const std::string& uri,
                                                                                   const Filter& filter,
                                                                                   DataSetPtr dataSet,
@@ -109,7 +124,11 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorJsonCemaden::getSeries
   auto teDataSet = std::make_shared<te::mem::DataSet>(dataSetType.get());
 
   te::core::URI teUri(uri);
-  auto jsonStr = readFileContents(teUri.path()+"/static-http.txt");
+  std::string filePath = getDataMask(dataSet);
+  boost::replace_all(filePath, "%UF", getUf(dataSet));
+  boost::replace_all(filePath, "%ID", getStationId(dataSet));
+
+  auto jsonStr = readFileContents(teUri.path()+filePath);
   QJsonDocument doc = QJsonDocument::fromJson(jsonStr.c_str());
   auto readingsArray = doc.object()["cemaden"].toArray();
   // iterate over readings
