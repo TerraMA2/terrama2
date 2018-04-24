@@ -1127,5 +1127,7 @@
 	". Some operations may not work properly": ". Some operations may not work properly",
 	"It seems you are using different versions of TerraMA². Current version of TerraMA² Web is ": "It seems you are using different versions of TerraMA². Current version of TerraMA² Web is ",
 	"Invalid SRID!": "Invalid SRID!",
-	"Invalid filter SRID.": "Invalid filter SRID."
+	"Invalid filter SRID.": "Invalid filter SRID.",
+	"DCP - PostGIS (Single Table)": "DCP - PostGIS (Tabela única)",
+	"DCP - PostGIS (N-Table)": "DCP - PostGIS (N-Tabelas)"
 }

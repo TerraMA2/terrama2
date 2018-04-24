@@ -193,9 +193,11 @@ terrama2::services::analysis::core::grid::zonal::utils::getAccumulatedMap(
     }
 
     auto firstRaster = rasterList.front();
+    auto extent = firstRaster->getExtent();
 
+    extent->transform(firstRaster->getSRID(), geomResult->getSRID());
     //no intersection between the raster and the object geometry
-    if(!firstRaster->getExtent()->intersects(*geomResult->getMBR()))
+    if(!extent->intersects(*geomResult->getMBR()))
       continue;
 
     geomResult->transform(firstRaster->getSRID());
