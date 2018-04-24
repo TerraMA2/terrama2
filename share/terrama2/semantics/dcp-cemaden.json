@@ -12,7 +12,7 @@
       "input_timestamp_property": "dataHora",
       "timestamp_property": "datetime",
       "dcp_code_property": "codestacao",
-      "static_data": "codestacao,latitude,longitude,cidade,nome,tipo,uf",
+      "static_properties": "codestacao,latitude,longitude,cidade,nome,tipo,uf",
       "dcp_list_uri": "/resources/dados/311_1.json",
       "dcp_data_mask": "/resources/dados/%UF_%ID.json"
     },

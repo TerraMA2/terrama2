@@ -87,6 +87,11 @@ std::string terrama2::core::DataAccessorJsonCemaden::getCodePropertyName(DataSet
   return getProperty(dataset, dataSeries_, "dcp_code_property");
 }
 
+std::string terrama2::core::DataAccessorJsonCemaden::getStaticDataProperties(DataSetPtr dataset) const
+{
+  return getProperty(dataset, dataSeries_, "static_properties");
+}
+
 terrama2::core::DataSetSeries terrama2::core::DataAccessorJsonCemaden::getSeries( const std::string& uri,
                                                                                   const Filter& filter,
                                                                                   DataSetPtr dataSet,
