@@ -5,7 +5,7 @@
     "driver": "DCP-json_cemaden",
     "type": "DCP",
     "temporality": "DYNAMIC",
-    "format": "CSV",
+    "format": "JSON",
     "providers_type_list": ["STATIC-HTTP"],
     "allow_direct_access": false,
     "metadata": {
@@ -22,111 +22,6 @@
       "timezone": "UTM+00",
       "srid": "4326"
     },
-    "collector": true,
-    "gui": {
-      "schema": {
-        "properties": {
-          "mask": {
-            "type": "string",
-            "title": "Mask"
-          },
-          "alias": {
-            "type": "string",
-            "title": "DCP Name",
-            "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
-          },
-          "timezone": {
-            "type": "string",
-            "title": "Timezone"
-          },
-          "latitude": {
-            "type": "number",
-            "title": "Latitude / Y (m)"
-          },
-          "longitude": {
-            "type": "number",
-            "title": "Longitude / X (m)"
-          },
-          "projection": {
-            "type": "number",
-            "title": "Projection (SRID)",
-            "minimum": 0,
-            "maximum": 998999
-          },
-          "active": {
-            "type": "boolean",
-            "title": "Active",
-            "default": true
-          }
-        }
-      },
-      "form": [
-        {
-          "key": "mask",
-          "htmlClass": "col-md-6 validate-mask",
-          "copyValueTo": ["alias"],
-          "validationMessage": {
-            "202": "Invalid mask"
-          }
-        },
-        {
-          "key": "alias",
-          "htmlClass": "col-md-6 terrama2-schema-form",
-          "validationMessage": {
-            "202": "Invalid alias"
-          }
-        },
-        {
-          "key": "timezone",
-          "htmlClass": "col-md-6",
-          "type": "select",
-          "titleMap": [
-            {"name": "-12", "value": "-12"},
-            {"name": "-11", "value": "-11"},
-            {"name": "-10", "value": "-10"},
-            {"name": "-9", "value": "-9"},
-            {"name": "-8", "value": "-8"},
-            {"name": "-7", "value": "-7"},
-            {"name": "-6", "value": "-6"},
-            {"name": "-5", "value": "-5"},
-            {"name": "-4", "value": "-4"},
-            {"name": "-3", "value": "-3"},
-            {"name": "-2", "value": "-2"},
-            {"name": "-1", "value": "-1"},
-            {"name": "0", "value": "0"},
-            {"name": "1", "value": "1"},
-            {"name": "2", "value": "2"},
-            {"name": "3", "value": "3"},
-            {"name": "4", "value": "4"},
-            {"name": "5", "value": "5"},
-            {"name": "6", "value": "6"},
-            {"name": "7", "value": "7"},
-            {"name": "8", "value": "8"},
-            {"name": "9", "value": "9"},
-            {"name": "10", "value": "10"},
-            {"name": "11", "value": "11"},
-            {"name": "12", "value": "12"}
-          ]
-        },
-        {
-          "key": "latitude",
-          "htmlClass": "col-md-2"
-        },
-        {
-          "key": "longitude",
-          "htmlClass": "col-md-2"
-        },
-        {
-          "key": "projection",
-          "htmlClass": "col-md-2"
-        },
-        {
-          "key": "active",
-          "htmlClass": "col-md-2 terrama2-schema-checkbox",
-          "disableSuccessState": true,
-          "disableErrorState": true
-        }
-      ]
-    }
+    "collector": true
   }
 ]
