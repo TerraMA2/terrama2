@@ -25,7 +25,20 @@ const TIPO_ESTACAO = {
 const idtipoestacao = [TIPO_ESTACAO.PLUVIOMETRICA.id];
 const uf = ['MG','SP'];
 
-http.get('http://sjc.salvar.cemaden.gov.br/resources/dados/311_1.json', (res) => {
+const dataProviderUri = 'http://sjc.salvar.cemaden.gov.br';
+
+const semantics = {
+  dcp_list_uri: '/resources/dados/311_1.json',
+  latitude_property: 'latitude',
+  longitude_property: 'longitude',
+  station_type_id_property: 'idtipoestacao',
+  dcp_code_property: 'codestacao',
+  uf_property: 'uf',
+}
+
+let dcpList = [];
+
+http.get(dataProviderUri+semantics.dcp_list_uri, (res) => {
     console.log("Got response: " + res.statusCode);
 
     let rawData = '';
@@ -35,23 +48,34 @@ http.get('http://sjc.salvar.cemaden.gov.br/resources/dados/311_1.json', (res) =>
         console.log('Data length: ' + rawData.length);
         const json = rawData.slice(10, rawData.length - 2);        
         const parsedData = JSON.parse(json);
-        const dcpList = parsedData.estacao;
+        const rawDCPList = parsedData.estacao;
 
         let numEstacoes = 0;
-        for (const iterator of dcpList) {
+        for (const rawDcp of rawDCPList) {
           if(idtipoestacao
-              && !idtipoestacao.includes(iterator.idtipoestacao)) {
+              && !idtipoestacao.includes(rawDcp[semantics.station_type_id_property])) {
             continue;
           }
           if(uf
-            && !uf.includes(iterator.uf)) {
-          continue;
+            && !uf.includes(rawDcp[semantics.uf_property])) {
+            continue;
+          }
+
+          const dcp = {
+            metadata: {
+              ...rawDcp,
+              alias: rawDcp[semantics.dcp_code_property]
+            },
+            position: {
+              lat: rawDcp[semantics.latitude_property],
+              long: rawDcp[semantics.longitude_property],
+            }
+          }
+
+          dcpList.push(dcp);
         }
 
-          numEstacoes++;
-        }
-
-        console.log("Numero de estações: "+numEstacoes);
+        console.log("Numero de estações: "+dcpList.length);
 
       } catch (e) {
         console.error(e.message);
