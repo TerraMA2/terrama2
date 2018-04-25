@@ -11,10 +11,16 @@
     "metadata": {
       "input_timestamp_property": "dataHora",
       "timestamp_property": "datetime",
+      "latitude_property": "latitude",
+      "longitude_property": "longitude",
       "dcp_code_property": "codestacao",
+      "uf_property": "uf",
+      "station_type_id_property": "idtipoestacao",
       "static_properties": "codestacao,latitude,longitude,cidade,nome,tipo,uf",
       "dcp_list_uri": "/resources/dados/311_1.json",
-      "dcp_data_mask": "/resources/dados/%UF_%ID.json"
+      "dcp_data_mask": "/resources/dados/%UF_%ID.json",
+      "timezone": "UTM+00",
+      "srid": "4326"
     },
     "collector": true,
     "gui": {
