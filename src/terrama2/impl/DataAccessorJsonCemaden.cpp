@@ -79,7 +79,8 @@
 
 std::string terrama2::core::DataAccessorJsonCemaden::getDCPCode(DataSetPtr dataset) const
 {
-  return getProperty(dataset, dataSeries_, "dcp_code");
+  auto property = getCodePropertyName(dataset);
+  return getProperty(dataset, dataSeries_, property);
 }
 
 std::string terrama2::core::DataAccessorJsonCemaden::getCodePropertyName(DataSetPtr dataset) const
@@ -102,12 +103,14 @@ std::string terrama2::core::DataAccessorJsonCemaden::getDataMask(DataSetPtr data
 
 std::string terrama2::core::DataAccessorJsonCemaden::getUf(DataSetPtr dataset) const
 {
-return getProperty(dataset, dataSeries_, "uf");
+  auto property = getProperty(dataset, dataSeries_, "uf_property");
+  return getProperty(dataset, dataSeries_, property);
 }
 
 std::string terrama2::core::DataAccessorJsonCemaden::getStationTypeId(DataSetPtr dataset) const
 {
-return getProperty(dataset, dataSeries_, "station_type_id");
+  auto property = getProperty(dataset, dataSeries_, "station_type_id_property");
+  return getProperty(dataset, dataSeries_, property);
 }
 
 terrama2::core::DataSetSeries terrama2::core::DataAccessorJsonCemaden::getSeries( const std::string& uri,
