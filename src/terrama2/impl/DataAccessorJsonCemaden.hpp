@@ -96,7 +96,7 @@ namespace terrama2
         std::string getCodePropertyName(DataSetPtr dataset) const;
         std::string getStaticDataProperties(DataSetPtr dataset) const;
         std::string getDataMask(DataSetPtr dataset) const;
-        std::string getStationId(DataSetPtr dataset) const;
+        std::string getStationTypeId(DataSetPtr dataset) const;
         std::string getUf(DataSetPtr dataset) const;
 
         virtual std::string dataSourceType() const override;
