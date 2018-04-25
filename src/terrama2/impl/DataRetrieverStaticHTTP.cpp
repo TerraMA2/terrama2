@@ -75,10 +75,9 @@ std::string terrama2::core::DataRetrieverStaticHTTP::retrieveData(const std::str
 
   try
   {
-    std::string ext = "txt";
     std::string uriOrigin = dataProvider_->uri + "/" + mask;
     te::core::URI tempFolderUri(downloadBaseFolderUri);
-    std::string filePath = tempFolderUri.path() + "/static-http."+ext;
+    std::string filePath = tempFolderUri.path() + mask;
 
     te::core::URI uri(uriOrigin);
 

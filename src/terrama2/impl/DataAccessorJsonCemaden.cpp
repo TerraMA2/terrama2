@@ -92,9 +92,12 @@ std::string terrama2::core::DataAccessorJsonCemaden::getStaticDataProperties(Dat
   return getProperty(dataset, dataSeries_, "static_properties");
 }
 
-std::string terrama2::core::DataAccessorJsonCemaden::getDataMask(DataSetPtr dataset) const
+std::string terrama2::core::DataAccessorJsonCemaden::getDataMask(DataSetPtr dataSet) const
 {
-return getProperty(dataset, dataSeries_, "dcp_data_mask");
+  auto mask = getFileMask(dataSet);
+  boost::replace_all(mask, "%UF", getUf(dataSet));
+  boost::replace_all(mask, "%ID", getStationId(dataSet));
+  return mask;
 }
 
 std::string terrama2::core::DataAccessorJsonCemaden::getUf(DataSetPtr dataset) const
@@ -124,9 +127,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorJsonCemaden::getSeries
   auto teDataSet = std::make_shared<te::mem::DataSet>(dataSetType.get());
 
   te::core::URI teUri(uri);
-  std::string filePath = getDataMask(dataSet);
-  boost::replace_all(filePath, "%UF", getUf(dataSet));
-  boost::replace_all(filePath, "%ID", getStationId(dataSet));
+  std::string filePath = getFolderMask(dataSet) + getDataMask(dataSet);
 
   auto jsonStr = readFileContents(teUri.path()+filePath);
   QJsonDocument doc = QJsonDocument::fromJson(jsonStr.c_str());
@@ -206,8 +207,8 @@ std::string terrama2::core::DataAccessorJsonCemaden::retrieveData(const DataRetr
                                                                   const Filter& filter,
                                                                   std::shared_ptr<FileRemover> remover) const
 {
-  std::string mask;// = getEndpoint(dataSet);
-  std::string folderPath;// = getPath(dataSet);
+  std::string mask = getDataMask(dataSet);
+  std::string folderPath = getFolderMask(dataSet);
 
   std::string timezone;
   try
