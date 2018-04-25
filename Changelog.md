@@ -8,6 +8,7 @@
 
 # Enhancements:
 - Use Yarn instead of npm for web dependencies
+- Improved tcp message system
 
 # 4.0.4
 

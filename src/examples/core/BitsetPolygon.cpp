@@ -146,7 +146,7 @@ std::unique_ptr<te::rst::Raster> cloneRaster(const te::rst::Raster& raster)
       for( blkYIdx = 0 ; blkYIdx < nblocksY ; ++blkYIdx )
       {
         std::unique_ptr<unsigned char[]> buffer(new unsigned char[rasterBand->getBlockSize()]);
-        for(size_t i = 0; i < rasterBand->getBlockSize(); ++i)
+        for(int i = 0; i < rasterBand->getBlockSize(); ++i)
         {
           //buffer with 0 valeu
           buffer[i] = static_cast<char>(0);
@@ -179,7 +179,7 @@ std::shared_ptr<te::rst::Raster> getRaster(const std::string& fileUri, const std
     return std::shared_ptr<te::rst::Raster>(cloneRaster(*raster).release());
 }
 
-int main(int argc, char* argv[])
+int main(int, char**)
 {
   terrama2::core::TerraMA2Init terrama2Init("", 0);
 
