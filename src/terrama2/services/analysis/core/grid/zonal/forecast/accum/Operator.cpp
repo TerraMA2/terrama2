@@ -174,12 +174,15 @@ double terrama2::services::analysis::core::grid::zonal::forecast::accum::operato
         auto timePassed = currentTimestamp.utc_time() - rasterTimestamp.utc_time();
         double secondsPassed = timePassed.total_seconds();
 
-        int bandBegin, bandEnd;
+        size_t bandBegin, bandEnd;
         std::tie(bandBegin, bandEnd) = terrama2::services::analysis::core::getBandInterval(dataset, secondsPassed, "0s", dateDiscardAfter);
 
         // - the band 0 is always blank
         // - The beginning should be before the end
-        if(bandBegin == 0 || bandBegin > bandEnd)
+        if(bandBegin <= 0
+          || bandBegin > bandEnd
+          || bandBegin > raster->getNumberOfBands()
+          || bandEnd > raster->getNumberOfBands())
         {
           QString errMsg{QObject::tr("Invalid value of band index.")};
           throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);

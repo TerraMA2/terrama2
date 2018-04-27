@@ -173,7 +173,10 @@ double terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl( 
 
         // - the band 0 is always blank
         // - The beginning should be before the end
-        if(bandBegin == 0 || bandBegin > bandEnd)
+        if(bandBegin <= 0
+          || bandBegin > bandEnd
+          || bandBegin > raster->getNumberOfBands()
+          || bandEnd > raster->getNumberOfBands())
         {
           QString errMsg{QObject::tr("Invalid value of band index.")};
           throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
