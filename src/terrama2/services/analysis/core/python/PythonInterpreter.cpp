@@ -222,6 +222,13 @@ void terrama2::services::analysis::core::python::runScriptGridAnalysis(PyThreadS
     int nCols = outputRaster->getNumberOfColumns();
 
     std::string script = prepareScript(analysis);
+    std::cout << "********************************************************\n";
+    std::cout << script << "\n";
+    std::cout << "********************************************************\n";
+    std::cout << "Script size: " << script.size() << "\n";
+    std::cout << "********************************************************\n";
+    std::cout << std::endl;
+    
     PyObject* pCompiledFn = Py_CompileString(script.c_str() , "" , Py_file_input) ;
     if(pCompiledFn == NULL)
     {
