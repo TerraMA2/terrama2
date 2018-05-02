@@ -192,7 +192,6 @@ void terrama2::services::analysis::core::python::runMonitoredObjectScript(PyThre
     context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
   }
 }
-#include <fstream>
 
 void terrama2::services::analysis::core::python::runScriptGridAnalysis(PyThreadState* state, terrama2::services::analysis::core::GridContextPtr context, std::vector<uint32_t> rows)
 {
