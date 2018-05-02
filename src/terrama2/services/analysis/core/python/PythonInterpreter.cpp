@@ -224,11 +224,18 @@ void terrama2::services::analysis::core::python::runScriptGridAnalysis(PyThreadS
     std::string script = prepareScript(analysis);
 
     std::string filename = "script.py";
-    std::fstream file(filename, std::fstream::in | std::fstream::out);
-    if(file.is_open()) {
-      file << script;
-      file.close();
+    std::fstream file(filename, std::fstream::out);
+    if(!file.is_open())
+    {
+       file.clear();
+       file.open(filename, std::ios::out); //Create file.
+       file.close();
+       file.open(filename);
     }
+    
+    file << script;
+    file.close();
+    return;
     
     
     PyObject* pCompiledFn = Py_CompileString(script.c_str() , "" , Py_file_input) ;
