@@ -192,7 +192,7 @@ void terrama2::services::analysis::core::python::runMonitoredObjectScript(PyThre
     context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
   }
 }
-
+#include <fstream>
 
 void terrama2::services::analysis::core::python::runScriptGridAnalysis(PyThreadState* state, terrama2::services::analysis::core::GridContextPtr context, std::vector<uint32_t> rows)
 {
@@ -222,12 +222,14 @@ void terrama2::services::analysis::core::python::runScriptGridAnalysis(PyThreadS
     int nCols = outputRaster->getNumberOfColumns();
 
     std::string script = prepareScript(analysis);
-    std::cout << "********************************************************\n";
-    std::cout << script << "\n";
-    std::cout << "********************************************************\n";
-    std::cout << "Script size: " << script.size() << "\n";
-    std::cout << "********************************************************\n";
-    std::cout << std::endl;
+
+    std::string filename = "script.py";
+    std::fstream file(filename, std::fstream::in | std::fstream::out);
+    if(file.is_open()) {
+      file << script;
+      file.close();
+    }
+    
     
     PyObject* pCompiledFn = Py_CompileString(script.c_str() , "" , Py_file_input) ;
     if(pCompiledFn == NULL)
