@@ -204,7 +204,7 @@ namespace terrama2
         void processingTaskThread(const std::shared_ptr< const ProcessLogger > logger) noexcept;
 
         //! Verifys if the number of threads is greater than 0.
-        size_t verifyNumberOfThreads(size_t numberOfThreads) const;
+        size_t verifyNumberOfThreads(size_t numberOfThreads, size_t maxNumberOfThreads = 0) const;
 
         //! Sends the process finished signal
         void sendProcessFinishedSignal(const ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> executionDate, const bool success, QJsonObject jsonAnswer = QJsonObject());

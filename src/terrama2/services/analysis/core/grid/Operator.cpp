@@ -128,6 +128,12 @@ double terrama2::services::analysis::core::grid::sample(const std::string& dataS
       }
 
       auto raster = rasterList.front();
+      if(bandIdx >= raster->getNumberOfBands())
+      {
+        QString errMsg(QObject::tr("Invalid band index for dataset: %1").arg(dataset->id));
+        throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
+      }
+
       auto interpolator = context->getInterpolator(raster);
       auto dsGrid = raster->getGrid();
       if(!dsGrid)

@@ -416,11 +416,13 @@ void terrama2::core::TcpManager::sendSignalSlot(QTcpSocket* tcpSocket, TcpSignal
   //  debug buffer
   //  we can't use usual log because of \0 characters
   //
-  //  for(auto it = buffer.cbegin(); it != buffer.cend(); ++it)
-  //    std::cout << *it;
-  //  std::cout << std::endl;
+  std::cout << "Send buffer data: \n";
+  for(auto it = buffer.cbegin(); it != buffer.cend(); ++it)
+    std::cout << *it;
+  std::cout << std::endl;
   ///////////////////////////////////////////
 
+  TERRAMA2_LOG_DEBUG() << QObject::tr("Send buffer data: ");
   // wait while sending message
   qint64 written = tcpSocket->write(buffer);
   if(written == -1 || !tcpSocket->waitForBytesWritten(30000))
