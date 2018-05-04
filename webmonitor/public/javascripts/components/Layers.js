@@ -1,8 +1,8 @@
 'use strict';
 
 define(
-  ['components/LayerStatus', 'components/Sortable', 'components/Utils', 'enums/LayerStatusEnum', 'TerraMA2WebComponents'],
-  function(LayerStatus, Sortable, Utils, LayerStatusEnum, TerraMA2WebComponents) {
+  ['components/LayerStatus', 'components/Sortable', 'components/Utils', 'enums/LayerStatusEnum', 'TerraMA2WebComponents', 'components/AnimatedLayer'],
+  function(LayerStatus, Sortable, Utils, LayerStatusEnum, TerraMA2WebComponents, AnimatedLayer) {
 
     var memberAllLayers = [];
 
@@ -52,6 +52,7 @@ define(
       layerObject.private = layerData.private;
       layerObject.dataSeriesTypeName = layerData.dataSeriesTypeName;
       layerObject.visible = false;
+      layerObject.style = layerData.style;
       layerObject.status = LayerStatusEnum.ONLINE;
       layerObject.exportation = (layerData.exportation !== undefined && layerData.exportation.error === null && layerData.exportation.data !== null ? layerData.exportation.data : null);
       layerObject.dateInfo = {};
@@ -126,6 +127,10 @@ define(
       }).indexOf(layerId);
       if(indexLayer != -1) {
         memberAllLayers[indexLayer].visible = newVisible;
+
+        if(newVisible === true && memberAllLayers[indexLayer].style === 'wind_style'){
+          AnimatedLayer.windStart(layerId);
+        }  
       }
     };
 

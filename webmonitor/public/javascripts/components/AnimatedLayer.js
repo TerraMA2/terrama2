@@ -24,17 +24,17 @@ define(
     var memberPeriodDate = 1;
     // Id used to get id of setInterval() and use to stop the animation in clearInterval()
     var memberAnimationId = null;
-    
+
     // Wind layer identified to animate
     var windLayer;
     // Initial size of the animated arrows (wind data)
-    var arrowInitialLength;
+    var arrowInitialLength = 0;
     // Final size of the animated arrows (wind data)
-    var arrowFinalLength;
+    var arrowFinalLength = 4;
     // Current size of the animated arrows (wind data)
-    var arrowCurrentLength;
+    var arrowCurrentLength = 0;
     // Array with values to animate wind data 
-    var arrowLengthList = [0.2, 0.4, 0.6, 0.75, 1];    
+    var arrowLengthList = [1, 3, 5, 7, 10]; //[0.2, 0.4, 0.6, 0.75, 1];    
     // Set layer info to animate
     var setLayerToAnimate = function(layer) {
       pause();
@@ -192,14 +192,16 @@ define(
 
     //Set new layer time when maximum length is reached (wind data)
     var setListLengthWind = function() {
+      // if(TerraMA2WebMonitor.viewsData.views.style == "wind_style"){
+      // }
+
       if(arrowCurrentLength > arrowFinalLength)
         arrowCurrentLength = arrowInitialLength;
 
-      TerraMA2WebComponents.MapDisplay.updateLayerLength(windLayer.id, arrowLengthList[arrowCurrentLength]);
-      updateInfo();
-
+      TerraMA2WebComponents.MapDisplay.updateLayerLength(windLayers, arrowLengthList[arrowCurrentLength]);
       arrowCurrentLength++;
-    };
+    } 
+      
 
     // Set new layer time when date type is continuous
     var setCountinuousTime = function() {
@@ -243,6 +245,21 @@ define(
       showAnimationTools();
 
       memberAnimationId = window.setInterval(setTime, 1000);
+    };
+
+    //Start wind animation
+    var windLayers = undefined;
+    var windStart = function(layerId){
+      windLayers = layerId;
+      setSizeArrowsTimer = window.setInterval(setListLengthWind, 1000);
+    };
+
+    //stop wind animation when the layer is disabled
+    var windStop = function(){
+      if(windLayers !== null){
+        window.clearInterval(windLayers);
+        windLayers = null;
+      }      
     };
 
     // Reset the animation
@@ -334,7 +351,10 @@ define(
       init: init,
       setDatesSlider: setDatesSlider,
       setLayerToAnimate: setLayerToAnimate,
-      setDatesCalendar: setDatesCalendar
+      setDatesCalendar: setDatesCalendar,
+      setListLengthWind,
+      windStart,
+      windStop,
     };
   }
 );
