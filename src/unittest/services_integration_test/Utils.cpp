@@ -390,6 +390,9 @@ terrama2::core::DataSeriesPtr utilsTS::analysis::addInputDataSeriesAnalysis(std:
     dataManagerAnalysis->add(dcpSerramar);
 
     return dcpSerramar;
+  } else {
+    assert(false);
+    return nullptr;
   }
 }
 
@@ -412,6 +415,9 @@ terrama2::core::DataSeriesPtr utilsTS::analysis::addResultAnalysis(std::shared_p
     auto dataSeriesResult = terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProvider,terrama2::resultanalysis::tablename::analysis_dcp_result, dataSeries);
     dataManagerAnalysis->add(dataSeriesResult);
     return dataSeriesResult;
+  } else {
+    assert(false);
+    return nullptr;
   }
 
 }
