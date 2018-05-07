@@ -21,7 +21,7 @@ var GetAttributesTableController = function(app) {
   // Url template for the GeoServer 'GetFeature' request
   var memberGetFeatureTemplateURL = "/wfs?service=wfs&version=2.0.0&request=GetFeature&outputFormat=application/json&typeNames={{LAYER_NAME}}&propertyName={{PROPERTIES}}&sortBy={{SORT}}&startIndex={{START_INDEX}}&count={{COUNT}}";
   // Url template for the GeoServer 'GetLegendGraphic' request
-  var memberGetLegendGraphicTemplateURL = "/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&legend_options=forceLabels:on&LAYER={{LAYER_NAME}}";
+  var memberGetLegendGraphicTemplateURL = "/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&legend_options=forceLabels:on&LAYER={{LAYER_NAME}}&STYLE={{STYLE_NAME}}";
   // Object responsible for keeping the current layer data
   var memberCurrentLayer = {
     id: null,
@@ -219,10 +219,24 @@ var GetAttributesTableController = function(app) {
    * @inner
    */
   var getLegend = function(request, response) {
-    memberHttp.get(request.query.geoserverUri + memberGetLegendGraphicTemplateURL.replace('{{LAYER_NAME}}', request.query.layer), function(resp) {
-      resp.pipe(response, {
-        end: true
-      });
+    memberHttp.get(request.query.geoserverUri + memberGetLegendGraphicTemplateURL.replace('{{LAYER_NAME}}', request.query.layer).replace('{{STYLE_NAME}}', request.query.layer+'_style'), function(resp) {
+      if(resp.headers['content-type'].startsWith('image')) {
+        resp.pipe(response, {
+          end: true
+        });
+      } else {
+        memberHttp.get(request.query.geoserverUri + memberGetLegendGraphicTemplateURL.replace('{{LAYER_NAME}}', request.query.layer).replace('{{STYLE_NAME}}', request.query.layer+'_style_legend'), function(resp) {
+          if(resp.headers['content-type'].startsWith('image')) {
+            resp.pipe(response, {
+              end: true
+            });
+          } else {
+            console.error('Error retriving legend.');  
+          }
+        }).on("error", function(e) {
+          console.error(e.message);
+        });
+      }
     }).on("error", function(e) {
       console.error(e.message);
     });
