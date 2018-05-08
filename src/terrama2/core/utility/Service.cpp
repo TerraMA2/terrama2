@@ -34,6 +34,8 @@
 #include "TimeUtils.hpp"
 #include "../data-model/Process.hpp"
 #include "../data-model/Schedule.hpp"
+#include "../data-model/DataManager.hpp"
+#include "../data-model/Project.hpp"
 
 // QT
 #include <QJsonObject>
@@ -364,13 +366,22 @@ void terrama2::core::Service::addProcessToSchedule(ProcessPtr process) noexcept
     const auto& serviceManager = terrama2::core::ServiceManager::getInstance();
     auto serviceInstanceId = serviceManager.instanceId();
 
+    auto dataManager = dataManager_.lock();
+    auto projectPtr = dataManager->findProject(process->projectId);
+    if(!projectPtr)
+    {
+      QString errMsg = tr("Invalid Project for process: "+process->id);
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw ServiceException() << ErrorDescription(errMsg);
+    }
+
     // Check if this collector should be executed in this instance
     if(process->serviceInstanceId != serviceInstanceId)
       return;
 
     try
     {
-      if(process->active && process->schedule.id != 0)
+      if(process->active && projectPtr->active && process->schedule.id != 0)
       {
         std::lock_guard<std::mutex> lock(mutex_);
 
