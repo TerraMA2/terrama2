@@ -661,3 +661,52 @@ terrama2::core::ReprocessingHistoricalDataPtr terrama2::core::fromReprocessingHi
 
   return reprocessingHistoricalDataPtr;
 }
+
+terrama2::core::ProjectPtr terrama2::core::fromProjectJson(QJsonObject json)
+{
+  if(json.empty())
+  {
+    QString errMsg = QObject::tr("Invalid Project JSON object.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
+  }
+
+  if(json["class"].toString() != "Project")
+  {
+    QString errMsg = QObject::tr("Invalid Project JSON object.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
+  }
+
+  if(!(json.contains("id")
+       && json.contains("name")
+       && json.contains("active")))
+  {
+    QString errMsg = QObject::tr("Invalid Project JSON object.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
+  }
+
+  auto project = std::make_shared<terrama2::core::Project>();
+  project->id = json["id"].toInt();
+  project->name = json["name"].toString().toStdString();
+  project->active = json["active"].toBool();
+
+  return project;
+}
+
+QJsonObject terrama2::core::toJson(const terrama2::core::ProjectPtr& project)
+{
+  QJsonObject obj;
+
+  if(!project)
+    return obj;
+
+  obj.insert("class", QString("Project"));
+  
+  obj.insert("id", static_cast<int32_t>(project->id));
+  obj.insert("name", QString::fromStdString(project->name));
+  obj.insert("active", project->active);
+
+  return obj;
+}

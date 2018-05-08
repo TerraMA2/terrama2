@@ -38,6 +38,10 @@ namespace terrama2
     //! Shared smart pointer for DataProvider
     typedef std::shared_ptr<const terrama2::core::DataProvider> DataProviderPtr;
 
+    struct Project;
+    //! Shared smart pointer for DataProvider
+    typedef std::shared_ptr<const terrama2::core::Project> ProjectPtr;
+
     struct DataSeries;
     //! Shared smart pointer for DataSeries
     typedef std::shared_ptr<const terrama2::core::DataSeries> DataSeriesPtr;
