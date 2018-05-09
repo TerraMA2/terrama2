@@ -11,8 +11,13 @@ function valid()
   fi
 }
 
+now=$(date '+%Y%m%d')
+ubuntu=$(lsb_release -rs)
+packages_folder=${ubuntu}-${now}
+
+
 # delete old packages
-rm -rf /packages
+rm -rf /${packages_folder}
 rm /devel/build-package/*.deb
 
 (
@@ -26,8 +31,11 @@ rm /devel/build-package/*.deb
   valid $? "Unable to create the TerraMA2 doc package."
 )
 
-mkdir packages
-cp /devel/build-package/*.deb packages/
-cp /devel/terrama2/packages/debian-package/*.deb packages/
+cd packages
+(
+  mkdir ${packages_folder}
+  cp /devel/build-package/*.deb ${packages_folder}/
+  cp /devel/terrama2/packages/debian-package/*.deb ${packages_folder}/
+)
 
-bash
+tail -f /dev/null
