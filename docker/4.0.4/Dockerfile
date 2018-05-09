@@ -1,0 +1,35 @@
+FROM ubuntu:16.04
+# install minimal dependencies
+RUN  apt-get update \
+  && apt-get install -y wget sudo git lsb-release
+
+# install terralib
+RUN mkdir -p devel/terralib && \
+    cd devel/terralib && \
+    wget http://www.dpi.inpe.br/terralib5/download/download.php?FileName=terralib-5.3.1-ubuntu-16.04.tar.gz && \
+    mv download.php?FileName=terralib-5.3.1-ubuntu-16.04.tar.gz terralib-5.3.1-ubuntu-16.04.tar.gz && \
+    tar zxvf terralib-5.3.1-ubuntu-16.04.tar.gz && \
+    ./install.sh && \
+    cd .. && \
+    rm terralib -r
+
+# install vmime
+RUN cd devel && \
+    wget http://www.terrama2.dpi.inpe.br/pub/downloads/terrama2-vmime-4.0.4_0.9.2-ubuntu16.04_amd64.deb && \
+    dpkg -i terrama2-vmime-4.0.4_0.9.2-ubuntu16.04_amd64.deb || true && \
+    apt update && \
+    apt install -f -y
+
+# terrama2 build dependencies and clone terrama2
+RUN cd devel && \
+    apt install -y cmake build-essential libcurl3-dev libpython2.7-dev libquazip-dev libxerces-c-dev libgeos++-dev libproj-dev && \
+    git clone https://github.com/TerraMA2/terrama2 && \
+    cd terrama2 && \
+    git fetch && \
+    git checkout b4.0.4
+
+# clean apt
+RUN rm -rf /var/lib/apt/lists/*
+
+WORKDIR /devel/terrama2
+ENTRYPOINT /bin/bash
