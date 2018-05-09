@@ -11,6 +11,10 @@ function valid()
   fi
 }
 
+# delete old packages
+rm -rf /packages
+rm /devel/build-package/*.deb
+
 (
   cd /devel/terrama2
   git pull
