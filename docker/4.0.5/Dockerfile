@@ -24,6 +24,7 @@ RUN cd devel && \
 # install vmime
 RUN cd devel/terrama2/packages/debian-package && \
     sudo apt install -y doxygen graphviz gnutls-bin gsasl libghc-gsasl-dev libgnutls-dev libssl-dev debhelper devscripts  && \
+    wget https://github.com/kisli/vmime/archive/v0.9.2.tar.gz && \
     ./deb-vmime.sh && \
     dpkg -i terrama2-vmime-4.0.5_0.9.2-ubuntu16.04_amd64.deb || true && \
     apt update && \

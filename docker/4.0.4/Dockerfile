@@ -31,5 +31,7 @@ RUN cd devel && \
 # clean apt
 RUN rm -rf /var/lib/apt/lists/*
 
-WORKDIR /devel/terrama2
-ENTRYPOINT /bin/bash
+ADD ./entrypoint.sh /
+
+WORKDIR /
+ENTRYPOINT ./entrypoint.sh
