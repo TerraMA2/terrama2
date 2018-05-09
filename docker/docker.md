@@ -1,7 +1,7 @@
 # Docker
 Simple instructions for using docker for TerraMA2 packages.
 
-Obs. In this guide I assume you have permission to run `docker` as user, if you don't: run the commands using `sudo`
+Obs. In this guide I assume you have permission to run `docker` as user, you may also run the commands using `sudo`
 
 ## Generate docker image (if you don't have one)
 ```
