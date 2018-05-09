@@ -81,8 +81,8 @@ namespace terrama2
      */
     struct DataProvider
     {
-      DataProviderId id = 0; //!< The identifier of the DataProvider.
-      ProjectId projectId = 0; //!< The identifier of the Project
+      DataProviderId id = terrama2::core::InvalidId(); //!< The identifier of the DataProvider.
+      ProjectId projectId = terrama2::core::InvalidId(); //!< The identifier of the Project
       std::string name; //!< Name of the DataProvider, must be unique.
       std::string description; //!< Description from the source of the DataProvider.
       DataProviderType dataProviderType; //!< Type of the DataProvider (FTP, WCS, ...).

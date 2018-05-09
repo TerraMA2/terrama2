@@ -8,6 +8,11 @@
 
 # Enhancements:
 - Use Yarn instead of npm for web dependencies
+- Smaller storage of log messages
+
+# Bugfix:
+- Improved limit of threads
+- Fix legend for for raster views
 
 # 4.0.4
 

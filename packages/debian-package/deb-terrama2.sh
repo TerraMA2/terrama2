@@ -47,7 +47,6 @@ echo ""
 
 LD_LIBRARY_PATH=`pwd`/bin make package -j 8
 
-clear
 echo "* ---------- *"
 echo "* Finished ! *"
 echo "* ---------- *"

@@ -71,8 +71,8 @@ namespace terrama2
       //! Default destructor.
       virtual ~DataSet() = default;
 
-      DataSetId id = 0;//!< Unique identifier of the DataSet.
-      DataSeriesId dataSeriesId = 0;//!< Identifier of the DataSeries responsible for the DataSet.
+      DataSetId id = terrama2::core::InvalidId();//!< Unique identifier of the DataSet.
+      DataSeriesId dataSeriesId = terrama2::core::InvalidId();//!< Identifier of the DataSeries responsible for the DataSet.
       bool active = true;//!< Attribute that indicates if the DataSet should be used.
       std::map<std::string, std::string> format;//!< implementation-specific information.
 

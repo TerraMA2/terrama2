@@ -39,8 +39,8 @@ namespace terrama2
   {
     struct Process
     {
-      ProcessId id = 0;//!< Unique identification.
-      ServiceInstanceId serviceInstanceId = 0;//!< Collector service instace where the process should be executed.
+      ProcessId id = terrama2::core::InvalidId();//!< Unique identification.
+      ServiceInstanceId serviceInstanceId = terrama2::core::InvalidId();//!< Collector service instace where the process should be executed.
       bool active = true;//!< Flag if the process is active.
       ProjectId projectId = 0;//!< Identification of the project owner of the process.
 
