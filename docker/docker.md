@@ -17,5 +17,5 @@ A folder with the ubuntu version and current date will be created, in the contai
 with the terrama2 packages.
 
 ```
-docker container restart terrama2_4.0.5
+docker container start terrama2_4.0.5
 ```
