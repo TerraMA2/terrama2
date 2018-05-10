@@ -18,7 +18,7 @@ packages_folder=${ubuntu}-${now}
 
 # delete old packages
 rm -rf /${packages_folder}
-rm /devel/build-package/*.deb
+rm -f /devel/build-package/*.deb
 
 (
   cd /devel/terrama2
@@ -37,5 +37,3 @@ cd packages
   cp /devel/build-package/*.deb ${packages_folder}/
   cp /devel/terrama2/packages/debian-package/*.deb ${packages_folder}/
 )
-
-tail -f /dev/null
