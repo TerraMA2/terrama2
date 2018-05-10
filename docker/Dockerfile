@@ -1,4 +1,7 @@
 FROM ubuntu:16.04
+ARG VERSION=4.0.5
+
+ENV VERSION=${VERSION}
 # install minimal dependencies
 RUN  apt-get update \
   && apt-get install -y wget sudo git lsb-release
@@ -19,14 +22,14 @@ RUN cd devel && \
     git clone https://github.com/TerraMA2/terrama2 && \
     cd terrama2 && \
     git fetch && \
-    git checkout b4.0.5
+    git checkout b${VERSION}
 
 # install vmime
 RUN cd devel/terrama2/packages/debian-package && \
     sudo apt install -y doxygen graphviz gnutls-bin gsasl libghc-gsasl-dev libgnutls-dev libssl-dev debhelper devscripts  && \
     wget https://github.com/kisli/vmime/archive/v0.9.2.tar.gz && \
     ./deb-vmime.sh && \
-    dpkg -i terrama2-vmime-4.0.5_0.9.2-ubuntu16.04_amd64.deb || true && \
+    dpkg -i terrama2-vmime-${VERSION}_0.9.2-ubuntu16.04_amd64.deb || true && \
     apt update && \
     apt install -f -y
 

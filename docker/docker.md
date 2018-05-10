@@ -1,29 +1,21 @@
 # Docker
 Simple instructions for using docker for TerraMA2 packages.
 
-Obs. In this guide I assume you have permission to run `docker` as user, if you don't run the commands using `sudo`
+Obs. In this guide I assume you have permission to run `docker` as user, you may also run the commands using `sudo`
 
 ## Generate docker image (if you don't have one)
+
+The `VERSION` parameter must be in the format `X.Y.Z` and have an associated branch with name in the format `bX.Y.Z`.
+
 ```
-docker build -t "terrama2:4.0.5" .
-docker run -it terrama2:4.0.5 --name terrama2_4.0.5
+docker build -t "terrama2:4.0.5" --build-arg VERSION=4.0.5 .
+docker run -t --name terrama2_4.0.5 -v ~/packages:/packages terrama2:4.0.5
 ```
 ## Start the docker image
-```
-docker start terrama2_4.0.5
-```
 
-## Access the docker shell
-```
-docker exec -it terrama2_4.0.5 bash
-```
+A folder with the ubuntu version and current date will be created, in the container folder,
+with the terrama2 packages.
 
-## Generate the package
 ```
-./entrypoint.sh
-```
-
-## Copy package from docker
-```
-docker cp terrama2_4.0.5:/packages/ .
+docker container start terrama2_4.0.5
 ```
