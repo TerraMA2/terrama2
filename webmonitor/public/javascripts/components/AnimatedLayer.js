@@ -34,7 +34,7 @@ define(
     // Current size of the animated arrows (wind data)
     var arrowCurrentLength = 0;
     // Array with values to animate wind data 
-    var arrowLengthList = [0.5, 0.6, 0.7, 0.9, 1]; //[6, 9, 12, 14, 16]; //[0.2, 0.4, 0.6, 0.75, 1];    
+    var arrowLengthList = [0.5, 0.6, 0.7, 0.9, 1]; 
     // Set layer info to animate
     var setLayerToAnimate = function(layer) {
       pause();
@@ -192,9 +192,6 @@ define(
 
     //Set new layer time when maximum length is reached (wind data)
     var setListLengthWind = function() {
-      // if(TerraMA2WebMonitor.viewsData.views.style == "wind_style"){
-      // }
-
       if(arrowCurrentLength > arrowFinalLength)
         arrowCurrentLength = arrowInitialLength;
 

@@ -87,7 +87,6 @@ define(
      */
     var updateLayerSourceParams = function(layerId, params, refresh) {
       var layer = findBy(memberOlMap.getLayerGroup(), 'id', layerId);
-      //layer.getSource().updateParams(params);
       var source = layer.getSource();
       if(source.hasOwnProperty("params_")){
         source.updateParams(params);  
