@@ -30,6 +30,7 @@
 #ifndef TERRAMA2_INTERPOLATOR_CORE_INTERPOLATORFACTORIES_H
 #define TERRAMA2_INTERPOLATOR_CORE_INTERPOLATORFACTORIES_H
 
+#include "Config.hpp"
 #include "Interpolator.hpp"
 #include "InterpolatorParams.hpp"
 #include "Typedef.hpp"
@@ -58,7 +59,7 @@ namespace terrama2
          *
          * \ingroup interpolator
          */
-        class InterpolatorFactories : public te::common::ParameterizedAbstractFactory<Interpolator, int, InterpolatorParamsPtr>
+        class TMINTERPOLATOREXPORT InterpolatorFactories : public te::common::ParameterizedAbstractFactory<Interpolator, int, InterpolatorParamsPtr>
         {
         public:
 
@@ -93,7 +94,7 @@ namespace terrama2
          *
          * \ingroup interpolator
          */
-        class NNInterpolatorFactory : public InterpolatorFactories
+        class TMINTERPOLATOREXPORT NNInterpolatorFactory : public InterpolatorFactories
         {
         public:
           /*!
@@ -121,7 +122,7 @@ namespace terrama2
          *
          * \ingroup interpolator
          */
-        class AvgDistInterpolatorFactory : public InterpolatorFactories
+        class TMINTERPOLATOREXPORT AvgDistInterpolatorFactory : public InterpolatorFactories
         {
         public:
 
@@ -150,7 +151,7 @@ namespace terrama2
          *
          * \ingroup interpolator
          */
-        class SqrAvgDistInterpolatorFactory : public InterpolatorFactories
+        class TMINTERPOLATOREXPORT SqrAvgDistInterpolatorFactory : public InterpolatorFactories
         {
         public:
 

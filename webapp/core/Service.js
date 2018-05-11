@@ -8,6 +8,8 @@ var EventEmitter = require('events').EventEmitter;
 var NodeUtils = require('util');
 var Signals = require('./Signals');
 
+let beginOfMessage = "(BOM)\0";
+let endOfMessage = "(EOM)\0";
 
 /**
  This method parses the bytearray received.
@@ -40,10 +42,10 @@ function parseByteArray(byteArray) {
 
 /**
  * It handles a tcp service connection via TCP
- * 
+ *
  * @class Service
  * @param {Service} serviceInstance - A TerraMA² service instance
- * 
+ *
  * @fires Service#processFinished
  */
 var Service = module.exports = function(serviceInstance) {
@@ -74,7 +76,7 @@ var Service = module.exports = function(serviceInstance) {
 
   /**
    * It checks if there is already a listener registered
-   * 
+   *
    * @returns {boolean}
    */
   self.isRegistered = function() {
@@ -87,51 +89,127 @@ var Service = module.exports = function(serviceInstance) {
            self.listenerCount('error') > 0;
   };
 
+
+  /**
+   * Creates a new Buffer based on any number of Buffer
+   *
+   * @private
+   * @param {Buffer} arguments Any number of Buffer as arguments, may have undefined itens.
+   * @return {Buffer} The new Buffer created out of the list.
+   */
+  function _createBufferFrom() {
+    let size = 0;
+    for (var i = 0; i < arguments.length; i++) {
+      if(arguments[i]) {
+        size += arguments[i].length;
+      }
+    }
+
+    let tmp = new Buffer(size);
+    let offset = 0;
+    for (var i = 0; i < arguments.length; i++) {
+      if(arguments[i]) {
+        tmp.set(new Buffer.from(arguments[i]), offset);
+        offset+=arguments[i].length;
+      }
+    }
+
+    return tmp;
+  }
+
+  let tempBuffer = undefined;
+  let extraData = undefined;
   self.socket.on('data', function(byteArray) {
     self.answered = true;
     var formatMessage = "Socket %s received %s";
     logger.debug(Utils.format(formatMessage, self.service.name, byteArray));
-    logger.debug(Utils.format(formatMessage, self.service.name, byteArray.toString()));
 
-    try  {
-      var parsed = parseByteArray(byteArray);
+    // append and check if the complete message has arrived
+    tempBuffer = _createBufferFrom(tempBuffer, byteArray);
 
-      switch(parsed.signal) {
-        case Signals.LOG_SIGNAL:
-          self.emit("log", parsed.message);
-          break;
-        case Signals.STATUS_SIGNAL:
-          self.emit("status", parsed.message);
-          break;
-        case Signals.TERMINATE_SERVICE_SIGNAL:
-          self.emit("stop", parsed);
-          break;
-        case Signals.PROCESS_FINISHED_SIGNAL:
-          /**
-           * Used to notify when a process has been finished. C++ service emits a processed data to save
-           * and delivery to user
-           * 
-           * @event Service#processFinished
-           * @type {Object}
-           */
-          self.emit("processFinished", parsed.message);
-          break;
-        case Signals.VALIDATE_PROCESS_SIGNAL:
-          self.emit("validateProcess", parsed.message);
-          break;
-      }
+    let completeMessage = true;
+    while(tempBuffer && completeMessage) {
+      try  {
+        let bom = tempBuffer.toString('utf-8', 0, beginOfMessage.length);
+        while(tempBuffer.length > beginOfMessage.length && bom !== beginOfMessage) {
+          tempBuffer = new Buffer.from(tempBuffer.slice(1));
+          bom = tempBuffer.toString('utf-8', 0, beginOfMessage.length);
+        }
+        
+        if(bom !== beginOfMessage) {
+          tempBuffer = undefined;
+          throw new Error("Invalid message (BOM)");
+        }
 
-      if (callbackSuccess) {
-        callbackSuccess(parsed);
-      }
-    } catch (e) {
-      logger.debug(Utils.format("Error parsing bytearray received from %s. %s", self.service.name, e.toString()));
-      self.emit("serviceError", e);
-      if (callbackError) {
-        callbackError(e);
+        const messageSizeReceived = tempBuffer.readUInt32BE(beginOfMessage.length);
+        const headerSize = beginOfMessage.length + endOfMessage.length;
+        const expectedLength = messageSizeReceived + 4;
+        if(tempBuffer.length < expectedLength+headerSize) {
+          // if we don't have the complete message
+          // wait for the rest
+          completeMessage = false;
+          return;
+        }
+
+        const eom = tempBuffer.toString('ascii', expectedLength + beginOfMessage.length, expectedLength+headerSize);
+        if(eom !== endOfMessage) {
+          tempBuffer = undefined;
+          throw new Error("Invalid message (EOM)");
+        }
+
+        // hold extra data for next message
+        if(tempBuffer.length > expectedLength+headerSize) {
+          extraData = new Buffer.from(tempBuffer.slice(expectedLength + headerSize));
+        } else {
+          extraData = undefined;
+        }
+        
+        // free any extra byte from the message
+        tempBuffer = new Buffer.from(tempBuffer.slice(beginOfMessage.length, expectedLength+beginOfMessage.length));
+        
+        const parsed = parseByteArray(tempBuffer);
+
+        // we got the message, empty buffer.
+        tempBuffer = extraData;
+
+        switch(parsed.signal) {
+          case Signals.LOG_SIGNAL:
+            self.emit("log", parsed.message);
+            break;
+          case Signals.STATUS_SIGNAL:
+            self.emit("status", parsed.message);
+            break;
+          case Signals.TERMINATE_SERVICE_SIGNAL:
+            self.emit("stop", parsed);
+            break;
+          case Signals.PROCESS_FINISHED_SIGNAL:
+            /**
+             * Used to notify when a process has been finished. C++ service emits a processed data to save
+             * and delivery to user
+             *
+             * @event Service#processFinished
+             * @type {Object}
+             */
+            self.emit("processFinished", parsed.message);
+            break;
+          case Signals.VALIDATE_PROCESS_SIGNAL:
+            self.emit("validateProcess", parsed.message);
+            break;
+        }
+
+        if (callbackSuccess) {
+          callbackSuccess(parsed);
+        }
+      } catch (e) {
+        // we got an error, empty buffer.
+        tempBuffer = undefined;
+        logger.debug(Utils.format("Error parsing bytearray received from %s. %s", self.service.name, e.toString()));
+        self.emit("serviceError", e);
+        if (callbackError) {
+          callbackError(e);
+        }
       }
     }
-
   });
 
   self.socket.on('drain', function() {
@@ -202,6 +280,11 @@ var Service = module.exports = function(serviceInstance) {
       self.emit("serviceError", new Error("Could not send data from closed connection"));
       return;
     }
+
+    // let tmp = new Buffer(buffer.length+beginOfMessage.length+endOfMessage.length);
+    // tmp.set(new Buffer.from(beginOfMessage), 0);
+    // tmp.set(new Buffer.from(buffer), beginOfMessage.length);
+    // tmp.set(new Buffer.from(endOfMessage), buffer.length+beginOfMessage.length);
 
     self.writeData(buffer, null, null, function() {
       logger.debug("Sent all");

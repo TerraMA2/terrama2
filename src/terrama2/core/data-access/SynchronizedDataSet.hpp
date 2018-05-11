@@ -72,6 +72,9 @@ namespace terrama2
         /*! \brief Virtual destructor. */
         virtual ~SynchronizedDataSet();
 
+
+        void setDataSet(std::shared_ptr<te::da::DataSet> dataset) { dataset_ = dataset; }
+
         /*!
           \brief Method for retrieving a geometric attribute value.
 

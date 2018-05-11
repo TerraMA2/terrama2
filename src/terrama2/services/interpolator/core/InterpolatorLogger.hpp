@@ -32,6 +32,8 @@
 
 #include "../../../core/utility/ProcessLogger.hpp"
 
+#include "Config.hpp"
+
 namespace terrama2
 {
   namespace services
@@ -47,7 +49,7 @@ namespace terrama2
          *
          * \ingroup interpolator
          */
-        class InterpolatorLogger : public terrama2::core::ProcessLogger
+        class TMINTERPOLATOREXPORT InterpolatorLogger : public terrama2::core::ProcessLogger
         {
           Q_OBJECT
         public:

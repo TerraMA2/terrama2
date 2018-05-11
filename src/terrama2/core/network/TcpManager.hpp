@@ -40,6 +40,23 @@ namespace terrama2
 {
   namespace core
   {
+    /**
+     * @brief RAII class for clearing the socket after reading data
+     * 
+     * This class ensures no data is left in the socket for further reading.
+     * 
+     */
+    class RaiiSocket
+    {
+      public:
+        RaiiSocket(QTcpSocket* tcpSocket) 
+          : tcpSocket_(tcpSocket) {}
+        //! Clear the socket end log warning message if there was data to be read.
+        ~RaiiSocket();
+      private:
+        QTcpSocket* tcpSocket_;
+    };
+
     class ServiceManager;
 
     class DataManager;
