@@ -136,7 +136,7 @@ void terrama2::services::analysis::core::Service::connectDataManager()
 void terrama2::services::analysis::core::Service::start(size_t threadNumber)
 {
   terrama2::core::Service::start(threadNumber);
-  threadNumber = std::ceil((threadNumber)/2);
+  threadNumber = std::ceil(verifyNumberOfThreads(threadNumber)/2);
   threadPool_.reset(new ThreadPool(threadNumber));
 }
 

@@ -1,7 +1,16 @@
+#!/bin/bash
 
 #
 # Install and configure pm2
 #
+
+function valid()
+{
+  if [ $1 -ne 0 ]; then
+    printf "$2\n"
+    exit 1
+  fi
+}
 
 # Check if pm2 is already installed
 npm list pm2 -g

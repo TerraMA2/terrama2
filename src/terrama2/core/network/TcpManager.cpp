@@ -377,14 +377,15 @@ void terrama2::core::TcpManager::sendSignalSlot(QTcpSocket* tcpSocket, TcpSignal
 {
   TERRAMA2_LOG_DEBUG() << QObject::tr("Sending signal information...");
 
-  const std::string bom = "(BOM)";
-  const std::string eom = "(EOM)";
+  const std::string beginOfMessage = "(BOM)";
+  const std::string endOfMessage = "(EOM)";
 
   ///////////////////////////////////////////
   // Prepare message
   QByteArray message;
   QDataStream out(&message, QIODevice::WriteOnly);
 
+  // size of the message, including signal
   out << static_cast<uint32_t>(0);
   out << static_cast<uint32_t>(signal);
 
@@ -395,32 +396,33 @@ void terrama2::core::TcpManager::sendSignalSlot(QTcpSocket* tcpSocket, TcpSignal
 
   message.remove(8, 4);
   out.device()->seek(0);
+  // size of the message, including signal
   out << static_cast<uint32_t>(message.size() - sizeof(uint32_t));
   ///////////////////////////////////////////
-
-  // for(auto it = message.cbegin(); it != message.cend(); ++it)
-  //   std::cout << *it;
-  // std::cout << std::endl;
 
   ///////////////////////////////////////////
   // add header
   QByteArray buffer;
   QDataStream bufferStream(&buffer, QIODevice::WriteOnly);
-  bufferStream << bom.c_str() << message << eom.c_str();
+  // zero ended header and footer
+  bufferStream << beginOfMessage.c_str() << message << endOfMessage.c_str();
 
-  // for(auto it = buffer.cbegin(); it != buffer.cend(); ++it)
-  //   std::cout << *it;
-  // std::cout << std::endl;
-
-  buffer.remove(buffer.size() - eom.size() - 5, 4);
-  buffer.remove(bom.size()+5, 4);
+  buffer.remove(buffer.size() - endOfMessage.size() - 5, 4);
+  buffer.remove(beginOfMessage.size()+5, 4);
   buffer.remove(0,4);
   ///////////////////////////////////////////
 
-   for(auto it = buffer.cbegin(); it != buffer.cend(); ++it)
-     std::cout << *it;
-   std::cout << std::endl;
+  ///////////////////////////////////////////
+  //  debug buffer
+  //  we can't use usual log because of \0 characters
+  //
+  std::cout << "Send buffer data: \n";
+  for(auto it = buffer.cbegin(); it != buffer.cend(); ++it)
+    std::cout << *it;
+  std::cout << std::endl;
+  ///////////////////////////////////////////
 
+  TERRAMA2_LOG_DEBUG() << QObject::tr("Send buffer data: ");
   // wait while sending message
   qint64 written = tcpSocket->write(buffer);
   if(written == -1 || !tcpSocket->waitForBytesWritten(30000))

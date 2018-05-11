@@ -128,6 +128,34 @@ void terrama2::core::TimeUtils::addYear(std::shared_ptr< te::dt::TimeInstantTZ >
   (*timeInstant) = temp;
 }
 
+std::unique_ptr<te::dt::TimeInstantTZ> terrama2::core::TimeUtils::timeFromStringInterval(std::shared_ptr<te::dt::TimeInstantTZ> baseTime, std::string timeString)
+{
+  if(timeString.empty())
+    return nullptr;
+
+  // check if the end value should start at 0h
+  bool untilZeroHour = false;
+  if(timeString.back() == '+')
+  {
+    untilZeroHour = true;
+    // remove '+' paremeter from the string
+    timeString.pop_back();
+  }
+
+  boost::local_time::local_date_time ldt = baseTime->getTimeInstantTZ();
+  double seconds = terrama2::core::TimeUtils::convertTimeString(timeString, "SECOND", "H");
+  ldt -= boost::posix_time::milliseconds(static_cast<long>(seconds*1000));
+
+  if(untilZeroHour)
+  {
+    // '+' parameter means the time interval is valid from 0h
+    boost::posix_time::ptime p(ldt.date(), boost::posix_time::hours(0));
+    ldt = boost::local_time::local_date_time(p, ldt.zone());
+  }
+
+  return std::unique_ptr<te::dt::TimeInstantTZ>(new te::dt::TimeInstantTZ(ldt));
+}
+
 double terrama2::core::TimeUtils::convertTimeString(const std::string& time, std::string unitName, const std::string& defaultUnit)
 {
   if(time.empty())
@@ -184,7 +212,7 @@ double terrama2::core::TimeUtils::convertTimeString(const std::string& time, std
   if(found)
   {
     // if we found our unit, convert the value to seconds
-    int ivalue = std::stoi(numberStr);
+    double ivalue = std::stod(numberStr);
     std::string uomName = uom->getName();
     if(uomName == "SECOND")
       result = ivalue;

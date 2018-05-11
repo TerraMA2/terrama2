@@ -39,6 +39,9 @@
 
 #include <QTextStream>
 
+#include <boost/range/algorithm.hpp>
+#include <boost/range/algorithm_ext.hpp>
+
 #include "../../../../../core/data-model/Filter.hpp"
 #include "../../../../../core/utility/Logger.hpp"
 
@@ -52,7 +55,8 @@
 double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
                                                                      const std::string& dataSeriesName,
                                                                      const size_t band,
-                                                                     terrama2::services::analysis::core::Buffer buffer)
+                                                                     terrama2::services::analysis::core::Buffer buffer,
+                                                                     std::function<bool(double)> removeCondition)
 {
   OperatorCache cache;
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
@@ -85,7 +89,7 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
   filter.discardAfter = context->getStartTime();
   filter.lastValues = std::make_shared<size_t>(1);
 
-  return operatorImpl(statisticOperation, dataSeriesName, filter, band, buffer, context, cache);
+  return operatorImpl(statisticOperation, dataSeriesName, filter, band, buffer, context, cache, removeCondition);
 }
 
 double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
@@ -94,7 +98,8 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
                                                                     const size_t band,
                                                                     terrama2::services::analysis::core::Buffer buffer,
                                                                     terrama2::services::analysis::core::MonitoredObjectContextPtr context,
-                                                                    OperatorCache cache)
+                                                                    OperatorCache cache,
+                                                                    std::function<bool(double)> removeCondition)
 {
 
   // After the operator lock is released it's not allowed to return any value because it doesn' have the interpreter lock.
@@ -159,6 +164,12 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
       std::vector<double> values;
       for(const auto& raster : rasterList)
       {
+        if(band >= raster->getNumberOfBands())
+        {
+          QString errMsg(QObject::tr("Invalid band index for dataset: %1").arg(dataset->id));
+          throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
+        }
+
         geomResult->transform(raster->getSRID());
         //no intersection between the raster and the object geometry
         if(!raster->getExtent()->intersects(*geomResult->getMBR()))
@@ -169,6 +180,9 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
 
         transform(tempValuesMap.cbegin(), tempValuesMap.cend(), back_inserter(values), [](const std::pair<std::pair<int, int>, double>& val){ return val.second;} );
       }
+      // remove every values that are in removeCondition
+      if(removeCondition)
+        boost::range::remove_erase_if(values, removeCondition);
 
       if(!values.empty())
       {
@@ -211,6 +225,17 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
 double terrama2::services::analysis::core::grid::zonal::count(const std::string& dataSeriesName, const size_t band, terrama2::services::analysis::core::Buffer buffer)
 {
   return operatorImpl(StatisticOperation::COUNT, dataSeriesName, band, buffer);
+}
+
+double terrama2::services::analysis::core::grid::zonal::countByValue(const std::string& dataSeriesName, const double value, const size_t band, terrama2::services::analysis::core::Buffer buffer)
+{
+  // count values equal to 'value'
+  return operatorImpl(StatisticOperation::COUNT, dataSeriesName, band, buffer, [value](const double& pixel) { return pixel != value; });
+}
+double terrama2::services::analysis::core::grid::zonal::countByRange(const std::string& dataSeriesName, const double begin, const double end, const size_t band, terrama2::services::analysis::core::Buffer buffer)
+{
+  // count values inside the interval [begin, end)]
+  return operatorImpl(StatisticOperation::COUNT, dataSeriesName, band, buffer, [begin, end](const double& pixel) { return pixel < begin || pixel >= end; });
 }
 
 double terrama2::services::analysis::core::grid::zonal::min(const std::string& dataSeriesName, const size_t band, terrama2::services::analysis::core::Buffer buffer)

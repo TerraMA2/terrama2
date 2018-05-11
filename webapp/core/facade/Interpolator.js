@@ -1,6 +1,6 @@
 (function(){
   "use strict";
-  
+
   var DataManager = require("./../DataManager");
   var PromiseClass = require("./../Promise");
   var ScheduleType = require("./../Enums").ScheduleType;
@@ -9,14 +9,14 @@
   /**
    * It represents a mock to handle interpolator.
    * It is used in Interpolator API
-   * 
+   *
    * @class Interpolator
    */
   var Interpolator = module.exports = {};
-  
+
   /**
    * Helper to send interpolators via TCP
-   * 
+   *
    * @param {Array|Object} args An interpolator values to send
    */
   function sendInterpolator(args) {
@@ -39,7 +39,7 @@
 
   /**
    * It applies a save operation and send interpolator to the service
-   * 
+   *
    * @param {Object} interpolatorObject - An interpolator object to save
    * @param {Object} scheduleObject - A schedule object to save
    * @param {number} projectId - A project identifier
@@ -53,7 +53,7 @@
           interpolatorObject.project_id = projectId;
         if (!interpolatorObject.data_series_output.project_id)
           interpolatorObject.data_series_output.project_id = projectId;
-  
+
         DataManager.orm.transaction(function(t){
           var options = {transaction: t};
           return DataManager.addDataSeries(interpolatorObject.data_series_output, null, options)
@@ -64,8 +64,11 @@
                 interpolatorObject.schedule_type = scheduleObject.scheduleType;
                 if (scheduleObject.scheduleType == ScheduleType.AUTOMATIC){
                   interpolatorObject.automatic_schedule_id = scheduleResult.id
-                } else if (scheduleObject.scheduleType == ScheduleType.SCHEDULE){
+                } else if (scheduleObject.scheduleType == ScheduleType.SCHEDULE
+                          || scheduleObject.scheduleType == ScheduleType.REPROCESSING_HISTORICAL){
                   interpolatorObject.schedule_id = scheduleResult.id;
+                } else {
+                  throw new Error('Invalid schedule type');
                 }
                 return DataManager.addInterpolator(interpolatorObject, options).then(function(interpolatorResult){
                   return interpolatorResult;
@@ -86,7 +89,7 @@
 
   /**
    * It retrieves interpolators from database. It applies a filter by ID if there is.
-   * 
+   *
    * @param {number} interpolatorId - Interpolator Identifier
    * @param {number} projectId - A project identifier
    * @returns {Promise<Interpolator[]>}
@@ -115,7 +118,7 @@
 
   /**
    * It performs update inteprolator from database from interpolator identifier
-   * 
+   *
    * @param {number} interpolatorId - Interpolator Identifier
    * @param {Object} interpolatorObject - Interpolator object values
    * @param {Object} scheduleObject - Schedule object values
@@ -136,7 +139,8 @@
             interpolator = interpolatorResult;
 
             if (interpolator.schedule_type == scheduleObject.scheduleType){
-              if (interpolator.schedule_type == ScheduleType.SCHEDULE){
+              if (interpolator.schedule_type == ScheduleType.SCHEDULE
+                  || scheduleObject.scheduleType == ScheduleType.REPROCESSING_HISTORICAL){
                 return DataManager.updateSchedule(interpolator.schedule.id, scheduleObject, options)
                 .then(function() {
                   interpolatorObject.schedule_id = interpolator.schedule_id;
@@ -148,6 +152,8 @@
                   interpolatorObject.automatic_schedule_id = interpolator.automatic_schedule_id;
                   return null;
                 });
+              } else {
+                throw new Error('Invalid schedule type');
               }
             } else {
               // when change type of schedule
@@ -155,18 +161,22 @@
               if (interpolator.schedule_type == ScheduleType.MANUAL){
                 return DataManager.addSchedule(scheduleObject, options)
                   .then(function(scheduleResult){
-                    if (scheduleObject.scheduleType == ScheduleType.SCHEDULE){
+                    if (scheduleObject.scheduleType == ScheduleType.SCHEDULE
+                        || scheduleObject.scheduleType == ScheduleType.REPROCESSING_HISTORICAL){
                       interpolator.schedule = scheduleResult;
                       interpolatorObject.schedule_id = scheduleResult.id;
                       return null;
-                    } else {
+                    } else if (interpolator.schedule_type == ScheduleType.AUTOMATIC) {
                       interpolator.automaticSchedule = scheduleResult;
                       interpolatorObject.automatic_schedule_id = scheduleResult.id;
                       return null;
+                    } else {
+                      throw new Error('Invalid schedule type');
                     }
                   });
               // if old schedule is SCHEDULE, delete schedule
-              } else if (interpolator.schedule_type == ScheduleType.SCHEDULE){
+              } else if (interpolator.schedule_type == ScheduleType.SCHEDULE
+                        || scheduleObject.scheduleType == ScheduleType.REPROCESSING_HISTORICAL){
                 removeSchedule = true;
                 scheduleIdToRemove = interpolator.schedule.id;
                 scheduleTypeToRemove = ScheduleType.SCHEDULE;
@@ -177,21 +187,24 @@
                   return DataManager.addSchedule(scheduleObject, options)
                     .then(function(scheduleResult){
                       interpolator.automaticSchedule = scheduleResult;
-                      interpolatorObject.automatic_schedule_id = scheduleResult.id;    
+                      interpolatorObject.automatic_schedule_id = scheduleResult.id;
                     });
                 }
-              } else {
+              } else if (interpolator.schedule_type == ScheduleType.AUTOMATIC) {
                 removeSchedule = true;
                 scheduleIdToRemove = interpolator.automaticSchedule.id;
                 scheduleTypeToRemove = ScheduleType.AUTOMATIC;
                 interpolatorObject.automatic_schedule_id = null;
-                if (interpolatorObject.schedule_type == ScheduleType.SCHEDULE){
+                if (interpolatorObject.schedule_type == ScheduleType.SCHEDULE
+                    || scheduleObject.scheduleType == ScheduleType.REPROCESSING_HISTORICAL){
                   interpolatorObject.schedule.id = null;
                   return DataManager.addSchedule(scheduleObject, options)
                     .then(function(scheduleResult){
                       interpolator.schedule = scheduleResult;
-                      interpolatorObject.schedule_id = scheduleResult.id;    
+                      interpolatorObject.schedule_id = scheduleResult.id;
                     });
+                } else {
+                  throw new Error('Invalid schedule type');
                 }
               }
             }
@@ -202,8 +215,11 @@
                 if (removeSchedule) {
                   if (scheduleTypeToRemove == ScheduleType.AUTOMATIC){
                     return DataManager.removeAutomaticSchedule({id: scheduleIdToRemove}, options);
-                  } else {
+                  } else if(interpolator.schedule_type == ScheduleType.SCHEDULE
+                            || scheduleObject.scheduleType == ScheduleType.REPROCESSING_HISTORICAL){
                     return DataManager.removeSchedule({id: scheduleIdToRemove}, options);
+                  } else {
+                    throw new Error('Invalid schedule type');
                   }
                 }
               })
@@ -221,5 +237,5 @@
       });
     });
   };
-  
+
 } ());

@@ -370,8 +370,18 @@ define([
             }
 
             $scope.model.push(out);
+            var nameTypeKey = out.name + out.type;
+            if ($scope.groupedModel.hasOwnProperty(nameTypeKey)){
+              $scope.groupedModel[nameTypeKey].push(out);
+            }
+            else {
+              $scope.groupedModel[nameTypeKey] = [out];
+            }
           });
         });
+        for (var key in $scope.groupedModel){
+          $scope.groupedModel[key] =  $scope.groupedModel[key].sort(function(a,b) {return (a.date > b.date) ? -1 : ((b.date > a.date) ? 1 : 0);} );
+        }
       });
 
       // Function to get processing time message

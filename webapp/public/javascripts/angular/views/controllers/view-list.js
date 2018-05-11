@@ -217,6 +217,7 @@ define([], function() {
             case "OCCURRENCE":
               return BASE_URL + "images/view/dynamic_data_series/occurrence/large_occurrence_view.png";
               break;
+            case "GEOMETRIC_OBJECT":
             case "STATIC_DATA":
               return BASE_URL + "images/view/static_data_series/vetor/large_vector_view.png";
               break;
