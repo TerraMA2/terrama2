@@ -128,9 +128,14 @@ define(
       if(indexLayer != -1) {
         memberAllLayers[indexLayer].visible = newVisible;
 
-        if(newVisible === true && memberAllLayers[indexLayer].style === 'wind_style'){
-          AnimatedLayer.windStart(layerId);
-        }  
+        if(memberAllLayers[indexLayer].style === 'animated_wind_style') {
+          if(newVisible === true){
+            AnimatedLayer.windStart(layerId);
+          } else if(newVisible === false){
+            AnimatedLayer.windStop(layerId);
+          }  
+        }
+        
       }
     };
 

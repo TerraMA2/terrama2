@@ -34,7 +34,7 @@ define(
     // Current size of the animated arrows (wind data)
     var arrowCurrentLength = 0;
     // Array with values to animate wind data 
-    var arrowLengthList = [1, 3, 5, 7, 10]; //[0.2, 0.4, 0.6, 0.75, 1];    
+    var arrowLengthList = [0.5, 0.6, 0.7, 0.9, 1]; //[6, 9, 12, 14, 16]; //[0.2, 0.4, 0.6, 0.75, 1];    
     // Set layer info to animate
     var setLayerToAnimate = function(layer) {
       pause();
@@ -255,10 +255,10 @@ define(
     };
 
     //stop wind animation when the layer is disabled
-    var windStop = function(){
-      if(windLayers !== null){
-        window.clearInterval(windLayers);
-        windLayers = null;
+    var windStop = function(layerId){
+      if(setSizeArrowsTimer !== null){
+        window.clearInterval(setSizeArrowsTimer);
+        setSizeArrowsTimer = null;
       }      
     };
 
