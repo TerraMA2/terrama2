@@ -200,6 +200,25 @@
             "minimum": 0,
             "maximum": 998999,
             "title": "Projection (SRID)"
+          },
+          "number_of_bands" : {
+            "type": "number",
+            "minimum": 1,
+            "title": "Number of Layers",
+            "default": 1
+          },
+          "temporal" : {
+            "type": "boolean",
+            "title": "Temporal"
+          },
+          "time_interval" : {
+            "type": "number",
+            "minimum": 0,
+            "title": "Time Interval"
+          },
+          "time_interval_unit" : {
+            "type": "string",
+            "title": "Time Interval Unit"
           }
         },
         "required": [
@@ -334,7 +353,28 @@
         },
         {
           "key": "srid",
-          "htmlClass": "col-md-6"
+          "htmlClass": "col-md-6 col-md-offset-6"
+        },
+        {
+          "key": "number_of_bands",
+          "htmlClass": "col-md-2 terrama2-schema-form grads-form-item"
+        },
+        {
+          "key": "temporal",
+          "htmlClass": "col-md-2 terrama2-schema-form grads-form-item",
+          "condition": "model['number_of_bands'] > 1"
+        },
+        {
+          "key": "time_interval",
+          "htmlClass": "col-md-2 terrama2-schema-form grads-form-item",
+          "condition": "model.temporal"
+        },
+        {
+          "key": "time_interval_unit",
+          "htmlClass": "col-md-2 terrama2-schema-form grads-form-item",
+          "type": "select",
+          "titleMap": [{ "name": "Minutes", "value": "minutes" }, { "name": "Hours", "value": "hours" }, { "name": "Days", "value": "days" }],
+          "condition": "model.temporal"
         }
       ]
     }
