@@ -1,10 +1,10 @@
 FROM ubuntu:16.04
 
 # create terrama2 user
-ENV TERRAMA2_USER=terrama2
-RUN useradd -ms /bin/bash ${TERRAMA2_USER}
-RUN echo ${TERRAMA2_USER}:${TERRAMA2_USER} | chpasswd
-RUN usermod -aG sudo ${TERRAMA2_USER}
+ENV USER=terrama2
+RUN useradd -s /bin/bash -m ${USER}
+RUN echo ${USER}:${USER} | chpasswd
+RUN usermod -aG sudo ${USER}
 
 # install minimal dependencies
 RUN apt-get update && apt-get install -y \
@@ -41,12 +41,6 @@ RUN sh -c 'echo "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-6.0 main"
     lldb-6.0 \
     python-clang-6.0 \
     python-lldb-6.0
-
-# Create sistem link clang-6.0 -> clang
-ADD ./clang_update-alternative.sh /home/${TERRAMA2_USER}/scripts/
-RUN cd /home/${TERRAMA2_USER}/scripts/ && \
-    chmod +x clang_update-alternative.sh && \
-    ./clang_update-alternative.sh
 
 RUN apt install -y gdb valgrind
 
@@ -92,11 +86,16 @@ RUN curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > mic
 #     cd /usr/local/bin && \
 #     ln -s /opt/qtcreator/bin/qtcreator
 
+RUN echo "${USER} ALL=(ALL) NOPASSWD: /usr/bin/apt-get" >> /etc/sudoers && \
+    echo "${USER} ALL=(ALL) NOPASSWD: /usr/bin/update-alternatives" >> /etc/sudoers && \
+    echo "${USER} ALL=(ALL) NOPASSWD: /usr/sbin/usermod" >> /etc/sudoers && \
+    echo "${USER} ALL=(ALL) NOPASSWD: /usr/sbin/groupadd" >> /etc/sudoers
+
 # clean apt
 RUN rm -rf /var/lib/apt/lists/*
 
 # change user
-USER ${TERRAMA2_USER}
+USER ${USER}
 
 # install vscode extensions !!! AS USER !!!
 RUN code --install-extension ms-vscode.cpptools && \
@@ -109,5 +108,35 @@ RUN code --install-extension ms-vscode.cpptools && \
     code --install-extension reloadedextensions.reloaded-cpp && \
     code --install-extension reloadedextensions.reloaded-themes
 
-WORKDIR /home/${TERRAMA2_USER}
-CMD bash 
+ENV DEVEL_DIR=/home/${USER}/devel
+ENV SCRIPTS_DIR=/home/${USER}/scripts
+ENV DEPENDENCIES_DIR=${DEVEL_DIR}/dependencies
+
+ENV TERRALIB_DIR=${DEVEL_DIR}/terralib
+ENV TERRAMA2_DIR=${DEVEL_DIR}/terrama2
+
+RUN mkdir -p ${SCRIPTS_DIR}
+RUN mkdir -p ${DEPENDENCIES_DIR}
+
+# Create sistem link clang-6.0 -> clang
+ADD ./clang_update-alternative.sh ${SCRIPTS_DIR}
+RUN cd ${SCRIPTS_DIR} && \
+    ./clang_update-alternative.sh
+
+ADD install-3rdparty-linux-ubuntu-16.04.sh ${SCRIPTS_DIR}
+ADD prepare_terralib_base.sh ${SCRIPTS_DIR}
+RUN cd ${SCRIPTS_DIR} && cat prepare_terralib_base.sh | sed -e "s@\${DEPENDENCIES_DIR}@${DEPENDENCIES_DIR}@g" > prepare_terralib_base_2.sh && \
+    cat prepare_terralib_base_2.sh | sed -e "s@\${TERRALIB_DIR}@${TERRALIB_DIR}@g" > prepare_terralib.sh && \
+    rm prepare_terralib_base.sh prepare_terralib_base_2.sh -f
+
+ADD prepare_terrama2_base.sh ${SCRIPTS_DIR}
+RUN cd ${SCRIPTS_DIR} && cat prepare_terrama2_base.sh | sed -e "s@\${DEPENDENCIES_DIR}@${DEPENDENCIES_DIR}@g" > prepare_terrama2_base_2.sh && \
+    cat prepare_terrama2_base_2.sh | sed -e "s@\${TERRALIB_DIR}@${TERRALIB_DIR}@g" > prepare_terrama2_base_3.sh && \
+    cat prepare_terrama2_base_3.sh | sed -e "s@\${TERRAMA2_DIR}@${TERRAMA2_DIR}@g" > prepare_terrama2.sh && \
+    rm prepare_terrama2_base.sh prepare_terrama2_base_2.sh prepare_terrama2_base_3.sh -f
+
+WORKDIR /home/${USER}
+
+ADD config_permission.sh .
+CMD /home/terrama2/config_permission.sh; sleep infinity
+
