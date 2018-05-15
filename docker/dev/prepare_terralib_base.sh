@@ -47,6 +47,7 @@ sudo apt-get update
             -DCMAKE_INSTALL_PREFIX:PATH=${DEPENDENCIES_DIR} \
             -DCMAKE_PREFIX_PATH:PATH=${DEPENDENCIES_DIR} \
             -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+            -DTERRALIB_BUILD_AS_DEV=ON \
             ../codebase/build/cmake
     make -j4
   fi
