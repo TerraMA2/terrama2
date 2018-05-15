@@ -58,7 +58,7 @@ sudo apt-get update
 #
 
 command -v g++
-if [[ $1 -ne 0 ]]; then
+if [[ $? -ne 0 ]]; then
   sudo apt-get -y install g++
   valid $? "Error: could not install g++! Please, install g++: sudo apt-get -y install g++"
   echo "g++ installed!"
@@ -71,7 +71,7 @@ fi
 # zlibdevel
 #
 ldconfig -p | grep libz.so
-if [[ $1 -ne 0 ]]; then
+if [[ $? -ne 0 ]]; then
   sudo apt-get -y install zlib1g-dev
   valid $? "Error: could not install zlib1g-dev! Please, install g++: sudo apt-get -y install zlib1g-dev"
   echo "zlib1g-dev installed!"
@@ -84,7 +84,7 @@ fi
 # libreadline-dev
 #
 ldconfig -p | grep libreadline.so
-if [[ $1 -ne 0 ]]; then
+if [[ $? -ne 0 ]]; then
   sudo apt-get -y install libreadline-dev
   valid $? "Error: could not install libreadline-dev! Please, install readline: sudo apt-get -y install libreadline-dev"
   echo "libreadline-dev installed!"
@@ -106,7 +106,7 @@ else
 fi
 
 command -v pip
-if [[ $1 -ne 0 ]]; then
+if [[ $? -ne 0 ]]; then
   sudo apt-get -y install python-pip
   valid $? "Error: could not install python-pip! Please, install readline: sudo apt-get -y install python-pip"
   echo "python-pip installed!"
@@ -137,7 +137,7 @@ fi
 # autoconf
 #
 command -v autoconf
-if [[ $1 -ne 0 ]]; then
+if [[ $? -ne 0 ]]; then
   sudo apt-get -y install autoconf
   valid $? "Error: could not install autoconf! Please, install readline: sudo apt-get -y install autoconf" 
   echo "autoconf installed!"
@@ -150,7 +150,7 @@ fi
 # GNU gettext
 #
 command -v gettext
-if [[ $1 -ne 0 ]]; then
+if [[ $? -ne 0 ]]; then
   sudo apt-get -y install gettext
   valid $? "Error: could not install gettext! Please, install readline: sudo apt-get -y install gettext" 
   echo "gettext installed!"
@@ -163,7 +163,7 @@ fi
 # flex
 #
 command -v flex
-if [[ $1 -ne 0 ]]; then
+if [[ $? -ne 0 ]]; then
   sudo apt-get -y install flex
   valid $? "Error: could not install flex! Please, install readline: sudo apt-get -y install flex"
   echo "flex installed!"
@@ -176,7 +176,7 @@ fi
 # bison
 #
 command -v bison
-if [[ $1 -ne 0 ]]; then
+if [[ $? -ne 0 ]]; then
   sudo apt-get -y install bison
   valid $? "Error: could not install bison! Please, install readline: sudo apt-get -y install bison"
   echo "bison installed!"
@@ -202,7 +202,7 @@ fi
 # CMake
 #
 command -v cmake
-if [[ $1 -ne 0 ]]; then
+if [[ $? -ne 0 ]]; then
   sudo apt-get -y install cmake cmake-qt-gui
   valid $? "Error: could not install CMake! Please, install CMake: sudo apt-get -y install cmake"
   echo "CMake installed!"
@@ -219,7 +219,7 @@ fi
 # libkml
 #
 ldconfig -p | grep libkmlbase.so
-if [[ $1 -ne 0 ]]; then
+if [[ $? -ne 0 ]]; then
   sudo apt-get -y install libkml-dev
   valid $? "Error: could not install libkml-dev! Please, install libkml-dev: sudo apt-get -y install libkml-dev"
   echo "libkml-dev installed!"
@@ -232,7 +232,7 @@ fi
 # libssl
 #
 ldconfig -p | grep libssl.so
-if [[ $1 -ne 0 ]]; then
+if [[ $? -ne 0 ]]; then
   sudo apt-get -y install libssl-dev
   valid $? "Error: could not install libssl-dev! Please, install libssl-dev: sudo apt-get -y install libssl-dev"
   echo "libssl-dev installed!"
@@ -463,7 +463,9 @@ if [ ! -f "${TERRALIB_DEPENDENCIES_DIR}/lib/libgeos.so" ]; then
   cd geos-3.4.2
   valid $? "Error: could not enter geos-3.4.2 dir!"
 
-  ./configure --prefix=${TERRALIB_DEPENDENCIES_DIR}
+  # This version of geos need this workaround for gcc > 5
+  # https://trac.osgeo.org/geos/ticket/784
+  CXX="g++ -std=c++98" ./configure --prefix=${TERRALIB_DEPENDENCIES_DIR}
   valid $? "Error: could not configure GEOS!"
 
   make -j 4
