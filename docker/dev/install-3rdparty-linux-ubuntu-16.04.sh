@@ -92,8 +92,8 @@ fi
 #
 # libreadline-dev
 #
-ldconfig -p | grep libreadline.so
-if [[ $? -ne 0 ]]; then
+readline_test=`dpkg -s libreadline-dev | grep Status`
+if [ "$readline_test" != "Status: install ok installed" ]; then
   sudo apt-get -y install libreadline-dev
   valid $? "Error: could not install libreadline-dev! Please, install readline: sudo apt-get -y install libreadline-dev"
   echo "libreadline-dev installed!"
@@ -240,8 +240,8 @@ fi
 #
 # libssl
 #
-ldconfig -p | grep libssl.so
-if [[ $? -ne 0 ]]; then
+libssl_test=`dpkg -s libssl-dev | grep Status`
+if [ "$libssl_test" != "Status: install ok installed" ]; then
   sudo apt-get -y install libssl-dev
   valid $? "Error: could not install libssl-dev! Please, install libssl-dev: sudo apt-get -y install libssl-dev"
   echo "libssl-dev installed!"
