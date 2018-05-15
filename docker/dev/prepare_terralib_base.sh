@@ -14,10 +14,14 @@ function valid()
 
 sudo apt-get update
 (
+  mkdir -p ${DEPENDENCIES_DIR}
   cd ${DEPENDENCIES_DIR}
-  wget http://www.dpi.inpe.br/terralib5-devel/3rdparty/src/5.3/terralib-3rdparty-linux-ubuntu-16.04.tar.gz
+  ls terralib-3rdparty-linux-ubuntu-16.04.tar.gz
+  if [[ $? -ne 0 ]]; then
+    wget http://www.dpi.inpe.br/terralib5-devel/3rdparty/src/5.3/terralib-3rdparty-linux-ubuntu-16.04.tar.gz
+  fi
   sudo apt-get install -y dpkg apt-utils
-  TERRALIB_DEPENDENCIES_DIR=${DEPENDENCIES_DIR} ./install-3rdparty-linux-ubuntu-16.04.sh
+  TERRALIB_DEPENDENCIES_DIR=${DEPENDENCIES_DIR} ${SCRIPTS_DIR}/./install-3rdparty-linux-ubuntu-16.04.sh
   rm -rf terralib-3rdparty-linux-ubuntu-16.04*
 )
 
@@ -49,5 +53,7 @@ sudo apt-get update
 
 (
   cd ${TERRALIB_DIR}/codebase
+  ls ${TERRALIB_DIR}/build-debug/compile_commands.json
+  valid $? "Error linking compile_commands."
   ln -s ${TERRALIB_DIR}/build-debug/compile_commands.json .
 )

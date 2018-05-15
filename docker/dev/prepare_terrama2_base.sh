@@ -14,6 +14,7 @@ function valid()
 
 sudo apt-get update
 (
+  mkdir -p ${DEPENDENCIES_DIR}
   cd ${DEPENDENCIES_DIR}
   sudo apt install doxygen graphviz gnutls-bin gsasl libghc-gsasl-dev libgnutls-dev libssl-dev debhelper devscripts
   wget https://github.com/kisli/vmime/archive/v0.9.2.tar.gz
