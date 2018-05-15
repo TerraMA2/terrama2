@@ -53,6 +53,15 @@ function valid()
 #
 sudo apt-get update
 
+command -v unzip
+if [[ $? -ne 0 ]]; then
+  sudo apt-get -y install unzip
+  valid $? "Error: could not install unzip! Please, install unzip: sudo apt-get -y install unzip"
+  echo "unzip installed!"
+else
+  echo "unzip already installed!"
+fi
+
 #
 # gcc
 #
