@@ -18,12 +18,14 @@ sudo apt-get update
   if [[ $? -ne 0 ]]; then
     mkdir -p ${DEPENDENCIES_DIR}
     cd ${DEPENDENCIES_DIR}
-    sudo apt install doxygen graphviz gnutls-bin gsasl libghc-gsasl-dev libgnutls-dev libssl-dev debhelper devscripts
+    sudo apt-get install -y doxygen graphviz gnutls-bin gsasl libghc-gsasl-dev libgnutls-dev libssl-dev debhelper devscripts
     ls v0.9.2.tar.gz
     if [[ $? -ne 0 ]]; then
       wget https://github.com/kisli/vmime/archive/v0.9.2.tar.gz
     fi
 
+    tar xzf v0.9.2.tar.gz
+    cd vmime-0.9.2/
     cmake -G "Unix Makefiles" \
           -DCMAKE_BUILD_TYPE:STRING="Release" \
           -DVMIME_HAVE_MESSAGING_PROTO_SENDMAIL:BOOL=false \
@@ -38,7 +40,7 @@ sudo apt-get update
 )
 
 (
-  sudo apt-get install libcurl3-dev libpython2.7-dev libquazip-dev libxerces-c-dev libgeos++-dev libproj-dev
+  sudo apt-get install -y libcurl3-dev libpython2.7-dev libquazip-dev libxerces-c-dev libgeos++-dev libproj-dev
   mkdir -p ${TERRAMA2_DIR}/codebase
   cd ${TERRAMA2_DIR}/codebase
   # check if terrama2 code is available
