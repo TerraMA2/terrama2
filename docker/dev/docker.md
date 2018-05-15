@@ -12,6 +12,8 @@ docker run -itd --name terrama2_dev -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=
 
 The parameter `-v ~/MyDevel:/home/terrama2/devel` at the end of the command is optional but required if you want to have access to the development folder from your host machine.
 
+For consistent permissions, configure your host devel folder with `chmod g+s`.
+
 ## Start the docker image
 
 ```
