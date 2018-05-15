@@ -13,7 +13,6 @@ RUN apt-get update && apt-get install -y \
     curl \
     gnupg \
     git \
-    cmake-gui \
     make \
     sudo \
     wget \
@@ -95,6 +94,10 @@ RUN echo "${USER} ALL=(ALL) NOPASSWD: /usr/bin/apt-get" >> /etc/sudoers && \
 
 # clean apt
 RUN rm -rf /var/lib/apt/lists/*
+
+# 
+RUN wget https://cmake.org/files/v3.11/cmake-3.11.1-Linux-x86_64.sh && \
+    sh cmake-3.11.1-Linux-x86_64.sh --prefix=/usr/local --exclude-subdir
 
 # change user
 USER ${USER}
