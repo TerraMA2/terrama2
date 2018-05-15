@@ -29,9 +29,7 @@ RUN add-apt-repository -y ppa:ubuntu-toolchain-r/test && \
     update-alternatives --install /usr/bin/gcc-ar gcc-ar /usr/bin/gcc-ar-8 100  && \
     update-alternatives --install /usr/bin/gcc-nm gcc-nm /usr/bin/gcc-nm-8 100  && \
     update-alternatives --install /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-8 100 && \
-    update-alternatives --install /usr/bin/cc cc /usr/bin/gcc 100 && \
-    update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 100  && \
-    update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++ 100
+    update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 100
 
 # Clang 6
 RUN sh -c 'echo "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-6.0 main" > /etc/apt/sources.list.d/llvm.list' && \
