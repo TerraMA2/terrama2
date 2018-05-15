@@ -30,7 +30,7 @@ sudo apt-get update
   cd ${TERRALIB_DIR}/codebase
   # check if terralib code is available
   git status
-  if [[ $1 -ne 0 ]]; then
+  if [[ $? -ne 0 ]]; then
     GIT_SSL_NO_VERIFY=true git clone -b release-5.3 https://gitlab.dpi.inpe.br/terralib/terralib.git .
   fi
 )
@@ -40,7 +40,7 @@ sudo apt-get update
   cd ${TERRALIB_DIR}/build-debug
   # check terralib build
   cmake .
-  if [[ $1 -ne 0 ]]; then
+  if [[ $? -ne 0 ]]; then
     cmake -G "CodeBlocks - Unix Makefiles" \
             -DCMAKE_BUILD_TYPE:STRING="Debug" \
             -DCMAKE_INSTALL_PREFIX:PATH=${DEPENDENCIES_DIR} \
