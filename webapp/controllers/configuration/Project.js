@@ -4,6 +4,9 @@ var DataManager = require('../../core/DataManager');
 var makeTokenParameters = require('../../core/Utils').makeTokenParameters;
 
 module.exports = function(app) {
+  const TcpService = require('./../../core/facade/tcp-manager/TcpService');
+  const Project = require('./../../core/data-model/Project');
+
   return {
     get: function (request, response) {
       DataManager.load().then(function() {
@@ -37,9 +40,12 @@ module.exports = function(app) {
         var hasProjectPermission = false;
         if (project.user_id == null || request.user.id == project.user_id || !project.protected){
           hasProjectPermission = true;
-        } 
+        }
 
         request.session.activeProject = {id: project.id, name: project.name, protected: project.protected, userId: project.user_id, hasProjectPermission: hasProjectPermission};
+
+        // Sending Active Project
+        TcpService.send({ "Projects": [ new Project({ ...project, active: true }).toObject() ] });
 
         // Redirect for start application
         if(request.params.token !== undefined)
@@ -58,9 +64,12 @@ module.exports = function(app) {
         var hasProjectPermission = false;
         if (project.user_id == null || request.user.id == project.user_id || !project.protected){
           hasProjectPermission = true;
-        } 
+        }
 
         request.session.activeProject = {id: project.id, name: project.name, protected: project.protected, userId: project.user_id, hasProjectPermission: hasProjectPermission};
+
+        // Sending Active Project
+        TcpService.send({ "Projects": [ new Project({ ...project, active: true }).toObject() ] });
 
         // Redirect for start application
         if(request.params.token !== undefined)
