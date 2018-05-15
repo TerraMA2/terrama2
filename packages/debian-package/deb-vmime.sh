@@ -50,7 +50,7 @@ function valid()
 {
   if [ $1 -ne 0 ]; then
     printf "\n$2\n\n"
-    exit
+    exit 1
   fi
 }
 
