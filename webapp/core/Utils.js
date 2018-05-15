@@ -222,12 +222,15 @@ var Utils = module.exports = {
 
   prepareAddSignalMessage: function(DataManager, projectId) {
     return new Promise(function(resolve, reject) {
+      const Project = require('./data-model/Project');
+
       var _handleError = function(err) {
         console.log(err);
         reject(err);
       };
 
       var dataProvidersResult = DataManager.listDataProviders();
+      const projects = DataManager.listProjects().map(project => new Project(project).toObject());
       var providers = [];
       dataProvidersResult.forEach(function(dataProvider) {
         providers.push(dataProvider.toService());
@@ -291,6 +294,7 @@ var Utils = module.exports = {
                       interpolatorsArr.push(interpolator.toService());
                     });
                     return resolve({
+                      "Projects": projects,
                       "Analysis": analysisArr,
                       "DataSeries": series,
                       "DataProviders": providers,
@@ -474,7 +478,7 @@ var Utils = module.exports = {
         break;
       case Enums.ServiceType.ALERT:
         output = "ALERT";
-        break;      
+        break;
       case Enums.ServiceType.INTERPOLATION:
         output = "INTERPOLATOR";
         break;
