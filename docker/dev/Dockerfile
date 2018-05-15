@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y \
     gnupg \
     git \
     cmake-gui \
+    make \
     sudo \
     wget \
     # add-apt-repository
@@ -23,11 +24,14 @@ RUN apt-get update && apt-get install -y \
 # GCC 8
 RUN add-apt-repository -y ppa:ubuntu-toolchain-r/test && \
     apt update && \
-    apt install -y gcc-8 && \
+    apt install -y gcc-8 g++-8 && \
     update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 100  && \
     update-alternatives --install /usr/bin/gcc-ar gcc-ar /usr/bin/gcc-ar-8 100  && \
     update-alternatives --install /usr/bin/gcc-nm gcc-nm /usr/bin/gcc-nm-8 100  && \
-    update-alternatives --install /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-8 100
+    update-alternatives --install /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-8 100 && \
+    update-alternatives --install /usr/bin/cc cc /usr/bin/gcc 100 && \
+    update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 100  && \
+    update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++ 100
 
 # Clang 6
 RUN sh -c 'echo "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-6.0 main" > /etc/apt/sources.list.d/llvm.list' && \
@@ -116,7 +120,6 @@ ENV TERRALIB_DIR=${DEVEL_DIR}/terralib
 ENV TERRAMA2_DIR=${DEVEL_DIR}/terrama2
 
 RUN mkdir -p ${SCRIPTS_DIR}
-RUN mkdir -p ${DEPENDENCIES_DIR}
 
 # Create sistem link clang-6.0 -> clang
 ADD ./clang_update-alternative.sh ${SCRIPTS_DIR}
@@ -126,8 +129,9 @@ RUN cd ${SCRIPTS_DIR} && \
 ADD install-3rdparty-linux-ubuntu-16.04.sh ${SCRIPTS_DIR}
 ADD prepare_terralib_base.sh ${SCRIPTS_DIR}
 RUN cd ${SCRIPTS_DIR} && cat prepare_terralib_base.sh | sed -e "s@\${DEPENDENCIES_DIR}@${DEPENDENCIES_DIR}@g" > prepare_terralib_base_2.sh && \
-    cat prepare_terralib_base_2.sh | sed -e "s@\${TERRALIB_DIR}@${TERRALIB_DIR}@g" > prepare_terralib.sh && \
-    rm prepare_terralib_base.sh prepare_terralib_base_2.sh -f
+    cat prepare_terralib_base_2.sh | sed -e "s@\${TERRALIB_DIR}@${TERRALIB_DIR}@g" > prepare_terralib_base_3.sh && \
+    cat prepare_terralib_base_3.sh | sed -e "s@\${SCRIPTS_DIR}@${SCRIPTS_DIR}@g" > prepare_terralib.sh && \
+    rm prepare_terralib_base.sh prepare_terralib_base_2.sh prepare_terralib_base_3.sh -f
 
 ADD prepare_terrama2_base.sh ${SCRIPTS_DIR}
 RUN cd ${SCRIPTS_DIR} && cat prepare_terrama2_base.sh | sed -e "s@\${DEPENDENCIES_DIR}@${DEPENDENCIES_DIR}@g" > prepare_terrama2_base_2.sh && \
