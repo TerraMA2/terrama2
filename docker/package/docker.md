@@ -1,5 +1,5 @@
 # Docker
-Simple instructions for using docker for TerraMA2 packages.
+Simple instructions for using docker to create TerraMA2 packages.
 
 Obs. In this guide I assume you have permission to run `docker` as user, you may also run the commands using `sudo`
 
