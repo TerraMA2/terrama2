@@ -22,6 +22,7 @@ sudo apt-get update
   fi
   sudo apt-get install -y dpkg apt-utils
   TERRALIB_DEPENDENCIES_DIR=${DEPENDENCIES_DIR} ${SCRIPTS_DIR}/./install-3rdparty-linux-ubuntu-16.04.sh
+  valid $? "Error building terralib dependencies."
   rm -rf terralib-3rdparty-linux-ubuntu-16.04*
 )
 
