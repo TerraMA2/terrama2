@@ -1,5 +1,4 @@
 #!/bin/bash
-clear
 
 echo "* --------------------------- *"
 echo "* TerraMa2 Release Package *"
