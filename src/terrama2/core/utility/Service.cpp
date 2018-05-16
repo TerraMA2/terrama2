@@ -370,7 +370,7 @@ void terrama2::core::Service::addProcessToSchedule(ProcessPtr process) noexcept
     auto projectPtr = dataManager->findProject(process->projectId);
     if(!projectPtr)
     {
-      QString errMsg = tr("Invalid Project for process: "+process->id);
+      QString errMsg = tr("Invalid Project for process: %1").arg(process->id);
       TERRAMA2_LOG_ERROR() << errMsg;
       throw ServiceException() << ErrorDescription(errMsg);
     }
