@@ -20,7 +20,7 @@ class Project extends BaseClass {
     this.user_id = properties.user_id;
     this.user_name = properties.user_name;
     this.version = properties.version;
-    this.active = properties.active || false;
+    this.active = properties.active || true;
   }
 
   toObject() {
