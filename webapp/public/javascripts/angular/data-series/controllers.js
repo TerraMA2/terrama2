@@ -9,24 +9,25 @@ define([
   "TerraMA2WebApp/data-series/schedule",
   "TerraMA2WebApp/data-series/directives",
   "TerraMA2WebApp/geo/app",
-
   // controllers
   "TerraMA2WebApp/data-series/data-series",
   "TerraMA2WebApp/data-series/registration",
-  "TerraMA2WebApp/schema-form-plugin/mask-warn/directives/terrama2-mask-field"
-], function(moduleLoader, commonServiceApp, messageboxApp, datetimepickerApp, providerApp, serviceApp, 
+  "TerraMA2WebApp/schema-form-plugin/mask-warn/directives/terrama2-mask-field",
+  "TerraMA2WebApp/schema-form-plugin/uiselect/module"
+], function(moduleLoader, commonServiceApp, messageboxApp, datetimepickerApp, providerApp, serviceApp,
             dataSeriesServicesApp, scheduleApp, directives, geoApp, ListController, RegistrationController) {
   var moduleName = "terrama2.dataseries.controllers";
   var deps = [commonServiceApp, messageboxApp, directives];
 
   // checking externals dependencies
-  if (moduleLoader("schemaForm", deps) && 
-      moduleLoader("xeditable", deps) && 
+  if (moduleLoader("schemaForm", deps) &&
+      moduleLoader("xeditable", deps) &&
       moduleLoader("treeControl", deps) &&
-      moduleLoader("ui.router", deps) && 
+      moduleLoader("ui.router", deps) &&
       moduleLoader("ui.select", deps) &&
       moduleLoader("ngSanitize", deps) &&
       moduleLoader("mgo-angular-wizard", deps)) {
+    deps.push('angularjs-dropdown-multiselect');
     deps.push(commonServiceApp);
     deps.push(providerApp);
     deps.push(serviceApp);
@@ -39,7 +40,7 @@ define([
   var app = angular.module(moduleName, deps);
 
   app.controller("DataSeriesListController", ListController);
-  
+
   if (deps.indexOf("ui.router") !== -1) {
 
     app

@@ -30,7 +30,14 @@ module.exports = function(grunt) {
       TerraMA2WebAppMin: {
         options: {
           baseUrl: SCRIPTS_PATH,
-          out: DEST_PATH + "terrama2-webapp.min.js",
+          optimize: 'none',
+          out: function(text, sourceMapText) {
+            var UglifyJS = require('uglify-es'),
+                uglified = UglifyJS.minify(text);
+
+            grunt.file.write(DEST_PATH + "terrama2-webapp.min.js", text);
+            // grunt.file.write(DEST_PATH + "terrama2-webapp.min.js", uglified.code);
+          },
           preserveLicenseComments: false,
           generateSourceMaps: true,
           paths: {
@@ -104,7 +111,7 @@ module.exports = function(grunt) {
           spawn: false
         }
       }
-    }  
+    }
   });
   // Print helper to detect which file has beed changed
   grunt.event.on('watch', function(action, filepath, target) {

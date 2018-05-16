@@ -14,11 +14,22 @@ var semanticsTypes = Application.get("semantics").map(function(semanticsItem) {
   }
 });
 
+const getSemanticsTypes = () => {
+  // list of all instances of semantics type
+  var semanticsTypes = Application.get("semantics").map(function(semanticsItem) {
+    if (semanticsItem.gui) {
+      return semanticsItem;
+    }
+  });
+
+  return semanticsTypes;
+}
+
 var Factory = module.exports = {};
 
 function getSemanticHelper(identifier) {
   var semanticsOutput = null;
-  semanticsTypes.some(function(semantics) {
+  getSemanticsTypes().some((semantics) => {
     if (semantics.code === identifier) {
       semanticsOutput = semantics;
       return true;
@@ -36,5 +47,5 @@ Factory.build = function(args) {
 };
 
 Factory.listAll = function() {
-  return semanticsTypes;
+  return getSemanticsTypes();
 };

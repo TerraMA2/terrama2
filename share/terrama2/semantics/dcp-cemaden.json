@@ -5,7 +5,7 @@
     "driver": "DCP-json_cemaden",
     "type": "DCP",
     "temporality": "DYNAMIC",
-    "format": "JSON",
+    "format": "CSV",
     "providers_type_list": ["STATIC-HTTP"],
     "allow_direct_access": false,
     "metadata": {
@@ -22,6 +22,56 @@
       "timezone": "UTM+00",
       "srid": "4326"
     },
-    "collector": true
+    "collector": true,
+    "gui": {
+      "schema": {
+        "properties": {
+          "state": {
+            "title": "States",
+            "type": "string",
+            "items": [
+              { "id": "AC", "label": "Acre" },
+              { "id": "AL", "label": "Alagoas" },
+              { "id": "AP", "label": "Amapá" },
+              { "id": "AM", "label": "Amazonas" },
+              { "id": "BA", "label": "Bahia" },
+              { "id": "CE", "label": "Ceará" },
+              { "id": "DF", "label": "Distrito Federal" },
+              { "id": "ES", "label": "Espirito Santo" },
+              { "id": "GO", "label": "Goiás" },
+              { "id": "MA", "label": "Maranhão" },
+              { "id": "MT", "label": "Mato Grosso" },
+              { "id": "MS", "label": "Mato Grosso do Sul" },
+              { "id": "MG", "label": "Minas Gerais" },
+              { "id": "PA", "label": "Pará" },
+              { "id": "PB", "label": "Paraíba" },
+              { "id": "PR", "label": "Paraná" },
+              { "id": "PE", "label": "Pernambuco" },
+              { "id": "PI", "label": "Piauí" },
+              { "id": "RJ", "label": "Rio de Janeiro" },
+              { "id": "RN", "label": "Rio Grande do Norte" },
+              { "id": "RS", "label": "Rio Grande do Sul" },
+              { "id": "RO", "label": "Rondônia" },
+              { "id": "RR", "label": "Roraima" },
+              { "id": "SC", "label": "Santa Catarina" },
+              { "id": "SP", "label": "São Paulo" },
+              { "id": "SE", "label": "Sergipe" },
+              { "id": "TO", "label": "Tocantins" }
+            ]
+          }
+        },
+        "required": ["state"]
+      },
+      "form":[
+        {
+          "key": "state",
+          "type": "uiselectmultiple",
+          "htmlClass": "col-md-6",
+          "extraSettings": {
+            "buttonClasses": "btn btn-primary btn-block"
+          }
+        }
+      ]
+    }
   }
 ]
