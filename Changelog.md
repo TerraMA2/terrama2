@@ -5,14 +5,20 @@
 - Use geometry as filter in MO analysis (instead of a combination of bounding box and RTree)
 - Time parameters in analysis can have a '+' modifier, this will make the data range be expanded to 00:00h of the start date
 - Interpolate historical data
+- Docker:
+  - development environment
+  - package generation
+
 
 # Enhancements:
 - Use Yarn instead of npm for web dependencies
 - Smaller storage of log messages
+- Allow temporal geotiff
 
 # Bugfix:
 - Improved limit of threads
 - Fix legend for for raster views
+- Fix automatic schedule
 
 # 4.0.4
 
