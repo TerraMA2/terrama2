@@ -73,7 +73,7 @@ function valid()
   if [ $1 -ne 0 ]; then
     echo $2
     echo ""
-    exit
+    exit 1
   fi
 }
 
@@ -201,7 +201,6 @@ fi
 #
 # Finished!
 #
-clear
 echo ""
 echo "****************************************"
 echo "* TerraMA2 Installer for Mac OS Sierra *"
