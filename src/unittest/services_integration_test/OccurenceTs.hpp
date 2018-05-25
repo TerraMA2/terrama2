@@ -51,14 +51,9 @@ class OccurenceTs: public QObject
 
     //******Test functions********
 
-
-     void collectTocantinsFTP(){ collectFTP(); }
-
-     void collectTocantinsIntersectionFile(){ collectIntersectionFile(); }
-
-      void collectAndAnalysisZonal() { collectFile(); /*analysisZonal();*/}
-
-
+    void collectTocantinsIntersectionFile(){ collectIntersectionFile(); }
+    void collectTocantinsFTP(){ collectFTP(); }
+    void collectAndAnalysisZonal() { collectFile(); /*analysisZonal();*/}
 };
 
 #endif //__TERRAMA2_UNITTEST_COLLECTOR_OCC_HPP__

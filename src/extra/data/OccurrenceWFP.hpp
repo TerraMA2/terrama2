@@ -97,7 +97,7 @@ namespace terrama2
                                                    "data_series_id": 2,
                                                    "active": true,
                                                    "format": {
-                                                       "mask": "/fire_system/exporta_%YYYY%MM%DD_%hh%mm.csv",
+                                                       "mask": "/terrama2q_focos/focos_geral_%YYYY%MM%DD_%hh%mm.csv",
                                                        "timestamp_property": "data_pas",
                                                        "input_geometry_property": "geom",
                                                        "geometry_property": "geom",
