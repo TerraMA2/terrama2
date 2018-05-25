@@ -78,6 +78,15 @@ namespace terrama2
                          std::shared_ptr<terrama2::core::ProcessLogger>());
 
       MOCK_CONST_METHOD0(isValid, bool());
+
+      MOCK_CONST_METHOD2(setStartProcessingTime,
+                              void(const std::shared_ptr< te::dt::TimeInstantTZ > processingStartTime, const RegisterId registerId));
+      MOCK_CONST_METHOD2(setEndProcessingTime,
+                              void(const std::shared_ptr< te::dt::TimeInstantTZ > processingEndTime, const RegisterId registerId));
+ 
+      MOCK_CONST_METHOD3(result,
+                              void(Status status, const std::shared_ptr<te::dt::TimeInstantTZ> &dataTimestamp,
+                                           RegisterId registerId));
     };
 
   }  // namespace core

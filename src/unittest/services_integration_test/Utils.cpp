@@ -243,6 +243,10 @@ std::unique_ptr<terrama2::services::collector::core::Service> utilsTS::collector
   EXPECT_CALL(*loggerCopy, addInput(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
   EXPECT_CALL(*loggerCopy, addOutput(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
 
+  EXPECT_CALL(*loggerCopy, setStartProcessingTime(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return()); 
+  EXPECT_CALL(*loggerCopy, setEndProcessingTime(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*loggerCopy, result(::testing::_, ::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
+
 
   auto logger = std::make_shared<terrama2::core::MockCollectorLogger>();
 
@@ -257,6 +261,10 @@ std::unique_ptr<terrama2::services::collector::core::Service> utilsTS::collector
 
   EXPECT_CALL(*logger, addInput(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
   EXPECT_CALL(*logger, addOutput(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
+
+  EXPECT_CALL(*logger, setStartProcessingTime(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return()); 
+  EXPECT_CALL(*logger, setEndProcessingTime(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*loggerCopy, result(::testing::_, ::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
 
 
   std::unique_ptr<terrama2::services::collector::core::Service> serviceCollector(new terrama2::services::collector::core::Service(dataManagerCollector));

@@ -36,7 +36,6 @@
 #include <terrama2/services/collector/core/Service.hpp>
 #include <terrama2/services/collector/core/DataManager.hpp>
 #include <terrama2/services/collector/core/Collector.hpp>
-#include <terrama2/services/collector/mock/MockCollectorLogger.hpp>
 
 
 //Analysis
