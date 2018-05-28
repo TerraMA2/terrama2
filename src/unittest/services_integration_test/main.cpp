@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
     try
     {
       OccurenceTs occTS;
-      returnVal += QTest::qExec(&occTS, argc, argv);
+      // returnVal += QTest::qExec(&occTS, argc, argv);
     }
     catch(...)
     {

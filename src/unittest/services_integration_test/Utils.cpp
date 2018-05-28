@@ -153,7 +153,7 @@ int utilsTS::database::compareAnalysis(std::string typeAnalysis)
 
 void utilsTS::database::deleteDB()
 {
-  interpreterScriptPy("share/terrama2/scripts/delete-db.py");
+  // interpreterScriptPy("share/terrama2/scripts/delete-db.py");
 }
 
 void utilsTS::database::createDB()
@@ -229,42 +229,43 @@ void utilsTS::database::compareCollectAndAnalysis(std::string typeAnalysis)
 
 std::unique_ptr<terrama2::services::collector::core::Service> utilsTS::collector::gmockAndServicesCollector(std::shared_ptr<terrama2::services::collector::core::DataManager> dataManagerCollector)
 {
+  using ::testing::_;
 
   auto loggerCopy = std::make_shared<terrama2::core::MockCollectorLogger>();
 
-  EXPECT_CALL(*loggerCopy, setConnectionInfo(::testing::_)).WillRepeatedly(::testing::Return());
-  EXPECT_CALL(*loggerCopy, setTableName(::testing::_)).WillRepeatedly(::testing::Return());
-  EXPECT_CALL(*loggerCopy, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
-  EXPECT_CALL(*loggerCopy, getDataLastTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
-  EXPECT_CALL(*loggerCopy, done(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
-  EXPECT_CALL(*loggerCopy, start(::testing::_)).WillRepeatedly(::testing::Return(0));
+  EXPECT_CALL(*loggerCopy, setConnectionInfo(_)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*loggerCopy, setTableName(_)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*loggerCopy, getLastProcessTimestamp(_)).WillRepeatedly(::testing::Return(nullptr));
+  EXPECT_CALL(*loggerCopy, getDataLastTimestamp(_)).WillRepeatedly(::testing::Return(nullptr));
+  EXPECT_CALL(*loggerCopy, done(_, _)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*loggerCopy, start(_)).WillRepeatedly(::testing::Return(0));
   EXPECT_CALL(*loggerCopy, isValid()).WillRepeatedly(::testing::Return(true));
 
-  EXPECT_CALL(*loggerCopy, addInput(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
-  EXPECT_CALL(*loggerCopy, addOutput(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*loggerCopy, addInput(_, _)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*loggerCopy, addOutput(_, _)).WillRepeatedly(::testing::Return());
 
-  EXPECT_CALL(*loggerCopy, setStartProcessingTime(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return()); 
-  EXPECT_CALL(*loggerCopy, setEndProcessingTime(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
-  EXPECT_CALL(*loggerCopy, result(::testing::_, ::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*loggerCopy, setStartProcessingTime(_, _)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*loggerCopy, setEndProcessingTime(_, _)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*loggerCopy, result(_, _, _)).WillRepeatedly(::testing::Return());
 
 
   auto logger = std::make_shared<terrama2::core::MockCollectorLogger>();
 
-  EXPECT_CALL(*logger, setConnectionInfo(::testing::_)).WillRepeatedly(::testing::Return());
-  EXPECT_CALL(*logger, setTableName(::testing::_)).WillRepeatedly(::testing::Return());
-  EXPECT_CALL(*logger, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
-  EXPECT_CALL(*logger, getDataLastTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
-  EXPECT_CALL(*logger, done(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
-  EXPECT_CALL(*logger, start(::testing::_)).WillRepeatedly(::testing::Return(0));
+  EXPECT_CALL(*logger, setConnectionInfo(_)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*logger, setTableName(_)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*logger, getLastProcessTimestamp(_)).WillRepeatedly(::testing::Return(nullptr));
+  EXPECT_CALL(*logger, getDataLastTimestamp(_)).WillRepeatedly(::testing::Return(nullptr));
+  EXPECT_CALL(*logger, done(_, _)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*logger, start(_)).WillRepeatedly(::testing::Return(0));
   EXPECT_CALL(*logger, clone()).WillRepeatedly(::testing::Return(loggerCopy));
   EXPECT_CALL(*logger, isValid()).WillRepeatedly(::testing::Return(true));
 
-  EXPECT_CALL(*logger, addInput(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
-  EXPECT_CALL(*logger, addOutput(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*logger, addInput(_, _)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*logger, addOutput(_, _)).WillRepeatedly(::testing::Return());
 
-  EXPECT_CALL(*logger, setStartProcessingTime(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return()); 
-  EXPECT_CALL(*logger, setEndProcessingTime(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
-  EXPECT_CALL(*loggerCopy, result(::testing::_, ::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*logger, setStartProcessingTime(_, _)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*logger, setEndProcessingTime(_, _)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*logger, result(_, _, _)).WillRepeatedly(::testing::Return());
 
 
   std::unique_ptr<terrama2::services::collector::core::Service> serviceCollector(new terrama2::services::collector::core::Service(dataManagerCollector));
@@ -432,29 +433,39 @@ terrama2::core::DataSeriesPtr utilsTS::analysis::addResultAnalysis(std::shared_p
 
 std::unique_ptr<terrama2::services::analysis::core::Service> utilsTS::analysis::gmockAndServicesAnalysis(std::shared_ptr<terrama2::services::analysis::core::DataManager> dataManagerAnalysis)
 {
+
+  using ::testing::_;
   terrama2::services::analysis::core::PythonInterpreterInit pythonInterpreterInit;
   Q_UNUSED(pythonInterpreterInit);
 
   auto loggerCopy = std::make_shared<terrama2::core::MockAnalysisLogger>();
 
-  EXPECT_CALL(*loggerCopy, setConnectionInfo(::testing::_)).WillRepeatedly(::testing::Return());
-  EXPECT_CALL(*loggerCopy, setTableName(::testing::_)).WillRepeatedly(::testing::Return());
-  EXPECT_CALL(*loggerCopy, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
-  EXPECT_CALL(*loggerCopy, getDataLastTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
-  EXPECT_CALL(*loggerCopy, done(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
-  EXPECT_CALL(*loggerCopy, start(::testing::_)).WillRepeatedly(::testing::Return(0));
+  EXPECT_CALL(*loggerCopy, setConnectionInfo(_)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*loggerCopy, setTableName(_)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*loggerCopy, getLastProcessTimestamp(_)).WillRepeatedly(::testing::Return(nullptr));
+  EXPECT_CALL(*loggerCopy, getDataLastTimestamp(_)).WillRepeatedly(::testing::Return(nullptr));
+  EXPECT_CALL(*loggerCopy, done(_, _)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*loggerCopy, start(_)).WillRepeatedly(::testing::Return(0));
   EXPECT_CALL(*loggerCopy, isValid()).WillRepeatedly(::testing::Return(true));
+
+  EXPECT_CALL(*loggerCopy, setStartProcessingTime(_, _)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*loggerCopy, setEndProcessingTime(_, _)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*loggerCopy, result(_, _, _)).WillRepeatedly(::testing::Return());
 
   auto logger = std::make_shared<terrama2::core::MockAnalysisLogger>();
 
-  EXPECT_CALL(*logger, setConnectionInfo(::testing::_)).WillRepeatedly(::testing::Return());
-  EXPECT_CALL(*logger, setTableName(::testing::_)).WillRepeatedly(::testing::Return());
-  EXPECT_CALL(*logger, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
-  EXPECT_CALL(*logger, getDataLastTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
-  EXPECT_CALL(*logger, done(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
-  EXPECT_CALL(*logger, start(::testing::_)).WillRepeatedly(::testing::Return(0));
+  EXPECT_CALL(*logger, setConnectionInfo(_)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*logger, setTableName(_)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*logger, getLastProcessTimestamp(_)).WillRepeatedly(::testing::Return(nullptr));
+  EXPECT_CALL(*logger, getDataLastTimestamp(_)).WillRepeatedly(::testing::Return(nullptr));
+  EXPECT_CALL(*logger, done(_, _)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*logger, start(_)).WillRepeatedly(::testing::Return(0));
   EXPECT_CALL(*logger, clone()).WillRepeatedly(::testing::Return(loggerCopy));
   EXPECT_CALL(*logger, isValid()).WillRepeatedly(::testing::Return(true));
+
+  EXPECT_CALL(*logger, setStartProcessingTime(_, _)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*logger, setEndProcessingTime(_, _)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*logger, result(_, _, _)).WillRepeatedly(::testing::Return());
 
   std::unique_ptr<terrama2::services::analysis::core::Service> serviceAnalysis(new terrama2::services::analysis::core::Service(dataManagerAnalysis));
   serviceAnalysis->setLogger(logger);

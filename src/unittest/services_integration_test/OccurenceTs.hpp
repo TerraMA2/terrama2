@@ -41,6 +41,9 @@ class OccurenceTs: public QObject
     void collectIntersectionFile();
     std::shared_ptr<terrama2::services::analysis::core::Analysis> addAnalysisBase(std::shared_ptr<terrama2::services::analysis::core::DataManager> dataManagerAnalysis, std::string scriptAnalysis);
 
+    void collectTocantinsFTP(){ collectFTP(); }
+    void collectAndAnalysisZonal() { collectFile(); /*analysisZonal();*/}
+
   private slots:
 
     void initTestCase(){ } // Run before all tests
@@ -52,8 +55,7 @@ class OccurenceTs: public QObject
     //******Test functions********
 
     void collectTocantinsIntersectionFile(){ collectIntersectionFile(); }
-    void collectTocantinsFTP(){ collectFTP(); }
-    void collectAndAnalysisZonal() { collectFile(); /*analysisZonal();*/}
+
 };
 
 #endif //__TERRAMA2_UNITTEST_COLLECTOR_OCC_HPP__
