@@ -92,130 +92,130 @@ terrama2::services::alert::core::AlertExecutor::getResultMap(terrama2::core::Leg
   teDataset->moveBeforeFirst();
   // Get the risk for data
   while(teDataset->moveNext())
-  {
-    std::shared_ptr<te::dt::TimeInstantTZ> executionDate(static_cast<te::dt::TimeInstantTZ*>(teDataset->getDateTime(datetimeColumnName).release()));
-
-    auto it = std::find_if(vecDates.begin(), vecDates.end(),
-                           [&executionDate](std::shared_ptr<te::dt::TimeInstantTZ> const& current)
     {
-              return *current == *executionDate;
-  });
+      std::shared_ptr<te::dt::TimeInstantTZ> executionDate(static_cast<te::dt::TimeInstantTZ*>(teDataset->getDateTime(datetimeColumnName).release()));
 
-    // Only process the risk of data in stored dates
-    if(it == vecDates.end())
-      continue;
+      auto it = std::find_if(vecDates.begin(), vecDates.end(),
+                             [&executionDate](std::shared_ptr<te::dt::TimeInstantTZ> const& current)
+      {
+          return *current == *executionDate;
+    });
 
-    std::shared_ptr<te::dt::AbstractData> identifierValue = teDataset->getValue(idProperty->getName());
+      // Only process the risk of data in stored dates
+      if(it == vecDates.end())
+        continue;
 
-    // process risk level
-    uint32_t riskLevel = 0;
-    std::string riskName;
-    std::string attributeValue;
+      std::shared_ptr<te::dt::AbstractData> identifierValue = teDataset->getValue(idProperty->getName());
 
-    // create a getRisk function
-    std::tie(riskLevel, riskName, attributeValue) = getRisk(risk, teDataset, pos);
+      // process risk level
+      uint32_t riskLevel = 0;
+      std::string riskName;
+      std::string attributeValue;
 
-    auto& resultMap = riskResultMap[identifierValue->toString()];
-    auto tuple = std::make_pair(riskLevel, attributeValue);
-    resultMap[dateTimeToString(executionDate)] = tuple;
-  }
+      // create a getRisk function
+      std::tie(riskLevel, riskName, attributeValue) = getRisk(risk, teDataset, pos);
+
+      auto& resultMap = riskResultMap[identifierValue->toString()];
+      auto tuple = std::make_pair(riskLevel, attributeValue);
+      resultMap[dateTimeToString(executionDate)] = tuple;
+    }
 
   return riskResultMap;
 }
 
 std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::AlertExecutor::populateMonitoredObjectAlertDataset(std::vector<std::shared_ptr<te::dt::TimeInstantTZ> > vecDates,
-                                                                                                                       std::map<std::string /*id*/, std::map<std::string /*date*/, std::pair<uint32_t /*level*/, std::string /*value*/> > > riskResultMap,
-                                                                                                                       AlertPtr alertPtr,
-                                                                                                                       std::shared_ptr<te::dt::Property> fkProperty,
-                                                                                                                       std::shared_ptr<te::da::DataSetType> alertDataSetType)
+                                                                                                                      std::map<std::string /*id*/, std::map<std::string /*date*/, std::pair<uint32_t /*level*/, std::string /*value*/> > > riskResultMap,
+                                                                                                                      AlertPtr alertPtr,
+                                                                                                                      std::shared_ptr<te::dt::Property> fkProperty,
+                                                                                                                      std::shared_ptr<te::da::DataSetType> alertDataSetType)
 {
   std::shared_ptr<te::mem::DataSet> alertDataSet = std::make_shared<te::mem::DataSet>(alertDataSetType.get());
 
   alertDataSet->moveBeforeFirst();
   for(auto& item : riskResultMap)
-  {
-    te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(alertDataSet.get());
-
-    auto id = item.first;
-    dsItem->setString(fkProperty->getName(), id);
-
-    const auto& resultMap = item.second;
-
-    auto currentDate = *vecDates.rbegin();
-
-    std::string currentRiskProperty = dateTimeToString(currentDate);
-
-    uint32_t currentRisk = terrama2::core::DefaultRiskLevel;
-    try
     {
-      auto attrValue = resultMap.at(currentRiskProperty).second;
-      dsItem->setString(alertPtr->riskAttribute, attrValue);
+      te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(alertDataSet.get());
 
-      currentRisk = resultMap.at(currentRiskProperty).first;
-      dsItem->setInt32(currentRiskProperty, static_cast<int>(currentRisk));
-    }
-    catch (const std::out_of_range&)
-    {
-      // current date has no result data
-      dsItem->setValue(alertPtr->riskAttribute, nullptr);
-      dsItem->setValue(currentRiskProperty, nullptr);
-    }
+      auto id = item.first;
+      dsItem->setString(fkProperty->getName(), id);
 
-    if(vecDates.size() > 1)
-    {
-      auto previousDate = *(vecDates.rbegin()+1);
-      auto previousDateStr = dateTimeToString(previousDate);
+      const auto& resultMap = item.second;
 
+      auto currentDate = *vecDates.rbegin();
+
+      std::string currentRiskProperty = dateTimeToString(currentDate);
+
+      uint32_t currentRisk = terrama2::core::DefaultRiskLevel;
       try
       {
-        auto pastRisk = resultMap.at(previousDateStr).first;
-        dsItem->setInt32(previousDateStr, static_cast<int>(pastRisk));
+        auto attrValue = resultMap.at(currentRiskProperty).second;
+        dsItem->setString(alertPtr->riskAttribute, attrValue);
 
-        if(!terrama2::core::Risk::isDefault(currentRisk)
-          && !terrama2::core::Risk::isDefault(pastRisk))
-        {
-          // current date has no data
-          int comparisonResult = 0;
-          if(currentRisk < pastRisk)
-            comparisonResult = -1;
-          else if(currentRisk > pastRisk)
-            comparisonResult = 1;
-
-          dsItem->setInt32(COMPARISON_PROPERTY_NAME, comparisonResult);
-        }
-        else
-        {
-          dsItem->setValue(COMPARISON_PROPERTY_NAME, nullptr);
-        }
+        currentRisk = resultMap.at(currentRiskProperty).first;
+        dsItem->setInt32(currentRiskProperty, static_cast<int>(currentRisk));
       }
       catch (const std::out_of_range&)
       {
-        // previousDate has no data available
-        dsItem->setValue(previousDateStr, nullptr);
-        dsItem->setValue(COMPARISON_PROPERTY_NAME, nullptr);
+        // current date has no result data
+        dsItem->setValue(alertPtr->riskAttribute, nullptr);
+        dsItem->setValue(currentRiskProperty, nullptr);
       }
 
-      if(vecDates.size() > 2)
-      {
-        for(auto itDate = vecDates.rbegin()+2; itDate != vecDates.rend(); ++itDate)
+      if(vecDates.size() > 1)
         {
-          std::string dateTimeStr = dateTimeToString(*itDate);
+          auto previousDate = *(vecDates.rbegin()+1);
+          auto previousDateStr = dateTimeToString(previousDate);
+
           try
           {
-            auto risk = resultMap.at(dateTimeStr).first;
-            dsItem->setInt32(dateTimeStr, static_cast<int>(risk));
+            auto pastRisk = resultMap.at(previousDateStr).first;
+            dsItem->setInt32(previousDateStr, static_cast<int>(pastRisk));
+
+            if(!terrama2::core::Risk::isDefault(currentRisk)
+               && !terrama2::core::Risk::isDefault(pastRisk))
+              {
+                // current date has no data
+                int comparisonResult = 0;
+                if(currentRisk < pastRisk)
+                  comparisonResult = -1;
+                else if(currentRisk > pastRisk)
+                  comparisonResult = 1;
+
+                dsItem->setInt32(COMPARISON_PROPERTY_NAME, comparisonResult);
+              }
+            else
+              {
+                dsItem->setValue(COMPARISON_PROPERTY_NAME, nullptr);
+              }
           }
           catch (const std::out_of_range&)
           {
-            // itDate has no data available
-            dsItem->setValue(dateTimeStr, nullptr);
+            // previousDate has no data available
+            dsItem->setValue(previousDateStr, nullptr);
+            dsItem->setValue(COMPARISON_PROPERTY_NAME, nullptr);
           }
-        }
-      }
-    }
 
-    alertDataSet->add(dsItem);
-  }
+          if(vecDates.size() > 2)
+            {
+              for(auto itDate = vecDates.rbegin()+2; itDate != vecDates.rend(); ++itDate)
+                {
+                  std::string dateTimeStr = dateTimeToString(*itDate);
+                  try
+                  {
+                    auto risk = resultMap.at(dateTimeStr).first;
+                    dsItem->setInt32(dateTimeStr, static_cast<int>(risk));
+                  }
+                  catch (const std::out_of_range&)
+                  {
+                    // itDate has no data available
+                    dsItem->setValue(dateTimeStr, nullptr);
+                  }
+                }
+            }
+        }
+
+      alertDataSet->add(dsItem);
+    }
 
   return alertDataSet;
 }
@@ -229,45 +229,45 @@ void terrama2::services::alert::core::AlertExecutor::addAdditionalData(std::shar
 
   //iterate over the alert dataset
   for(size_t i = 0; i < alertDataSet->size(); i++)
-  {
-    alertDataSet->move(i);
-
-    //iterate over all additional dataset to fill each item
-    for(const auto& additionalData : additionalDataVector)
     {
-      std::string key = std::to_string(additionalData.dataSeriesId)+"_"+std::to_string(additionalData.dataSetId);
-      auto join = additionalDataMap.at(key);
-      join.referrerDataSet()->move(i);
+      alertDataSet->move(i);
 
-      //over each addtional dataSet get each attribute value
-      for(const std::string& propertyName : additionalData.attributes)
-      {
-        auto dataSetType = join.referredDataSetType();
-        auto referredProperty = join.getProperty(propertyName);
-
-        std::string newPropertyName = dataSetType->getName()+"_"+propertyName;
-        try
+      //iterate over all additional dataset to fill each item
+      for(const auto& additionalData : additionalDataVector)
         {
-          newPropertyName = additionalData.alias.at(propertyName);
-        }
-        catch(...)
-        {
-          //no alias for the property
-        }
+          std::string key = std::to_string(additionalData.dataSeriesId)+"_"+std::to_string(additionalData.dataSetId);
+          auto join = additionalDataMap.at(key);
+          join.referrerDataSet()->move(i);
 
-        if(propertyNames.find(newPropertyName) == propertyNames.end() )
-        {
-          // create the property in the alert dataset
-          alertDataSet->add(newPropertyName, referredProperty->getType());
-          propertyNames.insert(newPropertyName);
-        }
+          //over each addtional dataSet get each attribute value
+          for(const std::string& propertyName : additionalData.attributes)
+            {
+              auto dataSetType = join.referredDataSetType();
+              auto referredProperty = join.getProperty(propertyName);
 
-        //set property value
-        auto val = join.getValue(propertyName);
-        alertDataSet->setValue(newPropertyName, val.release());
-      }
+              std::string newPropertyName = dataSetType->getName()+"_"+propertyName;
+              try
+              {
+                newPropertyName = additionalData.alias.at(propertyName);
+              }
+              catch(...)
+              {
+                //no alias for the property
+              }
+
+              if(propertyNames.find(newPropertyName) == propertyNames.end() )
+                {
+                  // create the property in the alert dataset
+                  alertDataSet->add(newPropertyName, referredProperty->getType());
+                  propertyNames.insert(newPropertyName);
+                }
+
+              //set property value
+              auto val = join.getValue(propertyName);
+              alertDataSet->setValue(newPropertyName, val.release());
+            }
+        }
     }
-  }
 }
 
 std::shared_ptr<te::mem::DataSet>
@@ -296,10 +296,10 @@ terrama2::services::alert::core::AlertExecutor::monitoredObjectAlert(std::shared
 
   auto pos = dataSetType->getPropertyPosition(alertPtr->riskAttribute);
   if(pos == std::numeric_limits<decltype(pos)>::max())
-  {
-    TERRAMA2_LOG_ERROR() << QObject::tr("Risk attribute %1 doesn't exist in dataset %2").arg(QString::fromStdString(alertPtr->riskAttribute)).arg(dataset->id);
-    return nullptr;
-  }
+    {
+      TERRAMA2_LOG_ERROR() << QObject::tr("Risk attribute %1 doesn't exist in dataset %2").arg(QString::fromStdString(alertPtr->riskAttribute)).arg(dataset->id);
+      return nullptr;
+    }
 
   // Remove uneccessary oldest dates
   auto lastValues = *filter.lastValues;
@@ -309,18 +309,18 @@ terrama2::services::alert::core::AlertExecutor::monitoredObjectAlert(std::shared
 
   // Insert the risk properties
   for(size_t i = 0; i < vecDates.size(); i++)
-  {
-    const std::string riskLevelProperty = dateTimeToString(vecDates.at(i));
+    {
+      const std::string riskLevelProperty = dateTimeToString(vecDates.at(i));
 
-    te::dt::SimpleProperty* riskLevelProp = new te::dt::SimpleProperty(riskLevelProperty, te::dt::INT32_TYPE);
-    alertDataSetType->add(riskLevelProp);
-  }
+      te::dt::SimpleProperty* riskLevelProp = new te::dt::SimpleProperty(riskLevelProperty, te::dt::INT32_TYPE);
+      alertDataSetType->add(riskLevelProp);
+    }
 
   if(vecDates.size() > 1)
-  {
-    te::dt::SimpleProperty* comparisonPreviousProp = new te::dt::SimpleProperty(COMPARISON_PROPERTY_NAME, te::dt::INT32_TYPE);
-    alertDataSetType->add(comparisonPreviousProp);
-  }
+    {
+      te::dt::SimpleProperty* comparisonPreviousProp = new te::dt::SimpleProperty(COMPARISON_PROPERTY_NAME, te::dt::INT32_TYPE);
+      alertDataSetType->add(comparisonPreviousProp);
+    }
 
   auto riskResultMap = getResultMap(legend, pos, idProperty, datetimeColumnName, teDataset, vecDates);
   std::shared_ptr<te::mem::DataSet> alertDataSet = populateMonitoredObjectAlertDataset(vecDates, riskResultMap, alertPtr, fkProperty, alertDataSetType);
@@ -328,50 +328,50 @@ terrama2::services::alert::core::AlertExecutor::monitoredObjectAlert(std::shared
   //Creat a Join class based on the ForeignKey of the dataset
   std::unordered_map<std::string, terrama2::core::TeDataSetFKJoin> additionalDataMap;
   for(const auto& additionalData : additionalDataVector)
-  {
-    auto pair = tempAdditionalDataVector.at(additionalData.dataSeriesId);
-    auto dataSeries = pair.first;
-    auto dataProvider = pair.second;
-
-    // referred data to join to the alert data
-    terrama2::core::DataSetSeries referredDataSeries;
-    if(dataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::DCP)
     {
-      // use the dcp positions table
-      // as aditional data
-      te::core::URI uri(dataProvider->uri);
-      std::shared_ptr<te::da::DataSource> datasourceDestination(te::da::DataSourceFactory::make("POSTGIS", uri));
-      std::string destinationDataSetName = getDCPPositionsTableName(dataSeries);
-
-      auto positionsData = terrama2::core::getDCPPositionsTable(datasourceDestination, destinationDataSetName);
-
-      referredDataSeries.dataSet = nullptr;
-      referredDataSeries.syncDataSet = std::make_shared<terrama2::core::SynchronizedDataSet>(positionsData.second);
-      referredDataSeries.teDataSetType = positionsData.first;
-    }
-    else
-    {
+      auto pair = tempAdditionalDataVector.at(additionalData.dataSeriesId);
       auto dataSeries = pair.first;
-      auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(pair.second, dataSeries);
-      auto dataMap = dataAccessor->getSeries(filter, remover);
+      auto dataProvider = pair.second;
 
-      decltype(dataMap.begin()) iter;
-      if(additionalData.dataSetId == terrama2::core::InvalidId())
-      {
-        //if no dataset configured
-        iter = dataMap.begin();
-      }
-      else
-      {
-        //find selected dataset
-        iter = std::find_if(dataMap.begin(), dataMap.end(), [&additionalData](std::pair<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries> pair)
+      // referred data to join to the alert data
+      terrama2::core::DataSetSeries referredDataSeries;
+      if(dataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::DCP)
         {
-          return pair.first->id == additionalData.dataSetId;
-        });
-      }
+          // use the dcp positions table
+          // as aditional data
+          te::core::URI uri(dataProvider->uri);
+          std::shared_ptr<te::da::DataSource> datasourceDestination(te::da::DataSourceFactory::make("POSTGIS", uri));
+          std::string destinationDataSetName = getDCPPositionsTableName(dataSeries);
 
-      referredDataSeries = dataMap.at(iter->first);
-    }
+          auto positionsData = terrama2::core::getDCPPositionsTable(datasourceDestination, destinationDataSetName);
+
+          referredDataSeries.dataSet = nullptr;
+          referredDataSeries.syncDataSet = std::make_shared<terrama2::core::SynchronizedDataSet>(positionsData.second);
+          referredDataSeries.teDataSetType = positionsData.first;
+        }
+      else
+        {
+          auto dataSeries = pair.first;
+          auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(pair.second, dataSeries);
+          auto dataMap = dataAccessor->getSeries(filter, remover);
+
+          decltype(dataMap.begin()) iter;
+          if(additionalData.dataSetId == terrama2::core::InvalidId())
+            {
+              //if no dataset configured
+              iter = dataMap.begin();
+            }
+          else
+            {
+              //find selected dataset
+              iter = std::find_if(dataMap.begin(), dataMap.end(), [&additionalData](std::pair<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries> pair)
+              {
+                  return pair.first->id == additionalData.dataSetId;
+            });
+            }
+
+          referredDataSeries = dataMap.at(iter->first);
+        }
 
       terrama2::core::TeDataSetFKJoin join(alertDataSetType,
                                            alertDataSet,
@@ -382,7 +382,7 @@ terrama2::services::alert::core::AlertExecutor::monitoredObjectAlert(std::shared
 
       std::string key = std::to_string(additionalData.dataSeriesId)+"_"+std::to_string(additionalData.dataSetId);
       additionalDataMap.emplace(key, join);
-  }
+    }
 
   addAdditionalData(alertDataSet, additionalDataVector, additionalDataMap);
 
@@ -390,9 +390,9 @@ terrama2::services::alert::core::AlertExecutor::monitoredObjectAlert(std::shared
   size_t fkPos = terrama2::core::propertyPosition(alertDataSet.get(), fkProperty->getName());
 
   if( fkPos != std::numeric_limits<size_t>::max())
-  {
-    alertDataSet->drop(fkPos);
-  }
+    {
+      alertDataSet->drop(fkPos);
+    }
 
   return alertDataSet;
 }
@@ -419,8 +419,8 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::AlertExecutor
 
 struct isLesserDate
 {
-    template <class T, class U>
-    bool operator()(const T& a, const U& b){ return *a < *b;}
+  template <class T, class U>
+  bool operator()(const T& a, const U& b){ return *a < *b;}
 };
 
 std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::AlertExecutor::populateGridAlertDataset(terrama2::core::DataSetPtr dataset,
@@ -434,9 +434,9 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::AlertExecutor
   // Find raster property position
   std::size_t pos = te::da::GetFirstPropertyPos(teDataset.get(), te::dt::RASTER_TYPE);
   if(pos == std::numeric_limits<std::size_t>::max())
-  {
-    throw Exception() << ErrorDescription(QObject::tr("No raster property available."));
-  }
+    {
+      throw Exception() << ErrorDescription(QObject::tr("No raster property available."));
+    }
 
   // Create an alert te::dataset
   auto alertDataSetType = createAlertDataSetType(alertPtr, dataset);
@@ -464,61 +464,61 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::alert::core::AlertExecutor
   // iterate over all raster of the input dataset
   teDataset->moveBeforeFirst();
   while(teDataset->moveNext())
-  {
-    auto timestamp = teDataset->getDateTime(datetimeColumnName);
-
-    //check if the raster date is in vecDates (current alert dates)
-    auto validDate = boost::range::binary_search(vecDates, timestamp, isLesserDate());
-    if(!validDate)
-      continue;
-
-    //get raster
-    auto raster = teDataset->getRaster(pos);
-
-    // create new raster
-    auto bandProp = new te::rst::BandProperty(0, te::dt::UINT32_TYPE);
-    bandProp->m_blkh = 1;
-    bandProp->m_blkw = raster->getNumberOfColumns();
-    bandProp->m_nblocksx = 1;
-    bandProp->m_nblocksy = raster->getNumberOfRows();
-    bandProp->m_noDataValue = std::numeric_limits<uint32_t>::max();
-
-    std::vector<te::rst::BandProperty*> bands;
-    bands.push_back(bandProp);
-
-    auto grid = new te::rst::Grid(raster->getNumberOfColumns(), raster->getNumberOfRows(), new te::gm::Envelope(*raster->getExtent()), raster->getSRID());
-    std::unique_ptr<te::rst::Raster> alertRaster(te::rst::RasterFactory::make("EXPANSIBLE", grid, bands, {}));
-
-    auto band = raster->getBand(riskBand);
-    auto alertBand = alertRaster->getBand(0);
-
-    for(size_t r = 0; r < grid->getNumberOfRows(); ++r)
     {
-      for(size_t c = 0; c < grid->getNumberOfColumns(); ++c)
-      {
-        auto noData = band->getProperty()->m_noDataValue;
-        double value;
-        band->getValue(c, r, value);
+      auto timestamp = teDataset->getDateTime(datetimeColumnName);
 
-        if(value == noData)
-        {
-          alertBand->setValue(c, r, std::numeric_limits<uint32_t>::max());
-        }
-        else
-        {
-          auto riskTuple = legend->riskLevel(value);
-          int level = std::get<0>(riskTuple);
+      //check if the raster date is in vecDates (current alert dates)
+      auto validDate = boost::range::binary_search(vecDates, timestamp, isLesserDate());
+      if(!validDate)
+        continue;
 
-          alertBand->setValue(c, r, level);
+      //get raster
+      auto raster = teDataset->getRaster(pos);
+
+      // create new raster
+      auto bandProp = new te::rst::BandProperty(0, te::dt::UINT32_TYPE);
+      bandProp->m_blkh = 1;
+      bandProp->m_blkw = raster->getNumberOfColumns();
+      bandProp->m_nblocksx = 1;
+      bandProp->m_nblocksy = raster->getNumberOfRows();
+      bandProp->m_noDataValue = std::numeric_limits<uint32_t>::max();
+
+      std::vector<te::rst::BandProperty*> bands;
+      bands.push_back(bandProp);
+
+      auto grid = new te::rst::Grid(raster->getNumberOfColumns(), raster->getNumberOfRows(), new te::gm::Envelope(*raster->getExtent()), raster->getSRID());
+      std::unique_ptr<te::rst::Raster> alertRaster(te::rst::RasterFactory::make("EXPANSIBLE", grid, bands, {}));
+
+      auto band = raster->getBand(riskBand);
+      auto alertBand = alertRaster->getBand(0);
+
+      for(size_t r = 0; r < grid->getNumberOfRows(); ++r)
+        {
+          for(size_t c = 0; c < grid->getNumberOfColumns(); ++c)
+            {
+              auto noData = band->getProperty()->m_noDataValue;
+              double value;
+              band->getValue(c, r, value);
+
+              if(value == noData)
+                {
+                  alertBand->setValue(c, r, std::numeric_limits<uint32_t>::max());
+                }
+              else
+                {
+                  auto riskTuple = legend->riskLevel(value);
+                  int level = std::get<0>(riskTuple);
+
+                  alertBand->setValue(c, r, level);
+                }
+            }
         }
-      }
+
+      std::unique_ptr<te::mem::DataSetItem> item(new te::mem::DataSetItem(alertDataSet.get()));
+      item->setDateTime(datetimeColumnName, static_cast<te::dt::DateTime*>(timestamp->clone()));
+      item->setRaster(rasterPropName, alertRaster.release());
+      alertDataSet->add(item.release());
     }
-
-    std::unique_ptr<te::mem::DataSetItem> item(new te::mem::DataSetItem(alertDataSet.get()));
-    item->setDateTime(datetimeColumnName, static_cast<te::dt::DateTime*>(timestamp->clone()));
-    item->setRaster(rasterPropName, alertRaster.release());
-    alertDataSet->add(item.release());
-  }
 
   return alertDataSet;
 }
@@ -532,11 +532,11 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
 
   auto dataManager = weakDataManager.lock();
   if(!dataManager.get())
-  {
-    TERRAMA2_LOG_ERROR() << QObject::tr("Unable to access DataManager");
-    emit alertFinished(alertId, executionPackage.executionDate, false);
-    return;
-  }
+    {
+      TERRAMA2_LOG_ERROR() << QObject::tr("Unable to access DataManager");
+      emit alertFinished(alertId, executionPackage.executionDate, false);
+      return;
+    }
 
 
   //////////////////////////////////////////////////////////
@@ -546,11 +546,11 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
   AlertPtr alertPtr = dataManager->findAlert(alertId);
   terrama2::core::LegendPtr legend = dataManager->findLegend(alertPtr->riskId);
   if(!legend.get())
-  {
-    TERRAMA2_LOG_ERROR() << QObject::tr("Unable to find legend with id: %1").arg(alertPtr->riskId);
-    emit alertFinished(alertId, executionPackage.executionDate, false);
-    return;
-  }
+    {
+      TERRAMA2_LOG_ERROR() << QObject::tr("Unable to find legend with id: %1").arg(alertPtr->riskId);
+      emit alertFinished(alertId, executionPackage.executionDate, false);
+      return;
+    }
 
   // input data
   auto inputDataSeries = dataManager->findDataSeries(alertPtr->dataSeriesId);
@@ -560,12 +560,12 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
   std::vector<AdditionalData> additionalDataVector = alertPtr->additionalDataVector;
   std::unordered_map<DataSeriesId, std::pair<terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr> > tempAdditionalDataVector;
   for(auto additionalData : additionalDataVector)
-  {
-    auto dataSeries = dataManager->findDataSeries(additionalData.dataSeriesId);
-    auto dataProvider = dataManager->findDataProvider(dataSeries->dataProviderId);
+    {
+      auto dataSeries = dataManager->findDataSeries(additionalData.dataSeriesId);
+      auto dataProvider = dataManager->findDataProvider(dataSeries->dataProviderId);
 
-    tempAdditionalDataVector.emplace(additionalData.dataSeriesId, std::make_pair(dataSeries, dataProvider));
-  }
+      tempAdditionalDataVector.emplace(additionalData.dataSeriesId, std::make_pair(dataSeries, dataProvider));
+    }
 
   // dataManager no longer in use
   lock.unlock();
@@ -587,9 +587,9 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
     auto remover = std::make_shared<terrama2::core::FileRemover>();
     auto dataMap = dataAccessor->getSeries(filter, remover);
     if(dataMap.empty())
-    {
-      throw Exception() << ErrorDescription("No data to available.");
-    }
+      {
+        throw Exception() << ErrorDescription("No data to available.");
+      }
 
     // Flag to check if at least one alert was generated
     bool alertGenerated = false;
@@ -597,187 +597,187 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
     bool notify = false;
 
     for(const auto& data : dataMap)
-    {
-      auto dataset = data.first;
-      auto dataSeries = data.second;
-
-      auto teDataset = dataSeries.syncDataSet->dataset();
-      auto dataSetType = dataSeries.teDataSetType;
-
-      // Get the datetime column name in teDataSet for filters
-      std::string datetimeColumnName = "";
-
-      try
       {
-        datetimeColumnName = dataAccessor->getTimestampPropertyName(dataset, false);
-      }
-      catch(const terrama2::core::UndefinedTagException& /*e*/)
-      {
-        // do nothing
-      }
+        auto dataset = data.first;
+        auto dataSeries = data.second;
 
-      if(datetimeColumnName.empty())
-      {
-        auto property = dataSetType->findFirstPropertyOfType(te::dt::DATETIME_TYPE);
+        auto teDataset = dataSeries.syncDataSet->dataset();
+        auto dataSetType = dataSeries.teDataSetType;
 
-        if(property)
-        {
-          datetimeColumnName = property->getName();
-        }
-      }
+        // Get the datetime column name in teDataSet for filters
+        std::string datetimeColumnName = "";
 
-      if(datetimeColumnName.empty())
-      {
-        throw Exception() << ErrorDescription(QObject::tr("Unable to identify timestamp column."));
-      }
-
-      // Store execution dates of dataset, ASC order
-      std::vector<std::shared_ptr<te::dt::TimeInstantTZ> > vecDates = terrama2::core::getAllDates(teDataset.get(),
-                                                                                                  datetimeColumnName);
-
-      std::shared_ptr<te::mem::DataSet> alertDataSet;
-      if(inputDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT)
-      {
-
-        ////////////////////////////////////
-        // Include identifier attribute to alert aditional data
-
-        AdditionalData indentifierData;
         try
         {
-          indentifierData.dataSeriesId = static_cast<DataSeriesId>(std::stoi(dataset->format.at("monitored_object_id")));
-          auto attribute = dataset->format.at("monitored_object_pk");
-          indentifierData.attributes.push_back(attribute);
-          indentifierData.alias.emplace(attribute, attribute);
+          datetimeColumnName = dataAccessor->getTimestampPropertyName(dataset, false);
+        }
+        catch(const terrama2::core::UndefinedTagException& /*e*/)
+        {
+          // do nothing
+        }
 
-          auto moDataSeries = dataManager->findDataSeries(indentifierData.dataSeriesId);
-          auto moDataProvider = dataManager->findDataProvider(moDataSeries->dataProviderId);
-
-          std::shared_ptr<te::da::DataSetType> moDataSetType;
-          te::dt::Property *idProperty = nullptr;
-
-          if(moDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::DCP)
+        if(datetimeColumnName.empty())
           {
-            te::core::URI uri(moDataProvider->uri);
-            std::shared_ptr<te::da::DataSource> datasourceDestination(te::da::DataSourceFactory::make("POSTGIS", uri));
-            std::string destinationDataSetName = getDCPPositionsTableName(moDataSeries);
-            auto positionsData = terrama2::core::getDCPPositionsTable(datasourceDestination, destinationDataSetName);
-            moDataSetType = positionsData.first;
+            auto property = dataSetType->findFirstPropertyOfType(te::dt::DATETIME_TYPE);
 
-            auto moPk = moDataSetType->getPrimaryKey();
-            auto properties = moPk->getProperties();
-            if(properties.size() != 1)
-            {
-              throw Exception() << ErrorDescription(QObject::tr("Invalid monitored object identifier attribute."));
-            }
-
-            idProperty = properties.front();
-          }
-          else
-          {
-            auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(moDataProvider, moDataSeries);
-            terrama2::core::Filter moFilter;
-            moFilter.lastValues = std::make_shared<size_t>(1);
-            auto dataMap = dataAccessor->getSeries(moFilter, remover);
-            if(dataMap.size() != 1)
-            {
-              throw Exception() << ErrorDescription(QObject::tr("Invalid monitored object dataseries."));
-            }
-
-            moDataSetType = (*dataMap.begin()).second.teDataSetType;
-            auto moPk = moDataSetType->getPrimaryKey();
-            auto properties = moPk->getProperties();
-            if(properties.size() != 1)
-            {
-              throw Exception() << ErrorDescription(QObject::tr("Invalid monitored object identifier attribute."));
-            }
-
-            idProperty = properties.front();
+            if(property)
+              {
+                datetimeColumnName = property->getName();
+              }
           }
 
-          if(!moDataSetType || !idProperty)
+        if(datetimeColumnName.empty())
           {
-            throw Exception() << ErrorDescription(QObject::tr("Invalid monitored object identifier attribute."));
+            throw Exception() << ErrorDescription(QObject::tr("Unable to identify timestamp column."));
           }
 
-          indentifierData.referrerAttribute = idProperty->getName();
-          indentifierData.referredAttribute = idProperty->getName();
+        // Store execution dates of dataset, ASC order
+        std::vector<std::shared_ptr<te::dt::TimeInstantTZ> > vecDates = terrama2::core::getAllDates(teDataset.get(),
+                                                                                                    datetimeColumnName);
 
-          additionalDataVector.push_back(indentifierData);
+        std::shared_ptr<te::mem::DataSet> alertDataSet;
+        if(inputDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT)
+          {
 
-          tempAdditionalDataVector.emplace(indentifierData.dataSeriesId, std::make_pair(moDataSeries, moDataProvider));
+            ////////////////////////////////////
+            // Include identifier attribute to alert aditional data
 
-          alertDataSet = monitoredObjectAlert(dataSetType,
-                                              datetimeColumnName,
-                                              vecDates,
-                                              alertPtr,
-                                              legend,
-                                              filter,
-                                              dataset,
-                                              teDataset,
-                                              idProperty,
-                                              additionalDataVector,
-                                              tempAdditionalDataVector,
-                                              remover);
+            AdditionalData indentifierData;
+            try
+            {
+              indentifierData.dataSeriesId = static_cast<DataSeriesId>(std::stoi(dataset->format.at("monitored_object_id")));
+              auto attribute = dataset->format.at("monitored_object_pk");
+              indentifierData.attributes.push_back(attribute);
+              indentifierData.alias.emplace(attribute, attribute);
 
-        }
-        catch(const std::out_of_range&)
-        {
-          throw Exception() << ErrorDescription(QObject::tr("Internal error.\nIncomplete monitored object information."));
-        }
-        ////////////////////////////////////
+              auto moDataSeries = dataManager->findDataSeries(indentifierData.dataSeriesId);
+              auto moDataProvider = dataManager->findDataProvider(moDataSeries->dataProviderId);
+
+              std::shared_ptr<te::da::DataSetType> moDataSetType;
+              te::dt::Property *idProperty = nullptr;
+
+              if(moDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::DCP)
+                {
+                  te::core::URI uri(moDataProvider->uri);
+                  std::shared_ptr<te::da::DataSource> datasourceDestination(te::da::DataSourceFactory::make("POSTGIS", uri));
+                  std::string destinationDataSetName = getDCPPositionsTableName(moDataSeries);
+                  auto positionsData = terrama2::core::getDCPPositionsTable(datasourceDestination, destinationDataSetName);
+                  moDataSetType = positionsData.first;
+
+                  auto moPk = moDataSetType->getPrimaryKey();
+                  auto properties = moPk->getProperties();
+                  if(properties.size() != 1)
+                    {
+                      throw Exception() << ErrorDescription(QObject::tr("Invalid monitored object identifier attribute."));
+                    }
+
+                  idProperty = properties.front();
+                }
+              else
+                {
+                  auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(moDataProvider, moDataSeries);
+                  terrama2::core::Filter moFilter;
+                  moFilter.lastValues = std::make_shared<size_t>(1);
+                  auto dataMap = dataAccessor->getSeries(moFilter, remover);
+                  if(dataMap.size() != 1)
+                    {
+                      throw Exception() << ErrorDescription(QObject::tr("Invalid monitored object dataseries."));
+                    }
+
+                  moDataSetType = (*dataMap.begin()).second.teDataSetType;
+                  auto moPk = moDataSetType->getPrimaryKey();
+                  auto properties = moPk->getProperties();
+                  if(properties.size() != 1)
+                    {
+                      throw Exception() << ErrorDescription(QObject::tr("Invalid monitored object identifier attribute."));
+                    }
+
+                  idProperty = properties.front();
+                }
+
+              if(!moDataSetType || !idProperty)
+                {
+                  throw Exception() << ErrorDescription(QObject::tr("Invalid monitored object identifier attribute."));
+                }
+
+              indentifierData.referrerAttribute = idProperty->getName();
+              indentifierData.referredAttribute = idProperty->getName();
+
+              additionalDataVector.push_back(indentifierData);
+
+              tempAdditionalDataVector.emplace(indentifierData.dataSeriesId, std::make_pair(moDataSeries, moDataProvider));
+
+              alertDataSet = monitoredObjectAlert(dataSetType,
+                                                  datetimeColumnName,
+                                                  vecDates,
+                                                  alertPtr,
+                                                  legend,
+                                                  filter,
+                                                  dataset,
+                                                  teDataset,
+                                                  idProperty,
+                                                  additionalDataVector,
+                                                  tempAdditionalDataVector,
+                                                  remover);
+
+            }
+            catch(const std::out_of_range&)
+            {
+              throw Exception() << ErrorDescription(QObject::tr("Internal error.\nIncomplete monitored object information."));
+            }
+            ////////////////////////////////////
+          }
+        else if (inputDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::GRID)
+          {
+            alertDataSet = gridAlert( dataSetType,
+                                      datetimeColumnName,
+                                      vecDates,
+                                      alertPtr,
+                                      legend,
+                                      filter,
+                                      dataset,
+                                      teDataset);
+          }
+
+        if(alertDataSet->isEmpty())
+          {
+            throw Exception() << ErrorDescription(QObject::tr("No alert data for %1 data series.").arg(dataset->dataSeriesId));
+          }
+
+        te::core::URI imageUri;
+        if(alertPtr->view)
+          {
+            try
+            {
+              imageUri = generateImage(alertPtr, remover);
+            }
+            catch (const ImageGenerationException&)
+            {
+              /* code */
+            }
+          }
+
+        ReportPtr reportPtr = std::make_shared<Report>(alertPtr, legend, inputDataSeries, alertDataSet, vecDates);
+        reportPtr->includeImage(imageUri);
+        for(const auto& notification : alertPtr->notifications)
+          {
+            //check if should emit a notification
+            if((reportPtr->maxRisk() != terrama2::core::DefaultRiskLevel && notification.notifyOnRiskLevel <= reportPtr->maxRisk())
+               || (notification.notifyOnChange && reportPtr->riskChanged()))
+              {
+                notify = true;
+                sendNotification(serverMap, reportPtr, notification, executionPackage, logger);
+              }
+          }
+
+        alertGenerated = true;
       }
-      else if (inputDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::GRID)
-      {
-        alertDataSet = gridAlert( dataSetType,
-                                  datetimeColumnName,
-                                  vecDates,
-                                  alertPtr,
-                                  legend,
-                                  filter,
-                                  dataset,
-                                  teDataset);
-      }
-
-      if(alertDataSet->isEmpty())
-      {
-        throw Exception() << ErrorDescription(QObject::tr("No alert data for %1 data series.").arg(dataset->dataSeriesId));
-      }
-
-      te::core::URI imageUri;
-      if(alertPtr->view)
-      {
-        try
-        {
-          imageUri = generateImage(alertPtr, remover);
-        }
-        catch (const ImageGenerationException&)
-        {
-          /* code */
-        }
-      }
-
-      ReportPtr reportPtr = std::make_shared<Report>(alertPtr, legend, inputDataSeries, alertDataSet, vecDates);
-      reportPtr->includeImage(imageUri);
-      for(const auto& notification : alertPtr->notifications)
-      {
-        //check if should emit a notification
-        if((reportPtr->maxRisk() != terrama2::core::DefaultRiskLevel && notification.notifyOnRiskLevel <= reportPtr->maxRisk())
-            || (notification.notifyOnChange && reportPtr->riskChanged()))
-        {
-          notify = true;
-          sendNotification(serverMap, reportPtr, notification, executionPackage, logger);
-        }
-      }
-
-      alertGenerated = true;
-    }
 
     // check if at least one alert was generated
     if(!alertGenerated)
-    {
-      throw Exception() << ErrorDescription(QObject::tr("No alert was generated."));
-    }
+      {
+        throw Exception() << ErrorDescription(QObject::tr("No alert was generated."));
+      }
 
     auto processingEndTime = terrama2::core::TimeUtils::nowUTC();
 
@@ -825,11 +825,11 @@ te::core::URI terrama2::services::alert::core::AlertExecutor::generateImage(Aler
 {
   const auto& view = *alertPtr->view;
   if(view.views.empty())
-  {
-    QString errMsg("Empty list of layers.");
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw ImageGenerationException() << ErrorDescription(errMsg);
-  }
+    {
+      QString errMsg("Empty list of layers.");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw ImageGenerationException() << ErrorDescription(errMsg);
+    }
 
   //build request
   auto geoserverUri = view.geoserverUri;
@@ -837,22 +837,22 @@ te::core::URI terrama2::services::alert::core::AlertExecutor::generateImage(Aler
 
   // Configure image size
   geoserverUri+= "&width="+std::to_string(view.width)
-                 +"&height="+std::to_string(view.height);
+      +"&height="+std::to_string(view.height);
 
   const auto& lowerLeftCorner = view.lowerLeftCorner;
   const auto& topRightCorner = view.topRightCorner;
   // Configure bounding box
   geoserverUri+= "&bbox="+std::to_string(lowerLeftCorner->getX())
-                 +","+std::to_string(lowerLeftCorner->getY())
-                 +","+std::to_string(topRightCorner->getX())
-                 +","+std::to_string(topRightCorner->getY());
+      +","+std::to_string(lowerLeftCorner->getY())
+      +","+std::to_string(topRightCorner->getX())
+      +","+std::to_string(topRightCorner->getY());
 
   //add layers to request
   geoserverUri+="&layers=";
   for(auto layer = view.views.crbegin(); layer < view.views.crend(); ++layer)
-  {
-    geoserverUri+=layer->second+":view"+std::to_string(layer->first)+",";
-  }
+    {
+      geoserverUri+=layer->second+":view"+std::to_string(layer->first)+",";
+    }
   // remove last comma
   geoserverUri.pop_back();
 
@@ -877,18 +877,18 @@ te::core::URI terrama2::services::alert::core::AlertExecutor::generateImage(Aler
   auto imagePath = downloadBaseDir.string()+"/"+imageName;
   remover->addTemporaryFile(imagePath);
 
-// download image
+  // download image
   try
   {
     terrama2::core::CurlWrapperHttp curl;
     curl.downloadFile(geoserverUri, imagePath);
 
     if(curl.responseCode() != 200)
-    {
-      QString errMsg("Error retrieving image.");
-      TERRAMA2_LOG_ERROR() << errMsg;
-      throw ImageGenerationException() << ErrorDescription(errMsg);
-    }
+      {
+        QString errMsg("Error retrieving image.");
+        TERRAMA2_LOG_ERROR() << errMsg;
+        throw ImageGenerationException() << ErrorDescription(errMsg);
+      }
   } catch (const te::core::Exception&) {
     return te::core::URI();
   }
@@ -907,9 +907,9 @@ te::core::URI terrama2::services::alert::core::AlertExecutor::makeDocument(Repor
     QString errMsg("Error: ");
     const auto msg = boost::get_error_info<terrama2::ErrorDescription>(e);
     if (msg != nullptr)
-    {
-      errMsg.append(msg);
-    }
+      {
+        errMsg.append(msg);
+      }
 
     logger->log(AlertLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -928,26 +928,26 @@ void terrama2::services::alert::core::AlertExecutor::sendNotification(const std:
   try
   {
     if(serverMap.empty())
-    {
-      QString errMsg("No message server configured");
-      logger->log(AlertLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
-      TERRAMA2_LOG_ERROR() << errMsg;
-    }
+      {
+        QString errMsg("No message server configured");
+        logger->log(AlertLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+        TERRAMA2_LOG_ERROR() << errMsg;
+      }
     else
-    {
-      NotifierPtr notifierPtr = NotifierFactory::getInstance().make("EMAIL", serverMap, reportPtr);
-      notifierPtr->send(notification,
-                        documentURI);
-    }
+      {
+        NotifierPtr notifierPtr = NotifierFactory::getInstance().make("EMAIL", serverMap, reportPtr);
+        notifierPtr->send(notification,
+                          documentURI);
+      }
   }
   catch(const NotifierException& e)
   {
     QString errMsg("Error: ");
     const auto msg = boost::get_error_info<terrama2::ErrorDescription>(e);
     if (msg != nullptr)
-    {
-      errMsg.append(msg);
-    }
+      {
+        errMsg.append(msg);
+      }
 
     logger->log(AlertLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -960,15 +960,15 @@ terrama2::services::alert::core::AlertExecutor::getRisk(terrama2::core::LegendPt
   double value;
   std::string strValue;
   if(teDataSet->isNull(pos))
-  {
-   value = std::numeric_limits<double>::max();
-   strValue = "NULL";
-  }
+    {
+      value = std::numeric_limits<double>::max();
+      strValue = "NULL";
+    }
   else
-  {
-    value = teDataSet->getDouble(pos);
-    strValue = std::to_string(value);
-  }
+    {
+      value = teDataSet->getDouble(pos);
+      strValue = std::to_string(value);
+    }
 
   auto level = legend->riskLevel(value);
   return std::make_tuple(std::get<0>(level), std::get<1>(level), strValue);
