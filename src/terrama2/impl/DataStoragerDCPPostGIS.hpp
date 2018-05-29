@@ -63,6 +63,7 @@ namespace terrama2
         const std::string ID_PROPERTY_NAME = "id";
         const std::string GEOM_PROPERTY_NAME = "geom";
         const std::string TABLE_NAME_PROPERTY_NAME = "table_name";
+        const std::string ALIAS_PROPERTY_NAME = "alias";
     };
   }
 }
