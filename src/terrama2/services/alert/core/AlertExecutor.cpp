@@ -650,26 +650,52 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
           indentifierData.attributes.push_back(attribute);
           indentifierData.alias.emplace(attribute, attribute);
 
-          auto dataSeries = dataManager->findDataSeries(indentifierData.dataSeriesId);
-          auto dataProvider = dataManager->findDataProvider(dataSeries->dataProviderId);
+          auto moDataSeries = dataManager->findDataSeries(indentifierData.dataSeriesId);
+          auto moDataProvider = dataManager->findDataProvider(moDataSeries->dataProviderId);
 
-          auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeries);
-          terrama2::core::Filter moFilter;
-          moFilter.lastValues = std::make_shared<size_t>(1);
-          auto dataMap = dataAccessor->getSeries(moFilter, remover);
-          if(dataMap.size() != 1)
+          std::shared_ptr<te::da::DataSetType> moDataSetType;
+          te::dt::Property *idProperty = nullptr;
+
+          if(moDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::DCP)
           {
-            throw Exception() << ErrorDescription(QObject::tr("Invalid monitored object dataseries."));
+            te::core::URI uri(moDataProvider->uri);
+            std::shared_ptr<te::da::DataSource> datasourceDestination(te::da::DataSourceFactory::make("POSTGIS", uri));
+            std::string destinationDataSetName = getDCPPositionsTableName(moDataSeries);
+            auto positionsData = terrama2::core::getDCPPositionsTable(datasourceDestination, destinationDataSetName);
+            moDataSetType = positionsData.first;
+
+            auto moPk = moDataSetType->getPrimaryKey();
+            auto properties = moPk->getProperties();
+            if(properties.size() != 1)
+            {
+              throw Exception() << ErrorDescription(QObject::tr("Invalid monitored object identifier attribute."));
+            }
+
+            idProperty = properties.front();
+          }
+          else
+          {
+            auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(moDataProvider, moDataSeries);
+            terrama2::core::Filter moFilter;
+            moFilter.lastValues = std::make_shared<size_t>(1);
+            auto dataMap = dataAccessor->getSeries(moFilter, remover);
+            if(dataMap.size() != 1)
+            {
+              throw Exception() << ErrorDescription(QObject::tr("Invalid monitored object dataseries."));
+            }
+
+            moDataSetType = (*dataMap.begin()).second.teDataSetType;
+            auto moPk = moDataSetType->getPrimaryKey();
+            auto properties = moPk->getProperties();
+            if(properties.size() != 1)
+            {
+              throw Exception() << ErrorDescription(QObject::tr("Invalid monitored object identifier attribute."));
+            }
+
+            idProperty = properties.front();
           }
 
-          auto moPk = (*dataMap.begin()).second.teDataSetType->getPrimaryKey();
-          auto properties = moPk->getProperties();
-          if(properties.size() != 1)
-          {
-            throw Exception() << ErrorDescription(QObject::tr("Invalid monitored object identifier attribute."));
-          }
-          auto idProperty = properties.front();
-          if(!idProperty)
+          if(!moDataSetType || !idProperty)
           {
             throw Exception() << ErrorDescription(QObject::tr("Invalid monitored object identifier attribute."));
           }
@@ -679,7 +705,7 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
 
           additionalDataVector.push_back(indentifierData);
 
-          tempAdditionalDataVector.emplace(indentifierData.dataSeriesId, std::make_pair(dataSeries, dataProvider));
+          tempAdditionalDataVector.emplace(indentifierData.dataSeriesId, std::make_pair(moDataSeries, moDataProvider));
 
           alertDataSet = monitoredObjectAlert(dataSetType,
                                               datetimeColumnName,

@@ -290,7 +290,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
       std::string SQL = "SELECT t.id, t.geom, t.timestamp, t.var as "+variable+" from dcp_last_measures('"+dcpPositions.tableName+"', '"+variable+"')"
                         "AS t(id integer, geom geometry, \"timestamp\" timestamp with time zone, var double precision)";
 
-      std::unique_ptr<te::da::DataSetType> modelDataSetType(dcpPositions.dataSetType.release());
+      std::unique_ptr<te::da::DataSetType> modelDataSetType = std::move(dcpPositions.dataSetType);
 
       TableInfo tableInfo = DataAccess::getDCPPostgisTableInfo(inputDataSeries, inputObjectProvider);
       std::string layerName = viewLayerName(viewPtr);
