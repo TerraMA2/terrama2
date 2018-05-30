@@ -73,8 +73,8 @@ namespace terrama2
 
     struct DataSeries
     {
-      DataSeriesId id = 0; //!< The identifier of the DataSeries.
-      DataProviderId dataProviderId = 0; //!< The identifier of the DataProvider
+      DataSeriesId id = terrama2::core::InvalidId(); //!< The identifier of the DataSeries.
+      DataProviderId dataProviderId = terrama2::core::InvalidId(); //!< The identifier of the DataProvider
       DataSeriesSemantics semantics; //!< Semantics of the DataSeries.
       std::string name; //!< Name of the DataSeries, must be unique.
       std::string description; //!< Description of the DataSeries.

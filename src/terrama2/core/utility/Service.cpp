@@ -71,7 +71,7 @@ void terrama2::core::Service::start(size_t threadNumber)
     mainLoopThread_ = std::async(std::launch::async, &Service::mainLoopThread, this);
 
     //check for the number o threads to create
-    threadNumber = verifyNumberOfThreads(threadNumber);
+    threadNumber = verifyNumberOfThreads(threadNumber, 4);
 
     //Starts collection threads
     for(uint i = 0; i < threadNumber; ++i)
@@ -85,16 +85,18 @@ void terrama2::core::Service::start(size_t threadNumber)
     TERRAMA2_LOG_ERROR() << errMsg;
     throw ServiceException() << ErrorDescription(errMsg);
   }
-
+ 
   TERRAMA2_LOG_DEBUG() << tr("Actual number of threads: %1").arg(processingThreadPool_.size());
 }
 
-size_t terrama2::core::Service::verifyNumberOfThreads(size_t numberOfThreads) const
+size_t terrama2::core::Service::verifyNumberOfThreads(size_t numberOfThreads, size_t maxNumberOfThreads) const
 {
   if(numberOfThreads == 0)
     numberOfThreads = std::thread::hardware_concurrency(); //looks for how many threads the hardware support
   if(numberOfThreads == 0)
     numberOfThreads = 1; //if not able to find out set to 1
+  if(maxNumberOfThreads > 0 && numberOfThreads > maxNumberOfThreads)
+    numberOfThreads = maxNumberOfThreads;
 
   return numberOfThreads;
 }
@@ -352,9 +354,7 @@ void terrama2::core::Service::addReprocessingToQueue(ProcessPtr process) noexcep
 
 void terrama2::core::Service::erasePreviousResult(ProcessPtr /*process*/, std::shared_ptr<te::dt::TimeInstantTZ> /*timestamp*/) const
 {
-  QString errMsg = QObject::tr("Erase previous results not implemente for this service.");
-  TERRAMA2_LOG_ERROR() << errMsg;
-  throw terrama2::core::FunctionNotImplementedException() << ErrorDescription(errMsg);
+  // reimplement as needed in other services
 }
 
 void terrama2::core::Service::addProcessToSchedule(ProcessPtr process) noexcept

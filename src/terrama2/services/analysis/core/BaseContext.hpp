@@ -182,7 +182,7 @@ namespace terrama2
             std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > getSeriesMap(DataSeriesId dataSeriesId,
                 const terrama2::core::Filter& filter = terrama2::core::Filter());
 
-            std::unique_ptr<te::dt::TimeInstantTZ> getTimeFromString(const std::string& timeString) const;
+            std::unique_ptr<te::dt::TimeInstantTZ> getTimeFromString(std::string timeString) const;
 
 
 

@@ -57,5 +57,7 @@ bool terrama2::core::DataAccessorDcp::intersects(DataSetPtr dataset, const Filte
   auto dataSetDcp =std::dynamic_pointer_cast<const DataSetDcp>(dataset);
   assert(dataSetDcp.get());
   assert(dataSetDcp->position);
-  return dataSetDcp->position->intersects(filter.region.get());
+  std::unique_ptr<te::gm::Point> position(static_cast<te::gm::Point*>(dataSetDcp->position->clone()));
+  position->transform(filter.region->getSRID());
+  return position->intersects(filter.region.get());
 }

@@ -643,7 +643,7 @@ void terrama2::core::ProcessLogger::updateData(const ProcessId registerId, const
   }
 
   QJsonDocument doc(obj);
-  QByteArray json = doc.toJson();
+  QByteArray json = doc.toJson(QJsonDocument::Compact);
 
   boost::format query("UPDATE "+ tableName_ + " SET data='%1%' WHERE id =" + QString::number(registerId).toStdString());
 

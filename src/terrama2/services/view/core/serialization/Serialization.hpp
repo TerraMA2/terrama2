@@ -63,8 +63,9 @@ namespace terrama2
                */
               static std::unique_ptr<te::se::Style> readVectorialStyleXML(const std::string path);
 
-              static void writeCoverageStyleGeoserverXML(const View::Legend legend,
-                                                         const std::string path);
+              static void writeCoverageStyleGeoserverXML(const View::Legend& legend,
+                                                         const std::string& path,
+                                                         const bool useDummy = true);
 
           };
       } // end namespace core

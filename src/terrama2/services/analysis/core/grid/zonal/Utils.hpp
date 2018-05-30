@@ -35,13 +35,14 @@
 #include <string>
 #include <vector>
 #include <memory>
-#include <map>
+#include <unordered_map>
 
 #include <QObject>
 
 #include <terralib/raster/PositionIterator.h>
 
 #include "../../Exception.hpp"
+#include "../../BufferMemory.hpp"
 #include "../../../../../core/utility/BitsetIntersection.hpp"
 #include "../../../../../core/utility/GeoUtils.hpp"
 
@@ -192,9 +193,11 @@ terrama2::services::analysis::core::grid::zonal::utils::getAccumulatedMap(
     }
 
     auto firstRaster = rasterList.front();
+    auto extent = firstRaster->getExtent();
 
+    extent->transform(firstRaster->getSRID(), geomResult->getSRID());
     //no intersection between the raster and the object geometry
-    if(!firstRaster->getExtent()->intersects(*geomResult->getMBR()))
+    if(!extent->intersects(*geomResult->getMBR()))
       continue;
 
     geomResult->transform(firstRaster->getSRID());

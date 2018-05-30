@@ -241,6 +241,12 @@ namespace terrama2
              */
             void registerStyleFile(const std::string& name, const std::string& styleFilePath) const;
 
+            void registerLegendCoverageStyle(const std::string& name,
+                                             const View::Legend& legend) const;
+
+            void registerCoverageStyle(const std::string& name,
+                                       const View::Legend& legend,
+                                       bool useDummy = true) const;
             /*!
              * \brief Method to register a style in the GeoServer from a TerraLib Style object
              * \param name The name of the style

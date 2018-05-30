@@ -67,7 +67,8 @@ namespace terrama2
             TMANALYSISEXPORT double operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
                                 const std::string& dataSeriesName,
                                 const size_t band,
-                                terrama2::services::analysis::core::Buffer buffer);
+                                terrama2::services::analysis::core::Buffer buffer,
+                                std::function<bool(double)> removeCondition = nullptr);
 
             TMANALYSISEXPORT double operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
                                 const std::string& dataSeriesName,
@@ -75,7 +76,8 @@ namespace terrama2
                                 const size_t band,
                                 terrama2::services::analysis::core::Buffer buffer,
                                 terrama2::services::analysis::core::MonitoredObjectContextPtr context,
-                                OperatorCache cache);
+                                OperatorCache cache,
+                                std::function<bool(double)> removeCondition = nullptr);
 
             /*!
               \brief Calculates the number of pixels inside the monitored object.
@@ -87,6 +89,9 @@ namespace terrama2
               \return A int value with the result.
             */
             TMANALYSISEXPORT double count(const std::string& dataSeriesName, const size_t band = 0, terrama2::services::analysis::core::Buffer buffer = Buffer());
+
+            TMANALYSISEXPORT double countByValue(const std::string& dataSeriesName, const double value, const size_t band = 0, terrama2::services::analysis::core::Buffer buffer = Buffer());
+            TMANALYSISEXPORT double countByRange(const std::string& dataSeriesName, const double begin, const double end, const size_t band = 0, terrama2::services::analysis::core::Buffer buffer = Buffer());
 
             /*!
               \brief Calculates the sum of zonal grid data.
