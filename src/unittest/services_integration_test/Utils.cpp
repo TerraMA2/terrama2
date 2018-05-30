@@ -68,7 +68,7 @@ void utilsTS::database::interpreterScriptPy(std::string path)
   std::string scriptPath = terrama2::core::FindInTerraMA2Path(path);
   std::string script = terrama2::core::readFileContents(scriptPath);
   auto interpreter = terrama2::core::InterpreterFactory::getInstance().make("PYTHON");
-  interpreter->setString("dbname","test");
+  interpreter->setString("dbname",TERRAMA2_DATABASE_DBNAME);
   interpreter->runScript(script);
 }
 
@@ -81,7 +81,7 @@ int utilsTS::database::compareCollector(std::string type)
    std::string script = terrama2::core::readFileContents(scriptPath);
 
    auto interpreter = terrama2::core::InterpreterFactory::getInstance().make("PYTHON");
-   interpreter->setString("dbname", "test");
+   interpreter->setString("dbname", TERRAMA2_DATABASE_DBNAME);
    interpreter->setString("typeAnalysis", type);
    interpreter->runScript(script);
 
@@ -102,7 +102,7 @@ void utilsTS::database::restoreDB(std::string typeAnalysis)
   std::string script = terrama2::core::readFileContents(scriptPath);
 
   auto interpreter = terrama2::core::InterpreterFactory::getInstance().make("PYTHON");
-  interpreter->setString("dbname","test");
+  interpreter->setString("dbname",TERRAMA2_DATABASE_DBNAME);
 
   if(typeAnalysis == utilsTS::typecollectoranalysis::dcp_history || typeAnalysis == utilsTS::typecollectoranalysis::operator_dcp || typeAnalysis == utilsTS::typecollectoranalysis::operator_history_interval)
   {
@@ -133,7 +133,7 @@ int utilsTS::database::compareAnalysis(std::string typeAnalysis)
   std::string script = terrama2::core::readFileContents(scriptPath);
 
   auto interpreter = terrama2::core::InterpreterFactory::getInstance().make("PYTHON");
-  interpreter->setString("dbname","test");
+  interpreter->setString("dbname",TERRAMA2_DATABASE_DBNAME);
   interpreter->setString("typeAnalysis", typeAnalysis);
 
 
@@ -153,7 +153,7 @@ int utilsTS::database::compareAnalysis(std::string typeAnalysis)
 
 void utilsTS::database::deleteDB()
 {
-  // interpreterScriptPy("share/terrama2/scripts/delete-db.py");
+   interpreterScriptPy("share/terrama2/scripts/delete-db.py");
 }
 
 void utilsTS::database::createDB()

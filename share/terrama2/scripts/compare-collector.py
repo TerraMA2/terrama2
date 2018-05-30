@@ -7,6 +7,8 @@ def checkTable(query):
     cur = conn.cursor()
     cur.execute(query)
     rows = cur.fetchall()
+    cur.close()
+    conn.close()
     if rows:
         status = 0
     else:

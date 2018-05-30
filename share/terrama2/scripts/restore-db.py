@@ -7,7 +7,8 @@ conn = psycopg2.connect("dbname='"+dbname+"' user='postgres' password='postgres'
 conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
 cur = conn.cursor()
 
-command = ["/usr/bin/pg_restore", "-h", "localhost", "-p", "5432", "-U", "postgres", "-d", "test", "-v", namefile]
-process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+command = ["/usr/bin/pg_restore", "-h", "localhost", "-p", "5432", "-U", "postgres", "-d", dbname, "-v", namefile]
+process = subprocess.check_call(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 cur.close()
+conn.close()
 

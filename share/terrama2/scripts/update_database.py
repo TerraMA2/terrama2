@@ -71,6 +71,8 @@ with open(terrama2_basepath + "/share/terrama2/version.json") as version_file:
                     current_patch = 0
                     current_tag = 'release'
                     current_database = 0
+                cursor.close()
+                conn.close()
 
                 print("Current version: " + str(current_major) + "." +
                       str(current_minor) + "." + str(current_patch) + "-" +

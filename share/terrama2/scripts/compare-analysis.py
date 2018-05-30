@@ -8,6 +8,7 @@ def checkTable(query):
     cur.execute(query)
     rows = cur.fetchall()
     cur.close()
+    conn.close()
     if rows:
 	    return 0
     else:
